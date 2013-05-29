@@ -101,6 +101,8 @@ class Artist(object):
         self._url = None
         self._gid = None
         self._snap = None
+        self._sketch = rcParams['path.sketch']
+        self._path_effects = rcParams['path.effects']
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -179,6 +181,15 @@ class Artist(object):
         resides in, or *None*
         """
         return self.axes
+
+    def get_window_extent(self, renderer):
+        """
+        Get the axes bounding box in display space.
+        Subclasses should override for inclusion in the bounding box
+        "tight" calculation. Default is to return an empty bounding
+        box at 0, 0.
+        """
+        return Bbox([[0, 0], [0, 0]])
 
     def add_callback(self, func):
         """
@@ -336,7 +347,7 @@ class Artist(object):
             ax = getattr(a, 'axes', None)
             if mouseevent.inaxes is None or mouseevent.inaxes == ax:
                 # we need to check if mouseevent.inaxes is None
-                # because some objects associated with an axes (eg a
+                # because some objects associated with an axes (e.g., a
                 # tick label) can be outside the bounding box of the
                 # axes and inaxes will be None
                 a.pick(mouseevent)
@@ -358,7 +369,7 @@ class Artist(object):
             off an event if it's data is within epsilon of the mouse
             event.  For some artists like lines and patch collections,
             the artist may provide additional data to the pick event
-            that is generated, e.g. the indices of the data within
+            that is generated, e.g., the indices of the data within
             epsilon of the pick event
 
           * A function: if picker is callable, it is a user supplied
@@ -446,6 +457,63 @@ class Artist(object):
         Only supported by the Agg and MacOSX backends.
         """
         self._snap = snap
+
+    def get_sketch_params(self):
+        """
+        Returns the sketch parameters for the artist.
+
+        Returns
+        -------
+        sketch_params : tuple or `None`
+
+        A 3-tuple with the following elements:
+
+          * `scale`: The amplitude of the wiggle perpendicular to the
+            source line.
+
+          * `length`: The length of the wiggle along the line.
+
+          * `randomness`: The scale factor by which the length is
+            shrunken or expanded.
+
+        May return `None` if no sketch parameters were set.
+        """
+        return self._sketch
+
+    def set_sketch_params(self, scale=None, length=None, randomness=None):
+        """
+        Sets the the sketch parameters.
+
+        Parameters
+        ----------
+
+        scale : float, optional
+            The amplitude of the wiggle perpendicular to the source
+            line, in pixels.  If scale is `None`, or not provided, no
+            sketch filter will be provided.
+
+        length : float, optional
+             The length of the wiggle along the line, in pixels
+             (default 128.0)
+
+        randomness : float, optional
+            The scale factor by which the length is shrunken or
+            expanded (default 16.0)
+        """
+        if scale is None:
+            self._sketch = None
+        else:
+            self._sketch = (scale, length or 128.0, randomness or 16.0)
+
+    def set_path_effects(self, path_effects):
+        """
+        set path_effects, which should be a list of instances of
+        matplotlib.patheffect._Base class or its derivatives.
+        """
+        self._path_effects = path_effects
+
+    def get_path_effects(self):
+        return self._path_effects
 
     def get_figure(self):
         """
@@ -663,7 +731,7 @@ class Artist(object):
         store = self.eventson
         self.eventson = False
         changed = False
-            
+
         for k, v in props.iteritems():
             func = getattr(self, 'set_' + k, None)
             if func is None or not callable(func):
@@ -719,6 +787,8 @@ class Artist(object):
         self._clippath = other._clippath
         self._lod = other._lod
         self._label = other._label
+        self._sketch = other._sketch
+        self._path_effects = other._path_effects
         self.pchanged()
 
     def properties(self):
@@ -743,10 +813,7 @@ class Artist(object):
         """
         Find artist objects.
 
-        pyplot signature:
-          findobj(o=gcf(), match=None, include_self=True)
-
-        Recursively find all :class:matplotlib.artist.Artist instances
+        Recursively find all :class:`~matplotlib.artist.Artist` instances
         contained in self.
 
         *match* can be
@@ -756,14 +823,12 @@ class Artist(object):
           - function with signature ``boolean = match(artist)``
             used to filter matches
 
-          - class instance: eg Line2D.  Only return artists of class type.
+          - class instance: e.g., Line2D.  Only return artists of class type.
 
         If *include_self* is True (default), include self in the list to be
         checked for a match.
 
-        .. plot:: mpl_examples/pylab_examples/findobj_demo.py
         """
-
         if match is None:  # always return True
             def matchfunc(x):
                 return True
@@ -819,7 +884,7 @@ class ArtistInspector:
         Get a dict mapping *fullname* -> *alias* for each *alias* in
         the :class:`~matplotlib.artist.ArtistInspector`.
 
-        Eg., for lines::
+        e.g., for lines::
 
           {'markerfacecolor': 'mfc',
            'linewidth'      : 'lw',
@@ -849,7 +914,7 @@ class ArtistInspector:
         This is done by querying the docstring of the function *set_attr*
         for a line that begins with ACCEPTS:
 
-        Eg., for a line linestyle, return
+        e.g., for a line linestyle, return
         "[ ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'steps'`` | ``'None'`` ]"
         """
 
@@ -896,7 +961,7 @@ class ArtistInspector:
 
     def get_setters(self):
         """
-        Get the attribute strings with setters for object.  Eg., for a line,
+        Get the attribute strings with setters for object.  e.g., for a line,
         return ``['markerfacecolor', 'linewidth', ....]``.
         """
 
@@ -917,7 +982,7 @@ class ArtistInspector:
         return 'PROPNAME or alias' if *s* has an alias, else return
         PROPNAME.
 
-        E.g. for the line markerfacecolor property, which has an
+        e.g., for the line markerfacecolor property, which has an
         alias, return 'markerfacecolor or mfc' and for the transform
         property, which does not, return 'transform'
         """
@@ -934,7 +999,7 @@ class ArtistInspector:
         return 'PROPNAME or alias' if *s* has an alias, else return
         PROPNAME formatted for ReST
 
-        E.g. for the line markerfacecolor property, which has an
+        e.g., for the line markerfacecolor property, which has an
         alias, return 'markerfacecolor or mfc' and for the transform
         property, which does not, return 'transform'
         """
@@ -1083,7 +1148,7 @@ class ArtistInspector:
 
           - function with signature ``boolean = match(artist)``
 
-          - class instance: eg :class:`~matplotlib.lines.Line2D`
+          - class instance: e.g., :class:`~matplotlib.lines.Line2D`
 
         used to filter matches.
         """
@@ -1125,7 +1190,7 @@ def getp(obj, property=None):
         getp(obj)  # get all the object properties
         getp(obj, 'linestyle')  # get the linestyle property
 
-    *obj* is a :class:`Artist` instance, eg
+    *obj* is a :class:`Artist` instance, e.g.,
     :class:`~matplotllib.lines.Line2D` or an instance of a
     :class:`~matplotlib.axes.Axes` or :class:`matplotlib.text.Text`.
     If the *property* is 'somename', this function returns
@@ -1183,7 +1248,7 @@ def setp(obj, *args, **kwargs):
     :func:`setp` operates on a single instance or a list of instances.
     If you are in query mode introspecting the possible values, only
     the first instance in the sequence is used.  When actually setting
-    values, all the instances will be set.  E.g., suppose you have a
+    values, all the instances will be set.  e.g., suppose you have a
     list of two lines, the following will make both lines thicker and
     red::
 
@@ -1197,7 +1262,7 @@ def setp(obj, *args, **kwargs):
     with python kwargs.  For example, the following are equivalent::
 
       >>> setp(lines, 'linewidth', 2, 'color', r')  # MATLAB style
-
+          ...
       >>> setp(lines, linewidth=2, color='r')       # python style
     """
 

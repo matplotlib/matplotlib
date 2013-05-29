@@ -40,7 +40,7 @@ Easily creating subplots
 In early versions of matplotlib, if you wanted to use the pythonic API
 and create a figure instance and from that create a grid of subplots,
 possibly with shared axes, it involved a fair amount of boilerplate
-code.  Eg
+code.  e.g.
 
 .. sourcecode:: python
 
@@ -258,7 +258,7 @@ the boolean mask is True.  In the example below, we simulate a single
 random walker and compute the analytic mean and standard deviation of
 the population positions.  The population mean is shown as the black
 dashed line, and the plus/minus one sigma deviation from the mean is
-showsn as the yellow filled region.  We use the where mask
+shown as the yellow filled region.  We use the where mask
 ``X>upper_bound`` to find the region where the walker is above the one
 sigma boundary, and shade that region blue.
 
@@ -358,7 +358,7 @@ argument takes a dictionary with keys that are Patch properties.
    textstr = '$\mu=%.2f$\n$\mathrm{median}=%.2f$\n$\sigma=%.2f$'%(mu, median, sigma)
 
    ax.hist(x, 50)
-   # these are matplotlib.patch.Patch properies
+   # these are matplotlib.patch.Patch properties
    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
 
    # place a text box in upper left in axes coords

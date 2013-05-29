@@ -105,21 +105,17 @@ def test_point_in_path():
 
 @image_comparison(baseline_images=["clip_path_clipping"], remove_text=True)
 def test_clipping():
-    exterior = mpath.Path.unit_rectangle()
-    exterior = mpath.Path(copy.deepcopy(exterior.vertices),
-                          copy.deepcopy(exterior.codes[:]))
+    exterior = mpath.Path.unit_rectangle().deepcopy()
     exterior.vertices *= 4
     exterior.vertices -= 2
-    interior = mpath.Path.unit_circle()
-    interior = mpath.Path(copy.deepcopy(interior.vertices),
-                          copy.deepcopy(interior.codes[:]))
+    interior = mpath.Path.unit_circle().deepcopy()
     interior.vertices = interior.vertices[::-1]
     clip_path = mpath.Path(vertices=np.concatenate([exterior.vertices,
                                                     interior.vertices]),
                            codes=np.concatenate([exterior.codes,
                                                  interior.codes]))
 
-    star = mpath.Path.unit_regular_star(6)
+    star = mpath.Path.unit_regular_star(6).deepcopy()
     star.vertices *= 2.6
 
     ax1 = plt.subplot(121)

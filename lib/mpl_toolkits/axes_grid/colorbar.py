@@ -67,7 +67,7 @@ colormap_kw_doc = '''
     *format*      [ None | format string | Formatter object ]
                   If None, the
                   :class:`~matplotlib.ticker.ScalarFormatter` is used.
-                  If a format string is given, e.g. '%.3f', that is
+                  If a format string is given, e.g., '%.3f', that is
                   used. An alternative
                   :class:`~matplotlib.ticker.Formatter` object may be
                   given instead.
@@ -824,6 +824,6 @@ def colorbar(mappable, cax=None, ax=None, **kw):
         cb.update_bruteforce(m)
 
     cbid = mappable.callbacksSM.connect('changed', on_changed)
-    mappable.set_colorbar(cb, cax)
+    mappable.colorbar = cb
     ax.figure.sca(ax)
     return cb

@@ -9,8 +9,8 @@ contains all the plot elements.  The following classes are defined
 :class:`Figure`
     top level container for all plot elements
 
-
 """
+
 from __future__ import print_function
 import warnings
 from operator import itemgetter
@@ -41,10 +41,11 @@ from matplotlib.projections import (get_projection_names,
                                     process_projection_requirements)
 from matplotlib.text import Text, _process_text_args
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
-                                    TransformedBbox)
+                                   TransformedBbox)
 from matplotlib.backend_bases import NonGuiException
 
-docstring.interpd.update(projection_names = get_projection_names())
+docstring.interpd.update(projection_names=get_projection_names())
+
 
 class AxesStack(Stack):
     """
@@ -118,7 +119,7 @@ class AxesStack(Stack):
         if a_existing is not None:
             Stack.remove(self, (key, a_existing))
             warnings.warn(
-                    "key %s already existed; Axes is being replaced" % key)
+                "key %s already existed; Axes is being replaced" % key)
             # I don't think the above should ever happen.
 
         if a in self:
@@ -180,7 +181,7 @@ class SubplotParams:
         self.validate = True
         self.update(left, bottom, right, top, wspace, hspace)
 
-    def update(self,left=None, bottom=None, right=None, top=None,
+    def update(self, left=None, bottom=None, right=None, top=None,
                wspace=None, hspace=None):
         """
         Update the current values.  If any kwarg is None, default to
@@ -194,7 +195,6 @@ class SubplotParams:
         thisbottom = getattr(self, 'bottom', None)
         thiswspace = getattr(self, 'wspace', None)
         thishspace = getattr(self, 'hspace', None)
-
 
         self._update_this('left', left)
         self._update_this('right', right)
@@ -212,11 +212,11 @@ class SubplotParams:
             self.hspace = thishspace
 
         if self.validate:
-            if self.left>=self.right:
+            if self.left >= self.right:
                 reset()
                 raise ValueError('left cannot be >= right')
 
-            if self.bottom>=self.top:
+            if self.bottom >= self.top:
                 reset()
                 raise ValueError('bottom cannot be >= top')
 
@@ -254,14 +254,14 @@ class Figure(Artist):
         return "Figure(%gx%g)" % tuple(self.bbox.size)
 
     def __init__(self,
-                 figsize   = None,  # defaults to rc figure.figsize
-                 dpi       = None,  # defaults to rc figure.dpi
-                 facecolor = None,  # defaults to rc figure.facecolor
-                 edgecolor = None,  # defaults to rc figure.edgecolor
-                 linewidth = 0.0,   # the default linewidth of the frame
-                 frameon = True,    # whether or not to draw the figure frame
-                 subplotpars = None, # default to rc
-                 tight_layout = None, # default to rc figure.autolayout
+                 figsize=None,  # defaults to rc figure.figsize
+                 dpi=None,  # defaults to rc figure.dpi
+                 facecolor=None,  # defaults to rc figure.facecolor
+                 edgecolor=None,  # defaults to rc figure.edgecolor
+                 linewidth=0.0,  # the default linewidth of the frame
+                 frameon=None,  # whether or not to draw the figure frame
+                 subplotpars=None,  # default to rc
+                 tight_layout=None,  # default to rc figure.autolayout
                  ):
         """
         *figsize*
@@ -287,17 +287,26 @@ class Figure(Artist):
 
         *tight_layout*
             If *False* use *subplotpars*; if *True* adjust subplot
-            parameters using :meth:`tight_layout`.  Defaults to
-            rc ``figure.autolayout``.
+            parameters using :meth:`tight_layout` with default padding.
+            When providing a dict containing the keys `pad`, `w_pad`, `h_pad`
+            and `rect`, the default :meth:`tight_layout` paddings will be
+            overridden.
+            Defaults to rc ``figure.autolayout``.
         """
         Artist.__init__(self)
 
         self.callbacks = cbook.CallbackRegistry()
 
-        if figsize is None  : figsize   = rcParams['figure.figsize']
-        if dpi is None      : dpi       = rcParams['figure.dpi']
-        if facecolor is None: facecolor = rcParams['figure.facecolor']
-        if edgecolor is None: edgecolor = rcParams['figure.edgecolor']
+        if figsize is None:
+            figsize = rcParams['figure.figsize']
+        if dpi is None:
+            dpi = rcParams['figure.dpi']
+        if facecolor is None:
+            facecolor = rcParams['figure.facecolor']
+        if edgecolor is None:
+            edgecolor = rcParams['figure.edgecolor']
+        if frameon is None:
+            frameon = rcParams['figure.frameon']
 
         self.dpi_scale_trans = Affine2D()
         self.dpi = dpi
@@ -310,10 +319,9 @@ class Figure(Artist):
 
         # the figurePatch name is deprecated
         self.patch = self.figurePatch = Rectangle(
-            xy=(0,0), width=1, height=1,
+            xy=(0, 0), width=1, height=1,
             facecolor=facecolor, edgecolor=edgecolor,
-            linewidth=linewidth,
-            )
+            linewidth=linewidth)
         self._set_artist_props(self.patch)
         self.patch.set_aa(False)
 
@@ -346,9 +354,10 @@ class Figure(Artist):
         try:
             manager = getattr(self.canvas, 'manager')
         except AttributeError as err:
-            raise AttributeError("%s\n    Figure.show works only "
-                        "for figures managed by pyplot,\n    normally "
-                        "created by pyplot.figure()." % err)
+            raise AttributeError("%s\n"
+                                 "Figure.show works only "
+                                 "for figures managed by pyplot, normally "
+                                 "created by pyplot.figure()." % err)
 
         if manager is not None:
             try:
@@ -369,6 +378,7 @@ class Figure(Artist):
 
     def _get_dpi(self):
         return self._dpi
+
     def _set_dpi(self, dpi):
         self._dpi = dpi
         self.dpi_scale_trans.clear().scale(dpi, dpi)
@@ -386,12 +396,16 @@ class Figure(Artist):
         Set whether :meth:`tight_layout` is used upon drawing.
         If None, the rcParams['figure.autolayout'] value will be set.
 
-        ACCEPTS: [True | False | None]
+        When providing a dict containing the keys `pad`, `w_pad`, `h_pad`
+        and `rect`, the default :meth:`tight_layout` paddings will be
+        overridden.
+
+        ACCEPTS: [True | False | dict | None ]
         """
         if tight is None:
             tight = rcParams['figure.autolayout']
-        tight = bool(tight)
-        self._tight = tight
+        self._tight = bool(tight)
+        self._tight_parameters = tight if isinstance(tight, dict) else {}
 
     def autofmt_xdate(self, bottom=0.2, rotation=30, ha='right'):
         """
@@ -411,8 +425,9 @@ class Figure(Artist):
         *ha*
             The horizontal alignment of the xticklabels
         """
-        allsubplots = np.alltrue([hasattr(ax, 'is_last_row') for ax in self.axes])
-        if len(self.axes)==1:
+        allsubplots = np.alltrue([hasattr(ax, 'is_last_row') for ax
+                                  in self.axes])
+        if len(self.axes) == 1:
             for label in self.axes[0].get_xticklabels():
                 label.set_ha(ha)
                 label.set_rotation(rotation)
@@ -449,11 +464,12 @@ class Figure(Artist):
 
         Returns True,{}
         """
-        if callable(self._contains): return self._contains(self,mouseevent)
-        #inside = mouseevent.x >= 0 and mouseevent.y >= 0
-        inside = self.bbox.contains(mouseevent.x,mouseevent.y)
+        if callable(self._contains):
+            return self._contains(self, mouseevent)
+        # inside = mouseevent.x >= 0 and mouseevent.y >= 0
+        inside = self.bbox.contains(mouseevent.x, mouseevent.y)
 
-        return inside,{}
+        return inside, {}
 
     def get_window_extent(self, *args, **kwargs):
         'get the figure bounding box in display space; kwargs are void'
@@ -514,14 +530,16 @@ class Figure(Artist):
         Set the hold state.  If hold is None (default), toggle the
         hold state.  Else set the hold state to boolean value b.
 
-        Eg::
+        e.g.::
 
             hold()      # toggle hold
             hold(True)  # hold is on
             hold(False) # hold is off
         """
-        if b is None: self._hold = not self._hold
-        else: self._hold = b
+        if b is None:
+            self._hold = not self._hold
+        else:
+            self._hold = b
 
     def figimage(self, X,
                  xo=0,
@@ -556,23 +574,24 @@ class Figure(Artist):
 
         Optional keyword arguments:
 
-          =========   ==========================================================
+          =========   =========================================================
           Keyword     Description
-          =========   ==========================================================
+          =========   =========================================================
           xo or yo    An integer, the *x* and *y* image offset in pixels
-          cmap        a :class:`matplotlib.colors.Colormap` instance, eg cm.jet.
-                      If *None*, default to the rc ``image.cmap`` value
+          cmap        a :class:`matplotlib.colors.Colormap` instance, eg
+                      cm.jet. If *None*, default to the rc ``image.cmap``
+                      value
           norm        a :class:`matplotlib.colors.Normalize` instance. The
                       default is normalization().  This scales luminance -> 0-1
-          vmin|vmax   are used to scale a luminance image to 0-1.  If either is
-                      *None*, the min and max of the luminance values will be
-                      used.  Note if you pass a norm instance, the settings for
-                      *vmin* and *vmax* will be ignored.
+          vmin|vmax   are used to scale a luminance image to 0-1.  If either
+                      is *None*, the min and max of the luminance values will
+                      be used.  Note if you pass a norm instance, the settings
+                      for *vmin* and *vmax* will be ignored.
           alpha       the alpha blending value, default is *None*
           origin      [ 'upper' | 'lower' ] Indicates where the [0,0] index of
                       the array is in the upper left or lower left corner of
                       the axes. Defaults to the rc image.origin value
-          =========   ==========================================================
+          =========   =========================================================
 
         figimage complements the axes image
         (:meth:`~matplotlib.axes.Axes.imshow`) which will be resampled
@@ -589,7 +608,8 @@ class Figure(Artist):
         :class:`~matplotlib.image.FigureImage`
         """
 
-        if not self._hold: self.clf()
+        if not self._hold:
+            self.clf()
 
         im = FigureImage(self, cmap, norm, xo, yo, origin, **kwargs)
         im.set_array(X)
@@ -618,18 +638,18 @@ class Figure(Artist):
         """
 
         forward = kwargs.get('forward', False)
-        if len(args)==1:
-            w,h = args[0]
+        if len(args) == 1:
+            w, h = args[0]
         else:
-            w,h = args
+            w, h = args
 
         dpival = self.dpi
         self.bbox_inches.p1 = w, h
 
         if forward:
             dpival = self.dpi
-            canvasw = w*dpival
-            canvash = h*dpival
+            canvasw = w * dpival
+            canvash = h * dpival
             manager = getattr(self.canvas, 'manager', None)
             if manager is not None:
                 manager.resize(int(canvasw), int(canvash))
@@ -712,7 +732,8 @@ class Figure(Artist):
     def delaxes(self, a):
         'remove a from the figure and update the current axes'
         self._axstack.remove(a)
-        for func in self._axobservers: func(self)
+        for func in self._axobservers:
+            func(self)
 
     def _make_key(self, *args, **kwargs):
         'make a hashable key out of args and kwargs'
@@ -722,14 +743,16 @@ class Figure(Artist):
             # to tuples for the key
             ret = []
             for k, v in items:
-                if iterable(v): v = tuple(v)
-                ret.append((k,v))
+                if iterable(v):
+                    v = tuple(v)
+                ret.append((k, v))
             return tuple(ret)
 
         def fixlist(args):
             ret = []
             for a in args:
-                if iterable(a): a = tuple(a)
+                if iterable(a):
+                    a = tuple(a)
                 ret.append(a)
             return tuple(ret)
 
@@ -759,10 +782,10 @@ class Figure(Artist):
 
         If the figure already has an axes with the same parameters,
         then it will simply make that axes current and return it.  If
-        you do not want this behavior, e.g. you want to force the
+        you do not want this behavior, e.g., you want to force the
         creation of a new Axes, you must use a unique set of args and
         kwargs.  The axes :attr:`~matplotlib.axes.Axes.label`
-        attribute has been exposed for this purpose.  Eg., if you want
+        attribute has been exposed for this purpose.  e.g., if you want
         two axes that are otherwise identical to be added to the
         figure, make sure you give them unique labels::
 
@@ -784,7 +807,8 @@ class Figure(Artist):
 
         %(Axes)s
         """
-        if not len(args): return
+        if not len(args):
+            return
 
         # shortcut the projection "key" modifications later on, if an axes
         # with the exact args/kwargs exists, return it immediately.
@@ -799,8 +823,8 @@ class Figure(Artist):
             assert(a.get_figure() is self)
         else:
             rect = args[0]
-            projection_class, kwargs, key = \
-                            process_projection_requirements(self, *args, **kwargs)
+            projection_class, kwargs, key = process_projection_requirements(
+                self, *args, **kwargs)
 
             # check that an axes of this type doesn't already exist, if it
             # does, set it as active and return it
@@ -854,7 +878,8 @@ class Figure(Artist):
 
         %(Axes)s
         """
-        if not len(args): return
+        if not len(args):
+            return
 
         if len(args) == 1 and isinstance(args[0], int):
             args = tuple([int(c) for c in str(args[0])])
@@ -867,8 +892,8 @@ class Figure(Artist):
             # in the hash)
             key = self._make_key(*args, **kwargs)
         else:
-            projection_class, kwargs, key = \
-                        process_projection_requirements(self, *args, **kwargs)
+            projection_class, kwargs, key = process_projection_requirements(
+                self, *args, **kwargs)
 
             # try to find the axes with this key in the stack
             ax = self._axstack.get(key)
@@ -913,7 +938,7 @@ class Figure(Artist):
         self.artists = []
         self.lines = []
         self.patches = []
-        self.texts=[]
+        self.texts = []
         self.images = []
         self.legends = []
         if not keep_observers:
@@ -932,29 +957,31 @@ class Figure(Artist):
         instance *renderer*.
         """
         # draw the figure bounding box, perhaps none for white figure
-        if not self.get_visible(): return
+        if not self.get_visible():
+            return
         renderer.open_group('figure')
 
         if self.get_tight_layout() and self.axes:
             try:
-                self.tight_layout(renderer)
+                self.tight_layout(renderer, **self._tight_parameters)
             except ValueError:
                 pass
                 # ValueError can occur when resizing a window.
 
-        if self.frameon: self.patch.draw(renderer)
+        if self.frameon:
+            self.patch.draw(renderer)
 
         # a list of (zorder, func_to_call, list_of_args)
         dsu = []
 
         for a in self.patches:
-            dsu.append( (a.get_zorder(), a, a.draw, [renderer]))
+            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
 
         for a in self.lines:
-            dsu.append( (a.get_zorder(), a, a.draw, [renderer]))
+            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
 
         for a in self.artists:
-            dsu.append( (a.get_zorder(), a, a.draw, [renderer]))
+            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
 
         # override the renderer default if self.suppressComposite
         # is not None
@@ -962,15 +989,15 @@ class Figure(Artist):
         if self.suppressComposite is not None:
             not_composite = self.suppressComposite
 
-        if len(self.images)<=1 or not_composite or \
-                not cbook.allequal([im.origin for im in self.images]):
+        if (len(self.images) <= 1 or not_composite or
+                not cbook.allequal([im.origin for im in self.images])):
             for a in self.images:
-                dsu.append( (a.get_zorder(), a, a.draw, [renderer]))
+                dsu.append((a.get_zorder(), a, a.draw, [renderer]))
         else:
             # make a composite image blending alpha
             # list of (_image.Image, ox, oy)
             mag = renderer.get_image_magnification()
-            ims = [(im.make_image(mag), im.ox, im.oy)
+            ims = [(im.make_image(mag), im.ox, im.oy, im.get_alpha())
                    for im in self.images]
 
             im = _image.from_images(self.bbox.height * mag,
@@ -987,18 +1014,19 @@ class Figure(Artist):
                 renderer.draw_image(gc, l, b, im)
                 gc.restore()
 
-            dsu.append((self.images[0].get_zorder(), self.images[0], draw_composite, []))
+            dsu.append((self.images[0].get_zorder(), self.images[0],
+                        draw_composite, []))
 
         # render the axes
         for a in self.axes:
-            dsu.append( (a.get_zorder(), a, a.draw, [renderer]))
+            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
 
         # render the figure text
         for a in self.texts:
-            dsu.append( (a.get_zorder(), a, a.draw, [renderer]))
+            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
 
         for a in self.legends:
-            dsu.append( (a.get_zorder(), a, a.draw, [renderer]))
+            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
 
         dsu = [row for row in dsu if not row[1].get_animated()]
         dsu.sort(key=itemgetter(0))
@@ -1095,16 +1123,16 @@ class Figure(Artist):
         parameters. The dimensions of these values are given as a fraction
         of the fontsize. Values from rcParams will be used if None.
 
-        ================   ==================================================================
+        ================   ====================================================
         Keyword            Description
-        ================   ==================================================================
+        ================   ====================================================
         borderpad          the fractional whitespace inside the legend border
         labelspacing       the vertical space between the legend entries
         handlelength       the length of the legend handles
         handletextpad      the pad between the legend handle and text
         borderaxespad      the pad between the axes and legend border
         columnspacing      the spacing between columns
-        ================   ==================================================================
+        ================   ====================================================
 
         .. Note:: Not all kinds of artist are supported by the legend.
                   See LINK (FIXME) for details.
@@ -1136,9 +1164,7 @@ class Figure(Artist):
         """
 
         override = _process_text_args({}, *args, **kwargs)
-        t = Text(
-            x=x, y=y, text=s,
-            )
+        t = Text(x=x, y=y, text=s)
 
         t.update(override)
         self._set_artist_props(t)
@@ -1146,7 +1172,7 @@ class Figure(Artist):
         return t
 
     def _set_artist_props(self, a):
-        if a!= self:
+        if a != self:
             a.set_figure(self)
         a.set_transform(self.transFigure)
 
@@ -1178,10 +1204,11 @@ class Figure(Artist):
                 # we don't want to modify the original kwargs
                 # so take a copy so that we can do what we like to it
                 kwargs_copy = kwargs.copy()
-                projection_class, _, key = \
-                        process_projection_requirements(self, **kwargs_copy)
+                projection_class, _, key = process_projection_requirements(
+                    self, **kwargs_copy)
 
-                # let the returned axes have any gridspec by removing it from the key
+                # let the returned axes have any gridspec by removing it from
+                # the key
                 ckey = ckey[1:]
                 key = key[1:]
 
@@ -1196,7 +1223,8 @@ class Figure(Artist):
     def sca(self, a):
         'Set the current axes to be a and return a'
         self._axstack.bubble(a)
-        for func in self._axobservers: func(self)
+        for func in self._axobservers:
+            func(self)
         return a
 
     def _gci(self):
@@ -1216,7 +1244,8 @@ class Figure(Artist):
         # Additionally, the canvas cannot currently be pickled, but this has
         # the benefit of meaning that a figure can be detached from one canvas,
         # and re-attached to another.
-        for attr_to_pop in ('_axobservers', 'show', 'canvas', '_cachedRenderer') :
+        for attr_to_pop in ('_axobservers', 'show',
+                            'canvas', '_cachedRenderer'):
             state.pop(attr_to_pop, None)
 
         # add version information to the state
@@ -1286,7 +1315,8 @@ class Figure(Artist):
 
           savefig(fname, dpi=None, facecolor='w', edgecolor='w',
                   orientation='portrait', papertype=None, format=None,
-                  transparent=False, bbox_inches=None, pad_inches=0.1)
+                  transparent=False, bbox_inches=None, pad_inches=0.1,
+                  frameon=None)
 
         The output formats available depend on the backend being used.
 
@@ -1335,6 +1365,11 @@ class Figure(Artist):
             transparency of these patches will be restored to their
             original values upon exit of this function.
 
+          *frameon*:
+            If *True*, the figure patch will be colored, if *False*, the
+            figure background will be transparent.  If not provided, the
+            rcParam 'savefig.frameon' will be used.
+
           *bbox_inches*:
             Bbox in inches. Only the given portion of the figure is
             saved. If 'tight', try to figure out the tight bbox of
@@ -1351,8 +1386,9 @@ class Figure(Artist):
         """
 
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])
-
+        frameon = kwargs.pop('frameon', rcParams['savefig.frameon'])
         transparent = kwargs.pop('transparent', False)
+
         if transparent:
             kwargs.setdefault('facecolor', 'none')
             kwargs.setdefault('edgecolor', 'none')
@@ -1367,7 +1403,14 @@ class Figure(Artist):
             kwargs.setdefault('facecolor', rcParams['savefig.facecolor'])
             kwargs.setdefault('edgecolor', rcParams['savefig.edgecolor'])
 
+        if frameon:
+            original_frameon = self.get_frameon()
+            self.set_frameon(frameon)
+
         self.canvas.print_figure(*args, **kwargs)
+
+        if frameon:
+            self.set_frameon(original_frameon)
 
         if transparent:
             for ax, cc in zip(self.axes, original_axes_colors):
@@ -1375,7 +1418,7 @@ class Figure(Artist):
                 ax.patch.set_edgecolor(cc[1])
 
     @docstring.dedent_interpd
-    def colorbar(self, mappable, cax=None, ax=None, **kw):
+    def colorbar(self, mappable, cax=None, ax=None, use_gridspec=True, **kw):
         """
         Create a colorbar for a ScalarMappable instance, *mappable*.
 
@@ -1384,7 +1427,10 @@ class Figure(Artist):
         """
         if ax is None:
             ax = self.gca()
-        use_gridspec = kw.pop("use_gridspec", True)
+
+        # Store the value of gca so that we can set it back later on.
+        current_ax = self.gca()
+
         if cax is None:
             if use_gridspec and isinstance(ax, SubplotBase):
                 cax, kw = cbar.make_axes_gridspec(ax, **kw)
@@ -1393,7 +1439,7 @@ class Figure(Artist):
         cax.hold(True)
         cb = cbar.colorbar_factory(cax, mappable, **kw)
 
-        self.sca(ax)
+        self.sca(current_ax)
         return cb
 
     def subplots_adjust(self, *args, **kwargs):
@@ -1408,21 +1454,23 @@ class Figure(Artist):
 
         """
         self.subplotpars.update(*args, **kwargs)
-        import matplotlib.axes
         for ax in self.axes:
-            if not isinstance(ax, matplotlib.axes.SubplotBase):
+            if not isinstance(ax, SubplotBase):
                 # Check if sharing a subplots axis
-                if ax._sharex is not None and isinstance(ax._sharex, matplotlib.axes.SubplotBase):
+                if (ax._sharex is not None and
+                    isinstance(ax._sharex, SubplotBase)):
                     ax._sharex.update_params()
                     ax.set_position(ax._sharex.figbox)
-                elif ax._sharey is not None and isinstance(ax._sharey, matplotlib.axes.SubplotBase):
+                elif (ax._sharey is not None and
+                      isinstance(ax._sharey, SubplotBase)):
                     ax._sharey.update_params()
                     ax.set_position(ax._sharey.figbox)
             else:
                 ax.update_params()
                 ax.set_position(ax.figbox)
 
-    def ginput(self, n=1, timeout=30, show_clicks=True, mouse_add=1, mouse_pop=3, mouse_stop=2):
+    def ginput(self, n=1, timeout=30, show_clicks=True, mouse_add=1,
+               mouse_pop=3, mouse_stop=2):
         """
         Call signature::
 
@@ -1454,9 +1502,10 @@ class Figure(Artist):
         manager) selects a point.
         """
 
-        blocking_mouse_input = BlockingMouseInput(self, mouse_add =mouse_add,
-                                                        mouse_pop =mouse_pop,
-                                                        mouse_stop=mouse_stop)
+        blocking_mouse_input = BlockingMouseInput(self,
+                                                  mouse_add=mouse_add,
+                                                  mouse_pop=mouse_pop,
+                                                  mouse_stop=mouse_stop)
         return blocking_mouse_input(n=n, timeout=timeout,
                                     show_clicks=show_clicks)
 
@@ -1478,14 +1527,15 @@ class Figure(Artist):
         blocking_input = BlockingKeyMouseInput(self)
         return blocking_input(timeout=timeout)
 
-
     def get_default_bbox_extra_artists(self):
-        bbox_extra_artists = [t for t in self.texts if t.get_visible()]
+        bbox_artists = [artist for artist in self.get_children()
+                        if artist.get_visible()]
         for ax in self.axes:
             if ax.get_visible():
-                bbox_extra_artists.extend(ax.get_default_bbox_extra_artists())
-        return bbox_extra_artists
-
+                bbox_artists.extend(ax.get_default_bbox_extra_artists())
+        # we don't want the figure's patch to influence the bbox calculation
+        bbox_artists.remove(self.patch)
+        return bbox_artists
 
     def get_tightbbox(self, renderer):
         """
@@ -1500,14 +1550,15 @@ class Figure(Artist):
             if ax.get_visible():
                 bb.append(ax.get_tightbbox(renderer))
 
-        _bbox = Bbox.union([b for b in bb if b.width!=0 or b.height!=0])
+        _bbox = Bbox.union([b for b in bb if b.width != 0 or b.height != 0])
 
         bbox_inches = TransformedBbox(_bbox,
-                                      Affine2D().scale(1./self.dpi))
+                                      Affine2D().scale(1. / self.dpi))
 
         return bbox_inches
 
-    def tight_layout(self, renderer=None, pad=1.08, h_pad=None, w_pad=None, rect=None):
+    def tight_layout(self, renderer=None, pad=1.08, h_pad=None,
+                     w_pad=None, rect=None):
         """
         Adjust subplot parameters to give specified padding.
 
@@ -1575,18 +1626,17 @@ def figaspect(arg):
 
     isarray = hasattr(arg, 'shape')
 
-
     # min/max sizes to respect when autoscaling.  If John likes the idea, they
     # could become rc parameters, for now they're hardwired.
-    figsize_min = np.array((4.0,2.0)) # min length for width/height
-    figsize_max = np.array((16.0,16.0)) # max length for width/height
+    figsize_min = np.array((4.0, 2.0))  # min length for width/height
+    figsize_max = np.array((16.0, 16.0))  # max length for width/height
     #figsize_min = rcParams['figure.figsize_min']
     #figsize_max = rcParams['figure.figsize_max']
 
     # Extract the aspect ratio of the array
     if isarray:
-        nr,nc = arg.shape[:2]
-        arr_ratio = float(nr)/nc
+        nr, nc = arg.shape[:2]
+        arr_ratio = float(nr) / nc
     else:
         arr_ratio = float(arg)
 
@@ -1594,17 +1644,17 @@ def figaspect(arg):
     fig_height = rcParams['figure.figsize'][1]
 
     # New size for the figure, keeping the aspect ratio of the caller
-    newsize = np.array((fig_height/arr_ratio,fig_height))
+    newsize = np.array((fig_height / arr_ratio, fig_height))
 
     # Sanity checks, don't drop either dimension below figsize_min
-    newsize /= min(1.0,*(newsize/figsize_min))
+    newsize /= min(1.0, *(newsize / figsize_min))
 
     # Avoid humongous windows as well
-    newsize /= max(1.0,*(newsize/figsize_max))
+    newsize /= max(1.0, *(newsize / figsize_max))
 
     # Finally, if we have a really funky aspect ratio, break it but respect
     # the min/max dimensions (we don't want figures 10 feet tall!)
-    newsize = np.clip(newsize,figsize_min,figsize_max)
+    newsize = np.clip(newsize, figsize_min, figsize_max)
     return newsize
 
 docstring.interpd.update(Figure=martist.kwdoc(Figure))

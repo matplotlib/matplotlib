@@ -20,21 +20,87 @@ option parsing error with the driver script, separate them from driver
 switches with a --.
 """
 
-import os, time, sys, glob, string
+import os
+import time
+import sys
+import glob
 from optparse import OptionParser
+
 import matplotlib.rcsetup as rcsetup
 from matplotlib.cbook import Bunch, dedent
+
 
 all_backends = list(rcsetup.all_backends)  # to leave the original list alone
 
 # actual physical directory for each dir
-dirs = dict(pylab = os.path.join('..', 'pylab_examples'),
+dirs = dict(files=os.path.join('..', 'lines_bars_and_markers'),
+            shapes=os.path.join('..', 'shapes_and_collections'),
+            images=os.path.join('..', 'images_contours_and_fields'),
+            pie=os.path.join('..', 'pie_and_polar_charts'),
+            text=os.path.join('..', 'text_labels_and_annotations'),
+            ticks=os.path.join('..', 'ticks_and_spines'),
+            subplots=os.path.join('..', 'subplots_axes_and_figures'),
+            specialty=os.path.join('..', 'specialty_plots'),
+            showcase=os.path.join('..', 'showcase'),
+            pylab = os.path.join('..', 'pylab_examples'),
             api = os.path.join('..', 'api'),
             units = os.path.join('..', 'units'),
             mplot3d = os.path.join('..', 'mplot3d'))
 
+
 # files in each dir
 files = dict()
+
+files['lines'] = [
+    'barh_demo.py',
+    'fill_demo.py',
+    'fill_demo_features.py',
+    'line_demo_dash_control.py',
+    ]
+
+files['shapes'] = [
+    'path_patch_demo.py',
+    'scatter_demo.py',
+    ]
+
+files['colors'] = [
+    'color_cycle_demo.py',
+    ]
+
+files['images'] = [
+    'imshow_demo.py',
+    ]
+
+files['statistics'] = [
+    'errorbar_demo.py',
+    'errorbar_demo_features.py',
+    'histogram_demo_features.py',
+    ]
+
+files['pie'] = [
+    'pie_demo.py',
+    'polar_bar_demo.py',
+    'polar_scatter_demo.py',
+    ]
+
+files['text_labels_and_annotations'] = [
+    'text_demo_fontdict.py',
+    'unicode_demo.py',
+    ]
+
+files['ticks_and_spines'] = [
+    'spines_demo_bounds.py',
+    'ticklabels_demo_rotation.py',
+    ]
+
+files['subplots_axes_and_figures'] = [
+    'subplot_demo.py',
+    ]
+
+files['showcase'] = [
+    'integral_demo.py',
+    ]
+
 files['pylab'] = [
     'accented_text.py',
     'alignment_test.py',
@@ -53,7 +119,6 @@ files['pylab'] = [
     'barb_demo.py',
     'barchart_demo.py',
     'barcode_demo.py',
-    'barh_demo.py',
     'boxplot_demo.py',
     'broken_barh.py',
     'clippedline.py',
@@ -74,7 +139,6 @@ files['pylab'] = [
     'custom_figure_class.py',
     'custom_ticker1.py',
     'customize_rc.py',
-    'dash_control.py',
     'dashpointlabel.py',
     'date_demo1.py',
     'date_demo2.py',
@@ -86,7 +150,6 @@ files['pylab'] = [
     'ellipse_demo.py',
     'ellipse_rotated.py',
     'equal_aspect_ratio.py',
-    'errorbar_demo.py',
     'errorbar_limits.py',
     'fancyarrow_demo.py',
     'fancybox_demo.py',
@@ -96,8 +159,6 @@ files['pylab'] = [
     'figlegend_demo.py',
     'figure_title.py',
     'fill_between_demo.py',
-    'fill_demo.py',
-    'fill_demo2.py',
     'fill_spiral.py',
     'finance_demo.py',
     'findobj_demo.py',
@@ -111,20 +172,17 @@ files['pylab'] = [
     'hexbin_demo.py',
     'hexbin_demo2.py',
     'hist_colormapped.py',
-    'histogram_demo.py',
     'histogram_demo_extended.py',
-    'hline_demo.py',
+    'vline_hline_demo.py',
 
     'image_clip_path.py',
     'image_demo.py',
     'image_demo2.py',
-    'image_demo3.py',
     'image_interp.py',
     'image_masked.py',
     'image_nonuniform.py',
     'image_origin.py',
     'image_slices_viewer.py',
-    'integral_demo.py',
     'interp_demo.py',
     'invert_axes.py',
     'layer_images.py',
@@ -155,24 +213,18 @@ files['pylab'] = [
     'nan_test.py',
     'newscalarformatter_demo.py',
     'pcolor_demo.py',
-    'pcolor_demo2.py',
     'pcolor_log.py',
     'pcolor_small.py',
-    'pie_demo.py',
     'pie_demo2.py',
     'plotfile_demo.py',
-    'polar_bar.py',
     'polar_demo.py',
     'polar_legend.py',
-    'polar_scatter.py',
-    'poormans_contour.py',
     'psd_demo.py',
     'psd_demo2.py',
     'psd_demo3.py',
     'quadmesh_demo.py',
     'quiver_demo.py',
     'scatter_custom_symbol.py',
-    'scatter_demo.py',
     'scatter_demo2.py',
     'scatter_masked.py',
     'scatter_profile.py',
@@ -188,18 +240,13 @@ files['pylab'] = [
     'step_demo.py',
     'stix_fonts_demo.py',
     'stock_demo.py',
-    'subplot_demo.py',
     'subplots_adjust.py',
     'symlog_demo.py',
     'table_demo.py',
     'text_handles.py',
     'text_rotation.py',
     'text_rotation_relative_to_line.py',
-    'text_themes.py',
     'transoffset.py',
-    'unicode_demo.py',
-    'vertical_ticklabels.py',
-    'vline_demo.py',
     'xcorr_demo.py',
     'zorder_demo.py',
     ]
@@ -210,7 +257,6 @@ files['api'] = [
     'barchart_demo.py',
     'bbox_intersect.py',
     'collections_demo.py',
-    'color_cycle.py',
     'colorbar_only.py',
     'custom_projection_example.py',
     'custom_scale_example.py',
@@ -218,7 +264,6 @@ files['api'] = [
     'date_index_formatter.py',
     'donut_demo.py',
     'font_family_rc.py',
-    'histogram_demo.py',
     'image_zcoord.py',
     'joinstyle.py',
     'legend_demo.py',
@@ -226,7 +271,6 @@ files['api'] = [
     'logo2.py',
     'mathtext_asarray.py',
     'patch_collection.py',
-    'path_patch_demo.py',
     'quad_bezier.py',
     'scatter_piecharts.py',
     'span_regions.py',

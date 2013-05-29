@@ -7,13 +7,13 @@ import re
 import shutil
 import tempfile
 import codecs
-import subprocess
 import atexit
 import weakref
 
 import matplotlib as mpl
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
     FigureManagerBase, FigureCanvasBase
+from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.text import Text
 from matplotlib.path import Path
@@ -21,7 +21,8 @@ from matplotlib import _png, rcParams
 from matplotlib import font_manager
 from matplotlib.ft2font import FT2Font
 from matplotlib.cbook import is_string_like, is_writable_file_like
-from matplotlib.cbook import check_output
+from matplotlib.compat import subprocess
+from matplotlib.compat.subprocess import check_output
 
 
 ###############################################################################
@@ -421,7 +422,7 @@ class RendererPgf(RendererBase):
         bl, tr = marker_path.get_extents(marker_trans).get_points()
         coords = bl[0] * f, bl[1] * f, tr[0] * f, tr[1] * f
         writeln(self.fh, r"\pgfsys@defobject{currentmarker}{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}{" % coords)
-        self._print_pgf_path(marker_path, marker_trans)
+        self._print_pgf_path(None, marker_path, marker_trans)
         self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0,
                             fill=rgbFace is not None)
         writeln(self.fh, r"}")
@@ -441,7 +442,7 @@ class RendererPgf(RendererBase):
         # draw the path
         self._print_pgf_clip(gc)
         self._print_pgf_path_styles(gc, rgbFace)
-        self._print_pgf_path(path, transform)
+        self._print_pgf_path(gc, path, transform)
         self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0,
                             fill=rgbFace is not None)
         writeln(self.fh, r"\end{pgfscope}")
@@ -452,7 +453,7 @@ class RendererPgf(RendererBase):
 
             # combine clip and path for clipping
             self._print_pgf_clip(gc)
-            self._print_pgf_path(path, transform)
+            self._print_pgf_path(gc, path, transform)
             writeln(self.fh, r"\pgfusepath{clip}")
 
             # build pattern definition
@@ -461,7 +462,7 @@ class RendererPgf(RendererBase):
             writeln(self.fh, r"\pgfpathrectangle{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}")
             writeln(self.fh, r"\pgfusepath{clip}")
             scale = mpl.transforms.Affine2D().scale(self.dpi)
-            self._print_pgf_path(gc.get_hatch_path(), scale)
+            self._print_pgf_path(None, gc.get_hatch_path(), scale)
             self._pgf_path_draw(stroke=True)
             writeln(self.fh, r"\end{pgfscope}")
             writeln(self.fh, r"}")
@@ -495,7 +496,7 @@ class RendererPgf(RendererBase):
         # check for clip path
         clippath, clippath_trans = gc.get_clip_path()
         if clippath is not None:
-            self._print_pgf_path(clippath, clippath_trans)
+            self._print_pgf_path(gc, clippath, clippath_trans)
             writeln(self.fh, r"\pgfusepath{clip}")
 
     def _print_pgf_path_styles(self, gc, rgbFace):
@@ -513,14 +514,18 @@ class RendererPgf(RendererBase):
 
         # filling
         has_fill = rgbFace is not None
-        path_is_transparent = gc.get_alpha() != 1.0
-        fill_is_transparent = has_fill and (len(rgbFace) > 3) and (rgbFace[3] != 1.0)
+
+        if gc.get_forced_alpha():
+            fillopacity = strokeopacity = gc.get_alpha()
+        else:
+            strokeopacity = gc.get_rgb()[3]
+            fillopacity = rgbFace[3] if has_fill and len(rgbFace) > 3 else 1.0
+
         if has_fill:
             writeln(self.fh, r"\definecolor{currentfill}{rgb}{%f,%f,%f}" % tuple(rgbFace[:3]))
             writeln(self.fh, r"\pgfsetfillcolor{currentfill}")
-        if has_fill and (path_is_transparent or fill_is_transparent):
-            opacity = gc.get_alpha() * 1.0 if not fill_is_transparent else rgbFace[3]
-            writeln(self.fh, r"\pgfsetfillopacity{%f}" % opacity)
+        if has_fill and fillopacity != 1.0:
+            writeln(self.fh, r"\pgfsetfillopacity{%f}" % fillopacity)
 
         # linewidth and color
         lw = gc.get_linewidth() * mpl_pt_to_in * latex_in_to_pt
@@ -528,25 +533,31 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\pgfsetlinewidth{%fpt}" % lw)
         writeln(self.fh, r"\definecolor{currentstroke}{rgb}{%f,%f,%f}" % stroke_rgba[:3])
         writeln(self.fh, r"\pgfsetstrokecolor{currentstroke}")
-        if gc.get_alpha() != 1.0:
-            writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % gc.get_alpha())
+        if strokeopacity != 1.0:
+            writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % strokeopacity)
 
         # line style
         dash_offset, dash_list = gc.get_dashes()
-        ls = gc.get_linestyle(None)
-        if ls == "solid":
+        if dash_list is None:
             writeln(self.fh, r"\pgfsetdash{}{0pt}")
-        elif (ls == "dashed" or ls == "dashdot" or ls == "dotted"):
+        else:
             dash_str = r"\pgfsetdash{"
             for dash in dash_list:
                 dash_str += r"{%fpt}" % dash
             dash_str += r"}{%fpt}" % dash_offset
             writeln(self.fh, dash_str)
 
-    def _print_pgf_path(self, path, transform):
+    def _print_pgf_path(self, gc, path, transform):
         f = 1. / self.dpi
+        # check for clip box
+        bbox = gc.get_clip_rectangle() if gc else None
+        if bbox:
+            p1, p2 = bbox.get_points()
+            clip = (p1[0], p1[1], p2[0], p2[1])
+        else:
+            clip = None
         # build path
-        for points, code in path.iter_segments(transform):
+        for points, code in path.iter_segments(transform, clip=clip):
             if code == Path.MOVETO:
                 x, y = tuple(points)
                 writeln(self.fh, r"\pgfpathmoveto{\pgfqpoint{%fin}{%fin}}" %
@@ -595,30 +606,53 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\pgftext[at=\pgfqpoint{%fin}{%fin},left,bottom]{\pgfimage[interpolate=true,width=%fin,height=%fin]{%s}}" % (x * f, y * f, w * f, h * f, fname_img))
         writeln(self.fh, r"\end{pgfscope}")
 
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath="TeX!"):
-        self.draw_text(gc, x, y, s, prop, angle, ismath)
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath="TeX!", mtext=None):
+        self.draw_text(gc, x, y, s, prop, angle, ismath, mtext)
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # prepare string for tex
         s = common_texification(s)
-
-        # apply font properties
         prop_cmds = _font_properties_str(prop)
         s = ur"{%s %s}" % (prop_cmds, s)
 
-        # draw text at given coordinates
-        x = x * 1. / self.dpi
-        y = y * 1. / self.dpi
+
         writeln(self.fh, r"\begin{pgfscope}")
+
         alpha = gc.get_alpha()
         if alpha != 1.0:
             writeln(self.fh, r"\pgfsetfillopacity{%f}" % alpha)
             writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % alpha)
-        stroke_rgb = tuple(gc.get_rgb())[:3]
-        if stroke_rgb != (0, 0, 0):
-            writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % stroke_rgb)
+        rgb = tuple(gc.get_rgb())[:3]
+        if rgb != (0, 0, 0):
+            writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % rgb)
             writeln(self.fh, r"\pgfsetstrokecolor{textcolor}")
             writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
-        writeln(self.fh, "\\pgftext[left,bottom,x=%fin,y=%fin,rotate=%f]{%s}\n" % (x, y, angle, s))
+
+        f = 1.0 / self.figure.dpi
+        text_args = []
+        if angle == 0 or mtext.get_rotation_mode() == "anchor":
+            # if text anchoring can be supported, get the original coordinates
+            # and add alignment information
+            x, y = mtext.get_transform().transform_point(mtext.get_position())
+            text_args.append("x=%fin" % (x * f))
+            text_args.append("y=%fin" % (y * f))
+
+            halign = {"left": "left", "right": "right", "center": ""}
+            valign = {"top": "top", "bottom": "bottom",
+                      "baseline": "base", "center": ""}
+            text_args.append(halign[mtext.get_ha()])
+            text_args.append(valign[mtext.get_va()])
+        else:
+            # if not, use the text layout provided by matplotlib
+            text_args.append("x=%fin" % (x * f))
+            text_args.append("y=%fin" % (y * f))
+            text_args.append("left")
+            text_args.append("base")
+
+        if angle != 0:
+            text_args.append("rotate=%f" % angle)
+
+        writeln(self.fh, r"\pgftext[%s]{%s}" % (",".join(text_args), s))
         writeln(self.fh, r"\end{pgfscope}")
 
     def get_text_width_height_descent(self, s, prop, ismath):
@@ -705,7 +739,7 @@ class FigureCanvasPgf(FigureCanvasBase):
     def get_default_filetype(self):
         return 'pdf'
 
-    def _print_pgf_to_fh(self, fh):
+    def _print_pgf_to_fh(self, fh, *args, **kwargs):
         header_text = r"""%% Creator: Matplotlib, PGF backend
 %%
 %% To include the figure in your LaTeX document, write
@@ -734,6 +768,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 
         # get figure size in inch
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
+        dpi = self.figure.get_dpi()
 
         # create pgfpicture environment and write the pgf code
         fh.write(header_text)
@@ -744,7 +779,10 @@ class FigureCanvasPgf(FigureCanvasBase):
         writeln(fh, r"\begin{pgfpicture}")
         writeln(fh, r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}" % (w, h))
         writeln(fh, r"\pgfusepath{use as bounding box}")
-        renderer = RendererPgf(self.figure, fh)
+        _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
+        renderer = MixedModeRenderer(self.figure, w, h, dpi,
+                                     RendererPgf(self.figure, fh),
+                                     bbox_inches_restore=_bbox_inches_restore)
         self.figure.draw(renderer)
 
         # end the pgfpicture environment
@@ -763,14 +801,14 @@ class FigureCanvasPgf(FigureCanvasBase):
         # figure out where the pgf is to be written to
         if is_string_like(fname_or_fh):
             with codecs.open(fname_or_fh, "w", encoding="utf-8") as fh:
-                self._print_pgf_to_fh(fh)
+                self._print_pgf_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
             raise ValueError("saving pgf to a stream is not supported, " +
                              "consider using the pdf option of the pgf-backend")
         else:
             raise ValueError("filename must be a path")
 
-    def _print_pdf_to_fh(self, fh):
+    def _print_pdf_to_fh(self, fh, *args, **kwargs):
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
 
         try:
@@ -781,7 +819,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             fname_pdf = os.path.join(tmpdir, "figure.pdf")
 
             # print figure to pgf and compile it with latex
-            self.print_pgf(fname_pgf)
+            self.print_pgf(fname_pgf, *args, **kwargs)
 
             latex_preamble = get_preamble()
             latex_fontspec = get_fontspec()
@@ -823,13 +861,13 @@ class FigureCanvasPgf(FigureCanvasBase):
         # figure out where the pdf is to be written to
         if is_string_like(fname_or_fh):
             with open(fname_or_fh, "wb") as fh:
-                self._print_pdf_to_fh(fh)
+                self._print_pdf_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
-            self._print_pdf_to_fh(fname_or_fh)
+            self._print_pdf_to_fh(fname_or_fh, *args, **kwargs)
         else:
             raise ValueError("filename must be a path or a file-like object")
 
-    def _print_png_to_fh(self, fh):
+    def _print_png_to_fh(self, fh, *args, **kwargs):
         converter = make_pdf_to_png_converter()
 
         try:
@@ -838,7 +876,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             fname_pdf = os.path.join(tmpdir, "figure.pdf")
             fname_png = os.path.join(tmpdir, "figure.png")
             # create pdf and try to convert it to png
-            self.print_pdf(fname_pdf)
+            self.print_pdf(fname_pdf, *args, **kwargs)
             converter(fname_pdf, fname_png, dpi=self.figure.dpi)
             # copy file contents to target
             with open(fname_png, "rb") as fh_src:
@@ -855,58 +893,11 @@ class FigureCanvasPgf(FigureCanvasBase):
         """
         if is_string_like(fname_or_fh):
             with open(fname_or_fh, "wb") as fh:
-                self._print_png_to_fh(fh)
+                self._print_png_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
-            self._print_png_to_fh(fname_or_fh)
+            self._print_png_to_fh(fname_or_fh, *args, **kwargs)
         else:
             raise ValueError("filename must be a path or a file-like object")
-
-    def _render_texts_pgf(self, fh):
-        # TODO: currently unused code path
-
-        # alignment anchors
-        valign = {"top": "top", "bottom": "bottom", "baseline": "base", "center": ""}
-        halign = {"left": "left", "right": "right", "center": ""}
-        # alignment anchors for 90deg. rotated labels
-        rvalign = {"top": "left", "bottom": "right", "baseline": "right", "center": ""}
-        rhalign = {"left": "top", "right": "bottom", "center": ""}
-
-        # TODO: matplotlib does not hide unused tick labels yet, workaround
-        for tick in self.figure.findobj(mpl.axis.Tick):
-            tick.label1.set_visible(tick.label1On)
-            tick.label2.set_visible(tick.label2On)
-        # TODO: strange, first legend label is always "None", workaround
-        for legend in self.figure.findobj(mpl.legend.Legend):
-            labels = legend.findobj(mpl.text.Text)
-            labels[0].set_visible(False)
-        # TODO: strange, legend child labels are duplicated,
-        # find a list of unique text objects as workaround
-        texts = self.figure.findobj(match=Text, include_self=False)
-        texts = list(set(texts))
-
-        # draw text elements
-        for text in texts:
-            s = text.get_text()
-            if not s or not text.get_visible():
-                continue
-
-            s = common_texification(s)
-
-            fontsize = text.get_fontsize()
-            angle = text.get_rotation()
-            transform = text.get_transform()
-            x, y = transform.transform_point(text.get_position())
-            x = x * 1.0 / self.figure.dpi
-            y = y * 1.0 / self.figure.dpi
-            # TODO: positioning behavior unknown for rotated elements
-            # right now only the alignment for 90deg rotations is correct
-            if angle == 90.:
-                align = rvalign[text.get_va()] + "," + rhalign[text.get_ha()]
-            else:
-                align = valign[text.get_va()] + "," + halign[text.get_ha()]
-
-            s = ur"{\fontsize{%f}{%f}\selectfont %s}" % (fontsize, fontsize*1.2, s)
-            writeln(fh, ur"\pgftext[%s,x=%fin,y=%fin,rotate=%f]{%s}" % (align,x,y,angle,s))
 
     def get_renderer(self):
         return RendererPgf(self.figure, None)

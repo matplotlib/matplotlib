@@ -27,7 +27,7 @@ The Locator subclasses defined here are
     Tick locations are fixed
 
 :class:`IndexLocator`
-    locator for index plots (eg. where x = range(len(y)))
+    locator for index plots (e.g., where x = range(len(y)))
 
 :class:`LinearLocator`
     evenly spaced ticks from min to max
@@ -205,10 +205,11 @@ class Formatter(TickHelper):
         """
         some classes may want to replace a hyphen for minus with the
         proper unicode symbol as described `here
-        <http://sourceforge.net/tracker/index.php?func=detail&aid=1962574&group_id=80706&atid=560720>`_.
+        <http://sourceforge.net/tracker/index.php?func=detail&aid=1962574&
+group_id=80706&atid=560720>`_.
         The default is to do nothing
 
-        Note, if you use this method, eg in :meth`format_data` or
+        Note, if you use this method, e.g., in :meth:`format_data` or
         call, you probably don't want to use it for
         :meth:`format_data_short` since the toolbar uses this for
         interactive coord reporting and I doubt we can expect GUIs
@@ -416,7 +417,7 @@ class ScalarFormatter(Formatter):
         '''
         Sets size thresholds for scientific notation.
 
-        e.g. ``formatter.set_powerlimits((-3, 4))`` sets the pre-2007 default
+        e.g., ``formatter.set_powerlimits((-3, 4))`` sets the pre-2007 default
         in which scientific notation is used for numbers less than 1e-3 or
         greater than 1e4.
         See also :meth:`set_scientific`.
@@ -772,7 +773,7 @@ class LogFormatterMathtext(LogFormatter):
 class EngFormatter(Formatter):
     """
     Formats axis values using engineering prefixes to represent powers of 1000,
-    plus a specified unit, eg. 10 MHz instead of 1e7.
+    plus a specified unit, e.g., 10 MHz instead of 1e7.
     """
 
     # The SI engineering prefixes
@@ -794,7 +795,7 @@ class EngFormatter(Formatter):
          18: "E",
          21: "Z",
          24: "Y"
-      }
+    }
 
     def __init__(self, unit="", places=None):
         self.unit = unit
@@ -808,13 +809,13 @@ class EngFormatter(Formatter):
         """ Formats a number in engineering notation, appending a letter
         representing the power of 1000 of the original number. Some examples:
 
-        >>> format_eng(0)       for self.places = 0
+        >>> format_eng(0)       # for self.places = 0
         '0'
 
-        >>> format_eng(1000000) for self.places = 1
+        >>> format_eng(1000000) # for self.places = 1
         '1.0 M'
 
-        >>> format_eng("-1e-6") for self.places = 2
+        >>> format_eng("-1e-6") # for self.places = 2
         u'-1.00 \u03bc'
 
         @param num: the value to represent
@@ -865,12 +866,10 @@ class Locator(TickHelper):
     the Axis data and view limits
     """
 
-    # some automatic tick locators can generate so many ticks they
-    # kill the machine when you try and render them, see eg sf bug
-    # report
-    # https://sourceforge.net/tracker/index.php?func=detail&aid=2715172&group_id=80706&atid=560720.
+    # Some automatic tick locators can generate so many ticks they
+    # kill the machine when you try and render them.
     # This parameter is set to cause locators to raise an error if too
-    # many ticks are generated
+    # many ticks are generated.
     MAXTICKS = 1000
 
     def tick_values(self, vmin, vmax):
@@ -910,7 +909,8 @@ class Locator(TickHelper):
         """
         select a scale for the range from vmin to vmax
 
-        Normally This will be overridden.
+        Normally this method is overridden by subclasses to
+        change locator behaviour.
         """
         return mtransforms.nonsingular(vmin, vmax)
 
@@ -1165,7 +1165,7 @@ class MultipleLocator(Locator):
         vmin = self._base.ge(vmin)
         base = self._base.get_base()
         n = (vmax - vmin + 0.001 * base) // base
-        locs = vmin + np.arange(n + 1) * base
+        locs = vmin - base + np.arange(n + 3) * base
         return self.raise_if_exceeds(locs)
 
     def view_limits(self, dmin, dmax):
@@ -1450,8 +1450,8 @@ class LogLocator(Locator):
         while numdec / stride + 1 > self.numticks:
             stride += 1
 
-        decades = np.arange(math.floor(vmin),
-                            math.ceil(vmax) + stride, stride)
+        decades = np.arange(math.floor(vmin) - stride,
+                            math.ceil(vmax) + 2 * stride, stride)
         if hasattr(self, '_transform'):
             ticklocs = self._transform.inverted().transform(decades)
             if len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0):

@@ -53,9 +53,7 @@ class ProcessPlotter(object):
         print('starting plotter...')
 
         self.pipe = pipe
-        self.fig = plt.figure()
-
-        self.ax = self.fig.add_subplot(111)
+        self.fig, self.ax = plt.subplots()
         self.gid = gobject.timeout_add(1000, self.poll_draw())
 
         print('...done')

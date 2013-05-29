@@ -1,28 +1,77 @@
-from matplotlib import rcParams, rcParamsDefault
-from matplotlib.testing.decorators import image_comparison
+import numpy as np
+from numpy import ma
+import matplotlib
+from matplotlib.testing.decorators import image_comparison, knownfailureif
 import matplotlib.pyplot as plt
+from matplotlib import rcParams, rcParamsDefault
 from matplotlib.colors import BoundaryNorm
 from matplotlib.cm import get_cmap
 from matplotlib.colorbar import ColorbarBase
 
 
-def _colorbar_extensions(spacing):
+def _get_cmap_norms():
+    """
+    Define a colormap and appropriate norms for each of the four
+    possible settings of the extend keyword.
 
+    Helper function for _colorbar_extension_shape and
+    colorbar_extension_length.
+    """
     # Create a color map and specify the levels it represents.
     cmap = get_cmap("RdBu", lut=5)
     clevs = [-5., -2.5, -.5, .5, 1.5, 3.5]
-
     # Define norms for the color maps.
     norms = dict()
     norms['neither'] = BoundaryNorm(clevs, len(clevs)-1)
     norms['min'] = BoundaryNorm([-10]+clevs[1:], len(clevs)-1)
     norms['max'] = BoundaryNorm(clevs[:-1]+[10], len(clevs)-1)
     norms['both'] = BoundaryNorm([-10]+clevs[1:-1]+[10], len(clevs)-1)
+    return cmap, norms
 
+
+def _colorbar_extension_shape(spacing):
+    '''
+    Produce 4 colorbars with rectangular extensions for either uniform
+    or proportional spacing.
+
+    Helper function for test_colorbar_extension_shape.
+    '''
+    # Get a colormap and appropriate norms for each extension type.
+    cmap, norms = _get_cmap_norms()
+    # Create a figure and adjust whitespace for subplots.
+    fig = plt.figure()
+    fig.subplots_adjust(hspace=4)
+    for i, extension_type in enumerate(('neither', 'min', 'max', 'both')):
+        # Get the appropriate norm and use it to get colorbar boundaries.
+        norm = norms[extension_type]
+        boundaries = values = norm.boundaries
+        # Create a subplot.
+        cax = fig.add_subplot(4, 1, i+1)
+        # Turn off text and ticks.
+        for item in cax.get_xticklabels() + cax.get_yticklabels() +\
+                cax.get_xticklines() + cax.get_yticklines():
+            item.set_visible(False)
+        # Generate the colorbar.
+        cb = ColorbarBase(cax, cmap=cmap, norm=norm,
+                boundaries=boundaries, values=values,
+                extend=extension_type, extendrect=True,
+                orientation='horizontal', spacing=spacing)
+    # Return the figure to the caller.
+    return fig
+
+
+def _colorbar_extension_length(spacing):
+    '''
+    Produce 12 colorbars with variable length extensions for either
+    uniform or proportional spacing.
+
+    Helper function for test_colorbar_extension_length.
+    '''
+    # Get a colormap and appropriate norms for each extension type.
+    cmap, norms = _get_cmap_norms()
     # Create a figure and adjust whitespace for subplots.
     fig = plt.figure()
     fig.subplots_adjust(hspace=.6)
-    
     for i, extension_type in enumerate(('neither', 'min', 'max', 'both')):
         # Get the appropriate norm and use it to get colorbar boundaries.
         norm = norms[extension_type]
@@ -39,23 +88,106 @@ def _colorbar_extensions(spacing):
                     boundaries=boundaries, values=values,
                     extend=extension_type, extendfrac=extendfrac,
                     orientation='horizontal', spacing=spacing)
-
     # Return the figure to the caller.
     return fig
 
 
 @image_comparison(
-        baseline_images=['colorbar_extensions_uniform', 'colorbar_extensions_proportional'],
+        baseline_images=['colorbar_extensions_shape_uniform',
+                         'colorbar_extensions_shape_proportional'],
         extensions=['png'])
-def test_colorbar_extensions():
-    # Use default params so .matplotlibrc doesn't cause the test to fail.
+def test_colorbar_extension_shape():
+    '''Test rectangular colorbar extensions.'''
+    # Use default params so matplotlibrc doesn't cause the test to fail.
     rcParams.update(rcParamsDefault)
     # Create figures for uniform and proportionally spaced colorbars.
-    fig1 = _colorbar_extensions('uniform')
-    fig2 = _colorbar_extensions('proportional')
+    fig1 = _colorbar_extension_shape('uniform')
+    fig2 = _colorbar_extension_shape('proportional')
 
 
-if __name__ == '__main__':
+@image_comparison(baseline_images=['colorbar_extensions_uniform',
+                                   'colorbar_extensions_proportional'],
+                  extensions=['png'])
+def test_colorbar_extension_length():
+    '''Test variable length colorbar extensions.'''
+    # Use default params so matplotlibrc doesn't cause the test to fail.
+    rcParams.update(rcParamsDefault)
+    # Create figures for uniform and proportionally spaced colorbars.
+    fig1 = _colorbar_extension_length('uniform')
+    fig2 = _colorbar_extension_length('proportional')
+
+
+@image_comparison(baseline_images=['cbar_with_orientation',
+                                   'cbar_locationing',
+                                   'double_cbar',
+                                   'cbar_sharing',
+                                   ],
+                  extensions=['png'], remove_text=True,
+                  savefig_kwarg={'dpi': 40})
+def test_colorbar_positioning():
+    data = np.arange(1200).reshape(30, 40)
+    levels = [0, 200, 400, 600, 800, 1000, 1200]
+
+    plt.figure()
+    plt.contourf(data, levels=levels)
+    plt.colorbar(orientation='horizontal', use_gridspec=False)
+
+
+    locations = ['left', 'right', 'top', 'bottom']
+    plt.figure()
+    for i, location in enumerate(locations):
+        plt.subplot(2, 2, i+1)
+        plt.contourf(data, levels=levels)
+        plt.colorbar(location=location, use_gridspec=False)
+
+
+    plt.figure()
+    # make some other data (random integers)
+    data_2nd = np.array([[2, 3, 2, 3], [1.5, 2, 2, 3], [2, 3, 3, 4]])
+    # make the random data expand to the shape of the main data
+    data_2nd = np.repeat(np.repeat(data_2nd, 10, axis=1), 10, axis=0)
+
+    color_mappable = plt.contourf(data, levels=levels, extend='both')
+    # test extend frac here
+    hatch_mappable = plt.contourf(data_2nd, levels=[1, 2, 3], colors='none', hatches=['/', 'o', '+'], extend='max')
+    plt.contour(hatch_mappable, colors='black')
+
+    plt.colorbar(color_mappable, location='left', label='variable 1', use_gridspec=False)
+    plt.colorbar(hatch_mappable, location='right', label='variable 2', use_gridspec=False)
+
+
+    plt.figure()
+    ax1 = plt.subplot(211, anchor='NE', aspect='equal')
+    plt.contourf(data, levels=levels)
+    ax2 = plt.subplot(223)
+    plt.contourf(data, levels=levels)
+    ax3 = plt.subplot(224)
+    plt.contourf(data, levels=levels)
+
+    plt.colorbar(ax=[ax2, ax3, ax1], location='right', pad=0.0, shrink=0.5, panchor=False, use_gridspec=False)
+    plt.colorbar(ax=[ax2, ax3, ax1], location='left', shrink=0.5, panchor=False, use_gridspec=False)
+    plt.colorbar(ax=[ax1], location='bottom', panchor=False, anchor=(0.8, 0.5), shrink=0.6, use_gridspec=False)
+
+
+@image_comparison(baseline_images=['cbar_with_subplots_adjust'],
+                  extensions=['png'], remove_text=True,
+                  savefig_kwarg={'dpi': 40})
+def test_gridspec_make_colorbar():
+    plt.figure()
+    data = np.arange(1200).reshape(30, 40)
+    levels = [0, 200, 400, 600, 800, 1000, 1200]
+
+    plt.subplot(121)
+    plt.contourf(data, levels=levels)
+    plt.colorbar(use_gridspec=True, orientation='vertical')
+
+    plt.subplot(122)
+    plt.contourf(data, levels=levels)
+    plt.colorbar(use_gridspec=True, orientation='horizontal')
+
+    plt.subplots_adjust(top=0.95, right=0.95, bottom=0.2, hspace=0.25)
+
+
+if __name__=='__main__':
     import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
-
+    nose.runmodule(argv=['-s','--with-doctest'], exit=False)

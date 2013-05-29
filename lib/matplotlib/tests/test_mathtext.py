@@ -140,13 +140,13 @@ for fonts, chars in font_test_specs:
 def make_set(basename, fontset, tests, extensions=None):
     def make_test(filename, test):
         @image_comparison(baseline_images=[filename], extensions=extensions,
-                          freetype_version=('2.4.5', '2.4.9'))
+                          tol=32)
         def single_test():
             matplotlib.rcParams['mathtext.fontset'] = fontset
             fig = plt.figure(figsize=(5.25, 0.75))
             fig.text(0.5, 0.5, test, horizontalalignment='center', verticalalignment='center')
         func = single_test
-        func.__name__ = filename + "_test"
+        func.__name__ = "test_" + filename
         return func
 
     # We inject test functions into the global namespace, rather than

@@ -13,21 +13,20 @@ from numpy import ma
 from matplotlib import verbose
 import artist
 from artist import Artist
-from cbook import iterable, is_string_like, is_numlike, ls_mapper, dedent,\
-flatten, is_math_text
+from cbook import iterable, is_string_like, is_numlike, ls_mapper
 from colors import colorConverter
 from path import Path
-from transforms import Affine2D, Bbox, TransformedPath, IdentityTransform
+from transforms import Bbox, TransformedPath, IdentityTransform
 
 from matplotlib import rcParams
 from artist import allow_rasterization
 from matplotlib import docstring
-from matplotlib.font_manager import FontProperties
 from matplotlib.markers import MarkerStyle
 # Imported here for backward compatibility, even though they don't
 # really belong.
-from matplotlib.markers import TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN, \
-         CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN
+from matplotlib.markers import TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
+from matplotlib.markers import CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN
+
 
 def segment_hits(cx, cy, x, y, radius):
     """
@@ -37,38 +36,39 @@ def segment_hits(cx, cy, x, y, radius):
     """
     # Process single points specially
     if len(x) < 2:
-        res, = np.nonzero( (cx - x)**2 + (cy - y)**2 <= radius**2 )
+        res, = np.nonzero((cx - x) ** 2 + (cy - y) ** 2 <= radius ** 2)
         return res
 
     # We need to lop the last element off a lot.
-    xr,yr = x[:-1],y[:-1]
+    xr, yr = x[:-1], y[:-1]
 
     # Only look at line segments whose nearest point to C on the line
     # lies within the segment.
-    dx,dy = x[1:]-xr, y[1:]-yr
-    Lnorm_sq = dx**2+dy**2    # Possibly want to eliminate Lnorm==0
-    u = ( (cx-xr)*dx + (cy-yr)*dy )/Lnorm_sq
-    candidates = (u>=0) & (u<=1)
+    dx, dy = x[1:] - xr, y[1:] - yr
+    Lnorm_sq = dx ** 2 + dy ** 2  # Possibly want to eliminate Lnorm==0
+    u = ((cx - xr) * dx + (cy - yr) * dy) / Lnorm_sq
+    candidates = (u >= 0) & (u <= 1)
     #if any(candidates): print "candidates",xr[candidates]
 
     # Note that there is a little area near one side of each point
     # which will be near neither segment, and another which will
     # be near both, depending on the angle of the lines.  The
     # following radius test eliminates these ambiguities.
-    point_hits = (cx - x)**2 + (cy - y)**2 <= radius**2
+    point_hits = (cx - x) ** 2 + (cy - y) ** 2 <= radius ** 2
     #if any(point_hits): print "points",xr[candidates]
     candidates = candidates & ~(point_hits[:-1] | point_hits[1:])
 
     # For those candidates which remain, determine how far they lie away
     # from the line.
-    px,py = xr+u*dx,yr+u*dy
-    line_hits = (cx-px)**2 + (cy-py)**2 <= radius**2
+    px, py = xr + u * dx, yr + u * dy
+    line_hits = (cx - px) ** 2 + (cy - py) ** 2 <= radius ** 2
     #if any(line_hits): print "lines",xr[candidates]
     line_hits = line_hits & candidates
     points, = point_hits.ravel().nonzero()
     lines, = line_hits.ravel().nonzero()
     #print points,lines
-    return np.concatenate((points,lines))
+    return np.concatenate((points, lines))
+
 
 class Line2D(Artist):
     """
@@ -79,26 +79,27 @@ class Line2D(Artist):
 
 
     """
-    lineStyles = _lineStyles =  { # hidden names deprecated
-        '-'          : '_draw_solid',
-        '--'         : '_draw_dashed',
-        '-.'         : '_draw_dash_dot',
-        ':'          : '_draw_dotted',
-        'None'       : '_draw_nothing',
-        ' '          : '_draw_nothing',
-        ''           : '_draw_nothing',
+    lineStyles = _lineStyles = {  # hidden names deprecated
+        '-':    '_draw_solid',
+        '--':   '_draw_dashed',
+        '-.':   '_draw_dash_dot',
+        ':':    '_draw_dotted',
+        'None': '_draw_nothing',
+        ' ':    '_draw_nothing',
+        '':     '_draw_nothing',
     }
 
     _drawStyles_l = {
-        'default'    : '_draw_lines',
-        'steps-mid'  : '_draw_steps_mid',
-        'steps-pre'  : '_draw_steps_pre',
-        'steps-post' : '_draw_steps_post',
+        'default':    '_draw_lines',
+        'steps-mid':  '_draw_steps_mid',
+        'steps-pre':  '_draw_steps_pre',
+        'steps-post': '_draw_steps_post',
     }
 
     _drawStyles_s = {
-        'steps'      : '_draw_steps_pre',
+        'steps': '_draw_steps_pre',
     }
+
     drawStyles = {}
     drawStyles.update(_drawStyles_l)
     drawStyles.update(_drawStyles_s)
@@ -113,39 +114,41 @@ class Line2D(Artist):
 
     zorder = 2
     validCap = ('butt', 'round', 'projecting')
-    validJoin =   ('miter', 'round', 'bevel')
+    validJoin = ('miter', 'round', 'bevel')
 
     def __str__(self):
         if self._label != "":
-            return "Line2D(%s)"%(self._label)
+            return "Line2D(%s)" % (self._label)
         elif hasattr(self, '_x') and len(self._x) > 3:
             return "Line2D((%g,%g),(%g,%g),...,(%g,%g))"\
-                %(self._x[0],self._y[0],self._x[0],self._y[0],self._x[-1],self._y[-1])
+                % (self._x[0], self._y[0], self._x[0],
+                   self._y[0], self._x[-1], self._y[-1])
         elif hasattr(self, '_x'):
             return "Line2D(%s)"\
-                %(",".join(["(%g,%g)"%(x,y) for x,y in zip(self._x,self._y)]))
+                % (",".join(["(%g,%g)" % (x, y) for x, y
+                             in zip(self._x, self._y)]))
         else:
             return "Line2D()"
 
     def __init__(self, xdata, ydata,
-                 linewidth       = None, # all Nones default to rc
-                 linestyle       = None,
-                 color           = None,
-                 marker          = None,
-                 markersize      = None,
-                 markeredgewidth = None,
-                 markeredgecolor = None,
-                 markerfacecolor = None,
-                 markerfacecoloralt = 'none',
-                 fillstyle       = 'full',
-                 antialiased     = None,
-                 dash_capstyle   = None,
-                 solid_capstyle  = None,
-                 dash_joinstyle  = None,
-                 solid_joinstyle = None,
-                 pickradius      = 5,
-                 drawstyle       = None,
-                 markevery       = None,
+                 linewidth=None,  # all Nones default to rc
+                 linestyle=None,
+                 color=None,
+                 marker=None,
+                 markersize=None,
+                 markeredgewidth=None,
+                 markeredgecolor=None,
+                 markerfacecolor=None,
+                 markerfacecoloralt='none',
+                 fillstyle='full',
+                 antialiased=None,
+                 dash_capstyle=None,
+                 solid_capstyle=None,
+                 dash_joinstyle=None,
+                 solid_joinstyle=None,
+                 pickradius=5,
+                 drawstyle=None,
+                 markevery=None,
                  **kwargs
                  ):
         """
@@ -169,26 +172,36 @@ class Line2D(Artist):
         if not iterable(ydata):
             raise RuntimeError('ydata must be a sequence')
 
-        if linewidth is None   : linewidth=rcParams['lines.linewidth']
+        if linewidth is None:
+            linewidth = rcParams['lines.linewidth']
 
-        if linestyle is None   : linestyle=rcParams['lines.linestyle']
-        if marker is None      : marker=rcParams['lines.marker']
-        if color is None       : color=rcParams['lines.color']
+        if linestyle is None:
+            linestyle = rcParams['lines.linestyle']
+        if marker is None:
+            marker = rcParams['lines.marker']
+        if color is None:
+            color = rcParams['lines.color']
 
-        if markersize is None  : markersize=rcParams['lines.markersize']
-        if antialiased is None : antialiased=rcParams['lines.antialiased']
-        if dash_capstyle is None : dash_capstyle=rcParams['lines.dash_capstyle']
-        if dash_joinstyle is None : dash_joinstyle=rcParams['lines.dash_joinstyle']
-        if solid_capstyle is None : solid_capstyle=rcParams['lines.solid_capstyle']
-        if solid_joinstyle is None : solid_joinstyle=rcParams['lines.solid_joinstyle']
+        if markersize is None:
+            markersize = rcParams['lines.markersize']
+        if antialiased is None:
+            antialiased = rcParams['lines.antialiased']
+        if dash_capstyle is None:
+            dash_capstyle = rcParams['lines.dash_capstyle']
+        if dash_joinstyle is None:
+            dash_joinstyle = rcParams['lines.dash_joinstyle']
+        if solid_capstyle is None:
+            solid_capstyle = rcParams['lines.solid_capstyle']
+        if solid_joinstyle is None:
+            solid_joinstyle = rcParams['lines.solid_joinstyle']
 
-        if drawstyle is None : drawstyle='default'
+        if drawstyle is None:
+            drawstyle = 'default'
 
         self.set_dash_capstyle(dash_capstyle)
         self.set_dash_joinstyle(dash_joinstyle)
         self.set_solid_capstyle(solid_capstyle)
         self.set_solid_joinstyle(solid_joinstyle)
-
 
         self.set_linestyle(linestyle)
         self.set_drawstyle(drawstyle)
@@ -200,7 +213,6 @@ class Line2D(Artist):
         self.set_antialiased(antialiased)
         self.set_markersize(markersize)
         self._dashSeq = None
-
 
         self.set_markerfacecolor(markerfacecolor)
         self.set_markerfacecoloralt(markerfacecoloralt)
@@ -240,7 +252,7 @@ class Line2D(Artist):
         TODO: sort returned indices by distance
         """
         if callable(self._contains):
-            return self._contains(self,mouseevent)
+            return self._contains(self, mouseevent)
 
         if not is_numlike(self.pickradius):
             raise ValueError("pick radius should be a distance")
@@ -248,10 +260,12 @@ class Line2D(Artist):
         # Make sure we have data to plot
         if self._invalidy or self._invalidx:
             self.recache()
-        if len(self._xy)==0: return False,{}
+        if len(self._xy) == 0:
+            return False, {}
 
         # Convert points to pixels
-        path, affine = self._get_transformed_path().get_transformed_path_and_affine()
+        transformed_path = self._get_transformed_path()
+        path, affine = transformed_path.get_transformed_path_and_affine()
         path = affine.transform_path(path)
         xy = path.vertices
         xt = xy[:, 0]
@@ -262,22 +276,23 @@ class Line2D(Artist):
             warnings.warn('no figure set when check if mouse is on line')
             pixels = self.pickradius
         else:
-            pixels = self.figure.dpi/72. * self.pickradius
+            pixels = self.figure.dpi / 72. * self.pickradius
 
-        # the math involved in checking for containment (here and inside of segment_hits) assumes
-        # that it is OK to overflow.  In case the application has set the error flags such that
-        # an exception is raised on overflow, we temporarily set the appropriate error flags here
-        # and set them back when we are finished. 
+        # the math involved in checking for containment (here and inside of
+        # segment_hits) assumes that it is OK to overflow.  In case the
+        # application has set the error flags such that an exception is raised
+        # on overflow, we temporarily set the appropriate error flags here and
+        # set them back when we are finished.
         olderrflags = np.seterr(all='ignore')
         try:
             # Check for collision
-            if self._linestyle in ['None',None]:
+            if self._linestyle in ['None', None]:
                 # If no line, return the nearby point(s)
-                d = (xt-mouseevent.x)**2 + (yt-mouseevent.y)**2
-                ind, = np.nonzero(np.less_equal(d, pixels**2))
+                d = (xt - mouseevent.x) ** 2 + (yt - mouseevent.y) ** 2
+                ind, = np.nonzero(np.less_equal(d, pixels ** 2))
             else:
                 # If line, return the nearby segment(s)
-                ind = segment_hits(mouseevent.x,mouseevent.y,xt,yt,pixels)
+                ind = segment_hits(mouseevent.x, mouseevent.y, xt, yt, pixels)
         finally:
             np.seterr(**olderrflags)
 
@@ -285,20 +300,21 @@ class Line2D(Artist):
 
         # Debugging message
         if False and self._label != '':
-            print("Checking line",self._label,"at",mouseevent.x,mouseevent.y)
+            print("Checking line", self._label,
+                  "at", mouseevent.x, mouseevent.y)
             print('xt', xt)
             print('yt', yt)
             #print 'dx,dy', (xt-mouseevent.x)**2., (yt-mouseevent.y)**2.
-            print('ind',ind)
+            print('ind', ind)
 
         # Return the point(s) within radius
-        return len(ind)>0,dict(ind=ind)
+        return len(ind) > 0, dict(ind=ind)
 
     def get_pickradius(self):
-        'return the pick radius used for containment tests'
+        """return the pick radius used for containment tests"""
         return self.pickradius
 
-    def set_pickradius(self,d):
+    def set_pickradius(self, d):
         """Sets the pick radius used for containment tests
 
         ACCEPTS: float distance in points
@@ -323,7 +339,7 @@ class Line2D(Artist):
     def set_markevery(self, every):
         """
         Set the markevery property to subsample the plot when using
-        markers.  Eg if ``markevery=5``, every 5-th marker will be
+        markers.  e.g., if ``markevery=5``, every 5-th marker will be
         plotted.  *every* can be
 
         None
@@ -333,8 +349,8 @@ class Line2D(Artist):
             Every N-th marker will be plotted starting with marker 0
 
         A length-2 tuple of integers
-            every=(start, N) will start at point start and plot every N-th marker
-
+            every=(start, N) will start at point start and plot every N-th
+            marker
 
         ACCEPTS: None | integer | (startind, stride)
 
@@ -342,10 +358,10 @@ class Line2D(Artist):
         self._markevery = every
 
     def get_markevery(self):
-        'return the markevery setting'
+        """return the markevery setting"""
         return self._markevery
 
-    def set_picker(self,p):
+    def set_picker(self, p):
         """Sets the event picker details for the line.
 
         ACCEPTS: float distance in points or callable pick function
@@ -358,8 +374,9 @@ class Line2D(Artist):
         self._picker = p
 
     def get_window_extent(self, renderer):
-        bbox = Bbox.unit()
-        bbox.update_from_data_xy(self.get_transform().transform(self.get_xydata()),
+        bbox = Bbox([[0, 0], [0, 0]])
+        trans_data_to_xy = self.get_transform().transform
+        bbox.update_from_data_xy(trans_data_to_xy(self.get_xydata()),
                                  ignore=True)
         # correct for marker size, if any
         if self._marker:
@@ -370,9 +387,11 @@ class Line2D(Artist):
     def set_axes(self, ax):
         Artist.set_axes(self, ax)
         if ax.xaxis is not None:
-            self._xcid = ax.xaxis.callbacks.connect('units', self.recache_always)
+            self._xcid = ax.xaxis.callbacks.connect('units',
+                                                    self.recache_always)
         if ax.yaxis is not None:
-            self._ycid = ax.yaxis.callbacks.connect('units', self.recache_always)
+            self._ycid = ax.yaxis.callbacks.connect('units',
+                                                    self.recache_always)
     set_axes.__doc__ = Artist.set_axes.__doc__
 
     def set_data(self, *args):
@@ -381,7 +400,7 @@ class Line2D(Artist):
 
         ACCEPTS: 2D array (rows are x, y) or two 1D arrays
         """
-        if len(args)==1:
+        if len(args) == 1:
             x, y = args[0]
         else:
             x, y = args
@@ -412,9 +431,9 @@ class Line2D(Artist):
         else:
             y = self._y
 
-        if len(x)==1 and len(y)>1:
+        if len(x) == 1 and len(y) > 1:
             x = x * np.ones(y.shape, np.float_)
-        if len(y)==1 and len(x)>1:
+        if len(y) == 1 and len(x) > 1:
             y = y * np.ones(x.shape, np.float_)
 
         if len(x) != len(y):
@@ -427,14 +446,14 @@ class Line2D(Artist):
             self._xy = ma.concatenate((x, y), 1)
         else:
             self._xy = np.concatenate((x, y), 1)
-        self._x = self._xy[:, 0] # just a view
-        self._y = self._xy[:, 1] # just a view
+        self._x = self._xy[:, 0]  # just a view
+        self._y = self._xy[:, 1]  # just a view
 
         self._subslice = False
         if (self.axes and len(x) > 100 and self._is_sorted(x) and
-            self.axes.name == 'rectilinear' and
-            self.axes.get_xscale() == 'linear' and
-            self._markevery is None):
+                self.axes.name == 'rectilinear' and
+                self.axes.get_xscale() == 'linear' and
+                self._markevery is None):
             self._subslice = True
         if hasattr(self, '_path'):
             interpolation_steps = self._path._interpolation_steps
@@ -448,12 +467,12 @@ class Line2D(Artist):
     def _transform_path(self, subslice=None):
         """
         Puts a TransformedPath instance at self._transformed_path,
-        all invalidation of the transform is then handled by the 
+        all invalidation of the transform is then handled by the
         TransformedPath instance.
         """
         # Masked arrays are now handled by the Path class itself
         if subslice is not None:
-            _path = Path(self._xy[subslice,:])
+            _path = Path(self._xy[subslice, :])
         else:
             _path = self._path
         self._transformed_path = TransformedPath(_path, self.get_transform())
@@ -478,12 +497,17 @@ class Line2D(Artist):
         self._invalidy = True
 
     def _is_sorted(self, x):
-        "return true if x is sorted"
-        if len(x)<2: return 1
-        return np.alltrue(x[1:]-x[0:-1]>=0)
+        """return true if x is sorted"""
+        if len(x) < 2:
+            return 1
+        return np.alltrue(x[1:] - x[0:-1] >= 0)
 
     @allow_rasterization
     def draw(self, renderer):
+        """draw the Line with `renderer` unless visiblity is False"""
+        if not self.get_visible():
+            return
+
         if self._invalidy or self._invalidx:
             self.recache()
         self.ind_offset = 0  # Needed for contains() method.
@@ -492,22 +516,23 @@ class Line2D(Artist):
             x0, x1 = self.axes.get_xbound()
             i0, = self._x.searchsorted([x0], 'left')
             i1, = self._x.searchsorted([x1], 'right')
-            subslice = slice(max(i0-1, 0), i1+1)
+            subslice = slice(max(i0 - 1, 0), i1 + 1)
             self.ind_offset = subslice.start
             self._transform_path(subslice)
 
-        transformed_path = self._get_transformed_path()
-
-        if not self.get_visible(): return
+        transf_path = self._get_transformed_path()
 
         renderer.open_group('line2d', self.get_gid())
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
 
-        gc.set_foreground(self._color)
+        ln_color_rgba = self._get_rgba_ln_color()
+        gc.set_foreground(ln_color_rgba)
+        gc.set_alpha(ln_color_rgba[3])
+
         gc.set_antialiased(self._antialiased)
         gc.set_linewidth(self._linewidth)
-        gc.set_alpha(self._alpha)
+
         if self.is_dashed():
             cap = self._dashcapstyle
             join = self._dashjoinstyle
@@ -517,31 +542,40 @@ class Line2D(Artist):
         gc.set_joinstyle(join)
         gc.set_capstyle(cap)
         gc.set_snap(self.get_snap())
+        if self.get_sketch_params() is not None:
+            gc.set_sketch_params(*self.get_sketch_params())
 
         funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
         if funcname != '_draw_nothing':
-            tpath, affine = transformed_path.get_transformed_path_and_affine()
+            tpath, affine = transf_path.get_transformed_path_and_affine()
             if len(tpath.vertices):
                 self._lineFunc = getattr(self, funcname)
                 funcname = self.drawStyles.get(self._drawstyle, '_draw_lines')
                 drawFunc = getattr(self, funcname)
-                drawFunc(renderer, gc, tpath, affine.frozen())
+
+                if self.get_path_effects() and self._linewidth:
+                    affine_frozen = affine.frozen()
+                    for pe in self.get_path_effects():
+                        pe_renderer = pe.get_proxy_renderer(renderer)
+                        drawFunc(pe_renderer, gc, tpath, affine_frozen)
+                else:
+                    drawFunc(renderer, gc, tpath, affine.frozen())
 
         if self._marker:
             gc = renderer.new_gc()
             self._set_gc_clip(gc)
-            rgbFace = self._get_rgb_face()
-            rgbFaceAlt = self._get_rgb_face(alt=True)
+            rgbaFace = self._get_rgba_face()
+            rgbaFaceAlt = self._get_rgba_face(alt=True)
             edgecolor = self.get_markeredgecolor()
             if is_string_like(edgecolor) and edgecolor.lower() == 'none':
                 gc.set_linewidth(0)
-                gc.set_foreground(rgbFace)
+                gc.set_foreground(rgbaFace)
             else:
                 gc.set_foreground(edgecolor)
                 gc.set_linewidth(self._markeredgewidth)
-            gc.set_alpha(self._alpha)
+
             marker = self._marker
-            tpath, affine = transformed_path.get_transformed_points_and_affine()
+            tpath, affine = transf_path.get_transformed_points_and_affine()
             if len(tpath.vertices):
                 # subsample the markers if markevery is not None
                 markevery = self.get_markevery()
@@ -573,29 +607,60 @@ class Line2D(Artist):
                     marker_trans = marker_trans.scale(w)
                 else:
                     gc.set_linewidth(0)
-                renderer.draw_markers(
-                    gc, marker_path, marker_trans, subsampled, affine.frozen(),
-                    rgbFace)
+                if rgbaFace is not None:
+                    gc.set_alpha(rgbaFace[3])
+
+                if self.get_path_effects():
+                    affine_frozen = affine.frozen()
+                    for pe in self.get_path_effects():
+                        pe.draw_markers(renderer, gc, marker_path,
+                                        marker_trans, subsampled,
+                                        affine_frozen, rgbaFace)
+                else:
+                    renderer.draw_markers(gc, marker_path, marker_trans,
+                                          subsampled, affine.frozen(),
+                                          rgbaFace)
+
                 alt_marker_path = marker.get_alt_path()
                 if alt_marker_path:
+                    if rgbaFaceAlt is not None:
+                        gc.set_alpha(rgbaFaceAlt[3])
                     alt_marker_trans = marker.get_alt_transform()
                     alt_marker_trans = alt_marker_trans.scale(w)
-                    renderer.draw_markers(
-                        gc, alt_marker_path, alt_marker_trans, subsampled,
-                        affine.frozen(), rgbFaceAlt)
+
+                    if self.get_path_effects():
+                        affine_frozen = affine.frozen()
+                        for pe in self.get_path_effects():
+                            pe.draw_markers(renderer, gc, alt_marker_path,
+                                            alt_marker_trans, subsampled,
+                                            affine_frozen, rgbaFaceAlt)
+                    else:
+                        renderer.draw_markers(
+                            gc, alt_marker_path, alt_marker_trans, subsampled,
+                            affine.frozen(), rgbaFaceAlt)
 
             gc.restore()
 
         gc.restore()
         renderer.close_group('line2d')
 
-    def get_antialiased(self): return self._antialiased
-    def get_color(self): return self._color
-    def get_drawstyle(self): return self._drawstyle
-    def get_linestyle(self): return self._linestyle
+    def get_antialiased(self):
+        return self._antialiased
 
-    def get_linewidth(self): return self._linewidth
-    def get_marker(self): return self._marker.get_marker()
+    def get_color(self):
+        return self._color
+
+    def get_drawstyle(self):
+        return self._drawstyle
+
+    def get_linestyle(self):
+        return self._linestyle
+
+    def get_linewidth(self):
+        return self._linewidth
+
+    def get_marker(self):
+        return self._marker.get_marker()
 
     def get_markeredgecolor(self):
         mec = self._markeredgecolor
@@ -609,7 +674,8 @@ class Line2D(Artist):
         else:
             return mec
 
-    def get_markeredgewidth(self): return self._markeredgewidth
+    def get_markeredgewidth(self):
+        return self._markeredgewidth
 
     def _get_markerfacecolor(self, alt=False):
         if alt:
@@ -631,16 +697,16 @@ class Line2D(Artist):
     def get_markerfacecoloralt(self):
         return self._get_markerfacecolor(alt=True)
 
-    def get_markersize(self): return self._markersize
+    def get_markersize(self):
+        return self._markersize
 
     def get_data(self, orig=True):
         """
         Return the xdata, ydata.
 
-        If *orig* is *True*, return the original data
+        If *orig* is *True*, return the original data.
         """
         return self.get_xdata(orig=orig), self.get_ydata(orig=orig)
-
 
     def get_xdata(self, orig=True):
         """
@@ -709,7 +775,8 @@ class Line2D(Artist):
         produce step-plots. 'steps' is equivalent to 'steps-pre' and
         is maintained for backward-compatibility.
 
-        ACCEPTS: [ 'default' | 'steps' | 'steps-pre' | 'steps-mid' | 'steps-post' ]
+        ACCEPTS: ['default' | 'steps' | 'steps-pre' | 'steps-mid' |
+                  'steps-post']
         """
         self._drawstyle = drawstyle
 
@@ -746,8 +813,9 @@ class Line2D(Artist):
             :meth:`set_drawstyle`
                To set the drawing style (stepping) of the plot.
 
-        ACCEPTS: [ ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'None'`` | ``' '`` | ``''`` ]
-        and any drawstyle in combination with a linestyle, e.g. ``'steps--'``.
+        ACCEPTS: [``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'None'`` |
+                  ``' '`` | ``''``]
+        and any drawstyle in combination with a linestyle, e.g., ``'steps--'``.
         """
 
         for ds in self.drawStyleKeys:  # long names are first in the list
@@ -764,8 +832,8 @@ class Line2D(Artist):
                 linestyle = ls_mapper[linestyle]
             else:
                 verbose.report('Unrecognized line style %s, %s' %
-                                            (linestyle, type(linestyle)))
-        if linestyle in [' ','']:
+                               (linestyle, type(linestyle)))
+        if linestyle in [' ', '']:
             linestyle = 'None'
         self._linestyle = linestyle
 
@@ -774,9 +842,13 @@ class Line2D(Artist):
         """
         Set the line marker
 
-        %(MarkerTable)s
+        Parameters
+        -----------
 
-        %(MarkerAccepts)s
+        marker: marker style
+            See `~matplotlib.markers` for full description of possible
+            argument
+
         """
         self._marker.set_marker(marker)
 
@@ -786,7 +858,7 @@ class Line2D(Artist):
 
         ACCEPTS: any matplotlib color
         """
-        if ec is None :
+        if ec is None:
             ec = 'auto'
         self._markeredgecolor = ec
 
@@ -796,7 +868,7 @@ class Line2D(Artist):
 
         ACCEPTS: float value in points
         """
-        if ew is None :
+        if ew is None:
             ew = rcParams['lines.markeredgewidth']
         self._markeredgewidth = ew
 
@@ -856,20 +928,18 @@ class Line2D(Artist):
 
         ACCEPTS: sequence of on/off ink in points
         """
-        if seq == (None, None) or len(seq)==0:
+        if seq == (None, None) or len(seq) == 0:
             self.set_linestyle('-')
         else:
             self.set_linestyle('--')
         self._dashSeq = seq  # TODO: offset ignored for now
 
-
     def _draw_lines(self, renderer, gc, path, trans):
         self._lineFunc(renderer, gc, path, trans)
 
-
     def _draw_steps_pre(self, renderer, gc, path, trans):
         vertices = self._xy
-        steps = ma.zeros((2*len(vertices)-1, 2), np.float_)
+        steps = ma.zeros((2 * len(vertices) - 1, 2), np.float_)
 
         steps[0::2, 0], steps[1::2, 0] = vertices[:, 0], vertices[:-1, 0]
         steps[0::2, 1], steps[1:-1:2, 1] = vertices[:, 1], vertices[1:, 1]
@@ -878,10 +948,9 @@ class Line2D(Artist):
         path = path.transformed(self.get_transform())
         self._lineFunc(renderer, gc, path, IdentityTransform())
 
-
     def _draw_steps_post(self, renderer, gc, path, trans):
         vertices = self._xy
-        steps = ma.zeros((2*len(vertices)-1, 2), np.float_)
+        steps = ma.zeros((2 * len(vertices) - 1, 2), np.float_)
 
         steps[::2, 0], steps[1:-1:2, 0] = vertices[:, 0], vertices[1:, 0]
         steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:-1, 1]
@@ -890,10 +959,9 @@ class Line2D(Artist):
         path = path.transformed(self.get_transform())
         self._lineFunc(renderer, gc, path, IdentityTransform())
 
-
     def _draw_steps_mid(self, renderer, gc, path, trans):
         vertices = self._xy
-        steps = ma.zeros((2*len(vertices), 2), np.float_)
+        steps = ma.zeros((2 * len(vertices), 2), np.float_)
 
         steps[1:-1:2, 0] = 0.5 * (vertices[:-1, 0] + vertices[1:, 0])
         steps[2::2, 0] = 0.5 * (vertices[:-1, 0] + vertices[1:, 0])
@@ -905,11 +973,9 @@ class Line2D(Artist):
         path = path.transformed(self.get_transform())
         self._lineFunc(renderer, gc, path, IdentityTransform())
 
-
     def _draw_solid(self, renderer, gc, path, trans):
         gc.set_linestyle('solid')
         renderer.draw_path(gc, path, trans)
-
 
     def _draw_dashed(self, renderer, gc, path, trans):
         gc.set_linestyle('dashed')
@@ -918,19 +984,16 @@ class Line2D(Artist):
 
         renderer.draw_path(gc, path, trans)
 
-
     def _draw_dash_dot(self, renderer, gc, path, trans):
         gc.set_linestyle('dashdot')
         renderer.draw_path(gc, path, trans)
-
 
     def _draw_dotted(self, renderer, gc, path, trans):
         gc.set_linestyle('dotted')
         renderer.draw_path(gc, path, trans)
 
-
     def update_from(self, other):
-        'copy properties from other to self'
+        """copy properties from other to self"""
         Artist.update_from(self, other)
         self._linestyle = other._linestyle
         self._linewidth = other._linewidth
@@ -951,14 +1014,29 @@ class Line2D(Artist):
                                    other._marker.get_fillstyle())
         self._drawstyle = other._drawstyle
 
-
     def _get_rgb_face(self, alt=False):
         facecolor = self._get_markerfacecolor(alt=alt)
-        if is_string_like(facecolor) and facecolor.lower()=='none':
+        if is_string_like(facecolor) and facecolor.lower() == 'none':
             rgbFace = None
         else:
             rgbFace = colorConverter.to_rgb(facecolor)
         return rgbFace
+
+    def _get_rgba_face(self, alt=False):
+        facecolor = self._get_markerfacecolor(alt=alt)
+        if is_string_like(facecolor) and facecolor.lower() == 'none':
+            rgbaFace = None
+        else:
+            rgbaFace = colorConverter.to_rgba(facecolor, self._alpha)
+        return rgbaFace
+
+    def _get_rgba_ln_color(self, alt=False):
+        ln_color = self._color
+        if is_string_like(ln_color) and ln_color.lower() == 'none':
+            rgba_ln = None
+        else:
+            rgba_ln = colorConverter.to_rgba(ln_color, self._alpha)
+        return rgba_ln
 
     # some aliases....
     def set_aa(self, val):
@@ -969,78 +1047,68 @@ class Line2D(Artist):
         'alias for set_color'
         self.set_color(val)
 
-
     def set_ls(self, val):
-        'alias for set_linestyle'
+        """alias for set_linestyle"""
         self.set_linestyle(val)
 
-
     def set_lw(self, val):
-        'alias for set_linewidth'
+        """alias for set_linewidth"""
         self.set_linewidth(val)
 
-
     def set_mec(self, val):
-        'alias for set_markeredgecolor'
+        """alias for set_markeredgecolor"""
         self.set_markeredgecolor(val)
 
-
     def set_mew(self, val):
-        'alias for set_markeredgewidth'
+        """alias for set_markeredgewidth"""
         self.set_markeredgewidth(val)
 
-
     def set_mfc(self, val):
-        'alias for set_markerfacecolor'
+        """alias for set_markerfacecolor"""
         self.set_markerfacecolor(val)
 
     def set_mfcalt(self, val):
-        'alias for set_markerfacecoloralt'
+        """alias for set_markerfacecoloralt"""
         self.set_markerfacecoloralt(val)
 
     def set_ms(self, val):
-        'alias for set_markersize'
+        """alias for set_markersize"""
         self.set_markersize(val)
 
     def get_aa(self):
-        'alias for get_antialiased'
+        """alias for get_antialiased"""
         return self.get_antialiased()
 
     def get_c(self):
-        'alias for get_color'
+        """alias for get_color"""
         return self.get_color()
 
-
     def get_ls(self):
-        'alias for get_linestyle'
+        """alias for get_linestyle"""
         return self.get_linestyle()
 
-
     def get_lw(self):
-        'alias for get_linewidth'
+        """alias for get_linewidth"""
         return self.get_linewidth()
 
-
     def get_mec(self):
-        'alias for get_markeredgecolor'
+        """alias for get_markeredgecolor"""
         return self.get_markeredgecolor()
 
-
     def get_mew(self):
-        'alias for get_markeredgewidth'
+        """alias for get_markeredgewidth"""
         return self.get_markeredgewidth()
 
-
     def get_mfc(self):
-        'alias for get_markerfacecolor'
+        """alias for get_markerfacecolor"""
         return self.get_markerfacecolor()
 
     def get_mfcalt(self, alt=False):
-        'alias for get_markerfacecoloralt'
+        """alias for get_markerfacecoloralt"""
         return self.get_markerfacecoloralt()
 
     def get_ms(self):
-        'alias for get_markersize'
+        """alias for get_markersize"""
         return self.get_markersize()
 
     def set_dash_joinstyle(self, s):
@@ -1051,7 +1119,7 @@ class Line2D(Artist):
         s = s.lower()
         if s not in self.validJoin:
             raise ValueError('set_dash_joinstyle passed "%s";\n' % (s,)
-                  + 'valid joinstyles are %s' % (self.validJoin,))
+                             + 'valid joinstyles are %s' % (self.validJoin,))
         self._dashjoinstyle = s
 
     def set_solid_joinstyle(self, s):
@@ -1062,9 +1130,8 @@ class Line2D(Artist):
         s = s.lower()
         if s not in self.validJoin:
             raise ValueError('set_solid_joinstyle passed "%s";\n' % (s,)
-                  + 'valid joinstyles are %s' % (self.validJoin,))
+                             + 'valid joinstyles are %s' % (self.validJoin,))
         self._solidjoinstyle = s
-
 
     def get_dash_joinstyle(self):
         """
@@ -1087,10 +1154,9 @@ class Line2D(Artist):
         s = s.lower()
         if s not in self.validCap:
             raise ValueError('set_dash_capstyle passed "%s";\n' % (s,)
-                  + 'valid capstyles are %s' % (self.validCap,))
+                             + 'valid capstyles are %s' % (self.validCap,))
 
         self._dashcapstyle = s
-
 
     def set_solid_capstyle(self, s):
         """
@@ -1101,10 +1167,9 @@ class Line2D(Artist):
         s = s.lower()
         if s not in self.validCap:
             raise ValueError('set_solid_capstyle passed "%s";\n' % (s,)
-                  + 'valid capstyles are %s' % (self.validCap,))
+                             + 'valid capstyles are %s' % (self.validCap,))
 
         self._solidcapstyle = s
-
 
     def get_dash_capstyle(self):
         """
@@ -1112,17 +1177,16 @@ class Line2D(Artist):
         """
         return self._dashcapstyle
 
-
     def get_solid_capstyle(self):
         """
         Get the cap style for solid linestyles
         """
         return self._solidcapstyle
 
-
     def is_dashed(self):
         'return True if line is dashstyle'
         return self._linestyle in ('--', '-.', ':')
+
 
 class VertexSelector:
     """
@@ -1167,7 +1231,8 @@ class VertexSelector:
             raise RuntimeError('You must first add the line to the Axes')
 
         if line.get_picker() is None:
-            raise RuntimeError('You must first set the picker property of the line')
+            raise RuntimeError('You must first set the picker property '
+                               'of the line')
 
         self.axes = line.axes
         self.line = line
@@ -1175,7 +1240,6 @@ class VertexSelector:
         self.cid = self.canvas.mpl_connect('pick_event', self.onpick)
 
         self.ind = set()
-
 
     def process_selected(self, ind, xs, ys):
         """
@@ -1188,8 +1252,9 @@ class VertexSelector:
         pass
 
     def onpick(self, event):
-        'When the line is picked, update the set of selected indicies.'
-        if event.artist is not self.line: return
+        """When the line is picked, update the set of selected indicies."""
+        if event.artist is not self.line:
+            return
 
         for i in event.ind:
             if i in self.ind:
@@ -1197,18 +1262,18 @@ class VertexSelector:
             else:
                 self.ind.add(i)
 
-
         ind = list(self.ind)
         ind.sort()
         xdata, ydata = self.line.get_data()
         self.process_selected(ind, xdata[ind], ydata[ind])
+
 
 lineStyles = Line2D._lineStyles
 lineMarkers = MarkerStyle.markers
 drawStyles = Line2D.drawStyles
 fillStyles = MarkerStyle.fillstyles
 
-docstring.interpd.update(Line2D = artist.kwdoc(Line2D))
+docstring.interpd.update(Line2D=artist.kwdoc(Line2D))
 
 # You can not set the docstring of an instancemethod,
 # but you can on the underlying function.  Go figure.

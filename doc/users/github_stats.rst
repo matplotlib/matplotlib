@@ -1,5 +1,6 @@
 
 .. _github-stats:
+
 Github stats
 ============
 
@@ -102,7 +103,7 @@ The following 90 authors contributed 1618 commits.
 
 
 We closed a total of 1222 issues, 435 pull requests and 787 regular issues;
-this is the full list (generated with the script 
+this is the full list (generated with the script
 :file:`tools/github_stats.py`):
 
 Pull Requests (435):
@@ -151,7 +152,7 @@ Pull Requests (435):
 * :ghpull:`1762`: Make cbook safe to import while removing duplicate is_string_like;
 * :ghpull:`1252`: Properly passing on horiz-/vertOn to Cursor()
 * :ghpull:`1686`: Fix lost ticks
-* :ghpull:`1640`: Fix bugs in legend positioning with loc='best' 
+* :ghpull:`1640`: Fix bugs in legend positioning with loc='best'
 * :ghpull:`1687`: Update lib/matplotlib/backends/backend_cairo.py
 * :ghpull:`1760`: Improved the subplot function documentation and fixed the autogeneration from boilerplate.
 * :ghpull:`1716`: PEP8 fixes on the figure module
@@ -202,7 +203,7 @@ Pull Requests (435):
 * :ghpull:`1657`: Add EventCollection and eventplot
 * :ghpull:`1641`: PEP8 fixes on the rcsetup module
 * :ghpull:`1650`: _png.read_png crashes on Python 3 with urllib.request object
-* :ghpull:`1568`: removed deprecated methods from the axes module. 
+* :ghpull:`1568`: removed deprecated methods from the axes module.
 * :ghpull:`1589`: Fix shifted ylabels (Issue #1571)
 * :ghpull:`1634`: add scatterpoints to  rcParam
 * :ghpull:`1654`: added explicit 'zorder' kwarg to `Colection` and `LineCollection`.
@@ -353,7 +354,7 @@ Pull Requests (435):
 * :ghpull:`1333`: PEP8 fixes on collections.py
 * :ghpull:`1336`: PEP8 fixes to colorbar.py
 * :ghpull:`1347`: Remove nonfunctioning cbook.isvector
-* :ghpull:`1327`: plt.subplots: Set the visibility of the offset text to false on the shared axes. 
+* :ghpull:`1327`: plt.subplots: Set the visibility of the offset text to false on the shared axes.
 * :ghpull:`1335`: PEP8 fixes on cbook.py
 * :ghpull:`1334`: PEP8 fixes on blocking_input.py
 * :ghpull:`1332`: PEP8 fixes on cm.py
@@ -371,7 +372,7 @@ Pull Requests (435):
 * :ghpull:`1285`: Hide Tk root window until later
 * :ghpull:`1305`: Fix pointer syntax error
 * :ghpull:`1294`: Update lib/mpl_toolkits/mplot3d/axes3d.py
-* :ghpull:`1300`: Pcolormesh and colorbar documentation. 
+* :ghpull:`1300`: Pcolormesh and colorbar documentation.
 * :ghpull:`1296`: Make Container._remove_method call correctly
 * :ghpull:`1293`: Fixed to contour to support the _as_mpl_transform api.
 * :ghpull:`1284`: Fix Image Tutorial: plt.imshow instead of mpimg.imshow.
@@ -383,7 +384,7 @@ Pull Requests (435):
 * :ghpull:`1277`: Fixed bug in MaxNLocator.bin_boundaries
 * :ghpull:`1273`: Handled baseline image folder identification for non matplotlib projects...
 * :ghpull:`1230`: Fix dpi issue for bitmaps on the OS X backend
-* :ghpull:`1251`: backend_pgf. Enable custom dashstyles in the pgf backend 
+* :ghpull:`1251`: backend_pgf. Enable custom dashstyles in the pgf backend
 * :ghpull:`1264`: Re-added the matplotlib.dates import on axes
 * :ghpull:`1271`: Set axis limits in test_stackplot
 * :ghpull:`1269`: Fix typo in docstring
@@ -406,7 +407,7 @@ Pull Requests (435):
 * :ghpull:`1231`: fix Typesetting in plot() docstring
 * :ghpull:`1215`: PEP8 on lib/matplotlib.afm.py
 * :ghpull:`1216`: PEP8 fixes on the animation module
-* :ghpull:`1208`: FAIL: matplotlib.tests.test_text.test_contains.test 
+* :ghpull:`1208`: FAIL: matplotlib.tests.test_text.test_contains.test
 * :ghpull:`1209`: Pass linewidth to Mac context properly
 * :ghpull:`847`: Add stacked kwarg to hist and implement stacked hists for step histtype
 * :ghpull:`1228`: backend_pgf: pep8 edits
@@ -469,7 +470,7 @@ Pull Requests (435):
 * :ghpull:`983`: Issues with dateutil and pytz
 * :ghpull:`1133`: figure.py: import warnings, and make imports absolute
 * :ghpull:`1132`: clean out obsolete matplotlibrc-related bits to close #1123
-* :ghpull:`1131`: Cleanup after the gca test. 
+* :ghpull:`1131`: Cleanup after the gca test.
 * :ghpull:`563`: sankey.add() has mutable defaults
 * :ghpull:`731`: Plot limit with transform
 * :ghpull:`1107`: Added %s support for labels.
@@ -493,7 +494,7 @@ Pull Requests (435):
 * :ghpull:`1074`: Added broadcasting support in some mplot3d methods
 * :ghpull:`1064`: Locator interface
 * :ghpull:`850`: Added tripcolor triangle-centred colour values.
-* :ghpull:`1093`: Exposed the callback id for the default key press handler so that it can be easily diabled. Fixes #215.
+* :ghpull:`1093`: Exposed the callback id for the default key press handler so that it can be easily disabled. Fixes #215.
 * :ghpull:`1065`: fixed conversion from pt to inch in tight_layout
 * :ghpull:`1082`: doc: in pcolormesh docstring, say what it does.
 * :ghpull:`1078`: doc: note that IDLE doesn't work with interactive mode.
@@ -523,10 +524,10 @@ Pull Requests (435):
 * :ghpull:`1002`: Fixed potential overflow exception in the lines.contains() method
 * :ghpull:`1025`: Timers
 * :ghpull:`989`: Animation subprocess bug
-* :ghpull:`898`: Added warnings for easily confusible subplot/subplots invokations
+* :ghpull:`898`: Added warnings for easily confusable subplot/subplots invocations
 * :ghpull:`963`: Add detection of file extension for file-like objects
 * :ghpull:`973`: Fix sankey.py pep8 and py3 compatibility
-* :ghpull:`972`: Force closing PIL image files 
+* :ghpull:`972`: Force closing PIL image files
 * :ghpull:`981`: Fix pathpatch3d_demo.py on Python 3
 * :ghpull:`980`: Fix basic_units.py on Python 3. PEP8 and PyLint cleanup.
 * :ghpull:`1014`: qt4: remove duplicate file save button; and remove trailing whitespace
@@ -540,7 +541,7 @@ Pull Requests (435):
 * :ghpull:`851`: Simple GUI interface enhancements
 * :ghpull:`979`: Fix test_mouseclicks.py on Python 3
 * :ghpull:`977`: Fix lasso_selector_demo.py on Python 3
-* :ghpull:`970`: Fix tiff and jpeg export via PIL 
+* :ghpull:`970`: Fix tiff and jpeg export via PIL
 * :ghpull:`961`: Issue 807 auto minor locator
 
 Issues (787):
@@ -632,7 +633,7 @@ Issues (787):
 * :ghissue:`1252`: Properly passing on horiz-/vertOn to Cursor()
 * :ghissue:`1632`: Fix build on Ubuntu 12.10
 * :ghissue:`1686`: Fix lost ticks
-* :ghissue:`1640`: Fix bugs in legend positioning with loc='best' 
+* :ghissue:`1640`: Fix bugs in legend positioning with loc='best'
 * :ghissue:`1687`: Update lib/matplotlib/backends/backend_cairo.py
 * :ghissue:`1760`: Improved the subplot function documentation and fixed the autogeneration from boilerplate.
 * :ghissue:`1647`: WIP: Deprecation of the cbook module
@@ -725,7 +726,7 @@ Issues (787):
 * :ghissue:`1657`: Add EventCollection and eventplot
 * :ghissue:`1641`: PEP8 fixes on the rcsetup module
 * :ghissue:`1650`: _png.read_png crashes on Python 3 with urllib.request object
-* :ghissue:`1568`: removed deprecated methods from the axes module. 
+* :ghissue:`1568`: removed deprecated methods from the axes module.
 * :ghissue:`1571`: Y-labels shifted
 * :ghissue:`1589`: Fix shifted ylabels (Issue #1571)
 * :ghissue:`1276`: Fix overwriting suptitle
@@ -748,7 +749,7 @@ Issues (787):
 * :ghissue:`1582`: Linear tri interpolator
 * :ghissue:`1637`: change cbook to relative import
 * :ghissue:`1645`: add get_segments method to collections.LineCollection - updated
-* :ghissue:`1639`: Rename web_static to web_backend in setup.py 
+* :ghissue:`1639`: Rename web_static to web_backend in setup.py
 * :ghissue:`1618`: Mplot3d/crashfixes
 * :ghissue:`1636`: hexbin log scale is broken in matplotlib 1.2.0
 * :ghissue:`1624`: implemented inverse transform for Mollweide axes
@@ -756,13 +757,13 @@ Issues (787):
 * :ghissue:`1139`: Make Axes.stem take at least one argument.
 * :ghissue:`1426`: WebAgg backend
 * :ghissue:`1606`: Document the C/C++ code guidelines
-* :ghissue:`1622`: zorder is not respected by all parts of `errorbar` 
+* :ghissue:`1622`: zorder is not respected by all parts of `errorbar`
 * :ghissue:`1628`: Fix errorbar zorder v1.2
 * :ghissue:`1625`: saving pgf to a stream is not supported
 * :ghissue:`1588`: Annotations appear in incorrect locations
 * :ghissue:`1620`: Fix bug in _AnnotationBase
 * :ghissue:`1621`: Package for python 3.3 on OS X
-* :ghissue:`1616`: Legend: Also calc the bbox of the legend when the frame is not drawn. 
+* :ghissue:`1616`: Legend: Also calc the bbox of the legend when the frame is not drawn.
 * :ghissue:`1587`: Mac OS X 10.5 needs an autoreleasepool here to avoid memory leaks. Newer...
 * :ghissue:`1597`: new MatplotlibDeprecationWarning class (against master)
 * :ghissue:`1596`: new MatplotlibDeprecationWarning class (against 1.2.x)
@@ -918,7 +919,7 @@ Issues (787):
 * :ghissue:`1424`: pcolor fails if edgecolors is not a string
 * :ghissue:`1427`: Fix AttrituteError for .lower on tuple of strings
 * :ghissue:`1425`: Rebase of #1418 on v1.2.x
-* :ghissue:`1418`: Tables: Fix get_window_extent for table 
+* :ghissue:`1418`: Tables: Fix get_window_extent for table
 * :ghissue:`1411`: Fix transparent markers in PDF backend.  Closes #1410
 * :ghissue:`1410`: Open markers incorrect in PDF output
 * :ghissue:`1416`: backend_pdf: optional rgbFace arg in fillp replaces code in draw_markers. Closes #1410
@@ -981,7 +982,7 @@ Issues (787):
 * :ghissue:`1333`: PEP8 fixes on collections.py
 * :ghissue:`1336`: PEP8 fixes to colorbar.py
 * :ghissue:`1347`: Remove nonfunctioning cbook.isvector
-* :ghissue:`1327`: plt.subplots: Set the visibility of the offset text to false on the shared axes. 
+* :ghissue:`1327`: plt.subplots: Set the visibility of the offset text to false on the shared axes.
 * :ghissue:`1335`: PEP8 fixes on cbook.py
 * :ghissue:`1334`: PEP8 fixes on blocking_input.py
 * :ghissue:`1332`: PEP8 fixes on cm.py
@@ -1005,7 +1006,7 @@ Issues (787):
 * :ghissue:`156`: Multicursor not displayed with zoom on
 * :ghissue:`1320`: Cursor widget now uses widgetlock; closes Issue #156
 * :ghissue:`1321`: pgf backend. Y-labels in subplot are not alligned after baseline but bottom of letter
-* :ghissue:`1301`: Colorbar Add kw arguement to colorbar to reenable edges around faces 
+* :ghissue:`1301`: Colorbar Add kw arguement to colorbar to reenable edges around faces
 * :ghissue:`1315`: Add documentation of colorbar issue #1188 to colorbar documentation.
 * :ghissue:`1303`: twinx/twiny misses settings axes
 * :ghissue:`1307`: Marker not round with markersize=3
@@ -1017,8 +1018,8 @@ Issues (787):
 * :ghissue:`1294`: Update lib/mpl_toolkits/mplot3d/axes3d.py
 * :ghissue:`159`: Autoscale in hist() with step and log
 * :ghissue:`167`: windows x64 support in _tkagg.so
-* :ghissue:`1300`: Pcolormesh and colorbar documentation. 
-* :ghissue:`1178`: Make colorbar draw edge with facecolor around the faces. 
+* :ghissue:`1300`: Pcolormesh and colorbar documentation.
+* :ghissue:`1178`: Make colorbar draw edge with facecolor around the faces.
 * :ghissue:`1205`: New 'gridon' keyword in plotfile
 * :ghissue:`1295`: Exception when using Container.remove
 * :ghissue:`1296`: Make Container._remove_method call correctly
@@ -1052,7 +1053,7 @@ Issues (787):
 * :ghissue:`1273`: Handled baseline image folder identification for non matplotlib projects...
 * :ghissue:`1230`: Fix dpi issue for bitmaps on the OS X backend
 * :ghissue:`1274`: backend_pgf: Custom dashstyles and consistency with other backends
-* :ghissue:`1251`: backend_pgf. Enable custom dashstyles in the pgf backend 
+* :ghissue:`1251`: backend_pgf. Enable custom dashstyles in the pgf backend
 * :ghissue:`1264`: Re-added the matplotlib.dates import on axes
 * :ghissue:`1271`: Set axis limits in test_stackplot
 * :ghissue:`1269`: Fix typo in docstring
@@ -1086,7 +1087,7 @@ Issues (787):
 * :ghissue:`1231`: fix Typesetting in plot() docstring
 * :ghissue:`1215`: PEP8 on lib/matplotlib.afm.py
 * :ghissue:`1216`: PEP8 fixes on the animation module
-* :ghissue:`1208`: FAIL: matplotlib.tests.test_text.test_contains.test 
+* :ghissue:`1208`: FAIL: matplotlib.tests.test_text.test_contains.test
 * :ghissue:`786`: savefig() renders paths and text differently than show()
 * :ghissue:`1209`: Pass linewidth to Mac context properly
 * :ghissue:`847`: Add stacked kwarg to hist and implement stacked hists for step histtype
@@ -1136,7 +1137,7 @@ Issues (787):
 * :ghissue:`557`: Crash during date axis setup
 * :ghissue:`600`: errorbar(): kwarg 'markevery' not working as expected.
 * :ghissue:`174`: Memory leak in example simple_idle_wx.py
-* :ghissue:`232`: format in plot_direcitive sphinx>=1.0.6 compatible patch
+* :ghissue:`232`: format in plot_directive sphinx>=1.0.6 compatible patch
 * :ghissue:`1162`: FIX nose.tools.assert_is is only supported with python2.7
 * :ghissue:`1165`: tight_layout fails on twinx, twiny
 * :ghissue:`803`: Return arrow collection as 2nd argument of streamplot.
@@ -1179,7 +1180,7 @@ Issues (787):
 * :ghissue:`1141`: backend_pgf: fix parentheses typo
 * :ghissue:`1114`: Make grid accept alpha rcParam
 * :ghissue:`1118`: ERROR: matplotlib.tests.test_backend_pgf.test_pdflatex on Python 3.x
-* :ghissue:`1116`: ERROR: matplotlib.tests.test_backend_pgf.test_xelatex 
+* :ghissue:`1116`: ERROR: matplotlib.tests.test_backend_pgf.test_xelatex
 * :ghissue:`1124`: PGF backend, fix #1116, #1118 and #1128
 * :ghissue:`745`: Cannot run tests with Python 3.x on MacOS 10.7
 * :ghissue:`983`: Issues with dateutil and pytz
@@ -1188,7 +1189,7 @@ Issues (787):
 * :ghissue:`1133`: figure.py: import warnings, and make imports absolute
 * :ghissue:`1123`: Rationalize the number of ancillary (default matplotlibrc) files
 * :ghissue:`1132`: clean out obsolete matplotlibrc-related bits to close #1123
-* :ghissue:`1131`: Cleanup after the gca test. 
+* :ghissue:`1131`: Cleanup after the gca test.
 * :ghissue:`563`: sankey.add() has mutable defaults
 * :ghissue:`238`: patch for qt4 backend
 * :ghissue:`731`: Plot limit with transform
@@ -1238,7 +1239,7 @@ Issues (787):
 * :ghissue:`850`: Added tripcolor triangle-centred colour values.
 * :ghissue:`1059`: Matplotlib figure window freezes during interactive mode
 * :ghissue:`215`: skipping mpl-axes-interaction during  key_press_event\'s
-* :ghissue:`1093`: Exposed the callback id for the default key press handler so that it can be easily diabled. Fixes #215.
+* :ghissue:`1093`: Exposed the callback id for the default key press handler so that it can be easily disabled. Fixes #215.
 * :ghissue:`909`: Log Formatter for tick labels can't handle non-integer base
 * :ghissue:`1065`: fixed conversion from pt to inch in tight_layout
 * :ghissue:`1086`: Problem with subplot / matplotlib.dates interaction
@@ -1295,10 +1296,10 @@ Issues (787):
 * :ghissue:`1002`: Fixed potential overflow exception in the lines.contains() method
 * :ghissue:`1025`: Timers
 * :ghissue:`989`: Animation subprocess bug
-* :ghissue:`898`: Added warnings for easily confusible subplot/subplots invokations
+* :ghissue:`898`: Added warnings for easily confusable subplot/subplots invocations
 * :ghissue:`963`: Add detection of file extension for file-like objects
 * :ghissue:`973`: Fix sankey.py pep8 and py3 compatibility
-* :ghissue:`972`: Force closing PIL image files 
+* :ghissue:`972`: Force closing PIL image files
 * :ghissue:`981`: Fix pathpatch3d_demo.py on Python 3
 * :ghissue:`980`: Fix basic_units.py on Python 3. PEP8 and PyLint cleanup.
 * :ghissue:`996`: macosx backend broken by #901: QuadMesh fails so colorbar fails
@@ -1322,7 +1323,7 @@ Issues (787):
 * :ghissue:`851`: Simple GUI interface enhancements
 * :ghissue:`979`: Fix test_mouseclicks.py on Python 3
 * :ghissue:`977`: Fix lasso_selector_demo.py on Python 3
-* :ghissue:`970`: Fix tiff and jpeg export via PIL 
+* :ghissue:`970`: Fix tiff and jpeg export via PIL
 * :ghissue:`707`: key_press_event in pyqt4 embedded matplotlib
 * :ghissue:`243`: Debug version/symbols for win32
 * :ghissue:`255`: Classes in _transforms.h in global namespace

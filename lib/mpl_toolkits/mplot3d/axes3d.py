@@ -464,7 +464,7 @@ class Axes3D(Axes):
         .. versionchanged :: 1.1.0
             Function signature was changed to better match the 2D version.
             *tight* is now explicitly a kwarg and placed first.
-            
+
         .. versionchanged :: 1.2.1
             This is now fully functional.
 
@@ -668,7 +668,7 @@ class Axes3D(Axes):
         Set 3D z limits.
 
         See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation
-        
+
         """
         if 'zmin' in kw:
             bottom = kw.pop('zmin')
@@ -752,7 +752,7 @@ class Axes3D(Axes):
     # We need to slightly redefine these to pass scalez=False
     # to their calls of autoscale_view.
     def set_xscale(self, value, **kwargs) :
-        self.xaxis.set_scale(value, **kwargs)
+        self.xaxis._set_scale(value, **kwargs)
         self.autoscale_view(scaley=False, scalez=False)
         self._update_transScale()
     set_xscale.__doc__ = maxes.Axes.set_xscale.__doc__ + """
@@ -762,7 +762,7 @@ class Axes3D(Axes):
         """
 
     def set_yscale(self, value, **kwargs) :
-        self.yaxis.set_scale(value, **kwargs)
+        self.yaxis._set_scale(value, **kwargs)
         self.autoscale_view(scalex=False, scalez=False)
         self._update_transScale()
     set_yscale.__doc__ = maxes.Axes.set_yscale.__doc__ + """
@@ -793,7 +793,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        self.zaxis.set_scale(value, **kwargs)
+        self.zaxis._set_scale(value, **kwargs)
         self.autoscale_view(scalex=False, scaley=False)
         self._update_transScale()
 
@@ -1035,9 +1035,9 @@ class Axes3D(Axes):
             self.zaxis.minor = self._sharez.zaxis.minor
             z0, z1 = self._sharez.get_zlim()
             self.set_zlim(z0, z1, emit=False, auto=None)
-            self.zaxis.set_scale(self._sharez.zaxis.get_scale())
+            self.zaxis._set_scale(self._sharez.zaxis.get_scale())
         else:
-            self.zaxis.set_scale('linear')
+            self.zaxis._set_scale('linear')
 
         self._autoscaleZon = True
         self._zmargin = 0
@@ -1147,7 +1147,7 @@ class Axes3D(Axes):
             self.elev = art3d.norm_angle(self.elev - (dy/h)*180)
             self.azim = art3d.norm_angle(self.azim - (dx/w)*180)
             self.get_proj()
-            self.figure.canvas.draw()
+            self.figure.canvas.draw_idle()
 
 #        elif self.button_pressed == 2:
             # pan view
@@ -1168,7 +1168,7 @@ class Axes3D(Axes):
             self.set_ylim3d(miny - dy, maxy + dy)
             self.set_zlim3d(minz - dz, maxz + dz)
             self.get_proj()
-            self.figure.canvas.draw()
+            self.figure.canvas.draw_idle()
 
     def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
         '''
@@ -1759,7 +1759,7 @@ class Axes3D(Axes):
 
         return linec
 
-    def plot_trisurf(self, X, Y, Z, *args, **kwargs):
+    def plot_trisurf(self, *args, **kwargs):
         """
         ============= ================================================
         Argument      Description
@@ -1773,8 +1773,36 @@ class Axes3D(Axes):
         *shade*       Whether to shade the facecolors
         ============= ================================================
 
+        The (optional) triangulation can be specified in one of two ways;
+        either::
+
+          plot_trisurf(triangulation, ...)
+
+        where triangulation is a :class:`~matplotlib.tri.Triangulation`
+        object, or::
+
+          plot_trisurf(X, Y, ...)
+          plot_trisurf(X, Y, triangles, ...)
+          plot_trisurf(X, Y, triangles=triangles, ...)
+
+        in which case a Triangulation object will be created.  See
+        :class:`~matplotlib.tri.Triangulation` for a explanation of
+        these possibilities.
+
+        The remaining arguments are::
+
+          plot_trisurf(..., Z)
+
+        where *Z* is the array of values to contour, one per point
+        in the triangulation.
+
         Other arguments are passed on to
         :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+
+        **Examples:**
+
+        .. plot:: mpl_examples/mplot3d/trisurf3d_demo.py
+        .. plot:: mpl_examples/mplot3d/trisurf3d_demo2.py
 
         .. versionadded:: 1.2.0
             This plotting function was added for the v1.2.0 release.
@@ -1793,15 +1821,13 @@ class Axes3D(Axes):
         shade = kwargs.pop('shade', cmap is None)
         lightsource = kwargs.pop('lightsource', None)
 
-        # TODO: Support masked triangulations
-        tri = Triangulation(X, Y)
-        x = tri.x
-        y = tri.y
-        triangles = tri.triangles
+        tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
+        z = np.asarray(args[0])
 
-        xt = x[triangles][...,np.newaxis]
-        yt = y[triangles][...,np.newaxis]
-        zt = np.array(Z)[triangles][...,np.newaxis]
+        triangles = tri.get_masked_triangles()
+        xt = tri.x[triangles][...,np.newaxis]
+        yt = tri.y[triangles][...,np.newaxis]
+        zt = np.array(z)[triangles][...,np.newaxis]
 
         verts = np.concatenate((xt, yt, zt), axis=2)
 
@@ -1846,7 +1872,7 @@ class Axes3D(Axes):
             polyc.set_facecolors(colset)
 
         self.add_collection(polyc)
-        self.auto_scale_xyz(X, Y, Z, had_data)
+        self.auto_scale_xyz(tri.x, tri.y, z, had_data)
 
         return polyc
 
@@ -2334,10 +2360,12 @@ class Axes3D(Axes):
 
         self.auto_scale_xyz((minx, maxx), (miny, maxy), (minz, maxz), had_data)
 
-    def set_title(self, label, fontdict=None, **kwargs):
-        Axes.set_title(self, label, fontdict, **kwargs)
+    def set_title(self, label, fontdict=None, loc='center', **kwargs):
+        ret = Axes.set_title(self, label, fontdict=fontdict, loc=loc, **kwargs)
         (x, y) = self.title.get_position()
         self.title.set_y(0.92 * y)
+        return ret
+    set_title.__doc__ = maxes.Axes.set_title.__doc__
 
 def get_test_data(delta=0.05):
     '''

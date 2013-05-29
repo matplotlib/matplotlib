@@ -34,19 +34,20 @@ from warnings import warn
 from numpy import inf, isinf
 import numpy as np
 
-if sys.version_info[0] >= 3:
-    from matplotlib.pyparsing_py3 import Combine, Group, Optional, Forward, \
-         Literal, OneOrMore, ZeroOrMore, ParseException, Empty, \
-         ParseResults, Suppress, oneOf, StringEnd, ParseFatalException, \
-         FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException
-else:
-    from matplotlib.pyparsing_py2 import Combine, Group, Optional, Forward, \
-         Literal, OneOrMore, ZeroOrMore, ParseException, Empty, \
-         ParseResults, Suppress, oneOf, StringEnd, ParseFatalException, \
-         FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException
+import pyparsing
+from pyparsing import Combine, Group, Optional, Forward, \
+     Literal, OneOrMore, ZeroOrMore, ParseException, Empty, \
+     ParseResults, Suppress, oneOf, StringEnd, ParseFatalException, \
+     FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException
 
 # Enable packrat parsing
-ParserElement.enablePackrat()
+if (sys.version_info[0] >= 3 and
+    [int(x) for x in pyparsing.__version__.split('.')] < [2, 0, 0]):
+    warn("Due to a bug in pyparsing <= 2.0.0 on Python 3.x, packrat parsing "
+         "has been disabled.  Mathtext rendering will be much slower as a "
+         "result.  Install pyparsing 2.0.0 or later to improve performance.")
+else:
+    ParserElement.enablePackrat()
 
 from matplotlib.afm import AFM
 from matplotlib.cbook import Bunch, get_realpath_and_stat, \
@@ -267,7 +268,7 @@ setfont
         self.pswriter.write(ps)
 
     def get_results(self, box, used_characters):
-        ship(0, -self.depth, box)
+        ship(0, 0, box)
         return (self.width,
                 self.height + self.depth,
                 self.depth,
@@ -294,7 +295,7 @@ class MathtextBackendPdf(MathtextBackend):
         self.rects.append((x1, self.height - y2, x2 - x1, y2 - y1))
 
     def get_results(self, box, used_characters):
-        ship(0, -self.depth, box)
+        ship(0, 0, box)
         return (self.width,
                 self.height + self.depth,
                 self.depth,
@@ -322,7 +323,7 @@ class MathtextBackendSvg(MathtextBackend):
             (x1, self.height - y1 + 1, x2 - x1, y2 - y1))
 
     def get_results(self, box, used_characters):
-        ship(0, -self.depth, box)
+        ship(0, 0, box)
         svg_elements = Bunch(svg_glyphs = self.svg_glyphs,
                              svg_rects = self.svg_rects)
         return (self.width,
@@ -352,7 +353,7 @@ class MathtextBackendPath(MathtextBackend):
             (x1, self.height-y2 , x2 - x1, y2 - y1))
 
     def get_results(self, box, used_characters):
-        ship(0, -self.depth, box)
+        ship(0, 0, box)
         return (self.width,
                 self.height + self.depth,
                 self.depth,
@@ -380,7 +381,7 @@ class MathtextBackendCairo(MathtextBackend):
             (x1, y1 - self.height, x2 - x1, y2 - y1))
 
     def get_results(self, box, used_characters):
-        ship(0, -self.depth, box)
+        ship(0, 0, box)
         return (self.width,
                 self.height + self.depth,
                 self.depth,
@@ -428,7 +429,7 @@ class Fonts(object):
 
         *fontclassX*: TODO
 
-        *symX*: a symbol in raw TeX form. e.g. '1', 'x' or '\sigma'
+        *symX*: a symbol in raw TeX form. e.g., '1', 'x' or '\sigma'
 
         *fontsizeX*: the fontsize in points
 
@@ -444,7 +445,7 @@ class Fonts(object):
 
         *font_class*: TODO
 
-        *sym*:  a symbol in raw TeX form. e.g. '1', 'x' or '\sigma'
+        *sym*:  a symbol in raw TeX form. e.g., '1', 'x' or '\sigma'
 
         *fontsize*: font size in points
 
@@ -1181,7 +1182,7 @@ class StandardPsFonts(Fonts):
 #    Typesetting math formulas
 #
 # Many of the docstrings below refer to a numbered "node" in that
-# book, e.g. node123
+# book, e.g., node123
 #
 # Note that (as TeX) y increases downward, unlike many other parts of
 # matplotlib.
@@ -3142,7 +3143,7 @@ def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None):
        with the output format.
 
     *format*
-       The output format, eg. 'svg', 'pdf', 'ps' or 'png'.  If not
+       The output format, e.g., 'svg', 'pdf', 'ps' or 'png'.  If not
        provided, will be deduced from the filename.
     """
     from matplotlib import figure

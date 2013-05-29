@@ -21,10 +21,12 @@ cmap_d = dict()
 # reverse all the colormaps.
 # reversed colormaps have '_r' appended to the name.
 
+
 def _reverser(f):
     def freversed(x):
-        return f(1-x)
+        return f(1 - x)
     return freversed
+
 
 def revcmap(data):
     """Can only handle specification *data* in dictionary format."""
@@ -42,6 +44,7 @@ def revcmap(data):
         data_r[key] = valnew
     return data_r
 
+
 def _reverse_cmap_spec(spec):
     """Reverses cmap specification *spec*, can handle both dict and tuple
     type specs."""
@@ -53,6 +56,7 @@ def _reverse_cmap_spec(spec):
         if len(revspec[0]) == 2:    # e.g., (1, (1.0, 0.0, 1.0))
             revspec = [(1.0 - a, b) for a, b in revspec]
         return revspec
+
 
 def _generate_cmap(name, lutsize):
     """Generates the requested cmap from it's name *name*.  The lut size is
@@ -87,6 +91,7 @@ locals().update(cmap_d)
 
 # Continue with definitions ...
 
+
 def register_cmap(name=None, cmap=None, data=None, lut=None):
     """
     Add a colormap to the set recognized by :func:`get_cmap`.
@@ -97,12 +102,12 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
 
         register_cmap(name='choppy', data=choppydata, lut=128)
 
-    In the first case, *cmap* must be a :class:`colors.Colormap`
+    In the first case, *cmap* must be a :class:`matplotlib.colors.Colormap`
     instance.  The *name* is optional; if absent, the name will
-    be the :attr:`name` attribute of the *cmap*.
+    be the :attr:`~matplotlib.colors.Colormap.name` attribute of the *cmap*.
 
     In the second case, the three arguments are passed to
-    the :class:`colors.LinearSegmentedColormap` initializer,
+    the :class:`~matplotlib.colors.LinearSegmentedColormap` initializer,
     and the resulting colormap is registered.
 
     """
@@ -125,14 +130,15 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
     cmap = colors.LinearSegmentedColormap(name, data, lut)
     cmap_d[name] = cmap
 
+
 def get_cmap(name=None, lut=None):
     """
     Get a colormap instance, defaulting to rc values if *name* is None.
 
     Colormaps added with :func:`register_cmap` take precedence over
-    builtin colormaps.
+    built-in colormaps.
 
-    If *name* is a :class:`colors.Colormap` instance, it will be
+    If *name* is a :class:`matplotlib.colors.Colormap` instance, it will be
     returned.
 
     If *lut* is not None it must be an integer giving the number of
@@ -154,33 +160,47 @@ def get_cmap(name=None, lut=None):
 
     raise ValueError("Colormap %s is not recognized" % name)
 
+
 class ScalarMappable:
     """
-    This is a mixin class to support scalar -> RGBA mapping.  Handles
-    normalization and colormapping
-    """
+    This is a mixin class to support scalar data to RGBA mapping.
+    The ScalarMappable makes use of data normalization before returning
+    RGBA colors from the given colormap.
 
+    """
     def __init__(self, norm=None, cmap=None):
-        """
-        *norm* is an instance of :class:`colors.Normalize` or one of
-        its subclasses, used to map luminance to 0-1. *cmap* is a
-        :mod:`cm` colormap instance, for example :data:`cm.jet`
+        r"""
+
+        Parameters
+        ----------
+        norm : :class:`matplotlib.colors.Normalize` instance
+            The normalizing object which scales data, typically into the
+            interval ``[0, 1]``.
+        cmap : str or :class:`~matplotlib.colors.Colormap` instance
+            The colormap used to map normalized data values to RGBA colors.
+
         """
 
         self.callbacksSM = cbook.CallbackRegistry()
 
-        if cmap is None: cmap = get_cmap()
-        if norm is None: norm = colors.Normalize()
+        if cmap is None:
+            cmap = get_cmap()
+        if norm is None:
+            norm = colors.Normalize()
 
         self._A = None
+        #: The Normalization instance of this ScalarMappable.
         self.norm = norm
+        #: The Colormap instance of this ScalarMappable.
         self.cmap = get_cmap(cmap)
+        #: The last colorbar associated with this ScalarMappable. May be None.
         self.colorbar = None
-        self.update_dict = {'array':False}
+        self.update_dict = {'array': False}
 
+    @cbook.deprecated('1.3', alternative='the colorbar attribute')
     def set_colorbar(self, im, ax):
-        'set the colorbar image and axes associated with mappable'
-        self.colorbar = im, ax
+        """set the colorbar and axes instances associated with mappable"""
+        self.colorbar = im
 
     def to_rgba(self, x, alpha=None, bytes=False):
         """
@@ -219,9 +239,9 @@ class ScalarMappable:
                     if x.dtype == np.uint8:
                         alpha = np.uint8(alpha * 255)
                     m, n = x.shape[:2]
-                    xx = np.empty(shape=(m,n,4), dtype = x.dtype)
-                    xx[:,:,:3] = x
-                    xx[:,:,3] = alpha
+                    xx = np.empty(shape=(m, n, 4), dtype=x.dtype)
+                    xx[:, :, :3] = x
+                    xx[:, :, 3] = alpha
                 elif x.shape[2] == 4:
                     xx = x
                 else:
@@ -267,11 +287,13 @@ class ScalarMappable:
         ACCEPTS: a length 2 sequence of floats
         """
         if (vmin is not None and vmax is None and
-                                cbook.iterable(vmin) and len(vmin)==2):
+                cbook.iterable(vmin) and len(vmin) == 2):
             vmin, vmax = vmin
 
-        if vmin is not None: self.norm.vmin = vmin
-        if vmax is not None: self.norm.vmax = vmax
+        if vmin is not None:
+            self.norm.vmin = vmin
+        if vmax is not None:
+            self.norm.vmax = vmax
         self.changed()
 
     def set_cmap(self, cmap):
@@ -286,7 +308,8 @@ class ScalarMappable:
 
     def set_norm(self, norm):
         'set the normalization instance'
-        if norm is None: norm = colors.Normalize()
+        if norm is None:
+            norm = colors.Normalize()
         self.norm = norm
         self.changed()
 
@@ -309,7 +332,6 @@ class ScalarMappable:
             raise TypeError('You must first set_array for mappable')
         self.norm.autoscale_None(self._A)
         self.changed()
-
 
     def add_checker(self, checker):
         """

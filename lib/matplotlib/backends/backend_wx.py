@@ -25,7 +25,7 @@ import warnings
 
 import numpy as np
 
-from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
+from matplotlib.cbook import mplDeprecation
 
 # Debugging settings here...
 # Debug level set here. If the debug level is less than 5, information
@@ -364,11 +364,7 @@ class RendererWx(RendererBase):
         gc.gfx_ctx.DrawBitmap(bitmap,int(l),int(self.height-b),int(w),int(-h))
         gc.unselect()
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath):
-        """
-        Render the matplotlib.text.Text instance
-        None)
-        """
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         if ismath: s = self.strip_math(s)
         DEBUG_MSG("draw_text()", 1, self)
         gc.select()
@@ -523,7 +519,7 @@ class GraphicsContextWx(GraphicsContextBase):
             self.dc.SelectObject(wx.NullBitmap)
             self.IsSelected = False
 
-    def set_foreground(self, fg, isRGB=None):
+    def set_foreground(self, fg, isRGBA=None):
         """
         Set the foreground color.  fg can be a matlab format string, a
         html hex color string, an rgb unit tuple, or a float between 0
@@ -536,7 +532,7 @@ class GraphicsContextWx(GraphicsContextBase):
         # Same goes for text foreground...
         DEBUG_MSG("set_foreground()", 1, self)
         self.select()
-        GraphicsContextBase.set_foreground(self, fg, isRGB)
+        GraphicsContextBase.set_foreground(self, fg, isRGBA)
 
         self._pen.SetColour(self.get_wxcolour(self.get_rgb()))
         self.gfx_ctx.SetPen(self._pen)
@@ -789,190 +785,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
               wx.TheClipboard.Close()
               wx.TheClipboard.Flush()
 
-    def Printer_Init(self):
-        """
-        initialize printer settings using wx methods
-
-        Deprecated.
-        """
-        warnings.warn("Printer* methods will be removed", mplDeprecation)
-        self.printerData = wx.PrintData()
-        self.printerData.SetPaperId(wx.PAPER_LETTER)
-        self.printerData.SetPrintMode(wx.PRINT_MODE_PRINTER)
-        self.printerPageData= wx.PageSetupDialogData()
-        self.printerPageData.SetMarginBottomRight((25,25))
-        self.printerPageData.SetMarginTopLeft((25,25))
-        self.printerPageData.SetPrintData(self.printerData)
-
-        self.printer_width = 5.5
-        self.printer_margin= 0.5
-
-    def _get_printerData(self):
-        if self._printerData is None:
-            warnings.warn("Printer* methods will be removed", mplDeprecation)
-            self._printerData = wx.PrintData()
-            self._printerData.SetPaperId(wx.PAPER_LETTER)
-            self._printerData.SetPrintMode(wx.PRINT_MODE_PRINTER)
-        return self._printerData
-    printerData = property(_get_printerData)
-
-    def _get_printerPageData(self):
-        if self._printerPageData is None:
-            warnings.warn("Printer* methods will be removed", mplDeprecation)
-            self._printerPageData= wx.PageSetupDialogData()
-            self._printerPageData.SetMarginBottomRight((25,25))
-            self._printerPageData.SetMarginTopLeft((25,25))
-            self._printerPageData.SetPrintData(self.printerData)
-        return self._printerPageData
-    printerPageData = property(_get_printerPageData)
-
-    def Printer_Setup(self, event=None):
-        """
-        set up figure for printing.  The standard wx Printer
-        Setup Dialog seems to die easily. Therefore, this setup
-        simply asks for image width and margin for printing.
-        Deprecated.
-        """
-
-        dmsg = """Width of output figure in inches.
-The current aspect ratio will be kept."""
-
-        warnings.warn("Printer* methods will be removed", mplDeprecation)
-        dlg = wx.Dialog(self, -1, 'Page Setup for Printing' , (-1,-1))
-        df = dlg.GetFont()
-        df.SetWeight(wx.NORMAL)
-        df.SetPointSize(11)
-        dlg.SetFont(df)
-
-        x_wid = wx.TextCtrl(dlg,-1,value="%.2f" % self.printer_width, size=(70,-1))
-        x_mrg = wx.TextCtrl(dlg,-1,value="%.2f" % self.printer_margin,size=(70,-1))
-
-        sizerAll = wx.BoxSizer(wx.VERTICAL)
-        sizerAll.Add(wx.StaticText(dlg,-1,dmsg),
-                    0, wx.ALL | wx.EXPAND, 5)
-
-        sizer = wx.FlexGridSizer(0,3)
-        sizerAll.Add(sizer, 0, wx.ALL | wx.EXPAND, 5)
-
-        sizer.Add(wx.StaticText(dlg,-1,'Figure Width'),
-                    1, wx.ALIGN_LEFT|wx.ALL, 2)
-        sizer.Add(x_wid,
-                    1, wx.ALIGN_LEFT|wx.ALL, 2)
-        sizer.Add(wx.StaticText(dlg,-1,'in'),
-                    1, wx.ALIGN_LEFT|wx.ALL, 2)
-
-        sizer.Add(wx.StaticText(dlg,-1,'Margin'),
-                    1, wx.ALIGN_LEFT|wx.ALL, 2)
-        sizer.Add(x_mrg,
-                    1, wx.ALIGN_LEFT|wx.ALL, 2)
-        sizer.Add(wx.StaticText(dlg,-1,'in'),
-                    1, wx.ALIGN_LEFT|wx.ALL, 2)
-
-        btn = wx.Button(dlg,wx.ID_OK, " OK ")
-        btn.SetDefault()
-        sizer.Add(btn, 1, wx.ALIGN_LEFT, 5)
-        btn = wx.Button(dlg,wx.ID_CANCEL, " CANCEL ")
-        sizer.Add(btn, 1, wx.ALIGN_LEFT, 5)
-
-        dlg.SetSizer(sizerAll)
-        dlg.SetAutoLayout(True)
-        sizerAll.Fit(dlg)
-
-        if dlg.ShowModal() == wx.ID_OK:
-            try:
-                self.printer_width  = float(x_wid.GetValue())
-                self.printer_margin = float(x_mrg.GetValue())
-            except:
-                pass
-
-        if ((self.printer_width + self.printer_margin) > 7.5):
-            self.printerData.SetOrientation(wx.LANDSCAPE)
-        else:
-            self.printerData.SetOrientation(wx.PORTRAIT)
-        dlg.Destroy()
-        return
-
-    def Printer_Setup2(self, event=None):
-        """
-        set up figure for printing.  Using the standard wx Printer
-        Setup Dialog.
-
-        Deprecated.
-        """
-
-        warnings.warn("Printer* methods will be removed", mplDeprecation)
-        if hasattr(self, 'printerData'):
-            data = wx.PageSetupDialogData()
-            data.SetPrintData(self.printerData)
-        else:
-            data = wx.PageSetupDialogData()
-        data.SetMarginTopLeft( (15, 15) )
-        data.SetMarginBottomRight( (15, 15) )
-
-        dlg = wx.PageSetupDialog(self, data)
-
-        if dlg.ShowModal() == wx.ID_OK:
-            data = dlg.GetPageSetupData()
-            tl = data.GetMarginTopLeft()
-            br = data.GetMarginBottomRight()
-        self.printerData = wx.PrintData(data.GetPrintData())
-        dlg.Destroy()
-
-    def Printer_Preview(self, event=None):
-        """
-        generate Print Preview with wx Print mechanism
-
-        Deprecated.
-        """
-        warnings.warn("Printer* methods will be removed", mplDeprecation)
-        po1  = PrintoutWx(self, width=self.printer_width,
-                          margin=self.printer_margin)
-        po2  = PrintoutWx(self, width=self.printer_width,
-                          margin=self.printer_margin)
-        self.preview = wx.PrintPreview(po1,po2,self.printerData)
-        if not self.preview.Ok():  print("error with preview")
-
-        self.preview.SetZoom(50)
-        frameInst= self
-        while not isinstance(frameInst, wx.Frame):
-            frameInst= frameInst.GetParent()
-        frame = wx.PreviewFrame(self.preview, frameInst, "Preview")
-        frame.Initialize()
-        frame.SetPosition(self.GetPosition())
-        frame.SetSize((850,650))
-        frame.Centre(wx.BOTH)
-        frame.Show(True)
-        self.gui_repaint()
-
-    def Printer_Print(self, event=None):
-        """
-        Print figure using wx Print mechanism
-
-        Deprecated.
-        """
-        warnings.warn("Printer* methods will be removed", mplDeprecation)
-        pdd = wx.PrintDialogData()
-        # SetPrintData for 2.4 combatibility
-        pdd.SetPrintData(self.printerData)
-        pdd.SetToPage(1)
-        printer  = wx.Printer(pdd)
-        printout  = PrintoutWx(self, width=int(self.printer_width),
-                               margin=int(self.printer_margin))
-        print_ok = printer.Print(self, printout, True)
-
-        if wx.VERSION_STRING >= '2.5':
-            if not print_ok and not printer.GetLastError() == wx.PRINTER_CANCELLED:
-                wx.MessageBox("""There was a problem printing.
-                Perhaps your current printer is not set correctly?""",
-                              "Printing", wx.OK)
-        else:
-            if not print_ok:
-                wx.MessageBox("""There was a problem printing.
-                Perhaps your current printer is not set correctly?""",
-                              "Printing", wx.OK)
-        printout.Destroy()
-        self.gui_repaint()
-
     def draw_idle(self):
         """
         Delay rendering until the GUI is idle.
@@ -1171,14 +983,26 @@ The current aspect ratio will be kept."""
 
         self.figure.draw(renderer)
 
+        # image is the object that we call SaveFile on.
+        image = self.bitmap
+        # set the JPEG quality appropriately.  Unfortunately, it is only possible
+        # to set the quality on a wx.Image object.  So if we are saving a JPEG,
+        # convert the wx.Bitmap to a wx.Image, and set the quality.
+        if filetype == wx.BITMAP_TYPE_JPEG:
+           jpeg_quality = kwargs.get('quality',rcParams['savefig.jpeg_quality'])
+           image = self.bitmap.ConvertToImage()
+           image.SetOption(wx.IMAGE_OPTION_QUALITY,str(jpeg_quality))
+
         # Now that we have rendered into the bitmap, save it
         # to the appropriate file type and clean up
         if is_string_like(filename):
-            if not self.bitmap.SaveFile(filename, filetype):
+            if not image.SaveFile(filename, filetype):
                 DEBUG_MSG('print_figure() file save error', 4, self)
                 raise RuntimeError('Could not save figure to %s\n' % (filename))
         elif is_writable_file_like(filename):
-            if not self.bitmap.ConvertToImage().SaveStream(filename, filetype):
+            if not isinstance(image,wx.Image):
+               image = image.ConvertToImage()
+            if not image.SaveStream(filename, filetype):
                 DEBUG_MSG('print_figure() file save error', 4, self)
                 raise RuntimeError('Could not save figure to %s\n' % (filename))
 
@@ -2070,7 +1894,7 @@ class NavigationToolbarWx(wx.ToolBar):
 
     def update(self):
         """
-        Update the toolbar menu - called when (e.g.) a new subplot
+        Update the toolbar menu - e.g., called when a new subplot
         or axes are added
         """
         DEBUG_MSG("update()", 1, self)

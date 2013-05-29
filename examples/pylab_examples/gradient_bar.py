@@ -24,5 +24,5 @@ N = 10
 x = arange(N)+0.25
 y = rand(N)
 gbar(ax, x, y, width=0.7)
-ax.set_aspect('normal')
+ax.set_aspect('auto')
 show()

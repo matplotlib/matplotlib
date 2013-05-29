@@ -326,7 +326,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
     def enter_notify_event(self, widget, event):
         x, y, state = event.window.get_pointer()
-        FigureCanvasBase.enter_notify_event(self, event, xy=(x,y))
+        FigureCanvasBase.enter_notify_event(self, event, xy=(x, y))
 
     def _get_key(self, event):
         if event.keyval in self.keyvald:
@@ -339,7 +339,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         for key_mask, prefix in (
                                  [gdk.MOD4_MASK, 'super'],
                                  [gdk.MOD1_MASK, 'alt'],
-                                 [gdk.CONTROL_MASK, 'ctrl'],):
+                                 [gdk.CONTROL_MASK, 'ctrl'], ):
             if event.state & key_mask:
                 key = '{0}+{1}'.format(prefix, key)
 
@@ -359,7 +359,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self._need_redraw = True
 
         return False  # finish event propagation?
-
 
     def draw(self):
         # Note: FigureCanvasBase.draw() is inconveniently named as it clashes
@@ -453,7 +452,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
     def print_png(self, filename, *args, **kwargs):
         return self._print_image(filename, 'png')
 
-    def _print_image(self, filename, format):
+    def _print_image(self, filename, format, *args, **kwargs):
         if self.flags() & gtk.REALIZED == 0:
             # for self.window(for pixmap) and has a side effect of altering
             # figure width,height (via configure-event?)
@@ -470,9 +469,18 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         pixbuf.get_from_drawable(pixmap, pixmap.get_colormap(),
                                      0, 0, 0, 0, width, height)
 
+        # set the default quality, if we are writing a JPEG.
+        # http://www.pygtk.org/docs/pygtk/class-gdkpixbuf.html#method-gdkpixbuf--save
+        options = cbook.restrict_dict(kwargs, ['quality'])
+        if format in ['jpg','jpeg']:
+           if 'quality' not in options:
+              options['quality'] = rcParams['savefig.jpeg_quality']
+
+           options['quality'] = str(options['quality'])
+
         if is_string_like(filename):
             try:
-                pixbuf.save(filename, format)
+                pixbuf.save(filename, format, options=options)
             except gobject.GError as exc:
                 error_msg_gtk('Save figure failure:\n%s' % (exc,), parent=self)
         elif is_writable_file_like(filename):
@@ -480,7 +488,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                 def save_callback(buf, data=None):
                     data.write(buf)
                 try:
-                    pixbuf.save_to_callback(save_callback, format, user_data=filename)
+                    pixbuf.save_to_callback(save_callback, format, user_data=filename, options=options)
                 except gobject.GError as exc:
                     error_msg_gtk('Save figure failure:\n%s' % (exc,), parent=self)
             else:
@@ -733,6 +741,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         fc = FileChooserDialog(
             title='Save the figure',
             parent=self.win,
+            path=os.path.expanduser(rcParams.get('savefig.directory', '')),
             filetypes=self.canvas.get_supported_filetypes(),
             default_filetype=self.canvas.get_default_filetype())
         fc.set_current_name(self.canvas.get_default_filename())
@@ -743,6 +752,13 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         fname, format = chooser.get_filename_from_user()
         chooser.destroy()
         if fname:
+            startpath = os.path.expanduser(rcParams.get('savefig.directory', ''))
+            if startpath == '':
+                # explicitly missing key or empty str signals to use cwd
+                rcParams['savefig.directory'] = startpath
+            else:
+                # save dir for next time
+                rcParams['savefig.directory'] = os.path.dirname(unicode(fname))
             try:
                 self.canvas.print_figure(fname, format=format)
             except Exception as e:
@@ -1013,8 +1029,8 @@ class NavigationToolbar(gtk.Toolbar):
 
 
 class FileChooserDialog(gtk.FileChooserDialog):
-    """GTK+ 2.4 file selector which remembers the last file/directory
-    selected and presents the user with a menu of supported image formats
+    """GTK+ 2.4 file selector which presents the user with a menu
+    of supported image formats
     """
     def __init__ (self,
                   title   = 'Save file',

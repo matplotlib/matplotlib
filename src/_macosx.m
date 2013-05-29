@@ -11,6 +11,12 @@
 #define PY3K 0
 #endif
 
+#if (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >=3)
+#define PY33 1
+#else
+#define PY33 0
+#endif
+
 /* Must define Py_TYPE for Python 2.5 or older */
 #ifndef Py_TYPE
 # define Py_TYPE(o) ((o)->ob_type)
@@ -240,11 +246,15 @@ static void _dealloc_atsui(void)
 }
 #endif
 
-static int _draw_path(CGContextRef cr, void* iterator)
+static int _draw_path(CGContextRef cr, void* iterator, int nmax)
 {
     double x1, y1, x2, y2, x3, y3;
+    static unsigned code = STOP;
+    static double xs, ys;
+    CGPoint current;
     int n = 0;
-    unsigned code;
+
+    if (code == MOVETO) CGContextMoveToPoint(cr, xs, ys);
 
     while (true)
     {
@@ -261,7 +271,6 @@ static int _draw_path(CGContextRef cr, void* iterator)
         else if (code == MOVETO)
         {
             CGContextMoveToPoint(cr, x1, y1);
-            n++;
         }
         else if (code==LINETO)
         {
@@ -270,16 +279,35 @@ static int _draw_path(CGContextRef cr, void* iterator)
         }
         else if (code==CURVE3)
         {
-            get_vertex(iterator, &x2, &y2);
-            CGContextAddQuadCurveToPoint(cr, x1, y1, x2, y2);
+            get_vertex(iterator, &xs, &ys);
+            CGContextAddQuadCurveToPoint(cr, x1, y1, xs, ys);
             n+=2;
         }
         else if (code==CURVE4)
         {
             get_vertex(iterator, &x2, &y2);
-            get_vertex(iterator, &x3, &y3);
-            CGContextAddCurveToPoint(cr, x1, y1, x2, y2, x3, y3);
+            get_vertex(iterator, &xs, &ys);
+            CGContextAddCurveToPoint(cr, x1, y1, x2, y2, xs, ys);
             n+=3;
+        }
+        if (n >= nmax)
+        {
+            switch (code)
+            {
+                case MOVETO:
+                case LINETO:
+                    xs = x1;
+                    ys = y1;
+                    break;
+                case CLOSEPOLY:
+                    current = CGContextGetPathCurrentPoint(cr);
+                    xs = current.x;
+                    ys = current.y;
+                    break;
+                /* nothing needed for CURVE3, CURVE4 */
+            }
+            code = MOVETO;
+            return -n;
         }
     }
     return n;
@@ -287,6 +315,7 @@ static int _draw_path(CGContextRef cr, void* iterator)
 
 static void _draw_hatch(void *info, CGContextRef cr)
 {
+    int n;
     PyObject* hatchpath = (PyObject*)info;
     PyObject* transform;
     int nd = 2;
@@ -294,7 +323,6 @@ static void _draw_hatch(void *info, CGContextRef cr)
     int typenum = NPY_DOUBLE;
     double data[9] = {HATCH_SIZE, 0, 0, 0, HATCH_SIZE, 0, 0, 0, 1};
     double rect[4] = { 0.0, 0.0, HATCH_SIZE, HATCH_SIZE};
-    int n;
     transform = PyArray_SimpleNewFromData(nd, dims, typenum, data);
     if (!transform)
     {
@@ -320,7 +348,7 @@ static void _draw_hatch(void *info, CGContextRef cr)
         PyGILState_Release(gstate);
         return;
     }
-    n = _draw_path(cr, iterator);
+    n = _draw_path(cr, iterator, INT_MAX);
     free_path_iterator(iterator);
     if (n==0) return;
     CGContextSetLineWidth(cr, 1.0);
@@ -391,7 +419,7 @@ static void _release_hatch(void* info)
 - (void)keyDown:(NSEvent*)event;
 - (void)keyUp:(NSEvent*)event;
 - (void)scrollWheel:(NSEvent *)event;
-- (void)flagsChanged:(NSEvent*)event;
+//- (void)flagsChanged:(NSEvent*)event;
 @end
 
 @interface ScrollableButton : NSButton
@@ -424,6 +452,7 @@ typedef struct {
     CGContextRef cr;
     NSSize size;
     int level;
+    BOOL forced_alpha;
     CGFloat color[4];
     float dpi;
 } GraphicsContext;
@@ -490,6 +519,7 @@ GraphicsContext_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
     if (!self) return NULL;
     self->cr = NULL;
     self->level = 0;
+    self->forced_alpha = FALSE;
 
 #ifndef COMPILING_FOR_10_5
     if (ngc==0)
@@ -567,7 +597,8 @@ static PyObject*
 GraphicsContext_set_alpha (GraphicsContext* self, PyObject* args)
 {
     float alpha;
-    if (!PyArg_ParseTuple(args, "f", &alpha)) return NULL;
+    int forced = 0;
+    if (!PyArg_ParseTuple(args, "f|i", &alpha, &forced)) return NULL;
     CGContextRef cr = self->cr;
     if (!cr)
     {
@@ -575,8 +606,7 @@ GraphicsContext_set_alpha (GraphicsContext* self, PyObject* args)
         return NULL;
     }
     CGContextSetAlpha(cr, alpha);
-
-    self->color[3] = alpha;
+    self->forced_alpha = (BOOL)(forced || (alpha != 1.0));
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -702,7 +732,7 @@ GraphicsContext_set_clip_path (GraphicsContext* self, PyObject* args)
             "set_clip_path: failed to obtain path iterator for clipping");
         return NULL;
     }
-    n = _draw_path(cr, iterator);
+    n = _draw_path(cr, iterator, INT_MAX);
     free_path_iterator(iterator);
 
     if (n > 0) CGContextClip(cr);
@@ -810,8 +840,8 @@ GraphicsContext_set_dashes (GraphicsContext* self, PyObject* args)
 static PyObject*
 GraphicsContext_set_foreground(GraphicsContext* self, PyObject* args)
 {
-    float r, g, b;
-    if(!PyArg_ParseTuple(args, "(fff)", &r, &g, &b)) return NULL;
+    float r, g, b, a;
+    if(!PyArg_ParseTuple(args, "(ffff)", &r, &g, &b, &a)) return NULL;
 
     CGContextRef cr = self->cr;
     if (!cr)
@@ -820,13 +850,21 @@ GraphicsContext_set_foreground(GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    CGContextSetRGBStrokeColor(cr, r, g, b, 1.0);
-    CGContextSetRGBFillColor(cr, r, g, b, 1.0);
+    if (self->forced_alpha)
+    {
+        // Transparency is applied to layer
+        // Let it override (rather than multiply with) the alpha of the
+        // stroke/fill colors
+        a = 1.0;
+    }
+
+    CGContextSetRGBStrokeColor(cr, r, g, b, a);
+    CGContextSetRGBFillColor(cr, r, g, b, a);
 
     self->color[0] = r;
     self->color[1] = g;
     self->color[2] = b;
-    self->color[3] = 1.0;
+    self->color[3] = a;
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -952,89 +990,102 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
                         "draw_path: failed to obtain path iterator");
         return NULL;
     }
-    n = _draw_path(cr, iterator);
-    free_path_iterator(iterator);
 
-    if (n > 0)
+    if(rgbFace)
     {
-        PyObject* hatchpath;
-        if(rgbFace)
+        float r, g, b, a;
+        a = 1.0;
+        if (!PyArg_ParseTuple(rgbFace, "fff|f", &r, &g, &b, &a))
+            return NULL;
+        if (self->forced_alpha)
+            a = 1.0;
+
+        n = _draw_path(cr, iterator, INT_MAX);
+        if (n > 0)
         {
-            float r, g, b;
-            if (!PyArg_ParseTuple(rgbFace, "fff", &r, &g, &b))
-                return NULL;
             CGContextSaveGState(cr);
-            CGContextSetRGBFillColor(cr, r, g, b, 1.0);
+            CGContextSetRGBFillColor(cr, r, g, b, a);
             CGContextDrawPath(cr, kCGPathFillStroke);
             CGContextRestoreGState(cr);
         }
-        else CGContextStrokePath(cr);
-
-        hatchpath = PyObject_CallMethod((PyObject*)self, "get_hatch_path", "");
-        if (!hatchpath)
+    }
+    else
+    {
+        const int nmax = 100;
+        while (true)
         {
-            return NULL;
+            n = _draw_path(cr, iterator, nmax);
+            if (n != 0) CGContextStrokePath(cr);
+            if (n >= 0) break;
         }
-        else if (hatchpath==Py_None)
+    }
+    free_path_iterator(iterator);
+
+    PyObject* hatchpath;
+    hatchpath = PyObject_CallMethod((PyObject*)self, "get_hatch_path", "");
+    if (!hatchpath)
+    {
+        return NULL;
+    }
+    else if (hatchpath==Py_None)
+    {
+        Py_DECREF(hatchpath);
+    }
+    else
+    {
+        CGPatternRef pattern;
+        CGColorSpaceRef baseSpace;
+        CGColorSpaceRef patternSpace;
+        static const CGPatternCallbacks callbacks = {0,
+                                                     &_draw_hatch,
+                                                     &_release_hatch};
+        baseSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+        if (!baseSpace)
         {
             Py_DECREF(hatchpath);
+            PyErr_SetString(PyExc_RuntimeError,
+                "draw_path: CGColorSpaceCreateWithName failed");
+            return NULL;
         }
-        else
+        patternSpace = CGColorSpaceCreatePattern(baseSpace);
+        CGColorSpaceRelease(baseSpace);
+        if (!patternSpace)
         {
-            CGPatternRef pattern;
-            CGColorSpaceRef baseSpace;
-            CGColorSpaceRef patternSpace;
-            static const CGPatternCallbacks callbacks = {0,
-                                                         &_draw_hatch,
-                                                         &_release_hatch};
-            baseSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-            if (!baseSpace)
-            {
-                Py_DECREF(hatchpath);
-                PyErr_SetString(PyExc_RuntimeError,
-                    "draw_path: CGColorSpaceCreateWithName failed");
-                return NULL;
-            }
-            patternSpace = CGColorSpaceCreatePattern(baseSpace);
-            CGColorSpaceRelease(baseSpace);
-            if (!patternSpace)
-            {
-                Py_DECREF(hatchpath);
-                PyErr_SetString(PyExc_RuntimeError,
-                    "draw_path: CGColorSpaceCreatePattern failed");
-                return NULL;
-            }
-            CGContextSetFillColorSpace(cr, patternSpace);
-            CGColorSpaceRelease(patternSpace);
-
-            pattern = CGPatternCreate((void*)hatchpath,
-                                      CGRectMake(0, 0, HATCH_SIZE, HATCH_SIZE),
-                                      CGAffineTransformIdentity,
-                                      HATCH_SIZE, HATCH_SIZE,
-                                      kCGPatternTilingNoDistortion,
-                                      false,
-                                      &callbacks);
-            CGContextSetFillPattern(cr, pattern, self->color);
-            CGPatternRelease(pattern);
-            iterator  = get_path_iterator(path,
-                                          transform,
-                                          1,
-                                          0,
-                                          rect,
-                                          SNAP_AUTO,
-                                          linewidth,
-                                          0);
-            if (!iterator)
-            {
-                Py_DECREF(hatchpath);
-                PyErr_SetString(PyExc_RuntimeError,
-                    "draw_path: failed to obtain path iterator for hatching");
-                return NULL;
-            }
-            n = _draw_path(cr, iterator);
-            free_path_iterator(iterator);
-            CGContextFillPath(cr);
+            Py_DECREF(hatchpath);
+            PyErr_SetString(PyExc_RuntimeError,
+                "draw_path: CGColorSpaceCreatePattern failed");
+            return NULL;
         }
+        CGContextSetFillColorSpace(cr, patternSpace);
+        CGColorSpaceRelease(patternSpace);
+
+        pattern = CGPatternCreate((void*)hatchpath,
+                                  CGRectMake(0, 0, HATCH_SIZE, HATCH_SIZE),
+                                  CGAffineTransformIdentity,
+                                  HATCH_SIZE, HATCH_SIZE,
+                                  kCGPatternTilingNoDistortion,
+                                  false,
+                                  &callbacks);
+        CGContextSetFillPattern(cr, pattern, self->color);
+        CGPatternRelease(pattern);
+        iterator  = get_path_iterator(path,
+                                      transform,
+                                      1,
+                                      0,
+                                      rect,
+                                      SNAP_AUTO,
+                                      linewidth,
+                                      0);
+        if (!iterator)
+        {
+            Py_DECREF(hatchpath);
+            PyErr_SetString(PyExc_RuntimeError,
+                "draw_path: failed to obtain path iterator for hatching");
+            return NULL;
+        }
+        n = _draw_path(cr, iterator, INT_MAX);
+        free_path_iterator(iterator);
+        if (n > 0) CGContextFillPath(cr);
     }
 
     Py_INCREF(Py_None);
@@ -1052,7 +1103,7 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
     PyObject* rgbFace;
 
     int ok;
-    float r, g, b;
+    float r, g, b, a;
 
     CGMutablePathRef marker;
     void* iterator;
@@ -1081,12 +1132,15 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
 
     if (rgbFace)
     {
-        ok = PyArg_ParseTuple(rgbFace, "fff", &r, &g, &b);
+        a = 1.0;
+        ok = PyArg_ParseTuple(rgbFace, "fff|f", &r, &g, &b, &a);
         if (!ok)
         {
             return NULL;
         }
-        CGContextSetRGBFillColor(cr, r, g, b, 1.0);
+        if (self->forced_alpha)
+            a = 1.0;
+        CGContextSetRGBFillColor(cr, r, g, b, a);
     }
 
     ok = _get_snap(self, &mode);
@@ -1157,43 +1211,6 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
     return Py_None;
 }
 
-static BOOL _clip(CGContextRef cr, PyObject* object)
-{
-    if (object == Py_None) return true;
-
-    PyArrayObject* array = NULL;
-    array = (PyArrayObject*) PyArray_FromObject(object, PyArray_DOUBLE, 2, 2);
-    if (!array)
-    {
-        PyErr_SetString(PyExc_ValueError, "failed to read clipping bounding box");
-        return false;
-    }
-
-    if (PyArray_NDIM(array)!=2 || PyArray_DIM(array, 0)!=2 || PyArray_DIM(array, 1)!=2)
-    {
-        Py_DECREF(array);
-        PyErr_SetString(PyExc_ValueError, "clipping bounding box should be a 2x2 array");
-        return false;
-    }
-
-    const double l = *(double*)PyArray_GETPTR2(array, 0, 0);
-    const double b = *(double*)PyArray_GETPTR2(array, 0, 1);
-    const double r = *(double*)PyArray_GETPTR2(array, 1, 0);
-    const double t = *(double*)PyArray_GETPTR2(array, 1, 1);
-
-    Py_DECREF(array);
-
-    CGRect rect;
-    rect.origin.x = (CGFloat) l;
-    rect.origin.y = (CGFloat) b;
-    rect.size.width = (CGFloat) (r-l);
-    rect.size.height = (CGFloat) (t-b);
-
-    CGContextClipToRect(cr, rect);
-
-    return true;
-}
-
 static int _transformation_converter(PyObject* object, void* pointer)
 {
     CGAffineTransform* matrix = (CGAffineTransform*)pointer;
@@ -1205,8 +1222,8 @@ static int _transformation_converter(PyObject* object, void* pointer)
             return 0;
         }
     const double a =  *(double*)PyArray_GETPTR2(object, 0, 0);
-    const double b =  *(double*)PyArray_GETPTR2(object, 0, 1);
-    const double c =  *(double*)PyArray_GETPTR2(object, 1, 0);
+    const double b =  *(double*)PyArray_GETPTR2(object, 1, 0);
+    const double c =  *(double*)PyArray_GETPTR2(object, 0, 1);
     const double d =  *(double*)PyArray_GETPTR2(object, 1, 1);
     const double tx =  *(double*)PyArray_GETPTR2(object, 0, 2);
     const double ty =  *(double*)PyArray_GETPTR2(object, 1, 2);
@@ -2573,7 +2590,6 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
 {
     float x;
     float y;
-    const UniChar* text;
     int n;
     PyObject* family;
     float size;
@@ -2583,6 +2599,11 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
     CTFontRef font;
     CGColorRef color;
     CGFloat descent;
+#if PY33
+    const char* text;
+#else
+    const UniChar* text;
+#endif
 
     CFStringRef keys[2];
     CFTypeRef values[2];
@@ -2593,7 +2614,19 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
         PyErr_SetString(PyExc_RuntimeError, "CGContextRef is NULL");
         return NULL;
     }
-
+#if PY33
+    if(!PyArg_ParseTuple(args, "ffs#Ofssf",
+                                &x,
+                                &y,
+                                &text,
+                                &n,
+                                &family,
+                                &size,
+                                &weight,
+                                &italic,
+                                &angle)) return NULL;
+    CFStringRef s = CFStringCreateWithCString(kCFAllocatorDefault, text, kCFStringEncodingUTF8);
+#else
     if(!PyArg_ParseTuple(args, "ffu#Ofssf",
                                 &x,
                                 &y,
@@ -2604,6 +2637,8 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
                                 &weight,
                                 &italic,
                                 &angle)) return NULL;
+    CFStringRef s = CFStringCreateWithCharacters(kCFAllocatorDefault, text, n);
+#endif
 
     font = setfont(cr, family, size, weight, italic);
 
@@ -2624,8 +2659,6 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
                                         &kCFTypeDictionaryValueCallBacks);
     CGColorRelease(color);
     CFRelease(font);
-
-    CFStringRef s = CFStringCreateWithCharacters(kCFAllocatorDefault, text, n);
 
     CFAttributedStringRef string = CFAttributedStringCreate(kCFAllocatorDefault,
                                                             s,
@@ -2668,12 +2701,17 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
 static PyObject*
 GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* args)
 {
-    const UniChar* text;
     int n;
     PyObject* family;
     float size;
     const char* weight;
     const char* italic;
+
+#if PY33
+    const char* text;
+#else
+    const UniChar* text;
+#endif
 
     CGFloat ascent;
     CGFloat descent;
@@ -2689,9 +2727,25 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
         return NULL;
     }
 
+#if PY33
+    if(!PyArg_ParseTuple(args, "s#Ofss",
+                                &text,
+                                &n,
+                                &family,
+                                &size,
+                                &weight,
+                                &italic)) return NULL;
+    CFStringRef s = CFStringCreateWithCString(kCFAllocatorDefault, text, kCFStringEncodingUTF8);
+#else
     if(!PyArg_ParseTuple(args, "u#Ofss",
-                         &text, &n, &family, &size, &weight, &italic))
-        return NULL;
+                                &text,
+                                &n,
+                                &family,
+                                &size,
+                                &weight,
+                                &italic)) return NULL;
+    CFStringRef s = CFStringCreateWithCharacters(kCFAllocatorDefault, text, n);
+#endif
 
     font = setfont(cr, family, size, weight, italic);
 
@@ -2707,8 +2761,6 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
                                         &kCFTypeDictionaryKeyCallBacks,
                                         &kCFTypeDictionaryValueCallBacks);
     CFRelease(font);
-
-    CFStringRef s = CFStringCreateWithCharacters(kCFAllocatorDefault, text, n);
 
     CFAttributedStringRef string = CFAttributedStringCreate(kCFAllocatorDefault,
                                                             s,
@@ -2734,7 +2786,7 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
     return Py_BuildValue("fff", width, rect.size.height, descent);
 }
 
-#else
+#else // Text drawing for OSX versions <10.5
 
 static PyObject*
 GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
@@ -3038,9 +3090,6 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
     const char* data;
     int n;
     PyObject* image;
-    PyObject* cliprect;
-    PyObject* clippath;
-    PyObject* clippath_transform;
 
     CGContextRef cr = self->cr;
     if (!cr)
@@ -3049,18 +3098,14 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    if(!PyArg_ParseTuple(args, "ffiiOOOO", &x,
-                                           &y,
-                                           &nrows,
-                                           &ncols,
-                                           &image,
-                                           &cliprect,
-                                           &clippath,
-                                           &clippath_transform)) return NULL;
+    if(!PyArg_ParseTuple(args, "ffiiO", &x,
+                                        &y,
+                                        &nrows,
+                                        &ncols,
+                                        &image)) return NULL;
 
     CGColorSpaceRef colorspace;
     CGDataProviderRef provider;
-    double rect[4] = {0.0, 0.0, self->size.width, self->size.height};
 
     if (!PyBytes_Check(image))
     {
@@ -3118,40 +3163,8 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    BOOL ok = true;
-    CGContextSaveGState(cr);
-    if (!_clip(cr, cliprect)) ok = false;
-    else if (clippath!=Py_None)
-    {
-        int n;
-        void* iterator  = get_path_iterator(clippath,
-                                            clippath_transform,
-                                            0,
-                                            0,
-                                            rect,
-                                            SNAP_AUTO,
-                                            1.0,
-                                            0);
-        if (iterator)
-        {
-            n = _draw_path(cr, iterator);
-            free_path_iterator(iterator);
-            if (n > 0) CGContextClip(cr);
-        }
-        else
-        {
-            PyErr_SetString(PyExc_RuntimeError,
-                "draw_image: failed to obtain path iterator for clipping");
-            ok = false;
-        }
-    }
-
-    if (ok) CGContextDrawImage(cr, CGRectMake(x,y,ncols,nrows), bitmap);
-
+    CGContextDrawImage(cr, CGRectMake(x,y,ncols,nrows), bitmap);
     CGImageRelease(bitmap);
-    CGContextRestoreGState(cr);
-
-    if (!ok) return NULL;
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -4823,7 +4836,7 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     NSFont* font = [NSFont systemFontOfSize: 0.0];
     rect.size.width = 300;
     rect.size.height = 0;
-    rect.origin.x += 200;
+    rect.origin.x += height;
     NSText* messagebox = [[NSText alloc] initWithFrame: rect];
     [messagebox setFont: font];
     [messagebox setDrawsBackground: NO];
@@ -4976,7 +4989,11 @@ choose_save_file(PyObject* unused, PyObject* args)
         unsigned int n = [filename length];
         unichar* buffer = malloc(n*sizeof(unichar));
         [filename getCharacters: buffer];
+#if PY33
+        PyObject* string =  PyUnicode_FromKindAndData(PyUnicode_2BYTE_KIND, buffer, n);
+#else
         PyObject* string =  PyUnicode_FromUnicode(buffer, n);
+#endif
         free(buffer);
         return string;
     }
@@ -5515,66 +5532,73 @@ set_cursor(PyObject* unused, PyObject* args)
     rubberband = NSZeroRect;
 }
 
+
+
 - (const char*)convertKeyEvent:(NSEvent*)event
 {
-    NSString* text = [event charactersIgnoringModifiers];
-    unichar uc = [text characterAtIndex:0];
-    int i = (int)uc;
-    if ([event modifierFlags] & NSNumericPadKeyMask)
-    {
-        if (i > 256)
-        {
-            if (uc==NSLeftArrowFunctionKey) return "left";
-            else if (uc==NSUpArrowFunctionKey) return "up";
-            else if (uc==NSRightArrowFunctionKey) return "right";
-            else if (uc==NSDownArrowFunctionKey) return "down";
-            else if (uc==NSF1FunctionKey) return "f1";
-            else if (uc==NSF2FunctionKey) return "f2";
-            else if (uc==NSF3FunctionKey) return "f3";
-            else if (uc==NSF4FunctionKey) return "f4";
-            else if (uc==NSF5FunctionKey) return "f5";
-            else if (uc==NSF6FunctionKey) return "f6";
-            else if (uc==NSF7FunctionKey) return "f7";
-            else if (uc==NSF8FunctionKey) return "f8";
-            else if (uc==NSF9FunctionKey) return "f9";
-            else if (uc==NSF10FunctionKey) return "f10";
-            else if (uc==NSF11FunctionKey) return "f11";
-            else if (uc==NSF12FunctionKey) return "f12";
-            else if (uc==NSScrollLockFunctionKey) return "scroll_lock";
-            else if (uc==NSBreakFunctionKey) return "break";
-            else if (uc==NSInsertFunctionKey) return "insert";
-            else if (uc==NSDeleteFunctionKey) return "delete";
-            else if (uc==NSHomeFunctionKey) return "home";
-            else if (uc==NSEndFunctionKey) return "end";
-            else if (uc==NSPageUpFunctionKey) return "pageup";
-            else if (uc==NSPageDownFunctionKey) return "pagedown";
-        }
-        else if ((char)uc == '.') return "dec";
-    }
+    NSDictionary* specialkeymappings = [NSDictionary dictionaryWithObjectsAndKeys:
+                                        @"left", [NSNumber numberWithUnsignedLong:NSLeftArrowFunctionKey],
+                                        @"right", [NSNumber numberWithUnsignedLong:NSRightArrowFunctionKey],
+                                        @"up", [NSNumber numberWithUnsignedLong:NSUpArrowFunctionKey],
+                                        @"down", [NSNumber numberWithUnsignedLong:NSDownArrowFunctionKey],
+                                        @"f1", [NSNumber numberWithUnsignedLong:NSF1FunctionKey],
+                                        @"f2", [NSNumber numberWithUnsignedLong:NSF2FunctionKey],
+                                        @"f3", [NSNumber numberWithUnsignedLong:NSF3FunctionKey],
+                                        @"f4", [NSNumber numberWithUnsignedLong:NSF4FunctionKey],
+                                        @"f5", [NSNumber numberWithUnsignedLong:NSF5FunctionKey],
+                                        @"f6", [NSNumber numberWithUnsignedLong:NSF6FunctionKey],
+                                        @"f7", [NSNumber numberWithUnsignedLong:NSF7FunctionKey],
+                                        @"f8", [NSNumber numberWithUnsignedLong:NSF8FunctionKey],
+                                        @"f9", [NSNumber numberWithUnsignedLong:NSF9FunctionKey],
+                                        @"f10", [NSNumber numberWithUnsignedLong:NSF10FunctionKey],
+                                        @"f11", [NSNumber numberWithUnsignedLong:NSF11FunctionKey],
+                                        @"f12", [NSNumber numberWithUnsignedLong:NSF12FunctionKey],
+                                        @"f13", [NSNumber numberWithUnsignedLong:NSF13FunctionKey],
+                                        @"f14", [NSNumber numberWithUnsignedLong:NSF14FunctionKey],
+                                        @"f15", [NSNumber numberWithUnsignedLong:NSF15FunctionKey],
+                                        @"f16", [NSNumber numberWithUnsignedLong:NSF16FunctionKey],
+                                        @"f17", [NSNumber numberWithUnsignedLong:NSF17FunctionKey],
+                                        @"f18", [NSNumber numberWithUnsignedLong:NSF18FunctionKey],
+                                        @"f19", [NSNumber numberWithUnsignedLong:NSF19FunctionKey],
+                                        @"scroll_lock", [NSNumber numberWithUnsignedLong:NSScrollLockFunctionKey],
+                                        @"break", [NSNumber numberWithUnsignedLong:NSBreakFunctionKey],
+                                        @"insert", [NSNumber numberWithUnsignedLong:NSInsertFunctionKey],
+                                        @"delete", [NSNumber numberWithUnsignedLong:NSDeleteFunctionKey],
+                                        @"home", [NSNumber numberWithUnsignedLong:NSHomeFunctionKey],
+                                        @"end", [NSNumber numberWithUnsignedLong:NSEndFunctionKey],
+                                        @"pagedown", [NSNumber numberWithUnsignedLong:NSPageDownFunctionKey],
+                                        @"pageup", [NSNumber numberWithUnsignedLong:NSPageUpFunctionKey],
+                                        @"backspace", [NSNumber numberWithUnsignedLong:NSDeleteCharacter],
+                                        @"enter", [NSNumber numberWithUnsignedLong:NSEnterCharacter],
+                                        @"tab", [NSNumber numberWithUnsignedLong:NSTabCharacter],
+                                        @"enter", [NSNumber numberWithUnsignedLong:NSCarriageReturnCharacter],
+                                        @"backtab", [NSNumber numberWithUnsignedLong:NSBackTabCharacter],
+                                        @"escape", [NSNumber numberWithUnsignedLong:27],
+                                        nil
+                                        ];
 
-    switch (i)
-    {
-        case 127: return "backspace";
-        case 13: return "enter";
-        case 3: return "enter";
-        case 27: return "escape";
-        default:
-        {
-            static char s[2];
-            s[0] = (char)uc;
-            s[1] = '\0';
-            return (const char*)s;
-        }
-    }
+    NSMutableString* returnkey = [NSMutableString string];
+    if ([event modifierFlags] & NSControlKeyMask)
+        [returnkey appendString:@"ctrl+" ];
+    if ([event modifierFlags] & NSAlternateKeyMask)
+        [returnkey appendString:@"alt+" ];
+    if ([event modifierFlags] & NSCommandKeyMask)
+        [returnkey appendString:@"cmd+" ];
 
-    return NULL;
+    unichar uc = [[event charactersIgnoringModifiers] characterAtIndex:0];
+    NSString* specialchar = [specialkeymappings objectForKey:[NSNumber numberWithUnsignedLong:uc]];
+    if (specialchar)
+        [returnkey appendString:specialchar];
+    else
+        [returnkey appendString:[event charactersIgnoringModifiers]];
+
+    return [returnkey UTF8String];
 }
 
 - (void)keyDown:(NSEvent*)event
 {
     PyObject* result;
     const char* s = [self convertKeyEvent: event];
-    /* TODO: Handle ctrl, alt, super modifiers. qt4 has implemented these. */    
     PyGILState_STATE gstate = PyGILState_Ensure();
     if (s==NULL)
     {
@@ -5596,7 +5620,6 @@ set_cursor(PyObject* unused, PyObject* args)
 {
     PyObject* result;
     const char* s = [self convertKeyEvent: event];
-    /* TODO: Handle ctrl, alt, super modifiers. qt4 has implemented these. */
     PyGILState_STATE gstate = PyGILState_Ensure();
     if (s==NULL)
     {
@@ -5637,6 +5660,9 @@ set_cursor(PyObject* unused, PyObject* args)
     PyGILState_Release(gstate);
 }
 
+/* This is all wrong. Address of pointer is being passed instead of pointer, keynames don't
+   match up with what the front-end and does the front-end even handle modifier keys by themselves?
+
 - (void)flagsChanged:(NSEvent*)event
 {
     const char *s = NULL;
@@ -5656,6 +5682,7 @@ set_cursor(PyObject* unused, PyObject* args)
 
     PyGILState_Release(gstate);
 }
+ */
 @end
 
 @implementation ScrollableButton
@@ -5769,28 +5796,18 @@ show(PyObject* self)
     if(nwin > 0)
     {
         [NSApp activateIgnoringOtherApps: YES];
+        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
         NSArray *windowsArray = [NSApp windows];
         NSEnumerator *enumerator = [windowsArray objectEnumerator];
         NSWindow *window;
         while ((window = [enumerator nextObject])) {
             [window orderFront:nil];
         }
+        [pool release];
         [NSApp run];
     }
     Py_INCREF(Py_None);
     return Py_None;
-}
-
-static PyObject*
-verify_main_display(PyObject* self)
-{
-    CGDirectDisplayID display = CGMainDisplayID();
-    if (display == 0) {
-        PyErr_SetString(PyExc_RuntimeError, "Failed to obtain the display ID of the main display");
-        return NULL;
-    }
-    Py_INCREF(Py_True);
-    return Py_True;
 }
 
 typedef struct {
@@ -6002,11 +6019,6 @@ static struct PyMethodDef methods[] = {
     METH_VARARGS,
     "Sets the active cursor."
    },
-   {"verify_main_display",
-    (PyCFunction)verify_main_display,
-    METH_NOARGS,
-    "Verifies if the main display can be found. This function fails if Python is not built as a framework."
-   },
    {NULL,          NULL, 0, NULL}/* sentinel */
 };
 
@@ -6030,8 +6042,10 @@ PyObject* PyInit__macosx(void)
 
 void init_macosx(void)
 #endif
-{   PyObject *module;
+{
 
+#ifdef WITH_NEXT_FRAMEWORK
+    PyObject *module;
     import_array();
 
     if (PyType_Ready(&GraphicsContextType) < 0
@@ -6074,5 +6088,22 @@ void init_macosx(void)
 
 #if PY3K
     return module;
+#endif
+#else
+    /* WITH_NEXT_FRAMEWORK is not defined. This means that Python is not
+     * installed as a framework, and therefore the Mac OS X backend will
+     * not interact properly with the window manager.
+     */
+    PyErr_SetString(PyExc_RuntimeError,
+        "Python is not installed as a framework. The Mac OS X backend will "
+        "not be able to function correctly if Python is not installed as a "
+        "framework. See the Python documentation for more information on "
+        "installing Python as a framework on Mac OS X. Please either reinstall "
+        "Python as a framework, or try one of the other backends.");
+#if PY3K
+    return NULL;
+#else
+    return;
+#endif
 #endif
 }

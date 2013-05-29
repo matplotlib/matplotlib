@@ -11,14 +11,12 @@ import matplotlib.lines as lines
 import matplotlib.patches as patches
 import matplotlib.text as text
 import matplotlib.collections as collections
-import matplotlib.units as units
 
 from basic_units import cm, inch
 import numpy as np
-from matplotlib.pyplot import figure, show
+import matplotlib.pyplot as plt
 
-fig = figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.xaxis.set_units(cm)
 ax.yaxis.set_units(cm)
 
@@ -51,5 +49,5 @@ ax.set_ylim(-1*cm, 10*cm)
 #ax.xaxis.set_units(inch)
 ax.grid(True)
 ax.set_title("Artists with units")
-show()
+plt.show()
 

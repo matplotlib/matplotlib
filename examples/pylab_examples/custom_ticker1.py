@@ -11,9 +11,10 @@ In this example a user defined function is used to format the ticks in
 millions of dollars on the y axis
 """
 from matplotlib.ticker import FuncFormatter
-from pylab import *
+import matplotlib.pyplot as plt
+import numpy as np
 
-x =     arange(4)
+x =     np.arange(4)
 money = [1.5e5, 2.5e6, 5.5e6, 2.0e7]
 
 def millions(x, pos):
@@ -22,8 +23,8 @@ def millions(x, pos):
 
 formatter = FuncFormatter(millions)
 
-ax = subplot(111)
+fig, ax = plt.subplots()
 ax.yaxis.set_major_formatter(formatter)
-bar(x, money)
-xticks( x + 0.5,  ('Bill', 'Fred', 'Mary', 'Sue') )
-show()
+plt.bar(x, money)
+plt.xticks( x + 0.5,  ('Bill', 'Fred', 'Mary', 'Sue') )
+plt.show()

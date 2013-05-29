@@ -13,7 +13,7 @@ hh = Y/15.0
 aa = X*9
 
 
-ax = plt.subplot(1,1,1)
+fig, ax = plt.subplots()
 
 ec = EllipseCollection(
                         ww,

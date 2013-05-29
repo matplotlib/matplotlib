@@ -12,9 +12,7 @@
 # between the major ticks.  Here is an example that labels the months,
 # centered between the ticks
 
-import datetime
 import numpy as np
-import matplotlib
 import matplotlib.cbook as cbook
 import matplotlib.dates as dates
 import matplotlib.ticker as ticker
@@ -25,8 +23,7 @@ fh = cbook.get_sample_data('aapl.npy.gz')
 r = np.load(fh); fh.close()
 r = r[-250:]  # get the last 250 days
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(r.date, r.adj_close)
 
 ax.xaxis.set_major_locator(dates.MonthLocator())

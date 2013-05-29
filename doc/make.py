@@ -110,7 +110,15 @@ def copytree(src, dst, symlinks=False, ignore=None):
 def copy_if_out_of_date(original, derived):
     if (not os.path.exists(derived) or
         os.stat(derived).st_mtime < os.stat(original).st_mtime):
-        shutil.copyfile(original, derived)
+        try:
+            shutil.copyfile(original, derived)
+        except IOError:
+            if os.path.basename(original) == 'matplotlibrc':
+                msg = "'%s' not found. " % original + \
+                      "Did you run `python setup.py build`?"
+                raise IOError(msg)
+            else:
+                raise
 
 def check_build():
     build_dirs = ['build', 'build/doctrees', 'build/html', 'build/latex',

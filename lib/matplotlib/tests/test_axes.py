@@ -1,5 +1,9 @@
+from nose.tools import assert_equal
+from nose.tools import assert_raises
+
 import numpy as np
 from numpy import ma
+
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
@@ -53,6 +57,21 @@ def test_formatter_ticker():
     ax.plot( xdata, ydata2, color='green', xunits="hour" )
     ax.set_xlabel( "x-label 005" )
     ax.autoscale_view()
+
+@cleanup
+def test_add_collection():
+    # Test if data limits are unchanged by adding an empty collection.
+    # Github issue #1490, pull #1497.
+    fig = matplotlib.figure.Figure()
+    fig2 = matplotlib.figure.Figure()
+    ax = fig.add_subplot(111)
+    ax2 = fig2.add_subplot(111)
+    coll = ax2.scatter([0, 1], [0, 1])
+    ax.add_collection(coll)
+    bounds = ax.dataLim.bounds
+    coll = ax2.scatter([], [])
+    ax.add_collection(coll)
+    assert ax.dataLim.bounds == bounds
 
 @image_comparison(baseline_images=["formatter_large_small"])
 def test_formatter_large_small():
@@ -174,7 +193,8 @@ def test_polar_coord_annotations():
     ax.set_xlim( -20, 20 )
     ax.set_ylim( -20, 20 )
 
-@image_comparison(baseline_images=['fill_units'])
+@image_comparison(baseline_images=['fill_units'], tol=18, extensions=['png'],
+                  savefig_kwarg={'dpi': 60})
 def test_fill_units():
     from datetime import datetime
     import matplotlib.testing.jpl_units as units
@@ -275,7 +295,6 @@ def test_shaped_data():
     plt.plot( y2 )
 
     plt.subplot( 413 )
-    from nose.tools import assert_raises
     assert_raises(ValueError,plt.plot, (y1,y2))
 
     plt.subplot( 414 )
@@ -318,8 +337,7 @@ def test_polar_wrap():
     plt.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
 
 
-@image_comparison(baseline_images=['polar_units', 'polar_units_2'],
-                  freetype_version=('2.4.5', '2.4.9'))
+@image_comparison(baseline_images=['polar_units', 'polar_units_2'])
 def test_polar_units():
     import matplotlib.testing.jpl_units as units
     from nose.tools import assert_true
@@ -412,7 +430,7 @@ def test_axhspan_epoch():
 
 
 @image_comparison(baseline_images=['hexbin_extent'],
-                  remove_text=True)
+                  remove_text=True, extensions=['png'])
 def test_hexbin_extent():
     # this test exposes sf bug 2856228
     fig = plt.figure()
@@ -509,7 +527,7 @@ def test_imshow():
 
     ax.imshow(r)
 
-@image_comparison(baseline_images=['imshow_clip'], tol=1e-2)
+@image_comparison(baseline_images=['imshow_clip'])
 def test_imshow_clip():
     # As originally reported by Gellule Xg <gellule.xg@free.fr>
 
@@ -551,7 +569,7 @@ def test_polycollection_joinstyle():
     ax.set_ybound(0, 3)
 
 @image_comparison(baseline_images=['fill_between_interpolate'],
-                  tol=1e-2, remove_text=True)
+                  remove_text=True)
 def test_fill_between_interpolate():
     x = np.arange(0.0, 2, 0.02)
     y1 = np.sin(2*np.pi*x)
@@ -620,8 +638,7 @@ def test_symlog2():
     ax.grid(True)
     ax.set_ylim(-0.1, 0.1)
 
-@image_comparison(baseline_images=['pcolormesh'], tol=0.02,
-                  remove_text=True)
+@image_comparison(baseline_images=['pcolormesh'], remove_text=True)
 def test_pcolormesh():
     n = 12
     x = np.linspace(-1.5,1.5,n)
@@ -646,6 +663,20 @@ def test_pcolormesh():
     ax = fig.add_subplot(133)
     ax.pcolormesh(Qx,Qz,Z, shading="gouraud")
 
+def test_pcolorargs():
+    n = 12
+    x = np.linspace(-1.5, 1.5, n)
+    y = np.linspace(-1.5, 1.5, n*2)
+    X, Y = np.meshgrid(x, y)
+    Z = np.sqrt(X**2 + Y**2)/5
+
+    _, ax = plt.subplots()
+    assert_raises(TypeError, ax.pcolormesh, y, x, Z)
+    assert_raises(TypeError, ax.pcolormesh, X, Y, Z.T)
+    assert_raises(TypeError, ax.pcolormesh, x, y, Z[:-1, :-1],
+                  shading="gouraud")
+    assert_raises(TypeError, ax.pcolormesh, X, Y, Z[:-1, :-1],
+                  shading="gouraud")
 
 @image_comparison(baseline_images=['canonical'])
 def test_canonical():
@@ -888,6 +919,7 @@ def test_log_scales():
     ax = plt.gca()
     plt.plot(np.log(np.linspace(0.1, 100)))
     ax.set_yscale('log', basey=5.5)
+    ax.invert_yaxis()
     ax.set_xscale('log', basex=9.0)
 
 
@@ -903,6 +935,42 @@ def test_stackplot():
     ax.set_xlim((0, 10))
     ax.set_ylim((0, 70))
 
+
+@image_comparison(baseline_images=['stackplot_test_baseline'],
+                  remove_text=True)
+def test_stackplot_baseline():
+    np.random.seed(0)
+    def layers(n, m):
+        def bump(a):
+            x = 1 / (.1 + np.random.random())
+            y = 2 * np.random.random() - .5
+            z = 10 / (.1 + np.random.random())
+            for i in range(m):
+                w = (i / float(m) - y) * z
+                a[i] += x * np.exp(-w * w)
+        a = np.zeros((m, n))
+        for i in range(n):
+            for j in range(5):
+                bump(a[:, i])
+        return a
+
+    d=layers(3, 100)
+
+    fig = plt.figure()
+
+    plt.subplot(2, 2, 1)
+    plt.stackplot(range(100), d.T, baseline='zero')
+
+    plt.subplot(2, 2, 2)
+    plt.stackplot(range(100), d.T, baseline='sym')
+
+    plt.subplot(2, 2, 3)
+    plt.stackplot(range(100), d.T, baseline='wiggle')
+
+    plt.subplot(2, 2, 4)
+    plt.stackplot(range(100), d.T, baseline='weighted_wiggle')
+
+
 @image_comparison(baseline_images=['boxplot'])
 def test_boxplot():
     x = np.linspace(-7, 7, 140)
@@ -914,6 +982,18 @@ def test_boxplot():
     ax.boxplot([x, x], bootstrap=10000, usermedians=[None, 1.0],
                conf_intervals=[None, (-1.0, 3.5)], notch=1)
     ax.set_ylim((-30, 30))
+
+@image_comparison(baseline_images=['boxplot_no_inverted_whisker'],
+                  remove_text=True, extensions=['png'],
+                  savefig_kwarg={'dpi': 40})
+def test_boxplot_no_weird_whisker():
+    x = np.array([3, 9000, 150, 88, 350, 200000, 1400, 960],
+                dtype=np.float64)
+    ax1 = plt.axes()
+    ax1.boxplot(x)
+    ax1.set_yscale('log')
+    ax1.yaxis.grid(False, which='minor')
+    ax1.xaxis.grid(False)
 
 @image_comparison(baseline_images=['errorbar_basic',
                                    'errorbar_mixed'])
@@ -991,6 +1071,20 @@ def test_hist_stacked_weighted():
     ax = fig.add_subplot(111)
     ax.hist( (d1, d2), weights=(w1,w2), histtype="stepfilled", stacked=True)
 
+@cleanup
+def test_stem_args():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+
+    x = range(10)
+    y = range(10)
+
+    # Test the call signatures
+    ax.stem(y)
+    ax.stem(x, y)
+    ax.stem(x, y, 'r--')
+    ax.stem(x, y, 'r--', basefmt='b--')
+
 @image_comparison(baseline_images=['hist_stacked_stepfilled_alpha'])
 def test_hist_stacked_stepfilled_alpha():
     # make some data
@@ -1008,6 +1102,17 @@ def test_hist_stacked_step():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.hist( (d1, d2), histtype="step", stacked=True)
+
+
+@image_comparison(baseline_images=['hist_stacked_normed'])
+def test_hist_stacked_normed():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist((d1, d2), stacked=True, normed=True)
+
 
 @image_comparison(baseline_images=['hist_stacked_bar'])
 def test_hist_stacked_bar():
@@ -1029,6 +1134,118 @@ def test_transparent_markers():
     ax = fig.add_subplot(111)
     ax.plot(data, 'D', mfc='none', markersize=100)
 
+@cleanup
+def test_mollweide_forward_inverse_closure():
+    # test that the round-trip Mollweide forward->inverse transformation is an
+    # approximate identity
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='mollweide')
+
+    # set up 1-degree grid in longitude, latitude
+    lon = np.linspace(-np.pi, np.pi, 360)
+    lat = np.linspace(-np.pi / 2.0, np.pi / 2.0, 180)
+    lon, lat = np.meshgrid(lon, lat)
+    ll = np.vstack((lon.flatten(), lat.flatten())).T
+
+    # perform forward transform
+    xy = ax.transProjection.transform(ll)
+
+    # perform inverse transform
+    ll2 = ax.transProjection.inverted().transform(xy)
+
+    # compare
+    np.testing.assert_array_almost_equal(ll, ll2, 3)
+
+@cleanup
+def test_mollweide_inverse_forward_closure():
+    # test that the round-trip Mollweide inverse->forward transformation is an
+    # approximate identity
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='mollweide')
+
+    # set up grid in x, y
+    x = np.linspace(0, 1, 500)
+    x, y = np.meshgrid(x, x)
+    xy = np.vstack((x.flatten(), y.flatten())).T
+
+    # perform inverse transform
+    ll = ax.transProjection.inverted().transform(xy)
+
+    # perform forward transform
+    xy2 = ax.transProjection.transform(ll)
+
+    # compare
+    np.testing.assert_array_almost_equal(xy, xy2, 3)
+
+
+@image_comparison(baseline_images=['test_alpha'], remove_text=True)
+def test_alpha():
+    np.random.seed(0)
+    data = np.random.random(50)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    # alpha=.5 markers, solid line
+    ax.plot(data, '-D', color=[1, 0, 0], mfc=[1, 0, 0, .5],
+            markersize=20, lw=10)
+
+    # everything solid by kwarg
+    ax.plot(data + 2, '-D', color=[1, 0, 0, .5], mfc=[1, 0, 0, .5],
+            markersize=20, lw=10,
+            alpha=1)
+
+    # everything alpha=.5 by kwarg
+    ax.plot(data + 4, '-D', color=[1, 0, 0], mfc=[1, 0, 0],
+            markersize=20, lw=10,
+            alpha=.5)
+
+    # everything alpha=.5 by colors
+    ax.plot(data + 6, '-D', color=[1, 0, 0, .5], mfc=[1, 0, 0, .5],
+            markersize=20, lw=10)
+
+    # alpha=.5 line, solid markers
+    ax.plot(data + 8, '-D', color=[1, 0, 0, .5], mfc=[1, 0, 0],
+            markersize=20, lw=10)
+
+
+@image_comparison(baseline_images=['eventplot'], remove_text=True)
+def test_eventplot():
+    '''
+    test that eventplot produces the correct output
+    '''
+    np.random.seed(0)
+
+    data1 = np.random.random([32, 20]).tolist()
+    data2 = np.random.random([6, 20]).tolist()
+    data = data1 + data2
+    num_datasets = len(data)
+
+    colors1 = [[0, 1, .7]] * len(data1)
+    colors2 = [[1, 0, 0],
+               [0, 1, 0],
+               [0, 0, 1],
+               [1, .75, 0],
+               [1, 0, 1],
+               [0, 1, 1]]
+    colors = colors1 + colors2
+
+    lineoffsets1 = 12 + np.arange(0, len(data1)) * .33
+    lineoffsets2 = [-15, -3, 1, 1.5, 6, 10]
+    lineoffsets = lineoffsets1.tolist() + lineoffsets2
+
+    linelengths1 = [.33] * len(data1)
+    linelengths2 = [5, 2, 1, 1, 3, 1.5]
+    linelengths = linelengths1 + linelengths2
+
+    fig = plt.figure()
+    axobj = fig.add_subplot(111)
+    colls = axobj.eventplot(data, colors=colors, lineoffsets=lineoffsets,
+                            linelengths=linelengths)
+
+    num_collections = len(colls)
+    np.testing.assert_equal(num_collections, num_datasets)
+
 @image_comparison(baseline_images=['vertex_markers'], extensions=['png'],
                   remove_text=True)
 def test_vertex_markers():
@@ -1041,12 +1258,6 @@ def test_vertex_markers():
     ax.plot(data[::-1], linestyle='', marker=marker_as_list, mfc='b')
     ax.set_xlim([-1, 10])
     ax.set_ylim([-1, 10])
-
-
-if __name__=='__main__':
-    import nose
-    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
-
 
 @image_comparison(baseline_images=['vline_hline_zorder',
                                    'errorbar_zorder'])
@@ -1076,6 +1287,24 @@ def test_eb_line_zorder():
         ax.axhline(-j, lw=5, color='k', zorder=j)
 
     ax.set_title("errorbar zorder test")
+
+
+@image_comparison(baseline_images=['step_linestyle'], remove_text=True)
+def test_step_linestyle():
+    x = y = np.arange(10)
+
+    # First illustrate basic pyplot interface, using defaults where possible.
+    fig, ax_lst = plt.subplots(2, 2)
+    ax_lst = ax_lst.flatten()
+
+    ln_styles = ['-', '--', '-.', ':']
+
+    for ax, ls in zip(ax_lst, ln_styles):
+        ax.step(x, y, lw=5, linestyle=ls, where='pre')
+        ax.step(x, y + 1, lw=5, linestyle=ls, where='mid')
+        ax.step(x, y + 2, lw=5, linestyle=ls, where='post')
+        ax.set_xlim([-1, 5])
+        ax.set_ylim([-1, 7])
 
 
 @image_comparison(baseline_images=['mixed_collection'], remove_text=True)
@@ -1108,6 +1337,230 @@ def test_mixed_collection():
 
     ax.set_xlim(0, 16)
     ax.set_ylim(0, 16)
+
+@cleanup
+def test_subplot_key_hash():
+    ax = plt.subplot(np.float64(5.5), np.int64(1), np.float64(1.2))
+    ax.twinx()
+    assert_equal((5, 1, 0, None), ax.get_subplotspec().get_geometry())
+
+
+@image_comparison(baseline_images=['specgram_freqs'], remove_text=True,
+                  extensions=['png'])
+def test_specgram_freqs():
+    n = 10000
+    Fs = 100.
+
+    fstims1 = [Fs/4, Fs/5, Fs/11]
+    fstims2 = [Fs/4.7, Fs/5.6, Fs/11.9]
+
+    NFFT = int(1000 * Fs / min(fstims1 + fstims2))
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    x = np.arange(0, n, 1/Fs)
+
+    y1 = np.zeros(x.size)
+    y2 = np.zeros(x.size)
+    for fstim1, fstim2 in zip(fstims1, fstims2):
+        y1 += np.sin(fstim1 * x * np.pi * 2)
+        y2 += np.sin(fstim2 * x * np.pi * 2)
+    y = np.hstack([y1, y2])
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 1, 1)
+    ax2 = fig.add_subplot(3, 1, 2)
+    ax3 = fig.add_subplot(3, 1, 3)
+
+    spec1 = ax1.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                         sides='default')
+    spec2 = ax2.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                         sides='onesided')
+    spec3 = ax3.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                         sides='twosided')
+
+
+@image_comparison(baseline_images=['specgram_noise'], remove_text=True,
+                  extensions=['png'])
+def test_specgram_noise():
+    np.random.seed(0)
+
+    n = 10000
+    Fs = 100.
+
+    NFFT = int(1000 * Fs / 11)
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    y1 = np.random.standard_normal(n)
+    y2 = np.random.rand(n)
+    y = np.hstack([y1, y2])
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 1, 1)
+    ax2 = fig.add_subplot(3, 1, 2)
+    ax3 = fig.add_subplot(3, 1, 3)
+
+    spec1 = ax1.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                         sides='default')
+    spec2 = ax2.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                         sides='onesided')
+    spec3 = ax3.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                         sides='twosided')
+
+
+@image_comparison(baseline_images=['psd_freqs'], remove_text=True,
+                  extensions=['png'])
+def test_psd_freqs():
+    n = 10000
+    Fs = 100.
+
+    fstims1 = [Fs/4, Fs/5, Fs/11]
+    fstims2 = [Fs/4.7, Fs/5.6, Fs/11.9]
+
+    NFFT = int(1000 * Fs / min(fstims1 + fstims2))
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    x = np.arange(0, n, 1/Fs)
+
+    y1 = np.zeros(x.size)
+    y2 = np.zeros(x.size)
+    for fstim1, fstim2 in zip(fstims1, fstims2):
+        y1 += np.sin(fstim1 * x * np.pi * 2)
+        y2 += np.sin(fstim2 * x * np.pi * 2)
+    y = np.hstack([y1, y2])
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 1, 1)
+    ax2 = fig.add_subplot(3, 1, 2)
+    ax3 = fig.add_subplot(3, 1, 3)
+
+    psd1 = ax1.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='default')
+    psd2 = ax2.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='onesided')
+    psd3 = ax3.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='twosided')
+
+    ax1.set_xlabel('')
+    ax2.set_xlabel('')
+    ax3.set_xlabel('')
+    ax1.set_ylabel('')
+    ax2.set_ylabel('')
+    ax3.set_ylabel('')
+
+
+@image_comparison(baseline_images=['psd_noise'], remove_text=True,
+                  extensions=['png'])
+def test_psd_noise():
+    np.random.seed(0)
+
+    n = 10000
+    Fs = 100.
+
+    NFFT = int(1000 * Fs / 11)
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    y1 = np.random.standard_normal(n)
+    y2 = np.random.rand(n)
+    y = np.hstack([y1, y2])
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 1, 1)
+    ax2 = fig.add_subplot(3, 1, 2)
+    ax3 = fig.add_subplot(3, 1, 3)
+
+    psd1 = ax1.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='default')
+    psd2 = ax2.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='onesided')
+    psd3 = ax3.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='twosided')
+
+    ax1.set_xlabel('')
+    ax2.set_xlabel('')
+    ax3.set_xlabel('')
+    ax1.set_ylabel('')
+    ax2.set_ylabel('')
+    ax3.set_ylabel('')
+
+
+@image_comparison(baseline_images=['csd_freqs'], remove_text=True,
+                  extensions=['png'])
+def test_csd_freqs():
+    n = 10000
+    Fs = 100.
+
+    fstims1 = [Fs/4, Fs/5, Fs/11]
+    fstims2 = [Fs/4.7, Fs/5.6, Fs/11.9]
+
+    NFFT = int(1000 * Fs / min(fstims1 + fstims2))
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    x = np.arange(0, n, 1/Fs)
+
+    y1 = np.zeros(x.size)
+    y2 = np.zeros(x.size)
+    for fstim1, fstim2 in zip(fstims1, fstims2):
+        y1 += np.sin(fstim1 * x * np.pi * 2)
+        y2 += np.sin(fstim2 * x * np.pi * 2)
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 1, 1)
+    ax2 = fig.add_subplot(3, 1, 2)
+    ax3 = fig.add_subplot(3, 1, 3)
+
+    csd1 = ax1.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='default')
+    csd2 = ax2.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='onesided')
+    csd3 = ax3.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='twosided')
+
+    ax1.set_xlabel('')
+    ax2.set_xlabel('')
+    ax3.set_xlabel('')
+    ax1.set_ylabel('')
+    ax2.set_ylabel('')
+    ax3.set_ylabel('')
+
+
+@image_comparison(baseline_images=['csd_noise'], remove_text=True,
+                  extensions=['png'])
+def test_csd_noise():
+    np.random.seed(0)
+
+    n = 10000
+    Fs = 100.
+
+    NFFT = int(1000 * Fs / 11)
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    y1 = np.random.standard_normal(n)
+    y2 = np.random.rand(n)
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 1, 1)
+    ax2 = fig.add_subplot(3, 1, 2)
+    ax3 = fig.add_subplot(3, 1, 3)
+
+    csd1 = ax1.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='default')
+    csd2 = ax2.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='onesided')
+    csd3 = ax3.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='twosided')
+
+    ax1.set_xlabel('')
+    ax2.set_xlabel('')
+    ax3.set_xlabel('')
+    ax1.set_ylabel('')
+    ax2.set_ylabel('')
+    ax3.set_ylabel('')
 
 
 @image_comparison(baseline_images=['twin_spines'], remove_text=True,
@@ -1155,3 +1608,19 @@ def test_twin_spines():
     par1.tick_params(axis='y', colors=p2.get_color(), **tkw)
     par2.tick_params(axis='y', colors=p3.get_color(), **tkw)
     host.tick_params(axis='x', **tkw)
+
+
+@cleanup
+def test_vline_limit():
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.axvline(0.5)
+    ax.plot([-0.1, 0, 0.2, 0.1])
+    (ymin, ymax) = ax.get_ylim()
+    assert ymin == -0.1
+    assert ymax == 0.25
+
+
+if __name__ == '__main__':
+    import nose
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

@@ -110,13 +110,13 @@ class RendererCairo(RendererBase):
         # font transform?
 
 
-    def _fill_and_stroke (self, ctx, fill_c, alpha):
+    def _fill_and_stroke (self, ctx, fill_c, alpha, alpha_overrides):
         if fill_c is not None:
             ctx.save()
-            if len(fill_c) == 3:
+            if len(fill_c) == 3 or alpha_overrides:
                 ctx.set_source_rgba (fill_c[0], fill_c[1], fill_c[2], alpha)
             else:
-                ctx.set_source_rgba (fill_c[0], fill_c[1], fill_c[2], alpha*fill_c[3])
+                ctx.set_source_rgba (fill_c[0], fill_c[1], fill_c[2], fill_c[3])
             ctx.fill_preserve()
             ctx.restore()
         ctx.stroke()
@@ -150,34 +150,28 @@ class RendererCairo(RendererBase):
         ctx.new_path()
         self.convert_path(ctx, path, transform)
 
-        self._fill_and_stroke(ctx, rgbFace, gc.get_alpha())
+        self._fill_and_stroke(ctx, rgbFace, gc.get_alpha(), gc.get_forced_alpha())
 
     def draw_image(self, gc, x, y, im):
         # bbox - not currently used
         if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
-
-        clippath, clippath_trans = gc.get_clip_path()
 
         im.flipud_out()
 
         rows, cols, buf = im.color_conv (BYTE_FORMAT)
         surface = cairo.ImageSurface.create_for_data (
                       buf, cairo.FORMAT_ARGB32, cols, rows, cols*4)
-        # function does not pass a 'gc' so use renderer.ctx
-        ctx = self.gc.ctx
-        ctx.save()
-        if clippath is not None:
-            ctx.new_path()
-            RendererCairo.convert_path(ctx, clippath, clippath_trans)
-            ctx.clip()
+        ctx = gc.ctx
         y = self.height - y - rows
+
+        ctx.save()
         ctx.set_source_surface (surface, x, y)
         ctx.paint()
         ctx.restore()
 
         im.flipud_out()
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # Note: x,y are device/display coords, not user-coords, unlike other
         # draw_* methods
         if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
@@ -192,17 +186,17 @@ class RendererCairo(RendererBase):
             ctx.select_font_face (prop.get_name(),
                                   self.fontangles [prop.get_style()],
                                   self.fontweights[prop.get_weight()])
-            
+
             size = prop.get_size_in_points() * self.dpi / 72.0
-            
+
             ctx.save()
             if angle:
                 ctx.rotate (-angle * np.pi / 180)
             ctx.set_font_size (size)
             if sys.version_info[0] < 3:
-                ctx.show_text (s.encode("utf-8"))
+                ctx.show_text(s.encode("utf-8"))
             else:
-                ctx.show_text (s)
+                ctx.show_text(s)
             ctx.restore()
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
@@ -220,16 +214,19 @@ class RendererCairo(RendererBase):
         for font, fontsize, s, ox, oy in glyphs:
             ctx.new_path()
             ctx.move_to(ox, oy)
-            
+
             fontProp = ttfFontProperty(font)
             ctx.save()
             ctx.select_font_face (fontProp.name,
                                   self.fontangles [fontProp.style],
                                   self.fontweights[fontProp.weight])
-            
+
             size = fontsize * self.dpi / 72.0
             ctx.set_font_size(size)
-            ctx.show_text(s.encode("utf-8"))
+            if sys.version_info[0] < 3:
+                ctx.show_text(s.encode("utf-8"))
+            else:
+                ctx.show_text(s)
             ctx.restore()
 
         for ox, oy, w, h in rects:
@@ -322,7 +319,10 @@ class GraphicsContextCairo(GraphicsContextBase):
         GraphicsContextBase.set_alpha(self, alpha)
         _alpha = self.get_alpha()
         rgb = self._rgb
-        self.ctx.set_source_rgba (rgb[0], rgb[1], rgb[2], _alpha)
+        if self.get_forced_alpha():
+            self.ctx.set_source_rgba (rgb[0], rgb[1], rgb[2], _alpha)
+        else:
+            self.ctx.set_source_rgba (rgb[0], rgb[1], rgb[2], rgb[3])
 
 
     #def set_antialiased(self, b):
@@ -365,8 +365,8 @@ class GraphicsContextCairo(GraphicsContextBase):
                self.renderer.points_to_pixels (np.asarray(dashes)), offset)
 
 
-    def set_foreground(self, fg, isRGB=None):
-        GraphicsContextBase.set_foreground(self, fg, isRGB)
+    def set_foreground(self, fg, isRGBA=None):
+        GraphicsContextBase.set_foreground(self, fg, isRGBA)
         if len(self._rgb) == 3:
             self.ctx.set_source_rgb(*self._rgb)
         else:

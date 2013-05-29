@@ -249,10 +249,11 @@ class RendererSVG(RendererBase):
     FONT_SCALE = 100.0
     fontd = maxdict(50)
 
-    def __init__(self, width, height, svgwriter, basename=None):
+    def __init__(self, width, height, svgwriter, basename=None, image_dpi=72):
         self.width = width
         self.height = height
         self.writer = XMLWriter(svgwriter)
+        self.image_dpi = image_dpi # the actual dpi we want to rasterize stuff with
 
         self._groupd = {}
         if not rcParams['svg.image_inline']:
@@ -294,7 +295,7 @@ class RendererSVG(RendererBase):
         writer = self.writer
         default_style = generate_css({
             u'stroke-linejoin': u'round',
-            u'stroke-linecap': u'square'})
+            u'stroke-linecap': u'butt'})
         writer.start(u'defs')
         writer.start(u'style', type=u'text/css')
         writer.data(u'*{%s}\n' % default_style)
@@ -391,15 +392,21 @@ class RendererSVG(RendererBase):
         """
         attrib = {}
 
+        forced_alpha = gc.get_forced_alpha()
+
         if gc.get_hatch() is not None:
             attrib[u'fill'] = u"url(#%s)" % self._get_hatch(gc, rgbFace)
+            if rgbFace is not None and len(rgbFace) == 4 and rgbFace[3] != 1.0 and not forced_alpha:
+                attrib[u'fill-opacity'] = str(rgbFace[3])
         else:
             if rgbFace is None:
                 attrib[u'fill'] = u'none'
             elif tuple(rgbFace[:3]) != (0, 0, 0):
                 attrib[u'fill'] = rgb2hex(rgbFace)
+                if len(rgbFace) == 4 and rgbFace[3] != 1.0 and not forced_alpha:
+                    attrib[u'fill-opacity'] = str(rgbFace[3])
 
-        if gc.get_alpha() != 1.0:
+        if forced_alpha and gc.get_alpha() != 1.0:
             attrib[u'opacity'] = str(gc.get_alpha())
 
         offset, seq = gc.get_dashes()
@@ -409,12 +416,15 @@ class RendererSVG(RendererBase):
 
         linewidth = gc.get_linewidth()
         if linewidth:
-            attrib[u'stroke'] = rgb2hex(gc.get_rgb())
+            rgb = gc.get_rgb()
+            attrib[u'stroke'] = rgb2hex(rgb)
+            if not forced_alpha and rgb[3] != 1.0:
+                attrib[u'stroke-opacity'] = str(rgb[3])
             if linewidth != 1.0:
                 attrib[u'stroke-width'] = str(linewidth)
             if gc.get_joinstyle() != 'round':
                 attrib[u'stroke-linejoin'] = gc.get_joinstyle()
-            if gc.get_capstyle() != 'projecting':
+            if gc.get_capstyle() != 'butt':
                 attrib[u'stroke-linecap'] = _capstyle_d[gc.get_capstyle()]
 
         return attrib
@@ -738,6 +748,9 @@ class RendererSVG(RendererBase):
     def option_scale_image(self):
         return True
 
+    def get_image_magnification(self):
+        return self.image_dpi / 72.0
+
     def draw_image(self, gc, x, y, im, dx=None, dy=None, transform=None):
         attrib = {}
         clipid = self._get_clip(gc)
@@ -760,6 +773,17 @@ class RendererSVG(RendererBase):
             im.resize(numcols, numrows)
 
         h,w = im.get_size_out()
+
+        if dx is None:
+            w = 72.0*w/self.image_dpi
+        else:
+            w = dx
+
+        if dy is None:
+            h = 72.0*h/self.image_dpi
+        else:
+            h = dy
+
         oid = getattr(im, '_gid', None)
         url = getattr(im, '_url', None)
         if url is not None:
@@ -820,7 +844,7 @@ class RendererSVG(RendererBase):
     def _adjust_char_id(self, char_id):
         return char_id.replace(u"%20", u"_")
 
-    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
+    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath, mtext=None):
         """
         draw the text by converting them to paths using textpath module.
 
@@ -857,8 +881,6 @@ class RendererSVG(RendererBase):
             _glyphs = text2path.get_glyphs_with_font(
                 font, s, glyph_map=glyph_map, return_new_glyphs_only=True)
             glyph_info, glyph_map_new, rects = _glyphs
-            y -= ((font.get_descent() / 64.0) *
-                  (prop.get_size_in_points() / text2path.FONT_SCALE))
 
             if glyph_map_new:
                 writer.start(u'defs')
@@ -945,7 +967,7 @@ class RendererSVG(RendererBase):
 
             writer.end('g')
 
-    def _draw_text_as_text(self, gc, x, y, s, prop, angle, ismath):
+    def _draw_text_as_text(self, gc, x, y, s, prop, angle, ismath, mtext=None):
         writer = self.writer
 
         color = rgb2hex(gc.get_rgb())
@@ -958,7 +980,6 @@ class RendererSVG(RendererBase):
         if not ismath:
             font = self._get_font(prop)
             font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
-            y -= font.get_descent() / 64.0
 
             fontsize = prop.get_size_in_points()
 
@@ -972,11 +993,39 @@ class RendererSVG(RendererBase):
             style[u'font-style'] = prop.get_style().lower()
             attrib[u'style'] = generate_css(style)
 
-            attrib[u'transform'] = generate_transform([
-                (u'translate', (x, y)),
-                (u'rotate', (-angle,))])
+            if angle == 0 or mtext.get_rotation_mode() == "anchor":
+                # If text anchoring can be supported, get the original
+                # coordinates and add alignment information.
 
-            writer.element(u'text', s, attrib=attrib)
+                # Get anchor coordinates.
+                transform = mtext.get_transform()
+                ax, ay = transform.transform_point(mtext.get_position())
+                ay = self.height - ay
+
+                # Don't do vertical anchor alignment. Most applications do not
+                # support 'alignment-baseline' yet. Apply the vertical layout
+                # to the anchor point manually for now.
+                angle_rad = angle * np.pi / 180.
+                dir_vert = np.array([np.sin(angle_rad), np.cos(angle_rad)])
+                v_offset = np.dot(dir_vert, [(x - ax), (y - ay)])
+                ax = ax + v_offset * dir_vert[0]
+                ay = ay + v_offset * dir_vert[1]
+
+                ha_mpl_to_svg = {'left': 'start', 'right': 'end',
+                                 'center': 'middle'}
+                style[u'text-anchor'] = ha_mpl_to_svg[mtext.get_ha()]
+
+                attrib[u'x'] = str(ax)
+                attrib[u'y'] = str(ay)
+                attrib[u'style'] = generate_css(style)
+                attrib[u'transform'] = u"rotate(%f, %f, %f)" % (-angle, ax, ay)
+                writer.element(u'text', s, attrib=attrib)
+            else:
+                attrib[u'transform'] = generate_transform([
+                    (u'translate', (x, y)),
+                    (u'rotate', (-angle,))])
+
+                writer.element(u'text', s, attrib=attrib)
 
             if rcParams['svg.fonttype'] == 'svgfont':
                 fontset = self._fonts.setdefault(font.fname, set())
@@ -1058,10 +1107,10 @@ class RendererSVG(RendererBase):
 
             writer.end(u'g')
 
-    def draw_tex(self, gc, x, y, s, prop, angle):
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         clipid = self._get_clip(gc)
         if clipid is not None:
             # Cannot apply clip-path directly to the text, because
@@ -1070,9 +1119,9 @@ class RendererSVG(RendererBase):
                 u'g', attrib={u'clip-path': u'url(#%s)' % clipid})
 
         if rcParams['svg.fonttype'] == 'path':
-            self._draw_text_as_path(gc, x, y, s, prop, angle, ismath)
+            self._draw_text_as_path(gc, x, y, s, prop, angle, ismath, mtext)
         else:
-            self._draw_text_as_text(gc, x, y, s, prop, angle, ismath)
+            self._draw_text_as_text(gc, x, y, s, prop, angle, ismath, mtext)
 
         if clipid is not None:
             self.writer.end(u'g')
@@ -1120,25 +1169,17 @@ class FigureCanvasSVG(FigureCanvasBase):
 
     def _print_svg(self, filename, svgwriter, fh_to_close=None, **kwargs):
         try:
+            image_dpi = kwargs.pop("dpi", 72)
             self.figure.set_dpi(72.0)
             width, height = self.figure.get_size_inches()
             w, h = width*72, height*72
 
             if rcParams['svg.image_noscale']:
-                renderer = RendererSVG(w, h, svgwriter, filename)
+                renderer = RendererSVG(w, h, svgwriter, filename, image_dpi)
             else:
-                # setting mixed renderer dpi other than 72 results in
-                # incorrect size of the rasterized image. It seems that the
-                # svg internally uses fixed dpi of 72 and seems to cause
-                # the problem. I hope someone who knows the svg backends
-                # take a look at this problem. Meanwhile, the dpi
-                # parameter is ignored and image_dpi is fixed at 72. - JJL
-
-                #image_dpi = kwargs.pop("dpi", 72)
-                image_dpi = 72
                 _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
                 renderer = MixedModeRenderer(self.figure,
-                    width, height, image_dpi, RendererSVG(w, h, svgwriter, filename),
+                    width, height, image_dpi, RendererSVG(w, h, svgwriter, filename, image_dpi),
                     bbox_inches_restore=_bbox_inches_restore)
 
             self.figure.draw(renderer)

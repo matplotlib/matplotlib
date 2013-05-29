@@ -39,8 +39,7 @@ xdata = np.arange(ydata.size)
 
 d = DataDisplayDownsampler(xdata, ydata)
 
-fig = plt.figure()
-ax = fig.add_subplot(1, 1, 1)
+fig, ax = plt.subplots()
 
 #Hook up the line
 xdata, ydata = d.downsample(xdata[0], xdata[-1])

@@ -96,9 +96,7 @@ if 1:
     from matplotlib.transforms import Bbox, TransformedBbox
     from matplotlib.ticker import ScalarFormatter
 
-    fig = plt.gcf()
-    fig.clf()
-    ax = plt.subplot(111)
+    fig, ax = plt.subplots()
 
     years = np.arange(2004, 2009)
     box_colors = [(0.8, 0.2, 0.2),

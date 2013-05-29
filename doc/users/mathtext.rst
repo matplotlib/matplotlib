@@ -14,7 +14,7 @@ provides a ``usetex`` option for those who do want to call out to TeX
 to generate their text (see :ref:`usetex-tutorial`).
 
 Any text element can use math text.  You should use raw strings
-(preceed the quotes with an ``'r'``), and surround the math text with
+(precede the quotes with an ``'r'``), and surround the math text with
 dollar signs ($), as in TeX.  Regular text and mathtext can be
 interleaved within the same string.  Mathtext can use the Computer
 Modern fonts (from (La)TeX), `STIX <http://www.aip.org/stixfonts/>`_
@@ -46,7 +46,7 @@ produces ":math:`\alpha > \beta`".
 
 .. note::
    Mathtext should be placed between a pair of dollar signs ($).  To
-   make it easy to display monetary values, e.g. "$100.00", if a
+   make it easy to display monetary values, e.g., "$100.00", if a
    single dollar sign is present in the entire string, it will be
    displayed verbatim as a dollar sign.  This is a small change from
    regular TeX, where the dollar sign in non-math text would have to

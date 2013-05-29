@@ -121,3 +121,25 @@ def test_tight_layout6():
                                 None, 1 - (gs2.top-top)],
                      h_pad=0.45)
 
+
+@image_comparison(baseline_images=['tight_layout7'])
+def test_tight_layout7():
+    # tight layout with left and right titles
+    fig = plt.figure()
+    fontsize = 24
+    ax = fig.add_subplot(111)
+    ax.plot([1, 2])
+    ax.locator_params(nbins=3)
+    ax.set_xlabel('x-label', fontsize=fontsize)
+    ax.set_ylabel('y-label', fontsize=fontsize)
+    ax.set_title('Left Title', loc='left', fontsize=fontsize)
+    ax.set_title('Right Title', loc='right', fontsize=fontsize)
+    plt.tight_layout()
+
+@image_comparison(baseline_images=['tight_layout8'])
+def test_tight_layout8():
+    'Test automatic use of tight_layout'
+    fig = plt.figure()
+    fig.set_tight_layout({'pad': .1})
+    ax = fig.add_subplot(111)
+    example_plot(ax, fontsize=24)

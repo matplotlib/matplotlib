@@ -33,7 +33,7 @@
 #include "mplutils.h"
 
 
-typedef agg::pixfmt_rgba32 pixfmt;
+typedef agg::pixfmt_rgba32_plain pixfmt;
 typedef agg::pixfmt_rgba32_pre pixfmt_pre;
 typedef agg::renderer_base<pixfmt> renderer_base;
 typedef agg::span_interpolator_linear<> interpolator_type;
@@ -406,10 +406,6 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs)
 
     typedef agg::span_allocator<agg::rgba8> span_alloc_type;
     span_alloc_type sa;
-    agg::rgba8 background(agg::rgba8(int(255*bg.r),
-                                     int(255*bg.g),
-                                     int(255*bg.b),
-                                     int(255*bg.a)));
 
     // the image path
     agg::path_storage path;
@@ -800,6 +796,8 @@ _image_module::from_images(const Py::Tuple& args)
     Py::Tuple tup;
 
     size_t ox(0), oy(0), thisx(0), thisy(0);
+    float alpha;
+    bool apply_alpha;
 
     //copy image 0 output buffer into return images output buffer
     Image* imo = new Image;
@@ -827,6 +825,16 @@ _image_module::from_images(const Py::Tuple& args)
         Image* thisim = static_cast<Image*>(tup[0].ptr());
         ox = (long)Py::Int(tup[1]);
         oy = (long)Py::Int(tup[2]);
+        if (tup.size() <= 3 || tup[3].ptr() == Py_None)
+        {
+            apply_alpha = false;
+        }
+        else
+        {
+            apply_alpha = true;
+            alpha = Py::Float(tup[3]);
+        }
+
         bool isflip = (thisim->rbufOut->stride()) < 0;
         //std::cout << "from images " << isflip << "; stride=" << thisim->rbufOut->stride() << std::endl;
         size_t ind = 0;
@@ -855,7 +863,14 @@ _image_module::from_images(const Py::Tuple& args)
                 p.r = *(thisim->bufferOut + ind++);
                 p.g = *(thisim->bufferOut + ind++);
                 p.b = *(thisim->bufferOut + ind++);
-                p.a = *(thisim->bufferOut + ind++);
+                if (apply_alpha)
+                {
+                    p.a = (pixfmt::value_type) *(thisim->bufferOut + ind++) * alpha;
+                }
+                else
+                {
+                    p.a = *(thisim->bufferOut + ind++);
+                }
                 pixf.blend_pixel(thisx, thisy, p, 255);
             }
         }

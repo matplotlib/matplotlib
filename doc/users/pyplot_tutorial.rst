@@ -248,8 +248,8 @@ you can write a TeX expression surrounded by dollar signs::
 
     plt.title(r'$\sigma_i=15$')
 
-The ``r`` preceeding the title string is important -- it signifies
-that the string is a *raw* string and not to treate backslashes and
+The ``r`` preceding the title string is important -- it signifies
+that the string is a *raw* string and not to treat backslashes and
 python escapes.  matplotlib has a built-in TeX expression parser and
 layout engine, and ships its own math fonts -- for details see
 :ref:`mathtext-tutorial`.  Thus you can use mathematical text across platforms
@@ -280,4 +280,3 @@ variety of other coordinate systems one can choose -- see
 :ref:`annotations-tutorial` and :ref:`plotting-guide-annotation` for
 details.  More examples can be found in
 :ref:`pylab_examples-annotation_demo`.
-

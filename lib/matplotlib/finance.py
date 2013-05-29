@@ -4,7 +4,7 @@ financial data.   User contributions welcome!
 
 """
 from __future__ import division, print_function
-import os, sys, warnings
+import contextlib, os, sys, warnings
 from urllib2 import urlopen
 
 if sys.version_info[0] < 3:
@@ -17,7 +17,7 @@ import datetime
 
 import numpy as np
 
-from matplotlib import verbose, get_configdir
+from matplotlib import verbose, get_cachedir
 from matplotlib.dates import date2num
 from matplotlib.cbook import iterable, mkdirs
 from matplotlib.collections import LineCollection, PolyCollection
@@ -27,8 +27,14 @@ from matplotlib.patches import Rectangle
 from matplotlib.transforms import Affine2D
 
 
-configdir = get_configdir()
-cachedir = os.path.join(configdir, 'finance.cache')
+cachedir = get_cachedir()
+# cachedir will be None if there is no writable directory.
+if cachedir is not None:
+    cachedir = os.path.join(cachedir, 'finance.cache')
+else:
+    # Should only happen in a restricted environment (such as Google App
+    # Engine). Deal with this gracefully by not caching finance data.
+    cachedir = None
 
 
 stock_dt = np.dtype([('date', object),
@@ -145,7 +151,7 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,dividends=False)
     cachename is the name of the local file cache.  If None, will
     default to the md5 hash or the url (which incorporates the ticker
     and date range)
-    
+
     set dividends=True to return dividends instead of price data.  With
     this option set, parse functions will not work
 
@@ -178,22 +184,25 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,dividends=False)
                      d2[0], d2[1], d2[2], ticker, g)
 
 
-    if cachename is None:
+    # Cache the finance data if cachename is supplied, or there is a writable
+    # cache directory.
+    if cachename is None and cachedir is not None:
         cachename = os.path.join(cachedir, md5(url).hexdigest())
-    if os.path.exists(cachename):
-        fh = open(cachename)
-        verbose.report('Using cachefile %s for %s'%(cachename, ticker))
+    if cachename is not None:
+        if os.path.exists(cachename):
+            fh = open(cachename)
+            verbose.report('Using cachefile %s for %s'%(cachename, ticker))
+        else:
+            mkdirs(os.path.abspath(os.path.dirname(cachename)))
+            with contextlib.closing(urlopen(url)) as urlfh:
+                with open(cachename, 'wb') as fh:
+                    fh.write(urlfh.read())
+            verbose.report('Saved %s data to cache file %s'%(ticker, cachename))
+            fh = open(cachename, 'r')
+
+        return fh
     else:
-        mkdirs(cachedir)
-        urlfh = urlopen(url)
-
-        fh = open(cachename, 'wb')
-        fh.write(urlfh.read())
-        fh.close()
-        verbose.report('Saved %s data to cache file %s'%(ticker, cachename))
-        fh = open(cachename, 'r')
-
-    return fh
+        return urlopen(url)
 
 
 def quotes_historical_yahoo(ticker, date1, date2, asobject=False,

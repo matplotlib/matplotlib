@@ -23,7 +23,7 @@ set
     set operates on a single instance or a list of instances.  If you are
     in query mode introspecting the possible values, only the first
     instance in the sequence is used.  When actually setting values, all
-    the instances will be set.  Eg, suppose you have a list of two lines,
+    the instances will be set.  e.g., suppose you have a list of two lines,
     the following will make both lines thicker and red
 
         >>> x = arange(0,1.0,0.01)

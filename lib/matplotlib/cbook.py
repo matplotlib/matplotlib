@@ -1,7 +1,11 @@
 """
-A collection of utility functions and classes.  Many (but not all)
-from the Python Cookbook -- hence the name cbook
+A collection of utility functions and classes.  Originally, many
+(but not all) were from the Python Cookbook -- hence the name cbook.
+
+This module is safe to import from anywhere within matplotlib;
+it imports matplotlib only at runtime.
 """
+
 from __future__ import print_function
 
 import datetime
@@ -13,25 +17,207 @@ import io
 import locale
 import os
 import re
-import subprocess
 import sys
 import threading
 import time
 import traceback
+import types
 import warnings
 from weakref import ref, WeakKeyDictionary
-
-import matplotlib
-from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
 import numpy as np
 import numpy.ma as ma
 
 
-if sys.version_info[0] >= 3:
-    import types
-else:
-    import new
+class MatplotlibDeprecationWarning(UserWarning):
+    """
+    A class for issuing deprecation warnings for Matplotlib users.
+
+    In light of the fact that Python builtin DeprecationWarnings are ignored
+    by default as of Python 2.7 (see link below), this class was put in to
+    allow for the signaling of deprecation, but via UserWarnings which are not
+    ignored by default.
+
+    http://docs.python.org/dev/whatsnew/2.7.html#the-future-for-python-2-x
+    """
+    pass
+
+mplDeprecation = MatplotlibDeprecationWarning
+
+
+def _generate_deprecation_message(
+    since, message='', name='', alternative='', pending=False,
+    obj_type='attribute'):
+
+    if not message:
+        altmessage = ''
+
+        if pending:
+            message = (
+                'The %(func)s %(obj_type)s will be deprecated in a '
+                'future version.')
+        else:
+            message = (
+                'The %(func)s %(obj_type)s was deprecated in version '
+                '%(since)s.')
+        if alternative:
+            altmessage = ' Use %s instead.' % alternative
+
+        message = ((message % {
+            'func': name,
+            'name': name,
+            'alternative': alternative,
+            'obj_type': obj_type,
+            'since': since}) +
+            altmessage)
+
+    return message
+
+
+def warn_deprecated(
+        since, message='', name='', alternative='', pending=False,
+        obj_type='attribute'):
+    """
+    Used to display deprecation warning in a standard way.
+
+    Parameters
+    ------------
+    since : str
+        The release at which this API became deprecated.
+
+    message : str, optional
+        Override the default deprecation message.  The format
+        specifier `%(func)s` may be used for the name of the function,
+        and `%(alternative)s` may be used in the deprecation message
+        to insert the name of an alternative to the deprecated
+        function.  `%(obj_type)` may be used to insert a friendly name
+        for the type of object being deprecated.
+
+    name : str, optional
+        The name of the deprecated function; if not provided the name
+        is automatically determined from the passed in function,
+        though this is useful in the case of renamed functions, where
+        the new function is just assigned to the name of the
+        deprecated function.  For example::
+
+            def new_function():
+                ...
+            oldFunction = new_function
+
+    alternative : str, optional
+        An alternative function that the user may use in place of the
+        deprecated function.  The deprecation warning will tell the user about
+        this alternative if provided.
+
+    pending : bool, optional
+        If True, uses a PendingDeprecationWarning instead of a
+        DeprecationWarning.
+
+    obj_type : str, optional
+        The object type being deprecated.
+    """
+    message = _generate_deprecation_message(
+        since, message, name, alternative, pending, 'function')
+
+    warnings.warn(message, mplDeprecation, stacklevel=1)
+
+
+def deprecated(since, message='', name='', alternative='', pending=False,
+               obj_type='function'):
+    """
+    Used to mark a function as deprecated.
+
+    Parameters
+    ------------
+    since : str
+        The release at which this API became deprecated.  This is
+        required.
+
+    message : str, optional
+        Override the default deprecation message.  The format
+        specifier `%(func)s` may be used for the name of the function,
+        and `%(alternative)s` may be used in the deprecation message
+        to insert the name of an alternative to the deprecated
+        function.  `%(obj_type)` may be used to insert a friendly name
+        for the type of object being deprecated.
+
+    name : str, optional
+        The name of the deprecated function; if not provided the name
+        is automatically determined from the passed in function,
+        though this is useful in the case of renamed functions, where
+        the new function is just assigned to the name of the
+        deprecated function.  For example::
+
+            def new_function():
+                ...
+            oldFunction = new_function
+
+    alternative : str, optional
+        An alternative function that the user may use in place of the
+        deprecated function.  The deprecation warning will tell the user about
+        this alternative if provided.
+
+    pending : bool, optional
+        If True, uses a PendingDeprecationWarning instead of a
+        DeprecationWarning.
+    """
+    def deprecate(func, message=message, name=name, alternative=alternative,
+                  pending=pending):
+        import functools
+        import textwrap
+
+        if isinstance(func, classmethod):
+            try:
+                func = func.__func__
+            except AttributeError:
+                # classmethods in Python2.6 and below lack the __func__
+                # attribute so we need to hack around to get it
+                method = func.__get__(None, object)
+                if hasattr(method, '__func__'):
+                    func = method.__func__
+                elif hasattr(method, 'im_func'):
+                    func = method.im_func
+                else:
+                    # Nothing we can do really...  just return the original
+                    # classmethod
+                    return func
+            is_classmethod = True
+        else:
+            is_classmethod = False
+
+        if not name:
+            name = func.__name__
+
+        message = _generate_deprecation_message(
+            since, message, name, alternative, pending, obj_type)
+
+        @functools.wraps(func)
+        def deprecated_func(*args, **kwargs):
+            warnings.warn(message, mplDeprecation, stacklevel=2)
+
+            return func(*args, **kwargs)
+
+        old_doc = deprecated_func.__doc__
+        if not old_doc:
+            old_doc = ''
+        old_doc = textwrap.dedent(old_doc).strip('\n')
+        message = message.strip()
+        new_doc = (('\n.. deprecated:: %(since)s'
+                    '\n    %(message)s\n\n' %
+                    {'since': since, 'message': message}) + old_doc)
+        if not old_doc:
+            # This is to prevent a spurious 'unexected unindent' warning from
+            # docutils when the original docstring was blank.
+            new_doc += r'\ '
+
+        deprecated_func.__doc__ = new_doc
+
+        if is_classmethod:
+            deprecated_func = classmethod(deprecated_func)
+        return deprecated_func
+
+    return deprecate
+
 
 # On some systems, locale.getpreferredencoding returns None,
 # which can break unicode; and the sage project reports that
@@ -80,7 +266,7 @@ else:
             return unicode(s, preferredencoding)
 
 
-class converter:
+class converter(object):
     """
     Base class for handling string -> python type with support for
     missing values
@@ -209,10 +395,9 @@ class _BoundMethodProxy(object):
         elif self.inst is not None:
             # build a new instance method with a strong reference to the
             # instance
-            if sys.version_info[0] >= 3:
-                mtd = types.MethodType(self.func, self.inst())
-            else:
-                mtd = new.instancemethod(self.func, self.inst(), self.klass)
+
+            mtd = types.MethodType(self.func, self.inst())
+
         else:
             # not a bound method, just return the func
             mtd = self.func
@@ -279,10 +464,9 @@ class CallbackRegistry:
     """
     def __init__(self, *args):
         if len(args):
-            warnings.warn(
-                'CallbackRegistry no longer requires a list of callback types.'
-                ' Ignoring arguments',
-                mplDeprecation)
+            warn_deprecated('1.3', message=
+                "CallbackRegistry no longer requires a list of callback "
+                "types. Ignoring arguments. *args will be removed in 1.5")
         self.callbacks = dict()
         self._cid = 0
         self._func_cid_map = {}
@@ -540,7 +724,6 @@ def to_filehandle(fname, flag='rU', return_opened=False):
     """
     if is_string_like(fname):
         if fname.endswith('.gz'):
-            import gzip
             # get rid of 'U' in flag for gzipped files.
             flag = flag.replace('U', '')
             fh = gzip.open(fname, flag)
@@ -580,10 +763,13 @@ def get_sample_data(fname, asfileobj=True):
 
     If the filename ends in .gz, the file is implicitly ungzipped.
     """
+    import matplotlib
+
     if matplotlib.rcParams['examples.directory']:
         root = matplotlib.rcParams['examples.directory']
     else:
-        root = os.path.join(os.path.dirname(__file__), "mpl-data", "sample_data")
+        root = os.path.join(os.path.dirname(__file__),
+                            "mpl-data", "sample_data")
     path = os.path.join(root, fname)
 
     if asfileobj:
@@ -1197,19 +1383,34 @@ def restrict_dict(d, keys):
 
 def report_memory(i=0):  # argument may go away
     'return the memory consumed by process'
-    from subprocess import Popen, PIPE
+    from matplotlib.compat.subprocess import Popen, PIPE
     pid = os.getpid()
     if sys.platform == 'sunos5':
-        a2 = Popen('ps -p %d -o osz' % pid, shell=True,
-                   stdout=PIPE).stdout.readlines()
+        try:
+            a2 = Popen('ps -p %d -o osz' % pid, shell=True,
+                       stdout=PIPE).stdout.readlines()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Sun OS only if "
+                "the 'ps' program is found")
         mem = int(a2[-1].strip())
     elif sys.platform.startswith('linux'):
-        a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
-                   stdout=PIPE).stdout.readlines()
+        try:
+            a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
+                       stdout=PIPE).stdout.readlines()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Linux only if "
+                "the 'ps' program is found")
         mem = int(a2[1].split()[1])
     elif sys.platform.startswith('darwin'):
-        a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
-                   stdout=PIPE).stdout.readlines()
+        try:
+            a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
+                       stdout=PIPE).stdout.readlines()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Mac OS only if "
+                "the 'ps' program is found")
         mem = int(a2[1].split()[0])
     elif sys.platform.startswith('win'):
         try:
@@ -1300,7 +1501,7 @@ class MemoryMonitor:
 
     def plot(self, i0=0, isub=1, fig=None):
         if fig is None:
-            from pylab import figure, show
+            from pylab import figure
             fig = figure()
 
         ax = fig.add_subplot(111)
@@ -1610,8 +1811,9 @@ def delete_masked_points(*args):
     return margs
 
 
+# FIXME I don't think this is used anywhere
 def unmasked_index_ranges(mask, compressed=True):
-    '''
+    """
     Find index ranges where *mask* is *False*.
 
     *mask* will be flattened if it is not already 1-D.
@@ -1641,8 +1843,7 @@ def unmasked_index_ranges(mask, compressed=True):
 
     Prior to the transforms refactoring, this was used to support
     masked arrays in Line2D.
-
-    '''
+    """
     mask = mask.reshape(mask.size)
     m = np.concatenate(((1,), mask, (1,)))
     indices = np.arange(len(mask) + 1)
@@ -1668,79 +1869,6 @@ _linestyles = [('-', 'solid'),
 
 ls_mapper = dict(_linestyles)
 ls_mapper.update([(ls[1], ls[0]) for ls in _linestyles])
-
-
-def less_simple_linear_interpolation(x, y, xi, extrap=False):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('less_simple_linear_interpolation has been moved to '
-                  'matplotlib.mlab -- please import it from there',
-                  mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.less_simple_linear_interpolation(x, y, xi, extrap=extrap)
-
-
-def vector_lengths(X, P=2.0, axis=None):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('vector_lengths has been moved to matplotlib.mlab -- '
-                  'please import it from there', mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.vector_lengths(X, P=2.0, axis=axis)
-
-
-def distances_along_curve(X):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('distances_along_curve has been moved to matplotlib.mlab '
-                  '-- please import it from there', mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.distances_along_curve(X)
-
-
-def path_length(X):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('path_length has been moved to matplotlib.mlab '
-                  '-- please import it from there', mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.path_length(X)
-
-
-def is_closed_polygon(X):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('is_closed_polygon has been moved to matplotlib.mlab '
-                  '-- please import it from there', mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.is_closed_polygon(X)
-
-
-def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('quad2cubic has been moved to matplotlib.mlab -- please '
-                  'import it from there', mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y)
 
 
 def align_iterators(func, *iterables):
@@ -1853,53 +1981,3 @@ except AttributeError:
 else:
     def _putmask(a, mask, values):
         return np.copyto(a, values, where=mask)
-
-
-def _check_output(*popenargs, **kwargs):
-    r"""Run command with arguments and return its output as a byte
-    string.
-
-    If the exit code was non-zero it raises a CalledProcessError.  The
-    CalledProcessError object will have the return code in the
-    returncode
-    attribute and output in the output attribute.
-
-    The arguments are the same as for the Popen constructor.  Example::
-
-    >>> check_output(["ls", "-l", "/dev/null"])
-    'crw-rw-rw- 1 root root 1, 3 Oct 18  2007 /dev/null\n'
-
-    The stdout argument is not allowed as it is used internally.
-    To capture standard error in the result, use stderr=STDOUT.::
-
-    >>> check_output(["/bin/sh", "-c",
-    ...               "ls -l non_existent_file ; exit 0"],
-    ...              stderr=STDOUT)
-    'ls: non_existent_file: No such file or directory\n'
-    """
-    if 'stdout' in kwargs:
-        raise ValueError('stdout argument not allowed, it will be overridden.')
-    process = subprocess.Popen(stdout=subprocess.PIPE, *popenargs, **kwargs)
-    output, unused_err = process.communicate()
-    retcode = process.poll()
-    if retcode:
-        cmd = kwargs.get("args")
-        if cmd is None:
-            cmd = popenargs[0]
-        raise subprocess.CalledProcessError(retcode, cmd, output=output)
-    return output
-
-
-# python2.7's subprocess provides a check_output method
-if hasattr(subprocess, 'check_output'):
-    check_output = subprocess.check_output
-else:
-    check_output = _check_output
-
-
-if __name__ == '__main__':
-    assert(allequal([1, 1, 1]))
-    assert(not allequal([1, 1, 0]))
-    assert(allequal([]))
-    assert(allequal(('a', 'a')))
-    assert(not allequal(('a', 'b')))

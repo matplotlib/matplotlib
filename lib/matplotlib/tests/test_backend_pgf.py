@@ -2,12 +2,12 @@
 
 import os
 import shutil
-import subprocess
 import numpy as np
 import nose
 from nose.plugins.skip import SkipTest
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.compat import subprocess
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
 from matplotlib.testing.decorators import _image_directories
 
@@ -57,7 +57,7 @@ def compare_figure(fname):
 
     expected = os.path.join(result_dir, "expected_%s" % fname)
     shutil.copyfile(os.path.join(baseline_dir, fname), expected)
-    err = compare_images(expected, actual, tol=5e-3)
+    err = compare_images(expected, actual, tol=14)
     if err:
         raise ImageComparisonFailure('images not close: %s vs. %s' % (actual, expected))
 
@@ -129,6 +129,33 @@ def test_rcupdate():
         mpl.rcParams.update(rc_set)
         create_figure()
         compare_figure('pgf_rcupdate%d.pdf' % (i+1))
+
+
+# test backend-side clipping, since large numbers are not supported by TeX
+@switch_backend('pgf')
+def test_pathclip():
+    if not check_for('xelatex'):
+        raise SkipTest('xelatex + pgf is required')
+
+    plt.figure()
+    plt.plot([0., 1e100], [0., 1e100])
+    plt.xlim(0, 1)
+    plt.ylim(0, 1)
+    # this test passes if compiling/saving to pdf works (no image comparison)
+    plt.savefig(os.path.join(result_dir, "pgf_pathclip.pdf"))
+
+
+# test mixed mode rendering
+@switch_backend('pgf')
+def test_mixedmode():
+    if not check_for('xelatex'):
+        raise SkipTest('xelatex + pgf is required')
+
+    Y, X = np.ogrid[-1:1:40j, -1:1:40j]
+    plt.figure()
+    plt.pcolor(X**2 + Y**2).set_rasterized(True)
+    compare_figure('pgf_mixedmode.pdf')
+
 
 if __name__ == '__main__':
     import nose

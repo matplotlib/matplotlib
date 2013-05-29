@@ -2,16 +2,13 @@
 A simple example of an animated plot using a wx backend
 """
 from __future__ import print_function
-import time
 import numpy as np
 import matplotlib
 matplotlib.use('WXAgg') # do this before importing pylab
 
 import matplotlib.pyplot as plt
 
-fig = plt.figure()
-
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 t = np.arange(0, 2*np.pi, 0.1)
 line, = ax.plot(t, np.sin(t))
 dt = 0.05

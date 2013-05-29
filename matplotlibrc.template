@@ -24,8 +24,8 @@
 #### CONFIGURATION BEGINS HERE
 
 # the default backend; one of GTK GTKAgg GTKCairo GTK3Agg GTK3Cairo
-# CocoaAgg FltkAgg MacOSX QtAgg Qt4Agg TkAgg WX WXAgg Agg Cairo GDK PS
-# PDF SVG Template
+# CocoaAgg MacOSX Qt4Agg TkAgg WX WXAgg Agg Cairo GDK PS PDF SVG
+# Template
 # You can also deploy your own backend outside of matplotlib by
 # referring to the module name (which must be in the PYTHONPATH) as
 # 'module://my_backend'
@@ -40,6 +40,16 @@ backend      : %(backend)s
 # QT_API used by Enthought Tool Suite (ETS); valid values are
 # "pyqt" and "pyside".  The "pyqt" setting has the side effect of
 # forcing the use of Version 2 API for QString and QVariant.
+
+# The port to use for the web server in the WebAgg backend.
+# webagg.port : 8888
+
+# If webagg.port is unavailable, a number of other random ports will
+# be tried until one that is available is found.
+# webagg.port_retries : 50
+
+# When True, open the webbrowser to the plot that is shown
+# webagg.open_in_browser : True
 
 # if you are running pyplot inside a GUI and your backend choice
 # conflicts, we will automatically try to find a compatible one for
@@ -87,11 +97,12 @@ backend      : %(backend)s
 # information on font properties.  The 6 font properties used for font
 # matching are given below with their default values.
 #
-# The font.family property has five values: 'serif' (e.g. Times),
-# 'sans-serif' (e.g. Helvetica), 'cursive' (e.g. Zapf-Chancery),
-# 'fantasy' (e.g. Western), and 'monospace' (e.g. Courier).  Each of
+# The font.family property has five values: 'serif' (e.g., Times),
+# 'sans-serif' (e.g., Helvetica), 'cursive' (e.g., Zapf-Chancery),
+# 'fantasy' (e.g., Western), and 'monospace' (e.g., Courier).  Each of
 # these font families has a default list of font names in decreasing
-# order of priority associated with them.
+# order of priority associated with them.  When text.usetex is False,
+# font.family may also be one or more concrete font names.
 #
 # The font.style property has three values: normal (or roman), italic
 # or oblique.  The oblique style will be used for italic, if it is not
@@ -240,6 +251,8 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
                                             # as list of string colorspecs:
                                             # single letter, long name, or
                                             # web-style hex
+#axes.xmargin        : 0  # x margin.  See `axes.Axes.margins`
+#axes.ymargin        : 0  # y margin See `axes.Axes.margins`
 
 #polaraxes.grid      : True    # display grid on polar axes
 #axes3d.grid         : True    # display grid on 3d axes
@@ -279,22 +292,18 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #legend.isaxes        : True
 #legend.numpoints     : 2      # the number of points in the legend line
 #legend.fontsize      : large
-#legend.pad           : 0.0    # deprecated; the fractional whitespace inside the legend border
 #legend.borderpad     : 0.5    # border whitespace in fontsize units
 #legend.markerscale   : 1.0    # the relative size of legend markers vs. original
 # the following dimensions are in axes coords
-#legend.labelsep      : 0.010  # deprecated; the vertical space between the legend entries
 #legend.labelspacing  : 0.5    # the vertical space between the legend entries in fraction of fontsize
-#legend.handlelen     : 0.05   # deprecated; the length of the legend lines
 #legend.handlelength  : 2.     # the length of the legend lines in fraction of fontsize
 #legend.handleheight  : 0.7     # the height of the legend handle in fraction of fontsize
-#legend.handletextsep : 0.02   # deprecated; the space between the legend line and legend text
 #legend.handletextpad : 0.8    # the space between the legend line and legend text in fraction of fontsize
-#legend.axespad       : 0.02   # deprecated; the border between the axes and legend edge
 #legend.borderaxespad : 0.5   # the border between the axes and legend edge in fraction of fontsize
 #legend.columnspacing : 2.    # the border between the axes and legend edge in fraction of fontsize
 #legend.shadow        : False
 #legend.frameon       : True   # whether or not to draw a frame around legend
+#legend.scatterpoints : 3 # number of scatter points
 
 ### FIGURE
 # See http://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
@@ -304,6 +313,9 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #figure.edgecolor : white   # figure edgecolor
 #figure.autolayout : False  # When True, automatically adjust subplot
                             # parameters to make the plot fit the figure
+#figure.max_open_warning : 20  # The maximum number of figures to open through
+                               # the pyplot interface before emitting a warning.
+                               # If less than one this feature is disabled.
 
 # The figure subplot parameters.  All dimensions are a fraction of the
 # figure width or height
@@ -345,16 +357,26 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #path.snap : True # When True, rectilinear axis-aligned paths will be snapped to
                   # the nearest pixel when certain criteria are met.  When False,
                   # paths will never be snapped.
+#path.sketch : None # May be none, or a 3-tuple of the form (scale, length,
+                    # randomness).
+                    # *scale* is the amplitude of the wiggle
+                    # perpendicular to the line (in pixels).  *length*
+                    # is the length of the wiggle along the line (in
+                    # pixels).  *randomness* is the factor by which
+                    # the length is randomly scaled.
 
 # the default savefig params can be different from the display params
-# Eg, you may want a higher resolution, or to make the figure
+# e.g., you may want a higher resolution, or to make the figure
 # background white
-#savefig.dpi        : 100      # figure dots per inch
-#savefig.facecolor  : white    # figure facecolor when saving
-#savefig.edgecolor  : white    # figure edgecolor when saving
-#savefig.format     : png      # png, ps, pdf, svg
-#savefig.bbox       : standard # 'tight' or 'standard'.
-#savefig.pad_inches : 0.1      # Padding to be used when bbox is set to 'tight'
+#savefig.dpi         : 100      # figure dots per inch
+#savefig.facecolor   : white    # figure facecolor when saving
+#savefig.edgecolor   : white    # figure edgecolor when saving
+#savefig.format      : png      # png, ps, pdf, svg
+#savefig.bbox        : standard # 'tight' or 'standard'.
+#savefig.pad_inches  : 0.1      # Padding to be used when bbox is set to 'tight'
+#savefig.jpeg_quality: 95       # when a jpeg is saved, the default quality parameter.
+#savefig.directory   : ~        # default directory in savefig dialog box,
+                                # leave empty to always use current working directory
 
 # tk backend params
 #tk.window_focus   : False    # Maintain shell focus for TkAgg
@@ -417,7 +439,7 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #keymap.pan : p                      # pan mnemonic
 #keymap.zoom : o                     # zoom mnemonic
 #keymap.save : s                     # saving current figure
-#keymap.quit : ctrl+w                # close the current figure
+#keymap.quit : ctrl+w, cmd+w         # close the current figure
 #keymap.grid : g                     # switching on/off a grid in current axes
 #keymap.yscale : l                   # toggle scaling of y-axes ('log'/'linear')
 #keymap.xscale : L, k                # toggle scaling of x-axes ('log'/'linear')
@@ -434,7 +456,11 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #animation.frame_format: 'png'     # Controls frame format used by temp files
 #animation.ffmpeg_path: 'ffmpeg'   # Path to ffmpeg binary. Without full path
                                    # $PATH is searched
-#animation.ffmpeg_args: ''         # Additional arugments to pass to mencoder
-#animation.mencoder_path: 'ffmpeg' # Path to mencoder binary. Without full path
+#animation.ffmpeg_args: ''         # Additional arguments to pass to ffmpeg
+#animation.avconv_path: 'avconv'   # Path to avconv binary. Without full path
                                    # $PATH is searched
-#animation.mencoder_args: ''       # Additional arugments to pass to mencoder
+#animation.avconv_args: ''         # Additional arguments to pass to avconv
+#animation.mencoder_path: 'mencoder'
+                                   # Path to mencoder binary. Without full path
+                                   # $PATH is searched
+#animation.mencoder_args: ''       # Additional arguments to pass to mencoder

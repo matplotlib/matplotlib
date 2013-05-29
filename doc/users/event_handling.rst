@@ -4,19 +4,19 @@
 Event handling and picking
 **************************
 
-matplotlib works with 6 user interface toolkits (wxpython, tkinter,
-qt, gtk, fltk and macosx) and in order to support features like interactive
-panning and zooming of figures, it is helpful to the developers to
-have an API for interacting with the figure via key presses and mouse
-movements that is "GUI neutral" so we don't have to repeat a lot of
-code across the different user interfaces.  Although the event
-handling API is GUI neutral, it is based on the GTK model, which was
-the first user interface matplotlib supported.  The events that are
-triggered are also a bit richer vis-a-vis matplotlib than standard GUI
-events, including information like which :class:`matplotlib.axes.Axes`
-the event occurred in.  The events also understand the matplotlib
-coordinate system, and report event locations in both pixel and data
-coordinates.
+matplotlib works with a number of user interface toolkits (wxpython,
+tkinter, qt4, gtk, and macosx) and in order to support features like
+interactive panning and zooming of figures, it is helpful to the
+developers to have an API for interacting with the figure via key
+presses and mouse movements that is "GUI neutral" so we don't have to
+repeat a lot of code across the different user interfaces.  Although
+the event handling API is GUI neutral, it is based on the GTK model,
+which was the first user interface matplotlib supported.  The events
+that are triggered are also a bit richer vis-a-vis matplotlib than
+standard GUI events, including information like which
+:class:`matplotlib.axes.Axes` the event occurred in.  The events also
+understand the matplotlib coordinate system, and report event
+locations in both pixel and data coordinates.
 
 .. _event-connections:
 
@@ -444,7 +444,7 @@ There are a variety of meanings of the ``picker`` property:
 
 After you have enabled an artist for picking by setting the ``picker``
 property, you need to connect to the figure canvas pick_event to get
-pick callbacks on mouse press events.  Eg::
+pick callbacks on mouse press events.  e.g.::
 
     def pick_handler(event):
         mouseevent = event.mouseevent

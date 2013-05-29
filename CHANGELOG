@@ -1,3 +1,55 @@
+2013-05-18 Added support for arbitrary rasterization resolutions to the
+           SVG backend. Previously the resolution was hard coded to 72
+           dpi. Now the backend class takes a image_dpi argument for
+           its constructor, adjusts the image bounding box accordingly
+           and forwards a magnification factor to the image renderer.
+           The code and results now resemble those of the PDF backend.
+           - MW
+
+2013-05-08 Changed behavior of hist when given stacked=True and normed=True.
+           Histograms are now stacked first, then the sum is normalized.
+           Previously, each histogram was normalized, then they were stacked.
+
+2013-04-25 Changed all instances of:
+
+	   from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
+	   to:
+
+	   from cbook import mplDeprecation
+
+	   and removed the import into the matplotlib namespace in __init__.py
+	   Thomas Caswell
+
+
+2013-04-15 Added 'axes.xmargin' and 'axes.ymargin' to rpParams to set default
+	   margins on auto-scaleing. - TAC
+
+2013-04-16 Added patheffect support for Line2D objects.  -JJL
+
+2013-03-19 Added support for passing `linestyle` kwarg to `step` so all `plot`
+      	   kwargs are passed to the underlying `plot` call.  -TAC
+
+2013-02-25 Added classes CubicTriInterpolator, UniformTriRefiner, TriAnalyzer
+           to matplotlib.tri module. - GBy
+
+2013-01-23 Add 'savefig.directory' to rcParams to remember and fill in the last
+           directory saved to for figure save dialogs - Martin Spacek
+
+2013-01-13 Add eventplot method to axes and pyplot and EventCollection class
+           to collections.
+
+2013-01-08 Added two extra titles to axes which are flush with the left and
+           right edges of the plot respectively.
+           Andrew Dawson
+
+2013-01-07 Add framealpha keyword argument to legend - PO
+
+2013-01-16 Till Stensitzki added a baseline feature to stackplot
+
+2012-12-22 Added classes for interpolation within triangular grids
+           (LinearTriInterpolator) and to find the triangles in which points
+           lie (TrapezoidMapTriFinder) to matplotlib.tri module. - IMT
+
 2012-12-05 Added MatplotlibDeprecationWarning class for signaling deprecation.
            Matplotlib developers can use this class as follows:
 
@@ -7,6 +59,42 @@
            ignored by default as of Python 2.7, this class was put in to allow
            for the signaling of deprecation, but via UserWarnings which are
            not ignored by default. - PI
+
+2012-11-27 Added the *mtext* parameter for supplying matplotlib.text.Text
+           instances to RendererBase.draw_tex and RendererBase.draw_text.
+           This allows backends to utilize additional text attributes, like
+           the alignment of text elements. - pwuertz
+
+2012-11-26 deprecate matplotlib/mpl.py, which was used only in pylab.py and is
+           now replaced by the more suitable `import matplotlib as mpl`. - PI
+
+2012-11-25 Make rc_context available via pyplot interface - PI
+
+2012-11-16 plt.set_cmap no longer throws errors if there is not already
+           an active colorable artist, such as an image, and just sets
+           up the colormap to use from that point forward. - PI
+
+2012-11-16 Added the funcction _get_rbga_face, which is identical to
+           _get_rbg_face except it return a (r,g,b,a) tuble, to line2D.
+           Modified Line2D.draw to use _get_rbga_face to get the markerface
+           color so that any alpha set by  markerfacecolor will respected.
+           - Thomas Caswell
+
+2012-11-13 Add a symmetric log normalization class to colors.py.
+           Also added some tests for the normalization class.
+           Till Stensitzki
+
+2012-11-12 Make axes.stem take at least one argument.
+           Uses a default range(n) when the first arg not provided.
+           Damon McDougall
+
+2012-11-09 Make plt.subplot() without arguments act as subplot(111) - PI
+
+2012-11-08 Replaced plt.figure and plt.subplot calls by the newer, more
+           convenient single call to plt.subplots() in the documentation
+           examples - PI
+
+2012-10-05 Add support for saving animations as animated GIFs. - JVDP
 
 2012-08-11 Fix path-closing bug in patches.Polygon, so that regardless
            of whether the path is the initial one or was subsequently
@@ -980,7 +1068,7 @@
 2009-02-02 Change default resolution on polar plot to 1 - MGD
 
 2009-02-02 Avoid malloc errors in ttconv for fonts that don't have
-           e.g. PostName (a version of Tahoma triggered this) - JKS
+           e.g., PostName (a version of Tahoma triggered this) - JKS
 
 2009-01-30 Remove support for pyExcelerator in exceltools -- use xlwt
            instead - JDH
@@ -1054,7 +1142,7 @@
            (slanting and extending). - JKS
 
 2008-12-29 Fix a bug in pdf usetex support, which occurred if the same
-           Type-1 font was used with different encodings, e.g. with
+           Type-1 font was used with different encodings, e.g., with
            Minion Pro and MnSymbol. - JKS
 
 2008-12-20 fix the dpi-dependent offset of Shadow. - JJL
@@ -1153,7 +1241,7 @@
 
 2008-12-08 Some of the changes Michael made to improve the output of
            the property tables in the rest docs broke of made
-           difficult to use some of the interactive doc helpers, eg
+           difficult to use some of the interactive doc helpers, e.g.,
            setp and getp.  Having all the rest markup in the ipython
            shell also confused the docstrings.  I added a new rc param
            docstring.harcopy, to format the docstrings differently for
@@ -1177,7 +1265,7 @@
 2008-12-05 Fixed a bug that the handlelength of the new legend class
            set too short when numpoints=1 -JJL
 
-2008-12-04 Added support for data with units (e.g. dates) to
+2008-12-04 Added support for data with units (e.g., dates) to
            Axes.fill_between. -RM
 
 2008-12-04 Added fancybox keyword to legend. Also applied some changes
@@ -1258,7 +1346,7 @@
            Tollerud and Jae-Joon Lee. - MM
 
 2008-10-11 Fixed bug in pdf backend: if you pass a file object for
-           output instead of a filename, e.g. in a wep app, we now
+           output instead of a filename, e.g., in a wep app, we now
            flush the object at the end. - JKS
 
 2008-10-08 Add path simplification support to paths with gaps. - EF
@@ -1471,7 +1559,7 @@
 2008-06-20 Added set/get_closed method to Polygon; fixes error
            in hist - MM
 
-2008-06-19 Use relative font sizes (e.g. 'medium' and 'large') in
+2008-06-19 Use relative font sizes (e.g., 'medium' and 'large') in
            rcsetup.py and matplotlibrc.template so that text will
            be scaled by default when changing rcParams['font.size'] -
            EF
@@ -2103,8 +2191,8 @@
 
 2007-07-31 Refactoring of distutils scripts.
            - Will not fail on the entire build if an optional Python
-             package (e.g. Tkinter) is installed but its development
-             headers are not (e.g. tk-devel).  Instead, it will
+             package (e.g., Tkinter) is installed but its development
+             headers are not (e.g., tk-devel).  Instead, it will
              continue to build all other extensions.
            - Provide an overview at the top of the output to display
              what dependencies and their versions were found, and (by
@@ -2136,7 +2224,7 @@
            should be changed to ${\cal R}$.  Alternatively, you may
            use the new LaTeX-style font commands (\mathcal, \mathrm,
            \mathit, \mathtt) which do affect the following group,
-           eg. $\mathcal{R}$.
+           e.g., $\mathcal{R}$.
 
            Other new features include:
 
@@ -2146,10 +2234,10 @@
 
            - Sub/superscripts are less likely to accidentally overlap.
 
-           - Support for sub/superscripts in either order, eg. $x^i_j$
+           - Support for sub/superscripts in either order, e.g., $x^i_j$
              and $x_j^i$ are equivalent.
 
-           - Double sub/superscripts (eg. $x_i_j$) are considered
+           - Double sub/superscripts (e.g., $x_i_j$) are considered
              ambiguous and raise an exception.  Use braces to disambiguate.
 
            - $\frac{x}{y}$ can be used for displaying fractions.
@@ -2412,7 +2500,7 @@
            color-setting operations in the pdf backend. The idea is
            that you include the resulting file in another program and
            set the colors (both stroke and fill color) there, so you
-           can use the same pdf file for e.g. a paper and a
+           can use the same pdf file for e.g., a paper and a
            presentation and have them in the surrounding color. You
            will probably not want to draw figure and axis frames in
            that case, since they would be filled in the same color. - JKS
@@ -2501,7 +2589,7 @@
            frameowrk.  Artists will define their own pick method with
            a configurable epsilon tolerance and return pick attrs.
            All artists that meet the tolerance threshold will fire a
-           PickEvent with artist dependent attrs; eg, a Line2D can set
+           PickEvent with artist dependent attrs; e.g., a Line2D can set
            the indices attribute that shows the indices into the line
            that are within epsilon of the pick point.  See
            examples/pick_event_demo.py.  The implementation of pick
@@ -2611,7 +2699,7 @@
 
 2006-11-19 Added semi-automatic docstring generation detailing all the
            kwargs that functions take using the artist introspection
-           tools; eg 'help text now details the scatter kwargs
+           tools; e.g., 'help text now details the scatter kwargs
            that control the Text properties  - JDH
 
 2006-11-17 Removed obsolete scatter_classic, leaving a stub to
@@ -2901,7 +2989,7 @@
 
 2006-06-16 Added a pointer to parent in figure canvas so you can
            access the container with fig.canvas.manager.  Useful if
-           you want to set the window title, eg in gtk
+           you want to set the window title, e.g., in gtk
            fig.canvas.manager.window.set_title, though a GUI neutral
            method would be preferable JDH
 
@@ -3370,7 +3458,7 @@
 
 2005-12-03 Modified scipy patch to support Numeric, scipy and numarray
            Some work remains to be done because some of the scipy
-           imports are broken if only the core is installed.  Eg
+           imports are broken if only the core is installed.  e.g.,
            apparently we need from scipy.basic.fftpack import * rather
            than from scipy.fftpack import *
 
@@ -3619,7 +3707,7 @@
 2005-07-06 Made HOME/.matplotlib the new config dir where the
            matplotlibrc file, the ttf.cache, and the tex.cache live.
            The new default filenames in .matplotlib have no leading
-           dot and are not hidden.  Eg, the new names are matplotlibrc
+           dot and are not hidden.  e.g., the new names are matplotlibrc
            tex.cache ttffont.cache.  This is how ipython does it so it
            must be right.  If old files are found, a warning is issued
            and they are moved to the new location.  Also fixed
@@ -3893,7 +3981,7 @@
 
 2005-04-11 Applied a variant of rick's xlim/ylim/axis patch.  These
            functions now take kwargs to let you selectively alter only
-           the min or max if desired.  Eg xlim(xmin=2) or
+           the min or max if desired.  e.g., xlim(xmin=2) or
            axis(ymax=3).  They always return the new lim. - JDH
 
 
@@ -4022,7 +4110,7 @@
 2005-02-23 Added rc param ps.useafm so backend ps can use native afm
            fonts or truetype.  afme breaks mathtext but causes much
            smaller font sizes and may result in images that display
-           better in some contexts (eg pdfs incorporated into latex
+           better in some contexts (e.g., pdfs incorporated into latex
            docs viewed in acrobat reader).  I would like to extend
            this approach to allow the user to use truetype only for
            mathtext, which should be easy.
@@ -4150,9 +4238,9 @@
 
 2005-01-18 Added accents to mathtext: \hat, \breve, \grave, \bar,
            \acute, \tilde, \vec, \dot, \ddot.  All of them have the
-           same syntax, eg to make an overbar you do \bar{o} or to
+           same syntax, e.g., to make an overbar you do \bar{o} or to
            make an o umlaut you do \ddot{o}. The shortcuts are also
-           provided, eg: \"o \'e \`e \~n \.x \^y - JDH
+           provided, e.g., \"o \'e \`e \~n \.x \^y - JDH
 
 2005-01-18 Plugged image resize memory leaks - JDH
 
@@ -4319,7 +4407,7 @@
 
 2004-12-04 Fixed some legend bugs JDH
 
-2004-11-30 Added over command for oneoff over plots.  Eg over(plot, x,
+2004-11-30 Added over command for oneoff over plots.  e.g., over(plot, x,
            y, lw=2).  Works with any plot function.
 
 2004-11-30 Added bbox property to text - JDH
@@ -4495,7 +4583,7 @@
 2004-09-17 Added coords formatter attributes.  These must be callable,
            and return a string for the x or y data. These will be used
            to format the x and y data for the coords box.  Default is
-           the axis major formatter.  Eg
+           the axis major formatter.  e.g.:
 
          # format the coords message box
          def price(x): return '$%1.2f'%x

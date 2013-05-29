@@ -125,6 +125,19 @@ def text_to_qcolor(text):
     color.setNamedColor(text)
     return color
 
+def is_matplotlib_color(value):
+    """
+    Check if value is a color passed to us from matplotlib.
+    It could either be a valid color string or a 3-tuple of floats between 0. and 1.
+    """
+    if text_to_qcolor(value).isValid():
+        return True
+    if isinstance(value,tuple) and len(value)==3 and all(map(lambda v: isinstance(v,float),value)):
+        for c in value:
+            if c < 0. or c > 1.:
+                return False
+        return True
+    return False
 
 class ColorLayout(QHBoxLayout):
     """Color-specialized QLineEdit layout"""
@@ -268,7 +281,7 @@ class FormWidget(QWidget):
                 continue
             elif tuple_to_qfont(value) is not None:
                 field = FontLayout(value, self)
-            elif text_to_qcolor(value).isValid():
+            elif is_matplotlib_color(value):
                 field = ColorLayout(QColor(value), self)
             elif isinstance(value, (str, unicode)):
                 field = QLineEdit(value, self)
@@ -329,7 +342,7 @@ class FormWidget(QWidget):
                 continue
             elif tuple_to_qfont(value) is not None:
                 value = field.get_font()
-            elif isinstance(value, (str, unicode)):
+            elif isinstance(value, (str, unicode)) or is_matplotlib_color(value):
                 value = unicode(field.text())
             elif isinstance(value, (list, tuple)):
                 index = int(field.currentIndex())
@@ -508,7 +521,7 @@ def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
     """
 
     # Create a QApplication instance if no instance currently exists
-    # (e.g. if the module is used directly from the interpreter)
+    # (e.g., if the module is used directly from the interpreter)
     if QApplication.startingUp():
         _app = QApplication([])
     dialog = FormDialog(data, title, comment, icon, parent, apply)

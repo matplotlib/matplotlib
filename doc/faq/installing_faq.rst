@@ -139,7 +139,7 @@ If you want to be able to follow the development branch as it changes
 just replace the last step with (make sure you have **setuptools**
 installed)::
 
-  > python setupegg.py develop
+  > python setup.py develop
 
 This creates links in the right places and installs the command
 line script to the appropriate places.

@@ -7,9 +7,9 @@ Documenting matplotlib
 Getting started
 ===============
 
-The documentation for matplotlib is generated from ReStructured Text
-using the Sphinx_ documentation generation tool. Sphinx-1.0 or later
-is required.
+The documentation for matplotlib is generated from ReStructured Text using the
+Sphinx_ documentation generation tool. Sphinx-1.0 or later and numpydoc 0.4 or
+later is required.
 
 The documentation sources are found in the :file:`doc/` directory in
 the trunk.  To build the users guide in html format, cd into
@@ -62,7 +62,7 @@ method in the :class:`~matplotlib.artist.Artist` class.  Yes, this is
 not ideal given python properties or enthought traits, but it is a
 historical legacy for now.  The setter methods use the docstring with
 the ACCEPTS token to indicate the type of argument the method accepts.
-Eg. in :class:`matplotlib.lines.Line2D`::
+e.g., in :class:`matplotlib.lines.Line2D`::
 
   # in lines.py
   def set_linestyle(self, linestyle):
@@ -72,7 +72,7 @@ Eg. in :class:`matplotlib.lines.Line2D`::
       ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
       """
 
-Since matplotlib uses a lot of pass-through ``kwargs``, eg. in every
+Since matplotlib uses a lot of pass-through ``kwargs``, e.g., in every
 function that creates a line (:func:`~matplotlib.pyplot.plot`,
 :func:`~matplotlib.pyplot.semilogx`,
 :func:`~matplotlib.pyplot.semilogy`, etc...), it can be difficult for
@@ -98,7 +98,7 @@ docstring of ``kwargs``.  Here is an example from
   artist.kwdocd['Line2D'] = artist.kwdoc(Line2D)
 
 Then in any function accepting :class:`~matplotlib.lines.Line2D`
-pass-through ``kwargs``, eg. :meth:`matplotlib.axes.Axes.plot`::
+pass-through ``kwargs``, e.g., :meth:`matplotlib.axes.Axes.plot`::
 
   # in axes.py
   def plot(self, *args, **kwargs):
@@ -117,7 +117,7 @@ pass-through ``kwargs``, eg. :meth:`matplotlib.axes.Axes.plot`::
   plot.__doc__ = cbook.dedent(plot.__doc__) % artist.kwdocd
 
 Note there is a problem for :class:`~matplotlib.artist.Artist`
-``__init__`` methods, eg. :meth:`matplotlib.patches.Patch.__init__`,
+``__init__`` methods, e.g., :meth:`matplotlib.patches.Patch.__init__`,
 which supports ``Patch`` ``kwargs``, since the artist inspector cannot
 work until the class is fully defined and we can't modify the
 ``Patch.__init__.__doc__`` docstring outside the class definition.
@@ -139,7 +139,7 @@ working with Sphinx in general. Here are a few additional things to keep in mind
   ``:file:`` directive.
 
 * Function arguments and keywords should be referred to using the *emphasis*
-  role. This will keep matplotlib's documentation consistant with Python's
+  role. This will keep matplotlib's documentation consistent with Python's
   documentation::
 
     Here is a description of *argument*
@@ -360,7 +360,7 @@ Referring to mpl documents
 ==========================
 
 In the documentation, you may want to include to a document in the
-matplotlib src, e.g. a license file or an image file from `mpl-data`,
+matplotlib src, e.g., a license file or an image file from `mpl-data`,
 refer to it via a relative path from the document where the rst file
 resides, eg, in :file:`users/navigation_toolbar.rst`, we refer to the
 image icons with::
@@ -401,7 +401,7 @@ Internal section references
 ===========================
 
 To maximize internal consistency in section labeling and references,
-use hypen separated, descriptive labels for section references, eg::
+use hyphen separated, descriptive labels for section references, eg::
 
     .. _howto-webapp:
 
@@ -411,7 +411,7 @@ and refer to it using  the standard reference syntax::
 
 Keep in mind that we may want to reorganize the contents later, so
 let's avoid top level names in references like ``user`` or ``devel``
-or ``faq`` unless necesssary, because for example the FAQ "what is a
+or ``faq`` unless necessary, because for example the FAQ "what is a
 backend?" could later become part of the users guide, so the label::
 
     .. _what-is-a-backend
@@ -464,7 +464,7 @@ Emacs helpers
 
 There is an emacs mode `rst.el
 <http://docutils.sourceforge.net/tools/editors/emacs/rst.el>`_ which
-automates many important ReST tasks like building and updateing
+automates many important ReST tasks like building and updating
 table-of-contents, and promoting or demoting section headings.  Here
 is the basic ``.emacs`` configuration::
 

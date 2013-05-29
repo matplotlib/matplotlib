@@ -67,7 +67,9 @@
 #include "CXX/Objects.hxx"
 #include "numpy/arrayobject.h"
 
+#include <list>
 #include <map>
+#include <set>
 #include <vector>
 
 
@@ -94,15 +96,30 @@ struct XY
     XY(const double& x_, const double& y_);
     double angle() const;           // Angle in radians with respect to x-axis.
     double cross_z(const XY& other) const;     // z-component of cross product.
+    bool is_right_of(const XY& other) const;   // Compares x then y.
     bool operator==(const XY& other) const;
     bool operator!=(const XY& other) const;
-    bool operator<(const XY& other) const;
     XY operator*(const double& multiplier) const;
+    const XY& operator+=(const XY& other);
+    const XY& operator-=(const XY& other);
     XY operator+(const XY& other) const;
     XY operator-(const XY& other) const;
     friend std::ostream& operator<<(std::ostream& os, const XY& xy);
 
     double x, y;
+};
+
+// 3D point with x,y,z coordinates.
+struct XYZ
+{
+    XYZ(const double& x_, const double& y_, const double& z_);
+    XYZ cross(const XYZ& other) const;
+    double dot(const XYZ& other) const;
+    double length_squared() const;
+    XYZ operator-(const XYZ& other) const;
+    friend std::ostream& operator<<(std::ostream& os, const XYZ& xyz);
+
+    double x, y, z;
 };
 
 // 2D bounding box, which may be empty.
@@ -111,8 +128,7 @@ class BoundingBox
 public:
     BoundingBox();
     void add(const XY& point);
-    bool contains_x(const double& x) const;
-    friend std::ostream& operator<<(std::ostream& os, const BoundingBox& box);
+    void expand(const XY& delta);
 
     // Consider these member variables read-only.
     bool empty;
@@ -173,6 +189,13 @@ public:
                   PyArrayObject* neighbors);
 
     virtual ~Triangulation();
+
+    /* Calculate plane equation coefficients for all unmasked triangles from
+     * the point (x,y) coordinates and point z-array of shape (npoints) passed
+     * in via the args.  Returned array has shape (npoints,3) and allows
+     * z-value at (x,y) coordinates in triangle tri to be calculated using
+     *      z = array[tri,0]*x + array[tri,1]*y + array[tri,2]. */
+    Py::Object calculate_plane_coefficients(const Py::Tuple &args);
 
     // Return the boundaries collection, creating it if necessary.
     const Boundaries& get_boundaries() const;
@@ -459,6 +482,348 @@ private:
 
 
 
+/* TriFinder class implemented using the trapezoid map algorithm from the book
+ * "Computational Geometry, Algorithms and Applications", second edition, by
+ * M. de Berg, M. van Kreveld, M. Overmars and O. Schwarzkopf.
+ *
+ * The domain of interest is composed of vertical-sided trapezoids that are
+ * bounded to the left and right by points of the triangulation, and below and
+ * above by edges of the triangulation.  Each triangle is represented by 1 or
+ * more of these trapezoids.  Edges are inserted one a time in a random order.
+ *
+ * As the trapezoid map is created, a search tree is also created which allows
+ * fast lookup O(log N) of the trapezoid containing the point of interest.
+ * There are 3 types of node in the search tree: all leaf nodes represent
+ * trapezoids and all branch nodes have 2 child nodes and are either x-nodes or
+ * y-nodes.  X-nodes represent points in the triangulation, and their 2 children
+ * refer to those parts of the search tree to the left and right of the point.
+ * Y-nodes represent edges in the triangulation, and their 2 children refer to
+ * those parts of the search tree below and above the edge.
+ *
+ * Nodes can be repeated throughout the search tree, and each is reference
+ * counted through the multiple parent nodes it is a child of.
+ *
+ * The algorithm is only intended to work with valid triangulations, i.e. it
+ * must not contain duplicate points, triangles formed from colinear points, or
+ * overlapping triangles.  It does have some tolerance to triangles formed from
+ * colinear points but only in the simplest of cases.  No explicit testing of
+ * the validity of the triangulation is performed as this is a computationally
+ * more complex task than the trifinding itself. */
+class TrapezoidMapTriFinder : public Py::PythonExtension<TrapezoidMapTriFinder>
+{
+public:
+    /* Constructor.  A separate call to initialize() is required to initialize
+     * the object before use.
+     *   triangulation: Triangulation to find triangles in. */
+    TrapezoidMapTriFinder(Py::Object triangulation);
+
+    virtual ~TrapezoidMapTriFinder();
+
+    /* Return an array of triangle indices.  Takes any-shaped arrays x and y of
+     * point coordinates, and returns an array of the same shape containing the
+     * indices of the triangles at those points. */
+    Py::Object find_many(const Py::Tuple& args);
+
+    /* Return a python list containing the following statistics about the tree:
+     *   0: number of nodes (tree size)
+     *   1: number of unique nodes (number of unique Node objects in tree)
+     *   2: number of trapezoids (tree leaf nodes)
+     *   3: number of unique trapezoids
+     *   4: maximum parent count (max number of times a node is repeated in
+     *          tree)
+     *   5: maximum depth of tree (one more than the maximum number of
+     *          comparisons needed to search through the tree)
+     *   6: mean of all trapezoid depths (one more than the average number of
+     *          comparisons needed to search through the tree) */
+    Py::Object get_tree_stats();
+
+    // CXX initialisation function.
+    static void init_type();
+
+    /* Initialize this object before use.  May be called multiple times, if,
+     * for example, the triangulation is changed by setting the mask. */
+    Py::Object initialize();
+
+    // Print the search tree as text to stdout; useful for debug purposes.
+    Py::Object print_tree();
+
+private:
+    /* A Point consists of x,y coordinates as well as the index of a triangle
+     * associated with the point, so that a search at this point's coordinates
+     * can return a valid triangle index. */
+    struct Point : XY
+    {
+        Point() : XY(), tri(-1) {}
+        Point(const double& x, const double& y) : XY(x,y), tri(-1) {}
+        explicit Point(const XY& xy) : XY(xy), tri(-1) {}
+
+        int tri;
+    };
+
+    /* An Edge connects two Points, left and right.  It is always true that
+     * right->is_right_of(*left).  Stores indices of triangles below and above
+     * the Edge which are used to map from trapezoid to triangle index.  Also
+     * stores pointers to the 3rd points of the below and above triangles,
+     * which are only used to disambiguate triangles with colinear points. */
+    struct Edge
+    {
+        Edge(const Point* left_,
+             const Point* right_,
+             int triangle_below_,
+             int triangle_above_,
+             const Point* point_below_,
+             const Point* point_above_);
+
+        // Return -1 if point to left of edge, 0 if on edge, +1 if to right.
+        int get_point_orientation(const XY& xy) const;
+
+        // Return slope of edge, even if vertical (divide by zero is OK here).
+        double get_slope() const;
+
+        /* Return y-coordinate of point on edge with specified x-coordinate.
+         * x must be within the x-limits of this edge. */
+        double get_y_at_x(const double& x) const;
+
+        // Return true if the specified point is either of the edge end points.
+        bool has_point(const Point* point) const;
+
+        bool operator==(const Edge& other) const;
+
+        friend std::ostream& operator<<(std::ostream& os, const Edge& edge)
+        {
+            return os << *edge.left << "->" << *edge.right;
+        }
+
+        void print_debug() const;
+
+
+        const Point* left;        // Not owned.
+        const Point* right;       // Not owned.
+        int triangle_below;       // Index of triangle below (to right of) Edge.
+        int triangle_above;       // Index of triangle above (to left of) Edge.
+        const Point* point_below; // Used only for resolving ambiguous cases;
+        const Point* point_above; //     is 0 if corresponding triangle is -1
+    };
+
+    class Node;  // Forward declaration.
+
+    // Helper structure used by TrapezoidMapTriFinder::get_tree_stats.
+    struct NodeStats
+    {
+        NodeStats()
+            : node_count(0), trapezoid_count(0), max_parent_count(0),
+              max_depth(0), sum_trapezoid_depth(0.0)
+        {}
+
+        long node_count, trapezoid_count, max_parent_count, max_depth;
+        double sum_trapezoid_depth;
+        std::set<const Node*> unique_nodes, unique_trapezoid_nodes;
+    };
+
+    struct Trapezoid;  // Forward declaration.
+
+    /* Node of the trapezoid map search tree.  There are 3 possible types:
+     * Type_XNode, Type_YNode and Type_TrapezoidNode.  Data members are
+     * represented using a union: an XNode has a Point and 2 child nodes
+     * (left and right of the point), a YNode has an Edge and 2 child nodes
+     * (below and above the edge), and a TrapezoidNode has a Trapezoid.
+     * Each Node has multiple parents so it can appear in the search tree
+     * multiple times without having to create duplicate identical Nodes.
+     * The parent collection acts as a reference count to the number of times
+     * a Node occurs in the search tree.  When the parent count is reduced to
+     * zero a Node can be safely deleted. */
+    class Node
+    {
+    public:
+        Node(const Point* point, Node* left, Node* right);// Type_XNode.
+        Node(const Edge* edge, Node* below, Node* above); // Type_YNode.
+        Node(Trapezoid* trapezoid);                       // Type_TrapezoidNode.
+
+        ~Node();
+
+        void add_parent(Node* parent);
+
+        /* Recurse through the search tree and assert that everything is valid.
+         * Reduces to a no-op if NDEBUG is defined. */
+        void assert_valid(bool tree_complete) const;
+
+        // Recurse through the tree to return statistics about it.
+        void get_stats(int depth, NodeStats& stats) const;
+
+        // Return the index of the triangle corresponding to this node.
+        int get_tri() const;
+
+        bool has_child(const Node* child) const;
+        bool has_no_parents() const;
+        bool has_parent(const Node* parent) const;
+
+        /* Recurse through the tree and print a textual representation to
+         * stdout.  Argument depth used to indent for readability. */
+        void print(int depth = 0) const;
+
+        /* Remove a parent from this Node.  Return true if no parents remain
+         * so that this Node can be deleted. */
+        bool remove_parent(Node* parent);
+
+        void replace_child(Node* old_child, Node* new_child);
+
+        // Replace this node with the specified new_node in all parents.
+        void replace_with(Node* new_node);
+
+        /* Recursive search through the tree to find the Node containing the
+         * specified XY point. */
+        const Node* search(const XY& xy);
+
+        /* Recursive search through the tree to find the Trapezoid containing
+         * the left endpoint of the specified Edge.  Return 0 if fails, which
+         * can only happen if the triangulation is invalid. */
+        Trapezoid* search(const Edge& edge);
+
+        /* Copy constructor and assignment operator defined but not implemented
+         * to prevent objects being copied. */
+        Node(const Node& other);
+        Node& operator=(const Node& other);
+
+    private:
+        typedef enum {
+            Type_XNode,
+            Type_YNode,
+            Type_TrapezoidNode
+        } Type;
+        Type _type;
+
+        union {
+            struct {
+                const Point* point;  // Not owned.
+                Node* left;          // Owned.
+                Node* right;         // Owned.
+            } xnode;
+            struct {
+                const Edge* edge;    // Not owned.
+                Node* below;         // Owned.
+                Node* above;         // Owned.
+            } ynode;
+            Trapezoid* trapezoid;    // Owned.
+        } _union;
+
+        typedef std::list<Node*> Parents;
+        Parents _parents;            // Not owned.
+    };
+
+    /* A Trapezoid is bounded by Points to left and right, and Edges below and
+     * above.  Has up to 4 neighboring Trapezoids to lower/upper left/right.
+     * Lower left neighbor is Trapezoid to left that shares the below Edge, or
+     * is 0 if there is no such Trapezoid (and similar for other neighbors).
+     * To obtain the index of the triangle corresponding to a particular
+     * Trapezoid, use the Edge member variables below.triangle_above or
+     * above.triangle_below. */
+    struct Trapezoid
+    {
+        Trapezoid(const Point* left_,
+                  const Point* right_,
+                  const Edge& below_,
+                  const Edge& above_);
+
+        /* Assert that this Trapezoid is valid.  Reduces to a no-op if NDEBUG
+         * is defined. */
+        void assert_valid(bool tree_complete) const;
+
+        /* Return one of the 4 corner points of this Trapezoid.  Only used for
+         * debugging purposes. */
+        XY get_lower_left_point() const;
+        XY get_lower_right_point() const;
+        XY get_upper_left_point() const;
+        XY get_upper_right_point() const;
+
+        void print_debug() const;
+
+        /* Set one of the 4 neighbor trapezoids and the corresponding reverse
+         * Trapezoid of the new neighbor (if it is not 0), so that they are
+         * consistent. */
+        void set_lower_left(Trapezoid* lower_left_);
+        void set_lower_right(Trapezoid* lower_right_);
+        void set_upper_left(Trapezoid* upper_left_);
+        void set_upper_right(Trapezoid* upper_right_);
+
+        /* Copy constructor and assignment operator defined but not implemented
+         * to prevent objects being copied. */
+        Trapezoid(const Trapezoid& other);
+        Trapezoid& operator=(const Trapezoid& other);
+
+
+        const Point* left;     // Not owned.
+        const Point* right;    // Not owned.
+        const Edge& below;
+        const Edge& above;
+
+        // 4 neighboring trapezoids, can be 0, not owned.
+        Trapezoid* lower_left;   // Trapezoid to left  that shares below
+        Trapezoid* lower_right;  // Trapezoid to right that shares below
+        Trapezoid* upper_left;   // Trapezoid to left  that shares above
+        Trapezoid* upper_right;  // Trapezoid to right that shares above
+
+        Node* trapezoid_node;    // Node that owns this Trapezoid.
+    };
+
+
+    // Add the specified Edge to the search tree, returning true if successful.
+    bool add_edge_to_tree(const Edge& edge);
+
+    // Clear all memory allocated by this object.
+    void clear();
+
+    // Return the triangle index at the specified point, or -1 if no triangle.
+    int find_one(const XY& xy);
+
+    /* Determine the trapezoids that the specified Edge intersects, returning
+     * true if successful. */
+    bool find_trapezoids_intersecting_edge(const Edge& edge,
+                                           std::vector<Trapezoid*>& trapezoids);
+
+    // Return the underlying C++ Triangulation object.
+    const Triangulation& get_triangulation() const;
+
+
+
+    // Variables shared with python, always set.
+    Py::Object _triangulation;
+
+    // Variables internal to C++ only.
+    Point* _points;    // Array of all points in triangulation plus corners of
+                       // enclosing rectangle.  Owned.
+
+    typedef std::vector<Edge> Edges;
+    Edges _edges;   // All Edges in triangulation plus bottom and top Edges of
+                    // enclosing rectangle.
+
+    Node* _tree;    // Root node of the trapezoid map search tree.  Owned.
+};
+
+
+/* Linear congruential random number generator.  Edges in the triangulation are
+ * randomly shuffled before being added to the trapezoid map.  Want the
+ * shuffling to be identical across different operating systems and the same
+ * regardless of previous random number use.  Would prefer to use a STL or
+ * Boost random number generator, but support is not consistent across
+ * different operating systems so implementing own here.
+ *
+ * This is not particularly random, but is perfectly adequate for the use here.
+ * Coefficients taken from Numerical Recipes in C. */
+class RandomNumberGenerator
+{
+public:
+    RandomNumberGenerator(unsigned long seed);
+
+    // Return random integer in the range 0 to max_value-1.
+    unsigned long operator()(unsigned long max_value);
+
+private:
+    const unsigned long _M, _A, _C;
+    unsigned long _seed;
+};
+
+
+
 // The extension module.
 class TriModule : public Py::ExtensionModule<TriModule>
 {
@@ -468,6 +833,7 @@ public:
 private:
     Py::Object new_triangulation(const Py::Tuple &args);
     Py::Object new_tricontourgenerator(const Py::Tuple &args);
+    Py::Object new_TrapezoidMapTriFinder(const Py::Tuple &args);
 };
 
 #endif

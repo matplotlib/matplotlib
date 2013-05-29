@@ -19,8 +19,24 @@ the ``Artist`` handles all the high level constructs like representing
 and laying out the figure, text, and lines.  The typical user will
 spend 95% of his time working with the ``Artists``.
 
-There are two types of ``Artists``: primitives and containers.  The primitives represent the standard graphical objects we want to paint onto our canvas: :class:`~matplotlib.lines.Line2D`, :class:`~matplotlib.patches.Rectangle`, :class:`~matplotlib.text.Text`, :class:`~matplotlib.image.AxesImage`, etc., and the containers are places to put them (:class:`~matplotlib.axis.Axis`, :class:`~matplotlib.axes.Axes` and :class:`~matplotlib.figure.Figure`).  The standard use is to create a :class:`~matplotlib.figure.Figure` instance, use the ``Figure`` to create one or more :class:`~matplotlib.axes.Axes` or :class:`~matplotlib.axes.Subplot` instances, and use the ``Axes`` instance helper methods to create the primitives.  In the example below, we create a ``Figure`` instance using :func:`matplotlib.pyplot.figure`, which is a convenience method for instantiating ``Figure`` instances and connecting them with your user interface or drawing toolkit ``FigureCanvas``.  As we will discuss below, this is not necessary -- you
-can work directly with PostScript, PDF Gtk+, or wxPython ``FigureCanvas`` instances, instantiate your ``Figures`` directly and connect them yourselves -- but since we are focusing here on the ``Artist`` API we'll let :mod:`~matplotlib.pyplot` handle some of those details for us::
+There are two types of ``Artists``: primitives and containers.  The primitives
+represent the standard graphical objects we want to paint onto our canvas:
+:class:`~matplotlib.lines.Line2D`, :class:`~matplotlib.patches.Rectangle`,
+:class:`~matplotlib.text.Text`, :class:`~matplotlib.image.AxesImage`, etc., and
+the containers are places to put them (:class:`~matplotlib.axis.Axis`,
+:class:`~matplotlib.axes.Axes` and :class:`~matplotlib.figure.Figure`).  The
+standard use is to create a :class:`~matplotlib.figure.Figure` instance, use
+the ``Figure`` to create one or more :class:`~matplotlib.axes.Axes` or
+:class:`~matplotlib.axes.Subplot` instances, and use the ``Axes`` instance
+helper methods to create the primitives.  In the example below, we create a
+``Figure`` instance using :func:`matplotlib.pyplot.figure`, which is a
+convenience method for instantiating ``Figure`` instances and connecting them
+with your user interface or drawing toolkit ``FigureCanvas``.  As we will
+discuss below, this is not necessary -- you can work directly with PostScript,
+PDF Gtk+, or wxPython ``FigureCanvas`` instances, instantiate your ``Figures``
+directly and connect them yourselves -- but since we are focusing here on the
+``Artist`` API we'll let :mod:`~matplotlib.pyplot` handle some of those details
+for us::
 
     import matplotlib.pyplot as plt
     fig = plt.figure()
@@ -38,8 +54,8 @@ graphics primitives (:class:`~matplotlib.lines.Line2D`,
 :class:`~matplotlib.text.Text`,
 :class:`~matplotlib.patches.Rectangle`,
 :class:`~matplotlib.image.Image`, respectively).  These helper methods
-will take your data (eg. ``numpy`` arrays and strings) and create
-primitive ``Artist`` instances as needed (eg. ``Line2D``), add them to
+will take your data (e.g., ``numpy`` arrays and strings) and create
+primitive ``Artist`` instances as needed (e.g., ``Line2D``), add them to
 the relevant containers, and draw them when requested.  Most of you
 are probably familiar with the :class:`~matplotlib.axes.Subplot`,
 which is just a special case of an ``Axes`` that lives on a regular
@@ -136,7 +152,7 @@ transparency, and other properties of the Axes.  These instances are
 stored as member variables :attr:`Figure.patch
 <matplotlib.figure.Figure.patch>` and :attr:`Axes.patch
 <matplotlib.axes.Axes.patch>` ("Patch" is a name inherited from
-MATLAB, and is a 2D "patch" of color on the figure, eg. rectangles,
+MATLAB, and is a 2D "patch" of color on the figure, e.g., rectangles,
 circles and polygons).  Every matplotlib ``Artist`` has the following
 properties
 
@@ -151,7 +167,7 @@ clip_on      Whether clipping is enabled
 clip_path    The path the artist is clipped to
 contains     A picking function to test whether the artist contains the pick point
 figure       The figure instance the artist lives in, possibly None
-label        A text label (eg. for auto-labeling)
+label        A text label (e.g., for auto-labeling)
 picker       A python object that controls object picking
 transform    The transformation
 visible      A boolean whether the artist should be drawn
@@ -176,7 +192,7 @@ inspect the ``Artist`` properties is to use the
 :func:`matplotlib.artist.getp` function (simply
 :func:`~matplotlib.pylab.getp` in pylab), which lists the properties
 and their values.  This works for classes derived from ``Artist`` as
-well, eg. ``Figure`` and ``Rectangle``.  Here are the ``Figure`` rectangle
+well, e.g., ``Figure`` and ``Rectangle``.  Here are the ``Figure`` rectangle
 properties mentioned above:
 
 .. sourcecode:: ipython
@@ -346,7 +362,7 @@ determines the shape, background and border of the plotting region::
     rect = ax.patch  # a Rectangle instance
     rect.set_facecolor('green')
 
-When you call a plotting method, eg. the canonical
+When you call a plotting method, e.g., the canonical
 :meth:`~matplotlib.axes.Axes.plot` and pass in arrays or lists of
 values, the method will create a :meth:`matplotlib.lines.Line2D`
 instance, update the line with all the ``Line2D`` properties passed as
@@ -517,7 +533,18 @@ and zooming, as well as the :class:`~matplotlib.ticker.Locator` and
 :class:`~matplotlib.ticker.Formatter` instances which control where
 the ticks are placed and how they are represented as strings.
 
-Each ``Axis`` object contains a :attr:`~matplotlib.axis.Axis.label` attribute (this is what :mod:`~matplotlib.pylab` modifies in calls to :func:`~matplotlib.pylab.xlabel` and :func:`~matplotlib.pylab.ylabel`) as well as a list of major and minor ticks.  The ticks are :class:`~matplotlib.axis.XTick` and :class:`~matplotlib.axis.YTick` instances, which contain the actual line and text primitives that render the ticks and ticklabels.  Because the ticks are dynamically created as needed (eg. when panning and zooming), you should access the lists of major and minor ticks through their accessor methods :meth:`~matplotlib.axis.Axis.get_major_ticks` and :meth:`~matplotlib.axis.Axis.get_minor_ticks`.  Although the ticks contain all the primitives and will be covered below, the ``Axis`` methods contain accessor methods to return the tick lines, tick labels, tick locations etc.:
+Each ``Axis`` object contains a :attr:`~matplotlib.axis.Axis.label` attribute
+(this is what :mod:`~matplotlib.pylab` modifies in calls to
+:func:`~matplotlib.pylab.xlabel` and :func:`~matplotlib.pylab.ylabel`) as well
+as a list of major and minor ticks.  The ticks are
+:class:`~matplotlib.axis.XTick` and :class:`~matplotlib.axis.YTick` instances,
+which contain the actual line and text primitives that render the ticks and
+ticklabels.  Because the ticks are dynamically created as needed (e.g., when
+panning and zooming), you should access the lists of major and minor ticks
+through their accessor methods :meth:`~matplotlib.axis.Axis.get_major_ticks`
+and :meth:`~matplotlib.axis.Axis.get_minor_ticks`.  Although the ticks contain
+all the primitives and will be covered below, the ``Axis`` methods contain
+accessor methods to return the tick lines, tick labels, tick locations etc.:
 
 .. sourcecode:: ipython
 

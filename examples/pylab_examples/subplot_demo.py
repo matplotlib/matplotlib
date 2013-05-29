@@ -1,25 +1,24 @@
-#!/usr/bin/env python
-from pylab import *
+"""
+Simple demo with multiple subplots.
+"""
+import numpy as np
+import matplotlib.pyplot as plt
 
-def f(t):
-    s1 = cos(2*pi*t)
-    e1 = exp(-t)
-    return multiply(s1,e1)
 
-t1 = arange(0.0, 5.0, 0.1)
-t2 = arange(0.0, 5.0, 0.02)
-t3 = arange(0.0, 2.0, 0.01)
+x1 = np.linspace(0.0, 5.0)
+x2 = np.linspace(0.0, 2.0)
 
-subplot(211)
-l = plot(t1, f(t1), 'bo', t2, f(t2), 'k--', markerfacecolor='green')
-grid(True)
-title('A tale of 2 subplots')
-ylabel('Damped oscillation')
+y1 = np.cos(2 * np.pi * x1) * np.exp(-x1)
+y2 = np.cos(2 * np.pi * x2)
 
-subplot(212)
-plot(t3, cos(2*pi*t3), 'r.')
-grid(True)
-xlabel('time (s)')
-ylabel('Undamped')
-show()
+plt.subplot(2, 1, 1)
+plt.plot(x1, y1, 'ko-')
+plt.title('A tale of 2 subplots')
+plt.ylabel('Damped oscillation')
 
+plt.subplot(2, 1, 2)
+plt.plot(x2, y2, 'r.-')
+plt.xlabel('time (s)')
+plt.ylabel('Undamped')
+
+plt.show()

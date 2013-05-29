@@ -19,6 +19,7 @@ del pygtk_version_required
 import numpy as np
 
 import matplotlib
+from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase
@@ -138,7 +139,7 @@ class RendererGDK(RendererBase):
         im.flipud_out()
 
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         x, y = int(x), int(y)
 
         if x < 0 or y < 0: # window has shrunk and text is off the edge
@@ -392,8 +393,8 @@ class GraphicsContextGDK(GraphicsContextBase):
             self.gdkGC.line_style = gdk.LINE_ON_OFF_DASH
 
 
-    def set_foreground(self, fg, isRGB=False):
-        GraphicsContextBase.set_foreground(self, fg, isRGB)
+    def set_foreground(self, fg, isRGBA=False):
+        GraphicsContextBase.set_foreground(self, fg, isRGBA)
         self.gdkGC.foreground = self.rgb_to_gdk_color(self.get_rgb())
 
 
@@ -471,4 +472,13 @@ class FigureCanvasGDK (FigureCanvasBase):
         pixbuf.get_from_drawable(pixmap, pixmap.get_colormap(),
                                  0, 0, 0, 0, width, height)
 
-        pixbuf.save(filename, format)
+        # set the default quality, if we are writing a JPEG.
+        # http://www.pygtk.org/docs/pygtk/class-gdkpixbuf.html#method-gdkpixbuf--save
+        options = cbook.restrict_dict(kwargs, ['quality'])
+        if format in ['jpg','jpeg']:
+           if 'quality' not in options:
+              options['quality'] = rcParams['savefig.jpeg_quality']
+           options['quality'] = str(options['quality'])
+            
+        pixbuf.save(filename, format, options=options)
+

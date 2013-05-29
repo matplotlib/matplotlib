@@ -53,7 +53,7 @@
 
 const size_t NUM_VERTICES[] = { 1, 1, 1, 2, 3, 1 };
 
-typedef agg::pixfmt_rgba32 pixfmt;
+typedef agg::pixfmt_rgba32_plain pixfmt;
 typedef agg::renderer_base<pixfmt> renderer_base;
 typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_aa;
 typedef agg::renderer_scanline_bin_solid<renderer_base> renderer_bin;
@@ -122,6 +122,7 @@ public:
 
     double linewidth;
     double alpha;
+    bool forced_alpha;
     agg::rgba color;
 
     Py::Object cliprect;
@@ -136,6 +137,10 @@ public:
 
     Py::Object hatchpath;
 
+    double sketch_scale;
+    double sketch_length;
+    double sketch_randomness;
+
 protected:
     agg::rgba get_color(const Py::Object& gc);
     double points_to_pixels(const Py::Object& points);
@@ -147,6 +152,7 @@ protected:
     void _set_antialiased(const Py::Object& gc);
     void _set_snap(const Py::Object& gc);
     void _set_hatch_path(const Py::Object& gc);
+    void _set_sketch_params(const Py::Object& gc);
 };
 
 
@@ -238,7 +244,7 @@ public:
 protected:
     double points_to_pixels(const Py::Object& points);
     agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
-    facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
+    facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha, bool forced_alpha);
 
     template<class R>
     void set_clipbox(const Py::Object& cliprect, R& rasterizer);

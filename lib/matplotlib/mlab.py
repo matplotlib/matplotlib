@@ -148,7 +148,6 @@ from itertools import izip
 import numpy as np
 ma = np.ma
 from matplotlib import verbose
-from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
 import matplotlib.cbook as cbook
 from matplotlib import docstring
@@ -579,7 +578,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
       - *freqs*: vector of frequencies, equal in length to either the
          coherence or phase vectors for any (*i*, *j*) key.
 
-    Eg., to make a coherence Bode plot::
+    e.g., to make a coherence Bode plot::
 
           subplot(211)
           plot( freqs, Cxy[(12,19)])
@@ -958,7 +957,7 @@ def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
 def prctile_rank(x, p):
     """
     Return the rank for each element in *x*, return the rank
-    0..len(*p*).  Eg if *p* = (25, 50, 75), the return value will be a
+    0..len(*p*).  e.g., if *p* = (25, 50, 75), the return value will be a
     len(*x*) array with values in [0,1,2,3] where 0 indicates the
     value is less than the 25th percentile, 1 indicates the value is
     >= the 25th and < 50th percentile, ... and 3 indicates the value
@@ -1182,37 +1181,6 @@ def fftsurr(x, detrend=detrend_none, window=window_none):
     return np.fft.ifft(z).real
 
 
-def liaupunov(x, fprime):
-    """
-    *x* is a very long trajectory from a map, and *fprime* returns the
-    derivative of *x*.
-
-    This function will be removed from matplotlib.
-
-    Returns :
-    .. math::
-
-        \lambda = \\frac{1}{n}\\sum \\ln|f^'(x_i)|
-
-    .. seealso::
-
-        Lyapunov Exponent
-           Sec 10.5 Strogatz (1994) "Nonlinear Dynamics and Chaos".
-           `Wikipedia article on Lyapunov Exponent
-           <http://en.wikipedia.org/wiki/Lyapunov_exponent>`_.
-
-    .. note::
-        What the function here calculates may not be what you really want;
-        *caveat emptor*.
-
-        It also seems that this function's name is badly misspelled.
-    """
-
-    warnings.warn("This does not belong in matplotlib and will be removed",
-                  mplDeprecation) # 2009/06/13
-
-    return np.mean(np.log(np.absolute(fprime(x))))
-
 class FIFOBuffer:
     """
     A FIFO queue to hold incoming *x*, *y* data in a rotating buffer
@@ -1235,6 +1203,7 @@ class FIFOBuffer:
 
       mlab seems like the wrong place for this class.
     """
+    @cbook.deprecated('1.3', name='FIFOBuffer', obj_type='class')
     def __init__(self, nmax):
         """
         Buffer up to *nmax* points.
@@ -1316,154 +1285,6 @@ def movavg(x,n):
     w = np.empty((n,), dtype=np.float_)
     w[:] = 1.0/n
     return np.convolve(x, w, mode='valid')
-
-def save(fname, X, fmt='%.18e',delimiter=' '):
-    """
-    Save the data in *X* to file *fname* using *fmt* string to convert the
-    data to strings.
-
-    Deprecated.  Use numpy.savetxt.
-
-    *fname* can be a filename or a file handle.  If the filename ends
-    in '.gz', the file is automatically saved in compressed gzip
-    format.  The :func:`load` function understands gzipped files
-    transparently.
-
-    Example usage::
-
-      save('test.out', X)         # X is an array
-      save('test1.out', (x,y,z))  # x,y,z equal sized 1D arrays
-      save('test2.out', x)        # x is 1D
-      save('test3.out', x, fmt='%1.4e')  # use exponential notation
-
-    *delimiter* is used to separate the fields, eg. *delimiter* ','
-    for comma-separated values.
-    """
-
-    warnings.warn("use numpy.savetxt", mplDeprecation)  # 2009/06/13
-
-    if cbook.is_string_like(fname):
-        if fname.endswith('.gz'):
-            import gzip
-            fh = gzip.open(fname,'wb')
-        else:
-            fh = open(fname,'w')
-    elif hasattr(fname, 'seek'):
-        fh = fname
-    else:
-        raise ValueError('fname must be a string or file handle')
-
-
-    X = np.asarray(X)
-    origShape = None
-    if X.ndim == 1:
-        origShape = X.shape
-        X.shape = len(X), 1
-    for row in X:
-        fh.write(delimiter.join([fmt%val for val in row]) + '\n')
-
-    if origShape is not None:
-        X.shape = origShape
-
-
-
-
-def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
-         usecols=None, unpack=False, dtype=np.float_):
-    """
-    Load ASCII data from *fname* into an array and return the array.
-
-    Deprecated: use numpy.loadtxt.
-
-    The data must be regular, same number of values in every row
-
-    *fname* can be a filename or a file handle.  Support for gzipped
-    files is automatic, if the filename ends in '.gz'.
-
-    matfile data is not supported; for that, use :mod:`scipy.io.mio`
-    module.
-
-    Example usage::
-
-      X = load('test.dat')  # data in two columns
-      t = X[:,0]
-      y = X[:,1]
-
-    Alternatively, you can do the same with "unpack"; see below::
-
-      X = load('test.dat')    # a matrix of data
-      x = load('test.dat')    # a single column of data
-
-    - *comments*: the character used to indicate the start of a comment
-      in the file
-
-    - *delimiter* is a string-like character used to seperate values
-      in the file. If *delimiter* is unspecified or *None*, any
-      whitespace string is a separator.
-
-    - *converters*, if not *None*, is a dictionary mapping column number to
-      a function that will convert that column to a float (or the optional
-      *dtype* if specified).  Eg, if column 0 is a date string::
-
-        converters = {0:datestr2num}
-
-    - *skiprows* is the number of rows from the top to skip.
-
-    - *usecols*, if not *None*, is a sequence of integer column indexes to
-      extract where 0 is the first column, eg ``usecols=[1,4,5]`` to extract
-      just the 2nd, 5th and 6th columns
-
-    - *unpack*, if *True*, will transpose the matrix allowing you to unpack
-      into named arguments on the left hand side::
-
-        t,y = load('test.dat', unpack=True) # for  two column data
-        x,y,z = load('somefile.dat', usecols=[3,5,7], unpack=True)
-
-    - *dtype*: the array will have this dtype.  default: ``numpy.float_``
-
-    .. seealso::
-
-        See :file:`examples/pylab_examples/load_converter.py` in the source tree
-           Exercises many of these options.
-    """
-
-    warnings.warn("use numpy.loadtxt", mplDeprecation)  # 2009/06/13
-
-    if converters is None: converters = {}
-    fh = cbook.to_filehandle(fname)
-    X = []
-
-    if delimiter==' ':
-        # space splitting is a special case since x.split() is what
-        # you want, not x.split(' ')
-        def splitfunc(x):
-            return x.split()
-    else:
-        def splitfunc(x):
-            return x.split(delimiter)
-
-    converterseq = None
-    for i,line in enumerate(fh):
-        if i<skiprows: continue
-        line = line.split(comments, 1)[0].strip()
-        if not len(line): continue
-        if converterseq is None:
-            converterseq = [converters.get(j,float)
-                               for j,val in enumerate(splitfunc(line))]
-        if usecols is not None:
-            vals = splitfunc(line)
-            row = [converterseq[j](vals[j]) for j in usecols]
-        else:
-            row = [converterseq[j](val)
-                      for j,val in enumerate(splitfunc(line))]
-        X.append(row)
-
-    X = np.array(X, dtype)
-    r,c = X.shape
-    if r==1 or c==1:
-        X.shape = max(r,c),
-    if unpack: return X.transpose()
-    else: return X
 
 
 ### the following code was written and submitted by Fernando Perez
@@ -2091,7 +1912,7 @@ def recs_join(key, name, recs, jointype='outer', missing=0., postfixes=None):
 
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             converterd=None, names=None, missing='', missingd=None,
-            use_mrecords=False):
+            use_mrecords=False, dayfirst=False, yearfirst=False):
     """
     Load data from comma/space/tab delimited file in *fname* into a
     numpy record array and return the record array.
@@ -2108,7 +1929,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
       files is automatic, if the filename ends in '.gz'
 
     - *comments*: the character used to indicate the start of a comment
-      in the file
+      in the file, or *None* to switch off the removal of comments
 
     - *skiprows*: is the number of rows from the top to skip
 
@@ -2123,12 +1944,20 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
     - *missingd* is a dictionary mapping munged column names to field values
       which signify that the field does not contain actual data and should
-      be masked, e.g. '0000-00-00' or 'unused'
+      be masked, e.g., '0000-00-00' or 'unused'
 
     - *missing*: a string whose value signals a missing field regardless of
       the column it appears in
 
     - *use_mrecords*: if True, return an mrecords.fromrecords record array if any of the data are missing
+
+    - *dayfirst*: default is False so that MM-DD-YY has precedence over
+      DD-MM-YY.  See http://labix.org/python-dateutil#head-b95ce2094d189a89f80f5ae52a05b4ab7b41af47
+      for further information.
+
+    - *yearfirst*: default is False so that MM-DD-YY has precedence over
+      YY-MM-DD.  See http://labix.org/python-dateutil#head-b95ce2094d189a89f80f5ae52a05b4ab7b41af47
+      for further information.
 
       If no rows are found, *None* is returned -- see :file:`examples/loadrec.py`
     """
@@ -2217,7 +2046,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
     def mydate(x):
         # try and return a date object
-        d = dateparser(x)
+        d = dateparser(x, dayfirst=dayfirst, yearfirst=yearfirst)
 
         if d.hour>0 or d.minute>0 or d.second>0:
             raise ValueError('not a date')
@@ -2273,7 +2102,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     if needheader:
         for row in reader:
             #print 'csv2rec', row
-            if len(row) and row[0].startswith(comments):
+            if len(row) and comments is not None and row[0].startswith(comments):
                 continue
             headers = row
             break
@@ -2316,7 +2145,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
         while 1:
             # skip past any comments and consume one line of column header
             row = next(reader)
-            if len(row) and row[0].startswith(comments):
+            if len(row) and comments is not None and row[0].startswith(comments):
                 continue
             break
 
@@ -2325,8 +2154,10 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     rows = []
     rowmasks = []
     for i, row in enumerate(reader):
-        if not len(row): continue
-        if row[0].startswith(comments): continue
+        if not len(row):
+            continue
+        if comments is not None and row[0].startswith(comments):
+            continue
         # Ensure that the row returned always has the same nr of elements
         row.extend([''] * (len(converters) - len(row)))
         rows.append([func(name, val) for func, name, val in zip(converters, names, row)])

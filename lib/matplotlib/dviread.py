@@ -23,10 +23,12 @@ from __future__ import print_function
 import errno
 import matplotlib
 import matplotlib.cbook as mpl_cbook
+from matplotlib.compat import subprocess
+from matplotlib import rcParams
 import numpy as np
 import struct
-import subprocess
 import sys
+import os
 
 if sys.version_info[0] >= 3:
     def ord(x):
@@ -52,6 +54,18 @@ class Dvi(object):
         self.dpi = dpi
         self.fonts = {}
         self.state = _dvistate.pre
+        self.baseline = self._get_baseline(filename)
+
+    def _get_baseline(self, filename):
+        if rcParams['text.latex.preview']:
+            base, ext = os.path.splitext(filename)
+            baseline_filename = base + ".baseline"
+            if os.path.exists(baseline_filename):
+                with open(baseline_filename, 'rb') as fd:
+                    l = fd.read().split()
+                height, depth, width = l
+                return float(depth)
+        return None
 
     def __iter__(self):
         """
@@ -105,17 +119,22 @@ class Dvi(object):
             # special case for ease of debugging: output raw dvi coordinates
             return mpl_cbook.Bunch(text=self.text, boxes=self.boxes,
                                    width=maxx-minx, height=maxy_pure-miny,
-                                   descent=maxy-maxy_pure)
+                                   descent=descent)
 
         d = self.dpi / (72.27 * 2**16) # from TeX's "scaled points" to dpi units
-        text =  [ ((x-minx)*d, (maxy-y)*d, f, g, w*d)
+        if self.baseline is None:
+            descent = (maxy - maxy_pure) * d
+        else:
+            descent = self.baseline
+
+        text =  [ ((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
                   for (x,y,f,g,w) in self.text ]
-        boxes = [ ((x-minx)*d, (maxy-y)*d, h*d, w*d) for (x,y,h,w) in self.boxes ]
+        boxes = [ ((x-minx)*d, (maxy-y)*d - descent, h*d, w*d) for (x,y,h,w) in self.boxes ]
 
         return mpl_cbook.Bunch(text=text, boxes=boxes,
                                width=(maxx-minx)*d,
                                height=(maxy_pure-miny)*d,
-                               descent=(maxy-maxy_pure)*d)
+                               descent=descent)
 
     def _read(self):
         """
@@ -856,7 +875,7 @@ def find_tex_file(filename, format=None):
                               'debug')
     return result.decode('ascii')
 
-# With multiple text objects per figure (e.g. tick labels) we may end
+# With multiple text objects per figure (e.g., tick labels) we may end
 # up reading the same tfm and vf files many times, so we implement a
 # simple cache. TODO: is this worth making persistent?
 

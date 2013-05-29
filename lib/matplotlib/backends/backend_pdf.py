@@ -81,7 +81,7 @@ from matplotlib import ttconv
 # stack.  Thus the state must be pushed onto the stack before narrowing
 # the clip path.  This is taken care of by GraphicsContextPdf.
 #
-# 2. Sometimes it is necessary to refer to something (e.g. font,
+# 2. Sometimes it is necessary to refer to something (e.g., font,
 # image, or extended graphics state, which contains the alpha value)
 # in the page stream by a name that needs to be defined outside the
 # stream.  PdfFile provides the methods fontName, imageObject, and
@@ -93,7 +93,7 @@ from matplotlib import ttconv
 # * the alpha channel of images
 # * image compression could be improved (PDF supports png-like compression)
 # * encoding of fonts, including mathtext fonts and unicode support
-# * TTF support has lots of small TODOs, e.g. how do you know if a font
+# * TTF support has lots of small TODOs, e.g., how do you know if a font
 #   is serif/sans-serif, or symbolic/non-symbolic?
 # * draw_markers, draw_line_collection, etc.
 
@@ -436,7 +436,7 @@ class PdfFile(object):
 
         revision = ''
         self.infoDict = {
-            'Creator': 'matplotlib %s, http://matplotlib.sf.net' % __version__,
+            'Creator': 'matplotlib %s, http://matplotlib.org' % __version__,
             'Producer': 'matplotlib pdf backend%s' % revision,
             'CreationDate': datetime.today()
             }
@@ -1064,7 +1064,7 @@ end"""
         self.nextAlphaState += 1
         self.alphaStates[alpha] = \
             (name, { 'Type': Name('ExtGState'),
-                     'CA': alpha, 'ca': alpha })
+                     'CA': alpha[0], 'ca': alpha[1] })
         return name
 
     def hatchPattern(self, hatch_style):
@@ -1313,11 +1313,12 @@ end"""
             self.endStream()
 
     @staticmethod
-    def pathOperations(path, transform, clip=None, simplify=None):
+    def pathOperations(path, transform, clip=None, simplify=None, sketch=None):
         cmds = []
         last_points = None
         for points, code in path.iter_segments(transform, clip=clip,
-                                               simplify=simplify):
+                                               simplify=simplify,
+                                               sketch=sketch):
             if code == Path.MOVETO:
                 # This is allowed anywhere in the path
                 cmds.extend(points)
@@ -1340,14 +1341,15 @@ end"""
             last_points = points
         return cmds
 
-    def writePath(self, path, transform, clip=False):
+    def writePath(self, path, transform, clip=False, sketch=None):
         if clip:
             clip = (0.0, 0.0, self.width * 72, self.height * 72)
             simplify = path.should_simplify
         else:
             clip = None
             simplify = False
-        cmds = self.pathOperations(path, transform, clip, simplify=simplify)
+        cmds = self.pathOperations(path, transform, clip, simplify=simplify,
+                                   sketch=sketch)
         self.output(*cmds)
 
     def reserveObject(self, name=''):
@@ -1443,11 +1445,21 @@ class RendererPdf(RendererBase):
         orig_fill = gc._fillcolor
         gc._fillcolor = fillcolor
 
+        orig_alphas = gc._effective_alphas
+
+        if gc._forced_alpha:
+            gc._effective_alphas = (gc._alpha, gc._alpha)
+        elif fillcolor is None or len(fillcolor) < 4:
+            gc._effective_alphas = (gc._rgb[3], 1.0)
+        else:
+            gc._effective_alphas = (gc._rgb[3], fillcolor[3])
+
         delta = self.gc.delta(gc)
         if delta: self.file.output(*delta)
 
         # Restore gc to avoid unwanted side effects
         gc._fillcolor = orig_fill
+        gc._effective_alphas = orig_alphas
 
     def tex_font_mapping(self, texfont):
         if self.tex_font_map is None:
@@ -1516,7 +1528,8 @@ class RendererPdf(RendererBase):
         self.check_gc(gc, rgbFace)
         self.file.writePath(
             path, transform,
-            rgbFace is None and gc.get_hatch_path() is None)
+            rgbFace is None and gc.get_hatch_path() is None,
+            gc.get_sketch_params())
         self.file.output(self.gc.paint())
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
@@ -1527,6 +1540,8 @@ class RendererPdf(RendererBase):
         # stroke (and the amount of alpha for each) is the same for
         # all of them
         can_do_optimization = True
+        facecolors = np.asarray(facecolors)
+        edgecolors = np.asarray(edgecolors)
 
         if not len(facecolors):
             filled = False
@@ -1622,15 +1637,15 @@ class RendererPdf(RendererBase):
         self.check_gc(gc)
         self.file.output(name, Op.shading)
 
-    def _setup_textpos(self, x, y, descent, angle, oldx=0, oldy=0, olddescent=0, oldangle=0):
+    def _setup_textpos(self, x, y, angle, oldx=0, oldy=0, oldangle=0):
         if angle == oldangle == 0:
-            self.file.output(x - oldx, (y + descent) - (oldy + olddescent), Op.textpos)
+            self.file.output(x - oldx, y - oldy, Op.textpos)
         else:
             angle = angle / 180.0 * pi
             self.file.output( cos(angle), sin(angle),
                              -sin(angle), cos(angle),
                               x,        y,         Op.textmatrix)
-            self.file.output(0, descent, Op.textpos)
+            self.file.output(0, 0, Op.textpos)
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         # TODO: fix positioning and encoding
@@ -1660,7 +1675,7 @@ class RendererPdf(RendererBase):
                 fonttype = global_fonttype
 
             if fonttype == 42 or num <= 255:
-                self._setup_textpos(ox, oy, 0, 0, oldx, oldy)
+                self._setup_textpos(ox, oy, 0, oldx, oldy)
                 oldx, oldy = ox, oy
                 if (fontname, fontsize) != prev_font:
                     self.file.output(self.file.fontName(fontname), fontsize,
@@ -1697,7 +1712,7 @@ class RendererPdf(RendererBase):
         # Pop off the global transformation
         self.file.output(Op.grestore)
 
-    def draw_tex(self, gc, x, y, s, prop, angle):
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
         dvifile = texmanager.make_dvi(s, fontsize)
@@ -1762,7 +1777,7 @@ class RendererPdf(RendererBase):
                 self.file.output(elt[1], elt[2], Op.selectfont)
             elif elt[0] == 'text':
                 curx, cury = mytrans.transform((elt[1], elt[2]))
-                self._setup_textpos(curx, cury, 0, angle, oldx, oldy)
+                self._setup_textpos(curx, cury, angle, oldx, oldy)
                 oldx, oldy = curx, cury
                 if len(elt[3]) == 1:
                     self.file.output(elt[3][0], Op.show)
@@ -1772,7 +1787,7 @@ class RendererPdf(RendererBase):
                 assert False
         self.file.output(Op.end_text)
 
-        # Then output the boxes (e.g. variable-length lines of square
+        # Then output the boxes (e.g., variable-length lines of square
         # roots).
         boxgc = self.new_gc()
         boxgc.copy_properties(gc)
@@ -1789,7 +1804,7 @@ class RendererPdf(RendererBase):
             return s.encode('cp1252', 'replace')
         return s.encode('utf-16be', 'replace')
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # TODO: combine consecutive texts into one BT/ET delimited section
 
         # This function is rather complex, since there is no way to
@@ -1811,13 +1826,11 @@ class RendererPdf(RendererBase):
         if rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
             l, b, w, h = font.get_str_bbox(s)
-            descent = -b * fontsize / 1000
             fonttype = 1
         else:
             font = self._get_font_ttf(prop)
             self.track_characters(font, s)
             font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
-            descent = font.get_descent() / 64.0
 
             fonttype = rcParams['pdf.fonttype']
 
@@ -1857,7 +1870,7 @@ class RendererPdf(RendererBase):
                              self.file.fontName(prop),
                              fontsize,
                              Op.selectfont)
-            self._setup_textpos(x, y, descent, angle)
+            self._setup_textpos(x, y, angle)
             self.file.output(self.encode_string(s, fonttype), Op.show, Op.end_text)
 
         def draw_text_woven(chunks):
@@ -1878,7 +1891,6 @@ class RendererPdf(RendererBase):
             # output all the 2-byte characters.
             for mode in (1, 2):
                 newx = oldx = 0
-                olddescent = 0
                 # Output a 1-byte character chunk
                 if mode == 1:
                     self.file.output(Op.begin_text,
@@ -1888,10 +1900,9 @@ class RendererPdf(RendererBase):
 
                 for chunk_type, chunk in chunks:
                     if mode == 1 and chunk_type == 1:
-                        self._setup_textpos(newx, 0, descent, 0, oldx, 0, olddescent, 0)
+                        self._setup_textpos(newx, 0, 0, oldx, 0, 0)
                         self.file.output(self.encode_string(chunk, fonttype), Op.show)
                         oldx = newx
-                        olddescent = descent
 
                     lastgind = None
                     for c in chunk:
@@ -2008,6 +2019,7 @@ class GraphicsContextPdf(GraphicsContextBase):
     def __init__(self, file):
         GraphicsContextBase.__init__(self)
         self._fillcolor = (0.0, 0.0, 0.0)
+        self._effective_alphas = (1.0, 1.0)
         self.file = file
         self.parent = None
 
@@ -2024,7 +2036,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         the path, in which case it would presumably be filled.
         """
         # _linewidth > 0: in pdf a line of width 0 is drawn at minimum
-        #   possible device width, but e.g. agg doesn't draw at all
+        #   possible device width, but e.g., agg doesn't draw at all
         return (self._linewidth > 0 and self._alpha > 0 and
                 (len(self._rgb) <= 3 or self._rgb[3] != 0.0))
 
@@ -2076,8 +2088,8 @@ class GraphicsContextPdf(GraphicsContextBase):
             offset = 0
         return [list(dash), offset, Op.setdash]
 
-    def alpha_cmd(self, alpha):
-        name = self.file.alphaState(alpha)
+    def alpha_cmd(self, alpha, forced, effective_alphas):
+        name = self.file.alphaState(effective_alphas)
         return [name, Op.setgstate]
 
     def hatch_cmd(self, hatch):
@@ -2142,7 +2154,7 @@ class GraphicsContextPdf(GraphicsContextBase):
 
     commands = (
         (('_cliprect', '_clippath'), clip_cmd), # must come first since may pop
-        (('_alpha',), alpha_cmd),
+        (('_alpha', '_forced_alpha', '_effective_alphas'), alpha_cmd),
         (('_capstyle',), capstyle_cmd),
         (('_fillcolor',), fillcolor_cmd),
         (('_joinstyle',), joinstyle_cmd),
@@ -2187,6 +2199,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         """
         GraphicsContextBase.copy_properties(self, other)
         self._fillcolor = other._fillcolor
+        self._effective_alphas = other._effective_alphas
 
     def finalize(self):
         """

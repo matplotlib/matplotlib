@@ -19,8 +19,7 @@ r = r[-30:]  # get the last 30 days
 
 
 # first we'll do it the default way, with gaps on weekends
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(r.date, r.adj_close, 'o-')
 fig.autofmt_xdate()
 
@@ -32,8 +31,7 @@ def format_date(x, pos=None):
     thisind = np.clip(int(x+0.5), 0, N-1)
     return r.date[thisind].strftime('%Y-%m-%d')
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(ind, r.adj_close, 'o-')
 ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_date))
 fig.autofmt_xdate()

@@ -4,9 +4,21 @@ import os, sys
 def fn_name(): return sys._getframe(1).f_code.co_name
 
 try:
+    import gi
+except ImportError:
+    raise ImportError("Gtk3 backend requires pygobject to be installed.")
+
+try:
+    gi.require_version("Gtk", "3.0")
+except ValueError:
+    raise ImportError(
+        "Gtk3 backend requires the GObject introspection bindings for Gtk 3 "
+        "to be installed.")
+
+try:
     from gi.repository import Gtk, Gdk, GObject
 except ImportError:
-    raise ImportError("GTK3 backend requires pygobject to be installed.")
+    raise ImportError("Gtk3 backend requires pygobject to be installed.")
 
 import matplotlib
 from matplotlib._pylab_helpers import Gcf
@@ -537,6 +549,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         fc = FileChooserDialog(
             title='Save the figure',
             parent=self.win,
+            path=os.path.expanduser(rcParams.get('savefig.directory', '')),
             filetypes=self.canvas.get_supported_filetypes(),
             default_filetype=self.canvas.get_default_filetype())
         fc.set_current_name(self.canvas.get_default_filename())
@@ -547,6 +560,13 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         fname, format = chooser.get_filename_from_user()
         chooser.destroy()
         if fname:
+            startpath = os.path.expanduser(rcParams.get('savefig.directory', ''))
+            if startpath == '':
+                # explicitly missing key or empty str signals to use cwd
+                rcParams['savefig.directory'] = startpath
+            else:
+                # save dir for next time
+                rcParams['savefig.directory'] = os.path.dirname(unicode(fname))
             try:
                 self.canvas.print_figure(fname, format=format)
             except Exception as e:

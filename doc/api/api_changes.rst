@@ -11,6 +11,187 @@ help figure out possible sources of the changes you are experiencing.
 For new features that were added to matplotlib, please see
 :ref:`whats-new`.
 
+
+.. _changes_in_1_3:
+
+Changes in 1.3.x
+================
+
+* On Linux, the user-specific `matplotlibrc` configuration file is now
+  located in `~/.config/matplotlib/matplotlibrc` to conform to the
+  `XDG Base Directory Specification
+  <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
+
+* The following items that were deprecated in version 1.2 or earlier
+  have now been removed completely.
+
+    - The Qt 3.x backends (`qt` and `qtagg`) have been removed in
+      favor of the Qt 4.x backends (`qt4` and `qt4agg`).
+
+    - The FltkAgg and Emf backends have been removed.
+
+    - The `matplotlib.nxutils` module has been removed.  Use the
+      functionality on `matplotlib.path.Path.contains_point` and
+      friends instead.
+
+    - Instead of `axes.Axes.get_frame`, use `axes.Axes.patch`.
+
+    - The following `kwargs` to the `legend` function have been
+      renamed:
+
+      - `pad` -> `borderpad`
+      - `labelsep` -> `labelspacing`
+      - `handlelen` -> `handlelength`
+      - `handletextsep` -> `handletextpad`
+      - `axespad` -> `borderaxespad`
+
+      Related to this, the following rcParams have been removed:
+
+      - `legend.pad`, `legend.labelsep`, `legend.handlelen`,
+        `legend.handletextsep` and `legend.axespad`
+
+    - For the `hist` function, instead of `width`, use `rwidth`
+      (relative width).
+
+    - On `patches.Circle`, the `resolution` kwarg has been removed.
+      For a circle made up of line segments, use
+      `patches.CirclePolygon`.
+
+    - The printing functions in the Wx backend have been removed due
+      to the burden of keeping them up-to-date.
+
+    - `mlab.liaupunov` has been removed.
+
+    - `mlab.save`, `mlab.load`, `pylab.save` and `pylab.load` have
+      been removed.  We recommend using `numpy.savetxt` and
+      `numpy.loadtxt` instead.
+
+    - `widgets.HorizontalSpanSelector` has been removed.  Use
+      `widgets.SpanSelector` instead.
+
+* The CocoaAgg backend has been deprecated, with the possibility for
+  deletion or resurrection in a future release.
+
+* The top-level functions in `matplotlib.path` that are implemented in
+  C++ were never meant to be public.  Instead, users should use the
+  Pythonic wrappers for them in the `path.Path` and
+  `collections.Collection` classes.  Use the following mapping to update
+  your code:
+
+    - `point_in_path` -> `path.Path.contains_point`
+    - `get_path_extents` -> `path.Path.get_extents`
+    - `point_in_path_collection` -> `collection.Collection.contains`
+    - `path_in_path` -> `path.Path.contains_path`
+    - `path_intersects_path` -> `path.Path.intersects_path`
+    - `convert_path_to_polygons` -> `path.Path.to_polygons`
+    - `cleanup_path` -> `path.Path.cleaned`
+    - `points_in_path` -> `path.Path.contains_points`
+    - `clip_path_to_rect` -> `path.Path.clip_to_bbox`
+
+* `Path` objects can now be marked as `readonly` by passing
+  `readonly=True` to its constructor.  The built-in path singletons,
+  obtained through `Path.unit*` class methods return readonly paths.
+  If you have code that modified these, you will need to make a
+  deepcopy first, using either::
+
+    import copy
+    path = copy.deepcopy(Path.unit_circle())
+
+    # or
+
+    path = Path.unit_circle().deepcopy()
+
+  Deep copying a `Path` always creates an editable (i.e. non-readonly)
+  `Path`.
+
+* matplotlib.colors.normalize and matplotlib.colors.no_norm have been
+  deprecated in favour of matplotlib.colors.Normalize and
+  matplotlib.colors.NoNorm respectively.
+
+* The `font.*` rcParams now affect only text objects created after the
+  rcParam has been set, and will not retroactively affect already
+  existing text objects.  This brings their behavior in line with most
+  other rcParams.
+
+* To support XKCD style plots, the :func:`matplotlib.path.cleanup_path`
+  method's signature was updated to require a sketch argument. Users of
+  :func:`matplotlib.path.cleanup_path` are encouraged to use the new
+  :meth:`~matplotlib.path.Path.cleaned` Path method.
+
+* The list at ``Path.NUM_VERTICES`` was replaced by a dictionary mapping
+  Path codes to the number of expected vertices at
+  :attr:`~matplotlib.path.Path.NUM_VERTICES_FOR_CODE`.
+
+* Fixed a bug in setting the position for the right/top spine with data
+  position type. Previously, it would draw the right or top spine at
+  +1 data offset.
+
+* The ScalarMappable class' set_colorbar is now deprecated. Instead, the
+  :attr:`matplotlib.cm.ScalarMappable.colorbar` attribute should be used.
+  In previous matplotlib versions this attribute was an undocumented tuple
+  of ``(colorbar_instance, colorbar_axes)`` but is now just
+  ``colorbar_instance``. To get the colorbar axes it is possible to just use
+  the :attr:`~matplotlib.colorbar.ColorbarBase.ax` attribute on a colorbar
+  isntance.
+
+* In :class:`~matplotlib.patches.FancyArrow`, the default arrow head width,
+  ``head_width``, has been made larger to produce a visible arrow head. The new
+  value of this kwarg is ``head_width = 20 * width``.
+
+* Removed call of :meth:`~matplotlib.axes.Axes.grid` in
+  :meth:`~matplotlib.pyplot.plotfile`. To draw the axes grid, set the
+  ``axes.grid`` rcParam to *True*, or explicitly call
+  :meth:`~matplotlib.axes.Axes.grid`.
+
+* It is now posible to provide ``number of levels + 1`` colors in the case of
+  `extend='both'` for contourf (or just ``number of levels`` colors for an
+  extend value ``min`` or ``max``) such that the resulting colormap's
+  ``set_under`` and ``set_over`` are defined appropriately. Any other number
+  of colors will continue to behave as before (if more colors are provided
+  than levels, the colors will be unused). A similar change has been applied
+  to contour, where ``extend='both'`` would expect ``number of levels + 2``
+  colors.
+
+* A new keyword *extendrect* in :meth:`~matplotlib.pyplot.colorbar` and
+  :class:`~matplotlib.colorbar.ColorbarBase` allows one to control the shape
+  of colorbar extensions.
+
+* The `~matplotlib.mpl` module is now deprecated. Those who relied on this
+  module should transition to simply using ``import matplotlib as mpl``.
+
+* The extension of :class:`~matplotlib.widgets.MultiCursor` to both vertical
+  (default) and/or horizontal cursor implied that ``self.line`` is replaced
+  by ``self.vline`` for vertical cursors lines and ``self.hline`` is added
+  for the horizontal cursors lines.
+
+* On POSIX platforms, the :func:`~matplotlib.cbook.report_memory` function
+  raises :class:`NotImplementedError` instead of :class:`OSError` if the
+  :command:`ps` command cannot be run.
+
+* The :func:`matplotlib.cbook.check_output` function has been moved to
+  :func:`matplotlib.compat.subprocess`.
+
+* :class:`~matplotlib.patches.Patch` now fully supports using RGBA values for
+  its ``facecolor`` and ``edgecolor`` attributes, which enables faces and
+  edges to have different alpha values. If the
+  :class:`~matplotlib.patches.Patch` object's ``alpha`` attribute is set to
+  anything other than ``None``, that value will override any alpha-channel
+  value in both the face and edge colors. Previously, if
+  :class:`~matplotlib.patches.Patch` had ``alpha=None``, the alpha component
+  of ``edgecolor`` would be applied to both the edge and face.
+
+* The optional ``isRGB`` argument to
+  :meth:`~matplotlib.backend_bases.GraphicsContextBase.set_foreground` (and
+  the other GraphicsContext classes that descend from it) has been renamed to
+  ``isRGBA``, and should now only be set to ``True`` if the ``fg`` color
+  argument is known to be an RGBA tuple.
+
+* For :class:`~matplotlib.patches.Patch`, the ``capstyle`` used is now
+  ``butt``, to be consistent with the default for most other objects, and to
+  avoid problems with non-solid ``linestyle`` appearing solid when using a
+  large ``linewidth``. Previously, :class:`~matplotlib.patches.Patch` used
+  ``capstyle='projecting'``.
+
 Changes in 1.2.x
 ================
 
@@ -66,7 +247,7 @@ Changes in 1.2.x
       projection = kwargs.pop('projection', None)
       if ispolar:
           if projection is not None and projection != 'polar':
-              raise ValuError('polar and projection args are inconsistent')
+              raise ValueError('polar and projection args are inconsistent')
           projection = 'polar'
       ax = projection_factory(projection, self, rect, **kwargs)
       key = self._make_key(*args, **kwargs)
@@ -325,7 +506,7 @@ Changes in 0.99
 
 * Axes instances no longer have a "frame" attribute. Instead, use the
   new "spines" attribute. Spines is a dictionary where the keys are
-  the names of the spines (e.g. 'left','right' and so on) and the
+  the names of the spines (e.g., 'left','right' and so on) and the
   values are the artists that draw the spines. For normal
   (rectilinear) axes, these artists are Line2D instances. For other
   axes (such as polar axes), these artists may be Patch instances.
@@ -517,7 +698,7 @@ The view intervals are now stored only in one place -- in the
 as well.  This means locators must get their limits from their
 :class:`matplotlib.axis.Axis`, which in turn looks up its limits from
 the :class:`~matplotlib.axes.Axes`.  If a locator is used temporarily
-and not assigned to an Axis or Axes, (e.g. in
+and not assigned to an Axis or Axes, (e.g., in
 :mod:`matplotlib.contour`), a dummy axis must be created to store its
 bounds.  Call :meth:`matplotlib.ticker.Locator.create_dummy_axis` to
 do so.
@@ -794,7 +975,7 @@ Changes for 0.91.0
 
 * Changed :func:`cbook.reversed` so it yields a tuple rather than a
   (index, tuple). This agrees with the python reversed builtin,
-  and cbook only defines reversed if python doesnt provide the
+  and cbook only defines reversed if python doesn't provide the
   builtin.
 
 * Made skiprows=1 the default on :func:`csv2rec`
@@ -812,7 +993,7 @@ Changes for 0.91.0
   fonts.  Currently it simply reads pfa and pfb format files and
   stores the data in a way that is suitable for embedding in pdf
   files. In the future the class might actually parse the font to
-  allow e.g.  subsetting.
+  allow e.g.,  subsetting.
 
 * :mod:`matplotlib.FT2Font` now supports :meth:`FT_Attach_File`. In
   practice this can be used to read an afm file in addition to a
@@ -832,7 +1013,7 @@ Changes for 0.91.0
   should be changed to ``${\cal R}$``.  Alternatively, you may use the
   new LaTeX-style font commands (``\mathcal``, ``\mathrm``,
   ``\mathit``, ``\mathtt``) which do affect the following group,
-  eg. ``$\mathcal{R}$``.
+  e.g., ``$\mathcal{R}$``.
 
 * Text creation commands have a new default linespacing and a new
   ``linespacing`` kwarg, which is a multiple of the maximum vertical
@@ -879,13 +1060,13 @@ Changes for 0.90.1
     units.AxisInfo object rather than a tuple.  This will make it
     easier to add axis info functionality (eg I added a default label
     on this iteration) w/o having to change the tuple length and hence
-    the API of the client code everytime new functionality is added.
+    the API of the client code every time new functionality is added.
     Also, units.ConversionInterface.convert_to_value is now simply
     named units.ConversionInterface.convert.
 
     Axes.errorbar uses Axes.vlines and Axes.hlines to draw its error
     limits int he vertical and horizontal direction.  As you'll see
-    in the changes below, these funcs now return a LineCollection
+    in the changes below, these functions now return a LineCollection
     rather than a list of lines.  The new return signature for
     errorbar is  ylins, caplines, errorcollections where
     errorcollections is a xerrcollection, yerrcollection
@@ -903,7 +1084,7 @@ Changes for 0.90.1
 
     Barh now takes a **kwargs dict instead of most of the old
     arguments. This helps ensure that bar and barh are kept in sync,
-    but as a side effect you can no longer pass e.g. color as a
+    but as a side effect you can no longer pass e.g., color as a
     positional argument.
 
     ft2font.get_charmap() now returns a dict that maps character codes
@@ -970,7 +1151,7 @@ Changes for 0.87.7
     markeredgecolor and markerfacecolor cannot be configured in
     matplotlibrc any more. Instead, markers are generally colored
     automatically based on the color of the line, unless marker colors
-    are explicitely set as kwargs - NN
+    are explicitly set as kwargs - NN
 
     Changed default comment character for load to '#' - JDH
 
@@ -1146,7 +1327,7 @@ Changes for 0.83
   - Made HOME/.matplotlib the new config dir where the matplotlibrc
     file, the ttf.cache, and the tex.cache live.  The new default
     filenames in .matplotlib have no leading dot and are not hidden.
-    Eg, the new names are matplotlibrc, tex.cache, and ttffont.cache.
+    e.g., the new names are matplotlibrc, tex.cache, and ttffont.cache.
     This is how ipython does it so it must be right.
 
     If old files are found, a warning is issued and they are moved to
@@ -1185,7 +1366,7 @@ Changes for 0.82
 
         I see that hist uses the linspace function to create the bins
         and then uses searchsorted to put the values in their correct
-        bin. Thats all good but I am confused over the use of linspace
+        bin. That's all good but I am confused over the use of linspace
         for the bin creation. I wouldn't have thought that it does
         what is needed, to quote the docstring it creates a "Linear
         spaced array from min to max". For it to work correctly
@@ -1381,7 +1562,7 @@ Changes for 0.65.1
 
   removed add_axes and add_subplot from backend_bases.  Use
   figure.add_axes and add_subplot instead.  The figure now manages the
-  current axes with gca and sca for get and set current axe.  If you
+  current axes with gca and sca for get and set current axes.  If you
   have code you are porting which called, eg, figmanager.add_axes, you
   can now simply do figmanager.canvas.figure.add_axes.
 
@@ -1415,7 +1596,7 @@ Changes for 0.63
 
   Most of the date tick locators have a different meaning in their
   constructors.  In the prior implementation, the first argument was a
-  base and multiples of the base were ticked.  Eg
+  base and multiples of the base were ticked.  e.g.,
 
     HourLocator(5)  # old: tick every 5 minutes
 
@@ -1449,7 +1630,7 @@ Changes for 0.61
 
   canvas.connect is now deprecated for event handling.  use
   mpl_connect and mpl_disconnect instead.  The callback signature is
-  func(event) rather than func(widget, evet)
+  func(event) rather than func(widget, event)
 
 Changes for 0.60
 ================
@@ -1593,7 +1774,7 @@ Bounding boxes
 
     bbox = clickBBox = lbwh_to_bbox(left, bottom, width, height)
 
-   The Bbox has a different API than the Bound2D.  Eg, if you want to
+   The Bbox has a different API than the Bound2D.  e.g., if you want to
    get the width and height of the bbox
 
      OLD::
@@ -1613,7 +1794,7 @@ Object constructors
   You no longer pass the bbox, dpi, or transforms to the various
   Artist constructors.  The old way or creating lines and rectangles
   was cumbersome because you had to pass so many attributes to the
-  Line2D and Rectangle classes not related directly to the gemoetry
+  Line2D and Rectangle classes not related directly to the geometry
   and properties of the object.  Now default values are added to the
   object when you call axes.add_line or axes.add_patch, so they are
   hidden from the user.
@@ -1642,18 +1823,18 @@ Transformations
 
   The entire transformation architecture has been rewritten.
   Previously the x and y transformations where stored in the xaxis and
-  yaxis insstances.  The problem with this approach is it only allows
+  yaxis instances.  The problem with this approach is it only allows
   for separable transforms (where the x and y transformations don't
   depend on one another).  But for cases like polar, they do.  Now
   transformations operate on x,y together.  There is a new base class
   matplotlib.transforms.Transformation and two concrete
-  implemetations, matplotlib.transforms.SeparableTransformation and
+  implementations, matplotlib.transforms.SeparableTransformation and
   matplotlib.transforms.Affine.  The SeparableTransformation is
   constructed with the bounding box of the input (this determines the
   rectangular coordinate system of the input, ie the x and y view
-  limits), the bounding box of the display, and possibily nonlinear
+  limits), the bounding box of the display, and possibly nonlinear
   transformations of x and y.  The 2 most frequently used
-  transformations, data cordinates -> display and axes coordinates ->
+  transformations, data coordinates -> display and axes coordinates ->
   display are available as ax.transData and ax.transAxes.  See
   alignment_demo.py which uses axes coords.
 
@@ -1741,7 +1922,7 @@ Changes for 0.50
 
     There is one important API change for application developers.
     Figure instances used subclass GUI widgets that enabled them to be
-    placed directly into figures.  Eg, FigureGTK subclassed
+    placed directly into figures.  e.g., FigureGTK subclassed
     gtk.DrawingArea.  Now the Figure class is independent of the
     backend, and FigureCanvas takes over the functionality formerly
     handled by Figure.  In order to include figures into your apps,
@@ -1783,7 +1964,7 @@ Changes for 0.42
 
   * backend_bases.AxisTextBase is now text.Text module
 
-  * All the erase and reset functionality removed frmo AxisText - not
+  * All the erase and reset functionality removed from AxisText - not
     needed with double buffered drawing.  Ditto with state change.
     Text instances have a get_prop_tup method that returns a hashable
     tuple of text properties which you can use to see if text props

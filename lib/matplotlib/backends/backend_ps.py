@@ -87,7 +87,7 @@ class PsBackendHelper(object):
         except KeyError:
             pass
 
-        from subprocess import Popen, PIPE
+        from matplotlib.compat.subprocess import Popen, PIPE
         pipe = Popen(self.gs_exe + " --version",
                      shell=True, stdout=PIPE).stdout
         if sys.version_info[0] >= 3:
@@ -587,7 +587,7 @@ grestore
             if rgbFace[0]==rgbFace[1] and rgbFace[0]==rgbFace[2]:
                 ps_color = '%1.3f setgray' % rgbFace[0]
             else:
-                ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace
+                ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace[:3]
 
         # construct the generic marker command:
         ps_cmd = ['/o {', 'gsave', 'newpath', 'translate'] # dont want the translate to be global
@@ -649,7 +649,7 @@ grestore
 
         self._path_collection_id += 1
 
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         """
         draw a Text instance
         """
@@ -659,18 +659,18 @@ grestore
         color = '%1.3f,%1.3f,%1.3f'% gc.get_rgb()[:3]
         fontcmd = {'sans-serif' : r'{\sffamily %s}',
                'monospace'  : r'{\ttfamily %s}'}.get(
-                rcParams['font.family'], r'{\rmfamily %s}')
+                rcParams['font.family'][0], r'{\rmfamily %s}')
         s = fontcmd % s
         tex = r'\color[rgb]{%s} %s' % (color, s)
 
         corr = 0#w/2*(fontsize-10)/10
         if rcParams['text.latex.preview']:
             # use baseline alignment!
-            pos = _nums_to_str(x-corr, y+bl)
+            pos = _nums_to_str(x-corr, y)
             self.psfrag.append(r'\psfrag{%s}[Bl][Bl][1][%f]{\fontsize{%f}{%f}%s}'%(thetext, angle, fontsize, fontsize*1.25, tex))
         else:
             # stick to the bottom alignment, but this may give incorrect baseline some times.
-            pos = _nums_to_str(x-corr, y)
+            pos = _nums_to_str(x-corr, y-bl)
             self.psfrag.append(r'\psfrag{%s}[bl][bl][1][%f]{\fontsize{%f}{%f}%s}'%(thetext, angle, fontsize, fontsize*1.25, tex))
 
         ps = """\
@@ -684,7 +684,7 @@ grestore
         self._pswriter.write(ps)
         self.textcnt += 1
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         """
         draw a Text instance
         """
@@ -755,7 +755,7 @@ grestore
             #print 'text', s
             lines = []
             thisx = 0
-            thisy = font.get_descent() / 64.0
+            thisy = 0
             for c in s:
                 ccode = ord(c)
                 gind = cmap.get(ccode)
@@ -972,11 +972,6 @@ class FigureCanvasPS(FigureCanvasBase):
     def print_eps(self, outfile, *args, **kwargs):
         return self._print_ps(outfile, 'eps', *args, **kwargs)
 
-
-
-
-
-
     def _print_ps(self, outfile, format, *args, **kwargs):
         papertype = kwargs.pop("papertype", rcParams['ps.papersize'])
         papertype = papertype.lower()
@@ -1104,8 +1099,7 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
 
-        fd, tmpfile = mkstemp()
-        with io.open(fd, 'wb') as raw_fh:
+        def print_figure_impl():
             if sys.version_info[0] >= 3:
                 fh = io.TextIOWrapper(raw_fh, encoding="ascii")
             else:
@@ -1180,20 +1174,39 @@ class FigureCanvasPS(FigureCanvasBase):
             if not isEPSF: print("%%EOF", file=fh)
             fh.flush()
 
-        if rcParams['ps.usedistiller'] == 'ghostscript':
-            gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
-        elif rcParams['ps.usedistiller'] == 'xpdf':
-            xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+            if sys.version_info[0] >= 3:
+                fh.detach()
 
-        if passed_in_file_object:
-            with open(tmpfile, 'rb') as fh:
-                outfile.write(fh.read())
+        if rcParams['ps.usedistiller']:
+            # We are going to use an external program to process the output.
+            # Write to a temporary file.
+            fd, tmpfile = mkstemp()
+            with io.open(fd, 'wb') as raw_fh:
+                print_figure_impl()
         else:
-            with open(outfile, 'w') as fh:
-                pass
-            mode = os.stat(outfile).st_mode
-            shutil.move(tmpfile, outfile)
-            os.chmod(outfile, mode)
+            # Write directly to outfile.
+            if passed_in_file_object:
+                raw_fh = outfile
+                print_figure_impl()
+            else:
+                with open(outfile, 'wb') as raw_fh:
+                    print_figure_impl()
+
+        if rcParams['ps.usedistiller']:
+            if rcParams['ps.usedistiller'] == 'ghostscript':
+                gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+            elif rcParams['ps.usedistiller'] == 'xpdf':
+                xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+
+            if passed_in_file_object:
+                with open(tmpfile, 'rb') as fh:
+                    outfile.write(fh.read())
+            else:
+                with open(outfile, 'w') as fh:
+                    pass
+                mode = os.stat(outfile).st_mode
+                shutil.move(tmpfile, outfile)
+                os.chmod(outfile, mode)
 
     def _print_figure_tex(self, outfile, format, dpi, facecolor, edgecolor,
                           orientation, isLandscape, papertype,

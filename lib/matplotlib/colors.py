@@ -16,11 +16,11 @@ colormap instances, but is also useful for making custom colormaps, and
 list of color specifications.
 
 The module also provides a single instance, *colorConverter*, of the
-:class:`ColorConverter` class providing methods for converting single
-color specifications or sequences of them to *RGB* or *RGBA*.
+:class:`ColorConverter` class providing methods for converting single color
+specifications or sequences of them to *RGB* or *RGBA*.
 
 Commands which take color arguments can use several formats to specify
-the colors.  For the basic builtin colors, you can use a single letter
+the colors.  For the basic built-in colors, you can use a single letter
 
     - b: blue
     - g: green
@@ -31,21 +31,20 @@ the colors.  For the basic builtin colors, you can use a single letter
     - k: black
     - w: white
 
-Gray shades can be given as a string encoding a float in the 0-1
-range, e.g.::
+Gray shades can be given as a string encoding a float in the 0-1 range, e.g.::
 
     color = '0.75'
 
-For a greater range of colors, you have two options.  You can specify
-the color using an html hex string, as in::
+For a greater range of colors, you have two options.  You can specify the
+color using an html hex string, as in::
 
       color = '#eeefff'
 
-or you can pass an *R* , *G* , *B* tuple, where each of *R* , *G* , *B*
-are in the range [0,1].
+or you can pass an *R* , *G* , *B* tuple, where each of *R* , *G* , *B* are in
+the range [0,1].
 
-Finally, legal html names for colors, like 'red', 'burlywood' and
-'chartreuse' are supported.
+Finally, legal html names for colors, like 'red', 'burlywood' and 'chartreuse'
+are supported.
 """
 from __future__ import print_function, division
 import re
@@ -198,8 +197,7 @@ cnames = {
     'white':                '#FFFFFF',
     'whitesmoke':           '#F5F5F5',
     'yellow':               '#FFFF00',
-    'yellowgreen':          '#9ACD32',
-    }
+    'yellowgreen':          '#9ACD32'}
 
 
 # add british equivs
@@ -255,8 +253,7 @@ class ColorConverter(object):
         'm': (0.75, 0, 0.75),
         'y': (0.75, 0.75, 0),
         'k': (0.0, 0.0, 0.0),
-        'w': (1.0, 1.0, 1.0),
-        }
+        'w': (1.0, 1.0, 1.0), }
 
     cache = {}
 
@@ -286,8 +283,8 @@ class ColorConverter(object):
                 pass
             except TypeError:
                 raise ValueError(
-                      'to_rgb: arg "%s" is unhashable even inside a tuple'
-                                    % (str(arg),))
+                    'to_rgb: arg "%s" is unhashable even inside a tuple'
+                    % (str(arg),))
 
         try:
             if cbook.is_string_like(arg):
@@ -301,26 +298,26 @@ class ColorConverter(object):
                         fl = float(argl)
                         if fl < 0 or fl > 1:
                             raise ValueError(
-                                   'gray (string) must be in range 0-1')
+                                'gray (string) must be in range 0-1')
                         color = tuple([fl] * 3)
             elif cbook.iterable(arg):
                 if len(arg) > 4 or len(arg) < 3:
                     raise ValueError(
-                           'sequence length is %d; must be 3 or 4' % len(arg))
+                        'sequence length is %d; must be 3 or 4' % len(arg))
                 color = tuple(arg[:3])
-                if [x for x in color if (float(x) < 0) or  (x > 1)]:
+                if [x for x in color if (float(x) < 0) or (x > 1)]:
                     # This will raise TypeError if x is not a number.
                     raise ValueError(
-                            'number in rbg sequence outside 0-1 range')
+                        'number in rbg sequence outside 0-1 range')
             else:
                 raise ValueError(
-                        'cannot convert argument to rgb sequence')
+                    'cannot convert argument to rgb sequence')
 
             self.cache[arg] = color
 
         except (KeyError, ValueError, TypeError) as exc:
             raise ValueError(
-                    'to_rgb: Invalid rgb arg "%s"\n%s' % (str(arg), exc))
+                'to_rgb: Invalid rgb arg "%s"\n%s' % (str(arg), exc))
             # Error messages could be improved by handling TypeError
             # separately; but this should be rare and not too hard
             # for the user to figure out as-is.
@@ -345,19 +342,19 @@ class ColorConverter(object):
         try:
             if not cbook.is_string_like(arg) and cbook.iterable(arg):
                 if len(arg) == 4:
-                    if [x for x in arg if (float(x) < 0) or  (x > 1)]:
+                    if [x for x in arg if (float(x) < 0) or (x > 1)]:
                         # This will raise TypeError if x is not a number.
                         raise ValueError(
-                                'number in rbga sequence outside 0-1 range')
+                            'number in rbga sequence outside 0-1 range')
                     if alpha is None:
                         return tuple(arg)
                     if alpha < 0.0 or alpha > 1.0:
                         raise ValueError("alpha must be in range 0-1")
                     return arg[0], arg[1], arg[2], alpha
                 r, g, b = arg[:3]
-                if [x for x in (r, g, b) if (float(x) < 0) or  (x > 1)]:
+                if [x for x in (r, g, b) if (float(x) < 0) or (x > 1)]:
                     raise ValueError(
-                            'number in rbg sequence outside 0-1 range')
+                        'number in rbg sequence outside 0-1 range')
             else:
                 r, g, b = self.to_rgb(arg)
             if alpha is None:
@@ -365,7 +362,7 @@ class ColorConverter(object):
             return r, g, b, alpha
         except (TypeError, ValueError) as exc:
             raise ValueError(
-                    'to_rgba: Invalid rgba arg "%s"\n%s' % (str(arg), exc))
+                'to_rgba: Invalid rgba arg "%s"\n%s' % (str(arg), exc))
 
     def to_rgba_array(self, c, alpha=None):
         """
@@ -458,18 +455,18 @@ def makeMappingArray(N, data, gamma=1.0):
 
     if x[0] != 0. or x[-1] != 1.0:
         raise ValueError(
-           "data mapping points must start with x=0. and end with x=1")
+            "data mapping points must start with x=0. and end with x=1")
     if np.sometrue(np.sort(x) - x):
         raise ValueError(
-           "data mapping points must have x in increasing order")
+            "data mapping points must have x in increasing order")
     # begin generation of lookup table
     x = x * (N - 1)
     lut = np.zeros((N,), np.float)
     xind = (N - 1) * np.linspace(0, 1, N) ** gamma
     ind = np.searchsorted(x, xind)[1:-1]
 
-    lut[1:-1] = (((xind[1:-1] - x[ind - 1]) / (x[ind] - x[ind - 1]))
-                  * (y0[ind] - y1[ind - 1]) + y1[ind - 1])
+    lut[1:-1] = (((xind[1:-1] - x[ind - 1]) / (x[ind] - x[ind - 1])) *
+                 (y0[ind] - y1[ind - 1]) + y1[ind - 1])
     lut[0] = y1[0]
     lut[-1] = y0[-1]
     # ensure that the lut is confined to values between 0 and 1 by clipping it
@@ -480,19 +477,25 @@ def makeMappingArray(N, data, gamma=1.0):
 
 
 class Colormap(object):
-    """Base class for all scalar to rgb mappings
+    """
+    Baseclass for all scalar to RGBA mappings.
 
-        Important methods:
+    Typically Colormap instances are used to convert data values (floats) from
+    the interval ``[0, 1]`` to the RGBA color that the respective Colormap
+    represents. For scaling of data into the ``[0, 1]`` interval see
+    :class:`matplotlib.colors.Normalize`. It is worth noting that
+    :class:`matplotlib.cm.ScalarMappable` subclasses make heavy use of this
+    ``data->normalize->map-to-color`` processing chain.
 
-            * :meth:`set_bad`
-            * :meth:`set_under`
-            * :meth:`set_over`
     """
     def __init__(self, name, N=256):
-        """
-        Public class attributes:
-        :attr:`N` : number of rgb quantization levels
-        :attr:`name` : name of colormap
+        r"""
+        Parameters
+        ----------
+        name : str
+            The name of the colormap.
+        N : int
+            The number of rgb quantization levels.
 
         """
         self.name = name
@@ -505,20 +508,36 @@ class Colormap(object):
         self._i_bad = N + 2
         self._isinit = False
 
-    # FIXME FIXME FIXME bytes is a *keyword* in python
+        #: When this colormap exists on a scalar mappable and colorbar_extend
+        #: is not False, colorbar creation will pick up ``colorbar_extend`` as
+        #: the default value for the ``extend`` keyword in the
+        #: :class:`matplotlib.colorbar.Colorbar` constructor.
+        self.colorbar_extend = False
+
     def __call__(self, X, alpha=None, bytes=False):
         """
-        *X* is either a scalar or an array (of any dimension).
-        If scalar, a tuple of rgba values is returned, otherwise
-        an array with the new shape = oldshape+(4,). If the X-values
-        are integers, then they are used as indices into the array.
-        If they are floating point, then they must be in the
-        interval (0.0, 1.0).
-        Alpha must be a scalar between 0 and 1, or None.
-        If bytes is False, the rgba values will be floats on a
-        0-1 scale; if True, they will be uint8, 0-255.
-        """
+        Parameters
+        ----------
+        X : scalar, ndarray
+            The data value(s) to convert to RGBA.
+            For floats, X should be in the interval ``[0.0, 1.0]`` to
+            return the RGBA values ``X*100`` percent along the Colormap line.
+            For integers, X should be in the interval ``[0, Colormap.N)`` to
+            return RGBA values *indexed* from the Colormap with index ``X``.
+        alpha : float, None
+            Alpha must be a scalar between 0 and 1, or None.
+        bytes : bool
+            If False (default), the returned RGBA values will be floats in the
+            interval ``[0, 1]`` otherwise they will be uint8s in the interval
+            ``[0, 255]``.
 
+        Returns
+        -------
+        Tuple of RGBA values if X is scalar, othewise an array of
+        RGBA values with a shape of ``X.shape + (4, )``.
+
+        """
+        # See class docstring for arg/kwarg documentation.
         if not self._isinit:
             self._init()
         mask_bad = None
@@ -635,8 +654,8 @@ class Colormap(object):
     def is_gray(self):
         if not self._isinit:
             self._init()
-        return (np.alltrue(self._lut[:, 0] == self._lut[:, 1])
-                    and np.alltrue(self._lut[:, 0] == self._lut[:, 2]))
+        return (np.alltrue(self._lut[:, 0] == self._lut[:, 1]) and
+                np.alltrue(self._lut[:, 0] == self._lut[:, 2]))
 
 
 class LinearSegmentedColormap(Colormap):
@@ -693,23 +712,23 @@ class LinearSegmentedColormap(Colormap):
                :func:`makeMappingArray`
                For information about making a mapping array.
         """
-        self.monochrome = False  # True only if all colors in map are
-                                 # identical; needed for contouring.
+        # True only if all colors in map are identical; needed for contouring.
+        self.monochrome = False
         Colormap.__init__(self, name, N)
         self._segmentdata = segmentdata
         self._gamma = gamma
 
     def _init(self):
         self._lut = np.ones((self.N + 3, 4), np.float)
-        self._lut[:-3, 0] = makeMappingArray(self.N,
-                self._segmentdata['red'], self._gamma)
-        self._lut[:-3, 1] = makeMappingArray(self.N,
-                self._segmentdata['green'], self._gamma)
-        self._lut[:-3, 2] = makeMappingArray(self.N,
-                self._segmentdata['blue'], self._gamma)
+        self._lut[:-3, 0] = makeMappingArray(
+            self.N, self._segmentdata['red'], self._gamma)
+        self._lut[:-3, 1] = makeMappingArray(
+            self.N, self._segmentdata['green'], self._gamma)
+        self._lut[:-3, 2] = makeMappingArray(
+            self.N, self._segmentdata['blue'], self._gamma)
         if 'alpha' in self._segmentdata:
-            self._lut[:-3, 3] = makeMappingArray(self.N,
-                    self._segmentdata['alpha'], 1)
+            self._lut[:-3, 3] = makeMappingArray(
+                self.N, self._segmentdata['alpha'], 1)
         self._isinit = True
         self._set_extremes()
 
@@ -765,7 +784,7 @@ class ListedColormap(Colormap):
 
         *colors*
             a list of matplotlib color specifications,
-            or an equivalent Nx3  or Nx4 floating point array
+            or an equivalent Nx3 or Nx4 floating point array
             (*N* rgb or rgba values)
         *name*
             a string to identify the colormap
@@ -818,7 +837,9 @@ class ListedColormap(Colormap):
 
 class Normalize(object):
     """
-    Normalize a given value to the 0-1 range
+    A class which, when called, can normalize data into
+    the ``[0.0, 1.0]`` interval.
+
     """
     def __init__(self, vmin=None, vmax=None, clip=False):
         """
@@ -955,7 +976,7 @@ class LogNorm(Normalize):
             if clip:
                 mask = ma.getmask(result)
                 result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                mask=mask)
+                                  mask=mask)
             # in-place equivalent of above can be much faster
             resdat = result.data
             mask = result.mask
@@ -1000,6 +1021,120 @@ class LogNorm(Normalize):
             self.vmin = ma.min(A)
         if self.vmax is None:
             self.vmax = ma.max(A)
+
+
+class SymLogNorm(Normalize):
+    """
+    The symmetrical logarithmic scale is logarithmic in both the
+    positive and negative directions from the origin.
+
+    Since the values close to zero tend toward infinity, there is a
+    need to have a range around zero that is linear.  The parameter
+    *linthresh* allows the user to specify the size of this range
+    (-*linthresh*, *linthresh*).
+    """
+    def __init__(self,  linthresh, linscale=1.0,
+                 vmin=None, vmax=None, clip=False):
+        """
+        *linthresh*:
+        The range within which the plot is linear (to
+        avoid having the plot go to infinity around zero).
+
+        *linscale*:
+        This allows the linear range (-*linthresh* to *linthresh*)
+        to be stretched relative to the logarithmic range.  Its
+        value is the number of decades to use for each half of the
+        linear range.  For example, when *linscale* == 1.0 (the
+        default), the space used for the positive and negative
+        halves of the linear range will be equal to one decade in
+        the logarithmic range. Defaults to 1.
+        """
+        Normalize.__init__(self, vmin, vmax, clip)
+        self.linthresh = linthresh
+        self._linscale_adj = (linscale / (1.0 - np.e ** -1))
+
+    def __call__(self, value, clip=None):
+        if clip is None:
+            clip = self.clip
+
+        result, is_scalar = self.process_value(value)
+        self.autoscale_None(result)
+        vmin, vmax = self.vmin, self.vmax
+
+        if vmin > vmax:
+            raise ValueError("minvalue must be less than or equal to maxvalue")
+        elif vmin == vmax:
+            result.fill(0)
+        else:
+            if clip:
+                mask = ma.getmask(result)
+                result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
+                                  mask=mask)
+            # in-place equivalent of above can be much faster
+            resdat = self._transform(result.data)
+            resdat -= self._lower
+            resdat /= (self._upper - self._lower)
+
+        if is_scalar:
+            result = result[0]
+        return result
+
+    def _transform(self, a):
+        """
+        Inplace transformation.
+        """
+        masked = np.abs(a) > self.linthresh
+        sign = np.sign(a[masked])
+        log = (self._linscale_adj + np.log(np.abs(a[masked]) / self.linthresh))
+        log *= sign * self.linthresh
+        a[masked] = log
+        a[~masked] *= self._linscale_adj
+        return a
+
+    def _inv_transform(self, a):
+        """
+        Inverse inplace Transformation.
+        """
+        masked = np.abs(a) > (self.linthresh * self._linscale_adj)
+        sign = np.sign(a[masked])
+        exp = np.exp(sign * a[masked] / self.linthresh - self._linscale_adj)
+        exp *= sign * self.linthresh
+        a[masked] = exp
+        a[~masked] /= self._linscale_adj
+        return a
+
+    def _transform_vmin_vmax(self):
+        """
+        Calculates vmin and vmax in the transformed system.
+        """
+        vmin, vmax = self.vmin, self.vmax
+        arr = np.array([vmax, vmin])
+        self._upper, self._lower = self._transform(arr)
+
+    def inverse(self, value):
+        if not self.scaled():
+            raise ValueError("Not invertible until scaled")
+        val = ma.asarray(value)
+        val = val * (self._upper - self._lower) + self._lower
+        return self._inv_transform(val)
+
+    def autoscale(self, A):
+        """
+        Set *vmin*, *vmax* to min, max of *A*.
+        """
+        self.vmin = ma.min(A)
+        self.vmax = ma.max(A)
+        self._transform_vmin_vmax()
+
+    def autoscale_None(self, A):
+        """ autoscale only None-valued vmin or vmax """
+        if self.vmin is not None and self.vmax is not None:
+            pass
+        if self.vmin is None:
+            self.vmin = ma.min(A)
+        if self.vmax is None:
+            self.vmax = ma.max(A)
+        self._transform_vmin_vmax()
 
 
 class BoundaryNorm(Normalize):
@@ -1083,8 +1218,12 @@ class NoNorm(Normalize):
         return value
 
 # compatibility with earlier class names that violated convention:
-normalize = Normalize
-no_norm = NoNorm
+normalize = cbook.deprecated('1.3', alternative='Normalize',
+                             name='normalize',
+                             obj_type='class alias')(Normalize)
+no_norm = cbook.deprecated('1.3', alternative='NoNorm',
+                           name='no_norm',
+                           obj_type='class alias')(NoNorm)
 
 
 def rgb_to_hsv(arr):
@@ -1092,7 +1231,7 @@ def rgb_to_hsv(arr):
     convert rgb values in a numpy array to hsv values
     input and output arrays should have shape (M,N,3)
     """
-    out = np.zeros_like(arr)
+    out = np.zeros(arr.shape, dtype=np.float)
     arr_max = arr.max(-1)
     ipos = arr_max > 0
     delta = arr.ptp(-1)
@@ -1240,8 +1379,8 @@ class LightSource(object):
         dx, dy = np.gradient(elevation)
         slope = 0.5 * np.pi - np.arctan(np.hypot(dx, dy))
         aspect = np.arctan2(dx, dy)
-        intensity = np.sin(alt) * np.sin(slope) + np.cos(alt) *\
-                    np.cos(slope) * np.cos(-az - aspect - 0.5 * np.pi)
+        intensity = (np.sin(alt) * np.sin(slope) + np.cos(alt) *
+                     np.cos(slope) * np.cos(-az - aspect - 0.5 * np.pi))
         # rescale to interval -1,1
         # +1 means maximum sun exposure and -1 means complete shade.
         intensity = (intensity - intensity.min()) / \
@@ -1252,29 +1391,95 @@ class LightSource(object):
         hsv = rgb_to_hsv(rgb[:, :, 0:3])
         # modify hsv values to simulate illumination.
 
-        hsv[:, :, 1] = np.where(np.logical_and(
-                                   np.abs(hsv[:, :, 1]) > 1.e-10,
-                                   intensity > 0),
-                                (1. - intensity) * hsv[:, :, 1] + \
-                                         intensity * self.hsv_max_sat,
+        hsv[:, :, 1] = np.where(np.logical_and(np.abs(hsv[:, :, 1]) > 1.e-10,
+                                               intensity > 0),
+                                ((1. - intensity) * hsv[:, :, 1] +
+                                 intensity * self.hsv_max_sat),
                                 hsv[:, :, 1])
 
         hsv[:, :, 2] = np.where(intensity > 0,
-                                (1. - intensity) * hsv[:, :, 2] + \
-                                     intensity * self.hsv_max_val,
+                                ((1. - intensity) * hsv[:, :, 2] +
+                                 intensity * self.hsv_max_val),
                                 hsv[:, :, 2])
 
-        hsv[:, :, 1] = np.where(np.logical_and(
-                               np.abs(hsv[:, :, 1]) > 1.e-10,
-                               intensity < 0),
-                               (1. + intensity) * hsv[:, :, 1] - \
-                                    intensity * self.hsv_min_sat,
-                               hsv[:, :, 1])
+        hsv[:, :, 1] = np.where(np.logical_and(np.abs(hsv[:, :, 1]) > 1.e-10,
+                                               intensity < 0),
+                                ((1. + intensity) * hsv[:, :, 1] -
+                                 intensity * self.hsv_min_sat),
+                                hsv[:, :, 1])
         hsv[:, :, 2] = np.where(intensity < 0,
-                               (1. + intensity) * hsv[:, :, 2] -\
-                                    intensity * self.hsv_min_val,
-                               hsv[:, :, 2])
+                                ((1. + intensity) * hsv[:, :, 2] -
+                                 intensity * self.hsv_min_val),
+                                hsv[:, :, 2])
         hsv[:, :, 1:] = np.where(hsv[:, :, 1:] < 0., 0, hsv[:, :, 1:])
         hsv[:, :, 1:] = np.where(hsv[:, :, 1:] > 1., 1, hsv[:, :, 1:])
         # convert modified hsv back to rgb.
         return hsv_to_rgb(hsv)
+
+
+def from_levels_and_colors(levels, colors, extend='neither'):
+    """
+    A helper routine to generate a cmap and a norm instance which
+    behave similar to contourf's levels and colors arguments.
+
+    Parameters
+    ----------
+    levels : sequence of numbers
+        The quantization levels used to construct the :class:`BoundaryNorm`.
+        Values ``v`` are quantizized to level ``i`` if
+        ``lev[i] <= v < lev[i+1]``.
+    colors : sequence of colors
+        The fill color to use for each level. If `extend` is "neither" there
+        must be ``n_level - 1`` colors. For an `extend` of "min" or "max" add
+        one extra color, and for an `extend` of "both" add two colors.
+    extend : {'neither', 'min', 'max', 'both'}, optional
+        The behaviour when a value falls out of range of the given levels.
+        See :func:`~matplotlib.pyplot.contourf` for details.
+
+    Returns
+    -------
+    (cmap, norm) : tuple containing a :class:`Colormap` and a \
+                   :class:`Normalize` instance
+    """
+    colors_i0 = 0
+    colors_i1 = None
+
+    if extend == 'both':
+        colors_i0 = 1
+        colors_i1 = -1
+        extra_colors = 2
+    elif extend == 'min':
+        colors_i0 = 1
+        extra_colors = 1
+    elif extend == 'max':
+        colors_i1 = -1
+        extra_colors = 1
+    elif extend == 'neither':
+        extra_colors = 0
+    else:
+        raise ValueError('Unexpected value for extend: {0!r}'.format(extend))
+
+    n_data_colors = len(levels) - 1
+    n_expected_colors = n_data_colors + extra_colors
+    if len(colors) != n_expected_colors:
+        raise ValueError('With extend == {0!r} and n_levels == {1!r} expected'
+                         ' n_colors == {2!r}. Got {3!r}.'
+                         ''.format(extend, len(levels), n_expected_colors,
+                                   len(colors)))
+
+    cmap = ListedColormap(colors[colors_i0:colors_i1], N=n_data_colors)
+
+    if extend in ['min', 'both']:
+        cmap.set_under(colors[0])
+    else:
+        cmap.set_under('none')
+
+    if extend in ['max', 'both']:
+        cmap.set_over(colors[-1])
+    else:
+        cmap.set_over('none')
+
+    cmap.colorbar_extend = extend
+
+    norm = BoundaryNorm(levels, ncolors=n_data_colors)
+    return cmap, norm

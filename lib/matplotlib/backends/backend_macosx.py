@@ -50,13 +50,13 @@ class RendererMac(RendererBase):
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         if rgbFace is not None:
-            rgbFace = tuple(rgbFace[:3])
+            rgbFace = tuple(rgbFace)
         linewidth = gc.get_linewidth()
         gc.draw_path(path, transform, linewidth, rgbFace)
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         if rgbFace is not None:
-            rgbFace = tuple(rgbFace[:3])
+            rgbFace = tuple(rgbFace)
         linewidth = gc.get_linewidth()
         gc.draw_markers(marker_path, marker_trans, path, trans, linewidth, rgbFace)
 
@@ -107,11 +107,10 @@ class RendererMac(RendererBase):
     def draw_image(self, gc, x, y, im):
         im.flipud_out()
         nrows, ncols, data = im.as_rgba_str()
-        gc.draw_image(x, y, nrows, ncols, data, gc.get_clip_rectangle(),
-                      *gc.get_clip_path())
+        gc.draw_image(x, y, nrows, ncols, data)
         im.flipud_out()
 
-    def draw_tex(self, gc, x, y, s, prop, angle):
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         # todo, handle props, angle, origins
         size = prop.get_size_in_points()
         texmanager = self.get_texmanager()
@@ -128,7 +127,7 @@ class RendererMac(RendererBase):
             self.mathtext_parser.parse(s, self.dpi, prop)
         gc.draw_mathtext(x, y, angle, 255 - image.as_array())
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         if ismath:
             self._draw_mathtext(gc, x, y, s, prop, angle)
         else:
@@ -184,12 +183,14 @@ class GraphicsContextMac(_macosx.GraphicsContext, GraphicsContextBase):
     def set_alpha(self, alpha):
         GraphicsContextBase.set_alpha(self, alpha)
         _alpha = self.get_alpha()
-        _macosx.GraphicsContext.set_alpha(self, _alpha)
-
-    def set_foreground(self, fg, isRGB=False):
-        GraphicsContextBase.set_foreground(self, fg, isRGB)
+        _macosx.GraphicsContext.set_alpha(self, _alpha, self.get_forced_alpha())
         rgb = self.get_rgb()
-        _macosx.GraphicsContext.set_foreground(self, rgb[:3])
+        _macosx.GraphicsContext.set_foreground(self, rgb)
+
+    def set_foreground(self, fg, isRGBA=False):
+        GraphicsContextBase.set_foreground(self, fg, isRGBA)
+        rgb = self.get_rgb()
+        _macosx.GraphicsContext.set_foreground(self, rgb)
 
     def set_graylevel(self, fg):
         GraphicsContextBase.set_graylevel(self, fg)
@@ -232,13 +233,6 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    if not _macosx.verify_main_display():
-        import warnings
-        warnings.warn("Python is not installed as a framework. The MacOSX "
-                      "backend may not work correctly if Python is not "
-                      "installed as a framework. Please see the Python "
-                      "documentation for more information on installing "
-                      "Python as a framework on Mac OS X")
     FigureClass = kwargs.pop('FigureClass', Figure)
     figure = FigureClass(*args, **kwargs)
     return new_figure_manager_given_figure(num, figure)

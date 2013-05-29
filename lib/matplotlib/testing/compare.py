@@ -7,18 +7,18 @@
 from __future__ import division
 
 import matplotlib
+from matplotlib.compat import subprocess
 from matplotlib.testing.noseclasses import ImageComparisonFailure
-from matplotlib.testing import image_util, util
+from matplotlib.testing import image_util
 from matplotlib import _png
-from matplotlib import _get_configdir
+from matplotlib import _get_cachedir
+from matplotlib import cbook
 from distutils import version
 import hashlib
 import math
-import operator
 import os
 import numpy as np
 import shutil
-import subprocess
 import sys
 from functools import reduce
 
@@ -100,10 +100,13 @@ def compare_float( expected, actual, relTol = None, absTol = None ):
 # parameters old and new to a list that can be passed to Popen to
 # convert files with that extension to png format.
 def get_cache_dir():
-   cache_dir = os.path.join(_get_configdir(), 'test_cache')
+   cachedir = _get_cachedir()
+   if cachedir is None:
+      raise RuntimeError('Could not find a suitable configuration directory')
+   cache_dir = os.path.join(cachedir, 'test_cache')
    if not os.path.exists(cache_dir):
       try:
-         os.makedirs(cache_dir)
+         cbook.mkdirs(cache_dir)
       except IOError:
          return None
    if not os.access(cache_dir, os.W_OK):
@@ -139,28 +142,16 @@ def make_external_conversion_command(cmd):
    return convert
 
 if matplotlib.checkdep_ghostscript() is not None:
-    def make_ghostscript_conversion_command():
-        # FIXME: make checkdep_ghostscript return the command
-        if sys.platform == 'win32':
-            gs = 'gswin32c'
-        else:
-            gs = 'gs'
-        cmd = [gs, '-q', '-sDEVICE=png16m', '-sOutputFile=-']
+    if sys.platform == 'win32':
+        gs = 'gswin32c'
+    else:
+        gs = 'gs'
 
-        process = util.MiniExpect(cmd)
-
-        def do_convert(old, new):
-            process.expect("GS>")
-            process.sendline("(%s) run" % old.replace('\\', '/'))
-            with open(new, 'wb') as fd:
-                process.expect(">>showpage, press <return> to continue<<", fd)
-            process.sendline('')
-
-        return do_convert
-
-    converter['pdf'] = make_ghostscript_conversion_command()
-    converter['eps'] = make_ghostscript_conversion_command()
-
+    cmd = lambda old, new: \
+        [gs, '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
+        '-sOutputFile=' + new, old]
+    converter['pdf'] = make_external_conversion_command(cmd)
+    converter['eps'] = make_external_conversion_command(cmd)
 
 if matplotlib.checkdep_inkscape() is not None:
    cmd = lambda old, new: \
@@ -251,6 +242,70 @@ def crop_to_same(actual_path, actual_image, expected_path, expected_image):
    return actual_image, expected_image
 
 def calculate_rms(expectedImage, actualImage):
+   # calculate the per-pixel errors, then compute the root mean square error
+   num_values = np.prod(expectedImage.shape)
+   abs_diff_image = abs(expectedImage - actualImage)
+
+   # On Numpy 1.6, we can use bincount with minlength, which is much faster than
+   # using histogram
+   expected_version = version.LooseVersion("1.6")
+   found_version = version.LooseVersion(np.__version__)
+   if found_version >= expected_version:
+      histogram = np.bincount(abs_diff_image.ravel(), minlength=256)
+   else:
+      histogram = np.histogram(abs_diff_image, bins=np.arange(257))[0]
+
+   sum_of_squares = np.sum(histogram * np.arange(len(histogram))**2)
+   rms = np.sqrt(float(sum_of_squares) / num_values)
+
+   return rms
+
+
+def compare_images( expected, actual, tol, in_decorator=False ):
+   '''Compare two image files - not the greatest, but fast and good enough.
+
+   = EXAMPLE
+
+   # img1 = "./baseline/plot.png"
+   # img2 = "./output/plot.png"
+   #
+   # compare_images( img1, img2, 0.001 ):
+
+   = INPUT VARIABLES
+   - expected  The filename of the expected image.
+   - actual    The filename of the actual image.
+   - tol       The tolerance (a color value difference, where 255 is the
+               maximal difference).  The test fails if the average pixel
+               difference is greater than this value.
+   - in_decorator If called from image_comparison decorator, this should be
+               True. (default=False)
+   '''
+
+   verify(actual)
+
+   # Convert the image to png
+   extension = expected.split('.')[-1]
+
+   if not os.path.exists(expected):
+       raise IOError('Baseline image %r does not exist.' % expected)
+
+   if extension != 'png':
+      actual = convert(actual, False)
+      expected = convert(expected, True)
+
+   # open the image files and remove the alpha channel (if it exists)
+   expectedImage = _png.read_png_int( expected )
+   actualImage = _png.read_png_int( actual )
+   expectedImage = expectedImage[:, :, :3]
+   actualImage = actualImage[:, :, :3]
+
+   actualImage, expectedImage = crop_to_same(actual, actualImage, expected, expectedImage)
+
+   # convert to signed integers, so that the images can be subtracted without
+   # overflow
+   expectedImage = expectedImage.astype(np.int16)
+   actualImage = actualImage.astype(np.int16)
+
    # compare the resulting image histogram functions
    expected_version = version.LooseVersion("1.6")
    found_version = version.LooseVersion(np.__version__)
@@ -270,82 +325,25 @@ def calculate_rms(expectedImage, actualImage):
          rms += np.sum(np.power((h1h-h2h), 2))
    else:
       rms = 0
-      bins = np.arange(257)
+      ns = np.arange(257)
 
       for i in xrange(0, 3):
          h1p = expectedImage[:,:,i]
          h2p = actualImage[:,:,i]
 
-         h1h = np.histogram(h1p, bins=bins)[0]
-         h2h = np.histogram(h2p, bins=bins)[0]
+         h1h = np.histogram(h1p, bins=ns)[0]
+         h2h = np.histogram(h2p, bins=ns)[0]
 
          rms += np.sum(np.power((h1h-h2h), 2))
-
-   rms = np.sqrt(rms / (256 * 3))
-
-   return rms
-
-
-def compare_images( expected, actual, tol, in_decorator=False ):
-   '''Compare two image files - not the greatest, but fast and good enough.
-
-   = EXAMPLE
-
-   # img1 = "./baseline/plot.png"
-   # img2 = "./output/plot.png"
-   #
-   # compare_images( img1, img2, 0.001 ):
-
-   = INPUT VARIABLES
-   - expected  The filename of the expected image.
-   - actual    The filename of the actual image.
-   - tol       The tolerance (a unitless float).  This is used to
-               determine the 'fuzziness' to use when comparing images.
-   - in_decorator If called from image_comparison decorator, this should be
-               True. (default=False)
-   '''
-
-   verify(actual)
-
-   # Convert the image to png
-   extension = expected.split('.')[-1]
-   if extension != 'png':
-      actual = convert(actual, False)
-      expected = convert(expected, True)
-
-   # open the image files and remove the alpha channel (if it exists)
-   expectedImage = _png.read_png_int( expected )
-   actualImage = _png.read_png_int( actual )
-
-   actualImage, expectedImage = crop_to_same(actual, actualImage, expected, expectedImage)
-
-   # compare the resulting image histogram functions
-   expected_version = version.LooseVersion("1.6")
-   found_version = version.LooseVersion(np.__version__)
 
    rms = calculate_rms(expectedImage, actualImage)
 
    diff_image = make_test_filename(actual, 'failed-diff')
 
-   if ( (rms / 10000.0) <= tol ):
+   if rms <= tol:
       if os.path.exists(diff_image):
          os.unlink(diff_image)
       return None
-
-   # For Agg-rendered images, we can retry by ignoring pixels with
-   # differences of only 1
-   if extension == 'png':
-       # Remove differences of only 1
-       diffImage = np.abs(np.asarray(actualImage, dtype=np.int) -
-                          np.asarray(expectedImage, dtype=np.int))
-       actualImage = np.where(diffImage <= 1, expectedImage, actualImage)
-
-       rms = calculate_rms(expectedImage, actualImage)
-
-       if ( (rms / 10000.0) <= tol ):
-           if os.path.exists(diff_image):
-               os.unlink(diff_image)
-           return None
 
    save_diff_image( expected, actual, diff_image )
 
@@ -360,7 +358,7 @@ def compare_images( expected, actual, tol, in_decorator=False ):
    else:
       # old-style call from mplTest directory
       msg = "  Error: Image files did not match.\n"       \
-            "  RMS Value: " + str( rms / 10000.0 ) + "\n" \
+            "  RMS Value: " + str( rms ) + "\n" \
             "  Expected:\n    " + str( expected ) + "\n"  \
             "  Actual:\n    " + str( actual ) + "\n"      \
             "  Difference:\n    " + str( diff_image ) + "\n"      \

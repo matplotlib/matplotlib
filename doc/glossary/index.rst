@@ -22,10 +22,6 @@ Glossary
   EPS
       Encapsulated Postscript (`EPS <http://en.wikipedia.org/wiki/Encapsulated_PostScript>`_)
 
-  FLTK
-      `FLTK <http://www.fltk.org/>`_ (pronounced "fulltick") is a cross-platform C++ GUI toolkit for
-      UNIX/Linux (X11), Microsoft Windows, and MacOS X
-
   freetype
       `freetype <http://www.freetype.org/>`_ is a font rasterization
       library used by matplotlib which supports TrueType, Type 1, and
@@ -63,15 +59,10 @@ Glossary
   PS
       Postscript (`PS <http://en.wikipedia.org/wiki/PostScript>`_) is a
       vector graphics ASCII text language widely used in printers and
-      publishing.  Postscript was developerd by adobe systems and is
+      publishing.  Postscript was developed by adobe systems and is
       starting to show its age: for example is does not have an alpha
       channel.  PDF was designed in part as a next-generation document
       format to replace postscript
-
-  pyfltk
-      `pyfltk <http://pyfltk.sourceforge.net/>`_ provides python
-      wrappers for the :term:`FLTK` widgets library for use with
-      FLTKAgg
 
   pygtk
       `pygtk <http://www.pygtk.org/>`_ provides python wrappers for
@@ -81,7 +72,7 @@ Glossary
 
   pyqt
       `pyqt <http://wiki.python.org/moin/PyQt>`_ provides python
-      wrappers for the :term:`Qt` widgets library and is requied by
+      wrappers for the :term:`Qt` widgets library and is required by
       the matplotlib QtAgg and Qt4Agg backends.  Widely used on linux
       and windows; many linux distributions package this as
       'python-qt3' or 'python-qt4'.
@@ -155,4 +146,3 @@ Glossary
       tools library for GTK, MS Windows, and MacOS.  It uses native
       widgets for each operating system, so applications will have the
       look-and-feel that users on that operating system expect.
-

@@ -14,7 +14,7 @@ def triplot(ax, *args, **kwargs):
 
       triplot(triangulation, ...)
 
-    where triangulation is a :class:`~matplotlib.tri.Triangulation`
+    where triangulation is a :class:`matplotlib.tri.Triangulation`
     object, or
 
     ::
@@ -49,7 +49,7 @@ def triplot(ax, *args, **kwargs):
     # then the markers are drawn more than once which is incorrect if alpha<1.
     # Hence draw lines and markers separately.
 
-    # Decode plot format string, e.g. 'ro-'
+    # Decode plot format string, e.g., 'ro-'
     fmt = ''
     if len(args) > 0:
         fmt = args[0]

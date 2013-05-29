@@ -1,6 +1,7 @@
 from __future__ import division, print_function
 import math
 import os
+import re
 import signal
 import sys
 
@@ -53,6 +54,13 @@ def _create_qApp():
         global qApp
         app = QtGui.QApplication.instance()
         if app is None:
+          
+            # check for DISPLAY env variable on X11 build of Qt
+            if hasattr(QtGui, "QX11Info"):
+                display = os.environ.get('DISPLAY')
+                if display is None or not re.search(':\d', display):
+                    raise RuntimeError('Invalid DISPLAY variable')
+        
             qApp = QtGui.QApplication( [" "] )
             QtCore.QObject.connect( qApp, QtCore.SIGNAL( "lastWindowClosed()" ),
                                 qApp, QtCore.SLOT( "quit()" ) )
@@ -608,7 +616,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
 
     def set_cursor( self, cursor ):
         if DEBUG: print('Set cursor' , cursor)
-        self.canvas.window().setCursor(cursord[cursor])
+        self.canvas.setCursor(cursord[cursor])
 
     def draw_rubberband( self, event, x0, y0, x1, y1 ):
         height = self.canvas.figure.bbox.height
@@ -644,7 +652,9 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
         sorted_filetypes.sort()
         default_filetype = self.canvas.get_default_filetype()
 
-        start = self.canvas.get_default_filename()
+        startpath = matplotlib.rcParams.get('savefig.directory', '')
+        startpath = os.path.expanduser(startpath)
+        start = os.path.join(startpath, self.canvas.get_default_filename())
         filters = []
         selectedFilter = None
         for name, exts in sorted_filetypes:
@@ -657,6 +667,12 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
         fname = _getSaveFileName(self, "Choose a filename to save to",
                                         start, filters, selectedFilter)
         if fname:
+            if startpath == '':
+                # explicitly missing key or empty str signals to use cwd
+                matplotlib.rcParams['savefig.directory'] = startpath
+            else:
+                # save dir for next time
+                matplotlib.rcParams['savefig.directory'] = os.path.dirname(unicode(fname))
             try:
                 self.canvas.print_figure( unicode(fname) )
             except Exception as e:

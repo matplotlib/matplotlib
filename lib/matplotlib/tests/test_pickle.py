@@ -114,6 +114,16 @@ def test_simple():
 #    ax = plt.subplot(121, projection='hammer')
 #    recursive_pickle(ax, 'figure')
 #    pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
+    
+    plt.figure()
+    plt.bar(left=range(10), height=range(10))
+    pickle.dump(plt.gca(), BytesIO(), pickle.HIGHEST_PROTOCOL)
+
+    fig = plt.figure()
+    ax = plt.axes()
+    plt.plot(range(10))
+    ax.set_yscale('log')
+    pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
 
 @image_comparison(baseline_images=['multi_pickle'],

@@ -183,7 +183,7 @@ the libraries themselves.
     `Download python <http://www.python.org/download/>`_.
 
 :term:`numpy` |minimum_numpy_version| (or later)
-    array support for python (`download <http://numpy.org>`_)
+    array support for python (`download numpy <http://numpy.org>`_)
 
 libpng 1.2 (or later)
     library for loading and saving :term:`PNG` files (`download
@@ -196,6 +196,16 @@ libpng 1.2 (or later)
     user, you can ignore this since we build support into the
     matplotlib single click installer.
 
+:term:`dateutil` 1.1 or later
+    Provides extensions to python datetime handling.  If using pip,
+    easy_install or installing from source, the installer will attempt
+    to download and install `python_dateutil` from PyPI.
+
+`pyparsing`
+    Required for matplotlib's mathtext math rendering support.  If
+    using pip, easy_install or installing from source, the installer
+    will attempt to download and install `pyparsing` from PyPI.
+
 **Optional**
 
 These are optional packages which you may want to install to use
@@ -205,9 +215,6 @@ backends and the capabilities they provide.
 
 :term:`tk` 8.3 or later
     The TCL/Tk widgets library used by the TkAgg backend
-
-:term:`pyqt` 3.1 or later
-    The Qt3 widgets library python wrappers for the QtAgg backend
 
 :term:`pyqt` 4.0 or later
     The Qt4 widgets library python wrappers for the Qt4Agg backend
@@ -220,9 +227,6 @@ backends and the capabilities they provide.
     The python wrappers for the wx widgets library for use with the
     WX or WXAgg backend
 
-:term:`pyfltk` 1.0 or later
-    The python wrappers of the FLTK widgets library for use with FLTKAgg
-
 **Required libraries that ship with matplotlib**
 
 :term:`agg` 2.4
@@ -230,17 +234,8 @@ backends and the capabilities they provide.
     agg template source statically, so it will not affect anything on
     your system outside of matplotlib.
 
-:term:`pytz` 2007g or later
-    timezone handling for python datetime objects.  By default,
-    matplotlib will install pytz if it isn't already installed on your
-    system.  To override the default, use :file:`setup.cfg` to force or
-    prevent installation of pytz.
-
-:term:`dateutil` 1.1 or later
-    provides extensions to python datetime handling.  By default, matplotlib
-    will install dateutil if it isn't already installed on your
-    system.  To override the default, use :file:`setup.cfg` to force
-    or prevent installation of dateutil.
+`PyCXX` 6.2.4
+    A library for writing Python extensions in C++.
 
 .. _build_osx:
 

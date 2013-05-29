@@ -2,7 +2,7 @@
 This is an object-oriented plotting library.
 
 A procedural interface is provided by the companion pyplot module,
-which may be imported directly, e.g::
+which may be imported directly, e.g.::
 
     from matplotlib.pyplot import *
 
@@ -99,12 +99,35 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 """
 from __future__ import print_function
 
-__version__  = '1.2.1'
+import sys
+
+__version__  = '1.3.x'
 __version__numpy__ = '1.4' # minimum required numpy version
 
-import os, re, shutil, subprocess, sys, warnings
+try:
+    import dateutil
+except ImportError:
+    raise ImportError("matplotlib requires dateutil")
+
+try:
+    import pyparsing
+except ImportError:
+    raise ImportError("matplotlib requires pyparsing")
+else:
+    _required = [1, 5, 6]
+    if [int(x) for x in pyparsing.__version__.split('.')] < _required:
+        raise ImportError(
+            "matplotlib requires pyparsing >= {0}".format(
+                '.'.join(str(x) for x in _required)))
+
+import os, re, shutil, warnings
 import distutils.sysconfig
 import distutils.version
+
+# cbook must import matplotlib only within function
+# definitions, so it is safe to import from it here.
+from matplotlib.cbook import is_string_like
+from matplotlib.compat import subprocess
 
 try:
     reload
@@ -122,32 +145,6 @@ if 0:
 if not hasattr(sys, 'argv'):  # for modpython
     sys.argv = ['modpython']
 
-
-class MatplotlibDeprecationWarning(UserWarning):
-    """
-    A class for issuing deprecation warnings for Matplotlib users.
-
-    In light of the fact that Python builtin DeprecationWarnings are ignored
-    by default as of Python 2.7 (see link below), this class was put in to
-    allow for the signaling of deprecation, but via UserWarnings which are not
-    ignored by default.
-
-    http://docs.python.org/dev/whatsnew/2.7.html#the-future-for-python-2-x
-    """
-    pass
-
-"""
-Manage user customizations through a rc file.
-
-The default file location is given in the following order
-
-  - environment variable MATPLOTLIBRC
-
-  - HOME/.matplotlib/matplotlibrc if HOME is defined
-
-  - PATH/matplotlibrc where PATH is the return value of
-    get_data_path()
-"""
 
 import sys, os, tempfile
 
@@ -192,28 +189,34 @@ if not found_version >= expected_version:
             __version__numpy__, numpy.__version__))
 del version
 
-def is_string_like(obj):
-    if hasattr(obj, 'shape'): return 0
-    try: obj + ''
-    except (TypeError, ValueError): return 0
-    return 1
-
 
 def _is_writable_dir(p):
     """
     p is a string pointing to a putative writable dir -- return True p
     is such a string, else False
     """
-    try: p + ''  # test is string like
-    except TypeError: return False
+    try:
+        p + ''  # test is string like
+    except TypeError:
+        return False
+
+    # Test whether the operating system thinks it's a writable directory.
+    # Note that this check is necessary on Google App Engine, because the
+    # subsequent check will succeed even though p may not be writable.
+    if not os.access(p, os.W_OK) or not os.path.isdir(p):
+        return False
+
+    # Also test that it is actually possible to write to a file here.
     try:
         t = tempfile.TemporaryFile(dir=p)
         try:
             t.write(ascii('1'))
         finally:
             t.close()
-    except OSError: return False
-    else: return True
+    except OSError:
+        return False
+
+    return True
 
 class Verbose:
     """
@@ -466,38 +469,42 @@ def checkdep_usetex(s):
 
 def _get_home():
     """Find user's home directory if possible.
-    Otherwise raise error.
+    Otherwise, returns None.
 
-    :see:  http://mail.python.org/pipermail/python-list/2005-February/263921.html
+    :see:  http://mail.python.org/pipermail/python-list/2005-February/325395.html
     """
-    path=''
     try:
-        path=os.path.expanduser("~")
-    except:
+        path = os.path.expanduser("~")
+    except ImportError:
+        # This happens on Google App Engine (pwd module is not present).
         pass
-    if not os.path.isdir(path):
-        for evar in ('HOME', 'USERPROFILE', 'TMP'):
-            try:
-                path = os.environ[evar]
-                if os.path.isdir(path):
-                    break
-            except: pass
-    if path:
-        return path
     else:
-        raise RuntimeError('please define environment variable $HOME')
+        if os.path.isdir(path):
+            return path
+    for evar in ('HOME', 'USERPROFILE', 'TMP'):
+        path = os.environ.get(evar)
+        if path is not None and os.path.isdir(path):
+            return path
+    return None
 
 
 def _create_tmp_config_dir():
     """
     If the config directory can not be created, create a temporary
     directory.
+
+    Returns None if a writable temporary directory could not be created.
     """
     import getpass
     import tempfile
 
-    tempdir = os.path.join(
-        tempfile.gettempdir(), 'matplotlib-%s' % getpass.getuser())
+    try:
+        tempdir = tempfile.gettempdir()
+    except NotImplementedError:
+        # Some restricted platforms (such as Google App Engine) do not provide
+        # gettempdir.
+        return None
+    tempdir = os.path.join(tempdir, 'matplotlib-%s' % getpass.getuser())
     os.environ['MPLCONFIGDIR'] = tempdir
 
     return tempdir
@@ -505,40 +512,90 @@ def _create_tmp_config_dir():
 
 get_home = verbose.wrap('$HOME=%s', _get_home, always=False)
 
-def _get_configdir():
+def _get_xdg_config_dir():
     """
-    Return the string representing the configuration directory.
+    Returns the XDG configuration directory, according to the `XDG
+    base directory spec
+    <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
+    """
+    return os.environ.get('XDG_CONFIG_HOME', os.path.join(get_home(), '.config'))
 
-    Default is HOME/.matplotlib.  You can override this with the
-    MPLCONFIGDIR environment variable.  If the default is not
-    writable, and MPLCONFIGDIR is not set, then
-    tempfile.gettempdir() is used to provide a directory in
-    which a matplotlib subdirectory is created as the configuration
-    directory.
+
+def _get_xdg_cache_dir():
     """
+    Returns the XDG cache directory, according to the `XDG
+    base directory spec
+    <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
+    """
+    return os.environ.get('XDG_CACHE_HOME', os.path.join(get_home(), '.cache'))
+
+
+def _get_config_or_cache_dir(xdg_base):
+    from matplotlib.cbook import mkdirs
 
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir is not None:
         if not os.path.exists(configdir):
-            os.makedirs(configdir)
+            from matplotlib.cbook import mkdirs
+            mkdirs(configdir)
+
         if not _is_writable_dir(configdir):
             return _create_tmp_config_dir()
         return configdir
 
     h = get_home()
-    p = os.path.join(get_home(), '.matplotlib')
+    p = os.path.join(h, '.matplotlib')
+    if (sys.platform.startswith('linux') and
+        not os.path.exists(p)):
+        p = os.path.join(xdg_base, 'matplotlib')
 
     if os.path.exists(p):
         if not _is_writable_dir(p):
             return _create_tmp_config_dir()
     else:
-        if not _is_writable_dir(h):
+        try:
+            mkdirs(p)
+        except OSError:
             return _create_tmp_config_dir()
-        from matplotlib.cbook import mkdirs
-        mkdirs(p)
 
     return p
+
+
+def _get_configdir():
+    """
+    Return the string representing the configuration directory.
+
+    The directory is chosen as follows:
+
+    1. If the MPLCONFIGDIR environment variable is supplied, choose that.
+
+    2a. On Linux, if `$HOME/.matplotlib` exists, choose that, but warn that
+        that is the old location.  Barring that, follow the XDG specification
+        and look first in `$XDG_CONFIG_HOME`, if defined, or `$HOME/.config`.
+
+    2b. On other platforms, choose `$HOME/.matplotlib`.
+
+    3. If the chosen directory exists and is writable, use that as the
+       configuration directory.
+    4. If possible, create a temporary directory, and use it as the
+       configuration directory.
+    5. A writable directory could not be found or created; return None.
+    """
+    return _get_config_or_cache_dir(_get_xdg_config_dir())
+
 get_configdir = verbose.wrap('CONFIGDIR=%s', _get_configdir, always=False)
+
+
+def _get_cachedir():
+    """
+    Return the location of the cache directory.
+
+    The procedure used to find the directory is the same as for
+    _get_config_dir, except using `$XDG_CONFIG_HOME`/`~/.cache` instead.
+    """
+    return _get_config_or_cache_dir(_get_xdg_cache_dir())
+
+get_cachedir = verbose.wrap('CACHEDIR=%s', _get_cachedir, always=False)
 
 
 def _get_data_path():
@@ -599,9 +656,9 @@ def get_example_data(fname):
 
 def get_py2exe_datafiles():
     datapath = get_data_path()
-    head, tail = os.path.split(datapath)
+    _, tail = os.path.split(datapath)
     d = {}
-    for root, dirs, files in os.walk(datapath):
+    for root, _, files in os.walk(datapath):
         # Need to explicitly remove cocoa_agg files or py2exe complains
         # NOTE I dont know why, but do as previous version
         if 'Matplotlib.nib' in files:
@@ -615,40 +672,36 @@ def get_py2exe_datafiles():
 
 def matplotlib_fname():
     """
-    Return the path to the rc file
+    Get the location of the config file.
 
-    Search order:
+    The file location is determined in the following order
 
-     * current working dir
-     * environ var MATPLOTLIBRC
-     * HOME/.matplotlib/matplotlibrc
-     * MATPLOTLIBDATA/matplotlibrc
+    - `$PWD/matplotlibrc`
 
+    - environment variable `MATPLOTLIBRC`
 
+    - `$MPLCONFIGDIR/matplotlib`
+
+    - On Linux,
+
+          - `$HOME/.matplotlib/matplotlibrc`, if it exists
+
+          - or `$XDG_CONFIG_HOME/matplotlib/matplotlibrc` (if
+            $XDG_CONFIG_HOME is defined)
+
+          - or `$HOME/.config/matplotlib/matplotlibrc` (if
+            $XDG_CONFIG_HOME is not defined)
+
+    - On other platforms,
+
+         - `$HOME/.matplotlib/matplotlibrc` if `$HOME` is defined.
+
+    - Lastly, it looks in `$MATPLOTLIBDATA/matplotlibrc` for a
+      system-defined copy.
     """
-
-    oldname = os.path.join( os.getcwd(), '.matplotlibrc')
-    if os.path.exists(oldname):
-        print("""\
-WARNING: Old rc filename ".matplotlibrc" found in working dir
-  and and renamed to new default rc file name "matplotlibrc"
-  (no leading"dot"). """, file=sys.stderr)
-        shutil.move('.matplotlibrc', 'matplotlibrc')
-
-    home = get_home()
-    oldname = os.path.join( home, '.matplotlibrc')
-    if os.path.exists(oldname):
-        configdir = get_configdir()
-        newname = os.path.join(configdir, 'matplotlibrc')
-        print("""\
-WARNING: Old rc filename "%s" found and renamed to
-  new default rc file name "%s"."""%(oldname, newname), file=sys.stderr)
-
-        shutil.move(oldname, newname)
-
-
-    fname = os.path.join( os.getcwd(), 'matplotlibrc')
-    if os.path.exists(fname): return fname
+    fname = os.path.join(os.getcwd(), 'matplotlibrc')
+    if os.path.exists(fname):
+        return fname
 
     if 'MATPLOTLIBRC' in os.environ:
         path =  os.environ['MATPLOTLIBRC']
@@ -657,14 +710,28 @@ WARNING: Old rc filename "%s" found and renamed to
             if os.path.exists(fname):
                 return fname
 
-    fname = os.path.join(get_configdir(), 'matplotlibrc')
-    if os.path.exists(fname): return fname
+    configdir = _get_configdir()
+    if configdir is not None:
+        fname = os.path.join(configdir, 'matplotlibrc')
+        if os.path.exists(fname):
+            if (sys.platform.startswith('linux') and
+                fname == os.path.join(
+                    get_home(), '.matplotlib', 'matplotlibrc')):
+                warnings.warn(
+                    "Found matplotlib configuration in ~/.matplotlib. "
+                    "To conform with the XDG base directory standard, "
+                    "this configuration location has been deprecated "
+                    "on Linux, and the new location is now %r.  Please "
+                    "move your configuration there to ensure that "
+                    "matplotlib will continue to find it in the future." %
+                    _get_xdg_config_dir())
+            return fname
 
-
-    path =  get_data_path() # guaranteed to exist or raise
+    path = get_data_path()  # guaranteed to exist or raise
     fname = os.path.join(path, 'matplotlibrc')
     if not os.path.exists(fname):
         warnings.warn('Could not find matplotlibrc; using defaults')
+
     return fname
 
 
@@ -680,11 +747,6 @@ _deprecated_map = {
     }
 
 _deprecated_ignore_map = {
-    'legend.pad' :       'legend.borderpad',
-    'legend.labelsep' :       'legend.labelspacing',
-    'legend.handlelen' :       'legend.handlelength',
-    'legend.handletextsep' :       'legend.handletextpad',
-    'legend.axespad' :       'legend.borderaxespad',
     }
 
 
@@ -697,8 +759,8 @@ class RcParams(dict):
     :mod:`matplotlib.rcsetup`
     """
 
-    validate = dict([ (key, converter) for key, (default, converter) in \
-                     defaultParams.iteritems() ])
+    validate = dict((key, converter) for key, (default, converter) in \
+                     defaultParams.iteritems())
     msg_depr = "%s is deprecated and replaced with %s; please use the latter."
     msg_depr_ignore = "%s is deprecated and ignored. Use %s"
 
@@ -729,6 +791,19 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
             key = alt
         return dict.__getitem__(self, key)
 
+    def __repr__(self):
+        import pprint
+        class_name = self.__class__.__name__
+        indent = len(class_name) + 1
+        repr_split = pprint.pformat(dict(self), indent=1,
+                                    width=80 - indent).split('\n')
+        repr_indented = ('\n' + ' ' * indent).join(repr_split)
+        return '{0}({1})'.format(class_name, repr_indented)
+
+    def __str__(self):
+        return '\n'.join('{0}: {1}'.format(k, v)
+                         for k, v in sorted(self.items()))
+
     def keys(self):
         """
         Return sorted list of keys.
@@ -741,16 +816,35 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
         """
         Return values in order of sorted keys.
         """
-        return [self[k] for k in self.iterkeys()]
+        return [self[k] for k in self.keys()]
+
+    def find_all(self, pattern):
+        """
+        Return the subset of this RcParams dictionary whose keys match,
+        using :func:`re.search`, the given ``pattern``.
+
+        .. note::
+
+            Changes to the returned dictionary are *not* propagated to
+            the parent RcParams dictionary.
+
+        """
+        import re
+        pattern_re = re.compile(pattern)
+        return RcParams((key, value)
+                        for key, value in self.items()
+                        if pattern_re.search(key))
+
 
 def rc_params(fail_on_error=False):
-    'Return the default params updated from the values in the rc file'
-
+    """Return a :class:`matplotlib.RcParams` instance from the
+    default matplotlib rc file.
+    """
     fname = matplotlib_fname()
     if not os.path.exists(fname):
         # this should never happen, default in mpl-data should always be found
         message = 'could not find rc file; returning defaults'
-        ret = RcParams([ (key, default) for key, (default, converter) in \
+        ret = RcParams([(key, default) for key, (default, _) in \
                         defaultParams.iteritems() ])
         warnings.warn(message)
         return ret
@@ -759,29 +853,31 @@ def rc_params(fail_on_error=False):
 
 
 def rc_params_from_file(fname, fail_on_error=False):
-    """Load and return params from fname."""
-
+    """Return a :class:`matplotlib.RcParams` instance from the
+    contents of the given filename.
+    """
     cnt = 0
     rc_temp = {}
     with open(fname) as fd:
         for line in fd:
             cnt += 1
-            strippedline = line.split('#',1)[0].strip()
+            strippedline = line.split('#', 1)[0].strip()
             if not strippedline: continue
-            tup = strippedline.split(':',1)
-            if len(tup) !=2:
-                warnings.warn('Illegal line #%d\n\t%s\n\tin file "%s"'%\
+            tup = strippedline.split(':', 1)
+            if len(tup) != 2:
+                warnings.warn('Illegal line #%d\n\t%s\n\tin file "%s"' % \
                               (cnt, line, fname))
                 continue
             key, val = tup
             key = key.strip()
             val = val.strip()
             if key in rc_temp:
-                warnings.warn('Duplicate key in file "%s", line #%d'%(fname,cnt))
+                warnings.warn('Duplicate key in file "%s", line #%d' % \
+                              (fname, cnt))
             rc_temp[key] = (val, line, cnt)
 
-    ret = RcParams([ (key, default) for key, (default, converter) in \
-                    defaultParams.iteritems() ])
+    ret = RcParams([(key, default) for key, (default, _) in \
+                    defaultParams.iteritems()])
 
     for key in ('verbose.level', 'verbose.fileo'):
         if key in rc_temp:
@@ -865,10 +961,10 @@ if rcParams['axes.formatter.use_locale']:
 
 def rc(group, **kwargs):
     """
-    Set the current rc params.  Group is the grouping for the rc, eg.
+    Set the current rc params.  Group is the grouping for the rc, e.g.,
     for ``lines.linewidth`` the group is ``lines``, for
     ``axes.facecolor``, the group is ``axes``, and so on.  Group may
-    also be a list or tuple of group names, eg. (*xtick*, *ytick*).
+    also be a list or tuple of group names, e.g., (*xtick*, *ytick*).
     *kwargs* is a dictionary attribute name/value pairs, eg::
 
       rc('lines', linewidth=2, color='r')
@@ -899,7 +995,7 @@ def rc(group, **kwargs):
 
 
     Note you can use python's kwargs dictionary facility to store
-    dictionaries of default parameters.  Eg, you can customize the
+    dictionaries of default parameters.  e.g., you can customize the
     font rc as follows::
 
       font = {'family' : 'monospace',
@@ -957,11 +1053,11 @@ class rc_context(object):
 
     This allows one to do::
 
-    >>> with mpl.rc_context(fname='screen.rc'):
-    >>>     plt.plot(x, a)
-    >>>     with mpl.rc_context(fname='print.rc'):
-    >>>         plt.plot(x, b)
-    >>>     plt.plot(x, c)
+        with mpl.rc_context(fname='screen.rc'):
+            plt.plot(x, a)
+            with mpl.rc_context(fname='print.rc'):
+                plt.plot(x, b)
+            plt.plot(x, c)
 
     The 'a' vs 'x' and 'c' vs 'x' plots would have settings from
     'screen.rc', while the 'b' vs 'x' plot would have settings from
@@ -969,8 +1065,8 @@ class rc_context(object):
 
     A dictionary can also be passed to the context manager::
 
-    >>> with mpl.rc_context(rc={'text.usetex': True}, fname='screen.rc'):
-    >>>     plt.plot(x, a)
+        with mpl.rc_context(rc={'text.usetex': True}, fname='screen.rc'):
+            plt.plot(x, a)
 
     The 'rc' dictionary takes precedence over the settings loaded from
     'fname'.  Passing a dictionary only is also valid.
@@ -979,12 +1075,15 @@ class rc_context(object):
     def __init__(self, rc=None, fname=None):
         self.rcdict = rc
         self.fname = fname
-    def __enter__(self):
         self._rcparams = rcParams.copy()
         if self.fname:
             rc_file(self.fname)
         if self.rcdict:
             rcParams.update(self.rcdict)
+
+    def __enter__(self):
+        return self
+
     def __exit__(self, type, value, tb):
         rcParams.update(self._rcparams)
 
@@ -1020,16 +1119,25 @@ def use(arg, warn=True, force=False):
         is issued if you try and call this after pylab or pyplot have been
         loaded.  In certain black magic use cases, e.g.
         :func:`pyplot.switch_backend`, we are doing the reloading necessary to
-        make the backend switch work (in some cases, e.g. pure image
+        make the backend switch work (in some cases, e.g., pure image
         backends) so one can set warn=False to suppress the warnings.
 
     To find out which backend is currently set, see
     :func:`matplotlib.get_backend`.
 
     """
+    # Lets determine the proper backend name first
+    if arg.startswith('module://'):
+        name = arg
+    else:
+        # Lowercase only non-module backend names (modules are case-sensitive)
+        arg = arg.lower()
+        name = validate_backend(arg)
+
     # Check if we've already set up a backend
     if 'matplotlib.backends' in sys.modules:
-        if warn:
+        # Warn only if called with a different name
+        if (rcParams['backend'] != name) and warn:
             warnings.warn(_use_error_msg)
 
         # Unless we've been told to force it, just return
@@ -1039,14 +1147,7 @@ def use(arg, warn=True, force=False):
     else:
         need_reload = False
 
-    # Set-up the proper backend name
-    if arg.startswith('module://'):
-        name = arg
-    else:
-        # Lowercase only non-module backend names (modules are case-sensitive)
-        arg = arg.lower()
-        name = validate_backend(arg)
-
+    # Store the backend name
     rcParams['backend'] = name
 
     # If needed we reload here because a lot of setup code is triggered on
@@ -1055,7 +1156,7 @@ def use(arg, warn=True, force=False):
         reload(sys.modules['matplotlib.backends'])
 
 def get_backend():
-    "Returns the current backend."
+    """Return the name of the current backend."""
     return rcParams['backend']
 
 def interactive(b):
@@ -1094,35 +1195,46 @@ for s in sys.argv[1:]:
 
 default_test_modules = [
     'matplotlib.tests.test_agg',
+    'matplotlib.tests.test_arrow_patches',
     'matplotlib.tests.test_artist',
     'matplotlib.tests.test_axes',
-    'matplotlib.tests.test_backend_svg',
+    'matplotlib.tests.test_backend_pdf',
     'matplotlib.tests.test_backend_pgf',
+    'matplotlib.tests.test_backend_qt4',
+    'matplotlib.tests.test_backend_svg',
     'matplotlib.tests.test_basic',
+    'matplotlib.tests.test_bbox_tight',
     'matplotlib.tests.test_cbook',
+    'matplotlib.tests.test_coding_standards',
+    'matplotlib.tests.test_collections',
     'matplotlib.tests.test_colorbar',
     'matplotlib.tests.test_colors',
+    'matplotlib.tests.test_compare_images',
+    'matplotlib.tests.test_contour',
     'matplotlib.tests.test_dates',
     'matplotlib.tests.test_delaunay',
     'matplotlib.tests.test_figure',
     'matplotlib.tests.test_image',
     'matplotlib.tests.test_legend',
+    'matplotlib.tests.test_lines',
     'matplotlib.tests.test_mathtext',
     'matplotlib.tests.test_mlab',
     'matplotlib.tests.test_patches',
+    'matplotlib.tests.test_path',
+    'matplotlib.tests.test_patheffects',
     'matplotlib.tests.test_pickle',
+    'matplotlib.tests.test_png',
     'matplotlib.tests.test_rcparams',
     'matplotlib.tests.test_scale',
     'matplotlib.tests.test_simplification',
     'matplotlib.tests.test_spines',
+    'matplotlib.tests.test_streamplot',
     'matplotlib.tests.test_subplots',
     'matplotlib.tests.test_text',
     'matplotlib.tests.test_ticker',
     'matplotlib.tests.test_tightlayout',
-    'matplotlib.tests.test_triangulation',
     'matplotlib.tests.test_transforms',
-    'matplotlib.tests.test_arrow_patches',
-    'matplotlib.tests.test_backend_qt4',
+    'matplotlib.tests.test_triangulation',
     ]
 
 

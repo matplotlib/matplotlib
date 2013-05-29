@@ -55,7 +55,7 @@ the alpha properties directly.  The figure has a
 :class:`~matplotlib.patches.Rectangle` instance called *patch*
 and the axes has a Rectangle instance called *patch*.  You can set
 any property on them directly (*facecolor*, *edgecolor*, *linewidth*,
-*linestyle*, *alpha*).  Eg::
+*linestyle*, *alpha*).  e.g.::
 
     fig = plt.figure()
     fig.patch.set_alpha(0.5)
@@ -64,7 +64,7 @@ any property on them directly (*facecolor*, *edgecolor*, *linewidth*,
 
 If you need *all* the figure elements to be transparent, there is
 currently no global alpha setting, but you can set the alpha channel
-on individual elements, eg::
+on individual elements, e.g.::
 
    ax.plot(x, y, alpha=0.5)
    ax.set_xlabel('volts', alpha=0.5)
@@ -496,7 +496,7 @@ and :ref:`what-is-a-backend`).
    Therefore, multiple calls to ``show`` are now allowed.
 
 Having ``show`` block further execution of the script or the python
-interperator depends on whether matplotlib is set for interactive mode
+interpreter depends on whether matplotlib is set for interactive mode
 or not.  In non-interactive mode (the default setting), execution is paused
 until the last figure window is closed.  In interactive mode, the execution
 is not paused, which allows you to create additional figures (but the script

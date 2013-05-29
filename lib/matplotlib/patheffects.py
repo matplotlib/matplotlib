@@ -10,7 +10,6 @@ from matplotlib.backends.backend_mixed import MixedModeRenderer
 import matplotlib.transforms as transforms
 
 
-
 class _Base(object):
     """
     A base class for PathEffect. Derived must override draw_path method.
@@ -22,6 +21,8 @@ class _Base(object):
         """
         super(_Base, self).__init__()
 
+    def get_proxy_renderer(self, renderer):
+        return ProxyRenderer(self, renderer)
 
     def _update_gc(self, gc, new_gc_dict):
         new_gc_dict = new_gc_dict.copy()
@@ -39,7 +40,7 @@ class _Base(object):
         return gc
 
 
-    def draw_path(self, renderer, gc, tpath, affine, rgbFace):
+    def draw_path(self, renderer, gc, tpath, affine, rgbFace=None):
         """
         Derived should override this method. The argument is same
         as *draw_path* method of :class:`matplotlib.backend_bases.RendererBase`
@@ -50,6 +51,49 @@ class _Base(object):
 
         """
         renderer.draw_path(gc, tpath, affine, rgbFace)
+
+    def draw_path_collection(self, renderer,
+                             gc, master_transform, paths, all_transforms,
+                             offsets, offsetTrans, facecolors, edgecolors,
+                             linewidths, linestyles, antialiaseds, urls,
+                             offset_position):
+        """
+        Draws a collection of paths selecting drawing properties from
+        the lists *facecolors*, *edgecolors*, *linewidths*,
+        *linestyles* and *antialiaseds*. *offsets* is a list of
+        offsets to apply to each of the paths.  The offsets in
+        *offsets* are first transformed by *offsetTrans* before being
+        applied.  *offset_position* may be either "screen" or "data"
+        depending on the space that the offsets are in.
+
+        This provides a fallback implementation of
+        :meth:`draw_path_collection` that makes multiple calls to
+        :meth:`draw_path`.  Some backends may want to override this in
+        order to render each set of path data only once, and then
+        reference that path multiple times with the different offsets,
+        colors, styles etc.  The generator methods
+        :meth:`_iter_collection_raw_paths` and
+        :meth:`_iter_collection` are provided to help with (and
+        standardize) the implementation across backends.  It is highly
+        recommended to use those generators, so that changes to the
+        behavior of :meth:`draw_path_collection` can be made globally.
+        """
+
+        if isinstance(renderer, MixedModeRenderer):
+            renderer = renderer._renderer
+
+        path_ids = []
+        for path, transform in renderer._iter_collection_raw_paths(
+            master_transform, paths, all_transforms):
+            path_ids.append((path, transform))
+
+        for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
+            gc, master_transform, all_transforms, path_ids, offsets,
+            offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+            antialiaseds, urls, offset_position):
+            path, transform = path_id
+            transform = transforms.Affine2D(transform.get_matrix()).translate(xo, yo)
+            self.draw_path(renderer, gc0, path, transform, rgbFace)
 
     def draw_tex(self, renderer, gc, x, y, s, prop, angle, ismath='TeX!'):
         self._draw_text_as_path(renderer, gc, x, y, s, prop, angle, ismath="TeX")
@@ -71,22 +115,66 @@ class _Base(object):
         gc.set_linewidth(0.0)
         self.draw_path(renderer, gc, path, transform, rgbFace=color)
 
+    def draw_markers(self, renderer, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+        """
+        Draws a marker at each of the vertices in path.  This includes
+        all vertices, including control points on curves.  To avoid
+        that behavior, those vertices should be removed before calling
+        this function.
 
-#     def draw_path_collection(self, renderer,
-#                              gc, master_transform, paths, all_transforms,
-#                              offsets, offsetTrans, facecolors, edgecolors,
-#                              linewidths, linestyles, antialiaseds, urls):
-#         path_ids = []
-#         for path, transform in renderer._iter_collection_raw_paths(
-#             master_transform, paths, all_transforms):
-#             path_ids.append((path, transform))
+        *gc*
+            the :class:`GraphicsContextBase` instance
 
-#         for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
-#             gc, path_ids, offsets, offsetTrans, facecolors, edgecolors,
-#             linewidths, linestyles, antialiaseds, urls):
-#             path, transform = path_id
-#             transform = transforms.Affine2D(transform.get_matrix()).translate(xo, yo)
-#             self.draw_path(renderer, gc0, path, transform, rgbFace)
+        *marker_trans*
+            is an affine transform applied to the marker.
+
+        *trans*
+             is an affine transform applied to the path.
+
+        This provides a fallback implementation of draw_markers that
+        makes multiple calls to :meth:`draw_path`.  Some backends may
+        want to override this method in order to draw the marker only
+        once and reuse it multiple times.
+        """
+        for vertices, codes in path.iter_segments(trans, simplify=False):
+            if len(vertices):
+                x,y = vertices[-2:]
+                self.draw_path(renderer, gc, marker_path,
+                               marker_trans + transforms.Affine2D().translate(x, y),
+                               rgbFace)
+
+
+class ProxyRenderer(object):
+    def __init__(self, path_effect, renderer):
+        self._path_effect = path_effect
+        self._renderer = renderer
+
+    def draw_path(self, gc, tpath, affine, rgbFace=None):
+        self._path_effect.draw_path(self._renderer, gc, tpath, affine, rgbFace)
+
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
+        self._path_effect._draw_text_as_path(self._renderer,
+                                             gc, x, y, s, prop, angle, ismath="TeX")
+
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+        self._path_effect._draw_text(self.renderer,
+                                     gc, x, y, s, prop, angle, ismath)
+
+    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+        self._path_effect.draw_markers(self._renderer,
+                                       gc, marker_path, marker_trans, path, trans,
+                                       rgbFace=rgbFace)
+
+    def draw_path_collection(self, gc, master_transform, paths, all_transforms,
+                             offsets, offsetTrans, facecolors, edgecolors,
+                             linewidths, linestyles, antialiaseds, urls,
+                             offset_position):
+        pe = self._path_effect
+        pe.draw_path_collection(self._renderer,
+                                gc, master_transform, paths, all_transforms,
+                                offsets, offsetTrans, facecolors, edgecolors,
+                                linewidths, linestyles, antialiaseds, urls,
+                                offset_position)
 
 
 class Normal(_Base):
