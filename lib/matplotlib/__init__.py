@@ -101,7 +101,7 @@ from __future__ import print_function
 
 import sys
 
-__version__  = '1.3.x'
+__version__  = '1.3.0rc1'
 __version__numpy__ = '1.4' # minimum required numpy version
 
 try:
