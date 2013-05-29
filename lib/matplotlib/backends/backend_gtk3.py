@@ -556,7 +556,9 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         return fc
 
     def save_figure(self, *args):
-        fname, format = self.get_filechooser().get_filename_from_user()
+        chooser = self.get_filechooser()
+        fname, format = chooser.get_filename_from_user()
+        chooser.destroy()
         if fname:
             startpath = os.path.expanduser(rcParams.get('savefig.directory', ''))
             if startpath == '':
@@ -567,7 +569,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
                 rcParams['savefig.directory'] = os.path.dirname(unicode(fname))
             try:
                 self.canvas.print_figure(fname, format=format)
-            except Exception, e:
+            except Exception as e:
                 error_msg_gtk(str(e), parent=self)
 
     def configure_subplots(self, button):
