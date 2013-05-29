@@ -220,11 +220,25 @@ latex_documents = [
 latex_logo = None
 
 # Additional stuff for the LaTeX preamble.
-latex_preamble = """
-   \\usepackage{amsmath}
-   \\usepackage{amsfonts}
-   \\usepackage{amssymb}
-   \\usepackage{txfonts}
+latex_preamble =r"""
+   % In the parameters section, place a newline after the Parameters
+   % header.  (This is stolen directly from Numpy's conf.py, since it
+   % affects Numpy-style docstrings).
+   \usepackage{expdlist}
+   \let\latexdescription=\description
+   \def\description{\latexdescription{}{} \breaklabel}
+
+   \usepackage{amsmath}
+   \usepackage{amsfonts}
+   \usepackage{amssymb}
+   \usepackage{txfonts}
+
+   % The enumitem package provides unlimited nesting of lists and
+   % enums.  Sphinx may use this in the future, in which case this can
+   % be removed.  See
+   % https://bitbucket.org/birkenfeld/sphinx/issue/777/latex-output-too-deeply-nested
+   \usepackage{enumitem}
+   \setlistdepth{2048}
 """
 
 # Documents to append as an appendix to all manuals.
@@ -254,5 +268,3 @@ texinfo_documents = [
 
 ################# numpydoc config ####################
 numpydoc_show_class_members = False
-
-
