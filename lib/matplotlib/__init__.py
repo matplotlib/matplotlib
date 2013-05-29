@@ -547,15 +547,16 @@ def _get_config_or_cache_dir(xdg_base):
     p = os.path.join(h, '.matplotlib')
     if (sys.platform.startswith('linux') and
         not os.path.exists(p)):
-        p = _get_xdg_config_dir()
+        p = os.path.join(xdg_base, 'matplotlib')
 
     if os.path.exists(p):
         if not _is_writable_dir(p):
             return _create_tmp_config_dir()
     else:
-        if not _is_writable_dir(h):
+        try:
+            mkdirs(p)
+        except OSError:
             return _create_tmp_config_dir()
-        mkdirs(p)
 
     return p
 
