@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import io
 import os
 import tempfile
 
@@ -25,25 +26,25 @@ def test_repeated_save_with_alpha():
 
     # The target color is fig.patch.get_facecolor()
 
-    _, img_fname = tempfile.mkstemp(suffix='.png')
-    try:
-        fig.savefig(img_fname,
-                    facecolor=fig.get_facecolor(),
-                    edgecolor='none')
+    buf = io.BytesIO()
 
-        # Save the figure again to check that the
-        # colors don't bleed from the previous renderer.
-        fig.savefig(img_fname,
-                    facecolor=fig.get_facecolor(),
-                    edgecolor='none')
+    fig.savefig(buf,
+                facecolor=fig.get_facecolor(),
+                edgecolor='none')
 
-        # Check the first pixel has the desired color & alpha
-        # (approx: 0, 1.0, 0.4, 0.25)
-        assert_array_almost_equal(tuple(imread(img_fname)[0, 0]),
-                                  (0.0, 1.0, 0.4, 0.250),
-                                  decimal=3)
-    finally:
-        os.remove(img_fname)
+    # Save the figure again to check that the
+    # colors don't bleed from the previous renderer.
+    buf.seek(0)
+    fig.savefig(buf,
+                facecolor=fig.get_facecolor(),
+                edgecolor='none')
+
+    # Check the first pixel has the desired color & alpha
+    # (approx: 0, 1.0, 0.4, 0.25)
+    buf.seek(0)
+    assert_array_almost_equal(tuple(imread(buf)[0, 0]),
+                              (0.0, 1.0, 0.4, 0.250),
+                              decimal=3)
 
 
 def report_memory(i):
