@@ -348,7 +348,7 @@ L126.609 -139.984
 z
 " id="Cmex10-58"/>
     </defs>
-    <g transform="translate(116.64 167.518125)scale(0.12 -0.12)">
+    <g transform="translate(116.64 182.64)scale(0.12 -0.12)">
      <use transform="translate(52.0 155.7234375)scale(0.7)" xlink:href="#Cmmi10-6a"/>
      <use transform="translate(0.0 122.6125)" xlink:href="#Cmex10-58"/>
      <use transform="translate(1.0 -82.7484375)scale(0.7)" xlink:href="#Cmmi10-69"/>
@@ -442,7 +442,7 @@ z
    </g>
    <g id="text_4">
     <!-- $\sum_{i=0}^{j}$ -->
-    <g transform="translate(161.28 155.904375)scale(0.12 -0.12)">
+    <g transform="translate(161.28 148.2)scale(0.12 -0.12)">
      <use transform="translate(52.0 155.7234375)scale(0.7)" xlink:href="#Cmmi10-6a"/>
      <use transform="translate(0.0 122.6125)" xlink:href="#Cmex10-58"/>
      <use transform="translate(1.0 -82.7484375)scale(0.7)" xlink:href="#Cmmi10-69"/>
@@ -685,7 +685,7 @@ Q45.0625 54.2969 48.7812 52.5938" id="BitstreamVeraSans-Roman-63"/>
    </g>
    <g id="text_8">
     <!-- $\sum_{i=0}^{j}$ -->
-    <g transform="translate(250.56 161.71125)scale(0.12 -0.12)">
+    <g transform="translate(250.56 165.42)scale(0.12 -0.12)">
      <use transform="translate(52.0 155.7234375)scale(0.7)" xlink:href="#Cmmi10-6a"/>
      <use transform="translate(0.0 122.6125)" xlink:href="#Cmex10-58"/>
      <use transform="translate(1.0 -82.7484375)scale(0.7)" xlink:href="#Cmmi10-69"/>
@@ -696,15 +696,15 @@ Q45.0625 54.2969 48.7812 52.5938" id="BitstreamVeraSans-Roman-63"/>
    <g id="text_9">
     <g id="patch_11">
      <path d="
-M301.559 303.618
-L330.153 287.11
-Q333.27 285.31 331.47 282.192
-L325.663 272.134
-Q323.863 269.017 320.746 270.817
-L292.152 287.325
-Q289.034 289.125 290.834 292.243
-L296.641 302.301
-Q298.441 305.418 301.559 303.618
+M302.807 303.284
+L331.4 286.775
+Q334.518 284.975 332.718 281.858
+L326.911 271.8
+Q325.111 268.682 321.993 270.482
+L293.4 286.991
+Q290.282 288.791 292.082 291.908
+L297.889 301.966
+Q299.689 305.084 302.807 303.284
 z
 " style="fill:#f5deb3;opacity:0.5;stroke:#000000;"/>
     </g>
@@ -720,7 +720,7 @@ z
    </g>
    <g id="text_10">
     <!-- $\sum_{i=0}^{j}$ -->
-    <g transform="translate(299.7590625 174.336527885)rotate(-30.0)scale(0.12 -0.12)">
+    <g transform="translate(307.32 187.432455788)rotate(-30.0)scale(0.12 -0.12)">
      <use transform="translate(52.0 155.7234375)scale(0.7)" xlink:href="#Cmmi10-6a"/>
      <use transform="translate(0.0 122.6125)" xlink:href="#Cmex10-58"/>
      <use transform="translate(1.0 -82.7484375)scale(0.7)" xlink:href="#Cmmi10-69"/>
@@ -731,15 +731,15 @@ z
    <g id="text_11">
     <g id="patch_12">
      <path d="
-M346.199 277.052
-L395.348 248.676
-Q398.466 246.876 396.666 243.758
-L390.859 233.7
-Q389.059 230.583 385.941 232.383
-L336.792 260.759
-Q333.674 262.559 335.474 265.677
-L341.281 275.734
-Q343.081 278.852 346.199 277.052
+M347.447 276.718
+L396.596 248.341
+Q399.714 246.541 397.914 243.424
+L392.107 233.366
+Q390.307 230.248 387.189 232.048
+L338.04 260.425
+Q334.922 262.225 336.722 265.342
+L342.529 275.4
+Q344.329 278.518 347.447 276.718
 z
 " style="fill:#f5deb3;opacity:0.5;stroke:#000000;"/>
     </g>
@@ -758,7 +758,7 @@ z
    </g>
    <g id="text_12">
     <!-- $\sum_{i=0}^{j}$ -->
-    <g transform="translate(344.3990625 156.238725352)rotate(-30.0)scale(0.12 -0.12)">
+    <g transform="translate(351.96 149.566540881)rotate(-30.0)scale(0.12 -0.12)">
      <use transform="translate(52.0 155.7234375)scale(0.7)" xlink:href="#Cmmi10-6a"/>
      <use transform="translate(0.0 122.6125)" xlink:href="#Cmex10-58"/>
      <use transform="translate(1.0 -82.7484375)scale(0.7)" xlink:href="#Cmmi10-69"/>
@@ -769,15 +769,15 @@ z
    <g id="text_13">
     <g id="patch_13">
      <path d="
-M390.839 309.799
-L445.931 277.992
-Q449.049 276.192 447.249 273.074
-L441.442 263.016
-Q439.642 259.899 436.524 261.699
-L381.432 293.506
-Q378.314 295.306 380.114 298.424
-L385.921 308.482
-Q387.721 311.599 390.839 309.799
+M392.087 309.465
+L447.179 277.657
+Q450.297 275.857 448.497 272.74
+L442.69 262.682
+Q440.89 259.564 437.772 261.364
+L382.68 293.172
+Q379.562 294.972 381.362 298.089
+L387.169 308.147
+Q388.969 311.265 392.087 309.465
 z
 " style="fill:#f5deb3;opacity:0.5;stroke:#000000;"/>
     </g>
@@ -798,7 +798,7 @@ z
    </g>
    <g id="text_14">
     <!-- $\sum_{i=0}^{j}$ -->
-    <g transform="translate(389.0390625 165.218402885)rotate(-30.0)scale(0.12 -0.12)">
+    <g transform="translate(396.6 163.192455788)rotate(-30.0)scale(0.12 -0.12)">
      <use transform="translate(52.0 155.7234375)scale(0.7)" xlink:href="#Cmmi10-6a"/>
      <use transform="translate(0.0 122.6125)" xlink:href="#Cmex10-58"/>
      <use transform="translate(1.0 -82.7484375)scale(0.7)" xlink:href="#Cmmi10-69"/>
@@ -809,15 +809,15 @@ z
    <g id="text_15">
     <g id="patch_14">
      <path d="
-M435.479 295.071
-L480.478 269.091
-Q483.595 267.291 481.795 264.173
-L475.989 254.115
-Q474.189 250.998 471.071 252.798
-L426.072 278.778
-Q422.954 280.578 424.754 283.695
-L430.561 293.753
-Q432.361 296.871 435.479 295.071
+M436.727 294.737
+L481.726 268.757
+Q484.843 266.957 483.043 263.839
+L477.236 253.781
+Q475.436 250.663 472.319 252.463
+L427.32 278.443
+Q424.202 280.243 426.002 283.361
+L431.809 293.419
+Q433.609 296.537 436.727 294.737
 z
 " style="fill:#f5deb3;opacity:0.5;stroke:#000000;"/>
     </g>
@@ -836,7 +836,7 @@ z
    </g>
    <g id="text_16">
     <!-- $\sum_{i=0}^{j}$ -->
-    <g transform="translate(433.6790625 165.287626618)rotate(-30.0)scale(0.12 -0.12)">
+    <g transform="translate(441.24 168.499498335)rotate(-30.0)scale(0.12 -0.12)">
      <use transform="translate(52.0 155.7234375)scale(0.7)" xlink:href="#Cmmi10-6a"/>
      <use transform="translate(0.0 122.6125)" xlink:href="#Cmex10-58"/>
      <use transform="translate(1.0 -82.7484375)scale(0.7)" xlink:href="#Cmmi10-69"/>

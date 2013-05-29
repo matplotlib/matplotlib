@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -333,28 +333,28 @@ Q71.0469 32.7188 70.3125 32.7188
 z
 " id="Cmr10-3d"/>
    </defs>
-   <g transform="translate(167.64 37.98)scale(0.12 -0.12)">
-    <use transform="translate(0.0 123.2275)scale(0.49)" xlink:href="#Cmr10-33"/>
-    <use transform="translate(-24.390625 173.078125)scale(0.977829672715)" xlink:href="#Cmex10-71"/>
-    <use transform="translate(85.890625 97.93125)scale(0.7)" xlink:href="#Cmmi10-58"/>
-    <use transform="translate(143.859375 80.0746875)scale(0.49)" xlink:href="#Cmr10-32"/>
-    <use transform="translate(111.890625 1.0059375)scale(0.7)" xlink:href="#Cmmi10-59"/>
-    <use transform="translate(221.41796875 42.56875)" xlink:href="#Cmr10-3d"/>
-    <use transform="translate(305.4765625 42.56875)" xlink:href="#Cmr10-35"/>
+   <g transform="translate(167.64 32.94)scale(0.12 -0.12)">
+    <use transform="translate(0.0 81.2275)scale(0.49)" xlink:href="#Cmr10-33"/>
+    <use transform="translate(-24.390625 131.078125)scale(0.977829672715)" xlink:href="#Cmex10-71"/>
+    <use transform="translate(85.890625 55.93125)scale(0.7)" xlink:href="#Cmmi10-58"/>
+    <use transform="translate(143.859375 38.0746875)scale(0.49)" xlink:href="#Cmr10-32"/>
+    <use transform="translate(111.890625 -40.9940625)scale(0.7)" xlink:href="#Cmmi10-59"/>
+    <use transform="translate(221.41796875 0.56875)" xlink:href="#Cmr10-3d"/>
+    <use transform="translate(305.4765625 0.56875)" xlink:href="#Cmr10-35"/>
     <path d="
-M73.3906 170.5
-L73.3906 176.75
-L203.859 176.75
-L203.859 170.5
-L73.3906 170.5
+M73.3906 128.5
+L73.3906 134.75
+L203.859 134.75
+L203.859 128.5
+L73.3906 128.5
 z
 "/>
     <path d="
-M85.8906 55.0747
-L85.8906 61.3247
-L178.859 61.3247
-L178.859 55.0747
-L85.8906 55.0747
+M85.8906 13.0747
+L85.8906 19.3247
+L178.859 19.3247
+L178.859 13.0747
+L85.8906 13.0747
 z
 "/>
    </g>

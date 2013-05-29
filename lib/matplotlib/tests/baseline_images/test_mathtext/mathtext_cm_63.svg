@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -159,15 +159,15 @@ Q39.3125 58.2969 41.4062 58.8906
 z
 " id="Cmmi10-bb"/>
    </defs>
-   <g transform="translate(167.64 32.46)scale(0.12 -0.12)">
-    <use transform="translate(0.0 23.171875)scale(0.904375)" xlink:href="#Cmr10-28"/>
-    <use transform="translate(35.1063537598 21.078125)" xlink:href="#Cmmi10-bb"/>
-    <use transform="translate(78.8075256348 23.171875)scale(0.904375)" xlink:href="#Cmr10-28"/>
-    <use transform="translate(113.913879395 21.078125)" xlink:href="#Cmr10-31"/>
-    <use transform="translate(163.913879395 21.078125)" xlink:href="#Cmsy10-a1"/>
-    <use transform="translate(241.59942627 21.078125)" xlink:href="#Cmmi10-bb"/>
-    <use transform="translate(285.300598145 23.171875)scale(0.904375)" xlink:href="#Cmr10-29"/>
-    <use transform="translate(320.406951904 23.171875)scale(0.904375)" xlink:href="#Cmr10-29"/>
+   <g transform="translate(167.64 30.286875)scale(0.12 -0.12)">
+    <use transform="translate(0.0 2.171875)scale(0.904375)" xlink:href="#Cmr10-28"/>
+    <use transform="translate(35.1063537598 0.078125)" xlink:href="#Cmmi10-bb"/>
+    <use transform="translate(78.8075256348 2.171875)scale(0.904375)" xlink:href="#Cmr10-28"/>
+    <use transform="translate(113.913879395 0.078125)" xlink:href="#Cmr10-31"/>
+    <use transform="translate(163.913879395 0.078125)" xlink:href="#Cmsy10-a1"/>
+    <use transform="translate(241.59942627 0.078125)" xlink:href="#Cmmi10-bb"/>
+    <use transform="translate(285.300598145 2.171875)scale(0.904375)" xlink:href="#Cmr10-29"/>
+    <use transform="translate(320.406951904 2.171875)scale(0.904375)" xlink:href="#Cmr10-29"/>
    </g>
   </g>
  </g>
