@@ -8293,14 +8293,6 @@ class Axes(martist.Artist):
         else:
             w = [None]*nx
 
-        # Save autoscale state for later restoration; turn autoscaling
-        # off so we can do it all a single time at the end, instead
-        # of having it done by bar or fill and then having to be redone.
-        _saved_autoscalex = self.get_autoscalex_on()
-        _saved_autoscaley = self.get_autoscaley_on()
-        self.set_autoscalex_on(False)
-        self.set_autoscaley_on(False)
-
         # Save the datalimits for the same reason:
         _saved_bounds = self.dataLim.bounds
 
@@ -8358,6 +8350,14 @@ class Axes(martist.Artist):
         patches = []
 
         if histtype.startswith('bar'):
+            # Save autoscale state for later restoration; turn autoscaling
+            # off so we can do it all a single time at the end, instead
+            # of having it done by bar or fill and then having to be redone.
+            _saved_autoscalex = self.get_autoscalex_on()
+            _saved_autoscaley = self.get_autoscaley_on()
+            self.set_autoscalex_on(False)
+            self.set_autoscaley_on(False)
+
             totwidth = np.diff(bins)
 
             if rwidth is not None:
@@ -8406,6 +8406,10 @@ class Axes(martist.Artist):
                 if stacked:
                     bottom[:] = m
                 boffset += dw
+
+            self.set_autoscalex_on(_saved_autoscalex)
+            self.set_autoscaley_on(_saved_autoscaley)
+            self.autoscale_view()
 
         elif histtype.startswith('step'):
             # these define the perimeter of the polygon
@@ -8531,11 +8535,6 @@ class Axes(martist.Artist):
             else:
                 self.update_datalim(
                     [(0, bins[0]), (0, bins[-1])], updatex=False)
-
-        self.set_autoscalex_on(_saved_autoscalex)
-        self.set_autoscaley_on(_saved_autoscaley)
-        self.relim()
-        self.autoscale_view()
 
         if nx == 1:
             return n[0], bins, cbook.silent_list('Patch', patches[0])
