@@ -359,7 +359,7 @@ class TestTransformPlotInterface(unittest.TestCase):
         # a simple line in axes coordinates
         ax = plt.axes()
         ax.plot([0.1, 1.2, 0.8], [0.9, 0.5, 0.8], transform=ax.transAxes)
-        np.testing.assert_array_equal(ax.dataLim.get_points(), np.array([[0, 0], [1, 1]]))
+        np.testing.assert_array_equal(ax.dataLim.get_points(), np.array([[np.inf, np.inf], [-np.inf, -np.inf]]))
 
     def test_line_extent_data_coords(self):
         # a simple line in data coordinates
@@ -372,7 +372,7 @@ class TestTransformPlotInterface(unittest.TestCase):
         ax = plt.axes()
         trans = mtrans.blended_transform_factory(ax.transAxes, ax.transData)
         ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
-        np.testing.assert_array_equal(ax.dataLim.get_points(), np.array([[  0.,  -5.], [  1.,  35.]]))
+        np.testing.assert_array_equal(ax.dataLim.get_points(), np.array([[  np.inf,  -5.], [  -np.inf,  35.]]))
         plt.close()
 
     def test_line_extent_predata_transform_coords(self):
@@ -388,7 +388,7 @@ class TestTransformPlotInterface(unittest.TestCase):
         ax = plt.axes()
         trans = mtrans.blended_transform_factory(ax.transAxes, mtrans.Affine2D().scale(10) + ax.transData)
         ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
-        np.testing.assert_array_equal(ax.dataLim.get_points(), np.array([[  0.,  -50.], [  1.,  350.]]))
+        np.testing.assert_array_equal(ax.dataLim.get_points(), np.array([[  np.inf,  -50.], [  -np.inf,  350.]]))
         plt.close()
 
     def test_line_extents_affine(self):
