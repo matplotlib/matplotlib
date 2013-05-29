@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -207,28 +207,28 @@ L44.4062 65.2969
 z
 " id="STIXGeneral-Italic-59"/>
    </defs>
-   <g transform="translate(169.5 37.2)scale(0.12 -0.12)">
-    <use transform="translate(0.0 114.651875)scale(0.49)" xlink:href="#STIXGeneral-Regular-33"/>
-    <use transform="translate(-22.206191864 27.421875)scale(0.883446408933)" xlink:href="#STIXSizeOneSym-Regular-221a"/>
-    <use transform="translate(83.7061769104 88.0421875)scale(0.7)" xlink:href="#STIXGeneral-Italic-58"/>
-    <use transform="translate(126.476170502 78.7825)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
-    <use transform="translate(102.70617691 1.8246875)scale(0.7)" xlink:href="#STIXGeneral-Italic-59"/>
-    <use transform="translate(200.916156158 40.6296875)" xlink:href="#STIXGeneral-Regular-3d"/>
-    <use transform="translate(274.246777496 40.6296875)" xlink:href="#STIXGeneral-Regular-35"/>
+   <g transform="translate(169.5 32.4)scale(0.12 -0.12)">
+    <use transform="translate(0.0 74.651875)scale(0.49)" xlink:href="#STIXGeneral-Regular-33"/>
+    <use transform="translate(-22.206191864 -12.578125)scale(0.883446408933)" xlink:href="#STIXSizeOneSym-Regular-221a"/>
+    <use transform="translate(83.7061769104 48.0421875)scale(0.7)" xlink:href="#STIXGeneral-Italic-58"/>
+    <use transform="translate(126.476170502 38.7825)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(102.70617691 -38.1753125)scale(0.7)" xlink:href="#STIXGeneral-Italic-59"/>
+    <use transform="translate(200.916156158 0.6296875)" xlink:href="#STIXGeneral-Regular-3d"/>
+    <use transform="translate(274.246777496 0.6296875)" xlink:href="#STIXGeneral-Regular-35"/>
     <path d="
-M71.2062 157.5
-L71.2062 163.75
-L186.476 163.75
-L186.476 157.5
-L71.2062 157.5
+M71.2062 117.5
+L71.2062 123.75
+L186.476 123.75
+L186.476 117.5
+L71.2062 117.5
 z
 "/>
     <path d="
-M83.7062 53.7825
-L83.7062 60.0325
-L161.476 60.0325
-L161.476 53.7825
-L83.7062 53.7825
+M83.7062 13.7825
+L83.7062 20.0325
+L161.476 20.0325
+L161.476 13.7825
+L83.7062 13.7825
 z
 "/>
    </g>

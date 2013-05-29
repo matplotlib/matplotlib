@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -193,20 +193,20 @@ Q43.5938 10.2031 46 14.2969
 z
 " id="STIXGeneral-Regular-32"/>
    </defs>
-   <g transform="translate(171.96 34.38)scale(0.12 -0.12)">
-    <use transform="translate(0.0 21.50921875)" xlink:href="#STIXGeneral-Italic-78"/>
-    <use transform="translate(58.8399902344 21.50921875)" xlink:href="#STIXGeneral-Regular-2b"/>
-    <use transform="translate(132.076861572 21.50921875)" xlink:href="#STIXGeneral-Italic-79"/>
-    <use transform="translate(208.476855469 89.8790625)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
-    <use transform="translate(176.476855469 34.53859375)scale(0.49)" xlink:href="#STIXGeneral-Italic-6b"/>
-    <use transform="translate(205.308450684 34.53859375)scale(0.49)" xlink:href="#STIXGeneral-Regular-2b"/>
-    <use transform="translate(241.194517639 34.53859375)scale(0.49)" xlink:href="#STIXGeneral-Regular-31"/>
+   <g transform="translate(171.96 31.86)scale(0.12 -0.12)">
+    <use transform="translate(0.0 0.50921875)" xlink:href="#STIXGeneral-Italic-78"/>
+    <use transform="translate(58.8399902344 0.50921875)" xlink:href="#STIXGeneral-Regular-2b"/>
+    <use transform="translate(132.076861572 0.50921875)" xlink:href="#STIXGeneral-Italic-79"/>
+    <use transform="translate(208.476855469 68.8790625)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(176.476855469 13.53859375)scale(0.49)" xlink:href="#STIXGeneral-Italic-6b"/>
+    <use transform="translate(205.308450684 13.53859375)scale(0.49)" xlink:href="#STIXGeneral-Regular-2b"/>
+    <use transform="translate(241.194517639 13.53859375)scale(0.49)" xlink:href="#STIXGeneral-Regular-31"/>
     <path d="
-M176.477 72.3791
-L176.477 76.7541
-L265.695 76.7541
-L265.695 72.3791
-L176.477 72.3791
+M176.477 51.3791
+L176.477 55.7541
+L265.695 55.7541
+L265.695 51.3791
+L176.477 51.3791
 z
 "/>
    </g>

@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -319,46 +319,46 @@ Q43.5938 10.2031 46 14.2969
 z
 " id="STIXGeneral-Regular-32"/>
    </defs>
-   <g transform="translate(130.92 37.38)scale(0.12 -0.12)">
-    <use transform="translate(0.0 27.1759375)scale(0.931041666667)" xlink:href="#STIXSizeTwoSym-Regular-28"/>
-    <use transform="translate(70.8506164551 102.3809375)scale(0.7)" xlink:href="#STIXGeneral-Regular-2202"/>
-    <use transform="translate(103.820610046 139.8790625)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
-    <use transform="translate(54.8506164551 15.6384375)scale(0.7)" xlink:href="#STIXGeneral-Regular-2202"/>
-    <use transform="translate(87.8206100464 15.6384375)scale(0.7)" xlink:href="#STIXGeneral-Italic-78"/>
-    <use transform="translate(118.900605774 37.244375)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
-    <use transform="translate(176.513719635 63.8184375)" xlink:href="#STIXGeneral-Regular-2b"/>
-    <use transform="translate(265.750590973 102.3809375)scale(0.7)" xlink:href="#STIXGeneral-Regular-2202"/>
-    <use transform="translate(298.720584564 139.8790625)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
-    <use transform="translate(249.750590973 15.6384375)scale(0.7)" xlink:href="#STIXGeneral-Regular-2202"/>
-    <use transform="translate(282.720584564 15.6384375)scale(0.7)" xlink:href="#STIXGeneral-Italic-79"/>
-    <use transform="translate(313.800580292 37.244375)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
-    <use transform="translate(356.973697815 27.1759375)scale(0.931041666667)" xlink:href="#STIXSizeTwoSym-Regular-29"/>
-    <use transform="translate(413.593677673 63.8184375)" xlink:href="#STIXGeneral-Regular-7c"/>
-    <use transform="translate(433.593662415 63.8184375)" xlink:href="#STIXGeneral-Italic-3c6"/>
-    <use transform="translate(495.793659363 54.7090625)scale(0.69918699187)" xlink:href="#STIXSizeOneSym-Regular-28"/>
-    <use transform="translate(528.495151672 63.8184375)" xlink:href="#STIXGeneral-Italic-78"/>
-    <use transform="translate(587.335141907 63.8184375)" xlink:href="#STIXGeneral-Regular-2b"/>
-    <use transform="translate(660.572013245 63.8184375)" xlink:href="#STIXGeneral-Italic-69"/>
-    <use transform="translate(688.372001038 63.8184375)" xlink:href="#STIXGeneral-Italic-79"/>
-    <use transform="translate(732.771994934 54.7090625)scale(0.69918699187)" xlink:href="#STIXSizeOneSym-Regular-29"/>
-    <use transform="translate(765.473487244 63.8184375)" xlink:href="#STIXGeneral-Regular-7c"/>
-    <use transform="translate(785.473471985 118.1840625)scale(0.7)" xlink:href="#STIXGeneral-Regular-32"/>
-    <use transform="translate(843.732207642 63.8184375)" xlink:href="#STIXGeneral-Regular-3d"/>
-    <use transform="translate(917.062828979 63.8184375)" xlink:href="#STIXGeneral-Regular-30"/>
+   <g transform="translate(130.92 29.82)scale(0.12 -0.12)">
+    <use transform="translate(0.0 -35.8240625)scale(0.931041666667)" xlink:href="#STIXSizeTwoSym-Regular-28"/>
+    <use transform="translate(70.8506164551 39.3809375)scale(0.7)" xlink:href="#STIXGeneral-Regular-2202"/>
+    <use transform="translate(103.820610046 76.8790625)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(54.8506164551 -47.3615625)scale(0.7)" xlink:href="#STIXGeneral-Regular-2202"/>
+    <use transform="translate(87.8206100464 -47.3615625)scale(0.7)" xlink:href="#STIXGeneral-Italic-78"/>
+    <use transform="translate(118.900605774 -25.755625)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(176.513719635 0.8184375)" xlink:href="#STIXGeneral-Regular-2b"/>
+    <use transform="translate(265.750590973 39.3809375)scale(0.7)" xlink:href="#STIXGeneral-Regular-2202"/>
+    <use transform="translate(298.720584564 76.8790625)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(249.750590973 -47.3615625)scale(0.7)" xlink:href="#STIXGeneral-Regular-2202"/>
+    <use transform="translate(282.720584564 -47.3615625)scale(0.7)" xlink:href="#STIXGeneral-Italic-79"/>
+    <use transform="translate(313.800580292 -25.755625)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(356.973697815 -35.8240625)scale(0.931041666667)" xlink:href="#STIXSizeTwoSym-Regular-29"/>
+    <use transform="translate(413.593677673 0.8184375)" xlink:href="#STIXGeneral-Regular-7c"/>
+    <use transform="translate(433.593662415 0.8184375)" xlink:href="#STIXGeneral-Italic-3c6"/>
+    <use transform="translate(495.793659363 -8.2909375)scale(0.69918699187)" xlink:href="#STIXSizeOneSym-Regular-28"/>
+    <use transform="translate(528.495151672 0.8184375)" xlink:href="#STIXGeneral-Italic-78"/>
+    <use transform="translate(587.335141907 0.8184375)" xlink:href="#STIXGeneral-Regular-2b"/>
+    <use transform="translate(660.572013245 0.8184375)" xlink:href="#STIXGeneral-Italic-69"/>
+    <use transform="translate(688.372001038 0.8184375)" xlink:href="#STIXGeneral-Italic-79"/>
+    <use transform="translate(732.771994934 -8.2909375)scale(0.69918699187)" xlink:href="#STIXSizeOneSym-Regular-29"/>
+    <use transform="translate(765.473487244 0.8184375)" xlink:href="#STIXGeneral-Regular-7c"/>
+    <use transform="translate(785.473471985 55.1840625)scale(0.7)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(843.732207642 0.8184375)" xlink:href="#STIXGeneral-Regular-3d"/>
+    <use transform="translate(917.062828979 0.8184375)" xlink:href="#STIXGeneral-Regular-30"/>
     <path d="
-M54.8506 76.6153
-L54.8506 82.8653
-L149.574 82.8653
-L149.574 76.6153
-L54.8506 76.6153
+M54.8506 13.6153
+L54.8506 19.8653
+L149.574 19.8653
+L149.574 13.6153
+L54.8506 13.6153
 z
 "/>
     <path d="
-M249.751 76.6153
-L249.751 82.8653
-L344.474 82.8653
-L344.474 76.6153
-L249.751 76.6153
+M249.751 13.6153
+L249.751 19.8653
+L344.474 19.8653
+L344.474 13.6153
+L249.751 13.6153
 z
 "/>
    </g>

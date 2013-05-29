@@ -318,7 +318,7 @@ class Text(Artist):
         tmp, lp_h, lp_bl = get_text_width_height_descent('lp',
                                                          self._fontproperties,
                                                          ismath=False)
-        offsety = lp_h * self._linespacing
+        offsety = (lp_h - lp_bl) * self._linespacing
 
         baseline = 0
         for i, line in enumerate(lines):
@@ -330,24 +330,21 @@ class Text(Artist):
             else:
                 w, h, d = 0, 0, 0
 
-            whs[i] = w, lp_h
-
-            # For general multiline text, we will have a fixed spacing
-            # between the "baseline" of the upper line and "top" of
-            # the lower line (instead of the "bottom" of the upper
-            # line and "top" of the lower line)
-
             # For multiline text, increase the line spacing when the
             # text net-height(excluding baseline) is larger than that
             # of a "l" (e.g., use of superscripts), which seems
             # what TeX does.
-            d_yoffset = max(0, (h - d) - (lp_h - lp_bl))
+            h = max(h, lp_h)
+            d = max(d, lp_bl)
 
-            baseline = (lp_h - lp_bl) - thisy
-            horizLayout[i] = thisx, thisy - max(d, lp_bl), w, lp_h
-            thisy -= offsety + d_yoffset
+            whs[i] = w, h
+
+            baseline = (h - d) - thisy
+            thisy -= max(offsety, (h - d) * self._linespacing)
+            horizLayout[i] = thisx, thisy, w, h
+            thisy -= d
             width = max(width, w)
-            descent = lp_bl
+            descent = d
 
         ymin = horizLayout[-1][1]
         ymax = horizLayout[0][1] + horizLayout[0][3]
