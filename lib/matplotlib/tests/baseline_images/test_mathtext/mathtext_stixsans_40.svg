@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -250,18 +250,18 @@ L50.7969 8.70312
 z
 " id="STIXNonUnicode-Regular-e195"/>
    </defs>
-   <g transform="translate(144.72 31.26)scale(0.12 -0.12)">
-    <use transform="translate(0.0 2.90625)" xlink:href="#STIXNonUnicode-Regular-e17f"/>
-    <use transform="translate(53.4999847412 2.90625)" xlink:href="#STIXNonUnicode-Regular-e180"/>
-    <use transform="translate(120.099975586 2.90625)" xlink:href="#STIXNonUnicode-Regular-e184"/>
-    <use transform="translate(191.499969482 2.90625)" xlink:href="#STIXNonUnicode-Regular-e187"/>
-    <use transform="translate(258.099960327 2.90625)" xlink:href="#STIXNonUnicode-Regular-e18a"/>
-    <use transform="translate(322.39994812 2.90625)" xlink:href="#STIXNonUnicode-Regular-e18c"/>
-    <use transform="translate(388.199935913 2.90625)" xlink:href="#STIXNonUnicode-Regular-e18f"/>
-    <use transform="translate(450.59992981 2.90625)" xlink:href="#STIXNonUnicode-Regular-e191"/>
-    <use transform="translate(519.599914551 2.90625)" xlink:href="#STIXNonUnicode-Regular-e192"/>
-    <use transform="translate(591.199905396 2.90625)" xlink:href="#STIXNonUnicode-Regular-e194"/>
-    <use transform="translate(663.599899292 2.90625)" xlink:href="#STIXNonUnicode-Regular-e195"/>
+   <g transform="translate(144.72 30.31125)scale(0.12 -0.12)">
+    <use transform="translate(0.0 0.90625)" xlink:href="#STIXNonUnicode-Regular-e17f"/>
+    <use transform="translate(53.4999847412 0.90625)" xlink:href="#STIXNonUnicode-Regular-e180"/>
+    <use transform="translate(120.099975586 0.90625)" xlink:href="#STIXNonUnicode-Regular-e184"/>
+    <use transform="translate(191.499969482 0.90625)" xlink:href="#STIXNonUnicode-Regular-e187"/>
+    <use transform="translate(258.099960327 0.90625)" xlink:href="#STIXNonUnicode-Regular-e18a"/>
+    <use transform="translate(322.39994812 0.90625)" xlink:href="#STIXNonUnicode-Regular-e18c"/>
+    <use transform="translate(388.199935913 0.90625)" xlink:href="#STIXNonUnicode-Regular-e18f"/>
+    <use transform="translate(450.59992981 0.90625)" xlink:href="#STIXNonUnicode-Regular-e191"/>
+    <use transform="translate(519.599914551 0.90625)" xlink:href="#STIXNonUnicode-Regular-e192"/>
+    <use transform="translate(591.199905396 0.90625)" xlink:href="#STIXNonUnicode-Regular-e194"/>
+    <use transform="translate(663.599899292 0.90625)" xlink:href="#STIXNonUnicode-Regular-e195"/>
    </g>
   </g>
  </g>

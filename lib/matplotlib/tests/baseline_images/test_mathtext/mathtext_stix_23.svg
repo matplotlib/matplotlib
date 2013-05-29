@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -284,25 +284,25 @@ L18.1094 75.9844
 z
 " id="BitstreamVeraSans-Roman-62"/>
    </defs>
-   <g transform="translate(137.04 32.82)scale(0.12 -0.12)">
-    <use transform="translate(0.0 21.015625)" xlink:href="#BitstreamVeraSans-Roman-56"/>
-    <use transform="translate(68.408203125 21.015625)" xlink:href="#BitstreamVeraSans-Roman-61"/>
-    <use transform="translate(129.6875 21.015625)" xlink:href="#BitstreamVeraSans-Roman-72"/>
-    <use transform="translate(170.80078125 21.015625)" xlink:href="#BitstreamVeraSans-Roman-69"/>
-    <use transform="translate(198.583984375 21.015625)" xlink:href="#BitstreamVeraSans-Roman-61"/>
-    <use transform="translate(259.86328125 21.015625)" xlink:href="#BitstreamVeraSans-Roman-62"/>
-    <use transform="translate(323.33984375 21.015625)" xlink:href="#BitstreamVeraSans-Roman-6c"/>
-    <use transform="translate(351.123046875 21.015625)" xlink:href="#BitstreamVeraSans-Roman-65"/>
-    <use transform="translate(412.646484375 21.015625)" xlink:href="#BitstreamVeraSans-Roman-20"/>
-    <use transform="translate(444.43359375 21.015625)" xlink:href="#STIXGeneral-Italic-69"/>
-    <use transform="translate(472.233581543 21.015625)" xlink:href="#BitstreamVeraSans-Roman-20"/>
-    <use transform="translate(504.020690918 21.015625)" xlink:href="#BitstreamVeraSans-Roman-69"/>
-    <use transform="translate(531.803894043 21.015625)" xlink:href="#BitstreamVeraSans-Roman-73"/>
-    <use transform="translate(583.903503418 21.015625)" xlink:href="#BitstreamVeraSans-Roman-20"/>
-    <use transform="translate(615.690612793 21.015625)" xlink:href="#BitstreamVeraSans-Roman-67"/>
-    <use transform="translate(679.167175293 21.015625)" xlink:href="#BitstreamVeraSans-Roman-6f"/>
-    <use transform="translate(740.348815918 21.015625)" xlink:href="#BitstreamVeraSans-Roman-6f"/>
-    <use transform="translate(801.530456543 21.015625)" xlink:href="#BitstreamVeraSans-Roman-64"/>
+   <g transform="translate(137.04 30.3)scale(0.12 -0.12)">
+    <use transform="translate(0.0 0.015625)" xlink:href="#BitstreamVeraSans-Roman-56"/>
+    <use transform="translate(68.408203125 0.015625)" xlink:href="#BitstreamVeraSans-Roman-61"/>
+    <use transform="translate(129.6875 0.015625)" xlink:href="#BitstreamVeraSans-Roman-72"/>
+    <use transform="translate(170.80078125 0.015625)" xlink:href="#BitstreamVeraSans-Roman-69"/>
+    <use transform="translate(198.583984375 0.015625)" xlink:href="#BitstreamVeraSans-Roman-61"/>
+    <use transform="translate(259.86328125 0.015625)" xlink:href="#BitstreamVeraSans-Roman-62"/>
+    <use transform="translate(323.33984375 0.015625)" xlink:href="#BitstreamVeraSans-Roman-6c"/>
+    <use transform="translate(351.123046875 0.015625)" xlink:href="#BitstreamVeraSans-Roman-65"/>
+    <use transform="translate(412.646484375 0.015625)" xlink:href="#BitstreamVeraSans-Roman-20"/>
+    <use transform="translate(444.43359375 0.015625)" xlink:href="#STIXGeneral-Italic-69"/>
+    <use transform="translate(472.233581543 0.015625)" xlink:href="#BitstreamVeraSans-Roman-20"/>
+    <use transform="translate(504.020690918 0.015625)" xlink:href="#BitstreamVeraSans-Roman-69"/>
+    <use transform="translate(531.803894043 0.015625)" xlink:href="#BitstreamVeraSans-Roman-73"/>
+    <use transform="translate(583.903503418 0.015625)" xlink:href="#BitstreamVeraSans-Roman-20"/>
+    <use transform="translate(615.690612793 0.015625)" xlink:href="#BitstreamVeraSans-Roman-67"/>
+    <use transform="translate(679.167175293 0.015625)" xlink:href="#BitstreamVeraSans-Roman-6f"/>
+    <use transform="translate(740.348815918 0.015625)" xlink:href="#BitstreamVeraSans-Roman-6f"/>
+    <use transform="translate(801.530456543 0.015625)" xlink:href="#BitstreamVeraSans-Roman-64"/>
    </g>
   </g>
  </g>
