@@ -116,8 +116,8 @@ def parse_yahoo_historical_ochl(fh, adjusted=True, asobject=False):
       very similar to the Bunch.
 
     """
-    _parse_yahoo_historical(fh, adjusted=adjusted, asobject=asobject,
-                           oclh=True)
+    return _parse_yahoo_historical(fh, adjusted=adjusted, asobject=asobject,
+                           ochl=True)
 
 
 def parse_yahoo_historical_ohlc(fh, adjusted=True, asobject=False):
@@ -160,7 +160,7 @@ def parse_yahoo_historical_ohlc(fh, adjusted=True, asobject=False):
       holding 1-D ndarrays.  The behavior of a numpy recarray is
       very similar to the Bunch.
     """
-    _parse_yahoo_historical(fh, adjusted=adjusted, asobject=asobject,
+    return _parse_yahoo_historical(fh, adjusted=adjusted, asobject=asobject,
                            ochl=False)
 
 
@@ -217,11 +217,12 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
         Defaults to True to preserve original functionality.
 
     """
+
     warnings.warn(_warn_str.format(fun='parse_yahoo_historical'),
                   mplDeprecation)
 
-    _parse_yahoo_historical(fh, adjusted=adjusted, asobject=asobject,
-                           oclh=True)
+    return _parse_yahoo_historical(fh, adjusted=adjusted, asobject=asobject,
+                           ochl=True)
 
 
 def _parse_yahoo_historical(fh, adjusted=True, asobject=False,
@@ -283,13 +284,11 @@ def _parse_yahoo_historical(fh, adjusted=True, asobject=False,
     else:
         stock_dt = stock_dt_ohlc
 
-    lines = fh.readlines()
-
     results = []
 
     #    datefmt = '%Y-%m-%d'
-
-    for line in lines[1:]:
+    fh.readline()  # discard heading
+    for line in fh:
 
         vals = line.split(',')
         if len(vals) != 7:
@@ -303,9 +302,13 @@ def _parse_yahoo_historical(fh, adjusted=True, asobject=False,
         open, high, low, close = [float(val) for val in vals[1:5]]
         volume = float(vals[5])
         aclose = float(vals[6])
+        if ochl:
+            results.append((dt, dt.year, dt.month, dt.day,
+                            dnum, open, close, high, low, volume, aclose))
 
-        results.append((dt, dt.year, dt.month, dt.day,
-                        dnum, open, high, low, close, volume, aclose))
+        else:
+            results.append((dt, dt.year, dt.month, dt.day,
+                            dnum, open, high, low, close, volume, aclose))
     results.reverse()
     d = np.array(results, dtype=stock_dt)
     if adjusted:
@@ -459,7 +462,7 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False,
     warnings.warn(_warn_str.format(fun='quotes_historical_yahoo'),
                   mplDeprecation)
 
-    _quotes_historical_yahoo(ticker, date1, date2, asobject=asobject,
+    return _quotes_historical_yahoo(ticker, date1, date2, asobject=asobject,
                              adjusted=adjusted, cachename=cachename,
                              ochl=True)
 
@@ -499,7 +502,7 @@ def quotes_historical_yahoo_ochl(ticker, date1, date2, asobject=False,
         and date range)
     """
 
-    _quotes_historical_yahoo(ticker, date1, date2, asobject=asobject,
+    return _quotes_historical_yahoo(ticker, date1, date2, asobject=asobject,
                              adjusted=adjusted, cachename=cachename,
                              ochl=True)
 
@@ -539,7 +542,7 @@ def quotes_historical_yahoo_ohlc(ticker, date1, date2, asobject=False,
         and date range)
     """
 
-    _quotes_historical_yahoo(ticker, date1, date2, asobject=asobject,
+    return _quotes_historical_yahoo(ticker, date1, date2, asobject=asobject,
                              adjusted=adjusted, cachename=cachename,
                              ochl=True)
 
@@ -639,7 +642,7 @@ def plot_day_summary(ax, quotes, ticksize=3,
     warnings.warn(_warn_str.format(fun='plot_day_summary'),
                   mplDeprecation)
 
-    _plot_day_summary(ax, quotes, ticksize=ticksize,
+    return _plot_day_summary(ax, quotes, ticksize=ticksize,
                      colorup=colorup, colordown=colordown,
                      ochl=True)
 
@@ -673,7 +676,7 @@ def plot_day_summary_oclh(ax, quotes, ticksize=3,
     lines : list
         list of tuples of the lines added (one tuple per quote)
     """
-    _plot_day_summary(ax, quotes, ticksize=ticksize,
+    return _plot_day_summary(ax, quotes, ticksize=ticksize,
                      colorup=colorup, colordown=colordown,
                      ochl=True)
 
@@ -707,7 +710,7 @@ def plot_day_summary_ohlc(ax, quotes, ticksize=3,
     lines : list
         list of tuples of the lines added (one tuple per quote)
     """
-    _plot_day_summary(ax, quotes, ticksize=ticksize,
+    return _plot_day_summary(ax, quotes, ticksize=ticksize,
                      colorup=colorup, colordown=colordown,
                      ochl=False)
 
@@ -831,8 +834,9 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
     warnings.warn(_warn_str.format(fun='candlestick'),
                   mplDeprecation)
 
-    _candlestick(ax, quotes, width=width, colorup=colorup, colordown=colordown,
-                alpha=alpha, ochl=True)
+    return _candlestick(ax, quotes, width=width, colorup=colorup,
+                        colordown=colordown,
+                        alpha=alpha, ochl=True)
 
 
 def candlestick_ochl(ax, quotes, width=0.2, colorup='k', colordown='r',
@@ -870,8 +874,9 @@ def candlestick_ochl(ax, quotes, width=0.2, colorup='k', colordown='r',
         added and patches is a list of the rectangle patches added
 
     """
-    _candlestick(ax, quotes, width=width, colorup=colorup, colordown=colordown,
-                alpha=alpha, ochl=True)
+    return _candlestick(ax, quotes, width=width, colorup=colorup,
+                        colordown=colordown,
+                        alpha=alpha, ochl=True)
 
 
 def candlestick_ohlc(ax, quotes, width=0.2, colorup='k', colordown='r',
@@ -909,8 +914,9 @@ def candlestick_ohlc(ax, quotes, width=0.2, colorup='k', colordown='r',
         added and patches is a list of the rectangle patches added
 
     """
-    _candlestick(ax, quotes, width=width, colorup=colorup, colordown=colordown,
-                alpha=alpha, ochl=False)
+    return _candlestick(ax, quotes, width=width, colorup=colorup,
+                        colordown=colordown,
+                        alpha=alpha, ochl=False)
 
 
 def _candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
