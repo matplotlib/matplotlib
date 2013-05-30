@@ -1040,7 +1040,7 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
                   "or `plot_day_summary2_ohlc`, "
                   "which uses the open-high-low-close order. "
                   "This function will be removed in 1.5", mplDeprecation)
-    return plot_day_summary_ohlc(ax, opens, highs, lows, closes, ticksize,
+    return plot_day_summary2_ohlc(ax, opens, highs, lows, closes, ticksize,
                                  colorup, colordown)
 
 
@@ -1077,7 +1077,7 @@ def plot_day_summary2_ochl(ax, opens, closes, highs, lows, ticksize=4,
         a list of lines added to the axes
     """
 
-    return plot_day_summary_ohlc(ax, opens, highs, lows, closes, ticksize,
+    return plot_day_summary2_ohlc(ax, opens, highs, lows, closes, ticksize,
                                  colorup, colordown)
 
 
@@ -1228,7 +1228,7 @@ def candlestick2_ochl(ax, opens, closes, highs, lows,  width=4,
         (lineCollection, barCollection)
     """
 
-    candlestick_ohlc(ax, opens, highs, closes, lows, width=width,
+    candlestick2_ohlc(ax, opens, highs, closes, lows, width=width,
                      colorup=colorup, colordown=colordown,
                      alpha=alpha)
 
@@ -1279,7 +1279,7 @@ def candlestick2(ax, opens, closes, highs, lows,  width=4,
                   "which uses the open-high-low-close order."
                   "This function will be removed in 1.5", mplDeprecation)
 
-    candlestick_ohlc(ax, opens, highs, lows, closes, width=width,
+    candlestick2_ohlc(ax, opens, highs, lows, closes, width=width,
                      colorup=colorup, colordown=colordown,
                      alpha=alpha)
 
