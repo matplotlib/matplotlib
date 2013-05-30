@@ -244,7 +244,7 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False,
 
     results = []
 
-    datefmt = '%Y-%m-%d'
+    #    datefmt = '%Y-%m-%d'
 
     for line in lines[1:]:
 
