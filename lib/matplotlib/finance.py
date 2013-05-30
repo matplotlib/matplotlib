@@ -81,7 +81,7 @@ def parse_yahoo_historical_ochl(fh, adjusted=True, asobject=False):
     ----------
 
     adjusted : `bool`
-      If True (default) replace open, high, low, close prices with
+      If True (default) replace open, close, high, low prices with
       their adjusted values. The adjustment is by a scale factor, S =
       adjusted_close/close. Adjusted prices are actual prices
       multiplied by S.
@@ -178,7 +178,7 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
     ----------
 
     adjusted : `bool`
-      If True (default) replace open, high, low, close prices with
+      If True (default) replace open, close, high, low prices with
       their adjusted values. The adjustment is by a scale factor, S =
       adjusted_close/close. Adjusted prices are actual prices
       multiplied by S.
@@ -193,14 +193,14 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
       If False (default for compatibility with earlier versions)
       return a list of tuples containing
 
-        d, open, high, low, close, volume
+        d, open, close, high, low, volume
 
       If None (preferred alternative to False), return
       a 2-D ndarray corresponding to the list of tuples.
 
       Otherwise return a numpy recarray with
 
-        date, year, month, day, d, open, high, low, close,
+        date, year, month, day, d, open, close, high, low,
         volume, adjusted_close
 
       where d is a floating poing representation of date,
@@ -230,12 +230,6 @@ def _parse_yahoo_historical(fh, adjusted=True, asobject=False,
     """Parse the historical data in file handle fh from yahoo finance.
 
 
-    This function has been deprecated in 1.4 in favor of
-    `parse_yahoo_historical_ochl`, which maintains the original argument
-    order, or `parse_yahoo_historical_ohlc`, which uses the
-    open-high-low-close order.  This function will be removed in 1.5
-
-
     Parameters
     ----------
 
@@ -257,6 +251,12 @@ def _parse_yahoo_historical(fh, adjusted=True, asobject=False,
 
         d, open, high, low, close, volume
 
+       or
+
+        d, open, close, high, low, volume
+
+      depending on `ochl`
+
       If None (preferred alternative to False), return
       a 2-D ndarray corresponding to the list of tuples.
 
@@ -275,7 +275,7 @@ def _parse_yahoo_historical(fh, adjusted=True, asobject=False,
       very similar to the Bunch.
 
     ochl : `bool`
-        Temporary argument to select between ochl and ohlc ordering.
+        Selects between ochl and ohlc ordering.
         Defaults to True to preserve original functionality.
 
     """
@@ -732,8 +732,11 @@ def _plot_day_summary(ax, quotes, ticksize=3,
     ----------
     ax : `Axes`
         an `Axes` instance to plot to
-    quotes : sequence of (time, open, high, low, close, ...) sequences
+    quotes : sequence of quote sequences
         data to plot.  time must be in float date format - see date2num
+        (time, open, high, low, close, ...) vs
+        (time, open, close, high, low, ...)
+        set by `ochl`
     ticksize : int
         open/close tick marker in points
     colorup : color
@@ -741,7 +744,7 @@ def _plot_day_summary(ax, quotes, ticksize=3,
     colordown : color
         the color of the lines where close <  open
     ochl: bool
-        temporary argument to select between ochl and ohlc ordering
+        argument to select between ochl and ohlc ordering of quotes
 
     Returns
     -------
@@ -809,7 +812,7 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
     ----------
     ax : `Axes`
         an Axes instance to plot to
-    quotes : sequence of (time, open, high, low, close, ...) sequences
+    quotes : sequence of (time, open, close, high, low, ...) sequences
         As long as the first 5 elements are these values,
         the record can be as long as you want (eg it may store volume).
 
@@ -852,7 +855,7 @@ def candlestick_ochl(ax, quotes, width=0.2, colorup='k', colordown='r',
     ----------
     ax : `Axes`
         an Axes instance to plot to
-    quotes : sequence of (time, open, high, low, close, ...) sequences
+    quotes : sequence of (time, open, close, high, low, ...) sequences
         As long as the first 5 elements are these values,
         the record can be as long as you want (eg it may store volume).
 
@@ -932,12 +935,11 @@ def _candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
     ----------
     ax : `Axes`
         an Axes instance to plot to
-    quotes : sequence of (time, open, high, low, close, ...) sequences
-        As long as the first 5 elements are these values,
-        the record can be as long as you want (eg it may store volume).
-
-        time must be in float days format - see date2num
-
+    quotes : sequence of quote sequences
+        data to plot.  time must be in float date format - see date2num
+        (time, open, high, low, close, ...) vs
+        (time, open, close, high, low, ...)
+        set by `ochl`
     width : float
         fraction of a day for the rectangle width
     colorup : color
@@ -947,7 +949,7 @@ def _candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
     alpha : float
         the rectangle alpha level
     ochl: bool
-        temporary argument to select between ochl and ohlc ordering
+        argument to select between ochl and ohlc ordering of quotes
 
     Returns
     -------
@@ -1040,12 +1042,7 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
         a list of lines added to the axes
     """
 
-    warnings.warn("This function has been deprecated in 1.4 in favor "
-                  "of `plot_day_summary2_ochl`, "
-                  "which maintains the original argument order, "
-                  "or `plot_day_summary2_ohlc`, "
-                  "which uses the open-high-low-close order. "
-                  "This function will be removed in 1.5", mplDeprecation)
+    warnings.warn(_warn_str.format(fun='plot_day_summary2'), mplDeprecation)
     return plot_day_summary2_ohlc(ax, opens, highs, lows, closes, ticksize,
                                  colorup, colordown)
 
@@ -1278,12 +1275,8 @@ def candlestick2(ax, opens, closes, highs, lows,  width=4,
     ret : tuple
         (lineCollection, barCollection)
     """
-    warnings.warn("This function has been deprecated in 1.4 in favor"
-                  "of `candlestick_ochl`,"
-                  "which maintains the original argument order,"
-                  "or `candlestick_ohlc`,"
-                  "which uses the open-high-low-close order."
-                  "This function will be removed in 1.5", mplDeprecation)
+    warnings.warn(_warn_str.format(fun='candlestick2'),
+                  mplDeprecation)
 
     candlestick2_ohlc(ax, opens, highs, lows, closes, width=width,
                      colorup=colorup, colordown=colordown,
@@ -1304,12 +1297,12 @@ def candlestick2_ohlc(ax, opens, highs, lows, closes, width=4,
         an Axes instance to plot to
     opens : sequence
         sequence of opening values
-    closes : sequence
-        sequence of closing values
     highs : sequence
         sequence of high values
     lows : sequence
         sequence of low values
+    closes : sequence
+        sequence of closing values
     ticksize : int
         size of open and close ticks in points
     colorup : color
