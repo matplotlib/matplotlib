@@ -418,14 +418,49 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False,
     return ret
 
 
-def plot_day_summary(ax, quotes, ticksize=3,
+def plot_day_summary_oclh(ax, quotes, ticksize=3,
                      colorup='k', colordown='r',
                      ):
+    """Plots day summary
+
+        Represent the time, open, close, high, low as a vertical line
+        ranging from low to high.  The left tick is the open and the right
+        tick is the close.
+
+
+
+    Parameters
+    ----------
+    ax : `Axes`
+        an `Axes` instance to plot to
+    quotes : sequence of (time, open, close, high, low, ...) sequences
+        data to plot.  time must be in float date format - see date2num
+    ticksize : int
+        open/close tick marker in points
+    colorup : color
+        the color of the lines where close >= open
+    colordown : color
+        the color of the lines where close <  open
+
+    Returns
+    -------
+    lines : list
+        list of tuples of the lines added (one tuple per quote)
+    """
+    plot_day_summary(ax, quotes, ticksize=ticksize,
+                     colorup=colorup, colordown=colordown,
+                     ochl=True)
+
+
+def plot_day_summary_ohlc(ax, quotes, ticksize=3,
+                     colorup='k', colordown='r',
+                      ):
     """Plots day summary
 
         Represent the time, open, high, low, close as a vertical line
         ranging from low to high.  The left tick is the open and the right
         tick is the close.
+
 
 
     Parameters
@@ -444,13 +479,56 @@ def plot_day_summary(ax, quotes, ticksize=3,
     Returns
     -------
     lines : list
-        list of lines added
+        list of tuples of the lines added (one tuple per quote)
     """
+    plot_day_summary(ax, quotes, ticksize=ticksize,
+                     colorup=colorup, colordown=colordown,
+                     ochl=False)
 
+
+def plot_day_summary(ax, quotes, ticksize=3,
+                     colorup='k', colordown='r',
+                     ochl=True
+                     ):
+    """Plots day summary
+
+    This function has been deprecated in 1.4 in favor of
+    `plot_day_summary_ochl`, which maintains the original argument
+    order, or `plot_day_summary_ohlc`, which uses the
+    open-high-low-close order.  This function will be removed in 1.5
+
+
+        Represent the time, open, high, low, close as a vertical line
+        ranging from low to high.  The left tick is the open and the right
+        tick is the close.
+
+
+
+    Parameters
+    ----------
+    ax : `Axes`
+        an `Axes` instance to plot to
+    quotes : sequence of (time, open, high, low, close, ...) sequences
+        data to plot.  time must be in float date format - see date2num
+    ticksize : int
+        open/close tick marker in points
+    colorup : color
+        the color of the lines where close >= open
+    colordown : color
+        the color of the lines where close <  open
+
+    Returns
+    -------
+    lines : list
+        list of tuples of the lines added (one tuple per quote)
+    """
+    # unfortunately this has a different return type than plot_day_summary2_*
     lines = []
     for q in quotes:
-
-        t, open, high, low, close = q[:5]
+        if ochl:
+            t, open, close, high, low = q[:5]
+        else:
+            t, open, high, low, close = q[:5]
 
         if close >= open:
             color = colorup
@@ -572,8 +650,8 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
 
 
     This function has been deprecated in 1.4 in favor of
-    `plot_day_summary_ochl`, which maintains the original argument
-    order, or `plot_day_summary_ohlc`, which uses the
+    `plot_day_summary2_ochl`, which maintains the original argument
+    order, or `plot_day_summary2_ohlc`, which uses the
     open-high-low-close order.  This function will be removed in 1.5
 
 
@@ -612,7 +690,7 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
                                  colorup, colordown)
 
 
-def plot_day_summary_ochl(ax, opens, closes, highs, lows, ticksize=4,
+def plot_day_summary2_ochl(ax, opens, closes, highs, lows, ticksize=4,
                           colorup='k', colordown='r',
                           ):
 
@@ -649,7 +727,7 @@ def plot_day_summary_ochl(ax, opens, closes, highs, lows, ticksize=4,
                                  colorup, colordown)
 
 
-def plot_day_summary_ohlc(ax, opens, highs, lows, closes, ticksize=4,
+def plot_day_summary2_ohlc(ax, opens, highs, lows, closes, ticksize=4,
                           colorup='k', colordown='r',
                           ):
 
@@ -681,8 +759,6 @@ def plot_day_summary_ohlc(ax, opens, highs, lows, closes, ticksize=4,
     ret : list
         a list of lines added to the axes
     """
-
-
     # note this code assumes if any value open, high, low, close is
     # missing they all are missing
 
