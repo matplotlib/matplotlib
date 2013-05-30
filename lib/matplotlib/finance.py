@@ -417,6 +417,133 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,
         return urlopen(url)
 
 
+def quotes_historical_yahoo(ticker, date1, date2, asobject=False,
+                            adjusted=True, cachename=None):
+    """ Get historical data for ticker between date1 and date2.
+
+
+    This function has been deprecated in 1.4 in favor of
+    `quotes_yahoo_historical_ochl`, which maintains the original argument
+    order, or `quotes_yahoo_historical_ohlc`, which uses the
+    open-high-low-close order.  This function will be removed in 1.5
+
+    See :func:`parse_yahoo_historical` for explanation of output formats
+    and the *asobject* and *adjusted* kwargs.
+
+    Ex:
+    sp = f.quotes_historical_yahoo('^GSPC', d1, d2,
+                                asobject=True, adjusted=True)
+    returns = (sp.open[1:] - sp.open[:-1])/sp.open[1:]
+    [n,bins,patches] = hist(returns, 100)
+    mu = mean(returns)
+    sigma = std(returns)
+    x = normpdf(bins, mu, sigma)
+    plot(bins, x, color='red', lw=2)
+
+    Parameters
+    ----------
+    ticker : str
+        stock ticker
+
+    date1 : sequence of form (year, month, day), `datetime`, or `date`
+        start date
+
+    date2 : sequence of form (year, month, day), `datetime`, or `date`
+        end date
+
+    cachename : str or `None`
+        is the name of the local file cache.  If None, will
+        default to the md5 hash or the url (which incorporates the ticker
+        and date range)
+    """
+    warnings.warn(_warn_str.format(fun='quotes_historical_yahoo'),
+                  mplDeprecation)
+
+    _quotes_historical_yahoo(ticker, date1, date2, asobject=asobject,
+                             adjusted=adjusted, cachename=cachename,
+                             ochl=True)
+
+
+def quotes_historical_yahoo_ochl(ticker, date1, date2, asobject=False,
+                            adjusted=True, cachename=None):
+    """ Get historical data for ticker between date1 and date2.
+
+
+    See :func:`parse_yahoo_historical` for explanation of output formats
+    and the *asobject* and *adjusted* kwargs.
+
+    Ex:
+    sp = f.quotes_historical_yahoo('^GSPC', d1, d2,
+                                asobject=True, adjusted=True)
+    returns = (sp.open[1:] - sp.open[:-1])/sp.open[1:]
+    [n,bins,patches] = hist(returns, 100)
+    mu = mean(returns)
+    sigma = std(returns)
+    x = normpdf(bins, mu, sigma)
+    plot(bins, x, color='red', lw=2)
+
+    Parameters
+    ----------
+    ticker : str
+        stock ticker
+
+    date1 : sequence of form (year, month, day), `datetime`, or `date`
+        start date
+
+    date2 : sequence of form (year, month, day), `datetime`, or `date`
+        end date
+
+    cachename : str or `None`
+        is the name of the local file cache.  If None, will
+        default to the md5 hash or the url (which incorporates the ticker
+        and date range)
+    """
+
+    _quotes_historical_yahoo(ticker, date1, date2, asobject=asobject,
+                             adjusted=adjusted, cachename=cachename,
+                             ochl=True)
+
+
+def quotes_historical_yahoo_ohlc(ticker, date1, date2, asobject=False,
+                            adjusted=True, cachename=None):
+    """ Get historical data for ticker between date1 and date2.
+
+
+    See :func:`parse_yahoo_historical` for explanation of output formats
+    and the *asobject* and *adjusted* kwargs.
+
+    Ex:
+    sp = f.quotes_historical_yahoo('^GSPC', d1, d2,
+                                asobject=True, adjusted=True)
+    returns = (sp.open[1:] - sp.open[:-1])/sp.open[1:]
+    [n,bins,patches] = hist(returns, 100)
+    mu = mean(returns)
+    sigma = std(returns)
+    x = normpdf(bins, mu, sigma)
+    plot(bins, x, color='red', lw=2)
+
+    Parameters
+    ----------
+    ticker : str
+        stock ticker
+
+    date1 : sequence of form (year, month, day), `datetime`, or `date`
+        start date
+
+    date2 : sequence of form (year, month, day), `datetime`, or `date`
+        end date
+
+    cachename : str or `None`
+        is the name of the local file cache.  If None, will
+        default to the md5 hash or the url (which incorporates the ticker
+        and date range)
+    """
+
+    _quotes_historical_yahoo(ticker, date1, date2, asobject=asobject,
+                             adjusted=adjusted, cachename=cachename,
+                             ochl=True)
+
+
 def _quotes_historical_yahoo(ticker, date1, date2, asobject=False,
                             adjusted=True, cachename=None,
                             ochl=True):
