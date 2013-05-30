@@ -221,9 +221,9 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False,
       holding 1-D ndarrays.  The behavior of a numpy recarray is
       very similar to the Bunch.
 
-    stock_dt : `np.dtype`
-        The data type to be used for the returned array.  This is a
-        temporary argument to easy the transition from ochl -> ohlc
+    ochl : `bool`
+        Temporary argument to select between ochl and ohlc ordering.
+        Defaults to True to preserve original functionality.
 
     """
     if ochl:
@@ -516,6 +516,8 @@ def plot_day_summary(ax, quotes, ticksize=3,
         the color of the lines where close >= open
     colordown : color
         the color of the lines where close <  open
+    ochl: bool
+        temporary argument to select between ochl and ohlc ordering
 
     Returns
     -------
@@ -563,11 +565,49 @@ def plot_day_summary(ax, quotes, ticksize=3,
     return lines
 
 
-def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
+def candlestick_ochl(ax, quotes, width=0.2, colorup='k', colordown='r',
                 alpha=1.0):
 
     """
+    Plot the time, open, close, high, low as a vertical line ranging
+    from low to high.  Use a rectangular bar to represent the
+    open-close span.  If close >= open, use colorup to color the bar,
+    otherwise use colordown
 
+    Parameters
+    ----------
+    ax : `Axes`
+        an Axes instance to plot to
+    quotes : sequence of (time, open, high, low, close, ...) sequences
+        As long as the first 5 elements are these values,
+        the record can be as long as you want (eg it may store volume).
+
+        time must be in float days format - see date2num
+
+    width : float
+        fraction of a day for the rectangle width
+    colorup : color
+        the color of the rectangle where close >= open
+    colordown : color
+         the color of the rectangle where close <  open
+    alpha : float
+        the rectangle alpha level
+
+    Returns
+    -------
+    ret : tuple
+        returns (lines, patches) where lines is a list of lines
+        added and patches is a list of the rectangle patches added
+
+    """
+    candlestick(ax, quotes, width=width, colorup=colorup, colordown=colordown,
+                alpha=alpha, ochl=True)
+
+
+def candlestick_ohlc(ax, quotes, width=0.2, colorup='k', colordown='r',
+                alpha=1.0):
+
+    """
     Plot the time, open, high, low, close as a vertical line ranging
     from low to high.  Use a rectangular bar to represent the
     open-close span.  If close >= open, use colorup to color the bar,
@@ -599,13 +639,63 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
         added and patches is a list of the rectangle patches added
 
     """
+    candlestick(ax, quotes, width=width, colorup=colorup, colordown=colordown,
+                alpha=alpha, ochl=False)
+
+
+def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
+                alpha=1.0, ochl=True):
+
+    """
+
+    This function has been deprecated in 1.4 in favor of
+    `candlestick_ochl`, which maintains the original argument
+    order, or `candlestick_ohlc`, which uses the
+    open-high-low-close order.  This function will be removed in 1.5
+
+    Plot the time, open, high, low, close as a vertical line ranging
+    from low to high.  Use a rectangular bar to represent the
+    open-close span.  If close >= open, use colorup to color the bar,
+    otherwise use colordown
+
+    Parameters
+    ----------
+    ax : `Axes`
+        an Axes instance to plot to
+    quotes : sequence of (time, open, high, low, close, ...) sequences
+        As long as the first 5 elements are these values,
+        the record can be as long as you want (eg it may store volume).
+
+        time must be in float days format - see date2num
+
+    width : float
+        fraction of a day for the rectangle width
+    colorup : color
+        the color of the rectangle where close >= open
+    colordown : color
+         the color of the rectangle where close <  open
+    alpha : float
+        the rectangle alpha level
+    ochl: bool
+        temporary argument to select between ochl and ohlc ordering
+
+    Returns
+    -------
+    ret : tuple
+        returns (lines, patches) where lines is a list of lines
+        added and patches is a list of the rectangle patches added
+
+    """
 
     OFFSET = width / 2.0
 
     lines = []
     patches = []
     for q in quotes:
-        t, open, high, low, close = q[:5]
+        if ochl:
+            t, open, close, high, low = q[:5]
+        else:
+            t, open, high, low, close = q[:5]
 
         if close >= open:
             color = colorup
