@@ -115,10 +115,6 @@ def parse_yahoo_historical_ochl(fh, adjusted=True, asobject=False):
       holding 1-D ndarrays.  The behavior of a numpy recarray is
       very similar to the Bunch.
 
-    stock_dt : `np.dtype`
-        The data type to be used for the returned array.  This is a
-        temporary argument to easy the transition from ochl -> ohlc
-
     """
     parse_yahoo_historical(fh, adjusted=adjusted, asobject=asobject,
                            oclh=True)
@@ -171,11 +167,6 @@ def parse_yahoo_historical_ohlc(fh, adjusted=True, asobject=False):
       True returned a cbook Bunch
       holding 1-D ndarrays.  The behavior of a numpy recarray is
       very similar to the Bunch.
-
-     stock_dt : `np.dtype`
-        The data type to be used for the returned array.  This is a
-        temporary argument to easy the transition from ochl -> ohlc
-
     """
     parse_yahoo_historical(fh, adjusted=adjusted, asobject=asobject,
                            ochl=False)
