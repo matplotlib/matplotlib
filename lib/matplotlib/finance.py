@@ -66,16 +66,16 @@ stock_dt_ochl = np.dtype([('date', object),
                      ('volume', np.float),
                      ('aclose', np.float)])
 
+_warn_str = ("This function has been deprecated in 1.4 in favor "
+             "of `{fun}_ochl`, "
+             "which maintains the original argument order, "
+             "or `{fun}_ohlc`, "
+             "which uses the open-high-low-close order. "
+             "This function will be removed in 1.5")
+
 
 def parse_yahoo_historical_ochl(fh, adjusted=True, asobject=False):
     """Parse the historical data in file handle fh from yahoo finance.
-
-
-    This function has been deprecated in 1.4 in favor of
-    `parse_yahoo_historical_ochl`, which maintains the original argument
-    order, or `parse_yahoo_historical_ohlc`, which uses the
-    open-high-low-close order.  This function will be removed in 1.5
-
 
     Parameters
     ----------
@@ -116,20 +116,12 @@ def parse_yahoo_historical_ochl(fh, adjusted=True, asobject=False):
       very similar to the Bunch.
 
     """
-    parse_yahoo_historical(fh, adjusted=adjusted, asobject=asobject,
+    _parse_yahoo_historical(fh, adjusted=adjusted, asobject=asobject,
                            oclh=True)
 
 
 def parse_yahoo_historical_ohlc(fh, adjusted=True, asobject=False):
     """Parse the historical data in file handle fh from yahoo finance.
-
-
-    This function has been deprecated in 1.4 in favor of
-    `parse_yahoo_historical_ochl`, which maintains the original argument
-    order, or `parse_yahoo_historical_ohlc`, which uses the
-    open-high-low-close order.  This function will be removed in 1.5
-
-
     Parameters
     ----------
 
@@ -168,11 +160,71 @@ def parse_yahoo_historical_ohlc(fh, adjusted=True, asobject=False):
       holding 1-D ndarrays.  The behavior of a numpy recarray is
       very similar to the Bunch.
     """
-    parse_yahoo_historical(fh, adjusted=adjusted, asobject=asobject,
+    _parse_yahoo_historical(fh, adjusted=adjusted, asobject=asobject,
                            ochl=False)
 
 
-def parse_yahoo_historical(fh, adjusted=True, asobject=False,
+def parse_yahoo_historical(fh, adjusted=True, asobject=False):
+    """Parse the historical data in file handle fh from yahoo finance.
+
+
+    This function has been deprecated in 1.4 in favor of
+    `parse_yahoo_historical_ochl`, which maintains the original argument
+    order, or `parse_yahoo_historical_ohlc`, which uses the
+    open-high-low-close order.  This function will be removed in 1.5
+
+
+    Parameters
+    ----------
+
+    adjusted : `bool`
+      If True (default) replace open, high, low, close prices with
+      their adjusted values. The adjustment is by a scale factor, S =
+      adjusted_close/close. Adjusted prices are actual prices
+      multiplied by S.
+
+      Volume is not adjusted as it is already backward split adjusted
+      by Yahoo. If you want to compute dollars traded, multiply volume
+      by the adjusted close, regardless of whether you choose adjusted
+      = True|False.
+
+
+    asobject : `bool` or :class:`None`
+      If False (default for compatibility with earlier versions)
+      return a list of tuples containing
+
+        d, open, high, low, close, volume
+
+      If None (preferred alternative to False), return
+      a 2-D ndarray corresponding to the list of tuples.
+
+      Otherwise return a numpy recarray with
+
+        date, year, month, day, d, open, high, low, close,
+        volume, adjusted_close
+
+      where d is a floating poing representation of date,
+      as returned by date2num, and date is a python standard
+      library datetime.date instance.
+
+      The name of this kwarg is a historical artifact.  Formerly,
+      True returned a cbook Bunch
+      holding 1-D ndarrays.  The behavior of a numpy recarray is
+      very similar to the Bunch.
+
+    ochl : `bool`
+        Temporary argument to select between ochl and ohlc ordering.
+        Defaults to True to preserve original functionality.
+
+    """
+    warnings.warn(_warn_str.format(fun='parse_yahoo_historical'),
+                  mplDeprecation)
+
+    _parse_yahoo_historical(fh, adjusted=adjusted, asobject=asobject,
+                           oclh=True)
+
+
+def _parse_yahoo_historical(fh, adjusted=True, asobject=False,
                            ochl=True):
     """Parse the historical data in file handle fh from yahoo finance.
 
@@ -287,8 +339,7 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False,
 
 
 def fetch_historical_yahoo(ticker, date1, date2, cachename=None,
-                           dividends=False,
-                           ochl=True):
+                           dividends=False):
     """
     Fetch historical data for ticker between date1 and date2.  date1 and
     date2 are date or datetime instances, or (year, month, day) sequences.
@@ -366,8 +417,9 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,
         return urlopen(url)
 
 
-def quotes_historical_yahoo(ticker, date1, date2, asobject=False,
-                            adjusted=True, cachename=None):
+def _quotes_historical_yahoo(ticker, date1, date2, asobject=False,
+                            adjusted=True, cachename=None,
+                            ochl=True):
     """ Get historical data for ticker between date1 and date2.
 
     See :func:`parse_yahoo_historical` for explanation of output formats
@@ -398,6 +450,11 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False,
         is the name of the local file cache.  If None, will
         default to the md5 hash or the url (which incorporates the ticker
         and date range)
+
+    ochl: bool
+        temporary argument to select between ochl and ohlc ordering
+
+
     """
     # Maybe enable a warning later as part of a slow transition
     # to using None instead of False.
@@ -408,7 +465,7 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False,
 
     try:
         ret = parse_yahoo_historical(fh, asobject=asobject,
-                                     adjusted=adjusted)
+                                     adjusted=adjusted, ochl=ochl)
         if len(ret) == 0:
             return None
     except IOError as exc:
@@ -416,6 +473,48 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False,
         return None
 
     return ret
+
+
+def plot_day_summary(ax, quotes, ticksize=3,
+                     colorup='k', colordown='r',
+                     ):
+    """Plots day summary
+
+        Represent the time, open, close, high, low as a vertical line
+        ranging from low to high.  The left tick is the open and the right
+        tick is the close.
+
+
+    This function has been deprecated in 1.4 in favor of
+    `plot_day_summary_ochl`, which maintains the original argument
+    order, or `plot_day_summary_ohlc`, which uses the
+    open-high-low-close order.  This function will be removed in 1.5
+
+
+    Parameters
+    ----------
+    ax : `Axes`
+        an `Axes` instance to plot to
+    quotes : sequence of (time, open, close, high, low, ...) sequences
+        data to plot.  time must be in float date format - see date2num
+    ticksize : int
+        open/close tick marker in points
+    colorup : color
+        the color of the lines where close >= open
+    colordown : color
+        the color of the lines where close <  open
+
+    Returns
+    -------
+    lines : list
+        list of tuples of the lines added (one tuple per quote)
+    """
+    warnings.warn(_warn_str.format(fun='plot_day_summary'),
+                  mplDeprecation)
+
+    _plot_day_summary(ax, quotes, ticksize=ticksize,
+                     colorup=colorup, colordown=colordown,
+                     ochl=True)
 
 
 def plot_day_summary_oclh(ax, quotes, ticksize=3,
@@ -447,7 +546,7 @@ def plot_day_summary_oclh(ax, quotes, ticksize=3,
     lines : list
         list of tuples of the lines added (one tuple per quote)
     """
-    plot_day_summary(ax, quotes, ticksize=ticksize,
+    _plot_day_summary(ax, quotes, ticksize=ticksize,
                      colorup=colorup, colordown=colordown,
                      ochl=True)
 
@@ -481,21 +580,16 @@ def plot_day_summary_ohlc(ax, quotes, ticksize=3,
     lines : list
         list of tuples of the lines added (one tuple per quote)
     """
-    plot_day_summary(ax, quotes, ticksize=ticksize,
+    _plot_day_summary(ax, quotes, ticksize=ticksize,
                      colorup=colorup, colordown=colordown,
                      ochl=False)
 
 
-def plot_day_summary(ax, quotes, ticksize=3,
+def _plot_day_summary(ax, quotes, ticksize=3,
                      colorup='k', colordown='r',
                      ochl=True
                      ):
     """Plots day summary
-
-    This function has been deprecated in 1.4 in favor of
-    `plot_day_summary_ochl`, which maintains the original argument
-    order, or `plot_day_summary_ohlc`, which uses the
-    open-high-low-close order.  This function will be removed in 1.5
 
 
         Represent the time, open, high, low, close as a vertical line
@@ -565,6 +659,55 @@ def plot_day_summary(ax, quotes, ticksize=3,
     return lines
 
 
+def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
+                alpha=1.0):
+
+    """
+    Plot the time, open, close, high, low as a vertical line ranging
+    from low to high.  Use a rectangular bar to represent the
+    open-close span.  If close >= open, use colorup to color the bar,
+    otherwise use colordown
+
+
+    This function has been deprecated in 1.4 in favor of
+    `candlestick_ochl`, which maintains the original argument
+    order, or `candlestick_ohlc`, which uses the
+    open-high-low-close order.  This function will be removed in 1.5
+
+
+    Parameters
+    ----------
+    ax : `Axes`
+        an Axes instance to plot to
+    quotes : sequence of (time, open, high, low, close, ...) sequences
+        As long as the first 5 elements are these values,
+        the record can be as long as you want (eg it may store volume).
+
+        time must be in float days format - see date2num
+
+    width : float
+        fraction of a day for the rectangle width
+    colorup : color
+        the color of the rectangle where close >= open
+    colordown : color
+         the color of the rectangle where close <  open
+    alpha : float
+        the rectangle alpha level
+
+    Returns
+    -------
+    ret : tuple
+        returns (lines, patches) where lines is a list of lines
+        added and patches is a list of the rectangle patches added
+
+    """
+    warnings.warn(_warn_str.format(fun='candlestick'),
+                  mplDeprecation)
+
+    _candlestick(ax, quotes, width=width, colorup=colorup, colordown=colordown,
+                alpha=alpha, ochl=True)
+
+
 def candlestick_ochl(ax, quotes, width=0.2, colorup='k', colordown='r',
                 alpha=1.0):
 
@@ -600,7 +743,7 @@ def candlestick_ochl(ax, quotes, width=0.2, colorup='k', colordown='r',
         added and patches is a list of the rectangle patches added
 
     """
-    candlestick(ax, quotes, width=width, colorup=colorup, colordown=colordown,
+    _candlestick(ax, quotes, width=width, colorup=colorup, colordown=colordown,
                 alpha=alpha, ochl=True)
 
 
@@ -639,20 +782,14 @@ def candlestick_ohlc(ax, quotes, width=0.2, colorup='k', colordown='r',
         added and patches is a list of the rectangle patches added
 
     """
-    candlestick(ax, quotes, width=width, colorup=colorup, colordown=colordown,
+    _candlestick(ax, quotes, width=width, colorup=colorup, colordown=colordown,
                 alpha=alpha, ochl=False)
 
 
-def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
+def _candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
                 alpha=1.0, ochl=True):
 
     """
-
-    This function has been deprecated in 1.4 in favor of
-    `candlestick_ochl`, which maintains the original argument
-    order, or `candlestick_ohlc`, which uses the
-    open-high-low-close order.  This function will be removed in 1.5
-
     Plot the time, open, high, low, close as a vertical line ranging
     from low to high.  Use a rectangular bar to represent the
     open-close span.  If close >= open, use colorup to color the bar,
@@ -770,11 +907,11 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
         a list of lines added to the axes
     """
 
-    warnings.warn("This function has been deprecated in 1.4 in favor"
-                  "of `plot_day_summary_ochl`,"
-                  "which maintains the original argument order,"
-                  "or `plot_day_summary_ohlc`,"
-                  "which uses the open-high-low-close order."
+    warnings.warn("This function has been deprecated in 1.4 in favor "
+                  "of `plot_day_summary2_ochl`, "
+                  "which maintains the original argument order, "
+                  "or `plot_day_summary2_ohlc`, "
+                  "which uses the open-high-low-close order. "
                   "This function will be removed in 1.5", mplDeprecation)
     return plot_day_summary_ohlc(ax, opens, highs, lows, closes, ticksize,
                                  colorup, colordown)
@@ -927,7 +1064,7 @@ def plot_day_summary2_ohlc(ax, opens, highs, lows, closes, ticksize=4,
     return rangeCollection, openCollection, closeCollection
 
 
-def candlestick_ochl(ax, opens, closes, highs, lows,  width=4,
+def candlestick2_ochl(ax, opens, closes, highs, lows,  width=4,
                  colorup='k', colordown='r',
                  alpha=0.75,
                  ):
@@ -977,8 +1114,8 @@ def candlestick2(ax, opens, closes, highs, lows,  width=4,
     vertical line.
 
     This function has been deprecated in 1.4 in favor of
-    `candlestick_ochl`, which maintains the original argument order,
-    or `candlestick_ohlc`, which uses the open-high-low-close order.
+    `candlestick2_ochl`, which maintains the original argument order,
+    or `candlestick2_ohlc`, which uses the open-high-low-close order.
     This function will be removed in 1.5
 
 
@@ -1020,7 +1157,7 @@ def candlestick2(ax, opens, closes, highs, lows,  width=4,
                      alpha=alpha)
 
 
-def candlestick_ohlc(ax, opens, highs, lows, closes, width=4,
+def candlestick2_ohlc(ax, opens, highs, lows, closes, width=4,
                  colorup='k', colordown='r',
                  alpha=0.75,
                  ):
