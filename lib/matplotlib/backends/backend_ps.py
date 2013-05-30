@@ -748,7 +748,13 @@ grestore
             self.track_characters(font, s)
 
             self.set_color(*gc.get_rgb())
-            self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())
+            sfnt = font.get_sfnt()
+            try:
+                ps_name = sfnt[(1,0,0,6)]
+            except KeyError:
+                ps_name = sfnt[(3,1,0x0409,6)].decode(
+                    'utf-16be').encode('ascii','replace')
+            self.set_font(ps_name, prop.get_size_in_points())
 
             cmap = font.get_charmap()
             lastgind = None

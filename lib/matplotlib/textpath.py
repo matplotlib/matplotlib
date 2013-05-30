@@ -61,7 +61,12 @@ class TextToPath(object):
         """
         Return a unique id for the given font and character-code set.
         """
-        ps_name = font.get_sfnt()[(1, 0, 0, 6)]
+        sfnt = font.get_sfnt()
+        try:
+            ps_name = sfnt[(1,0,0,6)]
+        except KeyError:
+            ps_name = sfnt[(3,1,0x0409,6)].decode(
+                'utf-16be').encode('ascii','replace')
         char_id = urllib.quote('%s-%x' % (ps_name, ccode))
         return char_id
 
