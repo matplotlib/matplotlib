@@ -3343,8 +3343,8 @@ class Axes(martist.Artist):
         text in the center of the axes::
 
             >>> text(0.5, 0.5,'matplotlib', horizontalalignment='center',
-            >>>      verticalalignment='center',
-            >>>      transform = ax.transAxes)
+            ...      verticalalignment='center',
+            ...      transform=ax.transAxes)
 
         You can put a rectangular box around the text instance (e.g., to
         set a background color) by using the keyword *bbox*.  *bbox* is
