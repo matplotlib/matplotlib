@@ -41,7 +41,7 @@ else:
     cachedir = None
 
 
-stock_dt = np.dtype([('date', object),
+stock_dt_ohlc = np.dtype([('date', object),
                      ('year', np.int16),
                      ('month', np.int8),
                      ('day', np.int8),
@@ -54,8 +54,143 @@ stock_dt = np.dtype([('date', object),
                      ('aclose', np.float)])
 
 
-def parse_yahoo_historical(fh, adjusted=True, asobject=False):
+stock_dt_ochl = np.dtype([('date', object),
+                     ('year', np.int16),
+                     ('month', np.int8),
+                     ('day', np.int8),
+                     ('d', np.float),     # mpl datenum
+                     ('open', np.float),
+                     ('close', np.float),
+                     ('high', np.float),
+                     ('low', np.float),
+                     ('volume', np.float),
+                     ('aclose', np.float)])
+
+
+def parse_yahoo_historical_ochl(fh, adjusted=True, asobject=False):
     """Parse the historical data in file handle fh from yahoo finance.
+
+
+    This function has been deprecated in 1.4 in favor of
+    `parse_yahoo_historical_ochl`, which maintains the original argument
+    order, or `parse_yahoo_historical_ohlc`, which uses the
+    open-high-low-close order.  This function will be removed in 1.5
+
+
+    Parameters
+    ----------
+
+    adjusted : `bool`
+      If True (default) replace open, high, low, close prices with
+      their adjusted values. The adjustment is by a scale factor, S =
+      adjusted_close/close. Adjusted prices are actual prices
+      multiplied by S.
+
+      Volume is not adjusted as it is already backward split adjusted
+      by Yahoo. If you want to compute dollars traded, multiply volume
+      by the adjusted close, regardless of whether you choose adjusted
+      = True|False.
+
+
+    asobject : `bool` or :class:`None`
+      If False (default for compatibility with earlier versions)
+      return a list of tuples containing
+
+        d, open, close, high, low,  volume
+
+      If None (preferred alternative to False), return
+      a 2-D ndarray corresponding to the list of tuples.
+
+      Otherwise return a numpy recarray with
+
+        date, year, month, day, d, open, close, high, low,
+        volume, adjusted_close
+
+      where d is a floating poing representation of date,
+      as returned by date2num, and date is a python standard
+      library datetime.date instance.
+
+      The name of this kwarg is a historical artifact.  Formerly,
+      True returned a cbook Bunch
+      holding 1-D ndarrays.  The behavior of a numpy recarray is
+      very similar to the Bunch.
+
+    stock_dt : `np.dtype`
+        The data type to be used for the returned array.  This is a
+        temporary argument to easy the transition from ochl -> ohlc
+
+    """
+    parse_yahoo_historical(fh, adjusted=adjusted, asobject=asobject,
+                           oclh=True)
+
+
+def parse_yahoo_historical_ohlc(fh, adjusted=True, asobject=False):
+    """Parse the historical data in file handle fh from yahoo finance.
+
+
+    This function has been deprecated in 1.4 in favor of
+    `parse_yahoo_historical_ochl`, which maintains the original argument
+    order, or `parse_yahoo_historical_ohlc`, which uses the
+    open-high-low-close order.  This function will be removed in 1.5
+
+
+    Parameters
+    ----------
+
+    adjusted : `bool`
+      If True (default) replace open, high, low, close prices with
+      their adjusted values. The adjustment is by a scale factor, S =
+      adjusted_close/close. Adjusted prices are actual prices
+      multiplied by S.
+
+      Volume is not adjusted as it is already backward split adjusted
+      by Yahoo. If you want to compute dollars traded, multiply volume
+      by the adjusted close, regardless of whether you choose adjusted
+      = True|False.
+
+
+    asobject : `bool` or :class:`None`
+      If False (default for compatibility with earlier versions)
+      return a list of tuples containing
+
+        d, open, high, low, close, volume
+
+      If None (preferred alternative to False), return
+      a 2-D ndarray corresponding to the list of tuples.
+
+      Otherwise return a numpy recarray with
+
+        date, year, month, day, d, open, high, low,  close,
+        volume, adjusted_close
+
+      where d is a floating poing representation of date,
+      as returned by date2num, and date is a python standard
+      library datetime.date instance.
+
+      The name of this kwarg is a historical artifact.  Formerly,
+      True returned a cbook Bunch
+      holding 1-D ndarrays.  The behavior of a numpy recarray is
+      very similar to the Bunch.
+
+     stock_dt : `np.dtype`
+        The data type to be used for the returned array.  This is a
+        temporary argument to easy the transition from ochl -> ohlc
+
+    """
+    parse_yahoo_historical(fh, adjusted=adjusted, asobject=asobject,
+                           ochl=False)
+
+
+def parse_yahoo_historical(fh, adjusted=True, asobject=False,
+                           ochl=True):
+    """Parse the historical data in file handle fh from yahoo finance.
+
+
+    This function has been deprecated in 1.4 in favor of
+    `parse_yahoo_historical_ochl`, which maintains the original argument
+    order, or `parse_yahoo_historical_ohlc`, which uses the
+    open-high-low-close order.  This function will be removed in 1.5
+
 
     Parameters
     ----------
@@ -95,7 +230,15 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
       holding 1-D ndarrays.  The behavior of a numpy recarray is
       very similar to the Bunch.
 
+    stock_dt : `np.dtype`
+        The data type to be used for the returned array.  This is a
+        temporary argument to easy the transition from ochl -> ohlc
+
     """
+    if ochl:
+        stock_dt = stock_dt_ochl
+    else:
+        stock_dt = stock_dt_ohlc
 
     lines = fh.readlines()
 
@@ -134,10 +277,16 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
         # 2-D sequence; formerly list of tuples, now ndarray
         ret = np.zeros((len(d), 6), dtype=np.float)
         ret[:, 0] = d['d']
-        ret[:, 1] = d['open']
-        ret[:, 3] = d['high']
-        ret[:, 4] = d['low']
-        ret[:, 2] = d['close']
+        if ochl:
+            ret[:, 1] = d['open']
+            ret[:, 2] = d['close']
+            ret[:, 3] = d['high']
+            ret[:, 4] = d['low']
+        else:
+            ret[:, 1] = d['open']
+            ret[:, 2] = d['high']
+            ret[:, 3] = d['low']
+            ret[:, 4] = d['close']
         ret[:, 5] = d['volume']
         if asobject is None:
             return ret
@@ -427,10 +576,10 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
     tick is the close.
 
 
-    This function has been deprecated in 1.3 in favor of
+    This function has been deprecated in 1.4 in favor of
     `plot_day_summary_ochl`, which maintains the original argument
     order, or `plot_day_summary_ohlc`, which uses the
-    open-high-low-close order.  This function will be removed in 1.4
+    open-high-low-close order.  This function will be removed in 1.5
 
 
     Parameters
