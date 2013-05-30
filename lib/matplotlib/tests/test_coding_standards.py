@@ -163,7 +163,7 @@ class StandardReportWithExclusions(pep8.StandardReport):
                      self).get_file_results()
 
 
-def test_pep8_conformance():
+def _test_pep8_conformance():
 #    Tests the matplotlib codebase against the "pep8" tool.
 #
 #    Users can add their own excluded files (should files exist in the
