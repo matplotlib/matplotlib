@@ -295,7 +295,9 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False,
     return d.view(np.recarray)  # Close enough to former Bunch return
 
 
-def fetch_historical_yahoo(ticker, date1, date2, cachename=None, dividends=False):
+def fetch_historical_yahoo(ticker, date1, date2, cachename=None,
+                           dividends=False,
+                           ochl=True):
     """
     Fetch historical data for ticker between date1 and date2.  date1 and
     date2 are date or datetime instances, or (year, month, day) sequences.
@@ -357,13 +359,15 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None, dividends=False
     if cachename is not None:
         if os.path.exists(cachename):
             fh = open(cachename)
-            verbose.report('Using cachefile %s for %s'%(cachename, ticker))
+            verbose.report('Using cachefile %s for '
+                           '%s' % (cachename, ticker))
         else:
             mkdirs(os.path.abspath(os.path.dirname(cachename)))
             with contextlib.closing(urlopen(url)) as urlfh:
                 with open(cachename, 'wb') as fh:
                     fh.write(urlfh.read())
-            verbose.report('Saved %s data to cache file %s'%(ticker, cachename))
+            verbose.report('Saved %s data to cache file '
+                           '%s' % (ticker, cachename))
             fh = open(cachename, 'r')
 
         return fh
@@ -417,7 +421,7 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False,
         if len(ret) == 0:
             return None
     except IOError as exc:
-        warnings.warn('fh failure\n%s'%(exc.strerror[1]))
+        warnings.warn('fh failure\n%s' % (exc.strerror[1]))
         return None
 
     return ret
@@ -607,12 +611,12 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
         a list of lines added to the axes
     """
 
-    warnings.warn("This function has been deprecated in 1.3 in favor"
+    warnings.warn("This function has been deprecated in 1.4 in favor"
                   "of `plot_day_summary_ochl`,"
                   "which maintains the original argument order,"
                   "or `plot_day_summary_ohlc`,"
                   "which uses the open-high-low-close order."
-                  "This function will be removed in 1.4", mplDeprecation)
+                  "This function will be removed in 1.5", mplDeprecation)
     return plot_day_summary_ohlc(ax, opens, highs, lows, closes, ticksize,
                                  colorup, colordown)
 
@@ -691,7 +695,8 @@ def plot_day_summary_ohlc(ax, opens, highs, lows, closes, ticksize=4,
     # note this code assumes if any value open, high, low, close is
     # missing they all are missing
 
-    rangeSegments = [((i, low), (i, high)) for i, low, high in zip(xrange(len(lows)), lows, highs) if low != -1]
+    rangeSegments = [((i, low), (i, high)) for i, low, high in
+                     zip(xrange(len(lows)), lows, highs) if low != -1]
 
     # the ticks will be from ticksize to 0 in points at the origin and
     # we'll translate these to the i, close location
@@ -701,9 +706,11 @@ def plot_day_summary_ohlc(ax, opens, highs, lows, closes, ticksize=4,
     # we'll translate these to the i, close location
     closeSegments = [((0, 0), (ticksize, 0))]
 
-    offsetsOpen = [(i, open) for i, open in zip(xrange(len(opens)), opens) if open != -1]
+    offsetsOpen = [(i, open) for i, open in
+                   zip(xrange(len(opens)), opens) if open != -1]
 
-    offsetsClose = [(i, close) for i, close in zip(xrange(len(closes)), closes) if close != -1]
+    offsetsClose = [(i, close) for i, close in
+                    zip(xrange(len(closes)), closes) if close != -1]
 
     scale = ax.figure.dpi * (1.0 / 72.0)
 
@@ -716,7 +723,8 @@ def plot_day_summary_ohlc(ax, opens, highs, lows, closes, ticksize=4,
     colord = {True: colorup,
               False: colordown,
               }
-    colors = [colord[open < close] for open, close in zip(opens, closes) if open != -1 and close != -1]
+    colors = [colord[open < close] for open, close in
+              zip(opens, closes) if open != -1 and close != -1]
 
     assert(len(rangeSegments) == len(offsetsOpen))
     assert(len(offsetsOpen) == len(offsetsClose))
@@ -760,6 +768,7 @@ def plot_day_summary_ohlc(ax, opens, highs, lows, closes, ticksize=4,
     ax.add_collection(openCollection)
     ax.add_collection(closeCollection)
     return rangeCollection, openCollection, closeCollection
+
 
 def candlestick_ochl(ax, opens, closes, highs, lows,  width=4,
                  colorup='k', colordown='r',
@@ -810,10 +819,10 @@ def candlestick2(ax, opens, closes, highs, lows,  width=4,
     """Represent the open, close as a bar line and high low range as a
     vertical line.
 
-    This function has been deprecated in 1.3 in favor of
+    This function has been deprecated in 1.4 in favor of
     `candlestick_ochl`, which maintains the original argument order,
     or `candlestick_ohlc`, which uses the open-high-low-close order.
-    This function will be removed in 1.4
+    This function will be removed in 1.5
 
 
     Parameters
@@ -842,19 +851,17 @@ def candlestick2(ax, opens, closes, highs, lows,  width=4,
     ret : tuple
         (lineCollection, barCollection)
     """
-
-
-    warnings.warn("This function has been deprecated in 1.3 in favor"
+    warnings.warn("This function has been deprecated in 1.4 in favor"
                   "of `candlestick_ochl`,"
                   "which maintains the original argument order,"
                   "or `candlestick_ohlc`,"
                   "which uses the open-high-low-close order."
-                  "This function will be removed in 1.4", mplDeprecation)
-
+                  "This function will be removed in 1.5", mplDeprecation)
 
     candlestick_ohlc(ax, opens, highs, lows, closes, width=width,
                      colorup=colorup, colordown=colordown,
                      alpha=alpha)
+
 
 def candlestick_ohlc(ax, opens, highs, lows, closes, width=4,
                  colorup='k', colordown='r',
@@ -895,7 +902,10 @@ def candlestick_ohlc(ax, opens, highs, lows, closes, width=4,
     # missing they all are missing
 
     delta = width / 2.
-    barVerts = [((i - delta, open), (i - delta, close), (i + delta, close), (i + delta, open))
+    barVerts = [((i - delta, open),
+                 (i - delta, close),
+                 (i + delta, close),
+                 (i + delta, open))
                 for i, open, close in zip(xrange(len(opens)), opens, closes)
                 if open != -1 and close != -1]
 
@@ -1046,7 +1056,8 @@ def volume_overlay2(ax, closes, volumes,
 
     """
 
-    return volume_overlay(ax, closes[:-1], closes[1:], volumes[1:], colorup, colordown, width, alpha)
+    return volume_overlay(ax, closes[:-1], closes[1:], volumes[1:],
+                          colorup, colordown, width, alpha)
 
 
 def volume_overlay3(ax, quotes,
