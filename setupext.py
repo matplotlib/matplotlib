@@ -925,7 +925,7 @@ class Dateutil(SetupPackage):
         return "using dateutil version %s" % dateutil.__version__
 
     def get_install_requires(self):
-        return ['python_dateutil']
+        return ['python-dateutil']
 
 
 class Tornado(SetupPackage):
