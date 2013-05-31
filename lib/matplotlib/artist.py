@@ -1261,9 +1261,8 @@ def setp(obj, *args, **kwargs):
     :func:`setp` works with the MATLAB style string/value pairs or
     with python kwargs.  For example, the following are equivalent::
 
-      >>> setp(lines, 'linewidth', 2, 'color', r')  # MATLAB style
-          ...
-      >>> setp(lines, linewidth=2, color='r')       # python style
+      >>> setp(lines, 'linewidth', 2, 'color', 'r')  # MATLAB style
+      >>> setp(lines, linewidth=2, color='r')        # python style
     """
 
     insp = ArtistInspector(obj)
