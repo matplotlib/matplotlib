@@ -392,7 +392,8 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,
     else:
         g = 'd'
 
-    urlFmt = 'http://ichart.yahoo.com/table.csv?a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&s=%s&y=0&g=%s&ignore=.csv'
+    urlFmt = ('http://ichart.yahoo.com/table.csv?a=%d&b=%d&' +
+              'c=%d&d=%d&e=%d&f=%d&s=%s&y=0&g=%s&ignore=.csv')
 
     url = urlFmt % (d1[0], d1[1], d1[2],
                     d2[0], d2[1], d2[2], ticker, g)
