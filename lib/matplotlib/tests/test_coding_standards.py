@@ -3,7 +3,14 @@ import os
 import sys
 
 from nose.tools import assert_equal
-import pep8
+from nose.plugins.skip import SkipTest
+
+try:
+    import pep8
+except ImportError:
+    HAS_PEP8 = False
+else:
+    HAS_PEP8 = True
 
 import matplotlib
 
@@ -171,6 +178,9 @@ def _test_pep8_conformance():
 #    ".pep8_test_exclude.txt" file in the same directory as this test.
 #    The file should be a line separated list of filenames/directories
 #    as can be passed to the "pep8" tool's exclude list.
+
+    if not HAS_PEP8:
+        raise SkipTest('The pep8 tool is required for this test')
 
     # Only run this test with Python 2 - the 2to3 tool generates non pep8
     # compliant code.
