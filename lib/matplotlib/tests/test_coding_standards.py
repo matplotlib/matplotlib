@@ -10,7 +10,7 @@ try:
 except ImportError:
     HAS_PEP8 = False
 else:
-    HAS_PEP8 = True
+    HAS_PEP8 = pep8.__version__ > '1.4.5'
 
 import matplotlib
 
@@ -141,15 +141,18 @@ if HAS_PEP8:
             '*/matplotlib/projections/__init__.py',
             '*/matplotlib/projections/geo.py',
             '*/matplotlib/projections/polar.py']
-
+    
+        #: A class attribute to store the lines of failing tests.
+        _global_deferred_print = []
+    
         #: A class attribute to store patterns which have seen exceptions.
         matched_exclusions = set()
-
+    
         def get_file_results(self):
             # If the file had no errors, return self.file_errors (which will be 0)
             if not self._deferred_print:
                 return self.file_errors
-
+    
             # Iterate over all of the patterns, to find a possible exclusion. If we
             # the filename is to be excluded, go ahead and remove the counts that
             # self.error added.
@@ -165,13 +168,22 @@ if HAS_PEP8:
                         self.file_errors -= 1
                         self.total_errors -= 1
                     return self.file_errors
+    
+            # mirror the content of StandardReport, only storing the output to
+            # file rather than printing. This could be a feature request for
+            # the PEP8 tool.
+            self._deferred_print.sort()
+            for line_number, offset, code, text, doc in self._deferred_print:
+                self._global_deferred_print.append(
+                    self._fmt % {
+                    'path': self.filename,
+                    'row': self.line_offset + line_number, 'col': offset + 1,
+                    'code': code, 'text': text,
+                })
+            return self.file_errors
 
-            # Otherwise call the superclass' method to print the bad results.
-            return super(StandardReportWithExclusions,
-                         self).get_file_results()
 
-
-def _test_pep8_conformance():
+def test_pep8_conformance():
 #    Tests the matplotlib codebase against the "pep8" tool.
 #
 #    Users can add their own excluded files (should files exist in the
@@ -192,6 +204,7 @@ def _test_pep8_conformance():
     # "reporter=pep8.FileReport" to the StyleGuide constructor.
     pep8style = pep8.StyleGuide(quiet=False,
                                 reporter=StandardReportWithExclusions)
+    reporter = pep8style.options.reporter
 
     # Extend the number of PEP8 guidelines which are not checked.
     pep8style.options.ignore = pep8style.options.ignore + ('E121', 'E122',
@@ -225,10 +238,15 @@ def _test_pep8_conformance():
         pep8style.options.exclude.extend(extra_exclude)
 
     result = pep8style.check_files([os.path.dirname(matplotlib.__file__)])
-    assert_equal(result.total_errors, 0, "Found code syntax "
+    if reporter is StandardReportWithExclusions:
+        assert_equal(result.total_errors, 0,
+                     ("Found code syntax errors (and warnings):\n"
+                      "{0}".format(
+                              '\n'.join(reporter._global_deferred_print))))
+    else:
+        assert_equal(result.total_errors, 0, "Found code syntax "
                                          "errors (and warnings).")
 
-    reporter = pep8style.options.reporter
     # If we've been using the exclusions reporter, check that we didn't
     # exclude files unnecessarily.
     if reporter is StandardReportWithExclusions:
