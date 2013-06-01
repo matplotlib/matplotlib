@@ -219,7 +219,7 @@ _pyobj_addr(PyObject* self, PyObject* args)
     {
         return NULL;
     }
-    return Py_BuildValue("l", (long) pyobj);
+    return Py_BuildValue("n", (Py_ssize_t) pyobj);
 }
 
 static PyObject*
@@ -228,9 +228,9 @@ _tkinit(PyObject* self, PyObject* args)
     Tcl_Interp* interp;
     TkappObject* app;
 
-    long arg;
+    Py_ssize_t arg;
     int is_interp;
-    if (!PyArg_ParseTuple(args, "li", &arg, &is_interp))
+    if (!PyArg_ParseTuple(args, "ni", &arg, &is_interp))
     {
         return NULL;
     }
