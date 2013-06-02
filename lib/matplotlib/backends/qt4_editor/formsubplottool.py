@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'subplot_conftool.ui'
+# Form implementation generated from reading ui file 'lib/matplotlib/backends/qt4_editor/subplot_conftool.ui'
 #
-# Created: Sun May  5 20:30:44 2013
-#      by: PyQt4 UI code generator 4.9.3
+# Created: Mon Jun  3 01:47:41 2013
+#      by: PyQt4 UI code generator 4.10.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,16 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_SubplotTool(object):
     def setupUi(self, SubplotTool):
@@ -60,6 +69,8 @@ class Ui_SubplotTool(object):
         self.labeltop.setObjectName(_fromUtf8("labeltop"))
         self.hboxtop.addWidget(self.labeltop)
         self.slidertop = QtGui.QSlider(self.groupBox)
+        self.slidertop.setMouseTracking(False)
+        self.slidertop.setProperty("value", 0)
         self.slidertop.setOrientation(QtCore.Qt.Horizontal)
         self.slidertop.setInvertedAppearance(False)
         self.slidertop.setInvertedControls(False)
@@ -67,6 +78,11 @@ class Ui_SubplotTool(object):
         self.slidertop.setTickInterval(100)
         self.slidertop.setObjectName(_fromUtf8("slidertop"))
         self.hboxtop.addWidget(self.slidertop)
+        self.topvalue = QtGui.QLabel(self.groupBox)
+        self.topvalue.setMinimumSize(QtCore.QSize(30, 0))
+        self.topvalue.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.topvalue.setObjectName(_fromUtf8("topvalue"))
+        self.hboxtop.addWidget(self.topvalue)
         self.verticalLayout.addLayout(self.hboxtop)
         self.hboxbottom = QtGui.QHBoxLayout()
         self.hboxbottom.setObjectName(_fromUtf8("hboxbottom"))
@@ -87,6 +103,11 @@ class Ui_SubplotTool(object):
         self.sliderbottom.setTickInterval(100)
         self.sliderbottom.setObjectName(_fromUtf8("sliderbottom"))
         self.hboxbottom.addWidget(self.sliderbottom)
+        self.bottomvalue = QtGui.QLabel(self.groupBox)
+        self.bottomvalue.setMinimumSize(QtCore.QSize(30, 0))
+        self.bottomvalue.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.bottomvalue.setObjectName(_fromUtf8("bottomvalue"))
+        self.hboxbottom.addWidget(self.bottomvalue)
         self.verticalLayout.addLayout(self.hboxbottom)
         self.hboxleft = QtGui.QHBoxLayout()
         self.hboxleft.setObjectName(_fromUtf8("hboxleft"))
@@ -107,6 +128,11 @@ class Ui_SubplotTool(object):
         self.sliderleft.setTickInterval(100)
         self.sliderleft.setObjectName(_fromUtf8("sliderleft"))
         self.hboxleft.addWidget(self.sliderleft)
+        self.leftvalue = QtGui.QLabel(self.groupBox)
+        self.leftvalue.setMinimumSize(QtCore.QSize(30, 0))
+        self.leftvalue.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.leftvalue.setObjectName(_fromUtf8("leftvalue"))
+        self.hboxleft.addWidget(self.leftvalue)
         self.verticalLayout.addLayout(self.hboxleft)
         self.hboxright = QtGui.QHBoxLayout()
         self.hboxright.setObjectName(_fromUtf8("hboxright"))
@@ -127,6 +153,11 @@ class Ui_SubplotTool(object):
         self.sliderright.setTickInterval(100)
         self.sliderright.setObjectName(_fromUtf8("sliderright"))
         self.hboxright.addWidget(self.sliderright)
+        self.rightvalue = QtGui.QLabel(self.groupBox)
+        self.rightvalue.setMinimumSize(QtCore.QSize(30, 0))
+        self.rightvalue.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.rightvalue.setObjectName(_fromUtf8("rightvalue"))
+        self.hboxright.addWidget(self.rightvalue)
         self.verticalLayout.addLayout(self.hboxright)
         self.gridLayout.addWidget(self.groupBox, 5, 0, 1, 1)
         self.groupBox_2 = QtGui.QGroupBox(SubplotTool)
@@ -154,6 +185,11 @@ class Ui_SubplotTool(object):
         self.sliderhspace.setTickInterval(100)
         self.sliderhspace.setObjectName(_fromUtf8("sliderhspace"))
         self.hboxhspace.addWidget(self.sliderhspace)
+        self.hspacevalue = QtGui.QLabel(self.groupBox_2)
+        self.hspacevalue.setMinimumSize(QtCore.QSize(30, 0))
+        self.hspacevalue.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.hspacevalue.setObjectName(_fromUtf8("hspacevalue"))
+        self.hboxhspace.addWidget(self.hspacevalue)
         self.verticalLayout_2.addLayout(self.hboxhspace)
         self.hboxwspace = QtGui.QHBoxLayout()
         self.hboxwspace.setObjectName(_fromUtf8("hboxwspace"))
@@ -175,6 +211,11 @@ class Ui_SubplotTool(object):
         self.sliderwspace.setTickInterval(100)
         self.sliderwspace.setObjectName(_fromUtf8("sliderwspace"))
         self.hboxwspace.addWidget(self.sliderwspace)
+        self.wspacevalue = QtGui.QLabel(self.groupBox_2)
+        self.wspacevalue.setMinimumSize(QtCore.QSize(30, 0))
+        self.wspacevalue.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.wspacevalue.setObjectName(_fromUtf8("wspacevalue"))
+        self.hboxwspace.addWidget(self.wspacevalue)
         self.verticalLayout_2.addLayout(self.hboxwspace)
         self.gridLayout.addWidget(self.groupBox_2, 6, 0, 1, 1)
         self.horizontalLayout.addLayout(self.gridLayout)
@@ -184,15 +225,21 @@ class Ui_SubplotTool(object):
         QtCore.QMetaObject.connectSlotsByName(SubplotTool)
 
     def retranslateUi(self, SubplotTool):
-        SubplotTool.setWindowTitle(QtGui.QApplication.translate("SubplotTool", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
-        self.tightLayout.setText(QtGui.QApplication.translate("SubplotTool", "tight layout", None, QtGui.QApplication.UnicodeUTF8))
-        self.resetButton.setText(QtGui.QApplication.translate("SubplotTool", "reset", None, QtGui.QApplication.UnicodeUTF8))
-        self.doneButton.setText(QtGui.QApplication.translate("SubplotTool", "close", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox.setTitle(QtGui.QApplication.translate("SubplotTool", "Borders", None, QtGui.QApplication.UnicodeUTF8))
-        self.labeltop.setText(QtGui.QApplication.translate("SubplotTool", "top", None, QtGui.QApplication.UnicodeUTF8))
-        self.labelbottom.setText(QtGui.QApplication.translate("SubplotTool", "bottom", None, QtGui.QApplication.UnicodeUTF8))
-        self.labelleft.setText(QtGui.QApplication.translate("SubplotTool", "left", None, QtGui.QApplication.UnicodeUTF8))
-        self.labelright.setText(QtGui.QApplication.translate("SubplotTool", "right", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox_2.setTitle(QtGui.QApplication.translate("SubplotTool", "Spaces", None, QtGui.QApplication.UnicodeUTF8))
-        self.labelhspace.setText(QtGui.QApplication.translate("SubplotTool", "hspace", None, QtGui.QApplication.UnicodeUTF8))
-        self.labelwspace.setText(QtGui.QApplication.translate("SubplotTool", "wspace", None, QtGui.QApplication.UnicodeUTF8))
+        SubplotTool.setWindowTitle(_translate("SubplotTool", "Dialog", None))
+        self.tightLayout.setText(_translate("SubplotTool", "tight layout", None))
+        self.resetButton.setText(_translate("SubplotTool", "reset", None))
+        self.doneButton.setText(_translate("SubplotTool", "close", None))
+        self.groupBox.setTitle(_translate("SubplotTool", "Borders", None))
+        self.labeltop.setText(_translate("SubplotTool", "top", None))
+        self.topvalue.setText(_translate("SubplotTool", "0", None))
+        self.labelbottom.setText(_translate("SubplotTool", "bottom", None))
+        self.bottomvalue.setText(_translate("SubplotTool", "0", None))
+        self.labelleft.setText(_translate("SubplotTool", "left", None))
+        self.leftvalue.setText(_translate("SubplotTool", "0", None))
+        self.labelright.setText(_translate("SubplotTool", "right", None))
+        self.rightvalue.setText(_translate("SubplotTool", "0", None))
+        self.groupBox_2.setTitle(_translate("SubplotTool", "Spaces", None))
+        self.labelhspace.setText(_translate("SubplotTool", "hspace", None))
+        self.hspacevalue.setText(_translate("SubplotTool", "0", None))
+        self.labelwspace.setText(_translate("SubplotTool", "wspace", None))
+        self.wspacevalue.setText(_translate("SubplotTool", "0", None))

@@ -783,8 +783,8 @@ class SubplotToolQt(SubplotTool, QtGui.QDialog, Ui_SubplotTool):
             int(self.targetfig.subplotpars.bottom*1000))
         self.sliderright.setSliderPosition(
             int(self.targetfig.subplotpars.right*1000))
-        self.slidertop.setSliderPosition(int(
-                self.targetfig.subplotpars.top*1000))
+        self.slidertop.setSliderPosition(
+            int(self.targetfig.subplotpars.top*1000))
         self.sliderwspace.setSliderPosition(
             int(self.targetfig.subplotpars.wspace*1000))
         self.sliderhspace.setSliderPosition(
@@ -793,43 +793,56 @@ class SubplotToolQt(SubplotTool, QtGui.QDialog, Ui_SubplotTool):
     def funcleft(self, val):
         if val == self.sliderright.value():
             val -= 1
-        self.targetfig.subplots_adjust(left=val/1000.)
+        val /= 1000
+        self.targetfig.subplots_adjust(left=val)
+        self.leftvalue.setText("%.2f" %val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
     def funcright(self, val):
         if val == self.sliderleft.value():
             val += 1
-        self.targetfig.subplots_adjust(right=val/1000.)
+        val /= 1000.
+        self.targetfig.subplots_adjust(right=val)
+        self.rightvalue.setText("%.2f" %val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
     def funcbottom(self, val):
         if val == self.slidertop.value():
             val -= 1
-        self.targetfig.subplots_adjust(bottom=val/1000.)
+        val /= 1000.
+        self.targetfig.subplots_adjust(bottom=val)
+        self.bottomvalue.setText("%.2f" %val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
     def functop(self, val):
         if val == self.sliderbottom.value():
             val += 1
-        self.targetfig.subplots_adjust(top=val/1000.)
+        val /= 1000.0
+        self.targetfig.subplots_adjust(top=val)
+        self.topvalue.setText("%.2f" %val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
     def funcwspace(self, val):
-        self.targetfig.subplots_adjust(wspace=val/1000.)
+        val /= 1000.
+        self.targetfig.subplots_adjust(wspace=val)
+        self.wspacevalue.setText("%.2f" %val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
     def funchspace(self, val):
-        self.targetfig.subplots_adjust(hspace=val/1000.)
+        val /= 1000.
+        self.targetfig.subplots_adjust(hspace=val)
+        self.hspacevalue.setText("%.2f" %val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
     def functight(self):
         self.targetfig.tight_layout()
+        self._setSliderPositions()
         self.targetfig.canvas.draw()
 
     def reset(self):
