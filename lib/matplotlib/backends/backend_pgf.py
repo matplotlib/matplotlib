@@ -450,6 +450,7 @@ class RendererPgf(RendererBase):
         # if present, draw pattern on top
         if gc.get_hatch():
             writeln(self.fh, r"\begin{pgfscope}")
+            self._print_pgf_path_styles(gc, rgbFace)
 
             # combine clip and path for clipping
             self._print_pgf_clip(gc)
