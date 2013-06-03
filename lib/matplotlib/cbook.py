@@ -987,8 +987,10 @@ def pieces(seq, num=2):
 
 
 def exception_to_str(s=None):
-
-    sh = io.StringIO()
+    if sys.version_info[0] < 3:
+        sh = io.BytesIO()
+    else:
+        sh = io.StringIO()
     if s is not None:
         print(s, file=sh)
     traceback.print_exc(file=sh)
