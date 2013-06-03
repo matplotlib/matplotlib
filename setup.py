@@ -299,13 +299,27 @@ if sys.version_info[0] >= 3:
             filtered = [x for x in files if should_2to3(x, self.build_lib)]
             if sys.platform.startswith('win') or 'TRAVIS' in os.environ:
                 # doing this in parallel on windows may crash your computer
-                [refactor(f) for f in filtered]
+                self.run_2to3_uniprocess(filtered)
             else:
-                p = multiprocessing.Pool()
-                for i, x in enumerate(p.imap_unordered(refactor, filtered)):
-                    print("Running 2to3... %.02f%%" %
-                          (float(i) / len(filtered) * 100.0), end='\r')
+                self.run_2to3_multiprocess(filtered)
             print()
+
+        def run_2to3_uniprocess(self, files):
+            for i, f in enumerate(files):
+                print("Running 2to3... %.02f%%" %
+                        (float(i) / len(files) * 100.0), end='\r')
+                refactor(f)
+
+        def run_2to3_multiprocess(self, files):
+            try:
+                p = multiprocessing.Pool()
+            except:
+                self.run_2to3_uniprocess(files)
+            else:
+                for i, x in enumerate(p.imap_unordered(refactor, files)):
+                    print("Running 2to3... %.02f%%" %
+                        (float(i) / len(files) * 100.0), end='\r')
+
 
 print_raw("pymods %s" % py_modules)
 print_raw("packages %s" % packages)
