@@ -155,7 +155,7 @@ class RendererAgg(RendererBase):
 
         xd = descent * np.sin(np.deg2rad(angle))
         yd = descent * np.cos(np.deg2rad(angle))
-        x = np.round(x + ox - xd)
+        x = np.round(x + ox + xd)
         y = np.round(y - oy + yd)
         self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
 
