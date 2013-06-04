@@ -8468,18 +8468,22 @@ class Axes(martist.Artist):
                 xvals.append(x.copy())
                 yvals.append(y.copy())
 
-            # add patches in reverse order so that when stacking,
-            # items lower in the stack are plottted on top of
-            # items higher in the stack
-            for x, y, c in reversed(zip(xvals, yvals, color)):
-                if fill:
-                    patches.append(self.fill(x, y,
-                                             closed=True,
-                                             facecolor=c))
-                else:
-                    patches.append(self.fill(x, y,
-                                             closed=True, edgecolor=c,
-                                             fill=False))
+            if fill:
+                # add patches in reverse order so that when stacking,
+                # items lower in the stack are plottted on top of
+                # items higher in the stack
+                for x, y, c in reversed(zip(xvals, yvals, color)):
+                    patches.append(self.fill(
+                        x, y,
+                        closed=True,
+                        facecolor=c))
+            else:
+                for x, y, c in reversed(zip(xvals, yvals, color)):
+                    split = int(len(x) / 2) + 1
+                    patches.append(self.fill(
+                        x[:split], y[:split],
+                        closed=False, edgecolor=c,
+                        fill=False))
 
             # we return patches, so put it back in the expected order
             patches.reverse()
