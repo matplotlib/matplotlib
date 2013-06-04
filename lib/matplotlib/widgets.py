@@ -1664,8 +1664,7 @@ class Lasso(AxesWidget):
 
 
 class TextBox(AxesWidget):
-    def __init__(self, ax, s='', horizontalalignment='left',
-            enter_callback=None, fontsize=12):
+    def __init__(self, ax, s='', enter_callback=None, **text_kwargs):
         """
         Editable text box
 
@@ -1699,13 +1698,9 @@ class TextBox(AxesWidget):
         self.ax.set_xticks([])
 
         self.value = float(s)
+        self.text = self.ax.text(0.025, 0.2, s, transform=self.ax.transAxes,
+                **text_kwargs)
 
-        self.text = self.ax.text(0.025, 0.2, s,
-                            fontsize=fontsize,
-                            verticalalignment='baseline',
-                            horizontalalignment=horizontalalignment,
-                            transform=self.ax.transAxes)
-    
         self.enter_callback = enter_callback
         self._cid = None
         self._cursor = None
