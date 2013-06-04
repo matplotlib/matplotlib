@@ -1711,10 +1711,9 @@ class TextBox(Widget):
     
         self.region = self.canvas.copy_from_bbox(ax.bbox)
     
+        self._cursor = None
         self._cursorpos = len(self.text.get_text())
-        r = self._get_text_right()
     
-        self.cursor, = ax.plot([r,r], [0.2, 0.8], transform=ax.transAxes)
         self.active = False
     
         self.redraw()
@@ -1723,6 +1722,17 @@ class TextBox(Widget):
         self.enter_callback = enter_callback
 
         self.canvas.mpl_connect('button_press_event',self._mouse_activate)
+
+    @property
+    def cursor(self):
+        # Macos has issues with render objects.  Lazily generating the cursor
+        # solve some of the problems associated
+        if self._cursor is None:
+            r = self.get_text_right()  # needs a renderer
+            self._cursor, = self.ax.plot([r,r], [0.2, 0.8],
+                    transform=self.ax.transAxes)
+            self._cursor.set_visible(False)
+        return self._cursor
 
     def redraw(self):
         # blitting doesn't clear old text
