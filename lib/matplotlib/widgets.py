@@ -1693,26 +1693,23 @@ class TextBox(Widget):
         fontsize : int
             Font size for text box
         """
+        AxesWidget.__init__(self, ax)
 
         self.value = float(s)
 
-        self.canvas = ax.figure.canvas
-        self.text = ax.text(0.025, 0.2, s,
+        self.text = self.ax.text(0.025, 0.2, s,
                             fontsize=fontsize,
                             verticalalignment='baseline',
                             horizontalalignment=horizontalalignment,
-                            transform=ax.transAxes)
-        self.ax = ax
-        ax.set_yticks([])
-        ax.set_xticks([])
+                            transform=self.ax.transAxes)
+        self.ax.set_yticks([])
+        self.ax.set_xticks([])
     
-        ax.set_navigate(False)
+        self.ax.set_navigate(False)
         self.canvas.draw()
     
         self._cursor = None
         self._cursorpos = len(self.text.get_text())
-    
-        self.active = False
     
         self.redraw()
         self._cid = None
