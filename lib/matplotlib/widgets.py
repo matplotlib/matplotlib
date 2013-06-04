@@ -1711,7 +1711,7 @@ class TextBox(AxesWidget):
         self.old_callbacks = {}
 
         self.redraw()
-        self.connect_event('button_press_event', self.mouse_activate)
+        self.connect_event('button_press_event', self._mouse_activate)
 
     @property
     def cursor(self):
