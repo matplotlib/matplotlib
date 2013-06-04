@@ -1731,10 +1731,12 @@ class TextBox(AxesWidget):
         self.canvas.draw()
 
     def _mouse_activate(self, event):
+        if self.ignore(event):
+            return
         if self.ax == event.inaxes:
-            self.activate()
-        else: 
-            self.deactivate()
+            self.begin_text_entry()
+        else:
+            self.end_text_entry()
 
     def begin_text_entry(self):
         keypress_cbs = self.canvas.callbacks.callbacks['key_press_event']
