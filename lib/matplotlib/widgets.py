@@ -1663,66 +1663,66 @@ class Lasso(AxesWidget):
             self.canvas.draw_idle()
 
 
-class TextBox(Widget):
-    def __init__(self, ax, s='', horizontalalignment='left',
-            enter_callback=None, fontsize=12):
+class TextBox(AxesWidget):
+    def __init__(self, ax, s='', enter_callback=None, **text_kwargs):
         """
         Editable text box
 
         Creates a mouse-click callback such that clicking on the text box will
         activate the cursor.
 
-        *WARNING* Activating a textbox will permanently disable all other
-        key-press bindings!  They'll be stored in TextBox.old_callbacks and
-        restored when TextBox.deactivate is called.
+        *WARNING* Activating a textbox will remove all other key-press
+        bindings! They'll be stored in FloatTextBox.old_callbacks and restored
+        when FloatTextBox.end_text_entry() is called.
 
-        The default widget assumes only numerical (float) data and will not
+        The default widget assumes only numerical data and will not
         allow text entry besides numerical characters and ('e','-','.')
 
         Parameters
         ----------
-        ax : axis
-            Parent axis to turn into text box
-        s : str
-            Initial string contents of text box
-        horizontalalignment : left | center | right
-            Passed to self.text
-        enter_callback : function
-            A function of one argument that will be called with TextBox.value
-            passed in as the only argument when enter is pressed
-        fontsize : int
-            Font size for text box
+        *ax* : :class:`matplotlib.axes.Axes`
+            The parent axes for the widget
+
+        *s* : str
+            The initial text of the FloatTextBox.  Should be able to be coerced
+            to a float.
+
+        *enter_callback* : function
+            A function of one argument that will be called with 
+            FloatTextBox.value passed in as the only argument when enter is
+            pressed
+
+        *text_kwargs* : 
+            Additional keywork arguments are passed on to self.ax.text()
         """
+        AxesWidget.__init__(self, ax)
+        self.ax.set_navigate(False)
+        self.ax.set_yticks([])
+        self.ax.set_xticks([])
 
         self.value = float(s)
-
-        self.canvas = ax.figure.canvas
-        self.text = ax.text(0.025, 0.2, s,
-                            fontsize=fontsize,
-                            verticalalignment='baseline',
-                            horizontalalignment=horizontalalignment,
-                            transform=ax.transAxes)
-        self.ax = ax
-        ax.set_yticks([])
-        ax.set_xticks([])
-    
-        ax.set_navigate(False)
-        self.canvas.draw()
-    
-        self.region = self.canvas.copy_from_bbox(ax.bbox)
-    
-        self._cursorpos = len(self.text.get_text())
-        r = self._get_text_right()
-    
-        self.cursor, = ax.plot([r,r], [0.2, 0.8], transform=ax.transAxes)
-        self.active = False
-    
-        self.redraw()
-        self._cid = None
+        self.text = self.ax.text(0.025, 0.2, s, transform=self.ax.transAxes,
+                **text_kwargs)
 
         self.enter_callback = enter_callback
+        self._cid = None
+        self._cursor = None
+        self._cursorpos = len(self.text.get_text())
+        self.old_callbacks = {}
 
-        self.canvas.mpl_connect('button_press_event',self._mouse_activate)
+        self.redraw()
+        self.connect_event('button_press_event', self._mouse_activate)
+
+    @property
+    def cursor(self):
+        # Macos has issues with render objects.  Lazily generating the cursor
+        # solve some of the problems associated
+        if self._cursor is None:
+            r = self._get_text_right()  # needs a renderer
+            self._cursor, = self.ax.plot([r,r], [0.2, 0.8],
+                    transform=self.ax.transAxes)
+            self._cursor.set_visible(False)
+        return self._cursor
 
     def redraw(self):
         # blitting doesn't clear old text
@@ -1731,55 +1731,46 @@ class TextBox(Widget):
         self.canvas.draw()
 
     def _mouse_activate(self, event):
+        if self.ignore(event):
+            return
         if self.ax == event.inaxes:
-            self.activate()
-        else: 
-            self.deactivate()
+            self.begin_text_entry()
+        else:
+            self.end_text_entry()
 
-    @property
-    def active(self):
-        return self._active
-
-    @active.setter
-    def active(self, isactive):
-        self._active = bool(isactive)
-        self.cursor.set_visible(self._active)
-        self.redraw()
-
-    def activate(self):
-        if self._cid not in self.canvas.callbacks.callbacks['key_press_event']:
-
-            if not hasattr(self,'old_callbacks'):
-                self.old_callbacks = {}
-
+    def begin_text_entry(self):
+        keypress_cbs = self.canvas.callbacks.callbacks['key_press_event']
+        if self._cid not in keypress_cbs:
             # remove all other key bindings
-            keys = self.canvas.callbacks.callbacks['key_press_event'].keys()
-            for k in keys:
-                self.old_callbacks[k] = self.canvas.callbacks.callbacks['key_press_event'].pop(k)
+            for k in keypress_cbs.keys():
+                self.old_callbacks[k] = keypress_cbs.pop(k)
 
             self._cid = self.canvas.mpl_connect('key_press_event', self.keypress)
-            self.active = True
+            self.cursor.set_visible(True)
+            self.redraw()
 
-    def deactivate(self):
-        if self._cid in self.canvas.callbacks.callbacks['key_press_event']:
+    def end_text_entry(self):
+        keypress_cbs = self.canvas.callbacks.callbacks['key_press_event']
+        if self._cid in keypress_cbs:
             self.canvas.mpl_disconnect(self._cid)
-            if hasattr(self,'old_callbacks'):
-                for k in self.old_callbacks:
-                    self.canvas.callbacks.callbacks['key_press_event'][k] = self.old_callbacks[k]
+            for k in self.old_callbacks.keys():
+                keypress_cbs[k] = self.old_callbacks.pop(k)
 
-        self.active = False
+        self.cursor.set_visible(False)
+        self.redraw()
 
     def keypress(self, event):
         """
         Parse a keypress - only allow #'s!
         """
-        #print "event.key: '%s'" % event.key
-        #if event.key is not None and len(event.key)>1: return
-     
+        if self.ignore(event):
+            return
+
         newt = t = self.text.get_text()
+        # TODO tab raises exceptions
         if event.key == 'backspace': # simulate backspace
             if self._cursorpos == 0: return
-            if len(t) > 0: 
+            if len(t) > 0:
                 newt = t[:self._cursorpos-1] + t[self._cursorpos:]
             if self._cursorpos > 0:
                 self._cursorpos -= 1
@@ -1791,7 +1782,7 @@ class TextBox(Widget):
             if self.enter_callback is not None:
                 try:
                     self.enter_callback(self.value)
-                    self.deactivate()
+                    self.end_text_entry()
                 except Exception as ex:
                     print(ex)
 
@@ -1810,7 +1801,7 @@ class TextBox(Widget):
             if self._cursorpos == 0:
                 newt = event.key + t
                 self._cursorpos += 1
-            elif (t[self._cursorpos-1]=='e' and not 
+            elif (t[self._cursorpos-1]=='e' and not
                     (len(t) > self._cursorpos+1 and t[self._cursorpos+1] == '-')):
                 newt = t[:self._cursorpos] + event.key + t[self._cursorpos:]
                 self._cursorpos += 1
@@ -1821,9 +1812,9 @@ class TextBox(Widget):
                 self._cursorpos += 1
         else:
             pass # do not allow abcdef...
-     
+
         self.set_text(newt, redraw=True)
-     
+
         r = self._get_text_right()
         self.cursor.set_xdata([r,r])
         self.redraw()
@@ -1844,14 +1835,12 @@ class TextBox(Widget):
             self.redraw()
 
     def _get_text_right(self):
-        l,b,w,h = self.text.get_window_extent().bounds
-        r = l+w+2
-        t = b+h
-        s = self.text.get_text()
-        # adjust cursor position for trailing space
-        numtrail = len(s)-len(s.rstrip())
-        en = self.ax.get_renderer_cache().points_to_pixels(self.text.get_fontsize())/2.
+        bbox = self.text.get_window_extent()
+        l,b,w,h = bbox.bounds
+
+        renderer = self.ax.get_renderer_cache()
+        en = renderer.points_to_pixels(self.text.get_fontsize()) / 2.
 
         r = l + self._cursorpos*np.ceil(en)
-        r,t = self.ax.transAxes.inverted().transform((r,t))
+        r,t = self.ax.transAxes.inverted().transform((r,b+h))
         return r
