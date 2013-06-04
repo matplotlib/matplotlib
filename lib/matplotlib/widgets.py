@@ -1718,7 +1718,7 @@ class TextBox(AxesWidget):
         # Macos has issues with render objects.  Lazily generating the cursor
         # solve some of the problems associated
         if self._cursor is None:
-            r = self.get_text_right()  # needs a renderer
+            r = self._get_text_right()  # needs a renderer
             self._cursor, = self.ax.plot([r,r], [0.2, 0.8],
                     transform=self.ax.transAxes)
             self._cursor.set_visible(False)
