@@ -1709,8 +1709,6 @@ class TextBox(Widget):
         ax.set_navigate(False)
         self.canvas.draw()
     
-        self.region = self.canvas.copy_from_bbox(ax.bbox)
-    
         self._cursor = None
         self._cursorpos = len(self.text.get_text())
     
@@ -1747,26 +1745,22 @@ class TextBox(Widget):
             self.deactivate()
 
     def begin_text_entry(self):
-        if self._cid not in self.canvas.callbacks.callbacks['key_press_event']:
-
-            if not hasattr(self,'old_callbacks'):
-                self.old_callbacks = {}
-
+        keypress_cbs = self.canvas.callbacks.callbacks['key_press_event']
+        if self._cid not in keypress_cbs:
             # remove all other key bindings
-            keys = self.canvas.callbacks.callbacks['key_press_event'].keys()
-            for k in keys:
-                self.old_callbacks[k] = self.canvas.callbacks.callbacks['key_press_event'].pop(k)
+            for k in keypress_cbs.keys():
+                self.old_callbacks[k] = keypress_cbs.pop(k)
 
             self._cid = self.canvas.mpl_connect('key_press_event', self.keypress)
             self.cursor.set_visible(True)
             self.redraw()
 
     def end_text_entry(self):
-        if self._cid in self.canvas.callbacks.callbacks['key_press_event']:
+        keypress_cbs = self.canvas.callbacks.callbacks['key_press_event']
+        if self._cid in keypress_cbs:
             self.canvas.mpl_disconnect(self._cid)
-            if hasattr(self,'old_callbacks'):
-                for k in self.old_callbacks:
-                    self.canvas.callbacks.callbacks['key_press_event'][k] = self.old_callbacks[k]
+            for k in self.old_callbacks.keys():
+                keypress_cbs[k] = self.old_callbacks.pop(k)
 
         self.cursor.set_visible(False)
         self.redraw()
@@ -1823,9 +1817,9 @@ class TextBox(Widget):
                 self._cursorpos += 1
         else:
             pass # do not allow abcdef...
-     
+
         self.set_text(newt, redraw=True)
-     
+
         r = self._get_text_right()
         self.cursor.set_xdata([r,r])
         self.redraw()
