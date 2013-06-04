@@ -1694,6 +1694,9 @@ class TextBox(Widget):
             Font size for text box
         """
         AxesWidget.__init__(self, ax)
+        self.ax.set_navigate(False)
+        self.ax.set_yticks([])
+        self.ax.set_xticks([])
 
         self.value = float(s)
 
@@ -1702,21 +1705,15 @@ class TextBox(Widget):
                             verticalalignment='baseline',
                             horizontalalignment=horizontalalignment,
                             transform=self.ax.transAxes)
-        self.ax.set_yticks([])
-        self.ax.set_xticks([])
     
-        self.ax.set_navigate(False)
-        self.canvas.draw()
-    
+        self.enter_callback = enter_callback
+        self._cid = None
         self._cursor = None
         self._cursorpos = len(self.text.get_text())
-    
+        self.old_callbacks = {}
+
         self.redraw()
-        self._cid = None
-
-        self.enter_callback = enter_callback
-
-        self.canvas.mpl_connect('button_press_event',self._mouse_activate)
+        self.connect_event('button_press_event', self.mouse_activate)
 
     @property
     def cursor(self):
