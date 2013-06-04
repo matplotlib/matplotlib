@@ -1663,7 +1663,7 @@ class Lasso(AxesWidget):
             self.canvas.draw_idle()
 
 
-class TextBox(Widget):
+class TextBox(AxesWidget):
     def __init__(self, ax, s='', horizontalalignment='left',
             enter_callback=None, fontsize=12):
         """
