@@ -1746,17 +1746,7 @@ class TextBox(Widget):
         else: 
             self.deactivate()
 
-    @property
-    def active(self):
-        return self._active
-
-    @active.setter
-    def active(self, isactive):
-        self._active = bool(isactive)
-        self.cursor.set_visible(self._active)
-        self.redraw()
-
-    def activate(self):
+    def begin_text_entry(self):
         if self._cid not in self.canvas.callbacks.callbacks['key_press_event']:
 
             if not hasattr(self,'old_callbacks'):
@@ -1768,16 +1758,18 @@ class TextBox(Widget):
                 self.old_callbacks[k] = self.canvas.callbacks.callbacks['key_press_event'].pop(k)
 
             self._cid = self.canvas.mpl_connect('key_press_event', self.keypress)
-            self.active = True
+            self.cursor.set_visible(True)
+            self.redraw()
 
-    def deactivate(self):
+    def end_text_entry(self):
         if self._cid in self.canvas.callbacks.callbacks['key_press_event']:
             self.canvas.mpl_disconnect(self._cid)
             if hasattr(self,'old_callbacks'):
                 for k in self.old_callbacks:
                     self.canvas.callbacks.callbacks['key_press_event'][k] = self.old_callbacks[k]
 
-        self.active = False
+        self.cursor.set_visible(False)
+        self.redraw()
 
     def keypress(self, event):
         """
@@ -1801,7 +1793,7 @@ class TextBox(Widget):
             if self.enter_callback is not None:
                 try:
                     self.enter_callback(self.value)
-                    self.deactivate()
+                    self.end_text_entry()
                 except Exception as ex:
                     print(ex)
 
