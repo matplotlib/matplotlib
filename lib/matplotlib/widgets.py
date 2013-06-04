@@ -1671,26 +1671,29 @@ class TextBox(AxesWidget):
         Creates a mouse-click callback such that clicking on the text box will
         activate the cursor.
 
-        *WARNING* Activating a textbox will permanently disable all other
-        key-press bindings!  They'll be stored in TextBox.old_callbacks and
-        restored when TextBox.deactivate is called.
+        *WARNING* Activating a textbox will remove all other key-press
+        bindings! They'll be stored in FloatTextBox.old_callbacks and restored
+        when FloatTextBox.end_text_entry() is called.
 
-        The default widget assumes only numerical (float) data and will not
+        The default widget assumes only numerical data and will not
         allow text entry besides numerical characters and ('e','-','.')
 
         Parameters
         ----------
-        ax : axis
-            Parent axis to turn into text box
-        s : str
-            Initial string contents of text box
-        horizontalalignment : left | center | right
-            Passed to self.text
-        enter_callback : function
-            A function of one argument that will be called with TextBox.value
-            passed in as the only argument when enter is pressed
-        fontsize : int
-            Font size for text box
+        *ax* : :class:`matplotlib.axes.Axes`
+            The parent axes for the widget
+
+        *s* : str
+            The initial text of the FloatTextBox.  Should be able to be coerced
+            to a float.
+
+        *enter_callback* : function
+            A function of one argument that will be called with 
+            FloatTextBox.value passed in as the only argument when enter is
+            pressed
+
+        *text_kwargs* : 
+            Additional keywork arguments are passed on to self.ax.text()
         """
         AxesWidget.__init__(self, ax)
         self.ax.set_navigate(False)
