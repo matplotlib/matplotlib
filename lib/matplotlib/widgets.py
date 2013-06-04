@@ -1761,13 +1761,13 @@ class TextBox(AxesWidget):
         """
         Parse a keypress - only allow #'s!
         """
-        #print "event.key: '%s'" % event.key
-        #if event.key is not None and len(event.key)>1: return
-     
+        if self.ignore(event):
+            return
+
         newt = t = self.text.get_text()
         if event.key == 'backspace': # simulate backspace
             if self._cursorpos == 0: return
-            if len(t) > 0: 
+            if len(t) > 0:
                 newt = t[:self._cursorpos-1] + t[self._cursorpos:]
             if self._cursorpos > 0:
                 self._cursorpos -= 1
@@ -1798,7 +1798,7 @@ class TextBox(AxesWidget):
             if self._cursorpos == 0:
                 newt = event.key + t
                 self._cursorpos += 1
-            elif (t[self._cursorpos-1]=='e' and not 
+            elif (t[self._cursorpos-1]=='e' and not
                     (len(t) > self._cursorpos+1 and t[self._cursorpos+1] == '-')):
                 newt = t[:self._cursorpos] + event.key + t[self._cursorpos:]
                 self._cursorpos += 1
