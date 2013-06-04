@@ -1767,6 +1767,7 @@ class TextBox(AxesWidget):
             return
 
         newt = t = self.text.get_text()
+        # TODO tab raises exceptions
         if event.key == 'backspace': # simulate backspace
             if self._cursorpos == 0: return
             if len(t) > 0:
