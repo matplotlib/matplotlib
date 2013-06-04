@@ -1834,14 +1834,12 @@ class TextBox(AxesWidget):
             self.redraw()
 
     def _get_text_right(self):
-        l,b,w,h = self.text.get_window_extent().bounds
-        r = l+w+2
-        t = b+h
-        s = self.text.get_text()
-        # adjust cursor position for trailing space
-        numtrail = len(s)-len(s.rstrip())
-        en = self.ax.get_renderer_cache().points_to_pixels(self.text.get_fontsize())/2.
+        bbox = self.text.get_window_extent()
+        l,b,w,h = bbox.bounds
+
+        renderer = self.ax.get_renderer_cache()
+        en = renderer.points_to_pixels(self.text.get_fontsize()) / 2.
 
         r = l + self._cursorpos*np.ceil(en)
-        r,t = self.ax.transAxes.inverted().transform((r,t))
+        r,t = self.ax.transAxes.inverted().transform((r,b+h))
         return r
