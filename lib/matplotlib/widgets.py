@@ -1839,3 +1839,12 @@ class TextBox(AxesWidget):
         tx, ty = self.ax.transAxes.inverted().transform((r, b + h))
         dy = 0.5 * (ty - by)
         return [bx, tx], [by - dy, ty + dy]
+
+
+def TextBoxFloat(*args, **kwargs):
+    """
+    TextBox that produces float values
+    """
+    kwargs['allowed_chars'] = '0123456789.eE-+'
+    kwargs['type'] = float
+    return TextBox(*args, **kwargs)
