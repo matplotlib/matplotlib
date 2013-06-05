@@ -138,6 +138,10 @@ def test_pathclip():
     if not check_for('xelatex'):
         raise SkipTest('xelatex + pgf is required')
 
+    rc_xelatex = {'font.family': 'serif',
+                   'pgf.rcfonts': False,}
+    mpl.rcParams.update(rc_xelatex)
+
     plt.figure()
     plt.plot([0., 1e100], [0., 1e100])
     plt.xlim(0, 1)
@@ -151,6 +155,10 @@ def test_pathclip():
 def test_mixedmode():
     if not check_for('xelatex'):
         raise SkipTest('xelatex + pgf is required')
+
+    rc_xelatex = {'font.family': 'serif',
+                   'pgf.rcfonts': False,}
+    mpl.rcParams.update(rc_xelatex)
 
     Y, X = np.ogrid[-1:1:40j, -1:1:40j]
     plt.figure()
