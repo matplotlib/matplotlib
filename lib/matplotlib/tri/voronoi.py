@@ -72,16 +72,27 @@ def compute_voronoi_cells(x, y):
 
     '''
 
+    # Add some fake cell centers at a certain distance from the other points
+    # This ensures the creation of corner and border cells, that otherwise
+    # might end up having too few corners
+    x_min, x_max = x.min(), x.max()
+    y_min, y_max = y.min(), y.max()
+    x_mid, x_diff = 0.5 * (x_min + x_max), x_max - x_min
+    y_mid, y_diff = 0.5 * (y_min + y_max), y_max - y_min
+    x_fake = list(x) + [x_mid - x_diff, x_mid - x_diff, x_mid + x_diff, x_mid + x_diff]
+    y_fake = list(y) + [y_mid - y_diff, y_mid + y_diff, y_mid - y_diff, y_mid + y_diff]
+
     # Get a Delaunay triangulation
-    triangulation = Triangulation(x, y)
-    p = zip(x, y)
+    triangulation = Triangulation(x_fake, y_fake)
+    p = zip(x_fake, y_fake)
 
     # Compute triangle centers that are the Voronoi cell corners
     cells = [[] for i in xrange(x.shape[0])]
     for i, j, k in triangulation.triangles:
         center = circumscribed_circle_center(p[i], p[j], p[k])
         for index in i, j, k:
-            cells[index].append(center)
+            if index < len(cells):
+                cells[index].append(center)
 
     # Sort the polygon corners clockwise
     for i, cell in enumerate(cells):
