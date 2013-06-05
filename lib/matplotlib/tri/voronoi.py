@@ -86,7 +86,8 @@ def compute_voronoi_cells(x, y):
 
     # Sort the polygon corners clockwise
     for i, cell in enumerate(cells):
-        cell.sort(key=lambda cell: atan2(cell[1] - y[i], cell[0] - x[i]))
+        cells[i] = sorted(cell, key=lambda cell: atan2(cell[1] - y[i], cell[0] - x[i]))
+        cells[i].append(cells[i][0])
 
     return cells
 
