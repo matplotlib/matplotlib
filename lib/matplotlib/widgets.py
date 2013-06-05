@@ -1807,13 +1807,11 @@ class TextBox(AxesWidget):
     def set_text(self, text):
         try:
             # only try to update if there's a real value
-            if (not(text.strip() in ('-.','.','-','')) 
-                    and not text[-1] in ('e','-')):
-                self.value = float(text)
-            # but always change the text
-            self.text.set_text(text)
+            self.value = float(text)
         except ValueError:
             pass
+        # but always change the text
+        self.text.set_text(text)
 
     def _get_text_right(self):
         bbox = self.text.get_window_extent()
