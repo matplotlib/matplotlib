@@ -1770,54 +1770,36 @@ class TextBox(AxesWidget):
             return
 
         newt = t = self.text.get_text()
-        # TODO tab raises exceptions
-        if event.key == 'backspace': # simulate backspace
-            if self._cursorpos == 0: return
-            if len(t) > 0:
-                newt = t[:self._cursorpos-1] + t[self._cursorpos:]
-            if self._cursorpos > 0:
-                self._cursorpos -= 1
-        elif event.key == 'left' and self._cursorpos > 0:
-            self._cursorpos -= 1
-        elif event.key == 'right' and self._cursorpos < len(t):
-            self._cursorpos += 1
-        elif event.key == 'enter':
-            if self.enter_callback is not None:
-                try:
-                    self.enter_callback(self.value)
-                    self.end_text_entry()
-                except Exception as ex:
-                    print(ex)
+        assert self._cursorpos >= 0
+        assert self._cursorpos <= len(t)
+        # TODO numeric keypad
 
-        elif len(event.key) > 1:
-            # ignore...
-            pass
-        elif event.key in '0123456789':
+        if not isinstance(event.key, str):
+            # event.key may be None
+            return
+        elif event.key in '0123456789.eE-+':
             newt = t[:self._cursorpos] + event.key + t[self._cursorpos:]
             self._cursorpos += 1
-        elif event.key == 'e':
-            if 'e' not in t and '.' not in t[self._cursorpos:] and self._cursorpos != 0:
-                newt = t[:self._cursorpos] + event.key + t[self._cursorpos:]
+        elif event.key == 'backspace':  # simulate backspace
+            if self._cursorpos > 0:
+                newt = t[:self._cursorpos - 1] + t[self._cursorpos:]
+                self._cursorpos -= 1
+        elif event.key == 'delete':  # forward delete
+            newt = t[:self._cursorpos] + t[self._cursorpos + 1:]
+        elif event.key == 'left':
+            if self._cursorpos > 0:
+                self._cursorpos -= 1
+        elif event.key == 'right':
+            if self._cursorpos < len(t):
                 self._cursorpos += 1
-        elif event.key == '-':
-            # only allow negative at front or after e
-            if self._cursorpos == 0:
-                newt = event.key + t
-                self._cursorpos += 1
-            elif (t[self._cursorpos-1]=='e' and not
-                    (len(t) > self._cursorpos+1 and t[self._cursorpos+1] == '-')):
-                newt = t[:self._cursorpos] + event.key + t[self._cursorpos:]
-                self._cursorpos += 1
-        elif event.key == '.':
-            # do nothing if extra decimals...
-            if '.' not in t:
-                newt = t[:self._cursorpos] + event.key + t[self._cursorpos:]
-                self._cursorpos += 1
+        elif event.key == 'enter':
+            if self.enter_callback is not None:
+                self.enter_callback(self.value)
+            self.end_text_entry()
         else:
-            pass # do not allow abcdef...
+            return  # do not allow abcdef...
 
-        self.set_text(newt, redraw=True)
-
+        self.set_text(newt)
         r = self._get_text_right()
         self.cursor.set_xdata([r, r])
         self.redraw()
