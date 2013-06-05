@@ -16,6 +16,9 @@ from numpy.linalg import solve
 from numpy.linalg.linalg import LinAlgError
 
 from triangulation import Triangulation
+from matplotlib.path import Path
+from matplotlib.patches import PathPatch
+from matplotlib.collections import PatchCollection
 
 
 def circumscribed_circle_center(a, b, c):
@@ -69,10 +72,6 @@ def compute_voronoi_cells(x, y):
 
     '''
 
-    # Check array lengths
-    assert x.shape == y.shape, ValueError('shape mismatch')
-    assert len(x.shape) == 1, ValueError('only 1D-arrays for x, y')
-
     # Get a Delaunay triangulation
     triangulation = Triangulation(x, y)
     p = zip(x, y)
@@ -87,7 +86,31 @@ def compute_voronoi_cells(x, y):
     # Sort the polygon corners clockwise
     for i, cell in enumerate(cells):
         cells[i] = sorted(cell, key=lambda cell: atan2(cell[1] - y[i], cell[0] - x[i]))
-        cells[i].append(cells[i][0])
 
     return cells
+
+
+def voronoi(X, Y, Z, **kwargs):
+    '''
+    Draws Voronoi diagram.
+
+    '''
+    # Check sizes
+    assert X.shape == Y.shape and X.shape == Z.shape, 'shape mismatch'
+    assert len(X.shape) == 1, '1D arrays required'
+
+    # Compute Voronoi cells
+    cells = compute_voronoi_cells(X, Y)
+
+    # Assemble patches
+    patches = []
+    for cell in cells:
+        codes = [Path.MOVETO] + [Path.LINETO] * (len(cell) - 1) + [Path.CLOSEPOLY]
+        path = Path(cell + [cell[0]], codes)
+        patches.append(PathPatch(path))
+
+    # Create collection
+    voronoi_collection = PatchCollection(patches, **kwargs)
+    voronoi_collection.set_array(Z)
+    return voronoi_collection
 
