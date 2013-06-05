@@ -1664,7 +1664,8 @@ class Lasso(AxesWidget):
 
 
 class TextBox(AxesWidget):
-    def __init__(self, ax, s='', enter_callback=None, **text_kwargs):
+    def __init__(self, ax, s='', allowed_chars=None, type=str,
+                 enter_callback=None, **text_kwargs):
         """
         Editable text box
 
@@ -1684,8 +1685,15 @@ class TextBox(AxesWidget):
             The parent axes for the widget
 
         *s* : str
-            The initial text of the TextBox.  Should be able to be coerced
-            to a float.
+            The initial text of the TextBox.
+
+        *allowed_chars* : seq
+            TextBox will only respond if event.key in allowed_chars.  Defaults
+            to None, which accepts anything.
+
+        *type* : type
+            Construct self.value using this type.  self.value is only updated
+            if self.type(<text>) succeeds.
 
         *enter_callback* : function
             A function of one argument that will be called with
@@ -1700,7 +1708,9 @@ class TextBox(AxesWidget):
         self.ax.set_yticks([])
         self.ax.set_xticks([])
 
-        self.value = float(s)
+        self.type = type
+        self.allowed_chars = allowed_chars
+        self.value = self.type(s)
         self.text = self.ax.text(0.025, 0.2, s,
                                  transform=self.ax.transAxes, **text_kwargs)
 
@@ -1710,26 +1720,23 @@ class TextBox(AxesWidget):
         self._cursorpos = len(self.text.get_text())
         self.old_callbacks = {}
 
-        self.redraw()
         self.connect_event('button_press_event', self._mouse_activate)
+        self.redraw_callbacks = []
+        self.redraw()
 
     @property
     def cursor(self):
-        # Macos has issues with render objects.  Lazily generating the cursor
-        # solve some of the problems associated
+        # macosx does not provide render objects until the first fram is done.
+        # Lazily generating the cursor avoids issues
         if self._cursor is None:
-            r = self._get_text_right()  # needs a renderer
-            self._cursor = self.ax.plot([r, r],
-                                        [0.2, 0.8],
-                                        transform=self.ax.transAxes,
-                                        )[0]
+            x, y = self._get_cursor_endpoints()  # needs a renderer
+            self._cursor, = self.ax.plot(x, y, transform=self.ax.transAxes)
             self._cursor.set_visible(False)
         return self._cursor
 
     def redraw(self):
-        # blitting doesn't clear old text
-        #self.ax.redraw_in_frame()
-        #self.canvas.blit(self.ax.bbox)
+        for f in self.redraw_callbacks:
+            f()
         self.canvas.draw()
 
     def _mouse_activate(self, event):
@@ -1777,9 +1784,6 @@ class TextBox(AxesWidget):
         if not isinstance(event.key, str):
             # event.key may be None
             return
-        elif event.key in '0123456789.eE-+':
-            newt = t[:self._cursorpos] + event.key + t[self._cursorpos:]
-            self._cursorpos += 1
         elif event.key == 'backspace':  # simulate backspace
             if self._cursorpos > 0:
                 newt = t[:self._cursorpos - 1] + t[self._cursorpos:]
@@ -1796,30 +1800,42 @@ class TextBox(AxesWidget):
             if self.enter_callback is not None:
                 self.enter_callback(self.value)
             self.end_text_entry()
+        elif self.allowed_chars is None:
+            newt = t[:self._cursorpos] + event.key + t[self._cursorpos:]
+            self._cursorpos += len(event.key)
+        elif event.key in self.allowed_chars:
+            newt = t[:self._cursorpos] + event.key + t[self._cursorpos:]
+            self._cursorpos += 1
         else:
             return  # do not allow abcdef...
 
         self.set_text(newt)
-        r = self._get_text_right()
-        self.cursor.set_xdata([r, r])
+        x, y = self._get_cursor_endpoints()
+        self.cursor.set_xdata(x)
         self.redraw()
 
     def set_text(self, text):
         try:
             # only try to update if there's a real value
-            self.value = float(text)
+            self.value = self.type(text)
         except ValueError:
             pass
         # but always change the text
         self.text.set_text(text)
 
-    def _get_text_right(self):
+    def _get_cursor_endpoints(self):
+        # to get cursor position
+        # change text to chars left of the cursor
+        text = self.text.get_text()
+        self.text.set_text(text[:self._cursorpos])
         bbox = self.text.get_window_extent()
-        l, b, w, h = bbox.bounds
+        l, b, w, h = bbox.bounds  # in pixels
+        r = l + w
+        # now restore correct text
+        self.text.set_text(text)
 
-        renderer = self.ax.get_renderer_cache()
-        en = renderer.points_to_pixels(self.text.get_fontsize()) / 2.
-
-        r = l + self._cursorpos * np.ceil(en)
-        r, t = self.ax.transAxes.inverted().transform((r, b + h))
-        return r
+        # cursor line in data coordinates
+        bx, by = self.ax.transAxes.inverted().transform((r, b))
+        tx, ty = self.ax.transAxes.inverted().transform((r, b + h))
+        dy = 0.5 * (ty - by)
+        return [bx, tx], [by - dy, ty + dy]
