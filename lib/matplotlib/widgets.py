@@ -1672,8 +1672,8 @@ class TextBox(AxesWidget):
         activate the cursor.
 
         *WARNING* Activating a textbox will remove all other key-press
-        bindings! They'll be stored in FloatTextBox.old_callbacks and restored
-        when FloatTextBox.end_text_entry() is called.
+        bindings! They'll be stored in TextBox.old_callbacks and restored
+        when TextBox.end_text_entry() is called.
 
         The default widget assumes only numerical data and will not
         allow text entry besides numerical characters and ('e','-','.')
@@ -1684,15 +1684,15 @@ class TextBox(AxesWidget):
             The parent axes for the widget
 
         *s* : str
-            The initial text of the FloatTextBox.  Should be able to be coerced
+            The initial text of the TextBox.  Should be able to be coerced
             to a float.
 
         *enter_callback* : function
-            A function of one argument that will be called with 
-            FloatTextBox.value passed in as the only argument when enter is
+            A function of one argument that will be called with
+            TextBox.value passed in as the only argument when enter is
             pressed
 
-        *text_kwargs* : 
+        *text_kwargs* :
             Additional keywork arguments are passed on to self.ax.text()
         """
         AxesWidget.__init__(self, ax)
@@ -1701,8 +1701,8 @@ class TextBox(AxesWidget):
         self.ax.set_xticks([])
 
         self.value = float(s)
-        self.text = self.ax.text(0.025, 0.2, s, transform=self.ax.transAxes,
-                **text_kwargs)
+        self.text = self.ax.text(0.025, 0.2, s,
+                                 transform=self.ax.transAxes, **text_kwargs)
 
         self.enter_callback = enter_callback
         self._cid = None
@@ -1719,8 +1719,10 @@ class TextBox(AxesWidget):
         # solve some of the problems associated
         if self._cursor is None:
             r = self._get_text_right()  # needs a renderer
-            self._cursor, = self.ax.plot([r,r], [0.2, 0.8],
-                    transform=self.ax.transAxes)
+            self._cursor = self.ax.plot([r, r],
+                                        [0.2, 0.8],
+                                        transform=self.ax.transAxes,
+                                        )[0]
             self._cursor.set_visible(False)
         return self._cursor
 
@@ -1745,7 +1747,8 @@ class TextBox(AxesWidget):
             for k in keypress_cbs.keys():
                 self.old_callbacks[k] = keypress_cbs.pop(k)
 
-            self._cid = self.canvas.mpl_connect('key_press_event', self.keypress)
+            self._cid = self.canvas.mpl_connect('key_press_event',
+                                                self.keypress)
             self.cursor.set_visible(True)
             self.redraw()
 
@@ -1816,7 +1819,7 @@ class TextBox(AxesWidget):
         self.set_text(newt, redraw=True)
 
         r = self._get_text_right()
-        self.cursor.set_xdata([r,r])
+        self.cursor.set_xdata([r, r])
         self.redraw()
 
     def set_text(self, text, redraw=False):
@@ -1836,11 +1839,11 @@ class TextBox(AxesWidget):
 
     def _get_text_right(self):
         bbox = self.text.get_window_extent()
-        l,b,w,h = bbox.bounds
+        l, b, w, h = bbox.bounds
 
         renderer = self.ax.get_renderer_cache()
         en = renderer.points_to_pixels(self.text.get_fontsize()) / 2.
 
-        r = l + self._cursorpos*np.ceil(en)
-        r,t = self.ax.transAxes.inverted().transform((r,b+h))
+        r = l + self._cursorpos * np.ceil(en)
+        r, t = self.ax.transAxes.inverted().transform((r, b + h))
         return r
