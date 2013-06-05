@@ -1804,7 +1804,7 @@ class TextBox(AxesWidget):
         self.cursor.set_xdata([r, r])
         self.redraw()
 
-    def set_text(self, text, redraw=False):
+    def set_text(self, text):
         try:
             # only try to update if there's a real value
             if (not(text.strip() in ('-.','.','-','')) 
@@ -1814,10 +1814,6 @@ class TextBox(AxesWidget):
             self.text.set_text(text)
         except ValueError:
             pass
-
-        if redraw:
-            self.text.draw(self.text._renderer)
-            self.redraw()
 
     def _get_text_right(self):
         bbox = self.text.get_window_extent()
