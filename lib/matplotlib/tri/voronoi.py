@@ -15,10 +15,10 @@ from numpy import matrix, array
 from numpy.linalg import solve
 from numpy.linalg.linalg import LinAlgError
 
-from triangulation import Triangulation
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.collections import PatchCollection
+from matplotlib.delaunay import delaunay
 
 
 def circumscribed_circle_center(a, b, c):
@@ -58,7 +58,7 @@ def circumscribed_circle_center(a, b, c):
     # In case this can't be inverted, raise an exception
     except LinAlgError:
         raise ValueError, 'there is no unique circumscribed circle for the given triangle'
-    
+
     # Calculate the intersection point corresponding to the center
     center = array([b[1] - c[1], c[0] - b[0]]) * t + (array(b) + array(c)) * 0.5
     return tuple(center)
@@ -82,15 +82,13 @@ def compute_voronoi_cells(x, y):
     x_fake = list(x) + [x_mid - x_diff, x_mid - x_diff, x_mid + x_diff, x_mid + x_diff]
     y_fake = list(y) + [y_mid - y_diff, y_mid + y_diff, y_mid - y_diff, y_mid + y_diff]
 
-    # Get a Delaunay triangulation
-    triangulation = Triangulation(x_fake, y_fake)
-    p = zip(x_fake, y_fake)
+    # Calculate a Delaunay triangulation
+    circumcenters, edges, tri_points, tri_neighbors = delaunay(x_fake, y_fake)
 
     # Compute triangle centers that are the Voronoi cell corners
     cells = [[] for i in xrange(x.shape[0])]
-    for i, j, k in triangulation.triangles:
-        center = circumscribed_circle_center(p[i], p[j], p[k])
-        for index in i, j, k:
+    for center, tri in zip(circumcenters, tri_points):
+        for index in tri:
             if index < len(cells):
                 cells[index].append(center)
 
