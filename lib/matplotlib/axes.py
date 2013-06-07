@@ -9198,9 +9198,7 @@ class Axes(martist.Artist):
     triplot.__doc__ = mtri.triplot.__doc__
 
     def voronoi(self, *args, **kwargs):
-        voronoi_collection = mtri.voronoi(*args, **kwargs)
-        self.add_collection(voronoi_collection)
-        return voronoi_collection
+        return mtri.voronoi(self, *args, **kwargs)
     voronoi.__doc__ = mtri.voronoi.__doc__
 
 

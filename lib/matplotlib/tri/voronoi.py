@@ -11,7 +11,7 @@ https://github.com/rougier/gallery/blob/master/voronoi/voronoi/voronoi.py
 
 from math import atan2
 
-from numpy import matrix, array
+import numpy as np
 from numpy.linalg import solve
 from numpy.linalg.linalg import LinAlgError
 
@@ -56,14 +56,44 @@ def compute_voronoi_cells(x, y):
     return cells
 
 
-def voronoi(X, Y, Z=None, **kwargs):
+def voronoi(ax, X, Y, Z=None, **kwargs):
     '''
-    Draws Voronoi diagram.
+    Create a Voronoi diagram of an unstructured grid.
+
+    This function uses a Delaunay triangulation and derives the Voronoi cells
+    from the centers of the circumscribed circles around the Delaunay
+    triangles.
+
+    Call signature:
+
+    ::
+
+      voronoi(X, Y, ...)
+      voronoi(X, Y, C, ...)
+
+    *X* and *Y* are arrays containing the coordinates of the cell-forming points.
+
+    *C* is an array of mappable scalars. If it is provided, the Voronoi cells
+    associated with a certain point will be colored according to the colormap.
+
+    The remaining kwargs are the same as for
+    :class:`~matplotlib.collections.Collection`.
 
     '''
+    # Parse arrays
+    x_arr = np.array(X)
+    y_arr = np.array(Y)
+    if Z is not None:
+        z_arr = np.array(Z)
+
     # Check sizes
-    assert X.shape == Y.shape and (X.shape == Z.shape if Z is not None else True), 'shape mismatch'
+    assert x_arr.shape == y_arr.shape, 'shape mismatch'
+    assert (x_arr.shape == z_arr.shape if Z is not None else True), 'shape mismatch'
     assert len(X.shape) == 1, '1D arrays required'
+
+    # Reset axes
+    if not ax._hold:
+        ax.cla()
 
     # Compute Voronoi cells
     cells = compute_voronoi_cells(X, Y)
@@ -77,7 +107,14 @@ def voronoi(X, Y, Z=None, **kwargs):
 
     # Create collection
     voronoi_collection = PatchCollection(patches, **kwargs)
-    if Z is not None:
-        voronoi_collection.set_array(Z)
+    voronoi_collection.set_array(Z)
+
+    # Handle axes
+    ax.grid(False)
+    ax.update_datalim(((x_arr.min(), y_arr.min()), (x_arr.max(), y_arr.max())))
+    ax.autoscale_view()
+    ax.add_collection(voronoi_collection, autolim=False)
+
+    # Return collection
     return voronoi_collection
 
