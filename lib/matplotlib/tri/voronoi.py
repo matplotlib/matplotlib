@@ -79,6 +79,10 @@ def voronoi(ax, X, Y, Z=None, **kwargs):
     The remaining kwargs are the same as for
     :class:`~matplotlib.collections.Collection`.
 
+    **Example:**
+
+        .. plot:: mpl_examples/pylab_examples/voronoi_demo.py
+
     '''
     # Parse arrays
     x_arr = np.array(X)
