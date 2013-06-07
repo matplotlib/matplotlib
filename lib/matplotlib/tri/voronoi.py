@@ -56,13 +56,13 @@ def compute_voronoi_cells(x, y):
     return cells
 
 
-def voronoi(X, Y, Z, **kwargs):
+def voronoi(X, Y, Z=None, **kwargs):
     '''
     Draws Voronoi diagram.
 
     '''
     # Check sizes
-    assert X.shape == Y.shape and X.shape == Z.shape, 'shape mismatch'
+    assert X.shape == Y.shape and (X.shape == Z.shape if Z is not None else True), 'shape mismatch'
     assert len(X.shape) == 1, '1D arrays required'
 
     # Compute Voronoi cells
@@ -77,6 +77,7 @@ def voronoi(X, Y, Z, **kwargs):
 
     # Create collection
     voronoi_collection = PatchCollection(patches, **kwargs)
-    voronoi_collection.set_array(Z)
+    if Z is not None:
+        voronoi_collection.set_array(Z)
     return voronoi_collection
 
