@@ -39,7 +39,7 @@ except ImportError:
     figureoptions = None
 
 from .qt4_compat import QtCore, QtGui, _getSaveFileName, __version__
-from matplotlib.backends.qt4_editor.formsubplottool import Ui_SubplotTool
+from matplotlib.backends.qt4_editor.formsubplottool import UiSubplotTool
 
 backend_version = __version__
 
@@ -713,10 +713,9 @@ class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
                     QtGui.QMessageBox.Ok, QtGui.QMessageBox.NoButton)
 
 
-class SubplotToolQt(SubplotTool, QtGui.QDialog, Ui_SubplotTool):
+class SubplotToolQt(SubplotTool, UiSubplotTool):
     def __init__(self, targetfig, parent):
-        QtGui.QDialog.__init__(self, None)
-        self.setupUi(self)
+        UiSubplotTool.__init__(self, None)
         self.targetfig = targetfig
         self.parent = parent
         self.connect(self.doneButton, QtCore.SIGNAL("clicked()"), self.close)
