@@ -1865,10 +1865,8 @@ class TextBox(AxesWidget):
         return [bx, tx], [by - dy, ty + dy]
 
 
-def TextBoxFloat(*args, **kwargs):
-    """
-    TextBox that produces float values
-    """
-    kwargs['allowed_chars'] = '0123456789.eE-+'
-    kwargs['type'] = float
-    return TextBox(*args, **kwargs)
+class TextBoxFloat(TextBox):
+    def __init__(self, *args, **kwargs):
+        kwargs['allowed_chars'] = '0123456789.eE-+'
+        kwargs['type'] = float
+        TextBox.__init__(self, *args, **kwargs)
