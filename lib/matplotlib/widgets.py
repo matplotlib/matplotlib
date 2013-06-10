@@ -1747,7 +1747,7 @@ class TextBox(AxesWidget):
 
     @property
     def cursor(self):
-        # macosx does not provide render objects until the first fram is done.
+        # macosx does not provide render objects until the first frame is done.
         # Lazily generating the cursor avoids issues
         if self._cursor is None:
             x, y = self._get_cursor_endpoints()  # needs a renderer
