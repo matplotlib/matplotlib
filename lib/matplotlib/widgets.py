@@ -1702,6 +1702,8 @@ class TextBox(AxesWidget):
 
         *text_kwargs* :
             Additional keywork arguments are passed on to self.ax.text()
+
+        Call :meth:`on_onchanged` to connect to TextBox updates
         """
         AxesWidget.__init__(self, ax)
         self.ax.set_navigate(False)
@@ -1720,9 +1722,28 @@ class TextBox(AxesWidget):
         self._cursorpos = len(self.text.get_text())
         self.old_callbacks = {}
 
+        self.cnt = 0
+        self.observers = {}
+
         self.connect_event('button_press_event', self._mouse_activate)
-        self.redraw_callbacks = []
-        self.redraw()
+
+    def on_changed(self, func):
+        """
+        When the textbox changes self.value, call *func* with the new value.
+
+        A connection id is returned with can be used to disconnect.
+        """
+        cid = self.cnt
+        self.observers[cid] = func
+        self.cnt += 1
+        return cid
+
+    def disconnect(self, cid):
+        """remove the observer with connection id *cid*"""
+        try:
+            del self.observers[cid]
+        except KeyError:
+            pass
 
     @property
     def cursor(self):
@@ -1734,13 +1755,8 @@ class TextBox(AxesWidget):
             self._cursor.set_visible(False)
         return self._cursor
 
-    def redraw(self):
-        for f in self.redraw_callbacks:
-            f()
-        self.canvas.draw()
-
     def _mouse_activate(self, event):
-        if self.ignore(event):
+        if self.ignore(event) or not self.eventson:
             return
         if self.ax == event.inaxes:
             self.begin_text_entry()
@@ -1757,7 +1773,8 @@ class TextBox(AxesWidget):
             self._cid = self.canvas.mpl_connect('key_press_event',
                                                 self.keypress)
             self.cursor.set_visible(True)
-            self.redraw()
+            if self.drawon:
+                self.canvas.draw()
 
     def end_text_entry(self):
         keypress_cbs = self.canvas.callbacks.callbacks['key_press_event']
@@ -1767,13 +1784,14 @@ class TextBox(AxesWidget):
                 keypress_cbs[k] = self.old_callbacks.pop(k)
 
         self.cursor.set_visible(False)
-        self.redraw()
+        if self.drawon:
+            self.canvas.draw()
 
     def keypress(self, event):
         """
         Parse a keypress - only allow #'s!
         """
-        if self.ignore(event):
+        if self.ignore(event) or not self.eventson:
             return
 
         newt = t = self.text.get_text()
@@ -1812,16 +1830,22 @@ class TextBox(AxesWidget):
         self.set_text(newt)
         x, y = self._get_cursor_endpoints()
         self.cursor.set_xdata(x)
-        self.redraw()
+        if self.drawon:
+            self.canvas.draw()
 
     def set_text(self, text):
+        success = False
         try:
             # only try to update if there's a real value
             self.value = self.type(text)
+            success = True
         except ValueError:
             pass
         # but always change the text
         self.text.set_text(text)
+        if success and self.eventson:
+            for func in self.observers.itervalues():
+                func(self.value)
 
     def _get_cursor_endpoints(self):
         # to get cursor position
