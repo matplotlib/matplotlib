@@ -2868,12 +2868,11 @@ class NavigationToolbar2(object):
         if self._ids_zoom != []:
             for zoom_id in self._ids_zoom:
                 self.canvas.mpl_disconnect(zoom_id)
-            self.zoom()
             self.release(event)
             self.draw()
             self._xypress = None
             self._button_pressed = None
-            self._zoom_mode = None
+            self._ids_zoom = []
             return
 
         if event.button == 1:
