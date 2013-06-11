@@ -284,7 +284,7 @@ class RendererPS(RendererBase):
         if (fontname,fontsize) != (self.fontname,self.fontsize):
             out = ("/%s findfont\n"
                    "%1.3f scalefont\n"
-                   "setfont\n" % (fontname.decode('ascii'), fontsize))
+                   "setfont\n" % (fontname, fontsize))
 
             self._pswriter.write(out)
             if store: self.fontname = fontname
