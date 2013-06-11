@@ -391,14 +391,14 @@ def ttfFontProperty(font):
     sfnt2 = sfnt.get((1,0,0,2))
     sfnt4 = sfnt.get((1,0,0,4))
     if sfnt2:
-        sfnt2 = sfnt2.lower()
+        sfnt2 = sfnt2.decode('ascii').lower()
     else:
         sfnt2 = ''
     if sfnt4:
-        sfnt4 = sfnt4.lower()
+        sfnt4 = sfnt4.decode('ascii').lower()
     else:
         sfnt4 = ''
-    if   sfnt4.find('oblique') >= 0:
+    if sfnt4.find('oblique') >= 0:
         style = 'oblique'
     elif sfnt4.find('italic') >= 0:
         style = 'italic'
