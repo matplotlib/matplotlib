@@ -47,7 +47,7 @@ def compute_voronoi_cells(x, y):
     for center, tri in zip(circumcenters, tri_points):
         for index in tri:
             if index < len(cells):
-                cells[index].append(center)
+                cells[index].append(tuple(center))
 
     # Sort the polygon corners clockwise
     for i, cell in enumerate(cells):
