@@ -23,4 +23,7 @@ script:
   # Travis VM to run out of memory (since so many copies of inkscape and
   # ghostscript are running at the same time).
   - echo Testing using 8 processes
+  # Generate the font caches in a single process before starting the
+  # multiple processes
+  - python -c "from matplotlib import font_manager"
   - python ../matplotlib/tests.py -sv --processes=8 --process-timeout=300
