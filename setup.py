@@ -6,7 +6,7 @@ setup.cfg.template for more information.
 from __future__ import print_function, absolute_import
 
 # This needs to be the very first thing to use distribute
-from distribute_setup import use_setuptools
+from ez_setup import use_setuptools
 use_setuptools()
 
 import sys
