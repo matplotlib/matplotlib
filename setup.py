@@ -5,9 +5,20 @@ setup.cfg.template for more information.
 
 from __future__ import print_function, absolute_import
 
-# This needs to be the very first thing to use distribute
-from distribute_setup import use_setuptools
-use_setuptools()
+# We require either distribute or setuptools >= 0.7, and it must be
+# the very first thing we import.
+try:
+    import setuptools
+except ImportError:
+    HAS_SETUPTOOLS_07 = False
+else:
+    setuptools_version = [
+        int(x) for x in setuptools.__version__.split('.')]
+    HAS_SETUPTOOLS_07 = setuptools_version >= [0, 7]
+
+if not HAS_SETUPTOOLS_07:
+    from distribute_setup import use_setuptools
+    use_setuptools()
 
 import sys
 
