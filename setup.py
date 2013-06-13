@@ -5,11 +5,61 @@ setup.cfg.template for more information.
 
 from __future__ import print_function, absolute_import
 
-# This needs to be the very first thing to use distribute
-from ez_setup import use_setuptools
-use_setuptools()
 
+import imp
+import os
+import re
 import sys
+import verlib
+
+
+def has_usable_setuptools():
+    def version_check(version1, version2):
+        return (verlib.NormalizedVersion(version1) >=
+                verlib.NormalizedVersion(version2))
+
+    try:
+        try:
+            import pkg_resources
+        except ImportError:
+            return False
+
+        # You have to check distribute here first
+        try:
+            distribute = pkg_resources.get_distribution('distribute')
+        except pkg_resources.DistributionNotFound:
+            distribute = None
+
+        try:
+            setuptools = pkg_resources.get_distribution('setuptools')
+        except pkg_resources.DistributionNotFound:
+            setuptools = None
+
+        if (setuptools is not None and
+            version_check(setuptools.version, '0.7')):
+            return True
+
+        if (distribute is not None and
+            version_check(distribute.version, '0.6')):
+            return True
+    except Exception as e:
+        # Any other exception, just assume we can't use setuptools
+        return False
+
+    return False
+
+
+if not has_usable_setuptools():
+    print("Downloading setuptools, since distribute >= 0.6 or setuptools "
+          ">= 0.7 could not be found")
+    del sys.modules['pkg_resources']
+    from ez_setup import use_setuptools
+    use_setuptools()
+else:
+    import setuptools
+    print("Found setuptools %s in %s" %
+          (setuptools.__version__, os.path.dirname(setuptools.__file__)))
+
 
 # distutils is breaking our sdists for files in symlinked dirs.
 # distutils will copy if os.link is not available, so this is a hack
