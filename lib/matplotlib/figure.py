@@ -1073,7 +1073,7 @@ class Figure(Artist):
     def get_axes(self):
         return self.axes
 
-    def legend(self, handles, labels, *args, **kwargs):
+    def legend(self, *args, **kwargs):
         """
         Place a legend in the figure.  Labels are a sequence of
         strings, handles is a sequence of
@@ -1082,6 +1082,12 @@ class Figure(Artist):
         string or an integer specifying the legend location
 
         USAGE::
+
+        To make a legend from existing artists on every axes::
+
+          legend()
+
+        To make a legend for a list of lines and labels::
 
           legend( (line1, line2, line3),
                   ('label1', 'label2', 'label3'),
@@ -1164,6 +1170,25 @@ class Figure(Artist):
 
         .. plot:: mpl_examples/pylab_examples/figlegend_demo.py
         """
+
+        if len(args) == 0:
+            ldict = {}       
+            for ax in self.axes:
+                handles, labels = ax.get_legend_handles_labels()
+                ldict = dict(ldict, **dict(zip(labels, handles)))
+  
+            handles, labels = ldict.values(), ldict.keys()
+            if len(handles) == 0:
+                warnings.warn("No labeled objects found. "
+                              "Use label='...' kwarg on individual plots.")
+                return None
+
+        elif len(args) == 2:
+            handles, labels = args
+
+        else:
+            raise TypeError('Invalid arguments to legend')
+        
         l = Legend(self, handles, labels, *args, **kwargs)
         self.legends.append(l)
         l._remove_method = lambda h: self.legends.remove(h)
