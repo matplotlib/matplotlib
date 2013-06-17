@@ -759,8 +759,8 @@ class RcParams(dict):
     :mod:`matplotlib.rcsetup`
     """
 
-    validate = dict((key, converter) for key, (default, converter) in \
-                     defaultParams.iteritems())
+    validate = dict((key, converter) for key, (default, converter) in
+                    defaultParams.iteritems())
     msg_depr = "%s is deprecated and replaced with %s; please use the latter."
     msg_depr_ignore = "%s is deprecated and ignored. Use %s"
 
