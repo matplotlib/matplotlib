@@ -48,6 +48,12 @@ arguments works from within Python::
   import matplotlib
   matplotlib.test()
 
+Unlike :file:`tests.py` this does not run any tests of the matplotlib
+toolkits. They can however be tested from within Python in a similar
+way::
+
+  import mpl_toolkits
+  mpl_toolkits.test()
 
 .. _`nosetest arguments`: http://somethingaboutorange.com/mrl/projects/nose/1.0.0/usage.html
 
