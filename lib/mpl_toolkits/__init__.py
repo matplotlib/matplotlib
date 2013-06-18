@@ -16,7 +16,7 @@ toolkits_test_modules = [
     ]
 
 def test(verbosity=1):
-    """run the matplotlib test suite"""
+    """run the matplotlib toolkits test suite"""
     old_backend = rcParams['backend']
     try:
         use('agg')
