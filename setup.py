@@ -83,6 +83,7 @@ mpl_packages = [
     setupext.SampleData(),
     setupext.Toolkits(),
     setupext.Tests(),
+    setupext.Toolkits_Tests(),
     'Optional backend extensions',
     # These backends are listed in order of preference, the first
     # being the most preferred.  The first one that looks like it will

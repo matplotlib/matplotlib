@@ -618,6 +618,43 @@ class Toolkits(OptionalPackage):
     def get_namespace_packages(self):
         return ['mpl_toolkits']
 
+class Toolkits_Tests(OptionalPackage):
+    name = "toolkits_test"
+
+    def check(self):
+        #super(Tests, self).check()
+
+        try:
+            import nose
+        except ImportError:
+            return (
+                "nose 0.11.1 or later is required to run the "
+                "matplotlib test suite")
+
+        if nose.__versioninfo__ < (0, 11, 1):
+            return (
+                "nose 0.11.1 or later is required to run the "
+                "matplotlib test suite")
+
+        return 'using nose version %s' % nose.__version__
+
+    def get_packages(self):
+        return [
+            'mpl_toolkits.tests',
+            ]
+
+    def get_package_data(self):
+        baseline_images = [
+            'tests/baseline_images/%s/*' % x
+            for x in os.listdir('lib/mpl_toolkits/tests/baseline_images')]
+
+        return {
+            'mpl_toolkits':
+            baseline_images}
+
+    def get_install_requires(self):
+        return ['nose']
+
 
 class Tests(OptionalPackage):
     name = "tests"
