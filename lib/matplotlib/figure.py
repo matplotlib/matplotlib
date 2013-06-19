@@ -1075,13 +1075,23 @@ class Figure(Artist):
 
     def legend(self, *args, **kwargs):
         """
-        Place a legend in the figure.  Labels are a sequence of
-        strings, handles is a sequence of
-        :class:`~matplotlib.lines.Line2D` or
-        :class:`~matplotlib.patches.Patch` instances, and loc can be a
-        string or an integer specifying the legend location
+        Place a legend in the figure.
+        
+        *labels*
+          a sequence of strings
 
-        USAGE::
+        *handles*
+          a sequence of :class:`~matplotlib.lines.Line2D` or
+          :class:`~matplotlib.patches.Patch` instances
+
+        *loc*
+          can be a string or an integer specifying the legend
+          location
+
+        A :class:`matplotlib.legend.Legend` instance is returned.
+
+              
+        Example::
 
         To make a legend from existing artists on every axes::
 
@@ -1184,12 +1194,18 @@ class Figure(Artist):
                 return None
 
         elif len(args) == 2:
+            # LINES, LABELS
             handles, labels = args
 
+        elif len(args) == 3:
+            # LINES, LABELS, LOC
+            handles, labels, loc = args
+            kwargs['loc'] = loc
+            
         else:
             raise TypeError('Invalid arguments to legend')
         
-        l = Legend(self, handles, labels, *args, **kwargs)
+        l = Legend(self, handles, labels, **kwargs)
         self.legends.append(l)
         l._remove_method = lambda h: self.legends.remove(h)
         return l

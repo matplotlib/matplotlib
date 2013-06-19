@@ -627,7 +627,7 @@ def figimage(*args, **kwargs):
     return ret
 
 
-def figlegend(handles, labels, loc, **kwargs):
+def figlegend(*args, **kwargs):
     """
     Place a legend in the figure.
 
@@ -646,6 +646,12 @@ def figlegend(handles, labels, loc, **kwargs):
 
     Example::
 
+    To make a legend from existing artists on every axes::
+
+      legend()
+
+    To make a legend for a list of lines and labels::
+        
       figlegend( (line1, line2, line3),
                  ('label1', 'label2', 'label3'),
                  'upper right' )
@@ -655,7 +661,7 @@ def figlegend(handles, labels, loc, **kwargs):
        :func:`~matplotlib.pyplot.legend`
 
     """
-    l = gcf().legend(handles, labels, loc, **kwargs)
+    l = gcf().legend(*args, **kwargs)
     draw_if_interactive()
     return l
 
