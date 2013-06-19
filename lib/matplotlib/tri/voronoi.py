@@ -36,8 +36,10 @@ def compute_voronoi_cells(x, y):
     y_min, y_max = y.min(), y.max()
     x_mid, x_diff = 0.5 * (x_min + x_max), x_max - x_min
     y_mid, y_diff = 0.5 * (y_min + y_max), y_max - y_min
-    x_fake = list(x) + [x_mid - x_diff, x_mid - x_diff, x_mid + x_diff, x_mid + x_diff]
-    y_fake = list(y) + [y_mid - y_diff, y_mid + y_diff, y_mid - y_diff, y_mid + y_diff]
+    x_fake = list(x) + [x_mid - 2 * x_diff, x_mid - 2 * x_diff,
+        x_mid + 2 * x_diff, x_mid + 2 * x_diff]
+    y_fake = list(y) + [y_mid - 2 * y_diff, y_mid + 2 * y_diff,
+        y_mid - 2 * y_diff, y_mid + 2 * y_diff]
 
     # Calculate a Delaunay triangulation
     circumcenters, edges, tri_points, tri_neighbors = delaunay(x_fake, y_fake)
@@ -56,7 +58,58 @@ def compute_voronoi_cells(x, y):
     return cells
 
 
-def voronoi(ax, X, Y, Z=None, **kwargs):
+class VoronoiCollection(PatchCollection):
+    '''
+    A collection of patches specific for a Voronoi diagram.
+
+    *X* and *Y* are arrays containing the coordinates of the cell-forming
+    points.
+
+    This class hosts a method `set_grid` to conveniently recalculate the cells
+    from a new unstructured grid after creation. Thus, it is advised to use
+    this method instead of `set_paths` to change the collections geometry.
+
+    As for :class:`~matplotlib.collections.PatchCollection`, the use of
+    :class:`matplotlib.cm.ScalarMappable` is optional.
+
+    '''
+
+    def __init__(self, X, Y, **kwargs):
+        '''Create VoronoiCollection.'''
+        PatchCollection.__init__(self, [], **kwargs)
+        self.set_grid(X, Y)
+
+    def get_grid(self):
+        '''Returns a 2-tuple *(X, Y)* of the grid point coordinates.'''
+        return self._grid_x, self._grid_y
+
+    def set_grid(self, X, Y):
+        '''
+        Modifies the geometry of the collection by considering a new
+        unstructured grid as specified by their coordiantes *X* and *Y*.
+
+        The arrays must be 1-dimensional array-likes of equal length.
+
+        '''
+        # Check and convert arrays
+        self._grid_x = np.array(X)
+        self._grid_y = np.array(Y)
+        assert self._grid_x.shape == self._grid_y.shape, ValueError('shape mismatch')
+        assert len(self._grid_x.shape) == 1, ValueError('1D arrays required')
+
+        # Compute Voronoi cells
+        cells = compute_voronoi_cells(self._grid_x, self._grid_y)
+
+        # Assemble patches
+        patches = []
+        for cell in cells:
+            codes = [Path.MOVETO] + [Path.LINETO] * (len(cell) - 1) + [Path.CLOSEPOLY]
+            path = Path(cell + [cell[0]], codes)
+            patches.append(PathPatch(path))
+        self.set_paths(patches)
+
+
+def voronoi(ax, X, Y, C=None, **kwargs):
     '''
     Create a Voronoi diagram of an unstructured grid.
 
@@ -71,7 +124,8 @@ def voronoi(ax, X, Y, Z=None, **kwargs):
       voronoi(X, Y, ...)
       voronoi(X, Y, C, ...)
 
-    *X* and *Y* are arrays containing the coordinates of the cell-forming points.
+    *X* and *Y* are arrays containing the coordinates of the cell-forming
+    points.
 
     *C* is an array of mappable scalars. If it is provided, the Voronoi cells
     associated with a certain point will be colored according to the colormap.
@@ -84,34 +138,17 @@ def voronoi(ax, X, Y, Z=None, **kwargs):
         .. plot:: mpl_examples/pylab_examples/voronoi_demo.py
 
     '''
-    # Parse arrays
-    x_arr = np.array(X)
-    y_arr = np.array(Y)
-    if Z is not None:
-        z_arr = np.array(Z)
-
-    # Check sizes
-    assert x_arr.shape == y_arr.shape, 'shape mismatch'
-    assert (x_arr.shape == z_arr.shape if Z is not None else True), 'shape mismatch'
-    assert len(X.shape) == 1, '1D arrays required'
-
     # Reset axes
     if not ax._hold:
         ax.cla()
 
-    # Compute Voronoi cells
-    cells = compute_voronoi_cells(X, Y)
-
-    # Assemble patches
-    patches = []
-    for cell in cells:
-        codes = [Path.MOVETO] + [Path.LINETO] * (len(cell) - 1) + [Path.CLOSEPOLY]
-        path = Path(cell + [cell[0]], codes)
-        patches.append(PathPatch(path))
-
-    # Create collection
-    voronoi_collection = PatchCollection(patches, **kwargs)
-    voronoi_collection.set_array(Z)
+    # Create collection and set mappable if required
+    voronoi_collection = VoronoiCollection(X, Y, **kwargs)
+    x_arr, y_arr = voronoi_collection.get_grid()
+    if C is not None:
+        c_arr = np.array(C)
+        assert c_arr.shape == x_arr.shape, ValueError('shape mismatch')
+        voronoi_collection.set_array(c_arr)
 
     # Handle axes
     ax.grid(False)
