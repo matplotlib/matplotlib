@@ -1,4 +1,4 @@
-"""
+'''
 This module contains a routine to create a Voronoi diagram of an unstructured
 set of points. The Voronoi diagram is calculated from the Delaunay
 triangulation of this unstructured mesh.
@@ -7,7 +7,7 @@ The approach here roughly follows the one provided by Nicolas Rougier:
 
 https://github.com/rougier/gallery/blob/master/voronoi/voronoi/voronoi.py
 
-"""
+'''
 
 from math import atan2
 
