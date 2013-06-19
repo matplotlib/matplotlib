@@ -648,7 +648,7 @@ def figlegend(*args, **kwargs):
 
     To make a legend from existing artists on every axes::
 
-      legend()
+      figlegend()
 
     To make a legend for a list of lines and labels::
         
