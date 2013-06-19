@@ -229,10 +229,4 @@ if __name__ == '__main__':
           # check for zip safety.
           zip_safe=False,
 
-          # Install our nose plugin so it will always be found
-          entry_points={
-              'nose.plugins.0.10': [
-                  'KnownFailure = matplotlib.testing.noseclasses:KnownFailure'
-                ]
-            },
          )
