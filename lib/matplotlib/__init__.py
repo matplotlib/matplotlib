@@ -1247,6 +1247,7 @@ def test(verbosity=1):
         import nose.plugins.builtin
         from .testing.noseclasses import KnownFailure
         from nose.plugins.manager import PluginManager
+        from nose.plugins import multiprocess
 
         # store the old values before overriding
         plugins = []
@@ -1255,6 +1256,11 @@ def test(verbosity=1):
 
         manager = PluginManager(plugins=plugins)
         config = nose.config.Config(verbosity=verbosity, plugins=manager)
+
+        # Nose doesn't automatically instantiate all of the plugins in the
+        # child processes, so we have to provide the multiprocess plugin with
+        # a list.
+        multiprocess._instantiate_plugins = [KnownFailure]
 
         success = nose.run( defaultTest=default_test_modules,
                             config=config,
