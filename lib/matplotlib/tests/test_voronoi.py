@@ -5,8 +5,9 @@ from nose.tools import assert_in, assert_equal, raises
 
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
-from matplotlib.tri import compute_voronoi_cells, VoronoiCollection, voronoi
+from matplotlib.tri import compute_voronoi_cells, VoronoiCollection
 from matplotlib.path import Path
+from matplotlib.figure import Figure
 
 
 # Common variables
@@ -33,6 +34,22 @@ def test_voronoi_collection():
     assert_equal(collection.get_paths()[3].vertices.shape, (4, 2))
     assert_equal(collection.get_paths()[3].codes.tolist(), [Path.MOVETO,
         Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
+
+
+@raises(ValueError)
+def test_shape_mismatch_xy():
+    VoronoiCollection([1, 2, 3], [4, 5])
+
+
+@raises(ValueError)
+def test_shape_mismatch_xyc():
+    ax = Figure().add_subplot(111)
+    ax.voronoi([2, 4, 5], [1, -2, 9], [8, 9, 2, 11])
+
+
+@raises(ValueError)
+def test_no_1d_array():
+    VoronoiCollection([[1, 2], [3, 4]], [[5, 6], [7, 8]])
 
 
 @image_comparison(baseline_images=['voronoi_pseudocolor_image'])

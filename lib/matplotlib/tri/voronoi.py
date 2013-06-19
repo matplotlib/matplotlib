@@ -94,8 +94,10 @@ class VoronoiCollection(PatchCollection):
         # Check and convert arrays
         self._grid_x = np.array(X)
         self._grid_y = np.array(Y)
-        assert self._grid_x.shape == self._grid_y.shape, ValueError('shape mismatch')
-        assert len(self._grid_x.shape) == 1, ValueError('1D arrays required')
+        if self._grid_x.shape != self._grid_y.shape:
+            raise ValueError('shape mismatch')
+        if len(self._grid_x.shape) != 1:
+            raise ValueError('1D arrays required')
 
         # Compute Voronoi cells
         cells = compute_voronoi_cells(self._grid_x, self._grid_y)
@@ -147,7 +149,8 @@ def voronoi(ax, X, Y, C=None, **kwargs):
     x_arr, y_arr = voronoi_collection.get_grid()
     if C is not None:
         c_arr = np.array(C)
-        assert c_arr.shape == x_arr.shape, ValueError('shape mismatch')
+        if c_arr.shape != x_arr.shape:
+            raise ValueError('shape mismatch')
         voronoi_collection.set_array(c_arr)
 
     # Handle axes
