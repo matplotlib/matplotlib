@@ -22,8 +22,16 @@ if font_manager._fmcache is not None:
     while not os.path.exists(font_manager._fmcache):
         time.sleep(0.5)
 
+plugins = [KnownFailure]
+
+# Nose doesn't automatically instantiate all of the plugins in the
+# child processes, so we have to provide the multiprocess plugin with
+# a list.
+from nose.plugins import multiprocess
+multiprocess._instantiate_plugins = plugins
+
 def run():
-    nose.main(addplugins=[KnownFailure()],
+    nose.main(addplugins=[x() for x in plugins],
               defaultTest=default_test_modules)
 
 if __name__ == '__main__':

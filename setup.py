@@ -36,6 +36,16 @@ except ImportError:
     except ImportError:
         from distutils.core import setup
 
+# The setuptools version of sdist adds a setup.cfg file to the tree.
+# We don't want that, so we simply remove it, and it will fall back to
+# vanilla distutils.
+try:
+    from setuptools.command import sdist
+except ImportError:
+    pass
+else:
+    del sdist.sdist.make_release_tree
+
 import setupext
 from setupext import print_line, print_raw, print_message, print_status
 
@@ -228,11 +238,4 @@ if __name__ == '__main__':
           # Telling setuptools this prevents it from doing an automatic
           # check for zip safety.
           zip_safe=False,
-
-          # Install our nose plugin so it will always be found
-          entry_points={
-              'nose.plugins.0.10': [
-                  'KnownFailure = matplotlib.testing.noseclasses:KnownFailure'
-                ]
-            },
          )
