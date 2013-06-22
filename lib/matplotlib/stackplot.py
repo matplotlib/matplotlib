@@ -43,6 +43,11 @@ def stackplot(axes, x, *args, **kwargs):
     Returns *r* : A list of
     :class:`~matplotlib.collections.PolyCollection`, one for each
     element in the stacked area plot.
+
+    Note that :class:`~matplotlib.legend.Legend` does not support
+    :class:`~matplotlib.collections.PolyCollection` objects.  To create a
+    legend on a stackplot, use a proxy artist:
+    http://matplotlib.org/users/legend_guide.html#using-proxy-artist
     """
 
     if len(args) == 1:
