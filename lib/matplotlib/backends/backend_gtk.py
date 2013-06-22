@@ -102,19 +102,13 @@ def new_figure_manager_given_figure(num, figure):
     return manager
 
 
-class TimerGTK(TimerBase):
-    '''
-    Subclass of :class:`backend_bases.TimerBase` that uses GTK for timer events.
+class Timer(TimerBase):
+    __doc__ = TimerBase.__doc__
 
-    Attributes:
-    * interval: The time between timer events in milliseconds. Default
-        is 1000 ms.
-    * single_shot: Boolean flag indicating whether this timer should
-        operate as single shot (run once and then stop). Defaults to False.
-    * callbacks: Stores list of (func, args) tuples that will be called
-        upon timer events. This list can be manipulated directly, or the
-        functions add_callback and remove_callback can be used.
-    '''
+    def __init__(self, *args, **kwargs):
+        TimerBase.__init__(self, *args, **kwargs)
+        self._timer = None
+
     def _timer_start(self):
         # Need to stop it, otherwise we potentially leak a timer id that will
         # never be stopped.
@@ -495,22 +489,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                 raise ValueError("Saving to a Python file-like object is only supported by PyGTK >= 2.8")
         else:
             raise ValueError("filename must be a path or a file-like object")
-
-    def new_timer(self, *args, **kwargs):
-        """
-        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
-        This is useful for getting periodic events through the backend's native
-        event loop. Implemented only for backends with GUIs.
-
-        optional arguments:
-
-        *interval*
-          Timer interval in milliseconds
-        *callbacks*
-          Sequence of (func, args, kwargs) where func(*args, **kwargs) will
-          be executed by the timer every *interval*.
-        """
-        return TimerGTK(*args, **kwargs)
 
     def flush_events(self):
         gtk.gdk.threads_enter()

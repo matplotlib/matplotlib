@@ -104,3 +104,4 @@ def new_figure_manager_given_figure(num, figure):
 
 FigureManager = FigureManagerGTK3Agg
 show = backend_gtk3.show
+Timer = backend_gtk3.Timer

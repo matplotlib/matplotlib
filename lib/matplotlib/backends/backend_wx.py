@@ -166,38 +166,18 @@ def raise_msg_to_str(msg):
     return msg
 
 
-class TimerWx(TimerBase):
-    '''
-    Subclass of :class:`backend_bases.TimerBase` that uses WxTimer events.
+class Timer(wx.Timer, TimerBase):
+    __doc__ = TimerBase.__doc__
 
-    Attributes:
-    * interval: The time between timer events in milliseconds. Default
-        is 1000 ms.
-    * single_shot: Boolean flag indicating whether this timer should
-        operate as single shot (run once and then stop). Defaults to False.
-    * callbacks: Stores list of (func, args) tuples that will be called
-        upon timer events. This list can be manipulated directly, or the
-        functions add_callback and remove_callback can be used.
-    '''
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)
-
-        # Create a new timer and connect the timer event to our handler.
-        # For WX, the events have to use a widget for binding.
-        self.parent = parent
-        self._timer = wx.Timer(self.parent, wx.NewId())
-        self.parent.Bind(wx.EVT_TIMER, self._on_timer, self._timer)
-
-     # Unbinding causes Wx to stop for some reason. Disabling for now.
-#    def __del__(self):
-#        TimerBase.__del__(self)
-#        self.parent.Bind(wx.EVT_TIMER, None, self._timer)
+        wx.Timer.__init__(self)
 
     def _timer_start(self):
-        self._timer.Start(self._interval, self._single)
+        self.Start(self._interval, self._single)
 
     def _timer_stop(self):
-        self._timer.Stop()
+        self.Stop()
 
     def _timer_set_interval(self):
         self._timer_start()
@@ -205,8 +185,8 @@ class TimerWx(TimerBase):
     def _timer_set_single_shot(self):
         self._timer.start()
 
-    def _on_timer(self, *args):
-        TimerBase._on_timer(self)
+    def Notify(self):
+        self._on_timer()
 
 
 class RendererWx(RendererBase):
@@ -823,22 +803,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         self.figure.draw(self.renderer)
         self._isDrawn = True
         self.gui_repaint(drawDC=drawDC)
-
-    def new_timer(self, *args, **kwargs):
-        """
-        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
-        This is useful for getting periodic events through the backend's native
-        event loop. Implemented only for backends with GUIs.
-
-        optional arguments:
-
-        *interval*
-          Timer interval in milliseconds
-        *callbacks*
-          Sequence of (func, args, kwargs) where func(*args, **kwargs) will
-          be executed by the timer every *interval*.
-        """
-        return TimerWx(self, *args, **kwargs)
 
     def flush_events(self):
         wx.Yield()

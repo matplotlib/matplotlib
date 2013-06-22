@@ -247,20 +247,8 @@ def new_figure_manager_given_figure(num, figure):
     return manager
 
 
-class TimerMac(_macosx.Timer, TimerBase):
-    '''
-    Subclass of :class:`backend_bases.TimerBase` that uses CoreFoundation
-    run loops for timer events.
-
-    Attributes:
-    * interval: The time between timer events in milliseconds. Default
-        is 1000 ms.
-    * single_shot: Boolean flag indicating whether this timer should
-        operate as single shot (run once and then stop). Defaults to False.
-    * callbacks: Stores list of (func, args) tuples that will be called
-        upon timer events. This list can be manipulated directly, or the
-        functions add_callback and remove_callback can be used.
-    '''
+class Timer(_macosx.Timer, TimerBase):
+    __doc__ = TimerBase.__doc__
     # completely implemented at the C-level (in _macosx.Timer)
 
 
@@ -330,22 +318,6 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
 
     def print_gif(self, filename, *args, **kwargs):
         self._print_bitmap(filename, *args, **kwargs)
-
-    def new_timer(self, *args, **kwargs):
-        """
-        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
-        This is useful for getting periodic events through the backend's native
-        event loop. Implemented only for backends with GUIs.
-
-        optional arguments:
-
-        *interval*
-          Timer interval in milliseconds
-        *callbacks*
-          Sequence of (func, args, kwargs) where func(*args, **kwargs) will
-          be executed by the timer every *interval*.
-        """
-        return TimerMac(*args, **kwargs)
 
 
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
