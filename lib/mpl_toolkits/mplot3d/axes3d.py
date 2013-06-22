@@ -2003,6 +2003,9 @@ class Axes3D(Axes):
 
         .. versionchanged:: 1.3.0
             Added support for custom triangulations
+
+        EXPERIMENTAL:  This method currently produces incorrect output due to a
+        longstanding bug in 3D PolyCollection rendering.
         """
 
         extend3d = kwargs.pop('extend3d', False)
@@ -2088,6 +2091,9 @@ class Axes3D(Axes):
 
         .. versionchanged :: 1.3.0
             Added support for custom triangulations
+
+        EXPERIMENTAL:  This method currently produces incorrect output due to a
+        longstanding bug in 3D PolyCollection rendering.
         """
         zdir = kwargs.pop('zdir', 'z')
         offset = kwargs.pop('offset', None)
