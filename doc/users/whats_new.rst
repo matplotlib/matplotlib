@@ -40,9 +40,10 @@ to modify each artist's sketch parameters individually with
 
 Updated Axes3D.contour methods
 ------------------------------
-Damon McDougall updated the :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.contour`
-and :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.contourf` methods to allow
-3D contour plots on abitrary unstructured user-specified triangulations.
+Damon McDougall updated the
+:meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.tricontour` and
+:meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.tricontourf` methods to allow 3D
+contour plots on abitrary unstructured user-specified triangulations.
 
 .. plot:: mpl_examples/mplot3d/tricontour3d_demo.py
 
