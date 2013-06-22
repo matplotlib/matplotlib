@@ -573,6 +573,7 @@ def volume_overlay(ax, opens, closes, volumes,
                                    linewidths   = (0.5,),
                                    )
 
+    ax.add_collection(barCollection)
     corners = (0, 0), (len(bars), max(volumes))
     ax.update_datalim(corners)
     ax.autoscale_view()
