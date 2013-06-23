@@ -10,3 +10,5 @@ from triinterpolate import *
 from trirefine import *
 from tripcolor import *
 from triplot import *
+from voronoi import *
+

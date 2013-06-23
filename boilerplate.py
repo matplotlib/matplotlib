@@ -140,6 +140,7 @@ def boilerplate_gen():
         'tripcolor',
         'triplot',
         'vlines',
+        'voronoi',
         'xcorr',
         'barbs',
         )
@@ -174,7 +175,7 @@ def boilerplate_gen():
         'tricontour' : 'if %(ret)s._A is not None: sci(%(ret)s)',
         'tricontourf': 'if %(ret)s._A is not None: sci(%(ret)s)',
         'tripcolor'  : 'sci(%(ret)s)',
-
+        'voronoi': 'sci(%(ret)s)',
     }
 
     def format_value(value):

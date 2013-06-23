@@ -9197,6 +9197,10 @@ class Axes(martist.Artist):
         mtri.triplot(self, *args, **kwargs)
     triplot.__doc__ = mtri.triplot.__doc__
 
+    def voronoi(self, *args, **kwargs):
+        return mtri.voronoi(self, *args, **kwargs)
+    voronoi.__doc__ = mtri.voronoi.__doc__
+
 
 from matplotlib.gridspec import GridSpec, SubplotSpec
 
