@@ -28,4 +28,5 @@ ax1.xaxis.set_ticks_position('bottom')
 
 # Tweak spacing between subplots to prevent labels from overlapping
 plt.subplots_adjust(hspace=0.5)
+
 plt.show()
