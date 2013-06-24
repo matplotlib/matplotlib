@@ -873,8 +873,8 @@ class GraphicsContextBase:
 
         """
         if dash_list is not None:
-            dash_list = np.asarray(dash_list)
-            if np.any(dash_list <= 0.0):
+            dl = np.asarray(dash_list)
+            if np.any(dl <= 0.0):
                 raise ValueError("All values in the dash list must be positive")
         self._dashes = dash_offset, dash_list
 
