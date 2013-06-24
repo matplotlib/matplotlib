@@ -383,9 +383,12 @@ class FigureCanvasQT(QtGui.QWidget, FigureCanvasBase):
 
         optional arguments:
 
-        *interval* Timer interval in milliseconds *callbacks* Sequence
-        of (func, args, kwargs) where func(*args, **kwargs) will be
-        executed by the timer every *interval*.
+        *interval*
+            Timer interval in milliseconds
+
+        *callbacks*
+            Sequence of (func, args, kwargs) where func(*args, **kwargs)
+            will be executed by the timer every *interval*.
 
     """
         return TimerQT(*args, **kwargs)
