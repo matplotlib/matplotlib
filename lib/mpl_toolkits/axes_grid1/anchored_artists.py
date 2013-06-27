@@ -67,6 +67,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
     def __init__(self, transform, size, label, loc,
                  pad=0.1, borderpad=0.1, sep=2, prop=None, 
                  frameon=True, size_vertical=0, color='black',
+                 label_top=False,
                  **kwargs):
         """
         Draw a horizontal bar with the size in data coordinate of the give axes.
@@ -91,6 +92,8 @@ class AnchoredSizeBar(AnchoredOffsetbox):
           vertical length of the size bar, given in data coordinates
         color : str, optional
           color for the size bar and label
+        label_top : bool, optional
+          if true, the label will be over the rectangle
         
         Example:
         --------
@@ -110,7 +113,12 @@ class AnchoredSizeBar(AnchoredOffsetbox):
 
         self.txt_label = TextArea(label, minimumdescent=False)
 
-        self._box = VPacker(children=[self.size_bar, self.txt_label],
+        if label_top:
+            _box_children = [self.txt_label, self.size_bar] 
+        else:
+            _box_children = [self.size_bar, self.txt_label] 
+
+        self._box = VPacker(children=_box_children,
                             align="center",
                             pad=0, sep=sep)
 
