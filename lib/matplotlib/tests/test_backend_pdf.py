@@ -1,6 +1,8 @@
 # -*- encoding: utf-8 -*-
 
-from matplotlib import rcParams
+import numpy as np
+
+from matplotlib import cm, rcParams
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 
@@ -34,3 +36,14 @@ def test_type42():
     ax = fig.add_subplot(111)
     ax.plot([1,2,3])
     fig.savefig(io.BytesIO())
+
+def test_3d():
+    import io
+    from mpl_toolkits.mplot3d import Axes3D
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1, projection='3d')
+    ax.view_init(elev=None, azim= -15)
+    X, Y = np.meshgrid(np.arange(3), np.arange(3))
+    Fs = X * Y
+    ax.plot_surface(X, Y, Fs, cmap=cm.jet, lw=0, antialiased=False)
+    plt.savefig(io.BytesIO())
