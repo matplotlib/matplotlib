@@ -110,6 +110,11 @@ class ImageComparisonTest(CleanupTest):
             ax.xaxis.set_minor_formatter(ticker.NullFormatter())
             ax.yaxis.set_major_formatter(ticker.NullFormatter())
             ax.yaxis.set_minor_formatter(ticker.NullFormatter())
+            try:
+                ax.zaxis.set_major_formatter(ticker.NullFormatter())
+                ax.zaxis.set_minor_formatter(ticker.NullFormatter())
+            except AttributeError:
+                pass
 
     def test(self):
         baseline_dir, result_dir = _image_directories(self._func)
