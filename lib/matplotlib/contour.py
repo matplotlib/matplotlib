@@ -21,6 +21,7 @@ import matplotlib.mathtext as mathtext
 import matplotlib.patches as mpatches
 import matplotlib.texmanager as texmanager
 import matplotlib.transforms as mtrans
+import pdb
 
 # Import needed for adding manual selection capability to clabel
 from matplotlib.blocking_input import BlockingContourLabeler
@@ -1196,7 +1197,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # want to leave the original levels attribute unchanged.
         # (Colorbar needs this even for line contours.)
         self._levels = list(self.levels)
-
+        pdb.set_trace()
         if self.extend in ('both', 'min'):
             self._levels.insert(0, min(self.levels[0], self.zmin) - 1)
         if self.extend in ('both', 'max'):
@@ -1495,18 +1496,24 @@ class QuadContourSet(ContourSet):
                             (fn, fn))
 
         # Check for vmin and vmax values and max out z values accordingly
+        # want zmax and zmin to be able to be outside data range, according to input vmin/vmax
         if 'vmax' in kwargs:
-            vmax = kwargs.pop('vmax')
+            vmax = kwargs['vmax']
             ind = z > vmax
             z[ind] = vmax
+            self.zmax = kwargs.pop('vmax')   
+        else:  
+            self.zmax = ma.maximum(z)
         if 'vmin' in kwargs:
-            vmin = kwargs.pop('vmin')
+            vmin = kwargs['vmin']
             ind = z < vmin
             z[ind] = vmin
+            self.zmin = kwargs.pop('vmin')   
+        else:
+            self.zmin = ma.minimum(z)
 
         z = ma.masked_invalid(z, copy=False)
-        self.zmax = ma.maximum(z)
-        self.zmin = ma.minimum(z)
+
         if self.logscale and self.zmin <= 0:
             z = ma.masked_where(z <= 0, z)
             warnings.warn('Log scale: values of z <= 0 have been masked')
