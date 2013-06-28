@@ -11,6 +11,18 @@ help figure out possible sources of the changes you are experiencing.
 For new features that were added to matplotlib, please see
 :ref:`whats-new`.
 
+Changes in 1.4.x
+================
+
+* A major refactoring of the axes module was made. The axes module has been
+splitted into smaller modules:
+
+    - the `_base` module, which contains a new private _AxesBase class. This
+      class contains all methods except plotting and labelling methods.
+    - the `axes` module, which contains the Axes class. This class inherits
+      from _AxesBase, and contains all plotting and labelling methods.
+    - the `_subplot` module, with all the classes concerning subplotting.
+
 
 .. _changes_in_1_3:
 
