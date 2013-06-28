@@ -293,8 +293,23 @@ class Patch3DCollection(PatchCollection):
     '''
 
     def __init__(self, *args, **kwargs):
+        """
+        Create a collection of flat 3D patches with its normal vector
+        pointed in *zdir* direction, and located at *zs* on the *zdir*
+        axis. 'zs' can be a scalar or an array-like of the same length as
+        the number of patches in the collection.
+
+        Constructor arguments are the same as for
+        :class:`~matplotlib.collections.PatchCollection`. In addition,
+        keywords *zs=0* and *zdir='z'* are available.
+
+        """
+        zs = kwargs.pop('zs', 0)
+        zdir = kwargs.pop('zdir', 'z')
         PatchCollection.__init__(self, *args, **kwargs)
         self._old_draw = lambda x: PatchCollection.draw(self, x)
+        self.set_3d_properties(zs, zdir)
+
 
     def set_sort_zpos(self,val):
         '''Set the position to use for z-sorting.'''
@@ -306,11 +321,11 @@ class Patch3DCollection(PatchCollection):
         self.update_scalarmappable()
         offsets = self.get_offsets()
         if len(offsets) > 0:
-            xs, ys = zip(*self.get_offsets())
+            xs, ys = zip(*offsets)
         else:
-            xs = [0] * len(zs)
-            ys = [0] * len(zs)
-        self._offsets3d = juggle_axes(xs, ys, zs, zdir)
+            xs = []
+            ys = []
+        self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()
 
