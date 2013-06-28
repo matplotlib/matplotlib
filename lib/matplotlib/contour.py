@@ -1493,6 +1493,17 @@ class QuadContourSet(ContourSet):
         else:
             raise TypeError("Too many arguments to %s; see help(%s)" %
                             (fn, fn))
+
+        # Check for vmin and vmax values and max out z values accordingly
+        if 'vmax' in kwargs:
+            vmax = kwargs.pop('vmax')
+            ind = z > vmax
+            z[ind] = vmax
+        if 'vmin' in kwargs:
+            vmin = kwargs.pop('vmin')
+            ind = z < vmin
+            z[ind] = vmin
+
         z = ma.masked_invalid(z, copy=False)
         self.zmax = ma.maximum(z)
         self.zmin = ma.minimum(z)
