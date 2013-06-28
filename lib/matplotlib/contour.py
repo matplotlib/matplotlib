@@ -21,7 +21,6 @@ import matplotlib.mathtext as mathtext
 import matplotlib.patches as mpatches
 import matplotlib.texmanager as texmanager
 import matplotlib.transforms as mtrans
-import pdb
 
 # Import needed for adding manual selection capability to clabel
 from matplotlib.blocking_input import BlockingContourLabeler
@@ -1197,7 +1196,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # want to leave the original levels attribute unchanged.
         # (Colorbar needs this even for line contours.)
         self._levels = list(self.levels)
-        pdb.set_trace()
+
         if self.extend in ('both', 'min'):
             self._levels.insert(0, min(self.levels[0], self.zmin) - 1)
         if self.extend in ('both', 'max'):
@@ -1501,14 +1500,14 @@ class QuadContourSet(ContourSet):
             vmax = kwargs['vmax']
             ind = z > vmax
             z[ind] = vmax
-            self.zmax = kwargs.pop('vmax')   
+            self.zmax = kwargs['vmax']
         else:  
             self.zmax = ma.maximum(z)
         if 'vmin' in kwargs:
             vmin = kwargs['vmin']
             ind = z < vmin
             z[ind] = vmin
-            self.zmin = kwargs.pop('vmin')   
+            self.zmin = kwargs['vmin']   
         else:
             self.zmin = ma.minimum(z)
 
