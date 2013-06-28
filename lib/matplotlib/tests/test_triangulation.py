@@ -881,3 +881,8 @@ def meshgrid_triangles(n):
             d = (i+1) + (j+1)*n
             tri += [[a, b, d], [a, d, c]]
     return np.array(tri, dtype=np.int32)
+
+
+if __name__ == '__main__':
+    import nose
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
