@@ -14,6 +14,7 @@ import six
 from six.moves import zip
 
 from matplotlib import lines, text as mtext, path as mpath, colors as mcolors
+from matplotlib import artist
 from matplotlib.collections import Collection, LineCollection, \
         PolyCollection, PatchCollection, PathCollection
 from matplotlib.cm import ScalarMappable
@@ -340,9 +341,13 @@ class Collection3D(object):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
         #FIXME: mpl allows us no way to unset the collection alpha value
-        self._alpha = None
-        self.set_facecolors(zalpha(self._facecolor3d, vzs))
-        self.set_edgecolors(zalpha(self._edgecolor3d, vzs))
+        #self._alpha = None
+        fcs = mcolors.colorConverter.to_rgba_array(self._facecolor3d,
+                                                   self._alpha)
+        mcs = mcolors.colorConverter.to_rgba_array(self._edgecolor3d,
+                                                   self._alpha)
+        self.set_facecolors(zalpha(fcs, vzs))
+        self.set_edgecolors(zalpha(mcs, vzs))
         super(self.__class__, self).set_offsets(list(zip(vxs, vys)))
 
         if vzs.size > 0 :
@@ -461,6 +466,7 @@ class Poly3DCollection(PolyCollection):
         self.set_zsort(True)
         self._facecolors3d = PolyCollection.get_facecolors(self)
         self._edgecolors3d = PolyCollection.get_edgecolors(self)
+        self._alpha3d = PolyCollection.get_alpha(self)
 
     def set_sort_zpos(self,val):
         '''Set the position to use for z-sorting.'''
@@ -528,6 +534,30 @@ class Poly3DCollection(PolyCollection):
         PolyCollection.set_edgecolor(self, colors)
         self._edgecolors3d = PolyCollection.get_edgecolor(self)
     set_edgecolors = set_edgecolor
+
+    def set_alpha(self, alpha):
+        """
+        Set the alpha tranparencies of the collection.  *alpha* must be
+        a float or *None*.
+
+        ACCEPTS: float or None
+        """
+        if alpha is not None:
+            try:
+                float(alpha)
+            except TypeError:
+                raise TypeError('alpha must be a float or None')
+        artist.Artist.set_alpha(self, alpha)
+        try:
+            self._facecolors = mcolors.colorConverter.to_rgba_array(
+                self._facecolors3d, self._alpha)
+        except (AttributeError, TypeError, IndexError):
+            pass
+        try:
+            self._edgecolors = mcolors.colorConverter.to_rgba_array(
+                    self._edgecolors3d, self._alpha)
+        except (AttributeError, TypeError, IndexError):
+            pass
 
     def get_facecolors(self):
         return self._facecolors2d
