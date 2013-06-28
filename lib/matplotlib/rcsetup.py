@@ -133,7 +133,6 @@ def validate_fonttype(s):
         return fonttype
 
 
-#validate_backend = ValidateInStrings('backend', all_backends, ignorecase=True)
 _validate_standard_backends = ValidateInStrings('backend',
                                                 all_backends,
                                                 ignorecase=True)
