@@ -351,7 +351,7 @@ An example save command to generate a movie looks like this
 
     ani.save('double_pendulum.mp4', fps=15)
 
-Contact John Hunter for the login password to upload youtube videos of
+Contact Michael Droettboom for the login password to upload youtube videos of
 google docs to the mplgithub account.
 
 .. _referring-to-mpl-docs:
