@@ -3,7 +3,6 @@ a bar plot with errorbars
 """
 import matplotlib.pyplot as plt
 
-N = 5
 values = (20, 35, 30, 35, 27)
 errors = (2, 3, 4, 1, 2)
 pos = (0, 1, 2, 3, 4)
