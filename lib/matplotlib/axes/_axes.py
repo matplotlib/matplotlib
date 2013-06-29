@@ -1752,7 +1752,7 @@ class Axes(_AxesBase):
         xerr : scalar or array-like, optional, default: None
             if not None, will be used to generate errorbar(s) on the bar chart
 
-        yerr :scalar or array-like, optional, default: None
+        yerr : scalar or array-like, optional, default: None
             if not None, will be used to generate errorbar(s) on the bar chart
 
         ecolor : scalar or array-like, optional, default: None
@@ -1778,7 +1778,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        :class:`matplotlib.patches.Rectangle` instances.
+        `matplotlib.patches.Rectangle` instances.
 
         Notes
         -----
@@ -2037,7 +2037,7 @@ class Axes(_AxesBase):
 
         Returns
         --------
-        :class:`matplotlib.patches.Rectangle` instances.
+        `matplotlib.patches.Rectangle` instances.
 
         Other parameters
         ----------------
@@ -2054,7 +2054,7 @@ class Axes(_AxesBase):
         xerr : scalar or array-like, optional, default: None
             if not None, will be used to generate errorbar(s) on the bar chart
 
-        yerr :scalar or array-like, optional, default: None
+        yerr : scalar or array-like, optional, default: None
             if not None, will be used to generate errorbar(s) on the bar chart
 
         ecolor : scalar or array-like, optional, default: None
