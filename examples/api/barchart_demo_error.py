@@ -1,5 +1,5 @@
 """
-a bar plot with errorbars
+Demo of multiple bar plot with errorbars
 """
 import matplotlib.pyplot as plt
 
