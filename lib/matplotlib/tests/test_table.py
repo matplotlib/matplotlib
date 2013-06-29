@@ -3,7 +3,9 @@ import numpy as np
 from matplotlib.testing.decorators import image_comparison
 
 
-@image_comparison(baseline_images=['table_zorder'], extensions=['png'])
+@image_comparison(baseline_images=['table_zorder'],
+                  extensions=['png'],
+                  remove_text=True)
 def test_zorder():
     data = [[  66386,  174296,],
             [  58230,  381139,]]
