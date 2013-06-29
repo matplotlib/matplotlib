@@ -121,6 +121,7 @@ Matplotlib Examples
             rstfile = '%s.rst'%basename
             outrstfile = os.path.join(rstdir, rstfile)
 
+            # XXX make into title
             fhsubdirIndex.write('    %s <%s>\n'%(os.path.basename(basename),rstfile))
 
             do_plot = (subdir in example_subdirs
