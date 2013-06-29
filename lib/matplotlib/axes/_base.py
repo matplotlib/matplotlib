@@ -16,6 +16,7 @@ import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 import matplotlib.artist as martist
 import matplotlib.transforms as mtransforms
+import matplotlib.ticker as mticker
 import matplotlib.axis as maxis
 import matplotlib.scale as mscale
 import matplotlib.spines as mspines
@@ -699,6 +700,8 @@ class _AxesBase(martist.Artist):
                 mtransforms.ScaledTranslation(pad_points / 72.0, 0,
                                               self.figure.dpi_scale_trans),
                 "center", "left")
+
+
 
     def _update_transScale(self):
         self.transScale.set(
@@ -2732,9 +2735,10 @@ class _AxesBase(martist.Artist):
             top = old_top
 
         if bottom == top:
-            warnings.warn(('Attempting to set identical bottom==top results\n'
-                   + 'in singular transformations; automatically expanding.\n'
-                   + 'bottom=%s, top=%s') % (bottom, top))
+            warnings.warn(
+                ('Attempting to set identical bottom==top results\n'
+                 'in singular transformations; automatically expanding.\n'
+                 'bottom=%s, top=%s') % (bottom, top))
 
         bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
@@ -2751,7 +2755,7 @@ class _AxesBase(martist.Artist):
                     other.set_ylim(self.viewLim.intervaly,
                                    emit=False, auto=auto)
                     if (other.figure != self.figure and
-                        other.figure.canvas is not None):
+                            other.figure.canvas is not None):
                         other.figure.canvas.draw_idle()
 
         return bottom, top
@@ -2896,6 +2900,20 @@ class _AxesBase(martist.Artist):
         else:
             ys = self.format_ydata(y)
         return 'x=%s y=%s' % (xs, ys)
+
+    def minorticks_on(self):
+        'Add autoscaling minor ticks to the axes.'
+        for ax in (self.xaxis, self.yaxis):
+            if ax.get_scale() == 'log':
+                s = ax._scale
+                ax.set_minor_locator(mticker.LogLocator(s.base, s.subs))
+            else:
+                ax.set_minor_locator(mticker.AutoMinorLocator())
+
+    def minorticks_off(self):
+        """Remove minor ticks from the axes."""
+        self.xaxis.set_minor_locator(mticker.NullLocator())
+        self.yaxis.set_minor_locator(mticker.NullLocator())
 
     #### Interactive manipulation
 
@@ -3128,3 +3146,117 @@ class _AxesBase(martist.Artist):
         the artist and the artist has picker set
         """
         martist.Artist.pick(self, args[0])
+
+    def get_default_bbox_extra_artists(self):
+        return [artist for artist in self.get_children()
+                if artist.get_visible()]
+
+    def get_tightbbox(self, renderer, call_axes_locator=True):
+        """
+        Return the tight bounding box of the axes.
+        The dimension of the Bbox in canvas coordinate.
+
+        If *call_axes_locator* is *False*, it does not call the
+        _axes_locator attribute, which is necessary to get the correct
+        bounding box. ``call_axes_locator==False`` can be used if the
+        caller is only intereted in the relative size of the tightbbox
+        compared to the axes bbox.
+        """
+
+        bb = []
+
+        if not self.get_visible():
+            return None
+
+        locator = self.get_axes_locator()
+        if locator and call_axes_locator:
+            pos = locator(self, renderer)
+            self.apply_aspect(pos)
+        else:
+            self.apply_aspect()
+
+        bb.append(self.get_window_extent(renderer))
+
+        if self.title.get_visible():
+            bb.append(self.title.get_window_extent(renderer))
+        if self._left_title.get_visible():
+            bb.append(self._left_title.get_window_extent(renderer))
+        if self._right_title.get_visible():
+            bb.append(self._right_title.get_window_extent(renderer))
+
+        bb_xaxis = self.xaxis.get_tightbbox(renderer)
+        if bb_xaxis:
+            bb.append(bb_xaxis)
+
+        bb_yaxis = self.yaxis.get_tightbbox(renderer)
+        if bb_yaxis:
+            bb.append(bb_yaxis)
+
+        _bbox = mtransforms.Bbox.union(
+            [b for b in bb if b.width != 0 or b.height != 0])
+
+        return _bbox
+
+    def _make_twin_axes(self, *kl, **kwargs):
+        """
+        make a twinx axes of self. This is used for twinx and twiny.
+        """
+        ax2 = self.figure.add_axes(self.get_position(True), *kl, **kwargs)
+        return ax2
+
+    def twinx(self):
+        """
+        Call signature::
+
+          ax = twinx()
+
+        create a twin of Axes for generating a plot with a sharex
+        x-axis but independent y axis.  The y-axis of self will have
+        ticks on left and the returned axes will have ticks on the
+        right.
+
+        .. note::
+            For those who are 'picking' artists while using twinx, pick
+            events are only called for the artists in the top-most axes.
+        """
+
+        ax2 = self._make_twin_axes(sharex=self, frameon=False)
+        ax2.yaxis.tick_right()
+        ax2.yaxis.set_label_position('right')
+        ax2.yaxis.set_offset_position('right')
+        self.yaxis.tick_left()
+        ax2.xaxis.set_visible(False)
+        return ax2
+
+    def twiny(self):
+        """
+        Call signature::
+
+          ax = twiny()
+
+        create a twin of Axes for generating a plot with a shared
+        y-axis but independent x axis.  The x-axis of self will have
+        ticks on bottom and the returned axes will have ticks on the
+        top.
+
+        .. note::
+            For those who are 'picking' artists while using twiny, pick
+            events are only called for the artists in the top-most axes.
+        """
+
+        ax2 = self._make_twin_axes(sharey=self, frameon=False)
+        ax2.xaxis.tick_top()
+        ax2.xaxis.set_label_position('top')
+        self.xaxis.tick_bottom()
+        ax2.yaxis.set_visible(False)
+        return ax2
+
+    def get_shared_x_axes(self):
+        'Return a copy of the shared axes Grouper object for x axes'
+        return self._shared_x_axes
+
+    def get_shared_y_axes(self):
+        'Return a copy of the shared axes Grouper object for y axes'
+        return self._shared_y_axes
+
+
