@@ -125,7 +125,7 @@ def gen_gallery(app, doctree):
                 link = 'examples/%s/%s.html'%(subdir, basename)
                 rows.append(link_template.format(link=link,
                                                  thumb=thumbfile,
-                                                 basename=basename
+                                                 basename=basename,
                                                  title=basename))
 
         if len(data) == 0:
