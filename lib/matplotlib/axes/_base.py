@@ -10,6 +10,7 @@ import matplotlib
 rcParams = matplotlib.rcParams
 
 from matplotlib import cbook
+from matplotlib.cbook import _string_to_bool
 from matplotlib import docstring
 import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
@@ -31,16 +32,6 @@ from matplotlib.cbook import iterable
 
 is_string_like = cbook.is_string_like
 is_sequence_of_strings = cbook.is_sequence_of_strings
-
-
-def _string_to_bool(s):
-    if not is_string_like(s):
-        return s
-    if s == 'on':
-        return True
-    if s == 'off':
-        return False
-    raise ValueError("string argument must be either 'on' or 'off'")
 
 
 def _process_plot_format(fmt):
