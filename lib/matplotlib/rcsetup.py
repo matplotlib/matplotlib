@@ -395,6 +395,7 @@ validate_legend_loc = ValidateInStrings(
 def deprecate_svg_embed_char_paths(value):
     warnings.warn("svg.embed_char_paths is deprecated.  Use "
                   "svg.fonttype instead.")
+    return value
 
 validate_svg_fonttype = ValidateInStrings('fonttype',
                                           ['none', 'path', 'svgfont'])
