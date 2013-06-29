@@ -566,3 +566,18 @@ table.docutils td {
   width: 30em;
 }
 
+figure {
+  margin: 1em;
+  display: inline-block;
+}
+
+figure img {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+figcaption {
+  text-align: center;
+}
+
+
