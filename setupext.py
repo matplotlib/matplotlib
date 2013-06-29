@@ -511,6 +511,7 @@ class Matplotlib(SetupPackage):
             'matplotlib.backends.qt4_editor',
             'matplotlib.compat',
             'matplotlib.projections',
+            'matplotlib.axes',
             'matplotlib.sphinxext',
             'matplotlib.testing',
             'matplotlib.testing.jpl_units',
