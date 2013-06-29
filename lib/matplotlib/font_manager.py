@@ -273,7 +273,7 @@ def get_fontconfig_fonts(fontext='ttf'):
     try:
         pipe = subprocess.Popen(['fc-list', '', 'file'], stdout=subprocess.PIPE)
         output = pipe.communicate()[0]
-    except OSError:
+    except OSError, IOError:
         # Calling fc-list did not work, so we'll just return nothing
         return fontfiles
 
@@ -1296,7 +1296,7 @@ if USE_FONTCONFIG and sys.platform != 'win32':
         try:
             pipe = subprocess.Popen(['fc-match', '-sv', pattern], stdout=subprocess.PIPE)
             output = pipe.communicate()[0]
-        except OSError:
+        except OSError, IOError:
             return None
         if pipe.returncode == 0:
             for match in _fc_match_regex.finditer(output):
