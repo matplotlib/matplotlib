@@ -1,0 +1,161 @@
+from mpl_toolkits.mplot3d import Axes3D, axes3d
+from matplotlib import cm
+from matplotlib.testing.decorators import image_comparison
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+@image_comparison(baseline_images=['bar3d'], remove_text=True)
+def test_bar3d():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    for c, z in zip(['r', 'g', 'b', 'y'], [30, 20, 10, 0]):
+        xs = np.arange(20)
+        ys = np.arange(20)
+        cs = [c] * len(xs)
+        cs[0] = 'c'
+        ax.bar(xs, ys, zs=z, zdir='y', color=cs, alpha=0.8)
+
+
+@image_comparison(baseline_images=['contour3d'], remove_text=True)
+def test_contour3d():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    X, Y, Z = axes3d.get_test_data(0.05)
+    cset = ax.contour(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
+    cset = ax.contour(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
+    cset = ax.contour(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
+    ax.set_xlim(-40, 40)
+    ax.set_ylim(-40, 40)
+    ax.set_zlim(-100, 100)
+
+
+@image_comparison(baseline_images=['contourf3d'], remove_text=True)
+def test_contourf3d():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    X, Y, Z = axes3d.get_test_data(0.05)
+    cset = ax.contourf(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
+    cset = ax.contourf(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
+    cset = ax.contourf(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
+    ax.set_xlim(-40, 40)
+    ax.set_ylim(-40, 40)
+    ax.set_zlim(-100, 100)
+
+
+@image_comparison(baseline_images=['lines3d'], remove_text=True)
+def test_lines3d():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    theta = np.linspace(-4 * np.pi, 4 * np.pi, 100)
+    z = np.linspace(-2, 2, 100)
+    r = z ** 2 + 1
+    x = r * np.sin(theta)
+    y = r * np.cos(theta)
+    ax.plot(x, y, z)
+
+
+@image_comparison(baseline_images=['mixedsubplot'], remove_text=True)
+def test_mixedsubplots():
+    def f(t):
+        s1 = np.cos(2*np.pi*t)
+        e1 = np.exp(-t)
+        return np.multiply(s1, e1)
+
+    t1 = np.arange(0.0, 5.0, 0.1)
+    t2 = np.arange(0.0, 5.0, 0.02)
+
+    fig = plt.figure(figsize=plt.figaspect(2.))
+    ax = fig.add_subplot(2, 1, 1)
+    l = ax.plot(t1, f(t1), 'bo',
+                t2, f(t2), 'k--', markerfacecolor='green')
+    ax.grid(True)
+
+    ax = fig.add_subplot(2, 1, 2, projection='3d')
+    X, Y = np.meshgrid(np.arange(-5, 5, 0.25), np.arange(-5, 5, 0.25))
+    R = np.sqrt(X ** 2 + Y ** 2)
+    Z = np.sin(R)
+
+    surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
+                           linewidth=0, antialiased=False)
+
+    ax.set_zlim3d(-1, 1)
+
+
+@image_comparison(baseline_images=['scatter3d'], remove_text=True)
+def test_scatter3d():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(np.arange(10), np.arange(10), np.arange(10),
+               c='r', marker='o')
+    ax.scatter(np.arange(10, 20), np.arange(10, 20), np.arange(10, 20),
+               c='b', marker='^')
+
+
+@image_comparison(baseline_images=['surface3d'], remove_text=True)
+def test_surface3d():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    X = np.arange(-5, 5, 0.25)
+    Y = np.arange(-5, 5, 0.25)
+    X, Y = np.meshgrid(X, Y)
+    R = np.sqrt(X ** 2 + Y ** 2)
+    Z = np.sin(R)
+    surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm,
+                           lw=0, antialiased=False)
+    ax.set_zlim(-1.01, 1.01)
+    fig.colorbar(surf, shrink=0.5, aspect=5)
+
+
+@image_comparison(baseline_images=['text3d'])
+def test_text3d():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    zdirs = (None, 'x', 'y', 'z', (1, 1, 0), (1, 1, 1))
+    xs = (2, 6, 4, 9, 7, 2)
+    ys = (6, 4, 8, 7, 2, 2)
+    zs = (4, 2, 5, 6, 1, 7)
+
+    for zdir, x, y, z in zip(zdirs, xs, ys, zs):
+        label = '(%d, %d, %d), dir=%s' % (x, y, z, zdir)
+        ax.text(x, y, z, label, zdir)
+
+    ax.text(1, 1, 1, "red", color='red')
+    ax.text2D(0.05, 0.95, "2D Text", transform=ax.transAxes)
+    ax.set_xlim3d(0, 10)
+    ax.set_ylim3d(0, 10)
+    ax.set_zlim3d(0, 10)
+    ax.set_xlabel('X axis')
+    ax.set_ylabel('Y axis')
+    ax.set_zlabel('Z axis')
+
+
+@image_comparison(baseline_images=['trisurf3d'], remove_text=True)
+def test_trisurf3d():
+    n_angles = 36
+    n_radii = 8
+    radii = np.linspace(0.125, 1.0, n_radii)
+    angles = np.linspace(0, 2*np.pi, n_angles, endpoint=False)
+    angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
+
+    x = np.append(0, (radii*np.cos(angles)).flatten())
+    y = np.append(0, (radii*np.sin(angles)).flatten())
+    z = np.sin(-x*y)
+
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.2)
+
+
+@image_comparison(baseline_images=['wireframe3d'], remove_text=True)
+def test_wireframe3d():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    X, Y, Z = axes3d.get_test_data(0.05)
+    ax.plot_wireframe(X, Y, Z, rstride=10, cstride=10)
+
+
+if __name__ == '__main__':
+    import nose
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
