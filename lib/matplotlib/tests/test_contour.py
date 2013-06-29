@@ -177,6 +177,30 @@ def test_given_colors_levels_and_extends():
         plt.colorbar()
 
 
+@image_comparison(baseline_images=['contour_vmax_over_colorbar_range'],
+                  extensions=['png'])
+def test_vmax_over_colorbar_range():
+    xvec = np.linspace(0, 10)
+    yvec = np.linspace(0, 20)
+    X, Y = np.meshgrid(xvec, yvec)
+    Z = X**2 + Y**2
+
+    plt.contourf(X, Y, Z, cmap='pink_r', vmax=700)
+    plt.colorbar()
+
+
+@image_comparison(baseline_images=['contour_vmax_under_colorbar_range'],
+                  extensions=['png'])
+def test_vmax_under_colorbar_range():
+    xvec = np.linspace(0, 10)
+    yvec = np.linspace(0, 20)
+    X, Y = np.meshgrid(xvec, yvec)
+    Z = X**2 + Y**2
+
+    plt.contourf(X, Y, Z, cmap='pink_r', vmax=300)
+    plt.colorbar()
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
