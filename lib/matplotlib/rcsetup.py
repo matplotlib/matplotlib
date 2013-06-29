@@ -531,7 +531,7 @@ defaultParams = {
                         validate_stringlist],
     'font.cursive':    [['Apple Chancery', 'Textile', 'Zapf Chancery',
                          'Sand', 'cursive'], validate_stringlist],
-    'font.fantasy':    [['Comic Sans MS', 'Chicago', 'Charcoal', 'Impact'
+    'font.fantasy':    [['Comic Sans MS', 'Chicago', 'Charcoal', 'Impact',
                          'Western', 'fantasy'], validate_stringlist],
     'font.monospace':  [['Bitstream Vera Sans Mono', 'DejaVu Sans Mono',
                          'Andale Mono', 'Nimbus Mono L', 'Courier New',
