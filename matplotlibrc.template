@@ -406,7 +406,7 @@ backend      : %(backend)s
 #               Opera and Safari
 
 # docstring params
-#docstring.hardcopy = False  # set this when you want to generate hardcopy docstring
+#docstring.hardcopy : False  # set this when you want to generate hardcopy docstring
 
 # Set the verbose flags.  This controls how much information
 # matplotlib gives you at runtime and where it goes.  The verbosity
