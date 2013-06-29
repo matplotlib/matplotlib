@@ -11,6 +11,42 @@ help figure out possible sources of the changes you are experiencing.
 For new features that were added to matplotlib, please see
 :ref:`whats-new`.
 
+Changes in 1.4.x
+================
+
+* A major refactoring of the axes module was made. The axes module has been
+splitted into smaller modules:
+
+    - the `_base` module, which contains a new private _AxesBase class. This
+      class contains all methods except plotting and labelling methods.
+    - the `axes` module, which contains the Axes class. This class inherits
+      from _AxesBase, and contains all plotting and labelling methods.
+    - the `_subplot` module, with all the classes concerning subplotting.
+
+There are a couple of things that do not exists in the `axes` module's
+namespace anymore. If you use them, you need to import them from their
+original location:
+
+  - math -> `import math`
+  - ma -> `from numpy import ma`
+  - cbook -> `from matplotlib import cbook`
+  - division -> `from __future__ import division`
+  - docstring -> `from matplotlib impotr docstring`
+  - is_sequence_of_strings -> `from matplotlib.cbook import is_sequence_of_strings`
+  - is_string_like -> `from matplotlib.cbook import is_string_like`
+  - iterable -> `from matplotlib.cbook import iterable`
+  - itertools -> `import itertools`
+  - martist -> `from matplotlib import artist as martist`
+  - matplotlib -> `import matplotlib`
+  - mcoll -> `from matplotlib import collections as mcoll`
+  - mcolors -> `from matplotlib import colors as mcolors`
+  - mcontour -> `from matplotlib import contour as mcontour`
+  - mpatches -> `from matplotlib import patchs as mpatches`
+  - mpath -> `from matplotlib import path as mpath`
+  - mquiver -> `from matplotlib import quiver as mquiver`
+  - mstack -> `from matplotlib import stack as mstack`
+  - mstream -> `from matplotlib import stream as mstream`
+  - mtable -> `from matplotlib import table as mtable`
 
 .. _changes_in_1_3:
 
