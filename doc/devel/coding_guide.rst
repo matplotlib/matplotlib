@@ -65,6 +65,17 @@ Documentation
 * Every new feature should be documented.  If it's a new module, don't
   forget to add it to the API docs.
 
+* Docstrings should be in `numpydoc format
+  <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_.
+  Don't be thrown off by the fact that many of the existing docstrings
+  are not in that format.  We are working to standardize on
+  `numpydoc`.
+
+* Each high-level plotting function should have a simple example in
+  the `Example` section.  This should be as simple as possible to
+  demonstrate the method.  More complex examples should go in the
+  `examples` tree.
+
 * Build the docs and make sure all formatting warnings are addressed.
 
 * See :ref:`documenting-matplotlib` for our documentation style guide.
