@@ -18,8 +18,14 @@ def test_defaults():
 def test_template():
     # the current matplotlibrc.template should validate successfully
     mpl.rc_file(templaterc)
-    for k, v in templateParams.iteritems():
-        assert mpl.rcParams[k] == v[0]
+    with mpl.rc_context(fname=templaterc):
+        for k, v in mpl.rcsetup.defaultParams.iteritems():
+            if mpl.rcParams[k] != v[0]:
+                print k
+                print v[0]
+                print mpl.rcParams[k]
+                print "---------------"
+            assert mpl.rcParams[k] == v[0]
 
 
 def test_unicode():

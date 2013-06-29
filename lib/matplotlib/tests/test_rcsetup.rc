@@ -181,7 +181,7 @@ text.dvipnghack : None      # some versions of dvipng don't handle alpha
                              # correction off.  None will try and
                              # guess based on your dvipng version
 
-text.hinting : 'auto' # May be one of the following:
+text.hinting : auto # May be one of the following:
                        #   'none': Perform no hinting
                        #   'auto': Use freetype's autohinter
                        #   'native': Use the hinting information in the
@@ -399,7 +399,7 @@ pdf.fonttype       : 3         # Output Type 3 (Type3) or Type 42 (TrueType)
 # svg backend params
 svg.image_inline : True       # write raster image data directly into the svg file
 svg.image_noscale : False     # suppress scaling of raster data embedded in SVG
-svg.fonttype : 'path'         # How to handle SVG fonts:
+svg.fonttype : path         # How to handle SVG fonts:
 #    'none': Assume fonts are installed on the machine where the SVG will be viewed.
 #    'path': Embed characters as paths -- supported by most SVG renderers
 #    'svgfont': Embed characters as SVG fonts -- supported only by Chrome,
@@ -453,7 +453,7 @@ animation.writer : ffmpeg         # MovieWriter 'backend' to use
 animation.codec : mp4             # Codec to use for writing movie
 animation.bitrate: -1             # Controls size/quality tradeoff for movie.
                                    # -1 implies let utility auto-determine
-animation.frame_format: 'png'     # Controls frame format used by temp files
+animation.frame_format: png     # Controls frame format used by temp files
 animation.ffmpeg_path: 'ffmpeg'   # Path to ffmpeg binary. Without full path
                                    # $PATH is searched
 animation.ffmpeg_args: ''         # Additional arguments to pass to ffmpeg
