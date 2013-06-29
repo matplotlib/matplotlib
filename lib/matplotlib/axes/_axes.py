@@ -1794,6 +1794,13 @@ class Axes(_AxesBase):
 
         %(Rectangle)s
 
+        See also
+        --------
+        barh: Plot a horizontal bar plot.
+
+        Example
+        -------
+
         **Example:** A stacked bar chart.
 
         .. plot:: mpl_examples/pylab_examples/bar_stacked.py
@@ -2085,6 +2092,9 @@ class Axes(_AxesBase):
 
         %(Rectangle)s
 
+        See also
+        --------
+        bar: Plot a vertical bar plot.
         """
 
         patches = self.bar(left=left, height=height, width=width,
