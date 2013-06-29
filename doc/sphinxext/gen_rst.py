@@ -121,6 +121,9 @@ Matplotlib Examples
             rstfile = '%s.rst'%basename
             outrstfile = os.path.join(rstdir, rstfile)
 
+            # XXX: We might consider putting extra metadata in the example
+            # files to include a title. If so, this line is where we would add
+            # this information.
             fhsubdirIndex.write('    %s <%s>\n'%(os.path.basename(basename),rstfile))
 
             do_plot = (subdir in example_subdirs
