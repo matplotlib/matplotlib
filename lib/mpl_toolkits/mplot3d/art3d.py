@@ -106,9 +106,11 @@ class Line3D(lines.Line2D):
         ys = self.get_ydata()
 
         try:
+            # If *zs* is a list or array, then this will fail and
+            # just proceed to juggle_axes().
             zs = float(zs)
             zs = [zs for x in xs]
-        except:
+        except TypeError:
             pass
         self._verts3d = juggle_axes(xs, ys, zs, zdir)
 
@@ -170,7 +172,7 @@ class Line3DCollection(LineCollection):
         '''
         Set 3D segments
         '''
-        self._segments3d = segments
+        self._segments3d = np.asanyarray(segments)
         LineCollection.set_segments(self, [])
 
     def do_3d_projection(self, renderer):
