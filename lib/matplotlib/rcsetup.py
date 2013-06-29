@@ -72,7 +72,7 @@ def validate_path_exists(s):
 
 def validate_bool(b):
     """Convert b to a boolean or raise"""
-    if type(b) is str:
+    if isinstance(b, basestring):
         b = b.lower()
     if b in ('t', 'y', 'yes', 'on', 'true', '1', 1, True):
         return True
@@ -83,8 +83,8 @@ def validate_bool(b):
 
 
 def validate_bool_maybe_none(b):
-    'Convert b to a boolean or raise'
-    if type(b) is str:
+    """Convert b to a boolean, None, or raise"""
+    if isinstance(b, basestring):
         b = b.lower()
     if b == 'none':
         return None
@@ -179,7 +179,7 @@ class validate_nseq_float:
 
     def __call__(self, s):
         """return a seq of n floats or raise"""
-        if type(s) is str:
+        if isinstance(s, basestring):
             ss = s.split(',')
             if len(ss) != self.n:
                 raise ValueError(
@@ -202,7 +202,7 @@ class validate_nseq_int:
 
     def __call__(self, s):
         """return a seq of n ints or raise"""
-        if type(s) is str:
+        if isinstance(s, basestring):
             ss = s.split(',')
             if len(ss) != self.n:
                 raise ValueError(
@@ -254,7 +254,7 @@ def validate_color(s):
 
 def validate_colorlist(s):
     'return a list of colorspecs'
-    if type(s) is str:
+    if isinstance(s, basestring):
         return [validate_color(c.strip()) for c in s.split(',')]
     else:
         assert type(s) in [list, tuple]
@@ -263,7 +263,7 @@ def validate_colorlist(s):
 
 def validate_stringlist(s):
     'return a list'
-    if type(s) in (str, unicode):
+    if isinstance(s, basestring):
         return [v.strip() for v in s.split(',')]
     else:
         assert type(s) in [list, tuple]
@@ -284,7 +284,7 @@ def validate_aspect(s):
 
 
 def validate_fontsize(s):
-    if type(s) is str:
+    if isinstance(s, basestring):
         s = s.lower()
     if s in ['xx-small', 'x-small', 'small', 'medium', 'large', 'x-large',
              'xx-large', 'smaller', 'larger']:
@@ -337,7 +337,7 @@ validate_ps_papersize = ValidateInStrings(
 
 
 def validate_ps_distiller(s):
-    if type(s) is str:
+    if isinstance(s, basestring):
         s = s.lower()
 
     if s in ('none', None):
@@ -423,7 +423,7 @@ validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
 
 
 def validate_bbox(s):
-    if type(s) is str:
+    if isinstance(s, basestring):
         s = s.lower()
         if s == 'tight':
             return s
