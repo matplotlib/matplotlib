@@ -27,8 +27,11 @@ def test_template():
 def test_unicode():
     # unicode formatted valid strings should validate.
     for k, v in mpl.rcsetup.defaultParams.iteritems():
-        assert k == v[1](unicode(v[0]))
-        assert mpl.rcParams[k] == v[0]
+        if v[0] != v[1](unicode(v[0])):
+            print "Expected : ", v[0]
+            print "Actual : ", v[1](unicode(v[0]))
+        assert v[0] == v[1](unicode(v[0]))
+
 
 if __name__ == '__main__':
     import nose
