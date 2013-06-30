@@ -893,7 +893,7 @@ def test_as_mpl_axes_api():
 
     # testing axes creation with gca
     ax = plt.gca(projection=prj)
-    assert type(ax) == maxes._subplot_classes[PolarAxes], \
+    assert type(ax) == maxes._subplots._subplot_classes[PolarAxes], \
            'Expected a PolarAxesSubplot, got %s' % type(ax)
     ax_via_gca = plt.gca(projection=prj)
     assert ax_via_gca is ax
@@ -909,7 +909,7 @@ def test_as_mpl_axes_api():
 
     # testing axes creation with subplot
     ax = plt.subplot(121, projection=prj)
-    assert type(ax) == maxes._subplot_classes[PolarAxes], \
+    assert type(ax) == maxes._subplots._subplot_classes[PolarAxes], \
            'Expected a PolarAxesSubplot, got %s' % type(ax)
     plt.close()
 

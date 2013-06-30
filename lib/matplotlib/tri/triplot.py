@@ -5,6 +5,7 @@ from matplotlib.path import Path
 from matplotlib.tri.triangulation import Triangulation
 import numpy as np
 
+
 def triplot(ax, *args, **kwargs):
     """
     Draw a unstructured triangular grid as lines and/or markers.
@@ -53,7 +54,7 @@ def triplot(ax, *args, **kwargs):
     fmt = ''
     if len(args) > 0:
         fmt = args[0]
-    linestyle, marker, color = matplotlib.axes._process_plot_format(fmt)
+    linestyle, marker, color = matplotlib.axes._base._process_plot_format(fmt)
 
     # Draw lines without markers, if lines are required.
     if linestyle is not None and linestyle is not 'None':
