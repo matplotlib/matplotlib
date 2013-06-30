@@ -24,6 +24,7 @@ import matplotlib
 import matplotlib.colorbar
 from matplotlib import _pylab_helpers, interactive
 from matplotlib.cbook import dedent, silent_list, is_string_like, is_numlike
+from matplotlib.cbook import _string_to_bool
 from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.figure import Figure, figaspect
@@ -35,7 +36,7 @@ from matplotlib import rc_context
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
 from matplotlib.artist import getp, get, Artist
 from matplotlib.artist import setp as _setp
-from matplotlib.axes import Axes, Subplot, _string_to_bool
+from matplotlib.axes import Axes, Subplot
 from matplotlib.projections import PolarAxes
 from matplotlib import mlab  # for csv2rec, detrend_none, window_hanning
 from matplotlib.scale import get_scale_docs, get_scale_names
