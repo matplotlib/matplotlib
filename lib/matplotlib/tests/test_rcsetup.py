@@ -19,13 +19,6 @@ def test_template():
     with mpl.rc_context(fname=templaterc):
         for k, v in mpl.rcsetup.defaultParams.iteritems():
             if k not in deprecated:
-                if mpl.rcParams[k] != v[0]:
-                    print k
-                    print "Expected : ", v[0]
-                    print "Expected type", type(v[0])
-                    print "Actual : ", mpl.rcParams[k]
-                    print "Actual type : ", type(mpl.rcParams[k])
-                    print "---------------"
                 if isinstance(v[0], basestring):
                     assert mpl.rcParams[k] in [v[0], v[0].lower()]
                 else : 
