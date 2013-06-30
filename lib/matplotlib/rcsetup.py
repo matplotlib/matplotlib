@@ -270,7 +270,7 @@ def validate_stringlist(s):
     'return a list'
     if isinstance(s, basestring):
         return [validate_string(v) for v in s.split(',')]
-    else :
+    else:
         assert type(s) in [list, tuple]
         return [validate_string(v) for v in s]
 
