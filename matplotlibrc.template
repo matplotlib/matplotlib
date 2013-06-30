@@ -74,9 +74,9 @@ backend      : %(backend)s
 #lines.marker      : None    # the default marker
 #lines.markeredgewidth  : 0.5     # the line width around the marker symbol
 #lines.markersize  : 6            # markersize, in points
-#lines.dash_joinstyle : miter        # miter|round|bevel
+#lines.dash_joinstyle : round        # miter|round|bevel
 #lines.dash_capstyle : butt          # butt|round|projecting
-#lines.solid_joinstyle : miter       # miter|round|bevel
+#lines.solid_joinstyle : round       # miter|round|bevel
 #lines.solid_capstyle : projecting   # butt|round|projecting
 #lines.antialiased : True         # render lines in antialised (no jaggies)
 
@@ -129,7 +129,7 @@ backend      : %(backend)s
 #font.family         : sans-serif
 #font.style          : normal
 #font.variant        : normal
-#font.weight         : medium
+#font.weight         : normal
 #font.stretch        : normal
 # note that font.size controls default text sizes.  To configure
 # special text sizes tick labels, axes, labels, title, etc, see the rc
@@ -137,11 +137,11 @@ backend      : %(backend)s
 # relative to font.size, using the following values: xx-small, x-small,
 # small, medium, large, x-large, xx-large, larger, or smaller
 #font.size           : 12.0
-#font.serif          : Bitstream Vera Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
-#font.sans-serif     : Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
+#font.serif          : Bitstream Vera Serif, DejaVu Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
+#font.sans-serif     : Bitstream Vera Sans, DejaVu Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 #font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, cursive
 #font.fantasy        : Comic Sans MS, Chicago, Charcoal, Impact, Western, fantasy
-#font.monospace      : Bitstream Vera Sans Mono, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
+#font.monospace      : Bitstream Vera Sans Mono, DejaVu Sans Mono, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
 
 ### TEXT
 # text properties used by text.Text.  See
@@ -181,7 +181,7 @@ backend      : %(backend)s
                              # correction off.  None will try and
                              # guess based on your dvipng version
 
-#text.hinting : auto # May be one of the following:
+#text.hinting : True # May be one of the following:
                        #   'none': Perform no hinting
                        #   'auto': Use freetype's autohinter
                        #   'native': Use the hinting information in the
@@ -292,7 +292,7 @@ backend      : %(backend)s
 #legend.isaxes        : True
 #legend.numpoints     : 2      # the number of points in the legend line
 #legend.fontsize      : large
-#legend.borderpad     : 0.5    # border whitespace in fontsize units
+#legend.borderpad     : 0.4    # border whitespace in fontsize units
 #legend.markerscale   : 1.0    # the relative size of legend markers vs. original
 # the following dimensions are in axes coords
 #legend.labelspacing  : 0.5    # the vertical space between the legend entries in fraction of fontsize
@@ -438,29 +438,28 @@ backend      : %(backend)s
 #keymap.forward : right, v           #   left handed quick navigation
 #keymap.pan : p                      # pan mnemonic
 #keymap.zoom : o                     # zoom mnemonic
-#keymap.save : s                     # saving current figure
+#keymap.save : s, ctrl+s             # saving current figure
 #keymap.quit : ctrl+w, cmd+w         # close the current figure
 #keymap.grid : g                     # switching on/off a grid in current axes
 #keymap.yscale : l                   # toggle scaling of y-axes ('log'/'linear')
-#keymap.xscale : L, k                # toggle scaling of x-axes ('log'/'linear')
+#keymap.xscale : k, L                # toggle scaling of x-axes ('log'/'linear')
 #keymap.all_axes : a                 # enable all axes
 
 # Control location of examples data files
 #examples.directory : ''   # directory to look in for custom installation
 
 ###ANIMATION settings
-#animation.writer : ffmpeg         # MovieWriter 'backend' to use
-#animation.codec : mp4             # Codec to use for writing movie
-#animation.bitrate: -1             # Controls size/quality tradeoff for movie.
-                                   # -1 implies let utility auto-determine
-#animation.frame_format: png     # Controls frame format used by temp files
-#animation.ffmpeg_path: 'ffmpeg'   # Path to ffmpeg binary. Without full path
-                                   # $PATH is searched
-#animation.ffmpeg_args: ''         # Additional arguments to pass to ffmpeg
-#animation.avconv_path: 'avconv'   # Path to avconv binary. Without full path
-                                   # $PATH is searched
-#animation.avconv_args: ''         # Additional arguments to pass to avconv
-#animation.mencoder_path: 'mencoder'
-                                   # Path to mencoder binary. Without full path
-                                   # $PATH is searched
-#animation.mencoder_args: ''       # Additional arguments to pass to mencoder
+#animation.writer : ffmpeg           # MovieWriter 'backend' to use
+#animation.codec : mpeg4             # Codec to use for writing movie
+#animation.bitrate: -1               # Controls size/quality tradeoff for movie.
+                                     # -1 implies let utility auto-determine
+#animation.frame_format: png         # Controls frame format used by temp files
+#animation.ffmpeg_path: 'ffmpeg'     # Path to ffmpeg binary. Without full path
+                                     # $PATH is searched
+#animation.ffmpeg_args: ''           # Additional arguments to pass to ffmpeg
+#animation.avconv_path: 'avconv'     # Path to avconv binary. Without full path
+                                     # $PATH is searched
+#animation.avconv_args: ''           # Additional arguments to pass to avconv
+#animation.mencoder_path: 'mencoder' # Path to mencoder binary. Without full path
+                                     # $PATH is searched
+#animation.mencoder_args: ''         # Additional arguments to pass to mencoder
