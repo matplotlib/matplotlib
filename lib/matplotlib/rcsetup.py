@@ -259,10 +259,15 @@ def validate_colorlist(s):
         return [validate_color(c) for c in s]
 
 
+def validate_string(s):
+    'return a clean string'
+    assert isinstance(s, basestring)
+    return s.strip("'").strip()
+
 def validate_stringlist(s):
     'return a list'
     if type(s) in (str, unicode):
-        return [v.strip() for v in s.split(',')]
+        return [validate_string(v) for v in s.split(',')]
     else:
         assert type(s) in [list, tuple]
         return [str(v) for v in s]
@@ -402,11 +407,13 @@ validate_svg_fonttype = ValidateInStrings('fonttype',
 
 
 def validate_hinting(s):
-    if s in (True, False):
-        return s
-    if s.lower() in ('auto', 'native', 'either', 'none'):
-        return s.lower()
-    raise ValueError("hinting should be 'auto', 'native', 'either' or 'none'")
+    try :
+        return validate_bool(s)
+    except ValueError : 
+        if s.lower() in ('auto', 'native', 'either', 'none'):
+            return s.lower()
+        else : 
+            raise ValueError("hinting should be 'auto', 'native', 'either' or 'none'")
 
 validate_pgf_texsystem = ValidateInStrings('pgf.texsystem',
                                            ['xelatex', 'lualatex', 'pdflatex'])
@@ -495,7 +502,7 @@ defaultParams = {
     # line props
     'lines.linewidth':       [1.0, validate_float],  # line width in points
     'lines.linestyle':       ['-', str],             # solid line
-    'lines.color':           ['b', validate_color],  # blue
+    'lines.color':           ['blue', validate_color],  # b=blue
     'lines.marker':          ['None', str],     # black
     'lines.markeredgewidth': [0.5, validate_float],
     'lines.markersize':      [6, validate_float],    # markersize, in points
@@ -507,17 +514,17 @@ defaultParams = {
 
     ## patch props
     'patch.linewidth':   [1.0, validate_float],  # line width in points
-    'patch.edgecolor':   ['k', validate_color],  # black
-    'patch.facecolor':   ['b', validate_color],  # blue
+    'patch.edgecolor':   ['black', validate_color],  # k=black
+    'patch.facecolor':   ['blue', validate_color],  # b=blue
     'patch.antialiased': [True, validate_bool],  # antialised (no jaggies)
 
 
     ## font props
-    'font.family':     ['sans-serif', validate_stringlist],  # used by text object
-    'font.style':      ['normal', str],
-    'font.variant':    ['normal', str],
-    'font.stretch':    ['normal', str],
-    'font.weight':     ['normal', str],
+    'font.family':     ['sans-serif', validate_string],  # used by text object
+    'font.style':      ['normal', validate_string],
+    'font.variant':    ['normal', validate_string],
+    'font.stretch':    ['normal', validate_string],
+    'font.weight':     ['normal', validate_string],
     'font.size':       [12, validate_float],      # Base font size in points
     'font.serif':      [['Bitstream Vera Serif', 'DejaVu Serif',
                          'New Century Schoolbook', 'Century Schoolbook L',
@@ -539,7 +546,7 @@ defaultParams = {
                         validate_stringlist],
 
     # text props
-    'text.color':          ['k', validate_color],     # black
+    'text.color':          ['black', validate_color],     # k=black
     'text.usetex':         [False, validate_bool],
     'text.latex.unicode':  [False, validate_bool],
     'text.latex.preamble': [[''], validate_stringlist],
@@ -554,7 +561,7 @@ defaultParams = {
     'mathtext.tt':             ['monospace', validate_font_properties],
     'mathtext.it':             ['serif:italic', validate_font_properties],
     'mathtext.bf':             ['serif:bold', validate_font_properties],
-    'mathtext.sf':             ['sans\-serif', validate_font_properties],
+    'mathtext.sf':             ['sans', validate_font_properties],
     'mathtext.fontset':        ['cm', validate_fontset],
     'mathtext.default':        ['it', validate_mathtext_default],
     'mathtext.fallback_to_cm': [True, validate_bool],
@@ -572,8 +579,8 @@ defaultParams = {
     # axes props
     'axes.axisbelow':        [False, validate_bool],
     'axes.hold':             [True, validate_bool],
-    'axes.facecolor':        ['w', validate_color],  # background color; white
-    'axes.edgecolor':        ['k', validate_color],  # edge color; black
+    'axes.facecolor':        ['white', validate_color],  # background color; w=white
+    'axes.edgecolor':        ['black', validate_color],  # edge color; k=black
     'axes.linewidth':        [1.0, validate_float],  # edge linewidth
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
@@ -581,7 +588,7 @@ defaultParams = {
     'axes.labelsize':        ['medium', validate_fontsize],  # fontsize of the
                                                              # x any y labels
     'axes.labelweight':      ['normal', str],  # fontsize of the x any y labels
-    'axes.labelcolor':       ['k', validate_color],    # color of axis label
+    'axes.labelcolor':       ['black', validate_color],    # color of axis label
     'axes.formatter.limits': [[-7, 7], validate_nseq_int(2)],
                                # use scientific notation if log10
                                # of the axis range is smaller than the
@@ -666,7 +673,7 @@ defaultParams = {
     'ytick.labelsize':   ['medium', validate_fontsize],
     'ytick.direction':   ['in', str],            # direction of yticks
 
-    'grid.color':        ['k', validate_color],       # grid color
+    'grid.color':        ['black', validate_color],       # grid color
     'grid.linestyle':    [':', str],       # dotted
     'grid.linewidth':    [0.5, validate_float],     # in points
     'grid.alpha':        [1.0, validate_float],
@@ -677,7 +684,7 @@ defaultParams = {
     'figure.figsize':    [[8.0, 6.0], validate_nseq_float(2)],
     'figure.dpi':        [80, validate_float],   # DPI
     'figure.facecolor':  ['0.75', validate_color],  # facecolor; scalar gray
-    'figure.edgecolor':  ['w', validate_color],  # edgecolor; white
+    'figure.edgecolor':  ['white', validate_color],  # edgecolor; w=white
     'figure.frameon':    [True, validate_bool],
     'figure.autolayout': [False, validate_bool],
     'figure.max_open_warning': [20, validate_int],
@@ -697,8 +704,8 @@ defaultParams = {
 
     ## Saving figure's properties
     'savefig.dpi':         [100, validate_float],   # DPI
-    'savefig.facecolor':   ['w', validate_color],  # facecolor; white
-    'savefig.edgecolor':   ['w', validate_color],  # edgecolor; white
+    'savefig.facecolor':   ['white', validate_color],  # facecolor; w=white
+    'savefig.edgecolor':   ['white', validate_color],  # edgecolor; w=white
     'savefig.frameon':     [True, validate_bool],
     'savefig.orientation': ['portrait', validate_orientation],  # edgecolor;
                                                                  #white
@@ -753,53 +760,52 @@ defaultParams = {
     'plugins.directory':  ['.matplotlib_plugins', str],
 
     'path.simplify': [True, validate_bool],
-    'path.simplify_threshold': [1.0 / 9.0, ValidateInterval(0.0, 1.0)],
+    'path.simplify_threshold': [0.1, ValidateInterval(0.0, 1.0)],
     'path.snap': [True, validate_bool],
     'path.sketch': [None, validate_sketch],
     'path.effects': [[], validate_any],
     'agg.path.chunksize': [0, validate_int],       # 0 to disable chunking;
 
     # key-mappings (multi-character mappings should be a list/tuple)
-    'keymap.fullscreen':   [('f', 'ctrl+f'), validate_stringlist],
+    'keymap.fullscreen':   [['f', 'ctrl+f'], validate_stringlist],
     'keymap.home':         [['h', 'r', 'home'], validate_stringlist],
     'keymap.back':         [['left', 'c', 'backspace'], validate_stringlist],
     'keymap.forward':      [['right', 'v'], validate_stringlist],
-    'keymap.pan':          ['p', validate_stringlist],
-    'keymap.zoom':         ['o', validate_stringlist],
-    'keymap.save':         [('s', 'ctrl+s'), validate_stringlist],
-    'keymap.quit':         [('ctrl+w', 'cmd+w'), validate_stringlist],
-    'keymap.grid':         ['g', validate_stringlist],
-    'keymap.yscale':       ['l', validate_stringlist],
+    'keymap.pan':          [['p'], validate_stringlist],
+    'keymap.zoom':         [['o'], validate_stringlist],
+    'keymap.save':         [['s', 'ctrl+s'], validate_stringlist],
+    'keymap.quit':         [['ctrl+w', 'cmd+w'], validate_stringlist],
+    'keymap.grid':         [['g'], validate_stringlist],
+    'keymap.yscale':       [['l'], validate_stringlist],
     'keymap.xscale':       [['k', 'L'], validate_stringlist],
-    'keymap.all_axes':     ['a', validate_stringlist],
+    'keymap.all_axes':     [['a'], validate_stringlist],
 
     # sample data
-    'examples.directory': ['', str],
+    'examples.directory': ['', validate_string],
 
     # Animation settings
     'animation.writer':       ['ffmpeg', validate_movie_writer],
-    'animation.codec':        ['mpeg4', str],
+    'animation.codec':        ['mpeg4', validate_string],
     'animation.bitrate':      [-1, validate_int],
     # Controls image format when frames are written to disk
     'animation.frame_format': ['png', validate_movie_frame_fmt],
     # Path to FFMPEG binary. If just binary name, subprocess uses $PATH.
-    'animation.ffmpeg_path':  ['ffmpeg', str],
+    'animation.ffmpeg_path':  ['ffmpeg', validate_string],
 
     ## Additional arguments for ffmpeg movie writer (using pipes)
-    'animation.ffmpeg_args':   ['', validate_stringlist],
+    'animation.ffmpeg_args':   [[''], validate_stringlist],
     # Path to AVConv binary. If just binary name, subprocess uses $PATH.
-    'animation.avconv_path':   ['avconv', str],
+    'animation.avconv_path':   ['avconv', validate_string],
     # Additional arguments for avconv movie writer (using pipes)
-    'animation.avconv_args':   ['', validate_stringlist],
+    'animation.avconv_args':   [[''], validate_stringlist],
     # Path to MENCODER binary. If just binary name, subprocess uses $PATH.
-    'animation.mencoder_path': ['mencoder', str],
+    'animation.mencoder_path': ['mencoder', validate_string],
     # Additional arguments for mencoder movie writer (using pipes)
-    'animation.mencoder_args': ['', validate_stringlist],
+    'animation.mencoder_args': [[''], validate_stringlist],
      # Path to convert binary. If just binary name, subprocess uses $PATH
-    'animation.convert_path':  ['convert', str],
+    'animation.convert_path':  ['convert', validate_string],
      # Additional arguments for mencoder movie writer (using pipes)
-
-    'animation.convert_args':  ['', validate_stringlist]}
+    'animation.convert_args':  [[''], validate_stringlist]}
 
 
 if __name__ == '__main__':
