@@ -177,7 +177,7 @@ class Table(Artist):
     FONTSIZE = 10
     AXESPAD = 0.02    # the border between the axes and table edge
 
-    def __init__(self, ax, loc=None, bbox=None):
+    def __init__(self, ax, loc=None, bbox=None, **kwargs):
 
         Artist.__init__(self)
 
@@ -201,6 +201,7 @@ class Table(Artist):
         self._autoRows = []
         self._autoColumns = []
         self._autoFontsize = True
+        self.update(kwargs)
 
         self.set_clip_on(False)
 
@@ -453,7 +454,8 @@ def table(ax,
     cellLoc='right', colWidths=None,
     rowLabels=None, rowColours=None, rowLoc='left',
     colLabels=None, colColours=None, colLoc='center',
-    loc='bottom', bbox=None):
+    loc='bottom', bbox=None,
+    **kwargs):
     """
     TABLE(cellText=None, cellColours=None,
           cellLoc='right', colWidths=None,
@@ -517,7 +519,7 @@ def table(ax,
         cellColours = ['w' * cols] * rows
 
     # Now create the table
-    table = Table(ax, loc, bbox)
+    table = Table(ax, loc, bbox, **kwargs)
     height = table._approx_text_height()
 
     # Add the cells
