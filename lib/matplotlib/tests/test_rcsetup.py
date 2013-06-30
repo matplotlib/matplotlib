@@ -25,12 +25,15 @@ def test_template():
                     assert mpl.rcParams[k] == v[0]
 
 def test_unicode():
-    # unicode formatted valid strings should validate.
+    # unicode formatted valid strings should validate successfully
     for k, v in mpl.rcsetup.defaultParams.iteritems():
-        if v[0] != v[1](unicode(v[0])):
-            print "Expected : ", v[0]
-            print "Actual : ", v[1](unicode(v[0]))
-        assert v[0] == v[1](unicode(v[0]))
+        if k not in deprecated:
+            if isinstance(v[0], basestring):
+                u = v[1](unicode(v[0]))
+                if u not in [v[0], v[0].lower()] :
+                    print "Expected : ", v[0]
+                    print "Actual : ", u
+                assert u in [v[0], v[0].lower()]
 
 
 if __name__ == '__main__':

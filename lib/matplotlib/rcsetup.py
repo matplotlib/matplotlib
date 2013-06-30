@@ -144,6 +144,7 @@ def validate_backend(s):
     else:
         return _validate_standard_backends(s)
 
+
 validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide'])
 
 
@@ -264,13 +265,14 @@ def validate_string(s):
     assert isinstance(s, basestring)
     return s.strip("'").strip()
 
+
 def validate_stringlist(s):
     'return a list'
     if isinstance(s, basestring):
         return [validate_string(v) for v in s.split(',')]
     else :
         assert type(s) in [list, tuple]
-        return [str(v) for v in s]
+        return [validate_string(v) for v in s]
 
 
 validate_orientation = ValidateInStrings(
