@@ -10,6 +10,7 @@ import matplotlib
 rcParams = matplotlib.rcParams
 
 import matplotlib.cbook as cbook
+from matplotlib.cbook import _string_to_bool
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
