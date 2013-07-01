@@ -18,6 +18,26 @@ revision, see the :ref:`github-stats`.
 .. contents:: Table of Contents
    :depth: 3
 
+.. _whats-new-1-4:
+
+new in matplotlib-1.4
+=====================
+
+New plotting features
+---------------------
+
+Callable plotting via fplot
+```````````````````````````
+
+Damon McDougall added :func:`matplotlib.pyplot.fplot` which offers the
+flexibilty of plotting callables.  This is similar to Matlab's fplot.  Zooming
+and panning dynamically adjusts the plotted coordinates, allowing the
+possibilty to explore parts of the function that are less well behaved.  An
+attempt has been made to detect singularities in functions as well.  This
+feature is experimental and is likely to change in the future.
+
+.. plot:: mpl_examples/pylab_examples/fplot_demo.py
+
 .. _whats-new-1-3:
 
 new in matplotlib-1.3
