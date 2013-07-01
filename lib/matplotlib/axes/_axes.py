@@ -1753,7 +1753,7 @@ class Axes(_AxesBase):
         xerr : scalar or array-like, optional, default: None
             if not None, will be used to generate errorbar(s) on the bar chart
 
-        yerr :scalar or array-like, optional, default: None
+        yerr : scalar or array-like, optional, default: None
             if not None, will be used to generate errorbar(s) on the bar chart
 
         ecolor : scalar or array-like, optional, default: None
@@ -1779,7 +1779,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        :class:`matplotlib.patches.Rectangle` instances.
+        `matplotlib.patches.Rectangle` instances.
 
         Notes
         -----
@@ -1794,6 +1794,13 @@ class Axes(_AxesBase):
         Other optional kwargs:
 
         %(Rectangle)s
+
+        See also
+        --------
+        barh: Plot a horizontal bar plot.
+
+        Example
+        -------
 
         **Example:** A stacked bar chart.
 
@@ -2007,68 +2014,88 @@ class Axes(_AxesBase):
         """
         Make a horizontal bar plot.
 
-        Call signature::
-
-          barh(bottom, width, height=0.8, left=0, **kwargs)
-
         Make a horizontal bar plot with rectangles bounded by:
 
-          *left*, *left* + *width*, *bottom*, *bottom* + *height*
+          `left`, `left` + `width`, `bottom`, `bottom` + `height`
                 (left, right, bottom and top edges)
 
-        *bottom*, *width*, *height*, and *left* can be either scalars
+        `bottom`, `width`, `height`, and `left` can be either scalars
         or sequences
 
-        Return value is a list of
-        :class:`matplotlib.patches.Rectangle` instances.
+        Parameters
+        ----------
+        bottom : scalar or array-like
+            the y coordinate(s) of the bars
 
-        Required arguments:
+        width : scalar or array-like
+            the width(s) of the bars
 
-          ========   ======================================================
-          Argument   Description
-          ========   ======================================================
-          *bottom*   the vertical positions of the bottom edges of the bars
-          *width*    the lengths of the bars
-          ========   ======================================================
+        height : sequence of scalars, optional, default: 0.8
+            the heights of the bars
 
-        Optional keyword arguments:
+        left : sequence of scalars
+            the x coordinates of the left sides of the bars
 
-          ===============   ==========================================
-          Keyword           Description
-          ===============   ==========================================
-          *height*          the heights (thicknesses) of the bars
-          *left*            the x coordinates of the left edges of the
-                            bars
-          *color*           the colors of the bars
-          *edgecolor*       the colors of the bar edges
-          *linewidth*       width of bar edges; None means use default
-                            linewidth; 0 means don't draw edges.
-          *xerr*            if not None, will be used to generate
-                            errorbars on the bar chart
-          *yerr*            if not None, will be used to generate
-                            errorbars on the bar chart
-          *ecolor*          specifies the color of any errorbar
-          *capsize*         (default 3) determines the length in
-                            points of the error bar caps
-          *align*           'edge' (default) | 'center'
-          *log*             [False|True] False (default) leaves the
-                            horizontal axis as-is; True sets it to log
-                            scale
-          ===============   ==========================================
+        Returns
+        --------
+        `matplotlib.patches.Rectangle` instances.
 
-        Setting *align* = 'edge' aligns bars by their bottom edges in
-        bottom, while *align* = 'center' interprets these values as
-        the *y* coordinates of the bar centers.
+        Other parameters
+        ----------------
+        color : scalar or array-like, optional
+            the colors of the bars
 
-        The optional arguments *color*, *edgecolor*, *linewidth*,
-        *xerr*, and *yerr* can be either scalars or sequences of
+        edgecolor : scalar or array-like, optional
+            the colors of the bar edges
+
+        linewidth : scalar or array-like, optional, default: None
+            width of bar edge(s). If None, use default
+            linewidth; If 0, don't draw edges.
+
+        xerr : scalar or array-like, optional, default: None
+            if not None, will be used to generate errorbar(s) on the bar chart
+
+        yerr : scalar or array-like, optional, default: None
+            if not None, will be used to generate errorbar(s) on the bar chart
+
+        ecolor : scalar or array-like, optional, default: None
+            specifies the color of errorbar(s)
+
+        capsize : integer, optional, default: 3
+           determines the length in points of the error bar caps
+
+        error_kw :
+            dictionary of kwargs to be passed to errorbar method. `ecolor` and
+            `capsize` may be specified here rather than as independent kwargs.
+
+        align : ['edge' | 'center'], optional, default: 'edge'
+            If `edge`, aligns bars by their left edges (for vertical bars) and
+            by their bottom edges (for horizontal bars). If `center`, interpret
+            the `left` argument as the coordinates of the centers of the bars.
+
+        orientation : 'vertical' | 'horizontal', optional, default: 'vertical'
+            The orientation of the bars.
+
+        log : boolean, optional, default: False
+            If true, sets the axis to be log scale
+
+        Notes
+        -----
+        The optional arguments `color`, `edgecolor`, `linewidth`,
+        `xerr`, and `yerr` can be either scalars or sequences of
         length equal to the number of bars.  This enables you to use
-        barh as the basis for stacked bar charts, or candlestick
-        plots.
+        bar as the basis for stacked bar charts, or candlestick plots.
+        Detail: `xerr` and `yerr` are passed directly to
+        :meth:`errorbar`, so they can also have shape 2xN for
+        independent specification of lower and upper errors.
 
-        other optional kwargs:
+        Other optional kwargs:
 
         %(Rectangle)s
+
+        See also
+        --------
+        bar: Plot a vertical bar plot.
         """
 
         patches = self.bar(left=left, height=height, width=width,
