@@ -45,9 +45,9 @@ class MatplotlibDeprecationWarning(UserWarning):
 mplDeprecation = MatplotlibDeprecationWarning
 
 
-def _generate_deprecation_message(
-    since, message='', name='', alternative='', pending=False,
-    obj_type='attribute'):
+def _generate_deprecation_message(since, message='', name='',
+                                  alternative='', pending=False,
+                                  obj_type='attribute'):
 
     if not message:
         altmessage = ''
@@ -464,9 +464,11 @@ class CallbackRegistry:
     """
     def __init__(self, *args):
         if len(args):
-            warn_deprecated('1.3', message=
-                "CallbackRegistry no longer requires a list of callback "
-                "types. Ignoring arguments. *args will be removed in 1.5")
+            warn_deprecated(
+                '1.3',
+                message="CallbackRegistry no longer requires a list of "
+                        "callback types. Ignoring arguments. *args will "
+                        "be removed in 1.5")
         self.callbacks = dict()
         self._cid = 0
         self._func_cid_map = {}
@@ -748,6 +750,16 @@ def to_filehandle(fname, flag='rU', return_opened=False):
 def is_scalar_or_string(val):
     """Return whether the given object is a scalar or string like."""
     return is_string_like(val) or not iterable(val)
+
+
+def _string_to_bool(s):
+    if not is_string_like(s):
+        return s
+    if s == 'on':
+        return True
+    if s == 'off':
+        return False
+    raise ValueError("string argument must be either 'on' or 'off'")
 
 
 def get_sample_data(fname, asfileobj=True):
@@ -1724,8 +1736,8 @@ def simple_linear_interpolation(a, steps):
 
 def recursive_remove(path):
     if os.path.isdir(path):
-        for fname in glob.glob(os.path.join(path, '*')) + \
-                     glob.glob(os.path.join(path, '.*')):
+        for fname in (glob.glob(os.path.join(path, '*')) +
+                      glob.glob(os.path.join(path, '.*'))):
             if os.path.isdir(fname):
                 recursive_remove(fname)
                 os.removedirs(fname)

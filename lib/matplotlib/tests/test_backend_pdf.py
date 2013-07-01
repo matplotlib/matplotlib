@@ -1,6 +1,10 @@
 # -*- encoding: utf-8 -*-
 
-from matplotlib import rcParams
+import io
+
+import numpy as np
+
+from matplotlib import cm, rcParams
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 
@@ -26,8 +30,6 @@ def test_use14corefonts():
 
 @cleanup
 def test_type42():
-    import io
-
     rcParams['pdf.fonttype'] = 42
 
     fig = plt.figure()
