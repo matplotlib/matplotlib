@@ -236,6 +236,12 @@ current_dir = os.getcwd()
 os.chdir(os.path.dirname(os.path.join(current_dir, __file__)))
 copy_if_out_of_date('../INSTALL', 'users/installing.rst')
 
+# Create the examples symlink, if it doesn't exist
+if not os.path.exists('mpl_examples'):
+    if hasattr(os, 'symlink'):
+        os.symlink('../examples', 'mpl_examples')
+    else:
+        shutil.copytree('../examples', 'mpl_examples')
 
 if len(sys.argv)>1:
     if '--small' in sys.argv[1:]:
