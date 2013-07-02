@@ -152,7 +152,7 @@ AAj1//+nPwAA/////w=="""
     verts = np.fromstring(decodebytes(data), dtype='<i4')
     verts = verts.reshape((len(verts) / 2, 2))
     path = Path(verts)
-    segs = path.iter_segments(transforms.IdentityTransform, clip=(0.0, 0.0, 100.0, 100.0))
+    segs = path.iter_segments(transforms.IdentityTransform(), clip=(0.0, 0.0, 100.0, 100.0))
     segs = list(segs)
     assert len(segs) == 1
     assert segs[0][1] == Path.MOVETO
