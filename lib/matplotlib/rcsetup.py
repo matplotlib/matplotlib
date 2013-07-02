@@ -261,9 +261,11 @@ def validate_colorlist(s):
 
 
 def validate_string(s):
-    'return a clean string'
-    assert isinstance(s, basestring)
-    return s.strip("'").strip()
+    """if s is a string, returns a clean string, else raises a TypeError"""
+    if isinstance(s, basestring) : 
+      return s.strip("'").strip()
+    else :
+      raise TypeError('%s should be a bytestring or unicode' % (s, msg))
 
 
 def validate_stringlist(s):
