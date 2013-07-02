@@ -265,7 +265,7 @@ def validate_string(s):
     if isinstance(s, basestring) : 
       return s.strip("'").strip()
     else :
-      raise TypeError('%s should be a bytestring or unicode' % (s, msg))
+      raise TypeError('%s should be a bytestring or unicode' % (s))
 
 
 def validate_stringlist(s):
