@@ -34,7 +34,7 @@ collective copyright of the entire matplotlib Development Team.  If
 individual contributors want to maintain a record of what
 changes/contributions they have specific copyright on, they should
 indicate their copyright in the commit message of the change, when
-they commit the change to one of the IPython repositories.
+they commit the change to one of the matplotlib repositories.
 
 The Matplotlib Development Team is the set of all contributors to the
 matplotlib project.  A full list can be obtained from the git version
