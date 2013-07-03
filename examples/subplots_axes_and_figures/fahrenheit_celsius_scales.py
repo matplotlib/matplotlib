@@ -6,30 +6,32 @@ This example uses the Fahrenheit and Celsius scales.
 import matplotlib.pyplot as plt
 import numpy as np
 
-fig, ax1 = plt.subplots()  # ax1 is the Fahrenheit scale
-ax2 = ax1.twinx()          # ax2 is the Celsius scale
 
 def fahrenheit2celsius(temp):
     """
     Returns temperature in Celsius.
     """
-    return (5./9.)*(temp - 32)
+    return (5. / 9.) * (temp - 32)
 
-def convert_ax2_to_celsius(ax1):
+
+def convert_ax_c_to_celsius(ax_f):
     """
     Update second axis according with first axis.
     """
-    y1, y2 = ax1.get_ylim()
-    ax2.set_ylim(fahrenheit2celsius(y1), fahrenheit2celsius(y2))
-    ax2.figure.canvas.draw()
+    y1, y2 = ax_f.get_ylim()
+    ax_c.set_ylim(fahrenheit2celsius(y1), fahrenheit2celsius(y2))
+    ax_c.figure.canvas.draw()
+
+fig, ax_f = plt.subplots()
+ax_c = ax_f.twinx()
 
 # automatically update ylim of ax2 when ylim of ax1 changes.
-ax1.callbacks.connect("ylim_changed", convert_ax2_to_celsius)
-ax1.plot(np.linspace(-40, 120, 100))
-ax1.set_xlim(0, 100)
+ax_f.callbacks.connect("ylim_changed", convert_ax_c_to_celsius)
+ax_f.plot(np.linspace(-40, 120, 100))
+ax_f.set_xlim(0, 100)
 
-ax1.set_title('Two scales: Fahrenheit and Celsius')
-ax1.set_ylabel('Fahrenheit')
-ax2.set_ylabel('Celsius')
+ax_f.set_title('Two scales: Fahrenheit and Celsius')
+ax_f.set_ylabel('Fahrenheit')
+ax_c.set_ylabel('Celsius')
 
 plt.show()
