@@ -202,10 +202,10 @@ Image::as_rgba_str(const Py::Tuple& args, const Py::Dict& kwargs)
     std::pair<agg::int8u*, bool> bufpair = _get_output_buffer();
 
     #if PY3K
-    Py::Object ret =  Py::asObject(Py_BuildValue("lly#", rowsOut, colsOut,
+    Py::Object ret =  Py::asObject(Py_BuildValue("nny#", rowsOut, colsOut,
                                    bufpair.first, colsOut * rowsOut * 4));
     #else
-    Py::Object ret =  Py::asObject(Py_BuildValue("lls#", rowsOut, colsOut,
+    Py::Object ret =  Py::asObject(Py_BuildValue("nns#", rowsOut, colsOut,
                                    bufpair.first, colsOut * rowsOut * 4));
     #endif
 
@@ -272,7 +272,7 @@ Image::color_conv(const Py::Tuple& args)
     }
 #endif
 
-    PyObject* o = Py_BuildValue("llN", rowsOut, colsOut, py_buffer);
+    PyObject* o = Py_BuildValue("nnN", rowsOut, colsOut, py_buffer);
     return Py::asObject(o);
 }
 
@@ -290,7 +290,7 @@ Image::buffer_rgba(const Py::Tuple& args)
 
     args.verify_length(0);
     int row_len = colsOut * 4;
-    PyObject* o = Py_BuildValue("lls#", rowsOut, colsOut,
+    PyObject* o = Py_BuildValue("nns#", rowsOut, colsOut,
                                 rbufOut, row_len * rowsOut);
     return Py::asObject(o);
 }
