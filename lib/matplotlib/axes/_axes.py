@@ -537,14 +537,46 @@ class Axes(_AxesBase):
         Create an annotation: a piece of text referring to a data
         point.
 
-        Call signature::
+        Parameters
+        ----------
+        s : string
+            label
 
-          annotate(s, xy, xytext=None, xycoords='data',
-                   textcoords='data', arrowprops=None, **kwargs)
+        xy : (x, y)
+            position of element to annotate
 
-        Keyword arguments:
+        xytext : (x, y) , optional, default: None
+            position of the label `s`
+
+        xycoords : string, optional, default: "data"
+            string that indicates what tye of coordinates `xy` is. Examples:
+            "figure points", "figure pixels", "figure fraction", "axes
+            points", .... See `matplotlib.text.Annotation` for more details.
+
+        textcoords : string, optional, default: None
+            string that indicates what type of coordinates `text` is. Examples:
+            "figure points", "figure pixels", "figure fraction", "axes
+            points", .... See `matplotlib.text.Annotation` for more details.
+
+        arrowprops : `matplotlib.lines.Line2D` properties, optional, default: None
+            Dictionnary of line properties for the arrow that connects the
+            annotation to the point. If the dictionnary has a key
+            `arrowstyle`, a `FancyArrowPatch` instance is created and drawn.
+            See `matplotlib.text.Annotation` for more details on valid
+            options.
+
+        Returns
+        -------
+        a : `~matplotlib.text.Annotation`
+
+
+        Others parameters
+        -----------------
 
         %(Annotation)s
+
+        Examples
+        --------
 
         .. plot:: mpl_examples/pylab_examples/annotation_demo2.py
         """
@@ -710,7 +742,7 @@ class Axes(_AxesBase):
         Return value is a :class:`matplotlib.patches.Polygon`
         instance.
 
-        Examples:
+       Examples:
 
         * draw a gray rectangle from *y* = 0.25-0.75 that spans the
           horizontal extent of the axes::
