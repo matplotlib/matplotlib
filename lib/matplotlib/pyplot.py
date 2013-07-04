@@ -262,13 +262,15 @@ def xkcd(scale=1, length=100, randomness=2):
 
     Parameters
     ----------
-    scale: float, optional
+    scale : float, optional
         The amplitude of the wiggle perpendicular to the source line.
-    length: float, optional
+    length : float, optional
         The length of the wiggle along the line.
-    randomness: float, optional
+    randomness : float, optional
         The scale factor by which the length is shrunken or expanded.
 
+    Notes
+    -----
     This function works by a number of rcParams, so it will probably
     override others you have set before.
 
@@ -359,8 +361,8 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         pylab interface. Additional kwargs will be passed to the figure init
         function.
 
-    Note
-    ----
+    Notes
+    -----
     If you are creating many figures, make sure you explicitly call "close"
     on the figures you are not using, because this will enable pylab
     to properly clean up the memory.

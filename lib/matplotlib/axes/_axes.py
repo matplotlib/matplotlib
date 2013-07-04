@@ -1799,8 +1799,8 @@ class Axes(_AxesBase):
         --------
         barh: Plot a horizontal bar plot.
 
-        Example
-        -------
+        Examples
+        --------
 
         **Example:** A stacked bar chart.
 
