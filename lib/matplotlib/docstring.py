@@ -3,6 +3,7 @@ from matplotlib import cbook
 import sys
 import types
 
+
 class Substitution(object):
     """
     A decorator to take a function's docstring and perform string
@@ -32,7 +33,8 @@ class Substitution(object):
         "%s %s wrote the Raven"
     """
     def __init__(self, *args, **kwargs):
-        assert not (args and kwargs), "Only positional or keyword args are allowed"
+        assert (not (args and kwargs),
+                "Only positional or keyword args are allowed")
         self.params = args or kwargs
 
     def __call__(self, func):
@@ -46,14 +48,15 @@ class Substitution(object):
     @classmethod
     def from_params(cls, params):
         """
-        In the case where the params is a mutable sequence (list or dictionary)
-        and it may change before this class is called, one may explicitly use
-        a reference to the params rather than using *args or **kwargs which will
-        copy the values and not reference them.
+        In the case where the params is a mutable sequence (list or
+        dictionary) and it may change before this class is called, one may
+        explicitly use a reference to the params rather than using *args or
+        **kwargs which will copy the values and not reference them.
         """
         result = cls()
         result.params = params
         return result
+
 
 class Appender(object):
     """
@@ -83,10 +86,12 @@ class Appender(object):
         func.__doc__ = func.__doc__ and ''.join(docitems)
         return func
 
+
 def dedent(func):
     "Dedent a docstring (if present)"
     func.__doc__ = func.__doc__ and cbook.dedent(func.__doc__)
     return func
+
 
 def copy(source):
     "Copy a docstring from another source function (if present)"
@@ -100,12 +105,14 @@ def copy(source):
 #  is reused throughout matplotlib
 interpd = Substitution()
 
+
 def dedent_interpd(func):
     """A special case of the interpd that first performs a dedent on
     the incoming docstring"""
     if isinstance(func, types.MethodType) and sys.version_info[0] < 3:
         func = func.im_func
     return interpd(dedent(func))
+
 
 def copy_dedent(source):
     """A decorator that will copy the docstring from the source and
