@@ -44,6 +44,7 @@ datetime objects::
 """
 from __future__ import print_function
 from matplotlib.cbook import iterable, is_numlike
+import numpy as np
 
 
 class AxisInfo:
@@ -131,6 +132,10 @@ class Registry(dict):
 
         if classx is not None:
             converter = self.get(classx)
+
+        if isinstance(x, np.ndarray) and x.size:
+            converter = self.get_converter(x.ravel()[0])
+            return converter
 
         if converter is None and iterable(x):
             for thisx in x:
