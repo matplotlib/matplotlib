@@ -259,7 +259,7 @@ p.rubric {
 }
 
 h1 {
-    margin: 0;
+    margin: 0.5em 0em;
     padding-top: 0.5em;
     font-size: 2em;
     color: #11557C;
