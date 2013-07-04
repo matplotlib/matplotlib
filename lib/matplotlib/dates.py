@@ -203,6 +203,10 @@ def _to_ordinalf(dt):
     return base
 
 
+# a version of _to_ordinalf that can operate on numpy arrays
+_to_ordinalf_np_vectorized = np.vectorize(_to_ordinalf)
+
+
 def _from_ordinalf(x, tz=None):
     """
     Convert Gregorian float of the date, preserving hours, minutes,
@@ -229,6 +233,10 @@ def _from_ordinalf(x, tz=None):
     return dt
 
 
+# a version of _from_ordinalf that can operate on numpy arrays
+_from_ordinalf_np_vectorized = np.vectorize(_from_ordinalf)
+
+
 class strpdate2num:
     """
     Use this class to parse date strings to matplotlib datenums when
@@ -246,6 +254,10 @@ class strpdate2num:
         return date2num(datetime.datetime(*time.strptime(s, self.fmt)[:6]))
 
 
+# a version of dateutil.parser.parse that can operate on nump0y arrays
+_dateutil_parser_parse_np_vectorized = np.vectorize(dateutil.parser.parse)
+
+
 def datestr2num(d):
     """
     Convert a date string to a datenum using
@@ -256,7 +268,10 @@ def datestr2num(d):
         dt = dateutil.parser.parse(d)
         return date2num(dt)
     else:
-        return date2num([dateutil.parser.parse(s) for s in d])
+        d = np.asarray(d)
+        if not d.size:
+            return d
+        return date2num(_dateutil_parser_parse_np_vectorized(d))
 
 
 def date2num(d):
@@ -273,7 +288,10 @@ def date2num(d):
     if not cbook.iterable(d):
         return _to_ordinalf(d)
     else:
-        return np.asarray([_to_ordinalf(val) for val in d])
+        d = np.asarray(d)
+        if not d.size:
+            return d
+        return _to_ordinalf_np_vectorized(d)
 
 
 def julian2num(j):
@@ -310,7 +328,10 @@ def num2date(x, tz=None):
     if not cbook.iterable(x):
         return _from_ordinalf(x, tz)
     else:
-        return [_from_ordinalf(val, tz) for val in x]
+        x = np.asarray(x)
+        if not x.size:
+            return x
+        return _from_ordinalf_np_vectorized(x, tz).tolist()
 
 
 def drange(dstart, dend, delta):
@@ -1292,6 +1313,9 @@ class DateConverter(units.ConversionInterface):
     @staticmethod
     def default_units(x, axis):
         'Return the tzinfo instance of *x* or of its first element, or None'
+        if isinstance(x, np.ndarray):
+            x = x.ravel()
+
         try:
             x = x[0]
         except (TypeError, IndexError):

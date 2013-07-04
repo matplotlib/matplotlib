@@ -18,6 +18,32 @@ revision, see the :ref:`github-stats`.
 .. contents:: Table of Contents
    :depth: 3
 
+.. _whats-new-1-4:
+
+new in matplotlib-1.4
+=====================
+
+New plotting features
+---------------------
+
+Support for datetime axes in 2d plots
+`````````````````````````````````````
+Andrew Dawson added support for datetime axes to
+:func:`~matplotlib.pyplot.contour`, :func:`~matplotlib.pyplot.contourf`, 
+:func:`~matplotlib.pyplot.pcolormesh` and :func:`~matplotlib.pyplot.pcolor`. 
+
+
+Date handling
+-------------
+
+n-d array support for date conversion
+``````````````````````````````````````
+Andrew Dawson added support for n-d array handling to
+:func:`matplotlib.dates.num2date`, :func:`matplotlib.dates.date2num`
+and :func:`matplotlib.dates.datestr2num`. Support is also added to the unit
+conversion interfaces :class:`matplotlib.dates.DateConverter` and
+:class:`matplotlib.units.Registry`.
+
 .. _whats-new-1-3:
 
 new in matplotlib-1.3
