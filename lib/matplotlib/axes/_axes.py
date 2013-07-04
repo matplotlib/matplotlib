@@ -1531,63 +1531,61 @@ class Axes(_AxesBase):
     @docstring.dedent_interpd
     def acorr(self, x, **kwargs):
         """
-        Plot the autocorrelation of *x*.
+        Plot the autocorrelation of `x`.
 
-        Call signature::
+        Parameters
+        ----------
 
-            acorr(x, normed=True, detrend=mlab.detrend_none, usevlines=True,
-                  maxlags=10, **kwargs)
+        x : sequence of scalar
 
-        If *normed* = *True*, normalize the data by the autocorrelation at
-        0-th lag.  *x* is detrended by the *detrend* callable (default no
-        normalization).
+        hold : boolean, optional, default: True
 
-        Data are plotted as ``plot(lags, c, **kwargs)``
+        detrend : callable, optional, default: `mlab.detrend_none`
+            x is detrended by the `detrend` callable. Default is no
+            normalization.
 
-        Return value is a tuple (*lags*, *c*, *line*) where:
+        normed : boolean, optional, default: True
+            if True, normalize the data by the autocorrelation at the 0-th
+            lag.
 
-          - *lags* are a length 2*maxlags+1 lag vector
+        usevlines : boolean, optional, default: True
+            if True, Axes.vlines is used to plot the vertical lines from the origin
+            to the acorr. Otherwise, Axes.plot is used.
 
-          - *c* is the 2*maxlags+1 auto correlation vector
+        maxlags : integer, optional, default: 10 
+            number of lags to show. If None, will return all 2 * len(x) - 1
+            lags.
 
-          - *line* is a :class:`~matplotlib.lines.Line2D` instance
-            returned by :meth:`plot`
+        Returns
+        -------
+        (lags, c, line, b) : where:
 
-        The default *linestyle* is None and the default *marker* is
-        ``'o'``, though these can be overridden with keyword args.
-        The cross correlation is performed with
-        :func:`numpy.correlate` with *mode* = 2.
+          - `lags` are a length 2`maxlags+1 lag vector.
+          - `c` is the 2`maxlags+1 auto correlation vectorI
+          - `line` is a `~matplotlib.lines.Line2D` instance returned by
+            `plot`.
+          - `b` is the x-axis.
 
-        If *usevlines* is *True*, :meth:`~matplotlib.axes.Axes.vlines`
-        rather than :meth:`~matplotlib.axes.Axes.plot` is used to draw
-        vertical lines from the origin to the acorr.  Otherwise, the
-        plot style is determined by the kwargs, which are
-        :class:`~matplotlib.lines.Line2D` properties.
+        Other parameters
+        -----------------
+        linestyle : `~matplotlib.lines.Line2D` properties, optional, default: None
+            Only used if usevlines is False.
 
-        *maxlags* is a positive integer detailing the number of lags
-        to show.  The default value of *None* will return all
-        ``(2*len(x)-1)`` lags.
+        marker : string, optional, default: 'o'
 
-        The return value is a tuple (*lags*, *c*, *linecol*, *b*)
-        where
+        Notes
+        -----
+        The cross correlation is performed with :func:`numpy.correlate` with
+        `mode` = 2.
 
-          - *linecol* is the
-            :class:`~matplotlib.collections.LineCollection`
+        Examples
+        --------
 
-          - *b* is the *x*-axis.
-
-        .. seealso::
-
-            :meth:`~matplotlib.axes.Axes.plot` or
-            :meth:`~matplotlib.axes.Axes.vlines`
-            For documentation on valid kwargs.
-
-        **Example:**
-
-        :func:`~matplotlib.pyplot.xcorr` is top graph, and
-        :func:`~matplotlib.pyplot.acorr` is bottom graph.
+        `~matplotlib.pyplot.xcorr` is top graph, and
+        `~matplotlib.pyplot.acorr` is bottom graph.
 
         .. plot:: mpl_examples/pylab_examples/xcorr_demo.py
+
         """
         return self.xcorr(x, x, **kwargs)
 
@@ -1597,54 +1595,52 @@ class Axes(_AxesBase):
         """
         Plot the cross correlation between *x* and *y*.
 
-        Call signature::
+        Parameters
+        ----------
 
-            xcorr(self, x, y, normed=True, detrend=mlab.detrend_none,
-              usevlines=True, maxlags=10, **kwargs)
+        x : sequence of scalars of length n
+        
+        y : sequence of scalars of length n
 
-        If *normed* = *True*, normalize the data by the cross
-        correlation at 0-th lag.  *x* and y are detrended by the
-        *detrend* callable (default no normalization).  *x* and *y*
-        must be equal length.
+        hold : boolean, optional, default: True
 
-        Data are plotted as ``plot(lags, c, **kwargs)``
+        detrend : callable, optional, default: `mlab.detrend_none`
+            x is detrended by the `detrend` callable. Default is no
+            normalization.
 
-        Return value is a tuple (*lags*, *c*, *line*) where:
+        normed : boolean, optional, default: True
+            if True, normalize the data by the autocorrelation at the 0-th
+            lag.
 
-          - *lags* are a length ``2*maxlags+1`` lag vector
+        usevlines : boolean, optional, default: True
+            if True, Axes.vlines is used to plot the vertical lines from the origin
+            to the acorr. Otherwise, Axes.plot is used.
 
-          - *c* is the ``2*maxlags+1`` auto correlation vector
+        maxlags : integer, optional, default: 10 
+            number of lags to show. If None, will return all 2 * len(x) - 1
+            lags.
 
-          - *line* is a :class:`~matplotlib.lines.Line2D` instance
-             returned by :func:`~matplotlib.pyplot.plot`.
+        Returns
+        -------
+        (lags, c, line, b) : where:
 
-        The default *linestyle* is *None* and the default *marker* is
-        'o', though these can be overridden with keyword args.  The
-        cross correlation is performed with :func:`numpy.correlate`
-        with *mode* = 2.
+          - `lags` are a length 2`maxlags+1 lag vector.
+          - `c` is the 2`maxlags+1 auto correlation vectorI
+          - `line` is a `~matplotlib.lines.Line2D` instance returned by
+            `plot`.
+          - `b` is the x-axis (none, if plot is used).
 
-        If *usevlines* is *True*:
+        Other parameters
+        -----------------
+        linestyle : `~matplotlib.lines.Line2D` properties, optional, default: None
+            Only used if usevlines is False.
 
-           :func:`~matplotlib.pyplot.vlines`
-           rather than :func:`~matplotlib.pyplot.plot` is used to draw
-           vertical lines from the origin to the xcorr.  Otherwise the
-           plotstyle is determined by the kwargs, which are
-           :class:`~matplotlib.lines.Line2D` properties.
+        marker : string, optional, default: 'o'
 
-           The return value is a tuple (*lags*, *c*, *linecol*, *b*)
-           where *linecol* is the
-           :class:`matplotlib.collections.LineCollection` instance and
-           *b* is the *x*-axis.
-
-        *maxlags* is a positive integer detailing the number of lags to show.
-        The default value of *None* will return all ``(2*len(x)-1)`` lags.
-
-        **Example:**
-
-        :func:`~matplotlib.pyplot.xcorr` is top graph, and
-        :func:`~matplotlib.pyplot.acorr` is bottom graph.
-
-        .. plot:: mpl_examples/pylab_examples/xcorr_demo.py
+        Notes
+        -----
+        The cross correlation is performed with :func:`numpy.correlate` with
+        `mode` = 2.
         """
 
         Nx = len(x)
