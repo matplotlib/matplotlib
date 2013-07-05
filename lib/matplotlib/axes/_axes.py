@@ -129,8 +129,7 @@ class Axes(_AxesBase):
         default = {
             'fontsize': rcParams['axes.titlesize'],
             'verticalalignment': 'baseline',
-            'horizontalalignment': loc.lower()
-            }
+            'horizontalalignment': loc.lower()}
         title.set_text(label)
         title.update(default)
         if fontdict is not None:
@@ -455,7 +454,7 @@ class Axes(_AxesBase):
         """
         Add text to the axes.
 
-        Add text in string *s* to axis at location *x*, *y*, data
+        Add text in string `s` to axis at location `x`, `y`, data
         coordinates.
 
         Parameters
@@ -496,7 +495,7 @@ class Axes(_AxesBase):
             ...      transform=ax.transAxes)
 
         You can put a rectangular box around the text instance (e.g., to
-        set a background color) by using the keyword *bbox*.  *bbox* is
+        set a background color) by using the keyword `bbox`.  `bbox` is
         a dictionary of `~matplotlib.patches.Rectangle`
         properties.  For example::
 
@@ -506,8 +505,7 @@ class Axes(_AxesBase):
             'verticalalignment': 'baseline',
             'horizontalalignment': 'left',
             'transform': self.transData,
-            'clip_on': False
-            }
+            'clip_on': False}
 
         # At some point if we feel confident that TextWithDash
         # is robust as a drop-in replacement for Text and that
@@ -803,15 +801,13 @@ class Axes(_AxesBase):
 
     @docstring.dedent
     def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
-                     label='', **kwargs):
+               label='', **kwargs):
         """
-        Plot horizontal lines.
-
         Plot horizontal lines at each `y` from `xmin` to `xmax`.
 
         Parameters
         ----------
-        y : scalar or 1D array_like
+        y : scalar or sequence of scalar
             y-indexes where to plot the lines.
 
         xmin, xmax : scalar or 1D array_like
@@ -1549,10 +1545,10 @@ class Axes(_AxesBase):
             lag.
 
         usevlines : boolean, optional, default: True
-            if True, Axes.vlines is used to plot the vertical lines from the origin
-            to the acorr. Otherwise, Axes.plot is used.
+            if True, Axes.vlines is used to plot the vertical lines from the
+            origin to the acorr. Otherwise, Axes.plot is used.
 
-        maxlags : integer, optional, default: 10 
+        maxlags : integer, optional, default: 10
             number of lags to show. If None, will return all 2 * len(x) - 1
             lags.
 
@@ -1568,7 +1564,7 @@ class Axes(_AxesBase):
 
         Other parameters
         -----------------
-        linestyle : `~matplotlib.lines.Line2D` properties, optional, default: None
+        linestyle : `~matplotlib.lines.Line2D` prop, optional, default: None
             Only used if usevlines is False.
 
         marker : string, optional, default: 'o'
@@ -1599,7 +1595,7 @@ class Axes(_AxesBase):
         ----------
 
         x : sequence of scalars of length n
-        
+
         y : sequence of scalars of length n
 
         hold : boolean, optional, default: True
@@ -1613,10 +1609,10 @@ class Axes(_AxesBase):
             lag.
 
         usevlines : boolean, optional, default: True
-            if True, Axes.vlines is used to plot the vertical lines from the origin
-            to the acorr. Otherwise, Axes.plot is used.
+            if True, Axes.vlines is used to plot the vertical lines from the
+            origin to the acorr. Otherwise, Axes.plot is used.
 
-        maxlags : integer, optional, default: 10 
+        maxlags : integer, optional, default: 10
             number of lags to show. If None, will return all 2 * len(x) - 1
             lags.
 
@@ -1632,7 +1628,7 @@ class Axes(_AxesBase):
 
         Other parameters
         -----------------
-        linestyle : `~matplotlib.lines.Line2D` properties, optional, default: None
+        linestyle : `~matplotlib.lines.Line2D` prop, optional, default: None
             Only used if usevlines is False.
 
         marker : string, optional, default: 'o'
