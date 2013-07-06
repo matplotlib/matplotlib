@@ -284,7 +284,20 @@ macosx         Cocoa rendering in OSX windows
 .. _TkInter: http://wiki.python.org/moin/TkInter
 .. _PyQt4: http://www.riverbankcomputing.co.uk/software/pyqt/intro
 
+How do I select PyQt4 or PySide?
+========================================
 
+You can choose either PyQt4 or PySide when using the `qt4` backend by setting
+the appropriate value for `backend.qt4` in your :file:`matplotlibrc` file. The
+default value is `PyQt4`.
+
+The setting in your :file:`matplotlibrc` file can be overridden by setting the
+`QT_API` environment variable to either `pyqt` or `pyside` to use `PyQt4` or
+`PySide`, respectively.
+
+Since the default value for the bindings to be used is `PyQt4`,
+:mod:`matplotlib` first tries to import it, if the import fails, it tries to
+import `PySide`.
 
 .. _interactive-mode:
 
