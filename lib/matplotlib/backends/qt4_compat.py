@@ -31,9 +31,19 @@ else:
 # of file dialog.
 _getSaveFileName = None
 
+# Flag to check if sip could be imported
+_sip_imported = False
+
 # Now perform the imports.
 if QT_API in (QT_API_PYQT, QT_API_PYQTv2):
-    import sip
+    try:
+        import sip
+        _sip_imported = True
+    except ImportError:
+        # Try using PySide
+        QT_API = QT_API_PYSIDE
+
+if _sip_imported:
     if QT_API == QT_API_PYQTv2:
         if QT_API_ENV == 'pyqt':
             cond = ("Found 'QT_API=pyqt' environment variable. "
@@ -76,7 +86,7 @@ if QT_API in (QT_API_PYQT, QT_API_PYQTv2):
         # call to getapi() can fail in older versions of sip
         _getSaveFileName = QtGui.QFileDialog.getSaveFileName
 
-else:  # can only be pyside
+else: # try importing pyside
     from PySide import QtCore, QtGui, __version__, __version_info__
     if __version_info__ < (1, 0, 3):
         raise ImportError(
