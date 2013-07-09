@@ -570,7 +570,7 @@ class Axes(_AxesBase):
         a : `~matplotlib.text.Annotation`
 
 
-        Others parameters
+        Other parameters
         -----------------
 
         %(Annotation)s
