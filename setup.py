@@ -120,6 +120,7 @@ if __name__ == '__main__':
     # These are distutils.setup parameters that the various packages add
     # things to.
     packages = []
+    namespace_packages = []
     py_modules = []
     ext_modules = []
     package_data = {}
@@ -177,6 +178,7 @@ if __name__ == '__main__':
         if isinstance(package, str):
             continue
         packages.extend(package.get_packages())
+        namespace_packages.extend(package.get_namespace_packages())
         py_modules.extend(package.get_py_modules())
         ext = package.get_extension()
         if ext is not None:
@@ -220,6 +222,7 @@ if __name__ == '__main__':
           """,
           license="BSD",
           packages=packages,
+          namespace_packages = namespace_packages,
           platforms='any',
           py_modules=py_modules,
           ext_modules=ext_modules,
