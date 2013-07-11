@@ -1,10 +1,13 @@
 """
 Lines and spans
 """
+import numpy as np
 
 from matplotlib import docstring
 from matplotlib import transforms as mtransforms
 from matplotlib import lines as mlines
+from matplotlib import collections as mcoll
+from matplotlib.cbook import iterable
 
 
 @docstring.dedent_interpd
@@ -81,7 +84,7 @@ def axhline(ax, y=0, xmin=0, xmax=1, **kwargs):
 
 
 def hlines(ax, y, xmin, xmax, colors='k', linestyles='solid',
-            label='', **kwargs):
+           label='', **kwargs):
     """
     Plot horizontal lines at each `y` from `xmin` to `xmax`.
 
@@ -147,7 +150,7 @@ def hlines(ax, y, xmin, xmax, colors='k', linestyles='solid',
         raise ValueError('xmax and y are unequal sized sequences')
 
     verts = [((thisxmin, thisy), (thisxmax, thisy))
-                for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
+             for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
     coll = mcoll.LineCollection(verts, colors=colors,
                                 linestyles=linestyles, label=label)
     ax.add_collection(coll)
