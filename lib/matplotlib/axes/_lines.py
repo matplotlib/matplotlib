@@ -4,7 +4,7 @@ Lines and spans
 
 from matplotlib import docstring
 from matplotlib import transforms as mtransforms
-from matplotlib import line as mlines
+from matplotlib import lines as mlines
 
 
 @docstring.dedent_interpd
@@ -78,3 +78,90 @@ def axhline(ax, y=0, xmin=0, xmax=1, **kwargs):
     ax.add_line(l)
     ax.autoscale_view(scalex=False, scaley=scaley)
     return l
+
+
+def hlines(ax, y, xmin, xmax, colors='k', linestyles='solid',
+            label='', **kwargs):
+    """
+    Plot horizontal lines at each `y` from `xmin` to `xmax`.
+
+    Parameters
+    ----------
+    y : scalar or sequence of scalar
+        y-indexes where to plot the lines.
+
+    xmin, xmax : scalar or 1D array_like
+        Respective beginning and end of each line. If scalars are
+        provided, all lines will have same length.
+
+    colors : array_like of colors, optional, default: 'k'
+
+    linestyles : ['solid' | 'dashed' | 'dashdot' | 'dotted'], optional
+
+    label : string, optional, default: ''
+
+    Returns
+    -------
+    lines : `~matplotlib.collections.LineCollection`
+
+    Other parameters
+    ----------------
+    kwargs :  `~matplotlib.collections.LineCollection` properties.
+
+    See also
+    --------
+    vlines : vertical lines
+
+    Examples
+    --------
+    .. plot:: mpl_examples/pylab_examples/vline_hline_demo.py
+
+    """
+
+    # We do the conversion first since not all unitized data is uniform
+    # process the unit information
+    ax._process_unit_info([xmin, xmax], y, kwargs=kwargs)
+    y = ax.convert_yunits(y)
+    xmin = ax.convert_xunits(xmin)
+    xmax = ax.convert_xunits(xmax)
+
+    if not iterable(y):
+        y = [y]
+    if not iterable(xmin):
+        xmin = [xmin]
+    if not iterable(xmax):
+        xmax = [xmax]
+
+    y = np.asarray(y)
+    xmin = np.asarray(xmin)
+    xmax = np.asarray(xmax)
+
+    if len(xmin) == 1:
+        xmin = np.resize(xmin, y.shape)
+    if len(xmax) == 1:
+        xmax = np.resize(xmax, y.shape)
+
+    if len(xmin) != len(y):
+        raise ValueError('xmin and y are unequal sized sequences')
+    if len(xmax) != len(y):
+        raise ValueError('xmax and y are unequal sized sequences')
+
+    verts = [((thisxmin, thisy), (thisxmax, thisy))
+                for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
+    coll = mcoll.LineCollection(verts, colors=colors,
+                                linestyles=linestyles, label=label)
+    ax.add_collection(coll)
+    coll.update(kwargs)
+
+    if len(y) > 0:
+        minx = min(xmin.min(), xmax.min())
+        maxx = max(xmin.max(), xmax.max())
+        miny = y.min()
+        maxy = y.max()
+
+        corners = (minx, miny), (maxx, maxy)
+
+        ax.update_datalim(corners)
+        ax.autoscale_view()
+
+    return coll
