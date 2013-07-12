@@ -71,7 +71,7 @@ several ways to set line properties
 
 
 * Use the setter methods of the ``Line2D`` instance.  ``plot`` returns a list
-  of lines; eg ``line1, line2 = plot(x1,y1,x2,x2)``.  Below I have only
+  of lines; eg ``line1, line2 = plot(x1,y1,x2,y2)``.  Below I have only
   one line so it is a list of length 1.  I use tuple unpacking in the
   ``line, = plot(x, y, 'o')`` to get the first element of the list::
 
