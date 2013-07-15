@@ -1493,9 +1493,26 @@ class QuadContourSet(ContourSet):
         else:
             raise TypeError("Too many arguments to %s; see help(%s)" %
                             (fn, fn))
+
+        # Check for vmin and vmax values and max out z values accordingly
+        # want zmax and zmin to be able to be outside data range, according to input vmin/vmax
+        if 'vmax' in kwargs:
+            vmax = kwargs['vmax']
+            ind = z > vmax
+            z[ind] = vmax
+            self.zmax = kwargs['vmax']
+        else:  
+            self.zmax = ma.maximum(z)
+        if 'vmin' in kwargs:
+            vmin = kwargs['vmin']
+            ind = z < vmin
+            z[ind] = vmin
+            self.zmin = kwargs['vmin']   
+        else:
+            self.zmin = ma.minimum(z)
+
         z = ma.masked_invalid(z, copy=False)
-        self.zmax = ma.maximum(z)
-        self.zmin = ma.minimum(z)
+
         if self.logscale and self.zmin <= 0:
             z = ma.masked_where(z <= 0, z)
             warnings.warn('Log scale: values of z <= 0 have been masked')
