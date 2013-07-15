@@ -1,3 +1,8 @@
+2013-06-30 Add support for plotting callables via fplot
+           Now one can use fplot and pass a callable to plot.  Plotted
+					 coordinates are dynamically managed based on the bounds of the
+					 current viewport - Damon McDougall
+
 2013-06-26 Refactored the axes module: the axes module is now a folder,
 	   containing the following submodule:
 	      - _subplots.py, containing all the subplots helper methods

@@ -42,6 +42,7 @@ _Plotting commands
   figure   - create or change active figure
   fill     - make filled polygons
   findobj  - recursively find all objects matching some criteria
+  fplot    - a method to plot callables
   gca      - return the current axes
   gcf      - return the current figure
   gci      - get the current image, or None
