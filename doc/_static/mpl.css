@@ -4,7 +4,7 @@
  */
 
 body {
-    font-family: "Raleway", "Helvetica Neue", Helvetica, 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif;
+    font-family: "Helvetica Neue", Helvetica, 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif;
     font-size: 14px;
     letter-spacing: -0.01em;
     line-height: 150%;
@@ -13,7 +13,7 @@ body {
     color: black;
     padding: 0;
     border: 1px solid #aaa;
-
+    color: #333;
     margin: 0px 80px 0px 80px;
     min-width: 740px;
 }
@@ -32,12 +32,17 @@ a:hover {
 }
 
 pre {
-    font-family: 'Consolas', 'Deja Vu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
-    font-size: 0.95em;
+    font-family:  Monaco, Menlo, Consolas, 'Courier New', monospace;
+    font-size: 0.90em;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
     letter-spacing: 0.015em;
-    padding: 0.5em;
+    padding: 1em;
     border: 1px solid #ccc;
     background-color: #f8f8f8;
+    line-height: 140%;
 }
 
 td.linenos pre {
@@ -125,11 +130,7 @@ dd {
 
 dt:target,
 .highlight {
-    background-color: #fbe54e;
-}
-
-dl.class, dl.function {
-    border-top: 2px solid #888;
+    background-color: #ffffee;
 }
 
 dl.method, dl.attribute {
@@ -141,13 +142,9 @@ dl.glossary dt {
     font-size: 1.1em;
 }
 
-pre {
-    line-height: 120%;
-}
-
 pre a {
     color: inherit;
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 .first {
@@ -218,10 +215,6 @@ div.bodywrapper {
     border-right: 1px solid #ccc;
 }
 
-div.body a {
-    text-decoration: underline;
-}
-
 div.sphinxsidebar {
     margin: 0;
     padding: 0.5em 15px 15px 0;
@@ -262,15 +255,16 @@ p.rubric {
 }
 
 h1 {
-    margin: 0;
-    padding: 0.7em 0 0.3em 0;
-    font-size: 1.5em;
+    margin: 0.5em 0em;
+    padding-top: 0.5em;
+    font-size: 2em;
     color: #11557C;
 }
 
 h2 {
-    margin: 1.3em 0 0.2em 0;
-    font-size: 1.35em;
+    margin: 0.5em 0 0.2em 0;
+    padding-top: 0.5em;
+    font-size: 1.7em;
     padding: 0;
 }
 
@@ -359,9 +353,6 @@ div.sphinxsidebar ul.toc ul li {
 
 div.admonition, div.warning {
     font-size: 0.9em;
-    margin: 1em 0 0 0;
-    border: 1px solid #86989B;
-    background-color: #f7f7f7;
 }
 
 div.admonition p, div.warning p {
@@ -376,11 +367,8 @@ div.admonition pre, div.warning pre {
 div.admonition p.admonition-title,
 div.warning p.admonition-title {
     margin: 0;
-    padding: 0.1em 0 0.1em 0.5em;
-    color: white;
-    border-bottom: 1px solid #86989B;
     font-weight: bold;
-    background-color: #AFC1C4;
+    font-size: 14px;
 }
 
 div.warning {
@@ -518,14 +506,6 @@ table.docutils {
     border-left-width: 0px;
 }
 
-table.docutils tr:nth-child(even) {
-    background-color: #F3F3FF;
-}
-
-table.docutils tr:nth-child(odd) {
-    background-color: #FFFFEE;
-}
-
 /* module summary table */
 .longtable.docutils {
     font-size: 12px;
@@ -536,20 +516,6 @@ table.docutils tr:nth-child(odd) {
     border-color: #ccc;
 }
 
-/* function and class description */
-dl.class, dl.function, dl.method, dl.attribute {
-    border-top: 1px solid #ccc;
-    padding-top: 10px;
-}
-.descclassname {
-    color: #aaa;
-    font-weight: normal;
-    font-family: monospace;
-}
-.descname {
-    font-family: monospace;
-}
-
 /* module summary table */
 .longtable.docutils {
     font-size: 12px;
@@ -560,10 +526,6 @@ dl.class, dl.function, dl.method, dl.attribute {
 }
 
 /* function and class description */
-dl.class, dl.function, dl.method, dl.attribute {
-    border-top: 1px solid #ccc;
-    padding-top: 10px;
-}
 .descclassname {
     color: #aaa;
     font-weight: normal;
@@ -589,9 +551,33 @@ dl.class em, dl.function em, dl.class big, dl.function big {
     font-weight: normal;
     font-family: monospace;
 }
+
 dl.class dd, dl.function dd {
     padding: 10px;
 }
+
+/* function and class description */
+dl.class, dl.function, dl.method, dl.attribute {
+    border-top: 1px solid #ccc;
+    padding-top: 6px;
+}
+
+dl.class, dl.function {
+    border-top: 1px solid #888;
+  margin-top: 15px;
+}
+
+
+.descclassname {
+    color: #aaa;
+    font-weight: normal;
+    font-family: monospace;
+}
+.descname {
+    font-family: monospace;
+}
+
+
 .docutils.field-list th {
     background-color: #eee;
     padding: 10px;
