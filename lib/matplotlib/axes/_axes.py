@@ -596,31 +596,40 @@ class Axes(_AxesBase):
         """
         Add a horizontal line across the axis.
 
-        Call signature::
+        Parameters
+        ----------
+        y : scalar, optional, default: 0
+            y position in data coordinates of the horizontal line.
 
-          axhline(y=0, xmin=0, xmax=1, **kwargs)
+        xmin : scalar, optional, default: 0
+            Should be between 0 and 1, 0 being the far left of the plot, 1 the
+            far right of the plot.
 
-        Draw a horizontal line at *y* from *xmin* to *xmax*.  With the
-        default values of *xmin* = 0 and *xmax* = 1, this line will
-        always span the horizontal extent of the axes, regardless of
-        the xlim settings, even if you change them, e.g., with the
-        :meth:`set_xlim` command.  That is, the horizontal extent is
-        in axes coords: 0=left, 0.5=middle, 1.0=right but the *y*
-        location is in data coordinates.
+        xmax : scalar, optional, default: 1
+            Should be between 0 and 1, 0 being the far left of the plot, 1 the
+            far right of the plot.
 
-        Return value is the :class:`~matplotlib.lines.Line2D`
-        instance.  kwargs are the same as kwargs to plot, and can be
+        Returns
+        -------
+        `~matplotlib.lines.Line2D`
+
+        Notes
+        -----
+        kwargs are the same as kwargs to plot, and can be
         used to control the line properties.  e.g.,
 
-        * draw a thick red hline at *y* = 0 that spans the xrange::
+        Examples
+        --------
+
+        * draw a thick red hline at 'y' = 0 that spans the xrange::
 
             >>> axhline(linewidth=4, color='r')
 
-        * draw a default hline at *y* = 1 that spans the xrange::
+        * draw a default hline at 'y' = 1 that spans the xrange::
 
             >>> axhline(y=1)
 
-        * draw a default hline at *y* = .5 that spans the the middle half of
+        * draw a default hline at 'y' = .5 that spans the the middle half of
           the xrange::
 
             >>> axhline(y=.5, xmin=0.25, xmax=0.75)
@@ -630,10 +639,9 @@ class Axes(_AxesBase):
 
         %(Line2D)s
 
-        .. seealso::
-
-            :meth:`axhspan`
-                for example plot and source code
+        See also
+        --------
+        `axhspan` for example plot and source code
         """
 
         if "transform" in kwargs:
@@ -660,22 +668,26 @@ class Axes(_AxesBase):
         """
         Add a vertical line across the axes.
 
-        Call signature::
+        Parameters
+        ----------
+        x : scalar, optional, default: 0
+            y position in data coordinates of the vertical line.
 
-          axvline(x=0, ymin=0, ymax=1, **kwargs)
+        ymin : scalar, optional, default: 0
+            Should be between 0 and 1, 0 being the far left of the plot, 1 the
+            far right of the plot.
 
-        Draw a vertical line at *x* from *ymin* to *ymax*.  With the
-        default values of *ymin* = 0 and *ymax* = 1, this line will
-        always span the vertical extent of the axes, regardless of the
-        ylim settings, even if you change them, e.g., with the
-        :meth:`set_ylim` command.  That is, the vertical extent is in
-        axes coords: 0=bottom, 0.5=middle, 1.0=top but the *x* location
-        is in data coordinates.
+        ymax : scalar, optional, default: 1
+            Should be between 0 and 1, 0 being the far left of the plot, 1 the
+            far right of the plot.
 
-        Return value is the :class:`~matplotlib.lines.Line2D`
-        instance.  kwargs are the same as kwargs to plot, and can be
-        used to control the line properties.  e.g.,
+        Returns
+        -------
+        `~matplotlib.lines.Line2D`
 
+
+        Examples
+        ---------
         * draw a thick red vline at *x* = 0 that spans the yrange::
 
             >>> axvline(linewidth=4, color='r')
@@ -694,10 +706,10 @@ class Axes(_AxesBase):
 
         %(Line2D)s
 
-        .. seealso::
+        See also
+        --------
 
-            :meth:`axhspan`
-                for example plot and source code
+        `axhspan` for example plot and source code
         """
 
         if "transform" in kwargs:
@@ -920,7 +932,7 @@ class Axes(_AxesBase):
 
     @docstring.dedent_interpd
     def vlines(self, x, ymin, ymax, colors='k', linestyles='solid',
-                     label='', **kwargs):
+               label='', **kwargs):
         """
         Plot vertical lines.
 
@@ -2379,7 +2391,7 @@ class Axes(_AxesBase):
             y += expl * math.sin(thetam)
 
             w = mpatches.Wedge((x, y), radius, 360. * theta1, 360. * theta2,
-                      facecolor=colors[i % len(colors)])
+                               facecolor=colors[i % len(colors)])
             slices.append(w)
             self.add_patch(w)
             w.set_label(label)
@@ -2388,9 +2400,10 @@ class Axes(_AxesBase):
                 # make sure to add a shadow after the call to
                 # add_patch so the figure and transform props will be
                 # set
-                shad = mpatches.Shadow(w, -0.02, -0.02,
-                              #props={'facecolor':w.get_facecolor()}
-                              )
+                shad = mpatches.Shadow(
+                    w, -0.02, -0.02,
+                    #props={'facecolor':w.get_facecolor()}
+                    )
                 shad.set_zorder(0.9 * w.get_zorder())
                 shad.set_label('_nolegend_')
                 self.add_patch(shad)
