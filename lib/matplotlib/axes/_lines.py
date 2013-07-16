@@ -382,6 +382,7 @@ def axhspan(ax, ymin, ymax, xmin=0, xmax=1, **kwargs):
     ax.autoscale_view(scalex=False)
     return p
 
+
 def axvspan(ax, xmin, xmax, ymin=0, ymax=1, **kwargs):
     """
     Add a vertical span (rectangle) across the axes.
@@ -436,5 +437,3 @@ def axvspan(ax, xmin, xmax, ymin=0, ymax=1, **kwargs):
     ax.add_patch(p)
     ax.autoscale_view(scaley=False)
     return p
-
-
