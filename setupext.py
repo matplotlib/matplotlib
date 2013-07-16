@@ -361,6 +361,15 @@ class SetupPackage(object):
         """
         return []
 
+    def get_namespace_packages(self):
+        """
+        Get a list of namespace package names to add to the configuration.
+        These are added to the `namespace_packages` list passed to
+        `distutils.setup`.
+        """
+        return []
+
+
     def get_py_modules(self):
         """
         Get a list of top-level modules to add to the configuration.
@@ -574,6 +583,9 @@ class Toolkits(OptionalPackage):
             'mpl_toolkits.axes_grid1',
             'mpl_toolkits.axisartist',
             ]
+
+    def get_namespace_packages(self):
+        return ['mpl_toolkits']
 
 
 class Tests(OptionalPackage):
