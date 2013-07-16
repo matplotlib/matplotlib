@@ -29,7 +29,7 @@ from matplotlib.lines import Line2D, TICKLEFT, TICKRIGHT
 from matplotlib.patches import Rectangle
 from matplotlib.transforms import Affine2D
 
-from cbook import mplDeprecation
+from matplotlb.cbook import mplDeprecation
 
 cachedir = get_cachedir()
 # cachedir will be None if there is no writable directory.
@@ -122,6 +122,7 @@ def parse_yahoo_historical_ochl(fh, adjusted=True, asobject=False):
 
 def parse_yahoo_historical_ohlc(fh, adjusted=True, asobject=False):
     """Parse the historical data in file handle fh from yahoo finance.
+
     Parameters
     ----------
 
@@ -347,7 +348,8 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,
     Fetch historical data for ticker between date1 and date2.  date1 and
     date2 are date or datetime instances, or (year, month, day) sequences.
 
-    Ex:
+    Examples
+
     fh = fetch_historical_yahoo('^GSPC', (2000, 1, 1), (2001, 12, 31))
 
     Parameters
