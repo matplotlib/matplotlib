@@ -5,6 +5,7 @@ import numpy as np
 
 from matplotlib import transforms as mtransforms
 from matplotlib import lines as mlines
+from matplotlib import patches as mpatches
 from matplotlib import collections as mcoll
 from matplotlib.cbook import iterable
 
@@ -239,8 +240,6 @@ def hlines(ax, y, xmin, xmax, colors='k', linestyles='solid',
 def vlines(ax, x, ymin, ymax, colors='k', linestyles='solid',
            label='', **kwargs):
     """
-    Plot vertical lines.
-
     Plot vertical lines at each `x` from `ymin` to `ymax`.
 
     Parameters
