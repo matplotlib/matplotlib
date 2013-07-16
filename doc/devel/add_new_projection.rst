@@ -17,7 +17,7 @@ that handle data in two or more dimensions at a time, are called
 
 From the user's perspective, the scale of a plot can be set with
 :meth:`~matplotlib.axes.Axes.set_xscale` and
-:meth:`~matplotlib.axes.Axes.set_xscale`.  Projections can be chosen
+:meth:`~matplotlib.axes.Axes.set_yscale`.  Projections can be chosen
 using the ``projection`` keyword argument to the
 :func:`~matplotlib.pylab.plot` or :func:`~matplotlib.pylab.subplot`
 functions, e.g.::
