@@ -47,6 +47,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         See :class:`~matplotlib.patches.FancyArrowPatch`.
     *minlength* : float
         Minimum length of streamline in axes coordinates.
+    *zorder* : int
+        any number
 
     Returns:
 
