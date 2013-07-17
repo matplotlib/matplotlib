@@ -718,11 +718,11 @@ def matplotlib_fname():
                 fname == os.path.join(
                     get_home(), '.matplotlib', 'matplotlibrc')):
                 warnings.warn(
-                    "Found matplotlib configuration in ~/.matplotlib. "
+                    "Found matplotlib configuration in ~/.matplotlib/. "
                     "To conform with the XDG base directory standard, "
                     "this configuration location has been deprecated "
-                    "on Linux, and the new location is now %r.  Please "
-                    "move your configuration there to ensure that "
+                    "on Linux, and the new location is now %r/matplotlib/. "
+                    "Please move your configuration there to ensure that "
                     "matplotlib will continue to find it in the future." %
                     _get_xdg_config_dir())
             return fname
