@@ -3213,7 +3213,7 @@ def step(x, y, *args, **kwargs):
 @_autogen_docstring(Axes.streamplot)
 def streamplot(x, y, u, v, density=1, linewidth=None, color=None, cmap=None,
                norm=None, arrowsize=1, arrowstyle='-|>', minlength=0.1,
-               transform=None, hold=None):
+               transform=None, hold=None, zorder=1):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
@@ -3224,7 +3224,8 @@ def streamplot(x, y, u, v, density=1, linewidth=None, color=None, cmap=None,
         ret = ax.streamplot(x, y, u, v, density=density, linewidth=linewidth,
                             color=color, cmap=cmap, norm=norm,
                             arrowsize=arrowsize, arrowstyle=arrowstyle,
-                            minlength=minlength, transform=transform)
+                            minlength=minlength, transform=transform,
+                            zorder=zorder)
         draw_if_interactive()
     finally:
         ax.hold(washold)
