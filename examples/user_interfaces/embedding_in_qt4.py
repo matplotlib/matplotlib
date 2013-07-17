@@ -11,12 +11,12 @@
 
 from __future__ import unicode_literals
 import sys, os, random
-try:
+from matplotlib.backends import qt4_compat
+use_pyside = qt4_compat.QT_API == qt4_compat.QT_API_PYSIDE
+if use_pyside:
     from PySide import QtGui, QtCore
-    usepyside = True
-except ImportError:
+else:
     from PyQt4 import QtGui, QtCore
-    usepyside = False
 
 from numpy import arange, sin, pi
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
@@ -62,7 +62,7 @@ class MyDynamicMplCanvas(MyMplCanvas):
     def __init__(self, *args, **kwargs):
         MyMplCanvas.__init__(self, *args, **kwargs)
         timer = QtCore.QTimer(self)
-        if usepyside: 
+        if use_pyside: 
             timer.timeout.connect(self.update_figure)
         else:
             QtCore.QObject.connect(timer, QtCore.SIGNAL("timeout()"), self.update_figure)
