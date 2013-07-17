@@ -11,7 +11,13 @@ import sys
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 
-from PyQt4 import QtCore, QtGui
+from matplotlib.backends import qt4_compat
+use_pyside = qt4_compat.QT_API == qt4_compat.QT_API_PYSIDE
+
+if use_pyside:
+    from PySide import QtCore, QtGui
+else:
+    from PyQt4 import QtCore, QtGui
 
 ITERS = 1000
 
