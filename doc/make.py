@@ -237,11 +237,18 @@ os.chdir(os.path.dirname(os.path.join(current_dir, __file__)))
 copy_if_out_of_date('../INSTALL', 'users/installing.rst')
 
 # Create the examples symlink, if it doesn't exist
-if not os.path.exists('mpl_examples'):
-    if hasattr(os, 'symlink'):
-        os.symlink('../examples', 'mpl_examples')
-    else:
-        shutil.copytree('../examples', 'mpl_examples')
+
+required_symlinks = [
+    ('mpl_examples', '../examples/'),
+    ('mpl_toolkits/axes_grid/examples', '../../../examples/axes_grid/')
+    ]
+
+for link, target in required_symlinks:
+    if not os.path.exists(link):
+        if hasattr(os, 'symlink'):
+            os.symlink(target, link)
+        else:
+            shutil.copytree(os.path.join(link, '..', target), link)
 
 if len(sys.argv)>1:
     if '--small' in sys.argv[1:]:
