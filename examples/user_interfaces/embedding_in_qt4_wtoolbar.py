@@ -8,8 +8,12 @@ from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg as FigureCanvas,
     NavigationToolbar2QTAgg as NavigationToolbar)
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+try:
+    from PySide.QtCore import *
+    from PySide.QtGui import *
+except ImportError:
+    from PyQt4.QtCore import *
+    from PyQt4.QtGui import *
 
 
 class AppForm(QMainWindow):
