@@ -16,7 +16,7 @@ __all__ = ['streamplot']
 
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
-               minlength=0.1, transform=None):
+               minlength=0.1, transform=None, zorder=1):
     """Draws streamlines of a vector flow.
 
     *x*, *y* : 1d arrays
@@ -97,6 +97,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     else:
         line_kw['linewidth'] = linewidth
         arrow_kw['linewidth'] = linewidth
+
+    line_kw['zorder'] = zorder
+    arrow_kw['zorder'] = zorder
 
     ## Sanity checks.
     assert u.shape == grid.shape
