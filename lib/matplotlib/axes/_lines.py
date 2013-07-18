@@ -328,38 +328,39 @@ def vlines(ax, x, ymin, ymax, colors='k', linestyles='solid',
 
 def axhspan(ax, ymin, ymax, xmin=0, xmax=1, **kwargs):
     """
-    Add a horizontal span (rectangle) across the axis.
+    Draws a horizontal span (rectangle) across the axis.
 
-    Call signature::
+    Parameters
+    ----------
 
-        axhspan(ymin, ymax, xmin=0, xmax=1, **kwargs)
+    ymin, ymax : scalars
+        Coordinates in data units of the horizontal span.
 
-    *y* coords are in data units and *x* coords are in axes (relative
-    0-1) units.
+    xmin, xmax: scalars, optional, default: 0, 1
+        Coordinates in relative axes coordinates. 0 is bottom, 0.5 is the
+        middle and 1 is top. This always spans the xrange, regardless of the
+        xlim settings (even if you change them with the `set_xlim` method).
 
-    Draw a horizontal span (rectangle) from *ymin* to *ymax*.
-    With the default values of *xmin* = 0 and *xmax* = 1, this
-    always spans the xrange, regardless of the xlim settings, even
-    if you change them, e.g., with the :meth:`set_xlim` command.
-    That is, the horizontal extent is in axes coords: 0=left,
-    0.5=middle, 1.0=right but the *y* location is in data
-    coordinates.
+    Returns
+    -------
+    polygon : `~matplotlib.patches.Polygon`
 
-    Return value is a :class:`matplotlib.patches.Polygon`
-    instance.
-
-    Examples:
-
-    * draw a gray rectangle from *y* = 0.25-0.75 that spans the
-        horizontal extent of the axes::
-
-        >>> axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)
-
+    Notes
+    -----
     Valid kwargs are :class:`~matplotlib.patches.Polygon` properties:
 
     %(Polygon)s
 
-    **Example:**
+    Examples
+    --------
+
+    - draws a gray rectangle from `y = 0.25-0.75` that spans the horizontal
+    extent of the axes::
+
+        >>> from matplotlib import pyplot as plt
+        >>> plt.axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)
+
+    - a more complex example:
 
     .. plot:: mpl_examples/pylab_examples/axhspan_demo.py
 
