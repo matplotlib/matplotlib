@@ -385,41 +385,36 @@ def axhspan(ax, ymin, ymax, xmin=0, xmax=1, **kwargs):
 
 def axvspan(ax, xmin, xmax, ymin=0, ymax=1, **kwargs):
     """
-    Add a vertical span (rectangle) across the axes.
+    Draws a vertical span (rectangle) across the axis.
 
-    Call signature::
+    Parameters
+    ----------
 
-        axvspan(xmin, xmax, ymin=0, ymax=1, **kwargs)
+    xmin, xmax : scalars
+        Coordinates in data units of the vertical span.
 
-    *x* coords are in data units and *y* coords are in axes (relative
-    0-1) units.
+    ymin, ymax: scalars, optional, default: 0, 1
+        Coordinates in relative axes coordinates. 0 is bottom, 0.5 is the
+        middle and 1 is top. This always spans the xrange, regardless of the
+        xlim settings (even if you change them with the `set_xlim` method).
 
-    Draw a vertical span (rectangle) from *xmin* to *xmax*.  With
-    the default values of *ymin* = 0 and *ymax* = 1, this always
-    spans the yrange, regardless of the ylim settings, even if you
-    change them, e.g., with the :meth:`set_ylim` command.  That is,
-    the vertical extent is in axes coords: 0=bottom, 0.5=middle,
-    1.0=top but the *y* location is in data coordinates.
+    Returns
+    -------
+    polygon : `~matplotlib.patches.Polygon`
 
-    Return value is the :class:`matplotlib.patches.Polygon`
-    instance.
-
-    Examples:
-
-    * draw a vertical green translucent rectangle from x=1.25 to 1.55 that
-        spans the yrange of the axes::
-
-        >>> axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
-
-    Valid kwargs are :class:`~matplotlib.patches.Polygon`
-    properties:
+    Notes
+    -----
+    Valid kwargs are :class:`~matplotlib.patches.Polygon` properties:
 
     %(Polygon)s
 
-    .. seealso::
+    Examples
+    ---------
+    - draws a vertical green translucent rectangle from x=1.25 to 1.55 that
+      spans the yrange of the axes::
 
-        :meth:`axhspan`
-            for example plot and source code
+        >>> from matplotlib import pyplot as plt
+        >>> plt.axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
     """
     trans = mtransforms.blended_transform_factory(
         ax.transData, ax.transAxes)
