@@ -11,7 +11,7 @@ from matplotlib.cbook import iterable
 from ._base import _AxesBase
 
 
-class LinesAndSpans(_AxesBase):
+class LinesAndSpans(object):
     def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
         """
         Add a horizontal line across the axis.
