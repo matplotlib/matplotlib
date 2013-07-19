@@ -8,7 +8,6 @@ from matplotlib import lines as mlines
 from matplotlib import patches as mpatches
 from matplotlib import collections as mcoll
 from matplotlib.cbook import iterable
-from ._base import _AxesBase
 
 
 class LinesAndSpans(object):
