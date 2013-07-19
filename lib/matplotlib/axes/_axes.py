@@ -641,7 +641,7 @@ class Axes(_AxesBase):
 
         See also
         --------
-        `axhspan` for example plot and source code
+        axhspan : for example plot and source code
         """
 
         if "transform" in kwargs:
@@ -708,8 +708,7 @@ class Axes(_AxesBase):
 
         See also
         --------
-
-        `axhspan` for example plot and source code
+        axhspan : for example plot and source code
         """
 
         if "transform" in kwargs:
