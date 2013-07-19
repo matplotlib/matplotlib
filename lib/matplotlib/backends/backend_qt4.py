@@ -668,7 +668,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
 
     def configure_subplots(self):
         image = os.path.join(matplotlib.rcParams['datapath'],
-                             'images','matplotlib.png')
+                             'images', 'matplotlib.png')
         dia = SubplotToolQt(self.canvas.figure, self.parent)
         dia.setWindowIcon(QtGui.QIcon(image))
         dia.exec_()
@@ -792,7 +792,7 @@ class SubplotToolQt(SubplotTool, UiSubplotTool):
     def funcleft(self, val):
         if val == self.sliderright.value():
             val -= 1
-        val /= 1000
+        val /= 1000.
         self.targetfig.subplots_adjust(left=val)
         self.leftvalue.setText("%.2f" %val)
         if self.drawon:
@@ -819,7 +819,7 @@ class SubplotToolQt(SubplotTool, UiSubplotTool):
     def functop(self, val):
         if val == self.sliderbottom.value():
             val += 1
-        val /= 1000.0
+        val /= 1000.
         self.targetfig.subplots_adjust(top=val)
         self.topvalue.setText("%.2f" %val)
         if self.drawon:
