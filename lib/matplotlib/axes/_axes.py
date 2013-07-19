@@ -43,7 +43,7 @@ is_sequence_of_strings = cbook.is_sequence_of_strings
 # The axes module contains all the wrappers to plotting functions.
 # All the other methods should go in the _AxesBase class.
 
-class Axes(_AxesBase):
+class Axes(_AxesBase, _lines.LinesAndSpans):
     """
     The :class:`Axes` contains most of the figure elements:
     :class:`~matplotlib.axis.Axis`, :class:`~matplotlib.axis.Tick`,
@@ -57,6 +57,7 @@ class Axes(_AxesBase):
     'ylim_changed' and the callback will be called with func(*ax*)
     where *ax* is the :class:`Axes` instance.
     """
+
     ### Labelling, legend and texts
 
     def get_title(self, loc="center"):
@@ -589,35 +590,6 @@ class Axes(_AxesBase):
         self.texts.append(a)
         a._remove_method = lambda h: self.texts.remove(h)
         return a
-
-    #### Lines and spans
-
-    def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
-        return _lines.axhline(self, y=0, xmin=0, xmax=1, **kwargs)
-    axhline.__doc__ = _lines.axhline.__doc__
-
-    def axvline(self, x=0, ymin=0, ymax=1, **kwargs):
-        return _lines.axvline(self, x=0, ymin=0, ymax=1, **kwargs)
-    axvline.__doc__ = _lines.axvline.__doc__
-
-    def axhspan(self, ymin, ymax, xmin=0, xmax=1, **kwargs):
-        return _lines.axhspan(self, ymin, ymax, xmin=0, xmax=1, **kwargs)
-    axhspan.__doc__ = _lines.axhspan.__doc__
-
-    def axvspan(self, xmin, xmax, ymin=0, ymax=1, **kwargs):
-        return _lines.axvspan(self, xmin, xmax, ymin=0, ymax=1, **kwargs)
-    axvspan.__doc__ = _lines.axvspan.__doc__
-
-    def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
-               label='', **kwargs):
-        return _lines.hlines(self, y, xmin, xmax, colors='k',
-                             linestyles='solid', label='', **kwargs)
-    hlines.__doc__ = _lines.hlines.__doc__
- 
-    def vlines(self, x, ymin, ymax, colors='k', linestyles='solid',
-               label='', **kwargs):
-        return _lines.vlines.__doc__
-    vlines.__doc__ = _lines.vlines.__doc__
 
     @docstring.dedent_interpd
     def eventplot(self, positions, orientation='horizontal', lineoffsets=1,
