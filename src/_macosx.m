@@ -5824,25 +5824,6 @@ Timer_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
     return (PyObject*) self;
 }
 
-static void
-Timer_dealloc(Timer* self)
-{
-    if (self->timer) {
-        PyObject* attribute;
-        CFRunLoopTimerContext context;
-        CFRunLoopTimerGetContext(self->timer, &context);
-        attribute = context.info;
-        Py_DECREF(attribute);
-        CFRunLoopRef runloop = CFRunLoopGetCurrent();
-        if (runloop) {
-            CFRunLoopRemoveTimer(runloop, self->timer, kCFRunLoopCommonModes);
-        }
-        CFRelease(self->timer);
-        self->timer = NULL;
-    }
-    Py_TYPE(self)->tp_free((PyObject*)self);
-}
-
 static PyObject*
 Timer_repr(Timer* self)
 {
@@ -5953,11 +5934,43 @@ Timer__timer_start(Timer* self, PyObject* args)
     return Py_None;
 }
 
+static PyObject*
+Timer__timer_stop(Timer* self)
+{
+    if (self->timer) {
+        PyObject* attribute;
+        CFRunLoopTimerContext context;
+        CFRunLoopTimerGetContext(self->timer, &context);
+        attribute = context.info;
+        Py_DECREF(attribute);
+        CFRunLoopRef runloop = CFRunLoopGetCurrent();
+        if (runloop) {
+            CFRunLoopRemoveTimer(runloop, self->timer, kCFRunLoopCommonModes);
+        }
+        CFRelease(self->timer);
+        self->timer = NULL;
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static void
+Timer_dealloc(Timer* self)
+{
+    Timer__timer_stop(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
 static PyMethodDef Timer_methods[] = {
     {"_timer_start",
      (PyCFunction)Timer__timer_start,
      METH_VARARGS,
      "Initialize and start the timer."
+    },
+    {"_timer_stop",
+     (PyCFunction)Timer__timer_stop,
+     METH_NOARGS,
+     "Stop the timer."
     },
     {NULL}  /* Sentinel */
 };
