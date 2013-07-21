@@ -12,7 +12,6 @@ import os
 import re
 
 import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 
@@ -47,13 +46,13 @@ def use(name):
     for style in name:
         if is_style_file(style):
             settings = mpl.rc_params_in_file(style)
-            plt.rcParams.update(settings)
+            mpl.rcParams.update(settings)
         elif style not in library:
             msg = ("'%s' not found in the style library. "
                    "See `style.available` for list of available styles.")
             raise ValueError(msg % style)
         else:
-            plt.rcParams.update(library[style])
+            mpl.rcParams.update(library[style])
 
 
 def load_base_library():
