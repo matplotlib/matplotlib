@@ -80,7 +80,7 @@ def parse_yahoo_historical_ochl(fh, adjusted=True, asobject=False):
     Parameters
     ----------
 
-    adjusted : `bool`
+    adjusted : bool
       If True (default) replace open, close, high, low prices with
       their adjusted values. The adjustment is by a scale factor, S =
       adjusted_close/close. Adjusted prices are actual prices
@@ -92,7 +92,7 @@ def parse_yahoo_historical_ochl(fh, adjusted=True, asobject=False):
       = True|False.
 
 
-    asobject : `bool` or :class:`None`
+    asobject : bool or None
       If False (default for compatibility with earlier versions)
       return a list of tuples containing
 
@@ -126,7 +126,7 @@ def parse_yahoo_historical_ohlc(fh, adjusted=True, asobject=False):
     Parameters
     ----------
 
-    adjusted : `bool`
+    adjusted : bool
       If True (default) replace open, high, low, close prices with
       their adjusted values. The adjustment is by a scale factor, S =
       adjusted_close/close. Adjusted prices are actual prices
@@ -138,7 +138,7 @@ def parse_yahoo_historical_ohlc(fh, adjusted=True, asobject=False):
       = True|False.
 
 
-    asobject : `bool` or :class:`None`
+    asobject : bool or None
       If False (default for compatibility with earlier versions)
       return a list of tuples containing
 
@@ -178,7 +178,7 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
     Parameters
     ----------
 
-    adjusted : `bool`
+    adjusted : bool
       If True (default) replace open, close, high, low prices with
       their adjusted values. The adjustment is by a scale factor, S =
       adjusted_close/close. Adjusted prices are actual prices
@@ -190,7 +190,7 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
       = True|False.
 
 
-    asobject : `bool` or :class:`None`
+    asobject : bool or None
       If False (default for compatibility with earlier versions)
       return a list of tuples containing
 
@@ -213,7 +213,7 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
       holding 1-D ndarrays.  The behavior of a numpy recarray is
       very similar to the Bunch.
 
-    ochl : `bool`
+    ochl : bool
         Temporary argument to select between ochl and ohlc ordering.
         Defaults to True to preserve original functionality.
 
@@ -234,7 +234,7 @@ def _parse_yahoo_historical(fh, adjusted=True, asobject=False,
     Parameters
     ----------
 
-    adjusted : `bool`
+    adjusted : bool
       If True (default) replace open, high, low, close prices with
       their adjusted values. The adjustment is by a scale factor, S =
       adjusted_close/close. Adjusted prices are actual prices
@@ -246,7 +246,7 @@ def _parse_yahoo_historical(fh, adjusted=True, asobject=False,
       = True|False.
 
 
-    asobject : `bool` or :class:`None`
+    asobject : bool or None
       If False (default for compatibility with earlier versions)
       return a list of tuples containing
 
@@ -275,7 +275,7 @@ def _parse_yahoo_historical(fh, adjusted=True, asobject=False,
       holding 1-D ndarrays.  The behavior of a numpy recarray is
       very similar to the Bunch.
 
-    ochl : `bool`
+    ochl : bool
         Selects between ochl and ohlc ordering.
         Defaults to True to preserve original functionality.
 
@@ -367,7 +367,7 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,
         default to the md5 hash or the url (which incorporates the ticker
         and date range)
 
-    dividends : `bool`
+    dividends : bool
         set dividends=True to return dividends instead of price data.  With
         this option set, parse functions will not work
 
