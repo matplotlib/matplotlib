@@ -23,7 +23,7 @@ _here = os.path.abspath(os.path.dirname(__file__))
 BASE_LIBRARY_PATH = os.path.join(_here, 'stylelib')
 # Users may want multiple library paths, so store a list of paths.
 USER_LIBRARY_PATHS = [os.path.join('~', '.matplotlib', 'stylelib')]
-STYLE_FILE_PATTERN = re.compile('([A-Za-z._-]+).mplrc$')
+STYLE_FILE_PATTERN = re.compile('([A-Za-z._-]+).style$')
 
 
 def use(name):
