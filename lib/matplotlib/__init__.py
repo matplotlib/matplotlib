@@ -878,9 +878,14 @@ def rc_params(fail_on_error=False):
     return rc_params_from_file(fname, fail_on_error)
 
 
-def rc_params_from_file(fname, fail_on_error=False):
-    """Return a :class:`matplotlib.RcParams` instance from the
-    contents of the given filename.
+_error_details_fmt = 'line #%d\n\t"%s"\n\tin file "%s"'
+
+
+def rc_params_in_file(fname, fail_on_error=False):
+    """Return :class:`matplotlib.RcParams` from the contents of the given file.
+
+    Unlike `rc_params_from_file`, the configuration class only contains the
+    parameters specified in the file (i.e. default values are not filled in).
     """
     cnt = 0
     rc_temp = {}
@@ -891,8 +896,8 @@ def rc_params_from_file(fname, fail_on_error=False):
             if not strippedline: continue
             tup = strippedline.split(':', 1)
             if len(tup) != 2:
-                warnings.warn('Illegal line #%d\n\t%s\n\tin file "%s"' % \
-                              (cnt, line, fname))
+                error_details = _error_details_fmt % (cnt, line, fname)
+                warnings.warn('Illegal %s' % error_details)
                 continue
             key, val = tup
             key = key.strip()
@@ -902,34 +907,35 @@ def rc_params_from_file(fname, fail_on_error=False):
                               (fname, cnt))
             rc_temp[key] = (val, line, cnt)
 
-    ret = RcParams([(key, default) for key, (default, _) in \
-                    six.iteritems(defaultParams)])
+    config = RcParams()
 
     for key in ('verbose.level', 'verbose.fileo'):
         if key in rc_temp:
             val, line, cnt = rc_temp.pop(key)
             if fail_on_error:
-                ret[key] = val # try to convert to proper type or raise
+                config[key] = val # try to convert to proper type or raise
             else:
-                try: ret[key] = val # try to convert to proper type or skip
+                try:
+                    config[key] = val # try to convert to proper type or skip
                 except Exception as msg:
-                    warnings.warn('Bad val "%s" on line #%d\n\t"%s"\n\tin file \
-"%s"\n\t%s' % (val, cnt, line, fname, msg))
-
-    verbose.set_level(ret['verbose.level'])
-    verbose.set_fileo(ret['verbose.fileo'])
+                    error_details = _error_details_fmt % (cnt, line, fname)
+                    warnings.warn('Bad val "%s" on %s\n\t%s' %
+                                  (val, error_details, msg))
 
     for key, (val, line, cnt) in six.iteritems(rc_temp):
         if key in defaultParams:
             if fail_on_error:
-                ret[key] = val # try to convert to proper type or raise
+                config[key] = val # try to convert to proper type or raise
             else:
-                try: ret[key] = val # try to convert to proper type or skip
+                try:
+                    config[key] = val # try to convert to proper type or skip
                 except Exception as msg:
-                    warnings.warn('Bad val "%s" on line #%d\n\t"%s"\n\tin file \
-"%s"\n\t%s' % (val, cnt, line, fname, msg))
+                    error_details = _error_details_fmt % (cnt, line, fname)
+                    warnings.warn('Bad val "%s" on %s\n\t%s' %
+                                  (val, error_details, msg))
         elif key in _deprecated_ignore_map:
-            warnings.warn('%s is deprecated. Update your matplotlibrc to use %s instead.'% (key, _deprecated_ignore_map[key]))
+            warnings.warn('%s is deprecated. Update your matplotlibrc to use '
+                          '%s instead.'% (key, _deprecated_ignore_map[key]))
 
         else:
             print("""
@@ -939,21 +945,45 @@ You probably need to get an updated matplotlibrc file from
 http://matplotlib.sf.net/_static/matplotlibrc or from the matplotlib source
 distribution""" % (key, cnt, fname), file=sys.stderr)
 
-    if ret['datapath'] is None:
-        ret['datapath'] = get_data_path()
+    return config
 
-    if not ret['text.latex.preamble'] == ['']:
+
+
+
+def rc_params_from_file(fname, fail_on_error=False):
+    """Return :class:`matplotlib.RcParams` from the contents of the given file.
+
+    Parameters
+    ----------
+    fname : str
+        Name of file parsed for matplotlib settings.
+    fail_on_error : bool
+        If True, raise an error when the parser fails to convert a parameter.
+    """
+
+    config = RcParams([(key, default)
+                       for key, (default, _) in six.iteritems(defaultParams)])
+
+    config.update(rc_params_in_file(fname, fail_on_error))
+
+    verbose.set_level(config['verbose.level'])
+    verbose.set_fileo(config['verbose.fileo'])
+
+    if config['datapath'] is None:
+        config['datapath'] = get_data_path()
+
+    if not config['text.latex.preamble'] == ['']:
         verbose.report("""
 *****************************************************************
 You have the following UNSUPPORTED LaTeX preamble customizations:
 %s
 Please do not ask for support with these customizations active.
 *****************************************************************
-"""% '\n'.join(ret['text.latex.preamble']), 'helpful')
+"""% '\n'.join(config['text.latex.preamble']), 'helpful')
 
     verbose.report('loaded rc file %s'%fname)
 
-    return ret
+    return config
 
 
 # this is the instance used by the matplotlib classes
