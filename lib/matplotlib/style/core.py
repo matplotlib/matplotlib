@@ -77,7 +77,7 @@ def read_style_directory(style_dir):
     """Return dictionary of styles defined in `style_dir`."""
     styles = dict()
     for path, name in iter_style_files(style_dir):
-        styles[name] = mpl.rc_params_from_file(path)
+        styles[name] = mpl.rc_params_in_file(path)
     return styles
 
 
