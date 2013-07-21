@@ -23,7 +23,12 @@ _here = os.path.abspath(os.path.dirname(__file__))
 BASE_LIBRARY_PATH = os.path.join(_here, 'stylelib')
 # Users may want multiple library paths, so store a list of paths.
 USER_LIBRARY_PATHS = [os.path.join('~', '.matplotlib', 'stylelib')]
-STYLE_FILE_PATTERN = re.compile('([A-Za-z._-]+).style$')
+STYLE_FILE_PATTERN = re.compile('([\S]+).style$')
+
+
+def is_style_file(filename):
+    """Return True if the filename looks like a style file."""
+    return STYLE_FILE_PATTERN.match(filename) is not None
 
 
 def use(name):
@@ -32,13 +37,23 @@ def use(name):
     Parameters
     ----------
     name : str or list of str
-        Name of style. For list of available styles see `style.available`.
-        If given a list, each style is applied from first to last in the list.
+        Name of style or path/URL to a style file. For a list of available
+        style names, see `style.available`. If given a list, each style is
+        applied from first to last in the list.
     """
     if np.isscalar(name):
         name = [name]
-    for s in name:
-        plt.rcParams.update(library[s])
+
+    for style in name:
+        if is_style_file(style):
+            settings = mpl.rc_params_in_file(style)
+            plt.rcParams.update(settings)
+        elif style not in library:
+            msg = ("'%s' not found in the style library. "
+                   "See `style.available` for list of available styles.")
+            raise ValueError(msg % style)
+        else:
+            plt.rcParams.update(library[style])
 
 
 def load_base_library():
@@ -67,8 +82,8 @@ def iter_style_files(style_dir):
     """Yield file path and name of styles in the given directory."""
     for path in os.listdir(style_dir):
         filename = os.path.basename(path)
-        match = STYLE_FILE_PATTERN.match(filename)
-        if match:
+        if is_style_file(filename):
+            match = STYLE_FILE_PATTERN.match(filename)
             path = os.path.abspath(os.path.join(style_dir, path))
             yield path, match.groups()[0]
 
@@ -91,8 +106,6 @@ def update_nested_dict(main_dict, new_dict):
     # update named styles specified by user
     for name, rc_dict in new_dict.iteritems():
         if name in main_dict:
-            # FIXME: This is currently broken because rc_params_from_file fills
-            # in all settings so the update overwrites all values.
             main_dict[name].update(rc_dict)
         else:
             main_dict[name] = rc_dict

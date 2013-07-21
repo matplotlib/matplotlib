@@ -155,7 +155,16 @@ else:
             return self
         pyparsing.Forward.__ilshift__ = _forward_ilshift
 
-import os, re, shutil, warnings
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
+
+import os
+import re
+import tempfile
+import warnings
+import contextlib
 import distutils.sysconfig
 
 # cbook must import matplotlib only within function
@@ -174,11 +183,8 @@ if not hasattr(sys, 'argv'):  # for modpython
     sys.argv = ['modpython']
 
 
-import sys, os, tempfile
-
 from matplotlib.rcsetup import (defaultParams,
-                                validate_backend,
-                                validate_toolbar)
+                                validate_backend)
 
 major, minor1, minor2, s, tmp = sys.version_info
 _python24 = (major == 2 and minor1 >= 4) or major >= 3
@@ -878,6 +884,25 @@ def rc_params(fail_on_error=False):
     return rc_params_from_file(fname, fail_on_error)
 
 
+URL_REGEX = re.compile(r'http://|https://|ftp://|file://|file:\\')
+
+
+def is_url(filename):
+    """Return True if string is an http or ftp path."""
+    return URL_REGEX.match(filename) is not None
+
+
+@contextlib.contextmanager
+def _open_file_or_url(fname):
+    if is_url(fname):
+        f = urlopen(fname)
+        yield f
+        f.close()
+    else:
+        with open(fname) as f:
+            yield f
+
+
 _error_details_fmt = 'line #%d\n\t"%s"\n\tin file "%s"'
 
 
@@ -889,7 +914,7 @@ def rc_params_in_file(fname, fail_on_error=False):
     """
     cnt = 0
     rc_temp = {}
-    with open(fname) as fd:
+    with _open_file_or_url(fname) as fd:
         for line in fd:
             cnt += 1
             strippedline = line.split('#', 1)[0].strip()
