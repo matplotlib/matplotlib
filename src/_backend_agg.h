@@ -264,7 +264,7 @@ protected:
      const Py::Object&              clippath,
      const agg::trans_affine&       clippath_trans,
      const PathGenerator&           path_generator,
-     const Py::SeqBase<Py::Object>& transforms_obj,
+     const Py::Object&              transforms_obj,
      const Py::Object&              offsets_obj,
      const agg::trans_affine&       offset_trans,
      const Py::Object&              facecolors_obj,
