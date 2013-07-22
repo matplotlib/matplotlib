@@ -1724,8 +1724,8 @@ class QuadMesh(Collection):
 
         if self.have_units():
             if len(self._offsets):
-                xs = self.convert_xunits(self._offsets[:0])
-                ys = self.convert_yunits(self._offsets[:1])
+                xs = self.convert_xunits(self._offsets[:, 0])
+                ys = self.convert_yunits(self._offsets[:, 1])
                 offsets = zip(xs, ys)
 
         offsets = np.asarray(offsets, np.float_)
