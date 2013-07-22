@@ -1313,7 +1313,8 @@ def pil_to_array(pilImage):
     is MxNx3.  For RGBA images the return value is MxNx4
     """
     def toarray(im, dtype=np.uint8):
-        """Teturn a 1D array of dtype."""
+        """Return a 1D array of dtype."""
+        # Pillow wants us to use "tobytes"
         if hasattr(im, 'tobytes'):
             x_str = im.tobytes('raw', im.mode)
         else:
