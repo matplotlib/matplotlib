@@ -5006,7 +5006,7 @@ class Axes(_AxesBase):
     def hist(self, x, bins=10, range=None, normed=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
-             color=None, label=None, stacked=False,
+             color=None, label=None, stacked=False, errorbar=False,
              **kwargs):
         """
         Plot a histogram.
@@ -5082,6 +5082,8 @@ class Axes(_AxesBase):
             - 'stepfilled' generates a lineplot that is by default
               filled.
 
+            - 'points' is a scatterplot.
+
         align : ['left' | 'mid' | 'right'], optional, default: 'mid'
             Controls how the histogram is plotted.
 
@@ -5118,6 +5120,14 @@ class Axes(_AxesBase):
             If `True`, multiple data are stacked on top of each other If
             `False` multiple data are aranged side by side if histtype is
             'bar' or on top of each other if histtype is 'step'
+
+        errorbar: ['gaussian' | False] string, optional, default: False
+            If 'gaussian', calculate square-root N uncertainties on 
+            each bin height and plot them. If input is weighted, the
+            uncertainties are given by the square-root of the sum of
+            the squared weights in each bin. Currently only works for the
+            'points' histtype. Does nothing with other histtypes.
+
 
         Returns
         -------
@@ -5156,7 +5166,8 @@ class Axes(_AxesBase):
 
         # Validate string inputs here so we don't have to clutter
         # subsequent code.
-        if histtype not in ['bar', 'barstacked', 'step', 'stepfilled']:
+        if histtype not in ['bar', 'barstacked', 'step', 'stepfilled',
+                            'points']:
             raise ValueError("histtype %s is not recognized" % histtype)
 
         if align not in ['left', 'mid', 'right']:
@@ -5218,7 +5229,8 @@ class Axes(_AxesBase):
                     raise ValueError(
                         'weights should have the same shape as x')
         else:
-            w = [None]*nx
+            # set all the weights to one
+            w = [np.ones(len(xi)) for xi in x]
 
         # Save the datalimits for the same reason:
         _saved_bounds = self.dataLim.bounds
@@ -5244,23 +5256,40 @@ class Axes(_AxesBase):
         hist_kwargs = dict(range=bin_range)
 
         n = []
+        errs = []
         mlast = None
+        elast = None
         for i in xrange(nx):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
-            m = m.astype(float)  # causes problems later if it's an int
+
+            if errorbar == "gaussian":
+                sumw2, _ = np.histogram(x[i], bins, weights=w[i]**2,
+                                        **hist_kwargs)
+                e = np.sqrt(sumw2)
+            else:
+                e = np.zeros(len(bins)-1, m.dtype)
+
+            m = m.astype(float) # causes problems later if it's an int
+
             if mlast is None:
                 mlast = np.zeros(len(bins)-1, m.dtype)
+            if elast is None:
+                elast = np.zeros(len(bins)-1, m.dtype)
             if normed and not stacked:
                 db = np.diff(bins)
                 m = (m.astype(float) / db) / m.sum()
+                e = (e.astype(float) / db) / m.sum()
             if stacked:
                 if mlast is None:
                     mlast = np.zeros(len(bins)-1, m.dtype)
                 m += mlast
                 mlast[:] = m
+                e = np.sqrt(elast**2+e**2)
+                elast[:] = e
             n.append(m)
+            errs.append(e)
 
         if stacked and normed:
             db = np.diff(bins)
@@ -5443,6 +5472,27 @@ class Axes(_AxesBase):
                 ymin = min(ymin0, ymin)
                 self.dataLim.intervaly = (ymin, ymax)
 
+        elif histtype == 'points':
+            if align == "left":
+                x = bins[:-1]
+            elif align == "mid":
+                x = bins[:-1]+bins[1:]/2
+            elif align == "right":
+                x = bins[1:]
+            for m, e, c in zip(n, errs, color):
+                y = m
+                xerr, yerr = None, e
+                if orientation == "horizontal":
+                    x, y = y, x.copy()
+                    xerr, yerr = yerr, xerr
+                if not errorbar:
+                    patches.append(self.scatter(x, y, c=c, **kwargs))
+                else:
+                    # if user didn't specify fmt, set it for them
+                    if "fmt" not in kwargs.keys():
+                        kwargs['fmt'] = "."
+                    patches.append(self.errorbar(x, y, yerr, xerr, **kwargs))
+
         if label is None:
             labels = [None]
         elif is_string_like(label):
@@ -5457,17 +5507,18 @@ class Axes(_AxesBase):
             labels += [None] * (nx - len(labels))
 
         for (patch, lbl) in zip(patches, labels):
-            if patch:
-                p = patch[0]
-                p.update(kwargs)
-                if lbl is not None:
-                    p.set_label(lbl)
-
-                p.set_snap(False)
-
-                for p in patch[1:]:
+            if histtype != "points":
+                if patch:
+                    p = patch[0]
                     p.update(kwargs)
-                    p.set_label('_nolegend_')
+                    if lbl is not None:
+                        p.set_label(lbl)
+
+                    p.set_snap(False)
+
+                    for p in patch[1:]:
+                        p.update(kwargs)
+                        p.set_label('_nolegend_')
 
         if binsgiven:
             if orientation == 'vertical':

@@ -1178,6 +1178,52 @@ def test_stem_args():
     ax.stem(x, y, 'r--')
     ax.stem(x, y, 'r--', basefmt='b--')
 
+@image_comparison(baseline_images=['hist_points'], extensions=['png'], remove_text=True)
+def test_hist_points():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="points")
+
+@image_comparison(baseline_images=['hist_points_stacked'], extensions=['png'], remove_text=True)
+def test_hist_points_stacked():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="points", stacked=True)
+
+@image_comparison(baseline_images=['hist_points_errorbar'], extensions=['png'], remove_text=True)
+def test_hist_points_errorbar():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="points", errorbar="gaussian")
+
+@image_comparison(baseline_images=['hist_points_errorbar_stacked'], extensions=['png'], remove_text=True)
+def test_hist_points_errorbar_stacked():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="points", stacked=True, errorbar="gaussian")
+
+@image_comparison(baseline_images=['hist_points_styled'], extensions=['png'], remove_text=True)
+def test_hist_points_styled():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="points", s=5, linewidth=0, alpha=0.5)
+
+
 @image_comparison(baseline_images=['hist_stacked_stepfilled_alpha'])
 def test_hist_stacked_stepfilled_alpha():
     # make some data
