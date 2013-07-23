@@ -4509,10 +4509,16 @@ class Axes(_AxesBase):
         X, Y, C = self._pcolorargs('pcolor', *args, allmatch=False)
         Ny, Nx = X.shape
 
+        # unit conversion allows e.g. datetime objects as axis values
+        self._process_unit_info(xdata=X, ydata=Y, kwargs=kwargs)
+        X = self.convert_xunits(X)
+        Y = self.convert_yunits(Y)
+
         # convert to MA, if necessary.
         C = ma.asarray(C)
         X = ma.asarray(X)
         Y = ma.asarray(Y)
+
         mask = ma.getmaskarray(X) + ma.getmaskarray(Y)
         xymask = (mask[0:-1, 0:-1] + mask[1:, 1:] +
                   mask[0:-1, 1:] + mask[1:, 0:-1])
@@ -4704,6 +4710,11 @@ class Axes(_AxesBase):
         C = C.ravel()
         X = X.ravel()
         Y = Y.ravel()
+
+        # unit conversion allows e.g. datetime objects as axis values
+        self._process_unit_info(xdata=X, ydata=Y, kwargs=kwargs)
+        X = self.convert_xunits(X)
+        Y = self.convert_yunits(Y)
 
         coords = np.zeros(((Nx * Ny), 2), dtype=float)
         coords[:, 0] = X
