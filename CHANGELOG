@@ -1,3 +1,12 @@
+2013-07-12 Added support for datetime axes to 2d plots. Axis values are passed
+           through Axes.convert_xunits/Axes.convert_yunits before being used by
+           contour/contourf, pcolormesh and pcolor.
+
+2013-07-12 Allowed matplotlib.dates.date2num, matplotlib.dates.num2date,
+           and matplotlib.dates.datestr2num to accept n-d inputs. Also
+           factored in support for n-d arrays to matplotlib.dates.DateConverter
+           and matplotlib.units.Registry.
+
 2013-06-26 Refactored the axes module: the axes module is now a folder,
 	   containing the following submodule:
 	      - _subplots.py, containing all the subplots helper methods
