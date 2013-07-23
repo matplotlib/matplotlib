@@ -3,6 +3,8 @@ Core functions and attributes for the matplotlib style library:
 
 ``use``
     Select style sheet to override the current matplotlib settings.
+``context``
+    Context manager to use a style sheet temporarily.
 ``available``
     List available style sheets.
 ``library``
@@ -10,19 +12,21 @@ Core functions and attributes for the matplotlib style library:
 """
 import os
 import re
+import contextlib
 
 import numpy as np
 import matplotlib as mpl
 
 
-__all__ = ['use', 'available', 'library']
+__all__ = ['use', 'context', 'available', 'library', 'reload_library']
 
 
 _here = os.path.abspath(os.path.dirname(__file__))
 BASE_LIBRARY_PATH = os.path.join(_here, 'stylelib')
 # Users may want multiple library paths, so store a list of paths.
 USER_LIBRARY_PATHS = [os.path.join('~', '.matplotlib', 'stylelib')]
-STYLE_FILE_PATTERN = re.compile('([\S]+).style$')
+STYLE_EXTENSION = 'style'
+STYLE_FILE_PATTERN = re.compile('([\S]+).%s$' % STYLE_EXTENSION)
 
 
 def is_style_file(filename):
@@ -31,7 +35,7 @@ def is_style_file(filename):
 
 
 def use(name):
-    """Use matplotlib rc parameters from a pre-defined name or from a file.
+    """Use matplotlib style settings from a known style sheet or from a file.
 
     Parameters
     ----------
@@ -53,6 +57,28 @@ def use(name):
             raise ValueError(msg % style)
         else:
             mpl.rcParams.update(library[style])
+
+
+@contextlib.contextmanager
+def context(name, after_reset=False):
+    """Context manager for using style settings temporarily.
+
+    Parameters
+    ----------
+    name : str or list of str
+        Name of style or path/URL to a style file. For a list of available
+        style names, see `style.available`. If given a list, each style is
+        applied from first to last in the list.
+    after_reset : bool
+        If True, apply style after resetting settings to their defaults;
+        otherwise, apply style on top of the current settings.
+    """
+    initial_settings = mpl.rcParams.copy()
+    if after_reset:
+        mpl.rcdefaults()
+    use(name)
+    yield
+    mpl.rcParams.update(initial_settings)
 
 
 def load_base_library():
@@ -114,5 +140,13 @@ def update_nested_dict(main_dict, new_dict):
 # Load style library
 # ==================
 _base_library = load_base_library()
-library = update_user_library(_base_library)
-available = library.keys()
+
+library = None
+available = []
+
+def reload_library():
+    """Reload style library."""
+    global library, available
+    library = update_user_library(_base_library)
+    available[:] = library.keys()
+reload_library()
