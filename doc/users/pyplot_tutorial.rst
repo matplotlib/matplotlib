@@ -104,25 +104,25 @@ clip_on			[True | False]
 clip_path		a Path instance and a Transform instance, a Patch
 color or c		any matplotlib color
 contains		the hit testing function
-dash_capstyle		['butt' | 'round' | 'projecting']
-dash_joinstyle		['miter' | 'round' | 'bevel']
+dash_capstyle		[``'butt'`` | ``'round'`` | ``'projecting'``]
+dash_joinstyle		[``'miter'`` | ``'round'`` | ``'bevel'``]
 dashes			sequence of on/off ink in points
 data			(np.array xdata, np.array ydata)
 figure			a matplotlib.figure.Figure instance
 label			any string
-linestyle or ls		[ ``-`` | ``--`` | ``-.`` | ``:`` | ``steps`` | ...]
+linestyle or ls		[ ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'steps'`` | ...]
 linewidth or lw		float value in points
 lod			[True | False]
-marker			[ '+' | ',' | '.' | '1' | '2' | '3' | '4' ]
+marker			[ ``'+'`` | ``','`` | ``'.'`` | ``'1'`` | ``'2'`` | ``'3'`` | ``'4'`` ]
 markeredgecolor or mec	any matplotlib color
 markeredgewidth or mew	float value in points
 markerfacecolor or mfc	any matplotlib color
 markersize or ms	float
-markevery               None | integer | (startind, stride)
+markevery               [ None | integer | (startind, stride) ]
 picker			used in interactive line selection
 pickradius		the line pick selection radius
-solid_capstyle		['butt' | 'round' |  'projecting']
-solid_joinstyle		['miter' | 'round' | 'bevel']
+solid_capstyle		[``'butt'`` | ``'round'`` | ``'projecting'``]
+solid_joinstyle		[``'miter'`` | ``'round'`` | ``'bevel'``]
 transform		a matplotlib.transforms.Transform instance
 visible			[True | False]
 xdata			np.array
