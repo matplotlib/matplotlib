@@ -150,14 +150,9 @@ validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide'])
 def validate_toolbar(s):
     validator = ValidateInStrings(
                 'toolbar',
-                ['None', 'classic', 'toolbar2'],
+                ['None', 'toolbar2'],
                 ignorecase=True)
-    s = validator(s)
-    if s.lower == 'classic':
-        warnings.warn("'classic' Navigation Toolbar "
-                      "is deprecated in v1.2.x and will be "
-                      "removed in v1.3")
-    return s
+    return validator(s)
 
 
 def validate_maskedarray(v):
