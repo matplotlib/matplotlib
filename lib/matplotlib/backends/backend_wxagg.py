@@ -31,9 +31,7 @@ class FigureFrameWxAgg(FigureFrameWx):
         return FigureCanvasWxAgg(self, -1, fig)
 
     def _get_toolbar(self, statbar):
-        if matplotlib.rcParams['toolbar']=='classic':
-            toolbar = NavigationToolbarWx(self.canvas, True)
-        elif matplotlib.rcParams['toolbar']=='toolbar2':
+        if matplotlib.rcParams['toolbar']=='toolbar2':
             toolbar = NavigationToolbar2WxAgg(self.canvas)
             toolbar.set_status_bar(statbar)
         else:
@@ -201,4 +199,3 @@ def _WX28_clipped_agg_as_bitmap(agg, bbox):
     destDC.SelectObject(wx.NullBitmap)
 
     return destBmp
-
