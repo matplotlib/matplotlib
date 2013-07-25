@@ -553,6 +553,7 @@ class Matplotlib(SetupPackage):
                 'backends/web_backend/jquery/css/themes/base/*.*',
                 'backends/web_backend/jquery/css/themes/base/images/*',
                 'backends/web_backend/css/*.*',
+                'backends/Matplotlib.nib/*'
              ]}
 
 
@@ -1605,8 +1606,7 @@ class BackendMacOSX(OptionalBackendPackage):
         if sys.platform != 'darwin':
             raise CheckFailed("Mac OS-X only")
 
-    def get_package_data(self):
-        return {'matplotlib': ['backends/Matplotlib.nib/*']}
+        return 'darwin'
 
     def get_extension(self):
         sources = [
