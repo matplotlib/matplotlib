@@ -49,6 +49,7 @@ except ImportError:
             args = [quote(arg) for arg in args]
         return os.spawnl(os.P_WAIT, sys.executable, *args) == 0
 
+MINIMUM_VERSION = "0.6.28"
 DEFAULT_VERSION = "0.6.45"
 DEFAULT_URL = "http://pypi.python.org/packages/source/d/distribute/"
 SETUPTOOLS_FAKED_VERSION = "0.6c11"
@@ -135,7 +136,7 @@ def _do_download(version, download_base, to_dir, download_delay):
     setuptools.bootstrap_install_from = egg
 
 
-def use_setuptools(version=DEFAULT_VERSION, download_base=DEFAULT_URL,
+def use_setuptools(version=MINIMUM_VERSION, download_base=DEFAULT_URL,
                    to_dir=os.curdir, download_delay=15, no_fake=True):
     # making sure we use the absolute path
     to_dir = os.path.abspath(to_dir)
