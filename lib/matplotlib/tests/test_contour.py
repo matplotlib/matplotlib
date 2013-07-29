@@ -5,6 +5,8 @@ import numpy as np
 from matplotlib.testing.decorators import cleanup, image_comparison
 from matplotlib import pyplot as plt
 
+import re
+
 
 @cleanup
 def test_contour_shape_1d_valid():
@@ -99,14 +101,18 @@ def test_contour_shape_mismatch_4():
         ax.contour(b, g, z)
     except TypeError as exc:
         print exc.args[0]
-        assert exc.args[0] == 'Shape of x does not match that of z: ' + \
-                              'found (9, 9) instead of (9, 10).'
+        assert re.match(
+            r'Shape of x does not match that of z: ' +
+            r'found \(9L?, 9L?\) instead of \(9L?, 10L?\)\.',
+            exc.args[0]) is not None
 
     try:
         ax.contour(g, b, z)
     except TypeError as exc:
-        assert exc.args[0] == 'Shape of y does not match that of z: ' + \
-                              'found (9, 9) instead of (9, 10).'
+        assert re.match(
+            r'Shape of y does not match that of z: ' +
+            r'found \(9L?, 9L?\) instead of \(9L?, 10L?\)\.',
+            exc.args[0]) is not None
 
 
 @cleanup
@@ -159,23 +165,23 @@ def test_given_colors_levels_and_extends():
     _, axes = plt.subplots(2, 4)
 
     data = np.arange(12).reshape(3, 4)
-    
+
     colors = ['red', 'yellow', 'pink', 'blue', 'black']
     levels = [2, 4, 8, 10]
-    
+
     for i, ax in enumerate(axes.flatten()):
         plt.sca(ax)
-        
+
         filled = i % 2 == 0.
         extend = ['neither', 'min', 'max', 'both'][i // 2]
-        
+
         if filled:
             last_color = -1 if extend in ['min', 'max'] else None
             plt.contourf(data, colors=colors[:last_color], levels=levels, extend=extend)
         else:
             last_level = -1 if extend == 'both' else None
             plt.contour(data, colors=colors, levels=levels[:last_level], extend=extend)
-    
+
         plt.colorbar()
 
 

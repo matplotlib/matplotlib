@@ -554,6 +554,7 @@ class Matplotlib(SetupPackage):
                 'backends/web_backend/jquery/css/themes/base/*.*',
                 'backends/web_backend/jquery/css/themes/base/images/*',
                 'backends/web_backend/css/*.*',
+                'backends/Matplotlib.nib/*'
              ]}
 
 
@@ -973,13 +974,19 @@ class Pyparsing(SetupPackage):
 
         if sys.version_info[0] >= 3:
             required = [2, 0, 0]
+            if [int(x) for x in pyparsing.__version__.split('.')] < required:
+                return (
+                    "matplotlib requires pyparsing >= {0} on Python 3.x".format(
+                        '.'.join(str(x) for x in required)))
         else:
             required = [1, 5, 6]
-        if [int(x) for x in pyparsing.__version__.split('.')] < required:
-            return (
-                "matplotlib requires pyparsing >= {0} on Python {1}".format(
-                    '.'.join(str(x) for x in required),
-                    sys.version_info[0]))
+            if [int(x) for x in pyparsing.__version__.split('.')] < required:
+                return (
+                    "matplotlib requires pyparsing >= {0} on Python 2.x".format(
+                        '.'.join(str(x) for x in required)))
+            if pyparsing.__version__ == "2.0.0":
+                return (
+                    "pyparsing 2.0.0 is not compatible with Python 2.x")
 
         return "using pyparsing version %s" % pyparsing.__version__
 
@@ -988,7 +995,7 @@ class Pyparsing(SetupPackage):
             return ['pyparsing>=1.5.6']
         else:
             # pyparsing >= 2.0.0 is not compatible with Python 2
-            return ['pyparsing>=1.5.6,<2.0.0']
+            return ['pyparsing>=1.5.6,!=2.0.0']
 
 
 class BackendAgg(OptionalBackendPackage):
@@ -1600,8 +1607,7 @@ class BackendMacOSX(OptionalBackendPackage):
         if sys.platform != 'darwin':
             raise CheckFailed("Mac OS-X only")
 
-    def get_package_data(self):
-        return {'matplotlib': ['backends/Matplotlib.nib/*']}
+        return 'darwin'
 
     def get_extension(self):
         sources = [

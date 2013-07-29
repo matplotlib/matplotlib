@@ -31,8 +31,10 @@ py_to_agg_transformation_matrix(PyObject* obj, bool errors = true)
     try
     {
         matrix = (PyArrayObject*) PyArray_FromObject(obj, PyArray_DOUBLE, 2, 2);
-        if (!matrix)
+        if (!matrix) {
+            PyErr_Clear();
             throw std::exception();
+        }
     }
     catch (...)
     {

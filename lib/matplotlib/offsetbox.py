@@ -16,6 +16,7 @@ width and height of the its child text.
 
 
 from __future__ import print_function
+import warnings
 import matplotlib.transforms as mtransforms
 import matplotlib.artist as martist
 import matplotlib.text as mtext
@@ -1097,6 +1098,12 @@ class AnchoredText(AnchoredOffsetbox):
 
         other keyword parameters of AnchoredOffsetbox are also allowed.
         """
+
+        propkeys = prop.keys()
+        badkwargs = ('ha', 'horizontalalignment', 'va', 'verticalalignment')
+        if set(badkwargs) & set(propkeys):
+            warnings.warn("Mixing horizontalalignment or verticalalignment "
+                    "with AnchoredText is not supported.")
 
         self.txt = TextArea(s, textprops=prop,
                             minimumdescent=False)
