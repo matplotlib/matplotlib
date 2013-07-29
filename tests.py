@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 #
 # This allows running the matplotlib tests from the command line: e.g.
-# python tests.py -v -d
-# See http://somethingaboutorange.com/mrl/projects/nose/1.0.0/usage.html
-# for options.
+#
+#   $ python tests.py -v -d
+#
+# The arguments are identical to the arguments accepted by nosetests.
+#
+# See https://nose.readthedocs.org/ for a detailed description of
+# these options.
 
 import os
 import time

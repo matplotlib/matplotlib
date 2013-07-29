@@ -1,20 +1,3 @@
-"""
-
- backend_wxagg.py
-
- A wxPython backend for Agg.  This uses the GUI widgets written by
- Jeremy O'Donoghue (jeremy@o-donoghue.com) and the Agg backend by John
- Hunter (jdhunter@ace.bsd.uchicago.edu)
-
- Copyright (C) 2003-5 Jeremy O'Donoghue, John Hunter, Illinois Institute of
- Technology
-
-
- License: This work is licensed under the matplotlib license( PSF
- compatible). A copy should be included with this source code.
-
-"""
-
 from __future__ import division, print_function
 import matplotlib
 from matplotlib.figure import Figure
@@ -25,6 +8,7 @@ from backend_wx import FigureManager, FigureManagerWx, FigureCanvasWx, \
     FigureFrameWx, DEBUG_MSG, NavigationToolbar2Wx, error_msg_wx, \
     draw_if_interactive, show, Toolbar, backend_version
 import wx
+
 
 class FigureFrameWxAgg(FigureFrameWx):
     def get_canvas(self, fig):
@@ -39,6 +23,7 @@ class FigureFrameWxAgg(FigureFrameWx):
         else:
             toolbar = None
         return toolbar
+
 
 class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
     """
@@ -104,6 +89,7 @@ class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
         # bounding boxes.
         if self._isDrawn:
             self.draw()
+
 
 class NavigationToolbar2WxAgg(NavigationToolbar2Wx):
     def get_canvas(self, frame, fig):
@@ -201,4 +187,3 @@ def _WX28_clipped_agg_as_bitmap(agg, bbox):
     destDC.SelectObject(wx.NullBitmap)
 
     return destBmp
-
