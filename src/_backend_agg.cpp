@@ -1751,7 +1751,7 @@ RendererAgg::draw_path_collection(const Py::Tuple& args)
 
     try
     {
-        _draw_path_collection_generic<PathListGenerator, 0, 1>
+        _draw_path_collection_generic<PathListGenerator, 1, 1>
         (gc,
          master_transform,
          gc.cliprect,
