@@ -253,7 +253,6 @@ class FigureCanvasWebAgg(backend_agg.FigureCanvasAgg):
             elif e_type == 'key_release':
                 self.key_release_event(key)
         elif e_type == 'toolbar_button':
-            print('Toolbar button pressed: ', event['name'])
             # TODO: Be more suspicious of the input
             getattr(self.toolbar, event['name'])()
         elif e_type == 'refresh':
@@ -296,8 +295,10 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         self.web_sockets.remove(web_socket)
 
     def refresh_all(self):
-        for s in self.web_sockets:
-            s.send_image()
+        if len(self.web_sockets):
+            diff = self.canvas.get_diff_image()
+            for s in self.web_sockets:
+                s.send_image(diff)
 
     def send_event(self, event_type, **kwargs):
         for s in self.web_sockets:
@@ -473,6 +474,8 @@ class WebAggApplication(tornado.web.Application):
             _, _, w, h = manager.canvas.figure.bbox.bounds
             manager.resize(w, h)
             self.on_message('{"type":"refresh"}')
+            if hasattr(self, 'set_nodelay'):
+                self.set_nodelay(True)
 
         def on_close(self):
             Gcf.get_fig_manager(self.fignum).remove_web_socket(self)
@@ -484,6 +487,8 @@ class WebAggApplication(tornado.web.Application):
             # whole.
             if message['type'] == 'supports_binary':
                 self.supports_binary = message['value']
+            elif message['type'] == 'ack':
+                pass
             else:
                 canvas = Gcf.get_fig_manager(self.fignum).canvas
                 canvas.handle_event(message)
@@ -493,9 +498,7 @@ class WebAggApplication(tornado.web.Application):
             payload.update(kwargs)
             self.write_message(json.dumps(payload))
 
-        def send_image(self):
-            canvas = Gcf.get_fig_manager(self.fignum).canvas
-            diff = canvas.get_diff_image()
+        def send_image(self, diff):
             if self.supports_binary:
                 self.write_message(diff, binary=True)
             else:
