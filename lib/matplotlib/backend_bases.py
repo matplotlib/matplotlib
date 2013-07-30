@@ -3125,7 +3125,7 @@ class NavigationToolbar2(object):
 
             for loc in locators:
                 loc.refresh()
-        self.canvas.draw()
+        self.canvas.draw_idle()
 
     def _update_view(self):
         """Update the viewlim and position from the view and
@@ -3146,7 +3146,7 @@ class NavigationToolbar2(object):
             a.set_position(pos[i][0], 'original')
             a.set_position(pos[i][1], 'active')
 
-        self.draw()
+        self.draw_idle()
 
     def save_figure(self, *args):
         """Save the current figure"""
