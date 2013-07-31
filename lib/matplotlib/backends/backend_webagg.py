@@ -295,10 +295,10 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         self.web_sockets.remove(web_socket)
 
     def refresh_all(self):
-        if len(self.web_sockets):
+        if self.web_sockets:
             diff = self.canvas.get_diff_image()
             for s in self.web_sockets:
-                s.send_image(diff)
+                s.send_diff_image(diff)
 
     def send_event(self, event_type, **kwargs):
         for s in self.web_sockets:
@@ -488,6 +488,13 @@ class WebAggApplication(tornado.web.Application):
             if message['type'] == 'supports_binary':
                 self.supports_binary = message['value']
             elif message['type'] == 'ack':
+                # Network latency tends to decrease if traffic is
+                # flowing in both directions.  Therefore, the browser
+                # sends back an "ack" message after each image frame
+                # is received.  This could also be used as a simple
+                # sanity check in the future, but for now the
+                # performance increase is enough to justify it, even
+                # if the server does nothing with it.
                 pass
             else:
                 canvas = Gcf.get_fig_manager(self.fignum).canvas
@@ -498,7 +505,7 @@ class WebAggApplication(tornado.web.Application):
             payload.update(kwargs)
             self.write_message(json.dumps(payload))
 
-        def send_image(self, diff):
+        def send_diff_image(self, diff):
             if self.supports_binary:
                 self.write_message(diff, binary=True)
             else:
