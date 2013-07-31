@@ -419,6 +419,7 @@ static void _release_hatch(void* info)
 - (void)keyDown:(NSEvent*)event;
 - (void)keyUp:(NSEvent*)event;
 - (void)scrollWheel:(NSEvent *)event;
+- (BOOL)acceptsFirstResponder;
 //- (void)flagsChanged:(NSEvent*)event;
 @end
 
@@ -5658,6 +5659,11 @@ set_cursor(PyObject* unused, PyObject* args)
         PyErr_Print();
 
     PyGILState_Release(gstate);
+}
+
+- (BOOL)acceptsFirstResponder
+{ 
+    return YES;
 }
 
 /* This is all wrong. Address of pointer is being passed instead of pointer, keynames don't
