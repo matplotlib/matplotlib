@@ -353,7 +353,7 @@ class FormWidget(QWidget):
             elif isinstance(value, bool):
                 value = field.checkState() == Qt.Checked
             elif isinstance(value, float):
-                value = float(field.text())
+                value = float(str(field.text()))
             elif isinstance(value, int):
                 value = int(field.value())
             elif isinstance(value, datetime.datetime):
