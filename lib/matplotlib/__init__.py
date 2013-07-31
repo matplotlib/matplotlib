@@ -101,8 +101,8 @@ from __future__ import print_function
 
 import sys
 
-__version__  = '1.3.0rc5'
-__version__numpy__ = '1.4' # minimum required numpy version
+__version__  = '1.3.0'
+__version__numpy__ = '1.5' # minimum required numpy version
 
 try:
     import dateutil
