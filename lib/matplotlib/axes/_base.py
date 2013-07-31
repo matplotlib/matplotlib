@@ -1907,8 +1907,13 @@ class _AxesBase(martist.Artist):
                                                  expander=0.05)
             if self._xmargin > 0:
                 delta = (x1 - x0) * self._xmargin
-                x0 -= delta
-                x1 += delta
+                xscale = self.get_xscale()
+                if xscale == 'log':
+                    x0 *= delta
+                    x1 /= delta
+                else:
+                    x0 -= delta
+                    x1 += delta
             if not _tight:
                 x0, x1 = xlocator.view_limits(x0, x1)
             self.set_xbound(x0, x1)
@@ -1926,8 +1931,13 @@ class _AxesBase(martist.Artist):
                                                  expander=0.05)
             if self._ymargin > 0:
                 delta = (y1 - y0) * self._ymargin
-                y0 -= delta
-                y1 += delta
+                yscale = self.get_yscale()
+                if yscale == 'log':
+                    y0 *= delta
+                    y1 /= delta
+                else:
+                    y0 -= delta
+                    y1 += delta
             if not _tight:
                 y0, y1 = ylocator.view_limits(y0, y1)
             self.set_ybound(y0, y1)
