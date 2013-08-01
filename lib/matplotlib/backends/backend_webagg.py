@@ -378,7 +378,7 @@ class WebAggApplication(tornado.web.Application):
         def get(self):
             self.set_header('Content-Type', 'image/png')
             with open(os.path.join(WebAggApplication._mpl_dirs['images'],
-                                   'matplotlib.png')) as fd:
+                                   'matplotlib.png'), 'rb') as fd:
                 self.write(fd.read())
 
     class SingleFigurePage(tornado.web.RequestHandler):
