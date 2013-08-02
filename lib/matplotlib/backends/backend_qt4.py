@@ -160,6 +160,8 @@ class TimerQT(TimerBase):
 
 
 class FigureCanvasQT(QtGui.QWidget, FigureCanvasBase):
+    # for these unicode keys, we do *not* return the unicode char.  instead we
+    # more recognizable key name
     keyvald = {QtCore.Qt.Key_Control: 'control',
                QtCore.Qt.Key_Shift: 'shift',
                QtCore.Qt.Key_Alt: 'alt',
