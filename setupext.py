@@ -1463,7 +1463,7 @@ def backend_gtk3agg_internal_check(x):
 
     try:
         from gi.repository import Gtk, Gdk, GObject
-    except ImportError:
+    except (ImportError, RuntimeError):
         return (False, "Requires pygobject to be installed.")
 
     return (True, "version %s.%s.%s" % (
@@ -1489,9 +1489,14 @@ class BackendGtk3Agg(OptionalBackendPackage):
             p = multiprocessing.Pool()
         except:
             return "unknown (can not use multiprocessing to determine)"
-        success, msg = p.map(backend_gtk3agg_internal_check, [0])[0]
-        p.close()
-        p.join()
+        try:
+            success, msg = p.map(backend_gtk3agg_internal_check, [0])[0]
+        except:
+            success = False
+            msg = "Could not determine"
+        finally:
+            p.close()
+            p.join()
         if success:
             BackendAgg.force = True
 
@@ -1521,7 +1526,7 @@ def backend_gtk3cairo_internal_check(x):
 
     try:
         from gi.repository import Gtk, Gdk, GObject
-    except ImportError:
+    except (RuntimeError, ImportError):
         return (False, "Requires pygobject to be installed.")
 
     return (True, "version %s.%s.%s" % (
