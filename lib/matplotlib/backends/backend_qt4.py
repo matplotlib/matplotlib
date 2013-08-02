@@ -354,34 +354,40 @@ class FigureCanvasQT(QtGui.QWidget, FigureCanvasBase):
         if event.isAutoRepeat():
             return None
 
-        if event.key() < 256:
-            key = six.text_type(event.text())
-            # if the control key is being pressed, we don't get the correct
-            # characters, so interpret them directly from the event.key().
-            # Unfortunately, this means that we cannot handle key's case
-            # since event.key() is not case sensitive, whereas event.text() is,
-            # Finally, since it is not possible to get the CapsLock state
-            # we cannot accurately compute the case of a pressed key when
+        event_key = event.key()
+        event_mods = int(event.modifiers())
+
+        try:
+            # for certain keys (enter, left, backspace, etc) use a word for the
+            # key, rather than unicode
+            key = self.keyvald[event_key]
+        except KeyError:
+            # for easy cases, event.text() handles caps lock and capitalization
+            # for us
+            key = unicode(event.text())
+
+            # if modifier (ctrl, alt, super) keys are being pressed,
+            # event.text() will be the empty string. QT always gives upper case
+            # letters, so we have to read from shift and lower() manually.
+            # Finally, since it is not possible to get the CapsLock state we
+            # cannot accurately compute the case of a pressed key when
             # ctrl+shift+p is pressed.
-            if int(event.modifiers()) & self._ctrl_modifier:
-                # we always get an uppercase character
-                key = chr(event.key())
-                # if shift is not being pressed, lowercase it (as mentioned,
-                # this does not take into account the CapsLock state)
-                if not int(event.modifiers()) & QtCore.Qt.ShiftModifier:
+            if key == '':
+                # python may barf if event_key > 0x10000
+                try:
+                    key = unichr(event_key)
+                except ValueError:
+                    return None
+
+                # if shift is not being pressed, lower() it (CapsLock is
+                # ignored)
+                if not event_mods & QtCore.Qt.ShiftModifier:
                     key = key.lower()
 
-        else:
-            key = self.keyvald.get(event.key())
-
-        if key is not None:
-            # prepend the ctrl, alt, super keys if appropriate (sorted
-            # in that order)
-            for modifier, prefix, Qt_key in self._modifier_keys:
-                if (event.key() != Qt_key and
-                        int(event.modifiers()) & modifier == modifier):
-                    key = '{0}+{1}'.format(prefix, key)
-
+        # insert modifiers in the correct order
+        for modifier, prefix, Qt_key in self._modifier_keys:
+            if event_key != Qt_key and event_mods & modifier == modifier:
+                key = u'{0}+{1}'.format(prefix, key)
         return key
 
     def new_timer(self, *args, **kwargs):
