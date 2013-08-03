@@ -131,7 +131,7 @@ class ColorLayout(QHBoxLayout):
         QHBoxLayout.__init__(self)
         assert isinstance(color, QColor)
         self.lineedit = QLineEdit(color.name(), parent)
-        self.connect(self.lineedit, SIGNAL("textChanged(QString)"),
+        self.connect(self.lineedit, SIGNAL("editingFinished()"),
                      self.update_color)
         self.addWidget(self.lineedit)
         self.colorbtn = ColorButton(parent)
@@ -140,7 +140,8 @@ class ColorLayout(QHBoxLayout):
                      self.update_text)
         self.addWidget(self.colorbtn)
 
-    def update_color(self, color):
+    def update_color(self):
+        color = self.text()
         qcolor = to_qcolor(color)
         self.colorbtn.color = qcolor # defaults to black if not qcolor.isValid()
 
