@@ -67,8 +67,8 @@ from matplotlib.backends.qt4_compat import QtGui, QtCore
  QtGui.QDateTimeEdit, QtGui.QFont, QtGui.QFontComboBox, QtGui.QFontDatabase,
  QtGui.QGridLayout, QtGui.QFormLayout, QtGui.QDoubleValidator)
 
-(Qt, SIGNAL, SLOT, QObject, QSize,pyqtSignature, pyqtProperty) =\
-(QtCore.Qt, QtCore.SIGNAL, QtCore.SLOT, QtCore.QObject, QtCore.QSize,
+(Qt, SIGNAL, SLOT, QString, QSize, pyqtSignature, pyqtProperty) =\
+(QtCore.Qt, QtCore.SIGNAL, QtCore.SLOT, QtCore.QString, QtCore.QSize,
  QtCore.Slot, QtCore.Property)
 if not hasattr(QtGui, 'QFormLayout'):
     raise ImportError("Warning: formlayout requires PyQt4 >v4.3 or PySide")
@@ -114,9 +114,8 @@ def col2hex(color):
 def to_qcolor(color):
     """Create a QColor from a matplotlib color"""
     qcolor = QColor()
-    if isinstance(text, QObject):
-        # actually a QString, which is not provided by the new PyQt4 API:
-        text = str(text)
+    if isinstance(color, QString):
+        color = str(color)
     try:
         color = col2hex(color)
     except ValueError:
