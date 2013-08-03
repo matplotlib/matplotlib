@@ -30,13 +30,6 @@ LINESTYLES = {
 
 MARKERS = markers.MarkerStyle.markers
 
-COLORS = {'b': '#0000ff', 'g': '#00ff00', 'r': '#ff0000', 'c': '#ff00ff',
-          'm': '#ff00ff', 'y': '#ffff00', 'k': '#000000', 'w': '#ffffff'}
-
-def col2hex(color):
-    """Convert matplotlib color to hex"""
-    return COLORS.get(color, color)
-
 def figure_edit(axes, parent=None):
     """Edit matplotlib figure options"""
     sep = (None, None) # separator
@@ -79,13 +72,13 @@ def figure_edit(axes, parent=None):
                          (None, '<b>Line</b>'),
                          ('Style', [line.get_linestyle()] + linestyles),
                          ('Width', line.get_linewidth()),
-                         ('Color', col2hex(line.get_color())),
+                         ('Color', line.get_color()),
                          sep,
                          (None, '<b>Marker</b>'),
                          ('Style', [line.get_marker()] + markers),
                          ('Size', line.get_markersize()),
-                         ('Facecolor', col2hex(line.get_markerfacecolor())),
-                         ('Edgecolor', col2hex(line.get_markeredgecolor())),
+                         ('Facecolor', line.get_markerfacecolor()),
+                         ('Edgecolor', line.get_markeredgecolor()),
                          ]
             curves.append([curvedata, label, ""])
 
