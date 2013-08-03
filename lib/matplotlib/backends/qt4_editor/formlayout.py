@@ -48,9 +48,11 @@ DEBUG = False
 import sys
 STDERR = sys.stderr
 
-from matplotlib.backends.qt4_compat import QtGui,QtCore
-if not hasattr(QtGui,'QFormLayout'):
-    raise ImportError, "Warning: formlayout requires PyQt4 >v4.3 or PySide"
+from matplotlib.colors import is_color_like
+from matplotlib.colors import rgb2hex
+from matplotlib.colors import colorConverter
+
+from matplotlib.backends.qt4_compat import QtGui, QtCore
 
 (QWidget, QLineEdit, QComboBox, QLabel, QSpinBox, QIcon,QStyle,
  QDialogButtonBox, QHBoxLayout, QVBoxLayout, QDialog, QColor, QPushButton,
@@ -68,6 +70,8 @@ if not hasattr(QtGui,'QFormLayout'):
 (Qt, SIGNAL, SLOT, QObject, QSize,pyqtSignature, pyqtProperty) =\
 (QtCore.Qt, QtCore.SIGNAL, QtCore.SLOT, QtCore.QObject, QtCore.QSize,
  QtCore.Slot, QtCore.Property)
+if not hasattr(QtGui, 'QFormLayout'):
+    raise ImportError("Warning: formlayout requires PyQt4 >v4.3 or PySide")
 
 import datetime
 
@@ -103,41 +107,24 @@ class ColorButton(QPushButton):
 
     color = pyqtProperty("QColor", get_color, set_color)
 
+def col2hex(color):
+    """Convert matplotlib color to hex before passing to Qt"""
+    return rgb2hex(colorConverter.to_rgb(color))
 
-def text_to_qcolor(text):
-    """
-    Create a QColor from specified string
-    Avoid warning from Qt when an invalid QColor is instantiated
-    """
-    color = QColor()
+def to_qcolor(color):
+    """Create a QColor from a matplotlib color"""
+    qcolor = QColor()
     if isinstance(text, QObject):
         # actually a QString, which is not provided by the new PyQt4 API:
         text = str(text)
-    if not isinstance(text, (unicode, str)):
-        return color
-    if text.startswith('#') and len(text)==7:
-        correct = '#0123456789abcdef'
-        for char in text:
-            if char.lower() not in correct:
-                return color
-    elif text not in list(QColor.colorNames()):
-        return color
-    color.setNamedColor(text)
-    return color
+    try:
+        color = col2hex(color)
+    except ValueError:
+        #print('WARNING: ignoring invalid color %r' % color)
+        return qcolor # return invalid QColor
+    qcolor.setNamedColor(color) # set using hex color
+    return qcolor # return valid QColor
 
-def is_matplotlib_color(value):
-    """
-    Check if value is a color passed to us from matplotlib.
-    It could either be a valid color string or a 3-tuple of floats between 0. and 1.
-    """
-    if text_to_qcolor(value).isValid():
-        return True
-    if isinstance(value,tuple) and len(value)==3 and all(map(lambda v: isinstance(v,float),value)):
-        for c in value:
-            if c < 0. or c > 1.:
-                return False
-        return True
-    return False
 
 class ColorLayout(QHBoxLayout):
     """Color-specialized QLineEdit layout"""
@@ -154,10 +141,10 @@ class ColorLayout(QHBoxLayout):
                      self.update_text)
         self.addWidget(self.colorbtn)
 
-    def update_color(self, text):
-        color = text_to_qcolor(text)
+    def update_color(self, color):
+        qcolor = to_qcolor(color)
         if color.isValid():
-            self.colorbtn.color = color
+            self.colorbtn.color = qcolor
 
     def update_text(self, color):
         self.lineedit.setText(color.name())
@@ -281,8 +268,8 @@ class FormWidget(QWidget):
                 continue
             elif tuple_to_qfont(value) is not None:
                 field = FontLayout(value, self)
-            elif is_matplotlib_color(value):
-                field = ColorLayout(QColor(value), self)
+            elif is_color_like(value):
+                field = ColorLayout(to_qcolor(value), self)
             elif isinstance(value, (str, unicode)):
                 field = QLineEdit(value, self)
             elif isinstance(value, (list, tuple)):
@@ -342,7 +329,7 @@ class FormWidget(QWidget):
                 continue
             elif tuple_to_qfont(value) is not None:
                 value = field.get_font()
-            elif isinstance(value, (str, unicode)) or is_matplotlib_color(value):
+            elif isinstance(value, (str, unicode)) or is_color_like(value):
                 value = unicode(field.text())
             elif isinstance(value, (list, tuple)):
                 index = int(field.currentIndex())
