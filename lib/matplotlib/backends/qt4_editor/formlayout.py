@@ -142,8 +142,7 @@ class ColorLayout(QHBoxLayout):
 
     def update_color(self, color):
         qcolor = to_qcolor(color)
-        if color.isValid():
-            self.colorbtn.color = qcolor
+        self.colorbtn.color = qcolor # defaults to black if not qcolor.isValid()
 
     def update_text(self, color):
         self.lineedit.setText(color.name())
