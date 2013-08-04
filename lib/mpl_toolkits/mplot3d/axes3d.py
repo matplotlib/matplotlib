@@ -550,10 +550,9 @@ class Axes3D(Axes):
             except AttributeError:
                 z0, z1 = mtransforms.nonsingular(z0, z1, increasing=False,
                                                          expander=0.05)
-            if self._zmargin > 0:
-                delta = (z1 - z0) * self._zmargin
-                z0 -= delta
-                z1 += delta
+            delta = (z1 - z0)
+            z0 -= delta * self._zmargin_down
+            z1 += delta * self._zmargin_up
             if not _tight:
                 z0, z1 = zlocator.view_limits(z0, z1)
             self.set_zbound(z0, z1)
