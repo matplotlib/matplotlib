@@ -29,7 +29,7 @@ from matplotlib.lines import Line2D, TICKLEFT, TICKRIGHT
 from matplotlib.patches import Rectangle
 from matplotlib.transforms import Affine2D
 
-from matplotlb.cbook import mplDeprecation
+from matplotlib.cbook import mplDeprecation
 
 cachedir = get_cachedir()
 # cachedir will be None if there is no writable directory.
@@ -606,7 +606,7 @@ def _quotes_historical_yahoo(ticker, date1, date2, asobject=False,
     fh = fetch_historical_yahoo(ticker, date1, date2, cachename)
 
     try:
-        ret = parse_yahoo_historical(fh, asobject=asobject,
+        ret = _parse_yahoo_historical(fh, asobject=asobject,
                                      adjusted=adjusted, ochl=ochl)
         if len(ret) == 0:
             return None
