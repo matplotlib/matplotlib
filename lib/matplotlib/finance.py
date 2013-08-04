@@ -348,10 +348,6 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,
     Fetch historical data for ticker between date1 and date2.  date1 and
     date2 are date or datetime instances, or (year, month, day) sequences.
 
-    Examples
-
-    fh = fetch_historical_yahoo('^GSPC', (2000, 1, 1), (2001, 12, 31))
-
     Parameters
     ----------
     ticker : str
@@ -375,6 +371,12 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,
     -------
     file_handle : file handle
         a file handle is returned
+
+
+    Examples
+    --------
+    >>> fh = fetch_historical_yahoo('^GSPC', (2000, 1, 1), (2001, 12, 31))
+
     """
 
     ticker = ticker.upper()
@@ -436,16 +438,6 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False,
     See :func:`parse_yahoo_historical` for explanation of output formats
     and the *asobject* and *adjusted* kwargs.
 
-    Ex:
-    sp = f.quotes_historical_yahoo('^GSPC', d1, d2,
-                                asobject=True, adjusted=True)
-    returns = (sp.open[1:] - sp.open[:-1])/sp.open[1:]
-    [n,bins,patches] = hist(returns, 100)
-    mu = mean(returns)
-    sigma = std(returns)
-    x = normpdf(bins, mu, sigma)
-    plot(bins, x, color='red', lw=2)
-
     Parameters
     ----------
     ticker : str
@@ -461,6 +453,18 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False,
         is the name of the local file cache.  If None, will
         default to the md5 hash or the url (which incorporates the ticker
         and date range)
+
+    Examples
+    --------
+    >>> sp = f.quotes_historical_yahoo('^GSPC', d1, d2,
+                             asobject=True, adjusted=True)
+    >>> returns = (sp.open[1:] - sp.open[:-1])/sp.open[1:]
+    >>> [n,bins,patches] = hist(returns, 100)
+    >>> mu = mean(returns)
+    >>> sigma = std(returns)
+    >>> x = normpdf(bins, mu, sigma)
+    >>> plot(bins, x, color='red', lw=2)
+
     """
     warnings.warn(_warn_str.format(fun='quotes_historical_yahoo'),
                   mplDeprecation)
@@ -478,16 +482,6 @@ def quotes_historical_yahoo_ochl(ticker, date1, date2, asobject=False,
     See :func:`parse_yahoo_historical` for explanation of output formats
     and the *asobject* and *adjusted* kwargs.
 
-    Ex:
-    sp = f.quotes_historical_yahoo('^GSPC', d1, d2,
-                                asobject=True, adjusted=True)
-    returns = (sp.open[1:] - sp.open[:-1])/sp.open[1:]
-    [n,bins,patches] = hist(returns, 100)
-    mu = mean(returns)
-    sigma = std(returns)
-    x = normpdf(bins, mu, sigma)
-    plot(bins, x, color='red', lw=2)
-
     Parameters
     ----------
     ticker : str
@@ -503,6 +497,18 @@ def quotes_historical_yahoo_ochl(ticker, date1, date2, asobject=False,
         is the name of the local file cache.  If None, will
         default to the md5 hash or the url (which incorporates the ticker
         and date range)
+
+    Examples
+    --------
+    >>> sp = f.quotes_historical_yahoo('^GSPC', d1, d2,
+                             asobject=True, adjusted=True)
+    >>> returns = (sp.open[1:] - sp.open[:-1])/sp.open[1:]
+    >>> [n,bins,patches] = hist(returns, 100)
+    >>> mu = mean(returns)
+    >>> sigma = std(returns)
+    >>> x = normpdf(bins, mu, sigma)
+    >>> plot(bins, x, color='red', lw=2)
+
     """
 
     return _quotes_historical_yahoo(ticker, date1, date2, asobject=asobject,
@@ -518,16 +524,6 @@ def quotes_historical_yahoo_ohlc(ticker, date1, date2, asobject=False,
     See :func:`parse_yahoo_historical` for explanation of output formats
     and the *asobject* and *adjusted* kwargs.
 
-    Ex:
-    sp = f.quotes_historical_yahoo('^GSPC', d1, d2,
-                                asobject=True, adjusted=True)
-    returns = (sp.open[1:] - sp.open[:-1])/sp.open[1:]
-    [n,bins,patches] = hist(returns, 100)
-    mu = mean(returns)
-    sigma = std(returns)
-    x = normpdf(bins, mu, sigma)
-    plot(bins, x, color='red', lw=2)
-
     Parameters
     ----------
     ticker : str
@@ -543,11 +539,23 @@ def quotes_historical_yahoo_ohlc(ticker, date1, date2, asobject=False,
         is the name of the local file cache.  If None, will
         default to the md5 hash or the url (which incorporates the ticker
         and date range)
+
+    Examples
+    --------
+    >>> sp = f.quotes_historical_yahoo('^GSPC', d1, d2,
+                             asobject=True, adjusted=True)
+    >>> returns = (sp.open[1:] - sp.open[:-1])/sp.open[1:]
+    >>> [n,bins,patches] = hist(returns, 100)
+    >>> mu = mean(returns)
+    >>> sigma = std(returns)
+    >>> x = normpdf(bins, mu, sigma)
+    >>> plot(bins, x, color='red', lw=2)
+
     """
 
     return _quotes_historical_yahoo(ticker, date1, date2, asobject=asobject,
                              adjusted=adjusted, cachename=cachename,
-                             ochl=True)
+                             ochl=False)
 
 
 def _quotes_historical_yahoo(ticker, date1, date2, asobject=False,
@@ -557,16 +565,6 @@ def _quotes_historical_yahoo(ticker, date1, date2, asobject=False,
 
     See :func:`parse_yahoo_historical` for explanation of output formats
     and the *asobject* and *adjusted* kwargs.
-
-    Ex:
-    sp = f.quotes_historical_yahoo('^GSPC', d1, d2,
-                                asobject=True, adjusted=True)
-    returns = (sp.open[1:] - sp.open[:-1])/sp.open[1:]
-    [n,bins,patches] = hist(returns, 100)
-    mu = mean(returns)
-    sigma = std(returns)
-    x = normpdf(bins, mu, sigma)
-    plot(bins, x, color='red', lw=2)
 
     Parameters
     ----------
@@ -587,6 +585,17 @@ def _quotes_historical_yahoo(ticker, date1, date2, asobject=False,
     ochl: bool
         temporary argument to select between ochl and ohlc ordering
 
+
+    Examples
+    --------
+    >>> sp = f.quotes_historical_yahoo('^GSPC', d1, d2,
+                             asobject=True, adjusted=True)
+    >>> returns = (sp.open[1:] - sp.open[:-1])/sp.open[1:]
+    >>> [n,bins,patches] = hist(returns, 100)
+    >>> mu = mean(returns)
+    >>> sigma = std(returns)
+    >>> x = normpdf(bins, mu, sigma)
+    >>> plot(bins, x, color='red', lw=2)
 
     """
     # Maybe enable a warning later as part of a slow transition
