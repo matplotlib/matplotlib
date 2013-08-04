@@ -870,8 +870,10 @@ class _AxesBase(martist.Artist):
 
         self._autoscaleXon = True
         self._autoscaleYon = True
-        self._xmargin = rcParams['axes.xmargin']
-        self._ymargin = rcParams['axes.ymargin']
+        self._xmargin_left = rcParams['axes.xmargin']
+        self._xmargin_right = rcParams['axes.xmargin']
+        self._ymargin_top = rcParams['axes.ymargin']
+        self._ymargin_bot = rcParams['axes.ymargin']
         self._tight = False
         self._update_transScale()  # needed?
 
@@ -1734,31 +1736,60 @@ class _AxesBase(martist.Artist):
         """
         self._autoscaleYon = b
 
-    def set_xmargin(self, m):
+    def set_xmargin(self, left, right=None):
         """
         Set padding of X data limits prior to autoscaling.
 
-        *m* times the data interval will be added to each
-        end of that interval before it is used in autoscaling.
+        Parameters
+        ----------
+        left : float in [0, 1]
+            The fraction of the data interval to add to the left
+            of the x-range used in autoscaling
 
-        accepts: float in range 0 to 1
+        right : float in [0, 1] or None
+            The fraction of the data interval to add to the right
+            of the x-range used in autoscaling.
+
+            If None, then symmetric margins are used (`right = left`)
+
         """
-        if m < 0 or m > 1:
-            raise ValueError("margin must be in range 0 to 1")
-        self._xmargin = m
+        if right is None:
+            right = left
 
-    def set_ymargin(self, m):
+        if right < 0 or right > 1:
+            raise ValueError("margin must be in range 0 to 1")
+        if left < 0 or left > 1:
+            raise ValueError("margin must be in range 0 to 1")
+
+        self._xmargin_left = left
+        self._xmargin_right = right
+
+    def set_ymargin(self, bottom, top=None):
         """
         Set padding of Y data limits prior to autoscaling.
 
-        *m* times the data interval will be added to each
-        end of that interval before it is used in autoscaling.
+        Parameters
+        ----------
+        bottom : float in [0, 1]
+            The fraction of the data interval to add to the bottom
+            of the y-range used in autoscaling
 
-        accepts: float in range 0 to 1
+        top : float in [0, 1] or None
+            The fraction of the data interval to add to the top
+            of the y-range used in autoscaling.
+
+            If None, then symmetric margins are used (`top = bottom`)
+
         """
-        if m < 0 or m > 1:
-            raise ValueError("margin must be in range 0 to 1")
-        self._ymargin = m
+        if top is None:
+            bottom = top
+        if bottom < 0 or bottom > 1:
+            raise ValueError("bottom margin must be in range 0 to 1")
+        if top < 0 or top > 1:
+            raise ValueError("top margin must be in range 0 to 1")
+
+        self._ymargin_top = top
+        self._ymargin_bot = bottom
 
     def margins(self, *args, **kw):
         """
@@ -1768,7 +1799,7 @@ class _AxesBase(martist.Artist):
 
             margins()
 
-        returns xmargin, ymargin
+        returns (xmargin_left, xmargin_right), (ymargin_bottom, ymargin_top)
 
         ::
 
@@ -1796,7 +1827,7 @@ class _AxesBase(martist.Artist):
 
         """
         if not args and not kw:
-            return self._xmargin, self._ymargin
+            return (self._xmargin_left, self._xmargin_right), (self._ymargin_bot, self._ymargin_top)
 
         tight = kw.pop('tight', True)
         mx = kw.pop('x', None)
@@ -1905,10 +1936,10 @@ class _AxesBase(martist.Artist):
                 # Default nonsingular for, e.g., MaxNLocator
                 x0, x1 = mtransforms.nonsingular(x0, x1, increasing=False,
                                                  expander=0.05)
-            if self._xmargin > 0:
-                delta = (x1 - x0) * self._xmargin
-                x0 -= delta
-                x1 += delta
+            delta = (x1 - x0)
+            #  if the margin is 0, then this is a no-op -> no need for if statements
+            x0 -= delta * self._xmargin_left
+            x1 += delta * self._xmargin_right
             if not _tight:
                 x0, x1 = xlocator.view_limits(x0, x1)
             self.set_xbound(x0, x1)
@@ -1924,10 +1955,9 @@ class _AxesBase(martist.Artist):
             except AttributeError:
                 y0, y1 = mtransforms.nonsingular(y0, y1, increasing=False,
                                                  expander=0.05)
-            if self._ymargin > 0:
-                delta = (y1 - y0) * self._ymargin
-                y0 -= delta
-                y1 += delta
+            delta = (y1 - y0)
+            y0 -= delta * self._ymargin_bot
+            y1 += delta * self._ymargin_top
             if not _tight:
                 y0, y1 = ylocator.view_limits(y0, y1)
             self.set_ybound(y0, y1)
@@ -3249,5 +3279,3 @@ class _AxesBase(martist.Artist):
     def get_shared_y_axes(self):
         'Return a copy of the shared axes Grouper object for y axes'
         return self._shared_y_axes
-
-
