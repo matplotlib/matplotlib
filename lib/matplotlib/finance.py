@@ -1,6 +1,9 @@
 """
-A collection of modules for collecting, analyzing and plotting
+A collection of functions for collecting, analyzing and plotting
 financial data.   User contributions welcome!
+
+This module is deprecated in 1.4 and will be moved to `mpl_toolkits`
+or it's own project in the future.
 
 """
 from __future__ import division, print_function
@@ -500,7 +503,7 @@ def quotes_historical_yahoo_ochl(ticker, date1, date2, asobject=False,
 
     Examples
     --------
-    >>> sp = f.quotes_historical_yahoo('^GSPC', d1, d2,
+    >>> sp = f.quotes_historical_yahoo_ochl('^GSPC', d1, d2,
                              asobject=True, adjusted=True)
     >>> returns = (sp.open[1:] - sp.open[:-1])/sp.open[1:]
     >>> [n,bins,patches] = hist(returns, 100)
@@ -542,7 +545,7 @@ def quotes_historical_yahoo_ohlc(ticker, date1, date2, asobject=False,
 
     Examples
     --------
-    >>> sp = f.quotes_historical_yahoo('^GSPC', d1, d2,
+    >>> sp = f.quotes_historical_yahoo_ohlc('^GSPC', d1, d2,
                              asobject=True, adjusted=True)
     >>> returns = (sp.open[1:] - sp.open[:-1])/sp.open[1:]
     >>> [n,bins,patches] = hist(returns, 100)
