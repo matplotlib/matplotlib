@@ -7,7 +7,6 @@ import matplotlib.tri as tri
 import numpy as np
 from numpy.random import uniform, seed
 from matplotlib.mlab import griddata
-from matplotlib.colors import Normalize
 import time
 
 seed(0)
@@ -26,7 +25,7 @@ yi = np.linspace(-2.1, 2.1, ngridy)
 zi = griddata(x, y, z, xi, yi, interp='linear')
 plt.contour(xi, yi, zi, 15, linewidths=0.5, colors='k')
 plt.contourf(xi, yi, zi, 15, cmap=plt.cm.rainbow,
-             norm=Normalize(vmax=abs(zi).max(), vmin=-abs(zi).max()))
+             norm=plt.Normalize(vmax=abs(zi).max(), vmin=-abs(zi).max()))
 plt.colorbar()  # draw colorbar
 plt.plot(x, y, 'ko', ms=3)
 plt.xlim(-2, 2)
@@ -41,7 +40,7 @@ plt.subplot(212)
 triang = tri.Triangulation(x, y)
 plt.tricontour(x, y, z, 15, linewidths=0.5, colors='k')
 plt.tricontourf(x, y, z, 15, cmap=plt.cm.rainbow,
-                norm=Normalize(vmax=abs(zi).max(), vmin=-abs(zi).max()))
+                norm=plt.Normalize(vmax=abs(zi).max(), vmin=-abs(zi).max()))
 plt.colorbar()
 plt.plot(x, y, 'ko', ms=3)
 plt.xlim(-2, 2)
