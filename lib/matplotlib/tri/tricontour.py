@@ -50,7 +50,7 @@ class TriContourSet(ContourSet):
             x1 = tri.x.max()
             y0 = tri.y.min()
             y1 = tri.y.max()
-            self.ax.update_datalim([(x0,y0), (x1,y1)])
+            self.ax.update_datalim([(x0, y0), (x1, y1)])
             self.ax.autoscale_view()
 
         self.cppContourGenerator = C
@@ -65,7 +65,7 @@ class TriContourSet(ContourSet):
             allkinds = []
             for lower, upper in zip(lowers, uppers):
                 segs, kinds = self.cppContourGenerator.create_filled_contour(
-                                                                 lower, upper)
+                    lower, upper)
                 allsegs.append([segs])
                 allkinds.append([kinds])
         else:
@@ -76,10 +76,12 @@ class TriContourSet(ContourSet):
         return allsegs, allkinds
 
     def _contour_args(self, args, kwargs):
-        if self.filled: fn = 'contourf'
-        else:           fn = 'contour'
-        tri, args, kwargs = \
-            Triangulation.get_from_args_and_kwargs(*args, **kwargs)
+        if self.filled:
+            fn = 'contourf'
+        else:
+            fn = 'contour'
+        tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args,
+                                                                   **kwargs)
         z = np.asarray(args[0])
         if z.shape != tri.x.shape:
             raise ValueError('z array must have same length as triangulation x'
@@ -275,14 +277,16 @@ class TriContourSet(ContourSet):
 
 
 def tricontour(ax, *args, **kwargs):
-    if not ax._hold: ax.cla()
+    if not ax._hold:
+        ax.cla()
     kwargs['filled'] = False
     return TriContourSet(ax, *args, **kwargs)
 tricontour.__doc__ = TriContourSet.tricontour_doc
 
 
 def tricontourf(ax, *args, **kwargs):
-    if not ax._hold: ax.cla()
+    if not ax._hold:
+        ax.cla()
     kwargs['filled'] = True
     return TriContourSet(ax, *args, **kwargs)
 tricontourf.__doc__ = TriContourSet.tricontour_doc
