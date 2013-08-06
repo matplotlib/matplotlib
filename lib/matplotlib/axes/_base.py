@@ -890,7 +890,7 @@ class _AxesBase(martist.Artist):
         self.collections = []  # collection.Collection instances
         self.containers = []
 
-        self.grid(self._gridOn)
+        self.grid(self._gridOn, which=rcParams['axes.grid.which'])
         props = font_manager.FontProperties(size=rcParams['axes.titlesize'])
 
         self.titleOffsetTrans = mtransforms.ScaledTranslation(

@@ -1664,6 +1664,28 @@ def test_twin_spines():
     host.tick_params(axis='x', **tkw)
 
 
+def test_rcparam_grid_minor():
+    orig_grid = matplotlib.rcParams['axes.grid']
+    orig_locator = matplotlib.rcParams['axes.grid.which']
+
+    matplotlib.rcParams['axes.grid'] = True
+
+    values = (
+        (('both'), (True, True)),
+        (('major'), (True, False)),
+        (('minor'), (False, True))
+        )
+
+    for locator, result in values:
+        matplotlib.rcParams['axes.grid.which'] = locator
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+        assert((ax.xaxis._gridOnMajor, ax.xaxis._gridOnMinor) == result)
+
+    matplotlib.rcParams['axes.grid'] = orig_grid
+    matplotlib.rcParams['axes.grid.which'] = orig_locator
+
+
 @cleanup
 def test_vline_limit():
     fig = plt.figure()
