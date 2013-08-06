@@ -419,6 +419,7 @@ validate_movie_writer = ValidateInStrings('animation.writer',
 validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
     ['png', 'jpeg', 'tiff', 'raw', 'rgba'])
 
+validate_axis_locator = ValidateInStrings('major', ['minor','both','major'])
 
 def validate_bbox(s):
     if type(s) is str:
@@ -577,6 +578,10 @@ defaultParams = {
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
     'axes.grid':             [False, validate_bool],   # display grid or not
+    'axes.grid.which':       ['major', validate_axis_locator],  # set wether the gid are by
+                                                                # default draw on 'major'
+                                                                # 'minor' or 'both' kind of
+                                                                # axis locator
     'axes.labelsize':        ['medium', validate_fontsize],  # fontsize of the
                                                              # x any y labels
     'axes.labelweight':      ['normal', str],  # fontsize of the x any y labels
