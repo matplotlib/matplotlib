@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 def make_patch_spines_invisible(ax):
     ax.set_frame_on(True)
     ax.patch.set_visible(False)
-    for sp in ax.spines.itervalues():
+    for sp in ax.spines.values():
         sp.set_visible(False)
 
 fig, host = plt.subplots()
@@ -15,8 +15,8 @@ par2 = host.twinx()
 # Offset the right spine of par2.  The ticks and label have already been
 # placed on the right by twinx above.
 par2.spines["right"].set_position(("axes", 1.2))
-# Having been created by twinx, par2 has its frame off, so the line of its 
-# detached spine is invisible.  First, activate the frame but make the patch 
+# Having been created by twinx, par2 has its frame off, so the line of its
+# detached spine is invisible.  First, activate the frame but make the patch
 # and spines invisible.
 make_patch_spines_invisible(par2)
 # Second, show the right spine.

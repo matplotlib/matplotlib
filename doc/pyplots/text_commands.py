@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 import matplotlib.pyplot as plt
 
+# Make this example compatible with Python 2 and 3
+import sys
+if sys.version_info[0] == 3:
+    unicode = str
+
 fig = plt.figure()
 fig.suptitle('bold figure suptitle', fontsize=14, fontweight='bold')
 
