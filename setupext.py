@@ -977,19 +977,19 @@ class Pyparsing(SetupPackage):
                 "matplotlib requires pyparsing >= {0}".format(
                     '.'.join(str(x) for x in required)))
 
-        if sys.version_info[0] == 2:
-            if pyparsing.__version__ == "2.0.0":
+        if pyparsing.__version__ == "2.0.0":
+            if sys.version_info[0] == 2:
                 return (
                     "pyparsing 2.0.0 is not compatible with Python 2.x")
+            else:
+                return (
+                    "pyparsing 2.0.0 has bugs that prevent its use with "
+                    "matplotlib")
 
         return "using pyparsing version %s" % pyparsing.__version__
 
     def get_install_requires(self):
-        if sys.version_info[0] >= 3:
-            return ['pyparsing>=1.5.6']
-        else:
-            # pyparsing >= 2.0.0 is not compatible with Python 2
-            return ['pyparsing>=1.5.6,!=2.0.0']
+        return ['pyparsing>=1.5.6,!=2.0.0']
 
 
 class BackendAgg(OptionalBackendPackage):
