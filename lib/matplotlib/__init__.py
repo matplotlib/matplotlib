@@ -120,6 +120,16 @@ else:
             "matplotlib requires pyparsing >= {0}".format(
                 '.'.join(str(x) for x in _required)))
 
+    # pyparsing 1.5.6 does not have <<= on the Forward class, but
+    # pyparsing 2.0.0 and later will spew deprecation warnings if
+    # using << instead.  In order to support pyparsing 1.5.6 and above
+    # with a common code base, this small monkey patch is applied.
+    if not hasattr(pyparsing.Forward, '__ilshift__'):
+        def _forward_ilshift(self, other):
+            self.__lshift__(other)
+            return self
+        pyparsing.Forward.__ilshift__ = _forward_ilshift
+
 import os, re, shutil, warnings
 import distutils.sysconfig
 import distutils.version
