@@ -120,6 +120,11 @@ else:
             "matplotlib requires pyparsing >= {0}".format(
                 '.'.join(str(x) for x in _required)))
 
+    if pyparsing.__version__ == '2.0.0':
+        raise ImportError(
+            "pyparsing 2.0.0 has bugs that prevent its use with "
+            "matplotlib")
+
     # pyparsing 1.5.6 does not have <<= on the Forward class, but
     # pyparsing 2.0.0 and later will spew deprecation warnings if
     # using << instead.  In order to support pyparsing 1.5.6 and above
