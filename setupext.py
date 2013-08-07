@@ -971,15 +971,25 @@ class Pyparsing(SetupPackage):
                 "support. pip/easy_install may attempt to install it "
                 "after matplotlib.")
 
-        required = [2, 0, 1]
+        required = [1, 5, 6]
         if [int(x) for x in pyparsing.__version__.split('.')] < required:
             return (
                 "matplotlib requires pyparsing >= {0}".format(
                     '.'.join(str(x) for x in required)))
+
+        if sys.version_info[0] == 2:
+            if pyparsing.__version__ == "2.0.0":
+                return (
+                    "pyparsing 2.0.0 is not compatible with Python 2.x")
+
         return "using pyparsing version %s" % pyparsing.__version__
 
     def get_install_requires(self):
-        return ['pyparsing>=2.0.1']
+        if sys.version_info[0] >= 3:
+            return ['pyparsing>=1.5.6']
+        else:
+            # pyparsing >= 2.0.0 is not compatible with Python 2
+            return ['pyparsing>=1.5.6,!=2.0.0']
 
 
 class BackendAgg(OptionalBackendPackage):
