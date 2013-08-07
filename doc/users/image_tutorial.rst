@@ -40,7 +40,7 @@ examples, if you use the -pylab method, you can skip the "mpimg." and
 Importing image data into Numpy arrays
 ===============================================
 
-Plotting image data is supported by the Python Image Library (`PIL 
+Plotting image data is supported by the Python Image Library (`PIL
 <http://www.pythonware.com/products/pil/>`_).  Natively, matplotlib
 only supports PNG images.  The commands shown below fall back on PIL
 if the native read fails.
@@ -122,7 +122,7 @@ reading/writing for any format other than PNG is limited to uint8
 data.  Why 8 bits? Most displays can only render 8 bits per channel
 worth of color gradation.  Why can they only render 8 bits/channel?
 Because that's about all the human eye can see.  More here (from a
-photography standpoint): `Luminous Landscape bit depth tutorial 
+photography standpoint): `Luminous Landscape bit depth tutorial
 <http://www.luminous-landscape.com/tutorials/bit-depth.shtml>`_.
 
 Each inner list represents a pixel.  Here, with an RGB image, there
@@ -179,7 +179,7 @@ channel of our data:
 
     In [6]: lum_img = img[:,:,0]
 
-This is array slicing.  You can read more in the `Numpy tutorial 
+This is array slicing.  You can read more in the `Numpy tutorial
 <http://www.scipy.org/Tentative_NumPy_Tutorial>`_.
 
 .. sourcecode:: ipython
@@ -336,7 +336,7 @@ and the computer has to draw in pixels to fill that space.
 
 .. sourcecode:: ipython
 
-    In [8]: import Image
+    In [8]: from PIL import Image
     In [9]: img = Image.open('stinkbug.png')    # Open image as PIL image object
     In [10]: rsize = img.resize((img.size[0]/10,img.size[1]/10)) # Use PIL to resize
     In [11]: rsizeArr = np.asarray(rsize)  # Get array back
@@ -347,7 +347,7 @@ and the computer has to draw in pixels to fill that space.
     import matplotlib.pyplot as plt
     import matplotlib.image as mpimg
     import numpy as np
-    import Image
+    from PIL import Image
     img = Image.open('../_static/stinkbug.png')  # opens the file using PIL - it's not an array yet
     rsize = img.resize((img.size[0]/10,img.size[1]/10))  # resize the image
     rsizeArr = np.asarray(rsize)
@@ -368,7 +368,7 @@ Let's try some others:
         import matplotlib.pyplot as plt
         import matplotlib.image as mpimg
         import numpy as np
-        import Image
+        from PIL import Image
         img = Image.open('../_static/stinkbug.png')  # opens the file using PIL - it's not an array yet
         rsize = img.resize((img.size[0]/10,img.size[1]/10))  # resize the image
         rsizeArr = np.asarray(rsize)
@@ -385,7 +385,7 @@ Let's try some others:
         import matplotlib.pyplot as plt
         import matplotlib.image as mpimg
         import numpy as np
-        import Image
+        from PIL import Image
         img = Image.open('../_static/stinkbug.png')  # opens the file using PIL - it's not an array yet
         rsize = img.resize((img.size[0]/10,img.size[1]/10))  # resize the image
         rsizeArr = np.asarray(rsize)
