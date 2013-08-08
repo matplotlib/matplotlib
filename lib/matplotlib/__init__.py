@@ -1169,7 +1169,7 @@ def interactive(b):
 
 def is_interactive():
     'Return true if plot mode is interactive'
-    b = rcParams['interactive']
+    b = rcParams['interactive'] and hasattr(sys, 'ps1')
     return b
 
 def tk_window_focus():
@@ -1276,6 +1276,6 @@ test.__test__ = False # nose: this function is not a test
 
 verbose.report('matplotlib version %s'%__version__)
 verbose.report('verbose.level %s'%verbose.level)
-verbose.report('interactive is %s'%rcParams['interactive'])
+verbose.report('interactive is %s'%is_interactive())
 verbose.report('platform is %s'%sys.platform)
 verbose.report('loaded modules: %s'%sys.modules.iterkeys(), 'debug')
