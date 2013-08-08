@@ -682,7 +682,11 @@ class CXX(SetupPackage):
 
         self.__class__.found_external = True
         old_stdout = sys.stdout
-        sys.stdout = io.BytesIO()
+        if sys.version_info[0] >= 3:
+            sys.stdout = io.StringIO()
+        else:
+            sys.stdout = io.BytesIO()
+
         try:
             import CXX
         except ImportError:
