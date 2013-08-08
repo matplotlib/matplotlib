@@ -699,17 +699,12 @@ class CXX(SetupPackage):
             return self._check_for_pkg_config(
                 'PyCXX', 'CXX/Extensions.hxx', min_version='6.2.4')
         except CheckFailed as e:
-            # Since there is no .pc file for PyCXX upstream, many
-            # distros don't package it either.  We don't necessarily
-            # need to fall back to a local build in that scenario if
-            # the header files can be found.
-            base_include_dirs = [
-                os.path.join(x, 'include') for x in get_base_dirs()]
-            if has_include_file(base_include_dirs, 'CXX/Extensions.hxx'):
-                return 'Using system CXX (version unknown, no pkg-config info)'
-            else:
-                self.__class__.found_external = False
-                return str(e) + ' Using local copy.'
+            # It's ok to just proceed here, since the `import CXX`
+            # worked above, and PyCXX (at least upstream) ensures that
+            # its header files are on the default distutils include
+            # path (either in a standard C place such as /usr/include,
+            # or in /usr/include/pythonX.Y.
+            return 'Using system CXX (version unknown, no pkg-config info)'
 
     def add_flags(self, ext):
         if self.found_external and not 'sdist' in sys.argv:
