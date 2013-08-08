@@ -152,18 +152,6 @@ def get_base_dirs():
     return basedir_map.get(sys.platform, ['/usr/local', '/usr'])
 
 
-def run_child_process(cmd):
-    """
-    Run a subprocess as a sanity check.
-    """
-    p = subprocess.Popen(cmd, shell=True,
-                         stdin=subprocess.PIPE,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT,
-                         close_fds=(sys.platform != 'win32'))
-    return p.stdin, p.stdout
-
-
 def is_min_version(found, minversion):
     """
     Returns `True` if `found` is at least as high a version as
@@ -1713,9 +1701,10 @@ class DviPng(SetupPackage):
 
     def check(self):
         try:
-            stdin, stdout = run_child_process('dvipng -version')
-            return "version %s" % stdout.readlines()[1].decode().split()[-1]
-        except (IndexError, ValueError):
+            output = check_output('dvipng -version', shell=True,
+                                  stderr=subprocess.STDOUT)
+            return "version %s" % output.splitlines()[1].decode().split()[-1]
+        except (IndexError, ValueError, subprocess.CalledProcessError):
             raise CheckFailed()
 
 
@@ -1727,11 +1716,19 @@ class Ghostscript(SetupPackage):
         try:
             if sys.platform == 'win32':
                 command = 'gswin32c --version'
+                try:
+                    output = check_output(command, shell=True,
+                                          stderr=subprocess.STDOUT)
+                except subprocess.CalledProcessError:
+                    command = 'gswin64c --version'
+                    output = check_output(command, shell=True,
+                                          stderr=subprocess.STDOUT)
             else:
                 command = 'gs --version'
-            stdin, stdout = run_child_process(command)
-            return "version %s" % stdout.read().decode()[:-1]
-        except (IndexError, ValueError):
+                output = check_output(command, shell=True,
+                                      stderr=subprocess.STDOUT)
+            return "version %s" % output.decode()[:-1]
+        except (IndexError, ValueError, subprocess.CalledProcessError):
             raise CheckFailed()
 
 
@@ -1741,12 +1738,13 @@ class LaTeX(SetupPackage):
 
     def check(self):
         try:
-            stdin, stdout = run_child_process('latex -version')
-            line = stdout.readlines()[0].decode()
+            output = check_output('latex -version', shell=True,
+                                  stderr=subprocess.STDOUT)
+            line = output.splitlines()[0].decode()
             pattern = '(3\.1\d+)|(MiKTeX \d+.\d+)'
             match = re.search(pattern, line)
             return "version %s" % match.group(0)
-        except (IndexError, ValueError, AttributeError):
+        except (IndexError, ValueError, AttributeError, subprocess.CalledProcessError):
             raise CheckFailed()
 
 
@@ -1756,12 +1754,13 @@ class PdfToPs(SetupPackage):
 
     def check(self):
         try:
-            stdin, stdout = run_child_process('pdftops -v')
-            for line in stdout.readlines():
+            output = check_output('pdftops -v', shell=True,
+                                  stderr=subprocess.STDOUT)
+            for line in output.splitlines():
                 line = line.decode()
                 if 'version' in line:
                     return "version %s" % line.split()[2]
-        except (IndexError, ValueError):
+        except (IndexError, ValueError, subprocess.CalledProcessError):
             pass
 
         raise CheckFailed()
