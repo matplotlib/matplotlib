@@ -7,11 +7,7 @@ python:
   - 3.3
 
 install:
-  - pip install -q --use-mirrors nose python-dateutil numpy pep8
-  # This is a workaround to install the latest versions of pyparsing,
-  # which are not yet available on PyPI
-  - 'if [ ${TRAVIS_PYTHON_VERSION:0:1} == "3" ]; then pip -q install http://sourceforge.net/projects/pyparsing/files/pyparsing/pyparsing-2.0.0/pyparsing-2.0.0.tar.gz; fi'
-  - 'if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip -q install http://sourceforge.net/projects/pyparsing/files/pyparsing/pyparsing-1.5.7/pyparsing-1.5.7.tar.gz; fi'
+  - pip install -q --use-mirrors nose python-dateutil numpy pep8 pyparsing
   - if [[ $TRAVIS_PYTHON_VERSION == '2.'* ]]; then pip -q install --use-mirrors PIL; fi
   - sudo apt-get update && sudo apt-get -qq install inkscape
   - python setup.py install
