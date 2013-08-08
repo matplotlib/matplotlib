@@ -141,12 +141,8 @@ def make_external_conversion_command(cmd):
 
    return convert
 
-if matplotlib.checkdep_ghostscript() is not None:
-    if sys.platform == 'win32':
-        gs = 'gswin32c'
-    else:
-        gs = 'gs'
-
+gs, gs_v = matplotlib.checkdep_ghostscript()
+if gs_v is not None:
     cmd = lambda old, new: \
         [gs, '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
         '-sOutputFile=' + new, old]
