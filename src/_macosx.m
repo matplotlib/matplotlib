@@ -248,7 +248,7 @@ static void _dealloc_atsui(void)
 
 static int _draw_path(CGContextRef cr, void* iterator, int nmax)
 {
-    double x1, y1, x2, y2, x3, y3;
+    double x1, y1, x2, y2;
     static unsigned code = STOP;
     static double xs, ys;
     CGPoint current;
@@ -3425,6 +3425,20 @@ FigureCanvas_invalidate(FigureCanvas* self)
 }
 
 static PyObject*
+FigureCanvas_flush_events(FigureCanvas* self)
+{
+    View* view = self->view;
+    if(!view)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
+        return NULL;
+    }
+    [view displayIfNeeded];
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject*
 FigureCanvas_set_rubberband(FigureCanvas* self, PyObject *args)
 {
     View* view = self->view;
@@ -3698,6 +3712,11 @@ static PyMethodDef FigureCanvas_methods[] = {
      (PyCFunction)FigureCanvas_invalidate,
      METH_NOARGS,
      "Invalidates the canvas."
+    },
+    {"flush_events",
+     (PyCFunction)FigureCanvas_flush_events,
+     METH_NOARGS,
+     "Flush the GUI events for the figure."
     },
     {"set_rubberband",
      (PyCFunction)FigureCanvas_set_rubberband,
