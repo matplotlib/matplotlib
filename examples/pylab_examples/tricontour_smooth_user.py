@@ -24,7 +24,7 @@ def function_z(x, y):
     return (np.max(z)-z)/(np.max(z)-np.min(z))
 
 #-----------------------------------------------------------------------------
-# Creating a Triangulation 
+# Creating a Triangulation
 #-----------------------------------------------------------------------------
 # First create the x and y coordinates of the points.
 n_angles = 20

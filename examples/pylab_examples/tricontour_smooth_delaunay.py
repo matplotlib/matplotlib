@@ -98,10 +98,10 @@ flat_tri.set_mask(~mask)
 # Now the plots
 #-----------------------------------------------------------------------------
 # User options for plots
-plot_tri = True          # plot of the base triangulation
-plot_masked_tri = True   # plot of the excessively flat excluded triangles
-plot_refi_tri = False    # plot of the refined triangulation
-plot_expected = False    # plot of the analytical function values for comparison
+plot_tri = True          # plot of base triangulation
+plot_masked_tri = True   # plot of excessively flat excluded triangles
+plot_refi_tri = False    # plot of refined triangulation
+plot_expected = False    # plot of analytical function values for comparison
 
 
 # Graphical options for tricontouring

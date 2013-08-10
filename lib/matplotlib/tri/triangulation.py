@@ -54,12 +54,10 @@ class Triangulation(object):
             # No triangulation specified, so use matplotlib.delaunay.
             dt = delaunay.Triangulation(self.x, self.y)
             self.triangles = np.asarray(
-                                 dt.to_client_point_indices(dt.triangle_nodes),
-                                 dtype=np.int32)
+                dt.to_client_point_indices(dt.triangle_nodes), dtype=np.int32)
             if mask is None:
                 self._edges = np.asarray(
-                                  dt.to_client_point_indices(dt.edge_db),
-                                  dtype=np.int32)
+                    dt.to_client_point_indices(dt.edge_db), dtype=np.int32)
                 # Delaunay triangle_neighbors uses different edge indexing,
                 # so convert.
                 neighbors = np.asarray(dt.triangle_neighbors, dtype=np.int32)
@@ -77,8 +75,8 @@ class Triangulation(object):
 
         if mask is not None:
             self.mask = np.asarray(mask, dtype=np.bool)
-            if len(self.mask.shape) != 1 or \
-                    self.mask.shape[0] != self.triangles.shape[0]:
+            if (len(self.mask.shape) != 1 or
+                    self.mask.shape[0] != self.triangles.shape[0]):
                 raise ValueError('mask array must have same length as '
                                  'triangles array')
 
@@ -195,8 +193,8 @@ class Triangulation(object):
             self.mask = None
         else:
             self.mask = np.asarray(mask, dtype=np.bool)
-            if len(self.mask.shape) != 1 or \
-                    self.mask.shape[0] != self.triangles.shape[0]:
+            if (len(self.mask.shape) != 1 or
+                    self.mask.shape[0] != self.triangles.shape[0]):
                 raise ValueError('mask array must have same length as '
                                  'triangles array')
 
