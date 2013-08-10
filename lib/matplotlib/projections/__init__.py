@@ -63,31 +63,6 @@ def get_projection_class(projection=None):
         raise ValueError("Unknown projection '%s'" % projection)
 
 
-def projection_factory(projection, figure, rect, **kwargs):
-    """
-    Get a new projection instance.
-
-    *projection* is a projection name.
-
-    *figure* is a figure to add the axes to.
-
-    *rect* is a :class:`~matplotlib.transforms.Bbox` object specifying
-    the location of the axes within the figure.
-
-    Any other kwargs are passed along to the specific projection
-    constructor being used.
-
-    .. deprecated:: 1.3
-
-        This routine is deprecated in favour of getting the projection
-        class directly with :func:`get_projection_class` and initialising it
-        directly. Will be removed in version 1.3.
-
-    """
-
-    return get_projection_class(projection)(figure, rect, **kwargs)
-
-
 def process_projection_requirements(figure, *args, **kwargs):
     """
     Handle the args/kwargs to for add_axes/add_subplot/gca,

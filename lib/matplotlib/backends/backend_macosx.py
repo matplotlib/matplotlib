@@ -356,9 +356,7 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
         FigureManagerBase.__init__(self, canvas, num)
         title = "Figure %d" % num
         _macosx.FigureManager.__init__(self, canvas, title)
-        if rcParams['toolbar']=='classic':
-            self.toolbar = NavigationToolbarMac(canvas)
-        elif rcParams['toolbar']=='toolbar2':
+        if rcParams['toolbar']=='toolbar2':
             self.toolbar = NavigationToolbar2Mac(canvas)
         else:
             self.toolbar = None
@@ -375,75 +373,6 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
 
     def close(self):
         Gcf.destroy(self.num)
-
-
-class NavigationToolbarMac(_macosx.NavigationToolbar):
-
-    def __init__(self, canvas):
-        self.canvas = canvas
-        basedir = os.path.join(rcParams['datapath'], "images")
-        images = {}
-        for imagename in ("stock_left",
-                          "stock_right",
-                          "stock_up",
-                          "stock_down",
-                          "stock_zoom-in",
-                          "stock_zoom-out",
-                          "stock_save_as"):
-            filename = os.path.join(basedir, imagename+".ppm")
-            images[imagename] = self._read_ppm_image(filename)
-        _macosx.NavigationToolbar.__init__(self, images)
-        self.message = None
-
-    def _read_ppm_image(self, filename):
-        data = ""
-        imagefile = open(filename)
-        for line in imagefile:
-            if "#" in line:
-                i = line.index("#")
-                line = line[:i] + "\n"
-            data += line
-        imagefile.close()
-        magic, width, height, maxcolor, imagedata = data.split(None, 4)
-        width, height = int(width), int(height)
-        assert magic=="P6"
-        assert len(imagedata)==width*height*3 # 3 colors in RGB
-        return (width, height, imagedata)
-
-    def panx(self, direction):
-        axes = self.canvas.figure.axes
-        selected = self.get_active()
-        for i in selected:
-            axes[i].xaxis.pan(direction)
-        self.canvas.invalidate()
-
-    def pany(self, direction):
-        axes = self.canvas.figure.axes
-        selected = self.get_active()
-        for i in selected:
-            axes[i].yaxis.pan(direction)
-        self.canvas.invalidate()
-
-    def zoomx(self, direction):
-        axes = self.canvas.figure.axes
-        selected = self.get_active()
-        for i in selected:
-            axes[i].xaxis.zoom(direction)
-        self.canvas.invalidate()
-
-    def zoomy(self, direction):
-        axes = self.canvas.figure.axes
-        selected = self.get_active()
-        for i in selected:
-            axes[i].yaxis.zoom(direction)
-        self.canvas.invalidate()
-
-    def save_figure(self, *args):
-        filename = _macosx.choose_save_file('Save the figure',
-                                            self.canvas.get_default_filename())
-        if filename is None: # Cancel
-            return
-        self.canvas.print_figure(filename)
 
 
 class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
