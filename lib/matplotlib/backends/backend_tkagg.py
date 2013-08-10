@@ -525,9 +525,7 @@ class FigureManagerTkAgg(FigureManagerBase):
         _, _, w, h = canvas.figure.bbox.bounds
         w, h = int(w), int(h)
         self.window.minsize(int(w*3/4),int(h*3/4))
-        if matplotlib.rcParams['toolbar']=='classic':
-            self.toolbar = NavigationToolbar( canvas, self.window )
-        elif matplotlib.rcParams['toolbar']=='toolbar2':
+        if matplotlib.rcParams['toolbar']=='toolbar2':
             self.toolbar = NavigationToolbar2TkAgg( canvas, self.window )
         else:
             self.toolbar = None
@@ -660,131 +658,6 @@ class AxisMenu:
             a.set(1)
         self.set_active()
 
-
-class NavigationToolbar(Tk.Frame):
-    """
-    Public attributes
-
-      canvas   - the FigureCanvas  (gtk.DrawingArea)
-      win   - the gtk.Window
-
-    """
-    def _Button(self, text, file, command):
-        file = os.path.join(rcParams['datapath'], 'images', file)
-        im = Tk.PhotoImage(master=self, file=file)
-        b = Tk.Button(
-            master=self, text=text, padx=2, pady=2, image=im, command=command)
-        b._ntimage = im
-        b.pack(side=Tk.LEFT)
-        return b
-
-    def __init__(self, canvas, window):
-        self.canvas = canvas
-        self.window = window
-
-        xmin, xmax = canvas.figure.bbox.intervalx
-        height, width = 50, xmax-xmin
-        Tk.Frame.__init__(self, master=self.window,
-                          width=int(width), height=int(height),
-                          borderwidth=2)
-
-        self.update()  # Make axes menu
-
-        self.bLeft = self._Button(
-            text="Left", file="stock_left",
-            command=lambda x=-1: self.panx(x))
-
-        self.bRight = self._Button(
-            text="Right", file="stock_right",
-            command=lambda x=1: self.panx(x))
-
-        self.bZoomInX = self._Button(
-            text="ZoomInX",file="stock_zoom-in",
-            command=lambda x=1: self.zoomx(x))
-
-        self.bZoomOutX = self._Button(
-            text="ZoomOutX", file="stock_zoom-out",
-            command=lambda x=-1: self.zoomx(x))
-
-        self.bUp = self._Button(
-            text="Up", file="stock_up",
-            command=lambda y=1: self.pany(y))
-
-        self.bDown = self._Button(
-            text="Down", file="stock_down",
-            command=lambda y=-1: self.pany(y))
-
-        self.bZoomInY = self._Button(
-            text="ZoomInY", file="stock_zoom-in",
-            command=lambda y=1: self.zoomy(y))
-
-        self.bZoomOutY = self._Button(
-            text="ZoomOutY",file="stock_zoom-out",
-            command=lambda y=-1: self.zoomy(y))
-
-        self.bSave = self._Button(
-            text="Save", file="stock_save_as",
-            command=self.save_figure)
-
-        self.pack(side=Tk.BOTTOM, fill=Tk.X)
-
-
-    def set_active(self, ind):
-        self._ind = ind
-        self._active = [ self._axes[i] for i in self._ind ]
-
-    def panx(self, direction):
-        for a in self._active:
-            a.xaxis.pan(direction)
-        self.canvas.draw()
-
-    def pany(self, direction):
-        for a in self._active:
-            a.yaxis.pan(direction)
-        self.canvas.draw()
-
-    def zoomx(self, direction):
-
-        for a in self._active:
-            a.xaxis.zoom(direction)
-        self.canvas.draw()
-
-    def zoomy(self, direction):
-
-        for a in self._active:
-            a.yaxis.zoom(direction)
-        self.canvas.draw()
-
-    def save_figure(self, *args):
-        fs = FileDialog.SaveFileDialog(master=self.window,
-                                       title='Save the figure')
-        try:
-            self.lastDir
-        except AttributeError:
-            self.lastDir = os.curdir
-
-        fname = fs.go(dir_or_file=self.lastDir) # , pattern="*.png")
-        if fname is None: # Cancel
-            return
-
-        self.lastDir = os.path.dirname(fname)
-        try:
-            self.canvas.print_figure(fname)
-        except IOError as msg:
-            err = '\n'.join(map(str, msg))
-            msg = 'Failed to save %s: Error msg was\n\n%s' % (
-                fname, err)
-            error_msg_tkpaint(msg)
-
-    def update(self):
-        _focus = windowing.FocusManager()
-        self._axes = self.canvas.figure.axes
-        naxes = len(self._axes)
-        if not hasattr(self, "omenu"):
-            self.set_active(range(naxes))
-            self.omenu = AxisMenu(master=self, naxes=naxes)
-        else:
-            self.omenu.adjust(naxes)
 
 class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
     """
