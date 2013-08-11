@@ -48,7 +48,7 @@ original location:
   - mstream -> `from matplotlib import stream as mstream`
   - mtable -> `from matplotlib import table as mtable`
 
-* To accomodate adding asymetric margins, additional optional arguements
+* To accommodate adding asymmetric margins, additional optional arguments
 were added to `axes.set_ymargins`, `axes.set_xmargins`, and `axes3D.set_zmargins`
 and the return values of `axes.margins()` and `axes3D.margins()` were changed.
 
@@ -56,7 +56,7 @@ and the return values of `axes.margins()` and `axes3D.margins()` were changed.
   - `axes.set_ymargin(m)` -> `axes.set_xmargin(bottom, top=None)`
   - `axes3D.set_xmargin(m)` -> `axes.set_zmargin(down, up=None)`
 
-If `None` is passed as the second arguement, symmetric margins are used
+If `None` is passed as the second argument, symmetric margins are used
 (original behavior).
 
   - `axes.margins()`, `plt.margins()` return value `(xmargin, ymargin)` ->

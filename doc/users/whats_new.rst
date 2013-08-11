@@ -49,7 +49,7 @@ Asymmetric margins
 
 :func:`matplotlib.Axes.set_xmargin`, :func:`matplotlib.Axes.set_ymargin`, and
 :func:`matplotlib.Axes3D.set_zmargin` now take two arguments to set asymmetric margins.
-The return types on :func:`matplotlib.Axes.margis()` changed to a tuple of tuples to return
+The return types on :func:`matplotlib.Axes.margins()` changed to a tuple of tuples to return
 the asymmetric margins.
 
 
