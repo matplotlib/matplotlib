@@ -444,7 +444,7 @@ class _AxesBase(martist.Artist):
             self.set_yscale(yscale)
 
         if len(kwargs):
-            martist.setp(self, **kwargs)
+            self.update(kwargs)
 
         if self.xaxis is not None:
             self._xcid = self.xaxis.callbacks.connect('units finalize',
