@@ -136,10 +136,12 @@ class Registry(dict):
         if isinstance(x, np.ndarray) and x.size:
             xravel = x.ravel()
             try:
-                # pass the first value of x that is not masked back to get_converter
+                # pass the first value of x that is not masked back to
+                # get_converter
                 if not np.all(xravel.mask):
                     # some elements are not masked
-                    converter = self.get_converter(xravel[np.argmin(xravel.mask)])
+                    converter = self.get_converter(
+                        xravel[np.argmin(xravel.mask)])
                     return converter
             except AttributeError:
                 # not a masked_array

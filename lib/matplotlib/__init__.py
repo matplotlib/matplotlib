@@ -102,7 +102,7 @@ from __future__ import print_function
 import sys
 
 __version__  = '1.4.x'
-__version__numpy__ = '1.4' # minimum required numpy version
+__version__numpy__ = '1.5' # minimum required numpy version
 
 try:
     import dateutil
@@ -119,6 +119,21 @@ else:
         raise ImportError(
             "matplotlib requires pyparsing >= {0}".format(
                 '.'.join(str(x) for x in _required)))
+
+    if pyparsing.__version__ == '2.0.0':
+        raise ImportError(
+            "pyparsing 2.0.0 has bugs that prevent its use with "
+            "matplotlib")
+
+    # pyparsing 1.5.6 does not have <<= on the Forward class, but
+    # pyparsing 2.0.0 and later will spew deprecation warnings if
+    # using << instead.  In order to support pyparsing 1.5.6 and above
+    # with a common code base, this small monkey patch is applied.
+    if not hasattr(pyparsing.Forward, '__ilshift__'):
+        def _forward_ilshift(self, other):
+            self.__lshift__(other)
+            return self
+        pyparsing.Forward.__ilshift__ = _forward_ilshift
 
 import os, re, shutil, warnings
 import distutils.sysconfig

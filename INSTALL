@@ -199,7 +199,10 @@ libpng 1.2 (or later)
 :term:`dateutil` 1.1 or later
     Provides extensions to python datetime handling.  If using pip,
     easy_install or installing from source, the installer will attempt
-    to download and install `python_dateutil` from PyPI.
+    to download and install `python_dateutil` from PyPI.  Note that
+    `python_dateutil` also depends on `six`.  `pip` and other package
+    managers should handle installing that secondary dependency
+    automatically.
 
 `pyparsing`
     Required for matplotlib's mathtext math rendering support.  If
