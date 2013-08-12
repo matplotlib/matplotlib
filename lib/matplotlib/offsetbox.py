@@ -1099,6 +1099,8 @@ class AnchoredText(AnchoredOffsetbox):
         other keyword parameters of AnchoredOffsetbox are also allowed.
         """
 
+        if prop is None:
+            prop = {}
         propkeys = prop.keys()
         badkwargs = ('ha', 'horizontalalignment', 'va', 'verticalalignment')
         if set(badkwargs) & set(propkeys):
