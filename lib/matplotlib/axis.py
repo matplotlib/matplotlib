@@ -1307,7 +1307,7 @@ class Axis(artist.Artist):
                     continue
                 tick.gridOn = self._gridOnMinor
                 if len(kwargs):
-                    artist.setp(tick.gridline, **kwargs)
+                    tick.gridline.update(kwargs)
             self._minor_tick_kw['gridOn'] = self._gridOnMinor
         if which in ['major', 'both']:
             if b is None:
@@ -1319,7 +1319,7 @@ class Axis(artist.Artist):
                     continue
                 tick.gridOn = self._gridOnMajor
                 if len(kwargs):
-                    artist.setp(tick.gridline, **kwargs)
+                    tick.gridline.update(kwargs)
             self._major_tick_kw['gridOn'] = self._gridOnMajor
 
     def update_units(self, data):
