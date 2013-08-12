@@ -41,6 +41,59 @@ from .qt4_compat import QtCore, QtGui, _getSaveFileName, __version__
 
 backend_version = __version__
 
+# SPECIAL_KEYS are keys that do *not* return their unicode name
+# instead they have manually specified names
+SPECIAL_KEYS = {QtCore.Qt.Key_Control: 'control',
+                QtCore.Qt.Key_Shift: 'shift',
+                QtCore.Qt.Key_Alt: 'alt',
+                QtCore.Qt.Key_Meta: 'super',
+                QtCore.Qt.Key_Return: 'enter',
+                QtCore.Qt.Key_Left: 'left',
+                QtCore.Qt.Key_Up: 'up',
+                QtCore.Qt.Key_Right: 'right',
+                QtCore.Qt.Key_Down: 'down',
+                QtCore.Qt.Key_Escape: 'escape',
+                QtCore.Qt.Key_F1: 'f1',
+                QtCore.Qt.Key_F2: 'f2',
+                QtCore.Qt.Key_F3: 'f3',
+                QtCore.Qt.Key_F4: 'f4',
+                QtCore.Qt.Key_F5: 'f5',
+                QtCore.Qt.Key_F6: 'f6',
+                QtCore.Qt.Key_F7: 'f7',
+                QtCore.Qt.Key_F8: 'f8',
+                QtCore.Qt.Key_F9: 'f9',
+                QtCore.Qt.Key_F10: 'f10',
+                QtCore.Qt.Key_F11: 'f11',
+                QtCore.Qt.Key_F12: 'f12',
+                QtCore.Qt.Key_Home: 'home',
+                QtCore.Qt.Key_End: 'end',
+                QtCore.Qt.Key_PageUp: 'pageup',
+                QtCore.Qt.Key_PageDown: 'pagedown',
+                QtCore.Qt.Key_Tab: 'tab',
+                QtCore.Qt.Key_Backspace: 'backspace',
+                QtCore.Qt.Key_Enter: 'enter',
+                QtCore.Qt.Key_Insert: 'insert',
+                QtCore.Qt.Key_Delete: 'delete',
+                QtCore.Qt.Key_Pause: 'pause',
+                QtCore.Qt.Key_SysReq: 'sysreq',
+                QtCore.Qt.Key_Clear: 'clear', }
+
+# define which modifier keys are collected on keyboard events.
+# elements are (mpl names, Modifier Flag, Qt Key) tuples
+MODIFIER_KEYS = [('super', QtCore.Qt.MetaModifier, QtCore.Qt.Key_Meta),
+                 ('alt', QtCore.Qt.AltModifier, QtCore.Qt.Key_Alt),
+                 ('ctrl', QtCore.Qt.ControlModifier, QtCore.Qt.Key_Control),
+                 ]
+
+if sys.platform == 'darwin':
+    # in OSX, the control and super (aka cmd/apple) keys are switched, so
+    # switch them back.
+    SPECIAL_KEYS.update({QtCore.Qt.Key_Control: 'super',  # cmd/apple key
+                         QtCore.Qt.Key_Meta: 'control',
+                         })
+    MODIFIER_KEYS[0] = ('super', QtCore.Qt.ControlModifier, QtCore.Qt.Key_Control)
+    MODIFIER_KEYS[2] = ('ctrl', QtCore.Qt.MetaModifier, QtCore.Qt.Key_Meta)
+
 
 def fn_name():
     return sys._getframe(1).f_code.co_name
@@ -160,75 +213,6 @@ class TimerQT(TimerBase):
 
 
 class FigureCanvasQT(QtGui.QWidget, FigureCanvasBase):
-    # for these unicode keys, we do *not* return the unicode char.  instead we
-    # more recognizable key name
-    keyvald = {QtCore.Qt.Key_Control: 'control',
-               QtCore.Qt.Key_Shift: 'shift',
-               QtCore.Qt.Key_Alt: 'alt',
-               QtCore.Qt.Key_Meta: 'super',
-               QtCore.Qt.Key_Return: 'enter',
-               QtCore.Qt.Key_Left: 'left',
-               QtCore.Qt.Key_Up: 'up',
-               QtCore.Qt.Key_Right: 'right',
-               QtCore.Qt.Key_Down: 'down',
-               QtCore.Qt.Key_Escape: 'escape',
-               QtCore.Qt.Key_F1: 'f1',
-               QtCore.Qt.Key_F2: 'f2',
-               QtCore.Qt.Key_F3: 'f3',
-               QtCore.Qt.Key_F4: 'f4',
-               QtCore.Qt.Key_F5: 'f5',
-               QtCore.Qt.Key_F6: 'f6',
-               QtCore.Qt.Key_F7: 'f7',
-               QtCore.Qt.Key_F8: 'f8',
-               QtCore.Qt.Key_F9: 'f9',
-               QtCore.Qt.Key_F10: 'f10',
-               QtCore.Qt.Key_F11: 'f11',
-               QtCore.Qt.Key_F12: 'f12',
-               QtCore.Qt.Key_Home: 'home',
-               QtCore.Qt.Key_End: 'end',
-               QtCore.Qt.Key_PageUp: 'pageup',
-               QtCore.Qt.Key_PageDown: 'pagedown',
-               QtCore.Qt.Key_Tab: 'tab',
-               QtCore.Qt.Key_Backtab: 'backtab',
-               QtCore.Qt.Key_Backspace: 'backspace',
-               QtCore.Qt.Key_Enter: 'enter',
-               QtCore.Qt.Key_Insert: 'insert',
-               QtCore.Qt.Key_Delete: 'delete',
-               QtCore.Qt.Key_Pause: 'pause',
-               QtCore.Qt.Key_SysReq: 'sysreq',
-               QtCore.Qt.Key_Clear: 'clear',
-               QtCore.Qt.Key_Control: 'ctrl',
-               }
-
-    # define the modifier keys which are to be collected on keyboard events.
-    # format is: [(modifier_flag, modifier_name, equivalent_key)
-    _modifier_keys = [
-                      (QtCore.Qt.MetaModifier, 'super', QtCore.Qt.Key_Meta),
-                      (QtCore.Qt.AltModifier, 'alt', QtCore.Qt.Key_Alt),
-                      (QtCore.Qt.ControlModifier, 'ctrl',
-                       QtCore.Qt.Key_Control)
-                      ]
-
-    _ctrl_modifier = QtCore.Qt.ControlModifier
-
-    if sys.platform == 'darwin':
-        # in OSX, the control and super (aka cmd/apple) keys are switched, so
-        # switch them back.
-        keyvald.update({
-                        QtCore.Qt.Key_Control: 'super',  # cmd/apple key
-                        QtCore.Qt.Key_Meta: 'control',
-                        })
-
-        _modifier_keys = [
-                          (QtCore.Qt.ControlModifier, 'super',
-                           QtCore.Qt.Key_Control),
-                          (QtCore.Qt.AltModifier, 'alt',
-                           QtCore.Qt.Key_Alt),
-                          (QtCore.Qt.MetaModifier, 'ctrl',
-                           QtCore.Qt.Key_Meta),
-                         ]
-
-        _ctrl_modifier = QtCore.Qt.MetaModifier
 
     # map Qt button codes to MouseEvent's ones:
     buttond = {QtCore.Qt.LeftButton: 1,
@@ -362,7 +346,7 @@ class FigureCanvasQT(QtGui.QWidget, FigureCanvasBase):
         try:
             # for certain keys (enter, left, backspace, etc) use a word for the
             # key, rather than unicode
-            key = self.keyvald[event_key]
+            key = SPECIAL_KEYS[event_key]
         except KeyError:
             # for easy cases, event.text() handles caps lock and capitalization
             # for us
@@ -386,8 +370,7 @@ class FigureCanvasQT(QtGui.QWidget, FigureCanvasBase):
                 if not event_mods & QtCore.Qt.ShiftModifier:
                     key = key.lower()
 
-        # insert modifiers in the correct order
-        for modifier, prefix, Qt_key in self._modifier_keys:
+        for prefix, modifier, Qt_key in MODIFIER_KEYS:
             if event_key != Qt_key and event_mods & modifier == modifier:
                 key = u'{0}+{1}'.format(prefix, key)
         return key
