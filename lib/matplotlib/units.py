@@ -134,8 +134,17 @@ class Registry(dict):
             converter = self.get(classx)
 
         if isinstance(x, np.ndarray) and x.size:
-            converter = self.get_converter(x.ravel()[0])
-            return converter
+            xravel = x.ravel()
+            try:
+                # pass the first value of x that is not masked back to get_converter
+                if not np.all(xravel.mask):
+                    # some elements are not masked
+                    converter = self.get_converter(xravel[np.argmin(xravel.mask)])
+                    return converter
+            except AttributeError:
+                # not a masked_array
+                converter = self.get_converter(xravel[0])
+                return converter
 
         if converter is None and iterable(x):
             for thisx in x:
