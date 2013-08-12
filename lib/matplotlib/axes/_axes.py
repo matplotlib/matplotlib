@@ -3292,11 +3292,24 @@ class Axes(_AxesBase):
         # to data coords to get the exact bounding box for efficiency
         # reasons.  It can be done right if this is deemed important.
         # Also, only bother with this padding if there is anything to draw.
-        if self._xmargin < 0.05 and x.size > 0:
-            self.set_xmargin(0.05)
 
-        if self._ymargin < 0.05 and x.size > 0:
-            self.set_ymargin(0.05)
+        # don't use the function, as it gets overloaded in Axes3D
+        (xm_left, xm_right) = (self._xmargin_left, self._xmargin_right)
+        # enforce minimum padding
+        if xm_left < 0.05 and x.size > 0:
+            xm_left = 0.05
+        if xm_right < 0.05 and x.size > 0:
+            xm_right = 0.05
+
+        (ym_bot, ym_top) = (self._ymargin_bot, self._ymargin_top)
+        if ym_bot < 0.05 and y.size > 0:
+            ym_bot = 0.05
+
+        if ym_top < 0.05 and y.size > 0:
+            ym_top = 0.05
+
+        self.set_xmargin(xm_left, xm_right)
+        self.set_ymargin(ym_bot, ym_top)
 
         self.add_collection(collection)
         self.autoscale_view()

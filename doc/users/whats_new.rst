@@ -29,8 +29,8 @@ New plotting features
 Support for datetime axes in 2d plots
 `````````````````````````````````````
 Andrew Dawson added support for datetime axes to
-:func:`~matplotlib.pyplot.contour`, :func:`~matplotlib.pyplot.contourf`, 
-:func:`~matplotlib.pyplot.pcolormesh` and :func:`~matplotlib.pyplot.pcolor`. 
+:func:`~matplotlib.pyplot.contour`, :func:`~matplotlib.pyplot.contourf`,
+:func:`~matplotlib.pyplot.pcolormesh` and :func:`~matplotlib.pyplot.pcolor`.
 
 
 Date handling
@@ -43,6 +43,15 @@ Andrew Dawson added support for n-d array handling to
 and :func:`matplotlib.dates.datestr2num`. Support is also added to the unit
 conversion interfaces :class:`matplotlib.dates.DateConverter` and
 :class:`matplotlib.units.Registry`.
+
+Asymmetric margins
+------------------
+
+:func:`matplotlib.Axes.set_xmargin`, :func:`matplotlib.Axes.set_ymargin`, and
+:func:`matplotlib.Axes3D.set_zmargin` now take two arguments to set asymmetric margins.
+The return types on :func:`matplotlib.Axes.margins()` changed to a tuple of tuples to return
+the asymmetric margins.
+
 
 .. _whats-new-1-3:
 
