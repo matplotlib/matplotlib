@@ -683,7 +683,11 @@ class CXX(SetupPackage):
 
         self.__class__.found_external = True
         old_stdout = sys.stdout
-        sys.stdout = io.BytesIO()
+        if sys.version_info[0] >= 3:
+            sys.stdout = io.StringIO()
+        else:
+            sys.stdout = io.BytesIO()
+
         try:
             import CXX
         except ImportError:
@@ -696,17 +700,12 @@ class CXX(SetupPackage):
             return self._check_for_pkg_config(
                 'PyCXX', 'CXX/Extensions.hxx', min_version='6.2.4')
         except CheckFailed as e:
-            # Since there is no .pc file for PyCXX upstream, many
-            # distros don't package it either.  We don't necessarily
-            # need to fall back to a local build in that scenario if
-            # the header files can be found.
-            base_include_dirs = [
-                os.path.join(x, 'include') for x in get_base_dirs()]
-            if has_include_file(base_include_dirs, 'CXX/Extensions.hxx'):
-                return 'Using system CXX (version unknown, no pkg-config info)'
-            else:
-                self.__class__.found_external = False
-                return str(e) + ' Using local copy.'
+            # It's ok to just proceed here, since the `import CXX`
+            # worked above, and PyCXX (at least upstream) ensures that
+            # its header files are on the default distutils include
+            # path (either in a standard C place such as /usr/include,
+            # or in /usr/include/pythonX.Y.
+            return 'Using system CXX (version unknown, no pkg-config info)'
 
     def add_flags(self, ext):
         if self.found_external and not 'sdist' in sys.argv:
@@ -972,30 +971,25 @@ class Pyparsing(SetupPackage):
                 "support. pip/easy_install may attempt to install it "
                 "after matplotlib.")
 
-        if sys.version_info[0] >= 3:
-            required = [2, 0, 0]
-            if [int(x) for x in pyparsing.__version__.split('.')] < required:
-                return (
-                    "matplotlib requires pyparsing >= {0} on Python 3.x".format(
-                        '.'.join(str(x) for x in required)))
-        else:
-            required = [1, 5, 6]
-            if [int(x) for x in pyparsing.__version__.split('.')] < required:
-                return (
-                    "matplotlib requires pyparsing >= {0} on Python 2.x".format(
-                        '.'.join(str(x) for x in required)))
-            if pyparsing.__version__ == "2.0.0":
+        required = [1, 5, 6]
+        if [int(x) for x in pyparsing.__version__.split('.')] < required:
+            return (
+                "matplotlib requires pyparsing >= {0}".format(
+                    '.'.join(str(x) for x in required)))
+
+        if pyparsing.__version__ == "2.0.0":
+            if sys.version_info[0] == 2:
                 return (
                     "pyparsing 2.0.0 is not compatible with Python 2.x")
+            else:
+                return (
+                    "pyparsing 2.0.0 has bugs that prevent its use with "
+                    "matplotlib")
 
         return "using pyparsing version %s" % pyparsing.__version__
 
     def get_install_requires(self):
-        if sys.version_info[0] >= 3:
-            return ['pyparsing>=1.5.6']
-        else:
-            # pyparsing >= 2.0.0 is not compatible with Python 2
-            return ['pyparsing>=1.5.6,!=2.0.0']
+        return ['pyparsing>=1.5.6,!=2.0.0']
 
 
 class BackendAgg(OptionalBackendPackage):
@@ -1464,7 +1458,7 @@ def backend_gtk3agg_internal_check(x):
 
     try:
         from gi.repository import Gtk, Gdk, GObject
-    except ImportError:
+    except (ImportError, RuntimeError):
         return (False, "Requires pygobject to be installed.")
 
     return (True, "version %s.%s.%s" % (
@@ -1490,9 +1484,14 @@ class BackendGtk3Agg(OptionalBackendPackage):
             p = multiprocessing.Pool()
         except:
             return "unknown (can not use multiprocessing to determine)"
-        success, msg = p.map(backend_gtk3agg_internal_check, [0])[0]
-        p.close()
-        p.join()
+        try:
+            success, msg = p.map(backend_gtk3agg_internal_check, [0])[0]
+        except:
+            success = False
+            msg = "Could not determine"
+        finally:
+            p.close()
+            p.join()
         if success:
             BackendAgg.force = True
 
@@ -1522,7 +1521,7 @@ def backend_gtk3cairo_internal_check(x):
 
     try:
         from gi.repository import Gtk, Gdk, GObject
-    except ImportError:
+    except (RuntimeError, ImportError):
         return (False, "Requires pygobject to be installed.")
 
     return (True, "version %s.%s.%s" % (

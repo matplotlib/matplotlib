@@ -2179,69 +2179,69 @@ class Parser(object):
             if key != 'self':
                 val.setName(key)
 
-        float_literal << Regex(r"[-+]?([0-9]+\.?[0-9]*|\.[0-9]+)")
-        int_literal   << Regex("[-+]?[0-9]+")
+        float_literal <<= Regex(r"[-+]?([0-9]+\.?[0-9]*|\.[0-9]+)")
+        int_literal   <<= Regex("[-+]?[0-9]+")
 
-        lbrace        << Literal('{').suppress()
-        rbrace        << Literal('}').suppress()
-        lbracket      << Literal('[').suppress()
-        rbracket      << Literal(']').suppress()
-        bslash        << Literal('\\')
+        lbrace        <<= Literal('{').suppress()
+        rbrace        <<= Literal('}').suppress()
+        lbracket      <<= Literal('[').suppress()
+        rbracket      <<= Literal(']').suppress()
+        bslash        <<= Literal('\\')
 
-        space         << oneOf(self._space_widths.keys())
-        customspace   << (Suppress(Literal(r'\hspace'))
+        space         <<= oneOf(self._space_widths.keys())
+        customspace   <<= (Suppress(Literal(r'\hspace'))
                           - ((lbrace + float_literal + rbrace)
                             | Error(r"Expected \hspace{n}")))
 
         unicode_range =  u"\U00000080-\U0001ffff"
-        single_symbol << Regex(UR"([a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|%s])|(\\[%%${}\[\]_|])" %
+        single_symbol <<= Regex(UR"([a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|%s])|(\\[%%${}\[\]_|])" %
                                unicode_range)
-        symbol_name   << (Combine(bslash + oneOf(tex2uni.keys())) +
+        symbol_name   <<= (Combine(bslash + oneOf(tex2uni.keys())) +
                           FollowedBy(Regex("[^A-Za-z]").leaveWhitespace() | StringEnd()))
-        symbol        << (single_symbol | symbol_name).leaveWhitespace()
+        symbol        <<= (single_symbol | symbol_name).leaveWhitespace()
 
-        apostrophe    << Regex("'+")
+        apostrophe    <<= Regex("'+")
 
-        c_over_c      << Suppress(bslash) + oneOf(self._char_over_chars.keys())
+        c_over_c      <<= Suppress(bslash) + oneOf(self._char_over_chars.keys())
 
-        accent        << Group(
+        accent        <<= Group(
                              Suppress(bslash)
                            + oneOf(self._accent_map.keys() + list(self._wide_accents))
                            - placeable
                          )
 
-        function      << Suppress(bslash) + oneOf(list(self._function_names))
+        function      <<= Suppress(bslash) + oneOf(list(self._function_names))
 
-        start_group   << Optional(latexfont) + lbrace
-        end_group     << rbrace.copy()
-        simple_group  << Group(lbrace + ZeroOrMore(token) + rbrace)
-        required_group<< Group(lbrace + OneOrMore(token) + rbrace)
-        group         << Group(start_group + ZeroOrMore(token) + end_group)
+        start_group   <<= Optional(latexfont) + lbrace
+        end_group     <<= rbrace.copy()
+        simple_group  <<= Group(lbrace + ZeroOrMore(token) + rbrace)
+        required_group<<= Group(lbrace + OneOrMore(token) + rbrace)
+        group         <<= Group(start_group + ZeroOrMore(token) + end_group)
 
-        font          << Suppress(bslash) + oneOf(list(self._fontnames))
-        latexfont     << Suppress(bslash) + oneOf(['math' + x for x in self._fontnames])
+        font          <<= Suppress(bslash) + oneOf(list(self._fontnames))
+        latexfont     <<= Suppress(bslash) + oneOf(['math' + x for x in self._fontnames])
 
-        frac          << Group(
+        frac          <<= Group(
                              Suppress(Literal(r"\frac"))
                            - ((required_group + required_group) | Error(r"Expected \frac{num}{den}"))
                          )
 
-        stackrel      << Group(
+        stackrel      <<= Group(
                              Suppress(Literal(r"\stackrel"))
                            - ((required_group + required_group) | Error(r"Expected \stackrel{num}{den}"))
                          )
 
-        binom         << Group(
+        binom         <<= Group(
                              Suppress(Literal(r"\binom"))
                            - ((required_group + required_group) | Error(r"Expected \binom{num}{den}"))
                          )
 
-        ambi_delim    << oneOf(list(self._ambi_delim))
-        left_delim    << oneOf(list(self._left_delim))
-        right_delim   << oneOf(list(self._right_delim))
-        right_delim_safe << oneOf(list(self._right_delim - set(['}'])) + [r'\}'])
+        ambi_delim    <<= oneOf(list(self._ambi_delim))
+        left_delim    <<= oneOf(list(self._left_delim))
+        right_delim   <<= oneOf(list(self._right_delim))
+        right_delim_safe <<= oneOf(list(self._right_delim - set(['}'])) + [r'\}'])
 
-        genfrac       << Group(
+        genfrac       <<= Group(
                              Suppress(Literal(r"\genfrac"))
                            - (((lbrace + Optional(ambi_delim | left_delim, default='') + rbrace)
                            +   (lbrace + Optional(ambi_delim | right_delim_safe, default='') + rbrace)
@@ -2250,27 +2250,27 @@ class Parser(object):
                            | Error(r"Expected \genfrac{ldelim}{rdelim}{rulesize}{style}{num}{den}"))
                          )
 
-        sqrt          << Group(
+        sqrt          <<= Group(
                              Suppress(Literal(r"\sqrt"))
                            - ((Optional(lbracket + int_literal + rbracket, default=None)
                               + required_group)
                            | Error("Expected \sqrt{value}"))
                          )
 
-        overline      << Group(
+        overline      <<= Group(
                              Suppress(Literal(r"\overline"))
                            - (required_group | Error("Expected \overline{value}"))
                          )
 
-        unknown_symbol<< Combine(bslash + Regex("[A-Za-z]*"))
+        unknown_symbol<<= Combine(bslash + Regex("[A-Za-z]*"))
 
-        operatorname  << Group(
+        operatorname  <<= Group(
                              Suppress(Literal(r"\operatorname"))
                            - ((lbrace + ZeroOrMore(simple | unknown_symbol) + rbrace)
                               | Error("Expected \operatorname{value}"))
                          )
 
-        placeable     << ( accent # Must be first
+        placeable     <<= ( accent # Must be first
                          | symbol # Must be second
                          | c_over_c
                          | function
@@ -2284,39 +2284,39 @@ class Parser(object):
                          | operatorname
                          )
 
-        simple        << ( space
+        simple        <<= ( space
                          | customspace
                          | font
                          | subsuper
                          )
 
-        subsuperop    << oneOf(["_", "^"])
+        subsuperop    <<= oneOf(["_", "^"])
 
-        subsuper      << Group(
+        subsuper      <<= Group(
                              (Optional(placeable) + OneOrMore(subsuperop - placeable) + Optional(apostrophe))
                            | (placeable + Optional(apostrophe))
                            | apostrophe
                          )
 
-        token         << ( simple
+        token         <<= ( simple
                          | auto_delim
                          | unknown_symbol # Must be last
                          )
 
-        auto_delim    << (Suppress(Literal(r"\left"))
+        auto_delim    <<= (Suppress(Literal(r"\left"))
                           - ((left_delim | ambi_delim) | Error("Expected a delimiter"))
                           + Group(ZeroOrMore(simple | auto_delim))
                           + Suppress(Literal(r"\right"))
                           - ((right_delim | ambi_delim) | Error("Expected a delimiter"))
                          )
 
-        math          << OneOrMore(token)
+        math          <<= OneOrMore(token)
 
-        math_string   << QuotedString('$', '\\', unquoteResults=False)
+        math_string   <<= QuotedString('$', '\\', unquoteResults=False)
 
-        non_math      << Regex(r"(?:(?:\\[$])|[^$])*").leaveWhitespace()
+        non_math      <<= Regex(r"(?:(?:\\[$])|[^$])*").leaveWhitespace()
 
-        main          << (non_math + ZeroOrMore(math_string + non_math)) + StringEnd()
+        main          <<= (non_math + ZeroOrMore(math_string + non_math)) + StringEnd()
 
         # Set actions
         for key, val in locals().items():
