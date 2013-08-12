@@ -583,6 +583,8 @@ def test_fill_between_interpolate():
 
     # Test support for masked arrays.
     y2 = np.ma.masked_greater(y2, 1.0)
+    # Test that plotting works for masked arrays with the first element masked
+    y2[0] = np.ma.masked
     ax1 = fig.add_subplot(212, sharex=ax)
     ax1.plot(x, y1, x, y2, color='black')
     ax1.fill_between(x, y1, y2, where=y2>=y1, facecolor='green', interpolate=True)
