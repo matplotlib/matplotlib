@@ -98,7 +98,7 @@ class Patch(artist.Artist):
         self._combined_transform = transforms.IdentityTransform()
 
         if len(kwargs):
-            artist.setp(self, **kwargs)
+            self.update(kwargs)
 
     def get_verts(self):
         """
