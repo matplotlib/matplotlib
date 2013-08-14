@@ -348,8 +348,8 @@ class FigureCanvasQT(QtGui.QWidget, FigureCanvasBase):
         event_key = event.key()
         event_mods = int(event.modifiers())  # actually a bitmask
 
-        mods = [p for p, m, k in MODIFIER_KEYS
-                if event_key != k and event_mods & m == m]
+        mods = [name for name, mod_key, qt_key in MODIFIER_KEYS
+                if event_key != qt_key and (event_mods & mod_key) == mod_key]
         try:
             # for certain keys (enter, left, backspace, etc) use a word for the
             # key, rather than unicode
