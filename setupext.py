@@ -612,23 +612,6 @@ class Toolkits(OptionalPackage):
 class Tests(OptionalPackage):
     name = "tests"
 
-    def check(self):
-        super(Tests, self).check()
-
-        try:
-            import nose
-        except ImportError:
-            return (
-                "nose 0.11.1 or later is required to run the "
-                "matplotlib test suite")
-
-        if nose.__versioninfo__ < (0, 11, 1):
-            return (
-                "nose 0.11.1 or later is required to run the "
-                "matplotlib test suite")
-
-        return 'using nose version %s' % nose.__version__
-
     def get_packages(self):
         return [
             'matplotlib.tests',
@@ -648,7 +631,10 @@ class Tests(OptionalPackage):
             ]}
 
     def get_install_requires(self):
-        return ['nose']
+        requires = ['nose>=0.11.1']
+        if not is_min_version(sys.version_info, '3.3'):
+            requires += ['mock']
+        return requires
 
 
 class Numpy(SetupPackage):
