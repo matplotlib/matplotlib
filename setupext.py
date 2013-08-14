@@ -620,11 +620,11 @@ class Tests(OptionalPackage):
         msg_template = ('{package} is required to run the matplotlib test '
                         'suite.  pip/easy_install may attempt to install it '
                         'after matplotlib.')
-        )
 
 
         bad_nose = msg_template.format(
             package='nose %s or later' % self.nose_min_version
+        )
         try:
             import nose
             if is_min_version(nose.__version__, self.nose_min_version):
