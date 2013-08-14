@@ -8,19 +8,23 @@ from matplotlib.testing.decorators import knownfailureif
 from matplotlib._pylab_helpers import Gcf
 import copy
 
-import mock
+try:
+    # mock in python 3.3+
+    from unittest import mock
+except ImportError:
+    import mock
 
 try:
     from matplotlib.backends.qt4_compat import QtCore
-    from matplotlib.backends.backend_qt4 import MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT
+    from matplotlib.backends.backend_qt4 import (MODIFIER_KEYS,
+                                                 SUPER, ALT, CTRL, SHIFT)
 
     _, ControlModifier, ControlKey = MODIFIER_KEYS[CTRL]
     _, AltModifier, AltKey = MODIFIER_KEYS[ALT]
     _, SuperModifier, SuperKey = MODIFIER_KEYS[SUPER]
     _, ShiftModifier, ShiftKey = MODIFIER_KEYS[SHIFT]
-
     HAS_QT = True
-except ImportError as e:
+except ImportError:
     HAS_QT = False
 
 
@@ -124,6 +128,7 @@ def test_modifier_order():
                        (ControlModifier | AltModifier | SuperModifier),
                        u'ctrl+alt+super+' + unichr(225))
 
+
 @cleanup
 @knownfailureif(not HAS_QT)
 def test_backspace():
@@ -131,9 +136,10 @@ def test_backspace():
                        QtCore.Qt.NoModifier,
                        u'backspace')
 
+
 @cleanup
 @knownfailureif(not HAS_QT)
-def test_backspace():
+def test_backspace_mod():
     assert_correct_key(QtCore.Qt.Key_Backspace,
                        ControlModifier,
                        u'ctrl+backspace')
