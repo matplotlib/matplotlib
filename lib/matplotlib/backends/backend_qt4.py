@@ -80,9 +80,14 @@ SPECIAL_KEYS = {QtCore.Qt.Key_Control: 'control',
 
 # define which modifier keys are collected on keyboard events.
 # elements are (mpl names, Modifier Flag, Qt Key) tuples
+SUPER = 0
+ALT = 1
+CTRL = 2
+SHIFT = 3
 MODIFIER_KEYS = [('super', QtCore.Qt.MetaModifier, QtCore.Qt.Key_Meta),
                  ('alt', QtCore.Qt.AltModifier, QtCore.Qt.Key_Alt),
                  ('ctrl', QtCore.Qt.ControlModifier, QtCore.Qt.Key_Control),
+                 ('shift', QtCore.Qt.ShiftModifier, QtCore.Qt.Key_Shift),
                  ]
 
 if sys.platform == 'darwin':
