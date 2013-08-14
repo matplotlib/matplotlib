@@ -123,3 +123,17 @@ def test_modifier_order():
     assert_correct_key(QtCore.Qt.Key_Aacute,
                        (ControlModifier | AltModifier | SuperModifier),
                        u'ctrl+alt+super+' + unichr(225))
+
+@cleanup
+@knownfailureif(not HAS_QT)
+def test_backspace():
+    assert_correct_key(QtCore.Qt.Key_Backspace,
+                       QtCore.Qt.NoModifier,
+                       u'backspace')
+
+@cleanup
+@knownfailureif(not HAS_QT)
+def test_backspace():
+    assert_correct_key(QtCore.Qt.Key_Backspace,
+                       ControlModifier,
+                       u'ctrl+backspace')
