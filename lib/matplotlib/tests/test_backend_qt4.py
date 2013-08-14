@@ -12,14 +12,15 @@ import mock
 
 try:
     from matplotlib.backends.qt4_compat import QtCore
-    from matplotlib.backends.backend_qt import MODIFIER_KEYS
-    HAS_QT = True
+    from matplotlib.backends.backend_qt4 import MODIFIER_KEYS, SUPER, ALT, CTRL, SHIFT
 
-    ShiftModifier = QtCore.Qt.ShiftModifier
-    ControlModifier, ControlKey = MODIFIER_KEYS['ctrl']
-    AltModifier, AltKey = MODIFIER_KEYS['alt']
-    SuperModifier, SuperKey = MODIFIER_KEYS['super']
-except ImportError:
+    _, ControlModifier, ControlKey = MODIFIER_KEYS[CTRL]
+    _, AltModifier, AltKey = MODIFIER_KEYS[ALT]
+    _, SuperModifier, SuperKey = MODIFIER_KEYS[SUPER]
+    _, ShiftModifier, ShiftKey = MODIFIER_KEYS[SHIFT]
+
+    HAS_QT = True
+except ImportError as e:
     HAS_QT = False
 
 
@@ -72,7 +73,7 @@ def test_shift():
 
 @cleanup
 @knownfailureif(not HAS_QT)
-def test_noshift():
+def test_lower():
     assert_correct_key(QtCore.Qt.Key_A,
                        QtCore.Qt.NoModifier,
                        u'a',
@@ -90,7 +91,7 @@ def test_control():
 
 @cleanup
 @knownfailureif(not HAS_QT)
-def test_unicode():
+def test_unicode_upper():
     assert_correct_key(QtCore.Qt.Key_Aacute,
                        ShiftModifier,
                        unichr(193),
@@ -99,7 +100,7 @@ def test_unicode():
 
 @cleanup
 @knownfailureif(not HAS_QT)
-def test_unicode_noshift():
+def test_unicode_lower():
     assert_correct_key(QtCore.Qt.Key_Aacute,
                        QtCore.Qt.NoModifier,
                        unichr(193),
@@ -109,7 +110,7 @@ def test_unicode_noshift():
 @cleanup
 @knownfailureif(not HAS_QT)
 def test_alt_control():
-    assert_correct_key(QtCore.Qt.Key_Control,
+    assert_correct_key(ControlKey,
                        AltModifier,
                        u'',
                        u'alt+control')
@@ -118,7 +119,7 @@ def test_alt_control():
 @cleanup
 @knownfailureif(not HAS_QT)
 def test_control_alt():
-    assert_correct_key(QtCore.Qt.Key_Alt,
+    assert_correct_key(AltKey,
                        ControlModifier,
                        u'',
                        u'ctrl+alt')
@@ -128,6 +129,6 @@ def test_control_alt():
 @knownfailureif(not HAS_QT)
 def test_modifier_order():
     assert_correct_key(QtCore.Qt.Key_Aacute,
-                       (ControlModifier & AltModifier & SuperModifier),
+                       (ControlModifier | AltModifier | SuperModifier),
                        u'',
                        u'ctrl+alt+super+' + unichr(225))
