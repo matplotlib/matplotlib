@@ -1127,6 +1127,15 @@ def test_hist_stacked_normed():
     ax.hist((d1, d2), stacked=True, normed=True)
 
 
+@image_comparison(baseline_images=['hist_step_bottom'], extensions=['png'], remove_text=True)
+def test_hist_step_bottom():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist(d1, bottom=np.arange(10), histtype="stepfilled")
+
+
 @image_comparison(baseline_images=['hist_stacked_bar'])
 def test_hist_stacked_bar():
     # make some data
