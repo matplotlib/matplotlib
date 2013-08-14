@@ -15,7 +15,7 @@ It is pretty easy to use, and requires only built-in python libs:
 
     >>> from matplotlib import rcParams
     >>> import os.path
-    >>> afm_fname = os.path.join(rcParams['datapath'], 
+    >>> afm_fname = os.path.join(rcParams['datapath'],
     ...                         'fonts', 'afm', 'ptmr8a.afm')
     >>>
     >>> from matplotlib.afm import AFM
@@ -33,12 +33,15 @@ It is pretty easy to use, and requires only built-in python libs:
 
 """
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import map
 
 import sys
 import os
 import re
-from _mathtext_data import uni2type1
+from ._mathtext_data import uni2type1
 
 #Convert string the a python type
 
@@ -53,7 +56,7 @@ def _to_int(x):
     return int(float(x))
 
 _to_float = float
-if sys.version_info[0] >= 3:
+if six.PY3:
     def _to_str(x):
         return x.decode('utf8')
 else:
@@ -201,7 +204,7 @@ def _parse_char_metrics(fh):
         name = vals[2].split()[1]
         name = name.decode('ascii')
         bbox = _to_list_of_floats(vals[3][2:])
-        bbox = map(int, bbox)
+        bbox = list(map(int, bbox))
         # Workaround: If the character name is 'Euro', give it the
         # corresponding character code, according to WinAnsiEncoding (see PDF
         # Reference).
@@ -400,7 +403,7 @@ class AFM(object):
         miny = 1e9
         maxy = 0
         left = 0
-        if not isinstance(s, unicode):
+        if not isinstance(s, six.text_type):
             s = s.decode('ascii')
         for c in s:
             if c == '\n':

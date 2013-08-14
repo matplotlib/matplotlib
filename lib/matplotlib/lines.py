@@ -4,22 +4,24 @@ variety of line styles, markers and colors.
 """
 
 # TODO: expose cap and join style attrs
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 import warnings
 
 import numpy as np
 from numpy import ma
 from matplotlib import verbose
-import artist
-from artist import Artist
-from cbook import iterable, is_string_like, is_numlike, ls_mapper
-from colors import colorConverter
-from path import Path
-from transforms import Bbox, TransformedPath, IdentityTransform
+from . import artist
+from .artist import Artist
+from .cbook import iterable, is_string_like, is_numlike, ls_mapper
+from .colors import colorConverter
+from .path import Path
+from .transforms import Bbox, TransformedPath, IdentityTransform
 
 from matplotlib import rcParams
-from artist import allow_rasterization
+from .artist import allow_rasterization
 from matplotlib import docstring
 from matplotlib.markers import MarkerStyle
 # Imported here for backward compatibility, even though they don't
@@ -104,7 +106,8 @@ class Line2D(Artist):
     drawStyles.update(_drawStyles_l)
     drawStyles.update(_drawStyles_s)
     # Need a list ordered with long names first:
-    drawStyleKeys = _drawStyles_l.keys() + _drawStyles_s.keys()
+    drawStyleKeys = (list(six.iterkeys(_drawStyles_l)) +
+                     list(six.iterkeys(_drawStyles_s)))
 
     # Referenced here to maintain API.  These are defined in
     # MarkerStyle
@@ -251,7 +254,7 @@ class Line2D(Artist):
 
         TODO: sort returned indices by distance
         """
-        if callable(self._contains):
+        if six.callable(self._contains):
             return self._contains(self, mouseevent)
 
         if not is_numlike(self.pickradius):
@@ -367,7 +370,7 @@ class Line2D(Artist):
         ACCEPTS: float distance in points or callable pick function
         ``fn(artist, event)``
         """
-        if callable(p):
+        if six.callable(p):
             self._contains = p
         else:
             self.pickradius = p

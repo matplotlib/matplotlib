@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import map, zip
+
 import math
 
 import matplotlib as mpl
@@ -124,7 +128,7 @@ class Patch(artist.Artist):
         # patch with a path.  However, patches that have a faster
         # algebraic solution to hit-testing should override this
         # method.
-        if callable(self._contains):
+        if six.callable(self._contains):
             return self._contains(self, mouseevent)
         if radius is None:
             radius = self.get_linewidth()
@@ -1056,7 +1060,7 @@ class FancyArrow(Polygon):
             M = np.array([[cx, sx], [-sx, cx]])
             verts = np.dot(coords, M) + (x + dx, y + dy)
 
-        Polygon.__init__(self, map(tuple, verts), closed=True, **kwargs)
+        Polygon.__init__(self, list(map(tuple, verts)), closed=True, **kwargs)
 
 
 docstring.interpd.update({"FancyArrow": FancyArrow.__init__.__doc__})
@@ -1135,7 +1139,7 @@ class YAArrow(Patch):
         xs = self.convert_xunits([xb1, xb2, xc2, xd2, x1, xd1, xc1, xb1])
         ys = self.convert_yunits([yb1, yb2, yc2, yd2, y1, yd1, yc1, yb1])
 
-        return Path(zip(xs, ys), closed=True)
+        return Path(list(zip(xs, ys)), closed=True)
 
     def get_patch_transform(self):
         return transforms.IdentityTransform()
@@ -1147,7 +1151,7 @@ class YAArrow(Patch):
         line and intersects (*x2*, *y2*) and the distance from (*x2*,
         *y2*) of the returned points is *k*.
         """
-        x1, y1, x2, y2, k = map(float, (x1, y1, x2, y2, k))
+        x1, y1, x2, y2, k = list(map(float, (x1, y1, x2, y2, k)))
 
         if y2 - y1 == 0:
             return x2, y2 + k, x2, y2 - k
@@ -1493,7 +1497,7 @@ class Arc(Ellipse):
                 if theta > theta1 and theta < theta2:
                     thetas[theta] = None
 
-        thetas = thetas.keys()
+        thetas = list(six.iterkeys(thetas))
         thetas.sort()
         thetas.append(theta2)
 
@@ -2113,10 +2117,10 @@ class BoxStyle(_Style):
                           in range(dsy_n * 2)] + \
                          [y0 + tooth_size2]
 
-            saw_vertices = zip(bottom_saw_x, bottom_saw_y) + \
-                           zip(right_saw_x, right_saw_y) + \
-                           zip(top_saw_x, top_saw_y) + \
-                           zip(left_saw_x, left_saw_y) + \
+            saw_vertices = list(zip(bottom_saw_x, bottom_saw_y)) + \
+                           list(zip(right_saw_x, right_saw_y)) + \
+                           list(zip(top_saw_x, top_saw_y)) + \
+                           list(zip(left_saw_x, left_saw_y)) + \
                            [(bottom_saw_x[0], bottom_saw_y[0])]
 
             return saw_vertices
@@ -2257,7 +2261,7 @@ class FancyBboxPatch(Patch):
 
         if isinstance(boxstyle, BoxStyle._Base):
             self._bbox_transmuter = boxstyle
-        elif callable(boxstyle):
+        elif six.callable(boxstyle):
             self._bbox_transmuter = boxstyle
         else:
             self._bbox_transmuter = BoxStyle(boxstyle, **kw)
@@ -3485,7 +3489,7 @@ class ArrowStyle(_Style):
             in_f = inside_circle(x2, y2, head_length)
             arrow_path = [(x0, y0), (x1, y1), (x2, y2)]
 
-            from bezier import NonIntersectingPathException
+            from .bezier import NonIntersectingPathException
 
             try:
                 arrow_out, arrow_in = \
@@ -3572,7 +3576,7 @@ class ArrowStyle(_Style):
             head_length = self.head_length * mutation_size
             arrow_path = [(x0, y0), (x1, y1), (x2, y2)]
 
-            from bezier import NonIntersectingPathException
+            from .bezier import NonIntersectingPathException
 
             # path for head
             in_f = inside_circle(x2, y2, head_length)
@@ -3855,7 +3859,7 @@ class FancyArrowPatch(Patch):
 
         if isinstance(connectionstyle, ConnectionStyle._Base):
             self._connector = connectionstyle
-        elif callable(connectionstyle):
+        elif six.callable(connectionstyle):
             # we may need check the calling convention of the given function
             self._connector = connectionstyle
         else:

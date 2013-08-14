@@ -4,7 +4,9 @@ XXX - See what improvements can be made based on the new (as of Sept 2009)
 'pycon' lexer for the python console.  At the very least it will give better
 highlighted tracebacks.
 """
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 #-----------------------------------------------------------------------------
 # Needed modules

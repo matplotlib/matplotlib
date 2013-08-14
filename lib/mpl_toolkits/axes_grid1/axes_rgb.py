@@ -1,5 +1,9 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import numpy as np
-from axes_divider import make_axes_locatable, Size, locatable_axes_factory
+from .axes_divider import make_axes_locatable, Size, locatable_axes_factory
 
 def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
     """
@@ -67,10 +71,10 @@ def imshow_rgb(ax, r, g, b, **kwargs):
     return im_rgb
 
 
-from mpl_axes import Axes
+from .mpl_axes import Axes
 
 class RGBAxesBase(object):
-    
+
     def __init__(self, *kl, **kwargs):
         pad = kwargs.pop("pad", 0.0)
         add_all = kwargs.pop("add_all", True)
@@ -120,7 +124,7 @@ class RGBAxesBase(object):
             self.add_RGB_to_figure()
 
         self._config_axes()
-        
+
     def _config_axes(self):
         for ax1 in [self.RGB, self.R, self.G, self.B]:
             #for sp1 in ax1.spines.values():
@@ -159,4 +163,3 @@ class RGBAxesBase(object):
 
 class RGBAxes(RGBAxesBase):
     _defaultAxesClass = Axes
-    

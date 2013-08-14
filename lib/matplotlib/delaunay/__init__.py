@@ -5,8 +5,11 @@
 :License: BSD-style license. See LICENSE.txt in the scipy source directory.
 """
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 from matplotlib._delaunay import delaunay
-from triangulate import *
-from interpolate import *
+from .triangulate import *
+from .interpolate import *
 __version__ = "0.2"

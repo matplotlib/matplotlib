@@ -1,3 +1,8 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
+
 import numpy as np
 from matplotlib.testing.decorators import image_comparison, knownfailureif
 from matplotlib.delaunay.triangulate import Triangulation
@@ -162,7 +167,7 @@ class NNTester(LinearTester):
 def make_all_2d_testfuncs(allfuncs=allfuncs):
     def make_test(func):
         filenames = [
-            '%s-%s' % (func.func_name, x) for x in
+            '%s-%s' % (func.__name__, x) for x in
             ['ref-img', 'nn-img', 'lin-img', 'ref-con', 'nn-con', 'lin-con']]
 
         # We only generate PNGs to save disk space -- we just assume
@@ -179,13 +184,13 @@ def make_all_2d_testfuncs(allfuncs=allfuncs):
             lpt.plot(func, interp=True, plotter='contour')
 
         tester = reference_test
-        tester.__name__ = 'test_%s' % func.func_name
+        tester.__name__ = str('test_%s' % func.__name__)
         return tester
 
     nnt = NNTester(npoints=1000)
     lpt = LinearTester(npoints=1000)
     for func in allfuncs:
-        globals()['test_%s' % func.func_name] = make_test(func)
+        globals()['test_%s' % func.__name__] = make_test(func)
 
 make_all_2d_testfuncs()
 

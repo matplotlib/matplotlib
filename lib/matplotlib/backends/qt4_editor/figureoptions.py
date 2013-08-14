@@ -7,7 +7,10 @@
 
 """Module that provides a GUI-based editor for matplotlib's figure options"""
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import os.path as osp
 
 import matplotlib.backends.qt4_editor.formlayout as formlayout
@@ -61,8 +64,8 @@ def figure_edit(axes, parent=None):
                 continue
             linedict[label] = line
         curves = []
-        linestyles = LINESTYLES.items()
-        markers = MARKERS.items()
+        linestyles = list(six.iteritems(LINESTYLES))
+        markers = list(six.iteritems(MARKERS))
         curvelabels = sorted(linedict.keys())
         for label in curvelabels:
             line = linedict[label]
@@ -85,14 +88,14 @@ def figure_edit(axes, parent=None):
     datalist = [(general, "Axes", "")]
     if has_curve:
         datalist.append((curves, "Curves", ""))
-        
+
     def apply_callback(data):
         """This function will be called to apply changes"""
         if has_curve:
             general, curves = data
         else:
             general, = data
-            
+
         # Set / General
         title, xmin, xmax, xlabel, xscale, ymin, ymax, ylabel, yscale = general
         axes.set_xscale(xscale)
@@ -102,7 +105,7 @@ def figure_edit(axes, parent=None):
         axes.set_xlabel(xlabel)
         axes.set_ylim(ymin, ymax)
         axes.set_ylabel(ylabel)
-        
+
         if has_curve:
             # Set / Curves
             for index, curve in enumerate(curves):
@@ -118,13 +121,12 @@ def figure_edit(axes, parent=None):
                     line.set_markersize(markersize)
                     line.set_markerfacecolor(markerfacecolor)
                     line.set_markeredgecolor(markeredgecolor)
-            
+
         # Redraw
         figure = axes.get_figure()
         figure.canvas.draw()
-        
+
     data = formlayout.fedit(datalist, title="Figure options", parent=parent,
                             icon=get_icon('qt4_editor_options.svg'), apply=apply_callback)
     if data is not None:
         apply_callback(data)
-    

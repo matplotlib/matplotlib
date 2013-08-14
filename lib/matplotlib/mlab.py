@@ -141,9 +141,14 @@ care--function signatures may differ):
 
 """
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import map, xrange, zip
+if six.PY3:
+    long = int
+
 import csv, warnings, copy, os, operator
-from itertools import izip
 
 import numpy as np
 ma = np.ma
@@ -529,7 +534,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
                   progressCallback=donothing_callback,
                   returnPxx=False):
 
-    u"""
+    """
     Call signature::
 
       Cxy, Phase, freqs = cohere_pairs( X, ij, ...)
@@ -633,7 +638,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
         windowVals = window
     else:
         windowVals = window(np.ones(NFFT, X.dtype))
-    ind = range(0, numRows-NFFT+1, NFFT-noverlap)
+    ind = list(xrange(0, numRows-NFFT+1, NFFT-noverlap))
     numSlices = len(ind)
     FFTSlices = {}
     FFTConjSlices = {}
@@ -1237,7 +1242,7 @@ class FIFOBuffer:
         self._xs[ind] = x
         self._ys[ind] = y
 
-        for N,funcs in self.callbackd.iteritems():
+        for N,funcs in six.iteritems(self.callbackd):
             if (self._ind%N)==0:
                 for func in funcs:
                     func(self)
@@ -1361,7 +1366,7 @@ def amap(fn,*args):
     Works like :func:`map`, but it returns an array.  This is just a
     convenient shorthand for ``numpy.array(map(...))``.
     """
-    return np.array(map(fn,*args))
+    return np.array(list(map(fn,*args)))
 
 
 def rms_flat(a):
@@ -1522,9 +1527,9 @@ def binary_repr(number, max_length = 1025):
     """
 
     #assert number < 2L << max_length
-    shifts = map (operator.rshift, max_length * [number], \
-                  range (max_length - 1, -1, -1))
-    digits = map (operator.mod, shifts, max_length * [2])
+    shifts = list(map (operator.rshift, max_length * [number], \
+                  range (max_length - 1, -1, -1)))
+    digits = list(map (operator.mod, shifts, max_length * [2]))
     if not digits.count (1): return 0
     digits = digits [digits.index (1):]
     return ''.join (map (repr, digits)).replace('L','')
@@ -1608,7 +1613,7 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
     else: # we have only 1 name and 1 array
         names = [names]
         arrs = [arrs]
-    arrs = map(np.asarray, arrs)
+    arrs = list(map(np.asarray, arrs))
     if dtypes is None:
         dtypes = [a.dtype for a in arrs]
     elif not cbook.iterable(dtypes):
@@ -1619,7 +1624,7 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
         else:
             raise ValueError("dtypes must be None, a single dtype or a list")
 
-    newdtype = np.dtype(rec.dtype.descr + zip(names, dtypes))
+    newdtype = np.dtype(rec.dtype.descr + list(zip(names, dtypes)))
     newrec = np.recarray(rec.shape, dtype=newdtype)
     for field in rec.dtype.fields:
         newrec[field] = rec[field]
@@ -1686,7 +1691,7 @@ def rec_groupby(r, groupby, stats):
         rowd.setdefault(key, []).append(i)
 
     # sort the output by groupby keys
-    keys = rowd.keys()
+    keys = list(six.iterkeys(rowd))
     keys.sort()
 
     rows = []
@@ -1700,7 +1705,7 @@ def rec_groupby(r, groupby, stats):
         rows.append(row)
 
     # build the output record array with groupby and outname attributes
-    attrs, funcs, outnames = zip(*stats)
+    attrs, funcs, outnames = list(zip(*stats))
     names = list(groupby)
     names.extend(outnames)
     return np.rec.fromrecords(rows, names=names)
@@ -1832,8 +1837,8 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2post
             newrec[name] = 0
 
     if jointype != 'inner' and defaults is not None: # fill in the defaults enmasse
-        newrec_fields = newrec.dtype.fields.keys()
-        for k, v in defaults.iteritems():
+        newrec_fields = list(six.iterkeys(newrec.dtype.fields.keys))
+        for k, v in six.iteritems(defaults):
             if k in newrec_fields:
                 newrec[k] = v
 
@@ -1898,11 +1903,11 @@ def recs_join(key, name, recs, jointype='outer', missing=0., postfixes=None):
 
     if jointype == "outer":
         for rowkey, row in aligned_iters:
-            results.append([rowkey] + map(extract, row))
+            results.append([rowkey] + list(map(extract, row)))
     elif jointype == "inner":
         for rowkey, row in aligned_iters:
             if None not in row: # throw out any Nones
-                results.append([rowkey] + map(extract, row))
+                results.append([rowkey] + list(map(extract, row)))
 
     if postfixes is None:
         postfixes = ['%d'%i for i in range(len(recs))]
@@ -1973,6 +1978,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
     fh = cbook.to_filehandle(fname)
 
+    delimiter = str(delimiter)
 
     class FH:
         """
@@ -2081,7 +2087,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
                 break
             #print i, len(names), len(row)
             #print 'converters', zip(converters, row)
-            for j, (name, item) in enumerate(izip(names, row)):
+            for j, (name, item) in enumerate(zip(names, row)):
                 func = converterd.get(j)
                 if func is None:
                     func = converterd.get(name)
@@ -2378,7 +2384,7 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
             return 0, length+padding, "%s" # left justify
 
         if ntype==np.int or ntype==np.int16 or ntype==np.int32 or ntype==np.int64 or ntype==np.int8 or ntype==np.int_:
-            length = max(len(colname),np.max(map(len,map(str,column))))
+            length = max(len(colname),np.max(list(map(len, list(map(str,column))))))
             return 1, length+padding, "%d" # right justify
 
         # JDH: my powerbook does not have np.float96 using np 1.3.0
@@ -2395,10 +2401,10 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
         """
         if ntype==np.float or ntype==np.float32 or ntype==np.float64 or (hasattr(np, 'float96') and (ntype==np.float96)) or ntype==np.float_:
             fmt = "%." + str(precision) + "f"
-            length = max(len(colname),np.max(map(len,map(lambda x:fmt%x,column))))
+            length = max(len(colname),np.max(list(map(len, list(map(lambda x:fmt%x,column))))))
             return 1, length+padding, fmt   # right justify
 
-        return 0, max(len(colname),np.max(map(len,map(str,column))))+padding, "%s"
+        return 0, max(len(colname),np.max(list(map(len, list(map(str,column))))))+padding, "%s"
 
     if header is None:
         header = r.dtype.names
@@ -2466,6 +2472,8 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
             For information about *missing* and *missingd*, which can
             be used to fill in masked values into your CSV file.
     """
+
+    delimiter = str(delimiter)
 
     if missingd is None:
         missingd = dict()

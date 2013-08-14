@@ -1,4 +1,7 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import math
 import warnings
 
@@ -173,7 +176,7 @@ class ThetaFormatter(Formatter):
             # (assuming it has a degree sign), whereas $5\circ$
             # will only work correctly with one of the supported
             # math fonts (Computer Modern and STIX)
-            return u"%0.0f\u00b0" % ((x / np.pi) * 180.0)
+            return "%0.0f\u00b0" % ((x / np.pi) * 180.0)
 
 
 class RadialLocator(Locator):
@@ -563,7 +566,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         # \u03b8: lower-case theta
         # \u03c0: lower-case pi
         # \u00b0: degree symbol
-        return u'\u03b8=%0.3f\u03c0 (%0.3f\u00b0), r=%0.3f' % (theta, theta * 180.0, r)
+        return '\u03b8=%0.3f\u03c0 (%0.3f\u00b0), r=%0.3f' % (theta, theta * 180.0, r)
 
     def get_data_ratio(self):
         '''

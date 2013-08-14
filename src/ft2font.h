@@ -32,7 +32,7 @@ public:
     static void init_type();
 
     void draw_bitmap(FT_Bitmap* bitmap, FT_Int x, FT_Int y);
-    void write_bitmap(const char* filename) const;
+    void write_bitmap(FILE* fp) const;
     void draw_rect(unsigned long x0, unsigned long y0,
                    unsigned long x1, unsigned long y1);
     void draw_rect_filled(unsigned long x0, unsigned long y0,
@@ -133,6 +133,9 @@ private:
     FT_Matrix     matrix;                 /* transformation matrix */
     FT_Vector     pen;                    /* untransformed origin  */
     FT_Error      error;
+    FT_StreamRec  stream;
+    FT_Byte *     mem;
+    size_t        mem_size;
     std::vector<FT_Glyph> glyphs;
     std::vector<FT_Vector> pos;
     double angle;
@@ -142,6 +145,8 @@ private:
 
     FT_BBox compute_string_bbox();
     void set_scalable_attributes();
+
+    int make_open_args(PyObject *fileobj, FT_Open_Args *open_args);
 
     static char clear__doc__ [];
     static char set_size__doc__ [];

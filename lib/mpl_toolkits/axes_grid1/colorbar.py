@@ -18,6 +18,10 @@ and :class:`Colorbar`; the :func:`~matplotlib.pyplot.colorbar` function
 is a thin wrapper over :meth:`~matplotlib.figure.Figure.colorbar`.
 
 '''
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange, zip
 
 import numpy as np
 import matplotlib as mpl
@@ -525,9 +529,9 @@ class ColorbarBase(cm.ScalarMappable):
         # Using the non-array form of these line segments is much
         # simpler than making them into arrays.
         if self.orientation == 'vertical':
-            return [zip(X[i], Y[i]) for i in range(1, N-1)]
+            return [list(zip(X[i], Y[i])) for i in xrange(1, N-1)]
         else:
-            return [zip(Y[i], X[i]) for i in range(1, N-1)]
+            return [list(zip(Y[i], X[i])) for i in xrange(1, N-1)]
 
     def _add_solids(self, X, Y, C):
         '''
@@ -579,9 +583,9 @@ class ColorbarBase(cm.ScalarMappable):
         x = np.array([1.0, 2.0])
         X, Y = np.meshgrid(x,levels)
         if self.orientation == 'vertical':
-            xy = [zip(X[i], Y[i]) for i in range(N)]
+            xy = [list(zip(X[i], Y[i])) for i in xrange(N)]
         else:
-            xy = [zip(Y[i], X[i]) for i in range(N)]
+            xy = [list(zip(Y[i], X[i])) for i in xrange(N)]
         col = collections.LineCollection(xy, linewidths=linewidths,
                                          )
         self.lines = col

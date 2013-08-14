@@ -14,8 +14,11 @@ Text instance. The width and height of the TextArea instance is the
 width and height of the its child text.
 """
 
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import print_function
+import six
+from six.moves import xrange, zip
+
 import warnings
 import matplotlib.transforms as mtransforms
 import matplotlib.artist as martist
@@ -62,7 +65,7 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
     *mode* : packing mode. 'fixed', 'expand', or 'equal'.
     """
 
-    w_list, d_list = zip(*wd_list)
+    w_list, d_list = list(zip(*wd_list))
     # d_list is currently not used.
 
     if mode == "fixed":
@@ -152,7 +155,7 @@ class OffsetBox(martist.Artist):
         state = martist.Artist.__getstate__(self)
 
         # pickle cannot save instancemethods, so handle them here
-        from cbook import _InstanceMethodPickler
+        from .cbook import _InstanceMethodPickler
         import inspect
 
         offset = state['_offset']
@@ -162,7 +165,7 @@ class OffsetBox(martist.Artist):
 
     def __setstate__(self, state):
         self.__dict__ = state
-        from cbook import _InstanceMethodPickler
+        from .cbook import _InstanceMethodPickler
         if isinstance(self._offset, _InstanceMethodPickler):
             self._offset = self._offset.get_instancemethod()
 
@@ -197,7 +200,7 @@ class OffsetBox(martist.Artist):
 
         accepts extent of the box
         """
-        if callable(self._offset):
+        if six.callable(self._offset):
             return self._offset(width, height, xdescent, ydescent, renderer)
         else:
             return self._offset
@@ -357,7 +360,7 @@ class VPacker(PackerBase):
 
         return width + 2 * pad, height + 2 * pad, \
                xdescent + pad, ydescent + pad, \
-               zip(xoffsets, yoffsets)
+               list(zip(xoffsets, yoffsets))
 
 
 class HPacker(PackerBase):
@@ -422,7 +425,7 @@ class HPacker(PackerBase):
 
         return width + 2 * pad, height + 2 * pad, \
                xdescent + pad, ydescent + pad, \
-               zip(xoffsets, yoffsets)
+               list(zip(xoffsets, yoffsets))
 
 
 class PaddedBox(OffsetBox):
@@ -1062,7 +1065,7 @@ class AnchoredOffsetbox(OffsetBox):
         """
         assert loc in range(1, 11)  # called only internally
 
-        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = range(11)
+        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = list(xrange(11))
 
         anchor_coefs = {UR: "NE",
                         UL: "NW",
@@ -1101,7 +1104,7 @@ class AnchoredText(AnchoredOffsetbox):
 
         if prop is None:
             prop = {}
-        propkeys = prop.keys()
+        propkeys = list(six.iterkeys(prop))
         badkwargs = ('ha', 'horizontalalignment', 'va', 'verticalalignment')
         if set(badkwargs) & set(propkeys):
             warnings.warn("Mixing horizontalalignment or verticalalignment "

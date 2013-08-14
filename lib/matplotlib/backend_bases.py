@@ -27,7 +27,11 @@ graphics contexts must implement to serve as a matplotlib backend
 
 """
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
+
 import os
 import warnings
 import time
@@ -1942,43 +1946,43 @@ class FigureCanvasBase(object):
     # >>> list(matplotlib.tests.test_spines.test_spines_axes_positions())[0][0]()
 
     def print_eps(self, *args, **kwargs):
-        from backends.backend_ps import FigureCanvasPS  # lazy import
+        from .backends.backend_ps import FigureCanvasPS  # lazy import
         ps = self.switch_backends(FigureCanvasPS)
         return ps.print_eps(*args, **kwargs)
 
     def print_pdf(self, *args, **kwargs):
-        from backends.backend_pdf import FigureCanvasPdf  # lazy import
+        from .backends.backend_pdf import FigureCanvasPdf  # lazy import
         pdf = self.switch_backends(FigureCanvasPdf)
         return pdf.print_pdf(*args, **kwargs)
 
     def print_pgf(self, *args, **kwargs):
-        from backends.backend_pgf import FigureCanvasPgf  # lazy import
+        from .backends.backend_pgf import FigureCanvasPgf  # lazy import
         pgf = self.switch_backends(FigureCanvasPgf)
         return pgf.print_pgf(*args, **kwargs)
 
     def print_png(self, *args, **kwargs):
-        from backends.backend_agg import FigureCanvasAgg  # lazy import
+        from .backends.backend_agg import FigureCanvasAgg  # lazy import
         agg = self.switch_backends(FigureCanvasAgg)
         return agg.print_png(*args, **kwargs)
 
     def print_ps(self, *args, **kwargs):
-        from backends.backend_ps import FigureCanvasPS  # lazy import
+        from .backends.backend_ps import FigureCanvasPS  # lazy import
         ps = self.switch_backends(FigureCanvasPS)
         return ps.print_ps(*args, **kwargs)
 
     def print_raw(self, *args, **kwargs):
-        from backends.backend_agg import FigureCanvasAgg  # lazy import
+        from .backends.backend_agg import FigureCanvasAgg  # lazy import
         agg = self.switch_backends(FigureCanvasAgg)
         return agg.print_raw(*args, **kwargs)
     print_bmp = print_rgba = print_raw
 
     def print_svg(self, *args, **kwargs):
-        from backends.backend_svg import FigureCanvasSVG  # lazy import
+        from .backends.backend_svg import FigureCanvasSVG  # lazy import
         svg = self.switch_backends(FigureCanvasSVG)
         return svg.print_svg(*args, **kwargs)
 
     def print_svgz(self, *args, **kwargs):
-        from backends.backend_svg import FigureCanvasSVG  # lazy import
+        from .backends.backend_svg import FigureCanvasSVG  # lazy import
         svg = self.switch_backends(FigureCanvasSVG)
         return svg.print_svgz(*args, **kwargs)
 
@@ -2003,7 +2007,7 @@ class FigureCanvasBase(object):
             *progressive*: If present, indicates that this image
                 should be stored as a progressive JPEG file.
             """
-            from backends.backend_agg import FigureCanvasAgg  # lazy import
+            from .backends.backend_agg import FigureCanvasAgg  # lazy import
             agg = self.switch_backends(FigureCanvasAgg)
             buf, size = agg.print_to_buffer()
             if kwargs.pop("dryrun", False):
@@ -2021,7 +2025,7 @@ class FigureCanvasBase(object):
         filetypes['tif'] = filetypes['tiff'] = 'Tagged Image File Format'
 
         def print_tif(self, filename_or_obj, *args, **kwargs):
-            from backends.backend_agg import FigureCanvasAgg  # lazy import
+            from .backends.backend_agg import FigureCanvasAgg  # lazy import
             agg = self.switch_backends(FigureCanvasAgg)
             buf, size = agg.print_to_buffer()
             if kwargs.pop("dryrun", False):
@@ -2042,7 +2046,7 @@ class FigureCanvasBase(object):
         Experts Group', and the values are a list of filename extensions used
         for that filetype, such as ['jpg', 'jpeg']."""
         groupings = {}
-        for ext, name in self.filetypes.iteritems():
+        for ext, name in six.iteritems(self.filetypes):
             groupings.setdefault(name, []).append(ext)
             groupings[name].sort()
         return groupings
@@ -2620,7 +2624,7 @@ class FigureManagerBase:
 
 class Cursors:
     # this class is only used as a simple namespace
-    HAND, POINTER, SELECT_REGION, MOVE = range(4)
+    HAND, POINTER, SELECT_REGION, MOVE = list(range(4))
 cursors = Cursors()
 
 

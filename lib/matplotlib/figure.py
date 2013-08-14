@@ -11,7 +11,10 @@ contains all the plot elements.  The following classes are defined
 
 """
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import warnings
 from operator import itemgetter
 
@@ -476,7 +479,7 @@ class Figure(Artist):
 
         Returns True,{}
         """
-        if callable(self._contains):
+        if six.callable(self._contains):
             return self._contains(self, mouseevent)
         # inside = mouseevent.x >= 0 and mouseevent.y >= 0
         inside = self.bbox.contains(mouseevent.x, mouseevent.y)
@@ -768,7 +771,7 @@ class Figure(Artist):
                 ret.append(a)
             return tuple(ret)
 
-        key = fixlist(args), fixitems(kwargs.iteritems())
+        key = fixlist(args), fixitems(six.iteritems(kwargs))
         return key
 
     @docstring.dedent_interpd
@@ -1279,7 +1282,8 @@ class Figure(Artist):
         if getattr(self.canvas, 'manager', None) is not None:
             manager = self.canvas.manager
             import matplotlib._pylab_helpers
-            if manager in matplotlib._pylab_helpers.Gcf.figs.values():
+            if manager in list(six.itervalues(
+                    matplotlib._pylab_helpers.Gcf.figs)):
                 state['_restore_to_pylab'] = True
 
         return state
@@ -1599,8 +1603,8 @@ class Figure(Artist):
             labels) will fit into. Default is (0, 0, 1, 1).
         """
 
-        from tight_layout import (get_renderer, get_tight_layout_figure,
-                                  get_subplotspec_list)
+        from .tight_layout import (get_renderer, get_tight_layout_figure,
+                                   get_subplotspec_list)
 
         subplotspec_list = get_subplotspec_list(self.axes)
         if None in subplotspec_list:
