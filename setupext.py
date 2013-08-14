@@ -632,7 +632,7 @@ class Tests(OptionalPackage):
 
     def get_install_requires(self):
         requires = ['nose>=0.11.1']
-        if not is_min_version(sys.version_info, '3.3'):
+        if not sys.version_info > (3, 3):
             requires += ['mock']
         return requires
 
