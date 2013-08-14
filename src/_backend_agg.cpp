@@ -245,7 +245,7 @@ GCAgg::_set_linecap(const Py::Object& gc)
 {
     _VERBOSE("GCAgg::_set_linecap");
 
-    std::string capstyle = Py::String(gc.getAttr("_capstyle"));
+    std::string capstyle = Py::String(gc.getAttr("_capstyle")).encode("utf-8");
 
     if (capstyle == "butt")
     {
@@ -271,7 +271,7 @@ GCAgg::_set_joinstyle(const Py::Object& gc)
 {
     _VERBOSE("GCAgg::_set_joinstyle");
 
-    std::string joinstyle = Py::String(gc.getAttr("_joinstyle"));
+    std::string joinstyle = Py::String(gc.getAttr("_joinstyle")).encode("utf-8");
 
     if (joinstyle == "miter")
     {
@@ -643,7 +643,7 @@ RendererAgg::render_clippath(const Py::Object& clippath,
         PathIterator clippath_iter(clippath);
         rendererBaseAlphaMask.clear(agg::gray8(0, 0));
         transformed_path_t transformed_clippath(clippath_iter, trans);
-        agg::conv_curve<transformed_path_t> curved_clippath(transformed_clippath);
+        curve_t curved_clippath(transformed_clippath);
         try {
             theRasterizer.add_path(curved_clippath);
         } catch (std::overflow_error &e) {
@@ -671,7 +671,6 @@ RendererAgg::draw_markers(const Py::Tuple& args)
     typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
     typedef agg::renderer_base<pixfmt_amask_type>              amask_ren_type;
     typedef agg::renderer_scanline_aa_solid<amask_ren_type>    amask_aa_renderer_type;
-    typedef agg::renderer_scanline_bin_solid<amask_ren_type>   amask_bin_renderer_type;
     args.verify_length(5, 6);
 
     Py::Object        gc_obj          = args[0];
@@ -930,7 +929,6 @@ RendererAgg::draw_text_image(const Py::Tuple& args)
 {
     _VERBOSE("RendererAgg::draw_text");
 
-    typedef agg::span_allocator<agg::gray8> gray_span_alloc_type;
     typedef agg::span_allocator<agg::rgba8> color_span_alloc_type;
     typedef agg::span_interpolator_linear<> interpolator_type;
     typedef agg::image_accessor_clip<agg::pixfmt_gray8> image_accessor_type;
@@ -1745,7 +1743,7 @@ RendererAgg::draw_path_collection(const Py::Tuple& args)
     Py::SeqBase<Py::Int>    antialiaseds     = args[10];
     // We don't actually care about urls for Agg, so just ignore it.
     // Py::SeqBase<Py::Object> urls             = args[11];
-    std::string             offset_position  = Py::String(args[12]);
+    std::string             offset_position  = Py::String(args[12]).encode("utf-8");
 
     bool data_offsets = (offset_position == "data");
 
@@ -2055,7 +2053,6 @@ RendererAgg::draw_gouraud_triangles(const Py::Tuple& args)
 
     typedef agg::rgba8                      color_t;
     typedef agg::span_gouraud_rgba<color_t> span_gen_t;
-    typedef agg::span_allocator<color_t>    span_alloc_t;
 
     GCAgg             gc(args[0], dpi);
     Py::Object        points_obj = args[1];

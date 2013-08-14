@@ -34,7 +34,9 @@ or include these two lines in your script::
 
 """
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 import copy
 import glob
@@ -131,23 +133,23 @@ Could not rename old TeX cache dir "%s": a suitable configuration
     serif = ('cmr', '')
     sans_serif = ('cmss', '')
     monospace = ('cmtt', '')
-    cursive = ('pzc', r'\usepackage{chancery}')
+    cursive = ('pzc', '\\usepackage{chancery}')
     font_family = 'serif'
     font_families = ('serif', 'sans-serif', 'cursive', 'monospace')
 
     font_info = {'new century schoolbook': ('pnc',
                                             r'\renewcommand{\rmdefault}{pnc}'),
                  'bookman': ('pbk', r'\renewcommand{\rmdefault}{pbk}'),
-                 'times': ('ptm', r'\usepackage{mathptmx}'),
-                 'palatino': ('ppl', r'\usepackage{mathpazo}'),
-                 'zapf chancery': ('pzc', r'\usepackage{chancery}'),
-                 'cursive': ('pzc', r'\usepackage{chancery}'),
-                 'charter': ('pch', r'\usepackage{charter}'),
+                 'times': ('ptm', '\\usepackage{mathptmx}'),
+                 'palatino': ('ppl', '\\usepackage{mathpazo}'),
+                 'zapf chancery': ('pzc', '\\usepackage{chancery}'),
+                 'cursive': ('pzc', '\\usepackage{chancery}'),
+                 'charter': ('pch', '\\usepackage{charter}'),
                  'serif': ('cmr', ''),
                  'sans-serif': ('cmss', ''),
-                 'helvetica': ('phv', r'\usepackage{helvet}'),
-                 'avant garde': ('pag', r'\usepackage{avant}'),
-                 'courier': ('pcr', r'\usepackage{courier}'),
+                 'helvetica': ('phv', '\\usepackage{helvet}'),
+                 'avant garde': ('pag', '\\usepackage{avant}'),
+                 'courier': ('pcr', '\\usepackage{courier}'),
                  'monospace': ('cmtt', ''),
                  'computer modern roman': ('cmr', ''),
                  'computer modern sans serif': ('cmss', ''),
@@ -207,11 +209,11 @@ Could not rename old TeX cache dir "%s": a suitable configuration
         cmd = [self.serif[1], self.sans_serif[1], self.monospace[1]]
         if self.font_family == 'cursive':
             cmd.append(self.cursive[1])
-        while r'\usepackage{type1cm}' in cmd:
-            cmd.remove(r'\usepackage{type1cm}')
+        while '\\usepackage{type1cm}' in cmd:
+            cmd.remove('\\usepackage{type1cm}')
         cmd = '\n'.join(cmd)
-        self._font_preamble = '\n'.join([r'\usepackage{type1cm}', cmd,
-                                         r'\usepackage{textcomp}'])
+        self._font_preamble = '\n'.join(['\\usepackage{type1cm}', cmd,
+                                         '\\usepackage{textcomp}'])
 
     def get_basefile(self, tex, fontsize, dpi=None):
         """
@@ -220,7 +222,7 @@ Could not rename old TeX cache dir "%s": a suitable configuration
         s = ''.join([tex, self.get_font_config(), '%f' % fontsize,
                      self.get_custom_preamble(), str(dpi or '')])
         # make sure hash is consistent for all strings, regardless of encoding:
-        bytes = unicode(s).encode('utf-8')
+        bytes = six.text_type(s).encode('utf-8')
         return os.path.join(self.texcache, md5(bytes).hexdigest())
 
     def get_font_config(self):
@@ -282,20 +284,20 @@ Could not rename old TeX cache dir "%s": a suitable configuration
         tex = fontcmd % tex
 
         if rcParams['text.latex.unicode']:
-            unicode_preamble = r"""\usepackage{ucs}
-\usepackage[utf8x]{inputenc}"""
+            unicode_preamble = """\\usepackage{ucs}
+\\usepackage[utf8x]{inputenc}"""
         else:
             unicode_preamble = ''
 
-        s = r"""\documentclass{article}
+        s = """\\documentclass{article}
 %s
 %s
 %s
-\usepackage[papersize={72in,72in},body={70in,70in},margin={1in,1in}]{geometry}
-\pagestyle{empty}
-\begin{document}
-\fontsize{%f}{%f}%s
-\end{document}
+\\usepackage[papersize={72in,72in},body={70in,70in},margin={1in,1in}]{geometry}
+\\pagestyle{empty}
+\\begin{document}
+\\fontsize{%f}{%f}%s
+\\end{document}
 """ % (self._font_preamble, unicode_preamble, custom_preamble,
        fontsize, fontsize * 1.25, tex)
         with open(texfile, 'wb') as fh:
@@ -333,30 +335,30 @@ Could not rename old TeX cache dir "%s": a suitable configuration
         tex = fontcmd % tex
 
         if rcParams['text.latex.unicode']:
-            unicode_preamble = r"""\usepackage{ucs}
-\usepackage[utf8x]{inputenc}"""
+            unicode_preamble = """\\usepackage{ucs}
+\\usepackage[utf8x]{inputenc}"""
         else:
             unicode_preamble = ''
 
         # newbox, setbox, immediate, etc. are used to find the box
         # extent of the rendered text.
 
-        s = r"""\documentclass{article}
+        s = """\\documentclass{article}
 %s
 %s
 %s
-\usepackage[active,showbox,tightpage]{preview}
-\usepackage[papersize={72in,72in},body={70in,70in},margin={1in,1in}]{geometry}
+\\usepackage[active,showbox,tightpage]{preview}
+\\usepackage[papersize={72in,72in},body={70in,70in},margin={1in,1in}]{geometry}
 
 %% we override the default showbox as it is treated as an error and makes
 %% the exit status not zero
-\def\showbox#1{\immediate\write16{MatplotlibBox:(\the\ht#1+\the\dp#1)x\the\wd#1}}
+\\def\\showbox#1{\\immediate\\write16{MatplotlibBox:(\\the\\ht#1+\\the\\dp#1)x\\the\\wd#1}}
 
-\begin{document}
-\begin{preview}
-{\fontsize{%f}{%f}%s}
-\end{preview}
-\end{document}
+\\begin{document}
+\\begin{preview}
+{\\fontsize{%f}{%f}%s}
+\\end{preview}
+\\end{document}
 """ % (self._font_preamble, unicode_preamble, custom_preamble,
        fontsize, fontsize * 1.25, tex)
         with open(texfile, 'wb') as fh:

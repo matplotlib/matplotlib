@@ -31,6 +31,11 @@ Example usage
     gtk.main()
 
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange, zip
+
 import copy
 import gtk, gobject
 import numpy as npy
@@ -163,7 +168,7 @@ class SortedStringsScrolledWindow(gtk.ScrolledWindow):
                 dsu.sort()
                 if not self.num%2: dsu.reverse()
 
-                vals, otherind = zip(*dsu)
+                vals, otherind = list(zip(*dsu))
                 ind.extend(otherind)
 
                 self.parent.model.reorder(ind)
@@ -256,7 +261,7 @@ class SortedStringsScrolledWindow(gtk.ScrolledWindow):
         self.rownumd[len(self.iters)] = key
         self.iters.remove(thisiter)
 
-        for rownum, thiskey in self.rownumd.items():
+        for rownum, thiskey in list(six.iteritems(self.rownumd)):
             if thiskey==key: del self.rownumd[rownum]
 
     def add_row(self, row):
@@ -359,7 +364,7 @@ class RecListStore(gtk.ListStore):
      * callbacks - a matplotlib.cbook.CallbackRegistry.  Connect to the cell_changed with
 
         def mycallback(liststore, rownum, colname, oldval, newval):
-           print 'verify: old=%s, new=%s, rec=%s'%(oldval, newval, liststore.r[rownum][colname])
+           print('verify: old=%s, new=%s, rec=%s'%(oldval, newval, liststore.r[rownum][colname]))
 
         cid = liststore.callbacks.connect('cell_changed', mycallback)
 
@@ -402,7 +407,7 @@ class RecListStore(gtk.ListStore):
         if len(stringd):
             types.extend([gobject.TYPE_INT]*len(stringd))
 
-            keys = stringd.keys()
+            keys = list(six.iterkeys(stringd))
             keys.sort()
 
             valid = set(r.dtype.names)
@@ -590,7 +595,7 @@ if __name__=='__main__':
     gains = np.random.randn(N)                                   # floats
     prices = np.random.rand(N)*1e7                               # big numbers
     up = gains>0                                                 # bools
-    clientid = range(N)                                          # ints
+    clientid = list(xrange(N))                                   # ints
 
     r = np.rec.fromarrays([clientid, dates, weekdays, gains, prices, up],
                           names='clientid,date,weekdays,gains,prices,up')
@@ -610,7 +615,7 @@ if __name__=='__main__':
     treeview = RecTreeView(liststore, constant=constant)
 
     def mycallback(liststore, rownum, colname, oldval, newval):
-        print 'verify: old=%s, new=%s, rec=%s'%(oldval, newval, liststore.r[rownum][colname])
+        print('verify: old=%s, new=%s, rec=%s'%(oldval, newval, liststore.r[rownum][colname]))
 
     liststore.callbacks.connect('cell_changed', mycallback)
 
@@ -625,4 +630,3 @@ if __name__=='__main__':
     win2.set_title('with all defaults')
 
     gtk.main()
-

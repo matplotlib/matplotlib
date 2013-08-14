@@ -1,4 +1,7 @@
 # -*- encoding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 import os
 import shutil
@@ -15,13 +18,13 @@ baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
 
 def check_for(texsystem):
-    header = r"""
-    \documentclass{minimal}
-    \usepackage{pgf}
-    \begin{document}
-    \typeout{pgfversion=\pgfversion}
-    \makeatletter
-    \@@end
+    header = """
+    \\documentclass{minimal}
+    \\usepackage{pgf}
+    \\begin{document}
+    \\typeout{pgfversion=\\pgfversion}
+    \\makeatletter
+    \\@@end
     """
     try:
         latex = subprocess.Popen(["xelatex", "-halt-on-error"],
@@ -70,8 +73,8 @@ def create_figure():
     plt.fill_between([0., .4], [.4, 0.], hatch='//', facecolor="lightgray", edgecolor="red")
     plt.plot(x, 1-x**2, "g>")
     plt.plot([0.9], [0.5], "ro", markersize=3)
-    plt.text(0.9, 0.5, u'unicode (ü, °, µ) and math ($\\mu_i = x_i^2$)', ha='right', fontsize=20)
-    plt.ylabel(u'sans-serif with math $\\frac{\\sqrt{x}}{y^2}$..', family='sans-serif')
+    plt.text(0.9, 0.5, 'unicode (ü, °, µ) and math ($\\mu_i = x_i^2$)', ha='right', fontsize=20)
+    plt.ylabel('sans-serif with math $\\frac{\\sqrt{x}}{y^2}$..', family='sans-serif')
 
 
 # test compiling a figure to pdf with xelatex
@@ -96,8 +99,8 @@ def test_pdflatex():
     rc_pdflatex = {'font.family': 'serif',
                    'pgf.rcfonts': False,
                    'pgf.texsystem': 'pdflatex',
-                   'pgf.preamble': [r'\usepackage[utf8x]{inputenc}',
-                                    r'\usepackage[T1]{fontenc}']}
+                   'pgf.preamble': ['\\usepackage[utf8x]{inputenc}',
+                                    '\\usepackage[T1]{fontenc}']}
     mpl.rcParams.update(rc_pdflatex)
     create_figure()
     compare_figure('pgf_pdflatex.pdf')
@@ -122,9 +125,9 @@ def test_rcupdate():
                     'lines.markersize': 20,
                     'pgf.rcfonts': False,
                     'pgf.texsystem': 'pdflatex',
-                    'pgf.preamble': [r'\usepackage[utf8x]{inputenc}',
-                                     r'\usepackage[T1]{fontenc}',
-                                     r'\usepackage{sfmath}']})
+                    'pgf.preamble': ['\\usepackage[utf8x]{inputenc}',
+                                     '\\usepackage[T1]{fontenc}',
+                                     '\\usepackage{sfmath}']})
 
     for i, rc_set in enumerate(rc_sets):
         mpl.rcParams.update(rc_set)

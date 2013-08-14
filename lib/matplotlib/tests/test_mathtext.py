@@ -1,4 +1,7 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import numpy as np
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, knownfailureif
@@ -46,8 +49,8 @@ math_tests = [
     r"$W^{3\beta}_{\delta_1 \rho_1 \sigma_2} = U^{3\beta}_{\delta_1 \rho_1} + \frac{1}{8 \pi 2} \int^{\alpha_2}_{\alpha_2} d \alpha^\prime_2 \left[\frac{ U^{2\beta}_{\delta_1 \rho_1} - \alpha^\prime_2U^{1\beta}_{\rho_1 \sigma_2} }{U^{0\beta}_{\rho_1 \sigma_2}}\right]$",
     r'$\mathcal{H} = \int d \tau \left(\epsilon E^2 + \mu H^2\right)$',
     r'$\widehat{abc}\widetilde{def}$',
-    r'$\Gamma \Delta \Theta \Lambda \Xi \Pi \Sigma \Upsilon \Phi \Psi \Omega$',
-    r'$\alpha \beta \gamma \delta \epsilon \zeta \eta \theta \iota \lambda \mu \nu \xi \pi \kappa \rho \sigma \tau \upsilon \phi \chi \psi$',
+    '$\\Gamma \\Delta \\Theta \\Lambda \\Xi \\Pi \\Sigma \\Upsilon \\Phi \\Psi \\Omega$',
+    '$\\alpha \\beta \\gamma \\delta \\epsilon \\zeta \\eta \\theta \\iota \\lambda \\mu \\nu \\xi \\pi \\kappa \\rho \\sigma \\tau \\upsilon \\phi \\chi \\psi$',
 
     # The examples prefixed by 'mmltt' are from the MathML torture test here:
         # http://www.mozilla.org/projects/mathml/demo/texvsmml.xhtml
@@ -92,11 +95,11 @@ math_tests = [
 digits = "0123456789"
 uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 lowercase = "abcdefghijklmnopqrstuvwxyz"
-uppergreek = (r"\Gamma \Delta \Theta \Lambda \Xi \Pi \Sigma \Upsilon \Phi \Psi "
-              r"\Omega")
-lowergreek = (r"\alpha \beta \gamma \delta \epsilon \zeta \eta \theta \iota "
-              r"\lambda \mu \nu \xi \pi \kappa \rho \sigma \tau \upsilon "
-              r"\phi \chi \psi")
+uppergreek = ("\\Gamma \\Delta \\Theta \\Lambda \\Xi \\Pi \\Sigma \\Upsilon \\Phi \\Psi "
+              "\\Omega")
+lowergreek = ("\\alpha \\beta \\gamma \\delta \\epsilon \\zeta \\eta \\theta \\iota "
+              "\\lambda \\mu \\nu \\xi \\pi \\kappa \\rho \\sigma \\tau \\upsilon "
+              "\\phi \\chi \\psi")
 all = [digits, uppercase, lowercase, uppergreek, lowergreek]
 
 font_test_specs = [
@@ -146,7 +149,7 @@ def make_set(basename, fontset, tests, extensions=None):
             fig = plt.figure(figsize=(5.25, 0.75))
             fig.text(0.5, 0.5, test, horizontalalignment='center', verticalalignment='center')
         func = single_test
-        func.__name__ = "test_" + filename
+        func.__name__ = str("test_" + filename)
         return func
 
     # We inject test functions into the global namespace, rather than

@@ -97,8 +97,9 @@ Occasionally the internal documentation (python docstrings) will refer
 to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 
 """
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import six
 import sys
 
 __version__  = '1.4.x'
@@ -163,17 +164,6 @@ if not hasattr(sys, 'argv'):  # for modpython
 
 import sys, os, tempfile
 
-if sys.version_info[0] >= 3:
-    def ascii(s): return bytes(s, 'ascii')
-
-    def byte2str(b): return b.decode('ascii')
-
-else:
-    ascii = str
-
-    def byte2str(b): return b
-
-
 from matplotlib.rcsetup import (defaultParams,
                                 validate_backend,
                                 validate_toolbar)
@@ -225,7 +215,7 @@ def _is_writable_dir(p):
     try:
         t = tempfile.TemporaryFile(dir=p)
         try:
-            t.write(ascii('1'))
+            t.write(b'1')
         finally:
             t.close()
     except OSError:
@@ -305,7 +295,7 @@ class Verbose:
         if always is True, the report will occur on every function
         call; otherwise only on the first time the function is called
         """
-        assert callable(func)
+        assert six.callable(func)
         def wrapper(*args, **kwargs):
             ret = func(*args, **kwargs)
 
@@ -331,7 +321,7 @@ def checkdep_dvipng():
         s = subprocess.Popen(['dvipng','-version'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         line = s.stdout.readlines()[1]
-        v = byte2str(line.split()[-1])
+        v = line.split()[-1].decode('ascii')
         return v
     except (IndexError, ValueError, OSError):
         return None
@@ -344,7 +334,7 @@ def checkdep_ghostscript():
             command_args = ['gs', '--version']
         s = subprocess.Popen(command_args, stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        v = byte2str(s.stdout.read()[:-1])
+        v = s.stdout.read()[:-1].decode('ascii')
         return v
     except (IndexError, ValueError, OSError):
         return None
@@ -353,7 +343,7 @@ def checkdep_tex():
     try:
         s = subprocess.Popen(['tex','-version'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        line = byte2str(s.stdout.readlines()[0])
+        line = s.stdout.readlines()[0].decode('ascii')
         pattern = '3\.1\d+'
         match = re.search(pattern, line)
         v = match.group(0)
@@ -367,7 +357,7 @@ def checkdep_pdftops():
                              stderr=subprocess.PIPE)
         for line in s.stderr:
             if b'version' in line:
-                v = byte2str(line.split()[-1])
+                v = line.split()[-1].decode('ascii')
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
         return None
@@ -378,7 +368,7 @@ def checkdep_inkscape():
                              stderr=subprocess.PIPE)
         for line in s.stdout:
             if b'Inkscape' in line:
-                v = byte2str(line.split()[1])
+                v = line.split()[1].decode('ascii')
                 break
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
@@ -390,7 +380,7 @@ def checkdep_xmllint():
                              stderr=subprocess.PIPE)
         for line in s.stderr:
             if b'version' in line:
-                v = byte2str(line.split()[-1])
+                v = line.split()[-1].decode('ascii')
                 break
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
@@ -775,7 +765,7 @@ class RcParams(dict):
     """
 
     validate = dict((key, converter) for key, (default, converter) in
-                    defaultParams.iteritems())
+                    six.iteritems(defaultParams))
     msg_depr = "%s is deprecated and replaced with %s; please use the latter."
     msg_depr_ignore = "%s is deprecated and ignored. Use %s"
 
@@ -860,7 +850,7 @@ def rc_params(fail_on_error=False):
         # this should never happen, default in mpl-data should always be found
         message = 'could not find rc file; returning defaults'
         ret = RcParams([(key, default) for key, (default, _) in \
-                        defaultParams.iteritems() ])
+                        six.iteritems(defaultParams)])
         warnings.warn(message)
         return ret
 
@@ -892,7 +882,7 @@ def rc_params_from_file(fname, fail_on_error=False):
             rc_temp[key] = (val, line, cnt)
 
     ret = RcParams([(key, default) for key, (default, _) in \
-                    defaultParams.iteritems()])
+                    six.iteritems(defaultParams)])
 
     for key in ('verbose.level', 'verbose.fileo'):
         if key in rc_temp:
@@ -908,7 +898,7 @@ def rc_params_from_file(fname, fail_on_error=False):
     verbose.set_level(ret['verbose.level'])
     verbose.set_fileo(ret['verbose.fileo'])
 
-    for key, (val, line, cnt) in rc_temp.iteritems():
+    for key, (val, line, cnt) in six.iteritems(rc_temp):
         if key in defaultParams:
             if fail_on_error:
                 ret[key] = val # try to convert to proper type or raise
@@ -964,8 +954,8 @@ if rcParams['examples.directory']:
 
 rcParamsOrig = rcParams.copy()
 
-rcParamsDefault = RcParams([ (key, default) for key, (default, converter) in \
-                    defaultParams.iteritems() ])
+rcParamsDefault = RcParams([(key, default) for key, (default, converter) in \
+                            six.iteritems(defaultParams)])
 
 rcParams['ps.usedistiller'] = checkdep_ps_distiller(rcParams['ps.usedistiller'])
 rcParams['text.usetex'] = checkdep_usetex(rcParams['text.usetex'])
@@ -1037,7 +1027,7 @@ def rc(group, **kwargs):
     if is_string_like(group):
         group = (group,)
     for g in group:
-        for k,v in kwargs.iteritems():
+        for k, v in six.iteritems(kwargs):
             name = aliases.get(k) or k
             key = '%s.%s' % (g, name)
             try:
@@ -1293,4 +1283,4 @@ verbose.report('matplotlib version %s'%__version__)
 verbose.report('verbose.level %s'%verbose.level)
 verbose.report('interactive is %s'%rcParams['interactive'])
 verbose.report('platform is %s'%sys.platform)
-verbose.report('loaded modules: %s'%sys.modules.iterkeys(), 'debug')
+verbose.report('loaded modules: %s'%six.iterkeys(sys.modules), 'debug')

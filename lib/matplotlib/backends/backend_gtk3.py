@@ -1,4 +1,6 @@
-from __future__ import division
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 import os, sys
 def fn_name(): return sys._getframe(1).f_code.co_name
@@ -175,7 +177,7 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
                   Gdk.EventMask.POINTER_MOTION_HINT_MASK)
 
     def __init__(self, figure):
-        if _debug: print 'FigureCanvasGTK3.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
         FigureCanvasBase.__init__(self, figure)
         GObject.GObject.__init__(self)
 
@@ -209,7 +211,7 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
             GObject.source_remove(self._idle_draw_id)
 
     def scroll_event(self, widget, event):
-        if _debug: print 'FigureCanvasGTK3.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.get_allocation().height - event.y
@@ -221,7 +223,7 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def button_press_event(self, widget, event):
-        if _debug: print 'FigureCanvasGTK3.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.get_allocation().height - event.y
@@ -229,7 +231,7 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def button_release_event(self, widget, event):
-        if _debug: print 'FigureCanvasGTK3.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.get_allocation().height - event.y
@@ -237,21 +239,21 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def key_press_event(self, widget, event):
-        if _debug: print 'FigureCanvasGTK3.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
         key = self._get_key(event)
-        if _debug: print "hit", key
+        if _debug: print("hit", key)
         FigureCanvasBase.key_press_event(self, key, guiEvent=event)
         return False  # finish event propagation?
 
     def key_release_event(self, widget, event):
-        if _debug: print 'FigureCanvasGTK3.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
         key = self._get_key(event)
-        if _debug: print "release", key
+        if _debug: print("release", key)
         FigureCanvasBase.key_release_event(self, key, guiEvent=event)
         return False  # finish event propagation?
 
     def motion_notify_event(self, widget, event):
-        if _debug: print 'FigureCanvasGTK3.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
         if event.is_hint:
             t, x, y, state = event.window.get_pointer()
         else:
@@ -288,7 +290,7 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         return key
 
     def configure_event(self, widget, event):
-        if _debug: print 'FigureCanvasGTK3.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
         if widget.get_property("window") is None:
             return
         w, h = event.width, event.height
@@ -366,7 +368,7 @@ class FigureManagerGTK3(FigureManagerBase):
     window      : The Gtk.Window   (gtk only)
     """
     def __init__(self, canvas, num):
-        if _debug: print 'FigureManagerGTK3.%s' % fn_name()
+        if _debug: print('FigureManagerGTK3.%s' % fn_name())
         FigureManagerBase.__init__(self, canvas, num)
 
         self.window = Gtk.Window()
@@ -421,7 +423,7 @@ class FigureManagerGTK3(FigureManagerBase):
         self.canvas.grab_focus()
 
     def destroy(self, *args):
-        if _debug: print 'FigureManagerGTK3.%s' % fn_name()
+        if _debug: print('FigureManagerGTK3.%s' % fn_name())
         self.vbox.destroy()
         self.window.destroy()
         self.canvas.destroy()
@@ -505,7 +507,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         y0 = height - y0
         w = abs(x1 - x0)
         h = abs(y1 - y0)
-        rect = [int(val)for val in min(x0,x1), min(y0, y1), w, h]
+        rect = [int(val) for val in (min(x0,x1), min(y0, y1), w, h)]
 
         self.ctx.new_path()
         self.ctx.set_line_width(0.5)
@@ -564,7 +566,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
                 rcParams['savefig.directory'] = startpath
             else:
                 # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(unicode(fname))
+                rcParams['savefig.directory'] = os.path.dirname(six.text_type(fname))
             try:
                 self.canvas.print_figure(fname, format=format)
             except Exception as e:
@@ -641,7 +643,7 @@ class FileChooserDialog(Gtk.FileChooserDialog):
         hbox.pack_start(cbox, False, False, 0)
 
         self.filetypes = filetypes
-        self.sorted_filetypes = filetypes.items()
+        self.sorted_filetypes = list(six.iteritems(filetypes))
         self.sorted_filetypes.sort()
         default = 0
         for i, (ext, name) in enumerate(self.sorted_filetypes):
@@ -784,12 +786,12 @@ class DialogLineprops:
 
         button = self.wtree.get_widget('colorbutton_linestyle')
         color = button.get_color()
-        r, g, b = [val/65535. for val in color.red, color.green, color.blue]
+        r, g, b = [val/65535. for val in (color.red, color.green, color.blue)]
         line.set_color((r,g,b))
 
         button = self.wtree.get_widget('colorbutton_markerface')
         color = button.get_color()
-        r, g, b = [val/65535. for val in color.red, color.green, color.blue]
+        r, g, b = [val/65535. for val in (color.red, color.green, color.blue)]
         line.set_markerfacecolor((r,g,b))
 
         line.figure.canvas.draw()
@@ -809,12 +811,12 @@ class DialogLineprops:
         self.cbox_markers.set_active(self.markerd[marker])
 
         r,g,b = colorConverter.to_rgb(line.get_color())
-        color = Gdk.Color(*[int(val*65535) for val in r,g,b])
+        color = Gdk.Color(*[int(val*65535) for val in (r,g,b)])
         button = self.wtree.get_widget('colorbutton_linestyle')
         button.set_color(color)
 
         r,g,b = colorConverter.to_rgb(line.get_markerfacecolor())
-        color = Gdk.Color(*[int(val*65535) for val in r,g,b])
+        color = Gdk.Color(*[int(val*65535) for val in (r,g,b)])
         button = self.wtree.get_widget('colorbutton_markerface')
         button.set_color(color)
         self._updateson = True

@@ -32,8 +32,10 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import print_function
+import six
+from six.moves import xrange
 
 # History:
 # 1.0.10: added float validator (disable "Ok" and "Apply" button when not valid)
@@ -50,7 +52,7 @@ STDERR = sys.stderr
 
 from matplotlib.backends.qt4_compat import QtGui,QtCore
 if not hasattr(QtGui,'QFormLayout'):
-    raise ImportError, "Warning: formlayout requires PyQt4 >v4.3 or PySide"
+    raise ImportError("Warning: formlayout requires PyQt4 >v4.3 or PySide")
 
 (QWidget, QLineEdit, QComboBox, QLabel, QSpinBox, QIcon,QStyle,
  QDialogButtonBox, QHBoxLayout, QVBoxLayout, QDialog, QColor, QPushButton,
@@ -113,7 +115,7 @@ def text_to_qcolor(text):
     if isinstance(text, QObject):
         # actually a QString, which is not provided by the new PyQt4 API:
         text = str(text)
-    if not isinstance(text, (unicode, str)):
+    if not isinstance(text, six.string_types):
         return color
     if text.startswith('#') and len(text)==7:
         correct = '#0123456789abcdef'
@@ -132,7 +134,8 @@ def is_matplotlib_color(value):
     """
     if text_to_qcolor(value).isValid():
         return True
-    if isinstance(value,tuple) and len(value)==3 and all(map(lambda v: isinstance(v,float),value)):
+    if isinstance(value,tuple) and len(value)==3 and all(
+            isinstance(v,float) for v in value):
         for c in value:
             if c < 0. or c > 1.:
                 return False
@@ -168,7 +171,7 @@ class ColorLayout(QHBoxLayout):
 
 def font_is_installed(font):
     """Check if font is installed"""
-    return [fam for fam in QFontDatabase().families() if unicode(fam)==font]
+    return [fam for fam in QFontDatabase().families() if six.text_type(fam)==font]
 
 def tuple_to_qfont(tup):
     """
@@ -190,7 +193,7 @@ def tuple_to_qfont(tup):
     return font
 
 def qfont_to_tuple(font):
-    return (unicode(font.family()), int(font.pointSize()),
+    return (six.text_type(font.family()), int(font.pointSize()),
             font.italic(), font.bold())
 
 class FontLayout(QGridLayout):
@@ -208,7 +211,7 @@ class FontLayout(QGridLayout):
         # Font size
         self.size = QComboBox(parent)
         self.size.setEditable(True)
-        sizelist = range(6, 12) + range(12, 30, 2) + [36, 48, 72]
+        sizelist = list(xrange(6, 12)) + list(xrange(12, 30, 2)) + [36, 48, 72]
         size = font.pointSize()
         if size not in sizelist:
             sizelist.append(size)
@@ -283,7 +286,7 @@ class FormWidget(QWidget):
                 field = FontLayout(value, self)
             elif is_matplotlib_color(value):
                 field = ColorLayout(QColor(value), self)
-            elif isinstance(value, (str, unicode)):
+            elif isinstance(value, six.string_types):
                 field = QLineEdit(value, self)
             elif isinstance(value, (list, tuple)):
                 if isinstance(value, tuple):
@@ -342,8 +345,8 @@ class FormWidget(QWidget):
                 continue
             elif tuple_to_qfont(value) is not None:
                 value = field.get_font()
-            elif isinstance(value, (str, unicode)) or is_matplotlib_color(value):
-                value = unicode(field.text())
+            elif isinstance(value, six.string_types) or is_matplotlib_color(value):
+                value = six.text_type(field.text())
             elif isinstance(value, (list, tuple)):
                 index = int(field.currentIndex())
                 if isinstance(value[0], (list, tuple)):

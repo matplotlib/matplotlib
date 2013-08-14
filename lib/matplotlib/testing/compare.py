@@ -4,7 +4,10 @@
 """
 #=======================================================================
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
 
 import matplotlib
 from matplotlib.compat import subprocess
@@ -161,7 +164,7 @@ if matplotlib.checkdep_inkscape() is not None:
 def comparable_formats():
    '''Returns the list of file formats that compare_images can compare
    on this system.'''
-   return ['png'] + converter.keys()
+   return ['png'] + list(six.iterkeys(converter))
 
 def convert(filename, cache):
    '''

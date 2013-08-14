@@ -1,4 +1,6 @@
-from __future__ import division
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 import math
 import os
@@ -51,7 +53,7 @@ def get_fontspec():
     texcommand = get_texcommand()
 
     if texcommand is not "pdflatex":
-        latex_fontspec.append(r"\usepackage{fontspec}")
+        latex_fontspec.append("\\usepackage{fontspec}")
 
     if texcommand is not "pdflatex" and rcParams.get("pgf.rcfonts", True):
         # try to find fonts from rc parameters
@@ -215,11 +217,11 @@ class LatexManagerFactory:
         # check if the previous instance of LatexManager can be reused
         if prev and prev.latex_header == latex_header and prev.texcommand == texcommand:
             if rcParams.get("pgf.debug", False):
-                print "reusing LatexManager"
+                print("reusing LatexManager")
             return prev
         else:
             if rcParams.get("pgf.debug", False):
-                print "creating LatexManager"
+                print("creating LatexManager")
             new_inst = LatexManager()
             LatexManagerFactory.previous_instance = new_inst
             return new_inst
@@ -239,7 +241,7 @@ class WeakSet:
             del self.weak_key_dict[item]
 
     def __iter__(self):
-        return  self.weak_key_dict.iterkeys()
+        return six.iterkeys(self.weak_key_dict)
 
 
 class LatexManager:
@@ -340,7 +342,7 @@ class LatexManager:
 
     def __del__(self):
         if rcParams.get("pgf.debug", False):
-            print "deleting LatexManager"
+            print("deleting LatexManager")
         self._cleanup()
 
     def get_width_height_descent(self, text, prop):
@@ -614,7 +616,7 @@ class RendererPgf(RendererBase):
         # prepare string for tex
         s = common_texification(s)
         prop_cmds = _font_properties_str(prop)
-        s = ur"{%s %s}" % (prop_cmds, s)
+        s = r"{%s %s}" % (prop_cmds, s)
 
 
         writeln(self.fh, r"\begin{pgfscope}")
@@ -741,20 +743,20 @@ class FigureCanvasPgf(FigureCanvasBase):
         return 'pdf'
 
     def _print_pgf_to_fh(self, fh, *args, **kwargs):
-        header_text = r"""%% Creator: Matplotlib, PGF backend
+        header_text = """%% Creator: Matplotlib, PGF backend
 %%
 %% To include the figure in your LaTeX document, write
-%%   \input{<filename>.pgf}
+%%   \\input{<filename>.pgf}
 %%
 %% Make sure the required packages are loaded in your preamble
-%%   \usepackage{pgf}
+%%   \\usepackage{pgf}
 %%
 %% Figures using additional raster images can only be included by \input if
 %% they are in the same directory as the main LaTeX file. For loading figures
 %% from other directories you can use the `import` package
-%%   \usepackage{import}
+%%   \\usepackage{import}
 %% and then include the figures with
-%%   \import{<path to file>}{<filename>.pgf}
+%%   \\import{<path to file>}{<filename>.pgf}
 %%
 """
 
@@ -824,17 +826,17 @@ class FigureCanvasPgf(FigureCanvasBase):
 
             latex_preamble = get_preamble()
             latex_fontspec = get_fontspec()
-            latexcode = r"""
-\documentclass[12pt]{minimal}
-\usepackage[paperwidth=%fin, paperheight=%fin, margin=0in]{geometry}
+            latexcode = """
+\\documentclass[12pt]{minimal}
+\\usepackage[paperwidth=%fin, paperheight=%fin, margin=0in]{geometry}
 %s
 %s
-\usepackage{pgf}
+\\usepackage{pgf}
 
-\begin{document}
-\centering
-\input{figure.pgf}
-\end{document}""" % (w, h, latex_preamble, latex_fontspec)
+\\begin{document}
+\\centering
+\\input{figure.pgf}
+\\end{document}""" % (w, h, latex_preamble, latex_fontspec)
             with codecs.open(fname_tex, "w", "utf-8") as fh_tex:
                 fh_tex.write(latexcode)
 

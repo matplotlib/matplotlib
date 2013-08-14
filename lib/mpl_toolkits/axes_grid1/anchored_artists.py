@@ -1,3 +1,6 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 from matplotlib.patches import Rectangle, Ellipse
 
@@ -65,7 +68,7 @@ class AnchoredEllipse(AnchoredOffsetbox):
 
 class AnchoredSizeBar(AnchoredOffsetbox):
     def __init__(self, transform, size, label, loc,
-                 pad=0.1, borderpad=0.1, sep=2, prop=None, 
+                 pad=0.1, borderpad=0.1, sep=2, prop=None,
                  frameon=True, size_vertical=0, color='black',
                  label_top=False,
                  **kwargs):
@@ -94,7 +97,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
           color for the size bar and label
         label_top : bool, optional
           if true, the label will be over the rectangle
-        
+
         Example:
         --------
         >>>> import matplotlib.pyplot as plt
@@ -114,9 +117,9 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         self.txt_label = TextArea(label, minimumdescent=False)
 
         if label_top:
-            _box_children = [self.txt_label, self.size_bar] 
+            _box_children = [self.txt_label, self.size_bar]
         else:
-            _box_children = [self.size_bar, self.txt_label] 
+            _box_children = [self.size_bar, self.txt_label]
 
         self._box = VPacker(children=_box_children,
                             align="center",
@@ -196,4 +199,3 @@ if __name__ == "__main__":
 
     plt.draw()
     plt.show()
-

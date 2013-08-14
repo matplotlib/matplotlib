@@ -4,6 +4,8 @@
 #include "mplutils.h"
 #include <sstream>
 
+#include "file_compat.h"
+
 #include "numpy/arrayobject.h"
 
 /*
@@ -37,6 +39,7 @@
       because the hints will have been computed differently (except
       you have disabled hints).
  */
+
 
 FT_Library _ft2Library;
 
@@ -148,10 +151,8 @@ FT2Image::draw_bitmap(FT_Bitmap*  bitmap,
 }
 
 void
-FT2Image::write_bitmap(const char* filename) const
+FT2Image::write_bitmap(FILE *fh) const
 {
-    FILE *fh = fopen(filename, "w");
-
     for (size_t i = 0; i < _height; i++)
     {
         for (size_t j = 0; j < _width; ++j)
@@ -167,8 +168,6 @@ FT2Image::write_bitmap(const char* filename) const
         }
         fputc('\n', fh);
     }
-
-    fclose(fh);
 }
 
 char FT2Image::write_bitmap__doc__[] =
@@ -180,12 +179,22 @@ Py::Object
 FT2Image::py_write_bitmap(const Py::Tuple & args)
 {
     _VERBOSE("FT2Image::write_bitmap");
+    PyObject *py_file;
+    FILE *fh;
 
     args.verify_length(1);
 
-    std::string filename = Py::String(args[0]);
+    if ((py_file = npy_PyFile_OpenFile(args[0].ptr(), (char *)"wb")) == NULL) {
+        throw Py::Exception();
+    }
 
-    write_bitmap(filename.c_str());
+    fh = npy_PyFile_Dup(py_file, (char *)"wb");
+
+    write_bitmap(fh);
+
+    npy_PyFile_DupClose(py_file, fh);
+    npy_PyFile_CloseFile(py_file);
+    Py_DECREF(py_file);
 
     return Py::Object();
 }
@@ -839,14 +848,25 @@ FT2Font::FT2Font(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds)
     Py::PythonClass<FT2Font>(self, args, kwds),
     image()
 {
-    args.verify_length(1);
-    std::string facefile = Py::String(args[0]);
+    FT_Open_Args open_args;
 
-    _VERBOSE(Printf("FT2Font::FT2Font %s", facefile.c_str()).str());
+    std::string facefile = Py::String(args[0]).encode("utf-8");
+
+    args.verify_length(1);
 
     clear(Py::Tuple(0));
 
-    int error = FT_New_Face(_ft2Library, facefile.c_str(), 0, &face);
+    memset(&stream, 0, sizeof(FT_StreamRec));
+    mem = NULL;
+    mem_size = 0;
+
+    if (make_open_args(args[0].ptr(), &open_args)) {
+        std::ostringstream s;
+        s << "Could not load facefile " << facefile << "; Unknown_File_Format" << std::endl;
+        throw Py::RuntimeError(s.str());
+    }
+
+    int error = FT_Open_Face(_ft2Library, &open_args, 0, &face);
 
     if (error == FT_Err_Unknown_File_Format)
     {
@@ -1767,7 +1787,7 @@ FT2Font::get_name_index(const Py::Tuple & args)
 {
     _VERBOSE("FT2Font::get_name_index");
     args.verify_length(1);
-    std::string glyphname = Py::String(args[0]);
+    std::string glyphname = Py::String(args[0]).encode("ascii");
 
     return Py::Long((long)
                     FT_Get_Name_Index(face, (FT_String *) glyphname.c_str()));
@@ -1818,7 +1838,7 @@ FT2Font::get_sfnt_table(const Py::Tuple & args)
 {
     _VERBOSE("FT2Font::get_sfnt_table");
     args.verify_length(1);
-    std::string tagname = Py::String(args[0]);
+    std::string tagname = Py::String(args[0]).encode("ascii");
 
     int tag;
     const char *tags[] = {"head", "maxp", "OS/2", "hhea",
@@ -2064,10 +2084,20 @@ char FT2Font::attach_file__doc__ [] =
 Py::Object
 FT2Font::attach_file(const Py::Tuple &args)
 {
+    FT_Open_Args open_args;
+
     args.verify_length(1);
 
-    std::string filename = Py::String(args[0]);
-    FT_Error error = FT_Attach_File(face, filename.c_str());
+    std::string filename = Py::String(args[0]).encode("utf-8");
+
+    if (make_open_args(args[0].ptr(), &open_args))
+    {
+        std::ostringstream s;
+        s << "Could not attach file " << filename << std::endl;
+        throw Py::RuntimeError(s.str());
+    }
+
+    FT_Error error = FT_Attach_Stream(face, &open_args);
 
     if (error)
     {
@@ -2079,6 +2109,138 @@ FT2Font::attach_file(const Py::Tuple &args)
     return Py::Object();
 }
 PYCXX_VARARGS_METHOD_DECL(FT2Font, attach_file)
+
+
+typedef struct
+{
+    PyObject *py_file;
+    FILE *fp;
+    int close_file;
+} py_file_def;
+
+
+static unsigned long read_from_file_callback(
+    FT_Stream stream, unsigned long offset, unsigned char *buffer,
+    unsigned long count) {
+
+    py_file_def *def = (py_file_def *)stream->descriptor.pointer;
+
+    if (fseek(def->fp, offset, SEEK_SET) == -1) {
+        return 0;
+    }
+
+    if (count > 0) {
+        return fread(buffer, 1, count, def->fp);
+    }
+
+    return 0;
+}
+
+
+static void close_file_callback(FT_Stream stream)
+{
+    py_file_def *def = (py_file_def *)stream->descriptor.pointer;
+
+    npy_PyFile_DupClose(def->py_file, def->fp);
+
+    if (def->close_file) {
+        npy_PyFile_CloseFile(def->py_file);
+    }
+
+    Py_DECREF(def->py_file);
+}
+
+
+int
+FT2Font::make_open_args(PyObject *py_file_arg, FT_Open_Args *open_args)
+{
+    PyObject *py_file = NULL;
+    int close_file = 0;
+    FILE *fp;
+    PyObject *data = NULL;
+    char *data_ptr;
+    Py_ssize_t data_len;
+    py_file_def *stream_info = NULL;
+    long file_size;
+    FT_Byte *new_memory;
+
+    int result = -1;
+
+    memset((void *)open_args, 0, sizeof(FT_Open_Args));
+
+    if (PyBytes_Check(py_file_arg) || PyUnicode_Check(py_file_arg)) {
+        if ((py_file = npy_PyFile_OpenFile(py_file_arg, (char *)"rb")) == NULL) {
+            goto exit;
+        }
+        close_file = 1;
+    } else {
+        Py_INCREF(py_file_arg);
+        py_file = py_file_arg;
+    }
+
+    if ((fp = npy_PyFile_Dup(py_file, (char *)"rb"))) {
+        stream_info = (py_file_def *)PyMem_Malloc(sizeof(py_file_def));
+        if (stream_info == NULL) {
+            goto exit;
+        }
+        memset(stream_info, 0, sizeof(py_file_def));
+
+        Py_INCREF(py_file);
+        stream_info->py_file = py_file;
+        stream_info->close_file = close_file;
+        stream_info->fp = fp;
+        fseek(fp, 0, SEEK_END);
+        file_size = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+
+        stream.base = NULL;
+        stream.size = (unsigned long)file_size;
+        stream.pos = 0;
+        stream.descriptor.pointer = stream_info;
+        stream.read = &read_from_file_callback;
+        stream.close = &close_file_callback;
+
+        open_args->flags = FT_OPEN_STREAM;
+        open_args->stream = &stream;
+    } else {
+        if (PyObject_HasAttrString(py_file_arg, "read") &&
+            (data = PyObject_CallMethod(py_file_arg, "read", ""))) {
+            if (PyBytes_AsStringAndSize(data, &data_ptr, &data_len)) {
+                goto exit;
+            }
+
+            if (mem) {
+                free(mem);
+            }
+            mem = (FT_Byte *)PyMem_Malloc(mem_size + data_len);
+            if (mem == NULL) {
+                goto exit;
+            }
+            new_memory = mem + mem_size;
+            mem_size += data_len;
+
+            memcpy(new_memory, data_ptr, data_len);
+            open_args->flags = FT_OPEN_MEMORY;
+            open_args->memory_base = new_memory;
+            open_args->memory_size = data_len;
+            open_args->stream = NULL;
+        } else {
+            PyErr_SetString(
+                PyExc_TypeError,
+                "First argument must be a path or file object reading bytes");
+            goto exit;
+        }
+    }
+
+    result = 0;
+
+ exit:
+
+    Py_XDECREF(py_file);
+    Py_XDECREF(data);
+
+    return result;
+}
 
 void
 FT2Image::init_type(void)

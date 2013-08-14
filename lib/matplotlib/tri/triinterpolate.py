@@ -1,7 +1,11 @@
 """
 Interpolation inside triangular grids.
 """
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
+
 from matplotlib.tri import Triangulation
 from matplotlib.tri.trifinder import TriFinder
 from matplotlib.tri.tritools import TriAnalyzer
@@ -1530,7 +1534,7 @@ def _prod_vectorized(M1, M2):
     assert sh1[-1] == sh2[-2]
 
     ndim1 = len(sh1)
-    t1_index = range(ndim1-2) + [ndim1-1, ndim1-2]
+    t1_index = list(xrange(ndim1-2)) + [ndim1-1, ndim1-2]
     return np.sum(np.transpose(M1, t1_index)[..., np.newaxis] *
                   M2[..., np.newaxis, :], -3)
 

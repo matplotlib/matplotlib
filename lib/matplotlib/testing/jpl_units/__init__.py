@@ -31,16 +31,23 @@ measurement of time since a delta-t in one frame may not be the same in another.
 """
 
 #=======================================================================
-from __future__ import print_function
-from Duration import Duration
-from Epoch import Epoch
-from UnitDbl import UnitDbl
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from StrConverter import StrConverter
-from EpochConverter import EpochConverter
-from UnitDblConverter import UnitDblConverter
+import six
 
-from UnitDblFormatter import UnitDblFormatter
+from .Duration import Duration
+from .Epoch import Epoch
+from .UnitDbl import UnitDbl
+
+from .Duration import Duration
+from .Epoch import Epoch
+from .UnitDbl import UnitDbl
+
+from .StrConverter import StrConverter
+from .EpochConverter import EpochConverter
+from .UnitDblConverter import UnitDblConverter
+
+from .UnitDblFormatter import UnitDblFormatter
 
 #=======================================================================
 
@@ -81,4 +88,3 @@ min = UnitDbl( 1.0, "min" )
 hr = UnitDbl( 1.0, "hour" )
 day = UnitDbl( 24.0, "hour" )
 sec = UnitDbl( 1.0, "sec" )
-

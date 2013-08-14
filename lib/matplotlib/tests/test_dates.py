@@ -1,4 +1,7 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import map
 
 import datetime
 import warnings
@@ -264,7 +267,7 @@ def test_auto_date_locator():
     for t_delta, expected in results:
         d2 = d1 + t_delta
         locator = _create_auto_date_locator(d1, d2)
-        assert_equal(map(str, mdates.num2date(locator())),
+        assert_equal(list(map(str, mdates.num2date(locator()))),
                      expected)
 
 

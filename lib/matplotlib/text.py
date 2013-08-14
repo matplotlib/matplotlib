@@ -1,7 +1,11 @@
 """
 Classes for including text in a figure.
 """
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import zip
+
 import math
 
 import numpy as np
@@ -212,7 +216,7 @@ class Text(Artist):
 
         Returns True or False.
         """
-        if callable(self._contains):
+        if six.callable(self._contains):
             return self._contains(self, mouseevent)
 
         if not self.get_visible() or self._renderer is None:
@@ -439,7 +443,7 @@ class Text(Artist):
 
         xs, ys = xys[:, 0], xys[:, 1]
 
-        ret = bbox, zip(lines, whs, xs, ys), descent
+        ret = bbox, list(zip(lines, whs, xs, ys)), descent
         self.cached[key] = ret
         return ret
 
@@ -1475,7 +1479,7 @@ class _AnnotationBase(object):
             tr = blended_transform_factory(tr1, tr2)
             return tr
 
-        if callable(s):
+        if six.callable(s):
             tr = s(renderer)
             if isinstance(tr, BboxBase):
                 return BboxTransformTo(tr)
