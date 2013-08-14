@@ -1,9 +1,13 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import matplotlib.cbook as cbook
 
 import matplotlib.pyplot as plt
 import matplotlib.axes as maxes
 #import matplotlib.colorbar as mcolorbar
-import colorbar as mcolorbar
+from . import colorbar as mcolorbar
 import matplotlib as mpl
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
@@ -11,7 +15,7 @@ import matplotlib.ticker as ticker
 
 from matplotlib.gridspec import SubplotSpec, GridSpec
 
-from axes_divider import Size, SubplotDivider, LocatableAxes, Divider
+from .axes_divider import Size, SubplotDivider, LocatableAxes, Divider
 
 #import numpy as np
 
@@ -426,7 +430,7 @@ class Grid(object):
 
     def get_divider(self):
         return self._divider
-        
+
     def set_axes_locator(self, locator):
         self._divider.set_locator(locator)
 
@@ -799,7 +803,7 @@ if 0:
 
 #if __name__ == "__main__":
 if 0:
-    from axes_divider import get_demo_image
+    from .axes_divider import get_demo_image
     F = plt.figure(1, (9, 3.5))
     F.clf()
 
@@ -875,5 +879,3 @@ if 0:
 
     plt.ion()
     plt.draw()
-
-

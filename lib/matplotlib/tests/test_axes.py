@@ -1,3 +1,8 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
+
 from nose.tools import assert_equal
 from nose.tools import assert_raises
 import datetime
@@ -1015,16 +1020,16 @@ def test_stackplot_baseline():
     fig = plt.figure()
 
     plt.subplot(2, 2, 1)
-    plt.stackplot(range(100), d.T, baseline='zero')
+    plt.stackplot(list(xrange(100)), d.T, baseline='zero')
 
     plt.subplot(2, 2, 2)
-    plt.stackplot(range(100), d.T, baseline='sym')
+    plt.stackplot(list(xrange(100)), d.T, baseline='sym')
 
     plt.subplot(2, 2, 3)
-    plt.stackplot(range(100), d.T, baseline='wiggle')
+    plt.stackplot(list(xrange(100)), d.T, baseline='wiggle')
 
     plt.subplot(2, 2, 4)
-    plt.stackplot(range(100), d.T, baseline='weighted_wiggle')
+    plt.stackplot(list(xrange(100)), d.T, baseline='weighted_wiggle')
 
 
 @image_comparison(baseline_images=['boxplot'])
@@ -1132,8 +1137,8 @@ def test_stem_args():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
 
-    x = range(10)
-    y = range(10)
+    x = list(xrange(10))
+    y = list(xrange(10))
 
     # Test the call signatures
     ax.stem(y)
@@ -1313,7 +1318,7 @@ def test_eventplot():
 @image_comparison(baseline_images=['vertex_markers'], extensions=['png'],
                   remove_text=True)
 def test_vertex_markers():
-    data = range(10)
+    data = list(xrange(10))
     marker_as_tuple = ((-1, -1), (1, -1), (1, 1), (-1, 1))
     marker_as_list = [(-1, -1), (1, -1), (1, 1), (-1, 1)]
     fig = plt.figure()
@@ -1326,7 +1331,7 @@ def test_vertex_markers():
 @image_comparison(baseline_images=['vline_hline_zorder',
                                    'errorbar_zorder'])
 def test_eb_line_zorder():
-    x = range(10)
+    x = list(xrange(10))
 
     # First illustrate basic pyplot interface, using defaults where possible.
     fig = plt.figure()
@@ -1342,9 +1347,9 @@ def test_eb_line_zorder():
     # Now switch to a more OO interface to exercise more features.
     fig = plt.figure()
     ax = fig.gca()
-    x = range(10)
+    x = list(xrange(10))
     y = np.zeros(10)
-    yerr = range(10)
+    yerr = list(xrange(10))
     ax.errorbar(x, y, yerr=yerr, zorder=5, lw=5, color='r')
     for j in range(10):
         ax.axhline(j, lw=5, color='k', zorder=j)
@@ -1376,7 +1381,7 @@ def test_mixed_collection():
     from matplotlib import patches
     from matplotlib import collections
 
-    x = range(10)
+    x = list(xrange(10))
 
     # First illustrate basic pyplot interface, using defaults where possible.
     fig = plt.figure()
@@ -1634,7 +1639,7 @@ def test_twin_spines():
     def make_patch_spines_invisible(ax):
         ax.set_frame_on(True)
         ax.patch.set_visible(False)
-        for sp in ax.spines.itervalues():
+        for sp in six.itervalues(ax.spines):
             sp.set_visible(False)
 
     fig = plt.figure(figsize=(4, 3))

@@ -18,7 +18,11 @@ and :class:`Colorbar`; the :func:`~matplotlib.pyplot.colorbar` function
 is a thin wrapper over :meth:`~matplotlib.figure.Figure.colorbar`.
 
 '''
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange, zip
+
 import warnings
 
 import numpy as np
@@ -471,9 +475,9 @@ class ColorbarBase(cm.ScalarMappable):
         # Using the non-array form of these line segments is much
         # simpler than making them into arrays.
         if self.orientation == 'vertical':
-            return [zip(X[i], Y[i]) for i in xrange(1, N - 1)]
+            return [list(zip(X[i], Y[i])) for i in xrange(1, N - 1)]
         else:
-            return [zip(Y[i], X[i]) for i in xrange(1, N - 1)]
+            return [list(zip(Y[i], X[i])) for i in xrange(1, N - 1)]
 
     def _add_solids(self, X, Y, C):
         '''
@@ -531,9 +535,9 @@ class ColorbarBase(cm.ScalarMappable):
         x = np.array([0.0, 1.0])
         X, Y = np.meshgrid(x, y)
         if self.orientation == 'vertical':
-            xy = [zip(X[i], Y[i]) for i in xrange(N)]
+            xy = [list(zip(X[i], Y[i])) for i in xrange(N)]
         else:
-            xy = [zip(Y[i], X[i]) for i in xrange(N)]
+            xy = [list(zip(Y[i], X[i])) for i in xrange(N)]
         col = collections.LineCollection(xy, linewidths=linewidths)
 
         if erase and self.lines:
@@ -696,7 +700,7 @@ class ColorbarBase(cm.ScalarMappable):
         '''
         # Set the default value.
         extendlength = np.array([default, default])
-        if isinstance(frac, str):
+        if isinstance(frac, six.string_types):
             if frac.lower() == 'auto':
                 # Use the provided values when 'auto' is required.
                 extendlength[0] = automin

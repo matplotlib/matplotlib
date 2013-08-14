@@ -1,6 +1,9 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import tkinter as Tk
+
 from matplotlib.backends import _tkagg
-import Tkinter as Tk
 
 def blit(photoimage, aggimage, bbox=None, colormode=1):
     tk = photoimage.tk
@@ -31,4 +34,3 @@ def test(aggimage):
     c.create_image(aggimage.width,aggimage.height,image=p)
     blit(p, aggimage)
     while 1: r.update_idletasks()
-

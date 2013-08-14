@@ -1,13 +1,16 @@
 """
 An experimental support for curvilinear grid.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import zip
 
 from itertools import chain
-from grid_finder import GridFinder
+from .grid_finder import GridFinder
 
-from  axislines import \
-     AxisArtistHelper, GridHelperBase
-from  axis_artist import AxisArtist
+from  .axislines import AxisArtistHelper, GridHelperBase
+from  .axis_artist import AxisArtist
 from matplotlib.transforms import Affine2D, IdentityTransform
 import numpy as np
 
@@ -314,7 +317,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         x, y = self.grid_info["line_xy"]
 
         if self._get_line_path is None:
-            return Path(zip(x, y))
+            return Path(list(zip(x, y)))
         else:
             return self._get_line_path(axes, x, y)
 
@@ -547,7 +550,7 @@ def test3():
 
 
     from mpl_toolkits.axes_grid1.parasite_axes import host_subplot_class_factory
-    from axislines import Axes
+    from .axislines import Axes
 
     SubplotHost = host_subplot_class_factory(Axes)
 
@@ -574,7 +577,7 @@ def curvelinear_test2(fig):
     """
     global ax1
     import numpy as np
-    import  angle_helper
+    from . import angle_helper
     from matplotlib.projections import PolarAxes
     from matplotlib.transforms import Affine2D
 
@@ -666,7 +669,7 @@ def curvelinear_test3(fig):
     """
     global ax1, axis
     import numpy as np
-    import  angle_helper
+    from . import angle_helper
     from matplotlib.projections import PolarAxes
     from matplotlib.transforms import Affine2D
 
@@ -707,7 +710,7 @@ def curvelinear_test3(fig):
 
     ax1 = SubplotHost(fig, 1, 1, 1, grid_helper=grid_helper)
 
-    for axis in ax1.axis.itervalues():
+    for axis in list(six.itervalues(ax1.axis)):
         axis.set_visible(False)
 
     fig.add_subplot(ax1)
@@ -768,5 +771,3 @@ if __name__ == "__main__":
 
     #plt.draw()
     plt.show()
-
-

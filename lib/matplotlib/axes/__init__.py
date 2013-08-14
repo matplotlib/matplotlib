@@ -1,2 +1,4 @@
-from matplotlib.axes._subplots import *
-from matplotlib.axes._axes import *
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+from ._subplots import *
+from ._axes import *

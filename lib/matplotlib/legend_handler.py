@@ -23,6 +23,10 @@ derived from the base class (HandlerBase) with a following method.
 
 
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import zip
 
 import numpy as np
 
@@ -325,7 +329,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
                                width, height, fontsize)
 
         p = self.create_collection(orig_handle, sizes,
-                                   offsets=zip(xdata_marker, ydata),
+                                   offsets=list(zip(xdata_marker, ydata)),
                                    transOffset=trans)
 
         self.update_prop(p, orig_handle, legend)

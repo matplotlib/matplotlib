@@ -9,6 +9,10 @@
 Module containing Axes3D, an object which can plot 3D objects on a
 2D matplotlib figure.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import map, xrange, zip
 
 import warnings
 from operator import itemgetter
@@ -25,9 +29,9 @@ from matplotlib.tri.triangulation import Triangulation
 import numpy as np
 from matplotlib.colors import Normalize, colorConverter, LightSource
 
-import art3d
-import proj3d
-import axis3d
+from . import art3d
+from . import proj3d
+from . import axis3d
 
 def unit_bbox():
     box = Bbox(np.array([[0, 0], [1, 1]]))
@@ -204,7 +208,7 @@ class Axes3D(Axes):
         xs, ys, zs = ([minx, maxx, maxx, minx, minx, maxx, maxx, minx],
                     [miny, miny, maxy, maxy, miny, miny, maxy, maxy],
                     [minz, minz, minz, minz, maxz, maxz, maxz, maxz])
-        return zip(xs, ys, zs)
+        return list(zip(xs, ys, zs))
 
     def tunit_cube(self, vals=None, M=None):
         if M is None:
@@ -435,7 +439,7 @@ class Axes3D(Axes):
                                          scalez=scalez)
 
     def auto_scale_xyz(self, X, Y, Z=None, had_data=None):
-        x, y, z = map(np.asarray, (X, Y, Z))
+        x, y, z = list(map(np.asarray, (X, Y, Z)))
         try:
             x, y = x.flatten(), y.flatten()
             if Z is not None:
@@ -1287,11 +1291,11 @@ class Axes3D(Axes):
                 cb = False
             else:
                 cb = True
-                raise NotImplementedError, "comma style remains to be added"
+                raise NotImplementedError("comma style remains to be added")
         elif style == '':
             sb = None
         else:
-            raise ValueError, "%s is not a valid style value"
+            raise ValueError("%s is not a valid style value")
         try:
             if sb is not None:
                 if axis in ['both', 'z']:
@@ -1601,7 +1605,7 @@ class Axes3D(Axes):
 
                 # The construction leaves the array with duplicate points, which
                 # are removed here.
-                ps = zip(*ps)
+                ps = list(zip(*ps))
                 lastp = np.array([])
                 ps2 = [ps[0]] + [ps[i] for i in xrange(1, len(ps)) if ps[i] != ps[i-1]]
                 avgzsum = sum(p[2] for p in ps2)
@@ -1725,8 +1729,8 @@ class Axes3D(Axes):
         # This transpose will make it easy to obtain the columns.
         tX, tY, tZ = np.transpose(X), np.transpose(Y), np.transpose(Z)
 
-        rii = range(0, rows, rstride)
-        cii = range(0, cols, cstride)
+        rii = list(xrange(0, rows, rstride))
+        cii = list(xrange(0, cols, cstride))
 
         # Add the last index only if needed
         if rows > 0 and rii[-1] != (rows - 1) :
@@ -1748,10 +1752,10 @@ class Axes3D(Axes):
         tylines = [tY[i] for i in cii]
         tzlines = [tZ[i] for i in cii]
 
-        lines = [zip(xl, yl, zl) for xl, yl, zl in \
-                zip(xlines, ylines, zlines)]
-        lines += [zip(xl, yl, zl) for xl, yl, zl in \
-                zip(txlines, tylines, tzlines)]
+        lines = [list(zip(xl, yl, zl)) for xl, yl, zl in \
+                 zip(xlines, ylines, zlines)]
+        lines += [list(zip(xl, yl, zl)) for xl, yl, zl in \
+                  zip(txlines, tylines, tzlines)]
 
         linec = art3d.Line3DCollection(lines, *args, **kwargs)
         self.add_collection(linec)
@@ -2237,7 +2241,7 @@ class Axes3D(Axes):
             # the following has to be skipped if verts is empty
             # NOTE: Bugs could still occur if len(verts) > 0,
             #       but the "2nd dimension" is empty.
-            xs, ys = zip(*verts)
+            xs, ys = list(zip(*verts))
         else :
             xs, ys = [], []
 

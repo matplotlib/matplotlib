@@ -1,14 +1,18 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import cairo
 import numpy as np
 import sys
 import warnings
 
-import backend_agg
-import backend_gtk3
+from . import backend_agg
+from . import backend_gtk3
 from matplotlib.figure import Figure
 from matplotlib import transforms
 
-if sys.version_info[0] >= 3:
+if six.PY3:
     warnings.warn("The Gtk3Agg backend is not known to work on Python 3.x.")
 
 

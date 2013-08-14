@@ -1,3 +1,7 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 from matplotlib.patches import _Style, FancyArrowPatch
 from matplotlib.transforms import IdentityTransform
 from matplotlib.path import Path
@@ -161,4 +165,3 @@ class AxislineStyle(_Style):
         ArrowAxisClass = _FancyAxislineStyle.FilledArrow
 
     _style_list["-|>"] = FilledArrow
-

@@ -1,4 +1,6 @@
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 import os
 import numpy
@@ -136,7 +138,7 @@ class RendererMac(RendererBase):
             style = prop.get_style()
             points = prop.get_size_in_points()
             size = self.points_to_pixels(points)
-            gc.draw_text(x, y, unicode(s), family, size, weight, style, angle)
+            gc.draw_text(x, y, six.text_type(s), family, size, weight, style, angle)
 
     def get_text_width_height_descent(self, s, prop, ismath):
         if ismath=='TeX':
@@ -155,7 +157,8 @@ class RendererMac(RendererBase):
         style = prop.get_style()
         points = prop.get_size_in_points()
         size = self.points_to_pixels(points)
-        width, height, descent = self.gc.get_text_width_height_descent(unicode(s), family, size, weight, style)
+        width, height, descent = self.gc.get_text_width_height_descent(
+            six.text_type(s), family, size, weight, style)
         return  width, height, 0.0*descent
 
     def flipy(self):
@@ -309,7 +312,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
         self.figure.dpi = self.renderer.dpi
         width, height = self.figure.get_size_inches()
         width, height = width*dpi, height*dpi
-        filename = unicode(filename)
+        filename = six.text_type(filename)
         self.write_bitmap(filename, width, height, dpi)
         self.figure.dpi = old_dpi
 

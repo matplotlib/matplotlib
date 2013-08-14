@@ -1,3 +1,8 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import zip
+
 import numpy as np
 from math import degrees
 import math
@@ -128,7 +133,7 @@ def clip_line_to_rect(xline, yline, bbox):
     c_top = [((x, y), (90 - a)%180+180) for (y, x, a) in c_top_ \
              if bbox.containsx(x)]
 
-    return zip(lx4, ly4), [c_left, c_bottom, c_right, c_top]
+    return list(zip(lx4, ly4)), [c_left, c_bottom, c_right, c_top]
 
 
 if __name__ == "__main__":
@@ -150,7 +155,7 @@ if __name__ == "__main__":
 
     ccc = iter(["ro", "go", "rx", "bx"])
     for ttt in ticks:
-        cc = ccc.next()
+        cc = six.next(ccc)
         for (xx, yy), aa in ttt:
             plt.plot([xx], [yy], cc)
 

@@ -1,4 +1,6 @@
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 import sys
 
@@ -43,20 +45,20 @@ class general_test(unittest.TestCase):
 
 class csv_testcase(unittest.TestCase):
     def setUp(self):
-        if sys.version_info[0] == 2:
-            self.fd = tempfile.TemporaryFile(suffix='csv', mode="wb+")
-        else:
+        if six.PY3:
             self.fd = tempfile.TemporaryFile(suffix='csv', mode="w+",
                                              newline='')
+        else:
+            self.fd = tempfile.TemporaryFile(suffix='csv', mode="wb+")
 
     def tearDown(self):
         self.fd.close()
 
     def test_recarray_csv_roundtrip(self):
         expected = np.recarray((99,),
-                               [('x', np.float),
-                                ('y', np.float),
-                                ('t', np.float)])
+                               [(str('x'), np.float),
+                                (str('y'), np.float),
+                                (str('t'), np.float)])
         # initialising all values: uninitialised memory sometimes produces
         # floats that do not round-trip to string and back.
         expected['x'][:] = np.linspace(-1e9, -1, 99)
@@ -72,7 +74,7 @@ class csv_testcase(unittest.TestCase):
         np.testing.assert_allclose(expected['t'], actual['t'])
 
     def test_rec2csv_bad_shape_ValueError(self):
-        bad = np.recarray((99, 4), [('x', np.float), ('y', np.float)])
+        bad = np.recarray((99, 4), [(str('x'), np.float), (str('y'), np.float)])
 
         # the bad recarray should trigger a ValueError for having ndim > 1.
         self.assertRaises(ValueError, mlab.rec2csv, bad, self.fd)

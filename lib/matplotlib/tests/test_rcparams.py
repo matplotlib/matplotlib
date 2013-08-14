@@ -1,3 +1,7 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import os
 
 import matplotlib as mpl
@@ -8,7 +12,7 @@ mpl.rc('text', usetex=False)
 mpl.rc('lines', linewidth=22)
 
 fname = os.path.join(os.path.dirname(__file__), 'test_rcparams.rc')
-  
+
 def test_rcparams():
 
     usetex = mpl.rcParams['text.usetex']
@@ -35,7 +39,7 @@ def test_rcparams():
         assert mpl.rcParams['lines.linewidth'] == 33
     finally:
         mpl.rcParams['lines.linewidth'] = linewidth
-    
+
 
 def test_RcParams_class():
     rc = mpl.RcParams({'font.cursive': ['Apple Chancery',
@@ -47,7 +51,8 @@ def test_RcParams_class():
                        'font.size': 12})
 
 
-    expected_repr = """
+    if six.PY3:
+        expected_repr = """
 RcParams({'font.cursive': ['Apple Chancery',
                            'Textile',
                            'Zapf Chancery',
@@ -55,11 +60,27 @@ RcParams({'font.cursive': ['Apple Chancery',
           'font.family': 'sans-serif',
           'font.size': 12,
           'font.weight': 'normal'})""".lstrip()
+    else:
+        expected_repr = """
+RcParams({u'font.cursive': [u'Apple Chancery',
+                            u'Textile',
+                            u'Zapf Chancery',
+                            u'cursive'],
+          u'font.family': u'sans-serif',
+          u'font.size': 12,
+          u'font.weight': u'normal'})""".lstrip()
 
     assert_str_equal(expected_repr, repr(rc))
 
-    expected_str = """
+    if six.PY3:
+        expected_str = """
 font.cursive: ['Apple Chancery', 'Textile', 'Zapf Chancery', 'cursive']
+font.family: sans-serif
+font.size: 12
+font.weight: normal""".lstrip()
+    else:
+        expected_str = """
+font.cursive: [u'Apple Chancery', u'Textile', u'Zapf Chancery', u'cursive']
 font.family: sans-serif
 font.size: 12
 font.weight: normal""".lstrip()
@@ -68,7 +89,7 @@ font.weight: normal""".lstrip()
 
     # test the find_all functionality
     assert ['font.cursive', 'font.size'] == sorted(rc.find_all('i[vz]').keys())
-    assert ['font.family'] == rc.find_all('family').keys()
+    assert ['font.family'] == list(six.iterkeys(rc.find_all('family')))
 
 if __name__ == '__main__':
     import nose

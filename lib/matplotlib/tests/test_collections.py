@@ -1,6 +1,9 @@
 """
 Tests specific to the collections module.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 from nose.tools import assert_equal
 import numpy as np

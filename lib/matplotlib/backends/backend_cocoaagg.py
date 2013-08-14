@@ -1,4 +1,3 @@
-from __future__ import division, print_function
 """
  backend_cocoaagg.py
 
@@ -13,6 +12,10 @@ from __future__ import division, print_function
     matplotlib rendering context into a cocoa app
     using a NSImageView.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
 
 import os, sys
 
@@ -36,7 +39,7 @@ from matplotlib.figure import Figure
 from matplotlib.backend_bases import FigureManagerBase, FigureCanvasBase
 from matplotlib.backend_bases import ShowBase
 
-from backend_agg import FigureCanvasAgg
+from .backend_agg import FigureCanvasAgg
 from matplotlib._pylab_helpers import Gcf
 
 mplBundle = NSBundle.bundleWithPath_(os.path.dirname(__file__))
@@ -258,14 +261,14 @@ OUTPSN = 'o^{ProcessSerialNumber=LL}'
 INPSN = 'n^{ProcessSerialNumber=LL}'
 FUNCTIONS=[
     # These two are public API
-    ( u'GetCurrentProcess', S(OSErr, OUTPSN) ),
-    ( u'SetFrontProcess', S(OSErr, INPSN) ),
+    ( 'GetCurrentProcess', S(OSErr, OUTPSN) ),
+    ( 'SetFrontProcess', S(OSErr, INPSN) ),
     # This is undocumented SPI
-    ( u'CPSSetProcessName', S(OSErr, INPSN, objc._C_CHARPTR) ),
-    ( u'CPSEnableForegroundOperation', S(OSErr, INPSN) ),
+    ( 'CPSSetProcessName', S(OSErr, INPSN, objc._C_CHARPTR) ),
+    ( 'CPSEnableForegroundOperation', S(OSErr, INPSN) ),
 ]
 def WMEnable(name='Python'):
-    if isinstance(name, unicode):
+    if isinstance(name, six.text_type):
         name = name.encode('utf8')
     mainBundle = NSBundle.mainBundle()
     bPath = os.path.split(os.path.split(os.path.split(sys.executable)[0])[0])[0]

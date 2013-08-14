@@ -1,3 +1,7 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 from nose.tools import assert_equal
 import matplotlib.dviread as dr
 import os.path
@@ -47,4 +51,3 @@ def test_PsfontsMap():
     assert_equal(entry.encoding, None)
     entry = fontmap['TeXfont9']
     assert_equal(entry.filename, '/absolute/font9.pfb')
-

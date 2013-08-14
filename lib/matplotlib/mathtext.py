@@ -17,10 +17,14 @@ metrics for those fonts.
 If you find TeX expressions that don't parse or render properly,
 please email mdroe@stsci.edu, but please check KNOWN ISSUES below first.
 """
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import os, sys
-if sys.version_info[0] >= 3:
+if six.PY3:
     from io import StringIO
+    unichr = chr
 else:
     from cStringIO import StringIO
 from math import ceil
@@ -41,7 +45,7 @@ from pyparsing import Combine, Group, Optional, Forward, \
      FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException
 
 # Enable packrat parsing
-if (sys.version_info[0] >= 3 and
+if (six.PY3 and
     [int(x) for x in pyparsing.__version__.split('.')] < [2, 0, 0]):
     warn("Due to a bug in pyparsing <= 2.0.0 on Python 3.x, packrat parsing "
          "has been disabled.  Mathtext rendering will be much slower as a "
@@ -554,7 +558,7 @@ class TruetypeFonts(Fonts):
             self.font     = font
             self.charmap  = font.get_charmap()
             self.glyphmap = dict(
-                [(glyphind, ccode) for ccode, glyphind in self.charmap.iteritems()])
+                [(glyphind, ccode) for ccode, glyphind in six.iteritems(self.charmap)])
 
         def __repr__(self):
             return repr(self.font)
@@ -683,7 +687,7 @@ class BakomaFonts(TruetypeFonts):
 
         TruetypeFonts.__init__(self, *args, **kwargs)
         self.fontmap = {}
-        for key, val in self._fontmap.iteritems():
+        for key, val in six.iteritems(self._fontmap):
             fullpath = findfont(val)
             self.fontmap[key] = fullpath
             self.fontmap[val] = fullpath
@@ -924,7 +928,7 @@ class StixFonts(UnicodeFonts):
     def __init__(self, *args, **kwargs):
         TruetypeFonts.__init__(self, *args, **kwargs)
         self.fontmap = {}
-        for key, name in self._fontmap.iteritems():
+        for key, name in six.iteritems(self._fontmap):
             fullpath = findfont(name)
             self.fontmap[key] = fullpath
             self.fontmap[name] = fullpath
@@ -1078,7 +1082,7 @@ class StandardPsFonts(Fonts):
         # This class includes greek letters, so we're ok
         if (fontname == 'it' and
             (len(sym) > 1 or
-             not unicodedata.category(unicode(sym)).startswith("L"))):
+             not unicodedata.category(six.text_type(sym)).startswith("L"))):
             fontname = 'rm'
 
         found_symbol = False
@@ -1296,7 +1300,7 @@ class Char(Node):
         Node.__init__(self)
         self.c = c
         self.font_output = state.font_output
-        assert isinstance(state.font, (str, unicode, int))
+        assert isinstance(state.font, (six.string_types, int))
         self.font = state.font
         self.font_class = state.font_class
         self.fontsize = state.fontsize
@@ -2056,46 +2060,46 @@ class Parser(object):
     The grammar is based directly on that in TeX, though it cuts a few
     corners.
     """
-    _binary_operators = set(r'''
+    _binary_operators = set('''
       + *
-      \pm             \sqcap                   \rhd
-      \mp             \sqcup                   \unlhd
-      \times          \vee                     \unrhd
-      \div            \wedge                   \oplus
-      \ast            \setminus                \ominus
-      \star           \wr                      \otimes
-      \circ           \diamond                 \oslash
-      \bullet         \bigtriangleup           \odot
-      \cdot           \bigtriangledown         \bigcirc
-      \cap            \triangleleft            \dagger
-      \cup            \triangleright           \ddagger
-      \uplus          \lhd                     \amalg'''.split())
+      \\pm             \\sqcap                   \\rhd
+      \\mp             \\sqcup                   \\unlhd
+      \\times          \\vee                     \\unrhd
+      \\div            \\wedge                   \\oplus
+      \\ast            \\setminus                \\ominus
+      \\star           \\wr                      \\otimes
+      \\circ           \\diamond                 \\oslash
+      \\bullet         \\bigtriangleup           \\odot
+      \\cdot           \\bigtriangledown         \\bigcirc
+      \\cap            \\triangleleft            \\dagger
+      \\cup            \\triangleright           \\ddagger
+      \\uplus          \\lhd                     \\amalg'''.split())
 
-    _relation_symbols = set(r'''
+    _relation_symbols = set('''
       = < > :
-      \leq            \geq             \equiv           \models
-      \prec           \succ            \sim             \perp
-      \preceq         \succeq          \simeq           \mid
-      \ll             \gg              \asymp           \parallel
-      \subset         \supset          \approx          \bowtie
-      \subseteq       \supseteq        \cong            \Join
-      \sqsubset       \sqsupset        \neq             \smile
-      \sqsubseteq     \sqsupseteq      \doteq           \frown
-      \in             \ni              \propto
-      \vdash          \dashv           \dots'''.split())
+      \\leq            \\geq             \\equiv           \\models
+      \\prec           \\succ            \\sim             \\perp
+      \\preceq         \\succeq          \\simeq           \\mid
+      \\ll             \\gg              \\asymp           \\parallel
+      \\subset         \\supset          \\approx          \\bowtie
+      \\subseteq       \\supseteq        \\cong            \\Join
+      \\sqsubset       \\sqsupset        \\neq             \\smile
+      \\sqsubseteq     \\sqsupseteq      \\doteq           \\frown
+      \\in             \\ni              \\propto
+      \\vdash          \\dashv           \\dots'''.split())
 
-    _arrow_symbols = set(r'''
-      \leftarrow              \longleftarrow           \uparrow
-      \Leftarrow              \Longleftarrow           \Uparrow
-      \rightarrow             \longrightarrow          \downarrow
-      \Rightarrow             \Longrightarrow          \Downarrow
-      \leftrightarrow         \longleftrightarrow      \updownarrow
-      \Leftrightarrow         \Longleftrightarrow      \Updownarrow
-      \mapsto                 \longmapsto              \nearrow
-      \hookleftarrow          \hookrightarrow          \searrow
-      \leftharpoonup          \rightharpoonup          \swarrow
-      \leftharpoondown        \rightharpoondown        \nwarrow
-      \rightleftharpoons      \leadsto'''.split())
+    _arrow_symbols = set('''
+      \\leftarrow              \\longleftarrow           \\uparrow
+      \\Leftarrow              \\Longleftarrow           \\Uparrow
+      \\rightarrow             \\longrightarrow          \\downarrow
+      \\Rightarrow             \\Longrightarrow          \\Downarrow
+      \\leftrightarrow         \\longleftrightarrow      \\updownarrow
+      \\Leftrightarrow         \\Longleftrightarrow      \\Updownarrow
+      \\mapsto                 \\longmapsto              \\nearrow
+      \\hookleftarrow          \\hookrightarrow          \\searrow
+      \\leftharpoonup          \\rightharpoonup          \\swarrow
+      \\leftharpoondown        \\rightharpoondown        \\nwarrow
+      \\rightleftharpoons      \\leadsto'''.split())
 
     _spaced_symbols = _binary_operators | _relation_symbols | _arrow_symbols
 
@@ -2118,9 +2122,9 @@ class Parser(object):
       liminf sin cos exp limsup sinh cosh gcd ln sup cot hom log tan
       coth inf max tanh""".split())
 
-    _ambi_delim = set(r"""
-      | \| / \backslash \uparrow \downarrow \updownarrow \Uparrow
-      \Downarrow \Updownarrow .""".split())
+    _ambi_delim = set("""
+      | \\| / \\backslash \\uparrow \\downarrow \\updownarrow \\Uparrow
+      \\Downarrow \\Updownarrow .""".split())
 
     _left_delim = set(r"( [ \{ < \lfloor \langle \lceil".split())
 
@@ -2188,25 +2192,25 @@ class Parser(object):
         rbracket      <<= Literal(']').suppress()
         bslash        <<= Literal('\\')
 
-        space         <<= oneOf(self._space_widths.keys())
+        space         <<= oneOf(list(six.iterkeys(self._space_widths)))
         customspace   <<= (Suppress(Literal(r'\hspace'))
                           - ((lbrace + float_literal + rbrace)
                             | Error(r"Expected \hspace{n}")))
 
-        unicode_range =  u"\U00000080-\U0001ffff"
-        single_symbol <<= Regex(UR"([a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|%s])|(\\[%%${}\[\]_|])" %
+        unicode_range =  "\U00000080-\U0001ffff"
+        single_symbol <<= Regex(r"([a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|%s])|(\\[%%${}\[\]_|])" %
                                unicode_range)
-        symbol_name   <<= (Combine(bslash + oneOf(tex2uni.keys())) +
+        symbol_name   <<= (Combine(bslash + oneOf(list(six.iterkeys(tex2uni)))) +
                           FollowedBy(Regex("[^A-Za-z]").leaveWhitespace() | StringEnd()))
         symbol        <<= (single_symbol | symbol_name).leaveWhitespace()
 
         apostrophe    <<= Regex("'+")
 
-        c_over_c      <<= Suppress(bslash) + oneOf(self._char_over_chars.keys())
+        c_over_c      <<= Suppress(bslash) + oneOf(list(six.iterkeys(self._char_over_chars)))
 
         accent        <<= Group(
                              Suppress(bslash)
-                           + oneOf(self._accent_map.keys() + list(self._wide_accents))
+                           + oneOf(list(six.iterkeys(self._accent_map)) + list(self._wide_accents))
                            - placeable
                          )
 
@@ -2342,7 +2346,7 @@ class Parser(object):
                         "",
                         err.line,
                         " " * (err.column - 1) + "^",
-                        str(err)]))
+                        six.text_type(err)]))
         self._state_stack = None
         self._em_width_cache = {}
         self._expression.resetCache()
@@ -2637,7 +2641,7 @@ class Parser(object):
         napostrophes = 0
         new_toks = []
         for tok in toks[0]:
-            if isinstance(tok, str) and tok not in ('^', '_'):
+            if isinstance(tok, six.string_types) and tok not in ('^', '_'):
                 napostrophes += len(tok)
             else:
                 new_toks.append(tok)

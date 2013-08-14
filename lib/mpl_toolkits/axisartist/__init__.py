@@ -1,10 +1,14 @@
-from axislines import Axes, Subplot, AxesZero, SubplotZero, GridHelperRectlinear, \
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
+from .axislines import Axes, Subplot, AxesZero, SubplotZero, GridHelperRectlinear, \
      AxisArtistHelperRectlinear, AxisArtistHelper, GridHelperBase, AxisArtist
-from axis_artist import AxisArtist, GridlinesCollection
+from .axis_artist import AxisArtist, GridlinesCollection
 
-from grid_helper_curvelinear import GridHelperCurveLinear
+from .grid_helper_curvelinear import GridHelperCurveLinear
 
-from floating_axes import FloatingAxes, FloatingSubplot
+from .floating_axes import FloatingAxes, FloatingSubplot
 
 from mpl_toolkits.axes_grid1.parasite_axes import \
      subplot_class_factory, \
@@ -18,5 +22,3 @@ ParasiteAxesAuxTrans = parasite_axes_auxtrans_class_factory(axes_class=ParasiteA
 HostAxes = host_axes_class_factory(axes_class=Axes)
 
 SubplotHost = subplot_class_factory(HostAxes)
-
-

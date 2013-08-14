@@ -1,4 +1,7 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import matplotlib
 import inspect
 import warnings
@@ -56,5 +59,3 @@ or with matplotlib.use()""" %
     matplotlib.verbose.report('backend %s version %s' % (backend,backend_version))
 
     return backend_mod, new_figure_manager, draw_if_interactive, show
-
-
