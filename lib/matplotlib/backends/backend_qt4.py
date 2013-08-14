@@ -341,39 +341,25 @@ class FigureCanvasQT(QtGui.QWidget, FigureCanvasBase):
             return None
 
         event_key = event.key()
-        event_mods = int(event.modifiers())
+        event_mods = int(event.modifiers())  # actually a bitmask
 
+        mods = [p for p, m, k in MODIFIER_KEYS
+                if event_key != k and event_mods & m == m]
         try:
             # for certain keys (enter, left, backspace, etc) use a word for the
             # key, rather than unicode
             key = SPECIAL_KEYS[event_key]
         except KeyError:
-            # for easy cases, event.text() handles caps lock and capitalization
-            # for us
-            key = unicode(event.text())
+            key = unichr(event_key)
+            # qt delivers capitalized letters.  fix capitalization
+            # note that capslock is ignored
+            if 'shift' in mods:
+                mods.remove('shift')
+            else:
+                key = key.lower()
 
-            # if modifier (ctrl, alt, super) keys are being pressed,
-            # event.text() will be the empty string. QT always gives upper case
-            # letters, so we have to read from shift and lower() manually.
-            # Finally, since it is not possible to get the CapsLock state we
-            # cannot accurately compute the case of a pressed key when
-            # ctrl+shift+p is pressed.
-            if key == '':
-                # python may barf if event_key > 0x10000
-                try:
-                    key = unichr(event_key)
-                except ValueError:
-                    return None
-
-                # if shift is not being pressed, lower() it (CapsLock is
-                # ignored)
-                if not event_mods & QtCore.Qt.ShiftModifier:
-                    key = key.lower()
-
-        for prefix, modifier, Qt_key in MODIFIER_KEYS:
-            if event_key != Qt_key and event_mods & modifier == modifier:
-                key = u'{0}+{1}'.format(prefix, key)
-        return key
+        mods.reverse()
+        return u'+'.join(mods + [key]) 
 
     def new_timer(self, *args, **kwargs):
         """
