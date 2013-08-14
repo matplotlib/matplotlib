@@ -1,4 +1,7 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 from matplotlib.testing.compare import compare_images
 from matplotlib.testing.decorators import _image_directories
 from nose.tools import assert_equal, assert_not_equal, assert_almost_equal

@@ -1,9 +1,11 @@
 """
 Classes for the ticks and x and y axis
 """
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from matplotlib  import rcParams
+import six
+
+from matplotlib import rcParams
 import matplotlib.artist as artist
 from matplotlib.artist import allow_rasterization
 import matplotlib.cbook as cbook
@@ -181,7 +183,7 @@ class Tick(artist.Artist):
         This function always returns false.  It is more useful to test if the
         axis as a whole contains the mouse rather than the set of tick marks.
         """
-        if callable(self._contains):
+        if six.callable(self._contains):
             return self._contains(self, mouseevent)
         return False, {}
 
@@ -284,15 +286,15 @@ class Tick(artist.Artist):
             self.label2.set_transform(trans)
             self.tick1line.set_marker(self._tickmarkers[0])
             self.tick2line.set_marker(self._tickmarkers[1])
-        tick_kw = dict([kv for kv in kw.iteritems()
+        tick_kw = dict([kv for kv in six.iteritems(kw)
                         if kv[0] in ['color', 'zorder']])
         if tick_kw:
             self.tick1line.set(**tick_kw)
             self.tick2line.set(**tick_kw)
-            for k, v in tick_kw.iteritems():
+            for k, v in six.iteritems(tick_kw):
                 setattr(self, '_' + k, v)
         tick_list = [kv for kv
-                     in kw.iteritems() if kv[0] in ['size', 'width']]
+                     in six.iteritems(kw) if kv[0] in ['size', 'width']]
         for k, v in tick_list:
             setattr(self, '_' + k, v)
             if k == 'size':
@@ -301,13 +303,13 @@ class Tick(artist.Artist):
             else:
                 self.tick1line.set_markeredgewidth(v)
                 self.tick2line.set_markeredgewidth(v)
-        label_list = [k for k in kw.iteritems()
+        label_list = [k for k in six.iteritems(kw)
                       if k[0] in ['labelsize', 'labelcolor']]
         if label_list:
             label_kw = dict([(k[5:], v) for (k, v) in label_list])
             self.label1.set(**label_kw)
             self.label2.set(**label_kw)
-            for k, v in label_kw.iteritems():
+            for k, v in six.iteritems(label_kw):
                 setattr(self, '_' + k, v)
 
 
@@ -1568,7 +1570,7 @@ class Axis(artist.Artist):
         # and the "units" attribute, which is the timezone, can
         # be set.
         import datetime
-        if isinstance(tz, (str, unicode)):
+        if isinstance(tz, six.string_types):
             import pytz
             tz = pytz.timezone(tz)
         self.update_units(datetime.datetime(2009, 1, 1, 0, 0, 0, 0, tz))
@@ -1581,7 +1583,7 @@ class XAxis(Axis):
     def contains(self, mouseevent):
         """Test whether the mouse event occured in the x axis.
         """
-        if callable(self._contains):
+        if six.callable(self._contains):
             return self._contains(self, mouseevent)
 
         x, y = mouseevent.x, mouseevent.y
@@ -1883,7 +1885,7 @@ class YAxis(Axis):
 
         Returns *True* | *False*
         """
-        if callable(self._contains):
+        if six.callable(self._contains):
             return self._contains(self, mouseevent)
 
         x, y = mouseevent.x, mouseevent.y

@@ -1,4 +1,7 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 from nose.tools import assert_equal
 from matplotlib.testing.decorators import knownfailureif
 import sys
@@ -22,7 +25,9 @@ def test_override_builtins():
         'sum'
     ])
 
-    if sys.version_info[0] >= 3:
+    # We could use six.moves.builtins here, but that seems
+    # to do a little more than just this.
+    if six.PY3:
         builtins = sys.modules['builtins']
     else:
         builtins = sys.modules['__builtin__']

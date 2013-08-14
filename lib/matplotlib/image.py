@@ -3,7 +3,10 @@ The image module supports basic image loading, rescaling and display
 operations.
 
 """
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import os
 import warnings
 import math
@@ -55,9 +58,9 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     }
 
     # reverse interp dict
-    _interpdr = dict([(v, k) for k, v in _interpd.iteritems()])
+    _interpdr = dict([(v, k) for k, v in six.iteritems(_interpd)])
 
-    interpnames = _interpd.keys()
+    interpnames = list(six.iterkeys(_interpd))
 
     def __str__(self):
         return "AxesImage(%g,%g;%gx%g)" % tuple(self.axes.bbox.bounds)
@@ -373,7 +376,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         """
         Test whether the mouse event occured within the image.
         """
-        if callable(self._contains):
+        if six.callable(self._contains):
             return self._contains(self, mouseevent)
         # TODO: make sure this is consistent with patch and patch
         # collection on nonlinear transformed coordinates.
@@ -958,7 +961,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
 
     def contains(self, mouseevent):
         """Test whether the mouse event occured within the image."""
-        if callable(self._contains):
+        if six.callable(self._contains):
             return self._contains(self, mouseevent)
         xmin, xmax, ymin, ymax = self.get_extent()
         xdata, ydata = mouseevent.x, mouseevent.y
@@ -1091,14 +1094,14 @@ class BboxImage(_AxesImageBase):
 
         if isinstance(self.bbox, BboxBase):
             return self.bbox
-        elif callable(self.bbox):
+        elif six.callable(self.bbox):
             return self.bbox(renderer)
         else:
             raise ValueError("unknown type of bbox")
 
     def contains(self, mouseevent):
         """Test whether the mouse event occured within the image."""
-        if callable(self._contains):
+        if six.callable(self._contains):
             return self._contains(self, mouseevent)
 
         if not self.get_visible():  # or self.get_figure()._renderer is None:
@@ -1238,12 +1241,12 @@ def imread(fname, format=None):
     else:
         ext = format
 
-    if ext not in handlers.iterkeys():
+    if ext not in handlers:
         im = pilread(fname)
         if im is None:
             raise ValueError('Only know how to handle extensions: %s; '
                              'with PIL installed matplotlib can handle '
-                             'more images' % handlers.keys())
+                             'more images' % list(six.iterkeys(handlers.keys)))
         return im
 
     handler = handlers[ext]
@@ -1310,7 +1313,7 @@ def pil_to_array(pilImage):
     """
     def toarray(im, dtype=np.uint8):
         """Teturn a 1D array of dtype."""
-        x_str = im.tostring('raw', im.mode)
+        x_str = im.tobytes('raw', im.mode)
         x = np.fromstring(x_str, dtype)
         return x
 

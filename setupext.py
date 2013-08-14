@@ -13,6 +13,9 @@ import sys
 from textwrap import fill
 
 
+PY3 = (sys.version_info[0] >= 3)
+
+
 try:
     from subprocess import check_output
 except ImportError:
@@ -46,10 +49,10 @@ if sys.platform != 'win32':
         from subprocess import getstatusoutput
 
 
-if sys.version_info[0] < 3:
-    import ConfigParser as configparser
-else:
+if PY3:
     import configparser
+else:
+    import ConfigParser as configparser
 
 
 # matplotlib build options, which can be altered using setup.cfg
@@ -674,7 +677,7 @@ class CXX(SetupPackage):
     name = 'pycxx'
 
     def check(self):
-        if sys.version_info[0] >= 3:
+        if PY3:
             # There is no version of PyCXX in the wild that will work
             # with Python 3.x
             self.__class__.found_external = False
@@ -683,7 +686,7 @@ class CXX(SetupPackage):
 
         self.__class__.found_external = True
         old_stdout = sys.stdout
-        if sys.version_info[0] >= 3:
+        if PY3:
             sys.stdout = io.StringIO()
         else:
             sys.stdout = io.BytesIO()
@@ -729,7 +732,7 @@ class CXX(SetupPackage):
             ext.sources.extend(glob.glob('CXX/*.cxx'))
             ext.sources.extend(glob.glob('CXX/*.c'))
         ext.define_macros.append(('PYCXX_ISO_CPP_LIB', '1'))
-        if sys.version_info[0] >= 3:
+        if PY3:
             ext.define_macros.append(('PYCXX_PYTHON_2TO3', '1'))
         if not (sys.platform == 'win32' and win32_compiler == 'msvc'):
             ext.libraries.append('stdc++')
@@ -923,6 +926,22 @@ class Tri(SetupPackage):
         return ext
 
 
+class Six(SetupPackage):
+    name = "six"
+
+    def check(self):
+        try:
+            import six
+        except ImportError:
+            return (
+                "six was not found.")
+
+        return "using six version %s" % six.__version__
+
+    def get_install_requires(self):
+        return ['six']
+
+
 class Dateutil(SetupPackage):
     name = "dateutil"
 
@@ -978,13 +997,13 @@ class Pyparsing(SetupPackage):
                     '.'.join(str(x) for x in required)))
 
         if pyparsing.__version__ == "2.0.0":
-            if sys.version_info[0] == 2:
-                return (
-                    "pyparsing 2.0.0 is not compatible with Python 2.x")
-            else:
+            if PY3:
                 return (
                     "pyparsing 2.0.0 has bugs that prevent its use with "
                     "matplotlib")
+            else:
+                return (
+                    "pyparsing 2.0.0 is not compatible with Python 2.x")
 
         return "using pyparsing version %s" % pyparsing.__version__
 
@@ -1030,10 +1049,10 @@ class BackendTkAgg(OptionalBackendPackage):
             raise CheckFailed("skipping due to configuration")
 
         try:
-            if sys.version_info[0] < 3:
-                import Tkinter
-            else:
+            if PY3:
                 import tkinter as Tkinter
+            else:
+                import Tkinter
         except ImportError:
             raise CheckFailed('TKAgg requires Tkinter.')
         except RuntimeError:
@@ -1082,10 +1101,10 @@ class BackendTkAgg(OptionalBackendPackage):
             return self.tcl_tk_cache
 
         # By this point, we already know that Tkinter imports correctly
-        if sys.version_info[0] < 3:
-            import Tkinter
-        else:
+        if PY3:
             import tkinter as Tkinter
+        else:
+            import Tkinter
         tcl_lib_dir = ''
         tk_lib_dir = ''
         # First try to open a Tk window (requires a running X server)
@@ -1123,10 +1142,10 @@ class BackendTkAgg(OptionalBackendPackage):
 
     def parse_tcl_config(self, tcl_lib_dir, tk_lib_dir):
         try:
-            if sys.version_info[0] < 3:
-                import Tkinter
-            else:
+            if PY3:
                 import tkinter as Tkinter
+            else:
+                import Tkinter
         except ImportError:
             return None
 
@@ -1474,7 +1493,7 @@ class BackendGtk3Agg(OptionalBackendPackage):
         if 'TRAVIS' in os.environ:
             raise CheckFailed("Can't build with Travis")
 
-        if sys.version_info[0] >= 3:
+        if PY3:
             raise CheckFailed("gtk3agg backend does not work on Python 3")
 
         # This check needs to be performed out-of-process, because

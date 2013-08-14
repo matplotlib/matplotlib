@@ -3,7 +3,9 @@ font data tables for truetype and afm computer modern fonts
 """
 # this dict maps symbol names to fontnames, glyphindex.  To get the
 # glyph index from the character code, you have to use get_charmap
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 """
 from matplotlib.ft2font import FT2Font
@@ -88,7 +90,7 @@ latex_to_bakoma = {
     r'\rho'                      : ('cmmi10',  39),
     r'\sigma'                    : ('cmmi10',  21),
     r'\tau'                      : ('cmmi10',  43),
-    r'\upsilon'                  : ('cmmi10',  25),
+    '\\upsilon'                  : ('cmmi10',  25),
     r'\phi'                      : ('cmmi10',  42),
     r'\chi'                      : ('cmmi10',  17),
     r'\psi'                      : ('cmmi10',  31),
@@ -129,7 +131,7 @@ latex_to_bakoma = {
     r'\Xi'                       : ('cmr10',   3),
     r'\Pi'                       : ('cmr10',  17),
     r'\Sigma'                    : ('cmr10',  10),
-    r'\Upsilon'                  : ('cmr10',  11),
+    '\\Upsilon'                  : ('cmr10',  11),
     r'\Phi'                      : ('cmr10',   9),
     r'\Psi'                      : ('cmr10',  15),
     r'\Omega'                    : ('cmr10',  12),
@@ -149,7 +151,7 @@ latex_to_bakoma = {
     r'\combiningdotabove'        : ('cmr10', 26), # for \dot
 
     r'\leftarrow'                : ('cmsy10',  10),
-    r'\uparrow'                  : ('cmsy10',  25),
+    '\\uparrow'                  : ('cmsy10',  25),
     r'\downarrow'                : ('cmsy10',  28),
     r'\leftrightarrow'           : ('cmsy10',  24),
     r'\nearrow'                  : ('cmsy10',  99),
@@ -157,7 +159,7 @@ latex_to_bakoma = {
     r'\simeq'                    : ('cmsy10', 108),
     r'\Leftarrow'                : ('cmsy10', 104),
     r'\Rightarrow'               : ('cmsy10', 112),
-    r'\Uparrow'                  : ('cmsy10',  60),
+    '\\Uparrow'                  : ('cmsy10',  60),
     r'\Downarrow'                : ('cmsy10',  68),
     r'\Leftrightarrow'           : ('cmsy10',  51),
     r'\nwarrow'                  : ('cmsy10',  65),
@@ -180,7 +182,7 @@ latex_to_bakoma = {
     r'\aleph'                    : ('cmsy10',  26),
     r'\cup'                      : ('cmsy10',   6),
     r'\cap'                      : ('cmsy10',  19),
-    r'\uplus'                    : ('cmsy10',  58),
+    '\\uplus'                    : ('cmsy10',  58),
     r'\wedge'                    : ('cmsy10',  43),
     r'\vee'                      : ('cmsy10',  96),
     r'\vdash'                    : ('cmsy10', 109),
@@ -194,8 +196,8 @@ latex_to_bakoma = {
     r'\mid'                      : ('cmsy10',  47),
     r'\vert'                     : ('cmsy10',  47),
     r'\Vert'                     : ('cmsy10',  44),
-    r'\updownarrow'              : ('cmsy10',  94),
-    r'\Updownarrow'              : ('cmsy10',  53),
+    '\\updownarrow'              : ('cmsy10',  94),
+    '\\Updownarrow'              : ('cmsy10',  53),
     r'\backslash'                : ('cmsy10', 126),
     r'\wr'                       : ('cmsy10', 101),
     r'\nabla'                    : ('cmsy10', 110),
@@ -296,7 +298,7 @@ latex_to_standard = {
     r'\rho'                      : ('psyr', 114),
     r'\sigma'                    : ('psyr', 115),
     r'\tau'                      : ('psyr', 116),
-    r'\upsilon'                  : ('psyr', 117),
+    '\\upsilon'                  : ('psyr', 117),
     r'\varpi'                    : ('psyr', 118),
     r'\omega'                    : ('psyr', 119),
     r'\xi'                       : ('psyr', 120),
@@ -311,7 +313,7 @@ latex_to_standard = {
     r'\spadesuit'                : ('psyr', 170),
     r'\leftrightarrow'           : ('psyr', 171),
     r'\leftarrow'                : ('psyr', 172),
-    r'\uparrow'                  : ('psyr', 173),
+    '\\uparrow'                  : ('psyr', 173),
     r'\rightarrow'               : ('psyr', 174),
     r'\downarrow'                : ('psyr', 175),
     r'\pm'                       : ('psyr', 176),
@@ -350,12 +352,12 @@ latex_to_standard = {
     r'\surd'                     : ('psyr', 214),
     r'\__sqrt__'                 : ('psyr', 214),
     r'\cdot'                     : ('psyr', 215),
-    r'\urcorner'                 : ('psyr', 216),
+    '\\urcorner'                 : ('psyr', 216),
     r'\vee'                      : ('psyr', 217),
     r'\wedge'                    : ('psyr', 218),
     r'\Leftrightarrow'           : ('psyr', 219),
     r'\Leftarrow'                : ('psyr', 220),
-    r'\Uparrow'                  : ('psyr', 221),
+    '\\Uparrow'                  : ('psyr', 221),
     r'\Rightarrow'               : ('psyr', 222),
     r'\Downarrow'                : ('psyr', 223),
     r'\Diamond'                  : ('psyr', 224),
@@ -378,7 +380,7 @@ latex_to_standard = {
     r'\slash'                    : ('psyr', 0o57),
     r'\Lamda'                    : ('psyr', 0o114),
     r'\neg'                      : ('psyr', 0o330),
-    r'\Upsilon'                  : ('psyr', 0o241),
+    '\\Upsilon'                  : ('psyr', 0o241),
     r'\rightbrace'               : ('psyr', 0o175),
     r'\rfloor'                   : ('psyr', 0o373),
     r'\lambda'                   : ('psyr', 0o154),
@@ -1764,7 +1766,7 @@ type12uni = {
     'uni044B'        : 1099
 }
 
-uni2type1 = dict(((v,k) for k,v in type12uni.iteritems()))
+uni2type1 = dict(((v,k) for k,v in six.iteritems(type12uni)))
 
 tex2uni = {
     'widehat'                  : 0x0302,

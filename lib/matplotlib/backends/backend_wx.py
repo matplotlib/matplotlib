@@ -1,4 +1,3 @@
-from __future__ import division, print_function
 """
  A wxPython backend for matplotlib, based (very heavily) on
  backend_template.py and backend_gtk.py
@@ -14,12 +13,15 @@ from __future__ import division, print_function
  should be included with this source code.
 
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
 
 import sys
 import os
 import os.path
 import math
-import StringIO
 import weakref
 import warnings
 
@@ -37,7 +39,7 @@ if _DEBUG < 5:
     import traceback, pdb
 _DEBUG_lvls = {1 : 'Low ', 2 : 'Med ', 3 : 'High', 4 : 'Error' }
 
-if sys.version_info[0] >= 3:
+if six.PY3:
     warnings.warn(
         "The wx and wxagg backends have not been tested with Python 3.x",
         ImportWarning)
@@ -60,7 +62,7 @@ if not hasattr(sys, 'frozen'): # i.e., not py2exe
         _wx_ensure_failed = wxversion.VersionError
 
     try:
-        wxversion.ensureMinimal('2.8')
+        wxversion.ensureMinimal(str('2.8'))
     except _wx_ensure_failed:
         pass
     # We don't really want to pass in case of VersionError, but when
@@ -894,7 +896,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         'return the wildcard string for the filesave dialog'
         default_filetype = self.get_default_filetype()
         filetypes = self.get_supported_filetypes_grouped()
-        sorted_filetypes = filetypes.items()
+        sorted_filetypes = list(six.iteritems(filetypes))
         sorted_filetypes.sort()
         wildcards = []
         extensions = []
@@ -1563,7 +1565,7 @@ class MenuButtonWx(wx.Button):
             for menuId in self._axisId[maxAxis:]:
                 self._menu.Delete(menuId)
             self._axisId = self._axisId[:maxAxis]
-        self._toolbar.set_active(range(maxAxis))
+        self._toolbar.set_active(list(xrange(maxAxis)))
 
     def getActiveAxes(self):
         """Return a list of the selected axes."""

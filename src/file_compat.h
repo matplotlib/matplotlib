@@ -98,7 +98,7 @@ npy_PyFile_Check(PyObject *file)
 #else
 
 #define npy_PyFile_Dup(file, mode) PyFile_AsFile(file)
-#define npy_PyFile_DupClose(file, handle) (0)
+#define npy_PyFile_DupClose(file, handle) (NULL)
 
 #endif
 

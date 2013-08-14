@@ -3,15 +3,22 @@ A collection of modules for collecting, analyzing and plotting
 financial data.   User contributions welcome!
 
 """
-from __future__ import division, print_function
-import contextlib, os, sys, warnings
-from urllib2 import urlopen
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-if sys.version_info[0] < 3:
-    from hashlib import md5
+import six
+from six.moves import xrange, zip
+
+import contextlib, os, sys, warnings
+if six.PY3:
+    from urllib.request import urlopen
 else:
+    from urllib2 import urlopen
+
+if six.PY3:
     import hashlib
     md5 = lambda x: hashlib.md5(x.encode())
+else:
+    from hashlib import md5
 
 import datetime
 
@@ -37,17 +44,17 @@ else:
     cachedir = None
 
 
-stock_dt = np.dtype([('date', object),
-                     ('year', np.int16),
-                     ('month', np.int8),
-                     ('day', np.int8),
-                     ('d', np.float),     # mpl datenum
-                     ('open', np.float),
-                     ('close', np.float),
-                     ('high', np.float),
-                     ('low', np.float),
-                     ('volume', np.float),
-                     ('aclose', np.float)])
+stock_dt = np.dtype([(str('date'), object),
+                     (str('year'), np.int16),
+                     (str('month'), np.int8),
+                     (str('day'), np.int8),
+                     (str('d'), np.float),     # mpl datenum
+                     (str('open'), np.float),
+                     (str('close'), np.float),
+                     (str('high'), np.float),
+                     (str('low'), np.float),
+                     (str('volume'), np.float),
+                     (str('aclose'), np.float)])
 
 
 def parse_yahoo_historical(fh, adjusted=True, asobject=False):
@@ -629,7 +636,7 @@ def volume_overlay3(ax, quotes,
                False : colordown,
                }
 
-    dates, opens, closes, highs, lows, volumes = zip(*quotes)
+    dates, opens, closes, highs, lows, volumes = list(zip(*quotes))
     colors = [colord[close1>=close0] for close0, close1 in zip(closes[:-1], closes[1:]) if close0!=-1 and close1 !=-1]
     colors.insert(0,colord[closes[0]>=opens[0]])
 

@@ -34,7 +34,6 @@ extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
               'sphinxext.github',
               'numpydoc']
 
-
 try:
     import numpydoc
 except ImportError:
@@ -52,6 +51,9 @@ templates_path = ['_templates']
 
 # The suffix of source filenames.
 source_suffix = '.rst'
+
+# This is the default encoding, but it doesn't hurt to be explicit
+source_encoding = "utf-8"
 
 # The master toctree document.
 master_doc = 'contents'

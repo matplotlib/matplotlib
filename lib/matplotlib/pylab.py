@@ -214,7 +214,10 @@ __end
 
 
 """
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import sys, warnings
 
 from matplotlib.cbook import flatten, is_string_like, exception_to_str, \
@@ -276,5 +279,6 @@ import numpy.ma as ma
 # don't let numpy's datetime hide stdlib
 import datetime
 
-if sys.version_info > (2, 6, 0):
-    bytes = __builtins__['bytes']
+# This is needed, or bytes will be numpy.random.bytes from
+# "from numpy.random import *" above
+bytes = __builtins__['bytes']

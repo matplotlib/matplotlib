@@ -1,4 +1,7 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 from nose.tools import assert_raises
 import numpy as np
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal

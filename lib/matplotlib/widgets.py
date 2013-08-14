@@ -9,13 +9,17 @@ be too smart with respect to layout -- you will have to figure out how
 wide and tall you want your Axes to be to accommodate your widget.
 """
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import zip
+
 import numpy as np
 
-from mlab import dist
-from patches import Circle, Rectangle
-from lines import Line2D
-from transforms import blended_transform_factory
+from .mlab import dist
+from .patches import Circle, Rectangle
+from .lines import Line2D
+from .transforms import blended_transform_factory
 
 
 class LockDraw:
@@ -191,7 +195,7 @@ class Button(AxesWidget):
             return
         if event.inaxes != self.ax:
             return
-        for cid, func in self.observers.iteritems():
+        for cid, func in six.iteritems(self.observers):
             func(event)
 
     def _motion(self, event):
@@ -380,7 +384,7 @@ class Slider(AxesWidget):
         self.val = val
         if not self.eventson:
             return
-        for cid, func in self.observers.iteritems():
+        for cid, func in six.iteritems(self.observers):
             func(val)
 
     def on_changed(self, func):
@@ -518,7 +522,7 @@ class CheckButtons(AxesWidget):
 
         if not self.eventson:
             return
-        for cid, func in self.observers.iteritems():
+        for cid, func in six.iteritems(self.observers):
             func(thist.get_text())
 
     def on_clicked(self, func):
@@ -644,7 +648,7 @@ class RadioButtons(AxesWidget):
 
         if not self.eventson:
             return
-        for cid, func in self.observers.iteritems():
+        for cid, func in six.iteritems(self.observers):
             func(thist.get_text())
 
     def on_clicked(self, func):
@@ -1569,7 +1573,7 @@ class LassoSelector(AxesWidget):
             return
         self.verts.append((event.xdata, event.ydata))
 
-        self.line.set_data(zip(*self.verts))
+        self.line.set_data(list(zip(*self.verts)))
 
         if self.useblit:
             self.canvas.restore_region(self.background)
@@ -1644,7 +1648,7 @@ class Lasso(AxesWidget):
             return
         self.verts.append((event.xdata, event.ydata))
 
-        self.line.set_data(zip(*self.verts))
+        self.line.set_data(list(zip(*self.verts)))
 
         if self.useblit:
             self.canvas.restore_region(self.background)

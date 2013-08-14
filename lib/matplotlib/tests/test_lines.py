@@ -1,6 +1,9 @@
 """
 Tests specific to the lines module.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 from nose.tools import assert_true
 from timeit import repeat
@@ -14,7 +17,7 @@ from matplotlib.testing.decorators import cleanup, image_comparison
 def test_invisible_Line_rendering():
     """
     Github issue #1256 identified a bug in Line.draw method
-    
+
     Despite visibility attribute set to False, the draw method was not
     returning early enough and some pre-rendering code was executed
     though not necessary.

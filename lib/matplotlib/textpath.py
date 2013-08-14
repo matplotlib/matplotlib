@@ -1,8 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import zip
+
 import warnings
-import urllib
+if six.PY3:
+    from urllib.parse import quote as urllib_quote
+else:
+    from urllib import quote as urllib_quote
 
 import numpy as np
 
@@ -66,7 +73,7 @@ class TextToPath(object):
             ps_name = sfnt[(1, 0, 0, 6)].decode('ascii')
         except KeyError:
             ps_name = sfnt[(3, 1, 0x0409, 6)].decode('utf-16be')
-        char_id = urllib.quote('%s-%x' % (ps_name, ccode))
+        char_id = urllib_quote('%s-%x' % (ps_name, ccode))
         return char_id
 
     def _get_char_id_ps(self, font, ccode):
@@ -74,7 +81,7 @@ class TextToPath(object):
         Return a unique id for the given font and character-code set (for tex).
         """
         ps_name = font.get_ps_font_info()[2]
-        char_id = urllib.quote('%s-%d' % (ps_name, ccode))
+        char_id = urllib_quote('%s-%d' % (ps_name, ccode))
         return char_id
 
     def glyph_to_path(self, font, currx=0.):
@@ -218,8 +225,8 @@ class TextToPath(object):
 
         rects = []
 
-        return (zip(glyph_ids, xpositions, ypositions, sizes),
-                glyph_map_new, rects)
+        return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
+                     glyph_map_new, rects)
 
     def get_glyphs_mathtext(self, prop, s, glyph_map=None,
                             return_new_glyphs_only=False):
@@ -271,7 +278,7 @@ class TextToPath(object):
                      Path.CLOSEPOLY]
             myrects.append((vert1, code1))
 
-        return (zip(glyph_ids, xpositions, ypositions, sizes),
+        return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
                 glyph_map_new, myrects)
 
     def get_texmanager(self):
@@ -397,7 +404,7 @@ class TextToPath(object):
                      Path.CLOSEPOLY]
             myrects.append((vert1, code1))
 
-        return (zip(glyph_ids, xpositions, ypositions, sizes),
+        return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
                 glyph_map_new, myrects)
 
 

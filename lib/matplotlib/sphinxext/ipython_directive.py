@@ -52,23 +52,23 @@ Authors
 - Skipper Seabold, refactoring, cleanups, pure python addition
 """
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
+
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Stdlib
-import cStringIO
+import io
 import os
 import re
 import sys
 import tempfile
 import ast
-
-# To keep compatibility with various python versions
-try:
-    from hashlib import md5
-except ImportError:
-    from md5 import md5
+from hashlib import md5
 
 # Third-party
 import matplotlib
@@ -94,7 +94,7 @@ except ImportError:
 # Globals
 #-----------------------------------------------------------------------------
 # for tokenizing blocks
-COMMENT, INPUT, OUTPUT =  range(3)
+COMMENT, INPUT, OUTPUT = list(xrange(3))
 
 #-----------------------------------------------------------------------------
 # Functions and class declarations
@@ -198,7 +198,7 @@ class EmbeddedSphinxShell(object):
 
     def __init__(self):
 
-        self.cout = cStringIO.StringIO()
+        self.cout = io.StringIO()
 
 
         # Create config object for IPython
@@ -488,19 +488,19 @@ class EmbeddedSphinxShell(object):
                 continue
 
             # deal with lines checking for multiline
-            continuation  = u'   %s:'% ''.join(['.']*(len(str(ct))+2))
+            continuation  = '   %s:'% ''.join(['.']*(len(str(ct))+2))
             if not multiline:
-                modified = u"%s %s" % (fmtin % ct, line_stripped)
+                modified = "%s %s" % (fmtin % ct, line_stripped)
                 output.append(modified)
                 ct += 1
                 try:
                     ast.parse(line_stripped)
-                    output.append(u'')
+                    output.append('')
                 except Exception: # on a multiline
                     multiline = True
                     multiline_start = lineno
             else: # still on a multiline
-                modified = u'%s %s' % (continuation, line)
+                modified = '%s %s' % (continuation, line)
                 output.append(modified)
                 try:
                     mod = ast.parse(
@@ -511,7 +511,7 @@ class EmbeddedSphinxShell(object):
                             if isinstance(element, ast.Return):
                                 multiline = False
                     else:
-                        output.append(u'')
+                        output.append('')
                         multiline = False
                 except Exception:
                     pass
@@ -656,7 +656,7 @@ class IpythonDirective(Directive):
         #print lines
         if len(lines)>2:
             if debug:
-                print '\n'.join(lines)
+                print('\n'.join(lines))
             else: #NOTE: this raises some errors, what's it for?
                 #print 'INSERTING %d lines'%len(lines)
                 self.state_machine.insert_input(
@@ -833,4 +833,4 @@ if __name__=='__main__':
     if not os.path.isdir('_static'):
         os.mkdir('_static')
     test()
-    print 'All OK? Check figures in _static/'
+    print('All OK? Check figures in _static/')

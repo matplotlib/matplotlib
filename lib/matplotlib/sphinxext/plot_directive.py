@@ -106,27 +106,33 @@ The plot directive has the following configuration options:
         be applied before each plot.
 
     plot_apply_rcparams
-        By default, rcParams are applied when `context` option is not used in 
-        a plot  directive.  This configuration option overrides this behaviour 
+        By default, rcParams are applied when `context` option is not used in
+        a plot  directive.  This configuration option overrides this behaviour
         and applies rcParams before each plot.
 
     plot_working_directory
-        By default, the working directory will be changed to the directory of 
-        the example, so the code can get at its data files, if any.  Also its 
-        path will be added to `sys.path` so it can import any helper modules 
-        sitting beside it.  This configuration option can be used to specify 
-        a central directory (also added to `sys.path`) where data files and 
-        helper modules for all code are located. 
+        By default, the working directory will be changed to the directory of
+        the example, so the code can get at its data files, if any.  Also its
+        path will be added to `sys.path` so it can import any helper modules
+        sitting beside it.  This configuration option can be used to specify
+        a central directory (also added to `sys.path`) where data files and
+        helper modules for all code are located.
 
     plot_template
         Provide a customized template for preparing resturctured text.
-        
+
 
 """
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import sys, os, glob, shutil, imp, warnings, cStringIO, re, textwrap
+import six
+from six.moves import xrange
+
+import sys, os, glob, shutil, imp, warnings, io, re, textwrap
 import traceback
+
+if not six.PY3:
+    import cStringIO
 
 from docutils.parsers.rst import directives
 from docutils import nodes
@@ -252,7 +258,7 @@ def mark_plot_labels(app, document):
     the "htmlonly" (or "latexonly") node to the actual figure node
     itself.
     """
-    for name, explicit in document.nametypes.iteritems():
+    for name, explicit in six.iteritems(document.nametypes):
         if not explicit:
             continue
         labelid = document.nameids[name]
@@ -305,7 +311,7 @@ def setup(app):
     app.add_config_value('plot_working_directory', None, True)
     app.add_config_value('plot_template', None, True)
 
-    app.connect('doctree-read', mark_plot_labels)
+    app.connect(str('doctree-read'), mark_plot_labels)
 
 #------------------------------------------------------------------------------
 # Doctest handling
@@ -363,6 +369,13 @@ def split_code_at_show(text):
     if "\n".join(part).strip():
         parts.append("\n".join(part))
     return parts
+
+def remove_coding(text):
+    """
+    Remove the coding comment, which six.exec_ doesn't like.
+    """
+    return re.sub(
+        "^#\s*-\*-\s*coding:\s*.*-\*-$", "", text, flags=re.MULTILINE)
 
 #------------------------------------------------------------------------------
 # Template
@@ -492,13 +505,22 @@ def run_code(code, code_path, ns=None, function_name=None):
         os.chdir(dirname)
         sys.path.insert(0, dirname)
 
-    # Redirect stdout
-    stdout = sys.stdout
-    sys.stdout = cStringIO.StringIO()
-
     # Reset sys.argv
     old_sys_argv = sys.argv
     sys.argv = [code_path]
+
+    # Redirect stdout
+    stdout = sys.stdout
+    if six.PY3:
+        sys.stdout = io.StringIO()
+    else:
+        sys.stdout = cStringIO.StringIO()
+
+    # Assign a do-nothing print function to the namespace.  There
+    # doesn't seem to be any other way to provide a way to (not) print
+    # that works correctly across Python 2 and 3.
+    def _dummy_print(*arg, **kwarg):
+        pass
 
     try:
         try:
@@ -507,15 +529,17 @@ def run_code(code, code_path, ns=None, function_name=None):
                 ns = {}
             if not ns:
                 if setup.config.plot_pre_code is None:
-                    exec "import numpy as np\nfrom matplotlib import pyplot as plt\n" in ns
+                    six.exec_("import numpy as np\nfrom matplotlib import pyplot as plt\n", ns)
                 else:
-                    exec setup.config.plot_pre_code in ns
+                    six.exec_(six.text_type(setup.config.plot_pre_code), ns)
+            ns['print'] = _dummy_print
             if "__main__" in code:
-                exec "__name__ = '__main__'" in ns
-            exec code in ns
+                six.exec_("__name__ = '__main__'", ns)
+            code = remove_coding(code)
+            six.exec_(code, ns)
             if function_name is not None:
-                exec function_name + "()" in ns
-        except (Exception, SystemExit), err:
+                six.exec_(function_name + "()", ns)
+        except (Exception, SystemExit) as err:
             raise PlotError(traceback.format_exc())
     finally:
         os.chdir(pwd)
@@ -542,10 +566,10 @@ def render_figures(code, code_path, output_dir, output_base, context,
     default_dpi = {'png': 80, 'hires.png': 200, 'pdf': 200}
     formats = []
     plot_formats = config.plot_formats
-    if isinstance(plot_formats, (str, unicode)):
+    if isinstance(plot_formats, six.string_types):
         plot_formats = eval(plot_formats)
     for fmt in plot_formats:
-        if isinstance(fmt, str):
+        if isinstance(fmt, six.string_types):
             formats.append((fmt, default_dpi.get(fmt, 80)))
         elif type(fmt) in (tuple, list) and len(fmt)==2:
             formats.append((str(fmt[0]), int(fmt[1])))
@@ -624,7 +648,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
             for format, dpi in formats:
                 try:
                     figman.canvas.figure.savefig(img.filename(format), dpi=dpi)
-                except Exception,err:
+                except Exception as err:
                     raise PlotError(traceback.format_exc())
                 img.formats.append(format)
 
@@ -642,10 +666,10 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     document = state_machine.document
     config = document.settings.env.config
-    nofigs = options.has_key('nofigs')
+    nofigs = 'nofigs' in options
 
     options.setdefault('include-source', config.plot_include_source)
-    context = options.has_key('context')
+    context = 'context' in options
 
     rst_file = document.attributes['source']
     rst_dir = os.path.dirname(rst_file)
@@ -667,7 +691,7 @@ def run(arguments, content, options, state_machine, state, lineno):
         else:
             function_name = None
 
-        with open(source_file_name, 'r') as fd:
+        with io.open(source_file_name, 'r', encoding='utf-8') as fd:
             code = fd.read()
         output_base = os.path.basename(source_file_name)
     else:
@@ -691,7 +715,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # is it in doctest format?
     is_doctest = contains_doctest(code)
-    if options.has_key('format'):
+    if 'format' in options:
         if options['format'] == 'python':
             is_doctest = False
         else:
@@ -732,7 +756,7 @@ def run(arguments, content, options, state_machine, state, lineno):
         results = render_figures(code, source_file_name, build_dir, output_base,
                                  context, function_name, config)
         errors = []
-    except PlotError, err:
+    except PlotError as err:
         reporter = state.memo.reporter
         sm = reporter.system_message(
             2, "Exception occurred in plotting %s\n from %s:\n%s" % (output_base,
@@ -763,7 +787,7 @@ def run(arguments, content, options, state_machine, state, lineno):
         if nofigs:
             images = []
 
-        opts = [':%s: %s' % (key, val) for key, val in options.items()
+        opts = [':%s: %s' % (key, val) for key, val in six.iteritems(options)
                 if key in ('alt', 'height', 'width', 'scale', 'align', 'class')]
 
         only_html = ".. only:: html"
@@ -809,7 +833,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # copy script (if necessary)
     target_name = os.path.join(dest_dir, output_base + source_ext)
-    with open(target_name, 'w') as f:
+    with io.open(target_name, 'w', encoding="utf-8") as f:
         if source_file_name == rst_file:
             code_escaped = unescape_doctest(code)
         else:

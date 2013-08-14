@@ -1,3 +1,7 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import os
 import tempfile
 import numpy as np
@@ -19,7 +23,7 @@ WRITER_OUTPUT = dict(ffmpeg='mp4', ffmpeg_file='mp4',
 # matplotlib.testing.image_comparison
 @cleanup
 def test_save_animation_smoketest():
-    for writer, extension in WRITER_OUTPUT.iteritems():
+    for writer, extension in six.iteritems(WRITER_OUTPUT):
         yield check_save_animation, writer, extension
 
 

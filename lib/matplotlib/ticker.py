@@ -122,7 +122,12 @@ major an minor ticks.  See the :mod:`matplotlib.dates` module for
 more information and examples of using date locators and formatters.
 """
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+if six.PY3:
+    long = int
+
 import decimal
 import locale
 import math
@@ -397,7 +402,7 @@ class ScalarFormatter(Formatter):
         if rcParams['text.usetex'] or not rcParams['axes.unicode_minus']:
             return s
         else:
-            return s.replace('-', u'\u2212')
+            return s.replace('-', '\u2212')
 
     def __call__(self, x, pos=None):
         'Return the format for tick val *x* at position *pos*'
@@ -784,7 +789,7 @@ class EngFormatter(Formatter):
         -15: "f",
         -12: "p",
          -9: "n",
-         -6: u"\u03bc",  # Greek letter mu
+         -6: "\u03bc",  # Greek letter mu
          -3: "m",
           0: "",
           3: "k",
@@ -846,11 +851,11 @@ class EngFormatter(Formatter):
         mant = sign * dnum / (10 ** pow10)
 
         if self.places is None:
-            format_str = u"%g %s"
+            format_str = "%g %s"
         elif self.places == 0:
-            format_str = u"%i %s"
+            format_str = "%i %s"
         elif self.places > 0:
-            format_str = (u"%%.%if %%s" % self.places)
+            format_str = ("%%.%if %%s" % self.places)
 
         formatted = format_str % (mant, prefix)
 
@@ -881,9 +886,9 @@ class Locator(TickHelper):
             automatically for the associated :attr:`axis` simply call
             the Locator instance::
 
-                >>> print(type(loc))
+                >>> print((type(loc)))
                 <type 'Locator'>
-                >>> print(loc())
+                >>> print((loc()))
                 [1, 2, 3, 4]
 
         """
@@ -1353,7 +1358,7 @@ def decade_up(x, base=10):
 
 def nearest_long(x):
     if x == 0:
-        return 0L
+        return long(0)
     elif x > 0:
         return long(x + 0.5)
     else:

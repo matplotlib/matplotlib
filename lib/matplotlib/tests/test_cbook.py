@@ -1,4 +1,7 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import numpy as np
 from numpy.testing.utils import assert_array_equal
 import matplotlib.cbook as cbook

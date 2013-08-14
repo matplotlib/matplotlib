@@ -4,7 +4,10 @@ Defines classes for path effects. The path effects are supported in
 matplotlib.text.Text.
 """
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 from matplotlib.backend_bases import RendererBase
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 import matplotlib.transforms as transforms
@@ -31,9 +34,9 @@ class _Base(object):
         if dashes:
             gc.set_dashes(**dashes)
 
-        for k, v in new_gc_dict.iteritems():
+        for k, v in six.iteritems(new_gc_dict):
             set_method = getattr(gc, 'set_'+k, None)
-            if set_method is None or not callable(set_method):
+            if set_method is None or not six.callable(set_method):
                 raise AttributeError('Unknown property %s'%k)
             set_method(v)
 

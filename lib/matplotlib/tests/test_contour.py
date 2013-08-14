@@ -1,3 +1,7 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import datetime
 
 import numpy as np
@@ -100,7 +104,7 @@ def test_contour_shape_mismatch_4():
     try:
         ax.contour(b, g, z)
     except TypeError as exc:
-        print exc.args[0]
+        print(exc.args[0])
         assert re.match(
             r'Shape of x does not match that of z: ' +
             r'found \(9L?, 9L?\) instead of \(9L?, 10L?\)\.',
