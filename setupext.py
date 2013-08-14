@@ -611,6 +611,40 @@ class Toolkits(OptionalPackage):
 
 class Tests(OptionalPackage):
     name = "tests"
+    nose_min_version = '0.11.1'
+
+    def check(self):
+        super(Tests, self).check()
+
+        msgs = []
+        msg_template = ('{package} is required to run the matplotlib test '
+                        'suite.  pip/easy_install may attempt to install it '
+                        'after matplotlib.')
+        )
+
+
+        bad_nose = msg_template.format(
+            package='nose %s or later' % self.nose_min_version
+        try:
+            import nose
+            if is_min_version(nose.__version__, self.nose_min_version):
+                msgs += ['using nose version %s' % nose.__version__]
+            else:
+                msgs += [bad_nose]
+        except ImportError:
+            msgs += [bad_nose]
+
+
+        if sys.version_info >= (3, 3):
+            msgs += ['using unittest.mock']
+        else:
+            try:
+                import mock
+                msgs += ['using mock %s' % mock.__version__]
+            except ImportError:
+                msgs += [msg_template.format(package='mock')]
+
+        return ' / '.join(msgs)
 
     def get_packages(self):
         return [
@@ -631,8 +665,8 @@ class Tests(OptionalPackage):
             ]}
 
     def get_install_requires(self):
-        requires = ['nose>=0.11.1']
-        if not sys.version_info > (3, 3):
+        requires = ['nose>=%s' % self.nose_min_version]
+        if not sys.version_info >= (3, 3):
             requires += ['mock']
         return requires
 
