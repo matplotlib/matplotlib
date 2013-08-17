@@ -4709,7 +4709,7 @@ class Axes(martist.Artist):
           *width*           the widths of the bars
           *bottom*          the y coordinates of the bottom edges of
                             the bars
-          *color*           the colors of the bars
+          *color*           the colors of the bar faces
           *edgecolor*       the colors of the bar edges
           *linewidth*       width of bar edges; None means use default
                             linewidth; 0 means don't draw edges.
