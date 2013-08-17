@@ -1,8 +1,9 @@
 from __future__ import print_function
+
 from nose.tools import assert_raises
+
 import numpy as np
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
-
 
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
@@ -66,7 +67,7 @@ def test_SymLogNorm():
     norm = mcolors.SymLogNorm(3, vmax=5, linscale=1.2)
     vals = np.array([-30, -1, 2, 6], dtype=np.float)
     normed_vals = norm(vals)
-    expected = [ 0., 0.53980074, 0.826991, 1.02758204]
+    expected = [0., 0.53980074, 0.826991, 1.02758204]
     assert_array_almost_equal(normed_vals, expected)
     _inverse_tester(norm, vals)
     _scalar_tester(norm, vals)

@@ -154,7 +154,7 @@ def test_contour_manual_labels():
     z = np.max(np.dstack([abs(x), abs(y)]), 2)
 
     plt.figure(figsize=(6, 2))
-    cs = plt.contour(x,y,z)
+    cs = plt.contour(x, y, z)
     pts = np.array([(1.5, 3.0), (1.5, 4.4), (1.5, 6.0)])
     plt.clabel(cs, manual=pts)
 
@@ -177,10 +177,12 @@ def test_given_colors_levels_and_extends():
 
         if filled:
             last_color = -1 if extend in ['min', 'max'] else None
-            plt.contourf(data, colors=colors[:last_color], levels=levels, extend=extend)
+            plt.contourf(data, colors=colors[:last_color], levels=levels,
+                         extend=extend)
         else:
             last_level = -1 if extend == 'both' else None
-            plt.contour(data, colors=colors, levels=levels[:last_level], extend=extend)
+            plt.contour(data, colors=colors, levels=levels[:last_level],
+                        extend=extend)
 
         plt.colorbar()
 

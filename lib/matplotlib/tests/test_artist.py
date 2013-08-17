@@ -1,10 +1,6 @@
 from __future__ import print_function
 
-import copy
-
-
 import numpy as np
-
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -93,16 +89,6 @@ def test_collection_transform_of_none():
     assert isinstance(c._transOffset, mtrans.IdentityTransform)
 
 
-def test_point_in_path():
-    # Test #1787
-    verts2 = [(0,0), (0,1), (1,1), (1,0), (0,0)]
-
-    path = mpath.Path(verts2, closed=True)
-    points = [(0.5,0.5), (1.5,0.5)]
-
-    assert np.all(path.contains_points(points) == [True, False])
-
-
 @image_comparison(baseline_images=["clip_path_clipping"], remove_text=True)
 def test_clipping():
     exterior = mpath.Path.unit_rectangle().deepcopy()
@@ -134,6 +120,6 @@ def test_clipping():
     ax1.set_ylim([-3, 3])
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     import nose
-    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
