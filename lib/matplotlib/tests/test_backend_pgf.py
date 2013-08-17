@@ -1,15 +1,17 @@
 # -*- encoding: utf-8 -*-
-
 import os
 import shutil
+
 import numpy as np
 import nose
 from nose.plugins.skip import SkipTest
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.compat import subprocess
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
 from matplotlib.testing.decorators import _image_directories
+
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
@@ -59,19 +61,21 @@ def compare_figure(fname):
     shutil.copyfile(os.path.join(baseline_dir, fname), expected)
     err = compare_images(expected, actual, tol=14)
     if err:
-        raise ImageComparisonFailure('images not close: %s vs. %s' % (actual, expected))
+        raise ImageComparisonFailure('images not close: %s vs. '
+                                     '%s' % (actual, expected))
 
-###############################################################################
 
 def create_figure():
     plt.figure()
     x = np.linspace(0, 1, 15)
-    plt.plot(x, x**2, "b-")
+    plt.plot(x, x ** 2, "b-")
     plt.fill_between([0., .4], [.4, 0.], hatch='//', facecolor="lightgray", edgecolor="red")
-    plt.plot(x, 1-x**2, "g>")
+    plt.plot(x, 1 - x**2, "g>")
     plt.plot([0.9], [0.5], "ro", markersize=3)
-    plt.text(0.9, 0.5, u'unicode (ü, °, µ) and math ($\\mu_i = x_i^2$)', ha='right', fontsize=20)
-    plt.ylabel(u'sans-serif with math $\\frac{\\sqrt{x}}{y^2}$..', family='sans-serif')
+    plt.text(0.9, 0.5, u'unicode (ü, °, µ) and math ($\\mu_i = x_i^2$)',
+             ha='right', fontsize=20)
+    plt.ylabel(u'sans-serif with math $\\frac{\\sqrt{x}}{y^2}$..',
+               family='sans-serif')
 
 
 # test compiling a figure to pdf with xelatex
@@ -81,7 +85,7 @@ def test_xelatex():
         raise SkipTest('xelatex + pgf is required')
 
     rc_xelatex = {'font.family': 'serif',
-                   'pgf.rcfonts': False,}
+                  'pgf.rcfonts': False}
     mpl.rcParams.update(rc_xelatex)
     create_figure()
     compare_figure('pgf_xelatex.pdf')
@@ -129,7 +133,7 @@ def test_rcupdate():
     for i, rc_set in enumerate(rc_sets):
         mpl.rcParams.update(rc_set)
         create_figure()
-        compare_figure('pgf_rcupdate%d.pdf' % (i+1))
+        compare_figure('pgf_rcupdate%d.pdf' % (i + 1))
 
 
 # test backend-side clipping, since large numbers are not supported by TeX
@@ -160,4 +164,4 @@ def test_mixedmode():
 
 if __name__ == '__main__':
     import nose
-    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

@@ -1,13 +1,14 @@
 # -*- encoding: utf-8 -*-
 
 import io
+import os
 
 import numpy as np
 
 from matplotlib import cm, rcParams
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
-import os
+
 
 if 'TRAVIS' not in os.environ:
     @image_comparison(baseline_images=['pdf_use14corefonts'], extensions=['pdf'])
@@ -30,11 +31,17 @@ if 'TRAVIS' not in os.environ:
                  fontsize=24)
         plt.axhline(0.5, linewidth=0.5)
 
+
 @cleanup
 def test_type42():
     rcParams['pdf.fonttype'] = 42
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot([1,2,3])
+    ax.plot([1, 2, 3])
     fig.savefig(io.BytesIO())
+
+
+if __name__ == "__main__":
+    import nose
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

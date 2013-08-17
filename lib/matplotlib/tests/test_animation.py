@@ -1,6 +1,9 @@
+from __future__ import print_function
 import os
 import tempfile
+
 import numpy as np
+
 from matplotlib import pyplot as plt
 from matplotlib import animation
 from matplotlib.testing.noseclasses import KnownFailureTest
@@ -11,7 +14,6 @@ WRITER_OUTPUT = dict(ffmpeg='mp4', ffmpeg_file='mp4',
                      mencoder='mp4', mencoder_file='mp4',
                      avconv='mp4', avconv_file='mp4',
                      imagemagick='gif', imagemagick_file='gif')
-
 
 
 # Smoke test for saving animations.  In the future, we should probably
@@ -46,6 +48,6 @@ def check_save_animation(writer, extension='mp4'):
     anim.save(F.name, fps=30, writer=writer)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import nose
-    nose.runmodule()
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
