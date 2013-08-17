@@ -9,22 +9,22 @@ from __future__ import print_function
 import datetime
 import matplotlib.pyplot as plt
 from matplotlib.dates import MONDAY
-from matplotlib.finance import quotes_historical_yahoo
+from matplotlib.finance import quotes_historical_yahoo_ochl
 from matplotlib.dates import MonthLocator, WeekdayLocator, DateFormatter
 
 
-date1 = datetime.date( 2002, 1, 5 )
-date2 = datetime.date( 2003, 12, 1 )
+date1 = datetime.date(2002, 1, 5)
+date2 = datetime.date(2003, 12, 1)
 
 # every monday
-mondays   = WeekdayLocator(MONDAY)
+mondays = WeekdayLocator(MONDAY)
 
 # every 3rd month
-months    = MonthLocator(range(1,13), bymonthday=1, interval=3)
+months = MonthLocator(range(1, 13), bymonthday=1, interval=3)
 monthsFmt = DateFormatter("%b '%y")
 
 
-quotes = quotes_historical_yahoo('INTC', date1, date2)
+quotes = quotes_historical_yahoo_ochl('INTC', date1, date2)
 if len(quotes) == 0:
     print ('Found no quotes')
     raise SystemExit
