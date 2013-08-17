@@ -313,9 +313,6 @@ class _AxesBase(martist.Artist):
     """
     name = "rectilinear"
 
-    _shared_x_axes = cbook.Grouper()
-    _shared_y_axes = cbook.Grouper()
-
     def __str__(self):
         return "Axes(%g,%g;%gx%g)" % tuple(self._position.bounds)
 
@@ -391,17 +388,23 @@ class _AxesBase(martist.Artist):
         self.set_aspect('auto')
         self._adjustable = 'box'
         self.set_anchor('C')
+
+        self._shared_x_axes = []
+        self._shared_y_axes = []
+
         self._sharex = sharex
         self._sharey = sharey
         if sharex is not None:
-            self._shared_x_axes.join(self, sharex)
+            self._shared_x_axes.append(sharex)
+            sharex._shared_x_axes.append(self)
             if sharex._adjustable == 'box':
                 sharex._adjustable = 'datalim'
                 #warnings.warn(
                 #    'shared axes: "adjustable" is being changed to "datalim"')
             self._adjustable = 'datalim'
         if sharey is not None:
-            self._shared_y_axes.join(self, sharey)
+            self._shared_y_axes.append(sharey)
+            sharey._shared_y_axes.append(self)
             if sharey._adjustable == 'box':
                 sharey._adjustable = 'datalim'
                 #warnings.warn(
@@ -933,9 +936,6 @@ class _AxesBase(martist.Artist):
 
         self.xaxis.set_clip_path(self.patch)
         self.yaxis.set_clip_path(self.patch)
-
-        self._shared_x_axes.clean()
-        self._shared_y_axes.clean()
 
     def clear(self):
         """clear the axes"""
@@ -1893,7 +1893,8 @@ class _AxesBase(martist.Artist):
             _tight = self._tight = bool(tight)
 
         if scalex and self._autoscaleXon:
-            xshared = self._shared_x_axes.get_siblings(self)
+            xshared = self._shared_x_axes[:]
+            xshared.append(self)
             dl = [ax.dataLim for ax in xshared]
             bb = mtransforms.BboxBase.union(dl)
             x0, x1 = bb.intervalx
@@ -1914,7 +1915,8 @@ class _AxesBase(martist.Artist):
             self.set_xbound(x0, x1)
 
         if scaley and self._autoscaleYon:
-            yshared = self._shared_y_axes.get_siblings(self)
+            yshared = self._shared_y_axes[:]
+            yshared.append(self)
             dl = [ax.dataLim for ax in yshared]
             bb = mtransforms.BboxBase.union(dl)
             y0, y1 = bb.intervaly
@@ -2515,7 +2517,7 @@ class _AxesBase(martist.Artist):
         if emit:
             self.callbacks.process('xlim_changed', self)
             # Call all of the other x-axes that are shared with this one
-            for other in self._shared_x_axes.get_siblings(self):
+            for other in self._shared_x_axes:
                 if other is not self:
                     other.set_xlim(self.viewLim.intervalx,
                                    emit=False, auto=auto)
@@ -2741,7 +2743,7 @@ class _AxesBase(martist.Artist):
         if emit:
             self.callbacks.process('ylim_changed', self)
             # Call all of the other y-axes that are shared with this one
-            for other in self._shared_y_axes.get_siblings(self):
+            for other in self._shared_y_axes:
                 if other is not self:
                     other.set_ylim(self.viewLim.intervaly,
                                    emit=False, auto=auto)
@@ -3250,4 +3252,36 @@ class _AxesBase(martist.Artist):
         'Return a copy of the shared axes Grouper object for y axes'
         return self._shared_y_axes
 
+    def unshare_x_axes(self, ax):
+        """Unshare the shared x axes between *ax* and *self*"""
+        ax_shared_x = ax.get_shared_x_axes()
 
+        self._shared_x_axes.remove(ax)
+        ax_shared_x.remove(self)
+
+        self._sharex = None
+        ax._sharex = None
+
+        # Only set adjustable back to 'box' if there are no other shared axes
+        if len([axkey for axkey in self._shared_x_axes]) == 0:
+            self.set_adjustable('box')
+
+        if len([axkey for axkey in ax_shared_x]) == 0:
+            ax.set_adjustable('box')
+
+    def unshare_y_axes(self, ax):
+        """Unshare the shared y axes between *ax* and *self*"""
+        ax_shared_y = ax.get_shared_y_axes()
+
+        self._shared_y_axes.remove(ax)
+        ax_shared_y.remove(self)
+
+        self._sharey = None
+        ax._sharey = None
+
+        # Only set adjustable back to 'box' if there are no other shared axes
+        if len([axkey for axkey in self._shared_y_axes]) == 0:
+            self.set_adjustable('box')
+
+        if len([axkey for axkey in ax_shared_y]) == 0:
+            ax.set_adjustable('box')
