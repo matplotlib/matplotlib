@@ -1190,6 +1190,14 @@ def test_transparent_markers():
     ax = fig.add_subplot(111)
     ax.plot(data, 'D', mfc='none', markersize=100)
 
+@image_comparison(baseline_images=['mollweide_grid'], remove_text=True)
+def test_mollweide_grid():
+    # test that both horizontal and vertical gridlines appear on the Mollweide
+    # projection
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='mollweide')
+    ax.grid()
+
 @cleanup
 def test_mollweide_forward_inverse_closure():
     # test that the round-trip Mollweide forward->inverse transformation is an
