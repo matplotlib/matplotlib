@@ -339,15 +339,21 @@ def checkdep_dvipng():
 def checkdep_ghostscript():
     try:
         if sys.platform == 'win32':
-            command_args = ['gswin32c', '--version']
+            gs_execs = ['gswin32c', 'gswin64c', 'gs']
         else:
-            command_args = ['gs', '--version']
-        s = subprocess.Popen(command_args, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        v = byte2str(s.stdout.read()[:-1])
-        return v
+            gs_execs = ['gs']
+        for gs_exec in gs_execs:
+            s = subprocess.Popen(
+                [gs_exec, '--version'], stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
+            stdout, stderr = s.communicate()
+            if s.returncode == 0:
+                v = byte2str(stdout[:-1])
+                return gs_exec, v
+
+        return None, None
     except (IndexError, ValueError, OSError):
-        return None
+        return None, None
 
 def checkdep_tex():
     try:
@@ -412,7 +418,7 @@ def checkdep_ps_distiller(s):
     flag = True
     gs_req = '7.07'
     gs_sugg = '7.07'
-    gs_v = checkdep_ghostscript()
+    gs_exec, gs_v = checkdep_ghostscript()
     if compare_versions(gs_v, gs_sugg): pass
     elif compare_versions(gs_v, gs_req):
         verbose.report(('ghostscript-%s found. ghostscript-%s or later '
@@ -467,7 +473,7 @@ def checkdep_usetex(s):
                        'backend unless dvipng-1.5 or later is '
                        'installed on your system')
 
-    gs_v = checkdep_ghostscript()
+    gs_exec, gs_v = checkdep_ghostscript()
     if compare_versions(gs_v, gs_sugg): pass
     elif compare_versions(gs_v, gs_req):
         verbose.report(('ghostscript-%s found. ghostscript-%s or later is '
