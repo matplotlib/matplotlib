@@ -1664,6 +1664,7 @@ def test_twin_spines():
     host.tick_params(axis='x', **tkw)
 
 
+@cleanup
 def test_rcparam_grid_minor():
     orig_grid = matplotlib.rcParams['axes.grid']
     orig_locator = matplotlib.rcParams['axes.grid.which']
