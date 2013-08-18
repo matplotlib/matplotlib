@@ -70,7 +70,7 @@ class Tick(artist.Artist):
                  labelsize=None,
                  labelcolor=None,
                  zorder=None,
-                 gridOn=None,  # defaults to axes.grid
+                 gridOn=None,  # defaults to axes.grid depending on axes.grid.which
                  tick1On=True,
                  tick2On=True,
                  label1On=True,
@@ -85,7 +85,12 @@ class Tick(artist.Artist):
         artist.Artist.__init__(self)
 
         if gridOn is None:
-            gridOn = rcParams['axes.grid']
+            if major and (rcParams['axes.grid.which'] in ('both','major')):
+                gridOn = rcParams['axes.grid']
+            elif (not major) and (rcParams['axes.grid.which'] in ('both','minor')):
+                gridOn = rcParams['axes.grid']
+            else :
+                gridOn = False
 
         self.set_figure(axes.figure)
         self.axes = axes
@@ -733,8 +738,8 @@ class Axis(artist.Artist):
         self.callbacks = cbook.CallbackRegistry()
 
         # whether the grids are on
-        self._gridOnMajor = rcParams['axes.grid']
-        self._gridOnMinor = False
+        self._gridOnMajor = rcParams['axes.grid'] and (rcParams['axes.grid.which'] in ('both','major'))
+        self._gridOnMinor = rcParams['axes.grid'] and (rcParams['axes.grid.which'] in ('both','minor'))
 
         self.label.set_text('')
         self._set_artist_props(self.label)
