@@ -97,7 +97,7 @@ Occasionally the internal documentation (python docstrings) will refer
 to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 
 """
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 
 import sys
 
