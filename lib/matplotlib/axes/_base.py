@@ -2544,6 +2544,10 @@ class _AxesBase(martist.Artist):
         Different kwargs are accepted, depending on the scale:
         %(scale_docs)s
         """
+        # If the scale is being set to log, clip nonposx to prevent headaches
+        # around zero
+        if value.lower() == 'log' and 'nonposx' not in kwargs.keys():
+            kwargs['nonposx'] = 'clip'
         self.xaxis._set_scale(value, **kwargs)
         self.autoscale_view(scaley=False)
         self._update_transScale()
@@ -2770,6 +2774,10 @@ class _AxesBase(martist.Artist):
         Different kwargs are accepted, depending on the scale:
         %(scale_docs)s
         """
+        # If the scale is being set to log, clip nonposy to prevent headaches
+        # around zero
+        if value.lower() == 'log' and 'nonposy' not in kwargs.keys():
+            kwargs['nonposy'] = 'clip'
         self.yaxis._set_scale(value, **kwargs)
         self.autoscale_view(scalex=False)
         self._update_transScale()
