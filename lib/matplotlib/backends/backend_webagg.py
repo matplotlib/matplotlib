@@ -448,7 +448,7 @@ class WebAggApplication(tornado.web.Application):
             manager = Gcf.get_fig_manager(self.fignum)
 
             content_type = mimetypes.types_map.get('.' + fmt, 'application/binary')
-            self.set_header('Content-Type', mimetypes.get(fmt, 'binary'))
+            self.set_header('Content-Type', content_type)
 
             buff = io.BytesIO()
             manager.canvas.print_figure(buff, format=fmt)
