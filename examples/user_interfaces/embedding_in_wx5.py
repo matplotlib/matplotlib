@@ -36,7 +36,7 @@ class PlotNotebook(wx.Panel):
 
 
 def demo():
-    app = wx.PySimpleApp()
+    app = wx.App(0)
     frame = wx.Frame(None,-1,'Plotter')
     plotter = PlotNotebook(frame)
     axes1 = plotter.add('figure 1').gca()
