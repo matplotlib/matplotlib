@@ -7,6 +7,7 @@ import datetime
 import errno
 import io
 import json
+import mimetypes
 import os
 import random
 import socket
@@ -446,18 +447,7 @@ class WebAggApplication(tornado.web.Application):
             self.fignum = int(fignum)
             manager = Gcf.get_fig_manager(self.fignum)
 
-            # TODO: Move this to a central location
-            mimetypes = {
-                'ps': 'application/postscript',
-                'eps': 'application/postscript',
-                'pdf': 'application/pdf',
-                'svg': 'image/svg+xml',
-                'png': 'image/png',
-                'jpeg': 'image/jpeg',
-                'tif': 'image/tiff',
-                'emf': 'application/emf'
-            }
-
+            content_type = mimetypes.types_map.get('.' + fmt, 'application/binary')
             self.set_header('Content-Type', mimetypes.get(fmt, 'binary'))
 
             buff = io.BytesIO()
