@@ -1240,11 +1240,11 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
 
 def _create_wx_app():
     """
-    Creates a wx.PySimpleApp instance if a wx.App has not been created.
+    Creates a wx.App instance if it has not been created sofar.
     """
     wxapp = wx.GetApp()
     if wxapp is None:
-        wxapp = wx.PySimpleApp()
+        wxapp = wx.App(False)
         wxapp.SetExitOnFrameDelete(True)
         # retain a reference to the app object so it does not get garbage
         # collected and cause segmentation faults
