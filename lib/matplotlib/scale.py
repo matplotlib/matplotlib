@@ -534,5 +534,5 @@ def get_scale_docs():
 
 docstring.interpd.update(
     scale=' | '.join([repr(x) for x in get_scale_names()]),
-    scale_docs=get_scale_docs().strip(),
+    scale_docs=get_scale_docs().rstrip(),
     )
