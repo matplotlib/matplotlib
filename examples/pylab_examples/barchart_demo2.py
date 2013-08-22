@@ -65,14 +65,20 @@ def withnew(i, scr):
 
 scoreLabels = [withnew(i, scr) for i, scr in enumerate(scores)]
 scoreLabels = [i+j for i, j in zip(scoreLabels, testMeta)]
-pylab.yticks(pos, scoreLabels)
+# set the tick locations
+ax2.set_yticks(pos)
+# set the tick labels
+ax2.set_yticklabels(scoreLabels)
+# make sure that the limits are set equally on both yaxis so the ticks line up
+ax2.set_ylim(ax1.get_ylim())
+
+
 ax2.set_ylabel('Test Scores')
 #Make list of numerical suffixes corresponding to position in a list
 #            0     1     2     3     4     5     6     7     8     9
 suffixes = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th']
 ax2.set_xlabel('Percentile Ranking Across ' + str(grade) + suffixes[grade]
               + ' Grade ' + gender.title() + 's')
-
 
 # Lastly, write in the ranking inside each bar to aid in interpretation
 for rect in rects:
