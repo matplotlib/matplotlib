@@ -1458,6 +1458,9 @@ class BackendGtk3Agg(OptionalBackendPackage):
     name = "gtk3agg"
 
     def check(self):
+        if self.get_config() is False:
+            raise CheckFailed("skipping due to configuration")
+
         if 'TRAVIS' in os.environ:
             raise CheckFailed("Can't build with Travis")
 
@@ -1521,6 +1524,9 @@ class BackendGtk3Cairo(OptionalBackendPackage):
     name = "gtk3cairo"
 
     def check(self):
+        if self.get_config() is False:
+            raise CheckFailed("skipping due to configuration")
+
         if 'TRAVIS' in os.environ:
             raise CheckFailed("Can't build with Travis")
 
@@ -1549,6 +1555,9 @@ class BackendWxAgg(OptionalBackendPackage):
     name = "wxagg"
 
     def check(self):
+        if self.get_config() is False:
+            raise CheckFailed("skipping due to configuration")
+
         try:
             import wxversion
         except ImportError:
@@ -1617,6 +1626,9 @@ class Windowing(OptionalBackendPackage):
     name = "windowing"
 
     def check(self):
+        if self.get_config() is False:
+            raise CheckFailed("skipping due to configuration")
+
         if sys.platform != 'win32':
             raise CheckFailed("Microsoft Windows only")
         config = self.get_config()
@@ -1648,6 +1660,9 @@ class BackendQt4(OptionalBackendPackage):
         return '.'.join(temp)
 
     def check(self):
+        if self.get_config() is False:
+            raise CheckFailed("skipping due to configuration")
+
         try:
             from PyQt4 import pyqtconfig
         except ImportError:
@@ -1666,6 +1681,9 @@ class BackendPySide(OptionalBackendPackage):
     name = "pyside"
 
     def check(self):
+        if self.get_config() is False:
+            raise CheckFailed("skipping due to configuration")
+
         try:
             from PySide import __version__
             from PySide import QtCore
@@ -1682,6 +1700,9 @@ class BackendCairo(OptionalBackendPackage):
     name = "cairo"
 
     def check(self):
+        if self.get_config() is False:
+            raise CheckFailed("skipping due to configuration")
+
         try:
             import cairo
         except ImportError:
