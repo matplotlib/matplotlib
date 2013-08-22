@@ -97,8 +97,7 @@ def col2hex(color):
 def to_qcolor(color):
     """Create a QColor from a matplotlib color"""
     qcolor = QtGui.QColor()
-    if isinstance(color, QtCore.QString):
-        color = str(color)
+    color = str(color)
     try:
         color = col2hex(color)
     except ValueError:
