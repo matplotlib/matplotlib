@@ -1442,6 +1442,8 @@ def backend_gtk3agg_internal_check(x):
         gi.require_version("Gtk", "3.0")
     except ValueError:
         return (False, "Requires gtk3 development files to be installed.")
+    except AttributeError:
+        return (False, "pygobject version too old.")
 
     try:
         from gi.repository import Gtk, Gdk, GObject
@@ -1505,6 +1507,8 @@ def backend_gtk3cairo_internal_check(x):
         gi.require_version("Gtk", "3.0")
     except ValueError:
         return (False, "Requires gtk3 development files to be installed.")
+    except AttributeError:
+        return (False, "pygobject version too old.")
 
     try:
         from gi.repository import Gtk, Gdk, GObject
