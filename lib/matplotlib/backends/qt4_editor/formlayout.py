@@ -79,7 +79,7 @@ class ColorButton(QtGui.QPushButton):
     def get_color(self):
         return self._color
 
-    @QtCore.pyqtSignature("QColor")
+    @QtCore.Slot("QColor")
     def set_color(self, color):
         if color != self._color:
             self._color = color
@@ -88,7 +88,7 @@ class ColorButton(QtGui.QPushButton):
             pixmap.fill(color)
             self.setIcon(QtGui.QIcon(pixmap))
 
-    color = QtCore.pyqtProperty("QColor", get_color, set_color)
+    color = QtCore.Property("QColor", get_color, set_color)
 
 def col2hex(color):
     """Convert matplotlib color to hex before passing to Qt"""
