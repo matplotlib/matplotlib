@@ -920,9 +920,9 @@ class Normalize(object):
 
     def autoscale_None(self, A):
         ' autoscale only None-valued vmin or vmax'
-        if self.vmin is None:
+        if self.vmin is None and np.size(A) > 0:
             self.vmin = ma.min(A)
-        if self.vmax is None:
+        if self.vmax is None and np.size(A) > 0:
             self.vmax = ma.max(A)
 
     def scaled(self):
