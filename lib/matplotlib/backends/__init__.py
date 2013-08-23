@@ -22,7 +22,7 @@ def pylab_setup():
         backend_name = backend_name.lower() # until we banish mixed case
         backend_name = 'matplotlib.backends.%s'%backend_name.lower()
     backend_mod = __import__(backend_name,
-                             globals(),locals(),[backend_name])
+                             globals(),locals(),[backend_name],0)
 
     # Things we pull in from all backends
     new_figure_manager = backend_mod.new_figure_manager
