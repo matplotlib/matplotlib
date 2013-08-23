@@ -150,12 +150,6 @@ except NameError:
     # Python 3
     from imp import reload
 
-# Needed for toolkit setuptools support
-if 0:
-    try:
-        __import__('pkg_resources').declare_namespace(__name__)
-    except ImportError:
-        pass # must not have setuptools
 
 if not hasattr(sys, 'argv'):  # for modpython
     sys.argv = ['modpython']
