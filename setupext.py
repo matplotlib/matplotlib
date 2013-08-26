@@ -1017,8 +1017,7 @@ class BackendTkAgg(OptionalBackendPackage):
         self.tcl_tk_cache = None
 
     def check(self):
-        if self.get_config() is False:
-            raise CheckFailed("skipping due to configuration")
+        super(BackendTkAgg, self).check()
 
         try:
             if sys.version_info[0] < 3:
@@ -1306,8 +1305,7 @@ class BackendGtk(OptionalBackendPackage):
     name = "gtk"
 
     def check(self):
-        if self.get_config() is False:
-            raise CheckFailed("skipping due to configuration")
+        super(BackendGtk, self).check()
 
         try:
             import gtk
@@ -1462,8 +1460,7 @@ class BackendGtk3Agg(OptionalBackendPackage):
     name = "gtk3agg"
 
     def check(self):
-        if self.get_config() is False:
-            raise CheckFailed("skipping due to configuration")
+        super(BackendGtk3Agg, self).check()
 
         if 'TRAVIS' in os.environ:
             raise CheckFailed("Can't build with Travis")
@@ -1528,8 +1525,7 @@ class BackendGtk3Cairo(OptionalBackendPackage):
     name = "gtk3cairo"
 
     def check(self):
-        if self.get_config() is False:
-            raise CheckFailed("skipping due to configuration")
+        super(BackendGtk3Cairo, self).check()
 
         if 'TRAVIS' in os.environ:
             raise CheckFailed("Can't build with Travis")
@@ -1559,8 +1555,7 @@ class BackendWxAgg(OptionalBackendPackage):
     name = "wxagg"
 
     def check(self):
-        if self.get_config() is False:
-            raise CheckFailed("skipping due to configuration")
+        super(BackendWxAgg, self).check()
 
         try:
             import wxversion
@@ -1600,8 +1595,7 @@ class BackendMacOSX(OptionalBackendPackage):
     name = 'macosx'
 
     def check(self):
-        if self.get_config() is False:
-            raise CheckFailed("skipping due to configuration")
+        super(BackendMacOSX, self).check()
 
         if sys.platform != 'darwin':
             raise CheckFailed("Mac OS-X only")
@@ -1630,8 +1624,7 @@ class Windowing(OptionalBackendPackage):
     name = "windowing"
 
     def check(self):
-        if self.get_config() is False:
-            raise CheckFailed("skipping due to configuration")
+        super(Windowing, self).check()
 
         if sys.platform != 'win32':
             raise CheckFailed("Microsoft Windows only")
@@ -1664,8 +1657,7 @@ class BackendQt4(OptionalBackendPackage):
         return '.'.join(temp)
 
     def check(self):
-        if self.get_config() is False:
-            raise CheckFailed("skipping due to configuration")
+        super(BackendQt4, self).check()
 
         try:
             from PyQt4 import pyqtconfig
@@ -1685,8 +1677,7 @@ class BackendPySide(OptionalBackendPackage):
     name = "pyside"
 
     def check(self):
-        if self.get_config() is False:
-            raise CheckFailed("skipping due to configuration")
+        super(BackendPySide, self).check()
 
         try:
             from PySide import __version__
@@ -1704,8 +1695,7 @@ class BackendCairo(OptionalBackendPackage):
     name = "cairo"
 
     def check(self):
-        if self.get_config() is False:
-            raise CheckFailed("skipping due to configuration")
+        super(BackendCairo, self).check()
 
         try:
             import cairo
