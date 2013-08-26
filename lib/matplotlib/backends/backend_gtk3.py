@@ -10,6 +10,9 @@ except ImportError:
 
 try:
     gi.require_version("Gtk", "3.0")
+except AttributeError:
+    raise ImportError(
+        "pygobject version too old -- it must have require_version")
 except ValueError:
     raise ImportError(
         "Gtk3 backend requires the GObject introspection bindings for Gtk 3 "
