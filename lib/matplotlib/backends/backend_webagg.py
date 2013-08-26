@@ -11,7 +11,6 @@ import os
 import random
 import socket
 import threading
-import types
 
 import numpy as np
 
@@ -22,7 +21,6 @@ except ImportError:
 import tornado.web
 import tornado.ioloop
 import tornado.websocket
-import tornado.template
 
 import matplotlib
 from matplotlib import rcParams
@@ -57,8 +55,8 @@ class Show(backend_bases.ShowBase):
         WebAggApplication.initialize()
 
         url = "http://127.0.0.1:{port}{prefix}".format(
-                port=WebAggApplication.port,
-                prefix=WebAggApplication.url_prefix)
+            port=WebAggApplication.port,
+            prefix=WebAggApplication.url_prefix)
 
         if rcParams['webagg.open_in_browser']:
             import webbrowser
@@ -308,12 +306,12 @@ class FigureCanvasWebAgg(backend_agg.FigureCanvasAgg):
         backend_bases.FigureCanvasBase.start_event_loop_default(
             self, timeout)
     start_event_loop.__doc__ = \
-      backend_bases.FigureCanvasBase.start_event_loop_default.__doc__
+        backend_bases.FigureCanvasBase.start_event_loop_default.__doc__
 
     def stop_event_loop(self):
         backend_bases.FigureCanvasBase.stop_event_loop_default(self)
     stop_event_loop.__doc__ = \
-      backend_bases.FigureCanvasBase.stop_event_loop_default.__doc__
+        backend_bases.FigureCanvasBase.stop_event_loop_default.__doc__
 
 
 class FigureManagerWebAgg(backend_bases.FigureManagerBase):
@@ -352,26 +350,29 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
 
 class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
-    _jquery_icon_classes = {'home': 'ui-icon ui-icon-home',
-                            'back': 'ui-icon ui-icon-circle-arrow-w',
-                            'forward': 'ui-icon ui-icon-circle-arrow-e',
-                            'zoom_to_rect': 'ui-icon ui-icon-search',
-                            'move': 'ui-icon ui-icon-arrow-4',
-                            'download': 'ui-icon ui-icon-disk',
-                            None: None
-                           }
+    _jquery_icon_classes = {
+        'home': 'ui-icon ui-icon-home',
+        'back': 'ui-icon ui-icon-circle-arrow-w',
+        'forward': 'ui-icon ui-icon-circle-arrow-e',
+        'zoom_to_rect': 'ui-icon ui-icon-search',
+        'move': 'ui-icon ui-icon-arrow-4',
+        'download': 'ui-icon ui-icon-disk',
+        None: None
+    }
 
     def _init_toolbar(self):
         # Use the standard toolbar items + download button
-        toolitems = (backend_bases.NavigationToolbar2.toolitems +
-            (('Download', 'Download plot', 'download', 'download'),))
+        toolitems = (
+            backend_bases.NavigationToolbar2.toolitems +
+            (('Download', 'Download plot', 'download', 'download'),)
+        )
 
         NavigationToolbar2WebAgg.toolitems = \
             tuple(
-                    (text, tooltip_text, self._jquery_icon_classes[image_file],
-                    name_of_method)
-                  for text, tooltip_text, image_file, name_of_method
-                  in toolitems if image_file in self._jquery_icon_classes)
+                (text, tooltip_text, self._jquery_icon_classes[image_file],
+                 name_of_method)
+                for text, tooltip_text, image_file, name_of_method
+                in toolitems if image_file in self._jquery_icon_classes)
 
         self.message = ''
         self.cursor = 0
@@ -432,7 +433,8 @@ class WebAggApplication(tornado.web.Application):
 
             ws_uri = 'ws://{req.host}{prefix}/'.format(req=self.request,
                                                        prefix=self.url_prefix)
-            self.render('single_figure.html',
+            self.render(
+                "single_figure.html",
                 prefix=self.url_prefix,
                 ws_uri=ws_uri,
                 fig_id=fignum,
@@ -452,9 +454,9 @@ class WebAggApplication(tornado.web.Application):
                 "all_figures.html",
                 prefix=self.url_prefix,
                 ws_uri=ws_uri,
-                figures=sorted(list(Gcf.figs.items()), key=lambda item: item[0]),
+                figures=sorted(
+                    list(Gcf.figs.items()), key=lambda item: item[0]),
                 toolitems=NavigationToolbar2WebAgg.toolitems)
-
 
     class MPLInterfaceJS(tornado.web.RequestHandler):
         def get(self):
@@ -463,10 +465,10 @@ class WebAggApplication(tornado.web.Application):
 
             self.set_header('Content-Type', 'application/javascript')
 
-            self.render("mpl_interface.js",
+            self.render(
+                "mpl_interface.js",
                 toolitems=NavigationToolbar2WebAgg.toolitems,
                 canvas=canvas)
-
 
     class Download(tornado.web.RequestHandler):
         def get(self, fignum, fmt):
@@ -543,7 +545,7 @@ class WebAggApplication(tornado.web.Application):
     def __init__(self, url_prefix=''):
         if url_prefix:
             assert url_prefix[0] == '/' and url_prefix[-1] != '/', \
-                   'url_prefix must start with a "/" and not end with one.'
+                'url_prefix must start with a "/" and not end with one.'
 
         super(WebAggApplication, self).__init__([
             # Static files for the CSS and JS
@@ -566,11 +568,13 @@ class WebAggApplication(tornado.web.Application):
              {'path': os.path.join(self._mpl_dirs['web_backend'], 'jquery',
                                    'css', 'themes', 'base', 'images')}),
 
-            (url_prefix + r'/_static/jquery/js/(.*)', tornado.web.StaticFileHandler,
+            (url_prefix + r'/_static/jquery/js/(.*)',
+             tornado.web.StaticFileHandler,
              {'path': os.path.join(self._mpl_dirs['web_backend'],
                                    'jquery', 'js')}),
 
-            (url_prefix + r'/_static/css/(.*)', tornado.web.StaticFileHandler,
+            (url_prefix + r'/_static/css/(.*)',
+             tornado.web.StaticFileHandler,
              {'path': os.path.join(self._mpl_dirs['web_backend'], 'css')}),
 
             # An MPL favicon
@@ -655,6 +659,7 @@ class WebAggApplication(tornado.web.Application):
 
 def ipython_inline_display(figure):
     import matplotlib._pylab_helpers as pylab_helpers
+    import tornado.template
 
     WebAggApplication.initialize()
     if not server_thread.is_alive():
@@ -666,7 +671,6 @@ def ipython_inline_display(figure):
         tpl = fd.read()
 
     fignum = figure.number
-    manager = pylab_helpers.Gcf.get_fig_manager(fignum)
 
     t = tornado.template.Template(tpl)
     return t.generate(
