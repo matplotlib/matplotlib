@@ -43,12 +43,14 @@ def test_patheffect2():
              path_effects=[withStroke(linewidth=3, foreground="w")])
 
 
-@image_comparison(baseline_images=['patheffect3'], remove_text=True)
+@image_comparison(baseline_images=['patheffect3'])
 def test_patheffect3():
 
     ax3 = plt.subplot(111)
     p1, = ax3.plot([0, 1], [0, 1])
-    leg = ax3.legend([p1], ["Line 1"], fancybox=True, loc=2)
+    ax3.set_title(r'testing$^{123}$',
+        path_effects=[withStroke(linewidth=1, foreground="r")])
+    leg = ax3.legend([p1], [r'Line 1$^2$'], fancybox=True, loc=2)
     leg.legendPatch.set_path_effects([withSimplePatchShadow()])
 
 
