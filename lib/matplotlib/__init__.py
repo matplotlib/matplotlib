@@ -100,6 +100,7 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 from __future__ import print_function, absolute_import
 
 import sys
+import distutils.version
 
 __version__  = '1.3.0'
 __version__numpy__ = '1.5' # minimum required numpy version
@@ -109,16 +110,23 @@ try:
 except ImportError:
     raise ImportError("matplotlib requires dateutil")
 
+def compare_versions(a, b):
+    "return True if a is greater than or equal to b"
+    if a:
+        a = distutils.version.LooseVersion(a)
+        b = distutils.version.LooseVersion(b)
+        if a>=b: return True
+        else: return False
+    else: return False
+
 try:
     import pyparsing
 except ImportError:
     raise ImportError("matplotlib requires pyparsing")
 else:
-    _required = [1, 5, 6]
-    if [int(x) for x in pyparsing.__version__.split('.')] < _required:
+    if not compare_versions(pyparsing.__version__, '1.5.6'):
         raise ImportError(
-            "matplotlib requires pyparsing >= {0}".format(
-                '.'.join(str(x) for x in _required)))
+            "matplotlib requires pyparsing >= 1.5.6")
 
     if pyparsing.__version__ == '2.0.0':
         raise ImportError(
@@ -127,9 +135,11 @@ else:
 
     # pyparsing 1.5.6 does not have <<= on the Forward class, but
     # pyparsing 2.0.0 and later will spew deprecation warnings if
-    # using << instead.  In order to support pyparsing 1.5.6 and above
-    # with a common code base, this small monkey patch is applied.
-    if not hasattr(pyparsing.Forward, '__ilshift__'):
+    # using << instead.  Additionally, the <<= in pyparsing 1.5.7 is
+    # broken, since it doesn't return self.  In order to support
+    # pyparsing 1.5.6 and above with a common code base, this small
+    # monkey patch is applied.
+    if not compare_versions(pyparsing.__version__, '2.0.1'):
         def _forward_ilshift(self, other):
             self.__lshift__(other)
             return self
@@ -137,7 +147,6 @@ else:
 
 import os, re, shutil, warnings
 import distutils.sysconfig
-import distutils.version
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
@@ -195,14 +204,10 @@ if not _python24:
 
 
 import numpy
-from distutils import version
-expected_version = version.LooseVersion(__version__numpy__)
-found_version = version.LooseVersion(numpy.__version__)
-if not found_version >= expected_version:
+if not compare_versions(numpy.__version__, __version__numpy__):
     raise ImportError(
         'numpy %s or later is required; you have %s' % (
             __version__numpy__, numpy.__version__))
-del version
 
 
 def _is_writable_dir(p):
@@ -401,15 +406,6 @@ def checkdep_xmllint():
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
         return None
-
-def compare_versions(a, b):
-    "return True if a is greater than or equal to b"
-    if a:
-        a = distutils.version.LooseVersion(a)
-        b = distutils.version.LooseVersion(b)
-        if a>=b: return True
-        else: return False
-    else: return False
 
 def checkdep_ps_distiller(s):
     if not s:
