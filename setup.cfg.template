@@ -54,13 +54,18 @@
 #           otherwise skip silently. This is the default
 #           behavior
 #
+#agg = auto
+#cairo = auto
 #gtk = auto
-#gtkagg = auto
-#tkagg = auto
-#macosx = auto
-#windowing = auto
-#gtk3cairo = auto
 #gtk3agg = auto
+#gtk3cairo = auto
+#gtkagg = auto
+#macosx = auto
+#pyside = auto
+#qt4agg = auto
+#tkagg = auto
+#windowing = auto
+#wxagg = auto
 
 [rc_options]
 # User-configurable options
