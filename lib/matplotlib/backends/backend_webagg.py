@@ -427,22 +427,17 @@ class WebAggApplication(tornado.web.Application):
                                                        request, **kwargs)
 
         def get(self, fignum):
-            with open(os.path.join(WebAggApplication._mpl_dirs['web_backend'],
-                                   'single_figure.html')) as fd:
-                tpl = fd.read()
-
             fignum = int(fignum)
             manager = Gcf.get_fig_manager(fignum)
 
             ws_uri = 'ws://{req.host}{prefix}/'.format(req=self.request,
                                                        prefix=self.url_prefix)
-            t = tornado.template.Template(tpl)
-            self.write(t.generate(
+            self.render('single_figure.html',
                 prefix=self.url_prefix,
                 ws_uri=ws_uri,
                 fig_id=fignum,
                 toolitems=NavigationToolbar2WebAgg.toolitems,
-                canvas=manager.canvas))
+                canvas=manager.canvas)
 
     class AllFiguresPage(tornado.web.RequestHandler):
         def __init__(self, application, request, **kwargs):
@@ -451,36 +446,26 @@ class WebAggApplication(tornado.web.Application):
                                                        request, **kwargs)
 
         def get(self):
-            with open(os.path.join(WebAggApplication._mpl_dirs['web_backend'],
-                                   'all_figures.html')) as fd:
-                tpl = fd.read()
-
             ws_uri = 'ws://{req.host}{prefix}/'.format(req=self.request,
                                                        prefix=self.url_prefix)
-            t = tornado.template.Template(tpl)
-
-            self.write(t.generate(
+            self.render(
+                "all_figures.html",
                 prefix=self.url_prefix,
                 ws_uri=ws_uri,
-                figures = sorted(list(Gcf.figs.items()), key=lambda item: item[0]),
-                toolitems=NavigationToolbar2WebAgg.toolitems))
+                figures=sorted(list(Gcf.figs.items()), key=lambda item: item[0]),
+                toolitems=NavigationToolbar2WebAgg.toolitems)
 
 
     class MPLInterfaceJS(tornado.web.RequestHandler):
         def get(self):
-            with open(os.path.join(WebAggApplication._mpl_dirs['web_backend'],
-                                   'mpl_interface.js')) as fd:
-                tpl = fd.read()
-
             manager = Gcf.get_fig_manager(1)
             canvas = manager.canvas
 
             self.set_header('Content-Type', 'application/javascript')
 
-            t = tornado.template.Template(tpl)
-            self.write(t.generate(
+            self.render("mpl_interface.js",
                 toolitems=NavigationToolbar2WebAgg.toolitems,
-                canvas=canvas))
+                canvas=canvas)
 
 
     class Download(tornado.web.RequestHandler):
@@ -602,12 +587,13 @@ class WebAggApplication(tornado.web.Application):
             (url_prefix + r'/([0-9]+)/ws', self.WebSocket),
 
             # Handles the downloading (i.e., saving) of static images
-            (url_prefix + r'/([0-9]+)/download.([a-z]+)', self.Download),
+            (url_prefix + r'/([0-9]+)/download.([a-z0-9.]+)', self.Download),
 
             # The page that contains all of the figures
             (url_prefix + r'/?', self.AllFiguresPage,
              {'url_prefix': url_prefix}),
-        ])
+        ],
+        template_path=self._mpl_dirs['web_backend'])
 
     @classmethod
     def initialize(cls, url_prefix=''):
