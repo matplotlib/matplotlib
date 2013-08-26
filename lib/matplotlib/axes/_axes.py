@@ -1776,7 +1776,7 @@ class Axes(_AxesBase):
             the y coordinate(s) of the bars
 
         color : scalar or array-like, optional
-            the colors of the bars
+            the colors of the bar faces
 
         edgecolor : scalar or array-like, optional
             the colors of the bar edges
