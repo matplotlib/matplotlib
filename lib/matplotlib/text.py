@@ -586,7 +586,8 @@ class Text(Artist):
                                              self._fontproperties, angle)
                     else:
                         path_effect.draw_text(renderer, gc, x, y, clean_line,
-                                             self._fontproperties, angle)
+                                             self._fontproperties, angle,
+                                             ismath=ismath)
             else:
                 if rcParams['text.usetex']:
                     renderer.draw_tex(gc, x, y, clean_line,
