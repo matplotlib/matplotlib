@@ -92,29 +92,17 @@ class ColorButton(QPushButton):
     def get_color(self):
         return self._color
 
-<<<<<<< HEAD
-    @pyqtSignature("QColor")
-=======
     @QtCore.Slot("QColor")
->>>>>>> 8bba2a4... Merge pull request #2328 from mspacek/qtapi
     def set_color(self, color):
         if color != self._color:
             self._color = color
             self.emit(SIGNAL("colorChanged(QColor)"), self._color)
             pixmap = QPixmap(self.iconSize())
             pixmap.fill(color)
-<<<<<<< HEAD
-            self.setIcon(QIcon(pixmap))
-=======
             self.setIcon(QtGui.QIcon(pixmap))
 
     color = QtCore.Property("QColor", get_color, set_color)
->>>>>>> 8bba2a4... Merge pull request #2328 from mspacek/qtapi
 
-    color = pyqtProperty("QColor", get_color, set_color)
-
-<<<<<<< HEAD
-=======
 def to_qcolor(color):
     """Create a QColor from a matplotlib color"""
     qcolor = QtGui.QColor()
@@ -126,7 +114,6 @@ def to_qcolor(color):
         return qcolor # return invalid QColor
     qcolor.setNamedColor(color) # set using hex color
     return qcolor # return valid QColor
->>>>>>> 8bba2a4... Merge pull request #2328 from mspacek/qtapi
 
 def text_to_qcolor(text):
     """
