@@ -1657,14 +1657,16 @@ class BackendQt4(OptionalBackendPackage):
             from PyQt4 import pyqtconfig
         except ImportError:
             raise CheckFailed("PyQt4 not found")
-        else:
-
-            BackendAgg.force = True
-
-            return ("Qt: %s, PyQt4: %s" %
-                    (self.convert_qt_version(
-                        pyqtconfig.Configuration().qt_version),
-                     pyqtconfig.Configuration().pyqt_version_str))
+        # Import may still be broken for our python
+        try:
+            qtconfig = pyqtconfig.Configuration()
+        except AttributeError:
+            raise CheckFailed('PyQt4 not correctly imported')
+        BackendAgg.force = True
+        return ("Qt: %s, PyQt4: %s" %
+                (self.convert_qt_version(
+                    qtconfig.qt_version),
+                    qtconfig.pyqt_version_str))
 
 
 class BackendPySide(OptionalBackendPackage):
