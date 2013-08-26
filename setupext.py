@@ -457,6 +457,7 @@ class OptionalBackendPackage(SetupPackage):
     optional = True
     force = False
     install = 'auto'
+    check = "installing"
 
     def get_config(self):
         try:
@@ -469,18 +470,37 @@ class OptionalBackendPackage(SetupPackage):
 
     def check(self):
         """
-        This method should be called using super() even when overriding this
-        method in a base class to check for a opt-out in the config file.
+        Do not override this method!
+
+        For custom dependency checks override self.check_requirements().
         """
-        if self.get_config() is True:
-            return "installing"
+        # check configuration file
+        if self.get_config() in [True, 'auto']:
+            self.check = "installing"
         else:
             # Some backend extensions (e.g. Agg) need to be built for certain
             # other GUI backends (e.g. TkAgg) even when manually disabled
             if self.force is True:
-                return "installation is forced (overriding configuration)"
+                self.check = "installing forced (config override)"
             else:
                 raise CheckFailed("skipping due to configuration")
+
+        # check requirements and add extra information (if any) to message
+        custom_info = self.check_requirements()
+        if custom_info:
+            self.check += ", " + self.check_requirements()
+
+        return self.check
+
+    def check_requirements(self):
+        """
+        Override this method to do custom dependency checks.
+
+         - Raise CheckFailed() if requirements are not met.
+         - Return message with additional information, or an empty string
+           (or None) for no additional information.
+        """
+        return ""
 
 
 class Platform(SetupPackage):
@@ -1016,9 +1036,7 @@ class BackendTkAgg(OptionalBackendPackage):
     def __init__(self):
         self.tcl_tk_cache = None
 
-    def check(self):
-        super(BackendTkAgg, self).check()
-
+    def check_requirements(self):
         try:
             if sys.version_info[0] < 3:
                 import Tkinter
@@ -1304,9 +1322,7 @@ class BackendTkAgg(OptionalBackendPackage):
 class BackendGtk(OptionalBackendPackage):
     name = "gtk"
 
-    def check(self):
-        super(BackendGtk, self).check()
-
+    def check_requirements(self):
         try:
             import gtk
         except ImportError:
@@ -1459,9 +1475,7 @@ def backend_gtk3agg_internal_check(x):
 class BackendGtk3Agg(OptionalBackendPackage):
     name = "gtk3agg"
 
-    def check(self):
-        super(BackendGtk3Agg, self).check()
-
+    def check_requirements(self):
         if 'TRAVIS' in os.environ:
             raise CheckFailed("Can't build with Travis")
 
@@ -1524,9 +1538,7 @@ def backend_gtk3cairo_internal_check(x):
 class BackendGtk3Cairo(OptionalBackendPackage):
     name = "gtk3cairo"
 
-    def check(self):
-        super(BackendGtk3Cairo, self).check()
-
+    def check_requirements(self):
         if 'TRAVIS' in os.environ:
             raise CheckFailed("Can't build with Travis")
 
@@ -1554,9 +1566,7 @@ class BackendGtk3Cairo(OptionalBackendPackage):
 class BackendWxAgg(OptionalBackendPackage):
     name = "wxagg"
 
-    def check(self):
-        super(BackendWxAgg, self).check()
-
+    def check_requirements(self):
         try:
             import wxversion
         except ImportError:
@@ -1594,9 +1604,7 @@ class BackendWxAgg(OptionalBackendPackage):
 class BackendMacOSX(OptionalBackendPackage):
     name = 'macosx'
 
-    def check(self):
-        super(BackendMacOSX, self).check()
-
+    def check_requirements(self):
         if sys.platform != 'darwin':
             raise CheckFailed("Mac OS-X only")
 
@@ -1623,9 +1631,7 @@ class Windowing(OptionalBackendPackage):
     """
     name = "windowing"
 
-    def check(self):
-        super(Windowing, self).check()
-
+    def check_requirements(self):
         if sys.platform != 'win32':
             raise CheckFailed("Microsoft Windows only")
         config = self.get_config()
@@ -1656,9 +1662,7 @@ class BackendQt4(OptionalBackendPackage):
             temp.insert(0, str(int(chunk, 16)))
         return '.'.join(temp)
 
-    def check(self):
-        super(BackendQt4, self).check()
-
+    def check_requirements(self):
         try:
             from PyQt4 import pyqtconfig
         except ImportError:
@@ -1676,9 +1680,7 @@ class BackendQt4(OptionalBackendPackage):
 class BackendPySide(OptionalBackendPackage):
     name = "pyside"
 
-    def check(self):
-        super(BackendPySide, self).check()
-
+    def check_requirements(self):
         try:
             from PySide import __version__
             from PySide import QtCore
@@ -1694,9 +1696,7 @@ class BackendPySide(OptionalBackendPackage):
 class BackendCairo(OptionalBackendPackage):
     name = "cairo"
 
-    def check(self):
-        super(BackendCairo, self).check()
-
+    def check_requirements(self):
         try:
             import cairo
         except ImportError:
