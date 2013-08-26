@@ -467,6 +467,21 @@ class OptionalBackendPackage(SetupPackage):
             self.optional = False
         return self.install
 
+    def check(self):
+        """
+        This method should be called using super() even when overriding this
+        method in a base class to check for a opt-out in the config file.
+        """
+        if self.get_config() is True:
+            return "installing"
+        else:
+            # Some backend extensions (e.g. Agg) need to be built for certain
+            # other GUI backends (e.g. TkAgg) even when manually disabled
+            if self.force is True:
+                return "installation is forced (overriding configuration)"
+            else:
+                raise CheckFailed("skipping due to configuration")
+
 
 class Platform(SetupPackage):
     name = "platform"
@@ -980,15 +995,6 @@ class Pyparsing(SetupPackage):
 
 class BackendAgg(OptionalBackendPackage):
     name = "agg"
-
-    def check(self):
-        # The Agg backend extension needs to be built even
-        # for certain GUI backends, such as TkAgg
-        config = self.get_config()
-        if config is False and self.force is False:
-            raise CheckFailed("skipping due to configuration")
-        else:
-            return "installing"
 
     def get_extension(self):
         sources = [
