@@ -455,18 +455,17 @@ class OptionalPackage(SetupPackage):
 
 class OptionalBackendPackage(SetupPackage):
     optional = True
+    force = False
+    install = 'auto'
 
     def get_config(self):
-        install = 'auto'
-        if config is not None:
-            try:
-                install = config.getboolean(
-                    'gui_support', self.name)
-            except:
-                install = 'auto'
-        if install is True:
+        try:
+            self.install = config.getboolean('gui_support', self.name)
+        except:
+            pass
+        if self.install is True:
             self.optional = False
-        return install
+        return self.install
 
 
 class Platform(SetupPackage):
@@ -981,7 +980,6 @@ class Pyparsing(SetupPackage):
 
 class BackendAgg(OptionalBackendPackage):
     name = "agg"
-    force = False
 
     def check(self):
         # The Agg backend extension needs to be built even
