@@ -73,18 +73,13 @@ if not _in_ipython:
     show = Show()
 else:
     def show():
-        class RawHTML(object):
-            def __init__(self, content):
-                self._content = content
-
-            def _repr_html_(self):
-                return self._content
+        from IPython.display import display_html
 
         result = []
         import matplotlib._pylab_helpers as pylab_helpers
         for manager in pylab_helpers.Gcf().get_all_fig_managers():
             result.append(ipython_inline_display(manager.canvas.figure))
-        return RawHTML('\n'.join(result))
+        return display_html('\n'.join(result), raw=True)
 
 
 class ServerThread(threading.Thread):
