@@ -1003,10 +1003,14 @@ class Axis(artist.Artist):
             except:
                warnings.warn("Unable to find pixel distance along axis for interval padding; assuming no interval padding needed.")
                ds1 = 0.0
+            if np.isnan(ds1):
+               ds1 = 0.0
             try:
                ds2 = self._get_pixel_distance_along_axis(interval_expanded[1], +0.5)
             except:
                warnings.warn("Unable to find pixel distance along axis for interval padding; assuming no interval padding needed.")
+               ds2 = 0.0
+            if np.isnan(ds2):
                ds2 = 0.0
             interval_expanded = (interval_expanded[0] - ds1,
                                  interval_expanded[1] + ds2)
