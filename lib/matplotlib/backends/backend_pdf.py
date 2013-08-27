@@ -1002,11 +1002,12 @@ end"""
         # You are lost in a maze of TrueType tables, all different...
         sfnt = font.get_sfnt()
         try:
-            ps_name = sfnt[(1,0,0,6)] # Macintosh scheme
+            ps_name = sfnt[(1,0,0,6)].decode('macroman') # Macintosh scheme
         except KeyError:
             # Microsoft scheme:
-            ps_name = sfnt[(3,1,0x0409,6)].decode('utf-16be').encode('ascii','replace')
+            ps_name = sfnt[(3,1,0x0409,6)].decode('utf-16be')
             # (see freetype/ttnameid.h)
+        ps_name = ps_name.encode('ascii', 'replace')
         ps_name = Name(ps_name)
         pclt = font.get_sfnt_table('pclt') \
             or { 'capHeight': 0, 'xHeight': 0 }
