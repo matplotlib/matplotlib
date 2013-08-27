@@ -418,7 +418,8 @@ class ColorbarBase(cm.ScalarMappable):
             xy, edgecolor=mpl.rcParams['axes.edgecolor'],
             facecolor='none',
             linewidth=mpl.rcParams['axes.linewidth'],
-            closed=True)
+            closed=True,
+            zorder=2)
         ax.add_artist(self.outline)
         self.outline.set_clip_box(None)
         self.outline.set_clip_path(None)
