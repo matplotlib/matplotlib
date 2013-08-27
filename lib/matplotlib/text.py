@@ -1463,9 +1463,6 @@ class _AnnotationBase(object):
         if s2 == 'data':
             y = float(self.convert_yunits(y))
 
-        if s in ['axes points', 'axes pixel', 'figure points', 'figure pixel']:
-            return self._get_xy_legacy(renderer, x, y, s)
-
         tr = self._get_xy_transform(renderer, s)
         x1, y1 = tr.transform_point((x, y))
         return x1, y1
@@ -1587,37 +1584,6 @@ class _AnnotationBase(object):
     #     else:
     #         raise ValueError("A bbox instance is expected but got %s" %
     #                          str(bbox))
-
-    def _get_xy_legacy(self, renderer, x, y, s):
-        """
-        only used when s in ['axes points', 'axes pixel', 'figure points',
-                             'figure pixel'].
-        """
-        s_ = s.split()
-        bbox0, xy0 = None, None
-        bbox_name, unit = s_
-
-        if bbox_name == "figure":
-            bbox0 = self.figure.bbox
-        elif bbox_name == "axes":
-            bbox0 = self.axes.bbox
-
-        if unit == "points":
-            sc = self.figure.get_dpi() / 72.
-        elif unit == "pixels":
-            sc = 1
-
-        l, b, r, t = bbox0.extents
-        if x < 0:
-            x = r + x * sc
-        else:
-            x = l + x * sc
-        if y < 0:
-            y = t + y * sc
-        else:
-            y = b + y * sc
-
-        return x, y
 
     def set_annotation_clip(self, b):
         """
