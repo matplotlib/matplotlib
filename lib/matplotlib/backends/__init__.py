@@ -21,6 +21,9 @@ def pylab_setup():
         backend_name = 'backend_'+backend
         backend_name = backend_name.lower() # until we banish mixed case
         backend_name = 'matplotlib.backends.%s'%backend_name.lower()
+
+    # the last argument is specifies whether to use absolute or relative
+    # imports. 0 means only perform absolute imports.
     backend_mod = __import__(backend_name,
                              globals(),locals(),[backend_name],0)
 
