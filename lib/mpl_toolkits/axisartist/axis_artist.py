@@ -1378,7 +1378,7 @@ class AxisArtist(martist.Artist):
         self.offsetText.set_text( self.axis.major.formatter.get_offset() )
         self.offsetText.set_size(self.major_ticklabels.get_size())
         offset = self.major_ticklabels.get_pad() + self.major_ticklabels.get_size() + 2.
-        self.offsetText.xytext= (0, offset)
+        self.offsetText.xyann= (0, offset)
 
 
     def _draw_offsetText(self, renderer):

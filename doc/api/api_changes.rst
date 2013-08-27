@@ -59,8 +59,23 @@ original location:
   thus `colorbar.ColorbarBase.outline` is now a
   `matplotlib.patches.Polygon` object.
 
+
 * The rcParams `savefig.transparent` has been added to control
   default transparency when saving figures.
+
+* Slightly refactored the `Annotation` family.  The text location in
+  `Annotation` is now handled entirely handled by the underlying `Text`
+  object so `set_position` works as expected.  The attributes `xytext` and
+  `textcoords` have been deprecated in favor of `xyann` and `anncoords` so
+  that `Annotation` and `AnnotaionBbox` can share a common sensibly named
+  api for getting/setting the location of the text or box.
+
+    - `xyann` -> set the location of the annotation
+    - `xy` -> set where the arrow points to
+    - `anncoords` -> set the units of the annotation location
+    - `xycoords` -> set the units of the point location
+    - `set_position()` -> `Annotation` only set location of annotation
+
 
 .. _changes_in_1_3:
 
