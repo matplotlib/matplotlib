@@ -3146,7 +3146,7 @@ class NavigationToolbar2(object):
             a.set_position(pos[i][0], 'original')
             a.set_position(pos[i][1], 'active')
 
-        self.draw_idle()
+        self.canvas.draw_idle()
 
     def save_figure(self, *args):
         """Save the current figure"""
