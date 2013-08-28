@@ -238,7 +238,7 @@ class Axes(_AxesBase):
         labels = []
         for handle in self._get_legend_handles(legend_handler_map):
             label = handle.get_label()
-            if label and not label.startswith('_'):
+            if label and label[0] != '_':
                 handles.append(handle)
                 labels.append(label)
 
@@ -5264,7 +5264,7 @@ class Axes(_AxesBase):
 
         patches = []
 
-        if histtype.startswith('bar'):
+        if histtype[:3] == 'bar':
             # Save autoscale state for later restoration; turn autoscaling
             # off so we can do it all a single time at the end, instead
             # of having it done by bar or fill and then having to be redone.
@@ -5326,7 +5326,7 @@ class Axes(_AxesBase):
             self.set_autoscaley_on(_saved_autoscaley)
             self.autoscale_view()
 
-        elif histtype.startswith('step'):
+        elif histtype[:4] == 'step':
             # these define the perimeter of the polygon
             x = np.zeros(4 * len(bins) - 3, np.float)
             y = np.zeros(4 * len(bins) - 3, np.float)

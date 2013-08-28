@@ -892,7 +892,7 @@ class ArtistInspector:
 
         """
         names = [name for name in dir(self.o) if
-                 (name.startswith('set_') or name.startswith('get_'))
+                 (name[:4] in ['set_', 'get_'])
                  and callable(getattr(self.o, name))]
         aliases = {}
         for name in names:
@@ -927,7 +927,7 @@ class ArtistInspector:
         if docstring is None:
             return 'unknown'
 
-        if docstring.startswith('alias for '):
+        if docstring[:10] == 'alias for ':
             return None
 
         match = self._get_valid_values_regex.search(docstring)
@@ -943,7 +943,7 @@ class ArtistInspector:
 
         setters = []
         for name in dir(self.o):
-            if not name.startswith('set_'):
+            if name[:4] != 'set_':
                 continue
             o = getattr(self.o, name)
             if not callable(o):
@@ -975,7 +975,7 @@ class ArtistInspector:
         ds = o.__doc__
         if ds is None:
             return False
-        return ds.startswith('alias for ')
+        return ds[:10] == 'alias for '
 
     def aliased_name(self, s):
         """

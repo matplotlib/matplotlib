@@ -972,17 +972,12 @@ class Figure(Artist):
             self.patch.draw(renderer)
 
         # a list of (zorder, func_to_call, list_of_args)
-        dsu = []
+        dsu = [(x.get_zorder(), x, x.draw, [renderer]) for x in self.patches ]
 
-        for a in self.patches:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
+        dsu.extend((x.get_zorder(), x, x.draw, [renderer]) for x in self.lines)
 
-        for a in self.lines:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
-
-        for a in self.artists:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
-
+        dsu.extend((x.get_zorder(), x, x.draw, [renderer]) for x in self.artists)
+ 
         # override the renderer default if self.suppressComposite
         # is not None
         not_composite = renderer.option_image_nocomposite()
@@ -1018,19 +1013,17 @@ class Figure(Artist):
                         draw_composite, []))
 
         # render the axes
-        for a in self.axes:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
+        dsu.extend((x.get_zorder(), x, x.draw, [renderer]) for x in self.axes)
 
         # render the figure text
-        for a in self.texts:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
+        dsu.extend((x.get_zorder(), x, x.draw, [renderer]) for x in self.texts)
 
-        for a in self.legends:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
+        # render the figure legends
+        dsu.extend((x.get_zorder(), x, x.draw, [renderer]) for x in self.legends)
 
         dsu = [row for row in dsu if not row[1].get_animated()]
         dsu.sort(key=itemgetter(0))
-        for zorder, a, func, args in dsu:
+        for zorder, a, func, args in dsu: # this also needs to go away for speed
             func(*args)
 
         renderer.close_group('figure')
