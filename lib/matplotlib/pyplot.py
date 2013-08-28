@@ -143,7 +143,7 @@ def show(*args, **kw):
     described above.
     """
     global _show
-    _show(*args, **kw)
+    return _show(*args, **kw)
 
 
 def isinteractive():
