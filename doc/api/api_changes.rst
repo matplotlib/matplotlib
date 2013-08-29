@@ -54,6 +54,10 @@ original location:
   'open-close-high-low' order of quotes, and what the module used and the later
   is 'open-high-low-close' order of quotes, which is the standard in finance.
 
+* The artist used to draw the outline of a `colorbar` has been changed
+  from a `matplotlib.lines.Line2D` to `matplotlib.patches.Polygon`,
+  thus `colorbar.ColorbarBase.outline` is now a
+  `matplotlib.patches.Polygon` object.
 
 .. _changes_in_1_3:
 

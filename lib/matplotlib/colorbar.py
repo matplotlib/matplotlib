@@ -31,7 +31,6 @@ import matplotlib.colors as colors
 import matplotlib.contour as contour
 import matplotlib.cm as cm
 import matplotlib.gridspec as gridspec
-import matplotlib.lines as lines
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
@@ -415,9 +414,12 @@ class ColorbarBase(cm.ScalarMappable):
         ax.set_ylim(*ax.dataLim.intervaly)
         if self.outline is not None:
             self.outline.remove()
-        self.outline = lines.Line2D(
-            xy[:, 0], xy[:, 1], color=mpl.rcParams['axes.edgecolor'],
-            linewidth=mpl.rcParams['axes.linewidth'])
+        self.outline = mpatches.Polygon(
+            xy, edgecolor=mpl.rcParams['axes.edgecolor'],
+            facecolor='none',
+            linewidth=mpl.rcParams['axes.linewidth'],
+            closed=True,
+            zorder=2)
         ax.add_artist(self.outline)
         self.outline.set_clip_box(None)
         self.outline.set_clip_path(None)
