@@ -90,21 +90,6 @@ class ColorButton(QtGui.QPushButton):
 
     color = QtCore.Property("QColor", get_color, set_color)
 
-def col2hex(color):
-    """Convert matplotlib color to hex before passing to Qt"""
-    return rgb2hex(colorConverter.to_rgb(color))
-
-def to_qcolor(color):
-    """Create a QColor from a matplotlib color"""
-    qcolor = QtGui.QColor()
-    color = str(color)
-    try:
-        color = col2hex(color)
-    except ValueError:
-        #print('WARNING: ignoring invalid color %r' % color)
-        return qcolor # return invalid QColor
-    qcolor.setNamedColor(color) # set using hex color
-    return qcolor # return valid QColor
 
 def to_qcolor(color):
     """Create a QColor from a matplotlib color"""
