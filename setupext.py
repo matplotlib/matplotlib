@@ -329,6 +329,48 @@ class PkgConfig(object):
             return output
         return None
 
+    def check_for_pkg_config(self, package, include_file, ext,
+                             min_version=None,
+                             version=None):
+        """
+        A convenience function for writing checks for a
+        pkg_config-defined dependency.
+
+        `package` is the pkg_config package name.
+
+        `include_file` is a top-level include file we expect to find.
+
+        `min_version` is the minimum version required.
+
+        `version` will override the found version if this package
+        requires an alternate method for that.
+        """
+        if version is None:
+            version = pkg_config.get_version(package)
+
+            if version is None:
+                raise CheckFailed(
+                    "pkg-config information for '%s' could not be found." %
+                    package)
+
+        if min_version == 'PATCH':
+            raise CheckFailed(
+                "Requires patches that have not been merged upstream.")
+
+        if min_version:
+            if (not is_min_version(version, min_version)):
+                raise CheckFailed(
+                    "Requires %s %s or later.  Found %s." %
+                    (package, min_version, version))
+
+        if ext is None:
+            ext = make_extension('test', [])
+            pkg_config.setup_extension(ext, package)
+
+        check_include_file(ext.include_dirs, include_file, package)
+
+        return 'version %s' % version
+
 
 # The PkgConfig class should be used through this singleton
 pkg_config = PkgConfig()
@@ -422,6 +464,47 @@ class FTConfig(object):
             return output
         return None
 
+    def check_for_ft_config(self, package, include_file, ext,
+                            min_version=None, version=None):
+        """
+        A convenience function for writing checks for a
+        pkg_config-defined dependency.
+
+        `package` is the ft_config package name.
+
+        `include_file` is a top-level include file we expect to find.
+
+        `min_version` is the minimum version required.
+
+        `version` will override the found version if this package
+        requires an alternate method for that.
+        """
+        if version is None:
+            version = self.get_version(package)
+
+            if version is None:
+                raise CheckFailed(
+                    "pkg-config information for '%s' could not be found." %
+                    package)
+
+        if min_version == 'PATCH':
+            raise CheckFailed(
+                "Requires patches that have not been merged upstream.")
+
+        if min_version:
+            if (not is_min_version(version, min_version)):
+                raise CheckFailed(
+                    "Requires %s %s or later.  Found %s." %
+                    (package, min_version, version))
+
+        if ext is None:
+            ext = make_extension('test', [])
+            self.setup_extension(ext, package)
+
+        check_include_file(ext.include_dirs, include_file, package)
+
+        return 'version %s' % version
+
 
 # The PkgConfig class should be used through this singleton
 ft_config = FTConfig()
@@ -500,48 +583,6 @@ class SetupPackage(object):
     def add_dep_flags(self, ext):
         for dep in self.dependencies:
             dep.add_flags(ext)
-
-    def _check_for_pkg_config(self, package, include_file, min_version=None,
-                              version=None):
-        """
-        A convenience function for writing checks for a
-        pkg_config-defined dependency.
-
-        `package` is the pkg_config package name.
-
-        `include_file` is a top-level include file we expect to find.
-
-        `min_version` is the minimum version required.
-
-        `version` will override the found version if this package
-        requires an alternate method for that.
-        """
-        if version is None:
-            version = pkg_config.get_version(package)
-
-            if version is None:
-                raise CheckFailed(
-                    "pkg-config information for '%s' could not be found." %
-                    package)
-
-        if min_version == 'PATCH':
-            raise CheckFailed(
-                "Requires patches that have not been merged upstream.")
-
-        if min_version:
-            if (not is_min_version(version, min_version)):
-                raise CheckFailed(
-                    "Requires %s %s or later.  Found %s." %
-                    (package, min_version, version))
-
-        ext = self.get_extension()
-        if ext is None:
-            ext = make_extension('test', [])
-            pkg_config.setup_extension(ext, package)
-
-        check_include_file(ext.include_dirs, include_file, package)
-
-        return 'version %s' % version
 
 
 class OptionalPackage(SetupPackage):
@@ -796,9 +837,11 @@ class CXX(SetupPackage):
             sys.stdout = old_stdout
 
         try:
-            return self._check_for_pkg_config(
-                'PyCXX', 'CXX/Extensions.hxx', min_version='6.2.4')
-        except CheckFailed as e:
+            return pkg_config.check_for_pkg_config('PyCXX',
+                                                   'CXX/Extensions.hxx',
+                                                   self.get_ext(),
+                                                   min_version='6.2.4')
+        except CheckFailed:
             # It's ok to just proceed here, since the `import CXX`
             # worked above, and PyCXX (at least upstream) ensures that
             # its header files are on the default distutils include
@@ -841,8 +884,10 @@ class LibAgg(SetupPackage):
     def check(self):
         self.__class__.found_external = True
         try:
-            return self._check_for_pkg_config(
-                'libagg', 'agg2/agg_basics.h', min_version='PATCH')
+            return pkg_config.check_for_pkg_config('libagg',
+                                                   'agg2/agg_basics.h',
+                                                   self.get_ext(),
+                                                   min_version='PATCH')
         except CheckFailed as e:
             self.__class__.found_external = False
             return str(e) + ' Using local copy.'
@@ -876,57 +921,16 @@ class FreeType(SetupPackage):
         status, version = getstatusoutput("freetype-config --version")
         if status == 0:
             try:
-                return self._check_for_ft_config(
-                    'freetype2', 'ft2build.h',
-                    min_version='2.4', version=version)
+                return ft_config.check_for_ft_config(
+                    'freetype2', 'ft2build.h', self.get_ext(),
+                    min_version='2.4', version=version
+                )
             except CheckFailed:
                 pass
 
-        return self._check_for_pkg_config(
-            'freetype2', 'ft2build.h',
+        return pkg_config.check_for_pkg_config(
+            'freetype2', 'ft2build.h', self.get_ext(),
             min_version='2.4', version=None)
-
-    def _check_for_ft_config(self, package, include_file, min_version=None,
-                             version=None):
-        """
-        A convenience function for writing checks for a
-        pkg_config-defined dependency.
-
-        `package` is the ft_config package name.
-
-        `include_file` is a top-level include file we expect to find.
-
-        `min_version` is the minimum version required.
-
-        `version` will override the found version if this package
-        requires an alternate method for that.
-        """
-        if version is None:
-            version = ft_config.get_version(package)
-
-            if version is None:
-                raise CheckFailed(
-                    "pkg-config information for '%s' could not be found." %
-                    package)
-
-        if min_version == 'PATCH':
-            raise CheckFailed(
-                "Requires patches that have not been merged upstream.")
-
-        if min_version:
-            if (not is_min_version(version, min_version)):
-                raise CheckFailed(
-                    "Requires %s %s or later.  Found %s." %
-                    (package, min_version, version))
-
-        ext = self.get_extension()
-        if ext is None:
-            ext = make_extension('test', [])
-            ft_config.setup_extension(ext, package)
-
-        check_include_file(ext.include_dirs, include_file, package)
-
-        return 'version %s' % version
 
     def add_flags(self, ext):
         if ft_config.has_ftconfig:
@@ -970,8 +974,8 @@ class Png(SetupPackage):
 
     def check(self):
         try:
-            return self._check_for_pkg_config(
-                'libpng', 'png.h',
+            return pkg_config.check_for_pkg_config(
+                'libpng', 'png.h', self.get_ext(),
                 min_version='1.2')
         except CheckFailed as e:
             self.__class__.found_external = False
