@@ -391,11 +391,11 @@ def ttfFontProperty(font):
     sfnt2 = sfnt.get((1,0,0,2))
     sfnt4 = sfnt.get((1,0,0,4))
     if sfnt2:
-        sfnt2 = sfnt2.decode('ascii').lower()
+        sfnt2 = sfnt2.decode('macroman').lower()
     else:
         sfnt2 = ''
     if sfnt4:
-        sfnt4 = sfnt4.decode('ascii').lower()
+        sfnt4 = sfnt4.decode('macroman').lower()
     else:
         sfnt4 = ''
     if sfnt4.find('oblique') >= 0:

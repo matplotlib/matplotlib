@@ -750,10 +750,11 @@ grestore
             self.set_color(*gc.get_rgb())
             sfnt = font.get_sfnt()
             try:
-                ps_name = sfnt[(1,0,0,6)]
+                ps_name = sfnt[(1,0,0,6)].decode('macroman')
             except KeyError:
                 ps_name = sfnt[(3,1,0x0409,6)].decode(
-                    'utf-16be').encode('ascii','replace')
+                    'utf-16be')
+            ps_name = ps_name.encode('ascii','replace')
             self.set_font(ps_name, prop.get_size_in_points())
 
             cmap = font.get_charmap()
