@@ -23,3 +23,9 @@ script:
   # multiple processes
   - python -c "from matplotlib import font_manager"
   - python ../matplotlib/tests.py -sv --processes=8 --process-timeout=300
+
+after_failure:
+  - cd ../tmp_test_dir
+  - tar cjf result_images.tar.bz2 result_images
+  - travis-artifacts upload --path result_images.tar.bz2
+  - echo https://s3.amazonaws.com/matplotlib-test-results/artifacts/${TRAVIS_BUILD_NUMBER}/${TRAVIS_JOB_NUMBER}/result_images.tar.bz2
