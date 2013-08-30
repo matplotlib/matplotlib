@@ -1,4 +1,4 @@
-from matplotlib import rcParams, rcParamsDefault
+from matplotlib import rcParams
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.path as mpath
@@ -10,8 +10,6 @@ import numpy as np
                   savefig_kwarg=dict(bbox_inches='tight'), tol=15)
 def test_bbox_inches_tight():
     "Test that a figure saved using bbox_inches'tight' is clipped right"
-    rcParams.update(rcParamsDefault)
-
     data = [[  66386,  174296,   75131,  577908,   32015],
             [  58230,  381139,   78045,   99308,  160454],
             [  89135,   80552,  152558,  497981,  603535],
