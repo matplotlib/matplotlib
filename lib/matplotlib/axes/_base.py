@@ -1895,6 +1895,11 @@ class _AxesBase(martist.Artist):
         if scalex and self._autoscaleXon:
             xshared = self._shared_x_axes.get_siblings(self)
             dl = [ax.dataLim for ax in xshared]
+            #ignore non-finite data limits if good limits exist
+            finite_dl = [d for d in dl if np.isfinite(d).all()]
+            if len(finite_dl):
+                dl = finite_dl
+
             bb = mtransforms.BboxBase.union(dl)
             x0, x1 = bb.intervalx
             xlocator = self.xaxis.get_major_locator()
@@ -1916,6 +1921,11 @@ class _AxesBase(martist.Artist):
         if scaley and self._autoscaleYon:
             yshared = self._shared_y_axes.get_siblings(self)
             dl = [ax.dataLim for ax in yshared]
+            #ignore non-finite data limits if good limits exist
+            finite_dl = [d for d in dl if np.isfinite(d).all()]
+            if len(finite_dl):
+                dl = finite_dl
+
             bb = mtransforms.BboxBase.union(dl)
             y0, y1 = bb.intervaly
             ylocator = self.yaxis.get_major_locator()
@@ -3257,5 +3267,3 @@ class _AxesBase(martist.Artist):
     def get_shared_y_axes(self):
         'Return a copy of the shared axes Grouper object for y axes'
         return self._shared_y_axes
-
-

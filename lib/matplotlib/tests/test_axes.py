@@ -1708,6 +1708,19 @@ def test_vline_limit():
     assert ymax == 0.25
 
 
+@cleanup
+def test_empty_shared_subplots():
+    #empty plots with shared axes inherit limits from populated plots
+    fig, axes = plt.subplots(nrows=1, ncols=2, sharex=True, sharey=True)
+    axes[0].plot([1,2,3], [2, 4, 6])
+    x0, x1 = axes[1].get_xlim()
+    y0, y1 = axes[1].get_ylim()
+    assert x0 <= 1
+    assert x1 >= 3
+    assert y0 <= 2
+    assert y1 >= 6
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
