@@ -829,7 +829,7 @@ def test_tritools():
 
 
 def test_trirefine():
-    # test subdiv=2 refinement
+    # Testing subdiv=2 refinement
     n = 3
     subdiv = 2
     x = np.linspace(-1., 1., n+1)
@@ -854,7 +854,7 @@ def test_trirefine():
                     np.around(x_refi*(2.5+y_refi), 8))
     assert_array_equal(ind1d, True)
 
-    # tests the mask of the refined triangulation
+    # Testing the mask of the refined triangulation
     refi_mask = refi_triang.mask
     refi_tri_barycenter_x = np.sum(refi_triang.x[refi_triang.triangles],
                                    axis=1)/3.
@@ -865,6 +865,23 @@ def test_trirefine():
                                   refi_tri_barycenter_y)
     refi_tri_mask = triang.mask[refi_tri_indices]
     assert_array_equal(refi_mask, refi_tri_mask)
+
+    # Testing that the numbering of triangles does not change the
+    # interpolation result.
+    x = np.asarray([0.0, 1.0, 0.0, 1.0])
+    y = np.asarray([0.0, 0.0, 1.0, 1.0])
+    triang = [mtri.Triangulation(x, y, [[0, 1, 3], [3, 2, 0]]),
+              mtri.Triangulation(x, y, [[0, 1, 3], [2, 0, 3]])]
+    z = np.sqrt((x-0.3)*(x-0.3) + (y-0.4)*(y-0.4))
+    # Refining the 2 triangulations and reordering the points
+    xyz_data = []
+    for i in range(2):
+        refiner = mtri.UniformTriRefiner(triang[i])
+        refined_triang, refined_z = refiner.refine_field(z, subdiv=1)
+        xyz = np.dstack((refined_triang.x, refined_triang.y, refined_z))[0]
+        xyz = xyz[np.lexsort((xyz[:, 1], xyz[:, 0]))]
+        xyz_data += [xyz]
+    assert_array_almost_equal(xyz_data[0], xyz_data[1])
 
 
 def meshgrid_triangles(n):
