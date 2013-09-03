@@ -436,8 +436,8 @@ class CheckFailed(Exception):
 class SetupPackage(object):
     optional = False
 
-    def __init__(self, *dependencies):
-        self.dependencies = dependencies
+    def __init__(self, dependencies=None):
+        self.dependencies = dependencies if dependencies is not None else []
 
     def check(self):
         """
