@@ -1086,8 +1086,9 @@ class BackendAgg(OptionalBackendPackage):
 class BackendTkAgg(OptionalBackendPackage):
     name = "tkagg"
 
-    def __init__(self):
+    def __init__(self, **kw):
         self.tcl_tk_cache = None
+        OptionalBackendPackage.__init__(self, **kw)
 
     def check(self):
         if self.get_config() is False:
