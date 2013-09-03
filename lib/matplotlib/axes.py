@@ -8455,11 +8455,11 @@ class Axes(martist.Artist):
             xvals, yvals = [], []
             for m in n:
                 # starting point for drawing polygon
-                y[0] = y[-1]
+                y[0] = y[1]
                 # top of the previous polygon becomes the bottom
                 y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
                 # set the top of this polygon
-                y[1:2*len(bins)-1:2], y[2:2*len(bins):2] = m, m
+                y[1:2*len(bins)-1:2], y[2:2*len(bins)-1:2] = m, m
                 if log:
                     y[y < minimum] = minimum
                 if orientation == 'horizontal':
@@ -8479,7 +8479,7 @@ class Axes(martist.Artist):
                         facecolor=c))
             else:
                 for x, y, c in reversed(zip(xvals, yvals, color)):
-                    split = int(len(x) / 2) + 1
+                    split = 2 * len(bins)
                     patches.append(self.fill(
                         x[:split], y[:split],
                         closed=False, edgecolor=c,
