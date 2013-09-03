@@ -10,12 +10,16 @@ multiple axes at the drawing time.
     object that can be used to set the axes_locator of the axes.
 
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import map
 
 import matplotlib.transforms as mtransforms
 
 from matplotlib.axes import SubplotBase
 
-import axes_size as Size
+from . import axes_size as Size
 
 
 class Divider(object):
@@ -67,7 +71,7 @@ class Divider(object):
 
     def get_vsize_hsize(self):
 
-        from axes_size import AddList
+        from .axes_size import AddList
 
         vsize = AddList(self.get_vertical())
         hsize = AddList(self.get_horizontal())
@@ -136,7 +140,7 @@ class Divider(object):
           =====  ============
 
         """
-        if anchor in mtransforms.Bbox.coefs.keys() or len(anchor) == 2:
+        if anchor in mtransforms.Bbox.coefs or len(anchor) == 2:
             self._anchor = anchor
         else:
             raise ValueError('argument must be among %s' %
@@ -282,7 +286,7 @@ class Divider(object):
                                  use_axes, pad=0.1,
                                  adjust_dirs=["left", "right", "bottom", "top"],
                                  ):
-        from axes_size import Padded, SizeFromFunc, GetExtentHelper
+        from .axes_size import Padded, SizeFromFunc, GetExtentHelper
         for d in adjust_dirs:
             helper = GetExtentHelper(use_axes, d)
             size = SizeFromFunc(helper)
@@ -371,7 +375,7 @@ class SubplotDivider(Divider):
             else:
                 try:
                     s = str(int(args[0]))
-                    rows, cols, num = map(int, s)
+                    rows, cols, num = list(map(int, s))
                 except ValueError:
                     raise ValueError(
                          'Single argument to subplot must be a 3-digit integer')
@@ -898,7 +902,7 @@ def locatable_axes_factory(axes_class):
 
     new_class = _locatableaxes_classes.get(axes_class)
     if new_class is None:
-        new_class = type("Locatable%s" % (axes_class.__name__),
+        new_class = type(str("Locatable%s" % (axes_class.__name__)),
                          (LocatableAxesBase, axes_class),
                          {'_axes_class': axes_class})
 
@@ -934,5 +938,5 @@ def make_axes_area_auto_adjustable(ax,
                                      adjust_dirs=adjust_dirs)
 
 #from matplotlib.axes import Axes
-from mpl_axes import Axes
+from .mpl_axes import Axes
 LocatableAxes = locatable_axes_factory(Axes)

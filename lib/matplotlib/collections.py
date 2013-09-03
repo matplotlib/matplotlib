@@ -8,7 +8,10 @@ counterparts (e.g., you may not be able to select all line styles) but
 they are meant to be fast for common use cases (e.g., a large set of solid
 line segemnts)
 """
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import zip
 import warnings
 import numpy as np
 import numpy.ma as ma
@@ -217,12 +220,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 xs, ys = vertices[:, 0], vertices[:, 1]
                 xs = self.convert_xunits(xs)
                 ys = self.convert_yunits(ys)
-                paths.append(mpath.Path(zip(xs, ys), path.codes))
+                paths.append(mpath.Path(list(zip(xs, ys)), path.codes))
 
             if offsets.size > 0:
                 xs = self.convert_xunits(offsets[:, 0])
                 ys = self.convert_yunits(offsets[:, 1])
-                offsets = zip(xs, ys)
+                offsets = list(zip(xs, ys))
 
         offsets = np.asanyarray(offsets, np.float_)
         offsets.shape = (-1, 2)             # Make it Nx2
@@ -293,7 +296,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         Returns True | False, ``dict(ind=itemlist)``, where every
         item in itemlist contains the event.
         """
-        if callable(self._contains):
+        if six.callable(self._contains):
             return self._contains(self, mouseevent)
 
         if not self.get_visible():
@@ -545,7 +548,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     get_facecolors = get_facecolor
 
     def get_edgecolor(self):
-        if self._edgecolors == 'face':
+        if self._edgecolors == str('face'):
             return self.get_facecolors()
         else:
             return self._edgecolors
@@ -605,7 +608,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         except (AttributeError, TypeError, IndexError):
             pass
         try:
-            if self._edgecolors_original != 'face':
+            if self._edgecolors_original != str('face'):
                 self._edgecolors = mcolors.colorConverter.to_rgba_array(
                     self._edgecolors_original, self._alpha)
         except (AttributeError, TypeError, IndexError):
@@ -1726,7 +1729,7 @@ class QuadMesh(Collection):
             if len(self._offsets):
                 xs = self.convert_xunits(self._offsets[:, 0])
                 ys = self.convert_yunits(self._offsets[:, 1])
-                offsets = zip(xs, ys)
+                offsets = list(zip(xs, ys))
 
         offsets = np.asarray(offsets, np.float_)
         offsets.shape = (-1, 2)                 # Make it Nx2

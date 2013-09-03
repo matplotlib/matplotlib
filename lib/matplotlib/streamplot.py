@@ -2,7 +2,11 @@
 Streamline plotting for 2D vector fields.
 
 """
-from __future__ import division
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
+
 import numpy as np
 import matplotlib
 import matplotlib.cm as cm
@@ -75,7 +79,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         transform = axes.transData
 
     if color is None:
-        color = axes._get_lines.color_cycle.next()
+        color = six.next(axes._get_lines.color_cycle)
 
     if linewidth is None:
         linewidth = matplotlib.rcParams['lines.linewidth']

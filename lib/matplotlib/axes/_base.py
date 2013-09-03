@@ -1,3 +1,8 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
+
 import itertools
 import warnings
 import math
@@ -172,7 +177,7 @@ class _process_plot_var_args(object):
 
     def set_lineprops(self, line, **kwargs):
         assert self.command == 'plot', 'set_lineprops only works with "plot"'
-        for key, val in kwargs.items():
+        for key, val in six.iteritems(kwargs):
             funcName = "set_%s" % key
             if not hasattr(line, funcName):
                 raise TypeError('There is no line property "%s"' % key)
@@ -181,7 +186,7 @@ class _process_plot_var_args(object):
 
     def set_patchprops(self, fill_poly, **kwargs):
         assert self.command == 'fill', 'set_patchprops only works with "fill"'
-        for key, val in kwargs.items():
+        for key, val in six.iteritems(kwargs):
             funcName = "set_%s" % key
             if not hasattr(fill_poly, funcName):
                 raise TypeError('There is no patch property "%s"' % key)
@@ -226,8 +231,8 @@ class _process_plot_var_args(object):
 
     def _makeline(self, x, y, kw, kwargs):
         kw = kw.copy()  # Don't modify the original kw.
-        if not 'color' in kw and not 'color' in kwargs.keys():
-            kw['color'] = self.color_cycle.next()
+        if not 'color' in kw and not 'color' in kwargs:
+            kw['color'] = six.next(self.color_cycle)
             # (can't use setdefault because it always evaluates
             # its second argument)
         seg = mlines.Line2D(x, y,
@@ -241,7 +246,7 @@ class _process_plot_var_args(object):
         try:
             facecolor = kw['color']
         except KeyError:
-            facecolor = self.color_cycle.next()
+            facecolor = six.next(self.color_cycle)
         seg = mpatches.Polygon(np.hstack((x[:, np.newaxis],
                                           y[:, np.newaxis])),
                                facecolor=facecolor,
@@ -814,7 +819,7 @@ class _AxesBase(martist.Artist):
         # Note: this is called by Axes.__init__()
         self.xaxis.cla()
         self.yaxis.cla()
-        for name, spine in self.spines.iteritems():
+        for name, spine in six.iteritems(self.spines):
             spine.cla()
 
         self.ignore_existing_data_limits = True
@@ -1084,11 +1089,11 @@ class _AxesBase(martist.Artist):
           =====  ============
 
         """
-        if anchor in mtransforms.Bbox.coefs.keys() or len(anchor) == 2:
+        if anchor in list(six.iterkeys(mtransforms.Bbox.coefs)) or len(anchor) == 2:
             self._anchor = anchor
         else:
             raise ValueError('argument must be among %s' %
-                             ', '.join(mtransforms.Bbox.coefs.keys()))
+                             ', '.join(six.iterkeys(mtransforms.Bbox.coefs)))
 
     def get_data_ratio(self):
         """
@@ -1990,7 +1995,7 @@ class _AxesBase(martist.Artist):
         # decouple these so the patch can be in the background and the
         # frame in the foreground.
         if self.axison and self._frameon:
-            artists.extend(self.spines.itervalues())
+            artists.extend(six.itervalues(self.spines))
 
         if self.figure.canvas.is_saving():
             dsu = [(a.zorder, a) for a in artists]
@@ -2493,7 +2498,7 @@ class _AxesBase(martist.Artist):
         if 'xmax' in kw:
             right = kw.pop('xmax')
         if kw:
-            raise ValueError("unrecognized kwargs: %s" % kw.keys())
+            raise ValueError("unrecognized kwargs: %s" % list(six.iterkeys(kw)))
 
         if right is None and iterable(left):
             left, right = left
@@ -2722,7 +2727,7 @@ class _AxesBase(martist.Artist):
         if 'ymax' in kw:
             top = kw.pop('ymax')
         if kw:
-            raise ValueError("unrecognized kwargs: %s" % kw.keys())
+            raise ValueError("unrecognized kwargs: %s" % list(six.iterkeys(kw)))
 
         if top is None and iterable(bottom):
             bottom, top = bottom
@@ -3122,7 +3127,7 @@ class _AxesBase(martist.Artist):
         children.append(self._left_title)
         children.append(self._right_title)
         children.append(self.patch)
-        children.extend(self.spines.itervalues())
+        children.extend(six.itervalues(self.spines))
         return children
 
     def contains(self, mouseevent):
@@ -3131,7 +3136,7 @@ class _AxesBase(martist.Artist):
 
         Returns *True* / *False*, {}
         """
-        if callable(self._contains):
+        if six.callable(self._contains):
             return self._contains(self, mouseevent)
 
         return self.patch.contains(mouseevent)

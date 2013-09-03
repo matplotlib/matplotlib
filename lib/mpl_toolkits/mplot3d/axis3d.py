@@ -3,13 +3,17 @@
 # Created: 23 Sep 2005
 # Parts rewritten by Reinier Heeres <reinier@heeres.eu>
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import math
 import copy
 
 from matplotlib import lines as mlines, axis as maxis, \
         patches as mpatches
-import art3d
-import proj3d
+from . import art3d
+from . import proj3d
 
 import numpy as np
 
@@ -86,7 +90,7 @@ class Axis(maxis.XAxis):
                              'grid' : {'color': (0.9, 0.9, 0.9, 1),
                                        'linewidth': 1.0},
                             })
-                             
+
 
         maxis.XAxis.__init__(self, axes, *args, **kwargs)
 
@@ -255,7 +259,7 @@ class Axis(maxis.XAxis):
         # edge points of the plane to display coordinates and calculate
         # an angle from that.
         # TODO: Maybe Text objects should handle this themselves?
-        dx, dy = (self.axes.transAxes.transform(peparray[0:2, 1]) - 
+        dx, dy = (self.axes.transAxes.transform(peparray[0:2, 1]) -
                   self.axes.transAxes.transform(peparray[0:2, 0]))
 
         lxyz = 0.5*(edgep1 + edgep2)
@@ -276,7 +280,7 @@ class Axis(maxis.XAxis):
 
 
         # Draw Offset text
-        
+
         # Which of the two edge points do we want to
         # use for locating the offset text?
         if juggled[2] == 2 :
@@ -358,7 +362,7 @@ class Axis(maxis.XAxis):
             for i in range(len(majorLocs)):
                 xyz2[i][newindex] = newval
 
-            lines = zip(xyz1, xyz0, xyz2)
+            lines = list(zip(xyz1, xyz0, xyz2))
             if self.axes._draw_grid:
                 self.gridlines.set_segments(lines)
                 self.gridlines.set_color([info['grid']['color']] * len(lines))
@@ -389,7 +393,7 @@ class Axis(maxis.XAxis):
                     renderer.M)
 
             # Get position of label
-            labeldeltas = [info['ticklabel']['space_factor'] * x for 
+            labeldeltas = [info['ticklabel']['space_factor'] * x for
                            x in deltas]
             axmask = [True, True, True]
             axmask[index] = False
@@ -408,7 +412,7 @@ class Axis(maxis.XAxis):
     def get_view_interval(self):
         """return the Interval instance for this 3d axis view limits"""
         return self.v_interval
-        
+
     def set_view_interval(self, vmin, vmax, ignore=False):
         if ignore:
             self.v_interval = vmin, vmax

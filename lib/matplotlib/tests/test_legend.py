@@ -1,3 +1,8 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
+
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison
@@ -44,9 +49,9 @@ def test_various_labels():
     # tests all sorts of label types
     fig = plt.figure()
     ax = fig.add_subplot(121)
-    ax.plot(range(4), 'o', label=1)
-    ax.plot(np.linspace(4, 4.1), 'o', label=u'D\xe9velopp\xe9s')
-    ax.plot(range(4, 1, -1), 'o', label='__nolegend__')
+    ax.plot(list(xrange(4)), 'o', label=1)
+    ax.plot(np.linspace(4, 4.1), 'o', label='D\xe9velopp\xe9s')
+    ax.plot(list(xrange(4, 1, -1)), 'o', label='__nolegend__')
     ax.legend(numpoints=1, loc=0)
 
 
@@ -54,9 +59,9 @@ def test_various_labels():
 def test_fancy():
     # using subplot triggers some offsetbox functionality untested elsewhere
     plt.subplot(121)
-    plt.scatter(range(10), range(10, 0, -1), label='XX\nXX')
+    plt.scatter(list(xrange(10)), list(xrange(10, 0, -1)), label='XX\nXX')
     plt.plot([5] * 10, 'o--', label='XX')
-    plt.errorbar(range(10), range(10), xerr=0.5, yerr=0.5, label='XX')
+    plt.errorbar(list(xrange(10)), list(xrange(10)), xerr=0.5, yerr=0.5, label='XX')
     plt.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
                ncol=2, shadow=True, title="My legend", numpoints=1)
 
@@ -72,7 +77,7 @@ def test_rc():
     # using subplot triggers some offsetbox functionality untested elsewhere
     fig = plt.figure()
     ax =  plt.subplot(121)
-    ax.scatter(range(10), range(10, 0, -1), label='three')
+    ax.scatter(list(xrange(10)), list(xrange(10, 0, -1)), label='three')
     ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
                 title="My legend")
 
@@ -80,7 +85,7 @@ def test_rc():
     mpl.rcParams['legend.scatterpoints'] = 1
     fig = plt.figure()
     ax =  plt.subplot(121)
-    ax.scatter(range(10), range(10, 0, -1), label='one')
+    ax.scatter(list(xrange(10)), list(xrange(10, 0, -1)), label='one')
     ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
                 title="My legend")
 

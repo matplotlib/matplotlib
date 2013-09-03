@@ -1,3 +1,8 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
+
 from nose.tools import assert_equal, assert_true, assert_raises
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
@@ -31,7 +36,7 @@ def test_figure():
     fig = plt.figure('today')
     ax = fig.add_subplot(111)
     ax.set_title(fig.get_label())
-    ax.plot(range(5))
+    ax.plot(list(xrange(5)))
     # plot red line in a different figure.
     plt.figure('tomorrow')
     plt.plot([0, 1], [1, 0], 'r')

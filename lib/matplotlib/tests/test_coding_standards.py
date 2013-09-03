@@ -1,3 +1,7 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 from fnmatch import fnmatch
 import os
 import sys
@@ -164,11 +168,6 @@ def _test_pep8_conformance():
 
     if not HAS_PEP8:
         raise SkipTest('The pep8 tool is required for this test')
-
-    # Only run this test with Python 2 - the 2to3 tool generates non pep8
-    # compliant code.
-    if sys.version_info[0] != 2:
-        return
 
     # to get a list of bad files, rather than the specific errors, add
     # "reporter=pep8.FileReport" to the StyleGuide constructor.

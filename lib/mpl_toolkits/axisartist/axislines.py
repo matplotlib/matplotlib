@@ -42,6 +42,9 @@ which obviously draws grid lines. The gridlines needs to be separated
 from the axis as some gridlines can never pass any axis.
 
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 import matplotlib.axes as maxes
 import matplotlib.artist as martist
@@ -63,10 +66,10 @@ import numpy as np
 
 
 import matplotlib.lines as mlines
-from axisline_style import AxislineStyle
+from .axisline_style import AxislineStyle
 
 
-from axis_artist import AxisArtist, GridlinesCollection
+from .axis_artist import AxisArtist, GridlinesCollection
 
 class AxisArtistHelper(object):
     """
@@ -594,7 +597,7 @@ class Axes(maxes.Axes):
                 return r
             elif isinstance(k, slice):
                 if k.start == None and k.stop == None and k.step == None:
-                    r = SimpleChainedObjects(self.values())
+                    r = SimpleChainedObjects(list(six.itervalues(self)))
                     return r
                 else:
                     raise ValueError("Unsupported slice")
@@ -730,7 +733,7 @@ class Axes(maxes.Axes):
 
     def get_children(self):
         if self._axisline_on:
-            children = self._axislines.values()+[self.gridlines]
+            children = list(six.itervalues(self._axislines)) + [self.gridlines]
         else:
             children = []
         children.extend(super(Axes, self).get_children())
@@ -785,7 +788,7 @@ class Axes(maxes.Axes):
 
         bb = [bb0]
 
-        for axisline in self._axislines.values():
+        for axisline in list(six.itervalues(self._axislines)):
             if not axisline.get_visible():
                 continue
 
@@ -889,5 +892,3 @@ if __name__ == "__main__":
 
     plt.draw()
     plt.show()
-
-

@@ -10,7 +10,9 @@
 #===========================================================================
 # Place all imports after here.
 #
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 #
 # Place all imports before here.
 #===========================================================================
@@ -29,7 +31,7 @@ class UnitDbl:
                "m" : ( 0.001, "km" ),
                "km" : ( 1, "km" ),
                "mile" : ( 1.609344, "km" ),
-      
+
                "rad" : ( 1, "rad" ),
                "deg" : ( 1.745329251994330e-02, "rad" ),
 
@@ -47,13 +49,13 @@ class UnitDbl:
    #-----------------------------------------------------------------------
    def __init__( self, value, units ):
       """Create a new UnitDbl object.
-      
+
       Units are internally converted to km, rad, and sec.  The only
       valid inputs for units are [ m, km, mile, rad, deg, sec, min, hour ].
 
       The field UnitDbl.value will contain the converted value.  Use
       the convert() method to get a specific type of units back.
-      
+
       = ERROR CONDITIONS
       - If the input units are not in the allowed list, an error is thrown.
 
@@ -83,7 +85,7 @@ class UnitDbl:
       """
       if self._units == units:
          return self._value
-      
+
       self.checkUnits( units )
 
       data = self.allowed[ units ]
@@ -93,19 +95,19 @@ class UnitDbl:
                "   UnitDbl: %s\n" \
                "   Units:   %s\n" % ( str( self ), units )
          raise ValueError( msg )
-         
+
       return self._value / data[0]
 
    #-----------------------------------------------------------------------
    def __abs__( self ):
       """Return the absolute value of this UnitDbl."""
       return UnitDbl( abs( self._value ), self._units )
-      
+
    #-----------------------------------------------------------------------
    def __neg__( self ):
       """Return the negative value of this UnitDbl."""
       return UnitDbl( -self._value, self._units )
-      
+
    #-----------------------------------------------------------------------
    def __nonzero__( self ):
       """Test a UnitDbl for a non-zero value.
@@ -114,6 +116,9 @@ class UnitDbl:
       - Returns true if the value is non-zero.
       """
       return self._value.__nonzero__()
+
+   if six.PY3:
+      __bool__ = __nonzero__
 
    #-----------------------------------------------------------------------
    def __cmp__( self, rhs ):
@@ -131,7 +136,7 @@ class UnitDbl:
       """
       self.checkSameUnits( rhs, "compare" )
       return cmp( self._value, rhs._value )
-      
+
    #-----------------------------------------------------------------------
    def __add__( self, rhs ):
       """Add two UnitDbl's.
@@ -148,7 +153,7 @@ class UnitDbl:
       """
       self.checkSameUnits( rhs, "add" )
       return UnitDbl( self._value + rhs._value, self._units )
-      
+
    #-----------------------------------------------------------------------
    def __sub__( self, rhs ):
       """Subtract two UnitDbl's.
@@ -165,7 +170,7 @@ class UnitDbl:
       """
       self.checkSameUnits( rhs, "subtract" )
       return UnitDbl( self._value - rhs._value, self._units )
-      
+
    #-----------------------------------------------------------------------
    def __mul__( self, rhs ):
       """Scale a UnitDbl by a value.
@@ -177,7 +182,7 @@ class UnitDbl:
       - Returns the scaled UnitDbl.
       """
       return UnitDbl( self._value * rhs, self._units )
-      
+
    #-----------------------------------------------------------------------
    def __rmul__( self, lhs ):
       """Scale a UnitDbl by a value.
@@ -189,7 +194,7 @@ class UnitDbl:
       - Returns the scaled UnitDbl.
       """
       return UnitDbl( self._value * lhs, self._units )
-      
+
    #-----------------------------------------------------------------------
    def __div__( self, rhs ):
       """Divide a UnitDbl by a value.
@@ -201,12 +206,12 @@ class UnitDbl:
       - Returns the scaled UnitDbl.
       """
       return UnitDbl( self._value / rhs, self._units )
-      
+
    #-----------------------------------------------------------------------
    def __str__( self ):
       """Print the UnitDbl."""
       return "%g *%s" % ( self._value, self._units )
-      
+
    #-----------------------------------------------------------------------
    def __repr__( self ):
       """Print the UnitDbl."""
@@ -224,19 +229,19 @@ class UnitDbl:
       Similar to the Python range() method.  Returns the range [
       start, stop ) at the requested step.  Each element will be a
       UnitDbl object.
-      
+
       = INPUT VARIABLES
-      - start    The starting value of the range.  
-      - stop     The stop value of the range.  
+      - start    The starting value of the range.
+      - stop     The stop value of the range.
       - step     Optional step to use.  If set to None, then a UnitDbl of
                  value 1 w/ the units of the start is used.
-                 
+
       = RETURN VALUE
       - Returns a list contianing the requested UnitDbl values.
       """
       if step is None:
          step = UnitDbl( 1, start._units )
-         
+
       elems = []
 
       i = 0
@@ -262,9 +267,9 @@ class UnitDbl:
       = INPUT VARIABLES
       - units    The string name of the units to check.
       """
-      if units not in self.allowed.keys():
+      if units not in self.allowed:
          msg = "Input units '%s' are not one of the supported types of %s" \
-               % ( units, str( self.allowed.keys() ) )
+               % ( units, str( list(six.iterkeys(self.allowed)) ) )
          raise ValueError( msg )
 
    #-----------------------------------------------------------------------
@@ -284,5 +289,5 @@ class UnitDbl:
                "LHS: %s\n" \
                "RHS: %s" % ( func, self._units, rhs._units )
          raise ValueError( msg )
-      
+
 #===========================================================================

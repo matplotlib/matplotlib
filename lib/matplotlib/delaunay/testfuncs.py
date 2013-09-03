@@ -4,10 +4,14 @@ Most of these have been yoinked from ACM TOMS 792.
 http://netlib.org/toms/792
 """
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
+
 
 import numpy as np
-from triangulate import Triangulation
+from .triangulate import Triangulation
 
 
 class TestData(dict):
@@ -386,17 +390,17 @@ def plotallfuncs(allfuncs=allfuncs):
     for func in allfuncs:
         print(func.title)
         nnt.plot(func, interp=False, plotter='imshow')
-        pl.savefig('%s-ref-img.png' % func.func_name)
+        pl.savefig('%s-ref-img.png' % func.__name__)
         nnt.plot(func, interp=True, plotter='imshow')
-        pl.savefig('%s-nn-img.png' % func.func_name)
+        pl.savefig('%s-nn-img.png' % func.__name__)
         lpt.plot(func, interp=True, plotter='imshow')
-        pl.savefig('%s-lin-img.png' % func.func_name)
+        pl.savefig('%s-lin-img.png' % func.__name__)
         nnt.plot(func, interp=False, plotter='contour')
-        pl.savefig('%s-ref-con.png' % func.func_name)
+        pl.savefig('%s-ref-con.png' % func.__name__)
         nnt.plot(func, interp=True, plotter='contour')
-        pl.savefig('%s-nn-con.png' % func.func_name)
+        pl.savefig('%s-nn-con.png' % func.__name__)
         lpt.plot(func, interp=True, plotter='contour')
-        pl.savefig('%s-lin-con.png' % func.func_name)
+        pl.savefig('%s-lin-con.png' % func.__name__)
     pl.ion()
 
 
@@ -469,13 +473,13 @@ def quality(func, mesh, interpolator='nn', n=33):
     SSM = np.sum(SM.flat)
 
     r2 = 1.0 - SSE / SSM
-    print(func.func_name, r2, SSE, SSM, numgood)
+    print(func.__name__, r2, SSE, SSM, numgood)
     return r2
 
 
 def allquality(interpolator='nn', allfuncs=allfuncs, data=data, n=33):
     results = {}
-    kv = data.items()
+    kv = list(six.iteritems(data))
     kv.sort()
     for name, mesh in kv:
         reslist = results.setdefault(name, [])

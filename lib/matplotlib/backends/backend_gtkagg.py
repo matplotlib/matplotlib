@@ -1,7 +1,10 @@
 """
 Render to gtk from agg
 """
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import os
 
 import matplotlib

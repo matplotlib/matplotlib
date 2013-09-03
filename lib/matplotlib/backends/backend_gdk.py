@@ -1,4 +1,6 @@
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 import math
 import os
@@ -479,6 +481,5 @@ class FigureCanvasGDK (FigureCanvasBase):
            if 'quality' not in options:
               options['quality'] = rcParams['savefig.jpeg_quality']
            options['quality'] = str(options['quality'])
-            
-        pixbuf.save(filename, format, options=options)
 
+        pixbuf.save(filename, format, options=options)

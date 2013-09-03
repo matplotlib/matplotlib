@@ -74,17 +74,21 @@ For backward compatibility, the form (`verts`, 0) is also accepted,
 but it is equivalent to just `verts` for giving a raw set of vertices
 that define the shape.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
 
 import numpy as np
 
-from cbook import is_math_text, is_string_like, is_numlike, iterable
+from .cbook import is_math_text, is_string_like, is_numlike, iterable
 from matplotlib import rcParams
-from path import Path
-from transforms import IdentityTransform, Affine2D
+from .path import Path
+from .transforms import IdentityTransform, Affine2D
 
 # special-purpose marker identifiers:
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
- CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN) = range(8)
+ CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN) = list(xrange(8))
 
 
 class MarkerStyle(object):
@@ -183,8 +187,12 @@ class MarkerStyle(object):
         self._filled = True
         self._marker_function()
 
-    def __nonzero__(self):
-        return bool(len(self._path.vertices))
+    if six.PY3:
+        def __bool__(self):
+            return bool(len(self._path.vertices))
+    else:
+        def __nonzero__(self):
+            return bool(len(self._path.vertices))
 
     def is_filled(self):
         return self._filled

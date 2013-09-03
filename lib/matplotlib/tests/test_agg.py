@@ -1,8 +1,9 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 import io
 import os
-import tempfile
 
 from numpy.testing import assert_array_almost_equal
 

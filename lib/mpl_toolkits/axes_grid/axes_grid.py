@@ -1,7 +1,9 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import six
 
 import mpl_toolkits.axes_grid1.axes_grid as axes_grid_orig
-from axes_divider import LocatableAxes
+from .axes_divider import LocatableAxes
 
 class CbarAxes(axes_grid_orig.CbarAxesBase, LocatableAxes):
     def __init__(self, *kl, **kwargs):
@@ -27,4 +29,3 @@ class ImageGrid(axes_grid_orig.ImageGrid):
     _defaultCbarAxesClass = CbarAxes
 
 AxesGrid = ImageGrid
-

@@ -1,9 +1,13 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 from matplotlib.offsetbox import AnchoredOffsetbox
 #from matplotlib.transforms import IdentityTransform
 
 import matplotlib.transforms as mtrans
 #from matplotlib.axes import Axes
-from mpl_axes import Axes
+from .mpl_axes import Axes
 
 from matplotlib.transforms import Bbox, TransformedBbox, IdentityTransform
 
@@ -58,7 +62,7 @@ class AnchoredLocatorBase(AnchoredOffsetbox):
 
 
 
-import axes_size as Size
+from . import axes_size as Size
 
 class AnchoredSizeLocator(AnchoredLocatorBase):
    def __init__(self, bbox_to_anchor, x_size, y_size, loc,
@@ -332,6 +336,3 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
    p2.set_clip_on(False)
 
    return pp, p1, p2
-
-
-

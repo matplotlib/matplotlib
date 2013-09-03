@@ -1,7 +1,9 @@
-from __future__ import print_function
-# cpickle is faster, pickle gives better exceptions
-import cPickle as pickle
-#import pickle
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import cPickle as pickle
+from six.moves import xrange
+
 from io import BytesIO
 
 from nose.tools import assert_equal, assert_not_equal
@@ -57,7 +59,7 @@ def depth_getter(obj,
         else:
             state = {}
 
-        for key, value in state.iteritems():
+        for key, value in six.iteritems(state):
             depth_getter(value, current_depth=current_depth + 1,
                          depth_stack=depth_stack,
                          nest_info=('attribute "%s" in '
@@ -77,13 +79,13 @@ def recursive_pickle(top_obj):
     """
     objs = depth_getter(top_obj)
     # sort by depth then by nest_info
-    objs = sorted(objs.itervalues(), key=lambda val: (-val[0], val[2]))
+    objs = sorted(six.itervalues(objs), key=lambda val: (-val[0], val[2]))
 
     for _, obj, location in objs:
 #        print('trying %s' % location)
         try:
             pickle.dump(obj, BytesIO(), pickle.HIGHEST_PROTOCOL)
-        except Exception, err:
+        except Exception as err:
             print(obj)
             print('Failed to pickle %s. \n Type: %s. Traceback '
                   'follows:' % (location, type(obj)))
@@ -101,7 +103,7 @@ def test_simple():
     pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     ax = plt.axes(projection='polar')
-    plt.plot(range(10), label='foobar')
+    plt.plot(list(xrange(10)), label='foobar')
     plt.legend()
 
 #    recursive_pickle(fig)
@@ -112,12 +114,12 @@ def test_simple():
 #    pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     plt.figure()
-    plt.bar(left=range(10), height=range(10))
+    plt.bar(left=list(xrange(10)), height=list(xrange(10)))
     pickle.dump(plt.gca(), BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     fig = plt.figure()
     ax = plt.axes()
-    plt.plot(range(10))
+    plt.plot(list(xrange(10)))
     ax.set_yscale('log')
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
@@ -134,8 +136,8 @@ def test_complete():
     data = u = v = np.linspace(0, 10, 80).reshape(10, 8)
     v = np.sin(v * -0.6)
 
-    plt.subplot(331)
-    plt.plot(range(10))
+    plt.subplot(3, 3, 1)
+    plt.plot(list(xrange(10)))
 
     plt.subplot(3, 3, 2)
     plt.contourf(data, hatches=['//', 'ooo'])

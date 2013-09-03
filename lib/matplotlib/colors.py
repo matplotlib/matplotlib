@@ -46,14 +46,18 @@ the range [0,1].
 Finally, legal html names for colors, like 'red', 'burlywood' and 'chartreuse'
 are supported.
 """
-from __future__ import print_function, division
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import map, zip
+
 import re
 import numpy as np
 from numpy import ma
 import matplotlib.cbook as cbook
 
 parts = np.__version__.split('.')
-NP_MAJOR, NP_MINOR = map(int, parts[:2])
+NP_MAJOR, NP_MINOR = list(map(int, parts[:2]))
 # true if clip supports the out kwarg
 NP_CLIP_OUT = NP_MAJOR >= 1 and NP_MINOR >= 2
 
@@ -201,7 +205,7 @@ cnames = {
 
 
 # add british equivs
-for k, v in cnames.items():
+for k, v in list(six.iteritems(cnames)):
     if k.find('gray') >= 0:
         k = k.replace('gray', 'grey')
         cnames[k] = v
@@ -228,7 +232,7 @@ def hex2color(s):
     Take a hex string *s* and return the corresponding rgb 3-tuple
     Example: #efefef -> (0.93725, 0.93725, 0.93725)
     """
-    if not isinstance(s, basestring):
+    if not isinstance(s, six.string_types):
         raise TypeError('hex2color requires a string argument')
     if hexColorPattern.match(s) is None:
         raise ValueError('invalid hex color string "%s"' % s)
@@ -436,7 +440,7 @@ def makeMappingArray(N, data, gamma=1.0):
     gives the closest value for values of x between 0 and 1.
     """
 
-    if callable(data):
+    if six.callable(data):
         xind = np.linspace(0, 1, N) ** gamma
         lut = np.clip(np.array(data(xind), dtype=np.float), 0, 1)
         return lut
@@ -756,7 +760,7 @@ class LinearSegmentedColormap(Colormap):
         if cbook.iterable(colors[0]) and len(colors[0]) == 2 and \
                 not cbook.is_string_like(colors[0]):
             # List of value, color pairs
-            vals, colors = zip(*colors)
+            vals, colors = list(zip(*colors))
         else:
             vals = np.linspace(0., 1., len(colors))
 

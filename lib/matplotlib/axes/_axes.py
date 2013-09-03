@@ -1,4 +1,8 @@
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import reduce, xrange, zip
+
 import math
 import warnings
 import itertools
@@ -1160,7 +1164,7 @@ class Axes(_AxesBase):
 
         colls = []
         for position, lineoffset, linelength, linewidth, color, linestyle in \
-            itertools.izip(positions, lineoffsets, linelengths, linewidths,
+            zip(positions, lineoffsets, linelengths, linewidths,
                            colors, linestyles):
             coll = mcoll.EventCollection(position,
                                          orientation=orientation,
@@ -2423,7 +2427,7 @@ class Axes(_AxesBase):
                 yt = y + pctdistance * radius * math.sin(thetam)
                 if is_string_like(autopct):
                     s = autopct % (100. * frac)
-                elif callable(autopct):
+                elif six.callable(autopct):
                     s = autopct(100. * frac)
                 else:
                     raise TypeError(
@@ -2759,7 +2763,7 @@ class Axes(_AxesBase):
 
         if ecolor is None:
             if l0 is None:
-                ecolor = self._get_lines.color_cycle.next()
+                ecolor = six.next(self._get_lines.color_cycle)
             else:
                 ecolor = l0.get_color()
 
@@ -2966,7 +2970,7 @@ class Axes(_AxesBase):
 
         # get some plot info
         if positions is None:
-            positions = range(1, col + 1)
+            positions = list(xrange(1, col + 1))
         if widths is None:
             distance = max(positions) - min(positions)
             widths = min(0.15 * max(distance, 1.0), 0.5)
@@ -3268,7 +3272,7 @@ class Axes(_AxesBase):
                 facecolors=colors,
                 edgecolors=edgecolors,
                 linewidths=linewidths,
-                offsets=zip(x, y),
+                offsets=list(zip(x, y)),
                 transOffset=kwargs.pop('transform', self.transData),
                 )
         collection.set_transform(mtransforms.IdentityTransform())
@@ -5179,7 +5183,7 @@ class Axes(_AxesBase):
         nx = len(x)  # number of datasets
 
         if color is None:
-            color = [self._get_lines.color_cycle.next()
+            color = [six.next(self._get_lines.color_cycle)
                      for i in xrange(nx)]
         else:
             color = mcolors.colorConverter.to_rgba_array(color)
@@ -5387,13 +5391,13 @@ class Axes(_AxesBase):
                 # add patches in reverse order so that when stacking,
                 # items lower in the stack are plottted on top of
                 # items higher in the stack
-                for x, y, c in reversed(zip(xvals, yvals, color)):
+                for x, y, c in reversed(list(zip(xvals, yvals, color))):
                     patches.append(self.fill(
                         x, y,
                         closed=True,
                         facecolor=c))
             else:
-                for x, y, c in reversed(zip(xvals, yvals, color)):
+                for x, y, c in reversed(list(zip(xvals, yvals, color))):
                     split = int(len(x) / 2) + 1
                     patches.append(self.fill(
                         x[:split], y[:split],
