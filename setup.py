@@ -61,10 +61,10 @@ Spacer = namedtuple('Spacer', ['text'])
 
 # these packages are dependencies for other packages
 # give them names so that we can reference them later
-numpy_ext = setupext.Numpy()
-cxx_ext = setupext.CXX()
-libagg_ext = setupext.LibAgg()
-freetype_ext = setupext.FreeType()
+numpy_pkg = setupext.Numpy()
+cxx_pkg = setupext.CXX()
+libagg_pkg = setupext.LibAgg()
+freetype_pkg = setupext.FreeType()
 
 mpl_packages = [
     Spacer('Building Matplotlib'),
@@ -73,21 +73,21 @@ mpl_packages = [
     setupext.Platform(),
 
     Spacer('Required dependencies and extensions'),
-    numpy_ext,
+    numpy_pkg,
     setupext.Dateutil(),
     setupext.Tornado(),
     setupext.Pyparsing(),
-    cxx_ext,
-    libagg_ext,
-    freetype_ext,
-    setupext.FT2Font(freetype_ext, numpy_ext, cxx_ext),
-    setupext.Png(numpy_ext, cxx_ext),
-    setupext.Image(numpy_ext, libagg_ext, cxx_ext),
-    setupext.TTConv(numpy_ext, cxx_ext),
-    setupext.Path(numpy_ext, libagg_ext, cxx_ext),
-    setupext.Contour(numpy_ext),
-    setupext.Delaunay(numpy_ext),
-    setupext.Tri(numpy_ext),
+    cxx_pkg,
+    libagg_pkg,
+    freetype_pkg,
+    setupext.FT2Font(freetype_pkg, numpy_pkg, cxx_pkg),
+    setupext.Png(numpy_pkg, cxx_pkg),
+    setupext.Image(numpy_pkg, libagg_pkg, cxx_pkg),
+    setupext.TTConv(numpy_pkg, cxx_pkg),
+    setupext.Path(numpy_pkg, libagg_pkg, cxx_pkg),
+    setupext.Contour(numpy_pkg),
+    setupext.Delaunay(numpy_pkg),
+    setupext.Tri(numpy_pkg),
 
     Spacer('Optional subpackages'),
     setupext.SampleData(),
@@ -98,15 +98,15 @@ mpl_packages = [
     # These backends are listed in order of preference, the first
     # being the most preferred.  The first one that looks like it will
     # work will be selected as the default backend.
-    setupext.BackendMacOSX(numpy_ext, libagg_ext, cxx_ext),
+    setupext.BackendMacOSX(numpy_pkg, libagg_pkg, cxx_pkg),
     setupext.BackendQt4(),
     setupext.BackendGtk3Agg(),
     setupext.BackendGtk3Cairo(),
-    setupext.BackendGtkAgg(libagg_ext, cxx_ext, numpy_ext),
-    setupext.BackendTkAgg(numpy_ext, libagg_ext, cxx_ext),
+    setupext.BackendGtkAgg(libagg_pkg, cxx_pkg, numpy_pkg),
+    setupext.BackendTkAgg(numpy_pkg, libagg_pkg, cxx_pkg),
     setupext.BackendWxAgg(),
-    setupext.BackendGtk(numpy_ext),
-    setupext.BackendAgg(numpy_ext, libagg_ext, freetype_ext, cxx_ext),
+    setupext.BackendGtk(numpy_pkg),
+    setupext.BackendAgg(numpy_pkg, libagg_pkg, freetype_pkg, cxx_pkg),
     setupext.BackendCairo(),
     setupext.Windowing(),
 
