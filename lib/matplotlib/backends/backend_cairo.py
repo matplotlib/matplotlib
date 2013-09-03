@@ -173,7 +173,7 @@ class RendererCairo(RendererBase):
             Affine2D().scale(1.0, -1.0).translate(0, self.height)
 
         ctx.new_path()
-        for vertices, codes in path.iter_segments(transform, simplify=False):
+        for i, (vertices, codes) in enumerate(path.iter_segments(transform, simplify=False)):
             if len(vertices):
                 x, y = vertices[-2:]
                 ctx.save()
@@ -182,12 +182,14 @@ class RendererCairo(RendererBase):
                 ctx.translate(x, y)
                 ctx.append_path(marker_path)
 
+                ctx.restore()
+
                 # Slower code path if there is a fill; we need to draw
                 # the fill and stroke for each marker at the same time.
-                if filled:
+                # Also flush out the drawing every once in a while to
+                # prevent the paths from getting way too long.
+                if filled or i % 1000 == 0:
                     self._fill_and_stroke(ctx, rgbFace, gc.get_alpha(), gc.get_forced_alpha())
-
-                ctx.restore()
 
         # Fast path, if there is no fill, draw everything in one step
         if not filled:
