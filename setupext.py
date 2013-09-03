@@ -753,10 +753,10 @@ class CXX(SetupPackage):
             sys.stdout = old_stdout
 
         try:
-            return pkg_config.check_for_pkg_config('PyCXX',
-                                                   'CXX/Extensions.hxx',
-                                                   self.get_ext(),
-                                                   min_version='6.2.4')
+            return pkg_config.check_for_config('PyCXX',
+                                               'CXX/Extensions.hxx',
+                                               self.get_ext(),
+                                               min_version='6.2.4')
         except CheckFailed:
             # It's ok to just proceed here, since the `import CXX`
             # worked above, and PyCXX (at least upstream) ensures that
