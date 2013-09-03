@@ -354,7 +354,7 @@ class PkgConfig(Configurator):
         if config_path is None:
             return
 
-        pkgconfig_path = os.path.join(pkgconfig_path, 'pkgconfig')
+        pkgconfig_path = os.path.join(config_path, 'pkgconfig')
         if not os.path.isdir(pkgconfig_path):
             return
 
