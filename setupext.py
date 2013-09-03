@@ -143,9 +143,9 @@ def get_base_dirs():
         return options['basedirlist']
 
     basedir_map = {
-        'win32': ['win32_static',],
+        'win32': ['win32_static'],
         'darwin': ['/usr/local/', '/usr', '/usr/X11', '/opt/local'],
-        'sunos5': [os.getenv('MPLIB_BASE') or '/usr/local',],
+        'sunos5': [os.getenv('MPLIB_BASE') or '/usr/local'],
         'gnu0': ['/usr'],
         'aix5': ['/usr/local'],
         }
@@ -588,8 +588,7 @@ class Matplotlib(SetupPackage):
 
     def get_package_data(self):
         return {
-            'matplotlib':
-            [
+            'matplotlib': [
                 'mpl-data/fonts/afm/*.afm',
                 'mpl-data/fonts/pdfcorefonts/*.afm',
                 'mpl-data/fonts/pdfcorefonts/*.txt',
@@ -610,8 +609,9 @@ class Matplotlib(SetupPackage):
                 'backends/web_backend/jquery/css/themes/base/*.*',
                 'backends/web_backend/jquery/css/themes/base/images/*',
                 'backends/web_backend/css/*.*',
-                'backends/Matplotlib.nib/*'
-             ]}
+                'backends/Matplotlib.nib/*',
+                ],
+        }
 
 
 class SampleData(OptionalPackage):
@@ -707,8 +707,8 @@ class Numpy(SetupPackage):
 
         ext = make_extension('test', [])
         ext.include_dirs.append(numpy.get_include())
-        if not has_include_file(
-            ext.include_dirs, os.path.join("numpy", "arrayobject.h")):
+        if not has_include_file(ext.include_dirs,
+                                os.path.join("numpy", "arrayobject.h")):
             raise CheckFailed(
                 "The C headers for numpy could not be found.  You"
                 "may need to install the development package.")
@@ -768,12 +768,12 @@ class CXX(SetupPackage):
     def add_flags(self, ext):
         if self.found_external and not 'sdist' in sys.argv:
             support_dir = os.path.normpath(
-                   os.path.join(
-                       sys.prefix,
-                       'share',
-                       'python%d.%d' % (
-                           sys.version_info[0], sys.version_info[1]),
-                       'CXX'))
+                os.path.join(
+                    sys.prefix,
+                    'share',
+                    'python%d.%d' % (sys.version_info[0], sys.version_info[1]),
+                    'CXX')
+            )
             if not os.path.exists(support_dir):
                 # On Fedora 17, these files are installed in /usr/share/CXX
                 support_dir = '/usr/src/CXX'
@@ -1197,7 +1197,7 @@ class BackendTkAgg(OptionalBackendPackage):
                     "/usr/lib/tcl" + str(Tkinter.TclVersion),
                     "/usr/lib"]
         tk_poss = [tk_lib_dir,
-                    os.path.normpath(os.path.join(tk_lib_dir, '..')),
+                   os.path.normpath(os.path.join(tk_lib_dir, '..')),
                    "/usr/lib/tk" + str(Tkinter.TkVersion),
                    "/usr/lib"]
         for ptcl, ptk in zip(tcl_poss, tk_poss):
@@ -1265,9 +1265,9 @@ class BackendTkAgg(OptionalBackendPackage):
 
         if not os.path.exists(tcl_inc):
             # this is a hack for suse linux, which is broken
-            if (sys.platform.startswith('linux') and
-                os.path.exists('/usr/include/tcl.h') and
-                os.path.exists('/usr/include/tk.h')):
+            if all([sys.platform.startswith('linux'),
+                    os.path.exists('/usr/include/tcl.h'),
+                    os.path.exists('/usr/include/tk.h')]):
                 tcl_inc = '/usr/include'
                 tk_inc = '/usr/include'
 
@@ -1469,9 +1469,9 @@ class BackendGtk(OptionalBackendPackage):
                  (flag.startswith('-l') or flag.startswith('-L'))])
 
             # visual studio doesn't need the math library
-            if (sys.platform == 'win32' and
-                win32_compiler == 'msvc' and
-                'm' in ext.libraries):
+            if all([sys.platform == 'win32',
+                    win32_compiler == 'msvc',
+                    'm' in ext.libraries]):
                 ext.libraries.remove('m')
 
         elif sys.platform != 'win32':
