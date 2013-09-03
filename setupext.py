@@ -346,7 +346,7 @@ class PkgConfig(object):
         requires an alternate method for that.
         """
         if version is None:
-            version = pkg_config.get_version(package)
+            version = self.get_version(package)
 
             if version is None:
                 raise CheckFailed(
@@ -365,7 +365,7 @@ class PkgConfig(object):
 
         if ext is None:
             ext = make_extension('test', [])
-            pkg_config.setup_extension(ext, package)
+            self.setup_extension(ext, package)
 
         check_include_file(ext.include_dirs, include_file, package)
 
