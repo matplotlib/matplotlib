@@ -435,62 +435,52 @@ class SetupPackage(object):
 
 class OptionalPackage(SetupPackage):
     optional = True
-
-    def get_config(self):
-        install = True
-        if config is not None:
-            try:
-                install = config.getboolean(
-                    'packages', self.name)
-            except:
-                pass
-        return install
-
-    def check(self):
-        self.install = self.get_config()
-        if not self.install:
-            raise CheckFailed("skipping due to configuration")
-        return "installing"
-
-
-class OptionalBackendPackage(SetupPackage):
-    optional = True
     force = False
-    install = 'auto'
-    check = "installing"
+    config_category = "packages"
 
     def get_config(self):
+        """
+        Look at `setup.cfg` and return one of ["auto", True, False] indicating
+        if the package is at default state ("auto"), forced by the user (True)
+        or opted-out (False).
+        """
         try:
-            self.install = config.getboolean('gui_support', self.name)
+            return config.getboolean(self.config_category, self.name)
         except:
-            pass
-        if self.install is True:
-            self.optional = False
-        return self.install
+            return "auto"
 
     def check(self):
         """
         Do not override this method!
 
         For custom dependency checks override self.check_requirements().
+        Two things are checked: Configuration file and requirements.
         """
-        # check configuration file
-        if self.get_config() in [True, 'auto']:
-            self.check = "installing"
+        # Check configuration file
+        conf = self.get_config()
+        # Default "auto" state or install forced by user
+        if conf in [True, 'auto']:
+            message = "installing"
+            # Set non-optional if user sets `True` in config
+            if conf is True:
+                self.optional = False
+        # Configuration opt-out by user
         else:
             # Some backend extensions (e.g. Agg) need to be built for certain
             # other GUI backends (e.g. TkAgg) even when manually disabled
             if self.force is True:
-                self.check = "installing forced (config override)"
+                message = "installing forced (config override)"
             else:
                 raise CheckFailed("skipping due to configuration")
 
-        # check requirements and add extra information (if any) to message
-        custom_info = self.check_requirements()
-        if custom_info:
-            self.check += ", " + self.check_requirements()
+        # Check requirements and add extra information (if any) to message.
+        # If requirements are not met a CheckFailed should be raised in there.
+        additional_info = self.check_requirements()
+        if additional_info:
+            message += ", " + additional_info
 
-        return self.check
+        # No CheckFailed raised until now, return install message.
+        return message
 
     def check_requirements(self):
         """
@@ -501,6 +491,10 @@ class OptionalBackendPackage(SetupPackage):
            (or None) for no additional information.
         """
         return ""
+
+
+class OptionalBackendPackage(OptionalPackage):
+    config_category = "gui_support"
 
 
 class Platform(SetupPackage):
