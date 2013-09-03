@@ -4,6 +4,7 @@ setup.cfg.template for more information.
 """
 
 from __future__ import print_function, absolute_import
+from collections import OrderedDict, namedtuple
 
 # This needs to be the very first thing to use distribute
 from distribute_setup import use_setuptools
@@ -55,52 +56,77 @@ __version__ = setupext.Matplotlib().check()
 
 # These are the packages in the order we want to display them.  This
 # list may contain strings to create section headers for the display.
-mpl_packages = [
-    'Building Matplotlib',
-    setupext.Matplotlib(),
-    setupext.Python(),
-    setupext.Platform(),
-    'Required dependencies and extensions',
-    setupext.Numpy(),
-    setupext.Dateutil(),
-    setupext.Tornado(),
-    setupext.Pyparsing(),
-    setupext.CXX(),
-    setupext.LibAgg(),
-    setupext.FreeType(),
-    setupext.FT2Font(),
-    setupext.Png(),
-    setupext.Image(),
-    setupext.TTConv(),
-    setupext.Path(),
-    setupext.Contour(),
-    setupext.Delaunay(),
-    setupext.Tri(),
-    'Optional subpackages',
-    setupext.SampleData(),
-    setupext.Toolkits(),
-    setupext.Tests(),
-    'Optional backend extensions',
-    # These backends are listed in order of preference, the first
-    # being the most preferred.  The first one that looks like it will
-    # work will be selected as the default backend.
-    setupext.BackendMacOSX(),
-    setupext.BackendQt4(),
-    setupext.BackendGtk3Agg(),
-    setupext.BackendGtk3Cairo(),
-    setupext.BackendGtkAgg(),
-    setupext.BackendTkAgg(),
-    setupext.BackendWxAgg(),
-    setupext.BackendGtk(),
-    setupext.BackendAgg(),
-    setupext.BackendCairo(),
-    setupext.Windowing(),
-    'Optional LaTeX dependencies',
-    setupext.DviPng(),
-    setupext.Ghostscript(),
-    setupext.LaTeX(),
-    setupext.PdfToPs()
-    ]
+
+Spacer = namedtuple('Spacer', ['text'])
+
+mpl_packages = OrderedDict()
+
+mpl_packages['building'] = Spacer('Building Matplotlib')
+mpl_packages['matplotlib'] = setupext.Matplotlib()
+mpl_packages['python'] = setupext.Python()
+mpl_packages['platform'] = setupext.Platform()
+
+mpl_packages['required'] = Spacer('Required dependencies and extensions')
+mpl_packages['numpy'] = setupext.Numpy()
+mpl_packages['dateutil'] = setupext.Dateutil()
+mpl_packages['tornado'] = setupext.Tornado()
+mpl_packages['pyparsing'] = setupext.Pyparsing()
+mpl_packages['cxx'] = setupext.CXX()
+mpl_packages['libagg'] = setupext.LibAgg()
+mpl_packages['freetype'] = setupext.FreeType()
+mpl_packages['ft2font'] = setupext.FT2Font(mpl_packages['freetype'],
+                                           mpl_packages['numpy'],
+                                           mpl_packages['cxx'])
+mpl_packages['png'] = setupext.Png(mpl_packages['numpy'],
+                                   mpl_packages['cxx'])
+mpl_packages['image'] = setupext.Image(mpl_packages['numpy'],
+                                       mpl_packages['libagg'],
+                                       mpl_packages['cxx'])
+mpl_packages['ttconv'] = setupext.TTConv(mpl_packages['numpy'],
+                                         mpl_packages['cxx'])
+mpl_packages['path'] = setupext.Path(mpl_packages['numpy'],
+                                     mpl_packages['libAgg'],
+                                     mpl_packages['cxx'])
+mpl_packages['contour'] = setupext.Contour(mpl_packages['numpy'])
+mpl_packages['delaunay'] = setupext.Delaunay(mpl_packages['numpy'])
+mpl_packages['tri'] = setupext.Tri(mpl_packages['numpy'])
+
+mpl_packages['optional'] = Spacer('Optional subpackages')
+mpl_packages['sample_data'] = setupext.SampleData()
+mpl_packages['toolkits'] = setupext.Toolkits()
+mpl_packages['tests'] = setupext.Tests()
+
+mpl_packages['optional backends'] = Spacer('Optional backend extensions')
+
+# These backends are listed in order of preference, the first
+# being the most preferred.  The first one that looks like it will
+# work will be selected as the default backend.
+mpl_packages['macosx'] = setupext.BackendMacOSX(mpl_packages['numpy'],
+                                                mpl_packages['libagg'],
+                                                mpl_packages['cxx'])
+mpl_packages['qt4'] = setupext.BackendQt4()
+mpl_packages['gtk3agg'] = setupext.BackendGtk3Agg()
+mpl_packages['gtkcairo'] = setupext.BackendGtk3Cairo()
+mpl_packages['gtkagg'] = setupext.BackendGtkAgg(mpl_packages['libagg'],
+                                                mpl_packages['cxx'],
+                                                mpl_packages['numpy'])
+mpl_packages['tkagg'] = setupext.BackendTkAgg(mpl_packages['numpy'],
+                                              mpl_packages['libagg'],
+                                              mpl_packages['cxx'])
+mpl_packages['wxagg'] = setupext.BackendWxAgg()
+mpl_packages['gtkagg'] = setupext.BackendGtk(mpl_packages['numpy'])
+mpl_packages['agg'] = setupext.BackendAgg(mpl_packages['numpy'],
+                                          mpl_packages['libagg'],
+                                          mpl_packages['freetype'],
+                                          mpl_packages['cxx'])
+mpl_packages['cairo'] = setupext.BackendCairo()
+mpl_packages['windowing'] = setupext.Windowing()
+
+mpl_packages['latex'] = Spacer('Optional LaTeX dependencies')
+mpl_packages['dvipng'] = setupext.DviPng()
+mpl_packages['ghostscript'] = setupext.Ghostscript()
+mpl_packages['latex'] = setupext.LaTeX()
+mpl_packages['pdftops'] = setupext.PdfToPs()
 
 
 classifiers = [
@@ -136,29 +162,30 @@ if __name__ == '__main__':
 
     required_failed = []
     good_packages = []
-    for package in mpl_packages:
-        if isinstance(package, str):
+    for package in mpl_packages.items():
+        if isinstance(package, Spacer):
             print_raw('')
-            print_raw(package.upper())
-        else:
-            try:
-                result = package.check()
-                if result is not None:
-                    message = 'yes [%s]' % result
-                    print_status(package.name, message)
-            except setupext.CheckFailed as e:
-                msg = str(e).strip()
-                if len(msg):
-                    print_status(package.name, 'no  [%s]' % msg)
-                else:
-                    print_status(package.name, 'no')
-                if not package.optional:
-                    required_failed.append(package)
+            print_raw(package.text.upper())
+            continue
+
+        try:
+            result = package.check()
+            if result is not None:
+                message = 'yes [%s]' % result
+                print_status(package.name, message)
+        except setupext.CheckFailed as e:
+            msg = str(e).strip()
+            if len(msg):
+                print_status(package.name, 'no  [%s]' % msg)
             else:
-                good_packages.append(package)
-                if isinstance(package, setupext.OptionalBackendPackage):
-                    if default_backend is None:
-                        default_backend = package.name
+                print_status(package.name, 'no')
+            if not package.optional:
+                required_failed.append(package)
+        else:
+            good_packages.append(package)
+            if isinstance(package, setupext.OptionalBackendPackage):
+                if default_backend is None:
+                    default_backend = package.name
     print_raw('')
 
 

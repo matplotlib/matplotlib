@@ -308,7 +308,7 @@ class PkgConfig(object):
         """
         Get the version of the package from pkg-config.
         """
-        if not self.has_pkgconfig:
+        if not self.ft_config:
             return None
 
         status, output = getstatusoutput(
@@ -317,9 +317,185 @@ class PkgConfig(object):
             return output
         return None
 
+    def check_for_pkg_config(self, package, include_file, ext,
+                             min_version=None,
+                             version=None):
+        """
+        A convenience function for writing checks for a
+        pkg_config-defined dependency.
+
+        `package` is the pkg_config package name.
+
+        `include_file` is a top-level include file we expect to find.
+
+        `min_version` is the minimum version required.
+
+        `version` will override the found version if this package
+        requires an alternate method for that.
+        """
+        if version is None:
+            version = pkg_config.get_version(package)
+
+            if version is None:
+                raise CheckFailed(
+                    "pkg-config information for '%s' could not be found." %
+                    package)
+
+        if min_version == 'PATCH':
+            raise CheckFailed(
+                "Requires patches that have not been merged upstream.")
+
+        if min_version:
+            if (not is_min_version(version, min_version)):
+                raise CheckFailed(
+                    "Requires %s %s or later.  Found %s." %
+                    (package, min_version, version))
+
+        if ext is None:
+            ext = make_extension('test', [])
+            pkg_config.setup_extension(ext, package)
+
+        check_include_file(ext.include_dirs, include_file, package)
+
+        return 'version %s' % version
+
 
 # The PkgConfig class should be used through this singleton
 pkg_config = PkgConfig()
+
+
+class FTConfig(object):
+    """
+    This is a class for communicating with freetype-config.
+    """
+    def __init__(self):
+        """
+        Determines whether freetype-config exists on this machine.
+        """
+        if sys.platform == 'win32':
+            self.has_ftconfig = False
+        else:
+            self.set_pkgconfig_path()
+            status, output = getstatusoutput("freetype-config --help")
+            self.has_ftconfig = (status == 0)
+
+    def set_pkgconfig_path(self):
+        pkgconfig_path = sysconfig.get_config_var('LIBDIR')
+        if pkgconfig_path is None:
+            return
+
+        pkgconfig_path = os.path.join(pkgconfig_path, 'pkgconfig')
+        if not os.path.isdir(pkgconfig_path):
+            return
+
+        try:
+            os.environ['PKG_CONFIG_PATH'] += ':' + pkgconfig_path
+        except KeyError:
+            os.environ['PKG_CONFIG_PATH'] = pkgconfig_path
+
+    def setup_extension(self, ext, package, default_include_dirs=[],
+                        default_library_dirs=[], default_libraries=[]):
+        """
+        Add parameters to the given `ext` for the given `package`.
+        """
+        flag_map = {
+            '-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
+
+        if package != 'freetype2':
+            raise RuntimeError("FTConfig only works for the freetype2 package")
+
+        use_defaults = True
+
+        if self.has_ftconfig:
+            try:
+                output = check_output("freetype-config --libs --cflags",
+                                      shell=True,
+                                      stderr=subprocess.STDOUT)
+            except subprocess.CalledProcessError:
+                pass
+            else:
+                output = output.decode(sys.getfilesystemencoding())
+                use_defaults = False
+                for token in output.split():
+                    attr = flag_map.get(token[:2])
+                    if attr is not None:
+                        getattr(ext, attr).append(token[2:])
+
+        if use_defaults:
+            basedirs = get_base_dirs()
+            for base in basedirs:
+                for include in default_include_dirs:
+                    dir = os.path.join(base, include)
+                    if os.path.exists(dir):
+                        ext.include_dirs.append(dir)
+                for lib in default_library_dirs:
+                    dir = os.path.join(base, lib)
+                    if os.path.exists(dir):
+                        ext.library_dirs.append(dir)
+            ext.libraries.extend(default_libraries)
+            return True
+
+        return False
+
+    def get_version(self, package):
+        """
+        Get the version from freetype-config.
+        """
+        if package != 'freetype2':
+            raise RuntimeError("FTConfig only works for the freetype2 package")
+
+        if not self.ft_config:
+            return None
+
+        status, output = getstatusoutput("freetype-config --ftversion")
+        if status == 0:
+            return output
+        return None
+
+    def check_for_ft_config(self, package, include_file, ext,
+                            min_version=None, version=None):
+        """
+        A convenience function for writing checks for a
+        pkg_config-defined dependency.
+
+        `package` is the ft_config package name.
+
+        `include_file` is a top-level include file we expect to find.
+
+        `min_version` is the minimum version required.
+
+        `version` will override the found version if this package
+        requires an alternate method for that.
+        """
+        if version is None:
+            version = self.get_version(package)
+
+            if version is None:
+                raise CheckFailed(
+                    "pkg-config information for '%s' could not be found." %
+                    package)
+
+        if min_version == 'PATCH':
+            raise CheckFailed(
+                "Requires patches that have not been merged upstream.")
+
+        if min_version:
+            if (not is_min_version(version, min_version)):
+                raise CheckFailed(
+                    "Requires %s %s or later.  Found %s." %
+                    (package, min_version, version))
+
+        if ext is None:
+            ext = make_extension('test', [])
+            self.setup_extension(ext, package)
+
+        check_include_file(ext.include_dirs, include_file, package)
+
+        return 'version %s' % version
+
+
+# The PkgConfig class should be used through this singleton
+ft_config = FTConfig()
 
 
 class CheckFailed(Exception):
@@ -331,6 +507,9 @@ class CheckFailed(Exception):
 
 class SetupPackage(object):
     optional = False
+
+    def __init__(self, *dependencies):
+        self.dependencies = dependencies
 
     def check(self):
         """
@@ -356,7 +535,6 @@ class SetupPackage(object):
         `distutils.setup`.
         """
         return []
-
 
     def get_py_modules(self):
         """
@@ -390,47 +568,9 @@ class SetupPackage(object):
         """
         return []
 
-    def _check_for_pkg_config(self, package, include_file, min_version=None,
-                              version=None):
-        """
-        A convenience function for writing checks for a
-        pkg_config-defined dependency.
-
-        `package` is the pkg_config package name.
-
-        `include_file` is a top-level include file we expect to find.
-
-        `min_version` is the minimum version required.
-
-        `version` will override the found version if this package
-        requires an alternate method for that.
-        """
-        if version is None:
-            version = pkg_config.get_version(package)
-
-            if version is None:
-                raise CheckFailed(
-                    "pkg-config information for '%s' could not be found." %
-                    package)
-
-        if min_version == 'PATCH':
-            raise CheckFailed(
-                "Requires patches that have not been merged upstream.")
-
-        if min_version:
-            if (not is_min_version(version, min_version)):
-                raise CheckFailed(
-                    "Requires %s %s or later.  Found %s." %
-                    (package, min_version, version))
-
-        ext = self.get_extension()
-        if ext is None:
-            ext = make_extension('test', [])
-            pkg_config.setup_extension(ext, package)
-
-        check_include_file(ext.include_dirs, include_file, package)
-
-        return 'version %s' % version
+    def add_dep_flags(self, ext):
+        for dep in self.dependencies:
+            dep.add_flags(ext)
 
 
 class OptionalPackage(SetupPackage):
@@ -685,9 +825,11 @@ class CXX(SetupPackage):
             sys.stdout = old_stdout
 
         try:
-            return self._check_for_pkg_config(
-                'PyCXX', 'CXX/Extensions.hxx', min_version='6.2.4')
-        except CheckFailed as e:
+            return pkg_config.check_for_pkg_config('PyCXX',
+                                                   'CXX/Extensions.hxx',
+                                                   self.get_ext(),
+                                                   min_version='6.2.4')
+        except CheckFailed:
             # It's ok to just proceed here, since the `import CXX`
             # worked above, and PyCXX (at least upstream) ensures that
             # its header files are on the default distutils include
@@ -730,8 +872,10 @@ class LibAgg(SetupPackage):
     def check(self):
         self.__class__.found_external = True
         try:
-            return self._check_for_pkg_config(
-                'libagg', 'agg2/agg_basics.h', min_version='PATCH')
+            return pkg_config.check_for_pkg_config('libagg',
+                                                   'agg2/agg_basics.h',
+                                                   self.get_ext(),
+                                                   min_version='PATCH')
         except CheckFailed as e:
             self.__class__.found_external = False
             return str(e) + ' Using local copy.'
@@ -762,26 +906,42 @@ class FreeType(SetupPackage):
         if sys.platform == 'win32':
             return "Unknown version"
 
-        status, output = getstatusoutput("freetype-config --version")
+        status, version = getstatusoutput("freetype-config --version")
         if status == 0:
-            version = output
-        else:
-            version = None
+            try:
+                return ft_config.check_for_ft_config(
+                    'freetype2', 'ft2build.h', self.get_ext(),
+                    min_version='2.4', version=version
+                )
+            except CheckFailed:
+                pass
 
-        return self._check_for_pkg_config(
-            'freetype2', 'ft2build.h',
-            min_version='2.4', version=version)
+        return pkg_config.check_for_pkg_config(
+            'freetype2', 'ft2build.h', self.get_ext(),
+            min_version='2.4', version=None)
 
     def add_flags(self, ext):
-        pkg_config.setup_extension(
-            ext, 'freetype2',
-            default_include_dirs=[
-                'freetype2', 'lib/freetype2/include',
-                'lib/freetype2/include/freetype2'],
-            default_library_dirs=[
-                'freetype2/lib'],
-            default_libraries=['freetype', 'z'],
-            alt_exec='freetype-config')
+        if ft_config.has_ftconfig:
+            ft_config.setup_extension(
+                ext, 'freetype2',
+                default_include_dirs=[
+                    'freetype2',
+                    'lib/freetype2/include',
+                    'lib/freetype2/include/freetype2',
+                ],
+                default_library_dirs=['freetype2/lib'],
+                default_libraries=['freetype', 'z'])
+
+        else:
+            pkg_config.setup_extension(
+                ext, 'freetype2',
+                default_include_dirs=[
+                    'freetype2',
+                    'lib/freetype2/include',
+                    'lib/freetype2/include/freetype2',
+                ],
+                default_library_dirs=['freetype2/lib'],
+                default_libraries=['freetype', 'z'])
 
 
 class FT2Font(SetupPackage):
@@ -793,9 +953,7 @@ class FT2Font(SetupPackage):
             'src/mplutils.cpp'
             ]
         ext = make_extension('matplotlib.ft2font', sources)
-        FreeType().add_flags(ext)
-        Numpy().add_flags(ext)
-        CXX().add_flags(ext)
+        self.add_dep_flags(ext)
         return ext
 
 
@@ -804,8 +962,8 @@ class Png(SetupPackage):
 
     def check(self):
         try:
-            return self._check_for_pkg_config(
-                'libpng', 'png.h',
+            return pkg_config.check_for_pkg_config(
+                'libpng', 'png.h', self.get_ext(),
                 min_version='1.2')
         except CheckFailed as e:
             self.__class__.found_external = False
@@ -818,8 +976,7 @@ class Png(SetupPackage):
         ext = make_extension('matplotlib._png', sources)
         pkg_config.setup_extension(
             ext, 'libpng', default_libraries=['png', 'z'])
-        Numpy().add_flags(ext)
-        CXX().add_flags(ext)
+        self.add_dep_flags(ext)
         return ext
 
 
@@ -834,8 +991,7 @@ class TTConv(SetupPackage):
             'ttconv/ttutil.cpp'
             ]
         ext = make_extension('matplotlib.ttconv', sources)
-        Numpy().add_flags(ext)
-        CXX().add_flags(ext)
+        self.add_dep_flags(ext)
         return ext
 
 
@@ -850,9 +1006,7 @@ class Path(SetupPackage):
             ]
 
         ext = make_extension('matplotlib._path', sources)
-        Numpy().add_flags(ext)
-        LibAgg().add_flags(ext)
-        CXX().add_flags(ext)
+        self.add_dep_flags(ext)
         return ext
 
 
@@ -864,9 +1018,7 @@ class Image(SetupPackage):
             'src/_image.cpp', 'src/mplutils.cpp'
             ]
         ext = make_extension('matplotlib._image', sources)
-        Numpy().add_flags(ext)
-        LibAgg().add_flags(ext)
-        CXX().add_flags(ext)
+        self.add_dep_flags(ext)
         return ext
 
 
@@ -878,7 +1030,7 @@ class Contour(SetupPackage):
             "src/cntr.c"
             ]
         ext = make_extension('matplotlib._cntr', sources)
-        Numpy().add_flags(ext)
+        self.add_dep_flags(ext)
         return ext
 
 
@@ -893,7 +1045,7 @@ class Delaunay(SetupPackage):
                    "delaunay_utils.cpp", "natneighbors.cpp"]
         sources = [os.path.join('lib/matplotlib/delaunay', s) for s in sources]
         ext = make_extension('matplotlib._delaunay', sources)
-        Numpy().add_flags(ext)
+        self.add_dep_flags(ext)
         return ext
 
 
@@ -906,8 +1058,7 @@ class Tri(SetupPackage):
             "src/mplutils.cpp"
             ]
         ext = make_extension('matplotlib._tri', sources)
-        Numpy().add_flags(ext)
-        CXX().add_flags(ext)
+        self.add_dep_flags(ext)
         return ext
 
 
@@ -1000,10 +1151,7 @@ class BackendAgg(OptionalBackendPackage):
             "src/_backend_agg.cpp"
             ]
         ext = make_extension('matplotlib.backends._backend_agg', sources)
-        Numpy().add_flags(ext)
-        LibAgg().add_flags(ext)
-        FreeType().add_flags(ext)
-        CXX().add_flags(ext)
+        self.add_dep_flags(ext)
         return ext
 
 
@@ -1051,9 +1199,7 @@ class BackendTkAgg(OptionalBackendPackage):
 
         ext = make_extension('matplotlib.backends._tkagg', sources)
         self.add_flags(ext)
-        Numpy().add_flags(ext)
-        LibAgg().add_flags(ext)
-        CXX().add_flags(ext)
+        self.add_dep_flags(ext)
         return ext
 
     def query_tcltk(self):
@@ -1341,7 +1487,7 @@ class BackendGtk(OptionalBackendPackage):
             ]
         ext = make_extension('matplotlib.backends._backend_gdk', sources)
         self.add_flags(ext)
-        Numpy().add_flags(ext)
+        self.add_dep_flags(ext)
         return ext
 
     def add_flags(self, ext):
@@ -1427,9 +1573,7 @@ class BackendGtkAgg(BackendGtk):
             ]
         ext = make_extension('matplotlib.backends._gtkagg', sources)
         self.add_flags(ext)
-        LibAgg().add_flags(ext)
-        CXX().add_flags(ext)
-        Numpy().add_flags(ext)
+        self.add_dep_flags(ext)
         return ext
 
 
@@ -1608,9 +1752,7 @@ class BackendMacOSX(OptionalBackendPackage):
             ]
 
         ext = make_extension('matplotlib.backends._macosx', sources)
-        Numpy().add_flags(ext)
-        LibAgg().add_flags(ext)
-        CXX().add_flags(ext)
+        self.add_dep_flags(ext)
         ext.extra_link_args.extend(['-framework', 'Cocoa'])
         return ext
 
