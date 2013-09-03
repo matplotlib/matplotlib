@@ -401,11 +401,29 @@ class FreetypeConfig(Configurator):
         return None
 
 
+class LibpngConfig(Configurator):
+
+    def setup_extension(self, ext, package, **kw):
+        """Add parameters to the given `ext` for the given `package`."""
+        if package != 'freetype2':
+            raise RuntimeError('package must be "freetype2"')
+        package = ''
+        return super(LibpngConfig, self).setup_extension(ext, package, **kw)
+
+    def get_version(self, package):
+        if package != 'libpng':
+            raise RuntimeError('package must be libpng')
+
+        status, output = getstatusoutput('libpng-config --version')
+        if status == 0:
+            return output
+        return None
 
 
 # The PkgConfig/FreetypeConfig class should be used through singletons
 pkg_config = PkgConfig('pkg-config')
 ft_config = FreetypeConfig('freetype-config')
+png_config = LibpngConfig('libpng-config')
 
 
 class CheckFailed(Exception):
