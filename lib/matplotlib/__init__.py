@@ -1048,6 +1048,7 @@ def rcdefaults():
     the rc file, but mpl's internal params.  See rc_file_defaults for
     reloading the default params from the rc file
     """
+    rcParams.clear()
     rcParams.update(rcParamsDefault)
 
 
