@@ -18,7 +18,10 @@ Interface::
           ...
 
 """
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
 
 import errno
 import matplotlib
@@ -30,7 +33,7 @@ import struct
 import sys
 import os
 
-if sys.version_info[0] >= 3:
+if six.PY3:
     def ord(x):
         return x
 
@@ -375,7 +378,7 @@ class Dvi(object):
         self.f = k
 
     def _xxx(self, special):
-        if sys.version_info[0] >= 3:
+        if six.PY3:
             matplotlib.verbose.report(
                 'Dvi._xxx: encountered special: %s'
                 % ''.join([(32 <= ord(ch) < 127) and chr(ch)
@@ -443,17 +446,17 @@ class DviFont(object):
     __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
 
     def __init__(self, scale, tfm, texname, vf):
-        if sys.version_info[0] >= 3 and isinstance(texname, bytes):
+        if six.PY3 and isinstance(texname, bytes):
             texname = texname.decode('ascii')
         self._scale, self._tfm, self.texname, self._vf = \
             scale, tfm, texname, vf
         self.size = scale * (72.0 / (72.27 * 2**16))
         try:
-            nchars = max(tfm.width.iterkeys()) + 1
+            nchars = max(six.iterkeys(tfm.width)) + 1
         except ValueError:
             nchars = 0
         self.widths = [ (1000*tfm.width.get(char, 0)) >> 20
-                        for char in range(nchars) ]
+                        for char in xrange(nchars) ]
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and \
@@ -634,13 +637,13 @@ class Tfm(object):
         with open(filename, 'rb') as file:
             header1 = file.read(24)
             lh, bc, ec, nw, nh, nd = \
-                struct.unpack('!6H', header1[2:14])
+                struct.unpack(str('!6H'), header1[2:14])
             matplotlib.verbose.report(
                 'lh=%d, bc=%d, ec=%d, nw=%d, nh=%d, nd=%d' % (
                     lh, bc, ec, nw, nh, nd), 'debug')
             header2 = file.read(4*lh)
             self.checksum, self.design_size = \
-                struct.unpack('!2I', header2[:8])
+                struct.unpack(str('!2I'), header2[:8])
             # there is also encoding information etc.
             char_info = file.read(4*(ec-bc+1))
             widths = file.read(4*nw)
@@ -649,7 +652,7 @@ class Tfm(object):
 
         self.width, self.height, self.depth = {}, {}, {}
         widths, heights, depths = \
-            [ struct.unpack('!%dI' % (len(x)/4), x)
+            [ struct.unpack(str('!%dI') % (len(x)/4), x)
               for x in (widths, heights, depths) ]
         for idx, char in enumerate(xrange(bc, ec+1)):
             self.width[char] = _fix2comp(widths[ord(char_info[4*idx])])

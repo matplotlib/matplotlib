@@ -6,6 +6,11 @@ http://stackoverflow.com/questions/2225995/how-can-i-create-stacked-line-graph-w
 (http://stackoverflow.com/users/66549/doug)
 
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
+
 import numpy as np
 
 __all__ = ['stackplot']
@@ -97,12 +102,12 @@ def stackplot(axes, x, *args, **kwargs):
 
     # Color between x = 0 and the first array.
     r.append(axes.fill_between(x, first_line, stack[0, :],
-                               facecolor=axes._get_lines.color_cycle.next(),
+                               facecolor=six.next(axes._get_lines.color_cycle),
                                **kwargs))
 
     # Color between array i-1 and array i
     for i in xrange(len(y) - 1):
-        color = axes._get_lines.color_cycle.next()
+        color = six.next(axes._get_lines.color_cycle)
         r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
                                    facecolor= color,
                                    **kwargs))

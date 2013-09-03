@@ -19,7 +19,10 @@ information.
 # dependency problems, or an undesired dependency on traits even
 # when the traits-based config framework is not used.
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import re, sys
 from pyparsing import Literal, ZeroOrMore, \
      Optional, Regex, StringEnd, ParseException, Suppress

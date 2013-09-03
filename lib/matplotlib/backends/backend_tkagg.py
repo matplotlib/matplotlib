@@ -1,11 +1,12 @@
 # Todd Miller   jmiller@stsci.edu
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import division, print_function
+import six
+from six.moves import tkinter as Tk
+from six.moves import tkinter_filedialog as FileDialog
 
 import os, sys, math
 import os.path
-
-import Tkinter as Tk, FileDialog
 
 # Paint image to Tk photo blitter extension
 import matplotlib.backends.tkagg as tkagg
@@ -55,7 +56,7 @@ def raise_msg_to_str(msg):
     return msg
 
 def error_msg_tkpaint(msg, parent=None):
-    import tkMessageBox
+    from six.moves import tkinter_messagebox as tkMessageBox
     tkMessageBox.showerror("matplotlib", msg)
 
 def draw_if_interactive():
@@ -745,8 +746,8 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
     def save_figure(self, *args):
-        from tkFileDialog import asksaveasfilename
-        from tkMessageBox import showerror
+        from six.moves.tkinter_filedialog import asksaveasfilename
+        from six.moves.tkinter_messagebox import showerror
         filetypes = self.canvas.get_supported_filetypes().copy()
         default_filetype = self.canvas.get_default_filetype()
 
@@ -755,7 +756,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         default_filetype_name = filetypes[default_filetype]
         del filetypes[default_filetype]
 
-        sorted_filetypes = filetypes.items()
+        sorted_filetypes = list(six.iteritems(filetypes))
         sorted_filetypes.sort()
         sorted_filetypes.insert(0, (default_filetype, default_filetype_name))
 
@@ -788,7 +789,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
                 rcParams['savefig.directory'] = initialdir
             else:
                 # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(unicode(fname))
+                rcParams['savefig.directory'] = os.path.dirname(six.text_type(fname))
             try:
                 # This method will handle the delegation to the correct type
                 self.canvas.print_figure(fname)

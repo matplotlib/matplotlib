@@ -1,10 +1,10 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import os
 import sys
-try:
-    from hashlib import md5
-except ImportError:
-    from md5 import md5
+from hashlib import md5
 
 from docutils import nodes
 from docutils.parsers.rst import directives

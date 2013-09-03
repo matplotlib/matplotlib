@@ -4,6 +4,10 @@
 """
 Various transforms used for by the 3D code
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import zip
 
 from matplotlib.collections import LineCollection
 from matplotlib.patches import Circle
@@ -71,7 +75,7 @@ def test_lines_dists():
 
     xs, ys = (0,30), (20,150)
     pylab.plot(xs, ys)
-    points = zip(xs, ys)
+    points = list(zip(xs, ys))
     p0, p1 = points
 
     xs, ys = (0,0,20,30), (100,150,30,200)
@@ -106,7 +110,7 @@ def test_world():
     ymin, ymax = -100, 100
     zmin, zmax = 0.1, 0.2
     M = world_transformation(xmin, xmax, ymin, ymax, zmin, zmax)
-    print M
+    print(M)
 
 def view_transformation(E, R, V):
     n = (E - R)
@@ -204,14 +208,14 @@ def proj_transform_clip(xs, ys, zs, M):
 transform = proj_transform
 
 def proj_points(points, M):
-    return zip(*proj_trans_points(points, M))
+    return list(zip(*proj_trans_points(points, M)))
 
 def proj_trans_points(points, M):
-    xs, ys, zs = zip(*points)
+    xs, ys, zs = list(zip(*points))
     return proj_transform(xs, ys, zs, M)
 
 def proj_trans_clip_points(points, M):
-    xs, ys, zs = zip(*points)
+    xs, ys, zs = list(zip(*points))
     return proj_transform_clip(xs, ys, zs, M)
 
 def test_proj_draw_axes(M, s=1):
@@ -273,9 +277,9 @@ def rot_x(V, alpha):
 
 def test_rot():
     V = [1,0,0,1]
-    print rot_x(V, np.pi/6)
+    print(rot_x(V, np.pi/6))
     V = [0,1,0,1]
-    print rot_x(V, np.pi/6)
+    print(rot_x(V, np.pi/6))
 
 
 if __name__ == "__main__":

@@ -22,8 +22,13 @@ Sources:
   v1.1, 1993. ISBN 0-201-57044-0.
 """
 
-from __future__ import print_function
-import matplotlib.cbook as cbook
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import filter
+if six.PY3:
+    unichr = chr
+
 import io
 import itertools
 import numpy as np
@@ -31,7 +36,7 @@ import re
 import struct
 import sys
 
-if sys.version_info[0] >= 3:
+if six.PY3:
     def ord(x):
         return x
 
@@ -80,7 +85,7 @@ class Type1Font(object):
                                    'got %d)' % ord(rawdata[0]))
             type = ord(rawdata[1])
             if type in (1, 2):
-                length, = struct.unpack('<i', rawdata[2:6])
+                length, = struct.unpack(str('<i'), rawdata[2:6])
                 segment = rawdata[6:6 + length]
                 rawdata = rawdata[6 + length:]
 
@@ -200,7 +205,7 @@ class Type1Font(object):
         prop = {'weight': 'Regular', 'ItalicAngle': 0.0, 'isFixedPitch': False,
                 'UnderlinePosition': -100, 'UnderlineThickness': 50}
         tokenizer = self._tokens(self.parts[0])
-        filtered = itertools.ifilter(lambda x: x[0] != 'whitespace', tokenizer)
+        filtered = filter(lambda x: x[0] != 'whitespace', tokenizer)
         for token, value in filtered:
             if token == b'name' and value.startswith(b'/'):
                 key = value[1:]
@@ -315,8 +320,9 @@ class Type1Font(object):
             for value in self._transformer(tokenizer,
                                            slant=effects.get('slant', 0.0),
                                            extend=effects.get('extend', 1.0)):
-                if sys.version_info[0] >= 3 and isinstance(value, int):
-                    value = chr(value).encode('latin-1')
+                if six.PY3 and isinstance(value, int):
+                    value = chr(value)
+                value = value.encode('latin-1')
                 buffer.write(value)
             result = buffer.getvalue()
         finally:

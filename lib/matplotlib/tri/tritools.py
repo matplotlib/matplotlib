@@ -1,7 +1,10 @@
 """
 Tools for triangular grids.
 """
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 from matplotlib.tri import Triangulation
 import numpy as np
 

@@ -18,7 +18,10 @@ Naming Conventions
   * functions underscore_separated
 """
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import os, sys, warnings, gzip
 
 import numpy as np
@@ -193,10 +196,9 @@ class RendererCairo(RendererBase):
             if angle:
                 ctx.rotate (-angle * np.pi / 180)
             ctx.set_font_size (size)
-            if sys.version_info[0] < 3:
-                ctx.show_text(s.encode("utf-8"))
-            else:
-                ctx.show_text(s)
+            if isinstance(s, six.text_type):
+                s = s.encode("utf-8")
+            ctx.show_text(s)
             ctx.restore()
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
@@ -223,10 +225,9 @@ class RendererCairo(RendererBase):
 
             size = fontsize * self.dpi / 72.0
             ctx.set_font_size(size)
-            if sys.version_info[0] < 3:
-                ctx.show_text(s.encode("utf-8"))
-            else:
-                ctx.show_text(s)
+            if isinstance(s, six.text_type):
+                s = s.encode("utf-8")
+            ctx.show_text(s)
             ctx.restore()
 
         for ox, oy, w, h in rects:

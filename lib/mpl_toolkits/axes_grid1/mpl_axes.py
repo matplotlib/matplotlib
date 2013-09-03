@@ -1,3 +1,7 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import warnings
 
 import matplotlib.axes as maxes
@@ -20,7 +24,7 @@ class SimpleChainedObjects(object):
 class Axes(maxes.Axes):
     def toggle_axisline(self, b):
         warnings.warn("toggle_axisline is not necessary and deprecated in axes_grid1")
-        
+
     class AxisDict(dict):
         def __init__(self, axes):
             self.axes = axes
@@ -32,7 +36,7 @@ class Axes(maxes.Axes):
                 return r
             elif isinstance(k, slice):
                 if k.start == None and k.stop == None and k.step == None:
-                    r = SimpleChainedObjects(self.values())
+                    r = SimpleChainedObjects(list(six.itervalues(self)))
                     return r
                 else:
                     raise ValueError("Unsupported slice")
@@ -58,7 +62,7 @@ class Axes(maxes.Axes):
         self._axislines["top"] = SimpleAxisArtist(self.xaxis, 2, self.spines["top"])
         self._axislines["left"] = SimpleAxisArtist(self.yaxis, 1, self.spines["left"])
         self._axislines["right"] = SimpleAxisArtist(self.yaxis, 2, self.spines["right"])
-        
+
 
     def _get_axislines(self):
         return self._axislines
@@ -84,7 +88,7 @@ class SimpleAxisArtist(Artist):
         else:
             raise ValueError("axis must be instance of XAxis or YAxis : %s is provided" % (axis,))
         Artist.__init__(self)
-        
+
 
     def _get_major_ticks(self):
         tickline = "tick%dline" % self._axisnum
@@ -108,10 +112,10 @@ class SimpleAxisArtist(Artist):
         self.line.set_visible(b)
         self._axis.set_visible(True)
         Artist.set_visible(self, b)
-        
+
     def set_label(self, txt):
         self._axis.set_label_text(txt)
-        
+
     def toggle(self, all=None, ticks=None, ticklabels=None, label=None):
 
         if all:
@@ -145,11 +149,10 @@ class SimpleAxisArtist(Artist):
             elif _label:
                 self._axis.label.set_visible(True)
                 self._axis.set_label_position(self._axis_direction)
-        
+
 
 if __name__ == '__main__':
     fig = figure()
     ax = Axes(fig, [0.1, 0.1, 0.8, 0.8])
     fig.add_axes(ax)
     ax.cla()
-    

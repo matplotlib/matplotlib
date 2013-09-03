@@ -2,14 +2,13 @@
 A PostScript backend, which can produce both PostScript .ps and .eps
 """
 
-# PY3KTODO: Get rid of "print >>fh" syntax
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import division, print_function
+import six
+
 import glob, math, os, shutil, sys, time
 def _fn_name(): return sys._getframe(1).f_code.co_name
 import io
-if sys.version_info[0] < 3:
-    import cStringIO
 
 try:
     from hashlib import md5
@@ -90,7 +89,7 @@ class PsBackendHelper(object):
         from matplotlib.compat.subprocess import Popen, PIPE
         pipe = Popen(self.gs_exe + " --version",
                      shell=True, stdout=PIPE).stdout
-        if sys.version_info[0] >= 3:
+        if six.PY3:
             ver = pipe.read().decode('ascii')
         else:
             ver = pipe.read()
@@ -135,7 +134,7 @@ papersize = {'letter': (8.5,11),
              'b10': (1.26,1.76)}
 
 def _get_papertype(w, h):
-    keys = papersize.keys()
+    keys = list(six.iterkeys(papersize))
     keys.sort()
     keys.reverse()
     for key in keys:
@@ -239,7 +238,7 @@ class RendererPS(RendererBase):
         used_characters[1].update([ord(x) for x in s])
 
     def merge_used_characters(self, other):
-        for stat_key, (realpath, charset) in other.iteritems():
+        for stat_key, (realpath, charset) in six.iteritems(other):
             used_characters = self.used_characters.setdefault(
                 stat_key, (realpath, set()))
             used_characters[1].update(charset)
@@ -379,7 +378,7 @@ class RendererPS(RendererBase):
                     "Helvetica", fontext='afm', directory=self._afm_font_dir)
             font = self.afmfontd.get(fname)
             if font is None:
-                with open(fname, 'rb') as fh:
+                with io.open(fname, 'rb') as fh:
                     font = AFM(fh)
                 self.afmfontd[fname] = font
             self.afmfontd[key] = font
@@ -986,7 +985,7 @@ class FigureCanvasPS(FigureCanvasBase):
             pass
         elif papertype not in papersize:
             raise RuntimeError( '%s is not a valid papertype. Use one \
-                    of %s'% (papertype, ', '.join( papersize.iterkeys() )) )
+                    of %s'% (papertype, ', '.join(six.iterkeys(papersize))))
 
         orientation = kwargs.pop("orientation", "portrait").lower()
         if orientation == 'landscape': isLandscape = True
@@ -1084,10 +1083,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
             self._pswriter = NullWriter()
         else:
-            if sys.version_info[0] >= 3:
-                self._pswriter = io.StringIO()
-            else:
-                self._pswriter = cStringIO.StringIO()
+            self._pswriter = io.StringIO()
 
 
         # mixed mode rendering
@@ -1107,10 +1103,7 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_edgecolor(origedgecolor)
 
         def print_figure_impl():
-            if sys.version_info[0] >= 3:
-                fh = io.TextIOWrapper(raw_fh, encoding="ascii")
-            else:
-                fh = raw_fh
+            fh = io.TextIOWrapper(raw_fh, encoding="ascii")
 
             # write the PostScript headers
             if isEPSF: print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
@@ -1136,7 +1129,7 @@ class FigureCanvasPS(FigureCanvasBase):
                 for l in d.split('\n'):
                     print(l.strip(), file=fh)
             if not rcParams['ps.useafm']:
-                for font_filename, chars in ps_renderer.used_characters.itervalues():
+                for font_filename, chars in six.itervalues(ps_renderer.used_characters):
                     if len(chars):
                         font = FT2Font(str(font_filename))
                         cmap = font.get_charmap()
@@ -1181,7 +1174,7 @@ class FigureCanvasPS(FigureCanvasBase):
             if not isEPSF: print("%%EOF", file=fh)
             fh.flush()
 
-            if sys.version_info[0] >= 3:
+            if six.PY3:
                 fh.detach()
 
         if rcParams['ps.usedistiller']:
@@ -1196,7 +1189,7 @@ class FigureCanvasPS(FigureCanvasBase):
                 raw_fh = outfile
                 print_figure_impl()
             else:
-                with open(outfile, 'wb') as raw_fh:
+                with io.open(outfile, 'wb') as raw_fh:
                     print_figure_impl()
 
         if rcParams['ps.usedistiller']:
@@ -1206,10 +1199,10 @@ class FigureCanvasPS(FigureCanvasBase):
                 xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
 
             if passed_in_file_object:
-                with open(tmpfile, 'rb') as fh:
+                with io.open(tmpfile, 'rb') as fh:
                     outfile.write(fh.read())
             else:
-                with open(outfile, 'w') as fh:
+                with io.open(outfile, 'w') as fh:
                     pass
                 mode = os.stat(outfile).st_mode
                 shutil.move(tmpfile, outfile)
@@ -1252,7 +1245,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
             self._pswriter = NullWriter()
         else:
-            if sys.version_info[0] >= 3:
+            if six.PY3:
                 self._pswriter = io.StringIO()
             else:
                 self._pswriter = cStringIO.StringIO()
@@ -1276,7 +1269,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # write to a temp file, we'll move it to outfile when done
         fd, tmpfile = mkstemp()
-        if sys.version_info[0] >= 3:
+        if six.PY3:
             fh = io.open(fd, 'w', encoding='ascii')
         else:
             fh = io.open(fd, 'wb')
@@ -1361,7 +1354,7 @@ class FigureCanvasPS(FigureCanvasBase):
                              rotated=psfrag_rotated)
 
         is_file = False
-        if sys.version_info[0] >= 3:
+        if six.PY3:
             if isinstance(outfile, io.IOBase):
                 is_file = True
         else:
@@ -1369,10 +1362,10 @@ class FigureCanvasPS(FigureCanvasBase):
                 is_file = True
 
         if is_file:
-            with open(tmpfile, 'rb') as fh:
+            with io.open(tmpfile, 'rb') as fh:
                 outfile.write(fh.read())
         else:
-            with open(outfile, 'wb') as fh:
+            with io.open(outfile, 'wb') as fh:
                 pass
             mode = os.stat(outfile).st_mode
             shutil.move(tmpfile, outfile)
@@ -1399,28 +1392,28 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     else: angle = 0
 
     if rcParams['text.latex.unicode']:
-        unicode_preamble = r"""\usepackage{ucs}
-\usepackage[utf8x]{inputenc}"""
+        unicode_preamble = """\\usepackage{ucs}
+\\usepackage[utf8x]{inputenc}"""
     else:
         unicode_preamble = ''
 
-    s = r"""\documentclass{article}
+    s = """\\documentclass{article}
 %s
 %s
 %s
-\usepackage[dvips, papersize={%sin,%sin}, body={%sin,%sin}, margin={0in,0in}]{geometry}
-\usepackage{psfrag}
-\usepackage[dvips]{graphicx}
-\usepackage{color}
-\pagestyle{empty}
-\begin{document}
-\begin{figure}
-\centering
-\leavevmode
+\\usepackage[dvips, papersize={%sin,%sin}, body={%sin,%sin}, margin={0in,0in}]{geometry}
+\\usepackage{psfrag}
+\\usepackage[dvips]{graphicx}
+\\usepackage{color}
+\\pagestyle{empty}
+\\begin{document}
+\\begin{figure}
+\\centering
+\\leavevmode
 %s
-\includegraphics*[angle=%s]{%s}
-\end{figure}
-\end{document}
+\\includegraphics*[angle=%s]{%s}
+\\end{figure}
+\\end{document}
 """% (font_preamble, unicode_preamble, custom_preamble, paperWidth, paperHeight,
       paperWidth, paperHeight,
       '\n'.join(psfrags), angle, os.path.split(epsfile)[-1])
@@ -1477,7 +1470,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     # the generated ps file is in landscape and return this
     # information. The return value is used in pstoeps step to recover
     # the correct bounding box. 2010-06-05 JJL
-    with open(tmpfile) as fh:
+    with io.open(tmpfile) as fh:
         if "Landscape" in fh.read(1000):
             psfrag_rotated = True
         else:

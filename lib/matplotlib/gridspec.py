@@ -14,7 +14,10 @@ of the subplot in the figure.
 
 """
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import zip
 
 import matplotlib
 rcParams = matplotlib.rcParams
@@ -101,7 +104,7 @@ class GridSpecBase(object):
             cellHeights = [cellH] * nrows
 
         sepHeights = [0] + ([sepH] * (nrows-1))
-        cellHs = np.add.accumulate(np.ravel(zip(sepHeights, cellHeights)))
+        cellHs = np.add.accumulate(np.ravel(list(zip(sepHeights, cellHeights))))
 
 
         # calculate accumulated widths of rows
@@ -116,7 +119,7 @@ class GridSpecBase(object):
             cellWidths = [cellW] * ncols
 
         sepWidths = [0] + ([sepW] * (ncols-1))
-        cellWs = np.add.accumulate(np.ravel(zip(sepWidths, cellWidths)))
+        cellWs = np.add.accumulate(np.ravel(list(zip(sepWidths, cellWidths))))
 
 
 
@@ -219,7 +222,7 @@ class GridSpec(GridSpecBase):
         the current value, if set, otherwise to rc.
         """
 
-        for k, v in kwargs.iteritems():
+        for k, v in six.iteritems(kwargs):
             if k in self._AllowedKeys:
                 setattr(self, k, v)
             else:
@@ -228,7 +231,7 @@ class GridSpec(GridSpecBase):
 
         from matplotlib import _pylab_helpers
         from matplotlib.axes import SubplotBase
-        for figmanager in _pylab_helpers.Gcf.figs.itervalues():
+        for figmanager in six.itervalues(_pylab_helpers.Gcf.figs):
             for ax in figmanager.canvas.figure.axes:
                 # copied from Figure.subplots_adjust
                 if not isinstance(ax, SubplotBase):
@@ -289,9 +292,9 @@ class GridSpec(GridSpecBase):
             labels) will fit into. Default is (0, 0, 1, 1).
         """
 
-        from tight_layout import (get_subplotspec_list,
-                                  get_tight_layout_figure,
-                                  get_renderer)
+        from .tight_layout import (get_subplotspec_list,
+                                   get_tight_layout_figure,
+                                   get_renderer)
 
         subplotspec_list = get_subplotspec_list(fig.axes, grid_spec=self)
         if None in subplotspec_list:

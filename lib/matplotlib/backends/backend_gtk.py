@@ -1,9 +1,11 @@
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 import os, sys, warnings
 def fn_name(): return sys._getframe(1).f_code.co_name
 
-if sys.version_info[0] >= 3:
+if six.PY3:
     warnings.warn(
         "The gtk* backends have not been tested with Python 3.x",
         ImportWarning)
@@ -756,7 +758,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
                 rcParams['savefig.directory'] = startpath
             else:
                 # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(unicode(fname))
+                rcParams['savefig.directory'] = os.path.dirname(six.text_type(fname))
             try:
                 self.canvas.print_figure(fname, format=format)
             except Exception as e:
@@ -829,7 +831,7 @@ class FileChooserDialog(gtk.FileChooserDialog):
         hbox.pack_start (cbox)
 
         self.filetypes = filetypes
-        self.sorted_filetypes = filetypes.items()
+        self.sorted_filetypes = list(six.iteritems(filetypes.items))
         self.sorted_filetypes.sort()
         default = 0
         for i, (ext, name) in enumerate(self.sorted_filetypes):

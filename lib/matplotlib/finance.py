@@ -6,18 +6,26 @@ This module is deprecated in 1.4 and will be moved to `mpl_toolkits`
 or it's own project in the future.
 
 """
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange, zip
+
 import contextlib
 import os
 import sys
 import warnings
-from urllib2 import urlopen
 
-if sys.version_info[0] < 3:
-    from hashlib import md5
+if six.PY3:
+    from urllib.request import urlopen
 else:
+    from urllib2 import urlopen
+
+if six.PY3:
     import hashlib
     md5 = lambda x: hashlib.md5(x.encode())
+else:
+    from hashlib import md5
 
 import datetime
 
@@ -44,30 +52,33 @@ else:
     cachedir = None
 
 
-stock_dt_ohlc = np.dtype([('date', object),
-                     ('year', np.int16),
-                     ('month', np.int8),
-                     ('day', np.int8),
-                     ('d', np.float),     # mpl datenum
-                     ('open', np.float),
-                     ('high', np.float),
-                     ('low', np.float),
-                     ('close', np.float),
-                     ('volume', np.float),
-                     ('aclose', np.float)])
+stock_dt_ohlc = np.dtype([
+    (str('date'), object),
+    (str('year'), np.int16),
+    (str('month'), np.int8),
+    (str('day'), np.int8),
+    (str('d'), np.float),     # mpl datenum
+    (str('open'), np.float),
+    (str('high'), np.float),
+    (str('low'), np.float),
+    (str('close'), np.float),
+    (str('volume'), np.float),
+    (str('aclose'), np.float)])
 
 
-stock_dt_ochl = np.dtype([('date', object),
-                     ('year', np.int16),
-                     ('month', np.int8),
-                     ('day', np.int8),
-                     ('d', np.float),     # mpl datenum
-                     ('open', np.float),
-                     ('close', np.float),
-                     ('high', np.float),
-                     ('low', np.float),
-                     ('volume', np.float),
-                     ('aclose', np.float)])
+stock_dt_ochl = np.dtype(
+    [(str('date'), object),
+     (str('year'), np.int16),
+     (str('month'), np.int8),
+     (str('day'), np.int8),
+     (str('d'), np.float),     # mpl datenum
+     (str('open'), np.float),
+     (str('close'), np.float),
+     (str('high'), np.float),
+     (str('low'), np.float),
+     (str('volume'), np.float),
+     (str('aclose'), np.float)])
+
 
 _warn_str = ("This function has been deprecated in 1.4 in favor "
              "of `{fun}_ochl`, "
@@ -1533,7 +1544,7 @@ def volume_overlay3(ax, quotes,
               False: colordown,
               }
 
-    dates, opens, highs, lows, closes, volumes = zip(*quotes)
+    dates, opens, highs, lows, closes, volumes = list(zip(*quotes))
     colors = [colord[close1 >= close0]
               for close0, close1 in zip(closes[:-1], closes[1:])
               if close0 != -1 and close1 != -1]

@@ -1,8 +1,10 @@
-from __future__ import print_function
-from io import BytesIO
-import xml.parsers.expat
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 import numpy as np
+from io import BytesIO
+import xml.parsers.expat
 
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup

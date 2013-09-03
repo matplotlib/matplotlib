@@ -10,7 +10,10 @@
 #===========================================================================
 # Place all imports after here.
 #
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import math
 import datetime as DT
 from matplotlib.dates import date2num
@@ -69,8 +72,8 @@ class Epoch:
 
       if frame not in self.allowed:
          msg = "Input frame '%s' is not one of the supported frames of %s" \
-               % ( frame, str( self.allowed.keys() ) )
-         raise ValueError( msg )
+               % ( frame, str( list(six.iterkeys(self.allowed) ) ) )
+         raise ValueError(msg)
 
       self._frame = frame
 

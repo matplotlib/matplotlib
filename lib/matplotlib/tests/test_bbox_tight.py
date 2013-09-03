@@ -1,4 +1,7 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
 
 import numpy as np
 
@@ -47,7 +50,7 @@ def test_bbox_inches_tight():
 @image_comparison(baseline_images=['bbox_inches_tight_suptile_legend'],
                   remove_text=False, savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_tight_suptile_legend():
-    plt.plot(range(10), label='a straight line')
+    plt.plot(list(xrange(10)), label='a straight line')
     plt.legend(bbox_to_anchor=(0.9, 1), loc=2, )
     plt.title('Axis title')
     plt.suptitle('Figure title')
@@ -68,7 +71,7 @@ def test_bbox_inches_tight_suptile_legend():
 def test_bbox_inches_tight_clipping():
     # tests bbox clipping on scatter points, and path clipping on a patch
     # to generate an appropriately tight bbox
-    plt.scatter(range(10), range(10))
+    plt.scatter(list(xrange(10)), list(xrange(10)))
     ax = plt.gca()
     ax.set_xlim([0, 5])
     ax.set_ylim([0, 5])

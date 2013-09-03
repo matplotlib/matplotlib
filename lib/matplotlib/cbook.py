@@ -6,7 +6,10 @@ This module is safe to import from anywhere within matplotlib;
 it imports matplotlib only at runtime.
 """
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
 
 import datetime
 import errno
@@ -228,30 +231,10 @@ def deprecated(since, message='', name='', alternative='', pending=False,
 # On some systems, getpreferredencoding sets the locale, which has
 # side effects.  Passing False eliminates those side effects.
 
-if sys.version_info[0] >= 3:
-    def unicode_safe(s):
-        import matplotlib
+def unicode_safe(s):
+    import matplotlib
 
-        try:
-            preferredencoding = locale.getpreferredencoding(
-                matplotlib.rcParams['axes.formatter.use_locale']).strip()
-            if not preferredencoding:
-                preferredencoding = None
-        except (ValueError, ImportError, AttributeError):
-            preferredencoding = None
-
-        if isinstance(s, bytes):
-            if preferredencoding is None:
-                return unicode(s)
-            else:
-                # We say "unicode" and not "str" here so it passes through
-                # 2to3 correctly.
-                return unicode(s, preferredencoding)
-        return s
-else:
-    def unicode_safe(s):
-        import matplotlib
-
+    if isinstance(s, bytes):
         try:
             preferredencoding = locale.getpreferredencoding(
                 matplotlib.rcParams['axes.formatter.use_locale']).strip()
@@ -261,9 +244,10 @@ else:
             preferredencoding = None
 
         if preferredencoding is None:
-            return unicode(s)
+            return six.text_type(s)
         else:
-            return unicode(s, preferredencoding)
+            return six.text_type(s, preferredencoding)
+    return s
 
 
 class converter(object):
@@ -360,8 +344,12 @@ class _BoundMethodProxy(object):
                 self.inst = ref(cb.im_self)
             except TypeError:
                 self.inst = None
-            self.func = cb.im_func
-            self.klass = cb.im_class
+            if six.PY3:
+                self.func = cb.__func__
+                self.klass = cb.__self__.__class__
+            else:
+                self.func = cb.im_func
+                self.klass = cb.im_class
         except AttributeError:
             self.inst = None
             self.func = cb
@@ -430,9 +418,9 @@ class CallbackRegistry:
     callbacks:
 
         >>> def oneat(x):
-        ...    print 'eat', x
+        ...    print('eat', x)
         >>> def ondrink(x):
-        ...    print 'drink', x
+        ...    print('drink', x)
 
         >>> from matplotlib.cbook import CallbackRegistry
         >>> callbacks = CallbackRegistry()
@@ -503,14 +491,15 @@ class CallbackRegistry:
         """
         disconnect the callback registered with callback id *cid*
         """
-        for eventname, callbackd in self.callbacks.items():
+        for eventname, callbackd in list(six.iteritems(self.callbacks)):
             try:
                 del callbackd[cid]
             except KeyError:
                 continue
             else:
-                for category, functions in self._func_cid_map.items():
-                    for function, value in functions.items():
+                for category, functions in list(
+                        six.iteritems(self._func_cid_map)):
+                    for function, value in list(six.iteritems(functions)):
                         if value == cid:
                             del functions[function]
                 return
@@ -521,7 +510,7 @@ class CallbackRegistry:
         callbacks on *s* will be called with *\*args* and *\*\*kwargs*
         """
         if s in self.callbacks:
-            for cid, proxy in self.callbacks[s].items():
+            for cid, proxy in list(six.iteritems(self.callbacks[s])):
                 # Clean out dead references
                 if proxy.inst is not None and proxy.inst() is None:
                     del self.callbacks[s][cid]
@@ -647,7 +636,7 @@ class Bunch:
         self.__dict__.update(kwds)
 
     def __repr__(self):
-        keys = self.__dict__.iterkeys()
+        keys = six.iterkeys(self.__dict__)
         return 'Bunch(%s)' % ', '.join(['%s=%s' % (k, self.__dict__[k])
                                         for k
                                         in keys])
@@ -655,7 +644,7 @@ class Bunch:
 
 def unique(x):
     'Return a list of unique elements of *x*'
-    return dict([(val, 1) for val in x]).keys()
+    return list(six.iterkeys(dict([(val, 1) for val in x])))
 
 
 def iterable(obj):
@@ -669,7 +658,7 @@ def iterable(obj):
 
 def is_string_like(obj):
     'Return True if *obj* looks like a string'
-    if isinstance(obj, (str, unicode)):
+    if isinstance(obj, six.string_types):
         return True
     # numpy strings are subclass of str, ma strings are not
     if ma.isMaskedArray(obj):
@@ -700,7 +689,7 @@ def is_sequence_of_strings(obj):
 
 def is_writable_file_like(obj):
     'return true if *obj* looks like a file object with a *write* method'
-    return hasattr(obj, 'write') and callable(obj.write)
+    return hasattr(obj, 'write') and six.callable(obj.write)
 
 
 def is_scalar(obj):
@@ -808,7 +797,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
 
         >>> from matplotlib.cbook import flatten
         >>> l = (('John', ['Hunter']), (1, 23), [[([42, (5, 23)], )]])
-        >>> print list(flatten(l))
+        >>> print(list(flatten(l)))
         ['John', 'Hunter', 1, 23, 42, 5, 23]
 
     By: Composite of Holger Krekel and Luther Blissett
@@ -892,7 +881,7 @@ class Xlator(dict):
 
     def _make_regex(self):
         """ Build re object based on the keys of the current dictionary """
-        return re.compile("|".join(map(re.escape, self.iterkeys())))
+        return re.compile("|".join(map(re.escape, list(six.iterkeys(self)))))
 
     def __call__(self, match):
         """ Handler invoked for each regex *match* """
@@ -946,8 +935,12 @@ class Null:
     def __repr__(self):
         return "Null()"
 
-    def __nonzero__(self):
-        return 0
+    if six.PY3:
+        def __bool__(self):
+            return 0
+    else:
+        def __nonzero__(self):
+            return 0
 
     def __getattr__(self, name):
         return self
@@ -1185,10 +1178,10 @@ def pieces(seq, num=2):
 
 
 def exception_to_str(s=None):
-    if sys.version_info[0] < 3:
-        sh = io.BytesIO()
-    else:
+    if six.PY3:
         sh = io.StringIO()
+    else:
+        sh = io.BytesIO()
     if s is not None:
         print(s, file=sh)
     traceback.print_exc(file=sh)
@@ -1384,7 +1377,7 @@ def finddir(o, match, case=False):
 
 def reverse_dict(d):
     'reverse the dictionary -- may lose data if values are not unique!'
-    return dict([(v, k) for k, v in d.iteritems()])
+    return dict([(v, k) for k, v in six.iteritems(d)])
 
 
 def restrict_dict(d, keys):
@@ -1392,7 +1385,7 @@ def restrict_dict(d, keys):
     Return a dictionary that contains those keys that appear in both
     d and keys, with values from d.
     """
-    return dict([(k, v) for (k, v) in d.iteritems() if k in keys])
+    return dict([(k, v) for (k, v) in six.iteritems(d) if k in keys])
 
 
 def report_memory(i=0):  # argument may go away
@@ -1449,7 +1442,7 @@ def safezip(*args):
     for i, arg in enumerate(args[1:]):
         if len(arg) != Nx:
             raise ValueError(_safezip_msg % (Nx, i + 1, len(arg)))
-    return zip(*args)
+    return list(zip(*args))
 
 
 def issubclass_safe(x, klass):
@@ -1494,7 +1487,7 @@ class MemoryMonitor:
         n = self._n
         segments = min(n, segments)
         dn = int(n / segments)
-        ii = range(0, n, dn)
+        ii = list(xrange(0, n, dn))
         ii[-1] = n - 1
         print()
         print('memory report: i, mem, dmem, dmem/nloops')
@@ -1515,7 +1508,7 @@ class MemoryMonitor:
 
     def plot(self, i0=0, isub=1, fig=None):
         if fig is None:
-            from pylab import figure
+            from .pylab import figure
             fig = figure()
 
         ax = fig.add_subplot(111)
@@ -1546,7 +1539,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
 
             outstream.write("   %s -- " % str(type(step)))
             if isinstance(step, dict):
-                for key, val in step.iteritems():
+                for key, val in six.iteritems(step):
                     if val is next:
                         outstream.write("[%s]" % repr(key))
                         break
@@ -1692,13 +1685,13 @@ class Grouper(object):
 
         # Mark each group as we come across if by appending a token,
         # and don't yield it twice
-        for group in self._mapping.itervalues():
+        for group in six.itervalues(self._mapping):
             if not group[-1] is token:
                 yield [x() for x in group]
                 group.append(token)
 
         # Cleanup the tokens
-        for group in self._mapping.itervalues():
+        for group in six.itervalues(self._mapping):
             if group[-1] is token:
                 del group[-1]
 
@@ -1933,7 +1926,7 @@ def is_math_text(s):
     # Did we find an even number of non-escaped dollar signs?
     # If so, treat is as math text.
     try:
-        s = unicode(s)
+        s = six.text_type(s)
     except UnicodeDecodeError:
         raise ValueError(
             "matplotlib display text must have all code points < 128 or use "
@@ -1972,8 +1965,12 @@ class _InstanceMethodPickler(object):
     """
     def __init__(self, instancemethod):
         """Takes an instancemethod as its only argument."""
-        self.parent_obj = instancemethod.im_self
-        self.instancemethod_name = instancemethod.im_func.__name__
+        if six.PY3:
+            self.parent_obj = instancemethod.__self__
+            self.instancemethod_name = instancemethod.__func__.__name__
+        else:
+            self.parent_obj = instancemethod.im_self
+            self.instancemethod_name = instancemethod.im_func.__name__
 
     def get_instancemethod(self):
         return getattr(self.parent_obj, self.instancemethod_name)

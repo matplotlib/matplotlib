@@ -19,7 +19,10 @@ the advantage that it is the standard way to look up fonts on X11
 platforms, so if a font is installed, it is much more likely to be
 found.
 """
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import cPickle as pickle
 
 """
 KNOWN ISSUES
@@ -57,11 +60,6 @@ import matplotlib.cbook as cbook
 from matplotlib.compat import subprocess
 from matplotlib.fontconfig_pattern import \
     parse_fontconfig_pattern, generate_fontconfig_pattern
-
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
 
 USE_FONTCONFIG = False
 
@@ -181,19 +179,19 @@ def win32FontDirectory():
     If the key is not found, $WINDIR/Fonts will be returned.
     """
     try:
-        import _winreg
+        from six.moves import winreg
     except ImportError:
         pass # Fall through to default
     else:
         try:
-            user = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, MSFolders)
+            user = winreg.OpenKey(winreg.HKEY_CURRENT_USER, MSFolders)
             try:
                 try:
-                    return _winreg.QueryValueEx(user, 'Fonts')[0]
+                    return winreg.QueryValueEx(user, 'Fonts')[0]
                 except OSError:
                     pass # Fall through to default
             finally:
-                _winreg.CloseKey(user)
+                winreg.CloseKey(user)
         except OSError:
             pass # Fall through to default
     return os.path.join(os.environ['WINDIR'], 'Fonts')
@@ -206,7 +204,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
     'afm'.
     """
 
-    import _winreg
+    from six.moves import winreg
     if directory is None:
         directory = win32FontDirectory()
 
@@ -215,16 +213,16 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
     key, items = None, {}
     for fontdir in MSFontDirectories:
         try:
-            local = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, fontdir)
+            local = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, fontdir)
         except OSError:
             continue
 
         if not local:
             return list_fonts(directory, fontext)
         try:
-            for j in range(_winreg.QueryInfoKey(local)[1]):
+            for j in range(winreg.QueryInfoKey(local)[1]):
                 try:
-                    key, direc, any = _winreg.EnumValue( local, j)
+                    key, direc, any = winreg.EnumValue( local, j)
                     if not is_string_like(direc):
                         continue
                     if not os.path.dirname(direc):
@@ -238,9 +236,9 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
                     continue
                 except MemoryError:
                     continue
-            return items.keys()
+            return list(six.iterkeys(items))
         finally:
-            _winreg.CloseKey(local)
+            winreg.CloseKey(local)
     return None
 
 def OSXInstalledFonts(directories=None, fontext='ttf'):
@@ -273,7 +271,7 @@ def get_fontconfig_fonts(fontext='ttf'):
     try:
         pipe = subprocess.Popen(['fc-list', '', 'file'], stdout=subprocess.PIPE)
         output = pipe.communicate()[0]
-    except OSError, IOError:
+    except (OSError, IOError):
         # Calling fc-list did not work, so we'll just return nothing
         return fontfiles
 
@@ -318,7 +316,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
             for f in get_fontconfig_fonts(fontext):
                 fontfiles[f] = 1
 
-    elif isinstance(fontpaths, (str, unicode)):
+    elif isinstance(fontpaths, six.string_types):
         fontpaths = [fontpaths]
 
     for path in fontpaths:
@@ -326,14 +324,14 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
         for fname in files:
             fontfiles[os.path.abspath(fname)] = 1
 
-    return [fname for fname in fontfiles.iterkeys() if os.path.exists(fname)]
+    return [fname for fname in six.iterkeys(fontfiles) if os.path.exists(fname)]
 
 def weight_as_number(weight):
     """
     Return the weight property as a numeric value.  String values
     are converted to their corresponding numeric value.
     """
-    if isinstance(weight, str):
+    if isinstance(weight, six.string_types):
         try:
             weight = weight_dict[weight.lower()]
         except KeyError:
@@ -423,7 +421,7 @@ def ttfFontProperty(font):
     #    lighter and bolder are also allowed.
 
     weight = None
-    for w in weight_dict.iterkeys():
+    for w in six.iterkeys(weight_dict):
         if sfnt4.find(w) >= 0:
             weight = w
             break
@@ -907,7 +905,7 @@ class FontProperties(object):
         support for it to be enabled.  We are merely borrowing its
         pattern syntax for use here.
         """
-        for key, val in self._parse_fontconfig_pattern(pattern).iteritems():
+        for key, val in six.iteritems(self._parse_fontconfig_pattern(pattern)):
             if type(val) == list:
                 getattr(self, "set_" + key)(val[0])
             else:
@@ -922,12 +920,12 @@ def ttfdict_to_fnames(d):
     flatten a ttfdict to all the filenames it contains
     """
     fnames = []
-    for named in d.itervalues():
-        for styled in named.itervalues():
-            for variantd in styled.itervalues():
-                for weightd in variantd.itervalues():
-                    for stretchd in weightd.itervalues():
-                        for fname in stretchd.itervalues():
+    for named in six.itervalues(d):
+        for styled in six.itervalues(named):
+            for variantd in six.itervalues(styled):
+                for weightd in six.itervalues(variantd):
+                    for stretchd in six.itervalues(weightd):
+                        for fname in six.itervalues(stretchd):
                             fnames.append(fname)
     return fnames
 
@@ -1296,7 +1294,7 @@ if USE_FONTCONFIG and sys.platform != 'win32':
         try:
             pipe = subprocess.Popen(['fc-match', '-sv', pattern], stdout=subprocess.PIPE)
             output = pipe.communicate()[0]
-        except OSError, IOError:
+        except (OSError, IOError):
             return None
         if pipe.returncode == 0:
             for match in _fc_match_regex.finditer(output):
@@ -1327,7 +1325,7 @@ else:
     if not 'TRAVIS' in os.environ:
         cachedir = get_cachedir()
         if cachedir is not None:
-            if sys.version_info[0] >= 3:
+            if six.PY3:
                 _fmcache = os.path.join(cachedir, 'fontList.py3k.cache')
             else:
                 _fmcache = os.path.join(cachedir, 'fontList.cache')

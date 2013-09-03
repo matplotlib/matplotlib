@@ -19,16 +19,20 @@ Copyright : 2004 John Gill and John Hunter
 License   : matplotlib license
 
 """
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
+
 import warnings
 
-import artist
-from artist import Artist, allow_rasterization
-from patches import Rectangle
-from cbook import is_string_like
+from . import artist
+from .artist import Artist, allow_rasterization
+from .patches import Rectangle
+from .cbook import is_string_like
 from matplotlib import docstring
-from text import Text
-from transforms import Bbox
+from .text import Text
+from .transforms import Bbox
 
 
 class Cell(Rectangle):
@@ -184,7 +188,7 @@ class Table(Artist):
         if is_string_like(loc) and loc not in self.codes:
             warnings.warn('Unrecognized location %s. Falling back on '
                           'bottom; valid locations are\n%s\t' %
-                          (loc, '\n\t'.join(self.codes.iterkeys())))
+                          (loc, '\n\t'.join(six.iterkeys(self.codes))))
             loc = 'bottom'
         if is_string_like(loc):
             loc = self.codes.get(loc, 1)
@@ -237,7 +241,7 @@ class Table(Artist):
         renderer.open_group('table')
         self._update_positions(renderer)
 
-        keys = self._cells.keys()
+        keys = list(six.iterkeys(self._cells))
         keys.sort()
         for key in keys:
             self._cells[key].draw(renderer)
@@ -250,7 +254,7 @@ class Table(Artist):
 
         Only include those in the range (0,0) to (maxRow, maxCol)"""
         boxes = [self._cells[pos].get_window_extent(renderer)
-                 for pos in self._cells.iterkeys()
+                 for pos in six.iterkeys(self._cells)
                  if pos[0] >= 0 and pos[1] >= 0]
 
         bbox = Bbox.union(boxes)
@@ -261,14 +265,14 @@ class Table(Artist):
 
         Returns T/F, {}
         """
-        if callable(self._contains):
+        if six.callable(self._contains):
             return self._contains(self, mouseevent)
 
         # TODO: Return index of the cell containing the cursor so that the user
         # doesn't have to bind to each one individually.
         if self._cachedRenderer is not None:
             boxes = [self._cells[pos].get_window_extent(self._cachedRenderer)
-                 for pos in self._cells.iterkeys()
+                 for pos in six.iterkeys(self._cells)
                  if pos[0] >= 0 and pos[1] >= 0]
             bbox = Bbox.union(boxes)
             return bbox.contains(mouseevent.x, mouseevent.y), {}
@@ -277,13 +281,13 @@ class Table(Artist):
 
     def get_children(self):
         'Return the Artists contained by the table'
-        return self._cells.values()
+        return list(six.itervalues(self._cells))
     get_child_artists = get_children  # backward compatibility
 
     def get_window_extent(self, renderer):
         'Return the bounding box of the table in window coords'
         boxes = [cell.get_window_extent(renderer)
-                 for cell in self._cells.values()]
+                 for cell in six.itervalues(self._cells)]
 
         return Bbox.union(boxes)
 
@@ -295,7 +299,7 @@ class Table(Artist):
         # Calculate row/column widths
         widths = {}
         heights = {}
-        for (row, col), cell in self._cells.iteritems():
+        for (row, col), cell in six.iteritems(self._cells):
             height = heights.setdefault(row, 0.0)
             heights[row] = max(height, cell.get_height())
             width = widths.setdefault(col, 0.0)
@@ -304,7 +308,7 @@ class Table(Artist):
         # work out left position for each column
         xpos = 0
         lefts = {}
-        cols = widths.keys()
+        cols = list(six.iterkeys(widths))
         cols.sort()
         for col in cols:
             lefts[col] = xpos
@@ -312,7 +316,7 @@ class Table(Artist):
 
         ypos = 0
         bottoms = {}
-        rows = heights.keys()
+        rows = list(six.iterkeys(heights))
         rows.sort()
         rows.reverse()
         for row in rows:
@@ -320,7 +324,7 @@ class Table(Artist):
             ypos += heights[row]
 
         # set cell positions
-        for (row, col), cell in self._cells.iteritems():
+        for (row, col), cell in six.iteritems(self._cells):
             cell.set_x(lefts[col])
             cell.set_y(bottoms[row])
 
@@ -351,9 +355,9 @@ class Table(Artist):
 
         if len(self._cells) == 0:
             return
-        fontsize = self._cells.values()[0].get_fontsize()
+        fontsize = list(six.itervalues(self._cells))[0].get_fontsize()
         cells = []
-        for key, cell in self._cells.iteritems():
+        for key, cell in six.iteritems(self._cells):
             # ignore auto-sized columns
             if key[1] in self._autoColumns:
                 continue
@@ -362,12 +366,12 @@ class Table(Artist):
             cells.append(cell)
 
         # now set all fontsizes equal
-        for cell in self._cells.itervalues():
+        for cell in six.itervalues(self._cells):
             cell.set_fontsize(fontsize)
 
     def scale(self, xscale, yscale):
         """ Scale column widths by xscale and row heights by yscale. """
-        for c in self._cells.itervalues():
+        for c in six.itervalues(self._cells):
             c.set_width(c.get_width() * xscale)
             c.set_height(c.get_height() * yscale)
 
@@ -378,13 +382,13 @@ class Table(Artist):
         ACCEPTS: a float in points
         """
 
-        for cell in self._cells.itervalues():
+        for cell in six.itervalues(self._cells):
             cell.set_fontsize(size)
 
     def _offset(self, ox, oy):
         'Move all the artists by ox,oy (axes coords)'
 
-        for c in self._cells.itervalues():
+        for c in six.itervalues(self._cells):
             x, y = c.get_x(), c.get_y()
             c.set_x(x + ox)
             c.set_y(y + oy)
@@ -416,7 +420,7 @@ class Table(Artist):
         else:
             # Position using loc
             (BEST, UR, UL, LL, LR, CL, CR, LC, UC, C,
-             TR, TL, BL, BR, R, L, T, B) = range(len(self.codes))
+             TR, TL, BL, BR, R, L, T, B) = list(xrange(len(self.codes)))
             # defaults for center
             ox = (0.5 - w / 2) - l
             oy = (0.5 - h / 2) - b

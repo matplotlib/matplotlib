@@ -1,22 +1,25 @@
 """
 An experimental support for curvilinear grid.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import six
+from six.moves import zip
 
 # TODO :
 
 # *. see if tick_iterator method can be simplified by reusing the parent method.
 
 from itertools import chain
-from grid_finder import GridFinder
+from .grid_finder import GridFinder
 
-from  axislines import AxisArtistHelper, GridHelperBase
-from  axis_artist import AxisArtist
+from  .axislines import AxisArtistHelper, GridHelperBase
+from  .axis_artist import AxisArtist
 from matplotlib.transforms import Affine2D, IdentityTransform
 import numpy as np
 
 
-import grid_helper_curvelinear
+from . import grid_helper_curvelinear
 
 class FloatingAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
     pass
@@ -210,11 +213,11 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
                     top=("lat_lines0", 1))[self._side]
 
         xx, yy = self.grid_info[k][v]
-        return Path(zip(xx, yy))
+        return Path(list(zip(xx, yy)))
 
 
 
-from grid_finder import ExtremeFinderSimple
+from .grid_finder import ExtremeFinderSimple
 
 class ExtremeFinderFixed(ExtremeFinderSimple):
     def __init__(self, extremes):
@@ -526,14 +529,14 @@ def floatingaxes_class_factory(axes_class):
 
     new_class = _floatingaxes_classes.get(axes_class)
     if new_class is None:
-        new_class = type("Floating %s" % (axes_class.__name__),
+        new_class = type(str("Floating %s" % (axes_class.__name__)),
                          (FloatingAxesBase, axes_class),
                          {'_axes_class_floating': axes_class})
         _floatingaxes_classes[axes_class] = new_class
 
     return new_class
 
-from axislines import Axes
+from .axislines import Axes
 from mpl_toolkits.axes_grid1.parasite_axes import host_axes_class_factory
 
 FloatingAxes = floatingaxes_class_factory(host_axes_class_factory(Axes))
@@ -557,7 +560,7 @@ def curvelinear_test3(fig):
     """
     global ax1, axis
     import numpy as np
-    import angle_helper
+    from . import angle_helper
     from matplotlib.projections import PolarAxes
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate
@@ -579,7 +582,7 @@ def curvelinear_test3(fig):
     # that of mpl's, and you cannot directly use mpl's Locator and
     # Formatter here (but may be possible in the future).
 
-    from grid_finder import FixedLocator
+    from .grid_finder import FixedLocator
     grid_locator2 = FixedLocator([2, 4, 6, 8, 10])
 
 
@@ -648,7 +651,7 @@ def curvelinear_test4(fig):
     """
     global ax1, axis
     import numpy as np
-    import  angle_helper
+    from . import angle_helper
     from matplotlib.projections import PolarAxes
 
     tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()
@@ -656,7 +659,7 @@ def curvelinear_test4(fig):
     grid_locator1 = angle_helper.LocatorDMS(5)
     tick_formatter1 = angle_helper.FormatterDMS()
 
-    from grid_finder import FixedLocator
+    from .grid_finder import FixedLocator
     grid_locator2 = FixedLocator([2, 4, 6, 8, 10])
 
     grid_helper = GridHelperCurveLinear(tr,
@@ -717,5 +720,3 @@ if __name__ == "__main__":
 
     #plt.draw()
     plt.show()
-
-
