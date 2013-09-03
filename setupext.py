@@ -240,98 +240,72 @@ def make_extension(name, files, *args, **kwargs):
     return ext
 
 
-class PkgConfig(object):
+class Configurator(object):
     """
     This is a class for communicating with pkg-config.
     """
-    def __init__(self):
+    def __init__(self, config_command):
         """
         Determines whether pkg-config exists on this machine.
         """
+        self.config_command = config_command
+
         if sys.platform == 'win32':
-            self.has_pkgconfig = False
+            self.has_config = False
         else:
-            self.set_pkgconfig_path()
-            status, output = getstatusoutput("pkg-config --help")
-            self.has_pkgconfig = (status == 0)
+            self.set_config_path()
+            status, output = getstatusoutput(self.config_command + ' --help')
+            self.has_config = (status == 0)
 
-    def set_pkgconfig_path(self):
-        pkgconfig_path = sysconfig.get_config_var('LIBDIR')
-        if pkgconfig_path is None:
-            return
+    def set_config_path(self):
+        """Use for extra setup"""
+        pass
 
-        pkgconfig_path = os.path.join(pkgconfig_path, 'pkgconfig')
-        if not os.path.isdir(pkgconfig_path):
-            return
-
-        try:
-            os.environ['PKG_CONFIG_PATH'] += ':' + pkgconfig_path
-        except KeyError:
-            os.environ['PKG_CONFIG_PATH'] = pkgconfig_path
-
-    def setup_extension(self, ext, package, default_include_dirs=[],
-                        default_library_dirs=[], default_libraries=[],
-                        alt_exec=None):
+    def setup_extension(self, ext, package,
+                        default_include_dirs=[],
+                        default_library_dirs=[], default_libraries=[]):
         """
         Add parameters to the given `ext` for the given `package`.
         """
         flag_map = {
             '-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
 
-        executable = alt_exec
-        if self.has_pkgconfig:
-            executable = 'pkg-config {0}'.format(package)
-
-        use_defaults = True
-
-        if executable is not None:
-            command = "{0} --libs --cflags ".format(executable)
+        if self.has_config:
+            command = "{cfg} {pkg} --libs --cflags".format(
+                cfg=self.config_command, pkg=package)
 
             try:
-                output = check_output(command, shell=True,
+                output = check_output(command,
+                                      shell=True,
                                       stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError:
                 pass
             else:
                 output = output.decode(sys.getfilesystemencoding())
-                use_defaults = False
                 for token in output.split():
                     attr = flag_map.get(token[:2])
                     if attr is not None:
                         getattr(ext, attr).append(token[2:])
+                return
 
-        if use_defaults:
-            basedirs = get_base_dirs()
-            for base in basedirs:
-                for include in default_include_dirs:
-                    dir = os.path.join(base, include)
-                    if os.path.exists(dir):
-                        ext.include_dirs.append(dir)
-                for lib in default_library_dirs:
-                    dir = os.path.join(base, lib)
-                    if os.path.exists(dir):
-                        ext.library_dirs.append(dir)
-            ext.libraries.extend(default_libraries)
-            return True
-
-        return False
+        # couldn't find library, fallback to looking in default paths
+        basedirs = get_base_dirs()
+        for base in basedirs:
+            for include in default_include_dirs:
+                d = os.path.join(base, include)
+                if os.path.exists(d):
+                    ext.include_dirs.append(d)
+            for lib in default_library_dirs:
+                d = os.path.join(base, lib)
+                if os.path.exists(d):
+                    ext.library_dirs.append(d)
+        ext.libraries.extend(default_libraries)
 
     def get_version(self, package):
-        """
-        Get the version of the package from pkg-config.
-        """
-        if not self.ft_config:
-            return None
+        raise NotImplementedError()
 
-        status, output = getstatusoutput(
-            "pkg-config %s --modversion" % (package))
-        if status == 0:
-            return output
-        return None
-
-    def check_for_pkg_config(self, package, include_file, ext,
-                             min_version=None,
-                             version=None):
+    def check_for_config(self, package, include_file, ext,
+                         min_version=None, version=None):
         """
         A convenience function for writing checks for a
         pkg_config-defined dependency.
@@ -350,8 +324,8 @@ class PkgConfig(object):
 
             if version is None:
                 raise CheckFailed(
-                    "pkg-config information for '%s' could not be found." %
-                    package)
+                    "%s information for '%s' could not be found." %
+                    (self.config_command, package))
 
         if min_version == 'PATCH':
             raise CheckFailed(
@@ -372,28 +346,12 @@ class PkgConfig(object):
         return 'version %s' % version
 
 
-# The PkgConfig class should be used through this singleton
-pkg_config = PkgConfig()
+class PkgConfig(Configurator):
 
-
-class FTConfig(object):
-    """
-    This is a class for communicating with freetype-config.
-    """
-    def __init__(self):
-        """
-        Determines whether freetype-config exists on this machine.
-        """
-        if sys.platform == 'win32':
-            self.has_ftconfig = False
-        else:
-            self.set_pkgconfig_path()
-            status, output = getstatusoutput("freetype-config --help")
-            self.has_ftconfig = (status == 0)
-
-    def set_pkgconfig_path(self):
-        pkgconfig_path = sysconfig.get_config_var('LIBDIR')
-        if pkgconfig_path is None:
+    def set_config_path(self):
+        # ask python if it has a pkg-config libdir
+        config_path = sysconfig.get_config_var('LIBDIR')
+        if config_path is None:
             return
 
         pkgconfig_path = os.path.join(pkgconfig_path, 'pkgconfig')
@@ -405,58 +363,36 @@ class FTConfig(object):
         except KeyError:
             os.environ['PKG_CONFIG_PATH'] = pkgconfig_path
 
-    def setup_extension(self, ext, package, default_include_dirs=[],
-                        default_library_dirs=[], default_libraries=[]):
-        """
-        Add parameters to the given `ext` for the given `package`.
-        """
-        flag_map = {
-            '-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
-
-        if package != 'freetype2':
-            raise RuntimeError("FTConfig only works for the freetype2 package")
-
-        use_defaults = True
-
-        if self.has_ftconfig:
-            try:
-                output = check_output("freetype-config --libs --cflags",
-                                      shell=True,
-                                      stderr=subprocess.STDOUT)
-            except subprocess.CalledProcessError:
-                pass
-            else:
-                output = output.decode(sys.getfilesystemencoding())
-                use_defaults = False
-                for token in output.split():
-                    attr = flag_map.get(token[:2])
-                    if attr is not None:
-                        getattr(ext, attr).append(token[2:])
-
-        if use_defaults:
-            basedirs = get_base_dirs()
-            for base in basedirs:
-                for include in default_include_dirs:
-                    dir = os.path.join(base, include)
-                    if os.path.exists(dir):
-                        ext.include_dirs.append(dir)
-                for lib in default_library_dirs:
-                    dir = os.path.join(base, lib)
-                    if os.path.exists(dir):
-                        ext.library_dirs.append(dir)
-            ext.libraries.extend(default_libraries)
-            return True
-
-        return False
-
     def get_version(self, package):
         """
-        Get the version from freetype-config.
+        Get the version of the package from pkg-config.
         """
-        if package != 'freetype2':
-            raise RuntimeError("FTConfig only works for the freetype2 package")
+        if not self.has_config:
+            return None
 
-        if not self.ft_config:
+        status, output = getstatusoutput(
+            "pkg-config %s --modversion" % package)
+        if status == 0:
+            return output
+        return None
+
+
+class FreetypeConfig(Configurator):
+    """This is a class for communicating with freetype-config."""
+
+    def setup_extension(self, ext, package, **kw):
+        """Add parameters to the given `ext` for the given `package`."""
+        if package != 'freetype2':
+            raise RuntimeError('package must be "freetype2"')
+        package = ''
+        return super(FreetypeConfig, self).setup_extension(ext, package, **kw)
+
+    def get_version(self, package):
+        """Get the version from freetype-config."""
+        if package != 'freetype2':
+            raise RuntimeError('package must be "freetype2"')
+
+        if not self.has_config:
             return None
 
         status, output = getstatusoutput("freetype-config --ftversion")
@@ -464,50 +400,12 @@ class FTConfig(object):
             return output
         return None
 
-    def check_for_ft_config(self, package, include_file, ext,
-                            min_version=None, version=None):
-        """
-        A convenience function for writing checks for a
-        pkg_config-defined dependency.
-
-        `package` is the ft_config package name.
-
-        `include_file` is a top-level include file we expect to find.
-
-        `min_version` is the minimum version required.
-
-        `version` will override the found version if this package
-        requires an alternate method for that.
-        """
-        if version is None:
-            version = self.get_version(package)
-
-            if version is None:
-                raise CheckFailed(
-                    "pkg-config information for '%s' could not be found." %
-                    package)
-
-        if min_version == 'PATCH':
-            raise CheckFailed(
-                "Requires patches that have not been merged upstream.")
-
-        if min_version:
-            if (not is_min_version(version, min_version)):
-                raise CheckFailed(
-                    "Requires %s %s or later.  Found %s." %
-                    (package, min_version, version))
-
-        if ext is None:
-            ext = make_extension('test', [])
-            self.setup_extension(ext, package)
-
-        check_include_file(ext.include_dirs, include_file, package)
-
-        return 'version %s' % version
 
 
-# The PkgConfig class should be used through this singleton
-ft_config = FTConfig()
+
+# The PkgConfig/FreetypeConfig class should be used through singletons
+pkg_config = PkgConfig('pkg-config')
+ft_config = FreetypeConfig('freetype-config')
 
 
 class CheckFailed(Exception):
@@ -884,10 +782,10 @@ class LibAgg(SetupPackage):
     def check(self):
         self.__class__.found_external = True
         try:
-            return pkg_config.check_for_pkg_config('libagg',
-                                                   'agg2/agg_basics.h',
-                                                   self.get_ext(),
-                                                   min_version='PATCH')
+            return pkg_config.check_for_config('libagg',
+                                               'agg2/agg_basics.h',
+                                               self.get_ext(),
+                                               min_version='PATCH')
         except CheckFailed as e:
             self.__class__.found_external = False
             return str(e) + ' Using local copy.'
@@ -921,19 +819,19 @@ class FreeType(SetupPackage):
         status, version = getstatusoutput("freetype-config --version")
         if status == 0:
             try:
-                return ft_config.check_for_ft_config(
+                return ft_config.check_for_config(
                     'freetype2', 'ft2build.h', self.get_ext(),
                     min_version='2.4', version=version
                 )
             except CheckFailed:
                 pass
 
-        return pkg_config.check_for_pkg_config(
+        return pkg_config.check_for_config(
             'freetype2', 'ft2build.h', self.get_ext(),
             min_version='2.4', version=None)
 
     def add_flags(self, ext):
-        if ft_config.has_ftconfig:
+        if ft_config.has_config:
             ft_config.setup_extension(
                 ext, 'freetype2',
                 default_include_dirs=[
@@ -974,7 +872,7 @@ class Png(SetupPackage):
 
     def check(self):
         try:
-            return pkg_config.check_for_pkg_config(
+            return pkg_config.check_for_config(
                 'libpng', 'png.h', self.get_ext(),
                 min_version='1.2')
         except CheckFailed as e:
