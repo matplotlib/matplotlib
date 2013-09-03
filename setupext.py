@@ -755,7 +755,7 @@ class CXX(SetupPackage):
         try:
             return pkg_config.check_for_config('PyCXX',
                                                'CXX/Extensions.hxx',
-                                               self.get_ext(),
+                                               self.get_extension(),
                                                min_version='6.2.4')
         except CheckFailed:
             # It's ok to just proceed here, since the `import CXX`
@@ -802,7 +802,7 @@ class LibAgg(SetupPackage):
         try:
             return pkg_config.check_for_config('libagg',
                                                'agg2/agg_basics.h',
-                                               self.get_ext(),
+                                               self.get_extension(),
                                                min_version='PATCH')
         except CheckFailed as e:
             self.__class__.found_external = False
@@ -838,14 +838,14 @@ class FreeType(SetupPackage):
         if status == 0:
             try:
                 return ft_config.check_for_config(
-                    'freetype2', 'ft2build.h', self.get_ext(),
+                    'freetype2', 'ft2build.h', self.get_extension(),
                     min_version='2.4', version=version
                 )
             except CheckFailed:
                 pass
 
         return pkg_config.check_for_config(
-            'freetype2', 'ft2build.h', self.get_ext(),
+            'freetype2', 'ft2build.h', self.get_extension(),
             min_version='2.4', version=None)
 
     def add_flags(self, ext):
@@ -891,7 +891,7 @@ class Png(SetupPackage):
     def check(self):
         try:
             return pkg_config.check_for_config(
-                'libpng', 'png.h', self.get_ext(),
+                'libpng', 'png.h', self.get_extension(),
                 min_version='1.2')
         except CheckFailed as e:
             self.__class__.found_external = False
