@@ -1313,7 +1313,10 @@ def pil_to_array(pilImage):
     """
     def toarray(im, dtype=np.uint8):
         """Teturn a 1D array of dtype."""
-        x_str = im.tobytes('raw', im.mode)
+        if hasattr(im, 'tobytes'):
+            x_str = im.tobytes('raw', im.mode)
+        else:
+            x_str = im.tostring('raw', im.mode)
         x = np.fromstring(x_str, dtype)
         return x
 
