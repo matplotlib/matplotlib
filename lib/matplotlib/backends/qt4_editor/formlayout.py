@@ -32,8 +32,10 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import print_function
+import six
+from six.moves import xrange
 
 # History:
 # 1.0.10: added float validator (disable "Ok" and "Apply" button when not valid)
@@ -133,7 +135,7 @@ class ColorLayout(QtGui.QHBoxLayout):
 
 def font_is_installed(font):
     """Check if font is installed"""
-    return [fam for fam in QtGui.QFontDatabase().families() if unicode(fam)==font]
+    return [fam for fam in QtGui.QFontDatabase().families() if six.text_type(fam)==font]
 
 def tuple_to_qfont(tup):
     """
@@ -155,7 +157,7 @@ def tuple_to_qfont(tup):
     return font
 
 def qfont_to_tuple(font):
-    return (unicode(font.family()), int(font.pointSize()),
+    return (six.text_type(font.family()), int(font.pointSize()),
             font.italic(), font.bold())
 
 class FontLayout(QtGui.QGridLayout):
@@ -173,7 +175,7 @@ class FontLayout(QtGui.QGridLayout):
         # Font size
         self.size = QtGui.QComboBox(parent)
         self.size.setEditable(True)
-        sizelist = range(6, 12) + range(12, 30, 2) + [36, 48, 72]
+        sizelist = list(xrange(6, 12)) + list(xrange(12, 30, 2)) + [36, 48, 72]
         size = font.pointSize()
         if size not in sizelist:
             sizelist.append(size)
@@ -248,7 +250,7 @@ class FormWidget(QtGui.QWidget):
                 field = FontLayout(value, self)
             elif is_color_like(value):
                 field = ColorLayout(to_qcolor(value), self)
-            elif isinstance(value, (str, unicode)):
+            elif isinstance(value, six.string_types):
                 field = QtGui.QLineEdit(value, self)
             elif isinstance(value, (list, tuple)):
                 if isinstance(value, tuple):
@@ -307,7 +309,7 @@ class FormWidget(QtGui.QWidget):
                 continue
             elif tuple_to_qfont(value) is not None:
                 value = field.get_font()
-            elif isinstance(value, (str, unicode)) or is_color_like(value):
+            elif isinstance(value, six.string_types) or is_color_like(value):
                 value = unicode(field.text())
             elif isinstance(value, (list, tuple)):
                 index = int(field.currentIndex())

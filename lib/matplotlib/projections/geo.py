@@ -1,4 +1,7 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import math
 
 import numpy as np
@@ -34,7 +37,7 @@ class GeoAxes(Axes):
             if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:
                 return r"$%0.0f^\circ$" % degrees
             else:
-                return u"%0.0f\u00b0" % degrees
+                return "%0.0f\u00b0" % degrees
 
     RESOLUTION = 75
 
@@ -176,7 +179,7 @@ class GeoAxes(Axes):
             ew = 'E'
         else:
             ew = 'W'
-        return u'%f\u00b0%s, %f\u00b0%s' % (abs(lat), ns, abs(lon), ew)
+        return '%f\u00b0%s, %f\u00b0%s' % (abs(lat), ns, abs(lon), ew)
 
     def set_longitude_grid(self, degrees):
         """

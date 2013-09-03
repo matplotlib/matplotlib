@@ -62,6 +62,7 @@ mpl_packages = [
     setupext.Platform(),
     'Required dependencies and extensions',
     setupext.Numpy(),
+    setupext.Six(),
     setupext.Dateutil(),
     setupext.Tornado(),
     setupext.Pyparsing(),
@@ -207,38 +208,36 @@ if __name__ == '__main__':
 
 
     # Finally, pass this all along to distutils to do the heavy lifting.
-    distrib = setup(name="matplotlib",
-          version=__version__,
-          description="Python plotting package",
-          author="John D. Hunter, Michael Droettboom",
-          author_email="mdroe@stsci.edu",
-          url="http://matplotlib.org",
-          long_description="""
-          matplotlib strives to produce publication quality 2D graphics
-          for interactive graphing, scientific publishing, user interface
-          development and web application servers targeting multiple user
-          interfaces and hardcopy output formats.  There is a 'pylab' mode
-          which emulates matlab graphics.
-          """,
-          license="BSD",
-          packages=packages,
-          namespace_packages = namespace_packages,
-          platforms='any',
-          py_modules=py_modules,
-          ext_modules=ext_modules,
-          package_dir=package_dir,
-          package_data=package_data,
-          classifiers=classifiers,
-          download_url="https://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-{0}/matplotlib-{0}.tar.gz".format(__version__),
+    distrib = setup(
+        name="matplotlib",
+        version=__version__,
+        description="Python plotting package",
+        author="John D. Hunter, Michael Droettboom",
+        author_email="mdroe@stsci.edu",
+        url="http://matplotlib.org",
+        long_description="""
+        matplotlib strives to produce publication quality 2D graphics
+        for interactive graphing, scientific publishing, user interface
+        development and web application servers targeting multiple user
+        interfaces and hardcopy output formats.  There is a 'pylab' mode
+        which emulates matlab graphics.
+        """,
+        license="BSD",
+        packages=packages,
+        namespace_packages = namespace_packages,
+        platforms='any',
+        py_modules=py_modules,
+        ext_modules=ext_modules,
+        package_dir=package_dir,
+        package_data=package_data,
+        classifiers=classifiers,
+        download_url="https://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-{0}/matplotlib-{0}.tar.gz".format(__version__),
 
-          # List third-party Python packages that we require
-          install_requires=install_requires,
+        # List third-party Python packages that we require
+        install_requires=install_requires,
 
-          # Automatically 2to3 source on Python 3.x
-          use_2to3=True,
-
-          # matplotlib has C/C++ extensions, so it's not zip safe.
-          # Telling setuptools this prevents it from doing an automatic
-          # check for zip safety.
-          zip_safe=False,
-         )
+        # matplotlib has C/C++ extensions, so it's not zip safe.
+        # Telling setuptools this prevents it from doing an automatic
+        # check for zip safety.
+        zip_safe=False,
+    )

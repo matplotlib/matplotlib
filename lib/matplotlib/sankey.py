@@ -2,7 +2,11 @@
 """
 Module for creating Sankey diagrams using matplotlib
 """
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import zip
+
 __author__ = "Kevin L. Davies"
 __credits__ = ["Yannick Copin"]
 __license__ = "BSD"
@@ -238,8 +242,8 @@ class Sankey:
                                              ARC_VERTICES[:, 1]))
         if quadrant > 1:
             radius = -radius  # Rotate 180 deg.
-        return zip(ARC_CODES, radius * vertices +
-                              np.tile(center, (ARC_VERTICES.shape[0], 1)))
+        return list(zip(ARC_CODES, radius * vertices +
+                        np.tile(center, (ARC_VERTICES.shape[0], 1))))
 
     def _add_input(self, path, angle, flow, length):
         """
@@ -584,8 +588,8 @@ class Sankey:
                     urlength -= flow  # Flow is negative for outputs.
             # Determine the lengths of the bottom-side arrows
             # from the middle outwards.
-            for i, (angle, is_input, flow) in enumerate(reversed(zip(
-                angles, are_inputs, scaled_flows))):
+            for i, (angle, is_input, flow) in enumerate(reversed(list(zip(
+                angles, are_inputs, scaled_flows)))):
                 if angle == UP and is_input:
                     pathlengths[n - i - 1] = lllength
                     lllength += flow
@@ -595,8 +599,8 @@ class Sankey:
             # Determine the lengths of the left-side arrows
             # from the bottom upwards.
             has_left_input = False
-            for i, (angle, is_input, spec) in enumerate(reversed(zip(
-                angles, are_inputs, zip(scaled_flows, pathlengths)))):
+            for i, (angle, is_input, spec) in enumerate(reversed(list(zip(
+                angles, are_inputs, zip(scaled_flows, pathlengths))))):
                 if angle == RIGHT:
                     if is_input:
                         if has_left_input:
@@ -607,7 +611,7 @@ class Sankey:
             # from the top downwards.
             has_right_output = False
             for i, (angle, is_input, spec) in enumerate(zip(
-                angles, are_inputs, zip(scaled_flows, pathlengths))):
+                angles, are_inputs, list(zip(scaled_flows, pathlengths)))):
                 if angle == RIGHT:
                     if not is_input:
                         if has_right_output:
@@ -651,7 +655,7 @@ class Sankey:
         label_locations = np.zeros((n, 2))
         # Add the top-side inputs and outputs from the middle outwards.
         for i, (angle, is_input, spec) in enumerate(zip(
-            angles, are_inputs, zip(scaled_flows, pathlengths))):
+            angles, are_inputs, list(zip(scaled_flows, pathlengths)))):
             if angle == DOWN and is_input:
                 tips[i, :], label_locations[i, :] = self._add_input(
                     ulpath, angle, *spec)
@@ -659,8 +663,8 @@ class Sankey:
                 tips[i, :], label_locations[i, :] = self._add_output(
                     urpath, angle, *spec)
         # Add the bottom-side inputs and outputs from the middle outwards.
-        for i, (angle, is_input, spec) in enumerate(reversed(zip(
-            angles, are_inputs, zip(scaled_flows, pathlengths)))):
+        for i, (angle, is_input, spec) in enumerate(reversed(list(zip(
+            angles, are_inputs, list(zip(scaled_flows, pathlengths)))))):
             if angle == UP and is_input:
                 tip, label_location = self._add_input(llpath, angle, *spec)
                 tips[n - i - 1, :] = tip
@@ -671,8 +675,8 @@ class Sankey:
                 label_locations[n - i - 1, :] = label_location
         # Add the left-side inputs from the bottom upwards.
         has_left_input = False
-        for i, (angle, is_input, spec) in enumerate(reversed(zip(
-            angles, are_inputs, zip(scaled_flows, pathlengths)))):
+        for i, (angle, is_input, spec) in enumerate(reversed(list(zip(
+            angles, are_inputs, list(zip(scaled_flows, pathlengths)))))):
             if angle == RIGHT and is_input:
                 if not has_left_input:
                     # Make sure the lower path extends
@@ -687,7 +691,7 @@ class Sankey:
         # Add the right-side outputs from the top downwards.
         has_right_output = False
         for i, (angle, is_input, spec) in enumerate(zip(
-            angles, are_inputs, zip(scaled_flows, pathlengths))):
+            angles, are_inputs, list(zip(scaled_flows, pathlengths)))):
             if angle == RIGHT and not is_input:
                 if not has_right_output:
                     # Make sure the upper path extends
@@ -711,7 +715,7 @@ class Sankey:
                 [(Path.CLOSEPOLY, urpath[0][1])])
 
         # Create a patch with the Sankey outline.
-        codes, vertices = zip(*path)
+        codes, vertices = list(zip(*path))
         vertices = np.array(vertices)
 
         def _get_angle(a, r):
@@ -746,7 +750,7 @@ class Sankey:
             print("ulpath\n", self._revert(ulpath))
             print("urpath\n", urpath)
             print("lrpath\n", self._revert(lrpath))
-            xs, ys = zip(*vertices)
+            xs, ys = list(zip(*vertices))
             self.ax.plot(xs, ys, 'go-')
         patch = PathPatch(Path(vertices, codes),
                           fc=kwargs.pop('fc', kwargs.pop('facecolor',

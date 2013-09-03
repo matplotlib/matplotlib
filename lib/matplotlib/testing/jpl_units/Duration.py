@@ -10,7 +10,9 @@
 #===========================================================================
 # Place all imports after here.
 #
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 #
 # Place all imports before here.
 #===========================================================================
@@ -71,6 +73,9 @@ class Duration:
       - Returns -1 if self < rhs, 0 if self == rhs, +1 if self > rhs.
       """
       return self._seconds != 0
+
+   if six.PY3:
+      __bool__ = __nonzero__
 
    #-----------------------------------------------------------------------
    def __cmp__( self, rhs ):

@@ -1,4 +1,7 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 from matplotlib.testing.noseclasses import KnownFailureTest, \
      KnownFailureDidNotFailTest, ImageComparisonFailure
 import os, sys, shutil
@@ -75,7 +78,7 @@ class CleanupTest(object):
 def cleanup(func):
     name = func.__name__
     func = staticmethod(func)
-    func.__get__(1).__name__ = '_private'
+    func.__get__(1).__name__ = str('_private')
     new_class = type(
         name,
         (CleanupTest,),
@@ -87,7 +90,7 @@ def check_freetype_version(ver):
         return True
 
     from distutils import version
-    if isinstance(ver, str):
+    if isinstance(ver, six.string_types):
         ver = (ver, ver)
     ver = [version.StrictVersion(x) for x in ver]
     found = version.StrictVersion(ft2font.__freetype_version__)
@@ -237,7 +240,7 @@ def image_comparison(baseline_images=None, extensions=None, tol=13,
         # well, outside of the context of our image comparison test
         # generator.
         func = staticmethod(func)
-        func.__get__(1).__name__ = '_private'
+        func.__get__(1).__name__ = str('_private')
         new_class = type(
             name,
             (ImageComparisonTest,),

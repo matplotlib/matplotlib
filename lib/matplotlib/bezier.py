@@ -2,7 +2,10 @@
 A module providing some utility functions regarding bezier path manipulation.
 """
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import numpy as np
 from matplotlib.path import Path
 
@@ -262,7 +265,7 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
     if bezier_path is None:
         raise ValueError("The path does not seem to intersect with the patch")
 
-    bp = zip(bezier_path[::2], bezier_path[1::2])
+    bp = list(zip(bezier_path[::2], bezier_path[1::2]))
     left, right = split_bezier_intersecting_with_closedpath(bp,
                                                             inside,
                                                             tolerence)

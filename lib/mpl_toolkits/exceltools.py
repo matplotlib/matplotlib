@@ -19,6 +19,10 @@ Example usage:
     mlab.rec2csv(r, 'test.csv', formatd=formatd)
 
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import copy
 import numpy as np
 

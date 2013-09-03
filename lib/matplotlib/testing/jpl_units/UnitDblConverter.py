@@ -10,7 +10,10 @@
 #===========================================================================
 # Place all imports after here.
 #
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import numpy as np
 import matplotlib.units as units
 import matplotlib.ticker as ticker
@@ -74,7 +77,7 @@ class UnitDblConverter( units.ConversionInterface ):
       # or an actual instance of a UnitDbl so that we can use the unit
       # value for the default axis label value.
       if ( unit ):
-         if ( isinstance( unit, str ) ):
+         if ( isinstance( unit, six.string_types ) ):
             label = unit
          else:
             label = unit.label()
@@ -107,7 +110,7 @@ class UnitDblConverter( units.ConversionInterface ):
 
       isNotUnitDbl = True
 
-      if ( iterable(value) and not isinstance(value, str) ):
+      if ( iterable(value) and not isinstance(value, six.string_types) ):
          if ( len(value) == 0 ):
             return []
          else:
@@ -150,8 +153,7 @@ class UnitDblConverter( units.ConversionInterface ):
 
       # Determine the default units based on the user preferences set for
       # default units when printing a UnitDbl.
-      if ( iterable(value) and not isinstance(value, str) ):
+      if ( iterable(value) and not isinstance(value, six.string_types) ):
          return UnitDblConverter.default_units( value[0], axis )
       else:
          return UnitDblConverter.defaults[ value.type() ]
-

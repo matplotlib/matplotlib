@@ -83,7 +83,9 @@ Following attributes can be customized (use set_xxx method)
  * AxisLabel : pad
 
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import six
 
 # FIXME :
 
@@ -110,7 +112,7 @@ import numpy as np
 
 
 import matplotlib.lines as mlines
-from axisline_style import AxislineStyle
+from .axisline_style import AxislineStyle
 
 
 class BezierPath(mlines.Line2D):

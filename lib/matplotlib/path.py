@@ -12,7 +12,10 @@ convenient Path visualisation - the two most frequently used of these are
 :class:`~matplotlib.collections.PathCollection`.
 """
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import math
 from weakref import WeakValueDictionary
 
@@ -189,7 +192,7 @@ class Path(object):
         if internals:
             raise ValueError('Unexpected internals provided to '
                              '_fast_from_codes_and_verts: '
-                             '{0}'.format('\n *'.join(internals.keys())))
+                             '{0}'.format('\n *'.join(six.iterkeys(internals))))
         return pth
 
     def _update_values(self):
@@ -508,7 +511,7 @@ class Path(object):
         algorithm will take into account the curves and deal with
         control points appropriately.
         """
-        from transforms import Bbox
+        from .transforms import Bbox
         path = self
         if transform is not None:
             transform = transform.frozen()
@@ -536,7 +539,7 @@ class Path(object):
         That is, if one path completely encloses the other,
         :meth:`intersects_path` will return True.
         """
-        from transforms import BboxTransformTo
+        from .transforms import BboxTransformTo
         rectangle = self.unit_rectangle().transformed(
             BboxTransformTo(bbox))
         result = self.intersects_path(rectangle, filled)
@@ -936,7 +939,7 @@ def get_path_collection_extents(
 
         (A, A, A), (B, B, A), (C, A, A)
     """
-    from transforms import Bbox
+    from .transforms import Bbox
     if len(paths) == 0:
         raise ValueError("No paths provided")
     return Bbox.from_extents(*_path.get_path_collection_extents(
@@ -955,7 +958,7 @@ def get_paths_extents(paths, transforms=[]):
     :class:`~matplotlib.transforms.Affine2D` instances to apply to
     each path.
     """
-    from transforms import Bbox, Affine2D
+    from .transforms import Bbox, Affine2D
     if len(paths) == 0:
         raise ValueError("No paths provided")
     return Bbox.from_extents(*_path.get_path_collection_extents(
@@ -963,7 +966,7 @@ def get_paths_extents(paths, transforms=[]):
 
 
 def _define_deprecated_functions(ns):
-    from cbook import deprecated
+    from .cbook import deprecated
 
     # The C++ functions are not meant to be used directly.
     # Users should use the more pythonic wrappers in the Path

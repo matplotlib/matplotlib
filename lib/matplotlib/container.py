@@ -1,3 +1,7 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import matplotlib.cbook as cbook
 
 
@@ -90,7 +94,7 @@ class Container(tuple):
         Fire an event when property changed, calling all of the
         registered callbacks.
         """
-        for oid, func in self._propobservers.items():
+        for oid, func in list(six.iteritems(self._propobservers)):
             func(self)
 
     def get_children(self):

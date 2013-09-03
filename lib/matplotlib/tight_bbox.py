@@ -2,7 +2,10 @@
 This module is to support *bbox_inches* option in savefig command.
 """
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import warnings
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 

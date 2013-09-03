@@ -1,3 +1,8 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import map
+
 from matplotlib.gridspec import GridSpec, SubplotSpec
 from matplotlib import docstring
 import matplotlib.artist as martist
@@ -34,7 +39,7 @@ class SubplotBase(object):
             else:
                 try:
                     s = str(int(args[0]))
-                    rows, cols, num = map(int, s)
+                    rows, cols, num = list(map(int, s))
                 except ValueError:
                     raise ValueError(
                         'Single argument to subplot must be a 3-digit '
@@ -151,7 +156,7 @@ def subplot_class_factory(axes_class=None):
 
     new_class = _subplot_classes.get(axes_class)
     if new_class is None:
-        new_class = type("%sSubplot" % (axes_class.__name__),
+        new_class = type(str("%sSubplot") % (axes_class.__name__),
                          (SubplotBase, axes_class),
                          {'_axes_class': axes_class})
         _subplot_classes[axes_class] = new_class

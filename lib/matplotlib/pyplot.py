@@ -15,7 +15,9 @@ is recommended that the namespaces be kept separate, e.g.::
     plt.plot(x, y)
 
 """
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 import sys
 import warnings
@@ -54,7 +56,7 @@ from matplotlib.text import Text, Annotation
 from matplotlib.patches import Polygon, Rectangle, Circle, Arrow
 from matplotlib.widgets import SubplotTool, Button, Slider, Widget
 
-from ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
+from .ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
            FuncFormatter, FormatStrFormatter, ScalarFormatter,\
            LogFormatter, LogFormatterExponent, LogFormatterMathtext,\
            Locator, IndexLocator, FixedLocator, NullLocator,\
@@ -457,7 +459,7 @@ fignum_exists = _pylab_helpers.Gcf.has_fignum
 
 def get_fignums():
     """Return a list of existing figure numbers."""
-    fignums = _pylab_helpers.Gcf.figs.keys()
+    fignums = list(six.iterkeys(_pylab_helpers.Gcf.figs))
     fignums.sort()
     return fignums
 
@@ -1761,7 +1763,7 @@ def get_plot_commands():
     this_module = inspect.getmodule(get_plot_commands)
 
     commands = set()
-    for name, obj in globals().items():
+    for name, obj in list(six.iteritems(globals())):
         if name.startswith('_') or name in exclude:
             continue
         if inspect.isfunction(obj) and inspect.getmodule(obj) is this_module:
@@ -2246,8 +2248,8 @@ def polar(*args, **kwargs):
 
 
 def plotfile(fname, cols=(0,), plotfuncs=None,
-             comments='#', skiprows=0, checkrows=5, delimiter=',', names=None,
-             subplots=True, newfig=True, **kwargs):
+             comments='#', skiprows=0, checkrows=5, delimiter=',',
+             names=None, subplots=True, newfig=True, **kwargs):
     """
     Plot the data in in a file.
 

@@ -2,7 +2,9 @@
 GTK+ Matplotlib interface using cairo (not GDK) drawing operations.
 Author: Steve Chaplin
 """
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 import gtk
 if gtk.pygtk_version < (2,7,0):

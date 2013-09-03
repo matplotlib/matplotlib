@@ -11,7 +11,11 @@ handlers are defined in the :mod:`~matplotlib.legend_handler` module). Note
 that not all kinds of artist are supported by the legend yet (See
 :ref:`plotting-guide-legend` for more information).
 """
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange
+
 import warnings
 
 import numpy as np
@@ -31,7 +35,7 @@ from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea
 from matplotlib.offsetbox import DraggableOffsetBox
 
 from matplotlib.container import ErrorbarContainer, BarContainer, StemContainer
-import legend_handler
+from . import legend_handler
 
 
 class DraggableLegend(DraggableOffsetBox):
@@ -314,13 +318,13 @@ class Legend(Artist):
                 if self.isaxes:
                     warnings.warn('Unrecognized location "%s". Falling back '
                                   'on "best"; valid locations are\n\t%s\n'
-                                  % (loc, '\n\t'.join(self.codes.iterkeys())))
+                                  % (loc, '\n\t'.join(six.iterkeys(self.codes))))
                     loc = 0
                 else:
                     warnings.warn('Unrecognized location "%s". Falling back '
                                   'on "upper right"; '
                                   'valid locations are\n\t%s\n'
-                                   % (loc, '\n\t'.join(self.codes.iterkeys())))
+                                   % (loc, '\n\t'.join(six.iterkeys(self.codes))))
                     loc = 1
             else:
                 loc = self.codes[loc]
@@ -542,7 +546,7 @@ class Legend(Artist):
         method-resolution-order. If no matching key is found, it
         returns None.
         """
-        legend_handler_keys = legend_handler_map.keys()
+        legend_handler_keys = list(six.iterkeys(legend_handler_map))
         if orig_handle in legend_handler_keys:
             handler = legend_handler_map[orig_handle]
         else:
@@ -643,13 +647,13 @@ class Legend(Artist):
             num_smallcol = ncol - num_largecol
 
             # starting index of each column and number of rows in it.
-            largecol = safezip(range(0,
-                                     num_largecol * (nrows + 1),
-                                     (nrows + 1)),
+            largecol = safezip(list(xrange(0,
+                                           num_largecol * (nrows + 1),
+                                     (nrows + 1))),
                                [nrows + 1] * num_largecol)
-            smallcol = safezip(range(num_largecol * (nrows + 1),
+            smallcol = safezip(list(xrange(num_largecol * (nrows + 1),
                                      len(handleboxes),
-                                     nrows),
+                                     nrows)),
                                [nrows] * num_smallcol)
         else:
             largecol, smallcol = [], []
@@ -870,7 +874,7 @@ class Legend(Artist):
         """
         assert loc in range(1, 11)  # called only internally
 
-        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = range(11)
+        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = list(xrange(11))
 
         anchor_coefs = {UR: "NE",
                         UL: "NW",

@@ -10,6 +10,9 @@ floats. Take a look at the Divider class to see how these two
 values are used.
 
 """
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 import matplotlib.cbook as cbook
 from matplotlib.axes import Axes
@@ -287,4 +290,3 @@ class GetExtentHelper(object):
         vl = [self._get_func(ax.get_tightbbox(renderer, False),
                              ax.bbox) for ax in self._ax_list]
         return max(vl)
-

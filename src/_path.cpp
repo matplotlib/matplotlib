@@ -718,7 +718,7 @@ _path_module::point_in_path_collection(const Py::Tuple& args)
     Py::SeqBase<Py::Object> offsets_obj      = args[6];
     agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7].ptr());
     bool                    filled           = Py::Boolean(args[8]);
-    std::string             offset_position  = Py::String(args[9]);
+    std::string             offset_position  = Py::String(args[9]).encode("utf-8");
 
     bool data_offsets = (offset_position == "data");
 

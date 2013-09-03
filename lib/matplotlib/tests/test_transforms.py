@@ -1,4 +1,8 @@
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+from six.moves import xrange, zip
+
 import unittest
 
 from nose.tools import assert_equal, assert_raises
@@ -47,7 +51,7 @@ def test_non_affine_caching():
 
     my_trans = AssertingNonAffineTransform()
     ax = plt.axes()
-    plt.plot(range(10), transform=my_trans + ax.transData)
+    plt.plot(list(xrange(10)), transform=my_trans + ax.transData)
     plt.draw()
     # enable the transform to raise an exception if it's non-affine transform
     # method is triggered again.
@@ -66,7 +70,7 @@ def test_external_transform_api():
             return mtrans.Affine2D().scale(self._scale_factor) + axes.transData
 
     ax = plt.axes()
-    line, = plt.plot(range(10), transform=ScaledBy(10))
+    line, = plt.plot(list(xrange(10)), transform=ScaledBy(10))
     ax.set_xlim(0, 100)
     ax.set_ylim(0, 100)
     # assert that the top transform of the line is the scale transform.
@@ -196,7 +200,7 @@ def test_clipping_of_log():
                                  clip=(0, 0, 100, 100),
                                  simplify=False)
 
-    tpoints, tcodes = zip(*result)
+    tpoints, tcodes = list(zip(*result))
     # Because y coordinate -99 is outside the clip zone, the first
     # line segment is effectively removed. That means that the closepoly
     # operation must be replaced by a move to the first point.
@@ -394,7 +398,7 @@ class TestTransformPlotInterface(unittest.TestCase):
     def test_line_extents_affine(self):
         ax = plt.axes()
         offset = mtrans.Affine2D().translate(10, 10)
-        plt.plot(range(10), transform=offset + ax.transData)
+        plt.plot(list(xrange(10)), transform=offset + ax.transData)
         expeted_data_lim = np.array([[0., 0.], [9.,  9.]]) + 10
         np.testing.assert_array_almost_equal(ax.dataLim.get_points(),
                                              expeted_data_lim)
@@ -403,7 +407,7 @@ class TestTransformPlotInterface(unittest.TestCase):
         ax = plt.axes()
         offset = mtrans.Affine2D().translate(10, 10)
         na_offset = NonAffineForTest(mtrans.Affine2D().translate(10, 10))
-        plt.plot(range(10), transform=offset + na_offset + ax.transData)
+        plt.plot(list(xrange(10)), transform=offset + na_offset + ax.transData)
         expeted_data_lim = np.array([[0., 0.], [9.,  9.]]) + 20
         np.testing.assert_array_almost_equal(ax.dataLim.get_points(),
                                              expeted_data_lim)
@@ -435,7 +439,7 @@ class TestTransformPlotInterface(unittest.TestCase):
         # add 10 to the radius of the data
         offset = mtrans.Affine2D().translate(0, 10)
 
-        plt.plot(range(10), transform=offset + ax.transData)
+        plt.plot(list(xrange(10)), transform=offset + ax.transData)
         # the data lim of a polar plot is stored in coordinates
         # before a transData transformation, hence the data limits
         # are not what is being shown on the actual plot.

@@ -1,4 +1,7 @@
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import math  # might not ever be used
 import os
 import re
@@ -34,7 +37,7 @@ try:
 except ImportError:
     figureoptions = None
 
-from qt4_compat import QtCore, QtGui, _getSaveFileName, __version__
+from .qt4_compat import QtCore, QtGui, _getSaveFileName, __version__
 
 backend_version = __version__
 
@@ -345,7 +348,7 @@ class FigureCanvasQT(QtGui.QWidget, FigureCanvasBase):
             return None
 
         if event.key() < 256:
-            key = unicode(event.text())
+            key = six.text_type(event.text())
             # if the control key is being pressed, we don't get the correct
             # characters, so interpret them directly from the event.key().
             # Unfortunately, this means that we cannot handle key's case
@@ -370,7 +373,7 @@ class FigureCanvasQT(QtGui.QWidget, FigureCanvasBase):
             for modifier, prefix, Qt_key in self._modifier_keys:
                 if (event.key() != Qt_key and
                         int(event.modifiers()) & modifier == modifier):
-                    key = u'{0}+{1}'.format(prefix, key)
+                    key = '{0}+{1}'.format(prefix, key)
 
         return key
 
@@ -630,7 +633,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
                                                       'Select axes:', titles,
                                                       0, False)
                 if ok:
-                    axes = allaxes[titles.index(unicode(item))]
+                    axes = allaxes[titles.index(six.text_type(item))]
                 else:
                     return
 
@@ -694,7 +697,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
 
     def save_figure(self, *args):
         filetypes = self.canvas.get_supported_filetypes_grouped()
-        sorted_filetypes = filetypes.items()
+        sorted_filetypes = list(six.iteritems(filetypes))
         sorted_filetypes.sort()
         default_filetype = self.canvas.get_default_filetype()
 
@@ -719,9 +722,9 @@ class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
             else:
                 # save dir for next time
                 matplotlib.rcParams['savefig.directory'] = os.path.dirname(
-                                                               unicode(fname))
+                                                               six.text_type(fname))
             try:
-                self.canvas.print_figure(unicode(fname))
+                self.canvas.print_figure(six.text_type(fname))
             except Exception as e:
                 QtGui.QMessageBox.critical(
                     self, "Error saving file", str(e),

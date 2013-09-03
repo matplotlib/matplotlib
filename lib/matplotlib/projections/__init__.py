@@ -1,6 +1,9 @@
-from __future__ import print_function
-from geo import AitoffAxes, HammerAxes, LambertAxes, MollweideAxes
-from polar import PolarAxes
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
+from .geo import AitoffAxes, HammerAxes, LambertAxes, MollweideAxes
+from .polar import PolarAxes
 from matplotlib import axes
 
 class ProjectionRegistry(object):
@@ -29,7 +32,7 @@ class ProjectionRegistry(object):
         Get a list of the names of all projections currently
         registered.
         """
-        names = self._all_projection_types.keys()
+        names = list(six.iterkeys(self._all_projection_types))
         names.sort()
         return names
 projection_registry = ProjectionRegistry()
@@ -90,7 +93,7 @@ def process_projection_requirements(figure, *args, **kwargs):
     if projection == 'polar':
         kwargs.setdefault('resolution', 1)
 
-    if isinstance(projection, basestring) or projection is None:
+    if isinstance(projection, six.string_types) or projection is None:
         projection_class = get_projection_class(projection)
     elif hasattr(projection, '_as_mpl_axes'):
         projection_class, extra_kwargs = projection._as_mpl_axes()

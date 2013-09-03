@@ -13,7 +13,9 @@ that actually reflects the values given here. Any additions or deletions to the
 parameter set listed here should also be visited to the
 :file:`matplotlibrc.template` in matplotlib's root source directory.
 """
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
 
 import os
 import warnings
@@ -54,7 +56,7 @@ class ValidateInStrings:
         if s in self.valid:
             return self.valid[s]
         raise ValueError('Unrecognized %s string "%s": valid strings are %s'
-                         % (self.key, s, self.valid.values()))
+                         % (self.key, s, list(six.itervalues(self.valid))))
 
 
 def validate_any(s):
@@ -71,7 +73,7 @@ def validate_path_exists(s):
 
 def validate_bool(b):
     """Convert b to a boolean or raise"""
-    if type(b) is str:
+    if isinstance(b, six.string_types):
         b = b.lower()
     if b in ('t', 'y', 'yes', 'on', 'true', '1', 1, True):
         return True
@@ -83,7 +85,7 @@ def validate_bool(b):
 
 def validate_bool_maybe_none(b):
     'Convert b to a boolean or raise'
-    if type(b) is str:
+    if isinstance(b, six.string_types):
         b = b.lower()
     if b == 'none':
         return None
@@ -121,15 +123,16 @@ def validate_fonttype(s):
     try:
         fonttype = validate_int(s)
     except ValueError:
-        if s.lower() in fonttypes.iterkeys():
+        if s.lower() in six.iterkeys(fonttypes):
             return fonttypes[s.lower()]
         raise ValueError(
-            'Supported Postscript/PDF font types are %s' % fonttypes.keys())
+            'Supported Postscript/PDF font types are %s' %
+            list(six.iterkeys(fonttypes)))
     else:
-        if fonttype not in fonttypes.itervalues():
+        if fonttype not in six.itervalues(fonttypes):
             raise ValueError(
                 'Supported Postscript/PDF font types are %s' %
-                fonttypes.values())
+                list(six.itervalues(fonttypes)))
         return fonttype
 
 
@@ -172,7 +175,7 @@ class validate_nseq_float:
 
     def __call__(self, s):
         """return a seq of n floats or raise"""
-        if type(s) is str:
+        if isinstance(s, six.string_types):
             ss = s.split(',')
             if len(ss) != self.n:
                 raise ValueError(
@@ -195,7 +198,7 @@ class validate_nseq_int:
 
     def __call__(self, s):
         """return a seq of n ints or raise"""
-        if type(s) is str:
+        if isinstance(s, six.string_types):
             ss = s.split(',')
             if len(ss) != self.n:
                 raise ValueError(
@@ -247,7 +250,7 @@ def validate_color(s):
 
 def validate_colorlist(s):
     'return a list of colorspecs'
-    if type(s) is str:
+    if isinstance(s, six.string_types):
         return [validate_color(c.strip()) for c in s.split(',')]
     else:
         assert type(s) in [list, tuple]
@@ -256,11 +259,11 @@ def validate_colorlist(s):
 
 def validate_stringlist(s):
     'return a list'
-    if type(s) in (str, unicode):
+    if isinstance(s, six.string_types):
         return [v.strip() for v in s.split(',')]
     else:
         assert type(s) in [list, tuple]
-        return [str(v) for v in s]
+        return [six.text_type(v) for v in s]
 
 
 validate_orientation = ValidateInStrings(
@@ -277,7 +280,7 @@ def validate_aspect(s):
 
 
 def validate_fontsize(s):
-    if type(s) is str:
+    if isinstance(s, six.string_types):
         s = s.lower()
     if s in ['xx-small', 'x-small', 'small', 'medium', 'large', 'x-large',
              'xx-large', 'smaller', 'larger']:
@@ -315,7 +318,7 @@ def deprecate_savefig_extension(value):
 def update_savefig_format(value):
     # The old savefig.extension could also have a value of "auto", but
     # the new savefig.format does not.  We need to fix this here.
-    value = str(value)
+    value = six.text_type(value)
     if value == 'auto':
         value = 'png'
     return value
@@ -330,7 +333,7 @@ validate_ps_papersize = ValidateInStrings(
 
 
 def validate_ps_distiller(s):
-    if type(s) is str:
+    if isinstance(s, six.string_types):
         s = s.lower()
 
     if s in ('none', None):
@@ -417,7 +420,7 @@ validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
 validate_axis_locator = ValidateInStrings('major', ['minor','both','major'])
 
 def validate_bbox(s):
-    if type(s) is str:
+    if isinstance(s, six.string_types):
         s = s.lower()
         if s == 'tight':
             return s
@@ -428,7 +431,7 @@ def validate_bbox(s):
 def validate_sketch(s):
     if s == 'None' or s is None:
         return None
-    if isinstance(s, basestring):
+    if isinstance(s, six.string_types):
         result = tuple([float(v.strip()) for v in s.split(',')])
     elif isinstance(s, (list, tuple)):
         result = tuple([float(v) for v in s])
@@ -481,17 +484,17 @@ defaultParams = {
     'datapath':          [None, validate_path_exists],  # handled by
                                                         # _get_data_path_cached
     'interactive':       [False, validate_bool],
-    'timezone':          ['UTC', str],
+    'timezone':          ['UTC', six.text_type],
 
     # the verbosity setting
     'verbose.level': ['silent', validate_verbose],
-    'verbose.fileo': ['sys.stdout', str],
+    'verbose.fileo': ['sys.stdout', six.text_type],
 
     # line props
     'lines.linewidth':       [1.0, validate_float],  # line width in points
-    'lines.linestyle':       ['-', str],             # solid line
+    'lines.linestyle':       ['-', six.text_type],             # solid line
     'lines.color':           ['b', validate_color],  # blue
-    'lines.marker':          ['None', str],     # black
+    'lines.marker':          ['None', six.text_type],     # black
     'lines.markeredgewidth': [0.5, validate_float],
     'lines.markersize':      [6, validate_float],    # markersize, in points
     'lines.antialiased':     [True, validate_bool],  # antialised (no jaggies)
@@ -509,10 +512,10 @@ defaultParams = {
 
     ## font props
     'font.family':     ['sans-serif', validate_stringlist],  # used by text object
-    'font.style':      ['normal', str],
-    'font.variant':    ['normal', str],
-    'font.stretch':    ['normal', str],
-    'font.weight':     ['normal', str],
+    'font.style':      ['normal', six.text_type],
+    'font.variant':    ['normal', six.text_type],
+    'font.stretch':    ['normal', six.text_type],
+    'font.weight':     ['normal', six.text_type],
     'font.size':       [12, validate_float],      # Base font size in points
     'font.serif':      [['Bitstream Vera Serif', 'DejaVu Serif',
                          'New Century Schoolbook', 'Century Schoolbook L',
@@ -555,10 +558,10 @@ defaultParams = {
     'mathtext.fallback_to_cm': [True, validate_bool],
 
     'image.aspect':        ['equal', validate_aspect],  # equal, auto, a number
-    'image.interpolation': ['bilinear', str],
-    'image.cmap':          ['jet', str],        # one of gray, jet, etc
+    'image.interpolation': ['bilinear', six.text_type],
+    'image.cmap':          ['jet', six.text_type],        # one of gray, jet, etc
     'image.lut':           [256, validate_int],  # lookup table
-    'image.origin':        ['upper', str],  # lookup table
+    'image.origin':        ['upper', six.text_type],  # lookup table
     'image.resample':      [False, validate_bool],
 
     'contour.negative_linestyle': ['dashed',
@@ -579,7 +582,7 @@ defaultParams = {
                                                                 # axis locator
     'axes.labelsize':        ['medium', validate_fontsize],  # fontsize of the
                                                              # x any y labels
-    'axes.labelweight':      ['normal', str],  # fontsize of the x any y labels
+    'axes.labelweight':      ['normal', six.text_type],  # fontsize of the x any y labels
     'axes.labelcolor':       ['k', validate_color],    # color of axis label
     'axes.formatter.limits': [[-7, 7], validate_nseq_int(2)],
                                # use scientific notation if log10
@@ -652,7 +655,7 @@ defaultParams = {
     'xtick.color':       ['k', validate_color],  # color of the xtick labels
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
-    'xtick.direction':   ['in', str],            # direction of xticks
+    'xtick.direction':   ['in', six.text_type],            # direction of xticks
 
     'ytick.major.size':  [4, validate_float],     # major ytick size in points
     'ytick.minor.size':  [2, validate_float],     # minor ytick size in points
@@ -663,10 +666,10 @@ defaultParams = {
     'ytick.color':       ['k', validate_color],   # color of the ytick labels
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],
-    'ytick.direction':   ['in', str],            # direction of yticks
+    'ytick.direction':   ['in', six.text_type],            # direction of yticks
 
     'grid.color':        ['k', validate_color],       # grid color
-    'grid.linestyle':    [':', str],       # dotted
+    'grid.linestyle':    [':', six.text_type],       # dotted
     'grid.linewidth':    [0.5, validate_float],     # in points
     'grid.alpha':        [1.0, validate_float],
 
@@ -710,7 +713,7 @@ defaultParams = {
     'savefig.bbox':       [None, validate_bbox],
     'savefig.pad_inches': [0.1, validate_float],
     # default directory in savefig dialog box
-    'savefig.directory': ['~', unicode],
+    'savefig.directory': ['~', six.text_type],
 
     # Maintain shell focus for TkAgg
     'tk.window_focus':  [False, validate_bool],
@@ -749,7 +752,7 @@ defaultParams = {
     # set this when you want to generate hardcopy docstring
     'docstring.hardcopy': [False, validate_bool],
     # where plugin directory is locate
-    'plugins.directory':  ['.matplotlib_plugins', str],
+    'plugins.directory':  ['.matplotlib_plugins', six.text_type],
 
     'path.simplify': [True, validate_bool],
     'path.simplify_threshold': [1.0 / 9.0, ValidateInterval(0.0, 1.0)],
@@ -773,29 +776,29 @@ defaultParams = {
     'keymap.all_axes':     ['a', validate_stringlist],
 
     # sample data
-    'examples.directory': ['', str],
+    'examples.directory': ['', six.text_type],
 
     # Animation settings
     'animation.writer':       ['ffmpeg', validate_movie_writer],
-    'animation.codec':        ['mpeg4', str],
+    'animation.codec':        ['mpeg4', six.text_type],
     'animation.bitrate':      [-1, validate_int],
     # Controls image format when frames are written to disk
     'animation.frame_format': ['png', validate_movie_frame_fmt],
     # Path to FFMPEG binary. If just binary name, subprocess uses $PATH.
-    'animation.ffmpeg_path':  ['ffmpeg', str],
+    'animation.ffmpeg_path':  ['ffmpeg', six.text_type],
 
     ## Additional arguments for ffmpeg movie writer (using pipes)
     'animation.ffmpeg_args':   ['', validate_stringlist],
     # Path to AVConv binary. If just binary name, subprocess uses $PATH.
-    'animation.avconv_path':   ['avconv', str],
+    'animation.avconv_path':   ['avconv', six.text_type],
     # Additional arguments for avconv movie writer (using pipes)
     'animation.avconv_args':   ['', validate_stringlist],
     # Path to MENCODER binary. If just binary name, subprocess uses $PATH.
-    'animation.mencoder_path': ['mencoder', str],
+    'animation.mencoder_path': ['mencoder', six.text_type],
     # Additional arguments for mencoder movie writer (using pipes)
     'animation.mencoder_args': ['', validate_stringlist],
      # Path to convert binary. If just binary name, subprocess uses $PATH
-    'animation.convert_path':  ['convert', str],
+    'animation.convert_path':  ['convert', six.text_type],
      # Additional arguments for mencoder movie writer (using pipes)
 
     'animation.convert_args':  ['', validate_stringlist]}
