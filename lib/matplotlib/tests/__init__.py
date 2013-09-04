@@ -11,7 +11,12 @@ _multiprocess_can_split_ = True
 
 
 def setup():
-    use('Agg', warn=False)  # use Agg backend for these tests
+    # The baseline images are created in this locale, so we should use
+    # it during all of the tests.
+    import locale
+    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+
+    use('Agg', warn=False) # use Agg backend for these tests
 
     # These settings *must* be hardcoded for running the comparison
     # tests and are not necessarily the default values as specified in
