@@ -1097,7 +1097,7 @@ def rc_file_defaults():
     rcParams.update(rcParamsOrig)
 
 _use_error_msg = """ This call to matplotlib.use() has no effect
-because the the backend has already been chosen;
+because the backend has already been chosen;
 matplotlib.use() must be called *before* pylab, matplotlib.pyplot,
 or matplotlib.backends is imported for the first time.
 """
