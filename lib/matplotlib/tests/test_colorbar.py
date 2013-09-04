@@ -7,7 +7,7 @@ from numpy import ma
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, knownfailureif
 import matplotlib.pyplot as plt
-from matplotlib import rcParams, rcParamsDefault
+from matplotlib import rcParams
 from matplotlib.colors import BoundaryNorm
 from matplotlib.cm import get_cmap
 from matplotlib.colorbar import ColorbarBase
@@ -102,8 +102,6 @@ def _colorbar_extension_length(spacing):
         extensions=['png'])
 def test_colorbar_extension_shape():
     '''Test rectangular colorbar extensions.'''
-    # Use default params so matplotlibrc doesn't cause the test to fail.
-    rcParams.update(rcParamsDefault)
     # Create figures for uniform and proportionally spaced colorbars.
     fig1 = _colorbar_extension_shape('uniform')
     fig2 = _colorbar_extension_shape('proportional')
@@ -114,8 +112,6 @@ def test_colorbar_extension_shape():
                   extensions=['png'])
 def test_colorbar_extension_length():
     '''Test variable length colorbar extensions.'''
-    # Use default params so matplotlibrc doesn't cause the test to fail.
-    rcParams.update(rcParamsDefault)
     # Create figures for uniform and proportionally spaced colorbars.
     fig1 = _colorbar_extension_length('uniform')
     fig2 = _colorbar_extension_length('proportional')
