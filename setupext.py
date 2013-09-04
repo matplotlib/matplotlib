@@ -913,10 +913,21 @@ class Tri(SetupPackage):
 class Dateutil(SetupPackage):
     name = "dateutil"
 
+    def __init__(self, version=None):
+        self.version = version
+
     def check(self):
         try:
             import dateutil
         except ImportError:
+            # dateutil 2.1 has a file encoding bug that breaks installation on
+            # python 3.3
+            # https://github.com/matplotlib/matplotlib/issues/2373
+            # hack around the problem by installing the the (working) v2.0
+            major, minor1, _, _, _ = sys.version_info
+            if self.version is None and (major, minor1) == (3, 3):
+                self.version = '!=2.1'
+
             return (
                 "dateutil was not found. It is required for date axis "
                 "support. pip/easy_install may attempt to install it "
@@ -925,7 +936,10 @@ class Dateutil(SetupPackage):
         return "using dateutil version %s" % dateutil.__version__
 
     def get_install_requires(self):
-        return ['python-dateutil']
+        dateutil = 'python-dateutil'
+        if self.version is not None:
+            dateutil += self.version
+        return [dateutil]
 
 
 class Tornado(SetupPackage):
