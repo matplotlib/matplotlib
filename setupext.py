@@ -949,6 +949,16 @@ class Tornado(SetupPackage):
 class Pyparsing(SetupPackage):
     name = "pyparsing"
 
+    def is_ok(self):
+        # pyparsing 2.0.0 bug, but it may be patched in distributions
+        try:
+            import pyparsing
+            f = pyparsing.Forward()
+            f <<= pyparsing.Literal('a')
+            return f is not None
+        except:
+            return False
+
     def check(self):
         try:
             import pyparsing
@@ -964,19 +974,18 @@ class Pyparsing(SetupPackage):
                 "matplotlib requires pyparsing >= {0}".format(
                     '.'.join(str(x) for x in required)))
 
-        if pyparsing.__version__ == "2.0.0":
-            if sys.version_info[0] == 2:
-                return (
-                    "pyparsing 2.0.0 is not compatible with Python 2.x")
-            else:
-                return (
-                    "pyparsing 2.0.0 has bugs that prevent its use with "
-                    "matplotlib")
+        if not self.is_ok():
+            return (
+                "pyparsing 2.0.0 has bugs that prevent its use with "
+                "matplotlib")
 
         return "using pyparsing version %s" % pyparsing.__version__
 
     def get_install_requires(self):
-        return ['pyparsing>=1.5.6,!=2.0.0']
+        if self.is_ok():
+            return ['pyparsing>=1.5.6']
+        else:
+            return ['pyparsing>=1.5.6,!=2.0.0']
 
 
 class BackendAgg(OptionalBackendPackage):
