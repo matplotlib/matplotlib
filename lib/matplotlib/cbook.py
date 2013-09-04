@@ -117,7 +117,7 @@ def warn_deprecated(
         The object type being deprecated.
     """
     message = _generate_deprecation_message(
-        since, message, name, alternative, pending, 'function')
+        since, message, name, alternative, pending, obj_type)
 
     warnings.warn(message, mplDeprecation, stacklevel=1)
 
