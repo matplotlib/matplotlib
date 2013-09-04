@@ -128,10 +128,13 @@ else:
         raise ImportError(
             "matplotlib requires pyparsing >= 1.5.6")
 
-    if pyparsing.__version__ == '2.0.0':
-        raise ImportError(
-            "pyparsing 2.0.0 has bugs that prevent its use with "
-            "matplotlib")
+    # pyparsing 2.0.0 bug, but it may be patched in distributions
+    try:
+        f = pyparsing.Forward()
+        f <<= pyparsing.Literal('a')
+        bad_pyparsing = f is None
+    except:
+        bad_pyparsing = True
 
     # pyparsing 1.5.6 does not have <<= on the Forward class, but
     # pyparsing 2.0.0 and later will spew deprecation warnings if
@@ -139,7 +142,7 @@ else:
     # broken, since it doesn't return self.  In order to support
     # pyparsing 1.5.6 and above with a common code base, this small
     # monkey patch is applied.
-    if not compare_versions(pyparsing.__version__, '2.0.1'):
+    if bad_pyparsing:
         def _forward_ilshift(self, other):
             self.__lshift__(other)
             return self
