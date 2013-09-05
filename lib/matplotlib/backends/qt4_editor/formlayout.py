@@ -107,9 +107,9 @@ def to_qcolor(color):
         color = col2hex(color)
     except ValueError:
         #print('WARNING: ignoring invalid color %r' % color)
-        return qcolor # return invalid QColor
-    qcolor.setNamedColor(color) # set using hex color
-    return qcolor # return valid QColor
+        return qcolor  # return invalid QColor
+    qcolor.setNamedColor(color)  # set using hex color
+    return qcolor  # return valid QColor
 
 
 class ColorLayout(QtGui.QHBoxLayout):
@@ -130,7 +130,7 @@ class ColorLayout(QtGui.QHBoxLayout):
     def update_color(self):
         color = self.text()
         qcolor = to_qcolor(color)
-        self.colorbtn.color = qcolor # defaults to black if not qcolor.isValid()
+        self.colorbtn.color = qcolor  # defaults to black if not qcolor.isValid()
 
     def update_text(self, color):
         self.lineedit.setText(color.name())
@@ -141,7 +141,9 @@ class ColorLayout(QtGui.QHBoxLayout):
 
 def font_is_installed(font):
     """Check if font is installed"""
-    return [fam for fam in QtGui.QFontDatabase().families() if six.text_type(fam)==font]
+    return [fam for fam in QtGui.QFontDatabase().families()
+              if six.text_type(fam) == font]
+
 
 def tuple_to_qfont(tup):
     """
@@ -162,9 +164,11 @@ def tuple_to_qfont(tup):
     font.setBold(bold)
     return font
 
+
 def qfont_to_tuple(font):
     return (six.text_type(font.family()), int(font.pointSize()),
             font.italic(), font.bold())
+
 
 class FontLayout(QtGui.QGridLayout):
     """Font selection"""
@@ -213,6 +217,7 @@ def is_edit_valid(edit):
     state = edit.validator().validate(text, 0)[0]
 
     return state == QtGui.QDoubleValidator.Acceptable
+
 
 class FormWidget(QtGui.QWidget):
     def __init__(self, data, comment="", parent=None):
@@ -264,8 +269,8 @@ class FormWidget(QtGui.QWidget):
                 selindex = value.pop(0)
                 field = QtGui.QComboBox(self)
                 if isinstance(value[0], (list, tuple)):
-                    keys = [ key for key, _val in value ]
-                    value = [ val for _key, val in value ]
+                    keys = [key for key, _val in value]
+                    value = [val for _key, val in value]
                 else:
                     keys = value
                 field.addItems(value)
@@ -274,7 +279,7 @@ class FormWidget(QtGui.QWidget):
                 elif selindex in keys:
                     selindex = keys.index(selindex)
                 elif not isinstance(selindex, int):
-                    print("Warning: '%s' index is invalid (label: " \
+                    print("Warning: '%s' index is invalid (label: "
                                     "%s, value: %s)" % (selindex, label, value), file=STDERR)
                     selindex = 0
                 field.setCurrentIndex(selindex)
@@ -282,7 +287,7 @@ class FormWidget(QtGui.QWidget):
                 field = QtGui.QCheckBox(self)
                 if value:
                     field.setCheckState(QtCore.Qt.Checked)
-                else :
+                else:
                     field.setCheckState(QtCore.Qt.Unchecked)
             elif isinstance(value, float):
                 field = QtGui.QLineEdit(repr(value), self)
@@ -364,7 +369,7 @@ class FormComboWidget(QtGui.QWidget):
             widget.setup()
 
     def get(self):
-        return [ widget.get() for widget in self.widgetlist]
+        return [widget.get() for widget in self.widgetlist]
 
 
 class FormTabWidget(QtGui.QWidget):
@@ -376,7 +381,7 @@ class FormTabWidget(QtGui.QWidget):
         self.setLayout(layout)
         self.widgetlist = []
         for data, title, comment in datalist:
-            if len(data[0])==3:
+            if len(data[0]) == 3:
                 widget = FormComboWidget(data, comment=comment, parent=self)
             else:
                 widget = FormWidget(data, comment=comment, parent=self)
@@ -389,7 +394,7 @@ class FormTabWidget(QtGui.QWidget):
             widget.setup()
 
     def get(self):
-        return [ widget.get() for widget in self.widgetlist]
+        return [widget.get() for widget in self.widgetlist]
 
 
 class FormDialog(QtGui.QDialog):
@@ -404,7 +409,7 @@ class FormDialog(QtGui.QDialog):
         if isinstance(data[0][0], (list, tuple)):
             self.formwidget = FormTabWidget(data, comment=comment,
                                             parent=self)
-        elif len(data[0])==3:
+        elif len(data[0]) == 3:
             self.formwidget = FormComboWidget(data, comment=comment,
                                               parent=self)
         else:
@@ -418,7 +423,7 @@ class FormDialog(QtGui.QDialog):
 
         # Button box
         self.bbox = bbox = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok
-                                                 |QtGui.QDialogButtonBox.Cancel)
+                                                 | QtGui.QDialogButtonBox.Cancel)
         self.connect(self.formwidget, QtCore.SIGNAL('update_buttons()'),
                      self.update_buttons)
         if self.apply_callback is not None:
@@ -502,7 +507,6 @@ def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
         return dialog.get()
 
 
-
 if __name__ == "__main__":
 
     def create_datalist_example():
@@ -529,6 +533,7 @@ if __name__ == "__main__":
 
     #--------- datalist example
     datalist = create_datalist_example()
+
     def apply_test(data):
         print("data:", data)
     print("result:", fedit(datalist, title="Example",
