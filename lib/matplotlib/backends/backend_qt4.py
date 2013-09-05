@@ -82,7 +82,7 @@ def _create_qApp():
                 if display is None or not re.search(':\d', display):
                     raise RuntimeError('Invalid DISPLAY variable')
 
-            qApp = QtGui.QApplication([" "])  # probably fine, not used by QT to resolve anything
+            qApp = QtGui.QApplication([str(" ")])
             qApp.lastWindowClosed.connect(qApp.quit)
         else:
             qApp = app
