@@ -218,6 +218,7 @@ def is_edit_valid(edit):
 
 
 class FormWidget(QtGui.QWidget):
+    update_buttons = QtCore.Signal()
     def __init__(self, data, comment="", parent=None):
         QtGui.QWidget.__init__(self, parent)
         from copy import deepcopy
@@ -292,8 +293,7 @@ class FormWidget(QtGui.QWidget):
                 field.setValidator(QtGui.QDoubleValidator(field))
                 dialog = self.get_dialog()
                 dialog.register_float_field(field)
-                self.connect(field, QtCore.SIGNAL('textChanged(QString)'),
-                             lambda text: dialog.update_buttons())
+                field.textChanged.connect(lambda text: dialog.update_buttons())
             elif isinstance(value, int):
                 field = QtGui.QSpinBox(self)
                 field.setRange(-1e9, 1e9)
@@ -343,6 +343,8 @@ class FormWidget(QtGui.QWidget):
 
 
 class FormComboWidget(QtGui.QWidget):
+    update_buttons = QtCore.Signal()
+
     def __init__(self, datalist, comment="", parent=None):
         QtGui.QWidget.__init__(self, parent)
         layout = QtGui.QVBoxLayout()
@@ -370,6 +372,8 @@ class FormComboWidget(QtGui.QWidget):
 
 
 class FormTabWidget(QtGui.QWidget):
+    update_buttons = QtCore.Signal()
+
     def __init__(self, datalist, comment="", parent=None):
         QtGui.QWidget.__init__(self, parent)
         layout = QtGui.QVBoxLayout()
@@ -421,8 +425,7 @@ class FormDialog(QtGui.QDialog):
         # Button box
         self.bbox = bbox = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok
                                                  | QtGui.QDialogButtonBox.Cancel)
-        self.connect(self.formwidget, QtCore.SIGNAL('update_buttons()'),
-                     self.update_buttons)
+        self.formwidget.update_buttons.connect(self.update_buttons)
         if self.apply_callback is not None:
             apply_btn = bbox.addButton(QtGui.QDialogButtonBox.Apply)
             apply_btn.clicked.connect(self.apply)
