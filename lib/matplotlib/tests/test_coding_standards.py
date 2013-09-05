@@ -14,7 +14,6 @@ try:
 except ImportError:
     HAS_PEP8 = False
 else:
-    print('I HAVE PEP8!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     HAS_PEP8 = True
 
 import matplotlib
