@@ -2,7 +2,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import six
 
-import math  # might not ever be used
 import os
 import re
 import signal
@@ -10,14 +9,6 @@ import sys
 
 import matplotlib
 
-####### might not ever be used
-from matplotlib import verbose
-from matplotlib.cbook import onetrue
-from matplotlib.backend_bases import GraphicsContextBase
-from matplotlib.backend_bases import RendererBase
-from matplotlib.backend_bases import IdleEvent
-from matplotlib.mathtext import MathTextParser
-#######
 from matplotlib.cbook import is_string_like
 from matplotlib.backend_bases import FigureManagerBase
 from matplotlib.backend_bases import FigureCanvasBase
