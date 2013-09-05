@@ -60,6 +60,12 @@ if not hasattr(QtGui, 'QFormLayout'):
 
 import datetime
 
+
+def col2hex(color):
+    """Convert matplotlib color to hex before passing to Qt"""
+    return rgb2hex(colorConverter.to_rgb(color))
+
+
 class ColorButton(QtGui.QPushButton):
     """
     Color choosing push button
