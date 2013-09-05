@@ -82,9 +82,8 @@ def _create_qApp():
                 if display is None or not re.search(':\d', display):
                     raise RuntimeError('Invalid DISPLAY variable')
 
-            qApp = QtGui.QApplication([" "])
-            QtCore.QObject.connect(qApp, QtCore.SIGNAL("lastWindowClosed()"),
-                                qApp, QtCore.SLOT("quit()"))
+            qApp = QtGui.QApplication([" "])  # probably fine, not used by QT to resolve anything
+            qApp.lastWindowClosed.connect(qApp.quit)
         else:
             qApp = app
 
@@ -469,8 +468,7 @@ class FigureManagerQT(FigureManagerBase):
         self.toolbar = self._get_toolbar(self.canvas, self.window)
         if self.toolbar is not None:
             self.window.addToolBar(self.toolbar)
-            QtCore.QObject.connect(self.toolbar, QtCore.SIGNAL("message"),
-                                   self._show_message)
+            self.toolbar.message.connect(self._show_message)
             tbs_height = self.toolbar.sizeHint().height()
         else:
             tbs_height = 0
@@ -556,6 +554,8 @@ class FigureManagerQT(FigureManagerBase):
 
 
 class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
+    message = QtCore.Signal(str)
+
     def __init__(self, canvas, parent, coordinates=True):
         """ coordinates: should we show the coordinates on the right? """
         self.canvas = canvas
@@ -656,7 +656,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
         self.canvas.draw()
 
     def set_message(self, s):
-        self.emit(QtCore.SIGNAL("message"), s)
+        self.message.emit(s)
         if self.coordinates:
             self.locLabel.setText(s.replace(', ', '\n'))
 
@@ -746,18 +746,10 @@ class SubplotToolQt(SubplotTool, QtGui.QWidget):
         self.sliderhspace = QtGui.QSlider(QtCore.Qt.Vertical)
 
         # constraints
-        QtCore.QObject.connect(self.sliderleft,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.sliderright.setMinimum)
-        QtCore.QObject.connect(self.sliderright,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.sliderleft.setMaximum)
-        QtCore.QObject.connect(self.sliderbottom,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.slidertop.setMinimum)
-        QtCore.QObject.connect(self.slidertop,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.sliderbottom.setMaximum)
+        self.sliderleft.valueChanged.connect(self.sliderright.setMinimum)
+        self.sliderright.valueChanged.connect(self.sliderleft.setMaximum)
+        self.sliderbottom.valueChanged.connect(self.slidertop.setMinimum)
+        self.slidertop.valueChanged.connect(self.sliderbottom.setMaximum)
 
         sliders = (self.sliderleft, self.sliderbottom, self.sliderright,
                    self.slidertop, self.sliderwspace, self.sliderhspace,)
@@ -820,24 +812,12 @@ class SubplotToolQt(SubplotTool, QtGui.QWidget):
         self.sliderhspace.setSliderPosition(
                                     int(targetfig.subplotpars.hspace*1000))
 
-        QtCore.QObject.connect(self.sliderleft,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.funcleft)
-        QtCore.QObject.connect(self.sliderbottom,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.funcbottom)
-        QtCore.QObject.connect(self.sliderright,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.funcright)
-        QtCore.QObject.connect(self.slidertop,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.functop)
-        QtCore.QObject.connect(self.sliderwspace,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.funcwspace)
-        QtCore.QObject.connect(self.sliderhspace,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.funchspace)
+        self.sliderleft.valueChanged.connect(self.funcleft)
+        self.sliderbottom.valueChanged.connect(self.funcbottom)
+        self.sliderright.valueChanged.connect(self.funcright)
+        self.slidertop.valueChanged.connect(self.functop)
+        self.sliderwspace.valueChanged.connect(self.funcwspace)
+        self.sliderhspace.valueChanged.connect(self.funchspace)
 
     def funcleft(self, val):
         if val == self.sliderright.value():

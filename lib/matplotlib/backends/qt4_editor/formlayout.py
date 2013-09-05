@@ -70,33 +70,33 @@ class ColorButton(QtGui.QPushButton):
     """
     Color choosing push button
     """
-    __pyqtSignals__ = ("colorChanged(QColor)",)
+    colorChanged = QtCore.Signal(QtGui.QColor)
 
     def __init__(self, parent=None):
         QtGui.QPushButton.__init__(self, parent)
         self.setFixedSize(20, 20)
         self.setIconSize(QtCore.QSize(12, 12))
-        self.connect(self, QtCore.SIGNAL("clicked()"), self.choose_color)
+        self.clicked.connect(self.choose_color)
         self._color = QtGui.QColor()
 
     def choose_color(self):
-        color = QtGui.QColorDialog.getColor(self._color,self.parentWidget(),'')
+        color = QtGui.QColorDialog.getColor(self._color, self.parentWidget(), '')
         if color.isValid():
             self.set_color(color)
 
     def get_color(self):
         return self._color
 
-    @QtCore.Slot("QColor")
+    @QtCore.Slot(QtGui.QColor)
     def set_color(self, color):
         if color != self._color:
             self._color = color
-            self.emit(QtCore.SIGNAL("colorChanged(QColor)"), self._color)
+            self.colorChanged.emit(self._color)
             pixmap = QtGui.QPixmap(self.iconSize())
             pixmap.fill(color)
             self.setIcon(QtGui.QIcon(pixmap))
 
-    color = QtCore.Property("QColor", get_color, set_color)
+    color = QtCore.Property(QtGui.QColor, get_color, set_color)
 
 
 def to_qcolor(color):
@@ -118,13 +118,11 @@ class ColorLayout(QtGui.QHBoxLayout):
         QtGui.QHBoxLayout.__init__(self)
         assert isinstance(color, QtGui.QColor)
         self.lineedit = QtGui.QLineEdit(color.name(), parent)
-        self.connect(self.lineedit, QtCore.SIGNAL("editingFinished()"),
-                     self.update_color)
+        self.lineedit.editingFinished.connect(self.update_color)
         self.addWidget(self.lineedit)
         self.colorbtn = ColorButton(parent)
         self.colorbtn.color = color
-        self.connect(self.colorbtn, QtCore.SIGNAL("colorChanged(QColor)"),
-                     self.update_text)
+        self.colorbtn.colorChanged.connect(self.update_text)
         self.addWidget(self.colorbtn)
 
     def update_color(self):
@@ -354,8 +352,7 @@ class FormComboWidget(QtGui.QWidget):
 
         self.stackwidget = QtGui.QStackedWidget(self)
         layout.addWidget(self.stackwidget)
-        self.connect(self.combobox, QtCore.SIGNAL("currentIndexChanged(int)"),
-                     self.stackwidget, QtCore.SLOT("setCurrentIndex(int)"))
+        self.combobox.currentIndexChanged.connect(self.stackwidget.setCurrentIndex)
 
         self.widgetlist = []
         for data, title, comment in datalist:
@@ -428,9 +425,10 @@ class FormDialog(QtGui.QDialog):
                      self.update_buttons)
         if self.apply_callback is not None:
             apply_btn = bbox.addButton(QtGui.QDialogButtonBox.Apply)
-            self.connect(apply_btn, QtCore.SIGNAL("clicked()"), self.apply)
-        self.connect(bbox, QtCore.SIGNAL("accepted()"), QtCore.SLOT("accept()"))
-        self.connect(bbox, QtCore.SIGNAL("rejected()"), QtCore.SLOT("reject()"))
+            apply_btn.clicked.connect(self.apply)
+
+        bbox.accepted.connect(self.accept)
+        bbox.rejected.connect(self.reject)
         layout.addWidget(bbox)
 
         self.setLayout(layout)
