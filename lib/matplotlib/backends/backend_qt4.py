@@ -133,8 +133,7 @@ class TimerQT(TimerBase):
         # Create a new timer and connect the timeout() signal to the
         # _on_timer method.
         self._timer = QtCore.QTimer()
-        QtCore.QObject.connect(self._timer, QtCore.SIGNAL('timeout()'),
-            self._on_timer)
+        self._timer.timeout.connect(self._on_timer)
         self._timer_set_interval()
 
     def __del__(self):
@@ -142,8 +141,7 @@ class TimerQT(TimerBase):
         # disconnect
         try:
             TimerBase.__del__(self)
-            QtCore.QObject.disconnect(self._timer,
-                    QtCore.SIGNAL('timeout()'), self._on_timer)
+            self._timer.timeout.disconnect(self._on_timer)
         except RuntimeError:
             # Timer C++ object already deleted
             pass
@@ -422,8 +420,10 @@ class FigureCanvasQT(QtGui.QWidget, FigureCanvasBase):
 
 
 class MainWindow(QtGui.QMainWindow):
+    closing = QtCore.Signal()
+
     def closeEvent(self, event):
-        self.emit(QtCore.SIGNAL('closing()'))
+        self.closing.emit()
         QtGui.QMainWindow.closeEvent(self, event)
 
 
@@ -443,10 +443,8 @@ class FigureManagerQT(FigureManagerBase):
         FigureManagerBase.__init__(self, canvas, num)
         self.canvas = canvas
         self.window = MainWindow()
-        self.window.connect(self.window, QtCore.SIGNAL('closing()'),
-                            canvas.close_event)
-        self.window.connect(self.window, QtCore.SIGNAL('closing()'),
-                            self._widgetclosed)
+        self.window.closing.connect(canvas.close_event)
+        self.window.closing.connect(self._widgetclosed)
 
         self.window.setWindowTitle("Figure %d" % num)
         image = os.path.join(matplotlib.rcParams['datapath'],
@@ -538,8 +536,8 @@ class FigureManagerQT(FigureManagerBase):
         if self.window._destroying:
             return
         self.window._destroying = True
-        QtCore.QObject.disconnect(self.window, QtCore.SIGNAL('destroyed()'),
-                                  self._widgetclosed)
+        self.window.destroyed.connect(self._widgetclosed)
+
         if self.toolbar:
                 self.toolbar.destroy()
         if DEBUG:
