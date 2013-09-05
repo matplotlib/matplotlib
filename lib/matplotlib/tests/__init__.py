@@ -11,7 +11,7 @@ def setup():
     # The baseline images are created in this locale, so we should use
     # it during all of the tests.
     import locale
-    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    locale.setlocale(locale.LC_ALL, str('en_US.UTF-8'))
 
     use('Agg', warn=False) # use Agg backend for these tests
 
