@@ -781,7 +781,7 @@ class SubplotToolQt(SubplotTool, QtGui.QWidget):
         layout.setAlignment(self.slidertop, QtCore.Qt.AlignHCenter)
 
         bottomlabel = QtGui.QLabel('bottom')  # this might not ever be used
-        layout.addWidget(QtGui.QLabel('bottom'), 4, 2)
+        layout.addWidget(bottomlabel, 4, 2)
         layout.addWidget(self.sliderbottom, 3, 2)
         layout.setAlignment(self.sliderbottom, QtCore.Qt.AlignHCenter)
 
