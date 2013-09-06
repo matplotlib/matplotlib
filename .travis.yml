@@ -35,4 +35,5 @@ script:
   - python ../matplotlib/tests.py -sv --processes=8 --process-timeout=300
 
 after_failure:
+  - echo $PWD
   - ./travis_upload.sh
