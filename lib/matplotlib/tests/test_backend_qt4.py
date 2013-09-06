@@ -50,6 +50,12 @@ def test_fig_close():
 
 
 def assert_correct_key(qt_key, qt_mods, answer):
+    """
+    Make a figure
+    Send a key_press_event event (using non-public, qt4 backend specific api)
+    Catch the event
+    Assert sent and caught keys are the same
+    """
     plt.switch_backend('Qt4Agg')
     qt_canvas = plt.figure().canvas
 
