@@ -507,14 +507,14 @@ def table(ax,
     if rowLabels is not None:
         assert len(rowLabels) == rows
 
-    offset = 0
+    offset = 1
     if colLabels is None:
         if colColours is not None:
             colLabels = [''] * rows
-            offset = 1
+        else:
+            offset = 0
     elif colColours is None:
         colColours = 'w' * cols
-        offset = 1
 
     if rowLabels is not None:
         assert len(rowLabels) == rows
