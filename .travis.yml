@@ -35,5 +35,4 @@ script:
   - python ../matplotlib/tests.py -sv --processes=8 --process-timeout=300
 
 after_failure:
-  - cd ../tmp_test_dir
   - ./travis_upload.sh
