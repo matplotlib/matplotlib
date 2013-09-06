@@ -495,7 +495,8 @@ def table(ax,
     if colWidths is None:
         colWidths = [1.0 / cols] * cols
 
-    # Check row and column labels
+    # Fill in missing information for column
+    # and row labels
     rowLabelWidth = 0
     if rowLabels is None:
         if rowColours is not None:
@@ -507,7 +508,7 @@ def table(ax,
     if rowLabels is not None:
         assert len(rowLabels) == rows
 
-    # If we have a header row, need to shift
+    # If we have column labels, need to shift
     # the text and colour arrays down 1 row
     offset = 1
     if colLabels is None:
