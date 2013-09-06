@@ -6,9 +6,9 @@ The top level :mod:`matplotlib` module
 
 .. autofunction:: use
 
-.. autofunction:: get_backend 
+.. autofunction:: get_backend
 
-.. py:data:: matplotlib.rcParams
+.. py:data:: rcParams
 
     An instance of :class:`RcParams` for handling default matplotlib values.
 

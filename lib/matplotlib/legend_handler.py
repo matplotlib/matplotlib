@@ -1,6 +1,9 @@
 """
 This module defines default legend handlers.
 
+It is strongly encouraged to have read the :ref:`legend guide
+<plotting-guide-legend>` before this documentation.
+
 Legend handlers are expected to be a callable object with a following
 signature. ::
 
@@ -15,11 +18,9 @@ be scaled according to the fontsize (note that the size is in pixel,
 i.e., this is dpi-scaled value).
 
 This module includes definition of several legend handler classes
-derived from the base class (HandlerBase) with a following method.
+derived from the base class (HandlerBase) with the following method.
 
-    def __call__(self, legend, orig_handle,
-                 fontsize,
-                 handlebox):
+    def legend_artist(self, legend, orig_handle, fontsize, handlebox):
 
 
 """
@@ -86,38 +87,46 @@ class HandlerBase(object):
         height = height - self._ypad * fontsize
         return xdescent, ydescent, width, height
 
-    def __call__(self, legend, orig_handle,
-                 fontsize,
-                 handlebox):
+    def legend_artist(self, legend, orig_handle,
+                       fontsize, handlebox):
         """
-        x, y, w, h in display coordinate w/ default dpi (72)
-        fontsize in points
+        Return the artist that this HandlerBase generates for the given
+        original artist/handle.
+
+        Parameters
+        ----------
+        legend : :class:`matplotlib.legend.Legend` instance
+            The legend for which these legend artists are being created.
+        orig_handle : :class:`matplotlib.artist.Artist` or similar
+            The object for which these legend artists are being created.
+        fontsize : float or int
+            The fontsize in pixels. The artists being created should
+            be scaled according to the given fontsize.
+        handlebox : :class:`matplotlib.offsetbox.OffsetBox` instance
+            The box which has been created to hold this legend entry's
+            artists. Artists created in the `legend_artist` method must
+            be added to this handlebox inside this method.
+
         """
-        width, height, xdescent, ydescent = handlebox.width, \
-                                            handlebox.height, \
-                                            handlebox.xdescent, \
-                                            handlebox.ydescent
-
-        xdescent, ydescent, width, height = \
-                  self.adjust_drawing_area(legend, orig_handle,
-                                           xdescent, ydescent, width, height,
-                                           fontsize)
-
-        a_list = self.create_artists(legend, orig_handle,
-                                     xdescent, ydescent, width, height, fontsize,
-                                     handlebox.get_transform())
+        xdescent, ydescent, width, height = self.adjust_drawing_area(
+                 legend, orig_handle,
+                 handlebox.xdescent, handlebox.ydescent,
+                 handlebox.width, handlebox.height,
+                 fontsize)
+        artists = self.create_artists(legend, orig_handle,
+                                      xdescent, ydescent, width, height,
+                                      fontsize, handlebox.get_transform())
 
         # create_artists will return a list of artists.
-        for a in a_list:
+        for a in artists:
             handlebox.add_artist(a)
 
         # we only return the first artist
-        return a_list[0]
+        return artists[0]
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
                        trans):
-
         raise NotImplementedError('Derived must override')
 
 
@@ -167,7 +176,7 @@ class HandlerNpointsYoffsets(HandlerNpoints):
 
 class HandlerLine2D(HandlerNpoints):
     """
-    Handler for Line2D instances
+    Handler for Line2D instances.
     """
     def __init__(self, marker_pad=0.3, numpoints=None, **kw):
         HandlerNpoints.__init__(self, marker_pad=marker_pad, numpoints=numpoints, **kw)
@@ -202,13 +211,26 @@ class HandlerLine2D(HandlerNpoints):
 
         return [legline, legline_marker]
 
+
 class HandlerPatch(HandlerBase):
     """
-    Handler for Patches
+    Handler for Patch instances.
     """
     def __init__(self, patch_func=None, **kw):
-        HandlerBase.__init__(self, **kw)
+        """
+        The HandlerPatch class optionally takes a function ``patch_func``
+        who's responsibility is to create the legend key artist. The
+        ``patch_func`` should have the signature::
 
+            def patch_func(legend=legend, orig_handle=orig_handle,
+                           xdescent=xdescent, ydescent=ydescent,
+                           width=width, height=height, fontsize=fontsize)
+
+        Subsequently the created artist will have its ``update_prop`` method
+        called and the appropriate transform will be applied.
+
+        """
+        HandlerBase.__init__(self, **kw)
         self._patch_func = patch_func
 
     def _create_patch(self, legend, orig_handle,
@@ -224,10 +246,8 @@ class HandlerPatch(HandlerBase):
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize, trans):
-
         p = self._create_patch(legend, orig_handle,
                                xdescent, ydescent, width, height, fontsize)
-
         self.update_prop(p, orig_handle, legend)
         p.set_transform(trans)
         return [p]
@@ -235,7 +255,7 @@ class HandlerPatch(HandlerBase):
 
 class HandlerLineCollection(HandlerLine2D):
     """
-    Handler for LineCollections
+    Handler for LineCollection instances.
     """
     def get_numpoints(self, legend):
         if self._numpoints is None:

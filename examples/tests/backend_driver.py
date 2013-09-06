@@ -56,6 +56,7 @@ files['lines'] = [
     'fill_demo.py',
     'fill_demo_features.py',
     'line_demo_dash_control.py',
+    'scatter_with_legend.py'
     ]
 
 files['shapes'] = [
@@ -188,11 +189,8 @@ files['pylab'] = [
     'interp_demo.py',
     'invert_axes.py',
     'layer_images.py',
-    'legend_auto.py',
-    'legend_demo.py',
     'legend_demo2.py',
     'legend_demo3.py',
-    'legend_scatter.py',
     'line_collection.py',
     'line_collection2.py',
     'line_styles.py',

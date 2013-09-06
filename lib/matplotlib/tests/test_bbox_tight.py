@@ -17,7 +17,7 @@ from matplotlib.ticker import FuncFormatter
 @image_comparison(baseline_images=['bbox_inches_tight'], remove_text=True,
                   savefig_kwarg=dict(bbox_inches='tight'), tol=15)
 def test_bbox_inches_tight():
-    #: Test that a figure saved using bbox_inches='tight' is clipped right
+    #: Test that a figure saved using bbox_inches='tight' is clipped correctly
     data = [[ 66386, 174296,  75131, 577908,  32015],
             [ 58230, 381139,  78045,  99308, 160454],
             [ 89135,  80552, 152558, 497981, 603535],

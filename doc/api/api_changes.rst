@@ -74,6 +74,16 @@ original location:
   thus `colorbar.ColorbarBase.outline` is now a
   `matplotlib.patches.Polygon` object.
 
+* The legend handler interface has changed from a callable, to any object
+  which implements the ``legend_artists`` method. See
+  :ref:`plotting-guide-legend` for further details. Further legend changes
+  include:
+
+   * :func:`matplotlib.axes.Axes._get_legend_handles` now returns a generator
+     of handles, rather than a list.
+
+   * The :func:`~matplotlib.pyplot.legend` function's "loc" positional
+     argument has been deprecated. Use the "loc" keyword instead.
 
 * The rcParams `savefig.transparent` has been added to control
   default transparency when saving figures.

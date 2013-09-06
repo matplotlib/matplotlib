@@ -2,14 +2,24 @@
 The legend module defines the Legend class, which is responsible for
 drawing legends associated with axes and/or figures.
 
+.. important::
+
+    It is unlikely that you would ever create a Legend instance manually.
+    Most users would normally create a legend via the
+    :meth:`~matplotlib.axes.Axes.legend` function. For more details on legends
+    there is also a :ref:`legend guide <plotting-guide-legend>`.
+
 The Legend class can be considered as a container of legend handles
 and legend texts. Creation of corresponding legend handles from the
 plot elements in the axes or figures (e.g., lines, patches, etc.) are
 specified by the handler map, which defines the mapping between the
 plot elements and the legend handlers to be used (the default legend
-handlers are defined in the :mod:`~matplotlib.legend_handler` module). Note
-that not all kinds of artist are supported by the legend yet (See
-:ref:`plotting-guide-legend` for more information).
+handlers are defined in the :mod:`~matplotlib.legend_handler` module).
+Note that not all kinds of artist are supported by the legend yet by default
+but it is possible to extend the legend handler's capabilities to
+support arbitrary objects. See the :ref:`legend guide <plotting-guide-legend>`
+for more information.
+
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -243,39 +253,25 @@ class Legend(Artist):
 
         self._fontsize = self.prop.get_size_in_points()
 
-        propnames = ["numpoints", "markerscale", "shadow", "columnspacing",
-                     "scatterpoints", "handleheight"]
-
         self.texts = []
         self.legendHandles = []
         self._legend_title_box = None
 
-        self._handler_map = handler_map
+        #: A dictionary with the extra handler mappings for this Legend
+        #: instance.
+        self._custom_handler_map = handler_map
 
-        localdict = locals()
-
-        for name in propnames:
-            if localdict[name] is None:
+        locals_view = locals()
+        for name in ["numpoints", "markerscale", "shadow", "columnspacing",
+                     "scatterpoints", "handleheight", 'borderpad',
+                     'labelspacing', 'handlelength', 'handletextpad',
+                     'borderaxespad']:
+            if locals_view[name] is None:
                 value = rcParams["legend." + name]
             else:
-                value = localdict[name]
+                value = locals_view[name]
             setattr(self, name, value)
-
-        # convert values of deprecated keywords (ginve in axes coords)
-        # to new vaules in a fraction of the font size
-
-        # conversion factor
-        bbox = parent.bbox
-        axessize_fontsize = min(bbox.width, bbox.height) / self._fontsize
-
-        for v in ['borderpad', 'labelspacing', 'handlelength',
-                  'handletextpad', 'borderaxespad']:
-            if localdict[v] is None:
-                setattr(self, v, rcParams["legend." + v])
-            else:
-                setattr(self, v, localdict[v])
-
-        del localdict
+        del locals_view
 
         handles = list(handles)
         if len(handles) < 2:
@@ -371,14 +367,11 @@ class Legend(Artist):
         self._init_legend_box(handles, labels)
 
         if framealpha is not None:
-          self.get_frame().set_alpha(framealpha)
+            self.get_frame().set_alpha(framealpha)
 
         self._loc = loc
-
         self.set_title(title)
-
         self._last_fontsize_points = self._fontsize
-
         self._draggable = None
 
     def _set_artist_props(self, a):
@@ -495,7 +488,7 @@ class Legend(Artist):
         }
 
     # (get|set|update)_default_handler_maps are public interfaces to
-    # modify the defalut handler map.
+    # modify the default handler map.
 
     @classmethod
     def get_default_handler_map(cls):
@@ -525,9 +518,9 @@ class Legend(Artist):
 
         default_handler_map = self.get_default_handler_map()
 
-        if self._handler_map:
+        if self._custom_handler_map:
             hm = default_handler_map.copy()
-            hm.update(self._handler_map)
+            hm.update(self._custom_handler_map)
             return hm
         else:
             return default_handler_map
@@ -593,50 +586,45 @@ class Legend(Artist):
         # The approximate height and descent of text. These values are
         # only used for plotting the legend handle.
         descent = 0.35 * self._approx_text_height() * (self.handleheight - 0.7)
-        # 0.35 and 0.7 are just heuristic numbers. this may need to be improbed
+        # 0.35 and 0.7 are just heuristic numbers and may need to be improved.
         height = self._approx_text_height() * self.handleheight - descent
         # each handle needs to be drawn inside a box of (x, y, w, h) =
         # (0, -descent, width, height).  And their coordinates should
         # be given in the display coordinates.
 
         # The transformation of each handle will be automatically set
-        # to self.get_trasnform(). If the artist does not uses its
-        # default trasnform (eg, Collections), you need to
+        # to self.get_trasnform(). If the artist does not use its
+        # default transform (e.g., Collections), you need to
         # manually set their transform to the self.get_transform().
-
         legend_handler_map = self.get_legend_handler_map()
 
         for orig_handle, lab in zip(handles, labels):
-
             handler = self.get_legend_handler(legend_handler_map, orig_handle)
-
             if handler is None:
                 warnings.warn(
-                  "Legend does not support %s\nUse proxy artist "
-                  "instead.\n\n"
-                  "http://matplotlib.sourceforge.net/users/legend_guide.html#using-proxy-artist\n" %
-                (str(orig_handle),))
+                  "Legend does not support {!r} instances.\nA proxy artist "
+                  "may be used instead.\nSee: "
+                  "http://matplotlib.org/users/legend_guide.html"
+                  "#using-proxy-artist".format(orig_handle))
+                # We don't have a handle for this artist, so we just defer
+                # to None.
                 handle_list.append(None)
-                continue
+            else:
+                textbox = TextArea(lab, textprops=label_prop,
+                                   multilinebaseline=True,
+                                   minimumdescent=True)
+                text_list.append(textbox._text)
 
-            textbox = TextArea(lab, textprops=label_prop,
-                               multilinebaseline=True, minimumdescent=True)
-            text_list.append(textbox._text)
+                labelboxes.append(textbox)
 
-            labelboxes.append(textbox)
-
-            handlebox = DrawingArea(width=self.handlelength * fontsize,
-                                    height=height,
-                                    xdescent=0., ydescent=descent)
-
-            handle = handler(self, orig_handle,
-                             #xdescent, ydescent, width, height,
-                             fontsize,
-                             handlebox)
-
-            handle_list.append(handle)
-
-            handleboxes.append(handlebox)
+                handlebox = DrawingArea(width=self.handlelength * fontsize,
+                                        height=height,
+                                        xdescent=0., ydescent=descent)
+                handleboxes.append(handlebox)
+                # Create the artist for the legend which represents the
+                # original artist/handle.
+                handle_list.append(handler.legend_artist(self, orig_handle,
+                                                         fontsize, handlebox))
 
         if len(handleboxes) > 0:
 
@@ -682,22 +670,17 @@ class Legend(Artist):
             mode = "fixed"
 
         sep = self.columnspacing * fontsize
-
         self._legend_handle_box = HPacker(pad=0,
                                           sep=sep, align="baseline",
                                           mode=mode,
                                           children=columnbox)
-
         self._legend_title_box = TextArea("")
-
         self._legend_box = VPacker(pad=self.borderpad * fontsize,
                                    sep=self.labelspacing * fontsize,
                                    align="center",
                                    children=[self._legend_title_box,
                                              self._legend_handle_box])
-
         self._legend_box.set_figure(self.figure)
-
         self.texts = text_list
         self.legendHandles = handle_list
 
