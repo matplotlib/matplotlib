@@ -990,8 +990,9 @@ class Pyparsing(SetupPackage):
 
         if not self.is_ok():
             return (
-                "pyparsing 2.0.0 has bugs that prevent its use with "
-                "matplotlib")
+                "Your pyparsing contains a bug that will be monkey-patched by "
+                "matplotlib.  For best results, upgrade to pyparsing 2.0.1 or "
+                "later.")
 
         return "using pyparsing version %s" % pyparsing.__version__
 
