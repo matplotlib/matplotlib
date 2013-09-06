@@ -5,7 +5,6 @@ import sys
 
 def test_simple():
     assert_equal(1+1,2)
-    raise RuntimeError()
 
 @knownfailureif(True)
 def test_simple_knownfail():
