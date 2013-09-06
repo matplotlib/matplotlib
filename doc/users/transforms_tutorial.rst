@@ -19,15 +19,19 @@ description of that system. In the `Transformation Object` column,
 ``ax`` is a :class:`~matplotlib.axes.Axes` instance, and ``fig`` is a
 :class:`~matplotlib.figure.Figure` instance.
 
-==========  =====================  ==============================================================================================================================================================
+==========  =====================  ====================================================================================
 Coordinate  Transformation Object  Description
-==========  =====================  ==============================================================================================================================================================
+==========  =====================  ====================================================================================
 `data`      ``ax.transData``       The userland data coordinate system, controlled by the xlim and ylim
-`axes`      ``ax.transAxes``       The coordinate system of the :class:`~matplotlib.axes.Axes`; (0,0) is bottom left of the axes, and (1,1) is top right of the axes
-`figure`    ``fig.transFigure``    The coordinate system of the :class:`~matplotlib.figure.Figure`; (0,0) is bottom left of the figure, and (1,1) is top right of the figure
-`display`   `None`                 This is the pixel coordinate system of the display; (0,0) is the bottom left of the display, and (width, height) is the top right of the display in pixels
-==========  =====================  ==============================================================================================================================================================
-
+`axes`      ``ax.transAxes``       The coordinate system of the :class:`~matplotlib.axes.Axes`; (0,0) is
+                                   bottom left of the axes, and (1,1) is top right of the axes.
+`figure`    ``fig.transFigure``    The coordinate system of the :class:`~matplotlib.figure.Figure`; (0,0)
+                                   is bottom left of the figure, and (1,1) is top right of the figure.
+`display`   `None`                 This is the pixel coordinate system of the display; (0,0) is the bottom
+                                   left of the display, and (width, height) is the top right of the display in pixels.
+                                   Alternatively, the identity transform
+                                   (:class:`matplotlib.transforms.IdentityTransform()`) may be used instead of None.
+==========  =====================  ====================================================================================
 
 
 All of the transformation objects in the table above take inputs in

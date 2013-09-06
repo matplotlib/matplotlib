@@ -1,10 +1,15 @@
-from matplotlib.pyplot import *
+import matplotlib.pyplot as plt
 
-p1, = plot([1,2,3], label="test1")
-p2, = plot([3,2,1], label="test2")
+line1, = plt.plot([1,2,3], label="Line 1", linestyle='--')
+line2, = plt.plot([3,2,1], label="Line 2", linewidth=4)
 
-l1 = legend([p1], ["Label 1"], loc=1)
-l2 = legend([p2], ["Label 2"], loc=4) # this removes l1 from the axes.
-gca().add_artist(l1) # add l1 as a separate artist to the axes
+# Create a legend for the first line.
+first_legend = plt.legend(handles=[line1], loc=1)
 
-show()
+# Add the legend manually to the current Axes.
+ax = plt.gca().add_artist(first_legend)
+
+# Create another legend for the second line.
+plt.legend(handles=[line2], loc=4)
+
+plt.show()

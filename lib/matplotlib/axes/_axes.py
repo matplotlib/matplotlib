@@ -210,25 +210,25 @@ class Axes(_AxesBase):
         return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
 
     def _get_legend_handles(self, legend_handler_map=None):
-        "return artists that will be used as handles for legend"
+        """
+        Return a generator of artists that can be used as handles in
+        a legend.
+
+        """
         handles_original = (self.lines + self.patches +
                             self.collections + self.containers)
-
-        # collections
         handler_map = mlegend.Legend.get_default_handler_map()
 
         if legend_handler_map is not None:
             handler_map = handler_map.copy()
             handler_map.update(legend_handler_map)
 
-        handles = []
-        for h in handles_original:
-            if h.get_label() == "_nolegend_":  # .startswith('_'):
-                continue
-            if mlegend.Legend.get_legend_handler(handler_map, h):
-                handles.append(h)
+        has_handler = mlegend.Legend.get_legend_handler
 
-        return handles
+        for handle in handles_original:
+            label = handle.get_label()
+            if label != '_nolegend_' and has_handler(handler_map, handle):
+                yield handle
 
     def get_legend_handles_labels(self, legend_handler_map=None):
         """
@@ -240,7 +240,6 @@ class Axes(_AxesBase):
           ax.legend(h, l)
 
         """
-
         handles = []
         labels = []
         for handle in self._get_legend_handles(legend_handler_map):
@@ -253,205 +252,261 @@ class Axes(_AxesBase):
 
     def legend(self, *args, **kwargs):
         """
-        Place a legend on the current axes.
+        Places a legend on the axes.
 
-        Call signature::
+        To make a legend for lines which already exist on the axes
+        (via plot for instance), simply call this function with an iterable
+        of strings, one for each legend item. For example::
 
-           legend(*args, **kwargs)
+            ax.plot([1, 2, 3])
+            ax.legend(['A simple line'])
 
-        Places legend at location *loc*.  Labels are a sequence of
-        strings and *loc* can be a string or an integer specifying the
-        legend location.
+        However, in order to keep the "label" and the legend element
+        instance together, it is preferable to specify the label either at
+        artist creation, or by calling the
+        :meth:`~matplotlib.artist.Artist.set_label` method on the artist::
 
-        To make a legend with existing lines::
+            line, = ax.plot([1, 2, 3], label='Inline label')
+            # Overwrite the label by calling the method.
+            line.set_label('Label via method')
+            ax.legend()
 
-           legend()
+        Specific lines can be excluded from the automatic legend element
+        selection by defining a label starting with an underscore.
+        This is default for all artists, so calling :meth:`legend` without
+        any arguments and without setting the labels manually will result in
+        no legend being drawn.
 
-        :meth:`legend` by itself will try and build a legend using the label
-        property of the lines/patches/collections.  You can set the label of
-        a line by doing::
+        For full control of which artists have a legend entry, it is possible
+        to pass an iterable of legend artists followed by an iterable of
+        legend labels respectively::
 
-           plot(x, y, label='my data')
+           legend((line1, line2, line3), ('label1', 'label2', 'label3'))
 
-        or::
+        Parameters
+        ----------
+        loc : int or string or pair of floats, default: 0
+            The location of the legend. Possible codes are:
 
-           line.set_label('my data').
-
-        If label is set to '_nolegend_', the item will not be shown in
-        legend.
-
-        To automatically generate the legend from labels::
-
-           legend( ('label1', 'label2', 'label3') )
-
-        To make a legend for a list of lines and labels::
-
-           legend( (line1, line2, line3), ('label1', 'label2', 'label3') )
-
-        To make a legend at a given location, using a location argument::
-
-           legend( ('label1', 'label2', 'label3'), loc='upper left')
-
-        or::
-
-           legend((line1, line2, line3), ('label1', 'label2', 'label3'), loc=2)
-
-        The location codes are
-
-          ===============   =============
-          Location String   Location Code
-          ===============   =============
-          'best'            0
-          'upper right'     1
-          'upper left'      2
-          'lower left'      3
-          'lower right'     4
-          'right'           5
-          'center left'     6
-          'center right'    7
-          'lower center'    8
-          'upper center'    9
-          'center'          10
-          ===============   =============
+                ===============   =============
+                Location String   Location Code
+                ===============   =============
+                'best'            0
+                'upper right'     1
+                'upper left'      2
+                'lower left'      3
+                'lower right'     4
+                'right'           5
+                'center left'     6
+                'center right'    7
+                'lower center'    8
+                'upper center'    9
+                'center'          10
+                ===============   =============
 
 
-        Users can specify any arbitrary location for the legend using the
-        *bbox_to_anchor* keyword argument. bbox_to_anchor can be an instance
-        of BboxBase(or its derivatives) or a tuple of 2 or 4 floats.
-        For example::
+            Alternatively can be a 2-tuple giving ``x, y`` of the lower-left
+            corner of the legend in axes coordinates (in which case
+            ``bbox_to_anchor`` will be ignored).
 
-           loc = 'upper right', bbox_to_anchor = (0.5, 0.5)
+        bbox_to_anchor : :class:`matplotlib.transforms.BboxBase` instance \
+                         or tuple of floats
+            Specify any arbitrary location for the legend in `bbox_transform`
+            coordinates (default Axes coordinates).
 
-        will place the legend so that the upper right corner of the legend at
-        the center of the axes.
+            For example, to put the legend's upper right hand corner in the
+            center of the axes the following keywords can be used::
 
-        The legend location can be specified in other coordinate, by using the
-        *bbox_transform* keyword.
+               loc='upper right', bbox_to_anchor=(0.5, 0.5)
 
-        The loc itslef can be a 2-tuple giving x,y of the lower-left corner of
-        the legend in axes coords (*bbox_to_anchor* is ignored).
+        ncol : integer
+            The number of columns that the legend has. Default is 1.
 
-        Keyword arguments:
+        prop : None or :class:`matplotlib.font_manager.FontProperties` or dict
+            The font properties of the legend. If None (default), the current
+            :data:`matplotlib.rcParams` will be used.
 
-          *prop*: [ *None* | FontProperties | dict ]
-            A :class:`matplotlib.font_manager.FontProperties`
-            instance. If *prop* is a dictionary, a new instance will be
-            created with *prop*. If *None*, use rc settings.
+        fontsize : int or float or {'xx-small', 'x-small', 'small', 'medium',\
+                   'large', 'x-large', 'xx-large'}
+            Controls the font size of the legend. If the value is numeric the
+            size will be the absolute font size in points. String values are
+            relative to the current default font size. This argument is only
+            used if `prop` is not specified.
 
-          *fontsize*: [size in points | 'xx-small' | 'x-small' | 'small' |
-                      'medium' | 'large' | 'x-large' | 'xx-large']
-            Set the font size.  May be either a size string, relative to
-            the default font size, or an absolute font size in points. This
-            argument is only used if prop is not specified.
+        numpoints : None or int
+            The number of marker points in the legend when creating a legend
+            entry for a line/:class:`matplotlib.lines.Line2D`.
+            Default is ``None`` which will take the value from the
+            ``legend.numpoints`` :data:`rcParam<matplotlib.rcParams>`.
 
-          *numpoints*: integer
-            The number of points in the legend for line
+        scatterpoints : None or int
+            The number of marker points in the legend when creating a legend
+            entry for a scatter plot/
+            :class:`matplotlib.collections.PathCollection`.
+            Default is ``None`` which will take the value from the
+            ``legend.scatterpoints`` :data:`rcParam<matplotlib.rcParams>`.
 
-          *scatterpoints*: integer
-            The number of points in the legend for scatter plot
+        scatteryoffsets : iterable of floats
+            The vertical offset (relative to the font size) for the markers
+            created for a scatter plot legend entry. 0.0 is at the base the
+            legend text, and 1.0 is at the top. To draw all markers at the
+            same height, set to ``[0.5]``. Default ``[0.375, 0.5, 0.3125]``.
 
-          *scatteryoffsets*: list of floats
-            a list of yoffsets for scatter symbols in legend
+        markerscale : None or int or float
+            The relative size of legend markers compared with the originally
+            drawn ones. Default is ``None`` which will take the value from
+            the ``legend.markerscale`` :data:`rcParam <matplotlib.rcParams>`.
 
-          *markerscale*: [ *None* | scalar ]
-            The relative size of legend markers vs. original. If *None*,
-            use rc settings.
+        frameon : None or bool
+            Control whether a frame should be drawn around the legend.
+            Default is ``None`` which will take the value from the
+            ``legend.frameon`` :data:`rcParam<matplotlib.rcParams>`.
 
-          *frameon*: [ *True* | *False* ]
-            if *True*, draw a frame around the legend.
-            The default is set by the rcParam 'legend.frameon'
+        fancybox : None or bool
+            Control whether round edges should be enabled around
+            the :class:`~matplotlib.patches.FancyBboxPatch` which
+            makes up the legend's background.
+            Default is ``None`` which will take the value from the
+            ``legend.fancybox`` :data:`rcParam<matplotlib.rcParams>`.
 
-          *fancybox*: [ *None* | *False* | *True* ]
-            if *True*, draw a frame with a round fancybox.  If *None*,
-            use rc settings
+        shadow : None or bool
+            Control whether to draw a shadow behind the legend.
+            Default is ``None`` which will take the value from the
+            ``legend.shadow`` :data:`rcParam<matplotlib.rcParams>`.
 
-          *shadow*: [ *None* | *False* | *True* ]
-            If *True*, draw a shadow behind legend. If *None*,
-            use rc settings.
+        framealpha : None or float
+            Control the alpha transparency of the legend's frame.
+            Default is ``None`` which will take the value from the
+            ``legend.framealpha`` :data:`rcParam<matplotlib.rcParams>`.
 
-          *framealpha*: [*None* | float]
-            If not None, alpha channel for legend frame. Default *None*.
+        mode : {"expand", None}
+            If `mode` is set to ``"expand"`` the legend will be horizontally
+            expanded to fill the axes area (or `bbox_to_anchor` if defines
+            the legend's size).
 
-          *ncol* : integer
-            number of columns. default is 1
+        bbox_transform : None or :class:`matplotlib.transforms.Transform`
+            The transform for the bounding box (`bbox_to_anchor`). For a value
+            of ``None`` (default) the Axes'
+            :data:`~matplotlib.axes.Axes.transAxes` transform will be used.
 
-          *mode* : [ "expand" | *None* ]
-            if mode is "expand", the legend will be horizontally expanded
-            to fill the axes area (or *bbox_to_anchor*)
+        title : str or None
+            The legend's title. Default is no title (``None``).
 
-          *bbox_to_anchor*: an instance of BboxBase or a tuple of 2 or 4 floats
-            the bbox that the legend will be anchored.
+        borderpad : float or None
+            The fractional whitespace inside the legend border.
+            Measured in font-size units.
+            Default is ``None`` which will take the value from the
+            ``legend.borderpad`` :data:`rcParam<matplotlib.rcParams>`.
 
-          *bbox_transform* : [ an instance of Transform | *None* ]
-            the transform for the bbox. transAxes if *None*.
+        labelspacing : float or None
+            The vertical space between the legend entries.
+            Measured in font-size units.
+            Default is ``None`` which will take the value from the
+            ``legend.labelspacing`` :data:`rcParam<matplotlib.rcParams>`.
 
-          *title* : string
-            the legend title
+        handlelength : float or None
+            The length of the legend handles.
+            Measured in font-size units.
+            Default is ``None`` which will take the value from the
+            ``legend.handlelength`` :data:`rcParam<matplotlib.rcParams>`.
 
-        Padding and spacing between various elements use following
-        keywords parameters. These values are measure in font-size
-        units. e.g., a fontsize of 10 points and a handlelength=5
-        implies a handlelength of 50 points.  Values from rcParams
-        will be used if None.
+        handletextpad : float or None
+            The pad between the legend handle and text.
+            Measured in font-size units.
+            Default is ``None`` which will take the value from the
+            ``legend.handletextpad`` :data:`rcParam<matplotlib.rcParams>`.
 
-        ================   ====================================================
-        Keyword            Description
-        ================   ====================================================
-        borderpad          the fractional whitespace inside the legend border
-        labelspacing       the vertical space between the legend entries
-        handlelength       the length of the legend handles
-        handletextpad      the pad between the legend handle and text
-        borderaxespad      the pad between the axes and legend border
-        columnspacing      the spacing between columns
-        ================   ====================================================
+        borderaxespad : float or None
+            The pad between the axes and legend border.
+            Measured in font-size units.
+            Default is ``None`` which will take the value from the
+            ``legend.borderaxespad`` :data:`rcParam<matplotlib.rcParams>`.
 
-        .. note::
+        columnspacing : float or None
+            The spacing between columns.
+            Measured in font-size units.
+            Default is ``None`` which will take the value from the
+            ``legend.columnspacing`` :data:`rcParam<matplotlib.rcParams>`.
+
+        handler_map : dict or None
+            The custom dictionary mapping instances or types to a legend
+            handler. This `handler_map` updates the default handler map
+            found at :func:`matplotlib.legend.Legend.get_legend_handler_map`.
+
+        Notes
+        -----
 
            Not all kinds of artist are supported by the legend command.
            See :ref:`plotting-guide-legend` for details.
 
-        **Example:**
+        Examples
+        --------
 
         .. plot:: mpl_examples/api/legend_demo.py
 
-        .. seealso::
-            :ref:`plotting-guide-legend`.
-
         """
+        handlers = kwargs.get('handler_map', {}) or {}
 
-        if len(args) == 0:
-            handles, labels = self.get_legend_handles_labels()
-            if len(handles) == 0:
-                warnings.warn("No labeled objects found. "
+        # Support handles and labels being passed as keywords.
+        handles = kwargs.pop('handles', None)
+        labels = kwargs.pop('labels', None)
+
+        if handles is not None and labels is None:
+            labels = [handle.get_label() for handle in handles]
+            for label, handle in zip(labels[:], handles[:]):
+                if label.startswith('_'):
+                    warnings.warn('The handle {!r} has a label of {!r} which '
+                                  'cannot be automatically added to the '
+                                  'legend.'.format(handle, label))
+                    labels.remove(label)
+                    handles.remove(handle)
+
+        elif labels is not None and handles is None:
+            # Get as many handles as there are labels.
+            handles = [handle for handle, _
+                       in zip(self._get_legend_handles(handlers), labels)]
+
+        # No arguments - automatically detect labels and handles.
+        elif len(args) == 0:
+            handles, labels = self.get_legend_handles_labels(handlers)
+            if not handles:
+                warnings.warn("No labelled objects found. "
                               "Use label='...' kwarg on individual plots.")
                 return None
 
+        # One argument. User defined labels - automatic handle detection.
         elif len(args) == 1:
-            # LABELS
-            labels = args[0]
-            handles = [h for h, label in zip(self._get_legend_handles(),
-                                             labels)]
+            labels, = args
+            # Get as many handles as there are labels.
+            handles = [handle for handle, _
+                       in zip(self._get_legend_handles(handlers), labels)]
 
+        # Two arguments. Either:
+        #   * user defined handles and labels
+        #   * user defined labels and location (deprecated)
         elif len(args) == 2:
             if is_string_like(args[1]) or isinstance(args[1], int):
-                # LABELS, LOC
+                cbook.warn_deprecated('1.4', 'The "loc" positional argument '
+                                      'to legend is deprecated. Please use '
+                                      'the "loc" keyword instead.')
                 labels, loc = args
-                handles = [h for h, label in zip(self._get_legend_handles(),
-                                                 labels)]
+                handles = [handle for handle, _
+                           in zip(self._get_legend_handles(handlers), labels)]
                 kwargs['loc'] = loc
             else:
-                # LINES, LABELS
                 handles, labels = args
 
+        # Three arguments. User defined handles, labels and
+        # location (deprecated).
         elif len(args) == 3:
-            # LINES, LABELS, LOC
+            cbook.warn_deprecated('1.4', 'The "loc" positional argument '
+                                         'to legend is deprecated. Please '
+                                         'use the "loc" keyword instead.')
             handles, labels, loc = args
             kwargs['loc'] = loc
-        else:
-            raise TypeError('Invalid arguments to legend')
 
-        # Why do we need to call "flatten" here? -JJL
-        # handles = cbook.flatten(handles)
+        else:
+            raise TypeError('Invalid arguments to legend.')
 
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
         return self.legend_

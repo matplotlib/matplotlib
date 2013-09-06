@@ -3,13 +3,16 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import tempfile
+
+from numpy.testing import assert_allclose, assert_array_equal
 import numpy as np
+from nose.tools import (assert_equal, assert_almost_equal, assert_not_equal,
+                        assert_true, assert_raises)
+
 import matplotlib.mlab as mlab
 import matplotlib.cbook as cbook
-import tempfile
-import unittest
-from nose.tools import assert_raises
-from matplotlib.testing.decorators import knownfailureif
+from matplotlib.testing.decorators import knownfailureif, CleanupTestCase
 
 
 try:
@@ -17,13 +20,6 @@ try:
     HAS_NATGRID = True
 except ImportError:
     HAS_NATGRID = False
-
-from numpy.testing import assert_allclose, assert_array_equal
-
-from nose.tools import (assert_equal, assert_almost_equal, assert_not_equal,
-                        assert_true, assert_raises,)
-
-from matplotlib.testing.decorators import CleanupTestCase
 
 
 class general_testcase(CleanupTestCase):
