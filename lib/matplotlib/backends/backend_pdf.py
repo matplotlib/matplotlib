@@ -1550,6 +1550,7 @@ class RendererPdf(RendererBase):
 
         if not len(facecolors):
             filled = False
+            can_do_optimization = not gc.get_hatch()
         else:
             if np.all(facecolors[:, 3] == facecolors[0, 3]):
                 filled = facecolors[0, 3] != 0.0

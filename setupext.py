@@ -933,10 +933,21 @@ class Six(SetupPackage):
 class Dateutil(SetupPackage):
     name = "dateutil"
 
+    def __init__(self, version=None):
+        self.version = version
+
     def check(self):
         try:
             import dateutil
         except ImportError:
+            # dateutil 2.1 has a file encoding bug that breaks installation on
+            # python 3.3
+            # https://github.com/matplotlib/matplotlib/issues/2373
+            # hack around the problem by installing the the (working) v2.0
+            major, minor1, _, _, _ = sys.version_info
+            if self.version is None and (major, minor1) == (3, 3):
+                self.version = '!=2.1'
+
             return (
                 "dateutil was not found. It is required for date axis "
                 "support. pip/easy_install may attempt to install it "
@@ -945,7 +956,10 @@ class Dateutil(SetupPackage):
         return "using dateutil version %s" % dateutil.__version__
 
     def get_install_requires(self):
-        return ['python-dateutil']
+        dateutil = 'python-dateutil'
+        if self.version is not None:
+            dateutil += self.version
+        return [dateutil]
 
 
 class Tornado(SetupPackage):
@@ -969,6 +983,16 @@ class Tornado(SetupPackage):
 class Pyparsing(SetupPackage):
     name = "pyparsing"
 
+    def is_ok(self):
+        # pyparsing 2.0.0 bug, but it may be patched in distributions
+        try:
+            import pyparsing
+            f = pyparsing.Forward()
+            f <<= pyparsing.Literal('a')
+            return f is not None
+        except:
+            return False
+
     def check(self):
         try:
             import pyparsing
@@ -984,19 +1008,19 @@ class Pyparsing(SetupPackage):
                 "matplotlib requires pyparsing >= {0}".format(
                     '.'.join(str(x) for x in required)))
 
-        if pyparsing.__version__ == "2.0.0":
-            if PY3:
-                return (
-                    "pyparsing 2.0.0 has bugs that prevent its use with "
-                    "matplotlib")
-            else:
-                return (
-                    "pyparsing 2.0.0 is not compatible with Python 2.x")
+        if not self.is_ok():
+            return (
+                "Your pyparsing contains a bug that will be monkey-patched by "
+                "matplotlib.  For best results, upgrade to pyparsing 2.0.1 or "
+                "later.")
 
         return "using pyparsing version %s" % pyparsing.__version__
 
     def get_install_requires(self):
-        return ['pyparsing>=1.5.6,!=2.0.0']
+        if self.is_ok():
+            return ['pyparsing>=1.5.6']
+        else:
+            return ['pyparsing>=1.5.6,!=2.0.0']
 
 
 class BackendAgg(OptionalBackendPackage):

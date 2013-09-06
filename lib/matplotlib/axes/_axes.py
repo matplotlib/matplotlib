@@ -3250,7 +3250,8 @@ class Axes(_AxesBase):
         edgecolors = kwargs.get('edgecolors', None)
         if faceted is not None:
             cbook.warn_deprecated(
-                '1.2', 'faceted', alternative='edgecolor', obj_type='option')
+                '1.2', name='faceted', alternative='edgecolor',
+                obj_type='option')
             if faceted:
                 edgecolors = None
             else:
@@ -4507,7 +4508,8 @@ class Axes(_AxesBase):
         vmax = kwargs.pop('vmax', None)
         if 'shading' in kwargs:
             cbook.warn_deprecated(
-                '1.2', 'shading', alternative='edgecolors', obj_type='option')
+                '1.2', name='shading', alternative='edgecolors',
+                obj_type='option')
         shading = kwargs.pop('shading', 'flat')
 
         X, Y, C = self._pcolorargs('pcolor', *args, allmatch=False)
