@@ -584,7 +584,7 @@ def test_fill_between_interpolate():
     fig = plt.figure()
     ax = fig.add_subplot(211)
     ax.plot(x, y1, x, y2, color='black')
-    ax.fill_between(x, y1, y2, where=y2>=y1, facecolor='green', interpolate=True)
+    ax.fill_between(x, y1, y2, where=y2>=y1, facecolor='white', hatch='/', interpolate=True)
     ax.fill_between(x, y1, y2, where=y2<=y1, facecolor='red', interpolate=True)
 
     # Test support for masked arrays.
