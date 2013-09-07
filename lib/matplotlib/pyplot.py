@@ -563,7 +563,9 @@ def draw():
 @docstring.copy_dedent(Figure.savefig)
 def savefig(*args, **kwargs):
     fig = gcf()
-    return fig.savefig(*args, **kwargs)
+    res = fig.savefig(*args, **kwargs)
+    draw()   # need this if 'transparent=True' to reset colors
+    return res
 
 
 @docstring.copy_dedent(Figure.ginput)
