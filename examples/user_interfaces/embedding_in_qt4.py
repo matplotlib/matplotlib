@@ -64,10 +64,7 @@ class MyDynamicMplCanvas(MyMplCanvas):
     def __init__(self, *args, **kwargs):
         MyMplCanvas.__init__(self, *args, **kwargs)
         timer = QtCore.QTimer(self)
-        if use_pyside:
-            timer.timeout.connect(self.update_figure)
-        else:
-            QtCore.QObject.connect(timer, QtCore.SIGNAL("timeout()"), self.update_figure)
+        timer.timeout.connect(self.update_figure)
         timer.start(1000)
 
     def compute_initial_figure(self):
