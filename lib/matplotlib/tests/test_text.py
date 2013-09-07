@@ -194,3 +194,34 @@ def test_alignment():
     ax.set_ylim([0, 1.5])
     ax.set_xticks([])
     ax.set_yticks([])
+
+
+@cleanup
+def test_set_position():
+    fig, ax = plt.subplots()
+
+    # test set_position
+    ann = ax.annotate('test', (0, 0), xytext=(0, 0), textcoords='figure pixels')
+    plt.draw()
+
+    init_pos = ann.get_window_extent(fig.canvas.renderer)
+    shift_val = 15
+    ann.set_position((shift_val, shift_val))
+    plt.draw()
+    post_pos = ann.get_window_extent(fig.canvas.renderer)
+
+    for a, b in zip(init_pos.min, post_pos.min):
+        assert a + shift_val == b
+
+    # test xyann
+    ann = ax.annotate('test', (0, 0), xytext=(0, 0), textcoords='figure pixels')
+    plt.draw()
+
+    init_pos = ann.get_window_extent(fig.canvas.renderer)
+    shift_val = 15
+    ann.xyann = (shift_val, shift_val)
+    plt.draw()
+    post_pos = ann.get_window_extent(fig.canvas.renderer)
+
+    for a, b in zip(init_pos.min, post_pos.min):
+        assert a + shift_val == b
