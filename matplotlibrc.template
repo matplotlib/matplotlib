@@ -377,7 +377,8 @@ backend      : %(backend)s
 #savefig.jpeg_quality: 95       # when a jpeg is saved, the default quality parameter.
 #savefig.directory   : ~        # default directory in savefig dialog box,
                                 # leave empty to always use current working directory
-#savefig.transparent : False    # should transparency be enabled by default
+#savefig.transparent : False    # setting that controls whether figures are saved with a 
+                                # transparent background by default
 
 # tk backend params
 #tk.window_focus   : False    # Maintain shell focus for TkAgg
