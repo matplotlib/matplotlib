@@ -44,6 +44,15 @@ and :func:`matplotlib.dates.datestr2num`. Support is also added to the unit
 conversion interfaces :class:`matplotlib.dates.DateConverter` and
 :class:`matplotlib.units.Registry`.
 
+Configuration (rcParams)
+------------------------
+ 
+``savefig.transparent`` added
+`````````````````````````````
+Controls whether figures are saved with a transparent 
+background by default.  Previously `savefig` always defaulted
+to a non-transparent background.
+
 .. _whats-new-1-3:
 
 new in matplotlib-1.3
