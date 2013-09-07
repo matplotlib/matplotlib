@@ -59,6 +59,9 @@ original location:
   thus `colorbar.ColorbarBase.outline` is now a
   `matplotlib.patches.Polygon` object.
 
+* The rcParams `savefig.transparent` has been added to control
+  default transparency when saving figures.
+
 .. _changes_in_1_3:
 
 

@@ -1414,7 +1414,7 @@ class Figure(Artist):
 
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])
         frameon = kwargs.pop('frameon', rcParams['savefig.frameon'])
-        transparent = kwargs.pop('transparent', False)
+        transparent = kwargs.pop('transparent', rcParams['savefig.transparent'])
 
         if transparent:
             kwargs.setdefault('facecolor', 'none')
