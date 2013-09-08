@@ -23,10 +23,7 @@ import six
 
 import os, sys
 if six.PY3:
-    from io import StringIO
     unichr = chr
-else:
-    from cStringIO import StringIO
 from math import ceil
 try:
     set
@@ -245,7 +242,7 @@ class MathtextBackendPs(MathtextBackend):
     backend.
     """
     def __init__(self):
-        self.pswriter = StringIO()
+        self.pswriter = six.moves.cStringIO()
         self.lastfont = None
 
     def render_glyph(self, ox, oy, info):
@@ -1052,7 +1049,7 @@ class StandardPsFonts(Fonts):
 
         self.fonts['default'] = default_font
         self.fonts['regular'] = default_font
-        self.pswriter = StringIO()
+        self.pswriter = six.moves.cStringIO()
 
     def _get_font(self, font):
         if font in self.fontmap:
