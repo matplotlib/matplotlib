@@ -1083,7 +1083,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
             self._pswriter = NullWriter()
         else:
-            self._pswriter = io.StringIO()
+            self._pswriter = six.moves.cStringIO()
 
 
         # mixed mode rendering
@@ -1245,10 +1245,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
             self._pswriter = NullWriter()
         else:
-            if six.PY3:
-                self._pswriter = io.StringIO()
-            else:
-                self._pswriter = cStringIO.StringIO()
+            self._pswriter = six.moves.cStringIO()
 
 
         # mixed mode rendering
