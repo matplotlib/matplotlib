@@ -435,38 +435,66 @@ class SetupPackage(object):
 
 class OptionalPackage(SetupPackage):
     optional = True
+    force = False
+    config_category = "packages"
 
     def get_config(self):
-        install = True
-        if config is not None:
-            try:
-                install = config.getboolean(
-                    'packages', self.name)
-            except:
-                pass
-        return install
+        """
+        Look at `setup.cfg` and return one of ["auto", True, False] indicating
+        if the package is at default state ("auto"), forced by the user (True)
+        or opted-out (False).
+        """
+        try:
+            return config.getboolean(self.config_category, self.name)
+        except:
+            return "auto"
 
     def check(self):
-        self.install = self.get_config()
-        if not self.install:
-            raise CheckFailed("skipping due to configuration")
-        return "installing"
+        """
+        Do not override this method!
+
+        For custom dependency checks override self.check_requirements().
+        Two things are checked: Configuration file and requirements.
+        """
+        # Check configuration file
+        conf = self.get_config()
+        # Default "auto" state or install forced by user
+        if conf in [True, 'auto']:
+            message = "installing"
+            # Set non-optional if user sets `True` in config
+            if conf is True:
+                self.optional = False
+        # Configuration opt-out by user
+        else:
+            # Some backend extensions (e.g. Agg) need to be built for certain
+            # other GUI backends (e.g. TkAgg) even when manually disabled
+            if self.force is True:
+                message = "installing forced (config override)"
+            else:
+                raise CheckFailed("skipping due to configuration")
+
+        # Check requirements and add extra information (if any) to message.
+        # If requirements are not met a CheckFailed should be raised in there.
+        additional_info = self.check_requirements()
+        if additional_info:
+            message += ", " + additional_info
+
+        # No CheckFailed raised until now, return install message.
+        return message
+
+    def check_requirements(self):
+        """
+        Override this method to do custom dependency checks.
+
+         - Raise CheckFailed() if requirements are not met.
+         - Return message with additional information, or an empty string
+           (or None) for no additional information.
+        """
+        return ""
 
 
-class OptionalBackendPackage(SetupPackage):
-    optional = True
-
-    def get_config(self):
-        install = 'auto'
-        if config is not None:
-            try:
-                install = config.getboolean(
-                    'gui_support', self.name)
-            except:
-                install = 'auto'
-        if install is True:
-            self.optional = False
-        return install
+class OptionalBackendPackage(OptionalPackage):
+    config_category = "gui_support"
 
 
 class Platform(SetupPackage):
@@ -1005,16 +1033,6 @@ class Pyparsing(SetupPackage):
 
 class BackendAgg(OptionalBackendPackage):
     name = "agg"
-    force = False
-
-    def check(self):
-        # The Agg backend extension needs to be built even
-        # for certain GUI backends, such as TkAgg
-        config = self.get_config()
-        if config is False and self.force is False:
-            raise CheckFailed("skipping due to configuration")
-        else:
-            return "installing"
 
     def get_extension(self):
         sources = [
@@ -1036,10 +1054,7 @@ class BackendTkAgg(OptionalBackendPackage):
     def __init__(self):
         self.tcl_tk_cache = None
 
-    def check(self):
-        if self.get_config() is False:
-            raise CheckFailed("skipping due to configuration")
-
+    def check_requirements(self):
         try:
             if sys.version_info[0] < 3:
                 import Tkinter
@@ -1325,10 +1340,7 @@ class BackendTkAgg(OptionalBackendPackage):
 class BackendGtk(OptionalBackendPackage):
     name = "gtk"
 
-    def check(self):
-        if self.get_config() is False:
-            raise CheckFailed("skipping due to configuration")
-
+    def check_requirements(self):
         try:
             import gtk
         except ImportError:
@@ -1483,7 +1495,7 @@ def backend_gtk3agg_internal_check(x):
 class BackendGtk3Agg(OptionalBackendPackage):
     name = "gtk3agg"
 
-    def check(self):
+    def check_requirements(self):
         if 'TRAVIS' in os.environ:
             raise CheckFailed("Can't build with Travis")
 
@@ -1548,7 +1560,7 @@ def backend_gtk3cairo_internal_check(x):
 class BackendGtk3Cairo(OptionalBackendPackage):
     name = "gtk3cairo"
 
-    def check(self):
+    def check_requirements(self):
         if 'TRAVIS' in os.environ:
             raise CheckFailed("Can't build with Travis")
 
@@ -1576,7 +1588,7 @@ class BackendGtk3Cairo(OptionalBackendPackage):
 class BackendWxAgg(OptionalBackendPackage):
     name = "wxagg"
 
-    def check(self):
+    def check_requirements(self):
         try:
             import wxversion
         except ImportError:
@@ -1614,10 +1626,7 @@ class BackendWxAgg(OptionalBackendPackage):
 class BackendMacOSX(OptionalBackendPackage):
     name = 'macosx'
 
-    def check(self):
-        if self.get_config() is False:
-            raise CheckFailed("skipping due to configuration")
-
+    def check_requirements(self):
         if sys.platform != 'darwin':
             raise CheckFailed("Mac OS-X only")
 
@@ -1644,7 +1653,7 @@ class Windowing(OptionalBackendPackage):
     """
     name = "windowing"
 
-    def check(self):
+    def check_requirements(self):
         if sys.platform != 'win32':
             raise CheckFailed("Microsoft Windows only")
         config = self.get_config()
@@ -1675,7 +1684,7 @@ class BackendQt4(OptionalBackendPackage):
             temp.insert(0, str(int(chunk, 16)))
         return '.'.join(temp)
 
-    def check(self):
+    def check_requirements(self):
         try:
             from PyQt4 import pyqtconfig
         except ImportError:
@@ -1695,7 +1704,7 @@ class BackendQt4(OptionalBackendPackage):
 class BackendPySide(OptionalBackendPackage):
     name = "pyside"
 
-    def check(self):
+    def check_requirements(self):
         try:
             from PySide import __version__
             from PySide import QtCore
@@ -1711,7 +1720,7 @@ class BackendPySide(OptionalBackendPackage):
 class BackendCairo(OptionalBackendPackage):
     name = "cairo"
 
-    def check(self):
+    def check_requirements(self):
         try:
             import cairo
         except ImportError:
