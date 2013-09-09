@@ -1062,7 +1062,7 @@ def test_hist_offset():
     ax.hist(d2, bottom=15)
 
 
-@image_comparison(baseline_images=['hist_step'])
+@image_comparison(baseline_images=['hist_step'], extensions=['png'], remove_text=True)
 def test_hist_step():
     # make some data
     d1 = np.linspace(1, 3, 20)
