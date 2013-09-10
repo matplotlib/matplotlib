@@ -100,6 +100,11 @@ original location:
   (n, 1) arrays were returend unchanged.  This change makes the dimensions
   consistent in both cases.
 
+* Added the rcParam `axes.fromatter.useoffset` to control the default value
+  of `useOffset` in `ticker.ScalarFormatter`
+
+
+
 
 .. _changes_in_1_3:
 
