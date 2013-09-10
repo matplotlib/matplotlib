@@ -1435,19 +1435,12 @@ class OffsetFrom(object):
 
 class _AnnotationBase(object):
     def __init__(self,
-                 xy, xytext=None,
-                 xycoords='data', textcoords=None,
+                 xy,
+                 xycoords='data',
                  annotation_clip=None):
-        if xytext is None:
-            xytext = xy
-        if textcoords is None:
-            textcoords = xycoords
-        # we'll draw ourself after the artist we annotate by default
-        x, y = self.xytext = xytext
 
         self.xy = xy
         self.xycoords = xycoords
-        self.textcoords = textcoords
         self.set_annotation_clip(annotation_clip)
 
         self._draggable = None
@@ -1462,9 +1455,6 @@ class _AnnotationBase(object):
             x = float(self.convert_xunits(x))
         if s2 == 'data':
             y = float(self.convert_yunits(y))
-
-        if s in ['axes points', 'axes pixel', 'figure points', 'figure pixel']:
-            return self._get_xy_legacy(renderer, x, y, s)
 
         tr = self._get_xy_transform(renderer, s)
         x1, y1 = tr.transform_point((x, y))
@@ -1588,37 +1578,6 @@ class _AnnotationBase(object):
     #         raise ValueError("A bbox instance is expected but got %s" %
     #                          str(bbox))
 
-    def _get_xy_legacy(self, renderer, x, y, s):
-        """
-        only used when s in ['axes points', 'axes pixel', 'figure points',
-                             'figure pixel'].
-        """
-        s_ = s.split()
-        bbox0, xy0 = None, None
-        bbox_name, unit = s_
-
-        if bbox_name == "figure":
-            bbox0 = self.figure.bbox
-        elif bbox_name == "axes":
-            bbox0 = self.axes.bbox
-
-        if unit == "points":
-            sc = self.figure.get_dpi() / 72.
-        elif unit == "pixels":
-            sc = 1
-
-        l, b, r, t = bbox0.extents
-        if x < 0:
-            x = r + x * sc
-        else:
-            x = l + x * sc
-        if y < 0:
-            y = t + y * sc
-        else:
-            y = b + y * sc
-
-        return x, y
-
     def set_annotation_clip(self, b):
         """
         set *annotation_clip* attribute.
@@ -1688,6 +1647,26 @@ class _AnnotationBase(object):
             self._draggable = None
 
         return self._draggable
+
+    @property
+    @cbook.deprecated('1.4', message='Use `anncoords` instead', name='textcoords', alternative='anncoords')
+    def textcoords(self):
+        return self.anncoords
+
+    @textcoords.setter
+    @cbook.deprecated('1.4', message='Use `anncoords` instead', name='textcoords', alternative='anncoords')
+    def textcoords(self, val):
+        self.anncoords = val
+
+    @property
+    @cbook.deprecated('1.4', message='Use `xyann` instead', name='xytext', alternative='xyann')
+    def xytext(self):
+        self.xyann
+
+    @xytext.setter
+    @cbook.deprecated('1.4', message='Use `xyann` instead', name='xytext', alternative='xyann')
+    def xytext(self, val):
+        self.xyann = val
 
 
 class Annotation(Text, _AnnotationBase):
@@ -1812,11 +1791,20 @@ class Annotation(Text, _AnnotationBase):
         """
 
         _AnnotationBase.__init__(self,
-                                 xy, xytext=xytext,
-                                 xycoords=xycoords, textcoords=textcoords,
+                                 xy,
+                                 xycoords=xycoords,
                                  annotation_clip=annotation_clip)
 
-        x, y = self.xytext
+        # clean up textcoords and assign default
+        if textcoords is None:
+            textcoords = self.xycoords
+        self._textcoords = textcoords
+
+        # cleanup xytext defaults
+        if xytext is None:
+            xytext = self.xy
+        x, y = xytext
+
         Text.__init__(self, x, y, s, **kwargs)
 
         self.arrowprops = arrowprops
@@ -1836,9 +1824,25 @@ class Annotation(Text, _AnnotationBase):
         if self.arrow is not None:
             in_arrow, _ = self.arrow.contains(event)
             contains = contains or in_arrow
-        # self.arrow_patch is currently not checked as this can be a line - JJ
+        # self.arrow_patch is currently not checked as this can be a line - J
 
         return contains, tinfo
+
+    @property
+    def xyann(self):
+        return self.get_position()
+
+    @xyann.setter
+    def xyann(self, xytext):
+        self.set_position(xytext)
+
+    @property
+    def anncoords(self):
+        return self._textcoords
+
+    @anncoords.setter
+    def anncoords(self, coords):
+        self._textcoords = coords
 
     def set_figure(self, fig):
 
@@ -1859,18 +1863,14 @@ class Annotation(Text, _AnnotationBase):
         """Update the pixel positions of the annotation text and the arrow
         patch.
         """
+        # generate transformation,
+        self.set_transform(self._get_xy_transform(renderer, self.anncoords))
 
-        x, y = self.xytext
-        self._x, self._y = self._get_xy(renderer, x, y,
-                                        self.textcoords)
-
-        x, y = xy_pixel
-
-        ox0, oy0 = self._x, self._y
-        ox1, oy1 = x, y
+        ox0, oy0 = self._get_xy_display()
+        ox1, oy1 = xy_pixel
 
         if self.arrowprops:
-            x0, y0 = x, y
+            x0, y0 = xy_pixel
             l, b, w, h = self.get_window_extent(renderer).bounds
             r = l + w
             t = b + h
