@@ -82,9 +82,8 @@ def _create_qApp():
                 if display is None or not re.search(':\d', display):
                     raise RuntimeError('Invalid DISPLAY variable')
 
-            qApp = QtGui.QApplication([" "])
-            QtCore.QObject.connect(qApp, QtCore.SIGNAL("lastWindowClosed()"),
-                                qApp, QtCore.SLOT("quit()"))
+            qApp = QtGui.QApplication([str(" ")])
+            qApp.lastWindowClosed.connect(qApp.quit)
         else:
             qApp = app
 
@@ -134,8 +133,7 @@ class TimerQT(TimerBase):
         # Create a new timer and connect the timeout() signal to the
         # _on_timer method.
         self._timer = QtCore.QTimer()
-        QtCore.QObject.connect(self._timer, QtCore.SIGNAL('timeout()'),
-            self._on_timer)
+        self._timer.timeout.connect(self._on_timer)
         self._timer_set_interval()
 
     def __del__(self):
@@ -143,8 +141,7 @@ class TimerQT(TimerBase):
         # disconnect
         try:
             TimerBase.__del__(self)
-            QtCore.QObject.disconnect(self._timer,
-                    QtCore.SIGNAL('timeout()'), self._on_timer)
+            self._timer.timeout.disconnect(self._on_timer)
         except RuntimeError:
             # Timer C++ object already deleted
             pass
@@ -423,8 +420,10 @@ class FigureCanvasQT(QtGui.QWidget, FigureCanvasBase):
 
 
 class MainWindow(QtGui.QMainWindow):
+    closing = QtCore.Signal()
+
     def closeEvent(self, event):
-        self.emit(QtCore.SIGNAL('closing()'))
+        self.closing.emit()
         QtGui.QMainWindow.closeEvent(self, event)
 
 
@@ -444,10 +443,8 @@ class FigureManagerQT(FigureManagerBase):
         FigureManagerBase.__init__(self, canvas, num)
         self.canvas = canvas
         self.window = MainWindow()
-        self.window.connect(self.window, QtCore.SIGNAL('closing()'),
-                            canvas.close_event)
-        self.window.connect(self.window, QtCore.SIGNAL('closing()'),
-                            self._widgetclosed)
+        self.window.closing.connect(canvas.close_event)
+        self.window.closing.connect(self._widgetclosed)
 
         self.window.setWindowTitle("Figure %d" % num)
         image = os.path.join(matplotlib.rcParams['datapath'],
@@ -469,8 +466,7 @@ class FigureManagerQT(FigureManagerBase):
         self.toolbar = self._get_toolbar(self.canvas, self.window)
         if self.toolbar is not None:
             self.window.addToolBar(self.toolbar)
-            QtCore.QObject.connect(self.toolbar, QtCore.SIGNAL("message"),
-                                   self._show_message)
+            self.toolbar.message.connect(self._show_message)
             tbs_height = self.toolbar.sizeHint().height()
         else:
             tbs_height = 0
@@ -540,8 +536,8 @@ class FigureManagerQT(FigureManagerBase):
         if self.window._destroying:
             return
         self.window._destroying = True
-        QtCore.QObject.disconnect(self.window, QtCore.SIGNAL('destroyed()'),
-                                  self._widgetclosed)
+        self.window.destroyed.connect(self._widgetclosed)
+
         if self.toolbar:
                 self.toolbar.destroy()
         if DEBUG:
@@ -556,6 +552,8 @@ class FigureManagerQT(FigureManagerBase):
 
 
 class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
+    message = QtCore.Signal(str)
+
     def __init__(self, canvas, parent, coordinates=True):
         """ coordinates: should we show the coordinates on the right? """
         self.canvas = canvas
@@ -656,7 +654,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
         self.canvas.draw()
 
     def set_message(self, s):
-        self.emit(QtCore.SIGNAL("message"), s)
+        self.message.emit(s)
         if self.coordinates:
             self.locLabel.setText(s.replace(', ', '\n'))
 
@@ -746,18 +744,10 @@ class SubplotToolQt(SubplotTool, QtGui.QWidget):
         self.sliderhspace = QtGui.QSlider(QtCore.Qt.Vertical)
 
         # constraints
-        QtCore.QObject.connect(self.sliderleft,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.sliderright.setMinimum)
-        QtCore.QObject.connect(self.sliderright,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.sliderleft.setMaximum)
-        QtCore.QObject.connect(self.sliderbottom,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.slidertop.setMinimum)
-        QtCore.QObject.connect(self.slidertop,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.sliderbottom.setMaximum)
+        self.sliderleft.valueChanged.connect(self.sliderright.setMinimum)
+        self.sliderright.valueChanged.connect(self.sliderleft.setMaximum)
+        self.sliderbottom.valueChanged.connect(self.slidertop.setMinimum)
+        self.slidertop.valueChanged.connect(self.sliderbottom.setMaximum)
 
         sliders = (self.sliderleft, self.sliderbottom, self.sliderright,
                    self.slidertop, self.sliderwspace, self.sliderhspace,)
@@ -781,7 +771,7 @@ class SubplotToolQt(SubplotTool, QtGui.QWidget):
         layout.setAlignment(self.slidertop, QtCore.Qt.AlignHCenter)
 
         bottomlabel = QtGui.QLabel('bottom')  # this might not ever be used
-        layout.addWidget(QtGui.QLabel('bottom'), 4, 2)
+        layout.addWidget(bottomlabel, 4, 2)
         layout.addWidget(self.sliderbottom, 3, 2)
         layout.setAlignment(self.sliderbottom, QtCore.Qt.AlignHCenter)
 
@@ -820,24 +810,12 @@ class SubplotToolQt(SubplotTool, QtGui.QWidget):
         self.sliderhspace.setSliderPosition(
                                     int(targetfig.subplotpars.hspace*1000))
 
-        QtCore.QObject.connect(self.sliderleft,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.funcleft)
-        QtCore.QObject.connect(self.sliderbottom,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.funcbottom)
-        QtCore.QObject.connect(self.sliderright,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.funcright)
-        QtCore.QObject.connect(self.slidertop,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.functop)
-        QtCore.QObject.connect(self.sliderwspace,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.funcwspace)
-        QtCore.QObject.connect(self.sliderhspace,
-                                QtCore.SIGNAL("valueChanged(int)"),
-                                self.funchspace)
+        self.sliderleft.valueChanged.connect(self.funcleft)
+        self.sliderbottom.valueChanged.connect(self.funcbottom)
+        self.sliderright.valueChanged.connect(self.funcright)
+        self.slidertop.valueChanged.connect(self.functop)
+        self.sliderwspace.valueChanged.connect(self.funcwspace)
+        self.sliderhspace.valueChanged.connect(self.funchspace)
 
     def funcleft(self, val):
         if val == self.sliderright.value():
