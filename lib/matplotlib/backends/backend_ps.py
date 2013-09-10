@@ -1165,7 +1165,10 @@ class FigureCanvasPS(FigureCanvasBase):
             print("%s clipbox"%_nums_to_str(width*72, height*72, 0, 0), file=fh)
 
             # write the figure
-            print(self._pswriter.getvalue(), file=fh)
+            content = self._pswriter.getvalue()
+            if not isinstance(content, six.text_type):
+                content = content.decode('ascii')
+            print(content, file=fh)
 
             # write the trailer
             #print >>fh, "grestore"
