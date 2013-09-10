@@ -50,10 +50,10 @@ def get_fontspec():
     latex_fontspec = []
     texcommand = get_texcommand()
 
-    if texcommand is not "pdflatex":
+    if texcommand != "pdflatex":
         latex_fontspec.append(r"\usepackage{fontspec}")
 
-    if texcommand is not "pdflatex" and rcParams.get("pgf.rcfonts", True):
+    if texcommand != "pdflatex" and rcParams.get("pgf.rcfonts", True):
         # try to find fonts from rc parameters
         families = ["serif", "sans-serif", "monospace"]
         fontspecs = [r"\setmainfont{%s}", r"\setsansfont{%s}",
@@ -137,7 +137,7 @@ def _font_properties_str(prop):
     family = prop.get_family()[0]
     if family in families:
         commands.append(families[family])
-    elif family in system_fonts and get_texcommand() is not "pdflatex":
+    elif family in system_fonts and get_texcommand() != "pdflatex":
         commands.append(r"\setmainfont{%s}\rmfamily" % family)
     else:
         pass  # print warning?
@@ -171,7 +171,7 @@ def make_pdf_to_png_converter():
         pass
     # check for ghostscript
     try:
-        gs = "gs" if sys.platform is not "win32" else "gswin32c"
+        gs = "gs" if sys.platform != "win32" else "gswin32c"
         check_output([gs, "-v"], stderr=subprocess.STDOUT)
         tools_available.append("gs")
     except:
@@ -215,11 +215,11 @@ class LatexManagerFactory:
         # check if the previous instance of LatexManager can be reused
         if prev and prev.latex_header == latex_header and prev.texcommand == texcommand:
             if rcParams.get("pgf.debug", False):
-                print "reusing LatexManager"
+                print("reusing LatexManager")
             return prev
         else:
             if rcParams.get("pgf.debug", False):
-                print "creating LatexManager"
+                print("creating LatexManager")
             new_inst = LatexManager()
             LatexManagerFactory.previous_instance = new_inst
             return new_inst
@@ -340,7 +340,7 @@ class LatexManager:
 
     def __del__(self):
         if rcParams.get("pgf.debug", False):
-            print "deleting LatexManager"
+            print("deleting LatexManager")
         self._cleanup()
 
     def get_width_height_descent(self, text, prop):
