@@ -592,6 +592,7 @@ defaultParams = {
     'axes.formatter.use_locale': [False, validate_bool],
                                # Use the current locale to format ticks
     'axes.formatter.use_mathtext': [False, validate_bool],
+    'axes.formatter.useoffset': [True, validate_bool],
     'axes.unicode_minus': [True, validate_bool],
     'axes.color_cycle': [['b', 'g', 'r', 'c', 'm', 'y', 'k'],
                          validate_colorlist],  # cycle of plot
