@@ -392,7 +392,7 @@ class LatexManager:
 
 class RendererPgf(RendererBase):
 
-    def __init__(self, figure, fh):
+    def __init__(self, figure, fh, dummy=False):
         """
         Creates a new PGF renderer that translates any drawing instruction
         into text commands to be interpreted in a latex pgfpicture environment.
@@ -409,6 +409,13 @@ class RendererPgf(RendererBase):
 
         # get LatexManager instance
         self.latexManager = LatexManagerFactory.get_latex_manager()
+
+        # dummy==True deactivate all methods
+        if dummy:
+            nop = lambda *args, **kwargs: None
+            for m in RendererPgf.__dict__.keys():
+                if m.startswith("draw_"):
+                    self.__dict__[m] = nop
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         writeln(self.fh, r"\begin{pgfscope}")
@@ -743,6 +750,11 @@ class FigureCanvasPgf(FigureCanvasBase):
         return 'pdf'
 
     def _print_pgf_to_fh(self, fh, *args, **kwargs):
+        if kwargs.get("dryrun", False):
+            renderer = RendererPgf(self.figure, None, dummy=True)
+            self.figure.draw(renderer)
+            return
+
         header_text = """%% Creator: Matplotlib, PGF backend
 %%
 %% To include the figure in your LaTeX document, write
@@ -799,6 +811,7 @@ class FigureCanvasPgf(FigureCanvasBase):
         rendered in latex documents.
         """
         if kwargs.get("dryrun", False):
+            self._print_pgf_to_fh(None, *args, **kwargs)
             return
 
         # figure out where the pgf is to be written to
@@ -861,6 +874,10 @@ class FigureCanvasPgf(FigureCanvasBase):
         """
         Use LaTeX to compile a Pgf generated figure to PDF.
         """
+        if kwargs.get("dryrun", False):
+            self._print_pgf_to_fh(None, *args, **kwargs)
+            return
+
         # figure out where the pdf is to be written to
         if is_string_like(fname_or_fh):
             with open(fname_or_fh, "wb") as fh:
@@ -894,6 +911,10 @@ class FigureCanvasPgf(FigureCanvasBase):
         """
         Use LaTeX to compile a pgf figure to pdf and convert it to png.
         """
+        if kwargs.get("dryrun", False):
+            self._print_pgf_to_fh(None, *args, **kwargs)
+            return
+
         if is_string_like(fname_or_fh):
             with open(fname_or_fh, "wb") as fh:
                 self._print_png_to_fh(fh, *args, **kwargs)
@@ -903,7 +924,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             raise ValueError("filename must be a path or a file-like object")
 
     def get_renderer(self):
-        return RendererPgf(self.figure, None)
+        return RendererPgf(self.figure, None, dummy=True)
 
 
 class FigureManagerPgf(FigureManagerBase):
