@@ -21,60 +21,60 @@ def test_font_styles():
         return FontProperties(fname=path)
 
     from matplotlib.font_manager import FontProperties, findfont
-    warnings.filterwarnings('ignore','findfont: Font family \[\'Foo\'\] '+ \
+    warnings.filterwarnings('ignore', 'findfont: Font family \[\'Foo\'\] '+ \
                             'not found. Falling back to .',
                             UserWarning,
                             module='matplotlib.font_manager')
     fig = plt.figure()
-    ax = plt.subplot( 1, 1, 1 )
+    ax = plt.subplot(1, 1, 1)
 
-    normalFont = find_matplotlib_font( family = "sans-serif",
-                                       style = "normal",
-                                       variant = "normal",
-                                       size = 14,
-                                       )
-    ax.annotate( "Normal Font", (0.1, 0.1), xycoords='axes fraction',
-                  fontproperties = normalFont )
-
-    boldFont = find_matplotlib_font( family = "Foo",
-                                     style = "normal",
-                                     variant = "normal",
-                                     weight = "bold",
-                                     stretch = 500,
-                                     size = 14,
-                                     )
-    ax.annotate( "Bold Font", (0.1, 0.2), xycoords='axes fraction',
-                  fontproperties = boldFont )
-
-    boldItemFont = find_matplotlib_font( family = "sans serif",
-                                         style = "italic",
-                                         variant = "normal",
-                                         weight = 750,
-                                         stretch = 500,
-                                         size = 14,
-                                         )
-    ax.annotate( "Bold Italic Font", (0.1, 0.3), xycoords='axes fraction',
-                  fontproperties = boldItemFont )
-
-    lightFont = find_matplotlib_font( family = "sans-serif",
-                                      style = "normal",
-                                      variant = "normal",
-                                      weight = 200,
-                                      stretch = 500,
-                                      size = 14,
+    normalFont = find_matplotlib_font(family="sans-serif",
+                                       style="normal",
+                                       variant="normal",
+                                       size=14,
                                       )
-    ax.annotate( "Light Font", (0.1, 0.4), xycoords='axes fraction',
-                  fontproperties = lightFont )
+    ax.annotate("Normal Font", (0.1, 0.1), xycoords='axes fraction',
+                  fontproperties=normalFont)
 
-    condensedFont = find_matplotlib_font( family = "sans-serif",
-                                          style = "normal",
-                                          variant = "normal",
-                                          weight = 500,
-                                          stretch = 100,
-                                          size = 14,
+    boldFont = find_matplotlib_font(family="Foo",
+                                     style="normal",
+                                     variant="normal",
+                                     weight="bold",
+                                     stretch=500,
+                                     size=14,
+                                     )
+    ax.annotate("Bold Font", (0.1, 0.2), xycoords='axes fraction',
+                  fontproperties=boldFont)
+
+    boldItemFont = find_matplotlib_font(family="sans serif",
+                                         style="italic",
+                                         variant="normal",
+                                         weight=750,
+                                         stretch=500,
+                                         size=14,
+                                         )
+    ax.annotate("Bold Italic Font", (0.1, 0.3), xycoords='axes fraction',
+                  fontproperties=boldItemFont)
+
+    lightFont = find_matplotlib_font(family="sans-serif",
+                                      style="normal",
+                                      variant="normal",
+                                      weight=200,
+                                      stretch=500,
+                                      size=14,
+                                      )
+    ax.annotate("Light Font", (0.1, 0.4), xycoords='axes fraction',
+                  fontproperties=lightFont)
+
+    condensedFont = find_matplotlib_font(family="sans-serif",
+                                          style="normal",
+                                          variant="normal",
+                                          weight=500,
+                                          stretch=100,
+                                          size=14,
                                           )
-    ax.annotate( "Condensed Font", (0.1, 0.5), xycoords='axes fraction',
-                  fontproperties = condensedFont )
+    ax.annotate("Condensed Font", (0.1, 0.5), xycoords='axes fraction',
+                  fontproperties=condensedFont)
 
     ax.set_xticks([])
     ax.set_yticks([])
@@ -100,6 +100,7 @@ def test_multiline():
 
     ax.set_xticks([])
     ax.set_yticks([])
+
 
 @image_comparison(baseline_images=['antialiased'], extensions=['png'])
 def test_antialiasing():
@@ -193,3 +194,34 @@ def test_alignment():
     ax.set_ylim([0, 1.5])
     ax.set_xticks([])
     ax.set_yticks([])
+
+
+@cleanup
+def test_set_position():
+    fig, ax = plt.subplots()
+
+    # test set_position
+    ann = ax.annotate('test', (0, 0), xytext=(0, 0), textcoords='figure pixels')
+    plt.draw()
+
+    init_pos = ann.get_window_extent(fig.canvas.renderer)
+    shift_val = 15
+    ann.set_position((shift_val, shift_val))
+    plt.draw()
+    post_pos = ann.get_window_extent(fig.canvas.renderer)
+
+    for a, b in zip(init_pos.min, post_pos.min):
+        assert a + shift_val == b
+
+    # test xyann
+    ann = ax.annotate('test', (0, 0), xytext=(0, 0), textcoords='figure pixels')
+    plt.draw()
+
+    init_pos = ann.get_window_extent(fig.canvas.renderer)
+    shift_val = 15
+    ann.xyann = (shift_val, shift_val)
+    plt.draw()
+    post_pos = ann.get_window_extent(fig.canvas.renderer)
+
+    for a, b in zip(init_pos.min, post_pos.min):
+        assert a + shift_val == b

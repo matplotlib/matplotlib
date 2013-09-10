@@ -1265,6 +1265,10 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
 
         self.set_fontsize(fontsize)
 
+        self.xybox = xybox
+
+        self.boxcoords = boxcoords
+
         if arrowprops is not None:
             self._arrow_relpos = self.arrowprops.pop("relpos", (0.5, 0.5))
             self.arrow_patch = FancyArrowPatch((0, 0), (1, 1),
@@ -1274,8 +1278,8 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
             self.arrow_patch = None
 
         _AnnotationBase.__init__(self,
-                                 xy, xytext=xybox,
-                                 xycoords=xycoords, textcoords=boxcoords,
+                                 xy,
+                                 xycoords=xycoords,
                                  annotation_clip=annotation_clip)
 
         martist.Artist.__init__(self, **kwargs)
@@ -1294,6 +1298,22 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         if bboxprops:
             self.patch.set(**bboxprops)
         self._drawFrame = frameon
+
+    @property
+    def xyann(self):
+        return self.xybox
+
+    @xyann.setter
+    def xyann(self, xyann):
+        self.xybox = xyann
+
+    @property
+    def anncoords(self):
+        return self.boxcoords
+
+    @anncoords.setter
+    def anncoords(self, coords):
+        self.boxcoords = coords
 
     def contains(self, event):
         t, tinfo = self.offsetbox.contains(event)
@@ -1352,14 +1372,14 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         patch.
         """
 
-        x, y = self.xytext
-        if isinstance(self.textcoords, tuple):
-            xcoord, ycoord = self.textcoords
+        x, y = self.xybox
+        if isinstance(self.boxcoords, tuple):
+            xcoord, ycoord = self.boxcoords
             x1, y1 = self._get_xy(renderer, x, y, xcoord)
             x2, y2 = self._get_xy(renderer, x, y, ycoord)
             ox0, oy0 = x1, y2
         else:
-            ox0, oy0 = self._get_xy(renderer, x, y, self.textcoords)
+            ox0, oy0 = self._get_xy(renderer, x, y, self.boxcoords)
 
         w, h, xd, yd = self.offsetbox.get_extent(renderer)
 
@@ -1579,32 +1599,30 @@ class DraggableAnnotation(DraggableBase):
 
     def save_offset(self):
         ann = self.annotation
-        x, y = ann.xytext
-        if isinstance(ann.textcoords, tuple):
-            xcoord, ycoord = ann.textcoords
+        x, y = ann.xyann
+        if isinstance(ann.anncoords, tuple):
+            xcoord, ycoord = ann.anncoords
             x1, y1 = ann._get_xy(self.canvas.renderer, x, y, xcoord)
             x2, y2 = ann._get_xy(self.canvas.renderer, x, y, ycoord)
             ox0, oy0 = x1, y2
         else:
-            ox0, oy0 = ann._get_xy(self.canvas.renderer, x, y, ann.textcoords)
+            ox0, oy0 = ann._get_xy(self.canvas.renderer, x, y, ann.anncoords)
 
         self.ox, self.oy = ox0, oy0
-        self.annotation.textcoords = "figure pixels"
+        self.annotation.anncoords = "figure pixels"
         self.update_offset(0, 0)
 
     def update_offset(self, dx, dy):
         ann = self.annotation
-        ann.xytext = self.ox + dx, self.oy + dy
-        x, y = ann.xytext
-        # xy is never used
-        xy = ann._get_xy(self.canvas.renderer, x, y, ann.textcoords)
+        ann.xyann = self.ox + dx, self.oy + dy
+        x, y = ann.xyann
 
     def finalize_offset(self):
-        loc_in_canvas = self.annotation.xytext
-        self.annotation.textcoords = "axes fraction"
+        loc_in_canvas = self.annotation.xyann
+        self.annotation.anncoords = "axes fraction"
         pos_axes_fraction = self.annotation.axes.transAxes.inverted()
         pos_axes_fraction = pos_axes_fraction.transform_point(loc_in_canvas)
-        self.annotation.xytext = tuple(pos_axes_fraction)
+        self.annotation.xyann = tuple(pos_axes_fraction)
 
 
 if __name__ == "__main__":
