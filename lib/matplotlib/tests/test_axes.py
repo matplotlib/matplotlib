@@ -1121,6 +1121,17 @@ def test_hist_offset():
     ax.hist(d2, bottom=15)
 
 
+@image_comparison(baseline_images=['hist_step'], extensions=['png'], remove_text=True)
+def test_hist_step():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( d1, histtype="step")
+    ax.set_ylim(0, 10)
+    ax.set_xlim(-1, 5)
+
+
 @image_comparison(baseline_images=['hist_stacked_weights'])
 def test_hist_stacked_weighted():
     # make some data
