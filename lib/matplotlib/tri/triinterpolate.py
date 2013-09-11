@@ -1054,8 +1054,8 @@ class _DOF_estimator():
         gradient.
         """
         J = CubicTriInterpolator._get_jacobian(self._tris_pts)
-        tri_z = self.z[self._triangles, :]
-        tri_dz = self.dz[self._triangles, :]
+        tri_z = self.z[self._triangles]
+        tri_dz = self.dz[self._triangles]
         tri_dof = self.get_dof_vec(tri_z, tri_dz, J)
         return tri_dof
 
