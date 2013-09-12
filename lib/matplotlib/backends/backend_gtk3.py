@@ -361,7 +361,7 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
 
 FigureCanvas = FigureCanvasGTK3
 
-class FigureManagerGTK3(FigureManagerBase):
+class SingleFigureManagerGTK3(FigureManagerBase):
     """
     Public attributes
 
@@ -474,6 +474,237 @@ class FigureManagerGTK3(FigureManagerBase):
         #_, _, ww, wh = self.window.allocation
         #self.window.resize (width-cw+ww, height-ch+wh)
         self.window.resize(width, height)
+
+
+class FigureManagerBase2(FigureManagerBase):
+    def __init__(self, parent, canvas, num):
+        FigureManagerBase.__init__(self, canvas, num)
+        self.parent = parent
+
+    def show(self):
+        try:
+            self.parent.show(self)
+        except AttributeError:
+            pass
+    
+    def destroy(self):
+        try:
+            self.parent.destroy(self)
+        except AttributeError:
+            pass
+
+    def full_screen_toggle(self):
+        try:
+            self.parent.full_screen_toggle(self)
+        except AttributeError:
+            pass
+
+    def resize(self, w, h):
+        try:
+            self.parent.resize(self, w, h)
+        except AttributeError:
+            pass    
+
+#    def key_press(self, event):
+#        key_press_handler(event, self.canvas, self.canvas.toolbar)
+
+    def show_popup(self, msg):
+        try:
+            self.parent.show_popup(self, msg)
+        except AttributeError:    
+            pass
+
+    def get_window_title(self):
+        try:
+            self.parent.get_window_title(self)
+        except AttributeError:
+            return 'image'
+
+    def set_window_title(self, title):
+        try:
+            self.parent.set_window_title(self.title)
+        except AttributeError:
+            pass
+
+class TabbedFigureManagerGTK3(FigureManagerBase):
+    _canvas = {}
+    _labels = {}
+    _w_min = 0
+    _h_min = 0
+    _managers = {}
+    def __init__(self, *args):
+        print ('calling init', args)
+
+        self.window = Gtk.Window()
+        self.set_window_title("Figuremanager")
+        try:
+            self.window.set_icon_from_file(window_icon)
+        except (SystemExit, KeyboardInterrupt):
+            # re-raise exit type Exceptions
+            raise
+        except:
+            # some versions of gtk throw a glib.GError but not
+            # all, so I am not sure how to catch it.  I am unhappy
+            # doing a blanket catch here, but am not sure what a
+            # better way is - JDH
+            verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+            
+        self.vbox = Gtk.Box()
+        self.vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
+#        self.vbox.show()
+        
+        self.notebook = Gtk.Notebook()
+        
+        self.notebook.set_scrollable(True)
+        vp = Gtk.Viewport()
+        vp.add(self.notebook)
+        self.vbox.pack_start(vp, True, True, 0)
+#        self.vbox.pack_start(self.notebook, True, True, 0)
+        self.window.add(self.vbox)
+        
+        self.notebook.connect('switch-page', self._on_switch_page)
+        
+        
+        
+        
+        self.toolbar = self._get_toolbar()
+
+        if self.toolbar is not None:
+            self.toolbar.show()
+            self.vbox.pack_end(self.toolbar, False, False, 0)
+
+        size_request = self.window.size_request()
+        self._h_def = size_request.height
+        self._w_def = size_request.width
+
+
+        def destroy_window(*args):
+            for num in self._canvas.keys():
+                Gcf.destroy(num)
+        self.window.connect("destroy", destroy_window)
+        self.window.connect("delete_event", destroy_window)
+        
+        self.vbox.show_all()
+        
+        if matplotlib.is_interactive():
+            self.window.show()
+
+        
+        
+    def destroy(self, *args):
+        if _debug: print('FigureManagerGTK3.%s' % fn_name())
+        if not self._canvas:
+            self.vbox.destroy()
+            self.window.destroy()
+            if self.toolbar:
+                self.toolbar.destroy()
+#
+        if Gcf.get_num_fig_managers() == 0 and \
+                not matplotlib.is_interactive() and \
+                Gtk.main_level() >= 1:
+            Gtk.main_quit()   
+     
+    def _on_remove_canvas(self, btn, num):   
+
+        canvas = self._canvas[num]
+        id_ = self.notebook.page_num(canvas)
+        if id_ > -1:
+            del self._canvas[num]
+            del self._labels[num]
+            self.notebook.remove_page(id_)
+            Gcf.destroy(num)
+            
+    def set_window_title(self, title):
+        pass
+        
+    def _on_switch_page(self, *args):
+        pass
+        
+    def _get_toolbar(self):
+        # must be inited after the window, drawingArea and figure
+        # attrs are set
+        if rcParams['toolbar'] == 'toolbar2':
+#            toolbar = NavigationToolbar2GTK3 (canvas, self.window)
+            toolbar = None
+        else:
+            toolbar = None
+        return toolbar   
+    
+    def _add_canvas(self, canvas, num):
+        #I don't like to call init of the base several times,
+        #I could just set the variables that it needs and never call init....
+        FigureManagerBase.__init__(self, canvas, num)
+        
+        manager = FigureManagerBase2(self, canvas, num)
+
+        
+
+        title = 'Fig %d' % num
+        box = Gtk.Box()
+        box.set_orientation(Gtk.Orientation.HORIZONTAL)
+        box.set_spacing(5)
+        
+        label = Gtk.Label(title)
+        box.pack_start(label, True, True, 0)
+        
+        # close button
+        button = Gtk.Button()
+        
+        button.set_relief(Gtk.ReliefStyle.NONE)
+        button.set_focus_on_click(False)
+        button.add(Gtk.Image.new_from_stock(Gtk.STOCK_CLOSE, Gtk.IconSize.MENU))
+        
+        
+        
+        box.pack_end(button, False, False, 0)
+        
+        box.show_all()
+        self.notebook.append_page(canvas, box)
+        canvas.show()
+        
+        button.connect("clicked", self._on_remove_canvas, num)
+        
+        self._canvas[num] = canvas
+        self._labels[num] = label
+
+
+        # calculate size for window
+        w = int (self.canvas.figure.bbox.width)
+        h = int (self.canvas.figure.bbox.height)
+        
+        if w > self._w_min:
+            self._w_min = w
+        if h > self._h_min:
+            self._h_min = h
+            
+        
+        self.window.set_default_size (self._w_def + self._w_min, self._h_def + self._h_min)
+
+        if self.toolbar:
+            self.toolbar.add_canvas(canvas)
+        
+        def notify_axes_change(fig):
+            'this will be called whenever the current axes is changed'
+            if self.toolbar is not None: self.toolbar.update()
+        self.canvas.figure.add_axobserver(notify_axes_change)
+
+        self.canvas.grab_focus()
+        
+    def show(self):
+        # show the figure window
+        self.window.show() 
+        
+    
+    def __call__(self, canvas, num):
+        self._add_canvas(canvas, num)
+        return self
+    
+
+if rcParams['backend.gtk3.tabbed']:
+    FigureManagerGTK3 = TabbedFigureManagerGTK3()
+else:
+    FigureManagerGTK3 = SingleFigureManagerGTK3
+
 
 
 class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
