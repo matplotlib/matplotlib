@@ -1592,7 +1592,9 @@ class _AxesBase(martist.Artist):
 
     def relim(self, visible_only=False):
         """
-        Recompute the data limits based on current artists.
+        Recompute the data limits based on current artists. If you want to exclude
+        invisible artists from the calculation, set
+        `include_invisible=False`
 
         At present, :class:`~matplotlib.collections.Collection`
         instances are not supported.

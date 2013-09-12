@@ -475,6 +475,12 @@ class FigureManagerGTK3(FigureManagerBase):
         self.window.resize(width, height)
 
 
+
+class TabbedFigureManagerGTK3(FigureManagerGTK3):
+    pass
+
+
+
 class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
     def __init__(self, canvas, window):
         self.win = window
