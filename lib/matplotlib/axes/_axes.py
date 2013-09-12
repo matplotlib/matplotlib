@@ -5399,7 +5399,7 @@ class Axes(_AxesBase):
                         closed=True,
                         facecolor=c))
             else:
-                for x, y, c in reversed(zip(xvals, yvals, color)):
+                for x, y, c in reversed(list(zip(xvals, yvals, color))):
                     split = 2 * len(bins)
                     patches.append(self.fill(
                         x[:split], y[:split],
