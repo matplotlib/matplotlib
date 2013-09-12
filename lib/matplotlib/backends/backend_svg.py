@@ -405,8 +405,9 @@ class RendererSVG(RendererBase):
         else:
             if rgbFace is None:
                 attrib['fill'] = 'none'
-            elif tuple(rgbFace[:3]) != (0, 0, 0):
-                attrib['fill'] = rgb2hex(rgbFace)
+            else:
+                if tuple(rgbFace[:3]) != (0, 0, 0):
+                    attrib['fill'] = rgb2hex(rgbFace)
                 if len(rgbFace) == 4 and rgbFace[3] != 1.0 and not forced_alpha:
                     attrib['fill-opacity'] = str(rgbFace[3])
 
