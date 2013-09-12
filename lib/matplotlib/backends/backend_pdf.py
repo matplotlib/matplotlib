@@ -2258,6 +2258,12 @@ class PdfPages(object):
         # Once you are done, remember to close the object:
         pp.close()
 
+    Or using the with statement::
+
+        with PdfPages('foo.pdf') as pp:
+            fig.savefig(pp, format='pdf') # note the format argument!
+            pp.savefig(fig)
+
     (In reality PdfPages is a thin wrapper around PdfFile, in order to
     avoid confusion when using savefig and forgetting the format
     argument.)
@@ -2271,6 +2277,12 @@ class PdfPages(object):
         file with the same name is overwritten.
         """
         self._file = PdfFile(filename)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
     def close(self):
         """
