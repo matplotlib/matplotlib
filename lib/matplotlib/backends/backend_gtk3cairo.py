@@ -40,14 +40,15 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
         return False  # finish event propagation?
 
 
-#class FigureManagerGTK3Cairo(backend_gtk3.FigureManagerGTK3):
-#    pass
-FigureManagerGTK3Cairo = backend_gtk3.FigureManagerGTK3
+class FigureManagerGTK3Cairo(backend_gtk3.FigureManagerGTK3):
+    pass
+
 
 def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
+    
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
     return new_figure_manager_given_figure(num, thisFig)

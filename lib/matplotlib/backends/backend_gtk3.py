@@ -2,6 +2,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
+import weakref
 
 import os, sys
 def fn_name(): return sys._getframe(1).f_code.co_name
@@ -44,8 +45,8 @@ from matplotlib import rcParams
 
 backend_version = "%s.%s.%s" % (Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
 
+#_debug = False
 _debug = False
-#_debug = True
 
 # the true dots per inch on the screen; should be display dependent
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
@@ -361,7 +362,7 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
 
 FigureCanvas = FigureCanvasGTK3
 
-class SingleFigureManagerGTK3(FigureManagerBase):
+class FigureManagerGTK3(FigureManagerBase):
     """
     Public attributes
 
@@ -476,32 +477,44 @@ class SingleFigureManagerGTK3(FigureManagerBase):
         self.window.resize(width, height)
 
 
-class FigureManagerBase2(FigureManagerBase):
-    def __init__(self, parent, canvas, num):
+class TabbedFigureManagerGTK3(FigureManagerBase):
+    parent = None
+    
+    @classmethod
+    def initialize(cls):
+        if cls.parent is None:
+            cls.parent = TabbedFigureContainerGTK3()
+
+    
+    def __init__(self, canvas, num):
+        self.initialize() 
         FigureManagerBase.__init__(self, canvas, num)
-        self.parent = parent
+        self.toolbar = self.parent.get_manager_toolbar(self)
+        self.parent.add_figure_manager(self)
+        self.canvas.show()
+        
+        
+        def notify_axes_change(fig):
+            'this will be called whenever the current axes is changed'
+            if self.toolbar is not None: self.toolbar.update()
+        canvas.figure.add_axobserver(notify_axes_change)
+        
 
     def show(self):
         try:
-            self.parent.show(self)
+            self.parent.show_manager(self)
         except AttributeError:
             pass
     
     def destroy(self):
-        try:
-            self.parent.destroy(self)
-        except AttributeError:
-            pass
-
-    def full_screen_toggle(self):
-        try:
-            self.parent.full_screen_toggle(self)
-        except AttributeError:
-            pass
+        if _debug: print('%s.%s' % (self.__class__.__name__, fn_name()))
+        
+        self.canvas.destroy()
+        self.parent.remove_manager(self)
 
     def resize(self, w, h):
         try:
-            self.parent.resize(self, w, h)
+            self.parent.resize_manager(self, w, h)
         except AttributeError:
             pass    
 
@@ -515,28 +528,22 @@ class FigureManagerBase2(FigureManagerBase):
             pass
 
     def get_window_title(self):
-        try:
-            self.parent.get_window_title(self)
-        except AttributeError:
-            return 'image'
+        return self.parent.get_manager_title(self)
 
     def set_window_title(self, title):
-        try:
-            self.parent.set_window_title(self.title)
-        except AttributeError:
-            pass
+        self.parent.set_manager_title(self, title)
 
-class TabbedFigureManagerGTK3(FigureManagerBase):
-    _canvas = {}
+
+class TabbedFigureContainerGTK3(object):
+    _managers = []
     _labels = {}
     _w_min = 0
     _h_min = 0
-    _managers = {}
+    
     def __init__(self, *args):
-        print ('calling init', args)
-
+        if _debug: print('%s.%s' % (self.__class__.__name__, fn_name()))
         self.window = Gtk.Window()
-        self.set_window_title("Figuremanager")
+        self.window.set_title("Figuremanager")
         try:
             self.window.set_icon_from_file(window_icon)
         except (SystemExit, KeyboardInterrupt):
@@ -556,15 +563,11 @@ class TabbedFigureManagerGTK3(FigureManagerBase):
         self.notebook = Gtk.Notebook()
         
         self.notebook.set_scrollable(True)
-        vp = Gtk.Viewport()
-        vp.add(self.notebook)
-        self.vbox.pack_start(vp, True, True, 0)
-#        self.vbox.pack_start(self.notebook, True, True, 0)
-        self.window.add(self.vbox)
         
         self.notebook.connect('switch-page', self._on_switch_page)
-        
-        
+
+        self.vbox.pack_start(self.notebook, True, True, 0)
+        self.window.add(self.vbox)
         
         
         self.toolbar = self._get_toolbar()
@@ -579,7 +582,8 @@ class TabbedFigureManagerGTK3(FigureManagerBase):
 
 
         def destroy_window(*args):
-            for num in self._canvas.keys():
+            nums = [manager.num for manager in self._managers]
+            for num in nums:
                 Gcf.destroy(num)
         self.window.connect("destroy", destroy_window)
         self.window.connect("delete_event", destroy_window)
@@ -588,56 +592,67 @@ class TabbedFigureManagerGTK3(FigureManagerBase):
         
         if matplotlib.is_interactive():
             self.window.show()
-
-        
+      
+    def _on_switch_page(self, notebook, pointer, num):
+        canvas = self.notebook.get_nth_page(num)
+        self.toolbar.switch_toolbar(canvas.toolbar)  
         
     def destroy(self, *args):
-        if _debug: print('FigureManagerGTK3.%s' % fn_name())
-        if not self._canvas:
-            self.vbox.destroy()
-            self.window.destroy()
-            if self.toolbar:
-                self.toolbar.destroy()
+        if _debug: print('%s.%s' % (self.__class__.__name__, fn_name()))
+
+        self.vbox.destroy()
+        self.window.destroy()
+        if self.toolbar:
+            self.toolbar.destroy()
 #
         if Gcf.get_num_fig_managers() == 0 and \
                 not matplotlib.is_interactive() and \
                 Gtk.main_level() >= 1:
             Gtk.main_quit()   
      
-    def _on_remove_canvas(self, btn, num):   
-
-        canvas = self._canvas[num]
+    def remove_manager(self, manager):   
+        if _debug: print('%s.%s' % (self.__class__.__name__, fn_name()))
+        if manager not in self._managers:
+            raise AttributeError('This container does not control the given figure manager')
+        canvas = manager.canvas
         id_ = self.notebook.page_num(canvas)
         if id_ > -1:
-            del self._canvas[num]
-            del self._labels[num]
+            del self._labels[manager.num]
             self.notebook.remove_page(id_)
-            Gcf.destroy(num)
+            self._managers.remove(manager)
             
-    def set_window_title(self, title):
-        pass
-        
-    def _on_switch_page(self, *args):
-        pass
+        if self.notebook.get_n_pages() == 0:
+            self.destroy()
+            
+    def set_manager_title(self, manager, title):
+        self._labels[manager.num].set_text(title)
+    
+    def get_manager_title(self, manager):
+        self._labels[manager.num].get_text()
         
     def _get_toolbar(self):
         # must be inited after the window, drawingArea and figure
         # attrs are set
         if rcParams['toolbar'] == 'toolbar2':
-#            toolbar = NavigationToolbar2GTK3 (canvas, self.window)
-            toolbar = None
+            toolbar = TabbedContainerNavigationToolbar2GTK3(self.window)
         else:
             toolbar = None
         return toolbar   
     
-    def _add_canvas(self, canvas, num):
-        #I don't like to call init of the base several times,
-        #I could just set the variables that it needs and never call init....
-        FigureManagerBase.__init__(self, canvas, num)
-        
-        manager = FigureManagerBase2(self, canvas, num)
-
-        
+    
+    def get_manager_toolbar(self, manager):
+        if self.toolbar is None:
+            return None
+        toolbar = TabbedNavigationToolbar(manager.canvas, self.toolbar)
+#        self.toolbar.add_manager(manager)
+        return toolbar
+    
+    def add_figure_manager(self, figure_manager):
+        if _debug: print('%s.%s' % (self.__class__.__name__, fn_name()))
+        if figure_manager in self._managers:
+            raise AttributeError ('Impossible to add two times the same figure manager')
+        canvas = figure_manager.canvas
+        num = figure_manager.num
 
         title = 'Fig %d' % num
         box = Gtk.Box()
@@ -645,6 +660,9 @@ class TabbedFigureManagerGTK3(FigureManagerBase):
         box.set_spacing(5)
         
         label = Gtk.Label(title)
+        self._labels[num] = label
+        self._managers.append(figure_manager)
+        
         box.pack_start(label, True, True, 0)
         
         # close button
@@ -652,60 +670,302 @@ class TabbedFigureManagerGTK3(FigureManagerBase):
         
         button.set_relief(Gtk.ReliefStyle.NONE)
         button.set_focus_on_click(False)
-        button.add(Gtk.Image.new_from_stock(Gtk.STOCK_CLOSE, Gtk.IconSize.MENU))
-        
-        
-        
-        box.pack_end(button, False, False, 0)
-        
+        button.add(Gtk.Image.new_from_stock(Gtk.STOCK_CLOSE, Gtk.IconSize.MENU)) 
+        box.pack_end(button, False, False, 0)     
         box.show_all()
         self.notebook.append_page(canvas, box)
         canvas.show()
         
-        button.connect("clicked", self._on_remove_canvas, num)
+        def _remove(btn):
+            Gcf.destroy(num)
+
+        button.connect("clicked", _remove)
         
-        self._canvas[num] = canvas
-        self._labels[num] = label
-
-
         # calculate size for window
-        w = int (self.canvas.figure.bbox.width)
-        h = int (self.canvas.figure.bbox.height)
+        w = int (canvas.figure.bbox.width)
+        h = int (canvas.figure.bbox.height)
         
         if w > self._w_min:
             self._w_min = w
         if h > self._h_min:
-            self._h_min = h
-            
+            self._h_min = h  
         
         self.window.set_default_size (self._w_def + self._w_min, self._h_def + self._h_min)
 
-        if self.toolbar:
-            self.toolbar.add_canvas(canvas)
+        canvas.grab_focus()
         
-        def notify_axes_change(fig):
-            'this will be called whenever the current axes is changed'
-            if self.toolbar is not None: self.toolbar.update()
-        self.canvas.figure.add_axobserver(notify_axes_change)
-
-        self.canvas.grab_focus()
+    def show_manager(self, manager):
+        if _debug: print('%s.%s' % (self.__class__.__name__, fn_name()))
+        self.show()
+        canvas = manager.canvas
+        id_ = self.notebook.page_num(canvas)
+        self.notebook.set_current_page(id_)
         
     def show(self):
-        # show the figure window
-        self.window.show() 
+        if _debug: print('%s.%s' % (self.__class__.__name__, fn_name()))
+        self.window.show_all() 
         
-    
-    def __call__(self, canvas, num):
-        self._add_canvas(canvas, num)
-        return self
     
 
 if rcParams['backend.gtk3.tabbed']:
-    FigureManagerGTK3 = TabbedFigureManagerGTK3()
-else:
-    FigureManagerGTK3 = SingleFigureManagerGTK3
+    FigureManagerGTK3 = TabbedFigureManagerGTK3
 
 
+class TabbedNavigationToolbar(NavigationToolbar2):
+    def __init__(self, canvas, parent):
+        self.parent = parent
+        NavigationToolbar2.__init__(self, canvas)
+        
+    def _init_toolbar(self):
+        self.parent.add_toolbar(self)
+        self.ctx = None
+
+    def set_message(self, s):
+        self.parent.message.set_label(s)
+
+    def set_cursor(self, cursor):
+        self.canvas.get_property("window").set_cursor(cursord[cursor])
+        #self.canvas.set_cursor(cursord[cursor])
+
+    def release(self, event):
+        try: del self._pixmapBack
+        except AttributeError: pass
+
+    def dynamic_update(self):
+        # legacy method; new method is canvas.draw_idle
+        self.canvas.draw_idle()
+
+    def draw_rubberband(self, event, x0, y0, x1, y1):
+        'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744'
+        self.ctx = self.canvas.get_property("window").cairo_create()
+
+        # todo: instead of redrawing the entire figure, copy the part of
+        # the figure that was covered by the previous rubberband rectangle
+        self.canvas.draw()
+
+        height = self.canvas.figure.bbox.height
+        y1 = height - y1
+        y0 = height - y0
+        w = abs(x1 - x0)
+        h = abs(y1 - y0)
+        rect = [int(val) for val in (min(x0,x1), min(y0, y1), w, h)]
+
+        self.ctx.new_path()
+        self.ctx.set_line_width(0.5)
+        self.ctx.rectangle(rect[0], rect[1], rect[2], rect[3])
+        self.ctx.set_source_rgb(0, 0, 0)
+        self.ctx.stroke()
+
+
+class TabbedContainerNavigationToolbar2GTK3(Gtk.Toolbar):
+    _toolbars = []
+    toolitems = list(NavigationToolbar2.toolitems)
+    extra_items = [('SaveAll', 'Save all figures', 'filesave', 'save_all_figures'), ]
+    #It is more clear to have toggle buttons for these two options
+    _toggle = {'Pan': None, 'Zoom': None} 
+    _destroy_on_switch = []
+    
+    def __init__(self, window):
+        self.win = window
+        Gtk.Toolbar.__init__(self)
+        self.toolitems.extend(self.extra_items)
+        self._add_buttons()
+        self._current = None
+        
+    def _add_buttons(self):
+        self.set_style(Gtk.ToolbarStyle.ICONS)
+        basedir = os.path.join(rcParams['datapath'], 'images')
+        for text, tooltip_text, image_file, callback in self.toolitems:
+            if text is None:
+                self.insert(Gtk.SeparatorToolItem(), -1)
+                continue
+            fname = os.path.join(basedir, image_file + '.png')
+            image = Gtk.Image()
+            image.set_from_file(fname)
+            if text in self._toggle:
+                tbutton = Gtk.ToggleToolButton()
+                self._toggle[text] = tbutton
+                tbutton.connect('toggled', self._toggled)
+            else: 
+                tbutton = Gtk.ToolButton()
+                #attach to _toggled so it untoggles the toggled button
+                tbutton.connect('clicked', self._toggled)
+            tbutton.set_label(text)
+            tbutton.set_icon_widget(image)
+            self.insert(tbutton, -1)
+            
+            tbutton.connect('clicked', getattr(self, callback))
+            
+            tbutton.set_tooltip_text(tooltip_text)
+
+        toolitem = Gtk.SeparatorToolItem()
+        self.insert(toolitem, -1)
+        toolitem.set_draw(False)
+        toolitem.set_expand(True)
+
+        toolitem = Gtk.ToolItem()
+        self.insert(toolitem, -1)
+        self.message = Gtk.Label()
+        toolitem.add(self.message)
+
+        self.show_all()
+        
+    def switch_toolbar(self, toolbar):
+        if toolbar not in self._toolbars:
+            raise AttributeError('This container does not control the given toolbar')
+        
+        print(self._destroy_on_switch)
+        
+        for w in self._destroy_on_switch:
+            o = w()
+            if o is None:
+                continue
+             
+            try:
+                o.destroy()
+            except:
+                pass
+        self._destroy_on_switch = []
+        
+        #For these two actions we have to unselect and reselect
+        d = {'PAN': 'pan', 'ZOOM': 'zoom'}    
+        action = d.get(self._current._active, False)
+        if action:
+            getattr(self._current, action)()
+            getattr(toolbar, action)()
+        self._current = toolbar 
+        
+    
+    def home(self, *args):
+        self._current.home(*args)
+    
+    def back(self, *args):
+        self._current.back(*args)
+        
+    def forward(self, *args):
+        self._current.forward(*args)
+    
+    def pan(self, *args):
+        self._current.pan(*args)
+
+    def zoom(self, *args):
+        self._current.zoom(*args)
+        
+    def save_all_figures(self, *args):
+        pass
+    
+    def add_toolbar(self, toolbar):
+        print ('adding toolbar', toolbar)
+        self._toolbars.append(toolbar)
+        self._current = toolbar
+       
+    def _toggled(self, btn):
+        #Untoggle other toggled buttons
+        for i in self._toggle.values():
+            if i is not btn:
+                if i.get_active():
+                    i.handler_block_by_func(self._toggled)
+                    i.set_active(False)
+                    i.handler_unblock_by_func(self._toggled) 
+                    
+    def get_filechooser(self, title, current_name):
+        fc = FileChooserDialog(
+            title=title,
+            parent=self.win,
+            path=os.path.expanduser(rcParams.get('savefig.directory', '')),
+            filetypes=self._current.canvas.get_supported_filetypes(),
+            default_filetype=self._current.canvas.get_default_filetype())
+        fc.set_current_name(current_name)
+        return fc
+
+    def _do_save_figure(self, canvas, fname, format):
+        if fname:
+            startpath = os.path.expanduser(rcParams.get('savefig.directory', ''))
+            if startpath == '':
+                # explicitly missing key or empty str signals to use cwd
+                rcParams['savefig.directory'] = startpath
+            else:
+                # save dir for next time
+                rcParams['savefig.directory'] = os.path.dirname(six.text_type(fname))
+    
+            try:
+                canvas.print_figure(fname, format=format)
+            except Exception as e:
+                error_msg_gtk(str(e), parent=self)
+                
+
+    def save_figure(self, *args):
+        current_name = self._current.canvas.get_default_filename()
+        chooser = self.get_filechooser('Save the figure', current_name)
+        
+        #We want to make sure the user is not confused 
+        #if changes tabs while saving dialog is open
+        self._destroy_on_switch.append(weakref.ref(chooser))        
+        fname, format = chooser.get_filename_from_user()
+        chooser.destroy()
+        self._do_save_figure(self._current.canvas, fname, format)
+
+                
+        
+        
+    def save_all_figures(self, *args):
+        start = self._current.canvas.get_default_filename()
+        fname_end = '.' + self._current.canvas.get_default_filetype()
+        current_name = start[:-len(fname_end)]
+        chooser = self.get_filechooser('Save all figures', current_name)
+
+        #We want to make sure the user is not confused 
+        #if changes tabs while saving dialog is open
+        self._destroy_on_switch.append(weakref.ref(chooser))
+        fname, format = chooser.get_filename_from_user()
+        chooser.destroy()
+        
+        if not fname:
+            return
+
+        for canvas in [t.canvas for t in self._toolbars]:
+            #surface.write_to_png (fobj) in backend_cairo.py
+            #doesn't work correclty with other kind of strings
+            fn = str('%s_%.3d.%s' % (fname, canvas.manager.num, format))
+            self._do_save_figure(canvas, fn, format)
+        
+    def configure_subplots(self, button):
+        toolfig = Figure(figsize=(6,3))
+        canvas = self._get_canvas(toolfig)
+        toolfig.subplots_adjust(top=0.9)
+        tool =  SubplotTool(self._current.canvas.figure, toolfig)
+
+        w = int (toolfig.bbox.width)
+        h = int (toolfig.bbox.height)
+
+        window = Gtk.Window()
+        try:
+            window.set_icon_from_file(window_icon)
+        except (SystemExit, KeyboardInterrupt):
+            # re-raise exit type Exceptions
+            raise
+        except:
+            # we presumably already logged a message on the
+            # failure of the main plot, don't keep reporting
+            pass
+        window.set_title("Subplot Configuration Tool")
+        window.set_default_size(w, h)
+        vbox = Gtk.Box()
+        vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
+        window.add(vbox)
+        vbox.show()
+
+        canvas.show()
+        vbox.pack_start(canvas, True, True, 0)
+        window.show()
+        
+        self._destroy_on_switch.append(weakref.ref(window))
+        print (self._destroy_on_switch)
+
+    def _get_canvas(self, fig):
+        return self._current.canvas.__class__(fig)
+                    
+                    
 
 class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
     def __init__(self, canvas, window):

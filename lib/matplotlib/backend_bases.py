@@ -2150,7 +2150,7 @@ class FigureCanvasBase(object):
         bbox_inches = kwargs.pop("bbox_inches", None)
         if bbox_inches is None:
             bbox_inches = rcParams['savefig.bbox']
-
+  
         if bbox_inches:
             # call adjust_bbox to save only the given area
             if bbox_inches == "tight":
