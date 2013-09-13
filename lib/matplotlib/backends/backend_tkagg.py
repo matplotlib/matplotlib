@@ -746,8 +746,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
     def save_figure(self, *args):
-        from six.moves.tkinter_filedialog import asksaveasfilename
-        from six.moves.tkinter_messagebox import showerror
+        from six.moves import tkinter_tkfiledialog, tkinter_messagebox
         filetypes = self.canvas.get_supported_filetypes().copy()
         default_filetype = self.canvas.get_default_filetype()
 
@@ -766,13 +765,13 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         # adding a default extension seems to break the
         # asksaveasfilename dialog when you choose various save types
         # from the dropdown.  Passing in the empty string seems to
-        # work - JDH
+        # work - JDH!
         #defaultextension = self.canvas.get_default_filetype()
         defaultextension = ''
         initialdir = rcParams.get('savefig.directory', '')
         initialdir = os.path.expanduser(initialdir)
         initialfile = self.canvas.get_default_filename()
-        fname = asksaveasfilename(
+        fname = tkinter_tkfiledialog.asksaveasfilename(
             master=self.window,
             title='Save the figure',
             filetypes=tk_filetypes,
@@ -794,7 +793,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
                 # This method will handle the delegation to the correct type
                 self.canvas.print_figure(fname)
             except Exception as e:
-                showerror("Error saving file", str(e))
+                tkinter_messagebox.showerror("Error saving file", str(e))
 
     def set_active(self, ind):
         self._ind = ind
