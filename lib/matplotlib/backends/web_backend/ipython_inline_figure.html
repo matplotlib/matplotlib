@@ -5,19 +5,21 @@
   // We can't proceed until these Javascript files are fetched, so
   // we fetch them synchronously
   $.ajaxSetup({async: false});
-  $.getScript("http://" + window.location.hostname + ":{{ port }}{{prefix}}/_static/mpl.js");
-  $.getScript("http://" + window.location.hostname + ":{{ port }}{{prefix}}/mpl_interface.js");
+  $.getScript("http://" + window.location.hostname + ":{{ port }}{{prefix}}/_static/mpl_tornado.js");
+  $.getScript("http://" + window.location.hostname + ":{{ port }}{{prefix}}/mpl.js");
   $.ajaxSetup({async: true});
 
   function init_figure{{ fig_id }}(e) {
     $('div.output').off('resize');
 
     var output_div = $(e.target).find('div.output_subarea');
+    var websocket_type = mpl.get_websocket_type();
+    var websocket = new websocket_type(
+        "ws://" + window.location.hostname + ":{{ port }}{{ prefix}}/" +
+        {{ repr(str(fig_id)) }} + "/ws");
 
-    var fig = new figure(
-       {{ repr(str(fig_id)) }},
-       "ws://" + window.location.hostname + ":{{ port }}{{ prefix}}/",
-       output_div);
+    var fig = new mpl.figure(
+        {{repr(str(fig_id))}}, websocket, mpl_ondownload, output_div);
 
     // Fetch the first image
     fig.context.drawImage(fig.imageObj, 0, 0);
