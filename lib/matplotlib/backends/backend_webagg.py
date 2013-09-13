@@ -145,19 +145,6 @@ class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
         # show the figure window
         show()
 
-    def draw_idle(self):
-        if self._pending_draw is None:
-            ioloop = tornado.ioloop.IOLoop.instance()
-            self._pending_draw = ioloop.add_timeout(
-                datetime.timedelta(milliseconds=50),
-                self._draw_idle_callback)
-
-    def _draw_idle_callback(self):
-        try:
-            self.draw()
-        finally:
-            self._pending_draw = None
-
     def new_timer(self, *args, **kwargs):
         return TimerTornado(*args, **kwargs)
 

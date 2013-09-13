@@ -237,7 +237,7 @@ if __name__ == "__main__":
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(8080)
 
-    print("http://localhost:8080/")
+    print("http://127.0.0.1:8080/")
     print("Press Ctrl+C to quit")
 
     tornado.ioloop.IOLoop.instance().start()
