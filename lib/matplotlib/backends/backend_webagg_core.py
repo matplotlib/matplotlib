@@ -64,10 +64,6 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # sent to the clients will be a full frame.
         self._force_full = True
 
-        # Set to True when a drawing is in progress to prevent redraw
-        # messages from piling up.
-        self._pending_draw = None
-
     def show(self):
         # show the figure window
         from matplotlib.pyplot import show
@@ -87,12 +83,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             self.manager.refresh_all()
 
     def draw_idle(self):
-        # This is a poor-man's timer to make sure we don't send too
-        # many frames.
-        if (self._pending_draw is None or
-            time.time() - self._pending_draw > 0.005):
-            self.draw()
-            self._pending_draw = time.time()
+        self.send_event("draw")
 
     def get_diff_image(self):
         if self._png_is_old:
@@ -167,7 +158,9 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             # future, but for now the performance increase is enough
             # to justify it, even if the server does nothing with it.
             pass
-        if e_type in ('button_press', 'button_release', 'motion_notify'):
+        elif e_type == 'draw':
+            self.draw()
+        elif e_type in ('button_press', 'button_release', 'motion_notify'):
             x = event['x']
             y = event['y']
             y = self.get_renderer().height - y
@@ -209,9 +202,6 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
     def send_event(self, event_type, **kwargs):
         self.manager._send_event(event_type, **kwargs)
-
-    def new_timer(self, *args, **kwargs):
-        return TimerTornado(*args, **kwargs)
 
     def start_event_loop(self, timeout):
         backend_bases.FigureCanvasBase.start_event_loop_default(
