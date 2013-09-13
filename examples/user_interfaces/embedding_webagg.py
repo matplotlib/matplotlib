@@ -33,7 +33,7 @@ def create_figure():
     """
     Creates a simple example figure.
     """
-    fig = Figure(figsize=(5, 4))
+    fig = Figure()
     a = fig.add_subplot(111)
     t = np.arange(0.0, 3.0, 0.01)
     s = np.sin(2 * np.pi * t)
@@ -236,4 +236,8 @@ if __name__ == "__main__":
 
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(8080)
+
+    print("http://localhost:8080/")
+    print("Press Ctrl+C to quit")
+
     tornado.ioloop.IOLoop.instance().start()
