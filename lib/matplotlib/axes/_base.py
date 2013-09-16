@@ -329,9 +329,6 @@ class _AxesBase(martist.Artist):
                  frameon=True,
                  sharex=None,  # use Axes instance's xaxis info
                  sharey=None,  # use Axes instance's yaxis info
-                 label='',
-                 xscale=None,
-                 yscale=None,
                  **kwargs
                  ):
         """
@@ -412,7 +409,8 @@ class _AxesBase(martist.Artist):
                 #warnings.warn(
                 #    'shared axes: "adjustable" is being changed to "datalim"')
             self._adjustable = 'datalim'
-        self.set_label(label)
+
+        kwargs.setdefault('label','')
         self.set_figure(fig)
 
         self.set_axes_locator(kwargs.get("axes_locator", None))
@@ -422,14 +420,18 @@ class _AxesBase(martist.Artist):
         # this call may differ for non-sep axes, eg polar
         self._init_axis()
 
+        # These duplicate parameters should be removed.
+        ## axisbg ~ axis_bgcolor  (shouln't actually be axes?)
+        ## frameon == frame_on
         if axisbg is None:
             axisbg = rcParams['axes.facecolor']
-        self._axisbg = axisbg
-        self._frameon = frameon
+        ## push both to kwargs, which will be processed by update.
+        ## _axisbg must be assignd before cla().
+        self._axisbg = kwargs.setdefault('axis_bgcolor', axisbg)
+        kwargs.setdefault('frame_on', frameon)
         self._axisbelow = rcParams['axes.axisbelow']
 
         self._rasterization_zorder = None
-
         self._hold = rcParams['axes.hold']
         self._connected = {}  # a dict from events to (id, func)
         self.cla()
@@ -443,10 +445,6 @@ class _AxesBase(martist.Artist):
         self.set_navigate(True)
         self.set_navigate_mode(None)
 
-        if xscale:
-            self.set_xscale(xscale)
-        if yscale:
-            self.set_yscale(yscale)
 
         if len(kwargs):
             self.update(kwargs)
