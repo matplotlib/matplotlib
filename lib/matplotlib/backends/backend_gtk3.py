@@ -774,48 +774,150 @@ class ChildNavigationToolbar(NavigationToolbar2):
         self.ctx.stroke()
 
 
+
+
+
+
 class MultiFigureNavigationToolbar2GTK3(Gtk.Toolbar):
     _toolbars = []
-    toolitems = list(NavigationToolbar2.toolitems)
-    extra_items = [('SaveAll', 'Save all figures', 'filesave', 'save_all_figures'), ]
-    # It is more clear to have toggle buttons for these two options
-    _toggle = {'Pan': None, 'Zoom': None}
+    
+    toolitems = ({'text': 'Home', 
+                  'tooltip_text':  'Reset original view', 
+                  'stock_image':  'home',
+                  'callback': 'home'},
+                  
+                 {'text': 'Back',
+                  'tooltip_text': 'Back to  previous view',
+                  'stock_image': 'back', 
+                  'callback':  'back'},
+            
+                 {'text': 'Forward',
+                  'tooltip_text': 'Forward to next view',
+                  'stock_image':  'forward',
+                  'callback': 'forward'},
+                 
+                 None,
+                 
+                 {'text': 'Pan', 
+                  'tooltip_text': 'Pan axes with left mouse, zoom with right',
+                  'stock_image': 'move', 
+                  'callback': 'pan',
+                  'toggle': True},
+                 
+                 {'text': 'Zoom',
+                  'tooltip_text': 'Zoom to rectangle',
+                  'stock_image': 'zoom_to_rect',
+                  'callback': 'zoom',
+                  'toggle': True},
+                 
+                 None, 
+                 )
+    
+    external_toolitems = [{'text': 'Subplots', 
+                           'tooltip_text': 'Configure subplots',
+                           'stock_image': 'subplots',
+                           'callback_class': 'ConfigureSubplotsGTK3',
+                           'all_figures': False},
+                          
+                          {'text': 'Save', 
+                           'tooltip_text': 'Save the figure', 
+                           'stock_image': 'filesave', 
+                           'callback_class': 'SaveFiguresDialogGTK3',
+                           'all_figures': False
+                           }
+                          
+                            ]
+#                 {'text':
+#                  'tooltip_text':
+#                  'stock_image':
+#                  'callback':
+#                  },
+#                 
+#
+#        ('Subplots', 'Configure subplots', 'subplots', 'configure_subplots'),
+#        (),
+
+#    extra_items = [('SaveAll', 'Save all figures', 'filesave', 'save_all_figures'), ]
+#    # It is more clear to have toggle buttons for these two options
+    _toggle = []
 #    _destroy_on_switch = weakref.WeakValueDictionary()
-    _destroy_on_switch = {}
+    _inform_at_switch = weakref.WeakValueDictionary()
 
     def __init__(self, window):
         self.win = window
-        Gtk.Toolbar.__init__(self)
-        self.toolitems.extend(self.extra_items)
-        self._add_buttons()
+        
+#        self.toolitems.extend(self.extra_items)
+        self.init_toolbar()
+        for pos, btn in enumerate(self.external_toolitems):
+            self.add_button(btn, pos)
         self._current = None
 
-    def _add_buttons(self):
-        self.set_style(Gtk.ToolbarStyle.ICONS)
-        basedir = os.path.join(rcParams['datapath'], 'images')
-        for text, tooltip_text, image_file, callback in self.toolitems:
-            if text is None:
-                self.insert(Gtk.SeparatorToolItem(), -1)
-                continue
-            fname = os.path.join(basedir, image_file + '.png')
+    def add_button(self, btn, pos):
+        pos = len(self.toolitems) + pos
+        tbutton = self._add_button(btn, pos)
+        if not tbutton:
+            return
+        tbutton.connect('clicked', self._external_callback, btn)
+        
+    def _external_callback(self, btn, btn_info):
+        cs = self._inform_at_switch.get(btn, None)
+        if cs is not None:
+            cs.show()
+            return
+        
+        if btn_info.get('all_figures', False):
+            figures = [toolbar.canvas.figure for toolbar in self._toolbars]
+        else:
+            figures = (self._current.canvas.figure, )
+        
+        cls =  btn_info['callback_class']
+        if isinstance(cls, basestring):
+            cls = globals()[cls]
+        cs = cls()
+        self._inform_at_switch[btn] = cs
+        cs.set_figures(*figures)
+        
+        print('externalcallback')
+        for v in self._inform_at_switch.values():
+            print (v)
+            
+    def _add_button(self, btn, pos):
+        if btn is None:
+            self.insert(Gtk.SeparatorToolItem(), pos)
+            return None
+           
+        stock_image = btn.get('stock_image', False)
+        if stock_image:
+            basedir = os.path.join(rcParams['datapath'], 'images')
+            fname = os.path.join(basedir, stock_image + '.png')
             image = Gtk.Image()
             image.set_from_file(fname)
-            if text in self._toggle:
-                tbutton = Gtk.ToggleToolButton()
-                self._toggle[text] = tbutton
-                tbutton.connect('toggled', self._toggled)
-            else:
-                tbutton = Gtk.ToolButton()
-                # attach to _toggled so it untoggles the toggled button
-                tbutton.connect('clicked', self._toggled)
-            tbutton.set_label(text)
-            tbutton.set_icon_widget(image)
-            self.insert(tbutton, -1)
+        
+        toggle = btn.get('toggle', False)
+        if toggle:
+            tbutton = Gtk.ToggleToolButton()
+            self._toggle.append(tbutton)
+            tbutton.connect('toggled', self._something_clicked)
+        else:
+            tbutton = Gtk.ToolButton()
+            # attach to _something_clicked so it untoggles the toggled button
+            tbutton.connect('clicked', self._something_clicked)
+            
+        tbutton.set_label(btn['text'])
+        tbutton.set_icon_widget(image)
+        tbutton.set_tooltip_text(btn.get('tooltip_text', None))
+        self.insert(tbutton, pos)
+        return tbutton
 
-            tbutton.connect('clicked', getattr(self, callback))
-
-            tbutton.set_tooltip_text(tooltip_text)
-
+    def init_toolbar(self):
+        Gtk.Toolbar.__init__(self)
+        self.set_style(Gtk.ToolbarStyle.ICONS)
+        
+        for btn in self.toolitems:
+            tbutton = self._add_button(btn, -1) 
+            if tbutton:
+                tbutton.connect('clicked', getattr(self, btn['callback']))
+                
         toolitem = Gtk.SeparatorToolItem()
         self.insert(toolitem, -1)
         toolitem.set_draw(False)
@@ -832,9 +934,13 @@ class MultiFigureNavigationToolbar2GTK3(Gtk.Toolbar):
         if toolbar not in self._toolbars:
             raise AttributeError('This container does not control the given toolbar')
 
-        print(self._destroy_on_switch)
-        for k, v in self._destroy_on_switch.items():
-            print(k, v)
+        print('onswitch')
+        for v in self._inform_at_switch.values():
+            print (v)
+
+#        print(self._destroy_on_switch)
+#        for k, v in self._destroy_on_switch.items():
+#            print(k, v)
 #
 #        for w in self._destroy_on_switch:
 #            o = w()
@@ -874,14 +980,15 @@ class MultiFigureNavigationToolbar2GTK3(Gtk.Toolbar):
         self._toolbars.append(toolbar)
         self._current = toolbar
 
-    def _toggled(self, btn):
-        # Untoggle other toggled buttons
-        for i in self._toggle.values():
+    def _something_clicked(self, btn):
+        #when something is clicked, untoggle all toggle buttons
+        #if it is a toggle button, untoggle the other toggle buttons
+        for i in self._toggle:
             if i is not btn:
                 if i.get_active():
-                    i.handler_block_by_func(self._toggled)
+                    i.handler_block_by_func(self._something_clicked)
                     i.set_active(False)
-                    i.handler_unblock_by_func(self._toggled)
+                    i.handler_unblock_by_func(self._something_clicked)
 
     def save_figure(self, *args):
         figure = self._current.canvas.figure
@@ -900,11 +1007,31 @@ class MultiFigureNavigationToolbar2GTK3(Gtk.Toolbar):
         self.message.set_label(text)
 
 
-class ConfigureSubplotsGTK3(Gtk.Window):
-    def __init__(self, figure):
-        Gtk.Window.__init__(self)
+class ToolBase(object):
+    def __init__(self, *figures):
+        self.init_tool()
+        if figures:
+            self.set_figures(*figures)
+        
+    def init_tool(self):
+        pass
+
+    def set_figures(self, *figures):
+        raise NotImplementedError
+    
+    def destroy(self):
+        pass
+    
+    def show(self):
+        pass
+
+
+class ConfigureSubplotsGTK3(ToolBase):
+    def init_tool(self):
+        self.window = Gtk.Window()
+        
         try:
-            self.set_icon_from_file(window_icon)
+            self.window.set_icon_from_file(window_icon)
         except (SystemExit, KeyboardInterrupt):
             # re-raise exit type Exceptions
             raise
@@ -912,13 +1039,11 @@ class ConfigureSubplotsGTK3(Gtk.Window):
             # we presumably already logged a message on the
             # failure of the main plot, don't keep reporting
             pass
-        self.set_title("Subplot Configuration Tool")
+        self.window.set_title("Subplot Configuration Tool")
         self.vbox = Gtk.Box()
         self.vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
-        self.add(self.vbox)
+        self.window.add(self.vbox)
         self.vbox.show()
-        
-        self.set_figures(figure)
 
     def set_figures(self, figure):
         children = self.vbox.get_children()
@@ -935,15 +1060,17 @@ class ConfigureSubplotsGTK3(Gtk.Window):
         w = int(toolfig.bbox.width)
         h = int(toolfig.bbox.height)
 
-        self.set_default_size(w, h)
+        self.window.set_default_size(w, h)
 
         canvas.show()
         self.vbox.pack_start(canvas, True, True, 0)
-        self.show()
+        self.window.show()
 
 
-class SaveFiguresDialogGTK3(object):
-    def __init__(self, *figs):
+class SaveFiguresDialogGTK3(ToolBase):
+    
+    def set_figures(self, *figs):
+        print('savefigure', figs)
         ref_figure = figs[0]
         self.figures = figs
         
@@ -957,14 +1084,14 @@ class SaveFiguresDialogGTK3(object):
         self.show()
 
     def show(self):
-        chooser = self.get_filechooser()
+        chooser = self._get_filechooser()
         fname, format_ = chooser.get_filename_from_user()
         chooser.destroy()
         if not fname:
             return
-        self.save_figures(fname, format_)
+        self._save_figures(fname, format_)
 
-    def save_figures(self, basename, format_):
+    def _save_figures(self, basename, format_):
         figs = self.figures
         startpath = os.path.expanduser(rcParams.get('savefig.directory', ''))
         if startpath == '':
@@ -995,7 +1122,7 @@ class SaveFiguresDialogGTK3(object):
             except Exception as e:
                 error_msg_gtk(str(e), parent=canvas.manager.window)
 
-    def get_filechooser(self):
+    def _get_filechooser(self):
         fc = FileChooserDialog(
             title=self.title,
             parent=self.ref_canvas.manager.window,
