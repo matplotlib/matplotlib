@@ -42,7 +42,7 @@ savefig('fig1')
 figure(2)
 savefig('fig2')
 
-#figure(2).canvas.toolbar.add_tool(SampleNonGuiTool, text='Stats')
+figure(2).canvas.toolbar.add_tool(SampleNonGuiTool, text='Stats')
 
 
 
