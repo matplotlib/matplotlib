@@ -6168,7 +6168,7 @@ class Axes(martist.Artist):
                     medians=medians, fliers=fliers)
 
     @docstring.dedent_interpd
-    def scatter(self, x, y, s=20, c='b', marker='o', cmap=None, norm=None,
+    def scatter(self, x, y, s=20, c='b', marker='o', a=0, cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None,
                 verts=None, **kwargs):
         """
@@ -6195,6 +6195,9 @@ class Axes(martist.Artist):
         marker : `~matplotlib.markers.MarkerStyle`, optional, default: 'o'
             See `~matplotlib.markers` for more information on the different
             styles of markers scatter supports.
+
+        a : calar or array_like, shape (n, ), optional, default: 0 degrees CCW
+            from X axis
 
         cmap : `~matplotlib.colors.Colormap`, optional, default: None
             A `~matplotlib.colors.Colormap` instance or registered name.
@@ -6256,6 +6259,7 @@ class Axes(martist.Artist):
             raise ValueError("x and y must be the same size")
 
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
+        a = np.ma.ravel(a)  # This doesn't have to match x, y in size.
 
         c_is_stringy = is_string_like(c) or is_sequence_of_strings(c)
         if not c_is_stringy:
@@ -6263,9 +6267,10 @@ class Axes(martist.Artist):
             if c.size == x.size:
                 c = np.ma.ravel(c)
 
-        x, y, s, c = cbook.delete_masked_points(x, y, s, c)
+        x, y, s, c, a = cbook.delete_masked_points(x, y, s, c, a)
 
         scales = s   # Renamed for readability below.
+        angles = a   # Renamed for readability below.
 
         if c_is_stringy:
             colors = mcolors.colorConverter.to_rgba_array(c, alpha)
@@ -6299,7 +6304,7 @@ class Axes(martist.Artist):
             edgecolors = 'face'
 
         collection = mcoll.PathCollection(
-                (path,), scales,
+                (path,), scales, angles,
                 facecolors=colors,
                 edgecolors=edgecolors,
                 linewidths=linewidths,

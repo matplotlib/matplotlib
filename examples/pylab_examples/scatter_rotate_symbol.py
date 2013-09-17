@@ -1,17 +1,17 @@
 import matplotlib.pyplot as plt
-from numpy import arange, pi, cos, sin
+from numpy import arange, pi, rad2deg
 from numpy.random import rand
+from matplotlib.markers import TICKRIGHT
 
-# unit area ellipse
 rx, ry = 3., 1.
 area = rx * ry * pi
-theta = arange(0, 2*pi+0.01, 0.1)
-verts = list(zip(rx/area*cos(theta), ry/area*sin(theta)))
+theta = rad2deg(arange(0, 2*pi+0.01, 0.1))
 
-x,y,s,c = rand(4, 30)
-s*= 10**2.
+
+x, y, s, c = rand(4, 30)
+s *= 20**2.
 
 fig, ax = plt.subplots()
-ax.scatter(x,y,s,c,marker=None,verts =verts)
+ax.scatter(x, y, s, c, marker=TICKRIGHT, a=theta)
 
 plt.show()

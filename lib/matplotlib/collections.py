@@ -687,7 +687,7 @@ class PathCollection(Collection):
     This is the most basic :class:`Collection` subclass.
     """
     @docstring.dedent_interpd
-    def __init__(self, paths, sizes=None, **kwargs):
+    def __init__(self, paths, sizes=None, angles=None, **kwargs):
         """
         *paths* is a sequence of :class:`matplotlib.path.Path`
         instances.
@@ -698,6 +698,20 @@ class PathCollection(Collection):
         Collection.__init__(self, **kwargs)
         self.set_paths(paths)
         self._sizes = sizes
+        self._angles = angles
+        self.__check_parameters()
+
+    def __check_parameters(self):
+        if self._sizes is not None and self._angles is not None and self._sizes.size != self._angles.size:
+            ar_resize = np.resize
+            if isinstance(self._sizes, np.ma.core.MaskedArray):
+                ar_resize = np.ma.resize
+
+            # make same size
+            if self._sizes.size > self._angles.size:
+                self._angles = ar_resize(self._angles, self._sizes.shape)
+            else:
+                self._sizes = ar_resize(self._sizes, self._angles.shape)
 
     def set_paths(self, paths):
         self._paths = paths
@@ -708,13 +722,28 @@ class PathCollection(Collection):
     def get_sizes(self):
         return self._sizes
 
+    def get_angles(self):
+        return self._angles
+
     @allow_rasterization
     def draw(self, renderer):
-        if self._sizes is not None:
+        if self._sizes is not None and self._angles is not None:
+            if self._sizes.size != self._angles.size:
+                raise ValueError("sizes and angles must have the same size")
             self._transforms = [
                 transforms.Affine2D().scale(
-                    (np.sqrt(x) * self.figure.dpi / 72.0))
-                for x in self._sizes]
+                    (np.sqrt(s) * self.figure.dpi / 72.0)).rotate(a)
+                for s, a in zip(self._sizes, self._angles)]
+        elif self._sizes is not None:
+            self._transforms = [
+                transforms.Affine2D().scale(
+                    (np.sqrt(s) * self.figure.dpi / 72.0))
+                for s in self._sizes]
+        elif self._angles is not None:
+            self._transforms = [
+                transforms.Affine2D().rotate(a)
+                for a in self._angles]
+
         return Collection.draw(self, renderer)
 
 
