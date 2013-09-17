@@ -46,6 +46,11 @@ def test_use():
         style.use('test')
         assert mpl.rcParams[PARAM] == VALUE
 
+def test_use_url():
+    with temp_style('test', DUMMY_SETTINGS):
+        style.use('https://gist.github.com/adrn/6590261/raw')
+
+    assert mpl.rcParams['axes.facecolor'] == "adeade"
 
 def test_context():
     mpl.rcParams[PARAM] = 'gray'
