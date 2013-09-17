@@ -3,9 +3,20 @@
 
 import matplotlib
 matplotlib.use('gtk3agg')
-# from matplotlib.backends.backend_gtk3 import SaveFiguresDialogGTK3
 matplotlib.rcParams['backend.gtk3.tabbed'] = True
 from pylab import *
+
+from matplotlib.backends.backend_gtk3 import ToolBase
+class SampleNonGuiTool(ToolBase):
+    def set_figures(self, *figures):
+        #stupid routine that says how many axes and lines are in each
+        #figure
+        for figure in figures:
+            title = figure.canvas.get_window_title()
+            print(title)
+            lines = [line for ax in figure.axes for line in ax.lines]
+            print('Axes: %d Lines: %d' % (len(figure.axes), len(lines)))
+
 
 t = arange(0.0, 2.0, 0.01)
 s1 = sin(2 * pi * t)
@@ -30,5 +41,9 @@ figure(1)
 savefig('fig1')
 figure(2)
 savefig('fig2')
+
+#figure(2).canvas.toolbar.add_tool(SampleNonGuiTool, text='Stats')
+
+
 
 show()
