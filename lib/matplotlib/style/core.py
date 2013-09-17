@@ -29,7 +29,6 @@ USER_LIBRARY_PATHS = [os.path.join('~', '.matplotlib', 'stylelib')]
 STYLE_EXTENSION = 'mplstyle'
 STYLE_FILE_PATTERN = re.compile('([\S]+).%s$' % STYLE_EXTENSION)
 
-
 def is_style_file(filename):
     """Return True if the filename looks like a style file."""
     return STYLE_FILE_PATTERN.match(filename) is not None
@@ -49,15 +48,18 @@ def use(name):
         name = [name]
 
     for style in name:
-        if is_style_file(style):
-            settings = rc_params_from_file(style, use_default_template=False)
-            mpl.rcParams.update(settings)
-        elif style not in library:
-            msg = ("'%s' not found in the style library. "
-                   "See `style.available` for list of available styles.")
-            raise ValueError(msg % style)
-        else:
+        if style in library:
             mpl.rcParams.update(library[style])
+        else:
+            try:
+                settings = mpl.rc_params_in_file(style)
+                mpl.rcParams.update(settings)
+            except:
+                msg = ("'%s' not found in the style library and input is "
+                       "not a valid URL. See `style.available` for list of "
+                       "available styles.")
+                raise ValueError(msg % style)
+
 
 
 @contextlib.contextmanager
