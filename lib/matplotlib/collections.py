@@ -702,7 +702,10 @@ class PathCollection(Collection):
         self.__check_parameters()
 
     def __check_parameters(self):
-        if self._sizes is not None and self._angles is not None and self._sizes.size != self._angles.size:
+        if self._sizes is not None \
+           and self._angles is not None \
+           and self._sizes.size != self._angles.size:
+
             ar_resize = np.resize
             if isinstance(self._sizes, np.ma.core.MaskedArray):
                 ar_resize = np.ma.resize
