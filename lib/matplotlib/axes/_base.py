@@ -1590,9 +1590,11 @@ class _AxesBase(martist.Artist):
         container.set_remove_method(lambda h: self.containers.remove(h))
         return container
 
-    def relim(self):
+    def relim(self, visible_only=False):
         """
-        Recompute the data limits based on current artists.
+        Recompute the data limits based on current artists. If you want to exclude
+        invisible artists from the calculation, set
+        `visible_only=True`
 
         At present, :class:`~matplotlib.collections.Collection`
         instances are not supported.
@@ -1604,10 +1606,12 @@ class _AxesBase(martist.Artist):
         self.ignore_existing_data_limits = True
 
         for line in self.lines:
-            self._update_line_limits(line)
+            if not visible_only or line.get_visible():
+                self._update_line_limits(line)
 
         for p in self.patches:
-            self._update_patch_limits(p)
+            if not visible_only or p.get_visible():
+                self._update_patch_limits(p)
 
     def update_datalim(self, xys, updatex=True, updatey=True):
         """
