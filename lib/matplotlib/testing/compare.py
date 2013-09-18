@@ -309,32 +309,6 @@ def compare_images( expected, actual, tol, in_decorator=False ):
    expected_version = version.LooseVersion("1.6")
    found_version = version.LooseVersion(np.__version__)
 
-   # On Numpy 1.6, we can use bincount with minlength, which is much faster than
-   # using histogram
-   if found_version >= expected_version:
-      rms = 0
-
-      for i in xrange(0, 3):
-         h1p = expectedImage[:,:,i]
-         h2p = actualImage[:,:,i]
-
-         h1h = np.bincount(h1p.ravel(), minlength=256)
-         h2h = np.bincount(h2p.ravel(), minlength=256)
-
-         rms += np.sum(np.power((h1h-h2h), 2))
-   else:
-      rms = 0
-      ns = np.arange(257)
-
-      for i in xrange(0, 3):
-         h1p = expectedImage[:,:,i]
-         h2p = actualImage[:,:,i]
-
-         h1h = np.histogram(h1p, bins=ns)[0]
-         h2h = np.histogram(h2p, bins=ns)[0]
-
-         rms += np.sum(np.power((h1h-h2h), 2))
-
    rms = calculate_rms(expectedImage, actualImage)
 
    diff_image = make_test_filename(actual, 'failed-diff')
