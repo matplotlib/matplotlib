@@ -48,7 +48,6 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
     return new_figure_manager_given_figure(num, thisFig)

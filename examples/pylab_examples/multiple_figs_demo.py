@@ -6,7 +6,7 @@ matplotlib.use('gtk3agg')
 matplotlib.rcParams['backend.gtk3.tabbed'] = True
 from pylab import *
 
-from matplotlib.backends.backend_gtk3 import ToolBase
+from matplotlib.backend_bases import ToolBase
 class SampleNonGuiTool(ToolBase):
     def set_figures(self, *figures):
         #stupid routine that says how many axes and lines are in each

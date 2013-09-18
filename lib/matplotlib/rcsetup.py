@@ -475,10 +475,9 @@ class ValidateInterval:
 # a map from key -> value, converter
 defaultParams = {
     'backend':           ['Agg', validate_backend],  # agg is certainly
-                                                      # present
+    'backend.single_window': [False, validate_bool],                                                 # present
     'backend_fallback':  [True, validate_bool],  # agg is certainly present
     'backend.qt4':       ['PyQt4', validate_qt4],
-    'backend.gtk3.tabbed': [False, validate_bool],
     'webagg.port':       [8988, validate_int],
     'webagg.open_in_browser': [True, validate_bool],
     'webagg.port_retries': [50, validate_int],

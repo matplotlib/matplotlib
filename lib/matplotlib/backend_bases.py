@@ -37,6 +37,7 @@ import os
 import warnings
 import time
 import io
+import weakref
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -2150,7 +2151,7 @@ class FigureCanvasBase(object):
         bbox_inches = kwargs.pop("bbox_inches", None)
         if bbox_inches is None:
             bbox_inches = rcParams['savefig.bbox']
-  
+
         if bbox_inches:
             # call adjust_bbox to save only the given area
             if bbox_inches == "tight":
@@ -2626,6 +2627,138 @@ class FigureManagerBase:
         """
         pass
 
+
+class ChildFigureManager(FigureManagerBase):
+    #to acces from figure instance
+    #figure.canvas.manager
+    #
+    #This is an intermediate class and just exposes the figure manager functionality to 
+    #parent. In general there is no need to subclass it. 
+    #To change the figure manager functionality, subclass MultiFigureManagerBase
+    
+    parent = None
+    _parent_class = None
+
+    @classmethod
+    def initialize(cls):
+        if cls.parent is None:
+            cls.parent = cls._parent_class()
+
+    @classmethod
+    def set_figure_manager(cls, parent_class):
+        cls._parent_class = parent_class
+
+    def __init__(self, canvas, num):
+        self.initialize()
+        FigureManagerBase.__init__(self, canvas, num)
+        
+        if self.parent.toolbar is None:
+            self.toolbar = None
+        else:
+            self.toolbar = ChildNavigationToolbar(self.canvas, self.parent.toolbar)
+        self.parent.add_child(self)
+
+        self.canvas.show()
+        self.window = self.parent.window
+
+        def notify_axes_change(fig):
+            'this will be called whenever the current axes is changed'
+            if self.toolbar is not None: self.toolbar.update()
+        canvas.figure.add_axobserver(notify_axes_change)
+
+    def show(self):
+        self.parent.show_child(self)
+
+    def destroy(self):
+        #this method is called from Gcf.destroy(num)
+        self.canvas.destroy()
+        self.parent.remove_child(self)
+        if self.toolbar:
+            self.toolbar.remove()
+
+    def resize(self, w, h):
+        self.parent.resize_manager(self, w, h)
+
+    def show_popup(self, msg):
+        self.parent.show_popup(self, msg)
+
+    def get_window_title(self):
+        return self.parent.get_child_title(self)
+
+    def set_window_title(self, title):
+        self.parent.set_child_title(self, title)
+
+    def get_mainwindow_title(self):
+        return self.parent.get_window_title()
+
+    def set_mainwindow_title(self, title):
+        self.parent.set_window_title(title)
+        
+
+class MultiFigureManagerBase(object):
+    def __init__(self):
+        #Create the main window, 
+        #add the widget that will contain the children
+        #add the multi-figure-toolbar
+        raise NotImplementedError
+
+    def switch_child(self, child):
+        #Call this method when you have located the child
+        #this just inform the multi-figure-toolbar that the child has changed
+        #For example in the gtk3 backend, this is called after finding
+        #the new selected tab
+        
+        if self.toolbar is None:
+            return
+        self.toolbar.switch_child(child.toolbar)
+
+    def destroy(self):
+        pass
+    
+    def add_child(self, child):
+        #add the child to the multi-figure-manager
+        #this is is the place were you should add an individual close button for the child
+        #this close action should call Gcf.destroy(num)
+        raise NotImplementedError
+    
+    def remove_child(self, child):
+        #Remove the child from the control of this multi-figure-manager
+        #visually and logically
+        #do not destroy the child
+        raise NotImplementedError
+
+    def show_child(self, child):
+        """Find the appropiate child container and show it"""
+        pass
+    
+    def set_child_title(self, child, title):
+        """
+        Set the title text of the container containing the figure.
+        """
+        pass
+
+    def get_child_title(self, child):
+        """
+        Get the title text of the container containing the figure
+        """
+        pass
+
+    def set_window_title(self, title):
+        """
+        Set the title text of the multi-figure-manager window.
+        """
+        pass
+
+    def get_window_title(self):
+        """
+        Get the title text of the multi-figure-manager window.
+        """
+        pass
+            
+    def show(self):
+        """Show the multi-figure-manager"""
+        pass
+    
 
 class Cursors:
     # this class is only used as a simple namespace
@@ -3207,3 +3340,318 @@ class NavigationToolbar2(object):
     def set_history_buttons(self):
         """Enable or disable back/forward button"""
         pass
+
+
+class ChildNavigationToolbar(NavigationToolbar2):
+    #to acces from figure instance
+    #figure.canvas.toolbar
+    #
+    #There is no need to subclass this, if you want to change the toolbar,
+    #change multi-figure-toolbar
+    
+    def __init__(self, canvas, parent):
+        self.parent = parent
+        NavigationToolbar2.__init__(self, canvas)
+
+    def _init_toolbar(self):
+        self.parent.add_toolbar(self)
+        self.ctx = None
+
+    def remove(self):
+        #called by ChildFigureManager.destroy method
+        self.parent.remove_toolbar(self)
+
+    def set_message(self, s):
+        self.parent.set_child_message(self, s)
+
+    def set_cursor(self, cursor):
+        self.parent.set_child_cursor(self, cursor)
+#        self.canvas.get_property("window").set_cursor(cursord[cursor])
+
+    def release(self, event):
+        try: del self._pixmapBack
+        except AttributeError: pass
+
+    def dynamic_update(self):
+        # legacy method; new method is canvas.draw_idle
+        self.canvas.draw_idle()
+
+    def draw_rubberband(self, event, x0, y0, x1, y1):
+        'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744'
+        self.ctx = self.canvas.get_property("window").cairo_create()
+
+        # todo: instead of redrawing the entire figure, copy the part of
+        # the figure that was covered by the previous rubberband rectangle
+        self.canvas.draw()
+
+        height = self.canvas.figure.bbox.height
+        y1 = height - y1
+        y0 = height - y0
+        w = abs(x1 - x0)
+        h = abs(y1 - y0)
+        rect = [int(val) for val in (min(x0, x1), min(y0, y1), w, h)]
+
+        self.ctx.new_path()
+        self.ctx.set_line_width(0.5)
+        self.ctx.rectangle(rect[0], rect[1], rect[2], rect[3])
+        self.ctx.set_source_rgb(0, 0, 0)
+        self.ctx.stroke()
+
+    def add_tool(self, *args, **kwargs):
+        self.parent.add_tool(*args, **kwargs)
+    
+     
+class MultiFigureToolbarBase(object):
+    #to acces from figure instance
+    #figure.canvas.toolbar.parent
+    #
+    #
+    #The mandatory things you have to implement are
+    #add_button, 
+    #connect_button
+    #init_toolbar
+    #save_figure
+    #
+    toolitems = ({'text': 'Home', 
+                  'tooltip_text':  'Reset original view', 
+                  'image':  'home',
+                  'callback': 'home'},
+                  
+                 {'text': 'Back',
+                  'tooltip_text': 'Back to  previous view',
+                  'image': 'back', 
+                  'callback':  'back'},
+            
+                 {'text': 'Forward',
+                  'tooltip_text': 'Forward to next view',
+                  'image':  'forward',
+                  'callback': 'forward'},
+                 
+                 None,
+                 
+                 {'text': 'Pan', 
+                  'tooltip_text': 'Pan axes with left mouse, zoom with right',
+                  'image': 'move', 
+                  'callback': 'pan',
+                  'toggle': True},
+                 
+                 {'text': 'Zoom',
+                  'tooltip_text': 'Zoom to rectangle',
+                  'image': 'zoom_to_rect',
+                  'callback': 'zoom',
+                  'toggle': True},
+                 
+                 {'text': 'Save', 
+                  'tooltip_text': 'Save the figure', 
+                  'image': 'filesave', 
+                  'callback': 'save_figure'},
+                 
+                 None, 
+                 )
+    external_toolitems = (
+#                          {'text': 'Subplots', 
+#                           'tooltip_text': 'Configure subplots',
+#                           'image': 'subplots',
+#                           'callback': 'ConfigureSubplotsGTK3'},
+#                          
+#                          {'text': 'Save All', 
+#                           'tooltip_text': 'Save all figures', 
+#                           'image': 'saveall_icon', 
+#                           'callback': 'SaveFiguresDialogGTK3'},
+                            )
+    
+    _external_instances = weakref.WeakValueDictionary()
+    _toolbars = []
+    
+    def __init__(self):
+        self.init_toolbar()
+        
+        for pos, btn in enumerate(self.toolitems):
+            if btn is None:
+                self.add_separator(pos=pos)
+                continue
+            callback = btn.pop('callback')
+            tbutton = self.add_button(pos=pos, **btn) 
+            if tbutton:
+                self.connect_button(tbutton, 'clicked', callback)
+        
+        for pos, btn in enumerate(self.external_toolitems):
+            callback = btn.pop('callback')
+            self.add_tool(callback, pos=pos, **btn)
+            
+        self.add_separator(len(self.external_toolitems) + len(self.toolitems))
+        self._current = None
+    
+    
+    def add_tool(self, callback, pos=0, **kwargs):
+        #this method called from the exterior and from the interior
+        #will add a tool to the toolbar
+        #this tool, will behave like normal button
+        #the first time it is clicked, it will get all the figures
+        #after that, if it is clicked again, it will call the show method
+        #if the _current changes (switch the active figure from the manager)
+        #the set_figures method is invoked again
+        pos = len(self.toolitems) + pos
+        tbutton = self.add_button(pos=pos, **kwargs)
+        if not tbutton:
+            return
+        
+        self.connect_button(tbutton, 'clicked', '_external_callback', callback)
+        
+    def connect_button(self, button, action, callback, *args):
+        #This is specific to each library, 
+        #The idea is to get rid of different formating between libraries and
+        #be able to call internal functions with clicks, selects, etc...
+        #
+        #In Gtk for example
+        #def connect_button(self, button, action, callback, *args):
+        #    def mcallback(btn, *args):
+        #        cb = args[0]
+        #        other = args[1:]
+        #        getattr(self, cb)(*other)
+        #
+        #    button.connect(action, mcallback, callback, *args)
+
+        raise NotImplementedError
+    
+    def _external_callback(self, callback):
+        #This handles the invokation of external classes
+        #this callback class should take only *figures as arguments
+        #and preform its work on those figures
+        #the instance of this callback is added to _external_instances
+        #as a weakreference to inform them of the switch and destroy
+        
+        id_ = id(callback)
+
+        if id_ in self._external_instances:
+            self._external_instances[id_].show()
+            return
+                
+        figures = self.get_figures()
+        cls =  self._get_cls_to_instantiate(callback)
+        if not cls:
+            self.set_message('Not available')
+            return
+        
+        external_instance = cls(*figures)
+        
+        self._external_instances[id_] = external_instance 
+        
+    def _get_cls_to_instantiate(self, callback_class):
+        if isinstance(callback_class, basestring):
+            #FIXME: make more complete searching structure
+            if callback_class in globals():
+                return globals()[callback_class]
+            
+            mod = self.__class__.__module__
+            current_module = __import__(mod,
+                                        globals(),locals(), [mod],0)
+
+            return getattr(current_module, callback_class, False)
+
+        return callback_class
+    
+    def home(self, *args):
+        self._current.home(*args)
+
+    def back(self, *args):
+        self._current.back(*args)
+
+    def forward(self, *args):
+        self._current.forward(*args)
+
+    def pan(self, *args):
+        self._current.pan(*args)
+
+    def zoom(self, *args):
+        self._current.zoom(*args)
+
+    def add_toolbar(self, toolbar):
+        #this method is called from the child toolbar
+        self._toolbars.append(toolbar)
+        self._current = toolbar
+    
+    def remove_toolbar(self, toolbar):
+        self._toolbars.remove(toolbar)
+        if toolbar is self._current:
+            self._current = None
+    
+    def get_figures(self):
+        #return an array of figures, with the current as the firstone
+        figures = [self._current.canvas.figure]
+        others = [toolbar.canvas.figure for toolbar in self._toolbars if toolbar is not self._current]
+        figures.extend(others)
+        return figures
+    
+    def add_button(self, text='_', pos=-1, 
+                    tooltip_text='', image=None,
+                    toggle=False):
+        #This should create the button in the toolbar
+        raise NotImplementedError
+    
+    def add_separator(self, pos=0):
+        pass
+    
+    def switch_child(self, toolbar):
+        #when multi-figure-manager switches child (figure)
+        #this toolbar needs to switch to, so it controls the correct one
+        #if there are external instances (tools) inform them of the switch
+        #by invoking instance.set_figures(*figures)
+         
+        if toolbar not in self._toolbars:
+            raise AttributeError('This container does not control the given toolbar')
+            
+        # For these two actions we have to unselect and reselect
+        d = {'PAN': 'pan', 'ZOOM': 'zoom'}
+        action = d.get(self._current._active, False)
+        if action:
+            getattr(self._current, action)()
+            getattr(toolbar, action)()
+        self._current = toolbar
+        
+        figures = self.get_figures()
+        for v in self._external_instances.values():
+#            print('setting', v)
+            v.set_figures(*figures)
+    
+    def set_child_message(self, child, text):
+        #In general the mssage from the child are displayed the 
+        #same as message from the parent
+        self.set_message(text)
+    
+    def set_child_cursor(self, child, cursor):
+        pass
+
+    def set_message(self, text):
+        pass
+    
+    
+class ToolBase(object):
+    #basic structure for the external tools that work with
+    #multi-figure-toolbar
+    def __init__(self, *figures):
+        self.init_tool()
+        
+        if figures:
+            self.set_figures(*figures)
+        
+    def init_tool(self):
+        #do some initialization work as create windows and stuff
+        pass
+
+    def set_figures(self, *figures):
+        #this is the main work, many non gui tools use only this one
+        #make sure it receives an array *figures. The toolbar caller
+        #always sent an array with all the figures
+        #the first figure of the array is the current figure (toolbar point of view)
+        #if it uses only the fisrt one, use it as figure = figures[0] 
+        raise NotImplementedError
+    
+    def destroy(self, *args):
+        #called when we want to kill the tool from the creator (toolbar)
+        pass
+    
+    def show(self):
+        #called when need to bring to focus this specific tool
+        pass
+    
