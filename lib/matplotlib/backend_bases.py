@@ -3399,6 +3399,12 @@ class ChildNavigationToolbar(NavigationToolbar2):
 
     def add_tool(self, *args, **kwargs):
         self.parent.add_tool(*args, **kwargs)
+        
+    def remove_tool(self, pos):
+        self.parent.remove_tool(pos)
+        
+    def move_tool(self, pos_ini, pos_fin):
+        self.parent.move_tool(pos_ini, pos_fin)
     
      
 class MultiFigureToolbarBase(object):
@@ -3449,15 +3455,6 @@ class MultiFigureToolbarBase(object):
                  None, 
                  )
     external_toolitems = (
-#                          {'text': 'Subplots', 
-#                           'tooltip_text': 'Configure subplots',
-#                           'image': 'subplots',
-#                           'callback': 'ConfigureSubplotsGTK3'},
-#                          
-#                          {'text': 'Save All', 
-#                           'tooltip_text': 'Save all figures', 
-#                           'image': 'saveall_icon', 
-#                           'callback': 'SaveFiguresDialogGTK3'},
                             )
     
     _external_instances = weakref.WeakValueDictionary()
@@ -3477,9 +3474,11 @@ class MultiFigureToolbarBase(object):
         
         for pos, btn in enumerate(self.external_toolitems):
             callback = btn.pop('callback')
-            self.add_tool(callback, pos=pos, **btn)
+            i_pos = pos + len(self.toolitems)
+            self.add_tool(callback, pos=i_pos, **btn)
             
         self.add_separator(len(self.external_toolitems) + len(self.toolitems))
+        self.add_message()
         self._current = None
     
     
@@ -3489,15 +3488,22 @@ class MultiFigureToolbarBase(object):
         #this tool, will behave like normal button
         #the first time it is clicked, it will get all the figures
         #after that, if it is clicked again, it will call the show method
-        #if the _current changes (switch the active figure from the manager)
+        #if  _current changes (switch the active figure from the manager)
         #the set_figures method is invoked again
-        pos = len(self.toolitems) + pos
         tbutton = self.add_button(pos=pos, **kwargs)
         if not tbutton:
             return
         
         self.connect_button(tbutton, 'clicked', '_external_callback', callback)
         
+    def remove_tool(self, pos):
+        #remote item from the toolbar, 
+        pass
+        
+    def move_tool(self, pos_ini, pos_fin):
+        #move item in the toolbar
+        pass
+    
     def connect_button(self, button, action, callback, *args):
         #This is specific to each library, 
         #The idea is to get rid of different formating between libraries and
@@ -3625,6 +3631,11 @@ class MultiFigureToolbarBase(object):
     def set_message(self, text):
         pass
     
+    def add_message(self):
+        #set the message area
+        #with the possibility to add buttons from the exterior
+        #it may cause problems with the space too reduced
+        pass
     
 class ToolBase(object):
     #basic structure for the external tools that work with

@@ -518,9 +518,10 @@ class MultiFigureManagerGTK3(MultiFigureManagerBase):
         self.toolbar = self._get_toolbar()
 
         if self.toolbar is not None:
+            self._replace_toolbar_message()
             self.toolbar.show()
             self.vbox.pack_end(self.toolbar, False, False, 0)
-
+            
         size_request = self.window.size_request()
         self._h_def = size_request.height
         self._w_def = size_request.width
@@ -536,6 +537,23 @@ class MultiFigureManagerGTK3(MultiFigureManagerBase):
 
         if matplotlib.is_interactive():
             self.window.show()
+
+    def _replace_toolbar_message(self):
+        #This is needed because of additional buttons take too muchs space
+        if not self.toolbar:
+            return
+        
+        box = Gtk.Box()
+        box.set_property("orientation", Gtk.Orientation.HORIZONTAL)
+        
+        message = Gtk.Label()
+        box.pack_end(message, False, False, 0)
+        self.toolbar.message = message   
+        self.vbox.pack_end(box, False, True, 0)
+        
+        sep = Gtk.Separator()
+        sep.set_property("orientation", Gtk.Orientation.HORIZONTAL)
+        self.vbox.pack_end(sep, False, True, 0)
 
     def _on_switch_page(self, notebook, pointer, num):
         canvas = self.notebook.get_nth_page(num)
@@ -800,8 +818,6 @@ class MultiFigureNavigationToolbar2GTK3(Gtk.Toolbar, MultiFigureToolbarBase):
                            'tooltip_text': 'Save all figures',  
                            'callback': 'SaveFiguresDialogGTK3'},
                             )
-    
-    
     _toggle = []
     
     def __init__(self, window):
@@ -819,18 +835,25 @@ class MultiFigureNavigationToolbar2GTK3(Gtk.Toolbar, MultiFigureToolbarBase):
     def add_button(self, text='_', pos=-1, 
                     tooltip_text='', image=None,
                     toggle=False):
-
         timage = None
         if image:
             timage = Gtk.Image()
-            if os.path.isfile(image):
-                timage.set_from_file(image)
+            if isinstance(image, basestring):
+                if os.path.isfile(image):
+                    timage.set_from_file(image)
+                else:
+                    basedir = os.path.join(rcParams['datapath'], 'images')
+                    fname = os.path.join(basedir, image + '.png')
+                    timage.set_from_file(fname)
             else:
-                #FIXME: add the possibility to load from inline string
-                basedir = os.path.join(rcParams['datapath'], 'images')
-                fname = os.path.join(basedir, image + '.png')
-                timage.set_from_file(fname)
-             
+                #FIXME: there is something wrong or even more probable
+                #something I misunderstood with the way new_from_inline works
+#                try:
+#                    from gi.repository import GdkPixbuf
+#                    pixbuf = GdkPixbuf.Pixbuf.new_from_inline(image, False)
+#                except:
+#                    
+                timage = False
         
         if toggle:
             tbutton = Gtk.ToggleToolButton()
@@ -847,6 +870,22 @@ class MultiFigureNavigationToolbar2GTK3(Gtk.Toolbar, MultiFigureToolbarBase):
         tbutton.set_tooltip_text(tooltip_text)
         self.insert(tbutton, pos)
         return tbutton
+    
+    def remove_tool(self, pos):
+        widget = self.get_nth_item(pos)
+        if not widget:
+            self.set_message('Impossible to remove tool %d' % pos)
+            return
+        self.remove(widget)
+
+    def move_tool(self, pos_ini, pos_fin):
+        widget = self.get_nth_item(pos_ini)
+        if not widget:
+            self.set_message('Impossible to remove tool %d' % pos_ini)
+            return
+        self.remove(widget)
+        self.insert(widget, pos_fin)
+
 
     def add_separator(self, pos=-1):
         toolitem = Gtk.SeparatorToolItem()
@@ -862,12 +901,13 @@ class MultiFigureNavigationToolbar2GTK3(Gtk.Toolbar, MultiFigureToolbarBase):
         toolitem.set_draw(False)
         toolitem.set_expand(True)
 
+        self.show_all()
+
+    def add_message(self):
         toolitem = Gtk.ToolItem()
         self.insert(toolitem, -1)
         self.message = Gtk.Label()
         toolitem.add(self.message)
-
-        self.show_all()
 
     def save_figure(self, *args):
         sd = SaveFiguresDialogGTK3(self.get_figures()[0])
