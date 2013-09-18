@@ -692,6 +692,10 @@ class PathCollection(Collection):
         *paths* is a sequence of :class:`matplotlib.path.Path`
         instances.
 
+        *sizes* is an array of length 1 or more
+
+        *angless* is an array of length 1 or more
+
         %(Collection)s
         """
 
@@ -699,9 +703,13 @@ class PathCollection(Collection):
         self.set_paths(paths)
         self._sizes = sizes
         self._angles = angles
-        self.__check_parameters()
+        self._check_parameters()
 
-    def __check_parameters(self):
+    def _check_parameters(self):
+        """
+        Check the sizes and array dimention to make them the same size
+        Needed for drawing them efficiently
+        """
         if self._sizes is not None \
            and self._angles is not None \
            and self._sizes.size != self._angles.size:
@@ -710,29 +718,53 @@ class PathCollection(Collection):
             if isinstance(self._sizes, np.ma.core.MaskedArray):
                 ar_resize = np.ma.resize
 
-            # make same size
+            # Make sizes array and angles array same size
             if self._sizes.size > self._angles.size:
                 self._angles = ar_resize(self._angles, self._sizes.shape)
             else:
                 self._sizes = ar_resize(self._sizes, self._angles.shape)
 
     def set_paths(self, paths):
+        """
+        update the paths sequence
+        """
         self._paths = paths
 
     def get_paths(self):
+        """
+        return the paths sequence
+        """
         return self._paths
 
+    def set_sizes(self, sizes):
+        """
+        update sizes array check array size
+        """
+        self._sizes = sizes
+        self._check_parameters()
+
     def get_sizes(self):
+        """
+        return the sizes array
+        """
         return self._sizes
 
+    def set_angles(self, angles):
+        """
+        update angles array check array size
+        """
+        self._angles = angles
+        self._check_parameters()
+
     def get_angles(self):
+        """
+        return the angle array
+        """
         return self._angles
 
     @allow_rasterization
     def draw(self, renderer):
         if self._sizes is not None and self._angles is not None:
-            if self._sizes.size != self._angles.size:
-                raise ValueError("sizes and angles must have the same size")
             self._transforms = [
                 transforms.Affine2D().scale(
                     (np.sqrt(s) * self.figure.dpi / 72.0)).rotate(a)
