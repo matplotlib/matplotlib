@@ -268,24 +268,22 @@ def get_fontconfig_fonts(fontext='ttf'):
 
     fontfiles = {}
     try:
-        pipe = subprocess.Popen(['fc-list', '', 'file'], stdout=subprocess.PIPE)
+        pipe = subprocess.Popen(['fc-list', '--format=%{file}\\n'], stdout=subprocess.PIPE)
         output = pipe.communicate()[0]
     except (OSError, IOError):
         # Calling fc-list did not work, so we'll just return nothing
         return fontfiles
 
     if pipe.returncode == 0:
-        # The bulk of the output from fc-list is ascii, so we keep the
-        # result in bytes and parse it as bytes, until we extract the
-        # filename, which is in sys.filesystemencoding().
-        for line in output.split(b'\n'):
-            fname = line.split(b':')[0]
+        # The line breaks between results are in ascii, but each entry
+        # is in in sys.filesystemencoding().
+        for fname in output.split(b'\n'):
+            try:
+                fname = six.text_type(fname, sys.getfilesystemencoding())
+            except UnicodeDecodeError:
+                continue
             if (os.path.splitext(fname)[1][1:] in fontext and
                 os.path.exists(fname)):
-                try:
-                    fname = six.text_type(fname, sys.getfilesystemencoding())
-                except UnicodeDecodeError:
-                    continue
                 fontfiles[fname] = 1
 
     return fontfiles
@@ -1297,7 +1295,9 @@ if USE_FONTCONFIG and sys.platform != 'win32':
         fontexts = get_fontext_synonyms(fontext)
         ext = "." + fontext
         try:
-            pipe = subprocess.Popen(['fc-match', '-sv', pattern], stdout=subprocess.PIPE)
+            pipe = subprocess.Popen(
+                ['fc-match', '-s', '--format=%{file}\\n', pattern],
+                stdout=subprocess.PIPE)
             output = pipe.communicate()[0]
         except (OSError, IOError):
             return None
@@ -1306,17 +1306,15 @@ if USE_FONTCONFIG and sys.platform != 'win32':
         # result in bytes and parse it as bytes, until we extract the
         # filename, which is in sys.filesystemencoding().
         if pipe.returncode == 0:
-            for match in _fc_match_regex.finditer(output):
-                file = match.group(1)
+            for fname in output.split(b'\n'):
                 try:
-                    file = six.text_type(file, sys.getfilesystemencoding())
+                    fname = six.text_type(fname, sys.getfilesystemencoding())
                 except UnicodeDecodeError:
                     continue
-                if os.path.splitext(file)[1][1:] in fontexts:
-                    return file
+                if os.path.splitext(fname)[1][1:] in fontexts:
+                    return fname
         return None
 
-    _fc_match_regex = re.compile(br'\sfile:\s+"(.*?)"')
     _fc_match_cache = {}
 
     def findfont(prop, fontext='ttf'):
