@@ -850,7 +850,9 @@ FT2Font::FT2Font(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds)
 {
     FT_Open_Args open_args;
 
-    std::string facefile = Py::String(args[0]).encode("utf-8");
+    /* This string is only used for error messages, so encode it in something
+     * that we'll always be able to print. */
+    std::string facefile = Py::String(args[0]).encode("unicode_escape");
 
     args.verify_length(1);
 
@@ -861,9 +863,8 @@ FT2Font::FT2Font(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds)
     mem_size = 0;
 
     if (make_open_args(args[0].ptr(), &open_args)) {
-        std::ostringstream s;
-        s << "Could not load facefile " << facefile << "; Unknown_File_Format" << std::endl;
-        throw Py::RuntimeError(s.str());
+        /* make_open_args sets the Python exception for us. */
+        throw Py::Exception();
     }
 
     int error = FT_Open_Face(_ft2Library, &open_args, 0, &face);
@@ -965,7 +966,7 @@ FT2Font::FT2Font(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds)
         setattro("underline_thickness", Py::Int(face->underline_thickness));
     }
 
-    setattro("fname", Py::String(facefile));
+    setattro("fname", args[0]);
 
     _VERBOSE("FT2Font::FT2Font done");
 }
@@ -2092,9 +2093,8 @@ FT2Font::attach_file(const Py::Tuple &args)
 
     if (make_open_args(args[0].ptr(), &open_args))
     {
-        std::ostringstream s;
-        s << "Could not attach file " << filename << std::endl;
-        throw Py::RuntimeError(s.str());
+        /* make_open_args sets the Python exception for us. */
+        throw Py::Exception();
     }
 
     FT_Error error = FT_Attach_Stream(face, &open_args);

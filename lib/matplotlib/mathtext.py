@@ -566,7 +566,7 @@ class TruetypeFonts(Fonts):
         self._fonts = {}
 
         filename = findfont(default_font_prop)
-        default_font = self.CachedFont(FT2Font(str(filename)))
+        default_font = self.CachedFont(FT2Font(filename))
         self._fonts['default'] = default_font
         self._fonts['regular'] = default_font
 
@@ -582,7 +582,7 @@ class TruetypeFonts(Fonts):
 
         cached_font = self._fonts.get(basename)
         if cached_font is None:
-            font = FT2Font(str(basename))
+            font = FT2Font(basename)
             cached_font = self.CachedFont(font)
             self._fonts[basename] = cached_font
             self._fonts[font.postscript_name] = cached_font

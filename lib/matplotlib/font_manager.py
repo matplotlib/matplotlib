@@ -62,7 +62,6 @@ from matplotlib.fontconfig_pattern import \
     parse_fontconfig_pattern, generate_fontconfig_pattern
 
 USE_FONTCONFIG = False
-
 verbose = matplotlib.verbose
 
 font_scalings = {
@@ -276,11 +275,14 @@ def get_fontconfig_fonts(fontext='ttf'):
         return fontfiles
 
     if pipe.returncode == 0:
-        output = str(output)
-        for line in output.split('\n'):
-            fname = line.split(':')[0]
+        # The bulk of the output from fc-list is ascii, so we keep the
+        # result in bytes and parse it as bytes, until we extract the
+        # filename, which is in sys.filesystemencoding().
+        for line in output.split(b'\n'):
+            fname = line.split(b':')[0]
             if (os.path.splitext(fname)[1][1:] in fontext and
                 os.path.exists(fname)):
+                fname = six.text_type(fname, sys.getfilesystemencoding())
                 fontfiles[fname] = 1
 
     return fontfiles
@@ -570,7 +572,7 @@ def createFontList(fontfiles, fontext='ttf'):
                 continue
         else:
             try:
-                font = ft2font.FT2Font(str(fpath))
+                font = ft2font.FT2Font(fpath)
             except RuntimeError:
                 verbose.report("Could not open font file %s"%fpath)
                 continue
@@ -720,7 +722,7 @@ class FontProperties(object):
         Return the name of the font that best matches the font
         properties.
         """
-        return ft2font.FT2Font(str(findfont(self))).family_name
+        return ft2font.FT2Font(findfont(self)).family_name
 
     def get_style(self):
         """
@@ -1246,7 +1248,7 @@ class FontManager:
         else:
             verbose.report(
                 'findfont: Matching %s to %s (%s) with score of %f' %
-                (prop, best_font.name, best_font.fname, best_score))
+                (prop, best_font.name, repr(best_font.fname), best_score))
             result = best_font.fname
 
         if not os.path.isfile(result):
@@ -1296,15 +1298,19 @@ if USE_FONTCONFIG and sys.platform != 'win32':
             output = pipe.communicate()[0]
         except (OSError, IOError):
             return None
+
+        # The bulk of the output from fc-list is ascii, so we keep the
+        # result in bytes and parse it as bytes, until we extract the
+        # filename, which is in sys.filesystemencoding().
         if pipe.returncode == 0:
             for match in _fc_match_regex.finditer(output):
                 file = match.group(1)
-                file = file.decode(sys.getfilesystemencoding())
+                file = six.text_type(file, sys.getfilesystemencoding())
                 if os.path.splitext(file)[1][1:] in fontexts:
                     return file
         return None
 
-    _fc_match_regex = re.compile(br'\sfile:\s+"([^"]*)"')
+    _fc_match_regex = re.compile(br'\sfile:\s+"(.*?)"')
     _fc_match_cache = {}
 
     def findfont(prop, fontext='ttf'):
