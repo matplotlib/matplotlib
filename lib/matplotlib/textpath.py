@@ -56,7 +56,7 @@ class TextToPath(object):
         find a ttf font.
         """
         fname = font_manager.findfont(prop)
-        font = FT2Font(str(fname))
+        font = FT2Font(fname)
         font.set_size(self.FONT_SCALE, self.DPI)
 
         return font
@@ -338,7 +338,7 @@ class TextToPath(object):
             font_bunch = self.tex_font_map[dvifont.texname]
 
             if font_and_encoding is None:
-                font = FT2Font(str(font_bunch.filename))
+                font = FT2Font(font_bunch.filename)
 
                 for charmap_name, charmap_code in [("ADOBE_CUSTOM",
                                                     1094992451),

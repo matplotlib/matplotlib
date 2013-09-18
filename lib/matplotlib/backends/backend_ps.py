@@ -391,7 +391,7 @@ class RendererPS(RendererBase):
             fname = findfont(prop)
             font = self.fontd.get(fname)
             if font is None:
-                font = FT2Font(str(fname))
+                font = FT2Font(fname)
                 self.fontd[fname] = font
             self.fontd[key] = font
         font.clear()
@@ -1131,7 +1131,7 @@ class FigureCanvasPS(FigureCanvasBase):
             if not rcParams['ps.useafm']:
                 for font_filename, chars in six.itervalues(ps_renderer.used_characters):
                     if len(chars):
-                        font = FT2Font(str(font_filename))
+                        font = FT2Font(font_filename)
                         cmap = font.get_charmap()
                         glyph_ids = []
                         for c in chars:
@@ -1153,7 +1153,9 @@ class FigureCanvasPS(FigureCanvasBase):
                             raise RuntimeError("OpenType CFF fonts can not be saved using the internal Postscript backend at this time.\nConsider using the Cairo backend.")
                         else:
                             fh.flush()
-                            convert_ttf_to_ps(font_filename, raw_fh, fonttype, glyph_ids)
+                            convert_ttf_to_ps(
+                                font_filename.encode(sys.getfilesystemencoding()),
+                                raw_fh, fonttype, glyph_ids)
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 
