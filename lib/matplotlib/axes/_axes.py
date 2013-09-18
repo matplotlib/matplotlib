@@ -3163,7 +3163,7 @@ class Axes(_AxesBase):
             styles of markers scatter supports.
 
         angles : scalar or array_like, shape (n, ), optional, default: 0
-                 degrees CCW from X axis
+                 degrees counter clock-wise from X axis
 
         cmap : `~matplotlib.colors.Colormap`, optional, default: None
             A `~matplotlib.colors.Colormap` instance or registered name.

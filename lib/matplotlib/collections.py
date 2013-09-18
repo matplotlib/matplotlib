@@ -692,9 +692,10 @@ class PathCollection(Collection):
         *paths* is a sequence of :class:`matplotlib.path.Path`
         instances.
 
-        *sizes* is an array of length 1 or more
+        *sizes* is an array of length 1 or more, size in points^2
 
-        *angless* is an array of length 1 or more
+        *angles* is an array of length 1 or more, degrees
+        counter clock-wise from X axis
 
         %(Collection)s
         """
@@ -703,26 +704,22 @@ class PathCollection(Collection):
         self.set_paths(paths)
         self._sizes = sizes
         self._angles = angles
-        self._check_parameters()
+        self._normalize_parameters()
 
-    def _check_parameters(self):
+    def _normalize_parameters(self):
         """
         Check the sizes and array dimention to make them the same size
         Needed for drawing them efficiently
         """
-        if self._sizes is not None \
-           and self._angles is not None \
-           and self._sizes.size != self._angles.size:
-
-            ar_resize = np.resize
-            if isinstance(self._sizes, np.ma.core.MaskedArray):
-                ar_resize = np.ma.resize
+        if (self._sizes is not None
+                and self._angles is not None
+                and self._sizes.size != self._angles.size):
 
             # Make sizes array and angles array same size
             if self._sizes.size > self._angles.size:
-                self._angles = ar_resize(self._angles, self._sizes.shape)
+                self._angles = np.ma.resize(self._angles, self._sizes.shape)
             else:
-                self._sizes = ar_resize(self._sizes, self._angles.shape)
+                self._sizes = np.ma.resize(self._sizes, self._angles.shape)
 
     def set_paths(self, paths):
         """
@@ -741,7 +738,7 @@ class PathCollection(Collection):
         update sizes array check array size
         """
         self._sizes = sizes
-        self._check_parameters()
+        self._normalize_parameters()
 
     def get_sizes(self):
         """
@@ -754,7 +751,7 @@ class PathCollection(Collection):
         update angles array check array size
         """
         self._angles = angles
-        self._check_parameters()
+        self._normalize_parameters()
 
     def get_angles(self):
         """
@@ -765,19 +762,21 @@ class PathCollection(Collection):
     @allow_rasterization
     def draw(self, renderer):
         if self._sizes is not None and self._angles is not None:
+            _sizes = np.sqrt(self._sizes) * self.figure.dpi / 72.0
+            _angles = np.deg2rad(self._angles)
             self._transforms = [
-                transforms.Affine2D().scale(
-                    (np.sqrt(s) * self.figure.dpi / 72.0)).rotate(a)
-                for s, a in zip(self._sizes, self._angles)]
+                transforms.Affine2D().scale(s).rotate(a)
+                for s, a in zip(_sizes, _angles)]
         elif self._sizes is not None:
+            _sizes = np.sqrt(self._sizes) * self.figure.dpi / 72.0
             self._transforms = [
-                transforms.Affine2D().scale(
-                    (np.sqrt(s) * self.figure.dpi / 72.0))
-                for s in self._sizes]
+                transforms.Affine2D().scale(s)
+                for s in _sizes]
         elif self._angles is not None:
+            _angles = np.deg2rad(self._angles)
             self._transforms = [
                 transforms.Affine2D().rotate(a)
-                for a in self._angles]
+                for a in _angles]
 
         return Collection.draw(self, renderer)
 
