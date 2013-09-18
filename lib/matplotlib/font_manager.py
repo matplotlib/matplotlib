@@ -282,7 +282,10 @@ def get_fontconfig_fonts(fontext='ttf'):
             fname = line.split(b':')[0]
             if (os.path.splitext(fname)[1][1:] in fontext and
                 os.path.exists(fname)):
-                fname = six.text_type(fname, sys.getfilesystemencoding())
+                try:
+                    fname = six.text_type(fname, sys.getfilesystemencoding())
+                except UnicodeDecodeError:
+                    continue
                 fontfiles[fname] = 1
 
     return fontfiles
@@ -1305,7 +1308,10 @@ if USE_FONTCONFIG and sys.platform != 'win32':
         if pipe.returncode == 0:
             for match in _fc_match_regex.finditer(output):
                 file = match.group(1)
-                file = six.text_type(file, sys.getfilesystemencoding())
+                try:
+                    file = six.text_type(file, sys.getfilesystemencoding())
+                except UnicodeDecodeError:
+                    continue
                 if os.path.splitext(file)[1][1:] in fontexts:
                     return file
         return None
