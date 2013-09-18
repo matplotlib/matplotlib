@@ -2248,21 +2248,12 @@ class PdfPages(object):
     Use like this::
 
         # Initialize:
-        pp = PdfPages('foo.pdf')
+        with PdfPages('foo.pdf') as pdf:
 
-        # As many times as you like, create a figure fig, then either:
-        fig.savefig(pp, format='pdf') # note the format argument!
-        # or:
-        pp.savefig(fig)
-
-        # Once you are done, remember to close the object:
-        pp.close()
-
-    Or using the with statement::
-
-        with PdfPages('foo.pdf') as pp:
-            fig.savefig(pp, format='pdf') # note the format argument!
-            pp.savefig(fig)
+            # As many times as you like, create a figure fig and save it:
+            # When no figure is specified the current figure is saved
+            pdf.savefig(fig)
+            pdf.savefig()
 
     (In reality PdfPages is a thin wrapper around PdfFile, in order to
     avoid confusion when using savefig and forgetting the format
