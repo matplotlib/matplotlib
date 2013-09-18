@@ -1,17 +1,15 @@
+import numpy as np
 import matplotlib.pyplot as plt
-from numpy import arange, pi, rad2deg
-from numpy.random import rand
 from matplotlib.markers import TICKRIGHT
 
 rx, ry = 3., 1.
-area = rx * ry * pi
-theta = rad2deg(arange(0, 2*pi+0.01, 0.1))
+area = rx * ry * np.pi
+angles = np.linspace(0., 360., 30.)
 
+x, y, sizes, colors = np.random.rand(4, 30)
+sizes *= 20**2.
 
-x, y, s, c = rand(4, 30)
-s *= 20**2.
-
-fig, ax = plt.subplots()
-ax.scatter(x, y, s, c, marker=TICKRIGHT, a=theta)
+plt.scatter(x, y, sizes, colors, marker="o",zorder=2)
+plt.scatter(x, y, 2.5*sizes, colors, marker=TICKRIGHT, angles=angles, zorder=2)
 
 plt.show()
