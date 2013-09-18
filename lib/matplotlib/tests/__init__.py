@@ -15,10 +15,10 @@ def setup():
 
     try:
         locale.setlocale(locale.LC_ALL, str('en_US.UTF-8'))
-    except:
+    except locale.Error:
         try:
             locale.setlocale(locale.LC_ALL, str('English_United States.1252'))
-        except:
+        except locale.Error:
             warnings.warn(
                 "Could not set locale to English/United States. "
                 "Some date-related tests may fail")
