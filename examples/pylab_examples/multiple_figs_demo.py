@@ -3,7 +3,7 @@
 
 import matplotlib
 matplotlib.use('gtk3agg')
-matplotlib.rcParams['backend.gtk3.tabbed'] = True
+matplotlib.rcParams['backend.single_window'] = True
 from pylab import *
 
 from matplotlib.backend_bases import ToolBase
