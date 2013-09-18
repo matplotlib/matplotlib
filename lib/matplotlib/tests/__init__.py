@@ -3,6 +3,8 @@ from matplotlib import rcParams, rcdefaults, use
 
 import difflib
 
+from matplotlib import rcParams, rcdefaults, use
+
 
 _multiprocess_can_split_ = True
 
@@ -12,6 +14,7 @@ def setup():
     # it during all of the tests.
     import locale
     import warnings
+    from matplotlib.backends import backend_agg, backend_pdf, backend_svg
 
     try:
         locale.setlocale(locale.LC_ALL, str('en_US.UTF-8'))
@@ -28,10 +31,16 @@ def setup():
     # These settings *must* be hardcoded for running the comparison
     # tests and are not necessarily the default values as specified in
     # rcsetup.py
-    rcdefaults() # Start with all defaults
+    rcdefaults()  # Start with all defaults
     rcParams['font.family'] = 'Bitstream Vera Sans'
     rcParams['text.hinting'] = False
     rcParams['text.hinting_factor'] = 8
+
+    # Clear the font caches.  Otherwise, the hinting mode can travel
+    # from one test to another.
+    backend_agg.RendererAgg._fontd.clear()
+    backend_pdf.RendererPdf.truetype_font_cache.clear()
+    backend_svg.RendererSVG.fontd.clear()
 
 
 def assert_str_equal(reference_str, test_str,
