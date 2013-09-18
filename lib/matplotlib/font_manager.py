@@ -20,6 +20,7 @@ platforms, so if a font is installed, it is much more likely to be
 found.
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
+import sys
 
 import six
 from six.moves import cPickle as pickle
@@ -276,7 +277,7 @@ def get_fontconfig_fonts(fontext='ttf'):
         return fontfiles
 
     if pipe.returncode == 0:
-        output = str(output)
+        output = six.text_type(output, sys.getfilesystemencoding())
         for line in output.split('\n'):
             fname = line.split(':')[0]
             if (os.path.splitext(fname)[1][1:] in fontext and
