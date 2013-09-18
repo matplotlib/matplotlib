@@ -6,8 +6,7 @@ axes
 :mod:`matplotlib.axes`
 ======================
 
-.. automodule:: matplotlib.axes
+.. autoclass:: matplotlib.axes.Axes
    :members:
    :undoc-members:
-   :show-inheritance:
  
