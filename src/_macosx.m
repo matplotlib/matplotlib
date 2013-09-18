@@ -1339,11 +1339,11 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
         return NULL;
     }
     const Py_ssize_t Npaths = PySequence_Size(path_ids);
-    
+
     /* -------------------------------------------------------------------- */
 
     CGContextSaveGState(cr);
-    
+
     /* ------------------- Check facecolors array ------------------------- */
 
     facecolors = PyArray_FromObject(facecolors, NPY_DOUBLE, 1, 2);
@@ -1948,7 +1948,7 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
                 const double a = *(double*)PyArray_GETPTR2(edgecolors, fi, 3);
                 CGContextSetRGBStrokeColor(cr, r, g, b, a);
             }
-	
+
             if (Nfacecolors > 0)
             {
                 if (Nedgecolors > 0 || antialiased)
@@ -2343,9 +2343,7 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
 #else
     ATSFontRef font = 0;
 #endif
-#if PY3K
     PyObject* ascii = NULL;
-#endif
 
     const int k = (strcmp(italic, "italic") ? 0 : 2)
                 + (strcmp(weight, "bold") ? 0 : 1);
@@ -2526,14 +2524,9 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
     for (i = 0; i < n; i++)
     {
         PyObject* item = PyList_GET_ITEM(family, i);
-#if PY3K
         ascii = PyUnicode_AsASCIIString(item);
         if(!ascii) return 0;
         temp = PyBytes_AS_STRING(ascii);
-#else
-        if(!PyString_Check(item)) return 0;
-        temp = PyString_AS_STRING(item);
-#endif
         for (j = 0; j < NMAP; j++)
         {    if (!strcmp(map[j].name, temp))
              {    temp = psnames[map[j].index][k];
@@ -2560,10 +2553,8 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
             name = temp;
             break;
         }
-#if PY3K
         Py_DECREF(ascii);
         ascii = NULL;
-#endif
     }
     if(!font)
     {   string = CFStringCreateWithCString(kCFAllocatorDefault,
@@ -5681,7 +5672,7 @@ set_cursor(PyObject* unused, PyObject* args)
 }
 
 - (BOOL)acceptsFirstResponder
-{ 
+{
     return YES;
 }
 
