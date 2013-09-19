@@ -37,3 +37,23 @@ def test_type42():
     ax = fig.add_subplot(111)
     ax.plot([1,2,3])
     fig.savefig(io.BytesIO())
+
+
+@cleanup
+def test_multipage_pagecount():
+    from matplotlib.backends.backend_pdf import PdfPages
+    from io import BytesIO
+    with PdfPages(BytesIO()) as pdf:
+        assert pdf.get_pagecount() == 0
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.plot([1, 2, 3])
+        fig.savefig(pdf, format="pdf")
+        assert pdf.get_pagecount() == 1
+        pdf.savefig()
+        assert pdf.get_pagecount() == 2
+
+
+if __name__ == '__main__':
+    import nose
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
