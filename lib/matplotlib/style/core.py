@@ -16,6 +16,7 @@ import contextlib
 
 import matplotlib as mpl
 from matplotlib import cbook
+from matplotlib import rc_params_from_file
 
 
 __all__ = ['use', 'context', 'available', 'library', 'reload_library']
@@ -49,7 +50,7 @@ def use(name):
 
     for style in name:
         if is_style_file(style):
-            settings = mpl.rc_params_in_file(style)
+            settings = rc_params_from_file(style, use_default_template=False)
             mpl.rcParams.update(settings)
         elif style not in library:
             msg = ("'%s' not found in the style library. "
@@ -117,7 +118,7 @@ def read_style_directory(style_dir):
     """Return dictionary of styles defined in `style_dir`."""
     styles = dict()
     for path, name in iter_style_files(style_dir):
-        styles[name] = mpl.rc_params_in_file(path)
+        styles[name] = rc_params_from_file(path, use_default_template=False)
     return styles
 
 
