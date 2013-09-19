@@ -263,6 +263,10 @@ Code changes
 * The :func:`matplotlib.cbook.check_output` function has been moved to
   :func:`matplotlib.compat.subprocess`.
 
+* The method :meth:`~matplotlib.axes.Axes.hist` now always returns bin
+  occupancies as an array of type `float`. Previously, it was sometimes
+  an array of type `int`, depending on the call.
+
 Configuration and rcParams
 --------------------------
 
