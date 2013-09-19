@@ -906,7 +906,7 @@ def _open_file_or_url(fname):
 _error_details_fmt = 'line #%d\n\t"%s"\n\tin file "%s"'
 
 
-def rc_params_in_file(fname, fail_on_error=False):
+def _rc_params_in_file(fname, fail_on_error=False):
     """Return :class:`matplotlib.RcParams` from the contents of the given file.
 
     Unlike `rc_params_from_file`, the configuration class only contains the
@@ -973,7 +973,7 @@ distribution""" % (key, cnt, fname), file=sys.stderr)
     return config
 
 
-def rc_params_from_file(fname, fail_on_error=False):
+def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
     """Return :class:`matplotlib.RcParams` from the contents of the given file.
 
     Parameters
@@ -982,12 +982,19 @@ def rc_params_from_file(fname, fail_on_error=False):
         Name of file parsed for matplotlib settings.
     fail_on_error : bool
         If True, raise an error when the parser fails to convert a parameter.
+    use_default_template : bool
+        If True, initialize with default parameters before updating with those
+        in the given file. If False, the configuration class only contains the
+        parameters specified in the file. (Useful for updating dicts.)
     """
+    config_from_file = _rc_params_in_file(fname, fail_on_error)
 
-    config = RcParams([(key, default)
-                       for key, (default, _) in six.iteritems(defaultParams)])
+    if not use_default_template:
+        return config_from_file
 
-    config.update(rc_params_in_file(fname, fail_on_error))
+    iter_params = six.iteritems(defaultParams)
+    config = RcParams([(key, default) for key, (default, _) in iter_params])
+    config.update(config_from_file)
 
     verbose.set_level(config['verbose.level'])
     verbose.set_fileo(config['verbose.fileo'])
