@@ -14,8 +14,8 @@ import os
 import re
 import contextlib
 
-import numpy as np
 import matplotlib as mpl
+from matplotlib import cbook
 
 
 __all__ = ['use', 'context', 'available', 'library', 'reload_library']
@@ -44,7 +44,7 @@ def use(name):
         style names, see `style.available`. If given a list, each style is
         applied from first to last in the list.
     """
-    if np.isscalar(name):
+    if cbook.is_string_like(name):
         name = [name]
 
     for style in name:
