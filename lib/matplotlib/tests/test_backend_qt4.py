@@ -149,3 +149,11 @@ def test_backspace_mod():
     assert_correct_key(QtCore.Qt.Key_Backspace,
                        ControlModifier,
                        u'ctrl+backspace')
+
+
+@cleanup
+@knownfailureif(not HAS_QT)
+def test_non_unicode_key():
+    assert_correct_key(QtCore.Qt.Key_Play,
+                       QtCore.Qt.NoModifier,
+                       None)
