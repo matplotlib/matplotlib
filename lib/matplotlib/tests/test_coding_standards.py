@@ -141,21 +141,22 @@ if HAS_PEP8:
             '*/matplotlib/projections/__init__.py',
             '*/matplotlib/projections/geo.py',
             '*/matplotlib/projections/polar.py']
-    
+
         #: A class attribute to store the lines of failing tests.
         _global_deferred_print = []
-    
+
         #: A class attribute to store patterns which have seen exceptions.
         matched_exclusions = set()
-    
+
         def get_file_results(self):
-            # If the file had no errors, return self.file_errors (which will be 0)
+            # If the file had no errors, return self.file_errors
+            # (which will be 0).
             if not self._deferred_print:
                 return self.file_errors
-    
-            # Iterate over all of the patterns, to find a possible exclusion. If we
-            # the filename is to be excluded, go ahead and remove the counts that
-            # self.error added.
+
+            # Iterate over all of the patterns, to find a possible exclusion.
+            # If the filename is to be excluded, go ahead and remove the
+            # counts that self.error added.
             for pattern in self.expected_bad_files:
                 if fnmatch(self.filename, pattern):
                     self.matched_exclusions.add(pattern)
@@ -168,18 +169,17 @@ if HAS_PEP8:
                         self.file_errors -= 1
                         self.total_errors -= 1
                     return self.file_errors
-    
+
             # mirror the content of StandardReport, only storing the output to
             # file rather than printing. This could be a feature request for
             # the PEP8 tool.
             self._deferred_print.sort()
-            for line_number, offset, code, text, doc in self._deferred_print:
+            for line_number, offset, code, text, _ in self._deferred_print:
                 self._global_deferred_print.append(
-                    self._fmt % {
-                    'path': self.filename,
-                    'row': self.line_offset + line_number, 'col': offset + 1,
-                    'code': code, 'text': text,
-                })
+                    self._fmt % {'path': self.filename,
+                                 'row': self.line_offset + line_number,
+                                 'col': offset + 1, 'code': code,
+                                 'text': text})
             return self.file_errors
 
 
@@ -207,9 +207,9 @@ def test_pep8_conformance():
     reporter = pep8style.options.reporter
 
     # Extend the number of PEP8 guidelines which are not checked.
-    pep8style.options.ignore = pep8style.options.ignore + ('E121', 'E122',
-                                    'E123', 'E124', 'E125', 'E126', 'E127',
-                                    'E128')
+    pep8style.options.ignore = (pep8style.options.ignore +
+                                ('E121', 'E122', 'E123', 'E124', 'E125',
+                                 'E126', 'E127', 'E128'))
 
     # Support for egg shared object wrappers, which are not PEP8 compliant,
     # nor part of the matplotlib repository.
