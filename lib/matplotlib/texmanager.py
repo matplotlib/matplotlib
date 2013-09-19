@@ -171,7 +171,7 @@ Could not rename old TeX cache dir "%s": a suitable configuration
         ff = rcParams['font.family']
         if len(ff) == 1 and ff[0].lower() in self.font_families:
             self.font_family = ff[0].lower()
-        elif isinstance(ff, basestring) and ff.lower() in self.font_families:
+        elif isinstance(ff, six.string_types) and ff.lower() in self.font_families:
             self.font_family = ff.lower()
         else:
             mpl.verbose.report(
