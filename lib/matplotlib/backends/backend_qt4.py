@@ -349,6 +349,15 @@ class FigureCanvasQT(QtGui.QWidget, FigureCanvasBase):
             # key, rather than unicode
             key = SPECIAL_KEYS[event_key]
         except KeyError:
+            # unicode defines code points up to 0x0010ffff
+            # QT will use Key_Codes larger than that for keyboard keys that are
+            # are not unicode characters (like multimedia keys)
+            # skip these
+            # if you really want them, you should add them to SPECIAL_KEYS
+            MAX_UNICODE = 0x10ffff
+            if event_key > MAX_UNICODE:
+                return None
+
             key = unichr(event_key)
             # qt delivers capitalized letters.  fix capitalization
             # note that capslock is ignored
