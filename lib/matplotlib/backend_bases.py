@@ -2677,7 +2677,7 @@ class ChildFigureManager(FigureManagerBase):
             self.toolbar.remove()
 
     def resize(self, w, h):
-        self.parent.resize_manager(self, w, h)
+        self.parent.resize_child(self, w, h)
 
     def show_popup(self, msg):
         self.parent.show_popup(self, msg)
@@ -3396,15 +3396,12 @@ class ChildNavigationToolbar(NavigationToolbar2):
         self.ctx.rectangle(rect[0], rect[1], rect[2], rect[3])
         self.ctx.set_source_rgb(0, 0, 0)
         self.ctx.stroke()
+        
+    def __getattr__(self, name):
+        #we suposse everything else that we want from this child
+        #belongs into the parent
+        return getattr(self.parent, name)
 
-    def add_tool(self, *args, **kwargs):
-        self.parent.add_tool(*args, **kwargs)
-        
-    def remove_tool(self, pos):
-        self.parent.remove_tool(pos)
-        
-    def move_tool(self, pos_ini, pos_fin):
-        self.parent.move_tool(pos_ini, pos_fin)
     
      
 class MultiFigureToolbarBase(object):
@@ -3482,7 +3479,7 @@ class MultiFigureToolbarBase(object):
         self._current = None
     
     
-    def add_tool(self, callback, pos=0, **kwargs):
+    def add_tool(self, callback, **kwargs):
         #this method called from the exterior and from the interior
         #will add a tool to the toolbar
         #this tool, will behave like normal button
@@ -3490,11 +3487,27 @@ class MultiFigureToolbarBase(object):
         #after that, if it is clicked again, it will call the show method
         #if  _current changes (switch the active figure from the manager)
         #the set_figures method is invoked again
-        tbutton = self.add_button(pos=pos, **kwargs)
+        
+        cls =  self._get_cls_to_instantiate(callback)
+        if not cls:
+            self.set_message('Not available')
+            return
+        
+        #if not passed directly from the call, look for them in the class
+        text = kwargs.pop('text', cls.text)
+        tooltip_text = kwargs.pop('tooltip_text', cls.tooltip_text)
+        pos = kwargs.pop('pos', cls.pos)
+        image = kwargs.pop('image', cls.image)
+        toggle = kwargs.pop('toggle', cls.toggle)
+        
+        tbutton = self.add_button(pos=pos, text=text, 
+                                  tooltip_text=tooltip_text,
+                                  image=image,
+                                  toggle=toggle)
         if not tbutton:
             return
         
-        self.connect_button(tbutton, 'clicked', '_external_callback', callback)
+        self.connect_button(tbutton, 'clicked', '_external_callback', cls, **kwargs)
         
     def remove_tool(self, pos):
         #remote item from the toolbar, 
@@ -3504,23 +3517,21 @@ class MultiFigureToolbarBase(object):
         #move item in the toolbar
         pass
     
-    def connect_button(self, button, action, callback, *args):
+    def connect_button(self, button, action, callback, *args, **kwargs):
         #This is specific to each library, 
         #The idea is to get rid of different formating between libraries and
         #be able to call internal functions with clicks, selects, etc...
         #
-        #In Gtk for example
-        #def connect_button(self, button, action, callback, *args):
-        #    def mcallback(btn, *args):
-        #        cb = args[0]
-        #        other = args[1:]
-        #        getattr(self, cb)(*other)
+        #In Gtk3 for example
+        #def connect_button(self, button, action, callback, *args, **kwargs):
+        #   def mcallback(btn, cb, args, kwargs):
+        #        getattr(self, cb)(*args, **kwargs)
         #
-        #    button.connect(action, mcallback, callback, *args)
-
+        #    button.connect(action, mcallback, callback, args, kwargs)
+        
         raise NotImplementedError
     
-    def _external_callback(self, callback):
+    def _external_callback(self, callback, **kwargs):
         #This handles the invokation of external classes
         #this callback class should take only *figures as arguments
         #and preform its work on those figures
@@ -3534,12 +3545,8 @@ class MultiFigureToolbarBase(object):
             return
                 
         figures = self.get_figures()
-        cls =  self._get_cls_to_instantiate(callback)
-        if not cls:
-            self.set_message('Not available')
-            return
         
-        external_instance = cls(*figures)
+        external_instance = callback(*figures, **kwargs)
         
         self._external_instances[id_] = external_instance 
         
@@ -3637,17 +3644,32 @@ class MultiFigureToolbarBase(object):
         #it may cause problems with the space too reduced
         pass
     
+    
 class ToolBase(object):
     #basic structure for the external tools that work with
     #multi-figure-toolbar
-    def __init__(self, *figures):
-        self.init_tool()
+    
+    #Default values for the tool when added to the toolbar
+    pos=-1
+    text='_'
+    tooltip_text=''
+    image=None
+    toggle=False
+    
+    #Be careful with this arguments,
+    #when adding the tool to the toolbar, we make sure to pass *figures and **kwargs from 
+    #the user
+    def __init__(self, *figures, **kwargs):
+        self.init_tool(**kwargs)
         
         if figures:
             self.set_figures(*figures)
         
-    def init_tool(self):
+    def init_tool(self, **kwargs):
         #do some initialization work as create windows and stuff
+        #kwargs are the keyword paramters given by the user
+        if kwargs:
+            raise TypeError('init_tool() got an unexpected keyword arguments %s' % str(kwargs))
         pass
 
     def set_figures(self, *figures):

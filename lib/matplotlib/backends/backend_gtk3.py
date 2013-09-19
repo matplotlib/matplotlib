@@ -824,13 +824,11 @@ class MultiFigureNavigationToolbar2GTK3(Gtk.Toolbar, MultiFigureToolbarBase):
         self.win = window 
         MultiFigureToolbarBase.__init__(self)
 
-    def connect_button(self, button, action, callback, *args):
-        def mcallback(btn, *args):
-            cb = args[0]
-            other = args[1:]
-            getattr(self, cb)(*other)
+    def connect_button(self, button, action, callback, *args, **kwargs):
+        def mcallback(btn, cb, args, kwargs):
+            getattr(self, cb)(*args, **kwargs)
 
-        button.connect(action, mcallback, callback, *args)
+        button.connect(action, mcallback, callback, args, kwargs)
          
     def add_button(self, text='_', pos=-1, 
                     tooltip_text='', image=None,
