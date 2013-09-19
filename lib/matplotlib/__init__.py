@@ -888,7 +888,7 @@ URL_REGEX = re.compile(r'http://|https://|ftp://|file://|file:\\')
 
 
 def is_url(filename):
-    """Return True if string is an http or ftp path."""
+    """Return True if string is an http, ftp, or file URL path."""
     return URL_REGEX.match(filename) is not None
 
 
