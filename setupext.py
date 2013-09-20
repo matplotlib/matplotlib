@@ -1018,7 +1018,7 @@ class Pyparsing(SetupPackage):
             f = pyparsing.Forward()
             f <<= pyparsing.Literal('a')
             return f is not None
-        except:
+        except TypeError:
             return False
 
     def check(self):

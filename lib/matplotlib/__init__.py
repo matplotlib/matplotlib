@@ -134,7 +134,7 @@ else:
         f = pyparsing.Forward()
         f <<= pyparsing.Literal('a')
         bad_pyparsing = f is None
-    except:
+    except TypeError:
         bad_pyparsing = True
 
     # pyparsing 1.5.6 does not have <<= on the Forward class, but
