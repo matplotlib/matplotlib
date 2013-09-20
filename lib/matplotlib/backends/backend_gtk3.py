@@ -836,22 +836,18 @@ class MultiFigureNavigationToolbar2GTK3(Gtk.Toolbar, MultiFigureToolbarBase):
         timage = None
         if image:
             timage = Gtk.Image()
-            if isinstance(image, basestring):
-                if os.path.isfile(image):
-                    timage.set_from_file(image)
-                else:
-                    basedir = os.path.join(rcParams['datapath'], 'images')
-                    fname = os.path.join(basedir, image + '.png')
-                    timage.set_from_file(fname)
+            
+            if os.path.isfile(image):
+                timage.set_from_file(image)
             else:
-                #FIXME: there is something wrong or even more probable
-                #something I misunderstood with the way new_from_inline works
-#                try:
+                basedir = os.path.join(rcParams['datapath'], 'images')
+                fname = os.path.join(basedir, image + '.png')
+                if os.path.isfile(fname):
+                    timage.set_from_file(fname)
+                else:
 #                    from gi.repository import GdkPixbuf
 #                    pixbuf = GdkPixbuf.Pixbuf.new_from_inline(image, False)
-#                except:
-#                    
-                timage = False
+                    timage = False
         
         if toggle:
             tbutton = Gtk.ToggleToolButton()
@@ -1162,6 +1158,19 @@ class DialogLineprops:
 
     def on_dialog_lineprops_cancelbutton_clicked(self, button):
         self.dlg.hide()
+
+
+class Lineprops(ToolBase):
+    def init_tool(self, **kwargs):
+        self.dialog = DialogLineprops([])
+        
+    def set_figures(self, *figures):
+        figure = figures[0]
+        lines = []
+   
+        for alines in [ax.lines for ax in figure.get_axes()]:
+            lines.extend(alines)
+        print (lines)
 
 
 class ConfigureSubplotsGTK3(ToolBase):
