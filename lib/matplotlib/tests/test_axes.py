@@ -973,9 +973,7 @@ def test_stackplot_baseline():
     plt.stackplot(range(100), d.T, baseline='weighted_wiggle')
 
 
-@image_comparison(baseline_images=['boxplot'],
-                  remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+@image_comparison(baseline_images=['boxplot'])
 def test_boxplot():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
@@ -995,7 +993,7 @@ def test_boxplot_with_CIarray():
     x = np.hstack([-25, x, 25])
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    CIs = np.array([-1.5, 3.], [-1., 3.5])
+    CIs = np.array([[-1.5, 3.], [-1., 3.5]])
 
     # show 1 boxplot with mpl medians/conf. interfals, 1 with manual values
     ax.boxplot([x, x], bootstrap=10000, usermedians=[None, 1.0],
