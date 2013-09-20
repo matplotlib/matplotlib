@@ -1,6 +1,8 @@
 import numpy as np
+from numpy.testing import assert_array_almost_equal
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, cleanup
+import matplotlib.transforms as mtransforms
 
 
 def velocity_field():
@@ -34,6 +36,21 @@ def test_masks_and_nans():
     U = np.ma.array(U, mask=mask)
     U[:20, :20] = np.nan
     plt.streamplot(X, Y, U, V, color=U, cmap=plt.cm.Blues)
+
+
+@cleanup
+def test_streamplot_limits():
+    ax = plt.axes()
+    x = np.linspace(-5, 10, 20)
+    y = np.linspace(-2, 4, 10)
+    y, x = np.meshgrid(y, x)
+    trans = mtransforms.Affine2D().translate(25, 32) + ax.transData
+    plt.barbs(x, y, np.sin(x), np.cos(y), transform=trans)
+    # The calculated bounds are approximately the bounds of the original data,
+    # this is because the entire path is taken into account when updating the
+    # datalim.
+    assert_array_almost_equal(ax.dataLim.bounds, (20, 30, 15, 6),
+                              decimal=2)
 
 
 if __name__=='__main__':

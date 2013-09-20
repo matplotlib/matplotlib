@@ -1474,10 +1474,7 @@ class Axes(martist.Artist):
         if collection.get_clip_path() is None:
             collection.set_clip_path(self.patch)
 
-        if (autolim and
-            collection._paths is not None and
-            len(collection._paths) and
-            len(collection._offsets)):
+        if autolim:
             self.update_datalim(collection.get_datalim(self.transData))
 
         collection._remove_method = lambda h: self.collections.remove(h)
@@ -6834,8 +6831,8 @@ class Axes(martist.Artist):
         if not self._hold:
             self.cla()
         q = mquiver.Quiver(self, *args, **kw)
-        self.add_collection(q, False)
-        self.update_datalim(q.XY)
+
+        self.add_collection(q, True)
         self.autoscale_view()
         return q
     quiver.__doc__ = mquiver.Quiver.quiver_doc
@@ -6875,7 +6872,6 @@ class Axes(martist.Artist):
             self.cla()
         b = mquiver.Barbs(self, *args, **kw)
         self.add_collection(b)
-        self.update_datalim(b.get_offsets())
         self.autoscale_view()
         return b
 

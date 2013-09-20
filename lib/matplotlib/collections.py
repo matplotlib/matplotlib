@@ -188,13 +188,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # get_path_collection_extents handles nan but not masked arrays
         offsets.shape = (-1, 2)                     # Make it Nx2
 
-        if paths:
+        if len(paths) and len(offsets):
             result = mpath.get_path_collection_extents(
                 transform.frozen(), paths, self.get_transforms(),
                 offsets, transOffset.frozen())
             result = result.inverse_transformed(transData)
         else:
-            result = transforms.Bbox([[0, 0], [0, 0]])
+            result = transforms.Bbox.null()
         return result
 
     def get_window_extent(self, renderer):
@@ -1709,9 +1709,6 @@ class QuadMesh(Collection):
         colors = colors.reshape((meshWidth * meshHeight * 4, 3, 4))
 
         return triangles, colors
-
-    def get_datalim(self, transData):
-        return self._bbox
 
     @allow_rasterization
     def draw(self, renderer):
