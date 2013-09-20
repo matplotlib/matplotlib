@@ -4,7 +4,7 @@ Tests specific to the collections module.
 
 from nose.tools import assert_equal
 import numpy as np
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
@@ -396,8 +396,48 @@ def test_null_collection_datalim():
     col = mcollections.PathCollection([])
     col_data_lim = col.get_datalim(mtransforms.IdentityTransform())
     assert_array_equal(col_data_lim.get_points(),
-                       mtransforms.Bbox([[0, 0], [0, 0]]).get_points())
+                       mtransforms.Bbox.null().get_points())
 
+
+@cleanup
+def test_add_collection():
+    # Test if data limits are unchanged by adding an empty collection.
+    # Github issue #1490, pull #1497.
+    ax = plt.axes()
+    plt.figure()
+    ax2 = plt.axes()
+    coll = ax2.scatter([0, 1], [0, 1])
+    ax.add_collection(coll)
+    bounds = ax.dataLim.bounds
+    coll = ax2.scatter([], [])
+    ax.add_collection(coll)
+    assert_equal(ax.dataLim.bounds, bounds)
+
+
+@cleanup
+def test_quiver_limits():
+    ax = plt.axes()
+    x = np.linspace(-5, 10, 20)
+    y = np.linspace(-2, 4, 10)
+    y, x = np.meshgrid(y, x)
+    trans = mtransforms.Affine2D().translate(25, 32) + ax.transData
+    plt.quiver(x, y, np.sin(x), np.cos(y), transform=trans)
+    assert_equal(ax.dataLim.bounds, (20.0, 30.0, 15.0, 6.0))
+
+
+@cleanup
+def test_barb_limits():
+    ax = plt.axes()
+    x = np.linspace(-5, 10, 20)
+    y = np.linspace(-2, 4, 10)
+    y, x = np.meshgrid(y, x)
+    trans = mtransforms.Affine2D().translate(25, 32) + ax.transData
+    plt.barbs(x, y, np.sin(x), np.cos(y), transform=trans)
+    # The calculated bounds are approximately the bounds of the original data,
+    # this is because the entire path is taken into account when updating the
+    # datalim.
+    assert_array_almost_equal(ax.dataLim.bounds, (20, 30, 15, 6),
+                              decimal=2)
 
 if __name__ == '__main__':
     import nose
