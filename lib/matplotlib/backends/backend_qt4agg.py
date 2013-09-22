@@ -102,10 +102,16 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
 
             refcnt = sys.getrefcount(stringBuffer)
 
+            # convert the Agg rendered image -> qImage
             qImage = QtGui.QImage(stringBuffer, self.renderer.width,
                                   self.renderer.height,
                                   QtGui.QImage.Format_ARGB32)
+            # get the rectangle for the image
+            rect = qImage.rect()
             p = QtGui.QPainter(self)
+            # reset the image area of the canvas to be the back-ground color
+            p.eraseRect(rect)
+            # draw the rendered image on to the canvas
             p.drawPixmap(QtCore.QPoint(0, 0), QtGui.QPixmap.fromImage(qImage))
 
             # draw the zoom rectangle to the QPainter
