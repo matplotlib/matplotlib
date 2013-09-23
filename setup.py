@@ -206,6 +206,14 @@ if __name__ == '__main__':
             mod.extra_compile_args.append('-DVERBOSE')
 
 
+    extra_args = {}
+    if sys.version_info[0] >= 3:
+        # Automatically 2to3 source on Python 3.x.  This isn't set on
+        # Python 2 because it's not needed, and some really old
+        # versions of distribute don't support it.
+        extra_args['use_2to3'] = True
+
+
     # Finally, pass this all along to distutils to do the heavy lifting.
     distrib = setup(name="matplotlib",
           version=__version__,
@@ -234,11 +242,10 @@ if __name__ == '__main__':
           # List third-party Python packages that we require
           install_requires=install_requires,
 
-          # Automatically 2to3 source on Python 3.x
-          use_2to3=True,
-
           # matplotlib has C/C++ extensions, so it's not zip safe.
           # Telling setuptools this prevents it from doing an automatic
           # check for zip safety.
           zip_safe=False,
+
+          **extra_args
          )
