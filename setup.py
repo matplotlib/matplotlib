@@ -258,6 +258,7 @@ if __name__ == '__main__':
 
           # List third-party Python packages that we require
           install_requires=install_requires,
+          setup_requires=setup_requires,
 
           # matplotlib has C/C++ extensions, so it's not zip safe.
           # Telling setuptools this prevents it from doing an automatic
