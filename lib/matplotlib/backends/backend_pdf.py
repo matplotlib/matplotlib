@@ -2314,6 +2314,12 @@ class PdfPages(object):
             else:
                 figureManager.canvas.figure.savefig(self, format='pdf', **kwargs)
 
+    def get_pagecount(self):
+        """
+        Returns the current number of pages in the multipage pdf file.
+        """
+        return len(self._file.pageList)
+
 class FigureCanvasPdf(FigureCanvasBase):
     """
     The canvas the figure renders into.  Calls the draw and print fig
