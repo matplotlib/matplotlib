@@ -50,3 +50,38 @@ def test_multipage_pagecount():
         assert pdf.get_pagecount() == 1
         pdf.savefig()
         assert pdf.get_pagecount() == 2
+
+
+@cleanup
+def test_multipage_keep_empty():
+    from matplotlib.backends.backend_pdf import PdfPages
+    from tempfile import NamedTemporaryFile
+    ### test empty pdf files
+    # test that an empty pdf is left behind with keep_empty=True (default)
+    with NamedTemporaryFile(delete=False) as tmp:
+        with PdfPages(tmp) as pdf:
+            filename = pdf._file.fh.name
+        assert os.path.exists(filename)
+        os.remove(filename)
+    # test if an empty pdf is deleting itself afterwards with keep_empty=False
+    with NamedTemporaryFile(delete=False) as tmp:
+        with PdfPages(tmp, keep_empty=False) as pdf:
+            filename = pdf._file.fh.name
+        assert not os.path.exists(filename)
+    ### test pdf files with content
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot([1, 2, 3])
+    # test that a non-empty pdf is left behind regardless of keep_empty-setting
+    with NamedTemporaryFile(delete=False) as tmp:
+        with PdfPages(tmp) as pdf:
+            filename = pdf._file.fh.name
+            pdf.savefig()
+        assert os.path.exists(filename)
+        os.remove(filename)
+    with NamedTemporaryFile(delete=False) as tmp:
+        with PdfPages(tmp, keep_empty=False) as pdf:
+            filename = pdf._file.fh.name
+            pdf.savefig()
+        assert os.path.exists(filename)
+        os.remove(filename)

@@ -2263,15 +2263,18 @@ class PdfPages(object):
     avoid confusion when using savefig and forgetting the format
     argument.)
     """
-    __slots__ = ('_file',)
+    __slots__ = ('_file', 'keep_empty')
 
-    def __init__(self, filename):
+    def __init__(self, filename, keep_empty=True):
         """
         Create a new PdfPages object that will be written to the file
         named *filename*. The file is opened at once and any older
         file with the same name is overwritten.
+        If keep_empty is set to False then empty pdf files will be deleted when
+        closed.
         """
         self._file = PdfFile(filename)
+        self.keep_empty = keep_empty
 
     def __enter__(self):
         return self
@@ -2285,6 +2288,8 @@ class PdfPages(object):
         PDF file.
         """
         self._file.close()
+        if self.get_pagecount() == 0 and self.keep_empty is False:
+            os.remove(self._file.fh.name)
         self._file = None
 
     def infodict(self):
