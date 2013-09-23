@@ -711,11 +711,19 @@ class Numpy(SetupPackage):
 
     @staticmethod
     def include_dirs_hook():
-        import __builtin__
-        if hasattr(__builtin__, '__NUMPY_SETUP__'):
-            del __builtin__.__NUMPY_SETUP__
-        import numpy
-        reload(numpy)
+        if sys.version_info[0] >= 3:
+            import builtins
+            if hasattr(builtins, '__NUMPY_SETUP__'):
+                del builtins.__NUMPY_SETUP__
+            import imp
+            import numpy
+            imp.reload(numpy)
+        else:
+            import __builtin__
+            if hasattr(__builtin__, '__NUMPY_SETUP__'):
+                del __builtin__.__NUMPY_SETUP__
+            import numpy
+            reload(numpy)
 
         ext = Extension('test', [])
         ext.include_dirs.append(numpy.get_include())
