@@ -2567,6 +2567,10 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
 #endif
         CFRelease(string);
     }
+    if (font == NULL)
+    {
+        PyErr_SetString(PyExc_ValueError, "Could not load font");
+    }
 #ifndef COMPILING_FOR_10_5
     CGContextSelectFont(cr, name, size, kCGEncodingMacRoman);
 #endif
@@ -2632,7 +2636,11 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
     CFStringRef s = CFStringCreateWithCharacters(kCFAllocatorDefault, text, n);
 #endif
 
-    font = setfont(cr, family, size, weight, italic);
+    if (!(font = setfont(cr, family, size, weight, italic)))
+    {
+        CFRelease(s);
+        return NULL;
+    }
 
     color = CGColorCreateGenericRGB(self->color[0],
                                     self->color[1],
@@ -2739,7 +2747,11 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
     CFStringRef s = CFStringCreateWithCharacters(kCFAllocatorDefault, text, n);
 #endif
 
-    font = setfont(cr, family, size, weight, italic);
+    if (!(font = setfont(cr, family, size, weight, italic)))
+    {
+        CFRelease(s);
+        return NULL;
+    };
 
     CFStringRef keys[1];
     CFTypeRef values[1];
@@ -2810,7 +2822,10 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
                                 &italic,
                                 &angle)) return NULL;
 
-    atsfont = setfont(cr, family, size, weight, italic);
+    if (!(atsfont = setfont(cr, family, size, weight, italic))
+    {
+        return NULL;
+    }
 
     OSStatus status;
 
@@ -2895,7 +2910,10 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
 
     if(!PyArg_ParseTuple(args, "u#Ofss", &text, &n, &family, &size, &weight, &italic)) return NULL;
 
-    atsfont = setfont(cr, family, size, weight, italic);
+    if (!(atsfont = setfont(cr, family, size, weight, italic)))
+    {
+        return NULL;
+    }
 
     OSStatus status = noErr;
     ATSUAttributeTag tags[] = {kATSUFontTag,
