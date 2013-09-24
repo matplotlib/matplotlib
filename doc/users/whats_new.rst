@@ -23,6 +23,12 @@ revision, see the :ref:`github-stats`.
 new in matplotlib-1.4
 =====================
 
+Documentation changes
+---------------------
+
+Phil Elson rewrote of the documentation and userguide for both Legend and PathEffects (links needed).
+
+
 New plotting features
 ---------------------
 
@@ -73,6 +79,7 @@ Andrew Dawson added support for n-d array handling to
 and :func:`matplotlib.dates.datestr2num`. Support is also added to the unit
 conversion interfaces :class:`matplotlib.dates.DateConverter` and
 :class:`matplotlib.units.Registry`.
+
 
 Configuration (rcParams)
 ------------------------

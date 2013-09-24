@@ -49,7 +49,7 @@ class MixedModeRenderer(object):
         self._raster_renderer = None
         self._rasterizing = 0
 
-        # A renference to the figure is needed as we need to change
+        # A reference to the figure is needed as we need to change
         # the figure dpi before and after the rasterization. Although
         # this looks ugly, I couldn't find a better solution. -JJL
         self.figure=figure
@@ -67,6 +67,7 @@ class MixedModeRenderer(object):
         option_image_nocomposite points_to_pixels strip_math
         start_filter stop_filter draw_gouraud_triangle
         draw_gouraud_triangles option_scale_image
+        _text2path _get_text_path_transform height width
         """.split()
     def _set_current_renderer(self, renderer):
         self._renderer = renderer
@@ -76,7 +77,6 @@ class MixedModeRenderer(object):
                 setattr(self, method, getattr(renderer, method))
         renderer.start_rasterizing = self.start_rasterizing
         renderer.stop_rasterizing = self.stop_rasterizing
-
 
     def start_rasterizing(self):
         """
