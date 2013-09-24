@@ -2,9 +2,11 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
+
 from matplotlib._image import frombuffer
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.tight_bbox import process_figure_for_rasterizing
+
 
 class MixedModeRenderer(object):
     """
@@ -102,7 +104,6 @@ class MixedModeRenderer(object):
                 self._width*self.dpi, self._height*self.dpi, self.dpi)
             self._set_current_renderer(self._raster_renderer)
         self._rasterizing += 1
-
 
     def stop_rasterizing(self):
         """

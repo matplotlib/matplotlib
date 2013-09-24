@@ -392,7 +392,7 @@ class RendererBase:
             if not (np.isfinite(xo) and np.isfinite(yo)):
                 continue
             if Nfacecolors:
-                rgbFace = facecolors[i % Nfacecolors]
+                rgbFace = tuple(facecolors[i % Nfacecolors])
             if Nedgecolors:
                 if Nlinewidths:
                     gc0.set_linewidth(linewidths[i % Nlinewidths])

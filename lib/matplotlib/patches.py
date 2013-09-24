@@ -1818,33 +1818,45 @@ class BoxStyle(_Style):
             super(BoxStyle.Square, self).__init__()
 
         def transmute(self, x0, y0, width, height, mutation_size):
-
-            # padding
             pad = mutation_size * self.pad
 
             # width and height with padding added.
-            width, height = width + 2. * pad, \
-                            height + 2. * pad,
+            width, height = width + 2*pad, height + 2*pad
 
             # boundary of the padded box
             x0, y0 = x0 - pad, y0 - pad,
             x1, y1 = x0 + width, y0 + height
 
-            cp = [(x0, y0), (x1, y0), (x1, y1), (x0, y1),
-                  (x0, y0), (x0, y0)]
-
-            com = [Path.MOVETO,
-                   Path.LINETO,
-                   Path.LINETO,
-                   Path.LINETO,
-                   Path.LINETO,
-                   Path.CLOSEPOLY]
-
-            path = Path(cp, com)
-
-            return path
+            vertices = [(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)]
+            codes = [Path.MOVETO] + [Path.LINETO] * 3 + [Path.CLOSEPOLY]
+            return Path(vertices, codes)
 
     _style_list["square"] = Square
+
+
+    class Circle(_Base):
+        """A simple circle box."""
+        def __init__(self, pad=0.3):
+            """
+            Parameters
+            ----------
+            pad : float
+                The amount of padding around the original box.
+            """
+            self.pad = pad
+            super(BoxStyle.Circle, self).__init__()
+
+        def transmute(self, x0, y0, width, height, mutation_size):
+            pad = mutation_size * self.pad
+            width, height = width + 2* pad, height + 2* pad
+
+            # boundary of the padded box
+            x0, y0 = x0 - pad, y0 - pad,
+            return Path.circle((x0 + width/2., y0 + height/2.),
+                               (max([width, height]) / 2.))
+
+    _style_list["circle"] = Circle
+
 
     class LArrow(_Base):
         """
@@ -2130,16 +2142,13 @@ class BoxStyle(_Style):
 
             saw_vertices = self._get_sawtooth_vertices(x0, y0, width,
                                                        height, mutation_size)
-            path = Path(saw_vertices)
+            path = Path(saw_vertices, closed=True)
             return path
 
     _style_list["sawtooth"] = Sawtooth
 
     class Roundtooth(Sawtooth):
-        """
-        A roundtooth(?) box.
-        """
-
+        """A rounded tooth box."""
         def __init__(self, pad=0.3, tooth_size=None):
             """
             *pad*
@@ -2151,16 +2160,14 @@ class BoxStyle(_Style):
             super(BoxStyle.Roundtooth, self).__init__(pad, tooth_size)
 
         def transmute(self, x0, y0, width, height, mutation_size):
-
             saw_vertices = self._get_sawtooth_vertices(x0, y0,
                                                        width, height,
                                                        mutation_size)
-
-            cp = [Path.MOVETO] + ([Path.CURVE3, Path.CURVE3]
-                                  * ((len(saw_vertices) - 1) // 2))
-            path = Path(saw_vertices, cp)
-
-            return path
+            saw_vertices = np.concatenate([np.array(saw_vertices), [saw_vertices[0]]], axis=0)
+            cp = ([Path.MOVETO] +
+                  [Path.CURVE3, Path.CURVE3] * ((len(saw_vertices) - 1) // 2) +
+                  [Path.CLOSEPOLY])
+            return Path(saw_vertices, cp)
 
     _style_list["roundtooth"] = Roundtooth
 

@@ -54,6 +54,10 @@ original location:
   'open-close-high-low' order of quotes, and what the module used and the later
   is 'open-high-low-close' order of quotes, which is the standard in finance.
 
+* For consistency the ``face_alpha`` keyword to
+  :class:`matplotlib.patheffects.SimplePatchShadow`'s has been deprecated.
+  Use alpha instead.
+
 * The artist used to draw the outline of a `colorbar` has been changed
   from a `matplotlib.lines.Line2D` to `matplotlib.patches.Polygon`,
   thus `colorbar.ColorbarBase.outline` is now a
