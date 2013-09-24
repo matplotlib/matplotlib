@@ -20,7 +20,8 @@ from matplotlib.patches import Rectangle
 class InsetPosition(object):
     def __init__(self, parent, lbwh):
         self.parent = parent
-        self.lbwh = lbwh  # position of the inset axes in the normalized coordinate of the parent axes
+        self.lbwh = lbwh  # position of the inset axes in
+                          # the normalized coordinate of the parent axes
 
     def __call__(self, ax, renderer):
         bbox_parent = self.parent.get_position(original=False)
@@ -37,8 +38,8 @@ class AnchoredLocatorBase(AnchoredOffsetbox):
         super(AnchoredLocatorBase, self).__init__(loc,
                                                   pad=0., child=None,
                                                   borderpad=borderpad,
-                                                  bbox_to_anchor=bbox_to_anchor,
-                                                  bbox_transform=bbox_transform)
+                                                 box_to_anchor=bbox_to_anchor,
+                                                 box_transform=bbox_transform)
 
     def draw(self, renderer):
         raise RuntimeError("No draw method should be called")
@@ -115,7 +116,8 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
 
     def get_extent(self, renderer):
 
-        bb = mtrans.TransformedBbox(self.axes.viewLim, self.parent_axes.transData)
+        bb = mtrans.TransformedBbox(self.axes.viewLim,
+                                    self.parent_axes.transData)
 
         x, y, w, h = bb.bounds
 
@@ -238,8 +240,11 @@ class BboxConnectorPatch(BboxConnector):
 
     def get_path(self):
         path1 = self.connect_bbox(self.bbox1, self.bbox2, self.loc1, self.loc2)
-        path2 = self.connect_bbox(self.bbox2, self.bbox1, self.loc2b, self.loc1b)
-        path_merged = list(path1.vertices) + list(path2.vertices) + [path1.vertices[0]]
+        path2 = self.connect_bbox(self.bbox2, self.bbox1,
+                                  self.loc2b, self.loc1b)
+        path_merged = (list(path1.vertices) +
+                       list(path2.vertices) +
+                       [path1.vertices[0]])
         return Path(path_merged)
 
 
@@ -295,7 +300,8 @@ def zoomed_inset_axes(parent_axes, zoom, loc=1,
                                **axes_kwargs)
 
     axes_locator = AnchoredZoomLocator(parent_axes, zoom=zoom, loc=loc,
-                                       bbox_to_anchor=bbox_to_anchor, bbox_transform=bbox_transform,
+                                       bbox_to_anchor=bbox_to_anchor,
+                                       bbox_transform=bbox_transform,
                                        **kwargs)
     inset_axes.set_axes_locator(axes_locator)
 
