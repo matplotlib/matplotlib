@@ -585,7 +585,7 @@ class PdfFile(object):
             self.fontNames[filename] = Fx
             self.nextFont += 1
             matplotlib.verbose.report(
-                'Assigning font %s = %s' % (Fx, filename),
+                'Assigning font %s = %r' % (Fx, filename),
                 'debug')
 
         return Fx
@@ -701,7 +701,7 @@ class PdfFile(object):
         if 0:             flags |= 1 << 17 # TODO: small caps
         if 0:             flags |= 1 << 18 # TODO: force bold
 
-        ft2font = FT2Font(str(fontfile))
+        ft2font = FT2Font(fontfile)
 
         descriptor = {
             'Type':        Name('FontDescriptor'),
@@ -761,7 +761,7 @@ end"""
     def embedTTF(self, filename, characters):
         """Embed the TTF font from the named file into the document."""
 
-        font = FT2Font(str(filename))
+        font = FT2Font(filename)
         fonttype = rcParams['pdf.fonttype']
 
         def cvt(length, upe=font.units_per_EM, nearest=True):
@@ -845,7 +845,8 @@ end"""
 
             # Make the charprocs array (using ttconv to generate the
             # actual outlines)
-            rawcharprocs = ttconv.get_pdf_charprocs(filename, glyph_ids)
+            rawcharprocs = ttconv.get_pdf_charprocs(
+                filename.encode(sys.getfilesystemencoding()), glyph_ids)
             charprocs = {}
             charprocsRef = {}
             for charname, stream in six.iteritems(rawcharprocs):
@@ -2003,7 +2004,7 @@ class RendererPdf(RendererBase):
             filename = findfont(prop)
             font = self.truetype_font_cache.get(filename)
             if font is None:
-                font = FT2Font(str(filename))
+                font = FT2Font(filename)
                 self.truetype_font_cache[filename] = font
             self.truetype_font_cache[key] = font
         font.clear()
