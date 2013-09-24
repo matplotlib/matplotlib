@@ -323,7 +323,7 @@ class RendererSVG(RendererBase):
             fname = findfont(prop)
             font = self.fontd.get(fname)
             if font is None:
-                font = FT2Font(str(fname))
+                font = FT2Font(fname)
                 self.fontd[fname] = font
             self.fontd[key] = font
         font.clear()

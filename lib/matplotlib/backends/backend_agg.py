@@ -262,7 +262,7 @@ class RendererAgg(RendererBase):
             font = RendererAgg._fontd.get(fname)
             if font is None:
                 font = FT2Font(
-                    str(fname),
+                    fname,
                     hinting_factor=rcParams['text.hinting_factor'])
                 RendererAgg._fontd[fname] = font
             RendererAgg._fontd[key] = font
