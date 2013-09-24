@@ -15,7 +15,7 @@ Changes in 1.4.x
 ================
 
 * A major refactoring of the axes module was made. The axes module has been
-splitted into smaller modules:
+split into smaller modules:
 
     - the `_base` module, which contains a new private _AxesBase class. This
       class contains all methods except plotting and labelling methods.
@@ -30,8 +30,7 @@ original location:
   - math -> `import math`
   - ma -> `from numpy import ma`
   - cbook -> `from matplotlib import cbook`
-  - division -> `from __future__ import division`
-  - docstring -> `from matplotlib impotr docstring`
+  - docstring -> `from matplotlib import docstring`
   - is_sequence_of_strings -> `from matplotlib.cbook import is_sequence_of_strings`
   - is_string_like -> `from matplotlib.cbook import is_string_like`
   - iterable -> `from matplotlib.cbook import iterable`
@@ -41,7 +40,7 @@ original location:
   - mcoll -> `from matplotlib import collections as mcoll`
   - mcolors -> `from matplotlib import colors as mcolors`
   - mcontour -> `from matplotlib import contour as mcontour`
-  - mpatches -> `from matplotlib import patchs as mpatches`
+  - mpatches -> `from matplotlib import patches as mpatches`
   - mpath -> `from matplotlib import path as mpath`
   - mquiver -> `from matplotlib import quiver as mquiver`
   - mstack -> `from matplotlib import stack as mstack`
@@ -55,8 +54,14 @@ original location:
   is 'open-high-low-close' order of quotes, which is the standard in finance.
 
 * For consistency the ``face_alpha`` keyword to
-  :class:`matplotlib.patheffects.SimplePatchShadow`'s has been deprecated.
-  Use alpha instead.
+  :class:`matplotlib.patheffects.SimplePatchShadow` has been deprecated in
+  favour of the ``alpha`` keyword. Similarly, the keyword ``offset_xy`` is now
+  named ``offset`` across all :class:`~matplotlib.patheffects.AbstractPathEffect`s.
+  ``matplotlib.patheffects._Base`` has
+  been renamed to :class:`matplotlib.patheffects.AbstractPathEffect`.
+  ``matplotlib.patheffect.ProxyRenderer`` has been renamed to
+  :class:`matplotlib.patheffects.PathEffectRenderer` and is now a full
+  RendererBase subclass.
 
 * The artist used to draw the outline of a `colorbar` has been changed
   from a `matplotlib.lines.Line2D` to `matplotlib.patches.Polygon`,

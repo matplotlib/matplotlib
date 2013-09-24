@@ -130,7 +130,7 @@ class RendererAgg(RendererBase):
         nmax = rcParams['agg.path.chunksize'] # here at least for testing
         npts = path.vertices.shape[0]
         if (nmax > 100 and npts > nmax and path.should_simplify and
-            rgbFace is None and gc.get_hatch() is None):
+                rgbFace is None and gc.get_hatch() is None):
             nch = np.ceil(npts/float(nmax))
             chsize = int(np.ceil(npts/nch))
             i0 = np.arange(0, npts, chsize)
@@ -196,7 +196,7 @@ class RendererAgg(RendererBase):
         get the width and height in display coords of the string s
         with FontPropertry prop
 
-        # passing rgb is a little hack to make cacheing in the
+        # passing rgb is a little hack to make caching in the
         # texmanager more efficient.  It is not meant to be used
         # outside the backend
         """

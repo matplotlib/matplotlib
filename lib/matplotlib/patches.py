@@ -427,11 +427,10 @@ class Patch(artist.Artist):
         affine = transform.get_affine()
 
         if self.get_path_effects():
-            if gc.get_linewidth() or rgbFace is not None:
-                for path_effect in self.get_path_effects():
-                    path_effect.draw_path(renderer, gc, tpath, affine, rgbFace)
-        else:
-            renderer.draw_path(gc, tpath, affine, rgbFace)
+            from matplotlib.patheffects import PathEffectRenderer
+            renderer = PathEffectRenderer(self.get_path_effects(), renderer)
+
+        renderer.draw_path(gc, tpath, affine, rgbFace)
 
         gc.restore()
         renderer.close_group('patch')
@@ -1833,7 +1832,6 @@ class BoxStyle(_Style):
 
     _style_list["square"] = Square
 
-
     class Circle(_Base):
         """A simple circle box."""
         def __init__(self, pad=0.3):
@@ -1848,7 +1846,7 @@ class BoxStyle(_Style):
 
         def transmute(self, x0, y0, width, height, mutation_size):
             pad = mutation_size * self.pad
-            width, height = width + 2* pad, height + 2* pad
+            width, height = width + 2 * pad, height + 2 * pad
 
             # boundary of the padded box
             x0, y0 = x0 - pad, y0 - pad,
@@ -1857,18 +1855,15 @@ class BoxStyle(_Style):
 
     _style_list["circle"] = Circle
 
-
     class LArrow(_Base):
         """
         (left) Arrow Box
         """
-
         def __init__(self, pad=0.3):
             self.pad = pad
             super(BoxStyle.LArrow, self).__init__()
 
         def transmute(self, x0, y0, width, height, mutation_size):
-
             # padding
             pad = mutation_size * self.pad
 
@@ -2163,11 +2158,14 @@ class BoxStyle(_Style):
             saw_vertices = self._get_sawtooth_vertices(x0, y0,
                                                        width, height,
                                                        mutation_size)
-            saw_vertices = np.concatenate([np.array(saw_vertices), [saw_vertices[0]]], axis=0)
-            cp = ([Path.MOVETO] +
-                  [Path.CURVE3, Path.CURVE3] * ((len(saw_vertices) - 1) // 2) +
-                  [Path.CLOSEPOLY])
-            return Path(saw_vertices, cp)
+            # Add a trailing vertex to allow us to close the polygon correctly
+            saw_vertices = np.concatenate([np.array(saw_vertices),
+                                           [saw_vertices[0]]], axis=0)
+            codes = ([Path.MOVETO] +
+                 [Path.CURVE3, Path.CURVE3] * ((len(saw_vertices)-1) // 2) +
+                 [Path.CLOSEPOLY])
+            print(len(codes), saw_vertices.shape)
+            return Path(saw_vertices, codes)
 
     _style_list["roundtooth"] = Roundtooth
 
@@ -4027,18 +4025,14 @@ class FancyArrowPatch(Patch):
         affine = transforms.IdentityTransform()
 
         if self.get_path_effects():
-            for path_effect in self.get_path_effects():
-                for p, f in zip(path, fillable):
-                    if f:
-                        path_effect.draw_path(renderer, gc, p, affine, rgbFace)
-                    else:
-                        path_effect.draw_path(renderer, gc, p, affine, None)
-        else:
-            for p, f in zip(path, fillable):
-                if f:
-                    renderer.draw_path(gc, p, affine, rgbFace)
-                else:
-                    renderer.draw_path(gc, p, affine, None)
+            from matplotlib.patheffects import PathEffectRenderer
+            renderer = PathEffectRenderer(self.get_path_effects(), renderer)
+
+        for p, f in zip(path, fillable):
+            if f:
+                renderer.draw_path(gc, p, affine, rgbFace)
+            else:
+                renderer.draw_path(gc, p, affine, None)
 
         gc.restore()
         renderer.close_group('patch')

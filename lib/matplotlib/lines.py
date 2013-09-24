@@ -508,7 +508,7 @@ class Line2D(Artist):
 
     @allow_rasterization
     def draw(self, renderer):
-        """draw the Line with `renderer` unless visiblity is False"""
+        """draw the Line with `renderer` unless visibility is False"""
         if not self.get_visible():
             return
 
@@ -525,6 +525,10 @@ class Line2D(Artist):
             self._transform_path(subslice)
 
         transf_path = self._get_transformed_path()
+
+        if self.get_path_effects():
+            from matplotlib.patheffects import PathEffectRenderer
+            renderer = PathEffectRenderer(self.get_path_effects(), renderer)
 
         renderer.open_group('line2d', self.get_gid())
         gc = renderer.new_gc()
@@ -556,14 +560,7 @@ class Line2D(Artist):
                 self._lineFunc = getattr(self, funcname)
                 funcname = self.drawStyles.get(self._drawstyle, '_draw_lines')
                 drawFunc = getattr(self, funcname)
-
-                if self.get_path_effects() and self._linewidth:
-                    affine_frozen = affine.frozen()
-                    for pe in self.get_path_effects():
-                        pe_renderer = pe.get_proxy_renderer(renderer)
-                        drawFunc(pe_renderer, gc, tpath, affine_frozen)
-                else:
-                    drawFunc(renderer, gc, tpath, affine.frozen())
+                drawFunc(renderer, gc, tpath, affine.frozen())
 
         if self._marker:
             gc = renderer.new_gc()
@@ -614,16 +611,9 @@ class Line2D(Artist):
                 if rgbaFace is not None:
                     gc.set_alpha(rgbaFace[3])
 
-                if self.get_path_effects():
-                    affine_frozen = affine.frozen()
-                    for pe in self.get_path_effects():
-                        pe.draw_markers(renderer, gc, marker_path,
-                                        marker_trans, subsampled,
-                                        affine_frozen, rgbaFace)
-                else:
-                    renderer.draw_markers(gc, marker_path, marker_trans,
-                                          subsampled, affine.frozen(),
-                                          rgbaFace)
+                renderer.draw_markers(gc, marker_path, marker_trans,
+                                      subsampled, affine.frozen(),
+                                      rgbaFace)
 
                 alt_marker_path = marker.get_alt_path()
                 if alt_marker_path:
@@ -632,14 +622,7 @@ class Line2D(Artist):
                     alt_marker_trans = marker.get_alt_transform()
                     alt_marker_trans = alt_marker_trans.scale(w)
 
-                    if self.get_path_effects():
-                        affine_frozen = affine.frozen()
-                        for pe in self.get_path_effects():
-                            pe.draw_markers(renderer, gc, alt_marker_path,
-                                            alt_marker_trans, subsampled,
-                                            affine_frozen, rgbaFaceAlt)
-                    else:
-                        renderer.draw_markers(
+                    renderer.draw_markers(
                             gc, alt_marker_path, alt_marker_trans, subsampled,
                             affine.frozen(), rgbaFaceAlt)
 
