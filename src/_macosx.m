@@ -2572,7 +2572,9 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
         PyErr_SetString(PyExc_ValueError, "Could not load font");
     }
 #ifndef COMPILING_FOR_10_5
-    CGContextSelectFont(cr, name, size, kCGEncodingMacRoman);
+    else {
+        CGContextSelectFont(cr, name, size, kCGEncodingMacRoman);
+    }
 #endif
 #if PY3K
     Py_XDECREF(ascii);
