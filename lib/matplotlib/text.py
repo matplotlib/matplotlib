@@ -586,13 +586,15 @@ class Text(Artist):
 
             if self.get_path_effects():
                 for path_effect in self.get_path_effects():
+                    proxy_renderer = path_effect.get_proxy_renderer(renderer)
                     if rcParams['text.usetex']:
-                        path_effect.draw_tex(renderer, gc, x, y, clean_line,
-                                             self._fontproperties, angle)
+                        path_effect.draw_tex(proxy_renderer, gc, x, y,
+                                             clean_line, self._fontproperties,
+                                             angle)
                     else:
-                        path_effect.draw_text(renderer, gc, x, y, clean_line,
-                                             self._fontproperties, angle,
-                                             ismath=ismath)
+                        path_effect.draw_text(proxy_renderer, gc, x, y,
+                                              clean_line, self._fontproperties,
+                                              angle, ismath=ismath)
             else:
                 if rcParams['text.usetex']:
                     renderer.draw_tex(gc, x, y, clean_line,
