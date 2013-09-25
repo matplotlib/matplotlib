@@ -55,9 +55,9 @@ He also increased the performance for all of these functions and plot types.
 
 Support for detrending and windowing 2D arrays in mlab
 ``````````````````````````````````````````````````````
-Todd Jennings added support for 2D arrays in the 
+Todd Jennings added support for 2D arrays in the
 :func:`~matplotlib.mlab.detrend_mean`, :func:`~matplotlib.mlab.detrend_none`,
-and :func:`~matplotlib.mlab.detrend`, as well as adding 
+and :func:`~matplotlib.mlab.detrend`, as well as adding
 :func:`~matplotlib.mlab.apply_window` which support windowing 2D arrays.
 
 Support for strides in mlab
@@ -68,6 +68,11 @@ strides to create memory-efficient 2D arrays.  This includes
 array, and :func:`~matplotlib.mlab.stride_windows`, which uses a moving window
 to create a 2D array from a 1D array.
 
+Formatter for new-style formatting strings
+``````````````````````````````````````````
+Added `FormatStrFormatterNewStyle` which does the same job as
+`FormatStrFormatter`, but accepts new-style formatting strings
+instead of printf-style formatting strings
 
 Date handling
 -------------
