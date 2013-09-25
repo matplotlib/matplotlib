@@ -3,7 +3,8 @@
 # Created: 23 Sep 2005
 # Parts rewritten by Reinier Heeres <reinier@heeres.eu>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 

@@ -3,7 +3,8 @@ The image module supports basic image loading, rescaling and display
 operations.
 
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 
