@@ -10,7 +10,8 @@ multiple axes at the drawing time.
     object that can be used to set the axes_locator of the axes.
 
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 from six.moves import map

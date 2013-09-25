@@ -14,7 +14,8 @@ Text instance. The width and height of the TextArea instance is the
 width and height of the its child text.
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 from six.moves import xrange, zip
