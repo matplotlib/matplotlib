@@ -3670,7 +3670,6 @@ class ToolBase(object):
         #kwargs are the keyword paramters given by the user
         if kwargs:
             raise TypeError('init_tool() got an unexpected keyword arguments %s' % str(kwargs))
-        pass
 
     def set_figures(self, *figures):
         #this is the main work, many non gui tools use only this one

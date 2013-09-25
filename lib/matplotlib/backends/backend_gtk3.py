@@ -809,15 +809,14 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
     
 
 class MultiFigureNavigationToolbar2GTK3(Gtk.Toolbar, MultiFigureToolbarBase):
-    external_toolitems = ({'text': 'Subplots', 
-                           'tooltip_text': 'Configure subplots',
-                           'image': 'subplots',
-                           'callback': 'ConfigureSubplotsGTK3'},
-                          
-                          {'text': 'SaveAll', 
+    external_toolitems = ({'text': 'SaveAll', 
                            'tooltip_text': 'Save all figures',  
                            'callback': 'SaveFiguresDialogGTK3'},
-                            )
+                          {'text': 'Subplots', 
+                           'tooltip_text': 'Configure subplots',
+                           'image': 'subplots',
+                           'callback': 'ConfigureSubplotsGTK3'}
+                          )
     _toggle = []
     
     def __init__(self, window):
@@ -1222,6 +1221,8 @@ class ConfigureSubplotsGTK3(ToolBase):
 
 
 class SaveFiguresDialogGTK3(ToolBase):
+    image = 'saveall'
+    register = True
     
     def set_figures(self, *figs):
         ref_figure = figs[0]
