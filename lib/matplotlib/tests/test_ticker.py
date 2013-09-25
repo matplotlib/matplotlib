@@ -7,6 +7,7 @@ from nose.tools import assert_raises
 from numpy.testing import assert_almost_equal
 import numpy as np
 import matplotlib
+from itertools import izip
 import matplotlib.ticker as mticker
 
 
@@ -49,12 +50,20 @@ def test_LogLocator():
     test_value = np.array([0.5, 1., 2., 4., 8., 16., 32., 64., 128., 256.])
     assert_almost_equal(loc.tick_values(1, 100), test_value)
 
-
 def test_use_offset():
     for use_offset in [True, False]:
         with matplotlib.rc_context({'axes.formatter.useoffset': use_offset}):
             tmp_form = mticker.ScalarFormatter()
             nose.tools.assert_equal(use_offset, tmp_form.get_useOffset())
+
+def test_formatstrformatter():
+    # test % style formatter
+    tmp_form = mticker.FormatStrFormatter('%05d')
+    nose.tools.assert_equal('00002', tmp_form(2))
+
+    # test str.format() style formatter
+    tmp_form = mticker.StrMethodFormatter('{:05d}')
+    nose.tools.assert_equal('00002', tmp_form(2))
 
 
 if __name__ == '__main__':
