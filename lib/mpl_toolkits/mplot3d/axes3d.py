@@ -9,7 +9,8 @@
 Module containing Axes3D, an object which can plot 3D objects on a
 2D matplotlib figure.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 from six.moves import map, xrange, zip

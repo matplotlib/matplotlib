@@ -9,7 +9,8 @@ be too smart with respect to layout -- you will have to figure out how
 wide and tall you want your Axes to be to accommodate your widget.
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 from six.moves import zip

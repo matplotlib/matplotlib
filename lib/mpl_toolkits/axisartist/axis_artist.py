@@ -83,7 +83,8 @@ Following attributes can be customized (use set_xxx method)
  * AxisLabel : pad
 
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 
