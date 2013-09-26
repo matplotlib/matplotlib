@@ -380,7 +380,14 @@ class Grid(object):
         self._vert_pad_size.fixed_size = axes_pad
 
     def get_axes_pad(self):
-        "get axes_pad"
+        """
+        get axes_pad
+
+        Returns 
+        -------
+        tuple
+            Padding in inches, (horizontal pad, vertical pad)
+        """
         return self._axes_pad
 
     def set_aspect(self, aspect):
