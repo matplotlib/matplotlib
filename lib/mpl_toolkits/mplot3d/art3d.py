@@ -7,7 +7,8 @@
 Module containing 3D artist code and functions to convert 2D
 artists into 3D versions which can be added to an Axes3D.
 '''
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 from six.moves import zip
