@@ -4267,7 +4267,7 @@ class ConnectionPatch(FancyArrowPatch):
         posA = self._get_xy(x, y, self.coords1, self.axesA)
 
         x, y = self.xy2
-        posB = self._get_xy(x, y, self.coords1, self.axesB)
+        posB = self._get_xy(x, y, self.coords2, self.axesB)
 
         _path = self.get_connectionstyle()(posA, posB,
                                            patchA=self.patchA,
