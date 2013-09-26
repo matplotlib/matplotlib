@@ -403,7 +403,10 @@ class Grid(object):
         """
         get axes_pad
 
-        :returns: Returns always a tuple (horizontal pad, vertical pad)
+        Returns 
+        -------
+        tuple
+            Padding in inches, (horizontal pad, vertical pad)
         """
         return self._axes_pad
 
