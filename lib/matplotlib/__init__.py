@@ -1207,6 +1207,7 @@ default_test_modules = [
     'matplotlib.tests.test_backend_pdf',
     'matplotlib.tests.test_backend_pgf',
     'matplotlib.tests.test_backend_qt4',
+    'matplotlib.tests.test_backend_qt5',
     'matplotlib.tests.test_backend_svg',
     'matplotlib.tests.test_basic',
     'matplotlib.tests.test_bbox_tight',
