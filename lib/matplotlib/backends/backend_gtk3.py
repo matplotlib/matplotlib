@@ -862,6 +862,7 @@ class MultiFigureNavigationToolbar2GTK3(Gtk.Toolbar, MultiFigureToolbarBase):
             tbutton.set_icon_widget(timage)
         tbutton.set_tooltip_text(tooltip_text)
         self.insert(tbutton, pos)
+        tbutton.show()
         return tbutton
     
     def remove_tool(self, pos):
