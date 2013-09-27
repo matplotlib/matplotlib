@@ -207,6 +207,8 @@ if __name__ == '__main__':
             mod.extra_compile_args.append('-DVERBOSE')
 
 
+    extra_args = {}
+
     # Finally, pass this all along to distutils to do the heavy lifting.
     distrib = setup(
         name="matplotlib",
@@ -240,4 +242,6 @@ if __name__ == '__main__':
         # Telling setuptools this prevents it from doing an automatic
         # check for zip safety.
         zip_safe=False,
+
+        **extra_args
     )
