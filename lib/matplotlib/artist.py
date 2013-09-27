@@ -1,6 +1,7 @@
 from __future__ import division, print_function
 import re
 import warnings
+import inspect
 import matplotlib
 import matplotlib.cbook as cbook
 from matplotlib import docstring, rcParams
@@ -947,6 +948,8 @@ class ArtistInspector:
                 continue
             o = getattr(self.o, name)
             if not callable(o):
+                continue
+            if len(inspect.getargspec(o)[0]) < 2:
                 continue
             func = o
             if self.is_alias(func):
