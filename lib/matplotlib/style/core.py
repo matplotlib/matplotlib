@@ -52,7 +52,7 @@ def use(name):
             mpl.rcParams.update(library[style])
         else:
             try:
-                settings = mpl.rc_params_in_file(style)
+                settings = mpl._rc_params_in_file(style)
                 mpl.rcParams.update(settings)
             except:
                 msg = ("'%s' not found in the style library and input is "
