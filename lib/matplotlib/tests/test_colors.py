@@ -7,6 +7,9 @@ import numpy as np
 from numpy.testing.utils import assert_array_equal
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
+import matplotlib.pyplot as plt
+from matplotlib.testing.decorators import cleanup
+
 
 def test_colormap_endian():
     """
@@ -23,6 +26,7 @@ def test_colormap_endian():
         #print(anative.dtype.isnative, aforeign.dtype.isnative)
         assert_array_equal(cmap(anative), cmap(aforeign))
 
+
 def test_BoundaryNorm():
     """
     Github issue #1258: interpolation was failing with numpy
@@ -36,6 +40,7 @@ def test_BoundaryNorm():
     ncolors = len(boundaries)
     bn = mcolors.BoundaryNorm(boundaries, ncolors)
     assert_array_equal(bn(vals), expected)
+
     
 def test_LogNorm():
     """
@@ -46,3 +51,10 @@ def test_LogNorm():
     ln = mcolors.LogNorm(clip=True, vmax=5)
     assert_array_equal(ln([1, 6]), [0, 1.0])
 
+
+@cleanup
+def test_autoscale_masked():
+    # Test for #2336. Previously fully masked data would trigger a ValueError.
+    data = np.ma.masked_all((12, 20))
+    plt.pcolor(data)
+    plt.draw()
