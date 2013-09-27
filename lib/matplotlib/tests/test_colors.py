@@ -7,7 +7,7 @@ from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, cleanup
 
 
 def test_colormap_endian():
@@ -173,6 +173,14 @@ def test_cmap_and_norm_from_levels_and_colors2():
                                'value={1!r}'.format(extend, d_val))
 
     assert_raises(ValueError, mcolors.from_levels_and_colors, levels, colors)
+
+
+@cleanup
+def test_autoscale_masked():
+    # Test for #2336. Previously fully masked data would trigger a ValueError.
+    data = np.ma.masked_all((12, 20))
+    plt.pcolor(data)
+    plt.draw()
 
 
 if __name__ == '__main__':
