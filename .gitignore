@@ -54,3 +54,9 @@ doc/_templates/gallery.html
 doc/users/installing.rst
 doc/_static/matplotlibrc
 lib/dateutil
+examples/*/*.pdf
+examples/*/*.png
+examples/tests/*
+!examples/tests/backend_driver.py
+texput.log
+result_images

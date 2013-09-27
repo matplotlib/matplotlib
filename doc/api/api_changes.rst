@@ -83,6 +83,20 @@ original location:
 Changes in 1.3.x
 ================
 
+Changes in 1.3.1
+----------------
+
+It is rare that we make an API change in a bugfix release, however,
+for 1.3.1 since 1.3.0 the following change was made:
+
+- `text.Text.cached` (used to cache font objects) has been made into a
+  private variable.  Among the obvious encapsulation benefit, this
+  removes this confusing-looking member from the documentation.
+
+- The method :meth:`~matplotlib.axes.Axes.hist` now always returns bin
+  occupancies as an array of type `float`. Previously, it was sometimes
+  an array of type `int`, depending on the call.
+
 Code removal
 ------------
 
@@ -262,10 +276,6 @@ Code changes
 
 * The :func:`matplotlib.cbook.check_output` function has been moved to
   :func:`matplotlib.compat.subprocess`.
-
-* The method :meth:`~matplotlib.axes.Axes.hist` now always returns bin
-  occupancies as an array of type `float`. Previously, it was sometimes
-  an array of type `int`, depending on the call.
 
 Configuration and rcParams
 --------------------------

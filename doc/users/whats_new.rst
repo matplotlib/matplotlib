@@ -58,6 +58,74 @@ to a non-transparent background.
 new in matplotlib-1.3
 =====================
 
+New in 1.3.1
+------------
+
+1.3.1 is a bugfix release, primarily dealing with improved setup and
+handling of dependencies, and correcting and enhancing the
+documentation.
+
+The following changes were made in 1.3.1 since 1.3.0.
+
+Enhancements
+````````````
+
+- Added a context manager for creating multi-page pdfs (see
+  `matplotlib.backends.backend_pdf.PdfPages`).
+
+- The WebAgg backend should no have lower latency over heterogeneous
+  Internet connections.
+
+Bug fixes
+`````````
+
+- Histogram plots now contain the endline.
+
+- Fixes to the Molleweide projection.
+
+- Handling recent fonts from Microsoft and Macintosh-style fonts with
+  non-ascii metadata is improved.
+
+- Hatching of fill between plots now works correctly in the PDF
+  backend.
+
+- Tight bounding box support now works in the PGF backend.
+
+- Transparent figures now display correctly in the Qt4Agg backend.
+
+- Drawing lines from one subplot to another now works.
+
+- Unit handling on masked arrays has been improved.
+
+Setup and dependencies
+``````````````````````
+
+- Now works with any version of pyparsing 1.5.6 or later, without displaying
+  hundreds of warnings.
+
+- Now works with 64-bit versions of Ghostscript on MS-Windows.
+
+- When installing from source into an environment without Numpy, Numpy
+  will first be downloaded and built and then used to build
+  matplotlib.
+
+- Externally installed backends are now always imported using a
+  fully-qualified path to the module.
+
+- Works with newer version of wxPython.
+
+- Can now build with a PyCXX installed globally on the system from source.
+
+- Better detection of Gtk3 dependencies.
+
+Testing
+```````
+
+- Tests should now work in non-English locales.
+
+- PEP8 conformance tests now report on locations of issues.
+
+
 New plotting features
 ---------------------
 
