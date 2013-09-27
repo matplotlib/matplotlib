@@ -1324,6 +1324,8 @@ if USE_FONTCONFIG and sys.platform != 'win32':
         return result
 
 else:
+    _fmcache = None
+
     if not 'TRAVIS' in os.environ:
         cachedir = get_cachedir()
         if cachedir is not None:
@@ -1331,8 +1333,6 @@ else:
                 _fmcache = os.path.join(cachedir, 'fontList.py3k.cache')
             else:
                 _fmcache = os.path.join(cachedir, 'fontList.cache')
-    else:
-        _fmcache = None
 
     fontManager = None
 
