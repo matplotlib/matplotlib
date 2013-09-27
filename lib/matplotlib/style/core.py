@@ -29,6 +29,7 @@ USER_LIBRARY_PATHS = [os.path.join('~', '.matplotlib', 'stylelib')]
 STYLE_EXTENSION = 'mplstyle'
 STYLE_FILE_PATTERN = re.compile('([\S]+).%s$' % STYLE_EXTENSION)
 
+
 def is_style_file(filename):
     """Return True if the filename looks like a style file."""
     return STYLE_FILE_PATTERN.match(filename) is not None
@@ -59,7 +60,6 @@ def use(name):
                        "not a valid URL. See `style.available` for list of "
                        "available styles.")
                 raise ValueError(msg % style)
-
 
 
 @contextlib.contextmanager
@@ -146,6 +146,7 @@ _base_library = load_base_library()
 
 library = None
 available = []
+
 
 def reload_library():
     """Reload style library."""
