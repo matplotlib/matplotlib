@@ -901,10 +901,10 @@ class Normalize(object):
 
         self.autoscale_None(result)
         vmin, vmax = self.vmin, self.vmax
-        if vmin > vmax:
-            raise ValueError("minvalue must be less than or equal to maxvalue")
-        elif vmin == vmax:
+        if vmin == vmax:
             result.fill(0)   # Or should it be all masked?  Or 0.5?
+        elif vmin > vmax:
+            raise ValueError("minvalue must be less than or equal to maxvalue")
         else:
             vmin = float(vmin)
             vmax = float(vmax)
@@ -942,9 +942,9 @@ class Normalize(object):
 
     def autoscale_None(self, A):
         ' autoscale only None-valued vmin or vmax'
-        if self.vmin is None:
+        if self.vmin is None and np.size(A) > 0:
             self.vmin = ma.min(A)
-        if self.vmax is None:
+        if self.vmax is None and np.size(A) > 0:
             self.vmax = ma.max(A)
 
     def scaled(self):
