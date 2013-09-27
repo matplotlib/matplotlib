@@ -18,7 +18,7 @@ from .axes_divider import Size, SubplotDivider, LocatableAxes, Divider
 
 #import numpy as np
 
-def extend_axes_pad(value):
+def _extend_axes_pad(value):
     # Check whether a list/tuple/array or scalar has been passed
     ret = value
     if not hasattr(ret, "__getitem__"):
@@ -321,7 +321,7 @@ class Grid(object):
 
 
     def _init_axes_pad(self, axes_pad):
-        axes_pad = extend_axes_pad(axes_pad)
+        axes_pad = _extend_axes_pad(axes_pad)
         self._axes_pad = axes_pad
 
         self._horiz_pad_size = Size.Fixed(axes_pad[0])
@@ -394,12 +394,7 @@ class Grid(object):
 
     def set_axes_pad(self, axes_pad):
         "set axes_pad"
-        axes_pad = extend_axes_pad(axes_pad)
-        self._axes_pad = axes_pad
-
-        self._horiz_pad_size.fixed_size = axes_pad[0]
-        self._vert_pad_size.fixed_size = axes_pad[1]
-
+        self._init_axes_pad(axes_pad)
 
     def get_axes_pad(self):
         """
@@ -543,7 +538,7 @@ class ImageGrid(Grid):
 
         self.ngrids = ngrids
 
-        axes_pad = extend_axes_pad(axes_pad)
+        axes_pad = _extend_axes_pad(axes_pad)
         self._axes_pad = axes_pad
 
         self._colorbar_mode = cbar_mode
@@ -714,7 +709,8 @@ class ImageGrid(Grid):
         v_ax_pos = []
         v_cb_pos = []
         for row, ax in enumerate(self._row_refax[::-1]):
-            if v: v.append(self._vert_pad_size) #Size.Fixed(self._axes_pad))
+            if v:
+                v.append(self._vert_pad_size) #Size.Fixed(self._axes_pad))
 
             if ax:
                 sz = Size.AxesY(ax)
