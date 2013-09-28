@@ -44,7 +44,7 @@ def test_zorder():
 
 @image_comparison(baseline_images=['table_row_label1', 'table_row_label2',
                                    'table_col_label1', 'table_col_label2',
-                                   'table_plain.png'],
+                                   'table_plain'],
                   extensions=['png'])
 def test_label_colours():
     dim = 3
