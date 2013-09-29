@@ -60,16 +60,10 @@ plt.legend()
 
 
 plt.figure()
-
 n, bins, patches = plt.hist(x, 10, normed=1, histtype='bar', stacked=True)
 
-plt.show()
-
 plt.figure()
-
 n, bins, patches = plt.hist(x, 10, histtype='step', stacked=True, fill=True)
-
-plt.show()
 
 # Make a multiple-histogram of data-sets with different length.
 x0 = mu + sigma*np.random.randn(10000)
