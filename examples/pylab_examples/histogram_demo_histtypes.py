@@ -17,7 +17,7 @@ y = normpdf( bins, mu, sigma)
 ax0.plot(bins, y, 'k--', linewidth=1.5)
 
 # Create a histogram by providing the bin edges (unequally spaced).
-bins = [100,125,150,160,170,180,190,200,210,220,230,240,250,275,300]
+bins = [100,150,180,195,205,220,250,300]
 n, bins, patches = ax1.hist(x, bins, normed=1, histtype='bar', rwidth=0.8)
 
 n, bins, patches = ax2.hist(x, 50, normed=1, histtype='step', cumulative=True)
