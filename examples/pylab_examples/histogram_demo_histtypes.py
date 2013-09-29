@@ -1,3 +1,10 @@
+"""
+Demo of the histogram (hist) function with different ``histtype`` settings.
+
+* Histogram with step curve that has a color fill.
+* Histogram with with unequal bin widths.
+
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import mlab
