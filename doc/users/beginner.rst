@@ -13,6 +13,7 @@ Beginner's Guide
     :maxdepth: 2
 
     pyplot_tutorial.rst
+    style_sheets.rst
     navigation_toolbar.rst
     index_text.rst
     image_tutorial.rst
