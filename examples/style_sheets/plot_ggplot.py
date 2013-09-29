@@ -12,9 +12,8 @@ These settings were shamelessly stolen from [1]_ (with permission).
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import style
 
-style.use('ggplot')
+plt.style.use('ggplot')
 
 fig, axes = plt.subplots(ncols=2, nrows=2)
 ax1, ax2, ax3, ax4 = axes.ravel()
