@@ -21,7 +21,7 @@ ax0, ax1, ax2, ax3 = axes.flat
 colors = ['crimson', 'burlywood', 'chartreuse']
 ax0.hist(x, n_bins, normed=1, histtype='bar', color=colors, label=colors)
 ax0.legend(prop={'size': 10})
-ax0.set_title('bar')
+ax0.set_title('bars with legend')
 
 ax1.hist(x, n_bins, normed=1, histtype='bar', stacked=True)
 ax1.set_title('stacked bar')
