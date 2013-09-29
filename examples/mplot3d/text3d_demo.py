@@ -5,9 +5,9 @@ fig = plt.figure()
 ax = fig.gca(projection='3d')
 
 zdirs = (None, 'x', 'y', 'z', (1, 1, 0), (1, 1, 1))
-xs = (2, 6, 4, 9, 7, 2)
+xs = (2, 4, 4, 9, 6, 2)
 ys = (6, 4, 8, 7, 2, 2)
-zs = (4, 2, 5, 6, 1, 7)
+zs = (8, 2, 5, 6, 1, 7)
 
 for zdir, x, y, z in zip(zdirs, xs, ys, zs):
     label = '(%d, %d, %d), dir=%s' % (x, y, z, zdir)
