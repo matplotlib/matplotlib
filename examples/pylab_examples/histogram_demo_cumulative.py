@@ -11,17 +11,6 @@ y = mlab.normpdf( bins, mu, sigma).cumsum()
 y /= y[-1]
 plt.plot(bins, y, 'k--', linewidth=1.5)
 
-# Create a second data-set with a smaller standard deviation.
-sigma2 = 15.
-x = mu + sigma2*np.random.randn(10000)
-
-n, bins, patches = plt.hist(x, bins=bins, normed=1, histtype='step', cumulative=True)
-
-# Add a line showing the expected distribution.
-y = mlab.normpdf( bins, mu, sigma2).cumsum()
-y /= y[-1]
-plt.plot(bins, y, 'r--', linewidth=1.5)
-
 # Overlay a reverted cumulative histogram.
 n, bins, patches = plt.hist(x, bins=bins, normed=1,
     histtype='step', cumulative=-1)
