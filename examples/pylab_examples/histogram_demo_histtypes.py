@@ -16,9 +16,12 @@ n, bins, patches = ax0.hist(x, 50, normed=1, histtype='stepfilled',
 y = normpdf( bins, mu, sigma)
 ax0.plot(bins, y, 'k--', linewidth=1.5)
 
+ax0.set_title('stepfilled')
+
 # Create a histogram by providing the bin edges (unequally spaced).
 bins = [100,150,180,195,205,220,250,300]
 n, bins, patches = ax1.hist(x, bins, normed=1, histtype='bar', rwidth=0.8)
+ax1.set_title('unequal bins')
 
 n, bins, patches = ax2.hist(x, 50, normed=1, histtype='step', cumulative=True)
 
@@ -42,9 +45,9 @@ ax2.plot(bins, y, 'r--', linewidth=1.5)
 n, bins, patches = ax2.hist(x, bins=bins, normed=1,
     histtype='step', cumulative=-1)
 
-
 ax2.grid(True)
 ax2.set_ylim(0, 1.05)
+ax2.set_title('cumulative step')
 
 plt.tight_layout()
 plt.show()
