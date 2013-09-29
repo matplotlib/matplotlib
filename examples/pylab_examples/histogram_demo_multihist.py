@@ -2,22 +2,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-mu, sigma = 200, 25
-plt.figure()
+fig, axes = plt.subplots(nrows=2, ncols=2)
+ax0, ax1, ax2, ax3 = axes.flat
 
+mu, sigma = 200, 25
 x = mu + sigma*np.random.randn(1000,3)
 
-n, bins, patches = plt.hist(x, 10, normed=1, histtype='bar',
+n, bins, patches = ax0.hist(x, 10, normed=1, histtype='bar',
                             color=['crimson', 'burlywood', 'chartreuse'],
                             label=['Crimson', 'Burlywood', 'Chartreuse'])
-plt.legend()
+ax0.legend(prop={'size': 10})
 
 
-plt.figure()
-n, bins, patches = plt.hist(x, 10, normed=1, histtype='bar', stacked=True)
+n, bins, patches = ax1.hist(x, 10, normed=1, histtype='bar', stacked=True)
 
-plt.figure()
-n, bins, patches = plt.hist(x, 10, histtype='step', stacked=True, fill=True)
+n, bins, patches = ax2.hist(x, 10, histtype='step', stacked=True, fill=True)
 
 # Make a multiple-histogram of data-sets with different length.
 x0 = mu + sigma*np.random.randn(10000)
@@ -31,9 +30,7 @@ w1[:len(x1)/2] = 0.5
 w2 = np.ones_like(x2)
 w2[:len(x2)/2] = 0.5
 
+n, bins, patches = ax3.hist( [x0,x1,x2], 10, weights=[w0, w1, w2], histtype='bar')
 
-plt.figure()
-
-n, bins, patches = plt.hist( [x0,x1,x2], 10, weights=[w0, w1, w2], histtype='bar')
-
+plt.tight_layout()
 plt.show()
