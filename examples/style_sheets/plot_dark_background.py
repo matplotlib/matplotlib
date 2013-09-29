@@ -7,9 +7,8 @@ all plot elements default to colors defined by an rc parameter.
 import numpy as np
 import matplotlib.pyplot as plt
 
-from matplotlib import style
-style.use('dark_background')
 
+plt.style.use('dark_background')
 
 L = 6
 x = np.linspace(0, L)

@@ -7,8 +7,6 @@ plot elements default to colors defined by an rc parameter.
 import numpy as np
 import matplotlib.pyplot as plt
 
-from matplotlib import style
-
 
 def color_cycle_example(ax):
     L = 6
@@ -24,7 +22,7 @@ def image_and_patch_example(ax):
     ax.add_patch(c)
 
 
-style.use('grayscale')
+plt.style.use('grayscale')
 
 fig, (ax1, ax2) = plt.subplots(ncols=2)
 

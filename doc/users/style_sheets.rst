@@ -13,12 +13,12 @@ example, there's a pre-defined style called "ggplot", which emulates the
 aesthetics of ggplot_ (a popular plotting package for R_). To use this style,
 just add::
 
-   >>> from matplotlib import style
-   >>> style.use('ggplot')
+   >>> import matplotlib.pyplot as plt
+   >>> plt.style.use('ggplot')
 
 To list all available styles, use::
 
-   >>> print style.available
+   >>> print plt.style.available
 
 
 Defining your own style
@@ -45,8 +45,8 @@ For example, you might want to create
 Then, when you want to adapt a plot designed for a paper to one that looks
 good in a presentation, you can just add::
 
-   >>> from matplotlib import style
-   >>> style.use('presentation')
+   >>> import matplotlib.pyplot as plt
+   >>> plt.style.use('presentation')
 
 
 Composing styles
@@ -57,8 +57,8 @@ sheet that customizes colors and a separate style sheet that alters element
 sizes for presentations. These styles can easily be combined by passing
 a list of styles::
 
-   >>> from matplotlib import style
-   >>> style.use(['dark_background', 'presentation'])
+   >>> import matplotlib.pyplot as plt
+   >>> plt.style.use(['dark_background', 'presentation'])
 
 Note that styles further to the right will overwrite values that are already
 defined by styles on the right.
@@ -75,9 +75,8 @@ changes, you can write something like the following::
 
    >>> import numpy as np
    >>> import matplotlib.pyplot as plt
-   >>> from matplotlib import style
    >>>
-   >>> with style.context(('dark_background')):
+   >>> with plt.style.context(('dark_background')):
    >>>     plt.plot(np.sin(np.linspace(0, 2*np.pi)), 'r-o')
    >>>
    >>> # Some plotting code with the default style
