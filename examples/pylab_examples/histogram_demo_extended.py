@@ -11,7 +11,7 @@ plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
 
 # Add a line showing the expected distribution.
 y = normpdf( bins, mu, sigma)
-l = plt.plot(bins, y, 'k--', linewidth=1.5)
+plt.plot(bins, y, 'k--', linewidth=1.5)
 
 
 plt.figure()
@@ -27,7 +27,7 @@ n, bins, patches = plt.hist(x, 50, normed=1, histtype='step', cumulative=True)
 # Add a line showing the expected distribution.
 y = normpdf( bins, mu, sigma).cumsum()
 y /= y[-1]
-l = plt.plot(bins, y, 'k--', linewidth=1.5)
+plt.plot(bins, y, 'k--', linewidth=1.5)
 
 # Create a second data-set with a smaller standard deviation.
 sigma2 = 15.
@@ -38,7 +38,7 @@ n, bins, patches = plt.hist(x, bins=bins, normed=1, histtype='step', cumulative=
 # Add a line showing the expected distribution.
 y = normpdf( bins, mu, sigma2).cumsum()
 y /= y[-1]
-l = plt.plot(bins, y, 'r--', linewidth=1.5)
+plt.plot(bins, y, 'r--', linewidth=1.5)
 
 # Overlay a reverted cumulative histogram.
 n, bins, patches = plt.hist(x, bins=bins, normed=1,
