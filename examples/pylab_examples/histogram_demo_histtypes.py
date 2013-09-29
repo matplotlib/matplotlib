@@ -7,8 +7,8 @@ from matplotlib.mlab import normpdf
 mu, sigma = 200, 25
 x = mu + sigma*np.random.randn(10000)
 
-n, bins, patches = plt.hist(x, 50, normed=1, histtype='stepfilled')
-plt.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
+n, bins, patches = plt.hist(x, 50, normed=1, histtype='stepfilled',
+                            facecolor='g', alpha=0.75)
 
 # Add a line showing the expected distribution.
 y = normpdf( bins, mu, sigma)
