@@ -8,9 +8,9 @@ ax0, ax1, ax2, ax3 = axes.flat
 mu, sigma = 200, 25
 x = mu + sigma*np.random.randn(1000,3)
 
+colors = ['crimson', 'burlywood', 'chartreuse']
 n, bins, patches = ax0.hist(x, 10, normed=1, histtype='bar',
-                            color=['crimson', 'burlywood', 'chartreuse'],
-                            label=['Crimson', 'Burlywood', 'Chartreuse'])
+                            color=colors, label=colors)
 ax0.legend(prop={'size': 10})
 ax0.set_title('bar')
 
@@ -22,18 +22,9 @@ n, bins, patches = ax2.hist(x, 10, histtype='step', stacked=True, fill=True)
 ax2.set_title('stepfilled')
 
 # Make a multiple-histogram of data-sets with different length.
-x0 = mu + sigma*np.random.randn(10000)
-x1 = mu + sigma*np.random.randn(7000)
-x2 = mu + sigma*np.random.randn(3000)
+x_multi = [mu + sigma*np.random.randn(n) for n in [10000, 5000, 2000]]
 
-w0 = np.ones_like(x0)
-w0[:len(x0)/2] = 0.5
-w1 = np.ones_like(x1)
-w1[:len(x1)/2] = 0.5
-w2 = np.ones_like(x2)
-w2[:len(x2)/2] = 0.5
-
-n, bins, patches = ax3.hist( [x0,x1,x2], 10, weights=[w0, w1, w2], histtype='bar')
+n, bins, patches = ax3.hist(x_multi, 10, histtype='bar')
 ax3.set_title('different sample sizes')
 
 plt.tight_layout()
