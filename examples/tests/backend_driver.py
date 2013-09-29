@@ -74,7 +74,10 @@ files['images'] = [
 files['statistics'] = [
     'errorbar_demo.py',
     'errorbar_demo_features.py',
+    'histogram_demo_cumulative.py',
     'histogram_demo_features.py',
+    'histogram_demo_histtypes.py',
+    'histogram_demo_multihist.py',
     ]
 
 files['pie'] = [
@@ -172,7 +175,6 @@ files['pylab'] = [
     'hexbin_demo.py',
     'hexbin_demo2.py',
     'hist_colormapped.py',
-    'histogram_demo_extended.py',
     'vline_hline_demo.py',
 
     'image_clip_path.py',
