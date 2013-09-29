@@ -53,12 +53,14 @@ def use(name):
             mpl.rcParams.update(library[style])
         else:
             try:
-                settings = mpl._rc_params_in_file(style)
-                mpl.rcParams.update(settings)
+                rc = rc_params_from_file(style, use_default_template=False)
+                print rc
+                print type(rc)
+                mpl.rcParams.update(rc)
             except:
                 msg = ("'%s' not found in the style library and input is "
-                       "not a valid URL. See `style.available` for list of "
-                       "available styles.")
+                       "not a valid URL or path. See `style.available` for "
+                       "list of available styles.")
                 raise ValueError(msg % style)
 
 
