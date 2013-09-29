@@ -25,7 +25,7 @@ import warnings
 
 import matplotlib
 import matplotlib.colorbar
-import matplotlib.style
+from matplotlib import style
 from matplotlib import _pylab_helpers, interactive
 from matplotlib.cbook import dedent, silent_list, is_string_like, is_numlike
 from matplotlib.cbook import _string_to_bool
