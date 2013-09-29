@@ -1,3 +1,7 @@
+"""
+Demo of the histogram (hist) function used to plot a cumulative distribution.
+
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import mlab
@@ -16,7 +20,7 @@ y = mlab.normpdf(bins, mu, sigma).cumsum()
 y /= y[-1]
 plt.plot(bins, y, 'k--', linewidth=1.5)
 
-# Overlay a reverted cumulative histogram.
+# Overlay a reversed cumulative histogram.
 plt.hist(x, bins=bins, normed=1, histtype='step', cumulative=-1)
 
 plt.grid(True)

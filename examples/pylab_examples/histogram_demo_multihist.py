@@ -1,3 +1,13 @@
+"""
+Demo of the histogram (hist) function with multiple data sets.
+
+Plot histogram with multiple sample sets and demonstrate:
+
+    * Use of legend with multiple sample sets
+    * Stacked bars
+    * Step curve with a color fill
+    * Data sets of different sample sizes
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 
