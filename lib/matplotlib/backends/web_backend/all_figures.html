@@ -6,30 +6,21 @@
     <link rel="stylesheet" href="{{ prefix }}/_static/jquery/css/themes/base/jquery-ui.min.css" >
     <script src="{{ prefix }}/_static/jquery/js/jquery-1.7.1.min.js"></script>
     <script src="{{ prefix }}/_static/jquery/js/jquery-ui.min.js"></script>
-    <script src="{{ prefix }}/_static/mpl.js"></script>
-    <script src="{{ prefix }}/mpl_interface.js"></script>
+    <script src="{{ prefix }}/_static/mpl_tornado.js"></script>
+    <script src="{{ prefix }}/mpl.js"></script>
 
     <script>
-
       {% for (fig_id, fig_manager) in figures %}
-        {% set fig_label='Figure: {}'.format(fig_manager.canvas.figure.get_label()) %}
-
-        {% if fig_label == 'Figure: ' %}
-          {% set fig_label="Figure {}".format(fig_id) %}
-        {% end %}
-
         $(document).ready(
         function() {
-          var main_div = $('div.figures');
-          var header_div = $('<h2><a href="{{ prefix }}/{{ str(fig_id) }}">{{ fig_label }}</a></h2>');
-          main_div.append(header_div);
-          var figure_div = $('<div/>')
+          var main_div = $('div#figures');
+          var figure_div = $('<div style="padding-bottom: 12px"/>')
           main_div.append(figure_div);
-          var websocket_url_prefix = "{{ ws_uri }}";
-          var fig = new figure(
-            {{ repr(str(fig_id)) }},
-            websocket_url_prefix,
-            figure_div);
+          var websocket_type = mpl.get_websocket_type();
+          var websocket = new websocket_type(
+              "{{ ws_uri }}" + "{{ fig_id }}" + "/ws");
+          var fig = new mpl.figure(
+              {{ repr(str(fig_id)) }}, websocket, mpl_ondownload, figure_div);
 
           fig.focus_on_mouseover = true;
 
@@ -43,9 +34,8 @@
     <title>MPL | WebAgg current figures</title>
 
   </head>
-  <body onkeydown="fig.key_event(event, 'key_press');"
-        onkeyup="fig.key_event(event, 'key_release');">
+  <body>
     <div id="mpl-warnings" class="mpl-warnings"></div>
-    <div class="figures" style="margin: 10px 10px;"></div>
+    <div id="figures" style="margin: 10px 10px;"></div>
   </body>
 </html>

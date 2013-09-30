@@ -6,33 +6,26 @@
     <link rel="stylesheet" href="{{ prefix }}/_static/jquery/css/themes/base/jquery-ui.min.css" >
     <script src="{{ prefix }}/_static/jquery/js/jquery-1.7.1.min.js"></script>
     <script src="{{ prefix }}/_static/jquery/js/jquery-ui.min.js"></script>
-    <script src="{{ prefix }}/_static/mpl.js"></script>
-    <script src="{{ prefix }}/mpl_interface.js"></script>
+    <script src="{{ prefix }}/_static/mpl_tornado.js"></script>
+    <script src="{{ prefix }}/mpl.js"></script>
 
     <script>
       $(document).ready(
         function() {
-	  var websocket_url_prefix = "{{ ws_uri }}";
-	  var fig = new figure({{ repr(str(fig_id)) }}, websocket_url_prefix, $('div.figure'));
+          var websocket_type = mpl.get_websocket_type();
+          var websocket = new websocket_type(
+              "{{ ws_uri }}" + {{ repr(str(fig_id)) }} + "/ws");
+	  var fig = new mpl.figure(
+              {{repr(str(fig_id))}}, websocket, mpl_ondownload, $('div#figure'));
         }
       );
     </script>
 
-    {% set fig_label='Figure: {}'.format(canvas.figure.get_label()) %}
-
-    {% if fig_label == 'Figure: ' %}
-      {% set fig_label="Figure {}".format(fig_id) %}
-    {% end %}
-
-    <title>MPL | {{ fig_label }}</title>
+    <title>matplotlib</title>
   </head>
 
-  <body onkeydown="fig.key_event(event, 'key_press');"
-        onkeyup="fig.key_event(event, 'key_release');">
-    <div class="figure" style="margin: 10px 10px;">
-       <h1
-         {{ fig_label }}
-       </h1>
-    </div>
+  <body>
+    <div id="mpl-warnings" class="mpl-warnings"></div>
+    <div id="figure" style="margin: 10px 10px;"></div>
   </body>
 </html>
