@@ -405,6 +405,21 @@ _path_module::point_on_path(const Py::Tuple& args)
 }
 
 void
+update_limits(double x, double y,
+              double* x0, double* y0, double* x1, double* y1,
+              double* xm, double* ym)
+{
+    if (x < *x0) *x0 = x;
+    if (y < *y0) *y0 = y;
+    if (x > *x1) *x1 = x;
+    if (y > *y1) *y1 = y;
+    /* xm and ym are the minimum positive values in the data, used
+       by log scaling */
+    if (x > 0.0 && x < *xm) *xm = x;
+    if (y > 0.0 && y < *ym) *ym = y;
+}
+
+void
 get_path_extents(PathIterator& path, const agg::trans_affine& trans,
                  double* x0, double* y0, double* x1, double* y1,
                  double* xm, double* ym)
@@ -417,24 +432,16 @@ get_path_extents(PathIterator& path, const agg::trans_affine& trans,
 
     transformed_path_t tpath(path, trans);
     nan_removed_t nan_removed(tpath, true, path.has_curves());
-    curve_t curved_path(nan_removed);
 
-    curved_path.rewind(0);
+    nan_removed.rewind(0);
 
-    while ((code = curved_path.vertex(&x, &y)) != agg::path_cmd_stop)
+    while ((code = nan_removed.vertex(&x, &y)) != agg::path_cmd_stop)
     {
         if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
         {
             continue;
         }
-        if (x < *x0) *x0 = x;
-        if (y < *y0) *y0 = y;
-        if (x > *x1) *x1 = x;
-        if (y > *y1) *y1 = y;
-        /* xm and ym are the minimum positive values in the data, used
-           by log scaling */
-        if (x > 0.0 && x < *xm) *xm = x;
-        if (y > 0.0 && y < *ym) *ym = y;
+        update_limits(x, y, x0, y0, x1, y1, xm, ym);
     }
 }
 
@@ -639,7 +646,7 @@ _path_module::get_path_collection_extents(const Py::Tuple& args)
 
         size_t Npaths      = paths.length();
         size_t Noffsets    = offsets->dimensions[0];
-        size_t N               = std::max(Npaths, Noffsets);
+        size_t N           = std::max(Npaths, Noffsets);
         size_t Ntransforms = std::min(transforms_obj.length(), N);
         size_t i;
 
@@ -664,27 +671,58 @@ _path_module::get_path_collection_extents(const Py::Tuple& args)
         ym = std::numeric_limits<double>::infinity();
         agg::trans_affine trans;
 
-        for (i = 0; i < N; ++i)
+        if (transforms.size() <= 1 && paths.size() == 1)
         {
-            PathIterator path(paths[i % Npaths]);
+            PathIterator path(paths[0]);
             if (Ntransforms)
             {
-                trans = transforms[i % Ntransforms];
+                trans = transforms[0];
             }
             else
             {
                 trans = master_transform;
             }
 
-            if (Noffsets)
+            double bx0 = std::numeric_limits<double>::infinity();
+            double by0 = std::numeric_limits<double>::infinity();
+            double bx1 = -std::numeric_limits<double>::infinity();
+            double by1 = -std::numeric_limits<double>::infinity();
+            double bxm = std::numeric_limits<double>::infinity();
+            double bym = std::numeric_limits<double>::infinity();
+
+            ::get_path_extents(path, trans, &bx0, &by0, &bx1, &by1, &bxm, &bym);
+
+            for (i = 0; i < Noffsets; ++i)
             {
                 double xo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
                 double yo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
                 offset_trans.transform(&xo, &yo);
-                trans *= agg::trans_affine_translation(xo, yo);
+                update_limits(xo + bx0, yo + by0, &x0, &y0, &x1, &y1, &xm, &ym);
+                update_limits(xo + bx1, yo + by1, &x0, &y0, &x1, &y1, &xm, &ym);
             }
+        } else {
+            for (i = 0; i < N; ++i)
+            {
+                PathIterator path(paths[i % Npaths]);
+                if (Ntransforms)
+                {
+                    trans = transforms[i % Ntransforms];
+                }
+                else
+                {
+                    trans = master_transform;
+                }
 
-            ::get_path_extents(path, trans, &x0, &y0, &x1, &y1, &xm, &ym);
+                if (Noffsets)
+                {
+                    double xo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
+                    double yo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
+                    offset_trans.transform(&xo, &yo);
+                    trans *= agg::trans_affine_translation(xo, yo);
+                }
+
+                ::get_path_extents(path, trans, &x0, &y0, &x1, &y1, &xm, &ym);
+            }
         }
     }
     catch (...)

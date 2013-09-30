@@ -227,7 +227,7 @@ class RendererBase:
         path_ids = []
         for path, transform in self._iter_collection_raw_paths(
                 master_transform, paths, all_transforms):
-            path_ids.append((path, transform))
+            path_ids.append((path, transforms.Affine2D(transform)))
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
             gc, master_transform, all_transforms, path_ids, offsets,
@@ -316,7 +316,7 @@ class RendererBase:
         for i in xrange(N):
             path = paths[i % Npaths]
             if Ntransforms:
-                transform = all_transforms[i % Ntransforms]
+                transform = Affine2D(all_transforms[i % Ntransforms])
             yield path, transform + master_transform
 
     def _iter_collection(self, gc, master_transform, all_transforms,
@@ -380,8 +380,9 @@ class RendererBase:
                 xo, yo = toffsets[i % Noffsets]
                 if offset_position == 'data':
                     if Ntransforms:
-                        transform = (all_transforms[i % Ntransforms] +
-                                     master_transform)
+                        transform = (
+                            Affine2D(all_transforms[i % Ntransforms]) +
+                            master_transform)
                     else:
                         transform = master_transform
                     xo, yo = transform.transform_point((xo, yo))
