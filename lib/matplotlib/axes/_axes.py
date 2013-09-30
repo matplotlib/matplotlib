@@ -3269,12 +3269,14 @@ class Axes(_AxesBase):
         if not marker_obj.is_filled():
             edgecolors = 'face'
 
+        offsets = np.dstack((x, y))
+
         collection = mcoll.PathCollection(
                 (path,), scales,
                 facecolors=colors,
                 edgecolors=edgecolors,
                 linewidths=linewidths,
-                offsets=list(zip(x, y)),
+                offsets=offsets,
                 transOffset=kwargs.pop('transform', self.transData),
                 )
         collection.set_transform(mtransforms.IdentityTransform())

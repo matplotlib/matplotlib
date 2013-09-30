@@ -270,16 +270,41 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if self.get_path_effects():
             for pe in self.get_path_effects():
                 pe.draw_path_collection(renderer,
-                    gc, transform.frozen(), paths, self.get_transforms(),
-                    offsets, transOffset, self.get_facecolor(), self.get_edgecolor(),
-                    self._linewidths, self._linestyles, self._antialiaseds, self._urls,
+                    gc, transform.frozen(), paths,
+                    self.get_transforms(), offsets, transOffset,
+                    self.get_facecolor(), self.get_edgecolor(),
+                    self._linewidths, self._linestyles,
+                    self._antialiaseds, self._urls,
                     self._offset_position)
         else:
-            renderer.draw_path_collection(
-                gc, transform.frozen(), paths, self.get_transforms(),
-                offsets, transOffset, self.get_facecolor(), self.get_edgecolor(),
-                self._linewidths, self._linestyles, self._antialiaseds, self._urls,
-                self._offset_position)
+            trans = self.get_transforms()
+            facecolors = self.get_facecolor()
+            edgecolors = self.get_edgecolor()
+            if (len(paths) == 1 and len(trans) <= 1 and
+                len(facecolors) == 1 and len(edgecolors) == 1 and
+                len(self._linewidths) == 1 and
+                self._linestyles == [(None, None)] and
+                len(self._antialiaseds) == 1 and len(self._urls) == 1 and
+                self.get_hatch() is None):
+                gc.set_foreground(tuple(edgecolors[0]))
+                gc.set_linewidth(self._linewidths[0])
+                gc.set_linestyle(self._linestyles[0])
+                gc.set_antialiased(self._antialiaseds[0])
+                gc.set_url(self._urls[0])
+                if len(trans):
+                    transform = (transforms.Affine2D(trans[0]) +
+                                 transform)
+                renderer.draw_markers(
+                    gc, paths[0], transform.frozen(),
+                    mpath.Path(offsets), transOffset, tuple(facecolors[0]))
+            else:
+                renderer.draw_path_collection(
+                    gc, transform.frozen(), paths,
+                    self.get_transforms(), offsets, transOffset,
+                    self.get_facecolor(), self.get_edgecolor(),
+                    self._linewidths, self._linestyles,
+                    self._antialiaseds, self._urls,
+                    self._offset_position)
 
         gc.restore()
         renderer.close_group(self.__class__.__name__)
@@ -686,7 +711,31 @@ docstring.interpd.update(Collection="""\
 """)
 
 
-class PathCollection(Collection):
+class _CollectionWithSizes(Collection):
+    """
+    Base class for collections that have an array of sizes.
+    """
+    def get_sizes(self):
+        return self._sizes
+
+    def set_sizes(self, sizes, dpi=72.0):
+        if sizes is None:
+            self._sizes = np.array([])
+            self._transforms = np.empty((0, 3, 3))
+        else:
+            self._sizes = np.asarray(sizes)
+            self._transforms = np.zeros((len(self._sizes), 3, 3))
+            scale = np.sqrt(self._sizes) * dpi / 72.0
+            self._transforms[:, 0, 0] = scale
+            self._transforms[:, 1, 1] = scale
+            self._transforms[:, 2, 2] = 1.0
+
+    def draw(self, renderer):
+        self.set_sizes(self._sizes, self.figure.dpi)
+        Collection.draw(self, renderer)
+
+
+class PathCollection(_CollectionWithSizes):
     """
     This is the most basic :class:`Collection` subclass.
     """
@@ -701,7 +750,7 @@ class PathCollection(Collection):
 
         Collection.__init__(self, **kwargs)
         self.set_paths(paths)
-        self._sizes = sizes
+        self.set_sizes(sizes)
 
     def set_paths(self, paths):
         self._paths = paths
@@ -709,20 +758,8 @@ class PathCollection(Collection):
     def get_paths(self):
         return self._paths
 
-    def get_sizes(self):
-        return self._sizes
 
-    @allow_rasterization
-    def draw(self, renderer):
-        if self._sizes is not None:
-            self._transforms = [
-                transforms.Affine2D().scale(
-                    (np.sqrt(x) * self.figure.dpi / 72.0))
-                for x in self._sizes]
-        return Collection.draw(self, renderer)
-
-
-class PolyCollection(Collection):
+class PolyCollection(_CollectionWithSizes):
     @docstring.dedent_interpd
     def __init__(self, verts, sizes=None, closed=True, **kwargs):
         """
@@ -744,7 +781,7 @@ class PolyCollection(Collection):
         %(Collection)s
         """
         Collection.__init__(self, **kwargs)
-        self._sizes = sizes
+        self.set_sizes(sizes)
         self.set_verts(verts, closed)
 
     def set_verts(self, verts, closed=True):
@@ -772,15 +809,6 @@ class PolyCollection(Collection):
             self._paths = [mpath.Path(xy) for xy in verts]
 
     set_paths = set_verts
-
-    @allow_rasterization
-    def draw(self, renderer):
-        if self._sizes is not None:
-            self._transforms = [
-                transforms.Affine2D().scale(
-                    (np.sqrt(x) * self.figure.dpi / 72.0))
-                for x in self._sizes]
-        return Collection.draw(self, renderer)
 
 
 class BrokenBarHCollection(PolyCollection):
@@ -830,7 +858,7 @@ class BrokenBarHCollection(PolyCollection):
         return collection
 
 
-class RegularPolyCollection(Collection):
+class RegularPolyCollection(_CollectionWithSizes):
     """Draw a collection of regular polygons with *numsides*."""
     _path_generator = mpath.Path.unit_regular_polygon
 
@@ -871,28 +899,17 @@ class RegularPolyCollection(Collection):
                 )
         """
         Collection.__init__(self, **kwargs)
-        self._sizes = sizes
+        self.set_sizes(sizes)
         self._numsides = numsides
         self._paths = [self._path_generator(numsides)]
         self._rotation = rotation
         self.set_transform(transforms.IdentityTransform())
-
-    @allow_rasterization
-    def draw(self, renderer):
-        self._transforms = [
-            transforms.Affine2D().rotate(-self._rotation).scale(
-                (np.sqrt(x) * self.figure.dpi / 72.0) / np.sqrt(np.pi))
-            for x in self._sizes]
-        return Collection.draw(self, renderer)
 
     def get_numsides(self):
         return self._numsides
 
     def get_rotation(self):
         return self._rotation
-
-    def get_sizes(self):
-        return self._sizes
 
 
 class StarPolygonCollection(RegularPolyCollection):
@@ -1339,7 +1356,7 @@ class EventCollection(LineCollection):
         return self.get_colors()[0]
 
 
-class CircleCollection(Collection):
+class CircleCollection(_CollectionWithSizes):
     """
     A collection of circles, drawn using splines.
     """
@@ -1352,23 +1369,9 @@ class CircleCollection(Collection):
         %(Collection)s
         """
         Collection.__init__(self, **kwargs)
-        self._sizes = sizes
+        self.set_sizes(sizes)
         self.set_transform(transforms.IdentityTransform())
         self._paths = [mpath.Path.unit_circle()]
-
-    def get_sizes(self):
-        "return sizes of circles"
-        return self._sizes
-
-    @allow_rasterization
-    def draw(self, renderer):
-        # sizes is the area of the circle circumscribing the polygon
-        # in points^2
-        self._transforms = [
-            transforms.Affine2D().scale(
-                (np.sqrt(x) * self.figure.dpi / 72.0) / np.sqrt(np.pi))
-            for x in self._sizes]
-        return Collection.draw(self, renderer)
 
 
 class EllipseCollection(Collection):
@@ -1416,7 +1419,6 @@ class EllipseCollection(Collection):
         """
         Calculate transforms immediately before drawing.
         """
-        self._transforms = []
         ax = self.axes
         fig = self.figure
 
@@ -1439,10 +1441,16 @@ class EllipseCollection(Collection):
         else:
             raise ValueError('unrecognized units: %s' % self._units)
 
-        _affine = transforms.Affine2D
-        for x, y, a in zip(self._widths, self._heights, self._angles):
-            trans = _affine().scale(x * sc, y * sc).rotate(a)
-            self._transforms.append(trans)
+        self._transforms = np.zeros((len(self._widths), 3, 3))
+        widths = self._widths * sc
+        heights = self._heights * sc
+        sin_angle = np.cos(np.deg2rad(self._angles))
+        cos_angle = np.cos(np.deg2rad(self._angles))
+        self._transforms[:, 0, 0] = widths * cos_angle
+        self._transforms[:, 0, 1] = heights * -sin_angle
+        self._transforms[:, 1, 0] = widths * sin_angle
+        self._transforms[:, 1, 1] = heights * cos_angle
+        self._transforms[:, 2, 2] = 1.0
 
         if self._units == 'xy':
             m = ax.transData.get_affine().get_matrix().copy()
