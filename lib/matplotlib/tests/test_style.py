@@ -33,6 +33,7 @@ def temp_style(style_name, settings=None):
         yield
     finally:
         shutil.rmtree(tempdir)
+        style.reload_library()
 
 
 def test_available():
@@ -43,15 +44,14 @@ def test_available():
 def test_use():
     mpl.rcParams[PARAM] = 'gray'
     with temp_style('test', DUMMY_SETTINGS):
-        style.use('test')
-        assert mpl.rcParams[PARAM] == VALUE
+        with style.context('test'):
+            assert mpl.rcParams[PARAM] == VALUE
 
 
 def test_use_url():
     with temp_style('test', DUMMY_SETTINGS):
-        style.use('https://gist.github.com/adrn/6590261/raw')
-
-    assert mpl.rcParams['axes.facecolor'] == "#adeade"
+        with style.context('https://gist.github.com/adrn/6590261/raw'):
+            assert mpl.rcParams['axes.facecolor'] == "#adeade"
 
 
 def test_context():
