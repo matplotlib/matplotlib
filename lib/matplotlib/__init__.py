@@ -339,12 +339,12 @@ def checkdep_dvipng():
         return None
 
 def checkdep_ghostscript():
-    try:
-        if sys.platform == 'win32':
-            gs_execs = ['gswin32c', 'gswin64c', 'gs']
-        else:
-            gs_execs = ['gs']
-        for gs_exec in gs_execs:
+    if sys.platform == 'win32':
+        gs_execs = ['gswin32c', 'gswin64c', 'gs']
+    else:
+        gs_execs = ['gs']
+    for gs_exec in gs_execs:
+        try:
             s = subprocess.Popen(
                 [gs_exec, '--version'], stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
@@ -352,10 +352,9 @@ def checkdep_ghostscript():
             if s.returncode == 0:
                 v = byte2str(stdout[:-1])
                 return gs_exec, v
-
-        return None, None
-    except (IndexError, ValueError, OSError):
-        return None, None
+        except (IndexError, ValueError, OSError):
+            pass
+    return None, None
 
 def checkdep_tex():
     try:
