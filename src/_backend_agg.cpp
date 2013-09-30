@@ -421,7 +421,8 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
     rendererAA(),
     rendererBin(),
     theRasterizer(),
-    debug(debug)
+    debug(debug),
+    _fill_color(agg::rgba(1, 1, 1, 0))
 {
     _VERBOSE("RendererAgg::RendererAgg");
     unsigned stride(width*4);

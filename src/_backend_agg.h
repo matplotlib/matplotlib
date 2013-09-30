@@ -241,7 +241,7 @@ public:
 
     const int debug;
 
-    agg::rgba _fill_color = agg::rgba(1, 1, 1, 0);
+    agg::rgba _fill_color;
 
 
 protected:
