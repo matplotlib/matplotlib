@@ -187,11 +187,70 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     return stream_container
 
 
-class StreamplotSet(object):
+class ComposedCollection(object):
+    """Collection composed of sub-collections.
+
+    This object delegates all attribute calls to their sub-collections.
+    """
+
+    _collections = None
+    _custom_attrs = ['_propobservers']
+
+    def __init__(self):
+        if self._collections is None:
+            msg = "Subclasses of ComposedCollection must define `_collections`"
+            raise Exception(msg)
+        self._propobservers = {}
+
+    def __getattr__(self, name):
+        if name in self._collections or name in self._custom_attrs:
+            # Note that super doesn't work for __getattr__.
+            return mcollections.Collection.__getattr__(self, name)
+
+        attrs = []
+        for c in self._collections:
+            try:
+                attrs.append(getattr(getattr(self, c), name))
+            except AttributeError:
+                pass
+
+        if len(attrs) == 0:
+            msg = '{0} has no attribute {1!r}'
+            raise AttributeError(msg.format(self.__class__.__name__, name))
+
+        if callable(attrs[0]):
+            def wrapped_callable(*args, **kwargs):
+                out = []
+                for method in attrs:
+                    print(method)
+                    out.append(method(*args, **kwargs))
+                return out
+            return wrapped_callable
+        else:
+            return attrs
+
+    def __setattr__(self, name, *args, **kwargs):
+        if name in self._collections or name in self._custom_attrs:
+            # Note that super doesn't work for __setattr__.
+            return mcollections.Collection.__setattr__(self, name, *args,
+                                                       **kwargs)
+        for c in self._collections:
+            collection = getattr(self, c)
+            try:
+                collection.__setattr__(name, *args, **kwargs)
+            except AttributeError:
+                pass
+
+
+class StreamplotSet(ComposedCollection):
+
+    _collections = ['lines', 'arrows']
 
     def __init__(self, lines, arrows, **kwargs):
         self.lines = lines
         self.arrows = arrows
+
+        super(StreamplotSet, self).__init__()
 
 
 # Coordinate definitions
