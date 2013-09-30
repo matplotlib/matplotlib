@@ -38,7 +38,7 @@ Enhancements
 - Added a context manager for creating multi-page pdfs (see
   `matplotlib.backends.backend_pdf.PdfPages`).
 
-- The WebAgg backend should no have lower latency over heterogeneous
+- The WebAgg backend should now have lower latency over heterogeneous
   Internet connections.
 
 Bug fixes
