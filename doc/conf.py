@@ -11,6 +11,7 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
+from distutils import version
 import os
 import sys
 import sphinx
@@ -44,7 +45,7 @@ except ImportError:
 
 autosummary_generate = True
 
-if sphinx.__version__ >= 1.1:
+if version.LooseVersion(sphinx.__version__) >= version.LooseVersion('1.1'):
     autodoc_docstring_signature = True
 
 # Add any paths that contain templates here, relative to this directory.

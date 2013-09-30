@@ -773,13 +773,13 @@ def get_sample_data(fname, asfileobj=True):
     path = os.path.join(root, fname)
 
     if asfileobj:
-        if (os.path.splitext(fname)[-1].lower() in
-                ('.csv', '.xrc', '.txt')):
+        base, ext = os.path.splitext(fname)
+        ext = ext.lower()
+        if (ext in ('.csv', '.xrc', '.txt')):
             mode = 'r'
         else:
             mode = 'rb'
 
-        base, ext = os.path.splitext(fname)
         if ext == '.gz':
             return gzip.open(path, mode)
         else:

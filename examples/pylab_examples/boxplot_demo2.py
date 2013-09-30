@@ -57,15 +57,15 @@ ax1.set_ylabel('Value')
 # Now fill the boxes with desired colors
 boxColors = ['darkkhaki','royalblue']
 numBoxes = numDists*2
-medians = range(numBoxes)
-for i in range(numBoxes):
+medians = list(range(numBoxes))
+for i in medians:
   box = bp['boxes'][i]
   boxX = []
   boxY = []
   for j in range(5):
       boxX.append(box.get_xdata()[j])
       boxY.append(box.get_ydata()[j])
-  boxCoords = zip(boxX,boxY)
+  boxCoords = list(zip(boxX,boxY))
   # Alternate between Dark Khaki and Royal Blue
   k = i % 2
   boxPolygon = Polygon(boxCoords, facecolor=boxColors[k])
