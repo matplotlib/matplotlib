@@ -13,7 +13,7 @@ import sys
 
 from datetime import datetime, timedelta
 from subprocess import check_output
-from urllib import urlopen
+from urllib2 import urlopen
 
 #-----------------------------------------------------------------------------
 # Globals
