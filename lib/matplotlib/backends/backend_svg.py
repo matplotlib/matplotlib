@@ -593,7 +593,9 @@ class RendererSVG(RendererBase):
 
         trans_and_flip = self._make_flip_transform(trans)
         attrib = {'xlink:href': '#%s' % oid}
-        for vertices, code in path.iter_segments(trans_and_flip, simplify=False):
+        clip = (0, 0, self.width*72, self.height*72)
+        for vertices, code in path.iter_segments(
+                trans_and_flip, clip=clip, simplify=False):
             if len(vertices):
                 x, y = vertices[-2:]
                 attrib['x'] = six.text_type(x)
