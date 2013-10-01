@@ -1646,6 +1646,27 @@ def test_twin_spines():
     host.tick_params(axis='x', **tkw)
 
 
+@image_comparison(baseline_images=['twin_spines_on_top'], extensions=['png'],
+                  remove_text=True)
+def test_twin_spines_on_top():
+    matplotlib.rcParams['axes.linewidth'] = 48.0
+    matplotlib.rcParams['lines.linewidth'] = 48.0
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(1, 1, 1)
+
+    data = np.array([[1000, 1100, 1200, 1250],
+                     [310, 301, 360, 400]])
+
+    ax2 = ax1.twinx()
+
+    ax1.plot(data[0], data[1]/1E3, color='#BEAED4')
+    ax1.fill_between(data[0], data[1]/1E3, color='#BEAED4', alpha=.8)
+
+    ax2.plot(data[0], data[1]/1E3, color='#7FC97F')
+    ax2.fill_between(data[0], data[1]/1E3, color='#7FC97F', alpha=.5)
+
+
 @cleanup
 def test_vline_limit():
     fig = plt.figure()
