@@ -246,17 +246,24 @@ class strpdate2num:
         return date2num(datetime.datetime(*time.strptime(s, self.fmt)[:6]))
 
 
-def datestr2num(d):
+def datestr2num(d, default=None):
     """
     Convert a date string to a datenum using
-    :func:`dateutil.parser.parse`.  *d* can be a single string or a
-    sequence of strings.
+    :func:`dateutil.parser.parse`.
+
+    Parameters
+    ----------
+    d : string or sequence of strings
+        The dates to convert.
+
+    default : datetime instance
+        The default date to use when fields are missing in `d`.
     """
     if cbook.is_string_like(d):
-        dt = dateutil.parser.parse(d)
+        dt = dateutil.parser.parse(d, default=default)
         return date2num(dt)
     else:
-        return date2num([dateutil.parser.parse(s) for s in d])
+        return date2num([dateutil.parser.parse(s, default=default) for s in d])
 
 
 def date2num(d):
