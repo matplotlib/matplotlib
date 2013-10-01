@@ -2682,16 +2682,12 @@ class Axes(_AxesBase):
         if elinewidth:
             lines_kw['linewidth'] = elinewidth
         else:
-            if 'linewidth' in kwargs:
-                lines_kw['linewidth'] = kwargs['linewidth']
-            if 'lw' in kwargs:
-                lines_kw['lw'] = kwargs['lw']
-        if 'transform' in kwargs:
-            lines_kw['transform'] = kwargs['transform']
-        if 'alpha' in kwargs:
-            lines_kw['alpha'] = kwargs['alpha']
-        if 'zorder' in kwargs:
-            lines_kw['zorder'] = kwargs['zorder']
+            for key in ('linewidth', 'lw'):
+                if key in kwargs:
+                    lines_kw[key] = kwargs[key]
+        for key in ('transform', 'alpha', 'zorder'):
+            if key in kwargs:
+                lines_kw[key] = kwargs[key]
 
         # arrays fine here, they are booleans and hence not units
         if not iterable(lolims):
@@ -2739,16 +2735,9 @@ class Axes(_AxesBase):
             plot_kw['markeredgewidth'] = capthick
         # For backwards-compat, allow explicit setting of
         # 'mew' or 'markeredgewidth' to over-ride capthick.
-        if 'markeredgewidth' in kwargs:
-            plot_kw['markeredgewidth'] = kwargs['markeredgewidth']
-        if 'mew' in kwargs:
-            plot_kw['mew'] = kwargs['mew']
-        if 'transform' in kwargs:
-            plot_kw['transform'] = kwargs['transform']
-        if 'alpha' in kwargs:
-            plot_kw['alpha'] = kwargs['alpha']
-        if 'zorder' in kwargs:
-            plot_kw['zorder'] = kwargs['zorder']
+        for key in ('markeredgewidth', 'mew', 'transform', 'alpha', 'zorder'):
+            if key in kwargs:
+                plot_kw[key] = kwargs[key]
 
         if xerr is not None:
             if (iterable(xerr) and len(xerr) == 2 and
