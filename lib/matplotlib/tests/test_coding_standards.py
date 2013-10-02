@@ -188,9 +188,9 @@ if HAS_PEP8:
             return self.file_errors
 
 
-def test_pep8_conformance(module=matplotlib, exclude_files=EXCLUDE_FILES,
-                          extra_exclude_file=EXTRA_EXCLUDE_FILE,
-                          pep8_additional_ignore=PEP8_ADDITIONAL_IGNORE):
+def assert_pep8_conformance(module=matplotlib, exclude_files=EXCLUDE_FILES,
+                            extra_exclude_file=EXTRA_EXCLUDE_FILE,
+                            pep8_additional_ignore=PEP8_ADDITIONAL_IGNORE):
     """
     Tests the matplotlib codebase against the "pep8" tool.
 
@@ -246,8 +246,11 @@ def test_pep8_conformance(module=matplotlib, exclude_files=EXCLUDE_FILES,
                              '{}'.format('\n  '.join(unexpectedly_good)))
 
 
+## Temporarily disabling test
+#def test_pep8_conformance():
+#    assert_pep8_conformance()
+
+
 if __name__ == '__main__':
     import nose
-    # Temporarily disabling test
-    raise nose.SkipTest('Test is disabled in the code')
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
