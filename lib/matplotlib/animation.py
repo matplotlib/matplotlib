@@ -381,11 +381,12 @@ class FFMpegWriter(MovieWriter, FFMpegBase):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a pipe.
         args = [self.bin_path(), '-f', 'rawvideo', '-vcodec', 'rawvideo',
-                '-s', '%dx%d' % self.frame_size, '-pix_fmt', self.frame_format]
+                '-s', '%dx%d' % self.frame_size, '-pix_fmt', self.frame_format,
+                '-r', str(self.fps)]
         # Logging is quieted because subprocess.PIPE has limited buffer size.
         if not verbose.ge('debug'):
             args += ['-loglevel', 'quiet']
-        args += ['-i', 'pipe:', '-r', str(self.fps)] + self.output_args
+        args += ['-i', 'pipe:'] + self.output_args
         return args
 
 
@@ -398,9 +399,6 @@ class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a collection of temp images
-        print([self.bin_path(), '-i', self._base_temp_name(),
-                '-r', str(self.fps)] + self.output_args)
-
         return [self.bin_path(), '-i', self._base_temp_name(),
                 '-r', str(self.fps)] + self.output_args
 
