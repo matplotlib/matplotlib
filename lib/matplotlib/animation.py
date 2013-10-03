@@ -1002,7 +1002,7 @@ class FuncAnimation(TimedAnimation):
             self._iter_gen = lambda: iter(frames)
             self.save_count = len(frames)
         else:
-            self._iter_gen = lambda: xrange(frames)
+            self._iter_gen = lambda: xrange(frames).__iter__()
             self.save_count = frames
 
         # If we're passed in and using the default, set it to 100.
