@@ -399,9 +399,9 @@ class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a collection of temp images
-        return [self.bin_path(), '-vframes', str(self._frame_counter),
-                '-r', str(self.fps), '-i',
-                self._base_temp_name()] + self.output_args
+        return [self.bin_path(), '-i', self._base_temp_name(),
+                '-r', str(self.fps), 
+                '-vframes', str(self._frame_counter)] + self.output_args
 
 
 # Base class of avconv information.  AVConv has identical arguments to
@@ -1002,7 +1002,7 @@ class FuncAnimation(TimedAnimation):
             self._iter_gen = lambda: iter(frames)
             self.save_count = len(frames)
         else:
-            self._iter_gen = lambda: xrange(frames)
+            self._iter_gen = lambda: iter(xrange(frames))
             self.save_count = frames
 
         # If we're passed in and using the default, set it to 100.
