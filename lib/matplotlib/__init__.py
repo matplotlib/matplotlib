@@ -341,7 +341,7 @@ def checkdep_ghostscript():
                 stderr=subprocess.PIPE)
             stdout, stderr = s.communicate()
             if s.returncode == 0:
-                v = stdout[:-1]
+                v = stdout[:-1].decode('ascii')
                 return gs_exec, v
 
         return None, None
