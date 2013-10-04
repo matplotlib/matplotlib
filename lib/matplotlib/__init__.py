@@ -569,7 +569,6 @@ def _get_config_or_cache_dir(xdg_base):
     if h is not None:
         p = os.path.join(h, '.matplotlib')
         if (sys.platform.startswith('linux') and
-            not os.path.exists(p) and
             xdg_base is not None):
             p = os.path.join(xdg_base, 'matplotlib')
 
@@ -744,8 +743,8 @@ def matplotlib_fname():
             home = get_home()
             if (sys.platform.startswith('linux') and
                 home is not None and
-                fname == os.path.join(
-                    home, '.matplotlib', 'matplotlibrc')):
+                os.path.exists(os.path.join(
+                    home, '.matplotlib', 'matplotlibrc'))):
                 warnings.warn(
                     "Found matplotlib configuration in ~/.matplotlib/. "
                     "To conform with the XDG base directory standard, "
@@ -754,6 +753,8 @@ def matplotlib_fname():
                     "Please move your configuration there to ensure that "
                     "matplotlib will continue to find it in the future." %
                     _get_xdg_config_dir())
+                return os.path.join(
+                    home, '.matplotlib', 'matplotlibrc')
             return fname
 
     path = get_data_path()  # guaranteed to exist or raise
