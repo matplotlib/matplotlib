@@ -330,12 +330,12 @@ def checkdep_dvipng():
         return None
 
 def checkdep_ghostscript():
-    try:
-        if sys.platform == 'win32':
-            gs_execs = ['gswin32c', 'gswin64c', 'gs']
-        else:
-            gs_execs = ['gs']
-        for gs_exec in gs_execs:
+    if sys.platform == 'win32':
+        gs_execs = ['gswin32c', 'gswin64c', 'gs']
+    else:
+        gs_execs = ['gs']
+    for gs_exec in gs_execs:
+        try:
             s = subprocess.Popen(
                 [gs_exec, '--version'], stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
@@ -343,10 +343,9 @@ def checkdep_ghostscript():
             if s.returncode == 0:
                 v = stdout[:-1]
                 return gs_exec, v
-
-        return None, None
-    except (IndexError, ValueError, OSError):
-        return None, None
+        except (IndexError, ValueError, OSError):
+            pass
+    return None, None
 
 def checkdep_tex():
     try:
@@ -523,7 +522,11 @@ def _get_xdg_config_dir():
     base directory spec
     <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
     """
-    return os.environ.get('XDG_CONFIG_HOME', os.path.join(get_home(), '.config'))
+    home = get_home()
+    if home is None:
+        return None
+    else:
+        return os.environ.get('XDG_CONFIG_HOME', os.path.join(home, '.config'))
 
 
 def _get_xdg_cache_dir():
@@ -532,7 +535,11 @@ def _get_xdg_cache_dir():
     base directory spec
     <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
     """
-    return os.environ.get('XDG_CACHE_HOME', os.path.join(get_home(), '.cache'))
+    home = get_home()
+    if home is None:
+        return None
+    else:
+        return os.environ.get('XDG_CACHE_HOME', os.path.join(home, '.cache'))
 
 
 def _get_config_or_cache_dir(xdg_base):
@@ -548,22 +555,27 @@ def _get_config_or_cache_dir(xdg_base):
             return _create_tmp_config_dir()
         return configdir
 
+    p = None
     h = get_home()
-    p = os.path.join(h, '.matplotlib')
-    if (sys.platform.startswith('linux') and
-        not os.path.exists(p)):
-        p = os.path.join(xdg_base, 'matplotlib')
+    if h is not None:
+        p = os.path.join(h, '.matplotlib')
+        if (sys.platform.startswith('linux') and
+            xdg_base is not None):
+            p = os.path.join(xdg_base, 'matplotlib')
 
-    if os.path.exists(p):
-        if not _is_writable_dir(p):
-            return _create_tmp_config_dir()
-    else:
-        try:
-            mkdirs(p)
-        except OSError:
-            return _create_tmp_config_dir()
+    if p is not None:
+        if os.path.exists(p):
+            if _is_writable_dir(p):
+                return p
+        else:
+            try:
+                mkdirs(p)
+            except OSError:
+                pass
+            else:
+                return p
 
-    return p
+    return _create_tmp_config_dir()
 
 
 def _get_configdir():
@@ -719,9 +731,11 @@ def matplotlib_fname():
     if configdir is not None:
         fname = os.path.join(configdir, 'matplotlibrc')
         if os.path.exists(fname):
+            home = get_home()
             if (sys.platform.startswith('linux') and
-                fname == os.path.join(
-                    get_home(), '.matplotlib', 'matplotlibrc')):
+                home is not None and
+                os.path.exists(os.path.join(
+                    home, '.matplotlib', 'matplotlibrc'))):
                 warnings.warn(
                     "Found matplotlib configuration in ~/.matplotlib/. "
                     "To conform with the XDG base directory standard, "
@@ -730,6 +744,8 @@ def matplotlib_fname():
                     "Please move your configuration there to ensure that "
                     "matplotlib will continue to find it in the future." %
                     _get_xdg_config_dir())
+                return os.path.join(
+                    home, '.matplotlib', 'matplotlibrc')
             return fname
 
     path = get_data_path()  # guaranteed to exist or raise

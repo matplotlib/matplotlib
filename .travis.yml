@@ -17,8 +17,7 @@ python:
   - 3.3
 
 install:
-  - pip install -q --use-mirrors nose python-dateutil numpy pep8 pyparsing
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.'* ]]; then pip -q install --use-mirrors PIL; fi
+  - pip install -q --use-mirrors nose python-dateutil numpy pep8 pyparsing pillow
   - sudo apt-get update && sudo apt-get -qq install inkscape
   - python setup.py install
 

@@ -818,7 +818,7 @@ public:
     unsigned long operator()(unsigned long max_value);
 
 private:
-    const unsigned long _M, _A, _C;
+    const unsigned long _m, _a, _c;
     unsigned long _seed;
 };
 

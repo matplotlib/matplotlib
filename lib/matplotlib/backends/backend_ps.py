@@ -17,7 +17,7 @@ except ImportError:
     from md5 import md5 #Deprecated in 2.5
 
 from tempfile import mkstemp
-from matplotlib import verbose, __version__, rcParams
+from matplotlib import verbose, __version__, rcParams, checkdep_ghostscript
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
@@ -70,8 +70,9 @@ class PsBackendHelper(object):
         except KeyError:
             pass
 
-        if sys.platform == 'win32': gs_exe = 'gswin32c'
-        else: gs_exe = 'gs'
+        gs_exe, gs_version = checkdep_ghostscript()
+        if gs_exe is None:
+            gs_exe = 'gs'
 
         self._cached["gs_exe"] = gs_exe
         return gs_exe
@@ -1613,8 +1614,7 @@ def get_bbox(tmpfile, bbox):
     """
 
     outfile = tmpfile + '.output'
-    if sys.platform == 'win32': gs_exe = 'gswin32c'
-    else: gs_exe = 'gs'
+    gs_exe = ps_backend_helper.gs_exe
     command = '%s -dBATCH -dNOPAUSE -sDEVICE=bbox "%s"' %\
                 (gs_exe, tmpfile)
     verbose.report(command, 'debug')
