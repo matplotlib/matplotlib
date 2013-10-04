@@ -210,6 +210,10 @@ if __name__ == '__main__':
         for mod in ext_modules:
             mod.extra_compile_args.append('-DVERBOSE')
 
+    # Finalize the extension modules so they can get the Numpy include
+    # dirs
+    for mod in ext_modules:
+        mod.finalize()
 
     extra_args = {}
 
