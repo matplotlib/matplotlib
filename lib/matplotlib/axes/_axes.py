@@ -2960,7 +2960,7 @@ class Axes(_AxesBase):
                     raise ValueError(msg1)
                 elif conf_intervals.shape[0] != col:
                     raise ValueError(msg2)
-                elif conf_intervals.shape[1] == 2:
+                elif conf_intervals.shape[1] != 2:
                     raise ValueError(msg3)
             else:
                 if len(conf_intervals) != col:

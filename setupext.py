@@ -217,7 +217,7 @@ def make_extension(name, files, *args, **kwargs):
     Any additional arguments are passed to the
     `distutils.core.Extension` constructor.
     """
-    ext = Extension(name, files, *args, **kwargs)
+    ext = DelayedExtension(name, files, *args, **kwargs)
     for dir in get_base_dirs():
         include_dir = os.path.join(dir, 'include')
         if os.path.exists(include_dir):
@@ -388,6 +388,14 @@ class SetupPackage(object):
     def get_install_requires(self):
         """
         Get a list of Python packages that we require.
+        pip/easy_install will attempt to download and install this
+        package if it is not installed.
+        """
+        return []
+
+    def get_setup_requires(self):
+        """
+        Get a list of Python packages that we require at build time.
         pip/easy_install will attempt to download and install this
         package if it is not installed.
         """
@@ -651,42 +659,113 @@ class Tests(OptionalPackage):
         return ['nose']
 
 
+class DelayedExtension(Extension, object):
+    """
+    A distutils Extension subclass where some of its members
+    may have delayed computation until reaching the build phase.
+
+    This is so we can, for example, get the Numpy include dirs
+    after pip has installed Numpy for us if it wasn't already
+    on the system.
+    """
+    def __init__(self, *args, **kwargs):
+        super(DelayedExtension, self).__init__(*args, **kwargs)
+        self._finalized = False
+        self._hooks = {}
+
+    def add_hook(self, member, func):
+        """
+        Add a hook to dynamically compute a member.
+
+        Parameters
+        ----------
+        member : string
+            The name of the member
+
+        func : callable
+            The function to call to get dynamically-computed values
+            for the member.
+        """
+        self._hooks[member] = func
+
+    def finalize(self):
+        self._finalized = True
+
+    class DelayedMember(property):
+        def __init__(self, name):
+            self._name = name
+
+        def __get__(self, obj, objtype=None):
+            result = getattr(obj, '_' + self._name, [])
+
+            if obj._finalized:
+                if self._name in obj._hooks:
+                    result = obj._hooks[self._name]() + result
+
+            return result
+
+        def __set__(self, obj, value):
+            setattr(obj, '_' + self._name, value)
+
+    include_dirs = DelayedMember('include_dirs')
+
+
 class Numpy(SetupPackage):
     name = "numpy"
+
+    @staticmethod
+    def include_dirs_hook():
+        if sys.version_info[0] >= 3:
+            import builtins
+            if hasattr(builtins, '__NUMPY_SETUP__'):
+                del builtins.__NUMPY_SETUP__
+            import imp
+            import numpy
+            imp.reload(numpy)
+        else:
+            import __builtin__
+            if hasattr(__builtin__, '__NUMPY_SETUP__'):
+                del __builtin__.__NUMPY_SETUP__
+            import numpy
+            reload(numpy)
+
+        ext = Extension('test', [])
+        ext.include_dirs.append(numpy.get_include())
+        if not has_include_file(
+                ext.include_dirs, os.path.join("numpy", "arrayobject.h")):
+            warnings.warn(
+                "The C headers for numpy could not be found. "
+                "You may need to install the development package")
+
+        return [numpy.get_include()]
 
     def check(self):
         min_version = extract_versions()['__version__numpy__']
         try:
             import numpy
         except ImportError:
-            raise SystemExit(
-                "Requires numpy %s or later to build.  (Numpy not found)" %
-                min_version)
+            return 'not found. pip may install it below.'
 
         if not is_min_version(numpy.__version__, min_version):
             raise SystemExit(
                 "Requires numpy %s or later to build.  (Found %s)" %
                 (min_version, numpy.__version__))
 
-        ext = make_extension('test', [])
-        ext.include_dirs.append(numpy.get_include())
-        if not has_include_file(
-            ext.include_dirs, os.path.join("numpy", "arrayobject.h")):
-            raise CheckFailed(
-                "The C headers for numpy could not be found.  You"
-                "may need to install the development package.")
-
         return 'version %s' % numpy.__version__
 
     def add_flags(self, ext):
-        import numpy
-
         # Ensure that PY_ARRAY_UNIQUE_SYMBOL is uniquely defined for
         # each extension
         array_api_name = 'MPL_' + ext.name.replace('.', '_') + '_ARRAY_API'
 
-        ext.include_dirs.append(numpy.get_include())
         ext.define_macros.append(('PY_ARRAY_UNIQUE_SYMBOL', array_api_name))
+        ext.add_hook('include_dirs', self.include_dirs_hook)
+
+    def get_setup_requires(self):
+        return ['numpy>=1.5']
+
+    def get_install_requires(self):
+        return ['numpy>=1.5']
 
 
 class CXX(SetupPackage):

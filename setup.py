@@ -46,6 +46,8 @@ except ImportError:
 else:
     del sdist.sdist.make_release_tree
 
+from distutils.dist import Distribution
+
 import setupext
 from setupext import print_line, print_raw, print_message, print_status
 
@@ -127,6 +129,7 @@ if __name__ == '__main__':
     package_data = {}
     package_dir = {'': 'lib'}
     install_requires = []
+    setup_requires = []
     default_backend = None
 
 
@@ -189,6 +192,7 @@ if __name__ == '__main__':
             package_data.setdefault(key, [])
             package_data[key] = list(set(val + package_data[key]))
         install_requires.extend(package.get_install_requires())
+        setup_requires.extend(package.get_setup_requires())
 
     # Write the default matplotlibrc file
     if default_backend is None:
@@ -208,6 +212,13 @@ if __name__ == '__main__':
 
 
     extra_args = {}
+
+    # Avoid installing setup_requires dependencies if the user just
+    # queries for information
+    if (any('--' + opt in sys.argv for opt in
+           Distribution.display_option_names + ['help']) or
+        'clean' in sys.argv):
+        setup_requires = []
 
     # Finally, pass this all along to distutils to do the heavy lifting.
     distrib = setup(
@@ -237,6 +248,7 @@ if __name__ == '__main__':
 
         # List third-party Python packages that we require
         install_requires=install_requires,
+        setup_requires=setup_requires,
 
         # matplotlib has C/C++ extensions, so it's not zip safe.
         # Telling setuptools this prevents it from doing an automatic
