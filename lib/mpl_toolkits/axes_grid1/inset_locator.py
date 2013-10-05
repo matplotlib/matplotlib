@@ -39,8 +39,8 @@ class AnchoredLocatorBase(AnchoredOffsetbox):
         super(AnchoredLocatorBase, self).__init__(loc,
                                                   pad=0., child=None,
                                                   borderpad=borderpad,
-                                                 box_to_anchor=bbox_to_anchor,
-                                                 box_transform=bbox_transform)
+                                                 bbox_to_anchor=bbox_to_anchor,
+                                                 bbox_transform=bbox_transform)
 
     def draw(self, renderer):
         raise RuntimeError("No draw method should be called")
