@@ -52,7 +52,7 @@ from _mathtext_data import uni2type1
 def _to_int(x):
     return int(float(x))
 
-_to_float = float
+_to_float = lambda x: float(x.replace(',','.'))
 if sys.version_info[0] >= 3:
     def _to_str(x):
         return x.decode('utf8')
