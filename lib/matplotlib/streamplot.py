@@ -5,6 +5,8 @@ Streamline plotting for 2D vector fields.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+from warnings import warn
+
 import six
 from six.moves import xrange
 
@@ -12,15 +14,15 @@ import numpy as np
 import matplotlib
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
-import matplotlib.collections as mcollections
 import matplotlib.patches as patches
+from matplotlib.collections import LineCollection, PatchCollection
 
 
 __all__ = ['streamplot']
 
 
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
-               cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
+               cmap=None, norm=None, arrowsize=1, arrowstyle=None,
                minlength=0.1, transform=None, zorder=1):
     """Draws streamlines of a vector flow.
 
@@ -48,8 +50,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     *arrowsize* : float
         Factor scale arrow size.
     *arrowstyle* : str
-        Arrow style specification.
-        See :class:`~matplotlib.patches.FancyArrowPatch`.
+        Arrow style specification. DEPRECATED.
     *minlength* : float
         Minimum length of streamline in axes coordinates.
     *zorder* : int
@@ -62,7 +63,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
                 - lines: `matplotlib.collections.LineCollection` of streamlines
 
-                - arrows: collection of `matplotlib.patches.FancyArrowPatch`
+                - arrows: collection of `matplotlib.patches.FancyArrow`
                   objects representing arrows half-way along stream
                   lines.
 
@@ -85,13 +86,21 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     if linewidth is None:
         linewidth = matplotlib.rcParams['lines.linewidth']
 
+    if arrowstyle is not None:
+        print(arrowstyle)
+        warn("`arrowstyle` parameter is deprecated and no longer used")
+
+    # Scale arrowsize input to roughly match old behavior from FancyArrowPatch.
+    arrowsize *= 0.06
+
     line_kw = {}
-    arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10 * arrowsize)
+    arrow_kw = {'edgecolor': 'none'}
 
     use_multicolor_lines = isinstance(color, np.ndarray)
     if use_multicolor_lines:
         assert color.shape == grid.shape
         line_colors = []
+        arrow_colors = []
         if np.any(np.isnan(color)):
             color = np.ma.array(color, mask=np.isnan(color))
     else:
@@ -104,6 +113,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     else:
         line_kw['linewidth'] = linewidth
         arrow_kw['linewidth'] = linewidth
+        headwidth = arrowsize * linewidth
 
     line_kw['zorder'] = zorder
     arrow_kw['zorder'] = zorder
@@ -150,39 +160,41 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         # Add arrows half way along each trajectory.
         s = np.cumsum(np.sqrt(np.diff(tx) ** 2 + np.diff(ty) ** 2))
         n = np.searchsorted(s, s[-1] / 2.)
-        arrow_tail = (tx[n], ty[n])
-        arrow_head = (np.mean(tx[n:n + 2]), np.mean(ty[n:n + 2]))
 
         if isinstance(linewidth, np.ndarray):
             line_widths = interpgrid(linewidth, tgx, tgy)[:-1]
             line_kw['linewidth'].extend(line_widths)
             arrow_kw['linewidth'] = line_widths[n]
+            headwidth = arrowsize * line_widths[n]
 
         if use_multicolor_lines:
             color_values = interpgrid(color, tgx, tgy)[:-1]
             line_colors.extend(color_values)
-            arrow_kw['color'] = cmap(norm(color_values[n]))
+            arrow_colors.append(color_values[n])
 
-        p = patches.FancyArrowPatch(arrow_tail,
-                                    arrow_head,
-                                    transform=transform,
-                                    **arrow_kw)
-        axes.add_patch(p)
+        x_tail, y_tail = (tx[n], ty[n])
+        dx = np.mean(tx[n:n + 2]) - x_tail
+        dy = np.mean(ty[n:n + 2]) - y_tail
+        p = patches.FancyArrow(x_tail, y_tail, dx, dy, head_width=headwidth)
         arrows.append(p)
 
-    lc = mcollections.LineCollection(streamlines,
-                                     transform=transform,
-                                     **line_kw)
+    ac = PatchCollection(arrows, transform=transform, **arrow_kw)
+    lc = LineCollection(streamlines, transform=transform, **line_kw)
+
     if use_multicolor_lines:
         lc.set_array(np.asarray(line_colors))
+        ac.set_array(np.asarray(arrow_colors))
         lc.set_cmap(cmap)
+        ac.set_cmap(cmap)
         lc.set_norm(norm)
+        ac.set_norm(norm)
+
     axes.add_collection(lc)
+    axes.add_collection(ac)
 
     axes.update_datalim(((x.min(), y.min()), (x.max(), y.max())))
     axes.autoscale_view(tight=True)
 
-    ac = matplotlib.collections.PatchCollection(arrows)
     stream_container = StreamplotSet(lc, ac)
     return stream_container
 
@@ -193,24 +205,68 @@ class ComposedCollection(object):
     This object delegates all attribute calls to their sub-collections.
     """
 
-    _collections = None
-    _custom_attrs = ['_propobservers']
+    _subcollections = None
 
     def __init__(self):
-        if self._collections is None:
-            msg = "Subclasses of ComposedCollection must define `_collections`"
-            raise Exception(msg)
-        self._propobservers = {}
+        if self._subcollections is None:
+            raise Exception("Subclasses of ComposedCollection "
+                            "must define `_subcollections`")
 
     def __getattr__(self, name):
-        if name in self._collections or name in self._custom_attrs:
-            # Note that super doesn't work for __getattr__.
-            return mcollections.Collection.__getattr__(self, name)
+        """Override to return attributes from sub-collections.
 
-        attrs = []
-        for c in self._collections:
+        If `name` doesn't identify an attribute in *any* of the
+        sub-collections, raise an `AttributeError`. Otherwise return a list of
+        attribute values or a function that evaluates all methods
+        """
+        # __getattribute__ (not __getattr__) should return sub-collections.
+        assert name not in self._subcollections
+
+        attrs = self._attr_list_from_subcollections(name)
+        attrs_are_methods = [callable(a) for a in attrs]
+
+        if all(attrs_are_methods):
+            # Define function to call all sub-collection methods.
+            def call_all_subcollection_attrs(*args, **kwargs):
+                out = []
+                for method in attrs:
+                    out.append(method(*args, **kwargs))
+                return out
+
+            return call_all_subcollection_attrs
+        elif not any(attrs_are_methods):
+            return attrs
+        else:
+            msg = ("{!r} returns mix of attributes and methods from sub-"
+                   "collections. Try accessing sub-collections individually")
+            ValueError(msg.format(name))
+
+    def __setattr__(self, name, *args, **kwargs):
+        if name in self._subcollections:
+            object.__setattr__(self, name, *args, **kwargs)
+            return
+
+        for c in self._subcollections:
+            collection = self._get_collection(c)
             try:
-                attrs.append(getattr(getattr(self, c), name))
+                collection.__setattr__(name, *args, **kwargs)
+            except AttributeError:
+                pass
+
+    def _get_collection(self, name):
+        return self.__getattribute__(name)
+
+    def _attr_list_from_subcollections(self, name):
+        """Create a list of attributes from sub-collections.
+
+        Return matching attrs from all sub-collections.
+        Raise an error if *None* of the sub-collections match the name.
+        """
+        attrs = []
+        for c in self._subcollections:
+            try:
+                collection = self._get_collection(c)
+                attrs.append(getattr(collection, name))
             except AttributeError:
                 pass
 
@@ -218,38 +274,16 @@ class ComposedCollection(object):
             msg = '{0} has no attribute {1!r}'
             raise AttributeError(msg.format(self.__class__.__name__, name))
 
-        if callable(attrs[0]):
-            def wrapped_callable(*args, **kwargs):
-                out = []
-                for method in attrs:
-                    print(method)
-                    out.append(method(*args, **kwargs))
-                return out
-            return wrapped_callable
-        else:
-            return attrs
-
-    def __setattr__(self, name, *args, **kwargs):
-        if name in self._collections or name in self._custom_attrs:
-            # Note that super doesn't work for __setattr__.
-            return mcollections.Collection.__setattr__(self, name, *args,
-                                                       **kwargs)
-        for c in self._collections:
-            collection = getattr(self, c)
-            try:
-                collection.__setattr__(name, *args, **kwargs)
-            except AttributeError:
-                pass
+        return attrs
 
 
 class StreamplotSet(ComposedCollection):
 
-    _collections = ['lines', 'arrows']
+    _subcollections = ['lines', 'arrows']
 
     def __init__(self, lines, arrows, **kwargs):
         self.lines = lines
         self.arrows = arrows
-
         super(StreamplotSet, self).__init__()
 
 
