@@ -76,6 +76,28 @@ original location:
     - `xycoords` -> set the units of the point location
     - `set_position()` -> `Annotation` only set location of annotation
 
+* NFFT being even is now enforced in `matplotlib.mlab.specgram`,
+  `matplotlib.mlab.psd`,  `matplotlib.mlab.csd`,
+  `matplotlib.mlab.cohere`, `matplotlib.mlab.cohere_pairs`,
+  `matplotlib.pyplot.specgram`, `matplotlib.pyplot.psd`,
+  `matplotlib.pyplot.csd`, and `matplotlib.pyplot.cohere`.  This was
+  listed as a requirement but was not actually checked.
+
+* `matplotlib.mlab.specgram`, `matplotlib.mlab.psd`,  `matplotlib.mlab.csd`,
+  `matplotlib.mlab.cohere`, `matplotlib.mlab.cohere_pairs`,
+  `matplotlib.pyplot.specgram`, `matplotlib.pyplot.psd`,
+  `matplotlib.pyplot.csd`, and `matplotlib.pyplot.cohere` now raise
+  ValueError where they previously raised AssertionError.
+
+* For `matplotlib.mlab.psd`,  `matplotlib.mlab.csd`,
+  `matplotlib.mlab.cohere`, `matplotlib.mlab.cohere_pairs`,
+  `matplotlib.pyplot.specgram`, `matplotlib.pyplot.psd`,
+  `matplotlib.pyplot.csd`, and `matplotlib.pyplot.cohere`, in cases
+  where a shape (n, 1) array is returned, this is now converted to a (n, )
+  array.  Previously, (n, m) arrays were averaged to an (n, ) array, but
+  (n, 1) arrays were returend unchanged.  This change makes the dimensions
+  consistent in both cases.
+
 
 .. _changes_in_1_3:
 
