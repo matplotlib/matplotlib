@@ -3817,7 +3817,7 @@ class Axes(_AxesBase):
     stackplot.__doc__ = mstack.stackplot.__doc__
 
     def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
-                   cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
+                   cmap=None, norm=None, arrowsize=1, arrowstyle=None,
                    minlength=0.1, transform=None, zorder=1):
         if not self._hold:
             self.cla()
