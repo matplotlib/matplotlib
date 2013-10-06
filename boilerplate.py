@@ -98,6 +98,7 @@ def boilerplate_gen():
     # name.
     _plotcommands = (
         'acorr',
+        'angle_spectrum',
         'arrow',
         'axhline',
         'axhspan',
@@ -123,8 +124,10 @@ def boilerplate_gen():
         'hlines',
         'imshow',
         'loglog',
+        'magnitude_spectrum',
         'pcolor',
         'pcolormesh',
+        'phase_spectrum',
         'pie',
         'plot',
         'plot_date',
