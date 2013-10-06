@@ -75,6 +75,25 @@ Functions that don't exist in MATLAB, but are useful anyway:
 :func:`phase_spectrum`
     Return the phase (unwrapped angle) of the frequency spectrum of a signal
 
+:func:`detrend_mean`
+:func:`demean`
+    Remove the mean from a line.  These functions differ in their defaults.
+
+:func:`detrend_linear`
+    Remove the best fit line from a line.
+
+:func:`detrend_none`
+    Return the original line.
+
+:func:`stride_windows`
+    Get all windows in an array in a memory-efficient manner
+
+:func:`stride_repeat`
+    Repeat an array in a memory-efficient manner
+
+:func:`apply_window`
+    Apply a window along a given axis
+
 
 record array helper functions
 -------------------------------
@@ -230,7 +249,65 @@ def window_none(x):
     return x
 
 
-def detrend(x, key='mean'):
+def apply_window(x, window, axis=0, return_window=None):
+    '''
+    Apply the given window to the given 1D or 2D array along the given axis.
+
+    Call signature::
+
+        apply_window(x, window, axis=0, return_window=False)
+
+      *x*: 1D or 2D array or sequence
+        Array or sequence containing the data.
+
+      *winodw*: function or array.
+        Either a function to generate a window or an array with length
+        *x*.shape[*axis*]
+
+      *axis*: integer
+        The axis over which to do the repetition.
+        Must be 0 or 1.  The default is 0
+
+      *return_window*: bool
+        If true, also return the 1D values of the window that was applied
+    '''
+    x = np.asarray(x)
+
+    if x.ndim < 1 or x.ndim > 2:
+        raise ValueError('only 1D or 2D arrays can be used')
+    if axis+1 > x.ndim:
+        raise ValueError('axis(=%s) out of bounds' % axis)
+
+    xshape = list(x.shape)
+    xshapetarg = xshape.pop(axis)
+
+    if cbook.iterable(window):
+        if len(window) != xshapetarg:
+            raise ValueError('The len(window) must be the same as the shape '
+                             'of x for the chosen axis')
+        windowVals = window
+    else:
+        windowVals = window(np.ones(xshapetarg, dtype=x.dtype))
+
+    if x.ndim == 1:
+        if return_window:
+            return windowVals * x, windowVals
+        else:
+            return windowVals * x
+
+    xshapeother = xshape.pop()
+
+    otheraxis = (axis+1) % 2
+
+    windowValsRep = stride_repeat(windowVals, xshapeother, axis=otheraxis)
+
+    if return_window:
+        return windowValsRep * x, windowVals
+    else:
+        return windowValsRep * x
+
+
+def detrend(x, key=None, axis=None):
     '''
     Return x with its trend removed.
 
@@ -238,12 +315,19 @@ def detrend(x, key='mean'):
 
         detrend(x, key='mean')
 
-      *key*: [ 'default' | 'constant' | 'mean' | 'linear' | 'none']
+      *x*: array or sequence
+        Array or sequence containing the data.
+
+      *key*: [ 'default' | 'constant' | 'mean' | 'linear' | 'none'] or function
           Specifies the detrend algorithm to use.  'default' is 'mean',
           which is the same as :func:`detrend_mean`.  'constant' is the same.
           'linear' is the same as :func:`detrend_linear`.  'none' is the same
           as :func:`detrend_none`.  The default is 'mean'.  See the
           corresponding functions for more details regarding the algorithms.
+          Can also be a function that carries out the detrend operation.
+
+      *axis*: integer
+        The axis along which to do the detrending.
 
     .. seealso::
 
@@ -257,11 +341,35 @@ def detrend(x, key='mean'):
             :func:`detrend_none` implements the 'none' algorithm.
     '''
     if key is None or key in ['constant', 'mean', 'default']:
-        return detrend_mean(x)
+        return detrend(x, key=detrend_mean, axis=axis)
     elif key == 'linear':
-        return detrend_linear(x)
+        return detrend(x, key=detrend_linear, axis=axis)
     elif key == 'none':
-        return detrend_none(x)
+        return detrend(x, key=detrend_none, axis=axis)
+    elif cbook.is_string_like(key):
+        raise ValueError("Unknown value for key %s, must be one of: "
+                         "'default', 'constant', 'mean', "
+                         "'linear', or a function" % key)
+
+    if not callable(key):
+        raise ValueError("Unknown value for key %s, must be one of: "
+                         "'default', 'constant', 'mean', "
+                         "'linear', or a function" % key)
+
+    x = np.asarray(x)
+
+    if axis is not None and axis+1 > x.ndim:
+        raise ValueError('axis(=%s) out of bounds' % axis)
+
+    if (axis is None and x.ndim == 0) or (not axis and x.ndim == 1):
+        return key(x)
+
+    # try to use the 'axis' argument if the function supports it,
+    # otherwise use apply_along_axis to do it
+    try:
+        return key(x, axis=axis)
+    except TypeError:
+        return np.apply_along_axis(key, axis=axis, arr=x)
 
 
 def demean(x, axis=0):
@@ -272,36 +380,48 @@ def demean(x, axis=0):
 
         demean(x, axis=0)
 
+      *x*: array or sequence
+        Array or sequence containing the data
+        Can have any dimensionality
+
       *axis*: integer
         The axis along which to take the mean.  See numpy.mean for a
         description of this argument.
 
     .. seealso::
 
+        :func:`delinear`
+        :func:`denone`
+            :func:`delinear` and :func:`denone` are other detrend algorithms.
+
         :func:`detrend_mean`
-            This function is the same as as :func:`detrend_mean` when *axis*
-            is None.
+            This function is the same as as :func:`detrend_mean` except
+            for the default *axis*.
     '''
-    x = np.asarray(x)
-    if axis == 0 or axis is None or x.ndim <= 1:
-        return x - x.mean(axis)
-    ind = [slice(None)] * x.ndim
-    ind[axis] = np.newaxis
-    return x - x.mean(axis)[ind]
+    return detrend_mean(x, axis=axis)
 
 
-def detrend_mean(x):
+def detrend_mean(x, axis=None):
     '''
     Return x minus the mean(x).
 
     Call signature::
 
-        detrend_mean(x)
+        detrend_mean(x, axis=None)
+
+      *x*: array or sequence
+        Array or sequence containing the data
+        Can have any dimensionality
+
+      *axis*: integer
+        The axis along which to take the mean.  See numpy.mean for a
+        description of this argument.
 
     .. seealso::
 
         :func:`demean`
-            This function is the same as as :func:`demean` when *axis* is None.
+            This function is the same as as :func:`demean` except
+            for the default *axis*.
 
         :func:`detrend_linear`
         :func:`detrend_none`
@@ -311,18 +431,44 @@ def detrend_mean(x):
         :func:`detrend`
             :func:`detrend` is a wrapper around all the detrend algorithms.
     '''
-    return demean(x, axis=None)
+    x = np.asarray(x)
+
+    if axis is not None and axis+1 > x.ndim:
+        raise ValueError('axis(=%s) out of bounds' % axis)
+
+    # short-circuit 0-D array.
+    if not x.ndim:
+        return np.array(0., dtype=x.dtype)
+
+    # short-circuit simple operations
+    if axis == 0 or axis is None or x.ndim <= 1:
+        return x - x.mean(axis)
+
+    ind = [slice(None)] * x.ndim
+    ind[axis] = np.newaxis
+    return x - x.mean(axis)[ind]
 
 
-def detrend_none(x):
+def detrend_none(x, axis=None):
     '''
     Return x: no detrending.
 
     Call signature::
 
-        detrend_none(x)
+        detrend_none(x, axis=None)
+
+      *x*: any object
+        An object containing the data
+
+      *axis*: integer
+        This parameter is ignored.
+        It is included for compatibility with detrend_mean
 
     .. seealso::
+
+        :func:`denone`
+            This function is the same as as :func:`denone` except
+            for the default *axis*, which has no effect.
 
         :func:`detrend_mean`
         :func:`detrend_linear`
@@ -337,13 +483,24 @@ def detrend_none(x):
 
 def detrend_linear(y):
     '''
-    Return y minus best fit line; 'linear' detrending.
+    Return x minus best fit line; 'linear' detrending.
 
     Call signature::
 
-        detrend_linear(x)
+        detrend_linear(y)
+
+      *y*: 0-D or 1-D array or sequence
+        Array or sequence containing the data
+
+      *axis*: integer
+        The axis along which to take the mean.  See numpy.mean for a
+        description of this argument.
 
     .. seealso::
+
+        :func:`delinear`
+            This function is the same as as :func:`delinear` except
+            for the default *axis*.
 
         :func:`detrend_mean`
         :func:`detrend_none`
@@ -354,16 +511,139 @@ def detrend_linear(y):
             :func:`detrend` is a wrapper around all the detrend algorithms.
     '''
     # This is faster than an algorithm based on linalg.lstsq.
-    x = np.arange(len(y), dtype=np.float_)
+    y = np.asarray(y)
+
+    if y.ndim > 1:
+        raise ValueError('y cannot have ndim > 1')
+
+    # short-circuit 0-D array.
+    if not y.ndim:
+        return np.array(0., dtype=y.dtype)
+
+    x = np.arange(y.size, dtype=np.float_)
+
     C = np.cov(x, y, bias=1)
     b = C[0, 1]/C[0, 0]
+
     a = y.mean() - b*x.mean()
     return y - (b*x + a)
 
 
-def _spectral_helper(x, y=None, NFFT=256, Fs=2, detrend=detrend_none,
-                     window=window_hanning, noverlap=0, pad_to=None,
-                     sides='default', scale_by_freq=None, mode='default'):
+def stride_windows(x, n, noverlap=None, axis=0):
+    '''
+    Get all windows of x with length n as a single array,
+    using strides to avoid data duplication.
+
+    .. warning:: It is not safe to write to the output array.  Multiple
+    elements may point to the same piece of memory, so modifying one value may
+    change others.
+
+    Call signature::
+
+        stride_windows(x, n, noverlap=0)
+
+      *x*: 1D array or sequence
+        Array or sequence containing the data.
+
+      *n*: integer
+        The number of data points in each window.
+
+      *noverlap*: integer
+        The overlap between adjacent windows.
+        Default is 0 (no overlap)
+
+      *axis*: integer
+        The axis along which the windows will run.
+
+    Refs:
+        `stackoverflaw: Rolling window for 1D arrays in Numpy?
+        <http://stackoverflow.com/a/6811241>`_
+        `stackoverflaw: Using strides for an efficient moving average filter
+        <http://stackoverflow.com/a/4947453>`_
+    '''
+    if noverlap is None:
+        noverlap = 0
+
+    if noverlap >= n:
+        raise ValueError('noverlap must be less than n')
+    if n < 1:
+        raise ValueError('n cannot be less than 1')
+
+    x = np.asarray(x)
+
+    if x.ndim != 1:
+        raise ValueError('only 1-dimensional arrays can be used')
+    if n == 1 and noverlap == 0:
+        if axis == 0:
+            return x[np.newaxis]
+        else:
+            return x[np.newaxis].transpose()
+    if n > x.size:
+        raise ValueError('n cannot be greater than the length of x')
+
+    step = n - noverlap
+    if axis == 0:
+        shape = (n, (x.shape[-1]-noverlap)//step)
+        strides = (x.itemsize, step*x.itemsize)
+    else:
+        shape = ((x.shape[-1]-noverlap)//step, n)
+        strides = (step*x.itemsize, x.itemsize)
+    return np.lib.stride_tricks.as_strided(x, shape=shape, strides=strides)
+
+
+def stride_repeat(x, n, axis=0):
+    '''
+    Repeat the values in an array in a memory-efficient manner.  Array x is
+    stacked vertically n times.
+
+    .. warning:: It is not safe to write to the output array.  Multiple
+    elements may point to the same piece of memory, so modifying one value may
+    change others.
+
+    Call signature::
+
+        stride_repeat(x, n, axis=0)
+
+      *x*: 1D array or sequence
+        Array or sequence containing the data.
+
+      *n*: integer
+        The number of time to repeat the array.
+
+      *axis*: integer
+        The axis along which the data will run.
+
+    Refs:
+        `stackoverflaw: Repeat NumPy array without replicating data?
+        <http://stackoverflow.com/a/5568169>`_
+    '''
+    if axis not in [0, 1]:
+        raise ValueError('axis must be 0 or 1')
+    x = np.asarray(x)
+    if x.ndim != 1:
+        raise ValueError('only 1-dimensional arrays can be used')
+
+    if n == 1:
+        if axis == 0:
+            return np.atleast_2d(x)
+        else:
+            return np.atleast_2d(x).T
+    if n < 1:
+        raise ValueError('n cannot be less than 1')
+
+    if axis == 0:
+        shape = (n, x.size)
+        strides = (0, x.itemsize)
+    else:
+        shape = (x.size, n)
+        strides = (x.itemsize, 0)
+
+    return np.lib.stride_tricks.as_strided(x, shape=shape, strides=strides)
+
+
+def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
+                     window=None, noverlap=None, pad_to=None,
+                     sides=None, scale_by_freq=None, mode=None):
     '''
     This is a helper function that implements the commonality between the
     psd, csd, spectrogram and complex, magnitude, angle, and phase spectrums.
@@ -378,13 +658,28 @@ def _spectral_helper(x, y=None, NFFT=256, Fs=2, detrend=detrend_none,
         #extra calculations.  We return the unaveraged Pxy, freqs, and t.
         same_data = y is x
 
-    if NFFT % 2 != 0:
-        raise ValueError('NFFT must be even')
+    if Fs is None:
+        Fs = 2
+    if noverlap is None:
+        noverlap = 0
+    if detrend_func is None:
+        detrend_func = detrend_none
+    if window is None:
+        window = window_hanning
+
+    # if NFFT is set to None use the whole signal
+    if NFFT is None:
+        NFFT = 256
 
     if mode is None or mode == 'default':
-        mode = 'density'
-    if not same_data and mode != 'density':
-        raise ValueError("x and y must be equal if mode is not 'density'")
+        mode = 'psd'
+    elif mode not in ['psd', 'complex', 'magnitude', 'angle', 'phase']:
+        raise ValueError("Unknown value for mode %s, must be one of: "
+                         "'default', 'psd', 'complex', "
+                         "'magnitude', 'angle', 'phase'" % mode)
+
+    if not same_data and mode != 'psd':
+        raise ValueError("x and y must be equal if mode is not 'psd'")
 
     #Make sure we're dealing with a numpy array. If y and x were the same
     #object to start with, keep them that way
@@ -392,9 +687,14 @@ def _spectral_helper(x, y=None, NFFT=256, Fs=2, detrend=detrend_none,
     if not same_data:
         y = np.asarray(y)
 
-    # if NFFT is set to None use the whole signal
-    if NFFT is None:
-        NFFT = len(x)
+    if sides is None or sides == 'default':
+        if np.iscomplexobj(x):
+            sides = 'twosided'
+        else:
+            sides = 'onesided'
+    elif sides not in ['onesided', 'twosided']:
+        raise ValueError("Unknown value for sides %s, must be one of: "
+                         "'default', 'onesided', or 'twosided'" % sides)
 
     # zero pad x and y up to NFFT if they are shorter than NFFT
     if len(x) < NFFT:
@@ -410,68 +710,51 @@ def _spectral_helper(x, y=None, NFFT=256, Fs=2, detrend=detrend_none,
     if pad_to is None:
         pad_to = NFFT
 
-    if mode != 'density':
+    if mode != 'psd':
         scale_by_freq = False
     elif scale_by_freq is None:
         scale_by_freq = True
 
-    if sides == 'default':
-        if np.iscomplexobj(x):
-            sides = 'twosided'
-        else:
-            sides = 'onesided'
-
     # For real x, ignore the negative frequencies unless told otherwise
     if sides == 'twosided':
         numFreqs = pad_to
+        if pad_to % 2:
+            freqcenter = (pad_to - 1)//2 + 1
+        else:
+            freqcenter = pad_to//2
         scaling_factor = 1.
     elif sides == 'onesided':
-        numFreqs = pad_to//2 + 1
-        scaling_factor = 2.
-    else:
-        raise ValueError("sides must be one of: 'default', 'onesided', or "
-                         "'twosided'")
-
-    if cbook.iterable(window):
-        if len(window) != NFFT:
-            raise ValueError('The len(window) must be the same as NFFT')
-        windowVals = window
-    else:
-        windowVals = window(np.ones((NFFT,), x.dtype))
-
-    if NFFT <= noverlap:
-        raise ValueError('NFFT must be larger than noverlap')
-    step = NFFT - noverlap
-    ind = np.arange(0, len(x) - NFFT + 1, step)
-    n = len(ind)
-    result = np.zeros((numFreqs, n), np.complex_)
-
-    # do the ffts of the slices
-    for i in range(n):
-        thisX = x[ind[i]:ind[i]+NFFT]
-        thisX = windowVals * detrend(thisX)
-        fx = np.fft.fft(thisX, n=pad_to)[:numFreqs]
-
-        if mode == 'density':
-            if same_data:
-                fy = fx
-            else:
-                thisY = y[ind[i]:ind[i]+NFFT]
-                thisY = windowVals * detrend(thisY)
-                fy = np.fft.fft(thisY, n=pad_to)[:numFreqs]
-            result[:, i] = np.conjugate(fx) * fy
-        elif mode == 'complex':
-            result[:, i] = fx
-        elif mode == 'magnitude':
-            result[:, i] = np.absolute(fx)
-        elif mode == 'angle':
-            result[:, i] = np.angle(fx)
-        elif mode == 'phase':
-            result[:, i] = np.unwrap(np.angle(fx))
+        if pad_to % 2:
+            numFreqs = (pad_to + 1)//2
         else:
-            raise ValueError('Unknown mode %s' % mode)
+            numFreqs = pad_to//2 + 1
+        scaling_factor = 2.
 
-    if mode == 'density':
+    result = stride_windows(x, NFFT, noverlap)
+    result, windowVals = apply_window(result, window, axis=0,
+                                      return_window=True)
+    result = detrend(result, detrend_func, axis=0)
+    result = np.fft.fft(result, n=pad_to, axis=0)[:numFreqs, :]
+    freqs = np.fft.fftfreq(pad_to, 1/Fs)[:numFreqs]
+
+    if not same_data:
+        # if same_data is False, mode must be 'psd'
+        resultY = stride_windows(y, NFFT, noverlap)
+        resultY = apply_window(resultY, window, axis=0)
+        resultY = detrend(resultY, detrend_func, axis=0)
+        resultY = np.fft.fft(resultY, n=pad_to, axis=0)[:numFreqs, :]
+        result = np.conjugate(result) * resultY
+    elif mode == 'psd':
+        result = np.conjugate(result) * result
+    elif mode == 'magnitude':
+        result = np.absolute(result)
+    elif mode == 'angle' or mode == 'phase':
+        # we unwrap the phase later to handle the onesided vs. twosided case
+        result = np.angle(result)
+    elif mode == 'complex':
+        pass
+
+    if mode == 'psd':
         # Scale the spectrum by the norm of the window to compensate for
         # windowing loss; see Bendat & Piersol Sec 11.5.2.
         result /= (np.abs(windowVals)**2).sum()
@@ -487,30 +770,40 @@ def _spectral_helper(x, y=None, NFFT=256, Fs=2, detrend=detrend_none,
         if scale_by_freq:
             result /= Fs
 
-    t = 1./Fs * (ind + NFFT / 2.)
-    freqs = float(Fs) / pad_to * np.arange(numFreqs)
+    t = np.arange(NFFT/2, len(x) - NFFT/2 + 1, NFFT - noverlap)/Fs
 
     if sides == 'twosided':
         # center the frequency range at zero
-        freqs = np.concatenate((freqs[numFreqs//2:] - Fs, freqs[:numFreqs//2]))
-        result = np.concatenate((result[numFreqs//2:, :],
-                                 result[:numFreqs//2, :]), 0)
+        freqs = np.concatenate((freqs[freqcenter:], freqs[:freqcenter]))
+        result = np.concatenate((result[freqcenter:, :],
+                                 result[:freqcenter, :]), 0)
+    elif not pad_to % 2:
+        # get the last value correctly, it is negative otherwise
+        freqs[-1] *= -1
+
+    # we unwrap the phase here to handle the onesided vs. twosided case
+    if mode == 'phase':
+        result = np.unwrap(result, axis=0)
 
     return result, freqs, t
 
 
-def _single_spectrum_helper(x, mode, Fs=2, window=window_hanning, pad_to=None,
-                            sides='default'):
+def _single_spectrum_helper(x, mode, Fs=None, window=None, pad_to=None,
+                            sides=None):
     '''
     This is a helper function that implements the commonality between the
     complex, magnitude, angle, and phase spectrums.
     It is *NOT* meant to be used outside of mlab and may change at any time.
     '''
-    if mode == 'density' or mode == 'default':
+    if mode is None or mode == 'psd' or mode == 'default':
         raise ValueError('_single_spectrum_helper does not work with %s mode'
                          % mode)
+
+    if pad_to is None:
+        pad_to = len(x)
+
     spec, freqs, _ = _spectral_helper(x=x, y=None, NFFT=len(x), Fs=Fs,
-                                      detrend=detrend_none, window=window,
+                                      detrend_func=detrend_none, window=window,
                                       noverlap=0, pad_to=pad_to,
                                       sides=sides,
                                       scale_by_freq=False,
@@ -576,11 +869,12 @@ docstring.interpd.update(PSD=cbook.dedent("""
 
       *NFFT*: integer
           The number of data points used in each block for the FFT.
-          Must be even; a power 2 is most efficient.  The default value is 256.
+          A power 2 is most efficient.  The default value is 256.
           This should *NOT* be used to get zero padding, or the scaling of the
           result will be incorrect. Use *pad_to* for this instead.
 
-      *detrend*: callable
+      *detrend*: [ 'default' | 'constant' | 'mean' | 'linear' | 'none'] or
+                 callable
           The function applied to each segment before fft-ing,
           designed to remove the mean or linear trend.  Unlike in
           MATLAB, where the *detrend* parameter is a vector, in
@@ -588,7 +882,11 @@ docstring.interpd.update(PSD=cbook.dedent("""
           module defines :func:`~matplotlib.pylab.detrend_none`,
           :func:`~matplotlib.pylab.detrend_mean`, and
           :func:`~matplotlib.pylab.detrend_linear`, but you can use
-          a custom function as well.
+          a custom function as well.  You can also use a string to choose
+          one of the functions.  'default', 'constant', and 'mean' call
+          :func:`~matplotlib.pylab.detrend_mean`.  'linear' calls
+          :func:`~matplotlib.pylab.detrend_linear`.  'none' calls
+          :func:`~matplotlib.pylab.detrend_none`.
 
       *scale_by_freq*: boolean
           Specifies whether the resulting density values should be scaled
@@ -599,8 +897,8 @@ docstring.interpd.update(PSD=cbook.dedent("""
 
 
 @docstring.dedent_interpd
-def psd(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
-        noverlap=0, pad_to=None, sides='default', scale_by_freq=None):
+def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
+        noverlap=None, pad_to=None, sides=None, scale_by_freq=None):
     """
     Compute the power spectral density.
 
@@ -663,8 +961,8 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
 
 @docstring.dedent_interpd
-def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
-        noverlap=0, pad_to=None, sides='default', scale_by_freq=None):
+def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
+        noverlap=None, pad_to=None, sides=None, scale_by_freq=None):
     """
     Compute the cross-spectral density.
 
@@ -718,10 +1016,10 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
     if NFFT is None:
         NFFT = 256
     Pxy, freqs, _ = _spectral_helper(x=x, y=y, NFFT=NFFT, Fs=Fs,
-                                     detrend=detrend, window=window,
+                                     detrend_func=detrend, window=window,
                                      noverlap=noverlap, pad_to=pad_to,
                                      sides=sides, scale_by_freq=scale_by_freq,
-                                     mode='density')
+                                     mode='psd')
 
     if len(Pxy.shape) == 2:
         if Pxy.shape[1] > 1:
@@ -732,8 +1030,8 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
 
 @docstring.dedent_interpd
-def complex_spectrum(x, Fs=2, window=window_hanning, pad_to=None,
-                     sides='default'):
+def complex_spectrum(x, Fs=None, window=None, pad_to=None,
+                     sides=None):
     """
     Compute the complex-valued frequency spectrum of *x*.  Data is padded to a
     length of *pad_to* and the windowing function *window* is applied to the
@@ -777,8 +1075,8 @@ def complex_spectrum(x, Fs=2, window=window_hanning, pad_to=None,
 
 
 @docstring.dedent_interpd
-def magnitude_spectrum(x, Fs=2, window=window_hanning, pad_to=None,
-                       sides='default'):
+def magnitude_spectrum(x, Fs=None, window=None, pad_to=None,
+                       sides=None):
     """
     Compute the magnitude (absolute value) of the frequency spectrum of
     *x*.  Data is padded to a length of *pad_to* and the windowing function
@@ -825,8 +1123,8 @@ def magnitude_spectrum(x, Fs=2, window=window_hanning, pad_to=None,
 
 
 @docstring.dedent_interpd
-def angle_spectrum(x, Fs=2, window=window_hanning, pad_to=None,
-                   sides='default'):
+def angle_spectrum(x, Fs=None, window=None, pad_to=None,
+                   sides=None):
     """
     Compute the angle of the frequency spectrum (wrapped phase spectrum) of
     *x*.  Data is padded to a length of *pad_to* and the windowing function
@@ -870,8 +1168,8 @@ def angle_spectrum(x, Fs=2, window=window_hanning, pad_to=None,
 
 
 @docstring.dedent_interpd
-def phase_spectrum(x, Fs=2, window=window_hanning, pad_to=None,
-                   sides='default'):
+def phase_spectrum(x, Fs=None, window=None, pad_to=None,
+                   sides=None):
     """
     Compute the phase of the frequency spectrum (unwrapped angle spectrum) of
     *x*.  Data is padded to a length of *pad_to* and the windowing function
@@ -915,9 +1213,9 @@ def phase_spectrum(x, Fs=2, window=window_hanning, pad_to=None,
 
 
 @docstring.dedent_interpd
-def specgram(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
-             noverlap=128, pad_to=None, sides='default', scale_by_freq=None,
-             mode='default'):
+def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
+             noverlap=None, pad_to=None, sides=None, scale_by_freq=None,
+             mode=None):
     """
     Compute a spectrogram.
 
@@ -941,10 +1239,10 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
     %(PSD)s
 
-      *mode*: [ 'default' | 'density' | 'complex' | 'magnitude'
+      *mode*: [ 'default' | 'psd' | 'complex' | 'magnitude'
                 'angle' | 'phase' ]
-          What sort of spectrum to use.  Default is 'density'. which takes
-          the power spectral density.  'complex' returns the complex-valued
+          What sort of spectrum to use.  Default is 'psd'. which takes the
+          power spectral density.  'complex' returns the complex-valued
           frequency spectrum.  'magnitude' returns the magnitude spectrum.
           'angle' returns the phase spectrum without unwrapping.  'phase'
           returns the phase spectrum with unwrapping.
@@ -968,7 +1266,7 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
     .. note::
 
         *detrend* and *scale_by_freq* only apply when *mode* is set to
-        'density'
+        'psd'
 
     .. seealso::
 
@@ -993,11 +1291,11 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
             A single spectrum, similar to having a single segment when
             *mode* is 'phase'.
     """
-    if NFFT is None:
-        NFFT = 256
+    if noverlap is None:
+        noverlap = 128
 
     spec, freqs, t = _spectral_helper(x=x, y=None, NFFT=NFFT, Fs=Fs,
-                                      detrend=detrend, window=window,
+                                      detrend_func=detrend, window=window,
                                       noverlap=noverlap, pad_to=pad_to,
                                       sides=sides,
                                       scale_by_freq=scale_by_freq,
