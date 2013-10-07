@@ -1191,7 +1191,8 @@ def interactive(b):
 
 def is_interactive():
     'Return true if plot mode is interactive'
-    b = rcParams['interactive'] and hasattr(sys, 'ps1')
+    b = rcParams['interactive'] and (
+        hasattr(sys, 'ps1') or sys.flags.interactive)
     return b
 
 def tk_window_focus():
