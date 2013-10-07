@@ -14,7 +14,5 @@ recursive-include LICENSE *
 recursive-include examples *
 recursive-include doc *
 recursive-include src  *.cpp *.c *.h *.m
-recursive-include CXX  *.cxx *.hxx *.c *.h
-recursive-include agg24 *
 recursive-include lib *
-recursive-include ttconv *.cpp *.h
+recursive-include extern *
