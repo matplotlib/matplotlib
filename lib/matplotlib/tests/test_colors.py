@@ -76,6 +76,11 @@ def test_SymLogNorm():
     _scalar_tester(norm, vals)
     _mask_tester(norm, vals)
 
+    # Ensure that specifying vmin returns the same result as above
+    norm = mcolors.SymLogNorm(3, vmin=-30, vmax=5, linscale=1.2)
+    normed_vals = norm(vals)
+    assert_array_almost_equal(normed_vals, expected)
+
 
 def _inverse_tester(norm_instance, vals):
     """

@@ -1055,7 +1055,7 @@ class SymLogNorm(Normalize):
         the logarithmic range. Defaults to 1.
         """
         Normalize.__init__(self, vmin, vmax, clip)
-        self.linthresh = linthresh
+        self.linthresh = float(linthresh)
         self._linscale_adj = (linscale / (1.0 - np.e ** -1))
 
     def __call__(self, value, clip=None):
@@ -1113,7 +1113,7 @@ class SymLogNorm(Normalize):
         Calculates vmin and vmax in the transformed system.
         """
         vmin, vmax = self.vmin, self.vmax
-        arr = np.array([vmax, vmin])
+        arr = np.array([vmax, vmin]).astype(np.float)
         self._upper, self._lower = self._transform(arr)
 
     def inverse(self, value):
