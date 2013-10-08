@@ -784,22 +784,22 @@ def sca(ax):
 
 def gca(**kwargs):
     """
-    Return the current axis instance.  This can be used to control
-    axis properties either using set or the
-    :class:`~matplotlib.axes.Axes` methods, for example, setting the
-    xaxis range::
-
-      plot(t,s)
-      set(gca(), 'xlim', [0,10])
-
-    or::
-
-      plot(t,s)
-      a = gca()
-      a.set_xlim([0,10])
-
+    Return the current :class:`~matplotlib.axes.Axes` instance on the
+    current figure matching the given keyword args, or create one.
+    
+    Examples
+    ---------
+    To get the the current polar axes on the current figure::
+    
+        plt.gca(projection='polar')
+    
+    If the current axes doesn't exist, or isn't a polar one, the appropriate
+    axes will be created and then returned.
+    
+    See Also
+    --------
+    matplotlib.figure.Figure.gca : The figure's gca method.
     """
-
     ax =  gcf().gca(**kwargs)
     return ax
 
