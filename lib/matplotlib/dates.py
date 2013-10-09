@@ -561,10 +561,10 @@ class AutoDateFormatter(ticker.Formatter):
                 fmt = self.scaled[k]
                 break
 
-        if isinstance(fmt, basestring):
+        if isinstance(fmt, six.string_types):
             self._formatter = DateFormatter(fmt, self._tz)
             return self._formatter(x, pos)
-        elif hasattr(fmt, '__call__'):
+        elif six.callable(fmt):
             return fmt(x, pos)
         else:
             raise NotImplementedError()
