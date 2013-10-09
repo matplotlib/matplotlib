@@ -495,7 +495,7 @@ class AutoDateFormatter(ticker.Formatter):
            365.0  : '%Y',
            30.    : '%b %Y',
            1.0    : '%b %d %Y',
-           1./24. : '%H:%M:%D',
+           1./24. : '%H:%M:%S',
            1. / (24. * 60.): '%H:%M:%S.%f',
            }
 
