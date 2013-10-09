@@ -74,7 +74,8 @@ def create_figure():
     plt.figure()
     x = np.linspace(0, 1, 15)
     plt.plot(x, x ** 2, "b-")
-    plt.fill_between([0., .4], [.4, 0.], hatch='//', facecolor="lightgray", edgecolor="red")
+    plt.fill_between([0., .4], [.4, 0.], hatch='//', facecolor="lightgray",
+                     edgecolor="red")
     plt.plot(x, 1 - x**2, "g>")
     plt.plot([0.9], [0.5], "ro", markersize=3)
     plt.text(0.9, 0.5, 'unicode (ü, °, µ) and math ($\\mu_i = x_i^2$)',

@@ -39,7 +39,7 @@ def setup():
                 "Could not set locale to English/United States. "
                 "Some date-related tests may fail")
 
-    use('Agg', warn=False) # use Agg backend for these tests
+    use('Agg', warn=False)  # use Agg backend for these tests
 
     # These settings *must* be hardcoded for running the comparison
     # tests and are not necessarily the default values as specified in

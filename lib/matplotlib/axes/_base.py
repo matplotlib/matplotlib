@@ -698,8 +698,6 @@ class _AxesBase(martist.Artist):
                                               self.figure.dpi_scale_trans),
                 "center", "left")
 
-
-
     def _update_transScale(self):
         self.transScale.set(
             mtransforms.blended_transform_factory(
@@ -1090,7 +1088,8 @@ class _AxesBase(martist.Artist):
           =====  ============
 
         """
-        if anchor in list(six.iterkeys(mtransforms.Bbox.coefs)) or len(anchor) == 2:
+        if (anchor in list(six.iterkeys(mtransforms.Bbox.coefs)) or
+                len(anchor) == 2):
             self._anchor = anchor
         else:
             raise ValueError('argument must be among %s' %
@@ -1593,9 +1592,9 @@ class _AxesBase(martist.Artist):
 
     def relim(self, visible_only=False):
         """
-        Recompute the data limits based on current artists. If you want to exclude
-        invisible artists from the calculation, set
-        `visible_only=True`
+        Recompute the data limits based on current artists. If you want to
+        exclude invisible artists from the calculation, set
+        ``visible_only=True``
 
         At present, :class:`~matplotlib.collections.Collection`
         instances are not supported.
@@ -2503,7 +2502,8 @@ class _AxesBase(martist.Artist):
         if 'xmax' in kw:
             right = kw.pop('xmax')
         if kw:
-            raise ValueError("unrecognized kwargs: %s" % list(six.iterkeys(kw)))
+            raise ValueError("unrecognized kwargs: %s" %
+                             list(six.iterkeys(kw)))
 
         if right is None and iterable(left):
             left, right = left
@@ -2732,7 +2732,8 @@ class _AxesBase(martist.Artist):
         if 'ymax' in kw:
             top = kw.pop('ymax')
         if kw:
-            raise ValueError("unrecognized kwargs: %s" % list(six.iterkeys(kw)))
+            raise ValueError("unrecognized kwargs: %s" %
+                             list(six.iterkeys(kw)))
 
         if top is None and iterable(bottom):
             bottom, top = bottom

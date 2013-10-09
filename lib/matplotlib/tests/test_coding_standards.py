@@ -43,15 +43,12 @@ EXPECTED_BAD_FILES = ['*/matplotlib/__init__.py',
                       '*/matplotlib/_pylab_helpers.py',
                       '*/matplotlib/afm.py',
                       '*/matplotlib/artist.py',
-                      '*/matplotlib/axes.py',
                       '*/matplotlib/axis.py',
                       '*/matplotlib/backend_bases.py',
                       '*/matplotlib/bezier.py',
                       '*/matplotlib/cbook.py',
                       '*/matplotlib/collections.py',
-                      '*/matplotlib/docstring.py',
                       '*/matplotlib/dviread.py',
-                      '*/matplotlib/finance.py',
                       '*/matplotlib/font_manager.py',
                       '*/matplotlib/fontconfig_pattern.py',
                       '*/matplotlib/gridspec.py',
@@ -82,10 +79,7 @@ EXPECTED_BAD_FILES = ['*/matplotlib/__init__.py',
                       '*/matplotlib/testing/jpl_units/UnitDblConverter.py',
                       '*/matplotlib/testing/jpl_units/UnitDblFormatter.py',
                       '*/matplotlib/testing/jpl_units/__init__.py',
-                      '*/matplotlib/tri/tricontour.py',
                       '*/matplotlib/tri/triinterpolate.py',
-                      '*/matplotlib/tri/tripcolor.py',
-                      '*/matplotlib/tri/triplot.py',
                       '*/matplotlib/tests/test_axes.py',
                       '*/matplotlib/tests/test_bbox_tight.py',
                       '*/matplotlib/tests/test_dates.py',
@@ -123,7 +117,6 @@ EXPECTED_BAD_FILES = ['*/matplotlib/__init__.py',
                       '*/matplotlib/backends/backend_svg.py',
                       '*/matplotlib/backends/backend_template.py',
                       '*/matplotlib/backends/backend_tkagg.py',
-                      '*/matplotlib/backends/backend_webagg.py',
                       '*/matplotlib/backends/backend_wx.py',
                       '*/matplotlib/backends/backend_wxagg.py',
                       '*/matplotlib/backends/qt4_compat.py',
@@ -131,7 +124,6 @@ EXPECTED_BAD_FILES = ['*/matplotlib/__init__.py',
                       '*/matplotlib/backends/windowing.py',
                       '*/matplotlib/backends/qt4_editor/figureoptions.py',
                       '*/matplotlib/backends/qt4_editor/formlayout.py',
-                      '*/matplotlib/sphinxext/__init__.py',
                       '*/matplotlib/sphinxext/ipython_console_highlighting.py',
                       '*/matplotlib/sphinxext/ipython_directive.py',
                       '*/matplotlib/sphinxext/mathmpl.py',
@@ -246,9 +238,8 @@ def assert_pep8_conformance(module=matplotlib, exclude_files=EXCLUDE_FILES,
                              '{}'.format('\n  '.join(unexpectedly_good)))
 
 
-## Temporarily disabling test
-#def test_pep8_conformance():
-#    assert_pep8_conformance()
+def test_pep8_conformance():
+    assert_pep8_conformance()
 
 
 if __name__ == '__main__':

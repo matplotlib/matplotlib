@@ -272,7 +272,7 @@ class FigureCanvasQT(QtGui.QWidget, FigureCanvasBase):
             FigureCanvasBase.button_press_event(self, x, y,
                                                 button, dblclick=True)
         if DEBUG:
-            print ('button doubleclicked:', event.button())
+            print('button doubleclicked:', event.button())
 
     def mouseMoveEvent(self, event):
         x = event.x()
@@ -720,8 +720,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
                 matplotlib.rcParams['savefig.directory'] = startpath
             else:
                 # save dir for next time
-                matplotlib.rcParams['savefig.directory'] = os.path.dirname(
-                                                               six.text_type(fname))
+                savefig_dir = os.path.dirname(six.text_type(fname))
+                matplotlib.rcParams['savefig.directory'] = savefig_dir
             try:
                 self.canvas.print_figure(six.text_type(fname))
             except Exception as e:
