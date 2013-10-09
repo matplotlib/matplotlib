@@ -12,10 +12,12 @@ import numpy as np
 
 from matplotlib import cm, rcParams
 from matplotlib import pyplot as plt
-from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
+from matplotlib.testing.decorators import (image_comparison, knownfailureif,
+                                           cleanup)
 
 if 'TRAVIS' not in os.environ:
-    @image_comparison(baseline_images=['pdf_use14corefonts'], extensions=['pdf'])
+    @image_comparison(baseline_images=['pdf_use14corefonts'],
+                      extensions=['pdf'])
     def test_use14corefonts():
         rcParams['pdf.use14corefonts'] = True
         rcParams['font.family'] = 'sans-serif'

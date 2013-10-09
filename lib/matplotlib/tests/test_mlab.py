@@ -75,7 +75,8 @@ class csv_testcase(unittest.TestCase):
         np.testing.assert_allclose(expected['t'], actual['t'])
 
     def test_rec2csv_bad_shape_ValueError(self):
-        bad = np.recarray((99, 4), [(str('x'), np.float), (str('y'), np.float)])
+        bad = np.recarray((99, 4), [(str('x'), np.float),
+                                    (str('y'), np.float)])
 
         # the bad recarray should trigger a ValueError for having ndim > 1.
         self.assertRaises(ValueError, mlab.rec2csv, bad, self.fd)

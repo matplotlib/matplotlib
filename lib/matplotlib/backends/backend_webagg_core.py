@@ -10,7 +10,8 @@ Displays Agg images in the browser, with interactivity
 # - `backend_webagg.py` contains a concrete implementation of a basic
 #   application, implemented with tornado.
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 
@@ -283,8 +284,9 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
             json.dumps(toolitems)))
 
         extensions = []
-        for filetype, ext in sorted(
-                FigureCanvasWebAggCore.get_supported_filetypes_grouped().items()):
+        for filetype, ext in sorted(FigureCanvasWebAggCore.
+                                    get_supported_filetypes_grouped().
+                                    items()):
             extensions.append(ext[0])
         output.write("mpl.extensions = {0};\n\n".format(
             json.dumps(extensions)))

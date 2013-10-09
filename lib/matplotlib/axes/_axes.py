@@ -558,17 +558,18 @@ class Axes(_AxesBase):
             "figure points", "figure pixels", "figure fraction", "axes
             points", .... See `matplotlib.text.Annotation` for more details.
 
-        textcoords : string, optional, default: None
+        textcoords : string, optional
             string that indicates what type of coordinates `text` is. Examples:
             "figure points", "figure pixels", "figure fraction", "axes
             points", .... See `matplotlib.text.Annotation` for more details.
+            Default is None.
 
-        arrowprops : `matplotlib.lines.Line2D` properties, optional, default: None
+        arrowprops : `matplotlib.lines.Line2D` properties, optional
             Dictionnary of line properties for the arrow that connects the
             annotation to the point. If the dictionnary has a key
             `arrowstyle`, a `FancyArrowPatch` instance is created and drawn.
             See `matplotlib.text.Annotation` for more details on valid
-            options.
+            options. Default is None.
 
         Returns
         -------
@@ -3643,7 +3644,7 @@ class Axes(_AxesBase):
         # Transform accum if needed
         if bins == 'log':
             accum = np.log10(accum + 1)
-        elif bins != None:
+        elif bins is not None:
             if not iterable(bins):
                 minimum, maximum = min(accum), max(accum)
                 bins -= 1  # one less edge than bins
@@ -5119,7 +5120,8 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        tuple : (n, bins, patches) or ([n0, n1, ...], bins, [patches0, patches1,...])
+        tuple : ``(n, bins, patches)`` or \
+                ``([n0, n1, ...], bins, [patches0, patches1,...])``
 
         Other Parameters
         ----------------
@@ -5246,7 +5248,7 @@ class Axes(_AxesBase):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
-            m = m.astype(float) # causes problems later if it's an int
+            m = m.astype(float)  # causes problems later if it's an int
             if mlast is None:
                 mlast = np.zeros(len(bins)-1, m.dtype)
             if normed and not stacked:
@@ -5417,7 +5419,7 @@ class Axes(_AxesBase):
                 xmin0 = max(_saved_bounds[0]*0.9, minimum)
                 xmax = self.dataLim.intervalx[1]
                 for m in n:
-                    xmin = np.amin(m[m != 0]) # filter out the 0 height bins
+                    xmin = np.amin(m[m != 0])  # filter out the 0 height bins
                 xmin = max(xmin*0.9, minimum)
                 xmin = min(xmin0, xmin)
                 self.dataLim.intervalx = (xmin, xmax)
@@ -5425,7 +5427,7 @@ class Axes(_AxesBase):
                 ymin0 = max(_saved_bounds[1]*0.9, minimum)
                 ymax = self.dataLim.intervaly[1]
                 for m in n:
-                    ymin = np.amin(m[m != 0]) # filter out the 0 height bins
+                    ymin = np.amin(m[m != 0])  # filter out the 0 height bins
                 ymin = max(ymin*0.9, minimum)
                 ymin = min(ymin0, ymin)
                 self.dataLim.intervaly = (ymin, ymax)
