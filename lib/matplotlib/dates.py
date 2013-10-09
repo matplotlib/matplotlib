@@ -505,9 +505,24 @@ class AutoDateFormatter(ticker.Formatter):
     dictionary by doing::
 
 
-      formatter = AutoDateFormatter()
-      formatter.scaled[1/(24.*60.)] = '%M:%S' # only show min and sec
+    >>> formatter = AutoDateFormatter()
+    >>> formatter.scaled[1/(24.*60.)] = '%M:%S' # only show min and sec
 
+    Custom functions can also be used. The following example shows how to use
+    a custom format function to strip trailing zeros from decimal seconds and
+    adds the date to the first ticklabel::
+
+    >>> def my_format_function(x, pos=None):
+    ...     x = matplotlib.dates.num2date(x)
+    ...     if pos == 0:
+    ...         fmt = '%D %H:%M:%S.%f'
+    ...     else:
+    ...         fmt = '%H:%M:%S.%f'
+    ...     label = x.strftime(fmt)
+    ...     label = label.rstrip("0")
+    ...     label = label.rstrip(".")
+    ...     return label
+    >>> formatter.scaled[1/(24.*60.)] = my_format_function
     """
 
     # This can be improved by providing some user-level direction on
@@ -536,7 +551,7 @@ class AutoDateFormatter(ticker.Formatter):
                        1. / 24.: '%H:%M:%S',
                        1. / (24. * 60.): '%H:%M:%S.%f'}
 
-    def __call__(self, x, pos=0):
+    def __call__(self, x, pos=None):
         scale = float(self._locator._get_unit())
         fmt = self.defaultfmt
 
@@ -545,8 +560,13 @@ class AutoDateFormatter(ticker.Formatter):
                 fmt = self.scaled[k]
                 break
 
-        self._formatter = DateFormatter(fmt, self._tz)
-        return self._formatter(x, pos)
+        if isinstance(fmt, basestring):
+            self._formatter = DateFormatter(fmt, self._tz)
+            return self._formatter(x, pos)
+        elif hasattr(fmt, '__call__'):
+            return fmt(x, pos)
+        else:
+            raise NotImplementedError()
 
 
 class rrulewrapper:
