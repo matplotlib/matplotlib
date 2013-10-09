@@ -75,11 +75,8 @@ def _generate_cmap(name, lutsize):
 
 LUTSIZE = mpl.rcParams['image.lut']
 
-_cmapnames = list(six.iterkeys(datad))  # need this list because datad is changed in loop
-
 # Generate the reversed specifications ...
-
-for cmapname in _cmapnames:
+for cmapname in list(six.iterkeys(datad)):
     spec = datad[cmapname]
     spec_reversed = _reverse_cmap_spec(spec)
     datad[cmapname + '_r'] = spec_reversed
