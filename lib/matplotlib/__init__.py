@@ -102,7 +102,7 @@ from __future__ import print_function, absolute_import
 import sys
 import distutils.version
 
-__version__  = '1.3.1rc2'
+__version__  = '1.3.1'
 __version__numpy__ = '1.5' # minimum required numpy version
 
 try:
