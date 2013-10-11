@@ -115,11 +115,16 @@ except ImportError:
 def compare_versions(a, b):
     "return True if a is greater than or equal to b"
     if a:
+        if six.PY3:
+            if isinstance(a, bytes):
+                a = a.decode('ascii')
+            if isinstance(b, bytes):
+                b = b.decode('ascii')
         a = distutils.version.LooseVersion(a)
         b = distutils.version.LooseVersion(b)
-        if a>=b: return True
-        else: return False
-    else: return False
+        return a >= b
+    else:
+        return False
 
 try:
     import pyparsing
@@ -1222,6 +1227,7 @@ default_test_modules = [
     'matplotlib.tests.test_axes',
     'matplotlib.tests.test_backend_pdf',
     'matplotlib.tests.test_backend_pgf',
+    'matplotlib.tests.test_backend_ps',
     'matplotlib.tests.test_backend_qt4',
     'matplotlib.tests.test_backend_svg',
     'matplotlib.tests.test_basic',
