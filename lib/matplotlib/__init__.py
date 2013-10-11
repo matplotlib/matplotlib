@@ -1222,6 +1222,7 @@ default_test_modules = [
     'matplotlib.tests.test_axes',
     'matplotlib.tests.test_backend_pdf',
     'matplotlib.tests.test_backend_pgf',
+    'matplotlib.tests.test_backend_ps',
     'matplotlib.tests.test_backend_qt4',
     'matplotlib.tests.test_backend_svg',
     'matplotlib.tests.test_basic',
