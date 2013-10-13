@@ -711,9 +711,9 @@ class NavigationToolbar2QT(QtWidgets.QToolBar, NavigationToolbar2):
                     QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
 
 
-class SubplotToolQt(SubplotTool, QtWidgets.QWidget):
+class SubplotToolQt(QtWidgets.QWidget, SubplotTool):
     def __init__(self, targetfig, parent):
-        super().__init__(targetfig=targetfig, parent=parent)
+        QtWidgets.QWidget.__init__(self, parent)
 
         self.targetfig = targetfig
         self.parent = parent
@@ -850,7 +850,6 @@ def exception_handler(type, value, tb):
     """Handle uncaught exceptions
     It does not catch SystemExit
     """
-    print('EXCEPTION')
     msg = ''
     # get the filename attribute if available (for IOError)
     if hasattr(value, 'filename') and value.filename is not None:
