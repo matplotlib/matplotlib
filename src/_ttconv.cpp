@@ -49,9 +49,15 @@ public:
         if (_write_method)
         {
             #if PY3K
-            result = PyObject_CallFunction(_write_method, (char *)"y", a);
-            #else
             result = PyObject_CallFunction(_write_method, (char *)"s", a);
+            #else
+            PyObject* decoded = NULL;
+            decoded = PyUnicode_FromString(a);
+            if (decoded == NULL) {
+                throw PythonExceptionOccurred();
+            }
+            result = PyObject_CallFunction(_write_method, "O", decoded);
+            Py_DECREF(decoded);
             #endif
             if (! result)
             {
