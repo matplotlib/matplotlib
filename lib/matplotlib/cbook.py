@@ -693,6 +693,19 @@ def is_writable_file_like(obj):
     return hasattr(obj, 'write') and six.callable(obj.write)
 
 
+def file_requires_unicode(x):
+    """
+    Returns `True` if the given writable file-like object requires Unicode
+    to be written to it.
+    """
+    try:
+        x.write(b'')
+    except TypeError:
+        return True
+    else:
+        return False
+
+
 def is_scalar(obj):
     'return true if *obj* is not string like and is not iterable'
     return not is_string_like(obj) and not iterable(obj)
