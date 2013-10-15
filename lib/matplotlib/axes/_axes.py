@@ -2788,7 +2788,8 @@ class Axes(_AxesBase):
 
     def boxplot(self, x, notch=False, sym='b+', vert=True, whis=1.5,
                 positions=None, widths=None, patch_artist=False,
-                bootstrap=None, usermedians=None, conf_intervals=None):
+                bootstrap=None, usermedians=None, conf_intervals=None,
+                averages=False, useraverages=None):
         """
         Make a box and whisker plot.
 
@@ -2796,7 +2797,8 @@ class Axes(_AxesBase):
 
           boxplot(x, notch=False, sym='+', vert=True, whis=1.5,
                   positions=None, widths=None, patch_artist=False,
-                  bootstrap=None, usermedians=None, conf_intervals=None)
+                  bootstrap=None, usermedians=None, conf_intervals=None,
+                  averages=False, useraverages=None)
 
         Make a box and whisker plot for each column of *x* or each
         vector in sequence *x*.  The box extends from the lower to
@@ -2851,6 +2853,17 @@ class Axes(_AxesBase):
             element of *conf_intervals* is None, boxplot compute notches the
             method specified by the other kwargs (e.g., *bootstrap*).
 
+          *averages* : [ False (default) | True ]
+            If False (default), does not include an average line.
+            If True, will produce a line in the box with the average value.
+
+          *useraverages* : [ default None ]
+            An array or sequence whose first dimension (or length) is
+            compatible with *x*. This overrides the averages computed by
+            matplotlib for each element of *useraverages* that is not None.
+            When an element of *useraverages* == None, the median will be
+            computed directly as normal.
+
           *positions* : [ default 1,2,...,n ]
             Sets the horizontal positions of the boxes. The ticks and limits
             are automatically set to match the positions.
@@ -2872,6 +2885,7 @@ class Axes(_AxesBase):
             - boxes: the main body of the boxplot showing the quartiles
               and the median's confidence intervals if enabled.
             - medians: horizonal lines at the median of each box.
+            - averages: horizonal lines at the average of each box.
             - whiskers: the vertical lines extending to the most extreme,
               n-outlier data points.
             - caps: the horizontal lines at the ends of the whiskers.
@@ -2916,7 +2930,7 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
         holdStatus = self._hold
-        whiskers, caps, boxes, medians, fliers = [], [], [], [], []
+        whiskers, caps, boxes, medians, average_values, fliers = [], [], [], [], [], []
 
         # convert x to a list of vectors
         if hasattr(x, 'shape'):
@@ -2950,6 +2964,19 @@ class Axes(_AxesBase):
                     raise ValueError(msg2)
             elif len(usermedians) != col:
                 raise ValueError(msg2)
+
+        if averages:
+            # sanitize user-input averages
+            msg1 = "useraverages must either be a list/tuple or a 1d array"
+            msg2 = "useraverages' length must be compatible with x"
+            if useraverages is not None:
+                if hasattr(useraverages, 'shape'):
+                    if len(useraverages.shape) != 1:
+                        raise ValueError(msg1)
+                    elif useraverages.shape[0] != col:
+                        raise ValueError(msg2)
+                elif len(useraverages) != col:
+                    raise ValueError(msg2)
 
         #sanitize user-input confidence intervals
         msg1 = "conf_intervals must either be a list of tuples or a 2d array"
@@ -2996,6 +3023,15 @@ class Axes(_AxesBase):
                 if usermedians[i] is not None:
                     med = usermedians[i]
 
+            if averages:
+                # get average
+                avg = np.average(d)
+
+                # replace with input averages if available
+                if useraverages is not None:
+                    if useraverages[i] is not None:
+                        avg = useraverages[i]
+
             # get high extreme
             iq = q3 - q1
             hi_val = q3 + whis * iq
@@ -3037,6 +3073,10 @@ class Axes(_AxesBase):
             # get y location for median
             med_y = [med, med]
 
+            if averages:
+                # get y location for average
+                avg_y = [avg, avg]
+
             # calculate 'notch' plot
             if notch:
                 # conf. intervals from user, if available
@@ -3064,6 +3104,9 @@ class Axes(_AxesBase):
                 box_y = [q1, q1, q3, q3, q1]
                 # make our median line vectors
                 med_x = [box_x_min, box_x_max]
+                if averages:
+                    # make our average line vectors
+                    avg_x = [box_x_min, box_x_max]
 
             def to_vc(xs, ys):
                 # convert arguments to verts and codes
@@ -3119,6 +3162,8 @@ class Axes(_AxesBase):
                 boxes.extend(doplot(box_x, box_y, 'b-'))
 
             medians.extend(doplot(med_x, med_y, median_color + '-'))
+            if averages:
+                average_values.extend(doplot(avg_x, avg_y, 'k:'))
             fliers.extend(doplot(flier_hi_x, flier_hi, sym,
                                  flier_lo_x, flier_lo, sym))
 
@@ -3136,7 +3181,7 @@ class Axes(_AxesBase):
         self.hold(holdStatus)
 
         return dict(whiskers=whiskers, caps=caps, boxes=boxes,
-                    medians=medians, fliers=fliers)
+                    medians=medians, averages=average_values, fliers=fliers)
 
     @docstring.dedent_interpd
     def scatter(self, x, y, s=20, c='b', marker='o', cmap=None, norm=None,
