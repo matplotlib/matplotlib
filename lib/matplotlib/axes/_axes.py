@@ -3025,13 +3025,13 @@ class Axes(_AxesBase):
                     med = usermedians[i]
 
             if averages:
-                # get average
-                avg = np.average(d)
+                # use input averages if available
+                if useraverages is not None and useraverages[i] is not None:
+                    avg = useraverages[i]
+                else:
+                    avg = np.average(d)
 
-                # replace with input averages if available
-                if useraverages is not None:
-                    if useraverages[i] is not None:
-                        avg = useraverages[i]
+
 
             # get high extreme
             iq = q3 - q1
