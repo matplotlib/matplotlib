@@ -2568,7 +2568,7 @@ def broken_barh(xranges, yrange, hold=None, **kwargs):
 @_autogen_docstring(Axes.boxplot)
 def boxplot(x, notch=False, sym='b+', vert=True, whis=1.5, positions=None,
             widths=None, patch_artist=False, bootstrap=None, usermedians=None,
-            conf_intervals=None, averages=False, useraverages=None, hold=None):
+            conf_intervals=None, hold=None, averages=False, useraverages=None):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
