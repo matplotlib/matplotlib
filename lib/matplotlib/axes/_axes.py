@@ -3031,8 +3031,6 @@ class Axes(_AxesBase):
                 else:
                     avg = np.average(d)
 
-
-
             # get high extreme
             iq = q3 - q1
             hi_val = q3 + whis * iq
