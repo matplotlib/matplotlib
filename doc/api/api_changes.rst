@@ -14,6 +14,10 @@ For new features that were added to matplotlib, please see
 Changes in 1.4.x
 ================
 
+* Option to display averages in boxplots introduces two new arguments
+  to :func:`~matplotlib.pyplot.boxplot`. Arguments `averages` and
+  `useraverages`.
+
 * A major refactoring of the axes module was made. The axes module has been
 splitted into smaller modules:
 
