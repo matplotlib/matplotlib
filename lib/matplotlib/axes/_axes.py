@@ -2930,7 +2930,8 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
         holdStatus = self._hold
-        whiskers, caps, boxes, medians, average_values, fliers = [], [], [], [], [], []
+        whiskers, caps, boxes = [], [], []
+        medians, average_values, fliers = [], [], []
 
         # convert x to a list of vectors
         if hasattr(x, 'shape'):
