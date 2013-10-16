@@ -756,7 +756,7 @@ grestore
             except KeyError:
                 ps_name = sfnt[(3,1,0x0409,6)].decode(
                     'utf-16be')
-            ps_name = ps_name.encode('ascii','replace')
+            ps_name = ps_name.encode('ascii', 'replace')
             self.set_font(ps_name, prop.get_size_in_points())
 
             cmap = font.get_charmap()
@@ -1184,7 +1184,7 @@ class FigureCanvasPS(FigureCanvasBase):
             # We are going to use an external program to process the output.
             # Write to a temporary file.
             fd, tmpfile = mkstemp()
-            with io.open(fd, 'w', encoding='ascii') as fh:
+            with io.open(fd, 'w', encoding='latin-1') as fh:
                 print_figure_impl()
         else:
             # Write directly to outfile.
@@ -1193,7 +1193,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
                 if (not requires_unicode and
                     (six.PY3 or not isinstance(outfile, StringIO))):
-                    fh = io.TextIOWrapper(outfile, encoding="ascii")
+                    fh = io.TextIOWrapper(outfile, encoding="latin-1")
                     # Prevent the io.TextIOWrapper from closing the
                     # underlying file
                     def do_nothing():
@@ -1204,7 +1204,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
                 print_figure_impl()
             else:
-                with io.open(outfile, 'w', encoding='ascii') as fh:
+                with io.open(outfile, 'w', encoding='latin-1') as fh:
                     print_figure_impl()
 
         if rcParams['ps.usedistiller']:
@@ -1216,7 +1216,7 @@ class FigureCanvasPS(FigureCanvasBase):
             if passed_in_file_object:
                 if file_requires_unicode(outfile):
                     with io.open(tmpfile, 'rb') as fh:
-                        outfile.write(fh.read().decode('ascii'))
+                        outfile.write(fh.read().decode('latin-1'))
                 else:
                     with io.open(tmpfile, 'rb') as fh:
                         outfile.write(fh.read())
@@ -1290,7 +1290,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # write to a temp file, we'll move it to outfile when done
         fd, tmpfile = mkstemp()
-        with io.open(fd, 'w', encoding='ascii') as fh:
+        with io.open(fd, 'w', encoding='latin-1') as fh:
             # write the Encapsulated PostScript headers
             print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             if title: print("%%Title: "+title, file=fh)
@@ -1373,7 +1373,7 @@ class FigureCanvasPS(FigureCanvasBase):
         if is_writable_file_like(outfile):
             if file_requires_unicode(outfile):
                 with io.open(tmpfile, 'rb') as fh:
-                    outfile.write(fh.read().decode('ascii'))
+                    outfile.write(fh.read().decode('latin-1'))
             else:
                 with io.open(tmpfile, 'rb') as fh:
                     outfile.write(fh.read())
