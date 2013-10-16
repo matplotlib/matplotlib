@@ -48,17 +48,13 @@ public:
         PyObject* result = NULL;
         if (_write_method)
         {
-            #if PY3K
-            result = PyObject_CallFunction(_write_method, (char *)"s", a);
-            #else
             PyObject* decoded = NULL;
-            decoded = PyUnicode_FromString(a);
+            decoded = PyUnicode_DecodeLatin1(a, strlen(a), "");
             if (decoded == NULL) {
                 throw PythonExceptionOccurred();
             }
             result = PyObject_CallFunction(_write_method, "O", decoded);
             Py_DECREF(decoded);
-            #endif
             if (! result)
             {
                 throw PythonExceptionOccurred();
