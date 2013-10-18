@@ -241,6 +241,9 @@ public:
 
     const int debug;
 
+    agg::rgba _fill_color;
+
+
 protected:
     double points_to_pixels(const Py::Object& points);
     agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
