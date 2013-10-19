@@ -824,8 +824,9 @@ class CXX(SetupPackage):
                  'cxxextensions.c']])
             pkg_config.setup_extension(ext, 'PyCXX')
         else:
-            ext.sources.extend(glob.glob('CXX/*.cxx'))
-            ext.sources.extend(glob.glob('CXX/*.c'))
+            ext.include_dirs.append('extern')
+            ext.sources.extend(glob.glob('extern/CXX/*.cxx'))
+            ext.sources.extend(glob.glob('extern/CXX/*.c'))
         ext.define_macros.append(('PYCXX_ISO_CPP_LIB', '1'))
         if PY3:
             ext.define_macros.append(('PYCXX_PYTHON_2TO3', '1'))
@@ -850,7 +851,7 @@ class LibAgg(SetupPackage):
         if self.found_external:
             pkg_config.setup_extension(ext, 'libagg')
         else:
-            ext.include_dirs.append('agg24/include')
+            ext.include_dirs.append('extern/agg24/include')
             agg_sources = [
                 'agg_bezier_arc.cpp',
                 'agg_curves.cpp',
@@ -862,7 +863,7 @@ class LibAgg(SetupPackage):
                 'agg_vpgen_segmentator.cpp'
                 ]
             ext.sources.extend(
-                os.path.join('agg24', 'src', x) for x in agg_sources)
+                os.path.join('extern', 'agg24', 'src', x) for x in agg_sources)
 
 
 class FreeType(SetupPackage):
@@ -939,9 +940,9 @@ class TTConv(SetupPackage):
     def get_extension(self):
         sources = [
             'src/_ttconv.cpp',
-            'ttconv/pprdrv_tt.cpp',
-            'ttconv/pprdrv_tt2.cpp',
-            'ttconv/ttutil.cpp'
+            'extern/ttconv/pprdrv_tt.cpp',
+            'extern/ttconv/pprdrv_tt2.cpp',
+            'extern/ttconv/ttutil.cpp'
             ]
         ext = make_extension('matplotlib.ttconv', sources)
         Numpy().add_flags(ext)
