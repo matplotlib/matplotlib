@@ -115,6 +115,9 @@ You can add your own custom ``<style name>.mplstyle`` files to
 ``~/.matplotlib/stylelib`` or call ``use`` with a URL pointing to a file with
 ``matplotlibrc`` settings.
 
+*Note that this is an experimental feature*, and the interface may change as
+users test out this new feature.
+
 .. _whats-new-1-3:
 
 new in matplotlib-1.3
