@@ -947,6 +947,7 @@ class TTConv(SetupPackage):
         ext = make_extension('matplotlib.ttconv', sources)
         Numpy().add_flags(ext)
         CXX().add_flags(ext)
+        ext.include_dirs.append('extern')
         return ext
 
 
