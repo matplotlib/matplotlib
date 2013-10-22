@@ -243,7 +243,7 @@ class Verbose:
     # --verbose-silent or --verbose-helpful
     _commandLineVerbose = None
 
-    for arg in sys.argv[1:]:
+    for arg in map(six.u, sys.argv[1:]):
         if not arg.startswith('--verbose-'):
             continue
         level_str = arg[10:]
@@ -1212,7 +1212,7 @@ def tk_window_focus():
 # Allow command line access to the backend with -d (MATLAB compatible
 # flag)
 
-for s in sys.argv[1:]:
+for s in map(six.u, sys.argv[1:]):
     if s.startswith('-d') and len(s) > 2:  # look for a -d flag
         try:
             use(s[2:])
