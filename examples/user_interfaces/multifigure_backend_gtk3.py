@@ -11,19 +11,20 @@ x = np.arange(100)
 fig1 = plt.figure()
 ax1 = fig1.add_subplot(111)
 ax1.plot(x, x ** 2, marker='o', label='hey', picker=5)
-ax1.legend(loc = 'lower left')
+ax1.legend(loc='lower left')
 
 fig2 = plt.figure()
 ax2 = fig2.add_subplot(111)
-ax2.plot(x , np.sqrt(x))
+ax2.plot(x, np.sqrt(x))
 ax2.set_xlabel('x')
 ax2.set_ylabel('y')
-#In the axes control tool, there is a second axes for this subplot, check it out :)
+#In the axes control tool,
+#there is a second axes for this subplot, check it out :)
 ax22 = ax2.twinx()
 ax22.plot(x, -np.sqrt(x), picker=5, marker='x', label='in second axis')
 ax22.set_ylabel('Minus x')
 
-d=5
+d = 5
 fig3 = plt.figure()
 ax3 = fig3.add_subplot(111)
 ax3.plot(x[::d], (x ** 3)[::d], 'ro-', label='Line label')
@@ -56,7 +57,7 @@ fig4.canvas.manager.reparent(fig3)
 #parent=fig2.canvas.manager.parent
 fig5 = plt.figure(parent=fig1)
 ax5 = fig5.add_subplot(111)
-ax5.plot(x , x**4)
+ax5.plot(x, x**4)
 #if we want it in a separate window
 #parent=False
 
@@ -65,6 +66,7 @@ ax5.plot(x , x**4)
 #Toolbar management
 class SampleNonGuiTool(ToolBase):
     text = 'Stats'
+
     def set_figures(self, *figures):
         #stupid routine that says how many axes are in each figure
         for figure in figures:

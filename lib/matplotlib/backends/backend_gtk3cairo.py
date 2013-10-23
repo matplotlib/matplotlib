@@ -1,5 +1,5 @@
 from __future__ import (absolute_import, division, print_function,
-                        unicode_literals) 
+                        unicode_literals)
 
 import six
 
@@ -24,8 +24,8 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
         self._renderer = RendererGTK3Cairo(self.figure.dpi)
 
     def _render_figure(self, width, height):
-        self._renderer.set_width_height (width, height)
-        self.figure.draw (self._renderer)
+        self._renderer.set_width_height(width, height)
+        self.figure.draw(self._renderer)
 
     def on_draw_event(self, widget, ctx):
         """ GtkDrawable draw event, like expose_event in GTK 2.X
@@ -35,7 +35,8 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
         #if self._need_redraw:
         self._renderer.set_context(ctx)
         allocation = self.get_allocation()
-        x, y, w, h = allocation.x, allocation.y, allocation.width, allocation.height
+        x, y = allocation.x, allocation.y
+        w, h = allocation.width, allocation.height
         self._render_figure(w, h)
         #self._need_redraw = False
 
