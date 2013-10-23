@@ -1,5 +1,5 @@
 from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+                        unicode_literals) 
 
 import six
 
@@ -11,7 +11,7 @@ import warnings
 from . import backend_agg
 from . import backend_gtk3
 from matplotlib.figure import Figure
-from matplotlib import transforms
+from matplotlib import transforms, rcParams
 
 if six.PY3:
     warnings.warn("The Gtk3Agg backend is not known to work on Python 3.x.")
@@ -94,16 +94,17 @@ def new_figure_manager(num, *args, **kwargs):
     Create a new figure manager instance
     """
     FigureClass = kwargs.pop('FigureClass', Figure)
+    parent = kwargs.pop('parent', rcParams['backend.single_window'])
     thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
+    return new_figure_manager_given_figure(num, thisFig, parent)
 
 
-def new_figure_manager_given_figure(num, figure):
+def new_figure_manager_given_figure(num, figure, parent):
     """
     Create a new figure manager instance for the given figure.
     """
     canvas = FigureCanvasGTK3Agg(figure)
-    manager = FigureManagerGTK3Agg(canvas, num)
+    manager = FigureManagerGTK3Agg(canvas, num, parent)
     return manager
 
 
