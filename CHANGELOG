@@ -1,3 +1,19 @@
+2013-10-06 Add stride-based functions to mlab for easy creation of 2D arrays
+           with less memory.
+
+2013-10-06 Improve window and detrend functions in mlab, particulart support for
+           2D arrays.
+
+2013-10-06 Improve performance of all spectrum-related mlab functions and plots.
+
+2013-10-06 Added support for magnitude, phase, and angle spectrums to
+           axes.specgram, and support for magnitude, phase, angle, and complex
+           spectrums to mlab-specgram.
+
+2013-10-06 Added magnitude_spectrum, angle_spectrum, and phase_spectrum plots,
+           as well as magnitude_spectrum, angle_spectrum, phase_spectrum,
+           and complex_spectrum functions to mlab
+
 2013-07-12 Added support for datetime axes to 2d plots. Axis values are passed
            through Axes.convert_xunits/Axes.convert_yunits before being used by
            contour/contourf, pcolormesh and pcolor.

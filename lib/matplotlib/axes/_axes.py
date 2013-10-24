@@ -5563,9 +5563,9 @@ class Axes(_AxesBase):
         return h, xedges, yedges, pc
 
     @docstring.dedent_interpd
-    def psd(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
-            window=mlab.window_hanning, noverlap=0, pad_to=None,
-            sides='default', scale_by_freq=None, **kwargs):
+    def psd(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
+            window=None, noverlap=None, pad_to=None,
+            sides=None, scale_by_freq=None, return_line=None, **kwargs):
         """
         Plot the power spectral density.
 
@@ -5573,22 +5573,28 @@ class Axes(_AxesBase):
 
           psd(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
               window=mlab.window_hanning, noverlap=0, pad_to=None,
-              sides='default', scale_by_freq=None, **kwargs)
+              sides='default', scale_by_freq=None, return_line=None, **kwargs)
 
-        The power spectral density by Welch's average periodogram
-        method.  The vector *x* is divided into *NFFT* length
+        The power spectral density :math:`P_{xx}` by Welch's average
+        periodogram method.  The vector *x* is divided into *NFFT* length
         segments.  Each segment is detrended by function *detrend* and
         windowed by function *window*.  *noverlap* gives the length of
         the overlap between segments.  The :math:`|\mathrm{fft}(i)|^2`
-        of each segment :math:`i` are averaged to compute *Pxx*, with a
-        scaling to correct for power loss due to windowing.  *Fs* is the
-        sampling frequency.
+        of each segment :math:`i` are averaged to compute :math:`P_{xx}`,
+        with a scaling to correct for power loss due to windowing.
+
+        If len(*x*) < *NFFT*, it will be zero padded to *NFFT*.
+
+          *x*: 1-D array or sequence
+            Array or sequence containing the data
+
+        %(Spectral)s
 
         %(PSD)s
 
           *noverlap*: integer
-            The number of points of overlap between blocks.  The default value
-            is 0 (no overlap).
+            The number of points of overlap between segments.
+            The default value is 0 (no overlap).
 
           *Fc*: integer
             The center frequency of *x* (defaults to 0), which offsets
@@ -5596,7 +5602,23 @@ class Axes(_AxesBase):
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        Returns the tuple (*Pxx*, *freqs*).
+          *return_line*: bool
+            Whether to include the line object plotted in the returned values.
+            Default is False.
+
+        If *return_line* is False, returns the tuple (*Pxx*, *freqs*).
+        If *return_line* is True, returns the tuple (*Pxx*, *freqs*. *line*):
+
+          *Pxx*: 1-D array
+            The values for the power spectrum `P_{xx}` before scaling
+            (real valued)
+
+          *freqs*: 1-D array
+            The frequencies corresponding to the elements in *Pxx*
+
+          *line*: a :class:`~matplotlib.lines.Line2D` instance
+            The line created by this function.
+            Only returend if *return_line* is True.
 
         For plotting, the power is plotted as
         :math:`10\log_{10}(P_{xx})` for decibels, though *Pxx* itself
@@ -5613,11 +5635,30 @@ class Axes(_AxesBase):
         **Example:**
 
         .. plot:: mpl_examples/pylab_examples/psd_demo.py
+
+        .. seealso::
+
+            :func:`specgram`
+                :func:`specgram` differs in the default overlap; in not
+                returning the mean of the segment periodograms; in  returning
+                the times of the segments; and in plotting a colormap instead
+                of a line.
+
+            :func:`magnitude_spectrum`
+                :func:`magnitude_spectrum` plots the magnitude spectrum.
+
+            :func:`csd`
+                :func:`csd` plots the spectral density between two signals.
         """
         if not self._hold:
             self.cla()
-        pxx, freqs = mlab.psd(x, NFFT, Fs, detrend, window, noverlap, pad_to,
-                              sides, scale_by_freq)
+
+        if Fc is None:
+            Fc = 0
+
+        pxx, freqs = mlab.psd(x=x, NFFT=NFFT, Fs=Fs, detrend=detrend,
+                              window=window, noverlap=noverlap, pad_to=pad_to,
+                              sides=sides, scale_by_freq=scale_by_freq)
         pxx.shape = len(freqs),
         freqs += Fc
 
@@ -5626,7 +5667,7 @@ class Axes(_AxesBase):
         else:
             psd_units = 'dB'
 
-        self.plot(freqs, 10 * np.log10(pxx), **kwargs)
+        line = self.plot(freqs, 10 * np.log10(pxx), **kwargs)
         self.set_xlabel('Frequency')
         self.set_ylabel('Power Spectral Density (%s)' % psd_units)
         self.grid(True)
@@ -5640,44 +5681,74 @@ class Axes(_AxesBase):
         ticks = np.arange(math.floor(vmin), math.ceil(vmax) + 1, step)
         self.set_yticks(ticks)
 
-        return pxx, freqs
+        if return_line is None or not return_line:
+            return pxx, freqs
+        else:
+            return pxx, freqs, line
 
     @docstring.dedent_interpd
-    def csd(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
-            window=mlab.window_hanning, noverlap=0, pad_to=None,
-            sides='default', scale_by_freq=None, **kwargs):
+    def csd(self, x, y, NFFT=None, Fs=None, Fc=None, detrend=None,
+            window=None, noverlap=None, pad_to=None,
+            sides=None, scale_by_freq=None, return_line=None, **kwargs):
         """
-        Plot cross-spectral density.
+        Plot the cross-spectral density.
 
         Call signature::
 
           csd(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
               window=mlab.window_hanning, noverlap=0, pad_to=None,
-              sides='default', scale_by_freq=None, **kwargs)
+              sides='default', scale_by_freq=None, return_line=None, **kwargs)
 
         The cross spectral density :math:`P_{xy}` by Welch's average
         periodogram method.  The vectors *x* and *y* are divided into
         *NFFT* length segments.  Each segment is detrended by function
-        *detrend* and windowed by function *window*.  The product of
+        *detrend* and windowed by function *window*.  *noverlap* gives
+        the length of the overlap between segments.  The product of
         the direct FFTs of *x* and *y* are averaged over each segment
         to compute :math:`P_{xy}`, with a scaling to correct for power
         loss due to windowing.
 
-        Returns the tuple (*Pxy*, *freqs*).  *P* is the cross spectrum
-        (complex valued), and :math:`10\log_{10}|P_{xy}|` is
-        plotted.
+        If len(*x*) < *NFFT* or len(*y*) < *NFFT*, they will be zero
+        padded to *NFFT*.
+
+          *x*, *y*: 1-D arrays or sequences
+            Arrays or sequences containing the data
+
+        %(Spectral)s
 
         %(PSD)s
 
           *noverlap*: integer
-            The number of points of overlap between blocks.  The
-            default value is 0 (no overlap).
+            The number of points of overlap between segments.
+            The default value is 0 (no overlap).
 
           *Fc*: integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
             baseband.
+
+          *return_line*: bool
+            Whether to include the line object plotted in the returned values.
+            Default is False.
+
+        If *return_line* is False, returns the tuple (*Pxy*, *freqs*).
+        If *return_line* is True, returns the tuple (*Pxy*, *freqs*. *line*):
+
+          *Pxy*: 1-D array
+            The values for the cross spectrum `P_{xy}` before scaling
+            (complex valued)
+
+          *freqs*: 1-D array
+            The frequencies corresponding to the elements in *Pxy*
+
+          *line*: a :class:`~matplotlib.lines.Line2D` instance
+            The line created by this function.
+            Only returend if *return_line* is True.
+
+        For plotting, the power is plotted as
+        :math:`10\log_{10}(P_{xy})` for decibels, though `P_{xy}` itself
+        is returned.
 
         References:
           Bendat & Piersol -- Random Data: Analysis and Measurement
@@ -5691,20 +5762,25 @@ class Axes(_AxesBase):
 
         .. plot:: mpl_examples/pylab_examples/csd_demo.py
 
-        .. seealso:
+        .. seealso::
 
-            :meth:`psd`
-                For a description of the optional parameters.
+            :func:`psd`
+                :func:`psd` is the equivalent to setting y=x.
         """
         if not self._hold:
             self.cla()
-        pxy, freqs = mlab.csd(x, y, NFFT, Fs, detrend, window, noverlap,
-            pad_to, sides, scale_by_freq)
+
+        if Fc is None:
+            Fc = 0
+
+        pxy, freqs = mlab.csd(x=x, y=y, NFFT=NFFT, Fs=Fs, detrend=detrend,
+                              window=window, noverlap=noverlap, pad_to=pad_to,
+                              sides=sides, scale_by_freq=scale_by_freq)
         pxy.shape = len(freqs),
         # pxy is complex
         freqs += Fc
 
-        self.plot(freqs, 10 * np.log10(np.absolute(pxy)), **kwargs)
+        line = self.plot(freqs, 10 * np.log10(np.absolute(pxy)), **kwargs)
         self.set_xlabel('Frequency')
         self.set_ylabel('Cross Spectrum Magnitude (dB)')
         self.grid(True)
@@ -5716,7 +5792,263 @@ class Axes(_AxesBase):
         ticks = np.arange(math.floor(vmin), math.ceil(vmax) + 1, step)
         self.set_yticks(ticks)
 
-        return pxy, freqs
+        if return_line is None or not return_line:
+            return pxy, freqs
+        else:
+            return pxy, freqs, line
+
+    @docstring.dedent_interpd
+    def magnitude_spectrum(self, x, Fs=None, Fc=None, window=None,
+                           pad_to=None, sides=None, scale=None,
+                           **kwargs):
+        """
+        Plot the magnitude spectrum.
+
+        Call signature::
+
+          magnitude_spectrum(x, Fs=2, Fc=0,  window=mlab.window_hanning,
+                             pad_to=None, sides='default', **kwargs)
+
+        Compute the magnitude spectrum of *x*.  Data is padded to a
+        length of *pad_to* and the windowing function *window* is applied to
+        the signal.
+
+          *x*: 1-D array or sequence
+            Array or sequence containing the data
+
+        %(Spectral)s
+
+        %(Single_Spectrum)s
+
+          *scale*: [ 'default' | 'linear' | 'dB' ]
+            The scaling of the values in the *spec*.  'linear' is no scaling.
+            'dB' returns the values in dB scale.  When *mode* is 'density',
+            this is dB power (10 * log10).  Otherwise this is dB amplitude
+            (20 * log10). 'default' is 'linear'.
+
+          *Fc*: integer
+            The center frequency of *x* (defaults to 0), which offsets
+            the x extents of the plot to reflect the frequency range used
+            when a signal is acquired and then filtered and downsampled to
+            baseband.
+
+        Returns the tuple (*spectrum*, *freqs*, *line*):
+
+          *spectrum*: 1-D array
+            The values for the magnitude spectrum before scaling (real valued)
+
+          *freqs*: 1-D array
+            The frequencies corresponding to the elements in *spectrum*
+
+          *line*: a :class:`~matplotlib.lines.Line2D` instance
+            The line created by this function
+
+        kwargs control the :class:`~matplotlib.lines.Line2D` properties:
+
+        %(Line2D)s
+
+        **Example:**
+
+        .. plot:: mpl_examples/pylab_examples/spectrum_demo.py
+
+        .. seealso::
+
+            :func:`psd`
+                :func:`psd` plots the power spectral density.`.
+
+            :func:`angle_spectrum`
+                :func:`angle_spectrum` plots the angles of the corresponding
+                frequencies.
+
+            :func:`phase_spectrum`
+                :func:`phase_spectrum` plots the phase (unwrapped angle) of the
+                corresponding frequencies.
+
+            :func:`specgram`
+                :func:`specgram` can plot the magnitude spectrum of segments
+                within the signal in a colormap.
+        """
+        if not self._hold:
+            self.cla()
+
+        if Fc is None:
+            Fc = 0
+
+        if scale is None or scale == 'default':
+            scale = 'linear'
+
+        spec, freqs = mlab.magnitude_spectrum(x=x, Fs=Fs, window=window,
+                                              pad_to=pad_to, sides=sides)
+        freqs += Fc
+
+        if scale == 'linear':
+            Z = spec
+            yunits = 'energy'
+        elif scale == 'dB':
+            Z = 20. * np.log10(spec)
+            yunits = 'dB'
+        else:
+            raise ValueError('Unknown scale %s', scale)
+
+        lines = self.plot(freqs, Z, **kwargs)
+        self.set_xlabel('Frequency')
+        self.set_ylabel('Magnitude (%s)' % yunits)
+
+        return spec, freqs, lines[0]
+
+    @docstring.dedent_interpd
+    def angle_spectrum(self, x, Fs=None, Fc=None, window=None,
+                       pad_to=None, sides=None, **kwargs):
+        """
+        Plot the angle spectrum.
+
+        Call signature::
+
+          angle_spectrum(x, Fs=2, Fc=0,  window=mlab.window_hanning,
+                         pad_to=None, sides='default', **kwargs)
+
+        Compute the angle spectrum (wrapped phase spectrum) of *x*.
+        Data is padded to a length of *pad_to* and the windowing function
+        *window* is applied to the signal.
+
+          *x*: 1-D array or sequence
+            Array or sequence containing the data
+
+        %(Spectral)s
+
+        %(Single_Spectrum)s
+
+          *Fc*: integer
+            The center frequency of *x* (defaults to 0), which offsets
+            the x extents of the plot to reflect the frequency range used
+            when a signal is acquired and then filtered and downsampled to
+            baseband.
+
+        Returns the tuple (*spectrum*, *freqs*, *line*):
+
+          *spectrum*: 1-D array
+            The values for the angle spectrum in radians (real valued)
+
+          *freqs*: 1-D array
+            The frequencies corresponding to the elements in *spectrum*
+
+          *line*: a :class:`~matplotlib.lines.Line2D` instance
+            The line created by this function
+
+        kwargs control the :class:`~matplotlib.lines.Line2D` properties:
+
+        %(Line2D)s
+
+        **Example:**
+
+        .. plot:: mpl_examples/pylab_examples/spectrum_demo.py
+
+        .. seealso::
+
+            :func:`magnitude_spectrum`
+                :func:`angle_spectrum` plots the magnitudes of the
+                corresponding frequencies.
+
+            :func:`phase_spectrum`
+                :func:`phase_spectrum` plots the unwrapped version of this
+                function.
+
+            :func:`specgram`
+                :func:`specgram` can plot the angle spectrum of segments
+                within the signal in a colormap.
+        """
+        if not self._hold:
+            self.cla()
+
+        if Fc is None:
+            Fc = 0
+
+        spec, freqs = mlab.angle_spectrum(x=x, Fs=Fs, window=window,
+                                          pad_to=pad_to, sides=sides)
+        freqs += Fc
+
+        lines = self.plot(freqs, spec, **kwargs)
+        self.set_xlabel('Frequency')
+        self.set_ylabel('Angle (radians)')
+
+        return spec, freqs, lines[0]
+
+    @docstring.dedent_interpd
+    def phase_spectrum(self, x, Fs=None, Fc=None, window=None,
+                       pad_to=None, sides=None, **kwargs):
+        """
+        Plot the phase spectrum.
+
+        Call signature::
+
+          phase_spectrum(x, Fs=2, Fc=0,  window=mlab.window_hanning,
+                         pad_to=None, sides='default', **kwargs)
+
+        Compute the phase spectrum (unwrapped angle spectrum) of *x*.
+        Data is padded to a length of *pad_to* and the windowing function
+        *window* is applied to the signal.
+
+          *x*: 1-D array or sequence
+            Array or sequence containing the data
+
+        %(Spectral)s
+
+        %(Single_Spectrum)s
+
+          *Fc*: integer
+            The center frequency of *x* (defaults to 0), which offsets
+            the x extents of the plot to reflect the frequency range used
+            when a signal is acquired and then filtered and downsampled to
+            baseband.
+
+        Returns the tuple (*spectrum*, *freqs*, *line*):
+
+          *spectrum*: 1-D array
+            The values for the phase spectrum in radians (real valued)
+
+          *freqs*: 1-D array
+            The frequencies corresponding to the elements in *spectrum*
+
+          *line*: a :class:`~matplotlib.lines.Line2D` instance
+            The line created by this function
+
+        kwargs control the :class:`~matplotlib.lines.Line2D` properties:
+
+        %(Line2D)s
+
+        **Example:**
+
+        .. plot:: mpl_examples/pylab_examples/spectrum_demo.py
+
+        .. seealso::
+
+            :func:`magnitude_spectrum`
+                :func:`magnitude_spectrum` plots the magnitudes of the
+                corresponding frequencies.
+
+            :func:`angle_spectrum`
+                :func:`angle_spectrum` plots the wrapped version of this
+                function.
+
+            :func:`specgram`
+                :func:`specgram` can plot the phase spectrum of segments
+                within the signal in a colormap.
+        """
+        if not self._hold:
+            self.cla()
+
+        if Fc is None:
+            Fc = 0
+
+        spec, freqs = mlab.phase_spectrum(x=x, Fs=Fs, window=window,
+                                          pad_to=pad_to, sides=sides)
+        freqs += Fc
+
+        lines = self.plot(freqs, spec, **kwargs)
+        self.set_xlabel('Frequency')
+        self.set_ylabel('Phase (radians)')
+
+        return spec, freqs, lines[0]
 
     @docstring.dedent_interpd
     def cohere(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
@@ -5737,6 +6069,8 @@ class Axes(_AxesBase):
         .. math::
 
           C_{xy} = \\frac{|P_{xy}|^2}{P_{xx}P_{yy}}
+
+        %(Spectral)s
 
         %(PSD)s
 
@@ -5771,8 +6105,9 @@ class Axes(_AxesBase):
         """
         if not self._hold:
             self.cla()
-        cxy, freqs = mlab.cohere(x, y, NFFT, Fs, detrend, window, noverlap,
-            scale_by_freq)
+        cxy, freqs = mlab.cohere(x=x, y=y, NFFT=NFFT, Fs=Fs, detrend=detrend,
+                                 window=window, noverlap=noverlap,
+                                 scale_by_freq=scale_by_freq)
         freqs += Fc
 
         self.plot(freqs, cxy, **kwargs)
@@ -5783,10 +6118,11 @@ class Axes(_AxesBase):
         return cxy, freqs
 
     @docstring.dedent_interpd
-    def specgram(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
-                 window=mlab.window_hanning, noverlap=128,
-                 cmap=None, xextent=None, pad_to=None, sides='default',
-                 scale_by_freq=None, **kwargs):
+    def specgram(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
+                 window=None, noverlap=None,
+                 cmap=None, xextent=None, pad_to=None, sides=None,
+                 scale_by_freq=None, mode=None, scale=None,
+                 vmin=None, vmax=None, **kwargs):
         """
         Plot a spectrogram.
 
@@ -5795,24 +6131,45 @@ class Axes(_AxesBase):
           specgram(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                    window=mlab.window_hanning, noverlap=128,
                    cmap=None, xextent=None, pad_to=None, sides='default',
-                   scale_by_freq=None, **kwargs)
+                   scale_by_freq=None, mode='default', scale='default',
+                   **kwargs)
 
         Compute and plot a spectrogram of data in *x*.  Data are split into
-        *NFFT* length segments and the PSD of each section is
+        *NFFT* length segments and the spectrum of each section is
         computed.  The windowing function *window* is applied to each
         segment, and the amount of overlap of each segment is
-        specified with *noverlap*. The spectrogram is plotted in decibels
-        as a colormap (using imshow).
+        specified with *noverlap*. The spectrogram is plotted as a colormap
+        (using imshow).
+
+        *x*: 1-D array or sequence
+            Array or sequence containing the data
+
+        %(Spectral)s
 
         %(PSD)s
+
+          *mode*: [ 'default' | 'psd' | 'magnitude' | 'angle' | 'phase' ]
+            What sort of spectrum to use.  Default is 'psd'. which takes
+            the power spectral density.  'complex' returns the complex-valued
+            frequency spectrum.  'magnitude' returns the magnitude spectrum.
+            'angle' returns the phase spectrum without unwrapping.  'phase'
+            returns the phase spectrum with unwrapping.
 
           *noverlap*: integer
             The number of points of overlap between blocks.  The
             default value is 128.
 
+          *scale*: [ 'default' | 'linear' | 'dB' ]
+            The scaling of the values in the *spec*.  'linear' is no scaling.
+            'dB' returns the values in dB scale.  When *mode* is 'psd',
+            this is dB power (10 * log10).  Otherwise this is dB amplitude
+            (20 * log10). 'default' is 'dB' if *mode* is 'psd' or
+            'magnitude' and 'linear' otherwise.  This must be 'linear'
+            if *mode* is 'angle' or 'phase'.
+
           *Fc*: integer
             The center frequency of *x* (defaults to 0), which offsets
-            the y extents of the plot to reflect the frequency range used
+            the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
@@ -5826,49 +6183,98 @@ class Axes(_AxesBase):
             value from :func:`~matplotlib.mlab.specgram`
 
           *kwargs*:
-
             Additional kwargs are passed on to imshow which makes the
             specgram image
 
-          Return value is (*Pxx*, *freqs*, *bins*, *im*):
-
-          - *bins* are the time points the spectrogram is calculated over
-          - *freqs* is an array of frequencies
-          - *Pxx* is an array of shape `(len(times), len(freqs))` of power
-          - *im* is a :class:`~matplotlib.image.AxesImage` instance
-
         .. note::
 
-            If *x* is real (i.e. non-complex), only the positive
-            spectrum is shown.  If *x* is complex, both positive and
-            negative parts of the spectrum are shown.  This can be
-            overridden using the *sides* keyword argument.
+            *detrend* and *scale_by_freq* only apply when *mode* is set to
+            'psd'
 
-        Also note that while the plot is in dB, the *Pxx* array returned is
-        linear in power.
+        Returns the tuple (*spectrum*, *freqs*, *t*, *im*):
+
+          *spectrum*: 2-D array
+            columns are the periodograms of successive segments
+
+          *freqs*: 1-D array
+            The frequencies corresponding to the rows in *spectrum*
+
+          *t*: 1-D array
+            The times corresponding to midpoints of segments (i.e the columns
+            in *spectrum*)
+
+          *im*: instance of class :class:`~matplotlib.image.AxesImage`
+            The image created by imshow containing the spectrogram
 
         **Example:**
 
         .. plot:: mpl_examples/pylab_examples/specgram_demo.py
+
+        .. seealso::
+
+            :func:`psd`
+                :func:`psd` differs in the default overlap; in returning
+                the mean of the segment periodograms; in not returning
+                times; and in generating a line plot instead of colormap.
+
+            :func:`magnitude_spectrum`
+                A single spectrum, similar to having a single segment when
+                *mode* is 'magnitude'.  Plots a line instead of a colormap.
+
+            :func:`angle_spectrum`
+                A single spectrum, similar to having a single segment when
+                *mode* is 'angle'.  Plots a line instead of a colormap.
+
+            :func:`phase_spectrum`
+                A single spectrum, similar to having a single segment when
+                *mode* is 'phase'.  Plots a line instead of a colormap.
         """
         if not self._hold:
             self.cla()
 
-        Pxx, freqs, bins = mlab.specgram(x, NFFT, Fs, detrend,
-             window, noverlap, pad_to, sides, scale_by_freq)
+        if Fc is None:
+            Fc = 0
 
-        Z = 10. * np.log10(Pxx)
+        if mode == 'complex':
+            raise ValueError('Cannot plot a complex specgram')
+
+        if scale is None or scale == 'default':
+            if mode in ['angle', 'phase']:
+                scale = 'linear'
+            else:
+                scale = 'dB'
+        elif mode in ['angle', 'phase'] and scale == 'dB':
+            raise ValueError('Cannot use dB scale with angle or phase mode')
+
+        spec, freqs, t = mlab.specgram(x=x, NFFT=NFFT, Fs=Fs,
+                                       detrend=detrend, window=window,
+                                       noverlap=noverlap, pad_to=pad_to,
+                                       sides=sides,
+                                       scale_by_freq=scale_by_freq,
+                                       mode=mode)
+
+        if scale == 'linear':
+            Z = spec
+        elif scale == 'dB':
+            if mode is None or mode == 'default' or mode == 'psd':
+                Z = 10. * np.log10(spec)
+            else:
+                Z = 20. * np.log10(spec)
+        else:
+            raise ValueError('Unknown scale %s', scale)
+
         Z = np.flipud(Z)
 
         if xextent is None:
-            xextent = 0, np.amax(bins)
+            xextent = 0, np.amax(t)
         xmin, xmax = xextent
         freqs += Fc
         extent = xmin, xmax, freqs[0], freqs[-1]
-        im = self.imshow(Z, cmap, extent=extent, **kwargs)
+        im = self.imshow(Z, cmap, extent=extent, vmin=vmin, vmax=vmax,
+                         **kwargs)
         self.axis('auto')
 
-        return Pxx, freqs, bins, im
+        return spec, freqs, t, im
 
     def spy(self, Z, precision=0, marker=None, markersize=None,
             aspect='equal', **kwargs):
