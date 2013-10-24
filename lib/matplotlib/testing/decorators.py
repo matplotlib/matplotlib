@@ -18,6 +18,7 @@ import numpy as np
 from matplotlib.testing.compare import comparable_formats, compare_images, \
      make_test_filename
 import warnings
+import unittest
 
 def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
     """
@@ -58,6 +59,7 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
         return nose.tools.make_decorator(f)(failer)
     return known_fail_decorator
 
+
 class CleanupTest(object):
     @classmethod
     def setup_class(cls):
@@ -71,10 +73,29 @@ class CleanupTest(object):
 
         matplotlib.units.registry.clear()
         matplotlib.units.registry.update(cls.original_units_registry)
-        warnings.resetwarnings() #reset any warning filters set in tests
+        warnings.resetwarnings()  # reset any warning filters set in tests
 
     def test(self):
         self._func()
+
+
+class CleanupTestCase(unittest.TestCase):
+    '''A wrapper for unittest.TestCase that includes cleanup operations'''
+    @classmethod
+    def setUpClass(cls):
+        import matplotlib.units
+        cls.original_units_registry = matplotlib.units.registry.copy()
+
+    @classmethod
+    def tearDownClass(cls):
+        plt.close('all')
+
+        matplotlib.tests.setup()
+
+        matplotlib.units.registry.clear()
+        matplotlib.units.registry.update(cls.original_units_registry)
+        warnings.resetwarnings()  # reset any warning filters set in tests
+
 
 def cleanup(func):
     name = func.__name__
