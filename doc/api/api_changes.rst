@@ -76,13 +76,6 @@ original location:
     - `xycoords` -> set the units of the point location
     - `set_position()` -> `Annotation` only set location of annotation
 
-* NFFT being even is now enforced in `matplotlib.mlab.specgram`,
-  `matplotlib.mlab.psd`,  `matplotlib.mlab.csd`,
-  `matplotlib.mlab.cohere`, `matplotlib.mlab.cohere_pairs`,
-  `matplotlib.pyplot.specgram`, `matplotlib.pyplot.psd`,
-  `matplotlib.pyplot.csd`, and `matplotlib.pyplot.cohere`.  This was
-  listed as a requirement but was not actually checked.
-
 * `matplotlib.mlab.specgram`, `matplotlib.mlab.psd`,  `matplotlib.mlab.csd`,
   `matplotlib.mlab.cohere`, `matplotlib.mlab.cohere_pairs`,
   `matplotlib.pyplot.specgram`, `matplotlib.pyplot.psd`,
