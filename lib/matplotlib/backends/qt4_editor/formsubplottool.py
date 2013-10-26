@@ -10,6 +10,7 @@ __author__ = 'rudolf.hoefler@gmail.com'
 
 from matplotlib.backends.qt4_compat import QtCore, QtGui
 
+
 class UiSubplotTool(QtGui.QDialog):
 
     def __init__(self, *args, **kwargs):

@@ -720,7 +720,8 @@ class SubplotToolQt(SubplotTool, UiSubplotTool):
         self.parent = parent
         self.connect(self.doneButton, QtCore.SIGNAL("clicked()"), self.close)
         self.connect(self.resetButton, QtCore.SIGNAL("clicked()"), self.reset)
-        self.connect(self.tightLayout, QtCore.SIGNAL("clicked()"), self.functight)
+        self.connect(self.tightLayout, QtCore.SIGNAL("clicked()"),
+                     self.functight)
 
         sliders = (self.sliderleft, self.sliderbottom, self.sliderright,
                    self.slidertop, self.sliderwspace, self.sliderhspace,)
@@ -770,10 +771,9 @@ class SubplotToolQt(SubplotTool, UiSubplotTool):
         self.defaults = {'left': self.targetfig.subplotpars.left,
                          'bottom': self.targetfig.subplotpars.bottom,
                          'right': self.targetfig.subplotpars.right,
-                         'top':self.targetfig.subplotpars.top,
+                         'top': self.targetfig.subplotpars.top,
                          'wspace': self.targetfig.subplotpars.wspace,
-                         'hspace': self.targetfig.subplotpars.hspace
-                         }
+                         'hspace': self.targetfig.subplotpars.hspace}
 
     def _setSliderPositions(self):
         self.sliderleft.setSliderPosition(
@@ -794,7 +794,7 @@ class SubplotToolQt(SubplotTool, UiSubplotTool):
             val -= 1
         val /= 1000.
         self.targetfig.subplots_adjust(left=val)
-        self.leftvalue.setText("%.2f" %val)
+        self.leftvalue.setText("%.2f" % val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
@@ -803,7 +803,7 @@ class SubplotToolQt(SubplotTool, UiSubplotTool):
             val += 1
         val /= 1000.
         self.targetfig.subplots_adjust(right=val)
-        self.rightvalue.setText("%.2f" %val)
+        self.rightvalue.setText("%.2f" % val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
@@ -812,7 +812,7 @@ class SubplotToolQt(SubplotTool, UiSubplotTool):
             val -= 1
         val /= 1000.
         self.targetfig.subplots_adjust(bottom=val)
-        self.bottomvalue.setText("%.2f" %val)
+        self.bottomvalue.setText("%.2f" % val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
@@ -821,21 +821,21 @@ class SubplotToolQt(SubplotTool, UiSubplotTool):
             val += 1
         val /= 1000.
         self.targetfig.subplots_adjust(top=val)
-        self.topvalue.setText("%.2f" %val)
+        self.topvalue.setText("%.2f" % val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
     def funcwspace(self, val):
         val /= 1000.
         self.targetfig.subplots_adjust(wspace=val)
-        self.wspacevalue.setText("%.2f" %val)
+        self.wspacevalue.setText("%.2f" % val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
     def funchspace(self, val):
         val /= 1000.
         self.targetfig.subplots_adjust(hspace=val)
-        self.hspacevalue.setText("%.2f" %val)
+        self.hspacevalue.setText("%.2f" % val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
