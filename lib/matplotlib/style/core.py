@@ -1,3 +1,9 @@
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
+import six
+from six.moves import reduce, xrange, zip
+
 """
 Core functions and attributes for the matplotlib style library:
 
@@ -54,8 +60,8 @@ def use(name):
         else:
             try:
                 rc = rc_params_from_file(style, use_default_template=False)
-                print rc
-                print type(rc)
+                print(rc)
+                print(type(rc))
                 mpl.rcParams.update(rc)
             except:
                 msg = ("'%s' not found in the style library and input is "
