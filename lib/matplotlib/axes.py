@@ -8245,6 +8245,17 @@ class Axes(martist.Artist):
         if histtype == 'barstacked' and not stacked:
             stacked = True
 
+        # Check whether bins or range are given explicitly.
+        binsgiven = (cbook.iterable(bins) or bin_range is not None)
+
+        # basic input validation
+        flat = np.ravel(x)
+        if len(flat) == 0:
+            raise ValueError("x must have at least one data point")
+        elif len(flat) == 1 and not binsgiven:
+            raise ValueError(
+                "x has only one data point. bins or range kwarg must be given")
+
         # Massage 'x' for processing.
         # NOTE: Be sure any changes here is also done below to 'weights'
         if isinstance(x, np.ndarray) or not iterable(x[0]):
@@ -8299,10 +8310,6 @@ class Axes(martist.Artist):
         # Save the datalimits for the same reason:
         _saved_bounds = self.dataLim.bounds
 
-        # Check whether bins or range are given explicitly. In that
-        # case use those values for autoscaling.
-        binsgiven = (cbook.iterable(bins) or bin_range is not None)
-
         # If bins are not specified either explicitly or via range,
         # we need to figure out the range required for all datasets,
         # and supply that to np.histogram.
@@ -8310,8 +8317,9 @@ class Axes(martist.Artist):
             xmin = np.inf
             xmax = -np.inf
             for xi in x:
-                xmin = min(xmin, xi.min())
-                xmax = max(xmax, xi.max())
+                if len(xi) > 0:
+                    xmin = min(xmin, xi.min())
+                    xmax = max(xmax, xi.max())
             bin_range = (xmin, xmax)
 
         #hist_kwargs = dict(range=range, normed=bool(normed))
