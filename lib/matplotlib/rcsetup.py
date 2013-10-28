@@ -88,7 +88,7 @@ def validate_bool_maybe_none(b):
     'Convert b to a boolean or raise'
     if isinstance(b, six.string_types):
         b = b.lower()
-    if b == 'none':
+    if b is None or b == 'none':
         return None
     if b in ('t', 'y', 'yes', 'on', 'true', '1', 1, True):
         return True
@@ -336,7 +336,6 @@ validate_ps_papersize = ValidateInStrings(
 def validate_ps_distiller(s):
     if isinstance(s, six.string_types):
         s = s.lower()
-
     if s in ('none', None):
         return None
     elif s in ('false', False):
@@ -395,7 +394,7 @@ def deprecate_svg_embed_char_paths(value):
     warnings.warn("svg.embed_char_paths is deprecated.  Use "
                   "svg.fonttype instead.")
 
-validate_svg_fonttype = ValidateInStrings('fonttype',
+validate_svg_fonttype = ValidateInStrings('svg.fonttype',
                                           ['none', 'path', 'svgfont'])
 
 
@@ -430,7 +429,9 @@ def validate_bbox(s):
         raise ValueError("bbox should be 'tight' or 'standard'")
 
 def validate_sketch(s):
-    if s == 'None' or s is None:
+    if isinstance(s, six.string_types):
+        s = s.lower()
+    if s == 'none' or s is None:
         return None
     if isinstance(s, six.string_types):
         result = tuple([float(v.strip()) for v in s.split(',')])
