@@ -18,7 +18,6 @@ from matplotlib.gridspec import SubplotSpec, GridSpec
 
 from .axes_divider import Size, SubplotDivider, LocatableAxes, Divider
 
-#import numpy as np
 
 def _tick_only(ax, bottom_on, left_on):
     bottom_off = not bottom_on
@@ -29,6 +28,7 @@ def _tick_only(ax, bottom_on, left_on):
     # ax.yaxis.label.set_visible(left_off)
     ax.axis["bottom"].toggle(ticklabels=bottom_off, label=bottom_off)
     ax.axis["left"].toggle(ticklabels=left_off, label=left_off)
+
 
 class Colorbar(mcolorbar.Colorbar):
     def _config_axes_deprecated(self, X, Y):
@@ -42,7 +42,8 @@ class Colorbar(mcolorbar.Colorbar):
         ax.update_datalim(xy)
         ax.set_xlim(*ax.dataLim.intervalx)
         ax.set_ylim(*ax.dataLim.intervaly)
-        self.outline = mlines.Line2D(xy[:, 0], xy[:, 1], color=mpl.rcParams['axes.edgecolor'],
+        self.outline = mlines.Line2D(xy[:, 0], xy[:, 1],
+                                     color=mpl.rcParams['axes.edgecolor'],
                                      linewidth=mpl.rcParams['axes.linewidth'])
         ax.add_artist(self.outline)
         self.outline.set_clip_box(None)
@@ -66,26 +67,26 @@ class Colorbar(mcolorbar.Colorbar):
             ax.xaxis.get_major_formatter().set_offset_string(offset_string)
 
 
-
 class CbarAxesBase(object):
 
     def colorbar(self, mappable, **kwargs):
-        locator=kwargs.pop("locator", None)
+        locator = kwargs.pop("locator", None)
 
         if locator is None:
             if "ticks" not in kwargs:
                 kwargs["ticks"] = ticker.MaxNLocator(5)
         if locator is not None:
             if "ticks" in kwargs:
-                raise ValueError("Either *locator* or *ticks* need to be given, not both")
+                raise ValueError("Either *locator* or *ticks* need" +
+                                 " to be given, not both")
             else:
                 kwargs["ticks"] = locator
 
         self.hold(True)
-        if self.orientation in  ["top", "bottom"]:
-            orientation="horizontal"
+        if self.orientation in ["top", "bottom"]:
+            orientation = "horizontal"
         else:
-            orientation="vertical"
+            orientation = "vertical"
 
         cb = Colorbar(self, mappable, orientation=orientation, **kwargs)
         self._config_axes()
@@ -125,14 +126,13 @@ class CbarAxesBase(object):
         # axis.major_ticks.set_visible(True)
         # axis.minor_ticks.set_visible(True)
 
-
-        #axis.major_ticklabels.set_size(int(axis.major_ticklabels.get_size()*.9))
+        #axis.major_ticklabels.set_size(
+        #    int(axis.major_ticklabels.get_size()*.9))
         #axis.major_tick_pad = 3
 
         # axis.major_ticklabels.set_visible(b)
         # axis.minor_ticklabels.set_visible(b)
         # axis.label.set_visible(b)
-
 
     def toggle_label(self, b):
         self._default_label_on = b
@@ -143,10 +143,9 @@ class CbarAxesBase(object):
         #axis.label.set_visible(b)
 
 
-
 class CbarAxes(CbarAxesBase, LocatableAxes):
     def __init__(self, *kl, **kwargs):
-        orientation=kwargs.pop("orientation", None)
+        orientation = kwargs.pop("orientation", None)
         if orientation is None:
             raise ValueError("orientation must be specified")
         self.orientation = orientation
@@ -175,9 +174,9 @@ class Grid(object):
     def __init__(self, fig,
                  rect,
                  nrows_ncols,
-                 ngrids = None,
+                 ngrids=None,
                  direction="row",
-                 axes_pad = 0.02,
+                 axes_pad=0.02,
                  add_all=True,
                  share_all=False,
                  share_x=True,
@@ -215,7 +214,7 @@ class Grid(object):
         if ngrids is None:
             ngrids = self._nrows * self._ncols
         else:
-            if (ngrids > self._nrows * self._ncols) or  (ngrids <= 0):
+            if (ngrids > self._nrows * self._ncols) or (ngrids <= 0):
                 raise Exception("")
 
         self.ngrids = ngrids
@@ -227,13 +226,13 @@ class Grid(object):
 
         self._direction = direction
 
-
         if axes_class is None:
             axes_class = self._defaultLocatableAxesClass
             axes_class_args = {}
         else:
             if (type(axes_class)) == type and \
-                   issubclass(axes_class, self._defaultLocatableAxesClass.Axes):
+                   issubclass(axes_class,
+                              self._defaultLocatableAxesClass.Axes):
                 axes_class_args = {}
             else:
                 axes_class, axes_class_args = axes_class
@@ -241,7 +240,6 @@ class Grid(object):
         self.axes_all = []
         self.axes_column = [[] for i in range(self._ncols)]
         self.axes_row = [[] for i in range(self._nrows)]
-
 
         h = []
         v = []
@@ -259,7 +257,6 @@ class Grid(object):
                                     aspect=False)
         else:
             raise Exception("")
-
 
         rect = self._divider.get_position()
 
@@ -312,13 +309,11 @@ class Grid(object):
 
         self.set_label_mode(label_mode)
 
-
     def _init_axes_pad(self, axes_pad):
         self._axes_pad = axes_pad
 
         self._horiz_pad_size = Size.Fixed(axes_pad)
         self._vert_pad_size = Size.Fixed(axes_pad)
-
 
     def _update_locators(self):
 
@@ -329,7 +324,8 @@ class Grid(object):
 
         for ax in self._column_refax:
             #if h: h.append(Size.Fixed(self._axes_pad))
-            if h: h.append(self._horiz_pad_size)
+            if h:
+                h.append(self._horiz_pad_size)
 
             h_ax_pos.append(len(h))
 
@@ -342,23 +338,21 @@ class Grid(object):
         v_cb_pos = []
         for ax in self._row_refax[::-1]:
             #if v: v.append(Size.Fixed(self._axes_pad))
-            if v: v.append(self._vert_pad_size)
+            if v:
+                v.append(self._vert_pad_size)
 
             v_ax_pos.append(len(v))
             sz = Size.Scaled(1)
             v.append(sz)
 
-
         for i in range(self.ngrids):
             col, row = self._get_col_row(i)
             locator = self._divider.new_locator(nx=h_ax_pos[col],
-                                                ny=v_ax_pos[self._nrows -1 - row])
+                                ny=v_ax_pos[self._nrows - 1 - row])
             self.axes_all[i].set_axes_locator(locator)
 
         self._divider.set_horizontal(h)
         self._divider.set_vertical(v)
-
-
 
     def _get_col_row(self, n):
         if self._direction == "column":
@@ -368,10 +362,8 @@ class Grid(object):
 
         return col, row
 
-
     def __getitem__(self, i):
         return self.axes_all[i]
-
 
     def get_geometry(self):
         """
@@ -386,7 +378,6 @@ class Grid(object):
 
         self._horiz_pad_size.fixed_size = axes_pad
         self._vert_pad_size.fixed_size = axes_pad
-
 
     def get_axes_pad(self):
         "get axes_pad"
@@ -449,8 +440,6 @@ class Grid(object):
 #         return vsize, hsize
 
 
-
-
 class ImageGrid(Grid):
     """
     A class that creates a grid of Axes. In matplotlib, the axes
@@ -466,9 +455,9 @@ class ImageGrid(Grid):
     def __init__(self, fig,
                  rect,
                  nrows_ncols,
-                 ngrids = None,
+                 ngrids=None,
                  direction="row",
-                 axes_pad = 0.02,
+                 axes_pad=0.02,
                  add_all=True,
                  share_all=False,
                  aspect=True,
@@ -516,7 +505,7 @@ class ImageGrid(Grid):
         if ngrids is None:
             ngrids = self._nrows * self._ncols
         else:
-            if (ngrids > self._nrows * self._ncols) or  (ngrids <= 0):
+            if (ngrids > self._nrows * self._ncols) or (ngrids <= 0):
                 raise Exception("")
 
         self.ngrids = ngrids
@@ -539,7 +528,6 @@ class ImageGrid(Grid):
 
         self._direction = direction
 
-
         if axes_class is None:
             axes_class = self._defaultLocatableAxesClass
             axes_class_args = {}
@@ -548,8 +536,6 @@ class ImageGrid(Grid):
                 axes_class_args = {}
             else:
                 axes_class, axes_class_args = axes_class
-
-
 
         self.axes_all = []
         self.axes_column = [[] for i in range(self._ncols)]
@@ -573,7 +559,6 @@ class ImageGrid(Grid):
                                     aspect=aspect)
         else:
             raise Exception("")
-
 
         rect = self._divider.get_position()
 
@@ -610,7 +595,7 @@ class ImageGrid(Grid):
             self.axes_row[row].append(ax)
 
             cax = self._defaultCbarAxesClass(fig, rect,
-                                             orientation=self._colorbar_location)
+                                        orientation=self._colorbar_location)
             self.cbar_axes.append(cax)
 
         self.axes_llc = self.axes_column[0][-1]
@@ -631,8 +616,6 @@ class ImageGrid(Grid):
 
         self.set_label_mode(label_mode)
 
-
-
     def _update_locators(self):
 
         h = []
@@ -640,7 +623,8 @@ class ImageGrid(Grid):
 
         h_ax_pos = []
         h_cb_pos = []
-        if self._colorbar_mode == "single" and self._colorbar_location in ('left', 'bottom'):
+        if (self._colorbar_mode == "single" and
+             self._colorbar_location in ('left', 'bottom')):
             if self._colorbar_location == "left":
                 #sz = Size.Fraction(Size.AxesX(self.axes_llc), self._nrows)
                 sz = Size.Fraction(self._nrows, Size.AxesX(self.axes_llc))
@@ -658,8 +642,9 @@ class ImageGrid(Grid):
             self.cbar_axes[0].set_axes_locator(locator)
             self.cbar_axes[0].set_visible(True)
 
-        for col,ax in enumerate(self._column_refax):
-            if h: h.append(self._horiz_pad_size) #Size.Fixed(self._axes_pad))
+        for col, ax in enumerate(self._column_refax):
+            if h:
+                h.append(self._horiz_pad_size)  # Size.Fixed(self._axes_pad))
 
             if ax:
                 sz = Size.AxesX(ax)
@@ -677,18 +662,19 @@ class ImageGrid(Grid):
 
             h.append(sz)
 
-            if (self._colorbar_mode == "each" or
+            if ((self._colorbar_mode == "each" or
                     (self._colorbar_mode == 'edge' and
-                        col == self._ncols - 1)) and self._colorbar_location == "right":
+                        col == self._ncols - 1)) and
+                    self._colorbar_location == "right"):
                 h.append(Size.from_any(self._colorbar_pad, sz))
                 h_cb_pos.append(len(h))
                 h.append(Size.from_any(self._colorbar_size, sz))
 
-
         v_ax_pos = []
         v_cb_pos = []
-        for row,ax in enumerate(self._row_refax[::-1]):
-            if v: v.append(self._horiz_pad_size) #Size.Fixed(self._axes_pad))
+        for row, ax in enumerate(self._row_refax[::-1]):
+            if v:
+                v.append(self._horiz_pad_size)  # Size.Fixed(self._axes_pad))
 
             if ax:
                 sz = Size.AxesY(ax)
@@ -705,41 +691,45 @@ class ImageGrid(Grid):
             v_ax_pos.append(len(v))
             v.append(sz)
 
-            if (self._colorbar_mode == "each" or
+            if ((self._colorbar_mode == "each" or
                     (self._colorbar_mode == 'edge' and
-                        row == self._nrows - 1)) and self._colorbar_location == "top":
+                        row == self._nrows - 1)) and
+                        self._colorbar_location == "top"):
                 v.append(Size.from_any(self._colorbar_pad, sz))
                 v_cb_pos.append(len(v))
                 v.append(Size.from_any(self._colorbar_size, sz))
 
-
         for i in range(self.ngrids):
             col, row = self._get_col_row(i)
-            #locator = self._divider.new_locator(nx=4*col, ny=2*(self._nrows - row - 1))
+            #locator = self._divider.new_locator(nx=4*col,
+            #                                    ny=2*(self._nrows - row - 1))
             locator = self._divider.new_locator(nx=h_ax_pos[col],
-                                                ny=v_ax_pos[self._nrows -1 - row])
+                                                ny=v_ax_pos[self._nrows-1-row])
             self.axes_all[i].set_axes_locator(locator)
 
             if self._colorbar_mode == "each":
                 if self._colorbar_location in ("right", "left"):
-                    locator = self._divider.new_locator(nx=h_cb_pos[col],
-                                                        ny=v_ax_pos[self._nrows -1 - row])
+                    locator = self._divider.new_locator(
+                        nx=h_cb_pos[col], ny=v_ax_pos[self._nrows - 1 - row])
+
                 elif self._colorbar_location in ("top", "bottom"):
-                    locator = self._divider.new_locator(nx=h_ax_pos[col],
-                                                        ny=v_cb_pos[self._nrows -1 - row])
+                    locator = self._divider.new_locator(
+                        nx=h_ax_pos[col], ny=v_cb_pos[self._nrows - 1 - row])
+
                 self.cbar_axes[i].set_axes_locator(locator)
             elif self._colorbar_mode == 'edge':
                 if ((self._colorbar_location == 'left' and col == 0) or
-                        (self._colorbar_location == 'right' and col == self._ncols-1)):
-                    locator = self._divider.new_locator(nx=h_cb_pos[0],
-                                                        ny=v_ax_pos[self._nrows -1 - row])
+                        (self._colorbar_location == 'right'
+                         and col == self._ncols-1)):
+                    locator = self._divider.new_locator(
+                        nx=h_cb_pos[0], ny=v_ax_pos[self._nrows -1 - row])
                     self.cbar_axes[row].set_axes_locator(locator)
-                elif ((self._colorbar_location == 'bottom' and row == self._nrows - 1) or
+                elif ((self._colorbar_location == 'bottom' and
+                       row == self._nrows - 1) or
                         (self._colorbar_location == 'top' and row == 0)):
                     locator = self._divider.new_locator(nx=h_ax_pos[col],
                                                         ny=v_cb_pos[0])
                     self.cbar_axes[col].set_axes_locator(locator)
-
 
         if self._colorbar_mode == "single":
             if self._colorbar_location == "right":
@@ -783,8 +773,6 @@ class ImageGrid(Grid):
 
 AxesGrid = ImageGrid
 
-
-
 #if __name__ == "__main__":
 if 0:
     F = plt.figure(1, (7, 6))
@@ -792,15 +780,13 @@ if 0:
 
     F.subplots_adjust(left=0.15, right=0.9)
 
-    grid = Grid(F, 111, # similar to subplot(111)
+    grid = Grid(F, 111,  # similar to subplot(111)
                 nrows_ncols = (2, 2),
                 direction="row",
                 axes_pad = 0.05,
                 add_all=True,
                 label_mode = "1",
                 )
-
-
 
 #if __name__ == "__main__":
 if 0:
@@ -810,8 +796,8 @@ if 0:
 
     F.subplots_adjust(left=0.05, right=0.98)
 
-    grid = ImageGrid(F, 131, # similar to subplot(111)
-                    nrows_ncols = (2, 2),
+    grid = ImageGrid(F, 131,  # similar to subplot(111)
+                    nrows_ncols=(2, 2),
                     direction="row",
                     axes_pad = 0.05,
                     add_all=True,
@@ -823,14 +809,14 @@ if 0:
     for i in range(4):
         im = grid[i].imshow(Z, extent=extent, interpolation="nearest")
 
-    # This only affects axes in first column and second row as share_all = False.
+    # This only affects axes in
+    # first column and second row as share_all = False.
     grid.axes_llc.set_xticks([-2, 0, 2])
     grid.axes_llc.set_yticks([-2, 0, 2])
     plt.ion()
 
-
-    grid = ImageGrid(F, 132, # similar to subplot(111)
-                    nrows_ncols = (2, 2),
+    grid = ImageGrid(F, 132,  # similar to subplot(111)
+                    nrows_ncols=(2, 2),
                     direction="row",
                     axes_pad = 0.0,
                     add_all=True,
@@ -843,7 +829,7 @@ if 0:
     plt.ioff()
     for i in range(4):
         im = grid[i].imshow(Z, extent=extent, interpolation="nearest")
-    plt.colorbar(im, cax = grid.cbar_axes[0])
+    plt.colorbar(im, cax=grid.cbar_axes[0])
     plt.setp(grid.cbar_axes[0].get_yticklabels(), visible=False)
 
     # This affects all axes as share_all = True.
@@ -852,10 +838,8 @@ if 0:
 
     plt.ion()
 
-
-
-    grid = ImageGrid(F, 133, # similar to subplot(122)
-                    nrows_ncols = (2, 2),
+    grid = ImageGrid(F, 133,  # similar to subplot(122)
+                    nrows_ncols=(2, 2),
                     direction="row",
                     axes_pad = 0.1,
                     add_all=True,
@@ -869,7 +853,7 @@ if 0:
     plt.ioff()
     for i in range(4):
         im = grid[i].imshow(Z, extent=extent, interpolation="nearest")
-        plt.colorbar(im, cax = grid.cbar_axes[i],
+        plt.colorbar(im, cax=grid.cbar_axes[i],
                      orientation="horizontal")
         grid.cbar_axes[i].xaxis.set_ticks_position("top")
         plt.setp(grid.cbar_axes[i].get_xticklabels(), visible=False)
