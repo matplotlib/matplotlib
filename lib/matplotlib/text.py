@@ -1,7 +1,8 @@
 """
 Classes for including text in a figure.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 from six.moves import zip
@@ -150,7 +151,7 @@ class Text(Artist):
     """
     zorder = 3
 
-    cached = maxdict(50)
+    _cached = maxdict(50)
 
     def __str__(self):
         return "Text(%g,%g,%s)" % (self._x, self._y, repr(self._text))
@@ -289,8 +290,8 @@ class Text(Artist):
         of a rotated text when necessary.
         """
         key = self.get_prop_tup()
-        if key in self.cached:
-            return self.cached[key]
+        if key in self._cached:
+            return self._cached[key]
 
         horizLayout = []
 
@@ -444,7 +445,7 @@ class Text(Artist):
         xs, ys = xys[:, 0], xys[:, 1]
 
         ret = bbox, list(zip(lines, whs, xs, ys)), descent
-        self.cached[key] = ret
+        self._cached[key] = ret
         return ret
 
     def set_bbox(self, rectprops):

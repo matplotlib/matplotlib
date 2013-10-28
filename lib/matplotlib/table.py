@@ -19,7 +19,8 @@ Copyright : 2004 John Gill and John Hunter
 License   : matplotlib license
 
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 from six.moves import xrange

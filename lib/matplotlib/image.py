@@ -3,7 +3,8 @@ The image module supports basic image loading, rescaling and display
 operations.
 
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 
@@ -1312,7 +1313,8 @@ def pil_to_array(pilImage):
     is MxNx3.  For RGBA images the return value is MxNx4
     """
     def toarray(im, dtype=np.uint8):
-        """Teturn a 1D array of dtype."""
+        """Return a 1D array of dtype."""
+        # Pillow wants us to use "tobytes"
         if hasattr(im, 'tobytes'):
             x_str = im.tobytes('raw', im.mode)
         else:

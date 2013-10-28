@@ -4,7 +4,8 @@ Defines classes for path effects. The path effects are supported in
 matplotlib.text.Text.
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 

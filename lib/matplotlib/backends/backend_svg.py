@@ -1,4 +1,5 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 from six.moves import xrange
@@ -323,7 +324,7 @@ class RendererSVG(RendererBase):
             fname = findfont(prop)
             font = self.fontd.get(fname)
             if font is None:
-                font = FT2Font(str(fname))
+                font = FT2Font(fname)
                 self.fontd[fname] = font
             self.fontd[key] = font
         font.clear()
@@ -405,8 +406,9 @@ class RendererSVG(RendererBase):
         else:
             if rgbFace is None:
                 attrib['fill'] = 'none'
-            elif tuple(rgbFace[:3]) != (0, 0, 0):
-                attrib['fill'] = rgb2hex(rgbFace)
+            else:
+                if tuple(rgbFace[:3]) != (0, 0, 0):
+                    attrib['fill'] = rgb2hex(rgbFace)
                 if len(rgbFace) == 4 and rgbFace[3] != 1.0 and not forced_alpha:
                     attrib['fill-opacity'] = str(rgbFace[3])
 

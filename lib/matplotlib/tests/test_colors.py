@@ -1,4 +1,5 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 
@@ -10,7 +11,7 @@ from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, cleanup
 
 
 def test_colormap_endian():
@@ -74,6 +75,11 @@ def test_SymLogNorm():
     _inverse_tester(norm, vals)
     _scalar_tester(norm, vals)
     _mask_tester(norm, vals)
+
+    # Ensure that specifying vmin returns the same result as above
+    norm = mcolors.SymLogNorm(3, vmin=-30, vmax=5, linscale=1.2)
+    normed_vals = norm(vals)
+    assert_array_almost_equal(normed_vals, expected)
 
 
 def _inverse_tester(norm_instance, vals):
@@ -176,6 +182,14 @@ def test_cmap_and_norm_from_levels_and_colors2():
                                'value={1!r}'.format(extend, d_val))
 
     assert_raises(ValueError, mcolors.from_levels_and_colors, levels, colors)
+
+
+@cleanup
+def test_autoscale_masked():
+    # Test for #2336. Previously fully masked data would trigger a ValueError.
+    data = np.ma.masked_all((12, 20))
+    plt.pcolor(data)
+    plt.draw()
 
 
 if __name__ == '__main__':

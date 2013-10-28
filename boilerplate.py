@@ -16,7 +16,8 @@ this file.
 # For some later history, see
 # http://thread.gmane.org/gmane.comp.python.matplotlib.devel/7068
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 
@@ -97,6 +98,7 @@ def boilerplate_gen():
     # name.
     _plotcommands = (
         'acorr',
+        'angle_spectrum',
         'arrow',
         'axhline',
         'axhspan',
@@ -122,8 +124,10 @@ def boilerplate_gen():
         'hlines',
         'imshow',
         'loglog',
+        'magnitude_spectrum',
         'pcolor',
         'pcolormesh',
+        'phase_spectrum',
         'pie',
         'plot',
         'plot_date',

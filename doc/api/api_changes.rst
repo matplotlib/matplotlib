@@ -76,12 +76,48 @@ original location:
     - `xycoords` -> set the units of the point location
     - `set_position()` -> `Annotation` only set location of annotation
 
+* NFFT being even is now enforced in `matplotlib.mlab.specgram`,
+  `matplotlib.mlab.psd`,  `matplotlib.mlab.csd`,
+  `matplotlib.mlab.cohere`, `matplotlib.mlab.cohere_pairs`,
+  `matplotlib.pyplot.specgram`, `matplotlib.pyplot.psd`,
+  `matplotlib.pyplot.csd`, and `matplotlib.pyplot.cohere`.  This was
+  listed as a requirement but was not actually checked.
+
+* `matplotlib.mlab.specgram`, `matplotlib.mlab.psd`,  `matplotlib.mlab.csd`,
+  `matplotlib.mlab.cohere`, `matplotlib.mlab.cohere_pairs`,
+  `matplotlib.pyplot.specgram`, `matplotlib.pyplot.psd`,
+  `matplotlib.pyplot.csd`, and `matplotlib.pyplot.cohere` now raise
+  ValueError where they previously raised AssertionError.
+
+* For `matplotlib.mlab.psd`,  `matplotlib.mlab.csd`,
+  `matplotlib.mlab.cohere`, `matplotlib.mlab.cohere_pairs`,
+  `matplotlib.pyplot.specgram`, `matplotlib.pyplot.psd`,
+  `matplotlib.pyplot.csd`, and `matplotlib.pyplot.cohere`, in cases
+  where a shape (n, 1) array is returned, this is now converted to a (n, )
+  array.  Previously, (n, m) arrays were averaged to an (n, ) array, but
+  (n, 1) arrays were returend unchanged.  This change makes the dimensions
+  consistent in both cases.
+
 
 .. _changes_in_1_3:
 
 
 Changes in 1.3.x
 ================
+
+Changes in 1.3.1
+----------------
+
+It is rare that we make an API change in a bugfix release, however,
+for 1.3.1 since 1.3.0 the following change was made:
+
+- `text.Text.cached` (used to cache font objects) has been made into a
+  private variable.  Among the obvious encapsulation benefit, this
+  removes this confusing-looking member from the documentation.
+
+- The method :meth:`~matplotlib.axes.Axes.hist` now always returns bin
+  occupancies as an array of type `float`. Previously, it was sometimes
+  an array of type `int`, depending on the call.
 
 Code removal
 ------------
@@ -262,10 +298,6 @@ Code changes
 
 * The :func:`matplotlib.cbook.check_output` function has been moved to
   :func:`matplotlib.compat.subprocess`.
-
-* The method :meth:`~matplotlib.axes.Axes.hist` now always returns bin
-  occupancies as an array of type `float`. Previously, it was sometimes
-  an array of type `int`, depending on the call.
 
 Configuration and rcParams
 --------------------------

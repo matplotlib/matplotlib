@@ -17,7 +17,8 @@ metrics for those fonts.
 If you find TeX expressions that don't parse or render properly,
 please email mdroe@stsci.edu, but please check KNOWN ISSUES below first.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 
@@ -566,7 +567,7 @@ class TruetypeFonts(Fonts):
         self._fonts = {}
 
         filename = findfont(default_font_prop)
-        default_font = self.CachedFont(FT2Font(str(filename)))
+        default_font = self.CachedFont(FT2Font(filename))
         self._fonts['default'] = default_font
         self._fonts['regular'] = default_font
 
@@ -581,8 +582,8 @@ class TruetypeFonts(Fonts):
             basename = font
 
         cached_font = self._fonts.get(basename)
-        if cached_font is None:
-            font = FT2Font(str(basename))
+        if cached_font is None and os.path.exists(basename):
+            font = FT2Font(basename)
             cached_font = self.CachedFont(font)
             self._fonts[basename] = cached_font
             self._fonts[font.postscript_name] = cached_font
@@ -697,20 +698,14 @@ class BakomaFonts(TruetypeFonts):
         if fontname in self.fontmap and sym in latex_to_bakoma:
             basename, num = latex_to_bakoma[sym]
             slanted = (basename == "cmmi10") or sym in self._slanted_symbols
-            try:
-                cached_font = self._get_font(basename)
-            except RuntimeError:
-                pass
-            else:
+            cached_font = self._get_font(basename)
+            if cached_font is not None:
                 symbol_name = cached_font.font.get_glyph_name(num)
                 num = cached_font.glyphmap[num]
         elif len(sym) == 1:
             slanted = (fontname == "it")
-            try:
-                cached_font = self._get_font(fontname)
-            except RuntimeError:
-                pass
-            else:
+            cached_font = self._get_font(fontname)
+            if cached_font is not None:
                 num = ord(sym)
                 gid = cached_font.charmap.get(num)
                 if gid is not None:
@@ -852,11 +847,8 @@ class UnicodeFonts(TruetypeFonts):
 
             slanted = (new_fontname == 'it') or sym in self._slanted_symbols
             found_symbol = False
-            try:
-                cached_font = self._get_font(new_fontname)
-            except RuntimeError:
-                pass
-            else:
+            cached_font = self._get_font(new_fontname)
+            if cached_font is not None:
                 try:
                     glyphindex = cached_font.charmap[uniindex]
                     found_symbol = True

@@ -19,7 +19,8 @@ TODO:
   * integrate screen dpi w/ ppi and text
 
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 
@@ -262,7 +263,7 @@ class RendererAgg(RendererBase):
             font = RendererAgg._fontd.get(fname)
             if font is None:
                 font = FT2Font(
-                    str(fname),
+                    fname,
                     hinting_factor=rcParams['text.hinting_factor'])
                 RendererAgg._fontd[fname] = font
             RendererAgg._fontd[key] = font

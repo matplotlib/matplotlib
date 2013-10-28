@@ -4,7 +4,8 @@ registering new colormaps and for getting a colormap by name,
 and a mixin class for adding color mapping functionality.
 
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 
@@ -74,11 +75,8 @@ def _generate_cmap(name, lutsize):
 
 LUTSIZE = mpl.rcParams['image.lut']
 
-_cmapnames = list(six.iterkeys(datad))  # need this list because datad is changed in loop
-
 # Generate the reversed specifications ...
-
-for cmapname in _cmapnames:
+for cmapname in list(six.iterkeys(datad)):
     spec = datad[cmapname]
     spec_reversed = _reverse_cmap_spec(spec)
     datad[cmapname + '_r'] = spec_reversed
@@ -159,8 +157,10 @@ def get_cmap(name=None, lut=None):
             return cmap_d[name]
         elif name in datad:
             return _generate_cmap(name, lut)
-
-    raise ValueError("Colormap %s is not recognized" % name)
+    else:
+        raise ValueError(
+            "Colormap %s is not recognized. Possible values are: %s"
+            % (name, ', '.join(cmap_d.keys())))
 
 
 class ScalarMappable:

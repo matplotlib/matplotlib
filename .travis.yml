@@ -17,8 +17,7 @@ python:
   - 3.3
 
 install:
-  - pip install -q --use-mirrors nose python-dateutil numpy pep8 pyparsing
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.'* ]]; then pip -q install --use-mirrors PIL; fi
+  - pip install -q --use-mirrors nose python-dateutil numpy pep8 pyparsing pillow
   - sudo apt-get update && sudo apt-get -qq install inkscape
   - python setup.py install
 
@@ -35,5 +34,6 @@ script:
   - python ../matplotlib/tests.py -sv --processes=8 --process-timeout=300
 
 after_failure:
-  - cd ../matplotlib
-  - ./travis_upload.sh
+  - tar cjf result_images.tar.bz2 result_images
+  - travis-artifacts upload --path result_images.tar.bz2
+  - echo https://s3.amazonaws.com/matplotlib-test-results/artifacts/${TRAVIS_BUILD_NUMBER}/${TRAVIS_JOB_NUMBER}/result_images.tar.bz2
