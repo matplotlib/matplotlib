@@ -396,6 +396,12 @@ def test_polar_theta_position():
     ax.set_theta_zero_location("NW")
     ax.set_theta_direction('clockwise')
 
+@image_comparison(baseline_images=['polar_rlabel_position'])
+def test_polar_rlabel_position():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='polar')
+    ax.set_rlabel_position(315)
+
 @image_comparison(baseline_images=['axvspan_epoch'])
 def test_axvspan_epoch():
     from datetime import datetime

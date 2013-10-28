@@ -1,3 +1,6 @@
+2013-10-27 Added get_rlabel_position and set_rlabel_position methods to
+	   PolarAxes to control angular position of radial tick labels.
+	   
 2013-10-06 Add stride-based functions to mlab for easy creation of 2D arrays
            with less memory.
 
