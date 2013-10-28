@@ -8511,7 +8511,8 @@ class Axes(martist.Artist):
                 xmin0 = max(_saved_bounds[0]*0.9, minimum)
                 xmax = self.dataLim.intervalx[1]
                 for m in n:
-                    xmin = np.amin(m[m != 0]) # filter out the 0 height bins
+                    if np.sum(m) > 0:  # make sure there are counts
+                        xmin = np.amin(m[m != 0]) # filter out the 0 height bins
                 xmin = max(xmin*0.9, minimum)
                 xmin = min(xmin0, xmin)
                 self.dataLim.intervalx = (xmin, xmax)
@@ -8519,7 +8520,8 @@ class Axes(martist.Artist):
                 ymin0 = max(_saved_bounds[1]*0.9, minimum)
                 ymax = self.dataLim.intervaly[1]
                 for m in n:
-                    ymin = np.amin(m[m != 0]) # filter out the 0 height bins
+                    if np.sum(m) > 0:  # make sure there are counts
+                        ymin = np.amin(m[m != 0]) # filter out the 0 height bins
                 ymin = max(ymin*0.9, minimum)
                 ymin = min(ymin0, ymin)
                 self.dataLim.intervaly = (ymin, ymax)
