@@ -1,4 +1,5 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 
@@ -11,12 +12,11 @@ from matplotlib.testing.decorators import image_comparison
                   extensions=['png'],
                   remove_text=True)
 def test_zorder():
-    data = [[  66386,  174296,],
-            [  58230,  381139,]]
+    data = [[66386, 174296],
+            [58230, 381139]]
 
     colLabels = ('Freeze', 'Wind')
     rowLabels = ['%d year' % x for x in (100, 50)]
-
 
     cellText = []
     yoff = np.array([0.0] * len(colLabels))

@@ -32,6 +32,36 @@ Andrew Dawson added support for datetime axes to
 :func:`~matplotlib.pyplot.contour`, :func:`~matplotlib.pyplot.contourf`, 
 :func:`~matplotlib.pyplot.pcolormesh` and :func:`~matplotlib.pyplot.pcolor`. 
 
+Support for additional spectrum types
+`````````````````````````````````````
+Todd Jennings added support for new types of frequency spectrum plots:
+:func:`~matplotlib.pyplot.magnitude_spectrum`,
+:func:`~matplotlib.pyplot.phase_spectrum`, and
+:func:`~matplotlib.pyplot.angle_spectrum`, as well as corresponding functions
+in mlab.
+
+He also added these spectrum types to :func:`~matplotlib.pyplot.specgram`,
+as well as adding support for linear scaling there (in addition to the
+existing dB scaling). Support for additional spectrum types was also added to
+:func:`~matplotlib.mlab.specgram`.
+
+He also increased the performance for all of these functions and plot types.
+
+Support for detrending and windowing 2D arrays in mlab
+``````````````````````````````````````````````````````
+Todd Jennings added support for 2D arrays in the 
+:func:`~matplotlib.mlab.detrend_mean`, :func:`~matplotlib.mlab.detrend_none`,
+and :func:`~matplotlib.mlab.detrend`, as well as adding 
+:func:`~matplotlib.mlab.apply_window` which support windowing 2D arrays.
+
+Support for strides in mlab
+```````````````````````````
+Todd Jennings added some functions to mlab to make it easier to use numpy
+strides to create memory-efficient 2D arrays.  This includes
+:func:`~matplotlib.mlab.stride_repeat`, which repeats an array to create a 2D
+array, and :func:`~matplotlib.mlab.stride_windows`, which uses a moving window
+to create a 2D array from a 1D array.
+
 
 Date handling
 -------------
@@ -57,6 +87,74 @@ to a non-transparent background.
 
 new in matplotlib-1.3
 =====================
+
+New in 1.3.1
+------------
+
+1.3.1 is a bugfix release, primarily dealing with improved setup and
+handling of dependencies, and correcting and enhancing the
+documentation.
+
+The following changes were made in 1.3.1 since 1.3.0.
+
+Enhancements
+````````````
+
+- Added a context manager for creating multi-page pdfs (see
+  `matplotlib.backends.backend_pdf.PdfPages`).
+
+- The WebAgg backend should now have lower latency over heterogeneous
+  Internet connections.
+
+Bug fixes
+`````````
+
+- Histogram plots now contain the endline.
+
+- Fixes to the Molleweide projection.
+
+- Handling recent fonts from Microsoft and Macintosh-style fonts with
+  non-ascii metadata is improved.
+
+- Hatching of fill between plots now works correctly in the PDF
+  backend.
+
+- Tight bounding box support now works in the PGF backend.
+
+- Transparent figures now display correctly in the Qt4Agg backend.
+
+- Drawing lines from one subplot to another now works.
+
+- Unit handling on masked arrays has been improved.
+
+Setup and dependencies
+``````````````````````
+
+- Now works with any version of pyparsing 1.5.6 or later, without displaying
+  hundreds of warnings.
+
+- Now works with 64-bit versions of Ghostscript on MS-Windows.
+
+- When installing from source into an environment without Numpy, Numpy
+  will first be downloaded and built and then used to build
+  matplotlib.
+
+- Externally installed backends are now always imported using a
+  fully-qualified path to the module.
+
+- Works with newer version of wxPython.
+
+- Can now build with a PyCXX installed globally on the system from source.
+
+- Better detection of Gtk3 dependencies.
+
+Testing
+```````
+
+- Tests should now work in non-English locales.
+
+- PEP8 conformance tests now report on locations of issues.
+
 
 New plotting features
 ---------------------

@@ -46,7 +46,8 @@ the range [0,1].
 Finally, legal html names for colors, like 'red', 'burlywood' and 'chartreuse'
 are supported.
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 from six.moves import map, zip
@@ -905,10 +906,10 @@ class Normalize(object):
 
         self.autoscale_None(result)
         vmin, vmax = self.vmin, self.vmax
-        if vmin > vmax:
-            raise ValueError("minvalue must be less than or equal to maxvalue")
-        elif vmin == vmax:
+        if vmin == vmax:
             result.fill(0)   # Or should it be all masked?  Or 0.5?
+        elif vmin > vmax:
+            raise ValueError("minvalue must be less than or equal to maxvalue")
         else:
             vmin = float(vmin)
             vmax = float(vmax)
@@ -946,9 +947,9 @@ class Normalize(object):
 
     def autoscale_None(self, A):
         ' autoscale only None-valued vmin or vmax'
-        if self.vmin is None:
+        if self.vmin is None and np.size(A) > 0:
             self.vmin = ma.min(A)
-        if self.vmax is None:
+        if self.vmax is None and np.size(A) > 0:
             self.vmax = ma.max(A)
 
     def scaled(self):
@@ -1054,7 +1055,7 @@ class SymLogNorm(Normalize):
         the logarithmic range. Defaults to 1.
         """
         Normalize.__init__(self, vmin, vmax, clip)
-        self.linthresh = linthresh
+        self.linthresh = float(linthresh)
         self._linscale_adj = (linscale / (1.0 - np.e ** -1))
 
     def __call__(self, value, clip=None):
@@ -1112,7 +1113,7 @@ class SymLogNorm(Normalize):
         Calculates vmin and vmax in the transformed system.
         """
         vmin, vmax = self.vmin, self.vmax
-        arr = np.array([vmax, vmin])
+        arr = np.array([vmax, vmin]).astype(np.float)
         self._upper, self._lower = self._transform(arr)
 
     def inverse(self, value):

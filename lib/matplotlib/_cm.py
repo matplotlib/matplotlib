@@ -5,7 +5,8 @@ and a dictionary of these dictionaries.
 Documentation for each is in pyplot.colormaps()
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 import numpy as np
 
 _binary_data = {

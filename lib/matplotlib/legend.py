@@ -11,7 +11,8 @@ handlers are defined in the :mod:`~matplotlib.legend_handler` module). Note
 that not all kinds of artist are supported by the legend yet (See
 :ref:`plotting-guide-legend` for more information).
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 from six.moves import xrange

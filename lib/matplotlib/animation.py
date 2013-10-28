@@ -17,7 +17,8 @@
 # * Movies
 #   * Can blit be enabled for movies?
 # * Need to consider event sources to allow clicking through multiple figures
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 from six.moves import xrange, zip

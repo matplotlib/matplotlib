@@ -1,4 +1,5 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 
@@ -33,7 +34,7 @@ from matplotlib.compat.subprocess import check_output
 system_fonts = []
 for f in font_manager.findSystemFonts():
     try:
-        system_fonts.append(FT2Font(str(f)).family_name)
+        system_fonts.append(FT2Font(f).family_name)
     except RuntimeError:
         pass  # some fonts on osx are known to fail, print?
     except:

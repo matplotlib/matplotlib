@@ -4,7 +4,8 @@
 A PDF matplotlib backend
 Author: Jouni K Seppänen <jks@iki.fi>
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 from six.moves import map
@@ -585,7 +586,7 @@ class PdfFile(object):
             self.fontNames[filename] = Fx
             self.nextFont += 1
             matplotlib.verbose.report(
-                'Assigning font %s = %s' % (Fx, filename),
+                'Assigning font %s = %r' % (Fx, filename),
                 'debug')
 
         return Fx
@@ -701,7 +702,7 @@ class PdfFile(object):
         if 0:             flags |= 1 << 17 # TODO: small caps
         if 0:             flags |= 1 << 18 # TODO: force bold
 
-        ft2font = FT2Font(str(fontfile))
+        ft2font = FT2Font(fontfile)
 
         descriptor = {
             'Type':        Name('FontDescriptor'),
@@ -761,7 +762,7 @@ end"""
     def embedTTF(self, filename, characters):
         """Embed the TTF font from the named file into the document."""
 
-        font = FT2Font(str(filename))
+        font = FT2Font(filename)
         fonttype = rcParams['pdf.fonttype']
 
         def cvt(length, upe=font.units_per_EM, nearest=True):
@@ -845,7 +846,8 @@ end"""
 
             # Make the charprocs array (using ttconv to generate the
             # actual outlines)
-            rawcharprocs = ttconv.get_pdf_charprocs(filename, glyph_ids)
+            rawcharprocs = ttconv.get_pdf_charprocs(
+                filename.encode(sys.getfilesystemencoding()), glyph_ids)
             charprocs = {}
             charprocsRef = {}
             for charname, stream in six.iteritems(rawcharprocs):
@@ -2003,7 +2005,7 @@ class RendererPdf(RendererBase):
             filename = findfont(prop)
             font = self.truetype_font_cache.get(filename)
             if font is None:
-                font = FT2Font(str(filename))
+                font = FT2Font(filename)
                 self.truetype_font_cache[filename] = font
             self.truetype_font_cache[key] = font
         font.clear()
@@ -2143,11 +2145,12 @@ class GraphicsContextPdf(GraphicsContextBase):
         """Set clip rectangle. Calls self.pop() and self.push()."""
         cmds = []
         # Pop graphics state until we hit the right one or the stack is empty
-        while (self._cliprect, self._clippath) != (cliprect, clippath) \
-                and self.parent is not None:
+        while ((self._cliprect, self._clippath) != (cliprect, clippath)
+                and self.parent is not None):
             cmds.extend(self.pop())
         # Unless we hit the right one, set the clip polygon
-        if (self._cliprect, self._clippath) != (cliprect, clippath):
+        if ((self._cliprect, self._clippath) != (cliprect, clippath) or
+            self.parent is None):
             cmds.extend(self.push())
             if self._cliprect != cliprect:
                 cmds.extend([cliprect, Op.rectangle, Op.clip, Op.endpath])
@@ -2249,29 +2252,44 @@ class PdfPages(object):
     """
     A multi-page PDF file.
 
-    Use like this::
+    Examples
+    --------
 
-        # Initialize:
-        with PdfPages('foo.pdf') as pdf:
+    >>> import matplotlib.pyplot as plt
+    >>> # Initialize:
+    >>> with PdfPages('foo.pdf') as pdf:
+    ...     # As many times as you like, create a figure fig and save it:
+    ...     fig = plt.figure()
+    ...     pdf.savefig(fig)
+    ...     # When no figure is specified the current figure is saved
+    ...     pdf.savefig()
 
-            # As many times as you like, create a figure fig and save it:
-            # When no figure is specified the current figure is saved
-            pdf.savefig(fig)
-            pdf.savefig()
+    Notes
+    -----
 
-    (In reality PdfPages is a thin wrapper around PdfFile, in order to
-    avoid confusion when using savefig and forgetting the format
-    argument.)
+    In reality :class:`PdfPages` is a thin wrapper around :class:`PdfFile`, in
+    order to avoid confusion when using :func:`~matplotlib.pyplot.savefig` and
+    forgetting the format argument.
     """
-    __slots__ = ('_file',)
+    __slots__ = ('_file', 'keep_empty')
 
-    def __init__(self, filename):
+    def __init__(self, filename, keep_empty=True):
         """
-        Create a new PdfPages object that will be written to the file
-        named *filename*. The file is opened at once and any older
-        file with the same name is overwritten.
+        Create a new PdfPages object.
+
+        Parameters
+        ----------
+
+        filename: str
+            Plots using :meth:`PdfPages.savefig` will be written to a file at
+            this location. The file is opened at once and any older file with
+            the same name is overwritten.
+        keep_empty: bool, optional
+            If set to False, then empty pdf files will be deleted automatically
+            when closed.
         """
         self._file = PdfFile(filename)
+        self.keep_empty = keep_empty
 
     def __enter__(self):
         return self
@@ -2285,6 +2303,8 @@ class PdfPages(object):
         PDF file.
         """
         self._file.close()
+        if self.get_pagecount() == 0 and self.keep_empty is False:
+            os.remove(self._file.fh.name)
         self._file = None
 
     def infodict(self):
@@ -2297,10 +2317,19 @@ class PdfPages(object):
 
     def savefig(self, figure=None, **kwargs):
         """
-        Save the Figure instance *figure* to this file as a new page.
-        If *figure* is a number, the figure instance is looked up by
-        number, and if *figure* is None, the active figure is saved.
-        Any other keyword arguments are passed to Figure.savefig.
+        Saves a :class:`~matplotlib.figure.Figure` to this file as a new page.
+
+        Any other keyword arguments are passed to
+        :meth:`~matplotlib.figure.Figure.savefig`.
+
+        Parameters
+        ----------
+
+        figure: :class:`~matplotlib.figure.Figure` or int, optional
+            Specifies what figure is saved to file. If not specified, the
+            active figure is saved. If a :class:`~matplotlib.figure.Figure`
+            instance is provided, this figure is saved. If an int is specified,
+            the figure instance to save is looked up by number.
         """
         if isinstance(figure, Figure):
             figure.savefig(self, format='pdf', **kwargs)
@@ -2313,6 +2342,12 @@ class PdfPages(object):
                 raise ValueError("No such figure: " + repr(figure))
             else:
                 figureManager.canvas.figure.savefig(self, format='pdf', **kwargs)
+
+    def get_pagecount(self):
+        """
+        Returns the current number of pages in the multipage pdf file.
+        """
+        return len(self._file.pageList)
 
 class FigureCanvasPdf(FigureCanvasBase):
     """

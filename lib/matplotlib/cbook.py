@@ -6,7 +6,8 @@ This module is safe to import from anywhere within matplotlib;
 it imports matplotlib only at runtime.
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 from six.moves import xrange
@@ -690,6 +691,19 @@ def is_sequence_of_strings(obj):
 def is_writable_file_like(obj):
     'return true if *obj* looks like a file object with a *write* method'
     return hasattr(obj, 'write') and six.callable(obj.write)
+
+
+def file_requires_unicode(x):
+    """
+    Returns `True` if the given writable file-like object requires Unicode
+    to be written to it.
+    """
+    try:
+        x.write(b'')
+    except TypeError:
+        return True
+    else:
+        return False
 
 
 def is_scalar(obj):

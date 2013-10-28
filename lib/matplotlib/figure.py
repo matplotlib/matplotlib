@@ -11,7 +11,8 @@ contains all the plot elements.  The following classes are defined
 
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 
@@ -1414,7 +1415,8 @@ class Figure(Artist):
 
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])
         frameon = kwargs.pop('frameon', rcParams['savefig.frameon'])
-        transparent = kwargs.pop('transparent', rcParams['savefig.transparent'])
+        transparent = kwargs.pop('transparent',
+                                 rcParams['savefig.transparent'])
 
         if transparent:
             kwargs.setdefault('facecolor', 'none')

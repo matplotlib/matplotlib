@@ -1,10 +1,10 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
 from six.moves import xrange
 
-from nose.tools import assert_equal
-from nose.tools import assert_raises
+from nose.tools import assert_equal, assert_raises
 import datetime
 
 import numpy as np
@@ -1044,6 +1044,21 @@ def test_boxplot():
                conf_intervals=[None, (-1.0, 3.5)], notch=1)
     ax.set_ylim((-30, 30))
 
+@image_comparison(baseline_images=['boxplot_with_CIarray'],
+                  remove_text=True, extensions=['png'],
+                  savefig_kwarg={'dpi': 40})
+def test_boxplot_with_CIarray():
+    x = np.linspace(-7, 7, 140)
+    x = np.hstack([-25, x, 25])
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    CIs = np.array([[-1.5, 3.], [-1., 3.5]])
+
+    # show 1 boxplot with mpl medians/conf. interfals, 1 with manual values
+    ax.boxplot([x, x], bootstrap=10000, usermedians=[None, 1.0],
+               conf_intervals=CIs, notch=1)
+    ax.set_ylim((-30, 30))
+
 @image_comparison(baseline_images=['boxplot_no_inverted_whisker'],
                   remove_text=True, extensions=['png'],
                   savefig_kwarg={'dpi': 40})
@@ -1425,9 +1440,11 @@ def test_subplot_key_hash():
     assert_equal((5, 1, 0, None), ax.get_subplotspec().get_geometry())
 
 
-@image_comparison(baseline_images=['specgram_freqs'], remove_text=True,
-                  extensions=['png'])
+@image_comparison(baseline_images=['specgram_freqs',
+                                   'specgram_freqs_linear'],
+                  remove_text=True, extensions=['png'])
 def test_specgram_freqs():
+    '''test axes.specgram in default (psd) mode with sinusoidal stimuli'''
     n = 10000
     Fs = 100.
 
@@ -1447,22 +1464,40 @@ def test_specgram_freqs():
         y2 += np.sin(fstim2 * x * np.pi * 2)
     y = np.hstack([y1, y2])
 
-    fig = plt.figure()
-    ax1 = fig.add_subplot(3, 1, 1)
-    ax2 = fig.add_subplot(3, 1, 2)
-    ax3 = fig.add_subplot(3, 1, 3)
+    fig1 = plt.figure()
+    fig2 = plt.figure()
 
-    spec1 = ax1.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                         sides='default')
-    spec2 = ax2.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                         sides='onesided')
-    spec3 = ax3.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                         sides='twosided')
+    ax11 = fig1.add_subplot(3, 1, 1)
+    ax12 = fig1.add_subplot(3, 1, 2)
+    ax13 = fig1.add_subplot(3, 1, 3)
+
+    ax21 = fig2.add_subplot(3, 1, 1)
+    ax22 = fig2.add_subplot(3, 1, 2)
+    ax23 = fig2.add_subplot(3, 1, 3)
+
+    spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='default')
+    spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='onesided')
+    spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='twosided')
+
+    spec21 = ax21.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='default',
+                           scale='linear', norm=matplotlib.colors.LogNorm())
+    spec22 = ax22.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='onesided',
+                           scale='linear', norm=matplotlib.colors.LogNorm())
+    spec23 = ax23.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='twosided',
+                           scale='linear', norm=matplotlib.colors.LogNorm())
 
 
-@image_comparison(baseline_images=['specgram_noise'], remove_text=True,
-                  extensions=['png'])
+@image_comparison(baseline_images=['specgram_noise',
+                                   'specgram_noise_linear'],
+                  remove_text=True, extensions=['png'])
 def test_specgram_noise():
+    '''test axes.specgram in default (psd) mode with noise stimuli'''
     np.random.seed(0)
 
     n = 10000
@@ -1476,22 +1511,348 @@ def test_specgram_noise():
     y2 = np.random.rand(n)
     y = np.hstack([y1, y2])
 
-    fig = plt.figure()
-    ax1 = fig.add_subplot(3, 1, 1)
-    ax2 = fig.add_subplot(3, 1, 2)
-    ax3 = fig.add_subplot(3, 1, 3)
+    fig1 = plt.figure()
+    fig2 = plt.figure()
 
-    spec1 = ax1.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                         sides='default')
-    spec2 = ax2.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                         sides='onesided')
-    spec3 = ax3.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                         sides='twosided')
+    ax11 = fig1.add_subplot(3, 1, 1)
+    ax12 = fig1.add_subplot(3, 1, 2)
+    ax13 = fig1.add_subplot(3, 1, 3)
+
+    ax21 = fig2.add_subplot(3, 1, 1)
+    ax22 = fig2.add_subplot(3, 1, 2)
+    ax23 = fig2.add_subplot(3, 1, 3)
+
+    spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='default')
+    spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='onesided')
+    spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='twosided')
+
+    spec21 = ax21.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='default',
+                           scale='linear', norm=matplotlib.colors.LogNorm())
+    spec22 = ax22.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='onesided',
+                           scale='linear', norm=matplotlib.colors.LogNorm())
+    spec23 = ax23.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='twosided',
+                           scale='linear', norm=matplotlib.colors.LogNorm())
+
+
+@image_comparison(baseline_images=['specgram_magnitude_freqs',
+                                   'specgram_magnitude_freqs_linear'],
+                  remove_text=True, extensions=['png'])
+def test_specgram_magnitude_freqs():
+    '''test axes.specgram in magnitude mode with sinusoidal stimuli'''
+    n = 10000
+    Fs = 100.
+
+    fstims1 = [Fs/4, Fs/5, Fs/11]
+    fstims2 = [Fs/4.7, Fs/5.6, Fs/11.9]
+
+    NFFT = int(1000 * Fs / min(fstims1 + fstims2))
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    x = np.arange(0, n, 1/Fs)
+
+    y1 = np.zeros(x.size)
+    y2 = np.zeros(x.size)
+    for i, (fstim1, fstim2) in enumerate(zip(fstims1, fstims2)):
+        y1 += np.sin(fstim1 * x * np.pi * 2)
+        y2 += np.sin(fstim2 * x * np.pi * 2)
+        y1[-1] = y1[-1]/y1[-1]
+        y2[-1] = y2[-1]/y2[-1]
+    y = np.hstack([y1, y2])
+
+    fig1 = plt.figure()
+    fig2 = plt.figure()
+
+    ax11 = fig1.add_subplot(3, 1, 1)
+    ax12 = fig1.add_subplot(3, 1, 2)
+    ax13 = fig1.add_subplot(3, 1, 3)
+
+    ax21 = fig2.add_subplot(3, 1, 1)
+    ax22 = fig2.add_subplot(3, 1, 2)
+    ax23 = fig2.add_subplot(3, 1, 3)
+
+    spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='default', mode='magnitude')
+    spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='onesided', mode='magnitude')
+    spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='twosided', mode='magnitude')
+
+    spec21 = ax21.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='default', mode='magnitude',
+                           scale='linear', norm=matplotlib.colors.LogNorm())
+    spec22 = ax22.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='onesided', mode='magnitude',
+                           scale='linear', norm=matplotlib.colors.LogNorm())
+    spec23 = ax23.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='twosided', mode='magnitude',
+                           scale='linear', norm=matplotlib.colors.LogNorm())
+
+
+@image_comparison(baseline_images=['specgram_magnitude_noise',
+                                   'specgram_magnitude_noise_linear'],
+                  remove_text=True, extensions=['png'])
+def test_specgram_magnitude_noise():
+    '''test axes.specgram in magnitude mode with noise stimuli'''
+    np.random.seed(0)
+
+    n = 10000
+    Fs = 100.
+
+    NFFT = int(1000 * Fs / 11)
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    y1 = np.random.standard_normal(n)
+    y2 = np.random.rand(n)
+    y = np.hstack([y1, y2])
+
+    fig1 = plt.figure()
+    fig2 = plt.figure()
+
+    ax11 = fig1.add_subplot(3, 1, 1)
+    ax12 = fig1.add_subplot(3, 1, 2)
+    ax13 = fig1.add_subplot(3, 1, 3)
+
+    ax21 = fig2.add_subplot(3, 1, 1)
+    ax22 = fig2.add_subplot(3, 1, 2)
+    ax23 = fig2.add_subplot(3, 1, 3)
+
+    spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='default', mode='magnitude')
+    spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='onesided', mode='magnitude')
+    spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='twosided', mode='magnitude')
+
+    spec21 = ax21.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='default', mode='magnitude',
+                           scale='linear', norm=matplotlib.colors.LogNorm())
+    spec22 = ax22.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='onesided', mode='magnitude',
+                           scale='linear', norm=matplotlib.colors.LogNorm())
+    spec23 = ax23.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='twosided', mode='magnitude',
+                           scale='linear', norm=matplotlib.colors.LogNorm())
+
+
+@image_comparison(baseline_images=['specgram_angle_freqs'],
+                  remove_text=True, extensions=['png'])
+def test_specgram_angle_freqs():
+    '''test axes.specgram in angle mode with sinusoidal stimuli'''
+    n = 10000
+    Fs = 100.
+
+    fstims1 = [Fs/4, Fs/5, Fs/11]
+    fstims2 = [Fs/4.7, Fs/5.6, Fs/11.9]
+
+    NFFT = int(1000 * Fs / min(fstims1 + fstims2))
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    x = np.arange(0, n, 1/Fs)
+
+    y1 = np.zeros(x.size)
+    y2 = np.zeros(x.size)
+    for i, (fstim1, fstim2) in enumerate(zip(fstims1, fstims2)):
+        y1 += np.sin(fstim1 * x * np.pi * 2)
+        y2 += np.sin(fstim2 * x * np.pi * 2)
+        y1[-1] = y1[-1]/y1[-1]
+        y2[-1] = y2[-1]/y2[-1]
+    y = np.hstack([y1, y2])
+
+    fig1 = plt.figure()
+
+    ax11 = fig1.add_subplot(3, 1, 1)
+    ax12 = fig1.add_subplot(3, 1, 2)
+    ax13 = fig1.add_subplot(3, 1, 3)
+
+    ax11.hold(True)
+    ax12.hold(True)
+    ax13.hold(True)
+
+    spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='default', mode='angle')
+    spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='onesided', mode='angle')
+    spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='twosided', mode='angle')
+
+    assert_raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
+                  noverlap=noverlap, pad_to=pad_to, sides='default',
+                  mode='phase', scale='dB')
+
+    assert_raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
+                  noverlap=noverlap, pad_to=pad_to, sides='onesided',
+                  mode='phase', scale='dB')
+
+    assert_raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
+                  noverlap=noverlap, pad_to=pad_to, sides='twosided',
+                  mode='phase', scale='dB')
+
+
+@image_comparison(baseline_images=['specgram_angle_noise'],
+                  remove_text=True, extensions=['png'])
+def test_specgram_noise_angle():
+    '''test axes.specgram in angle mode with noise stimuli'''
+    np.random.seed(0)
+
+    n = 10000
+    Fs = 100.
+
+    NFFT = int(1000 * Fs / 11)
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    y1 = np.random.standard_normal(n)
+    y2 = np.random.rand(n)
+    y = np.hstack([y1, y2])
+
+    fig1 = plt.figure()
+
+    ax11 = fig1.add_subplot(3, 1, 1)
+    ax12 = fig1.add_subplot(3, 1, 2)
+    ax13 = fig1.add_subplot(3, 1, 3)
+
+    ax11.hold(True)
+    ax12.hold(True)
+    ax13.hold(True)
+
+    spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='default', mode='angle')
+    spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='onesided', mode='angle')
+    spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='twosided', mode='angle')
+
+    assert_raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
+                  noverlap=noverlap, pad_to=pad_to, sides='default',
+                  mode='phase', scale='dB')
+
+    assert_raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
+                  noverlap=noverlap, pad_to=pad_to, sides='onesided',
+                  mode='phase', scale='dB')
+
+    assert_raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
+                  noverlap=noverlap, pad_to=pad_to, sides='twosided',
+                  mode='phase', scale='dB')
+
+
+@image_comparison(baseline_images=['specgram_phase_freqs'],
+                  remove_text=True, extensions=['png'])
+def test_specgram_freqs_phase():
+    '''test axes.specgram in phase mode with sinusoidal stimuli'''
+    n = 10000
+    Fs = 100.
+
+    fstims1 = [Fs/4, Fs/5, Fs/11]
+    fstims2 = [Fs/4.7, Fs/5.6, Fs/11.9]
+
+    NFFT = int(1000 * Fs / min(fstims1 + fstims2))
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    x = np.arange(0, n, 1/Fs)
+
+    y1 = np.zeros(x.size)
+    y2 = np.zeros(x.size)
+    for i, (fstim1, fstim2) in enumerate(zip(fstims1, fstims2)):
+        y1 += np.sin(fstim1 * x * np.pi * 2)
+        y2 += np.sin(fstim2 * x * np.pi * 2)
+        y1[-1] = y1[-1]/y1[-1]
+        y2[-1] = y2[-1]/y2[-1]
+    y = np.hstack([y1, y2])
+
+    fig1 = plt.figure()
+
+    ax11 = fig1.add_subplot(3, 1, 1)
+    ax12 = fig1.add_subplot(3, 1, 2)
+    ax13 = fig1.add_subplot(3, 1, 3)
+
+    ax11.hold(True)
+    ax12.hold(True)
+    ax13.hold(True)
+
+    spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='default', mode='phase')
+    spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='onesided', mode='phase')
+    spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='twosided', mode='phase')
+
+    assert_raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
+                  noverlap=noverlap, pad_to=pad_to, sides='default',
+                  mode='phase', scale='dB')
+
+    assert_raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
+                  noverlap=noverlap, pad_to=pad_to, sides='onesided',
+                  mode='phase', scale='dB')
+
+    assert_raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
+                  noverlap=noverlap, pad_to=pad_to, sides='twosided',
+                  mode='phase', scale='dB')
+
+
+@image_comparison(baseline_images=['specgram_phase_noise'],
+                  remove_text=True, extensions=['png'])
+def test_specgram_noise_phase():
+    '''test axes.specgram in phase mode with noise stimuli'''
+    np.random.seed(0)
+
+    n = 10000
+    Fs = 100.
+
+    NFFT = int(1000 * Fs / 11)
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    y1 = np.random.standard_normal(n)
+    y2 = np.random.rand(n)
+    y = np.hstack([y1, y2])
+
+    fig1 = plt.figure()
+
+    ax11 = fig1.add_subplot(3, 1, 1)
+    ax12 = fig1.add_subplot(3, 1, 2)
+    ax13 = fig1.add_subplot(3, 1, 3)
+
+    ax11.hold(True)
+    ax12.hold(True)
+    ax13.hold(True)
+
+    spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='default',
+                           mode='phase', )
+    spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='onesided',
+                           mode='phase', )
+    spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='twosided',
+                           mode='phase', )
+
+    assert_raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
+                  noverlap=noverlap, pad_to=pad_to, sides='default',
+                  mode='phase', scale='dB')
+
+    assert_raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
+                  noverlap=noverlap, pad_to=pad_to, sides='onesided',
+                  mode='phase', scale='dB')
+
+    assert_raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
+                  noverlap=noverlap, pad_to=pad_to, sides='twosided',
+                  mode='phase', scale='dB')
 
 
 @image_comparison(baseline_images=['psd_freqs'], remove_text=True,
                   extensions=['png'])
 def test_psd_freqs():
+    '''test axes.psd with sinusoidal stimuli'''
     n = 10000
     Fs = 100.
 
@@ -1516,12 +1877,14 @@ def test_psd_freqs():
     ax2 = fig.add_subplot(3, 1, 2)
     ax3 = fig.add_subplot(3, 1, 3)
 
-    psd1 = ax1.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                   sides='default')
-    psd2 = ax2.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                   sides='onesided')
-    psd3 = ax3.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                   sides='twosided')
+    psd1, freqs1 = ax1.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='default')
+    psd2, freqs2 = ax2.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='onesided',
+                           return_line=False)
+    psd3, freqs3, line3 = ax3.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                                  pad_to=pad_to, sides='twosided',
+                                  return_line=True)
 
     ax1.set_xlabel('')
     ax2.set_xlabel('')
@@ -1534,6 +1897,7 @@ def test_psd_freqs():
 @image_comparison(baseline_images=['psd_noise'], remove_text=True,
                   extensions=['png'])
 def test_psd_noise():
+    '''test axes.psd with noise stimuli'''
     np.random.seed(0)
 
     n = 10000
@@ -1552,12 +1916,14 @@ def test_psd_noise():
     ax2 = fig.add_subplot(3, 1, 2)
     ax3 = fig.add_subplot(3, 1, 3)
 
-    psd1 = ax1.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                   sides='default')
-    psd2 = ax2.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                   sides='onesided')
-    psd3 = ax3.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                   sides='twosided')
+    psd1, freqs1 = ax1.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='default')
+    psd2, freqs2 = ax2.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='onesided',
+                           return_line=False)
+    psd3, freqs3, line3 = ax3.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                                  pad_to=pad_to, sides='twosided',
+                                  return_line=True)
 
     ax1.set_xlabel('')
     ax2.set_xlabel('')
@@ -1570,6 +1936,7 @@ def test_psd_noise():
 @image_comparison(baseline_images=['csd_freqs'], remove_text=True,
                   extensions=['png'])
 def test_csd_freqs():
+    '''test axes.csd with sinusoidal stimuli'''
     n = 10000
     Fs = 100.
 
@@ -1593,12 +1960,14 @@ def test_csd_freqs():
     ax2 = fig.add_subplot(3, 1, 2)
     ax3 = fig.add_subplot(3, 1, 3)
 
-    csd1 = ax1.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                   sides='default')
-    csd2 = ax2.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                   sides='onesided')
-    csd3 = ax3.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                   sides='twosided')
+    csd1, freqs1 = ax1.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='default')
+    csd2, freqs2 = ax2.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='onesided',
+                           return_line=False)
+    csd3, freqs3, line3 = ax3.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                                  pad_to=pad_to, sides='twosided',
+                                  return_line=True)
 
     ax1.set_xlabel('')
     ax2.set_xlabel('')
@@ -1611,6 +1980,7 @@ def test_csd_freqs():
 @image_comparison(baseline_images=['csd_noise'], remove_text=True,
                   extensions=['png'])
 def test_csd_noise():
+    '''test axes.csd with noise stimuli'''
     np.random.seed(0)
 
     n = 10000
@@ -1628,12 +1998,293 @@ def test_csd_noise():
     ax2 = fig.add_subplot(3, 1, 2)
     ax3 = fig.add_subplot(3, 1, 3)
 
-    csd1 = ax1.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                   sides='default')
-    csd2 = ax2.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                   sides='onesided')
-    csd3 = ax3.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
-                   sides='twosided')
+    csd1, freqs1 = ax1.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='default')
+    csd2, freqs2 = ax2.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                           pad_to=pad_to, sides='onesided',
+                           return_line=False)
+    csd3, freqs3, line3 = ax3.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
+                                  pad_to=pad_to, sides='twosided',
+                                  return_line=True)
+
+    ax1.set_xlabel('')
+    ax2.set_xlabel('')
+    ax3.set_xlabel('')
+    ax1.set_ylabel('')
+    ax2.set_ylabel('')
+    ax3.set_ylabel('')
+
+
+@image_comparison(baseline_images=['magnitude_spectrum_freqs_linear',
+                                   'magnitude_spectrum_freqs_dB'],
+                  remove_text=True,
+                  extensions=['png'])
+def test_magnitude_spectrum_freqs():
+    '''test axes.magnitude_spectrum with sinusoidal stimuli'''
+    n = 10000
+    Fs = 100.
+
+    fstims1 = [Fs/4, Fs/5, Fs/11]
+
+    NFFT = int(1000 * Fs / min(fstims1))
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    x = np.arange(0, n, 1/Fs)
+
+    y = np.zeros(x.size)
+    for i, fstim1 in enumerate(fstims1):
+        y += np.sin(fstim1 * x * np.pi * 2) * 10**i
+    y = y
+
+    fig1 = plt.figure()
+    fig2 = plt.figure()
+
+    ax11 = fig1.add_subplot(3, 1, 1)
+    ax12 = fig1.add_subplot(3, 1, 2)
+    ax13 = fig1.add_subplot(3, 1, 3)
+
+    ax21 = fig2.add_subplot(3, 1, 1)
+    ax22 = fig2.add_subplot(3, 1, 2)
+    ax23 = fig2.add_subplot(3, 1, 3)
+
+    spec11, freqs11, line11 = ax11.magnitude_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                                      sides='default')
+    spec12, freqs12, line12 = ax12.magnitude_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                                      sides='onesided')
+    spec13, freqs13, line13 = ax13.magnitude_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                                      sides='twosided')
+
+    spec21, freqs21, line21 = ax21.magnitude_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                                      sides='default',
+                                                      scale='dB')
+    spec22, freqs22, line22 = ax22.magnitude_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                                      sides='onesided',
+                                                      scale='dB')
+    spec23, freqs23, line23 = ax23.magnitude_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                                      sides='twosided',
+                                                      scale='dB')
+
+    ax11.set_xlabel('')
+    ax12.set_xlabel('')
+    ax13.set_xlabel('')
+    ax11.set_ylabel('')
+    ax12.set_ylabel('')
+    ax13.set_ylabel('')
+
+    ax21.set_xlabel('')
+    ax22.set_xlabel('')
+    ax23.set_xlabel('')
+    ax21.set_ylabel('')
+    ax22.set_ylabel('')
+    ax23.set_ylabel('')
+
+
+@image_comparison(baseline_images=['magnitude_spectrum_noise_linear',
+                                   'magnitude_spectrum_noise_dB'],
+                  remove_text=True,
+                  extensions=['png'])
+def test_magnitude_spectrum_noise():
+    '''test axes.magnitude_spectrum with noise stimuli'''
+    np.random.seed(0)
+
+    n = 10000
+    Fs = 100.
+
+    NFFT = int(1000 * Fs / 11)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    y1 = np.random.standard_normal(n)
+    y2 = np.random.rand(n)
+    y = np.hstack([y1, y2]) - .5
+
+    fig1 = plt.figure()
+    fig2 = plt.figure()
+
+    ax11 = fig1.add_subplot(3, 1, 1)
+    ax12 = fig1.add_subplot(3, 1, 2)
+    ax13 = fig1.add_subplot(3, 1, 3)
+
+    ax21 = fig2.add_subplot(3, 1, 1)
+    ax22 = fig2.add_subplot(3, 1, 2)
+    ax23 = fig2.add_subplot(3, 1, 3)
+
+    spec11, freqs11, line11 = ax11.magnitude_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                                      sides='default')
+    spec12, freqs12, line12 = ax12.magnitude_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                                      sides='onesided')
+    spec13, freqs13, line13 = ax13.magnitude_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                                      sides='twosided')
+
+    spec21, freqs21, line21 = ax21.magnitude_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                                      sides='default',
+                                                      scale='dB')
+    spec22, freqs22, line22 = ax22.magnitude_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                                      sides='onesided',
+                                                      scale='dB')
+    spec23, freqs23, line23 = ax23.magnitude_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                                      sides='twosided',
+                                                      scale='dB')
+
+    ax11.set_xlabel('')
+    ax12.set_xlabel('')
+    ax13.set_xlabel('')
+    ax11.set_ylabel('')
+    ax12.set_ylabel('')
+    ax13.set_ylabel('')
+
+    ax21.set_xlabel('')
+    ax22.set_xlabel('')
+    ax23.set_xlabel('')
+    ax21.set_ylabel('')
+    ax22.set_ylabel('')
+    ax23.set_ylabel('')
+
+
+@image_comparison(baseline_images=['angle_spectrum_freqs'],
+                  remove_text=True,
+                  extensions=['png'])
+def test_angle_spectrum_freqs():
+    '''test axes.angle_spectrum with sinusoidal stimuli'''
+    n = 10000
+    Fs = 100.
+
+    fstims1 = [Fs/4, Fs/5, Fs/11]
+
+    NFFT = int(1000 * Fs / min(fstims1))
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    x = np.arange(0, n, 1/Fs)
+
+    y = np.zeros(x.size)
+    for i, fstim1 in enumerate(fstims1):
+        y += np.sin(fstim1 * x * np.pi * 2) * 10**i
+    y = y
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 1, 1)
+    ax2 = fig.add_subplot(3, 1, 2)
+    ax3 = fig.add_subplot(3, 1, 3)
+
+    spec1, freqs1, line1 = ax1.angle_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                              sides='default')
+    spec2, freqs2, line2 = ax2.angle_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                              sides='onesided')
+    spec3, freqs3, line3 = ax3.angle_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                              sides='twosided')
+
+    ax1.set_xlabel('')
+    ax2.set_xlabel('')
+    ax3.set_xlabel('')
+    ax1.set_ylabel('')
+    ax2.set_ylabel('')
+    ax3.set_ylabel('')
+
+
+@image_comparison(baseline_images=['angle_spectrum_noise'],
+                  remove_text=True,
+                  extensions=['png'])
+def test_angle_spectrum_noise():
+    '''test axes.angle_spectrum with noise stimuli'''
+    np.random.seed(0)
+
+    n = 10000
+    Fs = 100.
+
+    NFFT = int(1000 * Fs / 11)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    y1 = np.random.standard_normal(n)
+    y2 = np.random.rand(n)
+    y = np.hstack([y1, y2]) - .5
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 1, 1)
+    ax2 = fig.add_subplot(3, 1, 2)
+    ax3 = fig.add_subplot(3, 1, 3)
+
+    spec1, freqs1, line1 = ax1.angle_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                              sides='default')
+    spec2, freqs2, line2 = ax2.angle_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                              sides='onesided')
+    spec3, freqs3, line3 = ax3.angle_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                              sides='twosided')
+
+    ax1.set_xlabel('')
+    ax2.set_xlabel('')
+    ax3.set_xlabel('')
+    ax1.set_ylabel('')
+    ax2.set_ylabel('')
+    ax3.set_ylabel('')
+
+
+@image_comparison(baseline_images=['phase_spectrum_freqs'],
+                  remove_text=True,
+                  extensions=['png'])
+def test_phase_spectrum_freqs():
+    '''test axes.phase_spectrum with sinusoidal stimuli'''
+    n = 10000
+    Fs = 100.
+
+    fstims1 = [Fs/4, Fs/5, Fs/11]
+
+    NFFT = int(1000 * Fs / min(fstims1))
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    x = np.arange(0, n, 1/Fs)
+
+    y = np.zeros(x.size)
+    for i, fstim1 in enumerate(fstims1):
+        y += np.sin(fstim1 * x * np.pi * 2) * 10**i
+    y = y
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 1, 1)
+    ax2 = fig.add_subplot(3, 1, 2)
+    ax3 = fig.add_subplot(3, 1, 3)
+
+    spec1, freqs1, line1 = ax1.phase_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                              sides='default')
+    spec2, freqs2, line2 = ax2.phase_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                              sides='onesided')
+    spec3, freqs3, line3 = ax3.phase_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                              sides='twosided')
+
+    ax1.set_xlabel('')
+    ax2.set_xlabel('')
+    ax3.set_xlabel('')
+    ax1.set_ylabel('')
+    ax2.set_ylabel('')
+    ax3.set_ylabel('')
+
+
+@image_comparison(baseline_images=['phase_spectrum_noise'],
+                  remove_text=True,
+                  extensions=['png'])
+def test_phase_spectrum_noise():
+    '''test axes.phase_spectrum with noise stimuli'''
+    np.random.seed(0)
+
+    n = 10000
+    Fs = 100.
+
+    NFFT = int(1000 * Fs / 11)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    y1 = np.random.standard_normal(n)
+    y2 = np.random.rand(n)
+    y = np.hstack([y1, y2]) - .5
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 1, 1)
+    ax2 = fig.add_subplot(3, 1, 2)
+    ax3 = fig.add_subplot(3, 1, 3)
+
+    spec1, freqs1, line1 = ax1.phase_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                              sides='default')
+    spec2, freqs2, line2 = ax2.phase_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                              sides='onesided')
+    spec3, freqs3, line3 = ax3.phase_spectrum(y, Fs=Fs, pad_to=pad_to,
+                                              sides='twosided')
 
     ax1.set_xlabel('')
     ax2.set_xlabel('')
@@ -1755,7 +2406,7 @@ def test_relim_visible_only():
     l[0].set_visible(False)
     assert ax.get_xlim() == x2
     assert ax.get_ylim() == y2
-    
+
     ax.relim(visible_only=True)
     ax.autoscale_view()
 
@@ -1765,4 +2416,9 @@ def test_relim_visible_only():
 
 if __name__ == '__main__':
     import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
+    import sys
+
+    args = ['-s', '--with-doctest']
+    argv = sys.argv
+    argv = argv[:1] + args + argv[1:]
+    nose.runmodule(argv=argv, exit=False)

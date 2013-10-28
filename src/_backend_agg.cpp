@@ -770,9 +770,9 @@ RendererAgg::draw_markers(const Py::Tuple& args)
 
         agg::rect_d clipping_rect(
             -(scanlines.min_x() + 1.0),
-            -(scanlines.min_y() + 1.0),
+            (scanlines.max_y() + 1.0),
             width + scanlines.max_x() + 1.0,
-            height + scanlines.max_y() + 1.0);
+            height - scanlines.min_y() + 1.0);
 
         if (has_clippath)
         {
@@ -1482,7 +1482,7 @@ RendererAgg::_draw_path_collection_generic
  const Py::Object&              clippath,
  const agg::trans_affine&       clippath_trans,
  const PathGenerator&           path_generator,
- const Py::SeqBase<Py::Object>& transforms_obj,
+ const Py::Object&              transforms_obj,
  const Py::Object&              offsets_obj,
  const agg::trans_affine&       offset_trans,
  const Py::Object&              facecolors_obj,
@@ -1532,10 +1532,23 @@ RendererAgg::_draw_path_collection_generic
     }
     Py::Object edgecolors_arr_obj((PyObject*)edgecolors, true);
 
+    PyArrayObject* transforms_arr = (PyArrayObject*)PyArray_FromObject
+        (transforms_obj.ptr(), PyArray_DOUBLE, 1, 3);
+    if (!transforms_arr ||
+        (PyArray_NDIM(transforms_arr) == 1 && PyArray_DIM(transforms_arr, 0) != 0) ||
+        (PyArray_NDIM(transforms_arr) == 2) ||
+        (PyArray_NDIM(transforms_arr) == 3 &&
+         ((PyArray_DIM(transforms_arr, 1) != 3) ||
+          (PyArray_DIM(transforms_arr, 2) != 3))))
+    {
+        Py_XDECREF(transforms_arr);
+        throw Py::ValueError("Transforms must be a Nx3x3 numpy array");
+    }
+
     size_t Npaths      = path_generator.num_paths();
     size_t Noffsets    = offsets->dimensions[0];
     size_t N           = std::max(Npaths, Noffsets);
-    size_t Ntransforms = std::min(transforms_obj.length(), N);
+    size_t Ntransforms = transforms_arr->dimensions[0];
     size_t Nfacecolors = facecolors->dimensions[0];
     size_t Nedgecolors = edgecolors->dimensions[0];
     size_t Nlinewidths = linewidths.length();
@@ -1555,8 +1568,14 @@ RendererAgg::_draw_path_collection_generic
     transforms.reserve(Ntransforms);
     for (i = 0; i < Ntransforms; ++i)
     {
-        agg::trans_affine trans = py_to_agg_transformation_matrix
-            (transforms_obj[i].ptr(), false);
+        /* TODO: Use a Numpy iterator */
+        agg::trans_affine trans(
+            *(double *)PyArray_GETPTR3(transforms_arr, i, 0, 0),
+            *(double *)PyArray_GETPTR3(transforms_arr, i, 1, 0),
+            *(double *)PyArray_GETPTR3(transforms_arr, i, 0, 1),
+            *(double *)PyArray_GETPTR3(transforms_arr, i, 1, 1),
+            *(double *)PyArray_GETPTR3(transforms_arr, i, 0, 2),
+            *(double *)PyArray_GETPTR3(transforms_arr, i, 1, 2));
         trans *= master_transform;
 
         transforms.push_back(trans);
@@ -1733,7 +1752,7 @@ RendererAgg::draw_path_collection(const Py::Tuple& args)
     agg::trans_affine       master_transform = py_to_agg_transformation_matrix(args[1].ptr());
     Py::SeqBase<Py::Object> path   = args[2];
     PathListGenerator       path_generator(path);
-    Py::SeqBase<Py::Object> transforms_obj   = args[3];
+    Py::Object              transforms_obj   = args[3];
     Py::Object              offsets_obj      = args[4];
     agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[5].ptr());
     Py::Object              facecolors_obj   = args[6];
@@ -1894,7 +1913,7 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args)
 
     QuadMeshGenerator path_generator(mesh_width, mesh_height, coordinates.ptr());
 
-    Py::SeqBase<Py::Object> transforms_obj;
+    Py::Object transforms_obj = Py::List(0);
     Py::Tuple linewidths(1);
     linewidths[0] = Py::Float(gc.linewidth);
     Py::SeqBase<Py::Object> linestyles_obj;

@@ -2,9 +2,11 @@
 A PostScript backend, which can produce both PostScript .ps and .eps
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import six
+from six.moves import StringIO
 
 import glob, math, os, shutil, sys, time
 def _fn_name(): return sys._getframe(1).f_code.co_name
@@ -16,14 +18,14 @@ except ImportError:
     from md5 import md5 #Deprecated in 2.5
 
 from tempfile import mkstemp
-from matplotlib import verbose, __version__, rcParams
+from matplotlib import verbose, __version__, rcParams, checkdep_ghostscript
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 
 from matplotlib.cbook import is_string_like, get_realpath_and_stat, \
-    is_writable_file_like, maxdict
+    is_writable_file_like, maxdict, file_requires_unicode
 from matplotlib.mlab import quad2cubic
 from matplotlib.figure import Figure
 
@@ -69,8 +71,9 @@ class PsBackendHelper(object):
         except KeyError:
             pass
 
-        if sys.platform == 'win32': gs_exe = 'gswin32c'
-        else: gs_exe = 'gs'
+        gs_exe, gs_version = checkdep_ghostscript()
+        if gs_exe is None:
+            gs_exe = 'gs'
 
         self._cached["gs_exe"] = gs_exe
         return gs_exe
@@ -391,7 +394,7 @@ class RendererPS(RendererBase):
             fname = findfont(prop)
             font = self.fontd.get(fname)
             if font is None:
-                font = FT2Font(str(fname))
+                font = FT2Font(fname)
                 self.fontd[fname] = font
             self.fontd[key] = font
         font.clear()
@@ -753,7 +756,7 @@ grestore
             except KeyError:
                 ps_name = sfnt[(3,1,0x0409,6)].decode(
                     'utf-16be')
-            ps_name = ps_name.encode('ascii','replace')
+            ps_name = ps_name.encode('ascii', 'replace')
             self.set_font(ps_name, prop.get_size_in_points())
 
             cmap = font.get_charmap()
@@ -1083,7 +1086,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
             self._pswriter = NullWriter()
         else:
-            self._pswriter = six.moves.cStringIO()
+            self._pswriter = io.StringIO()
 
 
         # mixed mode rendering
@@ -1103,8 +1106,6 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_edgecolor(origedgecolor)
 
         def print_figure_impl():
-            fh = io.TextIOWrapper(raw_fh, encoding="ascii")
-
             # write the PostScript headers
             if isEPSF: print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             else: print("%!PS-Adobe-3.0", file=fh)
@@ -1131,7 +1132,7 @@ class FigureCanvasPS(FigureCanvasBase):
             if not rcParams['ps.useafm']:
                 for font_filename, chars in six.itervalues(ps_renderer.used_characters):
                     if len(chars):
-                        font = FT2Font(str(font_filename))
+                        font = FT2Font(font_filename)
                         cmap = font.get_charmap()
                         glyph_ids = []
                         for c in chars:
@@ -1153,7 +1154,9 @@ class FigureCanvasPS(FigureCanvasBase):
                             raise RuntimeError("OpenType CFF fonts can not be saved using the internal Postscript backend at this time.\nConsider using the Cairo backend.")
                         else:
                             fh.flush()
-                            convert_ttf_to_ps(font_filename, raw_fh, fonttype, glyph_ids)
+                            convert_ttf_to_ps(
+                                font_filename.encode(sys.getfilesystemencoding()),
+                                fh, fonttype, glyph_ids)
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 
@@ -1177,22 +1180,31 @@ class FigureCanvasPS(FigureCanvasBase):
             if not isEPSF: print("%%EOF", file=fh)
             fh.flush()
 
-            if six.PY3:
-                fh.detach()
-
         if rcParams['ps.usedistiller']:
             # We are going to use an external program to process the output.
             # Write to a temporary file.
             fd, tmpfile = mkstemp()
-            with io.open(fd, 'wb') as raw_fh:
+            with io.open(fd, 'w', encoding='latin-1') as fh:
                 print_figure_impl()
         else:
             # Write directly to outfile.
             if passed_in_file_object:
-                raw_fh = outfile
+                requires_unicode = file_requires_unicode(outfile)
+
+                if (not requires_unicode and
+                    (six.PY3 or not isinstance(outfile, StringIO))):
+                    fh = io.TextIOWrapper(outfile, encoding="latin-1")
+                    # Prevent the io.TextIOWrapper from closing the
+                    # underlying file
+                    def do_nothing():
+                        pass
+                    fh.close = do_nothing
+                else:
+                    fh = outfile
+
                 print_figure_impl()
             else:
-                with io.open(outfile, 'wb') as raw_fh:
+                with io.open(outfile, 'w', encoding='latin-1') as fh:
                     print_figure_impl()
 
         if rcParams['ps.usedistiller']:
@@ -1202,8 +1214,12 @@ class FigureCanvasPS(FigureCanvasBase):
                 xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
 
             if passed_in_file_object:
-                with io.open(tmpfile, 'rb') as fh:
-                    outfile.write(fh.read())
+                if file_requires_unicode(outfile):
+                    with io.open(tmpfile, 'rb') as fh:
+                        outfile.write(fh.read().decode('latin-1'))
+                else:
+                    with io.open(tmpfile, 'rb') as fh:
+                        outfile.write(fh.read())
             else:
                 with io.open(outfile, 'w') as fh:
                     pass
@@ -1220,7 +1236,12 @@ class FigureCanvasPS(FigureCanvasBase):
         package. These files are processed to yield the final ps or eps file.
         """
         isEPSF = format == 'eps'
-        title = outfile
+        if is_string_like(outfile):
+            title = outfile
+        elif is_writable_file_like(outfile):
+            title = None
+        else:
+            raise ValueError("outfile must be a path or a file-like object")
 
         self.figure.dpi = 72 # ignore the dpi kwarg
         width, height = self.figure.get_size_inches()
@@ -1248,7 +1269,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
             self._pswriter = NullWriter()
         else:
-            self._pswriter = six.moves.cStringIO()
+            self._pswriter = io.StringIO()
 
 
         # mixed mode rendering
@@ -1269,11 +1290,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # write to a temp file, we'll move it to outfile when done
         fd, tmpfile = mkstemp()
-        if six.PY3:
-            fh = io.open(fd, 'w', encoding='ascii')
-        else:
-            fh = io.open(fd, 'wb')
-        with fh:
+        with io.open(fd, 'w', encoding='latin-1') as fh:
             # write the Encapsulated PostScript headers
             print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             if title: print("%%Title: "+title, file=fh)
@@ -1353,17 +1370,13 @@ class FigureCanvasPS(FigureCanvasBase):
             else: gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
                              rotated=psfrag_rotated)
 
-        is_file = False
-        if six.PY3:
-            if isinstance(outfile, io.IOBase):
-                is_file = True
-        else:
-            if isinstance(outfile, file):
-                is_file = True
-
-        if is_file:
-            with io.open(tmpfile, 'rb') as fh:
-                outfile.write(fh.read())
+        if is_writable_file_like(outfile):
+            if file_requires_unicode(outfile):
+                with io.open(tmpfile, 'rb') as fh:
+                    outfile.write(fh.read().decode('latin-1'))
+            else:
+                with io.open(tmpfile, 'rb') as fh:
+                    outfile.write(fh.read())
         else:
             with io.open(outfile, 'wb') as fh:
                 pass
@@ -1610,8 +1623,7 @@ def get_bbox(tmpfile, bbox):
     """
 
     outfile = tmpfile + '.output'
-    if sys.platform == 'win32': gs_exe = 'gswin32c'
-    else: gs_exe = 'gs'
+    gs_exe = ps_backend_helper.gs_exe
     command = '%s -dBATCH -dNOPAUSE -sDEVICE=bbox "%s"' %\
                 (gs_exe, tmpfile)
     verbose.report(command, 'debug')
