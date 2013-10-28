@@ -832,7 +832,7 @@ class FileChooserDialog(gtk.FileChooserDialog):
         hbox.pack_start (cbox)
 
         self.filetypes = filetypes
-        self.sorted_filetypes = list(six.iteritems(filetypes.items))
+        self.sorted_filetypes = list(six.iteritems(filetypes))
         self.sorted_filetypes.sort()
         default = 0
         for i, (ext, name) in enumerate(self.sorted_filetypes):
