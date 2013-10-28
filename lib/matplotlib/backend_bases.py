@@ -25,6 +25,13 @@ graphics contexts must implement to serve as a matplotlib backend
     the 'show' callable is then set to Show.__call__, inherited from
     ShowBase.
 
+:class: `NavigationBase`
+    Class that holds the navigation state (or toolbar state).
+    This class is attached to `FigureManagerBase.navigation`
+    
+:class:`ToolbarBase`
+    The base class that controls the GUI interface of the toolbar
+    passes all the requests to the navigation instance
 """
 
 from __future__ import (absolute_import, division, print_function,

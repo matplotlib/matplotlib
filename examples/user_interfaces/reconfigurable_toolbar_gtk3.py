@@ -1,6 +1,6 @@
 import matplotlib
 matplotlib.use('GTK3Agg')
-#matplotlib.rcParams['backend.single_window'] = True
+#matplotlib.rcParams['toolbar'] = 'None'
 import matplotlib.pyplot as plt
 
 fig = plt.figure()
@@ -12,7 +12,7 @@ ax.plot([0, 1])
 #Back? who needs back? my mom always told me, don't look back,
 fig.canvas.manager.toolbar.remove_tool(1)
 
-##Move home somewhere else
+#Move home somewhere else
 fig.canvas.manager.toolbar.move_tool(0, 6)
 
 plt.show()
