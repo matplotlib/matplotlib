@@ -15,7 +15,10 @@ the Quiver code.
 """
 
 
+
 from __future__ import print_function, division
+import weakref
+
 import numpy as np
 from numpy import ma
 import matplotlib.collections as collections
@@ -422,14 +425,30 @@ class Quiver(collections.PolyCollection):
         self.keyvec = None
         self.keytext = None
 
-        def on_dpi_change(fig):
-            self._new_UV = True  # vertices depend on width, span
-                                 # which in turn depend on dpi
-            self._initialized = False  # simple brute force update
-                                       # works because _init is called
-                                       # at the start of draw.
+        # try to prevent closure over the real self
+        weak_self = weakref.ref(self)
 
-        self.ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
+        def on_dpi_change(fig):
+            _s = weak_self()
+            if _s is not None:
+                _s._new_UV = True  # vertices depend on width, span
+                                     # which in turn depend on dpi
+                _s._initialized = False  # simple brute force update
+                                           # works because _init is called
+                                           # at the start of draw.
+
+        self._cid = self.ax.figure.callbacks.connect('dpi_changed',
+                                                     on_dpi_change)
+
+    def remove(self):
+        """
+        Overload the remove method
+        """
+        # disconnect the call back
+        self.ax.figure.callbacks.disconnect(self._cid)
+        self._cid = None
+        # pass the remove call up the stack
+        collections.PolyCollection.remove(self)
 
     def _init(self):
         """
