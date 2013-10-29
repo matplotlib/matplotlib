@@ -421,7 +421,8 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
     rendererAA(),
     rendererBin(),
     theRasterizer(),
-    debug(debug)
+    debug(debug),
+    _fill_color(agg::rgba(1, 1, 1, 0))
 {
     _VERBOSE("RendererAgg::RendererAgg");
     unsigned stride(width*4);
@@ -430,7 +431,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
     renderingBuffer.attach(pixBuffer, width, height, stride);
     pixFmt.attach(renderingBuffer);
     rendererBase.attach(pixFmt);
-    rendererBase.clear(agg::rgba(0, 0, 0, 0));
+    rendererBase.clear(_fill_color);
     rendererAA.attach(rendererBase);
     rendererBin.attach(rendererBase);
     hatchRenderingBuffer.attach(hatchBuffer, HATCH_SIZE, HATCH_SIZE,
@@ -1285,7 +1286,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
         pixfmt hatch_img_pixf(hatchRenderingBuffer);
         renderer_base rb(hatch_img_pixf);
         renderer_aa rs(rb);
-        rb.clear(agg::rgba(0.0, 0.0, 0.0, 0.0));
+        rb.clear(_fill_color);
         rs.color(gc.color);
 
         try {
@@ -2441,7 +2442,7 @@ RendererAgg::clear(const Py::Tuple& args)
     _VERBOSE("RendererAgg::clear");
 
     args.verify_length(0);
-    rendererBase.clear(agg::rgba(0, 0, 0, 0));
+    rendererBase.clear(_fill_color);
 
     return Py::Object();
 }
