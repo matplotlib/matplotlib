@@ -3239,13 +3239,13 @@ class _AxesBase(martist.Artist):
             For those who are 'picking' artists while using twinx, pick
             events are only called for the artists in the top-most axes.
         """
-
-        ax2 = self._make_twin_axes(sharex=self, frameon=False)
+        ax2 = self._make_twin_axes(sharex=self)
         ax2.yaxis.tick_right()
         ax2.yaxis.set_label_position('right')
         ax2.yaxis.set_offset_position('right')
         self.yaxis.tick_left()
         ax2.xaxis.set_visible(False)
+        ax2.patch.set_visible(False)
         return ax2
 
     def twiny(self):
@@ -3264,11 +3264,12 @@ class _AxesBase(martist.Artist):
             events are only called for the artists in the top-most axes.
         """
 
-        ax2 = self._make_twin_axes(sharey=self, frameon=False)
+        ax2 = self._make_twin_axes(sharey=self)
         ax2.xaxis.tick_top()
         ax2.xaxis.set_label_position('top')
         self.xaxis.tick_bottom()
         ax2.yaxis.set_visible(False)
+        ax2.patch.set_visible(False)
         return ax2
 
     def get_shared_x_axes(self):

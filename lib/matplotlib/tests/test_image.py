@@ -151,7 +151,8 @@ def test_imsave_color_alpha():
     # Wherever alpha values were rounded down to 0, the rgb values all get set
     # to 0 during imsave (this is reasonable behaviour).
     # Recreate that here:
-    data[data[:, :, 3] == 0] = 0
+    for j in range(3):
+        data[data[:, :, 3] == 0, j] = 1
 
     assert_array_equal(data, arr_buf)
 

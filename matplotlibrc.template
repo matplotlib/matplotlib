@@ -181,7 +181,7 @@ backend      : %(backend)s
                              # correction off.  None will try and
                              # guess based on your dvipng version
 
-#text.hinting : 'auto' # May be one of the following:
+#text.hinting : auto   # May be one of the following:
                        #   'none': Perform no hinting
                        #   'auto': Use freetype's autohinter
                        #   'native': Use the hinting information in the
