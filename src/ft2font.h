@@ -81,7 +81,7 @@ class Glyph : public Py::PythonClass<Glyph>
 {
 public:
     Glyph(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds) :
-        Py::PythonClass<Glyph>::PythonClass(self, args, kwds) { }
+        Py::PythonClass<Glyph>(self, args, kwds) { }
     virtual ~Glyph();
     static Py::PythonClassObject<Glyph> factory(const FT_Face&, const FT_Glyph&, size_t, long);
     int setattro(const Py::String &name, const Py::Object &value);
