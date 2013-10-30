@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 """
+The example shows how to string together several text objects.
+
+HISTORY
+-------
 On the matplotlib-users list back in February 2012, Gökhan Sever asked the
 following question:
 
@@ -14,7 +18,6 @@ following question:
 
 Paul Ivanov responded with this answer:
 """
-
 import matplotlib.pyplot as plt
 from matplotlib import transforms
 
@@ -48,6 +51,6 @@ def rainbow_text(x,y,ls,lc,**kw):
 
 
 plt.figure()
-rainbow_text(0.0,0.0,"all unicorns poop rainbows ! ! !".split(), 
-        ['red', 'orange', 'brown', 'green', 'blue', 'purple', 'black'],
-        size=30)
+rainbow_text(40, 540, "all unicorns poop rainbows ! ! !".split(), 
+        ['red', 'cyan', 'brown', 'green', 'blue', 'purple', 'black'],
+        size=40)
