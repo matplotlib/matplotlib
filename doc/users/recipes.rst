@@ -123,7 +123,7 @@ you will see that the x tick labels are all squashed together.
    plt.plot(r.date, r.close)
    plt.title('Default date handling can cause overlapping labels')
 
-Another annoyance is that if you hover the mouse over a the window and
+Another annoyance is that if you hover the mouse over the window and
 look in the lower right corner of the matplotlib toolbar
 (:ref:`navigation-toolbar`) at the x and y coordinates, you see that
 the x locations are formatted the same way the tick labels are, eg
