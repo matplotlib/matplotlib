@@ -32,7 +32,6 @@ def rainbow_text(x,y,ls,lc,**kw):
     """
     t = plt.gca().transData
     fig = plt.gcf()
-    plt.show()
 
     #horizontal version
     for s,c in zip(ls,lc):
@@ -50,7 +49,8 @@ def rainbow_text(x,y,ls,lc,**kw):
         t = transforms.offset_copy(text._transform, y=ex.height, units='dots')
 
 
-plt.figure()
 rainbow_text(40, 540, "all unicorns poop rainbows ! ! !".split(), 
         ['red', 'cyan', 'brown', 'green', 'blue', 'purple', 'black'],
-        size=40)
+        size=18)
+
+plt.show()
