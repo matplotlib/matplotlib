@@ -206,7 +206,7 @@ class TimerWx(TimerBase):
         self._timer_start()
 
     def _timer_set_single_shot(self):
-        self._timer.start()
+        self._timer.Start()
 
     def _on_timer(self, *args):
         TimerBase._on_timer(self)
