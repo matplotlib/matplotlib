@@ -14,8 +14,6 @@ deviation ellipses, which can and will be derived very easily from
 the Quiver code.
 """
 
-
-
 from __future__ import print_function, division
 import weakref
 
