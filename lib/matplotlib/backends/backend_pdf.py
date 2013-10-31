@@ -644,8 +644,8 @@ class PdfFile(object):
         return fontdictObject
 
     def embedTeXFont(self, texname, fontinfo):
-        msg = 'Embedding TeX font ' + texname + ' - fontinfo=' + \
-              repr(fontinfo.__dict__)
+        msg = ('Embedding TeX font ' + texname + ' - fontinfo=' +
+               repr(fontinfo.__dict__))
         matplotlib.verbose.report(msg, 'debug')
 
         # Widths
@@ -674,11 +674,11 @@ class PdfFile(object):
         # If no file is specified, stop short
         if fontinfo.fontfile is None:
             msg = ('Because of TeX configuration (pdftex.map, see updmap '
-                   'option pdftexDownloadBase14) the font %s '
-                   'is not embedded. This is deprecated as of PDF 1.5 '
-                   'and it may cause the consumer application to show '
-                   'something that was not intended.')
-            warnings.warn(msg % fontinfo.basefont)
+                   'option pdftexDownloadBase14) the font {0} is not '
+                   'embedded. This is deprecated as of PDF 1.5 and it may '
+                   'cause the consumer application to show something that '
+                   'was not intended.').format(fontinfo.basefont)
+            warnings.warn(msg)
             fontdict['BaseFont'] = Name(fontinfo.basefont)
             self.writeObject(fontdictObject, fontdict)
             return fontdictObject
