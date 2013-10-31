@@ -1457,8 +1457,8 @@ end"""
         """Write out the info dictionary, checking it for good form"""
 
         is_date = lambda x: isinstance(x, datetime)
-        check_trapped = lambda x: isinstance(x, Name) and \
-            x.name in ('True', 'False', 'Unknown')
+        check_trapped = (lambda x: isinstance(x, Name) and
+                         x.name in ('True', 'False', 'Unknown'))
         keywords = {'Title': is_string_like,
                     'Author': is_string_like,
                     'Subject': is_string_like,
