@@ -280,6 +280,13 @@ def compare_images( expected, actual, tol, in_decorator=False ):
    - in_decorator If called from image_comparison decorator, this should be
                True. (default=False)
    '''
+   if not os.path.exists(actual):
+       msg = "Output image %s does not exist." % actual
+       raise Exception(msg)
+
+   if os.stat(actual).st_size == 0:
+       msg = "Output image file %s is empty." % actual
+       raise Exception(msg)
 
    verify(actual)
 
