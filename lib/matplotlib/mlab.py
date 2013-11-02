@@ -730,10 +730,10 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
             numFreqs = pad_to//2 + 1
         scaling_factor = 2.
 
-    result = stride_windows(x, NFFT, noverlap)
+    result = stride_windows(x, NFFT, noverlap, axis=0)
+    result = detrend(result, detrend_func, axis=0)
     result, windowVals = apply_window(result, window, axis=0,
                                       return_window=True)
-    result = detrend(result, detrend_func, axis=0)
     result = np.fft.fft(result, n=pad_to, axis=0)[:numFreqs, :]
     freqs = np.fft.fftfreq(pad_to, 1/Fs)[:numFreqs]
 
