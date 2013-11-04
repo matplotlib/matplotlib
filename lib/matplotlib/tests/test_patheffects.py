@@ -3,12 +3,13 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import mock
+from nose.tools import assert_equal
 import numpy as np
 
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
-from matplotlib.patheffects import (Normal, Stroke, withStroke,
-                                    withSimplePatchShadow)
+import matplotlib.patheffects as path_effects
 
 
 @image_comparison(baseline_images=['patheffect1'], remove_text=True)
@@ -19,15 +20,15 @@ def test_patheffect1():
                        arrowprops=dict(arrowstyle="->",
                                        connectionstyle="angle3", lw=2),
                        size=20, ha="center",
-                       path_effects=[withStroke(linewidth=3,
-                                     foreground="w")])
-    txt.arrow_patch.set_path_effects([Stroke(linewidth=5,
-                                             foreground="w"),
-                                      Normal()])
+                       path_effects=[path_effects.withStroke(linewidth=3,
+                                                             foreground="w")])
+    txt.arrow_patch.set_path_effects([path_effects.Stroke(linewidth=5,
+                                                          foreground="w"),
+                                      path_effects.Normal()])
 
     ax1.grid(True, linestyle="-")
 
-    pe = [withStroke(linewidth=3, foreground="w")]
+    pe = [path_effects.withStroke(linewidth=3, foreground="w")]
     for l in ax1.get_xgridlines() + ax1.get_ygridlines():
         l.set_path_effects(pe)
 
@@ -41,22 +42,80 @@ def test_patheffect2():
     cntr = ax2.contour(arr, colors="k")
 
     plt.setp(cntr.collections,
-             path_effects=[withStroke(linewidth=3, foreground="w")])
+             path_effects=[path_effects.withStroke(linewidth=3,
+                                                   foreground="w")])
 
     clbls = ax2.clabel(cntr, fmt="%2.0f", use_clabeltext=True)
     plt.setp(clbls,
-             path_effects=[withStroke(linewidth=3, foreground="w")])
+             path_effects=[path_effects.withStroke(linewidth=3,
+                                                   foreground="w")])
 
 
 @image_comparison(baseline_images=['patheffect3'])
 def test_patheffect3():
+    p1, = plt.plot([1, 3, 5, 4, 3], 'o-b', lw=4)
+    p1.set_path_effects([path_effects.SimpleLineShadow(),
+                         path_effects.Normal()])
+    plt.title(r'testing$^{123}$',
+        path_effects=[path_effects.withStroke(linewidth=1, foreground="r")])
+    leg = plt.legend([p1], [r'Line 1$^2$'], fancybox=True, loc=2)
+    leg.legendPatch.set_path_effects([path_effects.withSimplePatchShadow()])
 
-    ax3 = plt.subplot(111)
-    p1, = ax3.plot([0, 1], [0, 1])
-    ax3.set_title(r'testing$^{123}$',
-        path_effects=[withStroke(linewidth=1, foreground="r")])
-    leg = ax3.legend([p1], [r'Line 1$^2$'], fancybox=True, loc=2)
-    leg.legendPatch.set_path_effects([withSimplePatchShadow()])
+    text = plt.text(2, 3, 'Drop test', color='white',
+                    bbox={'boxstyle': 'circle,pad=0.1', 'color': 'red'})
+    pe = [path_effects.Stroke(linewidth=3.75, foreground='k'),
+          path_effects.withSimplePatchShadow((6, -3), shadow_rgbFace='blue')]
+    text.set_path_effects(pe)
+    text.get_bbox_patch().set_path_effects(pe)
+
+    pe = [path_effects.PathPatchEffect(offset=(4, -4), hatch='xxxx',
+                                       facecolor='gray'),
+          path_effects.PathPatchEffect(edgecolor='white', facecolor='black',
+                                       lw=1.1)]
+
+    t = plt.gcf().text(0.02, 0.1, 'Hatch shadow', fontsize=75, weight=1000,
+                       va='center')
+    t.set_path_effects(pe)
+
+
+@cleanup
+def test_PathEffect_get_proxy():
+    pe = path_effects.AbstractPathEffect()
+    fig = plt.gcf()
+    plt.draw()
+    renderer = fig._cachedRenderer
+
+    with mock.patch('matplotlib.cbook.deprecated') as dep:
+        proxy_renderer = pe.get_proxy_renderer(renderer)
+    assert_equal(proxy_renderer._renderer, renderer)
+    assert_equal(proxy_renderer._path_effects, [pe])
+    dep.assert_called()
+
+
+def test_SimplePatchShadow_offset_xy():
+    with mock.patch('matplotlib.cbook.deprecated') as dep:
+        pe = path_effects.SimplePatchShadow(offset_xy=(4, 5))
+    assert_equal(pe._offset, (4, 5))
+    dep.assert_called()
+
+
+@image_comparison(baseline_images=['collection'])
+def test_collection():
+    x, y = np.meshgrid(np.linspace(0, 10, 150), np.linspace(-5, 5, 100))
+    data = np.sin(x) + np.cos(y)
+    cs = plt.contour(data)
+    pe = [path_effects.PathPatchEffect(edgecolor='black', facecolor='none',
+                                       linewidth=12),
+          path_effects.Stroke(linewidth=5)]
+
+    for collection in cs.collections:
+        collection.set_path_effects(pe)
+
+    for text in plt.clabel(cs, colors='white'):
+        text.set_path_effects([path_effects.withStroke(foreground='k',
+                                                       linewidth=3)])
+        text.set_bbox({'boxstyle': 'sawtooth', 'facecolor': 'none',
+                       'edgecolor': 'blue'})
 
 
 if __name__ == '__main__':

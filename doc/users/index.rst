@@ -28,6 +28,7 @@ User's Guide
     transforms_tutorial.rst
     path_tutorial.rst
     annotations_guide.rst
+    patheffects_guide.rst
     recipes.rst
     screenshots.rst
     whats_new.rst

@@ -125,22 +125,25 @@ class ShowBase(object):
         pass
 
 
-class RendererBase:
+class RendererBase(object):
     """An abstract base class to handle drawing/rendering operations.
 
-    The following methods *must* be implemented in the backend:
+    The following methods must be implemented in the backend for full
+    functionality (though just implementing :meth:`draw_path` alone would
+    give a highly capable backend):
 
     * :meth:`draw_path`
     * :meth:`draw_image`
-    * :meth:`draw_text`
-    * :meth:`get_text_width_height_descent`
+    * :meth:`draw_gouraud_triangle`
 
     The following methods *should* be implemented in the backend for
     optimization reasons:
 
+    * :meth:`draw_text`
     * :meth:`draw_markers`
     * :meth:`draw_path_collection`
     * :meth:`draw_quad_mesh`
+
     """
     def __init__(self):
         self._texmanager = None
@@ -558,7 +561,6 @@ class RendererBase:
         *ismath*
           If True, use mathtext parser. If "TeX", use *usetex* mode.
         """
-
         path, transform = self._get_text_path_transform(
             x, y, s, prop, angle, ismath)
         color = gc.get_rgb()
