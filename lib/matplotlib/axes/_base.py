@@ -896,7 +896,7 @@ class _AxesBase(martist.Artist):
 
         self.grid(self._gridOn, which=rcParams['axes.grid.which'])
         props = font_manager.FontProperties(size=rcParams['axes.titlesize'],
-                                            weight=rcParams['axes.titleweight'])
+                                        weight=rcParams['axes.titleweight'])
 
         self.titleOffsetTrans = mtransforms.ScaledTranslation(
             0.0, 5.0 / 72.0, self.figure.dpi_scale_trans)
