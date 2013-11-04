@@ -112,6 +112,8 @@ def test_subplots_offsettext():
     x = numpy.arange(0,1e10,1e9)
     y = numpy.arange(0,100,10)+1e4
     fig,axes = plt.subplots(2,2, sharex = 'col', sharey = 'all')
+    for ax in axes:
+            ax.ticklabel_format(useOffset=True)
     axes[0,0].plot(x,x)
     axes[1,0].plot(x,x)
     axes[0,1].plot(y,x)
