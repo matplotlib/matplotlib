@@ -303,24 +303,9 @@ class Text(Artist):
         whs = np.zeros((len(lines), 2))
         horizLayout = np.zeros((len(lines), 4))
 
-        if self.get_path_effects():
-            from matplotlib.backends.backend_mixed import MixedModeRenderer
-            if isinstance(renderer, MixedModeRenderer):
-                def get_text_width_height_descent(*kl, **kwargs):
-                    return RendererBase.get_text_width_height_descent(
-                                                    renderer._renderer,
-                                                    *kl, **kwargs)
-            else:
-                def get_text_width_height_descent(*kl, **kwargs):
-                    return RendererBase.get_text_width_height_descent(
-                                                        renderer,
-                                                        *kl, **kwargs)
-        else:
-            get_text_width_height_descent = renderer.get_text_width_height_descent
-
         # Find full vertical extent of font,
         # including ascenders and descenders:
-        tmp, lp_h, lp_bl = get_text_width_height_descent('lp',
+        tmp, lp_h, lp_bl = renderer.get_text_width_height_descent('lp',
                                                          self._fontproperties,
                                                          ismath=False)
         offsety = (lp_h - lp_bl) * self._linespacing
@@ -329,7 +314,7 @@ class Text(Artist):
         for i, line in enumerate(lines):
             clean_line, ismath = self.is_math_text(line)
             if clean_line:
-                w, h, d = get_text_width_height_descent(clean_line,
+                w, h, d = renderer.get_text_width_height_descent(clean_line,
                                                         self._fontproperties,
                                                         ismath=ismath)
             else:
@@ -585,22 +570,18 @@ class Text(Artist):
             clean_line, ismath = self.is_math_text(line)
 
             if self.get_path_effects():
-                for path_effect in self.get_path_effects():
-                    if rcParams['text.usetex']:
-                        path_effect.draw_tex(renderer, gc, x, y, clean_line,
-                                             self._fontproperties, angle)
-                    else:
-                        path_effect.draw_text(renderer, gc, x, y, clean_line,
-                                             self._fontproperties, angle,
-                                             ismath=ismath)
+                from matplotlib.patheffects import PathEffectRenderer
+                renderer = PathEffectRenderer(self.get_path_effects(),
+                                              renderer)
+
+
+            if rcParams['text.usetex']:
+                renderer.draw_tex(gc, x, y, clean_line,
+                                  self._fontproperties, angle, mtext=self)
             else:
-                if rcParams['text.usetex']:
-                    renderer.draw_tex(gc, x, y, clean_line,
-                                      self._fontproperties, angle, mtext=self)
-                else:
-                    renderer.draw_text(gc, x, y, clean_line,
-                                       self._fontproperties, angle,
-                                       ismath=ismath, mtext=self)
+                renderer.draw_text(gc, x, y, clean_line,
+                                   self._fontproperties, angle,
+                                   ismath=ismath, mtext=self)
 
         gc.restore()
         renderer.close_group('text')

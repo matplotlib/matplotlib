@@ -1449,10 +1449,10 @@ class RendererPdf(RendererBase):
         self.file.output(*self.gc.finalize())
 
     def check_gc(self, gc, fillcolor=None):
-        orig_fill = gc._fillcolor
+        orig_fill = getattr(gc, '_fillcolor', (0., 0., 0.))
         gc._fillcolor = fillcolor
 
-        orig_alphas = gc._effective_alphas
+        orig_alphas = getattr(gc, '_effective_alphas', (1.0, 1.0))
 
         if gc._forced_alpha:
             gc._effective_alphas = (gc._alpha, gc._alpha)
@@ -2207,8 +2207,11 @@ class GraphicsContextPdf(GraphicsContextBase):
         Copy properties of other into self.
         """
         GraphicsContextBase.copy_properties(self, other)
-        self._fillcolor = other._fillcolor
-        self._effective_alphas = other._effective_alphas
+        fillcolor = getattr(other, '_fillcolor', self._fillcolor)
+        effective_alphas = getattr(other, '_effective_alphas',
+                                   self._effective_alphas)
+        self._fillcolor = fillcolor
+        self._effective_alphas = effective_alphas
 
     def finalize(self):
         """

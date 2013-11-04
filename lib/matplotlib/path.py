@@ -679,63 +679,86 @@ class Path(object):
     @classmethod
     def unit_circle(cls):
         """
-        Return a :class:`Path` of the unit circle.
+        Return the readonly :class:`Path` of the unit circle.
+
+        For most cases, :func:`Path.circle` will be what you want.
+
+        """
+        if cls._unit_circle is None:
+            cls._unit_circle = cls.circle(center=(0, 0), radius=1,
+                                          readonly=True)
+        return cls._unit_circle
+
+    @classmethod
+    def circle(cls, center=(0., 0.), radius=1., readonly=False):
+        """
+        Return a Path representing a circle of a given radius and center.
+
+        Parameters
+        ----------
+        center : pair of floats
+            The center of the circle. Default ``(0, 0)``.
+        radius : float
+            The radius of the circle. Default is 1.
+        readonly : bool
+            Whether the created path should have the "readonly" argument
+            set when creating the Path instance.
+
+        Notes
+        -----
         The circle is approximated using cubic Bezier curves.  This
         uses 8 splines around the circle using the approach presented
         here:
 
           Lancaster, Don.  `Approximating a Circle or an Ellipse Using Four
           Bezier Cubic Splines <http://www.tinaja.com/glib/ellipse4.pdf>`_.
+
         """
-        if cls._unit_circle is None:
-            MAGIC = 0.2652031
-            SQRTHALF = np.sqrt(0.5)
-            MAGIC45 = np.sqrt((MAGIC*MAGIC) / 2.0)
+        MAGIC = 0.2652031
+        SQRTHALF = np.sqrt(0.5)
+        MAGIC45 = np.sqrt((MAGIC*MAGIC) / 2.0)
 
-            vertices = np.array(
-                [[0.0, -1.0],
+        vertices = np.array([[0.0, -1.0],
+                    
+                             [MAGIC, -1.0],
+                             [SQRTHALF-MAGIC45, -SQRTHALF-MAGIC45],
+                             [SQRTHALF, -SQRTHALF],
 
-                 [MAGIC, -1.0],
-                 [SQRTHALF-MAGIC45, -SQRTHALF-MAGIC45],
-                 [SQRTHALF, -SQRTHALF],
+                             [SQRTHALF+MAGIC45, -SQRTHALF+MAGIC45],
+                             [1.0, -MAGIC],
+                             [1.0, 0.0],
 
-                 [SQRTHALF+MAGIC45, -SQRTHALF+MAGIC45],
-                 [1.0, -MAGIC],
-                 [1.0, 0.0],
+                             [1.0, MAGIC],
+                             [SQRTHALF+MAGIC45, SQRTHALF-MAGIC45],
+                             [SQRTHALF, SQRTHALF],
 
-                 [1.0, MAGIC],
-                 [SQRTHALF+MAGIC45, SQRTHALF-MAGIC45],
-                 [SQRTHALF, SQRTHALF],
+                             [SQRTHALF-MAGIC45, SQRTHALF+MAGIC45],
+                             [MAGIC, 1.0],
+                             [0.0, 1.0],
 
-                 [SQRTHALF-MAGIC45, SQRTHALF+MAGIC45],
-                 [MAGIC, 1.0],
-                 [0.0, 1.0],
+                             [-MAGIC, 1.0],
+                             [-SQRTHALF+MAGIC45, SQRTHALF+MAGIC45],
+                             [-SQRTHALF, SQRTHALF],
 
-                 [-MAGIC, 1.0],
-                 [-SQRTHALF+MAGIC45, SQRTHALF+MAGIC45],
-                 [-SQRTHALF, SQRTHALF],
+                             [-SQRTHALF-MAGIC45, SQRTHALF-MAGIC45],
+                             [-1.0, MAGIC],
+                             [-1.0, 0.0],
 
-                 [-SQRTHALF-MAGIC45, SQRTHALF-MAGIC45],
-                 [-1.0, MAGIC],
-                 [-1.0, 0.0],
+                             [-1.0, -MAGIC],
+                             [-SQRTHALF-MAGIC45, -SQRTHALF+MAGIC45],
+                             [-SQRTHALF, -SQRTHALF],
 
-                 [-1.0, -MAGIC],
-                 [-SQRTHALF-MAGIC45, -SQRTHALF+MAGIC45],
-                 [-SQRTHALF, -SQRTHALF],
+                             [-SQRTHALF+MAGIC45, -SQRTHALF-MAGIC45],
+                             [-MAGIC, -1.0],
+                             [0.0, -1.0],
 
-                 [-SQRTHALF+MAGIC45, -SQRTHALF-MAGIC45],
-                 [-MAGIC, -1.0],
-                 [0.0, -1.0],
+                             [0.0, -1.0]],
+                            dtype=np.float_)
 
-                 [0.0, -1.0]],
-                np.float_)
-
-            codes = cls.CURVE4 * np.ones(26)
-            codes[0] = cls.MOVETO
-            codes[-1] = cls.CLOSEPOLY
-
-            cls._unit_circle = cls(vertices, codes, readonly=True)
-        return cls._unit_circle
+        codes = [cls.CURVE4] * 26
+        codes[0] = cls.MOVETO
+        codes[-1] = cls.CLOSEPOLY
+        return Path(vertices * radius + center, codes, readonly=readonly)
 
     _unit_circle_righthalf = None
 
