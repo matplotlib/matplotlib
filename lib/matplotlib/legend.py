@@ -200,7 +200,7 @@ class Legend(Artist):
         borderpad          the fractional whitespace inside the legend border
         labelspacing       the vertical space between the legend entries
         handlelength       the length of the legend handles
-        handleheight       the length of the legend handles
+        handleheight       the height of the legend handles
         handletextpad      the pad between the legend handle and text
         borderaxespad      the pad between the axes and legend border
         columnspacing      the spacing between columns
