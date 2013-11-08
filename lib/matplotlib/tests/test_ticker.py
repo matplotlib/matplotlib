@@ -2,11 +2,11 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-
+import nose.tools
 from nose.tools import assert_raises
 from numpy.testing import assert_almost_equal
 import numpy as np
-
+import matplotlib
 import matplotlib.ticker as mticker
 
 
@@ -48,6 +48,13 @@ def test_LogLocator():
     loc = mticker.LogLocator(base=2)
     test_value = np.array([0.5, 1., 2., 4., 8., 16., 32., 64., 128., 256.])
     assert_almost_equal(loc.tick_values(1, 100), test_value)
+
+
+def test_use_offset():
+    for use_offset in [True, False]:
+        with matplotlib.rc_context({'axes.formatter.useoffset': use_offset}):
+            tmp_form = mticker.ScalarFormatter()
+            nose.tools.assert_equal(use_offset, tmp_form.get_useOffset())
 
 
 if __name__ == '__main__':

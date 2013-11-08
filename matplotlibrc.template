@@ -234,7 +234,8 @@ backend      : %(backend)s
 #axes.labelweight    : normal  # weight of the x and y labels
 #axes.labelcolor     : black
 #axes.axisbelow      : False   # whether axis gridlines and ticks are below
-                              # the axes elements (lines, text, etc)
+                               # the axes elements (lines, text, etc)
+
 #axes.formatter.limits : -7, 7 # use scientific notation if log10
                                # of the axis range is smaller than the
                                # first or larger than the second
@@ -244,6 +245,12 @@ backend      : %(backend)s
                                    # separator in the fr_FR locale.
 #axes.formatter.use_mathtext : False # When True, use mathtext for scientific
                                      # notation.
+#axes.formatter.useoffset      : True    # If True, the tick label formatter 
+                                         # will default to labeling ticks relative 
+                                         # to an offset when the data range is very 
+                                         # small compared to the minimum absolute 
+                                         # value of the data.
+
 #axes.unicode_minus  : True    # use unicode for the minus symbol
                                # rather than hyphen.  See
                                # http://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
