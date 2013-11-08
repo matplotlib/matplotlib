@@ -30,6 +30,7 @@ docstring.interpd.update(Patch="""
           alpha               float
           animated            [True | False]
           antialiased or aa   [True | False]
+          capstyle            ['butt' | 'round' | 'projecting']
           clip_box            a matplotlib.transform.Bbox instance
           clip_on             [True | False]
           edgecolor or ec     any matplotlib color
@@ -37,6 +38,7 @@ docstring.interpd.update(Patch="""
           figure              a matplotlib.figure.Figure instance
           fill                [True | False]
           hatch               unknown
+          joinstyle           ['miter' | 'round' | 'bevel']
           label               any string
           linewidth or lw     float
           lod                 [True | False]
@@ -56,6 +58,8 @@ class Patch(artist.Artist):
     are *None*, they default to their rc params setting.
     """
     zorder = 1
+    validCap = ('butt', 'round', 'projecting')
+    validJoin = ('miter', 'round', 'bevel')
 
     def __str__(self):
         return str(self.__class__).split('.')[-1]
@@ -69,6 +73,8 @@ class Patch(artist.Artist):
                  antialiased=None,
                  hatch=None,
                  fill=True,
+                 capstyle=None,
+                 joinstyle=None,
                  **kwargs):
         """
         The following kwarg properties are supported
@@ -81,6 +87,10 @@ class Patch(artist.Artist):
             linewidth = mpl.rcParams['patch.linewidth']
         if linestyle is None:
             linestyle = "solid"
+        if capstyle is None:
+            capstyle = 'butt'
+        if joinstyle is None:
+            joinstyle = 'miter'
         if antialiased is None:
             antialiased = mpl.rcParams['patch.antialiased']
 
@@ -100,6 +110,8 @@ class Patch(artist.Artist):
         self.set_antialiased(antialiased)
         self.set_hatch(hatch)
         self.set_fill(fill)
+        self.set_capstyle(capstyle)
+        self.set_joinstyle(joinstyle)
         self._combined_transform = transforms.IdentityTransform()
 
         if len(kwargs):
@@ -355,6 +367,38 @@ class Patch(artist.Artist):
     # attribute.
     fill = property(get_fill, set_fill)
 
+    def set_capstyle(self, s):
+        """
+        Set the patch capstyle
+
+        ACCEPTS: ['butt' | 'round' | 'projecting']
+        """
+        s = s.lower()
+        if s not in self.validCap:
+            raise ValueError('set_capstyle passed "%s";\n' % (s,)
+                             + 'valid capstyles are %s' % (self.validCap,))
+        self._capstyle = s
+
+    def get_capstyle(self):
+        "Return the current capstyle"
+        return self._capstyle
+
+    def set_joinstyle(self, s):
+        """
+        Set the patch joinstyle
+
+        ACCEPTS: ['miter' | 'round' | 'bevel']
+        """
+        s = s.lower()
+        if s not in self.validJoin:
+            raise ValueError('set_joinstyle passed "%s";\n' % (s,)
+                             + 'valid joinstyles are %s' % (self.validJoin,))
+        self._joinstyle = s
+
+    def get_joinstyle(self):
+        "Return the current joinstyle"
+        return self._joinstyle
+
     def set_hatch(self, hatch):
         """
         Set the hatching pattern
@@ -403,6 +447,8 @@ class Patch(artist.Artist):
             lw = 0
         gc.set_linewidth(lw)
         gc.set_linestyle(self._linestyle)
+        gc.set_capstyle(self._capstyle)
+        gc.set_joinstyle(self._joinstyle)
 
         gc.set_antialiased(self._antialiased)
         self._set_gc_clip(gc)

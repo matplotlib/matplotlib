@@ -34,3 +34,12 @@ def test_spines_data_positions():
     ax.spines['bottom'].set_position('zero')
     ax.set_xlim([-2,2])
     ax.set_ylim([-2,2])
+
+@image_comparison(baseline_images=['spines_capstyle'])
+def test_spines_capstyle():
+    # issue 2542
+    plt.rc('axes', linewidth=20)
+    fig = plt.figure()
+    ax = fig.add_subplot(1,1,1)
+    ax.set_xticks([])
+    ax.set_yticks([])
