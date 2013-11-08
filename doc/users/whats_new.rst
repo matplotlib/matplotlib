@@ -35,8 +35,13 @@ New plotting features
 Support for datetime axes in 2d plots
 `````````````````````````````````````
 Andrew Dawson added support for datetime axes to
-:func:`~matplotlib.pyplot.contour`, :func:`~matplotlib.pyplot.contourf`, 
-:func:`~matplotlib.pyplot.pcolormesh` and :func:`~matplotlib.pyplot.pcolor`. 
+:func:`~matplotlib.pyplot.contour`, :func:`~matplotlib.pyplot.contourf`,
+:func:`~matplotlib.pyplot.pcolormesh` and :func:`~matplotlib.pyplot.pcolor`.
+
+Display average in boxplots, besides de median value
+`````````````````````````````````````
+Miguel Gaiowski added option to display the average in boxplots
+:func:`~matplotlib.pyplot.boxplot`.
 
 Support for additional spectrum types
 `````````````````````````````````````
@@ -83,10 +88,10 @@ conversion interfaces :class:`matplotlib.dates.DateConverter` and
 
 Configuration (rcParams)
 ------------------------
- 
+
 ``savefig.transparent`` added
 `````````````````````````````
-Controls whether figures are saved with a transparent 
+Controls whether figures are saved with a transparent
 background by default.  Previously `savefig` always defaulted
 to a non-transparent background.
 
