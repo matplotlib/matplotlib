@@ -57,6 +57,7 @@ class Spine(mpatches.Patch):
         self.set_facecolor('none')
         self.set_edgecolor(rcParams['axes.edgecolor'])
         self.set_linewidth(rcParams['axes.linewidth'])
+        self.set_capstyle('projecting')
         self.axis = None
 
         self.set_zorder(2.5)

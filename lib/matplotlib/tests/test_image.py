@@ -290,6 +290,14 @@ def test_rasterize_dpi():
 
     axes[2].plot([0,1],[0,1], linewidth=20.)
     axes[2].set(xlim = (0,1), ylim = (-1, 2))
+    
+    # Low-dpi PDF rasterization errors prevent proper image comparison tests.
+    # Hide detailed structures like the axes spines.
+    for ax in axes:
+        ax.set_xticks([])
+        ax.set_yticks([])
+        for spine in ax.spines.values():
+            spine.set_visible(False)
 
     rcParams['savefig.dpi'] = 10
 
