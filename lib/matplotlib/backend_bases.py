@@ -1625,6 +1625,7 @@ class FigureCanvasBase(object):
     ]
 
     supports_blit = True
+    fixed_dpi = None
 
     filetypes = _default_filetypes
     if _has_pil:
@@ -2171,8 +2172,8 @@ class FigureCanvasBase(object):
 
                 bbox_inches = bbox_inches.padded(pad)
 
-            restore_bbox = tight_bbox.adjust_bbox(self.figure, format,
-                                                  bbox_inches)
+            restore_bbox = tight_bbox.adjust_bbox(self.figure, bbox_inches,
+                                                  canvas.fixed_dpi)
 
             _bbox_inches_restore = (bbox_inches, restore_bbox)
         else:

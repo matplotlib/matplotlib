@@ -2434,6 +2434,8 @@ class FigureCanvasPdf(FigureCanvasBase):
       figure - A Figure instance
     """
 
+    fixed_dpi = 72
+
     def draw(self):
         pass
 
