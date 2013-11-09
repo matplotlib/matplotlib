@@ -58,9 +58,9 @@ def switch_backend(backend):
     return switch_backend_decorator
 
 
-def compare_figure(fname):
+def compare_figure(fname, savefig_kwargs={}):
     actual = os.path.join(result_dir, fname)
-    plt.savefig(actual)
+    plt.savefig(actual, **savefig_kwargs)
 
     expected = os.path.join(result_dir, "expected_%s" % fname)
     shutil.copyfile(os.path.join(baseline_dir, fname), expected)
@@ -166,6 +166,24 @@ def test_mixedmode():
     plt.figure()
     plt.pcolor(X**2 + Y**2).set_rasterized(True)
     compare_figure('pgf_mixedmode.pdf')
+
+
+# test bbox_inches clipping
+@switch_backend('pgf')
+def test_bbox_inches():
+    if not check_for('xelatex'):
+        raise SkipTest('xelatex + pgf is required')
+
+    Y, X = np.ogrid[-1:1:40j, -1:1:40j]
+    fig = plt.figure()
+    ax1 = fig.add_subplot(121)
+    ax1.plot(range(5))
+    ax2 = fig.add_subplot(122)
+    ax2.plot(range(5))
+    plt.tight_layout()
+
+    bbox = ax1.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+    compare_figure('pgf_bbox_inches.pdf', savefig_kwargs={'bbox_inches': bbox})
 
 
 if __name__ == '__main__':
