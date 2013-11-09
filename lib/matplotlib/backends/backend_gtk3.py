@@ -359,7 +359,6 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         FigureCanvasBase.stop_event_loop_default(self)
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
 
-FigureCanvas = FigureCanvasGTK3
 
 class FigureManagerGTK3(FigureManagerBase):
     """
@@ -870,3 +869,7 @@ def error_msg_gtk(msg, parent=None):
         message_format = msg)
     dialog.run()
     dialog.destroy()
+
+
+FigureCanvas = FigureCanvasGTK3
+FigureManager = FigureManagerGTK3

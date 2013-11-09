@@ -1875,5 +1875,6 @@ class PrintoutWx(wx.Printout):
 #
 ########################################################################
 
-Toolbar = NavigationToolbar2Wx
+FigureCanvas = FigureCanvasWx
 FigureManager = FigureManagerWx
+Toolbar = NavigationToolbar2Wx

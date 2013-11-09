@@ -8,7 +8,7 @@ from matplotlib.figure import Figure
 
 from .backend_agg import FigureCanvasAgg
 from . import backend_wx    # already uses wxversion.ensureMinimal('2.8')
-from .backend_wx import FigureManager, FigureManagerWx, FigureCanvasWx, \
+from .backend_wx import FigureManagerWx, FigureCanvasWx, \
     FigureFrameWx, DEBUG_MSG, NavigationToolbar2Wx, error_msg_wx, \
     draw_if_interactive, show, Toolbar, backend_version
 import wx
@@ -189,3 +189,6 @@ def _WX28_clipped_agg_as_bitmap(agg, bbox):
     destDC.SelectObject(wx.NullBitmap)
 
     return destBmp
+
+FigureCanvas = FigureCanvasWxAgg
+FigureManager = FigureManagerWx
