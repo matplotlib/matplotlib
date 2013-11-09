@@ -940,9 +940,10 @@ class FigureManagerPgf(FigureManagerBase):
     def __init__(self, *args):
         FigureManagerBase.__init__(self, *args)
 
-########################################################################
 
+FigureCanvas = FigureCanvasPgf
 FigureManager = FigureManagerPgf
+
 
 def _cleanup_all():
     LatexManager._cleanup_remaining_instances()

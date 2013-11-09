@@ -62,5 +62,6 @@ def new_figure_manager_given_figure(num, figure):
     return manager
 
 
+FigureCanvas = FigureCanvasGTK3Cairo
 FigureManager = FigureManagerGTK3Cairo
 show = backend_gtk3.show

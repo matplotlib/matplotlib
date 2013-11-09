@@ -2467,4 +2467,6 @@ class FigureCanvasPdf(FigureCanvasBase):
 class FigureManagerPdf(FigureManagerBase):
     pass
 
+
+FigureCanvas = FigureCanvasPdf
 FigureManager = FigureManagerPdf

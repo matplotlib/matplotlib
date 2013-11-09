@@ -122,3 +122,6 @@ Traceback (most recent call last):
     pixbuf = gtk.gdk.pixbuf_new_from_data(
 ValueError: data length (3156672) is less then required by the other parameters (3160608)
 """
+
+FigureCanvas = FigureCanvasGTKAgg
+FigureManager = FigureManagerGTKAgg

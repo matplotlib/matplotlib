@@ -423,5 +423,5 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
 #
 ########################################################################
 
-
+FigureCanvas = FigureCanvasMac
 FigureManager = FigureManagerMac

@@ -262,5 +262,5 @@ class FigureManagerTemplate(FigureManagerBase):
 #
 ########################################################################
 
-
+FigureCanvas = FigureCanvasTemplate
 FigureManager = FigureManagerTemplate
