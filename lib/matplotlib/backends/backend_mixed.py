@@ -93,11 +93,8 @@ class MixedModeRenderer(object):
 
         if self._bbox_inches_restore: # when tight bbox is used
             r = process_figure_for_rasterizing(self.figure,
-                                               self._bbox_inches_restore,
-                                               mode="png")
-
+                                               self._bbox_inches_restore)
             self._bbox_inches_restore = r
-
 
         if self._rasterizing == 0:
             self._raster_renderer = self._raster_renderer_class(
@@ -143,5 +140,5 @@ class MixedModeRenderer(object):
         if self._bbox_inches_restore:  # when tight bbox is used
             r = process_figure_for_rasterizing(self.figure,
                                                self._bbox_inches_restore,
-                                               mode="pdf")
+                                               self._figdpi)
             self._bbox_inches_restore = r
