@@ -259,6 +259,24 @@ class stride_testcase(CleanupTestCase):
         assert_equal((6, 13), y.shape)
         assert_true(self.get_base(y) is x)
 
+    def test_stride_windows_n32_noverlap0_axis0_unflatten(self):
+        n = 32
+        x = np.arange(n)[np.newaxis]
+        x1 = np.tile(x, (21, 1))
+        x2 = x1.flatten()
+        y = mlab.stride_windows(x2, n)
+        assert_equal(y.shape, x1.T.shape)
+        assert_array_equal(y, x1.T)
+
+    def test_stride_windows_n32_noverlap0_axis1_unflatten(self):
+        n = 32
+        x = np.arange(n)[np.newaxis]
+        x1 = np.tile(x, (21, 1))
+        x2 = x1.flatten()
+        y = mlab.stride_windows(x2, n, axis=1)
+        assert_equal(y.shape, x1.shape)
+        assert_array_equal(y, x1)
+
 
 class csv_testcase(CleanupTestCase):
     def setUp(self):
@@ -502,6 +520,51 @@ class window_testcase(CleanupTestCase):
         assert_equal(yt.shape, y.shape)
         assert_not_equal(x.shape, y.shape)
         assert_allclose(yt, y, atol=1e-06)
+
+    def test_apply_window_hanning_2D_stack_axis1(self):
+        ydata = np.arange(32)
+        ydata1 = ydata+5
+        ydata2 = ydata+3.3
+        ycontrol1 = mlab.apply_window(ydata1, mlab.window_hanning)
+        ycontrol2 = mlab.window_hanning(ydata2)
+        ydata = np.vstack([ydata1, ydata2])
+        ycontrol = np.vstack([ycontrol1, ycontrol2])
+        ydata = np.tile(ydata, (20, 1))
+        ycontrol = np.tile(ycontrol, (20, 1))
+        result = mlab.apply_window(ydata, mlab.window_hanning, axis=1,
+                                   return_window=False)
+        assert_allclose(ycontrol, result, atol=1e-08)
+
+    def test_apply_window_hanning_2D_stack_windows_axis1(self):
+        ydata = np.arange(32)
+        ydata1 = ydata+5
+        ydata2 = ydata+3.3
+        ycontrol1 = mlab.apply_window(ydata1, mlab.window_hanning)
+        ycontrol2 = mlab.window_hanning(ydata2)
+        ydata = np.vstack([ydata1, ydata2])
+        ycontrol = np.vstack([ycontrol1, ycontrol2])
+        ydata = np.tile(ydata, (20, 1))
+        ycontrol = np.tile(ycontrol, (20, 1))
+        result = mlab.apply_window(ydata, mlab.window_hanning, axis=1,
+                                   return_window=False)
+        assert_allclose(ycontrol, result, atol=1e-08)
+
+    def test_apply_window_hanning_2D_stack_windows_axis1_unflatten(self):
+        n = 32
+        ydata = np.arange(n)
+        ydata1 = ydata+5
+        ydata2 = ydata+3.3
+        ycontrol1 = mlab.apply_window(ydata1, mlab.window_hanning)
+        ycontrol2 = mlab.window_hanning(ydata2)
+        ydata = np.vstack([ydata1, ydata2])
+        ycontrol = np.vstack([ycontrol1, ycontrol2])
+        ydata = np.tile(ydata, (20, 1))
+        ycontrol = np.tile(ycontrol, (20, 1))
+        ydata = ydata.flatten()
+        ydata1 = mlab.stride_windows(ydata, 32, noverlap=0, axis=0)
+        result = mlab.apply_window(ydata1, mlab.window_hanning, axis=0,
+                                   return_window=False)
+        assert_allclose(ycontrol.T, result, atol=1e-08)
 
 
 class detrend_testcase(CleanupTestCase):
@@ -1460,6 +1523,243 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_equal(spec.shape, freqs.shape)
         self.check_freqs(spec, freqs, fsp, self.fstims)
 
+    def test_psd_detrend_mean_func_offset(self):
+        if self.NFFT_density is None:
+            return
+        freqs = self.freqs_density
+        ydata = np.zeros(self.NFFT_density)
+        ydata1 = ydata+5
+        ydata2 = ydata+3.3
+        ydata = np.vstack([ydata1, ydata2])
+        ydata = np.tile(ydata, (20, 1))
+        ydatab = ydata.T.flatten()
+        ydata = ydata.flatten()
+        ycontrol = np.zeros_like(ydata)
+        spec_g, fsp_g = mlab.psd(x=ydata,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides,
+                                 detrend=mlab.detrend_mean)
+        spec_b, fsp_b = mlab.psd(x=ydatab,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides,
+                                 detrend=mlab.detrend_mean)
+        spec_c, fsp_c = mlab.psd(x=ycontrol,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides)
+        assert_array_equal(fsp_g, fsp_c)
+        assert_array_equal(fsp_b, fsp_c)
+        assert_allclose(spec_g, spec_c, atol=1e-08)
+        # these should not be almost equal
+        assert_raises(AssertionError,
+                      assert_allclose, spec_b, spec_c, atol=1e-08)
+
+    def test_psd_detrend_mean_str_offset(self):
+        if self.NFFT_density is None:
+            return
+        freqs = self.freqs_density
+        ydata = np.zeros(self.NFFT_density)
+        ydata1 = ydata+5
+        ydata2 = ydata+3.3
+        ydata = np.vstack([ydata1, ydata2])
+        ydata = np.tile(ydata, (20, 1))
+        ydatab = ydata.T.flatten()
+        ydata = ydata.flatten()
+        ycontrol = np.zeros_like(ydata)
+        spec_g, fsp_g = mlab.psd(x=ydata,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides,
+                                 detrend='mean')
+        spec_b, fsp_b = mlab.psd(x=ydatab,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides,
+                                 detrend='mean')
+        spec_c, fsp_c = mlab.psd(x=ycontrol,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides)
+        assert_array_equal(fsp_g, fsp_c)
+        assert_array_equal(fsp_b, fsp_c)
+        assert_allclose(spec_g, spec_c, atol=1e-08)
+        # these should not be almost equal
+        assert_raises(AssertionError,
+                      assert_allclose, spec_b, spec_c, atol=1e-08)
+
+    def test_psd_detrend_linear_func_trend(self):
+        if self.NFFT_density is None:
+            return
+        freqs = self.freqs_density
+        ydata = np.arange(self.NFFT_density)
+        ydata1 = ydata+5
+        ydata2 = ydata+3.3
+        ydata = np.vstack([ydata1, ydata2])
+        ydata = np.tile(ydata, (20, 1))
+        ydatab = ydata.T.flatten()
+        ydata = ydata.flatten()
+        ycontrol = np.zeros_like(ydata)
+        spec_g, fsp_g = mlab.psd(x=ydata,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides,
+                                 detrend=mlab.detrend_linear)
+        spec_b, fsp_b = mlab.psd(x=ydatab,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides,
+                                 detrend=mlab.detrend_linear)
+        spec_c, fsp_c = mlab.psd(x=ycontrol,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides)
+        assert_array_equal(fsp_g, fsp_c)
+        assert_array_equal(fsp_b, fsp_c)
+        assert_allclose(spec_g, spec_c, atol=1e-08)
+        # these should not be almost equal
+        assert_raises(AssertionError,
+                      assert_allclose, spec_b, spec_c, atol=1e-08)
+
+    def test_psd_detrend_linear_str_trend(self):
+        if self.NFFT_density is None:
+            return
+        freqs = self.freqs_density
+        ydata = np.arange(self.NFFT_density)
+        ydata1 = ydata+5
+        ydata2 = ydata+3.3
+        ydata = np.vstack([ydata1, ydata2])
+        ydata = np.tile(ydata, (20, 1))
+        ydatab = ydata.T.flatten()
+        ydata = ydata.flatten()
+        ycontrol = np.zeros_like(ydata)
+        spec_g, fsp_g = mlab.psd(x=ydata,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides,
+                                 detrend='linear')
+        spec_b, fsp_b = mlab.psd(x=ydatab,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides,
+                                 detrend='linear')
+        spec_c, fsp_c = mlab.psd(x=ycontrol,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides)
+        assert_array_equal(fsp_g, fsp_c)
+        assert_array_equal(fsp_b, fsp_c)
+        assert_allclose(spec_g, spec_c, atol=1e-08)
+        # these should not be almost equal
+        assert_raises(AssertionError,
+                      assert_allclose, spec_b, spec_c, atol=1e-08)
+
+    def test_psd_window_hanning(self):
+        if self.NFFT_density is None:
+            return
+        freqs = self.freqs_density
+        ydata = np.arange(self.NFFT_density)
+        ydata1 = ydata+5
+        ydata2 = ydata+3.3
+        ycontrol1, windowVals = mlab.apply_window(ydata1,
+                                                  mlab.window_hanning,
+                                                  return_window=True)
+        ycontrol2 = mlab.window_hanning(ydata2)
+        ydata = np.vstack([ydata1, ydata2])
+        ycontrol = np.vstack([ycontrol1, ycontrol2])
+        ydata = np.tile(ydata, (20, 1))
+        ycontrol = np.tile(ycontrol, (20, 1))
+        ydatab = ydata.T.flatten()
+        ydataf = ydata.flatten()
+        ycontrol = ycontrol.flatten()
+        spec_g, fsp_g = mlab.psd(x=ydataf,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides,
+                                 window=mlab.window_hanning)
+        spec_b, fsp_b = mlab.psd(x=ydatab,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides,
+                                 window=mlab.window_hanning)
+        spec_c, fsp_c = mlab.psd(x=ycontrol,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides,
+                                 window=mlab.window_none)
+        spec_c *= len(ycontrol1)/(np.abs(windowVals)**2).sum()
+        assert_array_equal(fsp_g, fsp_c)
+        assert_array_equal(fsp_b, fsp_c)
+        assert_allclose(spec_g, spec_c, atol=1e-08)
+        # these should not be almost equal
+        assert_raises(AssertionError,
+                      assert_allclose, spec_b, spec_c, atol=1e-08)
+
+    def test_psd_window_hanning_detrend_linear(self):
+        if self.NFFT_density is None:
+            return
+        freqs = self.freqs_density
+        ydata = np.arange(self.NFFT_density)
+        ycontrol = np.zeros(self.NFFT_density)
+        ydata1 = ydata+5
+        ydata2 = ydata+3.3
+        ycontrol1 = ycontrol
+        ycontrol2 = ycontrol
+        ycontrol1, windowVals = mlab.apply_window(ycontrol1,
+                                                  mlab.window_hanning,
+                                                  return_window=True)
+        ycontrol2 = mlab.window_hanning(ycontrol2)
+        ydata = np.vstack([ydata1, ydata2])
+        ycontrol = np.vstack([ycontrol1, ycontrol2])
+        ydata = np.tile(ydata, (20, 1))
+        ycontrol = np.tile(ycontrol, (20, 1))
+        ydatab = ydata.T.flatten()
+        ydataf = ydata.flatten()
+        ycontrol = ycontrol.flatten()
+        spec_g, fsp_g = mlab.psd(x=ydataf,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides,
+                                 detrend=mlab.detrend_linear,
+                                 window=mlab.window_hanning)
+        spec_b, fsp_b = mlab.psd(x=ydatab,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides,
+                                 detrend=mlab.detrend_linear,
+                                 window=mlab.window_hanning)
+        spec_c, fsp_c = mlab.psd(x=ycontrol,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=0,
+                                 sides=self.sides,
+                                 window=mlab.window_none)
+        spec_c *= len(ycontrol1)/(np.abs(windowVals)**2).sum()
+        assert_array_equal(fsp_g, fsp_c)
+        assert_array_equal(fsp_b, fsp_c)
+        assert_allclose(spec_g, spec_c, atol=1e-08)
+        # these should not be almost equal
+        assert_raises(AssertionError,
+                      assert_allclose, spec_b, spec_c, atol=1e-08)
+
     def test_psd_windowarray(self):
         freqs = self.freqs_density
         spec, fsp = mlab.psd(x=self.y,
@@ -1471,6 +1771,34 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
                              window=np.ones(self.NFFT_density_real))
         assert_allclose(fsp, freqs, atol=1e-06)
         assert_equal(spec.shape, freqs.shape)
+
+    def test_psd_windowarray_scale_by_freq(self):
+        freqs = self.freqs_density
+        spec, fsp = mlab.psd(x=self.y,
+                             NFFT=self.NFFT_density,
+                             Fs=self.Fs,
+                             noverlap=self.nover_density,
+                             pad_to=self.pad_to_density,
+                             sides=self.sides)
+        spec_s, fsp_s = mlab.psd(x=self.y,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=self.nover_density,
+                                 pad_to=self.pad_to_density,
+                                 sides=self.sides,
+                                 scale_by_freq=True)
+        spec_n, fsp_n = mlab.psd(x=self.y,
+                                 NFFT=self.NFFT_density,
+                                 Fs=self.Fs,
+                                 noverlap=self.nover_density,
+                                 pad_to=self.pad_to_density,
+                                 sides=self.sides,
+                                 scale_by_freq=False)
+
+        assert_array_equal(fsp, fsp_s)
+        assert_array_equal(fsp, fsp_n)
+        assert_array_equal(spec, spec_s)
+        assert_allclose(spec_s, spec_n/self.Fs, atol=1e-08)
 
     def test_complex_spectrum(self):
         freqs = self.freqs_spectrum
