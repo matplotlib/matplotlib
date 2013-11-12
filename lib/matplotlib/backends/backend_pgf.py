@@ -12,6 +12,7 @@ import tempfile
 import codecs
 import atexit
 import weakref
+import warnings
 
 import matplotlib as mpl
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
@@ -411,12 +412,16 @@ class RendererPgf(RendererBase):
         # get LatexManager instance
         self.latexManager = LatexManagerFactory.get_latex_manager()
 
-        # dummy==True deactivate all methods
         if dummy:
+            # dummy==True deactivate all methods
             nop = lambda *args, **kwargs: None
             for m in RendererPgf.__dict__.keys():
                 if m.startswith("draw_"):
                     self.__dict__[m] = nop
+        else:
+            # if fh does not belong to a filename, deactivate draw_image
+            if not os.path.exists(fh.name):
+                self.__dict__["draw_image"] = lambda *args, **kwargs: None
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         writeln(self.fh, r"\begin{pgfscope}")
@@ -820,8 +825,11 @@ class FigureCanvasPgf(FigureCanvasBase):
             with codecs.open(fname_or_fh, "w", encoding="utf-8") as fh:
                 self._print_pgf_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
-            raise ValueError("saving pgf to a stream is not supported, " +
-                             "consider using the pdf option of the pgf-backend")
+            if not os.path.exists(fname_or_fh.name):
+                warnings.warn("streamed pgf-code does not support raster "
+                              "graphics, consider using the pgf-to-pdf option",
+                              UserWarning)
+            self._print_pgf_to_fh(fname_or_fh, *args, **kwargs)
         else:
             raise ValueError("filename must be a path")
 
