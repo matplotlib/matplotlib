@@ -61,8 +61,3 @@ def test_context():
             assert mpl.rcParams[PARAM] == VALUE
     # Check that this value is reset after the exiting the context.
     assert mpl.rcParams[PARAM] == 'gray'
-
-
-if __name__ == '__main__':
-    from numpy import testing
-    testing.run_module_suite()
