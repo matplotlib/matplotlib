@@ -1266,9 +1266,15 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
 
         self.set_fontsize(fontsize)
 
-        self.xybox = xybox
+        if xybox is None:
+            self.xybox = xy
+        else:
+            self.xybox = xybox
 
-        self.boxcoords = boxcoords
+        if boxcoords is None:
+            self.boxcoords = xycoords
+        else:
+            self.boxcoords = boxcoords
 
         if arrowprops is not None:
             self._arrow_relpos = self.arrowprops.pop("relpos", (0.5, 0.5))
