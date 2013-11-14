@@ -970,8 +970,18 @@ class MultiCursor(Widget):
         else:
             self.hlines = []
 
-        self.canvas.mpl_connect('motion_notify_event', self.onmove)
-        self.canvas.mpl_connect('draw_event', self.clear)
+        self.connect()
+
+    def connect(self):
+        """connect events"""
+        self._cidmotion = self.canvas.mpl_connect('motion_notify_event',
+                                                  self.onmove)
+        self._ciddraw = self.canvas.mpl_connect('draw_event', self.clear)
+
+    def disconnect(self):
+        """disconnect events"""
+        self.canvas.mpl_disconnect(self._cidmotion)
+        self.canvas.mpl_disconnect(self._ciddraw)
 
     def clear(self, event):
         """clear the cursor"""
