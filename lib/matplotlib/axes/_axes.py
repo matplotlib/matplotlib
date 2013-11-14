@@ -108,6 +108,7 @@ class Axes(_AxesBase):
             the default `fontdict` is::
 
                {'fontsize': rcParams['axes.titlesize'],
+                'fontweight' : rcParams['axes.titleweight'],
                 'verticalalignment': 'baseline',
                 'horizontalalignment': loc}
 
@@ -133,6 +134,7 @@ class Axes(_AxesBase):
             raise ValueError("'%s' is not a valid location" % loc)
         default = {
             'fontsize': rcParams['axes.titlesize'],
+            'fontweight': rcParams['axes.titleweight'],
             'verticalalignment': 'baseline',
             'horizontalalignment': loc.lower()}
         title.set_text(label)

@@ -794,16 +794,16 @@ def gca(**kwargs):
     """
     Return the current :class:`~matplotlib.axes.Axes` instance on the
     current figure matching the given keyword args, or create one.
-    
+
     Examples
     ---------
     To get the the current polar axes on the current figure::
-    
+
         plt.gca(projection='polar')
-    
+
     If the current axes doesn't exist, or isn't a polar one, the appropriate
     axes will be created and then returned.
-    
+
     See Also
     --------
     matplotlib.figure.Figure.gca : The figure's gca method.
@@ -1295,6 +1295,7 @@ def title(s, *args, **kwargs):
         A dictionary controlling the appearance of the title text,
         the default `fontdict` is:
         {'fontsize': rcParams['axes.titlesize'],
+         'fontweight' : rcParams['axes.titleweight'],
          'verticalalignment': 'baseline',
          'horizontalalignment': loc}
     loc : {'center', 'left', 'right'}, str, optional
