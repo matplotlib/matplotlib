@@ -121,7 +121,7 @@ users test out this new feature.
 Backends
 --------
 
-Qt4Agg backend
+Qt4 backend
 ``````````````
 Rudolf Höfler changed the appearance of the subplottool. All sliders are
 vertically arranged now, buttons for tight layout and reset were
