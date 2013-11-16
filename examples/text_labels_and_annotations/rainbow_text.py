@@ -21,10 +21,10 @@ Paul Ivanov responded with this answer:
 import matplotlib.pyplot as plt
 from matplotlib import transforms
 
-def rainbow_text(x,y,ls,lc,**kw):
+def rainbow_text(x, y, strings, colors, **kw):
     """
-    Take a list of strings ``ls`` and colors ``lc`` and place them next to each
-    other, with text ls[i] being shown in color lc[i].
+    Take a list of ``strings`` and colors ``colors`` and place them next to each
+    other, with text strings[i] being shown in colors[i].
 
     This example shows how to do both vertical and horizontal text, and will
     pass all keyword arguments to plt.text, so you can set the font size,
@@ -34,14 +34,14 @@ def rainbow_text(x,y,ls,lc,**kw):
     fig = plt.gcf()
 
     #horizontal version
-    for s,c in zip(ls,lc):
+    for s,c in zip(strings, colors):
         text = plt.text(x, y, " " + s + " ", color=c, transform=t, **kw)
         text.draw(fig.canvas.get_renderer())
         ex = text.get_window_extent()
         t = transforms.offset_copy(text._transform, x=ex.width, units='dots')
 
     #vertical version
-    for s,c in zip(ls,lc):
+    for s,c in zip(strings, colors):
         text = plt.text(x, y, " " + s + " ", color=c, transform=t,
                 rotation=90, va='bottom', ha='center', **kw)
         text.draw(fig.canvas.get_renderer())
