@@ -457,3 +457,8 @@ class SubplotSpec(object):
             return gridspec.get_topmost_subplotspec()
         else:
             return self
+
+    def __eq__(self, other):
+        return all((self._gridspec == other._gridspec,
+                    self.num1 == other.num1,
+                    self.num2 == other.num2))
