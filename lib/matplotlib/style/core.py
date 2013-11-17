@@ -137,7 +137,7 @@ def update_nested_dict(main_dict, new_dict):
     already exists. Instead you should update the sub-dict.
     """
     # update named styles specified by user
-    for name, rc_dict in new_dict.iteritems():
+    for name, rc_dict in six.iteritems(new_dict):
         if name in main_dict:
             main_dict[name].update(rc_dict)
         else:

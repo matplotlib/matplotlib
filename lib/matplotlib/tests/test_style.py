@@ -1,3 +1,6 @@
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
 import os
 import shutil
 import tempfile
@@ -6,6 +9,8 @@ from contextlib import contextmanager
 import matplotlib as mpl
 from matplotlib import style
 from matplotlib.style.core import USER_LIBRARY_PATHS, STYLE_EXTENSION
+
+import six
 
 
 PARAM = 'image.cmap'
@@ -22,7 +27,7 @@ def temp_style(style_name, settings=None):
     # Write style settings to file in the temp directory.
     tempdir = tempfile.mkdtemp()
     with open(os.path.join(tempdir, temp_file), 'w') as f:
-        for k, v in settings.iteritems():
+        for k, v in six.iteritems(settings):
             f.write('%s: %s' % (k, v))
 
     # Add temp directory to style path and reload so we can access this style.
