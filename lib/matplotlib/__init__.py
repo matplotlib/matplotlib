@@ -892,11 +892,17 @@ def is_url(filename):
     return URL_REGEX.match(filename) is not None
 
 
+def _url_lines(f):
+    # Compatibility for urlopen in python 3, which yields bytes.
+    for line in f:
+        yield line.decode(encoding='utf8')
+
+
 @contextlib.contextmanager
 def _open_file_or_url(fname):
     if is_url(fname):
         f = urlopen(fname)
-        yield f
+        yield _url_lines(f)
         f.close()
     else:
         with open(fname) as f:
