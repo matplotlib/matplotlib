@@ -1563,7 +1563,7 @@ class AffineBase(Transform):
         return np.dot(b, a)
 
     def __eq__(self, other):
-        if other.is_affine:
+        if getattr(other, "is_affine", False):
             return np.all(self.get_matrix() == other.get_matrix())
         return NotImplemented
 
