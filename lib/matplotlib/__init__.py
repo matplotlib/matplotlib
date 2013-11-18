@@ -895,7 +895,7 @@ def is_url(filename):
 def _url_lines(f):
     # Compatibility for urlopen in python 3, which yields bytes.
     for line in f:
-        yield line.decode(encoding='utf8')
+        yield line.decode('utf8')
 
 
 @contextlib.contextmanager
