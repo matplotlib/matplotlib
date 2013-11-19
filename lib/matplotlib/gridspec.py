@@ -459,6 +459,12 @@ class SubplotSpec(object):
             return self
 
     def __eq__(self, other):
+        # check to make sure other has the attributes
+        # we need to do the comparison
+        if not (hasattr(other, '_gridspec') and
+                hasattr(other, 'num1') and
+                hasattr(other, 'num2')):
+            return False
         return all((self._gridspec == other._gridspec,
                     self.num1 == other.num1,
                     self.num2 == other.num2))
