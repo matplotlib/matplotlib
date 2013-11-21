@@ -49,7 +49,18 @@ docstring.interpd.update(Patch="""
 
           """)
 
-from IPython.config import Unicode
+from IPython.utils.traitlets import Unicode,Float
+
+class MaybeFloat(Float):
+    """A trait for unicode strings, or None"""
+
+    default_value = None
+
+    def validate(self, obj, value):
+        if value is None:
+            return value
+        else:
+            return super(MaybeUnicode,self).validate(obj, value)
 
 class MaybeUnicode(Unicode):
     """A trait for unicode strings, or None"""
@@ -62,6 +73,17 @@ class MaybeUnicode(Unicode):
         else:
             return super(MaybeUnicode,self).validate(obj, value)
 
+class MaybeColor(MaybeUnicode):
+    """A trait for unicode strings, or None"""
+
+    default_value = None
+
+    def validate(self, obj, value):
+        if value is None:
+            return value
+        else:
+            return colors.colorConverter.to_rgba(value)
+
 class Patch(artist.Artist):
     """
     A patch is a 2D artist with a face color and an edge color.
@@ -73,7 +95,8 @@ class Patch(artist.Artist):
     validCap = ('butt', 'round', 'projecting')
     validJoin = ('miter', 'round', 'bevel')
 
-    t_color = MaybeUnicode(None,config=True)
+    t_color = MaybeColor(None,config=True)
+    t_lw = MaybeFloat(None,config=True)
 
     def __str__(self):
         return str(self.__class__).split('.')[-1]
@@ -98,7 +121,10 @@ class Patch(artist.Artist):
         artist.Artist.__init__(self)
 
         if linewidth is None:
-            linewidth = mpl.rcParams['patch.linewidth']
+            if self.t_lw is not None:
+                linewidth = self.t_lw
+            else:
+                linewidth = mpl.rcParams['patch.linewidth']
         if linestyle is None:
             linestyle = "solid"
         if capstyle is None:
@@ -294,9 +320,8 @@ class Patch(artist.Artist):
         """
         #print('setting color to', color, self.__class__, self.config)
         if color is None:
-            if self.t_color is not None and False:
+            if self.t_color is not None:
                 color = self.t_color
-                color = mpl.rcParams['patch.facecolor']
             else :
                 color = mpl.rcParams['patch.facecolor']
 

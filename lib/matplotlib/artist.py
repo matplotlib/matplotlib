@@ -78,7 +78,7 @@ class Artist(Configurable):
     aname = 'Artist'
     zorder = 0
 
-    def __init__(self, config=None):
+    def __init__(self, config=None, parent=None):
         
         c = getattr(matplotlib,'config',Config({}))
         if config :
