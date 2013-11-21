@@ -1142,7 +1142,7 @@ class _AxesBase(martist.Artist):
                 aspect_scale_mode = "log"
             elif ((xscale == "linear" and yscale == "log") or
                   (xscale == "log" and yscale == "linear")):
-                if aspect is not "auto":
+                if aspect != "auto":
                     warnings.warn(
                         'aspect is not supported for Axes with xscale=%s, '
                         'yscale=%s' % (xscale, yscale))
