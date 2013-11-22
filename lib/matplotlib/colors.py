@@ -272,10 +272,13 @@ class ColorConverter(object):
             1) a letter from the set 'rgbcmykw'
             2) a hex color string, like '#00FFFF'
             3) a standard name, like 'aqua'
-            4) a float, like '0.4', indicating gray on a 0-1 scale
+            4) a string representation of a float, like '0.4',
+               indicating gray on a 0-1 scale
 
         if *arg* is *RGBA*, the *A* will simply be discarded.
         """
+        # Gray must be a string to distinguish 3-4 grays from RGB or RGBA.
+
         try:
             return self.cache[arg]
         except KeyError:
@@ -304,7 +307,7 @@ class ColorConverter(object):
                         if fl < 0 or fl > 1:
                             raise ValueError(
                                 'gray (string) must be in range 0-1')
-                        color = tuple([fl] * 3)
+                        color = (fl,)*3
             elif cbook.iterable(arg):
                 if len(arg) > 4 or len(arg) < 3:
                     raise ValueError(
