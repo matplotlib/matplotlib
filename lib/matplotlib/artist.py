@@ -84,7 +84,7 @@ class Artist(Configurable):
         if config :
             c.merge(config)
         #print('init Artist with',c)
-        super(Artist, self).__init__(config=c)
+        super(Artist, self).__init__(config=c, parent=parent)
 
         self.figure = None
 

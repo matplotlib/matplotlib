@@ -79,13 +79,14 @@ class Tick(artist.Artist):
                  label1On=True,
                  label2On=False,
                  major=True,
+                 parent=None
                  ):
         """
         bbox is the Bound2D bounding box in display coords of the Axes
         loc is the tick location in data coords
         size is the tick size in points
         """
-        artist.Artist.__init__(self)
+        artist.Artist.__init__(self, parent=parent)
 
         if gridOn is None:
             if major and (rcParams['axes.grid.which'] in ('both','major')):
@@ -392,6 +393,7 @@ class XTick(Tick):
                    markersize=self._size,
                    markeredgewidth=self._width,
                    zorder=self._zorder,
+                   parent=self
                    )
         l.set_transform(self.axes.get_xaxis_transform(which='tick1'))
         self._set_artist_props(l)
@@ -407,6 +409,7 @@ class XTick(Tick):
                        markersize=self._size,
                        markeredgewidth=self._width,
                        zorder=self._zorder,
+                       parent=self
                        )
 
         l.set_transform(self.axes.get_xaxis_transform(which='tick2'))
@@ -421,7 +424,8 @@ class XTick(Tick):
                    linestyle=rcParams['grid.linestyle'],
                    linewidth=rcParams['grid.linewidth'],
                    alpha=rcParams['grid.alpha'],
-                   markersize=0
+                   markersize=0,
+                   parent=self
                    )
         l.set_transform(self.axes.get_xaxis_transform(which='grid'))
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
@@ -532,6 +536,7 @@ class YTick(Tick):
                     markersize=self._size,
                     markeredgewidth=self._width,
                     zorder=self._zorder,
+                    parent=self
                     )
         l.set_transform(self.axes.get_yaxis_transform(which='tick1'))
         self._set_artist_props(l)
@@ -547,6 +552,7 @@ class YTick(Tick):
                     markersize=self._size,
                     markeredgewidth=self._width,
                     zorder=self._zorder,
+                    parent=self
                     )
         l.set_transform(self.axes.get_yaxis_transform(which='tick2'))
         self._set_artist_props(l)
@@ -560,7 +566,8 @@ class YTick(Tick):
                     linestyle=rcParams['grid.linestyle'],
                     linewidth=rcParams['grid.linewidth'],
                     alpha=rcParams['grid.alpha'],
-                    markersize=0
+                    markersize=0,
+                    parent=self
                     )
 
         l.set_transform(self.axes.get_yaxis_transform(which='grid'))
