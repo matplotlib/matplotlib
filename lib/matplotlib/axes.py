@@ -8320,18 +8320,18 @@ class Axes(martist.Artist):
         hist_kwargs = dict(range=bin_range)
 
         n = []
-        mlast = bottom
+        mlast = None
         for i in xrange(nx):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
             m = m.astype(float) # causes problems later if it's an int
-            if mlast is None:
-                mlast = np.zeros(len(bins)-1, m.dtype)
             if normed and not stacked:
                 db = np.diff(bins)
                 m = (m.astype(float) / db) / m.sum()
             if stacked:
+                if mlast is None:
+                    mlast = np.zeros(len(bins)-1, m.dtype)
                 m += mlast
                 mlast[:] = m
             n.append(m)
@@ -8422,6 +8422,12 @@ class Axes(martist.Artist):
             x[0:2*len(bins)-1:2], x[1:2*len(bins)-1:2] = bins, bins[:-1]
             x[2*len(bins)-1:] = x[1:2*len(bins)-1][::-1]
 
+            if bottom is None:
+                bottom = np.zeros(len(bins)-1, np.float)
+
+            y[1:2*len(bins)-1:2], y[2:2*len(bins):2] = bottom, bottom
+            y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
+
             if log:
                 if orientation == 'horizontal':
                     self.set_xscale('log', nonposx='clip')
@@ -8457,12 +8463,13 @@ class Axes(martist.Artist):
 
             xvals, yvals = [], []
             for m in n:
-                # starting point for drawing polygon
-                y[0] = y[1]
-                # top of the previous polygon becomes the bottom
-                y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
+                if stacked:
+                    # starting point for drawing polygon
+                    y[0] = y[1]
+                    # top of the previous polygon becomes the bottom
+                    y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
                 # set the top of this polygon
-                y[1:2*len(bins)-1:2], y[2:2*len(bins)-1:2] = m, m
+                y[1:2*len(bins)-1:2], y[2:2*len(bins):2] = m + bottom, m + bottom
                 if log:
                     y[y < minimum] = minimum
                 if orientation == 'horizontal':
