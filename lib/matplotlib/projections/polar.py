@@ -234,6 +234,7 @@ class PolarAxes(Axes):
         self.resolution = kwargs.pop('resolution', 1)
         self._default_theta_offset = kwargs.pop('theta_offset', 0)
         self._default_theta_direction = kwargs.pop('theta_direction', 1)
+        self._default_rlabel_position = kwargs.pop('rlabel_position', 22.5)
 
         if self.resolution not in (None, 1):
             warnings.warn(
@@ -324,7 +325,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             self.transData)
         # The r-axis labels are put at an angle and padded in the r-direction
         self._r_label_position = ScaledTranslation(
-            22.5, 0.0, Affine2D())
+            self._default_rlabel_position, 0.0, Affine2D())
         self._yaxis_text_transform = (
             self._r_label_position +
             Affine2D().scale(1.0 / 360.0, 1.0) +
@@ -346,7 +347,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         return self._yaxis_transform
 
     def get_yaxis_text1_transform(self, pad):
-        angle = self._r_label_position.to_values()[4]
+        angle = self.get_rlabel_position()
         if angle < 90.:
             return self._yaxis_text_transform, 'bottom', 'left'
         elif angle < 180.:
@@ -357,7 +358,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             return self._yaxis_text_transform, 'top', 'left'
 
     def get_yaxis_text2_transform(self, pad):
-        angle = self._r_label_position.to_values()[4]
+        angle = self.get_rlabel_position()
         if angle < 90.:
             return self._yaxis_text_transform, 'top', 'right'
         elif angle < 180.:
@@ -454,6 +455,26 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             kwargs['ymax'] = kwargs.pop('rmax')
         return self.set_ylim(*args, **kwargs)
 
+    def get_rlabel_position(self):
+        """
+        Returns
+        -------
+        float
+            The theta position of the radius labels in degrees.
+        """
+        return self._r_label_position.to_values()[4]
+    
+    def set_rlabel_position(self, value):
+        """Updates the theta position of the radius labels.
+        
+        Parameters
+        ----------
+        value : number
+            The angular position of the radius labels in degrees.
+        """
+        self._r_label_position._t = (value, 0.0)
+        self._r_label_position.invalidate()
+
     def set_yscale(self, *args, **kwargs):
         Axes.set_yscale(self, *args, **kwargs)
         self.yaxis.set_major_locator(
@@ -543,9 +564,8 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         elif fmt is not None:
             self.yaxis.set_major_formatter(FormatStrFormatter(fmt))
         if angle is None:
-            angle = self._r_label_position.to_values()[4]
-        self._r_label_position._t = (angle, 0.0)
-        self._r_label_position.invalidate()
+            angle = self.get_rlabel_position()
+        self.set_rlabel_position(angle)
         for t in self.yaxis.get_ticklabels():
             t.update(kwargs)
         return self.yaxis.get_gridlines(), self.yaxis.get_ticklabels()
@@ -597,7 +617,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         return True
 
     def start_pan(self, x, y, button):
-        angle = np.deg2rad(self._r_label_position.to_values()[4])
+        angle = np.deg2rad(self.get_rlabel_position())
         mode = ''
         if button == 1:
             epsilon = np.pi / 45.0
@@ -611,7 +631,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             rmax          = self.get_rmax(),
             trans         = self.transData.frozen(),
             trans_inverse = self.transData.inverted().frozen(),
-            r_label_angle = self._r_label_position.to_values()[4],
+            r_label_angle = self.get_rlabel_position(),
             x             = x,
             y             = y,
             mode          = mode
@@ -635,9 +655,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             else:
                 dt = dt0 * -1.0
             dt = (dt / np.pi) * 180.0
-
-            self._r_label_position._t = (p.r_label_angle - dt, 0.0)
-            self._r_label_position.invalidate()
+            self.set_rlabel_position(p.r_label_angle - dt)
 
             trans, vert1, horiz1 = self.get_yaxis_text1_transform(0.0)
             trans, vert2, horiz2 = self.get_yaxis_text2_transform(0.0)
