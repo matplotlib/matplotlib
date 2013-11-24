@@ -4,6 +4,8 @@ Classes for the ticks and x and y axis
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+from IPython.utils.traitlets import Float
+
 import six
 
 from matplotlib import rcParams
@@ -64,6 +66,18 @@ class Tick(artist.Artist):
           a boolean which determines whether to draw tick label
 
     """
+
+    t_width = Float(0.5, config=True)
+
+    def _t_width_default(self):
+        name = self.__name__.lower()
+        if True:
+            width = rcParams['%s.major.width' % name]
+        else:
+            width = rcParams['%s.minor.width' % name]
+        return width
+
+
     def __init__(self, axes, loc, label,
                  size=None,  # points
                  width=None,
@@ -79,13 +93,14 @@ class Tick(artist.Artist):
                  label1On=True,
                  label2On=False,
                  major=True,
+                 parent=None
                  ):
         """
         bbox is the Bound2D bounding box in display coords of the Axes
         loc is the tick location in data coords
         size is the tick size in points
         """
-        artist.Artist.__init__(self)
+        artist.Artist.__init__(self, parent=parent)
 
         if gridOn is None:
             if major and (rcParams['axes.grid.which'] in ('both','major')):
@@ -111,10 +126,8 @@ class Tick(artist.Artist):
         self._size = size
 
         if width is None:
-            if major:
-                width = rcParams['%s.major.width' % name]
-            else:
-                width = rcParams['%s.minor.width' % name]
+           width = self.t_width
+
         self._width = width
 
         if color is None:
@@ -392,6 +405,7 @@ class XTick(Tick):
                    markersize=self._size,
                    markeredgewidth=self._width,
                    zorder=self._zorder,
+                   parent=self
                    )
         l.set_transform(self.axes.get_xaxis_transform(which='tick1'))
         self._set_artist_props(l)
@@ -407,6 +421,7 @@ class XTick(Tick):
                        markersize=self._size,
                        markeredgewidth=self._width,
                        zorder=self._zorder,
+                       parent=self
                        )
 
         l.set_transform(self.axes.get_xaxis_transform(which='tick2'))
@@ -419,9 +434,10 @@ class XTick(Tick):
         l = mlines.Line2D(xdata=(0.0, 0.0), ydata=(0, 1.0),
                    color=rcParams['grid.color'],
                    linestyle=rcParams['grid.linestyle'],
-                   linewidth=rcParams['grid.linewidth'],
+                   linewidth=2.0,
                    alpha=rcParams['grid.alpha'],
-                   markersize=0
+                   markersize=0,
+                   parent=self
                    )
         l.set_transform(self.axes.get_xaxis_transform(which='grid'))
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
@@ -532,6 +548,7 @@ class YTick(Tick):
                     markersize=self._size,
                     markeredgewidth=self._width,
                     zorder=self._zorder,
+                    parent=self
                     )
         l.set_transform(self.axes.get_yaxis_transform(which='tick1'))
         self._set_artist_props(l)
@@ -547,6 +564,7 @@ class YTick(Tick):
                     markersize=self._size,
                     markeredgewidth=self._width,
                     zorder=self._zorder,
+                    parent=self
                     )
         l.set_transform(self.axes.get_yaxis_transform(which='tick2'))
         self._set_artist_props(l)
@@ -558,9 +576,10 @@ class YTick(Tick):
         l = mlines.Line2D(xdata=(0, 1), ydata=(0, 0),
                     color=rcParams['grid.color'],
                     linestyle=rcParams['grid.linestyle'],
-                    linewidth=rcParams['grid.linewidth'],
+                    linewidth=2.0,
                     alpha=rcParams['grid.alpha'],
-                    markersize=0
+                    markersize=0,
+                    parent=self
                     )
 
         l.set_transform(self.axes.get_yaxis_transform(which='grid'))
@@ -1614,7 +1633,7 @@ class XAxis(Axis):
             tick_kw = self._major_tick_kw
         else:
             tick_kw = self._minor_tick_kw
-        return XTick(self.axes, 0, '', major=major, **tick_kw)
+        return XTick(self.axes, 0, '', major=major, parent=self, **tick_kw)
 
     def _get_label(self):
         # x in axes coords, y in display coords (to be updated at draw
@@ -1916,7 +1935,7 @@ class YAxis(Axis):
             tick_kw = self._major_tick_kw
         else:
             tick_kw = self._minor_tick_kw
-        return YTick(self.axes, 0, '', major=major, **tick_kw)
+        return YTick(self.axes, 0, '', major=major, parent=self, **tick_kw)
 
     def _get_label(self):
         # x in display coords (updated by _update_label_position)
