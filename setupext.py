@@ -1329,8 +1329,12 @@ class BackendTkAgg(OptionalBackendPackage):
     def add_flags(self, ext):
         if sys.platform == 'win32':
             major, minor1, minor2, s, tmp = sys.version_info
-            ext.include_dirs.extend(['win32_static/include/tcl85'])
-            ext.libraries.extend(['tk85', 'tcl85'])
+            if sys.version_info[0:2] < (3, 4):
+                ext.include_dirs.extend(['win32_static/include/tcl85'])
+                ext.libraries.extend(['tk85', 'tcl85'])
+            else:
+                ext.include_dirs.extend(['win32_static/include/tcl86'])
+                ext.libraries.extend(['tk86t', 'tcl86t'])
             ext.library_dirs.extend([os.path.join(sys.prefix, 'dlls')])
 
         elif sys.platform == 'darwin':
