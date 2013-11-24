@@ -726,78 +726,34 @@ class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
 class SubplotToolQt(SubplotTool, UiSubplotTool):
     def __init__(self, targetfig, parent):
         UiSubplotTool.__init__(self, None)
+
         self.targetfig = targetfig
         self.parent = parent
-        self.connect(self.doneButton, QtCore.SIGNAL("clicked()"), self.close)
-        self.connect(self.resetButton, QtCore.SIGNAL("clicked()"), self.reset)
-        self.connect(self.tightLayout, QtCore.SIGNAL("clicked()"),
-                     self.functight)
+        self.donebutton.clicked.connect(self.close)
+        self.resetbutton.clicked.connect(self.reset)
+        self.tightlayout.clicked.connect(self.functight)
 
-        sliders = (self.sliderleft, self.sliderbottom, self.sliderright,
-                   self.slidertop, self.sliderwspace, self.sliderhspace,)
+        # constraints
+        self.sliderleft.valueChanged.connect(self.sliderright.setMinimum)
+        self.sliderright.valueChanged.connect(self.sliderleft.setMaximum)
+        self.sliderbottom.valueChanged.connect(self.slidertop.setMinimum)
+        self.slidertop.valueChanged.connect(self.sliderbottom.setMaximum)
 
-        for slider in sliders:
+        self.defaults = {}
+        for attr in ('left', 'bottom', 'right', 'top', 'wspace', 'hspace',):
+            self.defaults[attr] = getattr(self.targetfig.subplotpars, attr)
+            slider = getattr(self, 'slider' + attr)
             slider.setMinimum(0)
             slider.setMaximum(1000)
             slider.setSingleStep(5)
+            slider.valueChanged.connect(getattr(self, 'func' + attr))
 
-        # constraints
-        self.connect(self.sliderleft,
-                     QtCore.SIGNAL("valueChanged(int)"),
-                     self.sliderright.setMinimum)
-        self.connect(self.sliderright,
-                     QtCore.SIGNAL("valueChanged(int)"),
-                     self.sliderleft.setMaximum)
-        self.connect(self.sliderbottom,
-                     QtCore.SIGNAL("valueChanged(int)"),
-                     self.slidertop.setMinimum)
-        self.connect(self.slidertop,
-                     QtCore.SIGNAL("valueChanged(int)"),
-                     self.sliderbottom.setMaximum)
-
-        self._read_defaults()
         self._setSliderPositions()
 
-        self.connect(self.sliderleft,
-                     QtCore.SIGNAL("valueChanged(int)"),
-                     self.funcleft)
-        self.connect(self.sliderbottom,
-                     QtCore.SIGNAL("valueChanged(int)"),
-                     self.funcbottom)
-        self.connect(self.sliderright,
-                     QtCore.SIGNAL("valueChanged(int)"),
-                     self.funcright)
-        self.connect(self.slidertop,
-                     QtCore.SIGNAL("valueChanged(int)"),
-                     self.functop)
-        self.connect(self.sliderwspace,
-                     QtCore.SIGNAL("valueChanged(int)"),
-                     self.funcwspace)
-        self.connect(self.sliderhspace,
-                     QtCore.SIGNAL("valueChanged(int)"),
-                     self.funchspace)
-
-    def _read_defaults(self):
-        self.defaults = {'left': self.targetfig.subplotpars.left,
-                         'bottom': self.targetfig.subplotpars.bottom,
-                         'right': self.targetfig.subplotpars.right,
-                         'top': self.targetfig.subplotpars.top,
-                         'wspace': self.targetfig.subplotpars.wspace,
-                         'hspace': self.targetfig.subplotpars.hspace}
-
     def _setSliderPositions(self):
-        self.sliderleft.setSliderPosition(
-            int(self.targetfig.subplotpars.left*1000))
-        self.sliderbottom.setSliderPosition(
-            int(self.targetfig.subplotpars.bottom*1000))
-        self.sliderright.setSliderPosition(
-            int(self.targetfig.subplotpars.right*1000))
-        self.slidertop.setSliderPosition(
-            int(self.targetfig.subplotpars.top*1000))
-        self.sliderwspace.setSliderPosition(
-            int(self.targetfig.subplotpars.wspace*1000))
-        self.sliderhspace.setSliderPosition(
-            int(self.targetfig.subplotpars.hspace*1000))
+        for attr in ('left', 'bottom', 'right', 'top', 'wspace', 'hspace',):
+            slider = getattr(self, 'slider' + attr)
+            slider.setSliderPosition(int(self.defaults[attr] * 1000))
 
     def funcleft(self, val):
         if val == self.sliderright.value():
