@@ -182,7 +182,6 @@ class Line2D(Artist):
 
         if linewidth is None:
             linewidth = self.t_lw
-            print('set lw to', linewidth, 'parent=',parent)
 
         if linestyle is None:
             linestyle = rcParams['lines.linestyle']
@@ -778,6 +777,8 @@ class Line2D(Artist):
 
         ACCEPTS: float value in points
         """
+        if w <= 0.5 :
+            raise ValueError('Nooooo not < 0.5')
         self._linewidth = w
 
     def set_linestyle(self, linestyle):
