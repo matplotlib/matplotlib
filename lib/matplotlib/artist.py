@@ -68,17 +68,32 @@ def allow_rasterization(draw):
 
 from IPython.config import Configurable
 from IPython.config import Config
+import inspect 
 
 class Artist(Configurable):
     """
     Abstract base class for someone who renders into a
     :class:`FigureCanvas`.
     """
-
     aname = 'Artist'
     zorder = 0
 
     def __init__(self, config=None, parent=None):
+        i_parent = inspect.currentframe().f_back.f_back.f_locals.get('self',None)
+        if (i_parent is not self) and (parent is not i_parent) :
+            if (isinstance(i_parent,Configurable)):
+                parent = i_parent
+                p,s = parent.__class__.__name__, self.__class__.__name__
+                if (p+'.'+s) not in Artist.ps:
+                    Artist.ps.append(p+'.'+s)
+                    #print('Configurable: ',p+'.'+s)
+            else :
+                pass
+                #print('parent: ',parent, 'is not configurable !')
+        s= self.__class__.__name__
+        if (s) not in Artist.s:
+            Artist.s.append(s)
+            #print('Configurable: ',s)
         
         c = getattr(matplotlib,'config',Config({}))
         if config :
@@ -868,6 +883,9 @@ class Artist(Configurable):
             artists.append(self)
         return artists
 
+
+Artist.ps = []
+Artist.s = []
 
 class ArtistInspector:
     """

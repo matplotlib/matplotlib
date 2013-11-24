@@ -144,6 +144,7 @@ def _get_textbox(text, renderer):
 
     return x_box, y_box, w_box, h_box
 
+from matplotlib.patches import MaybeColor
 
 class Text(Artist):
     """
@@ -152,6 +153,8 @@ class Text(Artist):
     zorder = 3
 
     _cached = maxdict(50)
+
+    t_color = MaybeColor(None,config=True)
 
     def __str__(self):
         return "Text(%g,%g,%s)" % (self._x, self._y, repr(self._text))
@@ -180,7 +183,13 @@ class Text(Artist):
         self._x, self._y = x, y
 
         if color is None:
-            color = rcParams['text.color']
+            if self.t_color is not None:
+                color = self.t_color
+            else :
+                color = rcParams['text.color']
+        if self.t_color is not None:
+            color = self.t_color
+
         if fontproperties is None:
             fontproperties = FontProperties()
         elif is_string_like(fontproperties):
