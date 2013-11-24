@@ -216,15 +216,15 @@ class UiSubplotTool(QtGui.QDialog):
         # button bar
         hbox2 = QtGui.QHBoxLayout()
         gbox.addLayout(hbox2, 8, 0, 1, 1)
-        self.tightLayout = QtGui.QPushButton('Thight Layout', self)
+        self.tightlayout = QtGui.QPushButton('Thight Layout', self)
         spacer = QtGui.QSpacerItem(
             5, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.resetButton = QtGui.QPushButton('Reset', self)
-        self.doneButton = QtGui.QPushButton('Close', self)
-        self.doneButton.setFocus(True)
-        hbox2.addWidget(self.tightLayout)
+        self.resetbutton = QtGui.QPushButton('Reset', self)
+        self.donebutton = QtGui.QPushButton('Close', self)
+        self.donebutton.setFocus(True)
+        hbox2.addWidget(self.tightlayout)
         hbox2.addItem(spacer)
-        hbox2.addWidget(self.resetButton)
-        hbox2.addWidget(self.doneButton)
+        hbox2.addWidget(self.resetbutton)
+        hbox2.addWidget(self.donebutton)
 
-        self.connect(self.doneButton, QtCore.SIGNAL("clicked()"), self.accept)
+        self.donebutton.clicked.connect(self.accept)
