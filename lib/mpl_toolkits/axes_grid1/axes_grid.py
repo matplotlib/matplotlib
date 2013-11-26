@@ -394,7 +394,12 @@ class Grid(object):
 
     def set_axes_pad(self, axes_pad):
         "set axes_pad"
-        self._init_axes_pad(axes_pad)
+        axes_pad = _extend_axes_pad(axes_pad)
+        self._axes_pad = axes_pad
+
+        # These two lines actually differ from ones in _init_axes_pad
+        self._horiz_pad_size.fixed_size = axes_pad[0]
+        self._vert_pad_size.fixed_size = axes_pad[1]
 
     def get_axes_pad(self):
         """
