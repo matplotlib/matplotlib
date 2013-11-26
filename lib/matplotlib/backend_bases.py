@@ -2018,7 +2018,11 @@ class FigureCanvasBase(object):
             groupings[name].sort()
         return groupings
 
-    def _get_print_canvas(self, format):
+    def _get_output_canvas(self, format):
+        """Return a canvas that is suitable for saving figures to a specified
+        file format. If necessary, this function will switch to a registered
+        backend that supports the format.
+        """
         method_name = 'print_%s' % format
 
         # check if this canvas supports the requested format
@@ -2092,7 +2096,7 @@ class FigureCanvasBase(object):
         format = format.lower()
 
         # get canvas object and print method for format
-        canvas = self._get_print_canvas(format)
+        canvas = self._get_output_canvas(format)
         print_method = getattr(canvas, 'print_%s' % format)
 
         if dpi is None:
