@@ -1725,12 +1725,8 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
     shutil.move(epsfile, tmpfile)
 
 
-
 class FigureManagerPS(FigureManagerBase):
     pass
-
-
-FigureManager = FigureManagerPS
 
 
 # The following Python dictionary psDefs contains the entries for the
@@ -1771,3 +1767,6 @@ psDefs = [
       newpath
     } bind def""",
 ]
+
+FigureCanvas = FigureCanvasPS
+FigureManager = FigureManagerPS

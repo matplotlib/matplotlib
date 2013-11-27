@@ -1204,7 +1204,6 @@ class FigureCanvasSVG(FigureCanvasBase):
 class FigureManagerSVG(FigureManagerBase):
     pass
 
-FigureManager = FigureManagerSVG
 
 def new_figure_manager(num, *args, **kwargs):
     FigureClass = kwargs.pop('FigureClass', Figure)
@@ -1227,3 +1226,7 @@ svgProlog = """\
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Created with matplotlib (http://matplotlib.org/) -->
 """
+
+
+FigureCanvas = FigureCanvasSVG
+FigureManager = FigureManagerSVG

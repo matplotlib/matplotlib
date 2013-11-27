@@ -249,8 +249,6 @@ class FigureManagerCocoaAgg(FigureManagerBase):
         NSApplication.sharedApplication().run()
 
 
-FigureManager = FigureManagerCocoaAgg
-
 #### Everything below taken from PyObjC examples
 #### This is a hack to allow python scripts to access
 #### the window manager without running pythonw.
@@ -302,3 +300,7 @@ def WMEnable(name='Python'):
         print('SetFrontProcess', (err, psn), file=sys.stderr)
         return False
     return True
+
+
+FigureCanvas = FigureCanvasCocoaAgg
+FigureManager = FigureManagerCocoaAgg

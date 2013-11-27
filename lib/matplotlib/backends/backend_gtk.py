@@ -1065,4 +1065,5 @@ def error_msg_gtk(msg, parent=None):
     dialog.destroy()
 
 
+FigureCanvas = FigureCanvasGTK
 FigureManager = FigureManagerGTK

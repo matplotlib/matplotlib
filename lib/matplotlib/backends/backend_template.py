@@ -31,10 +31,18 @@ use any module in your PYTHONPATH with the syntax::
   import matplotlib
   matplotlib.use('module://my_backend')
 
-where my_backend.py is your module name.  Thus syntax is also
+where my_backend.py is your module name.  This syntax is also
 recognized in the rc file and in the -d argument in pylab, eg::
 
   python simple_plot.py -dmodule://my_backend
+
+If your backend implements support for saving figures (i.e. has a print_xyz()
+method) you can register it as the default handler for a given file type
+
+  from matplotlib.backend_bases import register_backend
+  register_backend('xyz', 'my_backend', 'XYZ File Format')
+  ...
+  plt.savefig("figure.xyz")
 
 The files that are most relevant to backend_writers are
 
@@ -262,5 +270,5 @@ class FigureManagerTemplate(FigureManagerBase):
 #
 ########################################################################
 
-
+FigureCanvas = FigureCanvasTemplate
 FigureManager = FigureManagerTemplate

@@ -107,5 +107,6 @@ def new_figure_manager_given_figure(num, figure):
     return manager
 
 
+FigureCanvas = FigureCanvasGTK3Agg
 FigureManager = FigureManagerGTK3Agg
 show = backend_gtk3.show
