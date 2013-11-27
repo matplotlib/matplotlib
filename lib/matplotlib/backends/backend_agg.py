@@ -425,7 +425,8 @@ def new_figure_manager_given_figure(num, figure):
     Create a new figure manager instance for the given figure.
     """
     canvas = FigureCanvasAgg(figure)
-    manager = FigureManagerBase(canvas, num)
+    manager = FigureManagerBase(canvas)
+    manager.num = num
     return manager
 
 
