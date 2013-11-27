@@ -16,6 +16,7 @@ if six.PY3:
 FigureCanvasGTK3Agg = backend_gtk3agg_gui.FigureCanvasGTK3AggGui
 FigureManagerGTK3Agg = backend_gtk3.FigureManagerGTK3
 
+
 def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
