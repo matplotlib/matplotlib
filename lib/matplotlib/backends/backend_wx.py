@@ -1414,7 +1414,8 @@ class FigureManagerWx(FigureManagerBase):
     """
     def __init__(self, canvas, num, frame):
         DEBUG_MSG("__init__()", 1, self)
-        FigureManagerBase.__init__(self, canvas, num)
+        FigureManagerBase.__init__(self, canvas)
+        self.num = num
         self.frame = frame
         self.window = frame
 

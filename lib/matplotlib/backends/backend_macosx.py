@@ -357,7 +357,8 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     Wrap everything up into a window for the pylab interface
     """
     def __init__(self, canvas, num):
-        FigureManagerBase.__init__(self, canvas, num)
+        FigureManagerBase.__init__(self, canvas)
+        self.num = num
         title = "Figure %d" % num
         _macosx.FigureManager.__init__(self, canvas, title)
         if rcParams['toolbar']=='toolbar2':
