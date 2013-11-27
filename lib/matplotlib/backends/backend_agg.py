@@ -8,7 +8,7 @@ Features that are implemented
  * linewidth
  * lines, rectangles, ellipses
  * clipping to a rectangle
- * output to RGBA and PNG
+ * output to RGBA and PNG, optionally JPEG and TIFF
  * alpha blending
  * DPI scaling properly - everything scales properly (dashes, linewidths, etc)
  * draw polygon
@@ -30,7 +30,7 @@ import numpy as np
 from matplotlib import verbose, rcParams
 from matplotlib.backend_bases import RendererBase,\
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook import is_string_like, maxdict
+from matplotlib.cbook import is_string_like, maxdict, restrict_dict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont
 from matplotlib.ft2font import FT2Font, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING, \
@@ -41,6 +41,12 @@ from matplotlib.transforms import Bbox, BboxBase
 
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 from matplotlib import _png
+
+try:
+    from PIL import Image
+    _has_pil = True
+except ImportError:
+    _has_pil = False
 
 backend_version = 'v2.2'
 
@@ -456,8 +462,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         finally:
             RendererAgg.lock.release()
 
-
-
     def get_renderer(self, cleared=False):
         l, b, w, h = self.figure.bbox.bounds
         key = w, h, self.figure.dpi
@@ -533,3 +537,50 @@ class FigureCanvasAgg(FigureCanvasBase):
                   (int(renderer.width), int(renderer.height)))
         renderer.dpi = original_dpi
         return result
+
+    if _has_pil:
+
+        # add JPEG support
+        def print_jpg(self, filename_or_obj, *args, **kwargs):
+            """
+            Supported kwargs:
+
+            *quality*: The image quality, on a scale from 1 (worst) to
+                95 (best). The default is 95, if not given in the
+                matplotlibrc file in the savefig.jpeg_quality parameter.
+                Values above 95 should be avoided; 100 completely
+                disables the JPEG quantization stage.
+
+            *optimize*: If present, indicates that the encoder should
+                make an extra pass over the image in order to select
+                optimal encoder settings.
+
+            *progressive*: If present, indicates that this image
+                should be stored as a progressive JPEG file.
+            """
+            buf, size = self.print_to_buffer()
+            if kwargs.pop("dryrun", False):
+                return
+            image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
+            options = restrict_dict(kwargs, ['quality', 'optimize',
+                                             'progressive'])
+
+            if 'quality' not in options:
+                options['quality'] = rcParams['savefig.jpeg_quality']
+
+            return image.save(filename_or_obj, format='jpeg', **options)
+        print_jpeg = print_jpg
+
+        # add TIFF support
+        def print_tif(self, filename_or_obj, *args, **kwargs):
+            buf, size = self.print_to_buffer()
+            if kwargs.pop("dryrun", False):
+                return
+            image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
+            dpi = (self.figure.dpi, self.figure.dpi)
+            return image.save(filename_or_obj, format='tiff',
+                              dpi=dpi)
+        print_tiff = print_tif
+
+
+FigureCanvas = FigureCanvasAgg

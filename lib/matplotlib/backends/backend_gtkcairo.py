@@ -73,3 +73,7 @@ class FigureManagerGTKCairo(FigureManagerGTK):
 class NavigationToolbar2Cairo(NavigationToolbar2GTK):
     def _get_canvas(self, fig):
         return FigureCanvasGTKCairo(fig)
+
+
+FigureCanvas = FigureCanvasGTKCairo
+FigureManager = FigureManagerGTKCairo

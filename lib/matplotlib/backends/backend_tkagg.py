@@ -817,9 +817,6 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         self.canvas.draw_idle()
 
 
-FigureManager = FigureManagerTkAgg
-
-
 class ToolTip(object):
     """
     Tooltip recipe from
@@ -869,3 +866,6 @@ class ToolTip(object):
         self.tipwindow = None
         if tw:
             tw.destroy()
+
+FigureCanvas = FigureCanvasTkAgg
+FigureManager = FigureManagerTkAgg

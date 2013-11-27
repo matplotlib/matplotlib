@@ -392,3 +392,6 @@ def ipython_inline_display(figure):
         toolitems=core.NavigationToolbar2WebAgg.toolitems,
         canvas=figure.canvas,
         port=WebAggApplication.port)
+
+
+FigureCanvas = FigureCanvasWebAgg
