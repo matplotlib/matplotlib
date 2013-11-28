@@ -17,6 +17,13 @@
 #define PY3K 0
 #endif
 
+#ifndef MPL_DEVNULL
+#error "MPL_DEVNULL must be defined as the OS-equivalent of /dev/null"
+#endif
+
+#define STRINGIFY(x) STR(x)
+#define STR(x) #x
+
 
 static const char* qhull_error_msg[6] = {
     "",                     /* 0 = qh_ERRnone */
@@ -118,11 +125,13 @@ delaunay_impl(int npoints, const double* x, const double* y,
 
     /* qhull expects a FILE* to write errors to. */
     if (hide_qhull_errors) {
-        /* qhull errors written to temporary file and ignored. */
-        error_file = tmpfile();
+        /* qhull errors are ignored by writing to OS-equivalent of /dev/null.
+         * Rather than have OS-specific code here, instead it is determined by
+         * setupext.py and passed in via the macro MPL_DEVNULL. */
+        error_file = fopen(STRINGIFY(MPL_DEVNULL), "w");
         if (error_file == NULL) {
-            PyErr_SetString(PyExc_MemoryError,
-                            "Could not create temporary file in qhull.delaunay");
+            PyErr_SetString(PyExc_RuntimeError,
+                            "Could not open devnull in qhull.delaunay");
             goto error_before_qhull;
         }
     }
