@@ -39,6 +39,7 @@ except ImportError:
     figureoptions = None
 
 from .qt4_compat import QtCore, QtGui, _getSaveFileName, __version__
+from matplotlib.backends.qt4_editor.formsubplottool import UiSubplotTool
 
 backend_version = __version__
 
@@ -558,6 +559,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
     def __init__(self, canvas, parent, coordinates=True):
         """ coordinates: should we show the coordinates on the right? """
         self.canvas = canvas
+        self.parent = parent
         self.coordinates = coordinates
         self._actions = {}
         """A mapping of toolitem method names to their QActions"""
@@ -613,29 +615,18 @@ class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
                 axes = allaxes[0]
             else:
                 titles = []
-                for axes in allaxes:
-                    title = axes.get_title()
+                for i, axes in enumerate(allaxes):
                     ylabel = axes.get_ylabel()
-                    if title:
-                        fmt = "%(title)s"
-                        if ylabel:
-                            fmt += ": %(ylabel)s"
-                        fmt += " (%(axes_repr)s)"
-                    elif ylabel:
-                        fmt = "%(axes_repr)s (%(ylabel)s)"
-                    else:
-                        fmt = "%(axes_repr)s"
-                    titles.append(fmt % dict(title=title,
-                                         ylabel=ylabel,
-                                         axes_repr=repr(axes)))
-                item, ok = QtGui.QInputDialog.getItem(self, 'Customize',
-                                                      'Select axes:', titles,
-                                                      0, False)
+                    text = "_axes%d" % i
+                    if ylabel:
+                        text += " %s" % ylabel
+                    titles.append(text)
+                item, ok = QtGui.QInputDialog.getItem(
+                    self.parent, 'Customize', 'Select axes:', titles, 0, False)
                 if ok:
                     axes = allaxes[titles.index(six.text_type(item))]
                 else:
                     return
-
             figureoptions.figure_edit(axes, self)
 
     def _update_buttons_checked(self):
@@ -676,20 +667,11 @@ class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
         self.canvas.drawRectangle(rect)
 
     def configure_subplots(self):
-        self.adj_window = QtGui.QMainWindow()
-        win = self.adj_window
-
-        win.setWindowTitle("Subplot Configuration Tool")
         image = os.path.join(matplotlib.rcParams['datapath'],
                              'images', 'matplotlib.png')
-        win.setWindowIcon(QtGui.QIcon(image))
-
-        tool = SubplotToolQt(self.canvas.figure, win)
-        win.setCentralWidget(tool)
-        win.setSizePolicy(QtGui.QSizePolicy.Preferred,
-                          QtGui.QSizePolicy.Preferred)
-
-        win.show()
+        dia = SubplotToolQt(self.canvas.figure, self.parent)
+        dia.setWindowIcon(QtGui.QIcon(image))
+        dia.exec_()
 
     def _get_canvas(self, fig):
         return FigureCanvasQT(fig)
@@ -712,8 +694,9 @@ class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
                 selectedFilter = filter
             filters.append(filter)
         filters = ';;'.join(filters)
-        fname = _getSaveFileName(self, "Choose a filename to save to",
-                                        start, filters, selectedFilter)
+
+        fname = _getSaveFileName(self.parent, "Choose a filename to save to",
+                                 start, filters, selectedFilter)
         if fname:
             if startpath == '':
                 # explicitly missing key or empty str signals to use cwd
@@ -730,131 +713,141 @@ class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
                     QtGui.QMessageBox.Ok, QtGui.QMessageBox.NoButton)
 
 
-class SubplotToolQt(SubplotTool, QtGui.QWidget):
+class SubplotToolQt(SubplotTool, UiSubplotTool):
     def __init__(self, targetfig, parent):
-        QtGui.QWidget.__init__(self, None)
-
+        UiSubplotTool.__init__(self, None)
         self.targetfig = targetfig
         self.parent = parent
-
-        self.sliderleft = QtGui.QSlider(QtCore.Qt.Horizontal)
-        self.sliderbottom = QtGui.QSlider(QtCore.Qt.Vertical)
-        self.sliderright = QtGui.QSlider(QtCore.Qt.Horizontal)
-        self.slidertop = QtGui.QSlider(QtCore.Qt.Vertical)
-        self.sliderwspace = QtGui.QSlider(QtCore.Qt.Horizontal)
-        self.sliderhspace = QtGui.QSlider(QtCore.Qt.Vertical)
-
-        # constraints
-        self.sliderleft.valueChanged.connect(self.sliderright.setMinimum)
-        self.sliderright.valueChanged.connect(self.sliderleft.setMaximum)
-        self.sliderbottom.valueChanged.connect(self.slidertop.setMinimum)
-        self.slidertop.valueChanged.connect(self.sliderbottom.setMaximum)
+        self.connect(self.doneButton, QtCore.SIGNAL("clicked()"), self.close)
+        self.connect(self.resetButton, QtCore.SIGNAL("clicked()"), self.reset)
+        self.connect(self.tightLayout, QtCore.SIGNAL("clicked()"),
+                     self.functight)
 
         sliders = (self.sliderleft, self.sliderbottom, self.sliderright,
                    self.slidertop, self.sliderwspace, self.sliderhspace,)
-        adjustments = ('left:', 'bottom:', 'right:',
-                       'top:', 'wspace:', 'hspace:')
 
-        for slider, adjustment in zip(sliders, adjustments):
+        for slider in sliders:
             slider.setMinimum(0)
             slider.setMaximum(1000)
             slider.setSingleStep(5)
 
-        layout = QtGui.QGridLayout()
+        # constraints
+        self.connect(self.sliderleft,
+                     QtCore.SIGNAL("valueChanged(int)"),
+                     self.sliderright.setMinimum)
+        self.connect(self.sliderright,
+                     QtCore.SIGNAL("valueChanged(int)"),
+                     self.sliderleft.setMaximum)
+        self.connect(self.sliderbottom,
+                     QtCore.SIGNAL("valueChanged(int)"),
+                     self.slidertop.setMinimum)
+        self.connect(self.slidertop,
+                     QtCore.SIGNAL("valueChanged(int)"),
+                     self.sliderbottom.setMaximum)
 
-        leftlabel = QtGui.QLabel('left')
-        layout.addWidget(leftlabel, 2, 0)
-        layout.addWidget(self.sliderleft, 2, 1)
+        self._read_defaults()
+        self._setSliderPositions()
 
-        toplabel = QtGui.QLabel('top')
-        layout.addWidget(toplabel, 0, 2)
-        layout.addWidget(self.slidertop, 1, 2)
-        layout.setAlignment(self.slidertop, QtCore.Qt.AlignHCenter)
+        self.connect(self.sliderleft,
+                     QtCore.SIGNAL("valueChanged(int)"),
+                     self.funcleft)
+        self.connect(self.sliderbottom,
+                     QtCore.SIGNAL("valueChanged(int)"),
+                     self.funcbottom)
+        self.connect(self.sliderright,
+                     QtCore.SIGNAL("valueChanged(int)"),
+                     self.funcright)
+        self.connect(self.slidertop,
+                     QtCore.SIGNAL("valueChanged(int)"),
+                     self.functop)
+        self.connect(self.sliderwspace,
+                     QtCore.SIGNAL("valueChanged(int)"),
+                     self.funcwspace)
+        self.connect(self.sliderhspace,
+                     QtCore.SIGNAL("valueChanged(int)"),
+                     self.funchspace)
 
-        bottomlabel = QtGui.QLabel('bottom')  # this might not ever be used
-        layout.addWidget(bottomlabel, 4, 2)
-        layout.addWidget(self.sliderbottom, 3, 2)
-        layout.setAlignment(self.sliderbottom, QtCore.Qt.AlignHCenter)
+    def _read_defaults(self):
+        self.defaults = {'left': self.targetfig.subplotpars.left,
+                         'bottom': self.targetfig.subplotpars.bottom,
+                         'right': self.targetfig.subplotpars.right,
+                         'top': self.targetfig.subplotpars.top,
+                         'wspace': self.targetfig.subplotpars.wspace,
+                         'hspace': self.targetfig.subplotpars.hspace}
 
-        rightlabel = QtGui.QLabel('right')
-        layout.addWidget(rightlabel, 2, 4)
-        layout.addWidget(self.sliderright, 2, 3)
-
-        hspacelabel = QtGui.QLabel('hspace')
-        layout.addWidget(hspacelabel, 0, 6)
-        layout.setAlignment(hspacelabel, QtCore.Qt.AlignHCenter)
-        layout.addWidget(self.sliderhspace, 1, 6)
-        layout.setAlignment(self.sliderhspace, QtCore.Qt.AlignHCenter)
-
-        wspacelabel = QtGui.QLabel('wspace')
-        layout.addWidget(wspacelabel, 4, 6)
-        layout.setAlignment(wspacelabel, QtCore.Qt.AlignHCenter)
-        layout.addWidget(self.sliderwspace, 3, 6)
-        layout.setAlignment(self.sliderwspace, QtCore.Qt.AlignBottom)
-
-        layout.setRowStretch(1, 1)
-        layout.setRowStretch(3, 1)
-        layout.setColumnStretch(1, 1)
-        layout.setColumnStretch(3, 1)
-        layout.setColumnStretch(6, 1)
-
-        self.setLayout(layout)
-
-        self.sliderleft.setSliderPosition(int(targetfig.subplotpars.left*1000))
+    def _setSliderPositions(self):
+        self.sliderleft.setSliderPosition(
+            int(self.targetfig.subplotpars.left*1000))
         self.sliderbottom.setSliderPosition(
-                                    int(targetfig.subplotpars.bottom*1000))
+            int(self.targetfig.subplotpars.bottom*1000))
         self.sliderright.setSliderPosition(
-                                    int(targetfig.subplotpars.right*1000))
-        self.slidertop.setSliderPosition(int(targetfig.subplotpars.top*1000))
+            int(self.targetfig.subplotpars.right*1000))
+        self.slidertop.setSliderPosition(
+            int(self.targetfig.subplotpars.top*1000))
         self.sliderwspace.setSliderPosition(
-                                    int(targetfig.subplotpars.wspace*1000))
+            int(self.targetfig.subplotpars.wspace*1000))
         self.sliderhspace.setSliderPosition(
-                                    int(targetfig.subplotpars.hspace*1000))
-
-        self.sliderleft.valueChanged.connect(self.funcleft)
-        self.sliderbottom.valueChanged.connect(self.funcbottom)
-        self.sliderright.valueChanged.connect(self.funcright)
-        self.slidertop.valueChanged.connect(self.functop)
-        self.sliderwspace.valueChanged.connect(self.funcwspace)
-        self.sliderhspace.valueChanged.connect(self.funchspace)
+            int(self.targetfig.subplotpars.hspace*1000))
 
     def funcleft(self, val):
         if val == self.sliderright.value():
             val -= 1
-        self.targetfig.subplots_adjust(left=val/1000.)
+        val /= 1000.
+        self.targetfig.subplots_adjust(left=val)
+        self.leftvalue.setText("%.2f" % val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
     def funcright(self, val):
         if val == self.sliderleft.value():
             val += 1
-        self.targetfig.subplots_adjust(right=val/1000.)
+        val /= 1000.
+        self.targetfig.subplots_adjust(right=val)
+        self.rightvalue.setText("%.2f" % val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
     def funcbottom(self, val):
         if val == self.slidertop.value():
             val -= 1
-        self.targetfig.subplots_adjust(bottom=val/1000.)
+        val /= 1000.
+        self.targetfig.subplots_adjust(bottom=val)
+        self.bottomvalue.setText("%.2f" % val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
     def functop(self, val):
         if val == self.sliderbottom.value():
             val += 1
-        self.targetfig.subplots_adjust(top=val/1000.)
+        val /= 1000.
+        self.targetfig.subplots_adjust(top=val)
+        self.topvalue.setText("%.2f" % val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
     def funcwspace(self, val):
-        self.targetfig.subplots_adjust(wspace=val/1000.)
+        val /= 1000.
+        self.targetfig.subplots_adjust(wspace=val)
+        self.wspacevalue.setText("%.2f" % val)
         if self.drawon:
             self.targetfig.canvas.draw()
 
     def funchspace(self, val):
-        self.targetfig.subplots_adjust(hspace=val/1000.)
+        val /= 1000.
+        self.targetfig.subplots_adjust(hspace=val)
+        self.hspacevalue.setText("%.2f" % val)
         if self.drawon:
             self.targetfig.canvas.draw()
+
+    def functight(self):
+        self.targetfig.tight_layout()
+        self._setSliderPositions()
+        self.targetfig.canvas.draw()
+
+    def reset(self):
+        self.targetfig.subplots_adjust(**self.defaults)
+        self._setSliderPositions()
+        self.targetfig.canvas.draw()
 
 
 def error_msg_qt(msg, parent=None):
