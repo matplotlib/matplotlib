@@ -216,7 +216,7 @@ class UiSubplotTool(QtGui.QDialog):
         # button bar
         hbox2 = QtGui.QHBoxLayout()
         gbox.addLayout(hbox2, 8, 0, 1, 1)
-        self.tightlayout = QtGui.QPushButton('Thight Layout', self)
+        self.tightlayout = QtGui.QPushButton('Tight Layout', self)
         spacer = QtGui.QSpacerItem(
             5, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.resetbutton = QtGui.QPushButton('Reset', self)
