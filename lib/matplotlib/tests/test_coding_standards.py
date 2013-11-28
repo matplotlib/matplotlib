@@ -34,7 +34,8 @@ EXCLUDE_FILES = ['_delaunay.py',
                  'ttconv.py',
                  '_gtkagg.py',
                  '_backend_gdk.py',
-                 'pyparsing*']
+                 'pyparsing*',
+                 '_qhull.py']
 PEP8_ADDITIONAL_IGNORE = ('E121', 'E122', 'E123', 'E124', 'E125',
                           'E126', 'E127', 'E128')
 EXPECTED_BAD_FILES = ['*/matplotlib/__init__.py',
