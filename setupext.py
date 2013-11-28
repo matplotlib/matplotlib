@@ -1046,7 +1046,8 @@ class QhullWrap(SetupPackage):
 
     def get_extension(self):
         sources = ['src/qhull_wrap.c']
-        ext = make_extension('matplotlib._qhull', sources)
+        ext = make_extension('matplotlib._qhull', sources,
+                             define_macros=[('MPL_DEVNULL', os.devnull)])
         Numpy().add_flags(ext)
         Qhull().add_flags(ext)
         return ext
