@@ -1846,6 +1846,145 @@ def delete_masked_points(*args):
     return margs
 
 
+def boxplot_stats(X, whis=1.5, bootstrap=None):
+    '''
+    Returns list of dictionaries of staticists to be use to draw a series of
+    box and whisker plots. See the `Returns` section below to the required
+    keys of the dictionary. Users can skip this function and pass a user-
+    defined set of dictionaries to the new `axes.bxp` method instead of
+    relying on MPL to do the calcs.
+
+    Parameters
+    ----------
+    X : array-like
+        Data that will be represented in the boxplots. Should have 2 or fewer
+        dimensions.
+
+    whis : float (default = 1.5)
+        Determines the reach of the whiskers past the first and third
+        quartiles (e.g., Q3 + whis*IQR). Beyone the whiskers, data are
+        considers outliers and are plotted as individual points. Set
+        this to an unreasonably high value to force the whiskers to
+        show the min and max data. (IQR = interquartile range, Q3-Q1)
+
+    bootstrap : int or None (default)
+        Number of times the confidence intervals around the median should
+        be bootstrapped (percentile method).
+
+    Returns
+    -------
+    bxpstats : A list of dictionaries containing the results for each column
+        of data. Keys are as
+    '''
+
+    def _bootstrap_median(data, N=5000):
+        # determine 95% confidence intervals of the median
+        M = len(data)
+        percentiles = [2.5, 97.5]
+
+        # initialize the array of estimates
+        estimate = np.empty(N)
+        for n in range(N):
+            bsIndex = np.random.random_integers(0, M - 1, M)
+            bsData = data[bsIndex]
+            estimate[n] = np.percentile(bsData, 50)
+
+        CI = np.percentile(estimate, percentiles)
+        return CI
+
+    def _compute_conf_interval(data, med, iqr, bootstrap):
+        if bootstrap is not None:
+            # Do a bootstrap estimate of notch locations.
+            # get conf. intervals around median
+            CI = _bootstrap_median(data, N=bootstrap)
+            notch_min = CI[0]
+            notch_max = CI[1]
+        else:
+            # Estimate notch locations using Gaussian-based
+            # asymptotic approximation.
+            #
+            # For discussion: McGill, R., Tukey, J.W.,
+            # and Larsen, W.A. (1978) "Variations of
+            # Boxplots", The American Statistician, 32:12-16.
+            N = len(data)
+            notch_min = med - 1.57 * iqr / np.sqrt(N)
+            notch_max = med + 1.57 * iqr / np.sqrt(N)
+
+        return notch_min, notch_max
+
+    # output is a list of dicts
+    bxpstats = []
+
+    # convert X to a list of lists
+    if hasattr(X, 'shape'):
+        # one item
+        if len(X.shape) == 1:
+            if hasattr(X[0], 'shape'):
+                X = list(X)
+            else:
+                X = [X, ]
+
+        # several items
+        elif len(X.shape) == 2:
+            nrows, ncols = X.shape
+            if nrows == 1:
+                X = [X]
+            elif ncols == 1:
+                X = [X.ravel()]
+            else:
+                X = [X[:, i] for i in xrange(ncols)]
+        else:
+            raise ValueError("input `X` must have 2 or fewer dimensions")
+
+    if not hasattr(X[0], '__len__'):
+        X = [X]
+
+    ncols = len(X)
+    for ii, x in enumerate(X, start=0):
+        stats = {}
+
+        # arithmetic mean
+        stats['mean'] = np.mean(x)
+
+        # medians and quartiles
+        stats['q1'], stats['med'], stats['q3'] = \
+            np.percentile(x, [25, 50, 75])
+
+        # interquartile range
+        stats['iqr'] = stats['q3'] - stats['q1']
+
+        # conf. interval around median
+        stats['cilo'], stats['cihi'] = _compute_conf_interval(
+            x, stats['med'], stats['iqr'], bootstrap
+        )
+
+        # highest non-outliers
+        hival = stats['q3'] + whis * stats['iqr']
+        wiskhi = np.compress(x <= hival, x)
+        if len(wiskhi) == 0 or np.max(wiskhi) < stats['q3']:
+            stats['whishi'] = stats['q3']
+        else:
+            stats['whishi'] = max(wiskhi)
+
+        # get low extreme
+        loval = stats['q1'] - whis * stats['iqr']
+        wisklo = np.compress(x >= loval, x)
+        if len(wisklo) == 0 or np.min(wisklo) > stats['q1']:
+            stats['whislo'] = stats['q1']
+        else:
+            stats['whislo'] = min(wisklo)
+
+        # compute a single array of outliers
+        stats['outliers'] = np.hstack([
+            np.compress(x < stats['whislo'], x),
+            np.compress(x > stats['whishi'], x)
+        ])
+
+        bxpstats.append(stats)
+
+    return bxpstats
+
+
 # FIXME I don't think this is used anywhere
 def unmasked_index_ranges(mask, compressed=True):
     """
