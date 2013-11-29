@@ -518,7 +518,8 @@ class FigureManagerTkAgg(FigureManagerBase):
     window      : The tk.Window
     """
     def __init__(self, canvas, num, window):
-        FigureManagerBase.__init__(self, canvas, num)
+        FigureManagerBase.__init__(self, canvas)
+        self.num = num
         self.window = window
         self.window.withdraw()
         self.set_window_title("Figure %d" % num)

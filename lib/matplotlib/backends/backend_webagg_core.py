@@ -218,7 +218,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
 class FigureManagerWebAgg(backend_bases.FigureManagerBase):
     def __init__(self, canvas, num):
-        backend_bases.FigureManagerBase.__init__(self, canvas, num)
+        backend_bases.FigureManagerBase.__init__(self, canvas)
+        self.num = num
 
         self.web_sockets = set()
 

@@ -2439,7 +2439,7 @@ def key_press_handler(event, canvas, toolbar=None):
 
     # quit the figure (defaut key 'ctrl+w')
     if event.key in quit_keys:
-        Gcf.destroy_fig(canvas.figure)
+        canvas.manager.destroy()
 
     if toolbar is not None:
         # home or reset mnemonic  (default key 'h', 'home' and 'r')
@@ -2525,10 +2525,9 @@ class FigureManagerBase:
     *num*
         The figure number
     """
-    def __init__(self, canvas, num):
+    def __init__(self, canvas):
         self.canvas = canvas
         canvas.manager = self  # store a pointer to parent
-        self.num = num
 
         self.key_press_handler_id = self.canvas.mpl_connect('key_press_event',
                                                             self.key_press)

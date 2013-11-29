@@ -228,7 +228,8 @@ class MPLBootstrap(NSObject):
 
 class FigureManagerCocoaAgg(FigureManagerBase):
     def __init__(self, canvas, num):
-        FigureManagerBase.__init__(self, canvas, num)
+        FigureManagerBase.__init__(self, canvas)
+        self.num = num
 
         try:
             WMEnable('Matplotlib')

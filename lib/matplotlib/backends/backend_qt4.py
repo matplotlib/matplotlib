@@ -441,7 +441,8 @@ class FigureManagerQT(FigureManagerBase):
     def __init__(self, canvas, num):
         if DEBUG:
             print('FigureManagerQT.%s' % fn_name())
-        FigureManagerBase.__init__(self, canvas, num)
+        FigureManagerBase.__init__(self, canvas)
+        self.num = num
         self.canvas = canvas
         self.window = MainWindow()
         self.window.closing.connect(canvas.close_event)
