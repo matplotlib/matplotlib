@@ -1037,6 +1037,132 @@ def test_stackplot_baseline():
     plt.subplot(2, 2, 4)
     plt.stackplot(list(xrange(100)), d.T, baseline='weighted_wiggle')
 
+@image_comparison(baseline_images=['bxp_baseline'],
+                  remove_text=True, extensions=['png'],
+                  savefig_kwarg={'dpi': 40})
+def test_bxp_baseline():
+    np.random.seed(937)
+    logstats = matplotlib.cbook.boxplot_stats(
+        np.random.lognormal(mean=1.25, sigma=1., size=(37,4))
+    )
+
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    ax.bxp(logstats)
+
+@image_comparison(baseline_images=['bxp_horizontal'],
+                  remove_text=True, extensions=['png'],
+                  savefig_kwarg={'dpi': 40})
+def test_bxp_baseline():
+    np.random.seed(937)
+    logstats = matplotlib.cbook.boxplot_stats(
+        np.random.lognormal(mean=1.25, sigma=1., size=(37,4))
+    )
+
+    fig, ax = plt.subplots()
+    ax.set_xscale('log')
+    ax.bxp(logstats, vert=False)
+
+@image_comparison(baseline_images=['bxp_customoutlier'],
+                  remove_text=True, extensions=['png'],
+                  savefig_kwarg={'dpi': 40})
+def test_bxp_customoutlier():
+    np.random.seed(937)
+    logstats = matplotlib.cbook.boxplot_stats(
+        np.random.lognormal(mean=1.25, sigma=1., size=(37,4))
+    )
+
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    flierprops = dict(linestyle='none', marker='d', markerfacecolor='g')
+    ax.bxp(logstats, flierprops=flierprops)
+
+@image_comparison(baseline_images=['bxp_withnotch'],
+                  remove_text=True, extensions=['png'],
+                  savefig_kwarg={'dpi': 40})
+def test_bxp_shownotches():
+    np.random.seed(937)
+    logstats = matplotlib.cbook.boxplot_stats(
+        np.random.lognormal(mean=1.25, sigma=1., size=(37,4))
+    )
+
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    ax.bxp(logstats, shownotches=True)
+
+@image_comparison(baseline_images=['bxp_nocaps'],
+                  remove_text=True, extensions=['png'],
+                  savefig_kwarg={'dpi': 40})
+def test_bxp_nocaps():
+    np.random.seed(937)
+    logstats = matplotlib.cbook.boxplot_stats(
+        np.random.lognormal(mean=1.25, sigma=1., size=(37,4))
+    )
+
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    ax.bxp(logstats, showcaps=False)
+
+@image_comparison(baseline_images=['bxp_withmean_point'],
+                  remove_text=True, extensions=['png'],
+                  savefig_kwarg={'dpi': 40})
+def test_bxp_showmean():
+    np.random.seed(937)
+    logstats = matplotlib.cbook.boxplot_stats(
+        np.random.lognormal(mean=1.25, sigma=1., size=(37,4))
+    )
+
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    ax.bxp(logstats, showmeans=True, meanline=False)
+
+@image_comparison(baseline_images=['bxp_withmean_custompoint'],
+                  remove_text=True, extensions=['png'],
+                  savefig_kwarg={'dpi': 40})
+def test_bxp_showcustommean():
+    np.random.seed(937)
+    logstats = matplotlib.cbook.boxplot_stats(
+        np.random.lognormal(mean=1.25, sigma=1., size=(37,4))
+    )
+
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    meanprops = dict(linestyle='none', marker='d', markerfacecolor='green')
+    ax.bxp(logstats, showmeans=True, meanprops=meanprops)
+
+@image_comparison(baseline_images=['bxp_withmean_line'],
+                  remove_text=True, extensions=['png'],
+                  savefig_kwarg={'dpi': 40})
+def test_bxp_showmeanasline():
+    np.random.seed(937)
+    logstats = matplotlib.cbook.boxplot_stats(
+        np.random.lognormal(mean=1.25, sigma=1., size=(37,4))
+    )
+
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    ax.bxp(logstats, showmeans=True, meanline=True)
+
+def test_bxp_bad_widths():
+    np.random.seed(937)
+    logstats = matplotlib.cbook.boxplot_stats(
+        np.random.lognormal(mean=1.25, sigma=1., size=(37,4))
+    )
+
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    assert_raises(ValueError, ax.bxp, logstats, widths=[1])
+
+def test_bxp_bad_positions():
+    np.random.seed(937)
+    logstats = matplotlib.cbook.boxplot_stats(
+        np.random.lognormal(mean=1.25, sigma=1., size=(37,4))
+    )
+
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    assert_raises(ValueError, ax.bxp, logstats, positions=[2,3])
+
 
 @image_comparison(baseline_images=['boxplot'])
 def test_boxplot():
