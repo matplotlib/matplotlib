@@ -1,5 +1,7 @@
-import matplotlib.pyplot as plt
 from functools import wraps
+
+import matplotlib.pyplot as plt
+import matplotlib
 
 Axes = matplotlib.axes.Axes
 Figure = matplotlib.figure.Figure
@@ -63,6 +65,7 @@ WRAP_WITH_HOLD = set((
 def gca_wrapper(key):
     ax = plt.gca()
     f = getattr(ax, key)
+
     @wraps(f)
     def inner(*args, **kwargs):
         ret = f(*args, **kwargs)
@@ -75,8 +78,10 @@ def gca_wrapper(key):
 def gca_wrapper_hold(key):
     ax = plt.gca()
     f = getattr(ax, key)
+
     @wraps(f)
-    def inner(*args, hold=None, **kwargs):
+    def inner(*args, **kwargs):
+        hold = kwargs.pop('hold', None)
         washold = ax.ishold()
         if hold is not None:
             ax.hold(hold)
@@ -94,6 +99,7 @@ def gca_wrapper_hold(key):
 def gcf_wrapper(key):
     fig = plt.gcf()
     f = getattr(fig, key)
+
     @wraps(f)
     def inner(*args, **kwargs):
         ret = f(*args, **kwargs)
@@ -114,3 +120,25 @@ class pyplotNG(object):
             return gcf_wrapper(key)
         else:
             return getattr(plt, key)
+
+
+def set_defaults(cls, key, new_defaults):
+    if hasattr(cls, '_orig_' + key):
+        orig_fun = getattr(Axes, '_orig_' + key)
+    else:
+        orig_fun = getattr(cls, key)
+    setattr(cls, '_orig_' + key, orig_fun)
+
+    @wraps(orig_fun)
+    def wrapper(*args, **kwargs):
+        for k, v in new_defaults.iteritems():
+            if k not in kwargs:
+                kwargs[k] = v
+        return orig_fun(*args, **kwargs)
+
+    setattr(cls, key, wrapper)
+
+
+def reset_defaults(cls, key):
+    if hasattr(cls, '_orig_' + key):
+        setattr(cls, key, getattr(Axes, '_orig_' + key))
