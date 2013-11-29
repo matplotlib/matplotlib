@@ -5396,7 +5396,8 @@ class Axes(_AxesBase):
                     # top of the previous polygon becomes the bottom
                     y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
                 # set the top of this polygon
-                y[1:2*len(bins)-1:2], y[2:2*len(bins):2] = m + bottom, m + bottom
+                y[1:2*len(bins)-1:2], y[2:2*len(bins):2] = (m + bottom,
+                                                            m + bottom)
                 if log:
                     y[y < minimum] = minimum
                 if orientation == 'horizontal':
