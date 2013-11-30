@@ -80,6 +80,14 @@ Consistent grid sizes in streamplots
 `density=1` and `density=(1, 1)`. Previously a grid size of 30x30 was used for
 `density=1`, but a grid size of 25x25 was used for `density=(1, 1)`.
 
+Get a list of all tick labels (major and minor)
+```````````````````````````````````````````````
+Added the `kwarg` 'which' to :func:`~matplotlib.Axes.get_xticklabels`,
+:func:`~matplotlib.Axes.get_yticklabels` and
+:func:`~matplotlib.Axis.get_ticklabels`.  'which' can be 'major', 'minor', or
+'both' select which ticks to return, like
+:func:`~matplotlib.Axis.set_ticks_position`.  If 'which' is `None` then the old
+behaviour (controlled by the bool `minor`).
 
 Date handling
 -------------

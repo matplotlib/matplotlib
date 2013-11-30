@@ -2601,13 +2601,30 @@ class _AxesBase(martist.Artist):
         return cbook.silent_list('Text xticklabel',
                                  self.xaxis.get_minorticklabels())
 
-    def get_xticklabels(self, minor=False):
+    def get_xticklabels(self, minor=False, which=None):
         """
         Get the x tick labels as a list of :class:`~matplotlib.text.Text`
         instances.
+
+        Parameter
+        ---------
+        minor : bool
+           If True return the minor ticklabels,
+           else return the major ticklabels
+
+        which : None, ('minor', 'major', 'both')
+           Overrides `minor`.
+
+           Selects which ticklabels to return
+
+        Returns
+        -------
+        ret : list
+           List of :class:`~matplotlib.text.Text` instances.
         """
         return cbook.silent_list('Text xticklabel',
-                                 self.xaxis.get_ticklabels(minor=minor))
+                                 self.xaxis.get_ticklabels(minor=minor,
+                                                           which=which))
 
     @docstring.dedent_interpd
     def set_xticklabels(self, labels, fontdict=None, minor=False, **kwargs):
@@ -2837,13 +2854,30 @@ class _AxesBase(martist.Artist):
         return cbook.silent_list('Text yticklabel',
                                  self.yaxis.get_minorticklabels())
 
-    def get_yticklabels(self, minor=False):
+    def get_yticklabels(self, minor=False, which=None):
         """
-        Get the y tick labels as a list of :class:`~matplotlib.text.Text`
-        instances
+        Get the x tick labels as a list of :class:`~matplotlib.text.Text`
+        instances.
+
+        Parameter
+        ---------
+        minor : bool
+           If True return the minor ticklabels,
+           else return the major ticklabels
+
+        which : None, ('minor', 'major', 'both')
+           Overrides `minor`.
+
+           Selects which ticklabels to return
+
+        Returns
+        -------
+        ret : list
+           List of :class:`~matplotlib.text.Text` instances.
         """
         return cbook.silent_list('Text yticklabel',
-                                 self.yaxis.get_ticklabels(minor=minor))
+                                  self.yaxis.get_ticklabels(minor=minor,
+                                                            which=which))
 
     @docstring.dedent_interpd
     def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
