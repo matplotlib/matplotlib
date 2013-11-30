@@ -192,6 +192,19 @@ def test_autoscale_masked():
     plt.draw()
 
 
+def test_colors_no_float():
+    # Gray must be a string to distinguish 3-4 grays from RGB or RGBA.
+
+    def gray_from_float_rgb():
+        return mcolors.colorConverter.to_rgb(0.4)
+
+    def gray_from_float_rgba():
+        return mcolors.colorConverter.to_rgba(0.4)
+
+    assert_raises(ValueError, gray_from_float_rgb)
+    assert_raises(ValueError, gray_from_float_rgba)
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
