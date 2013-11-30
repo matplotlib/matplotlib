@@ -683,9 +683,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
         dia.setWindowIcon(QtGui.QIcon(image))
         dia.exec_()
 
-    def _get_canvas(self, fig):
-        return FigureCanvasQT(fig)
-
     def save_figure(self, *args):
         filetypes = self.canvas.get_supported_filetypes_grouped()
         sorted_filetypes = list(six.iteritems(filetypes))

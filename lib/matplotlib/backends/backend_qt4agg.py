@@ -51,22 +51,6 @@ def new_figure_manager_given_figure(num, figure):
     return FigureManagerQT(canvas, num)
 
 
-class NavigationToolbar2QTAgg(NavigationToolbar2QT):
-    def _get_canvas(self, fig):
-        return FigureCanvasQTAgg(fig)
-
-
-class FigureManagerQTAgg(FigureManagerQT):
-    def _get_toolbar(self, canvas, parent):
-        # must be inited after the window, drawingArea and figure
-        # attrs are set
-        if matplotlib.rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2QTAgg(canvas, parent)
-        else:
-            toolbar = None
-        return toolbar
-
-
 class FigureCanvasQTAgg(FigureCanvasQT, FigureCanvasAgg):
     """
     The canvas the figure renders into.  Calls the draw and print fig
@@ -183,5 +167,6 @@ class FigureCanvasQTAgg(FigureCanvasQT, FigureCanvasAgg):
         FigureCanvasAgg.print_figure(self, *args, **kwargs)
         self.draw()
 
+
 FigureCanvas = FigureCanvasQTAgg
-FigureManager = FigureManagerQTAgg
+FigureManager = FigureManagerQT
