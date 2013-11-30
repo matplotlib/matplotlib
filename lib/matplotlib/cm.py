@@ -248,6 +248,8 @@ class ScalarMappable:
                     xx = x
                 else:
                     raise ValueError("third dimension must be 3 or 4")
+                if xx.dtype != np.uint8 and xx.max() > 1:
+                    raise ValueError("image must be either uint8 or in the 0..1 range")
                 if bytes and xx.dtype != np.uint8:
                     xx = (xx * 255).astype(np.uint8)
                 if not bytes and xx.dtype == np.uint8:
