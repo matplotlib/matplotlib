@@ -1687,6 +1687,17 @@ def test_vline_limit():
     assert ymax == 0.25
 
 
+@cleanup
+def test_text_labelsize():
+    """
+    tests for issue #1172
+    """
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.tick_params(labelsize='large')
+    ax.tick_params(direction='out')
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
