@@ -289,7 +289,7 @@ class PkgConfig(object):
                 for token in output.split():
                     attr = flag_map.get(token[:2])
                     if attr is not None:
-                        getattr(ext, attr).append(token[2:])
+                        getattr(ext, attr).insert(0, token[2:])
 
         if use_defaults:
             basedirs = get_base_dirs()
