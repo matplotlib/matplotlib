@@ -118,6 +118,17 @@ You can add your own custom ``<style name>.mplstyle`` files to
 *Note that this is an experimental feature*, and the interface may change as
 users test out this new feature.
 
+Backends
+--------
+
+Qt4 backend
+``````````````
+Rudolf Höfler changed the appearance of the subplottool. All sliders are
+vertically arranged now, buttons for tight layout and reset were
+added. Furthermore, the the subplottool is now implemented as a modal
+dialog. It was previously a QMainWindow, leaving the SPT open if one closed the
+plotwindow.
+
 .. _whats-new-1-3:
 
 new in matplotlib-1.3
