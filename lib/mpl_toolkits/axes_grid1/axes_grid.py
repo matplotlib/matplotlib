@@ -1,8 +1,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 import matplotlib.cbook as cbook
 
 import matplotlib.pyplot as plt
@@ -14,10 +12,18 @@ import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 import matplotlib.ticker as ticker
 
-from matplotlib.gridspec import SubplotSpec, GridSpec
+from matplotlib.gridspec import SubplotSpec
 
 from .axes_divider import Size, SubplotDivider, LocatableAxes, Divider
 
+#import numpy as np
+
+def _extend_axes_pad(value):
+    # Check whether a list/tuple/array or scalar has been passed
+    ret = value
+    if not hasattr(ret, "__getitem__"):
+        ret = (value, value)
+    return ret
 
 def _tick_only(ax, bottom_on, left_on):
     bottom_off = not bottom_on
@@ -200,6 +206,8 @@ class Grid(object):
           ================  ========  =========================================
           direction         "row"     [ "row" | "column" ]
           axes_pad          0.02      float| pad between axes given in inches
+                                      or tuple-like of floats,
+                                      (horizontal padding, vertical padding)
           add_all           True      [ True | False ]
           share_all         False     [ True | False ]
           share_x           True      [ True | False ]
@@ -238,8 +246,8 @@ class Grid(object):
                 axes_class, axes_class_args = axes_class
 
         self.axes_all = []
-        self.axes_column = [[] for i in range(self._ncols)]
-        self.axes_row = [[] for i in range(self._nrows)]
+        self.axes_column = [[] for _ in range(self._ncols)]
+        self.axes_row = [[] for _ in range(self._nrows)]
 
         h = []
         v = []
@@ -261,8 +269,8 @@ class Grid(object):
         rect = self._divider.get_position()
 
         # reference axes
-        self._column_refax = [None for i in range(self._ncols)]
-        self._row_refax = [None for i in range(self._nrows)]
+        self._column_refax = [None for _ in range(self._ncols)]
+        self._row_refax = [None for _ in range(self._nrows)]
         self._refax = None
 
         for i in range(self.ngrids):
@@ -310,19 +318,20 @@ class Grid(object):
         self.set_label_mode(label_mode)
 
     def _init_axes_pad(self, axes_pad):
+        axes_pad = _extend_axes_pad(axes_pad)
         self._axes_pad = axes_pad
 
-        self._horiz_pad_size = Size.Fixed(axes_pad)
-        self._vert_pad_size = Size.Fixed(axes_pad)
+        self._horiz_pad_size = Size.Fixed(axes_pad[0])
+        self._vert_pad_size = Size.Fixed(axes_pad[1])
 
     def _update_locators(self):
 
         h = []
 
         h_ax_pos = []
-        h_cb_pos = []
+        #h_cb_pos = []
 
-        for ax in self._column_refax:
+        for _ in self._column_refax:
             #if h: h.append(Size.Fixed(self._axes_pad))
             if h:
                 h.append(self._horiz_pad_size)
@@ -335,8 +344,8 @@ class Grid(object):
         v = []
 
         v_ax_pos = []
-        v_cb_pos = []
-        for ax in self._row_refax[::-1]:
+        #v_cb_pos = []
+        for _ in self._row_refax[::-1]:
             #if v: v.append(Size.Fixed(self._axes_pad))
             if v:
                 v.append(self._vert_pad_size)
@@ -365,6 +374,9 @@ class Grid(object):
     def __getitem__(self, i):
         return self.axes_all[i]
 
+    def __len__(self):
+        return len(self.axes_all)
+
     def get_geometry(self):
         """
         get geometry of the grid. Returns a tuple of two integer,
@@ -374,13 +386,22 @@ class Grid(object):
 
     def set_axes_pad(self, axes_pad):
         "set axes_pad"
+        axes_pad = _extend_axes_pad(axes_pad)
         self._axes_pad = axes_pad
 
-        self._horiz_pad_size.fixed_size = axes_pad
-        self._vert_pad_size.fixed_size = axes_pad
+        # These two lines actually differ from ones in _init_axes_pad
+        self._horiz_pad_size.fixed_size = axes_pad[0]
+        self._vert_pad_size.fixed_size = axes_pad[1]
 
     def get_axes_pad(self):
-        "get axes_pad"
+        """
+        get axes_pad
+
+        Returns
+        -------
+        tuple
+            Padding in inches, (horizontal pad, vertical pad)
+        """
         return self._axes_pad
 
     def set_aspect(self, aspect):
@@ -484,6 +505,8 @@ class ImageGrid(Grid):
           ================  ========  =========================================
           direction         "row"     [ "row" | "column" ]
           axes_pad          0.02      float| pad between axes given in inches
+                                      or tuple-like of floats
+                                      (horizontal padding, vertical padding)
           add_all           True      [ True | False ]
           share_all         False     [ True | False ]
           aspect            True      [ True | False ]
@@ -510,12 +533,15 @@ class ImageGrid(Grid):
 
         self.ngrids = ngrids
 
+        axes_pad = _extend_axes_pad(axes_pad)
         self._axes_pad = axes_pad
 
         self._colorbar_mode = cbar_mode
         self._colorbar_location = cbar_location
         if cbar_pad is None:
-            self._colorbar_pad = axes_pad
+            # horizontal or vertical arrangement?
+            self._colorbar_pad = axes_pad[0] \
+                    if cbar_location in ("left", "right") else axes_pad[1]
         else:
             self._colorbar_pad = cbar_pad
 
@@ -538,8 +564,8 @@ class ImageGrid(Grid):
                 axes_class, axes_class_args = axes_class
 
         self.axes_all = []
-        self.axes_column = [[] for i in range(self._ncols)]
-        self.axes_row = [[] for i in range(self._nrows)]
+        self.axes_column = [[] for _ in range(self._ncols)]
+        self.axes_row = [[] for _ in range(self._nrows)]
 
         self.cbar_axes = []
 
@@ -563,8 +589,8 @@ class ImageGrid(Grid):
         rect = self._divider.get_position()
 
         # reference axes
-        self._column_refax = [None for i in range(self._ncols)]
-        self._row_refax = [None for i in range(self._nrows)]
+        self._column_refax = [None for _ in range(self._ncols)]
+        self._row_refax = [None for _ in range(self._nrows)]
         self._refax = None
 
         for i in range(self.ngrids):
@@ -644,7 +670,7 @@ class ImageGrid(Grid):
 
         for col, ax in enumerate(self._column_refax):
             if h:
-                h.append(self._horiz_pad_size)  # Size.Fixed(self._axes_pad))
+                h.append(self._horiz_pad_size) #Size.Fixed(self._axes_pad))
 
             if ax:
                 sz = Size.AxesX(ax)
@@ -674,7 +700,7 @@ class ImageGrid(Grid):
         v_cb_pos = []
         for row, ax in enumerate(self._row_refax[::-1]):
             if v:
-                v.append(self._horiz_pad_size)  # Size.Fixed(self._axes_pad))
+                v.append(self._vert_pad_size) #Size.Fixed(self._axes_pad))
 
             if ax:
                 sz = Size.AxesY(ax)
