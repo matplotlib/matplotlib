@@ -1244,14 +1244,14 @@ def rgb_to_hsv(arr):
     # make sure it is an ndarray
     arr = np.asarray(arr)
 
-    if arr.ndim == 1:
-        arr = arr.reshape(1, 3)
-
     # check length of the last dimension, should be _some_ sort of rgb
     if arr.shape[-1] != 3:
-        raise ValueError("Input array must have length 3, " +
-                         "not {}, ".format(len(arr.shape[-1])) +
-                         " in the last axis")
+        raise ValueError("Last dimension of input array must be 3; "
+                         "shape {shp} was found.".format(shp=arr.shape))
+
+    in_ndim = arr.ndim
+    if arr.ndim == 1:
+        arr = np.array(arr, ndmin=2)
 
     # make sure we don't have an int image
     if arr.dtype.kind in ('iu'):
@@ -1277,6 +1277,10 @@ def rgb_to_hsv(arr):
     out[..., 0] = (out[..., 0] / 6.0) % 1.0
     out[..., 1] = s
     out[..., 2] = arr_max
+
+    if in_ndim == 1:
+        out.shape = (3,)
+
     return out
 
 
@@ -1298,16 +1302,16 @@ def hsv_to_rgb(hsv):
         # make sure it is an ndarray
     hsv = np.asarray(hsv)
 
-    # if we got pased a 1D array, try to treat as
-    # a single color and reshape as needed
-    if hsv.ndim == 1:
-        hsv = hsv.reshape(1, 3)
-
     # check length of the last dimension, should be _some_ sort of rgb
     if hsv.shape[-1] != 3:
-        raise ValueError("Input array must have length 3, " +
-                         "not {}, ".format(len(hsv.shape[-1])) +
-                         " in the last axis")
+        raise ValueError("Last dimension of input array must be 3; "
+                            "shape {shp} was found.".format(shp=hsv.shape))
+
+    # if we got pased a 1D array, try to treat as
+    # a single color and reshape as needed
+    in_ndim = hsv.ndim
+    if in_ndim == 1:
+        hsv = np.array(hsv, ndmin=2)
 
     # make sure we don't have an int image
     if hsv.dtype.kind in ('iu'):
@@ -1366,6 +1370,10 @@ def hsv_to_rgb(hsv):
     rgb[..., 0] = r
     rgb[..., 1] = g
     rgb[..., 2] = b
+
+    if in_ndim == 1:
+        rgb.shape = (3, )
+
     return rgb
 
 
