@@ -206,6 +206,8 @@ class Grid(object):
           ================  ========  =========================================
           direction         "row"     [ "row" | "column" ]
           axes_pad          0.02      float| pad between axes given in inches
+                                      or tuple-like of floats,
+                                      (horizontal padding, vertical padding)
           add_all           True      [ True | False ]
           share_all         False     [ True | False ]
           share_x           True      [ True | False ]
@@ -319,8 +321,8 @@ class Grid(object):
         axes_pad = _extend_axes_pad(axes_pad)
         self._axes_pad = axes_pad
 
-        self._horiz_pad_size = Size.Fixed(axes_pad)
-        self._vert_pad_size = Size.Fixed(axes_pad)
+        self._horiz_pad_size = Size.Fixed(axes_pad[0])
+        self._vert_pad_size = Size.Fixed(axes_pad[1])
 
     def _update_locators(self):
 
@@ -537,7 +539,9 @@ class ImageGrid(Grid):
         self._colorbar_mode = cbar_mode
         self._colorbar_location = cbar_location
         if cbar_pad is None:
-            self._colorbar_pad = axes_pad
+            # horizontal or vertical arrangement?
+            self._colorbar_pad = axes_pad[0] \
+                    if cbar_location in ("left", "right") else axes_pad[1]
         else:
             self._colorbar_pad = cbar_pad
 
