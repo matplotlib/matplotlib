@@ -7,7 +7,7 @@ from nose.tools import assert_raises
 from numpy.testing import assert_almost_equal
 import numpy as np
 import matplotlib
-from itertools import izip
+
 import matplotlib.ticker as mticker
 
 
