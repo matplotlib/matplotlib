@@ -33,6 +33,6 @@ for phi in np.linspace(0, 360 / 2 / np.pi, 100):
     if oldcol is not None:
         ax.collections.remove(oldcol)
 
-    plt.draw()
+    plt.pause(.001)
 
 print ('FPS: %f' % (100 / (time.time() - tstart)))

@@ -2450,6 +2450,16 @@ def test_relim_visible_only():
     assert ax.get_ylim() == y1
 
 
+def test_text_labelsize():
+    """
+    tests for issue #1172
+    """
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.tick_params(labelsize='large')
+    ax.tick_params(direction='out')
+
+
 if __name__ == '__main__':
     import nose
     import sys

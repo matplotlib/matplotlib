@@ -316,6 +316,10 @@ class Tick(artist.Artist):
             self.label1.set(**label_kw)
             self.label2.set(**label_kw)
             for k, v in six.iteritems(label_kw):
+                # for labelsize the text objects covert str ('small')
+                # -> points. grab the integer from the `Text` object
+                # instead of saving the string representation
+                v = getattr(self.label1, 'get_' + k)()
                 setattr(self, '_' + k, v)
 
 
