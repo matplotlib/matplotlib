@@ -304,7 +304,8 @@ class FormatStrFormatter(Formatter):
 
 class StrMethodFormatter(Formatter):
     """
-    Use a new-style format string (as used by `str.format()`) to format the tick
+    Use a new-style format string (as used by `str.format()`)
+    to format the tick
     """
     def __init__(self, fmt):
         self.fmt = fmt
