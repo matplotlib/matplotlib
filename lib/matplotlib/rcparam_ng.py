@@ -242,7 +242,8 @@ class RcParamsNG(object):
             any existing file at path
         """
         with open(out_file_path, 'w') as fout:
-            json.dump(self.core_dict, fout, ensure_ascii=False)
+            json.dump(self.core_dict, fout, ensure_ascii=False,
+                      indent=4)
 
     @classmethod
     def from_json(cls, in_file_path):
