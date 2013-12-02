@@ -978,11 +978,11 @@ FT2Font::~FT2Font()
 
     if (face) {
         FT_Done_Face(face);
-    }
 
-    for (size_t i = 0; i < glyphs.size(); i++)
-    {
-        FT_Done_Glyph(glyphs[i]);
+        for (size_t i = 0; i < glyphs.size(); i++)
+        {
+            FT_Done_Glyph(glyphs[i]);
+        }
     }
 }
 
