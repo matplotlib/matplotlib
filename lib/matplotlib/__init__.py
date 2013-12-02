@@ -1262,7 +1262,11 @@ def interactive(b):
 
 def is_interactive():
     'Return true if plot mode is interactive'
-    b = rcParams['interactive'] and hasattr(sys, 'ps1')
+    # ps1 exists if the python interpreter is running in an
+    # interactive console; sys.flags.interactive is true if a script
+    # is being run via "python -i".
+    b = rcParams['interactive'] and (
+        hasattr(sys, 'ps1') or sys.flags.interactive)
     return b
 
 def tk_window_focus():
