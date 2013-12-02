@@ -13,7 +13,6 @@ _kw_dict_nm = '_kw_defaults'
 _kw_entry = namedtuple('_kw_entry', ['orig_funtion', 'kw_dict'])
 
 
-
 def set_defaults(cls, key, new_defaults):
     """
     Set a set of default kwargs for the function `key` on
@@ -148,6 +147,7 @@ def reset_defaults(cls, key):
         # reset to the original function
         setattr(cls, key, orig_fun)
 
+
 def string_to_class(klass):
     """
     Turns a string -> a class object
@@ -167,6 +167,7 @@ def string_to_class(klass):
         raise ValueError("not valid, make msg better")
 
     return last_level
+
 
 class RcParamsNG(object):
     """
