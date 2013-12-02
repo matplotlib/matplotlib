@@ -64,7 +64,7 @@ def test_formatstrformatter():
     nose.tools.assert_equal('00002', tmp_form(2))
 
     # test str.format() style formatter
-    tmp_form = mticker.StrMethodFormatter('{:05d}')
+    tmp_form = mticker.StrMethodFormatter('{x:05d}')
     nose.tools.assert_equal('00002', tmp_form(2))
 
 
