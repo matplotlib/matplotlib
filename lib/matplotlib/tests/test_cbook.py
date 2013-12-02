@@ -6,9 +6,9 @@ import six
 from datetime import datetime
 
 import numpy as np
-from numpy.testing.utils import assert_array_equal, assert_approx_equal, \
-                                assert_array_almost_equal
-from nose.tools import assert_equal, raises, assert_true, assert_list_equal
+from numpy.testing.utils import (assert_array_equal, assert_approx_equal,
+                                 assert_array_almost_equal)
+from nose.tools import assert_equal, raises, assert_true
 
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
@@ -100,7 +100,7 @@ class Test_boxplot_stats:
         np.random.seed(937)
         self.nrows = 37
         self.ncols = 4
-        self.data = x = np.random.lognormal(size=(self.nrows, self.ncols),
+        self.data = np.random.lognormal(size=(self.nrows, self.ncols),
                                             mean=1.5, sigma=1.75)
         self.known_keys = sorted([
             'mean', 'med', 'q1', 'q3', 'iqr',
@@ -145,9 +145,8 @@ class Test_boxplot_stats:
     def test_form_dict_keys(self):
         for res in self.std_results:
             keys = sorted(list(res.keys()))
-            assert_list_equal(keys, self.known_keys)
-            #for key in keys:
-            #    assert_true(key in self.known_keys)
+            for key in keys:
+                assert_true(key in self.known_keys)
 
     def test_results_baseline(self):
         res = self.std_results[0]
