@@ -507,13 +507,13 @@ class Colormap(object):
 
         """
         self.name = name
-        self.N = N
+        self.N = int(N)  # ensure that N is always int
         self._rgba_bad = (0.0, 0.0, 0.0, 0.0)  # If bad, don't paint anything.
         self._rgba_under = None
         self._rgba_over = None
-        self._i_under = N
-        self._i_over = N + 1
-        self._i_bad = N + 2
+        self._i_under = self.N
+        self._i_over = self.N + 1
+        self._i_bad = self.N + 2
         self._isinit = False
 
         #: When this colormap exists on a scalar mappable and colorbar_extend
