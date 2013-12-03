@@ -1846,7 +1846,7 @@ def delete_masked_points(*args):
     return margs
 
 
-def boxplot_stats(X, whis=1.5, bootstrap=None):
+def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
     '''
     Returns list of dictionaries of staticists to be use to draw a series of
     box and whisker plots. See the `Returns` section below to the required
@@ -1862,7 +1862,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None):
 
     whis : float (default = 1.5)
         Determines the reach of the whiskers past the first and third
-        quartiles (e.g., Q3 + whis*IQR). Beyone the whiskers, data are
+        quartiles (e.g., Q3 + whis*IQR). Beyond the whiskers, data are
         considers outliers and are plotted as individual points. Set
         this to an unreasonably high value to force the whiskers to
         show the min and max data. (IQR = interquartile range, Q3-Q1)
@@ -1870,6 +1870,10 @@ def boxplot_stats(X, whis=1.5, bootstrap=None):
     bootstrap : int or None (default)
         Number of times the confidence intervals around the median should
         be bootstrapped (percentile method).
+
+    labels : sequence
+        Labels for each dataset. Length must be compatible with dimensions
+        of `X`
 
     Returns
     -------
@@ -1940,8 +1944,20 @@ def boxplot_stats(X, whis=1.5, bootstrap=None):
         X = [X]
 
     ncols = len(X)
-    for ii, x in enumerate(X, start=0):
+    if labels is None:
+        labels = [None] * ncols
+    elif len(labels) != ncols:
+        raise ValueError("Dimensions of labels and X must be compatible")
+
+    for ii, (x, label) in enumerate(zip(X, labels), start=0):
+        # empty dict
         stats = {}
+
+        # set the label
+        if label is not None:
+            stats['label'] = label
+        else:
+            stats['label'] = ii
 
         # arithmetic mean
         stats['mean'] = np.mean(x)
