@@ -932,10 +932,12 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
       *ncols* : int
         Number of columns of the subplot grid.  Defaults to 1.
 
-      *sharex* : string or bool
+      *sharex* : axes instance, string or bool
         If *True*, the X axis will be shared amongst all subplots.  If
         *True* and you have multiple rows, the x tick labels on all but
-        the last row of plots will have visible set to *False*
+        the last row of plots will have visible set to *False*.
+        If an axes instance, same as *True* and the X axis is also shared
+        with the X axis of the provided axes instance.
         If a string must be one of "row", "col", "all", or "none".
         "all" has the same effect as *True*, "none" has the same effect
         as *False*.
@@ -943,10 +945,12 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         If "col", each subplot column will share a X axis and the x tick
         labels on all but the last row will have visible set to *False*.
 
-      *sharey* : string or bool
+      *sharey* : axes instance, string or bool
         If *True*, the Y axis will be shared amongst all subplots. If
         *True* and you have multiple columns, the y tick labels on all but
-        the first column of plots will have visible set to *False*
+        the first column of plots will have visible set to *False*.
+        If an axes instance, same as *True* and the Y axis is also shared
+        with the Y axis of the provided axes instance.
         If a string must be one of "row", "col", "all", or "none".
         "all" has the same effect as *True*, "none" has the same effect
         as *False*.
@@ -1022,6 +1026,8 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         # same as
         plt.subplots(2, 2, sharex=True, sharey=True)
     """
+    if subplot_kw is None:
+        subplot_kw = {}
     # for backwards compatibility
     if isinstance(sharex, bool):
         if sharex:
@@ -1033,6 +1039,13 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
             sharey = "all"
         else:
             sharey = "none"
+    if isinstance(sharex, Axes):
+        subplot_kw['sharex'] = sharex
+        sharex = "all"
+    if isinstance(sharey, Axes):
+        subplot_kw['sharey'] = sharey
+        sharey = "all"
+
     share_values = ["all", "row", "col", "none"]
     if sharex not in share_values:
         # This check was added because it is very easy to type subplots(1, 2, 1)
@@ -1049,8 +1062,6 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     if sharey not in share_values:
         raise ValueError("sharey [%s] must be one of %s" % \
                 (sharey, share_values))
-    if subplot_kw is None:
-        subplot_kw = {}
 
     fig = figure(**fig_kw)
 
