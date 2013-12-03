@@ -103,8 +103,9 @@ original location:
 * Added the rcParam `axes.fromatter.useoffset` to control the default value
   of `useOffset` in `ticker.ScalarFormatter`
 
-
-
+* Added `Formatter` sub-class `StrMethodFormatter` which
+  does the exact same thing as `FormatStrFormatter`, but for new-style
+  formatting strings.
 
 .. _changes_in_1_3:
 

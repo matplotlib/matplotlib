@@ -292,7 +292,7 @@ class FuncFormatter(Formatter):
 
 class FormatStrFormatter(Formatter):
     """
-    Use a format string to format the tick
+    Use an old-style ('%' operator) format string to format the tick
     """
     def __init__(self, fmt):
         self.fmt = fmt
@@ -300,6 +300,19 @@ class FormatStrFormatter(Formatter):
     def __call__(self, x, pos=None):
         'Return the format for tick val *x* at position *pos*'
         return self.fmt % x
+
+
+class StrMethodFormatter(Formatter):
+    """
+    Use a new-style format string (as used by `str.format()`)
+    to format the tick.  The field formatting must be labeled `x`.
+    """
+    def __init__(self, fmt):
+        self.fmt = fmt
+
+    def __call__(self, x, pos=None):
+        'Return the format for tick val *x* at position *pos*'
+        return self.fmt.format(x=x)
 
 
 class OldScalarFormatter(Formatter):
