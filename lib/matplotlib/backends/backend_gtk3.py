@@ -3,8 +3,12 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import os, sys
-def fn_name(): return sys._getframe(1).f_code.co_name
+import os
+import sys
+
+
+def fn_name():
+    return sys._getframe(1).f_code.co_name
 
 try:
     import gi
@@ -28,8 +32,9 @@ except ImportError:
 
 import matplotlib
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
+from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
+        FigureManagerBase, FigureCanvasBase,
+        NavigationToolbar2, cursors, TimerBase)
 from matplotlib.backend_bases import ShowBase
 
 from matplotlib.cbook import is_string_like, is_writable_file_like
@@ -42,30 +47,35 @@ from matplotlib import cbook
 from matplotlib import verbose
 from matplotlib import rcParams
 
-backend_version = "%s.%s.%s" % (Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
+backend_version = "%s.%s.%s" % (Gtk.get_major_version(),
+                                Gtk.get_micro_version(),
+                                Gtk.get_minor_version())
 
 _debug = False
 #_debug = True
 
 # the true dots per inch on the screen; should be display dependent
-# see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
+# see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5
+# for some info about screen dpi
 PIXELS_PER_INCH = 96
 
 cursord = {
-    cursors.MOVE          : Gdk.Cursor.new(Gdk.CursorType.FLEUR),
-    cursors.HAND          : Gdk.Cursor.new(Gdk.CursorType.HAND2),
-    cursors.POINTER       : Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR),
-    cursors.SELECT_REGION : Gdk.Cursor.new(Gdk.CursorType.TCROSS),
+    cursors.MOVE: Gdk.Cursor.new(Gdk.CursorType.FLEUR),
+    cursors.HAND: Gdk.Cursor.new(Gdk.CursorType.HAND2),
+    cursors.POINTER: Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR),
+    cursors.SELECT_REGION: Gdk.Cursor.new(Gdk.CursorType.TCROSS),
     }
+
 
 def draw_if_interactive():
     """
     Is called after every pylab drawing command
     """
     if matplotlib.is_interactive():
-        figManager =  Gcf.get_active()
+        figManager = Gcf.get_active()
         if figManager is not None:
             figManager.canvas.draw_idle()
+
 
 class Show(ShowBase):
     def mainloop(self):
@@ -77,7 +87,8 @@ show = Show()
 
 class TimerGTK3(TimerBase):
     '''
-    Subclass of :class:`backend_bases.TimerBase` that uses GTK3 for timer events.
+    Subclass of :class:`backend_bases.TimerBase` that uses
+    GTK3 for timer events.
 
     Attributes:
     * interval: The time between timer events in milliseconds. Default
@@ -116,78 +127,80 @@ class TimerGTK3(TimerBase):
             self._timer = None
             return False
 
+
 class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
-    keyvald = {65507 : 'control',
-               65505 : 'shift',
-               65513 : 'alt',
-               65508 : 'control',
-               65506 : 'shift',
-               65514 : 'alt',
-               65361 : 'left',
-               65362 : 'up',
-               65363 : 'right',
-               65364 : 'down',
-               65307 : 'escape',
-               65470 : 'f1',
-               65471 : 'f2',
-               65472 : 'f3',
-               65473 : 'f4',
-               65474 : 'f5',
-               65475 : 'f6',
-               65476 : 'f7',
-               65477 : 'f8',
-               65478 : 'f9',
-               65479 : 'f10',
-               65480 : 'f11',
-               65481 : 'f12',
-               65300 : 'scroll_lock',
-               65299 : 'break',
-               65288 : 'backspace',
-               65293 : 'enter',
-               65379 : 'insert',
-               65535 : 'delete',
-               65360 : 'home',
-               65367 : 'end',
-               65365 : 'pageup',
-               65366 : 'pagedown',
-               65438 : '0',
-               65436 : '1',
-               65433 : '2',
-               65435 : '3',
-               65430 : '4',
-               65437 : '5',
-               65432 : '6',
-               65429 : '7',
-               65431 : '8',
-               65434 : '9',
-               65451 : '+',
-               65453 : '-',
-               65450 : '*',
-               65455 : '/',
-               65439 : 'dec',
-               65421 : 'enter',
+    keyvald = {65507: 'control',
+               65505: 'shift',
+               65513: 'alt',
+               65508: 'control',
+               65506: 'shift',
+               65514: 'alt',
+               65361: 'left',
+               65362: 'up',
+               65363: 'right',
+               65364: 'down',
+               65307: 'escape',
+               65470: 'f1',
+               65471: 'f2',
+               65472: 'f3',
+               65473: 'f4',
+               65474: 'f5',
+               65475: 'f6',
+               65476: 'f7',
+               65477: 'f8',
+               65478: 'f9',
+               65479: 'f10',
+               65480: 'f11',
+               65481: 'f12',
+               65300: 'scroll_lock',
+               65299: 'break',
+               65288: 'backspace',
+               65293: 'enter',
+               65379: 'insert',
+               65535: 'delete',
+               65360: 'home',
+               65367: 'end',
+               65365: 'pageup',
+               65366: 'pagedown',
+               65438: '0',
+               65436: '1',
+               65433: '2',
+               65435: '3',
+               65430: '4',
+               65437: '5',
+               65432: '6',
+               65429: '7',
+               65431: '8',
+               65434: '9',
+               65451: '+',
+               65453: '-',
+               65450: '*',
+               65455: '/',
+               65439: 'dec',
+               65421: 'enter',
                }
 
     # Setting this as a static constant prevents
     # this resulting expression from leaking
-    event_mask = (Gdk.EventMask.BUTTON_PRESS_MASK   |
+    event_mask = (Gdk.EventMask.BUTTON_PRESS_MASK |
                   Gdk.EventMask.BUTTON_RELEASE_MASK |
-                  Gdk.EventMask.EXPOSURE_MASK       |
-                  Gdk.EventMask.KEY_PRESS_MASK      |
-                  Gdk.EventMask.KEY_RELEASE_MASK    |
-                  Gdk.EventMask.ENTER_NOTIFY_MASK   |
-                  Gdk.EventMask.LEAVE_NOTIFY_MASK   |
+                  Gdk.EventMask.EXPOSURE_MASK |
+                  Gdk.EventMask.KEY_PRESS_MASK |
+                  Gdk.EventMask.KEY_RELEASE_MASK |
+                  Gdk.EventMask.ENTER_NOTIFY_MASK |
+                  Gdk.EventMask.LEAVE_NOTIFY_MASK |
                   Gdk.EventMask.POINTER_MOTION_MASK |
                   Gdk.EventMask.POINTER_MOTION_HINT_MASK)
 
     def __init__(self, figure):
-        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
+        if _debug:
+            print('FigureCanvasGTK3.%s' % fn_name())
         FigureCanvasBase.__init__(self, figure)
         GObject.GObject.__init__(self)
 
-        self._idle_draw_id  = 0
-        self._need_redraw   = True
-        self._lastCursor    = None
+        self._idle_draw_id = 0
+        self._need_redraw = True
+        self._lastCursor = None
 
         self.connect('scroll_event',         self.scroll_event)
         self.connect('button_press_event',   self.button_press_event)
@@ -215,11 +228,12 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
             GObject.source_remove(self._idle_draw_id)
 
     def scroll_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
+        if _debug:
+            print('FigureCanvasGTK3.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.get_allocation().height - event.y
-        if event.direction==Gdk.ScrollDirection.UP:
+        if event.direction == Gdk.ScrollDirection.UP:
             step = 1
         else:
             step = -1
@@ -227,37 +241,46 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def button_press_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
+        if _debug:
+            print('FigureCanvasGTK3.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.get_allocation().height - event.y
-        FigureCanvasBase.button_press_event(self, x, y, event.button, guiEvent=event)
+        FigureCanvasBase.button_press_event(self, x, y,
+                                            event.button, guiEvent=event)
         return False  # finish event propagation?
 
     def button_release_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
+        if _debug:
+            print('FigureCanvasGTK3.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.get_allocation().height - event.y
-        FigureCanvasBase.button_release_event(self, x, y, event.button, guiEvent=event)
+        FigureCanvasBase.button_release_event(self, x, y,
+                                              event.button, guiEvent=event)
         return False  # finish event propagation?
 
     def key_press_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
+        if _debug:
+            print('FigureCanvasGTK3.%s' % fn_name())
         key = self._get_key(event)
-        if _debug: print("hit", key)
+        if _debug:
+            print("hit", key)
         FigureCanvasBase.key_press_event(self, key, guiEvent=event)
         return False  # finish event propagation?
 
     def key_release_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
+        if _debug:
+            print('FigureCanvasGTK3.%s' % fn_name())
         key = self._get_key(event)
-        if _debug: print("release", key)
+        if _debug:
+            print("release", key)
         FigureCanvasBase.key_release_event(self, key, guiEvent=event)
         return False  # finish event propagation?
 
     def motion_notify_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
+        if _debug:
+            print('FigureCanvasGTK3.%s' % fn_name())
         if event.is_hint:
             t, x, y, state = event.window.get_pointer()
         else:
@@ -294,16 +317,17 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         return key
 
     def configure_event(self, widget, event):
-        if _debug: print('FigureCanvasGTK3.%s' % fn_name())
+        if _debug:
+            print('FigureCanvasGTK3.%s' % fn_name())
         if widget.get_property("window") is None:
             return
         w, h = event.width, event.height
         if w < 3 or h < 3:
-            return # empty fig
+            return  # empty fig
 
         # resize the figure (in inches)
         dpi = self.figure.dpi
-        self.figure.set_size_inches (w/dpi, h/dpi)
+        self.figure.set_size_inches(w/dpi, h/dpi)
         self._need_redraw = True
 
         return False  # finish event propagation?
@@ -318,7 +342,7 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
             self.queue_draw()
             # do a synchronous draw (its less efficient than an async draw,
             # but is required if/when animation is used)
-            self.get_property("window").process_updates (False)
+            self.get_property("window").process_updates(False)
 
     def draw_idle(self):
         def idle_draw(*args):
@@ -332,9 +356,10 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
 
     def new_timer(self, *args, **kwargs):
         """
-        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
-        This is useful for getting periodic events through the backend's native
-        event loop. Implemented only for backends with GUIs.
+        Creates a new backend-specific subclass of
+        :class:`backend_bases.Timer`.  This is useful for getting
+        periodic events through the backend's native event
+        loop. Implemented only for backends with GUIs.
 
         optional arguments:
 
@@ -353,13 +378,17 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         Gdk.flush()
         Gdk.threads_leave()
 
-    def start_event_loop(self,timeout):
-        FigureCanvasBase.start_event_loop_default(self,timeout)
-    start_event_loop.__doc__=FigureCanvasBase.start_event_loop_default.__doc__
+    def start_event_loop(self, timeout):
+        FigureCanvasBase.start_event_loop_default(self, timeout)
+
+    start_event_loop.__doc__ = \
+          FigureCanvasBase.start_event_loop_default.__doc__
 
     def stop_event_loop(self):
         FigureCanvasBase.stop_event_loop_default(self)
-    stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
+
+    stop_event_loop.__doc__ = \
+      FigureCanvasBase.stop_event_loop_default.__doc__
 
 
 class FigureManagerGTK3(FigureManagerBase):
@@ -373,7 +402,8 @@ class FigureManagerGTK3(FigureManagerBase):
     window      : The Gtk.Window   (gtk only)
     """
     def __init__(self, canvas, num):
-        if _debug: print('FigureManagerGTK3.%s' % fn_name())
+        if _debug:
+            print('FigureManagerGTK3.%s' % fn_name())
         FigureManagerBase.__init__(self, canvas, num)
 
         self.window = Gtk.Window()
@@ -388,7 +418,8 @@ class FigureManagerGTK3(FigureManagerBase):
             # all, so I am not sure how to catch it.  I am unhappy
             # doing a blanket catch here, but am not sure what a
             # better way is - JDH
-            verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+            verbose.report('Could not load matplotlib ' +
+                           'icon: %s' % sys.exc_info()[1])
 
         self.vbox = Gtk.Box()
         self.vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
@@ -402,8 +433,8 @@ class FigureManagerGTK3(FigureManagerBase):
         self.toolbar = self._get_toolbar(canvas)
 
         # calculate size for window
-        w = int (self.canvas.figure.bbox.width)
-        h = int (self.canvas.figure.bbox.height)
+        w = int(self.canvas.figure.bbox.width)
+        h = int(self.canvas.figure.bbox.height)
 
         if self.toolbar is not None:
             self.toolbar.show()
@@ -411,7 +442,7 @@ class FigureManagerGTK3(FigureManagerBase):
             size_request = self.toolbar.size_request()
             h += size_request.height
 
-        self.window.set_default_size (w, h)
+        self.window.set_default_size(w, h)
 
         def destroy(*args):
             Gcf.destroy(num)
@@ -422,20 +453,22 @@ class FigureManagerGTK3(FigureManagerBase):
 
         def notify_axes_change(fig):
             'this will be called whenever the current axes is changed'
-            if self.toolbar is not None: self.toolbar.update()
+            if self.toolbar is not None:
+                self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
         self.canvas.grab_focus()
 
     def destroy(self, *args):
-        if _debug: print('FigureManagerGTK3.%s' % fn_name())
+        if _debug:
+            print('FigureManagerGTK3.%s' % fn_name())
         self.vbox.destroy()
         self.window.destroy()
         self.canvas.destroy()
         if self.toolbar:
             self.toolbar.destroy()
 
-        if Gcf.get_num_fig_managers()==0 and \
+        if Gcf.get_num_fig_managers() == 0 and \
                not matplotlib.is_interactive() and \
                Gtk.main_level() >= 1:
             Gtk.main_quit()
@@ -444,7 +477,7 @@ class FigureManagerGTK3(FigureManagerBase):
         # show the figure window
         self.window.show()
 
-    def full_screen_toggle (self):
+    def full_screen_toggle(self):
         self._full_screen_flag = not self._full_screen_flag
         if self._full_screen_flag:
             self.window.fullscreen()
@@ -452,12 +485,11 @@ class FigureManagerGTK3(FigureManagerBase):
             self.window.unfullscreen()
     _full_screen_flag = False
 
-
     def _get_toolbar(self, canvas):
         # must be inited after the window, drawingArea and figure
         # attrs are set
         if rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2GTK3 (canvas, self.window)
+            toolbar = NavigationToolbar2GTK3(canvas, self.window)
         else:
             toolbar = None
         return toolbar
@@ -472,7 +504,7 @@ class FigureManagerGTK3(FigureManagerBase):
         'set the canvas size in pixels'
         #_, _, cw, ch = self.canvas.allocation
         #_, _, ww, wh = self.window.allocation
-        #self.window.resize (width-cw+ww, height-ch+wh)
+        #self.window.resize(width-cw+ww, height-ch+wh)
         self.window.resize(width, height)
 
 
@@ -491,15 +523,20 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         #self.canvas.set_cursor(cursord[cursor])
 
     def release(self, event):
-        try: del self._pixmapBack
-        except AttributeError: pass
+        try:
+            del self._pixmapBack
+        except AttributeError:
+            pass
 
     def dynamic_update(self):
         # legacy method; new method is canvas.draw_idle
         self.canvas.draw_idle()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744'
+        '''
+        adapted from
+        http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744
+        '''
         self.ctx = self.canvas.get_property("window").cairo_create()
 
         # todo: instead of redrawing the entire figure, copy the part of
@@ -511,7 +548,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         y0 = height - y0
         w = abs(x1 - x0)
         h = abs(y1 - y0)
-        rect = [int(val) for val in (min(x0,x1), min(y0, y1), w, h)]
+        rect = [int(val) for val in (min(x0, x1), min(y0, y1), w, h)]
 
         self.ctx.new_path()
         self.ctx.set_line_width(0.5)
@@ -521,11 +558,11 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
     def _init_toolbar(self):
         self.set_style(Gtk.ToolbarStyle.ICONS)
-        basedir = os.path.join(rcParams['datapath'],'images')
+        basedir = os.path.join(rcParams['datapath'], 'images')
 
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
-                self.insert( Gtk.SeparatorToolItem(), -1 )
+                self.insert(Gtk.SeparatorToolItem(), -1)
                 continue
             fname = os.path.join(basedir, image_file + '.png')
             image = Gtk.Image()
@@ -564,27 +601,28 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         fname, format = chooser.get_filename_from_user()
         chooser.destroy()
         if fname:
-            startpath = os.path.expanduser(rcParams.get('savefig.directory', ''))
+            startpath = os.path.expanduser(rcParams.get('savefig.directory',
+                                                        ''))
             if startpath == '':
                 # explicitly missing key or empty str signals to use cwd
                 rcParams['savefig.directory'] = startpath
             else:
                 # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(six.text_type(fname))
+                rcParams['savefig.directory'] = os.path.dirname(
+                                                   six.text_type(fname))
             try:
                 self.canvas.print_figure(fname, format=format)
             except Exception as e:
                 error_msg_gtk(str(e), parent=self)
 
     def configure_subplots(self, button):
-        toolfig = Figure(figsize=(6,3))
+        toolfig = Figure(figsize=(6, 3))
         canvas = self._get_canvas(toolfig)
         toolfig.subplots_adjust(top=0.9)
-        tool =  SubplotTool(self.canvas.figure, toolfig)
+        tool = SubplotTool(self.canvas.figure, toolfig)
 
-        w = int (toolfig.bbox.width)
-        h = int (toolfig.bbox.height)
-
+        w = int(toolfig.bbox.width)
+        h = int(toolfig.bbox.height)
 
         window = Gtk.Window()
         try:
@@ -615,31 +653,32 @@ class FileChooserDialog(Gtk.FileChooserDialog):
     """GTK+ file selector which remembers the last file/directory
     selected and presents the user with a menu of supported image formats
     """
-    def __init__ (self,
-                  title   = 'Save file',
-                  parent  = None,
-                  action  = Gtk.FileChooserAction.SAVE,
-                  buttons = (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+    def __init__(self,
+                  title='Save file',
+                  parent=None,
+                  action=Gtk.FileChooserAction.SAVE,
+                  buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                              Gtk.STOCK_SAVE,   Gtk.ResponseType.OK),
-                  path    = None,
+                  path=None,
                   filetypes = [],
                   default_filetype = None
                   ):
-        super (FileChooserDialog, self).__init__ (title, parent, action,
+        super(FileChooserDialog, self).__init__(title, parent, action,
                                                   buttons)
-        self.set_default_response (Gtk.ResponseType.OK)
+        self.set_default_response(Gtk.ResponseType.OK)
 
-        if not path: path = os.getcwd() + os.sep
+        if not path:
+            path = os.getcwd() + os.sep
 
         # create an extra widget to list supported image formats
-        self.set_current_folder (path)
-        self.set_current_name ('image.' + default_filetype)
+        self.set_current_folder(path)
+        self.set_current_name('image.' + default_filetype)
 
         hbox = Gtk.Box(spacing=10)
         hbox.pack_start(Gtk.Label(label="File Format:"), False, False, 0)
 
         liststore = Gtk.ListStore(GObject.TYPE_STRING)
-        cbox = Gtk.ComboBox() #liststore)
+        cbox = Gtk.ComboBox()  # liststore)
         cbox.set_model(liststore)
         cell = Gtk.CellRendererText()
         cbox.pack_start(cell, True)
@@ -657,7 +696,7 @@ class FileChooserDialog(Gtk.FileChooserDialog):
         cbox.set_active(default)
         self.ext = default_filetype
 
-        def cb_cbox_changed (cbox, data=None):
+        def cb_cbox_changed(cbox, data=None):
             """File extension changed"""
             head, filename = os.path.split(self.get_filename())
             root, ext = os.path.splitext(filename)
@@ -670,13 +709,13 @@ class FileChooserDialog(Gtk.FileChooserDialog):
             elif ext == '':
                 filename = filename.rstrip('.') + '.' + new_ext
 
-            self.set_current_name (filename)
-        cbox.connect ("changed", cb_cbox_changed)
+            self.set_current_name(filename)
+        cbox.connect("changed", cb_cbox_changed)
 
         hbox.show_all()
         self.set_extra_widget(hbox)
 
-    def get_filename_from_user (self):
+    def get_filename_from_user(self):
         while True:
             filename = None
             if self.run() != int(Gtk.ResponseType.OK):
@@ -685,6 +724,7 @@ class FileChooserDialog(Gtk.FileChooserDialog):
             break
 
         return filename, self.ext
+
 
 class DialogLineprops:
     """
@@ -701,12 +741,11 @@ class DialogLineprops:
         )
 
     linestyles = [ls for ls in lines.Line2D.lineStyles if ls.strip()]
-    linestyled = dict([ (s,i) for i,s in enumerate(linestyles)])
+    linestyled = dict([(s, i) for i, s in enumerate(linestyles)])
 
+    markers = [m for m in lines.Line2D.markers if cbook.is_string_like(m)]
 
-    markers =  [m for m in lines.Line2D.markers if cbook.is_string_like(m)]
-
-    markerd = dict([(s,i) for i,s in enumerate(markers)])
+    markerd = dict([(s, i) for i, s in enumerate(markers)])
 
     def __init__(self, lines):
         import Gtk.glade
@@ -714,12 +753,15 @@ class DialogLineprops:
         datadir = matplotlib.get_data_path()
         gladefile = os.path.join(datadir, 'lineprops.glade')
         if not os.path.exists(gladefile):
-            raise IOError('Could not find gladefile lineprops.glade in %s'%datadir)
+            raise IOError('Could not find gladefile lineprops.glade' +
+                           ' in %s'%datadir)
 
         self._inited = False
-        self._updateson = True # suppress updates when setting widgets manually
+        # suppress updates when setting widgets manually
+        self._updateson = True
         self.wtree = Gtk.glade.XML(gladefile, 'dialog_lineprops')
-        self.wtree.signal_autoconnect(dict([(s, getattr(self, s)) for s in self.signals]))
+        self.wtree.signal_autoconnect(dict([(s, getattr(self, s))
+                                            for s in self.signals]))
 
         self.dlg = self.wtree.get_widget('dialog_lineprops')
 
@@ -743,13 +785,12 @@ class DialogLineprops:
         self._lastcnt = 0
         self._inited = True
 
-
     def show(self):
         'populate the combo box'
         self._updateson = False
         # flush the old
         cbox = self.cbox_lineprops
-        for i in range(self._lastcnt-1,-1,-1):
+        for i in range(self._lastcnt-1, -1, -1):
             cbox.remove_text(i)
 
         # add the new
@@ -781,7 +822,8 @@ class DialogLineprops:
 
     def _update(self):
         'update the active line props from the widgets'
-        if not self._inited or not self._updateson: return
+        if not self._inited or not self._updateson:
+            return
         line = self.get_active_line()
         ls = self.get_active_linestyle()
         marker = self.get_active_marker()
@@ -791,36 +833,39 @@ class DialogLineprops:
         button = self.wtree.get_widget('colorbutton_linestyle')
         color = button.get_color()
         r, g, b = [val/65535. for val in (color.red, color.green, color.blue)]
-        line.set_color((r,g,b))
+        line.set_color((r, g, b))
 
         button = self.wtree.get_widget('colorbutton_markerface')
         color = button.get_color()
         r, g, b = [val/65535. for val in (color.red, color.green, color.blue)]
-        line.set_markerfacecolor((r,g,b))
+        line.set_markerfacecolor((r, g, b))
 
         line.figure.canvas.draw()
 
     def on_combobox_lineprops_changed(self, item):
         'update the widgets from the active line'
-        if not self._inited: return
+        if not self._inited:
+            return
         self._updateson = False
         line = self.get_active_line()
 
         ls = line.get_linestyle()
-        if ls is None: ls = 'None'
+        if ls is None:
+            ls = 'None'
         self.cbox_linestyles.set_active(self.linestyled[ls])
 
         marker = line.get_marker()
-        if marker is None: marker = 'None'
+        if marker is None:
+            marker = 'None'
         self.cbox_markers.set_active(self.markerd[marker])
 
-        r,g,b = colorConverter.to_rgb(line.get_color())
-        color = Gdk.Color(*[int(val*65535) for val in (r,g,b)])
+        r, g, b = colorConverter.to_rgb(line.get_color())
+        color = Gdk.Color(*[int(val*65535) for val in (r, g, b)])
         button = self.wtree.get_widget('colorbutton_linestyle')
         button.set_color(color)
 
-        r,g,b = colorConverter.to_rgb(line.get_markerfacecolor())
-        color = Gdk.Color(*[int(val*65535) for val in (r,g,b)])
+        r, g, b = colorConverter.to_rgb(line.get_markerfacecolor())
+        color = Gdk.Color(*[int(val*65535) for val in (r, g, b)])
         button = self.wtree.get_widget('colorbutton_markerface')
         button.set_color(color)
         self._updateson = True
@@ -851,23 +896,25 @@ if sys.platform == 'win32':
     icon_filename = 'matplotlib.png'
 else:
     icon_filename = 'matplotlib.svg'
-window_icon = os.path.join(matplotlib.rcParams['datapath'], 'images', icon_filename)
+
+window_icon = os.path.join(matplotlib.rcParams['datapath'],
+                           'images', icon_filename)
 
 
 def error_msg_gtk(msg, parent=None):
-    if parent is not None: # find the toplevel Gtk.Window
+    if parent is not None:  # find the toplevel Gtk.Window
         parent = parent.get_toplevel()
         if not parent.is_toplevel():
             parent = None
 
     if not is_string_like(msg):
-        msg = ','.join(map(str,msg))
+        msg = ','.join(map(str, msg))
 
     dialog = Gtk.MessageDialog(
-        parent         = parent,
-        type           = Gtk.MessageType.ERROR,
-        buttons        = Gtk.ButtonsType.OK,
-        message_format = msg)
+        parent=parent,
+        type=Gtk.MessageType.ERROR,
+        buttons=Gtk.ButtonsType.OK,
+        message_format=msg)
     dialog.run()
     dialog.destroy()
 
