@@ -2927,7 +2927,7 @@ class Axes(_AxesBase):
 
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
             patch_artist=False, shownotches=False, showmeans=False,
-            showcaps=True, boxprops=None, flierprops=None,
+            showcaps=True, showbox=True, boxprops=None, flierprops=None,
             medianprops=None, meanprops=None, meanline=False):
 
         # lists of artists to be output
@@ -3025,7 +3025,9 @@ class Axes(_AxesBase):
         if widths is None:
             distance = max(positions) - min(positions)
             widths = [min(0.15 * max(distance, 1.0), 0.5)] * N
-        elif len(widths) != len(bxpstats):
+        elif np.isscalar(widths):
+            widths = [widths] * N
+        elif len(widths) != N:
             raise ValueError(datashape_message.format("widths"))
 
         if not self._hold:
@@ -3076,15 +3078,16 @@ class Axes(_AxesBase):
                          stats['q1']]
                 med_x = [box_left, box_right]
 
-            # draw the box:
-            if patch_artist:
-                boxes.extend(dopatch(
-                    box_x, box_y, **boxprops
-                ))
-            else:
-                boxes.extend(doplot(
-                    box_x, box_y, **boxprops
-                ))
+            # maybe draw the box:
+            if showbox:
+                if patch_artist:
+                    boxes.extend(dopatch(
+                        box_x, box_y, **boxprops
+                    ))
+                else:
+                    boxes.extend(doplot(
+                        box_x, box_y, **boxprops
+                    ))
 
             # draw the whiskers
             whiskers.extend(doplot(
