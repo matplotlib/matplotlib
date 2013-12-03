@@ -7,14 +7,18 @@ import math
 import os
 import sys
 import warnings
-def fn_name(): return sys._getframe(1).f_code.co_name
+
+
+def fn_name():
+    return sys._getframe(1).f_code.co_name
 
 import gobject
-import gtk; gdk = gtk.gdk
+import gtk
+gdk = gtk.gdk
 import pango
-pygtk_version_required = (2,2,0)
+pygtk_version_required = (2, 2, 0)
 if gtk.pygtk_version < pygtk_version_required:
-    raise ImportError ("PyGTK %d.%d.%d is installed\n"
+    raise ImportError("PyGTK %d.%d.%d is installed\n"
                       "PyGTK %d.%d.%d or later is required"
                       % (gtk.pygtk_version + pygtk_version_required))
 del pygtk_version_required
@@ -27,6 +31,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook import is_string_like
+import matplotlib.cbook as mcbook
 from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D
@@ -36,31 +41,31 @@ backend_version = "%d.%d.%d" % gtk.pygtk_version
 _debug = False
 
 # Image formats that this backend supports - for FileChooser and print_figure()
-IMAGE_FORMAT  = ['eps', 'jpg', 'png', 'ps', 'svg'] + ['bmp'] # , 'raw', 'rgb']
+IMAGE_FORMAT = ['eps', 'jpg', 'png', 'ps', 'svg'] + ['bmp']  # , 'raw', 'rgb']
 IMAGE_FORMAT.sort()
-IMAGE_FORMAT_DEFAULT  = 'png'
+IMAGE_FORMAT_DEFAULT = 'png'
 
 
 class RendererGDK(RendererBase):
     fontweights = {
-        100          : pango.WEIGHT_ULTRALIGHT,
-        200          : pango.WEIGHT_LIGHT,
-        300          : pango.WEIGHT_LIGHT,
-        400          : pango.WEIGHT_NORMAL,
-        500          : pango.WEIGHT_NORMAL,
-        600          : pango.WEIGHT_BOLD,
-        700          : pango.WEIGHT_BOLD,
-        800          : pango.WEIGHT_HEAVY,
-        900          : pango.WEIGHT_ULTRABOLD,
-        'ultralight' : pango.WEIGHT_ULTRALIGHT,
-        'light'      : pango.WEIGHT_LIGHT,
-        'normal'     : pango.WEIGHT_NORMAL,
-        'medium'     : pango.WEIGHT_NORMAL,
-        'semibold'   : pango.WEIGHT_BOLD,
-        'bold'       : pango.WEIGHT_BOLD,
-        'heavy'      : pango.WEIGHT_HEAVY,
-        'ultrabold'  : pango.WEIGHT_ULTRABOLD,
-        'black'      : pango.WEIGHT_ULTRABOLD,
+        100: pango.WEIGHT_ULTRALIGHT,
+        200: pango.WEIGHT_LIGHT,
+        300: pango.WEIGHT_LIGHT,
+        400: pango.WEIGHT_NORMAL,
+        500: pango.WEIGHT_NORMAL,
+        600: pango.WEIGHT_BOLD,
+        700: pango.WEIGHT_BOLD,
+        800: pango.WEIGHT_HEAVY,
+        900: pango.WEIGHT_ULTRABOLD,
+        'ultralight': pango.WEIGHT_ULTRALIGHT,
+        'light': pango.WEIGHT_LIGHT,
+        'normal': pango.WEIGHT_NORMAL,
+        'medium': pango.WEIGHT_NORMAL,
+        'semibold': pango.WEIGHT_BOLD,
+        'bold': pango.WEIGHT_BOLD,
+        'heavy': pango.WEIGHT_HEAVY,
+        'ultrabold': pango.WEIGHT_ULTRABOLD,
+        'black': pango.WEIGHT_ULTRABOLD,
                    }
 
     # cache for efficiency, these must be at class, not instance level
@@ -72,15 +77,15 @@ class RendererGDK(RendererBase):
         #  '<widget>.create_pango_layout(s)'
         #  cmap line below)
         self.gtkDA = gtkDA
-        self.dpi   = dpi
+        self.dpi = dpi
         self._cmap = gtkDA.get_colormap()
         self.mathtext_parser = MathTextParser("Agg")
 
-    def set_pixmap (self, pixmap):
+    def set_pixmap(self, pixmap):
         self.gdkDrawable = pixmap
 
-    def set_width_height (self, width, height):
-        """w,h is the figure w,h not the pixmap w,h
+    def set_width_height(self, width, height):
+        """w, h is the figure w, h not the pixmap w, h
         """
         self.width, self.height = width, height
 
@@ -89,7 +94,7 @@ class RendererGDK(RendererBase):
             scale(1.0, -1.0).translate(0, self.height)
         polygons = path.to_polygons(transform, self.width, self.height)
         for polygon in polygons:
-            # draw_polygon won't take an arbitrary sequence -- it must be a list
+            # draw_polygon won't take an arbitrary sequence; it must be a list
             # of tuples
             polygon = [(int(round(x)), int(round(y))) for x, y in polygon]
             if rgbFace is not None:
@@ -103,9 +108,9 @@ class RendererGDK(RendererBase):
     def draw_image(self, gc, x, y, im):
         bbox = gc.get_clip_rectangle()
 
-        if bbox != None:
-            l,b,w,h = bbox.bounds
-            #rectangle = (int(l), self.height-int(b+h),
+        if bbox is not None:
+            l, b, w, h = bbox.bounds
+            #rectangle =(int(l), self.height-int(b+h),
             #             int(w), int(h))
             # set clip rect?
 
@@ -120,16 +125,15 @@ class RendererGDK(RendererBase):
                                 width=cols, height=rows)
 
         array = pixbuf_get_pixels_array(pixbuf)
-        array[:,:,:] = image_array
+        array[:, :, :] = image_array
 
         gc = self.new_gc()
 
-
         y = self.height-y-rows
 
-        try: # new in 2.2
+        try:  # new in 2.2
             # can use None instead of gc.gdkGC, if don't need clipping
-            self.gdkDrawable.draw_pixbuf (gc.gdkGC, pixbuf, 0, 0,
+            self.gdkDrawable.draw_pixbuf(gc.gdkGC, pixbuf, 0, 0,
                                           int(x), int(y), cols, rows,
                                           gdk.RGB_DITHER_NONE, 0, 0)
         except AttributeError:
@@ -141,20 +145,19 @@ class RendererGDK(RendererBase):
         # unflip
         im.flipud_out()
 
-
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         x, y = int(x), int(y)
 
-        if x < 0 or y < 0: # window has shrunk and text is off the edge
+        if x < 0 or y < 0:  # window has shrunk and text is off the edge
             return
 
-        if angle not in (0,90):
+        if angle not in (0, 90):
             warnings.warn('backend_gdk: unable to draw text at angles ' +
                           'other than 0 or 90')
         elif ismath:
             self._draw_mathtext(gc, x, y, s, prop, angle)
 
-        elif angle==90:
+        elif angle == 90:
             self._draw_rotated_text(gc, x, y, s, prop, angle)
 
         else:
@@ -165,12 +168,11 @@ class RendererGDK(RendererBase):
 
             self.gdkDrawable.draw_layout(gc.gdkGC, x, y-h-b, layout)
 
-
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
         ox, oy, width, height, descent, font_image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi, prop)
 
-        if angle==90:
+        if angle == 90:
             width, height = height, width
             x -= width
         y -= height
@@ -180,13 +182,13 @@ class RendererGDK(RendererBase):
         N = imw * imh
 
         # a numpixels by num fonts array
-        Xall = np.zeros((N,1), np.uint8)
+        Xall = np.zeros((N, 1), np.uint8)
 
         image_str = font_image.as_str()
-        Xall[:,0] = np.fromstring(image_str, np.uint8)
+        Xall[:, 0] = np.fromstring(image_str, np.uint8)
 
         # get the max alpha at each pixel
-        Xs = np.amax(Xall,axis=1)
+        Xs = np.amax(Xall, axis=1)
 
         # convert it to it's proper shape
         Xs.shape = imh, imw
@@ -197,14 +199,14 @@ class RendererGDK(RendererBase):
         array = pixbuf_get_pixels_array(pixbuf)
 
         rgb = gc.get_rgb()
-        array[:,:,0]=int(rgb[0]*255)
-        array[:,:,1]=int(rgb[1]*255)
-        array[:,:,2]=int(rgb[2]*255)
-        array[:,:,3]=Xs
+        array[:, :, 0]=int(rgb[0]*255)
+        array[:, :, 1]=int(rgb[1]*255)
+        array[:, :, 2]=int(rgb[2]*255)
+        array[:, :, 3]=Xs
 
-        try: # new in 2.2
+        try:  # new in 2.2
             # can use None instead of gc.gdkGC, if don't need clipping
-            self.gdkDrawable.draw_pixbuf (gc.gdkGC, pixbuf, 0, 0,
+            self.gdkDrawable.draw_pixbuf(gc.gdkGC, pixbuf, 0, 0,
                                           int(x), int(y), imw, imh,
                                           gdk.RGB_DITHER_NONE, 0, 0)
         except AttributeError:
@@ -212,7 +214,6 @@ class RendererGDK(RendererBase):
             pixbuf.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
                                   int(x), int(y), imw, imh,
                                   gdk.RGB_DITHER_NONE, 0, 0)
-
 
     def _draw_rotated_text(self, gc, x, y, s, prop, angle):
         """
@@ -231,13 +232,13 @@ class RendererGDK(RendererBase):
         x = int(x-h)
         y = int(y-w)
 
-        if (x < 0 or y < 0 or # window has shrunk and text is off the edge
+        if (x < 0 or y < 0 or  # window has shrunk and text is off the edge
             x + w > self.width or y + h > self.height):
             return
 
-        key = (x,y,s,angle,hash(prop))
+        key = (x, y, s, angle, hash(prop))
         imageVert = self.rotated.get(key)
-        if imageVert != None:
+        if imageVert is not None:
             gdrawable.draw_image(ggc, imageVert, 0, 0, x, y, h, w)
             return
 
@@ -246,26 +247,25 @@ class RendererGDK(RendererBase):
         imageFlip = gtk.gdk.Image(type=gdk.IMAGE_FASTEST,
                                   visual=gdrawable.get_visual(),
                                   width=w, height=h)
-        if imageFlip == None or imageBack == None or imageVert == None:
+        if imageFlip is None or imageBack is None or imageVert is None:
             warnings.warn("Could not renderer vertical text")
             return
         imageFlip.set_colormap(self._cmap)
         for i in range(w):
             for j in range(h):
-                imageFlip.put_pixel(i, j, imageVert.get_pixel(j,w-i-1) )
+                imageFlip.put_pixel(i, j, imageVert.get_pixel(j, w-i-1))
 
         gdrawable.draw_image(ggc, imageFlip, 0, 0, x, y, w, h)
         gdrawable.draw_layout(ggc, x, y-b, layout)
 
-        imageIn  = gdrawable.get_image(x, y, w, h)
+        imageIn = gdrawable.get_image(x, y, w, h)
         for i in range(w):
             for j in range(h):
-                imageVert.put_pixel(j, i, imageIn.get_pixel(w-i-1,j) )
+                imageVert.put_pixel(j, i, imageIn.get_pixel(w-i-1, j))
 
         gdrawable.draw_image(ggc, imageBack, 0, 0, x, y, w, h)
         gdrawable.draw_image(ggc, imageVert, 0, 0, x, y, h, w)
         self.rotated[key] = imageVert
-
 
     def _get_pango_layout(self, s, prop):
         """
@@ -281,7 +281,7 @@ class RendererGDK(RendererBase):
 
         key = self.dpi, s, hash(prop)
         value = self.layoutd.get(key)
-        if value != None:
+        if value is not None:
             return value
 
         size = prop.get_size_in_points() * self.dpi / 96.0
@@ -299,7 +299,6 @@ class RendererGDK(RendererBase):
 
         self.layoutd[key] = layout, inkRect, logicalRect
         return layout, inkRect, logicalRect
-
 
     def flipy(self):
         return True
@@ -322,7 +321,6 @@ class RendererGDK(RendererBase):
     def new_gc(self):
         return GraphicsContextGDK(renderer=self)
 
-
     def points_to_pixels(self, points):
         return points/72.0 * self.dpi
 
@@ -332,24 +330,22 @@ class GraphicsContextGDK(GraphicsContextBase):
     _cached = {}  # map: rgb color -> gdk.Color
 
     _joind = {
-        'bevel' : gdk.JOIN_BEVEL,
-        'miter' : gdk.JOIN_MITER,
-        'round' : gdk.JOIN_ROUND,
+        'bevel': gdk.JOIN_BEVEL,
+        'miter': gdk.JOIN_MITER,
+        'round': gdk.JOIN_ROUND,
         }
 
     _capd = {
-        'butt'       : gdk.CAP_BUTT,
-        'projecting' : gdk.CAP_PROJECTING,
-        'round'      : gdk.CAP_ROUND,
+        'butt': gdk.CAP_BUTT,
+        'projecting': gdk.CAP_PROJECTING,
+        'round': gdk.CAP_ROUND,
         }
-
 
     def __init__(self, renderer):
         GraphicsContextBase.__init__(self)
         self.renderer = renderer
-        self.gdkGC    = gtk.gdk.GC(renderer.gdkDrawable)
-        self._cmap    = renderer._cmap
-
+        self.gdkGC = gtk.gdk.GC(renderer.gdkDrawable)
+        self._cmap = renderer._cmap
 
     def rgb_to_gdk_color(self, rgb):
         """
@@ -359,11 +355,11 @@ class GraphicsContextGDK(GraphicsContextBase):
         try:
             return self._cached[tuple(rgb)]
         except KeyError:
-            color = self._cached[tuple(rgb)] = \
-                    self._cmap.alloc_color(
-                        int(rgb[0]*65535),int(rgb[1]*65535),int(rgb[2]*65535))
+            color = self._cached[tuple(rgb)] = self._cmap.alloc_color(
+                                                    int(rgb[0]*65535),
+                                                    int(rgb[1]*65535),
+                                                    int(rgb[2]*65535))
             return color
-
 
     #def set_antialiased(self, b):
         # anti-aliasing is not supported by GDK
@@ -372,12 +368,11 @@ class GraphicsContextGDK(GraphicsContextBase):
         GraphicsContextBase.set_capstyle(self, cs)
         self.gdkGC.cap_style = self._capd[self._capstyle]
 
-
     def set_clip_rectangle(self, rectangle):
         GraphicsContextBase.set_clip_rectangle(self, rectangle)
         if rectangle is None:
             return
-        l,b,w,h = rectangle.bounds
+        l, b, w, h = rectangle.bounds
         rectangle = (int(l), self.renderer.height-int(b+h)+1,
                      int(w), int(h))
         #rectangle = (int(l), self.renderer.height-int(b+h),
@@ -387,7 +382,7 @@ class GraphicsContextGDK(GraphicsContextBase):
     def set_dashes(self, dash_offset, dash_list):
         GraphicsContextBase.set_dashes(self, dash_offset, dash_list)
 
-        if dash_list == None:
+        if dash_list is None:
             self.gdkGC.line_style = gdk.LINE_SOLID
         else:
             pixels = self.renderer.points_to_pixels(np.asarray(dash_list))
@@ -395,21 +390,17 @@ class GraphicsContextGDK(GraphicsContextBase):
             self.gdkGC.set_dashes(dash_offset, dl)
             self.gdkGC.line_style = gdk.LINE_ON_OFF_DASH
 
-
     def set_foreground(self, fg, isRGBA=False):
         GraphicsContextBase.set_foreground(self, fg, isRGBA)
         self.gdkGC.foreground = self.rgb_to_gdk_color(self.get_rgb())
-
 
     def set_graylevel(self, frac):
         GraphicsContextBase.set_graylevel(self, frac)
         self.gdkGC.foreground = self.rgb_to_gdk_color(self.get_rgb())
 
-
     def set_joinstyle(self, js):
         GraphicsContextBase.set_joinstyle(self, js)
         self.gdkGC.join_style = self._joind[self._joinstyle]
-
 
     def set_linewidth(self, w):
         GraphicsContextBase.set_linewidth(self, w)
@@ -433,24 +424,24 @@ def new_figure_manager_given_figure(num, figure):
     """
     Create a new figure manager instance for the given figure.
     """
-    canvas  = FigureCanvasGDK(figure)
+    canvas = FigureCanvasGDK(figure)
     manager = FigureManagerBase(canvas, num)
     return manager
 
 
-class FigureCanvasGDK (FigureCanvasBase):
+class FigureCanvasGDK(FigureCanvasBase):
     def __init__(self, figure):
         FigureCanvasBase.__init__(self, figure)
 
         self._renderer_init()
 
     def _renderer_init(self):
-        self._renderer = RendererGDK (gtk.DrawingArea(), self.figure.dpi)
+        self._renderer = RendererGDK(gtk.DrawingArea(), self.figure.dpi)
 
     def _render_figure(self, pixmap, width, height):
-        self._renderer.set_pixmap (pixmap)
-        self._renderer.set_width_height (width, height)
-        self.figure.draw (self._renderer)
+        self._renderer.set_pixmap(pixmap)
+        self._renderer.set_width_height(width, height)
+        self.figure.draw(self._renderer)
 
     filetypes = FigureCanvasBase.filetypes.copy()
     filetypes['jpg'] = 'JPEG'
@@ -465,7 +456,7 @@ class FigureCanvasGDK (FigureCanvasBase):
 
     def _print_image(self, filename, format, *args, **kwargs):
         width, height = self.get_width_height()
-        pixmap = gtk.gdk.Pixmap (None, width, height, depth=24)
+        pixmap = gtk.gdk.Pixmap(None, width, height, depth=24)
         self._render_figure(pixmap, width, height)
 
         # jpg colors don't match the display very well, png colors match
@@ -477,10 +468,10 @@ class FigureCanvasGDK (FigureCanvasBase):
 
         # set the default quality, if we are writing a JPEG.
         # http://www.pygtk.org/docs/pygtk/class-gdkpixbuf.html#method-gdkpixbuf--save
-        options = cbook.restrict_dict(kwargs, ['quality'])
-        if format in ['jpg','jpeg']:
-           if 'quality' not in options:
-              options['quality'] = rcParams['savefig.jpeg_quality']
-           options['quality'] = str(options['quality'])
+        options = mcbook.restrict_dict(kwargs, ['quality'])
+        if format in ['jpg', 'jpeg']:
+            if 'quality' not in options:
+                options['quality'] = rcParams['savefig.jpeg_quality']
+            options['quality'] = str(options['quality'])
 
         pixbuf.save(filename, format, options=options)
