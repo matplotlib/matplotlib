@@ -105,7 +105,7 @@ class Test_boxplot_stats:
         self.known_keys = sorted([
             'mean', 'med', 'q1', 'q3', 'iqr',
             'cilo', 'cihi', 'whislo', 'whishi',
-            'outliers'
+            'fliers', 'label'
         ])
         self.std_results = cbook.boxplot_stats(self.data)
 
@@ -115,13 +115,14 @@ class Test_boxplot_stats:
             'iqr': 13.492709959447094,
             'mean': 13.00447442387868,
             'med': 3.3335733967038079,
-            'outliers': np.array([
+            'fliers': np.array([
                 92.55467075,  87.03819018,  42.23204914,  39.29390996
             ]),
             'q1': 1.3597529879465153,
             'q3': 14.85246294739361,
             'whishi': 27.899688243699629,
-            'whislo': 0.042143774965502923
+            'whislo': 0.042143774965502923,
+            'label': 0
         }
 
         self.known_bootstrapped_ci = {
@@ -132,7 +133,11 @@ class Test_boxplot_stats:
         self.known_whis3_res = {
             'whishi': 42.232049135969874,
             'whislo': 0.042143774965502923,
-            'outliers': np.array([92.55467075, 87.03819018]),
+            'fliers': np.array([92.55467075, 87.03819018]),
+        }
+
+        self.known_res_with_labels = {
+            'label': 'Test1'
         }
 
     def test_form_main_list(self):
@@ -151,7 +156,7 @@ class Test_boxplot_stats:
     def test_results_baseline(self):
         res = self.std_results[0]
         for key in list(self.known_nonbootstrapped_res.keys()):
-            if key != 'outliers':
+            if key != 'fliers':
                 assert_statement = assert_approx_equal
             else:
                 assert_statement = assert_array_almost_equal
@@ -174,7 +179,7 @@ class Test_boxplot_stats:
         results = cbook.boxplot_stats(self.data, whis=3)
         res = results[0]
         for key in list(self.known_whis3_res.keys()):
-            if key != 'outliers':
+            if key != 'fliers':
                 assert_statement = assert_approx_equal
             else:
                 assert_statement = assert_array_almost_equal
@@ -183,3 +188,20 @@ class Test_boxplot_stats:
                 res[key],
                 self.known_whis3_res[key]
             )
+
+    def test_results_withlabels(self):
+        labels = ['Test1', 2, 3, 4]
+        results = cbook.boxplot_stats(self.data, labels=labels)
+        res = results[0]
+        for key in list(self.known_res_with_labels.keys()):
+            assert_equal(res[key], self.known_res_with_labels[key])
+
+    @raises(ValueError)
+    def test_label_error(self):
+        labels = [1, 2]
+        results = cbook.boxplot_stats(self.data, labels=labels)
+
+    @raises(ValueError)
+    def test_bad_dims(self):
+        data = np.random.normal(size=(34, 34, 34))
+        results = cbook.boxplot_stats(data)
