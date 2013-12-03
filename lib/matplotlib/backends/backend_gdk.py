@@ -27,9 +27,8 @@ import numpy as np
 
 import matplotlib
 from matplotlib import rcParams
-from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase
+from ._backend_bases import (RendererBase, GraphicsContextBase,
+     FigureManagerBase, FigureCanvasBase)
 from matplotlib.cbook import is_string_like
 import matplotlib.cbook as mcbook
 from matplotlib.figure import Figure
