@@ -2933,9 +2933,33 @@ class Axes(_AxesBase):
         # lists of artists to be output
         whiskers, caps, boxes, medians, means, fliers = [], [], [], [], [], []
 
+        # empty list of xticklabels
+        datalabels = []
+
+        # translates between line2D and patch linestyles
+        linestyle_map = {
+            'solid': '-',
+            'dashed': '--',
+            'dashdot': '-.',
+            'dotted': ':'
+        }
+
         # plotting properties
         if boxprops is None:
-            boxprops = dict(linestyle='-', color='black')
+            if patch_artist:
+                boxprops = dict(linestyle='solid', edgecolor='black',
+                                facecolor='white')
+            else:
+                boxprops = dict(linestyle='-', color='black')
+
+        if patch_artist:
+            otherprops = dict(
+                    linestyle=linestyle_map[boxprops['linestyle']],
+                    color=boxprops['edgecolor']
+            )
+        else:
+            otherprops = dict(linestyle=boxprops['linestyle'],
+                              color=boxprops['color'])
 
         if flierprops is None:
             flierprops = dict(linestyle='none', marker='+',
@@ -3010,6 +3034,9 @@ class Axes(_AxesBase):
         holdStatus = self._hold
 
         for pos, width, stats in zip(positions, widths, bxpstats):
+            # try to find a new label
+            datalabels.append(stats.get('label', pos))
+
             # outliers coords
             flier_x = np.ones(len(stats['outliers'])) * pos
             flier_y = stats['outliers']
@@ -3061,19 +3088,19 @@ class Axes(_AxesBase):
 
             # draw the whiskers
             whiskers.extend(doplot(
-                whisker_x, whiskerlo_y, **boxprops
+                whisker_x, whiskerlo_y, **otherprops
             ))
             whiskers.extend(doplot(
-                whisker_x, whiskerhi_y, **boxprops
+                whisker_x, whiskerhi_y, **otherprops
             ))
 
             # maybe draw the caps:
             if showcaps:
                 caps.extend(doplot(
-                    cap_x, cap_lo, **boxprops
+                    cap_x, cap_lo, **otherprops
                 ))
                 caps.extend(doplot(
-                    cap_x, cap_hi, **boxprops
+                    cap_x, cap_hi, **otherprops
                 ))
 
             # draw the medians
@@ -3101,19 +3128,24 @@ class Axes(_AxesBase):
 
         # fix our axes/ticks up a little
         if vert:
-            setticks, setlim = self.set_xticks, self.set_xlim
+            setticks = self.set_xticks
+            setlim = self.set_xlim
+            setlabels = self.set_xticklabels
         else:
-            setticks, setlim = self.set_yticks, self.set_ylim
+            setticks = self.set_yticks
+            setlim = self.set_ylim
+            setlabels = self.set_yticklabels
 
         newlimits = min(positions) - 0.5, max(positions) + 0.5
         setlim(newlimits)
         setticks(positions)
+        setlabels(datalabels)
 
         # reset hold status
         self.hold(holdStatus)
 
         return dict(whiskers=whiskers, caps=caps, boxes=boxes,
-                    medians=medians, fliers=fliers)
+                    medians=medians, fliers=fliers, means=means)
 
     @docstring.dedent_interpd
     def scatter(self, x, y, s=20, c='b', marker='o', cmap=None, norm=None,
