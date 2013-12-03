@@ -7,6 +7,7 @@ from nose.tools import assert_raises
 from numpy.testing import assert_almost_equal
 import numpy as np
 import matplotlib
+
 import matplotlib.ticker as mticker
 
 
@@ -24,7 +25,7 @@ def test_MaxNLocator():
 
 def test_LinearLocator():
     loc = mticker.LinearLocator(numticks=3)
-    test_value = np.array([-0.8, -0.3,  0.2])
+    test_value = np.array([-0.8, -0.3, 0.2])
     assert_almost_equal(loc.tick_values(-0.8, 0.2), test_value)
 
 
@@ -55,6 +56,16 @@ def test_use_offset():
         with matplotlib.rc_context({'axes.formatter.useoffset': use_offset}):
             tmp_form = mticker.ScalarFormatter()
             nose.tools.assert_equal(use_offset, tmp_form.get_useOffset())
+
+
+def test_formatstrformatter():
+    # test % style formatter
+    tmp_form = mticker.FormatStrFormatter('%05d')
+    nose.tools.assert_equal('00002', tmp_form(2))
+
+    # test str.format() style formatter
+    tmp_form = mticker.StrMethodFormatter('{x:05d}')
+    nose.tools.assert_equal('00002', tmp_form(2))
 
 
 if __name__ == '__main__':
