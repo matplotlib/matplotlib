@@ -2878,6 +2878,7 @@ class Axes(_AxesBase):
             - caps: the horizontal lines at the ends of the whiskers.
             - fliers: points representing data that extend beyone the
               whiskers (outliers).
+            - means: points or lines representing the means.
 
         **Example:**
 
@@ -2927,11 +2928,121 @@ class Axes(_AxesBase):
 
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
             patch_artist=False, shownotches=False, showmeans=False,
-            showcaps=True, showbox=True, boxprops=None, flierprops=None,
-            medianprops=None, meanprops=None, meanline=False):
+            showcaps=True, showbox=True, showfliers=True,
+            boxprops=None, flierprops=None, medianprops=None,
+            meanprops=None, meanline=False):
+        """
+        Drawing function for box and whisker plots.
 
+        Call signature::
+
+          bxp(self, bxpstats, positions=None, widths=None, vert=True,
+              patch_artist=False, shownotches=False, showmeans=False,
+              showcaps=True, showbox=True, boxprops=None, flierprops=None,
+              medianprops=None, meanprops=None, meanline=False):
+
+        Make a box and whisker plot for each column of *x* or each
+        vector in sequence *x*.  The box extends from the lower to
+        upper quartile values of the data, with a line at the median.
+        The whiskers extend from the box to show the range of the
+        data.  Flier points are those past the end of the whiskers.
+
+        Function Arguments:
+
+          *bxpstats* :
+            A list of dictionaries containing stats for each boxplot.
+            Required keys are:
+              'med' - The median (scalar float).
+              'q1' - The first quartile (25th percentile) (scalar float).
+              'q3' - The first quartile (50th percentile) (scalar float).
+              'whislo' - Lower bound of the lower whisker (scalar float).
+              'whishi' - Upper bound of the upper whisker (scalar float).
+            Optional keys are
+              'mean' - The mean (scalar float). Needed if showmeans=True.
+              'fliers' - Data beyond the whiskers (sequence of floats).
+                Needed if showfliers=True.
+              'cilo' & 'ciho' - Lower and upper confidence intervals about
+                the median. Needed if shownotches=True.
+              'label' - Name of the dataset (string). If available, this
+                will be used a tick label for the boxplot
+
+          *positions* : [ default 1,2,...,n ]
+            Sets the horizontal positions of the boxes. The ticks and limits
+            are automatically set to match the positions.
+
+          *widths* : [ default 0.5 ]
+            Either a scalar or a vector and sets the width of each box. The
+            default is 0.5, or ``0.15*(distance between extreme positions)``
+            if that is smaller.
+
+          *vert* : [ False | True (default) ]
+            If True (default), makes the boxes vertical.
+            If False, makes horizontal boxes.
+
+          *patch_artist* : [ False (default) | True ]
+            If False produces boxes with the Line2D artist
+            If True produces boxes with the Patch artist1
+
+          *shownotches* : [ False (default) | True ]
+            If False (default), produces a rectangular box plot.
+            If True, will produce a notched box plot
+
+          *showmeans* : [ False (default) | True ]
+            If True, will toggle one the rendering of the means
+
+          *showcaps*  : [ False | True (default) ]
+            If True, will toggle one the rendering of the caps
+
+          *showbox*  : [ False | True (default) ]
+            If True, will toggle one the rendering of box
+
+          *showfliers*  : [ False | True (default) ]
+            If True, will toggle one the rendering of the fliers
+
+          *boxprops*  : [ dict | None (default) ]
+            If provided, will set the plotting style of the boxes
+
+          *flierprops*  : [ dict | None (default) ]
+            If provided, will set the plotting style of the fliers
+
+          *medianprops*  : [ dict | None (default) ]
+            If provided, will set the plotting style of the medians
+
+          *meanprops*  : [ dict | None (default) ]
+            If provided, will set the plotting style of the means
+
+          *meanline*  : [ False (default) | True ]
+            If True (and *showmeans* is True), will try to render the mean
+            as a line spanning the full width of the box according to
+            *meanprops*. Not recommended if *shownotches* is also True.
+            Otherwise, means will be shown as points.
+
+        Returns a dictionary mapping each component of the boxplot
+        to a list of the :class:`matplotlib.lines.Line2D`
+        instances created. That dictionary has the following keys
+        (assuming vertical boxplots):
+
+            - boxes: the main body of the boxplot showing the quartiles
+              and the median's confidence intervals if enabled.
+            - medians: horizonal lines at the median of each box.
+            - whiskers: the vertical lines extending to the most extreme,
+              n-outlier data points.
+            - caps: the horizontal lines at the ends of the whiskers.
+            - fliers: points representing data that extend beyone the
+              whiskers (fliers).
+            - means: points or lines representing the means.
+
+        **Example:**
+
+        .. plot:: pyplots/boxplot_demo.py
+        """
         # lists of artists to be output
-        whiskers, caps, boxes, medians, means, fliers = [], [], [], [], [], []
+        whiskers = []
+        caps = []
+        boxes = []
+        medians = []
+        means = []
+        fliers = []
 
         # empty list of xticklabels
         datalabels = []
@@ -3039,9 +3150,9 @@ class Axes(_AxesBase):
             # try to find a new label
             datalabels.append(stats.get('label', pos))
 
-            # outliers coords
-            flier_x = np.ones(len(stats['outliers'])) * pos
-            flier_y = stats['outliers']
+            # fliers coords
+            flier_x = np.ones(len(stats['fliers'])) * pos
+            flier_y = stats['fliers']
 
             # whisker coords
             whisker_x = np.ones(2) * pos
@@ -3124,10 +3235,11 @@ class Axes(_AxesBase):
                         [pos], [stats['mean']], **meanprops
                     ))
 
-            # draw the outliers
-            fliers.extend(doplot(
-                flier_x, flier_y, **flierprops
-            ))
+            # maybe draw the fliers
+            if showfliers:
+                fliers.extend(doplot(
+                    flier_x, flier_y, **flierprops
+                ))
 
         # fix our axes/ticks up a little
         if vert:
