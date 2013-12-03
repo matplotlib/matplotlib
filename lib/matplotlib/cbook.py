@@ -1860,12 +1860,17 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
         Data that will be represented in the boxplots. Should have 2 or fewer
         dimensions.
 
-    whis : float (default = 1.5)
-        Determines the reach of the whiskers past the first and third
-        quartiles (e.g., Q3 + whis*IQR). Beyond the whiskers, data are
-        considers outliers and are plotted as individual points. Set
-        this to an unreasonably high value to force the whiskers to
-        show the min and max data. (IQR = interquartile range, Q3-Q1)
+    whis : float, string, or sequence (default = 1.5)
+        As a float, determines the reach of the whiskers past the first and
+        third quartiles (e.g., Q3 + whis*IQR). Beyond the whiskers, data are
+        considers outliers and are plotted as individual points. Set this
+        to an unreasonably high value to force the whiskers to show the min
+        and max data. (IQR = interquartile range, Q3-Q1). Alternatively, set
+        this to an ascending sequence of percentile (e.g., [5, 95]) to set
+        the whiskers at specific percentiles of the data. Finally, can be the
+        string 'range' to force the whiskers to the min and max of the data.
+        In the edge case that the 25th and 75th percentiles are equivalent,
+        `whis` will be automatically set to 'range'
 
     bootstrap : int or None (default)
         Number of times the confidence intervals around the median should
@@ -1968,14 +1973,31 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
 
         # interquartile range
         stats['iqr'] = stats['q3'] - stats['q1']
+        if stats['iqr'] == 0:
+            whis = 'range'
 
         # conf. interval around median
         stats['cilo'], stats['cihi'] = _compute_conf_interval(
             x, stats['med'], stats['iqr'], bootstrap
         )
 
-        # highest non-outliers
-        hival = stats['q3'] + whis * stats['iqr']
+        # lowest/highest non-outliers
+        if np.isscalar(whis):
+            if np.isreal(whis):
+                loval = stats['q1'] - whis * stats['iqr']
+                hival = stats['q3'] + whis * stats['iqr']
+            elif whis in ['range', 'limit', 'limits', 'min/max']:
+                loval = np.min(x)
+                hival = np.max(x)
+            else:
+                whismsg = 'whis must be a float, valid string, or '\
+                          'list of percentiles'
+                raise ValueError(whismsg)
+        else:
+            loval = np.percentile(x, whis[0])
+            hival = np.percentile(x, whis[1])
+
+        # get high extreme
         wiskhi = np.compress(x <= hival, x)
         if len(wiskhi) == 0 or np.max(wiskhi) < stats['q3']:
             stats['whishi'] = stats['q3']
@@ -1983,7 +2005,6 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
             stats['whishi'] = max(wiskhi)
 
         # get low extreme
-        loval = stats['q1'] - whis * stats['iqr']
         wisklo = np.compress(x >= loval, x)
         if len(wisklo) == 0 or np.min(wisklo) > stats['q1']:
             stats['whislo'] = stats['q1']

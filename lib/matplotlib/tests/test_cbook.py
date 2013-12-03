@@ -101,7 +101,7 @@ class Test_boxplot_stats:
         self.nrows = 37
         self.ncols = 4
         self.data = np.random.lognormal(size=(self.nrows, self.ncols),
-                                            mean=1.5, sigma=1.75)
+                                        mean=1.5, sigma=1.75)
         self.known_keys = sorted([
             'mean', 'med', 'q1', 'q3', 'iqr',
             'cilo', 'cihi', 'whislo', 'whishi',
@@ -140,6 +140,17 @@ class Test_boxplot_stats:
             'label': 'Test1'
         }
 
+        self.known_res_percentiles = {
+            'whislo':   0.1933685896907924,
+            'whishi':  42.232049135969874
+        }
+
+        self.known_res_range = {
+            'whislo': 0.042143774965502923,
+            'whishi': 92.554670752188699
+
+        }
+
     def test_form_main_list(self):
         assert_true(isinstance(self.std_results, list))
 
@@ -175,7 +186,7 @@ class Test_boxplot_stats:
                 self.known_bootstrapped_ci[key]
             )
 
-    def test_results_whiskers(self):
+    def test_results_whiskers_float(self):
         results = cbook.boxplot_stats(self.data, whis=3)
         res = results[0]
         for key in list(self.known_whis3_res.keys()):
@@ -187,6 +198,34 @@ class Test_boxplot_stats:
             assert_statement(
                 res[key],
                 self.known_whis3_res[key]
+            )
+
+    def test_results_whiskers_range(self):
+        results = cbook.boxplot_stats(self.data, whis='range')
+        res = results[0]
+        for key in list(self.known_res_range.keys()):
+            if key != 'fliers':
+                assert_statement = assert_approx_equal
+            else:
+                assert_statement = assert_array_almost_equal
+
+            assert_statement(
+                res[key],
+                self.known_res_range[key]
+            )
+
+    def test_results_whiskers_percentiles(self):
+        results = cbook.boxplot_stats(self.data, whis=[5, 95])
+        res = results[0]
+        for key in list(self.known_res_percentiles.keys()):
+            if key != 'fliers':
+                assert_statement = assert_approx_equal
+            else:
+                assert_statement = assert_array_almost_equal
+
+            assert_statement(
+                res[key],
+                self.known_res_percentiles[key]
             )
 
     def test_results_withlabels(self):
