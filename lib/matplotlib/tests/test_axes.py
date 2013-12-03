@@ -1048,6 +1048,34 @@ def test_bxp_baseline():
     ax.set_yscale('log')
     ax.bxp(logstats)
 
+@image_comparison(baseline_images=['bxp_rangewhis'],
+                  extensions=['png'],
+                  savefig_kwarg={'dpi': 40})
+def test_bxp_rangewhis():
+    np.random.seed(937)
+    logstats = matplotlib.cbook.boxplot_stats(
+        np.random.lognormal(mean=1.25, sigma=1., size=(37,4)),
+        whis='range'
+    )
+
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    ax.bxp(logstats)
+
+@image_comparison(baseline_images=['bxp_precentilewhis'],
+                  extensions=['png'],
+                  savefig_kwarg={'dpi': 40})
+def test_bxp_precentilewhis():
+    np.random.seed(937)
+    logstats = matplotlib.cbook.boxplot_stats(
+        np.random.lognormal(mean=1.25, sigma=1., size=(37,4)),
+        whis=[5, 95]
+    )
+
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    ax.bxp(logstats)
+
 @image_comparison(baseline_images=['bxp_with_xlabels'],
                   extensions=['png'],
                   savefig_kwarg={'dpi': 40})
@@ -1305,9 +1333,17 @@ def test_boxplot():
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
 
-    # show 1 boxplot with mpl medians/conf. interfals, 1 with manual values
     ax.boxplot([x, x], bootstrap=10000, notch=1)
     ax.set_ylim((-30, 30))
+
+@image_comparison(baseline_images=['boxplot_autorange_whiskers'])
+def test_boxplot_autorange_whiskers():
+    x = np.ones(140)
+    x = np.hstack([0, x, 2])
+    fig, ax = plt.subplots()
+
+    ax.boxplot([x, x], bootstrap=10000, notch=1)
+    ax.set_ylim((-5, 5))
 
 @image_comparison(baseline_images=['boxplot_with_CIarray'],
                   remove_text=True, extensions=['png'],
