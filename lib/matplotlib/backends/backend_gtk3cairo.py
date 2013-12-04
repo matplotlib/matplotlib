@@ -2,76 +2,28 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
+import warnings
+from ._backend_gtk3cairo import (RendererGTK3Cairo,
+                                 FigureCanvasGTK3Cairo,
+                                 new_figure_manager,
+                                 new_figure_manager_given_figure)
+from ._backend_gtk3 import (FigureManagerGTK3)
 
-from . import backend_gtk3
-from . import backend_cairo
-from .backend_cairo import cairo, HAS_CAIRO_CFFI
-from matplotlib.figure import Figure
-
-
-class RendererGTK3Cairo(backend_cairo.RendererCairo):
-    def set_context(self, ctx):
-        if HAS_CAIRO_CFFI:
-            ctx = cairo.Context._from_pointer(
-                cairo.ffi.cast(
-                    'cairo_t **',
-                    id(ctx) + object.__basicsize__)[0],
-                incref=True)
-
-        self.gc.ctx = ctx
+from matplotlib._pylab_helpers import Gcf
+from .backend_gtk3 import (show,
+                           draw_if_interactive,
+                           _gtk_cleanup,
+                           key_press_handler)
 
 
-class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
-                            backend_cairo.FigureCanvasCairo):
-    def __init__(self, figure):
-        backend_gtk3.FigureCanvasGTK3.__init__(self, figure)
-
-    def _renderer_init(self):
-        """use cairo renderer"""
-        self._renderer = RendererGTK3Cairo(self.figure.dpi)
-
-    def _render_figure(self, width, height):
-        self._renderer.set_width_height(width, height)
-        self.figure.draw(self._renderer)
-
-    def on_draw_event(self, widget, ctx):
-        """ GtkDrawable draw event, like expose_event in GTK 2.X
-        """
-        # the _need_redraw flag doesnt work. it sometimes prevents
-        # the rendering and leaving the canvas blank
-        #if self._need_redraw:
-        self._renderer.set_context(ctx)
-        allocation = self.get_allocation()
-        x, y, w, h = (allocation.x, allocation.y,
-                        allocation.width, allocation.height)
-        self._render_figure(w, h)
-        #self._need_redraw = False
-
-        return False  # finish event propagation?
-
-
-class FigureManagerGTK3Cairo(backend_gtk3.FigureManagerGTK3):
-    pass
-
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasGTK3Cairo(figure)
-    manager = FigureManagerGTK3Cairo(canvas, num)
-    return manager
+if six.PY3:
+    warnings.warn("The Gtk3Agg backend is not known to work on Python 3.x.")
 
 
 FigureCanvas = FigureCanvasGTK3Cairo
-FigureManager = FigureManagerGTK3Cairo
-show = backend_gtk3.show
+FigureManager = FigureManagerGTK3
+
+# set the call backs
+FigureManager._key_press_handler = staticmethod(key_press_handler)
+FigureManager._destroy_callback = staticmethod(Gcf.destroy)
+FigureManager._gtk_cleanup = staticmethod(_gtk_cleanup)
