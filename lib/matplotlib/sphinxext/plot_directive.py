@@ -82,6 +82,9 @@ The plot directive has the following configuration options:
     plot_include_source
         Default value for the include-source option
 
+    plot_show_source_link
+        Whether to show a link to the source in HTML.
+
     plot_pre_code
         Code that should be executed before each plot.
 
@@ -304,6 +307,7 @@ def setup(app):
     app.add_directive('plot', plot_directive, True, (0, 2, False), **options)
     app.add_config_value('plot_pre_code', None, True)
     app.add_config_value('plot_include_source', False, True)
+    app.add_config_value('plot_show_source_link', True, True)
     app.add_config_value('plot_formats', ['png', 'hires.png', 'pdf'], True)
     app.add_config_value('plot_basedir', None, True)
     app.add_config_value('plot_html_show_formats', True, True)
@@ -388,9 +392,9 @@ TEMPLATE = """
 
 {{ only_html }}
 
-   {% if source_link or (html_show_formats and not multi_image) %}
+   {% if (source_link and show_source_link) or (html_show_formats and not multi_image) %}
    (
-   {%- if source_link -%}
+   {%- if source_link and show_source_link -%}
    `Source code <{{ source_link }}>`__
    {%- endif -%}
    {%- if html_show_formats and not multi_image -%}
@@ -805,6 +809,7 @@ def run(arguments, content, options, state_machine, state, lineno):
             dest_dir=dest_dir_link,
             build_dir=build_dir_link,
             source_link=src_link,
+            show_source_link=config.plot_show_source_link,
             multi_image=len(images) > 1,
             only_html=only_html,
             only_latex=only_latex,
