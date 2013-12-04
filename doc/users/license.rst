@@ -48,7 +48,7 @@ License agreement for matplotlib |version|
 otherwise using matplotlib software in source or binary form and its
 associated documentation.
 
-. Subject to the terms and conditions of this License Agreement, MDT
+2. Subject to the terms and conditions of this License Agreement, MDT
 hereby grants Licensee a nonexclusive, royalty-free, world-wide license
 to reproduce, analyze, test, perform and/or display publicly, prepare
 derivative works, distribute, and otherwise use matplotlib |version|
