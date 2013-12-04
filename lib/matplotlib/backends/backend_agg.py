@@ -50,6 +50,7 @@ except ImportError:
 
 backend_version = 'v2.2'
 
+
 def get_hinting_flag():
     mapping = {
         True: LOAD_FORCE_AUTOHINT,
@@ -67,7 +68,7 @@ class RendererAgg(RendererBase):
     The renderer handles all the drawing primitives using a graphics
     context instance that controls the colors/styles
     """
-    debug=1
+    debug = 1
 
     # we want to cache the fonts at the class level so that when
     # multiple figures are created we can reuse them.  This helps with
@@ -82,26 +83,34 @@ class RendererAgg(RendererBase):
 
     lock = threading.RLock()
     _fontd = maxdict(50)
+
     def __init__(self, width, height, dpi):
-        if __debug__: verbose.report('RendererAgg.__init__', 'debug-annoying')
+        if __debug__:
+            verbose.report('RendererAgg.__init__', 'debug-annoying')
         RendererBase.__init__(self)
         self.texd = maxdict(50)  # a cache of tex image rasters
 
         self.dpi = dpi
         self.width = width
         self.height = height
-        if __debug__: verbose.report('RendererAgg.__init__ width=%s, height=%s'%(width, height), 'debug-annoying')
-        self._renderer = _RendererAgg(int(width), int(height), dpi, debug=False)
+        if __debug__:
+            verbose.report('RendererAgg.__init__ ' +
+                           'width=%s,height=%s' % (width, height),
+                           'debug-annoying')
+        self._renderer = _RendererAgg(int(width), int(height), dpi,
+                                      debug=False)
         self._filter_renderers = []
 
-        if __debug__: verbose.report('RendererAgg.__init__ _RendererAgg done',
+        if __debug__:
+            verbose.report('RendererAgg.__init__ _RendererAgg done',
                                      'debug-annoying')
 
         self._update_methods()
         self.mathtext_parser = MathTextParser('Agg')
 
         self.bbox = Bbox.from_bounds(0, 0, self.width, self.height)
-        if __debug__: verbose.report('RendererAgg.__init__ done',
+        if __debug__:
+            verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
 
     def _get_hinting_flag(self):
@@ -133,7 +142,7 @@ class RendererAgg(RendererBase):
         """
         Draw the path
         """
-        nmax = rcParams['agg.path.chunksize'] # here at least for testing
+        nmax = rcParams['agg.path.chunksize']  # here at least for testing
         npts = path.vertices.shape[0]
         if (nmax > 100 and npts > nmax and path.should_simplify and
                 rgbFace is None and gc.get_hatch() is None):
@@ -144,11 +153,11 @@ class RendererAgg(RendererBase):
             i1[:-1] = i0[1:] - 1
             i1[-1] = npts
             for ii0, ii1 in zip(i0, i1):
-                v = path.vertices[ii0:ii1,:]
+                v = path.vertices[ii0:ii1, :]
                 c = path.codes
                 if c is not None:
                     c = c[ii0:ii1]
-                    c[0] = Path.MOVETO # move to end of last chunk
+                    c[0] = Path.MOVETO  # move to end of last chunk
                 p = Path(v, c)
                 self._renderer.draw_path(gc, p, transform, rgbFace)
         else:
@@ -158,7 +167,8 @@ class RendererAgg(RendererBase):
         """
         Draw the math text using matplotlib.mathtext
         """
-        if __debug__: verbose.report('RendererAgg.draw_mathtext',
+        if __debug__:
+            verbose.report('RendererAgg.draw_mathtext',
                                      'debug-annoying')
         ox, oy, width, height, descent, font_image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi, prop)
@@ -169,18 +179,21 @@ class RendererAgg(RendererBase):
         y = np.round(y - oy + yd)
         self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+    def draw_text(self, gc, x, y, s, prop, angle,
+                  ismath=False, mtext=None):
         """
         Render the text
         """
-        if __debug__: verbose.report('RendererAgg.draw_text', 'debug-annoying')
+        if __debug__:
+            verbose.report('RendererAgg.draw_text', 'debug-annoying')
 
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
         flags = get_hinting_flag()
         font = self._get_agg_font(prop)
-        if font is None: return None
+        if font is None:
+            return None
         if len(s) == 1 and ord(s) > 127:
             font.load_char(ord(s), flags=flags)
         else:
@@ -194,8 +207,8 @@ class RendererAgg(RendererBase):
         yd = d * np.cos(np.deg2rad(angle))
 
         #print x, y, int(x), int(y), s
-        self._renderer.draw_text_image(
-            font.get_image(), np.round(x - xd), np.round(y + yd) + 1, angle, gc)
+        self._renderer.draw_text_image(font.get_image(), np.round(x - xd),
+                                       np.round(y + yd) + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
         """
@@ -222,14 +235,14 @@ class RendererAgg(RendererBase):
 
         flags = get_hinting_flag()
         font = self._get_agg_font(prop)
-        font.set_text(s, 0.0, flags=flags)  # the width and height of unrotated string
+        # the width and height of unrotated string
+        font.set_text(s, 0.0, flags=flags)
         w, h = font.get_width_height()
         d = font.get_descent()
         w /= 64.0  # convert from subpixels
         h /= 64.0
         d /= 64.0
         return w, h, d
-
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         # todo, handle props, angle, origins
@@ -258,7 +271,8 @@ class RendererAgg(RendererBase):
         """
         Get the font for text instance t, cacheing for efficiency
         """
-        if __debug__: verbose.report('RendererAgg._get_agg_font',
+        if __debug__:
+            verbose.report('RendererAgg._get_agg_font',
                                      'debug-annoying')
 
         key = hash(prop)
@@ -285,22 +299,26 @@ class RendererAgg(RendererBase):
         convert point measures to pixes using dpi and the pixels per
         inch of the display
         """
-        if __debug__: verbose.report('RendererAgg.points_to_pixels',
+        if __debug__:
+            verbose.report('RendererAgg.points_to_pixels',
                                      'debug-annoying')
         return points*self.dpi/72.0
 
     def tostring_rgb(self):
-        if __debug__: verbose.report('RendererAgg.tostring_rgb',
+        if __debug__:
+            verbose.report('RendererAgg.tostring_rgb',
                                      'debug-annoying')
         return self._renderer.tostring_rgb()
 
     def tostring_argb(self):
-        if __debug__: verbose.report('RendererAgg.tostring_argb',
+        if __debug__:
+            verbose.report('RendererAgg.tostring_argb',
                                      'debug-annoying')
         return self._renderer.tostring_argb()
 
     def buffer_rgba(self):
-        if __debug__: verbose.report('RendererAgg.buffer_rgba',
+        if __debug__:
+            verbose.report('RendererAgg.buffer_rgba',
                                      'debug-annoying')
         return self._renderer.buffer_rgba()
 
@@ -378,9 +396,9 @@ class RendererAgg(RendererBase):
         post_processing is plotted (using draw_image) on it.
         """
 
-        # WARNING.
-        # For agg_filter to work, the rendere's method need
-        # to overridden in the class. See draw_markers, and draw_path_collections
+        # WARNING.  For agg_filter to work, the rendere's method need
+        # to overridden in the class. See draw_markers, and
+        # draw_path_collections
 
         from matplotlib._image import fromarray
 
@@ -389,7 +407,6 @@ class RendererAgg(RendererBase):
         buffer, bounds = self._renderer.tostring_rgba_minimized()
 
         l, b, w, h = bounds
-
 
         self._renderer = self._filter_renderers.pop()
         self._update_methods()
@@ -403,7 +420,7 @@ class RendererAgg(RendererBase):
 
             gc = self.new_gc()
             self._renderer.draw_image(gc,
-                                      l+ox, height - b - h +oy,
+                                      l+ox, height - b - h + oy,
                                       image)
 
 
@@ -411,9 +428,9 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    if __debug__: verbose.report('backend_agg.new_figure_manager',
+    if __debug__:
+        verbose.report('backend_agg.new_figure_manager',
                                  'debug-annoying')
-
 
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
@@ -451,7 +468,8 @@ class FigureCanvasAgg(FigureCanvasBase):
         """
         Draw the figure using the renderer
         """
-        if __debug__: verbose.report('FigureCanvasAgg.draw', 'debug-annoying')
+        if __debug__:
+            verbose.report('FigureCanvasAgg.draw', 'debug-annoying')
 
         self.renderer = self.get_renderer(cleared=True)
         # acquire a lock on the shared font cache
@@ -465,9 +483,12 @@ class FigureCanvasAgg(FigureCanvasBase):
     def get_renderer(self, cleared=False):
         l, b, w, h = self.figure.bbox.bounds
         key = w, h, self.figure.dpi
-        try: self._lastKey, self.renderer
-        except AttributeError: need_new_renderer = True
-        else:  need_new_renderer = (self._lastKey != key)
+        try:
+            self._lastKey, self.renderer
+        except AttributeError:
+            need_new_renderer = True
+        else:
+            need_new_renderer = (self._lastKey != key)
 
         if need_new_renderer:
             self.renderer = RendererAgg(w, h, self.figure.dpi)
@@ -477,17 +498,20 @@ class FigureCanvasAgg(FigureCanvasBase):
         return self.renderer
 
     def tostring_rgb(self):
-        if __debug__: verbose.report('FigureCanvasAgg.tostring_rgb',
+        if __debug__:
+            verbose.report('FigureCanvasAgg.tostring_rgb',
                                      'debug-annoying')
         return self.renderer.tostring_rgb()
 
     def tostring_argb(self):
-        if __debug__: verbose.report('FigureCanvasAgg.tostring_argb',
+        if __debug__:
+            verbose.report('FigureCanvasAgg.tostring_argb',
                                      'debug-annoying')
         return self.renderer.tostring_argb()
 
     def buffer_rgba(self):
-        if __debug__: verbose.report('FigureCanvasAgg.buffer_rgba',
+        if __debug__:
+            verbose.report('FigureCanvasAgg.buffer_rgba',
                                      'debug-annoying')
         return self.renderer.buffer_rgba()
 
