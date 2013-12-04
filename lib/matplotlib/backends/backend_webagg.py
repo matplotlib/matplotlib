@@ -28,6 +28,7 @@ try:
     import tornado
 except ImportError:
     raise RuntimeError("The WebAgg backend requires Tornado.")
+
 import tornado.web
 import tornado.ioloop
 import tornado.websocket
@@ -254,7 +255,9 @@ class WebAggApplication(tornado.web.Application):
                 self.set_nodelay(True)
 
         def on_close(self):
-            Gcf.get_fig_manager(self.fignum).remove_web_socket(self)
+            manager = Gcf.get_fig_manager(self.fignum)
+            if manager is not None:
+                manager.remove_web_socket(self)
 
         def on_message(self, message):
             message = json.loads(message)
@@ -265,7 +268,11 @@ class WebAggApplication(tornado.web.Application):
                 self.supports_binary = message['value']
             else:
                 manager = Gcf.get_fig_manager(self.fignum)
-                manager.handle_json(message)
+                # It is possible for a figure to be closed,
+                # but a stale figure UI is still sending messages
+                # from the browser.
+                if manager is not None:
+                    manager.handle_json(message)
 
         def send_json(self, content):
             self.write_message(json.dumps(content))
