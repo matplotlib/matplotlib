@@ -2789,7 +2789,10 @@ class Axes(_AxesBase):
 
     def boxplot(self, x, notch=False, sym='b+', vert=True, whis=1.5,
                 positions=None, widths=None, patch_artist=False,
-                bootstrap=None, usermedians=None, conf_intervals=None):
+                bootstrap=None, usermedians=None, conf_intervals=None,
+                meanline=False, showmeans=False, showcaps=True,
+                showbox=True, showfliers=True, boxprops=None, labels=None,
+                flierprops=None, medianprops=None, meanprops=None):
         """
         Make a box and whisker plot.
 
@@ -2822,10 +2825,18 @@ class Axes(_AxesBase):
             If True (default), makes the boxes vertical.
             If False, makes horizontal boxes.
 
-          *whis* : [ default 1.5 ]
-            Defines the length of the whiskers as a function of the inner
-            quartile range.  They extend to the most extreme data point
-            within ( ``whis*(75%-25%)`` ) data range.
+          *whis* : [ float | string | or sequence (default = 1.5) ]
+            As a float, determines the reach of the whiskers past the first
+            and third quartiles (e.g., Q3 + whis*IQR, IQR = interquartile
+            range, Q3-Q1). Beyond the whiskers, data are considered outliers
+            and are plotted as individual points. Set this to an unreasonably
+            high value to force the whiskers to show the min and max values.
+            Alternatively, set this to an ascending sequence of percentile
+            (e.g., [5, 95]) to set the whiskers at specific percentiles of
+            the data. Finally, can *whis* be the string 'range' to force the
+            whiskers to the min and max of the data. In the edge case that
+            the 25th and 75th percentiles are equivalent, *whis* will be
+            automatically set to 'range'.
 
           *bootstrap* : [ *None* (default) | integer ]
             Specifies whether to bootstrap the confidence intervals
@@ -2861,9 +2872,43 @@ class Axes(_AxesBase):
             default is 0.5, or ``0.15*(distance between extreme positions)``
             if that is smaller.
 
+          *labels* : [ sequence | None (default) ]
+                Labels for each dataset. Length must be compatible with
+                dimensions  of *x*
+
           *patch_artist* : [ False (default) | True ]
             If False produces boxes with the Line2D artist
             If True produces boxes with the Patch artist
+
+          *showmeans* : [ False (default) | True ]
+            If True, will toggle one the rendering of the means
+
+          *showcaps*  : [ False | True (default) ]
+            If True, will toggle one the rendering of the caps
+
+          *showbox*  : [ False | True (default) ]
+            If True, will toggle one the rendering of box
+
+          *showfliers*  : [ False | True (default) ]
+            If True, will toggle one the rendering of the fliers
+
+          *boxprops*  : [ dict | None (default) ]
+            If provided, will set the plotting style of the boxes
+
+          *flierprops*  : [ dict | None (default) ]
+            If provided, will set the plotting style of the fliers
+
+          *medianprops*  : [ dict | None (default) ]
+            If provided, will set the plotting style of the medians
+
+          *meanprops*  : [ dict | None (default) ]
+            If provided, will set the plotting style of the means
+
+          *meanline*  : [ False (default) | True ]
+            If True (and *showmeans* is True), will try to render the mean
+            as a line spanning the full width of the box according to
+            *meanprops*. Not recommended if *shownotches* is also True.
+            Otherwise, means will be shown as points.
 
         Returns a dictionary mapping each component of the boxplot
         to a list of the :class:`matplotlib.lines.Line2D`
@@ -2884,12 +2929,11 @@ class Axes(_AxesBase):
 
         .. plot:: pyplots/boxplot_demo.py
         """
-        bxpstats = cbook.boxplot_stats(x, whis=whis, bootstrap=bootstrap)
-        if sym == 'b+':
+        bxpstats = cbook.boxplot_stats(x, whis=whis, bootstrap=bootstrap,
+                                       labels=labels)
+        if sym == 'b+' and flierprops is None:
             flierprops = dict(linestyle='none', marker='+',
                               markeredgecolor='blue')
-        else:
-            flierprops = sym
 
         # replace medians if necessary:
         if usermedians is not None:
@@ -2920,10 +2964,11 @@ class Axes(_AxesBase):
 
         artists = self.bxp(bxpstats, positions=positions, widths=widths,
                            vert=vert, patch_artist=patch_artist,
-                           shownotches=notch, showmeans=False,
-                           showcaps=True, boxprops=None,
-                           flierprops=flierprops, medianprops=None,
-                           meanprops=None, meanline=False)
+                           shownotches=notch, showmeans=showmeans,
+                           showcaps=showcaps, showbox=showbox,
+                           boxprops=boxprops, flierprops=flierprops,
+                           medianprops=medianprops, meanprops=meanprops,
+                           meanline=meanline, showfliers=showfliers)
         return artists
 
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
@@ -3059,18 +3104,20 @@ class Axes(_AxesBase):
         if boxprops is None:
             if patch_artist:
                 boxprops = dict(linestyle='solid', edgecolor='black',
-                                facecolor='white')
+                                facecolor='white', linewidth=1)
             else:
-                boxprops = dict(linestyle='-', color='black')
+                boxprops = dict(linestyle='-', color='black', linewidth=1)
 
         if patch_artist:
             otherprops = dict(
-                    linestyle=linestyle_map[boxprops['linestyle']],
-                    color=boxprops['edgecolor']
+                linestyle=linestyle_map[boxprops['linestyle']],
+                color=boxprops['edgecolor'],
+                linewidth=boxprops.get('linewidth', 1)
             )
         else:
             otherprops = dict(linestyle=boxprops['linestyle'],
-                              color=boxprops['color'])
+                              color=boxprops['color'],
+                              linewidth=boxprops.get('linewidth', 1))
 
         if flierprops is None:
             flierprops = dict(linestyle='none', marker='+',
