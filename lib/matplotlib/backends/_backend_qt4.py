@@ -815,3 +815,6 @@ def exception_handler(type, value, tb):
 
     if len(msg):
         error_msg_qt(msg)
+
+FigureCanvas = FigureCanvasQT
+FigureManager = FigureManagerQT
