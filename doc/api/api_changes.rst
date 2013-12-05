@@ -107,6 +107,9 @@ original location:
   does the exact same thing as `FormatStrFormatter`, but for new-style
   formatting strings.
 
+* The ``fmt`` argument of :meth:`~matplotlib.axes.Axes.plot_date` has been
+  changed from ``bo`` to just ``o``, so color cycling can happen by default.
+
 .. _changes_in_1_3:
 
 
