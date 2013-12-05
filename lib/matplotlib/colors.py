@@ -1355,7 +1355,7 @@ class LightSource(object):
         self.hsv_min_sat = hsv_min_sat
         self.hsv_max_sat = hsv_max_sat
 
-    def shade(self, data, cmap):
+    def shade(self, data, cmap, vmin=None, vmax=None):
         """
         Take the input data array, convert to HSV values in the
         given colormap, then adjust those color values
@@ -1365,7 +1365,12 @@ class LightSource(object):
         plot the shaded image with imshow.
         """
 
-        rgb0 = cmap((data - data.min()) / (data.max() - data.min()))
+        if vmin == None:
+            vmin=data.min()
+        if vmax == None:
+            vmax=data.max()
+
+        rgb0 = cmap((data - vmin) / (vmax - vmin))
         rgb1 = self.shade_rgb(rgb0, elevation=data)
         rgb0[:, :, 0:3] = rgb1
         return rgb0
