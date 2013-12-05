@@ -1365,9 +1365,9 @@ class LightSource(object):
         plot the shaded image with imshow.
         """
 
-        if vmin == None:
+        if vmin is None:
             vmin = data.min()
-        if vmax == None:
+        if vmax is None:
             vmax = data.max()
 
         rgb0 = cmap((data - vmin) / (vmax - vmin))
