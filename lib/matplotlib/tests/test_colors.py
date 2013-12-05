@@ -204,6 +204,7 @@ def test_colors_no_float():
     assert_raises(ValueError, gray_from_float_rgb)
     assert_raises(ValueError, gray_from_float_rgba)
 
+
 def test_light_source_shading_color_range():
     # see also
     #http://matplotlib.org/examples/pylab_examples/shading_example.html
@@ -231,6 +232,7 @@ def test_light_source_shading_color_range():
     plt.xticks([])
     plt.yticks([])
     plt.draw()
+
 
 if __name__ == '__main__':
     import nose
