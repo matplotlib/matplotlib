@@ -1366,9 +1366,9 @@ class LightSource(object):
         """
 
         if vmin == None:
-            vmin=data.min()
+            vmin = data.min()
         if vmax == None:
-            vmax=data.max()
+            vmax = data.max()
 
         rgb0 = cmap((data - vmin) / (vmax - vmin))
         rgb1 = self.shade_rgb(rgb0, elevation=data)
