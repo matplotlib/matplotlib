@@ -204,6 +204,31 @@ def test_colors_no_float():
     assert_raises(ValueError, gray_from_float_rgb)
     assert_raises(ValueError, gray_from_float_rgba)
 
+def test_light_source_shading_color_range():
+    # see also http://matplotlib.org/examples/pylab_examples/shading_example.html
+    from matplotlib.colors import LightSource
+
+    norm = mcolors.Normalize(vmin=0, vmax=50)
+    # test data
+    X, Y = np.mgrid[-5:5:0.05, -5:5:0.05]
+    Z = np.sqrt(X**2 + Y**2) + np.sin(X**2 + Y**2)
+    # create light source object.
+    ls = LightSource(azdeg=0, altdeg=65)
+    # shade data, creating an rgb array.
+    rgb = ls.shade(Z, plt.cm.jet, norm=norm)
+    # plot un-shaded and shaded images.
+    plt.figure(figsize=(12,5))
+    plt.subplot(121)
+    plt.imshow(Z, cmap=plt.cm.jet, norm=norm)
+    plt.title('imshow')
+    plt.xticks([])
+    plt.yticks([])
+    plt.subplot(122)
+    plt.imshow(rgb)
+    plt.title('imshow with shading')
+    plt.xticks([])
+    plt.yticks([])
+    plt.draw()
 
 if __name__ == '__main__':
     import nose
