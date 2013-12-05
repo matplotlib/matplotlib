@@ -1337,7 +1337,7 @@ class Axes(_AxesBase):
         return lines
 
     @docstring.dedent_interpd
-    def plot_date(self, x, y, fmt='bo', tz=None, xdate=True, ydate=False,
+    def plot_date(self, x, y, fmt='o', tz=None, xdate=True, ydate=False,
                   **kwargs):
         """
         Plot with data with dates.
