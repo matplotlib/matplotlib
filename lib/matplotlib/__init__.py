@@ -180,7 +180,7 @@ except NameError:
 
 
 if not hasattr(sys, 'argv'):  # for modpython
-    sys.argv = ['modpython']
+    sys.argv = [str('modpython')]
 
 
 from matplotlib.rcsetup import (defaultParams,
@@ -249,8 +249,10 @@ class Verbose:
     # --verbose-silent or --verbose-helpful
     _commandLineVerbose = None
 
-    for arg in map(six.u, sys.argv[1:]):
-        if not arg.startswith('--verbose-'):
+    for arg in sys.argv[1:]:
+        # cast to str because we are using unicode_literals,
+        # and argv is always str
+        if not arg.startswith(str('--verbose-')):
             continue
         level_str = arg[10:]
         # If it doesn't match one of ours, then don't even
@@ -1282,8 +1284,10 @@ def tk_window_focus():
 # Allow command line access to the backend with -d (MATLAB compatible
 # flag)
 
-for s in map(six.u, sys.argv[1:]):
-    if s.startswith('-d') and len(s) > 2:  # look for a -d flag
+for s in sys.argv[1:]:
+    # cast to str because we are using unicode_literals,
+    # and argv is always str
+    if s.startswith(str('-d')) and len(s) > 2:  # look for a -d flag
         try:
             use(s[2:])
         except (KeyError, ValueError):
