@@ -1368,7 +1368,7 @@ class LightSource(object):
         if norm is None:
             norm = Normalize(vmin=data.min(), vmax=data.max())
 
-        rgb0 = cmap((data - norm.vmin) / (norm.vmax - norm.vmin))
+        rgb0 = cmap(norm(data))
         rgb1 = self.shade_rgb(rgb0, elevation=data)
         rgb0[:, :, 0:3] = rgb1
         return rgb0
