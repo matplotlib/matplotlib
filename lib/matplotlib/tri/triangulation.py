@@ -91,7 +91,7 @@ class Triangulation(object):
     @property
     def edges(self):
         """
-        Return integer array of shape (?,2) containing all edges of
+        Return integer array of shape (nedges,2) containing all edges of
         non-masked triangles.
 
         Each edge is the start point index and end point index.  Each
