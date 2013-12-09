@@ -355,8 +355,18 @@ class Line2D(Artist):
         A length-2 tuple of integers
             every=(start, N) will start at point start and plot every N-th
             marker
-
-        ACCEPTS: None | integer | (startind, stride)
+        
+        A slice object
+            every=slice(start, end, N) will start at point start and plot every
+            N-th marker upto but nod including point end
+            
+        A list or numpy array of integers
+            every=[4, 8, 9] will plot markers for points 4, 8, and 9.  If 
+            specifying two points only, instead of every=[i, j] use 
+            every=slice(i, j + 1, j - i) otherwise every j-th point starting
+            at point i will have a marker.
+            
+        ACCEPTS: None | integer | (startind, stride) | slice object | list
 
         """
         self._markevery = every
@@ -583,14 +593,29 @@ class Line2D(Artist):
                 markevery = self.get_markevery()
                 if markevery is not None:
                     if iterable(markevery):
-                        startind, stride = markevery
-                    else:
-                        startind, stride = 0, markevery
+                        if len(markevery) == 2:
+                            #This is only here for backwards compatibility.
+                            # Originally if markevery was a sequence of len two 
+                            # it was interpreted as a start index and
+                            # and a stride length.  It means that you can't 
+                            # use fancy indexing to specify exactly two points.
+                            # as a work-around use markevery = slice(i,j+1,j-i)
+                            # to show only point numbers i and j.                          
+                            startind, stride = markevery
+                            inds = slice(startind, None, stride)
+                        else:
+                            inds = markevery
+                    else:                        
+                        if isinstance(markevery, slice):
+                            inds = markevery
+                        else:
+                            startind, stride = 0, markevery
+                            inds = slice(startind, None, stride)
                     if tpath.codes is not None:
-                        codes = tpath.codes[startind::stride]
+                        codes = tpath.codes[inds]
                     else:
                         codes = None
-                    vertices = tpath.vertices[startind::stride]
+                    vertices = tpath.vertices[inds]
                     subsampled = Path(vertices, codes)
                 else:
                     subsampled = tpath
