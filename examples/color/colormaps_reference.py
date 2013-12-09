@@ -36,21 +36,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-cmaps = [('Sequential',     ['binary', 'Blues', 'BuGn', 'BuPu', 'gist_yarg',
+cmaps = [('Sequential',     ['Blues', 'BuGn', 'BuPu',
                              'GnBu', 'Greens', 'Greys', 'Oranges', 'OrRd',
                              'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu',
                              'Reds', 'YlGn', 'YlGnBu', 'YlOrBr', 'YlOrRd']),
          ('Sequential (2)', ['afmhot', 'autumn', 'bone', 'cool', 'copper',
-                             'gist_gray', 'gist_heat', 'gray', 'hot', 'pink',
+                             'gist_heat', 'gray', 'hot', 'pink',
                              'spring', 'summer', 'winter']),
          ('Diverging',      ['BrBG', 'bwr', 'coolwarm', 'PiYG', 'PRGn', 'PuOr',
-                             'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'seismic']),
-         ('Qualitative',    ['Accent', 'Dark2', 'hsv', 'Paired', 'Pastel1',
-                             'Pastel2', 'Set1', 'Set2', 'Set3', 'spectral']),
-         ('Miscellaneous',  ['gist_earth', 'gist_ncar', 'gist_rainbow',
-                             'gist_stern', 'jet', 'brg', 'CMRmap', 'cubehelix',
-                             'gnuplot', 'gnuplot2', 'ocean', 'rainbow',
-                             'terrain', 'flag', 'prism'])]
+                             'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral',
+                             'seismic']),
+         ('Qualitative',    ['Accent', 'Dark2', 'Paired', 'Pastel1',
+                             'Pastel2', 'Set1', 'Set2', 'Set3']),
+         ('Miscellaneous',  ['gist_earth', 'terrain', 'ocean', 'gist_stern',
+                             'brg', 'CMRmap', 'cubehelix',
+                             'gnuplot', 'gnuplot2', 'gist_ncar',
+                             'nipy_spectral', 'jet', 'rainbow',
+                             'gist_rainbow', 'hsv', 'flag', 'prism'])]
 
 
 nrows = max(len(cmap_list) for cmap_category, cmap_list in cmaps)
