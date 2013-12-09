@@ -867,6 +867,15 @@ class LocatableAxesBase:
 
         self._axes_class.draw(self, renderer, inframe)
 
+    def _make_twin_axes(self, *kl, **kwargs):
+        """
+        Need to overload so that twinx/twiny will work with
+        these axes.
+        """
+        ax2 = type(self)(self.figure, self.get_position(True), *kl, **kwargs)
+        ax2.set_axes_locator(self.get_axes_locator())
+        self.figure.add_axes(ax2)
+        return ax2
 
 _locatableaxes_classes = {}
 
