@@ -80,6 +80,14 @@ from sphinx.util.compat import Directive
 
 matplotlib.use('Agg')
 
+import warnings
+warnings.warn("""
+The Sphinx ipython_directive has moved from matplotlib to IPython, and
+its use within matplotlib is deprecated.  Change your import from
+'matplotlib.sphinxext.ipython_directive' to
+'IPython.sphinxext.ipython_directive.""",
+matplotlib.cbook.mplDeprecation)
+
 # Our own
 try:
     from IPython import Config, InteractiveShell
