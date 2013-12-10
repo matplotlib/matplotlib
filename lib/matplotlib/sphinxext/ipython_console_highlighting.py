@@ -20,6 +20,14 @@ from pygments.token import Comment, Generic
 
 from sphinx import highlighting
 
+import warnings
+warnings.warn("""
+The Sphinx extension ipython_console_highlighting has moved from
+matplotlib to IPython, and its use in matplotlib is deprecated.
+Change your import from 'matplotlib.sphinxext.ipython_directive' to
+'IPython.sphinxext.ipython_directive.""",
+matplotlib.cbook.mplDeprecation)
+
 #-----------------------------------------------------------------------------
 # Global constants
 line_re = re.compile('.*?\n')
