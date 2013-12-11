@@ -31,9 +31,18 @@ extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
               'matplotlib.sphinxext.plot_directive',
               'sphinx.ext.inheritance_diagram',
               'sphinxext.gen_gallery', 'sphinxext.gen_rst',
-              'matplotlib.sphinxext.ipython_console_highlighting',
               'sphinxext.github',
               'numpydoc']
+
+
+# Use IPython's console highlighting by default
+try:
+    from IPython.sphinxext import ipython_console_highlighting
+except ImportError:
+    extensions.append('matplotlib.sphinxext.ipython_console_highlighting')
+else:
+    print("Using IPython's ipython_console_highlighting directive")
+    extensions.append('IPython.sphinxext.ipython_console_highlighting')
 
 try:
     import numpydoc
