@@ -3754,7 +3754,7 @@ class Axes(martist.Artist):
         x : scalar or 1D array_like
             x-indexes where to plot the lines.
 
-        xmin, xmax : scalar or 1D array_like
+        ymin, ymax : scalar or 1D array_like
             Respective beginning and end of each line. If scalars are
             provided, all lines will have same length.
 
