@@ -53,7 +53,7 @@ def check_save_animation(writer, extension='mp4'):
 
 
 @cleanup
-def test_():
+def test_no_length_frames():
     fig, ax = plt.subplots()
     line, = ax.plot([], [])
 
