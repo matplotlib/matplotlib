@@ -52,6 +52,25 @@ def check_save_animation(writer, extension='mp4'):
     anim.save(F.name, fps=30, writer=writer)
 
 
+@cleanup
+def test_():
+    fig, ax = plt.subplots()
+    line, = ax.plot([], [])
+
+    def init():
+        line.set_data([], [])
+        return line,
+
+    def animate(i):
+        x = np.linspace(0, 10, 100)
+        y = np.sin(x + i)
+        line.set_data(x, y)
+        return line,
+
+    anim = animation.FuncAnimation(fig, animate, init_func=init,
+                                   frames=iter(range(5)))
+
+
 if __name__ == "__main__":
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
