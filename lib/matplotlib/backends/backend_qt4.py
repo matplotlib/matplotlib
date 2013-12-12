@@ -415,8 +415,10 @@ class FigureCanvasQT(QtGui.QWidget, FigureCanvasBase):
         self._idle = False
 
         def idle_draw(*args):
-            self.draw()
-            self._idle = True
+            try:
+                self.draw()
+            finally:
+                self._idle = True
         if d:
             QtCore.QTimer.singleShot(0, idle_draw)
 
