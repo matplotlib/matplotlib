@@ -47,6 +47,12 @@ original location:
   - mstream -> `from matplotlib import stream as mstream`
   - mtable -> `from matplotlib import table as mtable`
 
+* The Sphinx extensions `ipython_directive` and
+  `ipython_console_highlighting` have been moved to the IPython
+  project itself.  While they remain in matplotlib for this release,
+  they have been deprecated.  Update your extensions in `conf.py` to
+  point to `IPython.sphinxext.ipython_directive` instead of
+  `matplotlib.sphinxext.ipython_directive`.
 
 * In :module:`~matplotlib.finance`, almost all functions have been deprecated and
   replaced with a pair of functions name `*_ochl` and `*_ohlc`.  The former is
