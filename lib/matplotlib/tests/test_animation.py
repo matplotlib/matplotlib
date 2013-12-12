@@ -7,11 +7,12 @@ import os
 import tempfile
 
 import numpy as np
-
+from nose import with_setup
 from matplotlib import pyplot as plt
 from matplotlib import animation
 from matplotlib.testing.noseclasses import KnownFailureTest
 from matplotlib.testing.decorators import cleanup
+from matplotlib.testing.decorators import CleanupTest
 
 
 WRITER_OUTPUT = dict(ffmpeg='mp4', ffmpeg_file='mp4',
@@ -23,16 +24,18 @@ WRITER_OUTPUT = dict(ffmpeg='mp4', ffmpeg_file='mp4',
 # Smoke test for saving animations.  In the future, we should probably
 # design more sophisticated tests which compare resulting frames a-la
 # matplotlib.testing.image_comparison
-@cleanup
 def test_save_animation_smoketest():
     for writer, extension in six.iteritems(WRITER_OUTPUT):
         yield check_save_animation, writer, extension
 
 
+@with_setup(CleanupTest.setup_class, CleanupTest.teardown_class)
 def check_save_animation(writer, extension='mp4'):
     if not animation.writers.is_available(writer):
         raise KnownFailureTest("writer '%s' not available on this system"
                                % writer)
+    if 'mencoder' in writer:
+        raise KnownFailureTest("mencoder is broken")
     fig, ax = plt.subplots()
     line, = ax.plot([], [])
 
