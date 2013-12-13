@@ -1292,6 +1292,7 @@ for s in map(six.u, sys.argv[1:]):
 
 default_test_modules = [
     'matplotlib.tests.test_agg',
+    'matplotlib.tests.test_animation',
     'matplotlib.tests.test_arrow_patches',
     'matplotlib.tests.test_artist',
     'matplotlib.tests.test_axes',
