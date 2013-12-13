@@ -62,10 +62,11 @@ def set_defaults(cls, key, new_defaults):
     kw_dict[key] = _kw_entry(orig_fun, new_defaults)
 
     # make wrapper function, closes over the copied dictionary
+    # and original function
     @wraps(orig_fun)
     def wrapper(*args, **kwargs):
         for k, v in new_defaults.iteritems():
-            if k not in kwargs:
+            if k not in kwargs and kwargs[k] is not None:
                 kwargs[k] = v
         return orig_fun(*args, **kwargs)
 
