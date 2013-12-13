@@ -618,6 +618,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
                 for axes in allaxes:
                     title = axes.get_title()
                     ylabel = axes.get_ylabel()
+                    label = axes.get_label()
                     if title:
                         fmt = "%(title)s"
                         if ylabel:
@@ -625,10 +626,12 @@ class NavigationToolbar2QT(NavigationToolbar2, QtGui.QToolBar):
                         fmt += " (%(axes_repr)s)"
                     elif ylabel:
                         fmt = "%(axes_repr)s (%(ylabel)s)"
+                    elif label:
+                        fmt = "%(axes_repr)s (%(label)s)"
                     else:
                         fmt = "%(axes_repr)s"
                     titles.append(fmt % dict(title=title,
-                                         ylabel=ylabel,
+                                         ylabel=ylabel, label=label,
                                          axes_repr=repr(axes)))
                 item, ok = QtGui.QInputDialog.getItem(
                     self.parent, 'Customize', 'Select axes:', titles, 0, False)
