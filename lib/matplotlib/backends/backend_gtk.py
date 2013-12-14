@@ -376,8 +376,10 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
     def draw_idle(self):
         def idle_draw(*args):
-            self.draw()
-            self._idle_draw_id = 0
+            try:
+                self.draw()
+            finally:
+                self._idle_draw_id = 0
             return False
         if self._idle_draw_id == 0:
             self._idle_draw_id = gobject.idle_add(idle_draw)
