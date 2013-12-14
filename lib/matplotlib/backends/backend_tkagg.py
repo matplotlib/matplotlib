@@ -362,8 +362,10 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         d = self._idle
         self._idle = False
         def idle_draw(*args):
-            self.draw()
-            self._idle = True
+            try:
+                self.draw()
+            finally:
+                self._idle = True
 
         if d:
             self._idle_callback = self._tkcanvas.after_idle(idle_draw)
