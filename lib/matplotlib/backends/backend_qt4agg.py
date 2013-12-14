@@ -172,7 +172,7 @@ class FigureCanvasQTAgg(FigureCanvasQT, FigureCanvasAgg):
 
 class NavigationToolbar2QTAgg(NavigationToolbar2QT):
     def __init__(*args, **kwargs):
-        warnings.warn('This class has been depreciated in 1.4 ' +
+        warnings.warn('This class has been deprecated in 1.4 ' +
                       'as it has no additional functionality over ' +
                       '`NavigationToolbar2QT`.  Please change your code to '
                       'use `NavigationToolbar2QT` instead',
