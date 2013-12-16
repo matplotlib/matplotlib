@@ -116,6 +116,9 @@ original location:
 * The ``fmt`` argument of :meth:`~matplotlib.axes.Axes.plot_date` has been
   changed from ``bo`` to just ``o``, so color cycling can happen by default.
 
+* Removed the class `FigureManagerQTAgg` and deprecated `NavigationToolbar2QTAgg`
+  which will be removed in 1.5.
+
 .. _changes_in_1_3:
 
 
