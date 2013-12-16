@@ -9,6 +9,7 @@ import six
 import os  # not used
 import sys
 import ctypes
+import warnings
 
 import matplotlib
 from matplotlib.figure import Figure
@@ -24,6 +25,7 @@ from .backend_qt4 import show
 from .backend_qt4 import draw_if_interactive
 from .backend_qt4 import backend_version
 ######
+from matplotlib.cbook import mplDeprecation
 
 DEBUG = False
 
@@ -166,6 +168,16 @@ class FigureCanvasQTAgg(FigureCanvasQT, FigureCanvasAgg):
     def print_figure(self, *args, **kwargs):
         FigureCanvasAgg.print_figure(self, *args, **kwargs)
         self.draw()
+
+
+class NavigationToolbar2QTAgg(NavigationToolbar2QT):
+    def __init__(*args, **kwargs):
+        warnings.warn('This class has been deprecated in 1.4 ' +
+                      'as it has no additional functionality over ' +
+                      '`NavigationToolbar2QT`.  Please change your code to '
+                      'use `NavigationToolbar2QT` instead',
+                    mplDeprecation)
+        NavigationToolbar2QT.__init__(*args, **kwargs)
 
 
 FigureCanvas = FigureCanvasQTAgg

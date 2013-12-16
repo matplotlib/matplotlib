@@ -7,7 +7,7 @@ from matplotlib.figure import Figure
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg as FigureCanvas,
-    NavigationToolbar2QTAgg as NavigationToolbar)
+    NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.backends import qt4_compat
 use_pyside = qt4_compat.QT_API == qt4_compat.QT_API_PYSIDE
 
