@@ -51,8 +51,7 @@ except ImportError:
 
 autosummary_generate = True
 
-if sphinx.__version__ >= 1.1:
-    autodoc_docstring_signature = True
+autodoc_docstring_signature = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
