@@ -205,6 +205,34 @@ def test_colors_no_float():
     assert_raises(ValueError, gray_from_float_rgba)
 
 
+def test_light_source_shading_color_range():
+    # see also
+    #http://matplotlib.org/examples/pylab_examples/shading_example.html
+
+    from matplotlib.colors import LightSource
+    from matplotlib.colors import Normalize
+
+    refinput = np.array([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]])
+    norm = Normalize(vmin=0, vmax=50)
+    ls = LightSource(azdeg=0, altdeg=65)
+    testoutput = ls.shade(refinput, plt.cm.jet, norm=norm)
+    refoutput = np.array([
+        [[0., 0., 0.58912656, 1.],
+        [0., 0., 0.67825312, 1.],
+        [0., 0., 0.76737968, 1.],
+        [0., 0., 0.85650624, 1.]],
+        [[0., 0., 0.9456328, 1.],
+        [0., 0., 1., 1.],
+        [0., 0.04901961, 1., 1.],
+        [0., 0.12745098, 1., 1.]],
+        [[0., 0.22156863, 1., 1.],
+        [0., 0.3, 1., 1.],
+        [0., 0.37843137, 1., 1.],
+        [0., 0.45686275, 1., 1.]]
+        ])
+    assert_array_almost_equal(refoutput, testoutput)
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
