@@ -107,6 +107,9 @@ class RendererMac(RendererBase):
         points = transform.transform(points)
         gc.draw_gouraud_triangle(points, colors)
 
+    def get_image_magnification(self):
+        return self.gc.get_image_magnification()
+
     def draw_image(self, gc, x, y, im):
         im.flipud_out()
         nrows, ncols, data = im.as_rgba_str()
@@ -115,19 +118,21 @@ class RendererMac(RendererBase):
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         # todo, handle props, angle, origins
+        scale = self.gc.get_image_magnification()
         size = prop.get_size_in_points()
         texmanager = self.get_texmanager()
         key = s, size, self.dpi, angle, texmanager.get_font_config()
         im = self.texd.get(key) # Not sure what this does; just copied from backend_agg.py
         if im is None:
-            Z = texmanager.get_grey(s, size, self.dpi)
+            Z = texmanager.get_grey(s, size, self.dpi*scale)
             Z = numpy.array(255.0 - Z * 255.0, numpy.uint8)
 
         gc.draw_mathtext(x, y, angle, Z)
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
+        scale = self.gc.get_image_magnification()
         ox, oy, width, height, descent, image, used_characters = \
-            self.mathtext_parser.parse(s, self.dpi, prop)
+            self.mathtext_parser.parse(s, self.dpi*scale, prop)
         gc.draw_mathtext(x, y, angle, 255 - image.as_array())
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
