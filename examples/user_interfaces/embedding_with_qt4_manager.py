@@ -15,8 +15,8 @@ import os
 
 from matplotlib.backends.qt4_compat import QtCore, QtGui
 import numpy as np
-from matplotlib.backends._backend_qt4agg import (FigureCanvasQTAgg,
-                                                 FigureManagerQT,
+from matplotlib.backends._backend_qt4agg import (FigureCanvas,
+                                                 FigureManager,
                                                  new_figure_manager)
 
 from matplotlib.figure import Figure
@@ -71,9 +71,9 @@ class ApplicationWindow(QtGui.QMainWindow):
         # make a figure
         fig = Figure()
         # make a canvas
-        canvas = FigureCanvasQTAgg(fig)
+        canvas = FigureCanvas(fig)
         # make a manager from the canvas
-        manager = FigureManagerQT(canvas, 1)
+        manager = FigureManager(canvas, 1)
         # grab an axes in the figure
         ax = fig.gca()
         # plot some demo code
