@@ -516,8 +516,12 @@ def close(*args):
         arg = args[0]
         if arg == 'all':
             _pylab_helpers.Gcf.destroy_all()
-        elif isinstance(arg, int):
+        elif isinstance(arg, six.integer_types):
             _pylab_helpers.Gcf.destroy(arg)
+        elif hasattr(arg, 'int'):
+            # if we are dealing with a type UUID, we
+            # can use its integer representation
+            _pylab_helpers.Gcf.destroy(arg.int)
         elif is_string_like(arg):
             allLabels = get_figlabels()
             if arg in allLabels:
