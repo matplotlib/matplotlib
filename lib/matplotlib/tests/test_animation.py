@@ -3,7 +3,6 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import os
 import tempfile
 
 import numpy as np
@@ -11,7 +10,6 @@ from nose import with_setup
 from matplotlib import pyplot as plt
 from matplotlib import animation
 from matplotlib.testing.noseclasses import KnownFailureTest
-from matplotlib.testing.decorators import cleanup
 from matplotlib.testing.decorators import CleanupTest
 
 
@@ -52,7 +50,12 @@ def check_save_animation(writer, extension='mp4'):
     # Use NamedTemporaryFile: will be automatically deleted
     F = tempfile.NamedTemporaryFile(suffix='.' + extension)
     anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
-    anim.save(F.name, fps=30, writer=writer)
+    try:
+        anim.save(F.name, fps=30, writer=writer)
+    except UnicodeDecodeError:
+        raise KnownFailureTest("There can be errors in the numpy " +
+                               "import stack, " +
+                               "see issues #1891 and #2679")
 
 
 if __name__ == "__main__":
