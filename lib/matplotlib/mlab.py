@@ -3356,124 +3356,131 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
     if opened:
         fh.close()
 
-def griddata(x,y,z,xi,yi,interp='nn'):
+
+def griddata(x, y, z, xi, yi, interp='nn'):
+    """Interpolates from a nonuniformly spaced grid to some other
+    grid.
+
+    Fits a surface of the form z = f(`x`, `y`) to the data in the
+    (usually) nonuniformly spaced vectors (`x`, `y`, `z`), then
+    interpolates this surface at the points specified by
+    (`xi`, `yi`) to produce `zi`.
+
+    Parameters
+    ----------
+    x, y, z : 1d array_like
+        Coordinates of grid points to interpolate from.
+    xi, yi : 1d or 2d array_like
+        Coordinates of grid points to interpolate to.
+    interp : string key from {'nn', 'linear'}
+        Interpolation algorithm, either 'nn' for natural neighbor, or
+        'linear' for linear interpolation.
+
+    Returns
+    -------
+    2d float array
+        Array of values interpolated at (`xi`, `yi`) points.  Array
+        will be masked is any of (`xi`, `yi`) are outside the convex
+        hull of (`x`, `y`).
+
+    Notes
+    -----
+    If `interp` is 'nn' (the default), uses natural neighbor
+    interpolation based on Delaunay triangulation.  This option is
+    only available if the mpl_toolkits.natgrid module is installed.
+    This can be downloaded from https://github.com/matplotlib/natgrid.
+    The (`xi`, `yi`) grid must be regular and monotonically increasing
+    in this case.
+
+    If `interp` is 'linear', linear interpolation is used via
+    matplotlib.tri.LinearTriInterpolator.
+
+    Instead of using `griddata`, more flexible functionality and other
+    interpolation options are available using a
+    matplotlib.tri.Triangulation and a matplotlib.tri.TriInterpolator.
     """
-    ``zi = griddata(x,y,z,xi,yi)`` fits a surface of the form *z* =
-    *f*(*x*, *y*) to the data in the (usually) nonuniformly spaced
-    vectors (*x*, *y*, *z*).  :func:`griddata` interpolates this
-    surface at the points specified by (*xi*, *yi*) to produce
-    *zi*. *xi* and *yi* must describe a regular grid, can be either 1D
-    or 2D, but must be monotonically increasing.
+    # Check input arguments.
+    x = np.asanyarray(x, dtype=np.float64)
+    y = np.asanyarray(y, dtype=np.float64)
+    z = np.asanyarray(z, dtype=np.float64)
+    if x.shape != y.shape or x.shape != z.shape or x.ndim != 1:
+        raise ValueError("x, y and z must be equal-length 1-D arrays")
 
-    A masked array is returned if any grid points are outside convex
-    hull defined by input data (no extrapolation is done).
-
-    If interp keyword is set to '`nn`' (default),
-    uses natural neighbor interpolation based on Delaunay
-    triangulation.  By default, this algorithm is provided by the
-    :mod:`matplotlib.delaunay` package, written by Robert Kern.  The
-    triangulation algorithm in this package is known to fail on some
-    nearly pathological cases. For this reason, a separate toolkit
-    (:mod:`mpl_tookits.natgrid`) has been created that provides a more
-    robust algorithm fof triangulation and interpolation.  This
-    toolkit is based on the NCAR natgrid library, which contains code
-    that is not redistributable under a BSD-compatible license.  When
-    installed, this function will use the :mod:`mpl_toolkits.natgrid`
-    algorithm, otherwise it will use the built-in
-    :mod:`matplotlib.delaunay` package.
-
-    If the interp keyword is set to '`linear`', then linear interpolation
-    is used instead of natural neighbor. In this case, the output grid
-    is assumed to be regular with a constant grid spacing in both the x and
-    y directions. For regular grids with nonconstant grid spacing, you
-    must use natural neighbor interpolation.  Linear interpolation is only valid if
-    :mod:`matplotlib.delaunay` package is used - :mod:`mpl_tookits.natgrid`
-    only provides natural neighbor interpolation.
-
-    The natgrid matplotlib toolkit can be downloaded from
-    http://sourceforge.net/project/showfiles.php?group_id=80706&package_id=142792
-    """
-    try:
-        from mpl_toolkits.natgrid import _natgrid, __version__
-        _use_natgrid = True
-    except ImportError:
-        import matplotlib.delaunay as delaunay
-        from matplotlib.delaunay import  __version__
-        _use_natgrid = False
-    if not griddata._reported:
-        if _use_natgrid:
-            verbose.report('using natgrid version %s' % __version__)
-        else:
-            verbose.report('using delaunay version %s' % __version__)
-        griddata._reported = True
+    xi = np.asanyarray(xi, dtype=np.float64)
+    yi = np.asanyarray(yi, dtype=np.float64)
     if xi.ndim != yi.ndim:
-        raise TypeError("inputs xi and yi must have same number of dimensions (1 or 2)")
-    if xi.ndim != 1 and xi.ndim != 2:
-        raise TypeError("inputs xi and yi must be 1D or 2D.")
-    if not len(x)==len(y)==len(z):
-        raise TypeError("inputs x,y,z must all be 1D arrays of the same length")
-    # remove masked points.
-    if hasattr(z,'mask'):
-        # make sure mask is not a scalar boolean array.
-        if z.mask.ndim:
-            x = x.compress(z.mask == False)
-            y = y.compress(z.mask == False)
-            z = z.compressed()
-    if _use_natgrid: # use natgrid toolkit if available.
-        if interp != 'nn':
-            raise ValueError("only natural neighor interpolation"
-            " allowed when using natgrid toolkit in griddata.")
+        raise ValueError("xi and yi must be arrays with the same number of "
+                         "dimensions (1 or 2)")
+    if xi.ndim == 2 and xi.shape != yi.shape:
+        raise ValueError("if xi and yi are 2D arrays, they must have the same "
+                         "shape")
+    if xi.ndim == 1:
+        xi, yi = np.meshgrid(xi, yi)
+
+    if interp == 'nn':
+        use_nn_interpolation = True
+    elif interp == 'linear':
+        use_nn_interpolation = False
+    else:
+        raise ValueError("interp keyword must be one of 'linear' (for linear "
+                         "interpolation) or 'nn' (for natural neighbor "
+                         "interpolation).  Default is 'nn'.")
+
+    # Remove masked points.
+    mask = np.ma.getmask(z)
+    if not (mask is np.ma.nomask):
+        x = x.compress(~mask)
+        y = y.compress(~mask)
+        z = z.compressed()
+
+    if use_nn_interpolation:
+        try:
+            from mpl_toolkits.natgrid import _natgrid
+        except ImportError:
+            raise RuntimeError("To use interp='nn' (Natural Neighbor "
+                "interpolation) in griddata, natgrid must be installed.  "
+                "Either install it from http://sourceforge.net/projects/"
+                "matplotlib/files/matplotlib-toolkits, or use interp='linear' "
+                "instead.")
+
         if xi.ndim == 2:
-            xi = xi[0,:]
-            yi = yi[:,0]
-        # override default natgrid internal parameters.
-        _natgrid.seti('ext',0)
-        _natgrid.setr('nul',np.nan)
-        # cast input arrays to doubles (this makes a copy)
-        x = x.astype(np.float)
-        y = y.astype(np.float)
-        z = z.astype(np.float)
-        xo = xi.astype(np.float)
-        yo = yi.astype(np.float)
-        if min(xo[1:]-xo[0:-1]) < 0 or min(yo[1:]-yo[0:-1]) < 0:
-            raise ValueError('output grid defined by xi,yi must be monotone increasing')
-        # allocate array for output (buffer will be overwritten by nagridd)
-        zo = np.empty((yo.shape[0],xo.shape[0]), np.float)
-        _natgrid.natgridd(x,y,z,xo,yo,zo)
-    else: # use Robert Kern's delaunay package from scikits (default)
-        if xi.ndim != yi.ndim:
-            raise TypeError("inputs xi and yi must have same number of dimensions (1 or 2)")
-        if xi.ndim != 1 and xi.ndim != 2:
-            raise TypeError("inputs xi and yi must be 1D or 2D.")
-        if xi.ndim == 1:
-            xi,yi = np.meshgrid(xi,yi)
-        # triangulate data
-        tri = delaunay.Triangulation(x,y)
-        # interpolate data
-        if interp == 'nn':
-            interp = tri.nn_interpolator(z)
-            zo = interp(xi,yi)
-        elif interp == 'linear':
-            # make sure grid has constant dx, dy
-            dx = xi[0,1:]-xi[0,0:-1]
-            dy = yi[1:,0]-yi[0:-1,0]
-            epsx = np.finfo(xi.dtype).resolution
-            epsy = np.finfo(yi.dtype).resolution
-            if dx.max()-dx.min() > epsx or dy.max()-dy.min() > epsy:
-                raise ValueError("output grid must have constant spacing"
-                                 " when using interp='linear'")
-            interp = tri.linear_interpolator(z)
-            zo = interp[yi.min():yi.max():complex(0,yi.shape[0]),
-                        xi.min():xi.max():complex(0,xi.shape[1])]
-        else:
-            raise ValueError("interp keyword must be one of"
-            " 'linear' (for linear interpolation) or 'nn'"
-            " (for natural neighbor interpolation). Default is 'nn'.")
-    # mask points on grid outside convex hull of input data.
-    if np.any(np.isnan(zo)):
-        zo = np.ma.masked_where(np.isnan(zo),zo)
-    return zo
-griddata._reported = False
+            # natgrid expects 1D xi and yi arrays.
+            xi = xi[0, :]
+            yi = yi[:, 0]
+
+        # Override default natgrid internal parameters.
+        _natgrid.seti('ext', 0)
+        _natgrid.setr('nul', np.nan)
+
+        if np.min(np.diff(xi)) < 0 or np.min(np.diff(yi)) < 0:
+            raise ValueError("Output grid defined by xi,yi must be monotone "
+                             "increasing")
+
+        # Allocate array for output (buffer will be overwritten by natgridd)
+        zi = np.empty((yi.shape[0], xi.shape[0]), np.float64)
+
+        # Natgrid requires each array to be contiguous rather than e.g. a view
+        # that is a non-contiguous slice of another array.  Use numpy.require
+        # to deal with this, which will copy if necessary.
+        x = np.require(x, requirements=['C'])
+        y = np.require(y, requirements=['C'])
+        z = np.require(z, requirements=['C'])
+        xi = np.require(xi, requirements=['C'])
+        yi = np.require(yi, requirements=['C'])
+        _natgrid.natgridd(x, y, z, xi, yi, zi)
+
+        # Mask points on grid outside convex hull of input data.
+        if np.any(np.isnan(zi)):
+            zi = np.ma.masked_where(np.isnan(zi), zi)
+        return zi
+    else:
+        # Linear interpolation performed using a matplotlib.tri.Triangulation
+        # and a matplotlib.tri.LinearTriInterpolator.
+        from .tri import Triangulation, LinearTriInterpolator
+        triang = Triangulation(x, y)
+        interpolator = LinearTriInterpolator(triang, z)
+        return interpolator(xi, yi)
+
 
 ##################################################
 # Linear interpolation algorithms

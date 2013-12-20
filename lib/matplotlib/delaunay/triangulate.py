@@ -11,6 +11,11 @@ import numpy as np
 
 from matplotlib._delaunay import delaunay
 from .interpolate import LinearInterpolator, NNInterpolator
+from matplotlib.cbook import warn_deprecated
+warn_deprecated('1.4',
+                name='matplotlib.delaunay',
+                alternative='matplotlib.tri.Triangulation',
+                obj_type='module')
 
 __all__ = ['Triangulation', 'DuplicatePointWarning']
 

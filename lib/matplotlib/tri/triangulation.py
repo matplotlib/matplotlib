@@ -3,8 +3,8 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import matplotlib.delaunay as delaunay
 import matplotlib._tri as _tri
+import matplotlib._qhull as _qhull
 import numpy as np
 
 
@@ -14,33 +14,27 @@ class Triangulation(object):
     ntri triangles.  The triangles can either be specified by the user
     or automatically generated using a Delaunay triangulation.
 
-    Read-only attributes:
-
-      *x*: array of shape (npoints).
-        x-coordinates of grid points.
-
-      *y*: array of shape (npoints).
-        y-coordinates of grid points.
-
-      *triangles*: integer array of shape (ntri,3).
+    Parameters
+    ----------
+    x, y : array_like of shape (npoints)
+        Coordinates of grid points.
+    triangles : integer array_like of shape (ntri, 3), optional
         For each triangle, the indices of the three points that make
-        up the triangle, ordered in an anticlockwise manner.
-
-      *mask*: optional boolean array of shape (ntri).
+        up the triangle, ordered in an anticlockwise manner.  If not
+        specified, the Delaunay triangulation is calculated.
+    mask : boolean array_like of shape (ntri), optional
         Which triangles are masked out.
 
-      *edges*: integer array of shape (?,2).
-        All edges of non-masked triangles.  Each edge is the start
-        point index and end point index.  Each edge (start,end and
-        end,start) appears only once.
+    Attributes
+    ----------
+    edges
+    neighbors
+    is_delaunay : bool
+        Whether the Triangulation is a calculated Delaunay
+        triangulation (where `triangles` was not specified) or not.
 
-      *neighbors*: integer array of shape (ntri,3).
-        For each triangle, the indices of the three triangles that
-        share the same edges, or -1 if there is no such neighboring
-        triangle.  neighbors[i,j] is the triangle that is the neighbor
-        to the edge from point index triangles[i,j] to point index
-        triangles[i,(j+1)%3].
-
+    Notes
+    -----
     For a Triangulation to be valid it must not have duplicate points,
     triangles formed from colinear points, or overlapping triangles.
     """
@@ -53,19 +47,13 @@ class Triangulation(object):
         self.mask = None
         self._edges = None
         self._neighbors = None
+        self.is_delaunay = False
 
         if triangles is None:
-            # No triangulation specified, so use matplotlib.delaunay.
-            dt = delaunay.Triangulation(self.x, self.y)
-            self.triangles = np.asarray(
-                dt.to_client_point_indices(dt.triangle_nodes), dtype=np.int32)
-            if mask is None:
-                self._edges = np.asarray(
-                    dt.to_client_point_indices(dt.edge_db), dtype=np.int32)
-                # Delaunay triangle_neighbors uses different edge indexing,
-                # so convert.
-                neighbors = np.asarray(dt.triangle_neighbors, dtype=np.int32)
-                self._neighbors = np.roll(neighbors, 1, axis=1)
+            # No triangulation specified, so use matplotlib._qhull to obtain
+            # Delaunay triangulation.
+            self.triangles, self._neighbors = _qhull.delaunay(x, y)
+            self.is_delaunay = True
         else:
             # Triangulation specified. Copy, since we may correct triangle
             # orientation.
@@ -102,6 +90,13 @@ class Triangulation(object):
 
     @property
     def edges(self):
+        """
+        Return integer array of shape (nedges,2) containing all edges of
+        non-masked triangles.
+
+        Each edge is the start point index and end point index.  Each
+        edge (start,end and end,start) appears only once.
+        """
         if self._edges is None:
             self._edges = self.get_cpp_triangulation().get_edges()
         return self._edges
@@ -184,6 +179,16 @@ class Triangulation(object):
 
     @property
     def neighbors(self):
+        """
+        Return integer array of shape (ntri,3) containing neighbor
+        triangles.
+
+        For each triangle, the indices of the three triangles that
+        share the same edges, or -1 if there is no such neighboring
+        triangle.  neighbors[i,j] is the triangle that is the neighbor
+        to the edge from point index triangles[i,j] to point index
+        triangles[i,(j+1)%3].
+        """
         if self._neighbors is None:
             self._neighbors = self.get_cpp_triangulation().get_neighbors()
         return self._neighbors
