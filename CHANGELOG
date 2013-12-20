@@ -1,6 +1,11 @@
+2013-11-28 Added qhull extension module to perform Delaunay triangulation more
+           robustly than before.  It is used by tri.Triangulation (and hence
+           all pyplot.tri* methods) and mlab.griddata.  Deprecated
+           matplotlib.delaunay module. - IMT
+
 2013-10-27 Added get_rlabel_position and set_rlabel_position methods to
-	   PolarAxes to control angular position of radial tick labels.
-	   
+           PolarAxes to control angular position of radial tick labels.
+
 2013-10-06 Add stride-based functions to mlab for easy creation of 2D arrays
            with less memory.
 
@@ -27,16 +32,16 @@
            and matplotlib.units.Registry.
 
 2013-06-26 Refactored the axes module: the axes module is now a folder,
-	   containing the following submodule:
-	      - _subplots.py, containing all the subplots helper methods
-	      - _base.py, containing several private methods and a new
-		_AxesBase class. This _AxesBase class contains all the methods
-		that are not directly linked to plots of the "old" Axes
-	      - _axes.py contains the Axes class. This class now inherits from
-		_AxesBase: it contains all "plotting" methods and labelling
-		methods.
-	    This refactoring should not affect the API. Only private methods
-	    are not importable from the axes module anymore.
+           containing the following submodule:
+              - _subplots.py, containing all the subplots helper methods
+              - _base.py, containing several private methods and a new
+                _AxesBase class. This _AxesBase class contains all the methods
+                that are not directly linked to plots of the "old" Axes
+              - _axes.py contains the Axes class. This class now inherits from
+                _AxesBase: it contains all "plotting" methods and labelling
+                methods.
+           This refactoring should not affect the API. Only private methods
+           are not importable from the axes module anymore.
 
 2013-05-18 Added support for arbitrary rasterization resolutions to the
            SVG backend. Previously the resolution was hard coded to 72
@@ -52,22 +57,21 @@
 
 2013-04-25 Changed all instances of:
 
-	   from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
-	   to:
+           from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
+           to:
 
-	   from cbook import mplDeprecation
+           from cbook import mplDeprecation
 
-	   and removed the import into the matplotlib namespace in __init__.py
-	   Thomas Caswell
-
+           and removed the import into the matplotlib namespace in __init__.py
+           Thomas Caswell
 
 2013-04-15 Added 'axes.xmargin' and 'axes.ymargin' to rpParams to set default
-	   margins on auto-scaleing. - TAC
+           margins on auto-scaleing. - TAC
 
 2013-04-16 Added patheffect support for Line2D objects.  -JJL
 
 2013-03-19 Added support for passing `linestyle` kwarg to `step` so all `plot`
-      	   kwargs are passed to the underlying `plot` call.  -TAC
+           kwargs are passed to the underlying `plot` call.  -TAC
 
 2013-02-25 Added classes CubicTriInterpolator, UniformTriRefiner, TriAnalyzer
            to matplotlib.tri module. - GBy

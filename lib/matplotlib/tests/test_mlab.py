@@ -8,6 +8,15 @@ import matplotlib.mlab as mlab
 import matplotlib.cbook as cbook
 import tempfile
 import unittest
+from nose.tools import assert_raises
+from matplotlib.testing.decorators import knownfailureif
+
+
+try:
+    from mpl_toolkits.natgrid import _natgrid
+    HAS_NATGRID = True
+except ImportError:
+    HAS_NATGRID = False
 
 from numpy.testing import assert_allclose, assert_array_equal
 
@@ -2684,6 +2693,73 @@ class spectral_testcase_nosig_complex_defaultsided_overlap(
                 self.createStim(fstims=[],
                                 nover_density=32,
                                 iscomplex=True, sides='default', nsides=2)
+
+
+def test_griddata_linear():
+    # z is a linear function of x and y.
+    def get_z(x, y):
+        return 3.0*x - y
+
+    # Passing 1D xi and yi arrays to griddata.
+    x = np.asarray([0.0, 1.0, 0.0, 1.0, 0.5])
+    y = np.asarray([0.0, 0.0, 1.0, 1.0, 0.5])
+    z = get_z(x, y)
+    xi = [0.2, 0.4, 0.6, 0.8]
+    yi = [0.1, 0.3, 0.7, 0.9]
+    zi = mlab.griddata(x, y, z, xi, yi, interp='linear')
+    xi, yi = np.meshgrid(xi, yi)
+    np.testing.assert_array_almost_equal(zi, get_z(xi, yi))
+
+    # Passing 2D xi and yi arrays to griddata.
+    zi = mlab.griddata(x, y, z, xi, yi, interp='linear')
+    np.testing.assert_array_almost_equal(zi, get_z(xi, yi))
+
+    # Masking z array.
+    z_masked = np.ma.array(z, mask=[False, False, False, True, False])
+    correct_zi_masked = np.ma.masked_where(xi + yi > 1.0, get_z(xi, yi))
+    zi = mlab.griddata(x, y, z_masked, xi, yi, interp='linear')
+    np.testing.assert_array_almost_equal(zi, correct_zi_masked)
+    np.testing.assert_array_equal(np.ma.getmask(zi),
+                                  np.ma.getmask(correct_zi_masked))
+
+
+@knownfailureif(not HAS_NATGRID)
+def test_griddata_nn():
+    # z is a linear function of x and y.
+    def get_z(x, y):
+        return 3.0*x - y
+
+    # Passing 1D xi and yi arrays to griddata.
+    x = np.asarray([0.0, 1.0, 0.0, 1.0, 0.5])
+    y = np.asarray([0.0, 0.0, 1.0, 1.0, 0.5])
+    z = get_z(x, y)
+    xi = [0.2, 0.4, 0.6, 0.8]
+    yi = [0.1, 0.3, 0.7, 0.9]
+    correct_zi = [[0.49999252, 1.0999978, 1.7000030, 2.3000080],
+                  [0.29999208, 0.8999978, 1.5000029, 2.1000059],
+                  [-0.1000099, 0.4999943, 1.0999964, 1.6999979],
+                  [-0.3000128, 0.2999894, 0.8999913, 1.4999933]]
+    zi = mlab.griddata(x, y, z, xi, yi, interp='nn')
+    np.testing.assert_array_almost_equal(zi, correct_zi)
+
+    # Decreasing xi or yi should raise ValueError.
+    assert_raises(ValueError, mlab.griddata, x, y, z, xi[::-1], yi,
+                  interp='nn')
+    assert_raises(ValueError, mlab.griddata, x, y, z, xi, yi[::-1],
+                  interp='nn')
+
+    # Passing 2D xi and yi arrays to griddata.
+    xi, yi = np.meshgrid(xi, yi)
+    zi = mlab.griddata(x, y, z, xi, yi, interp='nn')
+    np.testing.assert_array_almost_equal(zi, correct_zi)
+
+    # Masking z array.
+    z_masked = np.ma.array(z, mask=[False, False, False, True, False])
+    correct_zi_masked = np.ma.masked_where(xi + yi > 1.0, correct_zi)
+    zi = mlab.griddata(x, y, z_masked, xi, yi, interp='nn')
+    np.testing.assert_array_almost_equal(zi, correct_zi_masked, 5)
+    np.testing.assert_array_equal(np.ma.getmask(zi),
+                                  np.ma.getmask(correct_zi_masked))
 
 
 if __name__ == '__main__':

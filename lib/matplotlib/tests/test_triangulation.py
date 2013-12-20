@@ -6,111 +6,154 @@ import six
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
-import matplotlib.delaunay as mdel
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_raises
 from numpy.testing import assert_array_equal, assert_array_almost_equal,\
     assert_array_less
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.cm as cm
+from matplotlib.path import Path
 
 
 def test_delaunay():
-    # No duplicate points.
-    x = [0, 1, 1, 0]
-    y = [0, 0, 1, 1]
-    npoints = 4
-    ntriangles = 2
-    nedges = 5
+    # No duplicate points, regular grid.
+    nx = 5
+    ny = 4
+    x, y = np.meshgrid(np.linspace(0.0, 1.0, nx), np.linspace(0.0, 1.0, ny))
+    x = x.ravel()
+    y = y.ravel()
+    npoints = nx*ny
+    ntriangles = 2 * (nx-1) * (ny-1)
+    nedges = 3*nx*ny - 2*nx - 2*ny + 1
 
-    # Without duplicate points, mpl calls delaunay triangulation and
-    # does not modify it.
-    mpl_triang = mtri.Triangulation(x, y)
-    del_triang = mdel.Triangulation(x, y)
+    # Create delaunay triangulation.
+    triang = mtri.Triangulation(x, y)
+
+    # The tests in the remainder of this function should be passed by any
+    # triangulation that does not contain duplicate points.
 
     # Points - floating point.
-    assert_array_almost_equal(mpl_triang.x, x)
-    assert_array_almost_equal(mpl_triang.x, del_triang.x)
-    assert_array_almost_equal(mpl_triang.y, y)
-    assert_array_almost_equal(mpl_triang.y, del_triang.y)
+    assert_array_almost_equal(triang.x, x)
+    assert_array_almost_equal(triang.y, y)
 
     # Triangles - integers.
-    assert_equal(len(mpl_triang.triangles), ntriangles)
-    assert_equal(np.min(mpl_triang.triangles), 0)
-    assert_equal(np.max(mpl_triang.triangles), npoints-1)
-    assert_array_equal(mpl_triang.triangles, del_triang.triangle_nodes)
+    assert_equal(len(triang.triangles), ntriangles)
+    assert_equal(np.min(triang.triangles), 0)
+    assert_equal(np.max(triang.triangles), npoints-1)
 
     # Edges - integers.
-    assert_equal(len(mpl_triang.edges), nedges)
-    assert_equal(np.min(mpl_triang.edges), 0)
-    assert_equal(np.max(mpl_triang.edges), npoints-1)
-    assert_array_equal(mpl_triang.edges, del_triang.edge_db)
+    assert_equal(len(triang.edges), nedges)
+    assert_equal(np.min(triang.edges), 0)
+    assert_equal(np.max(triang.edges), npoints-1)
+
+    # Neighbors - integers.
+    # Check that neighbors calculated by C++ triangulation class are the same
+    # as those returned from delaunay routine.
+    neighbors = triang.neighbors
+    triang._neighbors = None
+    assert_array_equal(triang.neighbors, neighbors)
+
+    # Is each point used in at least one triangle?
+    assert_array_equal(np.unique(triang.triangles), np.arange(npoints))
 
 
 def test_delaunay_duplicate_points():
-    # Issue 838.
-    import warnings
+    # x[duplicate] == x[duplicate_of]
+    # y[duplicate] == y[duplicate_of]
+    npoints = 10
+    duplicate = 7
+    duplicate_of = 3
 
-    # Index 2 is the same as index 0.
-    x = [0, 1, 0, 1, 0]
-    y = [0, 0, 0, 1, 1]
-    duplicate_index = 2
-    npoints = 4        # Number of non-duplicate points.
-    nduplicates = 1
-    ntriangles = 2
-    nedges = 5
+    np.random.seed(23)
+    x = np.random.random((npoints))
+    y = np.random.random((npoints))
+    x[duplicate] = x[duplicate_of]
+    y[duplicate] = y[duplicate_of]
 
-    # With duplicate points, mpl calls delaunay triangulation but
-    # modified returned arrays.
-    warnings.simplefilter("ignore")   # Ignore DuplicatePointWarning.
-    mpl_triang = mtri.Triangulation(x, y)
-    del_triang = mdel.Triangulation(x, y)
-    warnings.resetwarnings()
+    # Create delaunay triangulation.
+    triang = mtri.Triangulation(x, y)
 
-    # Points - floating point.
-    assert_equal(len(mpl_triang.x), npoints + nduplicates)
-    assert_equal(len(del_triang.x), npoints)
-    assert_array_almost_equal(mpl_triang.x, x)
-    assert_array_almost_equal(del_triang.x[:duplicate_index],
-                              x[:duplicate_index])
-    assert_array_almost_equal(del_triang.x[duplicate_index:],
-                              x[duplicate_index+1:])
-
-    assert_equal(len(mpl_triang.y), npoints + nduplicates)
-    assert_equal(len(del_triang.y), npoints)
-    assert_array_almost_equal(mpl_triang.y, y)
-    assert_array_almost_equal(del_triang.y[:duplicate_index],
-                              y[:duplicate_index])
-    assert_array_almost_equal(del_triang.y[duplicate_index:],
-                              y[duplicate_index+1:])
-
-    # Triangles - integers.
-    assert_equal(len(mpl_triang.triangles), ntriangles)
-    assert_equal(np.min(mpl_triang.triangles), 0)
-    assert_equal(np.max(mpl_triang.triangles), npoints-1 + nduplicates)
-    assert_equal(len(del_triang.triangle_nodes), ntriangles)
-    assert_equal(np.min(del_triang.triangle_nodes), 0)
-    assert_equal(np.max(del_triang.triangle_nodes), npoints-1)
-    # Convert mpl triangle point indices to delaunay's.
-    converted_indices = np.where(mpl_triang.triangles > duplicate_index,
-                                 mpl_triang.triangles - nduplicates,
-                                 mpl_triang.triangles)
-    assert_array_equal(del_triang.triangle_nodes, converted_indices)
-
-    # Edges - integers.
-    assert_equal(len(mpl_triang.edges), nedges)
-    assert_equal(np.min(mpl_triang.edges), 0)
-    assert_equal(np.max(mpl_triang.edges), npoints-1 + nduplicates)
-    assert_equal(len(del_triang.edge_db), nedges)
-    assert_equal(np.min(del_triang.edge_db), 0)
-    assert_equal(np.max(del_triang.edge_db), npoints-1)
-    # Convert mpl edge point indices to delaunay's.
-    converted_indices = np.where(mpl_triang.edges > duplicate_index,
-                                 mpl_triang.edges - nduplicates,
-                                 mpl_triang.edges)
-    assert_array_equal(del_triang.edge_db, converted_indices)
+    # Duplicate points should be ignored, so the index of the duplicate points
+    # should not appear in any triangle.
+    assert_array_equal(np.unique(triang.triangles),
+                       np.delete(np.arange(npoints), duplicate))
 
 
-@image_comparison(baseline_images=['tripcolor1'])
+def test_delaunay_points_in_line():
+    # Cannot triangulate points that are all in a straight line, but check
+    # that delaunay code fails gracefully.
+    x = np.linspace(0.0, 10.0, 11)
+    y = np.linspace(0.0, 10.0, 11)
+    assert_raises(RuntimeError, mtri.Triangulation, x, y)
+
+    # Add an extra point not on the line and the triangulation is OK.
+    x = np.append(x, 2.0)
+    y = np.append(y, 8.0)
+    triang = mtri.Triangulation(x, y)
+
+
+def test_delaunay_insufficient_points():
+    # Triangulation should raise a ValueError if passed less than 3 points.
+    assert_raises(ValueError, mtri.Triangulation, [], [])
+    assert_raises(ValueError, mtri.Triangulation, [1], [5])
+    assert_raises(ValueError, mtri.Triangulation, [1, 2], [5, 6])
+
+    # Triangulation should also raise a ValueError if passed duplicate points
+    # such that there are less than 3 unique points.
+    assert_raises(ValueError, mtri.Triangulation, [1, 2, 1], [5, 6, 5])
+    assert_raises(ValueError, mtri.Triangulation, [1, 2, 2], [5, 6, 6])
+    assert_raises(ValueError, mtri.Triangulation, [1, 1, 1, 2, 1, 2],
+                  [5, 5, 5, 6, 5, 6])
+
+
+def test_delaunay_robust():
+    # Fails when mtri.Triangulation uses matplotlib.delaunay, works when using
+    # qhull.
+    tri_points = np.array([
+        [0.8660254037844384, -0.5000000000000004],
+        [0.7577722283113836, -0.5000000000000004],
+        [0.6495190528383288, -0.5000000000000003],
+        [0.5412658773652739, -0.5000000000000003],
+        [0.811898816047911, -0.40625000000000044],
+        [0.7036456405748561, -0.4062500000000004],
+        [0.5953924651018013, -0.40625000000000033]])
+    test_points = np.asarray([
+        [0.58, -0.46],
+        [0.65, -0.46],
+        [0.65, -0.42],
+        [0.7, -0.48],
+        [0.7, -0.44],
+        [0.75, -0.44],
+        [0.8, -0.48]])
+
+    # Utility function that indicates if a triangle defined by 3 points
+    # (xtri, ytri) contains the test point xy.  Avoid calling with a point that
+    # lies on or very near to an edge of the triangle.
+    def tri_contains_point(xtri, ytri, xy):
+        tri_points = np.vstack((xtri, ytri)).T
+        return Path(tri_points).contains_point(xy)
+
+    # Utility function that returns how many triangles of the specified
+    # triangulation contain the test point xy.  Avoid calling with a point that
+    # lies on or very near to an edge of any triangle in the triangulation.
+    def tris_contain_point(triang, xy):
+        count = 0
+        for tri in triang.triangles:
+            if tri_contains_point(triang.x[tri], triang.y[tri], xy):
+                count += 1
+        return count
+
+    # Using matplotlib.delaunay, an invalid triangulation is created with
+    # overlapping triangles; qhull is OK.
+    triang = mtri.Triangulation(tri_points[:, 0], tri_points[:, 1])
+    for test_point in test_points:
+        assert_equal(tris_contain_point(triang, test_point), 1)
+
+    # If ignore the first point of tri_points, matplotlib.delaunay throws a
+    # KeyError when calculating the convex hull; qhull is OK.
+    triang = mtri.Triangulation(tri_points[1:, 0], tri_points[1:, 1])
+
+
+@image_comparison(baseline_images=['tripcolor1'], extensions=['png'])
 def test_tripcolor():
     x = np.asarray([0, 0.5, 1, 0,   0.5, 1,   0, 0.5, 1, 0.75])
     y = np.asarray([0, 0,   0, 0.5, 0.5, 0.5, 1, 1,   1, 0.75])
@@ -139,6 +182,7 @@ def test_tripcolor():
 
 
 def test_no_modify():
+    # Test that Triangulation does not modify triangles array passed to it.
     triangles = np.array([[3, 2, 0], [3, 1, 0]], dtype=np.int32)
     points = np.array([(0, 0), (0, 1.1), (1, 0), (1, 1)])
 

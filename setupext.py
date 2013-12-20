@@ -936,6 +936,36 @@ class Png(SetupPackage):
         return ext
 
 
+class Qhull(SetupPackage):
+    name = "qhull"
+
+    def check(self):
+        self.__class__.found_external = True
+        try:
+            return self._check_for_pkg_config(
+                'qhull', 'qhull/qhull_a.h', min_version='2003.1')
+        except CheckFailed as e:
+            self.__class__.found_pkgconfig = False
+            # Qhull may not be in the pkg-config system but may still be
+            # present on this system, so check if the header files can be
+            # found.
+            include_dirs = [
+                os.path.join(x, 'include', 'qhull') for x in get_base_dirs()]
+            if has_include_file(include_dirs, 'qhull_a.h'):
+                return 'Using system Qhull (version unknown, no pkg-config info)'
+            else:
+                self.__class__.found_external = False
+                return str(e) + ' Using local copy.'
+
+    def add_flags(self, ext):
+        if self.found_external:
+            pkg_config.setup_extension(ext, 'qhull',
+                                       default_libraries=['qhull'])
+        else:
+            ext.include_dirs.append('extern')
+            ext.sources.extend(glob.glob('extern/qhull/*.c'))
+
+
 class TTConv(SetupPackage):
     name = "ttconv"
 
@@ -1008,6 +1038,18 @@ class Delaunay(SetupPackage):
         sources = [os.path.join('lib/matplotlib/delaunay', s) for s in sources]
         ext = make_extension('matplotlib._delaunay', sources)
         Numpy().add_flags(ext)
+        return ext
+
+
+class QhullWrap(SetupPackage):
+    name = "qhull_wrap"
+
+    def get_extension(self):
+        sources = ['src/qhull_wrap.c']
+        ext = make_extension('matplotlib._qhull', sources,
+                             define_macros=[('MPL_DEVNULL', os.devnull)])
+        Numpy().add_flags(ext)
+        Qhull().add_flags(ext)
         return ext
 
 
