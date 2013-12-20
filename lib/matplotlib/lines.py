@@ -341,34 +341,49 @@ class Line2D(Artist):
         self._marker.set_fillstyle(fs)
 
     def set_markevery(self, every):
+        """Set the markevery property to subsample the plot when using markers.
+
+        e.g., if `markevery=5`, every 5-th marker will be plotted.
+
+
+        Parameters
+        ----------
+        every: None | int | length-2 tuple of int | slice | list/array of int |
+        float | length-2 tuple of float
+            Which markers to plot.  If `every`=None, every point will be
+            plotted. If every=`N`, every N-th marker will be plotted starting
+            with marker 0.  If `every`=(start, N), every N-th marker, starting
+            at point start, will be plotted. If `every`=slice(start, end, N),
+            every N-th marker, starting at point start, upto but not including
+            point end, will be plotted.  If every=[i, j, m, n], only markers at
+            points i, j, m, and n will be plotted. If `every`=0.1, (i.e. a
+            float) then markers will be spaced at approximately equal
+            distances along the line; the distance along the line between
+            markers is determined by multiplying the display-coordinate
+            distance of the axes bounding-box diagonal by the value of `every`.
+            For `every`=(0.5, 0.1) (i.e. a length-2 tuple of float), the same
+            functionality as `every`=0.1 is exhibited but the first marker will
+            be 0.5 multiplied by the display-cordinate-diagonal-distance along
+            the line.
+
+        Notes
+        -----
+        Using `markevery` will only show markers at actual data points.  When
+        using float arguments to `markevery` on irregularly spaced data, the
+        markers will likely not appear evenly spaced because the actual data
+        points do not coincide with the theoretical spacing between markers.
+
+        When using a start offset to specify the first marker, the offset will
+        be from the first data point which may be different from the first
+        the visible data point if the plot is zoomed in.
+
+        If zooming in on a plot when using float arguments then the actual
+        data points that have markers will change because the distance between
+        markers is always determined from the display-coordinates
+        axes-bounding-box-diagonal regardless of the actual axes data limits.
+
         """
-        Set the markevery property to subsample the plot when using
-        markers.  e.g., if ``markevery=5``, every 5-th marker will be
-        plotted.  *every* can be
 
-        None
-            Every point will be plotted
-
-        an integer N
-            Every N-th marker will be plotted starting with marker 0
-
-        A length-2 tuple of integers
-            every=(start, N) will start at point start and plot every N-th
-            marker
-        
-        A slice object
-            every=slice(start, end, N) will start at point start and plot every
-            N-th marker upto but nod including point end
-            
-        A list or numpy array of integers
-            every=[4, 8, 9] will plot markers for points 4, 8, and 9.  If 
-            specifying two points only, instead of every=[i, j] use 
-            every=slice(i, j + 1, j - i) otherwise every j-th point starting
-            at point i will have a marker.
-            
-        ACCEPTS: None | integer | (startind, stride) | slice object | list
-
-        """
         self._markevery = every
 
     def get_markevery(self):
@@ -592,25 +607,48 @@ class Line2D(Artist):
                 # subsample the markers if markevery is not None
                 markevery = self.get_markevery()
                 if markevery is not None:
-                    if iterable(markevery):
-                        if len(markevery) == 2:
-                            #This is only here for backwards compatibility.
-                            # Originally if markevery was a sequence of len two 
-                            # it was interpreted as a start index and
-                            # and a stride length.  It means that you can't 
-                            # use fancy indexing to specify exactly two points.
-                            # as a work-around use markevery = slice(i,j+1,j-i)
-                            # to show only point numbers i and j.                          
-                            startind, stride = markevery
-                            inds = slice(startind, None, stride)
+                    if isinstance(markevery, float):
+                        markevery = (0.0, markevery)
+                    if isinstance(markevery, tuple):
+                        start, step = markevery
+                        if isinstance(step, int):
+                            #this is for backwards compatibility, tuple of 2 int
+                            inds = slice(start, None, step)
                         else:
-                            inds = markevery
-                    else:                        
-                        if isinstance(markevery, slice):
-                            inds = markevery
-                        else:
-                            startind, stride = 0, markevery
-                            inds = slice(startind, None, stride)
+                            #calc cumulative distance along path (in display
+                            # coords):
+                            disp_coords = affine.transform(tpath.vertices)
+                            delta = np.empty((len(disp_coords), 2),
+                                             dtype=float)
+                            delta[0, :] = 0.0
+                            delta[1:, :] = (disp_coords[1:, :] -
+                                                disp_coords[:-1, :])
+                            delta = np.sum(delta**2, axis=1)
+                            delta = np.sqrt(delta)
+                            delta = np.cumsum(delta)
+                            #calc distance between markers along path based on
+                            # the axes bounding box diagonal being a distance
+                            # of unity:
+                            scale = self.axes.transAxes.transform(
+                                        np.array([[0, 0], [1, 1]]))
+                            scale = np.diff(scale, axis=0)
+                            scale = np.sum(scale**2)
+                            scale = np.sqrt(scale)
+                            marker_delta = np.arange(start * scale,
+                                                     delta[-1],
+                                                     step * scale)
+                            #find actual data point that is closest to
+                            # the theoretical distance along the path:
+                            inds = np.abs(delta[np.newaxis, :] -
+                                            marker_delta[:, np.newaxis])
+                            inds = inds.argmin(axis=1)
+                            inds = np.unique(inds)
+                    elif isinstance(markevery, int):
+                        start, step = 0, markevery
+                        inds = slice(start, None, step)
+                    else:
+                        #slice or fancy indexing
+                        inds = markevery
                     if tpath.codes is not None:
                         codes = tpath.codes[inds]
                     else:
