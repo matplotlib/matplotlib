@@ -18,7 +18,7 @@ python:
 
 install:
   - pip install -q --use-mirrors nose python-dateutil numpy pep8 pyparsing pillow
-  - sudo apt-get update && sudo apt-get -qq install inkscape
+  - sudo apt-get update && sudo apt-get -qq install inkscape libav-tools
   - python setup.py install
 
 script:
