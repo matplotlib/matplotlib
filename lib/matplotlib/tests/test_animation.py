@@ -3,15 +3,14 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import os
 import tempfile
 
 import numpy as np
-
+from nose import with_setup
 from matplotlib import pyplot as plt
 from matplotlib import animation
 from matplotlib.testing.noseclasses import KnownFailureTest
-from matplotlib.testing.decorators import cleanup
+from matplotlib.testing.decorators import CleanupTest
 
 
 WRITER_OUTPUT = dict(ffmpeg='mp4', ffmpeg_file='mp4',
@@ -23,16 +22,18 @@ WRITER_OUTPUT = dict(ffmpeg='mp4', ffmpeg_file='mp4',
 # Smoke test for saving animations.  In the future, we should probably
 # design more sophisticated tests which compare resulting frames a-la
 # matplotlib.testing.image_comparison
-@cleanup
 def test_save_animation_smoketest():
     for writer, extension in six.iteritems(WRITER_OUTPUT):
         yield check_save_animation, writer, extension
 
 
+@with_setup(CleanupTest.setup_class, CleanupTest.teardown_class)
 def check_save_animation(writer, extension='mp4'):
     if not animation.writers.is_available(writer):
         raise KnownFailureTest("writer '%s' not available on this system"
                                % writer)
+    if 'mencoder' in writer:
+        raise KnownFailureTest("mencoder is broken")
     fig, ax = plt.subplots()
     line, = ax.plot([], [])
 
@@ -49,7 +50,12 @@ def check_save_animation(writer, extension='mp4'):
     # Use NamedTemporaryFile: will be automatically deleted
     F = tempfile.NamedTemporaryFile(suffix='.' + extension)
     anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
-    anim.save(F.name, fps=30, writer=writer)
+    try:
+        anim.save(F.name, fps=30, writer=writer)
+    except UnicodeDecodeError:
+        raise KnownFailureTest("There can be errors in the numpy " +
+                               "import stack, " +
+                               "see issues #1891 and #2679")
 
 
 if __name__ == "__main__":
