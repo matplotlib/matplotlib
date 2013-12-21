@@ -535,11 +535,10 @@ def _get_xdg_config_dir():
     base directory spec
     <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
     """
-    home = get_home()
-    if home is None:
-        return None
-    else:
-        return os.environ.get('XDG_CONFIG_HOME', os.path.join(home, '.config'))
+    path = get_home()
+    if path:
+        path = os.path.join(path, '.config')
+    return os.environ.get('XDG_CONFIG_HOME', path)
 
 
 def _get_xdg_cache_dir():
@@ -548,11 +547,10 @@ def _get_xdg_cache_dir():
     base directory spec
     <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
     """
-    home = get_home()
-    if home is None:
-        return None
-    else:
-        return os.environ.get('XDG_CACHE_HOME', os.path.join(home, '.cache'))
+    path = get_home()
+    if path:
+        path = os.path.join(path, '.cache')
+    return os.environ.get('XDG_CACHE_HOME', path)
 
 
 def _get_config_or_cache_dir(xdg_base):
