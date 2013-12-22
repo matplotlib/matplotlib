@@ -568,13 +568,16 @@ def _get_config_or_cache_dir(xdg_base):
 
     p = None
     h = get_home()
-    if h is not None:
+    if h:
         p = os.path.join(h, '.matplotlib')
-        if (sys.platform.startswith('linux') and
-            xdg_base is not None):
-            p = os.path.join(xdg_base, 'matplotlib')
+        if sys.platform.startswith('linux') and not os.path.exists(p):
+            # no old config exists
+            if xdg_base:
+                p = os.path.join(xdg_base, 'matplotlib')
+            else:
+                p = None
 
-    if p is not None:
+    if p:
         if os.path.exists(p):
             if _is_writable_dir(p):
                 return p
