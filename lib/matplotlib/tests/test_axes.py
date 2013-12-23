@@ -864,11 +864,11 @@ def test_markevery_linear_scales():
     y = np.sin(x) + 1.0 + delta
 
     fig = plt.figure()
-    ax=[]
+    ax = []
     for i, case in enumerate(cases):
         row = (i // cols)
         col = i % cols
-        ax.append(fig.add_subplot(gs[row,col]))
+        ax.append(fig.add_subplot(gs[row, col]))
         ax[-1].set_title('markevery=%s' % str(case))
         ax[-1].plot(x, y, 'o', ls='-', ms=4,  markevery=case)
 
@@ -891,7 +891,7 @@ def test_markevery_linear_scales_zoomed():
     y = np.sin(x) + 1.0 + delta
 
     fig = plt.figure()
-    ax=[]
+    ax = []
     for i, case in enumerate(cases):
         row = (i // cols)
         col = i % cols
@@ -921,7 +921,7 @@ def test_markevery_log_scales():
     y = np.sin(x) + 1.0 + delta
 
     fig = plt.figure()
-    ax=[]
+    ax = []
     for i, case in enumerate(cases):
         row = (i // cols)
         col = i % cols
@@ -949,7 +949,7 @@ def test_markevery_polar():
     theta = 2 * np.pi * r
 
     fig = plt.figure()
-    ax=[]
+    ax = []
     for i, case in enumerate(cases):
         row = (i // cols)
         col = i % cols

@@ -634,7 +634,8 @@ class Line2D(Artist):
                             #calc cumulative distance along path (in display
                             # coords):
                             disp_coords = affine.transform(tpath.vertices)
-                            delta = np.empty((len(disp_coords), 2), dtype=float)
+                            delta = np.empty((len(disp_coords), 2),
+                                             dtype=float)
                             delta[0, :] = 0.0
                             delta[1:, :] = (disp_coords[1:, :] -
                                                 disp_coords[:-1, :])
@@ -644,11 +645,14 @@ class Line2D(Artist):
                             #calc distance between markers along path based on
                             # the axes bounding box diagonal being a distance
                             # of unity:
-                            scale = self.axes.transAxes.transform(np.array([[0,0],[1,1]]))
+                            scale = self.axes.transAxes.transform(
+                                np.array([[0, 0], [1, 1]]))
                             scale = np.diff(scale, axis=0)
                             scale = np.sum(scale**2)
                             scale = np.sqrt(scale)
-                            marker_delta = np.arange(start * scale, delta[-1], step * scale)
+                            marker_delta = np.arange(start * scale,
+                                                     delta[-1],
+                                                     step * scale)
                             #find closest actual data point that is closest to
                             # the theoretical distance along the path:
                             inds = np.abs(delta[np.newaxis, :] -
