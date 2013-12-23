@@ -672,6 +672,12 @@ class Line2D(Artist):
                     elif iterable(markevery):
                         #fancy indexing
                         inds = markevery
+                        try:
+                            tpath.vertices[inds]
+                        except (ValueError, IndexError):
+                            raise ValueError('`markevery` is iterable but '
+                                'not a valid form of numpy fancy indexing; '
+                                'markevery=%s' % (markevery,))
                     else:
                         raise ValueError('Value of `markevery` is not '
                             'recognized; '
