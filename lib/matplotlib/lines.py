@@ -610,16 +610,31 @@ class Line2D(Artist):
                     if isinstance(markevery, float):
                         markevery = (0.0, markevery)
                     if isinstance(markevery, tuple):
+                        if len(markevery) != 2:
+                            raise ValueError('`markevery` is a tuple but its '
+                                'len is not 2; '
+                                'markevery=%s' % (markevery,))
                         start, step = markevery
                         if isinstance(step, int):
-                            #this is for backwards compatibility, tuple of 2 int
+                            #tuple of 2 int is for backwards compatibility,
+                            if not(isinstance(start, int)):
+                                raise ValueError('`markevery` is a tuple with '
+                                    'len 2 and second element is an int, but '
+                                    'the first element is not an int; '
+                                    'markevery=%s' % (markevery,))
                             inds = slice(start, None, step)
-                        else:
+                        elif isinstance(step, float):
+                            if not (isinstance(start, int) or
+                                    isinstance(start, float)):
+                                raise ValueError('`markevery` is a tuple with '
+                                    'len 2 and second element is a float, but '
+                                    'the first element is not a float or an '
+                                    'int; '
+                                    'markevery=%s' % (markevery,))
                             #calc cumulative distance along path (in display
                             # coords):
                             disp_coords = affine.transform(tpath.vertices)
-                            delta = np.empty((len(disp_coords), 2),
-                                             dtype=float)
+                            delta = np.empty((len(disp_coords), 2), dtype=float)
                             delta[0, :] = 0.0
                             delta[1:, :] = (disp_coords[1:, :] -
                                                 disp_coords[:-1, :])
@@ -629,26 +644,34 @@ class Line2D(Artist):
                             #calc distance between markers along path based on
                             # the axes bounding box diagonal being a distance
                             # of unity:
-                            scale = self.axes.transAxes.transform(
-                                        np.array([[0, 0], [1, 1]]))
+                            scale = self.axes.transAxes.transform(np.array([[0,0],[1,1]]))
                             scale = np.diff(scale, axis=0)
                             scale = np.sum(scale**2)
                             scale = np.sqrt(scale)
-                            marker_delta = np.arange(start * scale,
-                                                     delta[-1],
-                                                     step * scale)
-                            #find actual data point that is closest to
+                            marker_delta = np.arange(start * scale, delta[-1], step * scale)
+                            #find closest actual data point that is closest to
                             # the theoretical distance along the path:
                             inds = np.abs(delta[np.newaxis, :] -
                                             marker_delta[:, np.newaxis])
                             inds = inds.argmin(axis=1)
                             inds = np.unique(inds)
+                        else:
+                            raise ValueError('`markevery` is a tuple with '
+                                'len 2, but its second element is not an int '
+                                'or a float; '
+                                'markevery=%s' % (markevery,))
                     elif isinstance(markevery, int):
                         start, step = 0, markevery
                         inds = slice(start, None, step)
-                    else:
-                        #slice or fancy indexing
+                    elif isinstance(markevery, slice):
                         inds = markevery
+                    elif iterable(markevery):
+                        #fancy indexing
+                        inds = markevery
+                    else:
+                        raise ValueError('Value of `markevery` is not '
+                            'recognized; '
+                            'markevery=%s' % (markevery,))
                     if tpath.codes is not None:
                         codes = tpath.codes[inds]
                     else:
