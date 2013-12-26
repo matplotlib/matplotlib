@@ -531,11 +531,12 @@ def _get_xdg_config_dir():
     base directory spec
     <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
     """
-    home = get_home()
-    if home is None:
-        return None
-    else:
-        return os.environ.get('XDG_CONFIG_HOME', os.path.join(home, '.config'))
+    path = os.environ.get('XDG_CONFIG_HOME')
+    if not path:
+        path = get_home()
+        if path:
+            path = os.path.join(path, '.config')
+    return path
 
 
 def _get_xdg_cache_dir():
@@ -544,11 +545,12 @@ def _get_xdg_cache_dir():
     base directory spec
     <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
     """
-    home = get_home()
-    if home is None:
-        return None
-    else:
-        return os.environ.get('XDG_CACHE_HOME', os.path.join(home, '.cache'))
+    path = os.environ.get('XDG_CACHE_HOME')
+    if not path:
+        path = get_home()
+        if path:
+            path = os.path.join(path, '.cache')
+    return path
 
 
 def _get_config_or_cache_dir(xdg_base):
@@ -566,13 +568,16 @@ def _get_config_or_cache_dir(xdg_base):
 
     p = None
     h = get_home()
-    if h is not None:
+    if h:
         p = os.path.join(h, '.matplotlib')
-        if (sys.platform.startswith('linux') and
-            xdg_base is not None):
-            p = os.path.join(xdg_base, 'matplotlib')
+        if sys.platform.startswith('linux') and not os.path.exists(p):
+            # no old config exists
+            if xdg_base:
+                p = os.path.join(xdg_base, 'matplotlib')
+            else:
+                p = None
 
-    if p is not None:
+    if p:
         if os.path.exists(p):
             if _is_writable_dir(p):
                 return p
