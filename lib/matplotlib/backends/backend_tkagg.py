@@ -453,15 +453,20 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         # In general, the modifier key is excluded from the modifier flag,
         # however this is not the case on "darwin", so double check that
         # we aren't adding repeat modifier flags to a modifier key.
-        modifiers = [(6, 'super', 'super'),
-                     (3, 'alt', 'alt'),
-                     (2, 'ctrl', 'control'),
-                    ]
-        if sys.platform == 'darwin':
+        if sys.platform == 'win32':
+            modifiers = [(17, 'alt', 'alt'),
+                         (2, 'ctrl', 'control'),
+                         ]
+        elif sys.platform == 'darwin':
             modifiers = [(3, 'super', 'super'),
                          (4, 'alt', 'alt'),
                          (2, 'ctrl', 'control'),
-                        ]
+                         ]
+        else:
+            modifiers = [(6, 'super', 'super'),
+                         (3, 'alt', 'alt'),
+                         (2, 'ctrl', 'control'),
+                         ]
 
         if key is not None:
             # note, shift is not added to the keys as this is already accounted for
