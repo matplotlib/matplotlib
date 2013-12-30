@@ -31,7 +31,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         the number of columns should match x.
     *density* : float or 2-tuple
         Controls the closeness of streamlines. When `density = 1`, the domain
-        is divided into a 25x25 grid---*density* linearly scales this grid.
+        is divided into a 30x30 grid---*density* linearly scales this grid.
         Each cell in the grid can have, at most, one traversing streamline.
         For different densities in each direction, use [density_x, density_y].
     *linewidth* : numeric or 2d array
@@ -313,8 +313,8 @@ class StreamMask(object):
             self.nx = self.ny = int(30 * density)
         else:
             assert len(density) == 2
-            self.nx = int(25 * density[0])
-            self.ny = int(25 * density[1])
+            self.nx = int(30 * density[0])
+            self.ny = int(30 * density[1])
         self._mask = np.zeros((self.ny, self.nx))
         self.shape = self._mask.shape
 
