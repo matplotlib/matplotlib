@@ -174,12 +174,9 @@ def make_pdf_to_png_converter():
     except:
         pass
     # check for ghostscript
-    try:
-        gs = "gs" if sys.platform != "win32" else "gswin32c"
-        check_output([gs, "-v"], stderr=subprocess.STDOUT)
+    gs, ver = mpl.checkdep_ghostscript()
+    if gs:
         tools_available.append("gs")
-    except:
-        pass
 
     # pick converter
     if "pdftocairo" in tools_available:

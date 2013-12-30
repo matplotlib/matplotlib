@@ -461,3 +461,19 @@ class SubplotSpec(object):
             return gridspec.get_topmost_subplotspec()
         else:
             return self
+
+    def __eq__(self, other):
+        # check to make sure other has the attributes
+        # we need to do the comparison
+        if not (hasattr(other, '_gridspec') and
+                hasattr(other, 'num1') and
+                hasattr(other, 'num2')):
+            return False
+        return all((self._gridspec == other._gridspec,
+                    self.num1 == other.num1,
+                    self.num2 == other.num2))
+
+    def __hash__(self):
+        return (hash(self._gridspec) ^
+                hash(self.num1) ^
+                hash(self.num2))
