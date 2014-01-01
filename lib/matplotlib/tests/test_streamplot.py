@@ -28,7 +28,9 @@ def test_linewidth():
     X, Y, U, V = velocity_field()
     speed = np.sqrt(U*U + V*V)
     lw = 5*speed/speed.max()
-    plt.streamplot(X, Y, U, V, density=[0.5, 1], color='k', linewidth=lw)
+    df = 25. / 30.   # Compatibility factor for old test image
+    plt.streamplot(X, Y, U, V, density=[0.5 * df, 1. * df], color='k',
+                   linewidth=lw)
 
 
 @image_comparison(baseline_images=['streamplot_masks_and_nans_test_image'])

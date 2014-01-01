@@ -74,6 +74,13 @@ Added `FormatStrFormatterNewStyle` which does the same job as
 `FormatStrFormatter`, but accepts new-style formatting strings
 instead of printf-style formatting strings
 
+Consistent grid sizes in streamplots
+````````````````````````````````````
+:func:`~matplotlib.pyplot.streamplot` uses a base grid size of 30x30 for both
+`density=1` and `density=(1, 1)`. Previously a grid size of 30x30 was used for
+`density=1`, but a grid size of 25x25 was used for `density=(1, 1)`.
+
+
 Date handling
 -------------
 
