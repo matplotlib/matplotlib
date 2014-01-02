@@ -2236,7 +2236,8 @@ class FancyBboxPatch(Patch):
     """
 
     def __str__(self):
-        return "FancyBboxPatch(%g,%g;%gx%g)" % (self._x, self._y,
+        return self.__class__.__name__ \
+                           + "(%g,%g;%gx%g)" % (self._x, self._y,
                                                 self._width, self._height)
 
     @docstring.dedent_interpd
