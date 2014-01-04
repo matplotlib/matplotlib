@@ -1185,6 +1185,7 @@ class Figure(Artist):
         t.update(override)
         self._set_artist_props(t)
         self.texts.append(t)
+        t._remove_method = lambda h: self.texts.remove(h)
         return t
 
     def _set_artist_props(self, a):
