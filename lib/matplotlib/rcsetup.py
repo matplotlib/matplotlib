@@ -430,10 +430,10 @@ def validate_bbox(s):
         raise ValueError("bbox should be 'tight' or 'standard'")
 
 validate_xtick_position = ValidateInStrings('xtick.position',
-                                            ['both', 'bottom', 'top'])
+                                            ['both', 'bottom', 'top', 'none'])
 
 validate_ytick_position = ValidateInStrings('ytick.position',
-                                            ['both', 'left', 'right'])
+                                            ['both', 'left', 'right', 'none'])
 
 
 def validate_sketch(s):
