@@ -574,6 +574,12 @@ defaultParams = {
     'axes.facecolor':        ['w', validate_color],  # background color; white
     'axes.edgecolor':        ['k', validate_color],  # edge color; black
     'axes.linewidth':        [1.0, validate_float],  # edge linewidth
+
+    'axes.spines.left':      [True, validate_bool],  # Set visibility of axes
+    'axes.spines.right':     [True, validate_bool],  # 'spines', the lines
+    'axes.spines.bottom':    [True, validate_bool],  # around the chart
+    'axes.spines.top':       [True, validate_bool],  # denoting data boundary
+
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
     'axes.titleweight':      ['normal', six.text_type],  # font weight of axes title
