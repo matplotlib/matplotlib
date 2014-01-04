@@ -429,6 +429,13 @@ def validate_bbox(s):
             return None
         raise ValueError("bbox should be 'tight' or 'standard'")
 
+validate_xtick_position = ValidateInStrings('xtick.position',
+                                            ['both', 'bottom', 'top'])
+
+validate_ytick_position = ValidateInStrings('ytick.position',
+                                            ['both', 'left', 'right'])
+
+
 def validate_sketch(s):
     if s == 'None' or s is None:
         return None
@@ -665,6 +672,7 @@ defaultParams = {
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
     'xtick.direction':   ['in', six.text_type],            # direction of xticks
+    'xtick.position':    ['both', validate_xtick_position],
 
     'ytick.major.size':  [4, validate_float],     # major ytick size in points
     'ytick.minor.size':  [2, validate_float],     # minor ytick size in points
@@ -676,6 +684,7 @@ defaultParams = {
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],
     'ytick.direction':   ['in', six.text_type],            # direction of yticks
+    'ytick.position':    ['both', validate_ytick_position],
 
     'grid.color':        ['k', validate_color],       # grid color
     'grid.linestyle':    [':', six.text_type],       # dotted
