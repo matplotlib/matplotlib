@@ -921,7 +921,9 @@ class _AxesBase(martist.Artist):
         self.collections = []  # collection.Collection instances
         self.containers = []
 
-        self.grid(self._gridOn, which=rcParams['axes.grid.which'])
+        self.grid(False)  # Disable grid on init to use rcParameter
+        self.grid(self._gridOn, which=rcParams['axes.grid.which'],
+                    axis=rcParams['axes.grid.axis'])
         props = font_manager.FontProperties(
                     size=rcParams['axes.titlesize'],
                     weight=rcParams['axes.titleweight']
