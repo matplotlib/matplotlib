@@ -147,7 +147,7 @@ import sphinx
 sphinx_version = sphinx.__version__.split(".")
 # The split is necessary for sphinx beta versions where the string is
 # '6b1'
-sphinx_version = tuple([int(re.split('[a-z]', x)[0])
+sphinx_version = tuple([int(re.split('[^0-9]', x)[0])
                         for x in sphinx_version[:2]])
 
 try:
