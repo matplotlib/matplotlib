@@ -141,6 +141,19 @@ added. Furthermore, the the subplottool is now implemented as a modal
 dialog. It was previously a QMainWindow, leaving the SPT open if one closed the
 plotwindow.
 
+
+Text
+----
+
+Text URLs supported by SVG backend
+``````````````````````````````````
+
+The `svg` backend will now render :class:`~matplotlib.text.Text` objects'
+url as a link in output SVGs.  This allows one to make clickable text in
+saved figures using the url kwarg of the :class:`~matplotlib.text.Text`
+class.
+
+
 .. _whats-new-1-3:
 
 new in matplotlib-1.3
