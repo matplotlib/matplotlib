@@ -350,21 +350,27 @@ class Line2D(Artist):
         ----------
         every: None | int | length-2 tuple of int | slice | list/array of int |
         float | length-2 tuple of float
-            Which markers to plot.  If `every`=None, every point will be
-            plotted. If every=`N`, every N-th marker will be plotted starting
-            with marker 0.  If `every`=(start, N), every N-th marker, starting
-            at point start, will be plotted. If `every`=slice(start, end, N),
-            every N-th marker, starting at point start, upto but not including
-            point end, will be plotted.  If every=[i, j, m, n], only markers at
-            points i, j, m, and n will be plotted. If `every`=0.1, (i.e. a
-            float) then markers will be spaced at approximately equal
-            distances along the line; the distance along the line between
-            markers is determined by multiplying the display-coordinate
-            distance of the axes bounding-box diagonal by the value of `every`.
-            For `every`=(0.5, 0.1) (i.e. a length-2 tuple of float), the same
-            functionality as `every`=0.1 is exhibited but the first marker will
-            be 0.5 multiplied by the display-cordinate-diagonal-distance along
-            the line.
+            Which markers to plot.
+
+            - If every=None, every point will be plotted.
+            - If every=N, every N-th marker will be plotted starting with
+              marker 0.
+            - If every=(start, N), every N-th marker, starting at point
+              start, will be plotted.
+            - If every=slice(start, end, N), every N-th marker, starting at
+              point start, upto but not including point end, will be plotted.
+            - If every=[i, j, m, n], only markers at points i, j, m, and n
+              will be plotted.
+            - every=0.1, (i.e. a float) then markers will be spaced at
+              approximately equal distances along the line; the distance
+              along the line between markers is determined by multiplying the
+              display-coordinate distance of the axes bounding-box diagonal
+              by the value of every.
+            - For every=(0.5, 0.1) (i.e. a length-2 tuple of float), the
+              same functionality as every=0.1 is exhibited but the first
+              marker will be 0.5 multiplied by the
+              display-cordinate-diagonal-distance along the line.
+
 
         Notes
         -----
