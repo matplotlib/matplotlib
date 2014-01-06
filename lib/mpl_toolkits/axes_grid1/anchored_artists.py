@@ -71,10 +71,10 @@ class AnchoredSizeBar(AnchoredOffsetbox):
     def __init__(self, transform, size, label, loc,
                  pad=0.1, borderpad=0.1, sep=2, prop=None,
                  frameon=True, size_vertical=0, color='black',
-                 label_top=False, fontsize=12,
+                 label_top=False, fontprops=None,
                  **kwargs):
         """
-        Draw a horizontal bar with the size in data coordinate of the give axes.
+        Draw a horizontal bar with the size in data coordinate of the given axes.
         A label will be drawn underneath (center-aligned).
 
         Parameters:
@@ -98,29 +98,44 @@ class AnchoredSizeBar(AnchoredOffsetbox):
           color for the size bar and label
         label_top : bool, optional
           if True, the label will be over the rectangle
-        fontsize : int, optional
-          sets the fontsize for the label
+        fontprops: a matplotlib.font_manager.FontProperties instance, optional
+          sets the font properties for the label text
+
+        Returns:
+        --------
+        AnchoredSizeBar object
 
         Example:
         --------
-        >>>> import matplotlib.pyplot as plt
-        >>>> import numpy as np
-        >>>> from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
-        >>>> fig, ax = plt.subplots()
-        >>>> ax = imshow(np.random.random((10,10)))
-        >>>> bar = AnchoredSizeBar(ax.transData, 3, '3 units', pad=0.5, loc=4, sep=5, borderpad=0.5, frameon=False, size_vertical=0.5, color='white', fontsize=20)
-        >>>> ax.add_artist(bar)
-        >>>> fig.show()
+        >>> import matplotlib.pyplot as plt
+        >>> import numpy as np
+        >>> from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
+        >>> fig, ax = plt.subplots()
+        >>> ax.imshow(np.random.random((10,10)))
+        >>> bar = AnchoredSizeBar(ax.transData, 3, '3 units', 4)
+        >>> ax.add_artist(bar)
+        >>> fig.show()
+
+        Using all the optional parameters
+        
+        >>> import matplotlib.font_manager as fm
+        >>> fontprops = fm.FontProperties(size=14, family='monospace')
+        >>> bar = AnchoredSizeBar(ax.transData, 3, '3 units', 4, pad=0.5, sep=5, borderpad=0.5, frameon=False, size_vertical=0.5, color='white', fontprops=fontprops)
 
         """
 
         self.size_bar = AuxTransformBox(transform)
         self.size_bar.add_artist(Rectangle((0,0), size, size_vertical, fill=True, facecolor=color, edgecolor=color))
 
+        if not fontprops:
+            textprops = {'color': color}
+        else:
+            textprops = {'color': color, 'fontproperties': fontprops}
+
         self.txt_label = TextArea(
             label, 
             minimumdescent=False, 
-            textprops=dict(color=color, fontsize=fontsize))
+            textprops=textprops)
 
         if label_top:
             _box_children = [self.txt_label, self.size_bar]
