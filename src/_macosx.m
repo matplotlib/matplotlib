@@ -2824,7 +2824,7 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
                                 &italic,
                                 &angle)) return NULL;
 
-    if (!(atsfont = setfont(cr, family, size, weight, italic))
+    if (!(atsfont = setfont(cr, family, size, weight, italic)))
     {
         return NULL;
     }
