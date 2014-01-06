@@ -1000,7 +1000,8 @@ class FuncAnimation(TimedAnimation):
             self._iter_gen = frames
         elif iterable(frames):
             self._iter_gen = lambda: iter(frames)
-            self.save_count = len(frames)
+            if hasattr(frames, '__len__'):
+                self.save_count = len(frames)
         else:
             self._iter_gen = lambda: xrange(frames).__iter__()
             self.save_count = frames
