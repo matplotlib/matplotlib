@@ -539,8 +539,9 @@ class AutoDateFormatter(ticker.Formatter):
 
     def __init__(self, locator, tz=None, defaultfmt='%Y-%m-%d'):
         """
-        Autofmt the date labels.  The default format is the one to use
-        if none of the times in scaled match
+        Autoformat the date labels.  The default format is the one to use
+        if none of the values in ``self.scaled`` are greater than the unit
+        returned by ``locator._get_unit()``.
         """
         self._locator = locator
         self._tz = tz
@@ -553,21 +554,24 @@ class AutoDateFormatter(ticker.Formatter):
                        1. / (24. * 60.): '%H:%M:%S.%f'}
 
     def __call__(self, x, pos=None):
-        scale = float(self._locator._get_unit())
+        locator_unit_scale = float(self._locator._get_unit())
         fmt = self.defaultfmt
 
-        for k in sorted(self.scaled):
-            if k >= scale:
-                fmt = self.scaled[k]
+        # Pick the first scale which is greater than the locator unit.
+        for possible_scale in sorted(self.scaled):
+            if possible_scale >= locator_unit_scale:
+                fmt = self.scaled[possible_scale]
                 break
 
         if isinstance(fmt, six.string_types):
             self._formatter = DateFormatter(fmt, self._tz)
-            return self._formatter(x, pos)
+            result = self._formatter(x, pos)
         elif six.callable(fmt):
-            return fmt(x, pos)
+            result = fmt(x, pos)
         else:
-            raise NotImplementedError()
+            raise TypeError('Unexpected type passed to {!r}.'.formatter(self))
+
+        return result
 
 
 class rrulewrapper:
