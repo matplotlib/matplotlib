@@ -529,6 +529,7 @@ class Figure(Artist):
             self._suptitle.set_text(t)
             self._suptitle.set_position((x, y))
             self._suptitle.update_from(sup)
+            sup.remove()
         else:
             self._suptitle = sup
         return self._suptitle
@@ -960,6 +961,7 @@ class Figure(Artist):
         self.legends = []
         if not keep_observers:
             self._axobservers = []
+        self._suptitle = None
 
     def clear(self):
         """
