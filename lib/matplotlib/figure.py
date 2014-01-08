@@ -633,6 +633,7 @@ class Figure(Artist):
         if norm is None:
             im.set_clim(vmin, vmax)
         self.images.append(im)
+        im._remove_method = lambda h: self.images.remove(h)
         return im
 
     def set_size_inches(self, *args, **kwargs):
@@ -1185,6 +1186,7 @@ class Figure(Artist):
         t.update(override)
         self._set_artist_props(t)
         self.texts.append(t)
+        t._remove_method = lambda h: self.texts.remove(h)
         return t
 
     def _set_artist_props(self, a):
