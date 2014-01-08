@@ -529,8 +529,6 @@ class Text(Artist):
             self._renderer = renderer
         if not self.get_visible():
             return
-        if self.get_text().strip() == '':
-            return
 
         renderer.open_group('text', self.get_gid())
 

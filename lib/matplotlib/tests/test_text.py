@@ -3,12 +3,16 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import numpy as np
-import matplotlib
-from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
-import matplotlib.pyplot as plt
 import warnings
-from nose.tools import with_setup
+
+import mock
+import numpy as np
+
+import matplotlib
+from matplotlib.testing.decorators import image_comparison
+import matplotlib.text as mtext
+import matplotlib.pyplot as plt
+from matplotlib.backend_bases import RendererBase
 
 
 @image_comparison(baseline_images=['font_styles'])
@@ -26,7 +30,6 @@ def test_font_styles():
                             'not found. Falling back to .',
                             UserWarning,
                             module='matplotlib.font_manager')
-    fig = plt.figure()
     ax = plt.subplot(1, 1, 1)
 
     normalFont = find_matplotlib_font(family="sans-serif",
@@ -83,7 +86,6 @@ def test_font_styles():
 
 @image_comparison(baseline_images=['multiline'])
 def test_multiline():
-    fig = plt.figure()
     ax = plt.subplot(1, 1, 1)
     ax.set_title("multiline\ntext alignment")
 
@@ -226,3 +228,28 @@ def test_set_position():
 
     for a, b in zip(init_pos.min, post_pos.min):
         assert a + shift_val == b
+
+
+def test_empty_string_with_bbox():
+    # Check that an empty string Text instance can still draw a bbox
+    # (by calling the _draw_bbox method).
+    props = dict(boxstyle='round', edgecolor='red',
+                 facecolor='yellow', alpha=0.5)
+
+    renderer = RendererBase()
+    renderer.draw_text = mock.Mock()
+    fig = plt.figure()
+
+    t = mtext.Text(0, 1, '', bbox=props)
+    t.set_figure(fig)
+    t._draw_bbox = mock.Mock()
+
+    # Do the actual call.
+    t.draw(renderer)
+    t._draw_bbox.assert_called_once_with(renderer, 0.0, 1.0)
+    assert renderer.draw_text.call_count == 1
+
+
+if __name__ == "__main__":
+    import nose
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
