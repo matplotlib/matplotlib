@@ -617,7 +617,10 @@ grestore
             ps_cmd.append('stroke')
         ps_cmd.extend(['grestore', '} bind def'])
 
-        for vertices, code in path.iter_segments(trans, simplify=False):
+        for vertices, code in path.iter_segments(
+                trans,
+                clip=(0, 0, self.width*72, self.height*72),
+                simplify=False):
             if len(vertices):
                 x, y = vertices[-2:]
                 ps_cmd.append("%g %g o" % (x, y))
