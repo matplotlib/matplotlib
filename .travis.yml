@@ -36,4 +36,5 @@ script:
 after_failure:
   - tar cjf result_images.tar.bz2 result_images
   - travis-artifacts upload --path result_images.tar.bz2
+  - echo "The result images will only be uploaded if they are on the matplotlib/matplotlib repo - this is for security reasons to prevent arbitrary PRs echoing security details."
   - echo https://s3.amazonaws.com/matplotlib-test-results/artifacts/${TRAVIS_BUILD_NUMBER}/${TRAVIS_JOB_NUMBER}/result_images.tar.bz2
