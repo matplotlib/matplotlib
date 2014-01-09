@@ -9,10 +9,11 @@ import mock
 import numpy as np
 
 import matplotlib
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.text as mtext
 import matplotlib.pyplot as plt
 from matplotlib.backend_bases import RendererBase
+from matplotlib.font_manager import FontProperties, findfont
 
 
 @image_comparison(baseline_images=['font_styles'])
@@ -25,11 +26,6 @@ def test_font_styles():
         path = findfont(prop, directory=data_path)
         return FontProperties(fname=path)
 
-    from matplotlib.font_manager import FontProperties, findfont
-    warnings.filterwarnings('ignore', 'findfont: Font family \[\'Foo\'\] '+ \
-                            'not found. Falling back to .',
-                            UserWarning,
-                            module='matplotlib.font_manager')
     ax = plt.subplot(1, 1, 1)
 
     normalFont = find_matplotlib_font(family="sans-serif",
@@ -40,13 +36,13 @@ def test_font_styles():
     ax.annotate("Normal Font", (0.1, 0.1), xycoords='axes fraction',
                   fontproperties=normalFont)
 
-    boldFont = find_matplotlib_font(family="Foo",
-                                     style="normal",
-                                     variant="normal",
-                                     weight="bold",
-                                     stretch=500,
-                                     size=14,
-                                     )
+    with mock.patch('warnings.warn') as warn:
+        boldFont = find_matplotlib_font(family="Foo", style="normal",
+                                         variant="normal", weight="bold",
+                                         stretch=500, size=14)
+    assert warn.call_args[0][0].startswith("findfont: Font family [u'Foo'] "
+                                           "not found. Falling back to")
+    
     ax.annotate("Bold Font", (0.1, 0.2), xycoords='axes fraction',
                   fontproperties=boldFont)
 

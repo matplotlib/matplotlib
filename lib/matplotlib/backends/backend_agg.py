@@ -207,8 +207,6 @@ class RendererAgg(RendererBase):
         # outside the backend
         """
         if rcParams['text.usetex']:
-            # todo: handle props
-            size = prop.get_size_in_points()
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
             w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
@@ -247,6 +245,9 @@ class RendererAgg(RendererBase):
         yd = d * np.cos(np.deg2rad(angle))
         x = np.round(x + xd)
         y = np.round(y + yd)
+
+        if s == '':
+            return
 
         self._renderer.draw_text_image(Z, x, y, angle, gc)
 

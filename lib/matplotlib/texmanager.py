@@ -223,8 +223,9 @@ Could not rename old TeX cache dir "%s": a suitable configuration
         s = ''.join([tex, self.get_font_config(), '%f' % fontsize,
                      self.get_custom_preamble(), str(dpi or '')])
         # make sure hash is consistent for all strings, regardless of encoding:
-        bytes = six.text_type(s).encode('utf-8')
-        return os.path.join(self.texcache, md5(bytes).hexdigest())
+        checksum = md5(six.text_type(s).encode('utf-8')).hexdigest()
+        fname = os.path.join(self.texcache, checksum)
+        return fname
 
     def get_font_config(self):
         """Reinitializes self if relevant rcParams on have changed."""
@@ -282,6 +283,12 @@ Could not rename old TeX cache dir "%s": a suitable configuration
         fontcmd = {'sans-serif': r'{\sffamily %s}',
                    'monospace': r'{\ttfamily %s}'}.get(self.font_family,
                                                        r'{\rmfamily %s}')
+        # Leading and trailing whitespace is ignored anyway (the
+        # dvipng -T tight call deeper down takes care of that) so convert
+        # an empty string into a single space character.
+        if tex.strip() == '':
+            tex = '\\ '
+
         tex = fontcmd % tex
 
         if rcParams['text.latex.unicode']:
@@ -333,6 +340,11 @@ Could not rename old TeX cache dir "%s": a suitable configuration
         fontcmd = {'sans-serif': r'{\sffamily %s}',
                    'monospace': r'{\ttfamily %s}'}.get(self.font_family,
                                                        r'{\rmfamily %s}')
+        # Leading and trailing whitespace is ignored anyway (the
+        # dvipng -T tight call deeper down takes care of that) so convert
+        # an empty string into a single space character.
+        if tex.strip() == '':
+            tex = '\\ '
         tex = fontcmd % tex
 
         if rcParams['text.latex.unicode']:
@@ -434,7 +446,7 @@ Could not rename old TeX cache dir "%s": a suitable configuration
         """
         generates a dvi file containing latex's layout of tex
         string. It calls make_tex_preview() method and store the size
-        information (width, height, descent) in a separte file.
+        information (width, height, descent) in a separate file.
 
         returns the file name
         """
@@ -644,9 +656,6 @@ Could not rename old TeX cache dir "%s": a suitable configuration
         """
         return width, heigth and descent of the text.
         """
-        if tex.strip() == '':
-            return 0, 0, 0
-
         if renderer:
             dpi_fraction = renderer.points_to_pixels(1.)
         else:
