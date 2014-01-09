@@ -544,6 +544,9 @@ class ImageGrid(Grid):
             else:
                 axes_class, axes_class_args = axes_class
 
+        adjustable = axes_class_args.setdefault("adjustable", "box-forced")
+        if adjustable != "box-forced":
+            raise RuntimeError("adjustable parameter must not be set, or set to box-forced")
 
 
         self.axes_all = []
@@ -582,8 +585,12 @@ class ImageGrid(Grid):
             col, row = self._get_col_row(i)
 
             if share_all:
-                sharex = self._refax
-                sharey = self._refax
+                if self.axes_all:
+                    sharex = self.axes_all[0]
+                    sharey = self.axes_all[0]
+                else:
+                    sharex = None
+                    sharey = None
             else:
                 sharex = self._column_refax[col]
                 sharey = self._row_refax[row]
@@ -591,18 +598,17 @@ class ImageGrid(Grid):
             ax = axes_class(fig, rect, sharex=sharex, sharey=sharey,
                             **axes_class_args)
 
-            if share_all:
-                if self._refax is None:
-                    self._refax = ax
-            else:
-                if sharex is None:
-                    self._column_refax[col] = ax
-                if sharey is None:
-                    self._row_refax[row] = ax
-
             self.axes_all.append(ax)
             self.axes_column[col].append(ax)
             self.axes_row[row].append(ax)
+
+            if share_all:
+                if self._refax is None:
+                    self._refax = ax
+            if sharex is None:
+                self._column_refax[col] = ax
+            if sharey is None:
+                self._row_refax[row] = ax
 
             cax = self._defaultCbarAxesClass(fig, rect,
                                              orientation=self._colorbar_location)
@@ -653,13 +659,14 @@ class ImageGrid(Grid):
             self.cbar_axes[0].set_axes_locator(locator)
             self.cbar_axes[0].set_visible(True)
 
-        for col,ax in enumerate(self._column_refax):
+        for col,ax in enumerate(self.axes_row[0]):
             if h: h.append(self._horiz_pad_size) #Size.Fixed(self._axes_pad))
 
             if ax:
-                sz = Size.AxesX(ax)
+                sz = Size.AxesX(ax, aspect="axes", ref_ax=self.axes_all[0])
             else:
-                sz = Size.AxesX(self.axes_llc)
+                sz = Size.AxesX(self.axes_all[0],
+                                aspect="axes", ref_ax=self.axes_all[0])
 
             if (self._colorbar_mode == "each" or
                     (self._colorbar_mode == 'edge' and
@@ -682,13 +689,14 @@ class ImageGrid(Grid):
 
         v_ax_pos = []
         v_cb_pos = []
-        for row,ax in enumerate(self._row_refax[::-1]):
+        for row,ax in enumerate(self.axes_column[0][::-1]):
             if v: v.append(self._horiz_pad_size) #Size.Fixed(self._axes_pad))
 
             if ax:
-                sz = Size.AxesY(ax)
+                sz = Size.AxesY(ax, aspect="axes", ref_ax=self.axes_all[0])
             else:
-                sz = Size.AxesY(self.axes_llc)
+                sz = Size.AxesY(self.axes_all[0],
+                                aspect="axes", ref_ax=self.axes_all[0])
 
             if (self._colorbar_mode == "each" or
                     (self._colorbar_mode == 'edge' and

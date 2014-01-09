@@ -73,19 +73,39 @@ class Scaled(_Base):
 
 Scalable=Scaled
 
+def _get_axes_aspect(ax):
+    aspect = ax.get_aspect()
+    # when aspec is "auto", consider it as 1.
+    if aspect in ('normal', 'auto'):
+        aspect = 1.
+    elif aspect == "equal":
+        aspect = 1
+    else:
+        aspect = float(aspect)
+
+    return aspect
 
 class AxesX(_Base):
     """
     Scaled size whose relative part corresponds to the data width
     of the *axes* multiplied by the *aspect*.
     """
-    def __init__(self, axes, aspect=1.):
+    def __init__(self, axes, aspect=1., ref_ax=None):
         self._axes = axes
         self._aspect = aspect
+        if aspect == "axes" and ref_ax is None:
+            raise ValueError("ref_ax must be set when aspect='axes'")
+        self._ref_ax = ref_ax
 
     def get_size(self, renderer):
         l1, l2 = self._axes.get_xlim()
-        rel_size = abs(l2-l1)*self._aspect
+        if self._aspect == "axes":
+            ref_aspect = _get_axes_aspect(self._ref_ax)
+            aspect = ref_aspect/_get_axes_aspect(self._axes)
+        else:
+            aspect = self._aspect
+
+        rel_size = abs(l2-l1)*aspect
         abs_size = 0.
         return rel_size, abs_size
 
@@ -94,13 +114,23 @@ class AxesY(_Base):
     Scaled size whose relative part corresponds to the data height
     of the *axes* multiplied by the *aspect*.
     """
-    def __init__(self, axes, aspect=1.):
+    def __init__(self, axes, aspect=1., ref_ax=None):
         self._axes = axes
         self._aspect = aspect
+        if aspect == "axes" and ref_ax is None:
+            raise ValueError("ref_ax must be set when aspect='axes'")
+        self._ref_ax = ref_ax
 
     def get_size(self, renderer):
         l1, l2 = self._axes.get_ylim()
-        rel_size = abs(l2-l1)*self._aspect
+
+        if self._aspect == "axes":
+            ref_aspect = _get_axes_aspect(self._ref_ax)
+            aspect = _get_axes_aspect(self._axes)
+        else:
+            aspect = self._aspect
+
+        rel_size = abs(l2-l1)*aspect
         abs_size = 0.
         return rel_size, abs_size
 
