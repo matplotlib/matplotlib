@@ -43,8 +43,7 @@ def test_type42():
 @cleanup
 def test_multipage_pagecount():
     from matplotlib.backends.backend_pdf import PdfPages
-    from io import BytesIO
-    with PdfPages(BytesIO()) as pdf:
+    with PdfPages(io.BytesIO()) as pdf:
         assert pdf.get_pagecount() == 0
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -53,6 +52,21 @@ def test_multipage_pagecount():
         assert pdf.get_pagecount() == 1
         pdf.savefig()
         assert pdf.get_pagecount() == 2
+
+
+@cleanup
+def test_cull_markers():
+    x = np.random.random(20000)
+    y = np.random.random(20000)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(x, y, 'k.')
+    ax.set_xlim(2, 3)
+
+    pdf = io.BytesIO()
+    fig.savefig(pdf, format="pdf")
+    assert len(pdf.getvalue()) < 8000
 
 
 @cleanup

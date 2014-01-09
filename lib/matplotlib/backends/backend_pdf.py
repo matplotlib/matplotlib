@@ -1675,9 +1675,17 @@ class RendererPdf(RendererBase):
 
         output(Op.gsave)
         lastx, lasty = 0, 0
-        for vertices, code in path.iter_segments(trans, simplify=False):
+        for vertices, code in path.iter_segments(
+                trans,
+                clip=(0, 0, self.file.width*72, self.file.height*72),
+                simplify=False):
             if len(vertices):
                 x, y = vertices[-2:]
+                if (x < 0 or
+                    y < 0 or
+                    x > self.file.width * 72 or
+                    y > self.file.height * 72):
+                    continue
                 dx, dy = x - lastx, y - lasty
                 output(1, 0, 0, 1, dx, dy, Op.concat_matrix,
                        marker, Op.use_xobject)
