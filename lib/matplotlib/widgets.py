@@ -1129,7 +1129,7 @@ class SpanSelector(AxesWidget):
             
         if not self.useblit:
             self.ax.add_patch(self.rect)
-            
+
     def update_background(self, event):
         """force an update of the background"""
         # If you add a call to `ignore` here, you'll want to check edge case:
