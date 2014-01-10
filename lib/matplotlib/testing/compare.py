@@ -55,8 +55,7 @@ def compare_float(expected, actual, relTol=None, absTol=None):
                         'Actual:   {actual}',
                         'Abs diff: {absDiff}',
                         'Abs tol:  {absTol}']
-
-            msg += '\n  '.join([line.format(locals()) for line in template])
+            msg += '\n  '.join([line.format(**locals()) for line in template])
 
     if relTol is not None:
         # The relative difference of the two values.  If the expected value is
@@ -66,14 +65,13 @@ def compare_float(expected, actual, relTol=None, absTol=None):
             relDiff = relDiff / abs(expected)
 
         if relTol < relDiff:
-            # The relative difference is a ratio, so it's always unitless.
+            # The relative difference is a ratio, so it's always unit-less.
             template = ['',
                         'Expected: {expected}',
                         'Actual:   {actual}',
                         'Rel diff: {relDiff}',
                         'Rel tol:  {relTol}']
-
-            msg += '\n  '.join([line.format(locals()) for line in template])
+            msg += '\n  '.join([line.format(**locals()) for line in template])
 
     return msg or None
 
@@ -93,7 +91,7 @@ def get_cache_dir():
     return cache_dir
 
 
-def get_file_hash(path, block_size=2**20):
+def get_file_hash(path, block_size=2 ** 20):
     md5 = hashlib.md5()
     with open(path, 'rb') as fd:
         while True:
@@ -130,7 +128,7 @@ def _update_converter():
              '-sOutputFile=' + new, old]
         converter['pdf'] = make_external_conversion_command(cmd)
         converter['eps'] = make_external_conversion_command(cmd)
-    
+
     if matplotlib.checkdep_inkscape() is not None:
         cmd = lambda old, new: \
             ['inkscape', '-z', old, '--export-png', new]
@@ -149,7 +147,7 @@ def comparable_formats():
     """
     Returns the list of file formats that compare_images can compare
     on this system.
-    
+
     """
     return ['png'] + list(six.iterkeys(converter))
 
@@ -200,8 +198,8 @@ def convert(filename, cache):
 
 #: Maps file extensions to a function which takes a filename as its
 #: only argument to return a list suitable for execution with Popen.
-#: The purpose of this is so that the result file (with the given 
-#: extension) can be verified with tools such as xmllint for svg. 
+#: The purpose of this is so that the result file (with the given
+#: extension) can be verified with tools such as xmllint for svg.
 verifiers = {}
 
 # Turning this off, because it seems to cause multiprocessing issues
@@ -265,11 +263,11 @@ def calculate_rms(expectedImage, actualImage):
 def compare_images(expected, actual, tol, in_decorator=False):
     """
     Compare two "image" files checking differences within a tolerance.
-    
+
     The two given filenames may point to files which are convertible to
     PNG via the `.converter` dictionary. The underlying RMS is calculated
     with the `.calculate_rms` function.
-    
+
     Parameters
     ----------
     expected : str
@@ -283,7 +281,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
     in_decorator : bool
         If called from image_comparison decorator, this should be
         True. (default=False)
-    
+
     Example
     -------
     img1 = "./baseline/plot.png"
@@ -346,7 +344,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
                     'Expected:  \n    {expected}',
                     'Actual:    \n    {actual}',
                     'Difference:\n    {diff}',
-                    'Tolerance: \n    {tol}',]
+                    'Tolerance: \n    {tol}', ]
         results = '\n  '.join([line.format(**results) for line in template])
     return results
 
