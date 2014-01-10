@@ -58,7 +58,7 @@ def test_LogFormatterExponent():
 
     i = np.arange(-3, 4, dtype=float)
     expected_result = ['-3', '-2', '-1', '0', '1', '2', '3']
-    for base in [2, 5, 10, np.pi]:
+    for base in [2, 5, 10, np.pi, np.e]:
         formatter = mticker.LogFormatterExponent(base=base)
         formatter.axis = FakeAxis()
         vals = base**i
@@ -71,11 +71,15 @@ def test_LogFormatterExponent():
     nose.tools.assert_equal(formatter(10**0.1), '')
 
     # Otherwise, non-integer powers should be nicely formatted
-    formatter = mticker.LogFormatterExponent(base=10, labelOnlyBase=False)
-    formatter.axis = FakeAxis()
-    nose.tools.assert_equal(formatter(10**0.1), '0.1')
-    nose.tools.assert_equal(formatter(10**0.00001), '1e-05')
-    nose.tools.assert_equal(formatter(10**-0.2), '-0.2')
+    locs = np.array([0.1, 0.00001, np.pi, 0.2, -0.2, -0.00001])
+    i = range(len(locs))
+    expected_result = ['0.1', '1e-05', '3.14', '0.2', '-0.2', '-1e-05']
+    for base in [2, 5, 10, np.pi, np.e]:
+        formatter = mticker.LogFormatterExponent(base=base, labelOnlyBase=False)
+        formatter.axis = FakeAxis()
+        vals = base**locs
+        labels = [formatter(x, pos) for (x, pos) in zip(vals, i)]
+        nose.tools.assert_equal(labels, expected_result)
 
 def test_use_offset():
     for use_offset in [True, False]:
