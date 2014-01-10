@@ -10,6 +10,7 @@ from nose import with_setup
 from matplotlib import pyplot as plt
 from matplotlib import animation
 from matplotlib.testing.noseclasses import KnownFailureTest
+from matplotlib.testing.decorators import cleanup
 from matplotlib.testing.decorators import CleanupTest
 
 
