@@ -113,6 +113,10 @@ original location:
   does the exact same thing as `FormatStrFormatter`, but for new-style
   formatting strings.
 
+* Deprecated `matplotlib.testing.image_util` and the only function within,
+  `matplotlib.testing.image_util.autocontrast`. These will be removed
+  completely in v1.5.0.
+
 * The ``fmt`` argument of :meth:`~matplotlib.axes.Axes.plot_date` has been
   changed from ``bo`` to just ``o``, so color cycling can happen by default.
 
