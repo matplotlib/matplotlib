@@ -50,6 +50,7 @@ def test_LogLocator():
     test_value = np.array([0.5, 1., 2., 4., 8., 16., 32., 64., 128., 256.])
     assert_almost_equal(loc.tick_values(1, 100), test_value)
 
+
 def test_LogFormatterExponent():
     class FakeAxis(object):
         """Allow Formatter to be called without having a "full" plot set up."""
@@ -75,11 +76,12 @@ def test_LogFormatterExponent():
     i = range(len(locs))
     expected_result = ['0.1', '1e-05', '3.14', '0.2', '-0.2', '-1e-05']
     for base in [2, 5, 10, np.pi, np.e]:
-        formatter = mticker.LogFormatterExponent(base=base, labelOnlyBase=False)
+        formatter = mticker.LogFormatterExponent(base, labelOnlyBase=False)
         formatter.axis = FakeAxis()
         vals = base**locs
         labels = [formatter(x, pos) for (x, pos) in zip(vals, i)]
         nose.tools.assert_equal(labels, expected_result)
+
 
 def test_use_offset():
     for use_offset in [True, False]:
