@@ -3,6 +3,8 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import io
+
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -121,6 +123,25 @@ def test_clipping():
 
     ax1.set_xlim([-3, 3])
     ax1.set_ylim([-3, 3])
+
+
+@cleanup
+def test_cull_markers():
+    x = np.random.random(20000)
+    y = np.random.random(20000)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(x, y, 'k.')
+    ax.set_xlim(2, 3)
+
+    pdf = io.BytesIO()
+    fig.savefig(pdf, format="pdf")
+    assert len(pdf.getvalue()) < 8000
+
+    svg = io.BytesIO()
+    fig.savefig(svg, format="svg")
+    assert len(svg.getvalue()) < 20000
 
 
 if __name__ == '__main__':
