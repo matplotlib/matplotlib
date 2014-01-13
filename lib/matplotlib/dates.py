@@ -265,16 +265,25 @@ class strpdate2num:
 _dateutil_parser_parse_np_vectorized = np.vectorize(dateutil.parser.parse)
 
 
-def datestr2num(d):
+def datestr2num(d, default=None):
     """
     Convert a date string to a datenum using
-    :func:`dateutil.parser.parse`.  *d* can be a single string or a
-    sequence of strings.
+    :func:`dateutil.parser.parse`.
+
+    Parameters
+    ----------
+    d : string or sequence of strings
+        The dates to convert.
+
+    default : datetime instance
+        The default date to use when fields are missing in `d`.
     """
     if cbook.is_string_like(d):
-        dt = dateutil.parser.parse(d)
+        dt = dateutil.parser.parse(d, default=default)
         return date2num(dt)
     else:
+        if default is not None:
+            d = [dateutil.parser.parse(s, default=default) for s in d]
         d = np.asarray(d)
         if not d.size:
             return d
