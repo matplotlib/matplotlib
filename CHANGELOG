@@ -7,7 +7,6 @@
            Also created a function (`cbook.boxplot_stats`) that generates the
            stats needed.
 
-
 2013-11-28 Added qhull extension module to perform Delaunay triangulation more
            robustly than before.  It is used by tri.Triangulation (and hence
            all pyplot.tri* methods) and mlab.griddata.  Deprecated
