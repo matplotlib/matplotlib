@@ -55,21 +55,6 @@ def test_multipage_pagecount():
 
 
 @cleanup
-def test_cull_markers():
-    x = np.random.random(20000)
-    y = np.random.random(20000)
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(x, y, 'k.')
-    ax.set_xlim(2, 3)
-
-    pdf = io.BytesIO()
-    fig.savefig(pdf, format="pdf")
-    assert len(pdf.getvalue()) < 8000
-
-
-@cleanup
 def test_multipage_keep_empty():
     from matplotlib.backends.backend_pdf import PdfPages
     from tempfile import NamedTemporaryFile
