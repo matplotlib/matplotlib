@@ -42,48 +42,40 @@ def test_zorder():
               )
     plt.yticks([])
 
-@image_comparison(baseline_images=['table_row_label1', 'table_row_label2',
-                                   'table_col_label1', 'table_col_label2',
-                                   'table_plain'],
+
+@image_comparison(baseline_images=['table_labels'],
                   extensions=['png'])
 def test_label_colours():
     dim = 3
-    
+
     c = np.linspace(0, 1, dim)
     colours = plt.cm.RdYlGn(c)
     cellText = [['1'] * dim] * dim
-    
-    fig = plt.figure()
-    ax1 = fig.add_subplot(1, 1, 1)
-    ax1.axis('off')
-    ax1.table(cellText=cellText,
-              rowColours=colours)
 
     fig = plt.figure()
-    ax2 = fig.add_subplot(1, 1, 1)
+
+    ax1 = fig.add_subplot(4, 1, 1)
+    ax1.axis('off')
+    ax1.table(cellText=cellText,
+              rowColours=colours,
+              loc='best')
+
+    ax2 = fig.add_subplot(4, 1, 2)
     ax2.axis('off')
     ax2.table(cellText=cellText,
               rowColours=colours,
-              rowLabels=['Header'] * dim)
+              rowLabels=['Header'] * dim,
+              loc='best')
 
-    fig = plt.figure()
-    ax3 = fig.add_subplot(1, 1, 1)
+    ax3 = fig.add_subplot(4, 1, 3)
     ax3.axis('off')
     ax3.table(cellText=cellText,
               colColours=colours,
               loc='best')
 
-    fig = plt.figure()
-    ax4 = fig.add_subplot(1, 1, 1)
+    ax4 = fig.add_subplot(4, 1, 4)
     ax4.axis('off')
     ax4.table(cellText=cellText,
               colColours=colours,
               colLabels=['Header'] * dim,
               loc='best')
-
-    fig = plt.figure()
-    ax5 = fig.add_subplot(1, 1, 1)
-    ax5.axis('off')
-    ax5.table(cellText=cellText,
-              loc='center')
-    
