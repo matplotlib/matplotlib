@@ -119,6 +119,13 @@ def warn_deprecated(
 
     obj_type : str, optional
         The object type being deprecated.
+
+    Example
+    -------
+    # To warn of the deprecation of "matplotlib.name_of_module"
+    warn_deprecated('1.4.0', name='matplotlib.name_of_module',
+                    obj_type='module')
+
     """
     message = _generate_deprecation_message(
         since, message, name, alternative, pending, obj_type)
@@ -129,7 +136,7 @@ def warn_deprecated(
 def deprecated(since, message='', name='', alternative='', pending=False,
                obj_type='function'):
     """
-    Used to mark a function as deprecated.
+    Decorator to mark a function as deprecated.
 
     Parameters
     ------------
@@ -164,6 +171,13 @@ def deprecated(since, message='', name='', alternative='', pending=False,
     pending : bool, optional
         If True, uses a PendingDeprecationWarning instead of a
         DeprecationWarning.
+        
+    Example
+    -------
+    @deprecated('1.4.0')
+    def the_function_to_deprecate():
+        pass
+    
     """
     def deprecate(func, message=message, name=name, alternative=alternative,
                   pending=pending):

@@ -728,13 +728,10 @@ class LogFormatterExponent(LogFormatter):
         isDecade = is_close_to_int(fx)
         if not isDecade and self.labelOnlyBase:
             s = ''
-        #if 0: pass
-        elif fx > 10000:
-            s = '%1.0e' % fx
-        #elif x<1: s = '$10^{%d}$'%fx
-        #elif x<1: s =  '10^%d'%fx
-        elif fx < 1:
-            s = '%1.0e' % fx
+        elif abs(fx) > 10000:
+            s = '%1.0g' % fx
+        elif abs(fx) < 1:
+            s = '%1.0g' % fx
         else:
             s = self.pprint_val(fx, d)
         if sign == -1:

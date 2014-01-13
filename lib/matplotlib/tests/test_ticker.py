@@ -51,6 +51,38 @@ def test_LogLocator():
     assert_almost_equal(loc.tick_values(1, 100), test_value)
 
 
+def test_LogFormatterExponent():
+    class FakeAxis(object):
+        """Allow Formatter to be called without having a "full" plot set up."""
+        def get_view_interval(self):
+            return 1, 10
+
+    i = np.arange(-3, 4, dtype=float)
+    expected_result = ['-3', '-2', '-1', '0', '1', '2', '3']
+    for base in [2, 5, 10, np.pi, np.e]:
+        formatter = mticker.LogFormatterExponent(base=base)
+        formatter.axis = FakeAxis()
+        vals = base**i
+        labels = [formatter(x, pos) for (x, pos) in zip(vals, i)]
+        nose.tools.assert_equal(labels, expected_result)
+
+    # Should be a blank string for non-integer powers if labelOnlyBase=True
+    formatter = mticker.LogFormatterExponent(base=10, labelOnlyBase=True)
+    formatter.axis = FakeAxis()
+    nose.tools.assert_equal(formatter(10**0.1), '')
+
+    # Otherwise, non-integer powers should be nicely formatted
+    locs = np.array([0.1, 0.00001, np.pi, 0.2, -0.2, -0.00001])
+    i = range(len(locs))
+    expected_result = ['0.1', '1e-05', '3.14', '0.2', '-0.2', '-1e-05']
+    for base in [2, 5, 10, np.pi, np.e]:
+        formatter = mticker.LogFormatterExponent(base, labelOnlyBase=False)
+        formatter.axis = FakeAxis()
+        vals = base**locs
+        labels = [formatter(x, pos) for (x, pos) in zip(vals, i)]
+        nose.tools.assert_equal(labels, expected_result)
+
+
 def test_use_offset():
     for use_offset in [True, False]:
         with matplotlib.rc_context({'axes.formatter.useoffset': use_offset}):
