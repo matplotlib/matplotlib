@@ -1162,6 +1162,12 @@ def test_hist_stacked_bar():
     ax.hist(d, bins=10, histtype='barstacked', align='mid', color=colors, label=labels)
     ax.legend(loc='upper right', bbox_to_anchor = (1.0, 1.0), ncol=1)
 
+@cleanup
+def test_hist_emptydata():
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist([[], range(10), range(10)], histtype="step")
+
 @image_comparison(baseline_images=['transparent_markers'], remove_text=True)
 def test_transparent_markers():
     np.random.seed(0)

@@ -8245,6 +8245,17 @@ class Axes(martist.Artist):
         if histtype == 'barstacked' and not stacked:
             stacked = True
 
+        # Check whether bins or range are given explicitly.
+        binsgiven = (cbook.iterable(bins) or bin_range is not None)
+
+        # basic input validation
+        flat = np.ravel(x)
+        if len(flat) == 0:
+            raise ValueError("x must have at least one data point")
+        elif len(flat) == 1 and not binsgiven:
+            raise ValueError(
+                "x has only one data point. bins or range kwarg must be given")
+
         # Massage 'x' for processing.
         # NOTE: Be sure any changes here is also done below to 'weights'
         if isinstance(x, np.ndarray) or not iterable(x[0]):
@@ -8299,10 +8310,6 @@ class Axes(martist.Artist):
         # Save the datalimits for the same reason:
         _saved_bounds = self.dataLim.bounds
 
-        # Check whether bins or range are given explicitly. In that
-        # case use those values for autoscaling.
-        binsgiven = (cbook.iterable(bins) or bin_range is not None)
-
         # If bins are not specified either explicitly or via range,
         # we need to figure out the range required for all datasets,
         # and supply that to np.histogram.
@@ -8310,8 +8317,9 @@ class Axes(martist.Artist):
             xmin = np.inf
             xmax = -np.inf
             for xi in x:
-                xmin = min(xmin, xi.min())
-                xmax = max(xmax, xi.max())
+                if len(xi) > 0:
+                    xmin = min(xmin, xi.min())
+                    xmax = max(xmax, xi.max())
             bin_range = (xmin, xmax)
 
         #hist_kwargs = dict(range=range, normed=bool(normed))
@@ -8503,7 +8511,8 @@ class Axes(martist.Artist):
                 xmin0 = max(_saved_bounds[0]*0.9, minimum)
                 xmax = self.dataLim.intervalx[1]
                 for m in n:
-                    xmin = np.amin(m[m != 0]) # filter out the 0 height bins
+                    if np.sum(m) > 0:  # make sure there are counts
+                        xmin = np.amin(m[m != 0]) # filter out the 0 height bins
                 xmin = max(xmin*0.9, minimum)
                 xmin = min(xmin0, xmin)
                 self.dataLim.intervalx = (xmin, xmax)
@@ -8511,7 +8520,8 @@ class Axes(martist.Artist):
                 ymin0 = max(_saved_bounds[1]*0.9, minimum)
                 ymax = self.dataLim.intervaly[1]
                 for m in n:
-                    ymin = np.amin(m[m != 0]) # filter out the 0 height bins
+                    if np.sum(m) > 0:  # make sure there are counts
+                        ymin = np.amin(m[m != 0]) # filter out the 0 height bins
                 ymin = max(ymin*0.9, minimum)
                 ymin = min(ymin0, ymin)
                 self.dataLim.intervaly = (ymin, ymax)
