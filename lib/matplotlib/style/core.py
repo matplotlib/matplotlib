@@ -30,8 +30,7 @@ __all__ = ['use', 'context', 'available', 'library', 'reload_library']
 _here = os.path.abspath(os.path.dirname(__file__))
 BASE_LIBRARY_PATH = os.path.join(_here, 'stylelib')
 # Users may want multiple library paths, so store a list of paths.
-USER_LIBRARY_PATHS = [os.path.join('~', '.matplotlib', 'stylelib'),
-                      os.path.join('~', '.config', 'matplotlib', 'stylelib')]
+USER_LIBRARY_PATHS = [os.path.join(mpl._get_configdir(), 'stylelib')]
 STYLE_EXTENSION = 'mplstyle'
 STYLE_FILE_PATTERN = re.compile('([\S]+).%s$' % STYLE_EXTENSION)
 
