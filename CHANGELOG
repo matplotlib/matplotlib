@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 2013-12-30 Made streamplot grid size consistent for different types of density
            argument. A 30x30 grid is now used for both density=1 and
            density=(1, 1).
@@ -7,6 +6,7 @@
            customization of boxplots. It takes a list of dicts contains stats.
            Also created a function (`cbook.boxplot_stats`) that generates the
            stats needed.
+
 
 2013-11-28 Added qhull extension module to perform Delaunay triangulation more
            robustly than before.  It is used by tri.Triangulation (and hence
