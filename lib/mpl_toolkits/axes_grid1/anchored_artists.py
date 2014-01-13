@@ -71,7 +71,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
     def __init__(self, transform, size, label, loc,
                  pad=0.1, borderpad=0.1, sep=2, prop=None,
                  frameon=True, size_vertical=0, color='black',
-                 label_top=False, fontprops=None,
+                 label_top=False, fontproperties=None,
                  **kwargs):
         """
         Draw a horizontal bar with the size in data coordinate of the given axes.
@@ -98,7 +98,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
           color for the size bar and label
         label_top : bool, optional
           if True, the label will be over the rectangle
-        fontprops: a matplotlib.font_manager.FontProperties instance, optional
+        fontproperties: a matplotlib.font_manager.FontProperties instance, optional
           sets the font properties for the label text
 
         Returns:
@@ -120,17 +120,17 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         
         >>> import matplotlib.font_manager as fm
         >>> fontprops = fm.FontProperties(size=14, family='monospace')
-        >>> bar = AnchoredSizeBar(ax.transData, 3, '3 units', 4, pad=0.5, sep=5, borderpad=0.5, frameon=False, size_vertical=0.5, color='white', fontprops=fontprops)
+        >>> bar = AnchoredSizeBar(ax.transData, 3, '3 units', 4, pad=0.5, sep=5, borderpad=0.5, frameon=False, size_vertical=0.5, color='white', fontproperties=fontprops)
 
         """
 
         self.size_bar = AuxTransformBox(transform)
         self.size_bar.add_artist(Rectangle((0,0), size, size_vertical, fill=True, facecolor=color, edgecolor=color))
 
-        if not fontprops:
+        if not fontproperties:
             textprops = {'color': color}
         else:
-            textprops = {'color': color, 'fontproperties': fontprops}
+            textprops = {'color': color, 'fontproperties': fontproperties} 
 
         self.txt_label = TextArea(
             label, 
