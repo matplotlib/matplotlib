@@ -7603,7 +7603,7 @@ class Axes(martist.Artist):
                 ec.lower() == "none"):
             kwargs['antialiaseds'] = False
 
-        collection = mcoll.PolyCollection(verts, **kwargs)
+        collection = mcoll.PolyCollection(verts, snap=False, **kwargs)
 
         collection.set_alpha(alpha)
         collection.set_array(C)
