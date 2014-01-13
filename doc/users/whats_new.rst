@@ -32,6 +32,31 @@ Phil Elson rewrote of the documentation and userguide for both Legend and PathEf
 New plotting features
 ---------------------
 
+Fully customizable boxplots
+````````````````````````````
+Paul Hobson overahuled the :func:`~matplotlib.pyplot.boxplot` method such
+that it is now completely customizable in terms of the styles and positions
+of the individual artists. Under the hood, :func:`~matplotlib.pyplot.boxplot`
+relies on a new function (:func:`~matplotlib.cbook.boxplot_stats`), which
+accepts any data structure currently compatible with
+:func:`~matplotlib.pyplot.boxplot`, amd returns a list of dictaries
+containing the positions of each of artists for the boxplots. Then
+a second method, :func:`~matplotlib.Axes.bxp` is called to actually
+return the stats onto the figure.
+
+Therefore, it is now possible for the user can use
+:func:`~matplotlib.pyplot.boxplot` in the same fashion or generate her own
+list of dictionaries of statistics and feed those directio  to
+:func:`~matplotlib.Axes.bxp`. Similarly, the output from
+:func:`~matplotlib.cbook.boxplot_stats` can easily be modified by the user.
+
+Lastly, each artist (e.g., the box, outliers, cap, notches) can now be
+toggled on or off and their styles can be passed in through individual
+kwargs. See the examples:
+:ref:`~examples/statistics/boxplot_demo.py` and
+:ref:`~examples/statistics/bxp_demo.py`
+
+
 Support for datetime axes in 2d plots
 `````````````````````````````````````
 Andrew Dawson added support for datetime axes to
