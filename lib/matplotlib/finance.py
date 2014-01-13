@@ -1007,7 +1007,7 @@ def _candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
 
         vline = Line2D(
             xdata=(t, t), ydata=(low, high),
-            color='k',
+            color=color,
             linewidth=0.5,
             antialiased=True,
         )
