@@ -1044,7 +1044,7 @@ class SpanSelector(AxesWidget):
     """
 
     def __init__(self, ax, onselect, direction, minspan=None, useblit=False,
-                 rectprops=None, onmove_callback=None):
+                 rectprops=None, onmove_callback=None, span_stays=False):
         """
         Create a span selector in *ax*.  When a selection is made, clear
         the span and call *onselect* with::
@@ -1062,6 +1062,9 @@ class SpanSelector(AxesWidget):
 
         Set the visible attribute to *False* if you want to turn off
         the functionality of the span selector
+        
+        If *span_stays* is True, the span stays visble after making 
+        a valid selection.
         """
         AxesWidget.__init__(self, ax)
 
@@ -1081,7 +1084,8 @@ class SpanSelector(AxesWidget):
         self.onselect = onselect
         self.onmove_callback = onmove_callback
         self.minspan = minspan
-
+        self.span_stays = span_stays
+        
         # Needed when dragging out of axes
         self.buttonDown = False
         self.prev = (0, 0)
@@ -1116,7 +1120,13 @@ class SpanSelector(AxesWidget):
                               transform=trans,
                               visible=False,
                               **self.rectprops)
-
+        if self.span_stays:
+            self.stay_rect = Rectangle((0, 0), w, h,
+                                       transform=trans,
+                                       visible=False,
+                                       **self.rectprops)
+            self.ax.add_patch(self.stay_rect)
+            
         if not self.useblit:
             self.ax.add_patch(self.rect)
 
@@ -1140,6 +1150,9 @@ class SpanSelector(AxesWidget):
         self.buttonDown = True
 
         self.rect.set_visible(self.visible)
+        if self.span_stays:
+            self.stay_rect.set_visible(False)
+            
         if self.direction == 'horizontal':
             self.pressv = event.xdata
         else:
@@ -1155,6 +1168,14 @@ class SpanSelector(AxesWidget):
         self.buttonDown = False
 
         self.rect.set_visible(False)
+        
+        if self.span_stays:
+            self.stay_rect.set_x(self.rect.get_x())
+            self.stay_rect.set_y(self.rect.get_y())
+            self.stay_rect.set_width(self.rect.get_width())
+            self.stay_rect.set_height(self.rect.get_height())
+            self.stay_rect.set_visible(True)
+        
         self.canvas.draw()
         vmin = self.pressv
         if self.direction == 'horizontal':

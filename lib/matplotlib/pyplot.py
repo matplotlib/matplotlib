@@ -921,7 +921,7 @@ def subplot(*args, **kwargs):
 
 
 def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
-                subplot_kw=None, **fig_kw):
+                subplot_kw=None, gridspec_kw=None, **fig_kw):
     """
     Create a figure with a set of subplots already made.
 
@@ -980,6 +980,11 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         Dict with keywords passed to the
         :meth:`~matplotlib.figure.Figure.add_subplot` call used to
         create each subplots.
+
+      *gridspec_kw* : dict
+        Dict with keywords passed to the
+        :class:`~matplotlib.gridspec.GridSpec` constructor used to create
+        the grid the subplots are placed on.
 
       *fig_kw* : dict
         Dict with keywords passed to the :func:`figure` call.  Note that all
@@ -1055,8 +1060,11 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
                 (sharey, share_values))
     if subplot_kw is None:
         subplot_kw = {}
+    if gridspec_kw is None:
+        gridspec_kw = {}
 
     fig = figure(**fig_kw)
+    gs = GridSpec(nrows, ncols, **gridspec_kw)
 
     # Create empty object array to hold all axes.  It's easiest to make it 1-d
     # so we can just append subplots upon creation, and then
@@ -1064,7 +1072,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     axarr = np.empty(nplots, dtype=object)
 
     # Create first subplot separately, so we can share it if requested
-    ax0 = fig.add_subplot(nrows, ncols, 1, **subplot_kw)
+    ax0 = fig.add_subplot(gs[0, 0], **subplot_kw)
     #if sharex:
     #    subplot_kw['sharex'] = ax0
     #if sharey:
@@ -1094,7 +1102,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
             subplot_kw['sharey'] = None
         else:
             subplot_kw['sharey'] = axarr[sys[i]]
-        axarr[i] = fig.add_subplot(nrows, ncols, i + 1, **subplot_kw)
+        axarr[i] = fig.add_subplot(gs[i // ncols, i % ncols], **subplot_kw)
 
     # returned axis array will be always 2-d, even if nrows=ncols=1
     axarr = axarr.reshape(nrows, ncols)

@@ -2,7 +2,7 @@
 """
 Matplotlib provides sophisticated date plotting capabilities, standing on the
 shoulders of python :mod:`datetime`, the add-on modules :mod:`pytz` and
-:mod:`dateutils`.  :class:`datetime` objects are converted to floating point
+:mod:`dateutil`.  :class:`datetime` objects are converted to floating point
 numbers which represent time in days since 0001-01-01 UTC, plus 1.  For
 example, 0001-01-01, 06:00 is 1.25, not 0.25.  The helper functions
 :func:`date2num`, :func:`num2date` and :func:`drange` are used to facilitate
@@ -49,6 +49,9 @@ Date tickers
 
 Most of the date tickers can locate single or multiple values.  For
 example::
+
+    # import constants for the days of the week
+    from matplotlib.dates import MO, TU, WE, TH, FR, SA, SU
 
     # tick on mondays every week
     loc = WeekdayLocator(byweekday=MO, tz=tz)
@@ -1028,7 +1031,8 @@ class WeekdayLocator(RRuleLocator):
         sequence.
 
         Elements of *byweekday* must be one of MO, TU, WE, TH, FR, SA,
-        SU, the constants from :mod:`dateutils.rrule`.
+        SU, the constants from :mod:`dateutil.rrule`, which have been
+        imported into the :mod:`matplotlib.dates` namespace.
 
         *interval* specifies the number of weeks to skip.  For example,
         ``interval=2`` plots every second week.
