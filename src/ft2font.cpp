@@ -181,19 +181,20 @@ FT2Image::py_write_bitmap(const Py::Tuple & args)
     _VERBOSE("FT2Image::write_bitmap");
     PyObject *py_file;
     FILE *fh;
+    mpl_off_t offset;
 
     args.verify_length(1);
 
-    if ((py_file = npy_PyFile_OpenFile(args[0].ptr(), (char *)"wb")) == NULL) {
+    if ((py_file = mpl_PyFile_OpenFile(args[0].ptr(), (char *)"wb")) == NULL) {
         throw Py::Exception();
     }
 
-    fh = npy_PyFile_Dup(py_file, (char *)"wb");
+    fh = mpl_PyFile_Dup(py_file, (char *)"wb", &offset);
 
     write_bitmap(fh);
 
-    npy_PyFile_DupClose(py_file, fh);
-    npy_PyFile_CloseFile(py_file);
+    mpl_PyFile_DupClose(py_file, fh, offset);
+    mpl_PyFile_CloseFile(py_file);
     Py_DECREF(py_file);
 
     return Py::Object();
@@ -2116,6 +2117,7 @@ typedef struct
     PyObject *py_file;
     FILE *fp;
     int close_file;
+    mpl_off_t offset;
 } py_file_def;
 
 
@@ -2141,10 +2143,10 @@ static void close_file_callback(FT_Stream stream)
 {
     py_file_def *def = (py_file_def *)stream->descriptor.pointer;
 
-    npy_PyFile_DupClose(def->py_file, def->fp);
+    mpl_PyFile_DupClose(def->py_file, def->fp, def->offset);
 
     if (def->close_file) {
-        npy_PyFile_CloseFile(def->py_file);
+        mpl_PyFile_CloseFile(def->py_file);
     }
 
     Py_DECREF(def->py_file);
@@ -2163,13 +2165,14 @@ FT2Font::make_open_args(PyObject *py_file_arg, FT_Open_Args *open_args)
     py_file_def *stream_info = NULL;
     long file_size;
     FT_Byte *new_memory;
+    mpl_off_t offset;
 
     int result = -1;
 
     memset((void *)open_args, 0, sizeof(FT_Open_Args));
 
     if (PyBytes_Check(py_file_arg) || PyUnicode_Check(py_file_arg)) {
-        if ((py_file = npy_PyFile_OpenFile(py_file_arg, (char *)"rb")) == NULL) {
+        if ((py_file = mpl_PyFile_OpenFile(py_file_arg, (char *)"rb")) == NULL) {
             goto exit;
         }
         close_file = 1;
@@ -2178,7 +2181,7 @@ FT2Font::make_open_args(PyObject *py_file_arg, FT_Open_Args *open_args)
         py_file = py_file_arg;
     }
 
-    if ((fp = npy_PyFile_Dup(py_file, (char *)"rb"))) {
+    if ((fp = mpl_PyFile_Dup(py_file, (char *)"rb", &offset))) {
         stream_info = (py_file_def *)PyMem_Malloc(sizeof(py_file_def));
         if (stream_info == NULL) {
             goto exit;
@@ -2189,6 +2192,7 @@ FT2Font::make_open_args(PyObject *py_file_arg, FT_Open_Args *open_args)
         stream_info->py_file = py_file;
         stream_info->close_file = close_file;
         stream_info->fp = fp;
+        stream_info->offset = offset;
         fseek(fp, 0, SEEK_END);
         file_size = ftell(fp);
         fseek(fp, 0, SEEK_SET);
