@@ -5439,7 +5439,8 @@ class Axes(_AxesBase):
                 xmax = self.dataLim.intervalx[1]
                 for m in n:
                     if np.sum(m) > 0:  # make sure there are counts
-                        xmin = np.amin(m[m != 0]) # filter out the 0 height bins
+                        xmin = np.amin(m[m != 0])
+                        # filter out the 0 height bins
                 xmin = max(xmin*0.9, minimum)
                 xmin = min(xmin0, xmin)
                 self.dataLim.intervalx = (xmin, xmax)
@@ -5448,7 +5449,8 @@ class Axes(_AxesBase):
                 ymax = self.dataLim.intervaly[1]
                 for m in n:
                     if np.sum(m) > 0:  # make sure there are counts
-                        ymin = np.amin(m[m != 0]) # filter out the 0 height bins
+                        ymin = np.amin(m[m != 0])
+                        # filter out the 0 height bins
                 ymin = max(ymin*0.9, minimum)
                 ymin = min(ymin0, ymin)
                 self.dataLim.intervaly = (ymin, ymax)
