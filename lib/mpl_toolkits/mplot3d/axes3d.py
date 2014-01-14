@@ -1985,8 +1985,8 @@ class Axes3D(Axes):
 
     contour3D = contour
 
-    def tricontour(self, X, Y, Z, *args, **kwargs):
-        '''
+    def tricontour(self, *args, **kwargs):
+        """
         Create a 3D contour plot.
 
         ==========  ================================================
@@ -2006,8 +2006,12 @@ class Axes3D(Axes):
 
         Returns a :class:`~matplotlib.axes.Axes.contour`
 
-        .. versionadded:: 1.1.0
-        '''
+        .. versionchanged:: 1.3.0
+            Added support for custom triangulations
+
+        EXPERIMENTAL:  This method currently produces incorrect output due to a
+        longstanding bug in 3D PolyCollection rendering.
+        """
 
         extend3d = kwargs.pop('extend3d', False)
         stride = kwargs.pop('stride', 5)
@@ -2016,8 +2020,19 @@ class Axes3D(Axes):
 
         had_data = self.has_data()
 
+        tri, args, kwargs = Triangulation.get_from_args_and_kwargs(
+                *args, **kwargs)
+        X = tri.x
+        Y = tri.y
+        Z = args[0]
+
+        # We do this so Z doesn't get passed as an arg to Axes.tricontour
+        args = args[1:]
+
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
-        cset = Axes.tricontour(self, jX, jY, jZ, *args, **kwargs)
+        tri = Triangulation(jX, jY, tri.triangles, tri.mask)
+
+        cset = Axes.tricontour(self, tri, jZ, *args, **kwargs)
         self.add_contour_set(cset, extend3d, stride, zdir, offset)
 
         self.auto_scale_xyz(X, Y, Z, had_data)
@@ -2060,8 +2075,8 @@ class Axes3D(Axes):
 
     contourf3D = contourf
 
-    def tricontourf(self, X, Y, Z, offset=None, zdir='z', *args, **kwargs):
-        '''
+    def tricontourf(self, *args, **kwargs):
+        """
         Create a 3D contourf plot.
 
         ==========  ================================================
@@ -2079,15 +2094,30 @@ class Axes3D(Axes):
 
         Returns a :class:`~matplotlib.axes.Axes.contour`
 
-        .. versionadded :: 1.1.0
-        '''
+        .. versionchanged :: 1.3.0
+            Added support for custom triangulations
+
+        EXPERIMENTAL:  This method currently produces incorrect output due to a
+        longstanding bug in 3D PolyCollection rendering.
+        """
         zdir = kwargs.pop('zdir', 'z')
         offset = kwargs.pop('offset', None)
 
         had_data = self.has_data()
 
+        tri, args, kwargs = Triangulation.get_from_args_and_kwargs(
+                *args, **kwargs)
+        X = tri.x
+        Y = tri.y
+        Z = args[0]
+
+        # We do this so Z doesn't get passed as an arg to Axes.tricontour
+        args = args[1:]
+
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
-        cset = Axes.tricontourf(self, X, Y, Z, *args, **kwargs)
+        tri = Triangulation(jX, jY, tri.triangles, tri.mask)
+
+        cset = Axes.tricontourf(self, tri, jZ, *args, **kwargs)
         self.add_contourf_set(cset, zdir, offset)
 
         self.auto_scale_xyz(X, Y, Z, had_data)

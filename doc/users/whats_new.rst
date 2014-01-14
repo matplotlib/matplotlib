@@ -250,6 +250,15 @@ to modify each artist's sketch parameters individually with
 
 .. plot:: mpl_examples/showcase/xkcd.py
 
+Updated Axes3D.contour methods
+------------------------------
+Damon McDougall updated the
+:meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.tricontour` and
+:meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.tricontourf` methods to allow 3D
+contour plots on abitrary unstructured user-specified triangulations.
+
+.. plot:: mpl_examples/mplot3d/tricontour3d_demo.py
+
 New eventplot plot type
 ```````````````````````
 Todd Jennings added a :func:`~matplotlib.pyplot.eventplot` function to
