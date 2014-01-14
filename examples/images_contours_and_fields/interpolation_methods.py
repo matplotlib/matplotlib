@@ -20,15 +20,13 @@ methods = [None, 'none', 'nearest', 'bilinear', 'bicubic', 'spline16',
 
 grid = np.random.rand(4, 4)
 
-fig, ax = plt.subplots(3, 6, figsize=(12, 6),
-                       subplot_kw={'xticks': [], 'yticks': []})
+fig, axes = plt.subplots(3, 6, figsize=(12, 6),
+                         subplot_kw={'xticks': [], 'yticks': []})
 
 fig.subplots_adjust(hspace=0.3, wspace=0.05)
 
-ax = ax.ravel()
-
-for ax, interp_method in zip(axes, methods):
-    ax[n].imshow(grid, interpolation=interp)
-    ax[n].set_title(interp)
+for ax, interp_method in zip(axes.flat, methods):
+    ax.imshow(grid, interpolation=interp_method)
+    ax.set_title(interp_method)
 
 plt.show()
