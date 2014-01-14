@@ -8,13 +8,13 @@ import datetime
 import warnings
 import tempfile
 
-from nose.tools import assert_raises, assert_equal
 import dateutil
+import mock
+from nose.tools import assert_raises, assert_equal
 
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-from matplotlib.dates import DayLocator
 
 
 @image_comparison(baseline_images=['date_empty'], extensions=['png'])
@@ -153,6 +153,18 @@ def test_DateFormatter():
 
     ax.autoscale_view()
     fig.autofmt_xdate()
+
+
+def test_date_formatter_callable():
+    scale = -11
+    locator = mock.Mock(_get_unit=mock.Mock(return_value=scale))
+    callable_formatting_function = lambda dates, _: \
+                        [dt.strftime('%d-%m//%Y') for dt in dates]
+    
+    formatter = mdates.AutoDateFormatter(locator)
+    formatter.scaled[-10] = callable_formatting_function
+    assert_equal(formatter([datetime.datetime(2014, 12, 25)]),
+                 ['25-12//2014'])
 
 
 def test_drange():
