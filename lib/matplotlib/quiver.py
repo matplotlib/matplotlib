@@ -220,9 +220,9 @@ middle of the arrow+label key object.
 
 class QuiverKey(martist.Artist):
     """ Labelled arrow for use as a quiver plot scale key."""
-    halign = {'N': 'center', 'S': 'center', 'E': 'left',   'W': 'right'}
-    valign = {'N': 'bottom', 'S': 'top',    'E': 'center', 'W': 'center'}
-    pivot = {'N': 'mid',    'S': 'mid',    'E': 'tip',    'W': 'tail'}
+    halign = {'N': 'center', 'S': 'center', 'E': 'left', 'W': 'right'}
+    valign = {'N': 'bottom', 'S': 'top', 'E': 'center', 'W': 'center'}
+    pivot = {'N': 'mid', 'S': 'mid', 'E': 'tip', 'W': 'tail'}
 
     def __init__(self, Q, X, Y, U, label, **kw):
         martist.Artist.__init__(self)
@@ -236,13 +236,21 @@ class QuiverKey(martist.Artist):
         self._labelsep_inches = kw.pop('labelsep', 0.1)
         self.labelsep = (self._labelsep_inches * Q.ax.figure.dpi)
 
-        def on_dpi_change(fig):
-            self.labelsep = (self._labelsep_inches * fig.dpi)
-            self._initialized = False  # simple brute force update
-                                       # works because _init is called
-                                       # at the start of draw.
+        # try to prevent closure over the real self
+        weak_self = weakref.ref(self)
 
-        Q.ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
+        def on_dpi_change(fig):
+            _s = weak_self()
+            if _s is not None:
+                _s.labelsep = (_s._labelsep_inches * fig.dpi)
+                _s._initialized = False  # simple brute force update
+                                           # works because _init is called
+                                           # at the start of draw.
+
+        self._cid = Q.ax.figure.callbacks.connect('dpi_changed',
+                                                  on_dpi_change)
+
+        self._cb_ref = weakref.ref(Q.ax.figure.callbacks)
 
         self.labelpos = kw.pop('labelpos', 'N')
         self.labelcolor = kw.pop('labelcolor', None)
@@ -255,10 +263,23 @@ class QuiverKey(martist.Artist):
                         horizontalalignment=self.halign[self.labelpos],
                         verticalalignment=self.valign[self.labelpos],
                         fontproperties=font_manager.FontProperties(**_fp))
+
         if self.labelcolor is not None:
             self.text.set_color(self.labelcolor)
         self._initialized = False
         self.zorder = Q.zorder + 0.1
+
+    def remove(self):
+        """
+        Overload the remove method
+        """
+        _cbs = self._cb_ref()
+        if _cbs is not None:
+        # disconnect the call back
+            _cbs.disconnect(self._cid)
+            self._cid = None
+        # pass the remove call up the stack
+        martist.Artist.remove(self)
 
     __init__.__doc__ = _quiverkey_doc
 
