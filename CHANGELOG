@@ -74,6 +74,9 @@
 
 2013-04-16 Added patheffect support for Line2D objects.  -JJL
 
+2013-03-31 Added support for arbitrary unstructured user-specified
+           triangulations to Axes3D.tricontour[f] - Damon McDougall
+
 2013-03-19 Added support for passing `linestyle` kwarg to `step` so all `plot`
            kwargs are passed to the underlying `plot` call.  -TAC
 
