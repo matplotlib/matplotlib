@@ -2125,13 +2125,14 @@ RendererAgg::write_rgba(const Py::Tuple& args)
     args.verify_length(1);
 
     FILE *fp = NULL;
+    mpl_off_t offset;
     Py::Object py_fileobj = Py::Object(args[0]);
     PyObject* py_file = NULL;
     bool close_file = false;
 
     if (py_fileobj.isString())
     {
-        if ((py_file = npy_PyFile_OpenFile(py_fileobj.ptr(), (char *)"wb")) == NULL) {
+        if ((py_file = mpl_PyFile_OpenFile(py_fileobj.ptr(), (char *)"wb")) == NULL) {
             throw Py::Exception();
         }
     }
@@ -2140,28 +2141,28 @@ RendererAgg::write_rgba(const Py::Tuple& args)
         py_file = py_fileobj.ptr();
     }
 
-    if ((fp = npy_PyFile_Dup(py_file, (char *)"wb")))
+    if ((fp = mpl_PyFile_Dup(py_file, (char *)"wb", &offset)))
     {
         if (fwrite(pixBuffer, 1, NUMBYTES, fp) != NUMBYTES)
         {
-            if (npy_PyFile_DupClose(py_file, fp)) {
+            if (mpl_PyFile_DupClose(py_file, fp, offset)) {
               throw Py::RuntimeError("Error closing dupe file handle");
             }
 
             if (close_file) {
-                npy_PyFile_CloseFile(py_file);
+                mpl_PyFile_CloseFile(py_file);
                 Py_DECREF(py_file);
             }
 
             throw Py::RuntimeError("Error writing to file");
         }
 
-        if (npy_PyFile_DupClose(py_file, fp)) {
+        if (mpl_PyFile_DupClose(py_file, fp, offset)) {
           throw Py::RuntimeError("Error closing dupe file handle");
         }
 
         if (close_file) {
-            npy_PyFile_CloseFile(py_file);
+            mpl_PyFile_CloseFile(py_file);
             Py_DECREF(py_file);
         }
     }
