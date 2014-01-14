@@ -27,7 +27,7 @@ fig.subplots_adjust(hspace=0.3, wspace=0.05)
 
 ax = ax.ravel()
 
-for n, interp in enumerate(methods):
+for ax, interp_method in zip(axes, methods):
     ax[n].imshow(grid, interpolation=interp)
     ax[n].set_title(interp)
 
