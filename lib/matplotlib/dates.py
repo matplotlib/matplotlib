@@ -517,9 +517,25 @@ class AutoDateFormatter(ticker.Formatter):
     dictionary by doing::
 
 
-      formatter = AutoDateFormatter()
-      formatter.scaled[1/(24.*60.)] = '%M:%S' # only show min and sec
+    >>> formatter = AutoDateFormatter()
+    >>> formatter.scaled[1/(24.*60.)] = '%M:%S' # only show min and sec
 
+    Custom `FunctionFormatter`s can also be used. The following example shows
+    how to use a custom format function to strip trailing zeros from decimal
+    seconds and adds the date to the first ticklabel::
+
+    >>> def my_format_function(x, pos=None):
+    ...     x = matplotlib.dates.num2date(x)
+    ...     if pos == 0:
+    ...         fmt = '%D %H:%M:%S.%f'
+    ...     else:
+    ...         fmt = '%H:%M:%S.%f'
+    ...     label = x.strftime(fmt)
+    ...     label = label.rstrip("0")
+    ...     label = label.rstrip(".")
+    ...     return label
+    >>> from matplotlib.ticker import FuncFormatter
+    >>> formatter.scaled[1/(24.*60.)] = FuncFormatter(my_format_function)
     """
 
     # This can be improved by providing some user-level direction on
@@ -535,8 +551,9 @@ class AutoDateFormatter(ticker.Formatter):
 
     def __init__(self, locator, tz=None, defaultfmt='%Y-%m-%d'):
         """
-        Autofmt the date labels.  The default format is the one to use
-        if none of the times in scaled match
+        Autoformat the date labels.  The default format is the one to use
+        if none of the values in ``self.scaled`` are greater than the unit
+        returned by ``locator._get_unit()``.
         """
         self._locator = locator
         self._tz = tz
@@ -548,17 +565,25 @@ class AutoDateFormatter(ticker.Formatter):
                        1. / 24.: '%H:%M:%S',
                        1. / (24. * 60.): '%H:%M:%S.%f'}
 
-    def __call__(self, x, pos=0):
-        scale = float(self._locator._get_unit())
+    def __call__(self, x, pos=None):
+        locator_unit_scale = float(self._locator._get_unit())
         fmt = self.defaultfmt
 
-        for k in sorted(self.scaled):
-            if k >= scale:
-                fmt = self.scaled[k]
+        # Pick the first scale which is greater than the locator unit.
+        for possible_scale in sorted(self.scaled):
+            if possible_scale >= locator_unit_scale:
+                fmt = self.scaled[possible_scale]
                 break
 
-        self._formatter = DateFormatter(fmt, self._tz)
-        return self._formatter(x, pos)
+        if isinstance(fmt, six.string_types):
+            self._formatter = DateFormatter(fmt, self._tz)
+            result = self._formatter(x, pos)
+        elif six.callable(fmt):
+            result = fmt(x, pos)
+        else:
+            raise TypeError('Unexpected type passed to {!r}.'.formatter(self))
+
+        return result
 
 
 class rrulewrapper:
