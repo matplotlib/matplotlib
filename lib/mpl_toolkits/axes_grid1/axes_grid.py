@@ -17,7 +17,14 @@ import matplotlib.ticker as ticker
 from matplotlib.gridspec import SubplotSpec, GridSpec
 
 from .axes_divider import Size, SubplotDivider, LocatableAxes, Divider
+ 
 
+def _extend_axes_pad(value):
+    # Check whether a list/tuple/array or scalar has been passed
+    ret = value
+    if not hasattr(ret, "__getitem__"):
+        ret = (value, value)
+    return ret
 
 def _tick_only(ax, bottom_on, left_on):
     bottom_off = not bottom_on
@@ -200,6 +207,8 @@ class Grid(object):
           ================  ========  =========================================
           direction         "row"     [ "row" | "column" ]
           axes_pad          0.02      float| pad between axes given in inches
+                                      or tuple-like of floats,
+                                      (horizontal padding, vertical padding)
           add_all           True      [ True | False ]
           share_all         False     [ True | False ]
           share_x           True      [ True | False ]
@@ -310,10 +319,11 @@ class Grid(object):
         self.set_label_mode(label_mode)
 
     def _init_axes_pad(self, axes_pad):
+        axes_pad = _extend_axes_pad(axes_pad)
         self._axes_pad = axes_pad
 
-        self._horiz_pad_size = Size.Fixed(axes_pad)
-        self._vert_pad_size = Size.Fixed(axes_pad)
+        self._horiz_pad_size = Size.Fixed(axes_pad[0])
+        self._vert_pad_size = Size.Fixed(axes_pad[1])
 
     def _update_locators(self):
 
@@ -376,11 +386,19 @@ class Grid(object):
         "set axes_pad"
         self._axes_pad = axes_pad
 
-        self._horiz_pad_size.fixed_size = axes_pad
-        self._vert_pad_size.fixed_size = axes_pad
+        # These two lines actually differ from ones in _init_axes_pad
+        self._horiz_pad_size.fixed_size = axes_pad[0]
+        self._vert_pad_size.fixed_size = axes_pad[1]
 
     def get_axes_pad(self):
-        "get axes_pad"
+        """
+        get axes_pad
+
+        Returns 
+        -------
+        tuple
+            Padding in inches, (horizontal pad, vertical pad)
+        """
         return self._axes_pad
 
     def set_aspect(self, aspect):
@@ -484,6 +502,8 @@ class ImageGrid(Grid):
           ================  ========  =========================================
           direction         "row"     [ "row" | "column" ]
           axes_pad          0.02      float| pad between axes given in inches
+                                      or tuple-like of floats,
+                                      (horizontal padding, vertical padding)
           add_all           True      [ True | False ]
           share_all         False     [ True | False ]
           aspect            True      [ True | False ]
@@ -510,12 +530,15 @@ class ImageGrid(Grid):
 
         self.ngrids = ngrids
 
+        axes_pad = _extend_axes_pad(axes_pad)
         self._axes_pad = axes_pad
 
         self._colorbar_mode = cbar_mode
         self._colorbar_location = cbar_location
         if cbar_pad is None:
-            self._colorbar_pad = axes_pad
+            # horizontal or vertical arrangement?
+            self._colorbar_pad = axes_pad[0] \
+                    if cbar_location in ("left", "right") else axes_pad[1]
         else:
             self._colorbar_pad = cbar_pad
 
@@ -678,7 +701,7 @@ class ImageGrid(Grid):
         v_cb_pos = []
         for row, ax in enumerate(self.axes_column[0][::-1]):
             if v:
-                v.append(self._horiz_pad_size)  # Size.Fixed(self._axes_pad))
+                v.append(self._vert_pad_size)  # Size.Fixed(self._axes_pad))
 
             if ax:
                 sz = Size.AxesY(ax, aspect="axes", ref_ax=self.axes_all[0])
