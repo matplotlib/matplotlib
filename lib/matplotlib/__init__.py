@@ -1255,6 +1255,7 @@ default_test_modules = [
     'matplotlib.tests.test_patheffects',
     'matplotlib.tests.test_pickle',
     'matplotlib.tests.test_png',
+    'matplotlib.tests.test_quiver',
     'matplotlib.tests.test_rcparams',
     'matplotlib.tests.test_scale',
     'matplotlib.tests.test_simplification',
