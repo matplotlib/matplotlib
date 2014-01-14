@@ -176,7 +176,9 @@ class ImageComparisonTest(CleanupTest):
                     figure.savefig(actual_fname, **self._savefig_kwarg)
 
                     err = compare_images(expected_fname, actual_fname,
-                                         self._tol, in_decorator=True)
+                                self._tol, in_decorator=True,
+                                excursion_threshold=self._excursion_threshold,
+                                max_excursion_count=self._max_excursion_count)
 
                     try:
                         if not os.path.exists(expected_fname):
@@ -186,7 +188,7 @@ class ImageComparisonTest(CleanupTest):
                         if err:
                             raise ImageComparisonFailure(
                                 'images not close: %(actual)s vs. %(expected)s '
-                                '(RMS %(rms).3f)'%err)
+                                '(RMS %(rms).3f) (excursions %(excursion_count)d)'%err)
                     except ImageComparisonFailure:
                         if not check_freetype_version(self._freetype_version):
                             raise KnownFailureTest(
@@ -198,7 +200,8 @@ class ImageComparisonTest(CleanupTest):
 
 def image_comparison(baseline_images=None, extensions=None, tol=13,
                      freetype_version=None, remove_text=False,
-                     savefig_kwarg=None):
+                     savefig_kwarg=None, excursion_threshold=128,
+                     max_excursion_count=100):
     """
     call signature::
 
@@ -272,7 +275,9 @@ def image_comparison(baseline_images=None, extensions=None, tol=13,
              '_tol': tol,
              '_freetype_version': freetype_version,
              '_remove_text': remove_text,
-             '_savefig_kwarg': savefig_kwarg})
+             '_savefig_kwarg': savefig_kwarg,
+             '_max_excursion_count': max_excursion_count,
+             '_excursion_threshold': excursion_threshold})
 
         return new_class
     return compare_images_decorator
