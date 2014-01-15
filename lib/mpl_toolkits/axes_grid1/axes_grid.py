@@ -1,6 +1,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import six
+
 import matplotlib.cbook as cbook
 
 import matplotlib.pyplot as plt
@@ -539,8 +541,10 @@ class ImageGrid(Grid):
         self._colorbar_location = cbar_location
         if cbar_pad is None:
             # horizontal or vertical arrangement?
-            self._colorbar_pad = axes_pad[0] \
-                    if cbar_location in ("left", "right") else axes_pad[1]
+            if cbar_location in ("left", "right"):
+                self._colorbar_pad = axes_pad[0]
+            else:
+                self._colorbar_pad = axes_pad[1]
         else:
             self._colorbar_pad = cbar_pad
 
