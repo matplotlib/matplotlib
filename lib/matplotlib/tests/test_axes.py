@@ -863,14 +863,12 @@ def test_markevery_linear_scales():
     x = np.linspace(0, 10 - 2 * delta, 200) + delta
     y = np.sin(x) + 1.0 + delta
 
-    fig = plt.figure()
-    ax = []
     for i, case in enumerate(cases):
         row = (i // cols)
         col = i % cols
-        ax.append(fig.add_subplot(gs[row, col]))
-        ax[-1].set_title('markevery=%s' % str(case))
-        ax[-1].plot(x, y, 'o', ls='-', ms=4,  markevery=case)
+        plt.subplot(gs[row, col])
+        plt.title('markevery=%s' % str(case))
+        plt.plot(x, y, 'o', ls='-', ms=4,  markevery=case)
 
 @image_comparison(baseline_images=['markevery_linear_scales_zoomed'],
                   remove_text=True)
@@ -890,16 +888,14 @@ def test_markevery_linear_scales_zoomed():
     x = np.linspace(0, 10 - 2 * delta, 200) + delta
     y = np.sin(x) + 1.0 + delta
 
-    fig = plt.figure()
-    ax = []
     for i, case in enumerate(cases):
         row = (i // cols)
         col = i % cols
-        ax.append(fig.add_subplot(gs[row, col]))
-        ax[-1].set_title('markevery=%s' % str(case))
-        ax[-1].plot(x, y, 'o', ls='-', ms=4,  markevery=case)
-        ax[-1].set_xlim((6, 6.7))
-        ax[-1].set_ylim((1.1, 1.7))
+        plt.subplot(gs[row, col])
+        plt.title('markevery=%s' % str(case))
+        plt.plot(x, y, 'o', ls='-', ms=4,  markevery=case)
+        plt.xlim((6, 6.7))
+        plt.ylim((1.1, 1.7))
 
 
 @image_comparison(baseline_images=['markevery_log_scales'],
@@ -920,16 +916,14 @@ def test_markevery_log_scales():
     x = np.linspace(0, 10 - 2 * delta, 200) + delta
     y = np.sin(x) + 1.0 + delta
 
-    fig = plt.figure()
-    ax = []
     for i, case in enumerate(cases):
         row = (i // cols)
         col = i % cols
-        ax.append(fig.add_subplot(gs[row, col]))
-        ax[-1].set_title('markevery=%s' % str(case))
-        ax[-1].set_xscale('log')
-        ax[-1].set_yscale('log')
-        ax[-1].plot(x, y, 'o', ls='-', ms=4,  markevery=case)
+        plt.subplot(gs[row, col])
+        plt.title('markevery=%s' % str(case))
+        plt.xscale('log')
+        plt.yscale('log')
+        plt.plot(x, y, 'o', ls='-', ms=4,  markevery=case)
 
 @image_comparison(baseline_images=['markevery_polar'],
                   remove_text=True)
@@ -948,14 +942,12 @@ def test_markevery_polar():
     r = np.linspace(0, 3.0, 200)
     theta = 2 * np.pi * r
 
-    fig = plt.figure()
-    ax = []
     for i, case in enumerate(cases):
         row = (i // cols)
         col = i % cols
-        ax.append(fig.add_subplot(gs[row, col], polar = True))
-        ax[-1].set_title('markevery=%s' % str(case))
-        ax[-1].plot(theta, r, 'o', ls='-', ms=4,  markevery=case)
+        plt.subplot(gs[row, col], polar = True)
+        plt.title('markevery=%s' % str(case))
+        plt.plot(theta, r, 'o', ls='-', ms=4,  markevery=case)
 
 
 @image_comparison(baseline_images=['marker_edges'],
