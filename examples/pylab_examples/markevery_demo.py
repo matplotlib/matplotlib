@@ -35,7 +35,7 @@ figsize = (10, 8)
 cols = 3
 gs = gridspec.GridSpec(len(cases) // cols + 1, cols)
 
-#define the data for catesian plots
+#define the data for cartesian plots
 delta = 0.11
 x = np.linspace(0, 10 - 2 * delta, 200) + delta
 y = np.sin(x) + 1.0 + delta
