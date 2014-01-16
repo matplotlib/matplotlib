@@ -2403,39 +2403,6 @@ class FigureCanvasBase(object):
         self._looping = False
 
 
-def key_press_handler(event, canvas, toolbar=None):
-    """
-    Implement the default mpl key bindings for the canvas and toolbar
-    described at :ref:`key-event-handling`
-
-    *event*
-      a :class:`KeyEvent` instance
-    *canvas*
-      a :class:`FigureCanvasBase` instance
-    *toolbar*
-      a :class:`NavigationToolbar2` instance
-
-    """
-    if event.inaxes is None:
-        return
-
-    elif (event.key.isdigit() and event.key != '0') or event.key in all:
-        # keys in list 'all' enables all axes (default key 'a'),
-        # otherwise if key is a number only enable this particular axes
-        # if it was the axes, where the event was raised
-        if not (event.key in all):
-            n = int(event.key) - 1
-        for i, a in enumerate(canvas.figure.get_axes()):
-            # consider axes, in which the event was raised
-            # FIXME: Why only this axes?
-            if event.x is not None and event.y is not None \
-                    and a.in_axes(event):
-                if event.key in all:
-                    a.set_navigate(True)
-                else:
-                    a.set_navigate(i == n)
-
-
 class NonGuiException(Exception):
     pass
 
@@ -2461,7 +2428,7 @@ class ToolBase(object):
         self.activate(event)
 
     def activate(self, event):
-        print('Without action:', self.name, self.description)
+        pass
 
 
 class ToolQuit(ToolBase):
