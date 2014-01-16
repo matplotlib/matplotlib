@@ -66,7 +66,7 @@ def set_defaults(cls, key, new_defaults):
     @wraps(orig_fun)
     def wrapper(*args, **kwargs):
         for k, v in new_defaults.iteritems():
-            if k not in kwargs and kwargs[k] is not None:
+            if k not in kwargs or kwargs[k] is None:
                 kwargs[k] = v
         return orig_fun(*args, **kwargs)
 
