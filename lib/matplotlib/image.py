@@ -354,8 +354,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
         l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
         gc = renderer.new_gc()
-        gc.set_clip_rectangle(self.axes.bbox.frozen())
-        gc.set_clip_path(self.get_clip_path())
+        self._set_gc_clip(gc)
         gc.set_alpha(self.get_alpha())
 
         if self._check_unsampled_image(renderer):
