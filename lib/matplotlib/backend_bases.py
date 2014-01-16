@@ -2416,38 +2416,38 @@ def key_press_handler(event, canvas, toolbar=None):
     """
     # these bindings happen whether you are over an axes or not
 
-    if event.key is None:
-        return
+#    if event.key is None:
+#        return
 
     # Load key-mappings from your matplotlibrc file.
-    fullscreen_keys = rcParams['keymap.fullscreen']
-    home_keys = rcParams['keymap.home']
+#    fullscreen_keys = rcParams['keymap.fullscreen']
+#    home_keys = rcParams['keymap.home']
     back_keys = rcParams['keymap.back']
     forward_keys = rcParams['keymap.forward']
-    pan_keys = rcParams['keymap.pan']
-    zoom_keys = rcParams['keymap.zoom']
+#    pan_keys = rcParams['keymap.pan']
+#    zoom_keys = rcParams['keymap.zoom']
     save_keys = rcParams['keymap.save']
-    quit_keys = rcParams['keymap.quit']
-    grid_keys = rcParams['keymap.grid']
+#    quit_keys = rcParams['keymap.quit']
+#    grid_keys = rcParams['keymap.grid']
     toggle_yscale_keys = rcParams['keymap.yscale']
     toggle_xscale_keys = rcParams['keymap.xscale']
     all = rcParams['keymap.all_axes']
 
-    # toggle fullscreen mode (default key 'f')
-    if event.key in fullscreen_keys:
-        canvas.manager.full_screen_toggle()
+#    # toggle fullscreen mode (default key 'f')
+#    if event.key in fullscreen_keys:
+#        canvas.manager.full_screen_toggle()
 
     # quit the figure (defaut key 'ctrl+w')
-    if event.key in quit_keys:
-        Gcf.destroy_fig(canvas.figure)
+#    if event.key in quit_keys:
+#        Gcf.destroy_fig(canvas.figure)
 
     if toolbar is not None:
         # home or reset mnemonic  (default key 'h', 'home' and 'r')
-        if event.key in home_keys:
-            toolbar.home()
+#        if event.key in home_keys:
+#            toolbar.home()
         # forward / backward keys to enable left handed quick navigation
         # (default key for backward: 'left', 'backspace' and 'c')
-        elif event.key in back_keys:
+        if event.key in back_keys:
             toolbar.back()
         # (default key for forward: 'right' and 'v')
         elif event.key in forward_keys:
@@ -2468,9 +2468,9 @@ def key_press_handler(event, canvas, toolbar=None):
     # these bindings require the mouse to be over an axes to trigger
 
     # switching on/off a grid in current axes (default key 'g')
-    if event.key in grid_keys:
-        event.inaxes.grid()
-        canvas.draw()
+#    if event.key in grid_keys:
+#        event.inaxes.grid()
+#        canvas.draw()
     # toggle scaling of y-axes between 'log and 'linear' (default key 'l')
     elif event.key in toggle_yscale_keys:
         ax = event.inaxes
@@ -2513,6 +2513,192 @@ class NonGuiException(Exception):
     pass
 
 
+class ToolBase(object):
+    keymap = None
+    position = None
+    description = None
+    name = None
+    image = None
+    toggle = False  # Change the status (take control of the events)
+
+    def __init__(self):
+        pass
+
+    def action(self, figure, event):
+        print('Without action:', self.name, self.description)
+
+
+class ToolQuit(ToolBase):
+    description = 'Quit the figure'
+    keymap = rcParams['keymap.quit']
+
+    def action(self, figure, event):
+        Gcf.destroy_fig(figure)
+
+
+class ToolToggleGrid(ToolBase):
+    description = 'Toogle Grid'
+    keymap = rcParams['keymap.grid']
+
+    def action(self, figure, event):
+        if event.inaxes is None:
+            return
+        event.inaxes.grid()
+        figure.canvas.draw()
+
+
+class ToolToggleFullScreen(ToolBase):
+    description = 'Toogle Fullscreen mode'
+    keymap = rcParams['keymap.fullscreen']
+
+    def action(self, figure, event):
+        figure.canvas.manager.full_screen_toggle()
+
+
+class ToolHome(ToolBase):
+    description = 'Reset original view'
+    name = 'Home'
+    image = 'home'
+    keymap = rcParams['keymap.home']
+    position = 0
+
+
+class ToolToggleBase(ToolBase):
+    toggle = True
+    capture_keypress = False
+    status = False
+
+    def key_press(self, figure, event):
+        pass
+
+#    def action(self, figure, event):
+#        self.status = not self.status
+
+
+class ToolZoom(ToolToggleBase):
+    description = 'Zoom to rectangle'
+    name = 'Zoom'
+    image = 'zoom_to_rect'
+    position = 1
+    keymap = rcParams['keymap.zoom']
+
+
+class ToolPan(ToolToggleBase):
+    keymap = rcParams['keymap.pan']
+    name = 'Pan'
+    description = 'Pan axes with left mouse, zoom with right'
+    image = 'move'
+    position = 2
+
+
+class NavigationBase(object):
+    tools = [ToolToggleGrid,
+             ToolToggleFullScreen,
+             ToolQuit,
+             ToolHome,
+             ToolZoom,
+             ToolPan]
+
+    def __init__(self, canvas, toolbar=None):
+        self.canvas = canvas
+        self.toolbar = self._get_toolbar(toolbar, canvas)
+
+        self._key_press_handler_id = self.canvas.mpl_connect('key_press_event',
+                                                            self.key_press)
+
+        self._idDrag = self.canvas.mpl_connect('motion_notify_event',
+                                               self.mouse_move)
+        self._tools = {}
+        self._keys = {}
+        self._toggled = None
+        self._toolitems = {}  # Toolbar items
+
+        for tool in self.tools:
+            self.add_tool(tool)
+
+    def _get_toolbar(self, toolbar, canvas):
+        # must be inited after the window, drawingArea and figure
+        # attrs are set
+        if rcParams['toolbar'] == 'toolbar2'  and toolbar is not None:
+            toolbar = toolbar(canvas.manager)
+        else:
+            toolbar = None
+        return toolbar
+
+    def add_tool(self, tool):
+        from matplotlib.rcsetup import validate_stringlist
+        instance = tool()
+        id_ = id(instance)
+        self._tools[id_] = instance
+        if instance.keymap is not None:
+            for k in validate_stringlist(instance.keymap):
+                self._keys[k] = id_
+
+        if self.toolbar and tool.position is not None:
+            basedir = os.path.join(rcParams['datapath'], 'images')
+            fname = os.path.join(basedir, tool.image + '.png')
+            toolitem = self.toolbar.add_toolitem(tool.name, tool.description,
+                                                 fname,
+                                                 tool.position,
+                                                 tool.toggle,
+                                                 id_)
+            self._toolitems[id_] = toolitem
+
+    def key_press(self, event):
+        """
+        Implement the default mpl key bindings defined at
+        :ref:`key-event-handling`
+        """
+
+        if event.key is None:
+            return
+
+        if self._toggled and self._tools[self._toggled].capture_keypress:
+            self._tools[self._toggled].key_press(self.canvas.figure, event)
+            return
+
+        id_ = self._keys.get(event.key, False)
+        if id_:
+            if id_ in self._toolitems:
+                #For toolbar items, it is safer to pass by the toolbar
+                #so no back and forth for toggling
+                self.toolbar.click(self._toolitems[id_], id_)
+            else:
+                self._tools[id_].action(self.canvas.figure, event)
+
+    def toolbar_callback(self, tool_id):
+        self._tools[tool_id].action(self.canvas.figure, None)
+
+    def list_tools(self):
+        print ("{0:40} {1}".format('Tool description', 'Keymap'))
+        print ('_' * 50, '\n')
+        for id_, tool in self._tools.items():
+            keys = [k for k, i in self._keys.items() if i == id_]
+            print ("{0:40} {1}".format(tool.description, ', '.join(keys)))
+
+    def update(self, fig):
+        """Reset the axes stack"""
+        pass
+#        self._views.clear()
+#        self._positions.clear()
+#        self.set_history_buttons()
+
+    def mouse_move(self, event):
+        if self.toolbar is None:
+            return
+
+        if event.inaxes and event.inaxes.get_navigate():
+            try:
+                s = event.inaxes.format_coord(event.xdata, event.ydata)
+            except (ValueError, OverflowError):
+                pass
+            else:
+#                if len(self.mode):
+#                    self.set_message('%s, %s' % (self.mode, s))
+#                else:
+                self.toolbar.set_message(s)
+
+
 class FigureManagerBase:
     """
     Helper class for pyplot mode, wraps everything up into a neat bundle
@@ -2530,8 +2716,8 @@ class FigureManagerBase:
         canvas.manager = self  # store a pointer to parent
         self.num = num
 
-        self.key_press_handler_id = self.canvas.mpl_connect('key_press_event',
-                                                            self.key_press)
+#        self.key_press_handler_id = self.canvas.mpl_connect('key_press_event',
+#                                                            self.key_press)
         """
         The returned id from connecting the default key handler via
         :meth:`FigureCanvasBase.mpl_connnect`.
@@ -2562,12 +2748,13 @@ class FigureManagerBase:
         """"For gui backends, resize the window (in pixels)."""
         pass
 
-    def key_press(self, event):
-        """
-        Implement the default mpl key bindings defined at
-        :ref:`key-event-handling`
-        """
-        key_press_handler(event, self.canvas, self.canvas.toolbar)
+#    def key_press(self, event):
+#        """
+#        Implement the default mpl key bindings defined at
+#        :ref:`key-event-handling`
+#        """
+#        print ('key press')
+#        key_press_handler(event, self.canvas, self.canvas.toolbar)
 
     def show_popup(self, msg):
         """
@@ -2594,6 +2781,22 @@ class Cursors:
     # this class is only used as a simple namespace
     HAND, POINTER, SELECT_REGION, MOVE = list(range(4))
 cursors = Cursors()
+
+
+class ToolbarBase(object):
+    def __init__(self, manager):
+        pass
+
+    def add_toolitem(self, name, description, image_file, position,
+                     toggle, tool_id):
+        raise NotImplementedError
+
+    def add_separator(self, pos):
+        pass
+
+    def set_message(self, s):
+        """Display a message on toolbar or in status bar"""
+        pass
 
 
 class NavigationToolbar2(object):
@@ -2672,8 +2875,8 @@ class NavigationToolbar2(object):
         self._active = None
         self._lastCursor = None
         self._init_toolbar()
-        self._idDrag = self.canvas.mpl_connect(
-            'motion_notify_event', self.mouse_move)
+#        self._idDrag = self.canvas.mpl_connect(
+#            'motion_notify_event', self.mouse_move)
 
         self._ids_zoom = []
         self._zoom_mode = None
@@ -2684,9 +2887,9 @@ class NavigationToolbar2(object):
         self.mode = ''  # a mode string for the status bar
         self.set_history_buttons()
 
-    def set_message(self, s):
-        """Display a message on toolbar or in status bar"""
-        pass
+#    def set_message(self, s):
+#        """Display a message on toolbar or in status bar"""
+#        pass
 
     def back(self, *args):
         """move back up the view lim stack"""
@@ -2709,12 +2912,12 @@ class NavigationToolbar2(object):
         self.set_history_buttons()
         self._update_view()
 
-    def home(self, *args):
-        """Restore the original view"""
-        self._views.home()
-        self._positions.home()
-        self.set_history_buttons()
-        self._update_view()
+#    def home(self, *args):
+#        """Restore the original view"""
+#        self._views.home()
+#        self._positions.home()
+#        self.set_history_buttons()
+#        self._update_view()
 
     def _init_toolbar(self):
         """

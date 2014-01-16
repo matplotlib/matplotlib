@@ -29,7 +29,8 @@ except ImportError:
 import matplotlib
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
+     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, \
+     TimerBase, NavigationBase, ToolbarBase
 from matplotlib.backend_bases import ShowBase
 
 from matplotlib.cbook import is_string_like, is_writable_file_like
@@ -375,8 +376,8 @@ class FigureManagerGTK3(FigureManagerBase):
     def __init__(self, canvas, num):
         if _debug: print('FigureManagerGTK3.%s' % fn_name())
         FigureManagerBase.__init__(self, canvas, num)
-
         self.window = Gtk.Window()
+        self.navigation = NavigationGTK3(canvas, ToolbarGTK3)
         self.set_window_title("Figure %d" % num)
         try:
             self.window.set_icon_from_file(window_icon)
@@ -399,7 +400,8 @@ class FigureManagerGTK3(FigureManagerBase):
 
         self.vbox.pack_start(self.canvas, True, True, 0)
 
-        self.toolbar = self._get_toolbar(canvas)
+#        self.toolbar = self._get_toolbar(canvas)
+        self.toolbar = self.navigation.toolbar
 
         # calculate size for window
         w = int (self.canvas.figure.bbox.width)
@@ -422,7 +424,8 @@ class FigureManagerGTK3(FigureManagerBase):
 
         def notify_axes_change(fig):
             'this will be called whenever the current axes is changed'
-            if self.toolbar is not None: self.toolbar.update()
+#            if self.toolbar is not None: self.toolbar.update()
+            self.navigation.update(fig)
         self.canvas.figure.add_axobserver(notify_axes_change)
 
         self.canvas.grab_focus()
@@ -476,6 +479,71 @@ class FigureManagerGTK3(FigureManagerBase):
         self.window.resize(width, height)
 
 
+class NavigationGTK3(NavigationBase):
+    pass
+
+
+class ToolbarGTK3(ToolbarBase, Gtk.Box,):
+    def __init__(self, manager):
+        self.manager = manager
+#        self.win = manager.window
+        Gtk.Box.__init__(self)
+        self.set_property("orientation", Gtk.Orientation.VERTICAL)
+        ToolbarBase.__init__(self, manager)
+        self._toolbar = Gtk.Toolbar()
+        self._toolbar.set_style(Gtk.ToolbarStyle.ICONS)
+        self.pack_start(self._toolbar, False, False, 0)
+        self._toolbar.show_all()
+
+        self._add_message()
+
+    def _add_message(self):
+        box = Gtk.Box()
+        box.set_property("orientation", Gtk.Orientation.HORIZONTAL)
+        sep = Gtk.Separator()
+        sep.set_property("orientation", Gtk.Orientation.VERTICAL)
+        box.pack_start(sep, False, True, 0)
+        self.message = Gtk.Label()
+        box.pack_end(self.message, False, False, 0)
+        self.pack_end(box, False, False, 5)
+        box.show_all()
+
+        sep = Gtk.Separator()
+        sep.set_property("orientation", Gtk.Orientation.HORIZONTAL)
+        self.pack_end(sep, False, True, 0)
+        sep.show_all()
+
+    def add_toolitem(self, text, tooltip_text, image_file, position,
+                     toggle, tool_id):
+        image = Gtk.Image()
+        image.set_from_file(image_file)
+        if toggle:
+            tbutton = Gtk.ToggleToolButton()
+        else:
+            tbutton = Gtk.ToolButton()
+        tbutton.set_label(text)
+        tbutton.set_icon_widget(image)
+        self._toolbar.insert(tbutton, position)
+        tbutton.connect('clicked', self._call_tool, tool_id)
+        tbutton.set_tooltip_text(tooltip_text)
+        tbutton.show_all()
+        return tbutton
+#        self.show_all()
+
+    def _call_tool(self, btn, tool_id):
+        self.manager.navigation.toolbar_callback(tool_id)
+
+    def set_message(self, s):
+        self.message.set_label(s)
+
+    def click(self, toolitem, tool_id):
+        if isinstance(toolitem, Gtk.ToggleToolButton):
+            status = toolitem.get_active()
+            toolitem.set_active(not status)
+        else:
+            self._call_tool(toolitem, tool_id)
+
+
 class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
     def __init__(self, canvas, window):
         self.win = window
@@ -483,8 +551,8 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         NavigationToolbar2.__init__(self, canvas)
         self.ctx = None
 
-    def set_message(self, s):
-        self.message.set_label(s)
+#    def set_message(self, s):
+#        self.message.set_label(s)
 
     def set_cursor(self, cursor):
         self.canvas.get_property("window").set_cursor(cursord[cursor])
