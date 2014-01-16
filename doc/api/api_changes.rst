@@ -17,6 +17,16 @@ For new features that were added to matplotlib, please see
 Changes in 1.3.x
 ================
 
+* changed default value of `fmt` kwarg of `errorbar` from `'-'` to
+  `''` so that `errorbar` will respect `lines.linestyle` for drawing
+  the line.  I think the only scenario where this will break reverse
+  compatibility is cases where users have set a non-default value for
+  `lines.linestyle`, but do not want the lines drawn by `errorbar` to
+  respect that.  I think that this use case is broken because
+  `lines.linestyle` should be respected by plotting functions which
+  draw lines.
+
+
 Changes in 1.3.1
 ----------------
 

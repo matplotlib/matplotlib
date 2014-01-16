@@ -5484,7 +5484,7 @@ class Axes(martist.Artist):
 
     @docstring.dedent_interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
-                 fmt='-', ecolor=None, elinewidth=None, capsize=3,
+                 fmt='', ecolor=None, elinewidth=None, capsize=3,
                  barsabove=False, lolims=False, uplims=False,
                  xlolims=False, xuplims=False, errorevery=1, capthick=None,
                  **kwargs):
@@ -5586,7 +5586,6 @@ class Axes(martist.Artist):
         .. plot:: mpl_examples/statistics/errorbar_demo.py
 
         """
-
         if errorevery < 1:
             raise ValueError(
                 'errorevery has to be a strictly positive integer')
