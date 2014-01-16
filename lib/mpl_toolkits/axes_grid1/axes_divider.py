@@ -554,10 +554,10 @@ class AxesDivider(Divider):
         if pack_start:
             self._horizontal.insert(0, size)
             self._xrefindex += 1
-            locator = self.new_locator(nx=0, ny=0)
+            locator = self.new_locator(nx=0, ny=self._yrefindex)
         else:
             self._horizontal.append(size)
-            locator = self.new_locator(nx=len(self._horizontal)-1, ny=0)
+            locator = self.new_locator(nx=len(self._horizontal)-1, ny=self._yrefindex)
 
         ax = self._get_new_axes(**kwargs)
         ax.set_axes_locator(locator)
@@ -601,10 +601,10 @@ class AxesDivider(Divider):
         if pack_start:
             self._vertical.insert(0, size)
             self._yrefindex += 1
-            locator = self.new_locator(nx=0, ny=0)
+            locator = self.new_locator(nx=self._xrefindex, ny=0)
         else:
             self._vertical.append(size)
-            locator = self.new_locator(nx=0, ny=len(self._vertical)-1)
+            locator = self.new_locator(nx=self._xrefindex, ny=len(self._vertical)-1)
 
         ax = self._get_new_axes(**kwargs)
         ax.set_axes_locator(locator)
