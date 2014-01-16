@@ -7247,8 +7247,9 @@ class Axes(martist.Artist):
             corner of the axes. If None, default to rc `image.origin`.
 
         extent : scalars (left, right, bottom, top), optional, default: None
-            Data limits for the axes.  The default assigns zero-based row,
-            column indices to the `x`, `y` centers of the pixels.
+            The location, in data-coordinates, of the lower-left and upper-right corners
+            of the image.  If `None`, and extent such that the pixel _centers_
+            fall on  zero-based row, column indices is used.
 
         shape : scalars (columns, rows), optional, default: None
             For raw buffer images
