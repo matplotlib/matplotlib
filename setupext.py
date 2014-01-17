@@ -1679,9 +1679,12 @@ class BackendGtk3Agg(OptionalBackendPackage):
 
 def backend_gtk3cairo_internal_check(x):
     try:
-        import cairo
+        import cairocffi
     except ImportError:
-        return (False, "Requires cairo to be installed.")
+        try:
+            import cairo
+        except ImportError:
+            return (False, "Requires cairocffi or pycairo to be installed.")
 
     try:
         import gi
@@ -1871,11 +1874,16 @@ class BackendCairo(OptionalBackendPackage):
 
     def check_requirements(self):
         try:
-            import cairo
+            import cairocffi
         except ImportError:
-            raise CheckFailed("cairo not found")
+            try:
+                import cairo
+            except ImportError:
+                raise CheckFailed("cairocffi or pycairo not found")
+            else:
+                return "pycairo version %s" % cairo.version
         else:
-            return "version %s" % cairo.version
+            return "cairocffi version %s" % cairocffi.version
 
 
 class DviPng(SetupPackage):
