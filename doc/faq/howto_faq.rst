@@ -693,9 +693,9 @@ or by saving to a file handle::
     import sys
     fig.savefig(sys.stdout)
 
-Here is an example using the Python Imaging Library (PIL).  First, the figure
-is saved to a StringIO object which is then fed to PIL for further
-processing::
+Here is an example using `Pillow <http://python-imaging.github.io/>__.
+First, the figure is saved to a StringIO object which is then fed to
+Pillow for further processing::
 
     import StringIO, Image
     imgdata = StringIO.StringIO()
