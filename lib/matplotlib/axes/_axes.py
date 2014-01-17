@@ -3139,7 +3139,7 @@ class Axes(_AxesBase):
         else:
             final_meanprops = dict(linestyle='none', markerfacecolor='red',
                                    marker='s')
-        if final_meanprops is not None:
+        if meanprops is not None:
             final_meanprops.update(meanprops)
 
         def to_vc(xs, ys):
