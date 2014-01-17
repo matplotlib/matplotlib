@@ -656,6 +656,14 @@ class ToolbarGTK3(ToolbarBase, Gtk.Box,):
         if not callback:
             self._toolitems[name].handler_unblock(self._signals[name])
 
+    def remove_toolitem(self, name):
+        if name not in self._toolitems:
+            #TODO: raise warning
+            print('Not in toolbar', name)
+            return
+        self._toolbar.remove(self._toolitems[name])
+        del self._toolitems[name]
+
 
 class FileChooserDialog(Gtk.FileChooserDialog):
     """GTK+ file selector which remembers the last file/directory

@@ -2973,8 +2973,20 @@ class NavigationBase(object):
 
     #remove persistent instances
     def unregister(self, name):
+        if self._toggled == name:
+            self._handle_toggle(name, from_toolbar=False)
         if name in self._instances:
             del self._instances[name]
+
+    def remove_tool(self, name):
+        self.unregister(name)
+        del self._tools[name]
+        keys = [k for k, v in self._keys.items() if v == name]
+        for k in keys:
+            del self._keys[k]
+
+        if self.toolbar:
+            self.toolbar.remove_toolitem(name)
 
     def add_tool(self, callback_class):
         tool = self._get_cls_to_instantiate(callback_class)
@@ -2995,7 +3007,10 @@ class NavigationBase(object):
 
         if self.toolbar and tool.position is not None:
             basedir = os.path.join(rcParams['datapath'], 'images')
-            fname = os.path.join(basedir, tool.image + '.png')
+            if tool.image is not None:
+                fname = os.path.join(basedir, tool.image + '.png')
+            else:
+                fname = 'Unknown'
             self.toolbar.add_toolitem(name, tool.description,
                                       fname,
                                       tool.position,
@@ -3089,13 +3104,16 @@ class NavigationBase(object):
             a.set_navigate_mode(self._toggled)
 
     def list_tools(self):
-        print ("{0:20} {1:40} {2}".format('Name (id)', 'Tool description',
+        print ('_' * 80)
+        print ("{0:20} {1:50} {2}".format('Name (id)', 'Tool description',
                                           'Keymap'))
-        print ('_' * 50, '\n')
-        for id_, tool in self._tools.items():
-            keys = [k for k, i in self._keys.items() if i == id_]
-            print ("{0:20} {1:40} {2}".format(tool.name, tool.description,
+        print ('_' * 80)
+        for name in sorted(self._tools.keys()):
+            tool = self._tools[name]
+            keys = [k for k, i in self._keys.items() if i == name]
+            print ("{0:20} {1:50} {2}".format(tool.name, tool.description,
                                               ', '.join(keys)))
+        print ('_' * 80, '\n')
 
     def update(self):
         """Reset the axes stack"""
@@ -3317,3 +3335,6 @@ class ToolbarBase(object):
     def toggle(self, name, callback=False):
         #carefull, callback means to perform or not the callback while toggling
         raise NotImplementedError
+
+    def remove_toolitem(self, name):
+        pass
