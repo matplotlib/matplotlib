@@ -3,6 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from collections import namedtuple, defaultdict
 from copy import copy
+import inspect
 import json
 
 from functools import wraps
@@ -172,7 +173,7 @@ def string_to_class(klass):
             raise_invalid_class_path_error(split_klass)
         last_level = getattr(last_level, _k)
 
-    if not isinstance(last_level, object):
+    if not inspect.isclass(last_level):
         raise_invalid_class_path_error(split_klass)
 
     return last_level
