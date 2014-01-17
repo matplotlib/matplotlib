@@ -3,11 +3,14 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from collections import namedtuple, defaultdict
 from copy import copy
+import inspect
 import json
 
 from functools import wraps
 
 import matplotlib
+from .parse_user_config import update_config_dict_from_user_config
+
 
 _kw_dict_nm = '_kw_defaults'
 _kw_entry = namedtuple('_kw_entry', ['orig_funtion', 'kw_dict'])
@@ -149,6 +152,11 @@ def reset_defaults(cls, key):
         setattr(cls, key, orig_fun)
 
 
+def raise_invalid_class_path_error(class_parts):
+    class_path = '.'.join(class_parts)
+    raise ValueError("Invalid class: %s" % class_path)
+
+
 def string_to_class(klass):
     """
     Turns a string -> a class object
@@ -162,15 +170,16 @@ def string_to_class(klass):
 
     for _k in split_klass:
         if not hasattr(last_level, _k):
-            raise ValueError("not valid, make msg better")
+            raise_invalid_class_path_error(split_klass)
         last_level = getattr(last_level, _k)
-    if not isinstance(last_level, type):
-        raise ValueError("not valid, make msg better")
+
+    if not inspect.isclass(last_level):
+        raise_invalid_class_path_error(split_klass)
 
     return last_level
 
 
-class RcParamsNG(object):
+class MPLConfig(object):
     """
     A class for keeping track of default values
     """
@@ -250,7 +259,7 @@ class RcParamsNG(object):
     @classmethod
     def from_json(cls, in_file_path):
         """
-        Creates a new RcParamsNG object from a json file.  (see
+        Creates a new MPLConfig object from a json file.  (see
         `to_json` to dump to json).
 
         Parameters
@@ -261,3 +270,9 @@ class RcParamsNG(object):
         with open(in_file_path, 'r') as fin:
             in_dict = json.load(fin)
         return cls(in_dict)
+
+    @classmethod
+    def from_user_config(cls, user_config):
+        config_dict = {}
+        update_config_dict_from_user_config(config_dict, user_config)
+        return cls(config_dict)

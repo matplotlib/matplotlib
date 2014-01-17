@@ -1,0 +1,8 @@
+{
+"lines.linewidth":
+    [
+        "collections.LineCollection:__init__:linewidths",
+        "contour.ContourSet:__init__:linewidths",
+        "lines.Line2D:__init__:linewidth"
+    ]
+}
