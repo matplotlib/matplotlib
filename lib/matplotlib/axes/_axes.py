@@ -3184,11 +3184,13 @@ class Axes(_AxesBase):
         N = len(bxpstats)
         datashape_message = "List of boxplot statistics and `{0}` " \
                             "value must have same length"
+        # check postision
         if positions is None:
             positions = list(xrange(1, N + 1))
         elif len(positions) != N:
             raise ValueError(datashape_message.format("positions"))
 
+        # width
         if widths is None:
             distance = max(positions) - min(positions)
             widths = [min(0.15 * max(distance, 1.0), 0.5)] * N
@@ -3197,9 +3199,9 @@ class Axes(_AxesBase):
         elif len(widths) != N:
             raise ValueError(datashape_message.format("widths"))
 
+        # check and save the `hold` state of the current axes
         if not self._hold:
             self.cla()
-
         holdStatus = self._hold
 
         for pos, width, stats in zip(positions, widths, bxpstats):
