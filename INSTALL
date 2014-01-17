@@ -209,7 +209,13 @@ libpng 1.2 (or later)
     using pip, easy_install or installing from source, the installer
     will attempt to download and install `pyparsing` from PyPI.
 
-**Optional**
+**Optional dependencies**
+
+`Pillow http://python-imaging.github.io/`__
+    If Pillow is installed, matplotlib can read and write a larger
+    selection of image file formats.
+
+**Optional GUI frameworks**
 
 These are optional packages which you may want to install to use
 matplotlib with a user interface toolkit. See
