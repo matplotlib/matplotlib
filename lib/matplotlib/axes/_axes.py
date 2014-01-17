@@ -2937,7 +2937,7 @@ class Axes(_AxesBase):
 
         # replace medians if necessary:
         if usermedians is not None:
-            if len(usermedians) != len(bxpstats):
+            if len(np.ravel(usermedians)) != len(bxpstats):
                 medmsg = 'usermedians length not compatible with x'
                 raise ValueError(medmsg)
             else:
@@ -3100,38 +3100,47 @@ class Axes(_AxesBase):
             'dotted': ':'
         }
 
-        # plotting properties
-        if boxprops is None:
-            if patch_artist:
-                boxprops = dict(linestyle='solid', edgecolor='black',
-                                facecolor='white', linewidth=1)
-            else:
-                boxprops = dict(linestyle='-', color='black', linewidth=1)
+        # box properties
+        if patch_artist:
+            final_boxprops = dict(linestyle='solid', edgecolor='black',
+                                  facecolor='white', linewidth=1)
+        else:
+            final_boxprops = dict(linestyle='-', color='black', linewidth=1)
 
+        if boxprops is not None:
+            final_boxprops.update(boxprops)
+
+        # other (cap, whisker) properties
         if patch_artist:
             otherprops = dict(
-                linestyle=linestyle_map[boxprops['linestyle']],
-                color=boxprops['edgecolor'],
-                linewidth=boxprops.get('linewidth', 1)
+                linestyle=linestyle_map[final_boxprops['linestyle']],
+                color=final_boxprops['edgecolor'],
+                linewidth=final_boxprops.get('linewidth', 1)
             )
         else:
-            otherprops = dict(linestyle=boxprops['linestyle'],
-                              color=boxprops['color'],
-                              linewidth=boxprops.get('linewidth', 1))
+            otherprops = dict(linestyle=final_boxprops['linestyle'],
+                              color=final_boxprops['color'],
+                              linewidth=final_boxprops.get('linewidth', 1))
 
-        if flierprops is None:
-            flierprops = dict(linestyle='none', marker='+',
-                              markeredgecolor='blue')
+        # flier (outlier) properties
+        final_flierprops = dict(linestyle='none', marker='+',
+                                markeredgecolor='blue')
+        if flierprops is not None:
+            final_flierprops.update(flierprops)
 
-        if medianprops is None:
-            medianprops = dict(linestyle='-', color='blue')
+        # median line properties
+        final_medianprops = dict(linestyle='-', color='blue')
+        if medianprops is not None:
+            final_medianprops.update(medianprops)
 
-        if meanprops is None:
-            if meanline:
-                meanprops = dict(linestyle='--', color='red')
-            else:
-                meanprops = dict(linestyle='none', markerfacecolor='red',
-                                 marker='s')
+        # mean (line or point) properties
+        if meanline:
+            final_meanprops = dict(linestyle='--', color='red')
+        else:
+            final_meanprops = dict(linestyle='none', markerfacecolor='red',
+                                   marker='s')
+        if final_meanprops is not None:
+            final_meanprops.update(meanprops)
 
         def to_vc(xs, ys):
             # convert arguments to verts and codes
@@ -3239,54 +3248,37 @@ class Axes(_AxesBase):
             # maybe draw the box:
             if showbox:
                 if patch_artist:
-                    boxes.extend(dopatch(
-                        box_x, box_y, **boxprops
-                    ))
+                    boxes.extend(dopatch(box_x, box_y, **final_boxprops))
                 else:
-                    boxes.extend(doplot(
-                        box_x, box_y, **boxprops
-                    ))
+                    boxes.extend(doplot(box_x, box_y, **final_boxprops))
 
             # draw the whiskers
-            whiskers.extend(doplot(
-                whisker_x, whiskerlo_y, **otherprops
-            ))
-            whiskers.extend(doplot(
-                whisker_x, whiskerhi_y, **otherprops
-            ))
+            whiskers.extend(doplot(whisker_x, whiskerlo_y, **otherprops))
+            whiskers.extend(doplot(whisker_x, whiskerhi_y, **otherprops))
 
             # maybe draw the caps:
             if showcaps:
-                caps.extend(doplot(
-                    cap_x, cap_lo, **otherprops
-                ))
-                caps.extend(doplot(
-                    cap_x, cap_hi, **otherprops
-                ))
+                caps.extend(doplot(cap_x, cap_lo, **otherprops))
+                caps.extend(doplot(cap_x, cap_hi, **otherprops))
 
             # draw the medians
-            medians.extend(doplot(
-                med_x, med_y, **medianprops
-            ))
+            medians.extend(doplot(med_x, med_y, **final_medianprops))
 
             # maybe draw the means
             if showmeans:
                 if meanline:
                     means.extend(doplot(
-                        [box_left, box_right],
-                        [stats['mean'], stats['mean']],
-                        **meanprops
+                        [box_left, box_right], [stats['mean'], stats['mean']],
+                        **final_meanprops
                     ))
                 else:
                     means.extend(doplot(
-                        [pos], [stats['mean']], **meanprops
+                        [pos], [stats['mean']], **final_meanprops
                     ))
 
             # maybe draw the fliers
             if showfliers:
-                fliers.extend(doplot(
-                    flier_x, flier_y, **flierprops
-                ))
+                fliers.extend(doplot(flier_x, flier_y, **final_flierprops))
 
         # fix our axes/ticks up a little
         if vert:

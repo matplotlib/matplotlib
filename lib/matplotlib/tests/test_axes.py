@@ -1372,11 +1372,17 @@ def test_boxplot_no_weird_whisker():
     ax1.yaxis.grid(False, which='minor')
     ax1.xaxis.grid(False)
 
-def test_boxplot_bad_medians():
+def test_boxplot_bad_medians_1():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
     assert_raises(ValueError, ax.boxplot, x,  usermedians=[1, 2])
+
+def test_boxplot_bad_medians_1():
+    x = np.linspace(-7, 7, 140)
+    x = np.hstack([-25, x, 25])
+    fig, ax = plt.subplots()
+    assert_raises(ValueError, ax.boxplot, [x, x],  usermedians=[[1, 2],[1, 2]])
 
 def test_boxplot_bad_ci_1():
     x = np.linspace(-7, 7, 140)
@@ -1392,8 +1398,7 @@ def test_boxplot_bad_ci_2():
     assert_raises(ValueError, ax.boxplot, [x, x],
                   conf_intervals=[[1, 2], [1]])
 
-@image_comparison(baseline_images=['errorbar_basic',
-                                   'errorbar_mixed'])
+@image_comparison(baseline_images=['errorbar_basic', 'errorbar_mixed'])
 def test_errorbar():
     x = np.arange(0.1, 4, 0.5)
     y = np.exp(-x)
