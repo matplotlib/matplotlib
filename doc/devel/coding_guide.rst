@@ -163,6 +163,34 @@ C/C++ extensions
   docstrings, and the Numpydoc format is well understood in the
   scientific Python community.
 
+Rebase a Pull Request
+----------------------
+
+When working on PR it is possible for other changes to get merged into
+the parent branch that conflict with your branch.  The conflict can be
+trivial, for example both the parent branch and you branch add an
+entry to the top of `CHANGELOG`.  Git can not unambiguously tell what
+to with both changes (should one go above the other? if so, which
+order? should it try to merge them?) so it gives up and declare the
+branches can not be merged cleanly.  If you were the branches at the
+command line you could do an interactive merge where git pauses half
+way through to give you a chance to resolve the conflicts by hand,
+however using github almost all of the merges back into the parent
+branches are done via the web-interface, so only PRs which will
+cleanly merged will be accepted.  If this happens to your PR, one of
+the developers will ask you to 'rebase' your branch which is the
+process by which you resolve the conflicts between your branch and
+the parent branch.
+
+In git rebasing is a mild form of re-writing history, as it
+effectively transplants where your branch from where you intially
+forked of off the parent branch to some other point.  For a much more
+detailed explanation (with pictures!) see
+http://git-scm.com/book/en/Git-Branching-Rebasing.  In general,
+re-writing history (particularly published history) is considered very
+bad, but in this case is very useful.
+
+
 Style guide
 ===========
 
