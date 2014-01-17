@@ -170,7 +170,7 @@ def string_to_class(klass):
     return last_level
 
 
-class RcParamsNG(object):
+class MPLConfig(object):
     """
     A class for keeping track of default values
     """
@@ -250,7 +250,7 @@ class RcParamsNG(object):
     @classmethod
     def from_json(cls, in_file_path):
         """
-        Creates a new RcParamsNG object from a json file.  (see
+        Creates a new MPLConfig object from a json file.  (see
         `to_json` to dump to json).
 
         Parameters
