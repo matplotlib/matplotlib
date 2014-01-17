@@ -167,6 +167,19 @@ def test_image_clip():
 
     im = ax.imshow(d, extent=(-pi,pi,-pi/2,pi/2))
 
+@image_comparison(baseline_images=['image_cliprect'])
+def test_image_cliprect():
+    import matplotlib.patches as patches
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    d = [[1,2],[3,4]]
+
+    im = ax.imshow(d, extent=(0,5,0,5))
+
+    rect = patches.Rectangle(xy=(1,1), width=2, height=2, transform=im.axes.transData)
+    im.set_clip_path(rect)
+
 @image_comparison(baseline_images=['imshow'], remove_text=True)
 def test_imshow():
     import numpy as np
@@ -290,7 +303,7 @@ def test_rasterize_dpi():
 
     axes[2].plot([0,1],[0,1], linewidth=20.)
     axes[2].set(xlim = (0,1), ylim = (-1, 2))
-    
+
     # Low-dpi PDF rasterization errors prevent proper image comparison tests.
     # Hide detailed structures like the axes spines.
     for ax in axes:
