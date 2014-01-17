@@ -8,6 +8,8 @@ import json
 from functools import wraps
 
 import matplotlib
+from .parse_user_config import update_config_dict_from_user_config
+
 
 _kw_dict_nm = '_kw_defaults'
 _kw_entry = namedtuple('_kw_entry', ['orig_funtion', 'kw_dict'])
@@ -149,6 +151,11 @@ def reset_defaults(cls, key):
         setattr(cls, key, orig_fun)
 
 
+def raise_invalid_class_path_error(class_parts):
+    class_path = '.'.join(class_parts)
+    raise ValueError("Invalid class: %s" % class_path)
+
+
 def string_to_class(klass):
     """
     Turns a string -> a class object
@@ -162,10 +169,11 @@ def string_to_class(klass):
 
     for _k in split_klass:
         if not hasattr(last_level, _k):
-            raise ValueError("not valid, make msg better")
+            raise_invalid_class_path_error(split_klass)
         last_level = getattr(last_level, _k)
-    if not isinstance(last_level, type):
-        raise ValueError("not valid, make msg better")
+
+    if not isinstance(last_level, object):
+        raise_invalid_class_path_error(split_klass)
 
     return last_level
 
@@ -261,3 +269,9 @@ class MPLConfig(object):
         with open(in_file_path, 'r') as fin:
             in_dict = json.load(fin)
         return cls(in_dict)
+
+    @classmethod
+    def from_user_config(cls, user_config):
+        config_dict = {}
+        update_config_dict_from_user_config(config_dict, user_config)
+        return cls(config_dict)
