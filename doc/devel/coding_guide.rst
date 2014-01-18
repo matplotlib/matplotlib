@@ -166,29 +166,149 @@ C/C++ extensions
 Rebase a Pull Request
 ----------------------
 
-When working on PR it is possible for other changes to get merged into
-the parent branch that conflict with your branch.  The conflict can be
-trivial, for example both the parent branch and you branch add an
-entry to the top of `CHANGELOG`.  Git can not unambiguously tell what
-to with both changes (should one go above the other? if so, which
-order? should it try to merge them?) so it gives up and declare the
-branches can not be merged cleanly.  If you were the branches at the
-command line you could do an interactive merge where git pauses half
-way through to give you a chance to resolve the conflicts by hand,
-however using github almost all of the merges back into the parent
-branches are done via the web-interface, so only PRs which will
-cleanly merged will be accepted.  If this happens to your PR, one of
-the developers will ask you to 'rebase' your branch which is the
-process by which you resolve the conflicts between your branch and
-the parent branch.
+When working on a PR it is possible for other changes to get merged
+into the parent branch that conflict with changes on your branch.  The
+conflicts can be trivial, for example both the parent branch and your
+branch add an entry to the top of `CHANGELOG`.  Git can not
+unambiguously tell what to with both changes (should one go above the
+other? if so, which order? should it try to merge them?) so it gives
+up and declare the branches can not be merged cleanly.  If you were
+the branches at the command line you could do an interactive merge
+where git pauses half way through to give you a chance to resolve the
+conflicts by hand, however using github almost all of the merges back
+into the parent branches are done via the web-interface, so only PRs
+which will cleanly merged will be accepted.  If this happens to your
+PR, one of the developers will ask you to 'rebase' your branch which
+is the process by which you resolve the conflicts between your branch
+and the parent branch.
 
 In git rebasing is a mild form of re-writing history, as it
 effectively transplants where your branch from where you intially
 forked of off the parent branch to some other point.  For a much more
-detailed explanation (with pictures!) see
-http://git-scm.com/book/en/Git-Branching-Rebasing.  In general,
-re-writing history (particularly published history) is considered very
-bad, but in this case is very useful.
+detailed explanation (with pictures!) see `this nice write up
+<http://git-scm.com/book/en/Git-Branching-Rebasing>`.  In general,
+re-writing history, particularly published history, is considered
+bad form, but in this case it is very useful.
+
+The following example assumes that the remote of _your_ github
+repository is called `github` and the remote of the official
+repository is called `upstream`.
+
+The first step is to make sure that your local copy of the upstream repository is
+up-to-date::
+
+     $ git fetch upstream
+
+which updates your local copy of the repository, but does not change any files
+in your working copy.  Next, switch to the branch that you want to rebase::
+
+     $ git checkout backend_plt_refactor
+
+You are now ready to start the rebase of your branch onto the target
+parent branch, in this case `upstream/master` ::
+
+     $ git rebase upstream/master
+
+and git will then give a bunch of feed back::
+
+     First, rewinding head to replay your work on top of it...
+     Applying: first steps to extract FigureManager* and friends from pyplot
+     Applying: split backend_qt4 into two parts, with and without Gcf
+     Applying: split backend_qt4agg into two parts.
+     Applying: Added a demo-file to show how to use the FigureManager classes to
+     Applying: removed un-needed import of Gcf
+     Applying: pep8 on backend_gtk.py
+     Applying: pep8 clean up in backend_gdk
+     Applying: removed un-needed Gcf import
+     Applying: split backend_gcf into two parts,
+     Applying: pep8 on backend_gtkagg.py
+     Applying: split backend_gktagg.py in to two parts
+     Applying: updated exclude list
+     Applying: pep8 clean up on backend_gtk3.py
+     Using index info to reconstruct a base tree...
+     M       lib/matplotlib/backends/backend_gtk3.py
+     Falling back to patching base and 3-way merge...
+     Auto-merging lib/matplotlib/backends/backend_gtk3.py
+     CONFLICT (content): Merge conflict in lib/matplotlib/backends/backend_gtk3.py
+     Failed to merge in the changes.
+     Patch failed at 0013 pep8 clean up on backend_gtk3.py
+     The copy of the patch that failed is found in:
+        /home/tcaswell/other_source/matplotlib/.git/rebase-apply/patch
+
+     When you have resolved this problem, run "git rebase --continue".
+     If you prefer to skip this patch, run "git rebase --skip" instead.
+     To check out the original branch and stop rebasing, run "git rebase --abort".
+
+A number of commits could be cleanly applied to
+the tip of `upstream/master`,  however, git eventualy hit a commit
+that had conflicts.  In this case in the file
+`lib/matplotlib/backends/backend_gtk3.py`.  For more verbose information run ::
+
+     $ git status
+
+     You are currently rebasing branch 'backend_plt_refactor' on 'e6f8993'.
+       (fix conflicts and then run "git rebase --continue")
+       (use "git rebase --skip" to skip this patch)
+       (use "git rebase --abort" to check out the original branch)
+
+     Unmerged paths:
+       (use "git reset HEAD <file>..." to unstage)
+       (use "git add <file>..." to mark resolution)
+
+             both modified:      lib/matplotlib/backends/backend_gtk3.py
+
+     no changes added to commit (use "git add" and/or "git commit -a")
+
+This exactly where the conflict is and some advice on how to proceed.  Opening
+up the file in question, you will see blocks that look something like this::
+
+     <<<<<<< HEAD
+     =======
+             self.__dict__.clear()   # Is this needed? Other backends don't have it.
+     >>>>>>> pep8 clean up on backend_gtk3.py
+
+The block of code between `<<<<<<<` and `=======` is the code on the
+target branch (in this case nothing) and the code between `=======`
+and `>>>>>>>` is the code on your branch.  The rest of the code is the
+same between the two branches.  You need to determine how to resolve the
+conflict (in this case, the code on HEAD is correct).  Once you have
+resolved all the conflicts, `add` the file to the index::
+
+     $ git add lib/matplotlib/backends/backend_gtk3.py
+
+Repeat this for all of the files that have conflicts.  When you are done with
+that we can check the status::
+
+     $ git status
+     rebase in progress; onto e6f8993
+     You are currently rebasing branch 'backend_plt_refactor' on 'e6f8993'.
+       (all conflicts fixed: run "git rebase --continue")
+
+     Changes to be committed:
+       (use "git reset HEAD <file>..." to unstage)
+
+             modified:   lib/matplotlib/backends/backend_gtk3.py
+
+which shows us that we have resolved all of the conflicts with this
+commit and can continue::
+
+     $ git rebase --continue
+
+You now iterate the until you have made it through all of the commits
+which have conflicts.
+
+Your branch is now rebased, however, because of the way git determines
+the hash of each commit, it now shares no commits with your old branch
+published on github so you can not push to that branch as you would when
+simply adding commits.  In order to publish your newly re-based branch you need to
+use the `--force` flag::
+
+    $ git push --force github
+
+which will _replace_ all of the commits under your branch on github
+with the new versions of the commit.
+
+Congratulations, you have re-based your branch!
 
 
 Style guide
