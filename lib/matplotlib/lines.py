@@ -72,6 +72,7 @@ def segment_hits(cx, cy, x, y, radius):
     #print points,lines
     return np.concatenate((points, lines))
 
+
 def _mark_every_path(markevery, tpath, affine, ax_transform):
     """
     Helper function that sorts out how to deal the input
