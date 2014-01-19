@@ -1505,7 +1505,7 @@ def shade_color(color, percent):
 
     """
 
-    cc = CC()
+    cc = ColorConverter()
 
     rgb = cc.to_rgb(color)
 
