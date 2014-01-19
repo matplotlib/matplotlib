@@ -2798,9 +2798,12 @@ class Axes(_AxesBase):
 
         Call signature::
 
-          boxplot(x, notch=False, sym='+', vert=True, whis=1.5,
+          boxplot(x, notch=False, sym='b+', vert=True, whis=1.5,
                   positions=None, widths=None, patch_artist=False,
-                  bootstrap=None, usermedians=None, conf_intervals=None)
+                  bootstrap=None, usermedians=None, conf_intervals=None,
+                  meanline=False, showmeans=False, showcaps=True,
+                  showbox=True, showfliers=True, boxprops=None, labels=None,
+                  flierprops=None, medianprops=None, meanprops=None)
 
         Make a box and whisker plot for each column of *x* or each
         vector in sequence *x*.  The box extends from the lower to
@@ -2808,24 +2811,25 @@ class Axes(_AxesBase):
         The whiskers extend from the box to show the range of the
         data.  Flier points are those past the end of the whiskers.
 
-        Function Arguments:
+        Parameters
+        ----------
 
-          *x* :
-            Array or a sequence of vectors.
+          x : Array or a sequence of vectors.
+            The input data.
 
-          *notch* : [ False (default) | True ]
-            If False (default), produces a rectangular box plot.
+          notch : bool, default = False
+            If False, produces a rectangular box plot.
             If True, will produce a notched box plot
 
-          *sym* : [ default 'b+' ]
+          sym : str, default = 'b+'
             The default symbol for flier points.
             Enter an empty string ('') if you don't want to show fliers.
 
-          *vert* : [ False | True (default) ]
+          vert : bool, default = False
             If True (default), makes the boxes vertical.
             If False, makes horizontal boxes.
 
-          *whis* : [ float | string | or sequence (default = 1.5) ]
+          whis : float, sequence (default = 1.5) or string
             As a float, determines the reach of the whiskers past the first
             and third quartiles (e.g., Q3 + whis*IQR, IQR = interquartile
             range, Q3-Q1). Beyond the whiskers, data are considered outliers
@@ -2833,12 +2837,12 @@ class Axes(_AxesBase):
             high value to force the whiskers to show the min and max values.
             Alternatively, set this to an ascending sequence of percentile
             (e.g., [5, 95]) to set the whiskers at specific percentiles of
-            the data. Finally, can *whis* be the string 'range' to force the
+            the data. Finally, *whis* can be the string 'range' to force the
             whiskers to the min and max of the data. In the edge case that
             the 25th and 75th percentiles are equivalent, *whis* will be
             automatically set to 'range'.
 
-          *bootstrap* : [ *None* (default) | integer ]
+          bootstrap : None (default) or integer
             Specifies whether to bootstrap the confidence intervals
             around the median for notched boxplots. If bootstrap==None,
             no bootstrapping is performed, and notches are calculated
@@ -2848,14 +2852,14 @@ class Axes(_AxesBase):
             bootstrap the median to determine it's 95% confidence intervals.
             Values between 1000 and 10000 are recommended.
 
-          *usermedians* : [ default None ]
+          usermedians : array-like or None (default)
             An array or sequence whose first dimension (or length) is
             compatible with *x*. This overrides the medians computed by
             matplotlib for each element of *usermedians* that is not None.
             When an element of *usermedians* == None, the median will be
-            computed directly as normal.
+            computed by matplotlib as normal.
 
-          *conf_intervals* : [ default None ]
+          conf_intervals : array-like or None (default)
             Array or sequence whose first dimension (or length) is compatible
             with *x* and whose second dimension is 2. When the current element
             of *conf_intervals* is not None, the notch locations computed by
@@ -2863,54 +2867,57 @@ class Axes(_AxesBase):
             element of *conf_intervals* is None, boxplot compute notches the
             method specified by the other kwargs (e.g., *bootstrap*).
 
-          *positions* : [ default 1,2,...,n ]
-            Sets the horizontal positions of the boxes. The ticks and limits
+          positions : array-like, default = [1, 2, ..., n]
+            Sets the positions of the boxes. The ticks and limits
             are automatically set to match the positions.
 
-          *widths* : [ default 0.5 ]
+          widths : array-like, default = 0.5
             Either a scalar or a vector and sets the width of each box. The
             default is 0.5, or ``0.15*(distance between extreme positions)``
             if that is smaller.
 
-          *labels* : [ sequence | None (default) ]
+          labels : sequence or None (default)
                 Labels for each dataset. Length must be compatible with
                 dimensions  of *x*
 
-          *patch_artist* : [ False (default) | True ]
+          patch_artist : bool, default = False
             If False produces boxes with the Line2D artist
             If True produces boxes with the Patch artist
 
-          *showmeans* : [ False (default) | True ]
+          showmeans : bool, default = False
             If True, will toggle one the rendering of the means
 
-          *showcaps*  : [ False | True (default) ]
+          showcaps : bool, default = True
             If True, will toggle one the rendering of the caps
 
-          *showbox*  : [ False | True (default) ]
+          showbox : bool, default = True
             If True, will toggle one the rendering of box
 
-          *showfliers*  : [ False | True (default) ]
+          showfliers : bool, default = True
             If True, will toggle one the rendering of the fliers
 
-          *boxprops*  : [ dict | None (default) ]
+          boxprops : dict or None (default)
             If provided, will set the plotting style of the boxes
 
-          *flierprops*  : [ dict | None (default) ]
+          flierprops : dict or None (default)
             If provided, will set the plotting style of the fliers
 
-          *medianprops*  : [ dict | None (default) ]
+          medianprops : dict or None (default)
             If provided, will set the plotting style of the medians
 
-          *meanprops*  : [ dict | None (default) ]
+          meanprops : dict or None (default)
             If provided, will set the plotting style of the means
 
-          *meanline*  : [ False (default) | True ]
+          meanline : bool, default = False
             If True (and *showmeans* is True), will try to render the mean
             as a line spanning the full width of the box according to
             *meanprops*. Not recommended if *shownotches* is also True.
             Otherwise, means will be shown as points.
 
-        Returns a dictionary mapping each component of the boxplot
+        Returns
+        -------
+
+        A dictionary mapping each component of the boxplot
         to a list of the :class:`matplotlib.lines.Line2D`
         instances created. That dictionary has the following keys
         (assuming vertical boxplots):
@@ -2925,9 +2932,10 @@ class Axes(_AxesBase):
               whiskers (outliers).
             - means: points or lines representing the means.
 
-        **Example:**
+        Examples
+        --------
 
-        .. plot:: pyplots/boxplot_demo.py
+        .. plot:: examples/statistics/boxplot_demo.py
         """
         bxpstats = cbook.boxplot_stats(x, whis=whis, bootstrap=bootstrap,
                                        labels=labels)
@@ -2982,10 +2990,11 @@ class Axes(_AxesBase):
 
         Call signature::
 
-          bxp(self, bxpstats, positions=None, widths=None, vert=True,
+          bxp(bxpstats, positions=None, widths=None, vert=True,
               patch_artist=False, shownotches=False, showmeans=False,
-              showcaps=True, showbox=True, boxprops=None, flierprops=None,
-              medianprops=None, meanprops=None, meanline=False):
+              showcaps=True, showbox=True, showfliers=True,
+              boxprops=None, flierprops=None, medianprops=None,
+              meanprops=None, meanline=False)
 
         Make a box and whisker plot for each column of *x* or each
         vector in sequence *x*.  The box extends from the lower to
@@ -2993,9 +3002,10 @@ class Axes(_AxesBase):
         The whiskers extend from the box to show the range of the
         data.  Flier points are those past the end of the whiskers.
 
-        Function Arguments:
+        Parameters
+        ----------
 
-          *bxpstats* :
+          bxpstats : list of dicts
             A list of dictionaries containing stats for each boxplot.
             Required keys are:
               'med' - The median (scalar float).
@@ -3012,58 +3022,61 @@ class Axes(_AxesBase):
               'label' - Name of the dataset (string). If available, this
                 will be used a tick label for the boxplot
 
-          *positions* : [ default 1,2,...,n ]
-            Sets the horizontal positions of the boxes. The ticks and limits
+          positions : array-like, default = [1, 2, ..., n]
+            Sets the positions of the boxes. The ticks and limits
             are automatically set to match the positions.
 
-          *widths* : [ default 0.5 ]
+          widths : array-like, default = 0.5
             Either a scalar or a vector and sets the width of each box. The
             default is 0.5, or ``0.15*(distance between extreme positions)``
             if that is smaller.
 
-          *vert* : [ False | True (default) ]
+          vert : bool, default = False
             If True (default), makes the boxes vertical.
             If False, makes horizontal boxes.
 
-          *patch_artist* : [ False (default) | True ]
+          patch_artist : bool, default = False
             If False produces boxes with the Line2D artist
-            If True produces boxes with the Patch artist1
+            If True produces boxes with the Patch artist
 
-          *shownotches* : [ False (default) | True ]
+          shownotches : bool, default = False
             If False (default), produces a rectangular box plot.
             If True, will produce a notched box plot
 
-          *showmeans* : [ False (default) | True ]
+          showmeans : bool, default = False
             If True, will toggle one the rendering of the means
 
-          *showcaps*  : [ False | True (default) ]
+          showcaps  : bool, default = True
             If True, will toggle one the rendering of the caps
 
-          *showbox*  : [ False | True (default) ]
+          showbox  : bool, default = True
             If True, will toggle one the rendering of box
 
-          *showfliers*  : [ False | True (default) ]
+          showfliers : bool, default = True
             If True, will toggle one the rendering of the fliers
 
-          *boxprops*  : [ dict | None (default) ]
+          boxprops : dict or None (default)
             If provided, will set the plotting style of the boxes
 
-          *flierprops*  : [ dict | None (default) ]
+          flierprops : dict or None (default)
             If provided, will set the plotting style of the fliers
 
-          *medianprops*  : [ dict | None (default) ]
+          medianprops : dict or None (default)
             If provided, will set the plotting style of the medians
 
-          *meanprops*  : [ dict | None (default) ]
+          meanprops : dict or None (default)
             If provided, will set the plotting style of the means
 
-          *meanline*  : [ False (default) | True ]
+          meanline : bool, default = False
             If True (and *showmeans* is True), will try to render the mean
             as a line spanning the full width of the box according to
             *meanprops*. Not recommended if *shownotches* is also True.
             Otherwise, means will be shown as points.
 
-        Returns a dictionary mapping each component of the boxplot
+        Returns
+        -------
+
+        A dictionary mapping each component of the boxplot
         to a list of the :class:`matplotlib.lines.Line2D`
         instances created. That dictionary has the following keys
         (assuming vertical boxplots):
@@ -3078,9 +3091,10 @@ class Axes(_AxesBase):
               whiskers (fliers).
             - means: points or lines representing the means.
 
-        **Example:**
+        Examples
+        --------
 
-        .. plot:: pyplots/boxplot_demo.py
+        .. plot:: examples/statistics/bxp_demo.py
         """
         # lists of artists to be output
         whiskers = []
