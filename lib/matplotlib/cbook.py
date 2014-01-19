@@ -171,13 +171,13 @@ def deprecated(since, message='', name='', alternative='', pending=False,
     pending : bool, optional
         If True, uses a PendingDeprecationWarning instead of a
         DeprecationWarning.
-        
+
     Example
     -------
     @deprecated('1.4.0')
     def the_function_to_deprecate():
         pass
-    
+
     """
     def deprecate(func, message=message, name=name, alternative=alternative,
                   pending=pending):
@@ -1884,6 +1884,15 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
     -------
     bxpstats : A list of dictionaries containing the results for each column
         of data. Keys are as
+
+    Notes
+    -----
+    Non-bootstrapping approach to confidence interval uses Gaussian-based
+    asymptotic approximation.
+
+    General approach from:
+    McGill, R., Tukey, J.W., and Larsen, W.A. (1978) "Variations of
+        Boxplots", The American Statistician, 32:12-16.
     '''
 
     def _bootstrap_median(data, N=5000):
@@ -1891,12 +1900,9 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
         M = len(data)
         percentiles = [2.5, 97.5]
 
-        # initialize the array of estimates
-        estimate = np.empty(N)
-        for n in range(N):
-            bsIndex = np.random.random_integers(0, M - 1, M)
-            bsData = data[bsIndex]
-            estimate[n] = np.percentile(bsData, 50)
+        ii = np.random.randint(M, size=(N, M))
+        bsData = x[ii]
+        estimate = np.median(bsData, axis=1, overwrite_input=True)
 
         CI = np.percentile(estimate, percentiles)
         return CI
@@ -1909,12 +1915,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
             notch_min = CI[0]
             notch_max = CI[1]
         else:
-            # Estimate notch locations using Gaussian-based
-            # asymptotic approximation.
-            #
-            # For discussion: McGill, R., Tukey, J.W.,
-            # and Larsen, W.A. (1978) "Variations of
-            # Boxplots", The American Statistician, 32:12-16.
+
             N = len(data)
             notch_min = med - 1.57 * iqr / np.sqrt(N)
             notch_max = med + 1.57 * iqr / np.sqrt(N)
@@ -1950,48 +1951,42 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
 
     ncols = len(X)
     if labels is None:
-        labels = [None] * ncols
+        labels = [str(i) for i in range(ncols)]
     elif len(labels) != ncols:
         raise ValueError("Dimensions of labels and X must be compatible")
 
     for ii, (x, label) in enumerate(zip(X, labels), start=0):
         # empty dict
         stats = {}
-
-        # set the label
-        if label is not None:
-            stats['label'] = label
-        else:
-            stats['label'] = ii
+        stats['label'] = label
 
         # arithmetic mean
         stats['mean'] = np.mean(x)
 
         # medians and quartiles
-        stats['q1'], stats['med'], stats['q3'] = \
-            np.percentile(x, [25, 50, 75])
+        q1, med, q3 =  np.percentile(x, [25, 50, 75])
 
         # interquartile range
-        stats['iqr'] = stats['q3'] - stats['q1']
+        stats['iqr'] = q3 - q1
         if stats['iqr'] == 0:
             whis = 'range'
 
         # conf. interval around median
         stats['cilo'], stats['cihi'] = _compute_conf_interval(
-            x, stats['med'], stats['iqr'], bootstrap
+            x, med, stats['iqr'], bootstrap
         )
 
         # lowest/highest non-outliers
         if np.isscalar(whis):
             if np.isreal(whis):
-                loval = stats['q1'] - whis * stats['iqr']
-                hival = stats['q3'] + whis * stats['iqr']
+                loval = q1 - whis * stats['iqr']
+                hival = q3 + whis * stats['iqr']
             elif whis in ['range', 'limit', 'limits', 'min/max']:
                 loval = np.min(x)
                 hival = np.max(x)
             else:
-                whismsg = 'whis must be a float, valid string, or '\
-                          'list of percentiles'
+                whismsg = ('whis must be a float, valid string, or '
+                          'list of percentiles')
                 raise ValueError(whismsg)
         else:
             loval = np.percentile(x, whis[0])
@@ -1999,15 +1994,15 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
 
         # get high extreme
         wiskhi = np.compress(x <= hival, x)
-        if len(wiskhi) == 0 or np.max(wiskhi) < stats['q3']:
-            stats['whishi'] = stats['q3']
+        if len(wiskhi) == 0 or np.max(wiskhi) < q3:
+            stats['whishi'] = q3
         else:
             stats['whishi'] = np.max(wiskhi)
 
         # get low extreme
         wisklo = np.compress(x >= loval, x)
-        if len(wisklo) == 0 or np.min(wisklo) > stats['q1']:
-            stats['whislo'] = stats['q1']
+        if len(wisklo) == 0 or np.min(wisklo) > q1:
+            stats['whislo'] = q1
         else:
             stats['whislo'] = np.min(wisklo)
 
@@ -2017,6 +2012,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
             np.compress(x > stats['whishi'], x)
         ])
 
+        # add in teh remaining stats and append to final output
+        stats['q1'], stats['med'], stats['q3'] = q1, med, q3
         bxpstats.append(stats)
 
     return bxpstats

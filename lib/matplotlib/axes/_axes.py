@@ -3182,9 +3182,9 @@ class Axes(_AxesBase):
 
         # input validation
         N = len(bxpstats)
-        datashape_message = "List of boxplot statistics and `{0}` " \
-                            "value must have same length"
-        # check postision
+        datashape_message = ("List of boxplot statistics and `{0}` "
+                             "values must have same the length")
+        # check position
         if positions is None:
             positions = list(xrange(1, N + 1))
         elif len(positions) != N:
