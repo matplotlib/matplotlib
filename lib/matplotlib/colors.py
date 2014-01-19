@@ -51,12 +51,14 @@ import six
 from six.moves import zip
 
 from collections import Sized
+import colorsys
 import itertools
 import re
 import warnings
 
 import numpy as np
 import matplotlib.cbook as cbook
+
 from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 
 
@@ -1992,3 +1994,49 @@ def from_levels_and_colors(levels, colors, extend='neither'):
 
     norm = BoundaryNorm(levels, ncolors=n_data_colors)
     return cmap, norm
+
+
+def brighten_color(color, frac):
+    """A color helper utility to either darken or brighten the given color.
+
+    This function first converts the given color to RGB using
+    `~.colorConverter` and then to
+    HSL using `colorsys.rgb_to_hsl`.  The lightness is modified according
+    to the given fraction, clipped to be between 0 and 1, and then converted
+    back to RGB using `colorsys.hsl_to_rgb`:
+    L = np.clip(L0 * (1.0 + frac), 0., 1.), where L0 is the original
+    lighness of the color in HSL space.
+
+    Parameters
+    ----------
+    color : string, list, hexvalue
+        Any acceptable Matplotlib color value, such as 'red',
+        'slategrey', '#FFEE11', (1,0,0)
+
+    frac : float
+        The amount by which to darken or brighten the color.  Negative
+        darkens, positive brightens.  Lowest valid negative value is -1.
+        Highest positive value is 1/L of the original color, where L is
+        the lightness in HSL space.  Entries outside this range are allowed,
+        but the resulting lightness is clipped between 0. and 1.
+
+    Returns
+    -------
+    color : tuple of floats
+        tuple representing converted rgb values
+
+    """
+
+    frac = float(frac)
+    if not np.isfinite(frac):
+        raise ValueError('argument frac must be a finite float')
+
+    rgb = colorConverter.to_rgb(color)
+
+    h, l, s = colorsys.rgb_to_hls(*rgb)
+
+    l *= 1. + frac
+
+    l = np.clip(l, 0., 1.)
+
+    return colorsys.hls_to_rgb(h, l, s)
