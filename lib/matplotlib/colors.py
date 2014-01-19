@@ -51,6 +51,7 @@ import re
 import numpy as np
 from numpy import ma
 import matplotlib.cbook as cbook
+from colorsys import rgb_to_hls as rgb2hls, hls_to_rgb as hls2rgb
 
 parts = np.__version__.split('.')
 NP_MAJOR, NP_MINOR = map(int, parts[:2])
@@ -1483,3 +1484,38 @@ def from_levels_and_colors(levels, colors, extend='neither'):
 
     norm = BoundaryNorm(levels, ncolors=n_data_colors)
     return cmap, norm
+
+def shade_color(color, percent):
+    """Shade Color
+
+    This color utility function allows the user to easily darken or lighten a color for
+    plotting purposes.
+
+    Parameters
+    ----------
+    color : string, list, hexvalue
+        Any acceptable Matplotlib color value, such as 'red', 'slategrey', '#FFEE11', (1,0,0)
+
+    percent :  the amount by which to brighten or darken the color.
+
+    Returns
+    -------
+    color : tuple of floats
+        tuple representing converted rgb values
+
+    """
+
+    cc = CC()
+
+    rgb = cc.to_rgb(color)
+
+    h,l,s = rgb2hls(*rgb)
+
+    l *= 1 + float(percent)/100
+
+    l = min(1, l)
+    l = max(0, l)
+
+    r,g,b = hls2rgb(h,l,s)
+
+    return r,g,b
