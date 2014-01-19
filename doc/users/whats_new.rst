@@ -34,21 +34,21 @@ New plotting features
 
 Fully customizable boxplots
 ````````````````````````````
-Paul Hobson overahuled the :func:`~matplotlib.pyplot.boxplot` method such
+Paul Hobson overhauled the :func:`~matplotlib.pyplot.boxplot` method such
 that it is now completely customizable in terms of the styles and positions
 of the individual artists. Under the hood, :func:`~matplotlib.pyplot.boxplot`
 relies on a new function (:func:`~matplotlib.cbook.boxplot_stats`), which
 accepts any data structure currently compatible with
-:func:`~matplotlib.pyplot.boxplot`, amd returns a list of dictaries
-containing the positions of each of artists for the boxplots. Then
-a second method, :func:`~matplotlib.Axes.bxp` is called to actually
-return the stats onto the figure.
+:func:`~matplotlib.pyplot.boxplot`, and returns a list of dictionaries
+containing the positions for each element of the boxplots. Then
+a second method, :func:`~matplotlib.Axes.bxp` is called to draw the boxplots
+based on the stats.
 
-Therefore, it is now possible for the user can use
-:func:`~matplotlib.pyplot.boxplot` in the same fashion or generate her own
-list of dictionaries of statistics and feed those directio  to
-:func:`~matplotlib.Axes.bxp`. Similarly, the output from
-:func:`~matplotlib.cbook.boxplot_stats` can easily be modified by the user.
+The :func:~matplotlib.pyplot.boxplot function can be used as before to
+generate boxplots from data in one step. But now the user has the
+flexibility to generate the statistics independently, or to modify the
+output of :func:~matplotlib.cbook.boxplot_stats prior to plotting
+with :func:~matplotlib.Axes.bxp.
 
 Lastly, each artist (e.g., the box, outliers, cap, notches) can now be
 toggled on or off and their styles can be passed in through individual
