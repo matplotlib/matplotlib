@@ -504,7 +504,7 @@ class Line2D(Artist):
         """return true if x is sorted"""
         if len(x) < 2:
             return 1
-        return np.alltrue(x[1:] - x[0:-1] >= 0)
+        return np.amin(x[1:] - x[0:-1]) >= 0
 
     @allow_rasterization
     def draw(self, renderer):
