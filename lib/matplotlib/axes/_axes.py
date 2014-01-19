@@ -2945,7 +2945,7 @@ class Axes(_AxesBase):
 
         # replace medians if necessary:
         if usermedians is not None:
-            if (len(np.ravel(usermedians)) != len(bxpstats) and
+            if (len(np.ravel(usermedians)) != len(bxpstats) or
                 np.shape(usermedians)[0] != len(bxpstats)):
                 medmsg = 'usermedians length not compatible with x'
                 raise ValueError(medmsg)
