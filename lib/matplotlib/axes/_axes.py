@@ -2937,25 +2937,26 @@ class Axes(_AxesBase):
 
         # replace medians if necessary:
         if usermedians is not None:
-            if len(np.ravel(usermedians)) != len(bxpstats):
+            if (len(np.ravel(usermedians)) != len(bxpstats) and
+                np.shape(usermedians)[0] != len(bxpstats)):
                 medmsg = 'usermedians length not compatible with x'
                 raise ValueError(medmsg)
             else:
+                # reassign medians as necessary
                 for stats, med in zip(bxpstats, usermedians):
                     if med is not None:
                         stats['med'] = med
 
         if conf_intervals is not None:
-            if len(conf_intervals) != len(bxpstats):
-                cimsg = 'conf_intervals length not compatible with x'
-                raise ValueError(cimsg)
+            if np.shape(conf_intervals)[0] != len(bxpstats):
+                raise ValueError('conf_intervals length not '
+                                 'compatible with x')
             else:
                 for stats, ci in zip(bxpstats, conf_intervals):
                     if ci is not None:
                         if len(ci) != 2:
-                            cimsg2 = 'each confidence interval must '\
-                                     'have two values'
-                            raise ValueError(cimsg2)
+                            raise ValueError('each confidence interval must '
+                                             'have two values')
                         else:
                             if ci[0] is not None:
                                 stats['cilo'] = ci[0]
