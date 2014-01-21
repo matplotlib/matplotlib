@@ -240,10 +240,10 @@ class QuiverKey(martist.Artist):
         weak_self = weakref.ref(self)
 
         def on_dpi_change(fig):
-            _s = weak_self()
-            if _s is not None:
-                _s.labelsep = (_s._labelsep_inches * fig.dpi)
-                _s._initialized = False  # simple brute force update
+            self_weakref = weak_self()
+            if self_weakref is not None:
+                self_weakref.labelsep = (self_weakref._labelsep_inches*fig.dpi)
+                self_weakref._initialized = False  # simple brute force update
                                            # works because _init is called
                                            # at the start of draw.
 
@@ -448,11 +448,11 @@ class Quiver(mcollections.PolyCollection):
         weak_self = weakref.ref(self)
 
         def on_dpi_change(fig):
-            _s = weak_self()
-            if _s is not None:
-                _s._new_UV = True  # vertices depend on width, span
+            self_weakref = weak_self()
+            if self_weakref is not None:
+                self_weakref._new_UV = True  # vertices depend on width, span
                                      # which in turn depend on dpi
-                _s._initialized = False  # simple brute force update
+                self_weakref._initialized = False  # simple brute force update
                                            # works because _init is called
                                            # at the start of draw.
 
@@ -888,8 +888,9 @@ class Barbs(mcollections.PolyCollection):
 
         #Make a collection
         barb_size = self._length ** 2 / 4  # Empirically determined
-        mcollections.PolyCollection.__init__(self, [], (barb_size,), offsets=xy,
-                                            transOffset=transform, **kw)
+        mcollections.PolyCollection.__init__(self, [], (barb_size,),
+                                             offsets=xy,
+                                             transOffset=transform, **kw)
         self.set_transform(transforms.IdentityTransform())
 
         self.set_UVC(u, v, c)
