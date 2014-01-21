@@ -2421,6 +2421,7 @@ class ToolBase(object):
     image = None
     toggle = False  # Change the status (take control of the events)
     persistent = False
+    cursor = None
 
     def __init__(self, figure, event=None):
         self.figure = figure
@@ -2608,7 +2609,6 @@ class SaveFigureBase(ToolBase):
 
 class ToolToggleBase(ToolPersistentBase):
     toggle = True
-    cursor = None
 
     def mouse_move(self, event):
         pass
@@ -3007,12 +3007,12 @@ class NavigationBase(object):
     def add_tool(self, callback_class):
         tool = self._get_cls_to_instantiate(callback_class)
         name = tool.name
-
         if name is None:
             warnings.warn('Tools need a name to be added, it is used as ID')
             return
         if name in self._tools:
             warnings.warn('A tool with the same name already exist, not added')
+
             return
 
         self._tools[name] = tool
@@ -3349,7 +3349,7 @@ class ToolbarBase(object):
         pass
 
     def toggle(self, name, callback=False):
-        #callback = perform or not the callback while toggling
+        #carefull, callback means to perform or not the callback while toggling
         raise NotImplementedError
 
     def remove_toolitem(self, name):
