@@ -250,8 +250,6 @@ class QuiverKey(martist.Artist):
         self._cid = Q.ax.figure.callbacks.connect('dpi_changed',
                                                   on_dpi_change)
 
-        self._cb_ref = weakref.ref(Q.ax.figure.callbacks)
-
         self.labelpos = kw.pop('labelpos', 'N')
         self.labelcolor = kw.pop('labelcolor', None)
         self.fontproperties = kw.pop('fontproperties', dict())
@@ -273,11 +271,8 @@ class QuiverKey(martist.Artist):
         """
         Overload the remove method
         """
-        _cbs = self._cb_ref()
-        if _cbs is not None:
-        # disconnect the call back
-            _cbs.disconnect(self._cid)
-            self._cid = None
+        Q.ax.figure.callbacks.disconnect(self._cid)
+        self._cid = None
         # pass the remove call up the stack
         martist.Artist.remove(self)
 
