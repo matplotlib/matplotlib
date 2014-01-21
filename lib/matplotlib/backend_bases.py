@@ -2609,11 +2609,6 @@ class SaveFigureBase(ToolBase):
 class ToolToggleBase(ToolPersistentBase):
     toggle = True
     cursor = None
-    capture_keypress = False
-    capture_move = False
-    capture_press = False
-    capture_release = False
-    lock_drawing = False
 
     def mouse_move(self, event):
         pass
@@ -2637,10 +2632,7 @@ class ToolZoom(ToolToggleBase):
     image = 'zoom_to_rect'
     position = -1
     keymap = rcParams['keymap.zoom']
-
     cursor = cursors.SELECT_REGION
-    capture_press = True
-    capture_release = True
 
     def __init__(self, *args):
         ToolToggleBase.__init__(self, *args)
@@ -2648,12 +2640,22 @@ class ToolZoom(ToolToggleBase):
         self._button_pressed = None
         self._xypress = None
 
+    def activate(self, event):
+        self.navigation.canvaslock(self)
+        self.navigation.presslock(self)
+        self.navigation.releaselock(self)
+
+    def deactivate(self, event):
+        self.navigation.canvaslock.release(self)
+        self.navigation.presslock.release(self)
+        self.navigation.releaselock.release(self)
+
     def press(self, event):
         """the press mouse button in zoom to rect mode callback"""
         # If we're already in the middle of a zoom, pressing another
         # button works to "cancel"
         if self._ids_zoom != []:
-            self.capture_move = False
+            self.navigation.movelock.release(self)
             for zoom_id in self._ids_zoom:
                 self.figure.canvas.mpl_disconnect(zoom_id)
             self.navigation.release(event)
@@ -2685,7 +2687,7 @@ class ToolZoom(ToolToggleBase):
                 self._xypress.append((x, y, a, i, a.viewLim.frozen(),
                                       a.transData.frozen()))
 
-        self.capture_move = True
+        self.navigation.movelock(self)
         id2 = self.figure.canvas.mpl_connect('key_press_event',
                                       self._switch_on_zoom_mode)
         id3 = self.figure.canvas.mpl_connect('key_release_event',
@@ -2726,7 +2728,7 @@ class ToolZoom(ToolToggleBase):
 
     def release(self, event):
         """the release mouse button callback in zoom to rect mode"""
-        self.capture_move = False
+        self.navigation.movelock.release(self)
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)
         self._ids_zoom = []
@@ -2859,16 +2861,22 @@ class ToolPan(ToolToggleBase):
     description = 'Pan axes with left mouse, zoom with right'
     image = 'move'
     position = -1
-
     cursor = cursors.MOVE
-    capture_press = True
-    capture_release = True
-    lock_drawing = True
 
     def __init__(self, *args):
         ToolToggleBase.__init__(self, *args)
         self._button_pressed = None
         self._xypress = None
+
+    def activate(self, event):
+        self.navigation.canvaslock(self)
+        self.navigation.presslock(self)
+        self.navigation.releaselock(self)
+
+    def deactivate(self, event):
+        self.navigation.canvaslock.release(self)
+        self.navigation.presslock.release(self)
+        self.navigation.releaselock.release(self)
 
     def press(self, event):
         """the press mouse button in pan/zoom mode callback"""
@@ -2894,14 +2902,14 @@ class ToolPan(ToolToggleBase):
                     a.get_navigate() and a.can_pan()):
                 a.start_pan(x, y, event.button)
                 self._xypress.append((a, i))
-                self.capture_move = True
+                self.navigation.movelock(self)
         self.navigation.press(event)
 
     def release(self, event):
         if self._button_pressed is None:
             return
 
-        self.capture_move = False
+        self.navigation.movelock.release(self)
 
         for a, _ind in self._xypress:
             a.end_pan()
@@ -2957,6 +2965,14 @@ class NavigationBase(object):
         self._instances = {}
         self._toggled = None
 
+        #to communicate with tools and redirect events
+        self.keypresslock = widgets.LockDraw()
+        self.movelock = widgets.LockDraw()
+        self.presslock = widgets.LockDraw()
+        self.releaselock = widgets.LockDraw()
+        #just to group all the locks in one place
+        self.canvaslock = self.canvas.widgetlock
+
         for tool in self.tools:
             self.add_tool(tool)
 
@@ -2991,13 +3007,12 @@ class NavigationBase(object):
     def add_tool(self, callback_class):
         tool = self._get_cls_to_instantiate(callback_class)
         name = tool.name
+
         if name is None:
-            #TODO: add a warning
-            print ('impossible to add without name')
+            warnings.warn('Tools need a name to be added, it is used as ID')
             return
         if name in self._tools:
-            #TODO: add a warning
-            print ('impossible to add two times with the same name')
+            warnings.warn('A tool with the same name already exist, not added')
             return
 
         self._tools[name] = tool
@@ -3040,8 +3055,10 @@ class NavigationBase(object):
             return
 
         #some tools may need to capture keypress, but they need to be toggle
-        if self._toggled and self._tools[self._toggled].capture_keypress:
-            self._instances[self._toggled].key_press(event)
+        if self._toggled:
+            instance = self._get_instance(self._toggled)
+            if self.keypresslock.isowner(instance):
+                instance.key_press(event)
             return
 
         name = self._keys.get(event.key, None)
@@ -3062,6 +3079,7 @@ class NavigationBase(object):
     def _get_instance(self, name):
         if name not in self._instances:
             instance = self._tools[name](self.canvas.figure)
+            #register instance
             self._instances[name] = instance
 
         return self._instances[name]
@@ -3077,7 +3095,7 @@ class NavigationBase(object):
             tool(self.canvas.figure, None)
 
     def _handle_toggle(self, name, event=None, from_toolbar=False):
-        #when from keypress toggle toolbar without callback
+        #toggle toolbar without callback
         if not from_toolbar and self.toolbar:
             self.toolbar.toggle(name, False)
 
@@ -3085,12 +3103,10 @@ class NavigationBase(object):
         if self._toggled is None:
             instance.activate(None)
             self._toggled = name
-            self.canvas.widgetlock(self)
 
         elif self._toggled == name:
             instance.deactivate(None)
             self._toggled = None
-            self.canvas.widgetlock.release(self)
 
         else:
             if self.toolbar:
@@ -3124,7 +3140,7 @@ class NavigationBase(object):
     def mouse_move(self, event):
         if self._toggled:
             instance = self._instances[self._toggled]
-            if instance.capture_move:
+            if self.movelock.isowner(instance):
                 instance.mouse_move(event)
                 return
 
@@ -3159,7 +3175,7 @@ class NavigationBase(object):
     def _release(self, event):
         if self._toggled:
             instance = self._instances[self._toggled]
-            if instance.capture_release:
+            if self.releaselock.isowner(instance):
                 instance.release(event)
                 return
         self.release(event)
@@ -3171,7 +3187,7 @@ class NavigationBase(object):
         """Called whenver a mouse button is pressed."""
         if self._toggled:
             instance = self._instances[self._toggled]
-            if instance.capture_press:
+            if self.presslock.isowner(instance):
                 instance.press(event)
                 return
         self.press(event)
@@ -3333,7 +3349,7 @@ class ToolbarBase(object):
         pass
 
     def toggle(self, name, callback=False):
-        #carefull, callback means to perform or not the callback while toggling
+        #callback = perform or not the callback while toggling
         raise NotImplementedError
 
     def remove_toolitem(self, name):
