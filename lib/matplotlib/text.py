@@ -529,8 +529,6 @@ class Text(Artist):
             self._renderer = renderer
         if not self.get_visible():
             return
-        if self.get_text().strip() == '':
-            return
 
         renderer.open_group('text', self.get_gid())
 
@@ -728,6 +726,7 @@ class Text(Artist):
         if dpi is not None:
             dpi_orig = self.figure.dpi
             self.figure.dpi = dpi
+
         if self.get_text().strip() == '':
             tx, ty = self._get_xy_display()
             return Bbox.from_bounds(tx, ty, 0, 0)
@@ -1863,10 +1862,7 @@ class Annotation(Text, _AnnotationBase):
 
             # Use FancyArrowPatch if self.arrowprops has "arrowstyle" key.
             # Otherwise, fallback to YAArrow.
-
-            #if d.has_key("arrowstyle"):
             if self.arrow_patch:
-
                 # adjust the starting point of the arrow relative to
                 # the textbox.
                 # TODO : Rotation needs to be accounted.
@@ -1880,7 +1876,6 @@ class Annotation(Text, _AnnotationBase):
                 # Then it will be shrinked by shirnkA and shrinkB
                 # (in points). If patch A is not set, self.bbox_patch
                 # is used.
-
                 self.arrow_patch.set_positions((ox0, oy0), (ox1, oy1))
                 mutation_scale = d.pop("mutation_scale", self.get_size())
                 mutation_scale = renderer.points_to_pixels(mutation_scale)
@@ -1899,6 +1894,7 @@ class Annotation(Text, _AnnotationBase):
                         props = props.copy()
                         pad = props.pop('pad', 4)
                         pad = renderer.points_to_pixels(pad)
+
                         if self.get_text().strip() == "":
                             self.arrow_patch.set_patchA(None)
                             return
@@ -1918,9 +1914,7 @@ class Annotation(Text, _AnnotationBase):
                         r.update(props)
 
                         self.arrow_patch.set_patchA(r)
-
             else:
-
                 # pick the x,y corner of the text bbox closest to point
                 # annotated
                 dsu = [(abs(val - x0), val) for val in (l, r, xc)]

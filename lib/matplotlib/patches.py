@@ -2536,6 +2536,9 @@ class ConnectionStyle(_Style):
             """
             Shrink the path by fixed size (in points) with shrinkA and shrinkB
             """
+            if path.vertices.size <= 1:
+                return path
+
             if shrinkA:
                 x, y = path.vertices[0]
                 insideA = inside_circle(x, y, shrinkA)
@@ -3119,6 +3122,8 @@ class ArrowStyle(_Style):
             return vertices_arrow, codes_arrow, ddx, ddy
 
         def transmute(self, path, mutation_size, linewidth):
+            if path.vertices.size < 2:
+                return [path], [False]
 
             head_length, head_width = self.head_length * mutation_size, \
                                       self.head_width * mutation_size

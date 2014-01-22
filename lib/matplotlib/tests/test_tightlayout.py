@@ -5,17 +5,18 @@ import six
 
 import numpy as np
 
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from nose.tools import assert_raises
-from numpy.testing import assert_array_equal
+import matplotlib.gridspec as gridspec
+
 
 def example_plot(ax, fontsize=12):
-     ax.plot([1, 2])
-     ax.locator_params(nbins=3)
-     ax.set_xlabel('x-label', fontsize=fontsize)
-     ax.set_ylabel('y-label', fontsize=fontsize)
-     ax.set_title('Title', fontsize=fontsize)
+    ax.plot([1, 2])
+    ax.locator_params(nbins=3)
+    ax.set_xlabel('x-label', fontsize=fontsize)
+    ax.set_ylabel('y-label', fontsize=fontsize)
+    ax.set_title('Title', fontsize=fontsize)
+
 
 @image_comparison(baseline_images=['tight_layout1'])
 def test_tight_layout1():
@@ -39,10 +40,7 @@ def test_tight_layout2():
 
 @image_comparison(baseline_images=['tight_layout3'])
 def test_tight_layout3():
-    'Test tight_layout for mutiple subplots'
-
-    fig = plt.figure()
-
+    # Test tight_layout for mutiple subplots
     ax1 = plt.subplot(221)
     ax2 = plt.subplot(223)
     ax3 = plt.subplot(122)
@@ -57,10 +55,7 @@ def test_tight_layout3():
 @image_comparison(baseline_images=['tight_layout4'],
                   freetype_version=('2.4.5', '2.4.9'))
 def test_tight_layout4():
-    'Test tight_layout for subplot2grid'
-
-    fig = plt.figure()
-
+    # Test tight_layout for subplot2grid
     ax1 = plt.subplot2grid((3, 3), (0, 0))
     ax2 = plt.subplot2grid((3, 3), (0, 1), colspan=2)
     ax3 = plt.subplot2grid((3, 3), (1, 0), colspan=2, rowspan=2)
@@ -76,10 +71,7 @@ def test_tight_layout4():
 
 @image_comparison(baseline_images=['tight_layout5'])
 def test_tight_layout5():
-    'Test tight_layout for image'
-
-    fig = plt.figure()
-
+    # Test tight_layout for image
     ax = plt.subplot(111)
     arr = np.arange(100).reshape((10,10))
     ax.imshow(arr, interpolation="none")
@@ -87,14 +79,10 @@ def test_tight_layout5():
     plt.tight_layout()
 
 
-
 @image_comparison(baseline_images=['tight_layout6'])
 def test_tight_layout6():
-    'Test tight_layout for gridspec'
-
+    # Test tight_layout for gridspec
     fig = plt.figure()
-
-    import matplotlib.gridspec as gridspec
 
     gs1 = gridspec.GridSpec(2, 1)
     ax1 = fig.add_subplot(gs1[0])
@@ -130,9 +118,8 @@ def test_tight_layout6():
 @image_comparison(baseline_images=['tight_layout7'])
 def test_tight_layout7():
     # tight layout with left and right titles
-    fig = plt.figure()
     fontsize = 24
-    ax = fig.add_subplot(111)
+    ax = plt.subplot(111)
     ax.plot([1, 2])
     ax.locator_params(nbins=3)
     ax.set_xlabel('x-label', fontsize=fontsize)
@@ -141,10 +128,16 @@ def test_tight_layout7():
     ax.set_title('Right Title', loc='right', fontsize=fontsize)
     plt.tight_layout()
 
+
 @image_comparison(baseline_images=['tight_layout8'])
 def test_tight_layout8():
-    'Test automatic use of tight_layout'
+    # Test automatic use of tight_layout
     fig = plt.figure()
     fig.set_tight_layout({'pad': .1})
     ax = fig.add_subplot(111)
     example_plot(ax, fontsize=24)
+
+
+if __name__ == "__main__":
+    import nose
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

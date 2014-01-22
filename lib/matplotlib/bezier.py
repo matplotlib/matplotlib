@@ -243,7 +243,10 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
 
     path_iter = path.iter_segments()
 
-    ctl_points, command = next(path_iter)
+    try:
+        ctl_points, command = next(path_iter)
+    except StopIteration:
+        return path, Path(np.zeros((0, 2)))
     begin_inside = inside(ctl_points[-2:])  # true if begin point is inside
 
     bezier_path = None
@@ -280,17 +283,14 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
         codes_left = [Path.CURVE4, Path.CURVE4, Path.CURVE4]
         codes_right = [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4]
     else:
-        raise ValueError()
+        raise ValueError('Unexpected segment length found in path codes.')
 
     verts_left = left[1:]
     verts_right = right[:]
 
-    #i += 1
-
     if path.codes is None:
         path_in = Path(concat([path.vertices[:i], verts_left]))
         path_out = Path(concat([verts_right, path.vertices[i:]]))
-
     else:
         path_in = Path(concat([path.vertices[:iold], verts_left]),
                        concat([path.codes[:iold], codes_left]))
@@ -476,7 +476,7 @@ def make_path_regular(p):
     if c is None:
         c = np.empty(p.vertices.shape[:1], "i")
         c.fill(Path.LINETO)
-        c[0] = Path.MOVETO
+        c[0:1] = Path.MOVETO
 
         return Path(p.vertices, c)
     else:
