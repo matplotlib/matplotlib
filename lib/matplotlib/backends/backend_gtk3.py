@@ -620,14 +620,17 @@ class ToolbarGTK3(ToolbarBase, Gtk.Box,):
 
     def add_toolitem(self, name, tooltip_text, image_file, position,
                      toggle):
-        image = Gtk.Image()
-        image.set_from_file(image_file)
         if toggle:
             tbutton = Gtk.ToggleToolButton()
         else:
             tbutton = Gtk.ToolButton()
         tbutton.set_label(name)
-        tbutton.set_icon_widget(image)
+
+        if image_file is not None:
+            image = Gtk.Image()
+            image.set_from_file(image_file)
+            tbutton.set_icon_widget(image)
+
         self._toolbar.insert(tbutton, position)
         signal = tbutton.connect('clicked', self._call_tool, name)
         tbutton.set_tooltip_text(tooltip_text)

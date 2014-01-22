@@ -2933,7 +2933,7 @@ class ToolPan(ToolToggleBase):
 
 class NavigationBase(object):
     _default_cursor = cursors.POINTER
-    tools = [ToolToggleGrid,
+    _default_tools = [ToolToggleGrid,
              ToolToggleFullScreen,
              ToolQuit, ToolEnableAllNavigation, ToolEnableNavigation,
              ToolToggleXScale, ToolToggleYScale,
@@ -2946,10 +2946,10 @@ class NavigationBase(object):
         self.toolbar = self._get_toolbar(toolbar, canvas)
 
         self._key_press_handler_id = self.canvas.mpl_connect('key_press_event',
-                                                            self.key_press)
+                                                            self._key_press)
 
         self._idDrag = self.canvas.mpl_connect('motion_notify_event',
-                                               self.mouse_move)
+                                               self._mouse_move)
 
         self._idPress = self.canvas.mpl_connect('button_press_event',
                                                 self._press)
@@ -2973,7 +2973,7 @@ class NavigationBase(object):
         #just to group all the locks in one place
         self.canvaslock = self.canvas.widgetlock
 
-        for tool in self.tools:
+        for tool in self._default_tools:
             self.add_tool(tool)
 
         self._last_cursor = self._default_cursor
@@ -3025,7 +3025,7 @@ class NavigationBase(object):
             if tool.image is not None:
                 fname = os.path.join(basedir, tool.image + '.png')
             else:
-                fname = 'Unknown'
+                fname = None
             self.toolbar.add_toolitem(name, tool.description,
                                       fname,
                                       tool.position,
@@ -3045,11 +3045,7 @@ class NavigationBase(object):
 
         return callback_class
 
-    def key_press(self, event):
-        """
-        Implement the default mpl key bindings defined at
-        :ref:`key-event-handling`
-        """
+    def _key_press(self, event):
 
         if event.key is None:
             return
@@ -3137,7 +3133,7 @@ class NavigationBase(object):
         self.positions.clear()
 #        self.set_history_buttons()
 
-    def mouse_move(self, event):
+    def _mouse_move(self, event):
         if self._toggled:
             instance = self._instances[self._toggled]
             if self.movelock.isowner(instance):
