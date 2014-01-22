@@ -1,5 +1,6 @@
 import matplotlib
 matplotlib.use('GTK3Cairo')
+#matplotlib.rcParams['toolbar'] = 'None'
 import matplotlib.pyplot as plt
 
 fig = plt.figure()

@@ -3046,7 +3046,6 @@ class NavigationBase(object):
         return callback_class
 
     def _key_press(self, event):
-
         if event.key is None:
             return
 
@@ -3055,7 +3054,7 @@ class NavigationBase(object):
             instance = self._get_instance(self._toggled)
             if self.keypresslock.isowner(instance):
                 instance.key_press(event)
-            return
+                return
 
         name = self._keys.get(event.key, None)
         if name is None:
