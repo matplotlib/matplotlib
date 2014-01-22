@@ -149,6 +149,19 @@ added. Furthermore, the the subplottool is now implemented as a modal
 dialog. It was previously a QMainWindow, leaving the SPT open if one closed the
 plotwindow.
 
+Cairo backends
+``````````````
+
+The Cairo backends are now able to use the `cairocffi bindings
+<https://github.com/SimonSapin/cairocffi>`__ which are more actively
+maintained than the `pycairo bindings
+<http://cairographics.org/pycairo/>`__.
+
+Gtk3Agg backend
+```````````````
+
+The Gtk3Agg backend now works on Python 3.x, if the `cairocffi
+bindings <https://github.com/SimonSapin/cairocffi>`__ are installed.
 
 Text
 ----
