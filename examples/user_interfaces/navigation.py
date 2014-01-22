@@ -1,5 +1,5 @@
 import matplotlib
-matplotlib.use('GTK3AGG')
+matplotlib.use('GTK3Cairo')
 import matplotlib.pyplot as plt
 
 fig = plt.figure()
@@ -28,5 +28,23 @@ fig.canvas.manager.navigation.add_tool(ListTools)
 
 #Just for fun, lets remove the back button    
 fig.canvas.manager.navigation.remove_tool('Back')
-        
+
+#looking at https://github.com/matplotlib/matplotlib/issues/1987
+#a simple example of copy canvas
+class CopyTool(ToolBase):
+    keymap = 'ctrl+c'
+    name = 'Copy'
+    description = 'Copy canvas'
+    position = -1
+
+    def activate(self, event):
+        from gi.repository import Gtk, Gdk, GdkPixbuf
+        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        window = self.figure.canvas.get_window()
+        x, y, width, height = window.get_geometry()
+        pb = Gdk.pixbuf_get_from_window(window, x, y, width, height)
+        clipboard.set_image(pb)
+
+fig.canvas.manager.navigation.add_tool(CopyTool)
+
 plt.show()
