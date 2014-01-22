@@ -534,7 +534,8 @@ def run_code(code, code_path, ns=None, function_name=None):
                 ns = {}
             if not ns:
                 if setup.config.plot_pre_code is None:
-                    six.exec_("import numpy as np\nfrom matplotlib import pyplot as plt\n", ns)
+                    six.exec_(six.text_type("import numpy as np\n" +
+                    "from matplotlib import pyplot as plt\n"), ns)
                 else:
                     six.exec_(six.text_type(setup.config.plot_pre_code), ns)
             ns['print'] = _dummy_print
