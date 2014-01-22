@@ -77,7 +77,7 @@ def assert_correct_key(qt_key, qt_mods, answer):
 def test_shift():
     assert_correct_key(QtCore.Qt.Key_A,
                        ShiftModifier,
-                       u'A')
+                       'A')
 
 
 @cleanup
@@ -85,7 +85,7 @@ def test_shift():
 def test_lower():
     assert_correct_key(QtCore.Qt.Key_A,
                        QtCore.Qt.NoModifier,
-                       u'a')
+                       'a')
 
 
 @cleanup
@@ -93,7 +93,7 @@ def test_lower():
 def test_control():
     assert_correct_key(QtCore.Qt.Key_A,
                        ControlModifier,
-                       u'ctrl+a')
+                       'ctrl+a')
 
 
 @cleanup
@@ -117,7 +117,7 @@ def test_unicode_lower():
 def test_alt_control():
     assert_correct_key(ControlKey,
                        AltModifier,
-                       u'alt+control')
+                       'alt+control')
 
 
 @cleanup
@@ -125,7 +125,7 @@ def test_alt_control():
 def test_control_alt():
     assert_correct_key(AltKey,
                        ControlModifier,
-                       u'ctrl+alt')
+                       'ctrl+alt')
 
 
 @cleanup
@@ -133,7 +133,7 @@ def test_control_alt():
 def test_modifier_order():
     assert_correct_key(QtCore.Qt.Key_Aacute,
                        (ControlModifier | AltModifier | SuperModifier),
-                       u'ctrl+alt+super+' + unichr(225))
+                       'ctrl+alt+super+' + unichr(225))
 
 
 @cleanup
@@ -141,7 +141,7 @@ def test_modifier_order():
 def test_backspace():
     assert_correct_key(QtCore.Qt.Key_Backspace,
                        QtCore.Qt.NoModifier,
-                       u'backspace')
+                       'backspace')
 
 
 @cleanup
@@ -149,7 +149,7 @@ def test_backspace():
 def test_backspace_mod():
     assert_correct_key(QtCore.Qt.Key_Backspace,
                        ControlModifier,
-                       u'ctrl+backspace')
+                       'ctrl+backspace')
 
 
 @cleanup
