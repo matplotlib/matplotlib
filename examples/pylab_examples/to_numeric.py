@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 """
 Use backend agg to access the figure canvas as an RGB string and then
-convert it to an array and pass the string it to PIL for
-rendering
+convert it to an array and pass it to Pillow for rendering.
 """
 
 import pylab
