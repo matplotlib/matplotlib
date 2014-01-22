@@ -87,8 +87,10 @@ if sys.platform == 'darwin':
     SPECIAL_KEYS.update({QtCore.Qt.Key_Control: 'super',  # cmd/apple key
                          QtCore.Qt.Key_Meta: 'control',
                          })
-    MODIFIER_KEYS[0] = ('super', QtCore.Qt.ControlModifier, QtCore.Qt.Key_Control)
-    MODIFIER_KEYS[2] = ('ctrl', QtCore.Qt.MetaModifier, QtCore.Qt.Key_Meta)
+    MODIFIER_KEYS[0] = ('super', QtCore.Qt.ControlModifier,
+                        QtCore.Qt.Key_Control)
+    MODIFIER_KEYS[2] = ('ctrl', QtCore.Qt.MetaModifier,
+                        QtCore.Qt.Key_Meta)
 
 
 def fn_name():
