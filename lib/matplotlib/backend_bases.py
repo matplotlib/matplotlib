@@ -2611,7 +2611,8 @@ class FigureManagerBase(object):
         Implement the default mpl key bindings defined at
         :ref:`key-event-handling`
         """
-        key_press_handler(event, self.canvas, self.canvas.toolbar)
+        if rcParams['toolbar'] != 'navigation':
+            key_press_handler(event, self.canvas, self.canvas.toolbar)
 
     def show_popup(self, msg):
         """
