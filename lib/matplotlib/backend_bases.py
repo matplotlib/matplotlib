@@ -46,6 +46,7 @@ import matplotlib.transforms as transforms
 import matplotlib.widgets as widgets
 #import matplotlib.path as path
 from matplotlib import rcParams
+from matplotlib.rcsetup import validate_stringlist
 from matplotlib import is_interactive
 from matplotlib import get_backend
 from matplotlib._pylab_helpers import Gcf
@@ -56,6 +57,7 @@ import matplotlib.tight_bbox as tight_bbox
 import matplotlib.textpath as textpath
 from matplotlib.path import Path
 from matplotlib.cbook import mplDeprecation
+import matplotlib.backend_tools as tools
 
 try:
     from importlib import import_module
@@ -2531,8 +2533,10 @@ class FigureManagerBase:
         canvas.manager = self  # store a pointer to parent
         self.num = num
 
-        self.key_press_handler_id = self.canvas.mpl_connect('key_press_event',
-                                                            self.key_press)
+        if rcParams['toolbar'] != 'navigation':
+            self.key_press_handler_id = self.canvas.mpl_connect(
+                                                'key_press_event',
+                                                self.key_press)
         """
         The returned id from connecting the default key handler via
         :meth:`FigureCanvasBase.mpl_connnect`.
@@ -2591,10 +2595,7 @@ class FigureManagerBase:
         pass
 
 
-class Cursors:
-    # this class is only used as a simple namespace
-    HAND, POINTER, SELECT_REGION, MOVE = list(range(4))
-cursors = Cursors()
+cursors = tools.cursors
 
 
 class NavigationToolbar2(object):
@@ -3170,4 +3171,362 @@ class NavigationToolbar2(object):
 
     def set_history_buttons(self):
         """Enable or disable back/forward button"""
+        pass
+
+
+class NavigationBase(object):
+    _default_cursor = cursors.POINTER
+    _default_tools = [tools.ToolToggleGrid,
+             tools.ToolToggleFullScreen,
+             tools.ToolQuit,
+             tools.ToolEnableAllNavigation,
+             tools.ToolEnableNavigation,
+             tools.ToolToggleXScale,
+             tools.ToolToggleYScale,
+             tools.ToolHome, tools.ToolBack,
+             tools.ToolForward,
+             tools.ToolZoom,
+             tools.ToolPan,
+             'ConfigureSubplots',
+             'SaveFigure']
+
+    def __init__(self, canvas, toolbar=None):
+        self.canvas = canvas
+        self.toolbar = self._get_toolbar(toolbar, canvas)
+
+        self._key_press_handler_id = self.canvas.mpl_connect('key_press_event',
+                                                            self._key_press)
+
+        self._idDrag = self.canvas.mpl_connect('motion_notify_event',
+                                               self._mouse_move)
+
+        self._idPress = self.canvas.mpl_connect('button_press_event',
+                                                self._press)
+        self._idRelease = self.canvas.mpl_connect('button_release_event',
+                                                  self._release)
+
+        # a dict from axes index to a list of view limits
+        self.views = cbook.Stack()
+        self.positions = cbook.Stack()  # stack of subplot positions
+
+        self._tools = {}
+        self._keys = {}
+        self._instances = {}
+        self._toggled = None
+
+        #to communicate with tools and redirect events
+        self.keypresslock = widgets.LockDraw()
+        self.movelock = widgets.LockDraw()
+        self.presslock = widgets.LockDraw()
+        self.releaselock = widgets.LockDraw()
+        #just to group all the locks in one place
+        self.canvaslock = self.canvas.widgetlock
+
+        for tool in self._default_tools:
+            self.add_tool(tool)
+
+        self._last_cursor = self._default_cursor
+
+    def _get_toolbar(self, toolbar, canvas):
+        # must be inited after the window, drawingArea and figure
+        # attrs are set
+        if rcParams['toolbar'] == 'navigation'  and toolbar is not None:
+            toolbar = toolbar(canvas.manager)
+        else:
+            toolbar = None
+        return toolbar
+
+    #remove persistent instances
+    def unregister(self, name):
+        if self._toggled == name:
+            self._handle_toggle(name, from_toolbar=False)
+        if name in self._instances:
+            del self._instances[name]
+
+    def remove_tool(self, name):
+        self.unregister(name)
+        del self._tools[name]
+        keys = [k for k, v in self._keys.items() if v == name]
+        for k in keys:
+            del self._keys[k]
+
+        if self.toolbar:
+            self.toolbar.remove_toolitem(name)
+
+    def add_tool(self, callback_class):
+        tool = self._get_cls_to_instantiate(callback_class)
+        name = tool.name
+        if name is None:
+            warnings.warn('Tools need a name to be added, it is used as ID')
+            return
+        if name in self._tools:
+            warnings.warn('A tool with the same name already exist, not added')
+
+            return
+
+        self._tools[name] = tool
+        if tool.keymap is not None:
+            for k in validate_stringlist(tool.keymap):
+                self._keys[k] = name
+
+        if self.toolbar and tool.position is not None:
+            basedir = os.path.join(rcParams['datapath'], 'images')
+            if tool.image is not None:
+                fname = os.path.join(basedir, tool.image + '.png')
+            else:
+                fname = None
+            self.toolbar.add_toolitem(name, tool.description,
+                                      fname,
+                                      tool.position,
+                                      tool.toggle)
+
+    def _get_cls_to_instantiate(self, callback_class):
+        if isinstance(callback_class, basestring):
+            #FIXME: make more complete searching structure
+            if callback_class in globals():
+                return globals()[callback_class]
+
+            mod = self.__class__.__module__
+            current_module = __import__(mod,
+                                        globals(), locals(), [mod], 0)
+
+            return getattr(current_module, callback_class, False)
+
+        return callback_class
+
+    def _key_press(self, event):
+        if event.key is None:
+            return
+
+        #some tools may need to capture keypress, but they need to be toggle
+        if self._toggled:
+            instance = self._get_instance(self._toggled)
+            if self.keypresslock.isowner(instance):
+                instance.key_press(event)
+                return
+
+        name = self._keys.get(event.key, None)
+        if name is None:
+            return
+
+        tool = self._tools[name]
+        if tool.toggle:
+            self._handle_toggle(name, event=event)
+        elif tool.persistent:
+            instance = self._get_instance(name)
+            instance.activate(event)
+        else:
+            #Non persistent tools, are
+            #instantiated and forgotten (reminds me an exgirlfriend?)
+            tool(self.canvas.figure, event)
+
+    def _get_instance(self, name):
+        if name not in self._instances:
+            instance = self._tools[name](self.canvas.figure)
+            #register instance
+            self._instances[name] = instance
+
+        return self._instances[name]
+
+    def toolbar_callback(self, name):
+        tool = self._tools[name]
+        if tool.toggle:
+            self._handle_toggle(name, from_toolbar=True)
+        elif tool.persistent:
+            instance = self._get_instance(name)
+            instance.activate(None)
+        else:
+            tool(self.canvas.figure, None)
+
+    def _handle_toggle(self, name, event=None, from_toolbar=False):
+        #toggle toolbar without callback
+        if not from_toolbar and self.toolbar:
+            self.toolbar.toggle(name, False)
+
+        instance = self._get_instance(name)
+        if self._toggled is None:
+            instance.activate(None)
+            self._toggled = name
+
+        elif self._toggled == name:
+            instance.deactivate(None)
+            self._toggled = None
+
+        else:
+            if self.toolbar:
+                self.toolbar.toggle(self._toggled, False)
+
+            self._get_instance(self._toggled).deactivate(None)
+            instance.activate(None)
+            self._toggled = name
+
+        for a in self.canvas.figure.get_axes():
+            a.set_navigate_mode(self._toggled)
+
+    def list_tools(self):
+        print ('_' * 80)
+        print ("{0:20} {1:50} {2}".format('Name (id)', 'Tool description',
+                                          'Keymap'))
+        print ('_' * 80)
+        for name in sorted(self._tools.keys()):
+            tool = self._tools[name]
+            keys = [k for k, i in self._keys.items() if i == name]
+            print ("{0:20} {1:50} {2}".format(tool.name, tool.description,
+                                              ', '.join(keys)))
+        print ('_' * 80, '\n')
+
+    def update(self):
+        """Reset the axes stack"""
+        self.views.clear()
+        self.positions.clear()
+#        self.set_history_buttons()
+
+    def _mouse_move(self, event):
+        if self._toggled:
+            instance = self._instances[self._toggled]
+            if self.movelock.isowner(instance):
+                instance.mouse_move(event)
+                return
+
+        if not event.inaxes or not self._toggled:
+            if self._last_cursor != self._default_cursor:
+                self.set_cursor(self._default_cursor)
+                self._last_cursor = self._default_cursor
+        else:
+            if self._toggled:
+                cursor = self._instances[self._toggled].cursor
+                if cursor and self._last_cursor != cursor:
+                    self.set_cursor(cursor)
+                    self._last_cursor = cursor
+
+        if self.toolbar is None:
+            return
+
+        if event.inaxes and event.inaxes.get_navigate():
+
+            try:
+                s = event.inaxes.format_coord(event.xdata, event.ydata)
+            except (ValueError, OverflowError):
+                pass
+            else:
+                if self._toggled:
+                    self.toolbar.set_message('%s, %s' % (self._toggled, s))
+                else:
+                    self.toolbar.set_message(s)
+        else:
+            self.toolbar.set_message('')
+
+    def _release(self, event):
+        if self._toggled:
+            instance = self._instances[self._toggled]
+            if self.releaselock.isowner(instance):
+                instance.release(event)
+                return
+        self.release(event)
+
+    def release(self, event):
+        pass
+
+    def _press(self, event):
+        """Called whenver a mouse button is pressed."""
+        if self._toggled:
+            instance = self._instances[self._toggled]
+            if self.presslock.isowner(instance):
+                instance.press(event)
+                return
+        self.press(event)
+
+    def press(self, event):
+        """Called whenver a mouse button is pressed."""
+        pass
+
+    def draw(self):
+        """Redraw the canvases, update the locators"""
+        for a in self.canvas.figure.get_axes():
+            xaxis = getattr(a, 'xaxis', None)
+            yaxis = getattr(a, 'yaxis', None)
+            locators = []
+            if xaxis is not None:
+                locators.append(xaxis.get_major_locator())
+                locators.append(xaxis.get_minor_locator())
+            if yaxis is not None:
+                locators.append(yaxis.get_major_locator())
+                locators.append(yaxis.get_minor_locator())
+
+            for loc in locators:
+                loc.refresh()
+        self.canvas.draw_idle()
+
+    def dynamic_update(self):
+        pass
+
+    def set_cursor(self, cursor):
+        """
+        Set the current cursor to one of the :class:`Cursors`
+        enums values
+        """
+        pass
+
+    def update_view(self):
+        """Update the viewlim and position from the view and
+        position stack for each axes
+        """
+
+        lims = self.views()
+        if lims is None:
+            return
+        pos = self.positions()
+        if pos is None:
+            return
+        for i, a in enumerate(self.canvas.figure.get_axes()):
+            xmin, xmax, ymin, ymax = lims[i]
+            a.set_xlim((xmin, xmax))
+            a.set_ylim((ymin, ymax))
+            # Restore both the original and modified positions
+            a.set_position(pos[i][0], 'original')
+            a.set_position(pos[i][1], 'active')
+
+        self.canvas.draw_idle()
+
+    def push_current(self):
+        """push the current view limits and position onto the stack"""
+        lims = []
+        pos = []
+        for a in self.canvas.figure.get_axes():
+            xmin, xmax = a.get_xlim()
+            ymin, ymax = a.get_ylim()
+            lims.append((xmin, xmax, ymin, ymax))
+            # Store both the original and modified positions
+            pos.append((
+                a.get_position(True).frozen(),
+                a.get_position().frozen()))
+        self.views.push(lims)
+        self.positions.push(pos)
+#        self.set_history_buttons()
+
+    def draw_rubberband(self, event, x0, y0, x1, y1):
+        """Draw a rectangle rubberband to indicate zoom limits"""
+        pass
+
+
+class ToolbarBase(object):
+    def __init__(self, manager):
+        self.manager = manager
+
+    def add_toolitem(self, name, description, image_file, position,
+                     toggle):
+        raise NotImplementedError
+
+    def add_separator(self, pos):
+        pass
+
+    def set_message(self, s):
+        """Display a message on toolbar or in status bar"""
+        pass
+
+    def toggle(self, name, callback=False):
+        #carefull, callback means to perform or not the callback while toggling
+        raise NotImplementedError
+
+    def remove_toolitem(self, name):
         pass

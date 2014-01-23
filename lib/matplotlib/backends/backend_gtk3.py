@@ -30,7 +30,8 @@ import matplotlib
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
-from matplotlib.backend_bases import ShowBase
+from matplotlib.backend_bases import ShowBase, ToolbarBase, NavigationBase
+from matplotlib.backend_tools import SaveFigureBase, ConfigureSubplotsBase
 
 from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.colors import colorConverter
@@ -411,7 +412,7 @@ class FigureManagerGTK3(FigureManagerBase):
         self.canvas.show()
 
         self.vbox.pack_start(self.canvas, True, True, 0)
-
+        self.navigation = None
         self.toolbar = self._get_toolbar(canvas)
 
         # calculate size for window
@@ -435,7 +436,9 @@ class FigureManagerGTK3(FigureManagerBase):
 
         def notify_axes_change(fig):
             'this will be called whenever the current axes is changed'
-            if self.toolbar is not None: self.toolbar.update()
+            if self.navigation is not None:
+                self.navigation.update()
+            elif self.toolbar is not None: self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
         self.canvas.grab_focus()
@@ -471,7 +474,11 @@ class FigureManagerGTK3(FigureManagerBase):
         # attrs are set
         if rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2GTK3 (canvas, self.window)
+        elif rcParams['toolbar'] == 'navigation':
+            self.navigation = NavigationGTK3(canvas, ToolbarGTK3)
+            toolbar = self.navigation.toolbar
         else:
+            self.navigation = NavigationGTK3(canvas, None)
             toolbar = None
         return toolbar
 
@@ -698,6 +705,205 @@ class FileChooserDialog(Gtk.FileChooserDialog):
             break
 
         return filename, self.ext
+
+class NavigationGTK3(NavigationBase):
+    def __init__(self, *args, **kwargs):
+        NavigationBase.__init__(self, *args, **kwargs)
+        self.ctx = None
+
+    def set_cursor(self, cursor):
+        self.canvas.get_property("window").set_cursor(cursord[cursor])
+
+    def draw_rubberband(self, event, x0, y0, x1, y1):
+        #'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/
+        #Recipe/189744'
+        self.ctx = self.canvas.get_property("window").cairo_create()
+
+        # todo: instead of redrawing the entire figure, copy the part of
+        # the figure that was covered by the previous rubberband rectangle
+        self.canvas.draw()
+
+        height = self.canvas.figure.bbox.height
+        y1 = height - y1
+        y0 = height - y0
+        w = abs(x1 - x0)
+        h = abs(y1 - y0)
+        rect = [int(val) for val in (min(x0, x1), min(y0, y1), w, h)]
+
+        self.ctx.new_path()
+        self.ctx.set_line_width(0.5)
+        self.ctx.rectangle(rect[0], rect[1], rect[2], rect[3])
+        self.ctx.set_source_rgb(0, 0, 0)
+        self.ctx.stroke()
+
+    def dynamic_update(self):
+        # legacy method; new method is canvas.draw_idle
+        self.canvas.draw_idle()
+
+#    def release(self, event):
+#        try: del self._pixmapBack
+#        except AttributeError: pass
+
+
+class ToolbarGTK3(ToolbarBase, Gtk.Box,):
+    def __init__(self, manager):
+        ToolbarBase.__init__(self, manager)
+        Gtk.Box.__init__(self)
+        self.set_property("orientation", Gtk.Orientation.VERTICAL)
+
+        self._toolbar = Gtk.Toolbar()
+        self._toolbar.set_style(Gtk.ToolbarStyle.ICONS)
+        self.pack_start(self._toolbar, False, False, 0)
+        self._toolbar.show_all()
+        self._toolitems = {}
+        self._signals = {}
+        self._add_message()
+
+    def _add_message(self):
+        box = Gtk.Box()
+        box.set_property("orientation", Gtk.Orientation.HORIZONTAL)
+        sep = Gtk.Separator()
+        sep.set_property("orientation", Gtk.Orientation.VERTICAL)
+        box.pack_start(sep, False, True, 0)
+        self.message = Gtk.Label()
+        box.pack_end(self.message, False, False, 0)
+        self.pack_end(box, False, False, 5)
+        box.show_all()
+
+        sep = Gtk.Separator()
+        sep.set_property("orientation", Gtk.Orientation.HORIZONTAL)
+        self.pack_end(sep, False, True, 0)
+        sep.show_all()
+
+    def add_toolitem(self, name, tooltip_text, image_file, position,
+                     toggle):
+        if toggle:
+            tbutton = Gtk.ToggleToolButton()
+        else:
+            tbutton = Gtk.ToolButton()
+        tbutton.set_label(name)
+
+        if image_file is not None:
+            image = Gtk.Image()
+            image.set_from_file(image_file)
+            tbutton.set_icon_widget(image)
+
+        self._toolbar.insert(tbutton, position)
+        signal = tbutton.connect('clicked', self._call_tool, name)
+        tbutton.set_tooltip_text(tooltip_text)
+        tbutton.show_all()
+        self._toolitems[name] = tbutton
+        self._signals[name] = signal
+
+    def _call_tool(self, btn, name):
+        self.manager.navigation.toolbar_callback(name)
+
+    def set_message(self, s):
+        self.message.set_label(s)
+
+    def toggle(self, name, callback=False):
+        if name not in self._toolitems:
+            # TODO: raise a warning
+            print('Not in toolbar', name)
+            return
+
+        status = self._toolitems[name].get_active()
+        if not callback:
+            self._toolitems[name].handler_block(self._signals[name])
+
+        self._toolitems[name].set_active(not status)
+
+        if not callback:
+            self._toolitems[name].handler_unblock(self._signals[name])
+
+    def remove_toolitem(self, name):
+        if name not in self._toolitems:
+            #TODO: raise warning
+            print('Not in toolbar', name)
+            return
+        self._toolbar.remove(self._toolitems[name])
+        del self._toolitems[name]
+
+
+class SaveFigureGTK3(SaveFigureBase):
+
+    def get_filechooser(self):
+        fc = FileChooserDialog(
+            title='Save the figure',
+            parent=self.figure.canvas.manager.window,
+            path=os.path.expanduser(rcParams.get('savefig.directory', '')),
+            filetypes=self.figure.canvas.get_supported_filetypes(),
+            default_filetype=self.figure.canvas.get_default_filetype())
+        fc.set_current_name(self.figure.canvas.get_default_filename())
+        return fc
+
+    def activate(self, *args):
+        chooser = self.get_filechooser()
+        fname, format_ = chooser.get_filename_from_user()
+        chooser.destroy()
+        if fname:
+            startpath = os.path.expanduser(
+                            rcParams.get('savefig.directory', ''))
+            if startpath == '':
+                # explicitly missing key or empty str signals to use cwd
+                rcParams['savefig.directory'] = startpath
+            else:
+                # save dir for next time
+                rcParams['savefig.directory'] = os.path.dirname(
+                                                    six.text_type(fname))
+            try:
+                self.figure.canvas.print_figure(fname, format=format_)
+            except Exception as e:
+                error_msg_gtk(str(e), parent=self)
+
+SaveFigure = SaveFigureGTK3
+
+
+class ConfigureSubplotsGTK3(ConfigureSubplotsBase, Gtk.Window):
+    def __init__(self, *args, **kwargs):
+        ConfigureSubplotsBase.__init__(self, *args, **kwargs)
+        Gtk.Window.__init__(self)
+
+        try:
+            self.window.set_icon_from_file(window_icon)
+        except (SystemExit, KeyboardInterrupt):
+            # re-raise exit type Exceptions
+            raise
+        except:
+            # we presumably already logged a message on the
+            # failure of the main plot, don't keep reporting
+            pass
+        self.set_title("Subplot Configuration Tool")
+        self.vbox = Gtk.Box()
+        self.vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
+        self.add(self.vbox)
+        self.vbox.show()
+        self.connect('destroy', self.unregister)
+
+        toolfig = Figure(figsize=(6, 3))
+        canvas = self.figure.canvas.__class__(toolfig)
+
+        toolfig.subplots_adjust(top=0.9)
+        SubplotTool(self.figure, toolfig)
+
+        w = int(toolfig.bbox.width)
+        h = int(toolfig.bbox.height)
+
+        self.set_default_size(w, h)
+
+        canvas.show()
+        self.vbox.pack_start(canvas, True, True, 0)
+        self.show()
+
+    def _get_canvas(self, fig):
+        return self.canvas.__class__(fig)
+
+    def activate(self, event):
+        self.present()
+
+
+ConfigureSubplots = ConfigureSubplotsGTK3
+
 
 class DialogLineprops:
     """

@@ -154,7 +154,7 @@ validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide'])
 def validate_toolbar(s):
     validator = ValidateInStrings(
                 'toolbar',
-                ['None', 'toolbar2'],
+                ['None', 'toolbar2', 'navigation'],
                 ignorecase=True)
     return validator(s)
 
