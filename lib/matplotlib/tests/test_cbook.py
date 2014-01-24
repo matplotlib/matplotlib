@@ -6,8 +6,9 @@ import six
 from datetime import datetime
 
 import numpy as np
-from numpy.testing.utils import assert_array_equal
-from nose.tools import assert_equal, raises
+from numpy.testing.utils import (assert_array_equal, assert_approx_equal,
+                                 assert_array_almost_equal)
+from nose.tools import assert_equal, raises, assert_true
 
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
@@ -92,3 +93,154 @@ def test_allequal():
     assert(cbook.allequal([]))
     assert(cbook.allequal(('a', 'a')))
     assert(not cbook.allequal(('a', 'b')))
+
+
+class Test_boxplot_stats:
+    def setup(self):
+        np.random.seed(937)
+        self.nrows = 37
+        self.ncols = 4
+        self.data = np.random.lognormal(size=(self.nrows, self.ncols),
+                                        mean=1.5, sigma=1.75)
+        self.known_keys = sorted([
+            'mean', 'med', 'q1', 'q3', 'iqr',
+            'cilo', 'cihi', 'whislo', 'whishi',
+            'fliers', 'label'
+        ])
+        self.std_results = cbook.boxplot_stats(self.data)
+
+        self.known_nonbootstrapped_res = {
+            'cihi': 6.8161283264444847,
+            'cilo': -0.1489815330368689,
+            'iqr': 13.492709959447094,
+            'mean': 13.00447442387868,
+            'med': 3.3335733967038079,
+            'fliers': np.array([
+                92.55467075,  87.03819018,  42.23204914,  39.29390996
+            ]),
+            'q1': 1.3597529879465153,
+            'q3': 14.85246294739361,
+            'whishi': 27.899688243699629,
+            'whislo': 0.042143774965502923,
+            'label': 0
+        }
+
+        self.known_bootstrapped_ci = {
+            'cihi': 8.939577523357828,
+            'cilo': 1.8692703958676578,
+        }
+
+        self.known_whis3_res = {
+            'whishi': 42.232049135969874,
+            'whislo': 0.042143774965502923,
+            'fliers': np.array([92.55467075, 87.03819018]),
+        }
+
+        self.known_res_with_labels = {
+            'label': 'Test1'
+        }
+
+        self.known_res_percentiles = {
+            'whislo':   0.1933685896907924,
+            'whishi':  42.232049135969874
+        }
+
+        self.known_res_range = {
+            'whislo': 0.042143774965502923,
+            'whishi': 92.554670752188699
+
+        }
+
+    def test_form_main_list(self):
+        assert_true(isinstance(self.std_results, list))
+
+    def test_form_each_dict(self):
+        for res in self.std_results:
+            assert_true(isinstance(res, dict))
+
+    def test_form_dict_keys(self):
+        for res in self.std_results:
+            keys = sorted(list(res.keys()))
+            for key in keys:
+                assert_true(key in self.known_keys)
+
+    def test_results_baseline(self):
+        res = self.std_results[0]
+        for key in list(self.known_nonbootstrapped_res.keys()):
+            if key != 'fliers':
+                assert_statement = assert_approx_equal
+            else:
+                assert_statement = assert_array_almost_equal
+
+            assert_statement(
+                res[key],
+                self.known_nonbootstrapped_res[key]
+            )
+
+    def test_results_bootstrapped(self):
+        results = cbook.boxplot_stats(self.data, bootstrap=10000)
+        res = results[0]
+        for key in list(self.known_bootstrapped_ci.keys()):
+            assert_approx_equal(
+                res[key],
+                self.known_bootstrapped_ci[key]
+            )
+
+    def test_results_whiskers_float(self):
+        results = cbook.boxplot_stats(self.data, whis=3)
+        res = results[0]
+        for key in list(self.known_whis3_res.keys()):
+            if key != 'fliers':
+                assert_statement = assert_approx_equal
+            else:
+                assert_statement = assert_array_almost_equal
+
+            assert_statement(
+                res[key],
+                self.known_whis3_res[key]
+            )
+
+    def test_results_whiskers_range(self):
+        results = cbook.boxplot_stats(self.data, whis='range')
+        res = results[0]
+        for key in list(self.known_res_range.keys()):
+            if key != 'fliers':
+                assert_statement = assert_approx_equal
+            else:
+                assert_statement = assert_array_almost_equal
+
+            assert_statement(
+                res[key],
+                self.known_res_range[key]
+            )
+
+    def test_results_whiskers_percentiles(self):
+        results = cbook.boxplot_stats(self.data, whis=[5, 95])
+        res = results[0]
+        for key in list(self.known_res_percentiles.keys()):
+            if key != 'fliers':
+                assert_statement = assert_approx_equal
+            else:
+                assert_statement = assert_array_almost_equal
+
+            assert_statement(
+                res[key],
+                self.known_res_percentiles[key]
+            )
+
+    def test_results_withlabels(self):
+        labels = ['Test1', 2, 3, 4]
+        results = cbook.boxplot_stats(self.data, labels=labels)
+        res = results[0]
+        for key in list(self.known_res_with_labels.keys()):
+            assert_equal(res[key], self.known_res_with_labels[key])
+
+    @raises(ValueError)
+    def test_label_error(self):
+        labels = [1, 2]
+        results = cbook.boxplot_stats(self.data, labels=labels)
+
+    @raises(ValueError)
+    def test_bad_dims(self):
+        data = np.random.normal(size=(34, 34, 34))
+        results = cbook.boxplot_stats(data)
