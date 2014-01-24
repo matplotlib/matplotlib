@@ -260,7 +260,16 @@ def calculate_rms(expectedImage, actualImage):
     return rms
 
 
-def compare_images(expected, actual, tol, in_decorator=False):
+def count_large_differences(expectedImage, actualImage, threshold):
+    """
+    Returns the number of pixel which differ by greater than `threshold`
+    """
+    abs_diff_image = abs(expectedImage - actualImage)
+    return np.sum(abs_diff_image > threshold)
+
+
+def compare_images(expected, actual, tol, in_decorator=False,
+                   excursion_threshold=None, max_excursion_count=None):
     """
     Compare two "image" files checking differences within a tolerance.
 
@@ -324,17 +333,25 @@ def compare_images(expected, actual, tol, in_decorator=False):
     actualImage = actualImage.astype(np.int16)
 
     rms = calculate_rms(expectedImage, actualImage)
+    excursion_pass = True  # default to true for back
+    results = {}
+    if excursion_threshold is not None and max_excursion_count is not None:
+        excursion_count = count_large_differences(expectedImage,
+                                                  actualImage,
+                                                  excursion_threshold)
+        excursion_pass = excursion_count < excursion_threshold
+        results['excursion_count'] = excursion_count
 
     diff_image = make_test_filename(actual, 'failed-diff')
-
-    if rms <= tol:
+    if rms <= tol and excursion_pass:
         if os.path.exists(diff_image):
             os.unlink(diff_image)
+
         return None
 
     save_diff_image(expected, actual, diff_image)
 
-    results = dict(rms=rms, expected=str(expected),
+    results.update(rms=rms, expected=str(expected),
                    actual=str(actual), diff=str(diff_image))
 
     if not in_decorator:
