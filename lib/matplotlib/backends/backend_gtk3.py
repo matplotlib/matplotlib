@@ -706,6 +706,7 @@ class FileChooserDialog(Gtk.FileChooserDialog):
 
         return filename, self.ext
 
+
 class NavigationGTK3(NavigationBase):
     def __init__(self, *args, **kwargs):
         NavigationBase.__init__(self, *args, **kwargs)
@@ -803,8 +804,7 @@ class ToolbarGTK3(ToolbarBase, Gtk.Box,):
 
     def toggle(self, name, callback=False):
         if name not in self._toolitems:
-            # TODO: raise a warning
-            print('Not in toolbar', name)
+            self.set_message('%s Not in toolbar' % name)
             return
 
         status = self._toolitems[name].get_active()
@@ -818,11 +818,30 @@ class ToolbarGTK3(ToolbarBase, Gtk.Box,):
 
     def remove_toolitem(self, name):
         if name not in self._toolitems:
-            #TODO: raise warning
-            print('Not in toolbar', name)
+            self.set_message('%s Not in toolbar' % name)
             return
         self._toolbar.remove(self._toolitems[name])
         del self._toolitems[name]
+
+    def add_separator(self, pos=-1):
+        toolitem = Gtk.SeparatorToolItem()
+        self._toolbar.insert(toolitem, pos)
+        toolitem.show()
+        return toolitem
+
+    def move_toolitem(self, pos_ini, pos_fin):
+        widget = self._toolbar.get_nth_item(pos_ini)
+        if not widget:
+            self.set_message('Impossible to remove tool %d' % pos_ini)
+            return
+        self._toolbar.remove(widget)
+        self._toolbar.insert(widget, pos_fin)
+
+    def set_toolitem_visibility(self, name, visible):
+        if name not in self._toolitems:
+            self.set_message('%s Not in toolbar' % name)
+            return
+        self._toolitems[name].set_visible(visible)
 
 
 class SaveFigureGTK3(SaveFigureBase):

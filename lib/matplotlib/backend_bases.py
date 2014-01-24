@@ -3186,8 +3186,10 @@ class NavigationBase(object):
              tools.ToolToggleYScale,
              tools.ToolHome, tools.ToolBack,
              tools.ToolForward,
+             None,
              tools.ToolZoom,
              tools.ToolPan,
+             None,
              'ConfigureSubplots',
              'SaveFigure']
 
@@ -3224,7 +3226,11 @@ class NavigationBase(object):
         self.canvaslock = self.canvas.widgetlock
 
         for tool in self._default_tools:
-            self.add_tool(tool)
+            if tool is None:
+                if self.toolbar is not None:
+                    self.toolbar.add_separator(-1)
+            else:
+                self.add_tool(tool)
 
         self._last_cursor = self._default_cursor
 
@@ -3237,7 +3243,28 @@ class NavigationBase(object):
             toolbar = None
         return toolbar
 
-    #remove persistent instances
+    def get_active(self):
+        return {'toggled': self._toggled, 'instances': self._instances.keys()}
+
+    def get_tool_keymap(self, name):
+        keys = [k for k, i in self._keys.items() if i == name]
+        return keys
+
+    def set_tool_keymap(self, name, *keys):
+        if name not in self._tools:
+            raise AttributeError('%s not in Tools' % name)
+
+        active_keys = [k for k, i in self._keys.items() if i == name]
+        for k in active_keys:
+            del self._keys[k]
+
+        for key in keys:
+            for k in validate_stringlist(key):
+                if k in self._keys:
+                    warnings.warn('Key %s changed from %s to %s' %
+                                  (k, self._keys[k], name))
+                self._keys[k] = name
+
     def unregister(self, name):
         if self._toggled == name:
             self._handle_toggle(name, from_toolbar=False)
@@ -3268,6 +3295,9 @@ class NavigationBase(object):
         self._tools[name] = tool
         if tool.keymap is not None:
             for k in validate_stringlist(tool.keymap):
+                if k in self._keys:
+                    warnings.warn('Key %s changed from %s to %s' %
+                                  (k, self._keys[k], name))
                 self._keys[k] = name
 
         if self.toolbar and tool.position is not None:
@@ -3530,4 +3560,10 @@ class ToolbarBase(object):
         raise NotImplementedError
 
     def remove_toolitem(self, name):
+        pass
+
+    def move_toolitem(self, pos_ini, pos_fin):
+        pass
+
+    def set_toolitem_visibility(self, name, visible):
         pass
