@@ -88,7 +88,7 @@ class ToolEnableAllNavigation(ToolBase):
 class ToolEnableNavigation(ToolBase):
     name = 'EnableOne'
     description = 'Enables one axes navigation'
-    keymap = range(1, 5)
+    keymap = range(1, 10)
 
     def activate(self, event):
         if event.inaxes is None:
