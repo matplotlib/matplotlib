@@ -25,6 +25,14 @@ graphics contexts must implement to serve as a matplotlib backend
     the 'show' callable is then set to Show.__call__, inherited from
     ShowBase.
 
+:class:`NavigationBase`
+    The base class for the Navigation class that makes the bridge between
+    user interaction (key press, toolbar clicks, ..) and the actions in
+    response to the user inputs.
+
+:class:`ToolbarBase`
+     The base class for the Toolbar class of each interactive backend.
+
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -3176,6 +3184,25 @@ class NavigationToolbar2(object):
 
 
 class NavigationBase(object):
+    """ Helper class that groups all the user interactions for a FigureManager
+
+     Attributes
+    ----------
+    canvas : `FigureCanvas` instance
+    toolbar : `Toolbar` instance that is controlled by this `Navigation`
+    keypresslock : `LockDraw` to direct the `canvas` key_press_event
+    movelock: `LockDraw` to direct the `canvas` motion_notify_event
+    presslock: `LockDraw` to direct the `canvas` button_press_event
+    releaselock: `LockDraw` to direct the `canvas` button_release_event
+    canvaslock: shortcut to `canvas.widgetlock`
+
+    Notes
+    --------_
+    The following methos are for implementation pourposes and not for user use
+    For these reason they are defined as **_methodname** (private)
+
+    .. automethod:: _toolbar_callback
+    """
     _default_cursor = cursors.POINTER
     _default_tools = [tools.ToolToggleGrid,
              tools.ToolToggleFullScreen,
@@ -3244,13 +3271,43 @@ class NavigationBase(object):
         return toolbar
 
     def get_active(self):
+        """Get the active tools
+
+        Returns
+        ----------
+         A dictionary with the following elements
+          * `toggled`: The currently toggled Tool or None
+          * `instances`: List of the currently active tool instances
+            that are registered with Navigation
+
+        """
         return {'toggled': self._toggled, 'instances': self._instances.keys()}
 
     def get_tool_keymap(self, name):
+        """Get the keymap associated with a tool
+
+        Parameters
+        ----------
+        name : string
+            Name of the Tool
+
+        Returns
+        ----------
+        Keymap : list of keys associated with the Tool
+        """
         keys = [k for k, i in self._keys.items() if i == name]
         return keys
 
     def set_tool_keymap(self, name, *keys):
+        """Set the keymap associated with a tool
+
+        Parameters
+        ----------
+        name : string
+            Name of the Tool
+        keys : keys to associated with the Tool
+        """
+
         if name not in self._tools:
             raise AttributeError('%s not in Tools' % name)
 
@@ -3266,12 +3323,32 @@ class NavigationBase(object):
                 self._keys[k] = name
 
     def unregister(self, name):
+        """Unregister the tool from the active instances
+
+        Notes
+        -----
+        This method is used by `PersistentTools` to remove the reference kept
+        by `Navigation`.
+
+        It is usually called by the `deactivate` method or during
+        destroy if it is a graphical Tool.
+
+        If called, next time the `Tool` is used it will be reinstantiated instead
+        of using the existing instance.
+        """
         if self._toggled == name:
             self._handle_toggle(name, from_toolbar=False)
         if name in self._instances:
             del self._instances[name]
 
     def remove_tool(self, name):
+        """Remove tool from the `Navigation`
+
+        Parameters
+        ----------
+        name : string
+            Name of the Tool
+        """
         self.unregister(name)
         del self._tools[name]
         keys = [k for k, v in self._keys.items() if v == name]
@@ -3279,37 +3356,46 @@ class NavigationBase(object):
             del self._keys[k]
 
         if self.toolbar:
-            self.toolbar.remove_toolitem(name)
+            self.toolbar._remove_toolitem(name)
 
-    def add_tool(self, callback_class):
-        tool = self._get_cls_to_instantiate(callback_class)
-        name = tool.name
+    def add_tool(self, tool):
+        """Add tool to `Navigation`
+
+        Parameters
+        ----------
+        tool : string or `Tool` class
+            Reference to find the class of the Tool to be added
+        """
+        tool_cls = self._get_cls_to_instantiate(tool)
+        name = tool_cls.name
         if name is None:
-            warnings.warn('Tools need a name to be added, it is used as ID')
+            warnings.warn('tool_clss need a name to be added, it is used '
+                          'as ID')
             return
         if name in self._tools:
-            warnings.warn('A tool with the same name already exist, not added')
+            warnings.warn('A tool_cls with the same name already exist, '
+                          'not added')
 
             return
 
-        self._tools[name] = tool
-        if tool.keymap is not None:
-            for k in validate_stringlist(tool.keymap):
+        self._tools[name] = tool_cls
+        if tool_cls.keymap is not None:
+            for k in validate_stringlist(tool_cls.keymap):
                 if k in self._keys:
                     warnings.warn('Key %s changed from %s to %s' %
                                   (k, self._keys[k], name))
                 self._keys[k] = name
 
-        if self.toolbar and tool.position is not None:
+        if self.toolbar and tool_cls.position is not None:
             basedir = os.path.join(rcParams['datapath'], 'images')
-            if tool.image is not None:
-                fname = os.path.join(basedir, tool.image + '.png')
+            if tool_cls.image is not None:
+                fname = os.path.join(basedir, tool_cls.image + '.png')
             else:
                 fname = None
-            self.toolbar.add_toolitem(name, tool.description,
+            self.toolbar._add_toolitem(name, tool_cls.description,
                                       fname,
-                                      tool.position,
-                                      tool.toggle)
+                                      tool_cls.position,
+                                      tool_cls.toggle)
 
     def _get_cls_to_instantiate(self, callback_class):
         if isinstance(callback_class, basestring):
@@ -3359,7 +3445,18 @@ class NavigationBase(object):
 
         return self._instances[name]
 
-    def toolbar_callback(self, name):
+    def _toolbar_callback(self, name):
+        """Callback for the `Toolbar`
+
+        All Toolbar implementations have to call this method to signal that a
+        toolitem was clicked on
+
+        Parameters
+        ----------
+        name : string
+            Name of the tool that was activated (click) by the user using the
+            toolbar
+        """
         tool = self._tools[name]
         if tool.toggle:
             self._handle_toggle(name, from_toolbar=True)
@@ -3372,7 +3469,7 @@ class NavigationBase(object):
     def _handle_toggle(self, name, event=None, from_toolbar=False):
         #toggle toolbar without callback
         if not from_toolbar and self.toolbar:
-            self.toolbar.toggle(name, False)
+            self.toolbar._toggle(name, False)
 
         instance = self._get_instance(name)
         if self._toggled is None:
@@ -3385,7 +3482,7 @@ class NavigationBase(object):
 
         else:
             if self.toolbar:
-                self.toolbar.toggle(self._toggled, False)
+                self.toolbar._toggle(self._toggled, False)
 
             self._get_instance(self._toggled).deactivate(None)
             instance.activate(None)
@@ -3395,6 +3492,7 @@ class NavigationBase(object):
             a.set_navigate_mode(self._toggled)
 
     def list_tools(self):
+        """Print the list the tools controlled by `Navigation`"""
         print ('_' * 80)
         print ("{0:20} {1:50} {2}".format('Name (id)', 'Tool description',
                                           'Keymap'))
@@ -3541,29 +3639,113 @@ class NavigationBase(object):
 
 
 class ToolbarBase(object):
+    """Base class for `Toolbar` implementation
+
+     Attributes
+    ----------
+    manager : `FigureManager` instance that integrates this `Toolbar`
+
+    Notes
+    -----
+    The following methos are for implementation pourposes and not for user use.
+    For these reason they are defined as **_methodname** (private)
+
+    .. automethod:: _toggle
+    .. automethod:: _add_toolitem
+    .. automethod:: _remove_toolitem
+    """
     def __init__(self, manager):
         self.manager = manager
 
-    def add_toolitem(self, name, description, image_file, position,
+    def _add_toolitem(self, name, description, image_file, position,
                      toggle):
+        """Add a toolitem to the toolbar
+
+        The callback associated with the button click event,
+        must be **EXACTLY** `self.manager.navigation._toolbar_callback(name)`
+
+        Parameters
+        ----------
+        name : string
+            Name of the tool to add, this is used as ID and as default label
+            of the buttons
+        description : string
+            Description of the tool, used for the tooltips
+        image_file : string
+            Filename of the image for the button or `None`
+        position : integer
+            Position of the toolitem within the other toolitems
+            if -1 at the End
+        toggle : bool
+            * `True` : The button is a toggle (change the pressed/unpressed
+                state between consecutive clicks)
+            * `False` : The button is a normal button (returns to unpressed
+                state after release)
+        """
         raise NotImplementedError
 
     def add_separator(self, pos):
+        """Add a separator
+
+        Parameters
+        ----------
+        pos : integer
+            Position where to add the separator within the toolitems
+            if -1 at the end
+        """
         pass
 
     def set_message(self, s):
         """Display a message on toolbar or in status bar"""
         pass
 
-    def toggle(self, name, callback=False):
+    def _toggle(self, name, callback=False):
+        """Toogle a button
+
+        Parameters
+        ----------
+        name : string
+            Name of the button to toggle
+        callback : bool
+            * `True`: call the button callback during toggle
+            * `False`: toggle the button without calling the callback
+
+        """
         #carefull, callback means to perform or not the callback while toggling
         raise NotImplementedError
 
-    def remove_toolitem(self, name):
-        pass
+    def _remove_toolitem(self, name):
+        """Remove a toolitem from the `Toolbar`
+
+        Parameters
+        ----------
+        name : string
+            Name of the tool to remove
+
+        """
+        raise NotImplementedError
 
     def move_toolitem(self, pos_ini, pos_fin):
+        """Change the position of a toolitem
+
+        Parameters
+        ----------
+        pos_ini : integer
+            Initial position of the toolitem to move
+        pos_fin : integer
+            Final position of the toolitem
+        """
         pass
 
     def set_toolitem_visibility(self, name, visible):
+        """Change the visibility of a toolitem
+
+        Parameters
+        ----------
+        name : string
+            Name of the `Tool`
+        visible : bool
+            * `True`: set the toolitem visible
+            * `False`: set the toolitem invisible
+        """
         pass

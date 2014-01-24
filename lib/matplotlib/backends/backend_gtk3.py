@@ -776,7 +776,7 @@ class ToolbarGTK3(ToolbarBase, Gtk.Box,):
         self.pack_end(sep, False, True, 0)
         sep.show_all()
 
-    def add_toolitem(self, name, tooltip_text, image_file, position,
+    def _add_toolitem(self, name, tooltip_text, image_file, position,
                      toggle):
         if toggle:
             tbutton = Gtk.ToggleToolButton()
@@ -797,12 +797,12 @@ class ToolbarGTK3(ToolbarBase, Gtk.Box,):
         self._signals[name] = signal
 
     def _call_tool(self, btn, name):
-        self.manager.navigation.toolbar_callback(name)
+        self.manager.navigation._toolbar_callback(name)
 
     def set_message(self, s):
         self.message.set_label(s)
 
-    def toggle(self, name, callback=False):
+    def _toggle(self, name, callback=False):
         if name not in self._toolitems:
             self.set_message('%s Not in toolbar' % name)
             return
@@ -816,7 +816,7 @@ class ToolbarGTK3(ToolbarBase, Gtk.Box,):
         if not callback:
             self._toolitems[name].handler_unblock(self._signals[name])
 
-    def remove_toolitem(self, name):
+    def _remove_toolitem(self, name):
         if name not in self._toolitems:
             self.set_message('%s Not in toolbar' % name)
             return
