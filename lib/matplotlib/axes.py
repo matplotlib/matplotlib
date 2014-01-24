@@ -1832,11 +1832,13 @@ class Axes(martist.Artist):
         tight = kw.pop('tight', True)
         mx = kw.pop('x', None)
         my = kw.pop('y', None)
+        if len(kw) > 0:
+            raise ValueError("Too many kwargs provided")
         if len(args) == 1:
             mx = my = args[0]
         elif len(args) == 2:
             mx, my = args
-        else:
+        elif len(args) > 2:
             raise ValueError("more than two arguments were supplied")
         if mx is not None:
             self.set_xmargin(mx)
