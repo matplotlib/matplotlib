@@ -566,9 +566,9 @@ have been opened at once.  By default, this is displayed for 20 or
 more figures, but the exact number may be controlled using the
 ``figure.max_num_figures`` rcParam.
 
-.. _whats-new-1-2-2:
+.. _whats-new-1-2-1:
 
-new in matplotlib 1.2.2
+new in matplotlib 1.2.1
 =======================
 
 Improved collections
