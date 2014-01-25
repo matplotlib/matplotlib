@@ -50,6 +50,8 @@ from matplotlib import is_interactive
 from matplotlib import get_backend
 from matplotlib._pylab_helpers import Gcf
 
+from matplotlib.rcsetup import validate_stringlist
+
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 
 import matplotlib.tight_bbox as tight_bbox
@@ -2401,193 +2403,8 @@ class FigureCanvasBase(object):
         self._looping = False
 
 
-def key_press_handler(event, canvas, toolbar=None):
-    """
-    Implement the default mpl key bindings for the canvas and toolbar
-    described at :ref:`key-event-handling`
-
-    *event*
-      a :class:`KeyEvent` instance
-    *canvas*
-      a :class:`FigureCanvasBase` instance
-    *toolbar*
-      a :class:`NavigationToolbar2` instance
-
-    """
-    # these bindings happen whether you are over an axes or not
-
-    if event.key is None:
-        return
-
-    # Load key-mappings from your matplotlibrc file.
-    fullscreen_keys = rcParams['keymap.fullscreen']
-    home_keys = rcParams['keymap.home']
-    back_keys = rcParams['keymap.back']
-    forward_keys = rcParams['keymap.forward']
-    pan_keys = rcParams['keymap.pan']
-    zoom_keys = rcParams['keymap.zoom']
-    save_keys = rcParams['keymap.save']
-    quit_keys = rcParams['keymap.quit']
-    grid_keys = rcParams['keymap.grid']
-    toggle_yscale_keys = rcParams['keymap.yscale']
-    toggle_xscale_keys = rcParams['keymap.xscale']
-    all = rcParams['keymap.all_axes']
-
-    # toggle fullscreen mode (default key 'f')
-    if event.key in fullscreen_keys:
-        canvas.manager.full_screen_toggle()
-
-    # quit the figure (defaut key 'ctrl+w')
-    if event.key in quit_keys:
-        Gcf.destroy_fig(canvas.figure)
-
-    if toolbar is not None:
-        # home or reset mnemonic  (default key 'h', 'home' and 'r')
-        if event.key in home_keys:
-            toolbar.home()
-        # forward / backward keys to enable left handed quick navigation
-        # (default key for backward: 'left', 'backspace' and 'c')
-        elif event.key in back_keys:
-            toolbar.back()
-        # (default key for forward: 'right' and 'v')
-        elif event.key in forward_keys:
-            toolbar.forward()
-        # pan mnemonic (default key 'p')
-        elif event.key in pan_keys:
-            toolbar.pan()
-        # zoom mnemonic (default key 'o')
-        elif event.key in zoom_keys:
-            toolbar.zoom()
-        # saving current figure (default key 's')
-        elif event.key in save_keys:
-            toolbar.save_figure()
-
-    if event.inaxes is None:
-        return
-
-    # these bindings require the mouse to be over an axes to trigger
-
-    # switching on/off a grid in current axes (default key 'g')
-    if event.key in grid_keys:
-        event.inaxes.grid()
-        canvas.draw()
-    # toggle scaling of y-axes between 'log and 'linear' (default key 'l')
-    elif event.key in toggle_yscale_keys:
-        ax = event.inaxes
-        scale = ax.get_yscale()
-        if scale == 'log':
-            ax.set_yscale('linear')
-            ax.figure.canvas.draw()
-        elif scale == 'linear':
-            ax.set_yscale('log')
-            ax.figure.canvas.draw()
-    # toggle scaling of x-axes between 'log and 'linear' (default key 'k')
-    elif event.key in toggle_xscale_keys:
-        ax = event.inaxes
-        scalex = ax.get_xscale()
-        if scalex == 'log':
-            ax.set_xscale('linear')
-            ax.figure.canvas.draw()
-        elif scalex == 'linear':
-            ax.set_xscale('log')
-            ax.figure.canvas.draw()
-
-    elif (event.key.isdigit() and event.key != '0') or event.key in all:
-        # keys in list 'all' enables all axes (default key 'a'),
-        # otherwise if key is a number only enable this particular axes
-        # if it was the axes, where the event was raised
-        if not (event.key in all):
-            n = int(event.key) - 1
-        for i, a in enumerate(canvas.figure.get_axes()):
-            # consider axes, in which the event was raised
-            # FIXME: Why only this axes?
-            if event.x is not None and event.y is not None \
-                    and a.in_axes(event):
-                if event.key in all:
-                    a.set_navigate(True)
-                else:
-                    a.set_navigate(i == n)
-
-
 class NonGuiException(Exception):
     pass
-
-
-class FigureManagerBase:
-    """
-    Helper class for pyplot mode, wraps everything up into a neat bundle
-
-    Public attibutes:
-
-    *canvas*
-        A :class:`FigureCanvasBase` instance
-
-    *num*
-        The figure number
-    """
-    def __init__(self, canvas, num):
-        self.canvas = canvas
-        canvas.manager = self  # store a pointer to parent
-        self.num = num
-
-        self.key_press_handler_id = self.canvas.mpl_connect('key_press_event',
-                                                            self.key_press)
-        """
-        The returned id from connecting the default key handler via
-        :meth:`FigureCanvasBase.mpl_connnect`.
-
-        To disable default key press handling::
-
-            manager, canvas = figure.canvas.manager, figure.canvas
-            canvas.mpl_disconnect(manager.key_press_handler_id)
-
-        """
-
-    def show(self):
-        """
-        For GUI backends, show the figure window and redraw.
-        For non-GUI backends, raise an exception to be caught
-        by :meth:`~matplotlib.figure.Figure.show`, for an
-        optional warning.
-        """
-        raise NonGuiException()
-
-    def destroy(self):
-        pass
-
-    def full_screen_toggle(self):
-        pass
-
-    def resize(self, w, h):
-        """"For gui backends, resize the window (in pixels)."""
-        pass
-
-    def key_press(self, event):
-        """
-        Implement the default mpl key bindings defined at
-        :ref:`key-event-handling`
-        """
-        key_press_handler(event, self.canvas, self.canvas.toolbar)
-
-    def show_popup(self, msg):
-        """
-        Display message in a popup -- GUI only
-        """
-        pass
-
-    def get_window_title(self):
-        """
-        Get the title text of the window containing the figure.
-        Return None for non-GUI backends (eg, a PS backend).
-        """
-        return 'image'
-
-    def set_window_title(self, title):
-        """
-        Set the title text of the window containing the figure.  Note that
-        this has no effect for non-GUI backends (eg, a PS backend).
-        """
-        pass
 
 
 class Cursors:
@@ -2596,252 +2413,253 @@ class Cursors:
 cursors = Cursors()
 
 
-class NavigationToolbar2(object):
-    """
-    Base class for the navigation cursor, version 2
+class ToolBase(object):
+    keymap = None
+    position = None
+    description = None
+    name = None
+    image = None
+    toggle = False  # Change the status (take control of the events)
+    persistent = False
+    cursor = None
 
-    backends must implement a canvas that handles connections for
-    'button_press_event' and 'button_release_event'.  See
-    :meth:`FigureCanvasBase.mpl_connect` for more information
+    def __init__(self, figure, event=None):
+        self.figure = figure
+        self.navigation = figure.canvas.manager.navigation
+        self.activate(event)
 
-
-    They must also define
-
-      :meth:`save_figure`
-         save the current figure
-
-      :meth:`set_cursor`
-         if you want the pointer icon to change
-
-      :meth:`_init_toolbar`
-         create your toolbar widget
-
-      :meth:`draw_rubberband` (optional)
-         draw the zoom to rect "rubberband" rectangle
-
-      :meth:`press`  (optional)
-         whenever a mouse button is pressed, you'll be notified with
-         the event
-
-      :meth:`release` (optional)
-         whenever a mouse button is released, you'll be notified with
-         the event
-
-      :meth:`dynamic_update` (optional)
-         dynamically update the window while navigating
-
-      :meth:`set_message` (optional)
-         display message
-
-      :meth:`set_history_buttons` (optional)
-         you can change the history back / forward buttons to
-         indicate disabled / enabled state.
-
-    That's it, we'll do the rest!
-    """
-
-    # list of toolitems to add to the toolbar, format is:
-    # (
-    #   text, # the text of the button (often not visible to users)
-    #   tooltip_text, # the tooltip shown on hover (where possible)
-    #   image_file, # name of the image for the button (without the extension)
-    #   name_of_method, # name of the method in NavigationToolbar2 to call
-    # )
-    toolitems = (
-        ('Home', 'Reset original view', 'home', 'home'),
-        ('Back', 'Back to  previous view', 'back', 'back'),
-        ('Forward', 'Forward to next view', 'forward', 'forward'),
-        (None, None, None, None),
-        ('Pan', 'Pan axes with left mouse, zoom with right', 'move', 'pan'),
-        ('Zoom', 'Zoom to rectangle', 'zoom_to_rect', 'zoom'),
-        (None, None, None, None),
-        ('Subplots', 'Configure subplots', 'subplots', 'configure_subplots'),
-        ('Save', 'Save the figure', 'filesave', 'save_figure'),
-      )
-
-    def __init__(self, canvas):
-        self.canvas = canvas
-        canvas.toolbar = self
-        # a dict from axes index to a list of view limits
-        self._views = cbook.Stack()
-        self._positions = cbook.Stack()  # stack of subplot positions
-        self._xypress = None  # the location and axis info at the time
-                              # of the press
-        self._idPress = None
-        self._idRelease = None
-        self._active = None
-        self._lastCursor = None
-        self._init_toolbar()
-        self._idDrag = self.canvas.mpl_connect(
-            'motion_notify_event', self.mouse_move)
-
-        self._ids_zoom = []
-        self._zoom_mode = None
-
-        self._button_pressed = None  # determined by the button pressed
-                                     # at start
-
-        self.mode = ''  # a mode string for the status bar
-        self.set_history_buttons()
-
-    def set_message(self, s):
-        """Display a message on toolbar or in status bar"""
+    def activate(self, event):
         pass
 
-    def back(self, *args):
-        """move back up the view lim stack"""
-        self._views.back()
-        self._positions.back()
-        self.set_history_buttons()
-        self._update_view()
 
-    def dynamic_update(self):
-        pass
+class ToolQuit(ToolBase):
+    name = 'Quit'
+    description = 'Quit the figure'
+    keymap = rcParams['keymap.quit']
 
-    def draw_rubberband(self, event, x0, y0, x1, y1):
-        """Draw a rectangle rubberband to indicate zoom limits"""
-        pass
+    def activate(self, event):
+        Gcf.destroy_fig(self.figure)
 
-    def forward(self, *args):
-        """Move forward in the view lim stack"""
-        self._views.forward()
-        self._positions.forward()
-        self.set_history_buttons()
-        self._update_view()
 
-    def home(self, *args):
-        """Restore the original view"""
-        self._views.home()
-        self._positions.home()
-        self.set_history_buttons()
-        self._update_view()
+class ToolEnableAllNavigation(ToolBase):
+    name = 'EnableAll'
+    description = 'Enables all axes navigation'
+    keymap = rcParams['keymap.all_axes']
 
-    def _init_toolbar(self):
-        """
-        This is where you actually build the GUI widgets (called by
-        __init__).  The icons ``home.xpm``, ``back.xpm``, ``forward.xpm``,
-        ``hand.xpm``, ``zoom_to_rect.xpm`` and ``filesave.xpm`` are standard
-        across backends (there are ppm versions in CVS also).
-
-        You just need to set the callbacks
-
-        home         : self.home
-        back         : self.back
-        forward      : self.forward
-        hand         : self.pan
-        zoom_to_rect : self.zoom
-        filesave     : self.save_figure
-
-        You only need to define the last one - the others are in the base
-        class implementation.
-
-        """
-        raise NotImplementedError
-
-    def mouse_move(self, event):
-        if not event.inaxes or not self._active:
-            if self._lastCursor != cursors.POINTER:
-                self.set_cursor(cursors.POINTER)
-                self._lastCursor = cursors.POINTER
-        else:
-            if self._active == 'ZOOM':
-                if self._lastCursor != cursors.SELECT_REGION:
-                    self.set_cursor(cursors.SELECT_REGION)
-                    self._lastCursor = cursors.SELECT_REGION
-            elif (self._active == 'PAN' and
-                  self._lastCursor != cursors.MOVE):
-                self.set_cursor(cursors.MOVE)
-
-                self._lastCursor = cursors.MOVE
-
-        if event.inaxes and event.inaxes.get_navigate():
-
-            try:
-                s = event.inaxes.format_coord(event.xdata, event.ydata)
-            except (ValueError, OverflowError):
-                pass
-            else:
-                if len(self.mode):
-                    self.set_message('%s, %s' % (self.mode, s))
-                else:
-                    self.set_message(s)
-        else:
-            self.set_message(self.mode)
-
-    def pan(self, *args):
-        """Activate the pan/zoom tool. pan with left button, zoom with right"""
-        # set the pointer icon and button press funcs to the
-        # appropriate callbacks
-
-        if self._active == 'PAN':
-            self._active = None
-        else:
-            self._active = 'PAN'
-        if self._idPress is not None:
-            self._idPress = self.canvas.mpl_disconnect(self._idPress)
-            self.mode = ''
-
-        if self._idRelease is not None:
-            self._idRelease = self.canvas.mpl_disconnect(self._idRelease)
-            self.mode = ''
-
-        if self._active:
-            self._idPress = self.canvas.mpl_connect(
-                'button_press_event', self.press_pan)
-            self._idRelease = self.canvas.mpl_connect(
-                'button_release_event', self.release_pan)
-            self.mode = 'pan/zoom'
-            self.canvas.widgetlock(self)
-        else:
-            self.canvas.widgetlock.release(self)
-
-        for a in self.canvas.figure.get_axes():
-            a.set_navigate_mode(self._active)
-
-        self.set_message(self.mode)
-
-    def press(self, event):
-        """Called whenver a mouse button is pressed."""
-        pass
-
-    def press_pan(self, event):
-        """the press mouse button in pan/zoom mode callback"""
-
-        if event.button == 1:
-            self._button_pressed = 1
-        elif event.button == 3:
-            self._button_pressed = 3
-        else:
-            self._button_pressed = None
+    def activate(self, event):
+        if event.inaxes is None:
             return
 
-        x, y = event.x, event.y
+        for a in self.figure.get_axes():
+            if event.x is not None and event.y is not None \
+                    and a.in_axes(event):
+                a.set_navigate(True)
 
-        # push the current view to define home if stack is empty
-        if self._views.empty():
-            self.push_current()
 
-        self._xypress = []
-        for i, a in enumerate(self.canvas.figure.get_axes()):
-            if (x is not None and y is not None and a.in_axes(event) and
-                    a.get_navigate() and a.can_pan()):
-                a.start_pan(x, y, event.button)
-                self._xypress.append((a, i))
-                self.canvas.mpl_disconnect(self._idDrag)
-                self._idDrag = self.canvas.mpl_connect('motion_notify_event',
-                                                       self.drag_pan)
+#FIXME: use a function instead of string for enable navigation
+class ToolEnableNavigation(ToolBase):
+    name = 'EnableOne'
+    description = 'Enables one axes navigation'
+    keymap = range(1, 5)
 
-        self.press(event)
+    def activate(self, event):
+        if event.inaxes is None:
+            return
 
-    def press_zoom(self, event):
+        n = int(event.key) - 1
+        for i, a in enumerate(self.figure.get_axes()):
+            # consider axes, in which the event was raised
+            # FIXME: Why only this axes?
+            if event.x is not None and event.y is not None \
+                    and a.in_axes(event):
+                    a.set_navigate(i == n)
+
+
+class ToolToggleGrid(ToolBase):
+    name = 'Grid'
+    description = 'Toogle Grid'
+    keymap = rcParams['keymap.grid']
+
+    def activate(self, event):
+        if event.inaxes is None:
+            return
+        event.inaxes.grid()
+        self.figure.canvas.draw()
+
+
+class ToolToggleFullScreen(ToolBase):
+    name = 'Fullscreen'
+    description = 'Toogle Fullscreen mode'
+    keymap = rcParams['keymap.fullscreen']
+
+    def activate(self, event):
+        self.figure.canvas.manager.full_screen_toggle()
+
+
+class ToolToggleYScale(ToolBase):
+    name = 'YScale'
+    description = 'Toogle Scale Y axis'
+    keymap = rcParams['keymap.yscale']
+
+    def activate(self, event):
+        ax = event.inaxes
+        if ax is None:
+            return
+
+        scale = ax.get_yscale()
+        if scale == 'log':
+            ax.set_yscale('linear')
+            ax.figure.canvas.draw()
+        elif scale == 'linear':
+            ax.set_yscale('log')
+            ax.figure.canvas.draw()
+
+
+class ToolToggleXScale(ToolBase):
+    name = 'XScale'
+    description = 'Toogle Scale X axis'
+    keymap = rcParams['keymap.xscale']
+
+    def activate(self, event):
+        ax = event.inaxes
+        if ax is None:
+            return
+
+        scalex = ax.get_xscale()
+        if scalex == 'log':
+            ax.set_xscale('linear')
+            ax.figure.canvas.draw()
+        elif scalex == 'linear':
+            ax.set_xscale('log')
+            ax.figure.canvas.draw()
+
+
+class ToolHome(ToolBase):
+    description = 'Reset original view'
+    name = 'Home'
+    image = 'home'
+    keymap = rcParams['keymap.home']
+    position = -1
+
+    def activate(self, *args):
+        """Restore the original view"""
+        self.navigation.views.home()
+        self.navigation.positions.home()
+        self.navigation.update_view()
+#        self.set_history_buttons()
+
+
+class ToolBack(ToolBase):
+    description = 'Back to  previous view'
+    name = 'Back'
+    image = 'back'
+    keymap = rcParams['keymap.back']
+    position = -1
+
+    def activate(self, *args):
+        """move back up the view lim stack"""
+        self.navigation.views.back()
+        self.navigation.positions.back()
+#        self.set_history_buttons()
+        self.navigation.update_view()
+
+
+class ToolForward(ToolBase):
+    description = 'Forward to next view'
+    name = 'Forward'
+    image = 'forward'
+    keymap = rcParams['keymap.forward']
+    position = -1
+
+    def activate(self, *args):
+        """Move forward in the view lim stack"""
+        self.navigation.views.forward()
+        self.navigation.positions.forward()
+#        self.set_history_buttons()
+        self.navigation.update_view()
+
+
+class ToolPersistentBase(ToolBase):
+    persistent = True
+
+    def __init__(self, figure, event=None):
+        self.figure = figure
+        self.navigation = figure.canvas.manager.navigation
+        #persistent tools don't call activate a at instantiation
+
+    def unregister(self, *args):
+        #call this to unregister from navigation
+        self.navigation.unregister(self.name)
+
+
+class ConfigureSubplotsBase(ToolPersistentBase):
+    description = 'Configure subplots'
+    name = 'Subplots'
+    image = 'subplots'
+    position = -1
+
+
+class SaveFigureBase(ToolBase):
+    description = 'Save the figure'
+    name = 'Save'
+    image = 'filesave'
+    position = -1
+    keymap = rcParams['keymap.save']
+
+
+class ToolToggleBase(ToolPersistentBase):
+    toggle = True
+
+    def mouse_move(self, event):
+        pass
+
+    def press(self, event):
+        pass
+
+    def release(self, event):
+        pass
+
+    def deactivate(self, event=None):
+        pass
+
+    def key_press(self, event):
+        pass
+
+
+class ToolZoom(ToolToggleBase):
+    description = 'Zoom to rectangle'
+    name = 'Zoom'
+    image = 'zoom_to_rect'
+    position = -1
+    keymap = rcParams['keymap.zoom']
+    cursor = cursors.SELECT_REGION
+
+    def __init__(self, *args):
+        ToolToggleBase.__init__(self, *args)
+        self._ids_zoom = []
+        self._button_pressed = None
+        self._xypress = None
+
+    def activate(self, event):
+        self.navigation.canvaslock(self)
+        self.navigation.presslock(self)
+        self.navigation.releaselock(self)
+
+    def deactivate(self, event):
+        self.navigation.canvaslock.release(self)
+        self.navigation.presslock.release(self)
+        self.navigation.releaselock.release(self)
+
+    def press(self, event):
         """the press mouse button in zoom to rect mode callback"""
         # If we're already in the middle of a zoom, pressing another
         # button works to "cancel"
         if self._ids_zoom != []:
+            self.navigation.movelock.release(self)
             for zoom_id in self._ids_zoom:
-                self.canvas.mpl_disconnect(zoom_id)
-            self.release(event)
-            self.draw()
+                self.figure.canvas.mpl_disconnect(zoom_id)
+            self.navigation.release(event)
+            self.navigation.draw()
             self._xypress = None
             self._button_pressed = None
             self._ids_zoom = []
@@ -2858,26 +2676,27 @@ class NavigationToolbar2(object):
         x, y = event.x, event.y
 
         # push the current view to define home if stack is empty
-        if self._views.empty():
-            self.push_current()
+        # TODO: add a set home in navigation
+        if self.navigation.views.empty():
+            self.navigation.push_current()
 
         self._xypress = []
-        for i, a in enumerate(self.canvas.figure.get_axes()):
+        for i, a in enumerate(self.figure.get_axes()):
             if (x is not None and y is not None and a.in_axes(event) and
                     a.get_navigate() and a.can_zoom()):
                 self._xypress.append((x, y, a, i, a.viewLim.frozen(),
                                       a.transData.frozen()))
 
-        id1 = self.canvas.mpl_connect('motion_notify_event', self.drag_zoom)
-        id2 = self.canvas.mpl_connect('key_press_event',
+        self.navigation.movelock(self)
+        id2 = self.figure.canvas.mpl_connect('key_press_event',
                                       self._switch_on_zoom_mode)
-        id3 = self.canvas.mpl_connect('key_release_event',
+        id3 = self.figure.canvas.mpl_connect('key_release_event',
                                       self._switch_off_zoom_mode)
 
-        self._ids_zoom = id1, id2, id3
+        self._ids_zoom = id2, id3
         self._zoom_mode = event.key
 
-        self.press(event)
+        self.navigation.press(event)
 
     def _switch_on_zoom_mode(self, event):
         self._zoom_mode = event.key
@@ -2887,59 +2706,11 @@ class NavigationToolbar2(object):
         self._zoom_mode = None
         self.mouse_move(event)
 
-    def push_current(self):
-        """push the current view limits and position onto the stack"""
-        lims = []
-        pos = []
-        for a in self.canvas.figure.get_axes():
-            xmin, xmax = a.get_xlim()
-            ymin, ymax = a.get_ylim()
-            lims.append((xmin, xmax, ymin, ymax))
-            # Store both the original and modified positions
-            pos.append((
-                a.get_position(True).frozen(),
-                a.get_position().frozen()))
-        self._views.push(lims)
-        self._positions.push(pos)
-        self.set_history_buttons()
-
-    def release(self, event):
-        """this will be called whenever mouse button is released"""
-        pass
-
-    def release_pan(self, event):
-        """the release mouse button callback in pan/zoom mode"""
-
-        if self._button_pressed is None:
-            return
-        self.canvas.mpl_disconnect(self._idDrag)
-        self._idDrag = self.canvas.mpl_connect(
-            'motion_notify_event', self.mouse_move)
-        for a, ind in self._xypress:
-            a.end_pan()
-        if not self._xypress:
-            return
-        self._xypress = []
-        self._button_pressed = None
-        self.push_current()
-        self.release(event)
-        self.draw()
-
-    def drag_pan(self, event):
-        """the drag callback in pan/zoom mode"""
-
-        for a, ind in self._xypress:
-            #safer to use the recorded button at the press than current button:
-            #multiple button can get pressed during motion...
-            a.drag_pan(self._button_pressed, event.key, event.x, event.y)
-        self.dynamic_update()
-
-    def drag_zoom(self, event):
+    def mouse_move(self, event):
         """the drag callback in zoom mode"""
-
         if self._xypress:
             x, y = event.x, event.y
-            lastx, lasty, a, ind, lim, trans = self._xypress[0]
+            lastx, lasty, a, _ind, _lim, _trans = self._xypress[0]
 
             # adjust x, last, y, last
             x1, y1, x2, y2 = a.bbox.extents
@@ -2953,12 +2724,13 @@ class NavigationToolbar2(object):
                 x1, y1, x2, y2 = a.bbox.extents
                 x, lastx = x1, x2
 
-            self.draw_rubberband(event, x, y, lastx, lasty)
+            self.navigation.draw_rubberband(event, x, y, lastx, lasty)
 
-    def release_zoom(self, event):
+    def release(self, event):
         """the release mouse button callback in zoom to rect mode"""
+        self.navigation.movelock.release(self)
         for zoom_id in self._ids_zoom:
-            self.canvas.mpl_disconnect(zoom_id)
+            self.figure.canvas.mpl_disconnect(zoom_id)
         self._ids_zoom = []
 
         if not self._xypress:
@@ -2968,12 +2740,12 @@ class NavigationToolbar2(object):
 
         for cur_xypress in self._xypress:
             x, y = event.x, event.y
-            lastx, lasty, a, ind, lim, trans = cur_xypress
+            lastx, lasty, a, _ind, lim, _trans = cur_xypress
             # ignore singular clicks - 5 pixels is a threshold
             if abs(x - lastx) < 5 or abs(y - lasty) < 5:
                 self._xypress = None
-                self.release(event)
-                self.draw()
+                self.navigation.release(event)
+                self.navigation.draw()
                 return
 
             x0, y0, x1, y1 = lim.extents
@@ -3073,14 +2845,351 @@ class NavigationToolbar2(object):
                     a.set_xlim((rx1, rx2))
                     a.set_ylim((ry1, ry2))
 
-        self.draw()
+        self.navigation.draw()
         self._xypress = None
         self._button_pressed = None
 
         self._zoom_mode = None
 
-        self.push_current()
+        self.navigation.push_current()
+        self.navigation.release(event)
+
+
+class ToolPan(ToolToggleBase):
+    keymap = rcParams['keymap.pan']
+    name = 'Pan'
+    description = 'Pan axes with left mouse, zoom with right'
+    image = 'move'
+    position = -1
+    cursor = cursors.MOVE
+
+    def __init__(self, *args):
+        ToolToggleBase.__init__(self, *args)
+        self._button_pressed = None
+        self._xypress = None
+
+    def activate(self, event):
+        self.navigation.canvaslock(self)
+        self.navigation.presslock(self)
+        self.navigation.releaselock(self)
+
+    def deactivate(self, event):
+        self.navigation.canvaslock.release(self)
+        self.navigation.presslock.release(self)
+        self.navigation.releaselock.release(self)
+
+    def press(self, event):
+        """the press mouse button in pan/zoom mode callback"""
+
+        if event.button == 1:
+            self._button_pressed = 1
+        elif event.button == 3:
+            self._button_pressed = 3
+        else:
+            self._button_pressed = None
+            return
+
+        x, y = event.x, event.y
+
+        # push the current view to define home if stack is empty
+        #TODO: add define_home in navigation
+        if self.navigation.views.empty():
+            self.navigation.push_current()
+
+        self._xypress = []
+        for i, a in enumerate(self.figure.get_axes()):
+            if (x is not None and y is not None and a.in_axes(event) and
+                    a.get_navigate() and a.can_pan()):
+                a.start_pan(x, y, event.button)
+                self._xypress.append((a, i))
+                self.navigation.movelock(self)
+        self.navigation.press(event)
+
+    def release(self, event):
+        if self._button_pressed is None:
+            return
+
+        self.navigation.movelock.release(self)
+
+        for a, _ind in self._xypress:
+            a.end_pan()
+        if not self._xypress:
+            return
+        self._xypress = []
+        self._button_pressed = None
+        self.navigation.push_current()
+        self.navigation.release(event)
+        self.navigation.draw()
+
+    def mouse_move(self, event):
+        """the drag callback in pan/zoom mode"""
+
+        for a, _ind in self._xypress:
+            #safer to use the recorded button at the press than current button:
+            #multiple button can get pressed during motion...
+            a.drag_pan(self._button_pressed, event.key, event.x, event.y)
+        self.navigation.dynamic_update()
+
+
+class NavigationBase(object):
+    _default_cursor = cursors.POINTER
+    _default_tools = [ToolToggleGrid,
+             ToolToggleFullScreen,
+             ToolQuit, ToolEnableAllNavigation, ToolEnableNavigation,
+             ToolToggleXScale, ToolToggleYScale,
+             ToolHome, ToolBack, ToolForward,
+             ToolZoom, ToolPan,
+             'ConfigureSubplots', 'SaveFigure']
+
+    def __init__(self, canvas, toolbar=None):
+        self.canvas = canvas
+        self.toolbar = self._get_toolbar(toolbar, canvas)
+
+        self._key_press_handler_id = self.canvas.mpl_connect('key_press_event',
+                                                            self._key_press)
+
+        self._idDrag = self.canvas.mpl_connect('motion_notify_event',
+                                               self._mouse_move)
+
+        self._idPress = self.canvas.mpl_connect('button_press_event',
+                                                self._press)
+        self._idRelease = self.canvas.mpl_connect('button_release_event',
+                                                  self._release)
+
+        # a dict from axes index to a list of view limits
+        self.views = cbook.Stack()
+        self.positions = cbook.Stack()  # stack of subplot positions
+
+        self._tools = {}
+        self._keys = {}
+        self._instances = {}
+        self._toggled = None
+
+        #to communicate with tools and redirect events
+        self.keypresslock = widgets.LockDraw()
+        self.movelock = widgets.LockDraw()
+        self.presslock = widgets.LockDraw()
+        self.releaselock = widgets.LockDraw()
+        #just to group all the locks in one place
+        self.canvaslock = self.canvas.widgetlock
+
+        for tool in self._default_tools:
+            self.add_tool(tool)
+
+        self._last_cursor = self._default_cursor
+
+    def _get_toolbar(self, toolbar, canvas):
+        # must be inited after the window, drawingArea and figure
+        # attrs are set
+        if rcParams['toolbar'] == 'toolbar2'  and toolbar is not None:
+            toolbar = toolbar(canvas.manager)
+        else:
+            toolbar = None
+        return toolbar
+
+    #remove persistent instances
+    def unregister(self, name):
+        if self._toggled == name:
+            self._handle_toggle(name, from_toolbar=False)
+        if name in self._instances:
+            del self._instances[name]
+
+    def remove_tool(self, name):
+        self.unregister(name)
+        del self._tools[name]
+        keys = [k for k, v in self._keys.items() if v == name]
+        for k in keys:
+            del self._keys[k]
+
+        if self.toolbar:
+            self.toolbar.remove_toolitem(name)
+
+    def add_tool(self, callback_class):
+        tool = self._get_cls_to_instantiate(callback_class)
+        name = tool.name
+        if name is None:
+            warnings.warn('Tools need a name to be added, it is used as ID')
+            return
+        if name in self._tools:
+            warnings.warn('A tool with the same name already exist, not added')
+
+            return
+
+        self._tools[name] = tool
+        if tool.keymap is not None:
+            for k in validate_stringlist(tool.keymap):
+                self._keys[k] = name
+
+        if self.toolbar and tool.position is not None:
+            basedir = os.path.join(rcParams['datapath'], 'images')
+            if tool.image is not None:
+                fname = os.path.join(basedir, tool.image + '.png')
+            else:
+                fname = None
+            self.toolbar.add_toolitem(name, tool.description,
+                                      fname,
+                                      tool.position,
+                                      tool.toggle)
+
+    def _get_cls_to_instantiate(self, callback_class):
+        if isinstance(callback_class, basestring):
+            #FIXME: make more complete searching structure
+            if callback_class in globals():
+                return globals()[callback_class]
+
+            mod = self.__class__.__module__
+            current_module = __import__(mod,
+                                        globals(), locals(), [mod], 0)
+
+            return getattr(current_module, callback_class, False)
+
+        return callback_class
+
+    def _key_press(self, event):
+        if event.key is None:
+            return
+
+        #some tools may need to capture keypress, but they need to be toggle
+        if self._toggled:
+            instance = self._get_instance(self._toggled)
+            if self.keypresslock.isowner(instance):
+                instance.key_press(event)
+                return
+
+        name = self._keys.get(event.key, None)
+        if name is None:
+            return
+
+        tool = self._tools[name]
+        if tool.toggle:
+            self._handle_toggle(name, event=event)
+        elif tool.persistent:
+            instance = self._get_instance(name)
+            instance.activate(event)
+        else:
+            #Non persistent tools, are
+            #instantiated and forgotten (reminds me an exgirlfriend?)
+            tool(self.canvas.figure, event)
+
+    def _get_instance(self, name):
+        if name not in self._instances:
+            instance = self._tools[name](self.canvas.figure)
+            #register instance
+            self._instances[name] = instance
+
+        return self._instances[name]
+
+    def toolbar_callback(self, name):
+        tool = self._tools[name]
+        if tool.toggle:
+            self._handle_toggle(name, from_toolbar=True)
+        elif tool.persistent:
+            instance = self._get_instance(name)
+            instance.activate(None)
+        else:
+            tool(self.canvas.figure, None)
+
+    def _handle_toggle(self, name, event=None, from_toolbar=False):
+        #toggle toolbar without callback
+        if not from_toolbar and self.toolbar:
+            self.toolbar.toggle(name, False)
+
+        instance = self._get_instance(name)
+        if self._toggled is None:
+            instance.activate(None)
+            self._toggled = name
+
+        elif self._toggled == name:
+            instance.deactivate(None)
+            self._toggled = None
+
+        else:
+            if self.toolbar:
+                self.toolbar.toggle(self._toggled, False)
+
+            self._get_instance(self._toggled).deactivate(None)
+            instance.activate(None)
+            self._toggled = name
+
+        for a in self.canvas.figure.get_axes():
+            a.set_navigate_mode(self._toggled)
+
+    def list_tools(self):
+        print ('_' * 80)
+        print ("{0:20} {1:50} {2}".format('Name (id)', 'Tool description',
+                                          'Keymap'))
+        print ('_' * 80)
+        for name in sorted(self._tools.keys()):
+            tool = self._tools[name]
+            keys = [k for k, i in self._keys.items() if i == name]
+            print ("{0:20} {1:50} {2}".format(tool.name, tool.description,
+                                              ', '.join(keys)))
+        print ('_' * 80, '\n')
+
+    def update(self):
+        """Reset the axes stack"""
+        self.views.clear()
+        self.positions.clear()
+#        self.set_history_buttons()
+
+    def _mouse_move(self, event):
+        if self._toggled:
+            instance = self._instances[self._toggled]
+            if self.movelock.isowner(instance):
+                instance.mouse_move(event)
+                return
+
+        if not event.inaxes or not self._toggled:
+            if self._last_cursor != self._default_cursor:
+                self.set_cursor(self._default_cursor)
+                self._last_cursor = self._default_cursor
+        else:
+            if self._toggled:
+                cursor = self._instances[self._toggled].cursor
+                if cursor and self._last_cursor != cursor:
+                    self.set_cursor(cursor)
+                    self._last_cursor = cursor
+
+        if self.toolbar is None:
+            return
+
+        if event.inaxes and event.inaxes.get_navigate():
+
+            try:
+                s = event.inaxes.format_coord(event.xdata, event.ydata)
+            except (ValueError, OverflowError):
+                pass
+            else:
+                if self._toggled:
+                    self.toolbar.set_message('%s, %s' % (self._toggled, s))
+                else:
+                    self.toolbar.set_message(s)
+        else:
+            self.toolbar.set_message('')
+
+    def _release(self, event):
+        if self._toggled:
+            instance = self._instances[self._toggled]
+            if self.releaselock.isowner(instance):
+                instance.release(event)
+                return
         self.release(event)
+
+    def release(self, event):
+        pass
+
+    def _press(self, event):
+        """Called whenver a mouse button is pressed."""
+        if self._toggled:
+            instance = self._instances[self._toggled]
+            if self.presslock.isowner(instance):
+                instance.press(event)
+                return
+        self.press(event)
+
+    def press(self, event):
+        """Called whenver a mouse button is pressed."""
+        pass
 
     def draw(self):
         """Redraw the canvases, update the locators"""
@@ -3099,15 +3208,25 @@ class NavigationToolbar2(object):
                 loc.refresh()
         self.canvas.draw_idle()
 
-    def _update_view(self):
+    def dynamic_update(self):
+        pass
+
+    def set_cursor(self, cursor):
+        """
+        Set the current cursor to one of the :class:`Cursors`
+        enums values
+        """
+        pass
+
+    def update_view(self):
         """Update the viewlim and position from the view and
         position stack for each axes
         """
 
-        lims = self._views()
+        lims = self.views()
         if lims is None:
             return
-        pos = self._positions()
+        pos = self.positions()
         if pos is None:
             return
         for i, a in enumerate(self.canvas.figure.get_axes()):
@@ -3120,53 +3239,113 @@ class NavigationToolbar2(object):
 
         self.canvas.draw_idle()
 
-    def save_figure(self, *args):
-        """Save the current figure"""
-        raise NotImplementedError
+    def push_current(self):
+        """push the current view limits and position onto the stack"""
+        lims = []
+        pos = []
+        for a in self.canvas.figure.get_axes():
+            xmin, xmax = a.get_xlim()
+            ymin, ymax = a.get_ylim()
+            lims.append((xmin, xmax, ymin, ymax))
+            # Store both the original and modified positions
+            pos.append((
+                a.get_position(True).frozen(),
+                a.get_position().frozen()))
+        self.views.push(lims)
+        self.positions.push(pos)
+#        self.set_history_buttons()
 
-    def set_cursor(self, cursor):
+    def draw_rubberband(self, event, x0, y0, x1, y1):
+        """Draw a rectangle rubberband to indicate zoom limits"""
+        pass
+
+
+class FigureManagerBase:
+    """
+    Helper class for pyplot mode, wraps everything up into a neat bundle
+
+    Public attibutes:
+
+    *canvas*
+        A :class:`FigureCanvasBase` instance
+
+    *num*
+        The figure number
+    """
+    def __init__(self, canvas, num):
+        self.canvas = canvas
+        canvas.manager = self  # store a pointer to parent
+        self.num = num
+
         """
-        Set the current cursor to one of the :class:`Cursors`
-        enums values
+        The returned id from connecting the default key handler via
+        :meth:`FigureCanvasBase.mpl_connnect`.
+
+        To disable default key press handling::
+
+            manager, canvas = figure.canvas.manager, figure.canvas
+            canvas.mpl_disconnect(manager.key_press_handler_id)
+
+        """
+
+    def show(self):
+        """
+        For GUI backends, show the figure window and redraw.
+        For non-GUI backends, raise an exception to be caught
+        by :meth:`~matplotlib.figure.Figure.show`, for an
+        optional warning.
+        """
+        raise NonGuiException()
+
+    def destroy(self):
+        pass
+
+    def full_screen_toggle(self):
+        pass
+
+    def resize(self, w, h):
+        """"For gui backends, resize the window (in pixels)."""
+        pass
+
+    def show_popup(self, msg):
+        """
+        Display message in a popup -- GUI only
         """
         pass
 
-    def update(self):
-        """Reset the axes stack"""
-        self._views.clear()
-        self._positions.clear()
-        self.set_history_buttons()
+    def get_window_title(self):
+        """
+        Get the title text of the window containing the figure.
+        Return None for non-GUI backends (eg, a PS backend).
+        """
+        return 'image'
 
-    def zoom(self, *args):
-        """Activate zoom to rect mode"""
-        if self._active == 'ZOOM':
-            self._active = None
-        else:
-            self._active = 'ZOOM'
+    def set_window_title(self, title):
+        """
+        Set the title text of the window containing the figure.  Note that
+        this has no effect for non-GUI backends (eg, a PS backend).
+        """
+        pass
 
-        if self._idPress is not None:
-            self._idPress = self.canvas.mpl_disconnect(self._idPress)
-            self.mode = ''
 
-        if self._idRelease is not None:
-            self._idRelease = self.canvas.mpl_disconnect(self._idRelease)
-            self.mode = ''
+class ToolbarBase(object):
+    def __init__(self, manager):
+        self.manager = manager
 
-        if self._active:
-            self._idPress = self.canvas.mpl_connect('button_press_event',
-                                                    self.press_zoom)
-            self._idRelease = self.canvas.mpl_connect('button_release_event',
-                                                      self.release_zoom)
-            self.mode = 'zoom rect'
-            self.canvas.widgetlock(self)
-        else:
-            self.canvas.widgetlock.release(self)
+    def add_toolitem(self, name, description, image_file, position,
+                     toggle):
+        raise NotImplementedError
 
-        for a in self.canvas.figure.get_axes():
-            a.set_navigate_mode(self._active)
+    def add_separator(self, pos):
+        pass
 
-        self.set_message(self.mode)
+    def set_message(self, s):
+        """Display a message on toolbar or in status bar"""
+        pass
 
-    def set_history_buttons(self):
-        """Enable or disable back/forward button"""
+    def toggle(self, name, callback=False):
+        #carefull, callback means to perform or not the callback while toggling
+        raise NotImplementedError
+
+    def remove_toolitem(self, name):
         pass
