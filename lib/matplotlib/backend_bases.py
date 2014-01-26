@@ -3191,17 +3191,10 @@ class NavigationBase(object):
     canvas : `FigureCanvas` instance
     toolbar : `Toolbar` instance that is controlled by this `Navigation`
     keypresslock : `LockDraw` to direct the `canvas` key_press_event
-    movelock: `LockDraw` to direct the `canvas` motion_notify_event
-    presslock: `LockDraw` to direct the `canvas` button_press_event
-    releaselock: `LockDraw` to direct the `canvas` button_release_event
-    canvaslock: shortcut to `canvas.widgetlock`
-
-    Notes
-    --------_
-    The following methos are for implementation pourposes and not for user use
-    For these reason they are defined as **_methodname** (private)
-
-    .. automethod:: _toolbar_callback
+    movelock : `LockDraw` to direct the `canvas` motion_notify_event
+    presslock : `LockDraw` to direct the `canvas` button_press_event
+    releaselock : `LockDraw` to direct the `canvas` button_release_event
+    canvaslock : shortcut to `canvas.widgetlock`
     """
     _default_cursor = cursors.POINTER
     _default_tools = [tools.ToolToggleGrid,
@@ -3221,6 +3214,7 @@ class NavigationBase(object):
              'SaveFigure']
 
     def __init__(self, canvas, toolbar=None):
+        """.. automethod:: _toolbar_callback"""
         self.canvas = canvas
         self.toolbar = self._get_toolbar(toolbar, canvas)
 
@@ -3270,18 +3264,20 @@ class NavigationBase(object):
             toolbar = None
         return toolbar
 
-    def get_active(self):
-        """Get the active tools
+    @property
+    def active_toggle(self):
+        """Get the tooggled Tool"""
+        return self._toggled
+
+    def get_instances(self):
+        """Get the active tools instgances
 
         Returns
         ----------
-         A dictionary with the following elements
-          * `toggled`: The currently toggled Tool or None
-          * `instances`: List of the currently active tool instances
-            that are registered with Navigation
-
+         A dictionary with the active instances that are registered with
+         Navigation
         """
-        return {'toggled': self._toggled, 'instances': self._instances.keys()}
+        return self._instances
 
     def get_tool_keymap(self, name):
         """Get the keymap associated with a tool
@@ -3333,7 +3329,8 @@ class NavigationBase(object):
         It is usually called by the `deactivate` method or during
         destroy if it is a graphical Tool.
 
-        If called, next time the `Tool` is used it will be reinstantiated instead
+        If called, next time the `Tool` is used it will be reinstantiated
+        instead
         of using the existing instance.
         """
         if self._toggled == name:
@@ -3644,17 +3641,13 @@ class ToolbarBase(object):
      Attributes
     ----------
     manager : `FigureManager` instance that integrates this `Toolbar`
-
-    Notes
-    -----
-    The following methos are for implementation pourposes and not for user use.
-    For these reason they are defined as **_methodname** (private)
-
-    .. automethod:: _toggle
-    .. automethod:: _add_toolitem
-    .. automethod:: _remove_toolitem
     """
     def __init__(self, manager):
+        """
+        .. automethod:: _add_toolitem
+        .. automethod:: _remove_toolitem
+        .. automethod:: _toggle
+        """
         self.manager = manager
 
     def _add_toolitem(self, name, description, image_file, position,
