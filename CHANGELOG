@@ -1,3 +1,6 @@
+2014-01-02 `triplot` now returns the artist it adds and support of line and
+           marker kwargs has been improved. GBY
+
 2013-12-30 Made streamplot grid size consistent for different types of density
            argument. A 30x30 grid is now used for both density=1 and
            density=(1, 1).
