@@ -177,7 +177,10 @@ class RendererCairo(RendererBase):
 
         ctx.save()
         ctx.set_source_surface (surface, x, y)
-        ctx.paint()
+        if gc.get_alpha() != 1.0:
+            ctx.paint_with_alpha(gc.get_alpha())
+        else:
+            ctx.paint()
         ctx.restore()
 
         im.flipud_out()
