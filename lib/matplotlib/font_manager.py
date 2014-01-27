@@ -1071,7 +1071,7 @@ class FontManager:
                 if family2 in options:
                     idx = options.index(family2)
                     return ((0.1 * (float(idx) / len(options))) *
-                            (float(i) / float(len(families))))
+                            (float(i + 1) / float(len(families))))
             elif family1 == family2:
                 # The score should be weighted by where in the
                 # list the font was found.
