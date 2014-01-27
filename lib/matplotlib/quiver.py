@@ -14,11 +14,12 @@ deviation ellipses, which can and will be derived very easily from
 the Quiver code.
 """
 
-
 from __future__ import print_function, division
+import weakref
+
 import numpy as np
 from numpy import ma
-import matplotlib.collections as collections
+import matplotlib.collections as mcollections
 import matplotlib.transforms as transforms
 import matplotlib.text as mtext
 import matplotlib.artist as martist
@@ -219,9 +220,9 @@ middle of the arrow+label key object.
 
 class QuiverKey(martist.Artist):
     """ Labelled arrow for use as a quiver plot scale key."""
-    halign = {'N': 'center', 'S': 'center', 'E': 'left',   'W': 'right'}
-    valign = {'N': 'bottom', 'S': 'top',    'E': 'center', 'W': 'center'}
-    pivot = {'N': 'mid',    'S': 'mid',    'E': 'tip',    'W': 'tail'}
+    halign = {'N': 'center', 'S': 'center', 'E': 'left', 'W': 'right'}
+    valign = {'N': 'bottom', 'S': 'top', 'E': 'center', 'W': 'center'}
+    pivot = {'N': 'mid', 'S': 'mid', 'E': 'tip', 'W': 'tail'}
 
     def __init__(self, Q, X, Y, U, label, **kw):
         martist.Artist.__init__(self)
@@ -235,13 +236,19 @@ class QuiverKey(martist.Artist):
         self._labelsep_inches = kw.pop('labelsep', 0.1)
         self.labelsep = (self._labelsep_inches * Q.ax.figure.dpi)
 
-        def on_dpi_change(fig):
-            self.labelsep = (self._labelsep_inches * fig.dpi)
-            self._initialized = False  # simple brute force update
-                                       # works because _init is called
-                                       # at the start of draw.
+        # try to prevent closure over the real self
+        weak_self = weakref.ref(self)
 
-        Q.ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
+        def on_dpi_change(fig):
+            self_weakref = weak_self()
+            if self_weakref is not None:
+                self_weakref.labelsep = (self_weakref._labelsep_inches*fig.dpi)
+                self_weakref._initialized = False  # simple brute force update
+                                           # works because _init is called
+                                           # at the start of draw.
+
+        self._cid = Q.ax.figure.callbacks.connect('dpi_changed',
+                                                  on_dpi_change)
 
         self.labelpos = kw.pop('labelpos', 'N')
         self.labelcolor = kw.pop('labelcolor', None)
@@ -254,10 +261,20 @@ class QuiverKey(martist.Artist):
                         horizontalalignment=self.halign[self.labelpos],
                         verticalalignment=self.valign[self.labelpos],
                         fontproperties=font_manager.FontProperties(**_fp))
+
         if self.labelcolor is not None:
             self.text.set_color(self.labelcolor)
         self._initialized = False
         self.zorder = Q.zorder + 0.1
+
+    def remove(self):
+        """
+        Overload the remove method
+        """
+        self.Q.ax.figure.callbacks.disconnect(self._cid)
+        self._cid = None
+        # pass the remove call up the stack
+        martist.Artist.remove(self)
 
     __init__.__doc__ = _quiverkey_doc
 
@@ -275,7 +292,7 @@ class QuiverKey(martist.Artist):
             self.Q.pivot = _pivot
             kw = self.Q.polykw
             kw.update(self.kw)
-            self.vector = collections.PolyCollection(
+            self.vector = mcollections.PolyCollection(
                                         self.verts,
                                         offsets=[(self.X, self.Y)],
                                         transOffset=self.get_transform(),
@@ -364,7 +381,7 @@ def _parse_args(*args):
     return X, Y, U, V, C
 
 
-class Quiver(collections.PolyCollection):
+class Quiver(mcollections.PolyCollection):
     """
     Specialized PolyCollection for arrows.
 
@@ -411,7 +428,7 @@ class Quiver(collections.PolyCollection):
         self.transform = kw.pop('transform', ax.transData)
         kw.setdefault('facecolors', self.color)
         kw.setdefault('linewidths', (0,))
-        collections.PolyCollection.__init__(self, [], offsets=self.XY,
+        mcollections.PolyCollection.__init__(self, [], offsets=self.XY,
                                             transOffset=self.transform,
                                             closed=False,
                                             **kw)
@@ -422,14 +439,30 @@ class Quiver(collections.PolyCollection):
         self.keyvec = None
         self.keytext = None
 
-        def on_dpi_change(fig):
-            self._new_UV = True  # vertices depend on width, span
-                                 # which in turn depend on dpi
-            self._initialized = False  # simple brute force update
-                                       # works because _init is called
-                                       # at the start of draw.
+        # try to prevent closure over the real self
+        weak_self = weakref.ref(self)
 
-        self.ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
+        def on_dpi_change(fig):
+            self_weakref = weak_self()
+            if self_weakref is not None:
+                self_weakref._new_UV = True  # vertices depend on width, span
+                                     # which in turn depend on dpi
+                self_weakref._initialized = False  # simple brute force update
+                                           # works because _init is called
+                                           # at the start of draw.
+
+        self._cid = self.ax.figure.callbacks.connect('dpi_changed',
+                                                     on_dpi_change)
+
+    def remove(self):
+        """
+        Overload the remove method
+        """
+        # disconnect the call back
+        self.ax.figure.callbacks.disconnect(self._cid)
+        self._cid = None
+        # pass the remove call up the stack
+        mcollections.PolyCollection.remove(self)
 
     def _init(self):
         """
@@ -456,7 +489,7 @@ class Quiver(collections.PolyCollection):
             verts = self._make_verts(self.U, self.V)
             self.set_verts(verts, closed=False)
             self._new_UV = False
-        collections.PolyCollection.draw(self, renderer)
+        mcollections.PolyCollection.draw(self, renderer)
 
     def set_UVC(self, U, V, C=None):
         U = ma.masked_invalid(U, copy=False).ravel()
@@ -789,7 +822,7 @@ arguments:
 docstring.interpd.update(barbs_doc=_barbs_doc)
 
 
-class Barbs(collections.PolyCollection):
+class Barbs(mcollections.PolyCollection):
     '''
     Specialized PolyCollection for barbs.
 
@@ -850,8 +883,9 @@ class Barbs(collections.PolyCollection):
 
         #Make a collection
         barb_size = self._length ** 2 / 4  # Empirically determined
-        collections.PolyCollection.__init__(self, [], (barb_size,), offsets=xy,
-                                            transOffset=transform, **kw)
+        mcollections.PolyCollection.__init__(self, [], (barb_size,),
+                                             offsets=xy,
+                                             transOffset=transform, **kw)
         self.set_transform(transforms.IdentityTransform())
 
         self.set_UVC(u, v, c)
@@ -1074,7 +1108,7 @@ class Barbs(collections.PolyCollection):
         x, y, u, v = delete_masked_points(self.x.ravel(), self.y.ravel(),
                                           self.u, self.v)
         xy = np.hstack((x[:, np.newaxis], y[:, np.newaxis]))
-        collections.PolyCollection.set_offsets(self, xy)
-    set_offsets.__doc__ = collections.PolyCollection.set_offsets.__doc__
+        mcollections.PolyCollection.set_offsets(self, xy)
+    set_offsets.__doc__ = mcollections.PolyCollection.set_offsets.__doc__
 
     barbs_doc = _barbs_doc
