@@ -14,7 +14,7 @@ from matplotlib.testing.decorators import cleanup, image_comparison
 def test_invisible_Line_rendering():
     """
     Github issue #1256 identified a bug in Line.draw method
-    
+
     Despite visibility attribute set to False, the draw method was not
     returning early enough and some pre-rendering code was executed
     though not necessary.
@@ -64,6 +64,19 @@ def test_set_line_coll_dash():
     # This should not produce an error.
     cs = ax.contour(np.random.randn(20, 30), linestyles=[(0, (3, 3))])
 
+    assert True
+
+
+@cleanup
+def test_line_colors():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot(range(10), color='none')
+    ax.plot(range(10), color='r')
+    ax.plot(range(10), color='.3')
+    ax.plot(range(10), color=(1, 0, 0, 1))
+    ax.plot(range(10), color=(1, 0, 0))
+    fig.canvas.draw()
     assert True
 
 
