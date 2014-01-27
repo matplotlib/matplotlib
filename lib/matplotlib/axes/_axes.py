@@ -2935,7 +2935,7 @@ class Axes(_AxesBase):
         Examples
         --------
 
-        .. plot:: examples/statistics/boxplot_demo.py
+        .. plot:: ~/examples/statistics/boxplot_demo.py
         """
         bxpstats = cbook.boxplot_stats(x, whis=whis, bootstrap=bootstrap,
                                        labels=labels)
@@ -3094,7 +3094,7 @@ class Axes(_AxesBase):
         Examples
         --------
 
-        .. plot:: examples/statistics/bxp_demo.py
+        .. plot:: ~/examples/statistics/bxp_demo.py
         """
         # lists of artists to be output
         whiskers = []
