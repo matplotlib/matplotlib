@@ -42,22 +42,26 @@ handles and their associated labels. This functionality is equivalent to::
 
 The :meth:`~matplotlib.axes.Axes.get_legend_handles_labels` function returns
 a list of handles/artists which exist on the Axes which can be used to
-generate entries for the resulting legend.
+generate entries for the resulting legend - it is worth noting however that
+not all artists can be added to a legend, at which point a "proxy" will have
+to be created (see :ref:`proxy_legend_handles` for further details).
 
 For full control of what is being added to the legend, it is common to pass
 the appropriate handles directly to :func:`legend`::
 
-    line2, = plt.plot([1,2,3], label='Line 2')
-    line1, = plt.plot([3,2,1], label='Line 1')
-    plt.legend(handles=[line1, line2])
+    line_up, = plt.plot([1,2,3], label='Line 2')
+    line_down, = plt.plot([3,2,1], label='Line 1')
+    plt.legend(handles=[line_up, line_down])
 
 In some cases, it is not possible to set the label of the handle, so it is
 possible to pass through the list of labels to :func:`legend`::
 
-    line2, = plt.plot([1,2,3], label='Line 2')
-    line1, = plt.plot([3,2,1], label='Line 1')
-    plt.legend([line1, line2], ['Custom label for line 1', 'Line 1'])
+    line_up, = plt.plot([1,2,3], label='Line 2')
+    line_down, = plt.plot([3,2,1], label='Line 1')
+    plt.legend([line_up, line_down], ['Line Up', 'Line Down'])
 
+
+.. _proxy_legend_handles:
 
 Creating artists specifically for adding to the legend (aka. Proxy artists)
 ===========================================================================
