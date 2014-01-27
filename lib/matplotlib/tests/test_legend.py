@@ -9,8 +9,10 @@ from nose.tools import assert_equal
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.patches as mpatches
 
 
 @image_comparison(baseline_images=['legend_auto1'], remove_text=True)
@@ -129,6 +131,33 @@ class TestLegendFunction(object):
 
         deprecation.assert_called_with('1.4', self.deprecation_message)
         Legend.assert_called_with(plt.gca(), [], ['hello world'], loc=1)
+
+    @cleanup
+    def test_old_legend_handler_interface(self):
+        # Check the deprecated warning is created and that the appropriate
+        # call to the legend handler is made.
+        class AnyObject(object):
+            pass
+
+        class AnyObjectHandler(object):
+            def __call__(self, legend, orig_handle, fontsize, handlebox):
+                x0, y0 = handlebox.xdescent, handlebox.ydescent
+                width, height = handlebox.width, handlebox.height
+                patch = mpatches.Rectangle([x0, y0], width, height, facecolor='red',
+                                           edgecolor='black', hatch='xx', lw=3,
+                                           transform=handlebox.get_transform())
+                handlebox.add_artist(patch)
+                return patch
+
+        with mock.patch('warnings.warn') as warn:
+            plt.legend([None], ['My first handler'],
+                       handler_map={None: AnyObjectHandler()})
+
+        warn.assert_called_with(u'Legend handers must now implement a '
+                                 '"legend_artist" method rather than '
+                                 'being a callable.',
+                                MatplotlibDeprecationWarning,
+                                stacklevel=1)
 
     @cleanup
     def test_legend_handle_label_loc_args(self):

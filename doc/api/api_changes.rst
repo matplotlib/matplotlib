@@ -75,7 +75,8 @@ original location:
   `matplotlib.patches.Polygon` object.
 
 * The legend handler interface has changed from a callable, to any object
-  which implements the ``legend_artists`` method. See
+  which implements the ``legend_artists`` method (a deprecation phase will
+  see this interface be maintained for v1.4). See
   :ref:`plotting-guide-legend` for further details. Further legend changes
   include:
 
