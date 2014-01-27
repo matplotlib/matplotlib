@@ -771,14 +771,14 @@ def matplotlib_fname():
 
 
 _deprecated_map = {
-    'text.fontstyle':   'font.style',
-    'text.fontangle':   'font.style',
-    'text.fontvariant': 'font.variant',
-    'text.fontweight':  'font.weight',
-    'text.fontsize':    'font.size',
-    'tick.size' :       'tick.major.size',
-    'svg.embed_char_paths' : 'svg.fonttype',
-    'savefig.extension' : 'savefig.format'
+    'text.fontstyle':   ('font.style',lambda x: x),
+    'text.fontangle':   ('font.style',lambda x: x),
+    'text.fontvariant': ('font.variant',lambda x: x),
+    'text.fontweight':  ('font.weight',lambda x: x),
+    'text.fontsize':    ('font.size',lambda x: x),
+    'tick.size' :       ('tick.major.size',lambda x: x),
+    'svg.embed_char_paths' : ('svg.fonttype',lambda x: "path" if x else "none"),
+    'savefig.extension' : ('savefig.format',lambda x: x),
     }
 
 _deprecated_ignore_map = {
@@ -802,14 +802,18 @@ class RcParams(dict):
     def __setitem__(self, key, val):
         try:
             if key in _deprecated_map:
-                alt = _deprecated_map[key]
-                warnings.warn(self.msg_depr % (key, alt))
-                key = alt
+                alt_key, alt_val  = _deprecated_map[key]
+                warnings.warn(self.msg_depr % (key, alt_key))
+                key = alt_key
+                val = alt_val(val)
             elif key in _deprecated_ignore_map:
                 alt = _deprecated_ignore_map[key]
                 warnings.warn(self.msg_depr_ignore % (key, alt))
                 return
-            cval = self.validate[key](val)
+            try:
+                cval = self.validate[key](val)
+            except ValueError as ve:
+                raise ValueError("Key %s: %s" % (key, str(ve)))
             dict.__setitem__(self, key, cval)
         except KeyError:
             raise KeyError('%s is not a valid rc parameter.\
@@ -817,9 +821,9 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
 
     def __getitem__(self, key):
         if key in _deprecated_map:
-            alt = _deprecated_map[key]
-            warnings.warn(self.msg_depr % (key, alt))
-            key = alt
+            alt_key, alt_val  = _deprecated_map[key]
+            warnings.warn(self.msg_depr % (key, alt_key))
+            key = alt_key
         elif key in _deprecated_ignore_map:
             alt = _deprecated_ignore_map[key]
             warnings.warn(self.msg_depr_ignore % (key, alt))
