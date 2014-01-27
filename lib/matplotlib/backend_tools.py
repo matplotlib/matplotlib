@@ -175,8 +175,8 @@ class ToolToggleBase(ToolPersistentBase):
         """Deactivate the toggle tool
 
         This method is called when the tool is deactivated (second click on the
-        toolbar button) or when another toogle tool from the same `navigation` is
-        activated
+        toolbar button) or when another toogle tool from the same `navigation`
+        is activated
         """
         pass
 
