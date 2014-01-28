@@ -3430,7 +3430,7 @@ class NavigationBase(object):
             self._handle_toggle(name, event=event, from_toolbar=from_toolbar)
         elif tool.persistent:
             instance = self._get_instance(name)
-            instance.activate(event)
+            instance.trigger(event)
         else:
             #Non persistent tools, are
             #instantiated and forgotten (reminds me an exgirlfriend?)
@@ -3479,7 +3479,7 @@ class NavigationBase(object):
 
         instance = self._get_instance(name)
         if self._toggled is None:
-            instance.activate(None)
+            instance.trigger(None)
             self._toggled = name
 
         elif self._toggled == name:
@@ -3491,7 +3491,7 @@ class NavigationBase(object):
                 self.toolbar._toggle(self._toggled, False)
 
             self._get_instance(self._toggled).deactivate(None)
-            instance.activate(None)
+            instance.trigger(None)
             self._toggled = name
 
         for a in self.canvas.figure.get_axes():

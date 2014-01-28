@@ -97,9 +97,9 @@ class ToolBase(object):
     def __init__(self, figure, event=None):
         self.figure = figure
         self.navigation = figure.canvas.manager.navigation
-        self.activate(event)
+        self.trigger(event)
 
-    def activate(self, event):
+    def trigger(self, event):
         """Called when tool is used
 
         Parameters
@@ -118,7 +118,7 @@ class ToolPersistentBase(ToolBase):
 
     Notes
     -----
-    The difference with `ToolBase` is that `activate` method
+    The difference with `ToolBase` is that `trigger` method
     is not called automatically at initialization
     """
     persistent = True
@@ -126,7 +126,7 @@ class ToolPersistentBase(ToolBase):
     def __init__(self, figure, event=None):
         self.figure = figure
         self.navigation = figure.canvas.manager.navigation
-        #persistent tools don't call activate a at instantiation
+        #persistent tools don't call trigger a at instantiation
 
     def unregister(self, *args):
         """Unregister the tool from the instances of Navigation
@@ -196,7 +196,7 @@ class ToolQuit(ToolBase):
     description = 'Quit the figure'
     keymap = rcParams['keymap.quit']
 
-    def activate(self, event):
+    def trigger(self, event):
         Gcf.destroy_fig(self.figure)
 
 
@@ -207,7 +207,7 @@ class ToolEnableAllNavigation(ToolBase):
     description = 'Enables all axes navigation'
     keymap = rcParams['keymap.all_axes']
 
-    def activate(self, event):
+    def trigger(self, event):
         if event.inaxes is None:
             return
 
@@ -225,7 +225,7 @@ class ToolEnableNavigation(ToolBase):
     description = 'Enables one axes navigation'
     keymap = range(1, 10)
 
-    def activate(self, event):
+    def trigger(self, event):
         if event.inaxes is None:
             return
 
@@ -244,7 +244,7 @@ class ToolToggleGrid(ToolBase):
     description = 'Toogle Grid'
     keymap = rcParams['keymap.grid']
 
-    def activate(self, event):
+    def trigger(self, event):
         if event.inaxes is None:
             return
         event.inaxes.grid()
@@ -257,7 +257,7 @@ class ToolToggleFullScreen(ToolBase):
     description = 'Toogle Fullscreen mode'
     keymap = rcParams['keymap.fullscreen']
 
-    def activate(self, event):
+    def trigger(self, event):
         self.figure.canvas.manager.full_screen_toggle()
 
 
@@ -267,7 +267,7 @@ class ToolToggleYScale(ToolBase):
     description = 'Toogle Scale Y axis'
     keymap = rcParams['keymap.yscale']
 
-    def activate(self, event):
+    def trigger(self, event):
         ax = event.inaxes
         if ax is None:
             return
@@ -287,7 +287,7 @@ class ToolToggleXScale(ToolBase):
     description = 'Toogle Scale X axis'
     keymap = rcParams['keymap.xscale']
 
-    def activate(self, event):
+    def trigger(self, event):
         ax = event.inaxes
         if ax is None:
             return
@@ -309,7 +309,7 @@ class ToolHome(ToolBase):
     keymap = rcParams['keymap.home']
     position = -1
 
-    def activate(self, *args):
+    def trigger(self, *args):
         self.navigation.views.home()
         self.navigation.positions.home()
         self.navigation.update_view()
@@ -324,7 +324,7 @@ class ToolBack(ToolBase):
     keymap = rcParams['keymap.back']
     position = -1
 
-    def activate(self, *args):
+    def trigger(self, *args):
         self.navigation.views.back()
         self.navigation.positions.back()
 #        self.set_history_buttons()
@@ -339,7 +339,7 @@ class ToolForward(ToolBase):
     keymap = rcParams['keymap.forward']
     position = -1
 
-    def activate(self, *args):
+    def trigger(self, *args):
         self.navigation.views.forward()
         self.navigation.positions.forward()
 #        self.set_history_buttons()
@@ -378,7 +378,7 @@ class ToolZoom(ToolToggleBase):
         self._button_pressed = None
         self._xypress = None
 
-    def activate(self, event):
+    def trigger(self, event):
         self.navigation.canvaslock(self)
         self.navigation.presslock(self)
         self.navigation.releaselock(self)
@@ -607,7 +607,7 @@ class ToolPan(ToolToggleBase):
         self._button_pressed = None
         self._xypress = None
 
-    def activate(self, event):
+    def trigger(self, event):
         self.navigation.canvaslock(self)
         self.navigation.presslock(self)
         self.navigation.releaselock(self)
