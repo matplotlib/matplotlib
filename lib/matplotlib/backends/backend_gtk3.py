@@ -859,7 +859,7 @@ class SaveFigureGTK3(SaveFigureBase):
         fc.set_current_name(self.figure.canvas.get_default_filename())
         return fc
 
-    def activate(self, *args):
+    def trigger(self, *args):
         chooser = self.get_filechooser()
         fname, format_ = chooser.get_filename_from_user()
         chooser.destroy()
@@ -920,7 +920,7 @@ class ConfigureSubplotsGTK3(ConfigureSubplotsBase, Gtk.Window):
     def _get_canvas(self, fig):
         return self.canvas.__class__(fig)
 
-    def activate(self, event):
+    def trigger(self, event):
         self.present()
 
 
