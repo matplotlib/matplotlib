@@ -177,7 +177,10 @@ class RendererCairo(RendererBase):
 
         ctx.save()
         ctx.set_source_surface (surface, x, y)
-        ctx.paint()
+        if gc.get_alpha() != 1.0:
+            ctx.paint_with_alpha(gc.get_alpha())
+        else:
+            ctx.paint()
         ctx.restore()
 
         im.flipud_out()
@@ -465,17 +468,17 @@ class FigureCanvasCairo (FigureCanvasBase):
                                                  width_in_points)
 
         if format == 'ps':
-            if not cairo.HAS_PS_SURFACE:
+            if not hasattr(cairo, 'PSSurface'):
                 raise RuntimeError ('cairo has not been compiled with PS '
                                     'support enabled')
             surface = cairo.PSSurface (fo, width_in_points, height_in_points)
         elif format == 'pdf':
-            if not cairo.HAS_PDF_SURFACE:
+            if not hasattr(cairo, 'PDFSurface'):
                 raise RuntimeError ('cairo has not been compiled with PDF '
                                     'support enabled')
             surface = cairo.PDFSurface (fo, width_in_points, height_in_points)
         elif format in ('svg', 'svgz'):
-            if not cairo.HAS_SVG_SURFACE:
+            if not hasattr(cairo, 'SVGSurface'):
                 raise RuntimeError ('cairo has not been compiled with SVG '
                                     'support enabled')
             if format == 'svgz':
