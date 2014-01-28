@@ -8,6 +8,7 @@ import six
 from six.moves import zip
 
 import math
+import warnings
 
 import numpy as np
 
@@ -358,7 +359,7 @@ class Text(Artist):
         cornersHoriz = np.array(
             [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)],
             np.float_)
-        cornersHoriz[:,1] -= descent
+        cornersHoriz[:, 1] -= descent
 
         # now rotate the bbox
         cornersRotated = M.transform(cornersHoriz)
@@ -573,7 +574,6 @@ class Text(Artist):
                 from matplotlib.patheffects import PathEffectRenderer
                 renderer = PathEffectRenderer(self.get_path_effects(),
                                               renderer)
-
 
             if rcParams['text.usetex']:
                 renderer.draw_tex(gc, x, y, clean_line,
@@ -1536,7 +1536,7 @@ class _AnnotationBase(object):
         if isinstance(self.xycoords, tuple):
             s1, s2 = self.xycoords
             if ((is_string_like(s1) and s1.split()[0] == "offset") or
-                (is_string_like(s2) and s2.split()[0] == "offset")):
+                  (is_string_like(s2) and s2.split()[0] == "offset")):
                 raise ValueError("xycoords should not be an offset coordinate")
             x, y = self.xy
             x1, y1 = self._get_xy(renderer, x, y, s1)
@@ -1631,22 +1631,26 @@ class _AnnotationBase(object):
         return self._draggable
 
     @property
-    @cbook.deprecated('1.4', message='Use `anncoords` instead', name='textcoords', alternative='anncoords')
+    @cbook.deprecated('1.4', message='Use `anncoords` instead',
+                      name='textcoords', alternative='anncoords')
     def textcoords(self):
         return self.anncoords
 
     @textcoords.setter
-    @cbook.deprecated('1.4', message='Use `anncoords` instead', name='textcoords', alternative='anncoords')
+    @cbook.deprecated('1.4', message='Use `anncoords` instead',
+                      name='textcoords', alternative='anncoords')
     def textcoords(self, val):
         self.anncoords = val
 
     @property
-    @cbook.deprecated('1.4', message='Use `xyann` instead', name='xytext', alternative='xyann')
+    @cbook.deprecated('1.4', message='Use `xyann` instead',
+                      name='xytext', alternative='xyann')
     def xytext(self):
         self.xyann
 
     @xytext.setter
-    @cbook.deprecated('1.4', message='Use `xyann` instead', name='xytext', alternative='xyann')
+    @cbook.deprecated('1.4', message='Use `xyann` instead',
+                      name='xytext', alternative='xyann')
     def xytext(self, val):
         self.xyann = val
 
@@ -1776,6 +1780,13 @@ class Annotation(Text, _AnnotationBase):
                                  xy,
                                  xycoords=xycoords,
                                  annotation_clip=annotation_clip)
+        # warn about wonky input data
+        if (xytext is None and
+                textcoords is not None and
+                textcoords != xycoords):
+            warnings.warn("You have used the `textcoords` kwarg, but not "
+                          "the `xytext` kwarg.  This can lead to surprising "
+                          "results.")
 
         # clean up textcoords and assign default
         if textcoords is None:
