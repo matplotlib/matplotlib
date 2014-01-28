@@ -457,7 +457,8 @@ class Line2D(Artist):
         if (self.axes and len(x) > 100 and self._is_sorted(x) and
                 self.axes.name == 'rectilinear' and
                 self.axes.get_xscale() == 'linear' and
-                self._markevery is None):
+                self._markevery is None and
+                self.get_clip_on() is True):
             self._subslice = True
         if hasattr(self, '_path'):
             interpolation_steps = self._path._interpolation_steps
