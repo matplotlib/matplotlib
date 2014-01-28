@@ -86,3 +86,7 @@ def test_nan_is_sorted():
     assert_true(line._is_sorted(np.array([1,2,3])))
     assert_true(not line._is_sorted(np.array([1,np.nan,3])))
 
+
+if __name__ == '__main__':
+    import nose
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

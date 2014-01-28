@@ -241,7 +241,7 @@ The :func:`~matplotlib.pyplot.legend` command automatically
 generates figure legends, with MATLAB-compatible legend placement
 commands.
 
-.. plot:: mpl_examples/pylab_examples/legend_demo.py
+.. plot:: mpl_examples/api/legend_demo.py
 
 Thanks to Charles Twardy for input on the legend command.
 

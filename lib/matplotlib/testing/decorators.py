@@ -3,22 +3,27 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-from matplotlib.testing.noseclasses import KnownFailureTest, \
-     KnownFailureDidNotFailTest, ImageComparisonFailure
-import os, sys, shutil
+import functools
+import os
+import sys
+import shutil
+import warnings
+import unittest
+
 import nose
-import matplotlib
+import numpy as np
+
 import matplotlib.tests
 import matplotlib.units
 from matplotlib import cbook
 from matplotlib import ticker
 from matplotlib import pyplot as plt
 from matplotlib import ft2font
-import numpy as np
+from matplotlib.testing.noseclasses import KnownFailureTest, \
+     KnownFailureDidNotFailTest, ImageComparisonFailure
 from matplotlib.testing.compare import comparable_formats, compare_images, \
      make_test_filename
-import warnings
-import unittest
+
 
 def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
     """
@@ -98,14 +103,21 @@ class CleanupTestCase(unittest.TestCase):
 
 
 def cleanup(func):
-    name = func.__name__
-    func = staticmethod(func)
-    func.__get__(1).__name__ = str('_private')
-    new_class = type(
-        name,
-        (CleanupTest,),
-        {'_func': func})
-    return new_class
+    @functools.wraps(func)
+    def wrapped_function(*args, **kwargs):
+        original_units_registry = matplotlib.units.registry.copy()
+        try:
+            func(*args, **kwargs)
+        finally:
+            plt.close('all')
+
+            matplotlib.tests.setup()
+
+            matplotlib.units.registry.clear()
+            matplotlib.units.registry.update(original_units_registry)
+            warnings.resetwarnings() #reset any warning filters set in tests
+    return wrapped_function
+
 
 def check_freetype_version(ver):
     if ver is None:
