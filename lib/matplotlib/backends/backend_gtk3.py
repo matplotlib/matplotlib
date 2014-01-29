@@ -715,7 +715,10 @@ class NavigationGTK3(NavigationBase):
     def set_cursor(self, cursor):
         self.canvas.get_property("window").set_cursor(cursord[cursor])
 
-    def draw_rubberband(self, event, x0, y0, x1, y1):
+    def draw_rubberband(self, event, caller, x0, y0, x1, y1):
+        if not self.canvas.widgetlock.available(caller):
+            return
+
         #'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/
         #Recipe/189744'
         self.ctx = self.canvas.get_property("window").cairo_create()
@@ -740,10 +743,6 @@ class NavigationGTK3(NavigationBase):
     def dynamic_update(self):
         # legacy method; new method is canvas.draw_idle
         self.canvas.draw_idle()
-
-#    def release(self, event):
-#        try: del self._pixmapBack
-#        except AttributeError: pass
 
 
 class ToolbarGTK3(ToolbarBase, Gtk.Box,):

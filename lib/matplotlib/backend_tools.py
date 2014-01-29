@@ -141,36 +141,12 @@ class ToolPersistentBase(ToolBase):
 class ToolToggleBase(ToolPersistentBase):
     """Toggleable tool
 
-    This tool is a Persistent Tool, that has the ability to capture
-    the keypress, press and release events, preventing other tools
-    to use the same events at the same time
+    This tool is a Persistent Tool that has a toggled state.
+    Every time it is triggered, it switches between enable and disable
+
     """
     toggle = True
     _toggled = False
-
-    def mouse_move(self, event):
-        """Mouse move event
-
-        Called when a motion_notify_event is emited by the `FigureCanvas` if
-        `navigation.movelock(self)` was setted
-        """
-        pass
-
-    def press(self, event):
-        """Mouse press event
-
-        Called when a button_press_event is emited by the `FigureCanvas` if
-        `navigation.presslock(self)` was setted
-        """
-        pass
-
-    def release(self, event):
-        """Mouse release event
-
-        Called when a button_release_event is emited by the `FigureCanvas` if
-        `navigation.releaselock(self)` was setted
-        """
-        pass
 
     def trigger(self, event):
         if self._toggled:
@@ -182,26 +158,23 @@ class ToolToggleBase(ToolPersistentBase):
     def enable(self, event=None):
         """Enable the toggle tool
 
-        This method is called when the tool is triggered and not active
+        This method is called when the tool is triggered and not toggled
         """
         pass
 
     def disable(self, event=None):
         """Disable the toggle tool
 
-        This method is called when the tool is triggered and active.
-         * Second click on the toolbar button
+        This method is called when the tool is triggered and toggled.
+         * Second click on the toolbar tool button
          * Another toogle tool is triggered (from the same `navigation`)
         """
         pass
 
-    def key_press(self, event):
-        """Key press event
-
-        Called when a key_press_event is emited by the `FigureCanvas` if
-        `navigation.keypresslock(self)` was setted
-        """
-        pass
+    @property
+    def toggled(self):
+        """State of the toggled tool"""
+        return self._toggled
 
 
 class ToolQuit(ToolBase):
@@ -391,26 +364,29 @@ class ToolZoom(ToolToggleBase):
         self._ids_zoom = []
         self._button_pressed = None
         self._xypress = None
+        self._idPress = None
+        self._idRelease = None
 
     def enable(self, event):
-        self.navigation.canvaslock(self)
-        self.navigation.presslock(self)
-        self.navigation.releaselock(self)
+        self.figure.canvas.widgetlock(self)
+        self._idPress = self.figure.canvas.mpl_connect(
+                        'button_press_event', self._press)
+        self._idRelease = self.figure.canvas.mpl_connect(
+                        'button_release_event', self._release)
 
     def disable(self, event):
-        self.navigation.canvaslock.release(self)
-        self.navigation.presslock.release(self)
-        self.navigation.releaselock.release(self)
+        self.figure.canvas.widgetlock.release(self)
+        self.figure.canvas.mpl_disconnect(self._idPress)
+        self.figure.canvas.mpl_disconnect(self._idRelease)
 
-    def press(self, event):
-        """the press mouse button in zoom to rect mode callback"""
+    def _press(self, event):
+        """the _press mouse button in zoom to rect mode callback"""
         # If we're already in the middle of a zoom, pressing another
         # button works to "cancel"
         if self._ids_zoom != []:
-            self.navigation.movelock.release(self)
             for zoom_id in self._ids_zoom:
                 self.figure.canvas.mpl_disconnect(zoom_id)
-            self.navigation.release(event)
+            self.navigation.remove_rubberband(event, self)
             self.navigation.draw()
             self._xypress = None
             self._button_pressed = None
@@ -439,16 +415,15 @@ class ToolZoom(ToolToggleBase):
                 self._xypress.append((x, y, a, i, a.viewLim.frozen(),
                                       a.transData.frozen()))
 
-        self.navigation.movelock(self)
+        id1 = self.figure.canvas.mpl_connect(
+                        'motion_notify_event', self.mouse_move)
         id2 = self.figure.canvas.mpl_connect('key_press_event',
                                       self._switch_on_zoom_mode)
         id3 = self.figure.canvas.mpl_connect('key_release_event',
                                       self._switch_off_zoom_mode)
 
-        self._ids_zoom = id2, id3
+        self._ids_zoom = id1, id2, id3
         self._zoom_mode = event.key
-
-        self.navigation.press(event)
 
     def _switch_on_zoom_mode(self, event):
         self._zoom_mode = event.key
@@ -476,11 +451,10 @@ class ToolZoom(ToolToggleBase):
                 x1, y1, x2, y2 = a.bbox.extents
                 x, lastx = x1, x2
 
-            self.navigation.draw_rubberband(event, x, y, lastx, lasty)
+            self.navigation.draw_rubberband(event, self, x, y, lastx, lasty)
 
-    def release(self, event):
+    def _release(self, event):
         """the release mouse button callback in zoom to rect mode"""
-        self.navigation.movelock.release(self)
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)
         self._ids_zoom = []
@@ -496,7 +470,7 @@ class ToolZoom(ToolToggleBase):
             # ignore singular clicks - 5 pixels is a threshold
             if abs(x - lastx) < 5 or abs(y - lasty) < 5:
                 self._xypress = None
-                self.navigation.release(event)
+                self.navigation.remove_rubberband(event, self)
                 self.navigation.draw()
                 return
 
@@ -604,7 +578,7 @@ class ToolZoom(ToolToggleBase):
         self._zoom_mode = None
 
         self.navigation.push_current()
-        self.navigation.release(event)
+        self.navigation.remove_rubberband(event, self)
 
 
 class ToolPan(ToolToggleBase):
@@ -620,18 +594,23 @@ class ToolPan(ToolToggleBase):
         ToolToggleBase.__init__(self, *args)
         self._button_pressed = None
         self._xypress = None
+        self._idPress = None
+        self._idRelease = None
+        self._idDrag = None
 
     def enable(self, event):
-        self.navigation.canvaslock(self)
-        self.navigation.presslock(self)
-        self.navigation.releaselock(self)
+        self.figure.canvas.widgetlock(self)
+        self._idPress = self.figure.canvas.mpl_connect(
+                        'button_press_event', self._press)
+        self._idRelease = self.figure.canvas.mpl_connect(
+                        'button_release_event', self._release)
 
     def disable(self, event):
-        self.navigation.canvaslock.release(self)
-        self.navigation.presslock.release(self)
-        self.navigation.releaselock.release(self)
+        self.figure.canvas.widgetlock.release(self)
+        self.figure.canvas.mpl_disconnect(self._idPress)
+        self.figure.canvas.mpl_disconnect(self._idRelease)
 
-    def press(self, event):
+    def _press(self, event):
         if event.button == 1:
             self._button_pressed = 1
         elif event.button == 3:
@@ -653,14 +632,16 @@ class ToolPan(ToolToggleBase):
                     a.get_navigate() and a.can_pan()):
                 a.start_pan(x, y, event.button)
                 self._xypress.append((a, i))
-                self.navigation.movelock(self)
-        self.navigation.press(event)
+                self.navigation.messagelock(self)
+                self._idDrag = self.figure.canvas.mpl_connect(
+                                'motion_notify_event', self.mouse_move)
 
-    def release(self, event):
+    def _release(self, event):
         if self._button_pressed is None:
             return
 
-        self.navigation.movelock.release(self)
+        self.figure.canvas.mpl_disconnect(self._idDrag)
+        self.navigation.messagelock.release(self)
 
         for a, _ind in self._xypress:
             a.end_pan()
@@ -669,12 +650,11 @@ class ToolPan(ToolToggleBase):
         self._xypress = []
         self._button_pressed = None
         self.navigation.push_current()
-        self.navigation.release(event)
         self.navigation.draw()
 
     def mouse_move(self, event):
         for a, _ind in self._xypress:
-            #safer to use the recorded button at the press than current button:
+            #safer to use the recorded button at the _press than current button:
             #multiple button can get pressed during motion...
             a.drag_pan(self._button_pressed, event.key, event.x, event.y)
         self.navigation.dynamic_update()

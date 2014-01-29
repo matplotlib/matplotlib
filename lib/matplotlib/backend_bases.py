@@ -3190,11 +3190,9 @@ class NavigationBase(object):
     ----------
     canvas : `FigureCanvas` instance
     toolbar : `Toolbar` instance that is controlled by this `Navigation`
-    keypresslock : `LockDraw` to direct the `canvas` key_press_event
-    movelock : `LockDraw` to direct the `canvas` motion_notify_event
-    presslock : `LockDraw` to direct the `canvas` button_press_event
-    releaselock : `LockDraw` to direct the `canvas` button_release_event
-    canvaslock : shortcut to `canvas.widgetlock`
+    keypresslock : `LockDraw` to know if the `canvas` key_press_event is
+        locked
+    messagelock : `LockDraw` to know if the message is available to write
     """
     _default_cursor = cursors.POINTER
     _default_tools = [tools.ToolToggleGrid,
@@ -3224,11 +3222,6 @@ class NavigationBase(object):
         self._idDrag = self.canvas.mpl_connect('motion_notify_event',
                                                self._mouse_move)
 
-        self._idPress = self.canvas.mpl_connect('button_press_event',
-                                                self._press)
-        self._idRelease = self.canvas.mpl_connect('button_release_event',
-                                                  self._release)
-
         # a dict from axes index to a list of view limits
         self.views = cbook.Stack()
         self.positions = cbook.Stack()  # stack of subplot positions
@@ -3240,11 +3233,7 @@ class NavigationBase(object):
 
         #to communicate with tools and redirect events
         self.keypresslock = widgets.LockDraw()
-        self.movelock = widgets.LockDraw()
-        self.presslock = widgets.LockDraw()
-        self.releaselock = widgets.LockDraw()
-        #just to group all the locks in one place
-        self.canvaslock = self.canvas.widgetlock
+        self.messagelock = widgets.LockDraw()
 
         for tool in self._default_tools:
             if tool is None:
@@ -3437,15 +3426,8 @@ class NavigationBase(object):
             tool(self.canvas.figure, event)
 
     def _key_press(self, event):
-        if event.key is None:
+        if event.key is None or self.keypresslock.locked():
             return
-
-        #some tools may need to capture keypress, but they need to be toggle
-        if self._toggled:
-            instance = self._get_instance(self._toggled)
-            if self.keypresslock.isowner(instance):
-                instance.key_press(event)
-                return
 
         name = self._keys.get(event.key, None)
         self._trigger_tool(name, event, False)
@@ -3517,12 +3499,6 @@ class NavigationBase(object):
 #        self.set_history_buttons()
 
     def _mouse_move(self, event):
-        if self._toggled:
-            instance = self._instances[self._toggled]
-            if self.movelock.isowner(instance):
-                instance.mouse_move(event)
-                return
-
         if not event.inaxes or not self._toggled:
             if self._last_cursor != self._default_cursor:
                 self.set_cursor(self._default_cursor)
@@ -3534,7 +3510,7 @@ class NavigationBase(object):
                     self.set_cursor(cursor)
                     self._last_cursor = cursor
 
-        if self.toolbar is None:
+        if self.toolbar is None or self.messagelock.locked():
             return
 
         if event.inaxes and event.inaxes.get_navigate():
@@ -3550,30 +3526,6 @@ class NavigationBase(object):
                     self.toolbar.set_message(s)
         else:
             self.toolbar.set_message('')
-
-    def _release(self, event):
-        if self._toggled:
-            instance = self._instances[self._toggled]
-            if self.releaselock.isowner(instance):
-                instance.release(event)
-                return
-        self.release(event)
-
-    def release(self, event):
-        pass
-
-    def _press(self, event):
-        """Called whenver a mouse button is pressed."""
-        if self._toggled:
-            instance = self._instances[self._toggled]
-            if self.presslock.isowner(instance):
-                instance.press(event)
-                return
-        self.press(event)
-
-    def press(self, event):
-        """Called whenver a mouse button is pressed."""
-        pass
 
     def draw(self):
         """Redraw the canvases, update the locators"""
@@ -3639,9 +3591,34 @@ class NavigationBase(object):
         self.positions.push(pos)
 #        self.set_history_buttons()
 
-    def draw_rubberband(self, event, x0, y0, x1, y1):
-        """Draw a rectangle rubberband to indicate zoom limits"""
-        pass
+    def draw_rubberband(self, event, caller, x0, y0, x1, y1):
+        """Draw a rectangle rubberband to indicate zoom limits
+
+        Draw a rectanlge in the canvas, if
+        `self.canvas.widgetlock` is available to **caller**
+
+        Parameters
+        ----------
+        event : `FigureCanvas` event
+        caller : instance trying to draw the rubberband
+        x0, y0, x1, y1 : coordinates
+        """
+        if not self.canvas.widgetlock.available(caller):
+            warnings.warn("%s doesn't own the canvas widgetlock" % caller)
+
+    def remove_rubberband(self, event, caller):
+        """Remove the rubberband
+
+        Remove the rubberband if the `self.canvas.widgetlock` is
+        available to **caller**
+
+        Parameters
+        ----------
+        event : `FigureCanvas` event
+        caller : instance trying to remove the rubberband
+        """
+        if not self.canvas.widgetlock.available(caller):
+            warnings.warn("%s doesn't own the canvas widgetlock" % caller)
 
 
 class ToolbarBase(object):
