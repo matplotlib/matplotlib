@@ -416,7 +416,7 @@ class ToolZoom(ToolToggleBase):
                                       a.transData.frozen()))
 
         id1 = self.figure.canvas.mpl_connect(
-                        'motion_notify_event', self.mouse_move)
+                        'motion_notify_event', self._mouse_move)
         id2 = self.figure.canvas.mpl_connect('key_press_event',
                                       self._switch_on_zoom_mode)
         id3 = self.figure.canvas.mpl_connect('key_release_event',
@@ -427,13 +427,13 @@ class ToolZoom(ToolToggleBase):
 
     def _switch_on_zoom_mode(self, event):
         self._zoom_mode = event.key
-        self.mouse_move(event)
+        self._mouse_move(event)
 
     def _switch_off_zoom_mode(self, event):
         self._zoom_mode = None
-        self.mouse_move(event)
+        self._mouse_move(event)
 
-    def mouse_move(self, event):
+    def _mouse_move(self, event):
         """the drag callback in zoom mode"""
         if self._xypress:
             x, y = event.x, event.y
@@ -634,7 +634,7 @@ class ToolPan(ToolToggleBase):
                 self._xypress.append((a, i))
                 self.navigation.messagelock(self)
                 self._idDrag = self.figure.canvas.mpl_connect(
-                                'motion_notify_event', self.mouse_move)
+                                'motion_notify_event', self._mouse_move)
 
     def _release(self, event):
         if self._button_pressed is None:
@@ -652,9 +652,9 @@ class ToolPan(ToolToggleBase):
         self.navigation.push_current()
         self.navigation.draw()
 
-    def mouse_move(self, event):
+    def _mouse_move(self, event):
         for a, _ind in self._xypress:
-            #safer to use the recorded button at the _press than current button:
-            #multiple button can get pressed during motion...
+            #safer to use the recorded button at the _press than current
+            #button: #multiple button can get pressed during motion...
             a.drag_pan(self._button_pressed, event.key, event.x, event.y)
         self.navigation.dynamic_update()
