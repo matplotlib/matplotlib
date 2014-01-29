@@ -3479,21 +3479,20 @@ class NavigationBase(object):
 
         instance = self._get_instance(name)
         if self._toggled is None:
-            instance.trigger(None)
+            #first trigger of tool
             self._toggled = name
-
         elif self._toggled == name:
-            instance.trigger(None)
+            #second trigger of tool
             self._toggled = None
-
         else:
+            #other tool is triggered so trigger toggled tool
             if self.toolbar:
                 #untoggle the previous toggled tool
                 self.toolbar._toggle(self._toggled, False)
-
-            self._get_instance(self._toggled).trigger(None)
-            instance.trigger(None)
+            self._get_instance(self._toggled).trigger(event)
             self._toggled = name
+
+        instance.trigger(event)
 
         for a in self.canvas.figure.get_axes():
             a.set_navigate_mode(self._toggled)
