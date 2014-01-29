@@ -1,6 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+from nose.tools import assert_equal
 import six
 
 import os
@@ -15,4 +16,4 @@ def test_font_priority():
             ['cmmi10', 'Bitstream Vera Sans']}):
         font = findfont(
             FontProperties(family=["sans-serif"]))
-    assert os.path.basename(font) == 'cmmi10.ttf'
+    assert_equal(os.path.basename(font), 'cmmi10.ttf')
