@@ -7460,6 +7460,9 @@ class Axes(martist.Artist):
           *alpha*: ``0 <= scalar <= 1``   or *None*
             the alpha blending value
 
+          *snap*: bool
+            Whether to snap the mesh to pixel boundaries.
+
         Return value is a :class:`matplotlib.collections.Collection`
         instance.
 
@@ -7603,7 +7606,9 @@ class Axes(martist.Artist):
                 ec.lower() == "none"):
             kwargs['antialiaseds'] = False
 
-        collection = mcoll.PolyCollection(verts, snap=False, **kwargs)
+        kwargs.setdefault('snap', False)
+
+        collection = mcoll.PolyCollection(verts, **kwargs)
 
         collection.set_alpha(alpha)
         collection.set_array(C)
