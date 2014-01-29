@@ -3413,15 +3413,15 @@ class NavigationBase(object):
 
         return callback_class
 
-    def click_tool(self, name):
-        """Simulate a click on a tool
+    def trigger_tool(self, name):
+        """Trigger on a tool
 
-        This is a convenient method to programatically click on
+        This is a convenient method to programatically "click" on
         Tools
         """
-        self._tool_activate(name, None, False)
+        self._trigger_tool(name, None, False)
 
-    def _tool_activate(self, name, event, from_toolbar):
+    def _trigger_tool(self, name, event, from_toolbar):
         if name not in self._tools:
             raise AttributeError('%s not in Tools' % name)
 
@@ -3448,7 +3448,7 @@ class NavigationBase(object):
                 return
 
         name = self._keys.get(event.key, None)
-        self._tool_activate(name, event, False)
+        self._trigger_tool(name, event, False)
 
     def _get_instance(self, name):
         if name not in self._instances:
@@ -3470,7 +3470,7 @@ class NavigationBase(object):
             Name of the tool that was activated (click) by the user using the
             toolbar
         """
-        self._tool_activate(name, None, True)
+        self._trigger_tool(name, None, True)
 
     def _handle_toggle(self, name, event=None, from_toolbar=False):
         #toggle toolbar without callback
@@ -3483,14 +3483,15 @@ class NavigationBase(object):
             self._toggled = name
 
         elif self._toggled == name:
-            instance.deactivate(None)
+            instance.trigger(None)
             self._toggled = None
 
         else:
             if self.toolbar:
+                #untoggle the previous toggled tool
                 self.toolbar._toggle(self._toggled, False)
 
-            self._get_instance(self._toggled).deactivate(None)
+            self._get_instance(self._toggled).trigger(None)
             instance.trigger(None)
             self._toggled = name
 
