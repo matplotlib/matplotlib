@@ -146,6 +146,7 @@ class ToolToggleBase(ToolPersistentBase):
     to use the same events at the same time
     """
     toggle = True
+    _toggled = False
 
     def mouse_move(self, event):
         """Mouse move event
@@ -171,12 +172,26 @@ class ToolToggleBase(ToolPersistentBase):
         """
         pass
 
-    def deactivate(self, event=None):
-        """Deactivate the toggle tool
+    def trigger(self, event):
+        if self._toggled:
+            self.disable(event)
+        else:
+            self.enable(event)
+        self._toggled = not self._toggled
 
-        This method is called when the tool is deactivated (second click on the
-        toolbar button) or when another toogle tool from the same `navigation`
-        is activated
+    def enable(self, event=None):
+        """Enable the toggle tool
+
+        This method is called when the tool is triggered and not active
+        """
+        pass
+
+    def disable(self, event=None):
+        """Disable the toggle tool
+
+        This method is called when the tool is triggered and active.
+         * Second click on the toolbar button
+         * Another toogle tool is triggered (from the same `navigation`)
         """
         pass
 
@@ -217,7 +232,6 @@ class ToolEnableAllNavigation(ToolBase):
                 a.set_navigate(True)
 
 
-#FIXME: use a function instead of string for enable navigation
 class ToolEnableNavigation(ToolBase):
     """Tool to enable a specific axes for navigation interaction
     """
@@ -378,12 +392,12 @@ class ToolZoom(ToolToggleBase):
         self._button_pressed = None
         self._xypress = None
 
-    def trigger(self, event):
+    def enable(self, event):
         self.navigation.canvaslock(self)
         self.navigation.presslock(self)
         self.navigation.releaselock(self)
 
-    def deactivate(self, event):
+    def disable(self, event):
         self.navigation.canvaslock.release(self)
         self.navigation.presslock.release(self)
         self.navigation.releaselock.release(self)
@@ -607,12 +621,12 @@ class ToolPan(ToolToggleBase):
         self._button_pressed = None
         self._xypress = None
 
-    def trigger(self, event):
+    def enable(self, event):
         self.navigation.canvaslock(self)
         self.navigation.presslock(self)
         self.navigation.releaselock(self)
 
-    def deactivate(self, event):
+    def disable(self, event):
         self.navigation.canvaslock.release(self)
         self.navigation.presslock.release(self)
         self.navigation.releaselock.release(self)
