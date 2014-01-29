@@ -76,7 +76,6 @@ class RendererMac(RendererBase):
             master_transform, paths, all_transforms):
             path_ids.append((path, transform))
         master_transform = master_transform.get_matrix()
-        all_transforms = [t.get_matrix() for t in all_transforms]
         offsetTrans = offsetTrans.get_matrix()
         gc.draw_path_collection(master_transform, path_ids, all_transforms,
                              offsets, offsetTrans, facecolors, edgecolors,

@@ -15,7 +15,7 @@ from six.moves import zip
 
 from matplotlib import lines, text as mtext, path as mpath, colors as mcolors
 from matplotlib.collections import Collection, LineCollection, \
-        PolyCollection, PatchCollection
+        PolyCollection, PatchCollection, PathCollection
 from matplotlib.cm import ScalarMappable
 from matplotlib.patches import Patch
 from matplotlib.colors import Normalize
@@ -294,7 +294,7 @@ def pathpatch_2d_to_3d(pathpatch, z=0, zdir='z'):
     pathpatch.__class__ = PathPatch3D
     pathpatch.set_3d_properties(mpath, z, zdir)
 
-class Patch3DCollection(PatchCollection):
+class Collection3D(object):
     '''
     A collection of 3D patches.
     '''
@@ -343,7 +343,7 @@ class Patch3DCollection(PatchCollection):
         self._alpha = None
         self.set_facecolors(zalpha(self._facecolor3d, vzs))
         self.set_edgecolors(zalpha(self._edgecolor3d, vzs))
-        PatchCollection.set_offsets(self, list(zip(vxs, vys)))
+        super(self.__class__, self).set_offsets(list(zip(vxs, vys)))
 
         if vzs.size > 0 :
             return min(vzs)
@@ -353,6 +353,15 @@ class Patch3DCollection(PatchCollection):
     def draw(self, renderer):
         self._old_draw(renderer)
 
+
+class Patch3DCollection(Collection3D, PatchCollection):
+    pass
+
+
+class Path3DCollection(Collection3D, PathCollection):
+    pass
+
+
 def patch_collection_2d_to_3d(col, zs=0, zdir='z'):
     """Convert a PatchCollection to a Patch3DCollection object."""
 
@@ -360,7 +369,10 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z'):
     # derived from PatchCollection. We need to use the right draw method.
     col._old_draw = col.draw
 
-    col.__class__ = Patch3DCollection
+    if isinstance(col, PathCollection):
+        col.__class__ = Path3DCollection
+    elif isinstance(col, PatchCollection):
+        col.__class__ = Patch3DCollection
     col.set_3d_properties(zs, zdir)
 
 class Poly3DCollection(PolyCollection):
