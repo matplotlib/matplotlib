@@ -25,6 +25,13 @@ graphics contexts must implement to serve as a matplotlib backend
     the 'show' callable is then set to Show.__call__, inherited from
     ShowBase.
 
+:class: `NavigationBase`
+    Class that holds the navigation state (or toolbar state).
+    This class is attached to `FigureManagerBase.navigation`
+    
+:class:`ToolbarBase`
+    The base class that controls the GUI interface of the toolbar
+    passes all the requests to the navigation instance
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -2524,12 +2531,24 @@ class FigureManagerBase:
 
     *num*
         The figure number
+        
+    *navigation*
+        Navigation state holder
     """
+    
+    navigation_class = None
+    """Navigation class that will be instantiated as navigation for this child"""
+    
     def __init__(self, canvas, num):
         self.canvas = canvas
         canvas.manager = self  # store a pointer to parent
         self.num = num
-
+        
+        if self.navigation_class is not None:
+            self.navigation = self.navigation_class(self.canvas)
+        else:
+            self.navigation = None
+        
         self.key_press_handler_id = self.canvas.mpl_connect('key_press_event',
                                                             self.key_press)
         """
@@ -3169,4 +3188,319 @@ class NavigationToolbar2(object):
 
     def set_history_buttons(self):
         """Enable or disable back/forward button"""
+        pass
+
+
+class NavigationBase(NavigationToolbar2):
+    """Holder for navigation information
+
+    Attributes
+    ----------
+    toolbar : Toolbar
+        Instance derivate of `ToolbarBase`
+
+    Examples
+    ----------
+    To access this instance from a figure instance use
+
+    >>> figure.canvas.navigation
+
+    Notes
+    ----------
+    Every call to this toolbar that is not defined in `NavigationToolbar2` or here will be passed to
+    `toolbar` via `__getattr__`
+
+    In general it is not necessary to overrride this class. If you need to change the toolbar
+    change the backend derivate of `ToolbarBase`
+
+    There is no need to instantiate this class, this will be done automatically from
+    `FigureManagerBase.__init__`
+    """
+
+    def __init__(self, canvas):
+        self.toolbar = None
+        NavigationToolbar2.__init__(self, canvas)
+
+    #Until this is merged with NavigationToolbar2 we have to provide this method
+    #for NavigationToolbar2.__init__ to work
+    def _init_toolbar(self):
+        self.ctx = None
+
+    def attach(self, toolbar):
+        """Add itself to the given toolbar
+        
+        Parameters
+        ----------
+            toolbar: Toolbar
+                Derivate of `ToolbarBase`
+                
+        """
+        if self.toolbar is not None:
+            self.detach()
+        self.toolbar = toolbar
+        if toolbar is not None:
+            self.toolbar._add_navigation(self)
+
+    def detach(self):
+        """Remove this instance from the control of `toolbar`
+
+        Notes
+        ----------
+        This method is called from `FigureManager.destroy`
+        """
+        if self.toolbar is not None:
+            self.toolbar._remove_navigation(self)
+            self.toolbar = None
+
+    def set_message(self, text):
+        if self.toolbar:
+            self.toolbar.set_message(text)
+            
+    def destroy(self):
+        self.detach()
+        self.toolbar = None    
+
+
+class ToolbarBase(object):
+    """Base class for the real GUI toolbar
+
+    This class defines the basic methods that the backend specific implementation
+    has to have.
+
+    Notes
+    ----------
+    The mandatory methods for a specific backend are
+
+     - `add_toolitem`
+     - `connect_toolitem`
+     - `init_toolbar`
+     - `save_figure`
+
+    The suggested methods to implement are
+
+     - `remove_tool`
+     - `move_tool`
+     - `set_visible_tool`
+     - `add_separator`
+     - `add_message`
+
+    Examples
+    ----------
+    To access this instance from a figure isntance
+
+    >>> figure.canvas.navigation.toolbar
+
+    Some undefined attributes of `Navigation` call this class via
+    `Navigation.__getattr__`, most of the time it can be accesed directly with
+
+    >>> figure.canvas.toolbar
+    """
+    toolitems = ({'text': 'Home',
+                  'tooltip_text': 'Reset original view',
+                  'image': 'home',
+                  'callback': 'home'},
+
+                 {'text': 'Back',
+                  'tooltip_text': 'Back to  previous view',
+                  'image': 'back',
+                  'callback': 'back'},
+
+                 {'text': 'Forward',
+                  'tooltip_text': 'Forward to next view',
+                  'image': 'forward',
+                  'callback': 'forward'},
+
+                 None,
+
+                 {'text': 'Pan',
+                  'tooltip_text': 'Pan axes with left mouse, zoom with right',
+                  'image': 'move',
+                  'callback': 'pan'},
+
+                 {'text': 'Zoom',
+                  'tooltip_text': 'Zoom to rectangle',
+                  'image': 'zoom_to_rect',
+                  'callback': 'zoom'},
+                 
+                 None,
+                 
+                 {'text': 'Subplots',
+                  'tooltip_text': 'Configure subplots',
+                  'image': 'subplots',
+                  'callback': 'configure_subplots'},
+
+                 {'text': 'Save',
+                  'tooltip_text': 'Save the figure',
+                  'image': 'filesave',
+                  'callback': 'save_figure'},
+                 )
+    #FIXME: overwriting the signature in the documentation is not working
+    """toolitems=({})
+
+    List of Dictionnaries containing the default toolitems to add to the toolbar
+
+    Each dict element of contains
+     - text : Text or name for the tool
+     - tooltip_text : Tooltip text
+     - image : Image to use
+     - callback : Function callback definied in this class or derivates
+    """
+
+    def __init__(self):
+        self._navigation = None
+        self.init_toolbar()
+        self.add_message()
+        
+        for pos, item in enumerate(self.toolitems):
+            if item is None:
+                self.add_separator(pos=pos)
+                continue
+            
+            btn = item.copy()
+            callback = btn.pop('callback')
+            tbutton = self.add_toolitem(pos=pos, **btn)
+            if tbutton:
+                self.connect_toolitem(tbutton, callback)
+
+        self._current = None
+
+    def init_toolbar(self):
+        """Initialized the toolbar
+
+        Creates the frame to place the toolitems
+        """
+        raise NotImplementedError
+       
+    def remove_tool(self, pos):
+        """Remove the tool located at given position
+
+        .. note:: It is recommended to implement this method
+
+        Parameters
+        ----------
+        pos : Int
+            Position where the tool to remove is located
+        """
+        #remote item from the toolbar,
+        pass
+
+    def set_visible_tool(self, toolitem, visible):
+        """Toggle the visibility of a toolitem 
+        
+        Parameters
+        ----------
+        toolitem: backend specific
+            toolitem returned by `add_toolitem`
+        visible: bool
+            if true set visible, 
+            if false set invisible
+            
+        """
+        pass
+
+    def move_tool(self, pos_ini, pos_fin):
+        """Move the tool between to positions
+
+        .. note:: It is recommended to implement this method
+
+        Parameters
+        ----------
+        pos_ini : Int
+            Position (coordinates) where the tool to is located
+        pos_fin : Int
+            New position (coordinates) where the tool will reside
+        """
+        #move item in the toolbar
+        pass
+
+    def connect_toolitem(self, toolitem, callback, *args, **kwargs):
+        """Connect the tooitem to the callback
+
+        This is backend specific, takes the arguments and connect the added tool to
+        the callback passing *args and **kwargs to the callback
+        
+        The action is the 'clicked' or whatever name in the backend for the activation of the tool
+
+        Parameters
+        ----------
+        toolitem : backend specific
+            Toolitem returned by `add_toolitem`
+        callback : method
+            Method that will be called when the toolitem is activated
+
+        Examples
+        ----------
+        In Gtk3 this method is implemented as
+
+        >>> def connect_toolitem(self, button, callback, *args, **kwargs):
+        >>>     def mcallback(btn, cb, args, kwargs):
+        >>>         getattr(self, cb)(*args, **kwargs)
+        >>>
+        >>>     button.connect('clicked', mcallback, callback, args, kwargs)
+
+        Notes
+        ----------
+        The need for this method is to get rid of all the backend specific signal handling
+        """
+
+        raise NotImplementedError
+
+    def __getattr__(self, name):
+        #The callbacks in self.toolitems are handled directly by navigation
+        cbs = [it['callback'] for it in self.toolitems if it is not None]
+        if name in cbs:
+            return getattr(self._navigation, name)
+        raise AttributeError('Unknown attribute %s' % name)
+
+    def _add_navigation(self, navigation):
+        #Set the navigation controlled by this toolbar
+        self._navigation = navigation
+
+    def _remove_navigation(self, navigation):
+       #Remove the navigation controlled by this toolbar
+        
+        self._navigation = None
+
+    def add_toolitem(self, text='_', pos=-1,
+                    tooltip_text='', image=None):
+
+        """Add toolitem to the toolbar
+
+        Parameters
+        ----------
+        pos : Int, optional
+            Position to add the tool
+        text : string, optional
+            Text for the tool
+        tooltip_text : string, optional
+            Text for the tooltip
+        image : string, optional
+            Reference to an image file to be used to represent the tool
+
+        Returns
+        -------
+        toolitem: Toolitem created, backend specific
+
+        Notes
+        ----------
+        There is no need to call this method directly, it is called from `add_tool`
+        """
+
+        raise NotImplementedError
+
+    def add_separator(self, pos=-1):
+        """Add a separator to the toolbar
+
+        Parameters
+        ----------
+        pos : Int, optional
+            Position to add the separator
+        """
+        pass
+
+    def add_message(self):
+        """Add message container
+
+        The message in this container will be setted by `NavigationBase.set_message``
+        """
         pass

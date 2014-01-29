@@ -29,7 +29,8 @@ except ImportError:
 import matplotlib
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
+     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase, \
+     NavigationBase, ToolbarBase
 from matplotlib.backend_bases import ShowBase
 
 from matplotlib.cbook import is_string_like, is_writable_file_like
@@ -422,7 +423,7 @@ class FigureManagerGTK3(FigureManagerBase):
 
         def notify_axes_change(fig):
             'this will be called whenever the current axes is changed'
-            if self.toolbar is not None: self.toolbar.update()
+            if self.navigation is not None: self.navigation.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
         self.canvas.grab_focus()
@@ -432,6 +433,7 @@ class FigureManagerGTK3(FigureManagerBase):
         self.vbox.destroy()
         self.window.destroy()
         self.canvas.destroy()
+        self.navigation.destroy()
         if self.toolbar:
             self.toolbar.destroy()
 
@@ -452,12 +454,12 @@ class FigureManagerGTK3(FigureManagerBase):
             self.window.unfullscreen()
     _full_screen_flag = False
 
-
     def _get_toolbar(self, canvas):
         # must be inited after the window, drawingArea and figure
         # attrs are set
         if rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2GTK3 (canvas, self.window)
+            toolbar = ToolbarGTK3()
+            self.navigation.attach(toolbar)
         else:
             toolbar = None
         return toolbar
@@ -476,16 +478,7 @@ class FigureManagerGTK3(FigureManagerBase):
         self.window.resize(width, height)
 
 
-class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
-    def __init__(self, canvas, window):
-        self.win = window
-        GObject.GObject.__init__(self)
-        NavigationToolbar2.__init__(self, canvas)
-        self.ctx = None
-
-    def set_message(self, s):
-        self.message.set_label(s)
-
+class NavigationGTK3(NavigationBase):
     def set_cursor(self, cursor):
         self.canvas.get_property("window").set_cursor(cursord[cursor])
         #self.canvas.set_cursor(cursord[cursor])
@@ -519,40 +512,10 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         self.ctx.set_source_rgb(0, 0, 0)
         self.ctx.stroke()
 
-    def _init_toolbar(self):
-        self.set_style(Gtk.ToolbarStyle.ICONS)
-        basedir = os.path.join(rcParams['datapath'],'images')
-
-        for text, tooltip_text, image_file, callback in self.toolitems:
-            if text is None:
-                self.insert( Gtk.SeparatorToolItem(), -1 )
-                continue
-            fname = os.path.join(basedir, image_file + '.png')
-            image = Gtk.Image()
-            image.set_from_file(fname)
-            tbutton = Gtk.ToolButton()
-            tbutton.set_label(text)
-            tbutton.set_icon_widget(image)
-            self.insert(tbutton, -1)
-            tbutton.connect('clicked', getattr(self, callback))
-            tbutton.set_tooltip_text(tooltip_text)
-
-        toolitem = Gtk.SeparatorToolItem()
-        self.insert(toolitem, -1)
-        toolitem.set_draw(False)
-        toolitem.set_expand(True)
-
-        toolitem = Gtk.ToolItem()
-        self.insert(toolitem, -1)
-        self.message = Gtk.Label()
-        toolitem.add(self.message)
-
-        self.show_all()
-
     def get_filechooser(self):
         fc = FileChooserDialog(
             title='Save the figure',
-            parent=self.win,
+            parent=self.canvas.manager.window,
             path=os.path.expanduser(rcParams.get('savefig.directory', '')),
             filetypes=self.canvas.get_supported_filetypes(),
             default_filetype=self.canvas.get_default_filetype())
@@ -576,7 +539,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             except Exception as e:
                 error_msg_gtk(str(e), parent=self)
 
-    def configure_subplots(self, button):
+    def configure_subplots(self):
         toolfig = Figure(figsize=(6,3))
         canvas = self._get_canvas(toolfig)
         toolfig.subplots_adjust(top=0.9)
@@ -609,6 +572,99 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
     def _get_canvas(self, fig):
         return self.canvas.__class__(fig)
+
+
+FigureManagerGTK3.navigation_class = NavigationGTK3
+
+
+class ToolbarGTK3(ToolbarBase, Gtk.Box):
+
+    def set_visible_tool(self, toolitem, visible):
+        toolitem.set_visible(visible)
+
+    def connect_toolitem(self, button, callback, *args, **kwargs):
+        def mcallback(btn, cb, args, kwargs):
+            getattr(self, cb)(*args, **kwargs)
+
+        button.connect('clicked', mcallback, callback, args, kwargs)
+
+    def add_toolitem(self, text='_', pos=-1,
+                    tooltip_text='', image=None):
+        timage = None
+        if image:
+            timage = Gtk.Image()
+
+            if os.path.isfile(image):
+                timage.set_from_file(image)
+            else:
+                basedir = os.path.join(rcParams['datapath'], 'images')
+                fname = os.path.join(basedir, image + '.png')
+                if os.path.isfile(fname):
+                    timage.set_from_file(fname)
+                else:
+                    #TODO: Add the right mechanics to pass the image from string
+#                    from gi.repository import GdkPixbuf
+#                    pixbuf = GdkPixbuf.Pixbuf.new_from_inline(image, False)
+                    timage = False
+
+        tbutton = Gtk.ToolButton()
+
+        tbutton.set_label(text)
+        if timage:
+            tbutton.set_icon_widget(timage)
+            timage.show()
+        tbutton.set_tooltip_text(tooltip_text)
+        self._toolbar.insert(tbutton, pos)
+        tbutton.show()
+        return tbutton
+
+    def remove_tool(self, pos):
+        widget = self._toolbar.get_nth_item(pos)
+        if not widget:
+            self.set_message('Impossible to remove tool %d' % pos)
+            return
+        self._toolbar.remove(widget)
+
+    def move_tool(self, pos_ini, pos_fin):
+        widget = self._toolbar.get_nth_item(pos_ini)
+        if not widget:
+            self.set_message('Impossible to remove tool %d' % pos_ini)
+            return
+        self._toolbar.remove(widget)
+        self._toolbar.insert(widget, pos_fin)
+
+    def add_separator(self, pos=-1):
+        toolitem = Gtk.SeparatorToolItem()
+        self._toolbar.insert(toolitem, pos)
+        toolitem.show()
+        return toolitem
+
+    def init_toolbar(self):
+        Gtk.Box.__init__(self)
+        self.set_property("orientation", Gtk.Orientation.VERTICAL)
+        self._toolbar = Gtk.Toolbar()
+        self._toolbar.set_style(Gtk.ToolbarStyle.ICONS)
+        self.pack_start(self._toolbar, False, False, 0)
+        self.show_all()
+
+    def add_message(self):
+        box = Gtk.Box()
+        box.set_property("orientation", Gtk.Orientation.HORIZONTAL)
+        sep = Gtk.Separator()
+        sep.set_property("orientation", Gtk.Orientation.VERTICAL)
+        box.pack_start(sep, False, True, 0)
+        self.message = Gtk.Label()
+        box.pack_end(self.message, False, False, 0)
+        box.show_all()
+        self.pack_end(box, False, False, 5)
+
+        sep = Gtk.Separator()
+        sep.set_property("orientation", Gtk.Orientation.HORIZONTAL)
+        self.pack_end(sep, False, True, 0)
+        self.show_all()
+
+    def set_message(self, text):
+        self.message.set_label(text)
 
 
 class FileChooserDialog(Gtk.FileChooserDialog):
