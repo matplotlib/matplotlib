@@ -12,7 +12,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (ShowBase,
                                       key_press_handler)
 # pull in Gcf free parts
-from ._backend_gtk3 import (TimerGTK3,
+from .base_backend_gtk3 import (TimerGTK3,
                            FigureCanvasGTK3,
                            FigureManagerGTK3,
                            NavigationToolbar2GTK3,

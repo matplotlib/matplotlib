@@ -12,7 +12,7 @@ from matplotlib._pylab_helpers import Gcf
 from .qt4_compat import QtCore, QtGui, _getSaveFileName, __version__
 
 # pull in QT specific part
-from ._backend_qt4 import (new_figure_manager,
+from .base_backend_qt4 import (new_figure_manager,
                             new_figure_manager_given_figure,
                             TimerQT,
                             FigureCanvasQT,

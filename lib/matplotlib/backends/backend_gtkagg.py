@@ -7,7 +7,7 @@ import six
 
 from matplotlib._pylab_helpers import Gcf
 # import the Gcf free parts
-from ._backend_gtkagg import (gtk,
+from .base_backend_gtkagg import (gtk,
                               FigureCanvasGTKAgg,
                               FigureManagerGTKAgg,
                               NavigationToolbar2GTKAgg,

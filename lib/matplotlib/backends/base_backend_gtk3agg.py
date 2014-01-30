@@ -7,11 +7,14 @@ import numpy as np
 import sys
 import warnings
 
-from . import backend_agg
-from . import backend_gtk3
+
 from .backend_cairo import cairo, HAS_CAIRO_CFFI
 from matplotlib.figure import Figure
 from matplotlib import transforms
+
+from base_backend_gtk3 import (FigureCanvasGTK3,
+                               FigureManagerGTK3)
+from backend_agg import FigureCanvasAgg
 
 if six.PY3 and not HAS_CAIRO_CFFI:
     warnings.warn(
@@ -19,17 +22,17 @@ if six.PY3 and not HAS_CAIRO_CFFI:
         "Try installing cairocffi.")
 
 
-class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
-                          backend_agg.FigureCanvasAgg):
+class FigureCanvasGTK3Agg(FigureCanvasGTK3,
+                          FigureCanvasAgg):
     def __init__(self, figure):
-        backend_gtk3.FigureCanvasGTK3.__init__(self, figure)
+        FigureCanvasGTK3.__init__(self, figure)
         self._bbox_queue = []
 
     def _renderer_init(self):
         pass
 
     def _render_figure(self, width, height):
-        backend_agg.FigureCanvasAgg.draw(self)
+        FigureCanvasAgg.draw(self)
 
     def on_draw_event(self, widget, ctx):
         """ GtkDrawable draw event, like expose_event in GTK 2.X
@@ -91,7 +94,7 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
 
     def print_png(self, filename, *args, **kwargs):
         # Do this so we can save the resolution of figure in the PNG file
-        agg = self.switch_backends(backend_agg.FigureCanvasAgg)
+        agg = self.switch_backends(FigureCanvasAgg)
         return agg.print_png(filename, *args, **kwargs)
 
 
@@ -109,9 +112,9 @@ def new_figure_manager_given_figure(num, figure):
     Create a new figure manager instance for the given figure.
     """
     canvas = FigureCanvasGTK3Agg(figure)
-    manager = _backend_gtk3.FigureManagerGTK3(canvas, num)
+    manager = FigureManagerGTK3(canvas, num)
     return manager
 
 
 FigureCanvas = FigureCanvasGTK3Agg
-FigureManager = _backend_gtk3.FigureManagerGTK3
+FigureManager = FigureManagerGTK3

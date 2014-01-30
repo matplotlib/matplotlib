@@ -17,9 +17,9 @@ from .backend_agg import FigureCanvasAgg
 from .qt4_compat import QtCore, QtGui
 
 # grab the Gcf-less qt4 classes
-from ._backend_qt4 import FigureManagerQT
-from ._backend_qt4 import FigureCanvasQT
-from ._backend_qt4 import NavigationToolbar2QT
+from .base_backend_qt4 import FigureManagerQT
+from .base_backend_qt4 import FigureCanvasQT
+from .base_backend_qt4 import NavigationToolbar2QT
 
 DEBUG = False
 

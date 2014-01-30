@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import matplotlib
 # pull in everything from the backing file, should probably be more selective
-from ._backend_gtk import (new_figure_manager,
+from .base_backend_gtk import (new_figure_manager,
                            new_figure_manager_given_figure,
                            TimerGTK,
                            FigureCanvasGTK,
@@ -17,7 +17,7 @@ from ._backend_gtk import (new_figure_manager,
                            backend_version)
 
 # import gtk from the backing file
-from ._backend_gtk import gtk
+from .base_backend_gtk import gtk
 # pull in Gcf
 from matplotlib._pylab_helpers import Gcf
 

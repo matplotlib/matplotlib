@@ -20,13 +20,13 @@ from .backend_qt4 import draw_if_interactive
 from .backend_qt4 import FigureManagerQT
 
 
-from ._backend_qt4 import (TimerQT,
+from .base_backend_qt4 import (TimerQT,
                             SubplotToolQt,
                             backend_version)
 
 
 # import qtAgg stuff
-from ._backend_qt4agg import (new_figure_manager,
+from .base_backend_qt4agg import (new_figure_manager,
                               new_figure_manager_given_figure,
                               NavigationToolbar2QT,
                               FigureCanvasQTAgg)

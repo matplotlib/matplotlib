@@ -14,7 +14,7 @@ from .backend_gtk import (show,
                           _gtk_cleanup,
                           key_press_handler)
 
-from ._backend_gtkcairo import (gtk,
+from .base_backend_gtkcairo import (gtk,
                                 new_figure_manager,
                                 new_figure_manager_given_figure,
                                 RendererGTKCairo,

@@ -11,7 +11,7 @@ import os
 import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
-from ._backend_gtk import (gtk,
+from .base_backend_gtk import (gtk,
                             FigureManagerGTK, FigureCanvasGTK,
                             error_msg_gtk, PIXELS_PER_INCH,
                             backend_version,

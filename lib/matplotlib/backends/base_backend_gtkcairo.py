@@ -12,7 +12,7 @@ if gtk.pygtk_version < (2, 7, 0):
     import cairo.gtk
 
 from matplotlib.backends import backend_cairo
-from ._backend_gtk import (FigureCanvasGTK,
+from .base_backend_gtk import (FigureCanvasGTK,
                            FigureManagerGTK,
                            NavigationToolbar2GTK,
                            fn_name

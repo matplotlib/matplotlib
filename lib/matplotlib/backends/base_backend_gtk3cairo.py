@@ -3,13 +3,16 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 import warnings
-from . import backend_gtk3
-from . import backend_cairo
-from .backend_cairo import cairo, HAS_CAIRO_CFFI
+from base_backend_gtk3 import (FigureCanvasGTK3,
+                               FigureManagerGTK3)
+
+from .backend_cairo import (cairo, HAS_CAIRO_CFFI,
+                            FigureCanvasCairo,
+                            RendererCairo)
 from matplotlib.figure import Figure
 
 
-class RendererGTK3Cairo(backend_cairo.RendererCairo):
+class RendererGTK3Cairo(RendererCairo):
     def set_context(self, ctx):
         if HAS_CAIRO_CFFI:
             ctx = cairo.Context._from_pointer(
@@ -21,10 +24,10 @@ class RendererGTK3Cairo(backend_cairo.RendererCairo):
         self.gc.ctx = ctx
 
 
-class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
-                            backend_cairo.FigureCanvasCairo):
+class FigureCanvasGTK3Cairo(FigureCanvasGTK3,
+                            FigureCanvasCairo):
     def __init__(self, figure):
-        backend_gtk3.FigureCanvasGTK3.__init__(self, figure)
+        FigureCanvasGTK3.__init__(self, figure)
 
     def _renderer_init(self):
         """use cairo renderer"""
@@ -50,7 +53,7 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
         return False  # finish event propagation?
 
 
-class FigureManagerGTK3Cairo(backend_gtk3.FigureManagerGTK3):
+class FigureManagerGTK3Cairo(FigureManagerGTK3):
     pass
 
 
@@ -73,4 +76,4 @@ def new_figure_manager_given_figure(num, figure):
 
 
 FigureCanvas = FigureCanvasGTK3Cairo
-FigureManager = _backend_gtk3.FigureManagerGTK3
+FigureManager = FigureManagerGTK3

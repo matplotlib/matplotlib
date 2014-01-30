@@ -3,11 +3,11 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 import warnings
-from ._backend_gtk3cairo import (RendererGTK3Cairo,
+from .base_backend_gtk3cairo import (RendererGTK3Cairo,
                                  FigureCanvasGTK3Cairo,
                                  new_figure_manager,
                                  new_figure_manager_given_figure)
-from ._backend_gtk3 import (FigureManagerGTK3)
+from .base_backend_gtk3 import (FigureManagerGTK3)
 
 from matplotlib._pylab_helpers import Gcf
 from .backend_gtk3 import (show,
