@@ -28,7 +28,7 @@ import threading
 import numpy as np
 
 from matplotlib import verbose, rcParams
-from ._backend_bases import RendererBase,\
+from .base_backend_bases import RendererBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook import is_string_like, maxdict, restrict_dict
 from matplotlib.figure import Figure

@@ -35,7 +35,7 @@ _new_tooltip_api = (gtk.pygtk_version[1] >= 12)
 
 import matplotlib
 
-from ._backend_bases import (RendererBase, GraphicsContextBase,
+from .base_backend_bases import (RendererBase, GraphicsContextBase,
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2,
      cursors, TimerBase)
 

@@ -27,7 +27,7 @@ import numpy as np
 
 import matplotlib
 from matplotlib import rcParams
-from ._backend_bases import (RendererBase, GraphicsContextBase,
+from .base_backend_bases import (RendererBase, GraphicsContextBase,
      FigureManagerBase, FigureCanvasBase)
 from matplotlib.cbook import is_string_like
 import matplotlib.cbook as mcbook

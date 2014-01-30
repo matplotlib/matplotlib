@@ -54,7 +54,7 @@ if cairo.version_info < _version_required:
 backend_version = cairo.version
 del _version_required
 
-from ._backend_bases import (RendererBase, GraphicsContextBase,
+from .base_backend_bases import (RendererBase, GraphicsContextBase,
                                     FigureManagerBase, FigureCanvasBase)
 from matplotlib.cbook import is_string_like
 from matplotlib.figure import Figure

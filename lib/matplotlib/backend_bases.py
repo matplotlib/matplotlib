@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange
 
-from .backends._backend_bases import *
+from .backends.base_backend_bases import *
 
 from matplotlib._pylab_helpers import Gcf
 

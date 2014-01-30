@@ -10,11 +10,11 @@ import sys
 import matplotlib
 
 from matplotlib.cbook import is_string_like
-from ._backend_bases import FigureManagerBase
-from ._backend_bases import FigureCanvasBase
-from ._backend_bases import NavigationToolbar2
-from ._backend_bases import cursors
-from ._backend_bases import TimerBase
+from .base_backend_bases import FigureManagerBase
+from .base_backend_bases import FigureCanvasBase
+from .base_backend_bases import NavigationToolbar2
+from .base_backend_bases import cursors
+from .base_backend_bases import TimerBase
 
 
 from matplotlib.figure import Figure
