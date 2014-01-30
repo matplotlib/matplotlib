@@ -39,7 +39,7 @@ from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
 
-from matplotlib.backends.base_backend_agg import RendererAgg as _RendererAgg
+from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 from matplotlib import _png
 
 try:
