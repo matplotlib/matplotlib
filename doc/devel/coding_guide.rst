@@ -186,9 +186,11 @@ In git rebasing is a mild form of re-writing history, as it
 effectively transplants where your branch from where you intially
 forked of off the parent branch to some other point.  For a much more
 detailed explanation (with pictures!) see `this nice write up
-<http://git-scm.com/book/en/Git-Branching-Rebasing>`.  In general,
-re-writing history, particularly published history, is considered
-bad form, but in this case it is very useful.
+<http://git-scm.com/book/en/Git-Branching-Rebasing>`.  The numpy team
+has also `documented how to do this
+<http://docs.scipy.org/doc/numpy/dev/gitwash/development_workflow.html#rebasing-on-master>`
+In general, re-writing history, particularly published history, is
+considered bad form, but in this case it is very useful.
 
 The following example assumes that the remote of _your_ github
 repository is called `github` and the remote of the official
