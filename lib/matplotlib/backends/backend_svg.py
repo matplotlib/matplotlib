@@ -1158,6 +1158,8 @@ class FigureCanvasSVG(FigureCanvasBase):
     filetypes = {'svg': 'Scalable Vector Graphics',
                  'svgz': 'Scalable Vector Graphics'}
 
+    fixed_dpi = 72
+
     def print_svg(self, filename, *args, **kwargs):
         if is_string_like(filename):
             fh_to_close = svgwriter = io.open(filename, 'w', encoding='utf-8')

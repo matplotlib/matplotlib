@@ -796,7 +796,7 @@ class FigureCanvasPgf(FigureCanvasBase):
         writeln(fh, r"\makeatletter")
         writeln(fh, r"\begin{pgfpicture}")
         writeln(fh, r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}" % (w, h))
-        writeln(fh, r"\pgfusepath{use as bounding box}")
+        writeln(fh, r"\pgfusepath{use as bounding box, clip}")
         _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
         renderer = MixedModeRenderer(self.figure, w, h, dpi,
                                      RendererPgf(self.figure, fh),

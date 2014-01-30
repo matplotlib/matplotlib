@@ -11,7 +11,7 @@ import warnings
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 
 
-def adjust_bbox(fig, format, bbox_inches):
+def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
     """
     Temporarily adjust the figure so that only the specified area
     (bbox_inches) is saved.
@@ -50,63 +50,20 @@ def adjust_bbox(fig, format, bbox_inches):
         fig.transFigure.invalidate()
         fig.patch.set_bounds(0, 0, 1, 1)
 
-    adjust_bbox_handler = _adjust_bbox_handler_d.get(format)
-    if adjust_bbox_handler is not None:
-        adjust_bbox_handler(fig, bbox_inches)
-        return restore_bbox
+    if fixed_dpi is not None:
+        tr = Affine2D().scale(fixed_dpi)
+        dpi_scale = fixed_dpi / fig.dpi
     else:
-        warnings.warn("bbox_inches option for %s backend is not "
-                      "implemented yet." % (format))
-        return None
-
-
-def adjust_bbox_png(fig, bbox_inches):
-    """
-    adjust_bbox for png (Agg) format
-    """
-
-    tr = fig.dpi_scale_trans
-
-    _bbox = TransformedBbox(bbox_inches,
-                            tr)
-    x0, y0 = _bbox.x0, _bbox.y0
-    fig.bbox_inches = Bbox.from_bounds(0, 0,
-                                       bbox_inches.width,
-                                       bbox_inches.height)
-
-    x0, y0 = _bbox.x0, _bbox.y0
-    w1, h1 = fig.bbox.width, fig.bbox.height
-    fig.transFigure._boxout = Bbox.from_bounds(-x0, -y0,
-                                                       w1, h1)
-    fig.transFigure.invalidate()
-
-    fig.bbox = TransformedBbox(fig.bbox_inches, tr)
-
-    fig.patch.set_bounds(x0 / w1, y0 / h1,
-                         fig.bbox.width / w1, fig.bbox.height / h1)
-
-
-def adjust_bbox_pdf(fig, bbox_inches):
-    """
-    adjust_bbox for pdf & eps format
-    """
-
-    if fig._cachedRenderer.__class__.__name__ == "RendererPgf":
         tr = Affine2D().scale(fig.dpi)
-        f = 1.
-    else:
-        tr = Affine2D().scale(72)
-        f = 72. / fig.dpi
+        dpi_scale = 1.
 
     _bbox = TransformedBbox(bbox_inches, tr)
 
     fig.bbox_inches = Bbox.from_bounds(0, 0,
-                                       bbox_inches.width,
-                                       bbox_inches.height)
+                                       bbox_inches.width, bbox_inches.height)
     x0, y0 = _bbox.x0, _bbox.y0
-    w1, h1 = fig.bbox.width * f, fig.bbox.height * f
-    fig.transFigure._boxout = Bbox.from_bounds(-x0, -y0,
-                                                       w1, h1)
+    w1, h1 = fig.bbox.width * dpi_scale, fig.bbox.height * dpi_scale
+    fig.transFigure._boxout = Bbox.from_bounds(-x0, -y0, w1, h1)
     fig.transFigure.invalidate()
 
     fig.bbox = TransformedBbox(fig.bbox_inches, tr)
@@ -114,10 +71,10 @@ def adjust_bbox_pdf(fig, bbox_inches):
     fig.patch.set_bounds(x0 / w1, y0 / h1,
                          fig.bbox.width / w1, fig.bbox.height / h1)
 
+    return restore_bbox
 
-def process_figure_for_rasterizing(figure,
-                                   bbox_inches_restore, mode):
 
+def process_figure_for_rasterizing(fig, bbox_inches_restore, fixed_dpi=None):
     """
     This need to be called when figure dpi changes during the drawing
     (e.g., rasterizing). It recovers the bbox and re-adjust it with
@@ -126,14 +83,6 @@ def process_figure_for_rasterizing(figure,
 
     bbox_inches, restore_bbox = bbox_inches_restore
     restore_bbox()
-    r = adjust_bbox(figure, mode,
-                    bbox_inches)
+    r = adjust_bbox(figure, bbox_inches, fixed_dpi)
 
     return bbox_inches, r
-
-
-_adjust_bbox_handler_d = {}
-for format in ["png", "raw", "rgba", "jpg", "jpeg", "tiff"]:
-    _adjust_bbox_handler_d[format] = adjust_bbox_png
-for format in ["pgf", "pdf", "eps", "svg", "svgz"]:
-    _adjust_bbox_handler_d[format] = adjust_bbox_pdf

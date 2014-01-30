@@ -134,6 +134,12 @@ original location:
 * Removed the class `FigureManagerQTAgg` and deprecated `NavigationToolbar2QTAgg`
   which will be removed in 1.5.
 
+* The function signatures of `tight_bbox.adjust_bbox` and
+  `tight_bbox.process_figure_for_rasterizing` have been changed. A new
+  `fixed_dpi` parameter allows for overriding the `figure.dpi` setting
+  instead of trying to deduce the intended behaviour from the file format.
+
+
 .. _changes_in_1_3:
 
 
