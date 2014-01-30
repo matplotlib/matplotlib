@@ -6,7 +6,9 @@ import six
 from six.moves import tkinter as Tk
 from six.moves import tkinter_filedialog as FileDialog
 
-import os, sys, math
+import os
+import sys
+import math
 import os.path
 
 # Paint image to Tk photo blitter extension
@@ -50,15 +52,18 @@ cursord = {
 def round(x):
     return int(math.floor(x+0.5))
 
+
 def raise_msg_to_str(msg):
     """msg is a return arg from a raise.  Join with new lines"""
     if not is_string_like(msg):
         msg = '\n'.join(map(str, msg))
     return msg
 
+
 def error_msg_tkpaint(msg, parent=None):
     from six.moves import tkinter_messagebox as tkMessageBox
     tkMessageBox.showerror("matplotlib", msg)
+
 
 def draw_if_interactive():
     if matplotlib.is_interactive():
@@ -66,11 +71,13 @@ def draw_if_interactive():
         if figManager is not None:
             figManager.show()
 
+
 class Show(ShowBase):
     def mainloop(self):
         Tk.mainloop()
 
 show = Show()
+
 
 def new_figure_manager(num, *args, **kwargs):
     """
@@ -90,11 +97,14 @@ def new_figure_manager_given_figure(num, figure):
     window.withdraw()
 
     if Tk.TkVersion >= 8.5:
-        # put a mpl icon on the window rather than the default tk icon. Tkinter
-        # doesn't allow colour icons on linux systems, but tk >=8.5 has a iconphoto
-        # command which we call directly. Source:
+        # put a mpl icon on the window rather than the default tk
+        # icon. Tkinter doesn't allow colour icons on linux systems,
+        # but tk >=8.5 has a iconphoto command which we call
+        # directly. Source:
         # http://mail.python.org/pipermail/tkinter-discuss/2006-November/000954.html
-        icon_fname = os.path.join(rcParams['datapath'], 'images', 'matplotlib.gif')
+        icon_fname = os.path.join(rcParams['datapath'],
+                                  'images',
+                                  'matplotlib.gif')
         icon_img = Tk.PhotoImage(file=icon_fname)
         try:
             window.tk.call('wm', 'iconphoto', window._w, icon_img)
@@ -103,7 +113,8 @@ def new_figure_manager_given_figure(num, figure):
             raise
         except:
             # log the failure, but carry on
-            verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+            verbose.report('Could not load matplotlib ' +
+                           'icon: %s' % sys.exc_info()[1])
 
     canvas = FigureCanvasTkAgg(figure, master=window)
     figManager = FigureManagerTkAgg(canvas, num, window)
@@ -151,56 +162,56 @@ class TimerTk(TimerBase):
 
 
 class FigureCanvasTkAgg(FigureCanvasAgg):
-    keyvald = {65507 : 'control',
-               65505 : 'shift',
-               65513 : 'alt',
-               65515 : 'super',
-               65508 : 'control',
-               65506 : 'shift',
-               65514 : 'alt',
-               65361 : 'left',
-               65362 : 'up',
-               65363 : 'right',
-               65364 : 'down',
-               65307 : 'escape',
-               65470 : 'f1',
-               65471 : 'f2',
-               65472 : 'f3',
-               65473 : 'f4',
-               65474 : 'f5',
-               65475 : 'f6',
-               65476 : 'f7',
-               65477 : 'f8',
-               65478 : 'f9',
-               65479 : 'f10',
-               65480 : 'f11',
-               65481 : 'f12',
-               65300 : 'scroll_lock',
-               65299 : 'break',
-               65288 : 'backspace',
-               65293 : 'enter',
-               65379 : 'insert',
-               65535 : 'delete',
-               65360 : 'home',
-               65367 : 'end',
-               65365 : 'pageup',
-               65366 : 'pagedown',
-               65438 : '0',
-               65436 : '1',
-               65433 : '2',
-               65435 : '3',
-               65430 : '4',
-               65437 : '5',
-               65432 : '6',
-               65429 : '7',
-               65431 : '8',
-               65434 : '9',
-               65451 : '+',
-               65453 : '-',
-               65450 : '*',
-               65455 : '/',
-               65439 : 'dec',
-               65421 : 'enter',
+    keyvald = {65507: 'control',
+               65505: 'shift',
+               65513: 'alt',
+               65515: 'super',
+               65508: 'control',
+               65506: 'shift',
+               65514: 'alt',
+               65361: 'left',
+               65362: 'up',
+               65363: 'right',
+               65364: 'down',
+               65307: 'escape',
+               65470: 'f1',
+               65471: 'f2',
+               65472: 'f3',
+               65473: 'f4',
+               65474: 'f5',
+               65475: 'f6',
+               65476: 'f7',
+               65477: 'f8',
+               65478: 'f9',
+               65479: 'f10',
+               65480: 'f11',
+               65481: 'f12',
+               65300: 'scroll_lock',
+               65299: 'break',
+               65288: 'backspace',
+               65293: 'enter',
+               65379: 'insert',
+               65535: 'delete',
+               65360: 'home',
+               65367: 'end',
+               65365: 'pageup',
+               65366: 'pagedown',
+               65438: '0',
+               65436: '1',
+               65433: '2',
+               65435: '3',
+               65430: '4',
+               65437: '5',
+               65432: '6',
+               65429: '7',
+               65431: '8',
+               65434: '9',
+               65451: '+',
+               65453: '-',
+               65450: '*',
+               65455: '/',
+               65439: 'dec',
+               65421: 'enter',
                }
 
     _keycode_lookup = {
@@ -233,9 +244,11 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         self._tkcanvas.bind("<KeyRelease>", self.key_release)
         for name in "<Button-1>", "<Button-2>", "<Button-3>":
             self._tkcanvas.bind(name, self.button_press_event)
-        for name in "<Double-Button-1>", "<Double-Button-2>", "<Double-Button-3>":
+        for name in ("<Double-Button-1>", "<Double-Button-2>",
+                     "<Double-Button-3>"):
             self._tkcanvas.bind(name, self.button_dblclick_event)
-        for name in "<ButtonRelease-1>", "<ButtonRelease-2>", "<ButtonRelease-3>":
+        for name in ("<ButtonRelease-1>", "<ButtonRelease-2>",
+                     "<ButtonRelease-3>"):
             self._tkcanvas.bind(name, self.button_release_event)
 
         # Mouse wheel on Linux generates button 4/5 events
@@ -341,10 +354,9 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             # alternate implementation -- process enter/leave events
             # instead of motion/notify
             if self.figure.bbox.contains(xc, yc):
-                self.enter_notify_event(guiEvent, xy=(xc,yc))
+                self.enter_notify_event(guiEvent, xy=(xc, yc))
             else:
                 self.leave_notify_event(guiEvent)
-
 
     def draw(self):
         FigureCanvasAgg.draw(self)
@@ -352,7 +364,8 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         self._master.update_idletasks()
 
     def blit(self, bbox=None):
-        tkagg.blit(self._tkphoto, self.renderer._renderer, bbox=bbox, colormode=2)
+        tkagg.blit(self._tkphoto, self.renderer._renderer,
+                   bbox=bbox, colormode=2)
         self._master.update_idletasks()
 
     show = draw
@@ -361,6 +374,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         'update drawing area only if idle'
         d = self._idle
         self._idle = False
+
         def idle_draw(*args):
             try:
                 self.draw()
@@ -383,23 +397,25 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         y = self.figure.bbox.height - event.y
         FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
 
-
     def button_press_event(self, event, dblclick=False):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height - event.y
         num = getattr(event, 'num', None)
 
-        if sys.platform=='darwin':
+        if sys.platform == 'darwin':
             # 2 and 3 were reversed on the OSX platform I
             # tested under tkagg
-            if   num==2: num=3
-            elif num==3: num=2
+            if num == 2:
+                num = 3
+            elif num == 3:
+                num = 2
 
-        FigureCanvasBase.button_press_event(self, x, y, num, dblclick=dblclick, guiEvent=event)
+        FigureCanvasBase.button_press_event(self, x, y, num,
+                                            dblclick=dblclick, guiEvent=event)
 
-    def button_dblclick_event(self,event):
-        self.button_press_event(event,dblclick=True)
+    def button_dblclick_event(self, event):
+        self.button_press_event(event, dblclick=True)
 
     def button_release_event(self, event):
         x = event.x
@@ -408,11 +424,13 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
         num = getattr(event, 'num', None)
 
-        if sys.platform=='darwin':
+        if sys.platform == 'darwin':
             # 2 and 3 were reversed on the OSX platform I
             # tested under tkagg
-            if   num==2: num=3
-            elif num==3: num=2
+            if num == 2:
+                num=3
+            elif num == 3:
+                num=2
 
         FigureCanvasBase.button_release_event(self, x, y, num, guiEvent=event)
 
@@ -420,9 +438,12 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         x = event.x
         y = self.figure.bbox.height - event.y
         num = getattr(event, 'num', None)
-        if   num==4: step = +1
-        elif num==5: step = -1
-        else:        step =  0
+        if num == 4:
+            step = +1
+        elif num == 5:
+            step = -1
+        else:
+            step = 0
 
         FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=event)
 
@@ -473,7 +494,8 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
                          ]
 
         if key is not None:
-            # note, shift is not added to the keys as this is already accounted for
+            # note, shift is not added to the keys as this is already
+            # accounted for
             for bitmask, prefix, key_name in modifiers:
                 if event.state & (1 << bitmask) and key_name not in key:
                     key = '{0}+{1}'.format(prefix, key)
@@ -490,9 +512,10 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
     def new_timer(self, *args, **kwargs):
         """
-        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
-        This is useful for getting periodic events through the backend's native
-        event loop. Implemented only for backends with GUIs.
+                Creates a new backend-specific subclass of
+        :class:`backend_bases.Timer`.  This is useful for getting
+        periodic events through the backend's native event
+        loop. Implemented only for backends with GUIs.
 
         optional arguments:
 
@@ -507,13 +530,17 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
     def flush_events(self):
         self._master.update()
 
-    def start_event_loop(self,timeout):
-        FigureCanvasBase.start_event_loop_default(self,timeout)
-    start_event_loop.__doc__=FigureCanvasBase.start_event_loop_default.__doc__
+    def start_event_loop(self, timeout):
+        FigureCanvasBase.start_event_loop_default(self, timeout)
+
+    start_event_loop.__doc__ = \
+      FigureCanvasBase.start_event_loop_default.__doc__
 
     def stop_event_loop(self):
         FigureCanvasBase.stop_event_loop_default(self)
-    stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
+
+    stop_event_loop.__doc__ = FigureCanvasBase.stop_event_loop_default.__doc__
+
 
 class FigureManagerTkAgg(FigureManagerBase):
     """
@@ -530,12 +557,12 @@ class FigureManagerTkAgg(FigureManagerBase):
         self.window.withdraw()
         self.set_window_title("Figure %d" % num)
         self.canvas = canvas
-        self._num =  num
+        self._num = num
         _, _, w, h = canvas.figure.bbox.bounds
         w, h = int(w), int(h)
-        self.window.minsize(int(w*3/4),int(h*3/4))
-        if matplotlib.rcParams['toolbar']=='toolbar2':
-            self.toolbar = NavigationToolbar2TkAgg( canvas, self.window )
+        self.window.minsize(int(w*3/4), int(h*3/4))
+        if matplotlib.rcParams['toolbar'] == 'toolbar2':
+            self.toolbar = NavigationToolbar2TkAgg(canvas, self.window)
         else:
             self.toolbar = None
         if self.toolbar is not None:
@@ -545,7 +572,8 @@ class FigureManagerTkAgg(FigureManagerBase):
 
         def notify_axes_change(fig):
             'this will be called whenever the current axes is changed'
-            if self.toolbar != None: self.toolbar.update()
+            if self.toolbar is not None:
+                self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
     def resize(self, width, height=None):
@@ -638,8 +666,8 @@ class AxisMenu:
             for i in range(self._naxes, naxes):
                 self._axis_var.append(Tk.IntVar())
                 self._axis_var[i].set(1)
-                self._checkbutton.append( self._mbutton.menu.add_checkbutton(
-                    label = "Axis %d" % (i+1),
+                self._checkbutton.append(self._mbutton.menu.add_checkbutton(
+                    label="Axis %d" % (i+1),
                     variable=self._axis_var[i],
                     command=self.set_active))
         elif self._naxes > naxes:
@@ -691,18 +719,23 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height
-        y0 =  height-y0
-        y1 =  height-y1
-        try: self.lastrect
-        except AttributeError: pass
-        else: self.canvas._tkcanvas.delete(self.lastrect)
+        y0 = height-y0
+        y1 = height-y1
+        try:
+            self.lastrect
+        except AttributeError:
+            pass
+        else:
+            self.canvas._tkcanvas.delete(self.lastrect)
         self.lastrect = self.canvas._tkcanvas.create_rectangle(x0, y0, x1, y1)
 
         #self.canvas.draw()
 
     def release(self, event):
-        try: self.lastrect
-        except AttributeError: pass
+        try:
+            self.lastrect
+        except AttributeError:
+            pass
         else:
             self.canvas._tkcanvas.delete(self.lastrect)
             del self.lastrect
@@ -711,7 +744,8 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         self.window.configure(cursor=cursord[cursor])
 
     def _Button(self, text, file, command, extension='.ppm'):
-        img_file = os.path.join(rcParams['datapath'], 'images', file + extension)
+        img_file = os.path.join(rcParams['datapath'],
+                                'images', file + extension)
         im = Tk.PhotoImage(master=self, file=img_file)
         b = Tk.Button(
             master=self, text=text, padx=2, pady=2, image=im, command=command)
@@ -743,13 +777,12 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         self._message_label.pack(side=Tk.RIGHT)
         self.pack(side=Tk.BOTTOM, fill=Tk.X)
 
-
     def configure_subplots(self):
-        toolfig = Figure(figsize=(6,3))
+        toolfig = Figure(figsize=(6, 3))
         window = Tk.Tk()
         canvas = FigureCanvasTkAgg(toolfig, master=window)
         toolfig.subplots_adjust(top=0.9)
-        tool =  SubplotTool(self.canvas.figure, toolfig)
+        tool = SubplotTool(self.canvas.figure, toolfig)
         canvas.show()
         canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
@@ -796,7 +829,8 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
                 rcParams['savefig.directory'] = initialdir
             else:
                 # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(six.text_type(fname))
+                rcParams['savefig.directory'] = \
+                  os.path.dirname(six.text_type(fname))
             try:
                 # This method will handle the delegation to the correct type
                 self.canvas.print_figure(fname)
@@ -805,7 +839,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
 
     def set_active(self, ind):
         self._ind = ind
-        self._active = [ self._axes[i] for i in self._ind ]
+        self._active = [self._axes[i] for i in self._ind]
 
     def update(self):
         _focus = windowing.FocusManager()
@@ -832,8 +866,10 @@ class ToolTip(object):
     @staticmethod
     def createToolTip(widget, text):
         toolTip = ToolTip(widget)
+
         def enter(event):
             toolTip.showtip(text)
+
         def leave(event):
             toolTip.hidetip()
         widget.bind('<Enter>', enter)
