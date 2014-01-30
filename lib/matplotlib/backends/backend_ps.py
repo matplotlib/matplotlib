@@ -969,6 +969,8 @@ def new_figure_manager_given_figure(num, figure):
 class FigureCanvasPS(FigureCanvasBase):
     _renderer_class = RendererPS
 
+    fixed_dpi = 72
+
     def draw(self):
         pass
 
