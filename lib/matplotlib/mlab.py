@@ -1653,7 +1653,7 @@ def prepca(P, frac=0):
 
 
 class PCA:
-    def __init__(self, a):
+    def __init__(self, a, standardize=True):
         """
         compute the SVD of a and store data for PCA.  Use project to
         project the data onto a reduced set of dimensions
@@ -1661,6 +1661,8 @@ class PCA:
         Inputs:
 
           *a*: a numobservations x numdims array
+          *standardize*: True if input data are to be standardized. If False, only centering will be
+          carried out.
 
         Attrs:
 
@@ -1694,6 +1696,7 @@ class PCA:
         self.numrows, self.numcols = n, m
         self.mu = a.mean(axis=0)
         self.sigma = a.std(axis=0)
+        self.standardize = standardize
 
         a = self.center(a)
 
@@ -1745,8 +1748,11 @@ class PCA:
 
 
     def center(self, x):
-        'center the data using the mean and sigma from training set a'
-        return (x - self.mu)/self.sigma
+        'center and optionally standardize the data using the mean and sigma from training set a'
+        if self.standardize:
+            return (x - self.mu)/self.sigma
+        else:
+            return (x - self.mu)
 
 
 
