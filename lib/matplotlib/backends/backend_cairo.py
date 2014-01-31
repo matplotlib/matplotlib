@@ -40,7 +40,8 @@ except ImportError:
     try:
         import cairo
     except ImportError:
-        raise ImportError("Cairo backend requires that cairocffi or pycairo is installed.")
+        raise ImportError("Cairo backend requires that cairocffi "
+                          "or pycairo is installed.")
     else:
         HAS_CAIRO_CFFI = False
 else:

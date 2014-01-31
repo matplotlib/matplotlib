@@ -1215,7 +1215,7 @@ class TimerBase(object):
             ret = func(*args, **kwargs)
             # docstring above explains why we use `if ret == False` here,
             # instead of `if not ret`.
-            if ret == False:
+            if ret == False:  # noqa
                 self.callbacks.remove((func, args, kwargs))
 
         if len(self.callbacks) == 0:
@@ -2268,6 +2268,7 @@ class FigureCanvasBase(object):
           be executed by the timer every *interval*.
         """
         return TimerBase(*args, **kwargs)
+
 
 class NonGuiException(Exception):
     pass

@@ -57,7 +57,7 @@ _debug = False
 #_debug = True
 
 # the true dots per inch on the screen; should be display dependent
-# https://groups.google.com/forum/?hl=en#!msg/comp.lang.postscript/xG_B4fEpTxI/omHAc9FEuAsJ
+# https://groups.google.com/forum/?hl=en#!msg/comp.lang.postscript/xG_B4fEpTxI/omHAc9FEuAsJ # noqa
 # for some info about screen dpi
 
 
@@ -223,16 +223,16 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self._pixmap_height = -1
         self._lastCursor = None
 
-        self.connect('scroll_event',         self.scroll_event)
-        self.connect('button_press_event',   self.button_press_event)
+        self.connect('scroll_event', self.scroll_event)
+        self.connect('button_press_event', self.button_press_event)
         self.connect('button_release_event', self.button_release_event)
-        self.connect('configure_event',      self.configure_event)
-        self.connect('expose_event',         self.expose_event)
-        self.connect('key_press_event',      self.key_press_event)
-        self.connect('key_release_event',    self.key_release_event)
-        self.connect('motion_notify_event',  self.motion_notify_event)
-        self.connect('leave_notify_event',   self.leave_notify_event)
-        self.connect('enter_notify_event',   self.enter_notify_event)
+        self.connect('configure_event', self.configure_event)
+        self.connect('expose_event', self.expose_event)
+        self.connect('key_press_event', self.key_press_event)
+        self.connect('key_release_event', self.key_release_event)
+        self.connect('motion_notify_event', self.motion_notify_event)
+        self.connect('leave_notify_event', self.leave_notify_event)
+        self.connect('enter_notify_event', self.enter_notify_event)
 
         self.set_events(self.__class__.event_mask)
 
@@ -484,7 +484,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                                      0, 0, 0, 0, width, height)
 
         # set the default quality, if we are writing a JPEG.
-        # http://www.pygtk.org/docs/pygtk/class-gdkpixbuf.html#method-gdkpixbuf--save
+        # http://www.pygtk.org/docs/pygtk/class-gdkpixbuf.html#method-gdkpixbuf--save # noqa
         options = cbook.restrict_dict(kwargs, ['quality'])
         if format in ['jpg', 'jpeg']:
             if 'quality' not in options:
