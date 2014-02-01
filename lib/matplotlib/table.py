@@ -495,11 +495,12 @@ def table(ax,
     if colWidths is None:
         colWidths = [1.0 / cols] * cols
 
-    # Check row and column labels
+    # Fill in missing information for column
+    # and row labels
     rowLabelWidth = 0
     if rowLabels is None:
         if rowColours is not None:
-            rowLabels = [''] * cols
+            rowLabels = [''] * rows
             rowLabelWidth = colWidths[0]
     elif rowColours is None:
         rowColours = 'w' * rows
@@ -507,14 +508,16 @@ def table(ax,
     if rowLabels is not None:
         assert len(rowLabels) == rows
 
-    offset = 0
+    # If we have column labels, need to shift
+    # the text and colour arrays down 1 row
+    offset = 1
     if colLabels is None:
         if colColours is not None:
-            colLabels = [''] * rows
-            offset = 1
+            colLabels = [''] * cols
+        else:
+            offset = 0
     elif colColours is None:
         colColours = 'w' * cols
-        offset = 1
 
     if rowLabels is not None:
         assert len(rowLabels) == rows
