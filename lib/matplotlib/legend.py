@@ -750,13 +750,8 @@ class Legend(Artist):
         children = []
         if self._legend_box:
             children.append(self._legend_box)
-        children.extend(self.get_lines())
-        children.extend(self.get_patches())
-        children.extend(self.get_texts())
         children.append(self.get_frame())
 
-        if self._legend_title_box:
-            children.append(self.get_title())
         return children
 
     def get_frame(self):
