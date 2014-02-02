@@ -197,15 +197,16 @@ def _parse_char_metrics(fh):
         line = line.rstrip()
         if line.startswith(b'EndCharMetrics'):
             return ascii_d, name_d
-        vals = line.split(b';')[:4]
-        if len(vals) != 4:
+        vals = filter(lambda s: s != '', line.split(b';'))  # Split into a list of metrics
+        vals = dict(map(lambda s: tuple(s.strip().split(' ', 1)), vals))  # Split out the metric identifier and use as key for a dictionary
+        if 'C' not in vals.keys() or 'WX' not in vals.keys() or 'N' not in vals.keys() or 'B' not in vals.keys() :
             raise RuntimeError('Bad char metrics line: %s' % line)
-        num = _to_int(vals[0].split()[1])
-        wx = _to_float(vals[1].split()[1])
-        name = vals[2].split()[1]
+        num = _to_int(vals['C'])
+        wx = _to_float(vals['WX'])
+        name = vals['N']
         name = name.decode('ascii')
-        bbox = _to_list_of_floats(vals[3][2:])
-        bbox = list(map(int, bbox))
+        bbox = _to_list_of_floats(vals['B'])
+        bbox = map(int, bbox)
         # Workaround: If the character name is 'Euro', give it the
         # corresponding character code, according to WinAnsiEncoding (see PDF
         # Reference).
