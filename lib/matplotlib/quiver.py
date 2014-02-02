@@ -303,6 +303,7 @@ class QuiverKey(martist.Artist):
             if self.color is not None:
                 self.vector.set_color(self.color)
             self.vector.set_transform(self.Q.get_transform())
+            self.vector.set_figure(self.get_figure())
             self._initialized = True
 
     def _text_x(self, x):
