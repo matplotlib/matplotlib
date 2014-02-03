@@ -1297,6 +1297,14 @@ def test_eventplot():
     num_collections = len(colls)
     np.testing.assert_equal(num_collections, num_datasets)
 
+
+@cleanup
+def test_empty_eventplot():
+    fig, ax = plt.subplots(1, 1)
+    ax.eventplot([[]], colors=[(0.0, 0.0, 0.0, 0.0)])
+    plt.draw()
+
+
 @image_comparison(baseline_images=['vertex_markers'], extensions=['png'],
                   remove_text=True)
 def test_vertex_markers():
@@ -1388,6 +1396,7 @@ def test_mixed_collection():
 
     ax.set_xlim(0, 16)
     ax.set_ylim(0, 16)
+
 
 @cleanup
 def test_subplot_key_hash():
