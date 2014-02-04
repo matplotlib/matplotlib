@@ -3231,8 +3231,9 @@ class NavigationBase(object):
         self._instances = {}
         self._toggled = None
 
-        #to communicate with tools and redirect events
+        #to process keypress event
         self.keypresslock = widgets.LockDraw()
+        #to write into toolbar message
         self.messagelock = widgets.LockDraw()
 
         for tool in self._default_tools:
@@ -3359,6 +3360,7 @@ class NavigationBase(object):
         """
         tool_cls = self._get_cls_to_instantiate(tool)
         name = tool_cls.name
+
         if name is None:
             warnings.warn('tool_clss need a name to be added, it is used '
                           'as ID')
@@ -3383,10 +3385,11 @@ class NavigationBase(object):
                 fname = os.path.join(basedir, tool_cls.image + '.png')
             else:
                 fname = None
+            toggle = issubclass(tool_cls, tools.ToolToggleBase)
             self.toolbar._add_toolitem(name, tool_cls.description,
                                       fname,
                                       tool_cls.position,
-                                      tool_cls.toggle)
+                                      toggle)
 
     def _get_cls_to_instantiate(self, callback_class):
         if isinstance(callback_class, basestring):
@@ -3415,9 +3418,9 @@ class NavigationBase(object):
             raise AttributeError('%s not in Tools' % name)
 
         tool = self._tools[name]
-        if tool.toggle:
+        if issubclass(tool, tools.ToolToggleBase):
             self._handle_toggle(name, event=event, from_toolbar=from_toolbar)
-        elif tool.persistent:
+        elif issubclass(tool, tools.ToolPersistentBase):
             instance = self._get_instance(name)
             instance.trigger(event)
         else:
