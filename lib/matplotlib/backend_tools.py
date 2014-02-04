@@ -72,31 +72,14 @@ class ToolBase(object):
     `name` is used as label in the toolbar button
     """
 
-    toggle = False  # Change the status (take control of the events)
-    """Is toggleable tool
-
-    **bool**:
-
-     * **True**: The tool is a toogleable tool
-     * **False**: The tool is not toggleable
-
-    """
-
-    persistent = False
-    """Is persistent tool
-
-    **bool**:
-     * `True`: The tool is persistent
-     * `False`: The tool is not persistent
-    """
-
     cursor = None
     """Cursor to use when the tool is active
     """
 
     def __init__(self, figure, event=None):
-        self.figure = figure
-        self.navigation = figure.canvas.manager.navigation
+        self.figure = None
+        self.navigation = None
+        self.set_figure(figure)
         self.trigger(event)
 
     def trigger(self, event):
@@ -108,6 +91,18 @@ class ToolBase(object):
             Event that caused this tool to be called
         """
         pass
+
+    def set_figure(self, figure):
+        """Set the figure and navigation
+
+        Set the figure to be affected by this tool
+
+        Parameters
+        ----------
+        figure : `Figure`
+        """
+        self.figure = figure
+        self.navigation = figure.canvas.manager.navigation
 
 
 class ToolPersistentBase(ToolBase):
@@ -121,12 +116,13 @@ class ToolPersistentBase(ToolBase):
     The difference with `ToolBase` is that `trigger` method
     is not called automatically at initialization
     """
-    persistent = True
 
     def __init__(self, figure, event=None):
-        self.figure = figure
-        self.navigation = figure.canvas.manager.navigation
+        self.figure = None
+        self.navigation = None
+        self.set_figure(figure)
         #persistent tools don't call trigger a at instantiation
+        #it will be called by Navigation
 
     def unregister(self, *args):
         """Unregister the tool from the instances of Navigation
@@ -145,7 +141,6 @@ class ToolToggleBase(ToolPersistentBase):
     Every time it is triggered, it switches between enable and disable
 
     """
-    toggle = True
     _toggled = False
 
     def trigger(self, event):
