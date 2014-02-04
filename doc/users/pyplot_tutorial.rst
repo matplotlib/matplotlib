@@ -175,7 +175,7 @@ rectangular grid, use the :func:`~matplotlib.pyplot.axes` command,
 which allows you to specify the location as ``axes([left, bottom,
 width, height])`` where all values are in fractional (0 to 1)
 coordinates.  See :ref:`pylab_examples-axes_demo` for an example of
-placing axes manually and :ref:`pylab_examples-line_styles` for an
+placing axes manually and :ref:`pylab_examples-subplots_demo` for an
 example with lots-o-subplots.
 
 
