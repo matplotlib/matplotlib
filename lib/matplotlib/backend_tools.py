@@ -370,30 +370,34 @@ class ToolZoom(ToolToggleBase):
                         'button_release_event', self._release)
 
     def disable(self, event):
+        self._cancel_zoom()
         self.figure.canvas.widgetlock.release(self)
         self.figure.canvas.mpl_disconnect(self._idPress)
         self.figure.canvas.mpl_disconnect(self._idRelease)
+
+    def _cancel_zoom(self):
+        for zoom_id in self._ids_zoom:
+            self.figure.canvas.mpl_disconnect(zoom_id)
+        self.navigation.remove_rubberband(None, self)
+        self.navigation.draw()
+        self._xypress = None
+        self._button_pressed = None
+        self._ids_zoom = []
+        return
 
     def _press(self, event):
         """the _press mouse button in zoom to rect mode callback"""
         # If we're already in the middle of a zoom, pressing another
         # button works to "cancel"
         if self._ids_zoom != []:
-            for zoom_id in self._ids_zoom:
-                self.figure.canvas.mpl_disconnect(zoom_id)
-            self.navigation.remove_rubberband(event, self)
-            self.navigation.draw()
-            self._xypress = None
-            self._button_pressed = None
-            self._ids_zoom = []
-            return
+            self._cancel_zoom()
 
         if event.button == 1:
             self._button_pressed = 1
         elif event.button == 3:
             self._button_pressed = 3
         else:
-            self._button_pressed = None
+            self._cancel_zoom()
             return
 
         x, y = event.x, event.y
@@ -455,6 +459,7 @@ class ToolZoom(ToolToggleBase):
         self._ids_zoom = []
 
         if not self._xypress:
+            self._cancel_zoom()
             return
 
         last_a = []
@@ -464,9 +469,7 @@ class ToolZoom(ToolToggleBase):
             lastx, lasty, a, _ind, lim, _trans = cur_xypress
             # ignore singular clicks - 5 pixels is a threshold
             if abs(x - lastx) < 5 or abs(y - lasty) < 5:
-                self._xypress = None
-                self.navigation.remove_rubberband(event, self)
-                self.navigation.draw()
+                self._cancel_zoom()
                 return
 
             x0, y0, x1, y1 = lim.extents
@@ -566,14 +569,9 @@ class ToolZoom(ToolToggleBase):
                     a.set_xlim((rx1, rx2))
                     a.set_ylim((ry1, ry2))
 
-        self.navigation.draw()
-        self._xypress = None
-        self._button_pressed = None
-
         self._zoom_mode = None
-
         self.navigation.push_current()
-        self.navigation.remove_rubberband(event, self)
+        self._cancel_zoom()
 
 
 class ToolPan(ToolToggleBase):
@@ -601,9 +599,17 @@ class ToolPan(ToolToggleBase):
                         'button_release_event', self._release)
 
     def disable(self, event):
+        self._cancel_pan()
         self.figure.canvas.widgetlock.release(self)
         self.figure.canvas.mpl_disconnect(self._idPress)
         self.figure.canvas.mpl_disconnect(self._idRelease)
+
+    def _cancel_pan(self):
+        self._button_pressed = None
+        self._xypress = []
+        self.figure.canvas.mpl_disconnect(self._idDrag)
+        self.navigation.messagelock.release(self)
+        self.navigation.draw()
 
     def _press(self, event):
         if event.button == 1:
@@ -611,7 +617,7 @@ class ToolPan(ToolToggleBase):
         elif event.button == 3:
             self._button_pressed = 3
         else:
-            self._button_pressed = None
+            self._cancel_pan()
             return
 
         x, y = event.x, event.y
@@ -633,6 +639,7 @@ class ToolPan(ToolToggleBase):
 
     def _release(self, event):
         if self._button_pressed is None:
+            self._cancel_pan()
             return
 
         self.figure.canvas.mpl_disconnect(self._idDrag)
@@ -641,11 +648,11 @@ class ToolPan(ToolToggleBase):
         for a, _ind in self._xypress:
             a.end_pan()
         if not self._xypress:
+            self._cancel_pan()
             return
-        self._xypress = []
-        self._button_pressed = None
+
         self.navigation.push_current()
-        self.navigation.draw()
+        self._cancel_pan()
 
     def _mouse_move(self, event):
         for a, _ind in self._xypress:
