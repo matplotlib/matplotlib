@@ -3450,8 +3450,7 @@ class NavigationBase(object):
     def trigger_tool(self, name):
         """Trigger on a tool
 
-        This is a convenient method to programatically "click" on
-        Tools
+        Method to programatically "click" on Tools
         """
         self._trigger_tool(name, None, False)
 
@@ -3475,6 +3474,8 @@ class NavigationBase(object):
             return
 
         name = self._keys.get(event.key, None)
+        if name is None:
+            return
         self._trigger_tool(name, event, False)
 
     def _get_instance(self, name):
