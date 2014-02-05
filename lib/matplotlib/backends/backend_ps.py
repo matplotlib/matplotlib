@@ -19,7 +19,7 @@ except ImportError:
 
 from tempfile import mkstemp
 from matplotlib import verbose, __version__, rcParams, checkdep_ghostscript
-from matplotlib._pylab_helpers import Gcf
+
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
