@@ -178,7 +178,8 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
                   Gdk.EventMask.ENTER_NOTIFY_MASK   |
                   Gdk.EventMask.LEAVE_NOTIFY_MASK   |
                   Gdk.EventMask.POINTER_MOTION_MASK |
-                  Gdk.EventMask.POINTER_MOTION_HINT_MASK)
+                  Gdk.EventMask.POINTER_MOTION_HINT_MASK|
+                  Gdk.EventMask.SCROLL_MASK)
 
     def __init__(self, figure):
         if _debug: print('FigureCanvasGTK3.%s' % fn_name())
