@@ -3245,6 +3245,16 @@ class NavigationBase(object):
 
         self._last_cursor = self._default_cursor
 
+    @classmethod
+    def get_default_tools(cls):
+        """Get the default tools"""
+        return cls._default_tools
+
+    @classmethod
+    def set_default_tools(cls, tools):
+        """Set default tools"""
+        cls._default_tools = tools
+
     def _get_toolbar(self, toolbar, canvas):
         # must be inited after the window, drawingArea and figure
         # attrs are set
