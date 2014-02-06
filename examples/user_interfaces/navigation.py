@@ -10,11 +10,11 @@ class ListTools(ToolBase):
     #keyboard shortcut
     keymap = 'm'
     #Name used as id, must be unique between tools of the same navigation
-    name = 'List' 
-    description = 'List Tools' 
+    name = 'List'
+    description = 'List Tools'
     #Where to put it in the toolbar, -1 = at the end, None = Not in toolbar
     position = -1
- 
+
     def trigger(self, event):
         #The most important attributes are navigation and figure
         self.navigation.list_tools()
@@ -29,7 +29,7 @@ class CopyTool(ToolBase):
     position = -1
 
     def trigger(self, event):
-        from gi.repository import Gtk, Gdk, GdkPixbuf
+        from gi.repository import Gtk, Gdk
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         window = self.figure.canvas.get_window()
         x, y, width, height = window.get_geometry()
@@ -46,7 +46,7 @@ if matplotlib.rcParams['toolbar'] in ('navigation', 'None'):
     fig.canvas.manager.navigation.add_tool(ListTools)
     fig.canvas.manager.navigation.add_tool(CopyTool)
 
-    ##Just for fun, lets remove the back button    
+    ##Just for fun, lets remove the back button
     fig.canvas.manager.navigation.remove_tool('Back')
 
 plt.show()
