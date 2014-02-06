@@ -2983,7 +2983,7 @@ class Axes(_AxesBase):
             - whiskers: the vertical lines extending to the most extreme,
               n-outlier data points.
             - caps: the horizontal lines at the ends of the whiskers.
-            - fliers: points representing data that extend beyone the
+            - fliers: points representing data that extend beyond the
               whiskers (outliers).
             - means: points or lines representing the means.
 
