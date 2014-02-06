@@ -205,7 +205,7 @@ class ToolEnableNavigation(ToolBase):
     """
     name = 'EnableOne'
     description = 'Enables one axes navigation'
-    keymap = range(1, 10)
+    keymap = (1, 2, 3, 4, 5, 6, 7, 8, 9)
 
     def trigger(self, event):
         if event.inaxes is None:
