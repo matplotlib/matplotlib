@@ -1166,6 +1166,7 @@ class Figure(Artist):
         """
         l = Legend(self, handles, labels, *args, **kwargs)
         self.legends.append(l)
+        l._remove_method = lambda h: self.legends.remove(h)
         return l
 
     @docstring.dedent_interpd
