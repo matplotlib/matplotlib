@@ -5,7 +5,7 @@ import six
 from six.moves import xrange
 
 import mock
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_is
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison, cleanup
@@ -111,6 +111,19 @@ def test_legend_expand():
         l2 = ax.legend(loc=5, mode=mode)
         ax.add_artist(l2)
         ax.legend(loc=3, mode=mode, ncol=2)
+
+
+@cleanup
+def test_legend_remove():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    lines = ax.plot(range(10))
+    leg = fig.legend(lines, "test")
+    leg.remove()
+    assert_equal(fig.legends, [])
+    leg = ax.legend("test")
+    leg.remove()
+    assert_is(ax.get_legend(), None)
 
 
 class TestLegendFunction(object):
