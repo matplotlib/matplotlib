@@ -2,43 +2,45 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cbook
 from  matplotlib import colors
-from itertools import chain
 
-n = len(colors.cnames)
-ncols = n / 15
-nrows = n / ncols
+colors_ = colors.cnames.items()
 
-names = colors.cnames.keys()
-hex_ = colors.cnames.values()
+#add the single letter colors
+for name, rgb in colors.ColorConverter.colors.items():
+    hex_ = colors.rgb2hex(rgb)
+    colors_.append((name, hex_))
+
+#hex color values
+hex_ = [color[1] for color in colors_]
+#rgb equivalent
 rgb = [colors.hex2color(color) for color in hex_]
+#hsv equivalent
 hsv = [colors.rgb_to_hsv(color) for color in rgb]
 
+#split the hsv to sort
 hue = [color[0] for color in hsv]
 sat = [color[1] for color in hsv]
 val = [color[2] for color in hsv]
 
+#sort by hue, saturation and value
 ind = np.lexsort((val, sat, hue))
+sorted_colors = [colors_[i] for i in ind]
 
-names_ = []
-colors_ = []
+n = len(sorted_colors)
+ncols = 10
+nrows = int(np.ceil(1. * n / ncols))
 
-for i in ind:
-    names_.append(names[i])
-    colors_.append(hex_[i])
-
-fig, axes_ = plt.subplots(nrows=nrows, ncols=ncols)
-axes = list(chain(*axes_))
-
-for i in range(n):
-    title = axes[i].set_title(names_[i])
+fig = plt.figure()
+for i, (name, color) in enumerate(sorted_colors):
+    ax = fig.add_subplot(nrows, ncols, i + 1,
+                         axisbg=color,
+                         xticks=[], yticks=[])
+    title = ax.set_title(name)
     title.set_size('xx-small')
-    axes[i].set_axis_bgcolor(colors_[i]) 
-    axes[i].spines['right'].set_visible(False)
-    axes[i].spines['top'].set_visible(False)
-    axes[i].spines['bottom'].set_visible(False)
-    axes[i].spines['left'].set_visible(False)
-    axes[i].set_xticks([])
-    axes[i].set_yticks([])
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['left'].set_visible(False)
 
 plt.tight_layout()
 plt.show()
