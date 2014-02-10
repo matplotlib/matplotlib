@@ -750,7 +750,7 @@ def matplotlib_fname():
                     "Found matplotlib configuration in ~/.matplotlib/. "
                     "To conform with the XDG base directory standard, "
                     "this configuration location has been deprecated "
-                    "on Linux, and the new location is now %r/matplotlib/. "
+                    "on Linux, and the new location is now %s/matplotlib/. "
                     "Please move your configuration there to ensure that "
                     "matplotlib will continue to find it in the future." %
                     _get_xdg_config_dir())
