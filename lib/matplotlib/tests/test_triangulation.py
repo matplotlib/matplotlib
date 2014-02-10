@@ -906,9 +906,9 @@ def test_trirefine():
     # Testing the mask of the refined triangulation
     refi_mask = refi_triang.mask
     refi_tri_barycenter_x = np.sum(refi_triang.x[refi_triang.triangles],
-                                   axis=1)/3.
+                                   axis=1) / 3.
     refi_tri_barycenter_y = np.sum(refi_triang.y[refi_triang.triangles],
-                                   axis=1)/3.
+                                   axis=1) / 3.
     tri_finder = triang.get_trifinder()
     refi_tri_indices = tri_finder(refi_tri_barycenter_x,
                                   refi_tri_barycenter_y)
@@ -947,6 +947,17 @@ def meshgrid_triangles(n):
             d = (i+1) + (j+1)*n
             tri += [[a, b, d], [a, d, c]]
     return np.array(tri, dtype=np.int32)
+
+
+def test_triplot_return():
+    # Check that triplot returns the artists it adds
+    from matplotlib.figure import Figure
+    ax = Figure().add_axes([0.1, 0.1, 0.7, 0.7])
+    triang = mtri.Triangulation(
+        [0.0, 1.0, 0.0, 1.0], [0.0, 0.0, 1.0, 1.0],
+        triangles=[[0, 1, 3], [3, 2, 0]])
+    if ax.triplot(triang, "b-") is None:
+        raise AssertionError("triplot should return the artist it adds")
 
 
 if __name__ == '__main__':
