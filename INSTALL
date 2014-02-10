@@ -154,11 +154,11 @@ Build requirements
 ==================
 
 These are external packages which you will need to install before
-installing matplotlib. Windows users only need the first two (python
-and numpy) since the others are built into the matplotlib Windows
-installers available for download at `the download page
-<https://github.com/matplotlib/matplotlib/downloads>_`.  If you are
-building on OSX, see :ref:`build_osx`. If you are installing
+installing matplotlib. Windows users only need the first four (python,
+numpy, dateutil, and pyparsing) since the others are built into the
+matplotlib Windows installers available for download at `the download
+page <https://github.com/matplotlib/matplotlib/downloads>_`.  If you
+are building on OSX, see :ref:`build_osx`. If you are installing
 dependencies with a package manager on Linux, you may need to install
 the development packages (look for a "-dev" postfix) in addition to
 the libraries themselves.
@@ -185,17 +185,6 @@ the libraries themselves.
 :term:`numpy` |minimum_numpy_version| (or later)
     array support for python (`download numpy <http://numpy.org>`_)
 
-libpng 1.2 (or later)
-    library for loading and saving :term:`PNG` files (`download
-    <http://www.libpng.org/pub/png/libpng.html>`__). libpng requires
-    zlib. If you are a Windows user, you can ignore this because we
-    build support into the matplotlib single-click installer
-
-:term:`freetype` 1.4 (or later)
-    library for reading true type font files. If you are a windows
-    user, you can ignore this since we build support into the
-    matplotlib single click installer.
-
 :term:`dateutil` 1.1 or later
     Provides extensions to python datetime handling.  If using pip,
     easy_install or installing from source, the installer will attempt
@@ -208,6 +197,18 @@ libpng 1.2 (or later)
     Required for matplotlib's mathtext math rendering support.  If
     using pip, easy_install or installing from source, the installer
     will attempt to download and install `pyparsing` from PyPI.
+
+libpng 1.2 (or later)
+    library for loading and saving :term:`PNG` files (`download
+    <http://www.libpng.org/pub/png/libpng.html>`__). libpng requires
+    zlib. If you are a Windows user, you can ignore this because we
+    build support into the matplotlib single-click installer
+
+:term:`freetype` 1.4 (or later)
+    library for reading true type font files. If you are a windows
+    user, you can ignore this since we build support into the
+    matplotlib single click installer.
+
 
 **Optional**
 
