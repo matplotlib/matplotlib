@@ -509,6 +509,7 @@ class Axes(_AxesBase):
             raise TypeError('Invalid arguments to legend.')
 
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
+        self.legend_._remove_method = lambda h: setattr(self, 'legend_', None)
         return self.legend_
 
     def text(self, x, y, s, fontdict=None,
