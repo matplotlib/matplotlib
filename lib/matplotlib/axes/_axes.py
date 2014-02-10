@@ -6719,5 +6719,5 @@ class Axes(_AxesBase):
     tripcolor.__doc__ = mtri.tripcolor.__doc__
 
     def triplot(self, *args, **kwargs):
-        mtri.triplot(self, *args, **kwargs)
+        return mtri.triplot(self, *args, **kwargs)
     triplot.__doc__ = mtri.triplot.__doc__
