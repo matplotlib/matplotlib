@@ -80,21 +80,21 @@ def test_framealpha():
     plt.legend(framealpha=0.5)
 
 
-@image_comparison(baseline_images=['scatter_rc3','scatter_rc1'], remove_text=True)
+@image_comparison(baseline_images=['scatter_rc3', 'scatter_rc1'], remove_text=True)
 def test_rc():
     # using subplot triggers some offsetbox functionality untested elsewhere
     fig = plt.figure()
-    ax =  plt.subplot(121)
+    ax = plt.subplot(121)
     ax.scatter(list(xrange(10)), list(xrange(10, 0, -1)), label='three')
     ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
-                title="My legend")
+              title="My legend")
 
     mpl.rcParams['legend.scatterpoints'] = 1
     fig = plt.figure()
-    ax =  plt.subplot(121)
+    ax = plt.subplot(121)
     ax.scatter(list(xrange(10)), list(xrange(10, 0, -1)), label='one')
     ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
-                title="My legend")
+              title="My legend")
 
 
 @image_comparison(baseline_images=['legend_expand'], remove_text=True)
@@ -167,8 +167,8 @@ class TestLegendFunction(object):
                        handler_map={None: AnyObjectHandler()})
 
         warn.assert_called_with(u'Legend handers must now implement a '
-                                 '"legend_artist" method rather than '
-                                 'being a callable.',
+                                '"legend_artist" method rather than '
+                                'being a callable.',
                                 MatplotlibDeprecationWarning,
                                 stacklevel=1)
 
