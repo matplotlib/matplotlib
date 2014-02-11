@@ -1,6 +1,15 @@
 import numpy as np
-import wx
 
+# Used to guarantee to use at least Wx2.8
+import wxversion
+wxversion.ensureMinimal('2.8')
+#wxversion.select('2.8')
+#wxversion.select('2.9.5') # 2.9.x classic
+#wxversion.select('2.9.6-msw-phoenix') # 2.9.x phoenix
+
+
+import wx
+print wx.VERSION_STRING
 import matplotlib
 matplotlib.interactive(False)
 matplotlib.use('WXAgg')
@@ -64,7 +73,8 @@ class SliderGroup(Knob):
         self.sliderLabel = wx.StaticText(parent, label=label)
         self.sliderText = wx.TextCtrl(parent, -1, style=wx.TE_PROCESS_ENTER)
         self.slider = wx.Slider(parent, -1)
-        self.slider.SetMax(param.maximum*1000)
+        #self.slider.SetMax(param.maximum*1000)
+        self.slider.SetRange(0, param.maximum*1000)
         self.setKnob(param.value)
         
         sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -133,6 +143,12 @@ class FourierDemoWindow(wx.Window, Knob):
         self.f0.attach(self)
         self.A.attach(self)
         self.Bind(wx.EVT_SIZE, self.sizeHandler)
+
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        
+    def OnPaint(self, event):
+        self.canvas.draw()
+        event.Skip()
        
     def sizeHandler(self, *args, **kwargs):
         self.canvas.SetSize(self.GetSize())
