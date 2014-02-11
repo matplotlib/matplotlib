@@ -6,7 +6,10 @@ toolbar - comment out the setA_toolbar line for no toolbar
 
 # Used to guarantee to use at least Wx2.8
 import wxversion
-wxversion.ensureMinimal('2.8')
+#wxversion.ensureMinimal('2.8')
+wxversion.select('2.8')
+#wxversion.select('2.9.5') # 2.9.x classic
+#wxversion.select('3.0.1-msw-phoenix', optionsRequired=True) # 3.x Phoenix
 
 from numpy import arange, sin, pi
 
@@ -25,6 +28,10 @@ from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 from matplotlib.figure import Figure
 
 import wx
+print wx.VERSION_STRING
+print wx.PlatformInfo
+print matplotlib.__version__
+
 
 class CanvasFrame(wx.Frame):
 
@@ -32,7 +39,10 @@ class CanvasFrame(wx.Frame):
         wx.Frame.__init__(self,None,-1,
                          'CanvasFrame',size=(550,350))
 
-        self.SetBackgroundColour(wx.NamedColour("WHITE"))
+        if 'phoenix' in wx.PlatformInfo:
+            self.SetBackgroundColour(wx.Colour("WHITE"))
+        else:
+            self.SetBackgroundColour(wx.NamedColour("WHITE"))
 
         self.figure = Figure()
         self.axes = self.figure.add_subplot(111)
@@ -48,7 +58,11 @@ class CanvasFrame(wx.Frame):
         self.Fit()
 
         self.add_toolbar()  # comment this out for no toolbar
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
 
+    def OnPaint(self, event):
+        self.canvas.draw()
+        event.Skip()
 
     def add_toolbar(self):
         self.toolbar = NavigationToolbar2Wx(self.canvas)
@@ -61,8 +75,12 @@ class CanvasFrame(wx.Frame):
         else:
             # On Windows platform, default window size is incorrect, so set
             # toolbar width to figure width.
-            tw, th = self.toolbar.GetSizeTuple()
-            fw, fh = self.canvas.GetSizeTuple()
+            if 'phoenix' in wx.PlatformInfo:
+                tw, th = self.toolbar.GetSize()
+                fw, fh = self.canvas.GetSize()
+            else:
+                tw, th = self.toolbar.GetSizeTuple()
+                fw, fh = self.canvas.GetSizeTuple()
             # By adding toolbar in sizer, we are able to put it at the bottom
             # of the frame - so appearance is closer to GTK version.
             # As noted above, doesn't work for Mac.
