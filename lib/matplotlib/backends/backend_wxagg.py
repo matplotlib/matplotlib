@@ -136,7 +136,10 @@ def _convert_agg_to_wx_image(agg, bbox):
     """
     if bbox is None:
         # agg => rgb -> image
-        image = wx.EmptyImage(int(agg.width), int(agg.height))
+        if 'phoenix' in wx.PlatformInfo:
+            image = wx.Image(int(agg.width), int(agg.height))
+        else:
+            image = wx.EmptyImage(int(agg.width), int(agg.height))
         image.SetData(agg.tostring_rgb())
         return image
     else:
@@ -153,8 +156,12 @@ def _convert_agg_to_wx_bitmap(agg, bbox):
     """
     if bbox is None:
         # agg => rgba buffer -> bitmap
-        return wx.BitmapFromBufferRGBA(int(agg.width), int(agg.height),
-            agg.buffer_rgba())
+        if 'phoenix' in wx.PlatformInfo:
+            return wx.Bitmap.FromBufferRGBA(int(agg.width), int(agg.height),
+                                     agg.buffer_rgba())            
+        else:
+            return wx.BitmapFromBufferRGBA(int(agg.width), int(agg.height),
+                                           agg.buffer_rgba())
     else:
         # agg => rgba buffer -> bitmap => clipped bitmap
         return _WX28_clipped_agg_as_bitmap(agg, bbox)
@@ -170,12 +177,19 @@ def _WX28_clipped_agg_as_bitmap(agg, bbox):
     r = l + width
     t = b + height
 
-    srcBmp = wx.BitmapFromBufferRGBA(int(agg.width), int(agg.height),
-        agg.buffer_rgba())
+    if 'phoenix' in wx.PlatformInfo:
+        srcBmp = wx.Bitmap.FromBufferRGBA(int(agg.width), int(agg.height),
+                                   agg.buffer_rgba())        
+    else:
+        srcBmp = wx.BitmapFromBufferRGBA(int(agg.width), int(agg.height),
+                                         agg.buffer_rgba())
     srcDC = wx.MemoryDC()
     srcDC.SelectObject(srcBmp)
 
-    destBmp = wx.EmptyBitmap(int(width), int(height))
+    if 'phoenix' in wx.PlatformInfo:    
+        destBmp = wx.Bitmap(int(width), int(height))
+    else:
+        destBmp = wx.EmptyBitmap(int(width), int(height))
     destDC = wx.MemoryDC()
     destDC.SelectObject(destBmp)
 
