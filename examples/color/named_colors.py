@@ -4,14 +4,20 @@ Visualization of named colors.
 Simple plot example with the named colors and its visual representation.
 """
 
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
+import six
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import colors
 
-colors_ = colors.cnames.items()
+
+colors_ = list(six.iteritems(colors.cnames))
 
 # Add the single letter colors.
-for name, rgb in colors.ColorConverter.colors.items():
+for name, rgb in six.iteritems(colors.ColorConverter.colors):
     hex_ = colors.rgb2hex(rgb)
     colors_.append((name, hex_))
 
