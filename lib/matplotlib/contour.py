@@ -582,7 +582,7 @@ class ContourLabeler:
         paths = self.collections[conmin].get_paths()
         lc = paths[segmin].vertices
         if transform:
-            xcmin = transform.inverted().transform([xmin, ymin])
+            xcmin = transform.inverted().transform_point([xmin, ymin])
         else:
             xcmin = np.array([xmin, ymin])
         if not np.allclose(xcmin, lc[imin]):
