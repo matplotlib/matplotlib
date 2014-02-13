@@ -581,7 +581,7 @@ class ContourLabeler:
         # be a vertex in the path. So, if it isn't, add a vertex here
         paths = self.collections[conmin].get_paths()
         lc = paths[segmin].vertices
-        xcmin = self.ax.transData.inverted().transform([xmin, ymin])
+        xcmin = self.ax.transData.inverted().transform_point([xmin, ymin])
         if not np.allclose(xcmin, lc[imin]):
             lc = np.r_[lc[:imin], np.array(xcmin)[None, :], lc[imin:]]
             paths[segmin] = mpath.Path(lc)
