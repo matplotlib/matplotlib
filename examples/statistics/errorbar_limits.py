@@ -48,5 +48,6 @@ plt.errorbar(x, y+2.1, marker='o', ms=8, xerr=xerr, yerr=yerr,
              ls='none', mec='blue', capsize=0, color='cyan')
 
 ax.set_xlim((0, 5.5))
+ax.set_title('Errorbar upper and lower limits')
 plt.show()
 
