@@ -46,6 +46,12 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         else:
             bbox_queue = self._bbox_queue
 
+        if HAS_CAIRO_CFFI:
+            ctx = cairo.Context._from_pointer(
+                cairo.ffi.cast('cairo_t **',
+                               id(ctx) + object.__basicsize__)[0],
+                incref=True)
+
         for bbox in bbox_queue:
             area = self.copy_from_bbox(bbox)
             buf = np.fromstring(area.to_string_argb(), dtype='uint8')
@@ -56,10 +62,6 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
             height = int(bbox.y1) - int(bbox.y0)
 
             if HAS_CAIRO_CFFI:
-                ctx = cairo.Context._from_pointer(
-                    cairo.ffi.cast('cairo_t **',
-                                   id(ctx) + object.__basicsize__)[0],
-                    incref=True)
                 image = cairo.ImageSurface.create_for_data(
                     buf.data, cairo.FORMAT_ARGB32, width, height)
             else:
