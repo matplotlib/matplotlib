@@ -1883,7 +1883,18 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
     Returns
     -------
     bxpstats : A list of dictionaries containing the results for each column
-        of data. Keys are as
+        of data. Keys of each dictionary are the following:
+         - label = tick label for the boxplot
+         - mean = mean value (can plot as a line or point)
+         - median = 50th percentile
+         - q1 = first quartile (25th pctl)
+         - q3 = third quartile (75 (pctl)
+         - cilo = lower notch around the median
+         - ciho = upper notch around the median
+         - whislo = end of the lower whisker
+         - whishi = end of the upper whisker
+         - fliers = outliers
+
 
     Notes
     -----
