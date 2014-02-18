@@ -3784,7 +3784,7 @@ static PyMethodDef FigureCanvas_methods[] = {
     },
     {"stop_event_loop",
      (PyCFunction)FigureCanvas_stop_event_loop,
-     METH_KEYWORDS | METH_VARARGS,
+     METH_NOARGS,
      "Stops the event loop that was started by start_event_loop.\n",
     },
     {NULL}  /* Sentinel */
