@@ -71,6 +71,19 @@ def test_set_line_coll_dash():
     assert True
 
 
+@cleanup
+def test_line_colors():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot(range(10), color='none')
+    ax.plot(range(10), color='r')
+    ax.plot(range(10), color='.3')
+    ax.plot(range(10), color=(1, 0, 0, 1))
+    ax.plot(range(10), color=(1, 0, 0))
+    fig.canvas.draw()
+    assert True
+
+
 @image_comparison(baseline_images=['line_collection_dashes'], remove_text=True)
 def test_set_line_coll_dash_image():
     fig = plt.figure()

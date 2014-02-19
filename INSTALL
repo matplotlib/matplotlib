@@ -185,17 +185,6 @@ the libraries themselves.
 :term:`numpy` |minimum_numpy_version| (or later)
     array support for python (`download numpy <http://numpy.org>`_)
 
-libpng 1.2 (or later)
-    library for loading and saving :term:`PNG` files (`download
-    <http://www.libpng.org/pub/png/libpng.html>`__). libpng requires
-    zlib. If you are a Windows user, you can ignore this because we
-    build support into the matplotlib single-click installer
-
-:term:`freetype` 1.4 (or later)
-    library for reading true type font files. If you are a windows
-    user, you can ignore this since we build support into the
-    matplotlib single click installer.
-
 :term:`dateutil` 1.1 or later
     Provides extensions to python datetime handling.  If using pip,
     easy_install or installing from source, the installer will attempt
@@ -209,6 +198,7 @@ libpng 1.2 (or later)
     using pip, easy_install or installing from source, the installer
     will attempt to download and install `pyparsing` from PyPI.
 
+<<<<<<< HEAD
 **Optional dependencies**
 
 `Pillow http://python-imaging.github.io/`__
@@ -216,6 +206,21 @@ libpng 1.2 (or later)
     selection of image file formats.
 
 **Optional GUI frameworks**
+=======
+libpng 1.2 (or later)
+    library for loading and saving :term:`PNG` files (`download
+    <http://www.libpng.org/pub/png/libpng.html>`__). libpng requires
+    zlib. If you are a Windows user, you can ignore this because we
+    build support into the matplotlib single-click installer
+
+:term:`freetype` 1.4 (or later)
+    library for reading true type font files. If you are a windows
+    user, you can ignore this since we build support into the
+    matplotlib single click installer.
+
+
+**Optional**
+>>>>>>> upstream/v1.3.x
 
 These are optional packages which you may want to install to use
 matplotlib with a user interface toolkit. See

@@ -1238,18 +1238,24 @@ class Axes(_AxesBase):
             colls.append(coll)
 
         if len(positions) > 0:
-            minpos = min(position.min() for position in positions)
-            maxpos = max(position.max() for position in positions)
+            # try to get min/max
+            min_max = [(np.min(_p), np.max(_p)) for _p in positions
+                       if len(_p) > 0]
+            # if we have any non-empty positions, try to autoscale
+            if len(min_max) > 0:
+                mins, maxes = zip(*min_max)
+                minpos = np.min(mins)
+                maxpos = np.max(maxes)
 
-            minline = (lineoffsets - linelengths).min()
-            maxline = (lineoffsets + linelengths).max()
+                minline = (lineoffsets - linelengths).min()
+                maxline = (lineoffsets + linelengths).max()
 
-            if colls[0].is_horizontal():
-                corners = (minpos, minline), (maxpos, maxline)
-            else:
-                corners = (minline, minpos), (maxline, maxpos)
-            self.update_datalim(corners)
-            self.autoscale_view()
+                if colls[0].is_horizontal():
+                    corners = (minpos, minline), (maxpos, maxline)
+                else:
+                    corners = (minline, minpos), (maxline, maxpos)
+                self.update_datalim(corners)
+                self.autoscale_view()
 
         return colls
 
@@ -4670,6 +4676,9 @@ class Axes(_AxesBase):
           *alpha*: ``0 <= scalar <= 1``   or *None*
             the alpha blending value
 
+          *snap*: bool
+            Whether to snap the mesh to pixel boundaries.
+
         Return value is a :class:`matplotlib.collections.Collection`
         instance.
 
@@ -4818,6 +4827,8 @@ class Axes(_AxesBase):
         if 'antialiaseds' not in kwargs and (is_string_like(ec) and
                 ec.lower() == "none"):
             kwargs['antialiaseds'] = False
+
+        kwargs.setdefault('snap', False)
 
         collection = mcoll.PolyCollection(verts, **kwargs)
 
