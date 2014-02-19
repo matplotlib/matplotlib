@@ -96,7 +96,9 @@ Posting files
 Our current method is for the release manager to collect all of the
 binaries from the platform builders and post the files online on
 Sourceforge.  It is also possible that those building the binaries
-could upload to directly to Sourceforge.
+could upload to directly to Sourceforge.  We also post a source
+tarball to PyPI, since ``pip`` no longer trusts files downloaded from
+other sites.
 
 There are many ways to upload files to Sourceforge (`scp`, `rsync`,
 `sftp`, and a web interface) described in `Sourceforge Release File
@@ -176,6 +178,11 @@ Then updating the record on PyPI is as simple as::
     python setup.py register
 
 This will hide any previous releases automatically.
+
+Then, to upload the source tarball::
+
+    rm -rf dist
+    python setup.py sdist upload
 
 Documentation updates
 =====================
