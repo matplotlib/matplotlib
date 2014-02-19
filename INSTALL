@@ -51,7 +51,7 @@ interactive shell for python that is matplotlib-aware.
 
 Next, we need to get matplotlib installed.  We provide prebuilt
 binaries for OS X and Windows on the matplotlib `download
-<https://github.com/matplotlib/matplotlib/downloads/>`_ page.  Click on
+<http://matplotlib.org/downloads.html>`_.  Click on
 the latest release of the "matplotlib" package, choose your python
 version (2.6, 2.7 or 3.2) and your platform (macosx or win32).  If you
 have any problems, please check the :ref:`installing-faq`, search
@@ -122,7 +122,7 @@ If you are interested in contributing to matplotlib development,
 running the latest source code, or just like to build everything
 yourself, it is not difficult to build matplotlib from source.  Grab
 the latest *tar.gz* release file from `the download page
-<https://github.com/matplotlib/matplotlib/downloads>`_, or if you want
+<http://matplotlib.org/downloads.html>`_, or if you want
 to develop matplotlib or just need the latest bugfixed version, grab
 the latest git version :ref:`install-from-git`.
 
@@ -157,7 +157,7 @@ These are external packages which you will need to install before
 installing matplotlib. Windows users only need the first four (python,
 numpy, dateutil, and pyparsing) since the others are built into the
 matplotlib Windows installers available for download at `the download
-page <https://github.com/matplotlib/matplotlib/downloads>_`.  If you
+page <http://matplotlib.org/downloads.html>_`.  If you
 are building on OSX, see :ref:`build_osx`. If you are installing
 dependencies with a package manager on Linux, you may need to install
 the development packages (look for a "-dev" postfix) in addition to
