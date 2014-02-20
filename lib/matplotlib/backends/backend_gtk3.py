@@ -22,7 +22,7 @@ except ValueError:
         "to be installed.")
 
 try:
-    from gi.repository import Gtk, Gdk, GObject
+    from gi.repository import Gtk, Gdk, GObject, GLib
 except ImportError:
     raise ImportError("Gtk3 backend requires pygobject to be installed.")
 
@@ -92,11 +92,11 @@ class TimerGTK3(TimerBase):
         # Need to stop it, otherwise we potentially leak a timer id that will
         # never be stopped.
         self._timer_stop()
-        self._timer = GObject.timeout_add(self._interval, self._on_timer)
+        self._timer = GLib.timeout_add(self._interval, self._on_timer)
 
     def _timer_stop(self):
         if self._timer is not None:
-            GObject.source_remove(self._timer)
+            GLib.source_remove(self._timer)
             self._timer = None
 
     def _timer_set_interval(self):
@@ -206,14 +206,14 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         self.set_double_buffered(True)
         self.set_can_focus(True)
         self._renderer_init()
-        self._idle_event_id = GObject.idle_add(self.idle_event)
+        self._idle_event_id = GLib.idle_add(self.idle_event)
 
     def destroy(self):
         #Gtk.DrawingArea.destroy(self)
         self.close_event()
-        GObject.source_remove(self._idle_event_id)
+        GLib.source_remove(self._idle_event_id)
         if self._idle_draw_id != 0:
-            GObject.source_remove(self._idle_draw_id)
+            GLib.source_remove(self._idle_draw_id)
 
     def scroll_event(self, widget, event):
         if _debug: print('FigureCanvasGTK3.%s' % fn_name())
@@ -329,7 +329,7 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
                 self._idle_draw_id = 0
             return False
         if self._idle_draw_id == 0:
-            self._idle_draw_id = GObject.idle_add(idle_draw)
+            self._idle_draw_id = GLib.idle_add(idle_draw)
 
     def new_timer(self, *args, **kwargs):
         """
