@@ -7,8 +7,7 @@ from matplotlib.offsetbox import AnchoredOffsetbox
  #from matplotlib.transforms import IdentityTransform
 
 import matplotlib.transforms as mtrans
- #from matplotlib.axes import Axes
-from .mpl_axes import Axes
+from .parasite_axes import HostAxes  # subclasses mpl_axes
 
 from matplotlib.transforms import Bbox, TransformedBbox, IdentityTransform
 
@@ -261,7 +260,7 @@ def inset_axes(parent_axes, width, height, loc=1,
                 **kwargs):
 
     if axes_class is None:
-        axes_class = Axes
+        axes_class = HostAxes
 
     if axes_kwargs is None:
         inset_axes = axes_class(parent_axes.figure, parent_axes.get_position())
@@ -292,7 +291,7 @@ def zoomed_inset_axes(parent_axes, zoom, loc=1,
                        **kwargs):
 
     if axes_class is None:
-        axes_class = Axes
+        axes_class = HostAxes
 
     if axes_kwargs is None:
         inset_axes = axes_class(parent_axes.figure, parent_axes.get_position())
