@@ -1900,7 +1900,6 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
         fliers     outliers
         ========   ===================================
 
-
     Notes
     -----
     Non-bootstrapping approach to confidence interval uses Gaussian-based
@@ -1911,6 +1910,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
     General approach from:
     McGill, R., Tukey, J.W., and Larsen, W.A. (1978) "Variations of
         Boxplots", The American Statistician, 32:12-16.
+
     '''
 
     def _bootstrap_median(data, N=5000):
