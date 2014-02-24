@@ -95,17 +95,7 @@ class Show(backend_bases.ShowBase):
         WebAggApplication.start()
 
 
-if not _in_ipython:
-    show = Show()
-else:
-    def show():
-        from IPython.display import display_html
-
-        result = []
-        import matplotlib._pylab_helpers as pylab_helpers
-        for manager in pylab_helpers.Gcf().get_all_fig_managers():
-            result.append(ipython_inline_display(manager.canvas.figure))
-        return display_html('\n'.join(result), raw=True)
+show = Show().mainloop
 
 
 class ServerThread(threading.Thread):
@@ -398,7 +388,7 @@ def ipython_inline_display(figure):
         fig_id=fignum,
         toolitems=core.NavigationToolbar2WebAgg.toolitems,
         canvas=figure.canvas,
-        port=WebAggApplication.port)
+        port=WebAggApplication.port).decode('utf-8')
 
 
 FigureCanvas = FigureCanvasWebAgg
