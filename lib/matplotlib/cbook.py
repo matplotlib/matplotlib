@@ -1883,16 +1883,34 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
     Returns
     -------
     bxpstats : A list of dictionaries containing the results for each column
-        of data. Keys are as
+        of data. Keys of each dictionary are the following:
+
+        ========   ===================================
+        Key        Value Description
+        ========   ===================================
+        label      tick label for the boxplot
+        mean       arithemetic mean value
+        median     50th percentile
+        q1         first quartile (25th percentile)
+        q3         third quartile (75th percentile)
+        cilo       lower notch around the median
+        ciho       upper notch around the median
+        whislo     end of the lower whisker
+        whishi     end of the upper whisker
+        fliers     outliers
+        ========   ===================================
 
     Notes
     -----
     Non-bootstrapping approach to confidence interval uses Gaussian-based
-    asymptotic approximation.
+    asymptotic approximation:
+
+    .. math:: \mathrm{med} \pm 1.57 \times \frac{\mathrm{iqr}}{\sqrt{N}}
 
     General approach from:
     McGill, R., Tukey, J.W., and Larsen, W.A. (1978) "Variations of
         Boxplots", The American Statistician, 32:12-16.
+
     '''
 
     def _bootstrap_median(data, N=5000):
