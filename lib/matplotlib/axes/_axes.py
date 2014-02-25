@@ -2754,6 +2754,8 @@ class Axes(_AxesBase):
                 right = [thisx + thiserr for (thisx, thiserr)
                          in cbook.safezip(x, xerr)]
 
+            # select points without upper/lower limits in x
+            # draw normal errorbars for these points
             noxlims = ~(xlolims | xuplims)
             if noxlims.any():
                 yo, _ = xywhere(y, right, noxlims & everymask)
@@ -2802,6 +2804,8 @@ class Axes(_AxesBase):
                 upper = [thisy + thiserr for (thisy, thiserr)
                          in cbook.safezip(y, yerr)]
 
+            # select points without upper/lower limits in y
+            # draw normal errorbars for these points
             noylims = ~(lolims | uplims)
             if noylims.any():
                 xo, _ = xywhere(x, lower, noylims & everymask)
