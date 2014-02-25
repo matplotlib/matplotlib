@@ -2725,7 +2725,7 @@ class Axes(_AxesBase):
 
         plot_kw = {'label': '_nolegend_'}
         if capsize > 0:
-            plot_kw['ms'] =  2 * capsize
+            plot_kw['ms'] = 2. * capsize
         if capthick is not None:
             # 'mew' has higher priority, I believe,
             # if both 'mew' and 'markeredgewidth' exists.
