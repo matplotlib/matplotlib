@@ -808,47 +808,68 @@ class _CollectionWithSizes(Collection):
             self._transforms = np.empty((0, 3, 3))
         else:
             self._sizes = np.asarray(sizes)
-            self._transforms = np.zeros((len(self._sizes), 3, 3))
             scale = np.sqrt(self._sizes) * dpi / 72.0 * self._factor
-            self._transforms[:, 0, 0] = scale
-            self._transforms[:, 1, 1] = scale
-            self._transforms[:, 2, 2] = 1.0
+            if self._transforms is None or \
+               (isinstance(self._transforms, list) and not self._transforms) or \
+               (isinstance(self._transforms, np.ndarray) and not self._transforms.any()):
+                self._transforms = np.zeros((len(self._sizes), 3, 3))
+                self._transforms[:, 0, 0] = scale
+                self._transforms[:, 1, 1] = scale
+                self._transforms[:, 2, 2] = 1.0
         self.stale = True
+                s = np.zeros((len(self._sizes),3,3))
+                s[:, 0, 0] = scale
+                s[:, 1, 1] = scale
+                s[:, 2, 2] = 1.0
+                for i in xrange(self._transforms.shape[0]):
+                    self._transforms[i,:,:] = self._transforms[i,:,:].dot(s[i%len(self._sizes),:,:])
 
     @allow_rasterization
     def draw(self, renderer):
         self.set_sizes(self._sizes, self.figure.dpi)
-        Collection.draw(self, renderer)
+        super(_CollectionWithSizes, self).draw(renderer)
 
-class _CollectionWithRotations(Collection):
+class _CollectionWithAngles(Collection):
     """
-    Base class for collections that have an array of rotations.
+    Base class for collections that have an array of angles.
     """
-    def get_rotations(self):
-        return self._rotations
+    def get_angles(self):
+        return self._angles
 
-    def set_rotations(self, rotations):
-        if rotations is None:
-            self._rotations = np.array([])
+    def set_angles(self, angles):
+        if angles is None:
+            self._angles = np.array([])
             self._transforms = np.empty((0, 3, 3))
         else:
-            self._rotations = np.asarray(rotations)
-            self._transforms = np.zeros((len(self._rotations), 3, 3))
-            rot = np.deg2rad(self._rotations)
+            self._angles = np.asarray(angles)
+            rot = np.deg2rad(90.-self._angles)
             rot_c = np.cos(rot)
             rot_s = np.sin(rot)
-            self._transforms[:, 0, 0] = rot_c
-            self._transforms[:, 0, 1] = -rot_s
-            self._transforms[:, 1, 1] = rot_c
-            self._transforms[:, 1, 0] = rot_s
-            self._transforms[:, 2, 2] = 1.0
+            if self._transforms is None or \
+               (isinstance(self._transforms, list) and not self._transforms) or \
+               (isinstance(self._transforms, np.ndarray) and not self._transforms.any()):
+                self._transforms = np.zeros((len(self._angles), 3, 3))
+                self._transforms[:, 0, 0] = rot_c
+                self._transforms[:, 0, 1] = -rot_s
+                self._transforms[:, 1, 1] = rot_c
+                self._transforms[:, 1, 0] = rot_s
+                self._transforms[:, 2, 2] = 1.0
+            else:
+                r = np.zeros((len(self._angles), 3, 3))
+                r[:, 0, 0] = rot_c
+                r[:, 0, 1] = -rot_s
+                r[:, 1, 1] = rot_c
+                r[:, 1, 0] = rot_s
+                r[:, 2, 2] = 1.0
+                for i in xrange(self._transforms.shape[0]):
+                    self._transforms[i,:,:] = self._transforms[i,:,:].dot(r[i%len(self._angles),:,:])
 
     def draw(self, renderer):
-        self.set_rotations(self._rotations)
-        Collection.draw(self, renderer)
+        self.set_angles(self._angles)
+        super(_CollectionWithAngles, self).draw(renderer)
 
 
-class PathCollection(_CollectionWithSizes, _CollectionWithRotations):
+class PathCollection(_CollectionWithSizes, _CollectionWithAngles):
     """
     This is the most basic :class:`Collection` subclass.
     """
@@ -879,6 +900,9 @@ class PathCollection(_CollectionWithSizes, _CollectionWithRotations):
         return the paths sequence
         """
         return self._paths
+
+    def draw(self, renderer):
+        super(PathCollection, self).draw(renderer)
 
 class PolyCollection(_CollectionWithSizes):
     @docstring.dedent_interpd
