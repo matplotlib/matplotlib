@@ -1,5 +1,5 @@
 """
-Demo of the errorbar function, includig upper and lower limits
+Demo of the errorbar function, including upper and lower limits
 """
 import numpy as np
 import matplotlib.pyplot as plt
