@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import tempfile
-
+import sys
 import numpy as np
 from nose import with_setup
 from matplotlib import pyplot as plt
@@ -35,6 +35,11 @@ def check_save_animation(writer, extension='mp4'):
                                % writer)
     if 'mencoder' in writer:
         raise KnownFailureTest("mencoder is broken")
+
+    ver = sys.version_info
+    if ver[0] == 3 and ver[1] == 2:
+        raise KnownFailureTest("animation saving broken on 3.2")
+
     fig, ax = plt.subplots()
     line, = ax.plot([], [])
 
