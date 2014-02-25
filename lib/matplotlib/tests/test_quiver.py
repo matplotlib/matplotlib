@@ -8,13 +8,13 @@ from matplotlib.testing.decorators import cleanup
 from matplotlib.testing.decorators import image_comparison
 
 
-def draw_quiver(ax):
+def draw_quiver(ax, **kw):
     X, Y = np.meshgrid(np.arange(0, 2 * np.pi, 1),
                        np.arange(0, 2 * np.pi, 1))
     U = np.cos(X)
     V = np.sin(Y)
 
-    Q = ax.quiver(U, V)
+    Q = ax.quiver(U, V, **kw)
     return Q
 
 
@@ -43,6 +43,19 @@ def test_quiver_key_memory_leak():
     assert sys.getrefcount(qk) == 3
     qk.remove()
     assert sys.getrefcount(qk) == 2
+
+
+@image_comparison(baseline_images=['quiver_animated_test_image'],
+                  extensions=['png'])
+def test_quiver_animate():
+    # Tests fix for #2616
+    fig, ax = plt.subplots()
+
+    Q = draw_quiver(ax, animated=True)
+
+    qk = ax.quiverkey(Q, 0.5, 0.92, 2, r'$2 \frac{m}{s}$',
+                      labelpos='W',
+                      fontproperties={'weight': 'bold'})
 
 
 @image_comparison(baseline_images=['quiver_with_key_test_image'],
