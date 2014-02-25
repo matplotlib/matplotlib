@@ -822,11 +822,10 @@ class _CollectionWithSizes(Collection):
                 s[:, 1, 1] = scale
                 s[:, 2, 2] = 1.0
                 for i in xrange(self._transforms.shape[0]):
-                    self._transforms[i,:,:] = self._transforms[i,:,:].dot(s[i%len(self._sizes),:,:])
+                    self._transforms[i,:,:] = np.dot(s[i%len(self._sizes),:,:], self._transforms[i,:,:])
 
     @allow_rasterization
     def draw(self, renderer):
-        self.set_sizes(self._sizes, self.figure.dpi)
         super(_CollectionWithSizes, self).draw(renderer)
 
 class _CollectionWithAngles(Collection):
@@ -842,7 +841,7 @@ class _CollectionWithAngles(Collection):
             self._transforms = np.empty((0, 3, 3))
         else:
             self._angles = np.asarray(angles)
-            rot = np.deg2rad(90.-self._angles)
+            rot = np.deg2rad(self._angles)
             rot_c = np.cos(rot)
             rot_s = np.sin(rot)
             if self._transforms is None or \
@@ -862,10 +861,9 @@ class _CollectionWithAngles(Collection):
                 r[:, 1, 0] = rot_s
                 r[:, 2, 2] = 1.0
                 for i in xrange(self._transforms.shape[0]):
-                    self._transforms[i,:,:] = self._transforms[i,:,:].dot(r[i%len(self._angles),:,:])
+                    self._transforms[i,:,:] = np.dot(r[i%len(self._angles),:,:], self._transforms[i,:,:])
 
     def draw(self, renderer):
-        self.set_angles(self._angles)
         super(_CollectionWithAngles, self).draw(renderer)
 
 
