@@ -820,13 +820,40 @@ class _CollectionWithSizes(Collection):
         self.set_sizes(self._sizes, self.figure.dpi)
         Collection.draw(self, renderer)
 
+class _CollectionWithRotations(Collection):
+    """
+    Base class for collections that have an array of rotations.
+    """
+    def get_rotations(self):
+        return self._rotations
 
-class PathCollection(_CollectionWithSizes):
+    def set_rotations(self, rotations):
+        if rotations is None:
+            self._rotations = np.array([])
+            self._transforms = np.empty((0, 3, 3))
+        else:
+            self._rotations = np.asarray(rotations)
+            self._transforms = np.zeros((len(self._rotations), 3, 3))
+            rot = np.deg2rad(self._rotations)
+            rot_c = np.cos(rot)
+            rot_s = np.sin(rot)
+            self._transforms[:, 0, 0] = rot_c
+            self._transforms[:, 0, 1] = -rot_s
+            self._transforms[:, 1, 1] = rot_c
+            self._transforms[:, 1, 0] = rot_s
+            self._transforms[:, 2, 2] = 1.0
+
+    def draw(self, renderer):
+        self.set_rotations(self._rotations)
+        Collection.draw(self, renderer)
+
+
+class PathCollection(_CollectionWithSizes, _CollectionWithRotations):
     """
     This is the most basic :class:`Collection` subclass.
     """
     @docstring.dedent_interpd
-    def __init__(self, paths, sizes=None, **kwargs):
+    def __init__(self, paths, sizes=None, angles=None, **kwargs):
         """
         *paths* is a sequence of :class:`matplotlib.path.Path`
         instances.
@@ -838,14 +865,20 @@ class PathCollection(_CollectionWithSizes):
         self.set_paths(paths)
         self.set_sizes(sizes)
         self.stale = True
+        self.set_rotations(angles)
 
     def set_paths(self, paths):
+        """
+        update the paths sequence
+        """
         self._paths = paths
         self.stale = True
 
     def get_paths(self):
+        """
+        return the paths sequence
+        """
         return self._paths
-
 
 class PolyCollection(_CollectionWithSizes):
     @docstring.dedent_interpd
