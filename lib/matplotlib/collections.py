@@ -841,7 +841,7 @@ class _CollectionWithAngles(Collection):
             self._transforms = np.empty((0, 3, 3))
         else:
             self._angles = np.asarray(angles)
-            rot = np.deg2rad(self._angles)
+            rot = np.deg2rad(-self._angles)
             rot_c = np.cos(rot)
             rot_s = np.sin(rot)
             if self._transforms is None or \
