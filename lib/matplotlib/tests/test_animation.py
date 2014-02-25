@@ -2,9 +2,9 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-
+import sys
 import tempfile
-
+import signal
 import numpy as np
 from nose import with_setup
 from matplotlib import pyplot as plt
@@ -18,6 +18,14 @@ WRITER_OUTPUT = dict(ffmpeg='mp4', ffmpeg_file='mp4',
                      mencoder='mp4', mencoder_file='mp4',
                      avconv='mp4', avconv_file='mp4',
                      imagemagick='gif', imagemagick_file='gif')
+
+
+class TimeoutException(Exception):
+    pass
+
+
+def _timeout_handler(signum, frame):
+    raise TimeoutException()
 
 
 # Smoke test for saving animations.  In the future, we should probably
@@ -51,12 +59,20 @@ def check_save_animation(writer, extension='mp4'):
     # Use NamedTemporaryFile: will be automatically deleted
     F = tempfile.NamedTemporaryFile(suffix='.' + extension)
     anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
+
+    old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
+
     try:
+        signal.alarm(100)
         anim.save(F.name, fps=30, writer=writer)
     except UnicodeDecodeError:
         raise KnownFailureTest("There can be errors in the numpy " +
                                "import stack, " +
                                "see issues #1891 and #2679")
+    except TimeoutException:
+        raise KnownFailureTest("pipe timed out, known issue")
+    finally:
+        signal.signal(signal.SIGALRM, old_handler)
 
 
 @cleanup
