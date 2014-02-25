@@ -166,7 +166,7 @@ class TestLegendFunction(object):
             plt.legend([None], ['My first handler'],
                        handler_map={None: AnyObjectHandler()})
 
-        warn.assert_called_with(u'Legend handers must now implement a '
+        warn.assert_called_with('Legend handers must now implement a '
                                 '"legend_artist" method rather than '
                                 'being a callable.',
                                 MatplotlibDeprecationWarning,
