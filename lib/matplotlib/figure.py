@@ -635,6 +635,8 @@ class Figure(Artist):
         from the shell
 
         ACCEPTS: a w,h tuple with w,h in inches
+
+        .. seealso:: :func:`~matplotlib.Figure.get_size_inches`
         """
 
         forward = kwargs.get('forward', False)
@@ -655,7 +657,17 @@ class Figure(Artist):
                 manager.resize(int(canvasw), int(canvash))
 
     def get_size_inches(self):
-        return self.bbox_inches.p1
+        """
+        Returns the current size of the figure in inches as an numpy array.
+
+        Returns
+        -------
+        size : ndarray
+           The size of the figure in inches
+
+        .. seealso:: :func:`~matplotlib.Figure.set_size_inches`
+        """
+        return np.array(self.bbox_inches.p1)
 
     def get_edgecolor(self):
         'Get the edge color of the Figure rectangle'
