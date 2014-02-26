@@ -1,3 +1,6 @@
+2014-27-02  Implemented separate horizontal/vertical axes padding to the
+           ImageGrid in the AxesGrid toolkit
+
 2014-01-02 `triplot` now returns the artist it adds and support of line and
            marker kwargs has been improved. GBY
 
