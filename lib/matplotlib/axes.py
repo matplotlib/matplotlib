@@ -8494,10 +8494,11 @@ class Axes(martist.Artist):
                 if log:
                     y[y < minimum] = minimum
                 if orientation == 'horizontal':
-                    x, y = y, x
-
-                xvals.append(x.copy())
-                yvals.append(y.copy())
+                    xvals.append(y.copy())
+                    yvals.append(x.copy())
+                else:
+                    xvals.append(x.copy())
+                    yvals.append(y.copy())
 
             if fill:
                 # add patches in reverse order so that when stacking,
