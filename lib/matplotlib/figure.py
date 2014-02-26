@@ -623,7 +623,7 @@ class Figure(Artist):
         """
         set_size_inches(w,h, forward=False)
 
-        Set the figure size in inches
+        Set the figure size in inches (1in == 2.54cm)
 
         Usage::
 
@@ -636,7 +636,10 @@ class Figure(Artist):
 
         ACCEPTS: a w,h tuple with w,h in inches
 
-        .. seealso:: :func:`~matplotlib.Figure.get_size_inches`
+        See Also
+        --------
+
+        :func:`~matplotlib.Figure.get_size_inches`
         """
 
         forward = kwargs.get('forward', False)
@@ -658,14 +661,18 @@ class Figure(Artist):
 
     def get_size_inches(self):
         """
-        Returns the current size of the figure in inches as an numpy array.
+        Returns the current size of the figure in inches (1in == 2.54cm)
+        as an numpy array.
 
         Returns
         -------
         size : ndarray
            The size of the figure in inches
 
-        .. seealso:: :func:`~matplotlib.Figure.set_size_inches`
+        Also See
+        --------
+
+        :func:`~matplotlib.Figure.set_size_inches`
         """
         return np.array(self.bbox_inches.p1)
 
