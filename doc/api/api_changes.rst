@@ -139,6 +139,11 @@ original location:
   `fixed_dpi` parameter allows for overriding the `figure.dpi` setting
   instead of trying to deduce the intended behaviour from the file format.
 
+* Added support for horizontal/vertical axes padding to
+  `mpl_toolkits.axes_grid1.ImageGrid` --- argument ``axes_pad`` can now be
+  tuple-like if separate axis padding is required.
+  The original behavior is preserved.
+
 
 .. _changes_in_1_3:
 
