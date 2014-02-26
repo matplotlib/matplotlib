@@ -17,7 +17,7 @@ import matplotlib.ticker as ticker
 from matplotlib.gridspec import SubplotSpec
 
 from .axes_divider import Size, SubplotDivider, LocatableAxes, Divider
- 
+
 
 def _extend_axes_pad(value):
     # Check whether a list/tuple/array or scalar has been passed
@@ -330,7 +330,6 @@ class Grid(object):
         h = []
 
         h_ax_pos = []
-        #h_cb_pos = []
 
         for _ in self._column_refax:
             #if h: h.append(Size.Fixed(self._axes_pad))
@@ -345,7 +344,6 @@ class Grid(object):
         v = []
 
         v_ax_pos = []
-        v_cbI#_pos = []
         for _ in self._row_refax[::-1]:
             #if v: v.append(Size.Fixed(self._axes_pad))
             if v:
