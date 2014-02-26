@@ -790,6 +790,18 @@ class _CollectionWithSizes(Collection):
         """
         return self._sizes
 
+    def __unset_sizes(self):
+        if len(self._sizes) == 0:
+            return
+        scale = np.sqrt(self._sizes) * self.__dpi / 72.0
+        s = np.zeros((len(self._sizes),3,3))
+        s[:, 0, 0] = scale
+        s[:, 1, 1] = scale
+        s[:, 2, 2] = 1.0
+        for i in xrange(self._transforms.shape[0]):
+            isc = np.linalg.inv(s[i%len(self._sizes),:,:])
+            self._transforms[i,:,:] = np.dot(isc, self._transforms[i,:,:])
+        
     def set_sizes(self, sizes, dpi=72.0):
         """
         Set the sizes of each member of the collection.
@@ -835,7 +847,24 @@ class _CollectionWithAngles(Collection):
     def get_angles(self):
         return self._angles
 
+    def __unset_angles(self):
+        if len(self._angles) == 0:
+            return
+        rot = np.deg2rad(-self._angles)
+        rot_c = np.cos(rot)
+        rot_s = np.sin(rot)
+        r = np.zeros((len(self._angles), 3, 3))
+        r[:, 0, 0] = rot_c
+        r[:, 0, 1] = -rot_s
+        r[:, 1, 1] = rot_c
+        r[:, 1, 0] = rot_s
+        r[:, 2, 2] = 1.0
+        for i in xrange(self._transforms.shape[0]):
+            irt = np.linalg.inv(r[i%len(self._angles),:,:])
+            self._transforms[i,:,:] = np.dot(irt, self._transforms[i,:,:])
+        
     def set_angles(self, angles):
+        self.__unset_angles()
         if angles is None:
             self._angles = np.array([])
             self._transforms = np.empty((0, 3, 3))
