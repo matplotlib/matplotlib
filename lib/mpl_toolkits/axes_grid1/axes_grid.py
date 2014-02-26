@@ -813,7 +813,7 @@ if 0:
     F.subplots_adjust(left=0.15, right=0.9)
 
     grid = Grid(F, 111,  # similar to subplot(111)
-                nrows_ncols = (2, 2),
+                nrows_ncols=(2, 2),
                 direction="row",
                 axes_pad = 0.05,
                 add_all=True,
@@ -829,12 +829,12 @@ if 0:
     F.subplots_adjust(left=0.05, right=0.98)
 
     grid = ImageGrid(F, 131,  # similar to subplot(111)
-                    nrows_ncols=(2, 2),
-                    direction="row",
-                    axes_pad = 0.05,
-                    add_all=True,
-                    label_mode = "1",
-                    )
+                     nrows_ncols=(2, 2),
+                     direction="row",
+                     axes_pad = 0.05,
+                     add_all=True,
+                     label_mode = "1",
+                     )
 
     Z, extent = get_demo_image()
     plt.ioff()
@@ -848,14 +848,14 @@ if 0:
     plt.ion()
 
     grid = ImageGrid(F, 132,  # similar to subplot(111)
-                    nrows_ncols=(2, 2),
-                    direction="row",
-                    axes_pad = 0.0,
-                    add_all=True,
-                    share_all=True,
-                    label_mode = "1",
-                    cbar_mode="single",
-                    )
+                     nrows_ncols=(2, 2),
+                     direction="row",
+                     axes_pad = 0.0,
+                     add_all=True,
+                     share_all=True,
+                     label_mode = "1",
+                     cbar_mode="single",
+                     )
 
     Z, extent = get_demo_image()
     plt.ioff()
@@ -871,17 +871,17 @@ if 0:
     plt.ion()
 
     grid = ImageGrid(F, 133,  # similar to subplot(122)
-                    nrows_ncols=(2, 2),
-                    direction="row",
-                    axes_pad = 0.1,
-                    add_all=True,
-                    label_mode = "1",
-                    share_all = True,
-                    cbar_location="top",
-                    cbar_mode="each",
-                    cbar_size="7%",
-                    cbar_pad="2%",
-                    )
+                     nrows_ncols=(2, 2),
+                     direction="row",
+                     axes_pad = 0.1,
+                     add_all=True,
+                     label_mode = "1",
+                     share_all = True,
+                     cbar_location="top",
+                     cbar_mode="each",
+                     cbar_size="7%",
+                     cbar_pad="2%",
+                     )
     plt.ioff()
     for i in range(4):
         im = grid[i].imshow(Z, extent=extent, interpolation="nearest")
