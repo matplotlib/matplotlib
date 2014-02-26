@@ -40,15 +40,6 @@ from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
 
-# TODO: This should really only be set for the IPython notebook, but
-# I'm not sure how to detect that.
-try:
-    __IPYTHON__
-except:
-    _in_ipython = False
-else:
-    _in_ipython = True
-
 
 def new_figure_manager(num, *args, **kwargs):
     """
