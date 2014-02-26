@@ -778,6 +778,9 @@ class _CollectionWithSizes(Collection):
     """
     _factor = 1.0
 
+    def __init__(self):
+        self._sizes = np.array([])
+        
     def get_sizes(self):
         """
         Returns the sizes of the elements in the collection.  The
@@ -833,6 +836,9 @@ class _CollectionWithSizes(Collection):
                 s[:, 0, 0] = scale
                 s[:, 1, 1] = scale
                 s[:, 2, 2] = 1.0
+                if self._transforms.shape[0] < len(self._sizes):
+                    # resize transforms to feat at least the sizes length
+                    self._transforms = np.resize(self._transforms,(len(self._sizes),3,3))
                 for i in xrange(self._transforms.shape[0]):
                     self._transforms[i,:,:] = np.dot(s[i%len(self._sizes),:,:], self._transforms[i,:,:])
 
@@ -844,6 +850,9 @@ class _CollectionWithAngles(Collection):
     """
     Base class for collections that have an array of angles.
     """
+    def __init__(self):
+        self._angles = np.array([])
+
     def get_angles(self):
         return self._angles
 
@@ -889,6 +898,9 @@ class _CollectionWithAngles(Collection):
                 r[:, 1, 1] = rot_c
                 r[:, 1, 0] = rot_s
                 r[:, 2, 2] = 1.0
+                if self._transforms.shape[0] < len(self._angles):
+                    # resize transforms to feat at least the angles length
+                    self._transforms = np.resize(self._transforms,(len(self._angles),3,3))
                 for i in xrange(self._transforms.shape[0]):
                     self._transforms[i,:,:] = np.dot(r[i%len(self._angles),:,:], self._transforms[i,:,:])
 
