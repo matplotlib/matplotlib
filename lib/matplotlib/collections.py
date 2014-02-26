@@ -778,7 +778,8 @@ class _CollectionWithSizes(Collection):
     """
     _factor = 1.0
 
-    def __init__(self):
+    def __init__(self, *arg, **kw):
+        super(_CollectionWithSizes, self).__init__(*arg, **kw)
         self._sizes = np.array([])
         
     def get_sizes(self):
@@ -850,7 +851,8 @@ class _CollectionWithAngles(Collection):
     """
     Base class for collections that have an array of angles.
     """
-    def __init__(self):
+    def __init__(self, *arg, **kw):
+        super(_CollectionWithAngles, self).__init__(*arg, **kw)
         self._angles = np.array([])
 
     def get_angles(self):
@@ -920,8 +922,7 @@ class PathCollection(_CollectionWithSizes, _CollectionWithAngles):
 
         %(Collection)s
         """
-
-        Collection.__init__(self, **kwargs)
+        super(PathCollection, self).__init__(**kwargs)
         self.set_paths(paths)
         self.set_sizes(sizes)
         self.stale = True
