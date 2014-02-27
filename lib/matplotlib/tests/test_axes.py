@@ -1473,6 +1473,16 @@ def test_hist_step():
     ax.set_xlim(-1, 5)
 
 
+@image_comparison(baseline_images=['hist_step_horiz'], extensions=['png'])
+def test_hist_step_horiz():
+    # make some data
+    d1 = np.linspace(0, 10, 50)
+    d2 = np.linspace(1, 3, 20)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="step", orientation="horizontal")
+
+
 @image_comparison(baseline_images=['hist_stacked_weights'])
 def test_hist_stacked_weighted():
     # make some data
