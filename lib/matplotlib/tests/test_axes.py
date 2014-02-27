@@ -58,20 +58,6 @@ def test_formatter_ticker():
     ax.set_xlabel( "x-label 005" )
     ax.autoscale_view()
 
-@cleanup
-def test_add_collection():
-    # Test if data limits are unchanged by adding an empty collection.
-    # Github issue #1490, pull #1497.
-    fig = matplotlib.figure.Figure()
-    fig2 = matplotlib.figure.Figure()
-    ax = fig.add_subplot(111)
-    ax2 = fig2.add_subplot(111)
-    coll = ax2.scatter([0, 1], [0, 1])
-    ax.add_collection(coll)
-    bounds = ax.dataLim.bounds
-    coll = ax2.scatter([], [])
-    ax.add_collection(coll)
-    assert ax.dataLim.bounds == bounds
 
 @image_comparison(baseline_images=["formatter_large_small"])
 def test_formatter_large_small():
@@ -80,6 +66,7 @@ def test_formatter_large_small():
     x = [0.500000001, 0.500000002]
     y = [1e64, 1.1e64]
     ax.plot(x, y)
+
 
 @image_comparison(baseline_images=["twin_axis_locaters_formatters"])
 def test_twin_axis_locaters_formatters():
