@@ -35,7 +35,7 @@ New plotting features
 Power-law normalization
 ```````````````````````
 Ben Gamari added a power-law normalization method,
-:class:`~matplotlib.colors.PowerNorm`. This class maps a range of 
+:class:`~matplotlib.colors.PowerNorm`. This class maps a range of
 values to the interval [0,1] with power-law scaling with the exponent
 provided by the constructor's `gamma` argument. Power law normalization
 can be useful for, e.g., emphasizing small populations in a histogram.
@@ -152,6 +152,15 @@ Fixed the direction of errorbar upper/lower limits
 Larry Bradley fixed the :func:`~matplotlib.pyplot.errorbar` method such
 that the upper and lower limits (*lolims*, *uplims*, *xlolims*,
 *xuplims*) now point in the correct direction.
+
+More `markevery` options to show only a subset of markers
+`````````````````````````````````````````````````````````
+Rohan Walker extended the `markevery` property in
+:class:`~matplotlib.lines.Line2D`.  You can now specify a subset of markers to
+show with an int, slice object, numpy fancy indexing, or float. Using a float
+shows markers at approximately equal display-coordinate-distances along the
+line.
+
 
 Date handling
 -------------
