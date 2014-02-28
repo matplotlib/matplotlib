@@ -5303,7 +5303,7 @@ class Axes(_AxesBase):
             (instead of 1).  If `normed` is True, the weights are normalized,
             so that the integral of the density over the range remains 1.
 
-        cumulative : boolean, optional, default : True
+        cumulative : boolean, optional, default : False
             If `True`, then a histogram is computed where each bin gives the
             counts in that bin plus all bins for smaller values. The last bin
             gives the total number of datapoints.  If `normed` is also `True`
