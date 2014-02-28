@@ -1090,6 +1090,7 @@ class Tri(SetupPackage):
 
 class Six(SetupPackage):
     name = "six"
+    min_version = "1.5"
 
     def check(self):
         try:
@@ -1098,10 +1099,15 @@ class Six(SetupPackage):
             return (
                 "six was not found.")
 
+        if not is_min_version(six.__version__, self.min_version):
+            raise CheckFailed(
+                "Requires six %s or later.  Found %s." %
+                (self.min_version, version))
+
         return "using six version %s" % six.__version__
 
     def get_install_requires(self):
-        return ['six']
+        return ['six>={0}'.format(self.min_version)]
 
 
 class Dateutil(SetupPackage):
