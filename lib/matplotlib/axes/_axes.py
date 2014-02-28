@@ -2340,7 +2340,7 @@ class Axes(_AxesBase):
 
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False,
-            labeldistance=1.1, startangle=None, radius=None):
+            labeldistance=1.1, startangle=None, radius=None, counterclock=True):
         r"""
         Plot a pie chart.
 
@@ -2393,6 +2393,9 @@ class Axes(_AxesBase):
 
           *radius*: [ *None* | scalar ]
           The radius of the pie, if *radius* is *None* it will be set to 1.
+
+          *counterclock*: [ *False* | *True* ]
+            Specify fractions direction, clockwise or counterclockwise. 
 
         The pie chart will probably look best if the figure and axes are
         square, or the Axes aspect is equal.  e.g.::
@@ -2453,12 +2456,12 @@ class Axes(_AxesBase):
         i = 0
         for frac, label, expl in cbook.safezip(x, labels, explode):
             x, y = center
-            theta2 = theta1 + frac
+            theta2 = (theta1 + frac) if counterclock else (theta1 - frac)
             thetam = 2 * math.pi * 0.5 * (theta1 + theta2)
             x += expl * math.cos(thetam)
             y += expl * math.sin(thetam)
 
-            w = mpatches.Wedge((x, y), radius, 360. * theta1, 360. * theta2,
+            w = mpatches.Wedge((x, y), radius, 360. * min(theta1, theta2), 360. * max(theta1, theta2),
                                facecolor=colors[i % len(colors)])
             slices.append(w)
             self.add_patch(w)
