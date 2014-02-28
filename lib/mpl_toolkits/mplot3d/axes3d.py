@@ -1827,12 +1827,17 @@ class Axes3D(Axes):
         lightsource = kwargs.pop('lightsource', None)
 
         tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
-        z = np.asarray(args[0])
+        if 'Z' in kwargs:
+            z = np.asarray(kwargs.pop('Z'))
+        else:
+            z = np.asarray(args[0])
+            # We do this so Z doesn't get passed as an arg to PolyCollection
+            args = args[1:]
 
         triangles = tri.get_masked_triangles()
-        xt = tri.x[triangles][...,np.newaxis]
-        yt = tri.y[triangles][...,np.newaxis]
-        zt = np.array(z)[triangles][...,np.newaxis]
+        xt = tri.x[triangles][..., np.newaxis]
+        yt = tri.y[triangles][..., np.newaxis]
+        zt = z[triangles][..., np.newaxis]
 
         verts = np.concatenate((xt, yt, zt), axis=2)
 
@@ -2024,10 +2029,12 @@ class Axes3D(Axes):
                 *args, **kwargs)
         X = tri.x
         Y = tri.y
-        Z = args[0]
-
-        # We do this so Z doesn't get passed as an arg to Axes.tricontour
-        args = args[1:]
+        if 'Z' in kwargs:
+            Z = kwargs.pop('Z')
+        else:
+            Z = args[0]
+            # We do this so Z doesn't get passed as an arg to Axes.tricontour
+            args = args[1:]
 
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
         tri = Triangulation(jX, jY, tri.triangles, tri.mask)
@@ -2109,10 +2116,12 @@ class Axes3D(Axes):
                 *args, **kwargs)
         X = tri.x
         Y = tri.y
-        Z = args[0]
-
-        # We do this so Z doesn't get passed as an arg to Axes.tricontour
-        args = args[1:]
+        if 'Z' in kwargs:
+            Z = kwargs.pop('Z')
+        else:
+            Z = args[0]
+            # We do this so Z doesn't get passed as an arg to Axes.tricontourf
+            args = args[1:]
 
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
         tri = Triangulation(jX, jY, tri.triangles, tri.mask)
