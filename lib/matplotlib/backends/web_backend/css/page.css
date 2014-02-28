@@ -75,3 +75,8 @@ span#login_widget {
     -webkit-box-sizing: border-box;
 }
 
+#figure-div {
+    display: inline-block;
+    margin: 10px;
+}
+
