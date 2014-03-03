@@ -195,6 +195,22 @@ def test_gridspec_make_colorbar():
     plt.subplots_adjust(top=0.95, right=0.95, bottom=0.2, hspace=0.25)
 
 
+@image_comparison(baseline_images=['colorbar_single_scatter'],
+                  extensions=['png'], remove_text=True,
+                  savefig_kwarg={'dpi': 40})
+def test_colorbar_single_scatter():
+    # Issue #2642: if a path collection has only one entry,
+    # the norm scaling within the colorbar must ensure a
+    # finite range, otherwise a zero denominator will occur in _locate.
+    plt.figure()
+    x = np.arange(4)
+    y = x.copy()
+    z = np.ma.masked_greater(np.arange(50, 54), 50)
+    cmap = plt.get_cmap('jet', 16)
+    cs = plt.scatter(x, y, z, c=z, cmap=cmap)
+    plt.colorbar(cs)
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
