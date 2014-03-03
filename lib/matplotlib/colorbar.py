@@ -551,8 +551,8 @@ class ColorbarBase(cm.ScalarMappable):
 
     def _ticker(self):
         '''
-        Return two sequences: ticks (colorbar data locations)
-        and ticklabels (strings).
+        Return the sequence of ticks (colorbar data locations),
+        ticklabels (strings), and the corresponding offset string.
         '''
         locator = self.locator
         formatter = self.formatter
@@ -653,6 +653,9 @@ class ColorbarBase(cm.ScalarMappable):
             self._values = v
             return
         else:
+            self.norm.vmin, self.norm.vmax = mtrans.nonsingular(self.norm.vmin,
+                                                                self.norm.vmax,
+                                                                expander=0.1)
             if not self.norm.scaled():
                 self.norm.vmin = 0
                 self.norm.vmax = 1
@@ -817,24 +820,21 @@ class ColorbarBase(cm.ScalarMappable):
             # as to make the interpolation more accurate.
             b = self.norm(self._boundaries, clip=False).filled()
             xn = self.norm(x, clip=False).filled()
+
         # The rest is linear interpolation with extrapolation at ends.
-        y = self._y
-        N = len(b)
         ii = np.searchsorted(b, xn)
         i0 = ii - 1
-        itop = (ii == N)
+        itop = (ii == len(b))
         ibot = (ii == 0)
         i0[itop] -= 1
         ii[itop] -= 1
         i0[ibot] += 1
         ii[ibot] += 1
 
-        #db = b[ii] - b[i0]
         db = np.take(b, ii) - np.take(b, i0)
-        #dy = y[ii] - y[i0]
+        y = self._y
         dy = np.take(y, ii) - np.take(y, i0)
         z = np.take(y, i0) + (xn - np.take(b, i0)) * dy / db
-
         return z
 
     def set_alpha(self, alpha):
