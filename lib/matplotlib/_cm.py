@@ -1888,6 +1888,36 @@ _CMRmap_data = {'red':     ((0.000, 0.00, 0.00),
                            (0.875, 0.50, 0.50),
                            (1.000, 1.00, 1.00))}
 
+
+# A color-blind-friendly heatmap from Wistia:
+#   http://wistia.com/blog/heatmaps-for-colorblindness
+#
+# >>> import matplotlib.colors as c
+# >>> colors = np.array([[228,255,122], [254,232,25], [250,190,6],
+# ...                    [255,159,0], [252,127,0]], dtype=float) / 255
+# ...
+# >>> cm = col.LinearSegmentedColormap.from_list('wistia', colors)
+# >>> _wistia_data = cm._segmentdata
+#
+_wistia_data = {
+    'red': [(0.0, 0.89411764705882357, 0.89411764705882357),
+            (0.25, 0.99607843137254903, 0.99607843137254903),
+            (0.5, 0.98039215686274506, 0.98039215686274506),
+            (0.75, 1.0, 1.0),
+            (1.0, 0.9882352941176471, 0.9882352941176471)],
+    'green': [(0.0, 1.0, 1.0),
+              (0.25, 0.90980392156862744, 0.90980392156862744),
+              (0.5, 0.74509803921568629, 0.74509803921568629),
+              (0.75, 0.62352941176470589, 0.62352941176470589),
+              (1.0, 0.49803921568627452, 0.49803921568627452)],
+    'blue': [(0.0, 0.47843137254901963, 0.47843137254901963),
+             (0.25, 0.098039215686274508, 0.098039215686274508),
+             (0.5, 0.023529411764705882, 0.023529411764705882),
+             (0.75, 0.0, 0.0),
+             (1.0, 0.0, 0.0)]
+}
+
+
 datad = {
     'afmhot': _afmhot_data,
     'autumn': _autumn_data,
@@ -1963,3 +1993,4 @@ datad['gist_rainbow'] = _gist_rainbow_data
 datad['gist_stern'] = _gist_stern_data
 datad['gist_yarg'] = _gist_yarg_data
 datad['coolwarm'] = _coolwarm_data
+datad['wistia'] = _wistia_data
