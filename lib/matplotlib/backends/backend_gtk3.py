@@ -200,6 +200,7 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         self.connect('motion_notify_event',  self.motion_notify_event)
         self.connect('leave_notify_event',   self.leave_notify_event)
         self.connect('enter_notify_event',   self.enter_notify_event)
+        self.connect('size_allocate',        self.size_allocate)
 
         self.set_events(self.__class__.event_mask)
 
@@ -274,6 +275,17 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
 
     def enter_notify_event(self, widget, event):
         FigureCanvasBase.enter_notify_event(self, event)
+
+    def size_allocate(self, widget, allocation):
+        if _debug:
+            print("FigureCanvasGTK3.%s" % fn_name())
+            print("size_allocate (%d x %d)" % (allocation.width, allocation.height))
+        dpival = self.figure.dpi
+        winch = allocation.width / dpival
+        hinch = allocation.height / dpival
+        self.figure.set_size_inches(winch, hinch)
+        FigureCanvasBase.resize_event(self)
+        self.draw_idle()
 
     def _get_key(self, event):
         if event.keyval in self.keyvald:
