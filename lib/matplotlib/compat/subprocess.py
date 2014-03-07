@@ -18,7 +18,7 @@ from __future__ import print_function
 
 import subprocess
 
-__all__ = ['Popen', 'PIPE', 'STDOUT', 'check_output']
+__all__ = ['Popen', 'PIPE', 'STDOUT', 'check_output', 'CalledProcessError']
 
 
 if hasattr(subprocess, 'Popen'):
