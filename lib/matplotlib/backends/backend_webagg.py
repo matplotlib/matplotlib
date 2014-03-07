@@ -369,16 +369,23 @@ class WebAggApplication(tornado.web.Application):
         if cls.started:
             return
 
-        if not tornado.ioloop.IOLoop.instance().running():
-            print("Press Ctrl+C to stop server")
-            try:
-                tornado.ioloop.IOLoop.instance().start()
-            except KeyboardInterrupt:
-                print("Server stopped")
-        else:
-            print("Server is running in an existing Tornado IOLoop")
-
+        # Set the flag to True *before* blocking on IOLoop.instance().start()
         cls.started = True
+
+        """
+        IOLoop.running() was removed as of Tornado 2.4; see for example
+        https://groups.google.com/forum/#!topic/python-tornado/QLMzkpQBGOY
+        Thus there is no correct way to check if the loop has already been
+        launched. We may end up with two concurrently running loops in that
+        unlucky case with all the expected consequences.
+        """
+        print("Press Ctrl+C to stop server")
+        try:
+            tornado.ioloop.IOLoop.instance().start()
+        except KeyboardInterrupt:
+            print("Server stopped")
+        finally:
+            cls.started = False
 
 
 def ipython_inline_display(figure):
