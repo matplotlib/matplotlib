@@ -126,9 +126,9 @@ def compare_versions(a, b):
     else:
         return False
 
-if not compare_versions(six.__version__, '1.5'):
+if not compare_versions(six.__version__, '1.3'):
     raise ImportError(
-        'six 1.5 or later is required; you have %s' % (
+        'six 1.3 or later is required; you have %s' % (
             six.__version__))
 
 try:
