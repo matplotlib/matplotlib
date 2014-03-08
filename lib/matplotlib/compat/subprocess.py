@@ -18,7 +18,7 @@ from __future__ import print_function
 
 import subprocess
 
-__all__ = ['Popen', 'PIPE', 'STDOUT', 'check_output']
+__all__ = ['Popen', 'PIPE', 'STDOUT', 'check_output', 'CalledProcessError']
 
 
 if hasattr(subprocess, 'Popen'):
@@ -26,6 +26,7 @@ if hasattr(subprocess, 'Popen'):
     # Assume that it also has the other constants.
     PIPE = subprocess.PIPE
     STDOUT = subprocess.STDOUT
+    CalledProcessError = subprocess.CalledProcessError
 else:
     # In restricted environments (such as Google App Engine), these are
     # non-existent. Replace them with dummy versions that always raise OSError.
@@ -33,6 +34,9 @@ else:
         raise OSError("subprocess.Popen is not supported")
     PIPE = -1
     STDOUT = -2
+    # There is no need to catch CalledProcessError. These stubs cannot raise
+    # it. None in an except clause will simply not match any exceptions.
+    CalledProcessError = None
 
 
 def _check_output(*popenargs, **kwargs):
@@ -75,5 +79,3 @@ if hasattr(subprocess, 'check_output'):
     check_output = subprocess.check_output
 else:
     check_output = _check_output
-
-CalledProcessError = subprocess.CalledProcessError
