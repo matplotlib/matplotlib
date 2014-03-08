@@ -151,7 +151,7 @@ class InvertedPolarTransform(Transform):
 
         theta -= theta_offset
         theta *= theta_direction
-        theta = theta % (2 * np.pi)
+        theta %= 2 * np.pi
 
         r += rmin
 
