@@ -153,10 +153,14 @@ def test_complete():
     plt.subplot(3, 3, 5)
     plt.pcolor(data)
 
-    plt.subplot(3, 3, 6)
+    ax = plt.subplot(3, 3, 6)
+    ax.set_xlim(0, 7)
+    ax.set_ylim(0, 9)
     plt.streamplot(x, y, u, v)
 
-    plt.subplot(3, 3, 7)
+    ax = plt.subplot(3, 3, 7)
+    ax.set_xlim(0, 7)
+    ax.set_ylim(0, 9)
     plt.quiver(x, y, u, v)
 
     plt.subplot(3, 3, 8)

@@ -178,9 +178,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         lc.set_cmap(cmap)
         lc.set_norm(norm)
     axes.add_collection(lc)
-
-    axes.update_datalim(((x.min(), y.min()), (x.max(), y.max())))
-    axes.autoscale_view(tight=True)
+    axes.autoscale_view()
 
     ac = matplotlib.collections.PatchCollection(arrows)
     stream_container = StreamplotSet(lc, ac)

@@ -4049,8 +4049,8 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
         q = mquiver.Quiver(self, *args, **kw)
-        self.add_collection(q, False)
-        self.update_datalim(q.XY)
+
+        self.add_collection(q, True)
         self.autoscale_view()
         return q
     quiver.__doc__ = mquiver.Quiver.quiver_doc
@@ -4091,7 +4091,6 @@ class Axes(_AxesBase):
             self.cla()
         b = mquiver.Barbs(self, *args, **kw)
         self.add_collection(b)
-        self.update_datalim(b.get_offsets())
         self.autoscale_view()
         return b
 
