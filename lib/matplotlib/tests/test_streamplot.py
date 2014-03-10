@@ -57,7 +57,7 @@ def test_streamplot_limits():
     # this is because the entire path is taken into account when updating the
     # datalim.
     assert_array_almost_equal(ax.dataLim.bounds, (20, 30, 15, 6),
-                              decimal=2)
+                              decimal=1)
 
 
 if __name__=='__main__':
