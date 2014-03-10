@@ -121,6 +121,17 @@ be a tuple if separate horizontal/vertical padding is needed.
 This is supposed to be very helpful when you have a labelled legend next to
 every subplot and you need to make some space for legend's labels.
 
+Support for skewed transformations
+``````````````````````````````````
+The :class:`~matplotlib.transforms.Affine2D` gained additional methods
+`skew` and `skew_deg` to create skewed transformations. Additionally,
+matplotlib internals were cleaned up to support using such transforms in
+:class:`~matplotlib.Axes`. This transform is important for some plot types,
+specifically the Skew-T used in meteorology.
+
+.. plot:: mpl_examples/api/skewt.py
+
+
 Date handling
 -------------
 

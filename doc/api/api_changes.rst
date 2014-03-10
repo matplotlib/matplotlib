@@ -144,6 +144,9 @@ original location:
   tuple-like if separate axis padding is required.
   The original behavior is preserved.
 
+* Added support for skewed transforms to `matplotlib.transforms.Affine2D`,
+  which can be created using the `skew` and `skew_deg` methods.
+
 
 .. _changes_in_1_3:
 
