@@ -11,6 +11,7 @@ import re
 import subprocess
 import sys
 import warnings
+import platform
 from textwrap import fill
 
 
@@ -857,6 +858,9 @@ class CXX(SetupPackage):
             ext.libraries.append('stdc++')
             ext.libraries.append('m')
 
+        # OSX 10.9 requires a special flag
+        if sys.platform == "darwin" and re.match("10\.9.*$", platform.mac_ver()[0]):
+            ext.extra_compile_args.append("-mmacosx-version-min=10.9")
 
 class LibAgg(SetupPackage):
     name = 'libagg'
