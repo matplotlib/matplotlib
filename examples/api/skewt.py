@@ -67,14 +67,6 @@ class SkewXAxis(maxis.XAxis):
 # upper X-axis and draw the spine there. It also provides this range
 # to the X-axis artist for ticking and gridlines
 class SkewSpine(mspines.Spine):
-    def __init__(self, axes, spine_type):
-        if spine_type == 'bottom':
-            loc = 0.0
-        else:
-            loc = 1.0
-        mspines.Spine.__init__(self, axes, spine_type,
-                mpath.Path([(13, loc), (13, loc)]))
-
     def _adjust_location(self):
         trans = self.axes.transDataToAxes.inverted()
         if self.spine_type == 'top':
@@ -109,7 +101,7 @@ class SkewXAxes(Axes):
         self.spines['right'].register_axis(self.yaxis)
 
     def _gen_axes_spines(self):
-        spines = {'top':SkewSpine(self, 'top'),
+        spines = {'top':SkewSpine.linear_spine(self, 'top'),
                   'bottom':mspines.Spine.linear_spine(self, 'bottom'),
                   'left':mspines.Spine.linear_spine(self, 'left'),
                   'right':mspines.Spine.linear_spine(self, 'right')}
