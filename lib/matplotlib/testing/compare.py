@@ -335,7 +335,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
     save_diff_image(expected, actual, diff_image)
 
     results = dict(rms=rms, expected=str(expected),
-                   actual=str(actual), diff=str(diff_image))
+                   actual=str(actual), diff=str(diff_image), tol=tol)
 
     if not in_decorator:
         # Then the results should be a string suitable for stdout.
