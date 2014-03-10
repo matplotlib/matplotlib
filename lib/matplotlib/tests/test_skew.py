@@ -4,6 +4,7 @@ Testing that skewed axes properly work
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import itertools
 import six
 
 from nose.tools import assert_true
@@ -16,7 +17,9 @@ import matplotlib.transforms as transforms
 import matplotlib.axis as maxis
 import matplotlib.spines as mspines
 import matplotlib.path as mpath
+import matplotlib.patches as mpatch
 from matplotlib.projections import register_projection
+
 
 # The sole purpose of this class is to look at the upper, lower, or total
 # interval as appropriate and see what parts of the tick to draw, if any.
@@ -160,6 +163,27 @@ def test_set_line_coll_dash_image():
     # An example of a slanted line at constant X
     l = ax.axvline(0, color='b')
 
+@image_comparison(baseline_images=['skew_rects'], remove_text=True)
+def test_skew_rectange():
+
+    fix, axes = plt.subplots(5, 5, sharex=True, sharey=True, figsize=(16, 12))
+    axes = axes.flat
+
+    rotations = list(itertools.product([-3, -1, 0, 1, 3], repeat=2))
+
+    axes[0].set_xlim([-4, 4])
+    axes[0].set_ylim([-4, 4])
+    axes[0].set_aspect('equal')
+
+    for ax, (xrots, yrots) in zip(axes, rotations):
+        xdeg, ydeg = 45 * xrots, 45 * yrots
+        t = transforms.Affine2D().skew_deg(xdeg, ydeg)
+
+        ax.set_title('Skew of {0} in X and {1} in Y'.format(xdeg, ydeg))
+        ax.add_patch(mpatch.Rectangle([-1, -1], 2, 2, transform=t + ax.transData,
+                                      alpha=0.5, facecolor='coral'))
+
+    plt.subplots_adjust(wspace=0, left=0, right=1, bottom=0)
 
 if __name__ == '__main__':
     import nose
