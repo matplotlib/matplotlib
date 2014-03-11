@@ -25,7 +25,8 @@ from matplotlib.projections import register_projection
 # interval as appropriate and see what parts of the tick to draw, if any.
 class SkewXTick(maxis.XTick):
     def draw(self, renderer):
-        if not self.get_visible(): return
+        if not self.get_visible():
+            return
         renderer.open_group(self.__name__)
 
         lower_interval = self.axes.xaxis.lower_interval
@@ -78,7 +79,7 @@ class SkewSpine(mspines.Spine):
         else:
             loc = 1.0
         mspines.Spine.__init__(self, axes, spine_type,
-                mpath.Path([(13, loc), (13, loc)]))
+                               mpath.Path([(13, loc), (13, loc)]))
 
     def _adjust_location(self):
         trans = self.axes.transDataToAxes.inverted()
@@ -89,7 +90,7 @@ class SkewSpine(mspines.Spine):
         left = trans.transform_point((0.0, yloc))[0]
         right = trans.transform_point((1.0, yloc))[0]
 
-        pts  = self._path.vertices
+        pts = self._path.vertices
         pts[0, 0] = left
         pts[1, 0] = right
         self.axis.upper_interval = (left, right)
@@ -114,10 +115,10 @@ class SkewXAxes(Axes):
         self.spines['right'].register_axis(self.yaxis)
 
     def _gen_axes_spines(self):
-        spines = {'top':SkewSpine(self, 'top'),
-                  'bottom':mspines.Spine.linear_spine(self, 'bottom'),
-                  'left':mspines.Spine.linear_spine(self, 'left'),
-                  'right':mspines.Spine.linear_spine(self, 'right')}
+        spines = {'top': SkewSpine(self, 'top'),
+                  'bottom': mspines.Spine.linear_spine(self, 'bottom'),
+                  'left': mspines.Spine.linear_spine(self, 'left'),
+                  'right': mspines.Spine.linear_spine(self, 'right')}
         return spines
 
     def _set_lim_and_transforms(self):
@@ -135,8 +136,9 @@ class SkewXAxes(Axes):
         # coordinates thus performing the transform around the proper origin
         # We keep the pre-transAxes transform around for other users, like the
         # spines for finding bounds
-        self.transDataToAxes = self.transScale + (self.transLimits +
-                transforms.Affine2D().skew_deg(rot, 0))
+        self.transDataToAxes = (self.transScale +
+                                (self.transLimits +
+                                 transforms.Affine2D().skew_deg(rot, 0)))
 
         # Create the full transform from Data to Pixels
         self.transData = self.transDataToAxes + self.transAxes
@@ -144,13 +146,14 @@ class SkewXAxes(Axes):
         # Blended transforms like this need to have the skewing applied using
         # both axes, in axes coords like before.
         self._xaxis_transform = (transforms.blended_transform_factory(
-                    self.transScale + self.transLimits,
-                    transforms.IdentityTransform()) +
-                transforms.Affine2D().skew_deg(rot, 0)) + self.transAxes
+            self.transScale + self.transLimits,
+            transforms.IdentityTransform()) +
+            transforms.Affine2D().skew_deg(rot, 0)) + self.transAxes
 
 # Now register the projection with matplotlib so the user can select
 # it.
 register_projection(SkewXAxes)
+
 
 @image_comparison(baseline_images=['skew_axes'], remove_text=True)
 def test_set_line_coll_dash_image():
@@ -162,6 +165,7 @@ def test_set_line_coll_dash_image():
 
     # An example of a slanted line at constant X
     l = ax.axvline(0, color='b')
+
 
 @image_comparison(baseline_images=['skew_rects'], remove_text=True)
 def test_skew_rectange():
@@ -180,7 +184,8 @@ def test_skew_rectange():
         t = transforms.Affine2D().skew_deg(xdeg, ydeg)
 
         ax.set_title('Skew of {0} in X and {1} in Y'.format(xdeg, ydeg))
-        ax.add_patch(mpatch.Rectangle([-1, -1], 2, 2, transform=t + ax.transData,
+        ax.add_patch(mpatch.Rectangle([-1, -1], 2, 2,
+                                      transform=t + ax.transData,
                                       alpha=0.5, facecolor='coral'))
 
     plt.subplots_adjust(wspace=0, left=0, right=1, bottom=0)
