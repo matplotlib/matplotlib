@@ -1619,6 +1619,8 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
                 translation.x = - (origin.x - translation.x);
                 translation.y = - (origin.y - translation.y);
             }
+            /* in case of missing values, translation may contain NaN's */
+            if (!isfinite(translation.x) || !isfinite(translation.y)) continue;
             CGContextTranslateCTM(cr, translation.x, translation.y);
         }
 
