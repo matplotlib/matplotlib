@@ -1488,7 +1488,7 @@ class _AnnotationBase(object):
 
         s_ = s.split()
         if len(s_) != 2:
-            raise ValueError("%s is not a recognized coodinate" % s)
+            raise ValueError("%s is not a recognized coordinate" % s)
 
         bbox0, xy0 = None, None
 
@@ -1525,12 +1525,12 @@ class _AnnotationBase(object):
                 w, h = bbox0.bounds[2:]
                 tr = Affine2D().scale(w, h)
             else:
-                raise ValueError("%s is not a recognized coodinate" % s)
+                raise ValueError("%s is not a recognized coordinate" % s)
 
             return tr.translate(ref_x, ref_y)
 
         else:
-            raise ValueError("%s is not a recognized coodinate" % s)
+            raise ValueError("%s is not a recognized coordinate" % s)
 
 
     def _get_ref_xy(self, renderer):
