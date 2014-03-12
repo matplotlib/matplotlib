@@ -1773,7 +1773,7 @@ class Annotation(Text, _AnnotationBase):
         :ref:`plotting-guide-annotation` for more details.
 
 
-        The *annotation_clip* attribute contols the visibility of the
+        The *annotation_clip* attribute controls the visibility of the
         annotation when it goes outside the axes area. If True, the
         annotation will only be drawn when the *xy* is inside the
         axes. If False, the annotation will always be drawn regardless
