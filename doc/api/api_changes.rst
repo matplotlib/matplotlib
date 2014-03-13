@@ -144,6 +144,8 @@ original location:
   tuple-like if separate axis padding is required.
   The original behavior is preserved.
 
+* Added clockwise parameter to control sectors direction in `axes.pie`
+
 
 .. _changes_in_1_3:
 
