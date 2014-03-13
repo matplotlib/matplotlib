@@ -1,3 +1,5 @@
+2014-03-13 Add parameter 'clockwise' to function pie, True by default.
+
 2014-27-02  Implemented separate horizontal/vertical axes padding to the
            ImageGrid in the AxesGrid toolkit
 
