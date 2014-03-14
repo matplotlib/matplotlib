@@ -2168,6 +2168,7 @@ RendererAgg::write_rgba(const Py::Tuple& args)
     }
     else
     {
+        PyErr_Clear();
         PyObject* write_method = PyObject_GetAttrString(py_fileobj.ptr(),
                                                         "write");
         if (!(write_method && PyCallable_Check(write_method)))
