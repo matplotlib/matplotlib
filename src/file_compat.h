@@ -101,8 +101,8 @@ mpl_PyFile_Dup(PyObject *file, char *mode, mpl_off_t *orig_pos)
     /* Record the original raw file handle position */
     *orig_pos = npy_ftell(handle);
     if (*orig_pos == -1) {
-        PyErr_SetString(PyExc_IOError, "obtaining file position failed");
-        return NULL;
+        // handle is a stream, so we don't have to worry about this
+        return handle;
     }
 
     /* Seek raw handle to the Python-side position */
@@ -145,22 +145,19 @@ mpl_PyFile_DupClose(PyObject *file, FILE* handle, mpl_off_t orig_pos)
     if (fd == -1) {
         return -1;
     }
-    if (npy_lseek(fd, orig_pos, SEEK_SET) == -1) {
-        PyErr_SetString(PyExc_IOError, "seeking file failed");
-        return -1;
-    }
+    if (npy_lseek(fd, orig_pos, SEEK_SET) != -1) {
+        if (position == -1) {
+            PyErr_SetString(PyExc_IOError, "obtaining file position failed");
+            return -1;
+        }
 
-    if (position == -1) {
-        PyErr_SetString(PyExc_IOError, "obtaining file position failed");
-        return -1;
+        /* Seek Python-side handle to the FILE* handle position */
+        ret = PyObject_CallMethod(file, "seek", MPL_OFF_T_PYFMT "i", position, 0);
+        if (ret == NULL) {
+            return -1;
+        }
+        Py_DECREF(ret);
     }
-
-    /* Seek Python-side handle to the FILE* handle position */
-    ret = PyObject_CallMethod(file, "seek", MPL_OFF_T_PYFMT "i", position, 0);
-    if (ret == NULL) {
-        return -1;
-    }
-    Py_DECREF(ret);
     return 0;
 }
 
