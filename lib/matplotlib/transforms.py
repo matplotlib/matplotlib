@@ -517,14 +517,17 @@ class BboxBase(TransformNode):
         Return a new :class:`Bbox` object, statically transformed by
         the given transform.
         """
-        return Bbox(transform.transform(self.get_points()))
+        pts = self.get_points()
+        ll, ul, lr = transform.transform(np.array([pts[0],
+            [pts[0, 0], pts[1, 1]], [pts[1, 0], pts[0, 1]]]))
+        return Bbox([ll, [lr[0], ul[1]]])
 
     def inverse_transformed(self, transform):
         """
         Return a new :class:`Bbox` object, statically transformed by
         the inverse of the given transform.
         """
-        return Bbox(transform.inverted().transform(self.get_points()))
+        return self.transformed(transform.inverted())
 
     coefs = {'C':  (0.5, 0.5),
              'SW': (0, 0),
@@ -1872,6 +1875,39 @@ class Affine2D(Affine2DBase):
         self._mtx = np.dot(scale_mtx, self._mtx)
         self.invalidate()
         return self
+
+    def skew(self, xShear, yShear):
+        """
+        Adds a skew in place.
+
+        *xShear* and *yShear* are the shear angles along the *x*- and
+        *y*-axes, respectively, in radians.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        rotX = np.tan(xShear)
+        rotY = np.tan(yShear)
+        skew_mtx = np.array(
+                [[1.0, rotX, 0.0], [rotY, 1.0, 0.0], [0.0, 0.0, 1.0]],
+                np.float_)
+        self._mtx = np.dot(skew_mtx, self._mtx)
+        self.invalidate()
+        return self
+
+    def skew_deg(self, xShear, yShear):
+        """
+        Adds a skew in place.
+
+        *xShear* and *yShear* are the shear angles along the *x*- and
+        *y*-axes, respectively, in degrees.
+
+        Returns *self*, so this method can easily be chained with more
+        calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
+        and :meth:`scale`.
+        """
+        return self.skew(np.deg2rad(xShear), np.deg2rad(yShear))
 
     def _get_is_separable(self):
         mtx = self.get_matrix()
