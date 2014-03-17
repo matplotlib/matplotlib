@@ -147,6 +147,8 @@ original location:
 * Added support for skewed transforms to `matplotlib.transforms.Affine2D`,
   which can be created using the `skew` and `skew_deg` methods.
 
+* Added clockwise parameter to control sectors direction in `axes.pie`
+
 
 .. _changes_in_1_3:
 
