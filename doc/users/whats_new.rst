@@ -139,6 +139,11 @@ specify wedgeprops = {'linewidth':3} to specify the width of the borders of
 the wedges in the pie. For more properties that the user can specify, look at
 the docs for the wedge and text objects.
 
+Fixed the direction of errorbar upper/lower limits
+``````````````````````````````````````````````````
+Larry Bradley fixed the :func:`~matplotlib.pyplot.errorbar` method such
+that the upper and lower limits (*lolims*, *uplims*, *xlolims*,
+*xuplims*) now point in the correct direction.
 
 Date handling
 -------------
