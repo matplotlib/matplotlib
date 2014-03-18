@@ -2602,7 +2602,9 @@ class Axes(_AxesBase):
             These arguments can be used to indicate that a value gives
             only upper/lower limits. In that case a caret symbol is
             used to indicate this. lims-arguments may be of the same
-            type as *xerr* and *yerr*.
+            type as *xerr* and *yerr*.  To use limits with inverted
+            axes, :meth:`set_xlim` or :meth:`set_ylim` must be called
+            before :meth:`errorbar`.
 
           *errorevery*: positive integer
             subsamples the errorbars. e.g., if everyerror=5, errorbars for
@@ -2754,7 +2756,7 @@ class Axes(_AxesBase):
                 right = [thisx + thiserr for (thisx, thiserr)
                          in cbook.safezip(x, xerr)]
 
-            # select points without upper/lower limits in x
+            # select points without upper/lower limits in x and
             # draw normal errorbars for these points
             noxlims = ~(xlolims | xuplims)
             if noxlims.any():
@@ -2770,9 +2772,13 @@ class Axes(_AxesBase):
                 lo, ro = xywhere(x, right, xlolims & everymask)
                 barcols.append(self.hlines(yo, lo, ro, **lines_kw))
                 rightup, yup = xywhere(right, y, xlolims & everymask)
+                if self.xaxis_inverted():
+                    marker = mlines.CARETLEFT
+                else:
+                    marker = mlines.CARETRIGHT
                 caplines.extend(
-                    self.plot(rightup, yup, ls='None',
-                              marker=mlines.CARETRIGHT, **plot_kw))
+                    self.plot(rightup, yup, ls='None', marker=marker,
+                              **plot_kw))
                 if capsize > 0:
                     xlo, ylo = xywhere(x, y, xlolims & everymask)
                     caplines.extend(self.plot(xlo, ylo, 'k|', **plot_kw))
@@ -2782,9 +2788,13 @@ class Axes(_AxesBase):
                 lo, ro = xywhere(left, x, xuplims & everymask)
                 barcols.append(self.hlines(yo, lo, ro, **lines_kw))
                 leftlo, ylo = xywhere(left, y, xuplims & everymask)
+                if self.xaxis_inverted():
+                    marker = mlines.CARETRIGHT
+                else:
+                    marker = mlines.CARETLEFT
                 caplines.extend(
-                    self.plot(leftlo,  ylo, ls='None',
-                              marker=mlines.CARETLEFT, **plot_kw))
+                    self.plot(leftlo,  ylo, ls='None', marker=marker,
+                              **plot_kw))
                 if capsize > 0:
                     xup, yup = xywhere(x, y, xuplims & everymask)
                     caplines.extend(self.plot(xup, yup, 'k|', **plot_kw))
@@ -2804,7 +2814,7 @@ class Axes(_AxesBase):
                 upper = [thisy + thiserr for (thisy, thiserr)
                          in cbook.safezip(y, yerr)]
 
-            # select points without upper/lower limits in y
+            # select points without upper/lower limits in y and
             # draw normal errorbars for these points
             noylims = ~(lolims | uplims)
             if noylims.any():
@@ -2820,9 +2830,13 @@ class Axes(_AxesBase):
                 lo, uo = xywhere(y, upper, lolims & everymask)
                 barcols.append(self.vlines(xo, lo, uo, **lines_kw))
                 xup, upperup = xywhere(x, upper, lolims & everymask)
+                if self.yaxis_inverted():
+                    marker = mlines.CARETDOWN
+                else:
+                    marker = mlines.CARETUP
                 caplines.extend(
-                    self.plot(xup, upperup, ls='None',
-                              marker=mlines.CARETUP, **plot_kw))
+                    self.plot(xup, upperup, ls='None', marker=marker,
+                              **plot_kw))
                 if capsize > 0:
                     xlo, ylo = xywhere(x, y, lolims & everymask)
                     caplines.extend(self.plot(xlo, ylo, 'k_', **plot_kw))
@@ -2832,9 +2846,13 @@ class Axes(_AxesBase):
                 lo, uo = xywhere(lower, y, uplims & everymask)
                 barcols.append(self.vlines(xo, lo, uo, **lines_kw))
                 xlo, lowerlo = xywhere(x, lower, uplims & everymask)
+                if self.yaxis_inverted():
+                    marker = mlines.CARETUP
+                else:
+                    marker = mlines.CARETDOWN
                 caplines.extend(
-                    self.plot(xlo, lowerlo, ls='None',
-                              marker=mlines.CARETDOWN, **plot_kw))
+                    self.plot(xlo, lowerlo, ls='None', marker=marker,
+                              **plot_kw))
                 if capsize > 0:
                     xup, yup = xywhere(x, y, uplims & everymask)
                     caplines.extend(self.plot(xup, yup, 'k_', **plot_kw))
