@@ -1182,12 +1182,41 @@ class Figure(Artist):
         """
 
         if len(args) == 0:
-            ldict = {}       
+            handles = []
+            labels = []
+
+            def in_handles(h, l):
+                for f_h, f_l in zip(handles, labels):
+                    if f_l != l:
+                        continue
+                    if type(f_h) != type(h):
+                        continue
+
+                    try:
+                        if f_h.get_color() != h.get_color():
+                            continue
+                    except AttributeError:
+                        pass
+                    try:
+                        if f_h.get_facecolor() != h.get_facecolor():
+                            continue
+                    except AttributeError:
+                        pass
+                    try:
+                        if f_h.get_edgecolor() != h.get_edgecolor():
+                            continue
+                    except AttributeError:
+                        pass
+                        
+                    return True
+                return False
+
             for ax in self.axes:
-                handles, labels = ax.get_legend_handles_labels()
-                ldict = dict(ldict, **dict(zip(labels, handles)))
-  
-            handles, labels = ldict.values(), ldict.keys()
+                ax_handles, ax_labels = ax.get_legend_handles_labels()
+                for h, l in zip(ax_handles, ax_labels):
+                    if not in_handles(h, l):
+                        handles.append(h)
+                        labels.append(l)
             if len(handles) == 0:
                 warnings.warn("No labeled objects found. "
                               "Use label='...' kwarg on individual plots.")
