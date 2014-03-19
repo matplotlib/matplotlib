@@ -33,7 +33,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-
+import hashlib
 import numpy as np
 from numpy import ma
 from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
@@ -1569,6 +1569,13 @@ class AffineBase(Transform):
         if getattr(other, "is_affine", False):
             return np.all(self.get_matrix() == other.get_matrix())
         return NotImplemented
+
+    # python3 requires that if a class defines __eq__ then in must define
+    # __hash__ (so that if a == b then hash(a) == hash(b)).  Define 64bit
+    # hash by pulling the first 8 characters out of a sha1 hash of the matrix
+    # see issue #2828
+    def __hash__(self):
+        return int(hashlib.sha1(self.get_matrix()).hexdigest()[:8], 16)
 
     def transform(self, values):
         return self.transform_affine(values)
