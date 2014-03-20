@@ -717,6 +717,7 @@ def test_pcolor_datetime_axis():
             label.set_rotation(30)
 
 
+@cleanup
 def test_pcolorargs():
     n = 12
     x = np.linspace(-1.5, 1.5, n)
@@ -1293,6 +1294,8 @@ def test_bxp_custompositions():
     ax.set_yscale('log')
     ax.bxp(logstats, positions=[1, 5, 6, 7])
 
+
+@cleanup
 def test_bxp_bad_widths():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1303,6 +1306,8 @@ def test_bxp_bad_widths():
     ax.set_yscale('log')
     assert_raises(ValueError, ax.bxp, logstats, widths=[1])
 
+
+@cleanup
 def test_bxp_bad_positions():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1359,18 +1364,24 @@ def test_boxplot_no_weird_whisker():
     ax1.yaxis.grid(False, which='minor')
     ax1.xaxis.grid(False)
 
+
+@cleanup
 def test_boxplot_bad_medians_1():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
     assert_raises(ValueError, ax.boxplot, x,  usermedians=[1, 2])
 
+
+@cleanup
 def test_boxplot_bad_medians_1():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
     assert_raises(ValueError, ax.boxplot, [x, x],  usermedians=[[1, 2],[1, 2]])
 
+
+@cleanup
 def test_boxplot_bad_ci_1():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
@@ -1378,6 +1389,8 @@ def test_boxplot_bad_ci_1():
     assert_raises(ValueError, ax.boxplot, [x, x],
                   conf_intervals=[[1, 2]])
 
+
+@cleanup
 def test_boxplot_bad_ci_2():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
@@ -2782,6 +2795,7 @@ def test_relim_visible_only():
     assert ax.get_ylim() == y1
 
 
+@cleanup
 def test_text_labelsize():
     """
     tests for issue #1172
