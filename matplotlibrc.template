@@ -5,9 +5,15 @@
 # site-packages/matplotlib/mpl-data/matplotlibrc.  If you edit it
 # there, please note that it will be overwritten in your next install.
 # If you want to keep a permanent local copy that will not be
-# overwritten, place it in HOME/.matplotlib/matplotlibrc (unix/linux
-# like systems) and C:\Documents and Settings\yourname\.matplotlib
-# (win32 systems).
+# overwritten, place it in the following location:
+# unix/linux:
+#     $HOME/.config/matplotlib/matplotlibrc or
+#     $XDG_CONFIG_HOME/matplotlib/matplotlibrc (if $XDG_CONFIG_HOME is set)
+# other platforms:
+#     $HOME/.matplotlib/matplotlibrc
+#
+# See http://matplotlib.org/users/customizing.html#the-matplotlibrc-file for
+# more details on the paths which are checked for the configuration file.
 #
 # This file is best viewed in a editor which supports python mode
 # syntax highlighting. Blank lines, or lines starting with a comment
