@@ -241,6 +241,14 @@ url as a link in output SVGs.  This allows one to make clickable text in
 saved figures using the url kwarg of the :class:`~matplotlib.text.Text`
 class.
 
+Sphinx extensions
+-----------------
+
+The ``:context:`` directive in the `~matplotlib.sphinxext.plot_directive`
+Sphinx extension can now accept an optional ``reset`` setting, which will
+cause the context to be reset. This allows more than one distinct context to
+be present in documentation. To enable this option, use ``:context: reset``
+instead of ``:context:`` any time you want to reset the context.
 
 .. _whats-new-1-3:
 
