@@ -2336,7 +2336,8 @@ class Axes(_AxesBase):
 
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
-            startangle=None, radius=None, counterclock=True):
+            startangle=None, radius=None, counterclock=True,
+            linewidth=None):
         r"""
         Plot a pie chart.
 
@@ -2459,7 +2460,8 @@ class Axes(_AxesBase):
 
             w = mpatches.Wedge((x, y), radius, 360. * min(theta1, theta2),
                             360. * max(theta1, theta2),
-                            facecolor=colors[i % len(colors)])
+                            facecolor=colors[i % len(colors)],
+                            linewidth=linewidth)
             slices.append(w)
             self.add_patch(w)
             w.set_label(label)
