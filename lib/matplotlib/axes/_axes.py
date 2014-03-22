@@ -2337,7 +2337,7 @@ class Axes(_AxesBase):
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=None, radius=None, counterclock=True,
-            linewidth=None):
+            **kwargs):
         r"""
         Plot a pie chart.
 
@@ -2346,7 +2346,9 @@ class Axes(_AxesBase):
           pie(x, explode=None, labels=None,
               colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
               autopct=None, pctdistance=0.6, shadow=False,
-              labeldistance=1.1, startangle=None, radius=None)
+              labeldistance=1.1, startangle=None, radius=None,
+              wedgeargs={'linewidth':None}, textargs={},
+              )
 
         Make a pie chart of array *x*.  The fractional area of each
         wedge is given by x/sum(x).  If sum(x) <= 1, then the values
@@ -2446,6 +2448,9 @@ class Axes(_AxesBase):
         else:
             theta1 = startangle / 360.0
 
+        wedgeargs = kwargs.get('wedgeargs', {})
+        textargs = kwargs.get('textargs', {})
+
         texts = []
         slices = []
         autotexts = []
@@ -2461,7 +2466,7 @@ class Axes(_AxesBase):
             w = mpatches.Wedge((x, y), radius, 360. * min(theta1, theta2),
                             360. * max(theta1, theta2),
                             facecolor=colors[i % len(colors)],
-                            linewidth=linewidth)
+                            **wedgeargs)
             slices.append(w)
             self.add_patch(w)
             w.set_label(label)
@@ -2485,7 +2490,8 @@ class Axes(_AxesBase):
             t = self.text(xt, yt, label,
                           size=rcParams['xtick.labelsize'],
                           horizontalalignment=label_alignment,
-                          verticalalignment='center')
+                          verticalalignment='center',
+                          **textargs)
 
             texts.append(t)
 
@@ -2500,9 +2506,15 @@ class Axes(_AxesBase):
                     raise TypeError(
                         'autopct must be callable or a format string')
 
+                # code review request: not sure if we should pass the
+                # textargs to this call as well. Probably should, but
+                # someone who knows this better should comment.
                 t = self.text(xt, yt, s,
                               horizontalalignment='center',
-                              verticalalignment='center')
+                              verticalalignment='center',
+                              **textargs)
+
+
                 autotexts.append(t)
 
             theta1 = theta2
