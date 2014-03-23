@@ -2337,7 +2337,7 @@ class Axes(_AxesBase):
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=None, radius=None, counterclock=True,
-            **kwargs):
+            wedgeprops=None, textprops=None):
         r"""
         Plot a pie chart.
 
@@ -2347,7 +2347,7 @@ class Axes(_AxesBase):
               colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
               autopct=None, pctdistance=0.6, shadow=False,
               labeldistance=1.1, startangle=None, radius=None,
-              wedgeargs={'linewidth':None}, textargs={},
+              counterclock=True, wedgeprops=None, textprops=None,
               )
 
         Make a pie chart of array *x*.  The fractional area of each
@@ -2395,6 +2395,15 @@ class Axes(_AxesBase):
 
           *counterclock*: [ *False* | *True* ]
             Specify fractions direction, clockwise or counterclockwise.
+
+          *wedgeprops*: [ *None* | dict of key value pairs ]
+            Dict of arguments passed to the wedge objects making the pie.
+            For example, you can pass in wedgeprops = { 'linewidth' : 3 }
+            to set the width of the wedge border lines equal to 3.
+            For more details, look at the doc/arguments of the wedge object.
+
+          *textprops*: [ *None* | dict of key value pairs ]
+            Dict of arguments to pass to the text objects.
 
         The pie chart will probably look best if the figure and axes are
         square, or the Axes aspect is equal.  e.g.::
@@ -2448,8 +2457,8 @@ class Axes(_AxesBase):
         else:
             theta1 = startangle / 360.0
 
-        wedgeargs = kwargs.get('wedgeargs', {})
-        textargs = kwargs.get('textargs', {})
+        wedgeprops = {} if (wedgeprops is None) else wedgeprops
+        textprops = {} if (textprops is None) else textprops
 
         texts = []
         slices = []
@@ -2466,7 +2475,7 @@ class Axes(_AxesBase):
             w = mpatches.Wedge((x, y), radius, 360. * min(theta1, theta2),
                             360. * max(theta1, theta2),
                             facecolor=colors[i % len(colors)],
-                            **wedgeargs)
+                            **wedgeprops)
             slices.append(w)
             self.add_patch(w)
             w.set_label(label)
@@ -2491,7 +2500,7 @@ class Axes(_AxesBase):
                           size=rcParams['xtick.labelsize'],
                           horizontalalignment=label_alignment,
                           verticalalignment='center',
-                          **textargs)
+                          **textprops)
 
             texts.append(t)
 
@@ -2506,13 +2515,10 @@ class Axes(_AxesBase):
                     raise TypeError(
                         'autopct must be callable or a format string')
 
-                # code review request: not sure if we should pass the
-                # textargs to this call as well. Probably should, but
-                # someone who knows this better should comment.
                 t = self.text(xt, yt, s,
                               horizontalalignment='center',
                               verticalalignment='center',
-                              **textargs)
+                              **textprops)
 
 
                 autotexts.append(t)
