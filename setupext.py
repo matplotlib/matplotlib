@@ -1102,7 +1102,7 @@ class Six(SetupPackage):
         if not is_min_version(six.__version__, self.min_version):
             raise CheckFailed(
                 "Requires six %s or later.  Found %s." %
-                (self.min_version, version))
+                (self.min_version, six.__version__))
 
         return "using six version %s" % six.__version__
 
