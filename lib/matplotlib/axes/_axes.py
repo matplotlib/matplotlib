@@ -2457,8 +2457,10 @@ class Axes(_AxesBase):
         else:
             theta1 = startangle / 360.0
 
-        wedgeprops = {} if (wedgeprops is None) else wedgeprops
-        textprops = {} if (textprops is None) else textprops
+        if wedgeprops is None:
+            wedgeprops = {}
+        if textprops is None:
+            textprops = {}
 
         texts = []
         slices = []
