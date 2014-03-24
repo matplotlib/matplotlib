@@ -56,6 +56,8 @@ kwargs. See the examples:
 :ref:`~examples/statistics/boxplot_demo.py` and
 :ref:`~examples/statistics/bxp_demo.py`
 
+Added a bool kwarg, `manage_xticks`, which if False disables the management
+of the xtick and xlim by `boxplot`.
 
 Support for datetime axes in 2d plots
 `````````````````````````````````````

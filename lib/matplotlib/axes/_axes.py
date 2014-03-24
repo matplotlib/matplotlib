@@ -2875,7 +2875,8 @@ class Axes(_AxesBase):
                 bootstrap=None, usermedians=None, conf_intervals=None,
                 meanline=False, showmeans=False, showcaps=True,
                 showbox=True, showfliers=True, boxprops=None, labels=None,
-                flierprops=None, medianprops=None, meanprops=None):
+                flierprops=None, medianprops=None, meanprops=None,
+                manage_xticks=True):
         """
         Make a box and whisker plot.
 
@@ -3060,14 +3061,15 @@ class Axes(_AxesBase):
                            showcaps=showcaps, showbox=showbox,
                            boxprops=boxprops, flierprops=flierprops,
                            medianprops=medianprops, meanprops=meanprops,
-                           meanline=meanline, showfliers=showfliers)
+                           meanline=meanline, showfliers=showfliers,
+                           manage_xticks=manage_xticks)
         return artists
 
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
             patch_artist=False, shownotches=False, showmeans=False,
             showcaps=True, showbox=True, showfliers=True,
             boxprops=None, flierprops=None, medianprops=None,
-            meanprops=None, meanline=False):
+            meanprops=None, meanline=False, manage_xticks=True):
         """
         Drawing function for box and whisker plots.
 
@@ -3077,7 +3079,7 @@ class Axes(_AxesBase):
               patch_artist=False, shownotches=False, showmeans=False,
               showcaps=True, showbox=True, showfliers=True,
               boxprops=None, flierprops=None, medianprops=None,
-              meanprops=None, meanline=False)
+              meanprops=None, meanline=False, manage_xticks=True)
 
         Make a box and whisker plot for each column of *x* or each
         vector in sequence *x*.  The box extends from the lower to
@@ -3155,6 +3157,9 @@ class Axes(_AxesBase):
             as a line spanning the full width of the box according to
             *meanprops*. Not recommended if *shownotches* is also True.
             Otherwise, means will be shown as points.
+
+          manage_xticks : bool, default = True
+            If the function should adjust the xlim and xtick locations.
 
         Returns
         -------
@@ -3390,10 +3395,11 @@ class Axes(_AxesBase):
             setlim = self.set_ylim
             setlabels = self.set_yticklabels
 
-        newlimits = min(positions) - 0.5, max(positions) + 0.5
-        setlim(newlimits)
-        setticks(positions)
-        setlabels(datalabels)
+        if manage_xticks:
+            newlimits = min(positions) - 0.5, max(positions) + 0.5
+            setlim(newlimits)
+            setticks(positions)
+            setlabels(datalabels)
 
         # reset hold status
         self.hold(holdStatus)
