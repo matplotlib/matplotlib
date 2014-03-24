@@ -212,7 +212,7 @@ class RendererCairo(RendererBase):
                 if not isinstance(s, six.text_type):
                     s = six.text_type(s)
             else:
-                if isinstance(s, six.text_type):
+                if not six.PY3 and isinstance(s, six.text_type):
                     s = s.encode("utf-8")
 
             ctx.show_text(s)
