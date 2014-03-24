@@ -2522,7 +2522,6 @@ class Axes(_AxesBase):
                               verticalalignment='center',
                               **textprops)
 
-
                 autotexts.append(t)
 
             theta1 = theta2
