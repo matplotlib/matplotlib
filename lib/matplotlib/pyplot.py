@@ -3046,7 +3046,8 @@ def phase_spectrum(x, Fs=None, Fc=None, window=None, pad_to=None, sides=None,
 @_autogen_docstring(Axes.pie)
 def pie(x, explode=None, labels=None, colors=None, autopct=None,
         pctdistance=0.6, shadow=False, labeldistance=1.1, startangle=None,
-        radius=None, counterclock=True, linewidth=None, hold=None):
+        radius=None, counterclock=True, wedgeprops=None, textprops=None,
+        hold=None):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
@@ -3058,7 +3059,7 @@ def pie(x, explode=None, labels=None, colors=None, autopct=None,
                      autopct=autopct, pctdistance=pctdistance, shadow=shadow,
                      labeldistance=labeldistance, startangle=startangle,
                      radius=radius, counterclock=counterclock,
-                     linewidth=linewidth)
+                     wedgeprops=wedgeprops, textprops=textprops)
         draw_if_interactive()
     finally:
         ax.hold(washold)
