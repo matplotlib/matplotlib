@@ -217,6 +217,13 @@ def boilerplate_gen():
             args.pop(0) # remove 'self' argument
             if defaults is None:
                 defaults = ()
+            else:
+                def_edited = []
+                for val in defaults:
+                    if isinstance(val, unicode):
+                        val = val.encode('ascii', 'ignore')
+                    def_edited.append(val)
+                defaults = tuple(def_edited)
 
             # How to call the wrapped function
             call = []
