@@ -1,3 +1,6 @@
+2014-03-24 Changed the behaviour of axes to not ignore leading or trailing
+           patches of height 0 while calculating the x and y axis limits.
+
 2014-03-17 Bug was fixed in append_axes from the AxesDivider class would not
            append axes in the right location with respect to the reference
            locator axes
