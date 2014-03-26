@@ -1552,7 +1552,6 @@ def test_errorbar_limits():
     ax.set_title('Errorbar upper and lower limits')
 
 
->>>>>>> added errorbar limit test
 @image_comparison(baseline_images=['hist_stacked_stepfilled'])
 def test_hist_stacked_stepfilled():
     # make some data
