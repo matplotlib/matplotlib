@@ -28,8 +28,7 @@ import types
 
 import textwrap
 
-# import the local copy of matplotlib, not the installed one
-#sys.path.insert(0, './lib')
+# this line imports the installed copy of matplotlib, and not the local copy
 from matplotlib.axes import Axes
 
 
