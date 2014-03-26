@@ -644,6 +644,9 @@ class Artist(object):
         """
         Set whether artist uses clipping.
 
+        When False, If figure range and data range don't line up
+        the Artist it might run off and produce unexpected results.
+
         ACCEPTS: [True | False]
         """
         self._clipon = b
