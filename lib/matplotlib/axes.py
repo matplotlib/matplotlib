@@ -5312,7 +5312,8 @@ class Axes(martist.Artist):
 
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False,
-            labeldistance=1.1, startangle=None, radius=None):
+            labeldistance=1.1, startangle=None, radius=None,
+            center = (0, 0), frame=False ):
         r"""
         Plot a pie chart.
 
@@ -5321,7 +5322,8 @@ class Axes(martist.Artist):
           pie(x, explode=None, labels=None,
               colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
               autopct=None, pctdistance=0.6, shadow=False,
-              labeldistance=1.1, startangle=None, radius=None)
+              labeldistance=1.1, startangle=None, radius=None, 
+              center = (0, 0) )
 
         Make a pie chart of array *x*.  The fractional area of each
         wedge is given by x/sum(x).  If sum(x) <= 1, then the values
@@ -5366,6 +5368,12 @@ class Axes(martist.Artist):
           *radius*: [ *None* | scalar ]
           The radius of the pie, if *radius* is *None* it will be set to 1.
 
+          *center*: [ (0,0) | sequence of 2 scalars ]
+          Center position of the chart.
+
+          *frame*: [ *False* | *True* ]
+            Plot axes frame with the chart.
+
         The pie chart will probably look best if the figure and axes are
         square, or the Axes aspect is equal.  e.g.::
 
@@ -5391,7 +5399,6 @@ class Axes(martist.Artist):
           :class:`~matplotlib.text.Text` instances for the numeric
           labels.
         """
-        self.set_frame_on(False)
 
         x = np.asarray(x).astype(np.float32)
 
@@ -5408,7 +5415,7 @@ class Axes(martist.Artist):
         if colors is None:
             colors = ('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w')
 
-        center = 0, 0
+        
         if radius is None:
             radius = 1
 
@@ -5477,10 +5484,12 @@ class Axes(martist.Artist):
             theta1 = theta2
             i += 1
 
-        self.set_xlim((-1.25, 1.25))
-        self.set_ylim((-1.25, 1.25))
-        self.set_xticks([])
-        self.set_yticks([])
+        if not frame:
+            self.set_frame_on(False)
+            self.set_xlim((-1.25, 1.25))
+            self.set_ylim((-1.25, 1.25))
+            self.set_xticks([])
+            self.set_yticks([])
 
         if autopct is None:
             return slices, texts

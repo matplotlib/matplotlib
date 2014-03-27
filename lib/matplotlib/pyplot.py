@@ -2955,7 +2955,7 @@ def pcolormesh(*args, **kwargs):
 @_autogen_docstring(Axes.pie)
 def pie(x, explode=None, labels=None, colors=None, autopct=None,
         pctdistance=0.6, shadow=False, labeldistance=1.1, startangle=None,
-        radius=None, hold=None):
+        radius=None, hold=None,center=(0,0),frame=False):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
@@ -2966,7 +2966,7 @@ def pie(x, explode=None, labels=None, colors=None, autopct=None,
         ret = ax.pie(x, explode=explode, labels=labels, colors=colors,
                      autopct=autopct, pctdistance=pctdistance, shadow=shadow,
                      labeldistance=labeldistance, startangle=startangle,
-                     radius=radius)
+                     radius=radius,center=center,frame=frame)
         draw_if_interactive()
     finally:
         ax.hold(washold)
