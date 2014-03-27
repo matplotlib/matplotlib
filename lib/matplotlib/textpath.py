@@ -209,7 +209,7 @@ class TextToPath(object):
             horiz_advance = (glyph.linearHoriAdvance / 65536.0)
 
             char_id = self._get_char_id(font, ccode)
-            if not char_id in glyph_map:
+            if char_id not in glyph_map:
                 glyph_map_new[char_id] = self.glyph_to_path(font)
 
             currx += (kern / 64.0)
@@ -258,7 +258,7 @@ class TextToPath(object):
         currx, curry = 0, 0
         for font, fontsize, ccode, ox, oy in glyphs:
             char_id = self._get_char_id(font, ccode)
-            if not char_id in glyph_map:
+            if char_id not in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
                 glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
@@ -371,7 +371,7 @@ class TextToPath(object):
 
             char_id = self._get_char_id_ps(font, glyph)
 
-            if not char_id in glyph_map:
+            if char_id not in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
                 if enc:
