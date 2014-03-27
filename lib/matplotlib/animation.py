@@ -685,7 +685,7 @@ class Animation(object):
             bitrate = rcParams['animation.bitrate']
 
         all_anim = [self]
-        if not extra_anim is None:
+        if extra_anim is not None:
             all_anim.extend(anim
                             for anim
                             in extra_anim if anim._fig is self._fig)
