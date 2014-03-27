@@ -1,3 +1,7 @@
+2014-03-22 Added the keyword arguments wedgeprops and textprops to pie.
+           Users can control the wedge and text properties of the pie
+           in more detail, if they choose.
+
 2014-03-17 Bug was fixed in append_axes from the AxesDivider class would not
            append axes in the right location with respect to the reference
            locator axes
