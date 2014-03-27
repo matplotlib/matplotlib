@@ -28,8 +28,7 @@ import types
 
 import textwrap
 
-# import the local copy of matplotlib, not the installed one
-#sys.path.insert(0, './lib')
+# this line imports the installed copy of matplotlib, and not the local copy
 from matplotlib.axes import Axes
 
 
@@ -217,6 +216,13 @@ def boilerplate_gen():
             args.pop(0) # remove 'self' argument
             if defaults is None:
                 defaults = ()
+            else:
+                def_edited = []
+                for val in defaults:
+                    if isinstance(val, unicode):
+                        val = val.encode('ascii', 'ignore')
+                    def_edited.append(val)
+                defaults = tuple(def_edited)
 
             # How to call the wrapped function
             call = []
