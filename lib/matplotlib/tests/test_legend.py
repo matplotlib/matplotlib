@@ -50,6 +50,29 @@ def test_legend_auto3():
     ax.legend(loc=0)
 
 
+@image_comparison(baseline_images=['legend_best1'])
+def test_legend_best1():
+    'Test automatic legend placement'
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.scatter(0.95, 0.95)
+    ax.set_xlim(0.0, 1.0)
+    ax.set_ylim(0.0, 1.0)
+    ax.legend(['foo'],loc='best')
+
+
+@image_comparison(baseline_images=['legend_best2'])
+def test_legend_best2():
+    'Test automatic legend placement'
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.scatter(0.95, 0.95)
+    ax.scatter(0.05, 0.95)
+    ax.set_xlim(0.0, 1.0)
+    ax.set_ylim(0.0, 1.0)
+    ax.legend(['foo', 'foo'],loc='best')
+
+
 @image_comparison(baseline_images=['legend_various_labels'], remove_text=True)
 def test_various_labels():
     # tests all sorts of label types
