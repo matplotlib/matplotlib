@@ -2931,7 +2931,7 @@ def test_pie_ccw_true():
 
 @image_comparison(baseline_images=['pie_ccw_false'], extensions=['png'])
 def test_pie_ccw_false():
-    # The slices will be ordered and plotted counter-clockwise.
+    # The slices will be ordered and plotted clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
     sizes = [15, 30, 45, 10]
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
