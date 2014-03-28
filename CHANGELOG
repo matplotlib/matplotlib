@@ -1,3 +1,6 @@
+2014-03-27 Added tests for pie ccw parameter. Removed pdf and svg images
+           from tests for pie linewidth parameter.
+
 2014-03-22 Added the keyword arguments wedgeprops and textprops to pie.
            Users can control the wedge and text properties of the pie
            in more detail, if they choose.
