@@ -118,7 +118,7 @@ following methods::
   ax.yaxis.set_minor_formatter( yminorFormatter )
 
 See :ref:`pylab_examples-major_minor_demo1` for an example of setting
-major an minor ticks.  See the :mod:`matplotlib.dates` module for
+major and minor ticks.  See the :mod:`matplotlib.dates` module for
 more information and examples of using date locators and formatters.
 """
 
