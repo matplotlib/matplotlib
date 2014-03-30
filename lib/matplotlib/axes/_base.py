@@ -1545,8 +1545,10 @@ class _AxesBase(martist.Artist):
         # the auto-scaling
 
         # cannot check for '==0' since unitized data may not compare to zero
+        # issue #2150 - we update the limits if patch has non zero width
+        # or height.
         if (isinstance(patch, mpatches.Rectangle) and
-            ((not patch.get_width()) and (not patch.get_height()))):
+                ((not patch.get_width()) and (not patch.get_height()))):
             return
         vertices = patch.get_path().vertices
         if vertices.size > 0:
