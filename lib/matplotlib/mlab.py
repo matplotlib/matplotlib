@@ -3656,6 +3656,151 @@ def stineman_interp(xi,x,y,yp=None):
                                   1/(dy1+dy2),))
     return yi
 
+def ksdensity(dataset, bw_method=None):
+    """
+    Representation of a kernel-density estimate using Gaussian kernels.
+
+    Call signature::
+    xmin, xmax, result = ksdensity(dataset, 'scott')
+
+    Parameters
+    ----------
+    dataset : array_like
+        Datapoints to estimate from. In case of univariate data this is a 1-D
+        array, otherwise a 2-D array with shape (# of dims, # of data).
+    bw_method : str or scalar, optional
+        The method used to calculate the estimator bandwidth.  This can be
+        'scott', 'silverman', or a scalar constant.  If a scalar, this will
+        be used directly as `kde.factor`. If None (default), 'scott' is used.
+
+    Attributes
+    ----------
+    dataset : ndarray
+        The dataset with which `ksdensity` was initialized.
+    d : int
+        Number of dimensions.
+    n : int
+        Number of datapoints.
+    factor : float
+        The bandwidth factor, obtained from `kde.covariance_factor`, with which
+        the covariance matrix is multiplied.
+    covariance : ndarray
+        The covariance matrix of `dataset`, scaled by the calculated bandwidth
+        (`kde.factor`).
+    inv_cov : ndarray
+        The inverse of `covariance`.
+
+    Returns
+    -------
+    A dictionary mapping each various aspects of the computed KDE.
+    The dictionary has the following keys:
+
+        xmin : number
+            The min of the input dataset
+        xmax : number
+            The max of the input dataset
+        mean : number
+            The mean of the result
+        median: number
+            The median of the result
+        result: (# of points,)-array
+            The array of the evaluated PDF estimation
+
+    Raises
+    ------
+    ValueError : if the dimensionality of the input points is different than
+                 the dimensionality of the KDE.
+
+    """
+
+    # This implementation with minor modification was too good to pass up.
+    # from scipy: https://github.com/scipy/scipy/blob/master/scipy/stats/kde.py 
+
+    dataset = np.atleast_2d(dataset)
+    xmin = dataset.min()
+    xmax = dataset.max()
+
+    if not dataset.size > 1:
+        raise ValueError("`dataset` input should have multiple elements.")
+
+    d, n = dataset.shape
+
+    # ----------------------------------------------
+    # Set Bandwidth, defaulted to Scott's Factor
+    # ----------------------------------------------
+    scotts_factor = lambda: np.power(n, -1./(d+4))
+    silverman_factor = lambda: np.power(n*(d+2.0)/4.0, -1./(d+4))
+
+    # Default method to calculate bandwidth, can be overwritten by subclass
+    covariance_factor = scotts_factor
+
+    if bw_method is None:
+        pass
+    elif bw_method == 'scott':
+        covariance_factor = scotts_factor
+    elif bw_method == 'silverman':
+        covariance_factor = silverman_factor
+    elif np.isscalar(bw_method) and not isinstance(bw_method, string_types):
+        covariance_factor = lambda: bw_method
+    else:
+        msg = "`bw_method` should be 'scott', 'silverman', or a scalar"
+        raise ValueError(msg)
+
+    # ---------------------------------------------------------------
+    # Computes covariance matrix for each Gaussian kernel with factor
+    # ---------------------------------------------------------------
+    factor = covariance_factor()
+
+    # Cache covariance and inverse covariance of the data
+    data_covariance = np.atleast_2d(np.cov(dataset, rowvar=1,bias=False))
+    data_inv_cov = np.linalg.inv(data_covariance)
+
+    covariance = data_covariance * factor**2
+    inv_cov = data_inv_cov / factor**2
+    norm_factor = np.sqrt(np.linalg.det(2*np.pi*covariance)) * n
+
+    # ----------------------------------------------
+    # Evaluate the estimated pdf on a set of points.
+    # ----------------------------------------------
+    points = np.atleast_2d(np.arange(xmin,xmax, (xmax-xmin)/100.))
+
+    d1, m1 = points.shape
+    if d1 != d:
+        if d1 == 1 and m1 == d:
+            # points was passed in as a row vector
+            points = np.reshape(points, (d, 1))
+            m1 = 1
+        else:
+            msg = "points have dimension %s, dataset has dimension %s" % (d1, d)
+            raise ValueError(msg)
+
+    result = np.zeros((m1,), dtype=np.float)
+
+    if m1 >= n:
+        # there are more points than data, so loop over data
+        for i in range(n):
+            diff = dataset[:, i, np.newaxis] - points
+            tdiff = np.dot(inv_cov, diff)
+            energy = np.sum(diff*tdiff,axis=0) / 2.0
+            result = result + np.exp(-energy)
+    else:
+        # loop over points
+        for i in range(m):
+            diff = dataset - points[:, i, newaxis]
+            tdiff = np.dot(inv_cov, diff)
+            energy = np.sum(diff * tdiff, axis=0) / 2.0
+            result[i] = np.sum(np.exp(-energy), axis=0)
+
+    result = result / norm_factor
+
+    return {
+        'xmin' : xmin,
+        'xmax' : xmax,
+        'mean' : np.mean(result),
+        'median' : np.median(result),
+        'result' : result
+    }
+
 ##################################################
 # Code related to things in and around polygons
 ##################################################
