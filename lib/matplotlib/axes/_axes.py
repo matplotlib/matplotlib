@@ -6725,24 +6725,23 @@ class Axes(_AxesBase):
                                                  integer=True))
         return im
 
-
-    def violinplot(self, x, positions=None, width=0.5):
+    def violinplot(self, dataset, positions=None, width=0.5):
         """
         Make a violin plot.
 
         Call signature::
 
-          violinplot(x, positions=None)
+          violinplot(dataset, positions=None)
 
-        Make a violin plot for each column of *x* or each
-        vector in sequence *x*.  Each filled area extends to represent the
+        Make a violin plot for each column of *dataset* or each vector in 
+        sequence *dataset*.  Each filled area extends to represent the
         entire data range, with three lines at the mean, the minimum, and
         the maximum.
 
         Parameters
         ----------
 
-          x : Array or a sequence of vectors.
+          dataset : Array or a sequence of vectors.
             The input data.
 
           positions : array-like, default = [1, 2, ..., n]
@@ -6777,26 +6776,28 @@ class Axes(_AxesBase):
         caps = []
 
         if positions == None:
-            positions = range(1, len(x) + 1)
-        elif len(positions) != len(x):
+            positions = range(1, len(dataset) + 1)
+        elif len(positions) != len(dataset):
             raise ValueError(datashape_message.format("positions"))
 
-        # TODO: Use kde estimation function on x
-        # These numbers are contrived
-        coords = np.arange(0.0, np.pi, np.pi/100.)
-        datasets = map(lambda i: np.sin(coords) ** i, range(1,len(x) + 1))
-        
-        for d,x in zip(datasets,positions):
-            # Since each data point p is plotted from x-p to x+p,
+        for d,p in zip(dataset,positions):            
+            # Calculate the kernel density
+            kde = mlab.ksdensity(d)
+            m = kde['xmin']
+            M = kde['xmax']
+            mean = kde['mean']
+            median = kde['median']
+            v = kde['result']
+            coords = np.arange(m,M,(M-m)/100.)
+
+            # Since each data point p is plotted from v-p to v+p,
             # we need to scale it by an additional 0.5 factor so that we get
             # correct width in the end.
-            d = 0.5 * widths * d/d.max()
-            m = d.min() # This should actually be the min for the dataset
-            M = d.max() # likewise
-            # bodies += [self.fill_betweenx(np.arange(m,M,(M-m)/100.),
+            v = 0.5 * width * v/v.max()
+
             bodies += [self.fill_betweenx(coords,
-                                          -d+x,
-                                          d+x,
+                                          -v+p,
+                                          v+p,
                                           facecolor='y',
                                           alpha=0.3)]
 
