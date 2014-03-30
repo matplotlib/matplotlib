@@ -6725,6 +6725,88 @@ class Axes(_AxesBase):
                                                  integer=True))
         return im
 
+
+    def violinplot(self, x, positions=None, width=0.5):
+        """
+        Make a violin plot.
+
+        Call signature::
+
+          violinplot(x, positions=None)
+
+        Make a violin plot for each column of *x* or each
+        vector in sequence *x*.  Each filled area extends to represent the
+        entire data range, with three lines at the mean, the minimum, and
+        the maximum.
+
+        Parameters
+        ----------
+
+          x : Array or a sequence of vectors.
+            The input data.
+
+          positions : array-like, default = [1, 2, ..., n]
+            Sets the positions of the violins. The ticks and limits are
+            automatically set to match the positions.
+
+          width : array-like, default = 0.5
+            Either a scalar or a vector that sets the maximal width of
+            each violin. The default is 0.5, which uses about half of the
+            available horizontal space.
+
+        Returns
+        -------
+
+        A dictionary mapping each component of the violinplot to a list of the
+        corresponding collection instances created. The dictionary has
+        the following keys:
+
+            - bodies: A list of the 
+              :class:`matplotlib.collections.PolyCollection` instances
+              containing the filled area of each violin.
+            - means: A list of the :class:`matplotlib.lines.Line2D` instances
+              created to identify the mean values for each of the violins.
+            - caps: A list of the :class:`matplotlib.lines.Line2D` instances
+              created to identify the extremal values of each violin's
+              data set.
+
+        """
+
+        bodies = []
+        means = []
+        caps = []
+
+        if positions == None:
+            positions = range(1, len(x) + 1)
+        elif len(positions) != len(x):
+            raise ValueError(datashape_message.format("positions"))
+
+        # TODO: Use kde estimation function on x
+        # These numbers are contrived
+        coords = np.arange(0.0, np.pi, np.pi/100.)
+        datasets = map(lambda i: np.sin(coords) ** i, range(1,len(x) + 1))
+        
+        for d,x in zip(datasets,positions):
+            # Since each data point p is plotted from x-p to x+p,
+            # we need to scale it by an additional 0.5 factor so that we get
+            # correct width in the end.
+            d = 0.5 * widths * d/d.max()
+            m = d.min() # This should actually be the min for the dataset
+            M = d.max() # likewise
+            # bodies += [self.fill_betweenx(np.arange(m,M,(M-m)/100.),
+            bodies += [self.fill_betweenx(coords,
+                                          -d+x,
+                                          d+x,
+                                          facecolor='y',
+                                          alpha=0.3)]
+
+        return {
+            'bodies' : bodies,
+            'means' : means,
+            'caps' : caps
+        }
+
+
     def tricontour(self, *args, **kwargs):
         return mtri.tricontour(self, *args, **kwargs)
     tricontour.__doc__ = mtri.TriContourSet.tricontour_doc
