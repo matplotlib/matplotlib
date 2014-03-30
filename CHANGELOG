@@ -1,7 +1,14 @@
-2014-03-24 Changed the behaviour of axes to not ignore leading or trailing
+2014-03-30 Changed the behaviour of axes to not ignore leading or trailing
            patches of height 0 (or width 0) while calculating the x and y
            axis limits. Patches having both height == 0 and width == 0 are
            ignored.
+
+2014-03-27 Added tests for pie ccw parameter. Removed pdf and svg images
+           from tests for pie linewidth parameter.
+
+2014-03-22 Added the keyword arguments wedgeprops and textprops to pie.
+           Users can control the wedge and text properties of the pie
+           in more detail, if they choose.
 
 2014-03-17 Bug was fixed in append_axes from the AxesDivider class would not
            append axes in the right location with respect to the reference

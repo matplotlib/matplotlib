@@ -892,6 +892,9 @@ class Figure(Artist):
         *kwargs*) then it will simply make that subplot current and
         return it.
 
+        .. seealso:: :meth:`~matplotlib.pyplot.subplot` for an
+           explanation of the args.
+
         The following kwargs are supported:
 
         %(Axes)s

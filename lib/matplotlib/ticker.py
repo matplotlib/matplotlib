@@ -118,7 +118,7 @@ following methods::
   ax.yaxis.set_minor_formatter( yminorFormatter )
 
 See :ref:`pylab_examples-major_minor_demo1` for an example of setting
-major an minor ticks.  See the :mod:`matplotlib.dates` module for
+major and minor ticks.  See the :mod:`matplotlib.dates` module for
 more information and examples of using date locators and formatters.
 """
 
@@ -209,11 +209,9 @@ class Formatter(TickHelper):
 
     def fix_minus(self, s):
         """
-        some classes may want to replace a hyphen for minus with the
-        proper unicode symbol as described `here
-        <http://sourceforge.net/tracker/index.php?func=detail&aid=1962574&
-group_id=80706&atid=560720>`_.
-        The default is to do nothing
+        Some classes may want to replace a hyphen for minus with the
+        proper unicode symbol (U+2212) for typographical correctness.
+        The default is to not replace it.
 
         Note, if you use this method, e.g., in :meth:`format_data` or
         call, you probably don't want to use it for
