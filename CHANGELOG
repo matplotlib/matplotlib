@@ -1,3 +1,8 @@
+2014-03-30 Changed the behaviour of axes to not ignore leading or trailing
+           patches of height 0 (or width 0) while calculating the x and y
+           axis limits. Patches having both height == 0 and width == 0 are
+           ignored.
+
 2014-03-27 Added tests for pie ccw parameter. Removed pdf and svg images
            from tests for pie linewidth parameter.
 
