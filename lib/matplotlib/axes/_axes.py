@@ -6725,7 +6725,8 @@ class Axes(_AxesBase):
                                                  integer=True))
         return im
 
-    def violinplot(self, dataset, positions=None, width=0.5):
+    def violinplot(self, dataset, positions=None, widths=0.5, showmeans=False,
+                   showextrema=True, showmedians=False):
         """
         Make a violin plot.
 
@@ -6748,10 +6749,19 @@ class Axes(_AxesBase):
             Sets the positions of the violins. The ticks and limits are
             automatically set to match the positions.
 
-          width : array-like, default = 0.5
+          widths : array-like, default = 0.5
             Either a scalar or a vector that sets the maximal width of
             each violin. The default is 0.5, which uses about half of the
             available horizontal space.
+
+          showmeans : bool, default = False
+            If true, will toggle rendering of the means.
+
+          showextrema : bool, default = True
+            If true, will toggle rendering of the extrema.
+
+          showmedians : bool, default = False
+            If true, will toggle rendering of the medians.
 
         Returns
         -------
@@ -6763,24 +6773,58 @@ class Axes(_AxesBase):
             - bodies: A list of the 
               :class:`matplotlib.collections.PolyCollection` instances
               containing the filled area of each violin.
-            - means: A list of the :class:`matplotlib.lines.Line2D` instances
-              created to identify the mean values for each of the violins.
-            - caps: A list of the :class:`matplotlib.lines.Line2D` instances
-              created to identify the extremal values of each violin's
-              data set.
+            - means: A :class:`matplotlib.collections.LineCollection` instance
+              created to identify the mean values of each of the violin's
+              distribution.
+            - mins: A :class:`matplotlib.collections.LineCollection` instance
+              created to identify the bottom of each violin's distribution.
+            - maxes: A :class:`matplotlib.collections.LineCollection` instance
+              created to identify the top of each violin's distribution.
+            - bars: A :class:`matplotlib.collections.LineCollection` instance
+              created to identify the centers of each violin's distribution.
+            - medians: A :class:`matplotlib.collections.LineCollection` instance
+              created to identify the median values of each of the violin's
+              distribution.
 
         """
 
-        bodies = []
+        # Statistical quantities to be plotted on the violins
         means = []
-        caps = []
+        mins = []
+        maxes = []
+        medians = []
 
+        # Collections to be returned
+        bodies = []
+        cmeans = None
+        cmaxes = None
+        cmins = None
+        cbars = None
+        cmedians = None
+
+        # Validate positions
         if positions == None:
             positions = range(1, len(dataset) + 1)
         elif len(positions) != len(dataset):
             raise ValueError(datashape_message.format("positions"))
 
-        for d,p in zip(dataset,positions):            
+        # Validate widths
+        if np.isscalar(widths):
+            widths = [widths] * len(dataset)
+        elif len(widths) != len(dataset):
+            raise ValueError(datashape_message.format("widths"))
+
+        # Calculate mins and maxes for statistics lines
+        pmins = -0.25 * np.array(widths) + positions
+        pmaxes = 0.25 * np.array(widths) + positions
+
+        # Check hold status
+        if not self._hold:
+            self.cla()
+        holdStatus = self._hold
+
+        # Render violins
+        for d,p,w in zip(dataset,positions,widths):            
             # Calculate the kernel density
             kde = mlab.ksdensity(d)
             m = kde['xmin']
@@ -6793,7 +6837,7 @@ class Axes(_AxesBase):
             # Since each data point p is plotted from v-p to v+p,
             # we need to scale it by an additional 0.5 factor so that we get
             # correct width in the end.
-            v = 0.5 * width * v/v.max()
+            v = 0.5 * w * v/v.max()
 
             bodies += [self.fill_betweenx(coords,
                                           -v+p,
@@ -6801,10 +6845,35 @@ class Axes(_AxesBase):
                                           facecolor='y',
                                           alpha=0.3)]
 
+            means.append(mean)
+            mins.append(m)
+            maxes.append(M)
+            medians.append(median)
+
+        # Render means
+        if showmeans:
+            cmeans = self.hlines(means, pmins, pmaxes, colors='r')
+
+        # Render extrema
+        if showextrema:
+            cmaxes = self.hlines(maxes, pmins, pmaxes, colors='r')
+            cmins = self.hlines(mins, pmins, pmaxes, colors='r')
+            cbars = self.vlines(positions, mins, maxes, colors='r')
+
+        # Render medians
+        if showmedians:
+            cmedians = self.hlines(medians, pmins, pmaxes, colors='r')
+
+        # Reset hold
+        self.hold(holdStatus)
+
         return {
             'bodies' : bodies,
-            'means' : means,
-            'caps' : caps
+            'means' : cmeans,
+            'mins' : cmins,
+            'maxes' : cmaxes,
+            'bars' : cbars,
+            'medians' : cmedians
         }
 
 
