@@ -3661,7 +3661,7 @@ def ksdensity(dataset, bw_method=None):
     Representation of a kernel-density estimate using Gaussian kernels.
 
     Call signature::
-    xmin, xmax, result = ksdensity(dataset, 'scott')
+    kde_dict = ksdensity(dataset, 'silverman')
 
     Parameters
     ----------
@@ -3714,22 +3714,22 @@ def ksdensity(dataset, bw_method=None):
     """
 
     # This implementation with minor modification was too good to pass up.
-    # from scipy: https://github.com/scipy/scipy/blob/master/scipy/stats/kde.py 
+    # from scipy: https://github.com/scipy/scipy/blob/master/scipy/stats/kde.py
 
-    dataset = np.atleast_2d(dataset)
+    dataset = np.array(np.atleast_2d(dataset))
     xmin = dataset.min()
     xmax = dataset.max()
 
     if not dataset.size > 1:
         raise ValueError("`dataset` input should have multiple elements.")
 
-    d, n = dataset.shape
+    dim, num_dp = dataset.shape
 
     # ----------------------------------------------
     # Set Bandwidth, defaulted to Scott's Factor
     # ----------------------------------------------
-    scotts_factor = lambda: np.power(n, -1./(d+4))
-    silverman_factor = lambda: np.power(n*(d+2.0)/4.0, -1./(d+4))
+    scotts_factor = lambda: np.power(num_dp, -1./(dim+4))
+    silverman_factor = lambda: np.power(num_dp*(dim+2.0)/4.0, -1./(dim+4))
 
     # Default method to calculate bandwidth, can be overwritten by subclass
     covariance_factor = scotts_factor
@@ -3740,7 +3740,7 @@ def ksdensity(dataset, bw_method=None):
         covariance_factor = scotts_factor
     elif bw_method == 'silverman':
         covariance_factor = silverman_factor
-    elif np.isscalar(bw_method) and not isinstance(bw_method, string_types):
+    elif np.isscalar(bw_method) and not isinstance(bw_method, six.string_types):
         covariance_factor = lambda: bw_method
     else:
         msg = "`bw_method` should be 'scott', 'silverman', or a scalar"
@@ -3752,41 +3752,42 @@ def ksdensity(dataset, bw_method=None):
     factor = covariance_factor()
 
     # Cache covariance and inverse covariance of the data
-    data_covariance = np.atleast_2d(np.cov(dataset, rowvar=1,bias=False))
+    data_covariance = np.atleast_2d(np.cov(dataset, rowvar=1, bias=False))
     data_inv_cov = np.linalg.inv(data_covariance)
 
     covariance = data_covariance * factor**2
     inv_cov = data_inv_cov / factor**2
-    norm_factor = np.sqrt(np.linalg.det(2*np.pi*covariance)) * n
+    norm_factor = np.sqrt(np.linalg.det(2*np.pi*covariance)) * num_dp
 
     # ----------------------------------------------
     # Evaluate the estimated pdf on a set of points.
     # ----------------------------------------------
-    points = np.atleast_2d(np.arange(xmin,xmax, (xmax-xmin)/100.))
+    points = np.atleast_2d(np.arange(xmin, xmax, (xmax-xmin)/100.))
 
-    d1, m1 = points.shape
-    if d1 != d:
-        if d1 == 1 and m1 == d:
+    dim_pts, num_dp_pts = np.array(points).shape
+    if dim_pts != dim:
+        if dim_pts == 1 and num_dp_pts == num_dp:
             # points was passed in as a row vector
-            points = np.reshape(points, (d, 1))
-            m1 = 1
+            points = np.reshape(points, (dim, 1))
+            num_dp_pts = 1
         else:
-            msg = "points have dimension %s, dataset has dimension %s" % (d1, d)
+            msg = "points have dimension %s,\
+                   dataset has dimension %s" % (dim_pts, dim)
             raise ValueError(msg)
 
-    result = np.zeros((m1,), dtype=np.float)
+    result = np.zeros((num_dp_pts,), dtype=np.float)
 
-    if m1 >= n:
+    if num_dp_pts >= num_dp:
         # there are more points than data, so loop over data
-        for i in range(n):
+        for i in range(num_dp):
             diff = dataset[:, i, np.newaxis] - points
             tdiff = np.dot(inv_cov, diff)
-            energy = np.sum(diff*tdiff,axis=0) / 2.0
+            energy = np.sum(diff*tdiff, axis=0) / 2.0
             result = result + np.exp(-energy)
     else:
         # loop over points
-        for i in range(m):
-            diff = dataset - points[:, i, newaxis]
+        for i in range(num_dp_pts):
+            diff = dataset - points[:, i, np.newaxis]
             tdiff = np.dot(inv_cov, diff)
             energy = np.sum(diff * tdiff, axis=0) / 2.0
             result[i] = np.sum(np.exp(-energy), axis=0)
@@ -3794,11 +3795,11 @@ def ksdensity(dataset, bw_method=None):
     result = result / norm_factor
 
     return {
-        'xmin' : xmin,
-        'xmax' : xmax,
-        'mean' : np.mean(result),
-        'median' : np.median(result),
-        'result' : result
+        'xmin': xmin,
+        'xmax': xmax,
+        'mean': np.mean(dataset),
+        'median': np.median(dataset),
+        'result': result
     }
 
 ##################################################
