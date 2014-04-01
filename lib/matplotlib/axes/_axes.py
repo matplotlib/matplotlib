@@ -6725,7 +6725,7 @@ class Axes(_AxesBase):
                                                  integer=True))
         return im
 
-    def violinplot(self, dataset, positions=None, widths=0.5, showmeans=False,
+    def violinplot(self, dataset, positions=None, vert=True, widths=0.5, showmeans=False,
                    showextrema=True, showmedians=False):
         """
         Make a violin plot.
@@ -6748,6 +6748,10 @@ class Axes(_AxesBase):
           positions : array-like, default = [1, 2, ..., n]
             Sets the positions of the violins. The ticks and limits are
             automatically set to match the positions.
+
+          vert : bool, default = True.
+            If true, creates vertical violin plot
+            Else, creates horizontal violin plot
 
           widths : array-like, default = 0.5
             Either a scalar or a vector that sets the maximal width of
@@ -6839,30 +6843,61 @@ class Axes(_AxesBase):
             # correct width in the end.
             v = 0.5 * w * v/v.max()
 
-            bodies += [self.fill_betweenx(coords,
+            # create vertical violin plot
+            if vert:
+                bodies += [self.fill_betweenx(coords,
                                           -v+p,
                                           v+p,
                                           facecolor='y',
                                           alpha=0.3)]
+            # create horizontal violin plot
+            else:
+                bodies += [self.fill_between(coords,
+                                              -v+p,
+                                              v+p,
+                                              facecolor='y',
+                                              alpha=0.3)]
 
             means.append(mean)
             mins.append(m)
             maxes.append(M)
             medians.append(median)
 
-        # Render means
-        if showmeans:
-            cmeans = self.hlines(means, pmins, pmaxes, colors='r')
+        # respective means, extrema median on vertical violin plot
+        if vert:
+            # Render means
+            if showmeans:
+                cmeans = self.hlines(means, pmins, pmaxes, colors='r')
 
-        # Render extrema
-        if showextrema:
-            cmaxes = self.hlines(maxes, pmins, pmaxes, colors='r')
-            cmins = self.hlines(mins, pmins, pmaxes, colors='r')
-            cbars = self.vlines(positions, mins, maxes, colors='r')
+            # Render extrema
+            if showextrema:
+                cmaxes = self.hlines(maxes, pmins, pmaxes, colors='r')
+                cmins = self.hlines(mins, pmins, pmaxes, colors='r')
+                cbars = self.vlines(positions, mins, maxes, colors='r')
 
-        # Render medians
-        if showmedians:
-            cmedians = self.hlines(medians, pmins, pmaxes, colors='r')
+            # Render medians
+            if showmedians:
+                cmedians = self.hlines(medians, pmins, pmaxes, colors='r')
+
+        # respective means, extrema median on horizontal violin plot
+        else:
+            # Render means
+            if showmeans:
+                cmeans = self.vlines(means, pmins, pmaxes, colors='r')
+
+            # Render extrema
+            if showextrema:
+                cmaxes = self.vlines(maxes, pmins, pmaxes, colors='r')
+                cmins = self.vlines(mins, pmins, pmaxes, colors='r')
+                cbars = self.hlines(positions, mins, maxes, colors='r')
+
+            # Render medians
+            if showmedians:
+                cmedians = self.vlines(medians, pmins, pmaxes, colors='r')
+
+
+
+
 
         # Reset hold
         self.hold(holdStatus)
