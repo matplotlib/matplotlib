@@ -134,6 +134,10 @@ original location:
 * Removed the class `FigureManagerQTAgg` and deprecated `NavigationToolbar2QTAgg`
   which will be removed in 1.5.
 
+* Removed formerly public (non-prefixed) attributes `rect` and
+  `drawRect` from `FigureCanvasQTAgg`; they were always an
+  implementation detail of the (preserved) `drawRectangle()` function.
+
 * The function signatures of `tight_bbox.adjust_bbox` and
   `tight_bbox.process_figure_for_rasterizing` have been changed. A new
   `fixed_dpi` parameter allows for overriding the `figure.dpi` setting
