@@ -122,6 +122,10 @@ def figure_edit(axes, parent=None):
                     line.set_markersize(markersize)
                     line.set_markerfacecolor(markerfacecolor)
                     line.set_markeredgecolor(markeredgecolor)
+        
+        # re-generate legend, if there is one. Stefan Kraus/tacaswell 2014-04-02
+        if axes.legend_ is not None:
+            axes.legend()
 
         # Redraw
         figure = axes.get_figure()
