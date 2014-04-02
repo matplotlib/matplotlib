@@ -1649,78 +1649,54 @@ def test_vert_violinplot_showall():
     ax.violinplot(data,range(4),showmeans=1,showextrema=1,showmedians=1)
 
 
-@image_comparison(baseline_images=['test_vert_violinplot_customwidths'],
-                  extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
-def test_vert_violinplot_customwidths():
-    pass
-
-
-@image_comparison(baseline_images=['test_vert_violinplot_custompoints_10'],
-                  extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+@image_comparison(baseline_images=['test_vert_violinplot_custompoints_10'])
 def test_vert_violinplot_custompoints_10():
-    pass
+    ax = plt.axes()
+    ax.violinplot(data,range(4),showmeans=0,showextrema=0,showmedians=0,10)
 
 
-@image_comparison(baseline_images=['test_vert_violinplot_custompoints_200'],
-                  extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+@image_comparison(baseline_images=['test_vert_violinplot_custompoints_200'])
 def test_vert_violinplot_custompoints_200():
-    pass
+    ax = plt.axes()
+    ax.violinplot(data,range(4),showmeans=0,showextrema=0,showmedians=0,200)
 
-@image_comparison(baseline_images=['test_horiz_violinplot_baseline'],
-                  extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+@image_comparison(baseline_images=['test_horiz_violinplot_baseline'])
 def test_horiz_violinplot_baseline():
-    pass
+    ax = plt.axes()
+    ax.violinplot(data,range(4),0,showmeans=0,showextrema=0,showmedians=0)
 
-@image_comparison(baseline_images=['test_horiz_violinplot_showmedian'],
-                  extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
-def test_horiz_violinplot_showmedian():
-    pass
+@image_comparison(baseline_images=['test_horiz_violinplot_showmedians'])
+def test_horiz_violinplot_showmedians():
+    ax = plt.axes()
+    ax.violinplot(data,range(4),0,showmeans=0,showextrema=0,showmedians=1)
 
-@image_comparison(baseline_images=['test_horiz_violinplot_showmean'],
-                  extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
-def test_horiz_violinplot_showmean():
-    pass
+@image_comparison(baseline_images=['test_horiz_violinplot_showmeans'])
+def test_horiz_violinplot_showmeans():
+    ax = plt.axes()
+    ax.violinplot(data,range(4),0,showmeans=1,showextrema=0,showmedians=0)
 
-
-@image_comparison(baseline_images=['test_horiz_violinplot_showextrema'],
-                  extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+@image_comparison(baseline_images=['test_horiz_violinplot_showextrema'])
 def test_horiz_violinplot_showextrema():
-    pass
+    ax = plt.axes()
+    ax.violinplot(data,range(4),0,showmeans=0,showextrema=1,showmedians=0)
 
 
-@image_comparison(baseline_images=['test_horiz_violinplot_show_mme'],
-                  extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
-def test_horiz_violinplot_show_mme():
-    pass
+@image_comparison(baseline_images=['test_horiz_violinplot_showall'])
+def test_horiz_violinplot_showall():
+    ax = plt.axes()
+    ax.violinplot(data,range(4),0,showmeans=1,showextrema=1,showmedians=1)
 
 
-@image_comparison(baseline_images=['test_horiz_violinplot_customwidths'],
-                  extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
-def test_horiz_violinplot_customwidths():
-    pass
-
-
-@image_comparison(baseline_images=['test_horiz_violinplot_custompoints_10'],
-                  extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+@image_comparison(baseline_images=['test_horiz_violinplot_custompoints_10'])
 def test_horiz_violinplot_custompoints_10():
-    pass
+    ax = plt.axes()
+    ax.violinplot(data,range(4),0,showmeans=0,showextrema=0,showmedians=0,10)
 
 
-@image_comparison(baseline_images=['test_horiz_violinplot_custompoints_200'],
-                  extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+@image_comparison(baseline_images=['test_horiz_violinplot_custompoints_200'])
 def test_horiz_violinplot_custompoints_200():
-    pass
+    ax = plt.axes()
+    ax.violinplot(data,range(4),0,showmeans=0,showextrema=0,showmedians=0,200)
 
 # test error
 def test_violinplot_bad_positions():
