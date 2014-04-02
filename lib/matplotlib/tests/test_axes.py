@@ -1652,13 +1652,13 @@ def test_vert_violinplot_showall():
 @image_comparison(baseline_images=['test_vert_violinplot_custompoints_10'])
 def test_vert_violinplot_custompoints_10():
     ax = plt.axes()
-    ax.violinplot(data,range(4),showmeans=0,showextrema=0,showmedians=0,10)
+    ax.violinplot(data,range(4),showmeans=0,showextrema=0,showmedians=0,points=10)
 
 
 @image_comparison(baseline_images=['test_vert_violinplot_custompoints_200'])
 def test_vert_violinplot_custompoints_200():
     ax = plt.axes()
-    ax.violinplot(data,range(4),showmeans=0,showextrema=0,showmedians=0,200)
+    ax.violinplot(data,range(4),showmeans=0,showextrema=0,showmedians=0,points=200)
 
 @image_comparison(baseline_images=['test_horiz_violinplot_baseline'])
 def test_horiz_violinplot_baseline():
@@ -1690,13 +1690,13 @@ def test_horiz_violinplot_showall():
 @image_comparison(baseline_images=['test_horiz_violinplot_custompoints_10'])
 def test_horiz_violinplot_custompoints_10():
     ax = plt.axes()
-    ax.violinplot(data,range(4),0,showmeans=0,showextrema=0,showmedians=0,10)
+    ax.violinplot(data,range(4),0,showmeans=0,showextrema=0,showmedians=0,points=10)
 
 
 @image_comparison(baseline_images=['test_horiz_violinplot_custompoints_200'])
 def test_horiz_violinplot_custompoints_200():
     ax = plt.axes()
-    ax.violinplot(data,range(4),0,showmeans=0,showextrema=0,showmedians=0,200)
+    ax.violinplot(data,range(4),0,showmeans=0,showextrema=0,showmedians=0,points=200)
 
 # test error
 def test_violinplot_bad_positions():
