@@ -6725,7 +6725,7 @@ class Axes(_AxesBase):
                                                  integer=True))
         return im
 
-    def violinplot(self, dataset, positions=None, vert=True, widths=0.5, showmeans=False,
+    def violinplot(self, dataset, positions=None, points=100, vert=True, widths=0.5, showmeans=False,
                    showextrema=True, showmedians=False):
         """
         Make a violin plot.
@@ -6748,6 +6748,9 @@ class Axes(_AxesBase):
           positions : array-like, default = [1, 2, ..., n]
             Sets the positions of the violins. The ticks and limits are
             automatically set to match the positions.
+          
+          points: array-like, default = 100
+            Number of points to evaluate pdf estimation for Gaussian kernel
 
           vert : bool, default = True.
             If true, creates vertical violin plot
@@ -6806,6 +6809,9 @@ class Axes(_AxesBase):
         cbars = None
         cmedians = None
 
+        datashape_message = ("List of violinplot statistics and `{0}` "
+                             "values must have same the length")
+
         # Validate positions
         if positions == None:
             positions = range(1, len(dataset) + 1)
@@ -6830,13 +6836,14 @@ class Axes(_AxesBase):
         # Render violins
         for d,p,w in zip(dataset,positions,widths):            
             # Calculate the kernel density
-            kde = mlab.ksdensity(d)
-            m = kde['xmin']
-            M = kde['xmax']
-            mean = kde['mean']
-            median = kde['median']
-            v = kde['result']
-            coords = np.arange(m,M,(M-m)/100.)
+            kde = mlab.gaussian_kde(d)
+            m = kde.dataset.min()
+            M = kde.dataset.max()
+            mean = np.mean(kde.dataset)
+            median = np.median(kde.dataset)
+            coords = np.arange(m,M,(M-m)/float(points))
+
+            v = kde.evaluate(coords)
 
             # Since each data point p is plotted from v-p to v+p,
             # we need to scale it by an additional 0.5 factor so that we get
@@ -6846,10 +6853,10 @@ class Axes(_AxesBase):
             # create vertical violin plot
             if vert:
                 bodies += [self.fill_betweenx(coords,
-                                          -v+p,
-                                          v+p,
-                                          facecolor='y',
-                                          alpha=0.3)]
+                                              -v+p,
+                                              v+p,
+                                              facecolor='y',
+                                              alpha=0.3)]
             # create horizontal violin plot
             else:
                 bodies += [self.fill_between(coords,
@@ -6894,10 +6901,6 @@ class Axes(_AxesBase):
             # Render medians
             if showmedians:
                 cmedians = self.vlines(medians, pmins, pmaxes, colors='r')
-
-
-
-
 
         # Reset hold
         self.hold(holdStatus)

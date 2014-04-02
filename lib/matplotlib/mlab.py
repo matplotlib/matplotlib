@@ -3656,12 +3656,12 @@ def stineman_interp(xi,x,y,yp=None):
                                   1/(dy1+dy2),))
     return yi
 
-def ksdensity(dataset, bw_method=None):
+class gaussian_kde(object):    
     """
     Representation of a kernel-density estimate using Gaussian kernels.
 
     Call signature::
-    kde_dict = ksdensity(dataset, 'silverman')
+    kde = gaussian_kde(dataset, 'silverman')
 
     Parameters
     ----------
@@ -3676,10 +3676,10 @@ def ksdensity(dataset, bw_method=None):
     Attributes
     ----------
     dataset : ndarray
-        The dataset with which `ksdensity` was initialized.
-    d : int
+        The dataset with which `gaussian_kde` was initialized.
+    dim : int
         Number of dimensions.
-    n : int
+    num_dp : int
         Number of datapoints.
     factor : float
         The bandwidth factor, obtained from `kde.covariance_factor`, with which
@@ -3690,117 +3690,135 @@ def ksdensity(dataset, bw_method=None):
     inv_cov : ndarray
         The inverse of `covariance`.
 
-    Returns
+    Methods
     -------
-    A dictionary mapping each various aspects of the computed KDE.
-    The dictionary has the following keys:
-
-        xmin : number
-            The min of the input dataset
-        xmax : number
-            The max of the input dataset
-        mean : number
-            The mean of the result
-        median: number
-            The median of the result
-        result: (# of points,)-array
-            The array of the evaluated PDF estimation
-
-    Raises
-    ------
-    ValueError : if the dimensionality of the input points is different than
-                 the dimensionality of the KDE.
+    kde.evaluate(points) : ndarray
+        Evaluate the estimated pdf on a provided set of points.
+    kde(points) : ndarray
+        Same as kde.evaluate(points)
+    kde.set_bandwidth(bw_method='scott') : None
+        Computes the bandwidth, i.e. the coefficient that multiplies the data
+        covariance matrix to obtain the kernel covariance matrix.
+        .. versionadded:: 0.11.0
+    kde.covariance_factor : float
+        Computes the coefficient (`kde.factor`) that multiplies the data
+        covariance matrix to obtain the kernel covariance matrix.
+        The default is `scotts_factor`.  A subclass can overwrite this method
+        to provide a different method, or set it through a call to
+        `kde.set_bandwidth`.
 
     """
 
     # This implementation with minor modification was too good to pass up.
     # from scipy: https://github.com/scipy/scipy/blob/master/scipy/stats/kde.py
 
-    dataset = np.array(np.atleast_2d(dataset))
-    xmin = dataset.min()
-    xmax = dataset.max()
+    def __init__(self, dataset, bw_method=None):
+        self.dataset = np.atleast_2d(dataset)
+        if not self.dataset.size > 1:
+            raise ValueError("`dataset` input should have multiple elements.")
 
-    if not dataset.size > 1:
-        raise ValueError("`dataset` input should have multiple elements.")
+        self.dim, self.num_dp = self.dataset.shape
+        self.set_bandwidth(bw_method=bw_method)
 
-    dim, num_dp = dataset.shape
+    def scotts_factor(self):
+        return np.power(self.num_dp, -1./(self.dim+4))
 
-    # ----------------------------------------------
-    # Set Bandwidth, defaulted to Scott's Factor
-    # ----------------------------------------------
-    scotts_factor = lambda: np.power(num_dp, -1./(dim+4))
-    silverman_factor = lambda: np.power(num_dp*(dim+2.0)/4.0, -1./(dim+4))
+    def silverman_factor(self):
+        return np.power(self.num_dp*(self.dim+2.0)/4.0, -1./(self.dim+4))
 
-    # Default method to calculate bandwidth, can be overwritten by subclass
+    #  Default method to calculate bandwidth, can be overwritten by subclass
     covariance_factor = scotts_factor
 
-    if bw_method is None:
-        pass
-    elif bw_method == 'scott':
-        covariance_factor = scotts_factor
-    elif bw_method == 'silverman':
-        covariance_factor = silverman_factor
-    elif np.isscalar(bw_method) and not isinstance(bw_method, six.string_types):
-        covariance_factor = lambda: bw_method
-    else:
-        msg = "`bw_method` should be 'scott', 'silverman', or a scalar"
-        raise ValueError(msg)
-
-    # ---------------------------------------------------------------
-    # Computes covariance matrix for each Gaussian kernel with factor
-    # ---------------------------------------------------------------
-    factor = covariance_factor()
-
-    # Cache covariance and inverse covariance of the data
-    data_covariance = np.atleast_2d(np.cov(dataset, rowvar=1, bias=False))
-    data_inv_cov = np.linalg.inv(data_covariance)
-
-    covariance = data_covariance * factor**2
-    inv_cov = data_inv_cov / factor**2
-    norm_factor = np.sqrt(np.linalg.det(2*np.pi*covariance)) * num_dp
-
-    # ----------------------------------------------
-    # Evaluate the estimated pdf on a set of points.
-    # ----------------------------------------------
-    points = np.atleast_2d(np.arange(xmin, xmax, (xmax-xmin)/100.))
-
-    dim_pts, num_dp_pts = np.array(points).shape
-    if dim_pts != dim:
-        if dim_pts == 1 and num_dp_pts == num_dp:
-            # points was passed in as a row vector
-            points = np.reshape(points, (dim, 1))
-            num_dp_pts = 1
+    def set_bandwidth(self, bw_method=None):
+        if bw_method is None:
+            pass
+        elif bw_method == 'scott':
+            self.covariance_factor = self.scotts_factor
+        elif bw_method == 'silverman':
+            self.covariance_factor = self.silverman_factor
+        elif np.isscalar(bw_method) and not isinstance(bw_method, six.string_types):
+            self._bw_method = 'use constant'
+            self.covariance_factor = lambda: bw_method
+        elif callable(bw_method):
+            self._bw_method = bw_method
+            self.covariance_factor = lambda: self._bw_method(self)
         else:
-            msg = "points have dimension %s,\
-                   dataset has dimension %s" % (dim_pts, dim)
+            msg = "`bw_method` should be 'scott', 'silverman', a scalar " \
+                  "or a callable."
             raise ValueError(msg)
 
-    result = np.zeros((num_dp_pts,), dtype=np.float)
+        self._compute_covariance()
 
-    if num_dp_pts >= num_dp:
-        # there are more points than data, so loop over data
-        for i in range(num_dp):
-            diff = dataset[:, i, np.newaxis] - points
-            tdiff = np.dot(inv_cov, diff)
-            energy = np.sum(diff*tdiff, axis=0) / 2.0
-            result = result + np.exp(-energy)
-    else:
-        # loop over points
-        for i in range(num_dp_pts):
-            diff = dataset - points[:, i, np.newaxis]
-            tdiff = np.dot(inv_cov, diff)
-            energy = np.sum(diff * tdiff, axis=0) / 2.0
-            result[i] = np.sum(np.exp(-energy), axis=0)
+    def _compute_covariance(self):
+        """Computes the covariance matrix for each Gaussian kernel using
+        covariance_factor().
+        """
+        self.factor = self.covariance_factor()
+        # Cache covariance and inverse covariance of the data
+        if not hasattr(self, '_data_inv_cov'):
+            self._data_covariance = np.atleast_2d(np.cov(self.dataset, rowvar=1,
+                                               bias=False))
+            self._data_inv_cov = np.linalg.inv(self._data_covariance)
 
-    result = result / norm_factor
+        self.covariance = self._data_covariance * self.factor**2
+        self.inv_cov = self._data_inv_cov / self.factor**2
+        self._norm_factor = np.sqrt(np.linalg.det(2*np.pi*self.covariance)) * self.num_dp        
 
-    return {
-        'xmin': xmin,
-        'xmax': xmax,
-        'mean': np.mean(dataset),
-        'median': np.median(dataset),
-        'result': result
-    }
+    def evaluate(self, points):
+        """Evaluate the estimated pdf on a set of points.
+
+        Parameters
+        ----------
+        points : (# of dimensions, # of points)-array
+            Alternatively, a (# of dimensions,) vector can be passed in and
+            treated as a single point.
+
+        Returns
+        -------
+        values : (# of points,)-array
+            The values at each point.
+
+        Raises
+        ------
+        ValueError : if the dimensionality of the input points is different than
+                     the dimensionality of the KDE.
+
+        """
+        points = np.atleast_2d(points)
+
+        d, m = points.shape
+        if d != self.dim:
+            if d == 1 and m == self.dim:
+                # points was passed in as a row vector
+                points = np.reshape(points, (self.dim, 1))
+                m = 1
+            else:
+                msg = "points have dimension %s, dataset has dimension %s" % (d,
+                    self.dim)
+                raise ValueError(msg)
+
+        result = np.zeros((m,), dtype=np.float)
+
+        if m >= self.num_dp:
+            # there are more points than data, so loop over data
+            for i in range(self.num_dp):
+                diff = self.dataset[:, i, np.newaxis] - points
+                tdiff = np.dot(self.inv_cov, diff)
+                energy = np.sum(diff*tdiff,axis=0) / 2.0
+                result = result + np.exp(-energy)
+        else:
+            # loop over points
+            for i in range(m):
+                diff = self.dataset - points[:, i, np.newaxis]
+                tdiff = np.dot(self.inv_cov, diff)
+                energy = np.sum(diff * tdiff, axis=0) / 2.0
+                result[i] = np.sum(np.exp(-energy), axis=0)
+
+        result = result / self._norm_factor
+
+        return result
+
+    __call__ = evaluate
 
 ##################################################
 # Code related to things in and around polygons
