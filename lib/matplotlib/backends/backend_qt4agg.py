@@ -68,14 +68,12 @@ class FigureCanvasQTAgg(FigureCanvasQT, FigureCanvasAgg):
             print('FigureCanvasQtAgg: ', figure)
         FigureCanvasQT.__init__(self, figure)
         FigureCanvasAgg.__init__(self, figure)
-        self.drawRect = False
-        self.rect = []
+        self._drawRect = None
         self.blitbox = None
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
 
     def drawRectangle(self, rect):
-        self.rect = rect
-        self.drawRect = True
+        self._drawRect = rect
         self.repaint()
 
     def paintEvent(self, e):
@@ -115,10 +113,10 @@ class FigureCanvasQTAgg(FigureCanvasQT, FigureCanvasAgg):
             p.drawPixmap(QtCore.QPoint(0, 0), QtGui.QPixmap.fromImage(qImage))
 
             # draw the zoom rectangle to the QPainter
-            if self.drawRect:
+            if self._drawRect:
                 p.setPen(QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.DotLine))
-                p.drawRect(self.rect[0], self.rect[1],
-                           self.rect[2], self.rect[3])
+                x, y, w, h = self._drawRect
+                p.drawRect(x, y, w, h)
             p.end()
 
             # This works around a bug in PySide 1.1.2 on Python 3.x,
@@ -143,7 +141,7 @@ class FigureCanvasQTAgg(FigureCanvasQT, FigureCanvasAgg):
             p.drawPixmap(QtCore.QPoint(l, self.renderer.height-t), pixmap)
             p.end()
             self.blitbox = None
-        self.drawRect = False
+        self._drawRect = None
 
     def draw(self):
         """
