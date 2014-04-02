@@ -52,7 +52,7 @@ def test_legend_auto3():
 
 @image_comparison(baseline_images=['legend_best1'])
 def test_legend_best1():
-    'Test automatic legend placement'
+    'Test best automatic legend placement'
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.scatter(0.95, 0.95)
@@ -63,7 +63,7 @@ def test_legend_best1():
 
 @image_comparison(baseline_images=['legend_best2'])
 def test_legend_best2():
-    'Test automatic legend placement'
+    'Test best automatic legend placement'
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.scatter(0.95, 0.95)
