@@ -6725,16 +6725,19 @@ class Axes(_AxesBase):
                                                  integer=True))
         return im
 
-    def violinplot(self, dataset, positions=None, vert=True, widths=0.5, showmeans=False,
-                   showextrema=True, showmedians=False):
+    def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
+                   showmeans=False, showextrema=True, showmedians=False,
+                   points=100):
         """
         Make a violin plot.
 
         Call signature::
 
-          violinplot(dataset, positions=None)
+          violinplot(dataset, positions=None, vert=True, widths=0.5,
+                     showmeans=False, showextrema=True, showmedians=False,
+                     points=100):
 
-        Make a violin plot for each column of *dataset* or each vector in 
+        Make a violin plot for each column of *dataset* or each vector in
         sequence *dataset*.  Each filled area extends to represent the
         entire data range, with three lines at the mean, the minimum, and
         the maximum.
@@ -6750,8 +6753,8 @@ class Axes(_AxesBase):
             automatically set to match the positions.
 
           vert : bool, default = True.
-            If true, creates vertical violin plot
-            Else, creates horizontal violin plot
+            If true, creates a vertical violin plot.
+            Otherwise, creates a horizontal violin plot.
 
           widths : array-like, default = 0.5
             Either a scalar or a vector that sets the maximal width of
@@ -6767,6 +6770,10 @@ class Axes(_AxesBase):
           showmedians : bool, default = False
             If true, will toggle rendering of the medians.
 
+          points : scalar, default = 100
+            Defines the number of points to evaluate each of the gaussian
+            kernel density estimations at.
+
         Returns
         -------
 
@@ -6774,7 +6781,7 @@ class Axes(_AxesBase):
         corresponding collection instances created. The dictionary has
         the following keys:
 
-            - bodies: A list of the 
+            - bodies: A list of the
               :class:`matplotlib.collections.PolyCollection` instances
               containing the filled area of each violin.
             - means: A :class:`matplotlib.collections.LineCollection` instance
@@ -6786,9 +6793,9 @@ class Axes(_AxesBase):
               created to identify the top of each violin's distribution.
             - bars: A :class:`matplotlib.collections.LineCollection` instance
               created to identify the centers of each violin's distribution.
-            - medians: A :class:`matplotlib.collections.LineCollection` instance
-              created to identify the median values of each of the violin's
-              distribution.
+            - medians: A :class:`matplotlib.collections.LineCollection`
+              instance created to identify the median values of each of the
+              violin's distribution.
 
         """
 
@@ -6799,15 +6806,20 @@ class Axes(_AxesBase):
         medians = []
 
         # Collections to be returned
-        bodies = []
-        cmeans = None
-        cmaxes = None
-        cmins = None
-        cbars = None
-        cmedians = None
+        artists = {
+            'bodies': [],
+            'cmeans': None,
+            'cmaxes': None,
+            'cmins': None,
+            'cbars': None,
+            'cmedians': None
+        }
+
+        datashape_message = ("List of violinplot statistics and `{0}` "
+                             "values must have the same length")
 
         # Validate positions
-        if positions == None:
+        if positions is None:
             positions = range(1, len(dataset) + 1)
         elif len(positions) != len(dataset):
             raise ValueError(datashape_message.format("positions"))
@@ -6825,91 +6837,64 @@ class Axes(_AxesBase):
         # Check hold status
         if not self._hold:
             self.cla()
-        holdStatus = self._hold
+        hold_status = self._hold
+
+        # Check whether we are rendering vertically or horizontally
+        if vert:
+            fill = self.fill_betweenx
+            rlines = self.hlines
+            blines = self.vlines
+        else:
+            fill = self.fill_between
+            rlines = self.vlines
+            blines = self.hlines
 
         # Render violins
-        for d,p,w in zip(dataset,positions,widths):            
+        for data, pos, width in zip(dataset, positions, widths):
             # Calculate the kernel density
-            kde = mlab.ksdensity(d)
-            m = kde['xmin']
-            M = kde['xmax']
+            kde = mlab.ksdensity(data)
+            min_val = kde['xmin']
+            max_val = kde['xmax']
             mean = kde['mean']
             median = kde['median']
-            v = kde['result']
-            coords = np.arange(m,M,(M-m)/100.)
+            vals = kde['result']
+            coords = np.arange(min_val, max_val, (max_val - min_val)/points)
 
             # Since each data point p is plotted from v-p to v+p,
             # we need to scale it by an additional 0.5 factor so that we get
             # correct width in the end.
-            v = 0.5 * w * v/v.max()
+            vals = 0.5 * width * vals/vals.max()
 
-            # create vertical violin plot
-            if vert:
-                bodies += [self.fill_betweenx(coords,
-                                          -v+p,
-                                          v+p,
-                                          facecolor='y',
-                                          alpha=0.3)]
-            # create horizontal violin plot
-            else:
-                bodies += [self.fill_between(coords,
-                                              -v+p,
-                                              v+p,
-                                              facecolor='y',
-                                              alpha=0.3)]
+            # create the violin bodies
+            artists['bodies'] += [fill(coords,
+                                       -vals + pos,
+                                       vals + pos,
+                                       facecolor='y',
+                                       alpha=0.3)]
 
             means.append(mean)
-            mins.append(m)
-            maxes.append(M)
+            mins.append(min_val)
+            maxes.append(max_val)
             medians.append(median)
 
-        # respective means, extrema median on vertical violin plot
-        if vert:
-            # Render means
-            if showmeans:
-                cmeans = self.hlines(means, pmins, pmaxes, colors='r')
+        # Render means
+        if showmeans:
+            artists['cmeans'] = rlines(means, pmins, pmaxes, colors='r')
 
-            # Render extrema
-            if showextrema:
-                cmaxes = self.hlines(maxes, pmins, pmaxes, colors='r')
-                cmins = self.hlines(mins, pmins, pmaxes, colors='r')
-                cbars = self.vlines(positions, mins, maxes, colors='r')
+        # Render extrema
+        if showextrema:
+            artists['cmaxes'] = rlines(maxes, pmins, pmaxes, colors='r')
+            artists['cmins'] = rlines(mins, pmins, pmaxes, colors='r')
+            artists['cbars'] = blines(positions, mins, maxes, colors='r')
 
-            # Render medians
-            if showmedians:
-                cmedians = self.hlines(medians, pmins, pmaxes, colors='r')
-
-        # respective means, extrema median on horizontal violin plot
-        else:
-            # Render means
-            if showmeans:
-                cmeans = self.vlines(means, pmins, pmaxes, colors='r')
-
-            # Render extrema
-            if showextrema:
-                cmaxes = self.vlines(maxes, pmins, pmaxes, colors='r')
-                cmins = self.vlines(mins, pmins, pmaxes, colors='r')
-                cbars = self.hlines(positions, mins, maxes, colors='r')
-
-            # Render medians
-            if showmedians:
-                cmedians = self.vlines(medians, pmins, pmaxes, colors='r')
-
-
-
-
+        # Render medians
+        if showmedians:
+            artists['cmedians'] = rlines(medians, pmins, pmaxes, colors='r')
 
         # Reset hold
-        self.hold(holdStatus)
+        self.hold(hold_status)
 
-        return {
-            'bodies' : bodies,
-            'means' : cmeans,
-            'mins' : cmins,
-            'maxes' : cmaxes,
-            'bars' : cbars,
-            'medians' : cmedians
-        }
+        return artists
 
 
     def tricontour(self, *args, **kwargs):
