@@ -6852,13 +6852,14 @@ class Axes(_AxesBase):
         # Render violins
         for data, pos, width in zip(dataset, positions, widths):
             # Calculate the kernel density
-            kde = mlab.ksdensity(data)
-            min_val = kde['xmin']
-            max_val = kde['xmax']
-            mean = kde['mean']
-            median = kde['median']
-            vals = kde['result']
+            kde = mlab.GaussianKDE(data)
+            min_val = kde.dataset.min()
+            max_val = kde.dataset.max()
+            mean = np.mean(kde.dataset)
+            median = np.median(kde.dataset)
             coords = np.arange(min_val, max_val, (max_val - min_val)/points)
+
+            vals = kde.evaluate(coords)
 
             # Since each data point p is plotted from v-p to v+p,
             # we need to scale it by an additional 0.5 factor so that we get
