@@ -2757,7 +2757,110 @@ def test_griddata_nn():
     np.testing.assert_array_equal(np.ma.getmask(zi),
                                   np.ma.getmask(correct_zi_masked))
 
+#-----------------------------------------------------------------
+#-----------------------------------------------------------------
 
+class ksdensity_test():
+    def test_kde_integer_input(self):
+        """Regression test for #1181."""
+        x1 = np.arange(5)
+        kde = mlab.ksdensity(x1 + x1)
+        y_expected = [0.13480721, 0.18222869, 0.19514935, 0.18222869, 0.13480721]
+        assert_array_almost_equal(kde["result"], y_expected, decimal=6)
+	
+    @knownfailureif(True)
+    def test_gaussian_kde_covariance_caching(self):
+        x1 = np.array([-7, -5, 1, 4, 5], dtype=np.float)
+        xs = np.linspace(-10, 10, num=5)
+        # These expected values are from scipy 0.10, before some changes to
+        # gaussian_kde. They were not compared with any external reference.
+        y_expected = [0.02463386, 0.04689208, 0.05395444, 0.05337754, 0.01664475]
+
+        # Set the bandwidth, then reset it to the default.
+        kde = mlab.ksdensity(x1, 0.5)
+        y2 = kde['result']
+
+        assert_array_almost_equal(y_expected, y2, decimal=7)
+
+        kde = mlab.ksdensity(xs, 'scott')
+        y2 = kde['result']
+
+        assert_array_almost_equal(y_expected, y2, decimal=7)
+
+    @knownfailureif(True)
+    def test_gaussian_kde_subclassing(self):
+        x1 = np.array([-7, -5, 1, 4, 5], dtype=np.float)
+        xs = np.linspace(-10, 10, num=50)
+
+        # gaussian_kde itself
+        kde = mlab.ksdensity(xs)
+        ys = kde['result']
+
+        y_expected = [0.06292987, 0.06346938, 0.05860291, 0.08657652, 0.07904017]
+
+        assert_array_almost_equal(y_expected, ys, decimal=6)
+
+
+    @knownfailureif(True)
+    def test_kde_1d(self):
+        #some basic tests comparing to normal distribution
+        np.random.seed(8765678)
+        n_basesample = 500
+        xn = np.random.randn(n_basesample)
+        xnmean = xn.mean()
+        xnstd = xn.std(ddof=1)
+
+        xs = np.linspace(-7, 7, 501)
+
+        # get kde for original sample
+        gkde = mlab.ksdensity(xn)
+
+        # evaluate the density function for the kde for some points
+        kdepdf = gkde['result']
+        intervall = xs[1] - xs[0]
+
+        normpdf = np.random.normal(loc=xnmean, scale=xnstd)
+
+        assert_(np.sum((kdepdf - normpdf)**2)*intervall < 0.01)
+        prob1 = gkde.integrate_box_1d(xnmean, np.inf)
+        prob2 = gkde.integrate_box_1d(-np.inf, xnmean)
+        assert_almost_equal(prob1, 0.5, decimal=1)
+        assert_almost_equal(prob2, 0.5, decimal=1)
+        assert_almost_equal(gkde.integrate_box(xnmean, np.inf), prob1, decimal=13)
+        assert_almost_equal(gkde.integrate_box(-np.inf, xnmean), prob2, decimal=13)
+
+        assert_almost_equal(gkde.integrate_kde(gkde),
+                        (kdepdf**2).sum()*intervall, decimal=2)
+        assert_almost_equal(gkde.integrate_gaussian(xnmean, xnstd**2),
+                        (kdepdf*normpdf).sum()*intervall, decimal=2)
+
+    def test_kde_bandwidth_method(self):
+
+        np.random.seed(8765678)
+        n_basesample = 50
+        xn = np.random.randn(n_basesample)
+
+        # Default
+        gkde = mlab.ksdensity(xn)
+        # Supply a callable
+        gkde2 =mlab.ksdensity(xn, 'scott')
+        assert_almost_equal(gkde['result'].all(), gkde2['result'].all())
+        # Supply a scalar
+        #gkde3 = mlab.ksdensity(xn, bw_method=gkde.factor)
+
+        xs = np.linspace(-7,7,51)
+        kdepdf = mlab.ksdensity(xs)
+        kdepdf2 = mlab.ksdensity(xs, 'scott')
+        #kdepdf3 = gkde3.evaluate(xs)
+        #assert_almost_equal(kdepdf, kdepdf3)
+
+        assert_raises(ValueError, mlab.ksdensity, xn, bw_method='wrongstring')
+
+
+
+
+#-----------------------------------------------------------------
+#-----------------------------------------------------------------
 if __name__ == '__main__':
     import nose
     import sys
