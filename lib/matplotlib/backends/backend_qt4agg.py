@@ -113,7 +113,7 @@ class FigureCanvasQTAgg(FigureCanvasQT, FigureCanvasAgg):
             p.drawPixmap(QtCore.QPoint(0, 0), QtGui.QPixmap.fromImage(qImage))
 
             # draw the zoom rectangle to the QPainter
-            if self._drawRect:
+            if self._drawRect is not None:
                 p.setPen(QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.DotLine))
                 x, y, w, h = self._drawRect
                 p.drawRect(x, y, w, h)
