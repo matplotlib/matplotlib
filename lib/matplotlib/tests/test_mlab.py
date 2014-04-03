@@ -2806,6 +2806,122 @@ class ksdensity_test():
         assert_almost_equal(kdepdf.all(), kdepdf2.all())
         kdepdf3 = gkde3.evaluate(xs)
         assert_almost_equal(kdepdf.all(), kdepdf3.all())
+        
+#CUSTOM TESTS
+class ksdensity_custom_tests(object):
+class ksdensity_custom_tests(object):
+    def test_no_data(self):
+        """Pass no data into the GaussianKDE class."""
+        mygauss = mlab.GaussianKDE([])
+        self.assertRaises(ValueError,
+                          "`dataset` input should have multiple elements.")
+
+    def test_single_dataset_element(self):
+        """Pass a single dataset element into the GaussianKDE class."""
+        myguass = mlab.GuassianKDE([42])
+        self.assertRaises(ValueError,
+                          "`dataset` input should have multiple elements.")
+
+    def test_silverman_multidim_dataset(self):
+        """Use a multi-dimensional array as the dataset and test silverman's
+        output"""
+        x1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        mygauss = mlab.GaussianKDE(x1, "silverman")
+        othergauss = stats.gaussian_kde(x1)
+        expected_output = othergauss.covariance_factor()
+        assert mygauss.covariance_factor() == expected_output
+
+    def test_silverman_singledim_dataset(self):
+        """Use a single dimension list as the dataset and test silverman's
+        output."""
+        x1 = np.array([-7, -5, 1, 4, 5])
+        mygauss = mlab.GaussianKDE(x1, "silverman")
+        othergauss = stats.gaussian_kde(x1)
+        expected_output = othergauss.covariance_factor()
+        assert mygauss.covariance_factor() == expected_output
+
+    def test_scott_multidim_dataset(self):
+        """Use a multi-dimensional array as the dataset and test scott's output
+        """
+        x1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        mygauss = mlab.GaussianKDE(x1, "scott")
+        othergauss = stats.gaussian_kde(x1)
+        expected_output = othergauss.covariance_factor()
+        assert mygauss.covariance_factor() == expected_output
+
+    def test_scott_singledim_dataset(self):
+        """Use a single-dimensional array as the dataset and test scott's
+        output"""
+        x1 = np.array([-7, -5, 1, 4, 5])
+        mygauss = mlab.GaussianKDE(x1, "scott")
+        othergauss = stats.gaussian_kde(x1)
+        expected_output = othergauss.covariance_factor()
+        assert mygauss.covariance_factor() == expected_output
+
+    def test_scalar_multidim_dataset(self):
+        """Use a multi-dimensional array as the dataset and test a scalar's
+        output"""
+        pass
+
+    def test_scalar_singledim_dataset(self):
+        """Use a single-dimensional array as the dataset and test the scalar's
+        output"""
+        pass
+
+    def test_callable_empty_dataset(self):
+        """Use an empty array as the dataset and test the callable's cov factor
+        """
+        pass
+
+    def test_callable_multidim_dataset(self):
+        """Use an multi-dimensional array as the dataset and test the
+        callable's cov factor"""
+        pass
+
+    def test_callable_singledim_dataset(self):
+        """Use a single-dimensional array as the dataset and test the
+        callable's  cov factor"""
+        pass
+
+    def test_wrong_bw_method(self):
+        """Test the error message that should be called when bw is invalid."""
+        pass
+
+
+class evaluate_tests(object):
+    def test_evaluate_diff_dim(self):
+        """Test the evaluate method when the dim's of dataset and points are
+        different dimensions"""
+        pass
+
+    def test_evaluate_inv_dim(self):
+        """ Invert the dimensions. I.e Give the dataset a dimension of 1
+        [3,2,4], and the points will have a dimension of 3 [[3],[2],[4]]"""
+        pass
+
+    def test_evaluate_point_dim_not_one(self):
+        """Test"""
+        pass
+
+    def test_evaluate_numm_equal_dataset_dim(self):
+        pass
+
+    def test_evaluate_equal_dim_and_numm_lt(self):
+        """Test when line 3810 fails"""
+        pass
+
+    def test_evaluate_equal_dim_and_numm_gte(self):
+        """Test when line 3810 passes"""
+        pass
+
+    def test_evaluate_nequal_dim_and_numm_lt(self):
+        """Test when line 3810 fails"""
+        pass
+
+    def test_evaluate_nequal_dim_and_numm_gte(self):
+        """Test when line 3810 passes"""
+        pass
+
 
 
 #*****************************************************************
