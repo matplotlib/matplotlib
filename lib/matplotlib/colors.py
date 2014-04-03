@@ -50,17 +50,12 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import map, zip
+from six.moves import zip
 
 import re
 import numpy as np
 from numpy import ma
 import matplotlib.cbook as cbook
-
-parts = np.__version__.split('.')
-NP_MAJOR, NP_MINOR = list(map(int, parts[:2]))
-# true if clip supports the out kwarg
-NP_CLIP_OUT = NP_MAJOR >= 1 and NP_MINOR >= 2
 
 cnames = {
     'aliceblue':            '#F0F8FF',
@@ -577,10 +572,7 @@ class Colormap(object):
             # conversion of large positive values to negative integers.
 
             xa *= self.N
-            if NP_CLIP_OUT:
-                np.clip(xa, -1, self.N, out=xa)
-            else:
-                xa = np.clip(xa, -1, self.N)
+            np.clip(xa, -1, self.N, out=xa)
 
             # ensure that all 'under' values will still have negative
             # value after casting to int
