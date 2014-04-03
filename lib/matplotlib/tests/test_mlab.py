@@ -2758,25 +2758,28 @@ def test_griddata_nn():
                                   np.ma.getmask(correct_zi_masked))
 
 #*****************************************************************
+# These Tests where taken from SCIPY with some minor modifications
+# this can be retreived from: 
+# https://github.com/scipy/scipy/blob/master/scipy/stats/tests/test_kdeoth.py
 #*****************************************************************
 
-
 class ksdensity_test():
-    
 
     def test_kde_integer_input(self):
         """Regression test for #1181."""
         x1 = np.arange(5)
         kde = mlab.GaussianKDE(x1)
-        y_expected = [0.13480721, 0.18222869, 0.19514935, 0.18222869, 0.13480721]
+        y_expected = [0.13480721, 0.18222869, 0.19514935, 0.18222869,
+                      0.13480721]
         assert_array_almost_equal(kde(x1), y_expected, decimal=6)
-	
+
     def test_gaussian_kde_covariance_caching(self):
         x1 = np.array([-7, -5, 1, 4, 5], dtype=np.float)
         xs = np.linspace(-10, 10, num=5)
         # These expected values are from scipy 0.10, before some changes to
         # gaussian_kde. They were not compared with any external reference.
-        y_expected = [0.02463386, 0.04689208, 0.05395444, 0.05337754, 0.01664475]
+        y_expected = [0.02463386, 0.04689208, 0.05395444, 0.05337754,
+                      0.01664475]
 
         # set it to the default bandwidth.
         kde2 = mlab.GaussianKDE(x1, 'scott')
@@ -2797,7 +2800,7 @@ class ksdensity_test():
         # Supply a scalar
         gkde3 = mlab.GaussianKDE(xn, bw_method=gkde.factor)
 
-        xs = np.linspace(-7,7,51)
+        xs = np.linspace(-7, 7, 51)
         kdepdf = gkde.evaluate(xs)
         kdepdf2 = gkde2.evaluate(xs)
         assert_almost_equal(kdepdf.all(), kdepdf2.all())
@@ -2805,10 +2808,8 @@ class ksdensity_test():
         assert_almost_equal(kdepdf.all(), kdepdf3.all())
 
 
-
 #*****************************************************************
 #*****************************************************************
-
 
 if __name__ == '__main__':
     import nose
