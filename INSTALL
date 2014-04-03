@@ -154,14 +154,10 @@ Build requirements
 ==================
 
 These are external packages which you will need to install before
-installing matplotlib. Windows users only need the first two (python
-and numpy) since the others are built into the matplotlib Windows
-installers available for download at `the download page
-<http://matplotlib.org/downloads.html>`_.  If you are
-building on OSX, see :ref:`build_osx`. If you are installing
-dependencies with a package manager on Linux, you may need to install
-the development packages (look for a "-dev" postfix) in addition to
-the libraries themselves.
+installing matplotlib.  If you are building on OSX, see
+:ref:`build_osx`. If you are installing dependencies with a package
+manager on Linux, you may need to install the development packages
+(look for a "-dev" postfix) in addition to the libraries themselves.
 
 .. note::
 
