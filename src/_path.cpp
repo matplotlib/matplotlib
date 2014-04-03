@@ -288,7 +288,7 @@ points_in_path(const void* const points, const size_t s0,
     no_nans_t no_nans_path(trans_path, true, path.has_curves());
     curve_t curved_path(no_nans_path);
     contour_t contoured_path(curved_path);
-    contoured_path.width(fabs(r));
+    contoured_path.width(r);
     point_in_path_impl(points, s0, s1, n, contoured_path, result);
 }
 
