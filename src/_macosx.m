@@ -2240,6 +2240,14 @@ _shade_alpha(CGContextRef cr, CGFloat alphas[3], CGPoint points[3])
     return 0;
 }
 
+
+static CGFloat _get_device_scale(CGContextRef cr)
+{
+    CGSize pixelSize = CGContextConvertSizeToDeviceSpace(cr, CGSizeMake(1,1));
+    return pixelSize.width;
+}
+
+
 static PyObject*
 GraphicsContext_draw_gouraud_triangle (GraphicsContext* self, PyObject* args)
 
@@ -2998,17 +3006,8 @@ static void _data_provider_release(void* info, const void* data, size_t size)
     Py_DECREF(image);
 }
 
-/* Consider the drawing origin to be in user coordinates
- * but the image size to be in device coordinates */
-static void draw_image_user_coords_device_size(CGContextRef cr, CGImageRef im,
-        float x, float y, npy_intp ncols, npy_intp nrows)
-{
-    CGRect dst;
-    dst.origin = CGPointMake(x,y);
-    dst.size = CGContextConvertSizeToUserSpace(cr, CGSizeMake(ncols,nrows));
-    dst.size.height = fabs(dst.size.height); /* believe it or not... */
-    CGContextDrawImage(cr, dst, im);
-}
+
+
 
 static PyObject*
 GraphicsContext_draw_mathtext(GraphicsContext* self, PyObject* args)
@@ -3090,16 +3089,18 @@ GraphicsContext_draw_mathtext(GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
+    CGFloat deviceScale = _get_device_scale(cr);
+
     if (angle==0.0)
     {
-        draw_image_user_coords_device_size(cr, bitmap, x, y, ncols, nrows);
+        CGContextDrawImage(cr, CGRectMake(x, y, ncols/deviceScale, nrows/deviceScale), bitmap);
     }
     else
     {
         CGContextSaveGState(cr);
         CGContextTranslateCTM(cr, x, y);
         CGContextRotateCTM(cr, angle*M_PI/180);
-        draw_image_user_coords_device_size(cr, bitmap, 0, 0, ncols, nrows);
+        CGContextDrawImage(cr, CGRectMake(0, 0, ncols/deviceScale, nrows/deviceScale), bitmap);
         CGContextRestoreGState(cr);
     }
     CGImageRelease(bitmap);
@@ -3189,7 +3190,9 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    draw_image_user_coords_device_size(cr, bitmap, x, y, ncols, nrows);
+    CGFloat deviceScale = _get_device_scale(cr);
+
+    CGContextDrawImage(cr, CGRectMake(x, y, ncols/deviceScale, nrows/deviceScale), bitmap);
     CGImageRelease(bitmap);
 
     Py_INCREF(Py_None);
@@ -3206,8 +3209,7 @@ GraphicsContext_get_image_magnification(GraphicsContext* self)
         return NULL;
     }
 
-    CGSize pixelSize = CGContextConvertSizeToDeviceSpace(cr, CGSizeMake(1,1));
-    return PyFloat_FromDouble(pixelSize.width);
+    return PyFloat_FromDouble(_get_device_scale(cr));
 }
 
 
