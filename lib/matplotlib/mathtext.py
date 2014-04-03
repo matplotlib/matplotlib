@@ -2120,204 +2120,206 @@ class Parser(object):
     _right_delim = set(r") ] \} > \rfloor \rangle \rceil".split())
 
     def __init__(self):
+        p = Bunch()
         # All forward declarations are here
-        accent           = Forward()
-        ambi_delim       = Forward()
-        apostrophe       = Forward()
-        auto_delim       = Forward()
-        binom            = Forward()
-        bslash           = Forward()
-        c_over_c         = Forward()
-        customspace      = Forward()
-        end_group        = Forward()
-        float_literal    = Forward()
-        font             = Forward()
-        frac             = Forward()
-        function         = Forward()
-        genfrac          = Forward()
-        group            = Forward()
-        int_literal      = Forward()
-        latexfont        = Forward()
-        lbracket         = Forward()
-        left_delim       = Forward()
-        lbrace           = Forward()
-        main             = Forward()
-        math             = Forward()
-        math_string      = Forward()
-        non_math         = Forward()
-        operatorname     = Forward()
-        overline         = Forward()
-        placeable        = Forward()
-        rbrace           = Forward()
-        rbracket         = Forward()
-        required_group   = Forward()
-        right_delim      = Forward()
-        right_delim_safe = Forward()
-        simple           = Forward()
-        simple_group     = Forward()
-        single_symbol    = Forward()
-        space            = Forward()
-        sqrt             = Forward()
-        stackrel         = Forward()
-        start_group      = Forward()
-        subsuper         = Forward()
-        subsuperop       = Forward()
-        symbol           = Forward()
-        symbol_name      = Forward()
-        token            = Forward()
-        unknown_symbol   = Forward()
+        p.accent           = Forward()
+        p.ambi_delim       = Forward()
+        p.apostrophe       = Forward()
+        p.auto_delim       = Forward()
+        p.binom            = Forward()
+        p.bslash           = Forward()
+        p.c_over_c         = Forward()
+        p.customspace      = Forward()
+        p.end_group        = Forward()
+        p.float_literal    = Forward()
+        p.font             = Forward()
+        p.frac             = Forward()
+        p.function         = Forward()
+        p.genfrac          = Forward()
+        p.group            = Forward()
+        p.int_literal      = Forward()
+        p.latexfont        = Forward()
+        p.lbracket         = Forward()
+        p.left_delim       = Forward()
+        p.lbrace           = Forward()
+        p.main             = Forward()
+        p.math             = Forward()
+        p.math_string      = Forward()
+        p.non_math         = Forward()
+        p.operatorname     = Forward()
+        p.overline         = Forward()
+        p.placeable        = Forward()
+        p.rbrace           = Forward()
+        p.rbracket         = Forward()
+        p.required_group   = Forward()
+        p.right_delim      = Forward()
+        p.right_delim_safe = Forward()
+        p.simple           = Forward()
+        p.simple_group     = Forward()
+        p.single_symbol    = Forward()
+        p.space            = Forward()
+        p.sqrt             = Forward()
+        p.stackrel         = Forward()
+        p.start_group      = Forward()
+        p.subsuper         = Forward()
+        p.subsuperop       = Forward()
+        p.symbol           = Forward()
+        p.symbol_name      = Forward()
+        p.token            = Forward()
+        p.unknown_symbol   = Forward()
 
         # Set names on everything -- very useful for debugging
-        for key, val in locals().items():
-            if key != 'self':
+        for key, val in vars(p).items():
+            if not key.startswith('_'):
                 val.setName(key)
 
-        float_literal <<= Regex(r"[-+]?([0-9]+\.?[0-9]*|\.[0-9]+)")
-        int_literal   <<= Regex("[-+]?[0-9]+")
+        p.float_literal <<= Regex(r"[-+]?([0-9]+\.?[0-9]*|\.[0-9]+)")
+        p.int_literal   <<= Regex("[-+]?[0-9]+")
 
-        lbrace        <<= Literal('{').suppress()
-        rbrace        <<= Literal('}').suppress()
-        lbracket      <<= Literal('[').suppress()
-        rbracket      <<= Literal(']').suppress()
-        bslash        <<= Literal('\\')
+        p.lbrace        <<= Literal('{').suppress()
+        p.rbrace        <<= Literal('}').suppress()
+        p.lbracket      <<= Literal('[').suppress()
+        p.rbracket      <<= Literal(']').suppress()
+        p.bslash        <<= Literal('\\')
 
-        space         <<= oneOf(list(six.iterkeys(self._space_widths)))
-        customspace   <<= (Suppress(Literal(r'\hspace'))
-                          - ((lbrace + float_literal + rbrace)
+        p.space         <<= oneOf(list(six.iterkeys(self._space_widths)))
+        p.customspace   <<= (Suppress(Literal(r'\hspace'))
+                          - ((p.lbrace + p.float_literal + p.rbrace)
                             | Error(r"Expected \hspace{n}")))
 
         unicode_range =  "\U00000080-\U0001ffff"
-        single_symbol <<= Regex(r"([a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|%s])|(\\[%%${}\[\]_|])" %
+        p.single_symbol <<= Regex(r"([a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|%s])|(\\[%%${}\[\]_|])" %
                                unicode_range)
-        symbol_name   <<= (Combine(bslash + oneOf(list(six.iterkeys(tex2uni)))) +
+        p.symbol_name   <<= (Combine(p.bslash + oneOf(list(six.iterkeys(tex2uni)))) +
                           FollowedBy(Regex("[^A-Za-z]").leaveWhitespace() | StringEnd()))
-        symbol        <<= (single_symbol | symbol_name).leaveWhitespace()
+        p.symbol        <<= (p.single_symbol | p.symbol_name).leaveWhitespace()
 
-        apostrophe    <<= Regex("'+")
+        p.apostrophe    <<= Regex("'+")
 
-        c_over_c      <<= Suppress(bslash) + oneOf(list(six.iterkeys(self._char_over_chars)))
+        p.c_over_c      <<= Suppress(p.bslash) + oneOf(list(six.iterkeys(self._char_over_chars)))
 
-        accent        <<= Group(
-                             Suppress(bslash)
+        p.accent        <<= Group(
+                             Suppress(p.bslash)
                            + oneOf(list(six.iterkeys(self._accent_map)) + list(self._wide_accents))
-                           - placeable
+                           - p.placeable
                          )
 
-        function      <<= Suppress(bslash) + oneOf(list(self._function_names))
+        p.function      <<= Suppress(p.bslash) + oneOf(list(self._function_names))
 
-        start_group   <<= Optional(latexfont) + lbrace
-        end_group     <<= rbrace.copy()
-        simple_group  <<= Group(lbrace + ZeroOrMore(token) + rbrace)
-        required_group<<= Group(lbrace + OneOrMore(token) + rbrace)
-        group         <<= Group(start_group + ZeroOrMore(token) + end_group)
+        p.start_group   <<= Optional(p.latexfont) + p.lbrace
+        p.end_group     <<= p.rbrace.copy()
+        p.simple_group  <<= Group(p.lbrace + ZeroOrMore(p.token) + p.rbrace)
+        p.required_group<<= Group(p.lbrace + OneOrMore(p.token) + p.rbrace)
+        p.group         <<= Group(p.start_group + ZeroOrMore(p.token) + p.end_group)
 
-        font          <<= Suppress(bslash) + oneOf(list(self._fontnames))
-        latexfont     <<= Suppress(bslash) + oneOf(['math' + x for x in self._fontnames])
+        p.font          <<= Suppress(p.bslash) + oneOf(list(self._fontnames))
+        p.latexfont     <<= Suppress(p.bslash) + oneOf(['math' + x for x in self._fontnames])
 
-        frac          <<= Group(
+        p.frac          <<= Group(
                              Suppress(Literal(r"\frac"))
-                           - ((required_group + required_group) | Error(r"Expected \frac{num}{den}"))
+                           - ((p.required_group + p.required_group) | Error(r"Expected \frac{num}{den}"))
                          )
 
-        stackrel      <<= Group(
+        p.stackrel      <<= Group(
                              Suppress(Literal(r"\stackrel"))
-                           - ((required_group + required_group) | Error(r"Expected \stackrel{num}{den}"))
+                           - ((p.required_group + p.required_group) | Error(r"Expected \stackrel{num}{den}"))
                          )
 
-        binom         <<= Group(
+        p.binom         <<= Group(
                              Suppress(Literal(r"\binom"))
-                           - ((required_group + required_group) | Error(r"Expected \binom{num}{den}"))
+                           - ((p.required_group + p.required_group) | Error(r"Expected \binom{num}{den}"))
                          )
 
-        ambi_delim    <<= oneOf(list(self._ambi_delim))
-        left_delim    <<= oneOf(list(self._left_delim))
-        right_delim   <<= oneOf(list(self._right_delim))
-        right_delim_safe <<= oneOf(list(self._right_delim - set(['}'])) + [r'\}'])
+        p.ambi_delim    <<= oneOf(list(self._ambi_delim))
+        p.left_delim    <<= oneOf(list(self._left_delim))
+        p.right_delim   <<= oneOf(list(self._right_delim))
+        p.right_delim_safe <<= oneOf(list(self._right_delim - set(['}'])) + [r'\}'])
 
-        genfrac       <<= Group(
+        p.genfrac       <<= Group(
                              Suppress(Literal(r"\genfrac"))
-                           - (((lbrace + Optional(ambi_delim | left_delim, default='') + rbrace)
-                           +   (lbrace + Optional(ambi_delim | right_delim_safe, default='') + rbrace)
-                           +   (lbrace + float_literal + rbrace)
-                           +   simple_group + required_group + required_group)
+                           - (((p.lbrace + Optional(p.ambi_delim | p.left_delim, default='') + p.rbrace)
+                           +   (p.lbrace + Optional(p.ambi_delim | p.right_delim_safe, default='') + p.rbrace)
+                           +   (p.lbrace + p.float_literal + p.rbrace)
+                           +   p.simple_group + p.required_group + p.required_group)
                            | Error(r"Expected \genfrac{ldelim}{rdelim}{rulesize}{style}{num}{den}"))
                          )
 
-        sqrt          <<= Group(
+        p.sqrt          <<= Group(
                              Suppress(Literal(r"\sqrt"))
-                           - ((Optional(lbracket + int_literal + rbracket, default=None)
-                              + required_group)
+                           - ((Optional(p.lbracket + p.int_literal + p.rbracket, default=None)
+                              + p.required_group)
                            | Error("Expected \sqrt{value}"))
                          )
 
-        overline      <<= Group(
+        p.overline      <<= Group(
                              Suppress(Literal(r"\overline"))
-                           - (required_group | Error("Expected \overline{value}"))
+                           - (p.required_group | Error("Expected \overline{value}"))
                          )
 
-        unknown_symbol<<= Combine(bslash + Regex("[A-Za-z]*"))
+        p.unknown_symbol<<= Combine(p.bslash + Regex("[A-Za-z]*"))
 
-        operatorname  <<= Group(
+        p.operatorname  <<= Group(
                              Suppress(Literal(r"\operatorname"))
-                           - ((lbrace + ZeroOrMore(simple | unknown_symbol) + rbrace)
+                           - ((p.lbrace + ZeroOrMore(p.simple | p.unknown_symbol) + p.rbrace)
                               | Error("Expected \operatorname{value}"))
                          )
 
-        placeable     <<= ( accent # Must be first
-                         | symbol # Must be second
-                         | c_over_c
-                         | function
-                         | group
-                         | frac
-                         | stackrel
-                         | binom
-                         | genfrac
-                         | sqrt
-                         | overline
-                         | operatorname
+        p.placeable     <<= ( p.accent # Must be first
+                         | p.symbol # Must be second
+                         | p.c_over_c
+                         | p.function
+                         | p.group
+                         | p.frac
+                         | p.stackrel
+                         | p.binom
+                         | p.genfrac
+                         | p.sqrt
+                         | p.overline
+                         | p.operatorname
                          )
 
-        simple        <<= ( space
-                         | customspace
-                         | font
-                         | subsuper
+        p.simple        <<= ( p.space
+                         | p.customspace
+                         | p.font
+                         | p.subsuper
                          )
 
-        subsuperop    <<= oneOf(["_", "^"])
+        p.subsuperop    <<= oneOf(["_", "^"])
 
-        subsuper      <<= Group(
-                             (Optional(placeable) + OneOrMore(subsuperop - placeable) + Optional(apostrophe))
-                           | (placeable + Optional(apostrophe))
-                           | apostrophe
+        p.subsuper      <<= Group(
+                             (Optional(p.placeable) + OneOrMore(p.subsuperop - p.placeable) + Optional(p.apostrophe))
+                           | (p.placeable + Optional(p.apostrophe))
+                           | p.apostrophe
                          )
 
-        token         <<= ( simple
-                         | auto_delim
-                         | unknown_symbol # Must be last
+        p.token         <<= ( p.simple
+                         | p.auto_delim
+                         | p.unknown_symbol # Must be last
                          )
 
-        auto_delim    <<= (Suppress(Literal(r"\left"))
-                          - ((left_delim | ambi_delim) | Error("Expected a delimiter"))
-                          + Group(ZeroOrMore(simple | auto_delim))
+        p.auto_delim    <<= (Suppress(Literal(r"\left"))
+                          - ((p.left_delim | p.ambi_delim) | Error("Expected a delimiter"))
+                          + Group(ZeroOrMore(p.simple | p.auto_delim))
                           + Suppress(Literal(r"\right"))
-                          - ((right_delim | ambi_delim) | Error("Expected a delimiter"))
+                          - ((p.right_delim | p.ambi_delim) | Error("Expected a delimiter"))
                          )
 
-        math          <<= OneOrMore(token)
+        p.math          <<= OneOrMore(p.token)
 
-        math_string   <<= QuotedString('$', '\\', unquoteResults=False)
+        p.math_string   <<= QuotedString('$', '\\', unquoteResults=False)
 
-        non_math      <<= Regex(r"(?:(?:\\[$])|[^$])*").leaveWhitespace()
+        p.non_math      <<= Regex(r"(?:(?:\\[$])|[^$])*").leaveWhitespace()
 
-        main          <<= (non_math + ZeroOrMore(math_string + non_math)) + StringEnd()
+        p.main          <<= (p.non_math + ZeroOrMore(p.math_string + p.non_math)) + StringEnd()
 
         # Set actions
-        for key, val in locals().items():
-            if hasattr(self, key):
-                val.setParseAction(getattr(self, key))
+        for key, val in vars(p).items():
+            if not key.startswith('_'):
+                if hasattr(self, key):
+                    val.setParseAction(getattr(self, key))
 
-        self._expression = main
-        self._math_expression = math
+        self._expression = p.main
+        self._math_expression = p.math
 
     def parse(self, s, fonts_object, fontsize, dpi):
         """
