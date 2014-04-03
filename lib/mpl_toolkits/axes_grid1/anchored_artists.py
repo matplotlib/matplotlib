@@ -66,10 +66,9 @@ class AnchoredEllipse(AnchoredOffsetbox):
                                    frameon=frameon, **kwargs)
 
 
-
 class AnchoredSizeBar(AnchoredOffsetbox):
     def __init__(self, transform, size, label, loc,
-                 pad=0.1, borderpad=0.1, sep=2, prop=None,
+                 pad=0.1, borderpad=0.1, sep=2,
                  frameon=True, size_vertical=0, color='black',
                  label_top=False, fontproperties=None,
                  **kwargs):
@@ -117,24 +116,32 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         >>> fig.show()
 
         Using all the optional parameters
-        
+
         >>> import matplotlib.font_manager as fm
         >>> fontprops = fm.FontProperties(size=14, family='monospace')
-        >>> bar = AnchoredSizeBar(ax.transData, 3, '3 units', 4, pad=0.5, sep=5, borderpad=0.5, frameon=False, size_vertical=0.5, color='white', fontproperties=fontprops)
+        >>> bar = AnchoredSizeBar(ax.transData, 3, '3 units', 4, pad=0.5, sep=5, borderpad=0.5, frameon=False, size_vertical=0.5, color='white', fontproperties=fontprops)  # noqa
 
         """
 
         self.size_bar = AuxTransformBox(transform)
-        self.size_bar.add_artist(Rectangle((0,0), size, size_vertical, fill=True, facecolor=color, edgecolor=color))
+        self.size_bar.add_artist(Rectangle((0, 0), size, size_vertical,
+                                           fill=True, facecolor=color,
+                                           edgecolor=color))
 
-        if not fontproperties:
+        # if fontproperties is None, but `prop` is not, assume that
+        # prop should be used to set the font properties. This is
+        # questionable behavior
+        if fontproperties is None and 'prop' in kwargs:
+            fontproperties = kwargs.pop('prop')
+
+        if fontproperties is None:
             textprops = {'color': color}
         else:
-            textprops = {'color': color, 'fontproperties': fontproperties} 
+            textprops = {'color': color, 'fontproperties': fontproperties}
 
         self.txt_label = TextArea(
-            label, 
-            minimumdescent=False, 
+            label,
+            minimumdescent=False,
             textprops=textprops)
 
         if label_top:
@@ -148,7 +155,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
 
         AnchoredOffsetbox.__init__(self, loc, pad=pad, borderpad=borderpad,
                                    child=self._box,
-                                   prop=prop,
+                                   prop=fontproperties,
                                    frameon=frameon, **kwargs)
 
 

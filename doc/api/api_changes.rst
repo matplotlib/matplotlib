@@ -171,6 +171,12 @@ original location:
   treated as numpy fancy indexing and only the two markers corresponding to the
   given indexes will be shown.
 
+* removed prop kwarg from `mpl_toolkits.axes_grid1.anchored_artists.AnchoredSizeBar`
+  call.  It was passed through to the base-class `__init__` and is only used for
+  setting padding.  Now `fontproperties` (which is what is really used to set
+  the font properties of `AnchoredSizeBar`) is passed through in place of `prop`.
+  If `fontpropreties` is not passed in, but `prop` is, then `prop` is used inplace
+  of `fontpropreties`.  If both are passed in, `prop` is silently ignored.
 
 Code removal
 ------------
@@ -179,6 +185,8 @@ Code removal
   a long time) and was not the standard form of the Levy distribution.
   ``scipy.stats.levy`` should be used instead
 
+
+>>>>>>> BUG/API : tweaked how AnchoredSizeBar handles font properties
 .. _changes_in_1_3:
 
 
