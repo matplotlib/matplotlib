@@ -2757,13 +2757,14 @@ def test_griddata_nn():
     np.testing.assert_array_equal(np.ma.getmask(zi),
                                   np.ma.getmask(correct_zi_masked))
 
+
 #*****************************************************************
 # These Tests where taken from SCIPY with some minor modifications
-# this can be retreived from: 
+# this can be retreived from:
 # https://github.com/scipy/scipy/blob/master/scipy/stats/tests/test_kdeoth.py
 #*****************************************************************
 
-class ksdensity_test():
+class gaussian_kde_tests():
 
     def test_kde_integer_input(self):
         """Regression test for #1181."""
@@ -2806,10 +2807,9 @@ class ksdensity_test():
         assert_almost_equal(kdepdf.all(), kdepdf2.all())
         kdepdf3 = gkde3.evaluate(xs)
         assert_almost_equal(kdepdf.all(), kdepdf3.all())
-        
-#CUSTOM TESTS
-class ksdensity_custom_tests(object):
-class ksdensity_custom_tests(object):
+
+
+class gaussian_kde_custom_tests(object):
     def test_no_data(self):
         """Pass no data into the GaussianKDE class."""
         mygauss = mlab.GaussianKDE([])
@@ -2826,19 +2826,16 @@ class ksdensity_custom_tests(object):
         """Use a multi-dimensional array as the dataset and test silverman's
         output"""
         x1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-        mygauss = mlab.GaussianKDE(x1, "silverman")
-        othergauss = stats.gaussian_kde(x1)
-        expected_output = othergauss.covariance_factor()
-        assert mygauss.covariance_factor() == expected_output
+        assert_raises(np.linalg.LinAlgError, mlab.GaussianKDE, x1, "silverman")
+    
 
     def test_silverman_singledim_dataset(self):
         """Use a single dimension list as the dataset and test silverman's
         output."""
         x1 = np.array([-7, -5, 1, 4, 5])
         mygauss = mlab.GaussianKDE(x1, "silverman")
-        othergauss = stats.gaussian_kde(x1)
-        expected_output = othergauss.covariance_factor()
-        assert mygauss.covariance_factor() == expected_output
+        y_expected = 0.76770389927475502
+        assert_almost_equal(mygauss.covariance_factor(), y_expected, 7)
 
     def test_scott_multidim_dataset(self):
         """Use a multi-dimensional array as the dataset and test scott's output
@@ -2858,91 +2855,99 @@ class ksdensity_custom_tests(object):
         expected_output = othergauss.covariance_factor()
         assert mygauss.covariance_factor() == expected_output
 
-    def test_scalar_multidim_dataset(self):
-        """Use a multi-dimensional array as the dataset and test a scalar's
-        output"""
-        pass
-
-    def test_scalar_singledim_dataset(self):
-        """Use a single-dimensional array as the dataset and test the scalar's
-        output"""
-        pass
-
-    def test_callable_empty_dataset(self):
-        """Use an empty array as the dataset and test the callable's cov factor
+    def test_scalar_empty_dataset(self):
+        """Use an empty array as the dataset and test the scalar's cov factor
         """
-        pass
+        assert_raises(ValueError, mlab.GaussianKDE, [], bw_method=5)
 
-    def test_callable_multidim_dataset(self):
-        """Use an multi-dimensional array as the dataset and test the
-        callable's cov factor"""
-        pass
+    def test_scalar_covariance_dataset(self):
+        """Use a dataset and test a scalar's cov factor
+        """
+        np.random.seed(8765678)
+        n_basesample = 50
+        multidim_data = [np.random.randn(n_basesample) for i in range(5)]
+
+        kde = mlab.GaussianKDE(multidim_data, bw_method=0.5)
+        assert_equal(kde.covariance_factor(), 0.5)
+
+    def test_callable_covariance_dataset(self):
+        """Use a multi-dimensional array as the dataset and test the callable's
+        cov factor"""
+        np.random.seed(8765678)
+        n_basesample = 50
+        multidim_data = [np.random.randn(n_basesample) for i in range(5)]
+        callable_fun = lambda (x): 0.55
+        kde = mlab.GaussianKDE(multidim_data, bw_method=callable_fun)
+        assert_equal(kde.covariance_factor(), 0.55)
 
     def test_callable_singledim_dataset(self):
         """Use a single-dimensional array as the dataset and test the
-        callable's  cov factor"""
-        pass
+        callable's cov factor"""
+        np.random.seed(8765678)
+        n_basesample = 50
+        multidim_data = np.random.randn(n_basesample)
+
+        kde = mlab.GaussianKDE(multidim_data, bw_method='silverman')
+        y_expected = 0.48438841363348911
+        assert_almost_equal(kde.covariance_factor(), y_expected, 7)
 
     def test_wrong_bw_method(self):
         """Test the error message that should be called when bw is invalid."""
-        pass
+        np.random.seed(8765678)
+        n_basesample = 50
+        data = np.random.randn(n_basesample)
+        assert_raises(ValueError, mlab.GaussianKDE, data, bw_method="invalid")
 
 
-class evaluate_tests(object):
+class gaussian_kde_evaluate_tests(object):
 
-    @knownfailureif(True)
     def test_evaluate_diff_dim(self):
         """Test the evaluate method when the dim's of dataset and points are
-        different dimensions"""	
+        different dimensions"""
         x1 = np.arange(3, 10, 2)
-	kde = mlab.GaussianKDE(x1)
-	x2 = np.arange(3, 12, 2)
-	y_expected = [0, 0, 0, 0, 0]
-	y = kde.evaluate(x2)
+        kde = mlab.GaussianKDE(x1)
+        x2 = np.arange(3, 12, 2)
+        y_expected = [
+            0.08797252, 0.11774109, 0.11774109, 0.08797252, 0.0370153
+        ]
+        y = kde.evaluate(x2)
+        assert_array_almost_equal(y, y_expected, 7)
 
-	assert_array_almost_equal(y, y_expected, 7)
-	
     def test_evaluate_inv_dim(self):
-        """ Invert the dimensions. I.e Give the dataset a dimension of 1 [3,2,4],
-        and the points will have a dimension of 3 [[3],[2],[4]]. ValueError 
-        should be raised"""
-        x1 = np.arange(3, 10, 2)
-	kde = mlab.GaussianKDE(x1)
-	x2 = np.array([[3],[5],[7],[9]])
-	
+        """ Invert the dimensions. ie, Give the dataset a dimension of
+        1 [3,2,4], and the points will have a dimension of 3 [[3],[2],[4]].
+        ValueError should be raised"""
+        np.random.seed(8765678)
+        n_basesample = 50
+        multidim_data = np.random.randn(n_basesample)
+        kde = mlab.GaussianKDE(multidim_data)
+        x2 = [[1], [2], [3]]
         assert_raises(ValueError, kde.evaluate, x2)
-		
-    @knownfailureif(True)
+
     def test_evaluate_dim_and_num(self):
-	""" Tests if evaluated against a one by one array"""
-	x1 = np.arange(3, 10, 2)
+        """ Tests if evaluated against a one by one array"""
+        x1 = np.arange(3, 10, 2)
         x2 = np.array([3])
-	kde = mlab.GaussianKDE(x1)
-	y_expected = [0]
-	y = kde.evaluate(x2)
-	
-	assert_array_almost_equal(y, y_expected, 7)
-   
- 
+        kde = mlab.GaussianKDE(x1)
+        y_expected = [0.08797252]
+        y = kde.evaluate(x2)
+        assert_array_almost_equal(y, y_expected, 7)
+
     def test_evaluate_point_dim_not_one(self):
         """Test"""
         x1 = np.arange(3, 10, 2)
-	x2 = [np.arange(3, 10, 2), np.arange(3, 10, 2)]
-	kde = mlab.GaussianKDE(x1)
-	
+        x2 = [np.arange(3, 10, 2), np.arange(3, 10, 2)]
+        kde = mlab.GaussianKDE(x1)
         assert_raises(ValueError, kde.evaluate, x2)
-    
-    @knownfailureif(True)
-    def test_evaluate_equal_dim_and_numm_lt(self):
+
+    def test_evaluate_equal_dim_and_num_lt(self):
         """Test when line 3810 fails"""
         x1 = np.arange(3, 10, 2)
-	x2 = np.arange(3, 8, 2)
-	kde = mlab.GaussianKDE(x1)
-        y_expected = [0, 0, 0]
-	y = kde.evaluate(x2)
-
-	assert_array_almost_equal(y, y_expected, 7)
-    
+        x2 = np.arange(3, 8, 2)
+        kde = mlab.GaussianKDE(x1)
+        y_expected = [0.08797252, 0.11774109, 0.11774109]
+        y = kde.evaluate(x2)
+        assert_array_almost_equal(y, y_expected, 7)
 
 
 #*****************************************************************

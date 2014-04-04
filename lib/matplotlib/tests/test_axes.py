@@ -1734,7 +1734,6 @@ def test_violinplot_bad_widths():
     ax = plt.axes()
     assert_raises(ValueError, ax.violinplot, data, positions=range(4),
                   widths=[1, 2, 3])
-
 # violin plot test ends here
 
 
