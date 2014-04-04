@@ -6777,8 +6777,8 @@ class Axes(_AxesBase):
           bw_method : str, scalar or callable, optional
             The method used to calculate the estimator bandwidth.  This can be
             'scott', 'silverman', a scalar constant or a callable.  If a
-            scalar, this will be used directly as `kde.factor`.  If a 
-            callable, it should take a `GaussianKDE` instance as only 
+            scalar, this will be used directly as `kde.factor`.  If a
+            callable, it should take a `GaussianKDE` instance as only
             parameter and return a scalar. If None (default), 'scott' is used.
 
         Returns
@@ -6903,7 +6903,6 @@ class Axes(_AxesBase):
         self.hold(hold_status)
 
         return artists
-
 
     def tricontour(self, *args, **kwargs):
         return mtri.tricontour(self, *args, **kwargs)

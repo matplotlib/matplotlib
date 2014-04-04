@@ -2772,7 +2772,7 @@ class gaussian_kde_tests():
         kde = mlab.GaussianKDE(x1)
         y_expected = [0.13480721, 0.18222869, 0.19514935, 0.18222869,
                       0.13480721]
-        assert_array_almost_equal(kde(x1), y_expected, decimal=6)
+        np.testing.assert_array_almost_equal(kde(x1), y_expected, decimal=6)
 
     def test_gaussian_kde_covariance_caching(self):
         x1 = np.array([-7, -5, 1, 4, 5], dtype=np.float)
@@ -2786,7 +2786,7 @@ class gaussian_kde_tests():
         kde2 = mlab.GaussianKDE(x1, 'scott')
         y2 = kde2(xs)
 
-        assert_array_almost_equal(y_expected, y2, decimal=7)
+        np.testing.assert_array_almost_equal(y_expected, y2, decimal=7)
 
     def test_kde_bandwidth_method(self):
 
@@ -2812,22 +2812,17 @@ class gaussian_kde_tests():
 class gaussian_kde_custom_tests(object):
     def test_no_data(self):
         """Pass no data into the GaussianKDE class."""
-        mygauss = mlab.GaussianKDE([])
-        self.assertRaises(ValueError,
-                          "`dataset` input should have multiple elements.")
+        assert_raises(ValueError, mlab.GaussianKDE, [])
 
     def test_single_dataset_element(self):
         """Pass a single dataset element into the GaussianKDE class."""
-        myguass = mlab.GuassianKDE([42])
-        self.assertRaises(ValueError,
-                          "`dataset` input should have multiple elements.")
+        assert_raises(ValueError, mlab.GaussianKDE, [42])
 
     def test_silverman_multidim_dataset(self):
         """Use a multi-dimensional array as the dataset and test silverman's
         output"""
         x1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
         assert_raises(np.linalg.LinAlgError, mlab.GaussianKDE, x1, "silverman")
-    
 
     def test_silverman_singledim_dataset(self):
         """Use a single dimension list as the dataset and test silverman's
@@ -2841,19 +2836,15 @@ class gaussian_kde_custom_tests(object):
         """Use a multi-dimensional array as the dataset and test scott's output
         """
         x1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-        mygauss = mlab.GaussianKDE(x1, "scott")
-        othergauss = stats.gaussian_kde(x1)
-        expected_output = othergauss.covariance_factor()
-        assert mygauss.covariance_factor() == expected_output
+        assert_raises(np.linalg.LinAlgError, mlab.GaussianKDE, x1, "scott")
 
     def test_scott_singledim_dataset(self):
         """Use a single-dimensional array as the dataset and test scott's
         output"""
         x1 = np.array([-7, -5, 1, 4, 5])
         mygauss = mlab.GaussianKDE(x1, "scott")
-        othergauss = stats.gaussian_kde(x1)
-        expected_output = othergauss.covariance_factor()
-        assert mygauss.covariance_factor() == expected_output
+        y_expected = 0.72477966367769553
+        assert_almost_equal(mygauss.covariance_factor(), y_expected, 7)
 
     def test_scalar_empty_dataset(self):
         """Use an empty array as the dataset and test the scalar's cov factor
@@ -2876,7 +2867,7 @@ class gaussian_kde_custom_tests(object):
         np.random.seed(8765678)
         n_basesample = 50
         multidim_data = [np.random.randn(n_basesample) for i in range(5)]
-        callable_fun = lambda (x): 0.55
+        callable_fun = lambda x: 0.55
         kde = mlab.GaussianKDE(multidim_data, bw_method=callable_fun)
         assert_equal(kde.covariance_factor(), 0.55)
 
@@ -2911,7 +2902,7 @@ class gaussian_kde_evaluate_tests(object):
             0.08797252, 0.11774109, 0.11774109, 0.08797252, 0.0370153
         ]
         y = kde.evaluate(x2)
-        assert_array_almost_equal(y, y_expected, 7)
+        np.testing.assert_array_almost_equal(y, y_expected, 7)
 
     def test_evaluate_inv_dim(self):
         """ Invert the dimensions. ie, Give the dataset a dimension of
@@ -2931,7 +2922,7 @@ class gaussian_kde_evaluate_tests(object):
         kde = mlab.GaussianKDE(x1)
         y_expected = [0.08797252]
         y = kde.evaluate(x2)
-        assert_array_almost_equal(y, y_expected, 7)
+        np.testing.assert_array_almost_equal(y, y_expected, 7)
 
     def test_evaluate_point_dim_not_one(self):
         """Test"""
@@ -2947,7 +2938,7 @@ class gaussian_kde_evaluate_tests(object):
         kde = mlab.GaussianKDE(x1)
         y_expected = [0.08797252, 0.11774109, 0.11774109]
         y = kde.evaluate(x2)
-        assert_array_almost_equal(y, y_expected, 7)
+        np.testing.assert_array_almost_equal(y, y_expected, 7)
 
 
 #*****************************************************************

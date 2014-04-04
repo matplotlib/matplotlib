@@ -1567,7 +1567,6 @@ def test_boxplot_bad_ci_2():
 
 
 # violin plot data initialization
-ax = plt.axes()
 data = [([+0.07902449, -0.16769639, +1.1572525,  +0.71400729, -0.17916727,
           -1.15346725, -0.5298936,  +1.16570619, +1.13612837, -0.66830221,
           -0.76738509, +0.85911678, +0.56446469, +0.64772651, -1.97432723,
@@ -1725,11 +1724,13 @@ def test_horiz_violinplot_custompoints_200():
 
 
 # test error
+@cleanup
 def test_violinplot_bad_positions():
     ax = plt.axes()
     assert_raises(ValueError, ax.violinplot, data, positions=range(5))
 
 
+@cleanup
 def test_violinplot_bad_widths():
     ax = plt.axes()
     assert_raises(ValueError, ax.violinplot, data, positions=range(4),
