@@ -47,6 +47,10 @@ original location:
   - mstream -> `from matplotlib import stream as mstream`
   - mtable -> `from matplotlib import table as mtable`
 
+* The :func:`~matplotlib.pyplot.errorbar` method has been changed such that
+  the upper and lower limits (*lolims*, *uplims*, *xlolims*, *xuplims*) now
+  point in the correct direction.
+
 * The Sphinx extensions `ipython_directive` and
   `ipython_console_highlighting` have been moved to the IPython
   project itself.  While they remain in matplotlib for this release,
