@@ -31,6 +31,9 @@
            all pyplot.tri* methods) and mlab.griddata.  Deprecated
            matplotlib.delaunay module. - IMT
 
+2013-11-05 Add power-law normalization method. This is useful for,
+	   e.g., showing small populations in a "hist2d" histogram.
+
 2013-10-27 Added get_rlabel_position and set_rlabel_position methods to
            PolarAxes to control angular position of radial tick labels.
 
