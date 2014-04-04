@@ -3669,25 +3669,33 @@ class GaussianKDE(object):
     dataset : array_like
         Datapoints to estimate from. In case of univariate data this is a 1-D
         array, otherwise a 2-D array with shape (# of dims, # of data).
-    bw_method : str or scalar, optional
+
+    bw_method : str, scalar or callable, optional
         The method used to calculate the estimator bandwidth.  This can be
-        'scott', 'silverman', or a scalar constant.  If a scalar, this will
-        be used directly as `kde.factor`. If None (default), 'scott' is used.
+        'scott', 'silverman', a scalar constant or a callable.  If a
+        scalar, this will be used directly as `kde.factor`.  If a 
+        callable, it should take a `GaussianKDE` instance as only 
+        parameter and return a scalar. If None (default), 'scott' is used.
 
     Attributes
     ----------
     dataset : ndarray
         The dataset with which `gaussian_kde` was initialized.
+
     dim : int
         Number of dimensions.
+
     num_dp : int
         Number of datapoints.
+
     factor : float
         The bandwidth factor, obtained from `kde.covariance_factor`, with which
         the covariance matrix is multiplied.
+
     covariance : ndarray
         The covariance matrix of `dataset`, scaled by the calculated bandwidth
         (`kde.factor`).
+
     inv_cov : ndarray
         The inverse of `covariance`.
 
@@ -3695,6 +3703,7 @@ class GaussianKDE(object):
     -------
     kde.evaluate(points) : ndarray
         Evaluate the estimated pdf on a provided set of points.
+        
     kde(points) : ndarray
         Same as kde.evaluate(points)
 
