@@ -213,6 +213,9 @@ added. Furthermore, the the subplottool is now implemented as a modal
 dialog. It was previously a QMainWindow, leaving the SPT open if one closed the
 plotwindow.
 
+Interactive performance of the Qt4 backend has been dramatically improved
+under windows.
+
 Cairo backends
 ``````````````
 

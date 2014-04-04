@@ -1,3 +1,7 @@
+2014-02-25 In backend_qt4agg changed from using update -> repaint under
+	   windows.  See comment in source near `self._priv_update` for
+	   longer explaination.
+
 2014-03-27 Added tests for pie ccw parameter. Removed pdf and svg images
            from tests for pie linewidth parameter.
 
