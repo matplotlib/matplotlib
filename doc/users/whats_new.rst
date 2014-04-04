@@ -32,6 +32,14 @@ Phil Elson rewrote of the documentation and userguide for both Legend and PathEf
 New plotting features
 ---------------------
 
+Power-law normalization
+```````````````````````
+Ben Gamari added a power-law normalization method,
+:class:`~matplotlib.colors.PowerNorm`. This class maps a range of 
+values to the interval [0,1] with power-law scaling with the exponent
+provided by the constructor's `gamma` argument. Power law normalization
+can be useful for, e.g., emphasizing small populations in a histogram.
+
 Fully customizable boxplots
 ````````````````````````````
 Paul Hobson overhauled the :func:`~matplotlib.pyplot.boxplot` method such
