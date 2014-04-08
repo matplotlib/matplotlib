@@ -233,8 +233,8 @@ def test__EventCollection__switch_orientation():
     splt.set_xlim(0, 2)
 
 
-@image_comparison(baseline_images=
-                  ['EventCollection_plot__switch_orientation__2x'])
+@image_comparison(
+    baseline_images=['EventCollection_plot__switch_orientation__2x'])
 def test__EventCollection__switch_orientation_2x():
     '''
     check to make sure calling switch_orientation twice sets the
