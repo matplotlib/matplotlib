@@ -11,6 +11,7 @@ Module containing Axes3D, an object which can plot 3D objects on a
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+import math
 
 import six
 from six.moves import map, xrange, zip
@@ -33,6 +34,8 @@ from matplotlib.colors import Normalize, colorConverter, LightSource
 from . import art3d
 from . import proj3d
 from . import axis3d
+from mpl_toolkits.mplot3d.art3d import Line3DCollection
+
 
 def unit_bbox():
     box = Bbox(np.array([[0, 0], [1, 1]]))
@@ -2509,7 +2512,7 @@ class Axes3D(Axes):
 
         # for each arrow
         for i in xrange(xs.shape[0]):
-            # calulate body
+            # calculate body
             x = xs[i]
             y = ys[i]
             z = zs[i]
@@ -2521,8 +2524,8 @@ class Axes3D(Axes):
 
             # normalize
             norm = math.sqrt(u ** 2 + v ** 2 + w ** 2)
-            if norm==0:
-                norm=1
+            if norm == 0:
+                norm = 1
             u /= norm
             v /= norm
             w /= norm
@@ -2541,16 +2544,16 @@ class Axes3D(Axes):
 
             # normalize arrowhead 1
             norm = math.sqrt(ua1 ** 2 + va1 ** 2 + wa1 ** 2)
-            if norm==0:
-                norm=1
+            if norm == 0:
+                norm = 1
             ua1_ = ua1/norm
             va1_ = va1/norm
             wa1_ = wa1/norm
 
             # normalize arrowhead 2
             norm = math.sqrt(ua1 ** 2 + va1 ** 2 + wa2 ** 2)
-            if norm==0:
-                norm=1
+            if norm == 0:
+                norm = 1
             ua2_ = ua1/norm
             va2_ = va1/norm
             wa2_ = wa2/norm
