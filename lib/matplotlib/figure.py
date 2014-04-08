@@ -669,7 +669,7 @@ class Figure(Artist):
         size : ndarray
            The size of the figure in inches
 
-        Also See
+        See Also
         --------
 
         :func:`~matplotlib.Figure.set_size_inches`
