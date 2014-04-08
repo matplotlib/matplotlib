@@ -792,6 +792,10 @@ class EngFormatter(Formatter):
     plus a specified unit, e.g., 10 MHz instead of 1e7.
     """
 
+    # the unicode for -6 is the greek letter mu
+    # commeted here due to bug in pep8
+    # (https://github.com/jcrocholl/pep8/issues/271)
+
     # The SI engineering prefixes
     ENG_PREFIXES = {
         -24: "y",
@@ -800,7 +804,7 @@ class EngFormatter(Formatter):
         -15: "f",
         -12: "p",
          -9: "n",
-         -6: "\u03bc",  # Greek letter mu
+         -6: "\u03bc",
          -3: "m",
           0: "",
           3: "k",
