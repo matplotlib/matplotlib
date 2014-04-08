@@ -2411,6 +2411,173 @@ class Axes3D(Axes):
         return ret
     set_title.__doc__ = maxes.Axes.set_title.__doc__
 
+    def quiver(self, *args, **kwargs):
+        """
+        Plot a 3D field of arrows.
+
+        call signatures::
+
+            quiver(X, Y, Z, U, V, W, **kwargs)
+
+        Arguments:
+
+            *X*, *Y*, *Z*:
+                The x, y and z coordinates of the arrow locations
+
+            *U*, *V*, *W*:
+                The direction vector that the arrow is pointing
+
+        All argument must be iterable, when converted to numpy arrays, the shape of all input
+        argument must be identical. Masked arrays are supported, if a position in any of argument
+        is masked, then the corresponding quiver will not be plotted.
+
+        Keyword arguments:
+
+            *length*: [1.0 | float]
+                The length of each quiver, default to 1.0, the unit is the same with the axes
+
+            *arrow_length_ratio*: [0.3 | float]
+                The ratio of the arrow head with respect to the quiver, default to 0.3
+
+        Any additional keyword arguments are delegated to :class:`~matplotlib.collections.LineCollection`
+
+        """
+        def calc_arrow(u, v, w, angle=15):
+            """
+            To calculate the arrow head.
+
+            (u,v,w) expected to be normalized, recursive to fix A=0 scenario.
+            """
+            if u == 0 and v == 0 and w == 0:
+                raise ValueError("u,v,w can't be all zero")
+
+            # angle should never greater than 20
+            # safeguard from stack overflow
+            assert angle <= 20
+
+            t = math.cos(math.radians(angle))
+
+            #D = 1 - w ** 2
+            #A = t ** 2 - w ** 2
+            #B = t**2 * D * (1-t**2)
+            #C = D * w
+             
+            t2 = t**2
+            w2 = w**2
+            D = 1 - w2
+
+            A = t2 - w2
+            B = t2 * D * (1 - t2)
+            C = D * w
+
+            if A == 0:
+                x1, x2 = calc_arrow(u, v, w, angle=angle + 0.1)
+            else:
+                x1 = (C + math.sqrt(B)) / A
+                x2 = (C - math.sqrt(B)) / A
+
+            return x1, x2
+
+        had_data = self.has_data()
+
+        # handle kwargs
+        # shaft length
+        length = kwargs.pop('length', 1)
+        # arrow length ratio to the shaft length
+        arrow_length_ratio = kwargs.pop('arrow_length_ratio', 0.3)
+        # zdir
+        zdir = kwargs.pop('zdir', 'z')
+
+        # handle args
+        if len(args) != 6:
+            ValueError('Wrong number of arguments')
+        # X, Y, Z, U, V, W
+        coords = list(map(lambda k: np.array(k) if not isinstance(k, np.ndarray) else k, args))
+
+        shapes = set([k.shape for k in coords])
+        if len(shapes) != 1:
+            raise ValueError("unmatched input array shape")
+        elif list(shapes)[0] == 0:
+            raise ValueError("input are constants")
+
+        # Below assertion must be true as a safe guard
+        assert all([isinstance(k, np.ndarray) for k in coords])
+
+        coords = [k.flatten() for k in coords]
+        xs, ys, zs, us, vs, ws = coords
+        lines = []
+
+        # for each arrow
+        for i in xrange(xs.shape[0]):
+            # calulate body
+            x = xs[i]
+            y = ys[i]
+            z = zs[i]
+            u = us[i]
+            v = vs[i]
+            w = ws[i]
+            if any([k is np.ma.masked for k in [x, y, z, u, v, w]]):
+                continue
+
+            # normalize
+            norm = math.sqrt(u ** 2 + v ** 2 + w ** 2)
+            if norm==0:
+                norm=1
+            u /= norm
+            v /= norm
+            w /= norm
+
+            t = np.linspace(0, length, num=20)
+            lx = x - t * u
+            ly = y - t * v
+            lz = z - t * w
+            line = list(zip(lx, ly, lz))
+            lines.append(line)
+
+            # arrow one side
+            ua1 = u
+            va1 = v
+            wa1, wa2 = calc_arrow(u, v, w)
+
+            # normalize arrowhead 1
+            norm = math.sqrt(ua1 ** 2 + va1 ** 2 + wa1 ** 2)
+            if norm==0:
+                norm=1
+            ua1_ = ua1/norm
+            va1_ = va1/norm
+            wa1_ = wa1/norm
+
+            # normalize arrowhead 2
+            norm = math.sqrt(ua1 ** 2 + va1 ** 2 + wa2 ** 2)
+            if norm==0:
+                norm=1
+            ua2_ = ua1/norm
+            va2_ = va1/norm
+            wa2_ = wa2/norm
+
+            t = np.linspace(0, length * arrow_length_ratio, num=20)
+            la1x = x - t * ua1_
+            la1y = y - t * va1_
+            la1z = z - t * wa1_
+            la2x = x - t * ua2_
+            la2y = y - t * va2_
+            la2z = z - t * wa2_
+
+            line = list(zip(la1x, la1y, la1z))
+            lines.append(line)
+            line = list(zip(la2x, la2y, la2z))
+            lines.append(line)
+
+        linec = Line3DCollection(lines, *args[6:], **kwargs)
+        self.add_collection(linec)
+
+        self.auto_scale_xyz(xs, ys, zs, had_data)
+
+        return linec
+
+    quiver3D = quiver
+
+
 def get_test_data(delta=0.05):
     '''
     Return a tuple X, Y, Z with a test data set.
