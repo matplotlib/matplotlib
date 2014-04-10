@@ -734,7 +734,7 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x : scalar, optional, default: 0
-            y position in data coordinates of the vertical line.
+            x position in data coordinates of the vertical line.
 
         ymin : scalar, optional, default: 0
             Should be between 0 and 1, 0 being the far left of the plot, 1 the
