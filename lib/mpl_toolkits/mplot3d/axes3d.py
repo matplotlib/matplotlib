@@ -34,8 +34,6 @@ from matplotlib.colors import Normalize, colorConverter, LightSource
 from . import art3d
 from . import proj3d
 from . import axis3d
-from mpl_toolkits.mplot3d.art3d import Line3DCollection
-
 
 def unit_bbox():
     box = Bbox(np.array([[0, 0], [1, 1]]))
@@ -2447,39 +2445,51 @@ class Axes3D(Axes):
         """
         def calc_arrow(u, v, w, angle=15):
             """
-            To calculate the arrow head.
-
-            (u,v,w) expected to be normalized, recursive to fix A=0 scenario.
+            To calculate the arrow head vectors
             """
-            if u == 0 and v == 0 and w == 0:
-                raise ValueError("u,v,w can't be all zero")
-
-            # angle should never greater than 20
-            # safeguard from stack overflow
+            # should finish on first recursion
             assert angle <= 20
 
-            t = math.cos(math.radians(angle))
+            norm_uvw = np.linalg.norm([u, v, w], ord=2)
+            if norm_uvw == 0:
+                raise ValueError("u,v,w can't be all zero")
+            u, v, w = np.array([u, v, w]) / norm_uvw
 
-            #D = 1 - w ** 2
-            #A = t ** 2 - w ** 2
-            #B = t**2 * D * (1-t**2)
-            #C = D * w
-             
-            t2 = t**2
-            w2 = w**2
-            D = 1 - w2
+            cos_angle = math.cos(math.radians(angle))
 
-            A = t2 - w2
-            B = t2 * D * (1 - t2)
-            C = D * w
+            # using following formula to get the two solutions
+            # (C + math.sqrt(B)) / A
+            # (C - math.sqrt(B)) / A
+            A = cos_angle ** 2 - w ** 2
+            B = cos_angle ** 2 * (1 - w ** 2) * (1 - cos_angle ** 2)
+            C = (1 - w ** 2) * w
 
             if A == 0:
-                x1, x2 = calc_arrow(u, v, w, angle=angle + 0.1)
+                # to prevent the case of dividing by zero
+                # use a small enough delta such that
+                # A != 0 for one of
+                #   angle
+                # or
+                #   angle + delta
+                return calc_arrow(u, v, w, angle=angle + 0.1)
             else:
                 x1 = (C + math.sqrt(B)) / A
                 x2 = (C - math.sqrt(B)) / A
 
-            return x1, x2
+            # normalize the output vectors and convert to ndarray
+            norm_func = lambda k: np.array([u, v, k]) / np.linalg.norm([u, v, k], ord=2)
+
+            return norm_func(x1), norm_func(x2)
+
+        def point_vector_to_line(point, vector, length):
+            """
+            use a point and vector to generate lines
+            """
+            lines = []
+            for var in np.linspace(0, length, num=20):
+                lines.append(list(zip(*(point - var * vector))))
+            lines = np.array(lines).swapaxes(0, 1)
+            return lines.tolist()
 
         had_data = self.has_data()
 
@@ -2488,92 +2498,60 @@ class Axes3D(Axes):
         length = kwargs.pop('length', 1)
         # arrow length ratio to the shaft length
         arrow_length_ratio = kwargs.pop('arrow_length_ratio', 0.3)
-        # zdir
-        zdir = kwargs.pop('zdir', 'z')
 
         # handle args
-        if len(args) != 6:
+        if len(args) < 6:
             ValueError('Wrong number of arguments')
-        # X, Y, Z, U, V, W
-        coords = list(map(lambda k: np.array(k) if not isinstance(k, np.ndarray) else k, args))
+        argi = 6
+        # first 6 arguments are X, Y, Z, U, V, W
+        input_args = args[:argi]
+        # if any of the args are scalar, convert into list
+        input_args = [[k] if isinstance(k, (int, float)) else k for k in input_args]
+        # extract the masks, if any
+        masks = [k.mask for k in input_args if isinstance(k, np.ma.MaskedArray)]
+        # broadcast to match the shape
+        bcast = np.broadcast_arrays(*(input_args + masks))
+        input_args = bcast[:argi]
+        masks = bcast[argi:]
+        if masks:
+            # combine the masks into one
+            mask = reduce(lambda k, k1: k or k1, masks)
+            # put mask on and compress
+            input_args = [np.ma.array(k, mask=mask).compressed() for k in input_args]
+        else:
+            input_args = [k.flatten() for k in input_args]
 
-        shapes = set([k.shape for k in coords])
-        if len(shapes) != 1:
-            raise ValueError("unmatched input array shape")
-        elif list(shapes)[0] == 0:
-            raise ValueError("input are constants")
+        points = input_args[:3]
+        vectors = input_args[3:]
 
-        # Below assertion must be true as a safe guard
-        assert all([isinstance(k, np.ndarray) for k in coords])
+        # Below assertions must be true before proceed
+        # must all be ndarray
+        assert all([isinstance(k, np.ndarray) for k in input_args])
+        # must all in same shape
+        assert len(set([k.shape for k in input_args])) == 1
 
-        coords = [k.flatten() for k in coords]
-        xs, ys, zs, us, vs, ws = coords
+        # get arrow vectors
+        arrow_vectors = list(map(calc_arrow, *[np.nditer(k) for k in vectors]))
+        # reshape into set of vectors
+        arrow_vectors = np.array(arrow_vectors).reshape((-1, 3)).swapaxes(0, 1)
+
         lines = []
+        # construct the main lines
+        lines.extend(point_vector_to_line(np.array(points),
+                                          np.array(vectors),
+                                          length))
+        # construct the arrow heads
+        lines.extend(point_vector_to_line(np.array(points).repeat(2, axis=1),
+                                          arrow_vectors,
+                                          length * arrow_length_ratio))
 
-        # for each arrow
-        for i in xrange(xs.shape[0]):
-            # calculate body
-            x = xs[i]
-            y = ys[i]
-            z = zs[i]
-            u = us[i]
-            v = vs[i]
-            w = ws[i]
-            if any([k is np.ma.masked for k in [x, y, z, u, v, w]]):
-                continue
-
-            # normalize
-            norm = math.sqrt(u ** 2 + v ** 2 + w ** 2)
-            if norm == 0:
-                norm = 1
-            u /= norm
-            v /= norm
-            w /= norm
-
-            t = np.linspace(0, length, num=20)
-            lx = x - t * u
-            ly = y - t * v
-            lz = z - t * w
-            line = list(zip(lx, ly, lz))
-            lines.append(line)
-
-            # arrow one side
-            ua1 = u
-            va1 = v
-            wa1, wa2 = calc_arrow(u, v, w)
-
-            # normalize arrowhead 1
-            norm = math.sqrt(ua1 ** 2 + va1 ** 2 + wa1 ** 2)
-            if norm == 0:
-                norm = 1
-            ua1_ = ua1/norm
-            va1_ = va1/norm
-            wa1_ = wa1/norm
-
-            # normalize arrowhead 2
-            norm = math.sqrt(ua1 ** 2 + va1 ** 2 + wa2 ** 2)
-            if norm == 0:
-                norm = 1
-            ua2_ = ua1/norm
-            va2_ = va1/norm
-            wa2_ = wa2/norm
-
-            t = np.linspace(0, length * arrow_length_ratio, num=20)
-            la1x = x - t * ua1_
-            la1y = y - t * va1_
-            la1z = z - t * wa1_
-            la2x = x - t * ua2_
-            la2y = y - t * va2_
-            la2z = z - t * wa2_
-
-            line = list(zip(la1x, la1y, la1z))
-            lines.append(line)
-            line = list(zip(la2x, la2y, la2z))
-            lines.append(line)
-
-        linec = Line3DCollection(lines, *args[6:], **kwargs)
+        # Line3DCollection to do the heavy lifting
+        linec = art3d.Line3DCollection(lines, *args[argi:], **kwargs)
         self.add_collection(linec)
 
+        # scale
+
+        xs, ys, zs = list(zip(*np.array(lines).reshape(-1, 3)))
         self.auto_scale_xyz(xs, ys, zs, had_data)
 
         return linec
