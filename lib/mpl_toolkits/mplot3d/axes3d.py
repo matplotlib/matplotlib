@@ -2428,9 +2428,9 @@ class Axes3D(Axes):
             *U*, *V*, *W*:
                 The direction vector that the arrow is pointing
 
-        All argument must be iterable, when converted to numpy arrays, the shape of all input
-        argument must be identical. Masked arrays are supported, if a position in any of argument
-        is masked, then the corresponding quiver will not be plotted.
+        The arguments could be iterable or scalars they will be broadcast together. The arguments can
+        also be masked arrays, if a position in any of argument is masked, then the corresponding
+        quiver will not be plotted.
 
         Keyword arguments:
 
