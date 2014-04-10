@@ -2447,6 +2447,17 @@ class Axes3D(Axes):
             """
             To calculate the arrow head vectors
             """
+
+            # if the direction value is facing too much up or down, return the correct result right away
+            # returns it as a unit vector
+            # assumes if a value is smaller or equal to tol, then its 0
+            tol = 1/10.
+            angleInRad = math.radians(180-angle)
+            if abs(u)<=tol and abs(v)<=tol and abs(w)>tol:
+                newx = math.sin(angleInRad)  
+                newz = -math.cos(angleInRad) * np.sign(w)
+                return np.array([-newx, 0, newz]), np.array([newx, 0, newz])
+
             # should finish on first recursion
             assert angle <= 20
 
@@ -2523,6 +2534,18 @@ class Axes3D(Axes):
 
         points = input_args[:3]
         vectors = input_args[3:]
+
+        # make sure that the direction vectors are not so small
+        # this tolerence fixes the corner cases
+        tol = 1e-15
+        us = vectors[0]
+        vs = vectors[1]
+        ws = vectors[2]  
+        for i in range(len(us)):
+            if abs(us[i])<=tol and abs(vs[i])<=tol and abs(ws[i])<=tol:
+                us[i] *= 1/tol
+                vs[i] *= 1/tol
+                ws[i] *= 1/tol
 
         # Below assertions must be true before proceed
         # must all be ndarray
