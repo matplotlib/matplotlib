@@ -725,7 +725,7 @@ class MarkerStyle(object):
         self._path = self._tri_path
 
     def _set_tri_up(self):
-        self._transform = Affine2D().scale(0.5).rotate_deg(90)
+        self._transform = Affine2D().scale(0.5).rotate_deg(180)
         self._snap_threshold = 5.0
         self._filled = False
         self._path = self._tri_path
@@ -737,7 +737,7 @@ class MarkerStyle(object):
         self._path = self._tri_path
 
     def _set_tri_right(self):
-        self._transform = Affine2D().scale(0.5).rotate_deg(180)
+        self._transform = Affine2D().scale(0.5).rotate_deg(90)
         self._snap_threshold = 5.0
         self._filled = False
         self._path = self._tri_path

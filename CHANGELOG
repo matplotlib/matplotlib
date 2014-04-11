@@ -1,3 +1,6 @@
+2014-04-10 Fixed the triangular marker rendering error. The "Up" triangle was
+           rendered instead of "Right" triangle and vice-versa.
+
 2014-04-08 Fixed a bug in parasite_axes.py by making a list out
            of a generator at line 263.
 	   
