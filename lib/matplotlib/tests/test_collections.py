@@ -450,6 +450,31 @@ def test_barb_limits():
     assert_array_almost_equal(ax.dataLim.bounds, (20, 30, 15, 6),
                               decimal=1)
 
+
+@image_comparison(baseline_images=['EllipseCollection_test_image'],
+                  extensions=['png'],
+                  remove_text=True)
+def test_EllipseCollection():
+    # Test basic functionality
+    fig, ax = plt.subplots()
+    x = np.arange(4)
+    y = np.arange(3)
+    X, Y = np.meshgrid(x, y)
+    XY = np.vstack((X.ravel(), Y.ravel())).T
+
+    ww = X/float(x[-1])
+    hh = Y/float(y[-1])
+    aa = np.ones_like(ww) * 20  # first axis is 20 degrees CCW from x axis
+
+    ec = mcollections.EllipseCollection(ww, hh, aa,
+                                        units='x',
+                                        offsets=XY,
+                                        transOffset=ax.transData,
+                                        facecolors='none')
+    ax.add_collection(ec)
+    ax.autoscale_view()
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
