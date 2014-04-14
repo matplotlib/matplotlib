@@ -1438,8 +1438,8 @@ class EllipseCollection(Collection):
         self._transforms = np.zeros((len(self._widths), 3, 3))
         widths = self._widths * sc
         heights = self._heights * sc
-        sin_angle = np.cos(np.deg2rad(self._angles))
-        cos_angle = np.cos(np.deg2rad(self._angles))
+        sin_angle = np.sin(self._angles)
+        cos_angle = np.cos(self._angles)
         self._transforms[:, 0, 0] = widths * cos_angle
         self._transforms[:, 0, 1] = heights * -sin_angle
         self._transforms[:, 1, 0] = widths * sin_angle
