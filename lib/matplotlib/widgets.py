@@ -1044,7 +1044,8 @@ class SpanSelector(AxesWidget):
     """
 
     def __init__(self, ax, onselect, direction, minspan=None, useblit=False,
-                 rectprops=None, onmove_callback=None, span_stays=False):
+                 rectprops=None, onmove_callback=None, span_stays=False,
+                 button=None):
         """
         Create a span selector in *ax*.  When a selection is made, clear
         the span and call *onselect* with::
@@ -1085,7 +1086,12 @@ class SpanSelector(AxesWidget):
         self.onmove_callback = onmove_callback
         self.minspan = minspan
         self.span_stays = span_stays
-        
+
+        if button is None or isinstance(button, list):
+            self.validButtons = button
+        elif isinstance(button, int):
+            self.validButtons = [button]
+
         # Needed when dragging out of axes
         self.buttonDown = False
         self.prev = (0, 0)
@@ -1140,7 +1146,7 @@ class SpanSelector(AxesWidget):
     def ignore(self, event):
         """return *True* if *event* should be ignored"""
         widget_off = not self.visible or not self.active
-        non_event = event.inaxes != self.ax or event.button != 1
+        non_event = event.inaxes != self.ax or (self.validButtons != None and event.button not in self.validButtons)
         return widget_off or non_event
 
     def press(self, event):
@@ -1555,15 +1561,23 @@ class LassoSelector(AxesWidget):
 
     """
 
-    def __init__(self, ax, onselect=None, useblit=True, lineprops=None):
+    def __init__(self, ax, onselect=None, useblit=True, lineprops=None,
+                 button=None):
         AxesWidget.__init__(self, ax)
 
+        self.active = True                    # for activation / deactivation
         self.useblit = useblit and self.canvas.supports_blit
         self.onselect = onselect
         self.verts = None
 
+        if button is None or isinstance(button, list):
+            self.validButtons = button
+        elif isinstance(button, int):
+            self.validButtons = [button]
+
         if lineprops is None:
-            lineprops = dict()
+            lineprops = dict(color='black', linestyle='-',
+                                 linewidth=2, alpha=0.5)
         self.line = Line2D([], [], **lineprops)
         self.line.set_visible(False)
         self.ax.add_line(self.line)
@@ -1574,8 +1588,16 @@ class LassoSelector(AxesWidget):
         self.connect_event('draw_event', self.update_background)
 
     def ignore(self, event):
-        wrong_button = hasattr(event, 'button') and event.button != 1
-        return not self.active or wrong_button
+        if not self.active:
+            return True
+
+        # Only do lasso selection if event was triggered
+        # with a desired button
+        if self.validButtons is not None:
+            if not event.button in self.validButtons:
+                return True
+
+        return False
 
     def onpress(self, event):
         if self.ignore(event) or event.inaxes != self.ax:
@@ -1593,6 +1615,7 @@ class LassoSelector(AxesWidget):
         self.line.set_data([[], []])
         self.line.set_visible(False)
         self.verts = None
+        self.canvas.draw()
 
     def onmove(self, event):
         if self.ignore(event) or event.inaxes != self.ax:
@@ -1600,8 +1623,6 @@ class LassoSelector(AxesWidget):
         if self.verts is None:
             return
         if event.inaxes != self.ax:
-            return
-        if event.button != 1:
             return
         self.verts.append((event.xdata, event.ydata))
 
@@ -1615,8 +1636,8 @@ class LassoSelector(AxesWidget):
             self.canvas.draw_idle()
 
     def update_background(self, event):
-        if self.ignore(event):
-            return
+        #if self.ignore(event):
+        #    return
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
