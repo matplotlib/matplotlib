@@ -2486,7 +2486,7 @@ class Axes3D(Axes):
             use a point and vector to generate lines
             """
             lines = []
-            for var in np.linspace(0, length, num=20):
+            for var in np.linspace(0, length, num=2):
                 lines.append(list(zip(*(point - var * vector))))
             lines = np.array(lines).swapaxes(0, 1)
             return lines.tolist()
@@ -2515,7 +2515,7 @@ class Axes3D(Axes):
         masks = bcast[argi:]
         if masks:
             # combine the masks into one
-            mask = reduce(lambda k, k1: k or k1, masks)
+            mask = reduce(np.logical_or, masks)
             # put mask on and compress
             input_args = [np.ma.array(k, mask=mask).compressed() for k in input_args]
         else:
