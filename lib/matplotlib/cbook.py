@@ -528,7 +528,12 @@ class CallbackRegistry:
             for cid, proxy in list(six.iteritems(self.callbacks[s])):
                 # Clean out dead references
                 if proxy.inst is not None and proxy.inst() is None:
-                    del self.callbacks[s][cid]
+                    try:
+                        del self.callbacks[s][cid]
+                    except KeyError:
+                        # Perhaps other handlers have disconnected peer
+                        # callbacks.  Let KeyError's pass silently.
+                        pass
                 else:
                     proxy(*args, **kwargs)
 
