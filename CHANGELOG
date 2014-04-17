@@ -21,8 +21,13 @@
 
 2014-03-13 Add parameter 'clockwise' to function pie, True by default.
 
-2014-27-02  Implemented separate horizontal/vertical axes padding to the
+2014-02-27 Implemented separate horizontal/vertical axes padding to the
            ImageGrid in the AxesGrid toolkit
+
+2014-02-27 Allowed markevery property of matplotlib.lines.Line2D to be, an int
+           numpy fancy index, slice object, or float.  The float behaviour
+           turns on markers at approximately equal display-coordinate-distances
+           along the line.
 
 2014-01-02 `triplot` now returns the artist it adds and support of line and
            marker kwargs has been improved. GBY

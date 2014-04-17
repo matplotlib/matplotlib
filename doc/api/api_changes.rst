@@ -153,6 +153,12 @@ original location:
 
 * Added clockwise parameter to control sectors direction in `axes.pie`
 
+* In `matplotlib.lines.Line2D` the `markevery` functionality has been extended.
+  Previously an integer start-index and stride-length could be specified using
+  either a two-element-list or a two-element-tuple.  Now this can only be done
+  using a two-element-tuple.  If a two-element-list is used then it will be
+  treated as numpy fancy indexing and only the two markers corresponding to the
+  given indexes will be shown.
 
 .. _changes_in_1_3:
 
