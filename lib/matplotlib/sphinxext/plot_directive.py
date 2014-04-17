@@ -554,8 +554,9 @@ def run_code(code, code_path, ns=None, function_name=None):
         sys.stdout = stdout
     return ns
 
-def clear_state(plot_rcparams):
-    plt.close('all')
+def clear_state(plot_rcparams, close=True):
+    if close:
+        plt.close('all')
     matplotlib.rc_file_defaults()
     matplotlib.rcParams.update(plot_rcparams)
 
@@ -635,9 +636,12 @@ def render_figures(code, code_path, output_dir, output_base, context,
     else:
         ns = {}
 
+
     for i, code_piece in enumerate(code_pieces):
+
         if not context or config.plot_apply_rcparams:
-            clear_state(config.plot_rcparams)
+            clear_state(config.plot_rcparams, close=not context)
+
         run_code(code_piece, code_path, ns, function_name)
 
         images = []
@@ -661,7 +665,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
         results.append((code_piece, images))
 
     if not context or config.plot_apply_rcparams:
-        clear_state(config.plot_rcparams)
+        clear_state(config.plot_rcparams, close=not context)
 
     return results
 
