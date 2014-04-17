@@ -657,7 +657,7 @@ class Figure(Artist):
         See Also
         --------
 
-        :func:`~matplotlib.Figure.get_size_inches`
+        matplotlib.Figure.get_size_inches
         """
 
         forward = kwargs.get('forward', False)
@@ -690,7 +690,7 @@ class Figure(Artist):
         See Also
         --------
 
-        :func:`~matplotlib.Figure.set_size_inches`
+        matplotlib.Figure.set_size_inches
         """
         return np.array(self.bbox_inches.p1)
 
