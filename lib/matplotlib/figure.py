@@ -131,6 +131,29 @@ class AxesStack(Stack):
         self._ind += 1
         return Stack.push(self, (key, (self._ind, a)))
 
+    def swap_order(self, ax1, ax2):
+        """
+        Exchange the indices of the specified axes objects.
+        """
+        i1 = None
+        i2 = None
+        for i, entry in enumerate(self._elements):
+            if entry[1][1] == ax1:
+                i1 = i
+                entry1 = entry
+            elif entry[1][1] == ax2:
+                i2 = i
+                entry2 = entry
+
+        if i1 is None:
+            raise ValueError("First axes argument is not on the stack.")
+        if i2 is None:
+            raise ValueError("Second axes argument is not on the stack.")
+
+        seq1 = entry1[1][0]
+        self._elements[i1] = (entry1[0], (entry2[1][0], entry1[1][1]))
+        self._elements[i2] = (entry2[0], (seq1, entry2[1][1]))
+
     def current_key_axes(self):
         """
         Return a tuple of ``(key, axes)`` for the active axes.
@@ -876,6 +899,12 @@ class Figure(Artist):
         self._axstack.add(key, a)
         self.sca(a)
         return a
+
+    def swap_axes_order(self, ax1, ax2):
+        """
+        Exchange the sort order of two Axes objects.
+        """
+        self._axstack.swap_order(ax1, ax2)
 
     @docstring.dedent_interpd
     def add_subplot(self, *args, **kwargs):
