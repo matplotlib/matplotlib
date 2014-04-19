@@ -2,7 +2,7 @@
 Displays the difference between interpolation = 'none' and 
 interpolation = 'nearest'.
 
-The two types of interpolation are practically equivalent when converting a 
+The two types of interpolation are equivalent when converting a 
 figure to an image file, such as a PNG.  Interpolation = 'none' and 
 interpolation = 'nearest' behave quite differently, however, when converting a 
 figure to a vector graphics file, such as a PDF.  As shown, 
