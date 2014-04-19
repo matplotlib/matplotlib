@@ -193,7 +193,10 @@ FT2Image::py_write_bitmap(const Py::Tuple & args)
 
     write_bitmap(fh);
 
-    mpl_PyFile_DupClose(py_file, fh, offset);
+    if (mpl_PyFile_DupClose(py_file, fh, offset))
+    {
+        throw Py::Exception();
+    }
     mpl_PyFile_CloseFile(py_file);
     Py_DECREF(py_file);
 
@@ -2143,7 +2146,10 @@ static void close_file_callback(FT_Stream stream)
 {
     py_file_def *def = (py_file_def *)stream->descriptor.pointer;
 
-    mpl_PyFile_DupClose(def->py_file, def->fp, def->offset);
+    if (mpl_PyFile_DupClose(def->py_file, def->fp, def->offset))
+    {
+        throw Py::Exception();
+    }
 
     if (def->close_file) {
         mpl_PyFile_CloseFile(def->py_file);
