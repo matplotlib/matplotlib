@@ -2,12 +2,13 @@
 Displays the difference between interpolation = 'none' and 
 interpolation = 'nearest'.
 
-Interpolation = 'none' and 'nearest' are equivalent when converting a 
-figure to an image file, such as a PNG.  Interpolation = 'none' 
-and interpolation = 'nearest' behave quite differently, however, when 
-converting a figure to a vector graphics file, such as a PDF.  As shown, 
-Interpolation = 'none' works well when a big image is scaled down, while 
-interpolation = 'nearest' works well when a small image is blown up.
+Interpolation = 'none' and interpolation = 'nearest' are equivalent when 
+converting a figure to an image file, such as a PNG.  
+Interpolation = 'none' and interpolation = 'nearest' behave quite 
+differently, however, when converting a figure to a vector graphics file, 
+such as a PDF.  As shown, Interpolation = 'none' works well when a big 
+image is scaled down, while interpolation = 'nearest' works well when a 
+small image is blown up.
 """
 
 import numpy as np
