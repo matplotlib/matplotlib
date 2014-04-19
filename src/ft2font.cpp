@@ -2165,7 +2165,7 @@ FT2Font::make_open_args(PyObject *py_file_arg, FT_Open_Args *open_args)
     py_file_def *stream_info = NULL;
     long file_size;
     FT_Byte *new_memory;
-    mpl_off_t offset;
+    mpl_off_t offset = 0;
 
     int result = -1;
 
