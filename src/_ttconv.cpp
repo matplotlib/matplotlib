@@ -11,6 +11,7 @@
 #include <Python.h>
 #include "ttconv/pprdrv.h"
 #include <vector>
+#include <cassert>
 
 class PythonExceptionOccurred
 {
@@ -185,14 +186,17 @@ public:
 
     virtual void add_pair(const char* a, const char* b)
     {
+        assert(a != NULL);
+        assert(b != NULL);
         PyObject* value = PyBytes_FromString(b);
-        if (value)
+        if (!value)
         {
-            if (PyDict_SetItemString(_dict, a, value))
-            {
-                Py_DECREF(value);
-                throw PythonExceptionOccurred();
-            }
+            throw PythonExceptionOccurred();
+        }
+        if (PyDict_SetItemString(_dict, a, value))
+        {
+            Py_DECREF(value);
+            throw PythonExceptionOccurred();
         }
         Py_DECREF(value);
     }
