@@ -121,6 +121,14 @@ be a tuple if separate horizontal/vertical padding is needed.
 This is supposed to be very helpful when you have a labelled legend next to
 every subplot and you need to make some space for legend's labels.
 
+Fixed the mouse coordinates giving the wrong theta value in Polar graph
+```````````````````````````````````````````````````````````````````````
+Added code to 
+:funct:`~matplotlib.InvertedPolarTransform.transform_non_affine`
+to ensure that the calculated theta value was between the range of 0 and 2 * pi
+since the problem was that the value can become negative after applying the 
+direction and rotation to the theta calculation.
+
 Date handling
 -------------
 
