@@ -2208,7 +2208,7 @@ FT2Font::make_open_args(PyObject *py_file_arg, FT_Open_Args *open_args)
         open_args->stream = &stream;
     } else {
         if (PyObject_HasAttrString(py_file_arg, "read") &&
-            (data = PyObject_CallMethod(py_file_arg, "read", ""))) {
+            (data = PyObject_CallMethod(py_file_arg, (char*)"read", (char*)""))) {
             if (PyBytes_AsStringAndSize(data, &data_ptr, &data_len)) {
                 goto exit;
             }

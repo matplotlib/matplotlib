@@ -192,7 +192,7 @@ mpl_PyFile_OpenFile(PyObject *filename, const char *mode)
     if (open == NULL) {
         return NULL;
     }
-    return PyObject_CallFunction(open, "Os", filename, mode);
+    return PyObject_CallFunction(open, (char*)"Os", filename, mode);
 }
 
 static NPY_INLINE int
@@ -200,7 +200,7 @@ mpl_PyFile_CloseFile(PyObject *file)
 {
     PyObject *ret;
 
-    ret = PyObject_CallMethod(file, "close", NULL);
+    ret = PyObject_CallMethod(file, (char*)"close", NULL);
     if (ret == NULL) {
         return -1;
     }
