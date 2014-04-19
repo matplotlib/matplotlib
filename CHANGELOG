@@ -1,3 +1,7 @@
+2014-23-03 Fixed a bug in projections/polar.py by making sure that the theta
+           value being calculated when given the mouse coordinates stays within
+           the range of 0 and 2 * pi.
+
 2014-27-02  Implemented separate horizontal/vertical axes padding to the
            ImageGrid in the AxesGrid toolkit
 
