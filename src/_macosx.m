@@ -4489,7 +4489,12 @@ NavigationToolbar_get_active (NavigationToolbar* self)
     NSMenu* menu = [button menu];
     NSArray* items = [menu itemArray];
     unsigned int n = [items count];
-    int* states = malloc(n*sizeof(int));
+    int* states = calloc(n, sizeof(int));
+    if (!states)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "calloc failed");
+        return NULL;
+    }
     int i;
     unsigned int m = 0;
     NSEnumerator* enumerator = [items objectEnumerator];
@@ -4504,7 +4509,6 @@ NavigationToolbar_get_active (NavigationToolbar* self)
             states[i] = 1;
             m++;
         }
-        else states[i] = 0;
     }
     int j = 0;
     PyObject* list = PyList_New(m);
