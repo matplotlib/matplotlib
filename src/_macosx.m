@@ -203,6 +203,7 @@ static int wait_for_stdin(void)
         if (interrupted) raise(SIGINT);
     }
     CFReadStreamClose(stream);
+    CFRelease(stream);
     return 1;
 }
 
@@ -2103,6 +2104,7 @@ _shade_one_color(CGContextRef cr, CGFloat colors[3], CGPoint points[3], int icol
                                                     function,
                                                     true,
                                                     true);
+        CGColorSpaceRelease(colorspace);
         CGFunctionRelease(function);
         if (shading)
         {
@@ -2236,6 +2238,7 @@ _shade_alpha(CGContextRef cr, CGFloat alphas[3], CGPoint points[3])
     CGImageRef mask = CGBitmapContextCreateImage(bitmap);
     CGContextClipToMask(cr, rect, mask);
     CGImageRelease(mask);
+    CGContextRelease(bitmap);
     free(data);
     return 0;
 }
@@ -3990,9 +3993,9 @@ FigureManager_set_window_title(FigureManager* self,
     if(window)
     {
         NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-        NSString* ns_title = [[NSString alloc]
-                              initWithCString: title
-                              encoding: NSUTF8StringEncoding];
+        NSString* ns_title = [[[NSString alloc]
+                               initWithCString: title
+                               encoding: NSUTF8StringEncoding] autorelease];
         [window setTitle: ns_title];
         [pool release];
     }
