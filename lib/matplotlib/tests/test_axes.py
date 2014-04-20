@@ -1566,176 +1566,163 @@ def test_boxplot_bad_ci_2():
                   conf_intervals=[[1, 2], [1]])
 
 
-# violin plot data initialization
-data = [([+0.07902449, -0.16769639, +1.1572525,  +0.71400729, -0.17916727,
-          -1.15346725, -0.5298936,  +1.16570619, +1.13612837, -0.66830221,
-          -0.76738509, +0.85911678, +0.56446469, +0.64772651, -1.97432723,
-          -1.11794413, +0.4094635,  +2.52767469, -0.81092698, -0.23422668,
-          +0.423861,   +0.01702886, -0.58954823, -1.05303546, +0.22632754,
-          -1.88620214, +0.06759594, -0.51663253, -0.38821442, -0.5462294,
-          -0.39967334, -1.2690421,  -0.271953,   +0.19494831, +1.0674446,
-          +0.06632929, +0.9051155,  -0.06507299, -0.58885588, +0.03405925,
-          +0.60666877, -0.25755542, +1.06387913, -0.50576651, -0.51104135,
-          -0.65366091, -1.10801137, +0.55746182, +0.27206281, +0.25658797,
-          +0.008253,   -0.07254077, -0.77980703, -1.5707303,  -0.74731452,
-          -0.38364682, +1.37653142, -0.04123221, -0.84737153, +0.26552353,
-          +0.80039697, +0.17446856, +0.32860543, +0.79574814, -1.88942134]),
-        ([+3.99586977e-01, +1.09626020e+00, +2.64974356e-01, +5.49065532e-01,
-          -1.86679220e+00, -4.23951661e-01, -3.66858136e-01, +7.39441772e-02,
-          -1.25772592e+00, -1.14864510e+00, -7.59625813e-01, -2.67830782e-01,
-          -2.68205909e-01, -2.64119550e-02, -3.00092210e-01, -1.17080290e-03,
-          +1.25324397e+00, +1.97518726e-01, +9.74395138e-01, -2.52217468e-01,
-          -2.00424239e+00, -2.20525681e+00, +6.32069078e-01, -5.59674009e-02,
-          -1.13007054e+00, +8.47680697e-01, -1.41563783e+00, +6.84885681e-02,
-          +8.06629024e-01, +1.06561293e+00, +1.48755064e-01, +1.06241336e+00,
-          -1.53742677e+00, -9.40116707e-01, -2.35342351e-01, +4.07790960e-01,
-          +9.59066810e-01, +1.83262266e+00, -1.44675794e-01, -1.61663789e+00,
-          -3.34055942e-01, -1.65081542e+00, +6.54573563e-01, -4.80998938e-01,
-          -4.77104620e-01, +4.35836897e-01, +1.54488583e-01, +1.90264111e+00,
-          -1.73584727e+00, +2.84097580e-01, -6.67013428e-01, -5.47647643e-01,
-          -1.77584471e-01, -6.54191064e-01, +1.02366976e+00, +1.57777769e+00,
-          +2.10098337e-01, -5.34631915e-02, +4.28913084e-01, -5.56544884e-02,
-          +1.64250239e-01, -4.77299164e-01, -8.40402132e-01, -1.58474541e-01]),
-        ([-0.00975961, -0.9572654,  -0.02331628, -0.88758431, +0.36594918,
-          +0.58733922, +0.12169127, -0.17451044, -1.48322656, -0.64203124,
-          +1.01373274, -0.77332978, -1.64093613, +0.07944897, +1.79420792,
-          -0.95589844, -2.19618124, +0.99478738, -1.98933911, +0.21046525,
-          -2.31831045, +1.11045528, -0.51981581, +0.49740564, -0.40365721,
-          -0.30515722, -0.60601737, -1.05976064, +1.43356283, -0.59014164,
-          +0.58822025, +1.80100922, -1.40905671, +0.74553523, -1.57655404,
-          +0.29342432, +0.35548625, -0.99138976, -1.37339981, +0.63871936,
-          -0.60010678, -0.73597695, -0.12228469, +0.2467333,  +0.03750118,
-          -0.45755544, -0.8648646,  +0.13883081, -0.11239293, -0.7661388,
-          -0.70841112, -0.51668825, +2.2590876,  +0.61731299, -0.33742898,
-          +1.40708783, -1.43371511, -1.20425544, +0.79551956, -0.38148021,
-          -0.05703633, -0.42718744, +1.86441201, -0.36006341, -2.23769144]),
-        ([+0.28379466, +0.31202331, +0.54110464, +0.79957469, +0.02825945,
-          +1.39430266, +0.38945253, +0.25840893, -1.03405387, +0.3951418,
-          -0.32782812, -0.49764761, +1.67314785, +0.57207158, +0.42868172,
-          -0.66405633, +0.49477738, -0.24707622, -0.91179434, -0.88450974,
-          +1.47387423, +1.27147423, -1.28664994, +0.84428091, +0.19419244,
-          -1.27527008, +1.44462176, +1.21255381, +1.74448494, -1.47661372,
-          -1.00577117, -0.68746569, -0.85283125, -0.87339905, -0.05053922,
-          +1.79110014, -0.99663248, +0.52435397, +1.17699107, -1.51437376,
-          +0.52402067, -0.68885234, +1.84101899, +1.09318846, +0.66686321,
-          -1.14796045, +0.54247117, -2.21273401, -0.44526518, +1.08591603,
-          -1.86173825, -1.31016714, +0.7782744,  +0.76330906, -0.96452241,
-          -1.34983597, -0.90317774, +0.20187156, -2.03515866, +1.35603702,
-          +1.01390851, +0.29328188, -0.2223719,  -1.29928072, +0.59399753])]
-
-
-# violin plot test starts here
-@image_comparison(baseline_images=['test_vert_violinplot_baseline'])
+@image_comparison(baseline_images=['violinplot_vert_baseline'])
 def test_vert_violinplot_baseline():
+    # First 9 digits of frac(sqrt(2))
+    np.random.seed(414213562)
+    data = [np.random.normal(size=100) for i in range(4)]
     ax = plt.axes()
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
                   showmedians=0)
 
 
-@image_comparison(baseline_images=['test_vert_violinplot_showmeans'])
+@image_comparison(baseline_images=['violinplot_vert_showmeans'])
 def test_vert_violinplot_showmeans():
     ax = plt.axes()
+    # First 9 digits of frac(sqrt(3))
+    np.random.seed(732050807)
+    data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=1, showextrema=0,
                   showmedians=0)
 
 
-@image_comparison(baseline_images=['test_vert_violinplot_showextrema'])
+@image_comparison(baseline_images=['violinplot_vert_showextrema'])
 def test_vert_violinplot_showextrema():
     ax = plt.axes()
+    # First 9 digits of frac(sqrt(5))
+    np.random.seed(236067977)
+    data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=1,
                   showmedians=0)
 
 
-@image_comparison(baseline_images=['test_vert_violinplot_showmedians'])
+@image_comparison(baseline_images=['violinplot_vert_showmedians'])
 def test_vert_violinplot_showmedians():
     ax = plt.axes()
+    # First 9 digits of frac(sqrt(7))
+    np.random.seed(645751311)
+    data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
                   showmedians=1)
 
 
-@image_comparison(baseline_images=['test_vert_violinplot_showall'])
+@image_comparison(baseline_images=['violinplot_vert_showall'])
 def test_vert_violinplot_showall():
     ax = plt.axes()
+    # First 9 digits of frac(sqrt(11))
+    np.random.seed(316624790)
+    data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=1, showextrema=1,
                   showmedians=1)
 
 
-@image_comparison(baseline_images=['test_vert_violinplot_custompoints_10'])
+@image_comparison(baseline_images=['violinplot_vert_custompoints_10'])
 def test_vert_violinplot_custompoints_10():
     ax = plt.axes()
+    # First 9 digits of frac(sqrt(13))
+    np.random.seed(605551275)
+    data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
                   showmedians=0, points=10)
 
 
-@image_comparison(baseline_images=['test_vert_violinplot_custompoints_200'])
+@image_comparison(baseline_images=['violinplot_vert_custompoints_200'])
 def test_vert_violinplot_custompoints_200():
     ax = plt.axes()
+    # First 9 digits of frac(sqrt(17))
+    np.random.seed(123105625)
+    data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), showmeans=0, showextrema=0,
                   showmedians=0, points=200)
 
 
-@image_comparison(baseline_images=['test_horiz_violinplot_baseline'])
+@image_comparison(baseline_images=['violinplot_horiz_baseline'])
 def test_horiz_violinplot_baseline():
     ax = plt.axes()
+    # First 9 digits of frac(sqrt(19))
+    np.random.seed(358898943)
+    data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
                   showextrema=0, showmedians=0)
 
 
-@image_comparison(baseline_images=['test_horiz_violinplot_showmedians'])
+@image_comparison(baseline_images=['violinplot_horiz_showmedians'])
 def test_horiz_violinplot_showmedians():
     ax = plt.axes()
+    # First 9 digits of frac(sqrt(23))
+    np.random.seed(795831523)
+    data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
                   showextrema=0, showmedians=1)
 
 
-@image_comparison(baseline_images=['test_horiz_violinplot_showmeans'])
+@image_comparison(baseline_images=['violinplot_horiz_showmeans'])
 def test_horiz_violinplot_showmeans():
     ax = plt.axes()
+    # First 9 digits of frac(sqrt(29))
+    np.random.seed(385164807)
+    data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=1,
                   showextrema=0, showmedians=0)
 
 
-@image_comparison(baseline_images=['test_horiz_violinplot_showextrema'])
+@image_comparison(baseline_images=['violinplot_horiz_showextrema'])
 def test_horiz_violinplot_showextrema():
     ax = plt.axes()
+    # First 9 digits of frac(sqrt(31))
+    np.random.seed(567764362)
+    data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
                   showextrema=1, showmedians=0)
 
 
-@image_comparison(baseline_images=['test_horiz_violinplot_showall'])
+@image_comparison(baseline_images=['violinplot_horiz_showall'])
 def test_horiz_violinplot_showall():
     ax = plt.axes()
+    # First 9 digits of frac(sqrt(37))
+    np.random.seed(82762530)
+    data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=1,
                   showextrema=1, showmedians=1)
 
 
-@image_comparison(baseline_images=['test_horiz_violinplot_custompoints_10'])
+@image_comparison(baseline_images=['violinplot_horiz_custompoints_10'])
 def test_horiz_violinplot_custompoints_10():
     ax = plt.axes()
+    # First 9 digits of frac(sqrt(41))
+    np.random.seed(403124237)
+    data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
                   showextrema=0, showmedians=0, points=10)
 
 
-@image_comparison(baseline_images=['test_horiz_violinplot_custompoints_200'])
+@image_comparison(baseline_images=['violinplot_horiz_custompoints_200'])
 def test_horiz_violinplot_custompoints_200():
     ax = plt.axes()
+    # First 9 digits of frac(sqrt(43))
+    np.random.seed(557438524)
+    data = [np.random.normal(size=100) for i in range(4)]
     ax.violinplot(data, positions=range(4), vert=False, showmeans=0,
                   showextrema=0, showmedians=0, points=200)
 
 
-# test error
 @cleanup
 def test_violinplot_bad_positions():
     ax = plt.axes()
+    # First 9 digits of frac(sqrt(47))
+    np.random.seed(855654600)
+    data = [np.random.normal(size=100) for i in range(4)]
     assert_raises(ValueError, ax.violinplot, data, positions=range(5))
 
 
 @cleanup
 def test_violinplot_bad_widths():
     ax = plt.axes()
+    # First 9 digits of frac(sqrt(53))
+    np.random.seed(280109889)
+    data = [np.random.normal(size=100) for i in range(4)]
     assert_raises(ValueError, ax.violinplot, data, positions=range(4),
                   widths=[1, 2, 3])
-# violin plot test ends here
 
 
 @cleanup
