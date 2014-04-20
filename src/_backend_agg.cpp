@@ -166,7 +166,6 @@ BufferRegion::to_string_argb(const Py::Tuple &args)
         throw Py::TypeError("Could not create memory for blit");
     }
 
-    pix = begin;
     for (i = 0; i < (size_t)height; ++i)
     {
         pix = begin + i * stride;

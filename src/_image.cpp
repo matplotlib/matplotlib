@@ -991,7 +991,6 @@ _image_module::fromarray(const Py::Tuple& args)
     {
         throw Py::ValueError("Illegal array rank; must be rank; must 2 or 3");
     }
-    buffer -= NUMBYTES;
 
     return Py::asObject(imo);
 }
@@ -1099,7 +1098,6 @@ _image_module::fromarray2(const Py::Tuple& args)
     {
         throw Py::ValueError("Illegal array rank; must be rank; must 2 or 3");
     }
-    buffer -= NUMBYTES;
 
     return Py::asObject(imo);
 }
@@ -1681,7 +1679,6 @@ _image_module::pcolor(const Py::Tuple& args)
     unsigned char *inposition;
     size_t inrowsize(nx*4);
     size_t rowsize(cols*4);
-    rowstart = rowstarts;
     agg::int8u * position = buffer;
     agg::int8u * oldposition = NULL;
     start = reinterpret_cast<unsigned char*>(d->data);
