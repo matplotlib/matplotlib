@@ -75,6 +75,10 @@ private:
     unsigned long _height;
 
     void resize(long width, long height);
+
+    // prevent copying
+    FT2Image(const FT2Image&);
+    FT2Image& operator=(const FT2Image&);
 };
 
 class Glyph : public Py::PythonClass<Glyph>
@@ -90,6 +94,10 @@ public:
     size_t glyphInd;
 private:
     Py::Dict __dict__;
+
+    // prevent copying
+    Glyph(const Glyph&);
+    Glyph& operator=(const Glyph&);
 };
 
 class FT2Font : public Py::PythonClass<FT2Font>
@@ -172,15 +180,23 @@ private:
     static char get_image__doc__[];
     static char attach_file__doc__[];
     static char get_path__doc__[];
+
+    // prevent copying
+    FT2Font(const FT2Font&);
+    FT2Font& operator=(const FT2Font&);
 };
 
 // the extension module
 class ft2font_module : public Py::ExtensionModule<ft2font_module>
-
 {
 public:
     ft2font_module();
     virtual ~ft2font_module();
+
+private:
+    // prevent copying
+    ft2font_module(const ft2font_module&);
+    ft2font_module operator=(const ft2font_module&);
 };
 
 #endif
