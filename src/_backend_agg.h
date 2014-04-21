@@ -107,6 +107,11 @@ public:
             data = NULL;
         }
     };
+
+private:
+    // prevent copying
+    BufferRegion(const BufferRegion&);
+    BufferRegion& operator=(const BufferRegion&);
 };
 
 class GCAgg
@@ -284,6 +289,10 @@ protected:
 
 private:
     void create_alpha_buffers();
+
+    // prevent copying
+    RendererAgg(const RendererAgg&);
+    RendererAgg& operator=(const RendererAgg&);
 };
 
 // the extension module
@@ -306,6 +315,10 @@ public:
 private:
 
     Py::Object new_renderer(const Py::Tuple &args, const Py::Dict &kws);
+
+    // prevent copying
+    _backend_agg_module(const _backend_agg_module&);
+    _backend_agg_module& operator=(const _backend_agg_module&);
 };
 
 

@@ -45,6 +45,9 @@ class Printf
 {
 private :
     char *buffer;
+    // prevent copying
+    Printf(const Printf&);
+    Printf& operator=(const Printf&);
 public :
     Printf(const char *, ...);
     ~Printf();
