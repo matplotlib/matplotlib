@@ -1944,28 +1944,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
     bxpstats = []
 
     # convert X to a list of lists
-    if hasattr(X, 'shape'):
-        # one item
-        if len(X.shape) == 1:
-            if hasattr(X[0], 'shape'):
-                X = list(X)
-            else:
-                X = [X, ]
-
-        # several items
-        elif len(X.shape) == 2:
-            nrows, ncols = X.shape
-            if nrows == 1:
-                X = [X]
-            elif ncols == 1:
-                X = [X.ravel()]
-            else:
-                X = [X[:, i] for i in xrange(ncols)]
-        else:
-            raise ValueError("input `X` must have 2 or fewer dimensions")
-
-    if not hasattr(X[0], '__len__'):
-        X = [X]
+    X = _reshape_2D(X)
 
     ncols = len(X)
     if labels is None:
@@ -1982,7 +1961,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
         stats['mean'] = np.mean(x)
 
         # medians and quartiles
-        q1, med, q3 =  np.percentile(x, [25, 50, 75])
+        q1, med, q3 = np.percentile(x, [25, 50, 75])
 
         # interquartile range
         stats['iqr'] = q3 - q1
@@ -2004,7 +1983,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
                 hival = np.max(x)
             else:
                 whismsg = ('whis must be a float, valid string, or '
-                          'list of percentiles')
+                           'list of percentiles')
                 raise ValueError(whismsg)
         else:
             loval = np.percentile(x, whis[0])
@@ -2155,6 +2134,104 @@ def is_math_text(s):
     even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
 
     return even_dollars
+
+
+def _reshape_2D(X):
+    if hasattr(X, 'shape'):
+        # one item
+        if len(X.shape) == 1:
+            if hasattr(X[0], 'shape'):
+                X = list(X)
+            else:
+                X = [X, ]
+
+        # several items
+        elif len(X.shape) == 2:
+            nrows, ncols = X.shape
+            if nrows == 1:
+                X = [X]
+            elif ncols == 1:
+                X = [X.ravel()]
+            else:
+                X = [X[:, i] for i in xrange(ncols)]
+        else:
+            raise ValueError("input `X` must have 2 or fewer dimensions")
+
+    if not hasattr(X[0], '__len__'):
+        X = [X]
+
+    return X
+
+
+def violin_stats(X, method, points=100):
+    '''
+    Returns a list of dictionaries of data which can be used to draw a series
+    of violin plots. See the `Returns` section below to view the required keys
+    of the dictionary. Users can skip this function and pass a user-defined set
+    of dictionaries to the `axes.vplot` method instead of using MPL to do the
+    calculations.
+
+    Parameters
+    ----------
+    X : array-like
+        Sample data that will be used to produce the gaussian kernel density
+        estimates. Must have 2 or fewer dimensions.
+
+    method : callable
+        The method used to calculate the kernel density estimate for each
+        column of data. When called via `method(v, coords)`, it should
+        return a vector of the values of the KDE evaluated at the values
+        specified in coords.
+
+    points : scalar, default = 100
+        Defines the number of points to evaluate each of the gaussian kernel
+        density estimates at.
+
+    Returns
+    -------
+
+    A list of dictionaries containing the results for each column of data.
+    The dictionaries contain at least the following:
+
+        - coords: A list of scalars containing the coordinates this particular
+          kernel density estimate was evaluated at.
+        - vals: A list of scalars containing the values of the kernel density
+          estimate at each of the coordinates given in `coords`.
+        - mean: The mean value for this column of data.
+        - median: The median value for this column of data.
+        - min: The minimum value for this column of data.
+        - max: The maximum value for this column of data.
+    '''
+
+    # List of dictionaries describing each of the violins.
+    vpstats = []
+
+    # Want X to be a list of data sequences
+    X = _reshape_2D(X)
+
+    for x in X:
+        # Dictionary of results for this distribution
+        stats = {}
+
+        # Calculate basic stats for the distribution
+        min_val = np.min(x)
+        max_val = np.max(x)
+
+        # Evaluate the kernel density estimate
+        coords = np.linspace(min_val, max_val, points)
+        stats['vals'] = method(x, coords)
+        stats['coords'] = coords
+
+        # Store additional statistics for this distribution
+        stats['mean'] = np.mean(x)
+        stats['median'] = np.median(x)
+        stats['min'] = min_val
+        stats['max'] = max_val
+
+        # Append to output
+        vpstats.append(stats)
+
+    return vpstats
 
 
 class _NestedClassGetter(object):

@@ -6739,8 +6739,8 @@ class Axes(_AxesBase):
 
         Make a violin plot for each column of *dataset* or each vector in
         sequence *dataset*.  Each filled area extends to represent the
-        entire data range, with three lines at the mean, the minimum, and
-        the maximum.
+        entire data range, with optional lines at the mean, the median,
+        the minimum, and the maximum.
 
         Parameters
         ----------
@@ -6778,8 +6778,93 @@ class Axes(_AxesBase):
             The method used to calculate the estimator bandwidth.  This can be
             'scott', 'silverman', a scalar constant or a callable.  If a
             scalar, this will be used directly as `kde.factor`.  If a
-            callable, it should take a `GaussianKDE` instance as only
+            callable, it should take a `GaussianKDE` instance as its only
             parameter and return a scalar. If None (default), 'scott' is used.
+
+        Returns
+        -------
+
+        A dictionary mapping each component of the violinplot to a list of the
+        corresponding collection instances created. The dictionary has
+        the following keys:
+
+            - bodies: A list of the
+              :class:`matplotlib.collections.PolyCollection` instances
+              containing the filled area of each violin.
+            - means: A :class:`matplotlib.collections.LineCollection` instance
+              created to identify the mean values of each of the violin's
+              distribution.
+            - mins: A :class:`matplotlib.collections.LineCollection` instance
+              created to identify the bottom of each violin's distribution.
+            - maxes: A :class:`matplotlib.collections.LineCollection` instance
+              created to identify the top of each violin's distribution.
+            - bars: A :class:`matplotlib.collections.LineCollection` instance
+              created to identify the centers of each violin's distribution.
+            - medians: A :class:`matplotlib.collections.LineCollection`
+              instance created to identify the median values of each of the
+              violin's distribution.
+
+        """
+
+        def _kde_method(X, coords):
+            kde = mlab.GaussianKDE(X, bw_method)
+            return kde.evaluate(coords)
+
+        vpstats = cbook.violin_stats(dataset, _kde_method, points=points)
+        return self.violin(vpstats, positions=positions, vert=vert,
+                           widths=widths, showmeans=showmeans,
+                           showextrema=showextrema, showmedians=showmedians)
+
+    def violin(self, vpstats, positions=None, vert=True, widths=0.5,
+               showmeans=False, showextrema=True, showmedians=False):
+        """
+        Drawing function for violin plots.
+
+        Call signature::
+
+          violin(vpstats, positions=None, vert=True, widths=0.5,
+                 showmeans=False, showextrema=True, showmedians=False):
+
+        Draw a violin plot for each column of `vpstats`. Each filled area
+        extends to represent the entire data range, with optional lines at the
+        mean, the median, the minimum, and the maximum.
+
+        Parameters
+        ----------
+
+          vpstats : list of dicts
+            A list of dictionaries containing stats for each violin plot.
+            Required keys are:
+              - coords: A list of scalars containing the coordinates that
+                the violin's kernel density estimate were evaluated at.
+              - vals: A list of scalars containing the values of the kernel
+                density estimate at each of the coordinates given in `coords`.
+              - mean: The mean value for this violin's dataset.
+              - median: The median value for this violin's dataset.
+              - min: The minimum value for this violin's dataset.
+              - max: The maximum value for this violin's dataset.
+
+          positions : array-like, default = [1, 2, ..., n]
+            Sets the positions of the violins. The ticks and limits are
+            automatically set to match the positions.
+
+          vert : bool, default = True.
+            If true, plots the violins veritcally.
+            Otherwise, plots the violins horizontally.
+
+          widths : array-like, default = 0.5
+            Either a scalar or a vector that sets the maximal width of
+            each violin. The default is 0.5, which uses about half of the
+            available horizontal space.
+
+          showmeans : bool, default = False
+            If true, will toggle rendering of the means.
+
+          showextrema : bool, default = True
+            If true, will toggle rendering of the extrema.
+
+          showmedians : bool, default = False
+            If true, will toggle rendering of the medians.
 
         Returns
         -------
@@ -6822,22 +6907,23 @@ class Axes(_AxesBase):
             'cmedians': None
         }
 
+        N = len(vpstats)
         datashape_message = ("List of violinplot statistics and `{0}` "
                              "values must have the same length")
 
         # Validate positions
         if positions is None:
-            positions = range(1, len(dataset) + 1)
-        elif len(positions) != len(dataset):
+            positions = range(1, N + 1)
+        elif len(positions) != N:
             raise ValueError(datashape_message.format("positions"))
 
         # Validate widths
         if np.isscalar(widths):
-            widths = [widths] * len(dataset)
-        elif len(widths) != len(dataset):
+            widths = [widths] * N
+        elif len(widths) != N:
             raise ValueError(datashape_message.format("widths"))
 
-        # Calculate mins and maxes for statistics lines
+        # Calculate ranges for statistics lines
         pmins = -0.25 * np.array(widths) + positions
         pmaxes = 0.25 * np.array(widths) + positions
 
@@ -6857,33 +6943,20 @@ class Axes(_AxesBase):
             blines = self.hlines
 
         # Render violins
-        for data, pos, width in zip(dataset, positions, widths):
-            # Calculate the kernel density
-            kde = mlab.GaussianKDE(data, bw_method)
-            min_val = kde.dataset.min()
-            max_val = kde.dataset.max()
-            mean = np.mean(kde.dataset)
-            median = np.median(kde.dataset)
-            coords = np.linspace(min_val, max_val, points)
-
-            vals = kde.evaluate(coords)
-
-            # Since each data point p is plotted from v-p to v+p,
-            # we need to scale it by an additional 0.5 factor so that we get
-            # correct width in the end.
-            vals = 0.5 * width * vals/vals.max()
-
-            # create the violin bodies
-            artists['bodies'] += [fill(coords,
+        for stats, pos, width in zip(vpstats, positions, widths):
+            # The 0.5 factor reflects the fact that we plot from v-p to
+            # v+p
+            vals = np.array(stats['vals'])
+            vals = 0.5 * width * vals / vals.max()
+            artists['bodies'] += [fill(stats['coords'],
                                        -vals + pos,
                                        vals + pos,
                                        facecolor='y',
                                        alpha=0.3)]
-
-            means.append(mean)
-            mins.append(min_val)
-            maxes.append(max_val)
-            medians.append(median)
+            means.append(stats['mean'])
+            mins.append(stats['min'])
+            maxes.append(stats['max'])
+            medians.append(stats['median'])
 
         # Render means
         if showmeans:
