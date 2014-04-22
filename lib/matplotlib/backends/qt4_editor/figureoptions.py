@@ -127,10 +127,13 @@ def figure_edit(axes, parent=None):
         
         # re-generate legend, if checkbox is checked. Stefan Kraus/tacaswell 2014-04-22
         if generate_legend:
-            old_legend = axes.get_legend()
-            new_legend = axes.legend()
-            new_legend._ncol = old_legend._ncol
-            new_legend.draggable(old_legend._draggable is not None)
+            if axes.legend_ is not None:
+                old_legend = axes.get_legend()
+                new_legend = axes.legend(ncol = old_legend._ncol)
+                new_legend.draggable(old_legend._draggable is not None)
+            else:
+                new_legend = axes.legend()
+                new_legend.draggable(True)
 
         # Redraw
         figure = axes.get_figure()
