@@ -1371,7 +1371,7 @@ TrapezoidMapTriFinder::find_many(const Py::Tuple& args)
     PyArrayObject* y = (PyArrayObject*)PyArray_ContiguousFromObject(
                            args[1].ptr(), PyArray_DOUBLE, 0, 0);
     bool ok = (x != 0 && y != 0 && PyArray_NDIM(x) == PyArray_NDIM(y));
-    int ndim = PyArray_NDIM(x);
+    int ndim = x == 0 ? 0 : PyArray_NDIM(x);
     for (int i = 0; ok && i < ndim; ++i)
         ok = (PyArray_DIM(x,i) == PyArray_DIM(y,i));
 
