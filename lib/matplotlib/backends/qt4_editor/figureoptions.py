@@ -54,6 +54,8 @@ def figure_edit(axes, parent=None):
                ('Min', ymin), ('Max', ymax),
                ('Label', axes.get_ylabel()),
                ('Scale', [axes.get_yscale(), 'linear', 'log'])
+               sep,
+               ('(Re-)Generate automatic legend', False) #defaults to False, as it clobbers carefully hand crafted legends /2014-04-22
                ]
 
     if has_curve:
@@ -98,7 +100,7 @@ def figure_edit(axes, parent=None):
             general, = data
 
         # Set / General
-        title, xmin, xmax, xlabel, xscale, ymin, ymax, ylabel, yscale = general
+        title, xmin, xmax, xlabel, xscale, ymin, ymax, ylabel, yscale, generate_legend = general #/2014-04-22
         axes.set_xscale(xscale)
         axes.set_yscale(yscale)
         axes.set_title(title)
@@ -123,9 +125,9 @@ def figure_edit(axes, parent=None):
                     line.set_markerfacecolor(markerfacecolor)
                     line.set_markeredgecolor(markeredgecolor)
         
-        # re-generate legend, if there is one. Stefan Kraus/tacaswell 2014-04-02
-        if axes.legend_ is not None:
-            axes.legend()
+        # re-generate legend, if checkbox is checked. Stefan Kraus/tacaswell 2014-04-22
+        if generate_legend:
+            new_legend = axes.legend()
 
         # Redraw
         figure = axes.get_figure()
