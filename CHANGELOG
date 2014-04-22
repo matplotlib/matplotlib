@@ -30,6 +30,10 @@
            interpolation = 'none' and interpolation = 'nearest' in
            `imshow()` when saving vector graphics files.
 
+2014-04-22 Added violin plotting functions. See `Axes.violinplot`,
+           `Axes.violin`, `cbook.violin_stats` and `mlab.GaussianKDE` for
+           details.
+
 2014-04-10 Fixed the triangular marker rendering error. The "Up" triangle was
            rendered instead of "Right" triangle and vice-versa.
 
