@@ -1,3 +1,6 @@
+2014-01-15 changed default value of `fmt` kwarg of `errorbar` from '-' -> '' so
+	   that `errorbar` will respect `lines.linestyle` for drawing the line.
+
 2013-05-18 Added support for arbitrary rasterization resolutions to the
            SVG backend. Previously the resolution was hard coded to 72
            dpi. Now the backend class takes a image_dpi argument for
