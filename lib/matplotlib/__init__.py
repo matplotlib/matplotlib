@@ -12,7 +12,13 @@ To include numpy functions too, use::
 
 or using ipython::
 
-    ipython -pylab
+    ipython
+
+at your terminal, followed by::
+
+    In [1]: %pylab
+
+at the ipython shell prompt.
 
 For the most part, direct use of the object-oriented library is
 encouraged when programming; pyplot is primarily for working
