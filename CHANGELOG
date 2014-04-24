@@ -1,8 +1,6 @@
 2014-04-23 Updated references to "ipython -pylab"
-           As of ipython 3.0, pylab mode can no longer be invoked at shell
-           startup with a command line flag. Instead, "%pylab" must be
-           called from the ipython notebook directly. Documentation and
-           examples referencing this flag have been changed accordingly.
+           The preferred method for invoking pylab is now using the
+           "%pylab" magic.
            -Chris G.
 
 
