@@ -3258,7 +3258,7 @@ class NavigationBase(object):
     def _get_toolbar(self, toolbar, canvas):
         # must be inited after the window, drawingArea and figure
         # attrs are set
-        if rcParams['toolbar'] == 'navigation'  and toolbar is not None:
+        if rcParams['toolbar'] == 'navigation' and toolbar is not None:
             toolbar = toolbar(canvas.manager)
         else:
             toolbar = None
@@ -3292,7 +3292,7 @@ class NavigationBase(object):
         ----------
         list : list of keys associated with the Tool
         """
-        keys = [k for k, i in self._keys.items() if i == name]
+        keys = [k for k, i in six.iteritems(self._keys) if i == name]
         return keys
 
     def set_tool_keymap(self, name, *keys):
@@ -3308,7 +3308,7 @@ class NavigationBase(object):
         if name not in self._tools:
             raise AttributeError('%s not in Tools' % name)
 
-        active_keys = [k for k, i in self._keys.items() if i == name]
+        active_keys = [k for k, i in six.iteritems(self._keys) if i == name]
         for k in active_keys:
             del self._keys[k]
 
@@ -3353,7 +3353,7 @@ class NavigationBase(object):
         """
         self.unregister(name)
         del self._tools[name]
-        keys = [k for k, v in self._keys.items() if v == name]
+        keys = [k for k, v in six.iteritems(self._keys) if v == name]
         for k in keys:
             del self._keys[k]
 
@@ -3402,7 +3402,7 @@ class NavigationBase(object):
                                       toggle)
 
     def _get_cls_to_instantiate(self, callback_class):
-        if isinstance(callback_class, basestring):
+        if isinstance(callback_class, six.string_types):
             #FIXME: make more complete searching structure
             if callback_class in globals():
                 return globals()[callback_class]
@@ -3501,7 +3501,7 @@ class NavigationBase(object):
         print ('_' * 80)
         for name in sorted(self._tools.keys()):
             tool = self._tools[name]
-            keys = [k for k, i in self._keys.items() if i == name]
+            keys = [k for k, i in six.iteritems(self._keys) if i == name]
             print ("{0:20} {1:50} {2}".format(tool.name, tool.description,
                                               ', '.join(keys)))
         print ('_' * 80, '\n')
