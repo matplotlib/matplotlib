@@ -386,6 +386,12 @@ class SetupPackage(object):
         """
         return None
 
+    def add_flags(self, ext):
+        """
+        Add any extension specific flags.
+        """
+        return
+
     def get_install_requires(self):
         """
         Get a list of Python packages that we require.
@@ -438,6 +444,7 @@ class SetupPackage(object):
         ext = self.get_extension()
         if ext is None:
             ext = make_extension('test', [])
+            self.add_flags(ext)
             pkg_config.setup_extension(ext, package)
 
         check_include_file(ext.include_dirs, include_file, package)
