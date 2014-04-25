@@ -1154,8 +1154,8 @@ class BboxImage(_AxesImageBase):
         im.set_resample(self._resample)
 
         l, b, r, t = self.get_window_extent(renderer).extents  # bbox.extents
-        widthDisplay = round(r) - round(l)
-        heightDisplay = round(t) - round(b)
+        widthDisplay = abs(round(r) - round(l))
+        heightDisplay = abs(round(t) - round(b))
         widthDisplay *= magnification
         heightDisplay *= magnification
 
@@ -1183,11 +1183,14 @@ class BboxImage(_AxesImageBase):
         # todo: we should be able to do some cacheing here
         image_mag = renderer.get_image_magnification()
         im = self.make_image(renderer, image_mag)
-        l, b, r, t = self.get_window_extent(renderer).extents
+        x0, y0, x1, y1 = self.get_window_extent(renderer).extents
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
         gc.set_alpha(self.get_alpha())
         #gc.set_clip_path(self.get_clip_path())
+
+        l = np.min([x0, x1])
+        b = np.min([y0, y1])
         renderer.draw_image(gc, round(l), round(b), im)
         gc.restore()
 
