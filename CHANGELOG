@@ -8,6 +8,8 @@
 2014-04-27 Improved input clean up in Axes.{h|v}lines
            Coerce input into a 1D ndarrays (after dealing with units).
 
+2014-04-27 removed un-needed cast to float in stem
+
 2014-04-22 Added an example showing the difference between
            interpolation = 'none' and interpolation = 'nearest' in
            `imshow()` when saving vector graphics files.
@@ -17,6 +19,10 @@
 
 2014-04-08 Fixed a bug in parasite_axes.py by making a list out
            of a generator at line 263.
+
+2014-02-25 In backend_qt4agg changed from using update -> repaint under
+	   windows.  See comment in source near `self._priv_update` for
+	   longer explaination.
 
 2014-03-27 Added tests for pie ccw parameter. Removed pdf and svg images
            from tests for pie linewidth parameter.
