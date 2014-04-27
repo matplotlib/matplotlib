@@ -1636,6 +1636,19 @@ def test_stem_args():
     ax.stem(x, y, 'r--', basefmt='b--')
 
 
+@cleanup
+def test_stem_dates():
+    fig, ax = plt.subplots(1, 1)
+    from dateutil import parser
+    x = parser.parse("2013-9-28 11:00:00")
+    y = 100
+
+    x1 = parser.parse("2013-9-28 12:00:00")
+    y1 = 200
+
+    ax.stem([x, x1], [y, y1], "*-")
+
+
 @image_comparison(baseline_images=['hist_stacked_stepfilled_alpha'])
 def test_hist_stacked_stepfilled_alpha():
     # make some data
