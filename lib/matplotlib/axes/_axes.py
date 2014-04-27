@@ -3,6 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import reduce, xrange, zip
+from six import string_types
 
 import math
 import warnings
@@ -2281,19 +2282,28 @@ class Axes(_AxesBase):
             self.cla()
         self.hold(True)
 
-        # Assume there's at least one data array
-        y = np.asarray(args[0], dtype=np.float)
-        args = args[1:]
-
-        # Try a second one
-        try:
-            second = np.asarray(args[0], dtype=np.float)
-            x, y = y, second
-            args = args[1:]
-        except (IndexError, ValueError):
-            # The second array doesn't make sense, or it doesn't exist
-            second = np.arange(len(y))
-            x = second
+        not_str_args = [not isinstance(a, string_types) for
+                        a in args]
+        if len(args) == 1:
+            y = args[0]
+            x = np.arange(len(y))
+            args = []
+        elif len(args) == 2:
+            if all(not_str_args):
+                x, y = args
+                args = []
+            else:
+                y = args[0]
+                x = np.arange(len(y))
+                args = []
+        else:
+            if all(not_str_args[:2]):
+                x, y = args[:2]
+                args = args[2:]
+            else:
+                y = args[0]
+                x = np.arange(len(y))
+                args = args[1:]
 
         # Popping some defaults
         try:
