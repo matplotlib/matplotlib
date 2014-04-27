@@ -1,3 +1,5 @@
+2014-14-04  Remove Cairo backend point check with respect to the number of points(<18980)
+
 2014-27-02  Implemented separate horizontal/vertical axes padding to the
            ImageGrid in the AxesGrid toolkit
 
