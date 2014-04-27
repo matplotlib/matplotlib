@@ -2,12 +2,13 @@
 Displays the difference between interpolation = 'none' and 
 interpolation = 'nearest'.
 
-Interpolation = 'none' and 'nearest' are equivalent when converting a 
-figure to an image file, such as a PNG.  Interpolation = 'none' 
-and interpolation = 'nearest' behave quite differently, however, when 
-converting a figure to a vector graphics file, such as a PDF.  As shown, 
-Interpolation = 'none' works well when a big image is scaled down, while 
-interpolation = 'nearest' works well when a small image is blown up.
+Interpolation = 'none' and interpolation = 'nearest' are equivalent when 
+converting a figure to an image file, such as a PNG.  
+Interpolation = 'none' and interpolation = 'nearest' behave quite 
+differently, however, when converting a figure to a vector graphics file, 
+such as a PDF.  As shown, Interpolation = 'none' works well when a big 
+image is scaled down, while interpolation = 'nearest' works well when a 
+small image is blown up.
 """
 
 import numpy as np
@@ -40,8 +41,22 @@ fig.text(0.03, 0.225, 'Small Image\nBlown Up', ha = 'left')
 fig.text(0.383, 0.90, "Interpolation = 'none'", ha = 'center')
 fig.text(0.75, 0.90, "Interpolation = 'nearest'", ha = 'center')
 
-#Save as a png and as a pdf
-txt = fig.text(0.452, 0.95, 'Saved as a PNG', fontsize = 18)
-plt.savefig('Nearest_vs_none.png', bbox_inches = 'tight')
-txt.set_text('Saved as a PDF')
-plt.savefig('Nearest_vs_none.pdf', bbox_inches = 'tight')
+#If you were going to run this example on your local machine, you 
+#would save the figure as a PNG, save the same figure as a PDF, and 
+#then compare them.  The following code would suffice.
+txt = fig1.text(0.452, 0.95, 'Saved as a PNG', fontsize = 18)
+# plt.savefig('None_vs_nearest-png.png')
+# txt.set_text('Saved as a PDF')
+# plt.savefig('None_vs_nearest-pdf.pdf')
+
+#Here, however, we need to display the PDF on a webpage, which means
+#the PDF must be converted into an image.  For the purposes of this 
+#example, the 'Nearest_vs_none-pdf.pdf' has been pre-converted into 
+#'Nearest_vs_none-pdf.png' at 80 dpi.  We simply need to load and
+#display it.
+pdf_im_path = cbook.get_sample_data('None_vs_nearest-pdf.png')
+pdf_im = plt.imread(pdf_im_path)
+fig2 = plt.figure(figsize = [8.0, 7.5])
+plt.figimage(pdf_im)
+
+plt.show()
