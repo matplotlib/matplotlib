@@ -702,7 +702,9 @@ class Animation(object):
                 warnings.warn("MovieWriter %s unavailable" % writer)
 
                 try:
-                    writer = writers.list()[0]
+                    writer = writers[writers.list()[0]](fps, codec, bitrate,
+                                                        extra_args=extra_args,
+                                                        metadata=metadata)
                 except IndexError:
                     raise ValueError("Cannot save animation: no writers are "
                                      "available. Please install mencoder or "
