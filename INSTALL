@@ -194,15 +194,13 @@ manager on Linux, you may need to install the development packages
     using pip, easy_install or installing from source, the installer
     will attempt to download and install `pyparsing` from PyPI.
 
-<<<<<<< HEAD
 **Optional dependencies**
 
 `Pillow http://python-imaging.github.io/`__
     If Pillow is installed, matplotlib can read and write a larger
     selection of image file formats.
 
-**Optional GUI frameworks**
-=======
+
 libpng 1.2 (or later)
     library for loading and saving :term:`PNG` files (`download
     <http://www.libpng.org/pub/png/libpng.html>`__). libpng requires
@@ -215,8 +213,7 @@ libpng 1.2 (or later)
     matplotlib single click installer.
 
 
-**Optional**
->>>>>>> upstream/v1.3.x
+**Optional GUI frameworks**
 
 These are optional packages which you may want to install to use
 matplotlib with a user interface toolkit. See
