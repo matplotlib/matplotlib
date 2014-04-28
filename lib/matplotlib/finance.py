@@ -306,7 +306,7 @@ def plot_day_summary(ax, quotes, ticksize=3,
 
 
 def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
-                alpha=1.0):
+                alpha=1.0, coloredge='k', theme='light'):
 
     """
 
@@ -326,6 +326,8 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
     colorup     : the color of the rectangle where close >= open
     colordown   : the color of the rectangle where close <  open
     alpha       : the rectangle alpha level
+    coloredge   : the color of the rectangle border
+    theme       : specify if using light theme or dark theme (light theme uses a white grid bg, dark uses black grid bg)
 
     return value is lines, patches where lines is a list of lines
     added and patches is a list of the rectangle patches added
@@ -334,33 +336,43 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
 
     OFFSET = width/2.0
 
+    # Adjust candlestick body edges based upon theme
+    if theme == 'light':
+        coloredge = 'k'
+        coloredgeup = 'k'
+        coloredgedown = 'k'
+    else:
+        coloredgeup = colorup
+        coloredgedown = colordown
+
     lines = []
     patches = []
     for q in quotes:
         t, open, close, high, low = q[:5]
 
+        # Make candlestick bodies fill based upon stock price movement for given period
         if close>=open :
             color = colorup
             lower = open
             height = close-open
+            vline = Line2D(xdata=(t, t), ydata=(low, high), color=coloredgeup, linewidth=0.5, antialiased=True, zorder=0)
         else           :
             color = colordown
             lower = close
             height = open-close
+            vline = Line2D(xdata=(t, t), ydata=(low, high), color=coloredgedown, linewidth=0.5, antialiased=True, zorder=0)
 
-        vline = Line2D(
-            xdata=(t, t), ydata=(low, high),
-            color='k',
-            linewidth=0.5,
-            antialiased=True,
-            )
+        # Should look for a better way to do this
+        if theme != 'light':
+            coloredge = color
 
         rect = Rectangle(
             xy    = (t-OFFSET, lower),
             width = width,
             height = height,
             facecolor = color,
-            edgecolor = color,
+            edgecolor = coloredge,
+            zorder=1,
             )
         rect.set_alpha(alpha)
 
