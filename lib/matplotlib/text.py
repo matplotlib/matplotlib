@@ -564,6 +564,7 @@ class Text(Artist):
             if not np.isfinite(x) or not np.isfinite(y):
                 continue
 
+            mtext = self if len(info) == 1 else None
             x = x + posx
             y = y + posy
             if renderer.flipy():
@@ -577,11 +578,11 @@ class Text(Artist):
 
             if rcParams['text.usetex']:
                 renderer.draw_tex(gc, x, y, clean_line,
-                                  self._fontproperties, angle, mtext=self)
+                                  self._fontproperties, angle, mtext=mtext)
             else:
                 renderer.draw_text(gc, x, y, clean_line,
                                    self._fontproperties, angle,
-                                   ismath=ismath, mtext=self)
+                                   ismath=ismath, mtext=mtext)
 
         gc.restore()
         renderer.close_group('text')
