@@ -1525,11 +1525,11 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
 
 def entropy(y, bins):
     r"""
-    Return the entropy of the data in *y*.
+    Return the entropy of the data in *y* in units of nat.
 
     .. math::
 
-      \sum p_i \log_2(p_i)
+      -\sum p_i \ln(p_i)
 
     where :math:`p_i` is the probability of observing *y* in the
     :math:`i^{th}` bin of *bins*.  *bins* can be a number of bins or a
