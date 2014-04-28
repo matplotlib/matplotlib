@@ -14,6 +14,8 @@ import atexit
 import weakref
 import warnings
 
+import numpy as np
+
 import matplotlib as mpl
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
     FigureManagerBase, FigureCanvasBase
@@ -654,15 +656,29 @@ class RendererPgf(RendererBase):
         if angle == 0 or mtext.get_rotation_mode() == "anchor":
             # if text anchoring can be supported, get the original coordinates
             # and add alignment information
-            x, y = mtext.get_transform().transform_point(mtext.get_position())
-            text_args.append("x=%fin" % (x * f))
-            text_args.append("y=%fin" % (y * f))
+            ax, ay = mtext.get_transform().transform_point(mtext.get_position())
+
+            # With multi-line text, vertical alignment must be applied manually
+            # as text is drawn line by line.
+            multiline = '\n' in mtext.get_text()
+            if multiline:
+                angle_rad = angle * np.pi / 180.
+                dir_vert = np.array([-np.sin(angle_rad), np.cos(angle_rad)])
+                v_offset = np.dot(dir_vert, [(x - ax), (y - ay)])
+                ax = ax + v_offset * dir_vert[0]
+                ay = ay + v_offset * dir_vert[1]
+
+            text_args.append("x=%fin" % (ax * f))
+            text_args.append("y=%fin" % (ay * f))
 
             halign = {"left": "left", "right": "right", "center": ""}
             valign = {"top": "top", "bottom": "bottom",
                       "baseline": "base", "center": ""}
             text_args.append(halign[mtext.get_ha()])
-            text_args.append(valign[mtext.get_va()])
+            if multiline:
+                text_args.append("base")
+            else:
+                text_args.append(valign[mtext.get_va()])
         else:
             # if not, use the text layout provided by matplotlib
             text_args.append("x=%fin" % (x * f))
