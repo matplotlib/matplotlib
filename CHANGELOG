@@ -1,3 +1,5 @@
+2014-05-16 Fixed the positioning of multi-line text in the PGF backend.
+
 2014-05-14 Added Axes.add_image() as the standard way to add AxesImage
            instances to Axes. This improves the consistency with
            add_artist(), add_collection(), add_container(), add_line(),
