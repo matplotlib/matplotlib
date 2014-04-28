@@ -955,19 +955,10 @@ class Axes(_AxesBase):
         if not iterable(xmax):
             xmax = [xmax]
 
-        y = np.asarray(y)
-        xmin = np.asarray(xmin)
-        xmax = np.asarray(xmax)
+        y = np.ravel(y)
 
-        if len(xmin) == 1:
-            xmin = np.resize(xmin, y.shape)
-        if len(xmax) == 1:
-            xmax = np.resize(xmax, y.shape)
-
-        if len(xmin) != len(y):
-            raise ValueError('xmin and y are unequal sized sequences')
-        if len(xmax) != len(y):
-            raise ValueError('xmax and y are unequal sized sequences')
+        xmin = np.resize(xmin, y.shape)
+        xmax = np.resize(xmax, y.shape)
 
         verts = [((thisxmin, thisy), (thisxmax, thisy))
                  for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
@@ -1044,23 +1035,12 @@ class Axes(_AxesBase):
         if not iterable(ymax):
             ymax = [ymax]
 
-        x = np.asarray(x)
-        ymin = np.asarray(ymin)
-        ymax = np.asarray(ymax)
-        if len(ymin) == 1:
-            ymin = np.resize(ymin, x.shape)
-        if len(ymax) == 1:
-            ymax = np.resize(ymax, x.shape)
-
-        if len(ymin) != len(x):
-            raise ValueError('ymin and x are unequal sized sequences')
-        if len(ymax) != len(x):
-            raise ValueError('ymax and x are unequal sized sequences')
-
-        Y = np.array([ymin, ymax]).T
+        x = np.ravel(x)
+        ymin = np.resize(ymin, x.shape)
+        ymax = np.resize(ymax, x.shape)
 
         verts = [((thisx, thisymin), (thisx, thisymax))
-                 for thisx, (thisymin, thisymax) in zip(x, Y)]
+                 for thisx, thisymin, thisymax in zip(x, ymin, ymax)]
         #print 'creating line collection'
         coll = mcoll.LineCollection(verts, colors=colors,
                                     linestyles=linestyles, label=label)
