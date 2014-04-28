@@ -6,6 +6,8 @@ import six
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
+from matplotlib.image import BboxImage, imread
+from matplotlib.transforms import Bbox
 from matplotlib import rcParams
 import matplotlib.pyplot as plt
 from nose.tools import assert_raises
@@ -313,6 +315,24 @@ def test_rasterize_dpi():
             spine.set_visible(False)
 
     rcParams['savefig.dpi'] = 10
+
+
+@image_comparison(baseline_images=['bbox_image_inverted'],
+                  extensions=['png', 'pdf'])
+def test_bbox_image_inverted():
+    # This is just used to produce an image to feed to BboxImage
+    fig = plt.figure()
+    axes = fig.add_subplot(111)
+    axes.plot([1, 2, 3])
+
+    im_buffer = io.BytesIO()
+    fig.savefig(im_buffer)
+    im_buffer.seek(0)
+    image = imread(im_buffer)
+
+    bbox_im = BboxImage(Bbox([[100, 100], [0, 0]]))
+    bbox_im.set_data(image)
+    axes.add_artist(bbox_im)
 
 
 if __name__=='__main__':
