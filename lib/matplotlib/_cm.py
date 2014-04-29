@@ -7,6 +7,8 @@ Documentation for each is in pyplot.colormaps()
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+
+import matplotlib.colors
 import numpy as np
 
 _binary_data = {
@@ -1890,31 +1892,31 @@ _CMRmap_data = {'red':     ((0.000, 0.00, 0.00),
 
 
 # A color-blind-friendly heatmap from Wistia:
+#   https://github.com/wistia/heatmap-palette
 #   http://wistia.com/blog/heatmaps-for-colorblindness
 #
 # >>> import matplotlib.colors as c
-# >>> colors = np.array([[228,255,122], [254,232,25], [250,190,6],
-# ...                    [255,159,0], [252,127,0]], dtype=float) / 255
-# ...
-# >>> cm = col.LinearSegmentedColormap.from_list('wistia', colors)
+# >>> colors = ["#e4ff7a", "#ffe81a", "#ffbd00", "#ffa000", "#fc7f00"]
+# >>> cm = c.LinearSegmentedColormap.from_list('wistia', colors)
 # >>> _wistia_data = cm._segmentdata
+# >>> del _wistia_data['alpha']
 #
 _wistia_data = {
-    'red': [(0.0, 0.89411764705882357, 0.89411764705882357),
-            (0.25, 0.99607843137254903, 0.99607843137254903),
-            (0.5, 0.98039215686274506, 0.98039215686274506),
+    'red': [(0.0, 0.8941176470588236, 0.8941176470588236),
+            (0.25, 1.0, 1.0),
+            (0.5, 1.0, 1.0),
             (0.75, 1.0, 1.0),
             (1.0, 0.9882352941176471, 0.9882352941176471)],
     'green': [(0.0, 1.0, 1.0),
-              (0.25, 0.90980392156862744, 0.90980392156862744),
-              (0.5, 0.74509803921568629, 0.74509803921568629),
-              (0.75, 0.62352941176470589, 0.62352941176470589),
-              (1.0, 0.49803921568627452, 0.49803921568627452)],
+              (0.25, 0.9098039215686274, 0.9098039215686274),
+              (0.5, 0.7411764705882353, 0.7411764705882353),
+              (0.75, 0.6274509803921569, 0.6274509803921569),
+              (1.0, 0.4980392156862745, 0.4980392156862745)],
     'blue': [(0.0, 0.47843137254901963, 0.47843137254901963),
-             (0.25, 0.098039215686274508, 0.098039215686274508),
-             (0.5, 0.023529411764705882, 0.023529411764705882),
+             (0.25, 0.10196078431372549, 0.10196078431372549),
+             (0.5, 0.0, 0.0),
              (0.75, 0.0, 0.0),
-             (1.0, 0.0, 0.0)]
+             (1.0, 0.0, 0.0)],
 }
 
 
@@ -1993,4 +1995,4 @@ datad['gist_rainbow'] = _gist_rainbow_data
 datad['gist_stern'] = _gist_stern_data
 datad['gist_yarg'] = _gist_yarg_data
 datad['coolwarm'] = _coolwarm_data
-datad['wistia'] = _wistia_data
+datad['Wistia'] = _wistia_data
