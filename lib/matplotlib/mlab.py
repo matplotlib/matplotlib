@@ -1568,10 +1568,10 @@ def levypdf(x, gamma, alpha):
 
     dx = x[1] - x[0]
 
-    f = 1/(N*dx)*np.arange(-N / 2, N / 2, np.float_)
+    f = 1/(N*dx)*np.arange(-N / 2, N / 2, dtype=np.float_)
 
-    ind = np.concatenate([np.arange(N / 2, N, int),
-                          np.arange(0, N / 2, int)])
+    ind = np.concatenate([np.arange(N / 2, N, dtype=int),
+                          np.arange(0, N / 2, dtype=int)])
     df = f[1] - f[0]
     cfl = np.exp(-gamma * np.absolute(2 * np.pi * f) ** alpha)
 
