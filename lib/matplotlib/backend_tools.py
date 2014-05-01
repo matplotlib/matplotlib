@@ -49,7 +49,6 @@ class ToolBase(object):
      * **integer** : Position within the Toolbar
      * **None** : Do not put in the Toolbar
      * **-1**: At the end of the Toolbar
-
     """
 
     description = None
@@ -73,8 +72,7 @@ class ToolBase(object):
     """
 
     cursor = None
-    """Cursor to use when the tool is active
-    """
+    """Cursor to use when the tool is active"""
 
     def __init__(self, figure, event=None):
         self.figure = None
@@ -90,6 +88,7 @@ class ToolBase(object):
         event : `Event`
             Event that caused this tool to be called
         """
+
         pass
 
     def set_figure(self, figure):
@@ -101,6 +100,7 @@ class ToolBase(object):
         ----------
         figure : `Figure`
         """
+
         self.figure = figure
         self.navigation = figure.canvas.manager.navigation
 
@@ -121,8 +121,8 @@ class ToolPersistentBase(ToolBase):
         self.figure = None
         self.navigation = None
         self.set_figure(figure)
-        #persistent tools don't call trigger a at instantiation
-        #it will be called by Navigation
+        # persistent tools don't call trigger a at instantiation
+        # it will be called by Navigation
 
     def unregister(self, *args):
         """Unregister the tool from the instances of Navigation
@@ -130,7 +130,8 @@ class ToolPersistentBase(ToolBase):
         If the reference in navigation was the last reference
         to the instance of the tool, it will be garbage collected
         """
-        #call this to unregister from navigation
+
+        # call this to unregister from navigation
         self.navigation.unregister(self.name)
 
 
@@ -139,8 +140,8 @@ class ToolToggleBase(ToolPersistentBase):
 
     This tool is a Persistent Tool that has a toggled state.
     Every time it is triggered, it switches between enable and disable
-
     """
+
     _toggled = False
 
     def trigger(self, event):
@@ -155,6 +156,7 @@ class ToolToggleBase(ToolPersistentBase):
 
         This method is called when the tool is triggered and not toggled
         """
+
         pass
 
     def disable(self, event=None):
@@ -164,17 +166,19 @@ class ToolToggleBase(ToolPersistentBase):
          * Second click on the toolbar tool button
          * Another toogle tool is triggered (from the same `navigation`)
         """
+
         pass
 
     @property
     def toggled(self):
         """State of the toggled tool"""
+
         return self._toggled
 
 
 class ToolQuit(ToolBase):
-    """Tool to call the figure manager destroy method
-    """
+    """Tool to call the figure manager destroy method"""
+
     name = 'Quit'
     description = 'Quit the figure'
     keymap = rcParams['keymap.quit']
@@ -184,8 +188,8 @@ class ToolQuit(ToolBase):
 
 
 class ToolEnableAllNavigation(ToolBase):
-    """Tool to enable all axes for navigation interaction
-    """
+    """Tool to enable all axes for navigation interaction"""
+
     name = 'EnableAll'
     description = 'Enables all axes navigation'
     keymap = rcParams['keymap.all_axes']
@@ -201,8 +205,8 @@ class ToolEnableAllNavigation(ToolBase):
 
 
 class ToolEnableNavigation(ToolBase):
-    """Tool to enable a specific axes for navigation interaction
-    """
+    """Tool to enable a specific axes for navigation interaction"""
+
     name = 'EnableOne'
     description = 'Enables one axes navigation'
     keymap = (1, 2, 3, 4, 5, 6, 7, 8, 9)
@@ -222,6 +226,7 @@ class ToolEnableNavigation(ToolBase):
 
 class ToolToggleGrid(ToolBase):
     """Tool to toggle the grid of the figure"""
+
     name = 'Grid'
     description = 'Toogle Grid'
     keymap = rcParams['keymap.grid']
@@ -235,6 +240,7 @@ class ToolToggleGrid(ToolBase):
 
 class ToolToggleFullScreen(ToolBase):
     """Tool to toggle full screen"""
+
     name = 'Fullscreen'
     description = 'Toogle Fullscreen mode'
     keymap = rcParams['keymap.fullscreen']
@@ -245,6 +251,7 @@ class ToolToggleFullScreen(ToolBase):
 
 class ToolToggleYScale(ToolBase):
     """Tool to toggle between linear and logarithmic the Y axis"""
+
     name = 'YScale'
     description = 'Toogle Scale Y axis'
     keymap = rcParams['keymap.yscale']
@@ -265,6 +272,7 @@ class ToolToggleYScale(ToolBase):
 
 class ToolToggleXScale(ToolBase):
     """Tool to toggle between linear and logarithmic the X axis"""
+
     name = 'XScale'
     description = 'Toogle Scale X axis'
     keymap = rcParams['keymap.xscale']
@@ -285,6 +293,7 @@ class ToolToggleXScale(ToolBase):
 
 class ToolHome(ToolBase):
     """Restore the original view"""
+
     description = 'Reset original view'
     name = 'Home'
     image = 'home'
@@ -300,6 +309,7 @@ class ToolHome(ToolBase):
 
 class ToolBack(ToolBase):
     """move back up the view lim stack"""
+
     description = 'Back to  previous view'
     name = 'Back'
     image = 'back'
@@ -315,6 +325,7 @@ class ToolBack(ToolBase):
 
 class ToolForward(ToolBase):
     """Move forward in the view lim stack"""
+
     description = 'Forward to next view'
     name = 'Forward'
     image = 'forward'
@@ -330,6 +341,7 @@ class ToolForward(ToolBase):
 
 class ConfigureSubplotsBase(ToolPersistentBase):
     """Base tool for the configuration of subplots"""
+
     description = 'Configure subplots'
     name = 'Subplots'
     image = 'subplots'
@@ -338,6 +350,7 @@ class ConfigureSubplotsBase(ToolPersistentBase):
 
 class SaveFigureBase(ToolBase):
     """Base tool for figure saving"""
+
     description = 'Save the figure'
     name = 'Save'
     image = 'filesave'
@@ -347,6 +360,7 @@ class SaveFigureBase(ToolBase):
 
 class ToolZoom(ToolToggleBase):
     """Zoom to rectangle"""
+
     description = 'Zoom to rectangle'
     name = 'Zoom'
     image = 'zoom_to_rect'
@@ -387,6 +401,7 @@ class ToolZoom(ToolToggleBase):
 
     def _press(self, event):
         """the _press mouse button in zoom to rect mode callback"""
+
         # If we're already in the middle of a zoom, pressing another
         # button works to "cancel"
         if self._ids_zoom != []:
@@ -434,6 +449,7 @@ class ToolZoom(ToolToggleBase):
 
     def _mouse_move(self, event):
         """the drag callback in zoom mode"""
+
         if self._xypress:
             x, y = event.x, event.y
             lastx, lasty, a, _ind, _lim, _trans = self._xypress[0]
@@ -454,6 +470,7 @@ class ToolZoom(ToolToggleBase):
 
     def _release(self, event):
         """the release mouse button callback in zoom to rect mode"""
+
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)
         self._ids_zoom = []
@@ -576,6 +593,7 @@ class ToolZoom(ToolToggleBase):
 
 class ToolPan(ToolToggleBase):
     """Pan axes with left mouse, zoom with right"""
+
     keymap = rcParams['keymap.pan']
     name = 'Pan'
     description = 'Pan axes with left mouse, zoom with right'
@@ -623,7 +641,7 @@ class ToolPan(ToolToggleBase):
         x, y = event.x, event.y
 
         # push the current view to define home if stack is empty
-        #TODO: add define_home in navigation
+        # TODO: add define_home in navigation
         if self.navigation.views.empty():
             self.navigation.push_current()
 
@@ -656,7 +674,7 @@ class ToolPan(ToolToggleBase):
 
     def _mouse_move(self, event):
         for a, _ind in self._xypress:
-            #safer to use the recorded button at the _press than current
-            #button: #multiple button can get pressed during motion...
+            # safer to use the recorded button at the _press than current
+            # button: # multiple button can get pressed during motion...
             a.drag_pan(self._button_pressed, event.key, event.x, event.y)
         self.navigation.dynamic_update()

@@ -3236,6 +3236,7 @@ class NavigationBase(object):
         locked
     messagelock : `LockDraw` to know if the message is available to write
     """
+
     _default_cursor = cursors.POINTER
     _default_tools = [tools.ToolToggleGrid,
              tools.ToolToggleFullScreen,
@@ -3255,6 +3256,7 @@ class NavigationBase(object):
 
     def __init__(self, canvas, toolbar=None):
         """.. automethod:: _toolbar_callback"""
+
         self.canvas = canvas
         self.toolbar = self._get_toolbar(toolbar, canvas)
 
@@ -3273,9 +3275,9 @@ class NavigationBase(object):
         self._instances = {}
         self._toggled = None
 
-        #to process keypress event
+        # to process keypress event
         self.keypresslock = widgets.LockDraw()
-        #to write into toolbar message
+        # to write into toolbar message
         self.messagelock = widgets.LockDraw()
 
         for tool in self._default_tools:
@@ -3290,11 +3292,13 @@ class NavigationBase(object):
     @classmethod
     def get_default_tools(cls):
         """Get the default tools"""
+
         return cls._default_tools
 
     @classmethod
     def set_default_tools(cls, tools):
         """Set default tools"""
+
         cls._default_tools = tools
 
     def _get_toolbar(self, toolbar, canvas):
@@ -3312,6 +3316,7 @@ class NavigationBase(object):
 
         **string** :  Currently toggled tool, or None
         """
+
         return self._toggled
 
     @property
@@ -3320,6 +3325,7 @@ class NavigationBase(object):
 
         **dictionary** : Contains the active instances that are registered
         """
+
         return self._instances
 
     def get_tool_keymap(self, name):
@@ -3334,6 +3340,7 @@ class NavigationBase(object):
         ----------
         list : list of keys associated with the Tool
         """
+
         keys = [k for k, i in six.iteritems(self._keys) if i == name]
         return keys
 
@@ -3380,6 +3387,7 @@ class NavigationBase(object):
         If called, next time the `Tool` is used it will be reinstantiated
         instead of using the existing instance.
         """
+
         if self._toggled == name:
             self._handle_toggle(name, from_toolbar=False)
         if name in self._instances:
@@ -3393,6 +3401,7 @@ class NavigationBase(object):
         name : string
             Name of the Tool
         """
+
         self.unregister(name)
         del self._tools[name]
         keys = [k for k, v in six.iteritems(self._keys) if v == name]
@@ -3410,6 +3419,7 @@ class NavigationBase(object):
         tool : string or `Tool` class
             Reference to find the class of the Tool to be added
         """
+
         tool_cls = self._get_cls_to_instantiate(tool)
         name = tool_cls.name
 
@@ -3445,7 +3455,7 @@ class NavigationBase(object):
 
     def _get_cls_to_instantiate(self, callback_class):
         if isinstance(callback_class, six.string_types):
-            #FIXME: make more complete searching structure
+            # FIXME: make more complete searching structure
             if callback_class in globals():
                 return globals()[callback_class]
 
@@ -3462,6 +3472,7 @@ class NavigationBase(object):
 
         Method to programatically "click" on Tools
         """
+
         self._trigger_tool(name, None, False)
 
     def _trigger_tool(self, name, event, from_toolbar):
@@ -3475,8 +3486,7 @@ class NavigationBase(object):
             instance = self._get_instance(name)
             instance.trigger(event)
         else:
-            #Non persistent tools, are
-            #instantiated and forgotten (reminds me an exgirlfriend?)
+            # Non persistent tools, are instantiated and forgotten
             tool(self.canvas.figure, event)
 
     def _key_press(self, event):
@@ -3491,7 +3501,7 @@ class NavigationBase(object):
     def _get_instance(self, name):
         if name not in self._instances:
             instance = self._tools[name](self.canvas.figure)
-            #register instance
+            # register instance
             self._instances[name] = instance
 
         return self._instances[name]
@@ -3508,24 +3518,25 @@ class NavigationBase(object):
             Name of the tool that was activated (click) by the user using the
             toolbar
         """
+
         self._trigger_tool(name, None, True)
 
     def _handle_toggle(self, name, event=None, from_toolbar=False):
-        #toggle toolbar without callback
+        # toggle toolbar without callback
         if not from_toolbar and self.toolbar:
             self.toolbar._toggle(name, False)
 
         instance = self._get_instance(name)
         if self._toggled is None:
-            #first trigger of tool
+            # first trigger of tool
             self._toggled = name
         elif self._toggled == name:
-            #second trigger of tool
+            # second trigger of tool
             self._toggled = None
         else:
-            #other tool is triggered so trigger toggled tool
+            # other tool is triggered so trigger toggled tool
             if self.toolbar:
-                #untoggle the previous toggled tool
+                # untoggle the previous toggled tool
                 self.toolbar._toggle(self._toggled, False)
             self._get_instance(self._toggled).trigger(event)
             self._toggled = name
@@ -3537,6 +3548,7 @@ class NavigationBase(object):
 
     def list_tools(self):
         """Print the list the tools controlled by `Navigation`"""
+
         print ('_' * 80)
         print ("{0:20} {1:50} {2}".format('Name (id)', 'Tool description',
                                           'Keymap'))
@@ -3550,6 +3562,7 @@ class NavigationBase(object):
 
     def update(self):
         """Reset the axes stack"""
+
         self.views.clear()
         self.positions.clear()
 #        self.set_history_buttons()
@@ -3585,9 +3598,11 @@ class NavigationBase(object):
 
     def draw(self):
         """Redraw the canvases, update the locators"""
+
         for a in self.canvas.figure.get_axes():
             xaxis = getattr(a, 'xaxis', None)
             yaxis = getattr(a, 'yaxis', None)
+            zaxis = getattr(a, 'zaxis', None)
             locators = []
             if xaxis is not None:
                 locators.append(xaxis.get_major_locator())
@@ -3595,6 +3610,9 @@ class NavigationBase(object):
             if yaxis is not None:
                 locators.append(yaxis.get_major_locator())
                 locators.append(yaxis.get_minor_locator())
+            if zaxis is not None:
+                locators.append(zaxis.get_major_locator())
+                locators.append(zaxis.get_minor_locator())
 
             for loc in locators:
                 loc.refresh()
@@ -3608,6 +3626,7 @@ class NavigationBase(object):
         Set the current cursor to one of the :class:`Cursors`
         enums values
         """
+
         pass
 
     def update_view(self):
@@ -3633,6 +3652,7 @@ class NavigationBase(object):
 
     def push_current(self):
         """push the current view limits and position onto the stack"""
+
         lims = []
         pos = []
         for a in self.canvas.figure.get_axes():
@@ -3659,6 +3679,7 @@ class NavigationBase(object):
         caller : instance trying to draw the rubberband
         x0, y0, x1, y1 : coordinates
         """
+
         if not self.canvas.widgetlock.available(caller):
             warnings.warn("%s doesn't own the canvas widgetlock" % caller)
 
@@ -3673,6 +3694,7 @@ class NavigationBase(object):
         event : `FigureCanvas` event
         caller : instance trying to remove the rubberband
         """
+
         if not self.canvas.widgetlock.available(caller):
             warnings.warn("%s doesn't own the canvas widgetlock" % caller)
 
@@ -3684,12 +3706,14 @@ class ToolbarBase(object):
     ----------
     manager : `FigureManager` instance that integrates this `Toolbar`
     """
+
     def __init__(self, manager):
         """
         .. automethod:: _add_toolitem
         .. automethod:: _remove_toolitem
         .. automethod:: _toggle
         """
+
         self.manager = manager
 
     def _add_toolitem(self, name, description, image_file, position,
@@ -3717,6 +3741,7 @@ class ToolbarBase(object):
             * `False` : The button is a normal button (returns to unpressed
                 state after release)
         """
+
         raise NotImplementedError
 
     def add_separator(self, pos):
@@ -3728,10 +3753,12 @@ class ToolbarBase(object):
             Position where to add the separator within the toolitems
             if -1 at the end
         """
+
         pass
 
     def set_message(self, s):
         """Display a message on toolbar or in status bar"""
+
         pass
 
     def _toggle(self, name, callback=False):
@@ -3746,7 +3773,8 @@ class ToolbarBase(object):
             * `False`: toggle the button without calling the callback
 
         """
-        #carefull, callback means to perform or not the callback while toggling
+
+        # carefull, callback means to perform or not the callback while toggling
         raise NotImplementedError
 
     def _remove_toolitem(self, name):
@@ -3758,6 +3786,7 @@ class ToolbarBase(object):
             Name of the tool to remove
 
         """
+
         raise NotImplementedError
 
     def move_toolitem(self, pos_ini, pos_fin):
@@ -3770,6 +3799,7 @@ class ToolbarBase(object):
         pos_fin : integer
             Final position of the toolitem
         """
+
         pass
 
     def set_toolitem_visibility(self, name, visible):
@@ -3783,4 +3813,5 @@ class ToolbarBase(object):
             * `True`: set the toolitem visible
             * `False`: set the toolitem invisible
         """
+
         pass
