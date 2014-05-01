@@ -67,8 +67,8 @@ settings in a single group at once, using keyword arguments::
     import matplotlib as mpl
     mpl.rc('lines', linewidth=2, color='r')
 
-There :func:`matplotlib.rcdefaults` command will restore the standard
-matplotlib default settings.
+The :func:`matplotlib.rcdefaults` command will restore the standard matplotlib
+default settings.
 
 There is some degree of validation when setting the values of rcParams, see
 :mod:`matplotlib.rcsetup` for details.
