@@ -1675,8 +1675,10 @@ class Axes3D(Axes):
         '''
 
         shade = np.array([np.dot(n / proj3d.mod(n), [-1, -1, 0.5])
+                          if proj3d.mod(n) else np.nan
                           for n in normals])
         mask = ~np.isnan(shade)
+        shade[~mask] = 0
 
         if len(shade[mask]) > 0:
             norm = Normalize(min(shade[mask]), max(shade[mask]))
