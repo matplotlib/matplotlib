@@ -23,6 +23,17 @@ revision, see the :ref:`github-stats`.
 new in matplotlib-1.4
 =====================
 
+
+New colormap
+------------
+In heatmaps, a green-to-red spectrum is often used to indicate intensity of
+activity, but this can be problematic for the red/green colorblind. A new,
+colorblind-friendly colormap is now available at :class:`matplotlib.cm.Wistia`.
+This colormap maintains the red/green symbolism while achieving deuteranopic
+legibility through brightness variations. See
+`here <https://github.com/wistia/heatmap-palette>`
+for more information.
+
 Documentation changes
 ---------------------
 

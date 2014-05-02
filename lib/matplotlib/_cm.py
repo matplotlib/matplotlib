@@ -1891,7 +1891,7 @@ _CMRmap_data = {'red':     ((0.000, 0.00, 0.00),
                            (1.000, 1.00, 1.00))}
 
 
-# A color-blind-friendly heatmap from Wistia:
+# An MIT licensed, colorblind-friendly heatmap from Wistia:
 #   https://github.com/wistia/heatmap-palette
 #   http://wistia.com/blog/heatmaps-for-colorblindness
 #
