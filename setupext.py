@@ -906,6 +906,14 @@ class FreeType(SetupPackage):
             'freetype2', 'ft2build.h',
             min_version='2.4', version=version)
 
+    def get_extension(self):
+        ext = make_extension('test', [])
+        pkg_config.setup_extension(ext, 'freetype2')
+
+        self.add_flags(ext)
+
+        return ext
+
     def add_flags(self, ext):
         pkg_config.setup_extension(
             ext, 'freetype2',
