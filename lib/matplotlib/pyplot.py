@@ -542,6 +542,25 @@ def clf():
     draw_if_interactive()
 
 
+
+def refresh(draw_fig):
+    """
+    Refresh the current figure using draw_fig().
+
+    draw_fig : callable. A function called to refresh the figure. 
+
+    Requires interactive mode (meaning pyplot.ion() must be called)
+
+    Note this function is slow and not meant for fast animations. It's meant to
+    be used when there is significant time between figure updates (i.e.,
+    scienfitic simulations). It's most useful when results from an iterative
+    simulation want to be viewed.
+    """
+    close()
+    draw_fig()
+    draw()
+
+
 def draw():
     """
     Redraw the current figure.
