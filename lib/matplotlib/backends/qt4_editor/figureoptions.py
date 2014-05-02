@@ -18,13 +18,13 @@ import matplotlib.backends.qt4_editor.formlayout as formlayout
 from matplotlib.backends.qt4_compat import QtGui
 from matplotlib import markers
 
+
 def get_icon(name):
     import matplotlib
     basedir = osp.join(matplotlib.rcParams['datapath'], 'images')
     return QtGui.QIcon(osp.join(basedir, name))
 
-LINESTYLES = {
-              '-': 'Solid',
+LINESTYLES = {'-': 'Solid',
               '--': 'Dashed',
               '-.': 'DashDot',
               ':': 'Dotted',
@@ -34,9 +34,10 @@ LINESTYLES = {
 
 MARKERS = markers.MarkerStyle.markers
 
+
 def figure_edit(axes, parent=None):
     """Edit matplotlib figure options"""
-    sep = (None, None) # separator
+    sep = (None, None)  # separator
 
     has_curve = len(axes.get_lines()) > 0
 
@@ -53,7 +54,9 @@ def figure_edit(axes, parent=None):
                (None, "<b>Y-Axis</b>"),
                ('Min', ymin), ('Max', ymax),
                ('Label', axes.get_ylabel()),
-               ('Scale', [axes.get_yscale(), 'linear', 'log'])
+               ('Scale', [axes.get_yscale(), 'linear', 'log']),
+               sep,
+               ('(Re-)Generate automatic legend', False),
                ]
 
     if has_curve:
@@ -70,8 +73,7 @@ def figure_edit(axes, parent=None):
         curvelabels = sorted(linedict.keys())
         for label in curvelabels:
             line = linedict[label]
-            curvedata = [
-                         ('Label', label),
+            curvedata = [('Label', label),
                          sep,
                          (None, '<b>Line</b>'),
                          ('Style', [line.get_linestyle()] + linestyles),
@@ -98,7 +100,8 @@ def figure_edit(axes, parent=None):
             general, = data
 
         # Set / General
-        title, xmin, xmax, xlabel, xscale, ymin, ymax, ylabel, yscale = general
+        title, xmin, xmax, xlabel, xscale, ymin, ymax, ylabel, yscale, \
+            generate_legend = general
         axes.set_xscale(xscale)
         axes.set_yscale(yscale)
         axes.set_title(title)
@@ -112,7 +115,8 @@ def figure_edit(axes, parent=None):
             for index, curve in enumerate(curves):
                 line = linedict[curvelabels[index]]
                 label, linestyle, linewidth, color, \
-                    marker, markersize, markerfacecolor, markeredgecolor = curve
+                    marker, markersize, markerfacecolor, markeredgecolor \
+                    = curve
                 line.set_label(label)
                 line.set_linestyle(linestyle)
                 line.set_linewidth(linewidth)
@@ -123,11 +127,22 @@ def figure_edit(axes, parent=None):
                     line.set_markerfacecolor(markerfacecolor)
                     line.set_markeredgecolor(markeredgecolor)
 
+        # re-generate legend, if checkbox is checked
+        if generate_legend:
+            if axes.legend_ is not None:
+                old_legend = axes.get_legend()
+                new_legend = axes.legend(ncol=old_legend._ncol)
+                new_legend.draggable(old_legend._draggable is not None)
+            else:
+                new_legend = axes.legend()
+                new_legend.draggable(True)
+
         # Redraw
         figure = axes.get_figure()
         figure.canvas.draw()
 
     data = formlayout.fedit(datalist, title="Figure options", parent=parent,
-                            icon=get_icon('qt4_editor_options.svg'), apply=apply_callback)
+                            icon=get_icon('qt4_editor_options.svg'),
+                            apply=apply_callback)
     if data is not None:
         apply_callback(data)
