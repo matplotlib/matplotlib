@@ -1,11 +1,11 @@
 2014-05-02 Added colorblind-friendly colormap, named 'Wistia'.
 
 2014-04-27 Improved input clean up in Axes.{h|v}lines
-	   Coerce input into a 1D ndarrays (after dealing with units).
+           Coerce input into a 1D ndarrays (after dealing with units).
 
 2014-04-22 Added an example showing the difference between
-	   interpolation = 'none' and interpolation = 'nearest' in
-	   `imshow()` when saving vector graphics files.
+           interpolation = 'none' and interpolation = 'nearest' in
+           `imshow()` when saving vector graphics files.
 
 2014-04-10 Fixed the triangular marker rendering error. The "Up" triangle was
            rendered instead of "Right" triangle and vice-versa.
@@ -13,16 +13,12 @@
 2014-04-08 Fixed a bug in parasite_axes.py by making a list out
            of a generator at line 263.
 
-2014-02-25 In backend_qt4agg changed from using update -> repaint under
-	   windows.  See comment in source near `self._priv_update` for
-	   longer explaination.
-
 2014-03-27 Added tests for pie ccw parameter. Removed pdf and svg images
            from tests for pie linewidth parameter.
 
 2014-03-24 Added bool kwarg (manage_xticks) to boxplot to enable/disable
-	   the managemnet of the xlimits and ticks when making a boxplot.
-	   Default in True which maintains current behavior by default.
+           the managemnet of the xlimits and ticks when making a boxplot.
+           Default in True which maintains current behavior by default.
 
 2014-03-22 Added the keyword arguments wedgeprops and textprops to pie.
            Users can control the wedge and text properties of the pie
@@ -34,8 +30,12 @@
 
 2014-03-13 Add parameter 'clockwise' to function pie, True by default.
 
-2014-27-02  Implemented separate horizontal/vertical axes padding to the
+2014-02-27 Implemented separate horizontal/vertical axes padding to the
            ImageGrid in the AxesGrid toolkit
+
+2014-02-25 In backend_qt4agg changed from using update -> repaint under
+           windows.  See comment in source near `self._priv_update` for
+           longer explaination.
 
 2014-01-02 `triplot` now returns the artist it adds and support of line and
            marker kwargs has been improved. GBY
@@ -55,7 +55,7 @@
            matplotlib.delaunay module. - IMT
 
 2013-11-05 Add power-law normalization method. This is useful for,
-	   e.g., showing small populations in a "hist2d" histogram.
+           e.g., showing small populations in a "hist2d" histogram.
 
 2013-10-27 Added get_rlabel_position and set_rlabel_position methods to
            PolarAxes to control angular position of radial tick labels.
