@@ -14,6 +14,9 @@ For new features that were added to matplotlib, please see
 Changes in 1.4.x
 ================
 
+Code changes
+------------
+
 * A major refactoring of the axes module was made. The axes module has been
 split into smaller modules:
 
@@ -148,6 +151,15 @@ original location:
   which can be created using the `skew` and `skew_deg` methods.
 
 * Added clockwise parameter to control sectors direction in `axes.pie`
+
+Code removal
+------------
+
+* Removed ``mlab.levypdf``.  The code raised a numpy error (and has for
+  a long time) and was not the standard form of the Levy distribution.
+  ``scipy.stats.levy`` should be used instead
+
+
 
 
 .. _changes_in_1_3:
