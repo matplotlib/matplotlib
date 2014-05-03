@@ -14,6 +14,8 @@ import matplotlib
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 from numpy.testing import assert_array_equal
+import warnings
+
 
 @image_comparison(baseline_images=['formatter_ticker_001',
                                    'formatter_ticker_002',
@@ -2988,6 +2990,17 @@ def test_pie_ccw_true():
             counterclock=True)
     # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
+
+
+@cleanup
+def test_pathological_hexbin():
+    # issue #2863
+    with warnings.catch_warnings(record=True) as w:
+        mylist = [10] * 100
+        fig, ax = plt.subplots(1, 1)
+        ax.hexbin(mylist, mylist)
+        plt.show()
+        assert_equal(len(w), 0)
 
 
 if __name__ == '__main__':
