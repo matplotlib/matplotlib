@@ -371,7 +371,7 @@ class FigureCanvasQT(QtGui.QWidget, FigureCanvasBase):
                 key = key.lower()
 
         mods.reverse()
-        return u'+'.join(mods + [key])
+        return '+'.join(mods + [key])
 
     def new_timer(self, *args, **kwargs):
         """
