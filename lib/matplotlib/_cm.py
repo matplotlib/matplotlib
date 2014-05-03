@@ -7,6 +7,7 @@ Documentation for each is in pyplot.colormaps()
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+
 import numpy as np
 
 _binary_data = {
@@ -1888,6 +1889,36 @@ _CMRmap_data = {'red':     ((0.000, 0.00, 0.00),
                            (0.875, 0.50, 0.50),
                            (1.000, 1.00, 1.00))}
 
+
+# An MIT licensed, colorblind-friendly heatmap from Wistia:
+#   https://github.com/wistia/heatmap-palette
+#   http://wistia.com/blog/heatmaps-for-colorblindness
+#
+# >>> import matplotlib.colors as c
+# >>> colors = ["#e4ff7a", "#ffe81a", "#ffbd00", "#ffa000", "#fc7f00"]
+# >>> cm = c.LinearSegmentedColormap.from_list('wistia', colors)
+# >>> _wistia_data = cm._segmentdata
+# >>> del _wistia_data['alpha']
+#
+_wistia_data = {
+    'red': [(0.0, 0.8941176470588236, 0.8941176470588236),
+            (0.25, 1.0, 1.0),
+            (0.5, 1.0, 1.0),
+            (0.75, 1.0, 1.0),
+            (1.0, 0.9882352941176471, 0.9882352941176471)],
+    'green': [(0.0, 1.0, 1.0),
+              (0.25, 0.9098039215686274, 0.9098039215686274),
+              (0.5, 0.7411764705882353, 0.7411764705882353),
+              (0.75, 0.6274509803921569, 0.6274509803921569),
+              (1.0, 0.4980392156862745, 0.4980392156862745)],
+    'blue': [(0.0, 0.47843137254901963, 0.47843137254901963),
+             (0.25, 0.10196078431372549, 0.10196078431372549),
+             (0.5, 0.0, 0.0),
+             (0.75, 0.0, 0.0),
+             (1.0, 0.0, 0.0)],
+}
+
+
 datad = {
     'afmhot': _afmhot_data,
     'autumn': _autumn_data,
@@ -1963,3 +1994,4 @@ datad['gist_rainbow'] = _gist_rainbow_data
 datad['gist_stern'] = _gist_stern_data
 datad['gist_yarg'] = _gist_yarg_data
 datad['coolwarm'] = _coolwarm_data
+datad['Wistia'] = _wistia_data
