@@ -2558,7 +2558,7 @@ class Axes(_AxesBase):
 
           *ecolor*: [ *None* | mpl color ]
             A matplotlib color arg which gives the color the errorbar lines;
-            if *None*, use the marker color.
+            if *None*, use the color of the line connecting the markers.
 
           *elinewidth*: scalar
             The linewidth of the errorbar lines. If *None*, use the linewidth.
