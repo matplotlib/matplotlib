@@ -160,6 +160,11 @@ original location:
 
 * Added clockwise parameter to control sectors direction in `axes.pie`
 
+* Added :func:`~matplotlib.Figure.swap_axes_order` so that when using
+  :func:`~matplotlib.axes.Axes.twinx`, for example, one can restore
+  the original Axes as the one receiving mouse and keypress events.
+
+
 Code removal
 ------------
 
