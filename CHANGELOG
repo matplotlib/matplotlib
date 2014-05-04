@@ -1,3 +1,6 @@
+2014-05-03 Added Figure.swap_axes_order() method to exchange the
+           sort order of two Axes objects.
+
 2014-05-02 Added colorblind-friendly colormap, named 'Wistia'.
 
 2014-04-27 Improved input clean up in Axes.{h|v}lines

@@ -1,25 +1,30 @@
 import matplotlib.pyplot as plt
 
-def make_patch_spines_invisible(ax):
-    ax.set_frame_on(True)
-    ax.patch.set_visible(False)
-    for sp in ax.spines.itervalues():
-        sp.set_visible(False)
 
 fig, host = plt.subplots()
+
+# Leave room for the additional spine:
 fig.subplots_adjust(right=0.75)
 
 par1 = host.twinx()
 par2 = host.twinx()
 
+# By default, par2 would now be the last Axes to be drawn,
+# and the one to receive mouse and keyboard events.  If we
+# want the host to receive events, we can swap its position
+# with par2 in the Axes stack with a Figure method:
+fig.swap_axes_order(par2, host)
+
+# Or let par1 receive the events:
+#fig.swap_axes_order(par2, par1)   # par1 is active
+
 # Offset the right spine of par2.  The ticks and label have already been
 # placed on the right by twinx above.
 par2.spines["right"].set_position(("axes", 1.2))
-# Having been created by twinx, par2 has its frame off, so the line of its 
-# detached spine is invisible.  First, activate the frame but make the patch 
-# and spines invisible.
-make_patch_spines_invisible(par2)
-# Second, show the right spine.
+
+# Show only the right spine.
+for sp in par2.spines.itervalues():
+    sp.set_visible(False)
 par2.spines["right"].set_visible(True)
 
 p1, = host.plot([0, 1, 2], [0, 1, 2], "b-", label="Density")
@@ -48,6 +53,6 @@ host.tick_params(axis='x', **tkw)
 
 lines = [p1, p2, p3]
 
-host.legend(lines, [l.get_label() for l in lines])
+host.legend(lines, [l.get_label() for l in lines], loc='upper left')
 
 plt.show()

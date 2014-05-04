@@ -41,5 +41,11 @@ ax2.plot(t, s2, 'r.')
 ax2.set_ylabel('sin', color='r')
 for tl in ax2.get_yticklabels():
     tl.set_color('r')
+
+# By default, the most recently-added Axes will be the one
+# receiving mouse events such as cursor position.  To reverse
+# this, use the following Figure method:
+fig.swap_axes_order(ax1, ax2)
+
 plt.show()
 

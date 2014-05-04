@@ -46,7 +46,7 @@ New plotting features
 Power-law normalization
 ```````````````````````
 Ben Gamari added a power-law normalization method,
-:class:`~matplotlib.colors.PowerNorm`. This class maps a range of 
+:class:`~matplotlib.colors.PowerNorm`. This class maps a range of
 values to the interval [0,1] with power-law scaling with the exponent
 provided by the constructor's `gamma` argument. Power law normalization
 can be useful for, e.g., emphasizing small populations in a histogram.
@@ -152,8 +152,8 @@ specifically the Skew-T used in meteorology.
 
 .. plot:: mpl_examples/api/skewt.py
 
-Support for specifying properties of wedge and text in pie charts.
-``````````````````````````````````````````````````````````````
+Support for specifying properties of wedge and text in pie charts
+`````````````````````````````````````````````````````````````````
 Added the `kwargs` 'wedgeprops' and 'textprops' to :func:`~matplotlib.Axes.pie`
 to accept properties for wedge and text objects in a pie. For example, one can
 specify wedgeprops = {'linewidth':3} to specify the width of the borders of
@@ -165,6 +165,12 @@ Fixed the direction of errorbar upper/lower limits
 Larry Bradley fixed the :func:`~matplotlib.pyplot.errorbar` method such
 that the upper and lower limits (*lolims*, *uplims*, *xlolims*,
 *xuplims*) now point in the correct direction.
+
+Support for controlling Axes sort order in a Figure
+```````````````````````````````````````````````````
+Added :func:`~matplotlib.Figure.swap_axes_order` so that when using
+:func:`~matplotlib.axes.Axes.twinx`, for example, one can restore
+the original Axes as the one receiving mouse and keypress events.
 
 Date handling
 -------------

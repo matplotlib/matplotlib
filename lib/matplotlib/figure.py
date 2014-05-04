@@ -903,8 +903,17 @@ class Figure(Artist):
     def swap_axes_order(self, ax1, ax2):
         """
         Exchange the sort order of two Axes objects.
+
+        If the Axes share an x or y axis, then the visible
+        attribute of the Axes patch object is also exchanged.
         """
         self._axstack.swap_order(ax1, ax2)
+
+        if (ax1.get_shared_x_axes().joined(ax1, ax2)
+            or ax1.get_shared_y_axes().joined(ax1, ax2)):
+            p1_visible = ax1.patch.get_visible()
+            ax1.patch.set_visible(ax2.patch.get_visible())
+            ax2.patch.set_visible(p1_visible)
 
     @docstring.dedent_interpd
     def add_subplot(self, *args, **kwargs):
