@@ -1678,10 +1678,10 @@ class Axes3D(Axes):
                           if proj3d.mod(n) else np.nan
                           for n in normals])
         mask = ~np.isnan(shade)
-        shade[~mask] = 0
 
         if len(shade[mask]) > 0:
             norm = Normalize(min(shade[mask]), max(shade[mask]))
+            shade[~mask] = min(shade[mask])
             color = colorConverter.to_rgba_array(color)
             # shape of color should be (M, 4) (where M is number of faces)
             # shape of shade should be (M,)
