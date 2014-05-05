@@ -644,8 +644,8 @@ class Artist(object):
         """
         Set whether artist uses clipping.
 
-        When False, If figure range and data range don't line up
-        the Artist it might run off and produce unexpected results.
+        When False artists will be visible out side of the axes which 
+        can lead to unexpected results.
 
         ACCEPTS: [True | False]
         """
