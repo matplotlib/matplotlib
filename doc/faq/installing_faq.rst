@@ -153,7 +153,7 @@ Then, if you want to update your matplotlib at any time, just do::
 
 When you run `git pull`, if the output shows that only Python files have been
 updated, you are all set. If C files have changed, you need to run the `python
-setupegg.py develop` command again to compile them.
+setup.py develop` command again to compile them.
 
 There is more information on :ref:`using git <using-git>` in
 the developer docs.

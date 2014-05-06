@@ -68,14 +68,28 @@ class FigureCanvasQTAgg(FigureCanvasQT, FigureCanvasAgg):
             print('FigureCanvasQtAgg: ', figure)
         FigureCanvasQT.__init__(self, figure)
         FigureCanvasAgg.__init__(self, figure)
-        self.drawRect = False
-        self.rect = []
+        self._drawRect = None
         self.blitbox = None
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
+        # it has been reported that Qt is semi-broken in a windows
+        # environment.  If `self.draw()` uses `update` to trigger a
+        # system-level window repaint (as is explicitly advised in the
+        # Qt documentation) the figure responds very slowly to mouse
+        # input.  The work around is to directly use `repaint`
+        # (against the advice of the Qt documentation).  The
+        # difference between `update` and repaint is that `update`
+        # schedules a `repaint` for the next time the system is idle,
+        # where as `repaint` repaints the window immediately.  The
+        # risk is if `self.draw` gets called with in another `repaint`
+        # method there will be an infinite recursion.  Thus, we only
+        # expose windows users to this risk.
+        if sys.platform.startswith('win'):
+            self._priv_update = self.repaint
+        else:
+            self._priv_update = self.update
 
     def drawRectangle(self, rect):
-        self.rect = rect
-        self.drawRect = True
+        self._drawRect = rect
         self.repaint()
 
     def paintEvent(self, e):
@@ -115,10 +129,10 @@ class FigureCanvasQTAgg(FigureCanvasQT, FigureCanvasAgg):
             p.drawPixmap(QtCore.QPoint(0, 0), QtGui.QPixmap.fromImage(qImage))
 
             # draw the zoom rectangle to the QPainter
-            if self.drawRect:
+            if self._drawRect is not None:
                 p.setPen(QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.DotLine))
-                p.drawRect(self.rect[0], self.rect[1],
-                           self.rect[2], self.rect[3])
+                x, y, w, h = self._drawRect
+                p.drawRect(x, y, w, h)
             p.end()
 
             # This works around a bug in PySide 1.1.2 on Python 3.x,
@@ -143,7 +157,7 @@ class FigureCanvasQTAgg(FigureCanvasQT, FigureCanvasAgg):
             p.drawPixmap(QtCore.QPoint(l, self.renderer.height-t), pixmap)
             p.end()
             self.blitbox = None
-        self.drawRect = False
+        self._drawRect = None
 
     def draw(self):
         """
@@ -154,7 +168,7 @@ class FigureCanvasQTAgg(FigureCanvasQT, FigureCanvasAgg):
         # causes problems with code that uses the result of the
         # draw() to update plot elements.
         FigureCanvasAgg.draw(self)
-        self.update()
+        self._priv_update()
 
     def blit(self, bbox=None):
         """

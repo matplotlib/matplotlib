@@ -22,8 +22,6 @@ from matplotlib.figure import Figure
 from matplotlib.text import Text
 from matplotlib.path import Path
 from matplotlib import _png, rcParams
-from matplotlib import font_manager
-from matplotlib.ft2font import FT2Font
 from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.compat import subprocess
 from matplotlib.compat.subprocess import check_output
@@ -33,14 +31,24 @@ from matplotlib.compat.subprocess import check_output
 
 # create a list of system fonts, all of these should work with xe/lua-latex
 system_fonts = []
-for f in font_manager.findSystemFonts():
+if sys.platform.startswith('win'):
+    from matplotlib import font_manager
+    from matplotlib.ft2font import FT2Font
+    for f in font_manager.win32InstalledFonts():
+        try:
+            system_fonts.append(FT2Font(str(f)).family_name)
+        except:
+            pass # unknown error, skip this font
+else:
+    # assuming fontconfig is installed and the command 'fc-list' exists
     try:
-        system_fonts.append(FT2Font(f).family_name)
-    except RuntimeError:
-        pass  # some fonts on osx are known to fail, print?
+        # list scalable (non-bitmap) fonts
+        fc_list = check_output(['fc-list', ':outline,scalable', 'family'])
+        fc_list = fc_list.decode('utf8')
+        system_fonts = [f.split(',')[0] for f in fc_list.splitlines()]
+        system_fonts = list(set(system_fonts))
     except:
-        pass  # unknown error, skip this font
-
+        warnings.warn('error getting fonts from fc-list', UserWarning)
 
 def get_texcommand():
     """Get chosen TeX system from rc."""

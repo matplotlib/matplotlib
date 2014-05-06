@@ -118,6 +118,9 @@ private:
     static char get_resample__doc__[];
     static char set_resample__doc__[];
 
+    // prevent copying
+    Image(const Image&);
+    Image& operator=(const Image&);
 };
 
 

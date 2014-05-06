@@ -47,12 +47,25 @@ def test_BoundaryNorm():
 
 def test_LogNorm():
     """
-    LogNorm igornoed clip, now it has the same
+    LogNorm ignored clip, now it has the same
     behavior as Normalize, e.g., values > vmax are bigger than 1
     without clip, with clip they are 1.
     """
     ln = mcolors.LogNorm(clip=True, vmax=5)
     assert_array_equal(ln([1, 6]), [0, 1.0])
+
+
+def test_PowerNorm():
+    a = np.array([0, 0.5, 1, 1.5], dtype=np.float)
+    pnorm = mcolors.PowerNorm(1)
+    norm = mcolors.Normalize()
+    assert_array_almost_equal(norm(a), pnorm(a))
+
+    a = np.array([-0.5, 0, 2, 4, 8], dtype=np.float)
+    expected = [0, 0, 1./16, 1./4, 1]
+    pnorm = mcolors.PowerNorm(2, vmin=0, vmax=8)
+    assert_array_almost_equal(pnorm(a), expected)
+    assert_array_almost_equal(a[1:], pnorm.inverse(pnorm(a))[1:])
 
 
 def test_Normalize():

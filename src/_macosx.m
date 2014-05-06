@@ -203,6 +203,7 @@ static int wait_for_stdin(void)
         if (interrupted) raise(SIGINT);
     }
     CFReadStreamClose(stream);
+    CFRelease(stream);
     return 1;
 }
 
@@ -2103,6 +2104,7 @@ _shade_one_color(CGContextRef cr, CGFloat colors[3], CGPoint points[3], int icol
                                                     function,
                                                     true,
                                                     true);
+        CGColorSpaceRelease(colorspace);
         CGFunctionRelease(function);
         if (shading)
         {
@@ -2236,9 +2238,18 @@ _shade_alpha(CGContextRef cr, CGFloat alphas[3], CGPoint points[3])
     CGImageRef mask = CGBitmapContextCreateImage(bitmap);
     CGContextClipToMask(cr, rect, mask);
     CGImageRelease(mask);
+    CGContextRelease(bitmap);
     free(data);
     return 0;
 }
+
+
+static CGFloat _get_device_scale(CGContextRef cr)
+{
+    CGSize pixelSize = CGContextConvertSizeToDeviceSpace(cr, CGSizeMake(1,1));
+    return pixelSize.width;
+}
+
 
 static PyObject*
 GraphicsContext_draw_gouraud_triangle (GraphicsContext* self, PyObject* args)
@@ -2998,17 +3009,8 @@ static void _data_provider_release(void* info, const void* data, size_t size)
     Py_DECREF(image);
 }
 
-/* Consider the drawing origin to be in user coordinates
- * but the image size to be in device coordinates */
-static void draw_image_user_coords_device_size(CGContextRef cr, CGImageRef im,
-        float x, float y, npy_intp ncols, npy_intp nrows)
-{
-    CGRect dst;
-    dst.origin = CGPointMake(x,y);
-    dst.size = CGContextConvertSizeToUserSpace(cr, CGSizeMake(ncols,nrows));
-    dst.size.height = fabs(dst.size.height); /* believe it or not... */
-    CGContextDrawImage(cr, dst, im);
-}
+
+
 
 static PyObject*
 GraphicsContext_draw_mathtext(GraphicsContext* self, PyObject* args)
@@ -3090,16 +3092,18 @@ GraphicsContext_draw_mathtext(GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
+    CGFloat deviceScale = _get_device_scale(cr);
+
     if (angle==0.0)
     {
-        draw_image_user_coords_device_size(cr, bitmap, x, y, ncols, nrows);
+        CGContextDrawImage(cr, CGRectMake(x, y, ncols/deviceScale, nrows/deviceScale), bitmap);
     }
     else
     {
         CGContextSaveGState(cr);
         CGContextTranslateCTM(cr, x, y);
         CGContextRotateCTM(cr, angle*M_PI/180);
-        draw_image_user_coords_device_size(cr, bitmap, 0, 0, ncols, nrows);
+        CGContextDrawImage(cr, CGRectMake(0, 0, ncols/deviceScale, nrows/deviceScale), bitmap);
         CGContextRestoreGState(cr);
     }
     CGImageRelease(bitmap);
@@ -3189,7 +3193,9 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    draw_image_user_coords_device_size(cr, bitmap, x, y, ncols, nrows);
+    CGFloat deviceScale = _get_device_scale(cr);
+
+    CGContextDrawImage(cr, CGRectMake(x, y, ncols/deviceScale, nrows/deviceScale), bitmap);
     CGImageRelease(bitmap);
 
     Py_INCREF(Py_None);
@@ -3206,8 +3212,7 @@ GraphicsContext_get_image_magnification(GraphicsContext* self)
         return NULL;
     }
 
-    CGSize pixelSize = CGContextConvertSizeToDeviceSpace(cr, CGSizeMake(1,1));
-    return PyFloat_FromDouble(pixelSize.width);
+    return PyFloat_FromDouble(_get_device_scale(cr));
 }
 
 
@@ -3988,9 +3993,9 @@ FigureManager_set_window_title(FigureManager* self,
     if(window)
     {
         NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-        NSString* ns_title = [[NSString alloc]
-                              initWithCString: title
-                              encoding: NSUTF8StringEncoding];
+        NSString* ns_title = [[[NSString alloc]
+                               initWithCString: title
+                               encoding: NSUTF8StringEncoding] autorelease];
         [window setTitle: ns_title];
         [pool release];
     }
@@ -4487,7 +4492,12 @@ NavigationToolbar_get_active (NavigationToolbar* self)
     NSMenu* menu = [button menu];
     NSArray* items = [menu itemArray];
     unsigned int n = [items count];
-    int* states = malloc(n*sizeof(int));
+    int* states = calloc(n, sizeof(int));
+    if (!states)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "calloc failed");
+        return NULL;
+    }
     int i;
     unsigned int m = 0;
     NSEnumerator* enumerator = [items objectEnumerator];
@@ -4502,7 +4512,6 @@ NavigationToolbar_get_active (NavigationToolbar* self)
             states[i] = 1;
             m++;
         }
-        else states[i] = 0;
     }
     int j = 0;
     PyObject* list = PyList_New(m);

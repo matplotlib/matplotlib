@@ -14,6 +14,9 @@ For new features that were added to matplotlib, please see
 Changes in 1.4.x
 ================
 
+Code changes
+------------
+
 * A major refactoring of the axes module was made. The axes module has been
 split into smaller modules:
 
@@ -46,6 +49,10 @@ original location:
   - mstack -> `from matplotlib import stack as mstack`
   - mstream -> `from matplotlib import stream as mstream`
   - mtable -> `from matplotlib import table as mtable`
+
+* The :func:`~matplotlib.pyplot.errorbar` method has been changed such that
+  the upper and lower limits (*lolims*, *uplims*, *xlolims*, *xuplims*) now
+  point in the correct direction.
 
 * The Sphinx extensions `ipython_directive` and
   `ipython_console_highlighting` have been moved to the IPython
@@ -134,6 +141,10 @@ original location:
 * Removed the class `FigureManagerQTAgg` and deprecated `NavigationToolbar2QTAgg`
   which will be removed in 1.5.
 
+* Removed formerly public (non-prefixed) attributes `rect` and
+  `drawRect` from `FigureCanvasQTAgg`; they were always an
+  implementation detail of the (preserved) `drawRectangle()` function.
+
 * The function signatures of `tight_bbox.adjust_bbox` and
   `tight_bbox.process_figure_for_rasterizing` have been changed. A new
   `fixed_dpi` parameter allows for overriding the `figure.dpi` setting
@@ -148,6 +159,15 @@ original location:
   which can be created using the `skew` and `skew_deg` methods.
 
 * Added clockwise parameter to control sectors direction in `axes.pie`
+
+Code removal
+------------
+
+* Removed ``mlab.levypdf``.  The code raised a numpy error (and has for
+  a long time) and was not the standard form of the Levy distribution.
+  ``scipy.stats.levy`` should be used instead
+
+
 
 
 .. _changes_in_1_3:

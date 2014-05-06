@@ -126,9 +126,9 @@ def compare_versions(a, b):
     else:
         return False
 
-if not compare_versions(six.__version__, '1.5'):
+if not compare_versions(six.__version__, '1.3'):
     raise ImportError(
-        'six 1.5 or later is required; you have %s' % (
+        'six 1.3 or later is required; you have %s' % (
             six.__version__))
 
 try:
@@ -1328,6 +1328,7 @@ default_test_modules = [
     'matplotlib.tests.test_dates',
     'matplotlib.tests.test_delaunay',
     'matplotlib.tests.test_figure',
+    'matplotlib.tests.test_font_manager',
     'matplotlib.tests.test_gridspec',
     'matplotlib.tests.test_image',
     'matplotlib.tests.test_legend',

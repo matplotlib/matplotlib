@@ -734,7 +734,7 @@ class Axes(_AxesBase):
         Parameters
         ----------
         x : scalar, optional, default: 0
-            y position in data coordinates of the vertical line.
+            x position in data coordinates of the vertical line.
 
         ymin : scalar, optional, default: 0
             Should be between 0 and 1, 0 being the far left of the plot, 1 the
@@ -955,19 +955,10 @@ class Axes(_AxesBase):
         if not iterable(xmax):
             xmax = [xmax]
 
-        y = np.asarray(y)
-        xmin = np.asarray(xmin)
-        xmax = np.asarray(xmax)
+        y = np.ravel(y)
 
-        if len(xmin) == 1:
-            xmin = np.resize(xmin, y.shape)
-        if len(xmax) == 1:
-            xmax = np.resize(xmax, y.shape)
-
-        if len(xmin) != len(y):
-            raise ValueError('xmin and y are unequal sized sequences')
-        if len(xmax) != len(y):
-            raise ValueError('xmax and y are unequal sized sequences')
+        xmin = np.resize(xmin, y.shape)
+        xmax = np.resize(xmax, y.shape)
 
         verts = [((thisxmin, thisy), (thisxmax, thisy))
                  for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
@@ -1044,23 +1035,12 @@ class Axes(_AxesBase):
         if not iterable(ymax):
             ymax = [ymax]
 
-        x = np.asarray(x)
-        ymin = np.asarray(ymin)
-        ymax = np.asarray(ymax)
-        if len(ymin) == 1:
-            ymin = np.resize(ymin, x.shape)
-        if len(ymax) == 1:
-            ymax = np.resize(ymax, x.shape)
-
-        if len(ymin) != len(x):
-            raise ValueError('ymin and x are unequal sized sequences')
-        if len(ymax) != len(x):
-            raise ValueError('ymax and x are unequal sized sequences')
-
-        Y = np.array([ymin, ymax]).T
+        x = np.ravel(x)
+        ymin = np.resize(ymin, x.shape)
+        ymax = np.resize(ymax, x.shape)
 
         verts = [((thisx, thisymin), (thisx, thisymax))
-                 for thisx, (thisymin, thisymax) in zip(x, Y)]
+                 for thisx, thisymin, thisymax in zip(x, ymin, ymax)]
         #print 'creating line collection'
         coll = mcoll.LineCollection(verts, colors=colors,
                                     linestyles=linestyles, label=label)
@@ -2578,7 +2558,7 @@ class Axes(_AxesBase):
 
           *ecolor*: [ *None* | mpl color ]
             A matplotlib color arg which gives the color the errorbar lines;
-            if *None*, use the marker color.
+            if *None*, use the color of the line connecting the markers.
 
           *elinewidth*: scalar
             The linewidth of the errorbar lines. If *None*, use the linewidth.
@@ -2602,7 +2582,9 @@ class Axes(_AxesBase):
             These arguments can be used to indicate that a value gives
             only upper/lower limits. In that case a caret symbol is
             used to indicate this. lims-arguments may be of the same
-            type as *xerr* and *yerr*.
+            type as *xerr* and *yerr*.  To use limits with inverted
+            axes, :meth:`set_xlim` or :meth:`set_ylim` must be called
+            before :meth:`errorbar`.
 
           *errorevery*: positive integer
             subsamples the errorbars. e.g., if everyerror=5, errorbars for
@@ -2682,16 +2664,12 @@ class Axes(_AxesBase):
         if elinewidth:
             lines_kw['linewidth'] = elinewidth
         else:
-            if 'linewidth' in kwargs:
-                lines_kw['linewidth'] = kwargs['linewidth']
-            if 'lw' in kwargs:
-                lines_kw['lw'] = kwargs['lw']
-        if 'transform' in kwargs:
-            lines_kw['transform'] = kwargs['transform']
-        if 'alpha' in kwargs:
-            lines_kw['alpha'] = kwargs['alpha']
-        if 'zorder' in kwargs:
-            lines_kw['zorder'] = kwargs['zorder']
+            for key in ('linewidth', 'lw'):
+                if key in kwargs:
+                    lines_kw[key] = kwargs[key]
+        for key in ('transform', 'alpha', 'zorder'):
+            if key in kwargs:
+                lines_kw[key] = kwargs[key]
 
         # arrays fine here, they are booleans and hence not units
         if not iterable(lolims):
@@ -2727,29 +2705,21 @@ class Axes(_AxesBase):
             ys = [thisy for thisy, b in zip(ys, mask) if b]
             return xs, ys
 
+        plot_kw = {'label': '_nolegend_'}
         if capsize > 0:
-            plot_kw = {
-                'ms': 2 * capsize,
-                'label': '_nolegend_'}
-            if capthick is not None:
-                # 'mew' has higher priority, I believe,
-                # if both 'mew' and 'markeredgewidth' exists.
-                # So, save capthick to markeredgewidth so that
-                # explicitly setting mew or markeredgewidth will
-                # over-write capthick.
-                plot_kw['markeredgewidth'] = capthick
-            # For backwards-compat, allow explicit setting of
-            # 'mew' or 'markeredgewidth' to over-ride capthick.
-            if 'markeredgewidth' in kwargs:
-                plot_kw['markeredgewidth'] = kwargs['markeredgewidth']
-            if 'mew' in kwargs:
-                plot_kw['mew'] = kwargs['mew']
-            if 'transform' in kwargs:
-                plot_kw['transform'] = kwargs['transform']
-            if 'alpha' in kwargs:
-                plot_kw['alpha'] = kwargs['alpha']
-            if 'zorder' in kwargs:
-                plot_kw['zorder'] = kwargs['zorder']
+            plot_kw['ms'] = 2. * capsize
+        if capthick is not None:
+            # 'mew' has higher priority, I believe,
+            # if both 'mew' and 'markeredgewidth' exists.
+            # So, save capthick to markeredgewidth so that
+            # explicitly setting mew or markeredgewidth will
+            # over-write capthick.
+            plot_kw['markeredgewidth'] = capthick
+        # For backwards-compat, allow explicit setting of
+        # 'mew' or 'markeredgewidth' to over-ride capthick.
+        for key in ('markeredgewidth', 'mew', 'transform', 'alpha', 'zorder'):
+            if key in kwargs:
+                plot_kw[key] = kwargs[key]
 
         if xerr is not None:
             if (iterable(xerr) and len(xerr) == 2 and
@@ -2766,38 +2736,48 @@ class Axes(_AxesBase):
                 right = [thisx + thiserr for (thisx, thiserr)
                          in cbook.safezip(x, xerr)]
 
-            yo, _ = xywhere(y, right, everymask)
-            lo, ro = xywhere(left, right, everymask)
-            barcols.append(self.hlines(yo, lo, ro, **lines_kw))
-            if capsize > 0:
-                if xlolims.any():
-                    # can't use numpy logical indexing since left and
-                    # y are lists
-                    leftlo, ylo = xywhere(left, y, xlolims & everymask)
+            # select points without upper/lower limits in x and
+            # draw normal errorbars for these points
+            noxlims = ~(xlolims | xuplims)
+            if noxlims.any():
+                yo, _ = xywhere(y, right, noxlims & everymask)
+                lo, ro = xywhere(left, right, noxlims & everymask)
+                barcols.append(self.hlines(yo, lo, ro, **lines_kw))
+                if capsize > 0:
+                    caplines.extend(self.plot(lo, yo, 'k|', **plot_kw))
+                    caplines.extend(self.plot(ro, yo, 'k|', **plot_kw))
 
-                    caplines.extend(
-                        self.plot(leftlo, ylo, ls='None',
-                                  marker=mlines.CARETLEFT, **plot_kw))
-                    xlolims = ~xlolims
-                    leftlo, ylo = xywhere(left, y, xlolims & everymask)
-                    caplines.extend(self.plot(leftlo, ylo, 'k|', **plot_kw))
+            if xlolims.any():
+                yo, _ = xywhere(y, right, xlolims & everymask)
+                lo, ro = xywhere(x, right, xlolims & everymask)
+                barcols.append(self.hlines(yo, lo, ro, **lines_kw))
+                rightup, yup = xywhere(right, y, xlolims & everymask)
+                if self.xaxis_inverted():
+                    marker = mlines.CARETLEFT
                 else:
+                    marker = mlines.CARETRIGHT
+                caplines.extend(
+                    self.plot(rightup, yup, ls='None', marker=marker,
+                              **plot_kw))
+                if capsize > 0:
+                    xlo, ylo = xywhere(x, y, xlolims & everymask)
+                    caplines.extend(self.plot(xlo, ylo, 'k|', **plot_kw))
 
-                    leftlo, ylo = xywhere(left, y, everymask)
-                    caplines.extend(self.plot(leftlo, ylo, 'k|', **plot_kw))
-
-                if xuplims.any():
-
-                    rightup, yup = xywhere(right, y, xuplims & everymask)
-                    caplines.extend(
-                        self.plot(rightup, yup, ls='None',
-                                  marker=mlines.CARETRIGHT, **plot_kw))
-                    xuplims = ~xuplims
-                    rightup, yup = xywhere(right, y, xuplims & everymask)
-                    caplines.extend(self.plot(rightup, yup, 'k|', **plot_kw))
+            if xuplims.any():
+                yo, _ = xywhere(y, right, xuplims & everymask)
+                lo, ro = xywhere(left, x, xuplims & everymask)
+                barcols.append(self.hlines(yo, lo, ro, **lines_kw))
+                leftlo, ylo = xywhere(left, y, xuplims & everymask)
+                if self.xaxis_inverted():
+                    marker = mlines.CARETRIGHT
                 else:
-                    rightup, yup = xywhere(right, y, everymask)
-                    caplines.extend(self.plot(rightup, yup, 'k|', **plot_kw))
+                    marker = mlines.CARETLEFT
+                caplines.extend(
+                    self.plot(leftlo,  ylo, ls='None', marker=marker,
+                              **plot_kw))
+                if capsize > 0:
+                    xup, yup = xywhere(x, y, xuplims & everymask)
+                    caplines.extend(self.plot(xup, yup, 'k|', **plot_kw))
 
         if yerr is not None:
             if (iterable(yerr) and len(yerr) == 2 and
@@ -2814,35 +2794,48 @@ class Axes(_AxesBase):
                 upper = [thisy + thiserr for (thisy, thiserr)
                          in cbook.safezip(y, yerr)]
 
-            xo, _ = xywhere(x, lower, everymask)
-            lo, uo = xywhere(lower, upper, everymask)
-            barcols.append(self.vlines(xo, lo, uo, **lines_kw))
-            if capsize > 0:
+            # select points without upper/lower limits in y and
+            # draw normal errorbars for these points
+            noylims = ~(lolims | uplims)
+            if noylims.any():
+                xo, _ = xywhere(x, lower, noylims & everymask)
+                lo, uo = xywhere(lower, upper, noylims & everymask)
+                barcols.append(self.vlines(xo, lo, uo, **lines_kw))
+                if capsize > 0:
+                    caplines.extend(self.plot(xo, lo, 'k_', **plot_kw))
+                    caplines.extend(self.plot(xo, uo, 'k_', **plot_kw))
 
-                if lolims.any():
-                    xlo, lowerlo = xywhere(x, lower, lolims & everymask)
-                    caplines.extend(
-                        self.plot(xlo, lowerlo, ls='None',
-                                  marker=mlines.CARETDOWN, **plot_kw))
-                    lolims = ~lolims
-                    xlo, lowerlo = xywhere(x, lower, lolims & everymask)
-                    caplines.extend(self.plot(xlo, lowerlo, 'k_', **plot_kw))
+            if lolims.any():
+                xo, _ = xywhere(x, lower, lolims & everymask)
+                lo, uo = xywhere(y, upper, lolims & everymask)
+                barcols.append(self.vlines(xo, lo, uo, **lines_kw))
+                xup, upperup = xywhere(x, upper, lolims & everymask)
+                if self.yaxis_inverted():
+                    marker = mlines.CARETDOWN
                 else:
-                    xlo, lowerlo = xywhere(x, lower, everymask)
-                    caplines.extend(self.plot(xlo, lowerlo, 'k_', **plot_kw))
+                    marker = mlines.CARETUP
+                caplines.extend(
+                    self.plot(xup, upperup, ls='None', marker=marker,
+                              **plot_kw))
+                if capsize > 0:
+                    xlo, ylo = xywhere(x, y, lolims & everymask)
+                    caplines.extend(self.plot(xlo, ylo, 'k_', **plot_kw))
 
-                if uplims.any():
-                    xup, upperup = xywhere(x, upper, uplims & everymask)
-
-                    caplines.extend(
-                        self.plot(xup, upperup, ls='None',
-                                  marker=mlines.CARETUP, **plot_kw))
-                    uplims = ~uplims
-                    xup, upperup = xywhere(x, upper, uplims & everymask)
-                    caplines.extend(self.plot(xup, upperup, 'k_', **plot_kw))
+            if uplims.any():
+                xo, _ = xywhere(x, lower, uplims & everymask)
+                lo, uo = xywhere(lower, y, uplims & everymask)
+                barcols.append(self.vlines(xo, lo, uo, **lines_kw))
+                xlo, lowerlo = xywhere(x, lower, uplims & everymask)
+                if self.yaxis_inverted():
+                    marker = mlines.CARETUP
                 else:
-                    xup, upperup = xywhere(x, upper, everymask)
-                    caplines.extend(self.plot(xup, upperup, 'k_', **plot_kw))
+                    marker = mlines.CARETDOWN
+                caplines.extend(
+                    self.plot(xlo, lowerlo, ls='None', marker=marker,
+                              **plot_kw))
+                if capsize > 0:
+                    xup, yup = xywhere(x, y, uplims & everymask)
+                    caplines.extend(self.plot(xup, yup, 'k_', **plot_kw))
 
         if not barsabove and fmt is not None:
             l0, = self.plot(x, y, fmt, **kwargs)
@@ -2875,7 +2868,8 @@ class Axes(_AxesBase):
                 bootstrap=None, usermedians=None, conf_intervals=None,
                 meanline=False, showmeans=False, showcaps=True,
                 showbox=True, showfliers=True, boxprops=None, labels=None,
-                flierprops=None, medianprops=None, meanprops=None):
+                flierprops=None, medianprops=None, meanprops=None,
+                manage_xticks=True):
         """
         Make a box and whisker plot.
 
@@ -3060,14 +3054,15 @@ class Axes(_AxesBase):
                            showcaps=showcaps, showbox=showbox,
                            boxprops=boxprops, flierprops=flierprops,
                            medianprops=medianprops, meanprops=meanprops,
-                           meanline=meanline, showfliers=showfliers)
+                           meanline=meanline, showfliers=showfliers,
+                           manage_xticks=manage_xticks)
         return artists
 
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
             patch_artist=False, shownotches=False, showmeans=False,
             showcaps=True, showbox=True, showfliers=True,
             boxprops=None, flierprops=None, medianprops=None,
-            meanprops=None, meanline=False):
+            meanprops=None, meanline=False, manage_xticks=True):
         """
         Drawing function for box and whisker plots.
 
@@ -3077,7 +3072,7 @@ class Axes(_AxesBase):
               patch_artist=False, shownotches=False, showmeans=False,
               showcaps=True, showbox=True, showfliers=True,
               boxprops=None, flierprops=None, medianprops=None,
-              meanprops=None, meanline=False)
+              meanprops=None, meanline=False, manage_xticks=True)
 
         Make a box and whisker plot for each column of *x* or each
         vector in sequence *x*.  The box extends from the lower to
@@ -3155,6 +3150,9 @@ class Axes(_AxesBase):
             as a line spanning the full width of the box according to
             *meanprops*. Not recommended if *shownotches* is also True.
             Otherwise, means will be shown as points.
+
+          manage_xticks : bool, default = True
+            If the function should adjust the xlim and xtick locations.
 
         Returns
         -------
@@ -3390,10 +3388,11 @@ class Axes(_AxesBase):
             setlim = self.set_ylim
             setlabels = self.set_yticklabels
 
-        newlimits = min(positions) - 0.5, max(positions) + 0.5
-        setlim(newlimits)
-        setticks(positions)
-        setlabels(datalabels)
+        if manage_xticks:
+            newlimits = min(positions) - 0.5, max(positions) + 0.5
+            setlim(newlimits)
+            setticks(positions)
+            setlabels(datalabels)
 
         # reset hold status
         self.hold(holdStatus)
@@ -5826,7 +5825,9 @@ class Axes(_AxesBase):
         -----
         Rendering the histogram with a logarithmic color scale is
         accomplished by passing a :class:`colors.LogNorm` instance to
-        the *norm* keyword argument.
+        the *norm* keyword argument. Likewise, power-law normalization
+        (similar in effect to gamma correction) can be accomplished with
+        :class:`colors.PowerNorm`.
 
         Examples
         --------

@@ -58,11 +58,12 @@ The ``plot`` directive supports the following options:
         The encoding will not be inferred using the ``-*- coding -*-``
         metacomment.
 
-    context : bool
+    context : bool or str
         If provided, the code will be run in the context of all
         previous plot directives for which the `:context:` option was
         specified.  This only applies to inline code plot directives,
-        not those run from files.
+        not those run from files. If the ``:context: reset`` is specified,
+        the context is reset for this and future plots.
 
     nofigs : bool
         If specified, the code block will be run, but no figures will
@@ -249,8 +250,18 @@ def _option_boolean(arg):
     else:
         raise ValueError('"%s" unknown boolean' % arg)
 
+
+def _option_context(arg):
+    if arg in [None, 'reset']:
+        return arg
+    else:
+        raise ValueError("argument should be None or 'reset'")
+    return directives.choice(arg, ('None', 'reset'))
+
+
 def _option_format(arg):
     return directives.choice(arg, ('python', 'doctest'))
+
 
 def _option_align(arg):
     return directives.choice(arg, ("top", "middle", "bottom", "left", "center",
@@ -299,7 +310,7 @@ def setup(app):
                'class': directives.class_option,
                'include-source': _option_boolean,
                'format': _option_format,
-               'context': directives.flag,
+               'context': _option_context,
                'nofigs': directives.flag,
                'encoding': directives.encoding
                }
@@ -554,13 +565,14 @@ def run_code(code, code_path, ns=None, function_name=None):
         sys.stdout = stdout
     return ns
 
-def clear_state(plot_rcparams):
-    plt.close('all')
+def clear_state(plot_rcparams, close=True):
+    if close:
+        plt.close('all')
     matplotlib.rc_file_defaults()
     matplotlib.rcParams.update(plot_rcparams)
 
 def render_figures(code, code_path, output_dir, output_base, context,
-                   function_name, config):
+                   function_name, config, context_reset=False):
     """
     Run a pyplot script and save the low and high res PNGs and a PDF
     in outdir.
@@ -635,9 +647,14 @@ def render_figures(code, code_path, output_dir, output_base, context,
     else:
         ns = {}
 
+    if context_reset:
+        clear_state(config.plot_rcparams)
+
     for i, code_piece in enumerate(code_pieces):
+
         if not context or config.plot_apply_rcparams:
-            clear_state(config.plot_rcparams)
+            clear_state(config.plot_rcparams, close=not context)
+
         run_code(code_piece, code_path, ns, function_name)
 
         images = []
@@ -661,7 +678,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
         results.append((code_piece, images))
 
     if not context or config.plot_apply_rcparams:
-        clear_state(config.plot_rcparams)
+        clear_state(config.plot_rcparams, close=not context)
 
     return results
 
@@ -676,6 +693,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     options.setdefault('include-source', config.plot_include_source)
     context = 'context' in options
+    context_reset = True if (context and options['context'] == 'reset') else False
 
     rst_file = document.attributes['source']
     rst_dir = os.path.dirname(rst_file)
@@ -760,7 +778,8 @@ def run(arguments, content, options, state_machine, state, lineno):
     # make figures
     try:
         results = render_figures(code, source_file_name, build_dir, output_base,
-                                 context, function_name, config)
+                                 context, function_name, config,
+                                 context_reset=context_reset)
         errors = []
     except PlotError as err:
         reporter = state.memo.reporter

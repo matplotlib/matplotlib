@@ -1525,11 +1525,11 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
 
 def entropy(y, bins):
     r"""
-    Return the entropy of the data in *y*.
+    Return the entropy of the data in *y* in units of nat.
 
     .. math::
 
-      \sum p_i \log_2(p_i)
+      -\sum p_i \ln(p_i)
 
     where :math:`p_i` is the probability of observing *y* in the
     :math:`i^{th}` bin of *bins*.  *bins* can be a number of bins or a
@@ -1555,28 +1555,6 @@ def normpdf(x, *args):
     "Return the normal pdf evaluated at *x*; args provides *mu*, *sigma*"
     mu, sigma = args
     return 1./(np.sqrt(2*np.pi)*sigma)*np.exp(-0.5 * (1./sigma*(x - mu))**2)
-
-
-def levypdf(x, gamma, alpha):
-    "Returm the levy pdf evaluated at *x* for params *gamma*, *alpha*"
-
-    N = len(x)
-
-    if N % 2 != 0:
-        raise ValueError('x must be an event length array; try\n' + \
-              'x = np.linspace(minx, maxx, N), where N is even')
-
-    dx = x[1] - x[0]
-
-    f = 1/(N*dx)*np.arange(-N / 2, N / 2, np.float_)
-
-    ind = np.concatenate([np.arange(N / 2, N, int),
-                          np.arange(0, N / 2, int)])
-    df = f[1] - f[0]
-    cfl = np.exp(-gamma * np.absolute(2 * np.pi * f) ** alpha)
-
-    px = np.fft.fft(np.take(cfl, ind) * df).astype(np.float_)
-    return np.take(px, ind)
 
 
 def find(condition):
@@ -1670,13 +1648,13 @@ class PCA:
 
           *numrows*, *numcols*: the dimensions of a
 
-          *mu* : a numdims array of means of a. This is the vector that points to the 
-          origin of PCA space. 
+          *mu* : a numdims array of means of a. This is the vector that points to the
+          origin of PCA space.
 
           *sigma* : a numdims array of standard deviation of a
 
           *fracs* : the proportion of variance of each of the principal components
-        
+
           *s* : the actual eigenvalues of the decomposition
 
           *Wt* : the weight vector for projecting a numdims point or array into PCA space
@@ -1705,23 +1683,23 @@ class PCA:
         U, s, Vh = np.linalg.svd(a, full_matrices=False)
 
         # Note: .H indicates the conjugate transposed / Hermitian.
-        
+
         # The SVD is commonly written as a = U s V.H.
         # If U is a unitary matrix, it means that it satisfies U.H = inv(U).
-        
+
         # The rows of Vh are the eigenvectors of a.H a.
-        # The columns of U are the eigenvectors of a a.H. 
+        # The columns of U are the eigenvectors of a a.H.
         # For row i in Vh and column i in U, the corresponding eigenvalue is s[i]**2.
-         
+
         self.Wt = Vh
-        
+
         # save the transposed coordinates
         Y = np.dot(Vh, a.T).T
         self.Y = Y
-        
+
         # save the eigenvalues
         self.s = s**2
-        
+
         # and now the contribution of the individual components
         vars = self.s/float(len(s))
         self.fracs = vars/vars.sum()

@@ -154,14 +154,10 @@ Build requirements
 ==================
 
 These are external packages which you will need to install before
-installing matplotlib. Windows users only need the first two (python
-and numpy) since the others are built into the matplotlib Windows
-installers available for download at `the download page
-<http://matplotlib.org/downloads.html>`_.  If you are
-building on OSX, see :ref:`build_osx`. If you are installing
-dependencies with a package manager on Linux, you may need to install
-the development packages (look for a "-dev" postfix) in addition to
-the libraries themselves.
+installing matplotlib.  If you are building on OSX, see
+:ref:`build_osx`. If you are installing dependencies with a package
+manager on Linux, you may need to install the development packages
+(look for a "-dev" postfix) in addition to the libraries themselves.
 
 .. note::
 
@@ -198,29 +194,12 @@ the libraries themselves.
     using pip, easy_install or installing from source, the installer
     will attempt to download and install `pyparsing` from PyPI.
 
-<<<<<<< HEAD
-**Optional dependencies**
+six 1.3 or later
+    Python 2/3 compatibility library.  This is also a dependency of
+    :term:`dateutil`.
 
-`Pillow http://python-imaging.github.io/`__
-    If Pillow is installed, matplotlib can read and write a larger
-    selection of image file formats.
 
 **Optional GUI frameworks**
-=======
-libpng 1.2 (or later)
-    library for loading and saving :term:`PNG` files (`download
-    <http://www.libpng.org/pub/png/libpng.html>`__). libpng requires
-    zlib. If you are a Windows user, you can ignore this because we
-    build support into the matplotlib single-click installer
-
-:term:`freetype` 1.4 (or later)
-    library for reading true type font files. If you are a windows
-    user, you can ignore this since we build support into the
-    matplotlib single click installer.
-
-
-**Optional**
->>>>>>> upstream/v1.3.x
 
 These are optional packages which you may want to install to use
 matplotlib with a user interface toolkit. See
@@ -241,6 +220,34 @@ backends and the capabilities they provide.
     The python wrappers for the wx widgets library for use with the
     WX or WXAgg backend
 
+**Optional external programs**
+
+ffmpeg/avconv or mencoder
+    Required for the animation module to be save out put to movie
+    formats.
+
+ImageMagick
+    Required for the animation module to be able to save to animated gif.
+
+**Optional dependencies**
+
+`Pillow http://python-imaging.github.io/`__
+    If Pillow is installed, matplotlib can read and write a larger
+    selection of image file formats.
+
+
+:term:`freetype` 1.4 (or later)
+    library for reading true type font files. If you are a windows
+    user, you can ignore this since we build support into the
+    matplotlib single click installer.
+
+
+libpng 1.2 (or later)
+    library for loading and saving :term:`PNG` files (`download
+    <http://www.libpng.org/pub/png/libpng.html>`__). libpng requires
+    zlib. If you are a Windows user, you can ignore this because we
+    build support into the matplotlib single-click installer
+
 **Required libraries that ship with matplotlib**
 
 :term:`agg` 2.4
@@ -250,6 +257,13 @@ backends and the capabilities they provide.
 
 `PyCXX` 6.2.4
     A library for writing Python extensions in C++.
+
+`qhull` 2012.1
+   A library for computing convex hulls.  Used for computing triangulation
+   and meshes.
+
+`ttconv`
+   truetype font utility
 
 .. _build_osx:
 

@@ -28,6 +28,14 @@ def test_point_in_path():
     assert np.all(path.contains_points(points) == [True, False])
 
 
+def test_contains_points_negative_radius():
+    path = Path.unit_circle()
+
+    points = [(0.0, 0.0), (1.25, 0.0), (0.9, 0.9)]
+    expected = [True, False, False]
+
+    assert np.all(path.contains_points(points, radius=-0.5) == expected)
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

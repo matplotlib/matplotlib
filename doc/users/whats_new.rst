@@ -23,6 +23,17 @@ revision, see the :ref:`github-stats`.
 new in matplotlib-1.4
 =====================
 
+
+New colormap
+------------
+In heatmaps, a green-to-red spectrum is often used to indicate intensity of
+activity, but this can be problematic for the red/green colorblind. A new,
+colorblind-friendly colormap is now available at :class:`matplotlib.cm.Wistia`.
+This colormap maintains the red/green symbolism while achieving deuteranopic
+legibility through brightness variations. See
+`here <https://github.com/wistia/heatmap-palette>`
+for more information.
+
 Documentation changes
 ---------------------
 
@@ -31,6 +42,14 @@ Phil Elson rewrote of the documentation and userguide for both Legend and PathEf
 
 New plotting features
 ---------------------
+
+Power-law normalization
+```````````````````````
+Ben Gamari added a power-law normalization method,
+:class:`~matplotlib.colors.PowerNorm`. This class maps a range of 
+values to the interval [0,1] with power-law scaling with the exponent
+provided by the constructor's `gamma` argument. Power law normalization
+can be useful for, e.g., emphasizing small populations in a histogram.
 
 Fully customizable boxplots
 ````````````````````````````
@@ -56,6 +75,8 @@ kwargs. See the examples:
 :ref:`~examples/statistics/boxplot_demo.py` and
 :ref:`~examples/statistics/bxp_demo.py`
 
+Added a bool kwarg, `manage_xticks`, which if False disables the management
+of the xtick and xlim by `boxplot`.
 
 Support for datetime axes in 2d plots
 `````````````````````````````````````
@@ -139,6 +160,11 @@ specify wedgeprops = {'linewidth':3} to specify the width of the borders of
 the wedges in the pie. For more properties that the user can specify, look at
 the docs for the wedge and text objects.
 
+Fixed the direction of errorbar upper/lower limits
+``````````````````````````````````````````````````
+Larry Bradley fixed the :func:`~matplotlib.pyplot.errorbar` method such
+that the upper and lower limits (*lolims*, *uplims*, *xlolims*,
+*xuplims*) now point in the correct direction.
 
 Date handling
 -------------
@@ -200,6 +226,9 @@ added. Furthermore, the the subplottool is now implemented as a modal
 dialog. It was previously a QMainWindow, leaving the SPT open if one closed the
 plotwindow.
 
+Interactive performance of the Qt4 backend has been dramatically improved
+under windows.
+
 Cairo backends
 ``````````````
 
@@ -225,6 +254,14 @@ url as a link in output SVGs.  This allows one to make clickable text in
 saved figures using the url kwarg of the :class:`~matplotlib.text.Text`
 class.
 
+Sphinx extensions
+-----------------
+
+The ``:context:`` directive in the `~matplotlib.sphinxext.plot_directive`
+Sphinx extension can now accept an optional ``reset`` setting, which will
+cause the context to be reset. This allows more than one distinct context to
+be present in documentation. To enable this option, use ``:context: reset``
+instead of ``:context:`` any time you want to reset the context.
 
 .. _whats-new-1-3:
 

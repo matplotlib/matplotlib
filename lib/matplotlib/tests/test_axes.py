@@ -13,7 +13,7 @@ from numpy import ma
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
-
+from numpy.testing import assert_array_equal
 
 @image_comparison(baseline_images=['formatter_ticker_001',
                                    'formatter_ticker_002',
@@ -1433,9 +1433,8 @@ def test_boxplot_bad_medians_1():
     fig, ax = plt.subplots()
     assert_raises(ValueError, ax.boxplot, x,  usermedians=[1, 2])
 
-
 @cleanup
-def test_boxplot_bad_medians_1():
+def test_boxplot_bad_medians_2():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
@@ -1458,6 +1457,20 @@ def test_boxplot_bad_ci_2():
     fig, ax = plt.subplots()
     assert_raises(ValueError, ax.boxplot, [x, x],
                   conf_intervals=[[1, 2], [1]])
+
+
+@cleanup
+def test_manage_xticks():
+    _, ax = plt.subplots()
+    ax.set_xlim(0, 4)
+    old_xlim = ax.get_xlim()
+    np.random.seed(0)
+    y1 = np.random.normal(10, 3, 20)
+    y2 = np.random.normal(3, 1, 20)
+    ax.boxplot([y1, y2], positions = [1,2],
+               manage_xticks=False)
+    new_xlim = ax.get_xlim()
+    assert_array_equal(old_xlim, new_xlim)
 
 
 @image_comparison(baseline_images=['errorbar_basic', 'errorbar_mixed'])
@@ -1502,6 +1515,54 @@ def test_errorbar():
     ax.set_title('Mixed sym., log y')
 
     fig.suptitle('Variable errorbars')
+
+
+@image_comparison(baseline_images=['errorbar_limits'])
+def test_errorbar_limits():
+    x = np.arange(0.5, 5.5, 0.5)
+    y = np.exp(-x)
+    xerr = 0.1
+    yerr = 0.2
+    ls = 'dotted'
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+
+    # standard error bars
+    plt.errorbar(x, y, xerr=xerr, yerr=yerr, ls=ls, color='blue')
+
+    # including upper limits
+    uplims = np.zeros(x.shape)
+    uplims[[1, 5, 9]] = True
+    plt.errorbar(x, y+0.5, xerr=xerr, yerr=yerr, uplims=uplims, ls=ls,
+                 color='green')
+
+    # including lower limits
+    lolims = np.zeros(x.shape)
+    lolims[[2, 4, 8]] = True
+    plt.errorbar(x, y+1.0, xerr=xerr, yerr=yerr, lolims=lolims, ls=ls,
+                 color='red')
+
+    # including upper and lower limits
+    plt.errorbar(x, y+1.5, marker='o', ms=8, xerr=xerr, yerr=yerr,
+                 lolims=lolims, uplims=uplims, ls=ls, color='magenta')
+
+    # including xlower and xupper limits
+    xerr = 0.2
+    yerr = np.zeros(x.shape) + 0.2
+    yerr[[3, 6]] = 0.3
+    xlolims = lolims
+    xuplims = uplims
+    lolims = np.zeros(x.shape)
+    uplims = np.zeros(x.shape)
+    lolims[[6]] = True
+    uplims[[3]] = True
+    plt.errorbar(x, y+2.1, marker='o', ms=8, xerr=xerr, yerr=yerr,
+                 xlolims=xlolims, xuplims=xuplims, uplims=uplims,
+                 lolims=lolims, ls='none', mec='blue', capsize=0,
+                 color='cyan')
+    ax.set_xlim((0, 5.5))
+    ax.set_title('Errorbar upper and lower limits')
 
 
 @image_comparison(baseline_images=['hist_stacked_stepfilled'])

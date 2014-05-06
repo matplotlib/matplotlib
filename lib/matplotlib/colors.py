@@ -50,17 +50,13 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import map, zip
+from six.moves import zip
 
+import warnings
 import re
 import numpy as np
 from numpy import ma
 import matplotlib.cbook as cbook
-
-parts = np.__version__.split('.')
-NP_MAJOR, NP_MINOR = list(map(int, parts[:2]))
-# true if clip supports the out kwarg
-NP_CLIP_OUT = NP_MAJOR >= 1 and NP_MINOR >= 2
 
 cnames = {
     'aliceblue':            '#F0F8FF',
@@ -577,10 +573,7 @@ class Colormap(object):
             # conversion of large positive values to negative integers.
 
             xa *= self.N
-            if NP_CLIP_OUT:
-                np.clip(xa, -1, self.N, out=xa)
-            else:
-                xa = np.clip(xa, -1, self.N)
+            np.clip(xa, -1, self.N, out=xa)
 
             # ensure that all 'under' values will still have negative
             # value after casting to int
@@ -625,24 +618,24 @@ class Colormap(object):
         return rgba
 
     def set_bad(self, color='k', alpha=None):
-        '''Set color to be used for masked values.
-        '''
+        """Set color to be used for masked values.
+        """
         self._rgba_bad = colorConverter.to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
 
     def set_under(self, color='k', alpha=None):
-        '''Set color to be used for low out-of-range values.
+        """Set color to be used for low out-of-range values.
            Requires norm.clip = False
-        '''
+        """
         self._rgba_under = colorConverter.to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
 
     def set_over(self, color='k', alpha=None):
-        '''Set color to be used for high out-of-range values.
+        """Set color to be used for high out-of-range values.
            Requires norm.clip = False
-        '''
+        """
         self._rgba_over = colorConverter.to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
@@ -659,7 +652,7 @@ class Colormap(object):
         self._lut[self._i_bad] = self._rgba_bad
 
     def _init(self):
-        '''Generate the lookup table, self._lut'''
+        """Generate the lookup table, self._lut"""
         raise NotImplementedError("Abstract class only")
 
     def is_gray(self):
@@ -945,9 +938,9 @@ class Normalize(object):
             return vmin + value * (vmax - vmin)
 
     def autoscale(self, A):
-        '''
+        """
         Set *vmin*, *vmax* to min, max of *A*.
-        '''
+        """
         self.vmin = ma.min(A)
         self.vmax = ma.max(A)
 
@@ -1016,9 +1009,9 @@ class LogNorm(Normalize):
             return vmin * pow((vmax / vmin), value)
 
     def autoscale(self, A):
-        '''
+        """
         Set *vmin*, *vmax* to min, max of *A*.
-        '''
+        """
         A = ma.masked_less_equal(A, 0, copy=False)
         self.vmin = ma.min(A)
         self.vmax = ma.max(A)
@@ -1148,8 +1141,82 @@ class SymLogNorm(Normalize):
         self._transform_vmin_vmax()
 
 
+class PowerNorm(Normalize):
+    """
+    Normalize a given value to the ``[0, 1]`` interval with a power-law
+    scaling. This will clip any negative data points to 0.
+    """
+    def __init__(self, gamma, vmin=None, vmax=None, clip=False):
+        Normalize.__init__(self, vmin, vmax, clip)
+        self.gamma = gamma
+
+    def __call__(self, value, clip=None):
+        if clip is None:
+            clip = self.clip
+
+        result, is_scalar = self.process_value(value)
+
+        self.autoscale_None(result)
+        gamma = self.gamma
+        vmin, vmax = self.vmin, self.vmax
+        if vmin > vmax:
+            raise ValueError("minvalue must be less than or equal to maxvalue")
+        elif vmin == vmax:
+            result.fill(0)
+        else:
+            if clip:
+                mask = ma.getmask(result)
+                val = ma.array(np.clip(result.filled(vmax), vmin, vmax),
+                                mask=mask)
+            resdat = result.data
+            resdat -= vmin
+            np.power(resdat, gamma, resdat)
+            resdat /= (vmax - vmin) ** gamma
+            result = np.ma.array(resdat, mask=result.mask, copy=False)
+            result[value < 0] = 0
+        if is_scalar:
+            result = result[0]
+        return result
+
+    def inverse(self, value):
+        if not self.scaled():
+            raise ValueError("Not invertible until scaled")
+        gamma = self.gamma
+        vmin, vmax = self.vmin, self.vmax
+
+        if cbook.iterable(value):
+            val = ma.asarray(value)
+            return ma.power(value, 1. / gamma) * (vmax - vmin) + vmin
+        else:
+            return pow(value, 1. / gamma) * (vmax - vmin) + vmin
+
+    def autoscale(self, A):
+        """
+        Set *vmin*, *vmax* to min, max of *A*.
+        """
+        self.vmin = ma.min(A)
+        if self.vmin < 0:
+            self.vmin = 0
+            warnings.warn("Power-law scaling on negative values is "
+                          "ill-defined, clamping to 0.")
+
+        self.vmax = ma.max(A)
+
+    def autoscale_None(self, A):
+        ' autoscale only None-valued vmin or vmax'
+        if self.vmin is None and np.size(A) > 0:
+            self.vmin = ma.min(A)
+            if self.vmin < 0:
+                self.vmin = 0
+                warnings.warn("Power-law scaling on negative values is "
+                              "ill-defined, clamping to 0.")
+
+        if self.vmax is None and np.size(A) > 0:
+            self.vmax = ma.max(A)
+
+
 class BoundaryNorm(Normalize):
-    '''
+    """
     Generate a colormap index based on discrete intervals.
 
     Unlike :class:`Normalize` or :class:`LogNorm`,
@@ -1160,9 +1227,9 @@ class BoundaryNorm(Normalize):
     piece-wise linear interpolation, but using integers seems
     simpler, and reduces the number of conversions back and forth
     between integer and floating point.
-    '''
+    """
     def __init__(self, boundaries, ncolors, clip=False):
-        '''
+        """
         *boundaries*
             a monotonically increasing sequence
         *ncolors*
@@ -1179,7 +1246,7 @@ class BoundaryNorm(Normalize):
         Out-of-range values are mapped to -1 if low and ncolors
         if high; these are converted to valid indices by
         :meth:`Colormap.__call__` .
-        '''
+        """
         self.clip = clip
         self.vmin = boundaries[0]
         self.vmax = boundaries[-1]
@@ -1217,11 +1284,11 @@ class BoundaryNorm(Normalize):
 
 
 class NoNorm(Normalize):
-    '''
+    """
     Dummy replacement for Normalize, for the case where we
     want to use indices directly in a
     :class:`~matplotlib.cm.ScalarMappable` .
-    '''
+    """
     def __call__(self, value, clip=None):
         return value
 

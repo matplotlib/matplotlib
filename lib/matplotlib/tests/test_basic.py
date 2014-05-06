@@ -25,6 +25,7 @@ def test_override_builtins():
         '__doc__',
         '__package__',
         '__loader__',
+        '__spec__',
         'any',
         'all',
         'sum'
