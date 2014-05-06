@@ -3,6 +3,9 @@
 2014-04-27 Improved input clean up in Axes.{h|v}lines
            Coerce input into a 1D ndarrays (after dealing with units).
 
+2014-04-22 Added (re-)generate a simple automatic legend to "Figure Options"
+           dialog of the Qt4Agg backend.
+           
 2014-04-22 Added an example showing the difference between
            interpolation = 'none' and interpolation = 'nearest' in
            `imshow()` when saving vector graphics files.
