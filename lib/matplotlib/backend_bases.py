@@ -3576,9 +3576,6 @@ class NavigationBase(object):
                 loc.refresh()
         self.canvas.draw_idle()
 
-    def dynamic_update(self):
-        pass
-
     def set_cursor(self, cursor):
         """
         Set the current cursor to one of the :class:`Cursors`

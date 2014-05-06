@@ -740,10 +740,6 @@ class NavigationGTK3(NavigationBase):
         self.ctx.set_source_rgb(0, 0, 0)
         self.ctx.stroke()
 
-    def dynamic_update(self):
-        # legacy method; new method is canvas.draw_idle
-        self.canvas.draw_idle()
-
 
 class ToolbarGTK3(ToolbarBase, Gtk.Box,):
     def __init__(self, manager):
