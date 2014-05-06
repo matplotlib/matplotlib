@@ -1,5 +1,6 @@
 import matplotlib
-matplotlib.use('GTK3Cairo')
+# matplotlib.use('GTK3Cairo')
+matplotlib.use('TkAGG')
 matplotlib.rcParams['toolbar'] = 'navigation'
 import matplotlib.pyplot as plt
 from matplotlib.backend_tools import ToolBase
