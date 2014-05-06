@@ -546,12 +546,13 @@ class FigureManagerTkAgg(FigureManagerBase):
             'this will be called whenever the current axes is changed'
             if self.navigation is not None:
                 self.navigation.update()
-            elif self.toolbar is not None: self.toolbar.update()
+            elif self.toolbar is not None:
+                self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
     def _get_toolbar(self, canvas):
-        if matplotlib.rcParams['toolbar']=='toolbar2':
-            toolbar = NavigationToolbar2TkAgg( canvas, self.window )
+        if matplotlib.rcParams['toolbar'] == 'toolbar2':
+            toolbar = NavigationToolbar2TkAgg(canvas, self.window)
         elif matplotlib.rcParams['toolbar'] == 'navigation':
             self.navigation = NavigationTk(canvas, ToolbarTk)
             toolbar = self.navigation.toolbar
@@ -898,16 +899,21 @@ class NavigationTk(NavigationBase):
         if not self.canvas.widgetlock.available(caller):
             return
         height = self.canvas.figure.bbox.height
-        y0 =  height-y0
-        y1 =  height-y1
-        try: self.lastrect
-        except AttributeError: pass
-        else: self.canvas._tkcanvas.delete(self.lastrect)
+        y0 = height - y0
+        y1 = height - y1
+        try:
+            self.lastrect
+        except AttributeError:
+            pass
+        else:
+            self.canvas._tkcanvas.delete(self.lastrect)
         self.lastrect = self.canvas._tkcanvas.create_rectangle(x0, y0, x1, y1)
 
     def remove_rubberband(self, event, caller):
-        try: self.lastrect
-        except AttributeError: pass
+        try:
+            self.lastrect
+        except AttributeError:
+            pass
         else:
             self.canvas._tkcanvas.delete(self.lastrect)
             del self.lastrect
@@ -917,7 +923,7 @@ class ToolbarTk(ToolbarBase, Tk.Frame):
     def __init__(self, manager):
         ToolbarBase.__init__(self, manager)
         xmin, xmax = self.manager.canvas.figure.bbox.intervalx
-        height, width = 50, xmax-xmin
+        height, width = 50, xmax - xmin
         Tk.Frame.__init__(self, master=self.manager.window,
                           width=int(width), height=int(height),
                           borderwidth=2)
@@ -931,15 +937,14 @@ class ToolbarTk(ToolbarBase, Tk.Frame):
         if tooltip_text is not None:
             ToolTip.createToolTip(button, tooltip_text)
         self._toolitems[name] = button
-    
+
     def _Button(self, text, file, toggle):
-        extension='.ppm'
         if file is not None:
-            img_file = os.path.join(rcParams['datapath'], 'images', file )
+            img_file = os.path.join(rcParams['datapath'], 'images', file)
             im = Tk.PhotoImage(master=self, file=img_file)
         else:
             im = None
-        
+
         if not toggle:
             b = Tk.Button(
                           master=self, text=text, padx=2, pady=2, image=im,
@@ -951,7 +956,7 @@ class ToolbarTk(ToolbarBase, Tk.Frame):
         b._ntimage = im
         b.pack(side=Tk.LEFT)
         return b
-    
+
     def _button_click(self, name):
         self.manager.navigation._toolbar_callback(name)
 
@@ -978,6 +983,7 @@ class ToolbarTk(ToolbarBase, Tk.Frame):
 
     def set_toolitem_visibility(self, name, visible):
         pass
+
 
 class SaveFigureTk(SaveFigureBase):
     def trigger(self, *args):
@@ -1023,7 +1029,8 @@ class SaveFigureTk(SaveFigureBase):
                 rcParams['savefig.directory'] = initialdir
             else:
                 # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(six.text_type(fname))
+                rcParams['savefig.directory'] = os.path.dirname(
+                    six.text_type(fname))
             try:
                 # This method will handle the delegation to the correct type
                 self.figure.canvas.print_figure(fname)
@@ -1034,16 +1041,16 @@ class SaveFigureTk(SaveFigureBase):
 class ConfigureSubplotsTk(ConfigureSubplotsBase):
     def __init__(self, *args, **kwargs):
         ConfigureSubplotsBase.__init__(self, *args, **kwargs)
-        toolfig = Figure(figsize=(6,3))
+        toolfig = Figure(figsize=(6, 3))
         self.window = Tk.Tk()
-        
+
         canvas = FigureCanvasTkAgg(toolfig, master=self.window)
         toolfig.subplots_adjust(top=0.9)
-        tool =  SubplotTool(self.figure, toolfig)
+        _tool = SubplotTool(self.figure, toolfig)
         canvas.show()
         canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
         self.window.protocol("WM_DELETE_WINDOW", self.destroy)
-        
+
     def trigger(self, event):
         self.window.lift()
 
