@@ -296,7 +296,7 @@ class ToolHome(ToolBase):
 
     description = 'Reset original view'
     name = 'Home'
-    image = 'home'
+    image = 'home.png'
     keymap = rcParams['keymap.home']
     position = -1
 
@@ -312,7 +312,7 @@ class ToolBack(ToolBase):
 
     description = 'Back to  previous view'
     name = 'Back'
-    image = 'back'
+    image = 'back.png'
     keymap = rcParams['keymap.back']
     position = -1
 
@@ -328,7 +328,7 @@ class ToolForward(ToolBase):
 
     description = 'Forward to next view'
     name = 'Forward'
-    image = 'forward'
+    image = 'forward.png'
     keymap = rcParams['keymap.forward']
     position = -1
 
@@ -344,7 +344,7 @@ class ConfigureSubplotsBase(ToolPersistentBase):
 
     description = 'Configure subplots'
     name = 'Subplots'
-    image = 'subplots'
+    image = 'subplots.png'
     position = -1
 
 
@@ -353,7 +353,7 @@ class SaveFigureBase(ToolBase):
 
     description = 'Save the figure'
     name = 'Save'
-    image = 'filesave'
+    image = 'filesave.png'
     position = -1
     keymap = rcParams['keymap.save']
 
@@ -363,7 +363,7 @@ class ToolZoom(ToolToggleBase):
 
     description = 'Zoom to rectangle'
     name = 'Zoom'
-    image = 'zoom_to_rect'
+    image = 'zoom_to_rect.png'
     position = -1
     keymap = rcParams['keymap.zoom']
     cursor = cursors.SELECT_REGION
@@ -597,7 +597,7 @@ class ToolPan(ToolToggleBase):
     keymap = rcParams['keymap.pan']
     name = 'Pan'
     description = 'Pan axes with left mouse, zoom with right'
-    image = 'move'
+    image = 'move.png'
     position = -1
     cursor = cursors.MOVE
 

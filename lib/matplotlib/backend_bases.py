@@ -3379,6 +3379,9 @@ class NavigationBase(object):
         """
 
         tool_cls = self._get_cls_to_instantiate(tool)
+        if tool_cls is False:
+            warnings.warn('Impossible to find class for %s' % str(tool))
+            return
         name = tool_cls.name
 
         if name is None:
@@ -3400,9 +3403,11 @@ class NavigationBase(object):
                 self._keys[k] = name
 
         if self.toolbar and tool_cls.position is not None:
+            # TODO: better search for images, they are not always in the
+            # datapath
             basedir = os.path.join(rcParams['datapath'], 'images')
             if tool_cls.image is not None:
-                fname = os.path.join(basedir, tool_cls.image + '.png')
+                fname = os.path.join(basedir, tool_cls.image)
             else:
                 fname = None
             toggle = issubclass(tool_cls, tools.ToolToggleBase)
