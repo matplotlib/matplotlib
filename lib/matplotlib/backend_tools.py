@@ -677,4 +677,4 @@ class ToolPan(ToolToggleBase):
             # safer to use the recorded button at the _press than current
             # button: # multiple button can get pressed during motion...
             a.drag_pan(self._button_pressed, event.key, event.x, event.y)
-        self.navigation.dynamic_update()
+        self.navigation.canvas.draw_idle()
