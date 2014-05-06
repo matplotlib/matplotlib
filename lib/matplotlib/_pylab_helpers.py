@@ -69,7 +69,7 @@ class Gcf(object):
         del Gcf.figs[num]
         #print len(Gcf.figs.keys()), len(Gcf._activeQue)
         manager.destroy()
-        gc.collect()
+        gc.collect(1)
 
     @staticmethod
     def destroy_fig(fig):
@@ -90,7 +90,7 @@ class Gcf(object):
 
         Gcf._activeQue = []
         Gcf.figs.clear()
-        gc.collect()
+        gc.collect(1)
 
     @staticmethod
     def has_fignum(num):
