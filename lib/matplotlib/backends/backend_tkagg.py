@@ -532,11 +532,13 @@ class FigureManagerTkAgg(FigureManagerBase):
         self.set_window_title("Figure %d" % num)
         self.canvas = canvas
         self._num =  num
-        self.navigation = None
         _, _, w, h = canvas.figure.bbox.bounds
         w, h = int(w), int(h)
         self.window.minsize(int(w*3/4),int(h*3/4))
-        self.toolbar = self._get_toolbar(canvas)
+
+        self.toolbar = self._get_toolbar()
+        self.navigation = self._get_navigation()
+
         if self.toolbar is not None:
             self.toolbar.update()
         self.canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
@@ -550,16 +552,20 @@ class FigureManagerTkAgg(FigureManagerBase):
                 self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
-    def _get_toolbar(self, canvas):
+    def _get_toolbar(self):
         if matplotlib.rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2TkAgg(canvas, self.window)
+            toolbar = NavigationToolbar2TkAgg(self.canvas, self.window)
         elif matplotlib.rcParams['toolbar'] == 'navigation':
-            self.navigation = NavigationTk(canvas, ToolbarTk)
-            toolbar = self.navigation.toolbar
+            toolbar = ToolbarTk(self)
         else:
-            self.navigation = NavigationTk(canvas, None)
             toolbar = None
         return toolbar
+
+    def _get_navigation(self):
+        # must be inited after toolbar is setted
+        if rcParams['toolbar'] != 'toolbar2':
+            navigation = NavigationTk(self)
+        return navigation
 
     def resize(self, width, height=None):
         # before 09-12-22, the resize method takes a single *event*
@@ -931,23 +937,21 @@ class ToolbarTk(ToolbarBase, Tk.Frame):
         self._add_message()
 
     def _add_toolitem(self, name, tooltip_text, image_file, position,
-                     toggle):
+                      toggle):
 
         button = self._Button(name, image_file, toggle)
         if tooltip_text is not None:
             ToolTip.createToolTip(button, tooltip_text)
         self._toolitems[name] = button
 
-    def _Button(self, text, file, toggle):
-        if file is not None:
-            img_file = os.path.join(rcParams['datapath'], 'images', file)
-            im = Tk.PhotoImage(master=self, file=img_file)
+    def _Button(self, text, image_file, toggle):
+        if image_file is not None:
+            im = Tk.PhotoImage(master=self, file=image_file)
         else:
             im = None
 
         if not toggle:
-            b = Tk.Button(
-                          master=self, text=text, padx=2, pady=2, image=im,
+            b = Tk.Button(master=self, text=text, padx=2, pady=2, image=im,
                           command=lambda: self._button_click(text))
         else:
             b = Tk.Checkbutton(master=self, text=text, padx=2, pady=2,
@@ -1007,7 +1011,7 @@ class SaveFigureTk(SaveFigureBase):
         # asksaveasfilename dialog when you choose various save types
         # from the dropdown.  Passing in the empty string seems to
         # work - JDH!
-        #defaultextension = self.figure.canvas.get_default_filetype()
+        # defaultextension = self.figure.canvas.get_default_filetype()
         defaultextension = ''
         initialdir = rcParams.get('savefig.directory', '')
         initialdir = os.path.expanduser(initialdir)
@@ -1061,6 +1065,7 @@ class ConfigureSubplotsTk(ConfigureSubplotsBase):
 
 SaveFigure = SaveFigureTk
 ConfigureSubplots = ConfigureSubplotsTk
-
+Toolbar = ToolbarTk
+Navigation = NavigationTk
 FigureCanvas = FigureCanvasTkAgg
 FigureManager = FigureManagerTkAgg

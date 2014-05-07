@@ -10,25 +10,31 @@ from matplotlib.backend_tools import ToolBase
 class ListTools(ToolBase):
     # keyboard shortcut
     keymap = 'm'
-    # Name used as id, must be unique between tools of the same navigation
-    name = 'List'
     description = 'List Tools'
-    # Where to put it in the toolbar, -1 = at the end, None = Not in toolbar
-    position = -1
 
     def trigger(self, event):
-        # The most important attributes are navigation and figure
-        self.navigation.list_tools()
+        tools = self.navigation.get_tools()
+
+        print ('_' * 80)
+        print ("{0:12} {1:45} {2}".format('Name (id)',
+                                          'Tool description',
+                                          'Keymap'))
+        print ('_' * 80)
+        for name in sorted(tools.keys()):
+            keys = ', '.join(sorted(tools[name]['keymap']))
+            print ("{0:12} {1:45} {2}".format(name,
+                                              tools[name]['description'],
+                                              keys))
+        print ('_' * 80)
 
 
 # A simple example of copy canvas
 # ref: at https://github.com/matplotlib/matplotlib/issues/1987
 class CopyToolGTK3(ToolBase):
     keymap = 'ctrl+c'
-    name = 'Copy'
     description = 'Copy canvas'
     # It is not added to the toolbar as a button
-    position = None
+    intoolbar = False
 
     def trigger(self, event):
         from gi.repository import Gtk, Gdk
@@ -43,9 +49,9 @@ fig = plt.figure()
 plt.plot([1, 2, 3])
 
 # Add the custom tools that we created
-fig.canvas.manager.navigation.add_tool(ListTools)
+fig.canvas.manager.navigation.add_tool('List', ListTools)
 if matplotlib.rcParams['backend'] == 'GTK3Cairo':
-    fig.canvas.manager.navigation.add_tool(CopyToolGTK3)
+    fig.canvas.manager.navigation.add_tool('copy', CopyToolGTK3)
 
 # Just for fun, lets remove the back button
 fig.canvas.manager.navigation.remove_tool('Back')

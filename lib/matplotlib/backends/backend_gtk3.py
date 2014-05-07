@@ -412,8 +412,9 @@ class FigureManagerGTK3(FigureManagerBase):
         self.canvas.show()
 
         self.vbox.pack_start(self.canvas, True, True, 0)
-        self.navigation = None
-        self.toolbar = self._get_toolbar(canvas)
+
+        self.toolbar = self._get_toolbar()
+        self.navigation = self._get_navigation()
 
         # calculate size for window
         w = int (self.canvas.figure.bbox.width)
@@ -469,18 +470,22 @@ class FigureManagerGTK3(FigureManagerBase):
     _full_screen_flag = False
 
 
-    def _get_toolbar(self, canvas):
+    def _get_toolbar(self):
         # must be inited after the window, drawingArea and figure
         # attrs are set
         if rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2GTK3 (canvas, self.window)
+            toolbar = NavigationToolbar2GTK3 (self.canvas, self.window)
         elif rcParams['toolbar'] == 'navigation':
-            self.navigation = NavigationGTK3(canvas, ToolbarGTK3)
-            toolbar = self.navigation.toolbar
+            toolbar = ToolbarGTK3(self)
         else:
-            self.navigation = NavigationGTK3(canvas, None)
             toolbar = None
         return toolbar
+
+    def _get_navigation(self):
+        # must be inited after toolbar is setted
+        if rcParams['toolbar'] != 'toolbar2':
+            navigation = NavigationGTK3(self)
+        return navigation
 
     def get_window_title(self):
         return self.window.get_title()
@@ -719,8 +724,8 @@ class NavigationGTK3(NavigationBase):
         if not self.canvas.widgetlock.available(caller):
             return
 
-        #'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/
-        #Recipe/189744'
+        # 'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/
+        # Recipe/189744'
         self.ctx = self.canvas.get_property("window").cairo_create()
 
         # todo: instead of redrawing the entire figure, copy the part of
@@ -772,7 +777,7 @@ class ToolbarGTK3(ToolbarBase, Gtk.Box,):
         sep.show_all()
 
     def _add_toolitem(self, name, tooltip_text, image_file, position,
-                     toggle):
+                      toggle):
         if toggle:
             tbutton = Gtk.ToggleToolButton()
         else:
@@ -784,6 +789,8 @@ class ToolbarGTK3(ToolbarBase, Gtk.Box,):
             image.set_from_file(image_file)
             tbutton.set_icon_widget(image)
 
+        if position is None:
+            position = -1
         self._toolbar.insert(tbutton, position)
         signal = tbutton.connect('clicked', self._call_tool, name)
         tbutton.set_tooltip_text(tooltip_text)
@@ -857,14 +864,14 @@ class SaveFigureGTK3(SaveFigureBase):
         chooser.destroy()
         if fname:
             startpath = os.path.expanduser(
-                            rcParams.get('savefig.directory', ''))
+                rcParams.get('savefig.directory', ''))
             if startpath == '':
                 # explicitly missing key or empty str signals to use cwd
                 rcParams['savefig.directory'] = startpath
             else:
                 # save dir for next time
                 rcParams['savefig.directory'] = os.path.dirname(
-                                                    six.text_type(fname))
+                    six.text_type(fname))
             try:
                 self.figure.canvas.print_figure(fname, format=format_)
             except Exception as e:
@@ -1104,6 +1111,7 @@ def error_msg_gtk(msg, parent=None):
     dialog.run()
     dialog.destroy()
 
-
+Toolbar = ToolbarGTK3
+Navigation = NavigationGTK3
 FigureCanvas = FigureCanvasGTK3
 FigureManager = FigureManagerGTK3

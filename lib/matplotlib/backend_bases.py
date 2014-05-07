@@ -3188,7 +3188,7 @@ class NavigationBase(object):
 
      Attributes
     ----------
-    canvas : `FigureCanvas` instance
+    manager : `FigureManager` instance
     toolbar : `Toolbar` instance that is controlled by this `Navigation`
     keypresslock : `LockDraw` to know if the `canvas` key_press_event is
         locked
@@ -3196,33 +3196,19 @@ class NavigationBase(object):
     """
 
     _default_cursor = cursors.POINTER
-    _default_tools = [tools.ToolToggleGrid,
-             tools.ToolToggleFullScreen,
-             tools.ToolQuit,
-             tools.ToolEnableAllNavigation,
-             tools.ToolEnableNavigation,
-             tools.ToolToggleXScale,
-             tools.ToolToggleYScale,
-             tools.ToolHome, tools.ToolBack,
-             tools.ToolForward,
-             None,
-             tools.ToolZoom,
-             tools.ToolPan,
-             None,
-             'ConfigureSubplots',
-             'SaveFigure']
 
-    def __init__(self, canvas, toolbar=None):
+    def __init__(self, manager):
         """.. automethod:: _toolbar_callback"""
 
-        self.canvas = canvas
-        self.toolbar = self._get_toolbar(toolbar, canvas)
+        self.manager = manager
+        self.canvas = manager.canvas
+        self.toolbar = manager.toolbar
 
-        self._key_press_handler_id = self.canvas.mpl_connect('key_press_event',
-                                                            self._key_press)
+        self._key_press_handler_id = self.canvas.mpl_connect(
+            'key_press_event', self._key_press)
 
-        self._idDrag = self.canvas.mpl_connect('motion_notify_event',
-                                               self._mouse_move)
+        self._idDrag = self.canvas.mpl_connect(
+            'motion_notify_event', self._mouse_move)
 
         # a dict from axes index to a list of view limits
         self.views = cbook.Stack()
@@ -3238,35 +3224,14 @@ class NavigationBase(object):
         # to write into toolbar message
         self.messagelock = widgets.LockDraw()
 
-        for tool in self._default_tools:
+        for name, tool in tools.tools:
             if tool is None:
                 if self.toolbar is not None:
                     self.toolbar.add_separator(-1)
             else:
-                self.add_tool(tool)
+                self.add_tool(name, tool, None)
 
         self._last_cursor = self._default_cursor
-
-    @classmethod
-    def get_default_tools(cls):
-        """Get the default tools"""
-
-        return cls._default_tools
-
-    @classmethod
-    def set_default_tools(cls, tools):
-        """Set default tools"""
-
-        cls._default_tools = tools
-
-    def _get_toolbar(self, toolbar, canvas):
-        # must be inited after the window, drawingArea and figure
-        # attrs are set
-        if rcParams['toolbar'] == 'navigation' and toolbar is not None:
-            toolbar = toolbar(canvas.manager)
-        else:
-            toolbar = None
-        return toolbar
 
     @property
     def active_toggle(self):
@@ -3339,8 +3304,7 @@ class NavigationBase(object):
         This method is used by `PersistentTools` to remove the reference kept
         by `Navigation`.
 
-        It is usually called by the `deactivate` method or during
-        destroy if it is a graphical Tool.
+        It is usually called by the `unregister` method
 
         If called, next time the `Tool` is used it will be reinstantiated
         instead of using the existing instance.
@@ -3369,29 +3333,27 @@ class NavigationBase(object):
         if self.toolbar:
             self.toolbar._remove_toolitem(name)
 
-    def add_tool(self, tool):
+    def add_tool(self, name, tool, position=None):
         """Add tool to `Navigation`
 
         Parameters
         ----------
+        name : string
+            Name of the tool, treated as the ID, has to be unique
         tool : string or `Tool` class
             Reference to find the class of the Tool to be added
+        position : int or None (default)
+            Position in the toolbar, if None, is positioned at the end
         """
 
         tool_cls = self._get_cls_to_instantiate(tool)
         if tool_cls is False:
             warnings.warn('Impossible to find class for %s' % str(tool))
             return
-        name = tool_cls.name
 
-        if name is None:
-            warnings.warn('tool_clss need a name to be added, it is used '
-                          'as ID')
-            return
         if name in self._tools:
             warnings.warn('A tool_cls with the same name already exist, '
                           'not added')
-
             return
 
         self._tools[name] = tool_cls
@@ -3402,7 +3364,7 @@ class NavigationBase(object):
                                   (k, self._keys[k], name))
                 self._keys[k] = name
 
-        if self.toolbar and tool_cls.position is not None:
+        if self.toolbar and tool_cls.intoolbar:
             # TODO: better search for images, they are not always in the
             # datapath
             basedir = os.path.join(rcParams['datapath'], 'images')
@@ -3411,10 +3373,11 @@ class NavigationBase(object):
             else:
                 fname = None
             toggle = issubclass(tool_cls, tools.ToolToggleBase)
-            self.toolbar._add_toolitem(name, tool_cls.description,
-                                      fname,
-                                      tool_cls.position,
-                                      toggle)
+            self.toolbar._add_toolitem(name,
+                                       tool_cls.description,
+                                       fname,
+                                       position,
+                                       toggle)
 
     def _get_cls_to_instantiate(self, callback_class):
         if isinstance(callback_class, six.string_types):
@@ -3463,7 +3426,7 @@ class NavigationBase(object):
 
     def _get_instance(self, name):
         if name not in self._instances:
-            instance = self._tools[name](self.canvas.figure)
+            instance = self._tools[name](self.canvas.figure, name)
             # register instance
             self._instances[name] = instance
 
@@ -3509,26 +3472,23 @@ class NavigationBase(object):
         for a in self.canvas.figure.get_axes():
             a.set_navigate_mode(self._toggled)
 
-    def list_tools(self):
-        """Print the list the tools controlled by `Navigation`"""
+    def get_tools(self):
+        """Return the tools controlled by `Navigation`"""
 
-        print ('_' * 80)
-        print ("{0:20} {1:50} {2}".format('Name (id)', 'Tool description',
-                                          'Keymap'))
-        print ('_' * 80)
+        d = {}
         for name in sorted(self._tools.keys()):
             tool = self._tools[name]
             keys = [k for k, i in six.iteritems(self._keys) if i == name]
-            print ("{0:20} {1:50} {2}".format(tool.name, tool.description,
-                                              ', '.join(keys)))
-        print ('_' * 80, '\n')
+            d[name] = {'cls': tool,
+                       'description': tool.description,
+                       'keymap': keys}
+        return d
 
     def update(self):
         """Reset the axes stack"""
 
         self.views.clear()
         self.positions.clear()
-#        self.set_history_buttons()
 
     def _mouse_move(self, event):
         if not event.inaxes or not self._toggled:
@@ -3625,7 +3585,6 @@ class NavigationBase(object):
                 a.get_position().frozen()))
         self.views.push(lims)
         self.positions.push(pos)
-#        self.set_history_buttons()
 
     def draw_rubberband(self, event, caller, x0, y0, x1, y1):
         """Draw a rectangle rubberband to indicate zoom limits
@@ -3677,7 +3636,7 @@ class ToolbarBase(object):
         self.manager = manager
 
     def _add_toolitem(self, name, description, image_file, position,
-                     toggle):
+                      toggle):
         """Add a toolitem to the toolbar
 
         The callback associated with the button click event,
@@ -3734,7 +3693,8 @@ class ToolbarBase(object):
 
         """
 
-        # carefull, callback means to perform or not the callback while toggling
+        # carefull, callback means to perform or not the callback while
+        # toggling
         raise NotImplementedError
 
     def _remove_toolitem(self, name):
