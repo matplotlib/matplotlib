@@ -227,8 +227,8 @@ dialog. It was previously a QMainWindow, leaving the SPT open if one closed the
 plotwindow.
 
 In the figureoptions dialog one can now choose to (re-)generate a simple
-automatic legend. Any fancyness of a customized legend will be lost. But changes
-to the curves' label, linestyle, et cetera will now be updated in the legend.
+automatic legend. Any explicitly set legend entries will be lost, but changes to
+the curves' label, linestyle, et cetera will now be updated in the legend.
 
 Interactive performance of the Qt4 backend has been dramatically improved
 under windows.
