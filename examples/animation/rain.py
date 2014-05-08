@@ -4,7 +4,6 @@
 # -----------------------------------------------------------------------------
 import matplotlib
 import numpy as np
-matplotlib.use('TkAgg') # Required on OSX for animation
 import matplotlib.pyplot as plt
 from  matplotlib.animation import FuncAnimation
 
@@ -20,8 +19,8 @@ P = np.zeros(50, dtype=[('position', float, 2),
                         ('color',    float, 4)])
 
 # Scatter plot is used to animate rain drops
-scat = ax.scatter(P['position'][:,0], P['position'][:,1], P['size'], lw=0.5,
-                  animated=True, edgecolors = P['color'], facecolors='none')
+scat = ax.scatter(P['position'][:,0], P['position'][:,1], P['size'],
+                  lw=0.5, edgecolors = P['color'], facecolors='none')
 ax.set_xlim(0,1), ax.set_xticks([])
 ax.set_ylim(0,1), ax.set_yticks([])
 
@@ -55,5 +54,5 @@ def update(frame):
 
     return scat,
 
-animation = FuncAnimation(fig, update, interval=10, blit=True)
+animation = FuncAnimation(fig, update, interval=10)
 plt.show()
