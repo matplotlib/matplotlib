@@ -1,3 +1,6 @@
+2014-05-14 Allow the linscale keyword parameter of symlog scale to be
+           smaller one.
+
 2014-05-02 Added colorblind-friendly colormap, named 'Wistia'.
 
 2014-04-27 Improved input clean up in Axes.{h|v}lines

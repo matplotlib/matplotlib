@@ -449,7 +449,7 @@ class SymmetricalLogScale(ScaleBase):
 
         assert base > 1.0
         assert linthresh > 0.0
-        assert linscale >= 1.0
+        assert linscale > 0.0
 
         self._transform = self.SymmetricalLogTransform(base,
                                                        linthresh,
