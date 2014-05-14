@@ -1465,7 +1465,7 @@ class _AxesBase(martist.Artist):
         """
         self._set_artist_props(image)
         self.images.append(image)
-        im._remove_method = lambda h: self.images.remove(h)
+        image._remove_method = lambda h: self.images.remove(h)
         return image
 
     def add_line(self, line):
