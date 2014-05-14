@@ -1457,7 +1457,7 @@ class _AxesBase(martist.Artist):
         collection._remove_method = lambda h: self.collections.remove(h)
         return collection
 
-    def add_line(self, image):
+    def add_image(self, image):
         """
         Add a :class:`~matplotlib.image.AxesImage` to the axes.
 
