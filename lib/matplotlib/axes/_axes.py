@@ -2870,18 +2870,19 @@ class Axes(_AxesBase):
                 meanline=False, showmeans=False, showcaps=True,
                 showbox=True, showfliers=True, boxprops=None, labels=None,
                 flierprops=None, medianprops=None, meanprops=None,
-                manage_xticks=True):
+                capprops=None, whiskerprops=None, manage_xticks=True):
         """
         Make a box and whisker plot.
 
         Call signature::
 
-          boxplot(x, notch=False, sym='b+', vert=True, whis=1.5,
+          boxplot(self, x, notch=False, sym='b+', vert=True, whis=1.5,
                   positions=None, widths=None, patch_artist=False,
                   bootstrap=None, usermedians=None, conf_intervals=None,
                   meanline=False, showmeans=False, showcaps=True,
                   showbox=True, showfliers=True, boxprops=None, labels=None,
-                  flierprops=None, medianprops=None, meanprops=None)
+                  flierprops=None, medianprops=None, meanprops=None,
+                  capprops=None, whiskerprops=None, manage_xticks=True):
 
         Make a box and whisker plot for each column of *x* or each
         vector in sequence *x*.  The box extends from the lower to
@@ -2901,7 +2902,7 @@ class Axes(_AxesBase):
 
           sym : str, default = 'b+'
             The default symbol for flier points.
-            Enter an empty string ('') if you don't want to show fliers.
+            Enter an empty string ('') if you don't wantshow fliers.
 
           vert : bool, default = False
             If True (default), makes the boxes vertical.
@@ -2934,13 +2935,13 @@ class Axes(_AxesBase):
             An array or sequence whose first dimension (or length) is
             compatible with *x*. This overrides the medians computed by
             matplotlib for each element of *usermedians* that is not None.
-            When an element of *usermedians* == None, the median will be
-            computed by matplotlib as normal.
+        When an element of *usermedians* == None, the median will be
+            cted by matplb as normal.
 
           conf_intervals : array-like or None (default)
             Array or sequence whose first dimension (or length) is compatible
             with *x* and whose second dimension is 2. When the current element
-            of *conf_intervals* is not None, the notch locations computed by
+            ofnf_intervals* is not None, the notch locations computed by
             matplotlib are overridden (assuming notch is True). When an
             element of *conf_intervals* is None, boxplot compute notches the
             method specified by the other kwargs (e.g., *bootstrap*).
@@ -2976,6 +2977,12 @@ class Axes(_AxesBase):
 
           boxprops : dict or None (default)
             If provided, will set the plotting style of the boxes
+
+          whiskerprops : dict or None (default)
+            If provided, will set the plotting style of the whiskers
+
+          capprops : dict or None (default)
+            If provided, will set the plotting style of the whiskers
 
           flierprops : dict or None (default)
             If provided, will set the plotting style of the fliers
@@ -3017,9 +3024,10 @@ class Axes(_AxesBase):
         """
         bxpstats = cbook.boxplot_stats(x, whis=whis, bootstrap=bootstrap,
                                        labels=labels)
-        if sym == 'b+' and flierprops is None:
-            flierprops = dict(linestyle='none', marker='+',
-                              markeredgecolor='blue')
+        if flierprops is None:
+            flierprops = dict(sym=sym)
+        else:
+            flierprops['sym'] = sym
 
         # replace medians if necessary:
         if usermedians is not None:
@@ -3056,24 +3064,27 @@ class Axes(_AxesBase):
                            boxprops=boxprops, flierprops=flierprops,
                            medianprops=medianprops, meanprops=meanprops,
                            meanline=meanline, showfliers=showfliers,
+                           capprops=capprops, whiskerprops=whiskerprops,
                            manage_xticks=manage_xticks)
         return artists
 
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
             patch_artist=False, shownotches=False, showmeans=False,
             showcaps=True, showbox=True, showfliers=True,
-            boxprops=None, flierprops=None, medianprops=None,
-            meanprops=None, meanline=False, manage_xticks=True):
+            boxprops=None, whiskerprops=None, flierprops=None, 
+            medianprops=None, capprops=None, meanprops=None,
+            meanline=False, manage_xticks=True):
         """
         Drawing function for box and whisker plots.
 
         Call signature::
 
-          bxp(bxpstats, positions=None, widths=None, vert=True,
+          bxp(self, bxpstats, positions=None, widths=None, vert=True,
               patch_artist=False, shownotches=False, showmeans=False,
               showcaps=True, showbox=True, showfliers=True,
-              boxprops=None, flierprops=None, medianprops=None,
-              meanprops=None, meanline=False, manage_xticks=True)
+              boxprops=None, whiskerprops=None, flierprops=None, 
+              medianprops=None, capprops=None, meanprops=None,
+              meanline=False, manage_xticks=True):
 
         Make a box and whisker plot for each column of *x* or each
         vector in sequence *x*.  The box extends from the lower to
@@ -3119,14 +3130,14 @@ class Axes(_AxesBase):
             If True produces boxes with the Patch artist
 
           shownotches : bool, default = False
-            If False (default), produces a rectangular box plot.
-            If True, will produce a notched box plot
+        If False (default), produces a rectangular box plot.
+        If True, will produce a ed box plot
 
           showmeans : bool, default = False
             If True, will toggle one the rendering of the means
 
           showcaps  : bool, default = True
-            If True, will toggle one the rendering of the caps
+            If T will toggle one the rendering of the caps
 
           showbox  : bool, default = True
             If True, will toggle one the rendering of box
@@ -3137,8 +3148,14 @@ class Axes(_AxesBase):
           boxprops : dict or None (default)
             If provided, will set the plotting style of the boxes
 
+          whiskerprops : dict or None (default)
+            If provided, will set the plotting style of the whiskers
+
+          capprops : dict or None (default)
+            If provided, will set the plotting style of the whiskers
+
           flierprops : dict or None (default)
-            If provided, will set the plotting style of the fliers
+            If provi will set the plotting style of the fliers
 
           medianprops : dict or None (default)
             If provided, will set the plotting style of the medians
@@ -3202,37 +3219,52 @@ class Axes(_AxesBase):
             final_boxprops = dict(linestyle='solid', edgecolor='black',
                                   facecolor='white', linewidth=1)
         else:
-            final_boxprops = dict(linestyle='-', color='black', linewidth=1)
+            final_boxprops = dict(linestyle='-', color='blue')
 
         if boxprops is not None:
             final_boxprops.update(boxprops)
 
         # other (cap, whisker) properties
-        if patch_artist:
-            otherprops = dict(
-                linestyle=linestyle_map[final_boxprops['linestyle']],
-                color=final_boxprops['edgecolor'],
-                linewidth=final_boxprops.get('linewidth', 1)
-            )
-        else:
-            otherprops = dict(linestyle=final_boxprops['linestyle'],
-                              color=final_boxprops['color'],
-                              linewidth=final_boxprops.get('linewidth', 1))
+        final_whiskerprops = dict(
+            linestyle='--',
+            color='blue',
+        )
+
+        final_capprops = dict(
+            linestyle='-',
+            color='black',
+        )
+
+        if capprops is not None:
+            final_capprops.update(capprops)
+
+        if whiskerprops is not None:
+            final_whiskerprops.update(whiskerprops)
 
         # flier (outlier) properties
-        final_flierprops = dict(linestyle='none', marker='+',
-                                markeredgecolor='blue')
         if flierprops is not None:
+            sym = flierprops.pop('sym', '')
+
+            if sym == '':
+                final_flierprops = dict(linestyle='none', marker='+', 
+                                        markeredgecolor='b', 
+                                        markerfacecolor='none')
+            else:
+                final_flierprops = dict(linestyle='none')
             final_flierprops.update(flierprops)
+        else:
+            sym = ''
+            final_flierprops = dict(linestyle='none', marker='+', 
+                                    markeredgecolor='b')
 
         # median line properties
-        final_medianprops = dict(linestyle='-', color='blue')
+        final_medianprops = dict(linestyle='-', color='red')
         if medianprops is not None:
             final_medianprops.update(medianprops)
 
         # mean (line or point) properties
         if meanline:
-            final_meanprops = dict(linestyle='--', color='red')
+            final_meanprops = dict(linestyle='--', color='black')
         else:
             final_meanprops = dict(linestyle='none', markerfacecolor='red',
                                    marker='s')
@@ -3352,13 +3384,17 @@ class Axes(_AxesBase):
                     boxes.extend(doplot(box_x, box_y, **final_boxprops))
 
             # draw the whiskers
-            whiskers.extend(doplot(whisker_x, whiskerlo_y, **otherprops))
-            whiskers.extend(doplot(whisker_x, whiskerhi_y, **otherprops))
+            whiskers.extend(doplot(
+                whisker_x, whiskerlo_y,**final_whiskerprops
+            ))
+            whiskers.extend(doplot(
+                whisker_x, whiskerhi_y,**final_whiskerprops
+            ))
 
             # maybe draw the caps:
             if showcaps:
-                caps.extend(doplot(cap_x, cap_lo, **otherprops))
-                caps.extend(doplot(cap_x, cap_hi, **otherprops))
+                caps.extend(doplot(cap_x, cap_lo, **final_capprops))
+                caps.extend(doplot(cap_x, cap_hi, **final_capprops))
 
             # draw the medians
             medians.extend(doplot(med_x, med_y, **final_medianprops))
@@ -3377,7 +3413,9 @@ class Axes(_AxesBase):
 
             # maybe draw the fliers
             if showfliers:
-                fliers.extend(doplot(flier_x, flier_y, **final_flierprops))
+                fliers.extend(doplot(
+                    flier_x, flier_y, sym, **final_flierprops
+                ))
 
         # fix our axes/ticks up a little
         if vert:
