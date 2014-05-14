@@ -1449,6 +1449,11 @@ class Axes(martist.Artist):
         """
         Add any :class:`~matplotlib.artist.Artist` to the axes.
 
+        Artist added to the axes using this method are not taken into
+        account for auto-scaling.  If you want autoscaling to take your
+        artists into account use :func:`~matplotlib.Axes.add_line` or
+        :func:`~matplotlib.Axes.add_patch`.
+
         Returns the artist.
         """
         a.set_axes(self)
