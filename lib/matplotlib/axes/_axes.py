@@ -4537,7 +4537,6 @@ class Axes(_AxesBase):
 
         im.set_data(X)
         im.set_alpha(alpha)
-        self._set_artist_props(im)
         if im.get_clip_path() is None:
             # image does not already have clipping set, clip to axes patch
             im.set_clip_path(self.patch)
@@ -4553,9 +4552,7 @@ class Axes(_AxesBase):
         # to tightly fit the image, regardless of dataLim.
         im.set_extent(im.get_extent())
 
-        self.images.append(im)
-        im._remove_method = lambda h: self.images.remove(h)
-
+        self.add_image(im)
         return im
 
     @staticmethod
@@ -5202,7 +5199,7 @@ class Axes(_AxesBase):
                                          **kwargs)
             im.set_data(C)
             im.set_alpha(alpha)
-            self.images.append(im)
+            self.add_image(im)
             ret = im
 
         if style == "pcolorimage":
@@ -5211,10 +5208,9 @@ class Axes(_AxesBase):
                                     norm=norm,
                                     alpha=alpha,
                                     **kwargs)
-            self.images.append(im)
+            self.add_image(im)
             ret = im
 
-        self._set_artist_props(ret)
         if vmin is not None or vmax is not None:
             ret.set_clim(vmin, vmax)
         else:
