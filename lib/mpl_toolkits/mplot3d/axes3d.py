@@ -11,6 +11,7 @@ Module containing Axes3D, an object which can plot 3D objects on a
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+import math
 
 import six
 from six.moves import map, xrange, zip
@@ -2412,6 +2413,176 @@ class Axes3D(Axes):
         self.title.set_y(0.92 * y)
         return ret
     set_title.__doc__ = maxes.Axes.set_title.__doc__
+
+    def quiver(self, *args, **kwargs):
+        """
+        Plot a 3D field of arrows.
+
+        call signatures::
+
+            quiver(X, Y, Z, U, V, W, **kwargs)
+
+        Arguments:
+
+            *X*, *Y*, *Z*:
+                The x, y and z coordinates of the arrow locations
+
+            *U*, *V*, *W*:
+                The direction vector that the arrow is pointing
+
+        The arguments could be iterable or scalars they will be broadcast together. The arguments can
+        also be masked arrays, if a position in any of argument is masked, then the corresponding
+        quiver will not be plotted.
+
+        Keyword arguments:
+
+            *length*: [1.0 | float]
+                The length of each quiver, default to 1.0, the unit is the same with the axes
+
+            *arrow_length_ratio*: [0.3 | float]
+                The ratio of the arrow head with respect to the quiver, default to 0.3
+
+        Any additional keyword arguments are delegated to :class:`~matplotlib.collections.LineCollection`
+
+        """
+        def calc_arrow(u, v, w, angle=15):
+            """
+            To calculate the arrow head vectors
+            """
+
+            # if the direction value is facing too much up or down, return the correct result right away
+            # returns it as a unit vector
+            # assumes if a value is smaller or equal to tol, then its 0
+            tol = 1/10.
+            angleInRad = math.radians(180-angle)
+            if abs(u)<=tol and abs(v)<=tol and abs(w)>tol:
+                newx = math.sin(angleInRad)  
+                newz = -math.cos(angleInRad) * np.sign(w)
+                return np.array([-newx, 0, newz]), np.array([newx, 0, newz])
+
+            # should finish on first recursion
+            assert angle <= 20
+
+            norm_uvw = np.linalg.norm([u, v, w], ord=2)
+            if norm_uvw == 0:
+                raise ValueError("u,v,w can't be all zero")
+            u, v, w = np.array([u, v, w]) / norm_uvw
+
+            cos_angle = math.cos(math.radians(angle))
+
+            # using following formula to get the two solutions
+            # (C + math.sqrt(B)) / A
+            # (C - math.sqrt(B)) / A
+            A = cos_angle ** 2 - w ** 2
+            B = cos_angle ** 2 * (1 - w ** 2) * (1 - cos_angle ** 2)
+            C = (1 - w ** 2) * w
+
+            if A == 0:
+                # to prevent the case of dividing by zero
+                # use a small enough delta such that
+                # A != 0 for one of
+                #   angle
+                # or
+                #   angle + delta
+                return calc_arrow(u, v, w, angle=angle + 0.1)
+            else:
+                x1 = (C + math.sqrt(B)) / A
+                x2 = (C - math.sqrt(B)) / A
+
+            # normalize the output vectors and convert to ndarray
+            norm_func = lambda k: np.array([u, v, k]) / np.linalg.norm([u, v, k], ord=2)
+
+            return norm_func(x1), norm_func(x2)
+
+        def point_vector_to_line(point, vector, length):
+            """
+            use a point and vector to generate lines
+            """
+            lines = []
+            for var in np.linspace(0, length, num=2):
+                lines.append(list(zip(*(point - var * vector))))
+            lines = np.array(lines).swapaxes(0, 1)
+            return lines.tolist()
+
+        had_data = self.has_data()
+
+        # handle kwargs
+        # shaft length
+        length = kwargs.pop('length', 1)
+        # arrow length ratio to the shaft length
+        arrow_length_ratio = kwargs.pop('arrow_length_ratio', 0.3)
+
+        # handle args
+        if len(args) < 6:
+            ValueError('Wrong number of arguments')
+        argi = 6
+        # first 6 arguments are X, Y, Z, U, V, W
+        input_args = args[:argi]
+        # if any of the args are scalar, convert into list
+        input_args = [[k] if isinstance(k, (int, float)) else k for k in input_args]
+        # extract the masks, if any
+        masks = [k.mask for k in input_args if isinstance(k, np.ma.MaskedArray)]
+        # broadcast to match the shape
+        bcast = np.broadcast_arrays(*(input_args + masks))
+        input_args = bcast[:argi]
+        masks = bcast[argi:]
+        if masks:
+            # combine the masks into one
+            mask = reduce(np.logical_or, masks)
+            # put mask on and compress
+            input_args = [np.ma.array(k, mask=mask).compressed() for k in input_args]
+        else:
+            input_args = [k.flatten() for k in input_args]
+
+        points = input_args[:3]
+        vectors = input_args[3:]
+
+        # make sure that the direction vectors are not so small
+        # this tolerence fixes the corner cases
+        tol = 1e-15
+        us = vectors[0]
+        vs = vectors[1]
+        ws = vectors[2]  
+        for i in range(len(us)):
+            if abs(us[i])<=tol and abs(vs[i])<=tol and abs(ws[i])<=tol:
+                us[i] *= 1/tol
+                vs[i] *= 1/tol
+                ws[i] *= 1/tol
+
+        # Below assertions must be true before proceed
+        # must all be ndarray
+        assert all([isinstance(k, np.ndarray) for k in input_args])
+        # must all in same shape
+        assert len(set([k.shape for k in input_args])) == 1
+
+        # get arrow vectors
+        arrow_vectors = list(map(calc_arrow, *[np.nditer(k) for k in vectors]))
+        # reshape into set of vectors
+        arrow_vectors = np.array(arrow_vectors).reshape((-1, 3)).swapaxes(0, 1)
+
+        lines = []
+        # construct the main lines
+        lines.extend(point_vector_to_line(np.array(points),
+                                          np.array(vectors),
+                                          length))
+        # construct the arrow heads
+        lines.extend(point_vector_to_line(np.array(points).repeat(2, axis=1),
+                                          arrow_vectors,
+                                          length * arrow_length_ratio))
+
+        # Line3DCollection to do the heavy lifting
+        linec = art3d.Line3DCollection(lines, *args[argi:], **kwargs)
+        self.add_collection(linec)
+
+        # scale
+
+        xs, ys, zs = list(zip(*np.array(lines).reshape(-1, 3)))
+        self.auto_scale_xyz(xs, ys, zs, had_data)
+
+        return linec
+
+    quiver3D = quiver
+
 
 def get_test_data(delta=0.05):
     '''
