@@ -166,6 +166,13 @@ Larry Bradley fixed the :func:`~matplotlib.pyplot.errorbar` method such
 that the upper and lower limits (*lolims*, *uplims*, *xlolims*,
 *xuplims*) now point in the correct direction.
 
+More consistent add-object API for Axes
+```````````````````````````````````````
+Added the Axes method :meth:`~matplotlib.axes.Axes.add_image` to put image
+handling on a par with artists, collections, containers, lines, patches,
+and tables.
+
+
 Date handling
 -------------
 
