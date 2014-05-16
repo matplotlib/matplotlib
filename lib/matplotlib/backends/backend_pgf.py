@@ -651,7 +651,7 @@ class RendererPgf(RendererBase):
 
         f = 1.0 / self.figure.dpi
         text_args = []
-        if angle == 0 or mtext.get_rotation_mode() == "anchor":
+        if mtext and (angle == 0 or mtext.get_rotation_mode() == "anchor"):
             # if text anchoring can be supported, get the original coordinates
             # and add alignment information
             x, y = mtext.get_transform().transform_point(mtext.get_position())
