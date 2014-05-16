@@ -917,6 +917,10 @@ class FreeType(SetupPackage):
             default_libraries=['freetype', 'z'],
             alt_exec='freetype-config')
 
+    def get_extension(self):
+        ext = make_extension('freetype2', [])
+        self.add_flags(ext)
+        return ext
 
 class FT2Font(SetupPackage):
     name = 'ft2font'
