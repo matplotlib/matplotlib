@@ -1005,7 +1005,7 @@ class RendererSVG(RendererBase):
             style['font-style'] = prop.get_style().lower()
             attrib['style'] = generate_css(style)
 
-            if angle == 0 or mtext.get_rotation_mode() == "anchor":
+            if mtext and (angle == 0 or mtext.get_rotation_mode() == "anchor"):
                 # If text anchoring can be supported, get the original
                 # coordinates and add alignment information.
 
