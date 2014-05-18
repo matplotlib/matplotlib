@@ -6567,33 +6567,41 @@ class Axes(_AxesBase):
         return spec, freqs, t, im
 
     def spy(self, Z, precision=0, marker=None, markersize=None,
-            aspect='equal', **kwargs):
+            aspect='equal', origin="upper", **kwargs):
         """
         Plot the sparsity pattern on a 2-D array.
 
-        Call signature::
-
-          spy(Z, precision=0, marker=None, markersize=None,
-              aspect='equal', **kwargs)
-
         ``spy(Z)`` plots the sparsity pattern of the 2-D array *Z*.
 
-        If *precision* is 0, any non-zero value will be plotted;
-        else, values of :math:`|Z| > precision` will be plotted.
+        Parameters
+        ----------
 
-        For :class:`scipy.sparse.spmatrix` instances, there is a
-        special case: if *precision* is 'present', any value present in
-        the array will be plotted, even if it is identically zero.
+        Z : sparse array (n, m)
+            The array to be plotted.
 
-        The array will be plotted as it would be printed, with
-        the first index (row) increasing down and the second
-        index (column) increasing to the right.
+        precision : float, optional, default: 0
+            If *precision* is 0, any non-zero value will be plotted; else,
+            values of :math:`|Z| > precision` will be plotted.
 
-        By default aspect is 'equal', so that each array element
-        occupies a square space; set the aspect kwarg to 'auto'
-        to allow the plot to fill the plot box, or to any scalar
-        number to specify the aspect ratio of an array element
-        directly.
+            For :class:`scipy.sparse.spmatrix` instances, there is a special
+            case: if *precision* is 'present', any value present in the array
+            will be plotted, even if it is identically zero.
+
+        origin : ["upper", "lower"], optional, default: "upper"
+            Place the [0,0] index of the array in the upper left or lower left
+            corner of the axes.
+
+        aspect : ['auto' | 'equal' | scalar], optional, default: "equal"
+
+            If 'equal', and `extent` is None, changes the axes aspect ratio to
+            match that of the image. If `extent` is not `None`, the axes
+            aspect ratio is changed to match that of the extent.
+
+
+            If 'auto', changes the image aspect ratio to match that of the
+            axes.
+
+            If None, default to rc ``image.aspect`` value.
 
         Two plotting styles are available: image or marker. Both
         are available for full arrays, but only the marker style
@@ -6612,33 +6620,10 @@ class Axes(_AxesBase):
         * *cmap*
         * *alpha*
 
-        .. seealso::
-
-            :func:`~matplotlib.pyplot.imshow`
-               For image options.
-
-        For controlling colors, e.g., cyan background and red marks,
-        use::
-
-          cmap = mcolors.ListedColormap(['c','r'])
-
-        If *marker* or *markersize* is not *None*, useful kwargs include:
-
-        * *marker*
-        * *markersize*
-        * *color*
-
-        Useful values for *marker* include:
-
-        * 's'  square (default)
-        * 'o'  circle
-        * '.'  point
-        * ','  pixel
-
-        .. seealso::
-
-            :func:`~matplotlib.pyplot.plot`
-               For plotting options
+        See also 
+        ---------
+        imshow : for image options.
+        plot : for plotting options
         """
         if marker is None and markersize is None and hasattr(Z, 'tocoo'):
             marker = 's'
@@ -6652,7 +6637,7 @@ class Axes(_AxesBase):
             nr, nc = Z.shape
             extent = [-0.5, nc - 0.5, nr - 0.5, -0.5]
             ret = self.imshow(mask, interpolation='nearest', aspect=aspect,
-                                extent=extent, origin='upper', **kwargs)
+                                extent=extent, origin=origin, **kwargs)
         else:
             if hasattr(Z, 'tocoo'):
                 c = Z.tocoo()
