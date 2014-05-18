@@ -160,15 +160,20 @@ original location:
 
 * Added clockwise parameter to control sectors direction in `axes.pie`
 
+* In `matplotlib.lines.Line2D` the `markevery` functionality has been extended.
+  Previously an integer start-index and stride-length could be specified using
+  either a two-element-list or a two-element-tuple.  Now this can only be done
+  using a two-element-tuple.  If a two-element-list is used then it will be
+  treated as numpy fancy indexing and only the two markers corresponding to the
+  given indexes will be shown.
+
+
 Code removal
 ------------
 
 * Removed ``mlab.levypdf``.  The code raised a numpy error (and has for
   a long time) and was not the standard form of the Levy distribution.
   ``scipy.stats.levy`` should be used instead
-
-
-
 
 .. _changes_in_1_3:
 
