@@ -43,6 +43,8 @@
 
 2014-03-13 Add parameter 'clockwise' to function pie, True by default.
 
+2014-02-28 Added 'origin' kwarg to `spy`
+
 2014-02-27 Implemented separate horizontal/vertical axes padding to the
            ImageGrid in the AxesGrid toolkit
 
