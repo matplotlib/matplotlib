@@ -132,6 +132,7 @@ if six.PY3:
 import decimal
 import locale
 import math
+import fractions
 import numpy as np
 from matplotlib import rcParams
 from matplotlib import cbook
@@ -1801,6 +1802,105 @@ class OldAutoLocator(Locator):
             locator = MultipleLocator(ticksize)
 
         return locator
+
+
+class MaxNPiLocator(MaxNLocator):
+    """
+    Select no more than N PI intervals at nice locations. This class is based on MaxNLocator class.
+    MaxNPiLocator can be useful when the axis represents trigonometrical values (fractions of PI).
+    """
+
+    _trig_steps = [1.0, 10.0/8, 10.0/6, 10.0/4, 10.0/3, 10.0/2, 10.0/1.5, 10.0/(4.0/3.0), 10.0]
+
+    def __init__(self, *args, **kwargs):
+        """
+        Keyword args:
+
+        *trig_steps*
+            Sequence of nice fractions for PI number; >= 1 but <= 10
+        """
+
+        super(MaxNPiLocator,self).__init__(*args, **kwargs)
+
+        if 'trig_steps' in kwargs and kwargs['trig_steps'] is not None:
+            trig_steps = kwargs['trig_steps']
+            if int(trig_steps[-1]) != 10:
+                trig_steps= list(trig_steps)
+                trig_steps.append(10)
+            self._trig_steps = trig_steps 
+
+
+    def bin_boundaries(self, vmin, vmax):
+        nbins = self._nbins
+        # all magic goes here :) dividing to pi
+        vmin = vmin / math.pi
+        vmax = vmax / math.pi
+        scale, offset = scale_range(vmin, vmax, nbins)
+        # is scale <= 1 - use our special trigonometrical steps
+        if scale > 1:
+            _cur_steps = self._steps
+        else:
+            _cur_steps = self._trig_steps
+
+        if self._integer:
+            scale = max(1, scale)
+        vmin = vmin - offset
+        vmax = vmax - offset
+        raw_step = (vmax - vmin) / nbins
+        scaled_raw_step = raw_step / scale
+        best_vmax = vmax
+        best_vmin = vmin
+
+        for step in _cur_steps:
+            # correcting MaxNLocator bug with ticks blinking while dragging an axes with mouse
+            if step - scaled_raw_step <= -0.001:
+                continue
+            step *= scale
+            best_vmin = step * divmod(vmin, step)[0]
+            # correcting MaxNLocator bug with ticks blinking while dragging an axes with mouse
+            best_vmax = best_vmin + step * (nbins+1)
+            if (best_vmax >= vmax):
+                break
+
+        if self._trim:
+            extra_bins = int(divmod((best_vmin + step*nbins - vmax), step)[0])
+            nbins -= extra_bins
+        return (np.arange(nbins + 1) * step + best_vmin + offset)*math.pi
+
+
+class PiFormatter(Formatter):
+    """
+    Tick location is pi notation    
+    """
+
+    def __call__(self, x, pos=None):
+        'Return the TEX string with a fraction of pi for tick val *x* at position *pos*'
+        x = x / math.pi
+        
+        use_tex = True
+        if use_tex:
+            pi_sign = r'\pi'
+        else:
+            pi_sign = 'pi'
+        minus = ''
+        if x < 0.0:
+            x = -x
+            minus = '-'
+        _r = fractions.Fraction(x).limit_denominator(1000000000)
+        if _r.numerator == 0:
+            return r'$0$'
+        if _r.denominator == 1 and _r.numerator == 1:
+            return minus+r'$\pi$'
+        if _r.denominator == 1:
+            return minus+r'$%d\pi$'%_r.numerator
+        _r2 = divmod(_r.numerator, _r.denominator)
+        if _r2[0] > 1:
+            return minus+r'$%d\frac{%d}{%d}\pi$'%(_r2[0],_r2[1],_r.denominator)
+        else:
+            return minus+r'$\frac{%d}{%d}\pi$'%(_r.numerator,_r.denominator)
+            xmin, xmax = self.axis.get_view_interval()
+            d = abs(xmax - xmin)
+
 
 
 __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
