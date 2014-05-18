@@ -6600,8 +6600,8 @@ class Axes(_AxesBase):
         * *cmap*
         * *alpha*
 
-        See also 
-        ---------
+        See also
+        --------
         imshow : for image options.
         plot : for plotting options
         """
