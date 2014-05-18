@@ -33,6 +33,10 @@
            the managemnet of the xlimits and ticks when making a boxplot.
            Default in True which maintains current behavior by default.
 
+2014-03-23 Fixed a bug in projections/polar.py by making sure that the theta
+           value being calculated when given the mouse coordinates stays within
+           the range of 0 and 2 * pi.
+
 2014-03-22 Added the keyword arguments wedgeprops and textprops to pie.
            Users can control the wedge and text properties of the pie
            in more detail, if they choose.
@@ -46,7 +50,7 @@
 2014-02-28 Added 'origin' kwarg to `spy`
 
 2014-02-27 Implemented separate horizontal/vertical axes padding to the
-           ImageGrid in the AxesGrid toolkit
+	   ImageGrid in the AxesGrid toolkit
 
 2014-02-27 Allowed markevery property of matplotlib.lines.Line2D to be, an int
            numpy fancy index, slice object, or float.  The float behaviour

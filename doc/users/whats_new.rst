@@ -182,6 +182,15 @@ shows markers at approximately equal display-coordinate-distances along the
 line.
 
 
+Fixed the mouse coordinates giving the wrong theta value in Polar graph
+```````````````````````````````````````````````````````````````````````
+Added code to
+:funct:`~matplotlib.InvertedPolarTransform.transform_non_affine`
+to ensure that the calculated theta value was between the range of 0 and 2 * pi
+since the problem was that the value can become negative after applying the
+direction and rotation to the theta calculation.
+
+
 Date handling
 -------------
 
