@@ -14,8 +14,8 @@ import six
 
 import os.path as osp
 
-import matplotlib.backends.qt4_editor.formlayout as formlayout
-from matplotlib.backends.qt4_compat import QtGui
+import matplotlib.backends.qt_editor.formlayout as formlayout
+from matplotlib.backends.qt_compat import QtGui
 from matplotlib import markers
 
 

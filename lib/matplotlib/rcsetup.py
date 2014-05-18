@@ -29,7 +29,7 @@ from matplotlib.colors import is_color_like
 # change for later versions.
 
 interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'MacOSX',
-                  'Qt4Agg', 'TkAgg', 'WX', 'WXAgg', 'CocoaAgg',
+                  'Qt4Agg', 'Qt5Agg', 'TkAgg', 'WX', 'WXAgg', 'CocoaAgg',
                   'GTK3Cairo', 'GTK3Agg', 'WebAgg']
 
 
@@ -149,6 +149,7 @@ def validate_backend(s):
         return _validate_standard_backends(s)
 
 validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide'])
+validate_qt5 = ValidateInStrings('backend.qt5', ['PyQt5'])
 
 
 def validate_toolbar(s):
@@ -479,6 +480,7 @@ defaultParams = {
                                                       # present
     'backend_fallback':  [True, validate_bool],  # agg is certainly present
     'backend.qt4':       ['PyQt4', validate_qt4],
+    'backend.qt5':       ['PyQt5', validate_qt5],
     'webagg.port':       [8988, validate_int],
     'webagg.open_in_browser': [True, validate_bool],
     'webagg.port_retries': [50, validate_int],
