@@ -17,7 +17,7 @@ except ImportError:
 
 try:
     from matplotlib.backends.qt_compat import QtCore
-    from matplotlib.backends.backend_qt4 import (MODIFIER_KEYS,
+    from matplotlib.backends.backend_qt5 import (MODIFIER_KEYS,
                                                  SUPER, ALT, CTRL, SHIFT)
 
     _, ControlModifier, ControlKey = MODIFIER_KEYS[CTRL]
@@ -33,7 +33,7 @@ except ImportError:
 @knownfailureif(not HAS_QT)
 def test_fig_close():
     # force switch to the Qt4 backend
-    plt.switch_backend('Qt4Agg')
+    plt.switch_backend('Qt5Agg')
 
     #save the state of Gcf.figs
     init_figs = copy.copy(Gcf.figs)
@@ -57,7 +57,7 @@ def assert_correct_key(qt_key, qt_mods, answer):
     Catch the event
     Assert sent and caught keys are the same
     """
-    plt.switch_backend('Qt4Agg')
+    plt.switch_backend('Qt5Agg')
     qt_canvas = plt.figure().canvas
 
     event = mock.Mock()

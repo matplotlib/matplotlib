@@ -545,7 +545,7 @@ class Matplotlib(SetupPackage):
         return [
             'matplotlib',
             'matplotlib.backends',
-            'matplotlib.backends.qt4_editor',
+            'matplotlib.backends.qt_editor',
             'matplotlib.compat',
             'matplotlib.projections',
             'matplotlib.axes',
@@ -1880,6 +1880,22 @@ class BackendQt4(OptionalBackendPackage):
                     qt_version),
                     pyqt_version_str))
 
+class BackendQt5(BackendQt4):
+    name = "qt5agg"
+
+    def check_requirements(self):
+        try:
+            from PyQt5 import QtCore
+        except ImportError:
+            raise CheckFailed("PyQt5 not found")
+        # Import may still be broken for our python
+        try:
+            qtconfig = QtCore.PYQT_CONFIGURATION
+        except AttributeError:
+            raise CheckFailed('PyQt5 not correctly imported')
+        BackendAgg.force = True
+        # FIXME: How to return correct version information?
+        return ("Qt: 5, PyQt5: %s" % (QtCore.PYQT_VERSION_STR) )
 
 class BackendPySide(OptionalBackendPackage):
     name = "pyside"
