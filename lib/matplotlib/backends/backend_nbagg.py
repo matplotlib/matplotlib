@@ -16,34 +16,41 @@ from matplotlib.backend_bases import ShowBase, NavigationToolbar2
 
 
 class Show(ShowBase):
-    def __call__(self, block=None):
-        import matplotlib._pylab_helpers as pylab_helpers
-
+    def display_js(self):
         # XXX How to do this just once? It has to deal with multiple
         # browser instances using the same kernel.
         display(Javascript(FigureManagerNbAgg.get_javascript()))
 
+    def __call__(self, block=None):
+        from matplotlib import is_interactive
+        import matplotlib._pylab_helpers as pylab_helpers
+
         queue = pylab_helpers.Gcf._activeQue
         for manager in queue[:]:
-            manager.show()
-            # If we are not interactive, disable the figure from the active queue,
-            # but don't destroy it.
-            queue.remove(manager)
+            if not manager.shown:
+                self.display_js()
+
+                manager.show()
+                # If we are not interactive, disable the figure from
+                # the active queue, but don't destroy it.
+                if not is_interactive():
+                    queue.remove(manager)
+                manager.canvas.draw_idle()
+
 
 show = Show()
 
 
 def draw_if_interactive():
-    # TODO: Sort out the expected interactive interface & make it easy for
-    # somebody to "re-show" a specific figure.
-    pass
-#    from matplotlib import is_interactive
-#    import matplotlib._pylab_helpers as pylab_helpers
-#
-#    if is_interactive():
-#        figManager = pylab_helpers.Gcf.get_active()
-#        if figManager is not None:
-#            figManager.show()
+    from matplotlib import is_interactive
+    import matplotlib._pylab_helpers as pylab_helpers
+
+    if is_interactive():
+        manager = pylab_helpers.Gcf.get_active()
+        if manager is not None:
+            if not manager.shown:
+                manager.show()
+            manager.canvas.draw_idle()
 
 
 def connection_info():
@@ -54,13 +61,13 @@ def connection_info():
     """
     # TODO: Make this useful!
     import matplotlib._pylab_helpers as pylab_helpers
+    result = []
     for manager in pylab_helpers.Gcf.get_all_fig_managers():
         fig = manager.canvas.figure
-        print fig.get_label() or "Figure {0}".format(manager.num),
-        print [socket.supports_binary for socket in manager.web_sockets],
-        print manager.web_sockets
-
-    print 'Figures pending show: ', len(pylab_helpers.Gcf._activeQue)
+        result.append('{} - {}'.format(fig.get_label() or "Figure {0}".format(manager.num), 
+                                       manager.web_sockets))
+    result.append('Figures pending show: ' + str(len(pylab_helpers.Gcf._activeQue)))
+    return '\n'.join(result)
 
 
 class NavigationIPy(NavigationToolbar2WebAgg):
@@ -86,13 +93,17 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
     ToolbarCls = NavigationIPy
 
     def __init__(self, canvas, num):
-        self._shown = False
+        self.shown = False
         FigureManagerWebAgg.__init__(self, canvas, num)
 
     def show(self):
-        if not self._shown:
+        if not self.shown:
             self._create_comm()
-        self._shown = True
+        self.shown = True
+
+    def reshow(self):
+        self.shown = False
+        self.show()
 
     @property
     def connected(self):
