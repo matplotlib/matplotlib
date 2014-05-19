@@ -19,7 +19,7 @@ from .backend_qt5 import QtCore
 from .backend_qt5 import QtGui
 from .backend_qt5 import FigureManagerQT
 from .backend_qt5 import NavigationToolbar2QT
-##### Modified Qt5 backend import
+##### Modified Qt5 backend import
 from .backend_qt5 import FigureCanvasQT
 ##### not used
 from .backend_qt5 import show
@@ -143,7 +143,7 @@ class FigureCanvasQTAggBase(object):
         # causes problems with code that uses the result of the
         # draw() to update plot elements.
         FigureCanvasAgg.draw(self)
-        self.update()
+        self._priv_update()
 
     def blit(self, bbox=None):
         """

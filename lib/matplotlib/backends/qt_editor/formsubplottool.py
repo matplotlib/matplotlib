@@ -154,7 +154,7 @@ class UiSubplotTool(QtWidgets.QDialog):
 
         # slider hspace
         hboxhspace = QtWidgets.QHBoxLayout()
-        self.labelhspace = QtGui.QLabel('hspace', self)
+        self.labelhspace = QtWidgets.QLabel('hspace', self)
         self.labelhspace.setMinimumSize(QtCore.QSize(50, 0))
         self.labelhspace.setAlignment(
             QtCore.Qt.AlignRight |
