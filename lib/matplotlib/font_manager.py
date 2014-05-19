@@ -952,7 +952,47 @@ def pickle_load(filename):
         data = pickle.load(fh)
     return data
 
-class FontManager:
+
+class TempCache(object):
+    """
+    A class to store temporary caches that are (a) not saved to disk
+    and (b) invalidated whenever certain font-related
+    rcParams---namely the family lookup lists---are changed or the
+    font cache is reloaded.  This avoids the expensive linear search
+    through all fonts every time a font is looked up.
+    """
+    # A list of rcparam names that, when changed, invalidated this
+    # cache.
+    invalidating_rcparams = [
+        'font.serif', 'font.sans-serif', 'font.cursive', 'font.fantasy',
+        'font.monospace']
+
+    def __init__(self):
+        self._lookup_cache = {}
+        self._last_rcParams = self.make_rcparams_key()
+
+    def make_rcparams_key(self):
+        key = [id(fontManager)]
+        for param in self.invalidating_rcparams:
+            key.append(rcParams[param])
+        return key
+
+    def get(self, prop):
+        key = self.make_rcparams_key()
+        if key != self._last_rcParams:
+            self._lookup_cache = {}
+            self._last_rcParams = key
+        return self._lookup_cache.get(prop)
+
+    def set(self, prop, value):
+        key = self.make_rcparams_key()
+        if key != self._last_rcParams:
+            self._lookup_cache = {}
+            self._last_rcParams = key
+        self._lookup_cache[prop] = value
+
+
+class FontManager(object):
     """
     On import, the :class:`FontManager` singleton instance creates a
     list of TrueType fonts based on the font properties: name, style,
@@ -1014,9 +1054,6 @@ class FontManager:
             self.defaultFont['afm'] = self.afmfiles[0]
         else:
             self.defaultFont['afm'] = None
-
-        self.ttf_lookup_cache = {}
-        self.afm_lookup_cache = {}
 
     def get_default_weight(self):
         """
@@ -1200,15 +1237,13 @@ class FontManager:
             return fname
 
         if fontext == 'afm':
-            font_cache = self.afm_lookup_cache
             fontlist = self.afmlist
         else:
-            font_cache = self.ttf_lookup_cache
             fontlist = self.ttflist
 
         if directory is None:
-            cached = font_cache.get(hash(prop))
-            if cached:
+            cached = _lookup_cache[fontext].get(prop)
+            if cached is not None:
                 return cached
 
         best_score = 1e64
@@ -1266,7 +1301,7 @@ class FontManager:
                 raise ValueError("No valid font could be found")
 
         if directory is None:
-            font_cache[hash(prop)] = result
+            _lookup_cache[fontext].set(prop, result)
         return result
 
 
@@ -1347,6 +1382,11 @@ else:
                 _fmcache = os.path.join(cachedir, 'fontList.cache')
 
     fontManager = None
+
+    _lookup_cache = {
+        'ttf': TempCache(),
+        'afm': TempCache()
+    }
 
     def _rebuild():
         global fontManager
