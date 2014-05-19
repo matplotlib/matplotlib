@@ -29,16 +29,18 @@ matplotlib aware, so when you start ipython in the *pylab* mode.
 
 .. sourcecode:: ipython
 
-    johnh@flag:~> ipython -pylab
+    johnh@flag:~> ipython
     Python 2.4.5 (#4, Apr 12 2008, 09:09:16)
     IPython 0.9.0 -- An enhanced Interactive Python.
+
+    In [1]: %pylab
 
       Welcome to pylab, a matplotlib-based Python environment.
       For more information, type 'help(pylab)'.
 
-    In [1]: x = randn(10000)
+    In [2]: x = randn(10000)
 
-    In [2]: hist(x, 100)
+    In [3]: hist(x, 100)
 
 it sets everything up for you so interactive plotting works as you
 would expect it to.  Call :func:`~matplotlib.pyplot.figure` and a

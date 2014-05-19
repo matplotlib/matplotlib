@@ -2183,6 +2183,7 @@ RendererAgg::write_rgba(const Py::Tuple& args)
     }
     else
     {
+        PyErr_Clear();
         PyObject* write_method = PyObject_GetAttrString(py_fileobj.ptr(),
                                                         "write");
         if (!(write_method && PyCallable_Check(write_method)))
@@ -2192,7 +2193,11 @@ RendererAgg::write_rgba(const Py::Tuple& args)
                 "Object does not appear to be a 8-bit string path or a Python file-like object");
         }
 
+        #if PY3K
+        PyObject_CallFunction(write_method, (char *)"y#", pixBuffer, NUMBYTES);
+        #else
         PyObject_CallFunction(write_method, (char *)"s#", pixBuffer, NUMBYTES);
+        #endif
 
         Py_XDECREF(write_method);
     }

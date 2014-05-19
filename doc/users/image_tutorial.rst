@@ -14,7 +14,13 @@ At the very least, you'll need to have access to the
 :func:`~matplotlib.pyplot.imshow` function.  There are a couple of
 ways to do it.  The easy way for an interactive environment::
 
-    $ipython -pylab
+    $ipython
+
+to enter the ipython shell, followed by::
+
+    In [1]: %pylab
+
+to enter the pylab environment.
 
 The imshow function is now directly accessible (it's in your
 `namespace <http://bytebaker.com/2008/07/30/python-namespaces/>`_).
@@ -32,7 +38,7 @@ where you use explicit namespaces and control object creation, etc...
    In [3]: import numpy as np
 
 Examples below will use the latter method, for clarity.  In these
-examples, if you use the -pylab method, you can skip the "mpimg." and
+examples, if you use the %pylab method, you can skip the "mpimg." and
 "plt." prefixes.
 
 .. _importing_data:
