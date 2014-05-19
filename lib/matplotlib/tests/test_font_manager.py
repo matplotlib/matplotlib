@@ -3,13 +3,14 @@ from __future__ import (absolute_import, division, print_function,
 
 from nose.tools import assert_equal
 import six
-
 import os
 
 from matplotlib.font_manager import findfont, FontProperties
 from matplotlib import rc_context
+from matplotlib.testing.decorators import cleanup
 
 
+@cleanup
 def test_font_priority():
     with rc_context(rc={
             'font.sans-serif':
