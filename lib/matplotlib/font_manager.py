@@ -963,19 +963,17 @@ class TempCache(object):
     """
     # A list of rcparam names that, when changed, invalidated this
     # cache.
-    invalidating_rcparams = [
+    invalidating_rcparams = (
         'font.serif', 'font.sans-serif', 'font.cursive', 'font.fantasy',
-        'font.monospace']
+        'font.monospace')
 
     def __init__(self):
         self._lookup_cache = {}
         self._last_rcParams = self.make_rcparams_key()
 
     def make_rcparams_key(self):
-        key = [id(fontManager)]
-        for param in self.invalidating_rcparams:
-            key.append(rcParams[param])
-        return key
+        return [id(fontManager)] + [
+            rcParams[param] for param in self.invalidating_rcparams]
 
     def get(self, prop):
         key = self.make_rcparams_key()
