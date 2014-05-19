@@ -23,6 +23,7 @@ revision, see the :ref:`github-stats`.
 new in matplotlib-1.4
 =====================
 
+Thomas A. Caswell served as the release manager for the 1.4 release.
 
 New colormap
 ------------
