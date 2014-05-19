@@ -141,7 +141,7 @@ class ShowBase(object):
         it is a boolean that overrides all other factors
         determining whether show blocks by calling mainloop().
         The other factors are:
-        it does not block if run inside "ipython --pylab";
+        it does not block if run inside ipython's "%pylab" mode
         it does not block in interactive mode.
         """
         managers = Gcf.get_all_fig_managers()
@@ -165,11 +165,11 @@ class ShowBase(object):
             ipython_pylab = not pyplot.show._needmain
             # IPython versions >= 0.10 tack the _needmain
             # attribute onto pyplot.show, and always set
-            # it to False, when in --pylab mode.
+            # it to False, when in %pylab mode.
             ipython_pylab = ipython_pylab and get_backend() != 'WebAgg'
             # TODO: The above is a hack to get the WebAgg backend
-            # working with `ipython --pylab` until proper integration
-            # is implemented.
+            # working with ipython's `%pylab` mode until proper
+            # integration is implemented.
         except AttributeError:
             ipython_pylab = False
 

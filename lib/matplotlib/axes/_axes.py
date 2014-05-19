@@ -4485,8 +4485,9 @@ class Axes(_AxesBase):
             corner of the axes. If None, default to rc `image.origin`.
 
         extent : scalars (left, right, bottom, top), optional, default: None
-            Data limits for the axes.  The default assigns zero-based row,
-            column indices to the `x`, `y` centers of the pixels.
+            The location, in data-coordinates, of the lower-left and upper-right
+            corners of the image.  If `None`, the image is positioned such that
+            the pixel centers fall on zero-based (row, column) indices.
 
         shape : scalars (columns, rows), optional, default: None
             For raw buffer images

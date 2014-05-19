@@ -12,6 +12,11 @@
 
 2014-04-27 removed un-needed cast to float in stem
 
+2014-04-23 Updated references to "ipython -pylab"
+           The preferred method for invoking pylab is now using the
+           "%pylab" magic.
+           -Chris G.
+
 2014-04-22 Added (re-)generate a simple automatic legend to "Figure Options"
            dialog of the Qt4Agg backend.
 
