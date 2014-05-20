@@ -1825,7 +1825,7 @@ class _AxesBase(martist.Artist):
             mx = my = args[0]
         elif len(args) == 2:
             mx, my = args
-        else:
+        elif len(args) > 2:
             raise ValueError("more than two arguments were supplied")
         if mx is not None:
             self.set_xmargin(mx)

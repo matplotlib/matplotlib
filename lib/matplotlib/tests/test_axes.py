@@ -3109,6 +3109,25 @@ def test_pie_ccw_true():
     # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
 
+@image_comparison(baseline_images=['margins_1', 'margins_1_05_arg', 'margins_1_05_kwarg'], extensions=['png'])
+def test_margins():
+    # test all 
+    data = [1, 10]
+
+    fig1, ax1 = plt.subplots(1, 1)
+    ax1.plot(data)
+    ax1.margins(1)
+    assert_equal(ax1.margins(), (1, 1))
+
+    fig2, ax2 = plt.subplots(1, 1)
+    ax2.plot(data)
+    ax2.margins(1, 0.5)
+    assert_equal(ax2.margins(), (1, 0.5))
+
+    fig3, ax3 = plt.subplots(1, 1)
+    ax3.plot(data)
+    ax3.margins(x=1, y=0.5)
+    assert_equal(ax3.margins(), (1, 0.5))
 
 @cleanup
 def test_pathological_hexbin():
