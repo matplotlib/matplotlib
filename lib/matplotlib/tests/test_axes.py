@@ -3287,9 +3287,8 @@ def test_pie_ccw_true():
     # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
 
-@image_comparison(baseline_images=['margins_1', 'margins_1_05_arg', 'margins_1_05_kwarg'], extensions=['png'])
 def test_margins():
-    # test all 
+    # test all ways margins can be called
     data = [1, 10]
 
     fig1, ax1 = plt.subplots(1, 1)
