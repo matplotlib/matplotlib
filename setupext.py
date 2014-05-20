@@ -1903,13 +1903,15 @@ def backend_qt4_internal_check(self):
         from PyQt4 import QtCore
     except ImportError:
         raise CheckFailed("PyQt4 not found")
+
     try:
         qt_version = QtCore.QT_VERSION
         pyqt_version_str = QtCore.QT_VERSION_STR
     except AttributeError:
         raise CheckFailed('PyQt4 not correctly imported')
-
-    return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
+    else:
+        BackendAgg.force = True
+        return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
 
 
 class BackendQt4(BackendQtBase):
@@ -1925,13 +1927,15 @@ def backend_qt5_internal_check(self):
         from PyQt5 import QtCore
     except ImportError:
         raise CheckFailed("PyQt5 not found")
+
     try:
         qt_version = QtCore.QT_VERSION
         pyqt_version_str = QtCore.QT_VERSION_STR
     except AttributeError:
         raise CheckFailed('PyQt5 not correctly imported')
-
-    return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
+    else:
+        BackendAgg.force = True
+        return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
 
 
 class BackendQt5(BackendQtBase):
@@ -1942,20 +1946,25 @@ class BackendQt5(BackendQtBase):
         self.callback = backend_qt5_internal_check
 
 
-class BackendPySide(OptionalBackendPackage):
+def backend_pyside_internal_check(self):
+    try:
+        from PySide import __version__
+        from PySide import QtCore
+    except ImportError:
+        raise CheckFailed("PySide not found")
+    else:
+        BackendAgg.force = True
+        return ("Qt: %s, PySide: %s" %
+                (QtCore.__version__, __version__))
+
+
+class BackendPySide(BackendQtBase):
     name = "pyside"
 
-    def check_requirements(self):
-        try:
-            from PySide import __version__
-            from PySide import QtCore
-        except ImportError:
-            raise CheckFailed("PySide not found")
-        else:
-            BackendAgg.force = True
+    def __init__(self, *args, **kwargs):
+        BackendQtBase.__init__(self, *args, **kwargs)
+        self.callback = backend_pyside_internal_check
 
-            return ("Qt: %s, PySide: %s" %
-                    (QtCore.__version__, __version__))
 
 
 class BackendCairo(OptionalBackendPackage):
