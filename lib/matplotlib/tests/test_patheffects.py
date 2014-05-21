@@ -82,14 +82,33 @@ def test_patheffect3():
 def test_PathEffect_get_proxy():
     pe = path_effects.AbstractPathEffect()
     fig = plt.gcf()
-    plt.draw()
-    renderer = fig._cachedRenderer
+    renderer = fig.canvas.get_renderer()
 
     with mock.patch('matplotlib.cbook.deprecated') as dep:
         proxy_renderer = pe.get_proxy_renderer(renderer)
     assert_equal(proxy_renderer._renderer, renderer)
     assert_equal(proxy_renderer._path_effects, [pe])
     dep.assert_called()
+
+
+@cleanup
+def test_PathEffect_points_to_pixels():
+    fig = plt.figure(dpi=150)
+    p1, = plt.plot(range(10))
+    p1.set_path_effects([path_effects.SimpleLineShadow(),
+                         path_effects.Normal()])
+
+    renderer = fig.canvas.get_renderer()
+    pe_renderer = path_effects.SimpleLineShadow().get_proxy_renderer(renderer)
+
+    assert isinstance(pe_renderer, path_effects.PathEffectRenderer), (
+                'Expected a PathEffectRendere instance, got '
+                'a {} instance.'.format(type(pe_renderer)))
+
+    # Confirm that using a path effects renderer maintains point sizes
+    # appropriately. Otherwise rendered font would be the wrong size.
+    assert_equal(renderer.points_to_pixels(15),
+                 pe_renderer.points_to_pixels(15))
 
 
 def test_SimplePatchShadow_offset_xy():
