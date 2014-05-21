@@ -3109,6 +3109,7 @@ def test_pie_ccw_true():
     # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
 
+@cleanup
 def test_margins():
     # test all ways margins can be called
     data = [1, 10]
