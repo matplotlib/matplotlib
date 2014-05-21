@@ -4486,7 +4486,7 @@ class Axes(_AxesBase):
 
         extent : scalars (left, right, bottom, top), optional, default: None
             The location, in data-coordinates, of the lower-left and
-            upper-right  If `None`, the image is positioned such that
+            upper-right corners. If `None`, the image is positioned such that
             the pixel centers fall on zero-based (row, column) indices.
 
         shape : scalars (columns, rows), optional, default: None
