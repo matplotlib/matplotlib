@@ -5281,6 +5281,11 @@ class Axes(_AxesBase):
         [*patches0*, *patches1*,...]) if the input contains multiple
         data.
 
+            - *n*: The values of the histogram. See normed and weights for a
+                   description of the possible semantics
+            - *bins*: Left hand edge of bins
+            - *patches*: Individual patches used to create the histogram
+
         Multiple data can be provided via *x* as a list of datasets
         of potentially different length ([*x0*, *x1*, ...]), or as
         a 2-D ndarray in which each column is a dataset.  Note that
