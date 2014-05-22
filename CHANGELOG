@@ -1,5 +1,8 @@
+2014-05-22 Allow the linscale keyword parameter of symlog scale to be
+           smaller than one.
+
 2014-05-20 Added logic to in FontManager to invalidate font-cache if
-	   if font-family rcparams have changed.
+           if font-family rcparams have changed.
 
 2014-05-16 Fixed the positioning of multi-line text in the PGF backend.
 
@@ -34,8 +37,8 @@
            of a generator at line 263.
 
 2014-02-25 In backend_qt4agg changed from using update -> repaint under
-	   windows.  See comment in source near `self._priv_update` for
-	   longer explaination.
+           windows.  See comment in source near `self._priv_update` for
+           longer explaination.
 
 2014-03-27 Added tests for pie ccw parameter. Removed pdf and svg images
            from tests for pie linewidth parameter.
@@ -66,7 +69,7 @@
 2014-02-28 Added 'origin' kwarg to `spy`
 
 2014-02-27 Implemented separate horizontal/vertical axes padding to the
-	   ImageGrid in the AxesGrid toolkit
+           ImageGrid in the AxesGrid toolkit
 
 2014-02-27 Allowed markevery property of matplotlib.lines.Line2D to be, an int
            numpy fancy index, slice object, or float.  The float behaviour
