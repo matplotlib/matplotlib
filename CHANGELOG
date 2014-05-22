@@ -1,3 +1,6 @@
+2014-05-20 Added logic to in FontManager to invalidate font-cache if
+	   if font-family rcparams have changed.
+
 2014-05-16 Fixed the positioning of multi-line text in the PGF backend.
 
 2014-05-14 Added Axes.add_image() as the standard way to add AxesImage
