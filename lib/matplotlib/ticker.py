@@ -45,6 +45,9 @@ The Locator subclasses defined here are
 :class:`MaxNLocator`
     finds up to a max number of ticks at nice  locations
 
+:class:`MaxNPiLocator`
+    Select no more than N PI intervals at nice locations
+
 :class:`AutoLocator`
     :class:`MaxNLocator` with simple defaults. This is the default
     tick locator for most plotting.
@@ -98,12 +101,17 @@ axis.
 :class:`FormatStrFormatter`
     use a sprintf format string
 
+:class:`StrMethodFormatter`
+    Use a new-style format string
+
 :class:`ScalarFormatter`
     default formatter for scalars; autopick the fmt string
 
 :class:`LogFormatter`
     formatter for log axes
 
+:class:`PiFormatter`
+    Tick labels in pi notation
 
 You can derive your own formatter from the Formatter base class by
 simply overriding the ``__call__`` method.  The formatter class has access
@@ -1886,7 +1894,7 @@ class PiFormatter(Formatter):
             return x
 
         x = x / math.pi
-        
+
         minus = ''
         if x < 0.0:
             x = -x
@@ -1917,9 +1925,9 @@ class PiFormatter(Formatter):
 
 
 __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
-           'NullFormatter', 'FuncFormatter', 'FormatStrFormatter',
+           'NullFormatter', 'FuncFormatter', 'FormatStrFormatter', 'StrMethodFormatter',
            'ScalarFormatter', 'LogFormatter', 'LogFormatterExponent',
            'LogFormatterMathtext', 'Locator', 'IndexLocator',
            'FixedLocator', 'NullLocator', 'LinearLocator',
            'LogLocator', 'AutoLocator', 'MultipleLocator',
-           'MaxNLocator', 'AutoMinorLocator',)
+           'MaxNLocator', 'AutoMinorLocator', 'MaxNPiLocator', 'PiFormatter',)

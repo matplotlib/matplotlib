@@ -2990,6 +2990,50 @@ def test_pie_ccw_true():
     plt.axis('equal')
 
 
+@image_comparison(baseline_images=['pi_labels'])
+def test_pi_labels():
+    fig = plt.figure()
+
+    #first axes - almost default
+    ax1 = fig.add_subplot(221)
+    ax1.set_xlim(-np.pi, 4*np.pi)
+    ax1.set_ylim(0.0, np.pi)
+    ax1.xaxis.set_major_formatter(matplotlib.ticker.PiFormatter())
+    ax1.yaxis.set_major_formatter(matplotlib.ticker.PiFormatter())
+    ax1.xaxis.set_major_locator(matplotlib.ticker.MaxNPiLocator())
+    ax1.yaxis.set_major_locator(matplotlib.ticker.MaxNPiLocator(nbins = 3))
+
+    #second axes - different trig_steps
+    ax2 = fig.add_subplot(222)
+    ax2.set_xlim(-2.7*np.pi, 4.3*np.pi)
+    ax2.set_ylim(0.0, 0.9*np.pi)
+    ax2.xaxis.set_major_formatter(matplotlib.ticker.PiFormatter())
+    ax2.yaxis.set_major_formatter(matplotlib.ticker.PiFormatter())
+    ax2.xaxis.set_major_locator(matplotlib.ticker.MaxNPiLocator(nbins = 8, trig_steps = [10./8, 10./4., 10.0/2]))
+    ax2.yaxis.set_major_locator(matplotlib.ticker.MaxNPiLocator(nbins = 10, trig_steps = [10./3]))
+
+
+    #third axes - large scales and use_tex = False
+    ax3 = fig.add_subplot(223)
+    ax3.set_xlim(-43.0*np.pi, 43.0*np.pi)
+    ax3.set_ylim(0.0, 219.0*np.pi)
+    ax3.xaxis.set_major_formatter(matplotlib.ticker.PiFormatter(use_tex = True))
+    ax3.yaxis.set_major_formatter(matplotlib.ticker.PiFormatter(use_tex = False))
+    ax3.xaxis.set_major_locator(matplotlib.ticker.MaxNPiLocator())
+    ax3.yaxis.set_major_locator(matplotlib.ticker.MaxNPiLocator(nbins = 6))
+
+
+    #forth axes - combination
+    ax4 = fig.add_subplot(224)
+    ax4.set_xlim(-43.0*np.pi, 43.0*np.pi)
+    ax4.set_ylim(0.0, 6*np.pi)
+    ax4.xaxis.set_major_formatter(matplotlib.ticker.PiFormatter(use_tex = False))
+    ax4.yaxis.set_major_formatter(matplotlib.ticker.PiFormatter())
+    ax4.xaxis.set_major_locator(matplotlib.ticker.MaxNPiLocator(trig_steps=[1.0, 10.0/5], nbins = 6))
+    ax4.yaxis.set_major_locator(matplotlib.ticker.MaxNPiLocator(nbins = 7))
+
+
+
 if __name__ == '__main__':
     import nose
     import sys

@@ -1822,7 +1822,7 @@ class RendererPdf(RendererBase):
                 oldfont = dvifont
             # We need to convert the glyph numbers to bytes, and the easiest
             # way to do this on both Python 2 and 3 is .encode('latin-1')
-            seq += [['text', x1, y1, [chr(glyph).encode('latin-1')], x1+width]]
+            seq += [['text', x1, y1, [six.unichr(glyph).encode('latin-1')], x1+width]]
 
         # Find consecutive text strings with constant y coordinate and
         # combine into a sequence of strings and kerns, or just one
