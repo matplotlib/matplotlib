@@ -87,7 +87,7 @@ class PathEffectRenderer(RendererBase):
 
     This proxy then intercepts draw calls, calling the appropriate
     :class:`AbstractPathEffect` draw method.
-    
+
     .. note::
         Not all methods have been overridden on this RendererBase subclass.
         It may be necessary to add further methods to extend the PathEffects
@@ -151,6 +151,9 @@ class PathEffectRenderer(RendererBase):
             # one path effect.
             renderer.draw_path_collection(gc, master_transform, paths,
                                           *args, **kwargs)
+
+    def points_to_pixels(self, points):
+        return self._renderer.points_to_pixels(points)
 
     def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
         # Implements the naive text drawing as is found in RendererBase.

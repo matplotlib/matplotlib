@@ -54,6 +54,10 @@ original location:
   the upper and lower limits (*lolims*, *uplims*, *xlolims*, *xuplims*) now
   point in the correct direction.
 
+* A bug has been fixed in the path effects rendering of fonts, which now means
+  that the font size is consistent with non-path effect fonts. See
+  https://github.com/matplotlib/matplotlib/issues/2889 for more detail.
+
 * The Sphinx extensions `ipython_directive` and
   `ipython_console_highlighting` have been moved to the IPython
   project itself.  While they remain in matplotlib for this release,
