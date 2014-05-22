@@ -5386,12 +5386,13 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        tuple : ``(n, bins, patches)`` or \
-                ``([n0, n1, ...], bins, [patches0, patches1,...])``
-                - `n`: The values of the histogram. See **normed** and  \
-                        **weights** for a description of the possible semantics
-                - `bins`: Left hand edge of bins
-                - `patches`: Individual patches used to create the histogram
+        n : array 
+            The values of the histogram. See **normed** and  **weights** for a
+            description of the possible semantics.
+        bins : array 
+            The edges of the bins ``len(n)+1``.
+        patches : list
+            Silent list of individual patches used to create the histogram.
 
 
         Other Parameters
