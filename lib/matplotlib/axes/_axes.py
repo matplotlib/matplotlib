@@ -6898,14 +6898,7 @@ class Axes(_AxesBase):
         medians = []
 
         # Collections to be returned
-        artists = {
-            'bodies': [],
-            'cmeans': None,
-            'cmaxes': None,
-            'cmins': None,
-            'cbars': None,
-            'cmedians': None
-        }
+        artists = {}
 
         N = len(vpstats)
         datashape_message = ("List of violinplot statistics and `{0}` "
@@ -6927,53 +6920,50 @@ class Axes(_AxesBase):
         pmins = -0.25 * np.array(widths) + positions
         pmaxes = 0.25 * np.array(widths) + positions
 
-        # Check hold status
-        if not self._hold:
-            self.cla()
-        hold_status = self._hold
-
         # Check whether we are rendering vertically or horizontally
         if vert:
             fill = self.fill_betweenx
-            rlines = self.hlines
-            blines = self.vlines
+            perp_lines = self.hlines
+            par_lines = self.vlines
         else:
             fill = self.fill_between
-            rlines = self.vlines
-            blines = self.hlines
+            perp_lines = self.vlines
+            par_lines = self.hlines
 
         # Render violins
+        bodies = []
         for stats, pos, width in zip(vpstats, positions, widths):
             # The 0.5 factor reflects the fact that we plot from v-p to
             # v+p
             vals = np.array(stats['vals'])
             vals = 0.5 * width * vals / vals.max()
-            artists['bodies'] += [fill(stats['coords'],
-                                       -vals + pos,
-                                       vals + pos,
-                                       facecolor='y',
-                                       alpha=0.3)]
+            bodies += [fill(stats['coords'],
+                            -vals + pos,
+                            vals + pos,
+                            facecolor='y',
+                            alpha=0.3)]
             means.append(stats['mean'])
             mins.append(stats['min'])
             maxes.append(stats['max'])
             medians.append(stats['median'])
+        artists['bodies'] = bodies
 
         # Render means
         if showmeans:
-            artists['cmeans'] = rlines(means, pmins, pmaxes, colors='r')
+            artists['cmeans'] = perp_lines(means, pmins, pmaxes, colors='r')
 
         # Render extrema
         if showextrema:
-            artists['cmaxes'] = rlines(maxes, pmins, pmaxes, colors='r')
-            artists['cmins'] = rlines(mins, pmins, pmaxes, colors='r')
-            artists['cbars'] = blines(positions, mins, maxes, colors='r')
+            artists['cmaxes'] = perp_lines(maxes, pmins, pmaxes, colors='r')
+            artists['cmins'] = perp_lines(mins, pmins, pmaxes, colors='r')
+            artists['cbars'] = par_lines(positions, mins, maxes, colors='r')
 
         # Render medians
         if showmedians:
-            artists['cmedians'] = rlines(medians, pmins, pmaxes, colors='r')
-
-        # Reset hold
-        self.hold(hold_status)
+            artists['cmedians'] = perp_lines(medians,
+                                             pmins,
+                                             pmaxes,
+                                             colors='r')
 
         return artists
 
