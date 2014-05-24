@@ -2137,6 +2137,14 @@ def is_math_text(s):
 
 
 def _reshape_2D(X):
+    """
+    Converts a non-empty list or an ndarray of two or fewer dimensions
+    into a list of iterable objects so that in
+
+        for v in _reshape_2D(X):
+
+    v is iterable and can be used to instantiate a 1D array.
+    """
     if hasattr(X, 'shape'):
         # one item
         if len(X.shape) == 1:
