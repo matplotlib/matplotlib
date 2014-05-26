@@ -146,6 +146,7 @@ def boilerplate_gen():
         'tricontourf',
         'tripcolor',
         'triplot',
+        'violinplot',
         'vlines',
         'xcorr',
         'barbs',
