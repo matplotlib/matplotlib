@@ -1978,19 +1978,19 @@ class Axes(_AxesBase):
             if len(edgecolor) < nbars:
                 edgecolor *= nbars
 
-        # FIXME: convert the following to proper input validation
-        # raising ValueError; don't use assert for this.
-        assert len(left) == nbars, ("incompatible sizes: argument 'left' must "
-                                    "be length %d or scalar" % nbars)
-        assert len(height) == nbars, ("incompatible sizes: argument 'height' "
-                                      "must be length %d or scalar" %
-                                      nbars)
-        assert len(width) == nbars, ("incompatible sizes: argument 'width' "
-                                     "must be length %d or scalar" %
-                                     nbars)
-        assert len(bottom) == nbars, ("incompatible sizes: argument 'bottom' "
-                                      "must be length %d or scalar" %
-                                      nbars)
+        # input validation
+        if len(left) != nbars:
+            raise ValueError("incompatible sizes: argument 'left' must "
+                             "be length %d or scalar" % nbars)
+        if len(height) != nbars:
+            raise ValueError("incompatible sizes: argument 'height' "
+                              "must be length %d or scalar" % nbars)
+        if len(width) != nbars:
+            raise ValueError("incompatible sizes: argument 'width' "
+                             "must be length %d or scalar" % nbars)
+        if len(bottom) == nbars:
+            raise ValueError("incompatible sizes: argument 'bottom' "
+                             "must be length %d or scalar" % nbars)
 
         patches = []
 
@@ -2428,8 +2428,10 @@ class Axes(_AxesBase):
             labels = [''] * len(x)
         if explode is None:
             explode = [0] * len(x)
-        assert(len(x) == len(labels))
-        assert(len(x) == len(explode))
+        if len(x) != len(labels):
+            raise ValueError("'label' must be of length 'x'")
+        if len(x) != len(explode):
+            raise ValueError("'explode' must be of length 'x'")
         if colors is None:
             colors = ('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w')
 
@@ -3686,8 +3688,9 @@ class Axes(_AxesBase):
         collection.update(kwargs)
 
         if colors is None:
-            if norm is not None:
-                assert(isinstance(norm, mcolors.Normalize))
+            if norm is not None and not isinstance(norm, mcolors.Normalize):
+                msg = "'norm' must be an instance of 'mcolors.Normalize'"
+                raise ValueError(msg)
             collection.set_array(np.asarray(c))
             collection.set_cmap(cmap)
             collection.set_norm(norm)
@@ -4057,8 +4060,9 @@ class Axes(_AxesBase):
             bins = np.sort(bins)
             accum = bins.searchsorted(accum)
 
-        if norm is not None:
-            assert(isinstance(norm, mcolors.Normalize))
+        if norm is not None and not isinstance(norm, mcolors.Normalize):
+            msg = "'norm' must be an instance of 'mcolors.Normalize'"
+            raise ValueError(msg)
         collection.set_array(accum)
         collection.set_cmap(cmap)
         collection.set_norm(norm)
@@ -4673,8 +4677,9 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
 
-        if norm is not None:
-            assert(isinstance(norm, mcolors.Normalize))
+        if norm is not None and not isinstance(norm, mcolors.Normalize):
+            msg = "'norm' must be an instance of 'mcolors.Normalize'"
+            raise ValueError(msg)
         if aspect is None:
             aspect = rcParams['image.aspect']
         self.set_aspect(aspect)
@@ -5000,8 +5005,9 @@ class Axes(_AxesBase):
 
         collection.set_alpha(alpha)
         collection.set_array(C)
-        if norm is not None:
-            assert(isinstance(norm, mcolors.Normalize))
+        if norm is not None and not isinstance(norm, mcolors.Normalize):
+            msg = "'norm' must be an instance of 'mcolors.Normalize'"
+            raise ValueError(msg)
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection.set_clim(vmin, vmax)
@@ -5149,8 +5155,9 @@ class Axes(_AxesBase):
             antialiased=antialiased, shading=shading, **kwargs)
         collection.set_alpha(alpha)
         collection.set_array(C)
-        if norm is not None:
-            assert(isinstance(norm, mcolors.Normalize))
+        if norm is not None and not isinstance(norm, mcolors.Normalize):
+            msg = "'norm' must be an instance of 'mcolors.Normalize'"
+            raise ValueError(msg)
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection.set_clim(vmin, vmax)
@@ -5274,8 +5281,9 @@ class Axes(_AxesBase):
         cmap = kwargs.pop('cmap', None)
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
-        if norm is not None:
-            assert(isinstance(norm, mcolors.Normalize))
+        if norm is not None and not isinstance(norm, mcolors.Normalize):
+            msg = "'norm' must be an instance of 'mcolors.Normalize'"
+            raise ValueError(msg)
 
         C = args[-1]
         nr, nc = C.shape
