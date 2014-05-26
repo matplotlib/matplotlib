@@ -2104,7 +2104,10 @@ class _AxesBase(martist.Artist):
         caches the renderer.  It is used to efficiently update Axes
         data (axis ticks, labels, etc are not updated)
         """
-        assert self._cachedRenderer is not None
+        if self._cachedRenderer is None:
+            msg = draw_artist.__name__ + ''' can only be used after an initial
+            draw which caches the render'''
+            raise AttributeError(msg)
         a.draw(self._cachedRenderer)
 
     def redraw_in_frame(self):
@@ -2113,7 +2116,10 @@ class _AxesBase(martist.Artist):
         caches the renderer.  It is used to efficiently update Axes
         data (axis ticks, labels, etc are not updated)
         """
-        assert self._cachedRenderer is not None
+        if self._cachedRenderer is None:
+            msg = redraw_in_frame.__name__ + ''' can only be used after an
+            initial draw which caches the render'''
+            raise AttributeError(msg)
         self.draw(self._cachedRenderer, inframe=True)
 
     def get_renderer_cache(self):
