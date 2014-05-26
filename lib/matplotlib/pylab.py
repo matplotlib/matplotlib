@@ -23,6 +23,7 @@ _Plotting commands
   broken_barh - a set of horizontal bars with gaps
   box       - set the axes frame on/off state
   boxplot   - make a box and whisker plot
+  violinplot - make a violin plot
   cla       - clear current axes
   clabel    - label a contour plot
   clf       - clear a figure window
@@ -162,8 +163,8 @@ _Probability
 
 _Statistics
 
-  amax       - the maximum along dimension m
-  amin       - the minimum along dimension m
+  amax      - the maximum along dimension m
+  amin      - the minimum along dimension m
   corrcoef  - correlation coefficient
   cov       - covariance matrix
   mean      - the mean along dimension m
@@ -172,7 +173,8 @@ _Statistics
   prod      - the product along dimension m
   ptp       - the max-min along dimension m
   std       - the standard deviation along dimension m
-  asum       - the sum along dimension m
+  asum      - the sum along dimension m
+  ksdensity - the kernel density estimate
 
 _Time series analysis
 

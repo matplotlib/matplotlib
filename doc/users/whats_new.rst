@@ -172,6 +172,27 @@ Added the Axes method :meth:`~matplotlib.axes.Axes.add_image` to put image
 handling on a par with artists, collections, containers, lines, patches,
 and tables.
 
+Violin Plots
+````````````
+Per Parker, Gregory Kelsie, Adam Ortiz, Kevin Chan, Geoffrey Lee, Deokjae
+Donald Seo, and Taesu Terry Lim added a basic implementation for violin
+plots. Violin plots can be used to represent the distribution of sample data.
+They are similar to box plots, but use a kernel density estimation function to
+present a smooth approximation of the data sample used. The added features are:
+
+:func:`~matplotlib.Axes.violin` - Renders a violin plot from a collection of
+statistics.
+:func:`~matplotlib.cbook.violin_stats` - Produces a collection of statistics
+suitable for rendering a violin plot.
+:func:`~matplotlib.pyplot.violinplot` - Creates a violin plot from a set of
+sample data. This method makes use of :func:`~matplotlib.cbook.violin_stats`
+to process the input data, and :func:`~matplotlib.cbook.violin_stats` to
+do the actual rendering. Users are also free to modify or replace the output of
+:func:`~matplotlib.cbook.violin_stats` in order to customize the violin plots
+to their liking.
+
+This feature was implemented for a software engineering course at the
+University of Toronto, Scarborough, run in Winter 2014 by Anya Tafliovich.
 
 More `markevery` options to show only a subset of markers
 `````````````````````````````````````````````````````````
