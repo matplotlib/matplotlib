@@ -5636,7 +5636,7 @@ class Axes(_AxesBase):
                     logbase = self.yaxis._scale.base
 
                 # Setting a minimum of 0 results in problems for log plots
-                if normed:
+                if normed or weights is not None:
                     # For normed data, set to log base * minimum data value
                     # (gives 1 full tick-label unit for the lowest filled bin)
                     ndata = np.array(n)

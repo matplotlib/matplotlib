@@ -980,14 +980,19 @@ def test_hist_steplog():
     data += -2.0 - np.min(data)
     data_pos = data + 2.1
     data_big = data_pos + 30
+    weights = np.ones_like(data) * 1.e-5
 
-    ax = plt.subplot(3, 1, 1)
+    ax = plt.subplot(4, 1, 1)
     plt.hist(data, 100, histtype='stepfilled', log=True)
 
-    ax = plt.subplot(3, 1, 2)
+    ax = plt.subplot(4, 1, 2)
     plt.hist(data_pos, 100, histtype='stepfilled', log=True)
 
-    ax = plt.subplot(3, 1, 3)
+
+    ax = plt.subplot(4, 1, 3)
+    plt.hist(data, 100, weights=weights, histtype='stepfilled', log=True)
+
+    ax = plt.subplot(4, 1, 4)
     plt.hist(data_big, 100, histtype='stepfilled', log=True, orientation='horizontal')
 
 
