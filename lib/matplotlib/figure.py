@@ -50,9 +50,6 @@ from matplotlib.backend_bases import NonGuiException
 
 docstring.interpd.update(projection_names=get_projection_names())
 
-class AxesException(Exception):
-    pass
-
 class AxesStack(Stack):
     """
     Specialization of the Stack to handle all tracking of Axes in a Figure.
@@ -876,7 +873,7 @@ class Figure(Artist):
             a = args[0]
             if a.get_figure() is not self:
                 msg = "The Axes must have been created in the present figure"
-                raise AxesException(msg)
+                raise ValueError(msg)
         else:
             rect = args[0]
             projection_class, kwargs, key = process_projection_requirements(
@@ -952,7 +949,7 @@ class Figure(Artist):
             a = args[0]
             if a.get_figure() is not self:
                 msg = "The Subplot must have been created in the present figure"
-                raise AxesException(msg)
+                raise ValueError(msg)
             # make a key for the subplot (which includes the axes object id
             # in the hash)
             key = self._make_key(*args, **kwargs)
