@@ -358,10 +358,14 @@ class ColorConverter(object):
                     if alpha < 0.0 or alpha > 1.0:
                         raise ValueError("alpha must be in range 0-1")
                     return arg[0], arg[1], arg[2], alpha
-                r, g, b = arg[:3]
-                if [x for x in (r, g, b) if (float(x) < 0) or (x > 1)]:
+                if len(arg) == 3:
+                    r, g, b = arg
+                    if [x for x in (r, g, b) if (float(x) < 0) or (x > 1)]:
+                        raise ValueError(
+                            'number in rbg sequence outside 0-1 range')
+                else:
                     raise ValueError(
-                        'number in rbg sequence outside 0-1 range')
+                            'length of rgba sequence should be either 3 or 4')
             else:
                 r, g, b = self.to_rgb(arg)
             if alpha is None:
