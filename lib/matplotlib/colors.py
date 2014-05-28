@@ -349,8 +349,7 @@ class ColorConverter(object):
         try:
             if not cbook.is_string_like(arg) and cbook.iterable(arg):
                 if len(arg) == 4:
-                    if [x for x in arg if (float(x) < 0) or (x > 1)]:
-                        # This will raise TypeError if x is not a number.
+                    if any(float(x) < 0. or float(x) > 1. for x in arg):
                         raise ValueError(
                             'number in rbga sequence outside 0-1 range')
                     if alpha is None:
@@ -360,7 +359,7 @@ class ColorConverter(object):
                     return arg[0], arg[1], arg[2], alpha
                 if len(arg) == 3:
                     r, g, b = arg
-                    if [x for x in (r, g, b) if (float(x) < 0) or (x > 1)]:
+                    if any(float(x) < 0. or float(x) > 1. for x in arg):
                         raise ValueError(
                             'number in rbg sequence outside 0-1 range')
                 else:
