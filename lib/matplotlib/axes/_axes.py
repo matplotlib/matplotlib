@@ -5386,12 +5386,12 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        n : array
+        n : array or list of arrays
             The values of the histogram. See **normed** and  **weights** for a
             description of the possible semantics.
         bins : array
             The edges of the bins ``len(n)+1``.
-        patches : list
+        patches : list or list of lists
             Silent list of individual patches used to create the histogram.
 
         Other Parameters
