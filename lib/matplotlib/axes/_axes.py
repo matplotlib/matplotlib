@@ -5290,8 +5290,9 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x : array_like, shape (n, )
-            Input values.
+        x : (n,) array or sequence of (n,) arrays
+            Input values, this takes either a single array or a sequency of
+            arrays which are not required to be of the same length
 
         bins : integer or array_like, optional, default: 10
             If an integer is given, `bins + 1` bin edges are returned,
@@ -5388,7 +5389,11 @@ class Axes(_AxesBase):
         -------
         n : array or list of arrays
             The values of the histogram. See **normed** and  **weights** for a
-            description of the possible semantics.
+            description of the possible semantics. If input **x** is an array, 
+            then this is an array of length **nbins**. If input is a sequence 
+            arrays ``[data1, data2,..]``, then this is a list of arrays with 
+            the values of the histograms for each of the arrays in the same 
+            order.
         bins : array
             The edges of the bins ``len(n)+1``.
         patches : list or list of lists
