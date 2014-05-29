@@ -644,6 +644,9 @@ class Artist(object):
         """
         Set whether artist uses clipping.
 
+        When False artists will be visible out side of the axes which 
+        can lead to unexpected results.
+
         ACCEPTS: [True | False]
         """
         self._clipon = b
