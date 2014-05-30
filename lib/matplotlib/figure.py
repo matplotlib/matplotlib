@@ -1107,7 +1107,10 @@ class Figure(Artist):
         draw :class:`matplotlib.artist.Artist` instance *a* only --
         this is available only after the figure is drawn
         """
-        assert self._cachedRenderer is not None
+        if self._cachedRenderer is None:
+            msg = '''draw_artist can only be used after an initial draw which \
+            caches the render'''
+            raise AttributeError(msg)
         a.draw(self._cachedRenderer)
 
     def get_axes(self):
