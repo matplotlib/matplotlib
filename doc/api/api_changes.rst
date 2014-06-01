@@ -54,6 +54,12 @@ original location:
   the upper and lower limits (*lolims*, *uplims*, *xlolims*, *xuplims*) now
   point in the correct direction.
 
+* The *fmt* kwarg for :func:`~matplotlib.pyplot.errorbar now supports
+  the string 'none' to suppress drawing of a line and markers; use
+  of the *None* object for this is deprecated. The default *fmt*
+  value is changed to the empty string (''), so the line and markers
+  are governed by the :func:`~matplotlib.pyplot.plot` defaults.
+
 * A bug has been fixed in the path effects rendering of fonts, which now means
   that the font size is consistent with non-path effect fonts. See
   https://github.com/matplotlib/matplotlib/issues/2889 for more detail.
