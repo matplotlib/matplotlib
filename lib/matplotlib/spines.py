@@ -379,7 +379,7 @@ class Spine(mpatches.Patch):
         self.set_transform(self.get_spine_transform())
 
         if self.axis is not None:
-            self.axis.cla()
+            self.axis.reset_ticks()
 
     def get_position(self):
         """get the spine position"""
