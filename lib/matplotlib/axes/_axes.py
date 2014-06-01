@@ -2915,7 +2915,7 @@ class Axes(_AxesBase):
 
           sym : str, default = 'b+'
             The default symbol for flier points.
-            Enter an empty string ('') if you don't wantshow fliers.
+            Enter an empty string ('') if you don't want to show fliers.
 
           vert : bool, default = False
             If True (default), makes the boxes vertical.
@@ -2948,13 +2948,13 @@ class Axes(_AxesBase):
             An array or sequence whose first dimension (or length) is
             compatible with *x*. This overrides the medians computed by
             matplotlib for each element of *usermedians* that is not None.
-        When an element of *usermedians* == None, the median will be
-            cted by matplb as normal.
+            When an element of *usermedians* == None, the median will be
+            computed by matplotlib as normal.
 
           conf_intervals : array-like or None (default)
             Array or sequence whose first dimension (or length) is compatible
             with *x* and whose second dimension is 2. When the current element
-            ofnf_intervals* is not None, the notch locations computed by
+            of *conf_intervals* is not None, the notch locations computed by
             matplotlib are overridden (assuming notch is True). When an
             element of *conf_intervals* is None, boxplot compute notches the
             method specified by the other kwargs (e.g., *bootstrap*).
@@ -3143,14 +3143,14 @@ class Axes(_AxesBase):
             If True produces boxes with the Patch artist
 
           shownotches : bool, default = False
-        If False (default), produces a rectangular box plot.
-        If True, will produce a ed box plot
+             If False (default), produces a rectangular box plot.
+             If True, will produce a ed box plot
 
           showmeans : bool, default = False
             If True, will toggle one the rendering of the means
 
           showcaps  : bool, default = True
-            If T will toggle one the rendering of the caps
+            If True will toggle one the rendering of the caps
 
           showbox  : bool, default = True
             If True, will toggle one the rendering of box
@@ -3168,7 +3168,7 @@ class Axes(_AxesBase):
             If provided, will set the plotting style of the whiskers
 
           flierprops : dict or None (default)
-            If provi will set the plotting style of the fliers
+            If provided will set the plotting style of the fliers
 
           medianprops : dict or None (default)
             If provided, will set the plotting style of the medians
