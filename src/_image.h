@@ -45,6 +45,12 @@ public:
     inline Py::Object flipud_out(const Py::Tuple& args)
     {
         args.verify_length(0);
+        if (colsOut <= 0 || rowsOut <= 0)
+        {
+            throw Py::RuntimeError(
+            "Width and height must have positive values");
+        }
+
         int stride = rbufOut->stride();
         //std::cout << "flip before: " << rbufOut->stride() << std::endl;
         rbufOut->attach(bufferOut, colsOut, rowsOut, -stride);
