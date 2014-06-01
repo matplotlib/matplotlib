@@ -15,7 +15,7 @@ import matplotlib
 rcParams = matplotlib.rcParams
 
 import matplotlib.cbook as cbook
-from matplotlib.cbook import _string_to_bool
+from matplotlib.cbook import _string_to_bool, mplDeprecation
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
@@ -2062,7 +2062,7 @@ class Axes(_AxesBase):
 
             errorbar = self.errorbar(x, y,
                                      yerr=yerr, xerr=xerr,
-                                     fmt=None, **error_kw)
+                                     fmt='none', **error_kw)
         else:
             errorbar = None
 
@@ -2520,7 +2520,7 @@ class Axes(_AxesBase):
 
     @docstring.dedent_interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
-                 fmt='-', ecolor=None, elinewidth=None, capsize=3,
+                 fmt='', ecolor=None, elinewidth=None, capsize=3,
                  barsabove=False, lolims=False, uplims=False,
                  xlolims=False, xuplims=False, errorevery=1, capthick=None,
                  **kwargs):
@@ -2530,7 +2530,7 @@ class Axes(_AxesBase):
         Call signature::
 
           errorbar(x, y, yerr=None, xerr=None,
-                   fmt='-', ecolor=None, elinewidth=None, capsize=3,
+                   fmt='', ecolor=None, elinewidth=None, capsize=3,
                    barsabove=False, lolims=False, uplims=False,
                    xlolims=False, xuplims=False, errorevery=1,
                    capthick=None)
@@ -2552,10 +2552,12 @@ class Axes(_AxesBase):
             If a sequence of shape 2xN, errorbars are drawn at -row1
             and +row2 relative to the data.
 
-          *fmt*: '-'
-            The plot format symbol. If *fmt* is *None*, only the
-            errorbars are plotted.  This is used for adding
-            errorbars to a bar plot, for example.
+          *fmt*: [ '' | 'none' | plot format string ]
+            The plot format symbol. If *fmt* is 'none' (case-insensitive),
+            only the errorbars are plotted.  This is used for adding
+            errorbars to a bar plot, for example.  Default is '',
+            an empty plot format string; properties are
+            then identical to the defaults for :meth:`plot`.
 
           *ecolor*: [ *None* | mpl color ]
             A matplotlib color arg which gives the color the errorbar lines;
@@ -2635,6 +2637,15 @@ class Axes(_AxesBase):
         holdstate = self._hold
         self._hold = True
 
+        if fmt is None:
+            fmt = 'none'
+            msg = ('Use of None object as fmt keyword argument to '
+                   + 'suppress plotting of data values is deprecated '
+                   + 'since 1.4; use the string "none" instead.')
+            warnings.warn(msg, mplDeprecation, stacklevel=1)
+
+        plot_line = (fmt.lower() != 'none')
+
         label = kwargs.pop("label", None)
 
         # make sure all the args are iterable; use lists not arrays to
@@ -2655,7 +2666,9 @@ class Axes(_AxesBase):
 
         l0 = None
 
-        if barsabove and fmt is not None:
+        # Instead of using zorder, the line plot is being added
+        # either here, or after all the errorbar plot elements.
+        if barsabove and plot_line:
             l0, = self.plot(x, y, fmt, label="_nolegend_", **kwargs)
 
         barcols = []
@@ -2838,7 +2851,7 @@ class Axes(_AxesBase):
                     xup, yup = xywhere(x, y, uplims & everymask)
                     caplines.extend(self.plot(xup, yup, 'k_', **plot_kw))
 
-        if not barsabove and fmt is not None:
+        if not barsabove and plot_line:
             l0, = self.plot(x, y, fmt, **kwargs)
 
         if ecolor is None:
