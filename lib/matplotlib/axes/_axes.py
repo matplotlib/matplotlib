@@ -3071,7 +3071,7 @@ class Axes(_AxesBase):
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
             patch_artist=False, shownotches=False, showmeans=False,
             showcaps=True, showbox=True, showfliers=True,
-            boxprops=None, whiskerprops=None, flierprops=None, 
+            boxprops=None, whiskerprops=None, flierprops=None,
             medianprops=None, capprops=None, meanprops=None,
             meanline=False, manage_xticks=True):
         """
@@ -3082,7 +3082,7 @@ class Axes(_AxesBase):
           bxp(self, bxpstats, positions=None, widths=None, vert=True,
               patch_artist=False, shownotches=False, showmeans=False,
               showcaps=True, showbox=True, showfliers=True,
-              boxprops=None, whiskerprops=None, flierprops=None, 
+              boxprops=None, whiskerprops=None, flierprops=None,
               medianprops=None, capprops=None, meanprops=None,
               meanline=False, manage_xticks=True):
 
@@ -3246,15 +3246,15 @@ class Axes(_AxesBase):
             sym = flierprops.pop('sym', '')
 
             if sym == '':
-                final_flierprops = dict(linestyle='none', marker='+', 
-                                        markeredgecolor='b', 
+                final_flierprops = dict(linestyle='none', marker='+',
+                                        markeredgecolor='b',
                                         markerfacecolor='none')
             else:
                 final_flierprops = dict(linestyle='none')
             final_flierprops.update(flierprops)
         else:
             sym = ''
-            final_flierprops = dict(linestyle='none', marker='+', 
+            final_flierprops = dict(linestyle='none', marker='+',
                                     markeredgecolor='b')
 
         # median line properties
