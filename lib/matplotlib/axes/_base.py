@@ -1423,8 +1423,12 @@ class _AxesBase(martist.Artist):
             len(self.patches)) > 0
 
     def add_artist(self, a):
-        """
-        Add any :class:`~matplotlib.artist.Artist` to the axes.
+        """Add any :class:`~matplotlib.artist.Artist` to the axes.
+
+        Use `add_artist` only for artists for which there is no dedicated
+        "add" method; and if necessary, use a method such as
+        `update_datalim` or `update_datalim_numerix` to manually update the
+        dataLim if the artist is to be included in autoscaling.
 
         Returns the artist.
         """
