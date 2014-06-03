@@ -955,7 +955,7 @@ class Wedge(Patch):
 
     def set_radius(self, radius):
         self._path = None
-        self.radius = radius
+        self.r = radius
 
     def set_theta1(self, theta1):
         self._path = None
