@@ -29,7 +29,8 @@ from six.moves import zip
 #     argument specifies the direction of the arrows.  The "main"
 #     inputs/outputs are now specified via an orientation of 0, and there may
 #     be several of each.
-#   --Added assertions to catch common calling errors
+#   --Changed assertions to ValueError to catch common calling errors (by
+#     Francesco Montesano, franz.bergesung@gmail.com)
 #   --Added the physical unit as a string argument to be used in the labels, so
 #     that the values of the flows can usually be applied automatically
 #   --Added an argument for a minimum magnitude below which flows are not shown
@@ -150,17 +151,21 @@ class Sankey(object):
             .. plot:: mpl_examples/api/sankey_demo_basics.py
         """
         # Check the arguments.
-        assert gap >= 0, (
+        if gap <0:
+            raise ValueError(
             "The gap is negative.\nThis isn't allowed because it "
             "would cause the paths to overlap.")
-        assert radius <= gap, (
+        if radius > gap:
+            raise ValueError(
             "The inner radius is greater than the path spacing.\n"
             "This isn't allowed because it would cause the paths to overlap.")
-        assert head_angle >= 0, (
+        if head_angle < 0:
+            raise ValueError(
             "The angle is negative.\nThis isn't allowed "
             "because it would cause inputs to look like "
             "outputs and vice versa.")
-        assert tolerance >= 0, (
+        if tolerance < 0:
+            raise ValueError(
             "The tolerance is negative.\nIt must be a magnitude.")
 
         # Create axes if necessary.
@@ -470,20 +475,23 @@ class Sankey(object):
             rotation /= 90.0
         if orientations is None:
             orientations = [0, 0]
-        assert len(orientations) == n, (
+        if len(orientations) != n:
+            raise ValueError(
             "orientations and flows must have the same length.\n"
             "orientations has length %d, but flows has length %d."
             % (len(orientations), n))
         if labels != '' and getattr(labels, '__iter__', False):
             # iterable() isn't used because it would give True if labels is a
             # string
-            assert len(labels) == n, (
+            if len(labels) != n:
+                raise ValueError(
                 "If labels is a list, then labels and flows must have the "
                 "same length.\nlabels has length %d, but flows has length %d."
                 % (len(labels), n))
         else:
             labels = [labels] * n
-        assert trunklength >= 0, (
+        if trunklength < 0:
+            raise ValueError(
             "trunklength is negative.\nThis isn't allowed, because it would "
             "cause poor layout.")
         if np.absolute(np.sum(flows)) > self.tolerance:
@@ -504,28 +512,35 @@ class Sankey(object):
                 "cause poor layout.\nConsider changing the scale so"
                 " that the scaled sum is approximately 1.0." % gain, 'helpful')
         if prior is not None:
-            assert prior >= 0, "The index of the prior diagram is negative."
-            assert min(connect) >= 0, (
+            if prior < 0:
+                raise ValueError("The index of the prior diagram is negative.")
+            if min(connect) < 0:
+                raise ValueError(
                 "At least one of the connection indices is negative.")
-            assert prior < len(self.diagrams), (
+            if prior >= len(self.diagrams):
+                raise ValueError(
                 "The index of the prior diagram is %d, but there are "
                 "only %d other diagrams.\nThe index is zero-based."
                 % (prior, len(self.diagrams)))
-            assert connect[0] < len(self.diagrams[prior].flows), (
+            if connect[0] >= len(self.diagrams[prior].flows): 
+                raise ValueError(
                 "The connection index to the source diagram is %d, but "
                 "that diagram has only %d flows.\nThe index is zero-based."
                 % (connect[0], len(self.diagrams[prior].flows)))
-            assert connect[1] < n, (
+            if connect[1] >= n: 
+                raise ValueError(
                 "The connection index to this diagram is %d, but this diagram"
                 "has only %d flows.\n The index is zero-based."
                 % (connect[1], n))
-            assert self.diagrams[prior].angles[connect[0]] is not None, (
+            if self.diagrams[prior].angles[connect[0]] is not None:
+                raise ValueError(
                 "The connection cannot be made.  Check that the magnitude "
                 "of flow %d of diagram %d is greater than or equal to the "
                 "specified tolerance." % (connect[0], prior))
             flow_error = (self.diagrams[prior].flows[connect[0]] +
                           flows[connect[1]])
-            assert abs(flow_error) < self.tolerance, (
+            if abs(flow_error) >r self.tolerance:
+                raise ValueError(
                 "The scaled sum of the connected flows is %f, which is not "
                 "within the tolerance (%f)." % (flow_error, self.tolerance))
 
@@ -556,7 +571,8 @@ class Sankey(object):
                 if is_input is not None:
                     angles[i] = RIGHT
             else:
-                assert orient == -1, (
+                if orient != -1:
+                    raise ValueError(
                     "The value of orientations[%d] is %d, "
                     "but it must be -1, 0, or 1." % (i, orient))
                 if is_input:
@@ -566,7 +582,8 @@ class Sankey(object):
 
         # Justify the lengths of the paths.
         if iterable(pathlengths):
-            assert len(pathlengths) == n, (
+            if len(pathlengths) != n:
+                raise ValueError(
                 "If pathlengths is a list, then pathlengths and flows must "
                 "have the same length.\npathlengths has length %d, but flows "
                 "has length %d." % (len(pathlengths), n))
