@@ -440,9 +440,12 @@ class SymmetricalLogScale(ScaleBase):
             subs = kwargs.pop('subsy', None)
             linscale = kwargs.pop('linscaley', 1.0)
 
-        assert base > 1.0
-        assert linthresh > 0.0
-        assert linscale > 0.0
+        if base <= 1.0:
+            raise ValueError("'basex/basey' be larger than 1")
+        if linthresh <= 0.0:
+            raise ValueError("'linthreshx/linthreshy' must be positive")
+        if linscale <= 0.0:
+            raise ValueError("'linscalex/linthreshy' must be positive")
 
         self._transform = self.SymmetricalLogTransform(base,
                                                        linthresh,
