@@ -8,6 +8,7 @@ import six
 
 import numpy as np
 from numpy.testing import assert_array_equal
+from numpy.testing import assert_equal
 from numpy.testing import assert_almost_equal
 
 from matplotlib.patches import Polygon
@@ -201,6 +202,21 @@ def test_patch_custom_linestyle():
     ax.set_xlim([-1, 2])
     ax.set_ylim([-1, 2])
 
+
+def test_wedge_movement():
+    param_dict = {'center': ((0, 0), (1, 1), 'set_center'),
+                  'r': (5, 8, 'set_radius'),
+                  'width': (2, 3, 'set_width'),
+                  'theta1': (0, 30, 'set_theta1'),
+                  'theta2': (45, 50, 'set_theta2')}
+
+    init_args = dict((k, v[0]) for (k, v) in six.iteritems(param_dict))
+
+    w = mpatches.Wedge(**init_args)
+    for attr, (old_v, new_v, func) in six.iteritems(param_dict):
+        assert_equal(getattr(w, attr), old_v)
+        getattr(w, func)(new_v)
+        assert_equal(getattr(w, attr), new_v)
 
 if __name__ == '__main__':
     import nose
