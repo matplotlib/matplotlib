@@ -154,7 +154,7 @@ class Table(Artist):
 
     Each entry in the table can be either text or patches.
 
-    Column widths and row heights for the table can be specifified.
+    Column widths and row heights for the table can be specified.
 
     Return value is a sequence of text, line and patch instances that make
     up the table
@@ -482,12 +482,17 @@ def table(ax,
     rows = len(cellText)
     cols = len(cellText[0])
     for row in cellText:
-        assert len(row) == cols
+        if len(row) != cols:
+            msg = "Each row in 'cellText' must have {} columns" 
+            raise ValueError(msg.format(cols))
 
     if cellColours is not None:
-        assert len(cellColours) == rows
+        if len(cellColours) != rows:
+            raise ValueError("'cellColours' must have {} rows".format(rows))
         for row in cellColours:
-            assert len(row) == cols
+            if len(row) != cols:
+                msg = "Each row in 'cellColours' must have {} columns" 
+                raise ValueError(msg.format(cols))
     else:
         cellColours = ['w' * cols] * rows
 
@@ -506,7 +511,8 @@ def table(ax,
         rowColours = 'w' * rows
 
     if rowLabels is not None:
-        assert len(rowLabels) == rows
+        if len(rowLabels) != rows:
+            raise ValueError("'rowLabels' must be of length {}".format(rows))
 
     # If we have column labels, need to shift
     # the text and colour arrays down 1 row
@@ -518,9 +524,6 @@ def table(ax,
             offset = 0
     elif colColours is None:
         colColours = 'w' * cols
-
-    if rowLabels is not None:
-        assert len(rowLabels) == rows
 
     # Set up cell colours if not given
     if cellColours is None:

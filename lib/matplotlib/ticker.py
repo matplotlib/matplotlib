@@ -464,7 +464,8 @@ class ScalarFormatter(Formatter):
         greater than 1e4.
         See also :meth:`set_scientific`.
         '''
-        assert len(lims) == 2, "argument must be a sequence of length 2"
+        if len(lims) != 2:
+            raise ValueError("'lims' must be a sequence of length 2")
         self._powerlimits = lims
 
     def format_data_short(self, value):
@@ -1201,7 +1202,8 @@ def closeto(x, y):
 class Base(object):
     'this solution has some hacks to deal with floating point inaccuracies'
     def __init__(self, base):
-        assert(base > 0)
+        if base <= 0:
+            raise ValueError("'base' must be positive")
         self._base = base
 
     def lt(self, x):
