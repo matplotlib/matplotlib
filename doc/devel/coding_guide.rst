@@ -260,8 +260,8 @@ Writing examples
 We have hundreds of examples in subdirectories of
 :file:`matplotlib/examples`, and these are automatically generated
 when the website is built to show up both in the `examples
-<http://matplotlib.org/examples/index.html>`_ and `gallery
-<http://matplotlib.org/gallery.html>`_ sections of the website.
+<../examples/index.html>`_ and `gallery
+<../gallery.html>`_ sections of the website.
 
 Any sample data that the example uses should be kept small and
 distributed with matplotlib in the
