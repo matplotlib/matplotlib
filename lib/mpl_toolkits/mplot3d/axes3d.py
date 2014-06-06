@@ -34,6 +34,7 @@ from matplotlib.colors import Normalize, colorConverter, LightSource
 from . import art3d
 from . import proj3d
 from . import axis3d
+from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
 def unit_bbox():
     box = Bbox(np.array([[0, 0], [1, 1]]))
@@ -2445,52 +2446,44 @@ class Axes3D(Axes):
         """
         def calc_arrow(u, v, w, angle=15):
             """
-            To calculate the arrow head vectors
+            To calculate the arrow head. (u, v, w) should be unit vector.
             """
+ 
+            # this part figures out the axis of rotation to use
 
-            # if the direction value is facing too much up or down, return the correct result right away
-            # returns it as a unit vector
-            # assumes if a value is smaller or equal to tol, then its 0
-            tol = 1/10.
-            angleInRad = math.radians(180-angle)
-            if abs(u)<=tol and abs(v)<=tol and abs(w)>tol:
-                newx = math.sin(angleInRad)  
-                newz = -math.cos(angleInRad) * np.sign(w)
-                return np.array([-newx, 0, newz]), np.array([newx, 0, newz])
+            # use unit vector perpendicular to (u,v,w) when |w|=1, by default
+            x, y, z = 0, 1, 0   
 
-            # should finish on first recursion
-            assert angle <= 20
+            # get the norm 
+            norm = math.sqrt(v**2 + u**2) 
+            # normalize it if it is safe
+            if norm > 0:
+                # get unit direction vector perpendicular to (u,v,w)
+                x, y = v/norm, -u/norm  
 
-            norm_uvw = np.linalg.norm([u, v, w], ord=2)
-            if norm_uvw == 0:
-                raise ValueError("u,v,w can't be all zero")
-            u, v, w = np.array([u, v, w]) / norm_uvw
+            # this function takes an angle, and rotates the (u,v,w) 
+            # angle degrees around (x,y,z)
+            def rotatefunction(angle):
+                ra = math.radians(angle)  
+                c = math.cos(ra)
+                s = math.sin(ra)
 
-            cos_angle = math.cos(math.radians(angle))
+                # construct the rotation matrix
+                R = np.matrix([[c+(x**2)*(1-c), x*y*(1-c)-z*s, x*z*(1-c)+y*s],
+                [y*x*(1-c)+z*s, c+(y**2)*(1-c), y*z*(1-c)-x*s],
+                [z*x*(1-c)-y*s, z*y*(1-c)+x*s, c+(z**2)*(1-c)]])
+ 
+                # construct the column vector for (u,v,w)
+                line = np.matrix([[u],[v],[w]])
+  
+                # use numpy to multiply them to get the rotated vector
+                rotatedline = R*line
 
-            # using following formula to get the two solutions
-            # (C + math.sqrt(B)) / A
-            # (C - math.sqrt(B)) / A
-            A = cos_angle ** 2 - w ** 2
-            B = cos_angle ** 2 * (1 - w ** 2) * (1 - cos_angle ** 2)
-            C = (1 - w ** 2) * w
+                # return the rotated (u,v,w) from the computed matrix
+                return (rotatedline[0,0], rotatedline[1,0], rotatedline[2,0])
 
-            if A == 0:
-                # to prevent the case of dividing by zero
-                # use a small enough delta such that
-                # A != 0 for one of
-                #   angle
-                # or
-                #   angle + delta
-                return calc_arrow(u, v, w, angle=angle + 0.1)
-            else:
-                x1 = (C + math.sqrt(B)) / A
-                x2 = (C - math.sqrt(B)) / A
-
-            # normalize the output vectors and convert to ndarray
-            norm_func = lambda k: np.array([u, v, k]) / np.linalg.norm([u, v, k], ord=2)
-
-            return norm_func(x1), norm_func(x2)
+            # compute and return the two arrowhead direction unit vectors
+            return rotatefunction(angle), rotatefunction(-angle)
 
         def point_vector_to_line(point, vector, length):
             """
@@ -2535,46 +2528,69 @@ class Axes3D(Axes):
         points = input_args[:3]
         vectors = input_args[3:]
 
-        # make sure that the direction vectors are not so small
-        # this tolerence fixes the corner cases
-        tol = 1e-15
-        us = vectors[0]
-        vs = vectors[1]
-        ws = vectors[2]  
-        for i in range(len(us)):
-            if abs(us[i])<=tol and abs(vs[i])<=tol and abs(ws[i])<=tol:
-                us[i] *= 1/tol
-                vs[i] *= 1/tol
-                ws[i] *= 1/tol
-
         # Below assertions must be true before proceed
         # must all be ndarray
         assert all([isinstance(k, np.ndarray) for k in input_args])
         # must all in same shape
         assert len(set([k.shape for k in input_args])) == 1
 
-        # get arrow vectors
-        arrow_vectors = list(map(calc_arrow, *[np.nditer(k) for k in vectors]))
-        # reshape into set of vectors
-        arrow_vectors = np.array(arrow_vectors).reshape((-1, 3)).swapaxes(0, 1)
 
+        # X, Y, Z, U, V, W
+        coords = list(map(lambda k: np.array(k) if not isinstance(k, np.ndarray) else k, args))
+        coords = [k.flatten() for k in coords]
+        xs, ys, zs, us, vs, ws = coords
         lines = []
-        # construct the main lines
-        lines.extend(point_vector_to_line(np.array(points),
-                                          np.array(vectors),
-                                          length))
-        # construct the arrow heads
-        lines.extend(point_vector_to_line(np.array(points).repeat(2, axis=1),
-                                          arrow_vectors,
-                                          length * arrow_length_ratio))
 
-        # Line3DCollection to do the heavy lifting
-        linec = art3d.Line3DCollection(lines, *args[argi:], **kwargs)
+        # for each arrow
+        for i in xrange(xs.shape[0]):
+            # calulate body
+            x = xs[i]
+            y = ys[i]
+            z = zs[i]
+            u = us[i]
+            v = vs[i]
+            w = ws[i]
+            if any([k is np.ma.masked for k in [x, y, z, u, v, w]]):
+                continue
+
+            # (u,v,w) expected to be normalized, recursive to fix A=0 scenario.
+            if u == 0 and v == 0 and w == 0:
+                raise ValueError("u,v,w can't be all zero")
+
+            # normalize
+            norm = math.sqrt(u ** 2 + v ** 2 + w ** 2)
+            u /= norm
+            v /= norm
+            w /= norm
+
+            # draw main line
+            t = np.linspace(0, length, num=20)
+            lx = x - t * u
+            ly = y - t * v
+            lz = z - t * w
+            line = list(zip(lx, ly, lz))
+            lines.append(line)
+
+            d1, d2 = calc_arrow(u, v, w)
+            ua1, va1, wa1 = d1[0], d1[1], d1[2]
+            ua2, va2, wa2 = d2[0], d2[1], d2[2]
+
+            t = np.linspace(0, length * arrow_length_ratio, num=20)
+            la1x = x - t * ua1
+            la1y = y - t * va1
+            la1z = z - t * wa1
+            la2x = x - t * ua2
+            la2y = y - t * va2
+            la2z = z - t * wa2
+
+            line = list(zip(la1x, la1y, la1z))
+            lines.append(line)
+            line = list(zip(la2x, la2y, la2z))
+            lines.append(line)
+
+        linec = Line3DCollection(lines, *args[6:], **kwargs)
         self.add_collection(linec)
 
-        # scale
-
-        xs, ys, zs = list(zip(*np.array(lines).reshape(-1, 3)))
         self.auto_scale_xyz(xs, ys, zs, had_data)
 
         return linec
