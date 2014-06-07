@@ -26,7 +26,11 @@ The following user-interface frameworks are supported (graphical builders in bra
   - Qt4
   - Qt5
 - Tk
-- Wx
+
+- Wx (wxFormbuilder)
+
+  - Wx 2.x
+  - Wx 3.x
 
 The different frameworks offer different features and programming-language bindings. The appearance of the user interface will be, by default, similar to the style of the operating system, but can be customized.
 
