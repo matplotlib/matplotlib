@@ -181,21 +181,37 @@ OS-X Notes
 Which python for OS X?
 ----------------------
 
-Apple ships with its own python, and many users have had trouble
-with it. There are several alternative versions of python that
-can be used. If it is feasible, we recommend that you use
-`Enthought Canopy <https://www.enthought.com/products/canopy/>`_
-for OS X (which comes with matplotlib and much more). Also available is
-`MacPython <http://wiki.python.org/moin/MacPython/Leopard>`_ or the
-official OS X version from `python.org <http://www.python.org/download/>`_.
+Apple ships OS X with its own python, but it is generally recommended
+that users install an independent python system and use that
+as the basis for installing libraries such as numpy and
+matplotlib.  By far the easiest method is to use one
+of the excellent python software collections that are now
+available:
 
-.. note::
-   Before installing any of the binary packages, be sure that all of the
-   packages were compiled for the same version of python.
-   Often, the download site for NumPy and matplotlib will display a
-   supposed 'current' version of the package, but you may need to choose
-   a different package from the full list that was built for your
-   combination of python and OSX.
+- Anaconda_ from `Continuum Analytics`_
+- Canopy_ from Enthought_
+
+.. _Canopy: https://enthought.com/products/canopy/
+.. _Anaconda: https://store.continuum.io/cshop/anaconda/
+.. _Enthought: http://enthought.com
+.. _Continuum Analytics: http://continuum.io
+
+These collections include python itself and a wide range of
+libraries; if you need a library that is not available from
+the collection, you can install it yourself using standard
+methods such as *pip*.
+
+If you choose not to use a collection, then you may use an
+installer from `python.org
+<https://www.python.org/downloads/mac-osx/>`_, or use a
+general package management system such as `homebrew
+<http://brew.sh>`_ or `macports <http://www.macports.org>`_.
+Whatever you choose, choose one and stick with it--don't try
+to mix homebrew and macports, for example.  You may,
+however, use homebrew or macports for all your non-python
+software, and still use Anaconda_ or Canopy_ for your python
+system.
+
 
 
 .. _install_osx_binaries:
@@ -207,6 +223,14 @@ If you want to install matplotlib from one of the binary installers we
 build, you have two choices: a mpkg installer, which is a typical
 Installer.app, or a binary OSX egg, which you can install via
 setuptools' easy_install.
+
+.. note::
+   Before installing any of the binary packages, be sure that all of the
+   packages were compiled for the same version of python.
+   Often, the download site for NumPy and matplotlib will display a
+   supposed 'current' version of the package, but you may need to choose
+   a different package from the full list that was built for your
+   combination of python and OSX.
 
 The mkpg installer will have a "zip" extension, and will have a name
 like :file:`matplotlib-1.2.0-py2.7-macosx10.5_mpkg.zip`.
@@ -235,64 +259,20 @@ then you will need to set your PYTHONPATH, eg::
 
 See also ref:`environment-variables`.
 
-.. _install_from_source_on_osx_epd:
-
-Building and installing from source on OSX with EPD
----------------------------------------------------
-
-If you have the EPD installed (:ref:`which-python-for-osx`), it might turn out
-to be rather tricky to install a new version of matplotlib from source on the
-Mac OS 10.5 . Here's a procedure that seems to work, at least sometimes:
-
-0. Remove the ~/.matplotlib folder ("rm -rf ~/.matplotlib").
-
-1. Edit the file (make a backup before you start, just in case):
-``/Library/Frameworks/Python.framework/Versions/Current/lib/python2.5/config/Makefile``,
-removing all occurrences of the string ``-arch ppc``, changing the line
-``MACOSX_DEPLOYMENT_TARGET=10.3`` to ``MACOSX_DEPLOYMENT_TARGET=10.5`` and
-changing the occurrences of ``MacOSX10.4u.sdk`` into ``MacOSX10.5.sdk``
-
-2.  In
-``/Library/Frameworks/Python.framework/Versions/Current/lib/pythonX.Y/site-packages/easy-install.pth``,
-(where X.Y is the version of Python you are building against)
-Comment out the line containing the name of the directory in which the
-previous version of MPL was installed (Looks something like
-``./matplotlib-0.98.5.2n2-py2.5-macosx-10.3-fat.egg``).
-
-3. Save the following as a shell script, for example
-``./install-matplotlib-epd-osx.sh``::
-
-   NAME=matplotlib
-   VERSION=v1.1.x
-   PREFIX=$HOME
-   #branch="release"
-   branch="master"
-   git clone git://github.com/matplotlib/matplotlib.git
-   cd matplotlib
-   if [ $branch = "release" ]
-       then
-       echo getting the maintenance branch
-       git checkout -b $VERSION origin/$VERSION
-   fi
-   export CFLAGS="-Os -arch i386"
-   export LDFLAGS="-Os -arch i386"
-   export PKG_CONFIG_PATH="/usr/x11/lib/pkgconfig"
-   export ARCHFLAGS="-arch i386"
-   python setup.py build
-   # use --prefix if you don't want it installed in the default location:
-   python setup.py install #--prefix=$PREFIX
-   cd ..
-
-Run this script (for example ``sh ./install-matplotlib-epd-osx.sh``) in the
-directory in which you want the source code to be placed, or simply type the
-commands in the terminal command line. This script sets some local variable
-(CFLAGS, LDFLAGS, PKG_CONFIG_PATH, ARCHFLAGS), removes previous installations,
-checks out the source from github, builds and installs it. The backend should
-to be set to MacOSX.
-
 
 Windows Notes
 =============
+
+Recommendation: use one of the excellent multi-platform
+python collections which include python itself and a wide
+range of libraries including matplotlib:
+
+- Anaconda_ from `Continuum Analytics`_
+- Canopy_ from Enthought_
+
+A Windows-only alternative is:
+
+- `python (x, y) <http://www.pythonxy.com>`_
 
 .. _windows-installers:
 
@@ -307,12 +287,3 @@ you installed Python 2.7) which have the ``exe`` extension.  If you
 haven't already installed python, you can get the official version
 from the `python web site <http://python.org/download/>`_.
 
-There are also two packaged distributions of python that come
-preloaded with matplotlib and many other tools like ipython, numpy,
-scipy, vtk and user interface toolkits.  These packages are quite
-large because they come with so much, but you get everything with
-a single click installer.
-
-* `Enthought Canopy <https://www.enthought.com/products/canopy/>`_
-
-* `python (x, y) <http://www.pythonxy.com>`_
