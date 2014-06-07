@@ -4041,7 +4041,10 @@ class Axes(_AxesBase):
         The resulting arrow is affected by the axes aspect ratio and limits.
         This may produce an arrow whose head is not square with its stem. To
         create an arrow whose head is square with its stem, use
-        :meth:`annotate`.
+        :meth:`annotate` for example::
+
+            ax.annotate("", xy=(0.5, 0.5), xytext=(0, 0),
+                arrowprops=dict(arrowstyle="->"))
 
         Optional kwargs control the arrow construction and properties:
 
