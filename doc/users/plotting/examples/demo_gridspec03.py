@@ -14,7 +14,7 @@ def make_ticklabels_invisible(fig):
 
 f = plt.figure()
 
-plt.suptitle("GirdSpec w/ different subplotpars")
+plt.suptitle("GridSpec w/ different subplotpars")
 
 gs1 = GridSpec(3, 3)
 gs1.update(left=0.05, right=0.48, wspace=0.05)
