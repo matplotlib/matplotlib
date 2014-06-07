@@ -88,7 +88,11 @@ please provide the following information in your e-mail to the
 
   * where you obtained matplotlib (e.g., your Linux distribution's
     packages or the matplotlib Sourceforge site, or
-    `Enthought Canopy <https://www.enthought.com/products/canopy/>`_.
+    Anaconda_ or
+    `Enthought Canopy <https://www.enthought.com/products/canopy/>`_).
+
+.. _Anaconda: https://store.continuum.io/cshop/anaconda/
+
 
   * any customizations to your ``matplotlibrc`` file (see
     :ref:`customizing-matplotlib`).
