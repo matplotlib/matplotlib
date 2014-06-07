@@ -148,7 +148,8 @@ def validate_backend(s):
     else:
         return _validate_standard_backends(s)
 
-validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide'])
+
+validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide', 'PyQt4v2'])
 validate_qt5 = ValidateInStrings('backend.qt5', ['PyQt5'])
 
 
