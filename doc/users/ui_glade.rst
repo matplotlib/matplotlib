@@ -5,13 +5,13 @@ Glade user interface designer
 
 Glade is a rapid-application-development program (RAD) or  graphical user-interface-builder, that allows the easy creation of Gtk-applications. The user interface is stored in an XML-file (file extension: *".glade"*), which is called by the main program. The older version of Glade, 3.8.x, targets Gtk+ 2.x applications, while the newer 3.16.x, targets Gtk+ 3.x.
 
-.. _ui_glade_316_python3:
+.. _ui_glade_316_python3_basic:
 
-Glade 3.16 example using Python 3
----------------------------------
+Basic Glade 3.16 example using Python 3
+---------------------------------------
 This example uses Glade 3.16.x and Python 3.x. In order to understand the code it is recommended to work through the Python-GtK3-Tutorial: http://python-gtk-3-tutorial.readthedocs.org/en/latest/. 
 
-The first step is to start Glade and open a new project. Drag a *GtkApplicationWindow* into the work area. In the bottom-right menu you can change the default name from *"applicationwindow1"* to *"window1"*. This is the designation that the window will have in the Python 3 code and in Glade for certain actions. In the *Signals* tab of the same menu open the *GtkWidget* tree and find the *destroy* entry. This is the widget that will allow you to connect the program with the close-button of the window. Enter the action *"on_window1_destroy"* (window1 being the name we gave this window).
+The first step is to start Glade and open a new project. This version of Glade will automaticall target GTK+ 3.x. The specific GTK version can be set in *File --> Properties*. To beginn the design phase drag a *GtkApplicationWindow* into the work area. In the bottom-right menu you can change the default name from *"applicationwindow1"* to *"window1"*. This is the designation that the window will have in the Python 3 code and in Glade for certain actions. In the *Signals* tab of the same menu open the *GtkWidget* tree and find the *destroy* entry. This is the widget that will allow you to connect the program with the close-button of the window. Enter the action *"on_window1_destroy"* (window1 being the name we gave this window).
 
 In the next step we need to create a container to place the Matplotlib-widget. This tutorial uses a *GtkScrolledWindow*, which you can drag-and-drop on the *GtkApplicationWindow*. Now we are going to save the Glade file into directory with the name *"mpl_with_glade_316.glade"*. Note that there are many options in Glade you can additionally set like the default size of the window. These options are fairly easy to set.
 
@@ -225,3 +225,145 @@ The finished second example is shown in **Figure 3**.
     :align: left
     
     **Figure 3:** The finished program (shown here in Ubuntu 14.04).
+    
+
+.. _ui_glade_316_mouse_tracking:
+
+Mouse tracking using Glade 3.16
+-------------------------------
+Although the *Matplotlib-NavigationToolbar* displays the mouse position within the plot, we might wan't to display this separatly in a different part of the window. This is often done in the toolbar of a window. Adding this functionality just requires a few lines of code and some changes to the user interface in Glade.
+
+In Glade we will need to change the number of rows in the *GtkBox* to 3. Then drag a *GtkStatusbar* into the bottom-most cell. By default this statusbar will have the name statusbar1, which we can keep. The finished glade-file will look like this:
+
+::
+
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!-- Generated with glade 3.16.1 -->
+        <interface>
+          <requires lib="gtk+" version="3.10"/>
+          <object class="GtkApplicationWindow" id="window1">
+            <property name="can_focus">False</property>
+            <property name="title" translatable="yes">Matplotlib</property>
+            <property name="default_width">300</property>
+            <property name="default_height">200</property>
+            <signal name="destroy" handler="on_window1_destroy" swapped="no"/>
+            <child>
+              <object class="GtkBox" id="box2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkScrolledWindow" id="scrolledwindow1">
+                    <property name="width_request">700</property>
+                    <property name="height_request">600</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="border_width">10</property>
+                    <property name="shadow_type">in</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow" id="scrolledwindow2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="border_width">10</property>
+                    <property name="shadow_type">in</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkStatusbar" id="statusbar1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="margin_left">10</property>
+                    <property name="margin_right">10</property>
+                    <property name="margin_top">6</property>
+                    <property name="margin_bottom">6</property>
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">2</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </interface>
+        
+In the Python-3-code we need add a line that initializes the statusbar, a function that calculates and displays the mouse position, and a line that calls that function in the main loop:
+
+::
+
+        #!/usr/bin/env python3
+
+        from gi.repository import Gtk, Gio
+
+        from matplotlib.figure import Figure
+        from matplotlib.axes import Subplot
+        from numpy import arange, sin, pi
+        from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
+        from matplotlib.backends.backend_gtk3 import NavigationToolbar2GTK3 as NavigationToolbar
+
+        import sys
+
+        class Window1Signals:
+            def on_window1_destroy(self, widget):
+                Gtk.main_quit()
+
+        def main():
+            builder = Gtk.Builder()
+            builder.add_objects_from_file("mpl_with_glade_316_ntb_ct.glade", ("window1", "") )
+            builder.connect_signals(Window1Signals())
+
+            window = builder.get_object("window1")
+
+            sw1 = builder.get_object("scrolledwindow1")
+            sw2 = builder.get_object("scrolledwindow2")
+            st1 = builder.get_object("statusbar1")
+
+            def updatecursorposition(event):
+                if event.inaxes:
+                    x = event.xdata
+                    y = event.ydata
+                    st1.push(2, ("Coordinates: " + "x= " + str(x) + "  y= " + str(y)))
+
+            figure = Figure(figsize=(4,3), dpi=71)
+            axis = figure.add_subplot(111)
+            t = arange(0.0, 3.0, 0.01)
+            s = sin(2*pi*t)
+            axis.plot(t,s)
+
+            axis.set_xlabel('time [s]')
+            axis.set_ylabel('voltage [V]')
+
+            canvas = FigureCanvas(figure)
+            sw1.add_with_viewport(canvas)
+
+            toolbar = NavigationToolbar(canvas, window)
+            sw2.add_with_viewport(toolbar)
+            
+            canvas.mpl_connect('motion_notify_event', updatecursorposition)
+          
+            window.show_all()
+            Gtk.main()
+
+        if __name__ == "__main__":
+            main()
