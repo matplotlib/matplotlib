@@ -730,15 +730,19 @@ def axes(*args, **kwargs):
     - ``axes(h)`` where *h* is an axes instance makes *h* the current
       axis.  An :class:`~matplotlib.axes.Axes` instance is returned.
 
-    =======   ============   ================================================
-    kwarg     Accepts        Description
-    =======   ============   ================================================
-    axisbg    color          the axes background color
-    frameon   [True|False]   display the frame?
-    sharex    otherax        current axes shares xaxis attribute with otherax
-    sharey    otherax        current axes shares yaxis attribute with otherax
-    polar     [True|False]   use a polar axes?
-    =======   ============   ================================================
+    =======   ==============   ==============================================
+    kwarg     Accepts          Description
+    =======   ==============   ==============================================
+    axisbg    color            the axes background color
+    frameon   [True|False]     display the frame?
+    sharex    otherax          current axes shares xaxis attribute
+                               with otherax
+    sharey    otherax          current axes shares yaxis attribute
+                               with otherax
+    polar     [True|False]     use a polar axes?
+    aspect    [str | num]      ['equal', 'auto'] or a number.  If a number
+                               the ratio of x-unit/y-unit in screen-space.
+    =======   ==============   ==============================================
 
     Examples:
 
@@ -749,8 +753,9 @@ def axes(*args, **kwargs):
     """
 
     nargs = len(args)
-    if len(args)==0: return subplot(111, **kwargs)
-    if nargs>1:
+    if len(args) == 0:
+        return subplot(111, **kwargs)
+    if nargs > 1:
         raise TypeError('Only one non keyword arg to axes allowed')
     arg = args[0]
 
