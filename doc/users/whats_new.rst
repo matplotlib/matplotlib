@@ -202,6 +202,19 @@ show with an int, slice object, numpy fancy indexing, or float. Using a float
 shows markers at approximately equal display-coordinate-distances along the
 line.
 
+Added size related functions to specialized `Collections`
+`````````````````````````````````````````````````````````
+
+Added the `get_size` and `set_size` functions to control the size of
+elements of specialized collections (
+:class:`~matplotlib.collections.AsteriskPolygonCollection`
+:class:`~matplotlib.collections.BrokenBarHCollection`
+:class:`~matplotlib.collections.CircleCollection`
+:class:`~matplotlib.collections.PathCollection`
+:class:`~matplotlib.collections.PolyCollection`
+:class:`~matplotlib.collections.RegularPolyCollection`
+:class:`~matplotlib.collections.StarPolygonCollection`).
+
 
 Fixed the mouse coordinates giving the wrong theta value in Polar graph
 ```````````````````````````````````````````````````````````````````````
