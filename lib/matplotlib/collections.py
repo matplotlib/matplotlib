@@ -710,9 +710,30 @@ class _CollectionWithSizes(Collection):
     Base class for collections that have an array of sizes.
     """
     def get_sizes(self):
+        """
+        Returns the sizes of the elements in the collection.  The
+        value represents the 'area' of the element.
+
+        Returns
+        -------
+        sizes : array
+            The 'area' of each element.
+        """
         return self._sizes
 
     def set_sizes(self, sizes, dpi=72.0):
+        """
+        Set the sizes of each member of the collection.
+
+        Parameters
+        ----------
+        sizes : ndarray or None
+            The size to set for each element of the collection.  The
+            value is the 'area' of the element.
+
+        dpi : float
+            The dpi of the canvas. Defaults to 72.0.
+        """
         if sizes is None:
             self._sizes = np.array([])
             self._transforms = np.empty((0, 3, 3))
