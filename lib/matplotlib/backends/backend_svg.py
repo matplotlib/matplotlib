@@ -3,8 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import xrange
-if six.PY3:
-    unichr = chr
+from six import unichr
 
 import os, base64, tempfile, gzip, io, sys, codecs, re
 
