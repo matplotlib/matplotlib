@@ -19,10 +19,10 @@ import warnings
 import zlib
 
 import numpy as np
+from six import unichr
 
 if six.PY3:
     from io import BytesIO
-    unichr = chr
 else:
     from cStringIO import StringIO as BytesIO
 from datetime import datetime

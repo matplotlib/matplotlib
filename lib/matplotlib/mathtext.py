@@ -23,8 +23,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import os, sys
-if six.PY3:
-    unichr = chr
+from six import unichr
 from math import ceil
 try:
     set
