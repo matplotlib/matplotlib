@@ -1,3 +1,5 @@
+2014-06-10 Added Colorbar.remove()
+
 2014-06-07 Fixed bug so radial plots can be saved as ps in py3k.
 
 2014-06-01 Changed the fmt kwarg of errorbar to support the

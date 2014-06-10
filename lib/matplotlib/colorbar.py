@@ -840,6 +840,14 @@ class ColorbarBase(cm.ScalarMappable):
     def set_alpha(self, alpha):
         self.alpha = alpha
 
+    def remove(self):
+        """
+        Remove this colorbar from the figure
+        """
+
+        fig = self.ax.figure
+        fig.delaxes(self.ax)
+
 
 class Colorbar(ColorbarBase):
     """
@@ -966,6 +974,33 @@ class Colorbar(ColorbarBase):
         #Fixme: Some refactoring may be needed; we should not
         # be recalculating everything if there was a simple alpha
         # change.
+
+    def remove(self):
+        """
+        Remove this colorbar from the figure.  If the colorbar was created with
+        ``use_gridspec=True`` then restore the gridspec to its previous value.
+        """
+
+        ColorbarBase.remove(self)
+        self.mappable.callbacksSM.disconnect(self.mappable.colorbar_cid)
+        self.mappable.colorbar = None
+        self.mappable.colorbar_cid = None
+
+        try:
+            ax = self.mappable.axes
+        except AttributeError:
+            return
+
+        try:
+            gs = ax.get_subplotspec().get_gridspec()
+            subplotspec = gs.get_topmost_subplotspec()
+        except AttributeError:
+            # use_gridspec was False
+            pos = ax.get_position(original=True)
+            ax.set_position(pos)
+        else:
+            # use_gridspec was True
+            ax.set_subplotspec(subplotspec)
 
 
 @docstring.Substitution(make_axes_kw_doc)
@@ -1280,7 +1315,8 @@ def colorbar_factory(cax, mappable, **kwargs):
     else:
         cb = Colorbar(cax, mappable, **kwargs)
 
-    mappable.callbacksSM.connect('changed', cb.on_mappable_changed)
+    cid = mappable.callbacksSM.connect('changed', cb.on_mappable_changed)
     mappable.colorbar = cb
+    mappable.colorbar_cid = cid
 
     return cb
