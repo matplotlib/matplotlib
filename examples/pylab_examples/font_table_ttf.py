@@ -16,11 +16,8 @@ from matplotlib.ft2font import FT2Font
 from matplotlib.font_manager import FontProperties
 from pylab import figure, table, show, axis, title
 
-try:
-    unichr
-except NameError:
-    # Python 3
-    unichr = chr
+import six
+from six import unichr
 
 # the font table grid
 
