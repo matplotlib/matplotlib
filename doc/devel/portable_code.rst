@@ -10,7 +10,7 @@ recommended solutions.  It is not a complete guide to Python 2 and 3
 compatibility.
 
 Welcome to the ``__future__``
------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The top of every `.py` file should include the following::
 
@@ -26,7 +26,7 @@ gets used *a lot*::
     import six
 
 Finding places to use six
--------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The only way to make sure code works on both Python 2 and 3 is to make sure it
 is covered by unit tests.
@@ -41,7 +41,7 @@ The `six <http://pythonhosted.org/six/>`_ documentation serves as a
 good reference for the sorts of things that need to be updated.
 
 The dreaded ``\u`` escapes
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 When `from __future__ import unicode_literals` is used, all string
 literals (not preceded with a `b`) will become unicode literals.
@@ -86,7 +86,7 @@ of that and still support Python 2::
     '\\u'
 
 Iteration
----------
+^^^^^^^^^
 
 The behavior of the methods for iterating over the items, values and
 keys of a dictionary has changed in Python 3.  Additionally, other
@@ -111,7 +111,7 @@ Python 2                       Python 3                       six
 ============================== ============================== ==============================
 
 Numpy-specific things
----------------------
+^^^^^^^^^^^^^^^^^^^^^
 
 When specifying dtypes, all strings must be byte strings on Python 2
 and unicode strings on Python 3.  The best way to handle this is to
