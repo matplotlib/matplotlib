@@ -2622,8 +2622,8 @@ class _AxesBase(martist.Artist):
         Get the x tick labels as a list of :class:`~matplotlib.text.Text`
         instances.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         minor : bool
            If True return the minor ticklabels,
            else return the major ticklabels
@@ -2875,8 +2875,8 @@ class _AxesBase(martist.Artist):
         Get the x tick labels as a list of :class:`~matplotlib.text.Text`
         instances.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         minor : bool
            If True return the minor ticklabels,
            else return the major ticklabels
