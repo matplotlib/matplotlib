@@ -73,8 +73,10 @@ class AxesWidget(Widget):
     """Widget that is connected to a single
     :class:`~matplotlib.axes.Axes`.
 
-    To guarantee that the widgets stay responsive maintain a reference
-    to them.  This is necessary because the callback registry
+    To guarantee that the widget remains responsive and not garbage-collected,
+    a reference to the object should be maintained by the user.
+
+    This is necessary because the callback registry
     maintains only weak-refs to the functions, which are member
     functions of the widget.  If there are no references to the widget
     object it may be garbage collected which will disconnect the
@@ -123,7 +125,7 @@ class Button(AxesWidget):
     A GUI neutral button.
 
     For the button to remain responsive
-    you much keep a reference to it.
+    you must keep a reference to it.
 
     The following attributes are accessible
 
@@ -294,6 +296,18 @@ class Slider(AxesWidget):
 
         Parameters
         ----------
+        ax : Axes
+            The Axes to put the slider in
+
+        label : str
+            Slider label
+
+        valmin : float
+            The minimum value of the slider
+
+        valmax : float
+            The maximum value of the slider
+
         valinit : float
             The slider initial position
 
@@ -304,13 +318,19 @@ class Slider(AxesWidget):
             Used to format the slider value, fprint format string
 
         closedmin : bool
-        closedmax : bool
-            Indicate whether the slider interval is closed
+            Indicate whether the slider interval is closed on the bottom
 
-        slidermin : float
-        slidermax : float
-            Used to constrain the value of this slider to the values
-            of other sliders.
+        closedmax : bool
+            Indicate whether the slider interval is closed on the top
+
+        slidermin : Slider or None
+            Do not allow the current slider to have a value less than
+            `slidermin`
+
+        slidermax : Slider or None
+            Do not allow the current slider to have a value greater than
+            `slidermax`
+
 
         dragging : bool
             if the silder can be dragged by the mouse
@@ -949,7 +969,7 @@ class MultiCursor(Widget):
     Provide a vertical (default) and/or horizontal line cursor shared between
     multiple axes.
 
-     For the cursor to remain responsive you much keep a reference to
+    For the cursor to remain responsive you much keep a reference to
     it.
 
     Example usage::
