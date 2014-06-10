@@ -6,7 +6,7 @@ import six
 import numpy as np
 from numpy import ma
 import matplotlib
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from matplotlib.colors import BoundaryNorm
@@ -209,6 +209,41 @@ def test_colorbar_single_scatter():
     cmap = plt.get_cmap('jet', 16)
     cs = plt.scatter(x, y, z, c=z, cmap=cmap)
     plt.colorbar(cs)
+
+
+def _test_remove_from_figure(use_gridspec):
+    """
+    Test `remove_from_figure` with the specified ``use_gridspec`` setting
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    sc = ax.scatter([1, 2], [3, 4], cmap="spring")
+    sc.set_array(np.array([5, 6]))
+    pre_figbox = np.array(ax.figbox)
+    cb = fig.colorbar(sc, use_gridspec=use_gridspec)
+    fig.subplots_adjust()
+    cb.remove()
+    fig.subplots_adjust()
+    post_figbox = np.array(ax.figbox)
+    assert (pre_figbox == post_figbox).all()
+
+
+@cleanup
+def test_remove_from_figure_with_gridspec():
+    """
+    Make sure that `remove_from_figure` removes the colorbar and properly
+    restores the gridspec
+    """
+    _test_remove_from_figure(True)
+
+
+@cleanup
+def test_remove_from_figure_no_gridspec():
+    """
+    Make sure that `remove_from_figure` removes a colorbar that was created
+    without modifying the gridspec
+    """
+    _test_remove_from_figure(False)
 
 
 if __name__ == '__main__':
