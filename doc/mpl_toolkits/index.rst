@@ -129,11 +129,11 @@ High-Level Plotting
 Several projects have started to provide a higher-level interface to
 matplotlib.  These are independent projects.
 
-Seborn
-======
+seaborn
+=======
 (*Not distributed with matplotlib*)
 
-`Seaborn <www.stanford.edu/~mwaskom/software/seaborn/>`_ is a Python
+`seaborn <www.stanford.edu/~mwaskom/software/seaborn/>`_ is a Python
 visualization library based on matplotlib. It provides a high-level
 interface for drawing attractive statistical graphics.
 
