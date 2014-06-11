@@ -116,12 +116,15 @@ MplDataCursor
 toolkit written by Joe Kington to provide interactive "data cursors"
 (clickable annotation boxes) for matplotlib.
 
+.. _prettyplotlib:
+
 prettyplotlib
 =============
 `prettyplotlib <olgabot.github.io/prettyplotlib>`_ is an extension
 to matplotlib which changes many of the defaults to make plots some
 consider more attractive.
 
+.. _hl_plotting:
 ###################
 High-Level Plotting
 ###################
@@ -129,13 +132,18 @@ High-Level Plotting
 Several projects have started to provide a higher-level interface to
 matplotlib.  These are independent projects.
 
+.. _seaborn:
+
 seaborn
 =======
 (*Not distributed with matplotlib*)
 
-`seaborn <www.stanford.edu/~mwaskom/software/seaborn/>`_ is a Python
-visualization library based on matplotlib. It provides a high-level
-interface for drawing attractive statistical graphics.
+`seaborn <www.stanford.edu/~mwaskom/software/seaborn/>`_ is a high
+level interface for drawing statistical graphics with matplotlib. It
+aims to make visualization a central part of exploring and
+understanding complex datasets.
+
+.. _ggplot:
 
 ggplot
 ======
