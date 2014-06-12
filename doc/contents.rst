@@ -20,10 +20,10 @@ Overview
    devel/index.rst
    mpl_toolkits/index.rst
    api/index.rst
+   examples/index.rst
    glossary/index.rst
 
 .. htmlonly::
-   - `Examples <examples/index.html>`_
 
   * :ref:`genindex`
   * :ref:`modindex`
