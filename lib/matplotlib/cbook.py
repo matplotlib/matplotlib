@@ -120,8 +120,8 @@ def warn_deprecated(
     obj_type : str, optional
         The object type being deprecated.
 
-    Example
-    -------
+    Examples
+    --------
     # To warn of the deprecation of "matplotlib.name_of_module"
     warn_deprecated('1.4.0', name='matplotlib.name_of_module',
                     obj_type='module')
@@ -172,8 +172,8 @@ def deprecated(since, message='', name='', alternative='', pending=False,
         If True, uses a PendingDeprecationWarning instead of a
         DeprecationWarning.
 
-    Example
-    -------
+    Examples
+    --------
     @deprecated('1.4.0')
     def the_function_to_deprecate():
         pass
