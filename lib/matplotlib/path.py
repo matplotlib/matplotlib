@@ -146,7 +146,7 @@ class Path(object):
                 msg = "'codes' must be a 1D list or array with the same length"
                 msg += "of 'vertices'"
                 raise ValueError(msg)
-            if codes[0] != self.MOVETO:
+            if len(codes) and codes[0] != self.MOVETO:
                 msg = "The first element of 'code' must be equal to 'MOVETO': {}"
                 raise ValueError(msg.format(self.MOVETO))
         elif closed:

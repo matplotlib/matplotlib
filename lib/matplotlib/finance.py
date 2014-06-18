@@ -857,7 +857,7 @@ def _check_input(opens, closes, highs, lows, miss=-1):
     same_length = (len(opens) == len(highs)) and (len(opens) == len(lows)) and\
                   (len(opens) == len(closes))
     _missopens = _missing(opens)
-    same_missing = (_missopens == _missing(highs).all() and (_missopens ==\
+    same_missing = (_missopens == _missing(highs)).all() and (_missopens ==\
         _missing(lows)).all() and (_missopens == _missing(closes)).all()
 
     if not (same_length and same_missing):
