@@ -1988,7 +1988,7 @@ class Axes(_AxesBase):
         if len(width) != nbars:
             raise ValueError("incompatible sizes: argument 'width' "
                              "must be length %d or scalar" % nbars)
-        if len(bottom) == nbars:
+        if len(bottom) != nbars:
             raise ValueError("incompatible sizes: argument 'bottom' "
                              "must be length %d or scalar" % nbars)
 

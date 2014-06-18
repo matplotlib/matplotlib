@@ -2172,7 +2172,7 @@ class BlendedAffine2D(Affine2DBase):
         """
         is_affine = x_transform.is_affine and y_transform.is_affine
         is_separable = x_transform.is_separable and y_transform.is_separable
-        is_correct = is_correct and is_separable
+        is_correct = is_affine and is_separable
         if not is_correct:
             msg = "Both *x_transform* and *y_transform* must be 2D affine"
             msg += " transforms."
