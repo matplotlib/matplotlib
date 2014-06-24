@@ -15,7 +15,7 @@ import matplotlib
 rcParams = matplotlib.rcParams
 
 import matplotlib.cbook as cbook
-from matplotlib.cbook import _string_to_bool
+from matplotlib.cbook import _string_to_bool, mplDeprecation
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
@@ -965,7 +965,7 @@ class Axes(_AxesBase):
                  for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
         coll = mcoll.LineCollection(verts, colors=colors,
                                     linestyles=linestyles, label=label)
-        self.add_collection(coll)
+        self.add_collection(coll, autolim=False)
         coll.update(kwargs)
 
         if len(y) > 0:
@@ -1045,7 +1045,7 @@ class Axes(_AxesBase):
         #print 'creating line collection'
         coll = mcoll.LineCollection(verts, colors=colors,
                                     linestyles=linestyles, label=label)
-        self.add_collection(coll)
+        self.add_collection(coll, autolim=False)
         coll.update(kwargs)
 
         if len(x) > 0:
@@ -1210,7 +1210,7 @@ class Axes(_AxesBase):
                                          linewidth=linewidth,
                                          color=color,
                                          linestyle=linestyle)
-            self.add_collection(coll)
+            self.add_collection(coll, autolim=False)
             coll.update(kwargs)
             colls.append(coll)
 
@@ -2062,7 +2062,7 @@ class Axes(_AxesBase):
 
             errorbar = self.errorbar(x, y,
                                      yerr=yerr, xerr=xerr,
-                                     fmt=None, **error_kw)
+                                     fmt='none', **error_kw)
         else:
             errorbar = None
 
@@ -2520,7 +2520,7 @@ class Axes(_AxesBase):
 
     @docstring.dedent_interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
-                 fmt='-', ecolor=None, elinewidth=None, capsize=3,
+                 fmt='', ecolor=None, elinewidth=None, capsize=3,
                  barsabove=False, lolims=False, uplims=False,
                  xlolims=False, xuplims=False, errorevery=1, capthick=None,
                  **kwargs):
@@ -2530,7 +2530,7 @@ class Axes(_AxesBase):
         Call signature::
 
           errorbar(x, y, yerr=None, xerr=None,
-                   fmt='-', ecolor=None, elinewidth=None, capsize=3,
+                   fmt='', ecolor=None, elinewidth=None, capsize=3,
                    barsabove=False, lolims=False, uplims=False,
                    xlolims=False, xuplims=False, errorevery=1,
                    capthick=None)
@@ -2552,10 +2552,12 @@ class Axes(_AxesBase):
             If a sequence of shape 2xN, errorbars are drawn at -row1
             and +row2 relative to the data.
 
-          *fmt*: '-'
-            The plot format symbol. If *fmt* is *None*, only the
-            errorbars are plotted.  This is used for adding
-            errorbars to a bar plot, for example.
+          *fmt*: [ '' | 'none' | plot format string ]
+            The plot format symbol. If *fmt* is 'none' (case-insensitive),
+            only the errorbars are plotted.  This is used for adding
+            errorbars to a bar plot, for example.  Default is '',
+            an empty plot format string; properties are
+            then identical to the defaults for :meth:`plot`.
 
           *ecolor*: [ *None* | mpl color ]
             A matplotlib color arg which gives the color the errorbar lines;
@@ -2635,6 +2637,15 @@ class Axes(_AxesBase):
         holdstate = self._hold
         self._hold = True
 
+        if fmt is None:
+            fmt = 'none'
+            msg = ('Use of None object as fmt keyword argument to '
+                   + 'suppress plotting of data values is deprecated '
+                   + 'since 1.4; use the string "none" instead.')
+            warnings.warn(msg, mplDeprecation, stacklevel=1)
+
+        plot_line = (fmt.lower() != 'none')
+
         label = kwargs.pop("label", None)
 
         # make sure all the args are iterable; use lists not arrays to
@@ -2655,7 +2666,9 @@ class Axes(_AxesBase):
 
         l0 = None
 
-        if barsabove and fmt is not None:
+        # Instead of using zorder, the line plot is being added
+        # either here, or after all the errorbar plot elements.
+        if barsabove and plot_line:
             l0, = self.plot(x, y, fmt, label="_nolegend_", **kwargs)
 
         barcols = []
@@ -2838,7 +2851,7 @@ class Axes(_AxesBase):
                     xup, yup = xywhere(x, y, uplims & everymask)
                     caplines.extend(self.plot(xup, yup, 'k_', **plot_kw))
 
-        if not barsabove and fmt is not None:
+        if not barsabove and plot_line:
             l0, = self.plot(x, y, fmt, **kwargs)
 
         if ecolor is None:
@@ -3937,7 +3950,7 @@ class Axes(_AxesBase):
         self.autoscale_view(tight=True)
 
         # add the collection last
-        self.add_collection(collection)
+        self.add_collection(collection, autolim=False)
         if not marginals:
             return collection
 
@@ -3983,7 +3996,7 @@ class Axes(_AxesBase):
         hbar.set_norm(norm)
         hbar.set_alpha(alpha)
         hbar.update(kwargs)
-        self.add_collection(hbar)
+        self.add_collection(hbar, autolim=False)
 
         coarse = np.linspace(ymin, ymax, gridsize)
         ycoarse = coarse_bin(yorig, C, coarse)
@@ -4011,7 +4024,7 @@ class Axes(_AxesBase):
         vbar.set_norm(norm)
         vbar.set_alpha(alpha)
         vbar.update(kwargs)
-        self.add_collection(vbar)
+        self.add_collection(vbar, autolim=False)
 
         collection.hbar = hbar
         collection.vbar = vbar
@@ -4073,7 +4086,7 @@ class Axes(_AxesBase):
             self.cla()
         q = mquiver.Quiver(self, *args, **kw)
 
-        self.add_collection(q, True)
+        self.add_collection(q, autolim=True)
         self.autoscale_view()
         return q
     quiver.__doc__ = mquiver.Quiver.quiver_doc
@@ -4113,7 +4126,7 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
         b = mquiver.Barbs(self, *args, **kw)
-        self.add_collection(b)
+        self.add_collection(b, autolim=True)
         self.autoscale_view()
         return b
 
@@ -4301,9 +4314,10 @@ class Axes(_AxesBase):
         XY2 = np.array([x[where], y2[where]]).T
         self.dataLim.update_from_data_xy(XY1, self.ignore_existing_data_limits,
                                          updatex=True, updatey=True)
+        self.ignore_existing_data_limits = False
         self.dataLim.update_from_data_xy(XY2, self.ignore_existing_data_limits,
                                          updatex=False, updatey=True)
-        self.add_collection(collection)
+        self.add_collection(collection, autolim=False)
         self.autoscale_view()
         return collection
 
@@ -4408,10 +4422,10 @@ class Axes(_AxesBase):
         X2Y = np.array([x2[where], y[where]]).T
         self.dataLim.update_from_data_xy(X1Y, self.ignore_existing_data_limits,
                                          updatex=True, updatey=True)
-
+        self.ignore_existing_data_limits = False
         self.dataLim.update_from_data_xy(X2Y, self.ignore_existing_data_limits,
-                                         updatex=False, updatey=True)
-        self.add_collection(collection)
+                                         updatex=True, updatey=False)
+        self.add_collection(collection, autolim=False)
         self.autoscale_view()
         return collection
 
@@ -4886,7 +4900,7 @@ class Axes(_AxesBase):
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
         self.autoscale_view()
-        self.add_collection(collection)
+        self.add_collection(collection, autolim=False)
         return collection
 
     @docstring.dedent_interpd
@@ -5032,7 +5046,7 @@ class Axes(_AxesBase):
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
         self.autoscale_view()
-        self.add_collection(collection)
+        self.add_collection(collection, autolim=False)
         return collection
 
     @docstring.dedent_interpd
@@ -5184,7 +5198,7 @@ class Axes(_AxesBase):
             collection.set_array(C)
             collection.set_cmap(cmap)
             collection.set_norm(norm)
-            self.add_collection(collection)
+            self.add_collection(collection, autolim=False)
             xl, xr, yb, yt = X.min(), X.max(), Y.min(), Y.max()
             ret = collection
 
@@ -5636,7 +5650,7 @@ class Axes(_AxesBase):
                     logbase = self.yaxis._scale.base
 
                 # Setting a minimum of 0 results in problems for log plots
-                if normed:
+                if normed or weights is not None:
                     # For normed data, set to log base * minimum data value
                     # (gives 1 full tick-label unit for the lowest filled bin)
                     ndata = np.array(n)

@@ -27,8 +27,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import filter
-if six.PY3:
-    unichr = chr
+from six import unichr
 
 import io
 import itertools

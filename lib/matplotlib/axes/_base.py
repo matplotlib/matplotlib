@@ -1423,8 +1423,12 @@ class _AxesBase(martist.Artist):
             len(self.patches)) > 0
 
     def add_artist(self, a):
-        """
-        Add any :class:`~matplotlib.artist.Artist` to the axes.
+        """Add any :class:`~matplotlib.artist.Artist` to the axes.
+
+        Use `add_artist` only for artists for which there is no dedicated
+        "add" method; and if necessary, use a method such as
+        `update_datalim` or `update_datalim_numerix` to manually update the
+        dataLim if the artist is to be included in autoscaling.
 
         Returns the artist.
         """
@@ -1825,7 +1829,7 @@ class _AxesBase(martist.Artist):
             mx = my = args[0]
         elif len(args) == 2:
             mx, my = args
-        else:
+        elif len(args) > 2:
             raise ValueError("more than two arguments were supplied")
         if mx is not None:
             self.set_xmargin(mx)
@@ -2618,8 +2622,8 @@ class _AxesBase(martist.Artist):
         Get the x tick labels as a list of :class:`~matplotlib.text.Text`
         instances.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         minor : bool
            If True return the minor ticklabels,
            else return the major ticklabels
@@ -2871,8 +2875,8 @@ class _AxesBase(martist.Artist):
         Get the x tick labels as a list of :class:`~matplotlib.text.Text`
         instances.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         minor : bool
            If True return the minor ticklabels,
            else return the major ticklabels

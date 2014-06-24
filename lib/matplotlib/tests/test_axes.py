@@ -980,14 +980,19 @@ def test_hist_steplog():
     data += -2.0 - np.min(data)
     data_pos = data + 2.1
     data_big = data_pos + 30
+    weights = np.ones_like(data) * 1.e-5
 
-    ax = plt.subplot(3, 1, 1)
+    ax = plt.subplot(4, 1, 1)
     plt.hist(data, 100, histtype='stepfilled', log=True)
 
-    ax = plt.subplot(3, 1, 2)
+    ax = plt.subplot(4, 1, 2)
     plt.hist(data_pos, 100, histtype='stepfilled', log=True)
 
-    ax = plt.subplot(3, 1, 3)
+
+    ax = plt.subplot(4, 1, 3)
+    plt.hist(data, 100, weights=weights, histtype='stepfilled', log=True)
+
+    ax = plt.subplot(4, 1, 4)
     plt.hist(data_big, 100, histtype='stepfilled', log=True, orientation='horizontal')
 
 
@@ -3282,6 +3287,25 @@ def test_pie_ccw_true():
     # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
 
+@cleanup
+def test_margins():
+    # test all ways margins can be called
+    data = [1, 10]
+
+    fig1, ax1 = plt.subplots(1, 1)
+    ax1.plot(data)
+    ax1.margins(1)
+    assert_equal(ax1.margins(), (1, 1))
+
+    fig2, ax2 = plt.subplots(1, 1)
+    ax2.plot(data)
+    ax2.margins(1, 0.5)
+    assert_equal(ax2.margins(), (1, 0.5))
+
+    fig3, ax3 = plt.subplots(1, 1)
+    ax3.plot(data)
+    ax3.margins(x=1, y=0.5)
+    assert_equal(ax3.margins(), (1, 0.5))
 
 @cleanup
 def test_pathological_hexbin():

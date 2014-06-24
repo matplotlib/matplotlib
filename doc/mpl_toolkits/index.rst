@@ -22,8 +22,9 @@ Toolkits are collections of application-specific functions that extend matplotli
 
 .. _toolkit_basemap:
 
-Basemap (*Not distributed with matplotlib*)
-============================================
+Basemap
+=======
+(*Not distributed with matplotlib*)
 
 Plots data on map projections, with continental and political
 boundaries, see `basemap <http://matplotlib.org/basemap>`_
@@ -34,8 +35,10 @@ docs.
 
 
 
-Cartopy  (*Not distributed with matplotlib*)
-============================================
+Cartopy
+=======
+(*Not distributed with matplotlib*)
+
 An alternative mapping library written for matplotlib ``v1.2`` and beyond.
 `Cartopy <http://scitools.org.uk/cartopy/docs/latest>`_ builds on top of
 matplotlib to provide object oriented map projection definitions and close
@@ -69,8 +72,9 @@ Excel.  This toolkit ships with matplotlib, but requires
 
 .. _toolkit_natgrid:
 
-Natgrid (*Not distributed with matplotlib*)
-===========================================
+Natgrid
+=======
+(*Not distributed with matplotlib*)
 
 mpl_toolkits.natgrid is an interface to natgrid C library for gridding
 irregularly spaced data.  This requires a separate installation of the
@@ -82,7 +86,7 @@ page.
 .. _toolkit_mplot3d:
 
 mplot3d
-===========
+=======
 
 :ref:`mpl_toolkits.mplot3d <toolkit_mplot3d-index>` provides some basic 3D plotting (scatter, surf,
 line, mesh) tools.  Not the fastest or feature complete 3D library out
@@ -101,3 +105,49 @@ ease displaying multiple images in matplotlib. The AxesGrid toolkit is
 distributed with matplotlib source.
 
 .. image:: /_static/demo_axes_grid.png
+
+.. _toolkit_mpldatacursor:
+
+MplDataCursor
+=============
+(*Not distributed with matplotlib*)
+
+`MplDataCursor <https://github.com/joferkington/mpldatacursor>`_ is a
+toolkit written by Joe Kington to provide interactive "data cursors"
+(clickable annotation boxes) for matplotlib.
+
+.. _prettyplotlib:
+
+prettyplotlib
+=============
+`prettyplotlib <olgabot.github.io/prettyplotlib>`_ is an extension
+to matplotlib which changes many of the defaults to make plots some
+consider more attractive.
+
+.. _hl_plotting:
+###################
+High-Level Plotting
+###################
+
+Several projects have started to provide a higher-level interface to
+matplotlib.  These are independent projects.
+
+.. _seaborn:
+
+seaborn
+=======
+(*Not distributed with matplotlib*)
+
+`seaborn <www.stanford.edu/~mwaskom/software/seaborn/>`_ is a high
+level interface for drawing statistical graphics with matplotlib. It
+aims to make visualization a central part of exploring and
+understanding complex datasets.
+
+.. _ggplot:
+
+ggplot
+======
+(*Not distributed with matplotlib*)
+
+`ggplot <https://github.com/yhat/ggplot/>`_ is a port of the R ggplot2
+to python based on matplotlib.
