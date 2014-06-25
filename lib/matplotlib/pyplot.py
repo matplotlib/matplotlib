@@ -960,9 +960,9 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         If a string must be one of "row", "col", "all", or "none".
         "all" has the same effect as *True*, "none" has the same effect
         as *False*.
-        If "row", each subplot row will share a Y axis.
-        If "col", each subplot column will share a Y axis and the y tick
-        labels on all but the last row will have visible set to *False*.
+        If "row", each subplot row will share a Y axis and the y tick
+        labels on all but the first column will have visible set to *False*.
+        If "col", each subplot column will share a Y axis.
 
       *squeeze* : bool
         If *True*, extra dimensions are squeezed out from the
