@@ -19,4 +19,3 @@ Advanced Guide
     transforms_tutorial.rst
     path_tutorial.rst
     recipes.rst
-    index_user_interface.rst
