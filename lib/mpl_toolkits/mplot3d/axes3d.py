@@ -34,7 +34,6 @@ from matplotlib.colors import Normalize, colorConverter, LightSource
 from . import art3d
 from . import proj3d
 from . import axis3d
-from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
 def unit_bbox():
     box = Bbox(np.array([[0, 0], [1, 1]]))
@@ -2431,19 +2430,23 @@ class Axes3D(Axes):
             *U*, *V*, *W*:
                 The direction vector that the arrow is pointing
 
-        The arguments could be iterable or scalars they will be broadcast together. The arguments can
-        also be masked arrays, if a position in any of argument is masked, then the corresponding
-        quiver will not be plotted.
+        The arguments could be array-like or scalars, so long as they
+        they can be broadcast together. The arguments can also be
+        masked arrays. If an element in any of argument is masked, then
+        that corresponding quiver element will not be plotted.
 
         Keyword arguments:
 
             *length*: [1.0 | float]
-                The length of each quiver, default to 1.0, the unit is the same with the axes
+                The length of each quiver, default to 1.0, the unit is
+                the same with the axes
 
             *arrow_length_ratio*: [0.3 | float]
-                The ratio of the arrow head with respect to the quiver, default to 0.3
+                The ratio of the arrow head with respect to the quiver,
+                default to 0.3
 
-        Any additional keyword arguments are delegated to :class:`~matplotlib.collections.LineCollection`
+        Any additional keyword arguments are delegated to
+        :class:`~matplotlib.collections.LineCollection`
 
         """
         def calc_arrow(u, v, w, angle=15):
@@ -2472,8 +2475,8 @@ class Axes3D(Axes):
 
                 # construct the rotation matrix
                 R = np.matrix([[c+(x**2)*(1-c), x*y*(1-c)-z*s, x*z*(1-c)+y*s],
-                [y*x*(1-c)+z*s, c+(y**2)*(1-c), y*z*(1-c)-x*s],
-                [z*x*(1-c)-y*s, z*y*(1-c)+x*s, c+(z**2)*(1-c)]])
+                               [y*x*(1-c)+z*s, c+(y**2)*(1-c), y*z*(1-c)-x*s],
+                               [z*x*(1-c)-y*s, z*y*(1-c)+x*s, c+(z**2)*(1-c)]])
  
                 # construct the column vector for (u,v,w)
                 line = np.matrix([[u],[v],[w]])
@@ -2512,7 +2515,9 @@ class Axes3D(Axes):
         # first 6 arguments are X, Y, Z, U, V, W
         input_args = args[:argi]
         # if any of the args are scalar, convert into list
-        input_args = [[k] if isinstance(k, (int, float)) else k for k in input_args]
+        input_args = [[k] if isinstance(k, (int, float)) else k
+                      for k in input_args]
+
         # extract the masks, if any
         masks = [k.mask for k in input_args if isinstance(k, np.ma.MaskedArray)]
         # broadcast to match the shape
@@ -2523,28 +2528,35 @@ class Axes3D(Axes):
             # combine the masks into one
             mask = reduce(np.logical_or, masks)
             # put mask on and compress
-            input_args = [np.ma.array(k, mask=mask).compressed() for k in input_args]
+            input_args = [np.ma.array(k, mask=mask).compressed()
+                          for k in input_args]
         else:
             input_args = [k.flatten() for k in input_args]
+
+        if any(len(v) == 0 for v in input_args):
+            # No quivers, so just make an empty collection and return early
+            linec = art3d.Line3DCollection([], *args[6:], **kwargs)
+            self.add_collection(linec)
+            return linec
 
         points = input_args[:3]
         vectors = input_args[3:]
 
         # Below assertions must be true before proceed
         # must all be ndarray
-        assert all([isinstance(k, np.ndarray) for k in input_args])
+        assert all(isinstance(k, np.ndarray) for k in input_args)
         # must all in same shape
         assert len(set([k.shape for k in input_args])) == 1
 
-
         # X, Y, Z, U, V, W
-        coords = list(map(lambda k: np.array(k) if not isinstance(k, np.ndarray) else k, args))
+        coords = (np.array(k) if not isinstance(k, np.ndarray) else k
+                  for k in args)
         coords = [k.flatten() for k in coords]
         xs, ys, zs, us, vs, ws = coords
         lines = []
 
         # for each arrow
-        for i in xrange(xs.shape[0]):
+        for i in range(xs.shape[0]):
             # calulate body
             x = xs[i]
             y = ys[i]
@@ -2552,7 +2564,7 @@ class Axes3D(Axes):
             u = us[i]
             v = vs[i]
             w = ws[i]
-            if any([k is np.ma.masked for k in [x, y, z, u, v, w]]):
+            if any(k is np.ma.masked for k in [x, y, z, u, v, w]):
                 continue
 
             # (u,v,w) expected to be normalized, recursive to fix A=0 scenario.
@@ -2590,7 +2602,7 @@ class Axes3D(Axes):
             line = list(zip(la2x, la2y, la2z))
             lines.append(line)
 
-        linec = Line3DCollection(lines, *args[6:], **kwargs)
+        linec = art3d.Line3DCollection(lines, *args[6:], **kwargs)
         self.add_collection(linec)
 
         self.auto_scale_xyz(xs, ys, zs, had_data)
