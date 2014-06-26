@@ -5289,7 +5289,7 @@ class Axes(_AxesBase):
     def hist(self, x, bins=10, range=None, normed=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
-             color=None, label=None, stacked=False,
+             color=None, label=None, stacked=False, keep_call=False,
              **kwargs):
         """
         Plot a histogram.
@@ -5778,14 +5778,16 @@ class Axes(_AxesBase):
         else:
             n, patches = n, cbook.silent_list('Lists of Patches', patches)
 
-        call_container = HistCallContainer(patches, locals(), **kwargs)
-        self.add_container(call_container)
+        # keep_call = kwargs.pop('keep_call', None)
+        if keep_call:
+            call_container = HistCallContainer(patches, locals(), **kwargs)
+            self.add_container(call_container)
 
         return n, bins, patches
 
     @docstring.dedent_interpd
     def hist2d(self, x, y, bins=10, range=None, normed=False, weights=None,
-               cmin=None, cmax=None, **kwargs):
+               cmin=None, cmax=None, keep_call=False, **kwargs):
         """
         Make a 2D histogram plot.
 
@@ -5874,8 +5876,10 @@ class Axes(_AxesBase):
         self.set_xlim(xedges[0], xedges[-1])
         self.set_ylim(yedges[0], yedges[-1])
 
-        call_container = Hist2dCallContainer([pc], locals(), **kwargs)
-        self.add_container(call_container)
+        # keep_call = kwargs.pop('keep_call', None)
+        if keep_call:
+            call_container = Hist2dCallContainer([pc], locals(), **kwargs)
+            self.add_container(call_container)
 
         return h, xedges, yedges, pc
 
