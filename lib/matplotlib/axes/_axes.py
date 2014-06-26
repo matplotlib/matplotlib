@@ -5774,31 +5774,11 @@ class Axes(_AxesBase):
                     [(0, bins[0]), (0, bins[-1])], updatex=False)
 
         if nx == 1:
-            n, bins, patches = n[0], bins, cbook.silent_list('Patch', patches[0])
+            n, patches = n[0], cbook.silent_list('Patch', patches[0])
         else:
-            n, bins, patches = n, bins, cbook.silent_list('Lists of Patches', patches)
+            n, patches = n, cbook.silent_list('Lists of Patches', patches)
 
-        call_info = dict(type='hist',
-                         patches=patches,
-                         x=x,
-                         bins=bins,
-                         range=range,
-                         normed=normed,
-                         weights=weights,
-                         cumulative=cumulative,
-                         bottom=bottom,
-                         histtype=histtype,
-                         align=align,
-                         orientation=orientation,
-                         rwidth=rwidth,
-                         log=log,
-                         color=color,
-                         label=label,
-                         stacked=stacked,
-                         kwargs=kwargs
-                         )
-
-        call_container = HistCallContainer(patches, call_info, **kwargs)
+        call_container = HistCallContainer(patches, locals(), **kwargs)
         self.add_container(call_container)
 
         return n, bins, patches
@@ -5894,21 +5874,7 @@ class Axes(_AxesBase):
         self.set_xlim(xedges[0], xedges[-1])
         self.set_ylim(yedges[0], yedges[-1])
 
-        call_info = dict(x=x,
-                         y=y,
-                         bins=bins,
-                         range=range,
-                         normed=normed,
-                         weights=weights,
-                         cmin=cmin,
-                         cmax=cmax,
-                         pc=pc,
-                         xedges=xedges,
-                         yedges=yedges,
-                         h=h,
-                         kwargs=kwargs)
-
-        call_container = Hist2dCallContainer([pc], call_info, **kwargs)
+        call_container = Hist2dCallContainer([pc], locals(), **kwargs)
         self.add_container(call_container)
 
         return h, xedges, yedges, pc
