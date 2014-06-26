@@ -127,3 +127,25 @@ class StemContainer(Container):
         self.stemlines = stemlines
         self.baseline = baseline
         Container.__init__(self, markerline_stemlines_baseline, **kwargs)
+
+
+class CallContainer(Container):
+
+    def __repr__(self):
+        return "<CallContainer object of %d artists>" % (len(self))
+
+
+class HistCallContainer(CallContainer):
+
+    def __init__(self, patches, call_info, **kwargs):
+        for key in call_info:
+            setattr(self, key, call_info[key])
+        CallContainer.__init__(self, patches, **kwargs)
+
+
+class Hist2dCallContainer(CallContainer):
+
+    def __init__(self, pc, call_info, **kwargs):
+        for key in call_info:
+            setattr(self, key, call_info[key])
+        CallContainer.__init__(self, pc, **kwargs)

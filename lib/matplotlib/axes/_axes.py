@@ -37,7 +37,11 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 import matplotlib.transforms as mtrans
-from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
+from matplotlib.container import (BarContainer,
+                                  ErrorbarContainer,
+                                  StemContainer,
+                                  HistCallContainer,
+                                  Hist2dCallContainer)
 from matplotlib.axes._base import _AxesBase
 
 iterable = cbook.iterable
@@ -5770,9 +5774,34 @@ class Axes(_AxesBase):
                     [(0, bins[0]), (0, bins[-1])], updatex=False)
 
         if nx == 1:
-            return n[0], bins, cbook.silent_list('Patch', patches[0])
+            n, bins, patches = n[0], bins, cbook.silent_list('Patch', patches[0])
         else:
-            return n, bins, cbook.silent_list('Lists of Patches', patches)
+            n, bins, patches = n, bins, cbook.silent_list('Lists of Patches', patches)
+
+        call_info = dict(type='hist',
+                         patches=patches,
+                         x=x,
+                         bins=bins,
+                         range=range,
+                         normed=normed,
+                         weights=weights,
+                         cumulative=cumulative,
+                         bottom=bottom,
+                         histtype=histtype,
+                         align=align,
+                         orientation=orientation,
+                         rwidth=rwidth,
+                         log=log,
+                         color=color,
+                         label=label,
+                         stacked=stacked,
+                         kwargs=kwargs
+                         )
+
+        call_container = HistCallContainer(patches, call_info, **kwargs)
+        self.add_container(call_container)
+
+        return n, bins, patches
 
     @docstring.dedent_interpd
     def hist2d(self, x, y, bins=10, range=None, normed=False, weights=None,
@@ -5864,6 +5893,23 @@ class Axes(_AxesBase):
         pc = self.pcolorfast(xedges, yedges, h.T, **kwargs)
         self.set_xlim(xedges[0], xedges[-1])
         self.set_ylim(yedges[0], yedges[-1])
+
+        call_info = dict(x=x,
+                         y=y,
+                         bins=bins,
+                         range=range,
+                         normed=normed,
+                         weights=weights,
+                         cmin=cmin,
+                         cmax=cmax,
+                         pc=pc,
+                         xedges=xedges,
+                         yedges=yedges,
+                         h=h,
+                         kwargs=kwargs)
+
+        call_container = Hist2dCallContainer([pc], call_info, **kwargs)
+        self.add_container(call_container)
 
         return h, xedges, yedges, pc
 
