@@ -319,20 +319,15 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
         None: None
     }
 
+
+    # Use the standard toolbar items + download button
+    toolitems = [(text, tooltip_text, _jquery_icon_classes[image_file], name_of_method)
+                 for text, tooltip_text, image_file, name_of_method
+                 in (backend_bases.NavigationToolbar2.toolitems +
+                     (('Download', 'Download plot', 'download', 'download'),))
+        if image_file in _jquery_icon_classes]
+
     def _init_toolbar(self):
-        # Use the standard toolbar items + download button
-        toolitems = (
-            backend_bases.NavigationToolbar2.toolitems +
-            (('Download', 'Download plot', 'download', 'download'),)
-        )
-
-        NavigationToolbar2WebAgg.toolitems = \
-            tuple(
-                (text, tooltip_text, self._jquery_icon_classes[image_file],
-                 name_of_method)
-                for text, tooltip_text, image_file, name_of_method
-                in toolitems if image_file in self._jquery_icon_classes)
-
         self.message = ''
         self.cursor = 0
 
