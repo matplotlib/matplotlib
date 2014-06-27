@@ -276,9 +276,17 @@ users test out this new feature.
 
 Backends
 --------
+Qt5 backend
+```````````
+Martin Fitzpatrick and Tom Badran implemented a Qt5 backend.  The differences
+in namespace location between Qt4 and Qt5 was dealt with by shimming
+Qt4 to look like Qt5, thus the Qt5 implementation is primary implementation.
+Backwards compatibility for Qt4 is maintained by wrapping the Qt5 implementation.
+
+The Qt5Agg backend currently does not work with IPython's %matplotlib magic.
 
 Qt4 backend
-``````````````
+```````````
 Rudolf Höfler changed the appearance of the subplottool. All sliders are
 vertically arranged now, buttons for tight layout and reset were
 added. Furthermore, the the subplottool is now implemented as a modal
