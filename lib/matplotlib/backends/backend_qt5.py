@@ -116,6 +116,9 @@ def draw_if_interactive():
         if figManager is not None:
             figManager.canvas.draw_idle()
 
+# make place holder
+qApp = None
+
 
 def _create_qApp():
     """
@@ -227,13 +230,15 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             print('FigureCanvasQt qt5: ', figure)
         _create_qApp()
 
-        # NB: Using super for this call to avoid a TypeError: __init__() takes exactly 2 arguments (1 given) on QWidget PyQt5
+        # NB: Using super for this call to avoid a TypeError:
+        # __init__() takes exactly 2 arguments (1 given) on QWidget
+        # PyQt5
         super(FigureCanvasQT, self).__init__(figure=figure)
         self.figure = figure
         self.setMouseTracking(True)
         self._idle = True
         # hide until we can test and fix
-        #self.startTimer(backend_IdleEvent.milliseconds)
+        # self.startTimer(backend_IdleEvent.milliseconds)
         w, h = self.get_width_height()
         self.resize(w, h)
 
@@ -274,7 +279,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height - event.y()
         FigureCanvasBase.motion_notify_event(self, x, y)
-        #if DEBUG: print('mouse move')
+        # if DEBUG: print('mouse move')
 
     def mouseReleaseEvent(self, event):
         x = event.x()
@@ -647,7 +652,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             figureoptions.figure_edit(axes, self)
 
     def _update_buttons_checked(self):
-        #sync button checkstates to match active mode
+        # sync button checkstates to match active mode
         self._actions['pan'].setChecked(self._active == 'PAN')
         self._actions['zoom'].setChecked(self._active == 'ZOOM')
 
@@ -824,7 +829,8 @@ def error_msg_qt(msg, parent=None):
     if not is_string_like(msg):
         msg = ','.join(map(str, msg))
 
-    QtWidgets.QMessageBox.warning(None, "Matplotlib", msg, QtGui.QMessageBox.Ok)
+    QtWidgets.QMessageBox.warning(None, "Matplotlib",
+                                  msg, QtGui.QMessageBox.Ok)
 
 
 def exception_handler(type, value, tb):

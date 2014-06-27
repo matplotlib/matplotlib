@@ -27,7 +27,7 @@ if QT_API_ENV is not None:
     except KeyError:
         raise RuntimeError(
           'Unrecognized environment variable %r, valid values are: %r or %r' %
-                           (QT_API_ENV, 'pyqt', 'pyside', 'pyqt5'))
+          (QT_API_ENV, 'pyqt', 'pyside', 'pyqt5'))
 else:
     # No ETS environment, so use rcParams.
     if rcParams['backend'] == 'Qt5Agg':
@@ -70,8 +70,8 @@ if _sip_imported:
         except:
             res = 'QVariant API v2 specification failed. Defaulting to v1.'
             verbose.report(cond+res, 'helpful')
-            
-    if QT_API in [QT_API_PYQT, QT_API_PYQTv2]: # PyQt4 API
+
+    if QT_API in [QT_API_PYQT, QT_API_PYQTv2]:  # PyQt4 API
 
         from PyQt4 import QtCore, QtGui
 
@@ -85,9 +85,8 @@ if _sip_imported:
         except (AttributeError, KeyError):
             # call to getapi() can fail in older versions of sip
             _getSaveFileName = QtGui.QFileDialog.getSaveFileName
-        
-            
-    else: # PyQt5 API
+
+    else:  # PyQt5 API
 
         from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -95,20 +94,19 @@ if _sip_imported:
 
         _get_save = QtWidgets.QFileDialog.getSaveFileName
         _getSaveFileName = QtWidgets.QFileDialog.getSaveFileName
-        
+
     # Alias PyQt-specific functions for PySide compatibility.
     QtCore.Signal = QtCore.pyqtSignal
     try:
         QtCore.Slot = QtCore.pyqtSlot
     except AttributeError:
-        QtCore.Slot = pyqtSignature  # Not a perfect match but
-                                     # works in simple cases
+        # Not a perfect match but works in simple cases
+        QtCore.Slot = QtCore.pyqtSignature
+
     QtCore.Property = QtCore.pyqtProperty
     __version__ = QtCore.PYQT_VERSION_STR
 
-    
-
-else: # try importing pyside
+else:  # try importing pyside
     from PySide import QtCore, QtGui, __version__, __version_info__
     if __version_info__ < (1, 0, 3):
         raise ImportError(
@@ -122,11 +120,11 @@ if _getSaveFileName is None:
 
 # Apply shim to Qt4 APIs to make them look like Qt5
 if QT_API in (QT_API_PYQT, QT_API_PYQTv2, QT_API_PYSIDE):
-    '''
-    Import all used QtGui objects into QtWidgets
-    
-    Here I've opted to simple copy QtGui into QtWidgets as that achieves the same result
-    as copying over the objects, and will continue to work if other objects are used.
+    '''Import all used QtGui objects into QtWidgets
+
+    Here I've opted to simple copy QtGui into QtWidgets as that
+    achieves the same result as copying over the objects, and will
+    continue to work if other objects are used.
+
     '''
     QtWidgets = QtGui
-

@@ -10,6 +10,7 @@ __author__ = 'rudolf.hoefler@gmail.com'
 
 from matplotlib.backends.qt_compat import QtCore, QtGui, QtWidgets
 
+
 class UiSubplotTool(QtWidgets.QDialog):
 
     def __init__(self, *args, **kwargs):
@@ -217,7 +218,8 @@ class UiSubplotTool(QtWidgets.QDialog):
         gbox.addLayout(hbox2, 8, 0, 1, 1)
         self.tightlayout = QtWidgets.QPushButton('Tight Layout', self)
         spacer = QtWidgets.QSpacerItem(
-            5, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+            5, 20, QtWidgets.QSizePolicy.Expanding,
+            QtWidgets.QSizePolicy.Minimum)
         self.resetbutton = QtWidgets.QPushButton('Reset', self)
         self.donebutton = QtWidgets.QPushButton('Close', self)
         self.donebutton.setFocus()
