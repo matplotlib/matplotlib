@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 
-from gi.repository import Gtk, Gio
+from gi.repository import Gtk
 
 from matplotlib.figure import Figure
 from matplotlib.axes import Subplot
 from numpy import arange, sin, pi
 from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
-
-import sys
 
 class Window1Signals:
     def on_window1_destroy(self, widget):
