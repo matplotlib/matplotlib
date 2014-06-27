@@ -918,6 +918,8 @@ class FreeType(SetupPackage):
             alt_exec='freetype-config')
 
     def get_extension(self):
+        if sys.platform == 'win32':
+            return None
         ext = make_extension('freetype2', [])
         self.add_flags(ext)
         return ext
