@@ -3452,8 +3452,8 @@ def griddata(x, y, z, xi, yi, interp='nn'):
             yi = yi[:, 0]
 
         # Override default natgrid internal parameters.
-        _natgrid.seti('ext', 0)
-        _natgrid.setr('nul', np.nan)
+        _natgrid.seti(b'ext', 0)
+        _natgrid.setr(b'nul', np.nan)
 
         if np.min(np.diff(xi)) < 0 or np.min(np.diff(yi)) < 0:
             raise ValueError("Output grid defined by xi,yi must be monotone "
