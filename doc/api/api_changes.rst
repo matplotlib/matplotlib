@@ -186,7 +186,6 @@ Code removal
   ``scipy.stats.levy`` should be used instead
 
 
->>>>>>> BUG/API : tweaked how AnchoredSizeBar handles font properties
 .. _changes_in_1_3:
 
 
