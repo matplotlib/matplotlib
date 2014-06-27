@@ -14,7 +14,7 @@ import warnings
 import matplotlib
 from matplotlib.figure import Figure
 
-from .backend_qt5agg import new_figure_manager, NavigationToolbar2QTAgg
+from .backend_qt5agg import NavigationToolbar2QTAgg
 from .backend_qt5agg import FigureCanvasQTAggBase
 
 from .backend_agg import FigureCanvasAgg
@@ -34,6 +34,17 @@ DEBUG = False
 _decref = ctypes.pythonapi.Py_DecRef
 _decref.argtypes = [ctypes.py_object]
 _decref.restype = None
+
+
+def new_figure_manager(num, *args, **kwargs):
+    """
+    Create a new figure manager instance
+    """
+    if DEBUG:
+        print('backend_qt4agg.new_figure_manager')
+    FigureClass = kwargs.pop('FigureClass', Figure)
+    thisFig = FigureClass(*args, **kwargs)
+    return new_figure_manager_given_figure(num, thisFig)
 
 
 def new_figure_manager_given_figure(num, figure):
