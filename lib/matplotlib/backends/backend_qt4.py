@@ -32,15 +32,16 @@ except ImportError:
 from .qt_compat import QtCore, QtWidgets, _getSaveFileName, __version__
 from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
 
-from .backend_qt5 import (backend_version, SPECIAL_KEYS, SUPER, ALT, CTRL, 
+from .backend_qt5 import (backend_version, SPECIAL_KEYS, SUPER, ALT, CTRL,
                         SHIFT, MODIFIER_KEYS, fn_name, cursord,
-                        draw_if_interactive, _create_qApp, show, TimerQT, 
+                        draw_if_interactive, _create_qApp, show, TimerQT,
                         MainWindow, FigureManagerQT, NavigationToolbar2QT,
                         SubplotToolQt, error_msg_qt, exception_handler)
 
 from .backend_qt5 import FigureCanvasQT as FigureCanvasQT5
 
 DEBUG = False
+
 
 def new_figure_manager(num, *args, **kwargs):
     """
@@ -49,6 +50,7 @@ def new_figure_manager(num, *args, **kwargs):
     thisFig = Figure(*args, **kwargs)
     return new_figure_manager_given_figure(num, thisFig)
 
+
 def new_figure_manager_given_figure(num, figure):
     """
     Create a new figure manager instance for the given figure.
@@ -56,6 +58,7 @@ def new_figure_manager_given_figure(num, figure):
     canvas = FigureCanvasQT(figure)
     manager = FigureManagerQT(canvas, num)
     return manager
+
 
 class FigureCanvasQT(FigureCanvasQT5):
 
@@ -71,7 +74,7 @@ class FigureCanvasQT(FigureCanvasQT5):
         self.setMouseTracking(True)
         self._idle = True
         # hide until we can test and fix
-        #self.startTimer(backend_IdleEvent.milliseconds)
+        # self.startTimer(backend_IdleEvent.milliseconds)
         w, h = self.get_width_height()
         self.resize(w, h)
 

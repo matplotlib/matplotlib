@@ -36,6 +36,7 @@ _decref = ctypes.pythonapi.Py_DecRef
 _decref.argtypes = [ctypes.py_object]
 _decref.restype = None
 
+
 def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
@@ -46,12 +47,14 @@ def new_figure_manager(num, *args, **kwargs):
     thisFig = FigureClass(*args, **kwargs)
     return new_figure_manager_given_figure(num, thisFig)
 
+
 def new_figure_manager_given_figure(num, figure):
     """
     Create a new figure manager instance for the given figure.
     """
     canvas = FigureCanvasQTAgg(figure)
     return FigureManagerQT(canvas, num)
+
 
 class FigureCanvasQTAggBase(object):
     """
@@ -62,7 +65,7 @@ class FigureCanvasQTAggBase(object):
 
       figure - A Figure instance
    """
-   
+
     def drawRectangle(self, rect):
         self._drawRect = rect
         self.repaint()
@@ -74,7 +77,7 @@ class FigureCanvasQTAggBase(object):
         shown onscreen.
         """
 
-        #FigureCanvasQT.paintEvent(self, e)
+        # FigureCanvasQT.paintEvent(self, e)
         if DEBUG:
             print('FigureCanvasQtAgg.paintEvent: ', self,
                 self.get_width_height())
@@ -157,12 +160,14 @@ class FigureCanvasQTAggBase(object):
     def print_figure(self, *args, **kwargs):
         FigureCanvasAgg.print_figure(self, *args, **kwargs)
         self.draw()
-        
-class FigureCanvasQTAgg(FigureCanvasQTAggBase, FigureCanvasQT, FigureCanvasAgg):
+
+
+class FigureCanvasQTAgg(FigureCanvasQTAggBase,
+                        FigureCanvasQT, FigureCanvasAgg):
     """
     The canvas the figure renders into.  Calls the draw and print fig
-    methods, creates the renderers, etc. 
-    
+    methods, creates the renderers, etc.
+
     Modified to import from Qt5 backend for new-style mouse events.
 
     Public attribute
@@ -194,7 +199,8 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase, FigureCanvasQT, FigureCanvasAgg):
             self._priv_update = self.repaint
         else:
             self._priv_update = self.update
-            
+
+
 class NavigationToolbar2QTAgg(NavigationToolbar2QT):
     def __init__(*args, **kwargs):
         warnings.warn('This class has been deprecated in 1.4 ' +
@@ -205,6 +211,5 @@ class NavigationToolbar2QTAgg(NavigationToolbar2QT):
         NavigationToolbar2QT.__init__(*args, **kwargs)
 
 
-    
 FigureCanvas = FigureCanvasQTAgg
 FigureManager = FigureManagerQT

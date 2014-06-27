@@ -36,16 +36,6 @@ _decref.argtypes = [ctypes.py_object]
 _decref.restype = None
 
 
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    if DEBUG:
-        print('backend_qt4agg.new_figure_manager')
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
 def new_figure_manager_given_figure(num, figure):
     """
     Create a new figure manager instance for the given figure.
@@ -53,7 +43,9 @@ def new_figure_manager_given_figure(num, figure):
     canvas = FigureCanvasQTAgg(figure)
     return FigureManagerQT(canvas, num)
 
-class FigureCanvasQTAgg(FigureCanvasQTAggBase, FigureCanvasQT, FigureCanvasAgg):
+
+class FigureCanvasQTAgg(FigureCanvasQTAggBase,
+                        FigureCanvasQT, FigureCanvasAgg):
     """
     The canvas the figure renders into.  Calls the draw and print fig
     methods, creates the renderers, etc...
@@ -87,7 +79,6 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase, FigureCanvasQT, FigureCanvasAgg):
             self._priv_update = self.repaint
         else:
             self._priv_update = self.update
-
 
 
 FigureCanvas = FigureCanvasQTAgg
