@@ -545,7 +545,7 @@ class Matplotlib(SetupPackage):
         return [
             'matplotlib',
             'matplotlib.backends',
-            'matplotlib.backends.qt4_editor',
+            'matplotlib.backends.qt_editor',
             'matplotlib.compat',
             'matplotlib.projections',
             'matplotlib.axes',
@@ -1856,8 +1856,7 @@ class Windowing(OptionalBackendPackage):
         return ext
 
 
-class BackendQt4(OptionalBackendPackage):
-    name = "qt4agg"
+class BackendQtBase(OptionalBackendPackage):
 
     def convert_qt_version(self, version):
         version = '%x' % version
@@ -1868,37 +1867,108 @@ class BackendQt4(OptionalBackendPackage):
         return '.'.join(temp)
 
     def check_requirements(self):
+        '''
+        If PyQt4/PyQt5 is already imported, importing PyQt5/PyQt4 will fail
+        so we need to test in a subprocess (as for Gtk3).
+        '''
         try:
-            from PyQt4 import QtCore
-        except ImportError:
-            raise CheckFailed("PyQt4 not found")
-        # Import may still be broken for our python
-        try:
-            qt_version = QtCore.QT_VERSION
-            pyqt_version_str = QtCore.PYQT_VERSION_STR
-        except AttributeError:
-            raise CheckFailed('PyQt4 not correctly imported')
+            p = multiprocessing.Pool()
+
+        except:
+            # Can't do multiprocessing, fall back to normal approach ( this will fail if importing both PyQt4 and PyQt5 )
+            try:
+                # Try in-process
+                msg = self.callback(self)
+                
+            except RuntimeError:
+                raise CheckFailed("Could not import: are PyQt4 & PyQt5 both installed?")
+                
+            except:
+                # Raise any other exceptions
+                raise
+                
+        else:
+            # Multiprocessing OK
+            try:
+                msg = p.map(self.callback, [self])[0]
+            except:
+                # If we hit an error on multiprocessing raise it
+                raise
+            finally:
+                # Tidy up multiprocessing
+                p.close()
+                p.join()    
+                
+        return msg
+
+
+def backend_qt4_internal_check(self):
+    try:
+        from PyQt4 import QtCore
+    except ImportError:
+        raise CheckFailed("PyQt4 not found")
+
+    try:
+        qt_version = QtCore.QT_VERSION
+        pyqt_version_str = QtCore.QT_VERSION_STR
+    except AttributeError:
+        raise CheckFailed('PyQt4 not correctly imported')
+    else:
         BackendAgg.force = True
-        return ("Qt: %s, PyQt4: %s" %
-                (self.convert_qt_version(
-                    qt_version),
-                    pyqt_version_str))
+        return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
 
 
-class BackendPySide(OptionalBackendPackage):
+class BackendQt4(BackendQtBase):
+    name = "qt4agg"
+
+    def __init__(self, *args, **kwargs):
+        BackendQtBase.__init__(self, *args, **kwargs)
+        self.callback = backend_qt4_internal_check
+
+
+def backend_qt5_internal_check(self):
+    try:
+        from PyQt5 import QtCore
+    except ImportError:
+        raise CheckFailed("PyQt5 not found")
+
+    try:
+        qt_version = QtCore.QT_VERSION
+        pyqt_version_str = QtCore.QT_VERSION_STR
+    except AttributeError:
+        raise CheckFailed('PyQt5 not correctly imported')
+    else:
+        BackendAgg.force = True
+        return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
+
+
+class BackendQt5(BackendQtBase):
+    name = "qt5agg"
+
+    def __init__(self, *args, **kwargs):
+        BackendQtBase.__init__(self, *args, **kwargs)
+        self.callback = backend_qt5_internal_check
+
+
+def backend_pyside_internal_check(self):
+    try:
+        from PySide import __version__
+        from PySide import QtCore
+    except ImportError:
+        raise CheckFailed("PySide not found")
+    else:
+        BackendAgg.force = True
+        return ("Qt: %s, PySide: %s" %
+                (QtCore.__version__, __version__))
+
+
+class BackendPySide(BackendQtBase):
     name = "pyside"
 
-    def check_requirements(self):
-        try:
-            from PySide import __version__
-            from PySide import QtCore
-        except ImportError:
-            raise CheckFailed("PySide not found")
-        else:
-            BackendAgg.force = True
+    def __init__(self, *args, **kwargs):
+        BackendQtBase.__init__(self, *args, **kwargs)
+        self.callback = backend_pyside_internal_check
 
-            return ("Qt: %s, PySide: %s" %
-                    (QtCore.__version__, __version__))
 
 
 class BackendCairo(OptionalBackendPackage):
