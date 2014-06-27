@@ -112,6 +112,14 @@ Bar plots
 
 .. plot:: mpl_examples/mplot3d/bars3d_demo.py
 
+.. _quiver3d:
+
+Quiver
+====================
+.. automethod:: Axes3D.quiver
+
+.. plot:: mpl_examples/mplot3d/quiver3d_demo.py
+
 .. _2dcollections3d:
 
 2D plots in 3D
