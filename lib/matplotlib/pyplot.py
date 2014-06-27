@@ -86,6 +86,11 @@ def _backend_selection():
         if not PyQt4.QtGui.qApp.startingUp():
             # The mainloop is running.
             rcParams['backend'] = 'qt4Agg'
+    elif 'PyQt5.QtCore' in sys.modules and not backend == 'Qt5Agg':
+        import PyQt5.QtWidgets
+        if not PyQt5.QtWidgets.qApp.startingUp():
+            # The mainloop is running.
+            rcParams['backend'] = 'qt5Agg'
     elif 'gtk' in sys.modules and not backend in ('GTK', 'GTKAgg',
                                                             'GTKCairo'):
         import gobject

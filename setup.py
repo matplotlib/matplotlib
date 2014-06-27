@@ -90,7 +90,9 @@ mpl_packages = [
     # being the most preferred.  The first one that looks like it will
     # work will be selected as the default backend.
     setupext.BackendMacOSX(),
+    setupext.BackendQt5(),
     setupext.BackendQt4(),
+    setupext.BackendPySide(),
     setupext.BackendGtk3Agg(),
     setupext.BackendGtk3Cairo(),
     setupext.BackendGtkAgg(),
