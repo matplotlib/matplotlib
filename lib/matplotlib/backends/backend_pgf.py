@@ -309,9 +309,13 @@ class LatexManager:
         self.texcommand = get_texcommand()
         self.latex_header = LatexManager._build_latex_header()
         latex_end = "\n\\makeatletter\n\\@@end\n"
-        latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
-                                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                 cwd=self.tmpdir)
+        try:
+            latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
+                                     stdin=subprocess.PIPE,
+                                     stdout=subprocess.PIPE,
+                                     cwd=self.tmpdir)
+        except OSError:
+            raise RuntimeError("Error starting process '%s'" % self.texcommand)
         test_input = self.latex_header + latex_end
         stdout, stderr = latex.communicate(test_input.encode("utf-8"))
         if latex.returncode != 0:
