@@ -1146,7 +1146,7 @@ class Dateutil(SetupPackage):
         return [dateutil]
 
 
-class Tornado(SetupPackage):
+class Tornado(OptionalPackage):
     name = "tornado"
 
     def check(self):
@@ -1159,9 +1159,6 @@ class Tornado(SetupPackage):
                 "after matplotlib.")
 
         return "using tornado version %s" % tornado.version
-
-    def get_install_requires(self):
-        return ['tornado']
 
 
 class Pyparsing(SetupPackage):
@@ -1879,14 +1876,14 @@ class BackendQtBase(OptionalBackendPackage):
             try:
                 # Try in-process
                 msg = self.callback(self)
-                
+
             except RuntimeError:
                 raise CheckFailed("Could not import: are PyQt4 & PyQt5 both installed?")
-                
+
             except:
                 # Raise any other exceptions
                 raise
-                
+
         else:
             # Multiprocessing OK
             try:
@@ -1897,8 +1894,8 @@ class BackendQtBase(OptionalBackendPackage):
             finally:
                 # Tidy up multiprocessing
                 p.close()
-                p.join()    
-                
+                p.join()
+
         return msg
 
 
