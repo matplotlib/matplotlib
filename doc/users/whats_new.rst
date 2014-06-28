@@ -233,7 +233,7 @@ term project. This feature is documented in :func:`~mpl_toolkits.mplot3d.Axes3D.
 The team members are: Ryan Steve D'Souza, Victor B, xbtsw, Yang Wang, David,
 Caradec Bisesar and Vlad Vassilovski.
 
-.. plot:: mpl_examples/quiver3d_demo.py
+.. plot:: mpl_examples/mplot3d/quiver3d_demo.py
 
 Date handling
 -------------
