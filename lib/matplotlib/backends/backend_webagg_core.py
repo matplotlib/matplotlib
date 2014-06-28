@@ -204,7 +204,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             handler = getattr(self, 'handle_{}'.format(e_type), None)
             if handler is None:
                 import warnings
-                warnings.warn('Unhandled message type {}. {}'.format(e_type, event))
+                warnings.warn('Unhandled message type {}. {}'.format(
+                                                        e_type, event))
             else:
                 return handler(event)
 
@@ -216,8 +217,9 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         fig.set_size_inches(x / fig.dpi, y / fig.dpi)
 
         _, _, w, h = self.figure.bbox.bounds
-        # Acknowledge the resize, and force the viewer to update the canvas size to the
-        # figure's new size (which is hopefully identical or within a pixel or so).
+        # Acknowledge the resize, and force the viewer to update the
+        # canvas size to the figure's new size (which is hopefully
+        # identical or within a pixel or so).
         self._png_is_old = True
         self.manager.resize(w, h)
 
@@ -248,7 +250,8 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
     }
 
     # Use the standard toolbar items + download button
-    toolitems = [(text, tooltip_text, _jquery_icon_classes[image_file], name_of_method)
+    toolitems = [(text, tooltip_text, _jquery_icon_classes[image_file],
+                  name_of_method)
                  for text, tooltip_text, image_file, name_of_method
                  in (backend_bases.NavigationToolbar2.toolitems +
                      (('Download', 'Download plot', 'download', 'download'),))
