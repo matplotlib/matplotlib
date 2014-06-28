@@ -39,6 +39,7 @@ import matplotlib.tri as mtri
 import matplotlib.transforms as mtrans
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase
+from matplotlib.axes._base import _process_plot_format
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
@@ -3254,21 +3255,23 @@ class Axes(_AxesBase):
         if whiskerprops is not None:
             final_whiskerprops.update(whiskerprops)
 
+        # set up the default flier properties
+        final_flierprops = dict(linestyle='none', marker='+',
+                    markeredgecolor='b',
+                    markerfacecolor='none')
         # flier (outlier) properties
         if flierprops is not None:
-            sym = flierprops.pop('sym', '')
+            sym = flierprops.pop('sym', None)
 
-            if sym == '':
-                final_flierprops = dict(linestyle='none', marker='+',
-                                        markeredgecolor='b',
-                                        markerfacecolor='none')
-            else:
-                final_flierprops = dict(linestyle='none')
+            # watch inverted logic, checks for non-default
+            # value of `sym`
+            if not (sym == '' or (sym is None)):
+                # process the symbol string
+                # discarded linestyle
+                _, marker, color = _process_plot_format(sym)
+                final_flierprops['marker'] = marker
+                final_flierprops['color'] = color
             final_flierprops.update(flierprops)
-        else:
-            sym = ''
-            final_flierprops = dict(linestyle='none', marker='+',
-                                    markeredgecolor='b')
 
         # median line properties
         final_medianprops = dict(linestyle='-', color='red')
@@ -3398,10 +3401,10 @@ class Axes(_AxesBase):
 
             # draw the whiskers
             whiskers.extend(doplot(
-                whisker_x, whiskerlo_y,**final_whiskerprops
+                whisker_x, whiskerlo_y, **final_whiskerprops
             ))
             whiskers.extend(doplot(
-                whisker_x, whiskerhi_y,**final_whiskerprops
+                whisker_x, whiskerhi_y, **final_whiskerprops
             ))
 
             # maybe draw the caps:
@@ -3427,7 +3430,7 @@ class Axes(_AxesBase):
             # maybe draw the fliers
             if showfliers:
                 fliers.extend(doplot(
-                    flier_x, flier_y, sym, **final_flierprops
+                    flier_x, flier_y, **final_flierprops
                 ))
 
         # fix our axes/ticks up a little
