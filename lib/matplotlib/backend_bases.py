@@ -2514,7 +2514,7 @@ class NonGuiException(Exception):
     pass
 
 
-class FigureManagerBase:
+class FigureManagerBase(object):
     """
     Helper class for pyplot mode, wraps everything up into a neat bundle
 

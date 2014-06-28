@@ -230,15 +230,13 @@ class WebAggApplication(tornado.web.Application):
 
         def open(self, fignum):
             self.fignum = int(fignum)
-            manager = Gcf.get_fig_manager(self.fignum)
-            manager.add_web_socket(self)
+            self.manager = Gcf.get_fig_manager(self.fignum)
+            self.manager.add_web_socket(self)
             if hasattr(self, 'set_nodelay'):
                 self.set_nodelay(True)
 
         def on_close(self):
-            manager = Gcf.get_fig_manager(self.fignum)
-            if manager is not None:
-                manager.remove_web_socket(self)
+            self.manager.remove_web_socket(self)
 
         def on_message(self, message):
             message = json.loads(message)
