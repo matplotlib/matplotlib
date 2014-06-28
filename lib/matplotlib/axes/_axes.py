@@ -5349,6 +5349,12 @@ class Axes(_AxesBase):
             `True`, then the histogram is normalized such that the first bin
             equals 1.
 
+        bottom : array_like, scalar, or None, default: None
+            Location of the bottom baseline of each bin.  If a scalar,
+            the base line for each bin is shifted by the same amount.
+            If an array, each bin is shifted independently and the length
+            of bottom must match the number of bins.  If None, defaults to 0.
+
         histtype : ['bar' | 'barstacked' | 'step' | 'stepfilled'], optional
             The type of histogram to draw.
 
