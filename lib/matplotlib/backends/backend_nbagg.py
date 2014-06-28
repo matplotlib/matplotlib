@@ -5,7 +5,7 @@ import io
 import os
 from uuid import uuid4 as uuid
 
-from IPython.display import display,Javascript,HTML
+from IPython.display import display, Javascript, HTML
 from IPython.kernel.comm import Comm
 
 from matplotlib.figure import Figure
@@ -64,9 +64,11 @@ def connection_info():
     result = []
     for manager in pylab_helpers.Gcf.get_all_fig_managers():
         fig = manager.canvas.figure
-        result.append('{} - {}'.format(fig.get_label() or "Figure {0}".format(manager.num), 
+        result.append('{} - {}'.format((fig.get_label() or
+                                        "Figure {0}".format(manager.num)),
                                        manager.web_sockets))
-    result.append('Figures pending show: ' + str(len(pylab_helpers.Gcf._activeQue)))
+    result.append('Figures pending show: ' +
+                  str(len(pylab_helpers.Gcf._activeQue)))
     return '\n'.join(result)
 
 
@@ -83,7 +85,8 @@ class NavigationIPy(NavigationToolbar2WebAgg):
     }
 
     # Use the standard toolbar items + download button
-    toolitems = [(text, tooltip_text, _font_awesome_classes[image_file], name_of_method)
+    toolitems = [(text, tooltip_text,
+                  _font_awesome_classes[image_file], name_of_method)
                  for text, tooltip_text, image_file, name_of_method
                  in NavigationToolbar2.toolitems
                  if image_file in _font_awesome_classes]
