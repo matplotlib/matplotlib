@@ -39,6 +39,17 @@ You can also filter on class instances::
         o.set_fontstyle('italic')
 
 
+.. _howto-supress_offset:
+How to prevent ticklabels from having an offset
+-----------------------------------------------
+The default formatter will use an offset to reduce
+the length of the ticklabels.  To turn this feature
+off::
+   ax.get_xaxis().get_major_formatter().set_useOffset(False)
+
+or use a different formatter.  See :mod:`~matplotlib.ticker`
+for details.
+
 .. _howto-transparent:
 
 Save transparent figures
