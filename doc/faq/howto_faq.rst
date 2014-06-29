@@ -322,53 +322,6 @@ some ratio which controls the ratio::
     See :ref:`pylab_examples-equal_aspect_ratio` for a complete example.
 
 
-.. _howto-movie:
-
-Make a movie
-------------
-
-If you want to take an animated plot and turn it into a movie, the
-best approach is to save a series of image files (eg PNG) and use an
-external tool to convert them to a movie.  You can use `mencoder
-<http://www.mplayerhq.hu/DOCS/HTML/en/mencoder.html>`_,
-which is part of the `mplayer <http://www.mplayerhq.hu>`_ suite
-for this::
-
-    #fps (frames per second) controls the play speed
-    mencoder 'mf://*.png' -mf type=png:fps=10 -ovc \\
-       lavc -lavcopts vcodec=wmv2 -oac copy -o animation.avi
-
-The swiss army knife of image tools, ImageMagick's `convert
-<http://www.imagemagick.org/script/convert.php>`_ works for this as
-well.
-
-Here is a simple example script that saves some PNGs, makes them into
-a movie, and then cleans up::
-
-    import os, sys
-    import matplotlib.pyplot as plt
-
-    files = []
-    fig = plt.figure(figsize=(5,5))
-    ax = fig.add_subplot(111)
-    for i in range(50):  # 50 frames
-        ax.cla()
-        ax.imshow(rand(5,5), interpolation='nearest')
-        fname = '_tmp%03d.png'%i
-        print 'Saving frame', fname
-        fig.savefig(fname)
-        files.append(fname)
-
-    print 'Making movie animation.mpg - this make take a while'
-    os.system("mencoder 'mf://_tmp*.png' -mf type=png:fps=10 \\
-      -ovc lavc -lavcopts vcodec=wmv2 -oac copy -o animation.mpg")
-
-.. htmlonly::
-
-    Josh Lifton provided this example :ref:`old_animation-movie_demo`, which
-    is possibly dated since it was written in 2004.
-
-
 .. _howto-twoscale:
 
 Multiple y-axis scales
