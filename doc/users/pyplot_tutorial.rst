@@ -249,7 +249,7 @@ you can write a TeX expression surrounded by dollar signs::
     plt.title(r'$\sigma_i=15$')
 
 The ``r`` preceding the title string is important -- it signifies
-that the string is a *raw* string and not to treat backslashes and
+that the string is a *raw* string and not to treat backslashes as
 python escapes.  matplotlib has a built-in TeX expression parser and
 layout engine, and ships its own math fonts -- for details see
 :ref:`mathtext-tutorial`.  Thus you can use mathematical text across platforms
