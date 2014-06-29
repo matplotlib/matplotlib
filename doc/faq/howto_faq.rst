@@ -11,7 +11,7 @@ How-To
 .. _howto-plotting:
 
 Plotting: howto
-=================
+===============
 
 .. _howto-findobj:
 
@@ -53,7 +53,7 @@ formatter.  See :mod:`~matplotlib.ticker` for details.
 .. _howto-transparent:
 
 Save transparent figures
-----------------------------------
+------------------------
 
 The :meth:`~matplotlib.pyplot.savefig` command has a keyword argument
 *transparent* which, if 'True', will make the figure and axes
@@ -113,7 +113,7 @@ Finally, the multipage pdf object has to be closed::
 .. _howto-subplots-adjust:
 
 Move the edge of an axes to make room for tick labels
-----------------------------------------------------------------------------
+-----------------------------------------------------
 
 For subplots, you can control the default spacing on the left, right,
 bottom, and top as well as the horizontal and vertical spacing between
@@ -437,7 +437,7 @@ pyplot::
 .. _howto-show:
 
 Use :func:`~matplotlib.pyplot.show`
-------------------------------------------
+-----------------------------------
 
 When you want to view your plots on your display,
 the user interface backend will need to start the GUI mainloop.
