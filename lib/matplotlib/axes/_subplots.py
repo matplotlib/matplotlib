@@ -55,6 +55,10 @@ class SubplotBase(object):
                 num = [int(n) for n in num]
                 self._subplotspec = GridSpec(rows, cols)[num[0] - 1:num[1]]
             else:
+                if num == 0 or num > rows*cols:
+                    raise ValueError(
+                        "num must be 0 < num <= {maxn}, not {num}".format(
+                            maxn=rows*cols, num=num))
                 self._subplotspec = GridSpec(rows, cols)[int(num) - 1]
                 # num - 1 for converting from MATLAB to python indexing
         else:
