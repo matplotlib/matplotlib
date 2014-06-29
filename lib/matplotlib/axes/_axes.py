@@ -5388,16 +5388,21 @@ class Axes(_AxesBase):
         Returns
         -------
         n : array or list of arrays
-            The values of the histogram. See **normed** and  **weights** for a
-            description of the possible semantics. If input **x** is an array, 
-            then this is an array of length **nbins**. If input is a sequence 
-            arrays ``[data1, data2,..]``, then this is a list of arrays with 
-            the values of the histograms for each of the arrays in the same 
-            order.
+            The values of the histogram bins. See **normed** and **weights**
+            for a description of the possible semantics. If input **x** is an
+            array, then this is an array of length **nbins**. If input is a
+            sequence arrays ``[data1, data2,..]``, then this is a list of
+            arrays with the values of the histograms for each of the arrays
+            in the same order.
+
         bins : array
-            The edges of the bins ``len(n)+1``.
+            The edges of the bins. Length nbins + 1 (nbins left edges and right
+            edge of last bin).  Always a single array even when multiple data
+            sets are passed in.
+
         patches : list or list of lists
-            Silent list of individual patches used to create the histogram.
+            Silent list of individual patches used to create the histogram
+            or list of such list if multiple input datasets.
 
         Other Parameters
         ----------------
