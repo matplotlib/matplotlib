@@ -42,12 +42,19 @@ a colon, e.g., (this is assuming the test is installed)::
 
   python tests.py matplotlib.tests.test_simplification:test_clipping
 
+If you want to run the full test suite, but want to save wall time try running the
+tests in parallel::
+
+  python ../matplotlib/tests.py -sv --processes=5 --process-timeout=300
+
+as we do on Travis.ci.
+
+
 An alternative implementation that does not look at command line
 arguments works from within Python::
 
   import matplotlib
   matplotlib.test()
-
 
 .. _`nosetest arguments`: http://somethingaboutorange.com/mrl/projects/nose/1.0.0/usage.html
 
@@ -185,8 +192,8 @@ multiple Python environments, including multiple versions of Python
 (e.g., 2.6, 2.7, 3.2, etc.) and even different Python implementations
 altogether (e.g., CPython, PyPy, Jython, etc.)
 
-Testing all 4 versions of Python (2.6, 2.7, 3.1, and 3.2) requires
-having four versions of Python installed on your system and on the
+Testing all versions of Python (2.6, 2.7, 3.*) requires
+having multiple versions of Python installed on your system and on the
 PATH. Depending on your operating system, you may want to use your
 package manager (such as apt-get, yum or MacPorts) to do this, or use
 `pythonbrew <https://github.com/utahta/pythonbrew>`_.
