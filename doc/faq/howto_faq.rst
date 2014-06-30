@@ -482,36 +482,28 @@ Contributing: howto
 
 .. _how-to-submit-patch:
 
-Submit a patch
---------------
+Reporting a bug or submitting a patch
+-------------------------------------
 
-See :ref:`making-patches` for information on how to make a patch with git.
+The development of matplotlib is organized through `github
+<https://github.com/matplotlib/matplotlib>`_.  If you would like
+to report a bug or submit a patch please use that interface.
 
-If you are posting a patch to fix a code bug, please explain your
-patch in words -- what was broken before and how you fixed it.  Also,
-even if your patch is particularly simple, just a few lines or a
-single function replacement, we encourage people to submit git diffs
-against HEAD of the branch they are patching.  It just makes life
-easier for us, since we (fortunately) get a lot of contributions, and
-want to receive them in a standard format.  If possible, for any
-non-trivial change, please include a complete, free-standing example
-that the developers can run unmodified which shows the undesired
-behavior pre-patch and the desired behavior post-patch, with a clear
-verbal description of what to look for.  A developer may
-have written the function you are working on years ago, and may no
-longer be with the project, so it is quite possible you are the world
-expert on the code you are patching and we want to hear as much detail
-as you can offer.
+To report a bug (or request a feature) just `create an issue
+<https://github.com/matplotlib/matplotlib/issues/new>`_ on github.
+Please include a `Short, Self Contained, Correct (Compilable), Example
+<http://sscce.org>`_ demonstrating what is wrong.  This makes it much
+easier for the developers to evaluate the bug report and gives them a
+start on where to start looking for the bug.  The easier it is for the
+developers to understand your problem the faster it will get fixed.
+Expect that the bug reports will be a conversation.  If you do not
+want to register with github, please email bug reports to `the mailing
+list <matplotlib-devel@lists.sourceforge.net>`_.
 
-When emailing your patch and examples, feel free to paste any code
-into the text of the message, indeed we encourage it, but also attach
-the patches and examples since many email clients screw up the
-formatting of plain text, and we spend lots of needless time trying to
-reformat the code to make it usable.
 
-You should check out the guide to developing matplotlib to make sure
-your patch abides by our coding conventions
-:ref:`developers-guide-index`.
+The easiest way to submit patches to matplotlib is through pull
+requests on github.  Please see the :ref:`developers-guide-index` for
+the details.
 
 
 .. _how-to-contribute-docs:
@@ -558,7 +550,8 @@ your documents.
 Once your documentation contributions are working (and hopefully
 tested by actually *building* the docs) you can submit them as a patch
 against git.  See :ref:`install-git` and :ref:`how-to-submit-patch`.
-Looking for something to do?  Search for `TODO <../search.html?q=todo>`_.
+Looking for something to do?  Search for `TODO <../search.html?q=todo>`_
+or look at the open issues on github.
 
 
 
