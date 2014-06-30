@@ -55,31 +55,50 @@ Matplotlib is the whole package; :mod:`pylab` is a module in matplotlib
 that gets installed alongside :mod:`matplotlib`; and :mod:`matplotlib.pyplot`
 is a module in matplotlib.
 
-Pyplot provides the state-machine interface to the underlying plotting
+Pyplot provides the state-machine interface to the underlying OO plotting
 library in matplotlib. This means that figures and axes are implicitly
 and automatically created to achieve the desired plot. For example,
 calling ``plot`` from pyplot will automatically create the necessary
 figure and axes to achieve the desired plot. Setting a title will
 then automatically set that title to the current axes object::
 
-    import matplotlib.pyplot as plt
 
-    plt.plot(range(10), range(10))
-    plt.title("Simple Plot")
-    plt.show()
+    .. sourcecode:: ipython
 
-Pylab combines the pyplot functionality (for plotting) with the numpy
-functionality (for mathematics and for working with arrays)
-in a single namespace, making that namespace
-(or environment) even more MATLAB-like.
-For example, one can call the `sin` and `cos` functions just like
-you could in MATLAB, as well as having all the features of pyplot.
+      In [20]: %matplotlib
+      Using matplotlib backend: Qt4Agg
 
-The pyplot interface is generally preferred for non-interactive plotting
-(i.e., scripting). The pylab interface is convenient for interactive
-calculations and plotting, as it minimizes typing. Note that this is
-what you get if you use the *ipython* shell with the *-pylab* option,
-which imports everything from pylab and makes plotting fully interactive.
+      In [15]: import matplotlib.pyplot as plt
+
+      In [16]: plt.plot(range(10), range(10))
+      Out[16]: [<matplotlib.lines.Line2D at 0x7fdfef9be1d0>]
+
+      In [17]: plt.title("Simple Plot")
+      Out[17]: <matplotlib.text.Text at 0x7fdfee53d0d0>
+
+This is very convenient for interactive use, however
+because the commands have side-effects (altering the global state)
+using many :mod:`matplotlib.pyplot` commands in scripts or functions
+can lead to unexpected and difficult to track down bugs.
+
+Pylab is a convenience module that imports pyplot (for
+plotting) and numpy functionality (for mathematics and for
+working with arrays) in a single namespace.  You can than bulk import
+from pylab::
+
+    .. sourcecode:: ipython
+
+       In [1]: from pylab import *
+
+to get an even more MATLAB-like environment.  For example, one can
+call the `sin` and `cos` functions just like you could in MATLAB, as
+well as having all the features of pyplot.  The pylab interface is
+convenient for interactive calculations and plotting, as it minimizes
+typing.  This is not recommended to use pylab in scripts for the same reasons
+bulk importing is discouraged in general.
+
+For non-interactive use it is suggested to use pyplot to create the
+figures and then the OO interface for plotting.
 
 .. _coding_styles:
 
@@ -106,18 +125,7 @@ scripts will typically be::
     import numpy as np
 
 Then one calls, for example, np.arange, np.zeros, np.pi, plt.figure,
-plt.plot, plt.show, etc. So, a simple example in this style would be::
-
-    import matplotlib.pyplot as plt
-    import numpy as np
-    x = np.arange(0, 10, 0.2)
-    y = np.sin(x)
-    plt.plot(x, y)
-    plt.show()
-
-Note that this example used pyplot's state-machine to
-automatically and implicitly create a figure and an axes. For full
-control of your plots and more advanced usage, use the pyplot interface
+plt.plot, plt.show, etc.  Use the pyplot interface
 for creating figures, and then use the object methods for the rest::
 
     import matplotlib.pyplot as plt
@@ -129,22 +137,59 @@ for creating figures, and then use the object methods for the rest::
     ax.plot(x, y)
     plt.show()
 
-Next, the same example using a pure MATLAB-style::
+So, why all the extra typing instead of the MATLAB-style (which relies
+on global state and a flat namespace)?  For very simple things like
+this example, the only advantage is academic: the wordier styles are
+more explicit, more clear as to where things come from and what is
+going on.  For more complicated applications, this explicitness and
+clarity becomes increasingly valuable, and the richer and more
+complete object-oriented interface will likely make the program easier
+to write and maintain.
 
-    from pylab import *
-    x = arange(0, 10, 0.2)
-    y = sin(x)
-    plot(x, y)
-    show()
+Typically one finds them selves making the same plots over and over
+again, but with different data sets, which leads to needing to write
+specialized functions to do the plotting.  The recommended function
+signature is something like: ::
 
+    def my_plotter(ax, data1, data2, param_dict):
+        """
+        A helper function to make a graph
 
-So, why all the extra typing as one moves away from the pure
-MATLAB-style?  For very simple things like this example, the only
-advantage is academic: the wordier styles are more explicit, more
-clear as to where things come from and what is going on.  For more
-complicated applications, this explicitness and clarity becomes
-increasingly valuable, and the richer and more complete object-oriented
-interface will likely make the program easier to write and maintain.
+        Parameters
+        ----------
+        ax : Axes
+            The axes to draw to
+
+        data1 : array
+           The x data
+
+        data2 : array
+           The y data
+
+        param_dict : dict
+           Dictionary of kwargs to pass to ax.plot
+
+        Returns
+        -------
+        out : list
+            list of artists added
+        """
+        out = ax.plot(data1, data2, **param_dict)
+        return out
+
+which you would then use as::
+
+    fig, ax = plt.subplots(1, 1)
+    my_plotter(ax, data1, data2, {'marker':'x'})
+
+or if you wanted to have 2 sub-plots::
+
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    my_plotter(ax1, data1, data2, {'marker':'x'})
+    my_plotter(ax2, data3, data4, {'marker':'o'})
+
+Again, for these simple examples this style seems like overkill, however
+once the graphs get slightly more complex it pays off.
 
 .. _what-is-a-backend:
 
