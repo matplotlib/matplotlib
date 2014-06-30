@@ -638,9 +638,8 @@ Andrew Dalke of `Dalke Scientific <http://www.dalkescientific.com>`_
 has written a nice `article
 <http://www.dalkescientific.com/writings/diary/archive/2005/04/24/interactive_html.html>`_
 on how to make html click maps with matplotlib agg PNGs.  We would
-also like to add this functionality to SVG and add a SWF backend to
-support these kind of images.  If you are interested in contributing
-to these efforts that would be great.
+also like to add this functionality to SVG.  If you are interested in
+contributing to these efforts that would be great.
 
 
 .. _how-to-search-examples:
