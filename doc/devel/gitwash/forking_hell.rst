@@ -26,7 +26,7 @@ Create your own forked copy of matplotlib_
 
    .. image:: forking_button.png
 
-   Now, after a short pause and some 'Hardcore forking action', you
-   should find yourself at the home page for your own forked copy of matplotlib_.
+   Now, after a short pause you should find yourself at the home page
+   for your own forked copy of matplotlib_.
 
 .. include:: links.inc

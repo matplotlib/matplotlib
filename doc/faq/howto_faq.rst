@@ -1,3 +1,4 @@
+
 .. _howto-faq:
 
 ******
@@ -11,7 +12,7 @@ How-To
 .. _howto-plotting:
 
 Plotting: howto
-=================
+===============
 
 .. _howto-findobj:
 
@@ -53,7 +54,7 @@ formatter.  See :mod:`~matplotlib.ticker` for details.
 .. _howto-transparent:
 
 Save transparent figures
-----------------------------------
+------------------------
 
 The :meth:`~matplotlib.pyplot.savefig` command has a keyword argument
 *transparent* which, if 'True', will make the figure and axes
@@ -113,7 +114,7 @@ Finally, the multipage pdf object has to be closed::
 .. _howto-subplots-adjust:
 
 Move the edge of an axes to make room for tick labels
-----------------------------------------------------------------------------
+-----------------------------------------------------
 
 For subplots, you can control the default spacing on the left, right,
 bottom, and top as well as the horizontal and vertical spacing between
@@ -322,53 +323,6 @@ some ratio which controls the ratio::
     See :ref:`pylab_examples-equal_aspect_ratio` for a complete example.
 
 
-.. _howto-movie:
-
-Make a movie
-------------
-
-If you want to take an animated plot and turn it into a movie, the
-best approach is to save a series of image files (eg PNG) and use an
-external tool to convert them to a movie.  You can use `mencoder
-<http://www.mplayerhq.hu/DOCS/HTML/en/mencoder.html>`_,
-which is part of the `mplayer <http://www.mplayerhq.hu>`_ suite
-for this::
-
-    #fps (frames per second) controls the play speed
-    mencoder 'mf://*.png' -mf type=png:fps=10 -ovc \\
-       lavc -lavcopts vcodec=wmv2 -oac copy -o animation.avi
-
-The swiss army knife of image tools, ImageMagick's `convert
-<http://www.imagemagick.org/script/convert.php>`_ works for this as
-well.
-
-Here is a simple example script that saves some PNGs, makes them into
-a movie, and then cleans up::
-
-    import os, sys
-    import matplotlib.pyplot as plt
-
-    files = []
-    fig = plt.figure(figsize=(5,5))
-    ax = fig.add_subplot(111)
-    for i in range(50):  # 50 frames
-        ax.cla()
-        ax.imshow(rand(5,5), interpolation='nearest')
-        fname = '_tmp%03d.png'%i
-        print 'Saving frame', fname
-        fig.savefig(fname)
-        files.append(fname)
-
-    print 'Making movie animation.mpg - this make take a while'
-    os.system("mencoder 'mf://_tmp*.png' -mf type=png:fps=10 \\
-      -ovc lavc -lavcopts vcodec=wmv2 -oac copy -o animation.mpg")
-
-.. htmlonly::
-
-    Josh Lifton provided this example :ref:`old_animation-movie_demo`, which
-    is possibly dated since it was written in 2004.
-
-
 .. _howto-twoscale:
 
 Multiple y-axis scales
@@ -437,7 +391,7 @@ pyplot::
 .. _howto-show:
 
 Use :func:`~matplotlib.pyplot.show`
-------------------------------------------
+-----------------------------------
 
 When you want to view your plots on your display,
 the user interface backend will need to start the GUI mainloop.
@@ -527,39 +481,42 @@ though we have made significant progress towards supporting blocking events.
 Contributing: howto
 ===================
 
+.. _how-to-request-feature:
+
+Request a new feature
+---------------------
+
+Is there a feature you wish matplotlib had?  Then ask!  The best
+way to get started is to email the developer `mailing
+list <matplotlib-devel@lists.sourceforge.net>`_ for discussion.
+This is an open source project developed primarily in the
+contributors free time, so there is no guarantee that your
+feature will be added.  The *best* way to get the feature
+you need added is to contribute it your self.
+
 .. _how-to-submit-patch:
 
-Submit a patch
---------------
+Reporting a bug or submitting a patch
+-------------------------------------
 
-See :ref:`making-patches` for information on how to make a patch with git.
+The development of matplotlib is organized through `github
+<https://github.com/matplotlib/matplotlib>`_.  If you would like
+to report a bug or submit a patch please use that interface.
 
-If you are posting a patch to fix a code bug, please explain your
-patch in words -- what was broken before and how you fixed it.  Also,
-even if your patch is particularly simple, just a few lines or a
-single function replacement, we encourage people to submit git diffs
-against HEAD of the branch they are patching.  It just makes life
-easier for us, since we (fortunately) get a lot of contributions, and
-want to receive them in a standard format.  If possible, for any
-non-trivial change, please include a complete, free-standing example
-that the developers can run unmodified which shows the undesired
-behavior pre-patch and the desired behavior post-patch, with a clear
-verbal description of what to look for.  A developer may
-have written the function you are working on years ago, and may no
-longer be with the project, so it is quite possible you are the world
-expert on the code you are patching and we want to hear as much detail
-as you can offer.
+To report a bug `create an issue
+<https://github.com/matplotlib/matplotlib/issues/new>`_ on github
+(this requires having a github account).  Please include a `Short,
+Self Contained, Correct (Compilable), Example <http://sscce.org>`_
+demonstrating what the bug is.  Including a clear, easy to test
+example makes it easy for the developers to evaluate the bug.  Expect
+that the bug reports will be a conversation.  If you do not want to
+register with github, please email bug reports to the `mailing list
+<matplotlib-devel@lists.sourceforge.net>`_.
 
-When emailing your patch and examples, feel free to paste any code
-into the text of the message, indeed we encourage it, but also attach
-the patches and examples since many email clients screw up the
-formatting of plain text, and we spend lots of needless time trying to
-reformat the code to make it usable.
 
-You should check out the guide to developing matplotlib to make sure
-your patch abides by our coding conventions
-:ref:`developers-guide-index`.
-
+The easiest way to submit patches to matplotlib is through pull
+requests on github.  Please see the :ref:`developers-guide-index` for
+the details.
 
 .. _how-to-contribute-docs:
 
@@ -605,7 +562,8 @@ your documents.
 Once your documentation contributions are working (and hopefully
 tested by actually *building* the docs) you can submit them as a patch
 against git.  See :ref:`install-git` and :ref:`how-to-submit-patch`.
-Looking for something to do?  Search for `TODO <../search.html?q=todo>`_.
+Looking for something to do?  Search for `TODO <../search.html?q=todo>`_
+or look at the open issues on github.
 
 
 
@@ -692,9 +650,8 @@ Andrew Dalke of `Dalke Scientific <http://www.dalkescientific.com>`_
 has written a nice `article
 <http://www.dalkescientific.com/writings/diary/archive/2005/04/24/interactive_html.html>`_
 on how to make html click maps with matplotlib agg PNGs.  We would
-also like to add this functionality to SVG and add a SWF backend to
-support these kind of images.  If you are interested in contributing
-to these efforts that would be great.
+also like to add this functionality to SVG.  If you are interested in
+contributing to these efforts that would be great.
 
 
 .. _how-to-search-examples:
