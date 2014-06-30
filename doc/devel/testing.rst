@@ -42,12 +42,19 @@ a colon, e.g., (this is assuming the test is installed)::
 
   python tests.py matplotlib.tests.test_simplification:test_clipping
 
+If you want to run the full test suite, but want to save wall time try running the
+tests in parallel::
+
+  python ../matplotlib/tests.py -sv --processes=5 --process-timeout=300
+
+as we do on Travis.ci.
+
+
 An alternative implementation that does not look at command line
 arguments works from within Python::
 
   import matplotlib
   matplotlib.test()
-
 
 .. _`nosetest arguments`: http://somethingaboutorange.com/mrl/projects/nose/1.0.0/usage.html
 
@@ -177,6 +184,36 @@ to add tests for it in ``matplotlib.tests.test_whizbang``.  To add
 this module to the list of default tests, append its name to
 ``default_test_modules`` in :file:`lib/matplotlib/__init__.py`.
 
+Using Travis CI
+---------------
+
+`Travis CI <http://travis-ci.org/>`_ is a hosted CI system "in the
+cloud".
+
+Travis is configured to receive notifications of new commits to GitHub
+repos (via GitHub "service hooks") and to run builds or tests when it
+sees these new commits. It looks for a YAML file called
+``.travis.yml`` in the root of the repository to see how to test the
+project.
+
+Travis CI is already enabled for the `main matplotlib GitHub
+repository <https://github.com/matplotlib/matplotlib/>`_ -- for
+example, see `its Travis page
+<http://travis-ci.org/#!/matplotlib/matplotlib>`_.
+
+If you want to enable Travis CI for your personal matplotlib GitHub
+repo, simply enable the repo to use Travis CI in either the Travis CI
+UI or the GitHub UI (Admin | Service Hooks). For details, see `the
+Travis CI Getting Started page
+<http://about.travis-ci.org/docs/user/getting-started/>`_.  This
+generally isn't necessary, since any pull request submitted against
+the main matplotlib repository will be tested.
+
+Once this is configured, you can see the Travis CI results at
+http://travis-ci.org/#!/your_GitHub_user_name/matplotlib -- here's `an
+example <http://travis-ci.org/#!/msabramo/matplotlib>`_.
+
+
 Using tox
 ---------
 
@@ -185,11 +222,10 @@ multiple Python environments, including multiple versions of Python
 (e.g., 2.6, 2.7, 3.2, etc.) and even different Python implementations
 altogether (e.g., CPython, PyPy, Jython, etc.)
 
-Testing all 4 versions of Python (2.6, 2.7, 3.1, and 3.2) requires
-having four versions of Python installed on your system and on the
+Testing all versions of Python (2.6, 2.7, 3.*) requires
+having multiple versions of Python installed on your system and on the
 PATH. Depending on your operating system, you may want to use your
-package manager (such as apt-get, yum or MacPorts) to do this, or use
-`pythonbrew <https://github.com/utahta/pythonbrew>`_.
+package manager (such as apt-get, yum or MacPorts) to do this.
 
 tox makes it easy to determine if your working copy introduced any
 regressions before submitting a pull request. Here's how to use it:
@@ -220,32 +256,3 @@ edit this file if you want to add new environments to test (e.g.,
 tests are run. For more info on the ``tox.ini`` file, see the `Tox
 Configuration Specification
 <http://tox.testrun.org/latest/config.html>`_.
-
-Using Travis CI
----------------
-
-`Travis CI <http://travis-ci.org/>`_ is a hosted CI system "in the
-cloud".
-
-Travis is configured to receive notifications of new commits to GitHub
-repos (via GitHub "service hooks") and to run builds or tests when it
-sees these new commits. It looks for a YAML file called
-``.travis.yml`` in the root of the repository to see how to test the
-project.
-
-Travis CI is already enabled for the `main matplotlib GitHub
-repository <https://github.com/matplotlib/matplotlib/>`_ -- for
-example, see `its Travis page
-<http://travis-ci.org/#!/matplotlib/matplotlib>`_.
-
-If you want to enable Travis CI for your personal matplotlib GitHub
-repo, simply enable the repo to use Travis CI in either the Travis CI
-UI or the GitHub UI (Admin | Service Hooks). For details, see `the
-Travis CI Getting Started page
-<http://about.travis-ci.org/docs/user/getting-started/>`_.  This
-generally isn't necessary, since any pull request submitted against
-the main matplotlib repository will be tested.
-
-Once this is configured, you can see the Travis CI results at
-http://travis-ci.org/#!/your_GitHub_user_name/matplotlib -- here's `an
-example <http://travis-ci.org/#!/msabramo/matplotlib>`_.
