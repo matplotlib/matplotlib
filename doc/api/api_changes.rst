@@ -50,6 +50,11 @@ original location:
   - mstream -> `from matplotlib import stream as mstream`
   - mtable -> `from matplotlib import table as mtable`
 
+* As part of the refactoring to enable Qt5 support, the module
+  `matplotlib.backends.qt4_compat` was renamed to
+  `matplotlib.qt_compat`.  `qt4_compat` is deprecated in 1.4 and
+   will be removed in 1.5.
+
 * The :func:`~matplotlib.pyplot.errorbar` method has been changed such that
   the upper and lower limits (*lolims*, *uplims*, *xlolims*, *xuplims*) now
   point in the correct direction.
