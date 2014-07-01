@@ -5778,8 +5778,7 @@ class Axes(_AxesBase):
             n, patches = n, cbook.silent_list('Lists of Patches', patches)
 
         if keep_call:
-            call_container = CallContainer(patches, Axes.hist, locals(), **kwargs)
-            self.add_container(call_container)
+            self.add_container(CallContainer(patches, Axes.hist, locals(), **kwargs))
 
         return n, bins, patches
 
@@ -5875,8 +5874,7 @@ class Axes(_AxesBase):
         self.set_ylim(yedges[0], yedges[-1])
 
         if keep_call:
-            call_container = CallContainer([pc], Axes.hist2d, locals(), **kwargs)
-            self.add_container(call_container)
+            self.add_container(CallContainer([pc], Axes.hist2d, locals(), **kwargs))
 
         return h, xedges, yedges, pc
 
