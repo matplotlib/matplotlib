@@ -105,7 +105,9 @@ def test_exceptions():
     # TODO should this test more options?
     assert_raises(ValueError, plt.subplots, 2, 2, sharex='blah')
     assert_raises(ValueError, plt.subplots, 2, 2, sharey='blah')
-    assert_raises(ValueError, plt.subplots, 2, 2, 0)
+    assert_raises(ValueError, plt.subplots, 2, 2, -1)
+    # uncomment this for 1.5
+    # assert_raises(ValueError, plt.subplots, 2, 2, 0)
     assert_raises(ValueError, plt.subplots, 2, 2, 5)
 
 
