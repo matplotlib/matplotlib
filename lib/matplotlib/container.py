@@ -135,7 +135,7 @@ class CallContainer(Container):
         self.call_func = call_func
         for key in call_info:
             setattr(self, key, call_info[key])
-        Container.__init__(self, artist_list, **kwargs)
+        Container.__init__(self, artist_list, label=kwargs.pop('label', None))
 
     def __repr__(self):
         return ("<CallContainer object of {} artists for '{}' call>"
