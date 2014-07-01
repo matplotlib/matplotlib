@@ -40,8 +40,7 @@ import matplotlib.transforms as mtrans
 from matplotlib.container import (BarContainer,
                                   ErrorbarContainer,
                                   StemContainer,
-                                  HistCallContainer,
-                                  Hist2dCallContainer)
+                                  CallContainer)
 from matplotlib.axes._base import _AxesBase
 
 iterable = cbook.iterable
@@ -5780,7 +5779,7 @@ class Axes(_AxesBase):
 
         # keep_call = kwargs.pop('keep_call', None)
         if keep_call:
-            call_container = HistCallContainer(patches, locals(), **kwargs)
+            call_container = CallContainer(patches, Axes.hist, locals(), **kwargs)
             self.add_container(call_container)
 
         return n, bins, patches
@@ -5878,7 +5877,7 @@ class Axes(_AxesBase):
 
         # keep_call = kwargs.pop('keep_call', None)
         if keep_call:
-            call_container = Hist2dCallContainer([pc], locals(), **kwargs)
+            call_container = CallContainer([pc], Axes.hist2d, locals(), **kwargs)
             self.add_container(call_container)
 
         return h, xedges, yedges, pc
