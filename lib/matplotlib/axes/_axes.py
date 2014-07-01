@@ -5288,8 +5288,7 @@ class Axes(_AxesBase):
     def hist(self, x, bins=10, range=None, normed=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
-             color=None, label=None, stacked=False, keep_call=False,
-             **kwargs):
+             color=None, label=None, stacked=False, **kwargs):
         """
         Plot a histogram.
 
@@ -5426,6 +5425,7 @@ class Axes(_AxesBase):
         .. plot:: mpl_examples/statistics/histogram_demo_features.py
 
         """
+        keep_call = kwargs.pop('keep_call', False)
         if not self._hold:
             self.cla()
 
@@ -5777,7 +5777,6 @@ class Axes(_AxesBase):
         else:
             n, patches = n, cbook.silent_list('Lists of Patches', patches)
 
-        # keep_call = kwargs.pop('keep_call', None)
         if keep_call:
             call_container = CallContainer(patches, Axes.hist, locals(), **kwargs)
             self.add_container(call_container)
@@ -5786,7 +5785,7 @@ class Axes(_AxesBase):
 
     @docstring.dedent_interpd
     def hist2d(self, x, y, bins=10, range=None, normed=False, weights=None,
-               cmin=None, cmax=None, keep_call=False, **kwargs):
+               cmin=None, cmax=None, **kwargs):
         """
         Make a 2D histogram plot.
 
@@ -5859,7 +5858,7 @@ class Axes(_AxesBase):
         --------
         .. plot:: mpl_examples/pylab_examples/hist2d_demo.py
         """
-
+        keep_call = kwargs.pop('keep_call', False)
         # xrange becomes range after 2to3
         bin_range = range
         range = __builtins__["range"]
@@ -5875,7 +5874,6 @@ class Axes(_AxesBase):
         self.set_xlim(xedges[0], xedges[-1])
         self.set_ylim(yedges[0], yedges[-1])
 
-        # keep_call = kwargs.pop('keep_call', None)
         if keep_call:
             call_container = CallContainer([pc], Axes.hist2d, locals(), **kwargs)
             self.add_container(call_container)
