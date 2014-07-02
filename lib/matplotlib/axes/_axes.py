@@ -2629,7 +2629,7 @@ class Axes(_AxesBase):
         .. plot:: mpl_examples/statistics/errorbar_demo.py
 
         """
-
+        keep_call = kwargs.pop('keep_call', False)
         if errorevery < 1:
             raise ValueError(
                 'errorevery has to be a strictly positive integer')
@@ -2878,6 +2878,9 @@ class Axes(_AxesBase):
                                                label=label)
         self.containers.append(errorbar_container)
 
+        if keep_call:
+            self.add_container(CallContainer(l0, Axes.errorbar, locals(), **kwargs))
+
         return errorbar_container  # (l0, caplines, barcols)
 
     def boxplot(self, x, notch=False, sym='b+', vert=True, whis=1.5,
@@ -3031,6 +3034,7 @@ class Axes(_AxesBase):
 
         .. plot:: mpl_examples/statistics/boxplot_demo.py
         """
+        keep_call = kwargs.pop('keep_call', False)
         bxpstats = cbook.boxplot_stats(x, whis=whis, bootstrap=bootstrap,
                                        labels=labels)
         if sym == 'b+' and flierprops is None:
@@ -3073,6 +3077,9 @@ class Axes(_AxesBase):
                            medianprops=medianprops, meanprops=meanprops,
                            meanline=meanline, showfliers=showfliers,
                            manage_xticks=manage_xticks)
+        if keep_call:
+            self.add_container(CallContainer(artists, Axes.boxplot, locals(), **kwargs))
+
         return artists
 
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
@@ -3490,7 +3497,7 @@ class Axes(_AxesBase):
         .. plot:: mpl_examples/shapes_and_collections/scatter_demo.py
 
         """
-
+        keep_call = kwargs.pop('keep_call', False)
         if not self._hold:
             self.cla()
 
@@ -3588,6 +3595,8 @@ class Axes(_AxesBase):
 
         self.add_collection(collection)
         self.autoscale_view()
+        if keep_call:
+            self.add_container(CallContainer(collection, Axes.scatter, locals(), **kwargs))
 
         return collection
 
@@ -4783,7 +4792,7 @@ class Axes(_AxesBase):
                 For an explanation of the differences between
                 pcolor and pcolormesh.
         """
-
+        keep_call = kwargs.pop('keep_call', False)
         if not self._hold:
             self.cla()
 
@@ -4904,6 +4913,7 @@ class Axes(_AxesBase):
         self.update_datalim(corners)
         self.autoscale_view()
         self.add_collection(collection, autolim=False)
+        self.add_container(CallContainer(collection, Axes.pcolor, locals(), **kwargs))
         return collection
 
     @docstring.dedent_interpd
@@ -4983,6 +4993,7 @@ class Axes(_AxesBase):
                 For an explanation of the grid orientation and the
                 expansion of 1-D *X* and/or *Y* to 2-D arrays.
         """
+        keep_call = kwargs.pop('keep_call', False)
         if not self._hold:
             self.cla()
 
@@ -5050,6 +5061,7 @@ class Axes(_AxesBase):
         self.update_datalim(corners)
         self.autoscale_view()
         self.add_collection(collection, autolim=False)
+        self.add_container(CallContainer(collection, Axes.pcolormesh, locals(), **kwargs))
         return collection
 
     @docstring.dedent_interpd
@@ -5135,7 +5147,7 @@ class Axes(_AxesBase):
         collection in the general quadrilateral case.
 
         """
-
+        keep_call = kwargs.pop('keep_call', False)
         if not self._hold:
             self.cla()
 
@@ -5235,20 +5247,29 @@ class Axes(_AxesBase):
             ret.autoscale_None()
         self.update_datalim(np.array([[xl, yb], [xr, yt]]))
         self.autoscale_view(tight=True)
+        self.add_container(CallContainer([ret], Axes.pcolorfast, locals(), **kwargs))
         return ret
 
     def contour(self, *args, **kwargs):
+        keep_call = kwargs.pop('keep_call', False)
         if not self._hold:
             self.cla()
         kwargs['filled'] = False
-        return mcontour.QuadContourSet(self, *args, **kwargs)
+        image = mcontour.QuadContourSet(self, *args, **kwargs)
+        if keep_call:
+            self.add_container(CallContainer([image], Axes.contour, locals(), **kwargs))
+        return image
     contour.__doc__ = mcontour.QuadContourSet.contour_doc
 
     def contourf(self, *args, **kwargs):
+        keep_call = kwargs.pop('keep_call', False)
         if not self._hold:
             self.cla()
         kwargs['filled'] = True
-        return mcontour.QuadContourSet(self, *args, **kwargs)
+        image = mcontour.QuadContourSet(self, *args, **kwargs)
+        if keep_call:
+            self.add_container(CallContainer([image], Axes.contourf, locals(), **kwargs))
+        return image
     contourf.__doc__ = mcontour.QuadContourSet.contour_doc
 
     def clabel(self, CS, *args, **kwargs):
