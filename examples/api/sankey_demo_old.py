@@ -44,7 +44,7 @@ def sankey(ax,
 
     def add_output(path, loss, sign=1):
         # Arrow tip height
-        h = (loss / 2 + w) * np.tan(outangle / 180. * np.pi)
+        h = (loss / 2 + w) * np.tan(np.radians(outangle))
         move, (x, y) = path[-1]  # Use last point as reference
         if sign == 0:  # Final loss (horizontal)
             path.extend([(Path.LINETO, [x + dx, y]),
@@ -67,7 +67,7 @@ def sankey(ax,
             outtips.append((sign, path[-5][1]))
 
     def add_input(path, gain, sign=1):
-        h = (gain / 2) * np.tan(inangle / 180. * np.pi)  # Dip depth
+        h = (gain / 2) * np.tan(np.radians(inangle))  # Dip depth
         move, (x, y) = path[-1]  # Use last point as reference
         if sign == 0:  # First gain (horizontal)
             path.extend([(Path.LINETO, [x - dx, y]),
