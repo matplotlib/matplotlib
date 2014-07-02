@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 
 def plot_angle(ax, x, y, angle, style):
-    phi = angle / 180 * np.pi
+    phi = np.radians(angle)
     xx = [x + .5, x, x + .5 * np.cos(phi)]
     yy = [y, y, y + .5 * np.sin(phi)]
     ax.plot(xx, yy, lw=8, color='blue', solid_joinstyle=style)
