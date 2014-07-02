@@ -9,7 +9,7 @@ from matplotlib.figure import Figure
 fig = Figure()
 canvas = FigureCanvas(fig)
 ax = fig.add_subplot(111)
-ax.plot([1,2,3])
+ax.plot([1, 2, 3])
 ax.set_title('hi mom')
 ax.grid(True)
 ax.set_xlabel('time')
