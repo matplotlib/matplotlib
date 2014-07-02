@@ -523,11 +523,11 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        s : string
-            text
-
         x, y : scalars
             data coordinates
+
+        s : string
+            text
 
         fontdict : dictionary, optional, default: None
             A dictionary to override the default text properties. If fontdict
