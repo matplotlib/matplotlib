@@ -47,10 +47,8 @@ w1 = 0.0
 th2 = -10.0
 w2 = 0.0
 
-rad = pi / 180
-
 # initial state
-state = np.array([th1, w1, th2, w2]) * pi / 180.
+state = np.radians([th1, w1, th2, w2])
 
 # integrate your ODE using scipy.integrate.
 y = integrate.odeint(derivs, state, t)
