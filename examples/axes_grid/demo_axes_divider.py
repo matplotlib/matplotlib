@@ -1,12 +1,13 @@
 import matplotlib.pyplot as plt
 
+
 def get_demo_image():
     import numpy as np
     from matplotlib.cbook import get_sample_data
     f = get_sample_data("axes_grid/bivariate_normal.npy", asfileobj=False)
     z = np.load(f)
     # z is a numpy array of 15x15
-    return z, (-3,4,-4,3)
+    return z, (-3, 4, -4, 3)
 
 
 def demo_simple_image(ax):
@@ -20,7 +21,7 @@ def demo_simple_image(ax):
 def demo_locatable_axes_hard(fig1):
 
     from mpl_toolkits.axes_grid1 \
-         import SubplotDivider, LocatableAxes, Size
+        import SubplotDivider, LocatableAxes, Size
 
     divider = SubplotDivider(fig1, 2, 2, 2, aspect=True)
 
@@ -30,9 +31,9 @@ def demo_locatable_axes_hard(fig1):
     # axes for colorbar
     ax_cb = LocatableAxes(fig1, divider.get_position())
 
-    h = [Size.AxesX(ax), # main axes
-         Size.Fixed(0.05), # padding, 0.1 inch
-         Size.Fixed(0.2), # colorbar, 0.3 inch
+    h = [Size.AxesX(ax),  # main axes
+         Size.Fixed(0.05),  # padding, 0.1 inch
+         Size.Fixed(0.2),  # colorbar, 0.3 inch
          ]
 
     v = [Size.AxesY(ax)]
