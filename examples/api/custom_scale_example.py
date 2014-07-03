@@ -8,6 +8,7 @@ from matplotlib.ticker import Formatter, FixedLocator
 
 
 class MercatorLatitudeScale(mscale.ScaleBase):
+
     """
     Scales data in range -pi/2 to pi/2 (-90 to 90 degrees) using
     the system used to scale latitudes in a Mercator projection.
@@ -32,7 +33,6 @@ class MercatorLatitudeScale(mscale.ScaleBase):
     # scale.
     name = 'mercator'
 
-
     def __init__(self, axis, **kwargs):
         """
         Any keyword arguments passed to ``set_xscale`` and
@@ -42,7 +42,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
         thresh: The degree above which to crop the data.
         """
         mscale.ScaleBase.__init__(self)
-        thresh = kwargs.pop("thresh", (85 / 180.0) * np.pi)
+        thresh = kwargs.pop("thresh", np.radians(85))
         if thresh >= np.pi / 2.0:
             raise ValueError("thresh must be less than pi/2")
         self.thresh = thresh
@@ -71,13 +71,13 @@ class MercatorLatitudeScale(mscale.ScaleBase):
         value::
         """
         class DegreeFormatter(Formatter):
+
             def __call__(self, x, pos=None):
                 # \u00b0 : degree symbol
-                return "%d\u00b0" % ((x / np.pi) * 180.0)
+                return "%d\u00b0" % np.degrees(x)
 
-        deg2rad = np.pi / 180.0
         axis.set_major_locator(FixedLocator(
-                np.arange(-90, 90, 10) * deg2rad))
+            np.radians(np.arange(-90, 90, 10))))
         axis.set_major_formatter(DegreeFormatter())
         axis.set_minor_formatter(DegreeFormatter())
 
@@ -170,4 +170,3 @@ if __name__ == '__main__':
     plt.grid(True)
 
     plt.show()
-
