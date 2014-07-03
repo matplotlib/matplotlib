@@ -44,7 +44,7 @@ ax.text(0.5, 1.0, "UNCHAINED", transform=ax.transAxes,
         ha="left", va="bottom", color="w",
         family="sans-serif", fontweight="bold", fontsize=16)
 
-# Update function
+
 def update(*args):
     # Shift all data to the right
     data[:, 1:] = data[:, :-1]
