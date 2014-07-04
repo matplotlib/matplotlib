@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 mu = 200
 sigma = 25
-x = mu + sigma*np.random.randn(10000)
+x = mu + sigma * np.random.randn(10000)
 
 fig, (ax0, ax1) = plt.subplots(ncols=2, figsize=(8, 4))
 

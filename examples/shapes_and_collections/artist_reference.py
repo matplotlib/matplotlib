@@ -8,7 +8,8 @@ available at http://matplotlib.org/api/artist_api.html.
 Copyright (c) 2010, Bartosz Telenczuk
 BSD License
 """
-import matplotlib.pyplot as plt; plt.rcdefaults()
+import matplotlib.pyplot as plt
+plt.rcdefaults()
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,7 +20,7 @@ from matplotlib.collections import PatchCollection
 
 
 def label(xy, text):
-    y = xy[1] - 0.15 # shift y-value for label so that it's below the artist
+    y = xy[1] - 0.15  # shift y-value for label so that it's below the artist
     plt.text(xy[0], y, text, ha="center", family='sans-serif', size=14)
 
 
@@ -30,7 +31,7 @@ grid = np.mgrid[0.2:0.8:3j, 0.2:0.8:3j].reshape(2, -1).T
 patches = []
 
 # add a circle
-circle = mpatches.Circle(grid[0], 0.1,ec="none")
+circle = mpatches.Circle(grid[0], 0.1, ec="none")
 patches.append(circle)
 label(grid[0], "Circle")
 
@@ -49,29 +50,30 @@ polygon = mpatches.RegularPolygon(grid[3], 5, 0.1)
 patches.append(polygon)
 label(grid[3], "Polygon")
 
-#add an ellipse
+# add an ellipse
 ellipse = mpatches.Ellipse(grid[4], 0.2, 0.1)
 patches.append(ellipse)
 label(grid[4], "Ellipse")
 
-#add an arrow
-arrow = mpatches.Arrow(grid[5, 0]-0.05, grid[5, 1]-0.05, 0.1, 0.1, width=0.1)
+# add an arrow
+arrow = mpatches.Arrow(grid[5, 0] - 0.05, grid[5, 1]
+                       - 0.05, 0.1, 0.1, width=0.1)
 patches.append(arrow)
 label(grid[5], "Arrow")
 
 # add a path patch
 Path = mpath.Path
 path_data = [
-     (Path.MOVETO, [ 0.018, -0.11 ]),
-     (Path.CURVE4, [-0.031, -0.051]),
-     (Path.CURVE4, [-0.115,  0.073]),
-     (Path.CURVE4, [-0.03 ,  0.073]),
-     (Path.LINETO, [-0.011,  0.039]),
-     (Path.CURVE4, [ 0.043,  0.121]),
-     (Path.CURVE4, [ 0.075, -0.005]),
-     (Path.CURVE4, [ 0.035, -0.027]),
-     (Path.CLOSEPOLY, [0.018, -0.11])
-    ]
+    (Path.MOVETO, [0.018, -0.11]),
+    (Path.CURVE4, [-0.031, -0.051]),
+    (Path.CURVE4, [-0.115,  0.073]),
+    (Path.CURVE4, [-0.03,  0.073]),
+    (Path.LINETO, [-0.011,  0.039]),
+    (Path.CURVE4, [0.043,  0.121]),
+    (Path.CURVE4, [0.075, -0.005]),
+    (Path.CURVE4, [0.035, -0.027]),
+    (Path.CLOSEPOLY, [0.018, -0.11])
+]
 codes, verts = zip(*path_data)
 path = mpath.Path(verts + grid[6], codes)
 patch = mpatches.PathPatch(path)
@@ -80,13 +82,13 @@ label(grid[6], "PathPatch")
 
 # add a fancy box
 fancybox = mpatches.FancyBboxPatch(
-        grid[7] - [0.025, 0.05], 0.05, 0.1,
-        boxstyle=mpatches.BoxStyle("Round", pad=0.02))
+    grid[7] - [0.025, 0.05], 0.05, 0.1,
+    boxstyle=mpatches.BoxStyle("Round", pad=0.02))
 patches.append(fancybox)
 label(grid[7], "FancyBoxPatch")
 
 # add a line
-x,y = np.array([[-0.06, 0.0, 0.1], [0.05, -0.05, 0.05]])
+x, y = np.array([[-0.06, 0.0, 0.1], [0.05, -0.05, 0.05]])
 line = mlines.Line2D(x + grid[8, 0], y + grid[8, 1], lw=5., alpha=0.3)
 label(grid[8], "Line2D")
 

@@ -5,8 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 t = np.arange(0.0, 0.2, 0.1)
-y1 = 2*np.sin(2*np.pi*t)
-y2 = 4*np.sin(2*np.pi*2*t)
+y1 = 2 * np.sin(2 * np.pi * t)
+y2 = 4 * np.sin(2 * np.pi * 2 * t)
 
 fig, ax = plt.subplots()
 ax.set_title('Click on legend line to toggle line on/off')

@@ -10,7 +10,7 @@ from matplotlib import mlab
 mu = 200
 sigma = 25
 n_bins = 50
-x = mu + sigma*np.random.randn(10000)
+x = mu + sigma * np.random.randn(10000)
 
 n, bins, patches = plt.hist(x, n_bins, normed=1,
                             histtype='step', cumulative=True)

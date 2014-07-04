@@ -15,17 +15,22 @@ import matplotlib.pyplot as plt
 from numpy import nonzero
 from numpy.random import rand
 
+
 class Datum(object):
     colorin = colorConverter.to_rgba('red')
     colorout = colorConverter.to_rgba('blue')
+
     def __init__(self, x, y, include=False):
         self.x = x
         self.y = y
-        if include: self.color = self.colorin
-        else: self.color = self.colorout
+        if include:
+            self.color = self.colorin
+        else:
+            self.color = self.colorout
 
 
 class LassoManager(object):
+
     def __init__(self, ax, data):
         self.axes = ax
         self.canvas = ax.figure.canvas
@@ -61,9 +66,12 @@ class LassoManager(object):
         del self.lasso
 
     def onpress(self, event):
-        if self.canvas.widgetlock.locked(): return
-        if event.inaxes is None: return
-        self.lasso = Lasso(event.inaxes, (event.xdata, event.ydata), self.callback)
+        if self.canvas.widgetlock.locked():
+            return
+        if event.inaxes is None:
+            return
+        self.lasso = Lasso(
+            event.inaxes, (event.xdata, event.ydata), self.callback)
         # acquire a lock on the widget drawing
         self.canvas.widgetlock(self.lasso)
 
@@ -71,7 +79,7 @@ if __name__ == '__main__':
 
     data = [Datum(*xy) for xy in rand(100, 2)]
 
-    ax = plt.axes(xlim=(0,1), ylim=(0,1), autoscale_on=False)
+    ax = plt.axes(xlim=(0, 1), ylim=(0, 1), autoscale_on=False)
     lman = LassoManager(ax, data)
 
     plt.show()

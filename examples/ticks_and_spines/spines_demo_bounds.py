@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-x = np.linspace(0, 2*np.pi, 50)
+x = np.linspace(0, 2 * np.pi, 50)
 y = np.sin(x)
 y2 = y + 0.1 * np.random.normal(size=x.shape)
 
@@ -14,9 +14,9 @@ ax.plot(x, y, 'k--')
 ax.plot(x, y2, 'ro')
 
 # set ticks and tick labels
-ax.set_xlim((0, 2*np.pi))
-ax.set_xticks([0, np.pi, 2*np.pi])
-ax.set_xticklabels(['0', '$\pi$','2$\pi$'])
+ax.set_xlim((0, 2 * np.pi))
+ax.set_xticks([0, np.pi, 2 * np.pi])
+ax.set_xticklabels(['0', '$\pi$', '2$\pi$'])
 ax.set_ylim((-1.5, 1.5))
 ax.set_yticks([-1, 0, 1])
 

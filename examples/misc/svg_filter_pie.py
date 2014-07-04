@@ -14,13 +14,13 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Shadow
 
 # make a square figure and axes
-fig1 = plt.figure(1, figsize=(6,6))
+fig1 = plt.figure(1, figsize=(6, 6))
 ax = fig1.add_axes([0.1, 0.1, 0.8, 0.8])
 
 labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
-fracs = [15,30,45, 10]
+fracs = [15, 30, 45, 10]
 
-explode=(0, 0.05, 0, 0)
+explode = (0, 0.05, 0, 0)
 
 # We want to draw the shadow for each pie but we will not use "shadow"
 # option as it does'n save the references to the shadow patches.
@@ -36,10 +36,10 @@ for w in pies[0]:
 for w in pies[0]:
     # create shadow patch
     s = Shadow(w, -0.01, -0.01)
-    s.set_gid(w.get_gid()+"_shadow")
+    s.set_gid(w.get_gid() + "_shadow")
     s.set_zorder(w.get_zorder() - 0.1)
     ax.add_patch(s)
-    
+
 
 # save
 from StringIO import StringIO
@@ -88,7 +88,7 @@ for i, pie_name in enumerate(labels):
     pie.set("filter", 'url(#MyFilter)')
 
     shadow = xmlid[pie_name + "_shadow"]
-    shadow.set("filter",'url(#dropshadow)')
+    shadow.set("filter", 'url(#dropshadow)')
 
 fn = "svg_filter_pie.svg"
 print "Saving '%s'" % fn

@@ -35,8 +35,9 @@ print('Num faces   :', font.num_faces)       # number of faces in file
 print('Num glyphs  :', font.num_glyphs)      # number of glyphs in the face
 print('Family name :', font.family_name)     # face family name
 print('Syle name   :', font.style_name)      # face syle name
-print('PS name     :', font.postscript_name) # the postscript name
-print('Num fixed   :', font.num_fixed_sizes) # number of embedded bitmap in face
+print('PS name     :', font.postscript_name)  # the postscript name
+# number of embedded bitmap in face
+print('Num fixed   :', font.num_fixed_sizes)
 
 # the following are only available if face.scalable
 if font.scalable:
@@ -59,18 +60,18 @@ if font.scalable:
     # vertical thickness of the underline
     print('Underline thickness :', font.underline_thickness)
 
-print('Italics       :', font.style_flags & FT_STYLE_FLAG_ITALIC          != 0)
-print('Bold          :', font.style_flags & FT_STYLE_FLAG_BOLD            != 0)
-print('Scalable      :', font.style_flags & FT_FACE_FLAG_SCALABLE         != 0)
-print('Fixed sizes   :', font.style_flags & FT_FACE_FLAG_FIXED_SIZES      != 0)
-print('Fixed width   :', font.style_flags & FT_FACE_FLAG_FIXED_WIDTH      != 0)
-print('SFNT          :', font.style_flags & FT_FACE_FLAG_SFNT             != 0)
-print('Horizontal    :', font.style_flags & FT_FACE_FLAG_HORIZONTAL       != 0)
-print('Vertical      :', font.style_flags & FT_FACE_FLAG_VERTICAL         != 0)
-print('Kerning       :', font.style_flags & FT_FACE_FLAG_KERNING          != 0)
-print('Fast glyphs   :', font.style_flags & FT_FACE_FLAG_FAST_GLYPHS      != 0)
+print('Italics       :', font.style_flags & FT_STYLE_FLAG_ITALIC != 0)
+print('Bold          :', font.style_flags & FT_STYLE_FLAG_BOLD != 0)
+print('Scalable      :', font.style_flags & FT_FACE_FLAG_SCALABLE != 0)
+print('Fixed sizes   :', font.style_flags & FT_FACE_FLAG_FIXED_SIZES != 0)
+print('Fixed width   :', font.style_flags & FT_FACE_FLAG_FIXED_WIDTH != 0)
+print('SFNT          :', font.style_flags & FT_FACE_FLAG_SFNT != 0)
+print('Horizontal    :', font.style_flags & FT_FACE_FLAG_HORIZONTAL != 0)
+print('Vertical      :', font.style_flags & FT_FACE_FLAG_VERTICAL != 0)
+print('Kerning       :', font.style_flags & FT_FACE_FLAG_KERNING != 0)
+print('Fast glyphs   :', font.style_flags & FT_FACE_FLAG_FAST_GLYPHS != 0)
 print('Mult. masters :', font.style_flags & FT_FACE_FLAG_MULTIPLE_MASTERS != 0)
-print('Glyph names   :', font.style_flags & FT_FACE_FLAG_GLYPH_NAMES      != 0)
+print('Glyph names   :', font.style_flags & FT_FACE_FLAG_GLYPH_NAMES != 0)
 
 print(dir(font))
 

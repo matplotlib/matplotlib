@@ -73,8 +73,8 @@ from matplotlib.image import AxesImage
 import numpy as np
 from numpy.random import rand
 
-if 1: # simple picking, lines, rectangles and text
-    fig, (ax1, ax2) = plt.subplots(2,1)
+if 1:  # simple picking, lines, rectangles and text
+    fig, (ax1, ax2) = plt.subplots(2, 1)
     ax1.set_title('click on points, rectangles or text', picker=True)
     ax1.set_ylabel('ylabel', picker=True, bbox=dict(facecolor='red'))
     line, = ax1.plot(rand(100), 'o', picker=5)  # 5 points tolerance
@@ -84,14 +84,14 @@ if 1: # simple picking, lines, rectangles and text
     for label in ax2.get_xticklabels():  # make the xtick labels pickable
         label.set_picker(True)
 
-
     def onpick1(event):
         if isinstance(event.artist, Line2D):
             thisline = event.artist
             xdata = thisline.get_xdata()
             ydata = thisline.get_ydata()
             ind = event.ind
-            print('onpick1 line:', zip(np.take(xdata, ind), np.take(ydata, ind)))
+            print('onpick1 line:',
+                  zip(np.take(xdata, ind), np.take(ydata, ind)))
         elif isinstance(event.artist, Rectangle):
             patch = event.artist
             print('onpick1 patch:', patch.get_path())
@@ -99,11 +99,9 @@ if 1: # simple picking, lines, rectangles and text
             text = event.artist
             print('onpick1 text:', text.get_text())
 
-
-
     fig.canvas.mpl_connect('pick_event', onpick1)
 
-if 1: # picking with a custom hit test function
+if 1:  # picking with a custom hit test function
     # you can define custom pickers by setting picker to a callable
     # function.  The function has the signature
     #
@@ -119,11 +117,13 @@ if 1: # picking with a custom hit test function
         data coords and attach some extra attributes, pickx and picky
         which are the data points that were picked
         """
-        if mouseevent.xdata is None: return False, dict()
+        if mouseevent.xdata is None:
+            return False, {}
         xdata = line.get_xdata()
         ydata = line.get_ydata()
         maxd = 0.05
-        d = np.sqrt((xdata-mouseevent.xdata)**2. + (ydata-mouseevent.ydata)**2.)
+        d = np.abs((xdata - mouseevent.xdata) +
+                   (ydata - mouseevent.ydata) * 1j)
 
         ind = np.nonzero(np.less_equal(d, maxd))
         if len(ind):
@@ -132,7 +132,7 @@ if 1: # picking with a custom hit test function
             props = dict(ind=ind, pickx=pickx, picky=picky)
             return True, props
         else:
-            return False, dict()
+            return False, {}
 
     def onpick2(event):
         print('onpick2 line:', event.pickx, event.picky)
@@ -143,25 +143,27 @@ if 1: # picking with a custom hit test function
     fig.canvas.mpl_connect('pick_event', onpick2)
 
 
-if 1: # picking on a scatter plot (matplotlib.collections.RegularPolyCollection)
+# picking on a scatter plot (matplotlib.collections.RegularPolyCollection)
+if 1:
 
     x, y, c, s = rand(4, 100)
+
     def onpick3(event):
         ind = event.ind
         print('onpick3 scatter:', ind, np.take(x, ind), np.take(y, ind))
 
     fig, ax = plt.subplots()
-    col = ax.scatter(x, y, 100*s, c, picker=True)
-    #fig.savefig('pscoll.eps')
+    col = ax.scatter(x, y, 100 * s, c, picker=True)
+    # fig.savefig('pscoll.eps')
     fig.canvas.mpl_connect('pick_event', onpick3)
 
-if 1: # picking images (matplotlib.image.AxesImage)
+if 1:  # picking images (matplotlib.image.AxesImage)
     fig, ax = plt.subplots()
-    im1 = ax.imshow(rand(10,5), extent=(1,2,1,2), picker=True)
-    im2 = ax.imshow(rand(5,10), extent=(3,4,1,2), picker=True)
-    im3 = ax.imshow(rand(20,25), extent=(1,2,3,4), picker=True)
-    im4 = ax.imshow(rand(30,12), extent=(3,4,3,4), picker=True)
-    ax.axis([0,5,0,5])
+    im1 = ax.imshow(rand(10, 5), extent=(1, 2, 1, 2), picker=True)
+    im2 = ax.imshow(rand(5, 10), extent=(3, 4, 1, 2), picker=True)
+    im3 = ax.imshow(rand(20, 25), extent=(1, 2, 3, 4), picker=True)
+    im4 = ax.imshow(rand(30, 12), extent=(3, 4, 3, 4), picker=True)
+    ax.axis([0, 5, 0, 5])
 
     def onpick4(event):
         artist = event.artist
@@ -174,4 +176,3 @@ if 1: # picking images (matplotlib.image.AxesImage)
 
 
 plt.show()
-
