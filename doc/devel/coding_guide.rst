@@ -69,7 +69,7 @@ Documentation
 * Docstrings should be in `numpydoc format
   <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_.
   Don't be thrown off by the fact that many of the existing docstrings
-  are not in that format.  We are working to standardize on
+  are not in that format;  we are working to standardize on
   `numpydoc`.
 
   Docstrings should look like (at a minimum)::
