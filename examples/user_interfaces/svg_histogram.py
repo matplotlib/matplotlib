@@ -40,12 +40,10 @@ import json
 
 plt.rcParams['svg.embed_char_paths'] = 'none'
 
-# Apparently, this `register_namespace` method works only with 
+# Apparently, this `register_namespace` method works only with
 # python 2.7 and up and is necessary to avoid garbling the XML name
 # space with ns0.
-ET.register_namespace("","http://www.w3.org/2000/svg")
-
-
+ET.register_namespace("", "http://www.w3.org/2000/svg")
 
 
 # --- Create histogram, legend and title ---
@@ -53,30 +51,30 @@ plt.figure()
 r = np.random.randn(100)
 r1 = r + 1
 labels = ['Rabbits', 'Frogs']
-H = plt.hist([r,r1], label=labels)
+H = plt.hist([r, r1], label=labels)
 containers = H[-1]
 leg = plt.legend(frameon=False)
 plt.title("""From a web browser, click on the legend 
 marker to toggle the corresponding histogram.""")
 
 
-# --- Add ids to the svg objects we'll modify 
+# --- Add ids to the svg objects we'll modify
 
 hist_patches = {}
 for ic, c in enumerate(containers):
-    hist_patches['hist_%d'%ic] = []
+    hist_patches['hist_%d' % ic] = []
     for il, element in enumerate(c):
-        element.set_gid('hist_%d_patch_%d'%(ic, il))
-        hist_patches['hist_%d'%ic].append('hist_%d_patch_%d'%(ic,il))    
+        element.set_gid('hist_%d_patch_%d' % (ic, il))
+        hist_patches['hist_%d' % ic].append('hist_%d_patch_%d' % (ic, il))
 
-# Set ids for the legend patches    
+# Set ids for the legend patches
 for i, t in enumerate(leg.get_patches()):
-    t.set_gid('leg_patch_%d'%i)
+    t.set_gid('leg_patch_%d' % i)
 
 # Set ids for the text patches
 for i, t in enumerate(leg.get_texts()):
-    t.set_gid('leg_text_%d'%i)
-            
+    t.set_gid('leg_text_%d' % i)
+
 # Save SVG in a fake file object.
 f = StringIO()
 plt.savefig(f, format="svg")
@@ -87,23 +85,23 @@ tree, xmlid = ET.XMLID(f.getvalue())
 
 # --- Add interactivity ---
 
-# Add attributes to the patch objects.    
+# Add attributes to the patch objects.
 for i, t in enumerate(leg.get_patches()):
-    el = xmlid['leg_patch_%d'%i]
+    el = xmlid['leg_patch_%d' % i]
     el.set('cursor', 'pointer')
     el.set('onclick', "toggle_hist(this)")
-    
-# Add attributes to the text objects.    
+
+# Add attributes to the text objects.
 for i, t in enumerate(leg.get_texts()):
-    el = xmlid['leg_text_%d'%i]
+    el = xmlid['leg_text_%d' % i]
     el.set('cursor', 'pointer')
     el.set('onclick', "toggle_hist(this)")
-        
-# Create script defining the function `toggle_hist`. 
-# We create a global variable `container` that stores the patches id 
-# belonging to each histogram. Then a function "toggle_element" sets the 
+
+# Create script defining the function `toggle_hist`.
+# We create a global variable `container` that stores the patches id
+# belonging to each histogram. Then a function "toggle_element" sets the
 # visibility attribute of all patches of each histogram and the opacity
-# of the marker itself. 
+# of the marker itself.
 
 script = """
 <script type="text/ecmascript">
@@ -144,16 +142,14 @@ function toggle_hist(obj) {
     }
 ]]>
 </script>
-"""%json.dumps(hist_patches)
+""" % json.dumps(hist_patches)
 
 # Add a transition effect
 css = tree.getchildren()[0][0]
-css.text = css.text + "g {-webkit-transition:opacity 0.4s ease-out;-moz-transition:opacity 0.4s ease-out;}"
-    
+css.text = css.text + \
+    "g {-webkit-transition:opacity 0.4s ease-out;-moz-transition:opacity 0.4s ease-out;}"
+
 # Insert the script and save to file.
 tree.insert(0, ET.XML(script))
 
 ET.ElementTree(tree).write("svg_histogram.svg")
-
-    
-
