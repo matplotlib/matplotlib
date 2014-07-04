@@ -16,6 +16,6 @@ if 1:
         ax.axis[direction].set_visible(False)
 
     x = np.linspace(-0.5, 1., 100)
-    ax.plot(x, np.sin(x*np.pi))
+    ax.plot(x, np.sin(x * np.pi))
 
     plt.show()
