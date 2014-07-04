@@ -1533,12 +1533,17 @@ class Axes3D(Axes):
         but it also supports color mapping by supplying the *cmap*
         argument.
 
+        The `rstride` and `cstride` kwargs set the stride used to
+        sample the input data to generate the graph.  If 1k by 1k
+        arrays are passed in the default values for the strides will
+        result in a 100x100 grid being plotted.
+
         ============= ================================================
         Argument      Description
         ============= ================================================
         *X*, *Y*, *Z* Data values as 2D arrays
-        *rstride*     Array row stride (step size)
-        *cstride*     Array column stride (step size)
+        *rstride*     Array row stride (step size), defaults to 10
+        *cstride*     Array column stride (step size), defaults to 10
         *color*       Color of the surface patches
         *cmap*        A colormap for the surface patches.
         *facecolors*  Face colors for the individual patches
@@ -1704,13 +1709,16 @@ class Axes3D(Axes):
         '''
         Plot a 3D wireframe.
 
+        The `rstride` and `cstride` kwargs set the stride used to
+        sample the input data to generate the graph.
+
         ==========  ================================================
         Argument    Description
         ==========  ================================================
         *X*, *Y*,   Data values as 2D arrays
         *Z*
-        *rstride*   Array row stride (step size)
-        *cstride*   Array column stride (step size)
+        *rstride*   Array row stride (step size), defaults to 1
+        *cstride*   Array column stride (step size), defaults to 1
         ==========  ================================================
 
         Keyword arguments are passed on to
@@ -2453,23 +2461,23 @@ class Axes3D(Axes):
             """
             To calculate the arrow head. (u, v, w) should be unit vector.
             """
- 
+
             # this part figures out the axis of rotation to use
 
             # use unit vector perpendicular to (u,v,w) when |w|=1, by default
-            x, y, z = 0, 1, 0   
+            x, y, z = 0, 1, 0
 
-            # get the norm 
-            norm = math.sqrt(v**2 + u**2) 
+            # get the norm
+            norm = math.sqrt(v**2 + u**2)
             # normalize it if it is safe
             if norm > 0:
                 # get unit direction vector perpendicular to (u,v,w)
-                x, y = v/norm, -u/norm  
+                x, y = v/norm, -u/norm
 
-            # this function takes an angle, and rotates the (u,v,w) 
+            # this function takes an angle, and rotates the (u,v,w)
             # angle degrees around (x,y,z)
             def rotatefunction(angle):
-                ra = math.radians(angle)  
+                ra = math.radians(angle)
                 c = math.cos(ra)
                 s = math.sin(ra)
 
@@ -2477,10 +2485,10 @@ class Axes3D(Axes):
                 R = np.matrix([[c+(x**2)*(1-c), x*y*(1-c)-z*s, x*z*(1-c)+y*s],
                                [y*x*(1-c)+z*s, c+(y**2)*(1-c), y*z*(1-c)-x*s],
                                [z*x*(1-c)-y*s, z*y*(1-c)+x*s, c+(z**2)*(1-c)]])
- 
+
                 # construct the column vector for (u,v,w)
                 line = np.matrix([[u],[v],[w]])
-  
+
                 # use numpy to multiply them to get the rotated vector
                 rotatedline = R*line
 
