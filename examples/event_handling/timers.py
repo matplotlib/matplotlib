@@ -14,8 +14,8 @@ fig, ax = plt.subplots()
 x = np.linspace(-3, 3)
 ax.plot(x, x * x)
 
-# Create a new timer object. Set the interval 500 milliseconds (1000 is default)
-# and tell the timer what function should be called.
+# Create a new timer object. Set the interval 500 milliseconds (1000 is
+# default) and tell the timer what function should be called.
 timer = fig.canvas.new_timer(interval=100)
 timer.add_callback(update_title, ax)
 timer.start()
@@ -24,6 +24,6 @@ timer.start()
 # def start_timer(evt):
 #    timer.start()
 #    fig.canvas.mpl_disconnect(drawid)
-#drawid = fig.canvas.mpl_connect('draw_event', start_timer)
+# drawid = fig.canvas.mpl_connect('draw_event', start_timer)
 
 plt.show()

@@ -129,9 +129,11 @@ class Game(object):
         padAy = padBy = .30
         padBx += 6.3
         pA, = self.ax.barh(padAy, .2, height=.3, color='k', alpha=.5,
-                           edgecolor='b', lw=2, label="Player B", animated=True)
+                           edgecolor='b', lw=2, label="Player B",
+                           animated=True)
         pB, = self.ax.barh(padBy, .2, height=.3, left=padBx, color='k',
-                           alpha=.5, edgecolor='r', lw=2, label="Player A", animated=True)
+                           alpha=.5, edgecolor='r', lw=2, label="Player A",
+                           animated=True)
 
         # distractors
         self.x = np.arange(0, 2.22 * np.pi, 0.01)
@@ -144,9 +146,10 @@ class Game(object):
         self.line4, = self.ax.plot(
             self.x, np.cos(self.x), "r", animated=True, lw=4)
         self.centerline, = self.ax.plot(
-            [3.5, 3.5], [1, -1], 'k', alpha=.5, animated=True,  lw=8)
+            [3.5, 3.5], [1, -1], 'k', alpha=.5, animated=True, lw=8)
         self.puckdisp = self.ax.scatter(
-            [1], [1], label='_nolegend_', s=200, c='g', alpha=.9, animated=True)
+            [1], [1], label='_nolegend_', s=200, c='g', alpha=.9,
+            animated=True)
 
         self.canvas = self.ax.figure.canvas
         self.background = None

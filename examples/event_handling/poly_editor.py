@@ -32,7 +32,8 @@ class PolygonInteractor:
     def __init__(self, ax, poly):
         if poly.figure is None:
             raise RuntimeError(
-                'You must first add the polygon to a figure or canvas before defining the interactor')
+                'You must first add the polygon to a figure or canvas before '
+                'defining the interactor')
         self.ax = ax
         canvas = poly.figure.canvas
         self.poly = poly
