@@ -490,16 +490,15 @@ The development of matplotlib is organized through `github
 <https://github.com/matplotlib/matplotlib>`_.  If you would like
 to report a bug or submit a patch please use that interface.
 
-To report a bug just `create an issue
-<https://github.com/matplotlib/matplotlib/issues/new>`_ on github.
-Please include a `Short, Self Contained, Correct (Compilable), Example
-<http://sscce.org>`_ demonstrating what is wrong.  This makes it much
-easier for the developers to evaluate the bug report and gives them a
-start on where to start looking for the bug.  The easier it is for the
-developers to understand your problem the faster it will get fixed.
-Expect that the bug reports will be a conversation.  If you do not
-want to register with github, please email bug reports to the `mailing
-list <matplotlib-devel@lists.sourceforge.net>`_.
+To report a bug `create an issue
+<https://github.com/matplotlib/matplotlib/issues/new>`_ on github
+(this requires having a github account).  Please include a `Short,
+Self Contained, Correct (Compilable), Example <http://sscce.org>`_
+demonstrating what the bug is.  Including a clear, easy to test
+example makes it easy for the developers to evaluate the bug.  Expect
+that the bug reports will be a conversation.  If you do not want to
+register with github, please email bug reports to the `mailing list
+<matplotlib-devel@lists.sourceforge.net>`_.
 
 
 The easiest way to submit patches to matplotlib is through pull

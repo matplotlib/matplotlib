@@ -246,6 +246,7 @@ which you would then use as::
     fig, ax = plt.subplots(1, 1)
     my_plotter(ax, data1, data2, {'marker':'x'})
 
+
 or if you wanted to have 2 sub-plots::
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
