@@ -65,7 +65,7 @@ then automatically set that title to the current axes object::
 
     .. sourcecode:: ipython
 
-      In [20]: %matplotlib
+      In [14]: %matplotlib
       Using matplotlib backend: Qt4Agg
 
       In [15]: import matplotlib.pyplot as plt
@@ -81,24 +81,18 @@ because the commands have side-effects (altering the global state)
 using many :mod:`matplotlib.pyplot` commands in scripts or functions
 can lead to unexpected and difficult to track down bugs.
 
-Pylab is a convenience module that imports pyplot (for
-plotting) and numpy functionality (for mathematics and for
-working with arrays) in a single namespace.  You can than bulk import
-from pylab::
+Pylab is a convenience module that imports pyplot (for plotting) and
+numpy functionality (for mathematics and for working with arrays) in a
+single namespace.  You can than bulk import from pylab to get an even
+more MATLAB-like environment.  This seems convenient for interactive
+calculations and plotting, as it (barely) minimizes typing, however it
+is not recommended as it clobbers your namespace.  As with :mod:`pyplot`,
+it is not recommended to use :mod:`pylab` in scripts and bulk importing
+:mod:`pylab` in scripts is discouraged as with all bulk importing.
 
-    .. sourcecode:: ipython
-
-       In [1]: from pylab import *
-
-to get an even more MATLAB-like environment.  For example, one can
-call the `sin` and `cos` functions just like you could in MATLAB, as
-well as having all the features of pyplot.  The pylab interface is
-convenient for interactive calculations and plotting, as it minimizes
-typing.  This is not recommended to use pylab in scripts for the same reasons
-bulk importing is discouraged in general.
-
-For non-interactive use it is suggested to use pyplot to create the
-figures and then the OO interface for plotting.
+For non-interactive plotting it is suggested
+to use pyplot to create the figures and then the OO interface for
+plotting.
 
 .. _coding_styles:
 
@@ -146,7 +140,7 @@ clarity becomes increasingly valuable, and the richer and more
 complete object-oriented interface will likely make the program easier
 to write and maintain.
 
-Typically one finds them selves making the same plots over and over
+Typically one finds oneself making the same plots over and over
 again, but with different data sets, which leads to needing to write
 specialized functions to do the plotting.  The recommended function
 signature is something like: ::
