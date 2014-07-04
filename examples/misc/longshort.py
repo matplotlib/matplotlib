@@ -10,9 +10,11 @@ import matplotlib.mlab as mlab
 
 # grab the price data off yahoo
 u1 = urllib.urlretrieve(
-    'http://ichart.finance.yahoo.com/table.csv?s=AAPL&d=9&e=14&f=2008&g=d&a=8&b=7&c=1984&ignore=.csv')
+    'http://ichart.finance.yahoo.com/table.csv'
+    '?s=AAPL&d=9&e=14&f=2008&g=d&a=8&b=7&c=1984&ignore=.csv')
 u2 = urllib.urlretrieve(
-    'http://ichart.finance.yahoo.com/table.csv?s=GOOG&d=9&e=14&f=2008&g=d&a=8&b=7&c=1984&ignore=.csv')
+    'http://ichart.finance.yahoo.com/table.csv'
+    '?s=GOOG&d=9&e=14&f=2008&g=d&a=8&b=7&c=1984&ignore=.csv')
 
 # load the CSV files into record arrays
 r1 = mlab.csv2rec(file(u1[0]))

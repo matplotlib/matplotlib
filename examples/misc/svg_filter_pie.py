@@ -3,7 +3,7 @@ Demonstrate SVG filtering effects which might be used with mpl.
 The pie chart drawing code is borrowed from pie_demo.py
 
 Note that the filtering effects are only effective if your svg rederer
-support it. 
+support it.
 """
 
 
@@ -58,20 +58,23 @@ import xml.etree.cElementTree as ET
 # that, inkscape's exporting also may not support it.
 
 filter_def = """
-  <defs  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>
+  <defs  xmlns='http://www.w3.org/2000/svg'
+       xmlns:xlink='http://www.w3.org/1999/xlink'>
     <filter id='dropshadow' height='1.2' width='1.2'>
       <feGaussianBlur result='blur' stdDeviation='2'/>
     </filter>
-    
-    <filter id='MyFilter' filterUnits='objectBoundingBox' x='0' y='0' width='1' height='1'>
+
+    <filter id='MyFilter' filterUnits='objectBoundingBox' x='0' y='0'
+         width='1' height='1'>
       <feGaussianBlur in='SourceAlpha' stdDeviation='4%' result='blur'/>
       <feOffset in='blur' dx='4%' dy='4%' result='offsetBlur'/>
-      <feSpecularLighting in='blur' surfaceScale='5' specularConstant='.75' 
+      <feSpecularLighting in='blur' surfaceScale='5' specularConstant='.75'
            specularExponent='20' lighting-color='#bbbbbb' result='specOut'>
         <fePointLight x='-5000%' y='-10000%' z='20000%'/>
       </feSpecularLighting>
-      <feComposite in='specOut' in2='SourceAlpha' operator='in' result='specOut'/>
-      <feComposite in='SourceGraphic' in2='specOut' operator='arithmetic' 
+      <feComposite in='specOut' in2='SourceAlpha' operator='in'
+           result='specOut'/>
+      <feComposite in='SourceGraphic' in2='specOut' operator='arithmetic'
     k1='0' k2='1' k3='1' k4='0'/>
     </filter>
   </defs>
