@@ -75,7 +75,7 @@ class PolygonInteractor:
         xy = np.asarray(self.poly.xy)
         xyt = self.poly.get_transform().transform(xy)
         xt, yt = xyt[:, 0], xyt[:, 1]
-        d = np.abs((xt - event.x) + (yt - event.y) * 1j)
+        d = np.hypot(xt - event.x, yt - event.y)
         indseq = np.nonzero(np.equal(d, np.amin(d)))[0]
         ind = indseq[0]
 

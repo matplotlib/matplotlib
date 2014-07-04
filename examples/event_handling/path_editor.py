@@ -84,7 +84,7 @@ class PathInteractor:
         xy = np.asarray(self.pathpatch.get_path().vertices)
         xyt = self.pathpatch.get_transform().transform(xy)
         xt, yt = xyt[:, 0], xyt[:, 1]
-        d = np.abs((xt - event.x) + (yt - event.y) * 1j)
+        d = np.hypot(xt - event.x, yt - event.y)
         ind = d.argmin()
 
         if d[ind] >= self.epsilon:
