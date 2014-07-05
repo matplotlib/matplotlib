@@ -210,7 +210,7 @@ class TriInterpolator(object):
             ret_loc = np.empty(size_ret, dtype=np.float64)
             ret_loc[~mask_in] = np.nan
             ret_loc[mask_in] = self._interpolate_single_key(
-                return_key, valid_tri_index, valid_x, valid_y) * scale
+                return_key, valid_tri_index, valid_x, valid_y).ravel() * scale
             ret += [np.ma.masked_invalid(ret_loc.reshape(sh_ret), copy=False)]
 
         return ret
