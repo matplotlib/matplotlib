@@ -1,4 +1,5 @@
-#Author: Cameron Davidson-Pilon, DataOrigami.net
+#Author: Cameron Davidson-Pilon, replicated styles from FiveThirtyEight.com
+# See https://www.dataorigami.net/blogs/fivethirtyeight-mpl
 
 lines.linewidth: 2.0
 lines.linewidth: 4
