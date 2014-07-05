@@ -3,8 +3,11 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import xrange
-
-import mock
+try:
+    # mock in python 3.3+
+    from unittest import mock
+except ImportError:
+    import mock
 from nose.tools import assert_equal
 import numpy as np
 

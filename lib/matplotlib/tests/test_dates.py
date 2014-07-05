@@ -9,7 +9,11 @@ import warnings
 import tempfile
 
 import dateutil
-import mock
+try:
+    # mock in python 3.3+
+    from unittest import mock
+except ImportError:
+    import mock
 from nose.tools import assert_raises, assert_equal
 
 from matplotlib.testing.decorators import image_comparison, cleanup
