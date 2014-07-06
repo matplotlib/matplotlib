@@ -1,7 +1,6 @@
 #Author: Cameron Davidson-Pilon, replicated styles from FiveThirtyEight.com
 # See https://www.dataorigami.net/blogs/fivethirtyeight-mpl
 
-lines.linewidth: 2.0
 lines.linewidth: 4
 lines.solid_capstyle: butt
 
@@ -19,7 +18,7 @@ axes.titlesize: x-large
 patch.edgecolor: f0f0f0
 patch.linewidth: 0.5
 
-svg.embed_char_paths: path
+svg.fonttype: path
 
 grid.linestyle: -
 grid.linewidth: 1.0
