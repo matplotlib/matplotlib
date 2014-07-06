@@ -53,7 +53,7 @@ Next, we need to get matplotlib installed.  We provide prebuilt
 binaries for OS X and Windows on the matplotlib `download
 <http://matplotlib.org/downloads.html>`_.  Click on
 the latest release of the "matplotlib" package, choose your python
-version (2.6, 2.7 or 3.2) and your platform (macosx or win32).  If you
+version (2.6, 2.7, 3.3, or 3.4) and your platform (macosx or win32).  If you
 have any problems, please check the :ref:`installing-faq`, search
 using Google, and/or post a question the `mailing list
 <http://sourceforge.net/project/showfiles.php?group_id=80706>`_.
