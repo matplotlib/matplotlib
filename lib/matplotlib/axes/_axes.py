@@ -2328,8 +2328,7 @@ class Axes(_AxesBase):
               colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
               autopct=None, pctdistance=0.6, shadow=False,
               labeldistance=1.1, startangle=None, radius=None,
-              counterclock=True, wedgeprops=None, textprops=None,
-              )
+              counterclock=True, wedgeprops=None, textprops=None)
 
         Make a pie chart of array *x*.  The fractional area of each
         wedge is given by x/sum(x).  If sum(x) <= 1, then the values
@@ -2382,9 +2381,11 @@ class Axes(_AxesBase):
             For example, you can pass in wedgeprops = { 'linewidth' : 3 }
             to set the width of the wedge border lines equal to 3.
             For more details, look at the doc/arguments of the wedge object.
+            By default `clip_on=False`.
 
           *textprops*: [ *None* | dict of key value pairs ]
             Dict of arguments to pass to the text objects.
+
 
         The pie chart will probably look best if the figure and axes are
         square, or the Axes aspect is equal.  e.g.::
@@ -2438,10 +2439,16 @@ class Axes(_AxesBase):
         else:
             theta1 = startangle / 360.0
 
+        # set default values in wedge_prop
         if wedgeprops is None:
             wedgeprops = {}
+        if 'clip_on' not in wedgeprops:
+            wedgeprops['clip_on'] = False
+
         if textprops is None:
             textprops = {}
+        if 'clip_on' not in textprops:
+            textprops['clip_on'] = False
 
         texts = []
         slices = []
@@ -2467,10 +2474,7 @@ class Axes(_AxesBase):
                 # make sure to add a shadow after the call to
                 # add_patch so the figure and transform props will be
                 # set
-                shad = mpatches.Shadow(
-                    w, -0.02, -0.02,
-                    #props={'facecolor':w.get_facecolor()}
-                    )
+                shad = mpatches.Shadow(w, -0.02, -0.02)
                 shad.set_zorder(0.9 * w.get_zorder())
                 shad.set_label('_nolegend_')
                 self.add_patch(shad)
