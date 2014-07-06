@@ -2996,7 +2996,7 @@ class Axes(_AxesBase):
             If provided, will set the plotting style of the whiskers
 
           capprops : dict or None (default)
-            If provided, will set the plotting style of the whiskers
+            If provided, will set the plotting style of the caps
 
           flierprops : dict or None (default)
             If provided, will set the plotting style of the fliers
@@ -3145,7 +3145,7 @@ class Axes(_AxesBase):
 
           shownotches : bool, default = False
              If False (default), produces a rectangular box plot.
-             If True, will produce a ed box plot
+             If True, will produce a notched box plot
 
           showmeans : bool, default = False
             If True, will toggle one the rendering of the means
@@ -3166,7 +3166,7 @@ class Axes(_AxesBase):
             If provided, will set the plotting style of the whiskers
 
           capprops : dict or None (default)
-            If provided, will set the plotting style of the whiskers
+            If provided, will set the plotting style of the caps
 
           flierprops : dict or None (default)
             If provided will set the plotting style of the fliers
