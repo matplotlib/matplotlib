@@ -189,17 +189,19 @@ original location:
   If `fontpropreties` is not passed in, but `prop` is, then `prop` is used inplace
   of `fontpropreties`.  If both are passed in, `prop` is silently ignored.
 
-* The use of the index 0 has in `plt.subplot` and related commands is
+
+* The use of the index 0 in `plt.subplot` and related commands is
   deprecated.  Due to a lack of validation calling `plt.subplots(2, 2,
   0)` does not raise an exception, but puts an axes in the _last_
   position.  This is due to the indexing in subplot being 1-based (to
-  support the three-digit number scheme) so before indexing into the
-  `GridSpec` object used to determine where the axes should go one is
-  subtracted off, resulting in getting the last position back.  Even
-  though this behavior is clearly wrong and not intended, we are going
-  through a deprecation cycle in an abundance of caution that any users
-  are exploiting this 'feature'.  The use of 0 as an index will raise
-  a warning in 1.4 and an exception in 1.5.
+  mirror MATLAB) so before indexing into the `GridSpec` object used to
+  determine where the axes should go, 1 is subtracted off.  Passing in
+  0 results in passing -1 to `GridSpec` which results in getting the
+  last position back.  Even though this behavior is clearly wrong and
+  not intended, we are going through a deprecation cycle in an
+  abundance of caution that any users are exploiting this 'feature'.
+  The use of 0 as an index will raise a warning in 1.4 and an
+  exception in 1.5.
 
 
 Code removal
