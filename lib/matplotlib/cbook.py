@@ -1948,7 +1948,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
 
     ncols = len(X)
     if labels is None:
-        labels = [str(i) for i in range(ncols)]
+        labels = [str(i) for i in range(1, ncols+1)]
     elif len(labels) != ncols:
         raise ValueError("Dimensions of labels and X must be compatible")
 

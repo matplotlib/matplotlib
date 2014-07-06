@@ -3046,7 +3046,7 @@ class Axes(_AxesBase):
         # replace medians if necessary:
         if usermedians is not None:
             if (len(np.ravel(usermedians)) != len(bxpstats) or
-                np.shape(usermedians)[0] != len(bxpstats)):
+                 np.shape(usermedians)[0] != len(bxpstats)):
                 medmsg = 'usermedians length not compatible with x'
                 raise ValueError(medmsg)
             else:
@@ -3352,11 +3352,9 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
         holdStatus = self._hold
-
         for pos, width, stats in zip(positions, widths, bxpstats):
             # try to find a new label
             datalabels.append(stats.get('label', pos))
-
             # fliers coords
             flier_x = np.ones(len(stats['fliers'])) * pos
             flier_y = stats['fliers']
