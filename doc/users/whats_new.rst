@@ -279,8 +279,8 @@ Backends
 Qt5 backend
 ```````````
 Martin Fitzpatrick and Tom Badran implemented a Qt5 backend.  The differences
-in namespace location between Qt4 and Qt5 was dealt with by shimming
-Qt4 to look like Qt5, thus the Qt5 implementation is primary implementation.
+in namespace locations between Qt4 and Qt5 was dealt with by shimming
+Qt4 to look like Qt5, thus the Qt5 implementation is the primary implementation.
 Backwards compatibility for Qt4 is maintained by wrapping the Qt5 implementation.
 
 The Qt5Agg backend currently does not work with IPython's %matplotlib magic.
