@@ -42,10 +42,10 @@ dirs = dict(files=os.path.join('..', 'lines_bars_and_markers'),
             subplots=os.path.join('..', 'subplots_axes_and_figures'),
             specialty=os.path.join('..', 'specialty_plots'),
             showcase=os.path.join('..', 'showcase'),
-            pylab = os.path.join('..', 'pylab_examples'),
-            api = os.path.join('..', 'api'),
-            units = os.path.join('..', 'units'),
-            mplot3d = os.path.join('..', 'mplot3d'))
+            pylab=os.path.join('..', 'pylab_examples'),
+            api=os.path.join('..', 'api'),
+            units=os.path.join('..', 'units'),
+            mplot3d=os.path.join('..', 'mplot3d'))
 
 
 # files in each dir
@@ -282,13 +282,13 @@ files['api'] = [
 
 files['units'] = [
     'annotate_with_units.py',
-    #'artist_tests.py',  # broken, fixme
+    # 'artist_tests.py',  # broken, fixme
     'bar_demo2.py',
-    #'bar_unit_demo.py', # broken, fixme
-    #'ellipse_with_units.py',  # broken, fixme
+    # 'bar_unit_demo.py', # broken, fixme
+    # 'ellipse_with_units.py',  # broken, fixme
     'radian_demo.py',
     'units_sample.py',
-    #'units_scatter.py', # broken, fixme
+    # 'units_scatter.py', # broken, fixme
 
     ]
 
@@ -313,9 +313,10 @@ files['mplot3d'] = [
 # examples that generate multiple figures
 
 excluded = {
-    'pylab' : ['__init__.py', 'toggle_images.py',],
-    'units' : ['__init__.py', 'date_support.py',],
+    'pylab': ['__init__.py', 'toggle_images.py', ],
+    'units': ['__init__.py', 'date_support.py', ],
 }
+
 
 def report_missing(dir, flist):
     'report the py files in dir that are not in flist'
@@ -326,10 +327,11 @@ def report_missing(dir, flist):
 
     exclude = set(excluded.get(dir, []))
     flist = set(flist)
-    missing = list(pyfiles-flist-exclude)
+    missing = list(pyfiles - flist - exclude)
     missing.sort()
     if missing:
-        print ('%s files not tested: %s'%(dir, ', '.join(missing)))
+        print ('%s files not tested: %s' % (dir, ', '.join(missing)))
+
 
 def report_all_missing(directories):
     for f in directories:
@@ -339,7 +341,7 @@ def report_all_missing(directories):
 # tests known to fail on a given backend
 
 failbackend = dict(
-    svg = ('tex_demo.py', ),
+    svg=('tex_demo.py', ),
     agg = ('hyperlinks.py', ),
     pdf = ('hyperlinks.py', ),
     ps = ('hyperlinks.py', ),
@@ -348,6 +350,7 @@ failbackend = dict(
 
 try:
     import subprocess
+
     def run(arglist):
         try:
             ret = subprocess.call(arglist)
@@ -359,7 +362,8 @@ except ImportError:
     def run(arglist):
         os.system(' '.join(arglist))
 
-def drive(backend, directories, python=['python'], switches = []):
+
+def drive(backend, directories, python=['python'], switches=[]):
     exclude = failbackend.get(backend, [])
 
     # Clear the destination directory for the examples
@@ -382,7 +386,7 @@ def drive(backend, directories, python=['python'], switches = []):
         fpath, fname = os.path.split(fullpath)
 
         if fname in exclude:
-            print ('\tSkipping %s, known to fail on backend: %s'%backend)
+            print ('\tSkipping %s, known to fail on backend: %s' % backend)
             continue
 
         basename, ext = os.path.splitext(fname)
@@ -399,7 +403,7 @@ def drive(backend, directories, python=['python'], switches = []):
                 future_imports = future_imports + ', unicode_literals'
 
         tmpfile.writelines((
-            future_imports+'\n',
+            future_imports + '\n',
             'import sys\n',
             'sys.path.append("%s")\n' % fpath.replace('\\', '\\\\'),
             'import matplotlib\n',
@@ -411,9 +415,9 @@ def drive(backend, directories, python=['python'], switches = []):
         for line in open(fullpath):
             line_lstrip = line.lstrip()
             if (line_lstrip.startswith('from __future__ import') or
-                line_lstrip.startswith('matplotlib.use') or
-                line_lstrip.startswith('savefig') or
-                line_lstrip.startswith('show')):
+                    line_lstrip.startswith('matplotlib.use') or
+                    line_lstrip.startswith('savefig') or
+                    line_lstrip.startswith('show')):
                 continue
             tmpfile.write(line)
         if backend in rcsetup.interactive_bk:
@@ -433,11 +437,13 @@ def drive(backend, directories, python=['python'], switches = []):
             failures.append(fullpath)
     return failures
 
+
 def parse_options():
     doc = (__doc__ and __doc__.split('\n\n')) or "  "
     op = OptionParser(description=doc[0].strip(),
                       usage='%prog [options] [--] [backends and switches]',
-                      #epilog='\n'.join(doc[1:])  # epilog not supported on my python2.4 machine: JDH
+                      # epilog='\n'.join(doc[1:])  # epilog not supported on my
+                      # python2.4 machine: JDH
                       )
     op.disable_interspersed_args()
     op.set_defaults(dirs='pylab,api,units,mplot3d',
@@ -465,15 +471,15 @@ def parse_options():
         backends += [be.lower() for be in options.backends.split(',')]
 
     result = Bunch(
-        dirs = options.dirs.split(','),
-        backends = backends or ['agg', 'ps', 'svg', 'pdf', 'template'],
-        clean = options.clean,
-        coverage = options.coverage,
-        valgrind = options.valgrind,
-        switches = switches)
+        dirs=options.dirs.split(','),
+        backends=backends or ['agg', 'ps', 'svg', 'pdf', 'template'],
+        clean=options.clean,
+        coverage=options.coverage,
+        valgrind=options.valgrind,
+        switches=switches)
     if 'pylab_examples' in result.dirs:
         result.dirs[result.dirs.index('pylab_examples')] = 'pylab'
-    #print result
+    # print result
     return (result)
 
 if __name__ == '__main__':
@@ -487,7 +493,7 @@ if __name__ == '__main__':
         for d in localdirs:
             if d.lower() not in all_backends_set:
                 continue
-            print ('removing %s'%d)
+            print ('removing %s' % d)
             for fname in glob.glob(os.path.join(d, '*')):
                 os.remove(fname)
             os.rmdir(d)
@@ -513,14 +519,15 @@ if __name__ == '__main__':
         failures[backend] = \
             drive(backend, options.dirs, python, options.switches)
         t1 = time.time()
-        times[backend] = (t1-t0)/60.0
+        times[backend] = (t1 - t0) / 60.0
 
     # print times
     for backend, elapsed in times.items():
-        print ('Backend %s took %1.2f minutes to complete' % (backend, elapsed))
+        print ('Backend %s took %1.2f minutes to complete' %
+               (backend, elapsed))
         failed = failures[backend]
         if failed:
             print ('  Failures: %s' % failed)
         if 'template' in times:
             print ('\ttemplate ratio %1.3f, template residual %1.3f' % (
-                elapsed/times['template'], elapsed-times['template']))
+                elapsed / times['template'], elapsed - times['template']))

@@ -18,8 +18,7 @@ path_data = [
     (Path.CURVE4, (2.2, 3.2)),
     (Path.CURVE4, (3, 0.05)),
     (Path.CURVE4, (2.0, -0.5)),
-    (Path.CLOSEPOLY, (1.58, -2.57)),
-    ]
+    (Path.CLOSEPOLY, (1.58, -2.57))]
 codes, verts = zip(*path_data)
 path = mpath.Path(verts, codes)
 patch = mpatches.PathPatch(path, facecolor='r', alpha=0.5)

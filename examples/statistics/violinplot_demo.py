@@ -7,17 +7,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # fake data
-fs = 10 # fontsize
-pos = [1,2,4,5,7,8]
+fs = 10  # fontsize
+pos = [1, 2, 4, 5, 7, 8]
 data = [np.random.normal(size=100) for i in pos]
 
-fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(6,6))
+fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(6, 6))
 
-axes[0, 0].violinplot(data, pos, points=20, widths=0.1, 
+axes[0, 0].violinplot(data, pos, points=20, widths=0.1,
                       showmeans=True, showextrema=True, showmedians=True)
 axes[0, 0].set_title('Custom violinplot 1', fontsize=fs)
 
-axes[0, 1].violinplot(data, pos, points=40, widths=0.3, 
+axes[0, 1].violinplot(data, pos, points=40, widths=0.3,
                       showmeans=True, showextrema=True, showmedians=True,
                       bw_method='silverman')
 axes[0, 1].set_title('Custom violinplot 2', fontsize=fs)

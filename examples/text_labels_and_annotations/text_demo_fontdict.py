@@ -5,10 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-font = {'family' : 'serif',
-        'color'  : 'darkred',
-        'weight' : 'normal',
-        'size'   : 16,
+font = {'family': 'serif',
+        'color': 'darkred',
+        'weight': 'normal',
+        'size': 16,
         }
 
 x = np.linspace(0.0, 5.0, 100)

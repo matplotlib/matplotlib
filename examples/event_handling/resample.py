@@ -3,7 +3,10 @@ import matplotlib.pyplot as plt
 from scikits.audiolab import wavread
 
 # A class that will downsample the data and recompute when zoomed.
+
+
 class DataDisplayDownsampler(object):
+
     def __init__(self, xdata, ydata):
         self.origYData = ydata
         self.origXData = xdata
@@ -41,10 +44,10 @@ d = DataDisplayDownsampler(xdata, ydata)
 
 fig, ax = plt.subplots()
 
-#Hook up the line
+# Hook up the line
 xdata, ydata = d.downsample(xdata[0], xdata[-1])
 d.line, = ax.plot(xdata, ydata)
-ax.set_autoscale_on(False) # Otherwise, infinite loop
+ax.set_autoscale_on(False)  # Otherwise, infinite loop
 
 # Connect for changing the view limits
 ax.callbacks.connect('xlim_changed', d.update)
