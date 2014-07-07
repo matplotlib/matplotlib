@@ -7,7 +7,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import nose
-from nose.tools import assert_true, assert_raises
+from nose.tools import assert_true, assert_raises, assert_raises_regexp
 from timeit import repeat
 import numpy as np
 import matplotlib as mpl
@@ -131,6 +131,13 @@ def test_nan_is_sorted():
     line = mpl.lines.Line2D([],[])
     assert_true(line._is_sorted(np.array([1,2,3])))
     assert_true(not line._is_sorted(np.array([1,np.nan,3])))
+
+
+def test_invalid_marker():
+    # Specifying an invalid marker should raise a good exception.
+    line = mpl.lines.Line2D([], [])
+    assert_raises_regexp(ValueError, "Unrecognized marker style \"7\"",
+                         line.set_marker, u'7')
 
 
 if __name__ == '__main__':
