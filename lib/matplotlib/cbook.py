@@ -1737,8 +1737,8 @@ def simple_linear_interpolation(a, steps):
     if steps == 1:
         return a
 
-    steps = np.floor(steps)
-    new_length = ((len(a) - 1) * steps) + 1
+    step = int(np.floor(steps))
+    new_length = (len(a) - 1) * steps + 1
     new_shape = list(a.shape)
     new_shape[0] = new_length
     result = np.zeros(new_shape, a.dtype)
@@ -1746,8 +1746,7 @@ def simple_linear_interpolation(a, steps):
     result[0] = a[0]
     a0 = a[0:-1]
     a1 = a[1:]
-    delta = ((a1 - a0) / steps)
-    steps = int(steps)
+    delta = (a1 - a0) / float(steps)
     for i in range(1, steps):
         result[i::steps] = delta * i + a0
     result[steps::steps] = a1
