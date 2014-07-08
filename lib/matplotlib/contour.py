@@ -562,23 +562,38 @@ class ContourLabeler:
           exact for labels at locations where the contour is
           straight, less so for labels on curved contours.
         """
-
+        # if 'do the default thing' use the axes data transform
         if transform is None:
             transform = self.ax.transData
 
+        # if transform is 'falsey' don't do any transform (this is a
+        # really awful API but is what we have)
         if transform:
+            # The point of this transform is to get the location
+            # of label position into screen units
             x, y = transform.transform_point((x, y))
 
+        # find the nearest contour _in screen units_
         conmin, segmin, imin, xmin, ymin = self.find_nearest_contour(
             x, y, self.labelIndiceList)[:5]
 
         # The calc_label_rot_and_inline routine requires that (xmin,ymin)
         # be a vertex in the path. So, if it isn't, add a vertex here
+
+        # grab the paths from the collections
         paths = self.collections[conmin].get_paths()
-        lc = paths[segmin].vertices
+        # grab the correct segment
+        active_path = paths[segmin]
+        # grab it's verticies
+        lc = active_path.vertices
+        # sort out where the new vertex should be added in the path's data
+        # units
         xcmin = self.ax.transData.inverted().transform_point([xmin, ymin])
+        # if there isn't a vertex close enough
         if not np.allclose(xcmin, lc[imin]):
+            # insert new data into the vertex list
             lc = np.r_[lc[:imin], np.array(xcmin)[None, :], lc[imin:]]
+            # replace the path with the new one
             paths[segmin] = mpath.Path(lc)
 
         # Get index of nearest level in subset of levels used for labeling
