@@ -15,3 +15,4 @@ ax.plot([0.75], [0.25], "ro")
 ax.set_title('The red point should be on the path')
 
 plt.show()
+
