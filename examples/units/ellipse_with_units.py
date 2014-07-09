@@ -12,11 +12,11 @@ xcenter, ycenter = 0.38*cm, 0.52*cm
 width, height = 1e-1*cm, 3e-1*cm
 angle = -30
 
-theta = np.radians(np.arange(0.0, 360.0, 1.0))
+theta = np.arange(0.0, 360.0, 1.0)*np.pi/180.0
 x = 0.5 * width * np.cos(theta)
 y = 0.5 * height * np.sin(theta)
 
-rtheta = np.radians(angle)
+rtheta = angle*np.pi/180.
 R = np.array([
     [np.cos(rtheta),  -np.sin(rtheta)],
     [np.sin(rtheta), np.cos(rtheta)],
