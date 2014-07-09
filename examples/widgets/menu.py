@@ -10,7 +10,6 @@ import matplotlib.image as image
 
 
 class ItemProperties:
-
     def __init__(self, fontsize=14, labelcolor='black', bgcolor='yellow',
                  alpha=1.0):
         self.fontsize = fontsize
@@ -21,12 +20,10 @@ class ItemProperties:
         self.labelcolor_rgb = colors.colorConverter.to_rgb(labelcolor)
         self.bgcolor_rgb = colors.colorConverter.to_rgb(bgcolor)
 
-
 class MenuItem(artist.Artist):
     parser = mathtext.MathTextParser("Bitmap")
     padx = 5
     pady = 5
-
     def __init__(self, fig, labelstr, props=None, hoverprops=None,
                  on_select=None):
         artist.Artist.__init__(self)
@@ -43,26 +40,28 @@ class MenuItem(artist.Artist):
         self.props = props
         self.hoverprops = hoverprops
 
+
         self.on_select = on_select
 
         x, self.depth = self.parser.to_mask(
             labelstr, fontsize=props.fontsize, dpi=fig.dpi)
 
-        if props.fontsize != hoverprops.fontsize:
+        if props.fontsize!=hoverprops.fontsize:
             raise NotImplementedError(
-                'support for different font sizes not implemented')
+                        'support for different font sizes not implemented')
+
 
         self.labelwidth = x.shape[1]
         self.labelheight = x.shape[0]
 
         self.labelArray = np.zeros((x.shape[0], x.shape[1], 4))
-        self.labelArray[:, :, -1] = x / 255.
+        self.labelArray[:, :, -1] = x/255.
 
         self.label = image.FigureImage(fig, origin='upper')
         self.label.set_array(self.labelArray)
 
         # we'll update these later
-        self.rect = patches.Rectangle((0, 0), 1, 1)
+        self.rect = patches.Rectangle((0,0), 1,1)
 
         self.set_hover_props(False)
 
@@ -83,8 +82,8 @@ class MenuItem(artist.Artist):
         self.rect.set_width(w)
         self.rect.set_height(h)
 
-        self.label.ox = x + self.padx
-        self.label.oy = y - self.depth + self.pady / 2.
+        self.label.ox = x+self.padx
+        self.label.oy = y-self.depth+self.pady/2.
 
         self.rect._update_patch_transform()
         self.hover = False
@@ -108,16 +107,16 @@ class MenuItem(artist.Artist):
 
     def set_hover(self, event):
         'check the hover status of event and return true if status is changed'
-        b, junk = self.rect.contains(event)
+        b,junk = self.rect.contains(event)
 
         changed = (b != self.hover)
 
         if changed:
             self.set_hover_props(b)
 
+
         self.hover = b
         return changed
-
 
 class Menu:
 
@@ -131,22 +130,26 @@ class Menu:
         maxw = max([item.labelwidth for item in menuitems])
         maxh = max([item.labelheight for item in menuitems])
 
-        totalh = self.numitems * maxh + (self.numitems + 1) * 2 * MenuItem.pady
+
+        totalh = self.numitems*maxh + (self.numitems+1)*2*MenuItem.pady
+
 
         x0 = 100
         y0 = 400
 
-        width = maxw + 2 * MenuItem.padx
-        height = maxh + MenuItem.pady
+        width = maxw + 2*MenuItem.padx
+        height = maxh+MenuItem.pady
 
         for item in menuitems:
             left = x0
-            bottom = y0 - maxh - MenuItem.pady
+            bottom = y0-maxh-MenuItem.pady
+
 
             item.set_extent(left, bottom, width, height)
 
             fig.artists.append(item)
             y0 -= maxh + MenuItem.pady
+
 
         fig.canvas.mpl_connect('motion_notify_event', self.on_move)
 

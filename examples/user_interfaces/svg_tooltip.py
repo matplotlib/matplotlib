@@ -26,47 +26,44 @@ import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
 from StringIO import StringIO
 
-ET.register_namespace("", "http://www.w3.org/2000/svg")
+ET.register_namespace("","http://www.w3.org/2000/svg")
 
 fig, ax = plt.subplots()
 
 # Create patches to which tooltips will be assigned.
-circle = plt.Circle((0, 0), 5, fc='blue')
+circle = plt.Circle((0,0), 5, fc='blue')
 rect = plt.Rectangle((-5, 10), 10, 5, fc='green')
 
 ax.add_patch(circle)
 ax.add_patch(rect)
 
 # Create the tooltips
-circle_tip = ax.annotate('This is a blue circle.',
-                         xy=(0, 0),
-                         xytext=(30, -30),
-                         textcoords='offset points',
-                         color='w',
-                         ha='left',
-                         bbox=dict(
-                             boxstyle='round,pad=.5', fc=(.1, .1, .1, .92),
-                             ec=(1., 1., 1.), lw=1, zorder=1),
-                         )
+circle_tip = ax.annotate('This is a blue circle.', 
+            xy=(0,0), 
+            xytext=(30,-30), 
+            textcoords='offset points', 
+            color='w', 
+            ha='left', 
+            bbox=dict(boxstyle='round,pad=.5', fc=(.1,.1,.1,.92), ec=(1.,1.,1.), lw=1, zorder=1),
+            )
+            
+rect_tip = ax.annotate('This is a green rectangle.', 
+            xy=(-5,10), 
+            xytext=(30,40), 
+            textcoords='offset points', 
+            color='w', 
+            ha='left', 
+            bbox=dict(boxstyle='round,pad=.5', fc=(.1,.1,.1,.92), ec=(1.,1.,1.), lw=1, zorder=1),
+            )
+            
 
-rect_tip = ax.annotate('This is a green rectangle.',
-                       xy=(-5, 10),
-                       xytext=(30, 40),
-                       textcoords='offset points',
-                       color='w',
-                       ha='left',
-                       bbox=dict(boxstyle='round,pad=.5', fc=(.1, .1, .1, .92),
-                                 ec=(1., 1., 1.), lw=1, zorder=1),
-                       )
-
-
-# Set id for the patches
+# Set id for the patches    
 for i, t in enumerate(ax.patches):
-    t.set_gid('patch_%d' % i)
+    t.set_gid('patch_%d'%i)
 
 # Set id for the annotations
 for i, t in enumerate(ax.texts):
-    t.set_gid('tooltip_%d' % i)
+    t.set_gid('tooltip_%d'%i)
 
 
 # Save the figure in a fake file object
@@ -85,12 +82,12 @@ tree.set('onload', 'init(evt)')
 
 # Hide the tooltips
 for i, t in enumerate(ax.texts):
-    el = xmlid['tooltip_%d' % i]
+    el = xmlid['tooltip_%d'%i]
     el.set('visibility', 'hidden')
 
-# Assign onmouseover and onmouseout callbacks to patches.
+# Assign onmouseover and onmouseout callbacks to patches.        
 for i, t in enumerate(ax.patches):
-    el = xmlid['patch_%d' % i]
+    el = xmlid['patch_%d'%i]
     el.set('onmouseover', "ShowTooltip(this)")
     el.set('onmouseout', "HideTooltip(this)")
 
