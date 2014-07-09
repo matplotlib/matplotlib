@@ -548,9 +548,11 @@ class ContourLabeler:
     def add_label_near(self, x, y, inline=True, inline_spacing=5,
                        transform=None):
         """
-        Add a label near the point (x, y) of the given transform.
-        If transform is None, data transform is used. If transform is
-        False, IdentityTransform is used.
+        Add a label near the point (x, y). If transform is None
+        (default), (x, y) is in data coordinates; if transform is
+        False, (x, y) is in display coordinates; otherwise, the
+        specified transform will be used to translate (x, y) into
+        display coordinates.
 
         *inline*:
           controls whether the underlying contour is removed or
@@ -562,15 +564,11 @@ class ContourLabeler:
           exact for labels at locations where the contour is
           straight, less so for labels on curved contours.
         """
-        # if 'do the default thing' use the axes data transform
+
         if transform is None:
             transform = self.ax.transData
 
-        # if transform is 'falsey' don't do any transform (this is a
-        # really awful API but is what we have)
         if transform:
-            # The point of this transform is to get the location
-            # of label position into screen units
             x, y = transform.transform_point((x, y))
 
         # find the nearest contour _in screen units_
@@ -586,8 +584,7 @@ class ContourLabeler:
         active_path = paths[segmin]
         # grab it's verticies
         lc = active_path.vertices
-        # sort out where the new vertex should be added in the path's data
-        # units
+        # sort out where the new vertex should be added data-units
         xcmin = self.ax.transData.inverted().transform_point([xmin, ymin])
         # if there isn't a vertex close enough
         if not np.allclose(xcmin, lc[imin]):
