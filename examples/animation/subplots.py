@@ -8,10 +8,7 @@ import matplotlib.animation as animation
 # really complex. The length is due solely to the fact that there are a total
 # of 9 lines that need to be changed for the animation as well as 3 subplots
 # that need initial set up.
-
-
 class SubplotAnimation(animation.TimedAnimation):
-
     def __init__(self):
         fig = plt.figure()
         ax1 = fig.add_subplot(1, 2, 1)
@@ -27,8 +24,7 @@ class SubplotAnimation(animation.TimedAnimation):
         ax1.set_ylabel('y')
         self.line1 = Line2D([], [], color='black')
         self.line1a = Line2D([], [], color='red', linewidth=2)
-        self.line1e = Line2D([], [], color='red',
-                             marker='o', markeredgecolor='r')
+        self.line1e = Line2D([], [], color='red', marker='o', markeredgecolor='r')
         ax1.add_line(self.line1)
         ax1.add_line(self.line1a)
         ax1.add_line(self.line1e)
@@ -40,8 +36,7 @@ class SubplotAnimation(animation.TimedAnimation):
         ax2.set_ylabel('z')
         self.line2 = Line2D([], [], color='black')
         self.line2a = Line2D([], [], color='red', linewidth=2)
-        self.line2e = Line2D([], [], color='red',
-                             marker='o', markeredgecolor='r')
+        self.line2e = Line2D([], [], color='red', marker='o', markeredgecolor='r')
         ax2.add_line(self.line2)
         ax2.add_line(self.line2a)
         ax2.add_line(self.line2e)
@@ -52,8 +47,7 @@ class SubplotAnimation(animation.TimedAnimation):
         ax3.set_ylabel('z')
         self.line3 = Line2D([], [], color='black')
         self.line3a = Line2D([], [], color='red', linewidth=2)
-        self.line3e = Line2D([], [], color='red',
-                             marker='o', markeredgecolor='r')
+        self.line3e = Line2D([], [], color='red', marker='o', markeredgecolor='r')
         ax3.add_line(self.line3)
         ax3.add_line(self.line3a)
         ax3.add_line(self.line3e)
@@ -81,19 +75,19 @@ class SubplotAnimation(animation.TimedAnimation):
         self.line3e.set_data(self.x[head], self.z[head])
 
         self._drawn_artists = [self.line1, self.line1a, self.line1e,
-                               self.line2, self.line2a, self.line2e,
-                               self.line3, self.line3a, self.line3e]
+            self.line2, self.line2a, self.line2e,
+            self.line3, self.line3a, self.line3e]
 
     def new_frame_seq(self):
         return iter(range(self.t.size))
 
     def _init_draw(self):
-        lines = [self.line1, self.line1a, self.line1e,
-                 self.line2, self.line2a, self.line2e,
-                 self.line3, self.line3a, self.line3e]
+        lines =  [self.line1, self.line1a, self.line1e,
+            self.line2, self.line2a, self.line2e,
+            self.line3, self.line3a, self.line3e]
         for l in lines:
             l.set_data([], [])
 
 ani = SubplotAnimation()
-# ani.save('test_sub.mp4')
+#ani.save('test_sub.mp4')
 plt.show()

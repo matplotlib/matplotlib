@@ -7,7 +7,7 @@ x = np.random.randn(1000)
 y = np.random.randn(1000)
 
 
-fig, axScatter = plt.subplots(figsize=(5.5, 5.5))
+fig, axScatter = plt.subplots(figsize=(5.5,5.5))
 
 # the scatter plot:
 axScatter.scatter(x, y)
@@ -26,8 +26,8 @@ plt.setp(axHistx.get_xticklabels() + axHisty.get_yticklabels(),
 
 # now determine nice limits by hand:
 binwidth = 0.25
-xymax = np.max([np.max(np.fabs(x)), np.max(np.fabs(y))])
-lim = (int(xymax / binwidth) + 1) * binwidth
+xymax = np.max( [np.max(np.fabs(x)), np.max(np.fabs(y))] )
+lim = ( int(xymax/binwidth) + 1) * binwidth
 
 bins = np.arange(-lim, lim + binwidth, binwidth)
 axHistx.hist(x, bins=bins)
@@ -37,12 +37,12 @@ axHisty.hist(y, bins=bins, orientation='horizontal')
 # thus there is no need to manually adjust the xlim and ylim of these
 # axis.
 
-# axHistx.axis["bottom"].major_ticklabels.set_visible(False)
+#axHistx.axis["bottom"].major_ticklabels.set_visible(False)
 for tl in axHistx.get_xticklabels():
     tl.set_visible(False)
 axHistx.set_yticks([0, 50, 100])
 
-# axHisty.axis["left"].major_ticklabels.set_visible(False)
+#axHisty.axis["left"].major_ticklabels.set_visible(False)
 for tl in axHisty.get_yticklabels():
     tl.set_visible(False)
 axHisty.set_xticks([0, 50, 100])
