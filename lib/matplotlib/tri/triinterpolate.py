@@ -210,7 +210,7 @@ class TriInterpolator(object):
             ret_loc = np.empty(size_ret, dtype=np.float64)
             ret_loc[~mask_in] = np.nan
             ret_loc[mask_in] = self._interpolate_single_key(
-                return_key, valid_tri_index, valid_x, valid_y).ravel() * scale
+                return_key, valid_tri_index, valid_x, valid_y) * scale
             ret += [np.ma.masked_invalid(ret_loc.reshape(sh_ret), copy=False)]
 
         return ret
@@ -462,9 +462,9 @@ class CubicTriInterpolator(TriInterpolator):
             dzdx = self._ReferenceElement.get_function_derivatives(
                 alpha, J, ecc, dof)
             if return_key == 'dzdx':
-                return dzdx[:, 0]
+                return dzdx[:, 0, 0]
             else:
-                return dzdx[:, 1]
+                return dzdx[:, 1, 0]
         else:
             raise ValueError("Invalid return_key: " + return_key)
 
