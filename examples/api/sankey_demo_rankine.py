@@ -12,8 +12,8 @@ ax = fig.add_subplot(1, 1, 1, xticks=[], yticks=[],
 Hdot = [260.431, 35.078, 180.794, 221.115, 22.700,
         142.361, 10.193, 10.210, 43.670, 44.312,
         68.631, 10.758, 10.758, 0.017, 0.642,
-        232.121, 44.559, 100.613, 132.168]  # MW
-sankey = Sankey(ax=ax, format='%.3G', unit=' MW', gap=0.5, scale=1.0 / Hdot[0])
+        232.121, 44.559, 100.613, 132.168] # MW
+sankey = Sankey(ax=ax, format='%.3G', unit=' MW', gap=0.5, scale=1.0/Hdot[0])
 sankey.add(patchlabel='\n\nPump 1', rotation=90, facecolor='#37c959',
            flows=[Hdot[13], Hdot[6], -Hdot[7]],
            labels=['Shaft power', '', None],
