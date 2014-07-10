@@ -26,7 +26,7 @@ from matplotlib.backends import backend_agg
 from matplotlib.figure import Figure
 from matplotlib import backend_bases
 from matplotlib import _png
-
+from matplotlib import rcParams
 
 def new_figure_manager(num, *args, **kwargs):
     """
@@ -64,6 +64,18 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # Set to True by the `refresh` message so that the next frame
         # sent to the clients will be a full frame.
         self._force_full = True
+
+    @classmethod
+    def get_supported_filetypes_grouped(cls):
+        """Return a dict of savefig file formats supported by this backend,
+        where the keys are a file type name, such as 'Joint Photographic
+        Experts Group', and the values are a list of filename extensions used
+        for that filetype, such as ['jpg', 'jpeg']."""
+        groupings = {}
+        for ext, name in cls.filetypes.iteritems():
+            groupings.setdefault(name, []).append(ext)
+            groupings[name].sort()
+        return groupings
 
     def show(self):
         # show the figure window
@@ -362,7 +374,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
             json.dumps(extensions)))
 
         output.write("mpl.default_extension = {0};".format(
-            json.dumps(FigureCanvasWebAggCore.get_default_filetype())))
+            json.dumps(rcParams['savefig.format'])))
 
         if stream is None:
             return output.getvalue()
