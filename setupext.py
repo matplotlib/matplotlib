@@ -896,7 +896,7 @@ class FreeType(SetupPackage):
         if sys.platform == 'win32':
             return "Unknown version"
 
-        status, output = getstatusoutput("freetype-config --version")
+        status, output = getstatusoutput("freetype-config --ftversion")
         if status == 0:
             version = output
         else:
