@@ -78,9 +78,9 @@ original location:
 
 * In `~matplotlib.finance`, almost all functions have been deprecated
   and replaced with a pair of functions name `*_ochl` and `*_ohlc`.
-  The former is 'open-close-high-low' order of quotes, and what the
-  module used and the later is 'open-high-low-close' order of quotes,
-  which is the standard in finance.
+  The former is the 'open-close-high-low' order of quotes used
+  previously in this module, and the latter is the
+  'open-high-low-close' order that is standard in finance.
 
 * For consistency the ``face_alpha`` keyword to
   :class:`matplotlib.patheffects.SimplePatchShadow` has been deprecated in
