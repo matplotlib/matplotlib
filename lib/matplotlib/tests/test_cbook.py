@@ -122,7 +122,7 @@ class Test_boxplot_stats:
             'q3': 14.85246294739361,
             'whishi': 27.899688243699629,
             'whislo': 0.042143774965502923,
-            'label': 0
+            'label': 1
         }
 
         self.known_bootstrapped_ci = {
