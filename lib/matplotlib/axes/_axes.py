@@ -624,10 +624,11 @@ class Axes(_AxesBase):
             Default is None.
 
         arrowprops : `matplotlib.lines.Line2D` properties, optional
-            Dictionnary of line properties for the arrow that connects the
-            annotation to the point. If the dictionnary has a key
-            `arrowstyle`, a `FancyArrowPatch` instance is created and drawn.
-            See `matplotlib.text.Annotation` for more details on valid
+            Dictionary of line properties for the arrow that connects
+            the annotation to the point. If the dictionnary has a key
+            `arrowstyle`, a `~matplotlib.patches.FancyArrowPatch`
+            instance is created and drawn.  See
+            `matplotlib.text.Annotation` for more details on valid
             options. Default is None.
 
         Returns
@@ -635,8 +636,8 @@ class Axes(_AxesBase):
         a : `~matplotlib.text.Annotation`
 
 
-        Other parameters
-        -----------------
+        Notes
+        -----
 
         %(Annotation)s
 
