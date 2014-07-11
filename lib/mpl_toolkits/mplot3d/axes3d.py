@@ -14,7 +14,7 @@ from __future__ import (absolute_import, division, print_function,
 import math
 
 import six
-from six.moves import map, xrange, zip
+from six.moves import map, xrange, zip, reduce
 
 import warnings
 from operator import itemgetter
