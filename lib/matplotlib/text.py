@@ -1662,6 +1662,10 @@ class Annotation(Text, _AnnotationBase):
     in the figure, such as :class:`~matplotlib.figure.Figure`,
     :class:`~matplotlib.axes.Axes`,
     :class:`~matplotlib.patches.Rectangle`, etc., easier.
+
+    Annotate the *x*, *y* point *xy* with text *s* at *x*, *y*
+    location *xytext*.  (If *xytext* = *None*, defaults to *xy*,
+    and if *textcoords* = *None*, defaults to *xycoords*).
     """
     def __str__(self):
         return "Annotation(%g,%g,%s)" % (self.xy[0],
@@ -1677,18 +1681,15 @@ class Annotation(Text, _AnnotationBase):
                  annotation_clip=None,
                  **kwargs):
         """
-        Annotate the *x*, *y* point *xy* with text *s* at *x*, *y*
-        location *xytext*.  (If *xytext* = *None*, defaults to *xy*,
-        and if *textcoords* = *None*, defaults to *xycoords*).
-
         *arrowprops*, if not *None*, is a dictionary of line properties
         (see :class:`matplotlib.lines.Line2D`) for the arrow that connects
         annotation to the point.
 
-        If the dictionary has a key *arrowstyle*, a FancyArrowPatch
-        instance is created with the given dictionary and is
-        drawn. Otherwise, a YAArow patch instance is created and
-        drawn. Valid keys for YAArow are
+        If the dictionary has a key *arrowstyle*, a
+        `~matplotlib.patches.FancyArrowPatch` instance is created with
+        the given dictionary and is drawn. Otherwise, a
+        `~matplotlib.patches.YAArrow` patch instance is created and
+        drawn. Valid keys for `~matplotlib.patches.YAArrow` are:
 
 
         =========   ===========================================================
@@ -1707,7 +1708,7 @@ class Annotation(Text, _AnnotationBase):
         =========   ===========================================================
 
 
-        Valid keys for FancyArrowPatch are
+        Valid keys for `~matplotlib.patches.FancyArrowPatch` are:
 
 
         ===============  ======================================================
@@ -1727,7 +1728,8 @@ class Annotation(Text, _AnnotationBase):
 
 
         *xycoords* and *textcoords* are strings that indicate the
-        coordinates of *xy* and *xytext*.
+        coordinates of *xy* and *xytext*, and may be one of the
+        following values:
 
         =================   ===================================================
         Property            Description
@@ -1763,18 +1765,16 @@ class Annotation(Text, _AnnotationBase):
         :class:`~matplotlib.artist.Artist`. See
         :ref:`plotting-guide-annotation` for more details.
 
-
         The *annotation_clip* attribute controls the visibility of the
-        annotation when it goes outside the axes area. If True, the
+        annotation when it goes outside the axes area. If `True`, the
         annotation will only be drawn when the *xy* is inside the
-        axes. If False, the annotation will always be drawn regardless
-        of its position.  The default is *None*, which behave as True
-        only if *xycoords* is"data".
+        axes. If `False`, the annotation will always be drawn
+        regardless of its position.  The default is `None`, which
+        behave as `True` only if *xycoords* is "data".
 
-        Additional kwargs are Text properties:
+        Additional kwargs are `~matplotlib.text.Text` properties:
 
         %(Text)s
-
         """
 
         _AnnotationBase.__init__(self,
