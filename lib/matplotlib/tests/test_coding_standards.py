@@ -35,7 +35,8 @@ EXCLUDE_FILES = ['_delaunay.py',
                  '_gtkagg.py',
                  '_backend_gdk.py',
                  'pyparsing*',
-                 '_qhull.py']
+                 '_qhull.py',
+                 '_macosx.py']
 
 PEP8_ADDITIONAL_IGNORE = ['E111',
                           'E112',
