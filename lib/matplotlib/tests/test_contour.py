@@ -192,7 +192,6 @@ def test_given_colors_levels_and_extends():
         plt.colorbar()
 
 
-
 @image_comparison(baseline_images=['contour_datetime_axis'],
                   extensions=['png'], remove_text=False)
 def test_contour_datetime_axis():
