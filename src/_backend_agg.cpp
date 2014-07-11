@@ -2401,13 +2401,24 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args)
         newheight   = ymax - ymin;
         int newsize = newwidth * newheight * 4;
 
-        unsigned char* buf = new unsigned char[newsize];
-        if (buf == NULL)
+        // NULL pointer causes Python to allocate uninitialized memory.
+        // We then grab Python's pointer to uninitialized memory using
+        // the _AsString() API.
+        unsigned int* dst;
+
+        #if PY3K
+        data = Py::Bytes(static_cast<const char*>(NULL), (int) newsize);
+        dst = reinterpret_cast<unsigned int*>(PyBytes_AsString(data.ptr()));
+        #else
+        data = Py::String(static_cast<const char*>(NULL), (int) newsize);
+        dst = reinterpret_cast<unsigned int*>(PyString_AsString(data.ptr()));
+        #endif
+
+        if (dst == NULL)
         {
             throw Py::MemoryError("RendererAgg::tostring_minimized could not allocate memory");
         }
 
-        unsigned int*  dst = (unsigned int*)buf;
         unsigned int*  src = (unsigned int*)pixBuffer;
         for (int y = ymin; y < ymax; ++y)
         {
@@ -2416,13 +2427,6 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args)
                 *dst = src[y * width + x];
             }
         }
-
-        // The Py::String will take over the buffer
-        #if PY3K
-        data = Py::Bytes((const char *)buf, (int) newsize);
-        #else
-        data = Py::String((const char *)buf, (int) newsize);
-        #endif
     }
 
     Py::Tuple bounds(4);
