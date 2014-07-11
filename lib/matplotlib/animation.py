@@ -248,10 +248,11 @@ class MovieWriter(object):
         running the commandline tool.
         '''
         try:
-            subprocess.Popen(cls.bin_path(),
+            p = subprocess.Popen(cls.bin_path(),
                              shell=False,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
+            p.communicate()
             return True
         except OSError:
             return False
