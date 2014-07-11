@@ -1353,6 +1353,36 @@ def test_bxp_custommedian():
     ax.bxp(logstats, medianprops=medianprops)
 
 
+@image_comparison(baseline_images=['bxp_customcap'],
+                  remove_text=True, extensions=['png'],
+                  savefig_kwarg={'dpi': 40})
+def test_bxp_customcap():
+    np.random.seed(937)
+    logstats = matplotlib.cbook.boxplot_stats(
+        np.random.lognormal(mean=1.25, sigma=1., size=(37, 4))
+    )
+
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    capprops = dict(linestyle='--', color='g', linewidth=3)
+    ax.bxp(logstats, capprops=capprops)
+
+
+@image_comparison(baseline_images=['bxp_customwhisker'],
+                  remove_text=True, extensions=['png'],
+                  savefig_kwarg={'dpi': 40})
+def test_bxp_customwhisker():
+    np.random.seed(937)
+    logstats = matplotlib.cbook.boxplot_stats(
+        np.random.lognormal(mean=1.25, sigma=1., size=(37, 4))
+    )
+
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    whiskerprops = dict(linestyle='-', color='m', linewidth=3)
+    ax.bxp(logstats, whiskerprops=whiskerprops)
+
+
 @image_comparison(baseline_images=['bxp_withnotch'],
                   remove_text=True, extensions=['png'],
                   savefig_kwarg={'dpi': 40})
@@ -1496,6 +1526,18 @@ def test_boxplot():
     fig, ax = plt.subplots()
 
     ax.boxplot([x, x], bootstrap=10000, notch=1)
+    ax.set_ylim((-30, 30))
+
+
+@image_comparison(baseline_images=['boxplot_sym'],
+                  remove_text=True, extensions=['png'],
+                  savefig_kwarg={'dpi': 40})
+def test_boxplot_sym():
+    x = np.linspace(-7, 7, 140)
+    x = np.hstack([-25, x, 25])
+    fig, ax = plt.subplots()
+
+    ax.boxplot([x, x], sym='gs')
     ax.set_ylim((-30, 30))
 
 
