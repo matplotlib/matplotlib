@@ -163,34 +163,27 @@ C/C++ extensions
   docstrings, and the Numpydoc format is well understood in the
   scientific Python community.
 
-Rebase a Pull Request
-----------------------
+Rebasing a Pull Request
+-----------------------
 
-When working on a PR it is possible for other changes to get merged
-into the parent branch that conflict with changes on your branch.  The
-conflicts can be trivial, for example both the parent branch and your
-branch add an entry to the top of `CHANGELOG`.  Git can not
-unambiguously tell what to with both changes (should one go above the
-other? if so, which order? should it try to merge them?) so it gives
-up and declare the branches can not be merged cleanly.  If you were
-the branches at the command line you could do an interactive merge
-where git pauses half way through to give you a chance to resolve the
-conflicts by hand, however using github almost all of the merges back
-into the parent branches are done via the web-interface, so only PRs
-which will cleanly merged will be accepted.  If this happens to your
-PR, one of the developers will ask you to 'rebase' your branch which
-is the process by which you resolve the conflicts between your branch
-and the parent branch.
+When working on a PR, changes may occur in the parent branch (usually master).
+This can lead to conflict with changes in your branch. The conflicts can be
+trivial: for example both the parent branch and your branch add an entry to
+the top of `CHANGELOG`.  Git can not unambiguously tell what to with both
+changes (should one go above the other? if so, which order? should it try to
+merge them?) so it declares the branches can not be merged
+cleanly. Github can only automatically merge PR without conflicts, so you will
+need to manually 'rebase'. This is the process of updating your branch with
+upstream changes, and resolving conflicts.
 
-In git rebasing is a mild form of re-writing history, as it
-effectively transplants where your branch from where you intially
-forked of off the parent branch to some other point.  For a much more
-detailed explanation (with pictures!) see `this nice write up
-<http://git-scm.com/book/en/Git-Branching-Rebasing>`.  The numpy team
-has also `documented how to do this
+In git, rebasing is a mild form of re-writing history: it effectively forwards
+all your commits to the updated upstream commit. For a much more detailed
+explanation (with pictures!) see `this nice write up
+<http://git-scm.com/book/en/Git-Branching-Rebasing>`.  The numpy team has also
+`documented how to do this
 <http://docs.scipy.org/doc/numpy/dev/gitwash/development_workflow.html#rebasing-on-master>`
-In general, re-writing history, particularly published history, is
-considered bad form, but in this case it is very useful.
+In general, re-writing history, particularly published history, is considered
+bad practice, but in this case it is very useful.
 
 The following example assumes that the remote of _your_ github
 repository is called `github` and the remote of the official
@@ -201,8 +194,8 @@ up-to-date::
 
      $ git fetch upstream
 
-which updates your local copy of the repository, but does not change any files
-in your working copy.  Next, switch to the branch that you want to rebase::
+This updates your local copy of the repository, but does not change any files
+in your working copy.  Next, switch to the branch that you want to update::
 
      $ git checkout backend_plt_refactor
 
@@ -242,7 +235,7 @@ and git will then give a bunch of feed back::
      To check out the original branch and stop rebasing, run "git rebase --abort".
 
 A number of commits could be cleanly applied to
-the tip of `upstream/master`,  however, git eventualy hit a commit
+the tip of `upstream/master`,  however, git eventually hit a commit
 that had conflicts.  In this case in the file
 `lib/matplotlib/backends/backend_gtk3.py`.  For more verbose information run ::
 
