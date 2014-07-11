@@ -195,11 +195,12 @@ class Artist(object):
         box at 0, 0.
 
         Be careful when using this function, the results will not update
-        if the artist window extent of the artist changes.  The extent can
-        change due to any changes in the transform stack, such as changing
-        the axes limits, the figure size, or the canvas used (as is done when
-        saving a figure).  This can lead to expected behavior where interactive
-        figures will look fine on the screen, but will save incorrectly.
+        if the artist window extent of the artist changes.  The extent
+        can change due to any changes in the transform stack, such as
+        changing the axes limits, the figure size, or the canvas used
+        (as is done when saving a figure).  This can lead to unexpected
+        behavior where interactive figures will look fine on the screen,
+        but will save incorrectly.
         """
         return Bbox([[0, 0], [0, 0]])
 
