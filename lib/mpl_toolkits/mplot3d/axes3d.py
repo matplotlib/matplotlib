@@ -2176,7 +2176,8 @@ class Axes3D(Axes):
 
         Axes.add_collection(self, col)
 
-    def scatter(self, xs, ys, zs=0, zdir='z', s=20, c='b', *args, **kwargs):
+    def scatter(self, xs, ys, zs=0, zdir='z', s=20, c='b', depthshade=True,
+                *args, **kwargs):
         '''
         Create a scatter plot.
 
@@ -2200,6 +2201,10 @@ class Axes3D(Axes):
                     sequence because that is indistinguishable from an array
                     of values to be colormapped.  *c* can be a 2-D array in
                     which the rows are RGB or RGBA, however.
+
+        *depthshade*
+                    Whether or not to shade the scatter markers to give the
+                    appearance of depth. Default is *True*.
         ==========  ==========================================================
 
         Keyword arguments are passed on to
@@ -2238,7 +2243,8 @@ class Axes3D(Axes):
             zs = np.ones(len(xs)) * zs
         else:
             is_2d = False
-        art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir)
+        art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir,
+                                        depthshade=depthshade)
 
         if self._zmargin < 0.05 and xs.size > 0:
             self.set_zmargin(0.05)
