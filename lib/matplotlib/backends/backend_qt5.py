@@ -6,6 +6,7 @@ import os
 import re
 import signal
 import sys
+from six import unichr
 
 import matplotlib
 
