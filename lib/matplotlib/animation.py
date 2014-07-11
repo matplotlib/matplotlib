@@ -208,7 +208,6 @@ class MovieWriter(object):
             # frame format and dpi.
             self.fig.savefig(self._frame_sink(), format=self.frame_format,
                              dpi=self.dpi, **savefig_kwargs)
-
         except RuntimeError:
             out, err = self._proc.communicate()
             verbose.report('MovieWriter -- Error '
