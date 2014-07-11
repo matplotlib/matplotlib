@@ -11,9 +11,15 @@ For a list of all of the issues and pull requests since the last
 revision, see the :ref:`github-stats`.
 
 .. note::
-   Matplotlib version 1.1 is the last major release compatible with Python
-   versions 2.4 to 2.7.  matplotlib 1.2 and later require
-   versions 2.6, 2.7, and 3.1 and higher.
+   matplotlib 1.4 supports Python 2.6, 2.7, 3.3, and 3.4
+
+   matplotlib 1.3 supports Python 2.6, 2.7, 3.2, and 3.3
+
+   matplotlib 1.2 supports Python 2.6, 2.7, and 3.1
+
+   matplotlib 1.1 supports Python 2.4 to 2.7
+
+
 
 .. contents:: Table of Contents
    :depth: 3
