@@ -18,7 +18,7 @@ Code changes
 ------------
 
 * A major refactoring of the axes module was made. The axes module has been
-split into smaller modules:
+  split into smaller modules:
 
     - the `_base` module, which contains a new private _AxesBase class. This
       class contains all methods except plotting and labelling methods.
@@ -53,7 +53,7 @@ original location:
 * As part of the refactoring to enable Qt5 support, the module
   `matplotlib.backends.qt4_compat` was renamed to
   `matplotlib.qt_compat`.  `qt4_compat` is deprecated in 1.4 and
-   will be removed in 1.5.
+  will be removed in 1.5.
 
 * The :func:`~matplotlib.pyplot.errorbar` method has been changed such that
   the upper and lower limits (*lolims*, *uplims*, *xlolims*, *xuplims*) now
@@ -76,10 +76,11 @@ original location:
   point to `IPython.sphinxext.ipython_directive` instead of
   `matplotlib.sphinxext.ipython_directive`.
 
-* In :module:`~matplotlib.finance`, almost all functions have been deprecated and
-  replaced with a pair of functions name `*_ochl` and `*_ohlc`.  The former is
-  'open-close-high-low' order of quotes, and what the module used and the later
-  is 'open-high-low-close' order of quotes, which is the standard in finance.
+* In `~matplotlib.finance`, almost all functions have been deprecated
+  and replaced with a pair of functions name `*_ochl` and `*_ohlc`.
+  The former is 'open-close-high-low' order of quotes, and what the
+  module used and the later is 'open-high-low-close' order of quotes,
+  which is the standard in finance.
 
 * For consistency the ``face_alpha`` keyword to
   :class:`matplotlib.patheffects.SimplePatchShadow` has been deprecated in

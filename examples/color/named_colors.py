@@ -41,7 +41,7 @@ n = len(sorted_colors)
 ncols = 3
 nrows = int(np.ceil(1. * n / ncols))
 
-fig = plt.figure(figsize=(ncols*5, nrows*4))
+fig = plt.figure(figsize=(ncols*2.5, nrows*2))
 for i, (name, color) in enumerate(sorted_colors):
     ax = fig.add_subplot(nrows, ncols, i + 1)
     ax.text(0.55, 0.5, name, fontsize=12,
