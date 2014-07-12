@@ -117,7 +117,8 @@ class UniformTriRefiner(TriRefiner):
             found_index = - np.ones(refi_npts, dtype=np.int32)
             tri_mask = self._triangulation.mask
             if tri_mask is None:
-                found_index[refi_triangles] = np.repeat(ancestors, 3)
+                found_index[refi_triangles] = np.repeat(ancestors,
+                                                        3).reshape(-1, 3)
             else:
                 # There is a subtlety here: we want to avoid whenever possible
                 # that refined points container is a masked triangle (which
@@ -126,9 +127,11 @@ class UniformTriRefiner(TriRefiner):
                 # then overwrite it with unmasked ancestor numbers.
                 ancestor_mask = tri_mask[ancestors]
                 found_index[refi_triangles[ancestor_mask, :]
-                            ] = np.repeat(ancestors[ancestor_mask], 3)
+                            ] = np.repeat(ancestors[ancestor_mask],
+                                          3).reshape(-1, 3)
                 found_index[refi_triangles[~ancestor_mask, :]
-                            ] = np.repeat(ancestors[~ancestor_mask], 3)
+                            ] = np.repeat(ancestors[~ancestor_mask],
+                                          3).reshape(-1, 3)
             return refi_triangulation, found_index
         else:
             return refi_triangulation

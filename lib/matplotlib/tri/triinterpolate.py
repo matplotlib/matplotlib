@@ -462,9 +462,9 @@ class CubicTriInterpolator(TriInterpolator):
             dzdx = self._ReferenceElement.get_function_derivatives(
                 alpha, J, ecc, dof)
             if return_key == 'dzdx':
-                return dzdx[:, 0]
+                return dzdx[:, 0, 0]
             else:
-                return dzdx[:, 1]
+                return dzdx[:, 1, 0]
         else:
             raise ValueError("Invalid return_key: " + return_key)
 
