@@ -11,17 +11,17 @@ depends on what operating system you are using, what you already have
 installed, and how you want to use it.  To avoid wading through all
 the details (and potential complications) on this page, the easiest
 thing for you to do is use one of the pre-packaged python
-distributions that already provide matplotlib built-in.  The Enthought
-Python Distribution `(EPD)
-<http://www.enthought.com/products/epd.php>`_ for Windows, OS X or
-Redhat is an excellent choice that "just works" out of the box.
-Another excellent alternative for Windows users is `Python (x, y)
-<http://www.pythonxy.com/>`_ which tends to be updated a bit more
-frequently.  Both of these packages include matplotlib and pylab, and
-*lots* of other useful tools.  matplotlib is also packaged for almost
-every major Linux distribution. So if you are on Linux, your package
-manager will probably provide matplotlib prebuilt.
-
+distributions that already provide matplotlib built-in.  The
+Continuum.io distribution `(Anaconda)
+<https://store.continuum.io/cshop/anaconda/>`_ or the Enthought distribution
+`(Canopy) <https://www.enthought.com/products/canopy/>`_ for Windows, OS X, or
+Redhat is an excellent choice that "just works" out of the box.  Another
+excellent alternative for Windows users is `Python (x, y)
+<http://www.pythonxy.com/>`_ which tends to be updated a bit more frequently.
+Both of these packages include matplotlib and pylab, and *lots* of other useful
+tools.  matplotlib is also packaged for almost every major Linux distribution.
+So if you are on Linux, your package manager will probably provide matplotlib
+prebuilt.
 
 Manually installing pre-built packages
 ======================================
