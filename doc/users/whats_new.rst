@@ -59,7 +59,7 @@ provided by the constructor's `gamma` argument. Power law normalization
 can be useful for, e.g., emphasizing small populations in a histogram.
 
 Fully customizable boxplots
-````````````````````````````
+```````````````````````````
 Paul Hobson overhauled the :func:`~matplotlib.pyplot.boxplot` method such
 that it is now completely customizable in terms of the styles and positions
 of the individual artists. Under the hood, :func:`~matplotlib.pyplot.boxplot`
@@ -242,6 +242,11 @@ Caradec Bisesar and Vlad Vassilovski.
 
 .. plot:: mpl_examples/mplot3d/quiver3d_demo.py
 
+polar-plot r-tick locations
+```````````````````````````
+Added the ability to control the angular position of the r-tick labels
+on a polar plot via :func:`~matplotlib.Axes.axes.set_rlabel_position`.
+
 Date handling
 -------------
 
@@ -257,11 +262,16 @@ conversion interfaces :class:`matplotlib.dates.DateConverter` and
 Configuration (rcParams)
 ------------------------
 
+
 ``savefig.transparent`` added
 `````````````````````````````
 Controls whether figures are saved with a transparent
 background by default.  Previously `savefig` always defaulted
 to a non-transparent background.
+
+``axes.titleweight``
+````````````````````
+Added rcParam to control the weight of the title
 
 ``axes.formatter.useoffset`` added
 ``````````````````````````````````
@@ -271,8 +281,13 @@ an offset will be determined such that the tick labels are
 meaningful. If `False` then the full number will be formatted in all
 conditions.
 
+XDG compliance
+``````````````
+Matplotlib now looks for configuration files (both rcparams and style) in XDG
+compliant locations.
+
 ``style`` package added
-```````````````````````
+-----------------------
 You can now easily switch between different styles using the new ``style``
 package::
 
@@ -308,14 +323,17 @@ Rudolf Höfler changed the appearance of the subplottool. All sliders are
 vertically arranged now, buttons for tight layout and reset were
 added. Furthermore, the the subplottool is now implemented as a modal
 dialog. It was previously a QMainWindow, leaving the SPT open if one closed the
-plotwindow.
+plot window.
 
-In the figureoptions dialog one can now choose to (re-)generate a simple
+In the figure options dialog one can now choose to (re-)generate a simple
 automatic legend. Any explicitly set legend entries will be lost, but changes to
 the curves' label, linestyle, et cetera will now be updated in the legend.
 
 Interactive performance of the Qt4 backend has been dramatically improved
 under windows.
+
+The mapping of key-signals from Qt to values matplotlib understands
+was greatly improved (For both Qt4 and Qt5).
 
 Cairo backends
 ``````````````
@@ -331,6 +349,10 @@ Gtk3Agg backend
 The Gtk3Agg backend now works on Python 3.x, if the `cairocffi
 bindings <https://github.com/SimonSapin/cairocffi>`__ are installed.
 
+PDF backend
+```````````
+Added context manager for saving to multi-page PDFs.
+
 Text
 ----
 
@@ -342,6 +364,12 @@ url as a link in output SVGs.  This allows one to make clickable text in
 saved figures using the url kwarg of the :class:`~matplotlib.text.Text`
 class.
 
+Anchored sizebar font
+`````````````````````
+Added the ``fontproperties`` kwarg to
+:class:`~matplotilb.mpl_toolkits.axes_grid.anchored_artists.AnchoredSizeBar` to
+control the font properties.
+
 Sphinx extensions
 -----------------
 
@@ -350,6 +378,20 @@ Sphinx extension can now accept an optional ``reset`` setting, which will
 cause the context to be reset. This allows more than one distinct context to
 be present in documentation. To enable this option, use ``:context: reset``
 instead of ``:context:`` any time you want to reset the context.
+
+Widgets
+-------
+
+Span Selector
+`````````````
+
+Added an option ``span_stays`` to the
+:class:`~matplotlib.widgets.SpanSelector` which makes the selector
+rectangle stay on the axes after you release the mouse.
+
+GAE integration
+---------------
+Matplotlib will now run on google app engine.
 
 .. _whats-new-1-3:
 
