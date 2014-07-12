@@ -6996,9 +6996,9 @@ class Axes(_AxesBase):
         Returns
         -------
         result : dict
-          A dictionary mapping each component of the violinplot to a list of the
-          corresponding collection instances created. The dictionary has
-          the following keys:
+          A dictionary mapping each component of the violinplot to a
+          list of the corresponding collection instances created. The
+          dictionary has the following keys:
 
             - ``bodies``: A list of the
               :class:`matplotlib.collections.PolyCollection` instances
