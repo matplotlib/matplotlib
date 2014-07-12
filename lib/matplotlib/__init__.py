@@ -1325,11 +1325,12 @@ default_test_modules = [
     'matplotlib.tests.test_basic',
     'matplotlib.tests.test_bbox_tight',
     'matplotlib.tests.test_cbook',
+    'matplotlib.tests.test_coding_standards',
     'matplotlib.tests.test_collections',
     'matplotlib.tests.test_colorbar',
     'matplotlib.tests.test_colors',
     'matplotlib.tests.test_compare_images',
-    'matplotlib.tests.test_contour',
+    'matplotlib.tests.test_contour',t
     'matplotlib.tests.test_dates',
     'matplotlib.tests.test_delaunay',
     'matplotlib.tests.test_figure',
@@ -1386,9 +1387,10 @@ def test(verbosity=1):
         # a list.
         multiprocess._instantiate_plugins = [KnownFailure]
 
-        success = nose.run( defaultTest=default_test_modules,
-                            config=config,
-                            )
+        success = nose.run(
+            defaultTest=default_test_modules,
+            config=config,
+        )
     finally:
         if old_backend.lower() != 'agg':
             use(old_backend)
