@@ -13,7 +13,7 @@ the details (and potential complications) on this page, the easiest
 thing for you to do is use one of the pre-packaged python
 distributions that already provide matplotlib built-in.  The Continuum.io
 Python distribution `(Anaconda)
-<https://store.continuum.io/cshop/anaconda/>`_ for Windows, OS X, or Redhat
+<https://store.continuum.io/cshop/anaconda/>`_ for Windows, OS X, or Linux 
 is an excellent choice that "just works" out of the box. 
 The Enthought distribution `(Canopy)
 <https://www.enthought.com/products/canopy/>`_  is also a good a good choice
