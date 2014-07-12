@@ -40,6 +40,8 @@ def _test_savefig_to_stringio(format='ps'):
 
     assert values[0] == values[1]
     assert values[1] == values[2].replace(b'\r\n', b'\n')
+    for buffer in buffers:
+        buffer.close()
 
 
 @cleanup
@@ -80,4 +82,4 @@ def test_savefig_to_stringio_with_usetex_eps():
 
 if __name__ == '__main__':
     import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
+    nose.runmodule(argv=['-s', '--with-doctest', '-verbose'], exit=False)
