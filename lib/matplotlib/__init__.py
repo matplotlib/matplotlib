@@ -4,11 +4,7 @@ This is an object-oriented plotting library.
 A procedural interface is provided by the companion pyplot module,
 which may be imported directly, e.g.::
 
-    from matplotlib.pyplot import *
-
-To include numpy functions too, use::
-
-    from pylab import *
+    import matplotlib.pyplot as plt
 
 or using ipython::
 
@@ -16,7 +12,8 @@ or using ipython::
 
 at your terminal, followed by::
 
-    In [1]: %pylab
+    In [1]: %matplotlib
+    In [2]: import matplotlib.pyplot as plt
 
 at the ipython shell prompt.
 
@@ -25,8 +22,7 @@ encouraged when programming; pyplot is primarily for working
 interactively.  The
 exceptions are the pyplot commands :func:`~matplotlib.pyplot.figure`,
 :func:`~matplotlib.pyplot.subplot`,
-:func:`~matplotlib.pyplot.subplots`,
-:func:`~matplotlib.backends.backend_qt4agg.show`, and
+:func:`~matplotlib.pyplot.subplots`, and
 :func:`~pyplot.savefig`, which can greatly simplify scripting.
 
 Modules include:
