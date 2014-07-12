@@ -1882,7 +1882,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
 
     Returns
     -------
-    bxpstats : A list of dictionaries containing the results for each column
+    bxpstats : list of dict
+        A list of dictionaries containing the results for each column
         of data. Keys of each dictionary are the following:
 
         ========   ===================================

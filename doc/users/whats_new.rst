@@ -160,7 +160,7 @@ specifically the Skew-T used in meteorology.
 .. plot:: mpl_examples/api/skewt.py
 
 Support for specifying properties of wedge and text in pie charts.
-``````````````````````````````````````````````````````````````
+``````````````````````````````````````````````````````````````````
 Added the `kwargs` 'wedgeprops' and 'textprops' to :func:`~matplotlib.Axes.pie`
 to accept properties for wedge and text objects in a pie. For example, one can
 specify wedgeprops = {'linewidth':3} to specify the width of the borders of
@@ -226,7 +226,7 @@ elements of specialized collections (
 Fixed the mouse coordinates giving the wrong theta value in Polar graph
 ```````````````````````````````````````````````````````````````````````
 Added code to
-:funct:`~matplotlib.InvertedPolarTransform.transform_non_affine`
+:func:`~matplotlib.InvertedPolarTransform.transform_non_affine`
 to ensure that the calculated theta value was between the range of 0 and 2 * pi
 since the problem was that the value can become negative after applying the
 direction and rotation to the theta calculation.

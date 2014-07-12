@@ -1758,7 +1758,7 @@ class QuadContourSet(ContourSet):
             If a number, all levels will be plotted with this linewidth.
 
             If a tuple, different levels will be plotted with different
-            linewidths in the order specified
+            linewidths in the order specified.
 
           *linestyles*: [ *None* | 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
             If *linestyles* is *None*, the default is 'solid' unless

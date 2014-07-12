@@ -438,8 +438,8 @@ class Axes(_AxesBase):
         Notes
         -----
 
-           Not all kinds of artist are supported by the legend command.
-           See :ref:`plotting-guide-legend` for details.
+        Not all kinds of artist are supported by the legend command.
+        See :ref:`plotting-guide-legend` for details.
 
         Examples
         --------
@@ -3114,105 +3114,129 @@ class Axes(_AxesBase):
         Parameters
         ----------
 
-          bxpstats : list of dicts
-            A list of dictionaries containing stats for each boxplot.
-            Required keys are:
-              'med' - The median (scalar float).
-              'q1' - The first quartile (25th percentile) (scalar float).
-              'q3' - The first quartile (50th percentile) (scalar float).
-              'whislo' - Lower bound of the lower whisker (scalar float).
-              'whishi' - Upper bound of the upper whisker (scalar float).
-            Optional keys are
-              'mean' - The mean (scalar float). Needed if showmeans=True.
-              'fliers' - Data beyond the whiskers (sequence of floats).
-                Needed if showfliers=True.
-              'cilo' & 'ciho' - Lower and upper confidence intervals about
-                the median. Needed if shownotches=True.
-              'label' - Name of the dataset (string). If available, this
-                will be used a tick label for the boxplot
+        bxpstats : list of dicts
+          A list of dictionaries containing stats for each boxplot.
+          Required keys are:
 
-          positions : array-like, default = [1, 2, ..., n]
-            Sets the positions of the boxes. The ticks and limits
-            are automatically set to match the positions.
+          - ``med``: The median (scalar float).
 
-          widths : array-like, default = 0.5
-            Either a scalar or a vector and sets the width of each box. The
-            default is 0.5, or ``0.15*(distance between extreme positions)``
-            if that is smaller.
+          - ``q1``: The first quartile (25th percentile) (scalar
+            float).
 
-          vert : bool, default = False
-            If True (default), makes the boxes vertical.
-            If False, makes horizontal boxes.
+          - ``q3``: The first quartile (50th percentile) (scalar
+            float).
 
-          patch_artist : bool, default = False
-            If False produces boxes with the Line2D artist
-            If True produces boxes with the Patch artist
+          - ``whislo``: Lower bound of the lower whisker (scalar
+            float).
 
-          shownotches : bool, default = False
-             If False (default), produces a rectangular box plot.
-             If True, will produce a notched box plot
+          - ``whishi``: Upper bound of the upper whisker (scalar
+            float).
 
-          showmeans : bool, default = False
-            If True, will toggle one the rendering of the means
+          Optional keys are:
 
-          showcaps  : bool, default = True
-            If True will toggle one the rendering of the caps
+          - ``mean``: The mean (scalar float). Needed if
+            ``showmeans=True``.
 
-          showbox  : bool, default = True
-            If True, will toggle one the rendering of box
+          - ``fliers``: Data beyond the whiskers (sequence of floats).
+            Needed if ``showfliers=True``.
 
-          showfliers : bool, default = True
-            If True, will toggle one the rendering of the fliers
+          - ``cilo`` & ``ciho``: Lower and upper confidence intervals
+            about the median. Needed if ``shownotches=True``.
 
-          boxprops : dict or None (default)
-            If provided, will set the plotting style of the boxes
+          - ``label``: Name of the dataset (string). If available,
+            this will be used a tick label for the boxplot
 
-          whiskerprops : dict or None (default)
-            If provided, will set the plotting style of the whiskers
+        positions : array-like, default = [1, 2, ..., n]
+          Sets the positions of the boxes. The ticks and limits
+          are automatically set to match the positions.
 
-          capprops : dict or None (default)
-            If provided, will set the plotting style of the caps
+        widths : array-like, default = 0.5
+          Either a scalar or a vector and sets the width of each
+          box. The default is 0.5, or ``0.15*(distance between extreme
+          positions)`` if that is smaller.
 
-          flierprops : dict or None (default)
-            If provided will set the plotting style of the fliers
+        vert : bool, default = False
+          If `True` (default), makes the boxes vertical.  If `False`,
+          makes horizontal boxes.
 
-          medianprops : dict or None (default)
-            If provided, will set the plotting style of the medians
+        patch_artist : bool, default = False
+          If `False` produces boxes with the
+          `~matplotlib.lines.Line2D` artist.  If `True` produces boxes
+          with the `~matplotlib.patches.Patch` artist.
 
-          meanprops : dict or None (default)
-            If provided, will set the plotting style of the means
+        shownotches : bool, default = False
+          If `False` (default), produces a rectangular box plot.
+          If `True`, will produce a notched box plot
 
-          meanline : bool, default = False
-            If True (and *showmeans* is True), will try to render the mean
-            as a line spanning the full width of the box according to
-            *meanprops*. Not recommended if *shownotches* is also True.
-            Otherwise, means will be shown as points.
+        showmeans : bool, default = False
+          If `True`, will toggle one the rendering of the means
 
-          manage_xticks : bool, default = True
-            If the function should adjust the xlim and xtick locations.
+        showcaps  : bool, default = True
+          If `True`, will toggle one the rendering of the caps
+
+        showbox  : bool, default = True
+          If `True`, will toggle one the rendering of box
+
+        showfliers : bool, default = True
+          If `True`, will toggle one the rendering of the fliers
+
+        boxprops : dict or None (default)
+          If provided, will set the plotting style of the boxes
+
+        whiskerprops : dict or None (default)
+          If provided, will set the plotting style of the whiskers
+
+        capprops : dict or None (default)
+          If provided, will set the plotting style of the caps
+
+        flierprops : dict or None (default)
+          If provided will set the plotting style of the fliers
+
+        medianprops : dict or None (default)
+          If provided, will set the plotting style of the medians
+
+        meanprops : dict or None (default)
+          If provided, will set the plotting style of the means
+
+        meanline : bool, default = False
+          If `True` (and *showmeans* is `True`), will try to render the mean
+          as a line spanning the full width of the box according to
+          *meanprops*. Not recommended if *shownotches* is also True.
+          Otherwise, means will be shown as points.
+
+        manage_xticks : bool, default = True
+          If the function should adjust the xlim and xtick locations.
 
         Returns
         -------
+        result : dict
+          A dictionary mapping each component of the boxplot to a list
+          of the :class:`matplotlib.lines.Line2D` instances
+          created. That dictionary has the following keys (assuming
+          vertical boxplots):
 
-        A dictionary mapping each component of the boxplot
-        to a list of the :class:`matplotlib.lines.Line2D`
-        instances created. That dictionary has the following keys
-        (assuming vertical boxplots):
+          - ``boxes``: the main body of the boxplot showing the
+            quartiles and the median's confidence intervals if
+            enabled.
 
-            - boxes: the main body of the boxplot showing the quartiles
-              and the median's confidence intervals if enabled.
-            - medians: horizonal lines at the median of each box.
-            - whiskers: the vertical lines extending to the most extreme,
-              n-outlier data points.
-            - caps: the horizontal lines at the ends of the whiskers.
-            - fliers: points representing data that extend beyone the
-              whiskers (fliers).
-            - means: points or lines representing the means.
+          - ``medians``: horizonal lines at the median of each box.
+
+          - ``whiskers``: the vertical lines extending to the most
+            extreme, n-outlier data points.
+
+          - ``caps``: the horizontal lines at the ends of the
+            whiskers.
+
+          - ``fliers``: points representing data that extend beyond
+            the whiskers (fliers).
+
+          - ``means``: points or lines representing the means.
 
         Examples
         --------
 
         .. plot:: mpl_examples/statistics/bxp_demo.py
+
         """
         # lists of artists to be output
         whiskers = []
@@ -6814,8 +6838,7 @@ class Axes(_AxesBase):
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
                    points=100, bw_method=None):
-        """
-        Make a violin plot.
+        """Make a violin plot.
 
         Call signature::
 
@@ -6830,66 +6853,78 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
+        dataset : Array or a sequence of vectors.
+          The input data.
 
-          dataset : Array or a sequence of vectors.
-            The input data.
+        positions : array-like, default = [1, 2, ..., n]
+          Sets the positions of the violins. The ticks and limits are
+          automatically set to match the positions.
 
-          positions : array-like, default = [1, 2, ..., n]
-            Sets the positions of the violins. The ticks and limits are
-            automatically set to match the positions.
+        vert : bool, default = True.
+          If true, creates a vertical violin plot.
+          Otherwise, creates a horizontal violin plot.
 
-          vert : bool, default = True.
-            If true, creates a vertical violin plot.
-            Otherwise, creates a horizontal violin plot.
+        widths : array-like, default = 0.5
+          Either a scalar or a vector that sets the maximal width of
+          each violin. The default is 0.5, which uses about half of the
+          available horizontal space.
 
-          widths : array-like, default = 0.5
-            Either a scalar or a vector that sets the maximal width of
-            each violin. The default is 0.5, which uses about half of the
-            available horizontal space.
+        showmeans : bool, default = False
+          If `True`, will toggle rendering of the means.
 
-          showmeans : bool, default = False
-            If true, will toggle rendering of the means.
+        showextrema : bool, default = True
+          If `True`, will toggle rendering of the extrema.
 
-          showextrema : bool, default = True
-            If true, will toggle rendering of the extrema.
+        showmedians : bool, default = False
+          If `True`, will toggle rendering of the medians.
 
-          showmedians : bool, default = False
-            If true, will toggle rendering of the medians.
+        points : scalar, default = 100
+          Defines the number of points to evaluate each of the
+          gaussian kernel density estimations at.
 
-          points : scalar, default = 100
-            Defines the number of points to evaluate each of the gaussian
-            kernel density estimations at.
-
-          bw_method : str, scalar or callable, optional
-            The method used to calculate the estimator bandwidth.  This can be
-            'scott', 'silverman', a scalar constant or a callable.  If a
-            scalar, this will be used directly as `kde.factor`.  If a
-            callable, it should take a `GaussianKDE` instance as its only
-            parameter and return a scalar. If None (default), 'scott' is used.
+        bw_method : str, scalar or callable, optional
+          The method used to calculate the estimator bandwidth.  This can be
+          'scott', 'silverman', a scalar constant or a callable.  If a
+          scalar, this will be used directly as `kde.factor`.  If a
+          callable, it should take a `GaussianKDE` instance as its only
+          parameter and return a scalar. If None (default), 'scott' is used.
 
         Returns
         -------
 
-        A dictionary mapping each component of the violinplot to a list of the
-        corresponding collection instances created. The dictionary has
-        the following keys:
+        result : dict
+          A dictionary mapping each component of the violinplot to a
+          list of the corresponding collection instances created. The
+          dictionary has the following keys:
 
-            - bodies: A list of the
+            - ``bodies``: A list of the
               :class:`matplotlib.collections.PolyCollection` instances
               containing the filled area of each violin.
-            - means: A :class:`matplotlib.collections.LineCollection` instance
-              created to identify the mean values of each of the violin's
-              distribution.
-            - mins: A :class:`matplotlib.collections.LineCollection` instance
-              created to identify the bottom of each violin's distribution.
-            - maxes: A :class:`matplotlib.collections.LineCollection` instance
-              created to identify the top of each violin's distribution.
-            - bars: A :class:`matplotlib.collections.LineCollection` instance
-              created to identify the centers of each violin's distribution.
-            - medians: A :class:`matplotlib.collections.LineCollection`
-              instance created to identify the median values of each of the
+
+            - ``means``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the mean values of each of the
               violin's distribution.
 
+            - ``mins``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the bottom of each violin's
+              distribution.
+
+            - ``maxes``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the top of each violin's
+              distribution.
+
+            - ``bars``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the centers of each violin's
+              distribution.
+
+            - ``medians``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the median values of each of the
+              violin's distribution.
         """
 
         def _kde_method(X, coords):
@@ -6903,8 +6938,7 @@ class Axes(_AxesBase):
 
     def violin(self, vpstats, positions=None, vert=True, widths=0.5,
                showmeans=False, showextrema=True, showmedians=False):
-        """
-        Drawing function for violin plots.
+        """Drawing function for violin plots.
 
         Call signature::
 
@@ -6918,61 +6952,81 @@ class Axes(_AxesBase):
         Parameters
         ----------
 
-          vpstats : list of dicts
-            A list of dictionaries containing stats for each violin plot.
-            Required keys are:
-              - coords: A list of scalars containing the coordinates that
-                the violin's kernel density estimate were evaluated at.
-              - vals: A list of scalars containing the values of the kernel
-                density estimate at each of the coordinates given in `coords`.
-              - mean: The mean value for this violin's dataset.
-              - median: The median value for this violin's dataset.
-              - min: The minimum value for this violin's dataset.
-              - max: The maximum value for this violin's dataset.
+        vpstats : list of dicts
+          A list of dictionaries containing stats for each violin plot.
+          Required keys are:
 
-          positions : array-like, default = [1, 2, ..., n]
-            Sets the positions of the violins. The ticks and limits are
-            automatically set to match the positions.
+          - ``coords``: A list of scalars containing the coordinates that
+            the violin's kernel density estimate were evaluated at.
 
-          vert : bool, default = True.
-            If true, plots the violins veritcally.
-            Otherwise, plots the violins horizontally.
+          - ``vals``: A list of scalars containing the values of the
+            kernel density estimate at each of the coordinates given
+            in *coords*.
 
-          widths : array-like, default = 0.5
-            Either a scalar or a vector that sets the maximal width of
-            each violin. The default is 0.5, which uses about half of the
-            available horizontal space.
+          - ``mean``: The mean value for this violin's dataset.
 
-          showmeans : bool, default = False
-            If true, will toggle rendering of the means.
+          - ``median``: The median value for this violin's dataset.
 
-          showextrema : bool, default = True
-            If true, will toggle rendering of the extrema.
+          - ``min``: The minimum value for this violin's dataset.
 
-          showmedians : bool, default = False
-            If true, will toggle rendering of the medians.
+          - ``max``: The maximum value for this violin's dataset.
+
+        positions : array-like, default = [1, 2, ..., n]
+          Sets the positions of the violins. The ticks and limits are
+          automatically set to match the positions.
+
+        vert : bool, default = True.
+          If true, plots the violins veritcally.
+          Otherwise, plots the violins horizontally.
+
+        widths : array-like, default = 0.5
+          Either a scalar or a vector that sets the maximal width of
+          each violin. The default is 0.5, which uses about half of the
+          available horizontal space.
+
+        showmeans : bool, default = False
+          If true, will toggle rendering of the means.
+
+        showextrema : bool, default = True
+          If true, will toggle rendering of the extrema.
+
+        showmedians : bool, default = False
+          If true, will toggle rendering of the medians.
 
         Returns
         -------
+        result : dict
+          A dictionary mapping each component of the violinplot to a list of the
+          corresponding collection instances created. The dictionary has
+          the following keys:
 
-        A dictionary mapping each component of the violinplot to a list of the
-        corresponding collection instances created. The dictionary has
-        the following keys:
-
-            - bodies: A list of the
+            - ``bodies``: A list of the
               :class:`matplotlib.collections.PolyCollection` instances
               containing the filled area of each violin.
-            - means: A :class:`matplotlib.collections.LineCollection` instance
-              created to identify the mean values of each of the violin's
+
+            - ``means``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the mean values of each of the
+              violin's distribution.
+
+            - ``mins``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the bottom of each violin's
               distribution.
-            - mins: A :class:`matplotlib.collections.LineCollection` instance
-              created to identify the bottom of each violin's distribution.
-            - maxes: A :class:`matplotlib.collections.LineCollection` instance
-              created to identify the top of each violin's distribution.
-            - bars: A :class:`matplotlib.collections.LineCollection` instance
-              created to identify the centers of each violin's distribution.
-            - medians: A :class:`matplotlib.collections.LineCollection`
-              instance created to identify the median values of each of the
+
+            - ``maxes``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the top of each violin's
+              distribution.
+
+            - ``bars``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the centers of each violin's
+              distribution.
+
+            - ``medians``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the median values of each of the
               violin's distribution.
 
         """
