@@ -809,10 +809,10 @@ class PolyCollection(_CollectionWithSizes):
             for xy in verts:
                 if len(xy):
                     if np.ma.isMaskedArray(xy):
-                        xy = np.ma.concatenate([xy, np.zeros((1, 2))])
+                        xy = np.ma.concatenate([xy, xy[0:1]])
                     else:
                         xy = np.asarray(xy)
-                        xy = np.concatenate([xy, np.zeros((1, 2))])
+                        xy = np.concatenate([xy, xy[0:1]])
                     codes = np.empty(xy.shape[0], dtype=mpath.Path.code_type)
                     codes[:] = mpath.Path.LINETO
                     codes[0] = mpath.Path.MOVETO
