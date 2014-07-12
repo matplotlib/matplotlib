@@ -212,7 +212,6 @@ def get_path(hatchpattern, density=6):
     cursor = 0
     for pattern in patterns:
         if pattern.num_vertices != 0:
-            num_vertices
             vertices_chunk = vertices[cursor:cursor + pattern.num_vertices]
             codes_chunk = codes[cursor:cursor + pattern.num_vertices]
             pattern.set_vertices_and_codes(vertices_chunk, codes_chunk)

@@ -475,7 +475,7 @@ class ContourLabeler:
                     pl, lc, [xi[1]])
 
             # Make integer
-            I = [np.floor(I[0]), np.ceil(I[1])]
+            I = [int(np.floor(I[0])), int(np.ceil(I[1]))]
 
             # Actually break contours
             if closed:
