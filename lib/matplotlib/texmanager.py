@@ -70,10 +70,10 @@ def dvipng_hack_alpha():
     try:
         p = Popen(['dvipng', '-version'], stdin=PIPE, stdout=PIPE,
                   stderr=STDOUT, close_fds=(sys.platform != 'win32'))
+        stdin, stderr = p.communicate()
     except OSError:
         mpl.verbose.report('No dvipng was found', 'helpful')
         return False
-    stdin, stdout = p.stdin, p.stdout
     for line in stdout:
         if line.startswith(b'dvipng '):
             version = line.split()[-1]
