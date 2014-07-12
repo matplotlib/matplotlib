@@ -16,26 +16,20 @@ from matplotlib.backend_bases import ShowBase, NavigationToolbar2
 
 
 class Show(ShowBase):
-    def display_js(self):
-        # XXX How to do this just once? It has to deal with multiple
-        # browser instances using the same kernel.
-        display(Javascript(FigureManagerNbAgg.get_javascript()))
-
     def __call__(self, block=None):
-        from matplotlib import is_interactive
         import matplotlib._pylab_helpers as pylab_helpers
+        from matplotlib import is_interactive
 
-        queue = pylab_helpers.Gcf._activeQue
-        for manager in queue[:]:
-            if not manager.shown:
-                self.display_js()
+        managers = pylab_helpers.Gcf.get_all_fig_managers()
+        if not managers:
+            return
 
-                manager.show()
-                # If we are not interactive, disable the figure from
-                # the active queue, but don't destroy it.
-                if not is_interactive():
-                    queue.remove(manager)
-                manager.canvas.draw_idle()
+        interactive = is_interactive()
+
+        for manager in managers:
+            manager.show()
+            if not interactive and manager in pylab_helpers.Gcf._activeQue:
+                pylab_helpers.Gcf._activeQue.remove(manager)
 
 
 show = Show()
@@ -48,9 +42,7 @@ def draw_if_interactive():
     if is_interactive():
         manager = pylab_helpers.Gcf.get_active()
         if manager is not None:
-            if not manager.shown:
-                manager.show()
-            manager.canvas.draw_idle()
+            manager.show()
 
 
 def connection_info():
@@ -96,16 +88,24 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
     ToolbarCls = NavigationIPy
 
     def __init__(self, canvas, num):
-        self.shown = False
+        self._shown = False
         FigureManagerWebAgg.__init__(self, canvas, num)
 
+    def display_js(self):
+        # XXX How to do this just once? It has to deal with multiple
+        # browser instances using the same kernel.
+        display(Javascript(FigureManagerNbAgg.get_javascript()))
+
     def show(self):
-        if not self.shown:
+        if not self._shown:
+            self.display_js()
             self._create_comm()
-        self.shown = True
+        else:
+            self.canvas.draw_idle()
+        self._shown = True
 
     def reshow(self):
-        self.shown = False
+        self._shown = False
         self.show()
 
     @property
