@@ -15,9 +15,7 @@ distributions that already provide matplotlib built-in.  The
 Continuum.io distribution `(Anaconda)
 <https://store.continuum.io/cshop/anaconda/>`_ or the Enthought distribution
 `(Canopy) <https://www.enthought.com/products/canopy/>`_ for Windows, OS X, or
-Redhat is an excellent choice that "just works" out of the box.  Another
-excellent alternative for Windows users is `Python (x, y)
-<http://www.pythonxy.com/>`_ which tends to be updated a bit more frequently.
+Redhat is an excellent choice that "just works" out of the box.  
 Both of these packages include matplotlib and pylab, and *lots* of other useful
 tools.  matplotlib is also packaged for almost every major Linux distribution.
 So if you are on Linux, your package manager will probably provide matplotlib
