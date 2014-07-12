@@ -26,7 +26,8 @@ formatter::
 
    ax.get_xaxis().get_major_formatter().set_useOffset(False)
 
-or set a different formatter.
+set the rcParam ``axes.formatter.useoffset=False`` to turn it off
+globally, or set a different formatter.
 
 Tick locating
 -------------
@@ -62,7 +63,7 @@ The Locator subclasses defined here are
     intelligent ticking during navigation
 
 :class:`MaxNLocator`
-    finds up to a max number of ticks at nice  locations
+    finds up to a max number of ticks at nice locations
 
 :class:`AutoLocator`
     :class:`MaxNLocator` with simple defaults. This is the default
