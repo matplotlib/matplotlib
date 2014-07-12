@@ -286,6 +286,7 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
     verts_right = right[:]
 
     #i += 1
+
     if path.codes is None:
         path_in = Path(concat([path.vertices[:i], verts_left]))
         path_out = Path(concat([verts_right, path.vertices[i:]]))
