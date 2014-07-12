@@ -163,8 +163,8 @@ C/C++ extensions
   docstrings, and the Numpydoc format is well understood in the
   scientific Python community.
 
-Rebasing a Pull Request
------------------------
+Rebasing a Pull Request (PR)
+----------------------------
 
 When working on a PR, changes may occur in the parent branch (usually master).
 This can lead to conflict with changes in your branch. The conflicts can be
@@ -187,12 +187,12 @@ bad practice, but in this case it is very useful.
 
 The following example assumes that the remote of _your_ github
 repository is called `github` and the remote of the official
-repository is called `upstream`.
+repository is called `matplotlib`.
 
 The first step is to make sure that your local copy of the upstream repository is
 up-to-date::
 
-     $ git fetch upstream
+     $ git fetch matplotlib
 
 This updates your local copy of the repository, but does not change any files
 in your working copy.  Next, switch to the branch that you want to update::
@@ -200,25 +200,16 @@ in your working copy.  Next, switch to the branch that you want to update::
      $ git checkout backend_plt_refactor
 
 You are now ready to start the rebase of your branch onto the target
-parent branch, in this case `upstream/master` ::
+parent branch, in this case `matplotlib/master` ::
 
-     $ git rebase upstream/master
+     $ git rebase matplotlib/master
 
 and git will then give a bunch of feed back::
 
      First, rewinding head to replay your work on top of it...
      Applying: first steps to extract FigureManager* and friends from pyplot
      Applying: split backend_qt4 into two parts, with and without Gcf
-     Applying: split backend_qt4agg into two parts.
-     Applying: Added a demo-file to show how to use the FigureManager classes to
-     Applying: removed un-needed import of Gcf
-     Applying: pep8 on backend_gtk.py
-     Applying: pep8 clean up in backend_gdk
-     Applying: removed un-needed Gcf import
-     Applying: split backend_gcf into two parts,
-     Applying: pep8 on backend_gtkagg.py
-     Applying: split backend_gktagg.py in to two parts
-     Applying: updated exclude list
+     ...
      Applying: pep8 clean up on backend_gtk3.py
      Using index info to reconstruct a base tree...
      M       lib/matplotlib/backends/backend_gtk3.py
@@ -235,7 +226,7 @@ and git will then give a bunch of feed back::
      To check out the original branch and stop rebasing, run "git rebase --abort".
 
 A number of commits could be cleanly applied to
-the tip of `upstream/master`,  however, git eventually hit a commit
+the tip of `matplotlib/master`,  however, git eventually hits a commit
 that had conflicts.  In this case in the file
 `lib/matplotlib/backends/backend_gtk3.py`.  For more verbose information run ::
 
@@ -254,8 +245,9 @@ that had conflicts.  In this case in the file
 
      no changes added to commit (use "git add" and/or "git commit -a")
 
-This exactly where the conflict is and some advice on how to proceed.  Opening
-up the file in question, you will see blocks that look something like this::
+This tells you exactly where the conflict is and provides some advice
+on how to proceed.  Opening up the file in question, you will see
+blocks that look something like this::
 
      <<<<<<< HEAD
      =======
@@ -272,7 +264,7 @@ resolved all the conflicts, `add` the file to the index::
      $ git add lib/matplotlib/backends/backend_gtk3.py
 
 Repeat this for all of the files that have conflicts.  When you are done with
-that we can check the status::
+that you can check the status::
 
      $ git status
      rebase in progress; onto e6f8993
@@ -290,20 +282,22 @@ commit and can continue::
      $ git rebase --continue
 
 You now iterate the until you have made it through all of the commits
-which have conflicts.
+which have conflicts.  Once you have successfully rebased your branch,
+be sure to re-run the tests to make sure everything is still working
+properly.
 
-Your branch is now rebased, however, because of the way git determines
-the hash of each commit, it now shares no commits with your old branch
-published on github so you can not push to that branch as you would when
-simply adding commits.  In order to publish your newly re-based branch you need to
-use the `--force` flag::
+Your branch is now rebased, however, because of the way git
+determines the hash of each commit, it now shares no commits with your
+old branch published on github so you can not push to that branch as
+you would when simply adding commits.  In order to publish your newly
+rebased (and tested!) branch you need to use the `--force` flag::
 
     $ git push --force github
 
 which will _replace_ all of the commits under your branch on github
 with the new versions of the commit.
 
-Congratulations, you have re-based your branch!
+Congratulations, you have rebased your branch!
 
 
 Style guide
