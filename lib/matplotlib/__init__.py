@@ -1384,9 +1384,10 @@ def test(verbosity=1):
         # a list.
         multiprocess._instantiate_plugins = [KnownFailure]
 
-        success = nose.run( defaultTest=default_test_modules,
-                            config=config,
-                            )
+        success = nose.run(
+            defaultTest=default_test_modules,
+            config=config,
+        )
     finally:
         if old_backend.lower() != 'agg':
             use(old_backend)
