@@ -4,7 +4,7 @@ This is an object-oriented plotting library.
 A procedural interface is provided by the companion pyplot module,
 which may be imported directly, e.g.::
 
-    from matplotlib import pyplot as plt
+    import matplotlib.pyplot as plt
 
 or using ipython::
 
