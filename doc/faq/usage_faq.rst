@@ -82,8 +82,8 @@ axes contains two (or three in the case of 3D)
 between **Axes** and **Axis**) which take care of the data limits (the
 data limits can also be controlled via set via the
 :func:`~matplotlib.axes.Axes.set_xlim` and
-:func:`~matplotlib.axes.Axes.set_ylim` member :class:`Axes` member
-functions).  Each :class:`Axes` has a title (set via
+:func:`~matplotlib.axes.Axes.set_ylim` :class:`Axes` methods).  Each
+:class:`Axes` has a title (set via
 :func:`~matplotlib.axes.Axes.set_title`), an x-label (set via
 :func:`~matplotlib.axes.Axes.set_xlabel`), and a y-label set via
 :func:`~matplotlib.axes.Axes.set_ylabel`).

@@ -481,6 +481,19 @@ though we have made significant progress towards supporting blocking events.
 Contributing: howto
 ===================
 
+.. _how-to-request-feature:
+
+Request a new feature
+---------------------
+
+Is there a feature you wish matplotlib had?  Then ask!  The best
+way to get started is to email the developer `mailing
+list <matplotlib-devel@lists.sourceforge.net>`_ for discussion.
+This is an open source project developed primarily in the
+contributors free time, so there is no guarantee that your
+feature will be added.  The *best* way to get the feature
+you need added is to contribute it your self.
+
 .. _how-to-submit-patch:
 
 Reporting a bug or submitting a patch
@@ -504,16 +517,6 @@ register with github, please email bug reports to the `mailing list
 The easiest way to submit patches to matplotlib is through pull
 requests on github.  Please see the :ref:`developers-guide-index` for
 the details.
-
-.. _how-to-request-feature:
-
-Request a new feature
----------------------
-
-Is there a feature you wish matplotlib had?  Then ask!  The best
-way to get started is to email the developer `mailing
-list <matplotlib-devel@lists.sourceforge.net>`_ for discussion.
-
 
 .. _how-to-contribute-docs:
 
