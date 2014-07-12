@@ -1737,7 +1737,7 @@ def simple_linear_interpolation(a, steps):
     if steps == 1:
         return a
 
-    steps = np.floor(steps)
+    steps = int(np.floor(steps))
     new_length = ((len(a) - 1) * steps) + 1
     new_shape = list(a.shape)
     new_shape[0] = new_length
