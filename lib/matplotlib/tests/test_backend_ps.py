@@ -82,4 +82,4 @@ def test_savefig_to_stringio_with_usetex_eps():
 
 if __name__ == '__main__':
     import nose
-    nose.runmodule(argv=['-s', '--with-doctest', '-verbose'], exit=False)
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
