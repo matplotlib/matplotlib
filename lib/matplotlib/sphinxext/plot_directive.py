@@ -421,7 +421,7 @@ TEMPLATE = """
 
    {% for img in images %}
    .. figure:: {{ build_dir }}/{{ img.basename }}.png
-      {%- for option in options %}
+      {% for option in options -%}
       {{ option }}
       {% endfor %}
 
@@ -447,7 +447,7 @@ TEMPLATE = """
 
    {% for img in images %}
    .. image:: {{ build_dir }}/{{ img.basename }}.png
-      {%- for option in options %}
+      {% for option in options -%}
       {{ option }}
       {% endfor %}
 
