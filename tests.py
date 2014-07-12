@@ -42,7 +42,9 @@ def run():
 if __name__ == '__main__':
     if '--no-pep8' in sys.argv:
         default_test_modules.remove('matplotlib.tests.test_coding_standards')
+        sys.argv.remove('--no-pep8')
     elif '--pep8' in sys.argv:
         default_test_modules = ['matplotlib.tests.test_coding_standards']
+        sys.argv.remove('--pep8')
 
     run()
