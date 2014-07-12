@@ -74,28 +74,29 @@ Documentation
 
   Docstrings should look like (at a minimum)::
 
-      def foo(bar, baz=None):
-          """
-          This is a prose description of foo and all the great
-          things it does.
+        def foo(bar, baz=None):
+            """
+            This is a prose description of foo and all the great
+            things it does.
 
-	  Parameters
-	  ----------
-	  bar : (type of bar)
-	      A description of bar
+            Parameters
+            ----------
+            bar : (type of bar)
+                A description of bar
 
-	  baz : (type of baz), optional
-	      A description of baz
+            baz : (type of baz), optional
+                A description of baz
 
-	  Returns
-	  -------
-	  foobar : (type of foobar)
-	      A description of foobar
-	  foobaz : (type of foobaz)
-	      A description of foobaz
-          """
-	  # some very clever code
-	  return foobar, foobaz
+            Returns
+            -------
+            foobar : (type of foobar)
+                A description of foobar
+            foobaz : (type of foobaz)
+                A description of foobaz
+                """
+            # some very clever code
+            return foobar, foobaz
+
 
 * Each high-level plotting function should have a simple example in
   the `Example` section of the docstring.  This should be as simple as
