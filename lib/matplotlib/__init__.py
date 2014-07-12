@@ -111,7 +111,7 @@ import sys
 import distutils.version
 
 __version__  = '1.4.x'
-__version__numpy__ = '1.5' # minimum required numpy version
+__version__numpy__ = '1.6' # minimum required numpy version
 
 try:
     import dateutil
