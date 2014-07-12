@@ -39,93 +39,218 @@ function getSnippet(id, url) {
 
 {% block body %}
 
-  <h1>Introduction</h1>
 
-  <p>matplotlib is a python 2D plotting library which produces
-  publication quality figures in a variety of hardcopy formats and
-  interactive environments across platforms.  matplotlib can be used
-  in python scripts, the python and <a
-  href="http://ipython.org">ipython</a> shell (ala
-  MATLAB<sup>&reg;<a name="matlab" href="#ftn.matlab">*</a></sup>
-  or
-  Mathematica<sup>&reg;<a name="mathematica"
-  href="#ftn.mathematica">&#8224;</a></sup>),
-  web application servers, and six graphical user
-  interface toolkits.</p>
+<!-- ========== ========== ========== ========== ========== ========== -->
 
-  <p align="center"><a href="{{ pathto('users/screenshots') }}"><img align="middle"
-  src="{{ pathto('_static/logo_sidebar_horiz.png', 1) }}" border="0"
-  alt="screenshots"/></a></p>
+  <h1>What... is your quest?</h1>
 
-  <p>matplotlib tries to make easy things easy and hard things possible.
-  You can generate plots, histograms, power spectra, bar charts,
-  errorcharts, scatterplots, etc, with just a few lines of code.
+   <ul>
+     <li>You have data and you want to visualize it.
+     <li>You have a research paper that needs figures for publication.
+     <li>You need to do exploratory data analysis and make beautiful presentations.
+     <li>You are a developer looking for an open-source project to call home.
+   </ul>
+
+   ... welcome to matplotlib.
+
+   <p align="center"><a href="{{ pathto('users/screenshots') }}"><img align="middle"
+   src="{{ pathto('_static/logo_sidebar_horiz.png', 1) }}" border="0"
+   alt="screenshots"/></a></p>
+
+<!-- ========== ========== ========== ========== ========== ========== -->
+
+  <h1>Contents</h1>
+    <ul>
+      <li><a href="#section-intro">Introduction</a>
+      <li><a href="#section-ecosystem">Ecosystem</a>
+      <li><a href="#section-capability">Capabilities</a>
+      <li><a href="#section-install">Install</a>
+      <li><a href="#section-learning">Learning</a>
+      <li><a href="#section-community">Community</a>
+      <li><a href="#section-developers">Developers</a>
+    </ul>
+
+<!-- ========== ========== ========== ========== ========== ========== -->
+
+<h1 id="section-intro">Introduction</h1>
+
+    <p><i>What is matplotlib?</i></p>
+
+<p>matplotlib is many things. Depending on how you use it, it can look like:
+<ul>
+  <li> a tool to quickly create simply 2D plots
+  <li> a tool to produce publication-ready figures in a variety of common file formats
+  <li> a python library for scientific data visualization
+  <li> an interactive plotting tool run from scripts, a command console, or web application servers
+</ul>
+</p>
+
+<!-- ========== ========== ========== ========== ========== ========== -->
+
+  <h1 id="section-ecosystem">Ecosystem</h1>
+
+  <p><i>How does matplotlib fit in to a larger world?</i></p>
+
+  <p><a href="http://matplotlib.org">matplotlib</a> is part of an <a href="http://www.scipy.org/about.html">ecosystem of tools</a> for scientific computing built by a <a href="https://www.python.org/community/">community of people</a>. That ecosystem has gaining wide adoption across a wide variety of scientific and business communities. The core of that scientific computing <a href="http://www.scipy.org/about.html">ecosystem</a> includes:
+  <ul>
+     <li><a href="https://www.python.org">python</a> = general purpose, object-oriented programming language
+     <li><a href="http://ipython.org">iPython</a> = interactive console, python interpreter
+     <li><a href="http://www.numpy.org">NumPy</a> = library numerical algorithms and multi-dimensional data containers
+     <li><a href="http://www.scipy.org">SciPy</a> = library of scientific algorithms
+     <li><a href="http://matplotlib.org">matplotlib</a> = data visualization, publication figures, presentation visuals
+     <li><a href="http://ipython.org/notebook.html">ipython notebooks</a> = interactive scientific computing and presentation in a browser
+  </ul>
+
+<p>
+The combination of <a href="http://ipython.org">iPython</a>, <a href="http://www.numpy.org">NumPy</a>, and <a href="http://matplotlib.org">matplotlib</a>, together provide a compelling open-source alternative to commercial products for scientific computing and data analysis.
+
+<p>
+Thanks to the efforts of many, this open-source tool chain is easy to get from a variety of distributors for many different platforms, including Linux, OSX, and Windows.
+
+<!-- ========== ========== ========== ========== ========== ========== -->
+
+  <h1 id="section-capability">Capabilities</h1>
+
+    <p><i>What can I create with matplotlib?</i></p>
+
+ <p>Examples of the variety of things others have created:
+	 <ul>
+		 <li><a href="http://pyvideo.org/video/2008/scipy-2013-john-hunter-excellence-in-plotting-con">SciPy 2013 John Hunter Excellence in Plotting Contest [video]</a>
+         <li><a href="http://wiki.scipy.org/Cookbook/Matplotlib">The Cookbook</a>: a collection of examples for how to create the most commonly used figures.
+         <li><a href="gallery.html">The Gallery</a>: a large collection of example figures with the source code used to generate them.
   For a sampling, see the <a href="{{ pathto('users/screenshots') }}">screenshots</a>, <a href="{{ pathto('gallery') }}">thumbnail</a> gallery,  and
-    <a href="examples/index.html">examples</a> directory</p>
 
-<p>For simple plotting the <pre>pyplot</pre> interface provides a
-  MATLAB-like interface, particularly when combined
-  with <pre>IPython</pre>.  For the power user, you have full control
-  of line styles, font properties, axes properties, etc, via an object
-  oriented interface or via a set of functions familiar to MATLAB
-  users.</p>
+    <a href="examples/index.html">examples</a> directory.
 
-<div style="float: right; min-width: 450px; width: 50%; padding-left: 5%;">
-  <h1>John Hunter (1968-2012)</h1>
-  <table bgcolor="#ddddff">
-   <tr>
-    <td>
-      <img src="_static/John-hunter-crop-2.jpg" align="left" />
-    </td>
-    <td>
-      <p>
-      On August 28 2012, John D. Hunter, the creator of matplotlib, died
-      from complications arising from cancer treatment, after a brief but
-      intense battle with this terrible illness.  John is survived by his
-      wife Miriam, his three daughters Rahel, Ava and Clara, his sisters
-      Layne and Mary, and his mother Sarah.</p>
+  <li><a href="{{ pathto('mpl_toolkits/index') }}">Toolkits</a>: There are several matplotlib add-on toolkits,
+    including a choice of two projection and mapping toolkits <a href="http://matplotlib.org/basemap">basemap</a> and
+    <a href="http://scitools.org.uk/cartopy/docs/latest">cartopy</a>,
+    3d plotting with <a href="{{ pathto('mpl_toolkits/mplot3d/index') }}">mplot3d</a>,
+    axes and axis helpers in <a href="{{ pathto('mpl_toolkits/axes_grid/index') }}">axes_grid</a> and more.
+   </ul>
+</p>
 
-      <p>
-      If you have benefited from John's many contributions, please say
-      thanks in the way that would matter most to him.  Please consider
-      making a donation to
-      the <a href="http://numfocus.org/johnhunter/">John Hunter Memorial
-      Fund</a>.</p>
-    </td>
-   </tr>
-  </table>
-</div>
+<!-- ========== ========== ========== ========== ========== ========== -->
 
-  <h1>Download</h1>
+<h1 id="section-install">Install</h1>
 
-  Visit the
-  <a href="http://matplotlib.org/downloads.html">matplotlib downloads
-  page</a>.
+    <p><i>How do I install matplotlib?</i></p>
 
-  <h1>Documentation</h1>
+    There are many pathways to get matplotlib installed on your platform of choice, depending on how much control you need over the install process.
+    <ul>
+		<li>If you need little control: bundled installs, such as <a href="https://www.enthought.com/products/canopy/">Enthought Canopy</a> and <a href="https://store.continuum.io/cshop/anaconda/">Anaconda </a>
+       <li>If you need moderate control: package installs, via tools like apt-get, pip, mac ports, and homebrew.
+       <li>If you need full control: <a href="http://matplotlib.org/faq/installing_faq.html#how-to-install">install from source</a>
+    </ul>
 
-  This is the documentation for matplotlib version {{ version }}.
+	<p>
+	A detailed narrative on <a href="http://matplotlib.org/users/installing.html">installing matplotlib</a> is available, as well as an <a href="http://matplotlib.org/faq/installing_faq.html">install FAQ</a>. If you know you have all other install dependencies and just need a pre-compied binary package, visit the <a href="http://matplotlib.org/downloads.html">matplotlib downloads page</a>.
+    </p>
 
-  <p id="other_versions"></p>
-  <script>
-    getSnippet('other_versions', '/versions.html');
-  </script>
+<!-- ========== ========== ========== ========== ========== ========== -->
 
-  <p>Trying to learn how to do a particular kind of plot?  Check out
-  the <a href="gallery.html">gallery</a>, <a href="examples/index.html">examples</a>,
-  or the <a href="api/pyplot_summary.html">list of plotting
-  commands</a>.</p>
+  <h1 id="section-learning">Learning</h1>
 
-  <h4>Other learning resources</h4>
+    <p><i>How do I learn to use matplotlib?</i></p>
 
-  <p>There are many <a href="{{ pathto('resources/index') }}">external learning
-  resources</a> available including printed material, videos and tutorials.</p>
+    Their is a heirarchy of entry points for learning matplotlib, depending on the level of detail you prefer.
 
-  <h4>Need help?</h4>
+    <h3> Tutorials </h3>
+        <ul>
+          <li> Tutorial showing how to make simple 2D plots in matplotlib <a href="http://matplotlib.org/users/pyplot_tutorial.html">using pyplot module</a>.
+          <li> Tutorial introducing basic <a href="http://matplotlib.org/users/image_tutorial.html">image processing in matplotlib</a>.
+          <li> Nicolas Rougier has a nice <a href="http://www.loria.fr/~rougier/teaching/matplotlib/">beginner tutorial</a>.
+          <li> Eric Jones gave an <a href="http://www.youtube.com/watch?v=3Fp1zn5ao2M">introductory tutorial [video]</a> on NumPy and matplotlib at SciPy 2012.
+          <li> Ben Root gave an introductory tutorials on matplotlib at <a href="http://conference.scipy.org/scipy2013/tutorial_detail.php?id=103">SciPy 2013 [video]</a> and <a href="http://pyvideo.org/video/2757/anatomy-of-matplotlib-part-1">SciPy 2014 [video]</a>.
+       </ul>
+
+    <h3> User-guides </h3>
+    <ul>
+      <li> <a href="http://matplotlib.org/1.3.1/users/index.html">version 1.3.1</a>
+      <li> <a href="http://matplotlib.org/1.2.1/users/index.html">version 1.2.1</a>
+	</ul>
+
+	<h3> Books </h3>
+    <ul>
+       <li> Alexandre Devert, <a href="http://www.packtpub.com/matplotlib-plotting-cookbook/book">Matplotlib Cookbook</a>
+       <li> Sandro Tosi, <a href="http://sandrotosi.blogspot.com/2009/11/matplotlib-for-python-developers.html">Matplotlib for Python Developers</a>
+    </ul>
+    </p>
+
+    <p>There are many more <a href="{{ pathto('resources/index') }}">external learning
+    resources</a> available including printed material, videos and tutorials.</p>
+
+<!-- ========== ========== ========== ========== ========== ========== -->
+
+	<div style="float: right; min-width: 450px; width: 50%; padding-left: 5%;">
+	  <h1>John Hunter (1968-2012)</h1>
+	  <table bgcolor="#ddddff">
+	   <tr>
+	    <td>
+	      <img src="_static/John-hunter-crop-2.jpg" align="left" />
+	    </td>
+	    <td>
+	      <p>
+	      On August 28 2012, John D. Hunter, the creator of matplotlib, died
+	      from complications arising from cancer treatment, after a brief but
+	      intense battle with this terrible illness.  John is survived by his
+	      wife Miriam, his three daughters Rahel, Ava and Clara, his sisters
+	      Layne and Mary, and his mother Sarah.</p>
+
+	      <p>
+	      If you have benefited from John's many contributions, please say
+	      thanks in the way that would matter most to him.  Please consider
+	      making a donation to
+	      the <a href="http://numfocus.org/johnhunter/">John Hunter Memorial
+	      Fund</a>.</p>
+	    </td>
+	   </tr>
+	  </table>
+	</div>
+
+<!-- ========== ========== ========== ========== ========== ========== -->
+
+  <h1 id="section-community">Community</h1>
+
+    <p><i>"How do I participate in the community?</i></p>
+
+	<p>Make the community and it's tools even better.
+        <ul>
+          <li> Install and use matplotlib
+          <li> Tell your friends and co-workers
+          <li> Become a sponsor through <a href="http://numfocus.org/take-action/sponsorship.html">NumFOCUS</a>
+          <li> Fork the source code on <a href="https://github.com/matplotlib/matplotlib">GitHub</a>
+          <li> Attend <a href="http://conference.scipy.org">SciPy</a>,
+          <a href="http://pydata.org">PyData</a>, or any one of the <a href="https://www.python.org/community/workshops/">many python conferences</a>
+        </ul>
+    </p>
+
+<p>
+Please consider <a href="http://sourceforge.net/project/project_donations.php?group_id=80706">donating</a>
+to support matplotlib development or to the <a href="http://numfocus.org/johnhunter/"> John Hunter Memorial Fund</a>.
+</p>
+
+<!-- ========== ========== ========== ========== ========== ========== -->
+
+  <h1 id="section-developers">Developers</h1>
+
+
+  <p><i>How do contribute source code fixes, updates, and additions to the project?</i></p>
+
+<p>
+There is an active developer community and a long list of people
+who have made significant <a href="{{ pathto('users/credits') }}">contributions</a>.
+</p>
+
 
 <p>matplotlib is a welcoming, inclusive project, and we try to follow
 the <a href="http://www.python.org/psf/codeofconduct/">Python Software
 Foundation Code of Conduct</a> in everything we do.</p>
+
+
+<h3>Resources</h3>
+
+A good place to start is the <a href="http://matplotlib.org/devel/index.html">developer's guide for matplotlib</a>.
 
 <p>Check the <a href="{{ pathto('faq/index') }}">faq</a>,
 the <a href="{{ pathto('api/index') }}">api</a> docs,
@@ -152,16 +277,7 @@ code</a>.  Anything that could require changes to your existing code
 is logged in the <a href="{{ pathto('api/api_changes.html', 1) }}">api
 changes</a> file.</p>
 
-<h1>Toolkits</h1>
-
-<p>There are several matplotlib add-on <a href="{{ pathto('mpl_toolkits/index') }}">toolkits</a>,
-including a choice of two projection and mapping toolkits <a href="http://matplotlib.org/basemap">basemap</a> and
-<a href="http://scitools.org.uk/cartopy/docs/latest">cartopy</a>,
-3d plotting with <a href="{{ pathto('mpl_toolkits/mplot3d/index') }}">mplot3d</a>,
-axes and axis helpers in <a href="{{ pathto('mpl_toolkits/axes_grid/index') }}">axes_grid</a> and more.
- </p>
-
-<h1>Citing matplotlib</h1>
+<h3>Citing matplotlib</h3>
 
 <p>
   matplotlib is the brainchild of John Hunter (1968-2012), who, along with its many
@@ -173,31 +289,12 @@ axes and axis helpers in <a href="{{ pathto('mpl_toolkits/axes_grid/index') }}">
   <a href="{{ pathto('citing') }}">ready-made citation entry</a>.
 </p>
 
-  <h1>Open source</h1>
-
-<p>
-Please consider <a href="http://sourceforge.net/project/project_donations.php?group_id=80706">donating</a>
-to support matplotlib development or to the <a href="http://numfocus.org/johnhunter/">John Hunter Memorial Fund</a>.
-</p>
-
 <p>
 The matplotlib <a href="{{ pathto('users/license') }}">license</a> is based on the Python Software Foundation
 <a href="http://www.python.org/psf/license">(PSF)</a> license.
 </p>
 
-<p>
-There is an active developer community and a long list of people
-who have made significant <a href="{{ pathto('users/credits') }}">contributions</a>.
-</p>
+<!-- ========== ========== ========== ========== ========== ========== -->
 
-
-<div class="footnote"><p>
-<sup><a name="ftn.matlab" href="#matlab">*</a></sup>
-MATLAB is a registered trademark of The MathWorks, Inc.
-</p>
-<p>
-<sup><a name="ftn.mathematica" href="#mathematica">&#8224;</a></sup>
-Mathematica is a registered trademark of Wolfram Research, Inc.
-</p>
 
 {% endblock %}
