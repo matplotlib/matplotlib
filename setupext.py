@@ -785,10 +785,10 @@ class Numpy(SetupPackage):
         ext.add_hook('include_dirs', self.include_dirs_hook)
 
     def get_setup_requires(self):
-        return ['numpy>=1.5']
+        return ['numpy>=1.6']
 
     def get_install_requires(self):
-        return ['numpy>=1.5']
+        return ['numpy>=1.6']
 
 
 class CXX(SetupPackage):
