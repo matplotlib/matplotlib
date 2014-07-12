@@ -31,5 +31,7 @@ Example usage::
   python setup.py install
 
 
-Note that your environment is somewhat important. Some conda users have found 
-that their PYTHONPATH must include /path/to/anaconda/
+Note that your environment is somewhat important. Some conda users have 
+found that their PYTHONPATH must include 
+/path/to/anaconda/.../site-packages and their DYLD_FALLBACK_LIBRARY_PATH 
+must include /path/to/anaconda/lib.
