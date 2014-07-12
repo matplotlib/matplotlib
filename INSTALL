@@ -19,7 +19,7 @@ The Enthought distribution `(Canopy)
 <https://www.enthought.com/products/canopy/>`_  is also a good a good choice
 for any platform.  Both of these packages include matplotlib and
 *lots* of other useful tools.  matplotlib is also packaged for almost
-every major Linux distribution.  So if you are on Linux, your package
+every major Linux distribution. So if you are on Linux, your package
 manager will probably provide matplotlib prebuilt.
 
 Manually installing pre-built packages
