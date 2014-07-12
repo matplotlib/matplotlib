@@ -204,6 +204,14 @@ original location:
   The use of 0 as an index will raise a warning in 1.4 and an
   exception in 1.5.
 
+* Clipping is now off by default on offset boxes.
+
+* matplotlib now uses a less-aggressive call to ``gc.collect(1)`` when
+  closing figures to avoid major delays with large numbers of user objects
+  in memory.
+
+* The default clip value of *all* pie artists now defaults to ``False``.
+
 
 Code removal
 ------------
