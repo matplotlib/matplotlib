@@ -39,7 +39,7 @@ script:
   # Generate the font caches in a single process before starting the
   # multiple processes
   - python -c "from matplotlib import font_manager"
-  - python ../matplotlib/tests.py -sv --processes=8 --process-timeout=300 $(TEST_ARGS)
+  - python ../matplotlib/tests.py -sv --processes=8 --process-timeout=300 $TEST_ARGS
 
 after_failure:
   - tar cjf result_images.tar.bz2 result_images
