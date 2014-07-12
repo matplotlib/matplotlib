@@ -44,11 +44,11 @@ How to prevent ticklabels from having an offset
 -----------------------------------------------
 The default formatter will use an offset to reduce
 the length of the ticklabels.  To turn this feature
-off::
+off on a per-axis basis::
    ax.get_xaxis().get_major_formatter().set_useOffset(False)
 
-or use a different formatter.  See :mod:`~matplotlib.ticker`
-for details.
+set the rcParam ``axes.formatter.useoffset``, or use a different
+formatter.  See :mod:`~matplotlib.ticker` for details.
 
 .. _howto-transparent:
 
