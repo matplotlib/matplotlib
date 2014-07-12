@@ -450,14 +450,15 @@ class OptionalPackage(SetupPackage):
     force = False
     config_category = "packages"
 
-    def get_config(self):
+    @classmethod
+    def get_config(cls):
         """
         Look at `setup.cfg` and return one of ["auto", True, False] indicating
         if the package is at default state ("auto"), forced by the user (True)
         or opted-out (False).
         """
         try:
-            return config.getboolean(self.config_category, self.name)
+            return config.getboolean(cls.config_category, cls.name)
         except:
             return "auto"
 
@@ -680,6 +681,38 @@ class Tests(OptionalPackage):
         if not sys.version_info >= (3, 3):
             requires += ['mock']
         return requires
+
+class Toolkits_Tests(Tests):
+    name = "toolkits_tests"
+
+    def check_requirements(self):
+        conf = self.get_config()
+        toolkits_conf = Toolkits.get_config()
+        tests_conf = Tests.get_config()
+
+        if conf is True:
+            Tests.force = True
+            Toolkits.force = True
+        elif conf == "auto" and not (toolkits_conf and tests_conf):
+            # Only auto-install if both toolkits and tests are set
+            # to be installed
+            raise CheckFailed("toolkits_tests needs 'toolkits' and 'tests'")
+        return ""
+
+    def get_packages(self):
+        return [
+            'mpl_toolkits.tests',
+            ]
+
+    def get_package_data(self):
+        baseline_images = [
+            'tests/baseline_images/%s/*' % x
+            for x in os.listdir('lib/mpl_toolkits/tests/baseline_images')]
+
+        return {'mpl_toolkits': baseline_images}
+
+    def get_namespace_packages(self):
+        return ['mpl_toolkits']
 
 
 class DelayedExtension(Extension, object):
