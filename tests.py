@@ -10,6 +10,7 @@
 # these options.
 
 import os
+import sys
 import time
 
 import matplotlib
@@ -39,4 +40,11 @@ def run():
               defaultTest=default_test_modules)
 
 if __name__ == '__main__':
+    if '--no-pep8' in sys.argv:
+        default_test_modules.remove('matplotlib.tests.test_coding_standards')
+        sys.argv.remove('--no-pep8')
+    elif '--pep8' in sys.argv:
+        default_test_modules = ['matplotlib.tests.test_coding_standards']
+        sys.argv.remove('--pep8')
+
     run()
