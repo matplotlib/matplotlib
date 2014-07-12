@@ -62,6 +62,8 @@ def check_save_animation(writer, extension='mp4'):
         raise KnownFailureTest("There can be errors in the numpy " +
                                "import stack, " +
                                "see issues #1891 and #2679")
+    finally:
+        F.close()
 
 
 @cleanup
