@@ -1002,6 +1002,13 @@ class FuncAnimation(TimedAnimation):
 
     If blit=True, *func* and *init_func* should return an iterable of
     drawables to clear.
+
+    *kwargs* include *repeat*, *repeat_delay*, and *interval*:
+    *interval* draws a new frame every *interval* milliseconds.
+    *repeat* controls whether the animation should repeat when the sequence
+    of frames is completed.
+    *repeat_delay* optionally adds a delay in milliseconds before repeating
+    the animation.
     '''
     def __init__(self, fig, func, frames=None, init_func=None, fargs=None,
                  save_count=None, **kwargs):
