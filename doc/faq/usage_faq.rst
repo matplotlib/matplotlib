@@ -55,7 +55,7 @@ Parts of a Figure
 :class:`~matplotlib.figure.Figure`
 ----------------------------------
 
-The _whole_ figure (marked as the outer red box).  The figure keeps
+The **whole** figure (marked as the outer red box).  The figure keeps
 track of all the child :class:`~matplotlib.axes.Axes`, a smattering of
 'special' artists (titles, figure legends, etc), and the **canvas**.
 (Don't worry too much about the canvas, it is crucial as it is the
@@ -81,12 +81,12 @@ axes contains two (or three in the case of 3D)
 :class:`~matplotlib.axis.Axis` objects (be aware of the difference
 between **Axes** and **Axis**) which take care of the data limits (the
 data limits can also be controlled via set via the
-:func:`~matplotlib.axes.Axes.set_xlim` and
-:func:`~matplotlib.axes.Axes.set_ylim` :class:`Axes` methods).  Each
+:meth:`~matplotlib.axes.Axes.set_xlim` and
+:meth:`~matplotlib.axes.Axes.set_ylim` :class:`Axes` methods).  Each
 :class:`Axes` has a title (set via
-:func:`~matplotlib.axes.Axes.set_title`), an x-label (set via
-:func:`~matplotlib.axes.Axes.set_xlabel`), and a y-label set via
-:func:`~matplotlib.axes.Axes.set_ylabel`).
+:meth:`~matplotlib.axes.Axes.set_title`), an x-label (set via
+:meth:`~matplotlib.axes.Axes.set_xlabel`), and a y-label set via
+:meth:`~matplotlib.axes.Axes.set_ylabel`).
 
 The :class:`Axes` class and it's member functions are the primary entry
 point to working with the OO interface.
