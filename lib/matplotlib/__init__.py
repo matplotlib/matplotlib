@@ -403,6 +403,7 @@ def checkdep_inkscape():
         for line in lines:
             if 'Inkscape' in line:
                 v = line.split()[1]
+                break
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
         return None
@@ -416,6 +417,7 @@ def checkdep_xmllint():
         for line in lines:
             if 'version' in line:
                 v = line.split()[-1]
+                break
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
         return None
