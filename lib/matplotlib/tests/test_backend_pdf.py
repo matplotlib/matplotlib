@@ -66,10 +66,9 @@ def test_multipage_keep_empty():
         assert os.path.exists(filename)
     os.remove(filename)
     # test if an empty pdf is deleting itself afterwards with keep_empty=False
-    with NamedTemporaryFile(delete=False) as tmp:
-        with PdfPages(tmp, keep_empty=False) as pdf:
-            filename = pdf._file.fh.name
-        assert not os.path.exists(filename)
+    with PdfPages(filename, keep_empty=False) as pdf:
+        pass
+    assert not os.path.exists(filename)
     ### test pdf files with content, they should never be deleted
     fig = plt.figure()
     ax = fig.add_subplot(111)
