@@ -386,9 +386,10 @@ def checkdep_pdftops():
         s = subprocess.Popen(['pdftops','-v'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         stdout, stderr = s.communicate()
-        if b'version' in stderr:
-            line = stderr.decode('ascii').split('\n')[0]
-            v = line.split()[-1]
+        lines = stderr.decode('ascii').split('\n')
+        for line in lines:
+            if 'version' in line:
+                v = line.split()[-1]
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
         return None
@@ -398,8 +399,10 @@ def checkdep_inkscape():
         s = subprocess.Popen(['inkscape','-V'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         stdout, stderr = s.communicate()
-        if b'Inkscape' in stdout:
-            v = stdout.split()[1].decode('ascii')
+        lines = stdout.decode('ascii').split('\n')
+        for line in lines:
+            if 'Inkscape' in line:
+                v = line.split()[1]
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
         return None
@@ -409,9 +412,10 @@ def checkdep_xmllint():
         s = subprocess.Popen(['xmllint','--version'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         stdout, stderr = s.communicate()
-        if b'version' in stderr:
-            line = stderr.decode('ascii').split('\n')[0]
-            v = line.split()[-1]
+        lines = stderr.decode('ascii').split('\n')
+        for line in lines:
+            if 'version' in line:
+                v = line.split()[-1]
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
         return None
