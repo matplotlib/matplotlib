@@ -35,7 +35,7 @@ Style
   rules are acceptable if it makes the code objectively more readable.
 
   - You should consider installing/enabling automatic PEP8 checking in your
-    editor.  Part of the test suite in checking PEP8 compliance, things
+    editor.  Part of the test suite is checking PEP8 compliance, things
     go smoother if the code is mostly PEP8 compliant to begin with.
 
 * No tabs (only spaces).  No trailing whitespace.
