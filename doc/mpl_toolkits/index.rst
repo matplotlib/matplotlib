@@ -120,7 +120,7 @@ toolkit written by Joe Kington to provide interactive "data cursors"
 
 prettyplotlib
 =============
-`prettyplotlib <olgabot.github.io/prettyplotlib>`_ is an extension
+`prettyplotlib <https://olgabot.github.io/prettyplotlib>`_ is an extension
 to matplotlib which changes many of the defaults to make plots some
 consider more attractive.
 
@@ -138,7 +138,7 @@ seaborn
 =======
 (*Not distributed with matplotlib*)
 
-`seaborn <www.stanford.edu/~mwaskom/software/seaborn/>`_ is a high
+`seaborn <http://web.stanford.edu/~mwaskom/software/seaborn>`_ is a high
 level interface for drawing statistical graphics with matplotlib. It
 aims to make visualization a central part of exploring and
 understanding complex datasets.
@@ -149,5 +149,5 @@ ggplot
 ======
 (*Not distributed with matplotlib*)
 
-`ggplot <https://github.com/yhat/ggplot/>`_ is a port of the R ggplot2
+`ggplot <https://github.com/yhat/ggplot>`_ is a port of the R ggplot2
 to python based on matplotlib.
