@@ -48,47 +48,48 @@ completely, leaving a purely object-oriented approach.
 
 .. _pylab:
 
-Matplotlib, pylab, and pyplot: how are they related?
+Matplotlib, pyplot and pylab: how are they related?
 ====================================================
 
-Matplotlib is the whole package; :mod:`pylab` is a module in matplotlib
-that gets installed alongside :mod:`matplotlib`; and :mod:`matplotlib.pyplot`
-is a module in matplotlib.
+Matplotlib is the whole package; :mod:`matplotlib.pyplot`
+is a module in matplotlib; and :mod:`pylab` is a module
+that gets installed alongside :mod:`matplotlib`.
 
-Pyplot provides the state-machine interface to the underlying OO plotting
-library in matplotlib. This means that figures and axes are implicitly
-and automatically created to achieve the desired plot. For example,
-calling ``plot`` from pyplot will automatically create the necessary
-figure and axes to achieve the desired plot. Setting a title will
-then automatically set that title to the current axes object::
+Pyplot provides the state-machine interface to the underlying
+object-oriented plotting library.  The state-machine implicitly and
+automatically creates figures and axes to achieve the desired
+plot. For example::
 
 
-    .. sourcecode:: ipython
+      import matplotlib.pyplot as plt
+      import numpy as np
 
-      In [14]: %matplotlib
-      Using matplotlib backend: Qt4Agg
+      x = np.linspace(0, 2, 100)
 
-      In [15]: import matplotlib.pyplot as plt
+      plt.plot(x, x, label='linear')
+      plt.plot(x, x**2, label='quadratic')
+      plt.plot(x, x**3, label='cubic')
 
-      In [16]: plt.plot(range(10), range(10))
-      Out[16]: [<matplotlib.lines.Line2D at 0x7fdfef9be1d0>]
+      plt.xlabel('x label')
+      plt.ylabel('y label')
 
-      In [17]: plt.title("Simple Plot")
-      Out[17]: <matplotlib.text.Text at 0x7fdfee53d0d0>
+      plt.title("Simple Plot")
 
-This is very convenient for interactive use, however
-because the commands have side-effects (altering the global state)
-using many :mod:`matplotlib.pyplot` commands in scripts or functions
-can lead to unexpected and difficult to track down bugs.
+      plt.legend()
 
-Pylab is a convenience module that imports pyplot (for plotting) and
-numpy functionality (for mathematics and for working with arrays) in a
-single namespace.  You can than bulk import from pylab to get an even
-more MATLAB-like environment.  This seems convenient for interactive
-calculations and plotting, as it (barely) minimizes typing, however it
-is not recommended as it clobbers your namespace.  As with :mod:`pyplot`,
-it is not recommended to use :mod:`pylab` in scripts and bulk importing
-:mod:`pylab` in scripts is discouraged as with all bulk importing.
+      plt.show()
+
+The first call to ``plt.plot`` will automatically create the necessary
+figure and axes to achieve the desired plot.  Subsequent calls to
+``plt.plot`` re-use the current axes and each add another line.
+Setting the title, legend, and axis labels also automatically use the
+current axes and set the title, create the legend, and label the axis
+respectively.
+
+:mod:`pylab` is a convenience module that bulk imports
+:mod:`matplotlib.pyplot` (for plotting) and :mod:`numpy`
+(for mathematics and working with arrays) in a single name space.
+Although many examples use :mod:`pylab`, it is no longer recommended.
 
 For non-interactive plotting it is suggested
 to use pyplot to create the figures and then the OO interface for
@@ -112,7 +113,7 @@ The only caveat is to avoid mixing the coding styles for your own code.
 Of the different styles, there are two that are officially supported.
 Therefore, these are the preferred ways to use matplotlib.
 
-For the preferred pyplot style, the imports at the top of your
+For the pyplot style, the imports at the top of your
 scripts will typically be::
 
     import matplotlib.pyplot as plt
