@@ -144,7 +144,7 @@ Eric Firing
 
 Daishi Harada
   added support for "Dashed Text".  See `dashpointlabel.py
-  <../examples/pylab_examples/dashpointlabel.py>`_ and
+  <../examples/pylab_examples/dashpointlabel.html>`_ and
   :class:`~matplotlib.text.TextWithDash`.
 
 Nicolas Young
