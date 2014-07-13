@@ -4,7 +4,7 @@ different types of zlib, png and freetype that may be on your system.
 For developers who want to build matplotlib from source, the recommended and 
 supported way to build is to use a third-party package manager to install the 
 required dependencies, and then install matplotlib from source using the 
-setup.py script. Three widely used package managers are homebrew, and 
+setup.py script. Two widely used package managers are homebrew, and 
 MacPorts. The following example illustrates how to install libpng and freetype 
 using brew:
 
