@@ -238,6 +238,7 @@ def plot_directive(name, arguments, options, content, lineno,
     return run(arguments, content, options, state_machine, state, lineno)
 plot_directive.__doc__ = __doc__
 
+
 def _option_boolean(arg):
     if not arg or not arg.strip():
         # no argument given, assume used as a flag
@@ -265,6 +266,7 @@ def _option_format(arg):
 def _option_align(arg):
     return directives.choice(arg, ("top", "middle", "bottom", "left", "center",
                                    "right"))
+
 
 def mark_plot_labels(app, document):
     """
@@ -295,6 +297,7 @@ def mark_plot_labels(app, document):
                     document.settings.env.labels[name] = \
                         document.settings.env.docname, labelid, sectname
                     break
+
 
 def setup(app):
     setup.app = app
@@ -343,6 +346,7 @@ def contains_doctest(text):
     m = r.search(text)
     return bool(m)
 
+
 def unescape_doctest(text):
     """
     Extract code from a piece of text, which contains either Python code
@@ -362,6 +366,7 @@ def unescape_doctest(text):
         else:
             code += "\n"
     return code
+
 
 def split_code_at_show(text):
     """
@@ -384,6 +389,7 @@ def split_code_at_show(text):
     if "\n".join(part).strip():
         parts.append("\n".join(part))
     return parts
+
 
 def remove_coding(text):
     """
@@ -479,6 +485,7 @@ class ImageFile(object):
     def filenames(self):
         return [self.filename(fmt) for fmt in self.formats]
 
+
 def out_of_date(original, derived):
     """
     Returns True if derivative is out-of-date wrt original,
@@ -488,8 +495,10 @@ def out_of_date(original, derived):
             (os.path.exists(original) and
              os.stat(derived).st_mtime < os.stat(original).st_mtime))
 
+
 class PlotError(RuntimeError):
     pass
+
 
 def run_code(code, code_path, ns=None, function_name=None):
     """
@@ -564,11 +573,13 @@ def run_code(code, code_path, ns=None, function_name=None):
         sys.stdout = stdout
     return ns
 
+
 def clear_state(plot_rcparams, close=True):
     if close:
         plt.close('all')
     matplotlib.rc_file_defaults()
     matplotlib.rcParams.update(plot_rcparams)
+
 
 def render_figures(code, code_path, output_dir, output_base, context,
                    function_name, config, context_reset=False):
@@ -680,6 +691,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
         clear_state(config.plot_rcparams, close=not context)
 
     return results
+
 
 def run(arguments, content, options, state_machine, state, lineno):
     # The user may provide a filename *or* Python code content, but not both
