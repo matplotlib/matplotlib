@@ -92,7 +92,7 @@ The plot directive has the following configuration options:
     plot_basedir
         Base directory, to which ``plot::`` file names are relative
         to.  (If None or empty, file names are relative to the
-        directoly where the file containing the directive is.)
+        directory where the file containing the directive is.)
 
     plot_formats
         File formats to generate. List of tuples or strings::
@@ -111,7 +111,7 @@ The plot directive has the following configuration options:
 
     plot_apply_rcparams
         By default, rcParams are applied when `context` option is not used in
-        a plot  directive.  This configuration option overrides this behaviour
+        a plot directive.  This configuration option overrides this behavior
         and applies rcParams before each plot.
 
     plot_working_directory
@@ -123,9 +123,7 @@ The plot directive has the following configuration options:
         helper modules for all code are located.
 
     plot_template
-        Provide a customized template for preparing resturctured text.
-
-
+        Provide a customized template for preparing restructured text.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
