@@ -133,14 +133,13 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange
 
-import sys, os, glob, shutil, imp, warnings, io, re, textwrap
+import sys, os, shutil, io, re, textwrap
 import traceback
 
 if not six.PY3:
     import cStringIO
 
 from docutils.parsers.rst import directives
-from docutils import nodes
 from docutils.parsers.rst.directives.images import Image
 align = Image.align
 import sphinx
