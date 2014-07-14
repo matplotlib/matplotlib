@@ -346,9 +346,9 @@ TEMPLATE = """
 
 {{ only_html }}
 
-   {% if (source_link and html_show_source_link) or (html_show_formats and not multi_image) %}
+   {% if source_link or (html_show_formats and not multi_image) %}
    (
-   {%- if source_link and html_show_source_link -%}
+   {%- if source_link -%}
    `Source code <{{ source_link }}>`__
    {%- endif -%}
    {%- if html_show_formats and not multi_image -%}
@@ -768,7 +768,9 @@ def run(arguments, content, options, state_machine, state, lineno):
         only_latex = ".. only:: latex"
         only_texinfo = ".. only:: texinfo"
 
-        if j == 0:
+        # Not-None src_link signals the need for a source link in the generated
+        # html
+        if j == 0 and config.plot_html_show_source_link:
             src_link = source_link
         else:
             src_link = None
@@ -778,7 +780,6 @@ def run(arguments, content, options, state_machine, state, lineno):
             dest_dir=dest_dir_link,
             build_dir=build_dir_link,
             source_link=src_link,
-            html_show_source_link=config.plot_html_show_source_link,
             multi_image=len(images) > 1,
             only_html=only_html,
             only_latex=only_latex,
@@ -786,7 +787,7 @@ def run(arguments, content, options, state_machine, state, lineno):
             options=opts,
             images=images,
             source_code=source_code,
-            html_show_formats=config.plot_html_show_formats,
+            html_show_formats=config.plot_html_show_formats and not nofigs,
             caption=caption)
 
         total_lines.extend(result.split("\n"))
