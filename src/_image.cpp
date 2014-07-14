@@ -1264,7 +1264,7 @@ _image_module::frombuffer(const Py::Tuple& args)
 
     args.verify_length(4);
 
-    PyObject *bufin = new_reference_to(args[0]);
+    PyObject *bufin = args[0].ptr();
     size_t x = (long)Py::Int(args[1]);
     size_t y = (long)Py::Int(args[2]);
 
