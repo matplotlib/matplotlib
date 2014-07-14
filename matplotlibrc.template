@@ -483,3 +483,6 @@ backend      : %(backend)s
                                    # Path to mencoder binary. Without full path
                                    # $PATH is searched
 #animation.mencoder_args: ''       # Additional arguments to pass to mencoder
+#animation.convert_path: 'convert' # Path to ImageMagick's convert binary.
+                                   # On Windows use the full path since convert 
+                                   # is also the name of a system tool.
