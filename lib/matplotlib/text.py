@@ -18,6 +18,7 @@ import matplotlib.artist as artist
 from matplotlib.artist import Artist
 from matplotlib.cbook import is_string_like, maxdict
 from matplotlib import docstring
+from matplotlib import colors
 from matplotlib.font_manager import FontProperties
 from matplotlib.patches import bbox_artist, YAArrow, FancyBboxPatch
 from matplotlib.patches import FancyArrowPatch, Rectangle
@@ -551,7 +552,7 @@ class Text(Artist):
             self._draw_bbox(renderer, posx, posy)
 
         gc = renderer.new_gc()
-        gc.set_foreground(self.get_color())
+        gc.set_foreground(self.get_color(), isRGBA=True)
         gc.set_alpha(self.get_alpha())
         gc.set_url(self._url)
         self._set_gc_clip(gc)
@@ -768,12 +769,7 @@ class Text(Artist):
 
         ACCEPTS: any matplotlib color
         """
-        # Make sure it is hashable, or get_prop_tup will fail.
-        try:
-            hash(color)
-        except TypeError:
-            color = tuple(color)
-        self._color = color
+        self._color = colors.colorConverter.to_rgba(color)
 
     def set_ha(self, align):
         'alias for set_horizontalalignment'

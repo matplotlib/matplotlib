@@ -280,7 +280,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._linestyles == [(None, None)] and
             len(self._antialiaseds) == 1 and len(self._urls) == 1 and
             self.get_hatch() is None):
-            gc.set_foreground(tuple(edgecolors[0]))
+            gc.set_foreground(tuple(edgecolors[0]), isRGBA=True)
             gc.set_linewidth(self._linewidths[0])
             gc.set_linestyle(self._linestyles[0])
             gc.set_antialiased(self._antialiaseds[0])

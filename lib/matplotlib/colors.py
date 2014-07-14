@@ -330,6 +330,11 @@ class ColorConverter(object):
             # for the user to figure out as-is.
         return color
 
+    def override_alpha(self, rgba, alpha):
+        if alpha == None:
+            return rgba
+        return tuple(rgba[:3] + (alpha,))
+
     def to_rgba(self, arg, alpha=None):
         """
         Returns an *RGBA* tuple of four floats from 0-1.
