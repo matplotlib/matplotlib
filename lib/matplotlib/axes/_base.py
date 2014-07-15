@@ -80,27 +80,21 @@ def _process_plot_format(fmt):
     except ValueError:
         pass  # No, not just a color.
 
-    # handle the multi char special cases and strip them from the
-    # string
-    if fmt.find('--') >= 0:
-        linestyle = '--'
-        fmt = fmt.replace('--', '')
-    if fmt.find('-.') >= 0:
-        linestyle = '-.'
-        fmt = fmt.replace('-.', '')
-    if fmt.find(' ') >= 0:
-        linestyle = 'None'
-        fmt = fmt.replace(' ', '')
+    for ls in sorted(mlines.lineStyles, key=len):
+        if fmt.find(ls) >= 0:
+            linestyle = ls
+            fmt = fmt.replace(ls, '')
+            break
 
     chars = [c for c in fmt]
 
     for c in chars:
-        if c in mlines.lineStyles:
-            if linestyle is not None:
-                raise ValueError(
-                    'Illegal format string "%s"; two linestyle symbols' % fmt)
-            linestyle = c
-        elif c in mlines.lineMarkers:
+    #    if c in mlines.lineStyles:
+    #        if linestyle is not None:
+    #            raise ValueError(
+    #                'Illegal format string "%s"; two linestyle symbols' % fmt)
+    #        linestyle = c
+        if c in mlines.lineMarkers:
             if marker is not None:
                 raise ValueError(
                     'Illegal format string "%s"; two marker symbols' % fmt)
