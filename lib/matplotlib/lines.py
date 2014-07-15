@@ -16,7 +16,7 @@ from numpy import ma
 from matplotlib import verbose
 from . import artist
 from .artist import Artist
-from .cbook import iterable, is_string_like, is_numlike, ls_mapper
+from .cbook import iterable, is_string_like, is_numlike, ls_mapperr
 from .colors import colorConverter
 from .path import Path
 from .transforms import Bbox, TransformedPath, IdentityTransform
@@ -946,6 +946,13 @@ class Line2D(Artist):
 
         and any drawstyle in combination with a linestyle, e.g., ``'steps--'``.
         """
+        if not is_string_like(linestyle):
+            if len(linestyle) != 2:
+                raise ValueError()
+
+            self.set_dashes(linestyle[1])
+            self._linestyle = "--"
+            return
 
         for ds in self.drawStyleKeys:  # long names are first in the list
             if linestyle.startswith(ds):
@@ -957,8 +964,8 @@ class Line2D(Artist):
                 break
 
         if linestyle not in self._lineStyles:
-            if linestyle in ls_mapper:
-                linestyle = ls_mapper[linestyle]
+            if linestyle in ls_mapperr:
+                linestyle = ls_mapperr[linestyle]
             else:
                 verbose.report('Unrecognized line style %s, %s' %
                                (linestyle, type(linestyle)))

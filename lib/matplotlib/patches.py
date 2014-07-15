@@ -343,6 +343,8 @@ class Patch(artist.Artist):
         """
         if ls is None:
             ls = "solid"
+
+        ls = cbook.ls_mapper.get(ls, ls)
         self._linestyle = ls
 
     def set_ls(self, ls):
