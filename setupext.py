@@ -1711,9 +1711,6 @@ class BackendGtk3Agg(OptionalBackendPackage):
         if 'TRAVIS' in os.environ:
             raise CheckFailed("Can't build with Travis")
 
-        if PY3:
-            raise CheckFailed("gtk3agg backend does not work on Python 3")
-
         # This check needs to be performed out-of-process, because
         # importing gi and then importing regular old pygtk afterward
         # segfaults the interpreter.
