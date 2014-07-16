@@ -19,7 +19,7 @@ are both excellent choices that "just work" out of the box for any
 platform.  Both of these packages include matplotlib and
 *lots* of other useful tools.
 Another excellent alternative for Windows users is `Python (x, y)
-<http://www.pythonxy.com/>`_ . matplotlib is also packaged for almost
+<https://code.google.com/p/pythonxy>`_ . matplotlib is also packaged for almost
 every major Linux distribution. So if you are on Linux, your package
 manager will probably provide matplotlib prebuilt.
 
