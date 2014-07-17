@@ -92,7 +92,7 @@ The plot directive has the following configuration options:
     plot_basedir
         Base directory, to which ``plot::`` file names are relative
         to.  (If None or empty, file names are relative to the
-        directoly where the file containing the directive is.)
+        directory where the file containing the directive is.)
 
     plot_formats
         File formats to generate. List of tuples or strings::
@@ -111,7 +111,7 @@ The plot directive has the following configuration options:
 
     plot_apply_rcparams
         By default, rcParams are applied when `context` option is not used in
-        a plot  directive.  This configuration option overrides this behaviour
+        a plot directive.  This configuration option overrides this behavior
         and applies rcParams before each plot.
 
     plot_working_directory
@@ -123,9 +123,7 @@ The plot directive has the following configuration options:
         helper modules for all code are located.
 
     plot_template
-        Provide a customized template for preparing resturctured text.
-
-
+        Provide a customized template for preparing restructured text.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -133,14 +131,14 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange
 
-import sys, os, glob, shutil, imp, warnings, io, re, textwrap
+import sys, os, shutil, io, re, textwrap
+from os.path import relpath
 import traceback
 
 if not six.PY3:
     import cStringIO
 
 from docutils.parsers.rst import directives
-from docutils import nodes
 from docutils.parsers.rst.directives.images import Image
 align = Image.align
 import sphinx
@@ -170,67 +168,6 @@ from matplotlib import _pylab_helpers
 __version__ = 2
 
 #------------------------------------------------------------------------------
-# Relative pathnames
-#------------------------------------------------------------------------------
-
-# os.path.relpath is new in Python 2.6
-try:
-    from os.path import relpath
-except ImportError:
-    # Copied from Python 2.7
-    if 'posix' in sys.builtin_module_names:
-        def relpath(path, start=os.path.curdir):
-            """Return a relative version of a path"""
-            from os.path import sep, curdir, join, abspath, commonprefix, \
-                 pardir
-
-            if not path:
-                raise ValueError("no path specified")
-
-            start_list = abspath(start).split(sep)
-            path_list = abspath(path).split(sep)
-
-            # Work out how much of the filepath is shared by start and path.
-            i = len(commonprefix([start_list, path_list]))
-
-            rel_list = [pardir] * (len(start_list)-i) + path_list[i:]
-            if not rel_list:
-                return curdir
-            return join(*rel_list)
-    elif 'nt' in sys.builtin_module_names:
-        def relpath(path, start=os.path.curdir):
-            """Return a relative version of a path"""
-            from os.path import sep, curdir, join, abspath, commonprefix, \
-                 pardir, splitunc
-
-            if not path:
-                raise ValueError("no path specified")
-            start_list = abspath(start).split(sep)
-            path_list = abspath(path).split(sep)
-            if start_list[0].lower() != path_list[0].lower():
-                unc_path, rest = splitunc(path)
-                unc_start, rest = splitunc(start)
-                if bool(unc_path) ^ bool(unc_start):
-                    raise ValueError("Cannot mix UNC and non-UNC paths (%s and %s)"
-                                                                        % (path, start))
-                else:
-                    raise ValueError("path is on drive %s, start on drive %s"
-                                                        % (path_list[0], start_list[0]))
-            # Work out how much of the filepath is shared by start and path.
-            for i in range(min(len(start_list), len(path_list))):
-                if start_list[i].lower() != path_list[i].lower():
-                    break
-            else:
-                i += 1
-
-            rel_list = [pardir] * (len(start_list)-i) + path_list[i:]
-            if not rel_list:
-                return curdir
-            return join(*rel_list)
-    else:
-        raise RuntimeError("Unsupported platform (no relpath available!)")
-
-#------------------------------------------------------------------------------
 # Registration hook
 #------------------------------------------------------------------------------
 
@@ -238,6 +175,7 @@ def plot_directive(name, arguments, options, content, lineno,
                    content_offset, block_text, state, state_machine):
     return run(arguments, content, options, state_machine, state, lineno)
 plot_directive.__doc__ = __doc__
+
 
 def _option_boolean(arg):
     if not arg or not arg.strip():
@@ -266,6 +204,7 @@ def _option_format(arg):
 def _option_align(arg):
     return directives.choice(arg, ("top", "middle", "bottom", "left", "center",
                                    "right"))
+
 
 def mark_plot_labels(app, document):
     """
@@ -296,6 +235,7 @@ def mark_plot_labels(app, document):
                     document.settings.env.labels[name] = \
                         document.settings.env.docname, labelid, sectname
                     break
+
 
 def setup(app):
     setup.app = app
@@ -344,6 +284,7 @@ def contains_doctest(text):
     m = r.search(text)
     return bool(m)
 
+
 def unescape_doctest(text):
     """
     Extract code from a piece of text, which contains either Python code
@@ -363,6 +304,7 @@ def unescape_doctest(text):
         else:
             code += "\n"
     return code
+
 
 def split_code_at_show(text):
     """
@@ -386,6 +328,7 @@ def split_code_at_show(text):
         parts.append("\n".join(part))
     return parts
 
+
 def remove_coding(text):
     """
     Remove the coding comment, which six.exec_ doesn't like.
@@ -403,9 +346,9 @@ TEMPLATE = """
 
 {{ only_html }}
 
-   {% if (source_link and html_show_source_link) or (html_show_formats and not multi_image) %}
+   {% if source_link or (html_show_formats and not multi_image) %}
    (
-   {%- if source_link and html_show_source_link -%}
+   {%- if source_link -%}
    `Source code <{{ source_link }}>`__
    {%- endif -%}
    {%- if html_show_formats and not multi_image -%}
@@ -480,6 +423,7 @@ class ImageFile(object):
     def filenames(self):
         return [self.filename(fmt) for fmt in self.formats]
 
+
 def out_of_date(original, derived):
     """
     Returns True if derivative is out-of-date wrt original,
@@ -489,8 +433,10 @@ def out_of_date(original, derived):
             (os.path.exists(original) and
              os.stat(derived).st_mtime < os.stat(original).st_mtime))
 
+
 class PlotError(RuntimeError):
     pass
+
 
 def run_code(code, code_path, ns=None, function_name=None):
     """
@@ -565,11 +511,13 @@ def run_code(code, code_path, ns=None, function_name=None):
         sys.stdout = stdout
     return ns
 
+
 def clear_state(plot_rcparams, close=True):
     if close:
         plt.close('all')
     matplotlib.rc_file_defaults()
     matplotlib.rcParams.update(plot_rcparams)
+
 
 def render_figures(code, code_path, output_dir, output_base, context,
                    function_name, config, context_reset=False):
@@ -681,6 +629,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
         clear_state(config.plot_rcparams, close=not context)
 
     return results
+
 
 def run(arguments, content, options, state_machine, state, lineno):
     # The user may provide a filename *or* Python code content, but not both
@@ -819,7 +768,9 @@ def run(arguments, content, options, state_machine, state, lineno):
         only_latex = ".. only:: latex"
         only_texinfo = ".. only:: texinfo"
 
-        if j == 0:
+        # Not-None src_link signals the need for a source link in the generated
+        # html
+        if j == 0 and config.plot_html_show_source_link:
             src_link = source_link
         else:
             src_link = None
@@ -829,7 +780,6 @@ def run(arguments, content, options, state_machine, state, lineno):
             dest_dir=dest_dir_link,
             build_dir=build_dir_link,
             source_link=src_link,
-            html_show_source_link=config.plot_html_show_source_link,
             multi_image=len(images) > 1,
             only_html=only_html,
             only_latex=only_latex,
@@ -837,7 +787,7 @@ def run(arguments, content, options, state_machine, state, lineno):
             options=opts,
             images=images,
             source_code=source_code,
-            html_show_formats=config.plot_html_show_formats,
+            html_show_formats=config.plot_html_show_formats and not nofigs,
             caption=caption)
 
         total_lines.extend(result.split("\n"))
