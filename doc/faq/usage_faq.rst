@@ -48,38 +48,52 @@ completely, leaving a purely object-oriented approach.
 
 .. _pylab:
 
-Matplotlib, pylab, and pyplot: how are they related?
+Matplotlib, pyplot and pylab: how are they related?
 ====================================================
 
-Matplotlib is the whole package; :mod:`pylab` is a module in matplotlib
-that gets installed alongside :mod:`matplotlib`; and :mod:`matplotlib.pyplot`
-is a module in matplotlib.
+Matplotlib is the whole package; :mod:`matplotlib.pyplot`
+is a module in matplotlib; and :mod:`pylab` is a module
+that gets installed alongside :mod:`matplotlib`.
 
-Pyplot provides the state-machine interface to the underlying plotting
-library in matplotlib. This means that figures and axes are implicitly
-and automatically created to achieve the desired plot. For example,
-calling ``plot`` from pyplot will automatically create the necessary
-figure and axes to achieve the desired plot. Setting a title will
-then automatically set that title to the current axes object::
+Pyplot provides the state-machine interface to the underlying
+object-oriented plotting library.  The state-machine implicitly and
+automatically creates figures and axes to achieve the desired
+plot. For example::
 
-    import matplotlib.pyplot as plt
 
-    plt.plot(range(10), range(10))
-    plt.title("Simple Plot")
-    plt.show()
+      import matplotlib.pyplot as plt
+      import numpy as np
 
-Pylab combines the pyplot functionality (for plotting) with the numpy
-functionality (for mathematics and for working with arrays)
-in a single namespace, making that namespace
-(or environment) even more MATLAB-like.
-For example, one can call the `sin` and `cos` functions just like
-you could in MATLAB, as well as having all the features of pyplot.
+      x = np.linspace(0, 2, 100)
 
-The pyplot interface is generally preferred for non-interactive plotting
-(i.e., scripting). The pylab interface is convenient for interactive
-calculations and plotting, as it minimizes typing. Note that this is
-what you get if you use the *ipython* shell with the *-pylab* option,
-which imports everything from pylab and makes plotting fully interactive.
+      plt.plot(x, x, label='linear')
+      plt.plot(x, x**2, label='quadratic')
+      plt.plot(x, x**3, label='cubic')
+
+      plt.xlabel('x label')
+      plt.ylabel('y label')
+
+      plt.title("Simple Plot")
+
+      plt.legend()
+
+      plt.show()
+
+The first call to ``plt.plot`` will automatically create the necessary
+figure and axes to achieve the desired plot.  Subsequent calls to
+``plt.plot`` re-use the current axes and each add another line.
+Setting the title, legend, and axis labels also automatically use the
+current axes and set the title, create the legend, and label the axis
+respectively.
+
+:mod:`pylab` is a convenience module that bulk imports
+:mod:`matplotlib.pyplot` (for plotting) and :mod:`numpy`
+(for mathematics and working with arrays) in a single name space.
+Although many examples use :mod:`pylab`, it is no longer recommended.
+
+For non-interactive plotting it is suggested
+to use pyplot to create the figures and then the OO interface for
+plotting.
 
 .. _coding_styles:
 
@@ -99,25 +113,14 @@ The only caveat is to avoid mixing the coding styles for your own code.
 Of the different styles, there are two that are officially supported.
 Therefore, these are the preferred ways to use matplotlib.
 
-For the preferred pyplot style, the imports at the top of your
+For the pyplot style, the imports at the top of your
 scripts will typically be::
 
     import matplotlib.pyplot as plt
     import numpy as np
 
 Then one calls, for example, np.arange, np.zeros, np.pi, plt.figure,
-plt.plot, plt.show, etc. So, a simple example in this style would be::
-
-    import matplotlib.pyplot as plt
-    import numpy as np
-    x = np.arange(0, 10, 0.2)
-    y = np.sin(x)
-    plt.plot(x, y)
-    plt.show()
-
-Note that this example used pyplot's state-machine to
-automatically and implicitly create a figure and an axes. For full
-control of your plots and more advanced usage, use the pyplot interface
+plt.plot, plt.show, etc.  Use the pyplot interface
 for creating figures, and then use the object methods for the rest::
 
     import matplotlib.pyplot as plt
@@ -129,22 +132,59 @@ for creating figures, and then use the object methods for the rest::
     ax.plot(x, y)
     plt.show()
 
-Next, the same example using a pure MATLAB-style::
+So, why all the extra typing instead of the MATLAB-style (which relies
+on global state and a flat namespace)?  For very simple things like
+this example, the only advantage is academic: the wordier styles are
+more explicit, more clear as to where things come from and what is
+going on.  For more complicated applications, this explicitness and
+clarity becomes increasingly valuable, and the richer and more
+complete object-oriented interface will likely make the program easier
+to write and maintain.
 
-    from pylab import *
-    x = arange(0, 10, 0.2)
-    y = sin(x)
-    plot(x, y)
-    show()
+Typically one finds oneself making the same plots over and over
+again, but with different data sets, which leads to needing to write
+specialized functions to do the plotting.  The recommended function
+signature is something like: ::
 
+    def my_plotter(ax, data1, data2, param_dict):
+        """
+        A helper function to make a graph
 
-So, why all the extra typing as one moves away from the pure
-MATLAB-style?  For very simple things like this example, the only
-advantage is academic: the wordier styles are more explicit, more
-clear as to where things come from and what is going on.  For more
-complicated applications, this explicitness and clarity becomes
-increasingly valuable, and the richer and more complete object-oriented
-interface will likely make the program easier to write and maintain.
+        Parameters
+        ----------
+        ax : Axes
+            The axes to draw to
+
+        data1 : array
+           The x data
+
+        data2 : array
+           The y data
+
+        param_dict : dict
+           Dictionary of kwargs to pass to ax.plot
+
+        Returns
+        -------
+        out : list
+            list of artists added
+        """
+        out = ax.plot(data1, data2, **param_dict)
+        return out
+
+which you would then use as::
+
+    fig, ax = plt.subplots(1, 1)
+    my_plotter(ax, data1, data2, {'marker':'x'})
+
+or if you wanted to have 2 sub-plots::
+
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    my_plotter(ax1, data1, data2, {'marker':'x'})
+    my_plotter(ax2, data3, data4, {'marker':'o'})
+
+Again, for these simple examples this style seems like overkill, however
+once the graphs get slightly more complex it pays off.
 
 .. _what-is-a-backend:
 
