@@ -985,6 +985,10 @@ FT2Font::~FT2Font()
     {
         FT_Done_Glyph(glyphs[i]);
     }
+
+    if (stream.descriptor.pointer != NULL) {
+        PyMem_Free(stream.descriptor.pointer);
+    }
 }
 
 int

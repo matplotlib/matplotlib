@@ -145,13 +145,6 @@ def html():
     if os.system('sphinx-build %s -b html -d build/doctrees . build/html' % options):
         raise SystemExit("Building HTML failed.")
 
-    figures_dest_path = 'build/html/pyplots'
-    if os.path.exists(figures_dest_path):
-        shutil.rmtree(figures_dest_path)
-    copytree(
-        'pyplots', figures_dest_path,
-        ignore=ignore_patterns("*.pyc"))
-
     # Clean out PDF files from the _images directory
     for filename in glob.glob('build/html/_images/*.pdf'):
         os.remove(filename)

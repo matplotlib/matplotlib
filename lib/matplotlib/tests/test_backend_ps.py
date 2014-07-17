@@ -39,7 +39,7 @@ def _test_savefig_to_stringio(format='ps'):
     values = [re.sub(b'%%.*?\n', b'', x) for x in values]
 
     assert values[0] == values[1]
-    assert values[1] == values[2]
+    assert values[1] == values[2].replace(b'\r\n', b'\n')
 
 
 @cleanup

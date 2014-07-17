@@ -523,7 +523,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
                    function_name, config, context_reset=False):
     """
     Run a pyplot script and save the low and high res PNGs and a PDF
-    in outdir.
+    in *output_dir*.
 
     Save the images under *output_dir* with file names derived from
     *output_base*
@@ -546,7 +546,6 @@ def render_figures(code, code_path, output_dir, output_base, context,
 
     code_pieces = split_code_at_show(code)
 
-    # Look for single-figure output files first
     # Look for single-figure output files first
     all_exists = True
     img = ImageFile(output_base, output_dir)

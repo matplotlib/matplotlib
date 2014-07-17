@@ -1557,6 +1557,7 @@ RendererAgg::_draw_path_collection_generic
 
     if ((Nfacecolors == 0 && Nedgecolors == 0) || Npaths == 0)
     {
+        Py_XDECREF(transforms_arr);
         return Py::Object();
     }
 
@@ -1707,6 +1708,8 @@ RendererAgg::_draw_path_collection_generic
             }
         }
     }
+
+    Py_XDECREF(transforms_arr);
 
     return Py::Object();
 }
@@ -2383,11 +2386,7 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args)
 
     int newwidth = 0;
     int newheight = 0;
-    #if PY3K
-    Py::Bytes data;
-    #else
-    Py::String data;
-    #endif
+    PyObject *data;
 
     if (xmin < xmax && ymin < ymax)
     {
@@ -2406,18 +2405,12 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args)
         // the _AsString() API.
         unsigned int* dst;
 
-        #if PY3K
-        data = Py::Bytes(static_cast<const char*>(NULL), (int) newsize);
-        dst = reinterpret_cast<unsigned int*>(PyBytes_AsString(data.ptr()));
-        #else
-        data = Py::String(static_cast<const char*>(NULL), (int) newsize);
-        dst = reinterpret_cast<unsigned int*>(PyString_AsString(data.ptr()));
-        #endif
-
-        if (dst == NULL)
+        data = PyBytes_FromStringAndSize(NULL, newsize);
+        if (data == NULL)
         {
             throw Py::MemoryError("RendererAgg::tostring_minimized could not allocate memory");
         }
+        dst = (unsigned int *)PyBytes_AsString(data);
 
         unsigned int*  src = (unsigned int*)pixBuffer;
         for (int y = ymin; y < ymax; ++y)
@@ -2436,7 +2429,8 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args)
     bounds[3] = Py::Int(newheight);
 
     Py::Tuple result(2);
-    result[0] = data;
+    result[0] = Py::Object(data, false);
+    Py_DECREF(data);
     result[1] = bounds;
 
     return result;
