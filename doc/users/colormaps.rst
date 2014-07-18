@@ -37,6 +37,10 @@ Some of the :math:`L^*` values from the Sequential2 plots are monotonically incr
 
 For the Diverging maps, we want to have monotonically increasing :math:`L^*` values up to a maximum, which should be close to :math:`L^*=100`, followed by monotonically decreasing :math:`L^*` values. We are looking for approximately equal minimum :math:`L^*` values at opposite ends of the colormap. Additionally, we might prefer a diverging colormap which has a rounded instead of pointed peak for retaining some spread of values around the critical point. By these measures, BrBG and RdBu are good options. coolwarm is a good option, but it doesn't span a wide range of :math:`L^*` values (see grayscale section).
 
+Qualitative colormaps are not necessarily aimed at being perceptual maps, but looking at the lightness parameter can solidify that for us. The :math:`L^*` values move all over the place throughout the colormap, and are clearly not monotonically increasing. These would not be good options for use as perceptual colormaps.
+
+MISCELLANEOUS
+
 
 :math:`L^*` function
 ====================
