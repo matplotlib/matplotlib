@@ -77,7 +77,7 @@ This is what you think of as 'a plot', it is the region of the image
 with the data space (marked as the inner blue box).  A given figure
 can contain many Axes, but a given :class:`~matplotlib.axes.Axes`
 object can only be in one :class:`~matplotlib.figure.Figure`.  The
-axes contains two (or three in the case of 3D)
+Axes contains two (or three in the case of 3D)
 :class:`~matplotlib.axis.Axis` objects (be aware of the difference
 between **Axes** and **Axis**) which take care of the data limits (the
 data limits can also be controlled via set via the
