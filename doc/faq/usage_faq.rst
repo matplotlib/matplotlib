@@ -46,6 +46,75 @@ For even more control -- which is essential for things like embedding
 matplotlib plots in GUI applications -- the pyplot level may be dropped
 completely, leaving a purely object-oriented approach.
 
+.. _figure_parts:
+
+Parts of a Figure
+=================
+.. image:: fig_map.png
+
+:class:`~matplotlib.figure.Figure`
+----------------------------------
+
+The **whole** figure (marked as the outer red box).  The figure keeps
+track of all the child :class:`~matplotlib.axes.Axes`, a smattering of
+'special' artists (titles, figure legends, etc), and the **canvas**.
+(Don't worry too much about the canvas, it is crucial as it is the
+object that actually does the drawing to get you your plot, but as the
+user it is more-or-less invisible to you).  A figure can have any
+number of :class:`~matplotlib.axes.Axes`, but to be useful should have
+at least one.
+
+The easiest way to create a new figure is with pyplot::
+
+    fig = plt.figure()  # an empty figure with no axes
+    fig, ax_lst = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
+
+
+:class:`~matplotlib.axes.Axes`
+------------------------------
+
+This is what you think of as 'a plot', it is the region of the image
+with the data space (marked as the inner blue box).  A given figure
+can contain many Axes, but a given :class:`~matplotlib.axes.Axes`
+object can only be in one :class:`~matplotlib.figure.Figure`.  The
+Axes contains two (or three in the case of 3D)
+:class:`~matplotlib.axis.Axis` objects (be aware of the difference
+between **Axes** and **Axis**) which take care of the data limits (the
+data limits can also be controlled via set via the
+:meth:`~matplotlib.axes.Axes.set_xlim` and
+:meth:`~matplotlib.axes.Axes.set_ylim` :class:`Axes` methods).  Each
+:class:`Axes` has a title (set via
+:meth:`~matplotlib.axes.Axes.set_title`), an x-label (set via
+:meth:`~matplotlib.axes.Axes.set_xlabel`), and a y-label set via
+:meth:`~matplotlib.axes.Axes.set_ylabel`).
+
+The :class:`Axes` class and it's member functions are the primary entry
+point to working with the OO interface.
+
+:class:`~matplotlib.axis.Axis`
+------------------------------
+
+These are the number-line-like objects (circled in green).  They take
+care of setting the graph limits and generating the ticks (the marks
+on the axis) and ticklabels (strings labeling the ticks).  The
+location of the ticks is determined by a
+:class:`~matplotlib.ticker.Locator` object and the ticklabel strings
+are formatted by a :class:`~matplotlib.ticker.Formatter`.  The
+combination of the correct :class:`Locator` and :class:`Formatter` gives
+very fine control over the tick locations and labels.
+
+:class:`~matplotlib.artist.Artist`
+----------------------------------
+
+Basically everything you can see on the figure is an artist (even the
+:class:`Figure`, :class:`Axes`, and :class:`Axis` objects).  This
+includes :class:`Text` objects, :class:`Line2D` objects,
+:class:`collection` objects, :class:`Patch` objects ... (you get the
+idea).  When the figure is rendered, all of the artists are drawn to
+the **canvas**.  Most Artists are tied to an Axes; such an Artist
+cannot be shared by multiple Axes, or moved from one to another.
+
+
 .. _pylab:
 
 Matplotlib, pyplot and pylab: how are they related?
@@ -141,6 +210,7 @@ clarity becomes increasingly valuable, and the richer and more
 complete object-oriented interface will likely make the program easier
 to write and maintain.
 
+
 Typically one finds oneself making the same plots over and over
 again, but with different data sets, which leads to needing to write
 specialized functions to do the plotting.  The recommended function
@@ -176,6 +246,7 @@ which you would then use as::
 
     fig, ax = plt.subplots(1, 1)
     my_plotter(ax, data1, data2, {'marker':'x'})
+
 
 or if you wanted to have 2 sub-plots::
 
