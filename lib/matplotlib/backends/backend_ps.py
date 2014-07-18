@@ -56,6 +56,7 @@ backend_version = 'Level II'
 
 debugPS = 0
 
+
 class PsBackendHelper(object):
 
     def __init__(self):
@@ -78,7 +79,6 @@ class PsBackendHelper(object):
         self._cached["gs_exe"] = gs_exe
         return gs_exe
 
-
     @property
     def gs_version(self):
         """
@@ -97,8 +97,11 @@ class PsBackendHelper(object):
             ver = pipe.decode('ascii')
         else:
             ver = pipe
-        gs_version = tuple(map(int, ver.strip().split(".")))
-
+        try:
+            gs_version = tuple(map(int, ver.strip().split(".")))
+        except ValueError:
+            # if something went wrong parsing return null version number
+            gs_version = (0, 0)
         self._cached["gs_version"] = gs_version
         return gs_version
 
