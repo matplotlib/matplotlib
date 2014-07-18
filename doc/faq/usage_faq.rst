@@ -94,14 +94,14 @@ point to working with the OO interface.
 :class:`~matplotlib.axis.Axis`
 ------------------------------
 
-These are the number line like objects (circled in green).  They take
+These are the number-line-like objects (circled in green).  They take
 care of setting the graph limits and generating the ticks (the marks
 on the axis) and ticklabels (strings labeling the ticks).  The
 location of the ticks is determined by a
 :class:`~matplotlib.ticker.Locator` object and the ticklabel strings
 are formatted by a :class:`~matplotlib.ticker.Formatter`.  The
 combination of the correct :class:`Locator` and :class:`Formatter` gives
-very fine control over the tick labels.
+very fine control over the tick locations and labels.
 
 :class:`~matplotlib.artist.Artist`
 ----------------------------------
@@ -109,10 +109,10 @@ very fine control over the tick labels.
 Basically everything you can see on the figure is an artist (even the
 :class:`Figure`, :class:`Axes`, and :class:`Axis` objects).  This
 includes :class:`Text` objects, :class:`Line2D` objects,
-:class:`collection` objects, :class:`Patch` objects ... (you get the idea).
-When the figure is rendered, all of the artists are drawn
-(recursively) to the **canvas**.  A given artist can only be in one
-`Axes`.
+:class:`collection` objects, :class:`Patch` objects ... (you get the
+idea).  When the figure is rendered, all of the artists are drawn to
+the **canvas**.  Most Artists are tied to an Axes; such an Artist
+cannot be shared by multiple Axes, or moved from one to another.
 
 
 .. _pylab:
