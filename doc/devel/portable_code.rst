@@ -14,16 +14,17 @@ Welcome to the ``__future__``
 
 The top of every `.py` file should include the following::
 
-    from __future__ import absolute_import, division, print_function, unicode_literals
+    from __future__ import (absolute_import, division,
+                            print_function, unicode_literals)
+    import six
 
 This will make the Python 2 interpreter behave as close to Python 3 as
 possible.
 
 All matplotlib files should also import `six`, whether they are using
 it or not, just to make moving code between modules easier, as `six`
-gets used *a lot*::
+gets used *a lot*.
 
-    import six
 
 Finding places to use six
 ^^^^^^^^^^^^^^^^^^^^^^^^^
