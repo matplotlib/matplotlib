@@ -696,6 +696,9 @@ class Artist(object):
         set agg_filter fuction.
 
         """
+        if isinstance(filter_func, six.string_types):
+            from . import colors
+            filter_func = colors.get_color_filter(filter_func)
         self._agg_filter = filter_func
 
     def draw(self, renderer, *args, **kwargs):

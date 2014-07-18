@@ -1630,3 +1630,165 @@ def from_levels_and_colors(levels, colors, extend='neither'):
 
     norm = BoundaryNorm(levels, ncolors=n_data_colors)
     return cmap, norm
+
+
+def luminosity_filter(im):
+    """
+    Convert a RGB or RGBA image to a greyscale image based on each
+    pixel's luminosity.
+
+    Parameters
+    ----------
+    im : Nx3 or Nx4 array of floating-point pixels
+       The input image, in RGB or RGBA.
+
+    Returns
+    -------
+    im : Nx1 array of float-point greyscale pixels
+       The output image, converted to luminosity
+    """
+    im = np.asarray(im)
+    im = im[..., 0:3]
+    return np.average(im, -1, weights=[.21, .72, 0.07])
+
+
+def average_filter(im):
+    """
+    Convert a RGB or RGBA image to a greyscale image by average the
+    red, green and blue values for each pixel.
+
+    Parameters
+    ----------
+    im : Nx3 or Nx4 array of floating-point pixels
+       The input image, in RGB or RGBA.
+
+    Returns
+    -------
+    im : Nx1 array of float-point greyscale pixels
+       The output image
+    """
+    im = np.asarray(im)
+    im = im[..., 0:3]
+    return np.average(im, -1)
+
+
+_rgb_to_lms_matrix = np.array([
+    [17.8824, 43.5161, 4.11935],
+    [3.45565, 27.1554, 3.86714],
+    [0.0299566, 0.184309, 1.46709]]).T
+
+
+_lms_to_rgb_matrix = np.linalg.inv(_rgb_to_lms_matrix)
+
+
+_deuteranope_matrix = np.array([
+    [1, 0, 0],
+    [0.494207, 0, 1.24827],
+    [0, 0, 1]]).T
+
+
+_deuteranope_chain = _rgb_to_lms_matrix.dot(
+    _deuteranope_matrix).dot(
+        _lms_to_rgb_matrix)
+
+
+def deuteranope_filter(im):
+    """
+    Convert a RGB or RGBA image to one that simulates Deuteranope
+    color blindness.
+
+    Parameters
+    ----------
+    im : Nx3 or Nx4 array of floating-point pixels
+       The input image, in RGB or RGBA.
+
+    Returns
+    -------
+    im : Nx1 array of float-point greyscale pixels
+       The output image
+    """
+    im = im[..., 0:3]
+    im = np.dot(im, _deuteranope_chain)
+    return im
+
+
+_protanope_matrix = np.array([
+        [0, 2.02344, -2.52581],
+        [0, 1, 0],
+        [0, 0, 1]]).T
+
+
+_protanope_chain = _rgb_to_lms_matrix.dot(
+    _protanope_matrix).dot(
+        _lms_to_rgb_matrix)
+
+
+def protanope_filter(im):
+    """
+    Convert a RGB or RGBA image to one that simulates Protanope
+    color blindness.
+
+    Parameters
+    ----------
+    im : Nx3 or Nx4 array of floating-point pixels
+       The input image, in RGB or RGBA.
+
+    Returns
+    -------
+    im : Nx1 array of float-point greyscale pixels
+       The output image
+    """
+    im = im[..., 0:3]
+    im = np.dot(im, _protanope_chain)
+    return im
+
+
+_tritanope_matrix = np.array([
+    [1, 0, 0],
+    [0, 1, 0],
+    [-0.395913, 0.801109, 0]]).T
+
+
+_tritanope_chain = _rgb_to_lms_matrix.dot(
+    _tritanope_matrix).dot(
+        _lms_to_rgb_matrix)
+
+
+def tritanope_filter(im):
+    """
+    Convert a RGB or RGBA image to one that simulates Tritanope
+    color blindness.
+
+    Parameters
+    ----------
+    im : Nx3 or Nx4 array of floating-point pixels
+       The input image, in RGB or RGBA.
+
+    Returns
+    -------
+    im : Nx1 array of float-point greyscale pixels
+       The output image
+    """
+    im = im[..., 0:3]
+    im = np.dot(im, _tritanope_chain)
+    return im
+
+
+def get_color_filter(name):
+    """
+    Given a color filter name, returns a color filter function.
+    """
+    mapping = {
+        'luminosity': luminosity_filter,
+        'average': average_filter,
+        'deuteranope': deuteranope_filter,
+        'protanope': protanope_filter,
+        'tritanope': tritanope_filter
+    }
+
+    filter = mapping[name.lower()]
+
+    def wrap_filter(im, dpi):
+        return filter(im), 0, 0
+
+    return wrap_filter
