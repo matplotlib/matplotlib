@@ -308,10 +308,15 @@ def _image_directories(func):
             """A version of imp which can handle dots in the module name"""
             res = None
             for sub_mod in module_name.split('.'):
-                res = file, path, _ = imp.find_module(sub_mod, path)
-                path = [path]
-                if file is not None:
-                    file.close()
+                try:
+                    res = file, path, _ = imp.find_module(sub_mod, path)
+                    path = [path]
+                    if file is not None:
+                        file.close()
+                except ImportError:
+                    # assume namespace package
+                    path = sys.modules[sub_mod].__path__
+                    res = None, path, None
             return res
 
         mod_file = find_dotted_module(func.__module__)[1]
