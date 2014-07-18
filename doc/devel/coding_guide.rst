@@ -93,7 +93,7 @@ Documentation
                 A description of foobar
             foobaz : (type of foobaz)
                 A description of foobaz
-                """
+            """
             # some very clever code
             return foobar, foobaz
 
