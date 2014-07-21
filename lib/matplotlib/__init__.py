@@ -343,8 +343,9 @@ def checkdep_dvipng():
     try:
         s = subprocess.Popen(['dvipng','-version'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        line = s.stdout.readlines()[1]
-        v = line.split()[-1].decode('ascii')
+        stdout, stderr = s.communicate()
+        line = stdout.decode('ascii').split('\n')[1]
+        v = line.split()[-1]
         return v
     except (IndexError, ValueError, OSError):
         return None
@@ -371,7 +372,8 @@ def checkdep_tex():
     try:
         s = subprocess.Popen(['tex','-version'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        line = s.stdout.readlines()[0].decode('ascii')
+        stdout, stderr = s.communicate()
+        line = stdout.decode('ascii').split('\n')[0]
         pattern = '3\.1\d+'
         match = re.search(pattern, line)
         v = match.group(0)
@@ -383,9 +385,11 @@ def checkdep_pdftops():
     try:
         s = subprocess.Popen(['pdftops','-v'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        for line in s.stderr:
-            if b'version' in line:
-                v = line.split()[-1].decode('ascii')
+        stdout, stderr = s.communicate()
+        lines = stderr.decode('ascii').split('\n')
+        for line in lines:
+            if 'version' in line:
+                v = line.split()[-1]
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
         return None
@@ -394,9 +398,11 @@ def checkdep_inkscape():
     try:
         s = subprocess.Popen(['inkscape','-V'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        for line in s.stdout:
-            if b'Inkscape' in line:
-                v = line.split()[1].decode('ascii')
+        stdout, stderr = s.communicate()
+        lines = stdout.decode('ascii').split('\n')
+        for line in lines:
+            if 'Inkscape' in line:
+                v = line.split()[1]
                 break
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
@@ -406,9 +412,11 @@ def checkdep_xmllint():
     try:
         s = subprocess.Popen(['xmllint','--version'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        for line in s.stderr:
-            if b'version' in line:
-                v = line.split()[-1].decode('ascii')
+        stdout, stderr = s.communicate()
+        lines = stderr.decode('ascii').split('\n')
+        for line in lines:
+            if 'version' in line:
+                v = line.split()[-1]
                 break
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
