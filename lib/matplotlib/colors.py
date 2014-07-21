@@ -1516,6 +1516,16 @@ class LightSource(object):
         elevation : array-like
             A 2d array (or equivalent) of the height values used to generate an
             illumination map
+        vert_exag : number, optional
+            The amount to exaggerate the elevation values by when calculating
+            illumination. This can be used either to correct for differences in
+            units between the x-y coordinate system and the elevation
+            coordinate system (e.g. decimal degrees vs meters) or to exaggerate
+            or de-emphasize topographic effects.
+        dx : number, optional
+            The x-spacing (columns) of the input *elevation* grid.
+        dy : number, optional
+            The y-spacing (rows) of the input *elevation* grid.
         fraction : number, optional
             Increases or decreases the contrast of the hillshade.  Values
             greater than one will cause intermediate values to move closer to
@@ -1537,7 +1547,12 @@ class LightSource(object):
         az = np.radians(90 - self.azdeg)
         alt = np.radians(self.altdeg)
 
-        dy, dx = np.gradient(elevation)
+        # Because most image and raster GIS data has the first row in the array
+        # as the "top" of the image, dy is implicitly negative.  This is
+        # consistent to what `imshow` assumes, as well.
+        dy = -dy
+
+        dy, dx = np.gradient(vert_exag * elevation, dy, dx)
         slope = 0.5 * np.pi - np.arctan(np.hypot(dx, dy))
         aspect = np.arctan2(dx, dy)
         intensity = (np.sin(alt) * np.sin(slope) 
@@ -1552,30 +1567,101 @@ class LightSource(object):
                 np.clip(intensity, 0, 1, intensity)
         return intensity
 
-    def shade(self, data, cmap, norm=None, **kwargs):
+    def shade(self, data, cmap, norm=None, vert_exag=1, dx=1, dy=1, fraction=1,
+              **kwargs):
         """
-        Take the input data array, convert to HSV values in the
-        given colormap, then adjust those color values
-        to give the impression of a shaded relief map with a
-        specified light source.
-        RGBA values are returned, which can then be used to
-        plot the shaded image with imshow.
-        """
+        Combine colormapped data values with an illumination intensity map 
+        (a.k.a.  "hillshade") of the values.
 
+        Parameters
+        ----------
+        data : array-like
+            A 2d array (or equivalent) of the height values used to generate a
+            shaded map.
+        cmap : `~matplotlib.colors.Colormap` instance
+            The colormap used to color the *data* array. Note that this must be
+            a `~matplotlib.colors.Colormap` instance.  For example, rather than
+            passing in `cmap='gist_earth'`, use
+            `cmap=plt.get_cmap('gist_earth')` instead.
+        norm : `~matplotlib.colors.Normalize` instance, optional
+            The normalization used to scale values before colormapping. If
+            None, the input will be linearly scaled between its min and max.
+        vert_exag : number, optional
+            The amount to exaggerate the elevation values by when calculating
+            illumination. This can be used either to correct for differences in
+            units between the x-y coordinate system and the elevation
+            coordinate system (e.g. decimal degrees vs meters) or to exaggerate
+            or de-emphasize topography.
+        dx : number, optional
+            The x-spacing (columns) of the input *elevation* grid.
+        dy : number, optional
+            The y-spacing (rows) of the input *elevation* grid.
+        fraction : number, optional
+            Increases or decreases the contrast of the hillshade.  Values
+            greater than one will cause intermediate values to move closer to
+            full illumination or shadow (and clipping any values that move
+            beyond 0 or 1).  Values less than one will cause full shadow or
+            full illumination to move closer to a value of 0.5, thereby
+            decreasing contrast.  Note that this is not mathematically or
+            visually the same as increasing/decreasing the vertical
+            exaggeration.
+        Additional kwargs are passed on to the *blend_mode* function. 
+        
+        Returns
+        -------
+        rgba : ndarray
+            An MxNx4 array of floats ranging between 0-1.
+        """
         if norm is None:
             norm = Normalize(vmin=data.min(), vmax=data.max())
 
         rgb0 = cmap(norm(data))
-        rgb1 = self.shade_rgb(rgb0, elevation=data, **kwargs)
-        rgb0[:, :, 0:3] = rgb1
+        rgb1 = self.shade_rgb(rgb0, elevation=data, blend_mode=blend_mode, 
+                              vert_exag=vert_exag, dx=dx, dy=dy, **kwargs)
+        # Don't overwrite the alpha channel, if present.
+        rgb0[..., :3] = rgb1[..., :3]
         return rgb0
 
-    def shade_rgb(self, rgb, elevation, fraction=1., **kwargs):
+    def shade_rgb(self, rgb, elevation, fraction=1., vert_exag=1, dx=1, dy=1,
+                  **kwargs):
         """
         Take the input RGB array (ny*nx*3) adjust their color values
         to given the impression of a shaded relief map with a
         specified light source using the elevation (ny*nx).
         A new RGB array ((ny*nx*3)) is returned.
+
+        Parameters
+        ----------
+        rgb : array-like
+            An MxNx3 RGB array, assumed to be in the range of 0 to 1.
+        elevation : array-like
+            A 2d array (or equivalent) of the height values used to generate a
+            shaded map.
+        fraction : number
+            Increases or decreases the contrast of the hillshade.  Values
+            greater than one will cause intermediate values to move closer to
+            full illumination or shadow (and clipping any values that move
+            beyond 0 or 1).  Values less than one will cause full shadow or
+            full illumination to move closer to a value of 0.5, thereby
+            decreasing contrast.  Note that this is not mathematically or
+            visually the same as increasing/decreasing the vertical
+            exaggeration.
+        vert_exag : number, optional
+            The amount to exaggerate the elevation values by when calculating
+            illumination. This can be used either to correct for differences in
+            units between the x-y coordinate system and the elevation
+            coordinate system (e.g. decimal degrees vs meters) or to exaggerate
+            or de-emphasize topography.
+        dx : number, optional
+            The x-spacing (columns) of the input *elevation* grid.
+        dy : number, optional
+            The y-spacing (rows) of the input *elevation* grid.
+        Additional kwargs are passed on to :meth:`blend_hsv`. 
+        
+        Returns
+        -------
+        shaded_rgb : ndarray
+            An MxNx3 array of floats ranging between 0-1.
         """
         intensity = self.hillshade(elevation, fraction=fraction)
         return self.blend_hsv(rgb, intensity, **kwargs)
