@@ -1463,26 +1463,36 @@ class LightSource(object):
     Create a light source coming from the specified azimuth and elevation.
     Angles are in degrees, with the azimuth measured
     clockwise from north and elevation up from the zero plane of the surface.
-    The :meth:`shade` is used to produce rgb values for a shaded relief image
-    given a data array.
+
+    The :meth:`shade` is used to produce "shaded" rgb values for a data array.
+    :meth:`shade_rgb` can be used to combine an rgb image with 
+    The :meth:`shade_rgb` 
+    The :meth:`hillshade` produces an illumination map of a surface.
     """
     def __init__(self, azdeg=315, altdeg=45,
                  hsv_min_val=0, hsv_max_val=1, hsv_min_sat=1,
                  hsv_max_sat=0):
-
         """
         Specify the azimuth (measured clockwise from south) and altitude
         (measured up from the plane of the surface) of the light source
         in degrees.
 
-        The color of the resulting image will be darkened
-        by moving the (s,v) values (in hsv colorspace) toward
-        (hsv_min_sat, hsv_min_val) in the shaded regions, or
-        lightened by sliding (s,v) toward
-        (hsv_max_sat hsv_max_val) in regions that are illuminated.
-        The default extremes are chose so that completely shaded points
-        are nearly black (s = 1, v = 0) and completely illuminated points
-        are nearly white (s = 0, v = 1).
+        Parameters
+        ----------
+        azdeg : number, optional
+            The azimuth (0-360, degrees clockwise from North) of the light
+            source. Defaults to 315 degrees (from the northwest).
+        altdeg : number, optional
+            The altitude (0-90, degrees up from horizontal) of the light
+            source.  Defaults to 45 degrees from horizontal.
+
+        Notes
+        -----
+        For backwards compatibility, the parameters *hsv_min_val*, 
+        *hsv_max_val*, *hsv_min_sat*, and *hsv_max_sat* may be supplied at
+        initialization as well.  However, these parameters will only be used if
+        "blend_mode='hsv'" is passed into :meth:`shade` or :meth:`shade_rgb`.
+        See the documentation for :meth:`blend_hsv` for more details.
         """
         self.azdeg = azdeg
         self.altdeg = altdeg
@@ -1491,7 +1501,58 @@ class LightSource(object):
         self.hsv_min_sat = hsv_min_sat
         self.hsv_max_sat = hsv_max_sat
 
-    def shade(self, data, cmap, norm=None):
+    def hillshade(self, elevation, vert_exag=1, dx=1, dy=1, fraction=1.):
+        """
+        Calculates the illumination intensity for a surface using the defined
+        azimuth and elevation for the light source. 
+        
+        Imagine an artificial sun placed at infinity in some azimuth and
+        elevation position illuminating our surface. The parts of the surface
+        that slope toward the sun should brighten while those sides facing away
+        should become darker. 
+
+        Parameters
+        ----------
+        elevation : array-like
+            A 2d array (or equivalent) of the height values used to generate an
+            illumination map
+        fraction : number, optional
+            Increases or decreases the contrast of the hillshade.  Values
+            greater than one will cause intermediate values to move closer to
+            full illumination or shadow (and clipping any values that move
+            beyond 0 or 1).  Values less than one will cause full shadow or
+            full illumination to move closer to a value of 0.5, thereby
+            decreasing contrast.  Note that this is not mathematically or
+            visually the same as increasing/decreasing the vertical
+            exaggeration.
+
+        Returns
+        -------
+        intensity : ndarray
+            A 2d array of illumination values between 0-1, where 0 is
+            completely in shadow and 1 is completely illuminated.
+        """
+        # Azimuth is in degrees clockwise from North. Convert to radians
+        # counterclockwise from East (mathematical notation).
+        az = np.radians(90 - self.azdeg)
+        alt = np.radians(self.altdeg)
+
+        dy, dx = np.gradient(elevation)
+        slope = 0.5 * np.pi - np.arctan(np.hypot(dx, dy))
+        aspect = np.arctan2(dx, dy)
+        intensity = (np.sin(alt) * np.sin(slope) 
+                     + np.cos(alt) * np.cos(slope) 
+                     * np.cos(az - aspect))
+
+        intensity -= intensity.min()
+        intensity /= intensity.ptp()
+        if fraction != 1.0:
+            intensity = fraction * (intensity - 0.5) + 0.5
+            if np.abs(fraction) > 1:
+                np.clip(intensity, 0, 1, intensity)
+        return intensity
+
+    def shade(self, data, cmap, norm=None, **kwargs):
         """
         Take the input data array, convert to HSV values in the
         given colormap, then adjust those color values
@@ -1505,64 +1566,100 @@ class LightSource(object):
             norm = Normalize(vmin=data.min(), vmax=data.max())
 
         rgb0 = cmap(norm(data))
-        rgb1 = self.shade_rgb(rgb0, elevation=data)
+        rgb1 = self.shade_rgb(rgb0, elevation=data, **kwargs)
         rgb0[:, :, 0:3] = rgb1
         return rgb0
 
-    def shade_rgb(self, rgb, elevation, fraction=1.):
+    def shade_rgb(self, rgb, elevation, fraction=1., **kwargs):
         """
         Take the input RGB array (ny*nx*3) adjust their color values
         to given the impression of a shaded relief map with a
         specified light source using the elevation (ny*nx).
         A new RGB array ((ny*nx*3)) is returned.
         """
-        # imagine an artificial sun placed at infinity in some azimuth and
-        # elevation position illuminating our surface. The parts of the
-        # surface that slope toward the sun should brighten while those sides
-        # facing away should become darker. convert alt, az to radians
-        az = self.azdeg * np.pi / 180.0
-        alt = self.altdeg * np.pi / 180.0
-        # gradient in x and y directions
-        dx, dy = np.gradient(elevation)
-        slope = 0.5 * np.pi - np.arctan(np.hypot(dx, dy))
-        aspect = np.arctan2(dx, dy)
-        intensity = (np.sin(alt) * np.sin(slope) + np.cos(alt) *
-                     np.cos(slope) * np.cos(-az - aspect - 0.5 * np.pi))
-        # rescale to interval -1,1
-        # +1 means maximum sun exposure and -1 means complete shade.
-        intensity = (intensity - intensity.min()) / \
-                    (intensity.max() - intensity.min())
-        intensity = (2. * intensity - 1.) * fraction
-        # convert to rgb, then rgb to hsv
-        #rgb = cmap((data-data.min())/(data.max()-data.min()))
-        hsv = rgb_to_hsv(rgb[:, :, 0:3])
-        # modify hsv values to simulate illumination.
+        intensity = self.hillshade(elevation, fraction=fraction)
+        return self.blend_hsv(rgb, intensity, **kwargs)
 
+    def blend_hsv(self, rgb, intensity, hsv_max_sat=None, hsv_max_val=None,
+                  hsv_min_val=None, hsv_min_sat=None):
+        """
+        Take the input data array, convert to HSV values in the given colormap,
+        then adjust those color values to give the impression of a shaded
+        relief map with a specified light source.  RGBA values are returned,
+        which can then be used to plot the shaded image with imshow.
+
+        The color of the resulting image will be darkened by moving the (s,v)
+        values (in hsv colorspace) toward (hsv_min_sat, hsv_min_val) in the
+        shaded regions, or lightened by sliding (s,v) toward (hsv_max_sat
+        hsv_max_val) in regions that are illuminated.  The default extremes are
+        chose so that completely shaded points are nearly black (s = 1, v = 0)
+        and completely illuminated points are nearly white (s = 0, v = 1).
+
+        Parameters
+        ----------
+        rgb : ndarray
+            An MxNx3 RGB array of floats ranging from 0 to 1 (color image).
+        intensity : ndarray
+            An MxNx1 array of floats ranging from 0 to 1 (grayscale image).
+        hsv_max_sat : number, optional
+            The maximum saturation value that the *intensity* map can shift the
+            output image to. Defaults to 1.
+        hsv_min_sat : number, optional
+            The minimum saturation value that the *intensity* map can shift the
+            output image to. Defaults to 0.
+        hsv_max_val : number, optional
+            The maximum value ("v" in "hsv") that the *intensity* map can shift
+            the output image to. Defaults to 1.
+        hsv_min_val: number, optional
+            The minimum value ("v" in "hsv") that the *intensity* map can shift
+            the output image to. Defaults to 0.
+
+        Returns
+        -------
+        rgb : ndarray
+            An MxNx3 RGB array representing the combined images.
+        """
+        # Backward compatibility...
+        if hsv_max_sat is None:
+            hsv_max_sat = self.hsv_max_sat
+        if hsv_max_val is None:
+            hsv_max_val = self.hsv_max_val
+        if hsv_min_sat is None:
+            hsv_min_sat = self.hsv_min_sat
+        if hsv_min_val is None:
+            hsv_min_val = self.hsv_min_val
+
+        # Expects a 2D intensity array scaled between -1 to 1...
+        intensity = 2 * intensity - 1
+
+        # convert to rgb, then rgb to hsv
+        hsv = rgb_to_hsv(rgb[:, :, 0:3])
+
+        # modify hsv values to simulate illumination.
         hsv[:, :, 1] = np.where(np.logical_and(np.abs(hsv[:, :, 1]) > 1.e-10,
                                                intensity > 0),
                                 ((1. - intensity) * hsv[:, :, 1] +
-                                 intensity * self.hsv_max_sat),
+                                 intensity * hsv_max_sat),
                                 hsv[:, :, 1])
 
         hsv[:, :, 2] = np.where(intensity > 0,
                                 ((1. - intensity) * hsv[:, :, 2] +
-                                 intensity * self.hsv_max_val),
+                                 intensity * hsv_max_val),
                                 hsv[:, :, 2])
 
         hsv[:, :, 1] = np.where(np.logical_and(np.abs(hsv[:, :, 1]) > 1.e-10,
                                                intensity < 0),
                                 ((1. + intensity) * hsv[:, :, 1] -
-                                 intensity * self.hsv_min_sat),
+                                 intensity * hsv_min_sat),
                                 hsv[:, :, 1])
         hsv[:, :, 2] = np.where(intensity < 0,
                                 ((1. + intensity) * hsv[:, :, 2] -
-                                 intensity * self.hsv_min_val),
+                                 intensity * hsv_min_val),
                                 hsv[:, :, 2])
         hsv[:, :, 1:] = np.where(hsv[:, :, 1:] < 0., 0, hsv[:, :, 1:])
         hsv[:, :, 1:] = np.where(hsv[:, :, 1:] > 1., 1, hsv[:, :, 1:])
         # convert modified hsv back to rgb.
         return hsv_to_rgb(hsv)
-
 
 def from_levels_and_colors(levels, colors, extend='neither'):
     """
