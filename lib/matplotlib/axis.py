@@ -1014,8 +1014,7 @@ class Axis(artist.Artist):
             # invalid numpy calculations that may be the result of out of
             # bounds on axis with finite allowed intervals such as geo
             # projections i.e. Mollweide.
-            with warnings.catch_warnings():
-                warnings.simplefilter('ignore', category=RuntimeWarning)
+            with np.errstate(invalid='ignore'):
                 try:
                     ds1 = self._get_pixel_distance_along_axis(
                         interval_expanded[0], -0.5)
