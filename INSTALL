@@ -9,19 +9,36 @@ Installing
 There are many different ways to install matplotlib, and the best way
 depends on what operating system you are using, what you already have
 installed, and how you want to use it.  To avoid wading through all
-the details (and potential complications) on this page, the easiest
-thing for you to do is use one of the pre-packaged python
-distributions that already provide matplotlib built-in.  The Continuum.io
-Python distribution `(Anaconda)
-<https://store.continuum.io/cshop/anaconda/>`_ and the Enthought
-distribution `(Canopy) <https://www.enthought.com/products/canopy/>`_
-are both excellent choices that "just work" out of the box for any
-platform.  Both of these packages include matplotlib and
-*lots* of other useful tools.
-Another excellent alternative for Windows users is `Python (x, y)
-<https://code.google.com/p/pythonxy>`_ . matplotlib is also packaged for almost
-every major Linux distribution. So if you are on Linux, your package
-manager will probably provide matplotlib prebuilt.
+the details (and potential complications) on this page, there are several
+convenient options.
+
+Most platforms : scientific Python distributions
+================================================
+
+The first option is to use one of the pre-packaged python distributions that
+already provide matplotlib built-in.  The Continuum.io Python distribution
+`(Anaconda) <https://store.continuum.io/cshop/anaconda/>`_ and the Enthought
+distribution `(Canopy) <https://www.enthought.com/products/canopy/>`_ are both
+excellent choices that "just work" out of the box for Windows, OSX and common
+Linux platforms.  Both of these distributions include matplotlib and *lots* of
+other useful tools.  Another excellent alternative for Windows users is
+`Python (x, y) <https://code.google.com/p/pythonxy>`_ .
+
+Linux : using your package manager
+==================================
+
+If you are on Linux, you might prefer to use your package manager.  matplotlib
+is packaged for almost every major Linux distribution.
+
+* Debian / Ubuntu : ``sudo apt-get install python-matplotlib``
+* Fedora / Redhat : ``sudo yum install python-matplotlib``
+
+Mac OSX - using pip
+===================
+
+If you are on Mac OSX you can probably install matplotlib binaries using the
+standard Python installation program `pip <https://pypi.python.org/pip>`_.
+See :ref:`installing-osx-binaries`.
 
 Manually installing pre-built packages
 ======================================
@@ -36,7 +53,7 @@ on your machine, and if not, install it.  The official python builds
 are available for download `here <http://www.python.org/download>`_,
 but OS X users please read :ref:`which-python-for-osx`.
 
-Once you have python up and running, you will need to install `numpy
+Once you have Python up and running, you will need to install `numpy
 <http://www.numpy.org/>`_.  numpy provides high-performance array data
 structures and mathematical functions, and is a requirement for
 matplotlib.  You can test your progress::
@@ -86,7 +103,6 @@ Note that when testing matplotlib installations from the interactive
 python console, there are some issues relating to user interface
 toolkits and interactive settings that are discussed in
 :ref:`mpl-shell`.
-
 
 Installing on Windows
 ---------------------
@@ -207,7 +223,7 @@ manager on Linux, you may need to install the development packages
 
 .. note::
 
-    If you are on debian/ubuntu, you can get all the dependencies
+    If you are on Debian/Ubuntu, you can get all the dependencies
     required to build matplotlib with::
 
       sudo apt-get build-dep python-matplotlib
