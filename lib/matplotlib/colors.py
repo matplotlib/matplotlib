@@ -1457,7 +1457,6 @@ def hsv_to_rgb(hsv):
 
     return rgb
 
-
 class LightSource(object):
     """
     Create a light source coming from the specified azimuth and elevation.
@@ -1469,9 +1468,8 @@ class LightSource(object):
     The :meth:`shade_rgb` 
     The :meth:`hillshade` produces an illumination map of a surface.
     """
-    def __init__(self, azdeg=315, altdeg=45,
-                 hsv_min_val=0, hsv_max_val=1, hsv_min_sat=1,
-                 hsv_max_sat=0):
+    def __init__(self, azdeg=315, altdeg=45, hsv_min_val=0, hsv_max_val=1,
+                 hsv_min_sat=1, hsv_max_sat=0):
         """
         Specify the azimuth (measured clockwise from south) and altitude
         (measured up from the plane of the surface) of the light source
@@ -1567,8 +1565,8 @@ class LightSource(object):
                 np.clip(intensity, 0, 1, intensity)
         return intensity
 
-    def shade(self, data, cmap, norm=None, vert_exag=1, dx=1, dy=1, fraction=1,
-              **kwargs):
+    def shade(self, data, cmap, norm=None, blend_mode='hsv', 
+              vert_exag=1, dx=1, dy=1, fraction=1, **kwargs):
         """
         Combine colormapped data values with an illumination intensity map 
         (a.k.a.  "hillshade") of the values.
@@ -1586,6 +1584,16 @@ class LightSource(object):
         norm : `~matplotlib.colors.Normalize` instance, optional
             The normalization used to scale values before colormapping. If
             None, the input will be linearly scaled between its min and max.
+        blend_mode : {'hsv', 'overlay', 'soft'} or callable, optional
+            The type of blending used to combine the colormapped data values
+            with the illumination intensity.  For backwards compatibility, this
+            defaults to "hsv". Note that for most topographic surfaces, 
+            "overlay" or "soft" appear more visually realistic. If a
+            user-defined function is supplied, it is expected to combine an
+            MxNx3 RGB array of floats (ranging 0 to 1) with an MxNx1 hillshade
+            array (also 0 to 1).  (Call signature `func(rgb, illum, **kwargs)`)
+            Additional kwargs supplied to this function will be passed on to
+            the *blend_mode* function.
         vert_exag : number, optional
             The amount to exaggerate the elevation values by when calculating
             illumination. This can be used either to correct for differences in
@@ -1622,8 +1630,8 @@ class LightSource(object):
         rgb0[..., :3] = rgb1[..., :3]
         return rgb0
 
-    def shade_rgb(self, rgb, elevation, fraction=1., vert_exag=1, dx=1, dy=1,
-                  **kwargs):
+    def shade_rgb(self, rgb, elevation, fraction=1., blend_mode='hsv', 
+                  vert_exag=1, dx=1, dy=1, **kwargs):
         """
         Take the input RGB array (ny*nx*3) adjust their color values
         to given the impression of a shaded relief map with a
@@ -1646,6 +1654,16 @@ class LightSource(object):
             decreasing contrast.  Note that this is not mathematically or
             visually the same as increasing/decreasing the vertical
             exaggeration.
+        blend_mode : {'hsv', 'overlay', 'soft'} or callable, optional
+            The type of blending used to combine the colormapped data values
+            with the illumination intensity.  For backwards compatibility, this
+            defaults to "hsv". Note that for most topographic surfaces, 
+            "overlay" or "soft" appear more visually realistic. If a
+            user-defined function is supplied, it is expected to combine an
+            MxNx3 RGB array of floats (ranging 0 to 1) with an MxNx1 hillshade
+            array (also 0 to 1).  (Call signature `func(rgb, illum, **kwargs)`)
+            Additional kwargs supplied to this function will be passed on to
+            the *blend_mode* function.
         vert_exag : number, optional
             The amount to exaggerate the elevation values by when calculating
             illumination. This can be used either to correct for differences in
@@ -1656,15 +1674,31 @@ class LightSource(object):
             The x-spacing (columns) of the input *elevation* grid.
         dy : number, optional
             The y-spacing (rows) of the input *elevation* grid.
-        Additional kwargs are passed on to :meth:`blend_hsv`. 
+        Additional kwargs are passed on to the *blend_mode* function. 
         
         Returns
         -------
         shaded_rgb : ndarray
             An MxNx3 array of floats ranging between 0-1.
         """
-        intensity = self.hillshade(elevation, fraction=fraction)
-        return self.blend_hsv(rgb, intensity, **kwargs)
+        # Calculate the "hillshade" intensity.
+        intensity = self.hillshade(elevation, vert_exag, dx, dy, fraction)
+        intensity = intensity[..., np.newaxis]
+
+        # Blend the hillshade and rgb data using the specified mode
+        lookup = {
+                'hsv':self.blend_hsv, 
+                'soft':self.blend_soft_light, 
+                'overlay':self.blend_overlay,
+                }
+        if blend_mode in lookup:
+            return lookup[blend_mode](rgb, intensity, **kwargs)
+        else:
+            try:
+                return blend_mode(rgb, intensity, **kwargs)
+            except TypeError:
+                msg = '"blend_mode" must be callable or one of {}'
+                raise ValueError(msg.format(lookup.keys))
 
     def blend_hsv(self, rgb, intensity, hsv_max_sat=None, hsv_max_val=None,
                   hsv_min_val=None, hsv_min_sat=None):
@@ -1716,6 +1750,7 @@ class LightSource(object):
             hsv_min_val = self.hsv_min_val
 
         # Expects a 2D intensity array scaled between -1 to 1...
+        intensity = intensity[..., 0]
         intensity = 2 * intensity - 1
 
         # convert to rgb, then rgb to hsv
@@ -1746,6 +1781,45 @@ class LightSource(object):
         hsv[:, :, 1:] = np.where(hsv[:, :, 1:] > 1., 1, hsv[:, :, 1:])
         # convert modified hsv back to rgb.
         return hsv_to_rgb(hsv)
+
+    def blend_soft_light(self, rgb, intensity):
+        """
+        Combines an rgb image with an intensity map using "soft light"
+        blending.  Uses the "pegtop" formula.
+
+        Parameters
+        ----------
+        rgb : ndarray
+            An MxNx3 RGB array of floats ranging from 0 to 1 (color image).
+        intensity : ndarray
+            An MxNx1 array of floats ranging from 0 to 1 (grayscale image).
+
+        Returns
+        -------
+        rgb : ndarray
+            An MxNx3 RGB array representing the combined images.
+        """
+        return 2 * intensity * rgb + (1 - 2 * intensity) * rgb**2 
+
+    def blend_overlay(self, rgb, intensity):
+        """
+        Combines an rgb image with an intensity map using "overlay" blending.
+
+        Parameters
+        ----------
+        rgb : ndarray
+            An MxNx3 RGB array of floats ranging from 0 to 1 (color image).
+        intensity : ndarray
+            An MxNx1 array of floats ranging from 0 to 1 (grayscale image).
+
+        Returns
+        -------
+        rgb : ndarray
+            An MxNx3 RGB array representing the combined images.
+        """
+        low = 2 * intensity * rgb
+        high = 1 - 2 * (1 - intensity) * (1 - rgb)
+        return np.where(rgb <= 0.5, low, high)
 
 def from_levels_and_colors(levels, colors, extend='neither'):
     """
