@@ -1010,20 +1010,32 @@ class Axis(artist.Artist):
             # the idea that one would rather potentially lose a tick
             # from one side of the axis or another, rather than see a
             # stack trace.
-            try:
-               ds1 = self._get_pixel_distance_along_axis(interval_expanded[0], -0.5)
-            except:
-               warnings.warn("Unable to find pixel distance along axis for interval padding; assuming no interval padding needed.")
-               ds1 = 0.0
-            if np.isnan(ds1):
-               ds1 = 0.0
-            try:
-               ds2 = self._get_pixel_distance_along_axis(interval_expanded[1], +0.5)
-            except:
-               warnings.warn("Unable to find pixel distance along axis for interval padding; assuming no interval padding needed.")
-               ds2 = 0.0
-            if np.isnan(ds2):
-               ds2 = 0.0
+            # We also catch users warnings here. These are the result of
+            # invalid numpy calculations that may be the result of out of
+            # bounds on axis with finite allowed intervals such as geo
+            # projections i.e. Mollweide.
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore', category=RuntimeWarning)
+                try:
+                    ds1 = self._get_pixel_distance_along_axis(
+                        interval_expanded[0], -0.5)
+                except:
+                    warnings.warn("Unable to find pixel distance along axis for\
+                    interval padding of ticks; assuming no interval padding\
+                    needed.")
+                    ds1 = 0.0
+                if np.isnan(ds1):
+                    ds1 = 0.0
+                try:
+                    ds2 = self._get_pixel_distance_along_axis(
+                        interval_expanded[1], +0.5)
+                except:
+                    warnings.warn("Unable to find pixel distance along axis for\
+                    interval padding of ticks; assuming no interval padding\
+                    needed.")
+                    ds2 = 0.0
+                if np.isnan(ds2):
+                    ds2 = 0.0
             interval_expanded = (interval_expanded[0] - ds1,
                                  interval_expanded[1] + ds2)
 
