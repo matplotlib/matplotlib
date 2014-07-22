@@ -30,6 +30,27 @@ def test_fancyarrow():
             ax.tick_params(labelleft=False, labelbottom=False)
 
 
+@image_comparison(baseline_images=['boxarrow_test_image'], extensions=['png'])
+def test_boxarrow():
+
+    styles = matplotlib.patches.BoxStyle.get_styles()
+
+    n = len(styles)
+    spacing = 1.2
+
+    figheight = (n * spacing + .5)
+    fig1 = plt.figure(1, figsize=(4 / 1.5, figheight / 1.5))
+
+    fontsize = 0.3 * 72
+
+    for i, stylename in enumerate(sorted(styles.keys())):
+        fig1.text(0.5, ((n - i) * spacing - 0.5)/figheight, stylename,
+                  ha="center",
+                  size=fontsize,
+                  transform=fig1.transFigure,
+                  bbox=dict(boxstyle=stylename, fc="w", ec="k"))
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
