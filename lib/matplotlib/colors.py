@@ -1457,6 +1457,7 @@ def hsv_to_rgb(hsv):
 
     return rgb
 
+
 class LightSource(object):
     """
     Create a light source coming from the specified azimuth and elevation.
@@ -1464,8 +1465,8 @@ class LightSource(object):
     clockwise from north and elevation up from the zero plane of the surface.
 
     The :meth:`shade` is used to produce "shaded" rgb values for a data array.
-    :meth:`shade_rgb` can be used to combine an rgb image with 
-    The :meth:`shade_rgb` 
+    :meth:`shade_rgb` can be used to combine an rgb image with
+    The :meth:`shade_rgb`
     The :meth:`hillshade` produces an illumination map of a surface.
     """
     def __init__(self, azdeg=315, altdeg=45, hsv_min_val=0, hsv_max_val=1,
@@ -1486,7 +1487,7 @@ class LightSource(object):
 
         Notes
         -----
-        For backwards compatibility, the parameters *hsv_min_val*, 
+        For backwards compatibility, the parameters *hsv_min_val*,
         *hsv_max_val*, *hsv_min_sat*, and *hsv_max_sat* may be supplied at
         initialization as well.  However, these parameters will only be used if
         "blend_mode='hsv'" is passed into :meth:`shade` or :meth:`shade_rgb`.
@@ -1502,12 +1503,12 @@ class LightSource(object):
     def hillshade(self, elevation, vert_exag=1, dx=1, dy=1, fraction=1.):
         """
         Calculates the illumination intensity for a surface using the defined
-        azimuth and elevation for the light source. 
-        
+        azimuth and elevation for the light source.
+
         Imagine an artificial sun placed at infinity in some azimuth and
         elevation position illuminating our surface. The parts of the surface
         that slope toward the sun should brighten while those sides facing away
-        should become darker. 
+        should become darker.
 
         Parameters
         ----------
@@ -1549,8 +1550,8 @@ class LightSource(object):
         dy, dx = np.gradient(vert_exag * elevation, dy, dx)
         slope = 0.5 * np.pi - np.arctan(np.hypot(dx, dy))
         aspect = np.arctan2(dx, dy)
-        intensity = (np.sin(alt) * np.sin(slope) 
-                     + np.cos(alt) * np.cos(slope) 
+        intensity = (np.sin(alt) * np.sin(slope)
+                     + np.cos(alt) * np.cos(slope)
                      * np.cos(az - aspect))
 
         # Apply contrast stretch
@@ -1565,10 +1566,10 @@ class LightSource(object):
 
         return intensity
 
-    def shade(self, data, cmap, norm=None, blend_mode='hsv', 
+    def shade(self, data, cmap, norm=None, blend_mode='hsv',
               vert_exag=1, dx=1, dy=1, fraction=1, **kwargs):
         """
-        Combine colormapped data values with an illumination intensity map 
+        Combine colormapped data values with an illumination intensity map
         (a.k.a.  "hillshade") of the values.
 
         Parameters
@@ -1587,7 +1588,7 @@ class LightSource(object):
         blend_mode : {'hsv', 'overlay', 'soft'} or callable, optional
             The type of blending used to combine the colormapped data values
             with the illumination intensity.  For backwards compatibility, this
-            defaults to "hsv". Note that for most topographic surfaces, 
+            defaults to "hsv". Note that for most topographic surfaces,
             "overlay" or "soft" appear more visually realistic. If a
             user-defined function is supplied, it is expected to combine an
             MxNx3 RGB array of floats (ranging 0 to 1) with an MxNx1 hillshade
@@ -1610,8 +1611,8 @@ class LightSource(object):
             full illumination or shadow (and clipping any values that move
             beyond 0 or 1). Note that this is not visually or mathematically
             the same as vertical exaggeration.
-        Additional kwargs are passed on to the *blend_mode* function. 
-        
+        Additional kwargs are passed on to the *blend_mode* function.
+
         Returns
         -------
         rgba : ndarray
@@ -1621,14 +1622,14 @@ class LightSource(object):
             norm = Normalize(vmin=data.min(), vmax=data.max())
 
         rgb0 = cmap(norm(data))
-        rgb1 = self.shade_rgb(rgb0, elevation=data, blend_mode=blend_mode, 
+        rgb1 = self.shade_rgb(rgb0, elevation=data, blend_mode=blend_mode,
                               vert_exag=vert_exag, dx=dx, dy=dy,
                               fraction=fraction, **kwargs)
         # Don't overwrite the alpha channel, if present.
         rgb0[..., :3] = rgb1[..., :3]
         return rgb0
 
-    def shade_rgb(self, rgb, elevation, fraction=1., blend_mode='hsv', 
+    def shade_rgb(self, rgb, elevation, fraction=1., blend_mode='hsv',
                   vert_exag=1, dx=1, dy=1, **kwargs):
         """
         Take the input RGB array (ny*nx*3) adjust their color values
@@ -1652,7 +1653,7 @@ class LightSource(object):
         blend_mode : {'hsv', 'overlay', 'soft'} or callable, optional
             The type of blending used to combine the colormapped data values
             with the illumination intensity.  For backwards compatibility, this
-            defaults to "hsv". Note that for most topographic surfaces, 
+            defaults to "hsv". Note that for most topographic surfaces,
             "overlay" or "soft" appear more visually realistic. If a
             user-defined function is supplied, it is expected to combine an
             MxNx3 RGB array of floats (ranging 0 to 1) with an MxNx1 hillshade
@@ -1669,8 +1670,8 @@ class LightSource(object):
             The x-spacing (columns) of the input *elevation* grid.
         dy : number, optional
             The y-spacing (rows) of the input *elevation* grid.
-        Additional kwargs are passed on to the *blend_mode* function. 
-        
+        Additional kwargs are passed on to the *blend_mode* function.
+
         Returns
         -------
         shaded_rgb : ndarray
@@ -1682,9 +1683,9 @@ class LightSource(object):
 
         # Blend the hillshade and rgb data using the specified mode
         lookup = {
-                'hsv':self.blend_hsv, 
-                'soft':self.blend_soft_light, 
-                'overlay':self.blend_overlay,
+                'hsv': self.blend_hsv,
+                'soft': self.blend_soft_light,
+                'overlay': self.blend_overlay,
                 }
         if blend_mode in lookup:
             return lookup[blend_mode](rgb, intensity, **kwargs)
@@ -1794,7 +1795,7 @@ class LightSource(object):
         rgb : ndarray
             An MxNx3 RGB array representing the combined images.
         """
-        return 2 * intensity * rgb + (1 - 2 * intensity) * rgb**2 
+        return 2 * intensity * rgb + (1 - 2 * intensity) * rgb**2
 
     def blend_overlay(self, rgb, intensity):
         """
@@ -1815,6 +1816,7 @@ class LightSource(object):
         low = 2 * intensity * rgb
         high = 1 - 2 * (1 - intensity) * (1 - rgb)
         return np.where(rgb <= 0.5, low, high)
+
 
 def from_levels_and_colors(levels, colors, extend='neither'):
     """
