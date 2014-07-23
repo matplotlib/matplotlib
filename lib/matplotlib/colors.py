@@ -1561,8 +1561,13 @@ class LightSource(object):
             np.clip(intensity, imin, imax, intensity)
 
         # Rescale to 0-1, keeping range before contrast stretch
-        intensity -= imin
-        intensity /= (imax - imin)
+        if imax > imin:
+            intensity -= imin
+            intensity /= (imax - imin)
+        else:
+            # If constant slope, keep relative scaling 
+            # (i.e. flat should be 0.5, fully occluded 0, etc.)
+            intensity = (intensity + 1) / 2
 
         return intensity
 
