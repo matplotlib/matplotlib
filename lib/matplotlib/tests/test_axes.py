@@ -523,7 +523,7 @@ def test_nonfinite_limits():
         y = np.log(x)
     finally:
         np.seterr(**olderr)
-    x[len(x)/2] = np.nan
+    x[len(x) // 2] = np.nan
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(x, y)

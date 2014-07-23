@@ -474,20 +474,20 @@ class ContourLabeler:
                 xy2 = mlab.less_simple_linear_interpolation(
                     pl, lc, [xi[1]])
 
-            # Make integer
+            # Make floating point representations of integers, keeping nans.
             I = [np.floor(I[0]), np.ceil(I[1])]
 
             # Actually break contours
             if closed:
                 # This will remove contour if shorter than label
                 if np.all(~np.isnan(I)):
-                    nlc.append(np.r_[xy2, lc[I[1]:I[0] + 1], xy1])
+                    nlc.append(np.r_[xy2, lc[int(I[1]):int(I[0]) + 1], xy1])
             else:
                 # These will remove pieces of contour if they have length zero
                 if not np.isnan(I[0]):
-                    nlc.append(np.r_[lc[:I[0] + 1], xy1])
+                    nlc.append(np.r_[lc[:int(I[0]) + 1], xy1])
                 if not np.isnan(I[1]):
-                    nlc.append(np.r_[xy2, lc[I[1]:]])
+                    nlc.append(np.r_[xy2, lc[int(I[1]):]])
 
             # The current implementation removes contours completely
             # covered by labels.  Uncomment line below to keep
