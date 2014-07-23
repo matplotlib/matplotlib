@@ -1528,12 +1528,8 @@ class LightSource(object):
             Increases or decreases the contrast of the hillshade.  Values
             greater than one will cause intermediate values to move closer to
             full illumination or shadow (and clipping any values that move
-            beyond 0 or 1).  Values less than one will cause full shadow or
-            full illumination to move closer to a value of 0.5, thereby
-            decreasing contrast.  Note that this is not mathematically or
-            visually the same as increasing/decreasing the vertical
-            exaggeration.
-
+            beyond 0 or 1). Note that this is not visually or mathematically
+            the same as vertical exaggeration.
         Returns
         -------
         intensity : ndarray
@@ -1557,12 +1553,16 @@ class LightSource(object):
                      + np.cos(alt) * np.cos(slope) 
                      * np.cos(az - aspect))
 
-        intensity -= intensity.min()
-        intensity /= intensity.ptp()
-        if fraction != 1.0:
-            intensity = fraction * (intensity - 0.5) + 0.5
-            if np.abs(fraction) > 1:
-                np.clip(intensity, 0, 1, intensity)
+        # Apply contrast stretch
+        imin, imax = intensity.min(), intensity.max()
+        intensity *= fraction
+        if np.abs(fraction) > 1:
+            np.clip(intensity, imin, imax, intensity)
+
+        # Rescale to 0-1, keeping range before contrast stretch
+        intensity -= imin
+        intensity /= (imax - imin)
+
         return intensity
 
     def shade(self, data, cmap, norm=None, blend_mode='hsv', 
@@ -1608,11 +1608,8 @@ class LightSource(object):
             Increases or decreases the contrast of the hillshade.  Values
             greater than one will cause intermediate values to move closer to
             full illumination or shadow (and clipping any values that move
-            beyond 0 or 1).  Values less than one will cause full shadow or
-            full illumination to move closer to a value of 0.5, thereby
-            decreasing contrast.  Note that this is not mathematically or
-            visually the same as increasing/decreasing the vertical
-            exaggeration.
+            beyond 0 or 1). Note that this is not visually or mathematically
+            the same as vertical exaggeration.
         Additional kwargs are passed on to the *blend_mode* function. 
         
         Returns
@@ -1625,7 +1622,8 @@ class LightSource(object):
 
         rgb0 = cmap(norm(data))
         rgb1 = self.shade_rgb(rgb0, elevation=data, blend_mode=blend_mode, 
-                              vert_exag=vert_exag, dx=dx, dy=dy, **kwargs)
+                              vert_exag=vert_exag, dx=dx, dy=dy,
+                              fraction=fraction, **kwargs)
         # Don't overwrite the alpha channel, if present.
         rgb0[..., :3] = rgb1[..., :3]
         return rgb0
@@ -1649,11 +1647,8 @@ class LightSource(object):
             Increases or decreases the contrast of the hillshade.  Values
             greater than one will cause intermediate values to move closer to
             full illumination or shadow (and clipping any values that move
-            beyond 0 or 1).  Values less than one will cause full shadow or
-            full illumination to move closer to a value of 0.5, thereby
-            decreasing contrast.  Note that this is not mathematically or
-            visually the same as increasing/decreasing the vertical
-            exaggeration.
+            beyond 0 or 1). Note that this is not visually or mathematically
+            the same as vertical exaggeration.
         blend_mode : {'hsv', 'overlay', 'soft'} or callable, optional
             The type of blending used to combine the colormapped data values
             with the illumination intensity.  For backwards compatibility, this
