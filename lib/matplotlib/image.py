@@ -1439,6 +1439,6 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
                       frameon=False, xticks=[], yticks=[])
 
     basename, ext = os.path.splitext(basename)
-    ax.imshow(im, aspect='auto', resample=True, interpolation='bilinear')
+    ax.imshow(im, aspect='auto', resample=True, interpolation=interpolation)
     fig.savefig(thumbfile, dpi=dpi)
     return fig
