@@ -1747,7 +1747,6 @@ def simple_linear_interpolation(a, steps):
     a0 = a[0:-1]
     a1 = a[1:]
     delta = ((a1 - a0) / steps)
-    steps = int(steps)
     for i in range(1, steps):
         result[i::steps] = delta * i + a0
     result[steps::steps] = a1
