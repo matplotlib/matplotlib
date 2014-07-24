@@ -46,6 +46,8 @@ keyword arguments. Currently, following box styles are implemented.
   ==========   ==============   ==========================
   Class        Name             Attrs
   ==========   ==============   ==========================
+  Circle       ``circle``       pad=0.3
+  DArrow       ``darrow``       pad=0.3
   LArrow       ``larrow``       pad=0.3
   RArrow       ``rarrow``       pad=0.3
   Round        ``round``        pad=0.3,rounding_size=None
