@@ -223,9 +223,41 @@ binaries in the form of wheels.
 Python.org Python
 ^^^^^^^^^^^^^^^^^
 
-* Install pip following instructions here: http://pip.readthedocs.org
+First check that you do in fact have the Python.org python set to be the
+default Python binary. From Terminal, do::
+
+    python -c 'import sys; print(sys.prefix)'
+
+or::
+
+    python3 -c 'import sys; print(sys.prefix)'
+
+Use ``python`` or ``python3`` depending whether you installed Python 2.7 or a
+Python 3 release.  You should see something like::
+
+    /Library/Frameworks/Python.framework/Versions/2.7
+
+where "2.7" is your installed Python version.  If you see something like
+``/usr/bin/python`` instead, first try restarting Terminal.app;, if that
+doesn't work then try reinstalling Python.org Python. If the check still
+fails, we would like to hear about it.  Please have a look at
+:ref:`reporting-problems`.
+
+Install pip following the `standard pip install instructions
+<http://pip.readthedocs.org/en/latest/installing.html>`_.  For the impatient,
+in Terminal::
+
+    curl -O https://bootstrap.pypa.io/get-pip.py
 
 Then::
+
+    python get-pip.py
+
+or::
+
+    python3 get-pip.py
+
+Install matplotlib and all its dependencies with::
 
     pip install matplotlib
 
@@ -261,6 +293,14 @@ the IPython notebook option, like this:
   install ipython[notebook]``
 * Homebrew ``pip2 install ipython[notebook]`` or ``pip3 install
   ipython[notebook]``
+
+In case of emergency...
+^^^^^^^^^^^^^^^^^^^^^^^
+
+If you get errors with pip trying to run a compiler like ``gcc`` or ``clang``,
+first check :ref:`reporting-problems`, then you may need to `install xcode
+<https://guide.macports.org/chunked/installing.html#installing.xcode>`_ and
+try again.
 
 Installing via OSX mpkg installer package
 -----------------------------------------
@@ -339,8 +379,8 @@ restarting Terminal.app before running the check again. If that doesn't fix
 the problem, depending on which Python you wanted to use, consider
 reinstalling Python.org Python, or check your homebrew or macports setup.
 Remember that the disk image installer only works for Python.org Python, and
-will not get picked up by other Pythons.  If all these fail, please contact
-the mailing list.
+will not get picked up by other Pythons.  If all these fail, please let us
+know: see :ref:`reporting-problems`.
 
 Windows Notes
 =============
