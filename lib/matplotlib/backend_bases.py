@@ -3358,11 +3358,7 @@ class NavigationBase(object):
 
         self._tools[name] = tool_cls
         if tool_cls.keymap is not None:
-            for k in validate_stringlist(tool_cls.keymap):
-                if k in self._keys:
-                    warnings.warn('Key %s changed from %s to %s' %
-                                  (k, self._keys[k], name))
-                self._keys[k] = name
+            self.set_tool_keymap(name, tool_cls.keymap)
 
         if self.toolbar and tool_cls.intoolbar:
             # TODO: better search for images, they are not always in the
