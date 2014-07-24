@@ -2168,6 +2168,8 @@ def _reshape_2D(X):
 
     if not hasattr(X[0], '__len__'):
         X = [X]
+    else:
+        X = [np.ravel(x) for x in X]
 
     return X
 
