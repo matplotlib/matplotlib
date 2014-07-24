@@ -162,8 +162,7 @@ def test_quiver3d():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
 
-    x, y, z = np.meshgrid(np.arange(-1, 1, 0.2), np.arange(-1, 1, 0.2),
-                          np.arange(-1, 1, 0.8))
+    x, y, z = np.ogrid[-1:0.8:10j, -1:0.8:10j, -1:0.6:3j]
 
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
@@ -177,7 +176,7 @@ def test_quiver3d_empty():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
 
-    x, y, z = np.meshgrid([], [], [])
+    x, y, z = np.ogrid[-1:0.8:0j, -1:0.8:0j, -1:0.6:0j]
 
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
@@ -191,8 +190,9 @@ def test_quiver3d_masked():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
 
-    x, y, z = np.meshgrid(np.arange(-1, 1, 0.2), np.arange(-1, 1, 0.2),
-                          np.arange(-1, 1, 0.8))
+    # Using mgrid here instead of ogrid because masked_where doesn't
+    # seem to like broadcasting very much...
+    x, y, z = np.mgrid[-1:0.8:10j, -1:0.8:10j, -1:0.6:3j]
 
     u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
     v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
