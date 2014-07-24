@@ -16,6 +16,8 @@ These tools are used by `NavigationBase`
 
 from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
+import matplotlib.cbook as cbook
+from weakref import WeakKeyDictionary
 import numpy as np
 
 
@@ -284,46 +286,137 @@ class ToolToggleXScale(ToolBase):
             ax.figure.canvas.draw()
 
 
-class ToolHome(ToolBase):
+class ViewsPositionsMixin(object):
+    views = WeakKeyDictionary()
+    positions = WeakKeyDictionary()
+
+    def init_vp(self):
+        if self.figure not in self.views:
+            self.views[self.figure] = cbook.Stack()
+            self.positions[self.figure] = cbook.Stack()
+            # Define Home
+            self.push_current()
+
+    @classmethod
+    def clear(cls, figure):
+        """Reset the axes stack"""
+        if figure in cls.views:
+            cls.views[figure].clear()
+            cls.positions[figure].clear()
+
+    def update_view(self):
+        """Update the viewlim and position from the view and
+        position stack for each axes
+        """
+
+        lims = self.views[self.figure]()
+        if lims is None:
+            return
+        pos = self.positions[self.figure]()
+        if pos is None:
+            return
+        for i, a in enumerate(self.figure.get_axes()):
+            xmin, xmax, ymin, ymax = lims[i]
+            a.set_xlim((xmin, xmax))
+            a.set_ylim((ymin, ymax))
+            # Restore both the original and modified positions
+            a.set_position(pos[i][0], 'original')
+            a.set_position(pos[i][1], 'active')
+
+        self.figure.canvas.draw_idle()
+
+    def push_current(self):
+        """push the current view limits and position onto the stack"""
+
+        lims = []
+        pos = []
+        for a in self.figure.get_axes():
+            xmin, xmax = a.get_xlim()
+            ymin, ymax = a.get_ylim()
+            lims.append((xmin, xmax, ymin, ymax))
+            # Store both the original and modified positions
+            pos.append((
+                a.get_position(True).frozen(),
+                a.get_position().frozen()))
+        self.views[self.figure].push(lims)
+        self.positions[self.figure].push(pos)
+
+    def refresh_locators(self):
+        """Redraw the canvases, update the locators"""
+        for a in self.figure.get_axes():
+            xaxis = getattr(a, 'xaxis', None)
+            yaxis = getattr(a, 'yaxis', None)
+            zaxis = getattr(a, 'zaxis', None)
+            locators = []
+            if xaxis is not None:
+                locators.append(xaxis.get_major_locator())
+                locators.append(xaxis.get_minor_locator())
+            if yaxis is not None:
+                locators.append(yaxis.get_major_locator())
+                locators.append(yaxis.get_minor_locator())
+            if zaxis is not None:
+                locators.append(zaxis.get_major_locator())
+                locators.append(zaxis.get_minor_locator())
+
+            for loc in locators:
+                loc.refresh()
+        self.figure.canvas.draw_idle()
+
+    def home(self):
+        self.views[self.figure].home()
+        self.positions[self.figure].home()
+
+    def back(self):
+        self.views[self.figure].back()
+        self.positions[self.figure].back()
+
+    def forward(self):
+        self.views[self.figure].forward()
+        self.positions[self.figure].forward()
+
+
+def clear_views_positions(figure):
+    ViewsPositionsMixin.clear(figure)
+
+
+class ViewsPositionsBase(ViewsPositionsMixin, ToolBase):
+    # Simple base to avoid repeating code on Home, Back and Forward
+    _on_trigger = None
+
+    def set_figure(self, *args):
+        ToolBase.set_figure(self, *args)
+        self.init_vp()
+
+    def trigger(self, *args):
+        getattr(self, self._on_trigger)()
+        self.update_view()
+
+
+class ToolHome(ViewsPositionsBase):
     """Restore the original view"""
 
     description = 'Reset original view'
     image = 'home.png'
     keymap = rcParams['keymap.home']
-
-    def trigger(self, *args):
-        self.navigation.views.home()
-        self.navigation.positions.home()
-        self.navigation.update_view()
-#        self.set_history_buttons()
+    _on_trigger = 'home'
 
 
-class ToolBack(ToolBase):
+class ToolBack(ViewsPositionsBase):
     """move back up the view lim stack"""
 
     description = 'Back to  previous view'
     image = 'back.png'
     keymap = rcParams['keymap.back']
-
-    def trigger(self, *args):
-        self.navigation.views.back()
-        self.navigation.positions.back()
-#        self.set_history_buttons()
-        self.navigation.update_view()
+    _on_trigger = 'back'
 
 
-class ToolForward(ToolBase):
+class ToolForward(ViewsPositionsBase):
     """Move forward in the view lim stack"""
 
     description = 'Forward to next view'
     image = 'forward.png'
     keymap = rcParams['keymap.forward']
-
-    def trigger(self, *args):
-        self.navigation.views.forward()
-        self.navigation.positions.forward()
-#        self.set_history_buttons()
-        self.navigation.update_view()
+    _on_trigger = 'forward'
 
 
 class ConfigureSubplotsBase(ToolPersistentBase):
@@ -341,17 +434,10 @@ class SaveFigureBase(ToolBase):
     keymap = rcParams['keymap.save']
 
 
-class ToolZoom(ToolToggleBase):
-    """Zoom to rectangle"""
-
-    description = 'Zoom to rectangle'
-    image = 'zoom_to_rect.png'
-    keymap = rcParams['keymap.zoom']
-    cursor = cursors.SELECT_REGION
-
+class ZoomPanBase(ViewsPositionsMixin, ToolToggleBase):
     def __init__(self, *args):
         ToolToggleBase.__init__(self, *args)
-        self._ids_zoom = []
+        self.init_vp()
         self._button_pressed = None
         self._xypress = None
         self._idPress = None
@@ -365,16 +451,29 @@ class ToolZoom(ToolToggleBase):
             'button_release_event', self._release)
 
     def disable(self, event):
-        self._cancel_zoom()
+        self._cancel_action()
         self.figure.canvas.widgetlock.release(self)
         self.figure.canvas.mpl_disconnect(self._idPress)
         self.figure.canvas.mpl_disconnect(self._idRelease)
 
-    def _cancel_zoom(self):
+
+class ToolZoom(ZoomPanBase):
+    """Zoom to rectangle"""
+
+    description = 'Zoom to rectangle'
+    image = 'zoom_to_rect.png'
+    keymap = rcParams['keymap.zoom']
+    cursor = cursors.SELECT_REGION
+
+    def __init__(self, *args):
+        ZoomPanBase.__init__(self, *args)
+        self._ids_zoom = []
+
+    def _cancel_action(self):
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)
         self.navigation.remove_rubberband(None, self)
-        self.navigation.draw()
+        self.refresh_locators()
         self._xypress = None
         self._button_pressed = None
         self._ids_zoom = []
@@ -386,22 +485,17 @@ class ToolZoom(ToolToggleBase):
         # If we're already in the middle of a zoom, pressing another
         # button works to "cancel"
         if self._ids_zoom != []:
-            self._cancel_zoom()
+            self._cancel_action()
 
         if event.button == 1:
             self._button_pressed = 1
         elif event.button == 3:
             self._button_pressed = 3
         else:
-            self._cancel_zoom()
+            self._cancel_action()
             return
 
         x, y = event.x, event.y
-
-        # push the current view to define home if stack is empty
-        # TODO: add a set home in navigation
-        if self.navigation.views.empty():
-            self.navigation.push_current()
 
         self._xypress = []
         for i, a in enumerate(self.figure.get_axes()):
@@ -457,7 +551,7 @@ class ToolZoom(ToolToggleBase):
         self._ids_zoom = []
 
         if not self._xypress:
-            self._cancel_zoom()
+            self._cancel_action()
             return
 
         last_a = []
@@ -467,7 +561,7 @@ class ToolZoom(ToolToggleBase):
             lastx, lasty, a, _ind, lim, _trans = cur_xypress
             # ignore singular clicks - 5 pixels is a threshold
             if abs(x - lastx) < 5 or abs(y - lasty) < 5:
-                self._cancel_zoom()
+                self._cancel_action()
                 return
 
             x0, y0, x1, y1 = lim.extents
@@ -568,11 +662,11 @@ class ToolZoom(ToolToggleBase):
                     a.set_ylim((ry1, ry2))
 
         self._zoom_mode = None
-        self.navigation.push_current()
-        self._cancel_zoom()
+        self.push_current()
+        self._cancel_action()
 
 
-class ToolPan(ToolToggleBase):
+class ToolPan(ZoomPanBase):
     """Pan axes with left mouse, zoom with right"""
 
     keymap = rcParams['keymap.pan']
@@ -581,32 +675,16 @@ class ToolPan(ToolToggleBase):
     cursor = cursors.MOVE
 
     def __init__(self, *args):
-        ToolToggleBase.__init__(self, *args)
-        self._button_pressed = None
-        self._xypress = None
-        self._idPress = None
-        self._idRelease = None
+        ZoomPanBase.__init__(self, *args)
         self._idDrag = None
 
-    def enable(self, event):
-        self.figure.canvas.widgetlock(self)
-        self._idPress = self.figure.canvas.mpl_connect(
-            'button_press_event', self._press)
-        self._idRelease = self.figure.canvas.mpl_connect(
-            'button_release_event', self._release)
-
-    def disable(self, event):
-        self._cancel_pan()
-        self.figure.canvas.widgetlock.release(self)
-        self.figure.canvas.mpl_disconnect(self._idPress)
-        self.figure.canvas.mpl_disconnect(self._idRelease)
-
-    def _cancel_pan(self):
+    def _cancel_action(self):
         self._button_pressed = None
         self._xypress = []
         self.figure.canvas.mpl_disconnect(self._idDrag)
         self.navigation.messagelock.release(self)
-        self.navigation.draw()
+#         self.navigation.draw()
+        self.refresh_locators()
 
     def _press(self, event):
         if event.button == 1:
@@ -614,15 +692,10 @@ class ToolPan(ToolToggleBase):
         elif event.button == 3:
             self._button_pressed = 3
         else:
-            self._cancel_pan()
+            self._cancel_action()
             return
 
         x, y = event.x, event.y
-
-        # push the current view to define home if stack is empty
-        # TODO: add define_home in navigation
-        if self.navigation.views.empty():
-            self.navigation.push_current()
 
         self._xypress = []
         for i, a in enumerate(self.figure.get_axes()):
@@ -636,7 +709,7 @@ class ToolPan(ToolToggleBase):
 
     def _release(self, event):
         if self._button_pressed is None:
-            self._cancel_pan()
+            self._cancel_action()
             return
 
         self.figure.canvas.mpl_disconnect(self._idDrag)
@@ -645,11 +718,12 @@ class ToolPan(ToolToggleBase):
         for a, _ind in self._xypress:
             a.end_pan()
         if not self._xypress:
-            self._cancel_pan()
+            self._cancel_action()
             return
 
-        self.navigation.push_current()
-        self._cancel_pan()
+#         self.navigation.push_current()
+        self.push_current()
+        self._cancel_action()
 
     def _mouse_move(self, event):
         for a, _ind in self._xypress:
