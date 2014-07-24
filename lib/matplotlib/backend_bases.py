@@ -3210,10 +3210,6 @@ class NavigationBase(object):
         self._idDrag = self.canvas.mpl_connect(
             'motion_notify_event', self._mouse_move)
 
-        # a dict from axes index to a list of view limits
-        self.views = cbook.Stack()
-        self.positions = cbook.Stack()  # stack of subplot positions
-
         self._tools = {}
         self._keys = {}
         self._instances = {}
@@ -3480,12 +3476,6 @@ class NavigationBase(object):
                        'keymap': keys}
         return d
 
-    def update(self):
-        """Reset the axes stack"""
-
-        self.views.clear()
-        self.positions.clear()
-
     def _mouse_move(self, event):
         if not event.inaxes or not self._toggled:
             if self._last_cursor != self._default_cursor:
@@ -3515,28 +3505,6 @@ class NavigationBase(object):
         else:
             self.toolbar.set_message('')
 
-    def draw(self):
-        """Redraw the canvases, update the locators"""
-
-        for a in self.canvas.figure.get_axes():
-            xaxis = getattr(a, 'xaxis', None)
-            yaxis = getattr(a, 'yaxis', None)
-            zaxis = getattr(a, 'zaxis', None)
-            locators = []
-            if xaxis is not None:
-                locators.append(xaxis.get_major_locator())
-                locators.append(xaxis.get_minor_locator())
-            if yaxis is not None:
-                locators.append(yaxis.get_major_locator())
-                locators.append(yaxis.get_minor_locator())
-            if zaxis is not None:
-                locators.append(zaxis.get_major_locator())
-                locators.append(zaxis.get_minor_locator())
-
-            for loc in locators:
-                loc.refresh()
-        self.canvas.draw_idle()
-
     def set_cursor(self, cursor):
         """
         Set the current cursor to one of the :class:`Cursors`
@@ -3544,43 +3512,6 @@ class NavigationBase(object):
         """
 
         pass
-
-    def update_view(self):
-        """Update the viewlim and position from the view and
-        position stack for each axes
-        """
-
-        lims = self.views()
-        if lims is None:
-            return
-        pos = self.positions()
-        if pos is None:
-            return
-        for i, a in enumerate(self.canvas.figure.get_axes()):
-            xmin, xmax, ymin, ymax = lims[i]
-            a.set_xlim((xmin, xmax))
-            a.set_ylim((ymin, ymax))
-            # Restore both the original and modified positions
-            a.set_position(pos[i][0], 'original')
-            a.set_position(pos[i][1], 'active')
-
-        self.canvas.draw_idle()
-
-    def push_current(self):
-        """push the current view limits and position onto the stack"""
-
-        lims = []
-        pos = []
-        for a in self.canvas.figure.get_axes():
-            xmin, xmax = a.get_xlim()
-            ymin, ymax = a.get_ylim()
-            lims.append((xmin, xmax, ymin, ymax))
-            # Store both the original and modified positions
-            pos.append((
-                a.get_position(True).frozen(),
-                a.get_position().frozen()))
-        self.views.push(lims)
-        self.positions.push(pos)
 
     def draw_rubberband(self, event, caller, x0, y0, x1, y1):
         """Draw a rectangle rubberband to indicate zoom limits

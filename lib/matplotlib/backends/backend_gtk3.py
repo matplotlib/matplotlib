@@ -31,7 +31,8 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
 from matplotlib.backend_bases import ShowBase, ToolbarBase, NavigationBase
-from matplotlib.backend_tools import SaveFigureBase, ConfigureSubplotsBase
+from matplotlib.backend_tools import SaveFigureBase, ConfigureSubplotsBase, \
+    clear_views_positions
 
 from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.colors import colorConverter
@@ -438,7 +439,7 @@ class FigureManagerGTK3(FigureManagerBase):
         def notify_axes_change(fig):
             'this will be called whenever the current axes is changed'
             if self.navigation is not None:
-                self.navigation.update()
+                clear_views_positions(fig)
             elif self.toolbar is not None: self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
@@ -758,9 +759,9 @@ class ToolbarGTK3(ToolbarBase, Gtk.Box):
         self._toolbar.show_all()
         self._toolitems = {}
         self._signals = {}
-        self._add_message()
+        self._setup_message_area()
 
-    def _add_message(self):
+    def _setup_message_area(self):
         box = Gtk.Box()
         box.set_property("orientation", Gtk.Orientation.HORIZONTAL)
         sep = Gtk.Separator()
