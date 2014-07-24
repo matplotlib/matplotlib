@@ -10,51 +10,98 @@ Overview
 
 The idea behind choosing a good colormap is to find a good representation in 3D colorspace for your data set. The best colormap for any given data set depends on many things including:
 
-- Whether representing form or metric data (link to C. Ware paper and explain more)
-- Your knowledge of the data set (*i.e.*, is there a critical value from which the other values deviate?)
+- Whether representing form or metric data ([Ware]_)
+- Your knowledge of the data set (*e.g.*, is there a critical value from which the other values deviate?)
 - If there is an intuitive color scheme for the parameter you are plotting
 - If there is a standard in the field the audience may be expecting
 
-For many applications, a perceptual colormap is the best choice |---| one in which equal steps in data are perceived as equal steps in the color space. Researchers have found that the human brain perceives changes in the lightness parameter as changes in the data much better than, for example, changes in hue. Therefore, colormaps which have monotonically increasing lightness through the colormap will be better interpreted by the viewer.
+For many applications, a perceptual colormap is the best choice --- one in which equal steps in data are perceived as equal steps in the color space. Researchers have found that the human brain perceives changes in the lightness parameter as changes in the data much better than, for example, changes in hue. Therefore, colormaps which have monotonically increasing lightness through the colormap will be better interpreted by the viewer.
 
-Color can be represented in 3D space in various ways. One way to represent color is using CIELAB (CITE). In CIELAB, color space is represented by lightness, :math:`L^*`; red-green, :math:`a`; and yellow-blue, :math:`b`. The lightness parameter :math:`L^*` can then be used to learn more about how the matplotlib colormaps will be perceived by viewers.
+Color can be represented in 3D space in various ways. One way to represent color is using CIELAB. In CIELAB, color space is represented by lightness, :math:`L^*`; red-green, :math:`a^*`; and yellow-blue, :math:`b^*`. The lightness parameter :math:`L^*` can then be used to learn more about how the matplotlib colormaps will be perceived by viewers.
 
 
-Sequential and diverging colormaps
-==================================
+Classes of colormaps
+====================
 
-STUFF
+Colormaps are often split into several categories based on function (see, *e.g.*, [Moreland]_):
+
+1. Sequential: change in lightness and often saturation of color incrementally, often using a single hue; should be used for representing information that has ordering.
+2. Diverging: change in lightness and possibly saturation of two different colors that meet in the middle at an unsaturated color; should be used when the information being plotted has a critical middle value, such as topography or when the data deviates around zero.
+3. Qualitative: often are miscellaneous colors; should be used to represent information which does not have ordering or relationships.
 
 
 Lightness of matplotlib colormaps
 =================================
 
+Here we examine the lightness values of the matplotlib colormaps. Note that some documentation on the colormaps is available ([colormaps]_).
+
+Sequential
+----------
+
+For the Sequential plots, the lightness value increases monotonically through the colormaps. This is good. Some of the :math:`L^*` values in the colormaps span from 0 to 100 (binary and the other grayscale), and others start around :math:`L^*=20`. Those that have a smaller range of :math:`L^*` will accordingly have a smaller perceptual range. Note also that the :math:`L^*` function varies amongst the colormaps: some are approximately linear in :math:`L^*` and others are more curved.
+
+Sequential2
+-----------
+
+Many of the :math:`L^*` values from the Sequential2 plots are monotonically increasing, but some (autumn, cool, spring, and winter) plateau or even go both up and down in :math:`L^*` space. Others (afmhot, copper, gist_heat, and hot) have kinks in the :math:`L^*` functions. Data that is being represented in a region of the colormap that is at a plateau or kink will lead to a perception of banding of the data in those values in the colormap (see [mycarta_banding]_ for an excellent example of this). 
+
+Diverging
+---------
+
+For the Diverging maps, we want to have monotonically increasing :math:`L^*` values up to a maximum, which should be close to :math:`L^*=100`, followed by monotonically decreasing :math:`L^*` values. We are looking for approximately equal minimum :math:`L^*` values at opposite ends of the colormap. By these measures, BrBG and RdBu are good options. coolwarm is a good option, but it doesn't span a wide range of :math:`L^*` values (see grayscale section below). 
+
+Qualitative
+-----------
+
+Qualitative colormaps are not aimed at being perceptual maps, but looking at the lightness parameter can verify that for us. The :math:`L^*` values move all over the place throughout the colormap, and are clearly not monotonically increasing. These would not be good options for use as perceptual colormaps.
+
+Miscellaneous
+-------------
+
+Some of the miscellaneous colormaps have particular uses they have been created for. For example, gist_earth, ocean, and terrain all seem to be created for plotting topography (green/brown) and water depths (blue) together. We would expect to see a divergence in these colormaps, then, but multiple kinks may not be ideal, such as in gist_earth and terrain. CMRmap was created to convert well to grayscale, though it does appear to have some small kinks in :math:`L^*`. cubehelix was created to vary smoothly in both lightness and hue, but appears to have a small hump in the green hue area. 
+
+The often-used jet colormap is included in this set of colormaps. We can see that the :math:`L^*` values vary widely throughout the colormap, making it a poor choice for representing data for viewers to see perceptually. See an extension on this idea at [mycarta_jet]_.
+
 .. plot:: users/plotting/colormaps/lightness.py
-
-For the Sequential plots, the lightness value increases monotonically through the colormaps. This is good. Some of the :math:`L^*` values in the colormaps span from 0 to 100 (binary and the other grayscale), and others start around :math:`L^*=20`. 
-
-Some of the :math:`L^*` values from the Sequential2 plots are monotonically increasing, but some, such as cool and spring, plateau or even go both up and down in :math:`L^*` space. Data that is being represented in a region of the colormap that is at a plateau will  lead to a perception of the data all having the same value (SHOW EXAMPLE?). 
-
-For the Diverging maps, we want to have monotonically increasing :math:`L^*` values up to a maximum, which should be close to :math:`L^*=100`, followed by monotonically decreasing :math:`L^*` values. We are looking for approximately equal minimum :math:`L^*` values at opposite ends of the colormap. Additionally, we might prefer a diverging colormap which has a rounded instead of pointed peak for retaining some spread of values around the critical point. By these measures, BrBG and RdBu are good options. coolwarm is a good option, but it doesn't span a wide range of :math:`L^*` values (see grayscale section).
-
-Qualitative colormaps are not necessarily aimed at being perceptual maps, but looking at the lightness parameter can solidify that for us. The :math:`L^*` values move all over the place throughout the colormap, and are clearly not monotonically increasing. These would not be good options for use as perceptual colormaps.
-
-MISCELLANEOUS
 
 
 :math:`L^*` function
 ====================
 
-WHAT FUNCTION FOR :math:`L^*`?
+There are multiple approaches to finding the best function for :math:`L^*` across a colormap. Linear gives reasonable results (*e.g.*, [mycarta_banding]_, [mycarta_lablinear]_). However, the Weber-Fechner law, and more generally and recently, Stevens' Law, indicates that a logarithmic or geometric relationship might be better (see effort on this front at [mycarta_cubelaw]_).
+
+.. plot:: users/plotting/colormaps/Lfunction.py
+
+
+Grayscale conversion
+====================
+
+Conversion to grayscale is important to pay attention to for printing publications that have color plots. If this is not paid attention to ahead of time, your readers may end up with indecipherable plots because the grayscale changes unpredictably through the colormap. 
+
+Conversion to grayscale is done in many different ways [bw]_. Some of the better ones use a linear combination of the rgb values of a pixel, but weighted according to how we perceive color intensity. A nonlinear method of conversion to grayscale is to use the :math:`L^*` values of the pixels. In general, similar principles apply for this question as they do for presenting one's information perceptually; that is, if a colormap is chosen that has monotonically increasing in :math:`L^*` values, it will print in a reasonable manner to grayscale.
+
+.. plot:: users/plotting/colormaps/grayscale.py
+
+
+Color vision deficiencies
+=========================
+
+MORE
 
 
 References
 ==========
 
-- C. Ware
-- M. Niccoli
-- IBM paper
-- More
+.. [Ware] http://ccom.unh.edu/sites/default/files/publications/Ware_1988_CGA_Color_sequences_univariate_maps.pdf
+.. [Moreland] http://www.sandia.gov/~kmorel/documents/ColorMaps/ColorMapsExpanded.pdf
+.. [colormaps] https://gist.github.com/endolith/2719900#id7
+.. [mycarta_banding] http://mycarta.wordpress.com/2012/10/14/the-rainbow-is-deadlong-live-the-rainbow-part-4-cie-lab-heated-body/
+.. [mycarta_jet] http://mycarta.wordpress.com/2012/10/06/the-rainbow-is-deadlong-live-the-rainbow-part-3/
+.. [mycarta_lablinear] http://mycarta.wordpress.com/2012/12/06/the-rainbow-is-deadlong-live-the-rainbow-part-5-cie-lab-linear-l-rainbow/
+.. [mycarta_cubelaw] http://mycarta.wordpress.com/2013/02/21/perceptual-rainbow-palette-the-method/
+.. [bw] http://www.tannerhelland.com/3643/grayscale-image-algorithm-vb6/
+IBM paper
+More
 
 .. :mod:`matplotlib.pyplot` is a collection of command style functions
 .. that make matplotlib  work like MATLAB.
