@@ -3,10 +3,10 @@ Abstract base classes define the primitives for Tools.
 These tools are used by `NavigationBase`
 
 :class:`ToolBase`
-    Simple tool that is instantiated every time it is used
+    Simple tool that gets instantiated every time it is used
 
 :class:`ToolPersistentBase`
-    Tool which instance is registered within `Navigation`
+    Tool whose instance gets registered within `Navigation`
 
 :class:`ToolToggleBase`
     PersistentTool that has two states, only one Toggle tool can be
@@ -37,7 +37,7 @@ class ToolBase(object):
     """
 
     keymap = None
-    """Keymap to associate this tool
+    """Keymap to associate with this tool
 
     **string**: List of comma separated keys that will be used to call this
     tool when the keypress event of *self.figure.canvas* is emited
@@ -47,14 +47,14 @@ class ToolBase(object):
     """Description of the Tool
 
     **string**: If the Tool is included in the Toolbar this text is used
-    as Tooltip
+    as a Tooltip
     """
 
     image = None
     """Filename of the image
 
     **string**: Filename of the image to use in the toolbar. If None, the
-    `name` is used as label in the toolbar button
+    `name` is used as a label in the toolbar button
     """
 
     intoolbar = True
@@ -70,12 +70,12 @@ class ToolBase(object):
         self.trigger(event)
 
     def trigger(self, event):
-        """Called when tool is used
+        """Called when this tool gets used
 
         Parameters
         ----------
         event : `Event`
-            Event that caused this tool to be called
+            The event that caused this tool to be called
         """
 
         pass

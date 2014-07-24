@@ -485,7 +485,7 @@ class FigureManagerGTK3(FigureManagerBase):
         return toolbar
 
     def _get_navigation(self):
-        # must be inited after toolbar is setted
+        # must be initialised after toolbar has been setted
         if rcParams['toolbar'] != 'toolbar2':
             navigation = NavigationGTK3(self)
         return navigation
@@ -749,7 +749,7 @@ class NavigationGTK3(NavigationBase):
         self.ctx.stroke()
 
 
-class ToolbarGTK3(ToolbarBase, Gtk.Box,):
+class ToolbarGTK3(ToolbarBase, Gtk.Box):
     def __init__(self, manager):
         ToolbarBase.__init__(self, manager)
         Gtk.Box.__init__(self)
