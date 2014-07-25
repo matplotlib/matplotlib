@@ -51,6 +51,8 @@ def test_savefig_to_stringio():
 
 @cleanup
 def test_savefig_to_stringio_with_distiller():
+    if not matplotlib.checkdep_ghostscript():
+        raise SkipTest("This test requires a GhostScript installation")
     matplotlib.rcParams['ps.usedistiller'] = 'ghostscript'
     _test_savefig_to_stringio()
 
