@@ -21,8 +21,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase
 from matplotlib.backend_bases import FigureManagerBase, FigureCanvasBase
 from matplotlib.backend_bases import NavigationToolbar2, cursors, TimerBase
 from matplotlib.backend_bases import ShowBase, ToolbarBase, NavigationBase
-from matplotlib.backend_tools import SaveFigureBase, ConfigureSubplotsBase, \
-    clear_views_positions
+from matplotlib.backend_tools import SaveFigureBase, ConfigureSubplotsBase
 from matplotlib._pylab_helpers import Gcf
 
 from matplotlib.figure import Figure
@@ -548,7 +547,7 @@ class FigureManagerTkAgg(FigureManagerBase):
         def notify_axes_change(fig):
             'this will be called whenever the current axes is changed'
             if self.navigation is not None:
-                clear_views_positions(fig)
+                pass
             elif self.toolbar is not None:
                 self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
