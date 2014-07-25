@@ -485,6 +485,8 @@ class FigureManagerGTK3(FigureManagerBase):
         # must be initialised after toolbar has been setted
         if rcParams['toolbar'] != 'toolbar2':
             navigation = NavigationGTK3(self)
+        else:
+            navigation = None
         return navigation
 
     def get_window_title(self):

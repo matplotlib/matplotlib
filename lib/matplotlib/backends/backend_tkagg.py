@@ -565,6 +565,8 @@ class FigureManagerTkAgg(FigureManagerBase):
         # must be inited after toolbar is setted
         if rcParams['toolbar'] != 'toolbar2':
             navigation = NavigationTk(self)
+        else:
+            navigation = None
         return navigation
 
     def resize(self, width, height=None):
