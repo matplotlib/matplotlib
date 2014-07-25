@@ -1547,9 +1547,11 @@ class LightSource(object):
         # consistent to what `imshow` assumes, as well.
         dy = -dy
 
+        #-- Calculate the intensity from the illumination angle
         dy, dx = np.gradient(vert_exag * elevation, dy, dx)
+        # The aspect is defined by the _downhill_ direction, thus the negative
+        aspect = np.arctan2(-dy, -dx)
         slope = 0.5 * np.pi - np.arctan(np.hypot(dx, dy))
-        aspect = np.arctan2(dx, dy)
         intensity = (np.sin(alt) * np.sin(slope)
                      + np.cos(alt) * np.cos(slope)
                      * np.cos(az - aspect))
@@ -1565,7 +1567,7 @@ class LightSource(object):
             intensity -= imin
             intensity /= (imax - imin)
         else:
-            # If constant slope, keep relative scaling 
+            # If constant slope, keep relative scaling
             # (i.e. flat should be 0.5, fully occluded 0, etc.)
             intensity = (intensity + 1) / 2
 
