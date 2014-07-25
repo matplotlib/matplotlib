@@ -97,9 +97,9 @@ class ToolBase(object):
 
 
 class ToolPersistentBase(ToolBase):
-    """Persisten tool
+    """Persistent tool
 
-    Persistent Tools are keept alive after their initialization,
+    Persistent Tools are kept alive after their initialization,
     a reference of the instance is kept by `navigation`.
 
     Notes
@@ -287,20 +287,41 @@ class ToolToggleXScale(ToolBase):
 
 
 class ViewsPositionsMixin(object):
+    """Mixin to handle changes in views and positions
+
+    Tools that change the views and positions, use this mixin to
+    keep track of the changes.
+    """
+
     views = WeakKeyDictionary()
+    """Record of views with Figure objects as keys"""
+
     positions = WeakKeyDictionary()
+    """Record of positions with Figure objects as keys"""
 
     def init_vp(self):
+        """Add a figure to the list of figures handled by this mixin
+
+        To handle the views and positions for a given figure, this method
+        has to be called at least once before any other method.
+
+        The best way to call it is during the set_figure method of the tools
+        """
         if self.figure not in self.views:
             self.views[self.figure] = cbook.Stack()
             self.positions[self.figure] = cbook.Stack()
             # Define Home
             self.push_current()
+            # Adding the clear method as axobserver, removes this burden from
+            # the backend
+            self.figure.add_axobserver(self.clear)
 
     @classmethod
     def clear(cls, figure):
         """Reset the axes stack"""
+        print('clear')
         if figure in cls.views:
+            print('done clear')
             cls.views[figure].clear()
             cls.positions[figure].clear()
 
@@ -375,12 +396,9 @@ class ViewsPositionsMixin(object):
         self.positions[self.figure].forward()
 
 
-def clear_views_positions(figure):
-    ViewsPositionsMixin.clear(figure)
-
-
 class ViewsPositionsBase(ViewsPositionsMixin, ToolBase):
     # Simple base to avoid repeating code on Home, Back and Forward
+    # Not of much use for other tools, so not documented
     _on_trigger = None
 
     def set_figure(self, *args):
@@ -435,6 +453,8 @@ class SaveFigureBase(ToolBase):
 
 
 class ZoomPanBase(ViewsPositionsMixin, ToolToggleBase):
+    # Base class to group common functionality between zoom and pan
+    # Not of much use for other tools, so not documented
     def __init__(self, *args):
         ToolToggleBase.__init__(self, *args)
         self.init_vp()
