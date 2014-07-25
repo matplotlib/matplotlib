@@ -658,6 +658,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
         elif self._is_stroked:
             self._edgecolors = self.to_rgba(self._A, self._alpha)
 
+    def get_fill(self):
+        'return whether fill is set'
+        return self._is_filled
+
     def update_from(self, other):
         'copy properties from other to self'
 
