@@ -49,7 +49,6 @@ def stackplot(axes, x, *args, **kwargs):
                All other keyword arguments are passed to
                :func:`~matplotlib.Axes.fill_between`
 
-
     Returns *r* : A list of
     :class:`~matplotlib.collections.PolyCollection`, one for each
     element in the stacked area plot.

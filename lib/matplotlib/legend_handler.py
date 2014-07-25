@@ -36,7 +36,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
-import matplotlib.artist as artist
+
 
 def update_from_first_child(tgt, src):
     tgt.update_from(src.get_children()[0])
@@ -600,7 +600,6 @@ class HandlerPolyCollection(HandlerBase):
                 return prop_array[0]
             else:
                 return None
-        #artist.Artist.update_from(legend_handle, orig_handle)
         legend_handle.set_edgecolor(first_color(orig_handle.get_edgecolor()))
         legend_handle.set_facecolor(first_color(orig_handle.get_facecolor()))
         legend_handle.set_fill(orig_handle.get_fill())
