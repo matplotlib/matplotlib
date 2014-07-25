@@ -319,9 +319,7 @@ class ViewsPositionsMixin(object):
     @classmethod
     def clear(cls, figure):
         """Reset the axes stack"""
-        print('clear')
         if figure in cls.views:
-            print('done clear')
             cls.views[figure].clear()
             cls.positions[figure].clear()
 
