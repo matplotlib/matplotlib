@@ -2,6 +2,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
+import itertools
 
 from nose.tools import assert_raises
 
@@ -10,6 +11,7 @@ from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
 
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
+import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison, cleanup
 
@@ -228,32 +230,105 @@ def test_colors_no_float():
     assert_raises(ValueError, gray_from_float_rgba)
 
 
-def test_light_source_shading_color_range():
-    # see also
-    #http://matplotlib.org/examples/pylab_examples/shading_example.html
+@image_comparison(baseline_images=['light_source_shading_topo'],
+                  extensions=['png'])
+def test_light_source_topo_surface():
+    """Shades a DEM using different v.e.'s and blend modes."""
+    dem = np.load(cbook.get_sample_data('jacksboro_fault_dem.npz'))
 
-    from matplotlib.colors import LightSource
-    from matplotlib.colors import Normalize
+    # Get the true cellsize in meters for accurate vertical exaggeration
+    dx, dy = dem['dx'], dem['dy'] # In decimal degrees
+    # Convert to meters...
+    dx = 111320.0 * dx * np.cos(dem['ymin'])
+    dy = 111320.0 * dy
 
-    refinput = np.array([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]])
-    norm = Normalize(vmin=0, vmax=50)
-    ls = LightSource(azdeg=0, altdeg=65)
-    testoutput = ls.shade(refinput, plt.cm.jet, norm=norm)
-    refoutput = np.array([
-        [[0., 0., 0.58912656, 1.],
-        [0., 0., 0.67825312, 1.],
-        [0., 0., 0.76737968, 1.],
-        [0., 0., 0.85650624, 1.]],
-        [[0., 0., 0.9456328, 1.],
-        [0., 0., 1., 1.],
-        [0., 0.04901961, 1., 1.],
-        [0., 0.12745098, 1., 1.]],
-        [[0., 0.22156863, 1., 1.],
-        [0., 0.3, 1., 1.],
-        [0., 0.37843137, 1., 1.],
-        [0., 0.45686275, 1., 1.]]
-        ])
-    assert_array_almost_equal(refoutput, testoutput)
+    ls = mcolors.LightSource(315, 45)
+    elev = dem['elevation']
+    cmap = cm.gist_earth
+
+    fig, axes = plt.subplots(nrows=3, ncols=3)
+    for row, mode in zip(axes, ['hsv', 'overlay', 'soft']):
+        for ax, ve in zip(row, [0.1, 1, 10]):
+            rgb = ls.shade(elev, cmap, vert_exag=ve, dx=dx, dy=dy,
+                           blend_mode=mode)
+            ax.imshow(rgb)
+            ax.set(xticks=[], yticks=[])
+
+
+def test_light_source_hillshading():
+    """Compare the current hillshading method against one that should be
+    mathematically equivalent. Illuminates a cone from a range of angles."""
+
+    def alternative_hillshade(azimuth, elev, z):
+        illum = _sph2cart(*_azimuth2math(azimuth, elev))
+        illum = np.array(illum)
+
+        dy, dx = np.gradient(-z)
+        dy = -dy
+        dz = np.ones_like(dy)
+        normals = np.dstack([dx, dy, dz])
+        normals /= np.linalg.norm(normals, axis=2)[..., None]
+
+        intensity = np.tensordot(normals, illum, axes=(2, 0))
+        intensity -= intensity.min()
+        intensity /= intensity.ptp()
+        return intensity
+
+    y, x = np.mgrid[5:0:-1, :5]
+    z = -np.hypot(x - x.mean(), y - y.mean())
+
+    for az, elev in itertools.product(range(0, 390, 30), range(0, 105, 15)):
+        ls = mcolors.LightSource(az, elev)
+        h1 = ls.hillshade(z)
+        h2 = alternative_hillshade(az, elev, z)
+        assert_array_almost_equal(h1, h2)
+
+
+def test_light_source_planar_hillshading():
+    """Ensure that the illumination intensity is correct for planar
+    surfaces."""
+
+    def plane(azimuth, elevation, x, y):
+        """Create a plane whose normal vector is at the given azimuth and
+        elevation."""
+        theta, phi = _azimuth2math(azimuth, elevation)
+        a, b, c = _sph2cart(theta, phi)
+        z = -(a*x + b*y) / c
+        return z
+
+    def angled_plane(azimuth, elevation, angle, x, y):
+        """Create a plane whose normal vector is at an angle from the given
+        azimuth and elevation."""
+        elevation = elevation + angle
+        if elevation > 90:
+            azimuth = (azimuth + 180) % 360
+            elevation = (90 - elevation) % 90
+        return plane(azimuth, elevation, x, y)
+
+    y, x = np.mgrid[5:0:-1, :5]
+    for az, elev in itertools.product(range(0, 390, 30), range(0, 105, 15)):
+        ls = mcolors.LightSource(az, elev)
+
+        # Make a plane at a range of angles to the illumination
+        for angle in range(0, 105, 15):
+            z = angled_plane(az, elev, angle, x, y)
+            h = ls.hillshade(z)
+            assert_array_almost_equal(h, np.cos(np.radians(angle)))
+
+
+def _sph2cart(theta, phi):
+    x = np.cos(theta) * np.sin(phi)
+    y = np.sin(theta) * np.sin(phi)
+    z = np.cos(phi)
+    return x, y, z
+
+
+def _azimuth2math(azimuth, elevation):
+    """Converts from clockwise-from-north and up-from-horizontal to
+    mathematical conventions."""
+    theta = np.radians((90 - azimuth) % 360)
+    phi = np.radians(90 - elevation)
+    return theta, phi
 
 
 if __name__ == '__main__':
