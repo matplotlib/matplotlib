@@ -2714,7 +2714,10 @@ def test_griddata_linear():
     z_masked = np.ma.array(z, mask=[False, False, False, True, False])
     correct_zi_masked = np.ma.masked_where(xi + yi > 1.0, get_z(xi, yi))
     zi = mlab.griddata(x, y, z_masked, xi, yi, interp='linear')
-    np.testing.assert_array_almost_equal(zi, correct_zi_masked)
+    with np.errstate(invalid='ignore'):
+        # The array contains a number of NaNs so suppress the
+        # numpy warnings here.
+        np.testing.assert_array_almost_equal(zi, correct_zi_masked)
     np.testing.assert_array_equal(np.ma.getmask(zi),
                                   np.ma.getmask(correct_zi_masked))
 
