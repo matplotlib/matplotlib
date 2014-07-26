@@ -1002,6 +1002,7 @@ class RendererSVG(RendererBase):
             style['font-size'] = six.text_type(fontsize) + 'px'
             style['font-family'] = six.text_type(fontfamily)
             style['font-style'] = prop.get_style().lower()
+            style['font-weight'] = prop.get_weight().lower()
             attrib['style'] = generate_css(style)
 
             if mtext and (angle == 0 or mtext.get_rotation_mode() == "anchor"):
@@ -1070,7 +1071,8 @@ class RendererSVG(RendererBase):
                 style = generate_css({
                     'font-size': six.text_type(fontsize) + 'px',
                     'font-family': font.family_name,
-                    'font-style': font.style_name.lower()})
+                    'font-style': font.style_name.lower(),
+                    'font-weight': font.style_name.lower()})
                 if thetext == 32:
                     thetext = 0xa0 # non-breaking space
                 spans.setdefault(style, []).append((new_x, -new_y, thetext))
