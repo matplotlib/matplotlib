@@ -342,9 +342,9 @@ class LatexManager(object):
         if not os.path.isdir(self.tmpdir):
             return
         try:
-            self.latex_stdin_utf8.close()
             self.latex.communicate()
-            self.latex.wait()
+            self.latex_stdin_utf8.close()
+            self.latex.stdout.close()
         except:
             pass
         try:
