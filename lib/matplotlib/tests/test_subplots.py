@@ -106,10 +106,12 @@ def test_exceptions():
     # TODO should this test more options?
     assert_raises(ValueError, plt.subplots, 2, 2, sharex='blah')
     assert_raises(ValueError, plt.subplots, 2, 2, sharey='blah')
+    # We filter warnings in this test which are genuine since
+    # the pount of this test is to ensure that this raises.
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore',
-            message='.*sharex\ argument\ to\ subplots',
-            category=UserWarning)
+                                message='.*sharex\ argument\ to\ subplots',
+                                category=UserWarning)
         assert_raises(ValueError, plt.subplots, 2, 2, -1)
         # uncomment this for 1.5
         # assert_raises(ValueError, plt.subplots, 2, 2, 0)
