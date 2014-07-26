@@ -8,12 +8,13 @@ from matplotlib.colors import LightSource
 import matplotlib.pyplot as plt
 import numpy as np
 
-dem = np.load(cbook.get_sample_data('jacksboro_fault_dem.npz'))
-z = dem['elevation']
-nrows, ncols = z.shape
-x = np.linspace(dem['xmin'], dem['xmax'], ncols)
-y = np.linspace(dem['ymin'], dem['ymax'], nrows)
-x, y = np.meshgrid(x, y)
+filename = cbook.get_sample_data('jacksboro_fault_dem.npz', asfileobj=False)
+with np.load(filename) as dem:
+    z = dem['elevation']
+    nrows, ncols = z.shape
+    x = np.linspace(dem['xmin'], dem['xmax'], ncols)
+    y = np.linspace(dem['ymin'], dem['ymax'], nrows)
+    x, y = np.meshgrid(x, y)
 
 region = np.s_[5:50, 5:50]
 x, y, z = x[region], y[region], z[region]
