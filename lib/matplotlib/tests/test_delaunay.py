@@ -3,10 +3,16 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import xrange
+import warnings
 
 import numpy as np
 from matplotlib.testing.decorators import image_comparison, knownfailureif
-from matplotlib.delaunay.triangulate import Triangulation
+from matplotlib.cbook import MatplotlibDeprecationWarning
+
+with warnings.catch_warnings():
+    # the module is deprecated. The tests should be removed when the module is.
+    warnings.simplefilter('ignore', MatplotlibDeprecationWarning)
+    from matplotlib.delaunay.triangulate import Triangulation
 from matplotlib import pyplot as plt
 import matplotlib as mpl
 
