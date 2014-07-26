@@ -94,6 +94,9 @@ def test_tight_layout5():
 def test_tight_layout6():
     'Test tight_layout for gridspec'
 
+    # This raises warnings since tight layout cannot
+    # do this fully automatically. But the test is
+    # correct since the layout is manually edited
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", UserWarning)
         fig = plt.figure()
