@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LightSource
-from matplotlib import cbook
+from matplotlib.cbook import get_sample_data
 
 # Example showing how to make shaded relief plots
 # like Mathematica
@@ -13,11 +13,15 @@ def main():
     # Test data
     x, y = np.mgrid[-5:5:0.05, -5:5:0.05]
     z = 5 * (np.sqrt(x**2 + y**2) + np.sin(x**2 + y**2))
+
+    filename = get_sample_data('jacksboro_fault_dem.npz', asfileobj=False)
+    with np.load(filename) as dem:
+        elev = dem['elevation']
+
     fig = compare(z, plt.cm.copper)
     fig.suptitle('HSV Blending Looks Best with Smooth Surfaces', y=0.95)
 
-    dem = np.load(cbook.get_sample_data('jacksboro_fault_dem.npz'))
-    fig = compare(dem['elevation'], plt.cm.gist_earth, ve=0.05)
+    fig = compare(elev, plt.cm.gist_earth, ve=0.05)
     fig.suptitle('Overlay Blending Looks Best with Rough Surfaces', y=0.95)
 
     plt.show()
