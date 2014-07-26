@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LightSource
 from matplotlib import cbook
 
-# Example showing how to make shaded relief plots 
+# Example showing how to make shaded relief plots
 # like Mathematica
 # (http://reference.wolfram.com/mathematica/ref/ReliefPlot.html)
 # or Generic Mapping Tools
@@ -31,17 +31,19 @@ def compare(z, cmap, ve=1):
     # Illuminate the scene from the northwest
     ls = LightSource(azdeg=315, altdeg=45)
 
-    axes[0,0].imshow(z, cmap=cmap)
-    axes[0,0].set(xlabel='Colormapped Data')
+    axes[0, 0].imshow(z, cmap=cmap)
+    axes[0, 0].set(xlabel='Colormapped Data')
 
-    axes[0,1].imshow(ls.hillshade(z, vert_exag=ve), cmap='gray')
-    axes[0,1].set(xlabel='Illumination Intensity')
+    axes[0, 1].imshow(ls.hillshade(z, vert_exag=ve), cmap='gray')
+    axes[0, 1].set(xlabel='Illumination Intensity')
 
-    axes[1,0].imshow(ls.shade(z, cmap=cmap, vert_exag=ve, blend_mode='hsv'))
-    axes[1,0].set(xlabel='Blend Mode: "hsv" (default)')
+    rgb = ls.shade(z, cmap=cmap, vert_exag=ve, blend_mode='hsv')
+    axes[1, 0].imshow(rgb)
+    axes[1, 0].set(xlabel='Blend Mode: "hsv" (default)')
 
-    axes[1,1].imshow(ls.shade(z, cmap=cmap, vert_exag=ve, blend_mode='overlay'))
-    axes[1,1].set(xlabel='Blend Mode: "overlay"')
+    rgb = ls.shade(z, cmap=cmap, vert_exag=ve, blend_mode='overlay')
+    axes[1, 1].imshow(rgb)
+    axes[1, 1].set(xlabel='Blend Mode: "overlay"')
 
     return fig
 

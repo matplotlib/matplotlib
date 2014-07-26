@@ -237,8 +237,8 @@ def test_light_source_topo_surface():
     dem = np.load(cbook.get_sample_data('jacksboro_fault_dem.npz'))
 
     # Get the true cellsize in meters for accurate vertical exaggeration
-    dx, dy = dem['dx'], dem['dy'] # In decimal degrees
-    # Convert to meters...
+    #   Convert from decimal degrees to meters
+    dx, dy = dem['dx'], dem['dy']
     dx = 111320.0 * dx * np.cos(dem['ymin'])
     dy = 111320.0 * dy
 
