@@ -3329,7 +3329,7 @@ class NavigationBase(object):
         ----------
         tools : a list of tuples which contains the id of the tool and
         a either a reference to the tool Tool class itself, or None to
-        insert a spacer.  See @add_tool.
+        insert a spacer.  See :func:`add_tool`.
         """
         for name, tool in tools:
             if tool is None:
