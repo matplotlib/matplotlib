@@ -31,6 +31,7 @@ from matplotlib.cbook import dedent, silent_list, is_string_like, is_numlike
 from matplotlib.cbook import _string_to_bool
 from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase
+from matplotlib.backend_tools import tools as default_tools
 from matplotlib.figure import Figure, figaspect
 from matplotlib.gridspec import GridSpec
 from matplotlib.image import imread as _imread
@@ -427,6 +428,9 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
                                         frameon=frameon,
                                         FigureClass=FigureClass,
                                         **kwargs)
+
+        if rcParams['toolbar'] == 'navigation':
+            figManager.navigation.add_tools(default_tools)
 
         if figLabel:
             figManager.set_window_title(figLabel)
