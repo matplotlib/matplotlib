@@ -3,6 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import os
 import tempfile
 import sys
 import numpy as np
@@ -55,6 +56,7 @@ def check_save_animation(writer, extension='mp4'):
 
     # Use NamedTemporaryFile: will be automatically deleted
     F = tempfile.NamedTemporaryFile(suffix='.' + extension)
+    F.close()
     anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
     try:
         anim.save(F.name, fps=30, writer=writer)
@@ -63,7 +65,10 @@ def check_save_animation(writer, extension='mp4'):
                                "import stack, " +
                                "see issues #1891 and #2679")
     finally:
-        F.close()
+        try:
+            os.remove(F.name)
+        except Exception:
+            pass
 
 
 @cleanup
