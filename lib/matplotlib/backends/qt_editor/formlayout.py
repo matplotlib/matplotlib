@@ -323,7 +323,7 @@ class FormWidget(QtWidgets.QWidget):
             elif tuple_to_qfont(value) is not None:
                 value = field.get_font()
             elif isinstance(value, six.string_types) or is_color_like(value):
-                value = unicode(field.text())
+                value = six.text_type(field.text())
             elif isinstance(value, (list, tuple)):
                 index = int(field.currentIndex())
                 if isinstance(value[0], (list, tuple)):
