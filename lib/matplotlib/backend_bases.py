@@ -2556,11 +2556,6 @@ class FigureManagerBase:
 
         """
 
-        self.toolbar = self._get_toolbar()
-        self.navigation = self._get_navigation()
-        if rcParams['toolbar'] == 'navigation':
-            self.navigation.add_tools(tools.tools)
-
     def show(self):
         """
         For GUI backends, show the figure window and redraw.
@@ -2608,11 +2603,6 @@ class FigureManagerBase:
         """
         pass
 
-    def _get_toolbar(self):
-        return None
-
-    def _get_navigation(self):
-        return None
 
 cursors = tools.cursors
 
