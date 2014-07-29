@@ -61,7 +61,7 @@ def out_of_date(original, derived):
 
 
 def gen_gallery(app, doctree):
-    if app.builder.name != 'html':
+    if app.builder.name not in ('html', 'htmlhelp'):
         return
 
     outdir = app.builder.outdir
