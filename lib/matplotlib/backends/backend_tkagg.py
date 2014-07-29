@@ -21,7 +21,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase
 from matplotlib.backend_bases import FigureManagerBase, FigureCanvasBase
 from matplotlib.backend_bases import NavigationToolbar2, cursors, TimerBase
 from matplotlib.backend_bases import ShowBase, ToolbarBase, NavigationBase
-from matplotlib.backend_tools import SaveFigureBase, ConfigureSubplotsBase
+from matplotlib.backend_tools import SaveFigureBase, ConfigureSubplotsBase, tools
 from matplotlib._pylab_helpers import Gcf
 
 from matplotlib.figure import Figure
@@ -525,10 +525,11 @@ class FigureManagerTkAgg(FigureManagerBase):
     window      : The tk.Window
     """
     def __init__(self, canvas, num, window):
-        self.window = window
         FigureManagerBase.__init__(self, canvas, num)
+        self.window = window
         self.window.withdraw()
         self.set_window_title("Figure %d" % num)
+        self.canvas = canvas
         self._num =  num
         if matplotlib.rcParams['toolbar']=='toolbar2':
             self.toolbar = NavigationToolbar2TkAgg( canvas, self.window )
