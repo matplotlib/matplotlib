@@ -403,7 +403,7 @@ class Line2D(Artist):
         olderrflags = np.seterr(all='ignore')
         try:
             # Check for collision
-            if self._linestyle in ['None', None]:
+            if not self._linestyle:
                 # If no line, return the nearby point(s)
                 d = (xt - mouseevent.x) ** 2 + (yt - mouseevent.y) ** 2
                 ind, = np.nonzero(np.less_equal(d, pixels ** 2))

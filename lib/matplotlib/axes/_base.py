@@ -86,14 +86,16 @@ def _process_plot_format(fmt):
             fmt = fmt.replace(ls, '')
             break
 
+    # Check for double linestyle definition
+    if linestyle:
+        for ls in sorted(mlines.lineStyles, key=len):
+            if fmt.find(ls) >= 0:
+                raise ValueError(
+                    'Illegal format string "%s"; two linestyle symbols' % fmt)
+
     chars = [c for c in fmt]
 
     for c in chars:
-    #    if c in mlines.lineStyles:
-    #        if linestyle is not None:
-    #            raise ValueError(
-    #                'Illegal format string "%s"; two linestyle symbols' % fmt)
-    #        linestyle = c
         if c in mlines.lineMarkers:
             if marker is not None:
                 raise ValueError(
