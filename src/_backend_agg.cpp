@@ -2420,6 +2420,12 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args)
                 *dst = src[y * width + x];
             }
         }
+    } else {
+        data = PyBytes_FromStringAndSize(NULL, 0);
+        if (data == NULL)
+        {
+            throw Py::MemoryError("RendererAgg::tostring_minimized could not allocate memory");
+        }
     }
 
     Py::Tuple bounds(4);
