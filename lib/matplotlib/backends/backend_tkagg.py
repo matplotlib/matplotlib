@@ -525,11 +525,10 @@ class FigureManagerTkAgg(FigureManagerBase):
     window      : The tk.Window
     """
     def __init__(self, canvas, num, window):
-        FigureManagerBase.__init__(self, canvas, num)
         self.window = window
+        FigureManagerBase.__init__(self, canvas, num)
         self.window.withdraw()
         self.set_window_title("Figure %d" % num)
-        self.canvas = canvas
         self._num =  num
         if matplotlib.rcParams['toolbar']=='toolbar2':
             self.toolbar = NavigationToolbar2TkAgg( canvas, self.window )
