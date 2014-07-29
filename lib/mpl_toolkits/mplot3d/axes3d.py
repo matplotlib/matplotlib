@@ -2181,31 +2181,31 @@ class Axes3D(Axes):
         '''
         Create a scatter plot.
 
-        ==========  ==========================================================
-        Argument    Description
-        ==========  ==========================================================
-        *xs*, *ys*  Positions of data points.
-        *zs*        Either an array of the same length as *xs* and
-                    *ys* or a single value to place all points in
-                    the same plane. Default is 0.
-        *zdir*      Which direction to use as z ('x', 'y' or 'z')
-                    when plotting a 2D set.
-        *s*         size in points^2.  It is a scalar or an array of the same
-                    length as *x* and *y*.
+        ============  ========================================================
+        Argument      Description
+        ============  ========================================================
+        *xs*, *ys*    Positions of data points.
+        *zs*          Either an array of the same length as *xs* and
+                      *ys* or a single value to place all points in
+                      the same plane. Default is 0.
+        *zdir*        Which direction to use as z ('x', 'y' or 'z')
+                      when plotting a 2D set.
+        *s*           size in points^2.  It is a scalar or an array of the
+                      same length as *x* and *y*.
 
-        *c*         a color. *c* can be a single color format string, or a
-                    sequence of color specifications of length *N*, or a
-                    sequence of *N* numbers to be mapped to colors using the
-                    *cmap* and *norm* specified via kwargs (see below). Note
-                    that *c* should not be a single numeric RGB or RGBA
-                    sequence because that is indistinguishable from an array
-                    of values to be colormapped.  *c* can be a 2-D array in
-                    which the rows are RGB or RGBA, however.
+        *c*           a color. *c* can be a single color format string, or a
+                      sequence of color specifications of length *N*, or a
+                      sequence of *N* numbers to be mapped to colors using the
+                      *cmap* and *norm* specified via kwargs (see below). Note
+                      that *c* should not be a single numeric RGB or RGBA
+                      sequence because that is indistinguishable from an array
+                      of values to be colormapped.  *c* can be a 2-D array in
+                      which the rows are RGB or RGBA, however.
 
         *depthshade*
-                    Whether or not to shade the scatter markers to give the
-                    appearance of depth. Default is *True*.
-        ==========  ==========================================================
+                      Whether or not to shade the scatter markers to give
+                      the appearance of depth. Default is *True*.
+        ============  ========================================================
 
         Keyword arguments are passed on to
         :func:`~matplotlib.axes.Axes.scatter`.
