@@ -21,7 +21,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase
 from matplotlib.backend_bases import FigureManagerBase, FigureCanvasBase
 from matplotlib.backend_bases import NavigationToolbar2, cursors, TimerBase
 from matplotlib.backend_bases import ShowBase, ToolbarBase, NavigationBase
-from matplotlib.backend_tools import SaveFigureBase, ConfigureSubplotsBase
+from matplotlib.backend_tools import SaveFigureBase, ConfigureSubplotsBase, tools
 from matplotlib._pylab_helpers import Gcf
 
 from matplotlib.figure import Figure
@@ -538,6 +538,8 @@ class FigureManagerTkAgg(FigureManagerBase):
 
         self.toolbar = self._get_toolbar()
         self.navigation = self._get_navigation()
+        if matplotlib.rcParams['toolbar'] == 'navigation':
+            self.navigation.add_tools(tools)
 
         if self.toolbar is not None:
             self.toolbar.update()

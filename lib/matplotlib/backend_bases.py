@@ -3220,13 +3220,6 @@ class NavigationBase(object):
         # to write into toolbar message
         self.messagelock = widgets.LockDraw()
 
-        for name, tool in tools.tools:
-            if tool is None:
-                if self.toolbar is not None:
-                    self.toolbar.add_separator(-1)
-            else:
-                self.add_tool(name, tool, None)
-
         self._last_cursor = self._default_cursor
 
     @property
@@ -3328,6 +3321,22 @@ class NavigationBase(object):
 
         if self.toolbar:
             self.toolbar._remove_toolitem(name)
+
+    def add_tools(self, tools):
+        """ Add multiple tools to `Navigation`
+
+        Parameters
+        ----------
+        tools : a list of tuples which contains the id of the tool and
+        a either a reference to the tool Tool class itself, or None to
+        insert a spacer.  See :func:`add_tool`.
+        """
+        for name, tool in tools:
+            if tool is None:
+                if self.toolbar is not None:
+                    self.toolbar.add_separator(-1)
+            else:
+                self.add_tool(name, tool, None)
 
     def add_tool(self, name, tool, position=None):
         """Add tool to `Navigation`
