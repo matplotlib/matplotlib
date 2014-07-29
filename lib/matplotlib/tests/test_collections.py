@@ -325,7 +325,8 @@ def test__EventCollection__set_linestyle():
     splt.set_title('EventCollection: set_linestyle')
 
 
-@image_comparison(baseline_images=['EventCollection_plot__set_linestyle'])
+@image_comparison(baseline_images=['EventCollection_plot__set_ls_dash'],
+                  remove_text=True)
 def test__EventCollection__set_linestyle_single_dash():
     '''
     check to make sure set_linestyle accepts a single dash pattern
