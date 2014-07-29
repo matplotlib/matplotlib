@@ -13,7 +13,7 @@ l1, = plt.plot(t2, np.exp(-t2))
 l2, l3 = plt.plot(t2, np.sin(2 * np.pi * t2), '--go', t1, np.log(1 + t1), '.')
 l4, = plt.plot(t2, np.exp(-t2) * np.sin(2 * np.pi * t2), 'rs-.')
 
-plt.legend( (l2, l4), ('oscillatory', 'damped'), 'upper right', shadow=True)
+plt.legend( (l2, l4), ('oscillatory', 'damped'), loc='upper right', shadow=True)
 plt.xlabel('time')
 plt.ylabel('volts')
 plt.title('Damped oscillation')

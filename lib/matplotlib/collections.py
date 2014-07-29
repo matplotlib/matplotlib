@@ -745,6 +745,7 @@ class _CollectionWithSizes(Collection):
             self._transforms[:, 1, 1] = scale
             self._transforms[:, 2, 2] = 1.0
 
+    @allow_rasterization
     def draw(self, renderer):
         self.set_sizes(self._sizes, self.figure.dpi)
         Collection.draw(self, renderer)
