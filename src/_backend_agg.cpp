@@ -2435,8 +2435,7 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args)
     bounds[3] = Py::Int(newheight);
 
     Py::Tuple result(2);
-    result[0] = Py::Object(data, false);
-    Py_DECREF(data);
+    result[0] = Py::Object(data, true);
     result[1] = bounds;
 
     return result;
