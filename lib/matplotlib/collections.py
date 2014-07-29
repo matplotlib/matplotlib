@@ -463,7 +463,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         Set the linestyle(s) for the collection.
 
-        ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' |
+        ACCEPTS: [ '-' | '--' | '-.' | ':' |
+        'solid' | 'dashed', 'dashdot', 'dotted' |
         (offset, on-off-dash-seq) ]
         """
         try:

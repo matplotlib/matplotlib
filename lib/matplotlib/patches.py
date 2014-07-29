@@ -339,7 +339,9 @@ class Patch(artist.Artist):
         """
         Set the patch linestyle
 
-        ACCEPTS: ['solid' | 'dashed' | 'dashdot' | 'dotted']
+        ACCEPTS: ['-' | '--' | '-.' | ':' |
+        'solid' | 'dashed' | 'dashdot' | 'dotted' |
+        (offset, on-off-dash-seq) ]
         """
         if ls is None:
             ls = "solid"
