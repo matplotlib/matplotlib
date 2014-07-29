@@ -106,7 +106,7 @@ import six
 import sys
 import distutils.version
 
-__version__  = '1.4.x'
+__version__  = '1.5.x'
 __version__numpy__ = '1.6' # minimum required numpy version
 
 try:
