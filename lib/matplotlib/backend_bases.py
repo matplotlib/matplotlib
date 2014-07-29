@@ -2558,7 +2558,8 @@ class FigureManagerBase:
 
         self.toolbar = self._get_toolbar()
         self.navigation = self._get_navigation()
-        self.navigation.add_tools(tools.tools)
+        if rcParams['toolbar'] == 'navigation':
+            self.navigation.add_tools(tools.tools)
 
     def show(self):
         """
