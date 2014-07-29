@@ -7,11 +7,20 @@ import io
 import re
 
 import six
-from nose.plugins.skip import SkipTest
 
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import cleanup
+from matplotlib.testing.decorators import cleanup, knownfailureif
+
+
+needs_ghostscript = knownfailureif(
+    matplotlib.checkdep_ghostscript()[0] is None,
+    "This test needs a ghostscript installation")
+
+
+needs_tex = knownfailureif(
+    not matplotlib.checkdep_tex(),
+    "This test needs a TeX installation")
 
 
 def _test_savefig_to_stringio(format='ps'):
@@ -50,16 +59,15 @@ def test_savefig_to_stringio():
 
 
 @cleanup
+@needs_ghostscript
 def test_savefig_to_stringio_with_distiller():
     matplotlib.rcParams['ps.usedistiller'] = 'ghostscript'
     _test_savefig_to_stringio()
 
 
 @cleanup
+@needs_tex
 def test_savefig_to_stringio_with_usetex():
-    if not matplotlib.checkdep_tex():
-        raise SkipTest("This test requires a TeX installation")
-
     matplotlib.rcParams['text.latex.unicode'] = True
     matplotlib.rcParams['text.usetex'] = True
     _test_savefig_to_stringio()
@@ -71,10 +79,8 @@ def test_savefig_to_stringio_eps():
 
 
 @cleanup
+@needs_tex
 def test_savefig_to_stringio_with_usetex_eps():
-    if not matplotlib.checkdep_tex():
-        raise SkipTest("This test requires a TeX installation")
-
     matplotlib.rcParams['text.latex.unicode'] = True
     matplotlib.rcParams['text.usetex'] = True
     _test_savefig_to_stringio(format='eps')

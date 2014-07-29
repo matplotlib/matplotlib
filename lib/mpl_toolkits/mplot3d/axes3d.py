@@ -2181,31 +2181,31 @@ class Axes3D(Axes):
         '''
         Create a scatter plot.
 
-        ==========  ==========================================================
-        Argument    Description
-        ==========  ==========================================================
-        *xs*, *ys*  Positions of data points.
-        *zs*        Either an array of the same length as *xs* and
-                    *ys* or a single value to place all points in
-                    the same plane. Default is 0.
-        *zdir*      Which direction to use as z ('x', 'y' or 'z')
-                    when plotting a 2D set.
-        *s*         size in points^2.  It is a scalar or an array of the same
-                    length as *x* and *y*.
+        ============  ========================================================
+        Argument      Description
+        ============  ========================================================
+        *xs*, *ys*    Positions of data points.
+        *zs*          Either an array of the same length as *xs* and
+                      *ys* or a single value to place all points in
+                      the same plane. Default is 0.
+        *zdir*        Which direction to use as z ('x', 'y' or 'z')
+                      when plotting a 2D set.
+        *s*           size in points^2.  It is a scalar or an array of the
+                      same length as *x* and *y*.
 
-        *c*         a color. *c* can be a single color format string, or a
-                    sequence of color specifications of length *N*, or a
-                    sequence of *N* numbers to be mapped to colors using the
-                    *cmap* and *norm* specified via kwargs (see below). Note
-                    that *c* should not be a single numeric RGB or RGBA
-                    sequence because that is indistinguishable from an array
-                    of values to be colormapped.  *c* can be a 2-D array in
-                    which the rows are RGB or RGBA, however.
+        *c*           a color. *c* can be a single color format string, or a
+                      sequence of color specifications of length *N*, or a
+                      sequence of *N* numbers to be mapped to colors using the
+                      *cmap* and *norm* specified via kwargs (see below). Note
+                      that *c* should not be a single numeric RGB or RGBA
+                      sequence because that is indistinguishable from an array
+                      of values to be colormapped.  *c* can be a 2-D array in
+                      which the rows are RGB or RGBA, however.
 
         *depthshade*
-                    Whether or not to shade the scatter markers to give the
-                    appearance of depth. Default is *True*.
-        ==========  ==========================================================
+                      Whether or not to shade the scatter markers to give
+                      the appearance of depth. Default is *True*.
+        ============  ========================================================
 
         Keyword arguments are passed on to
         :func:`~matplotlib.axes.Axes.scatter`.
@@ -2523,9 +2523,11 @@ class Axes3D(Axes):
         arrow_length_ratio = kwargs.pop('arrow_length_ratio', 0.3)
 
         # handle args
-        if len(args) < 6:
-            ValueError('Wrong number of arguments')
         argi = 6
+        if len(args) < argi:
+            ValueError('Wrong number of arguments. Expected %d got %d' %
+                       (argi, len(args)))
+
         # first 6 arguments are X, Y, Z, U, V, W
         input_args = args[:argi]
         # if any of the args are scalar, convert into list
@@ -2549,24 +2551,17 @@ class Axes3D(Axes):
 
         if any(len(v) == 0 for v in input_args):
             # No quivers, so just make an empty collection and return early
-            linec = art3d.Line3DCollection([], *args[6:], **kwargs)
+            linec = art3d.Line3DCollection([], *args[argi:], **kwargs)
             self.add_collection(linec)
             return linec
 
-        points = input_args[:3]
-        vectors = input_args[3:]
-
-        # Below assertions must be true before proceed
+        # Following assertions must be true before proceeding
         # must all be ndarray
         assert all(isinstance(k, np.ndarray) for k in input_args)
         # must all in same shape
         assert len(set([k.shape for k in input_args])) == 1
 
-        # X, Y, Z, U, V, W
-        coords = (np.array(k) if not isinstance(k, np.ndarray) else k
-                  for k in args)
-        coords = [k.flatten() for k in coords]
-        xs, ys, zs, us, vs, ws = coords
+        xs, ys, zs, us, vs, ws = input_args[:argi]
         lines = []
 
         # for each arrow
@@ -2578,12 +2573,11 @@ class Axes3D(Axes):
             u = us[i]
             v = vs[i]
             w = ws[i]
-            if any(k is np.ma.masked for k in [x, y, z, u, v, w]):
-                continue
 
             # (u,v,w) expected to be normalized, recursive to fix A=0 scenario.
             if u == 0 and v == 0 and w == 0:
-                raise ValueError("u,v,w can't be all zero")
+                # Just don't make a quiver for such a case.
+                continue
 
             # normalize
             norm = math.sqrt(u ** 2 + v ** 2 + w ** 2)
@@ -2603,6 +2597,7 @@ class Axes3D(Axes):
             ua1, va1, wa1 = d1[0], d1[1], d1[2]
             ua2, va2, wa2 = d2[0], d2[1], d2[2]
 
+            # TODO: num should probably get parameterized
             t = np.linspace(0, length * arrow_length_ratio, num=20)
             la1x = x - t * ua1
             la1y = y - t * va1
@@ -2616,7 +2611,7 @@ class Axes3D(Axes):
             line = list(zip(la2x, la2y, la2z))
             lines.append(line)
 
-        linec = art3d.Line3DCollection(lines, *args[6:], **kwargs)
+        linec = art3d.Line3DCollection(lines, *args[argi:], **kwargs)
         self.add_collection(linec)
 
         self.auto_scale_xyz(xs, ys, zs, had_data)
