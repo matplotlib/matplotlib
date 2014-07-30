@@ -223,41 +223,21 @@ binaries in the form of wheels.
 Python.org Python
 ^^^^^^^^^^^^^^^^^
 
-First check that you do in fact have the Python.org python set to be the
-default Python binary. From Terminal, do::
-
-    python -c 'import sys; print(sys.prefix)'
-
-or::
-
-    python3 -c 'import sys; print(sys.prefix)'
-
-Use ``python`` or ``python3`` depending whether you installed Python 2.7 or a
-Python 3 release.  You should see something like::
-
-    /Library/Frameworks/Python.framework/Versions/2.7
-
-where "2.7" is your installed Python version.  If you see something like
-``/usr/bin/python`` instead, first try restarting Terminal.app;, if that
-doesn't work then try reinstalling Python.org Python. If the check still
-fails, we would like to hear about it.  Please have a look at
-:ref:`reporting-problems`.
-
 Install pip following the `standard pip install instructions
 <http://pip.readthedocs.org/en/latest/installing.html>`_.  For the impatient,
-in Terminal::
+open a new Terminal.app window and::
 
     curl -O https://bootstrap.pypa.io/get-pip.py
 
-Then::
+Then (Python 2.7)::
 
     python get-pip.py
 
-or::
+or (Python 3)::
 
     python3 get-pip.py
 
-Install matplotlib and all its dependencies with::
+You can now install matplotlib and all its dependencies with::
 
     pip install matplotlib
 
@@ -294,8 +274,8 @@ the IPython notebook option, like this:
 * Homebrew ``pip2 install ipython[notebook]`` or ``pip3 install
   ipython[notebook]``
 
-In case of emergency...
-^^^^^^^^^^^^^^^^^^^^^^^
+Pip problems
+^^^^^^^^^^^^
 
 If you get errors with pip trying to run a compiler like ``gcc`` or ``clang``,
 first check :ref:`reporting-problems`, then you may need to `install xcode
