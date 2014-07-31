@@ -45,7 +45,7 @@ For the Sequential plots, the lightness value increases monotonically through th
 Sequential2
 -----------
 
-Many of the :math:`L^*` values from the Sequential2 plots are monotonically increasing, but some (autumn, cool, spring, and winter) plateau or even go both up and down in :math:`L^*` space. Others (afmhot, copper, gist_heat, and hot) have kinks in the :math:`L^*` functions. Data that is being represented in a region of the colormap that is at a plateau or kink will lead to a perception of banding of the data in those values in the colormap (see [mycarta_banding]_ for an excellent example of this). 
+Many of the :math:`L^*` values from the Sequential2 plots are monotonically increasing, but some (autumn, cool, spring, and winter) plateau or even go both up and down in :math:`L^*` space. Others (afmhot, copper, gist_heat, and hot) have kinks in the :math:`L^*` functions. Data that is being represented in a region of the colormap that is at a plateau or kink will lead to a perception of banding of the data in those values in the colormap (see [mycarta-banding]_ for an excellent example of this). 
 
 Diverging
 ---------
@@ -62,7 +62,7 @@ Miscellaneous
 
 Some of the miscellaneous colormaps have particular uses they have been created for. For example, gist_earth, ocean, and terrain all seem to be created for plotting topography (green/brown) and water depths (blue) together. We would expect to see a divergence in these colormaps, then, but multiple kinks may not be ideal, such as in gist_earth and terrain. CMRmap was created to convert well to grayscale, though it does appear to have some small kinks in :math:`L^*`. cubehelix was created to vary smoothly in both lightness and hue, but appears to have a small hump in the green hue area. 
 
-The often-used jet colormap is included in this set of colormaps. We can see that the :math:`L^*` values vary widely throughout the colormap, making it a poor choice for representing data for viewers to see perceptually. See an extension on this idea at [mycarta_jet]_.
+The often-used jet colormap is included in this set of colormaps. We can see that the :math:`L^*` values vary widely throughout the colormap, making it a poor choice for representing data for viewers to see perceptually. See an extension on this idea at [mycarta-jet]_.
 
 .. plot:: users/plotting/colormaps/lightness.py
 
@@ -70,7 +70,7 @@ The often-used jet colormap is included in this set of colormaps. We can see tha
 :math:`L^*` function
 ====================
 
-There are multiple approaches to finding the best function for :math:`L^*` across a colormap. Linear gives reasonable results (*e.g.*, [mycarta_banding]_, [mycarta_lablinear]_). However, the Weber-Fechner law, and more generally and recently, Stevens' Law, indicates that a logarithmic or geometric relationship might be better (see effort on this front at [mycarta_cubelaw]_).
+There are multiple approaches to finding the best function for :math:`L^*` across a colormap. Linear gives reasonable results (*e.g.*, [mycarta-banding]_, [mycarta-lablinear]_). However, the Weber-Fechner law, and more generally and recently, Stevens' Law, indicates that a logarithmic or geometric relationship might be better (see effort on this front at [mycarta-cubelaw]_).
 
 .. plot:: users/plotting/colormaps/Lfunction.py
 
@@ -101,10 +101,10 @@ References
 .. [Ware] http://ccom.unh.edu/sites/default/files/publications/Ware_1988_CGA_Color_sequences_univariate_maps.pdf
 .. [Moreland] http://www.sandia.gov/~kmorel/documents/ColorMaps/ColorMapsExpanded.pdf
 .. [colormaps] https://gist.github.com/endolith/2719900#id7
-.. [mycarta_banding] http://mycarta.wordpress.com/2012/10/14/the-rainbow-is-deadlong-live-the-rainbow-part-4-cie-lab-heated-body/
-.. [mycarta_jet] http://mycarta.wordpress.com/2012/10/06/the-rainbow-is-deadlong-live-the-rainbow-part-3/
-.. [mycarta_lablinear] http://mycarta.wordpress.com/2012/12/06/the-rainbow-is-deadlong-live-the-rainbow-part-5-cie-lab-linear-l-rainbow/
-.. [mycarta_cubelaw] http://mycarta.wordpress.com/2013/02/21/perceptual-rainbow-palette-the-method/
+.. [mycarta-banding] http://mycarta.wordpress.com/2012/10/14/the-rainbow-is-deadlong-live-the-rainbow-part-4-cie-lab-heated-body/
+.. [mycarta-jet] http://mycarta.wordpress.com/2012/10/06/the-rainbow-is-deadlong-live-the-rainbow-part-3/
+.. [mycarta-lablinear] http://mycarta.wordpress.com/2012/12/06/the-rainbow-is-deadlong-live-the-rainbow-part-5-cie-lab-linear-l-rainbow/
+.. [mycarta-cubelaw] http://mycarta.wordpress.com/2013/02/21/perceptual-rainbow-palette-the-method/
 .. [bw] http://www.tannerhelland.com/3643/grayscale-image-algorithm-vb6/
 .. [colorblindness] http://aspnetresources.com/tools/colorBlindness
 .. [asp] http://aspnetresources.com/tools/colorBlindness
