@@ -72,7 +72,7 @@ def latex2html(node, source):
     if not os.path.exists(destdir):
         os.makedirs(destdir)
     dest = os.path.join(destdir, '%s.png' % name)
-    path = os.path.join(setup.app.builder.imgpath, 'mathmpl')
+    path = '/'.join((setup.app.builder.imgpath, 'mathmpl'))
 
     depth = latex2png(latex, dest, node['fontset'])
 
