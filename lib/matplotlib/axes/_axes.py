@@ -3299,11 +3299,12 @@ class Axes(_AxesBase):
                 # discarded linestyle
                 _, marker, color = _process_plot_format(sym)
                 flierprops['marker'] = marker
-                flierprops['color'] = color
-                # assume that if color is passed in the user want
-                # filled symbol
-                flierprops['markeredgecolor'] = color
-                flierprops['markerfacecolor'] = color
+                if color is not None:
+                    flierprops['color'] = color
+                    # assume that if color is passed in the user want
+                    # filled symbol
+                    flierprops['markeredgecolor'] = color
+                    flierprops['markerfacecolor'] = color
             final_flierprops.update(flierprops)
 
         # median line properties
