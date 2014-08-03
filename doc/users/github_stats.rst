@@ -1,5 +1,6 @@
 
 .. _github-stats:
+
 Github stats
 ============
 
@@ -358,7 +359,7 @@ Pull Requests (326):
 * :ghpull:`1587`: Mac OS X 10.5 needs an autoreleasepool here to avoid memory leaks. Newer...
 * :ghpull:`1597`: new MatplotlibDeprecationWarning class (against master)
 * :ghpull:`1596`: new MatplotlibDeprecationWarning class (against 1.2.x)
-* :ghpull:`1532`: CXX/Python2/cxx_extensions.cxx:1320: Assertion `ob_refcnt == 0'
+* :ghpull:`1532`: CXX/Python2/cxx_extensions.cxx:1320: Assertion `ob_refcnt == 0`
 * :ghpull:`1604`: Make font_manager ignore KeyErrors for bad fonts
 * :ghpull:`1605`: Change printed -> pretty-printed
 * :ghpull:`1557`: inverting an axis shouldn't affect the autoscaling setting
@@ -835,7 +836,7 @@ Issues (598):
 * :ghissue:`1696`: Fixed doc dependency on numpy_ext.numpydoc
 * :ghissue:`1665`: MEP10: adding numpydoc and activating autosummary
 * :ghissue:`1660`: Explain that matplotlib must be built before the HTML documentation
-* :ghissue:`1693`: saving to *.eps broken on master
+* :ghissue:`1693`: saving to eps broken on master
 * :ghissue:`1694`: fixes Issue #1693
 * :ghissue:`1689`: SVG flip issue
 * :ghissue:`1681`: Fancy arrow tests are failing
@@ -909,7 +910,7 @@ Issues (598):
 * :ghissue:`1587`: Mac OS X 10.5 needs an autoreleasepool here to avoid memory leaks. Newer...
 * :ghissue:`1597`: new MatplotlibDeprecationWarning class (against master)
 * :ghissue:`1596`: new MatplotlibDeprecationWarning class (against 1.2.x)
-* :ghissue:`1532`: CXX/Python2/cxx_extensions.cxx:1320: Assertion `ob_refcnt == 0'
+* :ghissue:`1532`: CXX/Python2/cxx_extensions.cxx:1320: Assertion `ob_refcnt == 0`
 * :ghissue:`1601`: invalid/misconfigured fonts cause the font manager to fail
 * :ghissue:`1604`: Make font_manager ignore KeyErrors for bad fonts
 * :ghissue:`1605`: Change printed -> pretty-printed

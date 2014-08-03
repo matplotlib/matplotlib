@@ -21,7 +21,7 @@ should just work.
 For years, I used to use MATLAB exclusively for data analysis and
 visualization.  MATLAB excels at making nice looking plots easy.  When
 I began working with EEG data, I found that I needed to write
-applications to interact with my data, and developed and EEG analysis
+applications to interact with my data, and developed an EEG analysis
 application in MATLAB.  As the application grew in complexity,
 interacting with databases, http servers, manipulating complex data
 structures, I began to strain against the limitations of MATLAB as a
@@ -66,20 +66,21 @@ quite similar to MATLAB figure generating code
 API* is the set of classes that do the heavy lifting, creating and
 managing figures, text, lines, plots and so on
 (:ref:`artist-tutorial`).  This is an abstract interface that knows
-nothing about output.  The *backends* are device dependent drawing
+nothing about output.  The *backends* are device-dependent drawing
 devices, aka renderers, that transform the frontend representation to
 hardcopy or a display device (:ref:`what-is-a-backend`).  Example
 backends: PS creates `PostScript®
 <http://www.adobe.com/products/postscript/>`_ hardcopy, SVG
 creates `Scalable Vector Graphics <http://www.w3.org/Graphics/SVG/>`_
 hardcopy, Agg creates PNG output using the high quality `Anti-Grain
-Geometry <http://www.antigrain.com>`_ library that ships with
-matplotlib, GTK embeds matplotlib in a `Gtk+ <http://www.gtk.org/>`_
+Geometry <http://agg.sourceforge.net/antigrain.com/index.html>`_
+library that ships with matplotlib, GTK embeds matplotlib in a
+`Gtk+ <http://www.gtk.org/>`_
 application, GTKAgg uses the Anti-Grain renderer to create a figure
-and embed it a Gtk+ application, and so on for `PDF
+and embed it in a Gtk+ application, and so on for `PDF
 <http://www.adobe.com/products/acrobat/adobepdf.html>`_, `WxWidgets
 <http://www.wxpython.org/>`_, `Tkinter
-<http://docs.python.org/lib/module-Tkinter.html>`_ etc.
+<http://docs.python.org/lib/module-Tkinter.html>`_, etc.
 
 matplotlib is used by many people in many different contexts.  Some
 people want to automatically generate PostScript files to send
