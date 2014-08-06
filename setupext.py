@@ -937,7 +937,7 @@ class FreeType(SetupPackage):
 
         return self._check_for_pkg_config(
             'freetype2', 'ft2build.h',
-            min_version='2.4', version=version)
+            min_version='2.3', version=version)
 
     def add_flags(self, ext):
         pkg_config.setup_extension(
