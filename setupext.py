@@ -942,7 +942,7 @@ class FreeType(SetupPackage):
 
         return self._check_for_pkg_config(
             'freetype2', 'ft2build.h',
-            min_version='2.4', version=version)
+            min_version='2.3', version=version)
 
     def version_from_header(self):
         version = 'Failed to identify version.'
