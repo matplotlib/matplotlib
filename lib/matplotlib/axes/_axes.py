@@ -3298,7 +3298,8 @@ class Axes(_AxesBase):
                 # process the symbol string
                 # discarded linestyle
                 _, marker, color = _process_plot_format(sym)
-                flierprops['marker'] = marker
+                if marker is not None:
+                    flierprops['marker'] = marker
                 if color is not None:
                     flierprops['color'] = color
                     # assume that if color is passed in the user want
