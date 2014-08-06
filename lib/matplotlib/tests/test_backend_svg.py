@@ -78,8 +78,8 @@ def test_bold_font_output():
     ax = fig.add_subplot(1, 1, 1)
     ax.plot(np.arange(10), np.arange(10))
     ax.set_xlabel('nonbold-xlabel')
-    ax.set_ylabel('bold-ylabel',fontweight='bold')
-    ax.set_title('bold-title',fontweight='bold')
+    ax.set_ylabel('bold-ylabel', fontweight='bold')
+    ax.set_title('bold-title', fontweight='bold')
 
 
 if __name__ == '__main__':
