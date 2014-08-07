@@ -31,11 +31,13 @@
    finance_api.rst
    font_manager_api.rst
    gridspec_api.rst
+   image_api.rst
    legend_api.rst
    lines_api.rst
    markers_api.rst
    mathtext_api.rst
    mlab_api.rst
+   offsetbox_api.rst
    patches_api.rst
    path_api.rst
    patheffects_api.rst
