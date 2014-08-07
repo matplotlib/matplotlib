@@ -182,11 +182,14 @@ Which python for OS X?
 Apple ships OS X with its own Python, in ``/usr/bin/python``, and its own copy
 of matplotlib. Unfortunately, the way Apple currently installs its own copies
 of numpy, scipy and matplotlib means that these packages are difficult to
-upgrade.  For that reason we strongly suggest that you install a fresh version
-of Python and use that as the basis for installing libraries such as numpy and
-matplotlib.  Once convenient way to install matplotlib with other useful
-Python software is to use one of the excellent Python scientific software
-collections that are now available:
+upgrade (see `system python packages`_).  For that reason we strongly suggest
+that you install a fresh version of Python and use that as the basis for
+installing libraries such as numpy and matplotlib.  One convenient way to
+install matplotlib with other useful Python software is to use one of the
+excellent Python scientific software collections that are now available:
+
+.. _system python packages:
+    https://github.com/MacPython/wiki/wiki/Which-Python#system-python-and-extra-python-packages
 
 - Anaconda_ from `Continuum Analytics`_
 - Canopy_ from Enthought_
