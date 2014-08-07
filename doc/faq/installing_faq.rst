@@ -311,15 +311,18 @@ If you still want to use the disk image installer, read on.
    list that was built for your combination of python and OSX.
 
 The disk image installer will have a ``.dmg`` extension, and will have a name
-like :file:`matplotlib-1.4.0-py2.7-macosx10.5.dmg`.
-The name of the installer depends on which versions of python, matplotlib,
-and OSX it was built for.  You need to download this disk image ``.dmg``
-file. Next open the disk image file by double clicking, and find the new
-matplotlib disk image icon on your desktop.  Double click on that icon to show
-the contents of the image.  Then double-click on the ``.mpkg`` icon, which
-will have a name like :file:`matplotlib-1.4.0-py2.7-macosx10.5.mpkg`, it will
-run the Installer.app, prompt you for a password if you need system-wide
-installation privileges, and install to a directory like
+like :file:`matplotlib-1.4.0-py2.7-macosx10.6.dmg`.
+The name of the installer depends on the versions of python and matplotlib it
+was built for, and the version of OSX that the matching Python.org installer
+was built for.  For example, if the mathing Python.org Python installer was
+built for OSX 10.6 or greater, the dmg file will end in ``-macosx10.6.dmg``.
+You need to download this disk image file, open the disk image file by double
+clicking, and find the new matplotlib disk image icon on your desktop.  Double
+click on that icon to show the contents of the image.  Then double-click on
+the ``.mpkg`` icon, which will have a name like
+:file:`matplotlib-1.4.0-py2.7-macosx10.6.mpkg`, it will run the Installer.app,
+prompt you for a password if you need system-wide installation privileges, and
+install to a directory like
 :file:`/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`
 (exact path depends on your Python version).
 
