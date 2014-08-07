@@ -1,12 +1,13 @@
+# Import necessary libraries and modules
 from matplotlib.transforms import Affine2D
-
 import mpl_toolkits.axisartist.floating_axes as floating_axes
-
 import numpy as np
 import  mpl_toolkits.axisartist.angle_helper as angle_helper
 from matplotlib.projections import PolarAxes
 from mpl_toolkits.axisartist.grid_finder import FixedLocator, MaxNLocator, \
      DictFormatter
+import matplotlib.pyplot as plt
+
 
 def setup_axes1(fig, rect):
     """
@@ -127,31 +128,28 @@ def setup_axes3(fig, rect):
 
 
 
-if 1:
-    import matplotlib.pyplot as plt
-    fig = plt.figure(1, figsize=(8, 4))
-    fig.subplots_adjust(wspace=0.3, left=0.05, right=0.95)
+##########################################################
+fig = plt.figure(1, figsize=(8, 4))
+fig.subplots_adjust(wspace=0.3, left=0.05, right=0.95)
 
-    ax1, aux_ax2 = setup_axes1(fig, 131)
-    aux_ax2.bar([0, 1, 2, 3], [3, 2, 1, 3])
+ax1, aux_ax2 = setup_axes1(fig, 131)
+aux_ax2.bar([0, 1, 2, 3], [3, 2, 1, 3])
     
-    #theta = np.random.rand(10) #*.5*np.pi
-    #radius = np.random.rand(10) #+1.
-    #aux_ax1.scatter(theta, radius)
+#theta = np.random.rand(10) #*.5*np.pi
+#radius = np.random.rand(10) #+1.
+#aux_ax1.scatter(theta, radius)
 
+ax2, aux_ax2 = setup_axes2(fig, 132)
 
-    ax2, aux_ax2 = setup_axes2(fig, 132)
+theta = np.random.rand(10)*.5*np.pi
+radius = np.random.rand(10)+1.
+aux_ax2.scatter(theta, radius)
 
-    theta = np.random.rand(10)*.5*np.pi
-    radius = np.random.rand(10)+1.
-    aux_ax2.scatter(theta, radius)
+ax3, aux_ax3 = setup_axes3(fig, 133)
 
+theta = (8 + np.random.rand(10)*(14-8))*15. # in degrees
+radius = np.random.rand(10)*14000.
+aux_ax3.scatter(theta, radius)
 
-    ax3, aux_ax3 = setup_axes3(fig, 133)
-
-    theta = (8 + np.random.rand(10)*(14-8))*15. # in degrees
-    radius = np.random.rand(10)*14000.
-    aux_ax3.scatter(theta, radius)
-
-    plt.show()
+plt.show()
 
