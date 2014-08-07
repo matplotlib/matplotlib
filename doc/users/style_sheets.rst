@@ -1,4 +1,4 @@
-.. _style-sheets
+.. _style-sheets:
 
 ***********************************
 Customizing plots with style sheets

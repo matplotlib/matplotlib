@@ -31,15 +31,20 @@
    finance_api.rst
    font_manager_api.rst
    gridspec_api.rst
+   image_api.rst
    legend_api.rst
+   lines_api.rst
    markers_api.rst
    mathtext_api.rst
    mlab_api.rst
+   offsetbox_api.rst
+   patches_api.rst
    path_api.rst
    patheffects_api.rst
    pyplot_api.rst
    sankey_api.rst
    spines_api.rst
+   text_api.rst
    ticker_api.rst
    tight_layout_api.rst
    tri_api.rst
