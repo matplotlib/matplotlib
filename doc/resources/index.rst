@@ -35,7 +35,7 @@
 * `Introduction to NumPy and Matplotlib 
   <http://www.youtube.com/watch?v=3Fp1zn5ao2M&feature=plcp>`_ by Eric Jones
 
-* `Anatomy of Matplotlib 
+* `Anatomy of Matplotlib
   <https://conference.scipy.org/scipy2013/tutorial_detail.php?id=103>`_
   by Benjamin Root
 
@@ -46,4 +46,7 @@
 * `Matplotlib tutorial <http://www.loria.fr/~rougier/teaching/matplotlib/>`_ 
   by Nicolas P. Rougier
 
+* `Anatomy of Matplotlib - IPython Notebooks
+  <https://github.com/WeatherGod/AnatomyOfMatplotlib>`_
+  by Benjamin Root
 
