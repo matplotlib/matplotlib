@@ -1529,6 +1529,20 @@ def test_boxplot():
     ax.set_ylim((-30, 30))
 
 
+@image_comparison(baseline_images=['boxplot_sym2'],
+                  remove_text=True, extensions=['png'])
+def test_boxplot_sym2():
+    x = np.linspace(-7, 7, 140)
+    x = np.hstack([-25, x, 25])
+    fig, [ax1, ax2] = plt.subplots(1, 2)
+
+    ax1.boxplot([x, x], bootstrap=10000, sym='^')
+    ax1.set_ylim((-30, 30))
+
+    ax2.boxplot([x, x], bootstrap=10000, sym='g')
+    ax2.set_ylim((-30, 30))
+
+
 @image_comparison(baseline_images=['boxplot_sym'],
                   remove_text=True, extensions=['png'],
                   savefig_kwarg={'dpi': 40})
