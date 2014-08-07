@@ -125,6 +125,7 @@ to matplotlib which changes many of the defaults to make plots some
 consider more attractive.
 
 .. _hl_plotting:
+
 ###################
 High-Level Plotting
 ###################
