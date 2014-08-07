@@ -281,9 +281,10 @@ Pip problems
 ^^^^^^^^^^^^
 
 If you get errors with pip trying to run a compiler like ``gcc`` or ``clang``,
-first check :ref:`reporting-problems`, then you may need to `install xcode
+then the first thing to try is to `install xcode
 <https://guide.macports.org/chunked/installing.html#installing.xcode>`_ and
-try again.
+retry the install.  If that does not work, then check
+:ref:`reporting-problems`.
 
 Installing via OSX mpkg installer package
 -----------------------------------------
