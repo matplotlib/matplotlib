@@ -41,11 +41,13 @@ You can also filter on class instances::
 
 
 .. _howto-supress_offset:
+
 How to prevent ticklabels from having an offset
 -----------------------------------------------
 The default formatter will use an offset to reduce
 the length of the ticklabels.  To turn this feature
 off on a per-axis basis::
+
    ax.get_xaxis().get_major_formatter().set_useOffset(False)
 
 set the rcParam ``axes.formatter.useoffset``, or use a different
@@ -385,6 +387,7 @@ pyplot::
 
 
 .. seealso::
+
     :ref:`howto-webapp` for information about running matplotlib inside
     of a web application.
 
@@ -581,7 +584,8 @@ enabled, you may get errors if you don't configure matplotlib for use
 in these environments.  Most importantly, you need to decide what
 kinds of images you want to generate (PNG, PDF, SVG) and configure the
 appropriate default backend.  For 99% of users, this will be the Agg
-backend, which uses the C++ `antigrain <http://antigrain.com>`_
+backend, which uses the C++
+`antigrain <http://agg.sourceforge.net/antigrain.com/index.html>`_
 rendering engine to make nice PNGs.  The Agg backend is also
 configured to recognize requests to generate other output formats
 (PDF, PS, EPS, SVG).  The easiest way to configure matplotlib to use
@@ -615,7 +619,7 @@ or by saving to a file handle::
     import sys
     fig.savefig(sys.stdout)
 
-Here is an example using `Pillow <http://python-imaging.github.io/>__.
+Here is an example using `Pillow <http://python-imaging.github.io/>`_.
 First, the figure is saved to a StringIO object which is then fed to
 Pillow for further processing::
 

@@ -382,7 +382,7 @@ macosx         Cocoa rendering in OSX windows
                is in non-interactive mode)
 ============   ================================================================
 
-.. _`Anti-Grain Geometry`: http://www.antigrain.com/
+.. _`Anti-Grain Geometry`: http://agg.sourceforge.net/antigrain.com/index.html
 .. _Postscript: http://en.wikipedia.org/wiki/PostScript
 .. _`Portable Document Format`: http://en.wikipedia.org/wiki/Portable_Document_Format
 .. _`Scalable Vector Graphics`: http://en.wikipedia.org/wiki/Scalable_Vector_Graphics
