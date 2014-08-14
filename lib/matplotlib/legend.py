@@ -367,7 +367,9 @@ class Legend(Artist):
         # init with null renderer
         self._init_legend_box(handles, labels)
 
-        if framealpha is not None:
+        if framealpha is None:
+            self.get_frame().set_alpha(rcParams["legend.framealpha"])
+        else:
             self.get_frame().set_alpha(framealpha)
 
         self._loc = loc
