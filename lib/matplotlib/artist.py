@@ -9,6 +9,7 @@ import inspect
 import matplotlib
 import matplotlib.cbook as cbook
 from matplotlib import docstring, rcParams
+from matplotlib import style
 from .transforms import Bbox, IdentityTransform, TransformedBbox, \
                        TransformedPath, Transform
 from .path import Path
@@ -75,6 +76,7 @@ class Artist(object):
 
     aname = 'Artist'
     zorder = 0
+    style = style.style_property()
 
     def __init__(self):
         self.figure = None
@@ -108,6 +110,7 @@ class Artist(object):
         self._snap = None
         self._sketch = rcParams['path.sketch']
         self._path_effects = rcParams['path.effects']
+        self.style = None
 
     def __getstate__(self):
         d = self.__dict__.copy()
