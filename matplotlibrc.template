@@ -316,6 +316,7 @@ backend      : %(backend)s
 #legend.columnspacing : 2.    # the border between the axes and legend edge in fraction of fontsize
 #legend.shadow        : False
 #legend.frameon       : True   # whether or not to draw a frame around legend
+#legend.framealpha    : 1.0    # opacity of of legend frame
 #legend.scatterpoints : 3 # number of scatter points
 
 ### FIGURE
