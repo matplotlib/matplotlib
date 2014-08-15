@@ -998,7 +998,7 @@ class Text(Artist):
         """
         if is_string_like(fp):
             fp = FontProperties(fp)
-        self._fontproperties = fp.copy()
+        self._fontproperties = fp
 
     def set_font_properties(self, fp):
         'alias for set_fontproperties'
