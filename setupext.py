@@ -935,9 +935,36 @@ class FreeType(SetupPackage):
         else:
             version = None
 
+        # Early versions of freetype grep badly inside freetype-config,
+        # so catch those cases. (tested with 2.5.3).
+        if 'No such file or directory\ngrep:' in version:
+            version = self.version_from_header()
+
         return self._check_for_pkg_config(
             'freetype2', 'ft2build.h',
             min_version='2.3', version=version)
+
+    def version_from_header(self):
+        version = 'Failed to identify version.'
+        ext = self.get_extension()
+        if ext is None:
+            return version
+        # Return the first version found in the include dirs.
+        for include_dir in ext.include_dirs:
+            header_fname = os.path.join(include_dir, 'freetype.h')
+            if os.path.exists(header_fname):
+                major, minor, patch = 0, 0, 0
+                with open(header_fname, 'r') as fh:
+                    for line in fh:
+                        if line.startswith('#define FREETYPE_'):
+                            value = line.rsplit(' ', 1)[1].strip()
+                            if 'MAJOR' in line:
+                                major = value
+                            elif 'MINOR' in line:
+                                minor = value
+                            else:
+                                patch = value
+                return '.'.join([major, minor, patch])
 
     def add_flags(self, ext):
         pkg_config.setup_extension(
