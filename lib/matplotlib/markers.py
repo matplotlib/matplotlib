@@ -269,7 +269,7 @@ class MarkerStyle(object):
         verts = path.vertices
         rescale = max(np.max(np.abs(verts[:, 0])),
                       np.max(np.abs(verts[:, 1])))
-        self._transform = Affine2D().scale(1.0 / rescale)
+        self._transform = Affine2D().scale(0.5 / rescale)
         self._path = path
 
     def _set_path_marker(self):
