@@ -95,7 +95,7 @@ class AxesWidget(Widget):
         self.ax = ax
         self.canvas = ax.figure.canvas
         self.cids = []
-        self.active = True
+        self._active = True
 
     def connect_event(self, event, callback):
         """Connect callback with an event.
@@ -114,12 +114,14 @@ class AxesWidget(Widget):
     def set_active(self, active):
         """Set whether the widget is active.
         """
-        self.active = active
+        self._active = active
 
     def get_active(self):
         """Get whether the widget is active.
         """
-        return self.active
+        return self._active
+
+    active = property(set_active, get_active, doc="Is the widget active?")
 
     def ignore(self, event):
         """Return True if event should be ignored.
@@ -1091,7 +1093,21 @@ class MultiCursor(Widget):
             self.canvas.draw_idle()
 
 
-class SpanSelector(AxesWidget):
+class _SelectorWidget(AxesWidget):
+    def set_active(self, active):
+        super(_SelectorWidget, self).set_active(active)
+        if active:
+            self.update_background(None)
+
+    def update_background(self, event):
+        """force an update of the background"""
+        # If you add a call to `ignore` here, you'll want to check edge case:
+        # `release` can call a draw event even when `ignore` is True.
+        if self.useblit:
+            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+
+
+class SpanSelector(_SelectorWidget):
     """
     Select a min/max range of the x or y axes for a matplotlib Axes.
 
@@ -1199,13 +1215,6 @@ class SpanSelector(AxesWidget):
         if not self.useblit:
             self.ax.add_patch(self.rect)
 
-    def update_background(self, event):
-        """force an update of the background"""
-        # If you add a call to `ignore` here, you'll want to check edge case:
-        # `release` can call a draw event even when `ignore` is True.
-        if self.useblit:
-            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
-
     def ignore(self, event):
         """return *True* if *event* should be ignored"""
         widget_off = not self.visible or not self.active
@@ -1312,7 +1321,7 @@ class SpanSelector(AxesWidget):
         return False
 
 
-class RectangleSelector(AxesWidget):
+class RectangleSelector(_SelectorWidget):
     """
     Select a rectangular region of an axes.
 
@@ -1445,11 +1454,6 @@ class RectangleSelector(AxesWidget):
         self.eventpress = None
         # will save the data (pos. at mouserelease)
         self.eventrelease = None
-
-    def update_background(self, event):
-        """force an update of the background"""
-        if self.useblit:
-            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
     def ignore(self, event):
         """return *True* if *event* should be ignored"""
@@ -1585,7 +1589,7 @@ class RectangleSelector(AxesWidget):
             return False
 
 
-class LassoSelector(AxesWidget):
+class LassoSelector(_SelectorWidget):
     """Selection curve of an arbitrary shape.
 
     For the selector to remain responsive you much keep a reference to
@@ -1676,12 +1680,6 @@ class LassoSelector(AxesWidget):
             self.canvas.blit(self.ax.bbox)
         else:
             self.canvas.draw_idle()
-
-    def update_background(self, event):
-        if self.ignore(event):
-            return
-        if self.useblit:
-            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
 
 class Lasso(AxesWidget):
