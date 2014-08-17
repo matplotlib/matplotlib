@@ -382,6 +382,13 @@ instead of ``:context:`` any time you want to reset the context.
 Widgets
 -------
 
+Active state of Selectors
+`````````````````````````
+
+All selectors now implement ``set_active`` and ``get_active`` methods (also
+called when accessing the ``active`` property) to properly update and query
+whether they are active.
+
 Span Selector
 `````````````
 
