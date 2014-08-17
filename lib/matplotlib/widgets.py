@@ -121,7 +121,7 @@ class AxesWidget(Widget):
         """
         return self._active
 
-    active = property(set_active, get_active, doc="Is the widget active?")
+    active = property(get_active, set_active, doc="Is the widget active?")
 
     def ignore(self, event):
         """Return True if event should be ignored.
@@ -1095,7 +1095,7 @@ class MultiCursor(Widget):
 
 class _SelectorWidget(AxesWidget):
     def set_active(self, active):
-        super(_SelectorWidget, self).set_active(active)
+        AxesWidget.set_active(self, active)
         if active:
             self.update_background(None)
 
