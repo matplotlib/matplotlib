@@ -111,6 +111,16 @@ class AxesWidget(Widget):
         for c in self.cids:
             self.canvas.mpl_disconnect(c)
 
+    def set_active(self, active):
+        """Set whether the widget is active.
+        """
+        self.active = active
+
+    def get_active(self):
+        """Get whether the widget is active.
+        """
+        return self.active
+
     def ignore(self, event):
         """Return True if event should be ignored.
 
@@ -1393,7 +1403,6 @@ class RectangleSelector(AxesWidget):
         self.connect_event('button_release_event', self.release)
         self.connect_event('draw_event', self.update_background)
 
-        self.active = True                    # for activation / deactivation
         self.to_draw = None
         self.background = None
 
@@ -1574,17 +1583,6 @@ class RectangleSelector(AxesWidget):
                                   [self.eventpress.ydata, y])
             self.update()
             return False
-
-    def set_active(self, active):
-        """
-        Use this to activate / deactivate the RectangleSelector
-        from your program with an boolean parameter *active*.
-        """
-        self.active = active
-
-    def get_active(self):
-        """ Get status of active mode (boolean variable)"""
-        return self.active
 
 
 class LassoSelector(AxesWidget):
