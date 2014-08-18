@@ -45,6 +45,8 @@ None                           nothing
 ""                             nothing
 ``'$...$'``                    render the string using mathtext.
 `verts`                        a list of (x, y) pairs used for Path vertices.
+                               The center of the marker is located at (0,0) and
+                               the size is normalized.
 path                           a `~matplotlib.path.Path` instance.
 (`numsides`, `style`, `angle`) see below
 ============================== ===============================================
