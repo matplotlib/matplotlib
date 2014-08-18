@@ -739,7 +739,7 @@ class RendererBase(object):
         pass
 
 
-class GraphicsContextBase:
+class GraphicsContextBase(object):
     """
     An abstract base class that provides color, line styles, etc...
     """
@@ -860,7 +860,7 @@ class GraphicsContextBase:
         """
         return self._joinstyle
 
-    def get_linestyle(self, style):
+    def get_linestyle(self):
         """
         Return the linestyle: one of ('solid', 'dashed', 'dashdot',
         'dotted').
