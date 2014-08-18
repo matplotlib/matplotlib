@@ -125,11 +125,11 @@ def _create_qApp():
     """
     Only one qApp can exist at a time, so check before creating one.
     """
+    global qApp
 
     if qApp is None:
         if DEBUG:
             print("Starting up QApplication")
-        global qApp
         app = QtWidgets.QApplication.instance()
         if app is None:
             # check for DISPLAY env variable on X11 build of Qt
