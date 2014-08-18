@@ -1,5 +1,5 @@
 include CHANGELOG INSTALL
-include TODO CONTRIBUTING.md
+include CONTRIBUTING.md
 include Makefile MANIFEST.in
 include matplotlibrc.template setup.cfg.template
 include setupext.py setup.py distribute_setup.py

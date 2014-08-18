@@ -3,7 +3,7 @@
 PYTHON = `which python`
 VERSION = `${PYTHON} setup.py --version`
 
-DISTFILES = API_CHANGES KNOWN_BUGS INSTALL README TODO license	\
+DISTFILES = API_CHANGES KNOWN_BUGS INSTALL README license	\
 	CHANGELOG Makefile INTERACTIVE			\
 	MANIFEST.in lib lib/matplotlib lib/dateutil lib/pytz examples setup.py
 
@@ -49,6 +49,6 @@ test:
 
 
 test-coverage:
-	${PYTHON} tests.py --with-coverage --cover-package=matplotlib	
+	${PYTHON} tests.py --with-coverage --cover-package=matplotlib
 
 
