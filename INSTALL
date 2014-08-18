@@ -79,8 +79,11 @@ If you are on Debian/Ubuntu linux, it suffices to do::
 
   > sudo apt-get install python-matplotlib
 
-Instructions for installing our OSX binaries are found in the FAQ
-:ref:`install_osx_binaries`.
+which also installs X11. If you would like to install matplotlib
+without a GUI, try :ref:`install_from_source` or
+:ref:`install_from_puppet`.
+Instructions for installing our OSX
+binaries are found in the FAQ :ref:`install_osx_binaries`.
 
 
 Once you have ipython, numpy and matplotlib installed, you can use
@@ -337,3 +340,22 @@ can get the libpng and freetype requirements (darwinports, fink,
 the different OSX version (e.g., 10.4 and 10.5). We recommend that you build
 the way we do for the OSX release: get the source from the tarball or the
 git repository and follow the instruction in :file:`README.osx`.
+
+.. _install_from_puppet:
+
+Installing with Puppet
+======================
+
+In situations where you do not want a GUI (e.g., on a headless virtual
+machine), you may want to install matplotlib without the overhead of
+installing and running X11 or any other window manager. This can be
+accomplished fairly easily by :ref:`install_from_source` and omitting
+all of the GUI dependencies. `The matplotlib puppet module
+<http://forge.puppetlabs.com/DsA/matplotlib>`_ streamlines this
+process by installing all :ref:`system requirements
+<install_requirements>` and installing matplotlib with a quick
+one-liner to your puppet manifest::
+
+.. code:: ruby
+
+    class { "matplotlib": }
