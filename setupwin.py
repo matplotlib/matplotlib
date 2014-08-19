@@ -21,6 +21,8 @@ from __future__ import print_function, absolute_import
 import sys
 import platform
 import os
+import glob
+import shutil
 import zipfile
 import tarfile
 import distutils.msvc9compiler as msvc
@@ -66,6 +68,39 @@ def prepare_build_cmd(build_cmd, **kwargs):
 def config_dir():
     segment = 'msvcr{}-x{}'.format('100' if VS2010 else '90', '64' if X64 else '32')
     return os.path.join(DEPSDIR, segment)
+
+def tcl_config_dir():
+    return os.path.join(config_dir(), 'tcl85', 'include')
+
+def build_tcl():
+    inclib = config_dir()
+    tcl_inclib = tcl_config_dir()
+    if not os.path.exists(tcl_inclib):
+        os.makedirs(tcl_inclib)
+    tcl_inclib_x11 = os.path.join(tcl_inclib, 'X11')
+    if not os.path.exists(tcl_inclib_x11):
+        os.makedirs(tcl_inclib_x11)
+
+    distfile = os.path.join(DEPSDIR, 'tcl8513-src.zip')
+    compfile = os.path.join(tcl_inclib, 'tcl.h')
+    if not os.path.exists(compfile) or os.path.getmtime(distfile) > os.path.getmtime(compfile):
+        zip_extract(distfile, DEPSDIR)
+        targetdir = os.path.join(DEPSDIR, 'tcl8.5.13')
+        headers = glob.glob(os.path.join(targetdir, 'generic', '*.h'))
+        for filename in headers:
+            shutil.copy(filename, tcl_inclib)
+
+    distfile = os.path.join(DEPSDIR, 'tk8513-src.zip')
+    compfile = os.path.join(tcl_inclib, 'tk.h')
+    if not os.path.exists(compfile) or os.path.getmtime(distfile) > os.path.getmtime(compfile):
+        zip_extract(distfile, DEPSDIR)
+        targetdir = os.path.join(DEPSDIR, 'tk8.5.13')
+        headers = glob.glob(os.path.join(targetdir, 'generic', '*.h'))
+        for filename in headers:
+            shutil.copy(filename, tcl_inclib)
+        headers = glob.glob(os.path.join(targetdir, 'xlib', 'X11', '*.*'))
+        for filename in headers:
+            shutil.copy(filename, tcl_inclib_x11)
 
 ZLIB_BUILD_CMD = """\
 @ECHO OFF
