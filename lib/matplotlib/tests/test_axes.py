@@ -2194,6 +2194,16 @@ def test_empty_eventplot():
     plt.draw()
 
 
+@image_comparison(baseline_images=['marker_styles'], extensions=['png'], remove_text=True)
+def test_marker_styles():
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    for y, marker in enumerate(sorted(matplotlib.markers.MarkerStyle.markers.keys(),
+                                      key=lambda x: str(type(x))+str(x))):
+        ax.plot((y % 2)*5 + np.arange(10)*10, np.ones(10)*10*y, linestyle='', marker=marker,
+                markersize=10+y/5, label=marker)
+
+
 @image_comparison(baseline_images=['vertex_markers'], extensions=['png'],
                   remove_text=True)
 def test_vertex_markers():
