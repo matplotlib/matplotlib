@@ -93,7 +93,6 @@ mpl_packages = [
     setupext.BackendMacOSX(),
     setupext.BackendQt5(),
     setupext.BackendQt4(),
-    setupext.BackendPySide(),
     setupext.BackendGtk3Agg(),
     setupext.BackendGtk3Cairo(),
     setupext.BackendGtkAgg(),
