@@ -250,6 +250,16 @@ required_symlinks = [
     ]
 
 for link, target in required_symlinks:
+    if os.path.isfile(link):
+        # This is special processing that applies on platforms that don't deal
+        # with git symlinks -- probably only MS windows.
+        delete = False
+        with open(link, 'r') as content:
+            delete = target == content.read()
+        if delete:
+            os.unlink(link)
+        else:
+            raise RuntimeError("doc/{} should be a directory or symlink -- it isn't")
     if not os.path.exists(link):
         if hasattr(os, 'symlink'):
             os.symlink(target, link)
