@@ -27,8 +27,7 @@ from matplotlib import rc_params_from_file
 __all__ = ['use', 'context', 'available', 'library', 'reload_library']
 
 
-_here = os.path.abspath(os.path.dirname(__file__))
-BASE_LIBRARY_PATH = os.path.join(_here, 'stylelib')
+BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), 'stylelib')
 # Users may want multiple library paths, so store a list of paths.
 USER_LIBRARY_PATHS = [os.path.join(mpl._get_configdir(), 'stylelib')]
 STYLE_EXTENSION = 'mplstyle'
