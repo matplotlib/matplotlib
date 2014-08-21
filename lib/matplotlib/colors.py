@@ -331,7 +331,7 @@ class ColorConverter(object):
         return color
 
     def override_alpha(self, rgba, alpha):
-        if alpha == None:
+        if alpha is None:
             return rgba
         return tuple(rgba[:3] + (alpha,))
 
