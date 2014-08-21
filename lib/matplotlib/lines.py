@@ -980,10 +980,12 @@ class Line2D(Artist):
 
         ACCEPTS: any matplotlib color
         """
-        if ec is None or ec == 'auto':
-            self._markeredgecolor = 'auto'
+        if ec is None:
+            ec = 'auto'
+        if ec in ['auto', 'none']:
+            self._markeredgecolor = ec
         else:
-            self._markereditcolor = colorConverter.to_rgba(ec)
+            self._markeredgecolor = colorConverter.to_rgba(ec)
 
     def set_markeredgewidth(self, ew):
         """
