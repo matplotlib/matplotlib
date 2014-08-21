@@ -16,6 +16,8 @@ body {
     color: #333;
     margin: 0px 80px 0px 80px;
     min-width: 740px;
+    width: 990px;
+    margin: auto;
 }
 
 a {
@@ -648,5 +650,3 @@ figure img {
 figcaption {
   text-align: center;
 }
-
-
