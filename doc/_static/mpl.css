@@ -256,18 +256,19 @@ p.rubric {
     font-weight: bold;
 }
 
+
 h1 {
-    margin: 0.5em 0em;
+    margin: 0.5em 0 0.2em 0;
     padding-top: 0.5em;
-    font-size: 2em;
-    color: #11557C;
+    font-size: 2.2em;
+    padding: 0;
 }
 
 h2 {
-    margin: 0.5em 0 0.2em 0;
+    margin: 0.5em 0em;
     padding-top: 0.5em;
-    font-size: 1.7em;
-    padding: 0;
+    font-size: 1.9em;
+    color: #11557C;
 }
 
 h3 {
