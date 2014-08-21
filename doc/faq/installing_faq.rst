@@ -145,6 +145,8 @@ line script to the appropriate places.
 .. note::
    Mac OSX users please see the :ref:`build_osx` guide.
 
+   Windows users please see the :ref:`build_windows` guide.
+
 Then, if you want to update your matplotlib at any time, just do::
 
   > git pull

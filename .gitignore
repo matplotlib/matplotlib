@@ -20,6 +20,20 @@
 *.py[ocd]
 *.so
 
+# Compiled Dependencies #
+#########################
+windeps/freetype-2.4.11/
+windeps/libpng-1.6.7-build/
+windeps/libpng-1.6.7/
+windeps/zlib-1.2.8/
+windeps/tcl8.5.13/
+windeps/tk8.5.13/
+windeps/msvcr90-x32/
+windeps/msvcr90-x64/
+windeps/msvcr100-x32/
+windeps/msvcr100-x64/
+windeps/build_*.cmd
+
 # Python files #
 ################
 # setup.py working directory

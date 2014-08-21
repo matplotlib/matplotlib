@@ -12,6 +12,7 @@ import subprocess
 import sys
 import warnings
 from textwrap import fill
+import setupwin
 
 
 PY3 = (sys.version_info[0] >= 3)
@@ -588,6 +589,11 @@ class Matplotlib(SetupPackage):
                 'mpl-data/stylelib/*.mplstyle',
              ]}
 
+    def add_flags(self, ext):
+        if sys.platform == 'win32':
+            ext.include_dirs.append(setupwin.config_dir())
+            ext.lib_dirs.append(setupwin.config_dir())
+
 
 class SampleData(OptionalPackage):
     """
@@ -927,7 +933,7 @@ class FreeType(SetupPackage):
 
     def check(self):
         if sys.platform == 'win32':
-            return "Unknown version"
+            return "building local version {}".format(setupwin.FREETYPE_VERSION)
 
         status, output = getstatusoutput("freetype-config --ftversion")
         if status == 0:
@@ -967,19 +973,27 @@ class FreeType(SetupPackage):
                 return '.'.join([major, minor, patch])
 
     def add_flags(self, ext):
+        extra_include_dirs = []
+        extra_library_dirs = []
+        if sys.platform == 'win32':
+            extra_include_dirs = [setupwin.config_dir()]
+            extra_library_dirs = [setupwin.config_dir()]
+
         pkg_config.setup_extension(
             ext, 'freetype2',
             default_include_dirs=[
                 'freetype2', 'lib/freetype2/include',
-                'lib/freetype2/include/freetype2'],
+                'lib/freetype2/include/freetype2'] + extra_include_dirs,
             default_library_dirs=[
-                'freetype2/lib'],
+                'freetype2/lib'] + extra_library_dirs,
             default_libraries=['freetype', 'z'],
             alt_exec='freetype-config')
 
     def get_extension(self):
         if sys.platform == 'win32':
+            setupwin.build_freetype()
             return None
+
         ext = make_extension('freetype2', [])
         self.add_flags(ext)
         return ext
@@ -1012,12 +1026,22 @@ class Png(SetupPackage):
             return str(e) + ' Using unknown version.'
 
     def get_extension(self):
+        library_dirs = []
+        include_dirs = []
+        if sys.platform == 'win32':
+            setupwin.build_zlib()
+            setupwin.build_libpng()
+            library_dirs = [setupwin.config_dir()]
+            include_dirs = [setupwin.config_dir()]
+
         sources = [
             'src/_png.cpp', 'src/mplutils.cpp'
             ]
         ext = make_extension('matplotlib._png', sources)
         pkg_config.setup_extension(
-            ext, 'libpng', default_libraries=['png', 'z'])
+            ext, 'libpng', default_libraries=['png', 'z'], 
+            default_include_dirs=include_dirs, 
+            default_library_dirs=library_dirs)
         Numpy().add_flags(ext)
         CXX().add_flags(ext)
         return ext
@@ -1317,6 +1341,9 @@ class BackendTkAgg(OptionalBackendPackage):
         return "version %s" % tk_v
 
     def get_extension(self):
+        if sys.platform == 'win32':
+            setupwin.build_tcl()
+
         sources = [
             'src/agg_py_transforms.cpp',
             'src/_tkagg.cpp'
@@ -1484,6 +1511,7 @@ class BackendTkAgg(OptionalBackendPackage):
 
     def add_flags(self, ext):
         if sys.platform == 'win32':
+            ext.include_dirs.extend([setupwin.tcl_config_dir()])
             major, minor1, minor2, s, tmp = sys.version_info
             if sys.version_info[0:2] < (3, 4):
                 ext.include_dirs.extend(['win32_static/include/tcl85'])
@@ -1491,7 +1519,7 @@ class BackendTkAgg(OptionalBackendPackage):
             else:
                 ext.include_dirs.extend(['win32_static/include/tcl86'])
                 ext.libraries.extend(['tk86t', 'tcl86t'])
-            ext.library_dirs.extend([os.path.join(sys.prefix, 'dlls')])
+            ext.library_dirs.extend([os.path.join(sys.prefix, 'tcl')])
 
         elif sys.platform == 'darwin':
             # this config section lifted directly from Imaging - thanks to
