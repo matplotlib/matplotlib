@@ -585,7 +585,7 @@ class Matplotlib(SetupPackage):
                 'backends/web_backend/jquery/css/themes/base/images/*',
                 'backends/web_backend/css/*.*',
                 'backends/Matplotlib.nib/*',
-                'style/stylelib/*.mplstyle',
+                'mpl-data/stylelib/*.mplstyle',
              ]}
 
 
