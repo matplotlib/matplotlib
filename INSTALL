@@ -18,14 +18,17 @@ Installing pre-built packages
 Most platforms : scientific Python distributions
 ------------------------------------------------
 
-The first option is to use one of the pre-packaged python distributions that
-already provide matplotlib built-in.  The Continuum.io Python distribution
-`(Anaconda) <https://store.continuum.io/cshop/anaconda/>`_ and the Enthought
-distribution `(Canopy) <https://www.enthought.com/products/canopy/>`_ are both
-excellent choices that "just work" out of the box for Windows, OSX and common
-Linux platforms.  Both of these distributions include matplotlib and *lots* of
-other useful tools.  Another excellent alternative for Windows users is
-`Python (x, y) <https://code.google.com/p/pythonxy>`_ .
+The first option is to use one of the pre-packaged python
+distributions that already provide matplotlib built-in.  The
+Continuum.io Python distribution (`Anaconda
+<https://store.continuum.io/cshop/anaconda/>`_ or `miniconda
+<http://conda.pydata.org/miniconda.html>`_) and the Enthought
+distribution `(Canopy) <https://www.enthought.com/products/canopy/>`_
+are both excellent choices that "just work" out of the box for
+Windows, OSX and common Linux platforms.  Both of these distributions
+include matplotlib and *lots* of other useful tools.  Another
+excellent alternative for Windows users is `Python (x, y)
+<https://code.google.com/p/pythonxy>`_ .
 
 
 Linux : using your package manager
