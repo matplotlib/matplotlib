@@ -213,7 +213,7 @@ e.g., if the header to some required library is in
 .. _install_requirements:
 
 Build requirements
-==================
+------------------
 
 These are external packages which you will need to install before
 installing matplotlib.  If you are building on OSX, see
@@ -221,23 +221,11 @@ installing matplotlib.  If you are building on OSX, see
 manager on Linux, you may need to install the development packages
 (look for a "-dev" postfix) in addition to the libraries themselves.
 
-.. note::
 
-    If you are on Debian/Ubuntu, you can get all the dependencies
-    required to build matplotlib with::
+Required Dependencies
+^^^^^^^^^^^^^^^^^^^^^
 
-      sudo apt-get build-dep python-matplotlib
-
-    If you are on Fedora/RedHat, you can get all the dependencies
-    required to build matplotlib by first installing ``yum-builddep``
-    and then running::
-
-       su -c "yum-builddep python-matplotlib"
-
-    This does not build matplotlib, but it does get the install the
-    build dependencies, which will make building from source easier.
-
-:term:`python` 2.6, 2.7, 3.1 or 3.2
+:term:`python` 2.6, 2.7, 3.3 or 3.4
     `Download python <http://www.python.org/download/>`_.
 
 :term:`numpy` |minimum_numpy_version| (or later)
@@ -267,7 +255,8 @@ libpng 1.2 (or later)
     build support into the matplotlib single-click installer
 
 
-**Optional GUI frameworks**
+Optional GUI framework
+^^^^^^^^^^^^^^^^^^^^^^
 
 These are optional packages which you may want to install to use
 matplotlib with a user interface toolkit. See
@@ -288,8 +277,8 @@ backends and the capabilities they provide.
     The python wrappers for the wx widgets library for use with the
     WX or WXAgg backend
 
-**Optional external programs**
-
+Optional external programs
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 ffmpeg/avconv or mencoder
     Required for the animation module to be save out put to movie
     formats.
@@ -297,7 +286,8 @@ ffmpeg/avconv or mencoder
 ImageMagick
     Required for the animation module to be able to save to animated gif.
 
-**Optional dependencies**
+Optional dependencies
+^^^^^^^^^^^^^^^^^^^^^
 
 `Pillow http://python-imaging.github.io/`__
     If Pillow is installed, matplotlib can read and write a larger
@@ -309,8 +299,8 @@ ImageMagick
     user, you can ignore this since we build support into the
     matplotlib single click installer.
 
-**Required libraries that ship with matplotlib**
-
+Required libraries that ship with matplotlib
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :term:`agg` 2.4
     The antigrain C++ rendering engine.  matplotlib links against the
     agg template source statically, so it will not affect anything on
@@ -326,10 +316,32 @@ ImageMagick
 `ttconv`
    truetype font utility
 
+.. _build_linux:
+
+Building on Linux
+-----------------
+
+It is easiest to use your system package manager to install the dependencies.
+
+If you are on Debian/Ubuntu, you can get all the dependencies
+required to build matplotlib with::
+
+   sudo apt-get build-dep python-matplotlib
+
+If you are on Fedora/RedHat, you can get all the dependencies required
+to build matplotlib by first installing ``yum-builddep`` and then
+running::
+
+   su -c "yum-builddep python-matplotlib"
+
+This does not build matplotlib, but it does get the install the
+build dependencies, which will make building from source easier.
+
+
 .. _build_osx:
 
 Building on OSX
-===============
+---------------
 
 The build situation on OSX is complicated by the various places one
 can get the libpng and freetype requirements (darwinports, fink,
@@ -337,3 +349,13 @@ can get the libpng and freetype requirements (darwinports, fink,
 the different OSX version (e.g., 10.4 and 10.5). We recommend that you build
 the way we do for the OSX release: get the source from the tarball or the
 git repository and follow the instruction in :file:`README.osx`.
+
+.. _build_osx:
+
+Building on Windows
+-------------------
+
+Building for source on windows can be difficult.  Please see
+`matplotlib-windbuild
+<https://github.com/jbmohler/matplotlib-winbuild>`_ for detailed
+instructions, dependency source blobs, and helper scripts.
