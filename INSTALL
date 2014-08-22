@@ -238,9 +238,8 @@ Optional dependencies
 
 
 :term:`freetype` 1.4 (or later)
-    library for reading true type font files. If you are a windows
-    user, you can ignore this since we build support into the
-    matplotlib single click installer.
+    library for reading true type font files.
+
 
 Required libraries that ship with matplotlib
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
