@@ -124,6 +124,18 @@ input.  Classes that are 'array-like' such as `pandas` data objects
 and `np.matrix` may or may not work as intended.  It is best to
 convert these to `np.array` objects prior to plotting.
 
+For example, to covert a `pandas.DataFrame` ::
+
+  a = pandas.DataFrame(np.random.rand(4,5), columns = list('abcde'))
+  a_asndarray = a.values
+
+and to covert a `np.matrix` ::
+
+  b = np.matrix([[1,2],[3,4]])
+  b_asarray = np.asarray(b)
+
+
+
 .. _pylab:
 
 Matplotlib, pyplot and pylab: how are they related?
