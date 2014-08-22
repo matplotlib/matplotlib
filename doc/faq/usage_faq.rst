@@ -114,6 +114,15 @@ idea).  When the figure is rendered, all of the artists are drawn to
 the **canvas**.  Most Artists are tied to an Axes; such an Artist
 cannot be shared by multiple Axes, or moved from one to another.
 
+.. _input_types:
+
+Types of inputs to plotting functions
+=====================================
+
+All of plotting functions expect `np.array` or `np.ma.masked_array` as
+input.  Classes that are 'array-like' such as `pandas` data objects
+and `np.matrix` may or may not work as intended.  It is best to
+convert these to `np.array` objects prior to plotting.
 
 .. _pylab:
 
