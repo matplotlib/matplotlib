@@ -308,4 +308,4 @@ Framework with Visual Studio).  In addition to Visual Studio `CMake
 
 Since there is no canonical Windows package manager the build methods for
 freetype, zlib, libpng, tcl, & tk source code are documented as a build script
-at `matplotlib=winbuild <https://github.com/jbmohler/matplotlib-winbuild>`.
+at `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`.
