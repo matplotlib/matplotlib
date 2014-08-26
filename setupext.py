@@ -937,7 +937,7 @@ class FreeType(SetupPackage):
 
         # Early versions of freetype grep badly inside freetype-config,
         # so catch those cases. (tested with 2.5.3).
-        if 'No such file or directory\ngrep:' in version:
+        if version is None or 'No such file or directory\ngrep:' in version:
             version = self.version_from_header()
 
         return self._check_for_pkg_config(
