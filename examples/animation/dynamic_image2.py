@@ -8,6 +8,7 @@ import matplotlib.animation as animation
 
 fig = plt.figure()
 
+
 def f(x, y):
     return np.sin(x) + np.cos(y)
 
@@ -24,9 +25,9 @@ for i in range(60):
     ims.append([im])
 
 ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,
-    repeat_delay=1000)
+                                repeat_delay=1000)
 
-#ani.save('dynamic_images.mp4')
+# ani.save('dynamic_images.mp4')
 
 
 plt.show()
