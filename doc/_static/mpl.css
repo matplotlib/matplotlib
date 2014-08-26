@@ -15,7 +15,7 @@ body {
     border: 1px solid #aaa;
     color: #333;
     margin: 0px 80px 0px 80px;
-    min-width: 740px;
+    min-width: 65%;
     width: 990px;
     margin: auto;
 }
@@ -210,6 +210,7 @@ div.related ul li a:hover {
 div.body {
     margin: 0;
     padding: 0.5em 20px 20px 20px;
+    max-width: 900px;
 }
 
 div.bodywrapper {
