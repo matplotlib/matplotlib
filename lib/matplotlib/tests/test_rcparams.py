@@ -5,6 +5,7 @@ import six
 
 import os
 import sys
+import warnings
 
 import matplotlib as mpl
 from matplotlib.tests import assert_str_equal
@@ -97,29 +98,36 @@ font.weight: normal""".lstrip()
 
 def test_Bug_2543():
     # Test that it possible to add all values to itself / deepcopy
-    # This was not possible because validate_bool_maybe_none did not 
+    # This was not possible because validate_bool_maybe_none did not
     # accept None as an argument.
     # https://github.com/matplotlib/matplotlib/issues/2543
-    with mpl.rc_context():
-        _copy = mpl.rcParams.copy()
-        for key in six.iterkeys(_copy):
-            mpl.rcParams[key] = _copy[key]
-        mpl.rcParams['text.dvipnghack'] = None  
-    with mpl.rc_context():
-        from copy import deepcopy
-        _deep_copy = deepcopy(mpl.rcParams)
-    from matplotlib.rcsetup import validate_bool_maybe_none, validate_bool
-    # real test is that this does not raise
-    assert_true(validate_bool_maybe_none(None) is None)
-    assert_true(validate_bool_maybe_none("none") is None)
-    _fonttype = mpl.rcParams['svg.fonttype']
-    assert_true(_fonttype == mpl.rcParams['svg.embed_char_paths'])
-    with mpl.rc_context():
-        mpl.rcParams['svg.embed_char_paths'] = False
-        assert_true(mpl.rcParams['svg.fonttype'] == "none")
+    # We filter warnings at this stage since a number of them are raised
+    # for deprecated rcparams as they should. We dont want these in the
+    # printed in the test suite.
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore',
+                                message='.*(deprecated|obsolete)',
+                                category=UserWarning)
+        with mpl.rc_context():
+            _copy = mpl.rcParams.copy()
+            for key in six.iterkeys(_copy):
+                mpl.rcParams[key] = _copy[key]
+            mpl.rcParams['text.dvipnghack'] = None
+        with mpl.rc_context():
+            from copy import deepcopy
+            _deep_copy = deepcopy(mpl.rcParams)
+        from matplotlib.rcsetup import validate_bool_maybe_none, validate_bool
+        # real test is that this does not raise
+        assert_true(validate_bool_maybe_none(None) is None)
+        assert_true(validate_bool_maybe_none("none") is None)
+        _fonttype = mpl.rcParams['svg.fonttype']
+        assert_true(_fonttype == mpl.rcParams['svg.embed_char_paths'])
+        with mpl.rc_context():
+            mpl.rcParams['svg.embed_char_paths'] = False
+            assert_true(mpl.rcParams['svg.fonttype'] == "none")
 
 def test_Bug_2543_newer_python():
-    # only split from above because of the usage of assert_raises 
+    # only split from above because of the usage of assert_raises
     # as a context manager, which only works in 2.7 and above
     if sys.version_info[:2] < (2, 7):
         raise nose.SkipTest("assert_raises as context manager not supported with Python < 2.7")
@@ -130,8 +138,8 @@ def test_Bug_2543_newer_python():
         validate_bool(None)
     with assert_raises(ValueError):
         with mpl.rc_context():
-            mpl.rcParams['svg.fonttype'] = True  
-    
+            mpl.rcParams['svg.fonttype'] = True
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
