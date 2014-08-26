@@ -231,7 +231,7 @@ class UniformTriRefiner(TriRefiner):
         # points
         # hint: each apex is shared by 2 masked_triangles except the borders.
         borders = np.sum(neighbors == -1)
-        added_pts = (3*ntri + borders) / 2
+        added_pts = (3*ntri + borders) // 2
         refi_npts = npts + added_pts
         refi_x = np.zeros(refi_npts)
         refi_y = np.zeros(refi_npts)

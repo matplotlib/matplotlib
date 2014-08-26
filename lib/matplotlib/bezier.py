@@ -256,7 +256,7 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
 
     for ctl_points, command in path_iter:
         iold = i
-        i += len(ctl_points) / 2
+        i += len(ctl_points) // 2
         if inside(ctl_points[-2:]) != begin_inside:
             bezier_path = concat([ctl_points_old[-2:], ctl_points])
             break

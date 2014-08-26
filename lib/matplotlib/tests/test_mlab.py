@@ -1326,8 +1326,8 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
 
         freqs_specgram = freqs_density
         # time points for specgram
-        t_start = NFFT_specgram_real/2
-        t_stop = len(x) - NFFT_specgram_real/2+1
+        t_start = NFFT_specgram_real//2
+        t_stop = len(x) - NFFT_specgram_real//2+1
         t_step = NFFT_specgram_real - nover_specgram_real
         t_specgram = x[t_start:t_stop:t_step]
         if NFFT_specgram_real % 2:
