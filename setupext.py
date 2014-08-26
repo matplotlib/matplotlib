@@ -1003,6 +1003,9 @@ class Png(SetupPackage):
     name = "png"
 
     def check(self):
+        if sys.platform == 'win32':
+            return "Unknown version"
+
         status, output = getstatusoutput("libpng-config --version")
         if status == 0:
             version = output
