@@ -6,6 +6,7 @@ import six
 import tempfile
 
 from numpy.testing import assert_allclose, assert_array_equal
+import numpy.ma.testutils as matest
 import numpy as np
 from nose.tools import (assert_equal, assert_almost_equal, assert_not_equal,
                         assert_true, assert_raises)
@@ -2714,7 +2715,7 @@ def test_griddata_linear():
     z_masked = np.ma.array(z, mask=[False, False, False, True, False])
     correct_zi_masked = np.ma.masked_where(xi + yi > 1.0, get_z(xi, yi))
     zi = mlab.griddata(x, y, z_masked, xi, yi, interp='linear')
-    np.testing.assert_array_almost_equal(zi, correct_zi_masked)
+    matest.assert_array_almost_equal(zi, correct_zi_masked)
     np.testing.assert_array_equal(np.ma.getmask(zi),
                                   np.ma.getmask(correct_zi_masked))
 
