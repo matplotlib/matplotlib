@@ -57,7 +57,8 @@ def test_path_clipping():
         bbox = [0, 140, 640, 260]
         ax.set_xlim(bbox[0], bbox[0] + bbox[2])
         ax.set_ylim(bbox[1], bbox[1] + bbox[3])
-        ax.add_patch(Polygon(xy, facecolor='none', edgecolor='red', closed=True))
+        ax.add_patch(Polygon(
+            xy, facecolor='none', edgecolor='red', closed=True))
 
 
 if __name__ == '__main__':
