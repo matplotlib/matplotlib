@@ -908,12 +908,12 @@ class _AxesBase(martist.Artist):
             )
         self._left_title = mtext.Text(
             x=0.0, y=1.0, text='',
-            fontproperties=props,
+            fontproperties=props.copy(),
             verticalalignment='baseline',
             horizontalalignment='left', )
         self._right_title = mtext.Text(
             x=1.0, y=1.0, text='',
-            fontproperties=props,
+            fontproperties=props.copy(),
             verticalalignment='baseline',
             horizontalalignment='right',
             )
