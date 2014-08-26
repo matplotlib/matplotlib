@@ -42,7 +42,8 @@ def test_masks_and_nans():
     mask[40:60, 40:60] = 1
     U = np.ma.array(U, mask=mask)
     U[:20, :20] = np.nan
-    plt.streamplot(X, Y, U, V, color=U, cmap=plt.cm.Blues)
+    with np.errstate(invalid='ignore'):
+        plt.streamplot(X, Y, U, V, color=U, cmap=plt.cm.Blues)
 
 
 @cleanup
