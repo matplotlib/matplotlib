@@ -45,6 +45,8 @@ None                           nothing
 ""                             nothing
 ``'$...$'``                    render the string using mathtext.
 `verts`                        a list of (x, y) pairs used for Path vertices.
+                               The center of the marker is located at (0,0) and
+                               the size is normalized.
 path                           a `~matplotlib.path.Path` instance.
 (`numsides`, `style`, `angle`) see below
 ============================== ===============================================
@@ -269,7 +271,7 @@ class MarkerStyle(object):
         verts = path.vertices
         rescale = max(np.max(np.abs(verts[:, 0])),
                       np.max(np.abs(verts[:, 1])))
-        self._transform = Affine2D().scale(1.0 / rescale)
+        self._transform = Affine2D().scale(0.5 / rescale)
         self._path = path
 
     def _set_path_marker(self):
