@@ -8,6 +8,7 @@ from matplotlib.ticker import Formatter, FixedLocator
 
 
 class MercatorLatitudeScale(mscale.ScaleBase):
+
     """
     Scales data in range -pi/2 to pi/2 (-90 to 90 degrees) using
     the system used to scale latitudes in a Mercator projection.
@@ -31,7 +32,6 @@ class MercatorLatitudeScale(mscale.ScaleBase):
     # ``gca().set_yscale("mercator")`` would be used to select this
     # scale.
     name = 'mercator'
-
 
     def __init__(self, axis, **kwargs):
         """
@@ -71,13 +71,14 @@ class MercatorLatitudeScale(mscale.ScaleBase):
         value::
         """
         class DegreeFormatter(Formatter):
+
             def __call__(self, x, pos=None):
                 # \u00b0 : degree symbol
                 return "%d\u00b0" % ((x / np.pi) * 180.0)
 
         deg2rad = np.pi / 180.0
         axis.set_major_locator(FixedLocator(
-                np.arange(-90, 90, 10) * deg2rad))
+            np.arange(-90, 90, 10) * deg2rad))
         axis.set_major_formatter(DegreeFormatter())
         axis.set_minor_formatter(DegreeFormatter())
 
@@ -170,4 +171,3 @@ if __name__ == '__main__':
     plt.grid(True)
 
     plt.show()
-

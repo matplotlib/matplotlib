@@ -30,13 +30,14 @@ top = bottom + n
 
 # we need a (numrects x numsides x 2) numpy array for the path helper
 # function to build a compound path
-XY = np.array([[left,left,right,right], [bottom,top,top,bottom]]).T
+XY = np.array([[left, left, right, right], [bottom, top, top, bottom]]).T
 
 # get the Path object
 barpath = path.Path.make_compound_path_from_polys(XY)
 
 # make a patch out of it
-patch = patches.PathPatch(barpath, facecolor='blue', edgecolor='gray', alpha=0.8)
+patch = patches.PathPatch(
+    barpath, facecolor='blue', edgecolor='gray', alpha=0.8)
 ax.add_patch(patch)
 
 # update the view limits
