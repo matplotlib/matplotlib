@@ -43,58 +43,63 @@ def sankey(ax,
     assert sum(ins) == 100, "Inputs don't sum up to 100%"
 
     def add_output(path, loss, sign=1):
-        h = (loss/2 + w)*np.tan(outangle/180. * np.pi)  # Arrow tip height
+        # Arrow tip height
+        h = (loss/2 + w) * np.tan(outangle/180.*np.pi)
         move, (x, y) = path[-1]  # Use last point as reference
         if sign == 0:  # Final loss (horizontal)
-            path.extend([(Path.LINETO, [x+dx, y]),
-                         (Path.LINETO, [x+dx, y+w]),
-                         (Path.LINETO, [x+dx+h, y-loss/2]),  # Tip
-                         (Path.LINETO, [x+dx, y-loss-w]),
-                         (Path.LINETO, [x+dx, y-loss])])
+            path.extend([(Path.LINETO, [x + dx, y]),
+                         (Path.LINETO, [x + dx, y + w]),
+                         (Path.LINETO, [x + dx + h, y - loss/2]),  # Tip
+                         (Path.LINETO, [x + dx, y - loss - w]),
+                         (Path.LINETO, [x + dx, y - loss])])
             outtips.append((sign, path[-3][1]))
         else:  # Intermediate loss (vertical)
-            path.extend([(Path.CURVE4, [x+dx/2, y]),
-                         (Path.CURVE4, [x+dx, y]),
-                         (Path.CURVE4, [x+dx, y+sign*dy]),
-                         (Path.LINETO, [x+dx-w, y+sign*dy]),
-                         (Path.LINETO, [x+dx+loss/2, y+sign*(dy+h)]),  # Tip
-                         (Path.LINETO, [x+dx+loss+w, y+sign*dy]),
-                         (Path.LINETO, [x+dx+loss, y+sign*dy]),
-                         (Path.CURVE3, [x+dx+loss, y-sign*loss]),
-                         (Path.CURVE3, [x+dx/2+loss, y-sign*loss])])
+            path.extend([(Path.CURVE4, [x + dx/2, y]),
+                         (Path.CURVE4, [x + dx, y]),
+                         (Path.CURVE4, [x + dx, y + sign*dy]),
+                         (Path.LINETO, [x + dx - w, y + sign*dy]),
+                         # Tip
+                         (Path.LINETO, [
+                          x + dx + loss/2, y + sign*(dy + h)]),
+                         (Path.LINETO, [x + dx + loss + w, y + sign*dy]),
+                         (Path.LINETO, [x + dx + loss, y + sign*dy]),
+                         (Path.CURVE3, [x + dx + loss, y - sign*loss]),
+                         (Path.CURVE3, [x + dx/2 + loss, y - sign*loss])])
             outtips.append((sign, path[-5][1]))
 
     def add_input(path, gain, sign=1):
-        h = (gain/2)*np.tan(inangle/180. * np.pi)  # Dip depth
+        h = (gain / 2) * np.tan(inangle / 180. * np.pi)  # Dip depth
         move, (x, y) = path[-1]  # Use last point as reference
         if sign == 0:  # First gain (horizontal)
-            path.extend([(Path.LINETO, [x-dx, y]),
-                         (Path.LINETO, [x-dx+h, y+gain/2]),  # Dip
-                         (Path.LINETO, [x-dx, y+gain])])
+            path.extend([(Path.LINETO, [x - dx, y]),
+                         (Path.LINETO, [x - dx + h, y + gain/2]),  # Dip
+                         (Path.LINETO, [x - dx, y + gain])])
             xd, yd = path[-2][1]  # Dip position
-            indips.append((sign, [xd-h, yd]))
+            indips.append((sign, [xd - h, yd]))
         else:  # Intermediate gain (vertical)
-            path.extend([(Path.CURVE4, [x-dx/2, y]),
-                         (Path.CURVE4, [x-dx, y]),
-                         (Path.CURVE4, [x-dx, y+sign*dy]),
-                         (Path.LINETO, [x-dx-gain/2, y+sign*(dy-h)]),  # Dip
-                         (Path.LINETO, [x-dx-gain, y+sign*dy]),
-                         (Path.CURVE3, [x-dx-gain, y-sign*gain]),
-                         (Path.CURVE3, [x-dx/2-gain, y-sign*gain])])
+            path.extend([(Path.CURVE4, [x - dx/2, y]),
+                         (Path.CURVE4, [x - dx, y]),
+                         (Path.CURVE4, [x - dx, y + sign*dy]),
+                         # Dip
+                         (Path.LINETO, [
+                          x - dx - gain / 2, y + sign*(dy - h)]),
+                         (Path.LINETO, [x - dx - gain, y + sign*dy]),
+                         (Path.CURVE3, [x - dx - gain, y - sign*gain]),
+                         (Path.CURVE3, [x - dx/2 - gain, y - sign*gain])])
             xd, yd = path[-4][1]  # Dip position
-            indips.append((sign, [xd, yd+sign*h]))
+            indips.append((sign, [xd, yd + sign*h]))
 
     outtips = []  # Output arrow tip dir. and positions
     urpath = [(Path.MOVETO, [0, 100])]  # 1st point of upper right path
     lrpath = [(Path.LINETO, [0, 0])]  # 1st point of lower right path
     for loss, sign in zip(outs, outsigns):
-        add_output(sign>=0 and urpath or lrpath, loss, sign=sign)
+        add_output(sign >= 0 and urpath or lrpath, loss, sign=sign)
 
     indips = []  # Input arrow tip dir. and positions
     llpath = [(Path.LINETO, [0, 0])]  # 1st point of lower left path
     ulpath = [(Path.MOVETO, [0, 100])]  # 1st point of upper left path
     for gain, sign in reversed(list(zip(ins, insigns))):
-        add_input(sign<=0 and llpath or ulpath, gain, sign=sign)
+        add_input(sign <= 0 and llpath or ulpath, gain, sign=sign)
 
     def revert(path):
         """A path is not just revertable by path[::-1] because of Bezier
@@ -144,12 +149,12 @@ def sankey(ax,
         for i, label in enumerate(lbls):
             s, (x, y) = positions[i]  # Label direction and position
             if s == 0:
-                t = ax.text(x+offset, y, label,
+                t = ax.text(x + offset, y, label,
                             ha=output and 'left' or 'right', va='center')
             elif s > 0:
-                t = ax.text(x, y+offset, label, ha='center', va='bottom')
+                t = ax.text(x, y + offset, label, ha='center', va='bottom')
             else:
-                t = ax.text(x, y-offset, label, ha='center', va='top')
+                t = ax.text(x, y - offset, label, ha='center', va='top')
             texts.append(t)
         return texts
 
@@ -160,20 +165,20 @@ def sankey(ax,
     intexts = put_labels(inlabels, indips, output=False)
 
     # Axes management
-    ax.set_xlim(verts[:, 0].min()-dx, verts[:, 0].max()+dx)
-    ax.set_ylim(verts[:, 1].min()-dy, verts[:, 1].max()+dy)
+    ax.set_xlim(verts[:, 0].min() - dx, verts[:, 0].max() + dx)
+    ax.set_ylim(verts[:, 1].min() - dy, verts[:, 1].max() + dy)
     ax.set_aspect('equal', adjustable='datalim')
 
     return patch, [intexts, outtexts]
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
 
     import matplotlib.pyplot as plt
 
     outputs = [10., -20., 5., 15., -10., 40.]
     outlabels = ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Hurray!']
-    outlabels = [s+'\n%d%%' % abs(l) for l, s in zip(outputs, outlabels)]
+    outlabels = [s + '\n%d%%' % abs(l) for l, s in zip(outputs, outlabels)]
 
     inputs = [60., -25., 15.]
 
