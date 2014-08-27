@@ -4,9 +4,14 @@ An example of how to use wx or wxagg in an application with a custom
 toolbar
 """
 
-# Used to guarantee to use at least Wx2.8
-import wxversion
-wxversion.ensureMinimal('2.8')
+import sys
+if sys.version_info.major < 3:
+    # Used to guarantee to use at least Wx2.8
+    import wxversion
+    wxversion.ensureMinimal('2.8')
+    #wxversion.select('2.8')
+    #wxversion.select('2.9.5')
+    #wxversion.select('3.0.2-phoenix', optionsRequired=True)
 
 from numpy import arange, sin, pi
 
@@ -32,9 +37,15 @@ class MyNavigationToolbar(NavigationToolbar2WxAgg):
 
         # for simplicity I'm going to reuse a bitmap from wx, you'll
         # probably want to add your own.
-        self.AddSimpleTool(self.ON_CUSTOM, _load_bitmap('stock_left.xpm'),
-                           'Click me', 'Activate custom contol')
-        wx.EVT_TOOL(self, self.ON_CUSTOM, self._on_custom)
+        if 'phoenix' in wx.PlatformInfo:
+            self.AddTool(self.ON_CUSTOM, 'Click me',
+                         _load_bitmap('stock_left.xpm'),
+                         'Activate custom contol')
+            self.Bind(wx.EVT_TOOL, self._on_custom, id=self.ON_CUSTOM)
+        else:
+            self.AddSimpleTool(self.ON_CUSTOM, _load_bitmap('stock_left.xpm'),
+                               'Click me', 'Activate custom contol')
+            wx.EVT_TOOL(self, self.ON_CUSTOM, self._on_custom)
 
     def _on_custom(self, evt):
         # add some text to the axes in a random location in axes (0,1)
@@ -61,7 +72,10 @@ class CanvasFrame(wx.Frame):
         wx.Frame.__init__(self,None,-1,
                          'CanvasFrame',size=(550,350))
 
-        self.SetBackgroundColour(wx.NamedColour("WHITE"))
+        if 'phoenix' in wx.PlatformInfo:
+            self.SetBackgroundColour(wx.Colour("WHITE"))
+        else:
+            self.SetBackgroundColour(wx.NamedColour("WHITE"))
 
         self.figure = Figure(figsize=(5,4), dpi=100)
         self.axes = self.figure.add_subplot(111)
@@ -75,7 +89,7 @@ class CanvasFrame(wx.Frame):
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.canvas, 1, wx.TOP | wx.LEFT | wx.EXPAND)
         # Capture the paint message
-        wx.EVT_PAINT(self, self.OnPaint)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
 
         self.toolbar = MyNavigationToolbar(self.canvas, True)
         self.toolbar.Realize()
@@ -87,8 +101,12 @@ class CanvasFrame(wx.Frame):
         else:
             # On Windows platform, default window size is incorrect, so set
             # toolbar width to figure width.
-            tw, th = self.toolbar.GetSizeTuple()
-            fw, fh = self.canvas.GetSizeTuple()
+            if 'phoenix' in wx.PlatformInfo:
+                tw, th = self.toolbar.GetSize()
+                fw, fh = self.canvas.GetSize()
+            else:
+                tw, th = self.toolbar.GetSizeTuple()
+                fw, fh = self.canvas.GetSizeTuple()
             # By adding toolbar in sizer, we are able to put it at the bottom
             # of the frame - so appearance is closer to GTK version.
             # As noted above, doesn't work for Mac.

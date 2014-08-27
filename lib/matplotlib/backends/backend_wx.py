@@ -40,38 +40,36 @@ if _DEBUG < 5:
     import traceback, pdb
 _DEBUG_lvls = {1 : 'Low ', 2 : 'Med ', 3 : 'High', 4 : 'Error' }
 
-if six.PY3:
-    warnings.warn(
-        "The wx and wxagg backends have not been tested with Python 3.x",
-        ImportWarning)
-
-missingwx = "Matplotlib backend_wx and backend_wxagg require wxPython >=2.8"
-missingwxversion = ("Matplotlib backend_wx and backend_wxagg "
+if sys.version_info.major < 3:
+    # wxPython-Phoenix, does currently not support wxversion
+    missingwx = "Matplotlib backend_wx and backend_wxagg require wxPython >=2.8"
+    missingwxversion = ("Matplotlib backend_wx and backend_wxagg "
                     "require wxversion, which was not found.")
 
-if not hasattr(sys, 'frozen'): # i.e., not py2exe
-    try:
-        import wxversion
-    except ImportError:
-        raise ImportError(missingwxversion)
+    if not hasattr(sys, 'frozen'): # i.e., not py2exe
+        try:
+            import wxversion
+        except ImportError:
+            raise ImportError(missingwxversion)
 
-    # Some early versions of wxversion lack AlreadyImportedError.
-    # It was added around 2.8.4?
-    try:
-        _wx_ensure_failed = wxversion.AlreadyImportedError
-    except AttributeError:
-        _wx_ensure_failed = wxversion.VersionError
-
-    try:
-        wxversion.ensureMinimal(str('2.8'))
-    except _wx_ensure_failed:
-        pass
-    # We don't really want to pass in case of VersionError, but when
-    # AlreadyImportedError is not available, we have to.
+        # Some early versions of wxversion lack AlreadyImportedError.
+        # It was added around 2.8.4?
+        try:
+            _wx_ensure_failed = wxversion.AlreadyImportedError
+        except AttributeError:
+            _wx_ensure_failed = wxversion.VersionError
+    
+        try:
+            wxversion.ensureMinimal(str('2.8'))
+        except _wx_ensure_failed:
+            pass
+        # We don't really want to pass in case of VersionError, but when
+        # AlreadyImportedError is not available, we have to.
 
 try:
     import wx
     backend_version = wx.VERSION_STRING
+    is_phoenix = 'phoenix' in wx.PlatformInfo
 except ImportError:
     raise ImportError(missingwx)
 
@@ -667,8 +665,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         wx.WXK_DELETE          : 'delete',
         wx.WXK_HOME            : 'home',
         wx.WXK_END             : 'end',
-        wx.WXK_PRIOR           : 'pageup',
-        wx.WXK_NEXT            : 'pagedown',
         wx.WXK_PAGEUP          : 'pageup',
         wx.WXK_PAGEDOWN        : 'pagedown',
         wx.WXK_NUMPAD0         : '0',
@@ -691,8 +687,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         wx.WXK_NUMPAD_RIGHT    : 'right',
         wx.WXK_NUMPAD_DOWN     : 'down',
         wx.WXK_NUMPAD_LEFT     : 'left',
-        wx.WXK_NUMPAD_PRIOR    : 'pageup',
-        wx.WXK_NUMPAD_NEXT     : 'pagedown',
         wx.WXK_NUMPAD_PAGEUP   : 'pageup',
         wx.WXK_NUMPAD_PAGEDOWN : 'pagedown',
         wx.WXK_NUMPAD_HOME     : 'home',
@@ -736,7 +730,10 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
 
 
         # Create the drawing bitmap
-        self.bitmap =wx.EmptyBitmap(w, h)
+        if is_phoenix:
+            self.bitmap =wx.Bitmap(w, h)
+        else:
+            self.bitmap =wx.EmptyBitmap(w, h)
         DEBUG_MSG("__init__() - bitmap w:%d h:%d" % (w,h), 2, self)
         # TODO: Add support for 'point' inspection and plot navigation.
         self._isDrawn = False
@@ -873,7 +870,10 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
             bind(self, wx.EVT_TIMER, self.stop_event_loop, id=id)
 
         # Event loop handler for start/stop event loop
-        self._event_loop = wx.EventLoop()
+        if is_phoenix:
+            self._event_loop = wx.GUIEventLoop()
+        else:
+            self._event_loop = wx.EventLoop()
         self._event_loop.Run()
         timer.Stop()
 
@@ -897,7 +897,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         'return the wildcard string for the filesave dialog'
         default_filetype = self.get_default_filetype()
         filetypes = self.get_supported_filetypes_grouped()
-        sorted_filetypes = list(six.iteritems(filetypes))
+        sorted_filetypes = filetypes.items()
         sorted_filetypes.sort()
         wildcards = []
         extensions = []
@@ -923,10 +923,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
             if drawDC is None:
                 drawDC=wx.ClientDC(self)
 
-            drawDC.BeginDrawing()
             drawDC.DrawBitmap(self.bitmap, 0, 0)
-            drawDC.EndDrawing()
-            #wx.GetApp().Yield()
         else:
             pass
 
@@ -979,7 +976,11 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         width = int(math.ceil(width))
         height = int(math.ceil(height))
 
-        self.bitmap = wx.EmptyBitmap(width, height)
+        if is_phoenix:
+            self.bitmap =wx.Bitmap(width, height)
+        else:
+            self.bitmap =wx.EmptyBitmap(width, height)
+
         renderer = RendererWx(self.bitmap, self.figure.dpi)
 
         gc = renderer.new_gc()
@@ -1052,7 +1053,11 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         DEBUG_MSG("_onSize()", 2, self)
         # Create a new, correctly sized bitmap
         self._width, self._height = self.GetClientSize()
-        self.bitmap =wx.EmptyBitmap(self._width, self._height)
+        if is_phoenix:
+            self.bitmap =wx.Bitmap(self._width, self._height)
+        else:
+            self.bitmap =wx.EmptyBitmap(self._width, self._height)
+        
         self._isDrawn = False
 
         if self._width <= 1 or self._height <= 1: return # Empty figure
@@ -1636,12 +1641,25 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                 self.AddSeparator()
                 continue
             self.wx_ids[text] = wx.NewId()
-            if text in ['Pan', 'Zoom']:
-               self.AddCheckTool(self.wx_ids[text], _load_bitmap(image_file + '.png'),
-                                 shortHelp=text, longHelp=tooltip_text)
+            if is_phoenix:
+                if text in ['Pan', 'Zoom']:
+                    kind = wx.ITEM_CHECK
+                else:
+                    kind = wx.ITEM_NORMAL
+                self.AddTool(self.wx_ids[text], label=text,
+                             bitmap=_load_bitmap(image_file + '.png'),
+                             bmpDisabled=wx.NullBitmap,
+                             shortHelpString=text,
+                             longHelpString=tooltip_text,
+                             kind=kind)
             else:
-               self.AddSimpleTool(self.wx_ids[text], _load_bitmap(image_file + '.png'),
-                                  text, tooltip_text)
+                if text in ['Pan', 'Zoom']:
+                    self.AddCheckTool(self.wx_ids[text], _load_bitmap(image_file + '.png'),
+                                      shortHelp=text, longHelp=tooltip_text)
+                else:
+                    self.AddSimpleTool(self.wx_ids[text], _load_bitmap(image_file + '.png'),
+                                       text, tooltip_text)
+                    
             bind(self, wx.EVT_TOOL, getattr(self, callback), id=self.wx_ids[text])
 
         self.Realize()
@@ -1700,7 +1718,10 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                 error_msg_wx(str(e))
 
     def set_cursor(self, cursor):
-        cursor =wx.StockCursor(cursord[cursor])
+        if is_phoenix:
+            cursor = wx.Cursor(cursord[cursor])
+        else:
+            cursor = wx.StockCursor(cursord[cursor])
         self.canvas.SetCursor( cursor )
 
     def release(self, event):
@@ -1737,7 +1758,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
 
         dc.ResetBoundingBox()
-        dc.BeginDrawing()
         height = self.canvas.figure.bbox.height
         y1 = height - y1
         y0 = height - y0
@@ -1754,7 +1774,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         else: dc.DrawRectangle(*lastrect)  #erase last
         self.lastrect = rect
         dc.DrawRectangle(*rect)
-        dc.EndDrawing()
 
     def set_status_bar(self, statbar):
         self.statbar = statbar
