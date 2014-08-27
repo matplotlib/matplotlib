@@ -1,15 +1,18 @@
+#!/usr/bin/env python
 import numpy as np
 
-# Used to guarantee to use at least Wx2.8
-import wxversion
-#wxversion.ensureMinimal('2.8')
-wxversion.select('2.8')
-#wxversion.select('2.9.5') # 2.9.x classic
-#wxversion.select('3.0.1-msw-phoenix', optionsRequired=True) # 3.0 phoenix
+import sys
+if sys.version_info.major < 3:
+    # Used to guarantee to use at least Wx2.8
+    import wxversion
+    wxversion.ensureMinimal('2.8')
+    #wxversion.select('2.8')
+    #wxversion.select('2.9.5')
+    #wxversion.select('3.0.2-phoenix', optionsRequired=True)
 
 
 import wx
-print wx.VERSION_STRING
+print(wx.VERSION_STRING)
 import matplotlib
 matplotlib.interactive(False)
 matplotlib.use('WXAgg')
