@@ -12,6 +12,7 @@ from .backend_wx import FigureManagerWx, FigureCanvasWx, \
     FigureFrameWx, DEBUG_MSG, NavigationToolbar2Wx, error_msg_wx, \
     draw_if_interactive, show, Toolbar, backend_version
 import wx
+is_phoenix = 'phoenix' in wx.PlatformInfo
 
 
 class FigureFrameWxAgg(FigureFrameWx):
@@ -136,7 +137,7 @@ def _convert_agg_to_wx_image(agg, bbox):
     """
     if bbox is None:
         # agg => rgb -> image
-        if 'phoenix' in wx.PlatformInfo:
+        if is_phoenix:
             image = wx.Image(int(agg.width), int(agg.height))
         else:
             image = wx.EmptyImage(int(agg.width), int(agg.height))
@@ -156,9 +157,9 @@ def _convert_agg_to_wx_bitmap(agg, bbox):
     """
     if bbox is None:
         # agg => rgba buffer -> bitmap
-        if 'phoenix' in wx.PlatformInfo:
+        if is_phoenix:
             return wx.Bitmap.FromBufferRGBA(int(agg.width), int(agg.height),
-                                     agg.buffer_rgba())            
+                                            agg.buffer_rgba())            
         else:
             return wx.BitmapFromBufferRGBA(int(agg.width), int(agg.height),
                                            agg.buffer_rgba())
@@ -177,16 +178,16 @@ def _WX28_clipped_agg_as_bitmap(agg, bbox):
     r = l + width
     t = b + height
 
-    if 'phoenix' in wx.PlatformInfo:
+    if is_phoenix:
         srcBmp = wx.Bitmap.FromBufferRGBA(int(agg.width), int(agg.height),
-                                   agg.buffer_rgba())        
+                                          agg.buffer_rgba())        
     else:
         srcBmp = wx.BitmapFromBufferRGBA(int(agg.width), int(agg.height),
                                          agg.buffer_rgba())
     srcDC = wx.MemoryDC()
     srcDC.SelectObject(srcBmp)
 
-    if 'phoenix' in wx.PlatformInfo:    
+    if is_phoenix:    
         destBmp = wx.Bitmap(int(width), int(height))
     else:
         destBmp = wx.EmptyBitmap(int(width), int(height))

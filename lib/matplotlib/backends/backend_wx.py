@@ -40,38 +40,36 @@ if _DEBUG < 5:
     import traceback, pdb
 _DEBUG_lvls = {1 : 'Low ', 2 : 'Med ', 3 : 'High', 4 : 'Error' }
 
-if six.PY3:
-    warnings.warn(
-        "The wx and wxagg backends have not been tested with Python 3.x",
-        ImportWarning)
-
-missingwx = "Matplotlib backend_wx and backend_wxagg require wxPython >=2.8"
-missingwxversion = ("Matplotlib backend_wx and backend_wxagg "
+if sys.version_info.major < 3:
+    # wxPython-Phoenix, does currently not support wxversion
+    missingwx = "Matplotlib backend_wx and backend_wxagg require wxPython >=2.8"
+    missingwxversion = ("Matplotlib backend_wx and backend_wxagg "
                     "require wxversion, which was not found.")
 
-if not hasattr(sys, 'frozen'): # i.e., not py2exe
-    try:
-        import wxversion
-    except ImportError:
-        raise ImportError(missingwxversion)
+    if not hasattr(sys, 'frozen'): # i.e., not py2exe
+        try:
+            import wxversion
+        except ImportError:
+            raise ImportError(missingwxversion)
 
-    # Some early versions of wxversion lack AlreadyImportedError.
-    # It was added around 2.8.4?
-    try:
-        _wx_ensure_failed = wxversion.AlreadyImportedError
-    except AttributeError:
-        _wx_ensure_failed = wxversion.VersionError
-
-    try:
-        wxversion.ensureMinimal(str('2.8'))
-    except _wx_ensure_failed:
-        pass
-    # We don't really want to pass in case of VersionError, but when
-    # AlreadyImportedError is not available, we have to.
+        # Some early versions of wxversion lack AlreadyImportedError.
+        # It was added around 2.8.4?
+        try:
+            _wx_ensure_failed = wxversion.AlreadyImportedError
+        except AttributeError:
+            _wx_ensure_failed = wxversion.VersionError
+    
+        try:
+            wxversion.ensureMinimal(str('2.8'))
+        except _wx_ensure_failed:
+            pass
+        # We don't really want to pass in case of VersionError, but when
+        # AlreadyImportedError is not available, we have to.
 
 try:
     import wx
     backend_version = wx.VERSION_STRING
+    is_phoenix = 'phoenix' in wx.PlatformInfo
 except ImportError:
     raise ImportError(missingwx)
 
@@ -732,7 +730,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
 
 
         # Create the drawing bitmap
-        if 'phoenix' in wx.PlatformInfo:
+        if is_phoenix:
             self.bitmap =wx.Bitmap(w, h)
         else:
             self.bitmap =wx.EmptyBitmap(w, h)
@@ -872,7 +870,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
             bind(self, wx.EVT_TIMER, self.stop_event_loop, id=id)
 
         # Event loop handler for start/stop event loop
-        if 'phoenix' in wx.PlatformInfo:
+        if is_phoenix:
             self._event_loop = wx.GUIEventLoop()
         else:
             self._event_loop = wx.EventLoop()
@@ -925,13 +923,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
             if drawDC is None:
                 drawDC=wx.ClientDC(self)
 
-            if 'phoenix' in wx.PlatformInfo:
-                drawDC.DrawBitmap(self.bitmap, 0, 0)
-            else:       
-                drawDC.BeginDrawing()
-                drawDC.DrawBitmap(self.bitmap, 0, 0)
-                drawDC.EndDrawing()
-            #wx.GetApp().Yield()
+            drawDC.DrawBitmap(self.bitmap, 0, 0)
         else:
             pass
 
@@ -984,7 +976,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         width = int(math.ceil(width))
         height = int(math.ceil(height))
 
-        if 'phoenix' in wx.PlatformInfo:
+        if is_phoenix:
             self.bitmap =wx.Bitmap(width, height)
         else:
             self.bitmap =wx.EmptyBitmap(width, height)
@@ -1061,7 +1053,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         DEBUG_MSG("_onSize()", 2, self)
         # Create a new, correctly sized bitmap
         self._width, self._height = self.GetClientSize()
-        if 'phoenix' in wx.PlatformInfo:
+        if is_phoenix:
             self.bitmap =wx.Bitmap(self._width, self._height)
         else:
             self.bitmap =wx.EmptyBitmap(self._width, self._height)
@@ -1649,7 +1641,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                 self.AddSeparator()
                 continue
             self.wx_ids[text] = wx.NewId()
-            if 'phoenix' in wx.PlatformInfo:
+            if is_phoenix:
                 if text in ['Pan', 'Zoom']:
                     kind = wx.ITEM_CHECK
                 else:
@@ -1726,7 +1718,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                 error_msg_wx(str(e))
 
     def set_cursor(self, cursor):
-        if 'phoenix' in wx.PlatformInfo:
+        if is_phoenix:
             cursor = wx.Cursor(cursord[cursor])
         else:
             cursor = wx.StockCursor(cursord[cursor])
@@ -1766,8 +1758,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
 
         dc.ResetBoundingBox()
-        if not 'phoenix' in wx.PlatformInfo:            
-            dc.BeginDrawing()       
         height = self.canvas.figure.bbox.height
         y1 = height - y1
         y0 = height - y0
@@ -1784,8 +1774,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         else: dc.DrawRectangle(*lastrect)  #erase last
         self.lastrect = rect
         dc.DrawRectangle(*rect)
-        if not 'phoenix' in wx.PlatformInfo:            
-            dc.EndDrawing()
 
     def set_status_bar(self, statbar):
         self.statbar = statbar
