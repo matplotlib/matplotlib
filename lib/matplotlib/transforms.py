@@ -839,7 +839,7 @@ class Bbox(BboxBase):
         return Bbox(points)
 
     def __repr__(self):
-        return 'Bbox(x0={0.x0}, y0={0.y0}, x1={0.x1}, y1={0.y1})'.format(self)
+        return 'Bbox([[{0.x0}, {0.y0}], [{0.x1}, {0.y1}]])'.format(self)
 
     def ignore(self, value):
         """
