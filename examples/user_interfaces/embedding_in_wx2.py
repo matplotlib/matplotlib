@@ -4,12 +4,14 @@ An example of how to use wx or wxagg in an application with the new
 toolbar - comment out the setA_toolbar line for no toolbar
 """
 
-# Used to guarantee to use at least Wx2.8
-import wxversion
-#wxversion.ensureMinimal('2.8')
-wxversion.select('2.8')
-#wxversion.select('2.9.5') # 2.9.x classic
-#wxversion.select('3.0.1-msw-phoenix', optionsRequired=True) # 3.x Phoenix
+import sys
+if sys.version_info.major < 3:
+    # Used to guarantee to use at least Wx2.8
+    import wxversion
+    wxversion.ensureMinimal('2.8')
+    #wxversion.select('2.8')
+    #wxversion.select('2.9.5')
+    #wxversion.select('3.0.2-phoenix', optionsRequired=True)
 
 from numpy import arange, sin, pi
 
@@ -28,9 +30,9 @@ from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 from matplotlib.figure import Figure
 
 import wx
-print wx.VERSION_STRING
-print wx.PlatformInfo
-print matplotlib.__version__
+print(wx.VERSION_STRING)
+print(wx.PlatformInfo)
+print(matplotlib.__version__)
 
 
 class CanvasFrame(wx.Frame):
