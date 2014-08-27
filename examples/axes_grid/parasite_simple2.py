@@ -10,7 +10,7 @@ obs = [["01_S1", 3.88, 0.14, 1970, 63],
 
 fig = plt.figure()
 
-ax_kms = SubplotHost(fig, 1,1,1, aspect=1.)
+ax_kms = SubplotHost(fig, 1, 1, 1, aspect=1.)
 
 # angular proper motion("/yr) to linear velocity(km/s) at distance=2.3kpc
 pm_to_kms = 1./206265.*2300*3.085e18/3.15e7/1.e5
@@ -22,7 +22,7 @@ ax_pm.set_viewlim_mode("transform")
 fig.add_subplot(ax_kms)
 
 for n, ds, dse, w, we in obs:
-    time = ((2007+(10. + 4/30.)/12)-1988.5)
+    time = ((2007 + (10. + 4/30.)/12) - 1988.5)
     v = ds / time * pm_to_kms
     ve = dse / time * pm_to_kms
     ax_kms.errorbar([v], [w], xerr=[ve], yerr=[we], color="k")
