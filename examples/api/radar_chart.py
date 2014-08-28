@@ -116,10 +116,11 @@ def example_data():
     # The following data is from the Denver Aerosol Sources and Health study.
     # See  doi:10.1016/j.atmosenv.2008.12.017
     #
-    # The data are pollution source profile estimates for five modeled pollution
-    # sources (e.g., cars, wood-burning, etc) that emit 7-9 chemical species.
-    # The radar charts are experimented with here to see if we can nicely
-    # visualize how the modeled source profiles change across four scenarios:
+    # The data are pollution source profile estimates for five modeled
+    # pollution sources (e.g., cars, wood-burning, etc) that emit 7-9 chemical
+    # species. The radar charts are experimented with here to see if we can
+    # nicely visualize how the modeled source profiles change across four
+    # scenarios:
     #  1) No gas-phase species present, just seven particulate counts on
     #     Sulfate
     #     Nitrate

@@ -22,7 +22,8 @@ def derivs(state, t):
     del_ = state[2]-state[0]
     den1 = (M1+M2)*L1 - M2*L1*cos(del_)*cos(del_)
     dydx[1] = (M2*L1*state[1]*state[1]*sin(del_)*cos(del_)
-               + M2*G*sin(state[2])*cos(del_) + M2*L2*state[3]*state[3]*sin(del_)
+               + M2*G*sin(state[2])*cos(del_)
+               + M2*L2*state[3]*state[3]*sin(del_)
                - (M1+M2)*G*sin(state[0]))/den1
 
     dydx[2] = state[3]
