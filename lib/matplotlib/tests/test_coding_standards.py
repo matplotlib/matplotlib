@@ -218,7 +218,6 @@ def assert_pep8_conformance(module=matplotlib, exclude_files=EXCLUDE_FILES,
     if expected_bad_files is not None:
         reporter.expected_bad_files = expected_bad_files
 
-
     # Extend the number of PEP8 guidelines which are not checked.
     pep8style.options.ignore = (pep8style.options.ignore +
                                 tuple(pep8_additional_ignore))
