@@ -38,7 +38,7 @@ activity, but this can be problematic for the red/green colorblind. A new,
 colorblind-friendly colormap is now available at :class:`matplotlib.cm.Wistia`.
 This colormap maintains the red/green symbolism while achieving deuteranopic
 legibility through brightness variations. See
-`here <https://github.com/wistia/heatmap-palette>`
+`here <https://github.com/wistia/heatmap-palette>`_
 for more information.
 
 Documentation changes
