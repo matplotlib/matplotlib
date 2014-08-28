@@ -34,9 +34,6 @@ def setup_axes2(fig, rect):
     With custom locator and formatter.
     Note that the extreme values are swapped.
     """
-
-    #tr_scale = Affine2D().scale(np.pi/180., 1.)
-
     tr = PolarAxes.PolarTransform()
 
     pi = np.pi
@@ -48,13 +45,12 @@ def setup_axes2(fig, rect):
 
     grid_locator2 = MaxNLocator(2)
 
-    grid_helper = floating_axes.GridHelperCurveLinear(tr,
-                                                      extremes=(.5*pi, 0, 2, 1),
-                                                      grid_locator1=grid_locator1,
-                                                      grid_locator2=grid_locator2,
-                                                      tick_formatter1=tick_formatter1,
-                                                      tick_formatter2=None,
-                                                      )
+    grid_helper = floating_axes.GridHelperCurveLinear(
+        tr, extremes=(.5*pi, 0, 2, 1),
+        grid_locator1=grid_locator1,
+        grid_locator2=grid_locator2,
+        tick_formatter1=tick_formatter1,
+        tick_formatter2=None)
 
     ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
     fig.add_subplot(ax1)
@@ -91,14 +87,12 @@ def setup_axes3(fig, rect):
 
     ra0, ra1 = 8.*15, 14.*15
     cz0, cz1 = 0, 14000
-    grid_helper = floating_axes.GridHelperCurveLinear(tr,
-                                                      extremes=(
-                                                          ra0, ra1, cz0, cz1),
-                                                      grid_locator1=grid_locator1,
-                                                      grid_locator2=grid_locator2,
-                                                      tick_formatter1=tick_formatter1,
-                                                      tick_formatter2=None,
-                                                      )
+    grid_helper = floating_axes.GridHelperCurveLinear(
+        tr, extremes=(ra0, ra1, cz0, cz1),
+        grid_locator1=grid_locator1,
+        grid_locator2=grid_locator2,
+        tick_formatter1=tick_formatter1,
+        tick_formatter2=None)
 
     ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
     fig.add_subplot(ax1)
@@ -138,7 +132,7 @@ if 1:
 
     # theta = np.random.rand(10) #*.5*np.pi
     # radius = np.random.rand(10) #+1.
-    #aux_ax1.scatter(theta, radius)
+    # aux_ax1.scatter(theta, radius)
 
     ax2, aux_ax2 = setup_axes2(fig, 132)
 

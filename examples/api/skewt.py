@@ -128,8 +128,8 @@ class SkewXAxes(Axes):
         # coordinates thus performing the transform around the proper origin
         # We keep the pre-transAxes transform around for other users, like the
         # spines for finding bounds
-        self.transDataToAxes = self.transScale + (self.transLimits +
-                                                  transforms.Affine2D().skew_deg(rot, 0))
+        self.transDataToAxes = self.transScale + \
+            self.transLimits + transforms.Affine2D().skew_deg(rot, 0)
 
         # Create the full transform from Data to Pixels
         self.transData = self.transDataToAxes + self.transAxes
@@ -148,7 +148,6 @@ register_projection(SkewXAxes)
 if __name__ == '__main__':
     # Now make a simple example using the custom projection.
     from matplotlib.ticker import ScalarFormatter, MultipleLocator
-    from matplotlib.collections import LineCollection
     import matplotlib.pyplot as plt
     from StringIO import StringIO
     import numpy as np
@@ -227,7 +226,8 @@ if __name__ == '__main__':
   107.8  15850  -64.1  -75.1     21   0.01    265     58  395.0  395.1  395.0
   105.0  16010  -64.7  -75.7     21   0.01    272     50  396.9  396.9  396.9
   103.0  16128  -62.9  -73.9     21   0.02    277     45  402.5  402.6  402.5
-  100.0  16310  -62.5  -73.5     21   0.02    285     36  406.7  406.8  406.7'''
+  100.0  16310  -62.5  -73.5     21   0.02    285     36  406.7  406.8  406.7
+    '''
 
     # Parse the data
     sound_data = StringIO(data_txt)

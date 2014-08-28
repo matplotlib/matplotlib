@@ -1,9 +1,8 @@
 import numpy as np
-#from matplotlib.path import Path
-
 import matplotlib.pyplot as plt
 
-from mpl_toolkits.axes_grid.grid_helper_curvelinear import GridHelperCurveLinear
+from mpl_toolkits.axes_grid.grid_helper_curvelinear import \
+    GridHelperCurveLinear
 from mpl_toolkits.axes_grid.axislines import Subplot
 
 import mpl_toolkits.axes_grid.angle_helper as angle_helper

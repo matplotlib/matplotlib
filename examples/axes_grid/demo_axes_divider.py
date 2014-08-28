@@ -97,27 +97,25 @@ def demo():
     fig1 = plt.figure(1, (6, 6))
     fig1.clf()
 
-    ## PLOT 1
+    # PLOT 1
     # simple image & colorbar
     ax = fig1.add_subplot(2, 2, 1)
     demo_simple_image(ax)
 
-    ## PLOT 2
+    # PLOT 2
     # image and colorbar whose location is adjusted in the drawing time.
     # a hard way
 
     demo_locatable_axes_hard(fig1)
 
-
-    ## PLOT 3
+    # PLOT 3
     # image and colorbar whose location is adjusted in the drawing time.
     # a easy way
 
     ax = fig1.add_subplot(2, 2, 3)
     demo_locatable_axes_easy(ax)
 
-
-    ## PLOT 4
+    # PLOT 4
     # two images side by side with fixed padding.
 
     ax = fig1.add_subplot(2, 2, 4)

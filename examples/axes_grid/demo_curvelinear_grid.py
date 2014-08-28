@@ -1,14 +1,13 @@
 import numpy as np
-#from matplotlib.path import Path
 
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 
-from mpl_toolkits.axisartist.grid_helper_curvelinear import GridHelperCurveLinear
 from mpl_toolkits.axisartist import Subplot
-
 from mpl_toolkits.axisartist import SubplotHost, \
     ParasiteAxesAuxTrans
+from mpl_toolkits.axisartist.grid_helper_curvelinear import \
+    GridHelperCurveLinear
 
 
 def curvelinear_test1(fig):

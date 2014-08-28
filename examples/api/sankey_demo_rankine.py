@@ -1,14 +1,16 @@
-"""Demonstrate the Sankey class with a practicle example of a Rankine power cycle.
+"""Demonstrate the Sankey class with a practicle example of a Rankine power
+cycle.
+
 """
-import numpy as np
 import matplotlib.pyplot as plt
 
 from matplotlib.sankey import Sankey
 
 fig = plt.figure(figsize=(8, 9))
 ax = fig.add_subplot(1, 1, 1, xticks=[], yticks=[],
-                     title="Rankine Power Cycle: Example 8.6 from Moran and Shapiro\n"
-                           + "\x22Fundamentals of Engineering Thermodynamics\x22, 6th ed., 2008")
+                     title="Rankine Power Cycle: Example 8.6 from Moran and "
+                     "Shapiro\n\x22Fundamentals of Engineering Thermodynamics "
+                     "\x22, 6th ed., 2008")
 Hdot = [260.431, 35.078, 180.794, 221.115, 22.700,
         142.361, 10.193, 10.210, 43.670, 44.312,
         68.631, 10.758, 10.758, 0.017, 0.642,
