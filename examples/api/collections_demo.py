@@ -27,7 +27,7 @@ npts = 100
 
 # Make some spirals
 r = np.array(range(nverts))
-theta = np.array(range(nverts))*2*np.pi/(nverts - 1)
+theta = np.array(range(nverts))*(2*np.pi)/(nverts - 1)
 xx = r * np.sin(theta)
 yy = r * np.cos(theta)
 spiral = list(zip(xx, yy))
