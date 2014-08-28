@@ -195,7 +195,7 @@ def assert_pep8_conformance(module=matplotlib, exclude_files=EXCLUDE_FILES,
                             extra_exclude_file=EXTRA_EXCLUDE_FILE,
                             extra_exclude_directories=None,
                             pep8_additional_ignore=PEP8_ADDITIONAL_IGNORE,
-                            dirname=None):
+                            dirname=None, expected_bad_files=None):
     """
     Tests the matplotlib codebase against the "pep8" tool.
 
@@ -214,6 +214,10 @@ def assert_pep8_conformance(module=matplotlib, exclude_files=EXCLUDE_FILES,
     pep8style = pep8.StyleGuide(quiet=False,
                                 reporter=StandardReportWithExclusions)
     reporter = pep8style.options.reporter
+
+    if expected_bad_files is not None:
+        reporter.expected_bad_files = expected_bad_files
+
 
     # Extend the number of PEP8 guidelines which are not checked.
     pep8style.options.ignore = (pep8style.options.ignore +
@@ -285,7 +289,8 @@ def test_pep8_conformance_examples():
                  'user_interfaces',
                  'widgets']
     assert_pep8_conformance(dirname=exdir,
-                            extra_exclude_directories=blacklist)
+                            extra_exclude_directories=blacklist,
+                            expected_bad_files=[])
 
 
 if __name__ == '__main__':
