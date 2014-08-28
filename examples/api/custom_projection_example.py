@@ -396,7 +396,7 @@ class HammerAxes(Axes):
 
         def transform_non_affine(self, ll):
             """
-            Override the transform_non_affine method to implement the custom 
+            Override the transform_non_affine method to implement the custom
             transform.
 
             The input and output are Nx2 numpy arrays.

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 vertices = []
 codes = []
 
-codes = [Path.MOVETO] + [Path.LINETO]* 3 + [Path.CLOSEPOLY]
+codes = [Path.MOVETO] + [Path.LINETO]*3 + [Path.CLOSEPOLY]
 vertices = [(1, 1), (1, 2), (2, 2), (2, 1), (0, 0)]
 
 codes += [Path.MOVETO] + [Path.LINETO]*2 + [Path.CLOSEPOLY]
