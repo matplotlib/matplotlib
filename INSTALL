@@ -106,10 +106,10 @@ standard Python shell or IPython. It is enabled as the default backend
 for the official binaries.  GTK3 is not supported on Windows.
 
 The Windows installers (:file:`*.exe`) and wheels (:file:`*.whl`) on
-the `download page <http://matplotlib.org/downloads.html>`_ do not 
+the `download page <http://matplotlib.org/downloads.html>`_ do not
 contain test data or example code.
 If you want to try the many demos that come in the matplotlib source
-distribution, download the :file:`*.tar.gz` file and look in the 
+distribution, download the :file:`*.tar.gz` file and look in the
 :file:`examples` subdirectory.
 To run the test suite, copy the :file:`lib\matplotlib\tests` and
 :file:`lib\mpl_toolkits\tests` directories from the source distribution to
@@ -242,6 +242,12 @@ Optional dependencies
 
 :term:`freetype` 1.4 (or later)
     library for reading true type font files.
+
+`pytz`
+    Required if you want to manipulate datetime objects which are time-zone
+    aware.  An exception will be raised if you try to make time-zone aware
+    plots with out `pytz` installed.  It will become a required dependency
+    in 1.4.1.
 
 
 Required libraries that ship with matplotlib
