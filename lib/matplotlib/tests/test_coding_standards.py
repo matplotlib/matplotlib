@@ -193,7 +193,9 @@ if HAS_PEP8:
 
 def assert_pep8_conformance(module=matplotlib, exclude_files=EXCLUDE_FILES,
                             extra_exclude_file=EXTRA_EXCLUDE_FILE,
-                            pep8_additional_ignore=PEP8_ADDITIONAL_IGNORE):
+                            extra_exclude_directories=None,
+                            pep8_additional_ignore=PEP8_ADDITIONAL_IGNORE,
+                            dirname=None):
     """
     Tests the matplotlib codebase against the "pep8" tool.
 
@@ -228,7 +230,12 @@ def assert_pep8_conformance(module=matplotlib, exclude_files=EXCLUDE_FILES,
             extra_exclude = [line.strip() for line in fh if line.strip()]
         pep8style.options.exclude.extend(extra_exclude)
 
-    result = pep8style.check_files([os.path.dirname(module.__file__)])
+    if extra_exclude_directories:
+        pep8style.options.exclude.extend(extra_exclude_directories)
+
+    if dirname is None:
+        dirname = os.path.dirname(module.__file__)
+    result = pep8style.check_files([dirname])
     if reporter is StandardReportWithExclusions:
         msg = ("Found code syntax errors (and warnings):\n"
                "{0}".format('\n'.join(reporter._global_deferred_print)))
@@ -251,6 +258,34 @@ def assert_pep8_conformance(module=matplotlib, exclude_files=EXCLUDE_FILES,
 
 def test_pep8_conformance():
     assert_pep8_conformance()
+
+
+def test_pep8_conformance_examples():
+    mpldirdefault = os.path.join(os.getcwd(), '..', '..', '..')
+    mpldir = os.environ.get('MPL_REPO_DIR', mpldirdefault)
+    exdir = os.path.join(mpldir, 'examples')
+    blacklist = ['color',
+                 'event_handling',
+                 'images_contours_and_fields',
+                 'lines_bars_and_markers',
+                 'misc',
+                 'mplot3d',
+                 'pie_and_polar_charts',
+                 'pylab_examples',
+                 'shapes_and_collections',
+                 'showcase',
+                 'specialty_plots',
+                 'statistics',
+                 'style_sheets',
+                 'subplots_axes_and_figures',
+                 'tests',
+                 'text_labels_and_annotations',
+                 'ticks_and_spines',
+                 'units',
+                 'user_interfaces',
+                 'widgets']
+    assert_pep8_conformance(dirname=exdir,
+                            extra_exclude_directories=blacklist)
 
 
 if __name__ == '__main__':
