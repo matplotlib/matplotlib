@@ -106,10 +106,10 @@ standard Python shell or IPython. It is enabled as the default backend
 for the official binaries.  GTK3 is not supported on Windows.
 
 The Windows installers (:file:`*.exe`) and wheels (:file:`*.whl`) on
-the `download page <http://matplotlib.org/downloads.html>`_ do not 
+the `download page <http://matplotlib.org/downloads.html>`_ do not
 contain test data or example code.
 If you want to try the many demos that come in the matplotlib source
-distribution, download the :file:`*.tar.gz` file and look in the 
+distribution, download the :file:`*.tar.gz` file and look in the
 :file:`examples` subdirectory.
 To run the test suite, copy the :file:`lib\matplotlib\tests` and
 :file:`lib\mpl_toolkits\tests` directories from the source distribution to
@@ -240,8 +240,12 @@ Optional dependencies
     selection of image file formats.
 
 
-:term:`freetype` 1.4 (or later)
-    library for reading true type font files.
+:term:`freetype` 2.4 or later
+    library for reading true type font files.  Matplotlib in known
+    to work with freetype 2.3, and the required version will be reduced
+    in 1.4.1.  If you need to build from source on a system which only has
+    freetype 2.3 available, please edit L945 of `setupext.py` to reduce
+    `min_version` to 2.3.
 
 
 Required libraries that ship with matplotlib
