@@ -134,7 +134,8 @@ class MercatorLatitudeScale(mscale.ScaleBase):
             Override this method so matplotlib knows how to get the
             inverse transform for this transform.
             """
-            return MercatorLatitudeScale.InvertedMercatorLatitudeTransform(self.thresh)
+            return MercatorLatitudeScale.InvertedMercatorLatitudeTransform(
+                self.thresh)
 
     class InvertedMercatorLatitudeTransform(mtransforms.Transform):
         input_dims = 1
