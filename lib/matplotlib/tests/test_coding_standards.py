@@ -38,13 +38,13 @@ EXTRA_EXCLUDE_FILE = os.path.join(os.path.dirname(__file__),
 
 if HAS_PEP8:
     class StandardReportWithExclusions(pep8.StandardReport):
-        # A class attribute to store the exception exclusion file patterns.
+        #: A class attribute to store the exception exclusion file patterns.
         expected_bad_files = []
 
-        # A class attribute to store the lines of failing tests.
+        #: A class attribute to store the lines of failing tests.
         _global_deferred_print = []
 
-        # A class attribute to store patterns which have seen exceptions.
+        #: A class attribute to store patterns which have seen exceptions.
         matched_exclusions = set()
 
         def get_file_results(self):
@@ -151,7 +151,7 @@ def assert_pep8_conformance(module=matplotlib, exclude_files=None,
                              '{}'.format('\n  '.join(unexpectedly_good)))
 
 
-def test_pep8_conformance():
+def test_pep8_conformance_installed_files():
     exclude_files = ['_delaunay.py',
                      '_image.py',
                      '_tri.py',
