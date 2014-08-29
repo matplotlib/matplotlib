@@ -1227,7 +1227,8 @@ class FontManager(object):
 
         If `fallback_to_default` is True, will fallback to the default
         font family (usually "Bitstream Vera Sans" or "Helvetica") if
-        the first lookup hard-fails.
+        the first lookup hard-fails.  If `fallback_to_default` is False,
+        exception will be raised if not matches were found.
 
         See the `W3C Cascading Style Sheet, Level 1
         <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_ documentation
@@ -1281,13 +1282,8 @@ class FontManager(object):
                 default_prop.set_family(self.defaultFamily[fontext])
                 return self.findfont(default_prop, fontext, directory, False)
             else:
-                # This is a hard fail -- we can't find anything reasonable,
-                # so just return the vera.ttf
-                warnings.warn(
-                    'findfont: Could not match %s. Returning %s' %
-                    (prop, self.defaultFont[fontext]),
-                    UserWarning)
-                result = self.defaultFont[fontext]
+                # This is a hard fail -- we can't find anything reasonable.
+                raise ValueError('findfont: Could not match %s.' % (prop,))
         else:
             verbose.report(
                 'findfont: Matching %s to %s (%s) with score of %f' %
