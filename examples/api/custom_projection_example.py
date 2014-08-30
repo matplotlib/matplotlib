@@ -20,7 +20,6 @@ import numpy as np
 
 
 class HammerAxes(Axes):
-
     """
     A custom class for the Aitoff-Hammer projection, an equal-area map
     projection.
@@ -286,7 +285,6 @@ class HammerAxes(Axes):
         return '%f\u00b0%s, %f\u00b0%s' % (abs(lat), ns, abs(lon), ew)
 
     class DegreeFormatter(Formatter):
-
         """
         This is a custom formatter that converts the native unit of
         radians into (truncated) degrees and adds a degree symbol.
@@ -386,7 +384,6 @@ class HammerAxes(Axes):
     # Now, the transforms themselves.
 
     class HammerTransform(Transform):
-
         """
         The base Hammer transform.
         """

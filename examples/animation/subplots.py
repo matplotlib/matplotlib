@@ -11,7 +11,6 @@ import matplotlib.animation as animation
 
 
 class SubplotAnimation(animation.TimedAnimation):
-
     def __init__(self):
         fig = plt.figure()
         ax1 = fig.add_subplot(1, 2, 1)

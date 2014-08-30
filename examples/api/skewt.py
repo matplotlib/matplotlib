@@ -21,7 +21,6 @@ from matplotlib.projections import register_projection
 
 
 class SkewXTick(maxis.XTick):
-
     def draw(self, renderer):
         if not self.get_visible():
             return
@@ -52,7 +51,6 @@ class SkewXTick(maxis.XTick):
 # This class exists to provide two separate sets of intervals to the tick,
 # as well as create instances of the custom tick
 class SkewXAxis(maxis.XAxis):
-
     def __init__(self, *args, **kwargs):
         maxis.XAxis.__init__(self, *args, **kwargs)
         self.upper_interval = 0.0, 1.0
@@ -72,7 +70,6 @@ class SkewXAxis(maxis.XAxis):
 # upper X-axis and draw the spine there. It also provides this range
 # to the X-axis artist for ticking and gridlines
 class SkewSpine(mspines.Spine):
-
     def _adjust_location(self):
         trans = self.axes.transDataToAxes.inverted()
         if self.spine_type == 'top':

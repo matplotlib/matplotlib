@@ -10,7 +10,6 @@ import matplotlib.text as mtext
 
 
 class MyLine(lines.Line2D):
-
     def __init__(self, *args, **kwargs):
         # we'll update the position when the line data is set
         self.text = mtext.Text(0, 0, '')
