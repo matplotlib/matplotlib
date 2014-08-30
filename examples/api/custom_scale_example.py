@@ -70,7 +70,6 @@ class MercatorLatitudeScale(mscale.ScaleBase):
         value::
         """
         class DegreeFormatter(Formatter):
-
             def __call__(self, x, pos=None):
                 # \u00b0 : degree symbol
                 return "%d\u00b0" % ((x / np.pi) * 180.0)
