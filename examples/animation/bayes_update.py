@@ -6,7 +6,6 @@ from matplotlib.animation import FuncAnimation
 
 
 class UpdateDist(object):
-
     def __init__(self, ax, prob=0.5):
         self.success = 0
         self.prob = prob

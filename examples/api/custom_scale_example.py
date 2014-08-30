@@ -8,7 +8,6 @@ from matplotlib.ticker import Formatter, FixedLocator
 
 
 class MercatorLatitudeScale(mscale.ScaleBase):
-
     """
     Scales data in range -pi/2 to pi/2 (-90 to 90 degrees) using
     the system used to scale latitudes in a Mercator projection.
