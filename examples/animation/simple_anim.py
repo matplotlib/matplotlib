@@ -15,9 +15,8 @@ def animate(i):
     line.set_ydata(np.sin(x + i/10.0))  # update the data
     return line,
 
+
 # Init only required for blitting to give a clean slate.
-
-
 def init():
     line.set_ydata(np.ma.array(x, mask=True))
     return line,
