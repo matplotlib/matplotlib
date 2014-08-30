@@ -42,9 +42,9 @@ def make_cube(r, g, b):
 def demo_rgb():
     fig, ax = plt.subplots()
     ax_r, ax_g, ax_b = make_rgb_axes(ax, pad=0.02)
-    # fig.add_axes(ax_r)
-    # fig.add_axes(ax_g)
-    # fig.add_axes(ax_b)
+    #fig.add_axes(ax_r)
+    #fig.add_axes(ax_g)
+    #fig.add_axes(ax_b)
 
     r, g, b = get_rgb()
     im_r, im_g, im_b, im_rgb = make_cube(r, g, b)
@@ -58,8 +58,8 @@ def demo_rgb():
 def demo_rgb2():
     fig = plt.figure(2)
     ax = RGBAxes(fig, [0.1, 0.1, 0.8, 0.8], pad=0.0)
-    # fig.add_axes(ax)
-    # ax.add_RGB_to_figure()
+    #fig.add_axes(ax)
+    #ax.add_RGB_to_figure()
 
     r, g, b = get_rgb()
     kwargs = dict(origin="lower", interpolation="nearest")

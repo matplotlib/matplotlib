@@ -37,12 +37,12 @@ axHisty.hist(y, bins=bins, orientation='horizontal')
 # thus there is no need to manually adjust the xlim and ylim of these
 # axis.
 
-# axHistx.axis["bottom"].major_ticklabels.set_visible(False)
+#axHistx.axis["bottom"].major_ticklabels.set_visible(False)
 for tl in axHistx.get_xticklabels():
     tl.set_visible(False)
 axHistx.set_yticks([0, 50, 100])
 
-# axHisty.axis["left"].major_ticklabels.set_visible(False)
+#xHisty.axis["left"].major_ticklabels.set_visible(False)
 for tl in axHisty.get_yticklabels():
     tl.set_visible(False)
 axHisty.set_xticks([0, 50, 100])

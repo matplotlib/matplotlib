@@ -94,5 +94,5 @@ class SubplotAnimation(animation.TimedAnimation):
             l.set_data([], [])
 
 ani = SubplotAnimation()
-# ani.save('test_sub.mp4')
+#ani.save('test_sub.mp4')
 plt.show()

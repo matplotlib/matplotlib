@@ -60,8 +60,8 @@ if 1:
         ax.cax.toggle_label(True)
         #axis = ax.cax.axis[ax.cax.orientation]
         #axis.label.set_text("counts s$^{-1}$")
-        # axis.label.set_size(10)
-        # axis.major_ticklabels.set_size(6)
+        #axis.label.set_size(10)
+        #axis.major_ticklabels.set_size(6)
 
     # changing the colorbar ticks
     grid[1].cax.set_xticks([-1, 0, 1])
