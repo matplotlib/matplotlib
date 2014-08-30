@@ -41,7 +41,7 @@ class HammerAxes(Axes):
         self.yaxis = maxis.YAxis(self)
         # Do not register xaxis or yaxis with spines -- as done in
         # Axes._init_axis() -- until HammerAxes.xaxis.cla() works.
-        # self.spines['hammer'].register_axis(self.yaxis)
+        #self.spines['hammer'].register_axis(self.yaxis)
         self._update_transScale()
 
     def cla(self):

@@ -62,4 +62,4 @@ if 1:
     im2._image_skew_coordinate = (3, -2)
 
     plt.show()
-    # plt.savefig("demo_affine_image")
+    #plt.savefig("demo_affine_image")

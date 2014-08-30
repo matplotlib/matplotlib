@@ -130,9 +130,9 @@ if 1:
     ax1, aux_ax2 = setup_axes1(fig, 131)
     aux_ax2.bar([0, 1, 2, 3], [3, 2, 1, 3])
 
-    # theta = np.random.rand(10) #*.5*np.pi
-    # radius = np.random.rand(10) #+1.
-    # aux_ax1.scatter(theta, radius)
+    #theta = np.random.rand(10) #*.5*np.pi
+    #radius = np.random.rand(10) #+1.
+    #aux_ax1.scatter(theta, radius)
 
     ax2, aux_ax2 = setup_axes2(fig, 132)
 

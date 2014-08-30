@@ -9,7 +9,7 @@ if __name__ == "__main__":
     def ex1():
         plt.figure(1)
         ax = plt.axes([0, 0, 1, 1])
-        # ax = plt.subplot(111)
+        #ax = plt.subplot(111)
 
         ax.set_yticks([0.5])
         ax.set_yticklabels(["very long label"])

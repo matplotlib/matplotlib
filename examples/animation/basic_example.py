@@ -17,7 +17,7 @@ plt.xlabel('x')
 plt.title('test')
 line_ani = animation.FuncAnimation(fig1, update_line, 25, fargs=(data, l),
                                    interval=50, blit=True)
-# line_ani.save('lines.mp4')
+#line_ani.save('lines.mp4')
 
 fig2 = plt.figure()
 
