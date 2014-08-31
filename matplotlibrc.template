@@ -42,6 +42,11 @@ backend      : %(backend)s
 # the underlying Qt4 toolkit.
 #backend.qt4 : PyQt4        # PyQt4 | PySide
 
+# If you are using one of the GTK3 backends (GTK3Agg or GTK3Cairo)
+# you can set to use only one window with tabbed figures instead of 
+# multiple windows one for each figure
+#backend.single_window : True
+
 # Note that this can be overridden by the environment variable
 # QT_API used by Enthought Tool Suite (ETS); valid values are
 # "pyqt" and "pyside".  The "pyqt" setting has the side effect of

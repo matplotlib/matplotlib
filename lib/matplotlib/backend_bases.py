@@ -25,6 +25,28 @@ graphics contexts must implement to serve as a matplotlib backend
     the 'show' callable is then set to Show.__call__, inherited from
     ShowBase.
 
+The following classes, are the classes that define a multi-figure-manager, this is a variant
+of figure manager, that allows to have multiple figures under the same GUI interface
+
+:class:`ChildFigureManager`
+    The class that initializes the gui and the Navigation (toolbar state),
+    this is the class that the canvas sees as the manager
+
+:class:`MultiFigureManagerBase`
+    The base class for gui interface that allows to have several canvas groupped
+    under the control of the same window and same toolbar
+
+:class:`Navigation`
+    Class that holds the navigation state (or toolbar state) for one specific canvas.
+    This class is attached to `ChildFigureManager.navigation`
+
+:class:`MultiFigureToolbarBase`
+    The base class that defines the GUI interface for the toolbar of the `MultiFigureManagerBase`
+    It allows to swtich the control from one canvas to another.
+    
+:class:`ToolBase`
+    The base class for tools that can be added to a derivate of `MultiFigureToolbarBase`
+    
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -38,6 +60,7 @@ import sys
 import warnings
 import time
 import io
+import weakref
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -3170,4 +3193,1213 @@ class NavigationToolbar2(object):
 
     def set_history_buttons(self):
         """Enable or disable back/forward button"""
+        pass
+
+
+class ChildFigureManager(FigureManagerBase):
+    """Entry point for multi-figure-manager backend
+
+    Extension of `FigureManagerBase` to allow the canvas, to be attached and detached from its GUI interface
+
+    The `parent` is the GUI interface, that is responsible for everything related to display and external controls
+    This `ChildFigureManager` is responsible for parent instantiation and assignment.
+
+    Attributes
+    ----------
+    parent : MultiFigureManager
+        Instance derivate of `MultiFigureManagerBase` that serves as container for several canvas
+    navigation : `Navigation`
+        The navigation state of the `canvas`
+    canvas : FigureManagerCanvas
+        Canvas that is managed by this `ChildFigureManager`
+
+    Examples
+    ----------
+    To access this instance from a figure instance use
+
+    >>> figure.canvas.manager
+
+    In Gtk3 the interaction with this class is limited to
+
+    >>> class FigureManagerGTK3(ChildFigureManager):
+    >>>     parent_class = MultiFigureManagerGTK3
+
+    Notes
+    ----------
+    To change the figure manager functionality, subclass `MultiFigureManagerBase`
+
+    In general it is not necessary to overrride this class.
+    """
+    _parent = None
+    parent_class = None
+    """multi-figure-manager class that will holds this child"""
+
+    navigation_class = None
+    """Navigation class that will be instantiated as navigation for this child"""
+
+    @classmethod
+    def get_parent(cls, parent=None):
+        """Get the parent instance
+
+        Parameters
+        ----------
+        parent: None (defatult), False, `Figure`,  `ChildFigureManager`, `MultiFigureManagerBase`
+            Used to determine wich parent to set and if necessary instantiate
+
+        Notes
+        ----------
+        if `parent` is:
+         - False: `parent_class` is instantiated every time (default in rcParams)
+         - None or True: `parent_class` is instantiated the first time
+           and reused everytime after
+         - `Figure`,  `ChildFigureManager`, `MultiFigureManagerBase`: Try to extract the parent from
+           the given instance
+        """
+
+        #Force new parent for the child
+        if parent is False:
+            new_parent = cls.parent_class()
+
+        #New parent only if there is no previous parent
+        elif parent in (None, True):
+            if cls._parent is None or cls._parent() is None:
+                new_parent = cls.parent_class()
+            else:
+                new_parent = cls._parent()
+        #fig2 = plt.figure(parent=fig1.canvas.manager)
+        elif isinstance(parent, ChildFigureManager):
+            new_parent = parent.parent
+
+        #fig2 = plt.figure(parent=fig1.canvas.manager.parent)
+        elif isinstance(parent, MultiFigureManagerBase):
+            new_parent = parent
+
+        else:
+            #fig2 = plt.figure(parent=fig1)
+            try:
+                parent = parent.canvas.manager.parent
+            except AttributeError:
+                raise AttributeError('%s is not a Figure, ChildFigureManager or a MultiFigureManager' % parent)
+            else:
+                new_parent = parent
+        
+        #keep the reference only if there are children with this parent
+        cls._parent = weakref.ref(new_parent)
+        return new_parent
+
+    def __init__(self, canvas, num, parent=None):
+        self.parent = self.get_parent(parent)
+        FigureManagerBase.__init__(self, canvas, num)
+
+        if self.navigation_class is None:
+            self.navigation_class = Navigation
+        self.navigation = self.navigation_class(self.canvas)
+        self.navigation.set_toolbar(self.parent.toolbar)
+        self.parent.add_child(self)
+        self.canvas.show()
+
+        def notify_axes_change(fig):
+            'this will be called whenever the current axes is changed'
+            if self.navigation is not None: self.navigation.update()
+        canvas.figure.add_axobserver(notify_axes_change)
+
+    def reparent(self, parent):
+        """Change the  multi-figure-manager controlling this child
+
+        Change the control and visual location of the manager from one multi-figure-manager
+        to another
+
+        Parameters
+        ----------
+        parent: 
+            Instance from where to extract the parent
+
+        See Also
+        --------
+        get_parent: Used to get the new parent
+
+        Examples
+        ----------
+        To reparent (group) fig2 in the same parent of fig1
+
+        >>> fig2.canvas.manager.reparent(fig1)
+        
+        Notes
+        ----------
+        Not supported by all backends (tk,...)
+        """
+        
+        self.navigation.detach()
+        self.parent.remove_child(self)
+        
+        self.parent = self.get_parent(parent)
+        self.navigation.set_toolbar(self.parent.toolbar)
+        self.parent.add_child(self)
+        self.canvas.show()
+
+    def detach(self):
+        """Remove this child from current parent instantiating a new(empty) one
+
+        Notes
+        ----------
+        Not supported by all backends (tk,...)
+
+        Examples
+        ----------
+        To detach a figure instance
+
+        >>> figure.canvas.manager.detach()
+
+        """
+
+        parent = self.get_parent(parent=False)
+        self.reparent(parent)
+        self.parent.show()
+
+    def show(self):
+        """Ask `parent` to show this child
+        """
+
+        self.parent.show_child(self)
+
+    def destroy(self):
+        """Remove from parent and from toolbar, and destroy the canvas
+
+        Notes:
+        ----------
+        This method is called from Gcf.destroy(num)
+        """
+
+        self.navigation.detach()
+        self.parent.remove_child(self)
+        del self.parent
+        del self.navigation
+        #For some reason there is not destroy in canvas base
+        try:
+            self.canvas.destroy()
+        except AttributeError:
+            pass
+
+    def resize(self, w, h):
+        """Ask the `parent` to resize the space available for this canvas
+        """
+
+        self.parent.resize_child(self, w, h)
+
+    def show_popup(self, msg):
+        """Ask `parent` to Pop up a message to the user
+
+        Parameters
+        ----------
+        msg : string
+             Text to show
+        """
+        self.parent.show_popup(self, msg)
+
+    def get_window_title(self):
+        """Get the title of the window/tab/... containing this canvas
+        """
+        return self.parent.get_child_title(self)
+
+    def set_window_title(self, title):
+        """Set the title of the window/tab/... containing this canvas
+        """
+        self.parent.set_child_title(self, title)
+
+    def get_mainwindow_title(self):
+        """Get the title of the `parent` window
+        """
+        return self.parent.get_window_title()
+
+    def set_mainwindow_title(self, title):
+        """Set the title of the `parent` window
+        """
+        self.parent.set_window_title(title)
+
+    def __getattr__(self, name):
+        #There are some parent attributes that we want to reflect as ours
+        if name in ('toolbar', 'window', 'full_screen_toggle'):
+            return getattr(self.parent, name)
+        raise AttributeError('Unknown attribute %s' % name)
+
+
+class MultiFigureManagerBase(object):
+    """Base class for the multi-figure-manager
+
+    This class defines the basic methods that the backend specific GUI interface implementation
+    has to have.
+
+    .. note:: This class is instantiated automatically by `ChildFigureManager.get_parent` and does not 
+        passes any argument
+
+    .. warning:: The `__init__` method should not receive any argument
+
+    Notes
+    ----------
+    The mandatory methods for a specific backend are
+
+     - `__init__` : Creation of window, notebooks, etc.. and addition of multi-figure-toolbar if relevant
+     - `destroy`
+     - `add_child`
+     - `remove_child`
+    """
+    def __init__(self):
+        raise NotImplementedError
+
+    def switch_child(self, child):
+        """Method to inform the toolbar that the active canvas has changed
+
+        Parameters
+        ----------
+        child : `ChildFigureManager`
+            Instance of `ChildFigureManager` to set as active in the toolbar
+
+        Notes
+        ----------
+        There is no need to override this method, just to make sure to invoke it when
+        changing the active child
+
+        Examples
+        ----------
+        In the gtk3 backend, this is called when the user selects a new tab after finding the new selected tab
+
+        >>> self.notebook.connect('switch-page', self._on_switch_page)
+        >>> ...
+        >>> def _on_switch_page(self, notebook, pointer, num):
+        >>>     canvas = self.notebook.get_nth_page(num)
+        >>>     self.switch_child(canvas.manager)
+        """
+
+        #Here we invoke switch_navigation with child.canvas.toolbar instead os child.navigation
+        #because for canvas, navigation is the toolbar
+        if self.toolbar is None:
+            return
+        self.toolbar.switch_navigation(child.canvas.toolbar)
+
+    def destroy(self):
+        """Destroy all the gui stuff
+        """
+        pass
+
+    def add_child(self, child):
+        """Add child
+
+        Add a child to this multi-figure-manager
+
+         Parameters
+        ----------
+        child : `ChildFigureManager`
+            Instance of `ChildFigureManager` that will be controlled by this instance
+
+        Notes
+        ----------
+        This method involves adding the canvas to a container (notebook tab, tree branch, panning window, etc...),
+        providing individual close and detach buttons
+
+         - close button : should call Gcf.destroy(num)
+         - detach button : should call `child.detach` on the child parameter
+         
+        This method is called from `ChildFigureManager.__init__` and `ChildFigureManager.reparent`
+
+        This method is not called as answer to a user interaction with the  GUI
+
+        """
+        raise NotImplementedError
+
+    def remove_child(self, child):
+        """Remove child
+
+        Remove the child from the control of this multi-figure-manager without destroying it.
+
+        Parameters
+        ----------
+        child : `ChildFigureManager`
+            Instance of `ChildFigureManager` that will be remove from its control
+
+        Notes
+        ----------
+        This method involves removing the container that holds the child
+
+        .. warning:: Do not call destroy on the child, it may be relocated to another parent
+        """
+        #Remove the child from the control of this multi-figure-manager
+        #visually and logically
+        #do not destroy the child
+        raise NotImplementedError
+
+    def show_child(self, child):
+        """Find the appropiate child container and show it"""
+        pass
+
+    def set_child_title(self, child, title):
+        """
+        Set the title text of the container (notebook tab/tree branch name/etc...) containing the figure.
+        """
+        pass
+
+    def get_child_title(self, child):
+        """
+        Get the title text of the container (notebook tab/tree branch name/etc...) containing the figure
+        """
+        pass
+
+    def set_window_title(self, title):
+        """
+        Set the title text of the multi-figure-manager window.
+        """
+        pass
+
+    def get_window_title(self):
+        """
+        Get the title text of the multi-figure-manager window.
+        """
+        pass
+
+    def show(self):
+        """Show the multi-figure-manager"""
+        pass
+
+    def full_screen_toggle(self):
+        """Toggle full screen mode"""
+        pass
+
+
+class MultiFigureToolbarBase(object):
+    """Base class for the multi-figure-manager-toolbar
+
+    This class defines the basic methods that the backend specific implementation
+    has to have.
+
+    Notes
+    ----------
+    The mandatory methods for a specific backend are
+
+     - `add_toolitem`
+     - `connect_toolitem`
+     - `init_toolbar`
+     - `save_figure`
+     - `save_all_figures`
+
+    The suggested methods to implement are
+
+     - `remove_tool`
+     - `move_tool`
+     - `set_visible_tool`
+
+
+    Each implementation defines it's own system of coordinates, that use the `pos`
+    argument (used in different methods) to refer to the exact placement of each toolitem
+
+    Examples
+    ----------
+    To access this instance from a figure isntance
+
+    >>> figure.canvas.toolbar.toolbar
+
+    Some undefined attributes of `Navigation` call this class via
+    `Navigation.__getattr__`, most of the time it can be accesed directly with
+
+    >>> figure.canvas.toolbar
+    """
+    toolitems = ({'text': 'Home',
+                  'tooltip_text': 'Reset original view',
+                  'image': 'home',
+                  'callback': 'home'},
+
+                 {'text': 'Back',
+                  'tooltip_text': 'Back to  previous view',
+                  'image': 'back',
+                  'callback': 'back'},
+
+                 {'text': 'Forward',
+                  'tooltip_text': 'Forward to next view',
+                  'image': 'forward',
+                  'callback': 'forward'},
+
+                 None,
+
+                 {'text': 'Pan',
+                  'tooltip_text': 'Pan axes with left mouse, zoom with right',
+                  'image': 'move',
+                  'callback': 'pan'},
+
+                 {'text': 'Zoom',
+                  'tooltip_text': 'Zoom to rectangle',
+                  'image': 'zoom_to_rect',
+                  'callback': 'zoom'},
+
+                 {'text': 'Save',
+                  'tooltip_text': 'Save the figure',
+                  'image': 'filesave',
+                  'callback': 'save_figure'},
+                 
+                 {'text': 'SaveAll',
+                  'tooltip_text': 'Save all figures',
+                  'image': 'saveall',
+                  'callback': 'save_all_figures'},
+                 
+                 None,
+                 )
+    """toolitems=({})
+
+    List of Dictionnaries containing the default toolitems to add to the toolbar
+
+    Each dict element of contains
+     - text : Text or name for the tool
+     - tooltip_text : Tooltip text
+     - image : Image to use
+     - callback : Function callback definied in this class or derivates
+    """
+    external_toolitems = ()
+    """List of Dictionnaries containing external tools to add to the toolbar
+
+    Each item has the same structure of `toolitems` items but with callback being a
+    string or class pointing to a `ToolBase` derivate
+
+    Examples
+    ----------
+    In Gtk3 backend
+
+    >>> external_toolitems = ({'text': 'Subplots',
+    >>>                        'tooltip_text': 'Configure subplots',
+    >>>                        'image': 'subplots',
+    >>>                        'callback': 'ConfigureSubplotsGTK3'},
+    >>>                       {'callback': 'LinesProperties'},
+    >>>                       {'callback': 'AxesProperties'}
+    >>>                       )
+
+    """
+
+    def __init__(self):
+        self._external_instances = {}
+        self._navigations = []
+        self.init_toolbar()
+        self.add_message()
+        
+        for pos, item in enumerate(self.toolitems):
+            if item is None:
+                self.add_separator(pos=pos)
+                continue
+            btn = item.copy()
+            callback = btn.pop('callback')
+            tbutton = self.add_toolitem(pos=pos, **btn)
+            if tbutton:
+                self.connect_toolitem(tbutton, callback)
+            #we need this reference to hide it when only one figure
+            if btn['text'] == 'SaveAll':
+                self.__save_all_toolitem = tbutton
+        
+        for pos, item in enumerate(self.external_toolitems):
+            btn = item.copy()
+            callback = btn.pop('callback')
+            i_pos = pos + len(self.toolitems)
+            self.add_tool(callback, pos=i_pos, **btn)
+
+        self.add_separator(len(self.external_toolitems) + len(self.toolitems))
+
+        self._current = None
+
+    def init_toolbar(self):
+        """Initialized the toolbar
+
+        Creates the frame to place the toolitems
+        """
+        raise NotImplementedError
+
+    def add_tool(self, callback, **kwargs):
+        """Add toolitem to the toolbar and connect it to the callback
+
+        The optional arguments are the same strcture as the elements of `external_toolitems`
+
+        .. note:: It is not recommended to override this method when implementing a
+            specifc backend toolbar
+
+        This method calls `add_toolitem` to place the item in the toolbar and `connect_toolitem`
+        to handle the callback
+
+        Parameters
+        ----------
+        callback : String or class that is a derivate of `ToolBase`
+
+        Examples
+        ----------
+        If `SampleTool` is defined (derivate of `ToolBase`)
+
+        >>> fig2.canvas.toolbar.add_tool(SampleTool, text='Stats')
+
+        Will add the `SampleTool` to the toolbar
+
+        Notes
+        ----------
+        The first time this tool is activated it will instantiate the callback class and call set_figures,
+        if activated again, will call the show method of the callback class
+
+        If the active figure changes (switch the active figure from the manager)
+        the set_figures method of the callback class is invoked again.
+
+        """
+
+        cls = self._get_cls_to_instantiate(callback)
+        if not cls:
+            self.set_message('%s Not found' % callback)
+            return
+
+        #if not passed directly from the call, look for them in the class
+        text = kwargs.pop('text', cls.text)
+        tooltip_text = kwargs.pop('tooltip_text', cls.tooltip_text)
+        pos = kwargs.pop('pos', cls.pos)
+        image = kwargs.pop('image', cls.image)
+
+        tbutton = self.add_toolitem(pos=pos, text=text,
+                                  tooltip_text=tooltip_text,
+                                  image=image)
+        if not tbutton:
+            return
+
+        self.connect_toolitem(tbutton, '_external_callback', cls, **kwargs)
+       
+    def remove_tool(self, pos):
+        """Remove the tool located at given position
+
+        .. note:: It is recommended to implement this method
+
+        Parameters
+        ----------
+        pos : backend specific
+            Position (coordinates) where the tool to remove is located
+        """
+        #remote item from the toolbar,
+        pass
+
+    def set_visible_tool(self, toolitem, visible):
+        """Toggle the visibility of a toolitem 
+        
+        Parameters
+        ----------
+        toolitem: backend specific
+            toolitem returned by `add_toolitem`
+        visible: bool
+            if true set visible, 
+            if false set invisible
+            
+        Notes
+        ----------
+        This method is used to automatically hide save_all button when 
+        there is only one figure. It is called from `add_navigation` and
+        `remove_navigation`
+        """
+        
+        pass
+
+    def move_tool(self, pos_ini, pos_fin):
+        """Move the tool between to positions
+
+        .. note:: It is recommended to implement this method
+
+        Parameters
+        ----------
+        pos_ini : backend specific
+            Position (coordinates) where the tool to is located
+        pos_fin : backend specific
+            New position (coordinates) where the tool will reside
+        """
+        #move item in the toolbar
+        pass
+
+    def connect_toolitem(self, toolitem, callback, *args, **kwargs):
+        """Connect the tooitem to the callback
+
+        This is backend specific, takes the arguments and connect the added tool to
+        the callback passing *args and **kwargs to the callback
+        
+        The action is the 'clicked' or whatever name in the backend for the activation of the tool
+
+        Parameters
+        ----------
+        toolitem : backend specific
+            Toolitem returned by `add_toolitem`
+        callback : method
+            Method that will be called when the toolitem is activated
+
+        Examples
+        ----------
+        In Gtk3 this method is implemented as
+
+        >>> def connect_toolitem(self, button, callback, *args, **kwargs):
+        >>>     def mcallback(btn, cb, args, kwargs):
+        >>>         getattr(self, cb)(*args, **kwargs)
+        >>>
+        >>>     button.connect('clicked', mcallback, callback, args, kwargs)
+
+        Notes
+        ----------
+        The need for this method is to get rid of all the backend specific signal handling
+        """
+
+        raise NotImplementedError
+
+    def _external_callback(self, callback, **kwargs):
+        #This handles the invocation of external classes
+        #this callback class should take only *figures as arguments
+        #and preform its work on those figures
+        #the instance of this callback is added to _external_instances
+        #to inform them of the switch and destroy
+
+        id_ = id(callback)
+
+        if id_ in self._external_instances:
+            self._external_instances[id_].show()
+            return
+
+        figures = self.get_figures()
+
+        external_instance = callback(*figures, **kwargs)
+        if external_instance.register:
+#            print('register', id_)
+            external_instance.unregister = lambda *a, **kw: self.unregister_external(id_)
+            self._external_instances[id_] = external_instance
+
+    def unregister_external(self, id_):
+        """Unregister an external tool instance from the toolbar
+
+        Notes
+        ----------
+        It is not recommended to override this method when implementing a
+        specifc backend toolbar
+        
+        When registering an external tool, this method replaces the external the method
+        `ToolBase.unregister` and it is called during `ToolBase.destroy`
+
+        Parameters
+        ----------
+        id_ : int
+            Id of the callback class for the external tool
+        """
+        if id_ in self._external_instances:
+#            print ('unregister', id_)
+            del self._external_instances[id_]
+
+    def _get_cls_to_instantiate(self, callback_class):
+        if isinstance(callback_class, basestring):
+            #FIXME: make more complete searching structure
+            if callback_class in globals():
+                return globals()[callback_class]
+
+            mod = self.__class__.__module__
+            current_module = __import__(mod,
+                                        globals(), locals(), [mod], 0)
+
+            return getattr(current_module, callback_class, False)
+
+        return callback_class
+
+    def __getattr__(self, name):
+        #The callbacks are handled directly by navigation
+        #A general getattr from _current may get caught in an infinite loop
+        #Navigation has a getattr poiting to his class
+        cbs = [it['callback'] for it in self.toolitems if it is not None]
+        if name in cbs:
+            return getattr(self._current, name)
+        raise AttributeError('Unknown attribute %s' % name)
+
+    def add_navigation(self, navigation):
+        """Add the `Navigation` under the control of this toolbar
+
+        .. note:: It is not recommended to override this method when implementing a
+            specifc backend toolbar
+
+        Parameters
+        ----------
+        navigation : `Navigation`
+            Instance of `Navigation` to add
+
+        Notes
+        ----------
+        This method is called from the child `Navigation.set_toolbar`, during creation and reasignment
+        """
+
+        self._navigations.append(navigation)
+        self._current = navigation
+        state = len(self._navigations) > 1
+        self.set_visible_tool(self.__save_all_toolitem, state)
+
+    def remove_navigation(self, navigation):
+        """Remove the `Navigation` from the control of this toolbar
+
+        .. note:: It is not recommended to override this method when implementing a
+            specifc backend toolbar
+
+        Parameters
+        ----------
+        child : `Navigation`
+            Instance of `Navigation` to remove
+
+        Notes
+        ----------
+        This method is called from `Navigation.detach`
+        """
+        
+        self._navigations.remove(navigation)
+        if navigation is self._current:
+            self._current = None
+            
+        state = len(self._navigations) > 1
+        self.set_visible_tool(self.__save_all_toolitem, state)
+
+    def get_figures(self):
+        """Return the figures under the control of this toolbar
+
+        The firsrt figure in the list is the active figure
+
+        .. note:: It is not recommended to override this method when implementing a
+            specifc backend toolbar
+
+        Returns
+        ----------
+        list
+            List of figures that are controlled by this toolbar
+        """
+
+        figures = []
+        if self._current:
+            figures = [self._current.canvas.figure]
+        others = [navigation.canvas.figure for navigation in self._navigations if navigation is not self._current]
+        figures.extend(others)
+        return figures
+
+    def add_toolitem(self, text='_', pos=-1,
+                    tooltip_text='', image=None):
+
+        """Add toolitem to the toolbar
+
+        Parameters
+        ----------
+        pos : backend specific, optional
+            Position to add the tool, depends on the specific backend how the position is handled
+            it can be an int, dict, etc...
+        text : string, optional
+            Text for the tool
+        tooltip_text : string, optional
+            Text for the tooltip
+        image : string, optional
+            Reference to an image file to be used to represent the tool
+
+        Returns
+        -------
+        toolitem: Toolitem created, backend specific
+
+        Notes
+        ----------
+        There is no need to call this method directly, it is called from `add_tool`
+        """
+
+        raise NotImplementedError
+
+    def add_separator(self, pos=-1):
+        """Add a separator to the toolbar
+
+        Separator is a 'generic' word to describe any kind of item other than toolitem that will be added
+        to the toolbar, for example an extra container to acomodate more tools
+
+        Parameters
+        ----------
+        pos : backend specific, optional
+            Position to add the separator, depends on the specific backend how the position is handled
+            it can be an int, dict, etc...
+
+        """
+        pass
+
+    def switch_navigation(self, navigation):
+        """Switch the current navigation under control
+
+        .. note:: It is not recommended to override this method when implementing a
+            specifc backend toolbar
+
+        Parameters
+        ----------
+        navigation : `Navigation`
+            Navigation that will be controlled
+
+        Notes
+        ----------
+        When the multi-figure-manager switches child, this toolbar needs to switch too, so it controls
+        the correct figure
+
+        If there are external instances (tools) inform them of the switch
+        by invoking instance.set_figures(*figures)
+        """
+
+        #when multi-figure-manager switches child (figure)
+        #this toolbar needs to switch to, so it controls the correct one
+        #if there are external instances (tools) inform them of the switch
+        #by invoking instance.set_figures(*figures)
+
+        if navigation not in self._navigations:
+            raise AttributeError('This container does not control the given child')
+
+        # For these two actions we have to unselect and reselect
+        if self._current and self._current._active in ('PAN', 'ZOOM'):
+            action = self._current._active.lower()
+            getattr(self._current, action)()
+            getattr(navigation, action)()
+        self._current = navigation
+
+        figures = self.get_figures()
+        for v in self._external_instances.values():
+            v.set_figures(*figures)
+
+    def set_navigation_message(self, navigation, text):
+        """Set the message from the child
+
+        Parameters
+        ----------
+        navigation : `ChildNavigationToolbar`
+            Navigation that emits the message
+        text : string
+            Text to be displayed
+
+        Notes
+        ----------
+        In general the message from the navigation are displayed the
+        same as message from the toolbar via `set_message`, overwritting this method
+        the message can be displayed otherwise
+        """
+
+        self.set_message(text)
+
+    def set_navigation_cursor(self, navigation, cursor):
+        """Set the cursor for the navigation
+
+        Parameters
+        ----------
+        navigation : `Navigation`
+            Navigation that will get the new cursor
+        cursor : backend specific
+            Cursor to be used with this navigation
+
+        Notes
+        ----------
+        Called from `Navigation.set_cursor`
+        """
+        pass
+
+    def set_message(self, text):
+        """Set message
+
+        Parameters
+        ----------
+        text : string
+            Text to be displayed
+
+        Notes
+        ----------
+        The message is displayed in the container created by `add_message`
+        """
+        pass
+
+    def add_message(self):
+        """Add message container
+
+        The message in this container will be setted by `set_message` and `set_navigation_message`
+        """
+        pass
+
+    def save_all_figures(self):
+        """Save all figures"""
+        
+        raise NotImplementedError
+
+
+class Navigation(NavigationToolbar2):
+    """Holder for navigation information
+
+    In a multi-figure-manager backend, the canvas navigation information is stored here and
+    the controls belongs to a derivate of `MultiFigureToolbarBase`.
+
+    In general it is not necessary to overrride this class. If you need to change the toolbar
+    change the backend derivate of `MultiFigureToolbarBase`
+
+    The `toolbar` is responsible for everything related to external controls,
+    and this is responsible for parent assignment and holding navigation state information.
+
+    There is no need to instantiate this class, this will be done automatically from
+    `ChildFigureManager`
+
+    Attributes
+    ----------
+    toolbar : MultiFigureToolbar
+        Instance derivate of `MultiFigureToolbarBase` that serves as container for several `Navigation`
+
+    Examples
+    ----------
+    To access this instance from a figure instance use
+
+    >>> figure.canvas.toolbar
+
+    Notes
+    ----------
+    Every call to this toolbar that is not defined in `NavigationToolbar2` or here will be passed to
+    `toolbar` via `__getattr__`
+
+    For the canvas there is no concept of navigation, so when it calls the toolbar it pass
+    throught this class first
+    """
+
+    def __init__(self, canvas):
+        self.toolbar = None
+        NavigationToolbar2.__init__(self, canvas)
+
+    #The method should be called _init_navigation but...
+    def _init_toolbar(self):
+        self.ctx = None
+
+    def set_toolbar(self, toolbar):
+        """Add itself to the given toolbar
+        
+        Parameters
+        ----------
+            toolbar: MultiFigureToolbar
+                Derivate of `MultiFigureToolbarBase`
+                
+        """
+        if self.toolbar is not None:
+            self.detach()
+        self.toolbar = toolbar
+        if toolbar is not None:
+            self.toolbar.add_navigation(self)
+
+    def detach(self):
+        """Remove this instance from the control of `toolbar`
+
+        Notes
+        ----------
+        This method is called from `ChildFigureManager.destroy`, `ChildFigureManager.reparent`
+        and `ChildFigureManager.detach`
+        """
+        #called by ChildFigureManager.destroy method
+        if self.toolbar is not None:
+            self.toolbar.remove_navigation(self)
+            self.toolbar = None
+
+    def set_message(self, s):
+        """Display message from this child
+
+        Parameters
+        ----------
+            s: string
+            Message to be displayed
+        """
+        if self.toolbar is not None:
+            self.toolbar.set_navigation_message(self, s)
+
+    def set_cursor(self, cursor):
+        """Set the cursor to display
+
+        Parameters
+        ----------
+            cursor: cursor
+        """
+        if self.toolbar is not None:
+            self.toolbar.set_navigation_cursor(self, cursor)
+#        self.canvas.get_property("window").set_cursor(cursord[cursor])
+
+    def release(self, event):
+        """See: `NavigationToolbar2.release`"""
+        try: del self._pixmapBack
+        except AttributeError: pass
+
+    def dynamic_update(self):
+        """See: `NavigationToolbar2.dynamic_update`"""
+        # legacy method; new method is canvas.draw_idle
+        self.canvas.draw_idle()
+        
+    def draw_rubberband(self, event, x0, y0, x1, y1):
+        """
+        See: `NavigationToolbar2.draw_rubberband`
+
+        Notes
+        ----------
+        Adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744
+        """
+
+        self.ctx = self.canvas.get_property("window").cairo_create()
+
+        # todo: instead of redrawing the entire figure, copy the part of
+        # the figure that was covered by the previous rubberband rectangle
+        self.canvas.draw()
+
+        height = self.canvas.figure.bbox.height
+        y1 = height - y1
+        y0 = height - y0
+        w = abs(x1 - x0)
+        h = abs(y1 - y0)
+        rect = [int(val) for val in (min(x0, x1), min(y0, y1), w, h)]
+
+        self.ctx.new_path()
+        self.ctx.set_line_width(0.5)
+        self.ctx.rectangle(rect[0], rect[1], rect[2], rect[3])
+        self.ctx.set_source_rgb(0, 0, 0)
+        self.ctx.stroke()
+
+    def __getattr__(self, name):
+        #we suposse everything else that we want from this child
+        #belongs into the toolbar
+        if self.toolbar is not None:
+            return getattr(self.toolbar, name)
+        raise AttributeError('Unknown %s attribute' % name)
+
+
+class ToolBase(object):
+    """Base class for tools that can be added to a multi-figure-toolbar
+
+    Establish the basic frame for tools
+
+    The only mandatory method is `set_figures`
+
+    The optional methods are
+     - `init_tool`
+     - `destroy`
+     - `show`
+     
+    Attributes
+    ----------
+    `image`: string
+    `register`: bool
+    `pos`: int (backend specific)
+    `tooltip_text`: string
+    `text`: string
+    
+    Examples
+    ----------
+    To define a New Tool called SampleNonGuiTool that just prints the number of 
+    lines and axes per figure
+    
+    >>> from matplotlib.backend_bases import ToolBase
+        class SampleNonGuiTool(ToolBase):
+            text = 'stats'
+            def set_figures(self, *figures):
+                for figure in figures:
+                    title = figure.canvas.get_window_title()
+                    print(title)
+                    lines = [line for ax in figure.axes for line in ax.lines]
+                    print('Axes: %d Lines: %d' % (len(figure.axes), len(lines)))
+                    
+    To call this Tool on two figure instances
+    
+    >>> SampleNonGuiTool(fig3, fig2)
+    
+    To add this tool to the toolbar
+    
+    >>> fig.canvas.toolbar.add_tool(SampleNonGuiTool)
+    """
+
+    pos = -1  #: Position (coordinates) for the tool in the toolbar
+    text = '_'  #: Text for tool in the toolbar
+    tooltip_text = ''  #: Tooltip text for the tool in the toolbar
+    image = None  #: Image to be used for the tool in the toolbar
+    register = False
+    """Register the tool with the toolbar
+
+    Set to True if this tool is registered by the toolbar and updated at each
+    figure switch, the toolbar overwrites the `unregister` method to be called at destroy
+    """
+
+    def __init__(self, *figures, **kwargs):
+        """
+        Parameters
+        ----------
+        *figures : list, optional
+            List of figures that are going to be used by this tool
+        **kwargs : optional
+            Optional arguments that are going to be passed directly to `init_tool`
+        """
+
+        self.init_tool(**kwargs)
+
+        if figures:
+            self.set_figures(*figures)
+
+    def init_tool(self, **kwargs):
+        """Perform the tool creation
+
+        Do some initialization work as create windows and stuff
+
+        Parameters
+        ----------
+        **kwargs : optional
+            keyword arguments to be consumed during the creation of the tool
+            If the tool is added after toolbar creation, pass this arguments during the call
+            to `MultiFigureToolbarBase.add_tool`
+
+        Examples
+        ----------
+        If wanting to add the `backends.backend_gtk3.LinesProperties`
+
+        >>> from matplotlib.backends.backend_gtk3 import LinesProperties
+        >>> fig.canvas.toolbar.add_tool(LinesProperties, pick=False)
+
+        This pick argument is used in the `backends.backend_gtk3.LinesProperties.init_tool`
+        to prevent the tool to connect to the pick event
+        """
+
+        #do some initialization work as create windows and stuff
+        #kwargs are the keyword paramters given by the user
+        if kwargs:
+            raise TypeError('init_tool() got an unexpected keyword arguments %s' % str(kwargs))
+
+    def set_figures(self, *figures):
+        """Set the figures to be used by the tool
+
+        .. warning:: Do not modify the signature of this method
+
+        Parameters
+        ----------
+        *figures : list of figures
+
+        Notes
+        ----------
+        This is the main work, many non gui tools use only this method.
+
+        Make sure it receives an array *figures. The toolbar caller
+        always sends an array with all the figures
+
+        The first figure of the array is the current figure (from the toolbar point of view)
+        if it uses only the fisrt one, use it as figure = figures[0]
+        """
+
+        raise NotImplementedError
+
+    def destroy(self, *args):
+        """Destroy the tool
+
+        Perform the destroy action of the tool,
+
+        .. note:: This method should call `unregister`
+
+        """
+        self.unregister()
+
+    def show(self):
+        """Bring to focus the tool
+
+        Examples
+        ----------
+        In Gtk3 this is normally implented as
+
+        >>> self.window.show_all()
+        >>> self.window.present()
+        """
+        pass
+
+    def unregister(self, *args):
+        """Unregister the tool with the toolbar
+
+        .. warning:: Never override this method
+
+        Notes
+        ----------
+        This method is overriden by `MultiFigureToolbarBase` derivate during the initialization of
+        this tool
+        """
         pass

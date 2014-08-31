@@ -29,7 +29,8 @@ except ImportError:
 import matplotlib
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
+     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase, \
+     MultiFigureManagerBase, MultiFigureToolbarBase, ToolBase, ChildFigureManager
 from matplotlib.backend_bases import ShowBase
 
 from matplotlib.cbook import is_string_like, is_writable_file_like
@@ -38,6 +39,7 @@ from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
 from matplotlib import lines
+from matplotlib import markers
 from matplotlib import cbook
 from matplotlib import verbose
 from matplotlib import rcParams
@@ -375,22 +377,20 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
 
 
-class FigureManagerGTK3(FigureManagerBase):
-    """
-    Public attributes
 
-    canvas      : The FigureCanvas instance
-    num         : The Figure number
-    toolbar     : The Gtk.Toolbar  (gtk only)
-    vbox        : The Gtk.VBox containing the canvas and toolbar (gtk only)
-    window      : The Gtk.Window   (gtk only)
-    """
-    def __init__(self, canvas, num):
-        if _debug: print('FigureManagerGTK3.%s' % fn_name())
-        FigureManagerBase.__init__(self, canvas, num)
+class MultiFigureManagerGTK3(MultiFigureManagerBase):
+    #to acces from figure instance
+    #figure.canvas.manager.parent!!!!!
 
+    def __init__(self, *args):
+        self._children = []
+        self._labels = {}
+        self._w_min = 0
+        self._h_min = 0
+
+        if _debug: print('%s.%s' % (self.__class__.__name__, fn_name()))
         self.window = Gtk.Window()
-        self.set_window_title("Figure %d" % num)
+        self.window.set_title("MultiFiguremanager")
         try:
             self.window.set_icon_from_file(window_icon)
         except (SystemExit, KeyboardInterrupt):
@@ -405,223 +405,301 @@ class FigureManagerGTK3(FigureManagerBase):
 
         self.vbox = Gtk.Box()
         self.vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
+
+        self.notebook = Gtk.Notebook()
+
+        self.notebook.set_scrollable(True)
+
+        self.notebook.connect('switch-page', self._on_switch_page)
+        self.notebook.set_show_tabs(False)
+
+        self.vbox.pack_start(self.notebook, True, True, 0)
         self.window.add(self.vbox)
-        self.vbox.show()
 
-        self.canvas.show()
-
-        self.vbox.pack_start(self.canvas, True, True, 0)
-
-        self.toolbar = self._get_toolbar(canvas)
-
-        # calculate size for window
-        w = int (self.canvas.figure.bbox.width)
-        h = int (self.canvas.figure.bbox.height)
+        self.toolbar = self._get_toolbar()
 
         if self.toolbar is not None:
-            self.toolbar.show()
+            self.toolbar.show_all()
             self.vbox.pack_end(self.toolbar, False, False, 0)
-            size_request = self.toolbar.size_request()
-            h += size_request.height
 
-        self.window.set_default_size (w, h)
+        def destroy_window(*args):
+            nums = [manager.num for manager in self._children]
+            for num in nums:
+                Gcf.destroy(num)
+        self.window.connect("destroy", destroy_window)
+        self.window.connect("delete_event", destroy_window)
 
-        def destroy(*args):
-            Gcf.destroy(num)
-        self.window.connect("destroy", destroy)
-        self.window.connect("delete_event", destroy)
+        self.vbox.show_all()
+
         if matplotlib.is_interactive():
             self.window.show()
 
-        def notify_axes_change(fig):
-            'this will be called whenever the current axes is changed'
-            if self.toolbar is not None: self.toolbar.update()
-        self.canvas.figure.add_axobserver(notify_axes_change)
+    def _on_switch_page(self, notebook, pointer, num):
+        canvas = self.notebook.get_nth_page(num)
+        self.switch_child(canvas.manager)
 
-        self.canvas.grab_focus()
+    def destroy(self):
+        if _debug: print('%s.%s' % (self.__class__.__name__, fn_name()))
 
-    def destroy(self, *args):
-        if _debug: print('FigureManagerGTK3.%s' % fn_name())
         self.vbox.destroy()
         self.window.destroy()
-        self.canvas.destroy()
         if self.toolbar:
             self.toolbar.destroy()
 
-        if Gcf.get_num_fig_managers()==0 and \
-               not matplotlib.is_interactive() and \
-               Gtk.main_level() >= 1:
+        if Gcf.get_num_fig_managers() == 0 and \
+                not matplotlib.is_interactive() and \
+                Gtk.main_level() >= 1:
             Gtk.main_quit()
 
-    def show(self):
-        # show the figure window
-        self.window.show()
+    def remove_child(self, child):
+        '''Remove the child from the multi figure, if it was the last one, destroy itself'''
+        if _debug: print('%s.%s' % (self.__class__.__name__, fn_name()))
+        if child not in self._children:
+            raise AttributeError('This container does not control the given figure child')
+        canvas = child.canvas
+        id_ = self.notebook.page_num(canvas)
+        if id_ > -1:
+            del self._labels[child.num]
+            self.notebook.remove_page(id_)
+            self._children.remove(child)
 
-    def full_screen_toggle (self):
-        self._full_screen_flag = not self._full_screen_flag
-        if self._full_screen_flag:
-            self.window.fullscreen()
+        if self.notebook.get_n_pages() == 0:
+            self.destroy()
+
+        self._tabs_changed()
+
+    def _tabs_changed(self):
+        #Everytime we change the tabs configuration (add/remove)
+        #we have to check to hide tabs and saveall button(if less than two)
+        #we have to resize because the space used by tabs is not 0
+
+        #hide tabs and saveall button if only one tab
+        if self.notebook.get_n_pages() < 2:
+            self.notebook.set_show_tabs(False)
+            notebook_w = 0
+            notebook_h = 0
         else:
-            self.window.unfullscreen()
-    _full_screen_flag = False
+            self.notebook.set_show_tabs(True)
+            size_request = self.notebook.size_request()
+            notebook_h = size_request.height
+            notebook_w = size_request.width
 
+        #if there are no children max will fail, so try/except
+        try:
+            canvas_w = max([int(manager.canvas.figure.bbox.width) for manager in self._children])
+            canvas_h = max([int(manager.canvas.figure.bbox.height) for manager in self._children])
+        except ValueError:
+            canvas_w = 0
+            canvas_h = 0
 
-    def _get_toolbar(self, canvas):
-        # must be inited after the window, drawingArea and figure
-        # attrs are set
-        if rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2GTK3 (canvas, self.window)
+        if self.toolbar is not None:
+            size_request = self.toolbar.size_request()
+            toolbar_h = size_request.height
+            toolbar_w = size_request.width
         else:
-            toolbar = None
-        return toolbar
+            toolbar_h = 0
+            toolbar_w = 0
 
-    def get_window_title(self):
-        return self.window.get_title()
+        w = max(canvas_w, notebook_w, toolbar_w)
+        h = canvas_h + notebook_h + toolbar_h
+        if w and h:
+            self.window.resize(w, h)
+
+    def set_child_title(self, child, title):
+        self._labels[child.num].set_text(title)
+
+    def get_child_title(self, child):
+        return self._labels[child.num].get_text()
 
     def set_window_title(self, title):
         self.window.set_title(title)
 
-    def resize(self, width, height):
-        'set the canvas size in pixels'
-        #_, _, cw, ch = self.canvas.allocation
-        #_, _, ww, wh = self.window.allocation
-        #self.window.resize (width-cw+ww, height-ch+wh)
-        self.window.resize(width, height)
+    def get_window_title(self):
+        return self.window.get_title()
+
+    def _get_toolbar(self):
+        # must be inited after the window, drawingArea and figure
+        # attrs are set
+        if rcParams['toolbar'] == 'toolbar2':
+            toolbar = MultiFigureNavigationToolbar2GTK3(self.window)
+        else:
+            toolbar = None
+        return toolbar
+
+    def add_child(self, child):
+        if _debug: print('%s.%s' % (self.__class__.__name__, fn_name()))
+        if child in self._children:
+            raise AttributeError('Impossible to add two times the same child')
+        canvas = child.canvas
+        num = child.num
+
+        title = 'Fig %d' % num
+        box = Gtk.Box()
+        box.set_orientation(Gtk.Orientation.HORIZONTAL)
+        box.set_spacing(5)
+
+        label = Gtk.Label(title)
+        self._labels[num] = label
+        self._children.append(child)
+
+        box.pack_start(label, True, True, 0)
+
+        # close button
+        button = Gtk.Button()
+        button.set_tooltip_text('Close')
+        button.set_relief(Gtk.ReliefStyle.NONE)
+        button.set_focus_on_click(False)
+        button.add(Gtk.Image.new_from_stock(Gtk.STOCK_CLOSE, Gtk.IconSize.MENU))
+        box.pack_end(button, False, False, 0)
+
+        def _remove(btn):
+            Gcf.destroy(num)
+
+        button.connect("clicked", _remove)
+
+        # Detach button
+        button = Gtk.Button()
+        button.set_tooltip_text('Detach')
+        button.set_relief(Gtk.ReliefStyle.NONE)
+        button.set_focus_on_click(False)
+        button.add(Gtk.Image.new_from_stock(Gtk.STOCK_JUMP_TO, Gtk.IconSize.MENU))
+        box.pack_end(button, False, False, 0)
+
+        def _detach(btn):
+            child.detach()
+        button.connect("clicked", _detach)
+
+        box.show_all()
+        canvas.show()
+
+        self.notebook.append_page(canvas, box)
+        self._tabs_changed()
+        self.show_child(child)
+
+    def show_child(self, child):
+        if _debug: print('%s.%s' % (self.__class__.__name__, fn_name()))
+        self.show()
+        canvas = child.canvas
+        id_ = self.notebook.page_num(canvas)
+        self.notebook.set_current_page(id_)
+
+    def show(self):
+        if _debug: print('%s.%s' % (self.__class__.__name__, fn_name()))
+#        self.window.show_all()
+        self.window.show()
 
 
-class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
-    def __init__(self, canvas, window):
+class FigureManagerGTK3(ChildFigureManager):
+    parent_class = MultiFigureManagerGTK3
+
+
+class MultiFigureNavigationToolbar2GTK3(Gtk.Box, MultiFigureToolbarBase):
+    external_toolitems = ({'text': 'Subplots',
+                           'tooltip_text': 'Configure subplots',
+                           'image': 'subplots',
+                           'callback': 'ConfigureSubplotsGTK3'},
+                          {'callback': 'LinesProperties'},
+                          {'callback': 'AxesProperties'}
+                          )
+
+    def __init__(self, window):
         self.win = window
-        GObject.GObject.__init__(self)
-        NavigationToolbar2.__init__(self, canvas)
-        self.ctx = None
+        MultiFigureToolbarBase.__init__(self)
 
-    def set_message(self, s):
-        self.message.set_label(s)
+    def set_visible_tool(self, toolitem, visible):
+        toolitem.set_visible(visible)
 
-    def set_cursor(self, cursor):
-        self.canvas.get_property("window").set_cursor(cursord[cursor])
-        #self.canvas.set_cursor(cursord[cursor])
+    def connect_toolitem(self, button, callback, *args, **kwargs):
+        def mcallback(btn, cb, args, kwargs):
+            getattr(self, cb)(*args, **kwargs)
 
-    def release(self, event):
-        try: del self._pixmapBack
-        except AttributeError: pass
+        button.connect('clicked', mcallback, callback, args, kwargs)
 
-    def dynamic_update(self):
-        # legacy method; new method is canvas.draw_idle
-        self.canvas.draw_idle()
+    def add_toolitem(self, text='_', pos=-1,
+                    tooltip_text='', image=None):
+        timage = None
+        if image:
+            timage = Gtk.Image()
 
-    def draw_rubberband(self, event, x0, y0, x1, y1):
-        'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744'
-        self.ctx = self.canvas.get_property("window").cairo_create()
+            if os.path.isfile(image):
+                timage.set_from_file(image)
+            else:
+                basedir = os.path.join(rcParams['datapath'], 'images')
+                fname = os.path.join(basedir, image + '.png')
+                if os.path.isfile(fname):
+                    timage.set_from_file(fname)
+                else:
+                    #TODO: Add the right mechanics to pass the image from string
+#                    from gi.repository import GdkPixbuf
+#                    pixbuf = GdkPixbuf.Pixbuf.new_from_inline(image, False)
+                    timage = False
 
-        # todo: instead of redrawing the entire figure, copy the part of
-        # the figure that was covered by the previous rubberband rectangle
-        self.canvas.draw()
+        tbutton = Gtk.ToolButton()
 
-        height = self.canvas.figure.bbox.height
-        y1 = height - y1
-        y0 = height - y0
-        w = abs(x1 - x0)
-        h = abs(y1 - y0)
-        rect = [int(val) for val in (min(x0,x1), min(y0, y1), w, h)]
+        tbutton.set_label(text)
+        if timage:
+            tbutton.set_icon_widget(timage)
+        tbutton.set_tooltip_text(tooltip_text)
+        self._toolbar.insert(tbutton, pos)
+        tbutton.show()
+        return tbutton
 
-        self.ctx.new_path()
-        self.ctx.set_line_width(0.5)
-        self.ctx.rectangle(rect[0], rect[1], rect[2], rect[3])
-        self.ctx.set_source_rgb(0, 0, 0)
-        self.ctx.stroke()
+    def remove_tool(self, pos):
+        widget = self._toolbar.get_nth_item(pos)
+        if not widget:
+            self.set_message('Impossible to remove tool %d' % pos)
+            return
+        self._toolbar.remove(widget)
 
-    def _init_toolbar(self):
-        self.set_style(Gtk.ToolbarStyle.ICONS)
-        basedir = os.path.join(rcParams['datapath'],'images')
+    def move_tool(self, pos_ini, pos_fin):
+        widget = self._toolbar.get_nth_item(pos_ini)
+        if not widget:
+            self.set_message('Impossible to remove tool %d' % pos_ini)
+            return
+        self._toolbar.remove(widget)
+        self._toolbar.insert(widget, pos_fin)
 
-        for text, tooltip_text, image_file, callback in self.toolitems:
-            if text is None:
-                self.insert( Gtk.SeparatorToolItem(), -1 )
-                continue
-            fname = os.path.join(basedir, image_file + '.png')
-            image = Gtk.Image()
-            image.set_from_file(fname)
-            tbutton = Gtk.ToolButton()
-            tbutton.set_label(text)
-            tbutton.set_icon_widget(image)
-            self.insert(tbutton, -1)
-            tbutton.connect('clicked', getattr(self, callback))
-            tbutton.set_tooltip_text(tooltip_text)
-
+    def add_separator(self, pos=-1):
         toolitem = Gtk.SeparatorToolItem()
-        self.insert(toolitem, -1)
-        toolitem.set_draw(False)
-        toolitem.set_expand(True)
+        self._toolbar.insert(toolitem, pos)
+        return toolitem
 
-        toolitem = Gtk.ToolItem()
-        self.insert(toolitem, -1)
-        self.message = Gtk.Label()
-        toolitem.add(self.message)
+    def init_toolbar(self):
+        Gtk.Box.__init__(self)
+        self.set_property("orientation", Gtk.Orientation.VERTICAL)
+        self._toolbar = Gtk.Toolbar()
+        self._toolbar.set_style(Gtk.ToolbarStyle.ICONS)
+        self.pack_start(self._toolbar, False, False, 0)
 
         self.show_all()
 
-    def get_filechooser(self):
-        fc = FileChooserDialog(
-            title='Save the figure',
-            parent=self.win,
-            path=os.path.expanduser(rcParams.get('savefig.directory', '')),
-            filetypes=self.canvas.get_supported_filetypes(),
-            default_filetype=self.canvas.get_default_filetype())
-        fc.set_current_name(self.canvas.get_default_filename())
-        return fc
+    def add_message(self):
+        box = Gtk.Box()
+        box.set_property("orientation", Gtk.Orientation.HORIZONTAL)
+        sep = Gtk.Separator()
+        sep.set_property("orientation", Gtk.Orientation.VERTICAL)
+        box.pack_start(sep, False, True, 0)
+        self.message = Gtk.Label()
+        box.pack_end(self.message, False, False, 0)
+        box.show_all()
+        self.pack_end(box, False, False, 5)
+
+        sep = Gtk.Separator()
+        sep.set_property("orientation", Gtk.Orientation.HORIZONTAL)
+        self.pack_end(sep, False, True, 0)
+        self.show_all()
 
     def save_figure(self, *args):
-        chooser = self.get_filechooser()
-        fname, format = chooser.get_filename_from_user()
-        chooser.destroy()
-        if fname:
-            startpath = os.path.expanduser(rcParams.get('savefig.directory', ''))
-            if startpath == '':
-                # explicitly missing key or empty str signals to use cwd
-                rcParams['savefig.directory'] = startpath
-            else:
-                # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(six.text_type(fname))
-            try:
-                self.canvas.print_figure(fname, format=format)
-            except Exception as e:
-                error_msg_gtk(str(e), parent=self)
+        SaveFiguresDialogGTK3(self.get_figures()[0])
+        
+    def save_all_figures(self, *args):
+        SaveFiguresDialogGTK3(*self.get_figures())
 
-    def configure_subplots(self, button):
-        toolfig = Figure(figsize=(6,3))
-        canvas = self._get_canvas(toolfig)
-        toolfig.subplots_adjust(top=0.9)
-        tool =  SubplotTool(self.canvas.figure, toolfig)
+    def set_message(self, text):
+        self.message.set_label(text)
 
-        w = int (toolfig.bbox.width)
-        h = int (toolfig.bbox.height)
-
-
-        window = Gtk.Window()
-        try:
-            window.set_icon_from_file(window_icon)
-        except (SystemExit, KeyboardInterrupt):
-            # re-raise exit type Exceptions
-            raise
-        except:
-            # we presumably already logged a message on the
-            # failure of the main plot, don't keep reporting
-            pass
-        window.set_title("Subplot Configuration Tool")
-        window.set_default_size(w, h)
-        vbox = Gtk.Box()
-        vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
-        window.add(vbox)
-        vbox.show()
-
-        canvas.show()
-        vbox.pack_start(canvas, True, True, 0)
-        window.show()
-
-    def _get_canvas(self, fig):
-        return self.canvas.__class__(fig)
+    def set_navigation_cursor(self, navigation, cursor):
+        navigation.canvas.get_property("window").set_cursor(cursord[cursor])
 
 
 class FileChooserDialog(Gtk.FileChooserDialog):
@@ -699,165 +777,750 @@ class FileChooserDialog(Gtk.FileChooserDialog):
 
         return filename, self.ext
 
-class DialogLineprops:
-    """
-    A GUI dialog for controlling lineprops
-    """
-    signals = (
-        'on_combobox_lineprops_changed',
-        'on_combobox_linestyle_changed',
-        'on_combobox_marker_changed',
-        'on_colorbutton_linestyle_color_set',
-        'on_colorbutton_markerface_color_set',
-        'on_dialog_lineprops_okbutton_clicked',
-        'on_dialog_lineprops_cancelbutton_clicked',
-        )
 
-    linestyles = [ls for ls in lines.Line2D.lineStyles if ls.strip()]
-    linestyled = dict([ (s,i) for i,s in enumerate(linestyles)])
+class ConfigureSubplotsGTK3(ToolBase):
+    register = True
+    
+    def init_tool(self):
+        self.window = Gtk.Window()
+        
+        try:
+            self.window.set_icon_from_file(window_icon)
+        except (SystemExit, KeyboardInterrupt):
+            # re-raise exit type Exceptions
+            raise
+        except:
+            # we presumably already logged a message on the
+            # failure of the main plot, don't keep reporting
+            pass
+        self.window.set_title("Subplot Configuration Tool")
+        self.vbox = Gtk.Box()
+        self.vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
+        self.window.add(self.vbox)
+        self.vbox.show()
+        self.window.connect('destroy', self.destroy)
 
+    def reset(self, *args):
+        children = self.vbox.get_children()
+        for child in children:
+            self.vbox.remove(child)
+        del children
 
-    markers =  [m for m in lines.Line2D.markers if cbook.is_string_like(m)]
+    def set_figures(self, *figures):
+        self.reset()
+        figure = figures[0]
+        toolfig = Figure(figsize=(6, 3))
+        canvas = figure.canvas.__class__(toolfig)
 
-    markerd = dict([(s,i) for i,s in enumerate(markers)])
+        toolfig.subplots_adjust(top=0.9)
+        SubplotTool(figure, toolfig)
 
-    def __init__(self, lines):
-        import Gtk.glade
+        w = int(toolfig.bbox.width)
+        h = int(toolfig.bbox.height)
 
-        datadir = matplotlib.get_data_path()
-        gladefile = os.path.join(datadir, 'lineprops.glade')
-        if not os.path.exists(gladefile):
-            raise IOError('Could not find gladefile lineprops.glade in %s'%datadir)
+        self.window.set_default_size(w, h)
 
-        self._inited = False
-        self._updateson = True # suppress updates when setting widgets manually
-        self.wtree = Gtk.glade.XML(gladefile, 'dialog_lineprops')
-        self.wtree.signal_autoconnect(dict([(s, getattr(self, s)) for s in self.signals]))
-
-        self.dlg = self.wtree.get_widget('dialog_lineprops')
-
-        self.lines = lines
-
-        cbox = self.wtree.get_widget('combobox_lineprops')
-        cbox.set_active(0)
-        self.cbox_lineprops = cbox
-
-        cbox = self.wtree.get_widget('combobox_linestyles')
-        for ls in self.linestyles:
-            cbox.append_text(ls)
-        cbox.set_active(0)
-        self.cbox_linestyles = cbox
-
-        cbox = self.wtree.get_widget('combobox_markers')
-        for m in self.markers:
-            cbox.append_text(m)
-        cbox.set_active(0)
-        self.cbox_markers = cbox
-        self._lastcnt = 0
-        self._inited = True
-
+        canvas.show()
+        self.vbox.pack_start(canvas, True, True, 0)
+        self.window.show()
 
     def show(self):
-        'populate the combo box'
-        self._updateson = False
-        # flush the old
-        cbox = self.cbox_lineprops
-        for i in range(self._lastcnt-1,-1,-1):
-            cbox.remove_text(i)
+        self.window.present()
 
-        # add the new
-        for line in self.lines:
-            cbox.append_text(line.get_label())
-        cbox.set_active(0)
 
-        self._updateson = True
-        self._lastcnt = len(self.lines)
-        self.dlg.show()
+class SaveFiguresDialogGTK3(ToolBase):
+    def set_figures(self, *figs):
+        ref_figure = figs[0]
+        self.figures = figs
+        
+        self.ref_canvas = ref_figure.canvas
+        self.current_name = self.ref_canvas.get_default_filename()
+        self.title = 'Save %d Figures' % len(figs)
 
-    def get_active_line(self):
-        'get the active line'
-        ind = self.cbox_lineprops.get_active()
-        line = self.lines[ind]
-        return line
+        if len(figs) > 1:
+            fname_end = '.' + self.ref_canvas.get_default_filetype()
+            self.current_name = self.current_name[:-len(fname_end)]
+            
+        chooser = self._get_filechooser()
+        fname, format_ = chooser.get_filename_from_user()
+        chooser.destroy()
+        if not fname:
+            return
+        self._save_figures(fname, format_)
+       
+    def _save_figures(self, basename, format_):
+        figs = self.figures
+        startpath = os.path.expanduser(rcParams.get('savefig.directory', ''))
+        if startpath == '':
+            # explicitly missing key or empty str signals to use cwd
+            rcParams['savefig.directory'] = startpath
+        else:
+            # save dir for next time
+            rcParams['savefig.directory'] = os.path.dirname(six.text_type(basename))
 
-    def get_active_linestyle(self):
-        'get the active lineinestyle'
-        ind = self.cbox_linestyles.get_active()
-        ls = self.linestyles[ind]
-        return ls
+        # Get rid of the extension including the point
+        extension = '.' + format_
+        if basename.endswith(extension):
+            basename = basename[:-len(extension)]
 
-    def get_active_marker(self):
-        'get the active lineinestyle'
-        ind = self.cbox_markers.get_active()
-        m = self.markers[ind]
-        return m
+        # In the case of multiple figures, we have to insert a
+        # "figure identifier" in the filename name
+        n = len(figs)
+        if n == 1:
+            figure_identifier = ('',)
+        else:
+            figure_identifier = [str('_%.3d' % figs[i].canvas.manager.num) for i in range(n)]
 
-    def _update(self):
-        'update the active line props from the widgets'
-        if not self._inited or not self._updateson: return
-        line = self.get_active_line()
-        ls = self.get_active_linestyle()
-        marker = self.get_active_marker()
-        line.set_linestyle(ls)
-        line.set_marker(marker)
+        for i in range(n):
+            canvas = figs[i].canvas
+            fname = str('%s%s%s' % (basename, figure_identifier[i], extension))
+            try:
+                canvas.print_figure(fname, format=format_)
+            except Exception as e:
+                error_msg_gtk(str(e), parent=canvas.manager.window)
 
-        button = self.wtree.get_widget('colorbutton_linestyle')
+    def _get_filechooser(self):
+        fc = FileChooserDialog(
+            title=self.title,
+            parent=self.ref_canvas.manager.window,
+            path=os.path.expanduser(rcParams.get('savefig.directory', '')),
+            filetypes=self.ref_canvas.get_supported_filetypes(),
+            default_filetype=self.ref_canvas.get_default_filetype())
+        fc.set_current_name(self.current_name)
+        return fc
+    
+    
+class LinesProperties(ToolBase):
+    text = 'Lines'
+    tooltip_text = 'Change line properties'
+    register = True
+    image = 'line_editor'
+    
+    _linestyle = [(k, ' '.join(v.split('_')[2:])) for k, v in lines.Line2D.lineStyles.items() if k.strip()]
+    _drawstyle = [(k, ' '.join(v.split('_')[2:])) for k, v in lines.Line2D.drawStyles.items()]
+    _marker = [(k, v) for k, v in markers.MarkerStyle.markers.items() if (k not in (None, '', ' '))]
+    
+    _pick_event = None
+    
+    def show(self):
+        self.window.show_all()
+        self.window.present()  
+        
+    def init_tool(self, pick=True):
+        self._line = None
+        self._pick = pick
+        
+        self.window = Gtk.Window(title='Line properties handler')
+        
+        try:
+            self.window.set_icon_from_file(window_icon)
+        except (SystemExit, KeyboardInterrupt):
+            # re-raise exit type Exceptions
+            raise
+        except:
+            pass
+        
+        self.window.connect('destroy', self.destroy)
+        
+        vbox = Gtk.Grid(orientation=Gtk.Orientation.VERTICAL,
+                        column_spacing=5, row_spacing=10, border_width=10)
+        
+        self._lines_store = Gtk.ListStore(int, str)
+        self.line_combo = Gtk.ComboBox.new_with_model(self._lines_store)
+        renderer_text = Gtk.CellRendererText()
+        self.line_combo.pack_start(renderer_text, True)
+        self.line_combo.add_attribute(renderer_text, "text", 1)
+        self.line_combo.connect("changed", self._on_line_changed)
+        vbox.attach(self.line_combo, 0, 0, 2, 1)
+        
+        vbox.attach_next_to(Gtk.HSeparator(), self.line_combo, Gtk.PositionType.BOTTOM, 2, 1)
+           
+        self._visible = Gtk.CheckButton()
+        self._visible.connect("toggled", self._on_visible_toggled)
+        
+        visible = Gtk.Label('Visible ')
+        vbox.add(visible)
+        vbox.attach_next_to(self._visible, visible, Gtk.PositionType.RIGHT, 1, 1)
+        
+        self.label = Gtk.Entry()
+        self.label.connect('activate', self._on_label_activate)
+        
+        label = Gtk.Label('Label')
+        vbox.add(label)
+        vbox.attach_next_to(self.label, label, Gtk.PositionType.RIGHT, 1, 1)
+   
+        vbox.attach_next_to(Gtk.HSeparator(), label, Gtk.PositionType.BOTTOM, 2, 1)
+        vbox.add(Gtk.Label('<b>Line</b>', use_markup=True))
+   
+        style = Gtk.Label('Style')
+        vbox.add(style)
+
+        drawstyle = Gtk.Label('Draw Style')
+        vbox.add(drawstyle)
+        
+        linewidth = Gtk.Label('Width')
+        vbox.add(linewidth)
+        
+        color = Gtk.Label('Color')
+        vbox.add(color)
+
+        vbox.attach_next_to(Gtk.HSeparator(), color, Gtk.PositionType.BOTTOM, 2, 1)
+        vbox.add(Gtk.Label('<b>Marker</b>', use_markup=True))
+        
+        marker = Gtk.Label('Style')
+        vbox.add(marker)
+
+        markersize = Gtk.Label('Size')
+        vbox.add(markersize)
+        
+        markerfacecolor = Gtk.Label('Face Color')
+        vbox.add(markerfacecolor)
+        
+        markeredgecolor = Gtk.Label('Edge Color')
+        vbox.add(markeredgecolor)
+        
+        for attr, pos in (('linewidth', linewidth), ('markersize', markersize)):
+            button = Gtk.SpinButton(numeric=True, digits=1)
+            adjustment = Gtk.Adjustment(0, 0, 100, 0.1, 10, 0)
+            button.set_adjustment(adjustment)
+            button.connect('value-changed', self._on_size_changed, attr)
+            vbox.attach_next_to(button, pos, Gtk.PositionType.RIGHT, 1, 1)
+            setattr(self, attr, button)
+        
+        for attr, pos in (('color', color),
+                          ('markerfacecolor', markerfacecolor),
+                          ('markeredgecolor', markeredgecolor)):
+            button = Gtk.ColorButton()
+            button.connect('color-set', self._on_color_set, attr)
+            vbox.attach_next_to(button, pos, Gtk.PositionType.RIGHT, 1, 1)
+            setattr(self, attr, button)
+        
+        for attr, pos in (('linestyle', style),
+                          ('marker', marker),
+                          ('drawstyle', drawstyle)):
+            store = Gtk.ListStore(int, str)
+            for i, v in enumerate(getattr(self, '_' + attr)):
+                store.append([i, v[1]])
+            combo = Gtk.ComboBox.new_with_model(store)
+            renderer_text = Gtk.CellRendererText()
+            combo.pack_start(renderer_text, True)
+            combo.add_attribute(renderer_text, "text", 1) 
+            combo.connect("changed", self._on_combo_changed, attr)
+            vbox.attach_next_to(combo, pos, Gtk.PositionType.RIGHT, 1, 1)
+            setattr(self, attr + '_combo', combo)
+        
+        self.window.add(vbox)
+        self.window.show_all()
+    
+    def _on_combo_changed(self, combo, attr):
+        if not self._line:
+            return
+        
+        tree_iter = combo.get_active_iter()
+        if tree_iter is None:
+            return
+        store = combo.get_model()
+        id_ = store[tree_iter][0]
+        getattr(self._line, 'set_' + attr)(getattr(self, '_' + attr)[id_][0])
+        self._redraw()
+        
+    def _on_size_changed(self, button, attr):
+        if not self._line:
+            return
+        
+        getattr(self._line, 'set_' + attr)(getattr(self, attr).get_value())
+        self._redraw()
+        
+    def _on_color_set(self, button, attr):
+        if not self._line:
+            return
+        
         color = button.get_color()
-        r, g, b = [val/65535. for val in (color.red, color.green, color.blue)]
-        line.set_color((r,g,b))
+        r, g, b = [val / 65535. for val in (color.red, color.green, color.blue)]
+        getattr(self._line, 'set_' + attr)((r, g, b))
+        self._redraw()
+    
+    def _on_label_activate(self, *args):
+        if not self._line:
+            return
+        self._line.set_label(self.label.get_text())
+        self._redraw()
+        
+    def _on_line_changed(self, combo):
+        tree_iter = combo.get_active_iter()
+        if tree_iter is None:
+            self.line = None
+            return
+        
+        id_ = self._lines_store[tree_iter][0]
+        line = self.lines[id_]
+        self._fill(line)
+        
+    def _on_visible_toggled(self, *args):
+        if self._line:
+            self._line.set_visible(self._visible.get_active())
+            self._redraw()
+    
+    def set_figures(self, *figures):
+        self._line = None
+        self.figure = figures[0]
+        self.lines = self._get_lines()
+        
+        self._lines_store.clear()
+        
+        for i, l in enumerate(self.lines):
+            self._lines_store.append([i, l.get_label()])
+            
+        if self._pick:
+            if self._pick_event:
+                self.figure.canvas.mpl_disconnect(self._pick_event)
+            self._pick_event = self.figure.canvas.mpl_connect('pick_event', self._on_pick)
+        
+    def _on_pick(self, event):
+        artist = event.artist
+        if not isinstance(artist, matplotlib.lines.Line2D):
+            return
+        
+        try:
+            i = self.lines.index(artist)
+        except ValueError:
+            return
+        self.line_combo.set_active(i)
+        
+    def _get_lines(self):
+        lines = set()
+        for ax in self.figure.get_axes():
+            for line in ax.get_lines():
+                lines.add(line)
 
-        button = self.wtree.get_widget('colorbutton_markerface')
-        color = button.get_color()
-        r, g, b = [val/65535. for val in (color.red, color.green, color.blue)]
-        line.set_markerfacecolor((r,g,b))
+        #It is easier to find the lines if they are ordered by label
+        lines = list(lines)
+        labels = [line.get_label() for line in lines]
+        a = [line for (_label, line) in sorted(zip(labels, lines))]
+        return a
 
-        line.figure.canvas.draw()
+    def _fill(self, line=None):
+        self._line = line
+        if line is None:
+            return
+        
+        self._visible.set_active(line.get_visible())
+        self.label.set_text(line.get_label())
+        
+        for attr in ('linewidth', 'markersize'):
+            getattr(self, attr).set_value(getattr(line, 'get_' + attr)())
+            
+        for attr in ('linestyle', 'marker', 'drawstyle'):
+            v = getattr(line, 'get_' + attr)()
+            for i, val in enumerate(getattr(self, '_' + attr)):
+                if val[0] == v:
+                    getattr(self, attr + '_combo').set_active(i)
+                    break
+        
+        for attr in ('color', 'markerfacecolor', 'markeredgecolor'):
+            r, g, b = colorConverter.to_rgb(getattr(line, 'get_' + attr)())
+            color = Gdk.Color(*[int(val * 65535) for val in (r, g, b)])
+            getattr(self, attr).set_color(color)
+ 
+    def _redraw(self):
+        if self._line:
+            self._line.figure.canvas.draw()
+    
+    def destroy(self, *args):
+        if self._pick_event:
+            self.figure.canvas.mpl_disconnect(self._pick_event)
+        
+        self.unregister()
+    
+    
+class AxesProperties(ToolBase):
+    """Manage the axes properties
+    
+    Subclass of `ToolBase` for axes management
+    """
+    
+    
+    text = 'Axes'
+    tooltip_text = 'Change axes properties'
+    register = True
+    image = 'axes_editor'
 
-    def on_combobox_lineprops_changed(self, item):
-        'update the widgets from the active line'
-        if not self._inited: return
-        self._updateson = False
-        line = self.get_active_line()
+    _release_event = None
+    
+    def show(self):
+        self.window.show_all()
+        self.window.present()  
+        
+    def init_tool(self, release=True):
+        self._line = None
+        self._release = release
+        
+        self.window = Gtk.Window(title='Line properties handler')
+        
+        try:
+            self.window.set_icon_from_file(window_icon)
+        except (SystemExit, KeyboardInterrupt):
+            # re-raise exit type Exceptions
+            raise
+        except:
+            pass
+        
+        self.window.connect('destroy', self.destroy)
+        
+        vbox = Gtk.Grid(orientation=Gtk.Orientation.VERTICAL,
+                        column_spacing=5, row_spacing=10, border_width=10)
+        
+        l = Gtk.Label('<b>Subplots</b>', use_markup=True)
+        vbox.add(l)
+        
+        self._subplot_store = Gtk.ListStore(int, str)
+        self._subplot_combo = Gtk.ComboBox.new_with_model(self._subplot_store)
+        renderer_text = Gtk.CellRendererText()
+        self._subplot_combo.pack_start(renderer_text, True)
+        self._subplot_combo.add_attribute(renderer_text, "text", 1)
+        self._subplot_combo.connect("changed", self._on_subplot_changed)
+        vbox.attach_next_to(self._subplot_combo, l, Gtk.PositionType.BOTTOM, 2, 1)
+        
+        vbox.attach_next_to(Gtk.HSeparator(), self._subplot_combo, Gtk.PositionType.BOTTOM, 2, 1)
+        l = Gtk.Label('<b>Axes</b>', use_markup=True)
+        vbox.add(l)
+#        vbox.attach_next_to(Gtk.HSeparator(), l, Gtk.PositionType.TOP, 2, 1)
+        
+        self._axes_store = Gtk.ListStore(int, str)
+        self._axes_combo = Gtk.ComboBox.new_with_model(self._axes_store)
+        renderer_text = Gtk.CellRendererText()
+        self._axes_combo.pack_start(renderer_text, True)
+        self._axes_combo.add_attribute(renderer_text, "text", 1)
+        self._axes_combo.connect("changed", self._on_axes_changed)
+        vbox.attach_next_to(self._axes_combo, l, Gtk.PositionType.BOTTOM, 2, 1)
 
-        ls = line.get_linestyle()
-        if ls is None: ls = 'None'
-        self.cbox_linestyles.set_active(self.linestyled[ls])
+        self._title = Gtk.Entry()
+        self._title.connect('activate', self._on_title_activate)
+        title = Gtk.Label('Title')
+        vbox.add(title)
+        vbox.attach_next_to(self._title, title, Gtk.PositionType.RIGHT, 1, 1)
+        
+        self._legend = Gtk.CheckButton()
+        self._legend.connect("toggled", self._on_legend_toggled)
+        
+        legend = Gtk.Label('Legend')
+        vbox.add(legend)
+        vbox.attach_next_to(self._legend, legend, Gtk.PositionType.RIGHT, 1, 1) 
+        
+        vbox.attach_next_to(Gtk.HSeparator(), legend, Gtk.PositionType.BOTTOM, 2, 1)
+        l = Gtk.Label('<b>X</b>', use_markup=True)
+        vbox.add(l)
+        
+        xaxis = Gtk.Label('Visible')
+        vbox.add(xaxis)   
+        
+        xlabel = Gtk.Label('Label')
+        vbox.add(xlabel)    
+        
+        xmin = Gtk.Label('Min')
+        vbox.add(xmin)    
+        
+        xmax = Gtk.Label('Max')
+        vbox.add(xmax)    
+        
+        xscale = Gtk.Label('Scale')
+        vbox.add(xscale) 
+        
+        xgrid = Gtk.Label('Grid')
+        vbox.add(xgrid) 
+        
+        vbox.attach_next_to(Gtk.HSeparator(), xgrid, Gtk.PositionType.BOTTOM, 2, 1)
+        l = Gtk.Label('<b>Y</b>', use_markup=True)
+        vbox.add(l)
+        
+        yaxis = Gtk.Label('Visible')
+        vbox.add(yaxis)  
+        
+        ylabel = Gtk.Label('Label')
+        vbox.add(ylabel)
+        
+        ymin = Gtk.Label('Min')
+        vbox.add(ymin)    
+        
+        ymax = Gtk.Label('Max')
+        vbox.add(ymax)
+        
+        yscale = Gtk.Label('Scale')
+        vbox.add(yscale) 
+        
+        ygrid = Gtk.Label('Grid')
+        vbox.add(ygrid) 
+        
+        for attr, pos in (('xaxis', xaxis), ('yaxis', yaxis)):
+            checkbox = Gtk.CheckButton()
+            checkbox.connect("toggled", self._on_axis_visible, attr)
+            vbox.attach_next_to(checkbox, pos, Gtk.PositionType.RIGHT, 1, 1)
+            setattr(self, '_' + attr, checkbox)
+        
+        for attr, pos in (('xlabel', xlabel), ('ylabel', ylabel)):
+            entry = Gtk.Entry()
+            entry.connect('activate', self._on_label_activate, attr)
+            vbox.attach_next_to(entry, pos, Gtk.PositionType.RIGHT, 1, 1)
+            setattr(self, '_' + attr, entry)
+                
+        for attr, pos in (('x_min', xmin,), ('x_max', xmax), ('y_min', ymin), ('y_max', ymax)):
+            entry = Gtk.Entry()
+            entry.connect('activate', self._on_limit_activate, attr)
+            vbox.attach_next_to(entry, pos, Gtk.PositionType.RIGHT, 1, 1)
+            setattr(self, '_' + attr, entry)
+        
+        for attr, pos in (('xscale', xscale), ('yscale', yscale)):
+            hbox = Gtk.Box(spacing=6)
+            log_ = Gtk.RadioButton.new_with_label_from_widget(None, "Log")
+            lin_ = Gtk.RadioButton.new_with_label_from_widget(log_, "Linear")
+            log_.connect("toggled", self._on_scale_toggled, attr, "log")
+            lin_.connect("toggled", self._on_scale_toggled, attr, "linear")
 
-        marker = line.get_marker()
-        if marker is None: marker = 'None'
-        self.cbox_markers.set_active(self.markerd[marker])
+            hbox.pack_start(log_, False, False, 0)
+            hbox.pack_start(lin_, False, False, 0)
+            vbox.attach_next_to(hbox, pos, Gtk.PositionType.RIGHT, 1, 1)
+            setattr(self, '_' + attr, {'log': log_, 'linear': lin_})
+            
+        for attr, pos in (('x', xgrid), ('y', ygrid)):
+            combo = Gtk.ComboBoxText()
+            for k in ('None', 'Major', 'Minor', 'Both'):
+                combo.append_text(k)
+            vbox.attach_next_to(combo, pos, Gtk.PositionType.RIGHT, 1, 1)
+            combo.connect("changed", self._on_grid_changed, attr)
+            setattr(self, '_' + attr + 'grid', combo)
+                
+        self.window.add(vbox)
+        self.window.show_all()
+    
+    def _on_grid_changed(self, combo, attr):
+        if self._ax is None:
+            return
+        
+        marker = combo.get_active_text()
+        self._ax.grid(False, axis=attr, which='both')
 
-        r,g,b = colorConverter.to_rgb(line.get_color())
-        color = Gdk.Color(*[int(val*65535) for val in (r,g,b)])
-        button = self.wtree.get_widget('colorbutton_linestyle')
-        button.set_color(color)
+        if marker != 'None':
+            self._ax.grid(False, axis=attr, which='both')
+            self._ax.grid(True, axis=attr, which=marker)
+        
+        self._redraw()
+    
+    def _on_scale_toggled(self, button, attr, scale):
+        if self._ax is None:
+            return
+        
+        getattr(self._ax, 'set_' + attr)(scale)
+        self._redraw()
+    
+    def _on_limit_activate(self, entry, attr):
+        if self._ax is None:
+            return
+        
+        direction = attr.split('_')[0]
+        min_ = getattr(self, '_' + direction + '_min').get_text()
+        max_ = getattr(self, '_' + direction + '_max').get_text()
+        
+        try:
+            min_ = float(min_)
+            max_ = float(max_)
+        except:
+            min_, max_ = getattr(self._ax, 'get_' + direction + 'lim')()
+            getattr(self, '_' + direction + '_min').set_text(str(min_))
+            getattr(self, '_' + direction + '_max').set_text(str(max_))
+            return
+        
+        getattr(self._ax, 'set_' + direction + 'lim')(min_, max_)
+        self._redraw()
+    
+    def _on_axis_visible(self, button, attr):
+        if self._ax is None:
+            return
+        
+        axis = getattr(self._ax, 'get_' + attr)()
+        axis.set_visible(getattr(self, '_' + attr).get_active())
+        self._redraw()
+        
+    def _on_label_activate(self, entry, attr):
+        if self._ax is None:
+            return
+        
+        getattr(self._ax, 'set_' + attr)(getattr(self, '_' + attr).get_text())
+        self._redraw()
+    
+    def _on_legend_toggled(self, *args):
+        if self._ax is None:
+            return
+        
+        legend = self._ax.get_legend()
+        if not legend:
+            legend = self._ax.legend(loc='best', shadow=True)
+            
+        if legend:
+            legend.set_visible(self._legend.get_active())
+        #Put the legend always draggable, 
+        #Maybe a bad idea, but fix the problem of possition
+        try:
+            legend.draggable(True)
+        except:
+            pass
+        
+        self._redraw()
+        
+    def _on_title_activate(self, *args):
+        if self._ax is None:
+            return
+        self._ax.set_title(self._title.get_text())
+        self._redraw()
+        
+    def _on_axes_changed(self, combo):
+        self._ax = None
+        if self._axes is None:
+            return
 
-        r,g,b = colorConverter.to_rgb(line.get_markerfacecolor())
-        color = Gdk.Color(*[int(val*65535) for val in (r,g,b)])
-        button = self.wtree.get_widget('colorbutton_markerface')
-        button.set_color(color)
-        self._updateson = True
+        tree_iter = combo.get_active_iter()
+        if tree_iter is None:
+            return
+        
+        id_ = self._axes_store[tree_iter][0]
+        ax = self._axes[id_]
+        
+        self._fill(ax)
+        
+    def _fill(self, ax=None):
+        if ax is None:
+            self._ax = None
+            return
+        
+        self._title.set_text(ax.get_title())
+        
+        self._legend.set_active(bool(ax.get_legend()) and ax.get_legend().get_visible())
+        
+        for attr in ('xlabel', 'ylabel'):
+            t = getattr(ax, 'get_' + attr)()
+            getattr(self, '_' + attr).set_text(t)
+            
+        for attr in ('xaxis', 'yaxis'):
+            axis = getattr(ax, 'get_' + attr)()
+            getattr(self, '_' + attr).set_active(axis.get_visible())
+            
+        for attr in ('x', 'y'):    
+            min_, max_ = getattr(ax, 'get_' + attr + 'lim')()
+            getattr(self, '_' + attr + '_min').set_text(str(min_))
+            getattr(self, '_' + attr + '_max').set_text(str(max_))      
+            
+        for attr in ('xscale', 'yscale'):
+            scale = getattr(ax, 'get_' + attr)()
+            getattr(self, '_' + attr)[scale].set_active(True) 
+        
+        for attr in ('x', 'y'):
+            axis = getattr(ax, 'get_' + attr + 'axis')()
+            if axis._gridOnMajor and not axis._gridOnMinor:
+                gridon = 'Major'
+            elif not axis._gridOnMajor and axis._gridOnMinor:
+                gridon = 'Minor'
+            elif axis._gridOnMajor and axis._gridOnMinor:
+                gridon = 'Both'
+            else:
+                gridon = 'None'
+        
+            combo = getattr(self, '_' + attr + 'grid')
+            model = combo.get_model()
+            for i in range(len(model)):
+                if model[i][0] == gridon:
+                    combo.set_active(i)
+                    break
+            self._ax = ax
+        
+    def _on_subplot_changed(self, combo):
+        self._axes = None
+        self._ax = None
+        self._axes_store.clear()
+        
+        tree_iter = combo.get_active_iter()
+        if tree_iter is None:
+            return
+        
+        id_ = self._subplot_store[tree_iter][0]
+        self._axes = self._subplots[id_][1]
+        
+        for i in range(len(self._axes)):
+            self._axes_store.append([i, 'Axes %d' % i])
+        
+        self._axes_combo.set_active(0)
+        
+    def set_figures(self, *figures):
+        self._ax = None
+        self.figure = figures[0]
+        self._subplots = self._get_subplots()
+        
+        self._subplot_store.clear()
+        
+        for i, l in enumerate(self._subplots):
+            self._subplot_store.append([i, str(l[0])])
+        
+        self._subplot_combo.set_active(0)
+       
+        if self._release:
+            if self._release_event:
+                self.figure.canvas.mpl_disconnect(self._release_event)
+            self._release_event = self.figure.canvas.mpl_connect('button_release_event', self._on_release)
+       
+    def _on_release(self, event):
+        try:
+            ax = event.inaxes.axes
+        except:
+            return
+        
+        ax_subplot = [subplot[0] for subplot in self._subplots if ax in subplot[1]][0]
+        current_subplot = [subplot[0] for subplot in self._subplots if self._ax in subplot[1]][0]
+        if ax_subplot == current_subplot:
+            return
+        
+        for i, subplot in enumerate(self._subplots):
+            if subplot[0] == ax_subplot:
+                self._subplot_combo.set_active(i)
+                break
+       
+    def _get_subplots(self): 
+        axes = {}
+        alone = []
+        rem = []
+        for ax in self.figure.get_axes():
+            try:
+                axes.setdefault(ax.get_geometry(), []).append(ax)
+            except AttributeError:
+                alone.append(ax)
+        
+        #try to find if share something with one of the axes with geometry
+        for ax in alone:
+            for ax2 in [i for sl in axes.values() for i in sl]:
+                if ((ax in ax2.get_shared_x_axes().get_siblings(ax2)) or 
+                    (ax in ax2.get_shared_y_axes().get_siblings(ax2))):
+                    axes[ax2.get_geometry()].append(ax)
+                    rem.append(ax)
+        
+        for ax in rem:
+            alone.remove(ax)
+            
+        for i, ax in enumerate(alone):
+            axes[i] = [ax, ]
 
-    def on_combobox_linestyle_changed(self, item):
-        self._update()
+        return [(k, axes[k]) for k in sorted(axes.keys())]
+#        return axes
+        
+    def destroy(self, *args):
+        if self._release_event:
+            self.figure.canvas.mpl_disconnect(self._release_event)
+        
+        self.unregister()
 
-    def on_combobox_marker_changed(self, item):
-        self._update()
+    def _redraw(self):
+        if self._ax:
+            self._ax.figure.canvas.draw()
 
-    def on_colorbutton_linestyle_color_set(self, button):
-        self._update()
-
-    def on_colorbutton_markerface_color_set(self, button):
-        'called colorbutton marker clicked'
-        self._update()
-
-    def on_dialog_lineprops_okbutton_clicked(self, button):
-        self._update()
-        self.dlg.hide()
-
-    def on_dialog_lineprops_cancelbutton_clicked(self, button):
-        self.dlg.hide()
-
+    
+    
+    
 
 # Define the file to use as the GTk icon
 if sys.platform == 'win32':

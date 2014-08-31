@@ -7,6 +7,8 @@ from . import backend_gtk3
 from . import backend_cairo
 from .backend_cairo import cairo, HAS_CAIRO_CFFI
 from matplotlib.figure import Figure
+from matplotlib import rcParams
+
 
 class RendererGTK3Cairo(backend_cairo.RendererCairo):
     def set_context(self, ctx):
@@ -30,8 +32,8 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
         self._renderer = RendererGTK3Cairo(self.figure.dpi)
 
     def _render_figure(self, width, height):
-        self._renderer.set_width_height (width, height)
-        self.figure.draw (self._renderer)
+        self._renderer.set_width_height(width, height)
+        self.figure.draw(self._renderer)
 
     def on_draw_event(self, widget, ctx):
         """ GtkDrawable draw event, like expose_event in GTK 2.X
@@ -41,7 +43,8 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
         #if self._need_redraw:
         self._renderer.set_context(ctx)
         allocation = self.get_allocation()
-        x, y, w, h = allocation.x, allocation.y, allocation.width, allocation.height
+        x, y = allocation.x, allocation.y
+        w, h = allocation.width, allocation.height
         self._render_figure(w, h)
         #self._need_redraw = False
 
@@ -57,16 +60,17 @@ def new_figure_manager(num, *args, **kwargs):
     Create a new figure manager instance
     """
     FigureClass = kwargs.pop('FigureClass', Figure)
+    parent = kwargs.pop('parent', rcParams['backend.single_window'])
     thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
+    return new_figure_manager_given_figure(num, thisFig, parent)
 
 
-def new_figure_manager_given_figure(num, figure):
+def new_figure_manager_given_figure(num, figure, parent):
     """
     Create a new figure manager instance for the given figure.
     """
     canvas = FigureCanvasGTK3Cairo(figure)
-    manager = FigureManagerGTK3Cairo(canvas, num)
+    manager = FigureManagerGTK3Cairo(canvas, num, parent)
     return manager
 
 

@@ -478,7 +478,7 @@ class ValidateInterval:
 # a map from key -> value, converter
 defaultParams = {
     'backend':           ['Agg', validate_backend],  # agg is certainly
-                                                      # present
+    'backend.single_window': [False, validate_bool],                                                 # present
     'backend_fallback':  [True, validate_bool],  # agg is certainly present
     'backend.qt4':       ['PyQt4', validate_qt4],
     'backend.qt5':       ['PyQt5', validate_qt5],
