@@ -1906,7 +1906,9 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
     Non-bootstrapping approach to confidence interval uses Gaussian-based
     asymptotic approximation:
 
-    .. math:: \mathrm{med} \pm 1.57 \times \frac{\mathrm{iqr}}{\sqrt{N}}
+    .. math::
+
+        \mathrm{med} \pm 1.57 \\times \\frac{\mathrm{iqr}}{\sqrt{N}}
 
     General approach from:
     McGill, R., Tukey, J.W., and Larsen, W.A. (1978) "Variations of
