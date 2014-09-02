@@ -27,8 +27,8 @@ class Triangulation(object):
 
     Attributes
     ----------
-    edges
-    neighbors
+    `edges`
+    `neighbors`
     is_delaunay : bool
         Whether the Triangulation is a calculated Delaunay
         triangulation (where `triangles` was not specified) or not.
