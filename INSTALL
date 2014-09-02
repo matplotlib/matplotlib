@@ -247,6 +247,12 @@ Optional dependencies
     freetype 2.3 available, please edit L945 of `setupext.py` to reduce
     `min_version` to 2.3.
 
+`pytz`
+    Required if you want to manipulate datetime objects which are time-zone
+    aware.  An exception will be raised if you try to make time-zone aware
+    plots with out `pytz` installed.  It will become a required dependency
+    in 1.4.1.
+
 
 Required libraries that ship with matplotlib
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
