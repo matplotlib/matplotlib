@@ -116,7 +116,7 @@ MplDataCursor
 toolkit written by Joe Kington to provide interactive "data cursors"
 (clickable annotation boxes) for matplotlib.
 
-.. _prettyplotlib:
+.. _toolkit_prettyplotlib:
 
 prettyplotlib
 =============
@@ -133,7 +133,7 @@ High-Level Plotting
 Several projects have started to provide a higher-level interface to
 matplotlib.  These are independent projects.
 
-.. _seaborn:
+.. _toolkit_seaborn:
 
 seaborn
 =======
@@ -144,7 +144,7 @@ level interface for drawing statistical graphics with matplotlib. It
 aims to make visualization a central part of exploring and
 understanding complex datasets.
 
-.. _ggplot:
+.. _toolkit_ggplot:
 
 ggplot
 ======
