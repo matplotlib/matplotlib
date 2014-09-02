@@ -7,6 +7,7 @@
 #ifndef __BACKEND_AGG_H
 #define __BACKEND_AGG_H
 #include <utility>
+#include <climits>
 #include "CXX/Extensions.hxx"
 
 #include "agg_arrowhead.h"
