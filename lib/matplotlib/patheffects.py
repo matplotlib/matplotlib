@@ -227,7 +227,7 @@ class SimplePatchShadow(AbstractPathEffect):
         ----------
         offset : pair of floats
             The offset of the shadow in points.
-        shadow_rgbFace : :ref:`color <mpl-color-spec>`
+        shadow_rgbFace : color
             The shadow color.
         alpha : float
             The alpha transparency of the created shadow patch.
@@ -320,7 +320,7 @@ class SimpleLineShadow(AbstractPathEffect):
         ----------
         offset : pair of floats
             The offset to apply to the path, in points.
-        shadow_color : :ref:`color <mpl-color-spec>`
+        shadow_color : color
             The shadow color. Default is black.
             A value of ``None`` takes the original artist's color
             with a scale factor of `rho`.
