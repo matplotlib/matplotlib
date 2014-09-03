@@ -3,13 +3,11 @@ Show what matplotlib colormaps look like in grayscale.
 Uses lightness L* as a proxy for grayscale value.
 '''
 
-from skimage import io, color
+from skimage import color
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import matplotlib as mpl
-import pdb
-from scipy.optimize import curve_fit
 
 mpl.rcParams.update({'font.size': 14})
 mpl.rcParams['font.sans-serif'] = 'Arev Sans, Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Helvetica, Avant Garde, sans-serif'
@@ -40,7 +38,7 @@ cmaps = [('Sequential',     ['binary', 'Blues', 'BuGn', 'BuPu', 'gist_yarg',
                              'gnuplot', 'gnuplot2', 'ocean', 'rainbow',
                              'terrain', 'flag', 'prism'])]
 
-# indices to step through colormap        
+# indices to step through colormap
 x = np.linspace(0.0, 1.0, 100)
 
 nrows = max(len(cmap_list) for cmap_category, cmap_list in cmaps)
@@ -78,4 +76,3 @@ def plot_color_gradients(cmap_category, cmap_list):
 for cmap_category, cmap_list in cmaps:
 
     plot_color_gradients(cmap_category, cmap_list)
-

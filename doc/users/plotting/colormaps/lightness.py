@@ -2,13 +2,11 @@
 For each colormap, plot the lightness parameter L* from CIELAB colorspace along the y axis vs index through the colormap. Colormaps are examined in categories as in the original matplotlib gallery of colormaps.
 '''
 
-from skimage import io, color
+from skimage import color
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import matplotlib as mpl
-import pdb
-from scipy.optimize import curve_fit
 
 mpl.rcParams.update({'font.size': 14})
 mpl.rcParams['font.sans-serif'] = 'Arev Sans, Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Helvetica, Avant Garde, sans-serif'
@@ -39,7 +37,7 @@ cmaps = [('Sequential',     ['binary', 'Blues', 'BuGn', 'BuPu', 'gist_yarg',
                              'gnuplot', 'gnuplot2', 'ocean', 'rainbow',
                              'terrain', 'flag', 'prism'])]
 
-# indices to step through colormap        
+# indices to step through colormap
 x = np.linspace(0.0, 1.0, 100)
 
 # Do plot
@@ -49,9 +47,9 @@ for cmap_category, cmap_list in cmaps:
     dsub = 5 # number of colormaps per subplot
     if cmap_category == 'Diverging': # because has 13 colormaps
         dsub = 6
-    elif cmap_category == 'Sequential2': 
+    elif cmap_category == 'Sequential2':
         dsub = 7
-    elif cmap_category == 'Sequential': 
+    elif cmap_category == 'Sequential':
         dsub = 7
     nsubplots = int(np.ceil(len(cmap_list)/float(dsub)))
 
@@ -63,7 +61,7 @@ for cmap_category, cmap_list in cmaps:
 
         ax = fig.add_subplot(nsubplots, 1, i+1)
         # pdb.set_trace()
-        
+
         for j, cmap in enumerate(cmap_list[i*dsub:(i+1)*dsub]):
 
             # Get rgb values for colormap
@@ -113,7 +111,7 @@ for cmap_category, cmap_list in cmaps:
                 ax.scatter(x+j*dc, lab[0,:,0], c=x, cmap=cmap, s=300, linewidths=0.)
                 ax.axis([-0.1,6.1,0,100])
                 locs.append(x[int(x.size/2.)]+j*dc) # store locations for colormap labels
-        
+
             # Set up labels for colormaps
             ax.xaxis.set_ticks_position('top')
             ticker = mpl.ticker.FixedLocator(locs)
