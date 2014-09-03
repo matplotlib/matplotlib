@@ -30,7 +30,7 @@ Plots data on map projections, with continental and political
 boundaries, see `basemap <http://matplotlib.org/basemap>`_
 docs.
 
-.. image:: http://matplotlib.org/basemap/_images/contour1.png
+.. image:: /_static/basemap_contour1.png
     :height: 400px
 
 
@@ -46,7 +46,7 @@ integration with Shapely for powerful yet easy-to-use vector data processing
 tools. An example plot from the
 `Cartopy gallery <http://scitools.org.uk/cartopy/docs/latest/gallery.html>`_:
 
-.. image:: http://scitools.org.uk/cartopy/docs/latest/_images/hurricane_katrina_01_00.png
+.. image:: /_static/cartopy_hurricane_katrina_01_00.png
     :height: 400px
 
 
