@@ -18,5 +18,6 @@ Advanced Guide
     event_handling.rst
     transforms_tutorial.rst
     path_tutorial.rst
+    patheffects_guide.rst
     recipes.rst
 
