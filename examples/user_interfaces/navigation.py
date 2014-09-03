@@ -54,6 +54,6 @@ if matplotlib.rcParams['backend'] == 'GTK3Cairo':
     fig.canvas.manager.navigation.add_tool('copy', CopyToolGTK3)
  
 # Just for fun, lets remove the back button
-fig.canvas.manager.navigation.remove_tool('Back')
+# fig.canvas.manager.navigation.remove_tool('Back')
 
 plt.show()

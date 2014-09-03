@@ -5,11 +5,8 @@ These tools are used by `NavigationBase`
 :class:`ToolBase`
     Simple tool that gets instantiated every time it is used
 
-:class:`ToolPersistentBase`
-    Tool whose instance gets registered within `Navigation`
-
 :class:`ToolToggleBase`
-    PersistentTool that has two states, only one Toggle tool can be
+    Tool that has two states, only one Toggle tool can be
     active at any given time for the same `Navigation`
 """
 
@@ -65,11 +62,11 @@ class ToolBase(object):
     cursor = None
     """Cursor to use when the tool is active"""
 
-    def __init__(self, figure, event=None):
+    def __init__(self, figure, name, event=None):
+        self._name = name
         self.figure = None
         self.navigation = None
         self.set_figure(figure)
-        self.trigger(event)
 
     def trigger(self, event):
         """Called when this tool gets used
@@ -95,27 +92,6 @@ class ToolBase(object):
         self.figure = figure
         self.navigation = figure.canvas.manager.navigation
 
-
-class ToolPersistentBase(ToolBase):
-    """Persistent tool
-
-    Persistent Tools are kept alive after their initialization,
-    a reference of the instance is kept by `navigation`.
-
-    Notes
-    -----
-    The difference with `ToolBase` is that `trigger` method
-    is not called automatically at initialization
-    """
-
-    def __init__(self, figure, name, event=None):
-        self._name = name
-        self.figure = None
-        self.navigation = None
-        self.set_figure(figure)
-        # persistent tools don't call trigger a at instantiation
-        # it will be called by Navigation
-
     def unregister(self, *args):
         """Unregister the tool from the instances of Navigation
 
@@ -129,11 +105,17 @@ class ToolPersistentBase(ToolBase):
         # call this to unregister from navigation
         self.navigation.unregister(self._name)
 
+    @property
+    def name(self):
+        return self._name
 
-class ToolToggleBase(ToolPersistentBase):
+    def destroy(self):
+        pass
+
+
+class ToolToggleBase(ToolBase):
     """Toggleable tool
 
-    This tool is a Persistent Tool that has a toggled state.
     Every time it is triggered, it switches between enable and disable
     """
 
@@ -286,12 +268,8 @@ class ToolToggleXScale(ToolBase):
             ax.figure.canvas.draw()
 
 
-class ViewsPositionsMixin(object):
-    """Mixin to handle changes in views and positions
-
-    Tools that change the views and positions, use this mixin to
-    keep track of the changes.
-    """
+class ViewsPositions(object):
+    """Auxiliary class to handle changes in views and positions"""
 
     views = WeakKeyDictionary()
     """Record of views with Figure objects as keys"""
@@ -299,22 +277,17 @@ class ViewsPositionsMixin(object):
     positions = WeakKeyDictionary()
     """Record of positions with Figure objects as keys"""
 
-    def init_vp(self):
-        """Add a figure to the list of figures handled by this mixin
-
-        To handle the views and positions for a given figure, this method
-        has to be called at least once before any other method.
-
-        The best way to call it is during the set_figure method of the tools
-        """
-        if self.figure not in self.views:
-            self.views[self.figure] = cbook.Stack()
-            self.positions[self.figure] = cbook.Stack()
+    @classmethod
+    def add_figure(cls, figure):
+        """Add a figure to the list of figures handled by this class"""
+        if figure not in cls.views:
+            cls.views[figure] = cbook.Stack()
+            cls.positions[figure] = cbook.Stack()
             # Define Home
-            self.push_current()
+            cls.push_current(figure)
             # Adding the clear method as axobserver, removes this burden from
             # the backend
-            self.figure.add_axobserver(self.clear)
+            figure.add_axobserver(cls.clear)
 
     @classmethod
     def clear(cls, figure):
@@ -323,18 +296,19 @@ class ViewsPositionsMixin(object):
             cls.views[figure].clear()
             cls.positions[figure].clear()
 
-    def update_view(self):
+    @classmethod
+    def update_view(cls, figure):
         """Update the viewlim and position from the view and
         position stack for each axes
         """
 
-        lims = self.views[self.figure]()
+        lims = cls.views[figure]()
         if lims is None:
             return
-        pos = self.positions[self.figure]()
+        pos = cls.positions[figure]()
         if pos is None:
             return
-        for i, a in enumerate(self.figure.get_axes()):
+        for i, a in enumerate(figure.get_axes()):
             xmin, xmax, ymin, ymax = lims[i]
             a.set_xlim((xmin, xmax))
             a.set_ylim((ymin, ymax))
@@ -342,14 +316,15 @@ class ViewsPositionsMixin(object):
             a.set_position(pos[i][0], 'original')
             a.set_position(pos[i][1], 'active')
 
-        self.figure.canvas.draw_idle()
+        figure.canvas.draw_idle()
 
-    def push_current(self):
+    @classmethod
+    def push_current(cls, figure):
         """push the current view limits and position onto the stack"""
 
         lims = []
         pos = []
-        for a in self.figure.get_axes():
+        for a in figure.get_axes():
             xmin, xmax = a.get_xlim()
             ymin, ymax = a.get_ylim()
             lims.append((xmin, xmax, ymin, ymax))
@@ -357,12 +332,13 @@ class ViewsPositionsMixin(object):
             pos.append((
                 a.get_position(True).frozen(),
                 a.get_position().frozen()))
-        self.views[self.figure].push(lims)
-        self.positions[self.figure].push(pos)
+        cls.views[figure].push(lims)
+        cls.positions[figure].push(pos)
 
-    def refresh_locators(self):
+    @classmethod
+    def refresh_locators(cls, figure):
         """Redraw the canvases, update the locators"""
-        for a in self.figure.get_axes():
+        for a in figure.get_axes():
             xaxis = getattr(a, 'xaxis', None)
             yaxis = getattr(a, 'yaxis', None)
             zaxis = getattr(a, 'zaxis', None)
@@ -379,33 +355,37 @@ class ViewsPositionsMixin(object):
 
             for loc in locators:
                 loc.refresh()
-        self.figure.canvas.draw_idle()
+        figure.canvas.draw_idle()
 
-    def home(self):
-        self.views[self.figure].home()
-        self.positions[self.figure].home()
+    @classmethod
+    def home(cls, figure):
+        cls.views[figure].home()
+        cls.positions[figure].home()
 
-    def back(self):
-        self.views[self.figure].back()
-        self.positions[self.figure].back()
+    @classmethod
+    def back(cls, figure):
+        cls.views[figure].back()
+        cls.positions[figure].back()
 
-    def forward(self):
-        self.views[self.figure].forward()
-        self.positions[self.figure].forward()
+    @classmethod
+    def forward(cls, figure):
+        cls.views[figure].forward()
+        cls.positions[figure].forward()
 
 
-class ViewsPositionsBase(ViewsPositionsMixin, ToolBase):
+class ViewsPositionsBase(ToolBase):
     # Simple base to avoid repeating code on Home, Back and Forward
     # Not of much use for other tools, so not documented
     _on_trigger = None
 
-    def set_figure(self, *args):
-        ToolBase.set_figure(self, *args)
-        self.init_vp()
+    def __init__(self, *args, **kwargs):
+        ToolBase.__init__(self, *args, **kwargs)
+        self.viewspos = ViewsPositions()
 
     def trigger(self, *args):
-        getattr(self, self._on_trigger)()
-        self.update_view()
+        self.viewspos.add_figure(self.figure)
+        getattr(self.viewspos, self._on_trigger)(self.figure)
+        self.viewspos.update_view(self.figure)
 
 
 class ToolHome(ViewsPositionsBase):
@@ -435,7 +415,7 @@ class ToolForward(ViewsPositionsBase):
     _on_trigger = 'forward'
 
 
-class ConfigureSubplotsBase(ToolPersistentBase):
+class ConfigureSubplotsBase(ToolBase):
     """Base tool for the configuration of subplots"""
 
     description = 'Configure subplots'
@@ -450,16 +430,16 @@ class SaveFigureBase(ToolBase):
     keymap = rcParams['keymap.save']
 
 
-class ZoomPanBase(ViewsPositionsMixin, ToolToggleBase):
+class ZoomPanBase(ToolToggleBase):
     # Base class to group common functionality between zoom and pan
     # Not of much use for other tools, so not documented
     def __init__(self, *args):
         ToolToggleBase.__init__(self, *args)
-        self.init_vp()
         self._button_pressed = None
         self._xypress = None
         self._idPress = None
         self._idRelease = None
+        self.viewspos = ViewsPositions()
 
     def enable(self, event):
         self.figure.canvas.widgetlock(self)
@@ -473,6 +453,10 @@ class ZoomPanBase(ViewsPositionsMixin, ToolToggleBase):
         self.figure.canvas.widgetlock.release(self)
         self.figure.canvas.mpl_disconnect(self._idPress)
         self.figure.canvas.mpl_disconnect(self._idRelease)
+
+    def trigger(self, *args):
+        self.viewspos.add_figure(self.figure)
+        ToolToggleBase.trigger(self, *args)
 
 
 class ToolZoom(ZoomPanBase):
@@ -491,7 +475,7 @@ class ToolZoom(ZoomPanBase):
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)
         self.navigation.remove_rubberband(None, self)
-        self.refresh_locators()
+        self.viewspos.refresh_locators(self.figure)
         self._xypress = None
         self._button_pressed = None
         self._ids_zoom = []
@@ -680,7 +664,7 @@ class ToolZoom(ZoomPanBase):
                     a.set_ylim((ry1, ry2))
 
         self._zoom_mode = None
-        self.push_current()
+        self.viewspos.push_current(self.figure)
         self._cancel_action()
 
 
@@ -701,8 +685,7 @@ class ToolPan(ZoomPanBase):
         self._xypress = []
         self.figure.canvas.mpl_disconnect(self._idDrag)
         self.navigation.messagelock.release(self)
-#         self.navigation.draw()
-        self.refresh_locators()
+        self.viewspos.refresh_locators(self.figure)
 
     def _press(self, event):
         if event.button == 1:
@@ -739,8 +722,7 @@ class ToolPan(ZoomPanBase):
             self._cancel_action()
             return
 
-#         self.navigation.push_current()
-        self.push_current()
+        self.viewspos.push_current(self.figure)
         self._cancel_action()
 
     def _mouse_move(self, event):

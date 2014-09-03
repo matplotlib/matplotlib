@@ -1049,6 +1049,16 @@ class SaveFigureTk(SaveFigureBase):
 class ConfigureSubplotsTk(ConfigureSubplotsBase):
     def __init__(self, *args, **kwargs):
         ConfigureSubplotsBase.__init__(self, *args, **kwargs)
+        self.window = None
+
+    def trigger(self, event):
+        self.init_window()
+        self.window.lift()
+
+    def init_window(self):
+        if self.window:
+            return
+
         toolfig = Figure(figsize=(6, 3))
         self.window = Tk.Tk()
 
@@ -1059,12 +1069,9 @@ class ConfigureSubplotsTk(ConfigureSubplotsBase):
         canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
         self.window.protocol("WM_DELETE_WINDOW", self.destroy)
 
-    def trigger(self, event):
-        self.window.lift()
-
     def destroy(self, *args, **kwargs):
-        self.unregister()
         self.window.destroy()
+        self.window = None
 
 
 SaveFigure = SaveFigureTk

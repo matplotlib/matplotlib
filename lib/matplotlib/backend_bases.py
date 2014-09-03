@@ -3212,7 +3212,6 @@ class NavigationBase(object):
 
         self._tools = {}
         self._keys = {}
-        self._instances = {}
         self._toggled = None
 
         # to process keypress event
@@ -3230,15 +3229,6 @@ class NavigationBase(object):
         """
 
         return self._toggled
-
-    @property
-    def instances(self):
-        """Active tools instances
-
-        **dictionary** : Contains the active instances that are registered
-        """
-
-        return self._instances
 
     def get_tool_keymap(self, name):
         """Get the keymap associated with a tool
@@ -3281,28 +3271,19 @@ class NavigationBase(object):
                 self._keys[k] = name
 
     def unregister(self, name):
-        """Unregister the tool from the active instances
+        """Unregister the tool from Navigation
 
         Parameters
         ----------
         name : string
             Name of the tool to unregister
-
-        Notes
-        -----
-        This method is used by `PersistentTools` to remove the reference kept
-        by `Navigation`.
-
-        It is usually called by the `unregister` method
-
-        If called, next time the `Tool` is used it will be reinstantiated
-        instead of using the existing instance.
         """
 
         if self._toggled == name:
             self._handle_toggle(name, from_toolbar=False)
-        if name in self._instances:
-            del self._instances[name]
+        if name in self._tools:
+            self._tools[name].destroy()
+            del self._tools[name]
 
     def remove_tool(self, name):
         """Remove tool from the `Navigation`
@@ -3314,7 +3295,7 @@ class NavigationBase(object):
         """
 
         self.unregister(name)
-        del self._tools[name]
+
         keys = [k for k, v in six.iteritems(self._keys) if v == name]
         for k in keys:
             del self._keys[k]
@@ -3361,7 +3342,7 @@ class NavigationBase(object):
                           'not added')
             return
 
-        self._tools[name] = tool_cls
+        self._tools[name] = tool_cls(self.canvas.figure, name)
         if tool_cls.keymap is not None:
             self.set_tool_keymap(name, tool_cls.keymap)
 
@@ -3394,27 +3375,23 @@ class NavigationBase(object):
 
         return callback_class
 
-    def trigger_tool(self, name):
+    def trigger_tool(self, name, event=None):
         """Trigger on a tool
 
         Method to programatically "click" on Tools
         """
 
-        self._trigger_tool(name, None, False)
+        self._trigger_tool(name, event, False)
 
     def _trigger_tool(self, name, event, from_toolbar):
         if name not in self._tools:
             raise AttributeError('%s not in Tools' % name)
 
         tool = self._tools[name]
-        if issubclass(tool, tools.ToolToggleBase):
+        if isinstance(tool, tools.ToolToggleBase):
             self._handle_toggle(name, event=event, from_toolbar=from_toolbar)
-        elif issubclass(tool, tools.ToolPersistentBase):
-            instance = self._get_instance(name)
-            instance.trigger(event)
         else:
-            # Non persistent tools, are instantiated and forgotten
-            tool(self.canvas.figure, event)
+            tool.trigger(event)
 
     def _key_press(self, event):
         if event.key is None or self.keypresslock.locked():
@@ -3424,14 +3401,6 @@ class NavigationBase(object):
         if name is None:
             return
         self._trigger_tool(name, event, False)
-
-    def _get_instance(self, name):
-        if name not in self._instances:
-            instance = self._tools[name](self.canvas.figure, name)
-            # register instance
-            self._instances[name] = instance
-
-        return self._instances[name]
 
     def _toolbar_callback(self, name):
         """Callback for the `Toolbar`
@@ -3453,7 +3422,7 @@ class NavigationBase(object):
         if not from_toolbar and self.toolbar:
             self.toolbar._toggle(name, False)
 
-        instance = self._get_instance(name)
+        tool = self._tools[name]
         if self._toggled is None:
             # first trigger of tool
             self._toggled = name
@@ -3465,10 +3434,10 @@ class NavigationBase(object):
             if self.toolbar:
                 # untoggle the previous toggled tool
                 self.toolbar._toggle(self._toggled, False)
-            self._get_instance(self._toggled).trigger(event)
+            self._tools[self._toggled].trigger(event)
             self._toggled = name
 
-        instance.trigger(event)
+        tool.trigger(event)
 
         for a in self.canvas.figure.get_axes():
             a.set_navigate_mode(self._toggled)
@@ -3492,7 +3461,7 @@ class NavigationBase(object):
                 self._last_cursor = self._default_cursor
         else:
             if self._toggled:
-                cursor = self._instances[self._toggled].cursor
+                cursor = self._tools[self._toggled].cursor
                 if cursor and self._last_cursor != cursor:
                     self.set_cursor(cursor)
                     self._last_cursor = cursor
