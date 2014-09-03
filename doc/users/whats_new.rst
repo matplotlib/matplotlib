@@ -317,6 +317,14 @@ Backwards compatibility for Qt4 is maintained by wrapping the Qt5 implementation
 
 The Qt5Agg backend currently does not work with IPython's %matplotlib magic.
 
+The 1.4.0 release has a known bug where the toolbar is broken.  This can be
+fixed by: ::
+
+   cd path/to/installed/matplotlib
+   wget https://github.com/matplotlib/matplotlib/pull/3322.diff
+   # unix2dos 3322.diff (if on windows to fix line endings)
+   patch -p2 < 3322.diff
+
 Qt4 backend
 ```````````
 Rudolf Höfler changed the appearance of the subplottool. All sliders are
