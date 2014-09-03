@@ -317,6 +317,7 @@ backend      : %(backend)s
 #legend.shadow        : False
 #legend.frameon       : True   # whether or not to draw a frame around legend
 #legend.scatterpoints : 3 # number of scatter points
+#legend.framealpha    : 1.0    # the alpha channel of the frame
 
 ### FIGURE
 # See http://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
