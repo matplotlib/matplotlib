@@ -1,4 +1,4 @@
-.. _users-guide-index:
+.. _advanced-guide-index:
 
 ###############
 Advanced Guide
