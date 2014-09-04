@@ -715,7 +715,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             filters.append(filter)
         filters = ';;'.join(filters)
 
-        fname = _getSaveFileName(self.parent, "Choose a filename to save to",
+        fname, filter = _getSaveFileName(self.parent, "Choose a filename to save to",
                                  start, filters, selectedFilter)
         if fname:
             if startpath == '':
