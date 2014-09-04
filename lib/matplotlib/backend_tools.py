@@ -92,19 +92,6 @@ class ToolBase(object):
         self.figure = figure
         self.navigation = figure.canvas.manager.navigation
 
-    def unregister(self, *args):
-        """Unregister the tool from the instances of Navigation
-
-        It is usually called by during destroy if it is a
-        graphical Tool.
-
-        If the reference in navigation was the last reference
-        to the instance of the tool, it will be garbage collected
-        """
-
-        # call this to unregister from navigation
-        self.navigation.unregister(self._name)
-
     @property
     def name(self):
         return self._name
