@@ -3246,6 +3246,11 @@ class NavigationBase(object):
         keys = [k for k, i in six.iteritems(self._keys) if i == name]
         return keys
 
+    def _remove_keys(self, name):
+        keys = [k for k, v in six.iteritems(self._keys) if v == name]
+        for k in keys:
+            del self._keys[k]
+
     def set_tool_keymap(self, name, *keys):
         """Set the keymap associated with a tool
 
@@ -3259,9 +3264,7 @@ class NavigationBase(object):
         if name not in self._tools:
             raise AttributeError('%s not in Tools' % name)
 
-        active_keys = [k for k, i in six.iteritems(self._keys) if i == name]
-        for k in active_keys:
-            del self._keys[k]
+        self._remove_keys(name)
 
         for key in keys:
             for k in validate_stringlist(key):
@@ -3269,21 +3272,6 @@ class NavigationBase(object):
                     warnings.warn('Key %s changed from %s to %s' %
                                   (k, self._keys[k], name))
                 self._keys[k] = name
-
-    def unregister(self, name):
-        """Unregister the tool from Navigation
-
-        Parameters
-        ----------
-        name : string
-            Name of the tool to unregister
-        """
-
-        if self._toggled == name:
-            self._handle_toggle(name, from_toolbar=False)
-        if name in self._tools:
-            self._tools[name].destroy()
-            del self._tools[name]
 
     def remove_tool(self, name):
         """Remove tool from the `Navigation`
@@ -3294,14 +3282,18 @@ class NavigationBase(object):
             Name of the Tool
         """
 
-        self.unregister(name)
+        tool = self._tools[name]
+        tool.destroy()
 
-        keys = [k for k, v in six.iteritems(self._keys) if v == name]
-        for k in keys:
-            del self._keys[k]
+        if self._toggled == name:
+            self._handle_toggle(name, from_toolbar=False)
 
-        if self.toolbar:
+        self._remove_keys(name)
+
+        if self.toolbar and tool.intoolbar:
             self.toolbar._remove_toolitem(name)
+
+        del self._tools[name]
 
     def add_tools(self, tools):
         """ Add multiple tools to `Navigation`
@@ -3449,7 +3441,7 @@ class NavigationBase(object):
         for name in sorted(self._tools.keys()):
             tool = self._tools[name]
             keys = [k for k, i in six.iteritems(self._keys) if i == name]
-            d[name] = {'cls': tool,
+            d[name] = {'obj': tool,
                        'description': tool.description,
                        'keymap': keys}
         return d
