@@ -237,6 +237,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     stop_event_loop.__doc__ = \
         backend_bases.FigureCanvasBase.stop_event_loop_default.__doc__
 
+
 _JQUERY_ICON_CLASSES = {
     'home': 'ui-icon ui-icon-home',
     'back': 'ui-icon ui-icon-circle-arrow-w',
@@ -247,10 +248,11 @@ _JQUERY_ICON_CLASSES = {
     None: None,
 }
 
+
 class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
 
     # Use the standard toolbar items + download button
-    toolitems = [(text, tooltip_text, _jquery_icon_classes[image_file],
+    toolitems = [(text, tooltip_text, _JQUERY_ICON_CLASSES[image_file],
                   name_of_method)
                  for text, tooltip_text, image_file, name_of_method
                  in (backend_bases.NavigationToolbar2.toolitems +

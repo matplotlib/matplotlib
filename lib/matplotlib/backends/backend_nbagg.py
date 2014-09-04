@@ -63,6 +63,7 @@ def connection_info():
                   str(len(pylab_helpers.Gcf._activeQue)))
     return '\n'.join(result)
 
+
 # Note: Version 3.2 icons, not the later 4.0 ones.
 # http://fontawesome.io/3.2.1/icons/
 _FONT_AWESOME_CLASSES = {
@@ -74,11 +75,12 @@ _FONT_AWESOME_CLASSES = {
     None: None
 }
 
+
 class NavigationIPy(NavigationToolbar2WebAgg):
 
     # Use the standard toolbar items + download button
     toolitems = [(text, tooltip_text,
-                  _font_awesome_classes[image_file], name_of_method)
+                  _FONT_AWESOME_CLASSES[image_file], name_of_method)
                  for text, tooltip_text, image_file, name_of_method
                  in NavigationToolbar2.toolitems
                  if image_file in _FONT_AWESOME_CLASSES]
