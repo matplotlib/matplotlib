@@ -2320,8 +2320,8 @@ class Axes(_AxesBase):
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=None, radius=None, counterclock=True,
-            wedgeprops=None, textprops=None, center = (0, 0),
-            frame=False ):
+            wedgeprops=None, textprops=None, center=(0, 0),
+            frame=False):
         r"""
         Plot a pie chart.
 
@@ -2436,7 +2436,6 @@ class Axes(_AxesBase):
         assert(len(x) == len(explode))
         if colors is None:
             colors = ('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w')
-
 
         if radius is None:
             radius = 1
