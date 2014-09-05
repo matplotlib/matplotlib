@@ -3434,6 +3434,9 @@ class NavigationBase(object):
         for a in self.canvas.figure.get_axes():
             a.set_navigate_mode(self._toggled)
 
+        # Change the cursor inmediately, don't wait for mouse move
+        self._set_cursor(event)
+
     def get_tools(self):
         """Return the tools controlled by `Navigation`"""
 
@@ -3446,7 +3449,10 @@ class NavigationBase(object):
                        'keymap': keys}
         return d
 
-    def _mouse_move(self, event):
+    def _set_cursor(self, event):
+        """Call the backend specific set_cursor method,
+        if the pointer is inaxes
+        """
         if not event.inaxes or not self._toggled:
             if self._last_cursor != self._default_cursor:
                 self.set_cursor(self._default_cursor)
@@ -3457,6 +3463,9 @@ class NavigationBase(object):
                 if cursor and self._last_cursor != cursor:
                     self.set_cursor(cursor)
                     self._last_cursor = cursor
+
+    def _mouse_move(self, event):
+        self._set_cursor(event)
 
         if self.toolbar is None or self.messagelock.locked():
             return
