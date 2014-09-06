@@ -1170,12 +1170,17 @@ class Six(SetupPackage):
             import six
         except ImportError:
             return (
-                "six was not found.")
+                "six was not found."
+                "pip will attempt to install it "
+                "after matplotlib.")
 
         if not is_min_version(six.__version__, self.min_version):
-            raise CheckFailed(
-                "Requires six %s or later.  Found %s." %
-                (self.min_version, six.__version__))
+            return ("The installed version of six is {inst_ver} but "
+                    "a the minimum required version is {min_ver}. "
+                    "pip/easy install will attempt to install a "
+                    "newer version."
+                    ).format(min_ver=self.min_version,
+                             inst_ver=six.__version__)
 
         return "using six version %s" % six.__version__
 
