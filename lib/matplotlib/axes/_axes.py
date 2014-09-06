@@ -3657,7 +3657,8 @@ class Axes(_AxesBase):
         if self._ymargin < 0.05 and x.size > 0:
             self.set_ymargin(0.05)
 
-        self.add_collection(collection)
+        self.add_collection(collection, autolim=False)
+        self.update_datalim(offsets)
         self.autoscale_view()
 
         return collection
