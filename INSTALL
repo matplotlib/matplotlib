@@ -245,12 +245,8 @@ Optional dependencies
     selection of image file formats.
 
 
-:term:`freetype` 2.4 or later
-    library for reading true type font files.  Matplotlib in known
-    to work with freetype 2.3, and the required version will be reduced
-    in 1.4.1.  If you need to build from source on a system which only has
-    freetype 2.3 available, please edit L945 of `setupext.py` to reduce
-    `min_version` to 2.3.
+:term:`freetype` 2.3 or later
+    library for reading true type font files.
 
 
 Required libraries that ship with matplotlib
