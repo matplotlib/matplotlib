@@ -80,13 +80,12 @@ if _sip_imported:
                 _getSaveFileName = QtGui.QFileDialog.getSaveFileNameAndFilter
             else:
 
-
                 # Use old getSaveFileName()
                 def _getSaveFileName(*args, **kwargs):
-                    return QtGui.QFileDialog.getSaveFileName(*args, **kwargs), None
+                    return (QtGui.QFileDialog.getSaveFileName(*args, **kwargs),
+                            None)
 
         except (AttributeError, KeyError):
-
 
             # call to getapi() can fail in older versions of sip
             def _getSaveFileName(*args, **kwargs):
