@@ -1,16 +1,14 @@
 '''
-Recreate Josef Albers plot illustrating the Weber-Fechner law and illustrate 
-with the binary matplotlib colormap, too. Trying to show the difference between 
+Recreate Josef Albers plot illustrating the Weber-Fechner law and illustrate
+with the binary matplotlib colormap, too. Trying to show the difference between
 adding blackness to a color at different rates.
 '''
 
 import numpy as np
 import matplotlib.pyplot as plt
-from skimage import io, color
-import pdb
+from skimage import color
 import matplotlib as mpl
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import cm, colors
+from matplotlib import cm
 
 
 mpl.rcParams.update({'font.size': 20})
@@ -90,7 +88,7 @@ for i in xrange(red.shape[1]):
 
 
 # common ylabel
-ax1.text(-0.3, 3.8, 'Additional Parts Black', 
+ax1.text(-0.3, 3.8, 'Additional Parts Black',
             rotation=90, transform=ax1.transAxes)
 
 
@@ -164,7 +162,7 @@ for i in xrange(nrows):
     ax2.spines['left'].set_visible(False)
 
 # common ylabel
-ax1.text(-0.3, 4.0, 'Steps through map indices', 
+ax1.text(-0.3, 4.0, 'Steps through map indices',
             rotation=90, transform=ax1.transAxes)
 
 fig.subplots_adjust(hspace=0.0)

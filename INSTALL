@@ -66,7 +66,7 @@ you will also need to install compatible versions of
 `pyparsing <https://pypi.python.org/pypi/pyparsing/>`_ and
 `six <https://pypi.python.org/pypi/six>`_
 in addition to
-`matplotlib <https://pypi.python.org/pypi/matplotlib>`_.
+`matplotlib <http://matplotlib.org/downloads.html>`_.
 
 In case Python is not installed for all users (not the default), the
 Microsoft Visual C++ 2008 (
@@ -106,14 +106,15 @@ standard Python shell or IPython. It is enabled as the default backend
 for the official binaries.  GTK3 is not supported on Windows.
 
 The Windows installers (:file:`*.exe`) and wheels (:file:`*.whl`) on
-the download page do not contain test data or example code.
+the `download page <http://matplotlib.org/downloads.html>`_ do not
+contain test data or example code.
 If you want to try the many demos that come in the matplotlib source
-distribution, download the zip file and look in the :file:`examples`
-subdirectory.
-To run the test suite, copy the lib\matplotlib\tests and
-lib\mpl_toolkits\tests directories from the source distribution to
-sys.prefix\Lib\site-packages\matplotlib and
-sys.prefix\Lib\site-packages\mpl_toolkits respectively, and install
+distribution, download the :file:`*.tar.gz` file and look in the
+:file:`examples` subdirectory.
+To run the test suite, copy the :file:`lib\matplotlib\tests` and
+:file:`lib\mpl_toolkits\tests` directories from the source distribution to
+:file:`sys.prefix\Lib\site-packages\matplotlib` and
+:file:`sys.prefix\Lib\site-packages\mpl_toolkits` respectively, and install
 `nose <https://pypi.python.org/pypi/nose>`_,
 `mock <https://pypi.python.org/pypi/mock>`_,
 Pillow, MiKTeX, GhostScript, ffmpeg, avconv, mencoder, ImageMagick, and
@@ -239,8 +240,18 @@ Optional dependencies
     selection of image file formats.
 
 
-:term:`freetype` 1.4 (or later)
-    library for reading true type font files.
+:term:`freetype` 2.4 or later
+    library for reading true type font files.  Matplotlib in known
+    to work with freetype 2.3, and the required version will be reduced
+    in 1.4.1.  If you need to build from source on a system which only has
+    freetype 2.3 available, please edit L945 of `setupext.py` to reduce
+    `min_version` to 2.3.
+
+`pytz`
+    Required if you want to manipulate datetime objects which are time-zone
+    aware.  An exception will be raised if you try to make time-zone aware
+    plots with out `pytz` installed.  It will become a required dependency
+    in 1.4.1.
 
 
 Required libraries that ship with matplotlib
