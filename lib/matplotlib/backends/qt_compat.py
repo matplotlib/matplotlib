@@ -15,7 +15,6 @@ QT_API_PYSIDE = 'PySide'    # only supports Version 2 API
 QT_API_PYQT5 = 'PyQt5'       # use PyQt5 API; Version 2 with module shim
 
 ETS = dict(pyqt=QT_API_PYQTv2, pyside=QT_API_PYSIDE, pyqt5=QT_API_PYQT5)
-
 # If the ETS QT_API environment variable is set, use it.  Note that
 # ETS requires the version 2 of PyQt4, which is not the platform
 # default for Python 2.x.
@@ -62,14 +61,14 @@ if _sip_imported:
             sip.setapi('QString', 2)
         except:
             res = 'QString API v2 specification failed. Defaulting to v1.'
-            verbose.report(cond+res, 'helpful')
+            verbose.report(cond + res, 'helpful')
             # condition has now been reported, no need to repeat it:
             cond = ""
         try:
             sip.setapi('QVariant', 2)
         except:
             res = 'QVariant API v2 specification failed. Defaulting to v1.'
-            verbose.report(cond+res, 'helpful')
+            verbose.report(cond + res, 'helpful')
 
     if QT_API in [QT_API_PYQT, QT_API_PYQTv2]:  # PyQt4 API
 
@@ -78,21 +77,22 @@ if _sip_imported:
         try:
             if sip.getapi("QString") > 1:
                 # Use new getSaveFileNameAndFilter()
-                _get_save = QtGui.QFileDialog.getSaveFileNameAndFilter
+                _getSaveFileName = QtGui.QFileDialog.getSaveFileNameAndFilter
             else:
+
                 # Use old getSaveFileName()
-                _getSaveFileName = QtGui.QFileDialog.getSaveFileName
+                def _getSaveFileName(*args, **kwargs):
+                    return (QtGui.QFileDialog.getSaveFileName(*args, **kwargs),
+                            None)
+
         except (AttributeError, KeyError):
+
             # call to getapi() can fail in older versions of sip
-            _getSaveFileName = QtGui.QFileDialog.getSaveFileName
+            def _getSaveFileName(*args, **kwargs):
+                return QtGui.QFileDialog.getSaveFileName(*args, **kwargs), None
 
     else:  # PyQt5 API
-
         from PyQt5 import QtCore, QtGui, QtWidgets
-
-        # Additional PyQt5 shimming to make it appear as for PyQt4
-
-        _get_save = QtWidgets.QFileDialog.getSaveFileName
         _getSaveFileName = QtWidgets.QFileDialog.getSaveFileName
 
     # Alias PyQt-specific functions for PySide compatibility.
@@ -112,11 +112,8 @@ else:  # try importing pyside
         raise ImportError(
             "Matplotlib backend_qt4 and backend_qt4agg require PySide >=1.0.3")
 
-    _get_save = QtGui.QFileDialog.getSaveFileName
+    _getSaveFileName = QtGui.QFileDialog.getSaveFileName
 
-if _getSaveFileName is None:
-    def _getSaveFileName(self, msg, start, filters, selectedFilter):
-        return _get_save(self, msg, start, filters, selectedFilter)[0]
 
 # Apply shim to Qt4 APIs to make them look like Qt5
 if QT_API in (QT_API_PYQT, QT_API_PYQTv2, QT_API_PYSIDE):

@@ -22,7 +22,6 @@ from matplotlib.backend_bases import ShowBase
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 
-
 from matplotlib.widgets import SubplotTool
 try:
     import matplotlib.backends.qt_editor.figureoptions as figureoptions
@@ -184,6 +183,7 @@ class TimerQT(TimerBase):
         upon timer events. This list can be manipulated directly, or the
         functions add_callback and remove_callback can be used.
     '''
+
     def __init__(self, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)
 
@@ -331,8 +331,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             print('resize (%d x %d)' % (w, h))
             print("FigureCanvasQt.resizeEvent(%d, %d)" % (w, h))
         dpival = self.figure.dpi
-        winch = w/dpival
-        hinch = h/dpival
+        winch = w / dpival
+        hinch = h / dpival
         self.figure.set_size_inches(winch, hinch)
         FigureCanvasBase.resize_event(self)
         self.draw()
@@ -551,9 +551,9 @@ class FigureManagerQT(FigureManagerBase):
         self.window.destroyed.connect(self._widgetclosed)
 
         if self.toolbar:
-                self.toolbar.destroy()
+            self.toolbar.destroy()
         if DEBUG:
-                print("destroy figure manager")
+            print("destroy figure manager")
         self.window.close()
 
     def get_window_title(self):
@@ -715,7 +715,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             filters.append(filter)
         filters = ';;'.join(filters)
 
-        fname = _getSaveFileName(self.parent, "Choose a filename to save to",
+        fname, filter = _getSaveFileName(self.parent,
+                                         "Choose a filename to save to",
                                  start, filters, selectedFilter)
         if fname:
             if startpath == '':
@@ -750,7 +751,7 @@ class SubplotToolQt(SubplotTool, UiSubplotTool):
         self.slidertop.valueChanged.connect(self.sliderbottom.setMaximum)
 
         self.defaults = {}
-        for attr in ('left', 'bottom', 'right', 'top', 'wspace', 'hspace',):
+        for attr in ('left', 'bottom', 'right', 'top', 'wspace', 'hspace', ):
             self.defaults[attr] = getattr(self.targetfig.subplotpars, attr)
             slider = getattr(self, 'slider' + attr)
             slider.setMinimum(0)
@@ -761,7 +762,7 @@ class SubplotToolQt(SubplotTool, UiSubplotTool):
         self._setSliderPositions()
 
     def _setSliderPositions(self):
-        for attr in ('left', 'bottom', 'right', 'top', 'wspace', 'hspace',):
+        for attr in ('left', 'bottom', 'right', 'top', 'wspace', 'hspace', ):
             slider = getattr(self, 'slider' + attr)
             slider.setSliderPosition(int(self.defaults[attr] * 1000))
 
@@ -849,7 +850,6 @@ def exception_handler(type, value, tb):
 
     if len(msg):
         error_msg_qt(msg)
-
 
 FigureCanvas = FigureCanvasQT
 FigureManager = FigureManagerQT
