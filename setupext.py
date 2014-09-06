@@ -1008,8 +1008,11 @@ class Png(SetupPackage):
                 'libpng', 'png.h',
                 min_version='1.2')
         except CheckFailed as e:
-            self.__class__.found_external = False
-            return str(e) + ' Using unknown version.'
+            include_dirs = [
+                os.path.join(dir, 'include') for dir in get_base_dirs()]
+            if has_include_file(include_dirs, 'png.h'):
+                return str(e) + ' Using unknown version found on system.'
+            raise
 
     def get_extension(self):
         sources = [
