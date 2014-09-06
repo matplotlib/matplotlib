@@ -1192,7 +1192,9 @@ class Pytz(SetupPackage):
             import pytz
         except ImportError:
             return (
-                "pytz was not found.")
+                "pytz was not found. "
+                "pip will attempt to install it "
+                "after matplotlib.")
 
         return "using pytz version %s" % pytz.__version__
 
