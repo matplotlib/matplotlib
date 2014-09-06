@@ -984,6 +984,7 @@ class FreeType(SetupPackage):
         self.add_flags(ext)
         return ext
 
+
 class FT2Font(SetupPackage):
     name = 'ft2font'
 
@@ -1181,6 +1182,22 @@ class Six(SetupPackage):
 
     def get_install_requires(self):
         return ['six>={0}'.format(self.min_version)]
+
+
+class Pytz(SetupPackage):
+    name = "pytz"
+
+    def check(self):
+        try:
+            import pytz
+        except ImportError:
+            return (
+                "pytz was not found.")
+
+        return "using pytz version %s" % pytz.__version__
+
+    def get_install_requires(self):
+        return ['pytz']
 
 
 class Dateutil(SetupPackage):

@@ -66,6 +66,7 @@ mpl_packages = [
     setupext.Numpy(),
     setupext.Six(),
     setupext.Dateutil(),
+    setupext.Pytz(),
     setupext.Tornado(),
     setupext.Pyparsing(),
     setupext.CXX(),
