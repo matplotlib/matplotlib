@@ -84,7 +84,15 @@ def test_bbox_inches_tight_clipping():
     path.vertices *= 0.25
     patch.set_clip_path(path, transform=ax.transAxes)
     plt.gcf().artists.append(patch)
-
+    
+    
+@image_comparison(baseline_images=['bbox_inches_tight_raster'],
+                  remove_text=True, savefig_kwarg={'bbox_inches': 'tight'})
+def test_bbox_inches_tight_raster():
+    """Test rasterization with tight_layout"""
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot([1.0, 2.0], rasterized=True)
 
 if __name__ == '__main__':
     import nose
