@@ -3,6 +3,7 @@ from base64 import b64encode
 import json
 import io
 import os
+import six
 from uuid import uuid4 as uuid
 
 from IPython.display import display, Javascript, HTML
@@ -193,7 +194,10 @@ class CommSocket(object):
     def send_binary(self, blob):
         # The comm is ascii, so we always send the image in base64
         # encoded data URL form.
-        data_uri = "data:image/png;base64,{0}".format(b64encode(blob))
+        data = b64encode(blob)
+        if six.PY3:
+            data = data.decode('ascii')
+        data_uri = "data:image/png;base64,{0}".format(data)
         self.comm.send({'data': data_uri})
 
     def on_message(self, message):
