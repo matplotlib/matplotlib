@@ -70,20 +70,20 @@ containing the positions for each element of the boxplots. Then
 a second method, :func:`~matplotlib.Axes.bxp` is called to draw the boxplots
 based on the stats.
 
-The :func:~matplotlib.pyplot.boxplot function can be used as before to
+The :func:`~matplotlib.pyplot.boxplot` function can be used as before to
 generate boxplots from data in one step. But now the user has the
 flexibility to generate the statistics independently, or to modify the
-output of :func:~matplotlib.cbook.boxplot_stats prior to plotting
-with :func:~matplotlib.Axes.bxp.
+output of :func:`~matplotlib.cbook.boxplot_stats` prior to plotting
+with :func:`~matplotlib.Axes.bxp`.
 
 Lastly, each artist (e.g., the box, outliers, cap, notches) can now be
 toggled on or off and their styles can be passed in through individual
 kwargs. See the examples:
-:ref:`~examples/statistics/boxplot_demo.py` and
-:ref:`~examples/statistics/bxp_demo.py`
+:ref:`statistics-boxplot_demo` and
+:ref:`statistics-bxp_demo`
 
-Added a bool kwarg, `manage_xticks`, which if False disables the management
-of the xtick and xlim by `boxplot`.
+Added a bool kwarg, :code:`manage_xticks`, which if False disables the management
+of the ticks and limits on the x-axis by :func:`~matplotlib.axes.Axes.bxp`.
 
 Support for datetime axes in 2d plots
 `````````````````````````````````````
@@ -316,6 +316,14 @@ Qt4 to look like Qt5, thus the Qt5 implementation is the primary implementation.
 Backwards compatibility for Qt4 is maintained by wrapping the Qt5 implementation.
 
 The Qt5Agg backend currently does not work with IPython's %matplotlib magic.
+
+The 1.4.0 release has a known bug where the toolbar is broken.  This can be
+fixed by: ::
+
+   cd path/to/installed/matplotlib
+   wget https://github.com/matplotlib/matplotlib/pull/3322.diff
+   # unix2dos 3322.diff (if on windows to fix line endings)
+   patch -p2 < 3322.diff
 
 Qt4 backend
 ```````````
