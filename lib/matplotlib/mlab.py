@@ -584,10 +584,10 @@ def stride_windows(x, n, noverlap=None, axis=0):
     step = n - noverlap
     if axis == 0:
         shape = (n, (x.shape[-1]-noverlap)//step)
-        strides = (x.itemsize, step*x.itemsize)
+        strides = (x.strides[0], step*x.strides[0])
     else:
         shape = ((x.shape[-1]-noverlap)//step, n)
-        strides = (step*x.itemsize, x.itemsize)
+        strides = (step*x.strides[0], x.strides[0])
     return np.lib.stride_tricks.as_strided(x, shape=shape, strides=strides)
 
 
@@ -633,10 +633,10 @@ def stride_repeat(x, n, axis=0):
 
     if axis == 0:
         shape = (n, x.size)
-        strides = (0, x.itemsize)
+        strides = (0, x.strides[0])
     else:
         shape = (x.size, n)
-        strides = (x.itemsize, 0)
+        strides = (x.strides[0], 0)
 
     return np.lib.stride_tricks.as_strided(x, shape=shape, strides=strides)
 
