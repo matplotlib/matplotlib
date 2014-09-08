@@ -1617,7 +1617,9 @@ class RendererPdf(RendererBase):
         if not len(edgecolors):
             stroked = False
         else:
-            if np.all(edgecolors[:, 3] == edgecolors[0, 3]):
+            if np.all(np.asarray(linewidths) == 0.0):
+                stroked = False
+            elif np.all(edgecolors[:, 3] == edgecolors[0, 3]):
                 stroked = edgecolors[0, 3] != 0.0
             else:
                 can_do_optimization = False
