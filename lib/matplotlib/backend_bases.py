@@ -2456,9 +2456,11 @@ def key_press_handler(event, canvas, toolbar=None):
         # pan mnemonic (default key 'p')
         elif event.key in pan_keys:
             toolbar.pan()
+            toolbar._set_cursor(event)
         # zoom mnemonic (default key 'o')
         elif event.key in zoom_keys:
             toolbar.zoom()
+            toolbar._set_cursor(event)
         # saving current figure (default key 's')
         elif event.key in save_keys:
             toolbar.save_figure()
@@ -2739,7 +2741,7 @@ class NavigationToolbar2(object):
         """
         raise NotImplementedError
 
-    def mouse_move(self, event):
+    def _set_cursor(self, event):
         if not event.inaxes or not self._active:
             if self._lastCursor != cursors.POINTER:
                 self.set_cursor(cursors.POINTER)
@@ -2754,6 +2756,9 @@ class NavigationToolbar2(object):
                 self.set_cursor(cursors.MOVE)
 
                 self._lastCursor = cursors.MOVE
+
+    def mouse_move(self, event):
+        self._set_cursor(event)
 
         if event.inaxes and event.inaxes.get_navigate():
 
