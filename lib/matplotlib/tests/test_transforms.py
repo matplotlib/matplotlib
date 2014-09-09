@@ -8,7 +8,7 @@ import unittest
 
 from nose.tools import assert_equal, assert_raises
 import numpy.testing as np_test
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_almost_equal, assert_array_equal
 from matplotlib.transforms import Affine2D, BlendedGenericTransform
 from matplotlib.path import Path
 from matplotlib.scale import LogScale
@@ -450,13 +450,13 @@ class TestTransformPlotInterface(unittest.TestCase):
                                              expeted_data_lim)
 
 
+def assert_bbox_eq(bbox1, bbox2):
+    assert_array_equal(bbox1.bounds, bbox2.bounds)
+
+
 def test_bbox_intersection():
     bbox_from_ext = mtrans.Bbox.from_extents
     inter = mtrans.Bbox.intersection
-
-    from numpy.testing import assert_array_equal as assert_a_equal
-    def assert_bbox_eq(bbox1, bbox2):
-        assert_a_equal(bbox1.bounds, bbox2.bounds)
 
     r1 = bbox_from_ext(0, 0, 1, 1)
     r2 = bbox_from_ext(0.5, 0.5, 1.5, 1.5)
@@ -474,6 +474,18 @@ def test_bbox_intersection():
     assert_equal(inter(r1, r4), None)
     # single point
     assert_bbox_eq(inter(r1, r5), bbox_from_ext(1, 1, 1, 1))
+
+
+def test_bbox_as_strings():
+    b = mtrans.Bbox([[.5, 0], [.75, .75]])
+    assert_bbox_eq(b, eval(repr(b), {'Bbox': mtrans.Bbox}))
+    asdict = eval(str(b), {'Bbox': dict})
+    for k, v in asdict.items():
+        assert_equal(getattr(b, k), v)
+    fmt = '.1f'
+    asdict = eval(format(b, fmt), {'Bbox': dict})
+    for k, v in asdict.items():
+        assert_equal(eval(format(getattr(b, k), fmt)), v)
 
 
 if __name__=='__main__':
