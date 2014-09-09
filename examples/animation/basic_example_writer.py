@@ -7,8 +7,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
+
 def update_line(num, data, line):
-    line.set_data(data[...,:num])
+    line.set_data(data[..., :num])
     return line,
 
 # Set up formatting for the movie files
@@ -25,7 +26,7 @@ plt.ylim(0, 1)
 plt.xlabel('x')
 plt.title('test')
 line_ani = animation.FuncAnimation(fig1, update_line, 25, fargs=(data, l),
-    interval=50, blit=True)
+                                   interval=50, blit=True)
 line_ani.save('lines.mp4', writer=writer)
 
 fig2 = plt.figure()
@@ -38,5 +39,5 @@ for add in np.arange(15):
     ims.append((plt.pcolor(x, y, base + add, norm=plt.Normalize(0, 30)),))
 
 im_ani = animation.ArtistAnimation(fig2, ims, interval=50, repeat_delay=3000,
-    blit=True)
+                                   blit=True)
 im_ani.save('im.mp4', writer=writer)

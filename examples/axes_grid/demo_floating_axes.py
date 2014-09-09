@@ -3,10 +3,11 @@ from matplotlib.transforms import Affine2D
 import mpl_toolkits.axisartist.floating_axes as floating_axes
 
 import numpy as np
-import  mpl_toolkits.axisartist.angle_helper as angle_helper
+import mpl_toolkits.axisartist.angle_helper as angle_helper
 from matplotlib.projections import PolarAxes
 from mpl_toolkits.axisartist.grid_finder import FixedLocator, MaxNLocator, \
-     DictFormatter
+    DictFormatter
+
 
 def setup_axes1(fig, rect):
     """
@@ -14,7 +15,8 @@ def setup_axes1(fig, rect):
     """
     tr = Affine2D().scale(2, 1).rotate_deg(30)
 
-    grid_helper = floating_axes.GridHelperCurveLinear(tr, extremes=(0, 4, 0, 4))
+    grid_helper = floating_axes.GridHelperCurveLinear(
+        tr, extremes=(0, 4, 0, 4))
 
     ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
     fig.add_subplot(ax1)
@@ -32,9 +34,6 @@ def setup_axes2(fig, rect):
     With custom locator and formatter.
     Note that the extreme values are swapped.
     """
-
-    #tr_scale = Affine2D().scale(np.pi/180., 1.)
-
     tr = PolarAxes.PolarTransform()
 
     pi = np.pi
@@ -46,13 +45,12 @@ def setup_axes2(fig, rect):
 
     grid_locator2 = MaxNLocator(2)
 
-    grid_helper = floating_axes.GridHelperCurveLinear(tr,
-                                        extremes=(.5*pi, 0, 2, 1),
-                                        grid_locator1=grid_locator1,
-                                        grid_locator2=grid_locator2,
-                                        tick_formatter1=tick_formatter1,
-                                        tick_formatter2=None,
-                                        )
+    grid_helper = floating_axes.GridHelperCurveLinear(
+        tr, extremes=(.5*pi, 0, 2, 1),
+        grid_locator1=grid_locator1,
+        grid_locator2=grid_locator2,
+        tick_formatter1=tick_formatter1,
+        tick_formatter2=None)
 
     ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
     fig.add_subplot(ax1)
@@ -60,11 +58,11 @@ def setup_axes2(fig, rect):
     # create a parasite axes whose transData in RA, cz
     aux_ax = ax1.get_aux_axes(tr)
 
-    aux_ax.patch = ax1.patch # for aux_ax to have a clip path as in ax
-    ax1.patch.zorder=0.9 # but this has a side effect that the patch is
-                        # drawn twice, and possibly over some other
-                        # artists. So, we decrease the zorder a bit to
-                        # prevent this.
+    aux_ax.patch = ax1.patch  # for aux_ax to have a clip path as in ax
+    ax1.patch.zorder = 0.9  # but this has a side effect that the patch is
+    # drawn twice, and possibly over some other
+    # artists. So, we decrease the zorder a bit to
+    # prevent this.
 
     return ax1, aux_ax
 
@@ -89,13 +87,12 @@ def setup_axes3(fig, rect):
 
     ra0, ra1 = 8.*15, 14.*15
     cz0, cz1 = 0, 14000
-    grid_helper = floating_axes.GridHelperCurveLinear(tr,
-                                        extremes=(ra0, ra1, cz0, cz1),
-                                        grid_locator1=grid_locator1,
-                                        grid_locator2=grid_locator2,
-                                        tick_formatter1=tick_formatter1,
-                                        tick_formatter2=None,
-                                        )
+    grid_helper = floating_axes.GridHelperCurveLinear(
+        tr, extremes=(ra0, ra1, cz0, cz1),
+        grid_locator1=grid_locator1,
+        grid_locator2=grid_locator2,
+        tick_formatter1=tick_formatter1,
+        tick_formatter2=None)
 
     ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
     fig.add_subplot(ax1)
@@ -113,18 +110,16 @@ def setup_axes3(fig, rect):
     ax1.axis["left"].label.set_text(r"cz [km$^{-1}$]")
     ax1.axis["top"].label.set_text(r"$\alpha_{1950}$")
 
-
     # create a parasite axes whose transData in RA, cz
     aux_ax = ax1.get_aux_axes(tr)
 
-    aux_ax.patch = ax1.patch # for aux_ax to have a clip path as in ax
-    ax1.patch.zorder=0.9 # but this has a side effect that the patch is
-                        # drawn twice, and possibly over some other
-                        # artists. So, we decrease the zorder a bit to
-                        # prevent this.
+    aux_ax.patch = ax1.patch  # for aux_ax to have a clip path as in ax
+    ax1.patch.zorder = 0.9  # but this has a side effect that the patch is
+    # drawn twice, and possibly over some other
+    # artists. So, we decrease the zorder a bit to
+    # prevent this.
 
     return ax1, aux_ax
-
 
 
 if 1:
@@ -134,24 +129,21 @@ if 1:
 
     ax1, aux_ax2 = setup_axes1(fig, 131)
     aux_ax2.bar([0, 1, 2, 3], [3, 2, 1, 3])
-    
+
     #theta = np.random.rand(10) #*.5*np.pi
     #radius = np.random.rand(10) #+1.
     #aux_ax1.scatter(theta, radius)
 
-
     ax2, aux_ax2 = setup_axes2(fig, 132)
 
-    theta = np.random.rand(10)*.5*np.pi
-    radius = np.random.rand(10)+1.
+    theta = np.random.rand(10)*np.pi/2
+    radius = np.random.rand(10) + 1.
     aux_ax2.scatter(theta, radius)
-
 
     ax3, aux_ax3 = setup_axes3(fig, 133)
 
-    theta = (8 + np.random.rand(10)*(14-8))*15. # in degrees
+    theta = (8 + np.random.rand(10)*(14 - 8))*15.  # in degrees
     radius = np.random.rand(10)*14000.
     aux_ax3.scatter(theta, radius)
 
     plt.show()
-

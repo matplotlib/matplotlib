@@ -18,6 +18,7 @@ import numpy as np
 # code used by a number of projections with similar characteristics
 # (see geo.py).
 
+
 class HammerAxes(Axes):
     """
     A custom class for the Aitoff-Hammer projection, an equal-area map
@@ -40,7 +41,7 @@ class HammerAxes(Axes):
         self.yaxis = maxis.YAxis(self)
         # Do not register xaxis or yaxis with spines -- as done in
         # Axes._init_axis() -- until HammerAxes.xaxis.cla() works.
-        # self.spines['hammer'].register_axis(self.yaxis)
+        #self.spines['hammer'].register_axis(self.yaxis)
         self._update_transScale()
 
     def cla(self):
@@ -156,7 +157,7 @@ class HammerAxes(Axes):
         # (1, ymax).  The goal of these transforms is to go from that
         # space to display space.  The tick labels will be offset 4
         # pixels from the edge of the axes ellipse.
-        yaxis_stretch = Affine2D().scale(np.pi * 2.0, 1.0).translate(-np.pi, 0.0)
+        yaxis_stretch = Affine2D().scale(2*np.pi, 1.0).translate(-np.pi, 0.0)
         yaxis_space = Affine2D().scale(1.0, 1.1)
         self._yaxis_transform = \
             yaxis_stretch + \
@@ -164,8 +165,8 @@ class HammerAxes(Axes):
         yaxis_text_base = \
             yaxis_stretch + \
             self.transProjection + \
-            (yaxis_space + \
-             self.transAffine + \
+            (yaxis_space +
+             self.transAffine +
              self.transAxes)
         self._yaxis_text1_transform = \
             yaxis_text_base + \
@@ -174,12 +175,12 @@ class HammerAxes(Axes):
             yaxis_text_base + \
             Affine2D().translate(8.0, 0.0)
 
-    def get_xaxis_transform(self,which='grid'):
+    def get_xaxis_transform(self, which='grid'):
         """
         Override this method to provide a transformation for the
         x-axis grid and ticks.
         """
-        assert which in ['tick1','tick2','grid']
+        assert which in ['tick1', 'tick2', 'grid']
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pixelPad):
@@ -200,12 +201,12 @@ class HammerAxes(Axes):
         """
         return self._xaxis_text2_transform, 'top', 'center'
 
-    def get_yaxis_transform(self,which='grid'):
+    def get_yaxis_transform(self, which='grid'):
         """
         Override this method to provide a transformation for the
         y-axis grid and ticks.
         """
-        assert which in ['tick1','tick2','grid']
+        assert which in ['tick1', 'tick2', 'grid']
         return self._yaxis_transform
 
     def get_yaxis_text1_transform(self, pixelPad):
@@ -238,8 +239,8 @@ class HammerAxes(Axes):
         return Circle((0.5, 0.5), 0.5)
 
     def _gen_axes_spines(self):
-        return {'custom_hammer':mspines.Spine.circular_spine(self,
-                                                      (0.5, 0.5), 0.5)}
+        return {'custom_hammer': mspines.Spine.circular_spine(self,
+                                                              (0.5, 0.5), 0.5)}
 
     # Prevent the user from applying scales to one or both of the
     # axes.  In this particular case, scaling the axes wouldn't make
@@ -288,6 +289,7 @@ class HammerAxes(Axes):
         This is a custom formatter that converts the native unit of
         radians into (truncated) degrees and adds a degree symbol.
         """
+
         def __init__(self, round_to=1.0):
             self._round_to = round_to
 
@@ -369,10 +371,13 @@ class HammerAxes(Axes):
         Return True if this axes support the zoom box
         """
         return False
+
     def start_pan(self, x, y, button):
         pass
+
     def end_pan(self):
         pass
+
     def drag_pan(self, button, key, x, y):
         pass
 
@@ -388,13 +393,13 @@ class HammerAxes(Axes):
 
         def transform_non_affine(self, ll):
             """
-            Override the transform_non_affine method to implement the custom 
+            Override the transform_non_affine method to implement the custom
             transform.
 
             The input and output are Nx2 numpy arrays.
             """
             longitude = ll[:, 0:1]
-            latitude  = ll[:, 1:2]
+            latitude = ll[:, 1:2]
 
             # Pre-compute some values
             half_long = longitude / 2.0
@@ -417,13 +422,13 @@ class HammerAxes(Axes):
             ipath = path.interpolated(path._interpolation_steps)
             return Path(self.transform(ipath.vertices), ipath.codes)
         transform_path_non_affine.__doc__ = \
-                Transform.transform_path_non_affine.__doc__
+            Transform.transform_path_non_affine.__doc__
 
         if matplotlib.__version__ < '1.2':
             # Note: For compatibility with matplotlib v1.1 and older, you'll
             # need to explicitly implement a ``transform`` method as well.
             # Otherwise a ``NotImplementedError`` will be raised. This isn't
-            # necessary for v1.2 and newer, however.  
+            # necessary for v1.2 and newer, however.
             transform = transform_non_affine
 
             # Similarly, we need to explicitly override ``transform_path`` if
@@ -449,12 +454,12 @@ class HammerAxes(Axes):
             quarter_x = 0.25 * x
             half_y = 0.5 * y
             z = np.sqrt(1.0 - quarter_x*quarter_x - half_y*half_y)
-            longitude = 2 * np.arctan((z*x) / (2.0 * (2.0*z*z - 1.0)))
+            longitude = 2*np.arctan((z*x)/(2.0*(2.0*z*z - 1.0)))
             latitude = np.arcsin(y*z)
             return np.concatenate((longitude, latitude), 1)
         transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
-        # As before, we need to implement the "transform" method for 
+        # As before, we need to implement the "transform" method for
         # compatibility with matplotlib v1.1 and older.
         if matplotlib.__version__ < '1.2':
             transform = transform_non_affine
@@ -476,4 +481,3 @@ if __name__ == '__main__':
     plt.grid(True)
 
     plt.show()
-

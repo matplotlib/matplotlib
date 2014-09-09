@@ -17,7 +17,8 @@ def draw_text(ax):
     at2.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
     ax.add_artist(at2)
 
-def draw_circle(ax): # circle in the canvas coordinate
+
+def draw_circle(ax):  # circle in the canvas coordinate
     from mpl_toolkits.axes_grid1.anchored_artists import AnchoredDrawingArea
     from matplotlib.patches import Circle
     ada = AnchoredDrawingArea(20, 20, 0, 0,
@@ -25,6 +26,7 @@ def draw_circle(ax): # circle in the canvas coordinate
     p = Circle((10, 10), 10)
     ada.da.add_artist(p)
     ax.add_artist(ada)
+
 
 def draw_ellipse(ax):
     from mpl_toolkits.axes_grid1.anchored_artists import AnchoredEllipse
@@ -34,11 +36,12 @@ def draw_ellipse(ax):
 
     ax.add_artist(ae)
 
+
 def draw_sizebar(ax):
     from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
     # draw a horizontal bar with length of 0.1 in Data coordinate
     # (ax.transData) with a label underneath.
-    asb =  AnchoredSizeBar(ax.transData,
+    asb = AnchoredSizeBar(ax.transData,
                           0.1,
                           r"1$^{\prime}$",
                           loc=8,
@@ -57,5 +60,3 @@ if 1:
     draw_sizebar(ax)
 
     plt.show()
-
-

@@ -34,6 +34,7 @@ script:
   # Generate the font caches in a single process before starting the
   # multiple processes
   - python -c "from matplotlib import font_manager"
+  - if [[ $BUILD_DOCS == false ]]; then export MPL_REPO_DIR=$PWD; fi # pep8-conformance test of the examples
   - if [[ $BUILD_DOCS == false ]]; then mkdir ../tmp_test_dir; fi
   - if [[ $BUILD_DOCS == false ]]; then cd ../tmp_test_dir; fi
   - if [[ $BUILD_DOCS == false ]]; then python ../matplotlib/tests.py -sv --processes=8 --process-timeout=300 $TEST_ARGS; fi

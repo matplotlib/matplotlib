@@ -32,7 +32,7 @@ def radar_factory(num_vars, frame='circle'):
 
     """
     # calculate evenly-spaced axis angles
-    theta = 2*np.pi * np.linspace(0, 1-1./num_vars, num_vars)
+    theta = np.linspace(0, 2*np.pi, num_vars, endpoint=False)
     # rotate theta such that the first axis is at the top
     theta += np.pi/2
 
@@ -76,7 +76,7 @@ def radar_factory(num_vars, frame='circle'):
                 line.set_data(x, y)
 
         def set_varlabels(self, labels):
-            self.set_thetagrids(theta * 180/np.pi, labels)
+            self.set_thetagrids(theta*180/np.pi, labels)
 
         def _gen_axes_patch(self):
             return self.draw_patch()
@@ -113,13 +113,14 @@ def unit_poly_verts(theta):
 
 
 def example_data():
-    #The following data is from the Denver Aerosol Sources and Health study.
-    #See  doi:10.1016/j.atmosenv.2008.12.017
+    # The following data is from the Denver Aerosol Sources and Health study.
+    # See  doi:10.1016/j.atmosenv.2008.12.017
     #
-    #The data are pollution source profile estimates for five modeled pollution
-    #sources (e.g., cars, wood-burning, etc) that emit 7-9 chemical species.
-    #The radar charts are experimented with here to see if we can nicely
-    #visualize how the modeled source profiles change across four scenarios:
+    # The data are pollution source profile estimates for five modeled
+    # pollution sources (e.g., cars, wood-burning, etc) that emit 7-9 chemical
+    # species. The radar charts are experimented with here to see if we can
+    # nicely visualize how the modeled source profiles change across four
+    # scenarios:
     #  1) No gas-phase species present, just seven particulate counts on
     #     Sulfate
     #     Nitrate
@@ -175,7 +176,7 @@ if __name__ == '__main__':
     colors = ['b', 'r', 'g', 'm', 'y']
     # Plot the four cases from the example data on separate axes
     for n, title in enumerate(data.keys()):
-        ax = fig.add_subplot(2, 2, n+1, projection='radar')
+        ax = fig.add_subplot(2, 2, n + 1, projection='radar')
         plt.rgrids([0.2, 0.4, 0.6, 0.8])
         ax.set_title(title, weight='bold', size='medium', position=(0.5, 1.1),
                      horizontalalignment='center', verticalalignment='center')
