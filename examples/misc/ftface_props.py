@@ -16,20 +16,26 @@ fname = matplotlib.get_data_path() + '/fonts/ttf/VeraIt.ttf'
 
 font = FT2Font(fname)
 
-# these constants are used to access the style_flags and face_flags
-FT_FACE_FLAG_SCALABLE          = 1 << 0
-FT_FACE_FLAG_FIXED_SIZES       = 1 << 1
-FT_FACE_FLAG_FIXED_WIDTH       = 1 << 2
-FT_FACE_FLAG_SFNT              = 1 << 3
-FT_FACE_FLAG_HORIZONTAL        = 1 << 4
-FT_FACE_FLAG_VERTICAL          = 1 << 5
-FT_FACE_FLAG_KERNING           = 1 << 6
-FT_FACE_FLAG_FAST_GLYPHS       = 1 << 7
-FT_FACE_FLAG_MULTIPLE_MASTERS  = 1 << 8
-FT_FACE_FLAG_GLYPH_NAMES       = 1 << 9
-FT_FACE_FLAG_EXTERNAL_STREAM   = 1 << 10
-FT_STYLE_FLAG_ITALIC           = 1 << 0
-FT_STYLE_FLAG_BOLD             = 1 << 1
+# these globals are used to access the style_flags and face_flags
+FT_STYLE_FLAGS = (
+    ('Italics', 0),
+    ('Bold', 1)
+)
+
+FT_FACE_FLAGS = (
+    ('Scalable', 0),
+    ('Fixed sizes', 1),
+    ('Fixed width', 2),
+    ('SFNT', 3),
+    ('Horizontal', 4),
+    ('Vertical', 5),
+    ('Kerning', 6),
+    ('Fast glyphs', 7),
+    ('Mult. masters', 8),
+    ('Glyph names', 9),
+    ('External stream', 10)
+)
+
 
 print('Num faces   :', font.num_faces)       # number of faces in file
 print('Num glyphs  :', font.num_glyphs)      # number of glyphs in the face
@@ -59,18 +65,10 @@ if font.scalable:
     # vertical thickness of the underline
     print('Underline thickness :', font.underline_thickness)
 
-print('Italics       :', font.style_flags & FT_STYLE_FLAG_ITALIC          != 0)
-print('Bold          :', font.style_flags & FT_STYLE_FLAG_BOLD            != 0)
-print('Scalable      :', font.style_flags & FT_FACE_FLAG_SCALABLE         != 0)
-print('Fixed sizes   :', font.style_flags & FT_FACE_FLAG_FIXED_SIZES      != 0)
-print('Fixed width   :', font.style_flags & FT_FACE_FLAG_FIXED_WIDTH      != 0)
-print('SFNT          :', font.style_flags & FT_FACE_FLAG_SFNT             != 0)
-print('Horizontal    :', font.style_flags & FT_FACE_FLAG_HORIZONTAL       != 0)
-print('Vertical      :', font.style_flags & FT_FACE_FLAG_VERTICAL         != 0)
-print('Kerning       :', font.style_flags & FT_FACE_FLAG_KERNING          != 0)
-print('Fast glyphs   :', font.style_flags & FT_FACE_FLAG_FAST_GLYPHS      != 0)
-print('Mult. masters :', font.style_flags & FT_FACE_FLAG_MULTIPLE_MASTERS != 0)
-print('Glyph names   :', font.style_flags & FT_FACE_FLAG_GLYPH_NAMES      != 0)
+for desc, val in FT_STYLE_FLAGS:
+    print('%-16s:' % desc, bool(font.style_flags & (1 << val)))
+for desc, val in FT_FACE_FLAGS:
+    print('%-16s:' % desc, bool(font.style_flags & (1 << val)))
 
 print(dir(font))
 
