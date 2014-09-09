@@ -9,8 +9,12 @@ import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 
 # grab the price data off yahoo
-u1 = urllib.urlretrieve('http://ichart.finance.yahoo.com/table.csv?s=AAPL&d=9&e=14&f=2008&g=d&a=8&b=7&c=1984&ignore=.csv')
-u2 = urllib.urlretrieve('http://ichart.finance.yahoo.com/table.csv?s=GOOG&d=9&e=14&f=2008&g=d&a=8&b=7&c=1984&ignore=.csv')
+u1 = urllib.urlretrieve(
+    'http://ichart.finance.yahoo.com/table.csv?s=AAPL&d=9&e=14&f=2008&g=d&'
+    'a=8&b=7&c=1984&ignore=.csv')
+u2 = urllib.urlretrieve(
+    'http://ichart.finance.yahoo.com/table.csv?s=GOOG&d=9&e=14&f=2008&g=d&'
+    'a=8&b=7&c=1984&ignore=.csv')
 
 # load the CSV files into record arrays
 r1 = mlab.csv2rec(file(u1[0]))
@@ -34,8 +38,8 @@ r = mlab.rec_join('date', r1, r2)
 
 
 # long appl, short goog
-g = r.gains1-r.gains2
-tr = (1+g).cumprod()  # the total return
+g = r.gains1 - r.gains2
+tr = (1 + g).cumprod()  # the total return
 
 # plot the return
 fig, ax = plt.subplots()

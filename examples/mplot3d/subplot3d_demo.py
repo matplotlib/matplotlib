@@ -29,4 +29,3 @@ X, Y, Z = get_test_data(0.05)
 ax.plot_wireframe(X, Y, Z, rstride=10, cstride=10)
 
 plt.show()
-
