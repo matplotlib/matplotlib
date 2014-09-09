@@ -19,7 +19,6 @@ import gobject
 
 
 class ProcessPlotter(object):
-
     def __init__(self):
         self.x = []
         self.y = []
@@ -28,7 +27,6 @@ class ProcessPlotter(object):
         plt.close('all')
 
     def poll_draw(self):
-
         def call_back():
             while 1:
                 if not self.pipe.poll():

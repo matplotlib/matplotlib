@@ -119,7 +119,6 @@ class Puck(object):
 
 
 class Game(object):
-
     def __init__(self, ax):
         # create the initial line
         self.ax = ax
