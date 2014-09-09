@@ -12,17 +12,17 @@ import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots()
-ax.plot([1,2,3])
+ax.plot([1, 2, 3])
 
 if sys.platform == 'win32':
     fpath = 'C:\\Windows\\Fonts\\Tahoma.ttf'
 elif sys.platform.startswith('linux'):
-    fonts = ['/usr/share/fonts/truetype/freefont/FreeSansBoldOblique.ttf',
-      '/usr/share/fonts/truetype/ttf-liberation/LiberationSans-BoldItalic.ttf',
-      '/usr/share/fonts/truetype/msttcorefonts/Comic_Sans_MS.ttf',
-      ]
+    basedir = '/usr/share/fonts/truetype'
+    fonts = ['freefont/FreeSansBoldOblique.ttf',
+             'ttf-liberation/LiberationSans-BoldItalic.ttf',
+             'msttcorefonts/Comic_Sans_MS.ttf']
     for fpath in fonts:
-        if os.path.exists(fpath):
+        if os.path.exists(os.path.join(basedir, fpath)):
             break
 else:
     fpath = '/Library/Fonts/Tahoma.ttf'
@@ -36,4 +36,3 @@ else:
 ax.set_xlabel('This is the default font')
 
 plt.show()
-

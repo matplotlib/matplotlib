@@ -9,7 +9,7 @@ def curvelinear_test2(fig):
     """
     global ax1
     import numpy as np
-    import  mpl_toolkits.axisartist.angle_helper as angle_helper
+    import mpl_toolkits.axisartist.angle_helper as angle_helper
     from matplotlib.projections import PolarAxes
     from matplotlib.transforms import Affine2D
 
@@ -21,10 +21,10 @@ def curvelinear_test2(fig):
     tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()
 
     extreme_finder = angle_helper.ExtremeFinderCycle(20, 20,
-                                                     lon_cycle = 360,
-                                                     lat_cycle = None,
-                                                     lon_minmax = None,
-                                                     lat_minmax = (0, np.inf),
+                                                     lon_cycle=360,
+                                                     lat_cycle=None,
+                                                     lon_minmax=None,
+                                                     lat_minmax=(0, np.inf),
                                                      )
 
     grid_locator1 = angle_helper.LocatorDMS(12)
@@ -36,7 +36,6 @@ def curvelinear_test2(fig):
                                         grid_locator1=grid_locator1,
                                         tick_formatter1=tick_formatter1
                                         )
-
 
     ax1 = SubplotHost(fig, 1, 1, 1, grid_helper=grid_helper)
 
@@ -67,5 +66,3 @@ fig.clf()
 curvelinear_test2(fig)
 
 plt.show()
-
-

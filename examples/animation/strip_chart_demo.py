@@ -7,6 +7,7 @@ from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
+
 class Scope:
     def __init__(self, ax, maxt=2, dt=0.02):
         self.ax = ax
@@ -21,7 +22,7 @@ class Scope:
 
     def update(self, y):
         lastt = self.tdata[-1]
-        if lastt > self.tdata[0] + self.maxt: # reset the arrays
+        if lastt > self.tdata[0] + self.maxt:  # reset the arrays
             self.tdata = [self.tdata[-1]]
             self.ydata = [self.ydata[-1]]
             self.ax.set_xlim(self.tdata[0], self.tdata[0] + self.maxt)
@@ -48,7 +49,7 @@ scope = Scope(ax)
 
 # pass a generator in "emitter" to produce data for the update func
 ani = animation.FuncAnimation(fig, scope.update, emitter, interval=10,
-    blit=True)
+                              blit=True)
 
 
 plt.show()

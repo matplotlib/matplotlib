@@ -14,6 +14,6 @@ for i in range(12):
         color = 'r'
     else:
         color = 'b'
-    plt.plot(vertices[:,0], vertices[:,1], color=color)
+    plt.plot(vertices[:, 0], vertices[:, 1], color=color)
 
 plt.show()

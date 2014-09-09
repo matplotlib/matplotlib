@@ -15,11 +15,11 @@ def side(sankey, n=1):
     colors = cycle(['orange', 'b', 'g', 'r', 'c', 'm', 'y'])
     for i in range(0, 2*n, 2):
         sankey.add(flows=[1, -1], orientations=[-1, -1],
-                   patchlabel=str(prior+i), facecolor=next(colors),
-                   prior=prior+i-1, connect=(1, 0), alpha=0.5)
+                   patchlabel=str(prior + i), facecolor=next(colors),
+                   prior=prior + i - 1, connect=(1, 0), alpha=0.5)
         sankey.add(flows=[1, -1], orientations=[1, 1],
-                   patchlabel=str(prior+i+1), facecolor=next(colors),
-                   prior=prior+i, connect=(1, 0), alpha=0.5)
+                   patchlabel=str(prior + i + 1), facecolor=next(colors),
+                   prior=prior + i, connect=(1, 0), alpha=0.5)
 
 
 def corner(sankey):
@@ -27,7 +27,7 @@ def corner(sankey):
     prior = len(sankey.diagrams)
     sankey.add(flows=[1, -1], orientations=[0, 1],
                patchlabel=str(prior), facecolor='k',
-               prior=prior-1, connect=(1, 0), alpha=0.5)
+               prior=prior - 1, connect=(1, 0), alpha=0.5)
 
 
 fig = plt.figure()

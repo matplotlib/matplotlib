@@ -18,9 +18,12 @@ from matplotlib.projections import register_projection
 
 # The sole purpose of this class is to look at the upper, lower, or total
 # interval as appropriate and see what parts of the tick to draw, if any.
+
+
 class SkewXTick(maxis.XTick):
     def draw(self, renderer):
-        if not self.get_visible(): return
+        if not self.get_visible():
+            return
         renderer.open_group(self.__name__)
 
         lower_interval = self.axes.xaxis.lower_interval
@@ -76,7 +79,7 @@ class SkewSpine(mspines.Spine):
         left = trans.transform_point((0.0, yloc))[0]
         right = trans.transform_point((1.0, yloc))[0]
 
-        pts  = self._path.vertices
+        pts = self._path.vertices
         pts[0, 0] = left
         pts[1, 0] = right
         self.axis.upper_interval = (left, right)
@@ -92,7 +95,7 @@ class SkewXAxes(Axes):
     name = 'skewx'
 
     def _init_axis(self):
-        #Taken from Axes and modified to use our modified X-axis
+        # Taken from Axes and modified to use our modified X-axis
         self.xaxis = SkewXAxis(self)
         self.spines['top'].register_axis(self.xaxis)
         self.spines['bottom'].register_axis(self.xaxis)
@@ -101,10 +104,10 @@ class SkewXAxes(Axes):
         self.spines['right'].register_axis(self.yaxis)
 
     def _gen_axes_spines(self):
-        spines = {'top':SkewSpine.linear_spine(self, 'top'),
-                  'bottom':mspines.Spine.linear_spine(self, 'bottom'),
-                  'left':mspines.Spine.linear_spine(self, 'left'),
-                  'right':mspines.Spine.linear_spine(self, 'right')}
+        spines = {'top': SkewSpine.linear_spine(self, 'top'),
+                  'bottom': mspines.Spine.linear_spine(self, 'bottom'),
+                  'left': mspines.Spine.linear_spine(self, 'left'),
+                  'right': mspines.Spine.linear_spine(self, 'right')}
         return spines
 
     def _set_lim_and_transforms(self):
@@ -114,7 +117,7 @@ class SkewXAxes(Axes):
         """
         rot = 30
 
-        #Get the standard transform setup from the Axes base class
+        # Get the standard transform setup from the Axes base class
         Axes._set_lim_and_transforms(self)
 
         # Need to put the skew in the middle, after the scale and limits,
@@ -122,8 +125,8 @@ class SkewXAxes(Axes):
         # coordinates thus performing the transform around the proper origin
         # We keep the pre-transAxes transform around for other users, like the
         # spines for finding bounds
-        self.transDataToAxes = self.transScale + (self.transLimits +
-                transforms.Affine2D().skew_deg(rot, 0))
+        self.transDataToAxes = self.transScale + \
+            self.transLimits + transforms.Affine2D().skew_deg(rot, 0)
 
         # Create the full transform from Data to Pixels
         self.transData = self.transDataToAxes + self.transAxes
@@ -131,9 +134,9 @@ class SkewXAxes(Axes):
         # Blended transforms like this need to have the skewing applied using
         # both axes, in axes coords like before.
         self._xaxis_transform = (transforms.blended_transform_factory(
-                    self.transScale + self.transLimits,
-                    transforms.IdentityTransform()) +
-                transforms.Affine2D().skew_deg(rot, 0)) + self.transAxes
+            self.transScale + self.transLimits,
+            transforms.IdentityTransform()) +
+            transforms.Affine2D().skew_deg(rot, 0)) + self.transAxes
 
 # Now register the projection with matplotlib so the user can select
 # it.
@@ -142,12 +145,11 @@ register_projection(SkewXAxes)
 if __name__ == '__main__':
     # Now make a simple example using the custom projection.
     from matplotlib.ticker import ScalarFormatter, MultipleLocator
-    from matplotlib.collections import LineCollection
     import matplotlib.pyplot as plt
     from StringIO import StringIO
     import numpy as np
 
-    #Some examples data
+    # Some examples data
     data_txt = '''
   978.0    345    7.8    0.8     61   4.16    325     14  282.7  294.6  283.4
   971.0    404    7.2    0.2     61   4.01    327     17  282.7  294.2  283.4
@@ -221,11 +223,12 @@ if __name__ == '__main__':
   107.8  15850  -64.1  -75.1     21   0.01    265     58  395.0  395.1  395.0
   105.0  16010  -64.7  -75.7     21   0.01    272     50  396.9  396.9  396.9
   103.0  16128  -62.9  -73.9     21   0.02    277     45  402.5  402.6  402.5
-  100.0  16310  -62.5  -73.5     21   0.02    285     36  406.7  406.8  406.7'''
+  100.0  16310  -62.5  -73.5     21   0.02    285     36  406.7  406.8  406.7
+    '''
 
     # Parse the data
     sound_data = StringIO(data_txt)
-    p,h,T,Td = np.loadtxt(sound_data, usecols=range(0,4), unpack=True)
+    p, h, T, Td = np.loadtxt(sound_data, usecols=range(0, 4), unpack=True)
 
     # Create a new figure. The dimensions here give a good aspect ratio
     fig = plt.figure(figsize=(6.5875, 6.2125))
@@ -243,10 +246,10 @@ if __name__ == '__main__':
 
     # Disables the log-formatting that comes with semilogy
     ax.yaxis.set_major_formatter(ScalarFormatter())
-    ax.set_yticks(np.linspace(100,1000,10))
-    ax.set_ylim(1050,100)
+    ax.set_yticks(np.linspace(100, 1000, 10))
+    ax.set_ylim(1050, 100)
 
     ax.xaxis.set_major_locator(MultipleLocator(10))
-    ax.set_xlim(-50,50)
+    ax.set_xlim(-50, 50)
 
     plt.show()

@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import scipy.stats as ss
 from matplotlib.animation import FuncAnimation
 
+
 class UpdateDist(object):
     def __init__(self, ax, prob=0.5):
         self.success = 0
@@ -43,5 +44,5 @@ fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1)
 ud = UpdateDist(ax, prob=0.7)
 anim = FuncAnimation(fig, ud, frames=np.arange(100), init_func=ud.init,
-        interval=100, blit=True)
+                     interval=100, blit=True)
 plt.show()

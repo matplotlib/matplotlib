@@ -32,7 +32,6 @@ class MercatorLatitudeScale(mscale.ScaleBase):
     # scale.
     name = 'mercator'
 
-
     def __init__(self, axis, **kwargs):
         """
         Any keyword arguments passed to ``set_xscale`` and
@@ -77,7 +76,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
 
         deg2rad = np.pi / 180.0
         axis.set_major_locator(FixedLocator(
-                np.arange(-90, 90, 10) * deg2rad))
+            np.arange(-90, 90, 10) * deg2rad))
         axis.set_major_formatter(DegreeFormatter())
         axis.set_minor_formatter(DegreeFormatter())
 
@@ -133,7 +132,8 @@ class MercatorLatitudeScale(mscale.ScaleBase):
             Override this method so matplotlib knows how to get the
             inverse transform for this transform.
             """
-            return MercatorLatitudeScale.InvertedMercatorLatitudeTransform(self.thresh)
+            return MercatorLatitudeScale.InvertedMercatorLatitudeTransform(
+                self.thresh)
 
     class InvertedMercatorLatitudeTransform(mtransforms.Transform):
         input_dims = 1
@@ -170,4 +170,3 @@ if __name__ == '__main__':
     plt.grid(True)
 
     plt.show()
-

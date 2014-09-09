@@ -1,14 +1,13 @@
 import numpy as np
-#from matplotlib.path import Path
 
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 
-from  mpl_toolkits.axisartist.grid_helper_curvelinear import GridHelperCurveLinear
 from mpl_toolkits.axisartist import Subplot
-
 from mpl_toolkits.axisartist import SubplotHost, \
-     ParasiteAxesAuxTrans
+    ParasiteAxesAuxTrans
+from mpl_toolkits.axisartist.grid_helper_curvelinear import \
+    GridHelperCurveLinear
 
 
 def curvelinear_test1(fig):
@@ -18,12 +17,11 @@ def curvelinear_test1(fig):
 
     def tr(x, y):
         x, y = np.asarray(x), np.asarray(y)
-        return x, y-x
+        return x, y - x
 
-    def inv_tr(x,y):
+    def inv_tr(x, y):
         x, y = np.asarray(x), np.asarray(y)
-        return x, y+x
-
+        return x, y + x
 
     grid_helper = GridHelperCurveLinear((tr, inv_tr))
 
@@ -42,15 +40,15 @@ def curvelinear_test1(fig):
     ax1.set_xlim(0, 10.)
     ax1.set_ylim(0, 10.)
 
-    ax1.axis["t"]=ax1.new_floating_axis(0, 3.)
-    ax1.axis["t2"]=ax1.new_floating_axis(1, 7.)
+    ax1.axis["t"] = ax1.new_floating_axis(0, 3.)
+    ax1.axis["t2"] = ax1.new_floating_axis(1, 7.)
     ax1.grid(True)
 
 
-
-import  mpl_toolkits.axisartist.angle_helper as angle_helper
+import mpl_toolkits.axisartist.angle_helper as angle_helper
 from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D
+
 
 def curvelinear_test2(fig):
     """
@@ -67,10 +65,10 @@ def curvelinear_test2(fig):
 
     # 20, 20 : number of sampling points along x, y direction
     extreme_finder = angle_helper.ExtremeFinderCycle(20, 20,
-                                                     lon_cycle = 360,
-                                                     lat_cycle = None,
-                                                     lon_minmax = None,
-                                                     lat_minmax = (0, np.inf),
+                                                     lon_cycle=360,
+                                                     lat_cycle=None,
+                                                     lon_minmax=None,
+                                                     lat_minmax=(0, np.inf),
                                                      )
 
     grid_locator1 = angle_helper.LocatorDMS(12)
@@ -89,7 +87,6 @@ def curvelinear_test2(fig):
                                         tick_formatter1=tick_formatter1
                                         )
 
-
     ax1 = SubplotHost(fig, 1, 2, 2, grid_helper=grid_helper)
 
     # make ticklabels of right and top axis visible.
@@ -97,12 +94,11 @@ def curvelinear_test2(fig):
     ax1.axis["top"].major_ticklabels.set_visible(True)
 
     # let right axis shows ticklabels for 1st coordinate (angle)
-    ax1.axis["right"].get_helper().nth_coord_ticks=0
+    ax1.axis["right"].get_helper().nth_coord_ticks = 0
     # let bottom axis shows ticklabels for 2nd coordinate (radius)
-    ax1.axis["bottom"].get_helper().nth_coord_ticks=1
+    ax1.axis["bottom"].get_helper().nth_coord_ticks = 1
 
     fig.add_subplot(ax1)
-
 
     # A parasite axes with given transform
     ax2 = ParasiteAxesAuxTrans(ax1, tr, "equal")
@@ -128,6 +124,3 @@ if 1:
 
     plt.draw()
     plt.show()
-
-
-
