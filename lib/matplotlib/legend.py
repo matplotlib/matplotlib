@@ -150,6 +150,8 @@ class Legend(Artist):
                  numpoints=None,    # the number of points in the legend line
                  markerscale=None,  # the relative size of legend markers
                                     # vs. original
+                 markerfirst=True,  # controls ordering (left-to-right) of
+                                    # legend marker and label
                  scatterpoints=None,    # number of scatter points
                  scatteryoffsets=None,
                  prop=None,          # properties for the legend texts
@@ -198,6 +200,8 @@ class Legend(Artist):
         prop               the font property
         fontsize           the font size (used only if prop is not specified)
         markerscale        the relative size of legend markers vs. original
+        markerfirst        If true, place legend marker to left of label
+                           If false, place legend marker to right of label
         numpoints          the number of points in the legend for line
         scatterpoints      the number of points in the legend for scatter plot
         scatteryoffsets    a list of yoffsets for scatter symbols in legend
@@ -365,7 +369,7 @@ class Legend(Artist):
             self._drawFrame = rcParams["legend.frameon"]
 
         # init with null renderer
-        self._init_legend_box(handles, labels)
+        self._init_legend_box(handles, labels, markerfirst)
 
         if framealpha is None:
             self.get_frame().set_alpha(rcParams["legend.framealpha"])
@@ -558,7 +562,7 @@ class Legend(Artist):
 
         return handler
 
-    def _init_legend_box(self, handles, labels):
+    def _init_legend_box(self, handles, labels, markerfirst=True):
         """
         Initialize the legend_box. The legend_box is an instance of
         the OffsetBox, which is packed with legend handles and
@@ -669,16 +673,24 @@ class Legend(Artist):
             # pack handleBox and labelBox into itemBox
             itemBoxes = [HPacker(pad=0,
                                  sep=self.handletextpad * fontsize,
-                                 children=[h, t], align="baseline")
+                                 children=[h, t] if markerfirst else [t, h],
+                                 align="baseline")
                          for h, t in handle_label[i0:i0 + di]]
             # minimumdescent=False for the text of the last row of the column
-            itemBoxes[-1].get_children()[1].set_minimumdescent(False)
+            if markerfirst:
+                itemBoxes[-1].get_children()[1].set_minimumdescent(False)
+            else:
+                itemBoxes[-1].get_children()[0].set_minimumdescent(False)
 
             # pack columnBox
+            if markerfirst:
+                alignment = "baseline"
+            else:
+                alignment = "right"
             columnbox.append(VPacker(pad=0,
-                                        sep=self.labelspacing * fontsize,
-                                        align="baseline",
-                                        children=itemBoxes))
+                                     sep=self.labelspacing * fontsize,
+                                     align=alignment,
+                                     children=itemBoxes))
 
         if self._mode == "expand":
             mode = "expand"

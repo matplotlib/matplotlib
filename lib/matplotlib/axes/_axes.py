@@ -360,6 +360,10 @@ class Axes(_AxesBase):
             drawn ones. Default is ``None`` which will take the value from
             the ``legend.markerscale`` :data:`rcParam <matplotlib.rcParams>`.
 
+        *markerfirst*: [ *True* | *False* ]
+            if *True*, legend marker is placed to the left of the legend label
+            if *False*, legend marker is placed to the right of the legend label
+
         frameon : None or bool
             Control whether a frame should be drawn around the legend.
             Default is ``None`` which will take the value from the
