@@ -64,6 +64,18 @@ def test_various_labels():
     ax.legend(numpoints=1, loc=0)
 
 
+@image_comparison(baseline_images=['legend_labels_first'], extensions=['png'],
+                  remove_text=True)
+def test_labels_first():
+    # test labels to left of markers
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(np.arange(10), '-o', label=1)
+    ax.plot(np.ones(10)*5, ':x', label="x")
+    ax.plot(np.arange(20, 10, -1), 'd', label="diamond")
+    ax.legend(loc=0, markerfirst=False)
+
+
 @image_comparison(baseline_images=['fancy'], remove_text=True)
 def test_fancy():
     # using subplot triggers some offsetbox functionality untested elsewhere
