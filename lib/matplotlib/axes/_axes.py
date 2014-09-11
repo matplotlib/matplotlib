@@ -362,7 +362,8 @@ class Axes(_AxesBase):
 
         *markerfirst*: [ *True* | *False* ]
             if *True*, legend marker is placed to the left of the legend label
-            if *False*, legend marker is placed to the right of the legend label
+            if *False*, legend marker is placed to the right of the legend
+                        label
 
         frameon : None or bool
             Control whether a frame should be drawn around the legend.
