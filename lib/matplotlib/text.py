@@ -1647,7 +1647,7 @@ class _AnnotationBase(object):
     @cbook.deprecated('1.4', message='Use `xyann` instead',
                       name='xytext', alternative='xyann')
     def xytext(self):
-        self.xyann
+        return self.xyann
 
     @xytext.setter
     @cbook.deprecated('1.4', message='Use `xyann` instead',
