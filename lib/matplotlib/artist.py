@@ -9,11 +9,11 @@ import inspect
 import matplotlib
 import matplotlib.cbook as cbook
 from matplotlib import docstring, rcParams
-from .transforms import Bbox, IdentityTransform, TransformedBbox, \
-                       TransformedPath, Transform
+from .transforms import (Bbox, IdentityTransform, TransformedBbox,
+                         TransformedPath, Transform)
 from .path import Path
 
-## Note, matplotlib artists use the doc strings for set and get
+# Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
 # set_* method should have a docstring containing the line
 #
@@ -158,7 +158,6 @@ class Artist(object):
         """
         ax = getattr(self, 'axes', None)
         if ax is None or ax.xaxis is None:
-            #print 'artist.convert_xunits no conversion: ax=%s'%ax
             return x
         return ax.xaxis.convert_units(x)
 
@@ -584,7 +583,7 @@ class Artist(object):
         if transform is None:
             if isinstance(path, Rectangle):
                 self.clipbox = TransformedBbox(Bbox.unit(),
-                                              path.get_transform())
+                                               path.get_transform())
                 self._clippath = None
                 success = True
             elif isinstance(path, Patch):
@@ -866,8 +865,8 @@ class Artist(object):
             if matchfunc(c):
                 artists.append(c)
             artists.extend([thisc for thisc in
-                                c.findobj(matchfunc, include_self=False)
-                                                     if matchfunc(thisc)])
+                            c.findobj(matchfunc, include_self=False)
+                            if matchfunc(thisc)])
 
         if include_self and matchfunc(self):
             artists.append(self)
@@ -924,7 +923,8 @@ class ArtistInspector:
         return aliases
 
     _get_valid_values_regex = re.compile(
-                r"\n\s*ACCEPTS:\s*((?:.|\n)*?)(?:$|(?:\n\n))")
+        r"\n\s*ACCEPTS:\s*((?:.|\n)*?)(?:$|(?:\n\n))"
+    )
 
     def get_valid_values(self, attr):
         """
@@ -934,7 +934,8 @@ class ArtistInspector:
         for a line that begins with ACCEPTS:
 
         e.g., for a line linestyle, return
-        "[ ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'steps'`` | ``'None'`` ]"
+        "[ ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'steps'`` | ``'None'``
+        ]"
         """
 
         name = 'set_%s' % attr
@@ -1094,7 +1095,7 @@ class ArtistInspector:
 
         lines.append('')
         lines.append(table_formatstr)
-        lines.append(pad + 'Property'.ljust(col0_len + 3) + \
+        lines.append(pad + 'Property'.ljust(col0_len + 3) +
                      'Description'.ljust(col1_len))
         lines.append(table_formatstr)
 
@@ -1121,7 +1122,6 @@ class ArtistInspector:
         getters = [name for name in dir(o)
                    if name.startswith('get_')
                    and six.callable(getattr(o, name))]
-        #print getters
         getters.sort()
         d = dict()
         for name in getters:
@@ -1323,7 +1323,7 @@ def kwdoc(a):
     hardcopy = matplotlib.rcParams['docstring.hardcopy']
     if hardcopy:
         return '\n'.join(ArtistInspector(a).pprint_setters_rest(
-                                            leadingspace=2))
+                         leadingspace=2))
     else:
         return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))
 
