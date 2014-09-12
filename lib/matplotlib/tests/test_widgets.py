@@ -8,6 +8,10 @@ except ImportError:
     import mock
 
 import matplotlib.widgets as widgets
+
+import numpy as np
+import matplotlib
+from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 
 
@@ -74,13 +78,13 @@ def check_rectangle(**kwargs):
 
     tool = widgets.RectangleSelector(ax, onselect, **kwargs)
     event = get_event(ax, xdata=100, ydata=100, button=1)
-    tool._press(event)
+    tool.press(event)
 
     event = get_event(ax, xdata=125, ydata=125, button=1)
-    tool._onmove(event)
+    tool.onmove(event)
 
     event = get_event(ax, xdata=150, ydata=150, button=1)
-    tool._release(event)
+    tool.release(event)
 
     assert ax._got_onselect
 
@@ -113,13 +117,13 @@ def check_span(*args, **kwargs):
 
     tool = widgets.SpanSelector(ax, onselect, *args, **kwargs)
     event = get_event(ax, xdata=100, ydata=100, button=1)
-    tool._press(event)
+    tool.press(event)
 
     event = get_event(ax, xdata=125, ydata=125, button=1)
-    tool._onmove(event)
+    tool.onmove(event)
 
     event = get_event(ax, xdata=150, ydata=150, button=1)
-    tool._release(event)
+    tool.release(event)
 
     assert ax._got_onselect
 
@@ -139,17 +143,18 @@ def check_lasso_selector(**kwargs):
 
     def onselect(verts):
         ax._got_onselect = True
+        print(verts)
         assert verts == [(100, 100), (125, 125), (150, 150)]
 
     tool = widgets.LassoSelector(ax, onselect, **kwargs)
     event = get_event(ax, xdata=100, ydata=100, button=1)
-    tool._press(event)
+    tool.press(event)
 
     event = get_event(ax, xdata=125, ydata=125, button=1)
-    tool._onmove(event)
+    tool.onmove(event)
 
     event = get_event(ax, xdata=150, ydata=150, button=1)
-    tool._release(event)
+    tool.release(event)
 
     assert ax._got_onselect
 
