@@ -42,4 +42,3 @@ ax2.set_ylabel('sin', color='r')
 for tl in ax2.get_yticklabels():
     tl.set_color('r')
 plt.show()
-

@@ -37,13 +37,13 @@ ax = fig.add_subplot(1, 1, 1, xticks=[], yticks=[],
 sankey = Sankey(ax=ax, scale=0.01, offset=0.2, head_angle=180,
                 format='%.0f', unit='%')
 sankey.add(flows=[25, 0, 60, -10, -20, -5, -15, -10, -40],
-           labels = ['', '', '', 'First', 'Second', 'Third', 'Fourth',
-                     'Fifth', 'Hurray!'],
+           labels=['', '', '', 'First', 'Second', 'Third', 'Fourth',
+                   'Fifth', 'Hurray!'],
            orientations=[-1, 1, 0, 1, 1, 1, -1, -1, 0],
-           pathlengths = [0.25, 0.25, 0.25, 0.25, 0.25, 0.6, 0.25, 0.25,
-                          0.25],
+           pathlengths=[0.25, 0.25, 0.25, 0.25, 0.25, 0.6, 0.25, 0.25,
+                        0.25],
            patchlabel="Widget\nA",
-           alpha=0.2, lw=2.0) # Arguments to matplotlib.patches.PathPatch()
+           alpha=0.2, lw=2.0)  # Arguments to matplotlib.patches.PathPatch()
 diagrams = sankey.finish()
 diagrams[0].patch.set_facecolor('#37c959')
 diagrams[0].texts[-1].set_color('r')

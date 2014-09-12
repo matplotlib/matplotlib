@@ -838,8 +838,16 @@ class Bbox(BboxBase):
         points = np.array(args, dtype=np.float_).reshape(2, 2)
         return Bbox(points)
 
+    def __format__(self, fmt):
+        return (
+            'Bbox(x0={0.x0:{1}}, y0={0.y0:{1}}, x1={0.x1:{1}}, y1={0.y1:{1}})'.
+            format(self, fmt))
+
+    def __str__(self):
+        return format(self, '')
+
     def __repr__(self):
-        return 'Bbox(%r)' % repr(self._points)
+        return 'Bbox([[{0.x0}, {0.y0}], [{0.x1}, {0.y1}]])'.format(self)
 
     def ignore(self, value):
         """

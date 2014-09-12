@@ -937,7 +937,7 @@ class FreeType(SetupPackage):
 
         # Early versions of freetype grep badly inside freetype-config,
         # so catch those cases. (tested with 2.5.3).
-        if 'No such file or directory\ngrep:' in version:
+        if version is None or 'No such file or directory\ngrep:' in version:
             version = self.version_from_header()
 
         return self._check_for_pkg_config(
@@ -1003,13 +1003,22 @@ class Png(SetupPackage):
     name = "png"
 
     def check(self):
+        status, output = getstatusoutput("libpng-config --version")
+        if status == 0:
+            version = output
+        else:
+            version = None
+
         try:
             return self._check_for_pkg_config(
                 'libpng', 'png.h',
-                min_version='1.2')
+                min_version='1.2', version=version)
         except CheckFailed as e:
-            self.__class__.found_external = False
-            return str(e) + ' Using unknown version.'
+            include_dirs = [
+                os.path.join(dir, 'include') for dir in get_base_dirs()]
+            if has_include_file(include_dirs, 'png.h'):
+                return str(e) + ' Using unknown version found on system.'
+            raise
 
     def get_extension(self):
         sources = [
@@ -1017,7 +1026,8 @@ class Png(SetupPackage):
             ]
         ext = make_extension('matplotlib._png', sources)
         pkg_config.setup_extension(
-            ext, 'libpng', default_libraries=['png', 'z'])
+            ext, 'libpng', default_libraries=['png', 'z'],
+            alt_exec='libpng-config --ldflags')
         Numpy().add_flags(ext)
         CXX().add_flags(ext)
         return ext

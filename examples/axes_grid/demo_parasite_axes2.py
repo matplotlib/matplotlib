@@ -15,10 +15,8 @@ if 1:
     par2.axis["right"] = new_fixed_axis(loc="right",
                                         axes=par2,
                                         offset=(offset, 0))
-        
+
     par2.axis["right"].toggle(all=True)
-
-
 
     host.set_xlim(0, 2)
     host.set_ylim(0, 2)
