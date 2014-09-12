@@ -183,7 +183,8 @@
 
 /* the data about edges, zones, and points -- boundary or not, exists
  * or not, z value 0, 1, or 2 -- is kept in a mesh sized data array */
-typedef short Cdata;
+// typedef short Cdata; // 16 bits display rendering
+typedef int Cdata; // 32 bits display rendering
 
 /* information to decide on correct contour direction in saddle zones
  * is stored in a mesh sized array.  Only those entries corresponding
