@@ -319,7 +319,7 @@ class Patch3DCollection(PatchCollection):
         zs = kwargs.pop('zs', 0)
         zdir = kwargs.pop('zdir', 'z')
         self._depthshade = kwargs.pop('depthshade', True)
-        super(self.__class__, self).__init__(*args, **kwargs)
+        PatchCollection.__init__(self, *args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
 
@@ -354,7 +354,7 @@ class Patch3DCollection(PatchCollection):
                self._edgecolor3d)
         ecs = mcolors.colorConverter.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
-        super(self.__class__, self).set_offsets(list(zip(vxs, vys)))
+        PatchCollection.set_offsets(self, list(zip(vxs, vys)))
 
         if vzs.size > 0 :
             return min(vzs)
@@ -386,11 +386,10 @@ class Path3DCollection(PathCollection):
         zs = kwargs.pop('zs', 0)
         zdir = kwargs.pop('zdir', 'z')
         self._depthshade = kwargs.pop('depthshade', True)
-        super(self.__class__, self).__init__(*args, **kwargs)
+        PathCollection.__init__(self, *args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
-
-    def set_sort_zpos(self,val):
+    def set_sort_zpos(self, val):
         '''Set the position to use for z-sorting.'''
         self._sort_zpos = val
 
@@ -421,7 +420,7 @@ class Path3DCollection(PathCollection):
                self._edgecolor3d)
         ecs = mcolors.colorConverter.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
-        super(self.__class__, self).set_offsets(list(zip(vxs, vys)))
+        PathCollection.set_offsets(self, list(zip(vxs, vys)))
 
         if vzs.size > 0 :
             return min(vzs)
@@ -441,7 +440,7 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
                     collection along the *zdir* axis. Defaults to 0.
     *zdir*          The axis in which to place the patches. Default is "z".
     *depthshade*    Whether to shade the patches to give a sense of depth.
-                    Defaults to *True*. 
+                    Defaults to *True*.
 
     """
     if isinstance(col, PathCollection):
