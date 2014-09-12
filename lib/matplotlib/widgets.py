@@ -1101,6 +1101,7 @@ class _SelectorWidget(AxesWidget):
         AxesWidget.__init__(self, ax)
 
         self.visible = True
+        self.onselect = onselect
         self.connect_default_events()
 
         self.background = None
@@ -1130,7 +1131,7 @@ class _SelectorWidget(AxesWidget):
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
     def connect_default_events(self):
-        """Connect the major canvas events to methods.""""
+        """Connect the major canvas events to methods."""
         self.connect_event('motion_notify_event', self._onmove)
         self.connect_event('button_press_event', self._press)
         self.connect_event('button_release_event', self._release)
@@ -1357,7 +1358,8 @@ class SpanSelector(_SelectorWidget):
     def new_axes(self, ax):
         self.ax = ax
         if self.canvas is not ax.figure.canvas:
-            self.disconnect_events()
+            if not self.canvas is None:
+                self.disconnect_events()
 
             self.canvas = ax.figure.canvas
             self.connect_default_events()
@@ -1572,6 +1574,8 @@ class RectangleSelector(_SelectorWidget):
                 lineprops = dict(color='black', linestyle='-',
                                  linewidth=2, alpha=0.5)
             self.lineprops = lineprops
+            if useblit:
+                self.lineprops['animated'] = True
             self.to_draw = Line2D([0, 0], [0, 0], visible=False,
                                   **self.lineprops)
             self.ax.add_line(self.to_draw)
@@ -1705,6 +1709,8 @@ class LassoSelector(_SelectorWidget):
 
         if lineprops is None:
             lineprops = dict()
+        if useblit:
+            lineprops['animated'] = True
         self.line = Line2D([], [], **lineprops)
         self.line.set_visible(False)
         self.ax.add_line(self.line)
