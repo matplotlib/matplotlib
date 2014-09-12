@@ -73,7 +73,8 @@ class Tick(artist.Artist):
                  labelsize=None,
                  labelcolor=None,
                  zorder=None,
-                 gridOn=None,  # defaults to axes.grid depending on axes.grid.which
+                 gridOn=None,  # defaults to axes.grid depending on
+                               # axes.grid.which
                  tick1On=True,
                  tick2On=True,
                  label1On=True,
@@ -88,11 +89,12 @@ class Tick(artist.Artist):
         artist.Artist.__init__(self)
 
         if gridOn is None:
-            if major and (rcParams['axes.grid.which'] in ('both','major')):
+            if major and (rcParams['axes.grid.which'] in ('both', 'major')):
                 gridOn = rcParams['axes.grid']
-            elif (not major) and (rcParams['axes.grid.which'] in ('both','minor')):
+            elif (not major) and (rcParams['axes.grid.which']
+                                  in ('both', 'minor')):
                 gridOn = rcParams['axes.grid']
-            else :
+            else:
                 gridOn = False
 
         self.set_figure(axes.figure)
@@ -174,8 +176,6 @@ class Tick(artist.Artist):
 
     def set_clip_path(self, clippath, transform=None):
         artist.Artist.set_clip_path(self, clippath, transform)
-        #self.tick1line.set_clip_path(clippath, transform)
-        #self.tick2line.set_clip_path(clippath, transform)
         self.gridline.set_clip_path(clippath, transform)
     set_clip_path.__doc__ = artist.Artist.set_clip_path.__doc__
 
@@ -271,7 +271,6 @@ class Tick(artist.Artist):
 
     def _set_artist_props(self, a):
         a.set_figure(self.figure)
-        #if isinstance(a, mlines.Line2D): a.set_clip_box(self.axes.bbox)
 
     def get_view_interval(self):
         'return the view Interval instance for the axis this tick is ticking'
@@ -356,7 +355,6 @@ class XTick(Tick):
         # the y loc is 3 points below the min of y axis
         # get the affine as an a,b,c,d,tx,ty list
         # x in data coords, y in axes coords
-        #t =  mtext.Text(
         trans, vert, horiz = self._get_text1_transform()
         t = mtext.Text(
             x=0, y=0,
@@ -373,7 +371,6 @@ class XTick(Tick):
 
         'Get the default Text 2 instance'
         # x in data coords, y in axes coords
-        #t =  mtext.Text(
         trans, vert, horiz = self._get_text2_transform()
         t = mtext.Text(
             x=0, y=1,
@@ -389,14 +386,10 @@ class XTick(Tick):
     def _get_tick1line(self):
         'Get the default line2D instance'
         # x in data coords, y in axes coords
-        l = mlines.Line2D(xdata=(0,), ydata=(0,),
-                   color=self._color,
-                   linestyle='None',
-                   marker=self._tickmarkers[0],
-                   markersize=self._size,
-                   markeredgewidth=self._width,
-                   zorder=self._zorder,
-                   )
+        l = mlines.Line2D(xdata=(0,), ydata=(0,), color=self._color,
+                          linestyle='None', marker=self._tickmarkers[0],
+                          markersize=self._size,
+                          markeredgewidth=self._width, zorder=self._zorder)
         l.set_transform(self.axes.get_xaxis_transform(which='tick1'))
         self._set_artist_props(l)
         return l
@@ -405,13 +398,12 @@ class XTick(Tick):
         'Get the default line2D instance'
         # x in data coords, y in axes coords
         l = mlines.Line2D(xdata=(0,), ydata=(1,),
-                       color=self._color,
-                       linestyle='None',
-                       marker=self._tickmarkers[1],
-                       markersize=self._size,
-                       markeredgewidth=self._width,
-                       zorder=self._zorder,
-                       )
+                          color=self._color,
+                          linestyle='None',
+                          marker=self._tickmarkers[1],
+                          markersize=self._size,
+                          markeredgewidth=self._width,
+                          zorder=self._zorder)
 
         l.set_transform(self.axes.get_xaxis_transform(which='tick2'))
         self._set_artist_props(l)
@@ -421,12 +413,11 @@ class XTick(Tick):
         'Get the default line2D instance'
         # x in data coords, y in axes coords
         l = mlines.Line2D(xdata=(0.0, 0.0), ydata=(0, 1.0),
-                   color=rcParams['grid.color'],
-                   linestyle=rcParams['grid.linestyle'],
-                   linewidth=rcParams['grid.linewidth'],
-                   alpha=rcParams['grid.alpha'],
-                   markersize=0
-                   )
+                          color=rcParams['grid.color'],
+                          linestyle=rcParams['grid.linestyle'],
+                          linewidth=rcParams['grid.linewidth'],
+                          alpha=rcParams['grid.alpha'],
+                          markersize=0)
         l.set_transform(self.axes.get_xaxis_transform(which='grid'))
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
         self._set_artist_props(l)
@@ -506,7 +497,6 @@ class YTick(Tick):
             horizontalalignment=horiz,
             )
         t.set_transform(trans)
-        #t.set_transform( self.axes.transData )
         self._set_artist_props(t)
         return t
 
@@ -530,13 +520,12 @@ class YTick(Tick):
         # x in axes coords, y in data coords
 
         l = mlines.Line2D((0,), (0,),
-                    color=self._color,
-                    marker=self._tickmarkers[0],
-                    linestyle='None',
-                    markersize=self._size,
-                    markeredgewidth=self._width,
-                    zorder=self._zorder,
-                    )
+                          color=self._color,
+                          marker=self._tickmarkers[0],
+                          linestyle='None',
+                          markersize=self._size,
+                          markeredgewidth=self._width,
+                          zorder=self._zorder)
         l.set_transform(self.axes.get_yaxis_transform(which='tick1'))
         self._set_artist_props(l)
         return l
@@ -545,13 +534,12 @@ class YTick(Tick):
         'Get the default line2D instance'
         # x in axes coords, y in data coords
         l = mlines.Line2D((1,), (0,),
-                    color=self._color,
-                    marker=self._tickmarkers[1],
-                    linestyle='None',
-                    markersize=self._size,
-                    markeredgewidth=self._width,
-                    zorder=self._zorder,
-                    )
+                          color=self._color,
+                          marker=self._tickmarkers[1],
+                          linestyle='None',
+                          markersize=self._size,
+                          markeredgewidth=self._width,
+                          zorder=self._zorder)
         l.set_transform(self.axes.get_yaxis_transform(which='tick2'))
         self._set_artist_props(l)
         return l
@@ -560,12 +548,11 @@ class YTick(Tick):
         'Get the default line2D instance'
         # x in axes coords, y in data coords
         l = mlines.Line2D(xdata=(0, 1), ydata=(0, 0),
-                    color=rcParams['grid.color'],
-                    linestyle=rcParams['grid.linestyle'],
-                    linewidth=rcParams['grid.linewidth'],
-                    alpha=rcParams['grid.alpha'],
-                    markersize=0
-                    )
+                          color=rcParams['grid.color'],
+                          linestyle=rcParams['grid.linestyle'],
+                          linewidth=rcParams['grid.linewidth'],
+                          alpha=rcParams['grid.alpha'],
+                          markersize=0)
 
         l.set_transform(self.axes.get_yaxis_transform(which='grid'))
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
@@ -642,12 +629,6 @@ class Axis(artist.Artist):
         self.major = Ticker()
         self.minor = Ticker()
         self.callbacks = cbook.CallbackRegistry()
-
-        #class dummy:
-        #    locator = None
-        #    formatter = None
-        #self.major = dummy()
-        #self.minor = dummy()
 
         self._autolabelpos = True
         self._smart_bounds = False
@@ -745,8 +726,10 @@ class Axis(artist.Artist):
         self.callbacks = cbook.CallbackRegistry()
 
         # whether the grids are on
-        self._gridOnMajor = rcParams['axes.grid'] and (rcParams['axes.grid.which'] in ('both','major'))
-        self._gridOnMinor = rcParams['axes.grid'] and (rcParams['axes.grid.which'] in ('both','minor'))
+        self._gridOnMajor = (rcParams['axes.grid'] and
+                             rcParams['axes.grid.which'] in ('both', 'major'))
+        self._gridOnMinor = (rcParams['axes.grid'] and
+                             rcParams['axes.grid.which'] in ('both', 'minor'))
 
         self.label.set_text('')
         self._set_artist_props(self.label)
@@ -812,10 +795,10 @@ class Axis(artist.Artist):
         # The following lists may be moved to a more
         # accessible location.
         kwkeys0 = ['size', 'width', 'color', 'tickdir', 'pad',
-                  'labelsize', 'labelcolor', 'zorder', 'gridOn',
-                  'tick1On', 'tick2On', 'label1On', 'label2On']
+                   'labelsize', 'labelcolor', 'zorder', 'gridOn',
+                   'tick1On', 'tick2On', 'label1On', 'label2On']
         kwkeys1 = ['length', 'direction', 'left', 'bottom', 'right', 'top',
-                    'labelleft', 'labelbottom', 'labelright', 'labeltop']
+                   'labelleft', 'labelbottom', 'labelright', 'labeltop']
         kwkeys = kwkeys0 + kwkeys1
         kwtrans = dict()
         if to_init_kw:
@@ -994,9 +977,10 @@ class Axis(artist.Artist):
                 tick_tups = [ti for ti in tick_tups
                              if (ti[1] >= ilow) and (ti[1] <= ihigh)]
 
-        # so that we don't lose ticks on the end, expand out the interval ever so slightly.  The
-        # "ever so slightly" is defined to be the width of a half of a pixel.  We don't want to draw
-        # a tick that even one pixel outside of the defined axis interval.
+        # so that we don't lose ticks on the end, expand out the interval ever
+        # so slightly.  The "ever so slightly" is defined to be the width of a
+        # half of a pixel.  We don't want to draw a tick that even one pixel
+        # outside of the defined axis interval.
         if interval[0] <= interval[1]:
             interval_expanded = interval
         else:
@@ -1095,7 +1079,6 @@ class Axis(artist.Artist):
         bb.extend(ticklabelBoxes)
         bb.extend(ticklabelBoxes2)
 
-        #self.offsetText
         bb = [b for b in bb if b.width != 0 or b.height != 0]
         if bb:
             _bbox = mtransforms.Bbox.union(bb)
@@ -1204,11 +1187,11 @@ class Axis(artist.Artist):
                 return self.get_minorticklabels()
             elif which == 'major':
                 return self.get_majorticklabels()
-            elif which =='both':
+            elif which == 'both':
                 return self.get_majorticklabels() + self.get_minorticklabels()
             else:
-                raise ValueError("`which` must be one of ('minor', 'major', 'both')" +
-                                 "not " + str(which))
+                raise ValueError("`which` must be one of ('minor', 'major', "
+                                 "'both') not " + str(which))
         if minor:
             return self.get_minorticklabels()
         return self.get_majorticklabels()
@@ -1393,7 +1376,6 @@ class Axis(artist.Artist):
         neednew = self.converter != converter
         self.converter = converter
         default = self.converter.default_units(data, self)
-        #print 'update units: default=%s, units=%s'%(default, self.units)
         if default is not None and self.units is None:
             self.set_units(default)
 
@@ -1548,7 +1530,6 @@ class Axis(artist.Artist):
 
         ACCEPTS: sequence of strings
         """
-        #ticklabels = [str(l) for l in ticklabels]
         minor = kwargs.pop('minor', False)
         if minor:
             self.set_minor_formatter(mticker.FixedFormatter(ticklabels))
@@ -1577,7 +1558,7 @@ class Axis(artist.Artist):
 
         ACCEPTS: sequence of floats
         """
-        ### XXX if the user changes units, the information will be lost here
+        # XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)
         if len(ticks) > 1:
             xleft, xright = self.get_view_interval()
@@ -1650,8 +1631,8 @@ class XAxis(Axis):
         l, b = self.axes.transAxes.transform_point((0, 0))
         r, t = self.axes.transAxes.transform_point((1, 1))
         inaxis = xaxes >= 0 and xaxes <= 1 and (
-                   (y < b and y > b - self.pickradius) or
-                   (y > t and y < t + self.pickradius))
+            (y < b and y > b - self.pickradius) or
+            (y > t and y < t + self.pickradius))
         return inaxis, {}
 
     def _get_tick(self, major):
@@ -1665,13 +1646,12 @@ class XAxis(Axis):
         # x in axes coords, y in display coords (to be updated at draw
         # time by _update_label_positions)
         label = mtext.Text(x=0.5, y=0,
-            fontproperties=font_manager.FontProperties(
+                           fontproperties=font_manager.FontProperties(
                                size=rcParams['axes.labelsize'],
                                weight=rcParams['axes.labelweight']),
-            color=rcParams['axes.labelcolor'],
-            verticalalignment='top',
-            horizontalalignment='center',
-            )
+                           color=rcParams['axes.labelcolor'],
+                           verticalalignment='top',
+                           horizontalalignment='center')
 
         label.set_transform(mtransforms.blended_transform_factory(
             self.axes.transAxes, mtransforms.IdentityTransform()))
@@ -1683,44 +1663,50 @@ class XAxis(Axis):
     def _get_offset_text(self):
         # x in axes coords, y in display coords (to be updated at draw time)
         offsetText = mtext.Text(x=1, y=0,
-            fontproperties=font_manager.FontProperties(
-                                          size=rcParams['xtick.labelsize']),
-            color=rcParams['xtick.color'],
-            verticalalignment='top',
-            horizontalalignment='right',
-            )
+                                fontproperties=font_manager.FontProperties(
+                                    size=rcParams['xtick.labelsize']),
+                                color=rcParams['xtick.color'],
+                                verticalalignment='top',
+                                horizontalalignment='right')
         offsetText.set_transform(mtransforms.blended_transform_factory(
-                self.axes.transAxes, mtransforms.IdentityTransform()))
+            self.axes.transAxes, mtransforms.IdentityTransform())
+        )
         self._set_artist_props(offsetText)
         self.offset_text_position = 'bottom'
         return offsetText
 
     def _get_pixel_distance_along_axis(self, where, perturb):
         """
-        Returns the amount, in data coordinates, that a single pixel corresponds to in the
-        locality given by "where", which is also given in data coordinates, and is an x coordinate.
-        "perturb" is the amount to perturb the pixel.  Usually +0.5 or -0.5.
+        Returns the amount, in data coordinates, that a single pixel
+        corresponds to in the locality given by "where", which is also given
+        in data coordinates, and is an x coordinate. "perturb" is the amount
+        to perturb the pixel.  Usually +0.5 or -0.5.
 
-        Implementing this routine for an axis is optional; if present, it will ensure that no
-        ticks are lost due to round-off at the extreme ends of an axis.
+        Implementing this routine for an axis is optional; if present, it will
+        ensure that no ticks are lost due to round-off at the extreme ends of
+        an axis.
         """
 
-        # Note that this routine does not work for a polar axis, because of the 1e-10 below.  To
-        # do things correctly, we need to use rmax instead of 1e-10 for a polar axis.  But
-        # since we do not have that kind of information at this point, we just don't try to
-        # pad anything for the theta axis of a polar plot.
+        # Note that this routine does not work for a polar axis, because of
+        # the 1e-10 below.  To do things correctly, we need to use rmax
+        # instead of 1e-10 for a polar axis.  But since we do not have that
+        # kind of information at this point, we just don't try to pad anything
+        # for the theta axis of a polar plot.
         if self.axes.name == 'polar':
-           return 0.0
+            return 0.0
 
         #
-        # first figure out the pixel location of the "where" point.  We use 1e-10 for the
-        # y point, so that we remain compatible with log axes.
-        #
-        trans = self.axes.transData     # transformation from data coords to display coords
-        transinv = trans.inverted()     # transformation from display coords to data coords
-        pix  = trans.transform_point((where, 1e-10))
-        ptp  = transinv.transform_point((pix[0] + perturb, pix[1])) # perturb the pixel.
-        dx   = abs(ptp[0] - where)
+        # first figure out the pixel location of the "where" point.  We use
+        # 1e-10 for the y point, so that we remain compatible with log axes.
+
+        # transformation from data coords to display coords
+        trans = self.axes.transData
+        # transformation from display coords to data coords
+        transinv = trans.inverted()
+        pix = trans.transform_point((where, 1e-10))
+        # perturb the pixel
+        ptp = transinv.transform_point((pix[0] + perturb, pix[1]))
+        dx = abs(ptp[0] - where)
 
         return dx
 
@@ -1757,9 +1743,9 @@ class XAxis(Axis):
             else:
                 bbox = mtransforms.Bbox.union(bboxes)
                 bottom = bbox.y0
-            self.label.set_position((x,
-                                     bottom - \
-                                       self.labelpad * self.figure.dpi / 72.0))
+            self.label.set_position(
+                (x, bottom - self.labelpad * self.figure.dpi / 72.0)
+            )
 
         else:
             if not len(bboxes2):
@@ -1767,8 +1753,9 @@ class XAxis(Axis):
             else:
                 bbox = mtransforms.Bbox.union(bboxes2)
                 top = bbox.y1
-            self.label.set_position((x,
-                    top + self.labelpad * self.figure.dpi / 72.0))
+            self.label.set_position(
+                (x, top + self.labelpad * self.figure.dpi / 72.0)
+            )
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """
@@ -1781,8 +1768,9 @@ class XAxis(Axis):
         else:
             bbox = mtransforms.Bbox.union(bboxes)
             bottom = bbox.y0
-        self.offsetText.set_position((x,
-            bottom - self.OFFSETTEXTPAD * self.figure.dpi / 72.0))
+        self.offsetText.set_position(
+            (x, bottom - self.OFFSETTEXTPAD * self.figure.dpi / 72.0)
+        )
 
     def get_text_heights(self, renderer):
         """
@@ -1850,24 +1838,24 @@ class XAxis(Axis):
         majt = self.majorTicks[0]
         mT = self.minorTicks[0]
 
-        majorTop = (not majt.tick1On) and \
-                   majt.tick2On and (not majt.label1On) and majt.label2On
-        minorTop = (not mT.tick1On) and \
-                mT.tick2On and (not mT.label1On) and mT.label2On
+        majorTop = ((not majt.tick1On) and majt.tick2On and
+                    (not majt.label1On) and majt.label2On)
+        minorTop = ((not mT.tick1On) and mT.tick2On and
+                    (not mT.label1On) and mT.label2On)
         if majorTop and minorTop:
             return 'top'
 
-        MajorBottom = majt.tick1On and (not majt.tick2On) and \
-                        majt.label1On and (not majt.label2On)
-        MinorBottom = mT.tick1On and (not mT.tick2On) and \
-                        mT.label1On and (not mT.label2On)
+        MajorBottom = (majt.tick1On and (not majt.tick2On) and
+                       majt.label1On and (not majt.label2On))
+        MinorBottom = (mT.tick1On and (not mT.tick2On) and
+                       mT.label1On and (not mT.label2On))
         if MajorBottom and MinorBottom:
             return 'bottom'
 
-        majorDefault = majt.tick1On and majt.tick2On and \
-                        majt.label1On and (not majt.label2On)
-        minorDefault = mT.tick1On and mT.tick2On and \
-                        mT.label1On and (not mT.label2On)
+        majorDefault = (majt.tick1On and majt.tick2On and
+                        majt.label1On and (not majt.label2On))
+        minorDefault = (mT.tick1On and mT.tick2On and
+                        mT.label1On and (not mT.label2On))
         if majorDefault and minorDefault:
             return 'default'
 
@@ -1952,8 +1940,8 @@ class YAxis(Axis):
         l, b = self.axes.transAxes.transform_point((0, 0))
         r, t = self.axes.transAxes.transform_point((1, 1))
         inaxis = yaxes >= 0 and yaxes <= 1 and (
-                   (x < l and x > l - self.pickradius) or
-                   (x > r and x < r + self.pickradius))
+            (x < l and x > l - self.pickradius) or
+            (x > r and x < r + self.pickradius))
         return inaxis, {}
 
     def _get_tick(self, major):
@@ -1967,16 +1955,15 @@ class YAxis(Axis):
         # x in display coords (updated by _update_label_position)
         # y in axes coords
         label = mtext.Text(x=0, y=0.5,
-            # todo: get the label position
-            fontproperties=font_manager.FontProperties(
+                           # todo: get the label position
+                           fontproperties=font_manager.FontProperties(
                                size=rcParams['axes.labelsize'],
                                weight=rcParams['axes.labelweight']),
-            color=rcParams['axes.labelcolor'],
-            verticalalignment='bottom',
-            horizontalalignment='center',
-            rotation='vertical',
-            rotation_mode='anchor',
-            )
+                           color=rcParams['axes.labelcolor'],
+                           verticalalignment='bottom',
+                           horizontalalignment='center',
+                           rotation='vertical',
+                           rotation_mode='anchor')
         label.set_transform(mtransforms.blended_transform_factory(
             mtransforms.IdentityTransform(), self.axes.transAxes))
 
@@ -1987,37 +1974,44 @@ class YAxis(Axis):
     def _get_offset_text(self):
         # x in display coords, y in axes coords (to be updated at draw time)
         offsetText = mtext.Text(x=0, y=0.5,
-            fontproperties=font_manager.FontProperties(
-                                          size=rcParams['ytick.labelsize']),
-            color=rcParams['ytick.color'],
-            verticalalignment='baseline',
-            horizontalalignment='left',
-            )
+                                fontproperties=font_manager.FontProperties(
+                                    size=rcParams['ytick.labelsize']
+                                ),
+                                color=rcParams['ytick.color'],
+                                verticalalignment='baseline',
+                                horizontalalignment='left')
         offsetText.set_transform(mtransforms.blended_transform_factory(
-                self.axes.transAxes, mtransforms.IdentityTransform()))
+            self.axes.transAxes, mtransforms.IdentityTransform())
+        )
         self._set_artist_props(offsetText)
         self.offset_text_position = 'left'
         return offsetText
 
     def _get_pixel_distance_along_axis(self, where, perturb):
         """
-        Returns the amount, in data coordinates, that a single pixel corresponds to in the
-        locality given by "where", which is also given in data coordinates, and is an y coordinate.
-        "perturb" is the amount to perturb the pixel.  Usually +0.5 or -0.5.
+        Returns the amount, in data coordinates, that a single pixel
+        corresponds to in the locality given by *where*, which is also given
+        in data coordinates, and is an y coordinate.
 
-        Implementing this routine for an axis is optional; if present, it will ensure that no
-        ticks are lost due to round-off at the extreme ends of an axis.
+        *perturb* is the amount to perturb the pixel.  Usually +0.5 or -0.5.
+
+        Implementing this routine for an axis is optional; if present, it will
+        ensure that no ticks are lost due to round-off at the extreme ends of
+        an axis.
         """
 
         #
-        # first figure out the pixel location of the "where" point.  We use 1e-10 for the
-        # x point, so that we remain compatible with log axes.
-        #
-        trans = self.axes.transData     # transformation from data coords to display coords
-        transinv = trans.inverted()     # transformation from display coords to data coords
-        pix  = trans.transform_point((1e-10, where))
-        ptp  = transinv.transform_point((pix[0], pix[1] + perturb)) # perturb the pixel.
-        dy   = abs(ptp[1] - where)
+        # first figure out the pixel location of the "where" point.  We use
+        # 1e-10 for the x point, so that we remain compatible with log axes.
+
+        # transformation from data coords to display coords
+        trans = self.axes.transData
+        # transformation from display coords to data coords
+        transinv = trans.inverted()
+        pix = trans.transform_point((1e-10, where))
+        # perturb the pixel
+        ptp = transinv.transform_point((pix[0], pix[1] + perturb))
+        dy = abs(ptp[1] - where)
         return dy
 
     def get_label_position(self):
@@ -2056,8 +2050,9 @@ class YAxis(Axis):
                 bbox = mtransforms.Bbox.union(bboxes)
                 left = bbox.x0
 
-            self.label.set_position((left - \
-                    self.labelpad * self.figure.dpi / 72.0, y))
+            self.label.set_position(
+                (left - self.labelpad * self.figure.dpi / 72.0, y)
+            )
 
         else:
             if not len(bboxes2):
@@ -2066,8 +2061,9 @@ class YAxis(Axis):
                 bbox = mtransforms.Bbox.union(bboxes2)
                 right = bbox.x1
 
-            self.label.set_position((right + \
-                            self.labelpad * self.figure.dpi / 72.0, y))
+            self.label.set_position(
+                (right + self.labelpad * self.figure.dpi / 72.0, y)
+            )
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """
@@ -2076,8 +2072,9 @@ class YAxis(Axis):
         """
         x, y = self.offsetText.get_position()
         top = self.axes.bbox.ymax
-        self.offsetText.set_position((x,
-            top + self.OFFSETTEXTPAD * self.figure.dpi / 72.0))
+        self.offsetText.set_position(
+            (x, top + self.OFFSETTEXTPAD * self.figure.dpi / 72.0)
+        )
 
     def set_offset_position(self, position):
         assert position == 'left' or position == 'right'
@@ -2153,24 +2150,24 @@ class YAxis(Axis):
         majt = self.majorTicks[0]
         mT = self.minorTicks[0]
 
-        majorRight = (not majt.tick1On) and majt.tick2On \
-                        and (not majt.label1On) and majt.label2On
-        minorRight = (not mT.tick1On) and mT.tick2On and \
-                        (not mT.label1On) and mT.label2On
+        majorRight = ((not majt.tick1On) and majt.tick2On
+                      and (not majt.label1On) and majt.label2On)
+        minorRight = ((not mT.tick1On) and mT.tick2On and
+                      (not mT.label1On) and mT.label2On)
         if majorRight and minorRight:
             return 'right'
 
-        majorLeft = majt.tick1On and (not majt.tick2On) and \
-                        majt.label1On and (not majt.label2On)
-        minorLeft = mT.tick1On and (not mT.tick2On) and \
-                        mT.label1On and (not mT.label2On)
+        majorLeft = (majt.tick1On and (not majt.tick2On) and
+                     majt.label1On and (not majt.label2On))
+        minorLeft = (mT.tick1On and (not mT.tick2On) and
+                     mT.label1On and (not mT.label2On))
         if majorLeft and minorLeft:
             return 'left'
 
-        majorDefault = majt.tick1On and majt.tick2On and \
-                            majt.label1On and (not majt.label2On)
-        minorDefault = mT.tick1On and mT.tick2On and \
-                            mT.label1On and (not mT.label2On)
+        majorDefault = (majt.tick1On and majt.tick2On and
+                        majt.label1On and (not majt.label2On))
+        minorDefault = (mT.tick1On and mT.tick2On and
+                        mT.label1On and (not mT.label2On))
         if majorDefault and minorDefault:
             return 'default'
 

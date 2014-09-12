@@ -40,7 +40,7 @@ def get_intersection(cx1, cy1, cos_t1, sin_t1,
     if ad_bc == 0.:
         raise ValueError("Given lines do not intersect")
 
-    #rhs_inverse
+    # rhs_inverse
     a_, b_ = d, -b
     c_, d_ = -c, a
     a_, b_, c_, d_ = [k / ad_bc for k in [a_, b_, c_, d_]]
@@ -70,7 +70,7 @@ def get_normal_points(cx, cy, cos_t, sin_t, length):
     return x1, y1, x2, y2
 
 
-## BEZIER routines
+# BEZIER routines
 
 # subdividing bezier curve
 # http://www.cs.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/Bezier/bezier-sub.html
@@ -126,7 +126,8 @@ def find_bezier_t_intersecting_with_closedpath(bezier_point_at_t,
 
     if not xor(start_inside, end_inside):
         raise NonIntersectingPathException(
-                "the segment does not seem to intersect with the path")
+            "the segment does not seem to intersect with the path"
+        )
 
     while 1:
 
@@ -233,7 +234,7 @@ def find_r_to_boundary_of_closedpath(inside_closedpath, xy,
                                                t0=rmin, t1=rmax,
                                                tolerence=tolerence)
 
-## matplotlib specific
+# matplotlib specific
 
 
 def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
@@ -285,8 +286,6 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
     verts_left = left[1:]
     verts_right = right[:]
 
-    #i += 1
-
     if path.codes is None:
         path_in = Path(concat([path.vertices[:i], verts_left]))
         path_out = Path(concat([verts_right, path.vertices[i:]]))
@@ -298,7 +297,7 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
         path_out = Path(concat([verts_right, path.vertices[i:]]),
                         concat([codes_right, path.codes[i:]]))
 
-    if reorder_inout and begin_inside == False:
+    if reorder_inout and begin_inside is False:
         path_in, path_out = path_out, path_in
 
     return path_in, path_out
@@ -330,7 +329,7 @@ def check_if_parallel(dx1, dy1, dx2, dy2, tolerence=1.e-5):
     theta1 = np.arctan2(dx1, dy1)
     theta2 = np.arctan2(dx2, dy2)
     dtheta = np.abs(theta1 - theta2)
-    if  dtheta < tolerence:
+    if dtheta < tolerence:
         return 1
     elif np.abs(dtheta - np.pi) < tolerence:
         return -1
@@ -360,7 +359,6 @@ def get_parallels(bezier2, width):
     if parallel_test == -1:
         warnings.warn(
             "Lines do not intersect. A straight line is used instead.")
-        #cmx, cmy = 0.5*(c1x+c2x), 0.5*(c1y+c2y)
         cos_t1, sin_t1 = get_cos_sin(c1x, c1y, c2x, c2y)
         cos_t2, sin_t2 = cos_t1, sin_t1
     else:
@@ -373,10 +371,12 @@ def get_parallels(bezier2, width):
     # throught c1 and perpendicular to the tangential lines of the
     # bezier path at a distance of width. Same thing for c2_left and
     # c2_right with respect to c2.
-    c1x_left, c1y_left, c1x_right, c1y_right = \
-              get_normal_points(c1x, c1y, cos_t1, sin_t1, width)
-    c2x_left, c2y_left, c2x_right, c2y_right = \
-              get_normal_points(c2x, c2y, cos_t2, sin_t2, width)
+    c1x_left, c1y_left, c1x_right, c1y_right = (
+        get_normal_points(c1x, c1y, cos_t1, sin_t1, width)
+    )
+    c2x_left, c2y_left, c2x_right, c2y_right = (
+        get_normal_points(c2x, c2y, cos_t2, sin_t2, width)
+    )
 
     # find cm_left which is the intersectng point of a line through
     # c1_left with angle t1 and a line throught c2_left with angle
@@ -384,18 +384,20 @@ def get_parallels(bezier2, width):
     if parallel_test != 0:
         # a special case for a straight line, i.e., angle between two
         # lines are smaller than some (arbitrtay) value.
-        cmx_left, cmy_left = \
-                  0.5 * (c1x_left + c2x_left), 0.5 * (c1y_left + c2y_left)
-        cmx_right, cmy_right = \
-                   0.5 * (c1x_right + c2x_right), 0.5 * (c1y_right + c2y_right)
+        cmx_left, cmy_left = (
+            0.5 * (c1x_left + c2x_left), 0.5 * (c1y_left + c2y_left)
+        )
+        cmx_right, cmy_right = (
+            0.5 * (c1x_right + c2x_right), 0.5 * (c1y_right + c2y_right)
+        )
     else:
-        cmx_left, cmy_left = \
-                  get_intersection(c1x_left, c1y_left, cos_t1, sin_t1,
-                                   c2x_left, c2y_left, cos_t2, sin_t2)
+        cmx_left, cmy_left = get_intersection(c1x_left, c1y_left, cos_t1,
+                                              sin_t1, c2x_left, c2y_left,
+                                              cos_t2, sin_t2)
 
-        cmx_right, cmy_right = \
-                   get_intersection(c1x_right, c1y_right, cos_t1, sin_t1,
-                                    c2x_right, c2y_right, cos_t2, sin_t2)
+        cmx_right, cmy_right = get_intersection(c1x_right, c1y_right, cos_t1,
+                                                sin_t1, c2x_right, c2y_right,
+                                                cos_t2, sin_t2)
 
     # the parralel bezier lines are created with control points of
     # [c1_left, cm_left, c2_left] and [c1_right, cm_right, c2_right]
@@ -441,10 +443,12 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
     # throught c1 and perpendicular to the tangential lines of the
     # bezier path at a distance of width. Same thing for c3_left and
     # c3_right with respect to c3.
-    c1x_left, c1y_left, c1x_right, c1y_right = \
-              get_normal_points(c1x, c1y, cos_t1, sin_t1, width * w1)
-    c3x_left, c3y_left, c3x_right, c3y_right = \
-              get_normal_points(c3x, c3y, cos_t2, sin_t2, width * w2)
+    c1x_left, c1y_left, c1x_right, c1y_right = (
+        get_normal_points(c1x, c1y, cos_t1, sin_t1, width * w1)
+    )
+    c3x_left, c3y_left, c3x_right, c3y_right = (
+        get_normal_points(c3x, c3y, cos_t2, sin_t2, width * w2)
+    )
 
     # find c12, c23 and c123 which are middle points of c1-cm, cm-c3 and
     # c12-c23
@@ -455,8 +459,9 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
     # tangential angle of c123 (angle between c12 and c23)
     cos_t123, sin_t123 = get_cos_sin(c12x, c12y, c23x, c23y)
 
-    c123x_left, c123y_left, c123x_right, c123y_right = \
-                get_normal_points(c123x, c123y, cos_t123, sin_t123, width * wm)
+    c123x_left, c123y_left, c123x_right, c123y_right = (
+        get_normal_points(c123x, c123y, cos_t123, sin_t123, width * wm)
+    )
 
     path_left = find_control_points(c1x_left, c1y_left,
                                     c123x_left, c123y_left,
