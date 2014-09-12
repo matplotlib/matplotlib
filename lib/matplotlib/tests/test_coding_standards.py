@@ -178,7 +178,6 @@ def test_pep8_conformance_installed_files():
                           'font_manager.py',
                           'fontconfig_pattern.py',
                           'gridspec.py',
-                          'legend.py',
                           'legend_handler.py',
                           'mathtext.py',
                           'patheffects.py',
