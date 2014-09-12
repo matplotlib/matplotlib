@@ -8,10 +8,6 @@ except ImportError:
     import mock
 
 import matplotlib.widgets as widgets
-
-import numpy as np
-import matplotlib
-from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 
 
@@ -90,12 +86,12 @@ def check_rectangle(**kwargs):
 
 
 def test_rectangle_selector():
-        check_rectangle()
-        check_rectangle(drawtype='line', useblit=False)
-        check_rectangle(useblit=True, button=1)
-        check_rectangle(drawtype='none', minspanx=10, minspany=10)
-        check_rectangle(minspanx=10, minspany=10, spancoords='pixels')
-        check_rectangle(rectprops=dict(fill=True))
+    check_rectangle()
+    check_rectangle(drawtype='line', useblit=False)
+    check_rectangle(useblit=True, button=1)
+    check_rectangle(drawtype='none', minspanx=10, minspany=10)
+    check_rectangle(minspanx=10, minspany=10, spancoords='pixels')
+    check_rectangle(rectprops=dict(fill=True))
 
 
 def check_span(*args, **kwargs):
@@ -160,6 +156,6 @@ def check_lasso_selector(**kwargs):
 
 
 def test_lasso_selector():
-        check_lasso_selector()
-        check_lasso_selector(useblit=False, lineprops=dict(color='red'))
-        check_lasso_selector(useblit=True, button=1)
+    check_lasso_selector()
+    check_lasso_selector(useblit=False, lineprops=dict(color='red'))
+    check_lasso_selector(useblit=True, button=1)
