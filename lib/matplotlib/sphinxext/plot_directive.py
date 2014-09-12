@@ -447,8 +447,10 @@ def run_code(code, code_path, ns=None, function_name=None):
     # Change the working directory to the directory of the example, so
     # it can get at its data files, if any.  Add its path to sys.path
     # so it can import any helper modules sitting beside it.
-
-    pwd = os.getcwd()
+    if six.PY2:
+        pwd = os.getcwdu()
+    else:
+        pwd = os.getcwd()
     old_sys_path = list(sys.path)
     if setup.config.plot_working_directory is not None:
         try:

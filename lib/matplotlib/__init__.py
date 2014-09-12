@@ -745,7 +745,11 @@ def matplotlib_fname():
     - Lastly, it looks in `$MATPLOTLIBDATA/matplotlibrc` for a
       system-defined copy.
     """
-    fname = os.path.join(os.getcwd(), 'matplotlibrc')
+    if six.PY2:
+        cwd = os.getcwdu()
+    else:
+        cwd = os.getcwd()
+    fname = os.path.join(cwd, 'matplotlibrc')
     if os.path.exists(fname):
         return fname
 
