@@ -1100,8 +1100,8 @@ class _SelectorWidget(AxesWidget):
     def __init__(self, ax, onselect, useblit=False, button=None):
         AxesWidget.__init__(self, ax)
 
-         self.visible = True
-         self.connect_default_events()
+        self.visible = True
+        self.connect_default_events()
 
         self.background = None
         self.artists = []
