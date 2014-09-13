@@ -94,7 +94,7 @@ class Puck(object):
         if self.y < -1 + fudge or self.y > 1 - fudge:
             self.vy *= -1.0
             # add some randomness, just to make it interesting
-            self.vy -= (randn() / 300.0 + 1 / 300.0) * np.sign(self.vy)
+            self.vy -= (randn()/300.0 + 1/300.0) * np.sign(self.vy)
         self._speedlimit()
         return False
 
