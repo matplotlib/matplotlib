@@ -38,25 +38,42 @@ ind = np.lexsort((val, sat, hue))
 sorted_colors = [colors_[i] for i in ind]
 
 n = len(sorted_colors)
-ncols = 3
+ncols = 4
 nrows = int(np.ceil(1. * n / ncols))
 
-fig = plt.figure(figsize=(ncols*2.5, nrows*2))
+fig = plt.figure()
+ax = fig.add_subplot(111)
+
+X, Y = fig.get_dpi() * fig.get_size_inches()
+
+# row height
+h = Y / (nrows + 1)
+# col width
+w = X / ncols
+
 for i, (name, color) in enumerate(sorted_colors):
-    ax = fig.add_subplot(nrows, ncols, i + 1)
-    ax.text(0.55, 0.5, name, fontsize=12,
+    col = i % ncols
+    row = int(i / ncols)
+    y = Y - (row * h) - h
+
+    xi_line = w * (col + 0.05)
+    xf_line = w * (col + 0.25)
+    xi_text = w * (col + 0.3)
+
+    ax.text(xi_text,  y, name, fontsize=(h * 0.8),
             horizontalalignment='left',
             verticalalignment='center')
 
-    # Add extra black line a little bit thicker to make
-    # clear colors more visible.
-    ax.hlines(0.5, 0, 0.5, color='black', linewidth=10)
-    ax.hlines(0.5, 0, 0.5, color=color, linewidth=8)
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.set_axis_off()
+#     Add extra black line a little bit thicker to make
+#     clear colors more visible.
+    ax.hlines(y, xi_line, xf_line, color='black', linewidth=(h * 0.7))
+    ax.hlines(y + h * 0.1, xi_line, xf_line, color=color, linewidth=(h * 0.6))
 
-fig.subplots_adjust(left=0.01, right=0.99,
-                    top=0.99, bottom=0.01,
-                    hspace=1, wspace=0.1)
+ax.set_xlim(0, X)
+ax.set_ylim(0, Y)
+ax.set_axis_off()
+
+fig.subplots_adjust(left=0, right=1,
+                    top=1, bottom=0,
+                    hspace=0, wspace=0)
 plt.show()
