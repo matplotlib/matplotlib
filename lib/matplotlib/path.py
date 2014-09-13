@@ -82,11 +82,11 @@ class Path(object):
     """
 
     # Path codes
-    STOP      = 0    # 1 vertex
-    MOVETO    = 1    # 1 vertex
-    LINETO    = 2    # 1 vertex
-    CURVE3    = 3    # 2 vertices
-    CURVE4    = 4    # 3 vertices
+    STOP = 0         # 1 vertex
+    MOVETO = 1       # 1 vertex
+    LINETO = 2       # 1 vertex
+    CURVE3 = 3       # 2 vertices
+    CURVE4 = 4       # 3 vertices
     CLOSEPOLY = 79   # 1 vertex
 
     #: A dictionary mapping Path codes to the number of vertices that the
@@ -100,8 +100,8 @@ class Path(object):
 
     code_type = np.uint8
 
-    def __init__(self, vertices, codes=None, _interpolation_steps=1, closed=False,
-                 readonly=False):
+    def __init__(self, vertices, codes=None, _interpolation_steps=1,
+                 closed=False, readonly=False):
         """
         Create a new path with the given vertices and codes.
 
@@ -186,21 +186,26 @@ class Path(object):
         pth._codes = codes
         pth._readonly = internals.pop('readonly', False)
         pth.should_simplify = internals.pop('should_simplify', True)
-        pth.simplify_threshold = internals.pop('simplify_threshold',
-                                          rcParams['path.simplify_threshold'])
+        pth.simplify_threshold = (
+            internals.pop('simplify_threshold',
+                          rcParams['path.simplify_threshold'])
+        )
         pth._has_nonfinite = internals.pop('has_nonfinite', False)
         pth._interpolation_steps = internals.pop('interpolation_steps', 1)
         if internals:
             raise ValueError('Unexpected internals provided to '
                              '_fast_from_codes_and_verts: '
-                             '{0}'.format('\n *'.join(six.iterkeys(internals))))
+                             '{0}'.format('\n *'.join(six.iterkeys(
+                                 internals
+                             ))))
         return pth
 
     def _update_values(self):
         self._should_simplify = (
             rcParams['path.simplify'] and
             (len(self._vertices) >= 128 and
-            (self._codes is None or np.all(self._codes <= Path.LINETO))))
+             (self._codes is None or np.all(self._codes <= Path.LINETO)))
+        )
         self._simplify_threshold = rcParams['path.simplify_threshold']
         self._has_nonfinite = not np.isfinite(self._vertices).all()
 
@@ -307,11 +312,11 @@ class Path(object):
 
         """
 
-        # for each poly: 1 for the MOVETO, (numsides-1) for the LINETO, 1 for the
-        # CLOSEPOLY; the vert for the closepoly is ignored but we still need
-        # it to keep the codes aligned with the vertices
+        # for each poly: 1 for the MOVETO, (numsides-1) for the LINETO, 1 for
+        # the CLOSEPOLY; the vert for the closepoly is ignored but we still
+        # need it to keep the codes aligned with the vertices
         numpolys, numsides, two = XY.shape
-        assert(two==2)
+        assert(two == 2)
         stride = numsides + 1
         nverts = numpolys * stride
         verts = np.zeros((nverts, 2))
@@ -319,7 +324,7 @@ class Path(object):
         codes[0::stride] = cls.MOVETO
         codes[numsides::stride] = cls.CLOSEPOLY
         for i in range(numsides):
-            verts[i::stride] = XY[:,i]
+            verts[i::stride] = XY[:, i]
 
         return cls(verts, codes)
 
@@ -422,8 +427,8 @@ class Path(object):
                 i += num_vertices
 
     def cleaned(self, transform=None, remove_nans=False, clip=None,
-                  quantize=False, simplify=False, curves=False,
-                  stroke_width=1.0, snap=False, sketch=None):
+                quantize=False, simplify=False, curves=False,
+                stroke_width=1.0, snap=False, sketch=None):
         """
         Cleans up the path according to the parameters returning a new
         Path instance.
@@ -473,7 +478,8 @@ class Path(object):
         """
         if transform is not None:
             transform = transform.frozen()
-        result = _path.point_in_path(point[0], point[1], radius, self, transform)
+        result = _path.point_in_path(point[0], point[1], radius, self,
+                                     transform)
         return result
 
     def contains_points(self, points, transform=None, radius=0.0):
@@ -592,6 +598,7 @@ class Path(object):
         return _path.convert_path_to_polygons(self, transform, width, height)
 
     _unit_rectangle = None
+
     @classmethod
     def unit_rectangle(cls):
         """
@@ -600,8 +607,10 @@ class Path(object):
         """
         if cls._unit_rectangle is None:
             cls._unit_rectangle = \
-                cls([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]],
-                    [cls.MOVETO, cls.LINETO, cls.LINETO, cls.LINETO, cls.CLOSEPOLY],
+                cls([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0],
+                     [0.0, 0.0]],
+                    [cls.MOVETO, cls.LINETO, cls.LINETO, cls.LINETO,
+                     cls.CLOSEPOLY],
                     readonly=True)
         return cls._unit_rectangle
 
@@ -719,7 +728,7 @@ class Path(object):
         MAGIC45 = np.sqrt((MAGIC*MAGIC) / 2.0)
 
         vertices = np.array([[0.0, -1.0],
-                    
+
                              [MAGIC, -1.0],
                              [SQRTHALF-MAGIC45, -SQRTHALF-MAGIC45],
                              [SQRTHALF, -SQRTHALF],
@@ -826,7 +835,7 @@ class Path(object):
         theta1 *= np.pi / 180.0
         theta2 *= np.pi / 180.0
 
-        twopi  = np.pi * 2.0
+        twopi = np.pi * 2.0
         halfpi = np.pi * 0.5
 
         eta1 = np.arctan2(np.sin(theta1), np.cos(theta1))
@@ -877,8 +886,8 @@ class Path(object):
             vertex_offset = 1
             end = length
 
-        vertices[vertex_offset  :end:3, 0] = xA + alpha * xA_dot
-        vertices[vertex_offset  :end:3, 1] = yA + alpha * yA_dot
+        vertices[vertex_offset:end:3, 0] = xA + alpha * xA_dot
+        vertices[vertex_offset:end:3, 1] = yA + alpha * yA_dot
         vertices[vertex_offset+1:end:3, 0] = xB - alpha * xB_dot
         vertices[vertex_offset+1:end:3, 1] = yB - alpha * yB_dot
         vertices[vertex_offset+2:end:3, 0] = xB

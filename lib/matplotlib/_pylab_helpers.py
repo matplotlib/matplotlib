@@ -5,14 +5,14 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-
-import sys, gc
-
+import sys
+import gc
 import atexit
 
 
 def error_msg(msg):
     print(msg, file=sys.stderr)
+
 
 class Gcf(object):
     """
@@ -54,7 +54,8 @@ class Gcf(object):
         In the interactive backends, this is bound to the
         window "destroy" and "delete" events.
         """
-        if not Gcf.has_fignum(num): return
+        if not Gcf.has_fignum(num):
+            return
         manager = Gcf.figs[num]
         manager.canvas.mpl_disconnect(manager._cidgcf)
 
@@ -67,7 +68,6 @@ class Gcf(object):
                 Gcf._activeQue.append(f)
 
         del Gcf.figs[num]
-        #print len(Gcf.figs.keys()), len(Gcf._activeQue)
         manager.destroy()
         gc.collect(1)
 
@@ -118,9 +118,10 @@ class Gcf(object):
         """
         Return the manager of the active figure, or *None*.
         """
-        if len(Gcf._activeQue)==0:
+        if len(Gcf._activeQue) == 0:
             return None
-        else: return Gcf._activeQue[-1]
+        else:
+            return Gcf._activeQue[-1]
 
     @staticmethod
     def set_active(manager):
@@ -130,7 +131,8 @@ class Gcf(object):
         oldQue = Gcf._activeQue[:]
         Gcf._activeQue = []
         for m in oldQue:
-            if m != manager: Gcf._activeQue.append(m)
+            if m != manager:
+                Gcf._activeQue.append(m)
         Gcf._activeQue.append(manager)
         Gcf.figs[manager.num] = manager
 
