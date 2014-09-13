@@ -4,14 +4,16 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.tri as mtri
 
 # u, v are parameterisation variables
-u = (np.linspace(0, 2.0 * np.pi, endpoint=True, num=50) * np.ones((10, 1))).flatten()
-v = np.repeat(np.linspace(-0.5, 0.5, endpoint=True, num=10), repeats=50).flatten()
+u = (np.linspace(0, 2.0*np.pi, endpoint=True, num=50)
+     * np.ones((10, 1))).flatten()
+v = np.repeat(np.linspace(-0.5, 0.5, endpoint=True, num=10),
+              repeats=50).flatten()
 
 # This is the Mobius mapping, taking a u, v pair and returning an x, y, z
 # triple
-x = (1 + 0.5 * v * np.cos(u / 2.0)) * np.cos(u)
-y = (1 + 0.5 * v * np.cos(u / 2.0)) * np.sin(u)
-z = 0.5 * v * np.sin(u / 2.0)
+x = (1 + 0.5*v*np.cos(u/2.)) * np.cos(u)
+y = (1 + 0.5*v*np.cos(u/2.)) * np.sin(u)
+z = 0.5*v*np.sin(u/2.)
 
 # Triangulate parameter space to determine the triangles
 tri = mtri.Triangulation(u, v)
@@ -32,8 +34,8 @@ min_radius = 0.25
 radii = np.linspace(min_radius, 0.95, n_radii)
 
 angles = np.linspace(0, 2*np.pi, n_angles, endpoint=False)
-angles = np.repeat(angles[...,np.newaxis], n_radii, axis=1)
-angles[:,1::2] += np.pi/n_angles
+angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
+angles[:, 1::2] += np.pi/n_angles
 
 x = (radii*np.cos(angles)).flatten()
 y = (radii*np.sin(angles)).flatten()

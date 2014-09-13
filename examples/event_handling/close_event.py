@@ -1,6 +1,7 @@
 from __future__ import print_function
 import matplotlib.pyplot as plt
 
+
 def handle_close(evt):
     print('Closed Figure!')
 

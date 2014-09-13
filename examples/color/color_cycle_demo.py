@@ -17,7 +17,7 @@ offsets = np.linspace(0, 2*np.pi, 4, endpoint=False)
 yy = np.transpose([np.sin(x + phi) for phi in offsets])
 
 plt.rc('lines', linewidth=4)
-fig, (ax0, ax1)  = plt.subplots(nrows=2)
+fig, (ax0, ax1) = plt.subplots(nrows=2)
 
 plt.rc('axes', color_cycle=['r', 'g', 'b', 'y'])
 ax0.plot(yy)
@@ -30,5 +30,3 @@ ax1.set_title('Set axes color cycle to cmyk')
 # Tweak spacing between subplots to prevent labels from overlapping
 plt.subplots_adjust(hspace=0.3)
 plt.show()
-
-

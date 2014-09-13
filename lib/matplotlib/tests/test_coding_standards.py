@@ -260,14 +260,7 @@ def test_pep8_conformance_examples():
     mpldirdefault = os.path.join(os.getcwd(), '..', '..', '..')
     mpldir = os.environ.get('MPL_REPO_DIR', mpldirdefault)
     exdir = os.path.join(mpldir, 'examples')
-    blacklist = ['color',
-                 'event_handling',
-                 'images_contours_and_fields',
-                 'lines_bars_and_markers',
-                 'misc',
-                 'mplot3d',
-                 'pie_and_polar_charts',
-                 'pylab_examples',
+    blacklist = ['pylab_examples',
                  'shapes_and_collections',
                  'showcase',
                  'specialty_plots',

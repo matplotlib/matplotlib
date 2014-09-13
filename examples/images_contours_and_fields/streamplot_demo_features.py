@@ -26,4 +26,3 @@ lw = 5*speed/speed.max()
 ax2.streamplot(X, Y, U, V, density=0.6, color='k', linewidth=lw)
 
 plt.show()
-

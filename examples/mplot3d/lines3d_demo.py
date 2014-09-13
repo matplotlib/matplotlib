@@ -16,4 +16,3 @@ ax.plot(x, y, z, label='parametric curve')
 ax.legend()
 
 plt.show()
-

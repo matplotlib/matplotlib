@@ -7,7 +7,8 @@ from __future__ import print_function
 # http://www.scipy.org/wikis/topical_software/MatplotlibAnimation
 import time
 
-import gtk, gobject
+import gtk
+import gobject
 
 import matplotlib
 matplotlib.use('GTKAgg')
@@ -21,8 +22,8 @@ canvas = ax.figure.canvas
 
 
 def start_anim(event):
-#    gobject.idle_add(animation.draw,animation)
-    gobject.timeout_add(10,animation.draw,animation)
+    #gobject.idle_add(animation.draw,animation)
+    gobject.timeout_add(10, animation.draw, animation)
     canvas.mpl_disconnect(start_anim.cid)
 
 animation = pipong.Game(ax)
@@ -30,6 +31,6 @@ start_anim.cid = canvas.mpl_connect('draw_event', start_anim)
 
 
 tstart = time.time()
-plt.grid() # to ensure proper background restore
+plt.grid()  # to ensure proper background restore
 plt.show()
-print('FPS:' , animation.cnt/(time.time()-tstart))
+print('FPS:', animation.cnt/(time.time() - tstart))

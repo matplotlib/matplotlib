@@ -14,8 +14,8 @@ min_radius = 0.25
 radii = np.linspace(min_radius, 0.95, n_radii)
 
 angles = np.linspace(0, 2*math.pi, n_angles, endpoint=False)
-angles = np.repeat(angles[...,np.newaxis], n_radii, axis=1)
-angles[:,1::2] += math.pi/n_angles
+angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
+angles[:, 1::2] += math.pi/n_angles
 
 x = (radii*np.cos(angles)).flatten()
 y = (radii*np.sin(angles)).flatten()
