@@ -1,4 +1,4 @@
-.. _users-guide-index:
+.. _beginners-guide-index:
 
 ################
 Beginner's Guide

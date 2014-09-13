@@ -30,7 +30,7 @@ Plots data on map projections, with continental and political
 boundaries, see `basemap <http://matplotlib.org/basemap>`_
 docs.
 
-.. image:: http://matplotlib.org/basemap/_images/contour1.png
+.. image:: /_static/basemap_contour1.png
     :height: 400px
 
 
@@ -46,7 +46,7 @@ integration with Shapely for powerful yet easy-to-use vector data processing
 tools. An example plot from the
 `Cartopy gallery <http://scitools.org.uk/cartopy/docs/latest/gallery.html>`_:
 
-.. image:: http://scitools.org.uk/cartopy/docs/latest/_images/hurricane_katrina_01_00.png
+.. image:: /_static/cartopy_hurricane_katrina_01_00.png
     :height: 400px
 
 
@@ -116,7 +116,7 @@ MplDataCursor
 toolkit written by Joe Kington to provide interactive "data cursors"
 (clickable annotation boxes) for matplotlib.
 
-.. _prettyplotlib:
+.. _toolkit_prettyplotlib:
 
 prettyplotlib
 =============
@@ -133,7 +133,7 @@ High-Level Plotting
 Several projects have started to provide a higher-level interface to
 matplotlib.  These are independent projects.
 
-.. _seaborn:
+.. _toolkit_seaborn:
 
 seaborn
 =======
@@ -144,7 +144,7 @@ level interface for drawing statistical graphics with matplotlib. It
 aims to make visualization a central part of exploring and
 understanding complex datasets.
 
-.. _ggplot:
+.. _toolkit_ggplot:
 
 ggplot
 ======
