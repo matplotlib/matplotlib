@@ -98,19 +98,21 @@ _default_backends = {
 }
 
 
-def register_backend(format, backend, description):
+def register_backend(format, backend, description=None):
     """
     Register a backend for saving to a given file format.
 
-    *format*
+    format : str
         File extention
 
-    *backend*
-        Backend for handling file output (module string or canvas class)
+    backend : module string or canvas class
+        Backend for handling file output
 
-    *description*
-        Description of the file type
+    description : str, optional
+        Description of the file type.  Defaults to an empty string
     """
+    if description is None:
+        description = ''
     _default_backends[format] = backend
     _default_filetypes[format] = description
 
