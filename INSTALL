@@ -70,13 +70,13 @@ in addition to
 
 In case Python is not installed for all users (not the default), the
 Microsoft Visual C++ 2008 (
-`64 bit <http://www.microsoft.com/download/en/details.aspx?id=15336>`_
+`64 bit <http://www.microsoft.com/download/en/details.aspx?id=15336>`__
 or
-`32 bit <http://www.microsoft.com/download/en/details.aspx?id=29>`_
+`32 bit <http://www.microsoft.com/download/en/details.aspx?id=29>`__
 for Python 2.6 to 3.2) or Microsoft Visual C++ 2010 (
-`64 bit <http://www.microsoft.com/en-us/download/details.aspx?id=14632>`_
+`64 bit <http://www.microsoft.com/en-us/download/details.aspx?id=14632>`__
 or
-`32 bit <http://www.microsoft.com/en-us/download/details.aspx?id=5555>`_
+`32 bit <http://www.microsoft.com/en-us/download/details.aspx?id=5555>`__
 for Python 3.3 and 3.4) redistributable packages need to be installed.
 
 Matplotlib depends on `Pillow <https://pypi.python.org/pypi/Pillow>`_
@@ -235,7 +235,7 @@ ImageMagick
 Optional dependencies
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Pillow <http://python-imaging.github.io/>`_
+`Pillow <http://python-imaging.github.io/>`__
     If Pillow is installed, matplotlib can read and write a larger
     selection of image file formats.
 
