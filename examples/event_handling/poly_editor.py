@@ -121,7 +121,7 @@ class PolygonInteractor:
             p = event.x, event.y  # display coords
             for i in range(len(xys) - 1):
                 s0 = xys[i]
-                s1 = xys[i+1]
+                s1 = xys[i + 1]
                 d = dist_point_to_segment(p, s0, s1)
                 if d <= self.epsilon:
                     self.poly.xy = np.array(
