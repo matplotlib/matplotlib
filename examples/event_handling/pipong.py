@@ -208,7 +208,8 @@ class Game(object):
                         "   " + str(self.pads[1].score))
                     self.ax.legend(loc='center')
                     self.leg = self.ax.get_legend()
-                    # self.leg.draw_frame(False) #don't draw the legend border
+                    # don't draw the legend border
+                    #self.leg.draw_frame(False)
                     self.leg.get_frame().set_alpha(.2)
                     plt.setp(self.leg.get_texts(), fontweight='bold',
                              fontsize='xx-large')
