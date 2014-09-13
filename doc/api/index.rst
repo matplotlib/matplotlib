@@ -27,6 +27,7 @@
    colorbar_api.rst
    colors_api.rst
    dates_api.rst
+   dviread.rst
    figure_api.rst
    finance_api.rst
    font_manager_api.rst
@@ -48,5 +49,6 @@
    ticker_api.rst
    tight_layout_api.rst
    tri_api.rst
+   type1font.rst
    units_api.rst
    widgets_api.rst

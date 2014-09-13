@@ -294,7 +294,7 @@ For examples of how to embed matplotlib in different toolkits, see:
    * :ref:`user_interfaces-embedding_in_gtk2`
    * :ref:`user_interfaces-embedding_in_wx2`
    * :ref:`user_interfaces-mpl_with_glade`
-   * :ref:`user_interfaces-embedding_in_qt`
+   * :ref:`user_interfaces-embedding_in_qt4`
    * :ref:`user_interfaces-embedding_in_tk`
 
 XKCD-style sketch plots

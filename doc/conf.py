@@ -34,6 +34,7 @@ extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
               'sphinxext.github',
               'numpydoc']
 
+exclude_patterns = ['api/api_changes/README.rst']
 
 # Use IPython's console highlighting by default
 try:

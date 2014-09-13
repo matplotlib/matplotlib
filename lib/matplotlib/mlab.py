@@ -76,8 +76,11 @@ Functions that don't exist in MATLAB, but are useful anyway:
     Return the phase (unwrapped angle) of the frequency spectrum of a signal
 
 :func:`detrend_mean`
+    Remove the mean from a line.
+
 :func:`demean`
-    Remove the mean from a line.  These functions differ in their defaults.
+    Remove the mean from a line. This function is the same as as
+    :func:`detrend_mean` except for the default *axis*.
 
 :func:`detrend_linear`
     Remove the best fit line from a line.

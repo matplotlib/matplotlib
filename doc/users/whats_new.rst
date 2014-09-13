@@ -1084,7 +1084,7 @@ legends for complex plots such as :meth:`~matplotlib.pyplot.stem` plots
 will now display correctly. Second, the 'best' placement of a legend has
 been improved in the presence of NANs.
 
-See :ref:`legend-complex-plots` for more detailed explanation and
+See the :ref:`plotting-guide-legend` for more detailed explanation and
 examples.
 
 .. plot:: mpl_examples/pylab_examples/legend_demo4.py
