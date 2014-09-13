@@ -1,4 +1,4 @@
-.. _users-guide-index:
+.. _configuration-guide-index:
 
 ###################
 Configuration Guide
