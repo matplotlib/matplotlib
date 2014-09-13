@@ -44,7 +44,7 @@ import os
 import re
 from ._mathtext_data import uni2type1
 
-#Convert string the a python type
+# Convert string the a python type
 
 # some afm files have floats where we are expecting ints -- there is
 # probably a better way to handle this (support floats, round rather
@@ -155,13 +155,13 @@ def _parse_header(fh):
         if line.startswith(b'Comment'):
             continue
         lst = line.split(b' ', 1)
-        #print '%-s\t%-d line :: %-s' % ( fh.name, len(lst), line )
+
         key = lst[0]
         if len(lst) == 2:
             val = lst[1]
         else:
             val = b''
-        #key, val = line.split(' ', 1)
+
         try:
             d[key] = headerConverters[key](val)
         except ValueError:
@@ -170,7 +170,7 @@ def _parse_header(fh):
             continue
         except KeyError:
             print('Found an unknown keyword in AFM header (was %s)' % key,
-                file=sys.stderr)
+                  file=sys.stderr)
             continue
         if key == b'StartCharMetrics':
             return d
@@ -517,7 +517,8 @@ class AFM(object):
 
         # FamilyName not specified so we'll make a guess
         name = self.get_fullname()
-        extras = br'(?i)([ -](regular|plain|italic|oblique|bold|semibold|light|ultralight|extra|condensed))+$'
+        extras = (br'(?i)([ -](regular|plain|italic|oblique|bold|semibold|'
+                  br'light|ultralight|extra|condensed))+$')
         return re.sub(extras, '', name)
 
     def get_weight(self):
