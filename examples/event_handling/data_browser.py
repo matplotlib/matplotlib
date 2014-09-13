@@ -13,8 +13,8 @@ class PointBrowser:
 
         self.text = ax.text(0.05, 0.95, 'selected: none',
                             transform=ax.transAxes, va='top')
-        self.selected,  = ax.plot([xs[0]], [ys[0]], 'o', ms=12, alpha=0.4,
-                                  color='yellow', visible=False)
+        self.selected, = ax.plot([xs[0]], [ys[0]], 'o', ms=12, alpha=0.4,
+                                 color='yellow', visible=False)
 
     def onpress(self, event):
         if self.lastind is None:
