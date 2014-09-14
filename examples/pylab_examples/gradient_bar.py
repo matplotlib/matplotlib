@@ -4,11 +4,11 @@ from numpy.random import rand
 
 
 def gbar(ax, x, y, width=0.5, bottom=0):
-   X = [[.6, .6],[.7,.7]]
-   for left,top in zip(x, y):
-       right = left+width
-       ax.imshow(X, interpolation='bicubic', cmap=cm.Blues,
-                 extent=(left, right, bottom, top), alpha=1)
+    X = [[.6, .6],[.7,.7]]
+    for left,top in zip(x, y):
+        right = left+width
+        ax.imshow(X, interpolation='bicubic', cmap=cm.Blues,
+                  extent=(left, right, bottom, top), alpha=1)
 
 fig = figure()
 

@@ -40,21 +40,21 @@ CS = plt.contour(X, Y, Z)
 # Define a class that forces representation of float to look a certain way
 # This remove trailing zero so '1.0' becomes '1'
 class nf(float):
-     def __repr__(self):
-         str = '%.1f' % (self.__float__(),)
-         if str[-1]=='0':
-             return '%.0f' % self.__float__()
-         else:
-             return '%.1f' % self.__float__()
+    def __repr__(self):
+        str = '%.1f' % (self.__float__(),)
+        if str[-1]=='0':
+            return '%.0f' % self.__float__()
+        else:
+            return '%.1f' % self.__float__()
 
 # Recast levels to new class
 CS.levels = [nf(val) for val in CS.levels ]
 
 # Label levels with specially formatted floats
 if plt.rcParams["text.usetex"]:
-     fmt = r'%r \%%'
+    fmt = r'%r \%%'
 else:
-     fmt = '%r %%'
+    fmt = '%r %%'
 plt.clabel(CS, CS.levels, inline=True, fmt=fmt, fontsize=10)
 
 ##################################################

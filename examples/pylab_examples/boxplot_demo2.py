@@ -59,30 +59,30 @@ boxColors = ['darkkhaki','royalblue']
 numBoxes = numDists*2
 medians = range(numBoxes)
 for i in range(numBoxes):
-  box = bp['boxes'][i]
-  boxX = []
-  boxY = []
-  for j in range(5):
-      boxX.append(box.get_xdata()[j])
-      boxY.append(box.get_ydata()[j])
-  boxCoords = zip(boxX,boxY)
-  # Alternate between Dark Khaki and Royal Blue
-  k = i % 2
-  boxPolygon = Polygon(boxCoords, facecolor=boxColors[k])
-  ax1.add_patch(boxPolygon)
-  # Now draw the median lines back over what we just filled in
-  med = bp['medians'][i]
-  medianX = []
-  medianY = []
-  for j in range(2):
-      medianX.append(med.get_xdata()[j])
-      medianY.append(med.get_ydata()[j])
-      plt.plot(medianX, medianY, 'k')
-      medians[i] = medianY[0]
-  # Finally, overplot the sample averages, with horizontal alignment
-  # in the center of each box
-  plt.plot([np.average(med.get_xdata())], [np.average(data[i])],
-           color='w', marker='*', markeredgecolor='k')
+    box = bp['boxes'][i]
+    boxX = []
+    boxY = []
+    for j in range(5):
+        boxX.append(box.get_xdata()[j])
+        boxY.append(box.get_ydata()[j])
+    boxCoords = zip(boxX,boxY)
+    # Alternate between Dark Khaki and Royal Blue
+    k = i % 2
+    boxPolygon = Polygon(boxCoords, facecolor=boxColors[k])
+    ax1.add_patch(boxPolygon)
+    # Now draw the median lines back over what we just filled in
+    med = bp['medians'][i]
+    medianX = []
+    medianY = []
+    for j in range(2):
+        medianX.append(med.get_xdata()[j])
+        medianY.append(med.get_ydata()[j])
+        plt.plot(medianX, medianY, 'k')
+        medians[i] = medianY[0]
+    # Finally, overplot the sample averages, with horizontal alignment
+    # in the center of each box
+    plt.plot([np.average(med.get_xdata())], [np.average(data[i])],
+             color='w', marker='*', markeredgecolor='k')
 
 # Set the axes ranges and axes labels
 ax1.set_xlim(0.5, numBoxes+0.5)
@@ -100,10 +100,10 @@ pos = np.arange(numBoxes)+1
 upperLabels = [str(np.round(s, 2)) for s in medians]
 weights = ['bold', 'semibold']
 for tick,label in zip(range(numBoxes),ax1.get_xticklabels()):
-   k = tick % 2
-   ax1.text(pos[tick], top-(top*0.05), upperLabels[tick],
-        horizontalalignment='center', size='x-small', weight=weights[k],
-        color=boxColors[k])
+    k = tick % 2
+    ax1.text(pos[tick], top-(top*0.05), upperLabels[tick],
+         horizontalalignment='center', size='x-small', weight=weights[k],
+         color=boxColors[k])
 
 # Finally, add a basic legend
 plt.figtext(0.80, 0.08,  str(N) + ' Random Numbers' ,
