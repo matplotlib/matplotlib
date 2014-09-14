@@ -79,4 +79,3 @@ if __name__ == '__main__':
     fig.canvas.mpl_connect('key_press_event', browser.onpress)
 
     plt.show()
-

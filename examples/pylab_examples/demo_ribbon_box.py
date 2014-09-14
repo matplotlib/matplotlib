@@ -132,4 +132,3 @@ if 1:
 
     fig.savefig('ribbon_box.png')
     plt.show()
-

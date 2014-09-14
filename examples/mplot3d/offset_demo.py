@@ -23,4 +23,3 @@ ax.set_zlabel("Z-Label")
 ax.set_zlim(0, 2)
 
 plt.show()
-

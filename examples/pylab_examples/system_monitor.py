@@ -49,8 +49,3 @@ for i in range(200):  # run for a little while
     ax.set_ylim([0,100])
 
     draw()
-
-
-
-
-

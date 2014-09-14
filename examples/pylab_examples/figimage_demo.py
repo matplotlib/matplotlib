@@ -17,6 +17,3 @@ im1 = plt.figimage(Z, xo=50, yo=0, cmap=cm.jet, origin='lower')
 im2 = plt.figimage(Z, xo=100, yo=100, alpha=.8, cmap=cm.jet, origin='lower')
 
 plt.show()
-
-
-

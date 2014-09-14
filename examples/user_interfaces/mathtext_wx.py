@@ -125,4 +125,3 @@ class MyApp(wx.App):
 
 app = MyApp()
 app.MainLoop()
-

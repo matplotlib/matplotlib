@@ -21,4 +21,3 @@ ax.set_ylim3d(0, 1)
 ax.set_zlim3d(0, 1)
 
 plt.show()
-

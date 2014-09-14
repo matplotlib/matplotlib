@@ -38,4 +38,3 @@ bprev = Button(axprev, 'Previous')
 bprev.on_clicked(callback.prev)
 
 plt.show()
-

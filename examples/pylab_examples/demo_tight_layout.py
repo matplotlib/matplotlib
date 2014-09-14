@@ -102,6 +102,3 @@ gs1.update(top=top, bottom=bottom)
 gs2.update(top=top, bottom=bottom)
 
 plt.show()
-
-
-

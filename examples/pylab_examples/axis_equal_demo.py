@@ -29,8 +29,3 @@ plot([0,4],[0,4])
 title('still equal after adding line',fontsize=10)
 
 show()
-
-
-
-
-

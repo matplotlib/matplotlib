@@ -57,5 +57,3 @@ button.pack(side=Tk.BOTTOM)
 Tk.mainloop()
 # If you put root.destroy() here, it will cause an error if
 # the window is closed with the window manager.
-
-

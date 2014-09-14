@@ -53,4 +53,3 @@ cb = plt.colorbar()
 cb.set_label('N observations')
 
 plt.show()
-

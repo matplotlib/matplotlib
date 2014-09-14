@@ -204,5 +204,3 @@ ax2.yaxis.set_major_locator(MyLocator(5, prune='both'))
 ax3.yaxis.set_major_locator(MyLocator(5, prune='both'))
 
 plt.show()
-
-

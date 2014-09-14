@@ -46,5 +46,3 @@ fig2.canvas.mpl_connect('axes_enter_event', enter_axes)
 fig2.canvas.mpl_connect('axes_leave_event', leave_axes)
 
 plt.show()
-
-

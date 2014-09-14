@@ -52,4 +52,3 @@ colorbar(im, extend='both', spacing='proportional',
                 orientation='horizontal', shrink=0.8)
 
 show()
-

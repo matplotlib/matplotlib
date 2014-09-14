@@ -44,5 +44,3 @@ cs = P.contourf(X, Y, z, locator=ticker.LogLocator(), cmap=cm.PuBu_r)
 cbar = P.colorbar()
 
 P.show()
-
-

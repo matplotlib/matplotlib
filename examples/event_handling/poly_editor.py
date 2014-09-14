@@ -159,4 +159,3 @@ if __name__ == '__main__':
     ax.set_xlim((-2,2))
     ax.set_ylim((-2,2))
     plt.show()
-

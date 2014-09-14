@@ -28,4 +28,3 @@ ylabel('Signal 2', fontsize=12)
 xlabel('time (s)', fontsize=12)
 
 show()
-

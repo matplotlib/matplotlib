@@ -75,4 +75,3 @@ for i, usetex, preview in [[0, False, False],
 
 plt.draw()
 plt.show()
-

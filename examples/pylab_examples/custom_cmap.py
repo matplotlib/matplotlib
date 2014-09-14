@@ -189,4 +189,3 @@ plt.title("Varying alpha")
 plt.suptitle('Custom Blue-Red colormaps', fontsize=16)
 
 plt.show()
-

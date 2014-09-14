@@ -50,4 +50,3 @@ def get_colours(n):
                            (base[start+1] * x))
 
     return [pastel(c) for c in colours[0:n]]
-

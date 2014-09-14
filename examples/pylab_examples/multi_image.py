@@ -78,9 +78,3 @@ axes(ax[0])     # Return the current axes to the first one,
 sci(images[0])  # because the current image must be in current axes.
 
 show()
-
-
-
-
-
-

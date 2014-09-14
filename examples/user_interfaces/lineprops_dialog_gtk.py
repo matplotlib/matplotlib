@@ -22,4 +22,3 @@ l2,  = ax.plot(t2, f(t2), 'k--', label='line 2')
 dlg = DialogLineprops([l1,l2])
 dlg.show()
 plt.show()
-

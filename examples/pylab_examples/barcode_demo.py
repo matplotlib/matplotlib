@@ -23,4 +23,3 @@ ax.imshow(x, **barprops)
 
 
 show()
-
