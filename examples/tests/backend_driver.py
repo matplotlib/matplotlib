@@ -330,7 +330,7 @@ def report_missing(dir, flist):
     missing = list(pyfiles-flist-exclude)
     missing.sort()
     if missing:
-        print ('%s files not tested: %s'%(dir, ', '.join(missing)))
+        print('%s files not tested: %s'%(dir, ', '.join(missing)))
 
 
 def report_all_missing(directories):
@@ -381,12 +381,12 @@ def drive(backend, directories, python=['python'], switches = []):
                  for fname in files[d]]
 
     for fullpath in testcases:
-        print ('\tdriving %-40s' % (fullpath)),
+        print('\tdriving %-40s' % (fullpath)),
         sys.stdout.flush()
         fpath, fname = os.path.split(fullpath)
 
         if fname in exclude:
-            print ('\tSkipping %s, known to fail on backend: %s'%backend)
+            print('\tSkipping %s, known to fail on backend: %s'%backend)
             continue
 
         basename, ext = os.path.splitext(fname)
@@ -430,7 +430,7 @@ def drive(backend, directories, python=['python'], switches = []):
         program = [x % {'name': basename} for x in python]
         ret = run(program + [tmpfile_name] + switches)
         end_time = time.time()
-        print ("%s %s" % ((end_time - start_time), ret))
+        print("%s %s" % ((end_time - start_time), ret))
         #os.system('%s %s %s' % (python, tmpfile_name, ' '.join(switches)))
         os.remove(tmpfile_name)
         if ret:
@@ -478,7 +478,7 @@ def parse_options():
         switches = switches)
     if 'pylab_examples' in result.dirs:
         result.dirs[result.dirs.index('pylab_examples')] = 'pylab'
-    #print result
+    #print(result)
     return (result)
 
 if __name__ == '__main__':
@@ -492,14 +492,14 @@ if __name__ == '__main__':
         for d in localdirs:
             if d.lower() not in all_backends_set:
                 continue
-            print ('removing %s'%d)
+            print('removing %s'%d)
             for fname in glob.glob(os.path.join(d, '*')):
                 os.remove(fname)
             os.rmdir(d)
         for fname in glob.glob('_tmp*.py'):
             os.remove(fname)
 
-        print ('all clean...')
+        print('all clean...')
         raise SystemExit
     if options.coverage:
         python = ['coverage.py', '-x']
@@ -513,19 +513,19 @@ if __name__ == '__main__':
 
     report_all_missing(options.dirs)
     for backend in options.backends:
-        print ('testing %s %s' % (backend, ' '.join(options.switches)))
+        print('testing %s %s' % (backend, ' '.join(options.switches)))
         t0 = time.time()
         failures[backend] = \
             drive(backend, options.dirs, python, options.switches)
         t1 = time.time()
         times[backend] = (t1-t0)/60.0
 
-    # print times
+    #print(times)
     for backend, elapsed in times.items():
-        print ('Backend %s took %1.2f minutes to complete' % (backend, elapsed))
+        print('Backend %s took %1.2f minutes to complete' % (backend, elapsed))
         failed = failures[backend]
         if failed:
-            print ('  Failures: %s' % failed)
+            print('  Failures: %s' % failed)
         if 'template' in times:
-            print ('\ttemplate ratio %1.3f, template residual %1.3f' % (
+            print('\ttemplate ratio %1.3f, template residual %1.3f' % (
                 elapsed/times['template'], elapsed-times['template']))
