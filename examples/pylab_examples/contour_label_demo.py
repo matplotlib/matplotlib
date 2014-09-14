@@ -85,4 +85,3 @@ plt.clabel(CS, CS.levels, fmt=fmt)
 plt.title("$100^Z$")
 
 plt.show()
-

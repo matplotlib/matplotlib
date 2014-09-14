@@ -78,4 +78,3 @@ connect('motion_notify_event', cursor.mouse_move)
 ax.plot(t, s, 'o')
 axis([0,1,-1,1])
 show()
-

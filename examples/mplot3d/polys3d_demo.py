@@ -30,4 +30,3 @@ ax.set_zlabel('Z')
 ax.set_zlim3d(0, 1)
 
 plt.show()
-

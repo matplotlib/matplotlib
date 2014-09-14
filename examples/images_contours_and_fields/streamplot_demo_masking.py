@@ -24,4 +24,3 @@ plt.imshow(~mask, extent=(-w, w, -w, w), alpha=0.5,
            interpolation='nearest', cmap=plt.cm.gray)
 
 plt.show()
-

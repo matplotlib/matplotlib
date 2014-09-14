@@ -47,4 +47,3 @@ surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
 ax.set_zlim3d(-1, 1)
 
 plt.show()
-

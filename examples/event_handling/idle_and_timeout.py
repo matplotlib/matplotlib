@@ -33,5 +33,3 @@ on_idle.count = 0
 fig.canvas.mpl_connect('idle_event', on_idle)
 
 plt.show()
-
-

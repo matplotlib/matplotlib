@@ -55,5 +55,3 @@ ax.add_line(line)
 ax.set_xlim(10,30)
 ax.set_ylim(-1.1,1.1)
 show()
-
-

@@ -36,4 +36,3 @@ ax1.errorbar(x, y, xerr=asymmetric_error, fmt='o')
 ax1.set_title('variable, asymmetric error')
 ax1.set_yscale('log')
 plt.show()
-

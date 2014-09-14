@@ -38,5 +38,3 @@ line_segments = LineCollection(segs,
 ax.add_collection(line_segments)
 ax.set_title('Line collection with masked arrays')
 plt.show()
-
-

@@ -9,4 +9,3 @@ cset = ax.contourf(X, Y, Z, cmap=cm.coolwarm)
 ax.clabel(cset, fontsize=9, inline=1)
 
 plt.show()
-

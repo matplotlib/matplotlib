@@ -10,4 +10,3 @@ image = plt.imread(image_file)
 plt.imshow(image)
 plt.axis('off') # clear x- and y-axes
 plt.show()
-

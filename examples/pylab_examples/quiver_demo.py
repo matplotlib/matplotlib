@@ -81,4 +81,3 @@ title('Minimal arguments, no kwargs - masked values')
 
 
 show()
-

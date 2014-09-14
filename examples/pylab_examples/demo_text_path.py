@@ -31,7 +31,7 @@ class PathClippedImagePatch(mpatches.PathPatch):
     def set_facecolor(self, color):
         """simply ignore facecolor"""
         mpatches.PathPatch.set_facecolor(self, "none")
-    
+
     def _init_bbox_image(self, im):
 
         bbox_image = BboxImage(self.get_window_extent,
@@ -55,7 +55,7 @@ class PathClippedImagePatch(mpatches.PathPatch):
 if 1:
 
     usetex = plt.rcParams["text.usetex"]
-    
+
     fig = plt.figure(1)
 
     # EXAMPLE 1
@@ -86,10 +86,10 @@ if 1:
         r = r"\mbox{textpath supports mathtext \& \TeX}"
     else:
         r = r"textpath supports mathtext & TeX"
-        
+
     text_path = TextPath((0, 0), r,
                          size=20, usetex=usetex)
-        
+
     p1 = PathPatch(text_path, ec="w", lw=3, fc="w", alpha=0.9,
                    transform=IdentityTransform())
     p2 = PathPatch(text_path, ec="none", fc="k", 

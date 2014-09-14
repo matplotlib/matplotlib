@@ -23,4 +23,3 @@ im = plt.imshow(Z, interpolation='bilinear', cmap=cm.gray,
 im.set_clip_path(patch)
 
 plt.show()
-

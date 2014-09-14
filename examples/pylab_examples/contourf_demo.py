@@ -104,4 +104,3 @@ for ax, extend in zip(axs.ravel(), extends):
     ax.locator_params(nbins=4)
 
 plt.show()
-

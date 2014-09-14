@@ -16,4 +16,3 @@ setp(l, 'markersize', 30)
 setp(l, 'markerfacecolor', 'b')
 
 show()
-

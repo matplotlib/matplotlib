@@ -22,4 +22,3 @@ plt.colorbar()
 
 
 plt.show()
-

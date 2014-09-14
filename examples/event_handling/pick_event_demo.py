@@ -172,4 +172,3 @@ if 1: # picking images (matplotlib.image.AxesImage)
 
 
 plt.show()
-

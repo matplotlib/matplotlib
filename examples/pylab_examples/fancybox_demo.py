@@ -67,7 +67,7 @@ def test2(ax):
     # draws control points for the fancy box.
     #l = p_fancy.get_path().vertices
     #ax.plot(l[:,0], l[:,1], ".")
-    
+
     draw_bbox(ax, bb)
 
 
@@ -92,7 +92,7 @@ def test3(ax):
     # draws control points for the fancy box.
     #l = p_fancy.get_path().vertices
     #ax.plot(l[:,0], l[:,1], ".")
-    
+
     draw_bbox(ax, bb)
 
 
@@ -100,7 +100,7 @@ def test4(ax):
 
     # When the aspect ratio of the axes is not 1, the fancy box may
     # not be what you expected (green)
-    
+
     p_fancy = FancyBboxPatch((bb.xmin, bb.ymin),
                              abs(bb.width), abs(bb.height),
                              boxstyle="round,pad=0.2",
@@ -122,7 +122,7 @@ def test4(ax):
     ax.text(0.1, 0.8,
             ' boxstyle="round,pad=0.3"\n mutation\\_aspect=.5',
             size=10, transform=ax.transAxes)
-    
+
     draw_bbox(ax, bb)
 
 

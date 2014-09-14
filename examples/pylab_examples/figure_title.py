@@ -27,4 +27,3 @@ title('subplot 2')
 ylabel('Undamped')
 
 show()
-

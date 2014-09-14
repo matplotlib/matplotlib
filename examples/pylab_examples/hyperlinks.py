@@ -30,4 +30,3 @@ im = plt.imshow(Z, interpolation='bilinear', cmap=cm.gray,
 
 im.set_url('http://www.google.com')
 f.canvas.print_figure('image.svg')
-
