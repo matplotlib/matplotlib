@@ -36,10 +36,10 @@ def moving_average(x, n, type='simple'):
 
     weights /= weights.sum()
 
-
     a =  np.convolve(x, weights, mode='full')[:len(x)]
     a[:n] = a[n]
     return a
+
 
 def relative_strength(prices, n=14):
     """
@@ -74,6 +74,7 @@ def relative_strength(prices, n=14):
 
     return rsi
 
+
 def moving_average_convergence(x, nslow=26, nfast=12):
     """
     compute the MACD (Moving Average Convergence/Divergence) using a fast and slow exponential moving avg'
@@ -101,7 +102,6 @@ ax1 = fig.add_axes(rect1, axisbg=axescolor)  #left, bottom, width, height
 ax2 = fig.add_axes(rect2, axisbg=axescolor, sharex=ax1)
 ax2t = ax2.twinx()
 ax3  = fig.add_axes(rect3, axisbg=axescolor, sharex=ax1)
-
 
 
 ### plot the relative strength indicator
@@ -188,7 +188,6 @@ for ax in ax1, ax2, ax2t, ax3:
     ax.fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
 
 
-
 class MyLocator(mticker.MaxNLocator):
     def __init__(self, *args, **kwargs):
         mticker.MaxNLocator.__init__(self, *args, **kwargs)
@@ -205,5 +204,3 @@ ax2.yaxis.set_major_locator(MyLocator(5, prune='both'))
 ax3.yaxis.set_major_locator(MyLocator(5, prune='both'))
 
 plt.show()
-
-

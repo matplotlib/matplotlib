@@ -22,11 +22,13 @@ from numpy.random import rand
 
 import wx
 
+
 class MyNavigationToolbar(NavigationToolbar2WxAgg):
     """
     Extend the default wx toolbar with your own event handlers
     """
     ON_CUSTOM = wx.NewId()
+
     def __init__(self, canvas, cankill):
         NavigationToolbar2WxAgg.__init__(self, canvas)
 
@@ -56,7 +58,6 @@ class MyNavigationToolbar(NavigationToolbar2WxAgg):
 
 
 class CanvasFrame(wx.Frame):
-
     def __init__(self):
         wx.Frame.__init__(self,None,-1,
                          'CanvasFrame',size=(550,350))
@@ -100,13 +101,12 @@ class CanvasFrame(wx.Frame):
         self.SetSizer(self.sizer)
         self.Fit()
 
-
     def OnPaint(self, event):
         self.canvas.draw()
         event.Skip()
 
-class App(wx.App):
 
+class App(wx.App):
     def OnInit(self):
         'Create the main window and insert the custom frame'
         frame = CanvasFrame()

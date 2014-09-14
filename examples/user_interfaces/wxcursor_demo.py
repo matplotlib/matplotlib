@@ -12,8 +12,8 @@ from numpy import arange, sin, pi
 
 import wx
 
-class CanvasFrame(wx.Frame):
 
+class CanvasFrame(wx.Frame):
     def __init__(self, ):
         wx.Frame.__init__(self,None,-1,
                          'CanvasFrame',size=(550,350))
@@ -57,8 +57,8 @@ class CanvasFrame(wx.Frame):
                                            "  y=" +str(y) ),
                                            0)
 
-class App(wx.App):
 
+class App(wx.App):
     def OnInit(self):
         'Create the main window and insert the custom frame'
         frame = CanvasFrame()

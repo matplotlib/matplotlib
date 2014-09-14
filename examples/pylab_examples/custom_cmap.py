@@ -59,7 +59,6 @@ never used.
 """
 
 
-
 cdict1 = {'red':   ((0.0, 0.0, 0.0),
                    (0.5, 0.0, 0.1),
                    (1.0, 1.0, 1.0)),
@@ -190,4 +189,3 @@ plt.title("Varying alpha")
 plt.suptitle('Custom Blue-Red colormaps', fontsize=16)
 
 plt.show()
-

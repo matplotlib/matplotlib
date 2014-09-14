@@ -19,6 +19,7 @@ datafile = cbook.get_sample_data('msft.csv', asfileobj=False)
 print ('loading %s' % datafile)
 r = csv2rec(datafile)[-40:]
 
+
 class MyFormatter(Formatter):
     def __init__(self, dates, fmt='%Y-%m-%d'):
         self.dates = dates

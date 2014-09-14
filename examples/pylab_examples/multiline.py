@@ -19,10 +19,8 @@ if 1:
 
     grid(True)
 
-
-
     subplot(122)
-    
+
     text(0.29, 0.7, "Mat\nTTp\n123", size=18,
          va="baseline", ha="right", multialignment="left",
          bbox=dict(fc="none"))
@@ -37,7 +35,7 @@ if 1:
 
     xticks([0.2, 0.4, 0.6, 0.8, 1.],
            ["Jan\n2009","Feb\n2009","Mar\n2009", "Apr\n2009", "May\n2009"])
-    
+
     axhline(0.7)
     title("test line spacing for multiline text")
 

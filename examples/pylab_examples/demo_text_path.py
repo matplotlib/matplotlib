@@ -23,6 +23,7 @@ class PathClippedImagePatch(mpatches.PathPatch):
 
     FIXME : The result is currently dpi dependent.
     """
+
     def __init__(self, path, bbox_image, **kwargs):
         mpatches.PathPatch.__init__(self, path, **kwargs)
         self._init_bbox_image(bbox_image)
@@ -30,7 +31,7 @@ class PathClippedImagePatch(mpatches.PathPatch):
     def set_facecolor(self, color):
         """simply ignore facecolor"""
         mpatches.PathPatch.set_facecolor(self, "none")
-    
+
     def _init_bbox_image(self, im):
 
         bbox_image = BboxImage(self.get_window_extent,
@@ -44,7 +45,6 @@ class PathClippedImagePatch(mpatches.PathPatch):
 
     def draw(self, renderer=None):
 
-
         # the clip path must be updated every draw. any solution? -JJ
         self.bbox_image.set_clip_path(self._path, self.get_transform())
         self.bbox_image.draw(renderer)
@@ -55,7 +55,7 @@ class PathClippedImagePatch(mpatches.PathPatch):
 if 1:
 
     usetex = plt.rcParams["text.usetex"]
-    
+
     fig = plt.figure(1)
 
     # EXAMPLE 1
@@ -86,10 +86,10 @@ if 1:
         r = r"\mbox{textpath supports mathtext \& \TeX}"
     else:
         r = r"textpath supports mathtext & TeX"
-        
+
     text_path = TextPath((0, 0), r,
                          size=20, usetex=usetex)
-        
+
     p1 = PathPatch(text_path, ec="w", lw=3, fc="w", alpha=0.9,
                    transform=IdentityTransform())
     p2 = PathPatch(text_path, ec="none", fc="k", 
@@ -111,8 +111,6 @@ if 1:
               interpolation="bilinear",
               aspect="auto")
 
-
-
     # EXAMPLE 2
 
     ax = plt.subplot(212)
@@ -129,7 +127,6 @@ if 1:
 
     shadow1 = mpatches.Shadow(text_patch, 1, -1, props=dict(fc="none", ec="0.6", lw=3))
     shadow2 = mpatches.Shadow(text_patch, 1, -1, props=dict(fc="0.3", ec="none"))
-
 
     # make offset box
     offsetbox = AuxTransformBox(IdentityTransform())
@@ -149,7 +146,6 @@ if 1:
 
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-
 
     plt.draw()
     plt.show()

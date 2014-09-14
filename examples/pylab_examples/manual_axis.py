@@ -12,6 +12,7 @@ import numpy as np
 from pylab import figure, show
 import matplotlib.lines as lines
 
+
 def make_xaxis(ax, yloc, offset=0.05, **props):
     xmin, xmax = ax.get_xlim()
     locs = [loc for loc in ax.xaxis.get_majorticklocs()
@@ -25,6 +26,7 @@ def make_xaxis(ax, yloc, offset=0.05, **props):
         ax.text(loc, yloc-offset, '%1.1f'%loc,
                 horizontalalignment='center',
                 verticalalignment='top')
+
 
 def make_yaxis(ax, xloc=0, offset=0.05, **props):
     ymin, ymax = ax.get_ylim()

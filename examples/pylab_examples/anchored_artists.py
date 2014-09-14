@@ -10,7 +10,6 @@ class AnchoredText(AnchoredOffsetbox):
         self.txt = TextArea(s,
                             minimumdescent=False)
 
-
         super(AnchoredText, self).__init__(loc, pad=pad, borderpad=borderpad,
                                            child=self.txt,
                                            prop=prop,
@@ -60,7 +59,6 @@ class AnchoredEllipse(AnchoredOffsetbox):
                                    frameon=frameon)
 
 
-
 class AnchoredDrawingArea(AnchoredOffsetbox):
     def __init__(self, width, height, xdescent, ydescent,
                  loc, pad=0.4, borderpad=0.5, prop=None, frameon=True):
@@ -71,7 +69,6 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
                                                   child=self.da,
                                                   prop=None,
                                                   frameon=frameon)
-
 
 
 if __name__ == "__main__":
@@ -111,7 +108,3 @@ if __name__ == "__main__":
 
     plt.draw()
     plt.show()
-
-
-
-

@@ -32,9 +32,11 @@ colors = {
    'navajowhite'          : '#FFDEAD',
    }
 
+
 def hex2color(s):
    "Convert hex string (like html uses, eg, #efefef) to a r,g,b tuple"
    return tuple([int(n, 16)/255.0 for n in (s[1:3], s[3:5], s[5:7])])
+
 
 class RGBA(traits.HasTraits):
    # r,g,b,a in the range 0-1 with default color 0,0,0,1 (black)
@@ -42,14 +44,17 @@ class RGBA(traits.HasTraits):
    g = traits.Range(0., 1., 0.)
    b = traits.Range(0., 1., 0.)
    a = traits.Range(0., 1., 1.)
+
    def __init__(self, r=0., g=0., b=0., a=1.):
        self.r = r
        self.g = g
        self.b = b
        self.a = a
+
    def __repr__(self):
        return 'r,g,b,a = (%1.2f, %1.2f, %1.2f, %1.2f)'%\
               (self.r, self.g, self.b, self.a)
+
 
 def tuple_to_rgba(ob, name, val):
    tup = [float(x) for x in val]
@@ -63,6 +68,7 @@ def tuple_to_rgba(ob, name, val):
        raise ValueError
 tuple_to_rgba.info = 'a RGB or RGBA tuple of floats'
 
+
 def hex_to_rgba(ob, name, val):
    rgx = re.compile('^#[0-9A-Fa-f]{6}$')
 
@@ -74,11 +80,13 @@ def hex_to_rgba(ob, name, val):
    return RGBA(r,g,b,1.0)
 hex_to_rgba.info = 'a hex color string'
 
+
 def colorname_to_rgba(ob, name, val):
    hex = colors[val.lower()]
    r,g,b =  hex2color(hex)
    return RGBA(r,g,b,1.0)
 colorname_to_rgba.info = 'a named color'
+
 
 def float_to_rgba(ob, name, val):
    val = float(val)
@@ -86,13 +94,14 @@ def float_to_rgba(ob, name, val):
 float_to_rgba.info = 'a grayscale intensity'
 
 
-
 Color = traits.Trait(RGBA(), float_to_rgba, colorname_to_rgba, RGBA,
              hex_to_rgba, tuple_to_rgba)
+
 
 def file_exists(ob, name, val):
    fh = file(val, 'r')
    return val
+
 
 def path_exists(ob, name, val):
    os.path.exists(val)
@@ -108,6 +117,7 @@ linemarkers = (None, '.', ',', 'o', '^', 'v', '<', '>', 's',
                  'None'
               )
 
+
 class LineRC(traits.HasTraits):
    linewidth       = traits.Float(0.5)
    linestyle       = traits.Trait(*linestyles)
@@ -120,6 +130,7 @@ class LineRC(traits.HasTraits):
    antialiased     = flexible_true_trait
    data_clipping   = flexible_false_trait
 
+
 class PatchRC(traits.HasTraits):
    linewidth       = traits.Float(1.0)
    facecolor = Color
@@ -130,6 +141,7 @@ timezones = 'UTC', 'US/Central', 'ES/Eastern' # fixme: and many more
 backends = ('GTKAgg', 'Cairo', 'GDK', 'GTK', 'Agg',
            'GTKCairo', 'PS', 'SVG', 'Template', 'TkAgg',
            'WX')
+
 
 class RC(traits.HasTraits):
    backend = traits.Trait(*backends)
@@ -156,6 +168,7 @@ class Patch(Artist, traits.HasTraits):
    fc = facecolor
    edgecolor = Color
    fill = flexible_true_trait
+
    def __init__(self,
                 edgecolor=None,
                 facecolor=None,

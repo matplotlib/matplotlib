@@ -2,6 +2,7 @@ from matplotlib.pyplot import figure, show, cm
 from numpy import arange
 from numpy.random import rand
 
+
 def gbar(ax, x, y, width=0.5, bottom=0):
    X = [[.6, .6],[.7,.7]]
    for left,top in zip(x, y):

@@ -4,6 +4,7 @@ import matplotlib
 matplotlib.use('PS')
 from pylab import *
 
+
 def f(t):
     s1 = cos(2*pi*t)
     e1 = exp(-t)
@@ -27,4 +28,3 @@ ylabel('Signal 2', fontsize=12)
 xlabel('time (s)', fontsize=12)
 
 show()
-

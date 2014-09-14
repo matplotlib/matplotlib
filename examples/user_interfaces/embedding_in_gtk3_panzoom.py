@@ -34,4 +34,3 @@ vbox.pack_start(toolbar, False, False, 0)
 
 win.show_all()
 Gtk.main()
-

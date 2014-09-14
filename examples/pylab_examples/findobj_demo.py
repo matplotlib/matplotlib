@@ -20,6 +20,7 @@ plt.xlabel('Model complexity --->')
 plt.ylabel('Message length --->')
 plt.title('Minimum Message Length')
 
+
 # match on arbitrary function
 def myfunc(x):
     return hasattr(x, 'set_color') and not hasattr(x, 'set_facecolor')
@@ -30,7 +31,6 @@ for o in fig.findobj(myfunc):
 # match on class instances
 for o in fig.findobj(text.Text):
     o.set_fontstyle('italic')
-
 
 
 plt.show()

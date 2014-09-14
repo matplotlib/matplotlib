@@ -27,4 +27,3 @@ ax.set_zlim3d(-1, 1)
 ax.w_zaxis.set_major_locator(LinearLocator(6))
 
 plt.show()
-

@@ -57,6 +57,3 @@ if 0:
     from PIL import Image
     im = Image.fromstring( "RGB", (w,h), s)
     im.show()
-
-
-

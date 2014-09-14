@@ -28,6 +28,7 @@ press 'g' -- toggle the game on/off
 
   """
 
+
 class Pad(object):
     def __init__(self, disp,x,y,type='l'):
         self.disp = disp
@@ -46,8 +47,10 @@ class Pad(object):
         else:
             self.signx = 1.0
             self.signy = -1.0
+
     def contains(self, loc):
         return self.disp.get_bbox().contains(loc.x,loc.y)
+
 
 class Puck(object):
     def __init__(self, disp, pad, field):
@@ -55,6 +58,7 @@ class Puck(object):
         self.disp = disp
         self.field = field
         self._reset(pad)
+
     def _reset(self,pad):
         self.x = pad.x + pad.xoffset
         if pad.y < 0:
@@ -66,6 +70,7 @@ class Puck(object):
         self._speedlimit()
         self._slower()
         self._slower()
+
     def update(self,pads):
         self.x += self.vx
         self.y += self.vy
@@ -91,12 +96,15 @@ class Puck(object):
             self.vy -= (randn()/300.0 + 1/300.0) * np.sign(self.vy)
         self._speedlimit()
         return False
+
     def _slower(self):
         self.vx /= 5.0
         self.vy /= 5.0
+
     def _faster(self):
         self.vx *= 5.0
         self.vy *= 5.0
+
     def _speedlimit(self):
         if self.vx > self.vmax:
             self.vx = self.vmax
@@ -108,8 +116,8 @@ class Puck(object):
         if self.vy < -self.vmax:
             self.vy = -self.vmax
 
-class Game(object):
 
+class Game(object):
     def __init__(self, ax):
         # create the initial line
         self.ax = ax
@@ -195,7 +203,6 @@ class Game(object):
                     return True
                 puck.disp.set_offsets([puck.x,puck.y])
                 self.ax.draw_artist(puck.disp)
-
 
         # just redraw the axes rectangle
         self.canvas.blit(self.ax.bbox)

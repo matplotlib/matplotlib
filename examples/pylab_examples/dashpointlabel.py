@@ -35,4 +35,3 @@ ax.set_xlim((0.0, 5.0))
 ax.set_ylim((0.0, 5.0))
 
 plt.show()
-

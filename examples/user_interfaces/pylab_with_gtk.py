@@ -24,6 +24,7 @@ next = 8; #where to insert this in the mpl toolbar
 button = gtk.Button('Click me')
 button.show()
 
+
 def clicked(button):
     print('hi mom')
 button.connect('clicked', clicked)
@@ -44,6 +45,7 @@ label.show()
 vbox = manager.vbox
 vbox.pack_start(label, False, False)
 vbox.reorder_child(manager.toolbar, -1)
+
 
 def update(event):
     if event.xdata is None:

@@ -26,6 +26,7 @@ s *= 200
 axsrc.scatter(x,y,s,c)
 axzoom.scatter(x,y,s,c)
 
+
 def onpress(event):
     if event.button!=1: return
     x,y = event.xdata, event.ydata
@@ -35,4 +36,3 @@ def onpress(event):
 
 figsrc.canvas.mpl_connect('button_press_event', onpress)
 show()
-

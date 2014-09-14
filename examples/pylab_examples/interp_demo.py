@@ -10,4 +10,3 @@ yi = stineman_interp(xi,x,y,yp);
 fig, ax = plt.subplots()
 ax.plot(x,y,'ro',xi,yi,'-b.')
 plt.show()
-

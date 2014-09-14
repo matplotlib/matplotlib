@@ -10,4 +10,3 @@ y = np.exp(-x)
 
 plt.errorbar(x, y, xerr=0.2, yerr=0.4)
 plt.show()
-

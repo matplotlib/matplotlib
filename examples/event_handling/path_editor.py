@@ -60,7 +60,6 @@ class PathInteractor:
         canvas.mpl_connect('motion_notify_event', self.motion_notify_callback)
         self.canvas = canvas
 
-
     def draw_callback(self, event):
         self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self.pathpatch)
@@ -73,7 +72,6 @@ class PathInteractor:
         vis = self.line.get_visible()
         plt.Artist.update_from(self.line, pathpatch)
         self.line.set_visible(vis)  # don't use the pathpatch visibility state
-
 
     def get_ind_under_point(self, event):
         'get the index of the vertex under point if within epsilon tolerance'
@@ -138,5 +136,3 @@ ax.set_xlim(-3,4)
 ax.set_ylim(-3,4)
 
 plt.show()
-
-

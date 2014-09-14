@@ -46,7 +46,7 @@ circle_tip = ax.annotate('This is a blue circle.',
             ha='left', 
             bbox=dict(boxstyle='round,pad=.5', fc=(.1,.1,.1,.92), ec=(1.,1.,1.), lw=1, zorder=1),
             )
-            
+
 rect_tip = ax.annotate('This is a green rectangle.', 
             xy=(-5,10), 
             xytext=(30,40), 
@@ -55,7 +55,7 @@ rect_tip = ax.annotate('This is a green rectangle.',
             ha='left', 
             bbox=dict(boxstyle='round,pad=.5', fc=(.1,.1,.1,.92), ec=(1.,1.,1.), lw=1, zorder=1),
             )
-            
+
 
 # Set id for the patches    
 for i, t in enumerate(ax.patches):

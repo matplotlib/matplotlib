@@ -30,6 +30,7 @@ im1 = imshow(x1, extent=extent)
 im2 = imshow(x2, extent=extent, hold=True)
 im2.set_visible(False)
 
+
 def toggle_images(event):
     'toggle the visible state of the two images'
     if event.key != 't': return

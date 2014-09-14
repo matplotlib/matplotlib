@@ -14,4 +14,3 @@ z = 10 * np.outer(np.ones(np.size(u)), np.cos(v))
 ax.plot_surface(x, y, z,  rstride=4, cstride=4, color='b')
 
 plt.show()
-

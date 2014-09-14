@@ -21,6 +21,7 @@ Paul Ivanov responded with this answer:
 import matplotlib.pyplot as plt
 from matplotlib import transforms
 
+
 def rainbow_text(x, y, strings, colors, ax=None, **kw):
     """
     Take a list of ``strings`` and ``colors`` and place them next to each
