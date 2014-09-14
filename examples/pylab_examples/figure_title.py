@@ -2,6 +2,7 @@
 from matplotlib.font_manager import FontProperties
 from pylab import *
 
+
 def f(t):
     s1 = cos(2*pi*t)
     e1 = exp(-t)

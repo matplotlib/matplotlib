@@ -14,6 +14,8 @@ plt.subplots_adjust(left=0.3)
 axcolor = 'lightgoldenrodyellow'
 rax = plt.axes([0.05, 0.7, 0.15, 0.15], axisbg=axcolor)
 radio = RadioButtons(rax, ('2 Hz', '4 Hz', '8 Hz'))
+
+
 def hzfunc(label):
     hzdict = {'2 Hz':s0, '4 Hz':s1, '8 Hz':s2}
     ydata = hzdict[label]
@@ -23,6 +25,8 @@ radio.on_clicked(hzfunc)
 
 rax = plt.axes([0.05, 0.4, 0.15, 0.15], axisbg=axcolor)
 radio2 = RadioButtons(rax, ('red', 'blue', 'green'))
+
+
 def colorfunc(label):
     l.set_color(label)
     plt.draw()
@@ -30,6 +34,8 @@ radio2.on_clicked(colorfunc)
 
 rax = plt.axes([0.05, 0.1, 0.15, 0.15], axisbg=axcolor)
 radio3 = RadioButtons(rax, ('-', '--', '-.', 'steps', ':'))
+
+
 def stylefunc(label):
     l.set_linestyle(label)
     plt.draw()

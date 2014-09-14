@@ -3,6 +3,7 @@ from numpy.random import randn
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
+
 def to_percent(y, position):
     # Ignore the passed in position. This has the effect of scaling the default
     # tick locations.

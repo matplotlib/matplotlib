@@ -12,12 +12,14 @@ from matplotlib.widgets import RectangleSelector
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def line_select_callback(eclick, erelease):
     'eclick and erelease are the press and release events'
     x1, y1 = eclick.xdata, eclick.ydata
     x2, y2 = erelease.xdata, erelease.ydata
     print ("(%3.2f, %3.2f) --> (%3.2f, %3.2f)" % (x1, y1, x2, y2))
     print (" The button you used were: %s %s" % (eclick.button, erelease.button))
+
 
 def toggle_selector(event):
     print (' Key pressed.')

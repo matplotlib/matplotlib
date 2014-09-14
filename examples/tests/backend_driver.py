@@ -317,6 +317,7 @@ excluded = {
     'units' : ['__init__.py', 'date_support.py',],
 }
 
+
 def report_missing(dir, flist):
     'report the py files in dir that are not in flist'
     globstr = os.path.join(dir, '*.py')
@@ -330,6 +331,7 @@ def report_missing(dir, flist):
     missing.sort()
     if missing:
         print ('%s files not tested: %s'%(dir, ', '.join(missing)))
+
 
 def report_all_missing(directories):
     for f in directories:
@@ -348,6 +350,7 @@ failbackend = dict(
 
 try:
     import subprocess
+
     def run(arglist):
         try:
             ret = subprocess.call(arglist)
@@ -358,6 +361,7 @@ try:
 except ImportError:
     def run(arglist):
         os.system(' '.join(arglist))
+
 
 def drive(backend, directories, python=['python'], switches = []):
     exclude = failbackend.get(backend, [])
@@ -432,6 +436,7 @@ def drive(backend, directories, python=['python'], switches = []):
         if ret:
             failures.append(fullpath)
     return failures
+
 
 def parse_options():
     doc = (__doc__ and __doc__.split('\n\n')) or "  "

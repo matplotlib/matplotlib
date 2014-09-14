@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scikits.audiolab import wavread
 
+
 # A class that will downsample the data and recompute when zoomed.
 class DataDisplayDownsampler(object):
     def __init__(self, xdata, ydata):

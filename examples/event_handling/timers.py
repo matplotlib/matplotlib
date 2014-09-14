@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
 
+
 def update_title(axes):
     axes.set_title(datetime.now())
     axes.figure.canvas.draw()

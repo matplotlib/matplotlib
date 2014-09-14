@@ -61,7 +61,6 @@ an3 = ax1.annotate('', xy=(.5, .5),  xycoords=an2,
                    )
 
 
-
 t = ax2.annotate('xy=(0, 1)\nxycoords=("data", "axes fraction")',
                  xy=(0, 1),  xycoords=("data", 'axes fraction'),
                  xytext=(0, -20), textcoords='offset points',

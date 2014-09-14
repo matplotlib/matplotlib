@@ -14,6 +14,7 @@ l, = plt.plot(t, s, lw=2)
 
 class Index:
     ind = 0
+
     def next(self, event):
         self.ind += 1
         i = self.ind % len(freqs)

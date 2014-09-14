@@ -51,10 +51,13 @@ for i in range(Nr):
 # Set the first image as the master, with all the others
 # observing it for changes in cmap or norm.
 
+
 class ImageFollower:
     'update image in response to changes in clim or cmap on another image'
+
     def __init__(self, follower):
         self.follower = follower
+
     def __call__(self, leader):
         self.follower.set_cmap(leader.get_cmap())
         self.follower.set_clim(leader.get_clim())

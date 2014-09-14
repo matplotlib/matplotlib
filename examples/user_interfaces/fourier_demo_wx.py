@@ -15,6 +15,7 @@ class Knob:
     A Knob instance is attached to a Param instance, e.g., param.attach(knob)
     Base class is for documentation purposes.
     """
+
     def setKnob(self, value):
         pass
 
@@ -32,6 +33,7 @@ class Param:
       - the other knobs in the knob list have a "set" method which gets
         called for the others.
     """
+
     def __init__(self, initialValue=None, minimum=0., maximum=1.):
         self.minimum = minimum
         self.maximum = maximum

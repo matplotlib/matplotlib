@@ -22,6 +22,7 @@ if sys.maxunicode > 0xffff:
 
 from pylab import *
 
+
 def doall():
     tests = stests
 

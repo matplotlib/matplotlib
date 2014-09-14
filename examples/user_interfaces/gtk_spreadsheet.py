@@ -49,7 +49,6 @@ class DataManager(gtk.Window):
         self.treeview = gtk.TreeView(model)
         self.treeview.set_rules_hint(True)
 
-
         # matplotlib stuff
         fig = Figure(figsize=(6,4))
 
@@ -67,19 +66,16 @@ class DataManager(gtk.Window):
                         gdk.KEY_PRESS_MASK|
                         gdk.KEY_RELEASE_MASK)
 
-
     def plot_row(self, treeview, path, view_column):
         ind, = path  # get the index into data
         points = self.data[ind,:]
         self.line.set_ydata(points)
         self.canvas.draw()
 
-
     def add_columns(self):
         for i in range(self.numCols):
             column = gtk.TreeViewColumn('%d'%i, gtk.CellRendererText(), text=i)
             self.treeview.append_column(column)
-
 
     def create_model(self):
         types = [float]*self.numCols

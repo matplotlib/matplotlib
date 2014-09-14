@@ -17,8 +17,8 @@ matplotlib.use('GtkAgg')
 import matplotlib.pyplot as plt
 import gobject
 
-class ProcessPlotter(object):
 
+class ProcessPlotter(object):
     def __init__(self):
         self.x = []
         self.y = []
@@ -76,6 +76,7 @@ class NBPlot(object):
         else:
             data = np.random.random(2)
             send(data)
+
 
 def main():
     pl = NBPlot()

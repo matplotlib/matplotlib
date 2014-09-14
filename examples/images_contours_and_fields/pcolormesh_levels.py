@@ -39,7 +39,6 @@ plt.axis([x.min(), x.max(), y.min(), y.max()])
 plt.title('pcolormesh with levels')
 
 
-
 plt.subplot(2, 1, 2)
 # contours are *point* based plots, so convert our bound into point
 # centers

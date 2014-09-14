@@ -4,6 +4,7 @@ You can pass a custom Figure constructor to figure if you want to derive from th
 from matplotlib.pyplot import figure, show
 from matplotlib.figure import Figure
 
+
 class MyFigure(Figure):
     def __init__(self, *args, **kwargs):
         """

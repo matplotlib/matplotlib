@@ -31,7 +31,6 @@ if 1:
                         arrowprops=dict(arrowstyle="->"))
     ax.add_artist(ab)
 
-
     from matplotlib.patches import Circle
     da = DrawingArea(20, 20, 0, 0)
     p = Circle((10, 10), 10)
@@ -48,7 +47,6 @@ if 1:
 
     ax.add_artist(ab)
 
-
     arr = np.arange(100).reshape((10,10))
     im = OffsetImage(arr, zoom=2)
 
@@ -62,9 +60,7 @@ if 1:
 
     ax.add_artist(ab)
 
-
     # another image
-
 
     from matplotlib._png import read_png
     fn = get_sample_data("grace_hopper.png", asfileobj=False)
@@ -81,12 +77,10 @@ if 1:
                                         connectionstyle="angle,angleA=0,angleB=90,rad=3")
                         )
 
-
     ax.add_artist(ab)
 
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-
 
     plt.draw()
     plt.show()

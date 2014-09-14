@@ -15,9 +15,11 @@ import matplotlib.pyplot as plt
 from numpy import nonzero
 from numpy.random import rand
 
+
 class Datum(object):
     colorin = colorConverter.to_rgba('red')
     colorout = colorConverter.to_rgba('blue')
+
     def __init__(self, x, y, include=False):
         self.x = x
         self.y = y

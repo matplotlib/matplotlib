@@ -19,8 +19,8 @@ class Foo:
         if unit is None: unit = self.unit
         return self._val / unit
 
-class FooConverter:
 
+class FooConverter:
     @staticmethod
     def axisinfo(unit, axis):
         'return the Foo AxisInfo'

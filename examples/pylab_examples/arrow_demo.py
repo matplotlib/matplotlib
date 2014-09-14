@@ -15,11 +15,14 @@ rates_to_bases={'r1':'AT', 'r2':'TA', 'r3':'GA','r4':'AG','r5':'CA','r6':'AC', \
             'r7':'GT', 'r8':'TG', 'r9':'CT','r10':'TC','r11':'GC','r12':'CG'}
 numbered_bases_to_rates = dict([(v,k) for k, v in rates_to_bases.items()])
 lettered_bases_to_rates = dict([(v, 'r'+v) for k, v in rates_to_bases.items()])
+
+
 def add_dicts(d1, d2):
     """Adds two dicts and returns the result."""
     result = d1.copy()
     result.update(d2)
     return result
+
 
 def make_arrow_plot(data, size=4, display='length', shape='right', \
         max_arrow_width=0.03, arrow_sep = 0.02, alpha=0.5, \
@@ -98,7 +101,6 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
         'GC':'center',
         'CG':'center'
         }
-
 
     def do_fontsize(k):
         return float(clip(max_text_size*sqrt(data[k]),\
@@ -200,8 +202,6 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
             orig_position = array([[length/2.0, 3*max_arrow_width]])
         else:
             raise ValueError("Got unknown position parameter %s" % where)
-
-
 
         M = array([[cx, sx],[-sx,cx]])
         coords = dot(orig_position, M) + [[x_pos, y_pos]]
