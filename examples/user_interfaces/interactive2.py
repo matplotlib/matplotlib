@@ -147,7 +147,7 @@ class GTKInterpreterConsole(gtk.ScrolledWindow):
 
     def __init__(self):
         gtk.ScrolledWindow.__init__(self)
-        self.set_policy (gtk.POLICY_AUTOMATIC,gtk.POLICY_AUTOMATIC)
+        self.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_AUTOMATIC)
 
         self.text = gtk.TextView()
         self.text.set_wrap_mode(True)
