@@ -36,6 +36,7 @@ plt.figure()
 # Basic contour plot
 CS = plt.contour(X, Y, Z)
 
+
 # Define a class that forces representation of float to look a certain way
 # This remove trailing zero so '1.0' becomes '1'
 class nf(float):
@@ -84,4 +85,3 @@ plt.clabel(CS, CS.levels, fmt=fmt)
 plt.title("$100^Z$")
 
 plt.show()
-

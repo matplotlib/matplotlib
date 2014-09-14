@@ -15,6 +15,7 @@ class Knob:
     A Knob instance is attached to a Param instance, e.g., param.attach(knob)
     Base class is for documentation purposes.
     """
+
     def setKnob(self, value):
         pass
 
@@ -32,6 +33,7 @@ class Param:
       - the other knobs in the knob list have a "set" method which gets
         called for the others.
     """
+
     def __init__(self, initialValue=None, minimum=0., maximum=1.):
         self.minimum = minimum
         self.maximum = maximum
@@ -39,10 +41,10 @@ class Param:
             raise ValueError('illegal initial value')
         self.value = initialValue
         self.knobs = []
-        
+
     def attach(self, knob):
         self.knobs += [knob]
-        
+
     def set(self, value, knob=None):
         self.value = value
         self.value = self.constrain(value)
@@ -66,7 +68,7 @@ class SliderGroup(Knob):
         self.slider = wx.Slider(parent, -1)
         self.slider.SetMax(param.maximum*1000)
         self.setKnob(param.value)
-        
+
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         sizer.Add(self.sliderLabel, 0, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=2)
         sizer.Add(self.sliderText, 0, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=2)
@@ -82,11 +84,11 @@ class SliderGroup(Knob):
     def sliderHandler(self, evt):
         value = evt.GetInt() / 1000.
         self.param.set(value)
-        
+
     def sliderTextHandler(self, evt):
         value = float(self.sliderText.GetValue())
         self.param.set(value)
-        
+
     def setKnob(self, value):
         self.sliderText.SetValue('%g'%value)
         self.slider.SetValue(value*1000)
@@ -109,7 +111,7 @@ class FourierDemoFrame(wx.Frame):
         sizer.Add(self.amplitudeSliderGroup.sizer, 0, \
             wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=5)
         self.SetSizer(sizer)
-        
+
 
 class FourierDemoWindow(wx.Window, Knob):
     def __init__(self, *args, **kwargs):
@@ -125,7 +127,7 @@ class FourierDemoWindow(wx.Window, Knob):
         self.f0 = Param(2., minimum=0., maximum=6.)
         self.A = Param(1., minimum=0.01, maximum=2.)
         self.draw()
-        
+
         # Not sure I like having two params attached to the same Knob,
         # but that is what we have here... it works but feels kludgy -
         # although maybe it's not too bad since the knob changes both params
@@ -133,10 +135,10 @@ class FourierDemoWindow(wx.Window, Knob):
         self.f0.attach(self)
         self.A.attach(self)
         self.Bind(wx.EVT_SIZE, self.sizeHandler)
-       
+
     def sizeHandler(self, *args, **kwargs):
         self.canvas.SetSize(self.GetSize())
-        
+
     def mouseDown(self, evt):
         if self.lines[0] in self.figure.hitlist(evt):
             self.state = 'frequency'
@@ -159,7 +161,7 @@ class FourierDemoWindow(wx.Window, Knob):
         elif self.state == 'time':
             if (x-x0)/x0 != -1.:
                 self.f0.set(1./(1./f0Init+(1./f0Init*(x-x0)/x0)))
-                    
+
     def mouseUp(self, evt):
         self.state = ''
 
@@ -209,6 +211,6 @@ class App(wx.App):
         self.frame1 = FourierDemoFrame(parent=None, title="Fourier Demo", size=(640, 480))
         self.frame1.Show()
         return True
-        
+
 app = App()
 app.MainLoop()

@@ -16,4 +16,3 @@ for i, stylename in enumerate(sorted(styles.keys())):
               bbox=dict(boxstyle=stylename, fc="w", ec="k"))
 plt.draw()
 plt.show()
-

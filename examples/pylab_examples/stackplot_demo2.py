@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 np.random.seed(0)
+
+
 def layers(n, m):
     """
     Return *n* random Gaussian mixtures, each of length *m*.

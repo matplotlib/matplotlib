@@ -23,7 +23,6 @@ def onpick(event):
     N = len(event.ind)
     if not N: return True
 
-
     figi = plt.figure()
     for subplotnum, dataind in enumerate(event.ind):
         ax = figi.add_subplot(N,1,subplotnum+1)
@@ -37,8 +36,3 @@ def onpick(event):
 fig.canvas.mpl_connect('pick_event', onpick)
 
 plt.show()
-
-
-
-
-

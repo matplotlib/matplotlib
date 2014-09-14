@@ -18,4 +18,3 @@ ax.set_zlabel('Z')
 ax.set_zlim(-100, 100)
 
 plt.show()
-

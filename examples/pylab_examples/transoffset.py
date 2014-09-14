@@ -54,4 +54,3 @@ for x, y in zip(X, Y):
 
 
 P.show()
-

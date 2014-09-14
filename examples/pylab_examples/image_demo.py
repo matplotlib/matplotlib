@@ -16,4 +16,3 @@ im = plt.imshow(Z, interpolation='bilinear', cmap=cm.RdYlGn,
                 vmax=abs(Z).max(), vmin=-abs(Z).max())
 
 plt.show()
-

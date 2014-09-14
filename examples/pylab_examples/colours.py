@@ -6,6 +6,7 @@ Some simple functions to generate colours.
 import numpy as np
 from matplotlib.colors import colorConverter
 
+
 def pastel(colour, weight=2.4):
     """ Convert colour into a nice pastel shade"""
     rgb = np.asarray(colorConverter.to_rgb(colour))
@@ -30,6 +31,7 @@ def pastel(colour, weight=2.4):
 
     return rgb
 
+
 def get_colours(n):
     """ Return n pastel colours. """
     base = np.asarray([[1,0,0], [0,1,0], [0,0,1]])
@@ -48,4 +50,3 @@ def get_colours(n):
                            (base[start+1] * x))
 
     return [pastel(c) for c in colours[0:n]]
-

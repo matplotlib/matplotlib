@@ -50,4 +50,3 @@ ax.set_ylim(-1*cm, 10*cm)
 ax.grid(True)
 ax.set_title("Artists with units")
 plt.show()
-

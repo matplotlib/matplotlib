@@ -19,6 +19,7 @@ import matplotlib.cm as cm
 import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 
+
 def tellme(s):
     print(s)
     plt.title(s,fontsize=16)
@@ -59,6 +60,7 @@ while not happy:
 # Now contour according to distance from triangle
 # corners - just an example
 ##################################################
+
 
 # Define a nice function of distance from individual pts
 def f(x,y,pts):

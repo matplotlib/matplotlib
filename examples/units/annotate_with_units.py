@@ -21,4 +21,3 @@ ax.annotate('local max', xy=(3*cm, 1*cm),  xycoords='data',
 ax.set_xlim(0*cm, 4*cm)
 ax.set_ylim(0*cm, 4*cm)
 plt.show()
-

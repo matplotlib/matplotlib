@@ -32,5 +32,3 @@ plt.subplot(212)
 cxy, f = plt.cohere(s1, s2, 256, 1./dt)
 plt.ylabel('coherence')
 plt.show()
-
-

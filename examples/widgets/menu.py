@@ -20,10 +20,12 @@ class ItemProperties:
         self.labelcolor_rgb = colors.colorConverter.to_rgb(labelcolor)
         self.bgcolor_rgb = colors.colorConverter.to_rgb(bgcolor)
 
+
 class MenuItem(artist.Artist):
     parser = mathtext.MathTextParser("Bitmap")
     padx = 5
     pady = 5
+
     def __init__(self, fig, labelstr, props=None, hoverprops=None,
                  on_select=None):
         artist.Artist.__init__(self)
@@ -40,7 +42,6 @@ class MenuItem(artist.Artist):
         self.props = props
         self.hoverprops = hoverprops
 
-
         self.on_select = on_select
 
         x, self.depth = self.parser.to_mask(
@@ -49,7 +50,6 @@ class MenuItem(artist.Artist):
         if props.fontsize!=hoverprops.fontsize:
             raise NotImplementedError(
                         'support for different font sizes not implemented')
-
 
         self.labelwidth = x.shape[1]
         self.labelheight = x.shape[0]
@@ -114,12 +114,11 @@ class MenuItem(artist.Artist):
         if changed:
             self.set_hover_props(b)
 
-
         self.hover = b
         return changed
 
-class Menu:
 
+class Menu:
     def __init__(self, fig, menuitems):
         self.figure = fig
         fig.suppressComposite = True
@@ -130,9 +129,7 @@ class Menu:
         maxw = max([item.labelwidth for item in menuitems])
         maxh = max([item.labelheight for item in menuitems])
 
-
         totalh = self.numitems*maxh + (self.numitems+1)*2*MenuItem.pady
-
 
         x0 = 100
         y0 = 400
@@ -144,12 +141,10 @@ class Menu:
             left = x0
             bottom = y0-maxh-MenuItem.pady
 
-
             item.set_extent(left, bottom, width, height)
 
             fig.artists.append(item)
             y0 -= maxh + MenuItem.pady
-
 
         fig.canvas.mpl_connect('motion_notify_event', self.on_move)
 

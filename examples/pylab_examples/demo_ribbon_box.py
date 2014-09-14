@@ -6,6 +6,7 @@ from matplotlib._png import read_png
 import matplotlib.colors
 from matplotlib.cbook import get_sample_data
 
+
 class RibbonBox(object):
 
     original_image = read_png(get_sample_data("Minduka_Present_Blue_Pack.png",
@@ -22,13 +23,11 @@ class RibbonBox(object):
         im = np.empty(self.original_image.shape,
                       self.original_image.dtype)
 
-
         im[:,:,:3] = self.b_and_h[:,:,np.newaxis]
         im[:,:,:3] -= self.color[:,:,np.newaxis]*(1.-np.array(rgb))
         im[:,:,3] = self.alpha
 
         self.im = im
-
 
     def get_stretched_image(self, stretch_factor):
         stretch_factor = max(stretch_factor, 1)
@@ -46,7 +45,6 @@ class RibbonBox(object):
 
         self._cached_im = stretched_image
         return stretched_image
-
 
 
 class RibbonBoxImage(BboxImage):
@@ -76,7 +74,6 @@ class RibbonBoxImage(BboxImage):
 
         self._ribbonbox = RibbonBox(color)
         self._cached_ny = None
-
 
     def draw(self, renderer, *args, **kwargs):
 
@@ -130,10 +127,8 @@ if 1:
     patch_gradient.set_array(gradient)
     ax.add_artist(patch_gradient)
 
-
     ax.set_xlim(years[0]-0.5, years[-1]+0.5)
     ax.set_ylim(0, 10000)
 
     fig.savefig('ribbon_box.png')
     plt.show()
-

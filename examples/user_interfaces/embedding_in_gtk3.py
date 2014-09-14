@@ -32,4 +32,3 @@ sw.add_with_viewport (canvas)
 
 win.show_all()
 Gtk.main()
-

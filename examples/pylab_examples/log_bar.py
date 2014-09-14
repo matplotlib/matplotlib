@@ -21,5 +21,3 @@ pylab.gca().set_xticks(x + w / 2)
 pylab.gca().set_ylim( (0.001,1000))
 
 pylab.show()
-
-

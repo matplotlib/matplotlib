@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 
 import random
 fontsizes = [8, 16, 24, 32]
+
+
 def example_plot(ax):
     ax.plot([1, 2])
     ax.set_xlabel('x-label', fontsize=random.choice(fontsizes))
@@ -100,6 +102,3 @@ gs1.update(top=top, bottom=bottom)
 gs2.update(top=top, bottom=bottom)
 
 plt.show()
-
-
-

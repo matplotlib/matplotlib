@@ -55,4 +55,3 @@ figure()
 boxplot(data)
 
 show()
-

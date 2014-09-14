@@ -31,10 +31,13 @@ Welcome to matplotlib.
     help(plotting) -- shows a list of plot specific commands
 
 """
+
+
 class Completer:
   """
   Taken from rlcompleter, with readline references stripped, and a local dictionary to use.
   """
+
   def __init__(self, locals):
     self.locals = locals
 
@@ -100,6 +103,7 @@ class Completer:
         matches.append("%s.%s" % (expr, word))
     return matches
 
+
 def get_class_members(klass):
   ret = dir(klass)
   if hasattr(klass,'__bases__'):
@@ -108,13 +112,13 @@ def get_class_members(klass):
   return ret
 
 
-
 class OutputStream:
   """
   A Multiplexing output stream.
   It can replace another stream, and tee output to the original stream and too
   a GTK textview.
   """
+
   def __init__(self,view,old_out,style):
     self.view = view
     self.buffer = view.get_buffer()
@@ -134,11 +138,13 @@ class OutputStream:
 
     self.buffer.insert_with_tags(end,text,self.style)
 
+
 class GTKInterpreterConsole(gtk.ScrolledWindow):
   """
   An InteractiveConsole for GTK. It's an actual widget,
   so it can be dropped in just about anywhere.
   """
+
   def __init__(self):
     gtk.ScrolledWindow.__init__(self)
     self.set_policy (gtk.POLICY_AUTOMATIC,gtk.POLICY_AUTOMATIC)
@@ -201,7 +207,6 @@ class GTKInterpreterConsole(gtk.ScrolledWindow):
 
     self.add(self.text)
     self.text.show()
-
 
   def reset_history(self):
     self.history = []
@@ -297,7 +302,6 @@ class GTKInterpreterConsole(gtk.ScrolledWindow):
     else:
       self.write_line(line + "\n")
 
-
     more = self.push(line)
 
     self.text.get_buffer().place_cursor(self.text.get_buffer().get_end_iter())
@@ -306,7 +310,6 @@ class GTKInterpreterConsole(gtk.ScrolledWindow):
         self.prompt_ps2()
     else:
         self.prompt_ps1()
-
 
     self.current_history = 0
 
@@ -364,7 +367,6 @@ def main():
   console.execute_line("matplotlib.use('GTKAgg')")
   console.execute_line('matplotlib.interactive(1)')
   console.execute_line('from pylab import *')
-
 
   if len(sys.argv)>1:
     fname = sys.argv[1]

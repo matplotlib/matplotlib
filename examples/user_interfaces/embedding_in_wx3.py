@@ -42,8 +42,8 @@ ERR_TOL = 1e-5 # floating point slop for peak-detection
 
 matplotlib.rc('image', origin='lower')
 
-class PlotPanel(wx.Panel):
 
+class PlotPanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent, -1)
 
@@ -102,6 +102,7 @@ class PlotPanel(wx.Panel):
         # this is supposed to prevent redraw flicker on some X servers...
         pass
 
+
 class MyApp(wx.App):
     def OnInit(self):
         xrcfile = cbook.get_sample_data('embedding_in_wx3.xrc', asfileobj=False)
@@ -159,4 +160,3 @@ class MyApp(wx.App):
 if __name__ == '__main__':
     app = MyApp(0)
     app.MainLoop()
-

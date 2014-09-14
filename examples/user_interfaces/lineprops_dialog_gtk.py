@@ -5,6 +5,7 @@ from matplotlib.backends.backend_gtk import DialogLineprops
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def f(t):
     s1 = np.cos(2*np.pi*t)
     e1 = np.exp(-t)
@@ -21,4 +22,3 @@ l2,  = ax.plot(t2, f(t2), 'k--', label='line 2')
 dlg = DialogLineprops([l1,l2])
 dlg.show()
 plt.show()
-

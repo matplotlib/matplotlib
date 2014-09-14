@@ -8,6 +8,7 @@ import matplotlib as mpl
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as Canvas
 from matplotlib.backends.backend_wxagg import NavigationToolbar2Wx as Toolbar
 
+
 class Plot(wx.Panel):
     def __init__(self, parent, id = -1, dpi = None, **kwargs):
         wx.Panel.__init__(self, parent, id=id, **kwargs)
@@ -20,6 +21,7 @@ class Plot(wx.Panel):
         sizer.Add(self.canvas,1,wx.EXPAND)
         sizer.Add(self.toolbar, 0 , wx.LEFT | wx.EXPAND)
         self.SetSizer(sizer)
+
 
 class PlotNotebook(wx.Panel):
     def __init__(self, parent, id = -1):
@@ -49,4 +51,3 @@ def demo():
     app.MainLoop()
 
 if __name__ == "__main__": demo()
-

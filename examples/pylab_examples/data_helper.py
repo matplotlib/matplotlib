@@ -3,6 +3,8 @@
 
 from numpy import fromstring, argsort, take, array, resize
 import matplotlib.cbook as cbook
+
+
 def get_two_stock_data():
     """
     load stock time and price data for two stocks The return values
@@ -35,7 +37,6 @@ def get_daily_data():
 
     """
     class C: pass
-
     def get_ticker(ticker):
         vals = []
 

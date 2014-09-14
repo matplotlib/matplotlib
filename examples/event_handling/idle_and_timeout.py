@@ -16,6 +16,8 @@ line1, = ax.plot(y1)
 line2, = ax.plot(y2)
 
 N = 100
+
+
 def on_idle(event):
     on_idle.count +=1
     print('idle', on_idle.count)
@@ -31,5 +33,3 @@ on_idle.count = 0
 fig.canvas.mpl_connect('idle_event', on_idle)
 
 plt.show()
-
-

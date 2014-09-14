@@ -317,7 +317,6 @@ def rad_fn(x, pos=None):
 
 
 class BasicUnitConverter(units.ConversionInterface):
-
     @staticmethod
     def axisinfo(unit, axis):
         'return AxisInfo instance for x and unit'

@@ -39,7 +39,7 @@ for w in pies[0]:
     s.set_gid(w.get_gid()+"_shadow")
     s.set_zorder(w.get_zorder() - 0.1)
     ax.add_patch(s)
-    
+
 
 # save
 from StringIO import StringIO

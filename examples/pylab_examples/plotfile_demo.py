@@ -33,5 +33,3 @@ gca().set_ylabel(r'$f(x) = x^2, x^3$')
 plotfile(fname, (0,5,6), plotfuncs={5:'bar'})
 
 show()
-
-

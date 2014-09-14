@@ -24,7 +24,6 @@ Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
 Z = 10.0 * (Z2 - Z1)
 
 
-
 # Create a simple contour plot with labels using default colors.  The
 # inline argument to clabel will control whether the labels are draw
 # over the line segments of the contour, removing the lines beneath

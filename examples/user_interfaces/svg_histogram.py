@@ -46,8 +46,6 @@ plt.rcParams['svg.embed_char_paths'] = 'none'
 ET.register_namespace("","http://www.w3.org/2000/svg")
 
 
-
-
 # --- Create histogram, legend and title ---
 plt.figure()
 r = np.random.randn(100)
@@ -76,7 +74,7 @@ for i, t in enumerate(leg.get_patches()):
 # Set ids for the text patches
 for i, t in enumerate(leg.get_texts()):
     t.set_gid('leg_text_%d'%i)
-            
+
 # Save SVG in a fake file object.
 f = StringIO()
 plt.savefig(f, format="svg")
@@ -92,13 +90,13 @@ for i, t in enumerate(leg.get_patches()):
     el = xmlid['leg_patch_%d'%i]
     el.set('cursor', 'pointer')
     el.set('onclick', "toggle_hist(this)")
-    
+
 # Add attributes to the text objects.    
 for i, t in enumerate(leg.get_texts()):
     el = xmlid['leg_text_%d'%i]
     el.set('cursor', 'pointer')
     el.set('onclick', "toggle_hist(this)")
-        
+
 # Create script defining the function `toggle_hist`. 
 # We create a global variable `container` that stores the patches id 
 # belonging to each histogram. Then a function "toggle_element" sets the 
@@ -149,11 +147,8 @@ function toggle_hist(obj) {
 # Add a transition effect
 css = tree.getchildren()[0][0]
 css.text = css.text + "g {-webkit-transition:opacity 0.4s ease-out;-moz-transition:opacity 0.4s ease-out;}"
-    
+
 # Insert the script and save to file.
 tree.insert(0, ET.XML(script))
 
 ET.ElementTree(tree).write("svg_histogram.svg")
-
-    
-

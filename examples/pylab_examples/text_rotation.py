@@ -16,6 +16,7 @@ But a picture is worth a thousand words!
 """
 from pylab import *
 
+
 def addtext(props):
     text(0.5, 0.5, 'text 0', props, rotation=0)
     text(1.5, 0.5, 'text 45', props, rotation=45)

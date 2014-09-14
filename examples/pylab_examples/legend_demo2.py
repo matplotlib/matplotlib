@@ -18,6 +18,3 @@ plt.xlabel('time')
 plt.ylabel('volts')
 plt.title('Damped oscillation')
 plt.show()
-
-
-

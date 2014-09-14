@@ -34,6 +34,7 @@ class SelectFromCollection(object):
         To highlight a selection, this tool sets all selected points to an
         alpha value of 1 and non-selected points to `alpha_other`.
     """
+
     def __init__(self, ax, collection, alpha_other=0.3):
         self.canvas = ax.figure.canvas
         self.collection = collection

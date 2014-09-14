@@ -34,4 +34,3 @@ ax3.yaxis.set_units(minutes)
 ax3.axis([0,10,0,1])
 
 show()
-

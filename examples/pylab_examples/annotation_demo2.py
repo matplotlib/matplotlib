@@ -46,7 +46,6 @@ if 1:
                                 connectionstyle="angle3,angleA=0,angleB=-90"),
                 )
 
-
     ax.annotate('angle', xy=(3., 1),  xycoords='data',
                 xytext=(-50, 30), textcoords='offset points',
                 bbox=dict(boxstyle="round", fc="0.8"),
@@ -69,7 +68,6 @@ if 1:
                                 shrinkA=0, shrinkB=10,
                                 connectionstyle="angle,angleA=0,angleB=90,rad=10"),
                 )
-
 
     ann = ax.annotate('', xy=(4., 1.),  xycoords='data',
                 xytext=(4.5, -1), textcoords='data',
@@ -126,7 +124,6 @@ if 1:
                                 patchB=el,
                                 connectionstyle="arc3,rad=-0.3"),
                 )
-
 
     ann = ax.annotate('wedge', xy=(2., -1),  xycoords='data',
                 xytext=(0, -45), textcoords='offset points',

@@ -38,4 +38,3 @@ def hinton(matrix, max_weight=None, ax=None):
 if __name__ == '__main__':
     hinton(np.random.rand(20, 20) - 0.5)
     plt.show()
-

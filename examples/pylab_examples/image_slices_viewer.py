@@ -3,8 +3,6 @@ import numpy
 from matplotlib.pyplot import figure, show
 
 
-
-
 class IndexTracker:
     def __init__(self, ax, X):
         self.ax = ax
@@ -24,7 +22,6 @@ class IndexTracker:
         else:
             self.ind = numpy.clip(self.ind-1, 0, self.slices-1)
 
-
         self.update()
 
     def update(self):
@@ -39,7 +36,6 @@ ax = fig.add_subplot(111)
 X = numpy.random.rand(20,20,40)
 
 tracker = IndexTracker(ax, X)
-
 
 
 fig.canvas.mpl_connect('scroll_event', tracker.onscroll)

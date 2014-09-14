@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from pylab import *
 
+
 def f(t):
     'a damped exponential'
     s1 = cos(2*pi*t)
@@ -15,4 +16,3 @@ setp(l, 'markersize', 30)
 setp(l, 'markerfacecolor', 'b')
 
 show()
-

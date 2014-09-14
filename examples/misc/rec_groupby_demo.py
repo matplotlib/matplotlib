@@ -8,11 +8,13 @@ print('loading', datafile)
 r = mlab.csv2rec(datafile)
 r.sort()
 
+
 def daily_return(prices):
     'an array of daily returns from price array'
     g = np.zeros_like(prices)
     g[1:] = (prices[1:]-prices[:-1])/prices[:-1]
     return g
+
 
 def volume_code(volume):
     'code the continuous volume data categorically'
