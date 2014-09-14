@@ -5,6 +5,7 @@ from matplotlib.backends.backend_gtk import DialogLineprops
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def f(t):
     s1 = np.cos(2*np.pi*t)
     e1 = np.exp(-t)

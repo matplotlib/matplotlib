@@ -20,6 +20,8 @@ IS_MAC = 'wxMac' in wx.PlatformInfo
 # This is where the "magic" happens.
 from matplotlib.mathtext import MathTextParser
 mathtext_parser = MathTextParser("Bitmap")
+
+
 def mathtext_to_wxbitmap(s):
     ftimage, depth = mathtext_parser.parse(s, 150)
     return wx.BitmapFromBufferRGBA(
@@ -33,6 +35,7 @@ functions = [
     (r'$\cos(2 \pi x)$'      , lambda x: cos(2*pi*x)),
     (r'$\log(x)$'            , lambda x: log(x))
 ]
+
 
 class CanvasFrame(wx.Frame):
     def __init__(self, parent, title):
@@ -111,6 +114,7 @@ class CanvasFrame(wx.Frame):
         self.axes.clear()
         self.axes.plot(t, s)
         self.Refresh()
+
 
 class MyApp(wx.App):
     def OnInit(self):

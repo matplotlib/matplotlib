@@ -21,7 +21,6 @@ if __name__ == "__main__":
     bbox_image.set_data(a)
     ax.add_artist(bbox_image)
 
-
     ax = plt.subplot(122)
     a = np.linspace(0, 1, 256).reshape(1,-1)
     a = np.vstack((a,a))

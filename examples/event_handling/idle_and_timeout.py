@@ -16,6 +16,8 @@ line1, = ax.plot(y1)
 line2, = ax.plot(y2)
 
 N = 100
+
+
 def on_idle(event):
     on_idle.count +=1
     print('idle', on_idle.count)

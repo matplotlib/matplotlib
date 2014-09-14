@@ -84,7 +84,6 @@ if 1: # simple picking, lines, rectangles and text
     for label in ax2.get_xticklabels():  # make the xtick labels pickable
         label.set_picker(True)
 
-
     def onpick1(event):
         if isinstance(event.artist, Line2D):
             thisline = event.artist
@@ -98,8 +97,6 @@ if 1: # simple picking, lines, rectangles and text
         elif isinstance(event.artist, Text):
             text = event.artist
             print('onpick1 text:', text.get_text())
-
-
 
     fig.canvas.mpl_connect('pick_event', onpick1)
 
@@ -146,6 +143,7 @@ if 1: # picking with a custom hit test function
 if 1: # picking on a scatter plot (matplotlib.collections.RegularPolyCollection)
 
     x, y, c, s = rand(4, 100)
+
     def onpick3(event):
         ind = event.ind
         print('onpick3 scatter:', ind, np.take(x, ind), np.take(y, ind))

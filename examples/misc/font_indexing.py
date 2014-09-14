@@ -8,7 +8,6 @@ import matplotlib
 from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, KERNING_UNFITTED, KERNING_UNSCALED
 
 
-
 #fname = '/usr/share/fonts/sfd/FreeSans.ttf'
 fname = matplotlib.get_data_path() + '/fonts/ttf/Vera.ttf'
 font = FT2Font(fname)
@@ -21,7 +20,6 @@ codes = font.get_charmap().items()
 #    try: name = font.get_glyph_name(glyphind)
 #    except RuntimeError: pass
 #    else: print '% 4d % 4d %s %s'%(glyphind, ccode, hex(int(ccode)), name)
-
 
 
 # make a charname to charcode and glyphind dictionary

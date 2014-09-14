@@ -50,7 +50,6 @@ class PolygonInteractor:
         canvas.mpl_connect('motion_notify_event', self.motion_notify_callback)
         self.canvas = canvas
 
-
     def draw_callback(self, event):
         self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self.poly)
@@ -63,7 +62,6 @@ class PolygonInteractor:
         vis = self.line.get_visible()
         Artist.update_from(self.line, poly)
         self.line.set_visible(vis)  # don't use the poly visibility state
-
 
     def get_ind_under_point(self, event):
         'get the index of the vertex under point if within epsilon tolerance'
@@ -120,7 +118,6 @@ class PolygonInteractor:
                         list(self.poly.xy[i:]))
                     self.line.set_data(zip(*self.poly.xy))
                     break
-
 
         self.canvas.draw()
 

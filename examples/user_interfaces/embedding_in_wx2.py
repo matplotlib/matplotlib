@@ -26,8 +26,8 @@ from matplotlib.figure import Figure
 
 import wx
 
-class CanvasFrame(wx.Frame):
 
+class CanvasFrame(wx.Frame):
     def __init__(self):
         wx.Frame.__init__(self,None,-1,
                          'CanvasFrame',size=(550,350))
@@ -48,7 +48,6 @@ class CanvasFrame(wx.Frame):
         self.Fit()
 
         self.add_toolbar()  # comment this out for no toolbar
-
 
     def add_toolbar(self):
         self.toolbar = NavigationToolbar2Wx(self.canvas)
@@ -71,12 +70,11 @@ class CanvasFrame(wx.Frame):
         # update the axes menu on the toolbar
         self.toolbar.update()
 
-
     def OnPaint(self, event):
         self.canvas.draw()
 
-class App(wx.App):
 
+class App(wx.App):
     def OnInit(self):
         'Create the main window and insert the custom frame'
         frame = CanvasFrame()

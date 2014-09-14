@@ -6,6 +6,7 @@ from matplotlib.patches import FancyBboxPatch
 # Bbox object around which the fancy box will be drawn.
 bb = mtransforms.Bbox([[0.3, 0.4], [0.7, 0.6]])
 
+
 def draw_bbox(ax, bb):
     # boxstyle=square with pad=0, i.e. bbox itself.
     p_bbox = FancyBboxPatch((bb.xmin, bb.ymin),
@@ -15,6 +16,7 @@ def draw_bbox(ax, bb):
                             )
     ax.add_patch(p_bbox)
 
+
 def test1(ax):
 
     # a fancy box with round corners. pad=0.1
@@ -23,7 +25,6 @@ def test1(ax):
                              boxstyle="round,pad=0.1",
                              fc=(1., .8, 1.),
                              ec=(1., 0.5, 1.))
-
 
     ax.add_patch(p_fancy)
 
@@ -49,7 +50,6 @@ def test2(ax):
                              fc=(1., .8, 1.),
                              ec=(1., 0.5, 1.))
 
-
     ax.add_patch(p_fancy)
 
     # boxstyle and its argument can be later modified with
@@ -71,7 +71,6 @@ def test2(ax):
     draw_bbox(ax, bb)
 
 
-
 def test3(ax):
 
     # mutation_scale determine overall scale of the mutation,
@@ -83,7 +82,6 @@ def test3(ax):
                              mutation_scale=2.,
                              fc=(1., .8, 1.),
                              ec=(1., 0.5, 1.))
-
 
     ax.add_patch(p_fancy)
 
@@ -98,7 +96,6 @@ def test3(ax):
     draw_bbox(ax, bb)
 
 
-
 def test4(ax):
 
     # When the aspect ratio of the axes is not 1, the fancy box may
@@ -110,9 +107,7 @@ def test4(ax):
                              fc="none",
                              ec=(0., .5, 0.), zorder=4)
 
-
     ax.add_patch(p_fancy)
-
 
     # You can compensate this by setting the mutation_aspect (pink).
     p_fancy = FancyBboxPatch((bb.xmin, bb.ymin),
@@ -122,7 +117,6 @@ def test4(ax):
                              fc=(1., 0.8, 1.),
                              ec=(1., 0.5, 1.))
 
-
     ax.add_patch(p_fancy)
 
     ax.text(0.1, 0.8,
@@ -130,7 +124,6 @@ def test4(ax):
             size=10, transform=ax.transAxes)
     
     draw_bbox(ax, bb)
-
 
 
 def test_all():
@@ -142,7 +135,6 @@ def test_all():
     ax.set_ylim(0., 1.)
     ax.set_title("test1")
     ax.set_aspect(1.)
-
 
     ax = plt.subplot(2, 2, 2)
     ax.set_title("test2")

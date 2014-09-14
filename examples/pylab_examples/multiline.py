@@ -19,8 +19,6 @@ if 1:
 
     grid(True)
 
-
-
     subplot(122)
     
     text(0.29, 0.7, "Mat\nTTp\n123", size=18,

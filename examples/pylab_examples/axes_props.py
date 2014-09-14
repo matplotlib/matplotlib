@@ -26,7 +26,6 @@ setp(yticklabels, 'color', 'r', fontsize='medium')
 setp(xticklabels, 'color', 'r', fontsize='medium')
 
 
-
 show()
 
 

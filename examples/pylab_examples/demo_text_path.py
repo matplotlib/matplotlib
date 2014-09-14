@@ -23,6 +23,7 @@ class PathClippedImagePatch(mpatches.PathPatch):
 
     FIXME : The result is currently dpi dependent.
     """
+
     def __init__(self, path, bbox_image, **kwargs):
         mpatches.PathPatch.__init__(self, path, **kwargs)
         self._init_bbox_image(bbox_image)
@@ -43,7 +44,6 @@ class PathClippedImagePatch(mpatches.PathPatch):
         self.bbox_image = bbox_image
 
     def draw(self, renderer=None):
-
 
         # the clip path must be updated every draw. any solution? -JJ
         self.bbox_image.set_clip_path(self._path, self.get_transform())
@@ -111,8 +111,6 @@ if 1:
               interpolation="bilinear",
               aspect="auto")
 
-
-
     # EXAMPLE 2
 
     ax = plt.subplot(212)
@@ -129,7 +127,6 @@ if 1:
 
     shadow1 = mpatches.Shadow(text_patch, 1, -1, props=dict(fc="none", ec="0.6", lw=3))
     shadow2 = mpatches.Shadow(text_patch, 1, -1, props=dict(fc="0.3", ec="none"))
-
 
     # make offset box
     offsetbox = AuxTransformBox(IdentityTransform())
@@ -149,7 +146,6 @@ if 1:
 
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-
 
     plt.draw()
     plt.show()

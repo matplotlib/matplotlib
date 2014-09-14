@@ -31,12 +31,12 @@ def simple_msg(msg, parent=None, title=None):
     return None
 
 
-
 class GladeHandlers:
     def on_buttonClickMe_clicked(event):
         simple_msg('Nothing to say, really',
                    parent=widgets['windowMain'],
                    title='Thanks!')
+
 
 class WidgetsWrapper:
     def __init__(self):
@@ -67,6 +67,7 @@ class WidgetsWrapper:
 
         def keypress(widget, event):
             print('key press')
+
         def buttonpress(widget, event):
             print('button press')
 
@@ -78,7 +79,6 @@ class WidgetsWrapper:
 
         span = SpanSelector(self.axis, onselect, 'horizontal', useblit=False,
                             rectprops=dict(alpha=0.5, facecolor='red') )
-
 
         self['vboxMain'].pack_start(self.canvas, True, True)
         self['vboxMain'].show()
@@ -93,12 +93,7 @@ class WidgetsWrapper:
         sep.show()
         self['vboxMain'].pack_start(sep, True, True)
 
-
         self['vboxMain'].reorder_child(self['buttonClickMe'],-1)
-
-
-
-
 
     def __getitem__(self, key):
         return self.widgets.get_widget(key)

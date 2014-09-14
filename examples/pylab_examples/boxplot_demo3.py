@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def fakeBootStrapper(n):
     '''
     This is just a placeholder for the user's method of
@@ -17,7 +18,6 @@ def fakeBootStrapper(n):
         CI = (-0.35, 0.50)
 
     return med, CI
-
 
 
 np.random.seed(2)

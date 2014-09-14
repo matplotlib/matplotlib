@@ -5,20 +5,24 @@ frame colors on enter and leave
 from __future__ import print_function
 import matplotlib.pyplot as plt
 
+
 def enter_axes(event):
     print('enter_axes', event.inaxes)
     event.inaxes.patch.set_facecolor('yellow')
     event.canvas.draw()
+
 
 def leave_axes(event):
     print('leave_axes', event.inaxes)
     event.inaxes.patch.set_facecolor('white')
     event.canvas.draw()
 
+
 def enter_figure(event):
     print('enter_figure', event.canvas.figure)
     event.canvas.figure.patch.set_facecolor('red')
     event.canvas.draw()
+
 
 def leave_figure(event):
     print('leave_figure', event.canvas.figure)

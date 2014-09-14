@@ -21,7 +21,6 @@ plot(x, y, 'o')
 #axis([0,25,0,25])
 
 
-
 #axis('off')
 title('CT density')
 

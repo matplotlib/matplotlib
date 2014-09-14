@@ -32,7 +32,6 @@ plt.axis([-0.5, 3.5, -0.5, 4.5])
 plt.title('User-specified contours')
 
 
-
 # Multiple filled contour lines can be specified in a single list of polygon
 # vertices along with a list of vertex kinds (code types) as described in the
 # Path class.  This is particularly useful for polygons with holes.

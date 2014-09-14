@@ -12,6 +12,7 @@ from matplotlib.lines import Line2D
 import numpy as np
 from pylab import figure, show
 
+
 class ClippedLine(Line2D):
     """
     Clip the xlimits to the axes view limits -- this example assumes x is sorted
@@ -20,7 +21,6 @@ class ClippedLine(Line2D):
     def __init__(self, ax, *args, **kwargs):
         Line2D.__init__(self, *args, **kwargs)
         self.ax = ax
-
 
     def set_data(self, *args, **kwargs):
         Line2D.set_data(self, *args, **kwargs)
@@ -41,7 +41,6 @@ class ClippedLine(Line2D):
         else:
             self._marker = None
             self._linestyle = '-'
-
 
         Line2D.draw(self, renderer)
 

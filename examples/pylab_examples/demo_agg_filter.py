@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.cm as cm
 import matplotlib.mlab as mlab
 
+
 def smooth1d(x, window_len):
     # copied from http://www.scipy.org/Cookbook/SignalSmooth
 
@@ -11,6 +12,7 @@ def smooth1d(x, window_len):
     w = np.hanning(window_len)
     y=np.convolve(w/w.sum(),s,mode='same')
     return y[window_len-1:-window_len+1]
+
 
 def smooth2d(A, sigma=3):
 
@@ -21,8 +23,6 @@ def smooth2d(A, sigma=3):
     A4 = np.transpose(A3)
 
     return A4
-
-
 
 
 class BaseFilter(object):
@@ -60,8 +60,10 @@ class OffsetFilter(BaseFilter):
         a2 = np.roll(a1, -int(oy/72.*dpi), axis=0)
         return a2
 
+
 class GaussianFilter(BaseFilter):
     "simple gauss filter"
+
     def __init__(self, sigma, alpha=0.5, color=None):
         self.sigma = sigma
         self.alpha = alpha
@@ -73,7 +75,6 @@ class GaussianFilter(BaseFilter):
     def get_pad(self, dpi):
         return int(self.sigma*3/72.*dpi)
 
-
     def process_image(self, padded_src, dpi):
         #offsetx, offsety = int(self.offsets[0]), int(self.offsets[1])
         tgt_image = np.zeros_like(padded_src)
@@ -82,6 +83,7 @@ class GaussianFilter(BaseFilter):
         tgt_image[:,:,-1] = aa
         tgt_image[:,:,:-1] = self.color
         return tgt_image
+
 
 class DropShadowFilter(BaseFilter):
     def __init__(self, sigma, alpha=0.3, color=None, offsets=None):
@@ -100,14 +102,17 @@ class DropShadowFilter(BaseFilter):
 
 from matplotlib.colors import LightSource
 
+
 class LightFilter(BaseFilter):
     "simple gauss filter"
+
     def __init__(self, sigma, fraction=0.5):
         self.gauss_filter = GaussianFilter(sigma, alpha=1)
         self.light_source = LightSource()
         self.fraction = fraction
         #hsv_min_val=0.5,hsv_max_val=0.9,
         #                                hsv_min_sat=0.1,hsv_max_sat=0.1)
+
     def get_pad(self, dpi):
         return self.gauss_filter.get_pad(dpi)
 
@@ -126,9 +131,9 @@ class LightFilter(BaseFilter):
         return tgt
 
 
-
 class GrowFilter(BaseFilter):
     "enlarge the area"
+
     def __init__(self, pixels, color=None):
         self.pixels = pixels
         if color is None:
@@ -153,10 +158,12 @@ class GrowFilter(BaseFilter):
 
 from matplotlib.artist import Artist
 
+
 class FilteredArtistList(Artist):
     """
     A simple container to draw filtered artist.
     """
+
     def __init__(self, artist_list, filter):
         self._artist_list = artist_list
         self._filter = filter
@@ -171,8 +178,8 @@ class FilteredArtistList(Artist):
         renderer.stop_rasterizing()
 
 
-
 import matplotlib.transforms as mtransforms
+
 
 def filtered_text(ax):
     # mostly copied from contour_demo.py
@@ -186,7 +193,6 @@ def filtered_text(ax):
     Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
     # difference of Gaussians
     Z = 10.0 * (Z2 - Z1)
-
 
     # draw
     im = ax.imshow(Z, interpolation='bilinear', origin='lower',
@@ -229,7 +235,6 @@ def drop_shadow_line(ax):
     l2, = ax.plot([0.1, 0.5, 0.9], [0.5, 0.2, 0.7], "ro-",
                   mec="r", mfc="w", lw=5, mew=3, ms=10, label="Line 1")
 
-
     gauss = DropShadowFilter(4)
 
     for l in [l1, l2]:
@@ -247,22 +252,17 @@ def drop_shadow_line(ax):
 
         shadow.set_transform(ot)
 
-
         # adjust zorder of the shadow lines so that it is drawn below the
         # original lines
         shadow.set_zorder(l.get_zorder()-0.5)
         shadow.set_agg_filter(gauss)
         shadow.set_rasterized(True) # to support mixed-mode renderers
 
-
-
     ax.set_xlim(0., 1.)
     ax.set_ylim(0., 1.)
 
     ax.xaxis.set_visible(False)
     ax.yaxis.set_visible(False)
-
-
 
 
 def drop_shadow_patches(ax):

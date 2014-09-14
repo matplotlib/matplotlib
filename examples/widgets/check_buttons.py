@@ -16,6 +16,7 @@ plt.subplots_adjust(left=0.2)
 rax = plt.axes([0.05, 0.4, 0.1, 0.15])
 check = CheckButtons(rax, ('2 Hz', '4 Hz', '6 Hz'), (False, True, True))
 
+
 def func(label):
     if label == '2 Hz': l0.set_visible(not l0.get_visible())
     elif label == '4 Hz': l1.set_visible(not l1.get_visible())

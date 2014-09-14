@@ -40,6 +40,7 @@ class SnaptoCursor:
     Like Cursor but the crosshair snaps to the nearest x,y point
     For simplicity, I'm assuming x is sorted
     """
+
     def __init__(self, ax, x, y):
         self.ax = ax
         self.lx = ax.axhline(color='k')  # the horiz line

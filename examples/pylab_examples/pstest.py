@@ -4,6 +4,7 @@ import matplotlib
 matplotlib.use('PS')
 from pylab import *
 
+
 def f(t):
     s1 = cos(2*pi*t)
     e1 = exp(-t)

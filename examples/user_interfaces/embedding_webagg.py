@@ -105,6 +105,7 @@ class MyApplication(tornado.web.Application):
         """
         Serves the main HTML page.
         """
+
         def get(self):
             manager = self.application.manager
             ws_uri = "ws://{req.host}/".format(req=self.request)
@@ -119,6 +120,7 @@ class MyApplication(tornado.web.Application):
         user has defined.  Call `FigureManagerWebAgg` to get its
         content.
         """
+
         def get(self):
             self.set_header('Content-Type', 'application/javascript')
             js_content = FigureManagerWebAgg.get_javascript()
@@ -129,6 +131,7 @@ class MyApplication(tornado.web.Application):
         """
         Handles downloading of the figure in various file formats.
         """
+
         def get(self, fmt):
             manager = self.application.manager
 

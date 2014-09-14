@@ -41,5 +41,4 @@ artists, labels = cs.legend_elements()
 plt.legend(artists, labels, handleheight=2)
 
 
-
 plt.show()

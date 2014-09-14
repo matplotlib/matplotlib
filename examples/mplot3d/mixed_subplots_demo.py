@@ -5,6 +5,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def f(t):
     s1 = np.cos(2*np.pi*t)
     e1 = np.exp(-t)

@@ -4,6 +4,7 @@
 
 from pylab import *
 
+
 def millions(x):
     return '$%1.1fM' % (x*1e-6)
 

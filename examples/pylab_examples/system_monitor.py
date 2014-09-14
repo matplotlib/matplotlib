@@ -3,17 +3,21 @@
 import time
 from pylab import *
 
+
 def get_memory():
     "Simulate a function that returns system memory"
     return 100*(0.5+0.5*sin(0.5*pi*time.time()))
+
 
 def get_cpu():
     "Simulate a function that returns cpu usage"
     return 100*(0.5+0.5*sin(0.2*pi*(time.time()-0.25)))
 
+
 def get_net():
     "Simulate a function that returns network bandwidth"
     return 100*(0.5+0.5*sin(0.7*pi*(time.time()-0.1)))
+
 
 def get_stats():
     return get_memory(), get_cpu(), get_net()

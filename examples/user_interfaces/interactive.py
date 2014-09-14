@@ -40,6 +40,7 @@ except ImportError:
 else:
     has_readline = True
 
+
 class MTConsole(code.InteractiveConsole):
     """Simple multi-threaded shell"""
 
@@ -146,6 +147,7 @@ class MTConsole(code.InteractiveConsole):
         self._kill = True
         self.ready.release()
 
+
 class GTKInterpreter(threading.Thread):
     """Run gtk.main in the main thread and a python interpreter in a
     separate thread.
@@ -183,6 +185,7 @@ class GTKInterpreter(threading.Thread):
         Typically used to push initialization code into the interpreter"""
 
         pass
+
 
 class MatplotLibInterpreter(GTKInterpreter):
     """Threaded interpreter with matplotlib support.
