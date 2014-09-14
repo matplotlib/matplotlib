@@ -28,21 +28,21 @@ class PointBrowser:
 
     def onpick(self, event):
 
-       if event.artist!=line: return True
+        if event.artist!=line: return True
 
-       N = len(event.ind)
-       if not N: return True
+        N = len(event.ind)
+        if not N: return True
 
-       # the click locations
-       x = event.mouseevent.xdata
-       y = event.mouseevent.ydata
+        # the click locations
+        x = event.mouseevent.xdata
+        y = event.mouseevent.ydata
 
-       distances = np.hypot(x-xs[event.ind], y-ys[event.ind])
-       indmin = distances.argmin()
-       dataind = event.ind[indmin]
+        distances = np.hypot(x-xs[event.ind], y-ys[event.ind])
+        indmin = distances.argmin()
+        dataind = event.ind[indmin]
 
-       self.lastind = dataind
-       self.update()
+        self.lastind = dataind
+        self.update()
 
     def update(self):
         if self.lastind is None: return

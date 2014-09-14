@@ -34,63 +34,63 @@ colors = {
 
 
 def hex2color(s):
-   "Convert hex string (like html uses, eg, #efefef) to a r,g,b tuple"
-   return tuple([int(n, 16)/255.0 for n in (s[1:3], s[3:5], s[5:7])])
+    "Convert hex string (like html uses, eg, #efefef) to a r,g,b tuple"
+    return tuple([int(n, 16)/255.0 for n in (s[1:3], s[3:5], s[5:7])])
 
 
 class RGBA(traits.HasTraits):
-   # r,g,b,a in the range 0-1 with default color 0,0,0,1 (black)
-   r = traits.Range(0., 1., 0.)
-   g = traits.Range(0., 1., 0.)
-   b = traits.Range(0., 1., 0.)
-   a = traits.Range(0., 1., 1.)
+    # r,g,b,a in the range 0-1 with default color 0,0,0,1 (black)
+    r = traits.Range(0., 1., 0.)
+    g = traits.Range(0., 1., 0.)
+    b = traits.Range(0., 1., 0.)
+    a = traits.Range(0., 1., 1.)
 
-   def __init__(self, r=0., g=0., b=0., a=1.):
-       self.r = r
-       self.g = g
-       self.b = b
-       self.a = a
+    def __init__(self, r=0., g=0., b=0., a=1.):
+        self.r = r
+        self.g = g
+        self.b = b
+        self.a = a
 
-   def __repr__(self):
-       return 'r,g,b,a = (%1.2f, %1.2f, %1.2f, %1.2f)'%\
-              (self.r, self.g, self.b, self.a)
+    def __repr__(self):
+        return 'r,g,b,a = (%1.2f, %1.2f, %1.2f, %1.2f)'%\
+               (self.r, self.g, self.b, self.a)
 
 
 def tuple_to_rgba(ob, name, val):
-   tup = [float(x) for x in val]
-   if len(tup)==3:
-       r,g,b = tup
-       return RGBA(r,g,b)
-   elif len(tup)==4:
-       r,g,b,a = tup
-       return RGBA(r,g,b,a)
-   else:
-       raise ValueError
+    tup = [float(x) for x in val]
+    if len(tup)==3:
+        r,g,b = tup
+        return RGBA(r,g,b)
+    elif len(tup)==4:
+        r,g,b,a = tup
+        return RGBA(r,g,b,a)
+    else:
+        raise ValueError
 tuple_to_rgba.info = 'a RGB or RGBA tuple of floats'
 
 
 def hex_to_rgba(ob, name, val):
-   rgx = re.compile('^#[0-9A-Fa-f]{6}$')
+    rgx = re.compile('^#[0-9A-Fa-f]{6}$')
 
-   if not is_string_like(val):
-       raise TypeError
-   if rgx.match(val) is None:
-       raise ValueError
-   r,g,b = hex2color(val)
-   return RGBA(r,g,b,1.0)
+    if not is_string_like(val):
+        raise TypeError
+    if rgx.match(val) is None:
+        raise ValueError
+    r,g,b = hex2color(val)
+    return RGBA(r,g,b,1.0)
 hex_to_rgba.info = 'a hex color string'
 
 
 def colorname_to_rgba(ob, name, val):
-   hex = colors[val.lower()]
-   r,g,b =  hex2color(hex)
-   return RGBA(r,g,b,1.0)
+    hex = colors[val.lower()]
+    r,g,b =  hex2color(hex)
+    return RGBA(r,g,b,1.0)
 colorname_to_rgba.info = 'a named color'
 
 
 def float_to_rgba(ob, name, val):
-   val = float(val)
-   return RGBA(val, val, val, 1.)
+    val = float(val)
+    return RGBA(val, val, val, 1.)
 float_to_rgba.info = 'a grayscale intensity'
 
 
@@ -99,12 +99,12 @@ Color = traits.Trait(RGBA(), float_to_rgba, colorname_to_rgba, RGBA,
 
 
 def file_exists(ob, name, val):
-   fh = file(val, 'r')
-   return val
+    fh = file(val, 'r')
+    return val
 
 
 def path_exists(ob, name, val):
-   os.path.exists(val)
+    os.path.exists(val)
 linestyles  = ('-', '--', '-.', ':', 'steps', 'None')
 TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN = range(4)
 linemarkers = (None, '.', ',', 'o', '^', 'v', '<', '>', 's',
@@ -119,23 +119,23 @@ linemarkers = (None, '.', ',', 'o', '^', 'v', '<', '>', 's',
 
 
 class LineRC(traits.HasTraits):
-   linewidth       = traits.Float(0.5)
-   linestyle       = traits.Trait(*linestyles)
-   color           = Color
-   marker          = traits.Trait(*linemarkers)
-   markerfacecolor = Color
-   markeredgecolor = Color
-   markeredgewidth = traits.Float(0.5)
-   markersize      = traits.Float(6)
-   antialiased     = flexible_true_trait
-   data_clipping   = flexible_false_trait
+    linewidth       = traits.Float(0.5)
+    linestyle       = traits.Trait(*linestyles)
+    color           = Color
+    marker          = traits.Trait(*linemarkers)
+    markerfacecolor = Color
+    markeredgecolor = Color
+    markeredgewidth = traits.Float(0.5)
+    markersize      = traits.Float(6)
+    antialiased     = flexible_true_trait
+    data_clipping   = flexible_false_trait
 
 
 class PatchRC(traits.HasTraits):
-   linewidth       = traits.Float(1.0)
-   facecolor = Color
-   edgecolor = Color
-   antialiased     = flexible_true_trait
+    linewidth       = traits.Float(1.0)
+    facecolor = Color
+    edgecolor = Color
+    antialiased     = flexible_true_trait
 
 timezones = 'UTC', 'US/Central', 'ES/Eastern' # fixme: and many more
 backends = ('GTKAgg', 'Cairo', 'GDK', 'GTK', 'Agg',
@@ -144,51 +144,51 @@ backends = ('GTKAgg', 'Cairo', 'GDK', 'GTK', 'Agg',
 
 
 class RC(traits.HasTraits):
-   backend = traits.Trait(*backends)
-   interactive  = flexible_false_trait
-   toolbar      = traits.Trait('toolbar2', 'classic', None)
-   timezone     = traits.Trait(*timezones)
-   lines        = traits.Trait(LineRC())
-   patch        = traits.Trait(PatchRC())
+    backend = traits.Trait(*backends)
+    interactive  = flexible_false_trait
+    toolbar      = traits.Trait('toolbar2', 'classic', None)
+    timezone     = traits.Trait(*timezones)
+    lines        = traits.Trait(LineRC())
+    patch        = traits.Trait(PatchRC())
 
 rc = RC()
 rc.lines.color = 'r'
 if doprint:
-   print('RC')
-   rc.print_traits()
-   print('RC lines')
-   rc.lines.print_traits()
-   print('RC patches')
-   rc.patch.print_traits()
+    print('RC')
+    rc.print_traits()
+    print('RC lines')
+    rc.lines.print_traits()
+    print('RC patches')
+    rc.patch.print_traits()
 
 
 class Patch(Artist, traits.HasTraits):
-   linewidth = traits.Float(0.5)
-   facecolor = Color
-   fc = facecolor
-   edgecolor = Color
-   fill = flexible_true_trait
+    linewidth = traits.Float(0.5)
+    facecolor = Color
+    fc = facecolor
+    edgecolor = Color
+    fill = flexible_true_trait
 
-   def __init__(self,
-                edgecolor=None,
-                facecolor=None,
-                linewidth=None,
-                antialiased = None,
-                fill=1,
-                **kwargs
-                ):
-       Artist.__init__(self)
+    def __init__(self,
+                 edgecolor=None,
+                 facecolor=None,
+                 linewidth=None,
+                 antialiased = None,
+                 fill=1,
+                 **kwargs
+                 ):
+        Artist.__init__(self)
 
-       if edgecolor is None: edgecolor = rc.patch.edgecolor
-       if facecolor is None: facecolor = rc.patch.facecolor
-       if linewidth is None: linewidth = rc.patch.linewidth
-       if antialiased is None: antialiased = rc.patch.antialiased
+        if edgecolor is None: edgecolor = rc.patch.edgecolor
+        if facecolor is None: facecolor = rc.patch.facecolor
+        if linewidth is None: linewidth = rc.patch.linewidth
+        if antialiased is None: antialiased = rc.patch.antialiased
 
-       self.edgecolor = edgecolor
-       self.facecolor = facecolor
-       self.linewidth = linewidth
-       self.antialiased = antialiased
-       self.fill = fill
+        self.edgecolor = edgecolor
+        self.facecolor = facecolor
+        self.linewidth = linewidth
+        self.antialiased = antialiased
+        self.fill = fill
 
 
 p = Patch()
@@ -202,6 +202,6 @@ print('p.fill', type(p.fill), p.fill)
 if p.fill_: print('fill')
 else: print('no fill')
 if doprint:
-   print()
-   print('Patch')
-   p.print_traits()
+    print()
+    print('Patch')
+    p.print_traits()
