@@ -44,7 +44,6 @@ import matplotlib.cbook as cbook
 import matplotlib.colors as colors
 import matplotlib.transforms as transforms
 import matplotlib.widgets as widgets
-#import matplotlib.path as path
 from matplotlib import rcParams
 from matplotlib import is_interactive
 from matplotlib import get_backend
@@ -300,7 +299,7 @@ class RendererBase(object):
                 antialiaseds, urls, offset_position):
             path, transform = path_id
             transform = transforms.Affine2D(
-                            transform.get_matrix()).translate(xo, yo)
+                transform.get_matrix()).translate(xo, yo)
             self.draw_path(gc0, path, transform, rgbFace)
 
     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
@@ -971,7 +970,8 @@ class GraphicsContextBase:
         if dash_list is not None:
             dl = np.asarray(dash_list)
             if np.any(dl <= 0.0):
-                raise ValueError("All values in the dash list must be positive")
+                raise ValueError("All values in the dash list must be "
+                                 "positive")
         self._dashes = dash_offset, dash_list
 
     def set_foreground(self, fg, isRGBA=False):
@@ -1173,7 +1173,8 @@ class TimerBase(object):
           `remove_callback` can be used.
     '''
     def __init__(self, interval=None, callbacks=None):
-        #Initialize empty callbacks list and setup default settings if necssary
+        # Initialize empty callbacks list and setup default settings if
+        # necessary
         if callbacks is None:
             self.callbacks = []
         else:
@@ -1271,9 +1272,10 @@ class TimerBase(object):
         '''
         for func, args, kwargs in self.callbacks:
             ret = func(*args, **kwargs)
-            # docstring above explains why we use `if ret == False` here,
-            # instead of `if not ret`.
-            if ret == False:
+            # Check for a return value of False or 0 which will cause the
+            # callback to be removed. Returning None or any other value
+            # will keep the callback
+            if ret is False or ret == 0:
                 self.callbacks.remove((func, args, kwargs))
 
         if len(self.callbacks) == 0:
@@ -1658,11 +1660,8 @@ class FigureCanvasBase(object):
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_saving = False
         if False:
-            ## highlight the artists that are hit
+            # highlight the artists that are hit
             self.mpl_connect('motion_notify_event', self.onHilite)
-            ## delete the artists that are clicked on
-            #self.mpl_disconnect(self.button_pick_id)
-            #self.mpl_connect('button_press_event',self.onRemove)
 
     def is_saving(self):
         """
@@ -1719,9 +1718,6 @@ class FigureCanvasBase(object):
         under = self.figure.hitlist(ev)
         enter = [a for a in under if a not in self._active]
         leave = [a for a in self._active if a not in under]
-        #print "within:"," ".join([str(x) for x in under])
-        #print "entering:",[str(a) for a in enter]
-        #print "leaving:",[str(a) for a in leave]
         # On leave restore the captured colour
         for a in leave:
             if hasattr(a, 'get_color'):
@@ -2130,7 +2126,6 @@ class FigureCanvasBase(object):
                 # the backend to support file-like object, i'm going
                 # to leave it as it is. However, a better solution
                 # than stringIO seems to be needed. -JJL
-                #result = getattr(self, method_name)
                 result = print_method(
                     io.BytesIO(),
                     dpi=dpi,
@@ -2183,7 +2178,6 @@ class FigureCanvasBase(object):
 
         self._is_saving = True
         try:
-            #result = getattr(self, method_name)(
             result = print_method(
                 filename,
                 dpi=dpi,
@@ -2201,7 +2195,6 @@ class FigureCanvasBase(object):
             self.figure.set_edgecolor(origedgecolor)
             self.figure.set_canvas(self)
             self._is_saving = False
-            #self.figure.canvas.draw() ## seems superfluous
         return result
 
     @classmethod
@@ -2662,7 +2655,7 @@ class NavigationToolbar2(object):
         (None, None, None, None),
         ('Subplots', 'Configure subplots', 'subplots', 'configure_subplots'),
         ('Save', 'Save the figure', 'filesave', 'save_figure'),
-      )
+    )
 
     def __init__(self, canvas):
         self.canvas = canvas
@@ -2670,8 +2663,8 @@ class NavigationToolbar2(object):
         # a dict from axes index to a list of view limits
         self._views = cbook.Stack()
         self._positions = cbook.Stack()  # stack of subplot positions
-        self._xypress = None  # the location and axis info at the time
-                              # of the press
+        # the location and axis info at the time of the press
+        self._xypress = None
         self._idPress = None
         self._idRelease = None
         self._active = None
@@ -2683,8 +2676,8 @@ class NavigationToolbar2(object):
         self._ids_zoom = []
         self._zoom_mode = None
 
-        self._button_pressed = None  # determined by the button pressed
-                                     # at start
+        # determined by the button pressed at start
+        self._button_pressed = None
 
         self.mode = ''  # a mode string for the status bar
         self.set_history_buttons()
@@ -2937,8 +2930,8 @@ class NavigationToolbar2(object):
         """the drag callback in pan/zoom mode"""
 
         for a, ind in self._xypress:
-            #safer to use the recorded button at the press than current button:
-            #multiple button can get pressed during motion...
+            # safer to use the recorded button at the press than current
+            # button: multiple button can get pressed during motion...
             a.drag_pan(self._button_pressed, event.key, event.x, event.y)
         self.dynamic_update()
 

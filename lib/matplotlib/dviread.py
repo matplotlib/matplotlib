@@ -40,6 +40,7 @@ if six.PY3:
 
 _dvistate = mpl_cbook.Bunch(pre=0, outer=1, inpage=2, post_post=3, finale=4)
 
+
 class Dvi(object):
     """
     A dvi ("device-independent") file, as produced by TeX.
@@ -108,11 +109,11 @@ class Dvi(object):
         maxy_pure = -np.inf
         for elt in self.text + self.boxes:
             if len(elt) == 4:   # box
-                x,y,h,w = elt
+                x, y, h, w = elt
                 e = 0           # zero depth
             else:               # glyph
-                x,y,font,g,w = elt
-                h,e = font._height_depth_of(g)
+                x, y, font, g, w = elt
+                h, e = font._height_depth_of(g)
             minx = min(minx, x)
             miny = min(miny, y - h)
             maxx = max(maxx, x + w)
@@ -125,15 +126,17 @@ class Dvi(object):
                                    width=maxx-minx, height=maxy_pure-miny,
                                    descent=descent)
 
-        d = self.dpi / (72.27 * 2**16) # from TeX's "scaled points" to dpi units
+        # from TeX's "scaled points" to dpi units
+        d = self.dpi / (72.27 * 2**16)
         if self.baseline is None:
             descent = (maxy - maxy_pure) * d
         else:
             descent = self.baseline
 
-        text =  [ ((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
-                  for (x,y,f,g,w) in self.text ]
-        boxes = [ ((x-minx)*d, (maxy-y)*d - descent, h*d, w*d) for (x,y,h,w) in self.boxes ]
+        text = [((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
+                for (x, y, f, g, w) in self.text]
+        boxes = [((x-minx)*d, (maxy-y)*d - descent, h*d, w*d) for (x, y, h, w)
+                 in self.boxes]
 
         return mpl_cbook.Bunch(text=text, boxes=boxes,
                                width=(maxx-minx)*d,
@@ -153,9 +156,9 @@ class Dvi(object):
 #                     'Dvi._read: after %d at %f,%f' %
 #                     (byte, self.h, self.v),
 #                     'debug-annoying')
-            if byte == 140: # end of page
+            if byte == 140:  # end of page
                 return True
-            if self.state == _dvistate.post_post: # end of file
+            if self.state == _dvistate.post_post:  # end of file
                 self.close()
                 return False
 
@@ -178,78 +181,129 @@ class Dvi(object):
         arguments from the dvi file and call the method implementing
         that opcode with those arguments.
         """
-        if 0 <= byte <= 127: self._set_char(byte)
-        elif byte == 128: self._set_char(self._arg(1))
-        elif byte == 129: self._set_char(self._arg(2))
-        elif byte == 130: self._set_char(self._arg(3))
-        elif byte == 131: self._set_char(self._arg(4, True))
-        elif byte == 132: self._set_rule(self._arg(4, True), self._arg(4, True))
-        elif byte == 133: self._put_char(self._arg(1))
-        elif byte == 134: self._put_char(self._arg(2))
-        elif byte == 135: self._put_char(self._arg(3))
-        elif byte == 136: self._put_char(self._arg(4, True))
-        elif byte == 137: self._put_rule(self._arg(4, True), self._arg(4, True))
-        elif byte == 138: self._nop()
-        elif byte == 139: self._bop(*[self._arg(4, True) for i in range(11)])
-        elif byte == 140: self._eop()
-        elif byte == 141: self._push()
-        elif byte == 142: self._pop()
-        elif byte == 143: self._right(self._arg(1, True))
-        elif byte == 144: self._right(self._arg(2, True))
-        elif byte == 145: self._right(self._arg(3, True))
-        elif byte == 146: self._right(self._arg(4, True))
-        elif byte == 147: self._right_w(None)
-        elif byte == 148: self._right_w(self._arg(1, True))
-        elif byte == 149: self._right_w(self._arg(2, True))
-        elif byte == 150: self._right_w(self._arg(3, True))
-        elif byte == 151: self._right_w(self._arg(4, True))
-        elif byte == 152: self._right_x(None)
-        elif byte == 153: self._right_x(self._arg(1, True))
-        elif byte == 154: self._right_x(self._arg(2, True))
-        elif byte == 155: self._right_x(self._arg(3, True))
-        elif byte == 156: self._right_x(self._arg(4, True))
-        elif byte == 157: self._down(self._arg(1, True))
-        elif byte == 158: self._down(self._arg(2, True))
-        elif byte == 159: self._down(self._arg(3, True))
-        elif byte == 160: self._down(self._arg(4, True))
-        elif byte == 161: self._down_y(None)
-        elif byte == 162: self._down_y(self._arg(1, True))
-        elif byte == 163: self._down_y(self._arg(2, True))
-        elif byte == 164: self._down_y(self._arg(3, True))
-        elif byte == 165: self._down_y(self._arg(4, True))
-        elif byte == 166: self._down_z(None)
-        elif byte == 167: self._down_z(self._arg(1, True))
-        elif byte == 168: self._down_z(self._arg(2, True))
-        elif byte == 169: self._down_z(self._arg(3, True))
-        elif byte == 170: self._down_z(self._arg(4, True))
-        elif 171 <= byte <= 234: self._fnt_num(byte-171)
-        elif byte == 235: self._fnt_num(self._arg(1))
-        elif byte == 236: self._fnt_num(self._arg(2))
-        elif byte == 237: self._fnt_num(self._arg(3))
-        elif byte == 238: self._fnt_num(self._arg(4, True))
+        if 0 <= byte <= 127:
+            self._set_char(byte)
+        elif byte == 128:
+            self._set_char(self._arg(1))
+        elif byte == 129:
+            self._set_char(self._arg(2))
+        elif byte == 130:
+            self._set_char(self._arg(3))
+        elif byte == 131:
+            self._set_char(self._arg(4, True))
+        elif byte == 132:
+            self._set_rule(self._arg(4, True), self._arg(4, True))
+        elif byte == 133:
+            self._put_char(self._arg(1))
+        elif byte == 134:
+            self._put_char(self._arg(2))
+        elif byte == 135:
+            self._put_char(self._arg(3))
+        elif byte == 136:
+            self._put_char(self._arg(4, True))
+        elif byte == 137:
+            self._put_rule(self._arg(4, True), self._arg(4, True))
+        elif byte == 138:
+            self._nop()
+        elif byte == 139:
+            self._bop(*[self._arg(4, True) for i in range(11)])
+        elif byte == 140:
+            self._eop()
+        elif byte == 141:
+            self._push()
+        elif byte == 142:
+            self._pop()
+        elif byte == 143:
+            self._right(self._arg(1, True))
+        elif byte == 144:
+            self._right(self._arg(2, True))
+        elif byte == 145:
+            self._right(self._arg(3, True))
+        elif byte == 146:
+            self._right(self._arg(4, True))
+        elif byte == 147:
+            self._right_w(None)
+        elif byte == 148:
+            self._right_w(self._arg(1, True))
+        elif byte == 149:
+            self._right_w(self._arg(2, True))
+        elif byte == 150:
+            self._right_w(self._arg(3, True))
+        elif byte == 151:
+            self._right_w(self._arg(4, True))
+        elif byte == 152:
+            self._right_x(None)
+        elif byte == 153:
+            self._right_x(self._arg(1, True))
+        elif byte == 154:
+            self._right_x(self._arg(2, True))
+        elif byte == 155:
+            self._right_x(self._arg(3, True))
+        elif byte == 156:
+            self._right_x(self._arg(4, True))
+        elif byte == 157:
+            self._down(self._arg(1, True))
+        elif byte == 158:
+            self._down(self._arg(2, True))
+        elif byte == 159:
+            self._down(self._arg(3, True))
+        elif byte == 160:
+            self._down(self._arg(4, True))
+        elif byte == 161:
+            self._down_y(None)
+        elif byte == 162:
+            self._down_y(self._arg(1, True))
+        elif byte == 163:
+            self._down_y(self._arg(2, True))
+        elif byte == 164:
+            self._down_y(self._arg(3, True))
+        elif byte == 165:
+            self._down_y(self._arg(4, True))
+        elif byte == 166:
+            self._down_z(None)
+        elif byte == 167:
+            self._down_z(self._arg(1, True))
+        elif byte == 168:
+            self._down_z(self._arg(2, True))
+        elif byte == 169:
+            self._down_z(self._arg(3, True))
+        elif byte == 170:
+            self._down_z(self._arg(4, True))
+        elif 171 <= byte <= 234:
+            self._fnt_num(byte-171)
+        elif byte == 235:
+            self._fnt_num(self._arg(1))
+        elif byte == 236:
+            self._fnt_num(self._arg(2))
+        elif byte == 237:
+            self._fnt_num(self._arg(3))
+        elif byte == 238:
+            self._fnt_num(self._arg(4, True))
         elif 239 <= byte <= 242:
             len = self._arg(byte-238)
             special = self.file.read(len)
             self._xxx(special)
         elif 243 <= byte <= 246:
-            k = self._arg(byte-242, byte==246)
-            c, s, d, a, l = [ self._arg(x) for x in (4, 4, 4, 1, 1) ]
+            k = self._arg(byte-242, byte == 246)
+            c, s, d, a, l = [self._arg(x) for x in (4, 4, 4, 1, 1)]
             n = self.file.read(a+l)
             self._fnt_def(k, c, s, d, a, l, n)
         elif byte == 247:
-            i, num, den, mag, k = [ self._arg(x) for x in (1, 4, 4, 4, 1) ]
+            i, num, den, mag, k = [self._arg(x) for x in (1, 4, 4, 4, 1)]
             x = self.file.read(k)
             self._pre(i, num, den, mag, x)
-        elif byte == 248: self._post()
-        elif byte == 249: self._post_post()
+        elif byte == 248:
+            self._post()
+        elif byte == 249:
+            self._post_post()
         else:
-            raise ValueError("unknown command: byte %d"%byte)
+            raise ValueError("unknown command: byte %d" % byte)
 
     def _pre(self, i, num, den, mag, comment):
         if self.state != _dvistate.pre:
             raise ValueError("pre command in middle of dvi file")
         if i != 2:
-            raise ValueError("Unknown dvi format %d"%i)
+            raise ValueError("Unknown dvi format %d" % i)
         if num != 25400000 or den != 7227 * 2**16:
             raise ValueError("nonstandard units in dvi file")
             # meaning: TeX always uses those exact values, so it
@@ -312,7 +366,8 @@ class Dvi(object):
 
     def _bop(self, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, p):
         if self.state != _dvistate.outer:
-            raise ValueError("misplaced bop in dvi file (state %d)" % self.state)
+            raise ValueError("misplaced bop in dvi file (state %d)"
+                             % self.state)
         self.state = _dvistate.inpage
         self.h, self.v, self.w, self.x, self.y, self.z = 0, 0, 0, 0, 0, 0
         self.stack = []
@@ -397,11 +452,7 @@ class Dvi(object):
     def _fnt_def(self, k, c, s, d, a, l, n):
         tfm = _tfmfile(n[-l:].decode('ascii'))
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
-            raise ValueError('tfm checksum mismatch: %s'%n)
-        # It seems that the assumption behind the following check is incorrect:
-        #if d != tfm.design_size:
-        #    raise ValueError, 'tfm design size mismatch: %d in dvi, %d in %s'%\
-        #        (d, tfm.design_size, n)
+            raise ValueError('tfm checksum mismatch: %s' % n)
 
         vf = _vffile(n[-l:].decode('ascii'))
 
@@ -416,6 +467,7 @@ class Dvi(object):
 
     def _post_post(self):
         raise NotImplementedError
+
 
 class DviFont(object):
     """
@@ -456,8 +508,8 @@ class DviFont(object):
             nchars = max(six.iterkeys(tfm.width)) + 1
         except ValueError:
             nchars = 0
-        self.widths = [ (1000*tfm.width.get(char, 0)) >> 20
-                        for char in xrange(nchars) ]
+        self.widths = [(1000*tfm.width.get(char, 0)) >> 20
+                       for char in xrange(nchars)]
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and \
@@ -486,17 +538,20 @@ class DviFont(object):
         """
 
         result = []
-        for metric,name in ((self._tfm.height, "height"),
-                            (self._tfm.depth, "depth")):
+        for metric, name in ((self._tfm.height, "height"),
+                             (self._tfm.depth, "depth")):
             value = metric.get(char, None)
             if value is None:
                 matplotlib.verbose.report(
-                    'No %s for char %d in font %s' % (name, char, self.texname),
-                    'debug')
+                    'No %s for char %d in font %s'
+                    % (name, char, self.texname),
+                    'debug'
+                )
                 result.append(0)
             else:
                 result.append(_mul2012(value, self._scale))
         return result
+
 
 class Vf(Dvi):
     """
@@ -533,7 +588,8 @@ class Vf(Dvi):
                 raise ValueError("Packet length mismatch in vf file")
             else:
                 if byte in (139, 140) or byte >= 243:
-                    raise ValueError("Inappropriate opcode %d in vf file" % byte)
+                    raise ValueError("Inappropriate opcode %d in vf file"
+                                     % byte)
                 Dvi._dispatch(self, byte)
                 return
 
@@ -542,7 +598,7 @@ class Vf(Dvi):
             cc, tfm = self._arg(1), self._arg(3)
             self._init_packet(byte, cc, tfm)
         elif byte == 242:       # a long packet
-            pl, cc, tfm = [ self._arg(x) for x in (4, 4, 4) ]
+            pl, cc, tfm = [self._arg(x) for x in (4, 4, 4)]
             self._init_packet(pl, cc, tfm)
         elif 243 <= byte <= 246:
             Dvi._dispatch(self, byte)
@@ -569,7 +625,7 @@ class Vf(Dvi):
 
     def _finalize_packet(self):
         self._chars[self._packet_char] = mpl_cbook.Bunch(
-            text=self.text, boxes=self.boxes, width = self._packet_width)
+            text=self.text, boxes=self.boxes, width=self._packet_width)
         self.state = _dvistate.outer
 
     def _pre(self, i, x, cs, ds):
@@ -587,6 +643,7 @@ class Vf(Dvi):
         if self._first_font is None:
             self._first_font = k
 
+
 def _fix2comp(num):
     """
     Convert from two's complement to negative.
@@ -597,12 +654,14 @@ def _fix2comp(num):
     else:
         return num
 
+
 def _mul2012(num1, num2):
     """
     Multiply two numbers in 20.12 fixed point format.
     """
     # Separated into a function because >> has surprising precedence
     return (num1*num2) >> 20
+
 
 class Tfm(object):
     """
@@ -652,13 +711,15 @@ class Tfm(object):
             depths = file.read(4*nd)
 
         self.width, self.height, self.depth = {}, {}, {}
-        widths, heights, depths = \
-            [ struct.unpack(str('!%dI') % (len(x)/4), x)
-              for x in (widths, heights, depths) ]
+        widths, heights, depths = [struct.unpack(str('!%dI') % (len(x)/4), x)
+                                   for x in (widths, heights, depths)]
         for idx, char in enumerate(xrange(bc, ec+1)):
             self.width[char] = _fix2comp(widths[ord(char_info[4*idx])])
-            self.height[char] = _fix2comp(heights[ord(char_info[4*idx+1]) >> 4])
+            self.height[char] = _fix2comp(
+                heights[ord(char_info[4*idx+1]) >> 4]
+            )
             self.depth[char] = _fix2comp(depths[ord(char_info[4*idx+1]) & 0xf])
+
 
 class PsfontsMap(object):
     """
@@ -722,14 +783,15 @@ class PsfontsMap(object):
                 continue
             words, pos = [], 0
             while pos < len(line):
-                if line[pos] == '"': # double quoted word
+                if line[pos] == '"':  # double quoted word
                     pos += 1
                     end = line.index('"', pos)
                     words.append(line[pos:end])
                     pos = end + 1
                 else:                # ordinary word
                     end = line.find(' ', pos+1)
-                    if end == -1: end = len(line)
+                    if end == -1:
+                        end = len(line)
                     words.append(line[pos:end])
                     pos = end
                 while pos < len(line) and line[pos] == ' ':
@@ -791,6 +853,7 @@ class PsfontsMap(object):
             texname=texname, psname=psname, effects=effects,
             encoding=encoding, filename=filename)
 
+
 class Encoding(object):
     """
     Parses a \*.enc file referenced from a psfonts.map style file.
@@ -806,9 +869,11 @@ class Encoding(object):
 
     def __init__(self, filename):
         with open(filename, 'rt') as file:
-            matplotlib.verbose.report('Parsing TeX encoding ' + filename, 'debug-annoying')
+            matplotlib.verbose.report('Parsing TeX encoding ' + filename,
+                                      'debug-annoying')
             self.encoding = self._parse(file)
-            matplotlib.verbose.report('Result: ' + repr(self.encoding), 'debug-annoying')
+            matplotlib.verbose.report('Result: ' + repr(self.encoding),
+                                      'debug-annoying')
 
     def __iter__(self):
         for name in self.encoding:
@@ -831,7 +896,7 @@ class Encoding(object):
                     line = line[line.index('[')+1:].strip()
 
             if state == 1:
-                if ']' in line: # ] def
+                if ']' in line:  # ] def
                     line = line[:line.index(']')]
                     state = 2
                 words = line.split()
@@ -844,6 +909,7 @@ class Encoding(object):
                         raise ValueError("Broken name in encoding file: " + w)
 
         return result
+
 
 def find_tex_file(filename, format=None):
     """
@@ -866,8 +932,8 @@ def find_tex_file(filename, format=None):
         cmd += ['--format=' + format]
     cmd += [filename]
 
-    matplotlib.verbose.report('find_tex_file(%s): %s' \
-                                  % (filename,cmd), 'debug')
+    matplotlib.verbose.report('find_tex_file(%s): %s'
+                              % (filename, cmd), 'debug')
     # stderr is unused, but reading it avoids a subprocess optimization
     # that breaks EINTR handling in some Python versions:
     # http://bugs.python.org/issue12493
@@ -886,6 +952,7 @@ def find_tex_file(filename, format=None):
 _tfmcache = {}
 _vfcache = {}
 
+
 def _fontfile(texname, class_, suffix, cache):
     try:
         return cache[texname]
@@ -901,29 +968,32 @@ def _fontfile(texname, class_, suffix, cache):
     cache[texname] = result
     return result
 
+
 def _tfmfile(texname):
     return _fontfile(texname, Tfm, '.tfm', _tfmcache)
 
+
 def _vffile(texname):
     return _fontfile(texname, Vf, '.vf', _vfcache)
-
 
 
 if __name__ == '__main__':
     import sys
     matplotlib.verbose.set_level('debug-annoying')
     fname = sys.argv[1]
-    try: dpi = float(sys.argv[2])
-    except IndexError: dpi = None
+    try:
+        dpi = float(sys.argv[2])
+    except IndexError:
+        dpi = None
     dvi = Dvi(fname, dpi)
     fontmap = PsfontsMap(find_tex_file('pdftex.map'))
     for page in dvi:
         print('=== new page ===')
         fPrev = None
-        for x,y,f,c,w in page.text:
+        for x, y, f, c, w in page.text:
             if f != fPrev:
-                print('font', f.texname, 'scaled', f._scale/pow(2.0,20))
+                print('font', f.texname, 'scaled', f._scale/pow(2.0, 20))
                 fPrev = f
-            print(x,y,c, 32 <= c < 128 and chr(c) or '.', w)
-        for x,y,w,h in page.boxes:
-            print(x,y,'BOX',w,h)
+            print(x, y, c, 32 <= c < 128 and chr(c) or '.', w)
+        for x, y, w, h in page.boxes:
+            print(x, y, 'BOX', w, h)
