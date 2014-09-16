@@ -1014,12 +1014,12 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
     Keyword arguments may include the following (with defaults):
 
-        location : [`None`|'left'|'right'|'top'|'bottom']
+        location : [None|'left'|'right'|'top'|'bottom']
             The position, relative to **parents**, where the colorbar axes
             should be created. If None, the value will either come from the
             given ``orientation``, else it will default to 'right'.
 
-        orientation :  [`None`|'vertical'|'horizontal']
+        orientation :  [None|'vertical'|'horizontal']
             The orientation of the colorbar. Typically, this keyword shouldn't
             be used, as it can be derived from the ``location`` keyword.
 
