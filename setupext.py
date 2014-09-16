@@ -830,10 +830,13 @@ class CXX(SetupPackage):
     def check(self):
         if PY3:
             # There is no version of PyCXX in the wild that will work
-            # with Python 3.x
+            # with Python 3.x and matplotlib, since they lack support
+            # for the buffer object.
             self.__class__.found_external = False
-            return ("Official versions of PyCXX are not compatible with "
-                    "Python 3.x.  Using local copy")
+            return ("Official versions of PyCXX are not compatible "
+                    "with matplotlib on Python 3.x, since they lack "
+                    "support for the buffer object.  Using local "
+                    "copy")
 
         self.__class__.found_external = True
         old_stdout = sys.stdout
