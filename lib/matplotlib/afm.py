@@ -500,29 +500,29 @@ class AFM(object):
 
     def get_fontname(self):
         "Return the font name, e.g., 'Times-Roman'"
-        return self._header[b'FontName']
+        return self._header[b'FontName'].decode('utf-8')
 
     def get_fullname(self):
         "Return the font full name, e.g., 'Times-Roman'"
         name = self._header.get(b'FullName')
         if name is None:  # use FontName as a substitute
             name = self._header[b'FontName']
-        return name
+        return name.decode('utf-8')
 
     def get_familyname(self):
         "Return the font family name, e.g., 'Times'"
         name = self._header.get(b'FamilyName')
         if name is not None:
-            return name
+            return name.decode('utf-8')
 
         # FamilyName not specified so we'll make a guess
         name = self.get_fullname()
         extras = br'(?i)([ -](regular|plain|italic|oblique|bold|semibold|light|ultralight|extra|condensed))+$'
-        return re.sub(extras, '', name)
+        return re.sub(extras, '', name).decode('utf-8')
 
     def get_weight(self):
         "Return the font weight, e.g., 'Bold' or 'Roman'"
-        return self._header[b'Weight']
+        return self._header[b'Weight'].decode('utf-8')
 
     def get_angle(self):
         "Return the fontangle as float"
