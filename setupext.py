@@ -1179,7 +1179,7 @@ class Tri(SetupPackage):
 
 class Six(SetupPackage):
     name = "six"
-    min_version = "1.3"
+    min_version = "1.4"
 
     def check(self):
         try:
