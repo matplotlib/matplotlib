@@ -2923,7 +2923,7 @@ class Axes(_AxesBase):
             The default symbol for flier points.
             Enter an empty string ('') if you don't want to show fliers.
 
-          vert : bool, default = False
+          vert : bool, default = True
             If True (default), makes the boxes vertical.
             If False, makes horizontal boxes.
 
