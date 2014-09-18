@@ -632,7 +632,8 @@ defaultParams = {
     'legend.shadow': [False, validate_bool],
      # whether or not to draw a frame around legend
     'legend.frameon': [True, validate_bool],
-
+     # alpha value of the legend frame
+    'legend.framealpha': [1.0, validate_float],
 
     ## the following dimensions are in fraction of the font size
     'legend.borderpad': [0.4, validate_float],  # units are fontsize
