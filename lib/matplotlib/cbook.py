@@ -1954,10 +1954,14 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
     elif len(labels) != ncols:
         raise ValueError("Dimensions of labels and X must be compatible")
 
+    input_whis = whis
     for ii, (x, label) in enumerate(zip(X, labels), start=0):
         # empty dict
         stats = {}
         stats['label'] = label
+
+        # restore whis to the input values in case it got changed in the loop
+        whis = input_whis
 
         # arithmetic mean
         stats['mean'] = np.mean(x)
