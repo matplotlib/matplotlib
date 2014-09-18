@@ -238,24 +238,26 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         backend_bases.FigureCanvasBase.stop_event_loop_default.__doc__
 
 
+_JQUERY_ICON_CLASSES = {
+    'home': 'ui-icon ui-icon-home',
+    'back': 'ui-icon ui-icon-circle-arrow-w',
+    'forward': 'ui-icon ui-icon-circle-arrow-e',
+    'zoom_to_rect': 'ui-icon ui-icon-search',
+    'move': 'ui-icon ui-icon-arrow-4',
+    'download': 'ui-icon ui-icon-disk',
+    None: None,
+}
+
+
 class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
-    _jquery_icon_classes = {
-        'home': 'ui-icon ui-icon-home',
-        'back': 'ui-icon ui-icon-circle-arrow-w',
-        'forward': 'ui-icon ui-icon-circle-arrow-e',
-        'zoom_to_rect': 'ui-icon ui-icon-search',
-        'move': 'ui-icon ui-icon-arrow-4',
-        'download': 'ui-icon ui-icon-disk',
-        None: None,
-    }
 
     # Use the standard toolbar items + download button
-    toolitems = [(text, tooltip_text, _jquery_icon_classes[image_file],
+    toolitems = [(text, tooltip_text, _JQUERY_ICON_CLASSES[image_file],
                   name_of_method)
                  for text, tooltip_text, image_file, name_of_method
                  in (backend_bases.NavigationToolbar2.toolitems +
                      (('Download', 'Download plot', 'download', 'download'),))
-                 if image_file in _jquery_icon_classes]
+                 if image_file in _JQUERY_ICON_CLASSES]
 
     def _init_toolbar(self):
         self.message = ''
