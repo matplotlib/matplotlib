@@ -769,10 +769,10 @@ RendererAgg::draw_markers(const Py::Tuple& args)
         agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
 
         agg::rect_d clipping_rect(
-            -(scanlines.min_x() + 1.0),
-            (scanlines.max_y() + 1.0),
-            width + scanlines.max_x() + 1.0,
-            height - scanlines.min_y() + 1.0);
+            -1.0 - scanlines.max_x(),
+            -1.0 - scanlines.max_y(),
+            1.0 + width - scanlines.min_x(),
+            1.0 + height - scanlines.min_y());
 
         if (has_clippath)
         {
