@@ -3,6 +3,7 @@ from base64 import b64encode
 import json
 import io
 import os
+import six
 from uuid import uuid4 as uuid
 
 from IPython.display import display, Javascript, HTML
@@ -64,24 +65,26 @@ def connection_info():
     return '\n'.join(result)
 
 
+# Note: Version 3.2 icons, not the later 4.0 ones.
+# http://fontawesome.io/3.2.1/icons/
+_FONT_AWESOME_CLASSES = {
+    'home': 'icon-home',
+    'back': 'icon-arrow-left',
+    'forward': 'icon-arrow-right',
+    'zoom_to_rect': 'icon-check-empty',
+    'move': 'icon-move',
+    None: None
+}
+
+
 class NavigationIPy(NavigationToolbar2WebAgg):
-    # Note: Version 3.2 icons, not the later 4.0 ones.
-    # http://fontawesome.io/3.2.1/icons/
-    _font_awesome_classes = {
-        'home': 'icon-home',
-        'back': 'icon-arrow-left',
-        'forward': 'icon-arrow-right',
-        'zoom_to_rect': 'icon-check-empty',
-        'move': 'icon-move',
-        None: None
-    }
 
     # Use the standard toolbar items + download button
     toolitems = [(text, tooltip_text,
-                  _font_awesome_classes[image_file], name_of_method)
+                  _FONT_AWESOME_CLASSES[image_file], name_of_method)
                  for text, tooltip_text, image_file, name_of_method
                  in NavigationToolbar2.toolitems
-                 if image_file in _font_awesome_classes]
+                 if image_file in _FONT_AWESOME_CLASSES]
 
 
 class FigureManagerNbAgg(FigureManagerWebAgg):
@@ -191,7 +194,10 @@ class CommSocket(object):
     def send_binary(self, blob):
         # The comm is ascii, so we always send the image in base64
         # encoded data URL form.
-        data_uri = "data:image/png;base64,{0}".format(b64encode(blob))
+        data = b64encode(blob)
+        if six.PY3:
+            data = data.decode('ascii')
+        data_uri = "data:image/png;base64,{0}".format(data)
         self.comm.send({'data': data_uri})
 
     def on_message(self, message):
