@@ -383,7 +383,9 @@ TEMPLATE = """
 {{ only_latex }}
 
    {% for img in images %}
+   {% if 'pdf' in img.formats -%}
    .. image:: {{ build_dir }}/{{ img.basename }}.pdf
+   {% endif -%}
    {% endfor %}
 
 {{ only_texinfo }}
