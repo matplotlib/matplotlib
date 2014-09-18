@@ -23,9 +23,12 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange, zip
 
-import sys
-import itertools
 import contextlib
+import itertools
+import os
+import shutil
+import sys
+import tempfile
 from matplotlib.cbook import iterable, is_string_like
 from matplotlib.compat import subprocess
 from matplotlib import verbose
@@ -173,8 +176,11 @@ class MovieWriter(object):
         '''
         # This particular sequence is what contextlib.contextmanager wants
         self.setup(*args)
-        yield
-        self.finish()
+        try:
+            yield
+            self.finish()
+        finally:
+            self.cleanup()
 
     def _run(self):
         # Uses subprocess to call the program for assembling frames into a
@@ -193,7 +199,6 @@ class MovieWriter(object):
 
     def finish(self):
         'Finish any processing for writing the movie.'
-        self.cleanup()
 
     def grab_frame(self, **savefig_kwargs):
         '''
@@ -225,11 +230,12 @@ class MovieWriter(object):
 
     def cleanup(self):
         'Clean-up and collect the process used to write the movie file.'
-        out, err = self._proc.communicate()
-        verbose.report('MovieWriter -- '
-                       'Command stdout:\n%s' % out, level='debug')
-        verbose.report('MovieWriter -- '
-                       'Command stderr:\n%s' % err, level='debug')
+        if hasattr(self, "_proc"):
+            out, err = self._proc.communicate()
+            verbose.report('MovieWriter -- Command stdout:\n%s' % out,
+                           level='debug')
+            verbose.report('MovieWriter -- Command stderr:\n%s' % err,
+                           level='debug')
 
     @classmethod
     def bin_path(cls):
@@ -263,7 +269,8 @@ class FileMovieWriter(MovieWriter):
         MovieWriter.__init__(self, *args, **kwargs)
         self.frame_format = rcParams['animation.frame_format']
 
-    def setup(self, fig, outfile, dpi, frame_prefix='_tmp', clear_temp=True):
+    def setup(self, fig, outfile, dpi, frame_prefix='_tmp', clear_temp=True,
+              tmpdir=None):
         '''
         Perform setup for writing the movie file.
 
@@ -280,6 +287,8 @@ class FileMovieWriter(MovieWriter):
         clear_temp: bool
             Specifies whether the temporary files should be deleted after
             the movie is written. (Useful for debugging.) Defaults to True.
+        tmpdir: string, optional
+            Path to temporary directory.
         '''
         self.fig = fig
         self.outfile = outfile
@@ -287,8 +296,13 @@ class FileMovieWriter(MovieWriter):
         self.clear_temp = clear_temp
         self.temp_prefix = frame_prefix
         self._frame_counter = 0  # used for generating sequential file names
-        self._temp_names = list()
-        self.fname_format_str = '%s%%07d.%s'
+        if tmpdir is None:
+            self._tmpdir = self._temp_names = tempfile.mkdtemp()
+        else:
+            self._tmpdir = tmpdir
+            self._temp_names = list()
+        self.fname_format_str = os.path.join(
+            self._tmpdir.replace('%', '%%'), '%s%%07d.%s')
 
     @property
     def frame_format(self):
@@ -316,7 +330,8 @@ class FileMovieWriter(MovieWriter):
         fname = self._base_temp_name() % self._frame_counter
 
         # Save the filename so we can delete it later if necessary
-        self._temp_names.append(fname)
+        if isinstance(self._temp_names, list):
+            self._temp_names.append(fname)
         verbose.report(
             'FileMovieWriter.frame_sink: saving frame %d to fname=%s' %
             (self._frame_counter, fname),
@@ -355,7 +370,7 @@ class FileMovieWriter(MovieWriter):
         # Call run here now that all frame grabbing is done. All temp files
         # are available to be assembled.
         self._run()
-        MovieWriter.finish(self)  # Will call clean-up
+        MovieWriter.finish(self)
 
         # Check error code for creating file here, since we just run
         # the process here, rather than having an open pipe.
@@ -369,13 +384,15 @@ class FileMovieWriter(MovieWriter):
 
         #Delete temporary files
         if self.clear_temp:
-            import os
             verbose.report(
                 'MovieWriter: clearing temporary fnames=%s' %
                 str(self._temp_names),
                 level='debug')
-            for fname in self._temp_names:
-                os.remove(fname)
+            if isinstance(self._temp_names, list):
+                for fname in self._temp_names:
+                    os.remove(fname)
+            else:
+                shutil.rmtree(self._temp_names)
 
 
 # Base class of ffmpeg information. Has the config keys and the common set
