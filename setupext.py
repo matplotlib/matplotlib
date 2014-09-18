@@ -120,6 +120,8 @@ def has_include_file(include_dirs, filename):
     Returns `True` if `filename` can be found in one of the
     directories in `include_dirs`.
     """
+    if sys.platform == 'win32':
+        include_dirs += os.environ.get('INCLUDE', '.').split(';')
     for dir in include_dirs:
         if os.path.exists(os.path.join(dir, filename)):
             return True
@@ -130,8 +132,6 @@ def check_include_file(include_dirs, filename, package):
     """
     Raises an exception if the given include file can not be found.
     """
-    if sys.platform == 'win32':
-        include_dirs.extend(os.getenv('INCLUDE', '.').split(';'))
     if not has_include_file(include_dirs, filename):
         raise CheckFailed(
             "The C/C++ header for %s (%s) could not be found.  You "
@@ -154,6 +154,13 @@ def get_base_dirs():
         'aix5': ['/usr/local'],
         }
     return basedir_map.get(sys.platform, ['/usr/local', '/usr'])
+
+
+def get_include_dirs():
+    """
+    Returns a list of standard include directories on this platform.
+    """
+    return [os.path.join(d, 'include') for d in get_base_dirs()]
 
 
 def is_min_version(found, minversion):
@@ -930,7 +937,8 @@ class FreeType(SetupPackage):
 
     def check(self):
         if sys.platform == 'win32':
-            return "Unknown version"
+            check_include_file(get_include_dirs(), 'ft2build.h', 'freetype')
+            return 'Using unknown version found on system.'
 
         status, output = getstatusoutput("freetype-config --ftversion")
         if status == 0:
@@ -1007,7 +1015,8 @@ class Png(SetupPackage):
 
     def check(self):
         if sys.platform == 'win32':
-            return "Unknown version"
+            check_include_file(get_include_dirs(), 'png.h', 'png')
+            return 'Using unknown version found on system.'
 
         status, output = getstatusoutput("libpng-config --version")
         if status == 0:
@@ -1020,9 +1029,7 @@ class Png(SetupPackage):
                 'libpng', 'png.h',
                 min_version='1.2', version=version)
         except CheckFailed as e:
-            include_dirs = [
-                os.path.join(dir, 'include') for dir in get_base_dirs()]
-            if has_include_file(include_dirs, 'png.h'):
+            if has_include_file(get_include_dirs(), 'png.h'):
                 return str(e) + ' Using unknown version found on system.'
             raise
 
@@ -1053,7 +1060,7 @@ class Qhull(SetupPackage):
             # present on this system, so check if the header files can be
             # found.
             include_dirs = [
-                os.path.join(x, 'include', 'qhull') for x in get_base_dirs()]
+                os.path.join(x, 'qhull') for x in get_include_dirs()]
             if has_include_file(include_dirs, 'qhull_a.h'):
                 return 'Using system Qhull (version unknown, no pkg-config info)'
             else:
