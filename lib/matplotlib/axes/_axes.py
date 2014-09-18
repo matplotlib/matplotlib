@@ -2883,7 +2883,7 @@ class Axes(_AxesBase):
 
         return errorbar_container  # (l0, caplines, barcols)
 
-    def boxplot(self, x, notch=False, sym='b+', vert=True, whis=1.5,
+    def boxplot(self, x, notch=False, sym=None, vert=True, whis=1.5,
                 positions=None, widths=None, patch_artist=False,
                 bootstrap=None, usermedians=None, conf_intervals=None,
                 meanline=False, showmeans=False, showcaps=True,
@@ -2919,9 +2919,11 @@ class Axes(_AxesBase):
             If False, produces a rectangular box plot.
             If True, will produce a notched box plot
 
-          sym : str, default = 'b+'
+          sym : str or None, default = None
             The default symbol for flier points.
             Enter an empty string ('') if you don't want to show fliers.
+            If `None`, then the fliers default to 'b+'  If you want more
+            control use the fliersprop kwarg.
 
           vert : bool, default = False
             If True (default), makes the boxes vertical.
@@ -3043,10 +3045,39 @@ class Axes(_AxesBase):
         """
         bxpstats = cbook.boxplot_stats(x, whis=whis, bootstrap=bootstrap,
                                        labels=labels)
+        # make sure we have a dictionary
         if flierprops is None:
-            flierprops = dict(sym=sym)
-        else:
-            flierprops['sym'] = sym
+            flierprops = dict()
+        # if non-default sym value, put it into the flier dictionary
+        # the logic for providing the default symbol ('b+') now lives
+        # in bxp in the initial value of final_flierprops
+        # handle all of the `sym` related logic here so we only have to pass
+        # on the flierprops dict.
+        if sym is not None:
+            # no-flier case, which should really be done with
+            # 'showfliers=False' but none-the-less deal with it to keep back
+            # compatibility
+            if sym == '':
+                # blow away existing dict and make one for invisible markers
+                flierprops = dict(linestyle='none', marker='',
+                    markeredgecolor='none',
+                    markerfacecolor='none')
+            # now process the symbol string
+            else:
+                # process the symbol string
+                # discarded linestyle
+                _, marker, color = _process_plot_format(sym)
+                # if we have a marker, use it
+                if marker is not None:
+                    flierprops['marker'] = marker
+                # if we have a color, use it
+                if color is not None:
+                    flierprops['color'] = color
+                    # assume that if color is passed in the user want
+                    # filled symbol, if the users want more control use
+                    # flierprops
+                    flierprops['markeredgecolor'] = color
+                    flierprops['markerfacecolor'] = color
 
         # replace medians if necessary:
         if usermedians is not None:
@@ -3288,24 +3319,9 @@ class Axes(_AxesBase):
         final_flierprops = dict(linestyle='none', marker='+',
                     markeredgecolor='b',
                     markerfacecolor='none')
+
         # flier (outlier) properties
         if flierprops is not None:
-            sym = flierprops.pop('sym', None)
-
-            # watch inverted logic, checks for non-default
-            # value of `sym`
-            if not (sym == '' or (sym is None)):
-                # process the symbol string
-                # discarded linestyle
-                _, marker, color = _process_plot_format(sym)
-                if marker is not None:
-                    flierprops['marker'] = marker
-                if color is not None:
-                    flierprops['color'] = color
-                    # assume that if color is passed in the user want
-                    # filled symbol
-                    flierprops['markeredgecolor'] = color
-                    flierprops['markerfacecolor'] = color
             final_flierprops.update(flierprops)
 
         # median line properties
