@@ -29,7 +29,8 @@ import os
 import shutil
 import sys
 import tempfile
-from matplotlib.cbook import iterable, is_string_like
+import warnings
+from matplotlib.cbook import iterable, is_string_like, mplDeprecation
 from matplotlib.compat import subprocess
 from matplotlib import verbose
 from matplotlib import rcParams
@@ -77,11 +78,10 @@ writers = MovieWriterRegistry()
 
 class MovieWriter(object):
     '''
-    Base class for writing movies. Fundamentally, what a MovieWriter does
-    is provide is a way to grab frames by calling grab_frame(). setup()
-    is called to start the process and finish() is called afterwards.
-    This class is set up to provide for writing movie frame data to a pipe.
-    saving() is provided as a context manager to facilitate this process as::
+    Base class for writing movies. Fundamentally, what a MovieWriter does is
+    provide is a way to grab frames by calling grab_frame(). This class is set
+    up to provide for writing movie frame data to a pipe. saving() is provided
+    as a context manager to facilitate this process as::
 
       with moviewriter.saving('myfile.mp4'):
           # Iterate over frames
@@ -147,7 +147,7 @@ class MovieWriter(object):
         width_inches, height_inches = self.fig.get_size_inches()
         return width_inches * self.dpi, height_inches * self.dpi
 
-    def setup(self, fig, outfile, dpi, *args):
+    def setup(self, *args, **kwargs):
         '''
         Perform setup for writing the movie file.
 
@@ -159,28 +159,33 @@ class MovieWriter(object):
             The DPI (or resolution) for the file.  This controls the size
             in pixels of the resulting movie file.
         '''
+        warnings.warn('setup interacts poorly with the saving context-manager',
+                      mplDeprecation)
+        self._setup(*args, **kwargs)
+
+    def _setup(self, outfile, dpi):
         self.outfile = outfile
         self.fig = fig
         self.dpi = dpi
-
         # Run here so that grab_frame() can write the data to a pipe. This
         # eliminates the need for temp files.
         self._run()
 
     @contextlib.contextmanager
-    def saving(self, *args):
+    def saving(self, *args, **kwargs):
         '''
         Context manager to facilitate writing the movie file.
 
-        ``*args`` are any parameters that should be passed to `setup`.
+        ``*args`` and ``**kwargs`` are any parameters that should be passed to
+        `setup`.
         '''
         # This particular sequence is what contextlib.contextmanager wants
-        self.setup(*args)
+        self._setup(*args, **kwargs)
         try:
             yield
-            self.finish()
+            self._finish()
         finally:
-            self.cleanup()
+            self._cleanup()
 
     def _run(self):
         # Uses subprocess to call the program for assembling frames into a
@@ -198,6 +203,12 @@ class MovieWriter(object):
                                       stdin=subprocess.PIPE)
 
     def finish(self):
+        'Finish any processing for writing the movie.'
+        warnings.warn('finish interacts poorly with the saving context-manager',
+                      mplDeprecation)
+        self.cleanup()
+
+    def _finish(self):
         'Finish any processing for writing the movie.'
 
     def grab_frame(self, **savefig_kwargs):
@@ -229,6 +240,12 @@ class MovieWriter(object):
         return NotImplementedError("args needs to be implemented by subclass.")
 
     def cleanup(self):
+        'Clean-up and collect the process used to write the movie file.'
+        warnings.warn('cleanup interacts poorly with the saving context-manager',
+                      mplDeprecation)
+        self._cleanup()
+
+    def _cleanup(self):
         'Clean-up and collect the process used to write the movie file.'
         if hasattr(self, "_proc"):
             out, err = self._proc.communicate()
@@ -269,8 +286,8 @@ class FileMovieWriter(MovieWriter):
         MovieWriter.__init__(self, *args, **kwargs)
         self.frame_format = rcParams['animation.frame_format']
 
-    def setup(self, fig, outfile, dpi, frame_prefix='_tmp', clear_temp=True,
-              tmpdir=None):
+    def _setup(self, fig, outfile, dpi, frame_prefix='_tmp', clear_temp=True,
+                tmpdir=None):
         '''
         Perform setup for writing the movie file.
 
@@ -297,12 +314,13 @@ class FileMovieWriter(MovieWriter):
         self.temp_prefix = frame_prefix
         self._frame_counter = 0  # used for generating sequential file names
         if tmpdir is None:
-            self._tmpdir = self._temp_names = tempfile.mkdtemp()
+            self._tmpdir = tempfile.mkdtemp()
+            self._temp_names = None
         else:
             self._tmpdir = tmpdir
             self._temp_names = list()
-        self.fname_format_str = os.path.join(
-            self._tmpdir.replace('%', '%%'), '%s%%07d.%s')
+        self.fname_format_str = os.path.join(self._tmpdir.replace('%', '%%'),
+                                             '%s%%07d.%s')
 
     @property
     def frame_format(self):
@@ -366,11 +384,11 @@ class FileMovieWriter(MovieWriter):
                                                       err), level='helpful')
             raise
 
-    def finish(self):
+    def _finish(self):
         # Call run here now that all frame grabbing is done. All temp files
         # are available to be assembled.
         self._run()
-        MovieWriter.finish(self)
+        MovieWriter._finish(self)
 
         # Check error code for creating file here, since we just run
         # the process here, rather than having an open pipe.
@@ -379,20 +397,23 @@ class FileMovieWriter(MovieWriter):
                                + str(self._proc.returncode)
                                + ' Try running with --verbose-debug')
 
-    def cleanup(self):
-        MovieWriter.cleanup(self)
+    def _cleanup(self):
+        MovieWriter._cleanup(self)
 
         #Delete temporary files
         if self.clear_temp:
-            verbose.report(
-                'MovieWriter: clearing temporary fnames=%s' %
-                str(self._temp_names),
+            if self._temp_names is None: # tmpdir created with mkdtemp
+                verbose.report(
+                    'MovieWriter: clearing temporary fnames=%s' % self._tmpdir,
                 level='debug')
-            if isinstance(self._temp_names, list):
+                shutil.rmtree(self._tmpdir)
+            else:
+                verbose.report(
+                    'MovieWriter: clearing temporary fnames=%s' %
+                    self._temp_names,
+                level='debug')
                 for fname in self._temp_names:
                     os.remove(fname)
-            else:
-                shutil.rmtree(self._temp_names)
 
 
 # Base class of ffmpeg information. Has the config keys and the common set
