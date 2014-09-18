@@ -510,6 +510,9 @@ def _get_home():
     except ImportError:
         # This happens on Google App Engine (pwd module is not present).
         pass
+    except UnicodeDecodeError:
+        # this happens on windows with py2k with non-ascii letters in the path
+        pass
     else:
         if os.path.isdir(path):
             return path
