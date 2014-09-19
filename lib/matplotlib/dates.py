@@ -898,6 +898,10 @@ class AutoDateLocator(DateLocator):
         'Pick the best locator based on a distance.'
         delta = relativedelta(dmax, dmin)
 
+        # take absolute difference
+        if dmin > dmax:
+            delta = -delta
+
         numYears = (delta.years * 1.0)
         numMonths = (numYears * 12.0) + delta.months
         numDays = (numMonths * 31.0) + delta.days
