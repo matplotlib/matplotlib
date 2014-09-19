@@ -162,9 +162,9 @@ def test_DateFormatter():
 def test_date_formatter_callable():
     scale = -11
     locator = mock.Mock(_get_unit=mock.Mock(return_value=scale))
-    callable_formatting_function = lambda dates, _: \
-                        [dt.strftime('%d-%m//%Y') for dt in dates]
-    
+    callable_formatting_function = (lambda dates, _:
+                                    [dt.strftime('%d-%m//%Y') for dt in dates])
+
     formatter = mdates.AutoDateFormatter(locator)
     formatter.scaled[-10] = callable_formatting_function
     assert_equal(formatter([datetime.datetime(2014, 12, 25)]),
@@ -223,7 +223,8 @@ def test_auto_date_locator():
     def _create_auto_date_locator(date1, date2):
         locator = mdates.AutoDateLocator()
         locator.create_dummy_axis()
-        locator.set_view_interval(mdates.date2num(date1), mdates.date2num(date2))
+        locator.set_view_interval(mdates.date2num(date1),
+                                  mdates.date2num(date2))
         return locator
 
     d1 = datetime.datetime(1990, 1, 1)
@@ -275,8 +276,10 @@ def test_auto_date_locator():
                  '1990-01-01 00:00:40+00:00']
                 ],
                [datetime.timedelta(microseconds=1500),
-                ['1989-12-31 23:59:59.999507+00:00', '1990-01-01 00:00:00+00:00',
-                 '1990-01-01 00:00:00.000502+00:00', '1990-01-01 00:00:00.001005+00:00',
+                ['1989-12-31 23:59:59.999507+00:00',
+                 '1990-01-01 00:00:00+00:00',
+                 '1990-01-01 00:00:00.000502+00:00',
+                 '1990-01-01 00:00:00.001005+00:00',
                  '1990-01-01 00:00:00.001508+00:00']
                 ],
                )
