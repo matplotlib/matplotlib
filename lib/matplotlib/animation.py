@@ -163,7 +163,7 @@ class MovieWriter(object):
                       mplDeprecation)
         self._setup(*args, **kwargs)
 
-    def _setup(self, outfile, dpi):
+    def _setup(self, fig, outfile, dpi):
         self.outfile = outfile
         self.fig = fig
         self.dpi = dpi
@@ -204,8 +204,9 @@ class MovieWriter(object):
 
     def finish(self):
         'Finish any processing for writing the movie.'
-        warnings.warn('finish interacts poorly with the saving context-manager',
-                      mplDeprecation)
+        warnings.warn(
+            'finish interacts poorly with the saving context-manager',
+            mplDeprecation)
         self.cleanup()
 
     def _finish(self):
@@ -241,8 +242,9 @@ class MovieWriter(object):
 
     def cleanup(self):
         'Clean-up and collect the process used to write the movie file.'
-        warnings.warn('cleanup interacts poorly with the saving context-manager',
-                      mplDeprecation)
+        warnings.warn(
+            'cleanup interacts poorly with the saving context-manager',
+            mplDeprecation)
         self._cleanup()
 
     def _cleanup(self):
@@ -287,7 +289,7 @@ class FileMovieWriter(MovieWriter):
         self.frame_format = rcParams['animation.frame_format']
 
     def _setup(self, fig, outfile, dpi, frame_prefix='_tmp', clear_temp=True,
-                tmpdir=None):
+               tmpdir=None):
         '''
         Perform setup for writing the movie file.
 
@@ -400,9 +402,9 @@ class FileMovieWriter(MovieWriter):
     def _cleanup(self):
         MovieWriter._cleanup(self)
 
-        #Delete temporary files
+        # Delete temporary files
         if self.clear_temp:
-            if self._temp_names is None: # tmpdir created with mkdtemp
+            if self._temp_names is None:  # tmpdir created with mkdtemp
                 verbose.report(
                     'MovieWriter: clearing temporary fnames=%s' % self._tmpdir,
                 level='debug')
