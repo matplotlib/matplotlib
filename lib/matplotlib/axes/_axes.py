@@ -124,9 +124,10 @@ class Axes(_AxesBase):
 
         Other parameters
         ----------------
-        Other keyword arguments are text properties, see
-        :class:`~matplotlib.text.Text` for a list of valid text
-        properties.
+        kwargs : text properties
+            Other keyword arguments are text properties, see
+            :class:`~matplotlib.text.Text` for a list of valid text
+            properties.
         """
         try:
             title = {'left': self._left_title,
@@ -3021,10 +3022,11 @@ class Axes(_AxesBase):
         Returns
         -------
 
-        A dictionary mapping each component of the boxplot
-        to a list of the :class:`matplotlib.lines.Line2D`
-        instances created. That dictionary has the following keys
-        (assuming vertical boxplots):
+        result : dict
+            A dictionary mapping each component of the boxplot
+            to a list of the :class:`matplotlib.lines.Line2D`
+            instances created. That dictionary has the following keys
+            (assuming vertical boxplots):
 
             - boxes: the main body of the boxplot showing the quartiles
               and the median's confidence intervals if enabled.
@@ -5032,6 +5034,7 @@ class Axes(_AxesBase):
 
           *edgecolors*: [*None* | ``'None'`` | ``'face'`` | color |
                          color sequence]
+
             If *None*, the rc setting is used by default.
 
             If ``'None'``, edges will not be visible.
