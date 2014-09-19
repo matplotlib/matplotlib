@@ -394,6 +394,7 @@ def demean(x, axis=0):
     .. seealso::
 
         :func:`delinear`
+
         :func:`denone`
             :func:`delinear` and :func:`denone` are other detrend algorithms.
 
@@ -427,6 +428,7 @@ def detrend_mean(x, axis=None):
             for the default *axis*.
 
         :func:`detrend_linear`
+
         :func:`detrend_none`
             :func:`detrend_linear` and :func:`detrend_none` are other
             detrend algorithms.
@@ -474,6 +476,7 @@ def detrend_none(x, axis=None):
             for the default *axis*, which has no effect.
 
         :func:`detrend_mean`
+
         :func:`detrend_linear`
             :func:`detrend_mean` and :func:`detrend_linear` are other
             detrend algorithms.
@@ -506,6 +509,7 @@ def detrend_linear(y):
             for the default *axis*.
 
         :func:`detrend_mean`
+
         :func:`detrend_none`
             :func:`detrend_mean` and :func:`detrend_none` are other
             detrend algorithms.
@@ -878,6 +882,7 @@ docstring.interpd.update(PSD=cbook.dedent("""
 
       *detrend*: [ 'default' | 'constant' | 'mean' | 'linear' | 'none'] or
                  callable
+
           The function applied to each segment before fft-ing,
           designed to remove the mean or linear trend.  Unlike in
           MATLAB, where the *detrend* parameter is a vector, in
@@ -1244,6 +1249,7 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
 
       *mode*: [ 'default' | 'psd' | 'complex' | 'magnitude'
                 'angle' | 'phase' ]
+
           What sort of spectrum to use.  Default is 'psd'. which takes the
           power spectral density.  'complex' returns the complex-valued
           frequency spectrum.  'magnitude' returns the magnitude spectrum.
