@@ -76,6 +76,12 @@ class MovieWriterRegistry(object):
 writers = MovieWriterRegistry()
 
 
+def _deprecation_message(name):
+    return ('MovieWriter.%s interacts poorly with the saving context-manager '
+            'and has been deprecated in 1.5.  This method will be removed in '
+            '1.6, please use `with writer.saving(...):` instead' % name)
+
+
 class MovieWriter(object):
     '''
     Base class for writing movies. Fundamentally, what a MovieWriter does is
@@ -159,8 +165,7 @@ class MovieWriter(object):
             The DPI (or resolution) for the file.  This controls the size
             in pixels of the resulting movie file.
         '''
-        warnings.warn('setup interacts poorly with the saving context-manager',
-                      mplDeprecation)
+        warnings.warn(_deprecation_message('setup'), mplDeprecation)
         self._setup(*args, **kwargs)
 
     def _setup(self, fig, outfile, dpi):
@@ -204,9 +209,7 @@ class MovieWriter(object):
 
     def finish(self):
         'Finish any processing for writing the movie.'
-        warnings.warn(
-            'finish interacts poorly with the saving context-manager',
-            mplDeprecation)
+        warnings.warn(_deprecation_message('finish'), mplDeprecation)
         self.cleanup()
 
     def _finish(self):
@@ -242,9 +245,7 @@ class MovieWriter(object):
 
     def cleanup(self):
         'Clean-up and collect the process used to write the movie file.'
-        warnings.warn(
-            'cleanup interacts poorly with the saving context-manager',
-            mplDeprecation)
+        warnings.warn(_deprecation_message('cleanup'), mplDeprecation)
         self._cleanup()
 
     def _cleanup(self):
@@ -285,7 +286,7 @@ class MovieWriter(object):
 class FileMovieWriter(MovieWriter):
     '`MovieWriter` subclass that handles writing to a file.'
     def __init__(self, *args, **kwargs):
-        MovieWriter.__init__(self, *args, **kwargs)
+        super(FileMovieWriter, self).__init__(*args, **kwargs)
         self.frame_format = rcParams['animation.frame_format']
 
     def _setup(self, fig, outfile, dpi, frame_prefix='_tmp', clear_temp=True,
@@ -390,7 +391,7 @@ class FileMovieWriter(MovieWriter):
         # Call run here now that all frame grabbing is done. All temp files
         # are available to be assembled.
         self._run()
-        MovieWriter._finish(self)
+        super(FileMovieWriter, self)._finish()
 
         # Check error code for creating file here, since we just run
         # the process here, rather than having an open pipe.
@@ -400,7 +401,7 @@ class FileMovieWriter(MovieWriter):
                                + ' Try running with --verbose-debug')
 
     def _cleanup(self):
-        MovieWriter._cleanup(self)
+        super(FileMovieWriter, self)._cleanup()
 
         # Delete temporary files
         if self.clear_temp:
