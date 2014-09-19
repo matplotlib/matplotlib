@@ -1332,9 +1332,11 @@ def title(s, *args, **kwargs):
 
     Other parameters
     ----------------
-    Other keyword arguments are text properties, see
-    :class:`~matplotlib.text.Text` for a list of valid text
-    properties.
+    kwargs : text properties
+        Other keyword arguments are text properties, see
+        :class:`~matplotlib.text.Text` for a list of valid text
+        properties.
+
 
     See also
     --------
