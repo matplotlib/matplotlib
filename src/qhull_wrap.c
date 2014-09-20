@@ -175,14 +175,14 @@ delaunay_impl(int npoints, const double* x, const double* y,
     /* Allocate python arrays to return. */
     dims[0] = ntri;
     dims[1] = 3;
-    triangles = (PyArrayObject*)PyArray_SimpleNew(ndim, dims, PyArray_INT);
+    triangles = (PyArrayObject*)PyArray_SimpleNew(ndim, dims, NPY_INT);
     if (triangles == NULL) {
         PyErr_SetString(PyExc_MemoryError,
                         "Could not allocate triangles array in qhull.delaunay");
         goto error;
     }
 
-    neighbors = (PyArrayObject*)PyArray_SimpleNew(ndim, dims, PyArray_INT);
+    neighbors = (PyArrayObject*)PyArray_SimpleNew(ndim, dims, NPY_INT);
     if (neighbors == NULL) {
         PyErr_SetString(PyExc_MemoryError,
                         "Could not allocate neighbors array in qhull.delaunay");
@@ -267,9 +267,9 @@ delaunay(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    xarray = (PyArrayObject*)PyArray_ContiguousFromObject(xarg, PyArray_DOUBLE,
+    xarray = (PyArrayObject*)PyArray_ContiguousFromObject(xarg, NPY_DOUBLE,
                                                           1, 1);
-    yarray = (PyArrayObject*)PyArray_ContiguousFromObject(yarg, PyArray_DOUBLE,
+    yarray = (PyArrayObject*)PyArray_ContiguousFromObject(yarg, NPY_DOUBLE,
                                                           1, 1);
     if (xarray == 0 || yarray == 0 ||
         PyArray_DIM(xarray,0) != PyArray_DIM(yarray, 0)) {

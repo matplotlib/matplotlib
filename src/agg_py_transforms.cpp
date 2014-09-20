@@ -30,7 +30,7 @@ py_to_agg_transformation_matrix(PyObject* obj, bool errors = true)
     /** Try turning the object into an affine transform matrix. */
     try
     {
-        matrix = (PyArrayObject*) PyArray_FromObject(obj, PyArray_DOUBLE, 2, 2);
+        matrix = (PyArrayObject*) PyArray_FromObject(obj, NPY_DOUBLE, 2, 2);
         if (!matrix) {
             PyErr_Clear();
             throw std::exception();
@@ -99,7 +99,7 @@ py_convert_bbox(PyObject* bbox_obj, double& l, double& b, double& r, double& t)
 
     try
     {
-        bbox = (PyArrayObject*) PyArray_FromObject(bbox_obj, PyArray_DOUBLE, 2, 2);
+        bbox = (PyArrayObject*) PyArray_FromObject(bbox_obj, NPY_DOUBLE, 2, 2);
 
         if (!bbox || PyArray_NDIM(bbox) != 2 || PyArray_DIM(bbox, 0) != 2 || PyArray_DIM(bbox, 1) != 2)
         {

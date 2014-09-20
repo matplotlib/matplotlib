@@ -49,7 +49,7 @@ public:
         Py::Object should_simplify_obj    = path_obj.getAttr("should_simplify");
         Py::Object simplify_threshold_obj = path_obj.getAttr("simplify_threshold");
 
-        PyObject* vertices_arr = PyArray_FromObject(vertices_obj.ptr(), PyArray_DOUBLE, 2, 2);
+        PyObject* vertices_arr = PyArray_FromObject(vertices_obj.ptr(), NPY_DOUBLE, 2, 2);
         if (!vertices_arr)
         {
             throw Py::ValueError("Invalid vertices array.");
@@ -63,7 +63,7 @@ public:
 
         if (codes_obj.ptr() != Py_None)
         {
-            PyObject* codes_arr = PyArray_FromObject(codes_obj.ptr(), PyArray_UINT8, 1, 1);
+            PyObject* codes_arr = PyArray_FromObject(codes_obj.ptr(), NPY_UINT8, 1, 1);
 
             if (!codes_arr)
             {
