@@ -2531,14 +2531,23 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
        "CourierNewPS-Bold-ItalicMT"},
     };
 
-    if(!PyList_Check(family)) return 0;
+    if(!PyList_Check(family))
+    {
+        PyErr_SetString(PyExc_ValueError, "family should be a list");
+        return 0;
+    }
     n = PyList_GET_SIZE(family);
 
     for (i = 0; i < n; i++)
     {
         PyObject* item = PyList_GET_ITEM(family, i);
         ascii = PyUnicode_AsASCIIString(item);
-        if(!ascii) return 0;
+        if(!ascii)
+        {
+            PyErr_SetString(PyExc_ValueError,
+                            "failed to convert font family name to ASCII");
+            return 0;
+        }
         temp = PyBytes_AS_STRING(ascii);
         for (j = 0; j < NMAP; j++)
         {    if (!strcmp(map[j].name, temp))
