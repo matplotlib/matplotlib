@@ -135,21 +135,21 @@ static PyObject* getMesh(int npoints, double *x, double *y)
 
     dim[0] = length;
     dim[1] = 2;
-    edge_db = PyArray_SimpleNew(2, dim, PyArray_INT);
+    edge_db = PyArray_SimpleNew(2, dim, NPY_INT);
     if (!edge_db) goto fail;
     edge_db_ptr = (int*)PyArray_DATA(edge_db);
 
     dim[0] = numtri;
-    vertices = PyArray_SimpleNew(2, dim, PyArray_DOUBLE);
+    vertices = PyArray_SimpleNew(2, dim, NPY_DOUBLE);
     if (!vertices) goto fail;
     vertices_ptr = (double*)PyArray_DATA(vertices);
 
     dim[1] = 3;
-    tri_edges = PyArray_SimpleNew(2, dim, PyArray_INT);
+    tri_edges = PyArray_SimpleNew(2, dim, NPY_INT);
     if (!tri_edges) goto fail;
     tri_edges_ptr = (int*)PyArray_DATA(tri_edges);
 
-    tri_nbrs = PyArray_SimpleNew(2, dim, PyArray_INT);
+    tri_nbrs = PyArray_SimpleNew(2, dim, NPY_INT);
     if (!tri_nbrs) goto fail;
     tri_nbrs_ptr = (int*)PyArray_DATA(tri_nbrs);
 
@@ -224,7 +224,7 @@ static PyObject *linear_planes(int ntriangles, double *x, double *y, double *z,
 
     dims[0] = ntriangles;
     dims[1] = 3;
-    planes = PyArray_SimpleNew(2, dims, PyArray_DOUBLE);
+    planes = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
     if (!planes) return NULL;
     planes_ptr = (double *)PyArray_DATA(planes);
 
@@ -285,7 +285,7 @@ static PyObject *linear_interpolate_grid(double x0, double x1, int xsteps,
 
     dims[0] = ysteps;
     dims[1] = xsteps;
-    z = PyArray_SimpleNew(2, dims, PyArray_DOUBLE);
+    z = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
     if (!z) return NULL;
     z_ptr = (double*)PyArray_DATA(z);
 
@@ -320,17 +320,17 @@ static PyObject *compute_planes_method(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "OOOO", &pyx, &pyy, &pyz, &pynodes)) {
         return NULL;
     }
-    x = PyArray_FROMANY(pyx, PyArray_DOUBLE, 1, 1, NPY_IN_ARRAY);
+    x = PyArray_FROMANY(pyx, NPY_DOUBLE, 1, 1, NPY_IN_ARRAY);
     if (!x) {
         PyErr_SetString(PyExc_ValueError, "x must be a 1-D array of floats");
         goto fail;
     }
-    y = PyArray_FROMANY(pyy, PyArray_DOUBLE, 1, 1, NPY_IN_ARRAY);
+    y = PyArray_FROMANY(pyy, NPY_DOUBLE, 1, 1, NPY_IN_ARRAY);
     if (!y) {
         PyErr_SetString(PyExc_ValueError, "y must be a 1-D array of floats");
         goto fail;
     }
-    z = PyArray_FROMANY(pyz, PyArray_DOUBLE, 1, 1, NPY_IN_ARRAY);
+    z = PyArray_FROMANY(pyz, NPY_DOUBLE, 1, 1, NPY_IN_ARRAY);
     if (!z) {
         PyErr_SetString(PyExc_ValueError, "z must be a 1-D array of floats");
         goto fail;
@@ -340,7 +340,7 @@ static PyObject *compute_planes_method(PyObject *self, PyObject *args)
         PyErr_SetString(PyExc_ValueError, "x,y,z arrays must be of equal length");
         goto fail;
     }
-    nodes = PyArray_FROMANY(pynodes, PyArray_INT, 2, 2, NPY_IN_ARRAY);
+    nodes = PyArray_FROMANY(pynodes, NPY_INT, 2, 2, NPY_IN_ARRAY);
     if (!nodes) {
         PyErr_SetString(PyExc_ValueError, "nodes must be a 2-D array of ints");
         goto fail;
@@ -382,12 +382,12 @@ static PyObject *linear_interpolate_method(PyObject *self, PyObject *args)
            &defvalue, &pyplanes, &pyx, &pyy, &pynodes, &pyneighbors)) {
         return NULL;
     }
-    x = PyArray_FROMANY(pyx, PyArray_DOUBLE, 1, 1, NPY_IN_ARRAY);
+    x = PyArray_FROMANY(pyx, NPY_DOUBLE, 1, 1, NPY_IN_ARRAY);
     if (!x) {
         PyErr_SetString(PyExc_ValueError, "x must be a 1-D array of floats");
         goto fail;
     }
-    y = PyArray_FROMANY(pyy, PyArray_DOUBLE, 1, 1, NPY_IN_ARRAY);
+    y = PyArray_FROMANY(pyy, NPY_DOUBLE, 1, 1, NPY_IN_ARRAY);
     if (!y) {
         PyErr_SetString(PyExc_ValueError, "y must be a 1-D array of floats");
         goto fail;
@@ -397,17 +397,17 @@ static PyObject *linear_interpolate_method(PyObject *self, PyObject *args)
         PyErr_SetString(PyExc_ValueError, "x,y arrays must be of equal length");
         goto fail;
     }
-    planes = PyArray_FROMANY(pyplanes, PyArray_DOUBLE, 2, 2, NPY_IN_ARRAY);
+    planes = PyArray_FROMANY(pyplanes, NPY_DOUBLE, 2, 2, NPY_IN_ARRAY);
     if (!planes) {
         PyErr_SetString(PyExc_ValueError, "planes must be a 2-D array of floats");
         goto fail;
     }
-    nodes = PyArray_FROMANY(pynodes, PyArray_INT, 2, 2, NPY_IN_ARRAY);
+    nodes = PyArray_FROMANY(pynodes, NPY_INT, 2, 2, NPY_IN_ARRAY);
     if (!nodes) {
         PyErr_SetString(PyExc_ValueError, "nodes must be a 2-D array of ints");
         goto fail;
     }
-    neighbors = PyArray_FROMANY(pyneighbors, PyArray_INT, 2, 2, NPY_IN_ARRAY);
+    neighbors = PyArray_FROMANY(pyneighbors, NPY_INT, 2, 2, NPY_IN_ARRAY);
     if (!neighbors) {
         PyErr_SetString(PyExc_ValueError, "neighbors must be a 2-D array of ints");
         goto fail;
@@ -463,19 +463,19 @@ static PyObject *nn_interpolate_unstructured_method(PyObject *self, PyObject *ar
         &pyx, &pyy, &pyz, &pycenters, &pynodes, &pyneighbors)) {
         return NULL;
     }
-    x = PyArray_FROMANY(pyx, PyArray_DOUBLE, 1, 1, NPY_IN_ARRAY);
+    x = PyArray_FROMANY(pyx, NPY_DOUBLE, 1, 1, NPY_IN_ARRAY);
     if (!x) {
         PyErr_SetString(PyExc_ValueError, "x must be a 1-D array of floats");
         CLEANUP
         return NULL;
     }
-    y = PyArray_FROMANY(pyy, PyArray_DOUBLE, 1, 1, NPY_IN_ARRAY);
+    y = PyArray_FROMANY(pyy, NPY_DOUBLE, 1, 1, NPY_IN_ARRAY);
     if (!y) {
         PyErr_SetString(PyExc_ValueError, "y must be a 1-D array of floats");
         CLEANUP
         return NULL;
     }
-    z = PyArray_FROMANY(pyz, PyArray_DOUBLE, 1, 1, NPY_IN_ARRAY);
+    z = PyArray_FROMANY(pyz, NPY_DOUBLE, 1, 1, NPY_IN_ARRAY);
     if (!z) {
         PyErr_SetString(PyExc_ValueError, "z must be a 1-D array of floats");
         CLEANUP
@@ -487,19 +487,19 @@ static PyObject *nn_interpolate_unstructured_method(PyObject *self, PyObject *ar
         CLEANUP
         return NULL;
     }
-    centers = PyArray_FROMANY(pycenters, PyArray_DOUBLE, 2, 2, NPY_IN_ARRAY);
+    centers = PyArray_FROMANY(pycenters, NPY_DOUBLE, 2, 2, NPY_IN_ARRAY);
     if (!centers) {
         PyErr_SetString(PyExc_ValueError, "centers must be a 2-D array of ints");
         CLEANUP
         return NULL;
     }
-    nodes = PyArray_FROMANY(pynodes, PyArray_INT, 2, 2, NPY_IN_ARRAY);
+    nodes = PyArray_FROMANY(pynodes, NPY_INT, 2, 2, NPY_IN_ARRAY);
     if (!nodes) {
         PyErr_SetString(PyExc_ValueError, "nodes must be a 2-D array of ints");
         CLEANUP
         return NULL;
     }
-    neighbors = PyArray_FROMANY(pyneighbors, PyArray_INT, 2, 2, NPY_IN_ARRAY);
+    neighbors = PyArray_FROMANY(pyneighbors, NPY_INT, 2, 2, NPY_IN_ARRAY);
     if (!neighbors) {
         PyErr_SetString(PyExc_ValueError, "neighbors must be a 2-D array of ints");
         CLEANUP
@@ -512,13 +512,13 @@ static PyObject *nn_interpolate_unstructured_method(PyObject *self, PyObject *ar
         CLEANUP
         return NULL;
     }
-    intx = PyArray_FROM_OTF(pyintx, PyArray_DOUBLE, NPY_IN_ARRAY);
+    intx = PyArray_FROM_OTF(pyintx, NPY_DOUBLE, NPY_IN_ARRAY);
     if (!intx) {
         PyErr_SetString(PyExc_ValueError, "intx must be an array of floats");
         CLEANUP
         return NULL;
     }
-    inty = PyArray_FROM_OTF(pyinty, PyArray_DOUBLE, NPY_IN_ARRAY);
+    inty = PyArray_FROM_OTF(pyinty, NPY_DOUBLE, NPY_IN_ARRAY);
     if (!inty) {
         PyErr_SetString(PyExc_ValueError, "inty must be an array of floats");
         CLEANUP
@@ -536,7 +536,7 @@ static PyObject *nn_interpolate_unstructured_method(PyObject *self, PyObject *ar
             return NULL;
         }
     }
-    intz = PyArray_SimpleNew(PyArray_ND(intx), PyArray_DIMS(intx), PyArray_DOUBLE);
+    intz = PyArray_SimpleNew(PyArray_ND(intx), PyArray_DIMS(intx), NPY_DOUBLE);
     if (!intz) {
         CLEANUP
         return NULL;
@@ -586,19 +586,19 @@ static PyObject *nn_interpolate_method(PyObject *self, PyObject *args)
         &pyneighbors)) {
         return NULL;
     }
-    x = PyArray_FROMANY(pyx, PyArray_DOUBLE, 1, 1, NPY_IN_ARRAY);
+    x = PyArray_FROMANY(pyx, NPY_DOUBLE, 1, 1, NPY_IN_ARRAY);
     if (!x) {
         PyErr_SetString(PyExc_ValueError, "x must be a 1-D array of floats");
         CLEANUP
         return NULL;
     }
-    y = PyArray_FROMANY(pyy, PyArray_DOUBLE, 1, 1, NPY_IN_ARRAY);
+    y = PyArray_FROMANY(pyy, NPY_DOUBLE, 1, 1, NPY_IN_ARRAY);
     if (!y) {
         PyErr_SetString(PyExc_ValueError, "y must be a 1-D array of floats");
         CLEANUP
         return NULL;
     }
-    z = PyArray_FROMANY(pyz, PyArray_DOUBLE, 1, 1, NPY_IN_ARRAY);
+    z = PyArray_FROMANY(pyz, NPY_DOUBLE, 1, 1, NPY_IN_ARRAY);
     if (!z) {
         PyErr_SetString(PyExc_ValueError, "z must be a 1-D array of floats");
         CLEANUP
@@ -610,19 +610,19 @@ static PyObject *nn_interpolate_method(PyObject *self, PyObject *args)
         CLEANUP
         return NULL;
     }
-    centers = PyArray_FROMANY(pycenters, PyArray_DOUBLE, 2, 2, NPY_IN_ARRAY);
+    centers = PyArray_FROMANY(pycenters, NPY_DOUBLE, 2, 2, NPY_IN_ARRAY);
     if (!centers) {
         PyErr_SetString(PyExc_ValueError, "centers must be a 2-D array of ints");
         CLEANUP
         return NULL;
     }
-    nodes = PyArray_FROMANY(pynodes, PyArray_INT, 2, 2, NPY_IN_ARRAY);
+    nodes = PyArray_FROMANY(pynodes, NPY_INT, 2, 2, NPY_IN_ARRAY);
     if (!nodes) {
         PyErr_SetString(PyExc_ValueError, "nodes must be a 2-D array of ints");
         CLEANUP
         return NULL;
     }
-    neighbors = PyArray_FROMANY(pyneighbors, PyArray_INT, 2, 2, NPY_IN_ARRAY);
+    neighbors = PyArray_FROMANY(pyneighbors, NPY_INT, 2, 2, NPY_IN_ARRAY);
     if (!neighbors) {
         PyErr_SetString(PyExc_ValueError, "neighbors must be a 2-D array of ints");
         CLEANUP
@@ -638,7 +638,7 @@ static PyObject *nn_interpolate_method(PyObject *self, PyObject *args)
 
     dims[0] = ysteps;
     dims[1] = xsteps;
-    grid = PyArray_SimpleNew(2, dims, PyArray_DOUBLE);
+    grid = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
     if (!grid) {
         CLEANUP
         return NULL;
@@ -670,12 +670,12 @@ static PyObject *delaunay_method(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "OO", &pyx, &pyy)) {
         return NULL;
     }
-    x = PyArray_FROMANY(pyx, PyArray_DOUBLE, 1, 1, NPY_IN_ARRAY);
+    x = PyArray_FROMANY(pyx, NPY_DOUBLE, 1, 1, NPY_IN_ARRAY);
     if (!x) {
         PyErr_SetString(PyExc_ValueError, "x must be a 1-D array of floats");
         goto fail;
     }
-    y = PyArray_FROMANY(pyy, PyArray_DOUBLE, 1, 1, NPY_IN_ARRAY);
+    y = PyArray_FROMANY(pyy, NPY_DOUBLE, 1, 1, NPY_IN_ARRAY);
     if (!y) {
         PyErr_SetString(PyExc_ValueError, "y must be a 1-D array of floats");
         goto fail;

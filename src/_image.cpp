@@ -903,7 +903,7 @@ _image_module::fromarray(const Py::Tuple& args)
 
     Py::Object x = args[0];
     int isoutput = Py::Int(args[1]);
-    PyArrayObject *A = (PyArrayObject *) PyArray_FromObject(x.ptr(), PyArray_DOUBLE, 2, 3);
+    PyArrayObject *A = (PyArrayObject *) PyArray_FromObject(x.ptr(), NPY_DOUBLE, 2, 3);
     if (A == NULL)
     {
         throw Py::ValueError("Array must be rank 2 or 3 of doubles");
@@ -1018,7 +1018,7 @@ _image_module::fromarray2(const Py::Tuple& args)
 
     Py::Object x = args[0];
     int isoutput = Py::Int(args[1]);
-    PyArrayObject *A = (PyArrayObject *) PyArray_ContiguousFromObject(x.ptr(), PyArray_DOUBLE, 2, 3);
+    PyArrayObject *A = (PyArrayObject *) PyArray_ContiguousFromObject(x.ptr(), NPY_DOUBLE, 2, 3);
     if (A == NULL)
     {
         throw Py::ValueError("Array must be rank 2 or 3 of doubles");
@@ -1126,7 +1126,7 @@ _image_module::frombyte(const Py::Tuple& args)
     Py::Object x = args[0];
     int isoutput = Py::Int(args[1]);
 
-    PyArrayObject *A = (PyArrayObject *) PyArray_FromObject(x.ptr(), PyArray_UBYTE, 3, 3);
+    PyArrayObject *A = (PyArrayObject *) PyArray_FromObject(x.ptr(), NPY_UBYTE, 3, 3);
     if (A == NULL)
     {
         throw Py::ValueError("Array must have 3 dimensions");
@@ -1610,19 +1610,19 @@ _image_module::pcolor(const Py::Tuple& args)
     float *arows = NULL;
 
     // Get numpy arrays
-    x = (PyArrayObject *) PyArray_ContiguousFromObject(xp.ptr(), PyArray_FLOAT, 1, 1);
+    x = (PyArrayObject *) PyArray_ContiguousFromObject(xp.ptr(), NPY_FLOAT, 1, 1);
     if (x == NULL)
     {
         _pcolor_cleanup(x, y, d, rowstarts, colstarts, acols, arows);
         throw Py::ValueError("x is of incorrect type (wanted 1D float)");
     }
-    y = (PyArrayObject *) PyArray_ContiguousFromObject(yp.ptr(), PyArray_FLOAT, 1, 1);
+    y = (PyArrayObject *) PyArray_ContiguousFromObject(yp.ptr(), NPY_FLOAT, 1, 1);
     if (y == NULL)
     {
         _pcolor_cleanup(x, y, d, rowstarts, colstarts, acols, arows);
         throw Py::ValueError("y is of incorrect type (wanted 1D float)");
     }
-    d = (PyArrayObject *) PyArray_ContiguousFromObject(dp.ptr(), PyArray_UBYTE, 3, 3);
+    d = (PyArrayObject *) PyArray_ContiguousFromObject(dp.ptr(), NPY_UBYTE, 3, 3);
     if (d == NULL)
     {
         _pcolor_cleanup(x, y, d, rowstarts, colstarts, acols, arows);
@@ -1851,19 +1851,19 @@ _image_module::pcolor2(const Py::Tuple& args)
     int* jcols = NULL;
 
     // Get numpy arrays
-    x = (PyArrayObject *) PyArray_ContiguousFromObject(xp.ptr(), PyArray_DOUBLE, 1, 1);
+    x = (PyArrayObject *) PyArray_ContiguousFromObject(xp.ptr(), NPY_DOUBLE, 1, 1);
     if (x == NULL)
     {
         _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::ValueError("x is of incorrect type (wanted 1D double)");
     }
-    y = (PyArrayObject *) PyArray_ContiguousFromObject(yp.ptr(), PyArray_DOUBLE, 1, 1);
+    y = (PyArrayObject *) PyArray_ContiguousFromObject(yp.ptr(), NPY_DOUBLE, 1, 1);
     if (y == NULL)
     {
         _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::ValueError("y is of incorrect type (wanted 1D double)");
     }
-    d = (PyArrayObject *) PyArray_ContiguousFromObject(dp.ptr(), PyArray_UBYTE, 3, 3);
+    d = (PyArrayObject *) PyArray_ContiguousFromObject(dp.ptr(), NPY_UBYTE, 3, 3);
     if (d == NULL)
     {
         _pcolor2_cleanup(x, y, d, bg, irows, jcols);
@@ -1884,7 +1884,7 @@ _image_module::pcolor2(const Py::Tuple& args)
         throw Py::ValueError("data and axis bin boundary dimensions are incompatible");
     }
 
-    bg = (PyArrayObject *) PyArray_ContiguousFromObject(bgp.ptr(), PyArray_UBYTE, 1, 1);
+    bg = (PyArrayObject *) PyArray_ContiguousFromObject(bgp.ptr(), NPY_UBYTE, 1, 1);
     if (bg == NULL)
     {
         _pcolor2_cleanup(x, y, d, bg, irows, jcols);

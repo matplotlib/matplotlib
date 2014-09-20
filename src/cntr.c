@@ -1509,9 +1509,9 @@ build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
         dims[0] = np[i];
         dims[1] = 2;
         kdims[0] = np[i];
-        xyv = (PyArrayObject *) PyArray_SimpleNew(2, dims, PyArray_DOUBLE);
+        xyv = (PyArrayObject *) PyArray_SimpleNew(2, dims, NPY_DOUBLE);
         if (xyv == NULL)  goto error;
-        kv = (PyArrayObject *) PyArray_SimpleNew(1, kdims, PyArray_UBYTE);
+        kv = (PyArrayObject *) PyArray_SimpleNew(1, kdims, NPY_UBYTE);
         if (kv == NULL) goto error;
 
         n = reorder(xpp, ypp, kpp,
@@ -1569,9 +1569,9 @@ __build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
         dims[0] = np[i];
         dims[1] = 2;
         kdims[0] = np[i];
-        xyv = (PyArrayObject *) PyArray_SimpleNew(2, dims, PyArray_DOUBLE);
+        xyv = (PyArrayObject *) PyArray_SimpleNew(2, dims, NPY_DOUBLE);
         if (xyv == NULL)  goto error;
-        kv = (PyArrayObject *) PyArray_SimpleNew(1, kdims, PyArray_SHORT);
+        kv = (PyArrayObject *) PyArray_SimpleNew(1, kdims, NPY_SHORT);
         if (kv == NULL) goto error;
 
         for (j = 0; j < dims[0]; j++)
@@ -1809,14 +1809,14 @@ Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
     }
 
     xpa = (PyArrayObject *) PyArray_ContiguousFromObject(xarg,
-                                                      PyArray_DOUBLE, 2, 2);
+                                                      NPY_DOUBLE, 2, 2);
     ypa = (PyArrayObject *) PyArray_ContiguousFromObject(yarg,
-                                                      PyArray_DOUBLE, 2, 2);
+                                                      NPY_DOUBLE, 2, 2);
     zpa = (PyArrayObject *) PyArray_ContiguousFromObject(zarg,
-                                                      PyArray_DOUBLE, 2, 2);
+                                                      NPY_DOUBLE, 2, 2);
     if (marg)
         mpa = (PyArrayObject *) PyArray_ContiguousFromObject(marg,
-                                                      PyArray_BYTE, 2, 2);
+                                                      NPY_BYTE, 2, 2);
     else
         mpa = NULL;
 
@@ -1894,7 +1894,7 @@ Cntr_get_cdata(Cntr *self)
     dims[0] = ni = self->site->imax;
     dims[1] = nj = self->site->jmax;
 
-    Cdata = (PyArrayObject *) PyArray_SimpleNew(2, dims, PyArray_SHORT);
+    Cdata = (PyArrayObject *) PyArray_SimpleNew(2, dims, NPY_SHORT);
     for (j=0; j<nj; j++)
         for (i=0; i<ni; i++)
             Cdata->data[j + i*nj] = self->site->data[i + j*ni];

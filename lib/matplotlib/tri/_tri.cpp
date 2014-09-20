@@ -328,7 +328,7 @@ void Triangulation::calculate_edges()
 
     // Convert to python _edges array.
     npy_intp dims[2] = {static_cast<npy_intp>(edge_set.size()), 2};
-    _edges = (PyArrayObject*)PyArray_SimpleNew(2, dims, PyArray_INT);
+    _edges = (PyArrayObject*)PyArray_SimpleNew(2, dims, NPY_INT);
     int* edges_ptr = (int*)PyArray_DATA(_edges);
     for (EdgeSet::const_iterator it = edge_set.begin(); it != edge_set.end(); ++it) {
         *edges_ptr++ = it->start;
@@ -343,7 +343,7 @@ void Triangulation::calculate_neighbors()
 
     // Create _neighbors array with shape (ntri,3) and initialise all to -1.
     npy_intp dims[2] = {_ntri,3};
-    _neighbors = (PyArrayObject*)PyArray_SimpleNew(2, dims, PyArray_INT);
+    _neighbors = (PyArrayObject*)PyArray_SimpleNew(2, dims, NPY_INT);
     int* neighbors_ptr = (int*)PyArray_DATA(_neighbors);
     std::fill(neighbors_ptr, neighbors_ptr + 3*_ntri, -1);
 
@@ -386,7 +386,7 @@ Py::Object Triangulation::calculate_plane_coefficients(const Py::Tuple &args)
     args.verify_length(1);
 
     PyArrayObject* z = (PyArrayObject*)PyArray_ContiguousFromObject(
-                           args[0].ptr(), PyArray_DOUBLE, 1, 1);
+                           args[0].ptr(), NPY_DOUBLE, 1, 1);
     if (z == 0 || PyArray_DIM(z,0) != PyArray_DIM(_x,0)) {
         Py_XDECREF(z);
         throw Py::ValueError(
@@ -401,7 +401,7 @@ Py::Object Triangulation::calculate_plane_coefficients(const Py::Tuple &args)
 
         npy_intp dims[2] = {_ntri, 3};
         planes_array = (PyArrayObject*)PyArray_SimpleNew(2, dims,
-                                                         PyArray_DOUBLE);
+                                                         NPY_DOUBLE);
         double* planes = (double*)PyArray_DATA(planes_array);
         const int* tris = get_triangles_ptr();
         const double* xs = (const double*)PyArray_DATA(_x);
@@ -624,7 +624,7 @@ Py::Object Triangulation::set_mask(const Py::Tuple &args)
     if (args[0] != Py::None())
     {
         _mask = (PyArrayObject*)PyArray_ContiguousFromObject(
-                    args[0].ptr(), PyArray_BOOL, 1, 1);
+                    args[0].ptr(), NPY_BOOL, 1, 1);
         if (_mask == 0 || PyArray_DIM(_mask,0) != PyArray_DIM(_triangles,0)) {
             Py_XDECREF(_mask);
             throw Py::ValueError(
@@ -712,7 +712,7 @@ Py::Object TriContourGenerator::contour_to_segs(const Contour& contour)
         const ContourLine& line = contour[i];
         npy_intp dims[2] = {static_cast<npy_intp>(line.size()),2};
         PyArrayObject* py_line = (PyArrayObject*)PyArray_SimpleNew(
-                                                     2, dims, PyArray_DOUBLE);
+                                                     2, dims, NPY_DOUBLE);
         double* p = (double*)PyArray_DATA(py_line);
         for (ContourLine::const_iterator it = line.begin(); it != line.end(); ++it) {
             *p++ = it->x;
@@ -736,13 +736,13 @@ Py::Object TriContourGenerator::contour_to_segs_and_kinds(const Contour& contour
     // Create segs array for point coordinates.
     npy_intp segs_dims[2] = {n_points, 2};
     PyArrayObject* segs = (PyArrayObject*)PyArray_SimpleNew(
-                                                2, segs_dims, PyArray_DOUBLE);
+                                                2, segs_dims, NPY_DOUBLE);
     double* segs_ptr = (double*)PyArray_DATA(segs);
 
     // Create kinds array for code types.
     npy_intp kinds_dims[1] = {n_points};
     PyArrayObject* kinds = (PyArrayObject*)PyArray_SimpleNew(
-                                                1, kinds_dims, PyArray_UBYTE);
+                                                1, kinds_dims, NPY_UBYTE);
     unsigned char* kinds_ptr = (unsigned char*)PyArray_DATA(kinds);
 
     for (line = contour.begin(); line != contour.end(); ++line) {
@@ -1367,9 +1367,9 @@ TrapezoidMapTriFinder::find_many(const Py::Tuple& args)
 
     // Check input arguments.
     PyArrayObject* x = (PyArrayObject*)PyArray_ContiguousFromObject(
-                           args[0].ptr(), PyArray_DOUBLE, 0, 0);
+                           args[0].ptr(), NPY_DOUBLE, 0, 0);
     PyArrayObject* y = (PyArrayObject*)PyArray_ContiguousFromObject(
-                           args[1].ptr(), PyArray_DOUBLE, 0, 0);
+                           args[1].ptr(), NPY_DOUBLE, 0, 0);
     bool ok = (x != 0 && y != 0 && PyArray_NDIM(x) == PyArray_NDIM(y));
     int ndim = x == 0 ? 0 : PyArray_NDIM(x);
     for (int i = 0; ok && i < ndim; ++i)
@@ -1383,7 +1383,7 @@ TrapezoidMapTriFinder::find_many(const Py::Tuple& args)
 
     // Create integer array to return.
     PyArrayObject* tri = (PyArrayObject*)PyArray_SimpleNew(
-                             ndim, PyArray_DIMS(x), PyArray_INT);
+                             ndim, PyArray_DIMS(x), NPY_INT);
 
     // Fill returned array.
     double* x_ptr = (double*)PyArray_DATA(x);
@@ -2234,9 +2234,9 @@ Py::Object TriModule::new_triangulation(const Py::Tuple &args)
 
     // x and y.
     PyArrayObject* x = (PyArrayObject*)PyArray_ContiguousFromObject(
-                           args[0].ptr(), PyArray_DOUBLE, 1, 1);
+                           args[0].ptr(), NPY_DOUBLE, 1, 1);
     PyArrayObject* y = (PyArrayObject*)PyArray_ContiguousFromObject(
-                           args[1].ptr(), PyArray_DOUBLE, 1, 1);
+                           args[1].ptr(), NPY_DOUBLE, 1, 1);
     if (x == 0 || y == 0 || PyArray_DIM(x,0) != PyArray_DIM(y,0)) {
         Py_XDECREF(x);
         Py_XDECREF(y);
@@ -2245,7 +2245,7 @@ Py::Object TriModule::new_triangulation(const Py::Tuple &args)
 
     // triangles.
     PyArrayObject* triangles = (PyArrayObject*)PyArray_ContiguousFromObject(
-                                   args[2].ptr(), PyArray_INT, 2, 2);
+                                   args[2].ptr(), NPY_INT, 2, 2);
     if (triangles == 0 || PyArray_DIM(triangles,1) != 3) {
         Py_XDECREF(x);
         Py_XDECREF(y);
@@ -2258,7 +2258,7 @@ Py::Object TriModule::new_triangulation(const Py::Tuple &args)
     if (args[3].ptr() != 0 && args[3] != Py::None())
     {
         mask = (PyArrayObject*)PyArray_ContiguousFromObject(
-                   args[3].ptr(), PyArray_BOOL, 1, 1);
+                   args[3].ptr(), NPY_BOOL, 1, 1);
         if (mask == 0 || PyArray_DIM(mask,0) != PyArray_DIM(triangles,0)) {
             Py_XDECREF(x);
             Py_XDECREF(y);
@@ -2274,7 +2274,7 @@ Py::Object TriModule::new_triangulation(const Py::Tuple &args)
     if (args[4].ptr() != 0 && args[4] != Py::None())
     {
         edges = (PyArrayObject*)PyArray_ContiguousFromObject(
-                    args[4].ptr(), PyArray_INT, 2, 2);
+                    args[4].ptr(), NPY_INT, 2, 2);
         if (edges == 0 || PyArray_DIM(edges,1) != 2) {
             Py_XDECREF(x);
             Py_XDECREF(y);
@@ -2290,7 +2290,7 @@ Py::Object TriModule::new_triangulation(const Py::Tuple &args)
     if (args[5].ptr() != 0 && args[5] != Py::None())
     {
         neighbors = (PyArrayObject*)PyArray_ContiguousFromObject(
-                        args[5].ptr(), PyArray_INT, 2, 2);
+                        args[5].ptr(), NPY_INT, 2, 2);
         if (neighbors == 0 ||
             PyArray_DIM(neighbors,0) != PyArray_DIM(triangles,0) ||
             PyArray_DIM(neighbors,1) != PyArray_DIM(triangles,1)) {
@@ -2318,7 +2318,7 @@ Py::Object TriModule::new_tricontourgenerator(const Py::Tuple &args)
         throw Py::ValueError("Expecting a C++ Triangulation object");
 
     PyArrayObject* z = (PyArrayObject*)PyArray_ContiguousFromObject(
-                           args[1].ptr(), PyArray_DOUBLE, 1, 1);
+                           args[1].ptr(), NPY_DOUBLE, 1, 1);
     if (z == 0 ||
         PyArray_DIM(z,0) != ((Triangulation*)tri.ptr())->get_npoints()) {
         Py_XDECREF(z);
