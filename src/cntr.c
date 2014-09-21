@@ -1515,8 +1515,8 @@ build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
         if (kv == NULL) goto error;
 
         n = reorder(xpp, ypp, kpp,
-                        (double *) xyv->data,
-                        (unsigned char *) kv->data,
+                        (double *) PyArray_DATA(xyv),
+                        (unsigned char *) PyArray_DATA(kv),
                         np[i]);
         if (n == -1) goto error;
         newshape.len = 2;
@@ -1827,22 +1827,22 @@ Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
             "x, y, z must be castable to double.");
         goto error;
     }
-    iMax = zpa->dimensions[1];
-    jMax = zpa->dimensions[0];
-    if (xpa->dimensions[0] != jMax || xpa->dimensions[1] != iMax ||
-        ypa->dimensions[0] != jMax || ypa->dimensions[1] != iMax ||
-        (mpa && (mpa->dimensions[0] != jMax || mpa->dimensions[1] != iMax)))
+    iMax = PyArray_DIM(zpa, 1);
+    jMax = PyArray_DIM(zpa, 0);
+    if (PyArray_DIM(xpa, 0) != jMax || PyArray_DIM(xpa, 1) != iMax ||
+        PyArray_DIM(ypa, 0) != jMax || PyArray_DIM(ypa, 1) != iMax ||
+        (mpa && (PyArray_DIM(mpa, 0) != jMax || PyArray_DIM(mpa, 1) != iMax)))
     {
         PyErr_SetString(PyExc_ValueError,
             "Arguments x, y, z, mask (if present)"
              " must have the same dimensions.");
         goto error;
     }
-    if (mpa) mask = mpa->data;
+    if (mpa) mask = PyArray_DATA(mpa);
     else     mask = NULL;
-    if ( cntr_init(self->site, iMax, jMax, (double *)xpa->data,
-                            (double *)ypa->data,
-                            (double *)zpa->data, mask))
+    if ( cntr_init(self->site, iMax, jMax, (double *)PyArray_DATA(xpa),
+                            (double *)PyArray_DATA(ypa),
+                            (double *)PyArray_DATA(zpa), mask))
     {
         PyErr_SetString(PyExc_MemoryError,
             "Memory allocation failure in cntr_init");
@@ -1895,9 +1895,10 @@ Cntr_get_cdata(Cntr *self)
     dims[1] = nj = self->site->jmax;
 
     Cdata = (PyArrayObject *) PyArray_SimpleNew(2, dims, NPY_SHORT);
+    char* const data = PyArray_DATA(Cdata);
     for (j=0; j<nj; j++)
         for (i=0; i<ni; i++)
-            Cdata->data[j + i*nj] = self->site->data[i + j*ni];
+            data[j + i*nj] = self->site->data[i + j*ni];
             /* output is C-order, input is F-order */
     /* for now we are ignoring the last ni+1 values */
     return (PyObject *)Cdata;
