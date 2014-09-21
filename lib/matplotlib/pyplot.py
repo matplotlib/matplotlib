@@ -1311,17 +1311,24 @@ def title(s, *args, **kwargs):
     positioned above the axes in the center, flush with the left edge,
     and flush with the right edge.
 
+    .. seealso::
+        See :func:`~matplotlib.pyplot.text` for adding text
+        to the current axes
+
     Parameters
     ----------
     label : str
         Text to use for the title
+
     fontdict : dict
         A dictionary controlling the appearance of the title text,
         the default `fontdict` is:
-        {'fontsize': rcParams['axes.titlesize'],
-         'fontweight' : rcParams['axes.titleweight'],
-         'verticalalignment': 'baseline',
-         'horizontalalignment': loc}
+
+            {'fontsize': rcParams['axes.titlesize'],
+            'fontweight' : rcParams['axes.titleweight'],
+            'verticalalignment': 'baseline',
+            'horizontalalignment': loc}
+
     loc : {'center', 'left', 'right'}, str, optional
         Which title to set, defaults to 'center'
 
@@ -1336,11 +1343,6 @@ def title(s, *args, **kwargs):
         Other keyword arguments are text properties, see
         :class:`~matplotlib.text.Text` for a list of valid text
         properties.
-
-
-    See also
-    --------
-    See :func:`~matplotlib.pyplot.text` for adding text to the current axes
 
     """
     l =  gca().set_title(s, *args, **kwargs)
