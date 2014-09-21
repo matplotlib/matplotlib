@@ -56,7 +56,7 @@ public:
         }
 
         m_vertices = Py::Object(vertices_arr, true);
-        if (PyArray_DIM(m_vertices.ptr(), 1) != 2)
+        if (PyArray_DIM((PyArrayObject*)m_vertices.ptr(), 1) != 2)
         {
             throw Py::ValueError("Invalid vertices array.");
         }
@@ -71,14 +71,15 @@ public:
             }
 
             m_codes = Py::Object(codes_arr, true);
-            if (PyArray_DIM(m_codes.ptr(), 0) != PyArray_DIM(m_vertices.ptr(), 0))
+            if (PyArray_DIM((PyArrayObject*)m_codes.ptr(), 0) !=
+                PyArray_DIM((PyArrayObject*)m_vertices.ptr(), 0))
             {
                 throw Py::ValueError("Codes array is wrong length");
             }
         }
 
         m_should_simplify    = should_simplify_obj.isTrue();
-        m_total_vertices     = PyArray_DIM(m_vertices.ptr(), 0);
+        m_total_vertices     = PyArray_DIM((PyArrayObject*)m_vertices.ptr(), 0);
         m_simplify_threshold = Py::Float(simplify_threshold_obj);
     }
 
@@ -93,13 +94,13 @@ public:
 
         const size_t idx = m_iterator++;
 
-        char* pair = (char*)PyArray_GETPTR2(m_vertices.ptr(), idx, 0);
+        char* pair = (char*)PyArray_GETPTR2((PyArrayObject*)m_vertices.ptr(), idx, 0);
         *x = *(double*)pair;
-        *y = *(double*)(pair + PyArray_STRIDE(m_vertices.ptr(), 1));
+        *y = *(double*)(pair + PyArray_STRIDE((PyArrayObject*)m_vertices.ptr(), 1));
 
         if (!m_codes.isNone())
         {
-            return (unsigned)(*(char *)PyArray_GETPTR1(m_codes.ptr(), idx));
+            return (unsigned)(*(char *)PyArray_GETPTR1((PyArrayObject*)m_codes.ptr(), idx));
         }
         else
         {
