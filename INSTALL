@@ -192,7 +192,7 @@ Required Dependencies
     using pip, easy_install or installing from source, the installer
     will attempt to download and install `pyparsing` from PyPI.
 
-six 1.3 or later
+six 1.4 or later
     Python 2/3 compatibility library.  This is also a dependency of
     :term:`dateutil`.
 
