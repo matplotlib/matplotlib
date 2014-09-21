@@ -824,6 +824,9 @@ class Numpy(SetupPackage):
         ext.define_macros.append(('PY_ARRAY_UNIQUE_SYMBOL', array_api_name))
         ext.add_hook('include_dirs', self.include_dirs_hook)
 
+        ext.define_macros.append(('NPY_NO_DEPRECATED_API',
+                                  'NPY_1_7_API_VERSION'))
+
     def get_setup_requires(self):
         return ['numpy>=1.6']
 
