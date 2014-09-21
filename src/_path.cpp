@@ -382,7 +382,7 @@ _path_module::points_in_path(const Py::Tuple& args)
                      PyArray_STRIDE(points_array, 0),
                      PyArray_STRIDE(points_array, 1),
                      n, r, path, trans,
-                     (npy_bool *)PyArray_DATA(result));
+                     (npy_bool *)PyArray_DATA((PyArrayObject*)result));
     Py_DECREF(points_array);
 
     return Py::Object(result, true);;
@@ -645,7 +645,7 @@ _path_module::get_path_collection_extents(const Py::Tuple& args)
         }
 
         size_t Npaths      = paths.length();
-        size_t Noffsets    = offsets->dimensions[0];
+        size_t Noffsets    = PyArray_DIM(offsets, 0);
         size_t N           = std::max(Npaths, Noffsets);
         size_t Ntransforms = std::min(transforms_obj.length(), N);
         size_t i;
@@ -771,7 +771,7 @@ _path_module::point_in_path_collection(const Py::Tuple& args)
     }
 
     size_t Npaths      = paths.length();
-    size_t Noffsets    = offsets->dimensions[0];
+    size_t Noffsets    = PyArray_DIM(offsets, 0);
     size_t N           = std::max(Npaths, Noffsets);
     size_t Ntransforms = std::min(transforms_obj.length(), N);
     size_t i;
@@ -1125,13 +1125,14 @@ _path_module::clip_path_to_rect(const Py::Tuple &args)
             {
                 throw Py::MemoryError("Could not allocate result array");
             }
+            double* const data = (double*)PyArray_DATA(pyarray);
             for (size_t i = 0; i < size; ++i)
             {
-                ((double *)pyarray->data)[2*i]   = (*p)[i].x;
-                ((double *)pyarray->data)[2*i+1] = (*p)[i].y;
+                data[2*i]   = (*p)[i].x;
+                data[2*i+1] = (*p)[i].y;
             }
-            ((double *)pyarray->data)[2*size]   = (*p)[0].x;
-            ((double *)pyarray->data)[2*size+1] = (*p)[0].y;
+            data[2*size]   = (*p)[0].x;
+            data[2*size+1] = (*p)[0].y;
 
             if (PyList_SetItem(py_results, p - results.begin(), (PyObject *)pyarray) == -1)
             {
