@@ -954,9 +954,9 @@ RendererAgg::draw_text_image(const Py::Tuple& args)
                 "First argument to draw_text_image must be a FT2Font.Image object or a Nx2 uint8 numpy array.");
         }
         image_obj = Py::Object(image_array, true);
-        buffer = (unsigned char *)PyArray_DATA(image_array);
-        width = PyArray_DIM(image_array, 1);
-        height = PyArray_DIM(image_array, 0);
+        buffer = (unsigned char *)PyArray_DATA((PyArrayObject*)image_array);
+        width = PyArray_DIM((PyArrayObject*)image_array, 1);
+        height = PyArray_DIM((PyArrayObject*)image_array, 0);
     }
     else
     {
@@ -1546,11 +1546,11 @@ RendererAgg::_draw_path_collection_generic
     }
 
     size_t Npaths      = path_generator.num_paths();
-    size_t Noffsets    = offsets->dimensions[0];
+    size_t Noffsets    = PyArray_DIM(offsets, 0);
     size_t N           = std::max(Npaths, Noffsets);
-    size_t Ntransforms = transforms_arr->dimensions[0];
-    size_t Nfacecolors = facecolors->dimensions[0];
-    size_t Nedgecolors = edgecolors->dimensions[0];
+    size_t Ntransforms = PyArray_DIM(transforms_arr, 0);
+    size_t Nfacecolors = PyArray_DIM(facecolors, 0);
+    size_t Nedgecolors = PyArray_DIM(edgecolors, 0);
     size_t Nlinewidths = linewidths.length();
     size_t Nlinestyles = std::min(linestyles_obj.length(), N);
     size_t Naa         = antialiaseds.length();
