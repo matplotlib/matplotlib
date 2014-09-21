@@ -8,6 +8,11 @@
 #include "natneighbors.h"
 #include "numpy/noprefix.h"
 
+// support numpy 1.6 - this macro got renamed and deprecated at once in 1.7
+#ifndef NPY_ARRAY_IN_ARRAY
+#define NPY_ARRAY_IN_ARRAY NPY_IN_ARRAY
+#endif
+
 using namespace std;
 
 extern "C" {
