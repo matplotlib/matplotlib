@@ -1890,12 +1890,13 @@ Cntr_get_cdata(Cntr *self)
     npy_intp dims[2];
     int i, j;
     int ni, nj;
+    char *data;
 
     dims[0] = ni = self->site->imax;
     dims[1] = nj = self->site->jmax;
 
     Cdata = (PyArrayObject *) PyArray_SimpleNew(2, dims, NPY_SHORT);
-    char* const data = PyArray_DATA(Cdata);
+    data = PyArray_DATA(Cdata);
     for (j=0; j<nj; j++)
         for (i=0; i<ni; i++)
             data[j + i*nj] = self->site->data[i + j*ni];
