@@ -541,9 +541,11 @@ def stride_windows(x, n, noverlap=None, axis=0):
     Get all windows of x with length n as a single array,
     using strides to avoid data duplication.
 
-    .. warning:: It is not safe to write to the output array.  Multiple
-    elements may point to the same piece of memory, so modifying one value may
-    change others.
+    .. warning::
+
+        It is not safe to write to the output array.  Multiple
+        elements may point to the same piece of memory,
+        so modifying one value may change others.
 
     Call signature::
 
@@ -603,9 +605,11 @@ def stride_repeat(x, n, axis=0):
     Repeat the values in an array in a memory-efficient manner.  Array x is
     stacked vertically n times.
 
-    .. warning:: It is not safe to write to the output array.  Multiple
-    elements may point to the same piece of memory, so modifying one value may
-    change others.
+    .. warning::
+
+        It is not safe to write to the output array.  Multiple
+        elements may point to the same piece of memory, so
+        modifying one value may change others.
 
     Call signature::
 
@@ -1605,7 +1609,9 @@ def longest_ones(x):
 def prepca(P, frac=0):
     """
 
-    WARNING: this function is deprecated -- please see class PCA instead
+    .. warning::
+
+        This function is deprecated -- please see class PCA instead
 
     Compute the principal components of *P*.  *P* is a (*numVars*,
     *numObs*) array.  *frac* is the minimum fraction of variance that a
