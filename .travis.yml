@@ -6,12 +6,14 @@ env:
     - secure: E7OCdqhZ+PlwJcn+Hd6ns9TDJgEUXiUNEI0wu7xjxB2vBRRIKtZMbuaZjd+iKDqCKuVOJKu0ClBUYxmgmpLicTwi34CfTUYt6D4uhrU+8hBBOn1iiK51cl/aBvlUUrqaRLVhukNEBGZcyqAjXSA/Qsnp2iELEmAfOUa92ZYo1sk=
     - BUILD_DOCS=false
     - TEST_ARGS=--no-pep8
+    - NUMPY=numpy
 
 language: python
 
 matrix:
   include:
     - python: 2.6
+      env: NUMPY=numpy==1.6
     - python: 2.7
     - python: 3.3
     - python: 3.4
@@ -21,7 +23,7 @@ matrix:
       env: BUILD_DOCS=true
 
 install:
-  - pip install -q --use-mirrors nose python-dateutil numpy pep8 pyparsing pillow
+  - pip install -q --use-mirrors nose python-dateutil $NUMPY pep8 pyparsing pillow
   - sudo apt-get update && sudo apt-get -qq install inkscape libav-tools
   - if [[ $BUILD_DOCS == true ]]; then pip install sphinx numpydoc linkchecker; fi
   - python setup.py install
