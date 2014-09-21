@@ -37,6 +37,7 @@ class TriRefiner(object):
                 :class:`~matplotlib.tri.TriInterpolator` (optional)
               - the other optional keyword arguments *kwargs* are defined in
                 each TriRefiner concrete implementation
+
           and which returns (as a tuple) a refined triangular mesh and the
           interpolated values of the field at the refined triangulation nodes.
 
