@@ -2521,8 +2521,11 @@ class Axes(_AxesBase):
 
         if not frame:
             self.set_frame_on(False)
-            self.set_xlim((-1.25, 1.25))
-            self.set_ylim((-1.25, 1.25))
+
+            self.set_xlim((-1.25 + center[0],
+                            1.25 + center[0]))
+            self.set_ylim((-1.25 + center[1],
+                            1.25 + center[1]))
             self.set_xticks([])
             self.set_yticks([])
 
