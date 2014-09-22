@@ -436,9 +436,12 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
     :class:`Path3DCollection` object).
 
     Keywords:
+
     *za*            The location or locations to place the patches in the
                     collection along the *zdir* axis. Defaults to 0.
+
     *zdir*          The axis in which to place the patches. Default is "z".
+
     *depthshade*    Whether to shade the patches to give a sense of depth.
                     Defaults to *True*.
 

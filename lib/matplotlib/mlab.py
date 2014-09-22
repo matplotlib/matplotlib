@@ -394,6 +394,7 @@ def demean(x, axis=0):
     .. seealso::
 
         :func:`delinear`
+
         :func:`denone`
             :func:`delinear` and :func:`denone` are other detrend algorithms.
 
@@ -427,6 +428,7 @@ def detrend_mean(x, axis=None):
             for the default *axis*.
 
         :func:`detrend_linear`
+
         :func:`detrend_none`
             :func:`detrend_linear` and :func:`detrend_none` are other
             detrend algorithms.
@@ -474,6 +476,7 @@ def detrend_none(x, axis=None):
             for the default *axis*, which has no effect.
 
         :func:`detrend_mean`
+
         :func:`detrend_linear`
             :func:`detrend_mean` and :func:`detrend_linear` are other
             detrend algorithms.
@@ -506,6 +509,7 @@ def detrend_linear(y):
             for the default *axis*.
 
         :func:`detrend_mean`
+
         :func:`detrend_none`
             :func:`detrend_mean` and :func:`detrend_none` are other
             detrend algorithms.
@@ -537,9 +541,11 @@ def stride_windows(x, n, noverlap=None, axis=0):
     Get all windows of x with length n as a single array,
     using strides to avoid data duplication.
 
-    .. warning:: It is not safe to write to the output array.  Multiple
-    elements may point to the same piece of memory, so modifying one value may
-    change others.
+    .. warning::
+
+        It is not safe to write to the output array.  Multiple
+        elements may point to the same piece of memory,
+        so modifying one value may change others.
 
     Call signature::
 
@@ -599,9 +605,11 @@ def stride_repeat(x, n, axis=0):
     Repeat the values in an array in a memory-efficient manner.  Array x is
     stacked vertically n times.
 
-    .. warning:: It is not safe to write to the output array.  Multiple
-    elements may point to the same piece of memory, so modifying one value may
-    change others.
+    .. warning::
+
+        It is not safe to write to the output array.  Multiple
+        elements may point to the same piece of memory, so
+        modifying one value may change others.
 
     Call signature::
 
@@ -878,6 +886,7 @@ docstring.interpd.update(PSD=cbook.dedent("""
 
       *detrend*: [ 'default' | 'constant' | 'mean' | 'linear' | 'none'] or
                  callable
+
           The function applied to each segment before fft-ing,
           designed to remove the mean or linear trend.  Unlike in
           MATLAB, where the *detrend* parameter is a vector, in
@@ -1244,6 +1253,7 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
 
       *mode*: [ 'default' | 'psd' | 'complex' | 'magnitude'
                 'angle' | 'phase' ]
+
           What sort of spectrum to use.  Default is 'psd'. which takes the
           power spectral density.  'complex' returns the complex-valued
           frequency spectrum.  'magnitude' returns the magnitude spectrum.
@@ -1599,7 +1609,9 @@ def longest_ones(x):
 def prepca(P, frac=0):
     """
 
-    WARNING: this function is deprecated -- please see class PCA instead
+    .. warning::
+
+        This function is deprecated -- please see class PCA instead
 
     Compute the principal components of *P*.  *P* is a (*numVars*,
     *numObs*) array.  *frac* is the minimum fraction of variance that a

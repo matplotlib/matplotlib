@@ -122,9 +122,12 @@ def warn_deprecated(
 
     Examples
     --------
-    # To warn of the deprecation of "matplotlib.name_of_module"
-    warn_deprecated('1.4.0', name='matplotlib.name_of_module',
-                    obj_type='module')
+
+        Basic example::
+
+            # To warn of the deprecation of "matplotlib.name_of_module"
+            warn_deprecated('1.4.0', name='matplotlib.name_of_module',
+                            obj_type='module')
 
     """
     message = _generate_deprecation_message(
@@ -174,9 +177,12 @@ def deprecated(since, message='', name='', alternative='', pending=False,
 
     Examples
     --------
-    @deprecated('1.4.0')
-    def the_function_to_deprecate():
-        pass
+
+        Basic example::
+
+            @deprecated('1.4.0')
+            def the_function_to_deprecate():
+                pass
 
     """
     def deprecate(func, message=message, name=name, alternative=alternative,
@@ -1911,7 +1917,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
 
     General approach from:
     McGill, R., Tukey, J.W., and Larsen, W.A. (1978) "Variations of
-        Boxplots", The American Statistician, 32:12-16.
+    Boxplots", The American Statistician, 32:12-16.
 
     '''
 
