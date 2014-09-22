@@ -1,5 +1,6 @@
 """Interactive figures in the IPython notebook"""
 from base64 import b64encode
+from contextlib import contextmanager
 import json
 import io
 import os
@@ -10,11 +11,14 @@ import tornado.ioloop
 from IPython.display import display, Javascript, HTML
 from IPython.kernel.comm import Comm
 
+from matplotlib import rcParams
 from matplotlib.figure import Figure
+from matplotlib.backends import backend_agg
 from matplotlib.backends.backend_webagg_core import (FigureManagerWebAgg,
                                                      FigureCanvasWebAggCore,
                                                      NavigationToolbar2WebAgg)
-from matplotlib.backend_bases import ShowBase, NavigationToolbar2, TimerBase
+from matplotlib.backend_bases import (ShowBase, NavigationToolbar2,
+                                      TimerBase, FigureCanvasBase)
 
 
 class Show(ShowBase):
@@ -179,6 +183,25 @@ class FigureCanvasNbAgg(FigureCanvasWebAggCore):
     def new_timer(self, *args, **kwargs):
         return TimerTornado(*args, **kwargs)
 
+    def start_event_loop(self, timeout):
+        FigureCanvasBase.start_event_loop_default(self, timeout)
+
+    def stop_event_loop(self):
+        FigureCanvasBase.stop_event_loop_default(self)
+
+    def draw(self):
+        renderer = self.get_renderer()
+
+        self._png_is_old = True
+
+        backend_agg.RendererAgg.lock.acquire()
+        try:
+            self.figure.draw(renderer)
+        finally:
+            backend_agg.RendererAgg.lock.release()
+            # Swap the frames
+            self.manager.refresh_all()
+
 
 def new_figure_manager(num, *args, **kwargs):
     """
@@ -194,6 +217,8 @@ def new_figure_manager_given_figure(num, figure):
     Create a new figure manager instance for the given figure.
     """
     canvas = FigureCanvasNbAgg(figure)
+    if rcParams['nbagg.transparent']:
+        figure.patch.set_alpha(0)
     manager = FigureManagerNbAgg(canvas, num)
     return manager
 
