@@ -1216,19 +1216,27 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
 static int _transformation_converter(PyObject* object, void* pointer)
 {
     CGAffineTransform* matrix = (CGAffineTransform*)pointer;
-    if (!PyArray_Check(object) || PyArray_NDIM(object)!=2
-        || PyArray_DIM(object, 0)!=3 || PyArray_DIM(object, 1)!=3)
+    if (!PyArray_Check(object))
+       {
+           PyErr_SetString(PyExc_ValueError,
+                           "transformation matrix is not a NumPy array");
+           return 0;
+       }
+    PyArrayObject* aobject = (PyArrayObject*)object;
+
+    if (PyArray_NDIM(aobject)!=2 || PyArray_DIM(aobject, 0)!=3
+        || PyArray_DIM(aobject, 1)!=3)
         {
             PyErr_SetString(PyExc_ValueError,
                 "transformation matrix is not a 3x3 NumPy array");
             return 0;
         }
-    const double a =  *(double*)PyArray_GETPTR2(object, 0, 0);
-    const double b =  *(double*)PyArray_GETPTR2(object, 1, 0);
-    const double c =  *(double*)PyArray_GETPTR2(object, 0, 1);
-    const double d =  *(double*)PyArray_GETPTR2(object, 1, 1);
-    const double tx =  *(double*)PyArray_GETPTR2(object, 0, 2);
-    const double ty =  *(double*)PyArray_GETPTR2(object, 1, 2);
+    const double a =  *(double*)PyArray_GETPTR2(aobject, 0, 0);
+    const double b =  *(double*)PyArray_GETPTR2(aobject, 1, 0);
+    const double c =  *(double*)PyArray_GETPTR2(aobject, 0, 1);
+    const double d =  *(double*)PyArray_GETPTR2(aobject, 1, 1);
+    const double tx =  *(double*)PyArray_GETPTR2(aobject, 0, 2);
+    const double ty =  *(double*)PyArray_GETPTR2(aobject, 1, 2);
     *matrix = CGAffineTransformMake(a, b, c, d, tx, ty);
     return 1;
 }
@@ -1240,9 +1248,12 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
     PyObject* path_ids;
     PyObject* all_transforms;
     PyObject* offsets;
+    PyArrayObject* offsets_arr = 0;
     CGAffineTransform offset_transform;
     PyObject* facecolors;
+    PyArrayObject* facecolors_arr = 0;
     PyObject* edgecolors;
+    PyArrayObject* edgecolors_arr = 0;
     PyObject* linewidths;
     PyObject* linestyles;
     PyObject* antialiaseds;
@@ -1347,29 +1358,31 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
 
     /* ------------------- Check facecolors array ------------------------- */
 
-    facecolors = PyArray_FromObject(facecolors, NPY_DOUBLE, 1, 2);
-    if (!facecolors ||
-        (PyArray_NDIM(facecolors)==1 && PyArray_DIM(facecolors, 0)!=0) ||
-        (PyArray_NDIM(facecolors)==2 && PyArray_DIM(facecolors, 1)!=4))
+    facecolors_arr = (PyArrayObject*) PyArray_FromObject(facecolors, NPY_DOUBLE, 1, 2);
+    if (!facecolors_arr ||
+        (PyArray_NDIM(facecolors_arr)==1 && PyArray_DIM(facecolors_arr, 0)!=0) ||
+        (PyArray_NDIM(facecolors_arr)==2 && PyArray_DIM(facecolors_arr, 1)!=4))
     {
+        Py_XDECREF(facecolors_arr);
         PyErr_SetString(PyExc_ValueError, "Facecolors must by a Nx4 numpy array or empty");
         ok = 0;
         goto exit;
     }
-    Py_ssize_t Nfacecolors = PyArray_DIM(facecolors, 0);
+    Py_ssize_t Nfacecolors = PyArray_DIM(facecolors_arr, 0);
 
     /* ------------------- Check edgecolors array ------------------------- */
 
-    edgecolors = PyArray_FromObject(edgecolors, NPY_DOUBLE, 1, 2);
-    if (!edgecolors ||
-        (PyArray_NDIM(edgecolors)==1 && PyArray_DIM(edgecolors, 0)!=0) ||
-        (PyArray_NDIM(edgecolors)==2 && PyArray_DIM(edgecolors, 1)!=4))
+    edgecolors_arr = (PyArrayObject*) PyArray_FromObject(edgecolors, NPY_DOUBLE, 1, 2);
+    if (!edgecolors_arr ||
+        (PyArray_NDIM(edgecolors_arr)==1 && PyArray_DIM(edgecolors_arr, 0)!=0) ||
+        (PyArray_NDIM(edgecolors_arr)==2 && PyArray_DIM(edgecolors_arr, 1)!=4))
     {
+        Py_XDECREF(edgecolors_arr);
         PyErr_SetString(PyExc_ValueError, "Edgecolors must by a Nx4 numpy array or empty");
         ok = 0;
         goto exit;
     }
-    Py_ssize_t Nedgecolors = PyArray_DIM(edgecolors, 0);
+    Py_ssize_t Nedgecolors = PyArray_DIM(edgecolors_arr, 0);
 
     /* -------------------------------------------------------------------- */
 
@@ -1378,35 +1391,35 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
 
     /* ------------------- Check offsets array ---------------------------- */
 
-    offsets = PyArray_FromObject(offsets, NPY_DOUBLE, 0, 2);
+    offsets_arr = (PyArrayObject*) PyArray_FromObject(offsets, NPY_DOUBLE, 0, 2);
 
-    if (!offsets ||
-        (PyArray_NDIM(offsets)==2 && PyArray_DIM(offsets, 1)!=2) ||
-        (PyArray_NDIM(offsets)==1 && PyArray_DIM(offsets, 0)!=0))
+    if (!offsets_arr ||
+        (PyArray_NDIM(offsets_arr)==2 && PyArray_DIM(offsets_arr, 1)!=2) ||
+        (PyArray_NDIM(offsets_arr)==1 && PyArray_DIM(offsets_arr, 0)!=0))
     {
-        Py_XDECREF(offsets);
+        Py_XDECREF(offsets_arr);
         PyErr_SetString(PyExc_ValueError, "Offsets array must be Nx2");
         ok = 0;
         goto exit;
     }
-    const Py_ssize_t Noffsets = PyArray_DIM(offsets, 0);
+    const Py_ssize_t Noffsets = PyArray_DIM(offsets_arr, 0);
     if (Noffsets > 0) {
         toffsets = malloc(Noffsets*sizeof(CGPoint));
         if (!toffsets)
         {
-            Py_DECREF(offsets);
+            Py_DECREF(offsets_arr);
             ok = 0;
             goto exit;
         }
         CGPoint point;
         for (i = 0; i < Noffsets; i++)
         {
-            point.x = (CGFloat) (*(double*)PyArray_GETPTR2(offsets, i, 0));
-            point.y = (CGFloat) (*(double*)PyArray_GETPTR2(offsets, i, 1));
+            point.x = (CGFloat) (*(double*)PyArray_GETPTR2(offsets_arr, i, 0));
+            point.y = (CGFloat) (*(double*)PyArray_GETPTR2(offsets_arr, i, 1));
             toffsets[i] = CGPointApplyAffineTransform(point, offset_transform);
         }
     }
-    Py_DECREF(offsets);
+    Py_DECREF(offsets_arr);
 
     /* ------------------- Check transforms ------------------------------- */
 
@@ -1571,10 +1584,10 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
 
     if (Nedgecolors==1)
     {
-        const double r = *(double*)PyArray_GETPTR2(edgecolors, 0, 0);
-        const double g = *(double*)PyArray_GETPTR2(edgecolors, 0, 1);
-        const double b = *(double*)PyArray_GETPTR2(edgecolors, 0, 2);
-        const double a = *(double*)PyArray_GETPTR2(edgecolors, 0, 3);
+        const double r = *(double*)PyArray_GETPTR2(edgecolors_arr, 0, 0);
+        const double g = *(double*)PyArray_GETPTR2(edgecolors_arr, 0, 1);
+        const double b = *(double*)PyArray_GETPTR2(edgecolors_arr, 0, 2);
+        const double a = *(double*)PyArray_GETPTR2(edgecolors_arr, 0, 3);
         CGContextSetRGBStrokeColor(cr, r, g, b, a);
         self->color[0] = r;
         self->color[1] = g;
@@ -1591,10 +1604,10 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
 
     if (Nfacecolors==1)
     {
-        const double r = *(double*)PyArray_GETPTR2(facecolors, 0, 0);
-        const double g = *(double*)PyArray_GETPTR2(facecolors, 0, 1);
-        const double b = *(double*)PyArray_GETPTR2(facecolors, 0, 2);
-        const double a = *(double*)PyArray_GETPTR2(facecolors, 0, 3);
+        const double r = *(double*)PyArray_GETPTR2(facecolors_arr, 0, 0);
+        const double g = *(double*)PyArray_GETPTR2(facecolors_arr, 0, 1);
+        const double b = *(double*)PyArray_GETPTR2(facecolors_arr, 0, 2);
+        const double a = *(double*)PyArray_GETPTR2(facecolors_arr, 0, 3);
         CGContextSetRGBFillColor(cr, r, g, b, a);
     }
 
@@ -1674,10 +1687,10 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
         if (Nedgecolors > 1)
         {
             npy_intp fi = i % Nedgecolors;
-            const double r = *(double*)PyArray_GETPTR2(edgecolors, fi, 0);
-            const double g = *(double*)PyArray_GETPTR2(edgecolors, fi, 1);
-            const double b = *(double*)PyArray_GETPTR2(edgecolors, fi, 2);
-            const double a = *(double*)PyArray_GETPTR2(edgecolors, fi, 3);
+            const double r = *(double*)PyArray_GETPTR2(edgecolors_arr, fi, 0);
+            const double g = *(double*)PyArray_GETPTR2(edgecolors_arr, fi, 1);
+            const double b = *(double*)PyArray_GETPTR2(edgecolors_arr, fi, 2);
+            const double a = *(double*)PyArray_GETPTR2(edgecolors_arr, fi, 3);
             CGContextSetRGBStrokeColor(cr, r, g, b, a);
         }
 
@@ -1686,10 +1699,10 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
         if (Nfacecolors > 1)
         {
             npy_intp fi = i % Nfacecolors;
-            const double r = *(double*)PyArray_GETPTR2(facecolors, fi, 0);
-            const double g = *(double*)PyArray_GETPTR2(facecolors, fi, 1);
-            const double b = *(double*)PyArray_GETPTR2(facecolors, fi, 2);
-            const double a = *(double*)PyArray_GETPTR2(facecolors, fi, 3);
+            const double r = *(double*)PyArray_GETPTR2(facecolors_arr, fi, 0);
+            const double g = *(double*)PyArray_GETPTR2(facecolors_arr, fi, 1);
+            const double b = *(double*)PyArray_GETPTR2(facecolors_arr, fi, 2);
+            const double a = *(double*)PyArray_GETPTR2(facecolors_arr, fi, 3);
             CGContextSetRGBFillColor(cr, r, g, b, a);
             if (Nedgecolors > 0) CGContextDrawPath(cr, kCGPathFillStroke);
             else CGContextFillPath(cr);
@@ -1718,8 +1731,8 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
 
 exit:
     CGContextRestoreGState(cr);
-    Py_XDECREF(facecolors);
-    Py_XDECREF(edgecolors);
+    Py_XDECREF(facecolors_arr);
+    Py_XDECREF(edgecolors_arr);
     if (pattern) CGPatternRelease(pattern);
     if (patternSpace) CGColorSpaceRelease(patternSpace);
     if (transforms) free(transforms);
@@ -1745,11 +1758,15 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
     int meshWidth;
     int meshHeight;
     PyObject* coordinates;
+    PyArrayObject* coordinates_arr = 0;
     PyObject* offsets;
+    PyArrayObject* offsets_arr = 0;
     CGAffineTransform offset_transform;
     PyObject* facecolors;
+    PyArrayObject* facecolors_arr = 0;
     int antialiased;
     PyObject* edgecolors;
+    PyArrayObject* edgecolors_arr = 0;
 
     CGPoint *toffsets = NULL;
 
@@ -1777,10 +1794,11 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
 
     /* ------------------- Check coordinates array ------------------------ */
 
-    coordinates = PyArray_FromObject(coordinates, NPY_DOUBLE, 3, 3);
-    if (!coordinates ||
-        PyArray_NDIM(coordinates) != 3 || PyArray_DIM(coordinates, 2) != 2)
+    coordinates_arr = (PyArrayObject*) PyArray_FromObject(coordinates, NPY_DOUBLE, 3, 3);
+    if (!coordinates_arr ||
+        PyArray_NDIM(coordinates_arr) != 3 || PyArray_DIM(coordinates_arr, 2) != 2)
     {
+        Py_XDECREF(coordinates_arr);
         PyErr_SetString(PyExc_ValueError, "Invalid coordinates array");
         ok = 0;
         goto exit;
@@ -1788,44 +1806,45 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
 
     /* ------------------- Check offsets array ---------------------------- */
 
-    offsets = PyArray_FromObject(offsets, NPY_DOUBLE, 0, 2);
+    offsets_arr = (PyArrayObject*) PyArray_FromObject(offsets, NPY_DOUBLE, 0, 2);
 
-    if (!offsets ||
-        (PyArray_NDIM(offsets)==2 && PyArray_DIM(offsets, 1)!=2) ||
-        (PyArray_NDIM(offsets)==1 && PyArray_DIM(offsets, 0)!=0))
+    if (!offsets_arr ||
+        (PyArray_NDIM(offsets_arr)==2 && PyArray_DIM(offsets_arr, 1)!=2) ||
+        (PyArray_NDIM(offsets_arr)==1 && PyArray_DIM(offsets_arr, 0)!=0))
     {
-        Py_XDECREF(offsets);
+        Py_XDECREF(offsets_arr);
         PyErr_SetString(PyExc_ValueError, "Offsets array must be Nx2");
         ok = 0;
         goto exit;
     }
-    const Py_ssize_t Noffsets = PyArray_DIM(offsets, 0);
+    const Py_ssize_t Noffsets = PyArray_DIM(offsets_arr, 0);
     if (Noffsets > 0) {
         int i;
         toffsets = malloc(Noffsets*sizeof(CGPoint));
         if (!toffsets)
         {
-            Py_DECREF(offsets);
+            Py_DECREF(offsets_arr);
             ok = 0;
             goto exit;
         }
         CGPoint point;
         for (i = 0; i < Noffsets; i++)
         {
-            point.x = (CGFloat) (*(double*)PyArray_GETPTR2(offsets, i, 0));
-            point.y = (CGFloat) (*(double*)PyArray_GETPTR2(offsets, i, 1));
+            point.x = (CGFloat) (*(double*)PyArray_GETPTR2(offsets_arr, i, 0));
+            point.y = (CGFloat) (*(double*)PyArray_GETPTR2(offsets_arr, i, 1));
             toffsets[i] = CGPointApplyAffineTransform(point, offset_transform);
         }
     }
-    Py_DECREF(offsets);
+    Py_DECREF(offsets_arr);
 
     /* ------------------- Check facecolors array ------------------------- */
 
-    facecolors = PyArray_FromObject(facecolors, NPY_DOUBLE, 1, 2);
-    if (!facecolors ||
-        (PyArray_NDIM(facecolors)==1 && PyArray_DIM(facecolors, 0)!=0) ||
-        (PyArray_NDIM(facecolors)==2 && PyArray_DIM(facecolors, 1)!=4))
+    facecolors_arr = (PyArrayObject*) PyArray_FromObject(facecolors, NPY_DOUBLE, 1, 2);
+    if (!facecolors_arr ||
+        (PyArray_NDIM(facecolors_arr)==1 && PyArray_DIM(facecolors_arr, 0)!=0) ||
+        (PyArray_NDIM(facecolors_arr)==2 && PyArray_DIM(facecolors_arr, 1)!=4))
     {
+        Py_XDECREF(facecolors_arr);
         PyErr_SetString(PyExc_ValueError, "facecolors must by a Nx4 numpy array or empty");
         ok = 0;
         goto exit;
@@ -1833,11 +1852,12 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
 
     /* ------------------- Check edgecolors array ------------------------- */
 
-    edgecolors = PyArray_FromObject(edgecolors, NPY_DOUBLE, 1, 2);
-    if (!edgecolors ||
-        (PyArray_NDIM(edgecolors)==1 && PyArray_DIM(edgecolors, 0)!=0) ||
-        (PyArray_NDIM(edgecolors)==2 && PyArray_DIM(edgecolors, 1)!=4))
+    edgecolors_arr = (PyArrayObject*) PyArray_FromObject(edgecolors, NPY_DOUBLE, 1, 2);
+    if (!edgecolors_arr ||
+        (PyArray_NDIM(edgecolors_arr)==1 && PyArray_DIM(edgecolors_arr, 0)!=0) ||
+        (PyArray_NDIM(edgecolors_arr)==2 && PyArray_DIM(edgecolors_arr, 1)!=4))
     {
+        Py_XDECREF(edgecolors_arr);
         PyErr_SetString(PyExc_ValueError, "edgecolors must by a Nx4 numpy array or empty");
         ok = 0;
         goto exit;
@@ -1846,8 +1866,8 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
     /* ------------------- Check the other arguments ---------------------- */
 
     size_t Npaths      = meshWidth * meshHeight;
-    size_t Nfacecolors = (size_t) PyArray_DIM(facecolors, 0);
-    size_t Nedgecolors = (size_t) PyArray_DIM(edgecolors, 0);
+    size_t Nfacecolors = (size_t) PyArray_DIM(facecolors_arr, 0);
+    size_t Nedgecolors = (size_t) PyArray_DIM(edgecolors_arr, 0);
     if ((Nfacecolors == 0 && Nedgecolors == 0) || Npaths == 0)
     {
         /* Nothing to do here */
@@ -1863,10 +1883,10 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
 
     if (Nfacecolors==1)
     {
-        const double r = *(double*)PyArray_GETPTR2(facecolors, 0, 0);
-        const double g = *(double*)PyArray_GETPTR2(facecolors, 0, 1);
-        const double b = *(double*)PyArray_GETPTR2(facecolors, 0, 2);
-        const double a = *(double*)PyArray_GETPTR2(facecolors, 0, 3);
+        const double r = *(double*)PyArray_GETPTR2(facecolors_arr, 0, 0);
+        const double g = *(double*)PyArray_GETPTR2(facecolors_arr, 0, 1);
+        const double b = *(double*)PyArray_GETPTR2(facecolors_arr, 0, 2);
+        const double a = *(double*)PyArray_GETPTR2(facecolors_arr, 0, 3);
         CGContextSetRGBFillColor(cr, r, g, b, a);
         if (antialiased && Nedgecolors==0)
         {
@@ -1875,10 +1895,10 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
     }
     if (Nedgecolors==1)
     {
-        const double r = *(double*)PyArray_GETPTR2(edgecolors, 0, 0);
-        const double g = *(double*)PyArray_GETPTR2(edgecolors, 0, 1);
-        const double b = *(double*)PyArray_GETPTR2(edgecolors, 0, 2);
-        const double a = *(double*)PyArray_GETPTR2(edgecolors, 0, 3);
+        const double r = *(double*)PyArray_GETPTR2(edgecolors_arr, 0, 0);
+        const double g = *(double*)PyArray_GETPTR2(edgecolors_arr, 0, 1);
+        const double b = *(double*)PyArray_GETPTR2(edgecolors_arr, 0, 2);
+        const double a = *(double*)PyArray_GETPTR2(edgecolors_arr, 0, 3);
         CGContextSetRGBStrokeColor(cr, r, g, b, a);
     }
 
@@ -1890,26 +1910,26 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
         {
             CGPoint points[4];
 
-            x = *(double*)PyArray_GETPTR3(coordinates, ih, iw, 0);
-            y = *(double*)PyArray_GETPTR3(coordinates, ih, iw, 1);
+            x = *(double*)PyArray_GETPTR3(coordinates_arr, ih, iw, 0);
+            y = *(double*)PyArray_GETPTR3(coordinates_arr, ih, iw, 1);
             if (isnan(x) || isnan(y)) continue;
             points[0].x = (CGFloat)x;
             points[0].y = (CGFloat)y;
 
-            x = *(double*)PyArray_GETPTR3(coordinates, ih, iw+1, 0);
-            y = *(double*)PyArray_GETPTR3(coordinates, ih, iw+1, 1);
+            x = *(double*)PyArray_GETPTR3(coordinates_arr, ih, iw+1, 0);
+            y = *(double*)PyArray_GETPTR3(coordinates_arr, ih, iw+1, 1);
             if (isnan(x) || isnan(y)) continue;
             points[1].x = (CGFloat)x;
             points[1].y = (CGFloat)y;
 
-            x = *(double*)PyArray_GETPTR3(coordinates, ih+1, iw+1, 0);
-            y = *(double*)PyArray_GETPTR3(coordinates, ih+1, iw+1, 1);
+            x = *(double*)PyArray_GETPTR3(coordinates_arr, ih+1, iw+1, 0);
+            y = *(double*)PyArray_GETPTR3(coordinates_arr, ih+1, iw+1, 1);
             if (isnan(x) || isnan(y)) continue;
             points[2].x = (CGFloat)x;
             points[2].y = (CGFloat)y;
 
-            x = *(double*)PyArray_GETPTR3(coordinates, ih+1, iw, 0);
-            y = *(double*)PyArray_GETPTR3(coordinates, ih+1, iw, 1);
+            x = *(double*)PyArray_GETPTR3(coordinates_arr, ih+1, iw, 0);
+            y = *(double*)PyArray_GETPTR3(coordinates_arr, ih+1, iw, 1);
             if (isnan(x) || isnan(y)) continue;
             points[3].x = (CGFloat)x;
             points[3].y = (CGFloat)y;
@@ -1932,10 +1952,10 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
             if (Nfacecolors > 1)
             {
                 npy_intp fi = i % Nfacecolors;
-                const double r = *(double*)PyArray_GETPTR2(facecolors, fi, 0);
-                const double g = *(double*)PyArray_GETPTR2(facecolors, fi, 1);
-                const double b = *(double*)PyArray_GETPTR2(facecolors, fi, 2);
-                const double a = *(double*)PyArray_GETPTR2(facecolors, fi, 3);
+                const double r = *(double*)PyArray_GETPTR2(facecolors_arr, fi, 0);
+                const double g = *(double*)PyArray_GETPTR2(facecolors_arr, fi, 1);
+                const double b = *(double*)PyArray_GETPTR2(facecolors_arr, fi, 2);
+                const double a = *(double*)PyArray_GETPTR2(facecolors_arr, fi, 3);
                 CGContextSetRGBFillColor(cr, r, g, b, a);
                 if (antialiased && Nedgecolors==0)
                 {
@@ -1945,10 +1965,10 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
             if (Nedgecolors > 1)
             {
                 npy_intp fi = i % Nedgecolors;
-                const double r = *(double*)PyArray_GETPTR2(edgecolors, fi, 0);
-                const double g = *(double*)PyArray_GETPTR2(edgecolors, fi, 1);
-                const double b = *(double*)PyArray_GETPTR2(edgecolors, fi, 2);
-                const double a = *(double*)PyArray_GETPTR2(edgecolors, fi, 3);
+                const double r = *(double*)PyArray_GETPTR2(edgecolors_arr, fi, 0);
+                const double g = *(double*)PyArray_GETPTR2(edgecolors_arr, fi, 1);
+                const double b = *(double*)PyArray_GETPTR2(edgecolors_arr, fi, 2);
+                const double a = *(double*)PyArray_GETPTR2(edgecolors_arr, fi, 3);
                 CGContextSetRGBStrokeColor(cr, r, g, b, a);
             }
 
@@ -1977,8 +1997,9 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
 exit:
     CGContextRestoreGState(cr);
     if (toffsets) free(toffsets);
-    Py_XDECREF(facecolors);
-    Py_XDECREF(coordinates);
+    Py_XDECREF(facecolors_arr);
+    Py_XDECREF(edgecolors_arr);
+    Py_XDECREF(coordinates_arr);
 
     if (!ok) return NULL;
 
@@ -2256,7 +2277,9 @@ GraphicsContext_draw_gouraud_triangle (GraphicsContext* self, PyObject* args)
 
 {
     PyObject* coordinates;
+    PyArrayObject* coordinates_arr = 0;
     PyObject* colors;
+    PyArrayObject* colors_arr = 0;
 
     CGPoint points[3];
     CGFloat intensity[3];
@@ -2274,30 +2297,30 @@ GraphicsContext_draw_gouraud_triangle (GraphicsContext* self, PyObject* args)
 
     /* ------------------- Check coordinates array ------------------------ */
 
-    coordinates = PyArray_FromObject(coordinates, NPY_DOUBLE, 2, 2);
-    if (!coordinates ||
-        PyArray_DIM(coordinates, 0) != 3 || PyArray_DIM(coordinates, 1) != 2)
+    coordinates_arr = (PyArrayObject*) PyArray_FromObject(coordinates, NPY_DOUBLE, 2, 2);
+    if (!coordinates_arr ||
+        PyArray_DIM(coordinates_arr, 0) != 3 || PyArray_DIM(coordinates_arr, 1) != 2)
     {
         PyErr_SetString(PyExc_ValueError, "Invalid coordinates array");
-        Py_XDECREF(coordinates);
+        Py_XDECREF(coordinates_arr);
         return NULL;
     }
-    points[0].x = *((double*)(PyArray_GETPTR2(coordinates, 0, 0)));
-    points[0].y = *((double*)(PyArray_GETPTR2(coordinates, 0, 1)));
-    points[1].x = *((double*)(PyArray_GETPTR2(coordinates, 1, 0)));
-    points[1].y = *((double*)(PyArray_GETPTR2(coordinates, 1, 1)));
-    points[2].x = *((double*)(PyArray_GETPTR2(coordinates, 2, 0)));
-    points[2].y = *((double*)(PyArray_GETPTR2(coordinates, 2, 1)));
+    points[0].x = *((double*)(PyArray_GETPTR2(coordinates_arr, 0, 0)));
+    points[0].y = *((double*)(PyArray_GETPTR2(coordinates_arr, 0, 1)));
+    points[1].x = *((double*)(PyArray_GETPTR2(coordinates_arr, 1, 0)));
+    points[1].y = *((double*)(PyArray_GETPTR2(coordinates_arr, 1, 1)));
+    points[2].x = *((double*)(PyArray_GETPTR2(coordinates_arr, 2, 0)));
+    points[2].y = *((double*)(PyArray_GETPTR2(coordinates_arr, 2, 1)));
 
     /* ------------------- Check colors array ----------------------------- */
 
-    colors = PyArray_FromObject(colors, NPY_DOUBLE, 2, 2);
-    if (!colors ||
-        PyArray_DIM(colors, 0) != 3 || PyArray_DIM(colors, 1) != 4)
+    colors_arr = (PyArrayObject*) PyArray_FromObject(colors, NPY_DOUBLE, 2, 2);
+    if (!colors_arr ||
+        PyArray_DIM(colors_arr, 0) != 3 || PyArray_DIM(colors_arr, 1) != 4)
     {
         PyErr_SetString(PyExc_ValueError, "colors must by a 3x4 array");
-        Py_DECREF(coordinates);
-        Py_XDECREF(colors);
+        Py_DECREF(coordinates_arr);
+        Py_XDECREF(colors_arr);
         return NULL;
     }
 
@@ -2307,25 +2330,25 @@ GraphicsContext_draw_gouraud_triangle (GraphicsContext* self, PyObject* args)
     CGContextAddLineToPoint(cr, points[1].x, points[1].y);
     CGContextAddLineToPoint(cr, points[2].x, points[2].y);
     CGContextClip(cr);
-    intensity[0] = *((double*)(PyArray_GETPTR2(colors, 0, 3)));
-    intensity[1] = *((double*)(PyArray_GETPTR2(colors, 1, 3)));
-    intensity[2] = *((double*)(PyArray_GETPTR2(colors, 2, 3)));
+    intensity[0] = *((double*)(PyArray_GETPTR2(colors_arr, 0, 3)));
+    intensity[1] = *((double*)(PyArray_GETPTR2(colors_arr, 1, 3)));
+    intensity[2] = *((double*)(PyArray_GETPTR2(colors_arr, 2, 3)));
     if (_shade_alpha(cr, intensity, points)!=-1) {
         CGContextBeginTransparencyLayer(cr, NULL);
         CGContextSetBlendMode(cr, kCGBlendModeScreen);
         for (i = 0; i < 3; i++)
         {
-            intensity[0] = *((double*)(PyArray_GETPTR2(colors, 0, i)));
-            intensity[1] = *((double*)(PyArray_GETPTR2(colors, 1, i)));
-            intensity[2] = *((double*)(PyArray_GETPTR2(colors, 2, i)));
+            intensity[0] = *((double*)(PyArray_GETPTR2(colors_arr, 0, i)));
+            intensity[1] = *((double*)(PyArray_GETPTR2(colors_arr, 1, i)));
+            intensity[2] = *((double*)(PyArray_GETPTR2(colors_arr, 2, i)));
             if (!_shade_one_color(cr, intensity, points, i)) break;
         }
         CGContextEndTransparencyLayer(cr);
     }
     CGContextRestoreGState(cr);
 
-    Py_DECREF(coordinates);
-    Py_DECREF(colors);
+    Py_DECREF(coordinates_arr);
+    Py_DECREF(colors_arr);
 
     if (i < 3) /* break encountered */
     {
