@@ -1741,11 +1741,11 @@ class Axes3D(Axes):
         # This transpose will make it easy to obtain the columns.
         tX, tY, tZ = np.transpose(X), np.transpose(Y), np.transpose(Z)
 
-        if rii:
+        if rstride:
             rii = list(xrange(0, rows, rstride))
         else:
             rii = []
-        if cii:                
+        if cstride:                
             cii = list(xrange(0, cols, cstride))
         else:
             cii = []
