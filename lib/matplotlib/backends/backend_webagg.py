@@ -39,7 +39,7 @@ from matplotlib import backend_bases
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
-from . import backend_nbagg
+from .backend_nbagg import TimerTornado
 
 
 def new_figure_manager(num, *args, **kwargs):
@@ -103,7 +103,7 @@ class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
         show()
 
     def new_timer(self, *args, **kwargs):
-        return backend_nbagg.TimerTornado(*args, **kwargs)
+        return TimerTornado(*args, **kwargs)
 
     def start_event_loop(self, timeout):
         backend_bases.FigureCanvasBase.start_event_loop_default(
