@@ -1748,8 +1748,14 @@ class Axes3D(Axes):
         # This transpose will make it easy to obtain the columns.
         tX, tY, tZ = np.transpose(X), np.transpose(Y), np.transpose(Z)
 
-        rii = list(xrange(0, rows, rstride))
-        cii = list(xrange(0, cols, cstride))
+        if rstride:
+            rii = list(xrange(0, rows, rstride))
+        else:
+            rii = []
+        if cstride:                
+            cii = list(xrange(0, cols, cstride))
+        else:
+            cii = []
 
         # Add the last index only if needed
         if rows > 0 and rii[-1] != (rows - 1) :
