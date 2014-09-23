@@ -32,10 +32,10 @@ except ImportError:
 @cleanup
 @knownfailureif(not HAS_QT)
 def test_fig_close():
-    # force switch to the Qt4 backend
+    # force switch to the Qt5 backend
     plt.switch_backend('Qt5Agg')
 
-    #save the state of Gcf.figs
+    # save the state of Gcf.figs
     init_figs = copy.copy(Gcf.figs)
 
     # make a figure using pyplot interface
@@ -53,7 +53,7 @@ def test_fig_close():
 def assert_correct_key(qt_key, qt_mods, answer):
     """
     Make a figure
-    Send a key_press_event event (using non-public, qt4 backend specific api)
+    Send a key_press_event event (using non-public, qt5 backend specific api)
     Catch the event
     Assert sent and caught keys are the same
     """
