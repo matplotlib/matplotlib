@@ -41,10 +41,28 @@ legibility through brightness variations. See
 `here <https://github.com/wistia/heatmap-palette>`_
 for more information.
 
-Documentation changes
----------------------
+The nbagg backend
+-----------------
+Phil Elson added a new backend, named "nbagg", which enables interactive
+figures in a live IPython notebook session. The backend makes use of the
+infrastructure developed for the webagg backend, which itself gives
+standalone server backed interactive figures in the browser, however nbagg
+does not require a dedicated matplotlib server as all communications are
+handled through the IPython Comm machinery.
 
-Phil Elson rewrote of the documentation and userguide for both Legend and PathEffects (links needed).
+As with other backends nbagg can be enabled inside the IPython notebook with::
+
+    import matplotlib
+    matplotlib.use('nbagg')
+
+Once figures are created and then subsequently shown, they will placed in an
+interactive widget inside the notebook allowing panning and zooming in the
+same way as any other matplotlib backend. Because figures require a connection
+to the IPython notebook server for their interactivity, once the notebook is
+saved, each figure will be rendered as a static image - thus allowing
+non-interactive viewing of figures on services such as
+`nbviewer <http://nbviewer.ipython.org/>`_.
+
 
 
 New plotting features
@@ -269,6 +287,7 @@ Controls whether figures are saved with a transparent
 background by default.  Previously `savefig` always defaulted
 to a non-transparent background.
 
+
 ``axes.titleweight``
 ````````````````````
 Added rcParam to control the weight of the title
@@ -280,6 +299,12 @@ Controls the default value of `useOffset` in `ScalarFormatter`.  If
 an offset will be determined such that the tick labels are
 meaningful. If `False` then the full number will be formatted in all
 conditions.
+
+``nbagg.transparent`` added
+`````````````````````````````
+Controls whether nbagg figures have a transparent
+background. ``nbagg.transparent`` is ``True`` by default.
+
 
 XDG compliance
 ``````````````
@@ -386,6 +411,12 @@ Sphinx extension can now accept an optional ``reset`` setting, which will
 cause the context to be reset. This allows more than one distinct context to
 be present in documentation. To enable this option, use ``:context: reset``
 instead of ``:context:`` any time you want to reset the context.
+
+Legend and PathEffects documentation
+------------------------------------
+The :ref:`plotting-guide-legend` and :ref:`patheffects-guide` have both been
+updated to better reflect the full potential of each of these powerful
+features.
 
 Widgets
 -------
