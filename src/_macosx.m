@@ -1363,7 +1363,6 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
         (PyArray_NDIM(facecolors_arr)==1 && PyArray_DIM(facecolors_arr, 0)!=0) ||
         (PyArray_NDIM(facecolors_arr)==2 && PyArray_DIM(facecolors_arr, 1)!=4))
     {
-        Py_XDECREF(facecolors_arr);
         PyErr_SetString(PyExc_ValueError, "Facecolors must by a Nx4 numpy array or empty");
         ok = 0;
         goto exit;
@@ -1377,7 +1376,6 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
         (PyArray_NDIM(edgecolors_arr)==1 && PyArray_DIM(edgecolors_arr, 0)!=0) ||
         (PyArray_NDIM(edgecolors_arr)==2 && PyArray_DIM(edgecolors_arr, 1)!=4))
     {
-        Py_XDECREF(edgecolors_arr);
         PyErr_SetString(PyExc_ValueError, "Edgecolors must by a Nx4 numpy array or empty");
         ok = 0;
         goto exit;
@@ -1798,7 +1796,6 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
     if (!coordinates_arr ||
         PyArray_NDIM(coordinates_arr) != 3 || PyArray_DIM(coordinates_arr, 2) != 2)
     {
-        Py_XDECREF(coordinates_arr);
         PyErr_SetString(PyExc_ValueError, "Invalid coordinates array");
         ok = 0;
         goto exit;
@@ -1844,7 +1841,6 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
         (PyArray_NDIM(facecolors_arr)==1 && PyArray_DIM(facecolors_arr, 0)!=0) ||
         (PyArray_NDIM(facecolors_arr)==2 && PyArray_DIM(facecolors_arr, 1)!=4))
     {
-        Py_XDECREF(facecolors_arr);
         PyErr_SetString(PyExc_ValueError, "facecolors must by a Nx4 numpy array or empty");
         ok = 0;
         goto exit;
@@ -1857,7 +1853,6 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
         (PyArray_NDIM(edgecolors_arr)==1 && PyArray_DIM(edgecolors_arr, 0)!=0) ||
         (PyArray_NDIM(edgecolors_arr)==2 && PyArray_DIM(edgecolors_arr, 1)!=4))
     {
-        Py_XDECREF(edgecolors_arr);
         PyErr_SetString(PyExc_ValueError, "edgecolors must by a Nx4 numpy array or empty");
         ok = 0;
         goto exit;
