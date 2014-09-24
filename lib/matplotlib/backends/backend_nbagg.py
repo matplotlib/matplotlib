@@ -1,36 +1,45 @@
 """Interactive figures in the IPython notebook"""
+# Note: There is a notebook in
+# lib/matplotlib/backends/web_backend/nbagg_uat.ipynb to help verify
+# that changes made maintain expected behaviour.
+
 from base64 import b64encode
+from contextlib import contextmanager
 import json
 import io
 import os
 import six
 from uuid import uuid4 as uuid
 
+import tornado.ioloop
+
 from IPython.display import display, Javascript, HTML
 from IPython.kernel.comm import Comm
 
+from matplotlib import rcParams
 from matplotlib.figure import Figure
+from matplotlib.backends import backend_agg
 from matplotlib.backends.backend_webagg_core import (FigureManagerWebAgg,
                                                      FigureCanvasWebAggCore,
                                                      NavigationToolbar2WebAgg)
-from matplotlib.backend_bases import ShowBase, NavigationToolbar2
+from matplotlib.backend_bases import (ShowBase, NavigationToolbar2,
+                                      TimerBase, FigureCanvasBase)
 
 
 class Show(ShowBase):
     def __call__(self, block=None):
-        import matplotlib._pylab_helpers as pylab_helpers
+        from matplotlib._pylab_helpers import Gcf
         from matplotlib import is_interactive
 
-        managers = pylab_helpers.Gcf.get_all_fig_managers()
+        managers = Gcf.get_all_fig_managers()
         if not managers:
             return
 
-        interactive = is_interactive()
-
         for manager in managers:
             manager.show()
-            if not interactive and manager in pylab_helpers.Gcf._activeQue:
-                pylab_helpers.Gcf._activeQue.remove(manager)
+
+            if not is_interactive() and manager in Gcf._activeQue:
+                Gcf._activeQue.remove(manager)
 
 
 show = Show()
@@ -49,19 +58,18 @@ def draw_if_interactive():
 def connection_info():
     """
     Return a string showing the figure and connection status for
-    the backend.
+    the backend. This is intended as a diagnostic tool, and not for general
+    use.
 
     """
-    # TODO: Make this useful!
-    import matplotlib._pylab_helpers as pylab_helpers
+    from matplotlib._pylab_helpers import Gcf
     result = []
-    for manager in pylab_helpers.Gcf.get_all_fig_managers():
+    for manager in Gcf.get_all_fig_managers():
         fig = manager.canvas.figure
         result.append('{} - {}'.format((fig.get_label() or
                                         "Figure {0}".format(manager.num)),
                                        manager.web_sockets))
-    result.append('Figures pending show: ' +
-                  str(len(pylab_helpers.Gcf._activeQue)))
+    result.append('Figures pending show: {}'.format(len(Gcf._activeQue)))
     return '\n'.join(result)
 
 
@@ -96,7 +104,8 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
     def display_js(self):
         # XXX How to do this just once? It has to deal with multiple
-        # browser instances using the same kernel.
+        # browser instances using the same kernel (require.js - but the
+        # file isn't static?).
         display(Javascript(FigureManagerNbAgg.get_javascript()))
 
     def show(self):
@@ -108,6 +117,10 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
         self._shown = True
 
     def reshow(self):
+        """
+        A special method to re-show the figure in the notebook.
+
+        """
         self._shown = False
         self.show()
 
@@ -140,6 +153,49 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
         for comm in self.web_sockets.copy():
             comm.on_close()
 
+    def clearup_closed(self):
+        """Clear up any closed Comms."""
+        self.web_sockets = set([socket for socket in self.web_sockets
+                                if not socket.is_open()])
+
+
+class TimerTornado(TimerBase):
+    def _timer_start(self):
+        import datetime
+        self._timer_stop()
+        if self._single:
+            ioloop = tornado.ioloop.IOLoop.instance()
+            self._timer = ioloop.add_timeout(
+                datetime.timedelta(milliseconds=self.interval),
+                self._on_timer)
+        else:
+            self._timer = tornado.ioloop.PeriodicCallback(
+                self._on_timer,
+                self.interval)
+        self._timer.start()
+
+    def _timer_stop(self):
+        if self._timer is not None:
+            self._timer.stop()
+            self._timer = None
+
+    def _timer_set_interval(self):
+        # Only stop and restart it if the timer has already been started
+        if self._timer is not None:
+            self._timer_stop()
+            self._timer_start()
+
+
+class FigureCanvasNbAgg(FigureCanvasWebAggCore):
+    def new_timer(self, *args, **kwargs):
+        return TimerTornado(*args, **kwargs)
+
+    def start_event_loop(self, timeout):
+        FigureCanvasBase.start_event_loop_default(self, timeout)
+
+    def stop_event_loop(self):
+        FigureCanvasBase.stop_event_loop_default(self)
+
 
 def new_figure_manager(num, *args, **kwargs):
     """
@@ -154,7 +210,9 @@ def new_figure_manager_given_figure(num, figure):
     """
     Create a new figure manager instance for the given figure.
     """
-    canvas = FigureCanvasWebAggCore(figure)
+    canvas = FigureCanvasNbAgg(figure)
+    if rcParams['nbagg.transparent']:
+        figure.patch.set_alpha(0)
     manager = FigureManagerNbAgg(canvas, num)
     return manager
 
@@ -173,6 +231,8 @@ class CommSocket(object):
         self.supports_binary = None
         self.manager = manager
         self.uuid = str(uuid())
+        # Publish an output area with a unique ID. The javascript can then
+        # hook into this area.
         display(HTML("<div id=%r></div>" % self.uuid))
         try:
             self.comm = Comm('matplotlib', data={'id': self.uuid})
@@ -181,12 +241,17 @@ class CommSocket(object):
                                'instance. Are you in the IPython notebook?')
         self.comm.on_msg(self.on_message)
 
+        manager = self.manager
+        self.comm.on_close(lambda close_message: manager.clearup_closed())
+
+    def is_open(self):
+        return not self.comm._closed
+
     def on_close(self):
         # When the socket is closed, deregister the websocket with
         # the FigureManager.
-        if self.comm in self.manager.web_sockets:
-            self.manager.remove_web_socket(self)
         self.comm.close()
+        self.manager.clearup_closed()
 
     def send_json(self, content):
         self.comm.send({'data': json.dumps(content)})

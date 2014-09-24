@@ -71,7 +71,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         show()
 
     def draw(self):
-        renderer = self.get_renderer()
+        renderer = self.get_renderer(cleared=True)
 
         self._png_is_old = True
 
@@ -91,21 +91,25 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             # The buffer is created as type uint32 so that entire
             # pixels can be compared in one numpy call, rather than
             # needing to compare each plane separately.
-            buff = np.frombuffer(
-                self.get_renderer().buffer_rgba(), dtype=np.uint32)
-            buff.shape = (
-                self._renderer.height, self._renderer.width)
+            renderer = self.get_renderer()
+            buff = np.frombuffer(renderer.buffer_rgba(), dtype=np.uint32)
 
-            if not self._force_full:
-                last_buffer = np.frombuffer(
-                    self._last_renderer.buffer_rgba(), dtype=np.uint32)
-                last_buffer.shape = (
-                    self._renderer.height, self._renderer.width)
+            buff.shape = (renderer.height, renderer.width)
+
+            # If any pixels have transparency, we need to force a full draw
+            # as we cannot overlay new on top of old.
+            pixels = buff.view(dtype=np.uint8).reshape(buff.shape + (4,))
+            some_transparency = np.any(pixels[:, :, 3] != 255)
+
+            output = buff
+
+            if not self._force_full and not some_transparency:
+                last_buffer = np.frombuffer(self._last_renderer.buffer_rgba(),
+                                            dtype=np.uint32)
+                last_buffer.shape = (renderer.height, renderer.width)
 
                 diff = buff != last_buffer
                 output = np.where(diff, buff, 0)
-            else:
-                output = buff
 
             # Clear out the PNG data buffer rather than recreating it
             # each time.  This reduces the number of memory
@@ -122,7 +126,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
             # Swap the renderer frames
             self._renderer, self._last_renderer = (
-                self._last_renderer, self._renderer)
+                self._last_renderer, renderer)
             self._force_full = False
             self._png_is_old = False
         return self._png_buffer.getvalue()
@@ -146,6 +150,9 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             self._last_renderer = backend_agg.RendererAgg(
                 w, h, self.figure.dpi)
             self._lastKey = key
+
+        elif cleared:
+            self._renderer.clear()
 
         return self._renderer
 

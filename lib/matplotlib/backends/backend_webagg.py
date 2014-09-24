@@ -39,6 +39,7 @@ from matplotlib import backend_bases
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
+from .backend_nbagg import TimerTornado
 
 
 def new_figure_manager(num, *args, **kwargs):
@@ -94,32 +95,6 @@ class ServerThread(threading.Thread):
         tornado.ioloop.IOLoop.instance().start()
 
 webagg_server_thread = ServerThread()
-
-
-class TimerTornado(backend_bases.TimerBase):
-    def _timer_start(self):
-        self._timer_stop()
-        if self._single:
-            ioloop = tornado.ioloop.IOLoop.instance()
-            self._timer = ioloop.add_timeout(
-                datetime.timedelta(milliseconds=self.interval),
-                self._on_timer)
-        else:
-            self._timer = tornado.ioloop.PeriodicCallback(
-                self._on_timer,
-                self.interval)
-        self._timer.start()
-
-    def _timer_stop(self):
-        if self._timer is not None:
-            self._timer.stop()
-            self._timer = None
-
-    def _timer_set_interval(self):
-        # Only stop and restart it if the timer has already been started
-        if self._timer is not None:
-            self._timer_stop()
-            self._timer_start()
 
 
 class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
