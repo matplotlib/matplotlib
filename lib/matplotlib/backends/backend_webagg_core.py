@@ -97,7 +97,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             buff.shape = (renderer.height, renderer.width)
 
             # If any pixels have transparency, we need to force a full draw
-            # as we cannot overlay new on top of old. 
+            # as we cannot overlay new on top of old.
             pixels = buff.view(dtype=np.uint8).reshape(buff.shape + (4,))
             some_transparency = np.any(pixels[:, :, 3] != 255)
 
