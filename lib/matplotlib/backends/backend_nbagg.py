@@ -1,4 +1,8 @@
 """Interactive figures in the IPython notebook"""
+# Note: There is a notebook in
+# lib/matplotlib/backends/web_backend/nbagg_uat.ipynb to help verify
+# that changes made maintain expected behaviour.
+
 from base64 import b64encode
 from contextlib import contextmanager
 import json
@@ -33,8 +37,8 @@ class Show(ShowBase):
         for manager in managers:
             manager.show()
 
-        if not is_interactive() and manager in Gcf._activeQue:
-            Gcf._activeQue.remove(manager)
+            if not is_interactive() and manager in Gcf._activeQue:
+                Gcf._activeQue.remove(manager)
 
 
 show = Show()
@@ -188,19 +192,6 @@ class FigureCanvasNbAgg(FigureCanvasWebAggCore):
 
     def stop_event_loop(self):
         FigureCanvasBase.stop_event_loop_default(self)
-
-    def draw(self):
-        renderer = self.get_renderer()
-
-        self._png_is_old = True
-
-        backend_agg.RendererAgg.lock.acquire()
-        try:
-            self.figure.draw(renderer)
-        finally:
-            backend_agg.RendererAgg.lock.release()
-            # Swap the frames
-            self.manager.refresh_all()
 
 
 def new_figure_manager(num, *args, **kwargs):
