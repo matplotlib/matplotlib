@@ -65,6 +65,12 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # sent to the clients will be a full frame.
         self._force_full = True
 
+        # Store the current image mode so that at any point, clients can
+        # request the information. This should be changed by calling
+        # self.set_image_mode(mode) so that the notification can be given
+        # to the connected clients.
+        self._current_image_mode = 'full'
+
     def show(self):
         # show the figure window
         from matplotlib.pyplot import show
@@ -86,24 +92,41 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     def draw_idle(self):
         self.send_event("draw")
 
+    def set_image_mode(self, mode):
+        """
+        Set the image mode for any subsequent images which will be sent
+        to the clients. The modes may currently be either 'full' or 'diff'.
+
+        Note: diff images may not contain transparency, therefore upon
+        draw this mode may be changed if the resulting image has any
+        transparent component.
+
+        """
+        if mode not in ['full', 'diff']:
+            raise ValueError('image mode must be either full or diff.')
+        if self._current_image_mode != mode:
+            self._current_image_mode = mode
+            self.handle_send_image_mode(None)
+
     def get_diff_image(self):
         if self._png_is_old:
+            renderer = self.get_renderer()
+
             # The buffer is created as type uint32 so that entire
             # pixels can be compared in one numpy call, rather than
             # needing to compare each plane separately.
-            renderer = self.get_renderer()
             buff = np.frombuffer(renderer.buffer_rgba(), dtype=np.uint32)
-
             buff.shape = (renderer.height, renderer.width)
 
-            # If any pixels have transparency, we need to force a full draw
-            # as we cannot overlay new on top of old.
+            # If any pixels have transparency, we need to force a full
+            # draw as we cannot overlay new on top of old.
             pixels = buff.view(dtype=np.uint8).reshape(buff.shape + (4,))
-            some_transparency = np.any(pixels[:, :, 3] != 255)
 
-            output = buff
-
-            if not self._force_full and not some_transparency:
+            if self._force_full or np.any(pixels[:, :, 3] != 255):
+                self.set_image_mode('full')
+                output = buff
+            else:
+                self.set_image_mode('diff')
                 last_buffer = np.frombuffer(self._last_renderer.buffer_rgba(),
                                             dtype=np.uint32)
                 last_buffer.shape = (renderer.height, renderer.width)
@@ -229,6 +252,10 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # identical or within a pixel or so).
         self._png_is_old = True
         self.manager.resize(w, h)
+
+    def handle_send_image_mode(self, event):
+        # The client requests notification of what the current image mode is.
+        self.send_event('image_mode', mode=self._current_image_mode)
 
     def send_event(self, event_type, **kwargs):
         self.manager._send_event(event_type, **kwargs)
