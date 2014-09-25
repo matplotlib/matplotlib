@@ -172,50 +172,54 @@ def validate_maskedarray(v):
                   ' please delete it from your matplotlibrc file')
 
 
-class validate_nseq_float:
+_seq_err_msg = ('You must supply exactly {n:d} values, you provided '
+                   '{num:d} values: {s}')
+
+_str_err_msg = ('You must supply exactly {n:d} comma-separated values, '
+                'you provided '
+                '{num:d} comma-separated values: {s}')
+
+
+class validate_nseq_float(object):
     def __init__(self, n):
         self.n = n
 
     def __call__(self, s):
         """return a seq of n floats or raise"""
         if isinstance(s, six.string_types):
-            ss = s.split(',')
-            if len(ss) != self.n:
-                raise ValueError(
-                    'You must supply exactly %d comma separated values' %
-                    self.n)
-            try:
-                return [float(val) for val in ss]
-            except ValueError:
-                raise ValueError('Could not convert all entries to floats')
+            s = s.split(',')
+            err_msg = _str_err_msg
         else:
-            assert type(s) in (list, tuple)
-            if len(s) != self.n:
-                raise ValueError('You must supply exactly %d values' % self.n)
+            err_msg = _seq_err_msg
+
+        if len(s) != self.n:
+            raise ValueError(err_msg.format(n=self.n, num=len(s), s=s))
+
+        try:
             return [float(val) for val in s]
+        except ValueError:
+            raise ValueError('Could not convert all entries to floats')
 
 
-class validate_nseq_int:
+class validate_nseq_int(object):
     def __init__(self, n):
         self.n = n
 
     def __call__(self, s):
         """return a seq of n ints or raise"""
         if isinstance(s, six.string_types):
-            ss = s.split(',')
-            if len(ss) != self.n:
-                raise ValueError(
-                    'You must supply exactly %d comma separated values' %
-                    self.n)
-            try:
-                return [int(val) for val in ss]
-            except ValueError:
-                raise ValueError('Could not convert all entries to ints')
+            s = s.split(',')
+            err_msg = _str_err_msg
         else:
-            assert type(s) in (list, tuple)
-            if len(s) != self.n:
-                raise ValueError('You must supply exactly %d values' % self.n)
+            err_msg = _seq_err_msg
+
+        if len(s) != self.n:
+            raise ValueError(err_msg.format(n=self.n, num=len(s), s=s))
+
+        try:
             return [int(val) for val in s]
+        except ValueError:
+            raise ValueError('Could not convert all entries to ints')
 
 
 def validate_color(s):
