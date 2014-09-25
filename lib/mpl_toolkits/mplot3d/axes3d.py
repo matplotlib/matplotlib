@@ -1564,8 +1564,8 @@ class Axes3D(Axes):
         X, Y, Z = np.broadcast_arrays(X, Y, Z)
         rows, cols = Z.shape
 
-        rstride = kwargs.pop('rstride', 10)
-        cstride = kwargs.pop('cstride', 10)
+        rstride = kwargs.pop('rstride', 1)
+        cstride = kwargs.pop('cstride', 1)
 
         if 'facecolors' in kwargs:
             fcolors = kwargs.pop('facecolors')
