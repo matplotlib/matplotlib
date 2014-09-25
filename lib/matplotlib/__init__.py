@@ -821,7 +821,7 @@ class RcParams(dict):
     def __setitem__(self, key, val):
         try:
             if key in _deprecated_map:
-                alt_key, alt_val  = _deprecated_map[key]
+                alt_key, alt_val = _deprecated_map[key]
                 warnings.warn(self.msg_depr % (key, alt_key))
                 key = alt_key
                 val = alt_val(val)
@@ -840,7 +840,7 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
 
     def __getitem__(self, key):
         if key in _deprecated_map:
-            alt_key, alt_val  = _deprecated_map[key]
+            alt_key, alt_val = _deprecated_map[key]
             warnings.warn(self.msg_depr % (key, alt_key))
             key = alt_key
         elif key in _deprecated_ignore_map:
@@ -848,6 +848,16 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
             warnings.warn(self.msg_depr_ignore % (key, alt))
             key = alt
         return dict.__getitem__(self, key)
+
+    # http://stackoverflow.com/questions/2390827/how-to-properly-subclass-dict-and-override-get-set
+    # the default dict `update` does not use __setitem__
+    # so rcParams.update(...) (such as in seaborn) side-steps
+    # all of the validation over-ride update to force
+    # through __setitem__
+    def update(self, *args, **kwargs):
+
+        for k, v in six.iteritems(dict(*args, **kwargs)):
+            self[k] = v
 
     def __repr__(self):
         import pprint
