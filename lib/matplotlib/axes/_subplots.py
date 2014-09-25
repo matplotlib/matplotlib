@@ -9,6 +9,9 @@ from matplotlib import docstring
 import matplotlib.artist as martist
 from matplotlib.axes._axes import Axes
 
+import warnings
+from matplotlib.cbook import mplDeprecation
+
 
 class SubplotBase(object):
     """
@@ -55,6 +58,15 @@ class SubplotBase(object):
                 num = [int(n) for n in num]
                 self._subplotspec = GridSpec(rows, cols)[num[0] - 1:num[1]]
             else:
+                if num < 0 or num > rows*cols:
+                    raise ValueError(
+                        "num must be 0 <= num <= {maxn}, not {num}".format(
+                            maxn=rows*cols, num=num))
+                if num == 0:
+                    warnings.warn("The use of 0 (which ends up being the "
+                                  "_last_ sub-plot) is deprecated in 1.4 "
+                                  "and will raise an error in 1.5",
+                                  mplDeprecation)
                 self._subplotspec = GridSpec(rows, cols)[int(num) - 1]
                 # num - 1 for converting from MATLAB to python indexing
         else:

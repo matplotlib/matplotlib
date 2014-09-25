@@ -11,9 +11,15 @@ For a list of all of the issues and pull requests since the last
 revision, see the :ref:`github-stats`.
 
 .. note::
-   Matplotlib version 1.1 is the last major release compatible with Python
-   versions 2.4 to 2.7.  matplotlib 1.2 and later require
-   versions 2.6, 2.7, and 3.1 and higher.
+   matplotlib 1.4 supports Python 2.6, 2.7, 3.3, and 3.4
+
+   matplotlib 1.3 supports Python 2.6, 2.7, 3.2, and 3.3
+
+   matplotlib 1.2 supports Python 2.6, 2.7, and 3.1
+
+   matplotlib 1.1 supports Python 2.4 to 2.7
+
+
 
 .. contents:: Table of Contents
    :depth: 3
@@ -23,6 +29,7 @@ revision, see the :ref:`github-stats`.
 new in matplotlib-1.4
 =====================
 
+Thomas A. Caswell served as the release manager for the 1.4 release.
 
 New colormap
 ------------
@@ -31,7 +38,7 @@ activity, but this can be problematic for the red/green colorblind. A new,
 colorblind-friendly colormap is now available at :class:`matplotlib.cm.Wistia`.
 This colormap maintains the red/green symbolism while achieving deuteranopic
 legibility through brightness variations. See
-`here <https://github.com/wistia/heatmap-palette>`
+`here <https://github.com/wistia/heatmap-palette>`_
 for more information.
 
 Documentation changes
@@ -52,7 +59,7 @@ provided by the constructor's `gamma` argument. Power law normalization
 can be useful for, e.g., emphasizing small populations in a histogram.
 
 Fully customizable boxplots
-````````````````````````````
+```````````````````````````
 Paul Hobson overhauled the :func:`~matplotlib.pyplot.boxplot` method such
 that it is now completely customizable in terms of the styles and positions
 of the individual artists. Under the hood, :func:`~matplotlib.pyplot.boxplot`
@@ -63,20 +70,20 @@ containing the positions for each element of the boxplots. Then
 a second method, :func:`~matplotlib.Axes.bxp` is called to draw the boxplots
 based on the stats.
 
-The :func:~matplotlib.pyplot.boxplot function can be used as before to
+The :func:`~matplotlib.pyplot.boxplot` function can be used as before to
 generate boxplots from data in one step. But now the user has the
 flexibility to generate the statistics independently, or to modify the
-output of :func:~matplotlib.cbook.boxplot_stats prior to plotting
-with :func:~matplotlib.Axes.bxp.
+output of :func:`~matplotlib.cbook.boxplot_stats` prior to plotting
+with :func:`~matplotlib.Axes.bxp`.
 
 Lastly, each artist (e.g., the box, outliers, cap, notches) can now be
 toggled on or off and their styles can be passed in through individual
 kwargs. See the examples:
-:ref:`~examples/statistics/boxplot_demo.py` and
-:ref:`~examples/statistics/bxp_demo.py`
+:ref:`statistics-boxplot_demo` and
+:ref:`statistics-bxp_demo`
 
-Added a bool kwarg, `manage_xticks`, which if False disables the management
-of the xtick and xlim by `boxplot`.
+Added a bool kwarg, :code:`manage_xticks`, which if False disables the management
+of the ticks and limits on the x-axis by :func:`~matplotlib.axes.Axes.bxp`.
 
 Support for datetime axes in 2d plots
 `````````````````````````````````````
@@ -153,7 +160,7 @@ specifically the Skew-T used in meteorology.
 .. plot:: mpl_examples/api/skewt.py
 
 Support for specifying properties of wedge and text in pie charts.
-``````````````````````````````````````````````````````````````
+``````````````````````````````````````````````````````````````````
 Added the `kwargs` 'wedgeprops' and 'textprops' to :func:`~matplotlib.Axes.pie`
 to accept properties for wedge and text objects in a pie. For example, one can
 specify wedgeprops = {'linewidth':3} to specify the width of the borders of
@@ -202,15 +209,43 @@ show with an int, slice object, numpy fancy indexing, or float. Using a float
 shows markers at approximately equal display-coordinate-distances along the
 line.
 
+Added size related functions to specialized `Collections`
+`````````````````````````````````````````````````````````
+
+Added the `get_size` and `set_size` functions to control the size of
+elements of specialized collections (
+:class:`~matplotlib.collections.AsteriskPolygonCollection`
+:class:`~matplotlib.collections.BrokenBarHCollection`
+:class:`~matplotlib.collections.CircleCollection`
+:class:`~matplotlib.collections.PathCollection`
+:class:`~matplotlib.collections.PolyCollection`
+:class:`~matplotlib.collections.RegularPolyCollection`
+:class:`~matplotlib.collections.StarPolygonCollection`).
+
 
 Fixed the mouse coordinates giving the wrong theta value in Polar graph
 ```````````````````````````````````````````````````````````````````````
 Added code to
-:funct:`~matplotlib.InvertedPolarTransform.transform_non_affine`
+:func:`~matplotlib.InvertedPolarTransform.transform_non_affine`
 to ensure that the calculated theta value was between the range of 0 and 2 * pi
 since the problem was that the value can become negative after applying the
 direction and rotation to the theta calculation.
 
+Simple quiver plot for mplot3d toolkit
+``````````````````````````````````````
+A team of students in an *Engineering Large Software Systems* course, taught
+by Prof. Anya Tafliovich at the University of Toronto, implemented a simple
+version of a quiver plot in 3D space for the mplot3d toolkit as one of their
+term project. This feature is documented in :func:`~mpl_toolkits.mplot3d.Axes3D.quiver`.
+The team members are: Ryan Steve D'Souza, Victor B, xbtsw, Yang Wang, David,
+Caradec Bisesar and Vlad Vassilovski.
+
+.. plot:: mpl_examples/mplot3d/quiver3d_demo.py
+
+polar-plot r-tick locations
+```````````````````````````
+Added the ability to control the angular position of the r-tick labels
+on a polar plot via :func:`~matplotlib.Axes.axes.set_rlabel_position`.
 
 Date handling
 -------------
@@ -227,11 +262,16 @@ conversion interfaces :class:`matplotlib.dates.DateConverter` and
 Configuration (rcParams)
 ------------------------
 
+
 ``savefig.transparent`` added
 `````````````````````````````
 Controls whether figures are saved with a transparent
 background by default.  Previously `savefig` always defaulted
 to a non-transparent background.
+
+``axes.titleweight``
+````````````````````
+Added rcParam to control the weight of the title
 
 ``axes.formatter.useoffset`` added
 ``````````````````````````````````
@@ -241,8 +281,13 @@ an offset will be determined such that the tick labels are
 meaningful. If `False` then the full number will be formatted in all
 conditions.
 
+XDG compliance
+``````````````
+Matplotlib now looks for configuration files (both rcparams and style) in XDG
+compliant locations.
+
 ``style`` package added
-```````````````````````
+-----------------------
 You can now easily switch between different styles using the new ``style``
 package::
 
@@ -263,21 +308,40 @@ users test out this new feature.
 
 Backends
 --------
+Qt5 backend
+```````````
+Martin Fitzpatrick and Tom Badran implemented a Qt5 backend.  The differences
+in namespace locations between Qt4 and Qt5 was dealt with by shimming
+Qt4 to look like Qt5, thus the Qt5 implementation is the primary implementation.
+Backwards compatibility for Qt4 is maintained by wrapping the Qt5 implementation.
+
+The Qt5Agg backend currently does not work with IPython's %matplotlib magic.
+
+The 1.4.0 release has a known bug where the toolbar is broken.  This can be
+fixed by: ::
+
+   cd path/to/installed/matplotlib
+   wget https://github.com/matplotlib/matplotlib/pull/3322.diff
+   # unix2dos 3322.diff (if on windows to fix line endings)
+   patch -p2 < 3322.diff
 
 Qt4 backend
-``````````````
+```````````
 Rudolf Höfler changed the appearance of the subplottool. All sliders are
 vertically arranged now, buttons for tight layout and reset were
 added. Furthermore, the the subplottool is now implemented as a modal
 dialog. It was previously a QMainWindow, leaving the SPT open if one closed the
-plotwindow.
+plot window.
 
-In the figureoptions dialog one can now choose to (re-)generate a simple
+In the figure options dialog one can now choose to (re-)generate a simple
 automatic legend. Any explicitly set legend entries will be lost, but changes to
 the curves' label, linestyle, et cetera will now be updated in the legend.
 
 Interactive performance of the Qt4 backend has been dramatically improved
 under windows.
+
+The mapping of key-signals from Qt to values matplotlib understands
+was greatly improved (For both Qt4 and Qt5).
 
 Cairo backends
 ``````````````
@@ -293,6 +357,10 @@ Gtk3Agg backend
 The Gtk3Agg backend now works on Python 3.x, if the `cairocffi
 bindings <https://github.com/SimonSapin/cairocffi>`__ are installed.
 
+PDF backend
+```````````
+Added context manager for saving to multi-page PDFs.
+
 Text
 ----
 
@@ -304,6 +372,12 @@ url as a link in output SVGs.  This allows one to make clickable text in
 saved figures using the url kwarg of the :class:`~matplotlib.text.Text`
 class.
 
+Anchored sizebar font
+`````````````````````
+Added the ``fontproperties`` kwarg to
+:class:`~matplotilb.mpl_toolkits.axes_grid.anchored_artists.AnchoredSizeBar` to
+control the font properties.
+
 Sphinx extensions
 -----------------
 
@@ -312,6 +386,20 @@ Sphinx extension can now accept an optional ``reset`` setting, which will
 cause the context to be reset. This allows more than one distinct context to
 be present in documentation. To enable this option, use ``:context: reset``
 instead of ``:context:`` any time you want to reset the context.
+
+Widgets
+-------
+
+Span Selector
+`````````````
+
+Added an option ``span_stays`` to the
+:class:`~matplotlib.widgets.SpanSelector` which makes the selector
+rectangle stay on the axes after you release the mouse.
+
+GAE integration
+---------------
+Matplotlib will now run on google app engine.
 
 .. _whats-new-1-3:
 
@@ -996,7 +1084,7 @@ legends for complex plots such as :meth:`~matplotlib.pyplot.stem` plots
 will now display correctly. Second, the 'best' placement of a legend has
 been improved in the presence of NANs.
 
-See :ref:`legend-complex-plots` for more detailed explanation and
+See the :ref:`plotting-guide-legend` for more detailed explanation and
 examples.
 
 .. plot:: mpl_examples/pylab_examples/legend_demo4.py

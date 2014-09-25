@@ -1,11 +1,12 @@
-Building mpl on OSX has proven to be a nightmare because of all the
+Building mpl on OSX is sometimes a nightmare because of all the
 different types of zlib, png and freetype that may be on your system.
-The recommended and supported way to build is to use a third-party
-package manager to install the required dependencies, and then
-install matplotlib from source using the setup.py script. Two widely
-used package managers are homebrew and MacPorts. The following
-example illustrates how to install libpng and freetype using
-homebrew.
+
+For developers who want to build matplotlib from source, the recommended and 
+supported way to build is to use a third-party package manager to install the 
+required dependencies, and then install matplotlib from source using the 
+setup.py script. Two widely used package managers are homebrew, and 
+MacPorts. The following example illustrates how to install libpng and freetype 
+using brew:
 
 Example usage::
 
@@ -22,3 +23,9 @@ To install matplotlib from source, execute:
 Example usage::
 
   python setup.py install
+
+
+Note that your environment is somewhat important. Some conda users have 
+found that, to run the tests, their PYTHONPATH must include 
+/path/to/anaconda/.../site-packages and their DYLD_FALLBACK_LIBRARY_PATH 
+must include /path/to/anaconda/lib.

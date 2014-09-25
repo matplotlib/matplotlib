@@ -24,7 +24,7 @@ class TriAnalyzer(object):
 
     Attributes
     ----------
-    scale_factors
+    `scale_factors`
 
     """
     def __init__(self, triangulation):

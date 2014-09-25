@@ -37,6 +37,7 @@ class TriRefiner(object):
                 :class:`~matplotlib.tri.TriInterpolator` (optional)
               - the other optional keyword arguments *kwargs* are defined in
                 each TriRefiner concrete implementation
+
           and which returns (as a tuple) a refined triangular mesh and the
           interpolated values of the field at the refined triangulation nodes.
 
@@ -117,7 +118,8 @@ class UniformTriRefiner(TriRefiner):
             found_index = - np.ones(refi_npts, dtype=np.int32)
             tri_mask = self._triangulation.mask
             if tri_mask is None:
-                found_index[refi_triangles] = np.repeat(ancestors, 3)
+                found_index[refi_triangles] = np.repeat(ancestors,
+                                                        3).reshape(-1, 3)
             else:
                 # There is a subtlety here: we want to avoid whenever possible
                 # that refined points container is a masked triangle (which
@@ -126,9 +128,11 @@ class UniformTriRefiner(TriRefiner):
                 # then overwrite it with unmasked ancestor numbers.
                 ancestor_mask = tri_mask[ancestors]
                 found_index[refi_triangles[ancestor_mask, :]
-                            ] = np.repeat(ancestors[ancestor_mask], 3)
+                            ] = np.repeat(ancestors[ancestor_mask],
+                                          3).reshape(-1, 3)
                 found_index[refi_triangles[~ancestor_mask, :]
-                            ] = np.repeat(ancestors[~ancestor_mask], 3)
+                            ] = np.repeat(ancestors[~ancestor_mask],
+                                          3).reshape(-1, 3)
             return refi_triangulation, found_index
         else:
             return refi_triangulation
@@ -228,7 +232,7 @@ class UniformTriRefiner(TriRefiner):
         # points
         # hint: each apex is shared by 2 masked_triangles except the borders.
         borders = np.sum(neighbors == -1)
-        added_pts = (3*ntri + borders) / 2
+        added_pts = (3*ntri + borders) // 2
         refi_npts = npts + added_pts
         refi_x = np.zeros(refi_npts)
         refi_y = np.zeros(refi_npts)

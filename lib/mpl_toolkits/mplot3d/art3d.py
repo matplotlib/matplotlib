@@ -14,6 +14,7 @@ import six
 from six.moves import zip
 
 from matplotlib import lines, text as mtext, path as mpath, colors as mcolors
+from matplotlib import artist
 from matplotlib.collections import Collection, LineCollection, \
         PolyCollection, PatchCollection, PathCollection
 from matplotlib.cm import ScalarMappable
@@ -294,7 +295,7 @@ def pathpatch_2d_to_3d(pathpatch, z=0, zdir='z'):
     pathpatch.__class__ = PathPatch3D
     pathpatch.set_3d_properties(mpath, z, zdir)
 
-class Collection3D(object):
+class Patch3DCollection(PatchCollection):
     '''
     A collection of 3D patches.
     '''
@@ -310,11 +311,15 @@ class Collection3D(object):
         :class:`~matplotlib.collections.PatchCollection`. In addition,
         keywords *zs=0* and *zdir='z'* are available.
 
+        Also, the keyword argument "depthshade" is available to
+        indicate whether or not to shade the patches in order to
+        give the appearance of depth (default is *True*).
+        This is typically desired in scatter plots.
         """
         zs = kwargs.pop('zs', 0)
         zdir = kwargs.pop('zdir', 'z')
+        self._depthshade = kwargs.pop('depthshade', True)
         PatchCollection.__init__(self, *args, **kwargs)
-        self._old_draw = lambda x: PatchCollection.draw(self, x)
         self.set_3d_properties(zs, zdir)
 
 
@@ -339,40 +344,113 @@ class Collection3D(object):
     def do_3d_projection(self, renderer):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
-        #FIXME: mpl allows us no way to unset the collection alpha value
-        self._alpha = None
-        self.set_facecolors(zalpha(self._facecolor3d, vzs))
-        self.set_edgecolors(zalpha(self._edgecolor3d, vzs))
-        super(self.__class__, self).set_offsets(list(zip(vxs, vys)))
+
+        fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
+               self._facecolor3d)
+        fcs = mcolors.colorConverter.to_rgba_array(fcs, self._alpha)
+        self.set_facecolors(fcs)
+
+        ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
+               self._edgecolor3d)
+        ecs = mcolors.colorConverter.to_rgba_array(ecs, self._alpha)
+        self.set_edgecolors(ecs)
+        PatchCollection.set_offsets(self, list(zip(vxs, vys)))
 
         if vzs.size > 0 :
             return min(vzs)
         else :
             return np.nan
 
-    def draw(self, renderer):
-        self._old_draw(renderer)
+
+class Path3DCollection(PathCollection):
+    '''
+    A collection of 3D paths.
+    '''
+
+    def __init__(self, *args, **kwargs):
+        """
+        Create a collection of flat 3D paths with its normal vector
+        pointed in *zdir* direction, and located at *zs* on the *zdir*
+        axis. 'zs' can be a scalar or an array-like of the same length as
+        the number of paths in the collection.
+
+        Constructor arguments are the same as for
+        :class:`~matplotlib.collections.PathCollection`. In addition,
+        keywords *zs=0* and *zdir='z'* are available.
+
+        Also, the keyword argument "depthshade" is available to
+        indicate whether or not to shade the patches in order to
+        give the appearance of depth (default is *True*).
+        This is typically desired in scatter plots.
+        """
+        zs = kwargs.pop('zs', 0)
+        zdir = kwargs.pop('zdir', 'z')
+        self._depthshade = kwargs.pop('depthshade', True)
+        PathCollection.__init__(self, *args, **kwargs)
+        self.set_3d_properties(zs, zdir)
+
+    def set_sort_zpos(self, val):
+        '''Set the position to use for z-sorting.'''
+        self._sort_zpos = val
+
+    def set_3d_properties(self, zs, zdir):
+        # Force the collection to initialize the face and edgecolors
+        # just in case it is a scalarmappable with a colormap.
+        self.update_scalarmappable()
+        offsets = self.get_offsets()
+        if len(offsets) > 0:
+            xs, ys = list(zip(*offsets))
+        else:
+            xs = []
+            ys = []
+        self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
+        self._facecolor3d = self.get_facecolor()
+        self._edgecolor3d = self.get_edgecolor()
+
+    def do_3d_projection(self, renderer):
+        xs, ys, zs = self._offsets3d
+        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+
+        fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
+               self._facecolor3d)
+        fcs = mcolors.colorConverter.to_rgba_array(fcs, self._alpha)
+        self.set_facecolors(fcs)
+
+        ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
+               self._edgecolor3d)
+        ecs = mcolors.colorConverter.to_rgba_array(ecs, self._alpha)
+        self.set_edgecolors(ecs)
+        PathCollection.set_offsets(self, list(zip(vxs, vys)))
+
+        if vzs.size > 0 :
+            return min(vzs)
+        else :
+            return np.nan
 
 
-class Patch3DCollection(Collection3D, PatchCollection):
-    pass
+def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
+    """
+    Convert a :class:`~matplotlib.collections.PatchCollection` into a
+    :class:`Patch3DCollection` object
+    (or a :class:`~matplotlib.collections.PathCollection` into a
+    :class:`Path3DCollection` object).
 
+    Keywords:
 
-class Path3DCollection(Collection3D, PathCollection):
-    pass
+    *za*            The location or locations to place the patches in the
+                    collection along the *zdir* axis. Defaults to 0.
 
+    *zdir*          The axis in which to place the patches. Default is "z".
 
-def patch_collection_2d_to_3d(col, zs=0, zdir='z'):
-    """Convert a PatchCollection to a Patch3DCollection object."""
+    *depthshade*    Whether to shade the patches to give a sense of depth.
+                    Defaults to *True*.
 
-    # The tricky part here is that there are several classes that are
-    # derived from PatchCollection. We need to use the right draw method.
-    col._old_draw = col.draw
-
+    """
     if isinstance(col, PathCollection):
         col.__class__ = Path3DCollection
     elif isinstance(col, PatchCollection):
         col.__class__ = Patch3DCollection
+    col._depthshade = depthshade
     col.set_3d_properties(zs, zdir)
 
 class Poly3DCollection(PolyCollection):
@@ -461,6 +539,7 @@ class Poly3DCollection(PolyCollection):
         self.set_zsort(True)
         self._facecolors3d = PolyCollection.get_facecolors(self)
         self._edgecolors3d = PolyCollection.get_edgecolors(self)
+        self._alpha3d = PolyCollection.get_alpha(self)
 
     def set_sort_zpos(self,val):
         '''Set the position to use for z-sorting.'''
@@ -528,6 +607,30 @@ class Poly3DCollection(PolyCollection):
         PolyCollection.set_edgecolor(self, colors)
         self._edgecolors3d = PolyCollection.get_edgecolor(self)
     set_edgecolors = set_edgecolor
+
+    def set_alpha(self, alpha):
+        """
+        Set the alpha tranparencies of the collection.  *alpha* must be
+        a float or *None*.
+
+        ACCEPTS: float or None
+        """
+        if alpha is not None:
+            try:
+                float(alpha)
+            except TypeError:
+                raise TypeError('alpha must be a float or None')
+        artist.Artist.set_alpha(self, alpha)
+        try:
+            self._facecolors = mcolors.colorConverter.to_rgba_array(
+                self._facecolors3d, self._alpha)
+        except (AttributeError, TypeError, IndexError):
+            pass
+        try:
+            self._edgecolors = mcolors.colorConverter.to_rgba_array(
+                    self._edgecolors3d, self._alpha)
+        except (AttributeError, TypeError, IndexError):
+            pass
 
     def get_facecolors(self):
         return self._facecolors2d

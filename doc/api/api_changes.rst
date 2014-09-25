@@ -18,7 +18,7 @@ Code changes
 ------------
 
 * A major refactoring of the axes module was made. The axes module has been
-split into smaller modules:
+  split into smaller modules:
 
     - the `_base` module, which contains a new private _AxesBase class. This
       class contains all methods except plotting and labelling methods.
@@ -50,9 +50,20 @@ original location:
   - mstream -> `from matplotlib import stream as mstream`
   - mtable -> `from matplotlib import table as mtable`
 
+* As part of the refactoring to enable Qt5 support, the module
+  `matplotlib.backends.qt4_compat` was renamed to
+  `matplotlib.qt_compat`.  `qt4_compat` is deprecated in 1.4 and
+  will be removed in 1.5.
+
 * The :func:`~matplotlib.pyplot.errorbar` method has been changed such that
   the upper and lower limits (*lolims*, *uplims*, *xlolims*, *xuplims*) now
   point in the correct direction.
+
+* The *fmt* kwarg for :func:`~matplotlib.pyplot.errorbar now supports
+  the string 'none' to suppress drawing of a line and markers; use
+  of the *None* object for this is deprecated. The default *fmt*
+  value is changed to the empty string (''), so the line and markers
+  are governed by the :func:`~matplotlib.pyplot.plot` defaults.
 
 * A bug has been fixed in the path effects rendering of fonts, which now means
   that the font size is consistent with non-path effect fonts. See
@@ -65,10 +76,11 @@ original location:
   point to `IPython.sphinxext.ipython_directive` instead of
   `matplotlib.sphinxext.ipython_directive`.
 
-* In :module:`~matplotlib.finance`, almost all functions have been deprecated and
-  replaced with a pair of functions name `*_ochl` and `*_ohlc`.  The former is
-  'open-close-high-low' order of quotes, and what the module used and the later
-  is 'open-high-low-close' order of quotes, which is the standard in finance.
+* In `~matplotlib.finance`, almost all functions have been deprecated
+  and replaced with a pair of functions name `*_ochl` and `*_ohlc`.
+  The former is the 'open-close-high-low' order of quotes used
+  previously in this module, and the latter is the
+  'open-high-low-close' order that is standard in finance.
 
 * For consistency the ``face_alpha`` keyword to
   :class:`matplotlib.patheffects.SimplePatchShadow` has been deprecated in
@@ -171,6 +183,35 @@ original location:
   treated as numpy fancy indexing and only the two markers corresponding to the
   given indexes will be shown.
 
+* removed prop kwarg from `mpl_toolkits.axes_grid1.anchored_artists.AnchoredSizeBar`
+  call.  It was passed through to the base-class `__init__` and is only used for
+  setting padding.  Now `fontproperties` (which is what is really used to set
+  the font properties of `AnchoredSizeBar`) is passed through in place of `prop`.
+  If `fontpropreties` is not passed in, but `prop` is, then `prop` is used inplace
+  of `fontpropreties`.  If both are passed in, `prop` is silently ignored.
+
+
+* The use of the index 0 in `plt.subplot` and related commands is
+  deprecated.  Due to a lack of validation calling `plt.subplots(2, 2,
+  0)` does not raise an exception, but puts an axes in the _last_
+  position.  This is due to the indexing in subplot being 1-based (to
+  mirror MATLAB) so before indexing into the `GridSpec` object used to
+  determine where the axes should go, 1 is subtracted off.  Passing in
+  0 results in passing -1 to `GridSpec` which results in getting the
+  last position back.  Even though this behavior is clearly wrong and
+  not intended, we are going through a deprecation cycle in an
+  abundance of caution that any users are exploiting this 'feature'.
+  The use of 0 as an index will raise a warning in 1.4 and an
+  exception in 1.5.
+
+* Clipping is now off by default on offset boxes.
+
+* matplotlib now uses a less-aggressive call to ``gc.collect(1)`` when
+  closing figures to avoid major delays with large numbers of user objects
+  in memory.
+
+* The default clip value of *all* pie artists now defaults to ``False``.
+
 
 Code removal
 ------------
@@ -178,6 +219,7 @@ Code removal
 * Removed ``mlab.levypdf``.  The code raised a numpy error (and has for
   a long time) and was not the standard form of the Levy distribution.
   ``scipy.stats.levy`` should be used instead
+
 
 .. _changes_in_1_3:
 

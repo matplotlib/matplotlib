@@ -1557,6 +1557,7 @@ RendererAgg::_draw_path_collection_generic
 
     if ((Nfacecolors == 0 && Nedgecolors == 0) || Npaths == 0)
     {
+        Py_XDECREF(transforms_arr);
         return Py::Object();
     }
 
@@ -1707,6 +1708,8 @@ RendererAgg::_draw_path_collection_generic
             }
         }
     }
+
+    Py_XDECREF(transforms_arr);
 
     return Py::Object();
 }
@@ -2383,11 +2386,7 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args)
 
     int newwidth = 0;
     int newheight = 0;
-    #if PY3K
-    Py::Bytes data;
-    #else
-    Py::String data;
-    #endif
+    PyObject *data;
 
     if (xmin < xmax && ymin < ymax)
     {
@@ -2401,13 +2400,18 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args)
         newheight   = ymax - ymin;
         int newsize = newwidth * newheight * 4;
 
-        unsigned char* buf = new unsigned char[newsize];
-        if (buf == NULL)
-        {
-            throw Py::MemoryError("RendererAgg::tostring_minimized could not allocate memory");
-        }
+        // NULL pointer causes Python to allocate uninitialized memory.
+        // We then grab Python's pointer to uninitialized memory using
+        // the _AsString() API.
+        unsigned int* dst;
 
-        unsigned int*  dst = (unsigned int*)buf;
+        data = PyBytes_FromStringAndSize(NULL, newsize);
+        if (data == NULL)
+        {
+            throw Py::MemoryError("RendererAgg::tostring_rgba_minimized could not allocate memory");
+        }
+        dst = (unsigned int *)PyBytes_AsString(data);
+
         unsigned int*  src = (unsigned int*)pixBuffer;
         for (int y = ymin; y < ymax; ++y)
         {
@@ -2416,13 +2420,12 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args)
                 *dst = src[y * width + x];
             }
         }
-
-        // The Py::String will take over the buffer
-        #if PY3K
-        data = Py::Bytes((const char *)buf, (int) newsize);
-        #else
-        data = Py::String((const char *)buf, (int) newsize);
-        #endif
+    } else {
+        data = PyBytes_FromStringAndSize(NULL, 0);
+        if (data == NULL)
+        {
+            throw Py::MemoryError("RendererAgg::tostring_rgba_minimized could not allocate memory");
+        }
     }
 
     Py::Tuple bounds(4);
@@ -2432,7 +2435,7 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args)
     bounds[3] = Py::Int(newheight);
 
     Py::Tuple result(2);
-    result[0] = data;
+    result[0] = Py::Object(data, true);
     result[1] = bounds;
 
     return result;

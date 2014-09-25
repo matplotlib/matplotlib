@@ -34,8 +34,9 @@ Style
   <http://www.python.org/dev/peps/pep-0008/>`_.  Exceptions to these
   rules are acceptable if it makes the code objectively more readable.
 
-  - You may want to consider installing automatic PEP8 checking in
-    your editor.
+  - You should consider installing/enabling automatic PEP8 checking in your
+    editor.  Part of the test suite is checking PEP8 compliance, things
+    go smoother if the code is mostly PEP8 compliant to begin with.
 
 * No tabs (only spaces).  No trailing whitespace.
 
@@ -63,18 +64,44 @@ Documentation
 -------------
 
 * Every new feature should be documented.  If it's a new module, don't
-  forget to add it to the API docs.
+  forget to add a new rst file to the API docs.
 
 * Docstrings should be in `numpydoc format
   <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_.
   Don't be thrown off by the fact that many of the existing docstrings
-  are not in that format.  We are working to standardize on
+  are not in that format;  we are working to standardize on
   `numpydoc`.
 
+  Docstrings should look like (at a minimum)::
+
+        def foo(bar, baz=None):
+            """
+            This is a prose description of foo and all the great
+            things it does.
+
+            Parameters
+            ----------
+            bar : (type of bar)
+                A description of bar
+
+            baz : (type of baz), optional
+                A description of baz
+
+            Returns
+            -------
+            foobar : (type of foobar)
+                A description of foobar
+            foobaz : (type of foobaz)
+                A description of foobaz
+            """
+            # some very clever code
+            return foobar, foobaz
+
+
 * Each high-level plotting function should have a simple example in
-  the `Example` section.  This should be as simple as possible to
-  demonstrate the method.  More complex examples should go in the
-  `examples` tree.
+  the `Example` section of the docstring.  This should be as simple as
+  possible to demonstrate the method.  More complex examples should go
+  in the `examples` tree.
 
 * Build the docs and make sure all formatting warnings are addressed.
 
@@ -260,8 +287,8 @@ Writing examples
 We have hundreds of examples in subdirectories of
 :file:`matplotlib/examples`, and these are automatically generated
 when the website is built to show up both in the `examples
-<http://matplotlib.org/examples/index.html>`_ and `gallery
-<http://matplotlib.org/gallery.html>`_ sections of the website.
+<../examples/index.html>`_ and `gallery
+<../gallery.html>`_ sections of the website.
 
 Any sample data that the example uses should be kept small and
 distributed with matplotlib in the

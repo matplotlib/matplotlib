@@ -21,6 +21,9 @@
 #tests = True
 #sample_data = True
 #toolkits = True
+# Tests for the toolkits are only automatically installed
+# if the tests and toolkits packages are also getting installed.
+#toolkits_tests = auto
 
 [gui_support]
 # Matplotlib supports multiple GUI toolkits, including Cocoa,

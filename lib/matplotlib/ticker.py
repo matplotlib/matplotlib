@@ -9,6 +9,26 @@ locating and formatting.  Generic tick locators and formatters are provided,
 as well as domain specific custom ones..
 
 
+Default Formatter
+-----------------
+
+The default formatter identifies when the x-data being
+plotted is a small range on top of a large off set.  To
+reduce the chances that the ticklabels overlap the ticks
+are labeled as deltas from a fixed offset.  For example::
+
+   ax.plot(np.arange(2000, 2010), range(10))
+
+will have tick of 0-9 with an offset of +2e3.  If this
+is not desired turn off the use of the offset on the default
+formatter::
+
+
+   ax.get_xaxis().get_major_formatter().set_useOffset(False)
+
+set the rcParam ``axes.formatter.useoffset=False`` to turn it off
+globally, or set a different formatter.
+
 Tick locating
 -------------
 
@@ -43,7 +63,7 @@ The Locator subclasses defined here are
     intelligent ticking during navigation
 
 :class:`MaxNLocator`
-    finds up to a max number of ticks at nice  locations
+    finds up to a max number of ticks at nice locations
 
 :class:`AutoLocator`
     :class:`MaxNLocator` with simple defaults. This is the default

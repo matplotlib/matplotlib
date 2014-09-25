@@ -858,21 +858,64 @@ class Polygon(Patch):
         self.set_xy(xy)
 
     def get_path(self):
+        """
+        Get the path of the polygon
+
+        Returns
+        -------
+        path : Path
+           The :class:`~matplotlib.path.Path` object for
+           the polygon
+        """
         return self._path
 
     def get_closed(self):
+        """
+        Returns if the polygon is closed
+
+        Returns
+        -------
+        closed : bool
+            If the path is closed
+        """
         return self._closed
 
     def set_closed(self, closed):
+        """
+        Set if the polygon is closed
+
+        Parameters
+        ----------
+        closed : bool
+           True if the polygon is closed
+        """
         if self._closed == bool(closed):
             return
         self._closed = bool(closed)
         self.set_xy(self.get_xy())
 
     def get_xy(self):
+        """
+        Get the vertices of the path
+
+        Returns
+        -------
+        vertices : numpy array
+            The coordinates of the vertices as a Nx2
+            ndarray.
+        """
         return self._path.vertices
 
     def set_xy(self, xy):
+        """
+        Set the vertices of the polygon
+
+        Parameters
+        ----------
+        xy : numpy array or iterable of pairs
+            The coordinates of the vertices as a Nx2
+            ndarray or iterable of pairs.
+        """
         xy = np.asarray(xy)
         if self._closed:
             if len(xy) and (xy[0] != xy[-1]).any():
@@ -955,7 +998,7 @@ class Wedge(Patch):
 
     def set_radius(self, radius):
         self._path = None
-        self.radius = radius
+        self.r = radius
 
     def set_theta1(self, theta1):
         self._path = None

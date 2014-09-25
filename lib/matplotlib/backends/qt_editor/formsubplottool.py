@@ -8,44 +8,44 @@ backend.qt4 (PyQt4|PySide) independent form of the subplot tool.
 
 __author__ = 'rudolf.hoefler@gmail.com'
 
-from matplotlib.backends.qt4_compat import QtCore, QtGui
+from matplotlib.backends.qt_compat import QtCore, QtGui, QtWidgets
 
 
-class UiSubplotTool(QtGui.QDialog):
+class UiSubplotTool(QtWidgets.QDialog):
 
     def __init__(self, *args, **kwargs):
         super(UiSubplotTool, self).__init__(*args, **kwargs)
         self.setObjectName('SubplotTool')
         self.resize(450, 265)
 
-        gbox = QtGui.QGridLayout(self)
+        gbox = QtWidgets.QGridLayout(self)
         self.setLayout(gbox)
 
         # groupbox borders
-        groupbox = QtGui.QGroupBox('Borders', self)
+        groupbox = QtWidgets.QGroupBox('Borders', self)
         gbox.addWidget(groupbox, 6, 0, 1, 1)
-        self.verticalLayout = QtGui.QVBoxLayout(groupbox)
+        self.verticalLayout = QtWidgets.QVBoxLayout(groupbox)
         self.verticalLayout.setSpacing(0)
 
         # slider top
-        self.hboxtop = QtGui.QHBoxLayout()
-        self.labeltop = QtGui.QLabel('top', self)
+        self.hboxtop = QtWidgets.QHBoxLayout()
+        self.labeltop = QtWidgets.QLabel('top', self)
         self.labeltop.setMinimumSize(QtCore.QSize(50, 0))
         self.labeltop.setAlignment(
             QtCore.Qt.AlignRight |
             QtCore.Qt.AlignTrailing |
             QtCore.Qt.AlignVCenter)
 
-        self.slidertop = QtGui.QSlider(self)
+        self.slidertop = QtWidgets.QSlider(self)
         self.slidertop.setMouseTracking(False)
         self.slidertop.setProperty("value", 0)
         self.slidertop.setOrientation(QtCore.Qt.Horizontal)
         self.slidertop.setInvertedAppearance(False)
         self.slidertop.setInvertedControls(False)
-        self.slidertop.setTickPosition(QtGui.QSlider.TicksAbove)
+        self.slidertop.setTickPosition(QtWidgets.QSlider.TicksAbove)
         self.slidertop.setTickInterval(100)
 
-        self.topvalue = QtGui.QLabel('0', self)
+        self.topvalue = QtWidgets.QLabel('0', self)
         self.topvalue.setMinimumSize(QtCore.QSize(30, 0))
         self.topvalue.setAlignment(
             QtCore.Qt.AlignRight |
@@ -58,24 +58,24 @@ class UiSubplotTool(QtGui.QDialog):
         self.hboxtop.addWidget(self.topvalue)
 
         # slider bottom
-        hboxbottom = QtGui.QHBoxLayout()
-        labelbottom = QtGui.QLabel('bottom', self)
+        hboxbottom = QtWidgets.QHBoxLayout()
+        labelbottom = QtWidgets.QLabel('bottom', self)
         labelbottom.setMinimumSize(QtCore.QSize(50, 0))
         labelbottom.setAlignment(
             QtCore.Qt.AlignRight |
             QtCore.Qt.AlignTrailing |
             QtCore.Qt.AlignVCenter)
 
-        self.sliderbottom = QtGui.QSlider(self)
+        self.sliderbottom = QtWidgets.QSlider(self)
         self.sliderbottom.setMouseTracking(False)
         self.sliderbottom.setProperty("value", 0)
         self.sliderbottom.setOrientation(QtCore.Qt.Horizontal)
         self.sliderbottom.setInvertedAppearance(False)
         self.sliderbottom.setInvertedControls(False)
-        self.sliderbottom.setTickPosition(QtGui.QSlider.TicksAbove)
+        self.sliderbottom.setTickPosition(QtWidgets.QSlider.TicksAbove)
         self.sliderbottom.setTickInterval(100)
 
-        self.bottomvalue = QtGui.QLabel('0', self)
+        self.bottomvalue = QtWidgets.QLabel('0', self)
         self.bottomvalue.setMinimumSize(QtCore.QSize(30, 0))
         self.bottomvalue.setAlignment(
             QtCore.Qt.AlignRight |
@@ -88,24 +88,24 @@ class UiSubplotTool(QtGui.QDialog):
         hboxbottom.addWidget(self.bottomvalue)
 
         # slider left
-        hboxleft = QtGui.QHBoxLayout()
-        labelleft = QtGui.QLabel('left', self)
+        hboxleft = QtWidgets.QHBoxLayout()
+        labelleft = QtWidgets.QLabel('left', self)
         labelleft.setMinimumSize(QtCore.QSize(50, 0))
         labelleft.setAlignment(
             QtCore.Qt.AlignRight |
             QtCore.Qt.AlignTrailing |
             QtCore.Qt.AlignVCenter)
 
-        self.sliderleft = QtGui.QSlider(self)
+        self.sliderleft = QtWidgets.QSlider(self)
         self.sliderleft.setMouseTracking(False)
         self.sliderleft.setProperty("value", 0)
         self.sliderleft.setOrientation(QtCore.Qt.Horizontal)
         self.sliderleft.setInvertedAppearance(False)
         self.sliderleft.setInvertedControls(False)
-        self.sliderleft.setTickPosition(QtGui.QSlider.TicksAbove)
+        self.sliderleft.setTickPosition(QtWidgets.QSlider.TicksAbove)
         self.sliderleft.setTickInterval(100)
 
-        self.leftvalue = QtGui.QLabel('0', self)
+        self.leftvalue = QtWidgets.QLabel('0', self)
         self.leftvalue.setMinimumSize(QtCore.QSize(30, 0))
         self.leftvalue.setAlignment(
             QtCore.Qt.AlignRight |
@@ -118,24 +118,24 @@ class UiSubplotTool(QtGui.QDialog):
         hboxleft.addWidget(self.leftvalue)
 
         # slider right
-        hboxright = QtGui.QHBoxLayout()
-        self.labelright = QtGui.QLabel('right', self)
+        hboxright = QtWidgets.QHBoxLayout()
+        self.labelright = QtWidgets.QLabel('right', self)
         self.labelright.setMinimumSize(QtCore.QSize(50, 0))
         self.labelright.setAlignment(
             QtCore.Qt.AlignRight |
             QtCore.Qt.AlignTrailing |
             QtCore.Qt.AlignVCenter)
 
-        self.sliderright = QtGui.QSlider(self)
+        self.sliderright = QtWidgets.QSlider(self)
         self.sliderright.setMouseTracking(False)
         self.sliderright.setProperty("value", 0)
         self.sliderright.setOrientation(QtCore.Qt.Horizontal)
         self.sliderright.setInvertedAppearance(False)
         self.sliderright.setInvertedControls(False)
-        self.sliderright.setTickPosition(QtGui.QSlider.TicksAbove)
+        self.sliderright.setTickPosition(QtWidgets.QSlider.TicksAbove)
         self.sliderright.setTickInterval(100)
 
-        self.rightvalue = QtGui.QLabel('0', self)
+        self.rightvalue = QtWidgets.QLabel('0', self)
         self.rightvalue.setMinimumSize(QtCore.QSize(30, 0))
         self.rightvalue.setAlignment(
             QtCore.Qt.AlignRight |
@@ -148,30 +148,30 @@ class UiSubplotTool(QtGui.QDialog):
         hboxright.addWidget(self.rightvalue)
 
         # groupbox spacings
-        groupbox = QtGui.QGroupBox('Spacings', self)
+        groupbox = QtWidgets.QGroupBox('Spacings', self)
         gbox.addWidget(groupbox, 7, 0, 1, 1)
-        self.verticalLayout = QtGui.QVBoxLayout(groupbox)
+        self.verticalLayout = QtWidgets.QVBoxLayout(groupbox)
         self.verticalLayout.setSpacing(0)
 
         # slider hspace
-        hboxhspace = QtGui.QHBoxLayout()
-        self.labelhspace = QtGui.QLabel('hspace', self)
+        hboxhspace = QtWidgets.QHBoxLayout()
+        self.labelhspace = QtWidgets.QLabel('hspace', self)
         self.labelhspace.setMinimumSize(QtCore.QSize(50, 0))
         self.labelhspace.setAlignment(
             QtCore.Qt.AlignRight |
             QtCore.Qt.AlignTrailing |
             QtCore.Qt.AlignVCenter)
 
-        self.sliderhspace = QtGui.QSlider(self)
+        self.sliderhspace = QtWidgets.QSlider(self)
         self.sliderhspace.setMouseTracking(False)
         self.sliderhspace.setProperty("value", 0)
         self.sliderhspace.setOrientation(QtCore.Qt.Horizontal)
         self.sliderhspace.setInvertedAppearance(False)
         self.sliderhspace.setInvertedControls(False)
-        self.sliderhspace.setTickPosition(QtGui.QSlider.TicksAbove)
+        self.sliderhspace.setTickPosition(QtWidgets.QSlider.TicksAbove)
         self.sliderhspace.setTickInterval(100)
 
-        self.hspacevalue = QtGui.QLabel('0', self)
+        self.hspacevalue = QtWidgets.QLabel('0', self)
         self.hspacevalue.setMinimumSize(QtCore.QSize(30, 0))
         self.hspacevalue.setAlignment(
             QtCore.Qt.AlignRight |
@@ -184,24 +184,24 @@ class UiSubplotTool(QtGui.QDialog):
         hboxhspace.addWidget(self.hspacevalue)  # slider hspace
 
         # slider wspace
-        hboxwspace = QtGui.QHBoxLayout()
-        self.labelwspace = QtGui.QLabel('wspace', self)
+        hboxwspace = QtWidgets.QHBoxLayout()
+        self.labelwspace = QtWidgets.QLabel('wspace', self)
         self.labelwspace.setMinimumSize(QtCore.QSize(50, 0))
         self.labelwspace.setAlignment(
             QtCore.Qt.AlignRight |
             QtCore.Qt.AlignTrailing |
             QtCore.Qt.AlignVCenter)
 
-        self.sliderwspace = QtGui.QSlider(self)
+        self.sliderwspace = QtWidgets.QSlider(self)
         self.sliderwspace.setMouseTracking(False)
         self.sliderwspace.setProperty("value", 0)
         self.sliderwspace.setOrientation(QtCore.Qt.Horizontal)
         self.sliderwspace.setInvertedAppearance(False)
         self.sliderwspace.setInvertedControls(False)
-        self.sliderwspace.setTickPosition(QtGui.QSlider.TicksAbove)
+        self.sliderwspace.setTickPosition(QtWidgets.QSlider.TicksAbove)
         self.sliderwspace.setTickInterval(100)
 
-        self.wspacevalue = QtGui.QLabel('0', self)
+        self.wspacevalue = QtWidgets.QLabel('0', self)
         self.wspacevalue.setMinimumSize(QtCore.QSize(30, 0))
         self.wspacevalue.setAlignment(
             QtCore.Qt.AlignRight |
@@ -214,14 +214,15 @@ class UiSubplotTool(QtGui.QDialog):
         hboxwspace.addWidget(self.wspacevalue)
 
         # button bar
-        hbox2 = QtGui.QHBoxLayout()
+        hbox2 = QtWidgets.QHBoxLayout()
         gbox.addLayout(hbox2, 8, 0, 1, 1)
-        self.tightlayout = QtGui.QPushButton('Tight Layout', self)
-        spacer = QtGui.QSpacerItem(
-            5, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.resetbutton = QtGui.QPushButton('Reset', self)
-        self.donebutton = QtGui.QPushButton('Close', self)
-        self.donebutton.setFocus(True)
+        self.tightlayout = QtWidgets.QPushButton('Tight Layout', self)
+        spacer = QtWidgets.QSpacerItem(
+            5, 20, QtWidgets.QSizePolicy.Expanding,
+            QtWidgets.QSizePolicy.Minimum)
+        self.resetbutton = QtWidgets.QPushButton('Reset', self)
+        self.donebutton = QtWidgets.QPushButton('Close', self)
+        self.donebutton.setFocus()
         hbox2.addWidget(self.tightlayout)
         hbox2.addItem(spacer)
         hbox2.addWidget(self.resetbutton)

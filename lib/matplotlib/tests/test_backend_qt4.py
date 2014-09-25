@@ -2,7 +2,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-
+from six import unichr
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import cleanup
 from matplotlib.testing.decorators import knownfailureif
@@ -16,7 +16,7 @@ except ImportError:
     import mock
 
 try:
-    from matplotlib.backends.qt4_compat import QtCore
+    from matplotlib.backends.qt_compat import QtCore
     from matplotlib.backends.backend_qt4 import (MODIFIER_KEYS,
                                                  SUPER, ALT, CTRL, SHIFT)
 

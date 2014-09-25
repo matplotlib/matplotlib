@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import functools
+import gc
 import os
 import sys
 import shutil
@@ -65,6 +66,17 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
     return known_fail_decorator
 
 
+def _do_cleanup(original_units_registry):
+    plt.close('all')
+    gc.collect()
+
+    matplotlib.tests.setup()
+
+    matplotlib.units.registry.clear()
+    matplotlib.units.registry.update(original_units_registry)
+    warnings.resetwarnings()  # reset any warning filters set in tests
+
+
 class CleanupTest(object):
     @classmethod
     def setup_class(cls):
@@ -72,13 +84,7 @@ class CleanupTest(object):
 
     @classmethod
     def teardown_class(cls):
-        plt.close('all')
-
-        matplotlib.tests.setup()
-
-        matplotlib.units.registry.clear()
-        matplotlib.units.registry.update(cls.original_units_registry)
-        warnings.resetwarnings()  # reset any warning filters set in tests
+        _do_cleanup(cls.original_units_registry)
 
     def test(self):
         self._func()
@@ -93,13 +99,7 @@ class CleanupTestCase(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        plt.close('all')
-
-        matplotlib.tests.setup()
-
-        matplotlib.units.registry.clear()
-        matplotlib.units.registry.update(cls.original_units_registry)
-        warnings.resetwarnings()  # reset any warning filters set in tests
+        _do_cleanup(cls.original_units_registry)
 
 
 def cleanup(func):
@@ -109,13 +109,8 @@ def cleanup(func):
         try:
             func(*args, **kwargs)
         finally:
-            plt.close('all')
+            _do_cleanup(original_units_registry)
 
-            matplotlib.tests.setup()
-
-            matplotlib.units.registry.clear()
-            matplotlib.units.registry.update(original_units_registry)
-            warnings.resetwarnings() #reset any warning filters set in tests
     return wrapped_function
 
 
@@ -157,8 +152,6 @@ class ImageComparisonTest(CleanupTest):
         baseline_dir, result_dir = _image_directories(self._func)
 
         for fignum, baseline in zip(plt.get_fignums(), self._baseline_images):
-            figure = plt.figure(fignum)
-
             for extension in self._extensions:
                 will_fail = not extension in comparable_formats()
                 if will_fail:
@@ -182,6 +175,8 @@ class ImageComparisonTest(CleanupTest):
                     will_fail, fail_msg,
                     known_exception_class=ImageComparisonFailure)
                 def do_test():
+                    figure = plt.figure(fignum)
+
                     if self._remove_text:
                         self.remove_text(figure)
 
@@ -313,10 +308,15 @@ def _image_directories(func):
             """A version of imp which can handle dots in the module name"""
             res = None
             for sub_mod in module_name.split('.'):
-                res = file, path, _ = imp.find_module(sub_mod, path)
-                path = [path]
-                if file is not None:
-                    file.close()
+                try:
+                    res = file, path, _ = imp.find_module(sub_mod, path)
+                    path = [path]
+                    if file is not None:
+                        file.close()
+                except ImportError:
+                    # assume namespace package
+                    path = sys.modules[sub_mod].__path__
+                    res = None, path, None
             return res
 
         mod_file = find_dotted_module(func.__module__)[1]

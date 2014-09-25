@@ -55,8 +55,8 @@ from matplotlib.colors import is_color_like
 from matplotlib.colors import rgb2hex
 from matplotlib.colors import colorConverter
 
-from matplotlib.backends.qt4_compat import QtGui, QtCore
-if not hasattr(QtGui, 'QFormLayout'):
+from matplotlib.backends.qt_compat import QtGui, QtWidgets, QtCore
+if not hasattr(QtWidgets, 'QFormLayout'):
     raise ImportError("Warning: formlayout requires PyQt4 >v4.3 or PySide")
 
 import datetime
@@ -67,21 +67,21 @@ def col2hex(color):
     return rgb2hex(colorConverter.to_rgb(color))
 
 
-class ColorButton(QtGui.QPushButton):
+class ColorButton(QtWidgets.QPushButton):
     """
     Color choosing push button
     """
     colorChanged = QtCore.Signal(QtGui.QColor)
 
     def __init__(self, parent=None):
-        QtGui.QPushButton.__init__(self, parent)
+        QtWidgets.QPushButton.__init__(self, parent)
         self.setFixedSize(20, 20)
         self.setIconSize(QtCore.QSize(12, 12))
         self.clicked.connect(self.choose_color)
         self._color = QtGui.QColor()
 
     def choose_color(self):
-        color = QtGui.QColorDialog.getColor(self._color, self.parentWidget(), '')
+        color = QtWidgets.QColorDialog.getColor(self._color, self.parentWidget(), '')
         if color.isValid():
             self.set_color(color)
 
@@ -116,12 +116,12 @@ def to_qcolor(color):
     return qcolor  # return valid QColor
 
 
-class ColorLayout(QtGui.QHBoxLayout):
+class ColorLayout(QtWidgets.QHBoxLayout):
     """Color-specialized QLineEdit layout"""
     def __init__(self, color, parent=None):
-        QtGui.QHBoxLayout.__init__(self)
+        QtWidgets.QHBoxLayout.__init__(self)
         assert isinstance(color, QtGui.QColor)
-        self.lineedit = QtGui.QLineEdit(color.name(), parent)
+        self.lineedit = QtWidgets.QLineEdit(color.name(), parent)
         self.lineedit.editingFinished.connect(self.update_color)
         self.addWidget(self.lineedit)
         self.colorbtn = ColorButton(parent)
@@ -172,20 +172,20 @@ def qfont_to_tuple(font):
             font.italic(), font.bold())
 
 
-class FontLayout(QtGui.QGridLayout):
+class FontLayout(QtWidgets.QGridLayout):
     """Font selection"""
     def __init__(self, value, parent=None):
-        QtGui.QGridLayout.__init__(self)
+        QtWidgets.QGridLayout.__init__(self)
         font = tuple_to_qfont(value)
         assert font is not None
 
         # Font family
-        self.family = QtGui.QFontComboBox(parent)
+        self.family = QtWidgets.QFontComboBox(parent)
         self.family.setCurrentFont(font)
         self.addWidget(self.family, 0, 0, 1, -1)
 
         # Font size
-        self.size = QtGui.QComboBox(parent)
+        self.size = QtWidgets.QComboBox(parent)
         self.size.setEditable(True)
         sizelist = list(xrange(6, 12)) + list(xrange(12, 30, 2)) + [36, 48, 72]
         size = font.pointSize()
@@ -197,12 +197,12 @@ class FontLayout(QtGui.QGridLayout):
         self.addWidget(self.size, 1, 0)
 
         # Italic or not
-        self.italic = QtGui.QCheckBox(self.tr("Italic"), parent)
+        self.italic = QtWidgets.QCheckBox(self.tr("Italic"), parent)
         self.italic.setChecked(font.italic())
         self.addWidget(self.italic, 1, 1)
 
         # Bold or not
-        self.bold = QtGui.QCheckBox(self.tr("Bold"), parent)
+        self.bold = QtWidgets.QCheckBox(self.tr("Bold"), parent)
         self.bold.setChecked(font.bold())
         self.addWidget(self.bold, 1, 2)
 
@@ -221,17 +221,17 @@ def is_edit_valid(edit):
     return state == QtGui.QDoubleValidator.Acceptable
 
 
-class FormWidget(QtGui.QWidget):
+class FormWidget(QtWidgets.QWidget):
     update_buttons = QtCore.Signal()
     def __init__(self, data, comment="", parent=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         from copy import deepcopy
         self.data = deepcopy(data)
         self.widgets = []
-        self.formlayout = QtGui.QFormLayout(self)
+        self.formlayout = QtWidgets.QFormLayout(self)
         if comment:
-            self.formlayout.addRow(QtGui.QLabel(comment))
-            self.formlayout.addRow(QtGui.QLabel(" "))
+            self.formlayout.addRow(QtWidgets.QLabel(comment))
+            self.formlayout.addRow(QtWidgets.QLabel(" "))
         if DEBUG:
             print("\n"+("*"*80))
             print("DATA:", self.data)
@@ -242,7 +242,7 @@ class FormWidget(QtGui.QWidget):
     def get_dialog(self):
         """Return FormDialog instance"""
         dialog = self.parent()
-        while not isinstance(dialog, QtGui.QDialog):
+        while not isinstance(dialog, QtWidgets.QDialog):
             dialog = dialog.parent()
         return dialog
 
@@ -252,12 +252,12 @@ class FormWidget(QtGui.QWidget):
                 print("value:", value)
             if label is None and value is None:
                 # Separator: (None, None)
-                self.formlayout.addRow(QtGui.QLabel(" "), QtGui.QLabel(" "))
+                self.formlayout.addRow(QtWidgets.QLabel(" "), QtWidgets.QLabel(" "))
                 self.widgets.append(None)
                 continue
             elif label is None:
                 # Comment
-                self.formlayout.addRow(QtGui.QLabel(value))
+                self.formlayout.addRow(QtWidgets.QLabel(value))
                 self.widgets.append(None)
                 continue
             elif tuple_to_qfont(value) is not None:
@@ -265,12 +265,12 @@ class FormWidget(QtGui.QWidget):
             elif is_color_like(value):
                 field = ColorLayout(to_qcolor(value), self)
             elif isinstance(value, six.string_types):
-                field = QtGui.QLineEdit(value, self)
+                field = QtWidgets.QLineEdit(value, self)
             elif isinstance(value, (list, tuple)):
                 if isinstance(value, tuple):
                     value = list(value)
                 selindex = value.pop(0)
-                field = QtGui.QComboBox(self)
+                field = QtWidgets.QComboBox(self)
                 if isinstance(value[0], (list, tuple)):
                     keys = [key for key, _val in value]
                     value = [val for _key, val in value]
@@ -287,29 +287,29 @@ class FormWidget(QtGui.QWidget):
                     selindex = 0
                 field.setCurrentIndex(selindex)
             elif isinstance(value, bool):
-                field = QtGui.QCheckBox(self)
+                field = QtWidgets.QCheckBox(self)
                 if value:
                     field.setCheckState(QtCore.Qt.Checked)
                 else:
                     field.setCheckState(QtCore.Qt.Unchecked)
             elif isinstance(value, float):
-                field = QtGui.QLineEdit(repr(value), self)
+                field = QtWidgets.QLineEdit(repr(value), self)
                 field.setValidator(QtGui.QDoubleValidator(field))
                 dialog = self.get_dialog()
                 dialog.register_float_field(field)
                 field.textChanged.connect(lambda text: dialog.update_buttons())
             elif isinstance(value, int):
-                field = QtGui.QSpinBox(self)
+                field = QtWidgets.QSpinBox(self)
                 field.setRange(-1e9, 1e9)
                 field.setValue(value)
             elif isinstance(value, datetime.datetime):
-                field = QtGui.QDateTimeEdit(self)
+                field = QtWidgets.QDateTimeEdit(self)
                 field.setDateTime(value)
             elif isinstance(value, datetime.date):
-                field = QtGui.QDateEdit(self)
+                field = QtWidgets.QDateEdit(self)
                 field.setDate(value)
             else:
-                field = QtGui.QLineEdit(repr(value), self)
+                field = QtWidgets.QLineEdit(repr(value), self)
             self.formlayout.addRow(label, field)
             self.widgets.append(field)
 
@@ -323,7 +323,7 @@ class FormWidget(QtGui.QWidget):
             elif tuple_to_qfont(value) is not None:
                 value = field.get_font()
             elif isinstance(value, six.string_types) or is_color_like(value):
-                value = unicode(field.text())
+                value = six.text_type(field.text())
             elif isinstance(value, (list, tuple)):
                 index = int(field.currentIndex())
                 if isinstance(value[0], (list, tuple)):
@@ -346,17 +346,17 @@ class FormWidget(QtGui.QWidget):
         return valuelist
 
 
-class FormComboWidget(QtGui.QWidget):
+class FormComboWidget(QtWidgets.QWidget):
     update_buttons = QtCore.Signal()
 
     def __init__(self, datalist, comment="", parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        layout = QtGui.QVBoxLayout()
+        QtWidgets.QWidget.__init__(self, parent)
+        layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
-        self.combobox = QtGui.QComboBox()
+        self.combobox = QtWidgets.QComboBox()
         layout.addWidget(self.combobox)
 
-        self.stackwidget = QtGui.QStackedWidget(self)
+        self.stackwidget = QtWidgets.QStackedWidget(self)
         layout.addWidget(self.stackwidget)
         self.combobox.currentIndexChanged.connect(self.stackwidget.setCurrentIndex)
 
@@ -375,13 +375,13 @@ class FormComboWidget(QtGui.QWidget):
         return [widget.get() for widget in self.widgetlist]
 
 
-class FormTabWidget(QtGui.QWidget):
+class FormTabWidget(QtWidgets.QWidget):
     update_buttons = QtCore.Signal()
 
     def __init__(self, datalist, comment="", parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        layout = QtGui.QVBoxLayout()
-        self.tabwidget = QtGui.QTabWidget()
+        QtWidgets.QWidget.__init__(self, parent)
+        layout = QtWidgets.QVBoxLayout()
+        self.tabwidget = QtWidgets.QTabWidget()
         layout.addWidget(self.tabwidget)
         self.setLayout(layout)
         self.widgetlist = []
@@ -402,11 +402,11 @@ class FormTabWidget(QtGui.QWidget):
         return [widget.get() for widget in self.widgetlist]
 
 
-class FormDialog(QtGui.QDialog):
+class FormDialog(QtWidgets.QDialog):
     """Form Dialog"""
     def __init__(self, data, title="", comment="",
                  icon=None, parent=None, apply=None):
-        QtGui.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
 
         self.apply_callback = apply
 
@@ -420,18 +420,18 @@ class FormDialog(QtGui.QDialog):
         else:
             self.formwidget = FormWidget(data, comment=comment,
                                          parent=self)
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.formwidget)
 
         self.float_fields = []
         self.formwidget.setup()
 
         # Button box
-        self.bbox = bbox = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok
-                                                 | QtGui.QDialogButtonBox.Cancel)
+        self.bbox = bbox = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok
+                                                 | QtWidgets.QDialogButtonBox.Cancel)
         self.formwidget.update_buttons.connect(self.update_buttons)
         if self.apply_callback is not None:
-            apply_btn = bbox.addButton(QtGui.QDialogButtonBox.Apply)
+            apply_btn = bbox.addButton(QtWidgets.QDialogButtonBox.Apply)
             apply_btn.clicked.connect(self.apply)
 
         bbox.accepted.connect(self.accept)
@@ -442,7 +442,7 @@ class FormDialog(QtGui.QDialog):
 
         self.setWindowTitle(title)
         if not isinstance(icon, QtGui.QIcon):
-            icon = QtGui.QWidget().style().standardIcon(QtGui.QStyle.SP_MessageBoxQuestion)
+            icon = QtWidgets.QWidget().style().standardIcon(QtWidgets.QStyle.SP_MessageBoxQuestion)
         self.setWindowIcon(icon)
 
     def register_float_field(self, field):
@@ -453,18 +453,18 @@ class FormDialog(QtGui.QDialog):
         for field in self.float_fields:
             if not is_edit_valid(field):
                 valid = False
-        for btn_type in (QtGui.QDialogButtonBox.Ok, QtGui.QDialogButtonBox.Apply):
+        for btn_type in (QtWidgets.QDialogButtonBox.Ok, QtWidgets.QDialogButtonBox.Apply):
             btn = self.bbox.button(btn_type)
             if btn is not None:
                 btn.setEnabled(valid)
 
     def accept(self):
         self.data = self.formwidget.get()
-        QtGui.QDialog.accept(self)
+        QtWidgets.QDialog.accept(self)
 
     def reject(self):
         self.data = None
-        QtGui.QDialog.reject(self)
+        QtWidgets.QDialog.reject(self)
 
     def apply(self):
         self.apply_callback(self.formwidget.get())
@@ -505,8 +505,8 @@ def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
 
     # Create a QApplication instance if no instance currently exists
     # (e.g., if the module is used directly from the interpreter)
-    if QtGui.QApplication.startingUp():
-        _app = QtGui.QApplication([])
+    if QtWidgets.QApplication.startingUp():
+        _app = QtWidgets.QApplication([])
     dialog = FormDialog(data, title, comment, icon, parent, apply)
     if dialog.exec_():
         return dialog.get()

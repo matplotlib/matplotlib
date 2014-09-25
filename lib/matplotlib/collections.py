@@ -710,9 +710,30 @@ class _CollectionWithSizes(Collection):
     Base class for collections that have an array of sizes.
     """
     def get_sizes(self):
+        """
+        Returns the sizes of the elements in the collection.  The
+        value represents the 'area' of the element.
+
+        Returns
+        -------
+        sizes : array
+            The 'area' of each element.
+        """
         return self._sizes
 
     def set_sizes(self, sizes, dpi=72.0):
+        """
+        Set the sizes of each member of the collection.
+
+        Parameters
+        ----------
+        sizes : ndarray or None
+            The size to set for each element of the collection.  The
+            value is the 'area' of the element.
+
+        dpi : float
+            The dpi of the canvas. Defaults to 72.0.
+        """
         if sizes is None:
             self._sizes = np.array([])
             self._transforms = np.empty((0, 3, 3))
@@ -724,6 +745,7 @@ class _CollectionWithSizes(Collection):
             self._transforms[:, 1, 1] = scale
             self._transforms[:, 2, 2] = 1.0
 
+    @allow_rasterization
     def draw(self, renderer):
         self.set_sizes(self._sizes, self.figure.dpi)
         Collection.draw(self, renderer)
@@ -788,10 +810,10 @@ class PolyCollection(_CollectionWithSizes):
             for xy in verts:
                 if len(xy):
                     if np.ma.isMaskedArray(xy):
-                        xy = np.ma.concatenate([xy, np.zeros((1, 2))])
+                        xy = np.ma.concatenate([xy, xy[0:1]])
                     else:
                         xy = np.asarray(xy)
-                        xy = np.concatenate([xy, np.zeros((1, 2))])
+                        xy = np.concatenate([xy, xy[0:1]])
                     codes = np.empty(xy.shape[0], dtype=mpath.Path.code_type)
                     codes[:] = mpath.Path.LINETO
                     codes[0] = mpath.Path.MOVETO

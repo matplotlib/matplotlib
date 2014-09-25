@@ -474,20 +474,21 @@ class ContourLabeler:
                 xy2 = mlab.less_simple_linear_interpolation(
                     pl, lc, [xi[1]])
 
-            # Make integer
+            # Round to integer values but keep as float
+            # To allow check against nan below
             I = [np.floor(I[0]), np.ceil(I[1])]
 
             # Actually break contours
             if closed:
                 # This will remove contour if shorter than label
                 if np.all(~np.isnan(I)):
-                    nlc.append(np.r_[xy2, lc[I[1]:I[0] + 1], xy1])
+                    nlc.append(np.r_[xy2, lc[int(I[1]):int(I[0]) + 1], xy1])
             else:
                 # These will remove pieces of contour if they have length zero
                 if not np.isnan(I[0]):
-                    nlc.append(np.r_[lc[:I[0] + 1], xy1])
+                    nlc.append(np.r_[lc[:int(I[0]) + 1], xy1])
                 if not np.isnan(I[1]):
-                    nlc.append(np.r_[xy2, lc[I[1]:]])
+                    nlc.append(np.r_[xy2, lc[int(I[1]):]])
 
             # The current implementation removes contours completely
             # covered by labels.  Uncomment line below to keep
@@ -553,9 +554,11 @@ class ContourLabeler:
     def add_label_near(self, x, y, inline=True, inline_spacing=5,
                        transform=None):
         """
-        Add a label near the point (x, y) of the given transform.
-        If transform is None, data transform is used. If transform is
-        False, IdentityTransform is used.
+        Add a label near the point (x, y). If transform is None
+        (default), (x, y) is in data coordinates; if transform is
+        False, (x, y) is in display coordinates; otherwise, the
+        specified transform will be used to translate (x, y) into
+        display coordinates.
 
         *inline*:
           controls whether the underlying contour is removed or
@@ -574,19 +577,26 @@ class ContourLabeler:
         if transform:
             x, y = transform.transform_point((x, y))
 
+        # find the nearest contour _in screen units_
         conmin, segmin, imin, xmin, ymin = self.find_nearest_contour(
             x, y, self.labelIndiceList)[:5]
 
         # The calc_label_rot_and_inline routine requires that (xmin,ymin)
         # be a vertex in the path. So, if it isn't, add a vertex here
+
+        # grab the paths from the collections
         paths = self.collections[conmin].get_paths()
-        lc = paths[segmin].vertices
-        if transform:
-            xcmin = transform.inverted().transform([xmin, ymin])
-        else:
-            xcmin = np.array([xmin, ymin])
+        # grab the correct segment
+        active_path = paths[segmin]
+        # grab it's verticies
+        lc = active_path.vertices
+        # sort out where the new vertex should be added data-units
+        xcmin = self.ax.transData.inverted().transform_point([xmin, ymin])
+        # if there isn't a vertex close enough
         if not np.allclose(xcmin, lc[imin]):
+            # insert new data into the vertex list
             lc = np.r_[lc[:imin], np.array(xcmin)[None, :], lc[imin:]]
+            # replace the path with the new one
             paths[segmin] = mpath.Path(lc)
 
         # Get index of nearest level in subset of levels used for labeling
@@ -939,7 +949,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     alpha=self.alpha,
                     transform=self.get_transform(),
                     zorder=zorder)
-                self.ax.add_collection(col)
+                self.ax.add_collection(col, autolim=False)
                 self.collections.append(col)
         else:
             tlinewidths = self._process_linewidths()
@@ -961,7 +971,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     transform=self.get_transform(),
                     zorder=zorder)
                 col.set_label('_nolegend_')
-                self.ax.add_collection(col, False)
+                self.ax.add_collection(col, autolim=False)
                 self.collections.append(col)
         self.changed()  # set the colors
 
@@ -1749,7 +1759,7 @@ class QuadContourSet(ContourSet):
             If a number, all levels will be plotted with this linewidth.
 
             If a tuple, different levels will be plotted with different
-            linewidths in the order specified
+            linewidths in the order specified.
 
           *linestyles*: [ *None* | 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
             If *linestyles* is *None*, the default is 'solid' unless

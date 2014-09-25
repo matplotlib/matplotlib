@@ -327,6 +327,8 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         im.reset_matrix()
         numrows, numcols = im.get_size()
 
+        if numrows <= 0 or numcols <= 0:
+            return
         im.resize(numcols, numrows)  # just to create im.bufOut that
                                      # is required by backends. There
                                      # may be better solution -JJL
@@ -1437,6 +1439,6 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
                       frameon=False, xticks=[], yticks=[])
 
     basename, ext = os.path.splitext(basename)
-    ax.imshow(im, aspect='auto', resample=True, interpolation='bilinear')
+    ax.imshow(im, aspect='auto', resample=True, interpolation=interpolation)
     fig.savefig(thumbfile, dpi=dpi)
     return fig

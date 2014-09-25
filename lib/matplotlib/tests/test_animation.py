@@ -3,8 +3,8 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import os
 import tempfile
-import sys
 import numpy as np
 from nose import with_setup
 from matplotlib import pyplot as plt
@@ -36,10 +36,6 @@ def check_save_animation(writer, extension='mp4'):
     if 'mencoder' in writer:
         raise KnownFailureTest("mencoder is broken")
 
-    ver = sys.version_info
-    if ver[0] == 3 and ver[1] == 2:
-        raise KnownFailureTest("animation saving broken on 3.2")
-
     fig, ax = plt.subplots()
     line, = ax.plot([], [])
 
@@ -55,6 +51,7 @@ def check_save_animation(writer, extension='mp4'):
 
     # Use NamedTemporaryFile: will be automatically deleted
     F = tempfile.NamedTemporaryFile(suffix='.' + extension)
+    F.close()
     anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
     try:
         anim.save(F.name, fps=30, writer=writer)
@@ -62,6 +59,11 @@ def check_save_animation(writer, extension='mp4'):
         raise KnownFailureTest("There can be errors in the numpy " +
                                "import stack, " +
                                "see issues #1891 and #2679")
+    finally:
+        try:
+            os.remove(F.name)
+        except Exception:
+            pass
 
 
 @cleanup

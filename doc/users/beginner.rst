@@ -1,4 +1,4 @@
-.. _users-guide-index:
+.. _beginners-guide-index:
 
 ################
 Beginner's Guide
@@ -20,6 +20,7 @@ Beginner's Guide
     legend_guide.rst
     annotations_guide.rst
     screenshots.rst
+    colormaps.rst
 
 
 

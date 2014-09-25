@@ -29,8 +29,8 @@ from matplotlib.colors import is_color_like
 # change for later versions.
 
 interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'MacOSX',
-                  'Qt4Agg', 'TkAgg', 'WX', 'WXAgg', 'CocoaAgg',
-                  'GTK3Cairo', 'GTK3Agg', 'WebAgg']
+                  'Qt4Agg', 'Qt5Agg', 'TkAgg', 'WX', 'WXAgg', 'CocoaAgg',
+                  'GTK3Cairo', 'GTK3Agg', 'WebAgg', 'nbAgg']
 
 
 non_interactive_bk = ['agg', 'cairo', 'emf', 'gdk',
@@ -148,7 +148,9 @@ def validate_backend(s):
     else:
         return _validate_standard_backends(s)
 
-validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide'])
+
+validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide', 'PyQt4v2'])
+validate_qt5 = ValidateInStrings('backend.qt5', ['PyQt5'])
 
 
 def validate_toolbar(s):
@@ -479,9 +481,11 @@ defaultParams = {
                                                       # present
     'backend_fallback':  [True, validate_bool],  # agg is certainly present
     'backend.qt4':       ['PyQt4', validate_qt4],
+    'backend.qt5':       ['PyQt5', validate_qt5],
     'webagg.port':       [8988, validate_int],
     'webagg.open_in_browser': [True, validate_bool],
     'webagg.port_retries': [50, validate_int],
+    'nbagg.transparent':       [True, validate_bool],
     'toolbar':           ['toolbar2', validate_toolbar],
     'datapath':          [None, validate_path_exists],  # handled by
                                                         # _get_data_path_cached
@@ -630,7 +634,8 @@ defaultParams = {
     'legend.shadow': [False, validate_bool],
      # whether or not to draw a frame around legend
     'legend.frameon': [True, validate_bool],
-
+     # alpha value of the legend frame
+    'legend.framealpha': [1.0, validate_float],
 
     ## the following dimensions are in fraction of the font size
     'legend.borderpad': [0.4, validate_float],  # units are fontsize

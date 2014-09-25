@@ -850,6 +850,7 @@ PYCXX_NOARGS_METHOD_DECL(FT2Font, get_path)
 
 FT2Font::FT2Font(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds) :
     Py::PythonClass<FT2Font>(self, args, kwds),
+    face(NULL),
     image()
 {
     FT_Open_Args open_args;
@@ -979,11 +980,17 @@ FT2Font::~FT2Font()
 {
     _VERBOSE("FT2Font::~FT2Font");
 
-    FT_Done_Face(face);
+    if (face) {
+        FT_Done_Face(face);
 
-    for (size_t i = 0; i < glyphs.size(); i++)
-    {
-        FT_Done_Glyph(glyphs[i]);
+        for (size_t i = 0; i < glyphs.size(); i++)
+        {
+            FT_Done_Glyph(glyphs[i]);
+        }
+    }
+
+    if (stream.descriptor.pointer != NULL) {
+        PyMem_Free(stream.descriptor.pointer);
     }
 }
 

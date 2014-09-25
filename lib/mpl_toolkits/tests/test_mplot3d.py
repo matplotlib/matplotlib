@@ -138,6 +138,7 @@ def test_trisurf3d():
     radii = np.linspace(0.125, 1.0, n_radii)
     angles = np.linspace(0, 2*np.pi, n_angles, endpoint=False)
     angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
+    angles[:, 1::2] += np.pi/n_angles
 
     x = np.append(0, (radii*np.cos(angles)).flatten())
     y = np.append(0, (radii*np.sin(angles)).flatten())
@@ -154,6 +155,53 @@ def test_wireframe3d():
     ax = fig.add_subplot(111, projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
     ax.plot_wireframe(X, Y, Z, rstride=10, cstride=10)
+
+
+@image_comparison(baseline_images=['quiver3d'], remove_text=True)
+def test_quiver3d():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    x, y, z = np.ogrid[-1:0.8:10j, -1:0.8:10j, -1:0.6:3j]
+
+    u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
+    v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
+    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
+            np.sin(np.pi * z))
+
+    ax.quiver(x, y, z, u, v, w, length=0.1)
+
+@image_comparison(baseline_images=['quiver3d_empty'], remove_text=True)
+def test_quiver3d_empty():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    x, y, z = np.ogrid[-1:0.8:0j, -1:0.8:0j, -1:0.6:0j]
+
+    u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
+    v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
+    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
+            np.sin(np.pi * z))
+
+    ax.quiver(x, y, z, u, v, w, length=0.1)
+
+@image_comparison(baseline_images=['quiver3d_masked'], remove_text=True)
+def test_quiver3d_masked():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    # Using mgrid here instead of ogrid because masked_where doesn't
+    # seem to like broadcasting very much...
+    x, y, z = np.mgrid[-1:0.8:10j, -1:0.8:10j, -1:0.6:3j]
+
+    u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
+    v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
+    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
+            np.sin(np.pi * z))
+    u = np.ma.masked_where((-0.4 < x) & (x < 0.1), u, copy=False)
+    v = np.ma.masked_where((0.1 < y) & (y < 0.7), v, copy=False)
+
+    ax.quiver(x, y, z, u, v, w, length=0.1)
 
 
 if __name__ == '__main__':

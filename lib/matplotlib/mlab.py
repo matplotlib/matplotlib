@@ -76,8 +76,11 @@ Functions that don't exist in MATLAB, but are useful anyway:
     Return the phase (unwrapped angle) of the frequency spectrum of a signal
 
 :func:`detrend_mean`
+    Remove the mean from a line.
+
 :func:`demean`
-    Remove the mean from a line.  These functions differ in their defaults.
+    Remove the mean from a line. This function is the same as as
+    :func:`detrend_mean` except for the default *axis*.
 
 :func:`detrend_linear`
     Remove the best fit line from a line.
@@ -391,6 +394,7 @@ def demean(x, axis=0):
     .. seealso::
 
         :func:`delinear`
+
         :func:`denone`
             :func:`delinear` and :func:`denone` are other detrend algorithms.
 
@@ -424,6 +428,7 @@ def detrend_mean(x, axis=None):
             for the default *axis*.
 
         :func:`detrend_linear`
+
         :func:`detrend_none`
             :func:`detrend_linear` and :func:`detrend_none` are other
             detrend algorithms.
@@ -471,6 +476,7 @@ def detrend_none(x, axis=None):
             for the default *axis*, which has no effect.
 
         :func:`detrend_mean`
+
         :func:`detrend_linear`
             :func:`detrend_mean` and :func:`detrend_linear` are other
             detrend algorithms.
@@ -503,6 +509,7 @@ def detrend_linear(y):
             for the default *axis*.
 
         :func:`detrend_mean`
+
         :func:`detrend_none`
             :func:`detrend_mean` and :func:`detrend_none` are other
             detrend algorithms.
@@ -534,9 +541,11 @@ def stride_windows(x, n, noverlap=None, axis=0):
     Get all windows of x with length n as a single array,
     using strides to avoid data duplication.
 
-    .. warning:: It is not safe to write to the output array.  Multiple
-    elements may point to the same piece of memory, so modifying one value may
-    change others.
+    .. warning::
+
+        It is not safe to write to the output array.  Multiple
+        elements may point to the same piece of memory,
+        so modifying one value may change others.
 
     Call signature::
 
@@ -584,10 +593,10 @@ def stride_windows(x, n, noverlap=None, axis=0):
     step = n - noverlap
     if axis == 0:
         shape = (n, (x.shape[-1]-noverlap)//step)
-        strides = (x.itemsize, step*x.itemsize)
+        strides = (x.strides[0], step*x.strides[0])
     else:
         shape = ((x.shape[-1]-noverlap)//step, n)
-        strides = (step*x.itemsize, x.itemsize)
+        strides = (step*x.strides[0], x.strides[0])
     return np.lib.stride_tricks.as_strided(x, shape=shape, strides=strides)
 
 
@@ -596,9 +605,11 @@ def stride_repeat(x, n, axis=0):
     Repeat the values in an array in a memory-efficient manner.  Array x is
     stacked vertically n times.
 
-    .. warning:: It is not safe to write to the output array.  Multiple
-    elements may point to the same piece of memory, so modifying one value may
-    change others.
+    .. warning::
+
+        It is not safe to write to the output array.  Multiple
+        elements may point to the same piece of memory, so
+        modifying one value may change others.
 
     Call signature::
 
@@ -633,10 +644,10 @@ def stride_repeat(x, n, axis=0):
 
     if axis == 0:
         shape = (n, x.size)
-        strides = (0, x.itemsize)
+        strides = (0, x.strides[0])
     else:
         shape = (x.size, n)
-        strides = (x.itemsize, 0)
+        strides = (x.strides[0], 0)
 
     return np.lib.stride_tricks.as_strided(x, shape=shape, strides=strides)
 
@@ -875,6 +886,7 @@ docstring.interpd.update(PSD=cbook.dedent("""
 
       *detrend*: [ 'default' | 'constant' | 'mean' | 'linear' | 'none'] or
                  callable
+
           The function applied to each segment before fft-ing,
           designed to remove the mean or linear trend.  Unlike in
           MATLAB, where the *detrend* parameter is a vector, in
@@ -1241,6 +1253,7 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
 
       *mode*: [ 'default' | 'psd' | 'complex' | 'magnitude'
                 'angle' | 'phase' ]
+
           What sort of spectrum to use.  Default is 'psd'. which takes the
           power spectral density.  'complex' returns the complex-valued
           frequency spectrum.  'magnitude' returns the magnitude spectrum.
@@ -1596,7 +1609,9 @@ def longest_ones(x):
 def prepca(P, frac=0):
     """
 
-    WARNING: this function is deprecated -- please see class PCA instead
+    .. warning::
+
+        This function is deprecated -- please see class PCA instead
 
     Compute the principal components of *P*.  *P* is a (*numVars*,
     *numObs*) array.  *frac* is the minimum fraction of variance that a
@@ -2631,8 +2646,11 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2post
         if dt1.type != np.string_:
             return (name, dt1.descr[0][1])
 
-        dt2 = r1.dtype[name]
-        assert dt2==dt1
+        dt2 = r2.dtype[name]
+        if dt1 != dt2:
+            msg = "The '{}' fields in arrays 'r1' and 'r2' must have the same"
+            msg += " dtype."
+            raise ValueError(msg.format(name))
         if dt1.num>dt2.num:
             return (name, dt1.descr[0][1])
         else:
@@ -3449,8 +3467,8 @@ def griddata(x, y, z, xi, yi, interp='nn'):
             yi = yi[:, 0]
 
         # Override default natgrid internal parameters.
-        _natgrid.seti('ext', 0)
-        _natgrid.setr('nul', np.nan)
+        _natgrid.seti(b'ext', 0)
+        _natgrid.setr(b'nul', np.nan)
 
         if np.min(np.diff(xi)) < 0 or np.min(np.diff(yi)) < 0:
             raise ValueError("Output grid defined by xi,yi must be monotone "

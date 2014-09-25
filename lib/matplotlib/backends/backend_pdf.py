@@ -2,7 +2,7 @@
 
 """
 A PDF matplotlib backend
-Author: Jouni K Seppänen <jks@iki.fi>
+Author: Jouni K Seppï¿½nen <jks@iki.fi>
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -19,12 +19,9 @@ import warnings
 import zlib
 
 import numpy as np
+from six import unichr
+from six import BytesIO
 
-if six.PY3:
-    from io import BytesIO
-    unichr = chr
-else:
-    from cStringIO import StringIO as BytesIO
 from datetime import datetime
 from math import ceil, cos, floor, pi, sin
 try:
@@ -2385,7 +2382,8 @@ class PdfPages(object):
         PDF file.
         """
         self._file.close()
-        if self.get_pagecount() == 0 and self.keep_empty is False:
+        if (self.get_pagecount() == 0 and not self.keep_empty
+                and not self._file.passed_in_file_object):
             os.remove(self._file.fh.name)
         self._file = None
 

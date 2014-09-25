@@ -101,11 +101,11 @@ command, which includes customizations such as error bars:
 .. plot:: mpl_examples/pylab_examples/barchart_demo.py
 
 It's also simple to create stacked bars
-(`bar_stacked.py <mpl_examples/pylab_examples/bar_stacked.html>`_),
+(`bar_stacked.py <../examples/pylab_examples/bar_stacked.html>`_),
 candlestick bars
-(`finance_demo.py <mpl_examples/pylab_examples/finance_demo.html>`_),
+(`finance_demo.py <../examples/pylab_examples/finance_demo.html>`_),
 and horizontal bar charts
-(`barh_demo.py <mpl_examples/lines_bars_and_markers/barh_demo.html>`_).
+(`barh_demo.py <../examples/lines_bars_and_markers/barh_demo.html>`_).
 
 .. _screenshots_pie_demo:
 
@@ -294,7 +294,7 @@ For examples of how to embed matplotlib in different toolkits, see:
    * :ref:`user_interfaces-embedding_in_gtk2`
    * :ref:`user_interfaces-embedding_in_wx2`
    * :ref:`user_interfaces-mpl_with_glade`
-   * :ref:`user_interfaces-embedding_in_qt`
+   * :ref:`user_interfaces-embedding_in_qt4`
    * :ref:`user_interfaces-embedding_in_tk`
 
 XKCD-style sketch plots

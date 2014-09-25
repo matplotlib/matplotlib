@@ -120,11 +120,14 @@ def warn_deprecated(
     obj_type : str, optional
         The object type being deprecated.
 
-    Example
-    -------
-    # To warn of the deprecation of "matplotlib.name_of_module"
-    warn_deprecated('1.4.0', name='matplotlib.name_of_module',
-                    obj_type='module')
+    Examples
+    --------
+
+        Basic example::
+
+            # To warn of the deprecation of "matplotlib.name_of_module"
+            warn_deprecated('1.4.0', name='matplotlib.name_of_module',
+                            obj_type='module')
 
     """
     message = _generate_deprecation_message(
@@ -172,11 +175,14 @@ def deprecated(since, message='', name='', alternative='', pending=False,
         If True, uses a PendingDeprecationWarning instead of a
         DeprecationWarning.
 
-    Example
-    -------
-    @deprecated('1.4.0')
-    def the_function_to_deprecate():
-        pass
+    Examples
+    --------
+
+        Basic example::
+
+            @deprecated('1.4.0')
+            def the_function_to_deprecate():
+                pass
 
     """
     def deprecate(func, message=message, name=name, alternative=alternative,
@@ -1737,7 +1743,7 @@ def simple_linear_interpolation(a, steps):
     if steps == 1:
         return a
 
-    steps = np.floor(steps)
+    steps = int(np.floor(steps))
     new_length = ((len(a) - 1) * steps) + 1
     new_shape = list(a.shape)
     new_shape[0] = new_length
@@ -1747,7 +1753,6 @@ def simple_linear_interpolation(a, steps):
     a0 = a[0:-1]
     a1 = a[1:]
     delta = ((a1 - a0) / steps)
-    steps = int(steps)
     for i in range(1, steps):
         result[i::steps] = delta * i + a0
     result[steps::steps] = a1
@@ -1882,7 +1887,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
 
     Returns
     -------
-    bxpstats : A list of dictionaries containing the results for each column
+    bxpstats : list of dict
+        A list of dictionaries containing the results for each column
         of data. Keys of each dictionary are the following:
 
         ========   ===================================
@@ -1905,11 +1911,13 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
     Non-bootstrapping approach to confidence interval uses Gaussian-based
     asymptotic approximation:
 
-    .. math:: \mathrm{med} \pm 1.57 \times \frac{\mathrm{iqr}}{\sqrt{N}}
+    .. math::
+
+        \mathrm{med} \pm 1.57 \\times \\frac{\mathrm{iqr}}{\sqrt{N}}
 
     General approach from:
     McGill, R., Tukey, J.W., and Larsen, W.A. (1978) "Variations of
-        Boxplots", The American Statistician, 32:12-16.
+    Boxplots", The American Statistician, 32:12-16.
 
     '''
 
@@ -1948,14 +1956,18 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
 
     ncols = len(X)
     if labels is None:
-        labels = [str(i) for i in range(ncols)]
+        labels = [str(i) for i in range(1, ncols+1)]
     elif len(labels) != ncols:
         raise ValueError("Dimensions of labels and X must be compatible")
 
+    input_whis = whis
     for ii, (x, label) in enumerate(zip(X, labels), start=0):
         # empty dict
         stats = {}
         stats['label'] = label
+
+        # restore whis to the input values in case it got changed in the loop
+        whis = input_whis
 
         # arithmetic mean
         stats['mean'] = np.mean(x)
@@ -2167,6 +2179,8 @@ def _reshape_2D(X):
 
     if not hasattr(X[0], '__len__'):
         X = [X]
+    else:
+        X = [np.ravel(x) for x in X]
 
     return X
 

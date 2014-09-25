@@ -222,7 +222,8 @@ def is_color_like(c):
 
 def rgb2hex(rgb):
     'Given an rgb or rgba sequence of 0-1 floats, return the hex string'
-    return '#%02x%02x%02x' % tuple([np.round(val * 255) for val in rgb[:3]])
+    a = '#%02x%02x%02x' % tuple([int(np.round(val * 255)) for val in rgb[:3]])
+    return a
 
 hexColorPattern = re.compile("\A#[a-fA-F0-9]{6}\Z")
 
@@ -349,8 +350,7 @@ class ColorConverter(object):
         try:
             if not cbook.is_string_like(arg) and cbook.iterable(arg):
                 if len(arg) == 4:
-                    if [x for x in arg if (float(x) < 0) or (x > 1)]:
-                        # This will raise TypeError if x is not a number.
+                    if any(float(x) < 0 or x > 1 for x in arg):
                         raise ValueError(
                             'number in rbga sequence outside 0-1 range')
                     if alpha is None:
@@ -358,10 +358,14 @@ class ColorConverter(object):
                     if alpha < 0.0 or alpha > 1.0:
                         raise ValueError("alpha must be in range 0-1")
                     return arg[0], arg[1], arg[2], alpha
-                r, g, b = arg[:3]
-                if [x for x in (r, g, b) if (float(x) < 0) or (x > 1)]:
+                if len(arg) == 3:
+                    r, g, b = arg
+                    if any(float(x) < 0 or x > 1 for x in arg):
+                        raise ValueError(
+                            'number in rbg sequence outside 0-1 range')
+                else:
                     raise ValueError(
-                        'number in rbg sequence outside 0-1 range')
+                            'length of rgba sequence should be either 3 or 4')
             else:
                 r, g, b = self.to_rgb(arg)
             if alpha is None:

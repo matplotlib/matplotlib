@@ -4,11 +4,7 @@ This is an object-oriented plotting library.
 A procedural interface is provided by the companion pyplot module,
 which may be imported directly, e.g.::
 
-    from matplotlib.pyplot import *
-
-To include numpy functions too, use::
-
-    from pylab import *
+    import matplotlib.pyplot as plt
 
 or using ipython::
 
@@ -16,7 +12,8 @@ or using ipython::
 
 at your terminal, followed by::
 
-    In [1]: %pylab
+    In [1]: %matplotlib
+    In [2]: import matplotlib.pyplot as plt
 
 at the ipython shell prompt.
 
@@ -25,8 +22,7 @@ encouraged when programming; pyplot is primarily for working
 interactively.  The
 exceptions are the pyplot commands :func:`~matplotlib.pyplot.figure`,
 :func:`~matplotlib.pyplot.subplot`,
-:func:`~matplotlib.pyplot.subplots`,
-:func:`~matplotlib.backends.backend_qt4agg.show`, and
+:func:`~matplotlib.pyplot.subplots`, and
 :func:`~pyplot.savefig`, which can greatly simplify scripting.
 
 Modules include:
@@ -111,7 +107,7 @@ import sys
 import distutils.version
 
 __version__  = '1.4.x'
-__version__numpy__ = '1.5' # minimum required numpy version
+__version__numpy__ = '1.6' # minimum required numpy version
 
 try:
     import dateutil
@@ -347,8 +343,9 @@ def checkdep_dvipng():
     try:
         s = subprocess.Popen(['dvipng','-version'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        line = s.stdout.readlines()[1]
-        v = line.split()[-1].decode('ascii')
+        stdout, stderr = s.communicate()
+        line = stdout.decode('ascii').split('\n')[1]
+        v = line.split()[-1]
         return v
     except (IndexError, ValueError, OSError):
         return None
@@ -375,7 +372,8 @@ def checkdep_tex():
     try:
         s = subprocess.Popen(['tex','-version'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        line = s.stdout.readlines()[0].decode('ascii')
+        stdout, stderr = s.communicate()
+        line = stdout.decode('ascii').split('\n')[0]
         pattern = '3\.1\d+'
         match = re.search(pattern, line)
         v = match.group(0)
@@ -387,9 +385,11 @@ def checkdep_pdftops():
     try:
         s = subprocess.Popen(['pdftops','-v'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        for line in s.stderr:
-            if b'version' in line:
-                v = line.split()[-1].decode('ascii')
+        stdout, stderr = s.communicate()
+        lines = stderr.decode('ascii').split('\n')
+        for line in lines:
+            if 'version' in line:
+                v = line.split()[-1]
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
         return None
@@ -398,9 +398,11 @@ def checkdep_inkscape():
     try:
         s = subprocess.Popen(['inkscape','-V'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        for line in s.stdout:
-            if b'Inkscape' in line:
-                v = line.split()[1].decode('ascii')
+        stdout, stderr = s.communicate()
+        lines = stdout.decode('ascii').split('\n')
+        for line in lines:
+            if 'Inkscape' in line:
+                v = line.split()[1]
                 break
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
@@ -410,9 +412,11 @@ def checkdep_xmllint():
     try:
         s = subprocess.Popen(['xmllint','--version'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        for line in s.stderr:
-            if b'version' in line:
-                v = line.split()[-1].decode('ascii')
+        stdout, stderr = s.communicate()
+        lines = stderr.decode('ascii').split('\n')
+        for line in lines:
+            if 'version' in line:
+                v = line.split()[-1]
                 break
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
@@ -741,7 +745,11 @@ def matplotlib_fname():
     - Lastly, it looks in `$MATPLOTLIBDATA/matplotlibrc` for a
       system-defined copy.
     """
-    fname = os.path.join(os.getcwd(), 'matplotlibrc')
+    if six.PY2:
+        cwd = os.getcwdu()
+    else:
+        cwd = os.getcwd()
+    fname = os.path.join(cwd, 'matplotlibrc')
     if os.path.exists(fname):
         return fname
 
@@ -1360,6 +1368,7 @@ default_test_modules = [
     'matplotlib.tests.test_tightlayout',
     'matplotlib.tests.test_transforms',
     'matplotlib.tests.test_triangulation',
+    'mpl_toolkits.tests.test_mplot3d',
     ]
 
 
@@ -1387,9 +1396,10 @@ def test(verbosity=1):
         # a list.
         multiprocess._instantiate_plugins = [KnownFailure]
 
-        success = nose.run( defaultTest=default_test_modules,
-                            config=config,
-                            )
+        success = nose.run(
+            defaultTest=default_test_modules,
+            config=config,
+        )
     finally:
         if old_backend.lower() != 'agg':
             use(old_backend)

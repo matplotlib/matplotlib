@@ -86,6 +86,11 @@ def _backend_selection():
         if not PyQt4.QtGui.qApp.startingUp():
             # The mainloop is running.
             rcParams['backend'] = 'qt4Agg'
+    elif 'PyQt5.QtCore' in sys.modules and not backend == 'Qt5Agg':
+        import PyQt5.QtWidgets
+        if not PyQt5.QtWidgets.qApp.startingUp():
+            # The mainloop is running.
+            rcParams['backend'] = 'qt5Agg'
     elif 'gtk' in sys.modules and not backend in ('GTK', 'GTKAgg',
                                                             'GTKCairo'):
         import gobject
@@ -730,15 +735,21 @@ def axes(*args, **kwargs):
     - ``axes(h)`` where *h* is an axes instance makes *h* the current
       axis.  An :class:`~matplotlib.axes.Axes` instance is returned.
 
-    =======   ============   ================================================
-    kwarg     Accepts        Description
-    =======   ============   ================================================
-    axisbg    color          the axes background color
-    frameon   [True|False]   display the frame?
-    sharex    otherax        current axes shares xaxis attribute with otherax
-    sharey    otherax        current axes shares yaxis attribute with otherax
-    polar     [True|False]   use a polar axes?
-    =======   ============   ================================================
+    =======   ==============   ==============================================
+    kwarg     Accepts          Description
+    =======   ==============   ==============================================
+    axisbg    color            the axes background color
+    frameon   [True|False]     display the frame?
+    sharex    otherax          current axes shares xaxis attribute
+                               with otherax
+    sharey    otherax          current axes shares yaxis attribute
+                               with otherax
+    polar     [True|False]     use a polar axes?
+    aspect    [str | num]      ['equal', 'auto'] or a number.  If a number
+                               the ratio of x-unit/y-unit in screen-space.
+                               Also see
+                               :meth:`~matplotlib.axes.Axes.set_aspect`.
+    =======   ==============   ==============================================
 
     Examples:
 
@@ -749,8 +760,9 @@ def axes(*args, **kwargs):
     """
 
     nargs = len(args)
-    if len(args)==0: return subplot(111, **kwargs)
-    if nargs>1:
+    if len(args) == 0:
+        return subplot(111, **kwargs)
+    if nargs > 1:
         raise TypeError('Only one non keyword arg to axes allowed')
     arg = args[0]
 
@@ -953,9 +965,9 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         If a string must be one of "row", "col", "all", or "none".
         "all" has the same effect as *True*, "none" has the same effect
         as *False*.
-        If "row", each subplot row will share a Y axis.
-        If "col", each subplot column will share a Y axis and the y tick
-        labels on all but the last row will have visible set to *False*.
+        If "row", each subplot row will share a Y axis and the y tick
+        labels on all but the first column will have visible set to *False*.
+        If "col", each subplot column will share a Y axis.
 
       *squeeze* : bool
         If *True*, extra dimensions are squeezed out from the
@@ -1299,17 +1311,24 @@ def title(s, *args, **kwargs):
     positioned above the axes in the center, flush with the left edge,
     and flush with the right edge.
 
+    .. seealso::
+        See :func:`~matplotlib.pyplot.text` for adding text
+        to the current axes
+
     Parameters
     ----------
     label : str
         Text to use for the title
+
     fontdict : dict
         A dictionary controlling the appearance of the title text,
         the default `fontdict` is:
-        {'fontsize': rcParams['axes.titlesize'],
-         'fontweight' : rcParams['axes.titleweight'],
-         'verticalalignment': 'baseline',
-         'horizontalalignment': loc}
+
+            {'fontsize': rcParams['axes.titlesize'],
+            'fontweight' : rcParams['axes.titleweight'],
+            'verticalalignment': 'baseline',
+            'horizontalalignment': loc}
+
     loc : {'center', 'left', 'right'}, str, optional
         Which title to set, defaults to 'center'
 
@@ -1320,13 +1339,10 @@ def title(s, *args, **kwargs):
 
     Other parameters
     ----------------
-    Other keyword arguments are text properties, see
-    :class:`~matplotlib.text.Text` for a list of valid text
-    properties.
-
-    See also
-    --------
-    See :func:`~matplotlib.pyplot.text` for adding text to the current axes
+    kwargs : text properties
+        Other keyword arguments are text properties, see
+        :class:`~matplotlib.text.Text` for a list of valid text
+        properties.
 
     """
     l =  gca().set_title(s, *args, **kwargs)
@@ -2603,7 +2619,8 @@ def boxplot(x, notch=False, sym='b+', vert=True, whis=1.5, positions=None,
             widths=None, patch_artist=False, bootstrap=None, usermedians=None,
             conf_intervals=None, meanline=False, showmeans=False, showcaps=True,
             showbox=True, showfliers=True, boxprops=None, labels=None,
-            flierprops=None, medianprops=None, meanprops=None, hold=None):
+            flierprops=None, medianprops=None, meanprops=None,
+            manage_xticks=True, hold=None):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
@@ -2620,7 +2637,7 @@ def boxplot(x, notch=False, sym='b+', vert=True, whis=1.5, positions=None,
                          showbox=showbox, showfliers=showfliers,
                          boxprops=boxprops, labels=labels,
                          flierprops=flierprops, medianprops=medianprops,
-                         meanprops=meanprops)
+                         meanprops=meanprops, manage_xticks=manage_xticks)
         draw_if_interactive()
     finally:
         ax.hold(washold)
@@ -2729,7 +2746,7 @@ def csd(x, y, NFFT=None, Fs=None, Fc=None, detrend=None, window=None,
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
 @_autogen_docstring(Axes.errorbar)
-def errorbar(x, y, yerr=None, xerr=None, fmt='-', ecolor=None, elinewidth=None,
+def errorbar(x, y, yerr=None, xerr=None, fmt='', ecolor=None, elinewidth=None,
              capsize=3, barsabove=False, lolims=False, uplims=False,
              xlolims=False, xuplims=False, errorevery=1, capthick=None,
              hold=None, **kwargs):

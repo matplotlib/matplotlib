@@ -10,23 +10,24 @@ recommended solutions.  It is not a complete guide to Python 2 and 3
 compatibility.
 
 Welcome to the ``__future__``
------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The top of every `.py` file should include the following::
 
-    from __future__ import absolute_import, division, print_function, unicode_literals
+    from __future__ import (absolute_import, division,
+                            print_function, unicode_literals)
+    import six
 
 This will make the Python 2 interpreter behave as close to Python 3 as
 possible.
 
 All matplotlib files should also import `six`, whether they are using
 it or not, just to make moving code between modules easier, as `six`
-gets used *a lot*::
+gets used *a lot*.
 
-    import six
 
 Finding places to use six
--------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The only way to make sure code works on both Python 2 and 3 is to make sure it
 is covered by unit tests.
@@ -41,7 +42,7 @@ The `six <http://pythonhosted.org/six/>`_ documentation serves as a
 good reference for the sorts of things that need to be updated.
 
 The dreaded ``\u`` escapes
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 When `from __future__ import unicode_literals` is used, all string
 literals (not preceded with a `b`) will become unicode literals.
@@ -86,7 +87,7 @@ of that and still support Python 2::
     '\\u'
 
 Iteration
----------
+^^^^^^^^^
 
 The behavior of the methods for iterating over the items, values and
 keys of a dictionary has changed in Python 3.  Additionally, other
@@ -111,7 +112,7 @@ Python 2                       Python 3                       six
 ============================== ============================== ==============================
 
 Numpy-specific things
----------------------
+^^^^^^^^^^^^^^^^^^^^^
 
 When specifying dtypes, all strings must be byte strings on Python 2
 and unicode strings on Python 3.  The best way to handle this is to

@@ -4,10 +4,8 @@
  Installation
 *************
 
-
 .. contents::
    :backlinks: none
-
 
 Report a compilation problem
 ============================
@@ -147,6 +145,8 @@ line script to the appropriate places.
 .. note::
    Mac OSX users please see the :ref:`build_osx` guide.
 
+   Windows users please see the :ref:`build_windows` guide.
+
 Then, if you want to update your matplotlib at any time, just do::
 
   > git pull
@@ -181,138 +181,217 @@ OS-X Notes
 Which python for OS X?
 ----------------------
 
-Apple ships with its own python, and many users have had trouble
-with it. There are several alternative versions of python that
-can be used. If it is feasible, we recommend that you use
-`Enthought Canopy <https://www.enthought.com/products/canopy/>`_
-for OS X (which comes with matplotlib and much more). Also available is
-`MacPython <http://wiki.python.org/moin/MacPython/Leopard>`_ or the
-official OS X version from `python.org <http://www.python.org/download/>`_.
+Apple ships OS X with its own Python, in ``/usr/bin/python``, and its own copy
+of matplotlib. Unfortunately, the way Apple currently installs its own copies
+of numpy, scipy and matplotlib means that these packages are difficult to
+upgrade (see `system python packages`_).  For that reason we strongly suggest
+that you install a fresh version of Python and use that as the basis for
+installing libraries such as numpy and matplotlib.  One convenient way to
+install matplotlib with other useful Python software is to use one of the
+excellent Python scientific software collections that are now available:
 
-.. note::
-   Before installing any of the binary packages, be sure that all of the
-   packages were compiled for the same version of python.
-   Often, the download site for NumPy and matplotlib will display a
-   supposed 'current' version of the package, but you may need to choose
-   a different package from the full list that was built for your
-   combination of python and OSX.
+.. _system python packages:
+    https://github.com/MacPython/wiki/wiki/Which-Python#system-python-and-extra-python-packages
 
+- Anaconda_ from `Continuum Analytics`_
+- Canopy_ from Enthought_
+
+.. _Canopy: https://enthought.com/products/canopy/
+.. _Anaconda: https://store.continuum.io/cshop/anaconda/
+.. _Enthought: http://enthought.com
+.. _Continuum Analytics: http://continuum.io
+
+These collections include Python itself and a wide range of libraries; if you
+need a library that is not available from the collection, you can install it
+yourself using standard methods such as *pip*.  Continuum and Enthought offer
+their own installation support for these collections; see the Ananconda and
+Canopy web pages for more information.
+
+Other options for a fresh Python install are the standard installer from
+`python.org <https://www.python.org/downloads/mac-osx/>`_, or installing
+Python using a general OSX package management system such as `homebrew
+<http://brew.sh>`_ or `macports <http://www.macports.org>`_.  Power users on
+OSX will likely want one of homebrew or macports on their system to install
+open source software packages, but it is perfectly possible to use these
+systems with another source for your Python binary, such as Anaconda, Canopy
+or Python.org Python.
 
 .. _install_osx_binaries:
 
-Installing OSX binaries
------------------------
+Installing OSX binary wheels
+----------------------------
 
-If you want to install matplotlib from one of the binary installers we
-build, you have two choices: a mpkg installer, which is a typical
-Installer.app, or a binary OSX egg, which you can install via
-setuptools' easy_install.
+If you are using recent Python from http://www.python.org, Macports or
+Homebrew, then you can use the standard pip installer to install matplotlib
+binaries in the form of wheels.
 
-The mkpg installer will have a "zip" extension, and will have a name
-like :file:`matplotlib-1.2.0-py2.7-macosx10.5_mpkg.zip`.
-The name of the installer depends on which versions of python, matplotlib,
-and OSX it was built for.  You need to unzip this file using either the
-"unzip" command, or simply double clicking on the it. Then when you
-double-click on the resulting mpkd, which will have a name like
-:file:`matplotlib-1.2.0-py2.7-macosx10.5.mpkg`, it will run the
-Installer.app, prompt you for a password if you need system-wide
-installation privileges, and install to a directory like
-:file:`/Library/Python/2.7/site-packages/` (exact path depends on your
-python version).  This directory may not be in your python 'path' variable,
-so you should test your installation with::
+Python.org Python
+^^^^^^^^^^^^^^^^^
 
-  > python -c 'import matplotlib; print matplotlib.__version__, matplotlib.__file__'
+Install pip following the `standard pip install instructions
+<http://pip.readthedocs.org/en/latest/installing.html>`_.  For the impatient,
+open a new Terminal.app window and::
 
-If you get an error like::
+    curl -O https://bootstrap.pypa.io/get-pip.py
+
+Then (Python 2.7)::
+
+    python get-pip.py
+
+or (Python 3)::
+
+    python3 get-pip.py
+
+You can now install matplotlib and all its dependencies with::
+
+    pip install matplotlib
+
+Macports
+^^^^^^^^
+
+For Python 2.7::
+
+    sudo port install py27-pip
+    sudo pip-2.7 install matplotlib
+
+For Python 3.4::
+
+    sudo port install py34-pip
+    sudo pip-3.4 install matplotlib
+
+Homebrew
+^^^^^^^^
+
+For Python 2.7::
+
+    pip2 install matplotlib
+
+For Python 3.4::
+
+    pip3 install matplotlib
+
+You might also want to install IPython; we recommend you install IPython with
+the IPython notebook option, like this:
+
+* Python.org Python:  ``pip install ipython[notebook]``
+* Macports ``sudo pip-2.7 install ipython[notebook]`` or ``sudo pip-3.4
+  install ipython[notebook]``
+* Homebrew ``pip2 install ipython[notebook]`` or ``pip3 install
+  ipython[notebook]``
+
+Pip problems
+^^^^^^^^^^^^
+
+If you get errors with pip trying to run a compiler like ``gcc`` or ``clang``,
+then the first thing to try is to `install xcode
+<https://guide.macports.org/chunked/installing.html#installing.xcode>`_ and
+retry the install.  If that does not work, then check
+:ref:`reporting-problems`.
+
+Installing via OSX mpkg installer package
+-----------------------------------------
+
+matplotlib also has a disk image (``.dmg``) installer, which contains a
+typical Installer.app package to install matplotlib.  You should use binary
+wheels instead of the disk image installer if you can, because:
+
+* wheels work with Python.org Python, homebrew and macports, the disk image
+  installer only works with Python.org Python.
+* The disk image installer doesn't check for recent versions of packages that
+  matplotlib depends on, and unconditionally installs the versions of
+  dependencies contained in the disk image installer.  This can overwrite
+  packages that you have already installed, which might cause problems for
+  other packages, if you have a pre-existing Python.org setup on your
+  computer.
+
+If you still want to use the disk image installer, read on.
+
+.. note::
+   Before installing via the disk image installer, be sure that all of the
+   packages were compiled for the same version of python.  Often, the download
+   site for NumPy and matplotlib will display a supposed 'current' version of
+   the package, but you may need to choose a different package from the full
+   list that was built for your combination of python and OSX.
+
+The disk image installer will have a ``.dmg`` extension, and will have a name
+like :file:`matplotlib-1.4.0-py2.7-macosx10.6.dmg`.
+The name of the installer depends on the versions of python and matplotlib it
+was built for, and the version of OSX that the matching Python.org installer
+was built for.  For example, if the mathing Python.org Python installer was
+built for OSX 10.6 or greater, the dmg file will end in ``-macosx10.6.dmg``.
+You need to download this disk image file, open the disk image file by double
+clicking, and find the new matplotlib disk image icon on your desktop.  Double
+click on that icon to show the contents of the image.  Then double-click on
+the ``.mpkg`` icon, which will have a name like
+:file:`matplotlib-1.4.0-py2.7-macosx10.6.mpkg`, it will run the Installer.app,
+prompt you for a password if you need system-wide installation privileges, and
+install to a directory like
+:file:`/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages`
+(exact path depends on your Python version).
+
+Checking your installation
+--------------------------
+
+The new version of matplotlib should now be on your Python "path".  Check this
+with one of these commands at the Terminal.app command line::
+
+  python2.7 -c 'import matplotlib; print matplotlib.__version__, matplotlib.__file__'
+
+(Python 2.7) or::
+
+  python3.4 -c 'import matplotlib; print(matplotlib.__version__, matplotlib.__file__)'
+
+(Python 3.4).  You should see something like this::
+
+  1.4.0 /Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/matplotlib/__init__.pyc
+
+where ``1.4.0`` is the matplotlib version you just installed, and the path
+following depends on whether you are using Python.org Python, Homebrew or
+Macports.  If you see another version, or you get an error like this::
 
     Traceback (most recent call last):
       File "<string>", line 1, in <module>
     ImportError: No module named matplotlib
 
-then you will need to set your PYTHONPATH, eg::
+then check that the Python binary is the one you expected by doing one of
+these commands in Terminal.app::
 
-    export PYTHONPATH=/Library/Python/2.7/site-packages:$PYTHONPATH
+  which python2.7
 
-See also ref:`environment-variables`.
+or::
 
-.. _install_from_source_on_osx_epd:
+  which python3.4
 
-Building and installing from source on OSX with EPD
----------------------------------------------------
-
-If you have the EPD installed (:ref:`which-python-for-osx`), it might turn out
-to be rather tricky to install a new version of matplotlib from source on the
-Mac OS 10.5 . Here's a procedure that seems to work, at least sometimes:
-
-0. Remove the ~/.matplotlib folder ("rm -rf ~/.matplotlib").
-
-1. Edit the file (make a backup before you start, just in case):
-``/Library/Frameworks/Python.framework/Versions/Current/lib/python2.5/config/Makefile``,
-removing all occurrences of the string ``-arch ppc``, changing the line
-``MACOSX_DEPLOYMENT_TARGET=10.3`` to ``MACOSX_DEPLOYMENT_TARGET=10.5`` and
-changing the occurrences of ``MacOSX10.4u.sdk`` into ``MacOSX10.5.sdk``
-
-2.  In
-``/Library/Frameworks/Python.framework/Versions/Current/lib/pythonX.Y/site-packages/easy-install.pth``,
-(where X.Y is the version of Python you are building against)
-Comment out the line containing the name of the directory in which the
-previous version of MPL was installed (Looks something like
-``./matplotlib-0.98.5.2n2-py2.5-macosx-10.3-fat.egg``).
-
-3. Save the following as a shell script, for example
-``./install-matplotlib-epd-osx.sh``::
-
-   NAME=matplotlib
-   VERSION=v1.1.x
-   PREFIX=$HOME
-   #branch="release"
-   branch="master"
-   git clone git://github.com/matplotlib/matplotlib.git
-   cd matplotlib
-   if [ $branch = "release" ]
-       then
-       echo getting the maintenance branch
-       git checkout -b $VERSION origin/$VERSION
-   fi
-   export CFLAGS="-Os -arch i386"
-   export LDFLAGS="-Os -arch i386"
-   export PKG_CONFIG_PATH="/usr/x11/lib/pkgconfig"
-   export ARCHFLAGS="-arch i386"
-   python setup.py build
-   # use --prefix if you don't want it installed in the default location:
-   python setup.py install #--prefix=$PREFIX
-   cd ..
-
-Run this script (for example ``sh ./install-matplotlib-epd-osx.sh``) in the
-directory in which you want the source code to be placed, or simply type the
-commands in the terminal command line. This script sets some local variable
-(CFLAGS, LDFLAGS, PKG_CONFIG_PATH, ARCHFLAGS), removes previous installations,
-checks out the source from github, builds and installs it. The backend should
-to be set to MacOSX.
-
+If you get the result ``/usr/bin/python2.7``, then you are getting the Python
+installed with OSX, which is probably not what you want.  Try closing and
+restarting Terminal.app before running the check again. If that doesn't fix
+the problem, depending on which Python you wanted to use, consider
+reinstalling Python.org Python, or check your homebrew or macports setup.
+Remember that the disk image installer only works for Python.org Python, and
+will not get picked up by other Pythons.  If all these fail, please let us
+know: see :ref:`reporting-problems`.
 
 Windows Notes
 =============
 
+We recommend you use one of the excellent python collections which include
+Python itself and a wide range of libraries including matplotlib:
+
+- Anaconda_ from `Continuum Analytics`_
+- Canopy_ from Enthought_
+- `Python (x, y) <https://code.google.com/p/pythonxy>`_
+
+Python (X, Y) is Windows-only, whereas Anaconda and Canopy are cross-platform.
+
 .. _windows-installers:
 
-Binary installers for Windows
------------------------------
+Standalone binary installers for Windows
+----------------------------------------
 
-If you have already installed python, you can use one of the
+If you have already installed Python and numpy, you can use one of the
 matplotlib binary installers for windows -- you can get these from the
-`download <http://matplotlib.org/downloads.html>`_ site.
-Choose the files that match your version of python (eg ``py2.7`` if
-you installed Python 2.7) which have the ``exe`` extension.  If you
-haven't already installed python, you can get the official version
-from the `python web site <http://python.org/download/>`_.
-
-There are also two packaged distributions of python that come
-preloaded with matplotlib and many other tools like ipython, numpy,
-scipy, vtk and user interface toolkits.  These packages are quite
-large because they come with so much, but you get everything with
-a single click installer.
-
-* `Enthought Canopy <https://www.enthought.com/products/canopy/>`_
-
-* `python (x, y) <http://www.pythonxy.com>`_
+`download <http://matplotlib.org/downloads.html>`_ site.  Chose the files with
+an ``.exe`` extension that match your version of Python (eg ``py2.7`` if you
+installed Python 2.7).  If you haven't already installed Python, you can get
+the official version from the `Python web site
+<http://python.org/download/>`_.

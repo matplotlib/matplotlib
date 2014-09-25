@@ -3,13 +3,18 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import mock
-from nose.tools import assert_equal
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
+
+try:
+    # mock in python 3.3+
+    from unittest import mock
+except ImportError:
+    import mock
+from nose.tools import assert_equal
 
 
 @image_comparison(baseline_images=['patheffect1'], remove_text=True)

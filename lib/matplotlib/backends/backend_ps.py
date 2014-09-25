@@ -56,6 +56,7 @@ backend_version = 'Level II'
 
 debugPS = 0
 
+
 class PsBackendHelper(object):
 
     def __init__(self):
@@ -78,7 +79,6 @@ class PsBackendHelper(object):
         self._cached["gs_exe"] = gs_exe
         return gs_exe
 
-
     @property
     def gs_version(self):
         """
@@ -90,14 +90,18 @@ class PsBackendHelper(object):
             pass
 
         from matplotlib.compat.subprocess import Popen, PIPE
-        pipe = Popen(self.gs_exe + " --version",
-                     shell=True, stdout=PIPE).stdout
+        s = Popen(self.gs_exe + " --version",
+                     shell=True, stdout=PIPE)
+        pipe, stderr = s.communicate()
         if six.PY3:
-            ver = pipe.read().decode('ascii')
+            ver = pipe.decode('ascii')
         else:
-            ver = pipe.read()
-        gs_version = tuple(map(int, ver.strip().split(".")))
-
+            ver = pipe
+        try:
+            gs_version = tuple(map(int, ver.strip().split(".")))
+        except ValueError:
+            # if something went wrong parsing return null version number
+            gs_version = (0, 0)
         self._cached["gs_version"] = gs_version
         return gs_version
 
@@ -554,16 +558,17 @@ grestore
         return ps
 
     def _get_clip_path(self, clippath, clippath_transform):
-        id = self._clip_paths.get((clippath, clippath_transform))
-        if id is None:
-            id = 'c%x' % len(self._clip_paths)
-            ps_cmd = ['/%s {' % id]
+        key = (clippath, id(clippath_transform))
+        pid = self._clip_paths.get(key)
+        if pid is None:
+            pid = 'c%x' % len(self._clip_paths)
+            ps_cmd = ['/%s {' % pid]
             ps_cmd.append(self._convert_path(clippath, clippath_transform,
                                              simplify=False))
             ps_cmd.extend(['clip', 'newpath', '} bind def\n'])
             self._pswriter.write('\n'.join(ps_cmd))
-            self._clip_paths[(clippath, clippath_transform)] = id
-        return id
+            self._clip_paths[key] = pid
+        return pid
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         """

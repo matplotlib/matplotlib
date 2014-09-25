@@ -1,3 +1,4 @@
+
 .. _howto-faq:
 
 ******
@@ -11,7 +12,7 @@ How-To
 .. _howto-plotting:
 
 Plotting: howto
-=================
+===============
 
 .. _howto-findobj:
 
@@ -39,10 +40,23 @@ You can also filter on class instances::
         o.set_fontstyle('italic')
 
 
+.. _howto-supress_offset:
+
+How to prevent ticklabels from having an offset
+-----------------------------------------------
+The default formatter will use an offset to reduce
+the length of the ticklabels.  To turn this feature
+off on a per-axis basis::
+
+   ax.get_xaxis().get_major_formatter().set_useOffset(False)
+
+set the rcParam ``axes.formatter.useoffset``, or use a different
+formatter.  See :mod:`~matplotlib.ticker` for details.
+
 .. _howto-transparent:
 
 Save transparent figures
-----------------------------------
+------------------------
 
 The :meth:`~matplotlib.pyplot.savefig` command has a keyword argument
 *transparent* which, if 'True', will make the figure and axes
@@ -102,7 +116,7 @@ Finally, the multipage pdf object has to be closed::
 .. _howto-subplots-adjust:
 
 Move the edge of an axes to make room for tick labels
-----------------------------------------------------------------------------
+-----------------------------------------------------
 
 For subplots, you can control the default spacing on the left, right,
 bottom, and top as well as the horizontal and vertical spacing between
@@ -270,53 +284,6 @@ to achieve the desired plot::
 
     plt.show()
 
-.. _point-in-poly:
-
-Test whether a point is inside a polygon
-----------------------------------------
-
-The :mod:`~matplotlib.nxutils` provides two high-performance methods:
-for a single point use :func:`~matplotlib.nxutils.pnpoly` and for an
-array of points use :func:`~matplotlib.nxutils.points_inside_poly`.
-For a discussion of the implementation see `pnpoly
-<http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html>`_.
-
-.. sourcecode:: ipython
-
-    In [25]: import numpy as np
-
-    In [26]: import matplotlib.nxutils as nx
-
-    In [27]: verts = np.array([ [0,0], [0, 1], [1, 1], [1,0]], float)
-
-    In [28]: nx.pnpoly( 0.5, 0.5, verts)
-    Out[28]: 1
-
-    In [29]: nx.pnpoly( 0.5, 1.5, verts)
-    Out[29]: 0
-
-    In [30]: points = np.random.rand(10,2)*2
-
-    In [31]: points
-    Out[31]:
-    array([[ 1.03597426,  0.61029911],
-           [ 1.94061056,  0.65233947],
-           [ 1.08593748,  1.16010789],
-           [ 0.9255139 ,  1.79098751],
-           [ 1.54564936,  1.15604046],
-           [ 1.71514397,  1.26147554],
-           [ 1.19133536,  0.56787764],
-           [ 0.40939549,  0.35190339],
-           [ 1.8944715 ,  0.61785408],
-           [ 0.03128518,  0.48144145]])
-
-    In [32]: nx.points_inside_poly(points, verts)
-    Out[32]: array([False, False, False, False, False, False, False,  True, False, True], dtype=bool)
-
-.. htmlonly::
-
-    For a complete example, see :ref:`event_handling-lasso_demo`.
-
 .. _howto-set-zorder:
 
 Control the depth of plot elements
@@ -356,53 +323,6 @@ some ratio which controls the ratio::
 .. htmlonly::
 
     See :ref:`pylab_examples-equal_aspect_ratio` for a complete example.
-
-
-.. _howto-movie:
-
-Make a movie
-------------
-
-If you want to take an animated plot and turn it into a movie, the
-best approach is to save a series of image files (eg PNG) and use an
-external tool to convert them to a movie.  You can use `mencoder
-<http://www.mplayerhq.hu/DOCS/HTML/en/mencoder.html>`_,
-which is part of the `mplayer <http://www.mplayerhq.hu>`_ suite
-for this::
-
-    #fps (frames per second) controls the play speed
-    mencoder 'mf://*.png' -mf type=png:fps=10 -ovc \\
-       lavc -lavcopts vcodec=wmv2 -oac copy -o animation.avi
-
-The swiss army knife of image tools, ImageMagick's `convert
-<http://www.imagemagick.org/script/convert.php>`_ works for this as
-well.
-
-Here is a simple example script that saves some PNGs, makes them into
-a movie, and then cleans up::
-
-    import os, sys
-    import matplotlib.pyplot as plt
-
-    files = []
-    fig = plt.figure(figsize=(5,5))
-    ax = fig.add_subplot(111)
-    for i in range(50):  # 50 frames
-        ax.cla()
-        ax.imshow(rand(5,5), interpolation='nearest')
-        fname = '_tmp%03d.png'%i
-        print 'Saving frame', fname
-        fig.savefig(fname)
-        files.append(fname)
-
-    print 'Making movie animation.mpg - this make take a while'
-    os.system("mencoder 'mf://_tmp*.png' -mf type=png:fps=10 \\
-      -ovc lavc -lavcopts vcodec=wmv2 -oac copy -o animation.mpg")
-
-.. htmlonly::
-
-    Josh Lifton provided this example :ref:`old_animation-movie_demo`, which
-    is possibly dated since it was written in 2004.
 
 
 .. _howto-twoscale:
@@ -467,13 +387,14 @@ pyplot::
 
 
 .. seealso::
+
     :ref:`howto-webapp` for information about running matplotlib inside
     of a web application.
 
 .. _howto-show:
 
 Use :func:`~matplotlib.pyplot.show`
-------------------------------------------
+-----------------------------------
 
 When you want to view your plots on your display,
 the user interface backend will need to start the GUI mainloop.
@@ -563,39 +484,42 @@ though we have made significant progress towards supporting blocking events.
 Contributing: howto
 ===================
 
+.. _how-to-request-feature:
+
+Request a new feature
+---------------------
+
+Is there a feature you wish matplotlib had?  Then ask!  The best
+way to get started is to email the developer `mailing
+list <matplotlib-devel@lists.sourceforge.net>`_ for discussion.
+This is an open source project developed primarily in the
+contributors free time, so there is no guarantee that your
+feature will be added.  The *best* way to get the feature
+you need added is to contribute it your self.
+
 .. _how-to-submit-patch:
 
-Submit a patch
---------------
+Reporting a bug or submitting a patch
+-------------------------------------
 
-See :ref:`making-patches` for information on how to make a patch with git.
+The development of matplotlib is organized through `github
+<https://github.com/matplotlib/matplotlib>`_.  If you would like
+to report a bug or submit a patch please use that interface.
 
-If you are posting a patch to fix a code bug, please explain your
-patch in words -- what was broken before and how you fixed it.  Also,
-even if your patch is particularly simple, just a few lines or a
-single function replacement, we encourage people to submit git diffs
-against HEAD of the branch they are patching.  It just makes life
-easier for us, since we (fortunately) get a lot of contributions, and
-want to receive them in a standard format.  If possible, for any
-non-trivial change, please include a complete, free-standing example
-that the developers can run unmodified which shows the undesired
-behavior pre-patch and the desired behavior post-patch, with a clear
-verbal description of what to look for.  A developer may
-have written the function you are working on years ago, and may no
-longer be with the project, so it is quite possible you are the world
-expert on the code you are patching and we want to hear as much detail
-as you can offer.
+To report a bug `create an issue
+<https://github.com/matplotlib/matplotlib/issues/new>`_ on github
+(this requires having a github account).  Please include a `Short,
+Self Contained, Correct (Compilable), Example <http://sscce.org>`_
+demonstrating what the bug is.  Including a clear, easy to test
+example makes it easy for the developers to evaluate the bug.  Expect
+that the bug reports will be a conversation.  If you do not want to
+register with github, please email bug reports to the `mailing list
+<matplotlib-devel@lists.sourceforge.net>`_.
 
-When emailing your patch and examples, feel free to paste any code
-into the text of the message, indeed we encourage it, but also attach
-the patches and examples since many email clients screw up the
-formatting of plain text, and we spend lots of needless time trying to
-reformat the code to make it usable.
 
-You should check out the guide to developing matplotlib to make sure
-your patch abides by our coding conventions
-:ref:`developers-guide-index`.
-
+The easiest way to submit patches to matplotlib is through pull
+requests on github.  Please see the :ref:`developers-guide-index` for
+the details.
 
 .. _how-to-contribute-docs:
 
@@ -641,7 +565,8 @@ your documents.
 Once your documentation contributions are working (and hopefully
 tested by actually *building* the docs) you can submit them as a patch
 against git.  See :ref:`install-git` and :ref:`how-to-submit-patch`.
-Looking for something to do?  Search for `TODO <../search.html?q=todo>`_.
+Looking for something to do?  Search for `TODO <../search.html?q=todo>`_
+or look at the open issues on github.
 
 
 
@@ -659,7 +584,8 @@ enabled, you may get errors if you don't configure matplotlib for use
 in these environments.  Most importantly, you need to decide what
 kinds of images you want to generate (PNG, PDF, SVG) and configure the
 appropriate default backend.  For 99% of users, this will be the Agg
-backend, which uses the C++ `antigrain <http://antigrain.com>`_
+backend, which uses the C++
+`antigrain <http://agg.sourceforge.net/antigrain.com/index.html>`_
 rendering engine to make nice PNGs.  The Agg backend is also
 configured to recognize requests to generate other output formats
 (PDF, PS, EPS, SVG).  The easiest way to configure matplotlib to use
@@ -693,7 +619,7 @@ or by saving to a file handle::
     import sys
     fig.savefig(sys.stdout)
 
-Here is an example using `Pillow <http://python-imaging.github.io/>__.
+Here is an example using `Pillow <http://python-imaging.github.io/>`_.
 First, the figure is saved to a StringIO object which is then fed to
 Pillow for further processing::
 
@@ -728,9 +654,8 @@ Andrew Dalke of `Dalke Scientific <http://www.dalkescientific.com>`_
 has written a nice `article
 <http://www.dalkescientific.com/writings/diary/archive/2005/04/24/interactive_html.html>`_
 on how to make html click maps with matplotlib agg PNGs.  We would
-also like to add this functionality to SVG and add a SWF backend to
-support these kind of images.  If you are interested in contributing
-to these efforts that would be great.
+also like to add this functionality to SVG.  If you are interested in
+contributing to these efforts that would be great.
 
 
 .. _how-to-search-examples:

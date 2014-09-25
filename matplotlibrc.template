@@ -29,12 +29,12 @@
 
 #### CONFIGURATION BEGINS HERE
 
-# the default backend; one of GTK GTKAgg GTKCairo GTK3Agg GTK3Cairo
-# CocoaAgg MacOSX Qt4Agg TkAgg WX WXAgg Agg Cairo GDK PS PDF SVG
-# Template
+# The default backend; one of GTK GTKAgg GTKCairo GTK3Agg GTK3Cairo
+# CocoaAgg MacOSX Qt4Agg Qt5Agg TkAgg WX WXAgg Agg Cairo GDK PS PDF SVG
+# Template.
 # You can also deploy your own backend outside of matplotlib by
 # referring to the module name (which must be in the PYTHONPATH) as
-# 'module://my_backend'
+# 'module://my_backend'.
 backend      : %(backend)s
 
 # If you are using the Qt4Agg backend, you can choose here
@@ -56,6 +56,10 @@ backend      : %(backend)s
 
 # When True, open the webbrowser to the plot that is shown
 # webagg.open_in_browser : True
+
+# When True, the figures rendered in the nbagg backend are created with
+# a transparent background.
+# nbagg.transparent : True
 
 # if you are running pyplot inside a GUI and your backend choice
 # conflicts, we will automatically try to find a compatible one for
@@ -317,6 +321,7 @@ backend      : %(backend)s
 #legend.columnspacing : 2.    # the border between the axes and legend edge in fraction of fontsize
 #legend.shadow        : False
 #legend.frameon       : True   # whether or not to draw a frame around legend
+#legend.framealpha    : 1.0    # opacity of of legend frame
 #legend.scatterpoints : 3 # number of scatter points
 
 ### FIGURE
@@ -484,3 +489,6 @@ backend      : %(backend)s
                                    # Path to mencoder binary. Without full path
                                    # $PATH is searched
 #animation.mencoder_args: ''       # Additional arguments to pass to mencoder
+#animation.convert_path: 'convert' # Path to ImageMagick's convert binary.
+                                   # On Windows use the full path since convert 
+                                   # is also the name of a system tool.

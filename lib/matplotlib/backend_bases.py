@@ -98,19 +98,21 @@ _default_backends = {
 }
 
 
-def register_backend(format, backend, description):
+def register_backend(format, backend, description=None):
     """
     Register a backend for saving to a given file format.
 
-    *format*
+    format : str
         File extention
 
-    *backend*
-        Backend for handling file output (module string or canvas class)
+    backend : module string or canvas class
+        Backend for handling file output
 
-    *description*
-        Description of the file type
+    description : str, optional
+        Description of the file type.  Defaults to an empty string
     """
+    if description is None:
+        description = ''
     _default_backends[format] = backend
     _default_filetypes[format] = description
 
@@ -2456,9 +2458,11 @@ def key_press_handler(event, canvas, toolbar=None):
         # pan mnemonic (default key 'p')
         elif event.key in pan_keys:
             toolbar.pan()
+            toolbar._set_cursor(event)
         # zoom mnemonic (default key 'o')
         elif event.key in zoom_keys:
             toolbar.zoom()
+            toolbar._set_cursor(event)
         # saving current figure (default key 's')
         elif event.key in save_keys:
             toolbar.save_figure()
@@ -2514,7 +2518,7 @@ class NonGuiException(Exception):
     pass
 
 
-class FigureManagerBase:
+class FigureManagerBase(object):
     """
     Helper class for pyplot mode, wraps everything up into a neat bundle
 
@@ -2739,7 +2743,7 @@ class NavigationToolbar2(object):
         """
         raise NotImplementedError
 
-    def mouse_move(self, event):
+    def _set_cursor(self, event):
         if not event.inaxes or not self._active:
             if self._lastCursor != cursors.POINTER:
                 self.set_cursor(cursors.POINTER)
@@ -2754,6 +2758,9 @@ class NavigationToolbar2(object):
                 self.set_cursor(cursors.MOVE)
 
                 self._lastCursor = cursors.MOVE
+
+    def mouse_move(self, event):
+        self._set_cursor(event)
 
         if event.inaxes and event.inaxes.get_navigate():
 

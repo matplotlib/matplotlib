@@ -6,6 +6,7 @@ import glob
 import os
 import shutil
 import sys
+import re
 
 ### Begin compatibility block for pre-v2.6: ###
 #
@@ -135,28 +136,32 @@ def doctest():
 def linkcheck():
     os.system('sphinx-build -b linkcheck -d build/doctrees . build/linkcheck')
 
-def html():
+def html(buildername='html'):
     check_build()
     copy_if_out_of_date('../lib/matplotlib/mpl-data/matplotlibrc', '_static/matplotlibrc')
     if small_docs:
         options = "-D plot_formats=\"[('png', 80)]\""
     else:
         options = ''
-    if os.system('sphinx-build %s -b html -d build/doctrees . build/html' % options):
+    if os.system('sphinx-build %s -b %s -d build/doctrees . build/%s' % (options, buildername, buildername)):
         raise SystemExit("Building HTML failed.")
 
-    figures_dest_path = 'build/html/pyplots'
-    if os.path.exists(figures_dest_path):
-        shutil.rmtree(figures_dest_path)
-    copytree(
-        'pyplots', figures_dest_path,
-        ignore=ignore_patterns("*.pyc"))
-
     # Clean out PDF files from the _images directory
-    for filename in glob.glob('build/html/_images/*.pdf'):
+    for filename in glob.glob('build/%s/_images/*.pdf' % buildername):
         os.remove(filename)
 
-    shutil.copy('../CHANGELOG', 'build/html/_static/CHANGELOG')
+    shutil.copy('../CHANGELOG', 'build/%s/_static/CHANGELOG' % buildername)
+    
+def htmlhelp():
+    html(buildername='htmlhelp')
+    # remove scripts from index.html
+    with open('build/htmlhelp/index.html', 'r+') as fh:
+        content = fh.read()
+        fh.seek(0)
+        content = re.sub(r'<script>.*?</script>', '', content, 
+                         flags=re.MULTILINE| re.DOTALL)
+        fh.write(content)
+        fh.truncate()
 
 def latex():
     check_build()
@@ -220,6 +225,7 @@ def all():
 
 funcd = {
     'html'     : html,
+    'htmlhelp' : htmlhelp,
     'latex'    : latex,
     'texinfo'  : texinfo,
     'clean'    : clean,

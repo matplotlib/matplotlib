@@ -1,5 +1,5 @@
 include CHANGELOG INSTALL
-include TODO CONTRIBUTING.md
+include CONTRIBUTING.md
 include Makefile MANIFEST.in
 include matplotlibrc.template setup.cfg.template
 include setupext.py setup.py distribute_setup.py
@@ -9,6 +9,7 @@ include lib/matplotlib/mpl-data/images/*
 include lib/matplotlib/mpl-data/fonts/ttf/*
 include lib/matplotlib/mpl-data/fonts/pdfcorefonts/*
 include lib/matplotlib/mpl-data/fonts/afm/*
+include lib/matplotlib/mpl-data/stylelib/*
 recursive-include lib/matplotlib/mpl-data/sample_data *
 recursive-include LICENSE *
 recursive-include examples *

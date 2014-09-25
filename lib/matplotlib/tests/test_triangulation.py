@@ -9,6 +9,7 @@ import matplotlib.tri as mtri
 from nose.tools import assert_equal, assert_raises
 from numpy.testing import assert_array_equal, assert_array_almost_equal,\
     assert_array_less
+import numpy.ma.testutils as matest
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.cm as cm
 from matplotlib.path import Path
@@ -323,7 +324,7 @@ def test_triinterp():
     xs, ys = np.meshgrid(xs, ys)
     for interp in (linear_interp, cubic_min_E, cubic_geom):
         zs = interp(xs, ys)
-        assert_array_almost_equal(zs, (1.23*xs - 4.79*ys))
+        matest.assert_array_almost_equal(zs, (1.23*xs - 4.79*ys))
         mask = (xs >= 1) * (xs <= 2) * (ys >= 1) * (ys <= 2)
         assert_array_equal(zs.mask, mask)
 
@@ -697,7 +698,8 @@ def test_triinterp_transformations():
                 interp_z0[interp_key] = interp(xs0, ys0)  # storage
             else:
                 interpz = interp(xs, ys)
-                assert_array_almost_equal(interpz, interp_z0[interp_key])
+                matest.assert_array_almost_equal(interpz,
+                                                 interp_z0[interp_key])
 
     scale_factor = 987654.3210
     for scaled_axis in ('x', 'y'):
@@ -723,7 +725,7 @@ def test_triinterp_transformations():
         # 1 axis...
         for interp_key in ['lin', 'min_E', 'geom']:
             interpz = dic_interp[interp_key](xs, ys)
-            assert_array_almost_equal(interpz, interp_z0[interp_key])
+            matest.assert_array_almost_equal(interpz, interp_z0[interp_key])
 
 
 @image_comparison(baseline_images=['tri_smooth_contouring'],

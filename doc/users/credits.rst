@@ -8,7 +8,8 @@ Credits
 matplotlib was written by John Hunter and is now developed and
 maintained by a number of `active
 <http://www.ohloh.net/projects/matplotlib/contributors>`_ developers.
-The current lead developer of matplotlib is Michael Droettboom.
+The current co-lead developers of matplotlib are Michael Droettboom
+and Thomas A. Caswell.
 
 Special thanks to those who have made valuable contributions (roughly
 in order of first contribution by date).  Any list like this is bound
@@ -143,7 +144,7 @@ Eric Firing
 
 Daishi Harada
   added support for "Dashed Text".  See `dashpointlabel.py
-  <examples/pylab_examples/dashpointlabel.py>`_ and
+  <../examples/pylab_examples/dashpointlabel.html>`_ and
   :class:`~matplotlib.text.TextWithDash`.
 
 Nicolas Young

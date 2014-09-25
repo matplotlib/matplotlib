@@ -280,18 +280,32 @@ class PackerBase(OffsetBox):
                  align=None, mode=None,
                  children=None):
         """
-        *pad* : boundary pad
-        *sep* : spacing between items
-        *width*, *height* : width and height of the container box.
-           calculated if None.
-        *align* : alignment of boxes. Can be one of 'top', 'bottom',
-           'left', 'right', 'center' and 'baseline'
-        *mode* : packing mode
+        Parameters
+        ----------
+        pad : float, optional
+            Boundary pad.
 
-        .. note::
-          *pad* and *sep* need to given in points and will be
-          scale with the renderer dpi, while *width* and *height*
-          need to be in pixels.
+        sep : float, optional
+            Spacing between items.
+
+        width : float, optional
+
+        height : float, optional
+           Width and height of the container box, calculated if
+           `None`.
+
+        align : str, optional
+            Alignment of boxes. Can be one of ``top``, ``bottom``,
+            ``left``, ``right``, ``center`` and ``baseline``
+
+        mode : str, optional
+            Packing mode.
+
+        Notes
+        -----
+        *pad* and *sep* need to given in points and will be scale with
+        the renderer dpi, while *width* and *height* need to be in
+        pixels.
         """
         super(PackerBase, self).__init__()
 
@@ -314,17 +328,32 @@ class VPacker(PackerBase):
                  align="baseline", mode="fixed",
                  children=None):
         """
-        *pad* : boundary pad
-        *sep* : spacing between items
-        *width*, *height* : width and height of the container box.
-           calculated if None.
-        *align* : alignment of boxes
-        *mode* : packing mode
+        Parameters
+        ----------
+        pad : float, optional
+            Boundary pad.
 
-        .. note::
-          *pad* and *sep* need to given in points and will be
-          scale with the renderer dpi, while *width* and *height*
-          need to be in pixels.
+        sep : float, optional
+            Spacing between items.
+
+        width : float, optional
+
+        height : float, optional
+
+            width and height of the container box, calculated if
+            `None`.
+
+        align : str, optional
+            Alignment of boxes.
+
+        mode : str, optional
+            Packing mode.
+
+        Notes
+        -----
+        *pad* and *sep* need to given in points and will be scale with
+        the renderer dpi, while *width* and *height* need to be in
+        pixels.
         """
         super(VPacker, self).__init__(pad, sep, width, height,
                                       align, mode,
@@ -378,17 +407,31 @@ class HPacker(PackerBase):
                  align="baseline", mode="fixed",
                  children=None):
         """
-        *pad* : boundary pad
-        *sep* : spacing between items
-        *width*, *height* : width and height of the container box.
-           calculated if None.
-        *align* : alignment of boxes
-        *mode* : packing mode
+        Parameters
+        ----------
+        pad : float, optional
+            Boundary pad.
 
-        .. note::
-          *pad* and *sep* need to given in points and will be
-          scale with the renderer dpi, while *width* and *height*
-          need to be in pixels.
+        sep : float, optional
+            Spacing between items.
+
+        width : float, optional
+
+        height : float, optional
+           Width and height of the container box, calculated if
+           `None`.
+
+        align : str
+           Alignment of boxes.
+
+        mode : str
+           Packing mode.
+
+        Notes
+        -----
+        *pad* and *sep* need to given in points and will be scale with
+        the renderer dpi, while *width* and *height* need to be in
+        pixels.
         """
         super(HPacker, self).__init__(pad, sep, width, height,
                                       align, mode, children)
@@ -624,12 +667,20 @@ class TextArea(OffsetBox):
                  minimumdescent=True,
                  ):
         """
-        *s* : a string to be displayed.
-        *textprops* : property dictionary for the text
-        *multilinebaseline* : If True, baseline for multiline text is
-                              adjusted so that it is (approximatedly)
-                              center-aligned with singleline text.
-        *minimumdescent*  : If True, the box has a minimum descent of "p".
+        Parameters
+        ----------
+        s : str
+            a string to be displayed.
+
+        textprops : `~matplotlib.font_manager.FontProperties`, optional
+
+        multilinebaseline : bool, optional
+            If `True`, baseline for multiline text is adjusted so that
+            it is (approximatedly) center-aligned with singleline
+            text.
+
+        minimumdescent : bool, optional
+            If `True`, the box has a minimum descent of "p".
         """
         if textprops is None:
             textprops = {}
@@ -1093,19 +1144,33 @@ class AnchoredOffsetbox(OffsetBox):
 
 class AnchoredText(AnchoredOffsetbox):
     """
-    AnchoredOffsetbox with Text
+    AnchoredOffsetbox with Text.
     """
 
     def __init__(self, s, loc, pad=0.4, borderpad=0.5, prop=None, **kwargs):
         """
-        *s* : string
-        *loc* : location code
-        *prop* : font property
-        *pad* : pad between the text and the frame as fraction of the font
-                size.
-        *borderpad* : pad between the frame and the axes (or bbox_to_anchor).
+        Parameters
+        ----------
+        s : string
+            Text.
 
-        other keyword parameters of AnchoredOffsetbox are also allowed.
+        loc : str
+            Location code.
+
+        pad : float, optional
+            Pad between the text and the frame as fraction of the font
+            size.
+
+        borderpad : float, optional
+            Pad between the frame and the axes (or *bbox_to_anchor*).
+
+        prop : `matplotlib.font_manager.FontProperties`
+            Font properties.
+
+        Notes
+        -----
+        Other keyword parameters of `AnchoredOffsetbox` are also
+        allowed.
         """
 
         if prop is None:

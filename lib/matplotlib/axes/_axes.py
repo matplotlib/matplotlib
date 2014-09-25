@@ -15,7 +15,7 @@ import matplotlib
 rcParams = matplotlib.rcParams
 
 import matplotlib.cbook as cbook
-from matplotlib.cbook import _string_to_bool
+from matplotlib.cbook import _string_to_bool, mplDeprecation
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
@@ -39,6 +39,7 @@ import matplotlib.tri as mtri
 import matplotlib.transforms as mtrans
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase
+from matplotlib.axes._base import _process_plot_format
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
@@ -123,9 +124,10 @@ class Axes(_AxesBase):
 
         Other parameters
         ----------------
-        Other keyword arguments are text properties, see
-        :class:`~matplotlib.text.Text` for a list of valid text
-        properties.
+        kwargs : text properties
+            Other keyword arguments are text properties, see
+            :class:`~matplotlib.text.Text` for a list of valid text
+            properties.
         """
         try:
             title = {'left': self._left_title,
@@ -437,8 +439,8 @@ class Axes(_AxesBase):
         Notes
         -----
 
-           Not all kinds of artist are supported by the legend command.
-           See :ref:`plotting-guide-legend` for details.
+        Not all kinds of artist are supported by the legend command.
+        See :ref:`plotting-guide-legend` for details.
 
         Examples
         --------
@@ -523,11 +525,11 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        s : string
-            text
-
         x, y : scalars
             data coordinates
+
+        s : string
+            text
 
         fontdict : dictionary, optional, default: None
             A dictionary to override the default text properties. If fontdict
@@ -624,10 +626,11 @@ class Axes(_AxesBase):
             Default is None.
 
         arrowprops : `matplotlib.lines.Line2D` properties, optional
-            Dictionnary of line properties for the arrow that connects the
-            annotation to the point. If the dictionnary has a key
-            `arrowstyle`, a `FancyArrowPatch` instance is created and drawn.
-            See `matplotlib.text.Annotation` for more details on valid
+            Dictionary of line properties for the arrow that connects
+            the annotation to the point. If the dictionnary has a key
+            `arrowstyle`, a `~matplotlib.patches.FancyArrowPatch`
+            instance is created and drawn.  See
+            `matplotlib.text.Annotation` for more details on valid
             options. Default is None.
 
         Returns
@@ -635,8 +638,8 @@ class Axes(_AxesBase):
         a : `~matplotlib.text.Annotation`
 
 
-        Other parameters
-        -----------------
+        Notes
+        -----
 
         %(Annotation)s
 
@@ -965,7 +968,7 @@ class Axes(_AxesBase):
                  for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
         coll = mcoll.LineCollection(verts, colors=colors,
                                     linestyles=linestyles, label=label)
-        self.add_collection(coll)
+        self.add_collection(coll, autolim=False)
         coll.update(kwargs)
 
         if len(y) > 0:
@@ -1045,7 +1048,7 @@ class Axes(_AxesBase):
         #print 'creating line collection'
         coll = mcoll.LineCollection(verts, colors=colors,
                                     linestyles=linestyles, label=label)
-        self.add_collection(coll)
+        self.add_collection(coll, autolim=False)
         coll.update(kwargs)
 
         if len(x) > 0:
@@ -1210,7 +1213,7 @@ class Axes(_AxesBase):
                                          linewidth=linewidth,
                                          color=color,
                                          linestyle=linestyle)
-            self.add_collection(coll)
+            self.add_collection(coll, autolim=False)
             coll.update(kwargs)
             colls.append(coll)
 
@@ -2062,7 +2065,7 @@ class Axes(_AxesBase):
 
             errorbar = self.errorbar(x, y,
                                      yerr=yerr, xerr=xerr,
-                                     fmt=None, **error_kw)
+                                     fmt='none', **error_kw)
         else:
             errorbar = None
 
@@ -2328,8 +2331,7 @@ class Axes(_AxesBase):
               colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
               autopct=None, pctdistance=0.6, shadow=False,
               labeldistance=1.1, startangle=None, radius=None,
-              counterclock=True, wedgeprops=None, textprops=None,
-              )
+              counterclock=True, wedgeprops=None, textprops=None)
 
         Make a pie chart of array *x*.  The fractional area of each
         wedge is given by x/sum(x).  If sum(x) <= 1, then the values
@@ -2382,9 +2384,11 @@ class Axes(_AxesBase):
             For example, you can pass in wedgeprops = { 'linewidth' : 3 }
             to set the width of the wedge border lines equal to 3.
             For more details, look at the doc/arguments of the wedge object.
+            By default `clip_on=False`.
 
           *textprops*: [ *None* | dict of key value pairs ]
             Dict of arguments to pass to the text objects.
+
 
         The pie chart will probably look best if the figure and axes are
         square, or the Axes aspect is equal.  e.g.::
@@ -2438,10 +2442,16 @@ class Axes(_AxesBase):
         else:
             theta1 = startangle / 360.0
 
+        # set default values in wedge_prop
         if wedgeprops is None:
             wedgeprops = {}
+        if 'clip_on' not in wedgeprops:
+            wedgeprops['clip_on'] = False
+
         if textprops is None:
             textprops = {}
+        if 'clip_on' not in textprops:
+            textprops['clip_on'] = False
 
         texts = []
         slices = []
@@ -2467,10 +2477,7 @@ class Axes(_AxesBase):
                 # make sure to add a shadow after the call to
                 # add_patch so the figure and transform props will be
                 # set
-                shad = mpatches.Shadow(
-                    w, -0.02, -0.02,
-                    #props={'facecolor':w.get_facecolor()}
-                    )
+                shad = mpatches.Shadow(w, -0.02, -0.02)
                 shad.set_zorder(0.9 * w.get_zorder())
                 shad.set_label('_nolegend_')
                 self.add_patch(shad)
@@ -2520,7 +2527,7 @@ class Axes(_AxesBase):
 
     @docstring.dedent_interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
-                 fmt='-', ecolor=None, elinewidth=None, capsize=3,
+                 fmt='', ecolor=None, elinewidth=None, capsize=3,
                  barsabove=False, lolims=False, uplims=False,
                  xlolims=False, xuplims=False, errorevery=1, capthick=None,
                  **kwargs):
@@ -2530,7 +2537,7 @@ class Axes(_AxesBase):
         Call signature::
 
           errorbar(x, y, yerr=None, xerr=None,
-                   fmt='-', ecolor=None, elinewidth=None, capsize=3,
+                   fmt='', ecolor=None, elinewidth=None, capsize=3,
                    barsabove=False, lolims=False, uplims=False,
                    xlolims=False, xuplims=False, errorevery=1,
                    capthick=None)
@@ -2552,10 +2559,12 @@ class Axes(_AxesBase):
             If a sequence of shape 2xN, errorbars are drawn at -row1
             and +row2 relative to the data.
 
-          *fmt*: '-'
-            The plot format symbol. If *fmt* is *None*, only the
-            errorbars are plotted.  This is used for adding
-            errorbars to a bar plot, for example.
+          *fmt*: [ '' | 'none' | plot format string ]
+            The plot format symbol. If *fmt* is 'none' (case-insensitive),
+            only the errorbars are plotted.  This is used for adding
+            errorbars to a bar plot, for example.  Default is '',
+            an empty plot format string; properties are
+            then identical to the defaults for :meth:`plot`.
 
           *ecolor*: [ *None* | mpl color ]
             A matplotlib color arg which gives the color the errorbar lines;
@@ -2635,6 +2644,15 @@ class Axes(_AxesBase):
         holdstate = self._hold
         self._hold = True
 
+        if fmt is None:
+            fmt = 'none'
+            msg = ('Use of None object as fmt keyword argument to '
+                   + 'suppress plotting of data values is deprecated '
+                   + 'since 1.4; use the string "none" instead.')
+            warnings.warn(msg, mplDeprecation, stacklevel=1)
+
+        plot_line = (fmt.lower() != 'none')
+
         label = kwargs.pop("label", None)
 
         # make sure all the args are iterable; use lists not arrays to
@@ -2655,7 +2673,9 @@ class Axes(_AxesBase):
 
         l0 = None
 
-        if barsabove and fmt is not None:
+        # Instead of using zorder, the line plot is being added
+        # either here, or after all the errorbar plot elements.
+        if barsabove and plot_line:
             l0, = self.plot(x, y, fmt, label="_nolegend_", **kwargs)
 
         barcols = []
@@ -2838,7 +2858,7 @@ class Axes(_AxesBase):
                     xup, yup = xywhere(x, y, uplims & everymask)
                     caplines.extend(self.plot(xup, yup, 'k_', **plot_kw))
 
-        if not barsabove and fmt is not None:
+        if not barsabove and plot_line:
             l0, = self.plot(x, y, fmt, **kwargs)
 
         if ecolor is None:
@@ -2870,18 +2890,19 @@ class Axes(_AxesBase):
                 meanline=False, showmeans=False, showcaps=True,
                 showbox=True, showfliers=True, boxprops=None, labels=None,
                 flierprops=None, medianprops=None, meanprops=None,
-                manage_xticks=True):
+                capprops=None, whiskerprops=None, manage_xticks=True):
         """
         Make a box and whisker plot.
 
         Call signature::
 
-          boxplot(x, notch=False, sym='b+', vert=True, whis=1.5,
+          boxplot(self, x, notch=False, sym='b+', vert=True, whis=1.5,
                   positions=None, widths=None, patch_artist=False,
                   bootstrap=None, usermedians=None, conf_intervals=None,
                   meanline=False, showmeans=False, showcaps=True,
                   showbox=True, showfliers=True, boxprops=None, labels=None,
-                  flierprops=None, medianprops=None, meanprops=None)
+                  flierprops=None, medianprops=None, meanprops=None,
+                  capprops=None, whiskerprops=None, manage_xticks=True):
 
         Make a box and whisker plot for each column of *x* or each
         vector in sequence *x*.  The box extends from the lower to
@@ -2903,7 +2924,7 @@ class Axes(_AxesBase):
             The default symbol for flier points.
             Enter an empty string ('') if you don't want to show fliers.
 
-          vert : bool, default = False
+          vert : bool, default = True
             If True (default), makes the boxes vertical.
             If False, makes horizontal boxes.
 
@@ -2977,6 +2998,12 @@ class Axes(_AxesBase):
           boxprops : dict or None (default)
             If provided, will set the plotting style of the boxes
 
+          whiskerprops : dict or None (default)
+            If provided, will set the plotting style of the whiskers
+
+          capprops : dict or None (default)
+            If provided, will set the plotting style of the caps
+
           flierprops : dict or None (default)
             If provided, will set the plotting style of the fliers
 
@@ -2995,10 +3022,11 @@ class Axes(_AxesBase):
         Returns
         -------
 
-        A dictionary mapping each component of the boxplot
-        to a list of the :class:`matplotlib.lines.Line2D`
-        instances created. That dictionary has the following keys
-        (assuming vertical boxplots):
+        result : dict
+            A dictionary mapping each component of the boxplot
+            to a list of the :class:`matplotlib.lines.Line2D`
+            instances created. That dictionary has the following keys
+            (assuming vertical boxplots):
 
             - boxes: the main body of the boxplot showing the quartiles
               and the median's confidence intervals if enabled.
@@ -3017,14 +3045,15 @@ class Axes(_AxesBase):
         """
         bxpstats = cbook.boxplot_stats(x, whis=whis, bootstrap=bootstrap,
                                        labels=labels)
-        if sym == 'b+' and flierprops is None:
-            flierprops = dict(linestyle='none', marker='+',
-                              markeredgecolor='blue')
+        if flierprops is None:
+            flierprops = dict(sym=sym)
+        else:
+            flierprops['sym'] = sym
 
         # replace medians if necessary:
         if usermedians is not None:
             if (len(np.ravel(usermedians)) != len(bxpstats) or
-                np.shape(usermedians)[0] != len(bxpstats)):
+                 np.shape(usermedians)[0] != len(bxpstats)):
                 medmsg = 'usermedians length not compatible with x'
                 raise ValueError(medmsg)
             else:
@@ -3056,24 +3085,27 @@ class Axes(_AxesBase):
                            boxprops=boxprops, flierprops=flierprops,
                            medianprops=medianprops, meanprops=meanprops,
                            meanline=meanline, showfliers=showfliers,
+                           capprops=capprops, whiskerprops=whiskerprops,
                            manage_xticks=manage_xticks)
         return artists
 
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
             patch_artist=False, shownotches=False, showmeans=False,
             showcaps=True, showbox=True, showfliers=True,
-            boxprops=None, flierprops=None, medianprops=None,
-            meanprops=None, meanline=False, manage_xticks=True):
+            boxprops=None, whiskerprops=None, flierprops=None,
+            medianprops=None, capprops=None, meanprops=None,
+            meanline=False, manage_xticks=True):
         """
         Drawing function for box and whisker plots.
 
         Call signature::
 
-          bxp(bxpstats, positions=None, widths=None, vert=True,
+          bxp(self, bxpstats, positions=None, widths=None, vert=True,
               patch_artist=False, shownotches=False, showmeans=False,
               showcaps=True, showbox=True, showfliers=True,
-              boxprops=None, flierprops=None, medianprops=None,
-              meanprops=None, meanline=False, manage_xticks=True)
+              boxprops=None, whiskerprops=None, flierprops=None,
+              medianprops=None, capprops=None, meanprops=None,
+              meanline=False, manage_xticks=True):
 
         Make a box and whisker plot for each column of *x* or each
         vector in sequence *x*.  The box extends from the lower to
@@ -3084,99 +3116,129 @@ class Axes(_AxesBase):
         Parameters
         ----------
 
-          bxpstats : list of dicts
-            A list of dictionaries containing stats for each boxplot.
-            Required keys are:
-              'med' - The median (scalar float).
-              'q1' - The first quartile (25th percentile) (scalar float).
-              'q3' - The first quartile (50th percentile) (scalar float).
-              'whislo' - Lower bound of the lower whisker (scalar float).
-              'whishi' - Upper bound of the upper whisker (scalar float).
-            Optional keys are
-              'mean' - The mean (scalar float). Needed if showmeans=True.
-              'fliers' - Data beyond the whiskers (sequence of floats).
-                Needed if showfliers=True.
-              'cilo' & 'ciho' - Lower and upper confidence intervals about
-                the median. Needed if shownotches=True.
-              'label' - Name of the dataset (string). If available, this
-                will be used a tick label for the boxplot
+        bxpstats : list of dicts
+          A list of dictionaries containing stats for each boxplot.
+          Required keys are:
 
-          positions : array-like, default = [1, 2, ..., n]
-            Sets the positions of the boxes. The ticks and limits
-            are automatically set to match the positions.
+          - ``med``: The median (scalar float).
 
-          widths : array-like, default = 0.5
-            Either a scalar or a vector and sets the width of each box. The
-            default is 0.5, or ``0.15*(distance between extreme positions)``
-            if that is smaller.
+          - ``q1``: The first quartile (25th percentile) (scalar
+            float).
 
-          vert : bool, default = False
-            If True (default), makes the boxes vertical.
-            If False, makes horizontal boxes.
+          - ``q3``: The first quartile (50th percentile) (scalar
+            float).
 
-          patch_artist : bool, default = False
-            If False produces boxes with the Line2D artist
-            If True produces boxes with the Patch artist
+          - ``whislo``: Lower bound of the lower whisker (scalar
+            float).
 
-          shownotches : bool, default = False
-            If False (default), produces a rectangular box plot.
-            If True, will produce a notched box plot
+          - ``whishi``: Upper bound of the upper whisker (scalar
+            float).
 
-          showmeans : bool, default = False
-            If True, will toggle one the rendering of the means
+          Optional keys are:
 
-          showcaps  : bool, default = True
-            If True, will toggle one the rendering of the caps
+          - ``mean``: The mean (scalar float). Needed if
+            ``showmeans=True``.
 
-          showbox  : bool, default = True
-            If True, will toggle one the rendering of box
+          - ``fliers``: Data beyond the whiskers (sequence of floats).
+            Needed if ``showfliers=True``.
 
-          showfliers : bool, default = True
-            If True, will toggle one the rendering of the fliers
+          - ``cilo`` & ``ciho``: Lower and upper confidence intervals
+            about the median. Needed if ``shownotches=True``.
 
-          boxprops : dict or None (default)
-            If provided, will set the plotting style of the boxes
+          - ``label``: Name of the dataset (string). If available,
+            this will be used a tick label for the boxplot
 
-          flierprops : dict or None (default)
-            If provided, will set the plotting style of the fliers
+        positions : array-like, default = [1, 2, ..., n]
+          Sets the positions of the boxes. The ticks and limits
+          are automatically set to match the positions.
 
-          medianprops : dict or None (default)
-            If provided, will set the plotting style of the medians
+        widths : array-like, default = 0.5
+          Either a scalar or a vector and sets the width of each
+          box. The default is 0.5, or ``0.15*(distance between extreme
+          positions)`` if that is smaller.
 
-          meanprops : dict or None (default)
-            If provided, will set the plotting style of the means
+        vert : bool, default = False
+          If `True` (default), makes the boxes vertical.  If `False`,
+          makes horizontal boxes.
 
-          meanline : bool, default = False
-            If True (and *showmeans* is True), will try to render the mean
-            as a line spanning the full width of the box according to
-            *meanprops*. Not recommended if *shownotches* is also True.
-            Otherwise, means will be shown as points.
+        patch_artist : bool, default = False
+          If `False` produces boxes with the
+          `~matplotlib.lines.Line2D` artist.  If `True` produces boxes
+          with the `~matplotlib.patches.Patch` artist.
 
-          manage_xticks : bool, default = True
-            If the function should adjust the xlim and xtick locations.
+        shownotches : bool, default = False
+          If `False` (default), produces a rectangular box plot.
+          If `True`, will produce a notched box plot
+
+        showmeans : bool, default = False
+          If `True`, will toggle one the rendering of the means
+
+        showcaps  : bool, default = True
+          If `True`, will toggle one the rendering of the caps
+
+        showbox  : bool, default = True
+          If `True`, will toggle one the rendering of box
+
+        showfliers : bool, default = True
+          If `True`, will toggle one the rendering of the fliers
+
+        boxprops : dict or None (default)
+          If provided, will set the plotting style of the boxes
+
+        whiskerprops : dict or None (default)
+          If provided, will set the plotting style of the whiskers
+
+        capprops : dict or None (default)
+          If provided, will set the plotting style of the caps
+
+        flierprops : dict or None (default)
+          If provided will set the plotting style of the fliers
+
+        medianprops : dict or None (default)
+          If provided, will set the plotting style of the medians
+
+        meanprops : dict or None (default)
+          If provided, will set the plotting style of the means
+
+        meanline : bool, default = False
+          If `True` (and *showmeans* is `True`), will try to render the mean
+          as a line spanning the full width of the box according to
+          *meanprops*. Not recommended if *shownotches* is also True.
+          Otherwise, means will be shown as points.
+
+        manage_xticks : bool, default = True
+          If the function should adjust the xlim and xtick locations.
 
         Returns
         -------
+        result : dict
+          A dictionary mapping each component of the boxplot to a list
+          of the :class:`matplotlib.lines.Line2D` instances
+          created. That dictionary has the following keys (assuming
+          vertical boxplots):
 
-        A dictionary mapping each component of the boxplot
-        to a list of the :class:`matplotlib.lines.Line2D`
-        instances created. That dictionary has the following keys
-        (assuming vertical boxplots):
+          - ``boxes``: the main body of the boxplot showing the
+            quartiles and the median's confidence intervals if
+            enabled.
 
-            - boxes: the main body of the boxplot showing the quartiles
-              and the median's confidence intervals if enabled.
-            - medians: horizonal lines at the median of each box.
-            - whiskers: the vertical lines extending to the most extreme,
-              n-outlier data points.
-            - caps: the horizontal lines at the ends of the whiskers.
-            - fliers: points representing data that extend beyone the
-              whiskers (fliers).
-            - means: points or lines representing the means.
+          - ``medians``: horizonal lines at the median of each box.
+
+          - ``whiskers``: the vertical lines extending to the most
+            extreme, n-outlier data points.
+
+          - ``caps``: the horizontal lines at the ends of the
+            whiskers.
+
+          - ``fliers``: points representing data that extend beyond
+            the whiskers (fliers).
+
+          - ``means``: points or lines representing the means.
 
         Examples
         --------
 
         .. plot:: mpl_examples/statistics/bxp_demo.py
+
         """
         # lists of artists to be output
         whiskers = []
@@ -3202,37 +3264,60 @@ class Axes(_AxesBase):
             final_boxprops = dict(linestyle='solid', edgecolor='black',
                                   facecolor='white', linewidth=1)
         else:
-            final_boxprops = dict(linestyle='-', color='black', linewidth=1)
+            final_boxprops = dict(linestyle='-', color='blue')
 
         if boxprops is not None:
             final_boxprops.update(boxprops)
 
         # other (cap, whisker) properties
-        if patch_artist:
-            otherprops = dict(
-                linestyle=linestyle_map[final_boxprops['linestyle']],
-                color=final_boxprops['edgecolor'],
-                linewidth=final_boxprops.get('linewidth', 1)
-            )
-        else:
-            otherprops = dict(linestyle=final_boxprops['linestyle'],
-                              color=final_boxprops['color'],
-                              linewidth=final_boxprops.get('linewidth', 1))
+        final_whiskerprops = dict(
+            linestyle='--',
+            color='blue',
+        )
 
-        # flier (outlier) properties
+        final_capprops = dict(
+            linestyle='-',
+            color='black',
+        )
+
+        if capprops is not None:
+            final_capprops.update(capprops)
+
+        if whiskerprops is not None:
+            final_whiskerprops.update(whiskerprops)
+
+        # set up the default flier properties
         final_flierprops = dict(linestyle='none', marker='+',
-                                markeredgecolor='blue')
+                    markeredgecolor='b',
+                    markerfacecolor='none')
+        # flier (outlier) properties
         if flierprops is not None:
+            sym = flierprops.pop('sym', None)
+
+            # watch inverted logic, checks for non-default
+            # value of `sym`
+            if not (sym == '' or (sym is None)):
+                # process the symbol string
+                # discarded linestyle
+                _, marker, color = _process_plot_format(sym)
+                if marker is not None:
+                    flierprops['marker'] = marker
+                if color is not None:
+                    flierprops['color'] = color
+                    # assume that if color is passed in the user want
+                    # filled symbol
+                    flierprops['markeredgecolor'] = color
+                    flierprops['markerfacecolor'] = color
             final_flierprops.update(flierprops)
 
         # median line properties
-        final_medianprops = dict(linestyle='-', color='blue')
+        final_medianprops = dict(linestyle='-', color='red')
         if medianprops is not None:
             final_medianprops.update(medianprops)
 
         # mean (line or point) properties
         if meanline:
-            final_meanprops = dict(linestyle='--', color='red')
+            final_meanprops = dict(linestyle='--', color='black')
         else:
             final_meanprops = dict(linestyle='none', markerfacecolor='red',
                                    marker='s')
@@ -3300,11 +3385,9 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
         holdStatus = self._hold
-
         for pos, width, stats in zip(positions, widths, bxpstats):
             # try to find a new label
             datalabels.append(stats.get('label', pos))
-
             # fliers coords
             flier_x = np.ones(len(stats['fliers'])) * pos
             flier_y = stats['fliers']
@@ -3352,13 +3435,17 @@ class Axes(_AxesBase):
                     boxes.extend(doplot(box_x, box_y, **final_boxprops))
 
             # draw the whiskers
-            whiskers.extend(doplot(whisker_x, whiskerlo_y, **otherprops))
-            whiskers.extend(doplot(whisker_x, whiskerhi_y, **otherprops))
+            whiskers.extend(doplot(
+                whisker_x, whiskerlo_y, **final_whiskerprops
+            ))
+            whiskers.extend(doplot(
+                whisker_x, whiskerhi_y, **final_whiskerprops
+            ))
 
             # maybe draw the caps:
             if showcaps:
-                caps.extend(doplot(cap_x, cap_lo, **otherprops))
-                caps.extend(doplot(cap_x, cap_hi, **otherprops))
+                caps.extend(doplot(cap_x, cap_lo, **final_capprops))
+                caps.extend(doplot(cap_x, cap_hi, **final_capprops))
 
             # draw the medians
             medians.extend(doplot(med_x, med_y, **final_medianprops))
@@ -3377,7 +3464,9 @@ class Axes(_AxesBase):
 
             # maybe draw the fliers
             if showfliers:
-                fliers.extend(doplot(flier_x, flier_y, **final_flierprops))
+                fliers.extend(doplot(
+                    flier_x, flier_y, **final_flierprops
+                ))
 
         # fix our axes/ticks up a little
         if vert:
@@ -3937,7 +4026,7 @@ class Axes(_AxesBase):
         self.autoscale_view(tight=True)
 
         # add the collection last
-        self.add_collection(collection)
+        self.add_collection(collection, autolim=False)
         if not marginals:
             return collection
 
@@ -3983,7 +4072,7 @@ class Axes(_AxesBase):
         hbar.set_norm(norm)
         hbar.set_alpha(alpha)
         hbar.update(kwargs)
-        self.add_collection(hbar)
+        self.add_collection(hbar, autolim=False)
 
         coarse = np.linspace(ymin, ymax, gridsize)
         ycoarse = coarse_bin(yorig, C, coarse)
@@ -4011,7 +4100,7 @@ class Axes(_AxesBase):
         vbar.set_norm(norm)
         vbar.set_alpha(alpha)
         vbar.update(kwargs)
-        self.add_collection(vbar)
+        self.add_collection(vbar, autolim=False)
 
         collection.hbar = hbar
         collection.vbar = vbar
@@ -4041,7 +4130,10 @@ class Axes(_AxesBase):
         The resulting arrow is affected by the axes aspect ratio and limits.
         This may produce an arrow whose head is not square with its stem. To
         create an arrow whose head is square with its stem, use
-        :meth:`annotate`.
+        :meth:`annotate` for example::
+
+            ax.annotate("", xy=(0.5, 0.5), xytext=(0, 0),
+                arrowprops=dict(arrowstyle="->"))
 
         Optional kwargs control the arrow construction and properties:
 
@@ -4073,7 +4165,7 @@ class Axes(_AxesBase):
             self.cla()
         q = mquiver.Quiver(self, *args, **kw)
 
-        self.add_collection(q, True)
+        self.add_collection(q, autolim=True)
         self.autoscale_view()
         return q
     quiver.__doc__ = mquiver.Quiver.quiver_doc
@@ -4113,7 +4205,7 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
         b = mquiver.Barbs(self, *args, **kw)
-        self.add_collection(b)
+        self.add_collection(b, autolim=True)
         self.autoscale_view()
         return b
 
@@ -4301,9 +4393,10 @@ class Axes(_AxesBase):
         XY2 = np.array([x[where], y2[where]]).T
         self.dataLim.update_from_data_xy(XY1, self.ignore_existing_data_limits,
                                          updatex=True, updatey=True)
+        self.ignore_existing_data_limits = False
         self.dataLim.update_from_data_xy(XY2, self.ignore_existing_data_limits,
                                          updatex=False, updatey=True)
-        self.add_collection(collection)
+        self.add_collection(collection, autolim=False)
         self.autoscale_view()
         return collection
 
@@ -4408,10 +4501,10 @@ class Axes(_AxesBase):
         X2Y = np.array([x2[where], y[where]]).T
         self.dataLim.update_from_data_xy(X1Y, self.ignore_existing_data_limits,
                                          updatex=True, updatey=True)
-
+        self.ignore_existing_data_limits = False
         self.dataLim.update_from_data_xy(X2Y, self.ignore_existing_data_limits,
-                                         updatex=False, updatey=True)
-        self.add_collection(collection)
+                                         updatex=True, updatey=False)
+        self.add_collection(collection, autolim=False)
         self.autoscale_view()
         return collection
 
@@ -4886,7 +4979,7 @@ class Axes(_AxesBase):
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
         self.autoscale_view()
-        self.add_collection(collection)
+        self.add_collection(collection, autolim=False)
         return collection
 
     @docstring.dedent_interpd
@@ -4941,6 +5034,7 @@ class Axes(_AxesBase):
 
           *edgecolors*: [*None* | ``'None'`` | ``'face'`` | color |
                          color sequence]
+
             If *None*, the rc setting is used by default.
 
             If ``'None'``, edges will not be visible.
@@ -5032,7 +5126,7 @@ class Axes(_AxesBase):
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
         self.autoscale_view()
-        self.add_collection(collection)
+        self.add_collection(collection, autolim=False)
         return collection
 
     @docstring.dedent_interpd
@@ -5184,7 +5278,7 @@ class Axes(_AxesBase):
             collection.set_array(C)
             collection.set_cmap(cmap)
             collection.set_norm(norm)
-            self.add_collection(collection)
+            self.add_collection(collection, autolim=False)
             xl, xr, yb, yt = X.min(), X.max(), Y.min(), Y.max()
             ret = collection
 
@@ -5290,8 +5384,9 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x : array_like, shape (n, )
-            Input values.
+        x : (n,) array or sequence of (n,) arrays
+            Input values, this takes either a single array or a sequency of
+            arrays which are not required to be of the same length
 
         bins : integer or array_like, optional, default: 10
             If an integer is given, `bins + 1` bin edges are returned,
@@ -5331,6 +5426,12 @@ class Axes(_AxesBase):
             of accumulation is reversed.  In this case, if `normed` is also
             `True`, then the histogram is normalized such that the first bin
             equals 1.
+
+        bottom : array_like, scalar, or None, default: None
+            Location of the bottom baseline of each bin.  If a scalar,
+            the base line for each bin is shifted by the same amount.
+            If an array, each bin is shifted independently and the length
+            of bottom must match the number of bins.  If None, defaults to 0.
 
         histtype : ['bar' | 'barstacked' | 'step' | 'stepfilled'], optional
             The type of histogram to draw.
@@ -5386,8 +5487,22 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        tuple : ``(n, bins, patches)`` or \
-                ``([n0, n1, ...], bins, [patches0, patches1,...])``
+        n : array or list of arrays
+            The values of the histogram bins. See **normed** and **weights**
+            for a description of the possible semantics. If input **x** is an
+            array, then this is an array of length **nbins**. If input is a
+            sequence arrays ``[data1, data2,..]``, then this is a list of
+            arrays with the values of the histograms for each of the arrays
+            in the same order.
+
+        bins : array
+            The edges of the bins. Length nbins + 1 (nbins left edges and right
+            edge of last bin).  Always a single array even when multiple data
+            sets are passed in.
+
+        patches : list or list of lists
+            Silent list of individual patches used to create the histogram
+            or list of such list if multiple input datasets.
 
         Other Parameters
         ----------------
@@ -6728,8 +6843,7 @@ class Axes(_AxesBase):
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
                    points=100, bw_method=None):
-        """
-        Make a violin plot.
+        """Make a violin plot.
 
         Call signature::
 
@@ -6744,66 +6858,78 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
+        dataset : Array or a sequence of vectors.
+          The input data.
 
-          dataset : Array or a sequence of vectors.
-            The input data.
+        positions : array-like, default = [1, 2, ..., n]
+          Sets the positions of the violins. The ticks and limits are
+          automatically set to match the positions.
 
-          positions : array-like, default = [1, 2, ..., n]
-            Sets the positions of the violins. The ticks and limits are
-            automatically set to match the positions.
+        vert : bool, default = True.
+          If true, creates a vertical violin plot.
+          Otherwise, creates a horizontal violin plot.
 
-          vert : bool, default = True.
-            If true, creates a vertical violin plot.
-            Otherwise, creates a horizontal violin plot.
+        widths : array-like, default = 0.5
+          Either a scalar or a vector that sets the maximal width of
+          each violin. The default is 0.5, which uses about half of the
+          available horizontal space.
 
-          widths : array-like, default = 0.5
-            Either a scalar or a vector that sets the maximal width of
-            each violin. The default is 0.5, which uses about half of the
-            available horizontal space.
+        showmeans : bool, default = False
+          If `True`, will toggle rendering of the means.
 
-          showmeans : bool, default = False
-            If true, will toggle rendering of the means.
+        showextrema : bool, default = True
+          If `True`, will toggle rendering of the extrema.
 
-          showextrema : bool, default = True
-            If true, will toggle rendering of the extrema.
+        showmedians : bool, default = False
+          If `True`, will toggle rendering of the medians.
 
-          showmedians : bool, default = False
-            If true, will toggle rendering of the medians.
+        points : scalar, default = 100
+          Defines the number of points to evaluate each of the
+          gaussian kernel density estimations at.
 
-          points : scalar, default = 100
-            Defines the number of points to evaluate each of the gaussian
-            kernel density estimations at.
-
-          bw_method : str, scalar or callable, optional
-            The method used to calculate the estimator bandwidth.  This can be
-            'scott', 'silverman', a scalar constant or a callable.  If a
-            scalar, this will be used directly as `kde.factor`.  If a
-            callable, it should take a `GaussianKDE` instance as its only
-            parameter and return a scalar. If None (default), 'scott' is used.
+        bw_method : str, scalar or callable, optional
+          The method used to calculate the estimator bandwidth.  This can be
+          'scott', 'silverman', a scalar constant or a callable.  If a
+          scalar, this will be used directly as `kde.factor`.  If a
+          callable, it should take a `GaussianKDE` instance as its only
+          parameter and return a scalar. If None (default), 'scott' is used.
 
         Returns
         -------
 
-        A dictionary mapping each component of the violinplot to a list of the
-        corresponding collection instances created. The dictionary has
-        the following keys:
+        result : dict
+          A dictionary mapping each component of the violinplot to a
+          list of the corresponding collection instances created. The
+          dictionary has the following keys:
 
-            - bodies: A list of the
+            - ``bodies``: A list of the
               :class:`matplotlib.collections.PolyCollection` instances
               containing the filled area of each violin.
-            - means: A :class:`matplotlib.collections.LineCollection` instance
-              created to identify the mean values of each of the violin's
-              distribution.
-            - mins: A :class:`matplotlib.collections.LineCollection` instance
-              created to identify the bottom of each violin's distribution.
-            - maxes: A :class:`matplotlib.collections.LineCollection` instance
-              created to identify the top of each violin's distribution.
-            - bars: A :class:`matplotlib.collections.LineCollection` instance
-              created to identify the centers of each violin's distribution.
-            - medians: A :class:`matplotlib.collections.LineCollection`
-              instance created to identify the median values of each of the
+
+            - ``means``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the mean values of each of the
               violin's distribution.
 
+            - ``mins``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the bottom of each violin's
+              distribution.
+
+            - ``maxes``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the top of each violin's
+              distribution.
+
+            - ``bars``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the centers of each violin's
+              distribution.
+
+            - ``medians``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the median values of each of the
+              violin's distribution.
         """
 
         def _kde_method(X, coords):
@@ -6817,8 +6943,7 @@ class Axes(_AxesBase):
 
     def violin(self, vpstats, positions=None, vert=True, widths=0.5,
                showmeans=False, showextrema=True, showmedians=False):
-        """
-        Drawing function for violin plots.
+        """Drawing function for violin plots.
 
         Call signature::
 
@@ -6832,61 +6957,81 @@ class Axes(_AxesBase):
         Parameters
         ----------
 
-          vpstats : list of dicts
-            A list of dictionaries containing stats for each violin plot.
-            Required keys are:
-              - coords: A list of scalars containing the coordinates that
-                the violin's kernel density estimate were evaluated at.
-              - vals: A list of scalars containing the values of the kernel
-                density estimate at each of the coordinates given in `coords`.
-              - mean: The mean value for this violin's dataset.
-              - median: The median value for this violin's dataset.
-              - min: The minimum value for this violin's dataset.
-              - max: The maximum value for this violin's dataset.
+        vpstats : list of dicts
+          A list of dictionaries containing stats for each violin plot.
+          Required keys are:
 
-          positions : array-like, default = [1, 2, ..., n]
-            Sets the positions of the violins. The ticks and limits are
-            automatically set to match the positions.
+          - ``coords``: A list of scalars containing the coordinates that
+            the violin's kernel density estimate were evaluated at.
 
-          vert : bool, default = True.
-            If true, plots the violins veritcally.
-            Otherwise, plots the violins horizontally.
+          - ``vals``: A list of scalars containing the values of the
+            kernel density estimate at each of the coordinates given
+            in *coords*.
 
-          widths : array-like, default = 0.5
-            Either a scalar or a vector that sets the maximal width of
-            each violin. The default is 0.5, which uses about half of the
-            available horizontal space.
+          - ``mean``: The mean value for this violin's dataset.
 
-          showmeans : bool, default = False
-            If true, will toggle rendering of the means.
+          - ``median``: The median value for this violin's dataset.
 
-          showextrema : bool, default = True
-            If true, will toggle rendering of the extrema.
+          - ``min``: The minimum value for this violin's dataset.
 
-          showmedians : bool, default = False
-            If true, will toggle rendering of the medians.
+          - ``max``: The maximum value for this violin's dataset.
+
+        positions : array-like, default = [1, 2, ..., n]
+          Sets the positions of the violins. The ticks and limits are
+          automatically set to match the positions.
+
+        vert : bool, default = True.
+          If true, plots the violins veritcally.
+          Otherwise, plots the violins horizontally.
+
+        widths : array-like, default = 0.5
+          Either a scalar or a vector that sets the maximal width of
+          each violin. The default is 0.5, which uses about half of the
+          available horizontal space.
+
+        showmeans : bool, default = False
+          If true, will toggle rendering of the means.
+
+        showextrema : bool, default = True
+          If true, will toggle rendering of the extrema.
+
+        showmedians : bool, default = False
+          If true, will toggle rendering of the medians.
 
         Returns
         -------
+        result : dict
+          A dictionary mapping each component of the violinplot to a
+          list of the corresponding collection instances created. The
+          dictionary has the following keys:
 
-        A dictionary mapping each component of the violinplot to a list of the
-        corresponding collection instances created. The dictionary has
-        the following keys:
-
-            - bodies: A list of the
+            - ``bodies``: A list of the
               :class:`matplotlib.collections.PolyCollection` instances
               containing the filled area of each violin.
-            - means: A :class:`matplotlib.collections.LineCollection` instance
-              created to identify the mean values of each of the violin's
+
+            - ``means``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the mean values of each of the
+              violin's distribution.
+
+            - ``mins``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the bottom of each violin's
               distribution.
-            - mins: A :class:`matplotlib.collections.LineCollection` instance
-              created to identify the bottom of each violin's distribution.
-            - maxes: A :class:`matplotlib.collections.LineCollection` instance
-              created to identify the top of each violin's distribution.
-            - bars: A :class:`matplotlib.collections.LineCollection` instance
-              created to identify the centers of each violin's distribution.
-            - medians: A :class:`matplotlib.collections.LineCollection`
-              instance created to identify the median values of each of the
+
+            - ``maxes``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the top of each violin's
+              distribution.
+
+            - ``bars``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the centers of each violin's
+              distribution.
+
+            - ``medians``: A
+              :class:`matplotlib.collections.LineCollection` instance
+              created to identify the median values of each of the
               violin's distribution.
 
         """

@@ -4,6 +4,18 @@
 Development workflow
 ====================
 
+You've discovered a bug or something else you want to change
+in matplotlib_ .. |emdash| excellent!
+
+You've worked out a way to fix it |emdash| even better!
+
+You want to tell us about it |emdash| best of all!
+
+The easiest way to contribute to matplotlib_ is through github_.  If
+for some reason you don't want to use github, see
+:ref:`making-patches` for instructions on how to email patches to the
+mailing list.
+
 You already have your own forked copy of the matplotlib_ repository, by
 following :ref:`forking`, :ref:`set-up-fork`, and you have configured
 git_ by following :ref:`configure-git`.
@@ -15,8 +27,10 @@ Workflow summary
   to the main matplotlib_ development repo.  Your ``master`` then will follow
   the main matplotlib_ repository.
 * Start a new *feature branch* for each set of edits that you do.
-* If you can avoid it, try not to merge other branches into your feature
-  branch while you are working.
+* Do not merge the ``master`` branch or maintenance tracking branches
+  into your feature branch.  If you need to include commits from upstream
+  branches (either to pick up a bug fix or to resolve a conflict) please
+  *rebase* your branch on the upstream branch.
 * Ask for review!
 
 This way of working really helps to keep work well organized, and in
@@ -103,60 +117,32 @@ In more detail
 #. To push the changes up to your forked repo on github_, do a ``git
    push`` (see `git push`).
 
-Asking for code review
-======================
-
-#. Go to your repo URL |emdash| e.g.,
-   ``http://github.com/your-user-name/matplotlib``.
-#. Click on the *Branch list* button:
-
-   .. image:: branch_list.png
-
-#. Click on the *Compare* button for your feature branch |emdash| here ``my-new-feature``:
-
-   .. image:: branch_list_compare.png
-
-#. If asked, select the *base* and *comparison* branch names you want to
-   compare.  Usually these will be ``master`` and ``my-new-feature``
-   (where that is your feature branch name).
-#. At this point you should get a nice summary of the changes.  Copy the
-   URL for this, and post it to the `matplotlib mailing list`_, asking for
-   review.  The URL will look something like:
-   ``http://github.com/your-user-name/matplotlib/compare/master...my-new-feature``.
-   There's an example at
-   http://github.com/matthew-brett/nipy/compare/master...find-install-data
-   See: http://github.com/blog/612-introducing-github-compare-view for
-   more detail.
-
-The generated comparison, is between your feature branch
-``my-new-feature``, and the place in ``master`` from which you branched
-``my-new-feature``.  In other words, you can keep updating ``master``
-without interfering with the output from the comparison.  More detail?
-Note the three dots in the URL above (``master...my-new-feature``) and
-see :ref:`dot2-dot3`.
+Asking for code review |emdash| open a Pull Request (PR)
+========================================================
 
 It's a good idea to consult the :ref:`pull-request-checklist` to make
 sure your pull request is ready for merging.
 
-Asking for your changes to be merged into the main repo
-=======================================================
 
-When you are ready to ask for the merge of your code:
+#. Go to your repo URL |emdash| e.g.,
+   ``http://github.com/your-user-name/matplotlib``.
 
-#. Go to the URL of your forked repo, say
-   ``http://github.com/your-user-name/matplotlib.git``.
-#. Click on the 'Pull request' button:
+#. Select your feature branch from the drop down menu:
 
-   .. image:: pull_button.png
+#. Click on the green button:
 
-   Enter a message; we suggest you select only ``matplotlib`` as the
-   recipient.  The message will go to the `matplotlib mailing list`_.  Please
-   feel free to add others from the list as you like.
+#. Make sure that you are requesting a pull against the correct branch
 
-#. If the branch is to be merged into a maintenance branch on the main
-   repo, make sure the "base branch" indicates the maintenance branch
-   and not master.  Github can not automatically determine the branch
-   to merge into.
+#. Enter a PR heading and description (if there is only one commit in
+   the PR github will automatically fill these fields for you).  If
+   this PR is addressing a specific issue, please reference it by number
+   (ex #1325) which github will automatically make into links.
+
+#. Click 'Create Pull Request' button!
+
+#. Discussion of the change will take place in the pull request
+   thread.
+
 
 Staying up to date with changes in the central repository
 =========================================================
@@ -275,35 +261,6 @@ Deleting a branch on github_
 (Note the colon ``:`` before ``test-branch``.  See also:
 http://github.com/guides/remove-a-remote-branch
 
-Several people sharing a single repository
-==========================================
-
-If you want to work on some stuff with other people, where you are all
-committing into the same repository, or even the same branch, then just
-share it via github_.
-
-First fork matplotlib into your account, as from :ref:`forking`.
-
-Then, go to your forked repository github page, say
-``http://github.com/your-user-name/matplotlib``
-
-Click on the 'Admin' button, and add anyone else to the repo as a
-collaborator:
-
-   .. image:: pull_button.png
-
-Now all those people can do::
-
-    git clone git@githhub.com:your-user-name/matplotlib.git
-
-Remember that links starting with ``git@`` use the ssh protocol and are
-read-write; links starting with ``git://`` are read-only.
-
-Your collaborators can then commit directly into that repo with the
-usual::
-
-     git commit -am 'ENH - much better code'
-     git push origin master # pushes directly into your repo
 
 Exploring your repository
 =========================

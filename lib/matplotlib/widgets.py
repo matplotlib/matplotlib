@@ -70,7 +70,17 @@ class Widget(object):
 
 
 class AxesWidget(Widget):
-    """Widget that is connected to a single :class:`~matplotlib.axes.Axes`.
+    """Widget that is connected to a single
+    :class:`~matplotlib.axes.Axes`.
+
+    To guarantee that the widget remains responsive and not garbage-collected,
+    a reference to the object should be maintained by the user.
+
+    This is necessary because the callback registry
+    maintains only weak-refs to the functions, which are member
+    functions of the widget.  If there are no references to the widget
+    object it may be garbage collected which will disconnect the
+    callbacks.
 
     Attributes:
 
@@ -112,7 +122,10 @@ class AxesWidget(Widget):
 
 class Button(AxesWidget):
     """
-    A GUI neutral button
+    A GUI neutral button.
+
+    For the button to remain responsive
+    you must keep a reference to it.
 
     The following attributes are accessible
 
@@ -134,22 +147,24 @@ class Button(AxesWidget):
     def __init__(self, ax, label, image=None,
                  color='0.85', hovercolor='0.95'):
         """
-        *ax*
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
             The :class:`matplotlib.axes.Axes` instance the button
             will be placed into.
 
-        *label*
+        label : str
             The button text. Accepts string.
 
-        *image*
+        image : array, mpl image, PIL image
             The image to place in the button, if not *None*.
             Can be any legal arg to imshow (numpy array,
             matplotlib Image instance, or PIL image).
 
-        *color*
+        color : color
             The color of the button when not activated
 
-        *hovercolor*
+        hovercolor : color
             The color of the button when the mouse is over it
         """
         AxesWidget.__init__(self, ax)
@@ -233,7 +248,10 @@ class Button(AxesWidget):
 
 class Slider(AxesWidget):
     """
-    A slider representing a floating point range
+    A slider representing a floating point range.
+
+    For the slider
+    to remain responsive you must maintain a reference to it.
 
     The following attributes are defined
       *ax*        : the slider :class:`matplotlib.axes.Axes` instance
@@ -269,28 +287,54 @@ class Slider(AxesWidget):
                  closedmin=True, closedmax=True, slidermin=None,
                  slidermax=None, dragging=True, **kwargs):
         """
-        Create a slider from *valmin* to *valmax* in axes *ax*
-
-        *valinit*
-            The slider initial position
-
-        *label*
-            The slider label
-
-        *valfmt*
-            Used to format the slider value
-
-        *closedmin* and *closedmax*
-            Indicate whether the slider interval is closed
-
-        *slidermin* and *slidermax*
-            Used to constrain the value of this slider to the values
-            of other sliders.
+        Create a slider from *valmin* to *valmax* in axes *ax*.
 
         additional kwargs are passed on to ``self.poly`` which is the
         :class:`matplotlib.patches.Rectangle` which draws the slider
         knob.  See the :class:`matplotlib.patches.Rectangle` documentation
         valid property names (e.g., *facecolor*, *edgecolor*, *alpha*, ...)
+
+        Parameters
+        ----------
+        ax : Axes
+            The Axes to put the slider in
+
+        label : str
+            Slider label
+
+        valmin : float
+            The minimum value of the slider
+
+        valmax : float
+            The maximum value of the slider
+
+        valinit : float
+            The slider initial position
+
+        label : str
+            The slider label
+
+        valfmt : str
+            Used to format the slider value, fprint format string
+
+        closedmin : bool
+            Indicate whether the slider interval is closed on the bottom
+
+        closedmax : bool
+            Indicate whether the slider interval is closed on the top
+
+        slidermin : Slider or None
+            Do not allow the current slider to have a value less than
+            `slidermin`
+
+        slidermax : Slider or None
+            Do not allow the current slider to have a value greater than
+            `slidermax`
+
+
+        dragging : bool
+            if the silder can be dragged by the mouse
+
         """
         AxesWidget.__init__(self, ax)
 
@@ -415,7 +459,10 @@ class Slider(AxesWidget):
 
 class CheckButtons(AxesWidget):
     """
-    A GUI neutral radio button
+    A GUI neutral radio button.
+
+    For the check buttons to remain responsive you much keep a
+    reference to this object.
 
     The following attributes are exposed
 
@@ -548,6 +595,9 @@ class CheckButtons(AxesWidget):
 class RadioButtons(AxesWidget):
     """
     A GUI neutral radio button
+
+    For the buttons to remain responsive
+    you much keep a reference to this object.
 
     The following attributes are exposed
 
@@ -832,7 +882,10 @@ class Cursor(AxesWidget):
       *vertOn*
         Controls the visibility of the horizontal line
 
-    and the visibility of the cursor itself with the *visible* attribute
+    and the visibility of the cursor itself with the *visible* attribute.
+
+    For the cursor to remain responsive you much keep a reference to
+    it.
     """
     def __init__(self, ax, horizOn=True, vertOn=True, useblit=False,
                  **lineprops):
@@ -914,7 +967,10 @@ class Cursor(AxesWidget):
 class MultiCursor(Widget):
     """
     Provide a vertical (default) and/or horizontal line cursor shared between
-    multiple axes
+    multiple axes.
+
+    For the cursor to remain responsive you much keep a reference to
+    it.
 
     Example usage::
 
@@ -1027,7 +1083,10 @@ class MultiCursor(Widget):
 
 class SpanSelector(AxesWidget):
     """
-    Select a min/max range of the x or y axes for a matplotlib Axes
+    Select a min/max range of the x or y axes for a matplotlib Axes.
+
+    For the selector to remain responsive you much keep a reference to
+    it.
 
     Example usage::
 
@@ -1062,8 +1121,8 @@ class SpanSelector(AxesWidget):
 
         Set the visible attribute to *False* if you want to turn off
         the functionality of the span selector
-        
-        If *span_stays* is True, the span stays visble after making 
+
+        If *span_stays* is True, the span stays visble after making
         a valid selection.
         """
         AxesWidget.__init__(self, ax)
@@ -1085,7 +1144,7 @@ class SpanSelector(AxesWidget):
         self.onmove_callback = onmove_callback
         self.minspan = minspan
         self.span_stays = span_stays
-        
+
         # Needed when dragging out of axes
         self.buttonDown = False
         self.prev = (0, 0)
@@ -1126,7 +1185,7 @@ class SpanSelector(AxesWidget):
                                        visible=False,
                                        **self.rectprops)
             self.ax.add_patch(self.stay_rect)
-            
+
         if not self.useblit:
             self.ax.add_patch(self.rect)
 
@@ -1152,7 +1211,7 @@ class SpanSelector(AxesWidget):
         self.rect.set_visible(self.visible)
         if self.span_stays:
             self.stay_rect.set_visible(False)
-            
+
         if self.direction == 'horizontal':
             self.pressv = event.xdata
         else:
@@ -1168,14 +1227,14 @@ class SpanSelector(AxesWidget):
         self.buttonDown = False
 
         self.rect.set_visible(False)
-        
+
         if self.span_stays:
             self.stay_rect.set_x(self.rect.get_x())
             self.stay_rect.set_y(self.rect.get_y())
             self.stay_rect.set_width(self.rect.get_width())
             self.stay_rect.set_height(self.rect.get_height())
             self.stay_rect.set_visible(True)
-        
+
         self.canvas.draw()
         vmin = self.pressv
         if self.direction == 'horizontal':
@@ -1245,7 +1304,10 @@ class SpanSelector(AxesWidget):
 
 class RectangleSelector(AxesWidget):
     """
-    Select a min/max range of the x axes for a matplotlib Axes
+    Select a rectangular region of an axes.
+
+    For the cursor to remain responsive you much keep a reference to
+    it.
 
     Example usage::
 
@@ -1527,6 +1589,9 @@ class RectangleSelector(AxesWidget):
 
 class LassoSelector(AxesWidget):
     """Selection curve of an arbitrary shape.
+
+    For the selector to remain responsive you much keep a reference to
+    it.
 
     The selected path can be used in conjunction with
     :func:`~matplotlib.path.Path.contains_point` to select
