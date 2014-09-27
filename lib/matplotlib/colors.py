@@ -1696,13 +1696,21 @@ class LightSource(object):
                 'overlay': self.blend_overlay,
                 }
         if blend_mode in lookup:
-            return lookup[blend_mode](rgb, intensity, **kwargs)
+            blend = lookup[blend_mode](rgb, intensity, **kwargs)
         else:
             try:
-                return blend_mode(rgb, intensity, **kwargs)
+                blend = blend_mode(rgb, intensity, **kwargs)
             except TypeError:
                 msg = '"blend_mode" must be callable or one of {}'
                 raise ValueError(msg.format(lookup.keys))
+
+        # Only apply result where hillshade intensity isn't masked
+        if hasattr(intensity, 'mask'):
+            mask = intensity.mask[..., 0]
+            for i in range(3):
+                blend[..., i][mask] = rgb[..., i][mask]
+
+        return blend
 
     def blend_hsv(self, rgb, intensity, hsv_max_sat=None, hsv_max_val=None,
                   hsv_min_val=None, hsv_min_sat=None):
