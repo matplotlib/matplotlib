@@ -10,7 +10,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange
+from six.moves import xrange, zip
+from itertools import repeat
 
 import datetime
 import errno
@@ -1956,7 +1957,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
 
     ncols = len(X)
     if labels is None:
-        labels = [str(i) for i in range(1, ncols+1)]
+        labels = repeat(None)
     elif len(labels) != ncols:
         raise ValueError("Dimensions of labels and X must be compatible")
 
@@ -1965,7 +1966,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
 
         # empty dict
         stats = {}
-        stats['label'] = label
+        if label is not None:
+            stats['label'] = label
 
         # restore whis to the input values in case it got changed in the loop
         whis = input_whis
