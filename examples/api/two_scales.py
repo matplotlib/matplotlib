@@ -1,4 +1,4 @@
-#!/usr/bin/env pythoni
+#!/usr/bin/env python
 
 import numpy as np
 import matplotlib.pyplot as plt
