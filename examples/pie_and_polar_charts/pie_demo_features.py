@@ -19,15 +19,47 @@ positive y-axis.
 import matplotlib.pyplot as plt
 
 
+def pie_demo_features(ax, sizes, labels, colors, explode):
+    """
+    produces a simple pie plot on ax according to sizes, labels, colors and explode.
+
+    Parameters
+    ----------
+    ax :  PolarAxesSubplot
+          Axes on which to plot polar_bar
+
+    sizes : array
+            comparative sizes of pie slices
+
+    labels : array
+           names of pie slices
+
+    colors : array
+           colors of pie slices
+
+    explode : tuple
+           how far to explode each slice (0 for don't explode)
+
+    Returns
+    -------
+    pi : artist object returned
+
+         Returns artist for further modification.
+    """
+
+    pi = ax.pie(sizes, explode=explode, labels=labels, colors=colors,
+                autopct='%1.1f%%', shadow=True, startangle=90)
+    # Set aspect rtio to be equal so that pie is drawn as a circle.
+    ax.axis('equal')
+    return pi
+
+# Example data:
 # The slices will be ordered and plotted counter-clockwise.
 labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
 sizes = [15, 30, 45, 10]
 colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
-explode = (0, 0.1, 0, 0) # only "explode" the 2nd slice (i.e. 'Hogs')
+explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+ax = plt.subplot(111)
 
-plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-        autopct='%1.1f%%', shadow=True, startangle=90)
-# Set aspect ratio to be equal so that pie is drawn as a circle.
-plt.axis('equal')
-
+pie_demo_features(ax, sizes, labels, colors, explode)
 plt.show()
