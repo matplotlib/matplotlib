@@ -168,6 +168,8 @@ try:
 except ImportError:
     from urllib2 import urlopen
 
+import io
+import locale
 import os
 import re
 import tempfile
@@ -947,7 +949,7 @@ def _open_file_or_url(fname):
         yield _url_lines(f)
         f.close()
     else:
-        with open(fname) as f:
+        with io.open(fname, encoding=locale.getdefaultlocale()[1]) as f:
             yield f
 
 
