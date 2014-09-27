@@ -680,7 +680,8 @@ class Tests(OptionalPackage):
             baseline_images +
             [
                 'tests/mpltest.ttf',
-                'tests/test_rcparams.rc'
+                'tests/test_rcparams.rc',
+                'tests/test_utf32_be_rcparams.rc',
             ]}
 
     def get_install_requires(self):
