@@ -201,6 +201,11 @@ libpng 1.2 (or later)
     <http://www.libpng.org/pub/png/libpng.html>`__). libpng requires
     zlib.
 
+`pytz`
+    Used to manipulate time-zone aware datetimes.
+
+
+
 Optional GUI framework
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -240,18 +245,8 @@ Optional dependencies
     selection of image file formats.
 
 
-:term:`freetype` 2.4 or later
-    library for reading true type font files.  Matplotlib in known
-    to work with freetype 2.3, and the required version will be reduced
-    in 1.4.1.  If you need to build from source on a system which only has
-    freetype 2.3 available, please edit L945 of `setupext.py` to reduce
-    `min_version` to 2.3.
-
-`pytz`
-    Required if you want to manipulate datetime objects which are time-zone
-    aware.  An exception will be raised if you try to make time-zone aware
-    plots with out `pytz` installed.  It will become a required dependency
-    in 1.4.1.
+:term:`freetype` 2.3 or later
+    library for reading true type font files.
 
 
 Required libraries that ship with matplotlib
