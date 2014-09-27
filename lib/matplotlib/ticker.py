@@ -1748,7 +1748,7 @@ class AutoMinorLocator(Locator):
         if len(majorlocs) > 0:
             t0 = majorlocs[0]
             tmin = ((vmin - t0) // minorstep + 1) * minorstep
-            tmax = ((vmax - t0) // minorstep) * minorstep
+            tmax = ((vmax - t0) // minorstep + 1) * minorstep
             locs = np.arange(tmin, tmax, minorstep) + t0
             cond = np.abs((locs - t0) % majorstep) > minorstep / 10.0
             locs = locs.compress(cond)
