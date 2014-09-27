@@ -40,7 +40,7 @@ def avoid_outliers():
     ax1.imshow(rgb)
     ax1.set_title('Full range of data')
 
-    rgb = ls.shade(z, plt.cm.copper, norm=Normalize(-10, 10)) # Note the norm!!
+    rgb = ls.shade(z, plt.cm.copper, vmin=-10, vmax=10)
     ax2.imshow(rgb)
     ax2.set_title('Manually set range')
 
