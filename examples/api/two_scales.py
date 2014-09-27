@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 """
 ===========================
 Plots with different scales
