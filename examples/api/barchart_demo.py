@@ -5,31 +5,12 @@ import matplotlib.pyplot as plt
 import sys
 
 #----------------------   
-def barchart(yLabel, xLabel, fig_title, bar_width, lst_bar_heights, lst_stdevs, lst_bar_colors, lst_legends=[]):
-    
-    #enforce that for every set of bars there's a corresponding set of stdevs, and a bar color
-    if ( (len(lst_bar_heights)!=len(lst_stdevs)) or (len(lst_bar_heights)!=len(lst_bar_colors)) or (len(lst_bar_heights)!=len(lst_bar_colors)) ):
-        print "lst_bar_heights (len=%d), lst_stdevs (len=%d), lst_bar_colors (len=%d) must have the same number of elements" %(len(lst_bar_heights), len(lst_stdevs), len(lst_bar_colors))
-        sys.exit()
-    
-    if lst_legends:
-        if not (len(lst_bar_heights)==len(lst_legends)):
-            print "lst_bar_heights and lst_legends must have the same number of elements"
-            sys.exit()
-    
-    #enforce that for each bar height there's a corresponding stdev
-    for bar_height_set, stdev_set in zip(lst_bar_heights, lst_stdevs):
-        if len(bar_height_set)!=len(stdev_set):
-            print "lst_bar_height and lst_stdevs don't have the same length"
-            print "bar height values (len=%d): %s" %(len(bar_height_set), bar_height_set)
-            print "stdev values (len=%d): %s" %(len(stdev_set), stdev_set)
-            sys.exit()
-            
+def barchart(ax, yLabel, xLabel, fig_title, bar_width, lst_bar_heights, lst_stdevs, lst_bar_colors, lst_legends=[]):
+                
     nSeries = len(lst_bar_heights)
     nBins   = len(lst_bar_heights[0]) 
     ind     = np.arange(nBins)  # the x locations for the groups
     width   = bar_width       # the width of the bars
-    fig, ax = plt.subplots()
     
     lst_rects = [ax.bar(ind+n*width, lst_bar_heights[n], width, color=lst_bar_colors[n], yerr=lst_stdevs[n]) for n in range(nSeries)]
     ax.set_xticklabels(xLabel)
@@ -73,5 +54,25 @@ bar_width       = 0.15
 lst_legends     = ['Men', 'Women', 'Toddlers', 'Infants']
 lst_bar_colors  = ['r','y','g','b']
  
-barchart(yLabel, xLabel, fig_title, bar_width, lst_bar_heights, lst_stdevs, lst_bar_colors, lst_legends=lst_legends)    
+#enforce that for every set of bars there's a corresponding set of stdevs, and a bar color
+if ( (len(lst_bar_heights)!=len(lst_stdevs)) or (len(lst_bar_heights)!=len(lst_bar_colors)) or (len(lst_bar_heights)!=len(lst_bar_colors)) ):
+    print "lst_bar_heights (len=%d), lst_stdevs (len=%d), lst_bar_colors (len=%d) must have the same number of elements" %(len(lst_bar_heights), len(lst_stdevs), len(lst_bar_colors))
+    sys.exit()
+
+if lst_legends:
+    if not (len(lst_bar_heights)==len(lst_legends)):
+        print "lst_bar_heights and lst_legends must have the same number of elements"
+        sys.exit()
+
+#enforce that for each bar height there's a corresponding stdev
+for bar_height_set, stdev_set in zip(lst_bar_heights, lst_stdevs):
+    if len(bar_height_set)!=len(stdev_set):
+        print "lst_bar_height and lst_stdevs don't have the same length"
+        print "bar height values (len=%d): %s" %(len(bar_height_set), bar_height_set)
+        print "stdev values (len=%d): %s" %(len(stdev_set), stdev_set)
+        sys.exit() 
+ 
+fig, ax = plt.subplots()
+
+barchart(ax, yLabel, xLabel, fig_title, bar_width, lst_bar_heights, lst_stdevs, lst_bar_colors, lst_legends=lst_legends)    
 
