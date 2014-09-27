@@ -12,9 +12,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def hinton(matrix, max_weight=None, ax=None):
+def hinton(ax, matrix, max_weight=None):
     """Draw Hinton diagram for visualizing a weight matrix."""
-    ax = ax if ax is not None else plt.gca()
 
     if not max_weight:
         max_weight = 2**np.ceil(np.log(np.abs(matrix).max())/np.log(2))
@@ -33,8 +32,9 @@ def hinton(matrix, max_weight=None, ax=None):
 
     ax.autoscale_view()
     ax.invert_yaxis()
+    return ax
 
+ax = plt.subplot(111)
 
-if __name__ == '__main__':
-    hinton(np.random.rand(20, 20) - 0.5)
-    plt.show()
+hinton(ax,np.random.rand(20, 20) - 0.5)
+plt.show()
