@@ -1896,7 +1896,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
         ========   ===================================
         label      tick label for the boxplot
         mean       arithemetic mean value
-        median     50th percentile
+        med        50th percentile
         q1         first quartile (25th percentile)
         q3         third quartile (75th percentile)
         cilo       lower notch around the median
@@ -1962,12 +1962,33 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
 
     input_whis = whis
     for ii, (x, label) in enumerate(zip(X, labels), start=0):
+
         # empty dict
         stats = {}
         stats['label'] = label
 
         # restore whis to the input values in case it got changed in the loop
         whis = input_whis
+
+        # note tricksyness, append up here and then mutate below
+        bxpstats.append(stats)
+
+        # if empty, bail
+        if len(x) == 0:
+            stats['fliers'] = np.array([])
+            stats['mean'] = np.nan
+            stats['med'] = np.nan
+            stats['q1'] = np.nan
+            stats['q3'] = np.nan
+            stats['cilo'] = np.nan
+            stats['ciho'] = np.nan
+            stats['whislo'] = np.nan
+            stats['whishi'] = np.nan
+            stats['med'] = np.nan
+            continue
+
+        # up-convert to an array, just to be safe
+        x = np.asarray(x)
 
         # arithmetic mean
         stats['mean'] = np.mean(x)
@@ -2021,9 +2042,9 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
             np.compress(x > stats['whishi'], x)
         ])
 
-        # add in teh remaining stats and append to final output
+        # add in the remaining stats
         stats['q1'], stats['med'], stats['q3'] = q1, med, q3
-        bxpstats.append(stats)
+
 
     return bxpstats
 
