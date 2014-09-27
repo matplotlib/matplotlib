@@ -3081,6 +3081,10 @@ class Axes(_AxesBase):
                     flierprops['markeredgecolor'] = color
                     flierprops['markerfacecolor'] = color
 
+        # do not show fliers if sym is empty string
+        if sym == '':
+            showfliers = False
+
         # replace medians if necessary:
         if usermedians is not None:
             if (len(np.ravel(usermedians)) != len(bxpstats) or
