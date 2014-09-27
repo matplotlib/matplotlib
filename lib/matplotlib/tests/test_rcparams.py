@@ -151,7 +151,7 @@ def test_Issue_1713():
         os.environ['LANG'] = old_lang
     else:
         del os.environ['LANG']
-    print(rc.get('timezone') == 'UTC')
+    assert rc.get('timezone') == 'UTC'
 
 if __name__ == '__main__':
     import nose
