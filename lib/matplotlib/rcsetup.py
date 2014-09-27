@@ -500,6 +500,7 @@ defaultParams = {
     'lines.linestyle':       ['-', six.text_type],             # solid line
     'lines.color':           ['b', validate_color],  # blue
     'lines.marker':          ['None', six.text_type],     # black
+    'lines.markerfacecolor':  ['b', validate_color],
     'lines.markeredgewidth': [0.5, validate_float],
     'lines.markersize':      [6, validate_float],    # markersize, in points
     'lines.antialiased':     [True, validate_bool],  # antialised (no jaggies)
