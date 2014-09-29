@@ -770,7 +770,14 @@ _path_module::point_in_path_collection(const Py::Tuple& args)
         throw Py::ValueError("Offsets array must be Nx2");
     }
 
+    Py::List result;
+
     size_t Npaths      = paths.length();
+
+    if (Npaths == 0) {
+        return result;
+    }
+
     size_t Noffsets    = offsets->dimensions[0];
     size_t N           = std::max(Npaths, Noffsets);
     size_t Ntransforms = std::min(transforms_obj.length(), N);
@@ -788,7 +795,6 @@ _path_module::point_in_path_collection(const Py::Tuple& args)
         transforms.push_back(trans);
     }
 
-    Py::List result;
     agg::trans_affine trans;
 
     for (i = 0; i < N; ++i)

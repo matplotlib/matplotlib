@@ -838,10 +838,13 @@ class CXX(SetupPackage):
     def check(self):
         if PY3:
             # There is no version of PyCXX in the wild that will work
-            # with Python 3.x
+            # with Python 3.x and matplotlib, since they lack support
+            # for the buffer object.
             self.__class__.found_external = False
-            return ("Official versions of PyCXX are not compatible with "
-                    "Python 3.x.  Using local copy")
+            return ("Official versions of PyCXX are not compatible "
+                    "with matplotlib on Python 3.x, since they lack "
+                    "support for the buffer object.  Using local "
+                    "copy")
 
         self.__class__.found_external = True
         old_stdout = sys.stdout
@@ -992,6 +995,7 @@ class FreeType(SetupPackage):
         ext = make_extension('freetype2', [])
         self.add_flags(ext)
         return ext
+
 
 class FT2Font(SetupPackage):
     name = 'ft2font'
@@ -1177,7 +1181,7 @@ class Tri(SetupPackage):
 
 class Six(SetupPackage):
     name = "six"
-    min_version = "1.3"
+    min_version = "1.4"
 
     def check(self):
         try:
@@ -1195,6 +1199,24 @@ class Six(SetupPackage):
 
     def get_install_requires(self):
         return ['six>={0}'.format(self.min_version)]
+
+
+class Pytz(SetupPackage):
+    name = "pytz"
+
+    def check(self):
+        try:
+            import pytz
+        except ImportError:
+            return (
+                "pytz was not found. "
+                "pip will attempt to install it "
+                "after matplotlib.")
+
+        return "using pytz version %s" % pytz.__version__
+
+    def get_install_requires(self):
+        return ['pytz']
 
 
 class Dateutil(SetupPackage):

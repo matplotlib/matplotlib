@@ -23,6 +23,8 @@ matrix:
 install:
   - pip install -q --use-mirrors nose python-dateutil numpy pep8 pyparsing pillow
   - sudo apt-get update && sudo apt-get -qq install inkscape libav-tools
+  # We use --no-install-recommends to avoid pulling in additional large latex docs that we don't need 
+  - if [[ $BUILD_DOCS == true ]]; then sudo apt-get install -qq --no-install-recommends dvipng texlive-latex-base texlive-latex-extra texlive-fonts-recommended graphviz; fi
   - if [[ $BUILD_DOCS == true ]]; then pip install sphinx numpydoc linkchecker; fi
   - python setup.py install
 
