@@ -2864,7 +2864,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
       the column it appears in
 
     - *use_mrecords*: if True, return an mrecords.fromrecords record array if
-    any of the data are missing
+      any of the data are missing
 
     - *dayfirst*: default is False so that MM-DD-YY has precedence over
       DD-MM-YY.  See
