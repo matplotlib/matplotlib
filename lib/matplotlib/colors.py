@@ -1464,26 +1464,35 @@ class LightSource(object):
     Create a light source coming from the specified azimuth and elevation.
     Angles are in degrees, with the azimuth measured
     clockwise from north and elevation up from the zero plane of the surface.
-    The :meth:`shade` is used to produce rgb values for a shaded relief image
-    given a data array.
-    """
-    def __init__(self, azdeg=315, altdeg=45,
-                 hsv_min_val=0, hsv_max_val=1, hsv_min_sat=1,
-                 hsv_max_sat=0):
 
+    The :meth:`shade` is used to produce "shaded" rgb values for a data array.
+    :meth:`shade_rgb` can be used to combine an rgb image with
+    The :meth:`shade_rgb`
+    The :meth:`hillshade` produces an illumination map of a surface.
+    """
+    def __init__(self, azdeg=315, altdeg=45, hsv_min_val=0, hsv_max_val=1,
+                 hsv_min_sat=1, hsv_max_sat=0):
         """
         Specify the azimuth (measured clockwise from south) and altitude
         (measured up from the plane of the surface) of the light source
         in degrees.
 
-        The color of the resulting image will be darkened
-        by moving the (s,v) values (in hsv colorspace) toward
-        (hsv_min_sat, hsv_min_val) in the shaded regions, or
-        lightened by sliding (s,v) toward
-        (hsv_max_sat hsv_max_val) in regions that are illuminated.
-        The default extremes are chose so that completely shaded points
-        are nearly black (s = 1, v = 0) and completely illuminated points
-        are nearly white (s = 0, v = 1).
+        Parameters
+        ----------
+        azdeg : number, optional
+            The azimuth (0-360, degrees clockwise from North) of the light
+            source. Defaults to 315 degrees (from the northwest).
+        altdeg : number, optional
+            The altitude (0-90, degrees up from horizontal) of the light
+            source.  Defaults to 45 degrees from horizontal.
+
+        Notes
+        -----
+        For backwards compatibility, the parameters *hsv_min_val*,
+        *hsv_max_val*, *hsv_min_sat*, and *hsv_max_sat* may be supplied at
+        initialization as well.  However, these parameters will only be used if
+        "blend_mode='hsv'" is passed into :meth:`shade` or :meth:`shade_rgb`.
+        See the documentation for :meth:`blend_hsv` for more details.
         """
         self.azdeg = azdeg
         self.altdeg = altdeg
@@ -1492,77 +1501,350 @@ class LightSource(object):
         self.hsv_min_sat = hsv_min_sat
         self.hsv_max_sat = hsv_max_sat
 
-    def shade(self, data, cmap, norm=None):
+    def hillshade(self, elevation, vert_exag=1, dx=1, dy=1, fraction=1.):
         """
-        Take the input data array, convert to HSV values in the
-        given colormap, then adjust those color values
-        to give the impression of a shaded relief map with a
-        specified light source.
-        RGBA values are returned, which can then be used to
-        plot the shaded image with imshow.
-        """
+        Calculates the illumination intensity for a surface using the defined
+        azimuth and elevation for the light source.
 
+        Imagine an artificial sun placed at infinity in some azimuth and
+        elevation position illuminating our surface. The parts of the surface
+        that slope toward the sun should brighten while those sides facing away
+        should become darker.
+
+        Parameters
+        ----------
+        elevation : array-like
+            A 2d array (or equivalent) of the height values used to generate an
+            illumination map
+        vert_exag : number, optional
+            The amount to exaggerate the elevation values by when calculating
+            illumination. This can be used either to correct for differences in
+            units between the x-y coordinate system and the elevation
+            coordinate system (e.g. decimal degrees vs meters) or to exaggerate
+            or de-emphasize topographic effects.
+        dx : number, optional
+            The x-spacing (columns) of the input *elevation* grid.
+        dy : number, optional
+            The y-spacing (rows) of the input *elevation* grid.
+        fraction : number, optional
+            Increases or decreases the contrast of the hillshade.  Values
+            greater than one will cause intermediate values to move closer to
+            full illumination or shadow (and clipping any values that move
+            beyond 0 or 1). Note that this is not visually or mathematically
+            the same as vertical exaggeration.
+        Returns
+        -------
+        intensity : ndarray
+            A 2d array of illumination values between 0-1, where 0 is
+            completely in shadow and 1 is completely illuminated.
+        """
+        # Azimuth is in degrees clockwise from North. Convert to radians
+        # counterclockwise from East (mathematical notation).
+        az = np.radians(90 - self.azdeg)
+        alt = np.radians(self.altdeg)
+
+        # Because most image and raster GIS data has the first row in the array
+        # as the "top" of the image, dy is implicitly negative.  This is
+        # consistent to what `imshow` assumes, as well.
+        dy = -dy
+
+        #-- Calculate the intensity from the illumination angle
+        dy, dx = np.gradient(vert_exag * elevation, dy, dx)
+        # The aspect is defined by the _downhill_ direction, thus the negative
+        aspect = np.arctan2(-dy, -dx)
+        slope = 0.5 * np.pi - np.arctan(np.hypot(dx, dy))
+        intensity = (np.sin(alt) * np.sin(slope)
+                     + np.cos(alt) * np.cos(slope)
+                     * np.cos(az - aspect))
+
+        #-- Apply contrast stretch
+        imin, imax = intensity.min(), intensity.max()
+        intensity *= fraction
+
+        #-- Rescale to 0-1, keeping range before contrast stretch
+        # If constant slope, keep relative scaling (i.e. flat should be 0.5,
+        # fully occluded 0, etc.)
+        if (imax - imin) > 1e-6:
+            # Strictly speaking, this is incorrect. Negative values should be
+            # clipped to 0 because they're fully occluded. However, rescaling
+            # in this manner is consistent with the previous implementation and
+            # visually appears better than a "hard" clip.
+            intensity -= imin
+            intensity /= (imax - imin)
+        intensity = np.clip(intensity, 0, 1, intensity)
+
+        return intensity
+
+    def shade(self, data, cmap, norm=None, blend_mode='hsv', vmin=None,
+              vmax=None, vert_exag=1, dx=1, dy=1, fraction=1, **kwargs):
+        """
+        Combine colormapped data values with an illumination intensity map
+        (a.k.a.  "hillshade") of the values.
+
+        Parameters
+        ----------
+        data : array-like
+            A 2d array (or equivalent) of the height values used to generate a
+            shaded map.
+        cmap : `~matplotlib.colors.Colormap` instance
+            The colormap used to color the *data* array. Note that this must be
+            a `~matplotlib.colors.Colormap` instance.  For example, rather than
+            passing in `cmap='gist_earth'`, use
+            `cmap=plt.get_cmap('gist_earth')` instead.
+        norm : `~matplotlib.colors.Normalize` instance, optional
+            The normalization used to scale values before colormapping. If
+            None, the input will be linearly scaled between its min and max.
+        blend_mode : {'hsv', 'overlay', 'soft'} or callable, optional
+            The type of blending used to combine the colormapped data values
+            with the illumination intensity.  For backwards compatibility, this
+            defaults to "hsv". Note that for most topographic surfaces,
+            "overlay" or "soft" appear more visually realistic. If a
+            user-defined function is supplied, it is expected to combine an
+            MxNx3 RGB array of floats (ranging 0 to 1) with an MxNx1 hillshade
+            array (also 0 to 1).  (Call signature `func(rgb, illum, **kwargs)`)
+            Additional kwargs supplied to this function will be passed on to
+            the *blend_mode* function.
+        vmin : scalar or None, optional
+            The minimum value used in colormapping *data*. If *None* the
+            minimum value in *data* is used. If *norm* is specified, then this
+            argument will be ignored.
+        vmax : scalar or None, optional
+            The maximum value used in colormapping *data*. If *None* the
+            maximum value in *data* is used. If *norm* is specified, then this
+            argument will be ignored.
+        vert_exag : number, optional
+            The amount to exaggerate the elevation values by when calculating
+            illumination. This can be used either to correct for differences in
+            units between the x-y coordinate system and the elevation
+            coordinate system (e.g. decimal degrees vs meters) or to exaggerate
+            or de-emphasize topography.
+        dx : number, optional
+            The x-spacing (columns) of the input *elevation* grid.
+        dy : number, optional
+            The y-spacing (rows) of the input *elevation* grid.
+        fraction : number, optional
+            Increases or decreases the contrast of the hillshade.  Values
+            greater than one will cause intermediate values to move closer to
+            full illumination or shadow (and clipping any values that move
+            beyond 0 or 1). Note that this is not visually or mathematically
+            the same as vertical exaggeration.
+        Additional kwargs are passed on to the *blend_mode* function.
+
+        Returns
+        -------
+        rgba : ndarray
+            An MxNx4 array of floats ranging between 0-1.
+        """
+        if vmin is None:
+            vmin = data.min()
+        if vmax is None:
+            vmax = data.max()
         if norm is None:
-            norm = Normalize(vmin=data.min(), vmax=data.max())
+            norm = Normalize(vmin=vmin, vmax=vmax)
 
         rgb0 = cmap(norm(data))
-        rgb1 = self.shade_rgb(rgb0, elevation=data)
-        rgb0[:, :, 0:3] = rgb1
+        rgb1 = self.shade_rgb(rgb0, elevation=data, blend_mode=blend_mode,
+                              vert_exag=vert_exag, dx=dx, dy=dy,
+                              fraction=fraction, **kwargs)
+        # Don't overwrite the alpha channel, if present.
+        rgb0[..., :3] = rgb1[..., :3]
         return rgb0
 
-    def shade_rgb(self, rgb, elevation, fraction=1.):
+    def shade_rgb(self, rgb, elevation, fraction=1., blend_mode='hsv',
+                  vert_exag=1, dx=1, dy=1, **kwargs):
         """
         Take the input RGB array (ny*nx*3) adjust their color values
         to given the impression of a shaded relief map with a
         specified light source using the elevation (ny*nx).
         A new RGB array ((ny*nx*3)) is returned.
-        """
-        # imagine an artificial sun placed at infinity in some azimuth and
-        # elevation position illuminating our surface. The parts of the
-        # surface that slope toward the sun should brighten while those sides
-        # facing away should become darker. convert alt, az to radians
-        az = self.azdeg * np.pi / 180.0
-        alt = self.altdeg * np.pi / 180.0
-        # gradient in x and y directions
-        dx, dy = np.gradient(elevation)
-        slope = 0.5 * np.pi - np.arctan(np.hypot(dx, dy))
-        aspect = np.arctan2(dx, dy)
-        intensity = (np.sin(alt) * np.sin(slope) + np.cos(alt) *
-                     np.cos(slope) * np.cos(-az - aspect - 0.5 * np.pi))
-        # rescale to interval -1,1
-        # +1 means maximum sun exposure and -1 means complete shade.
-        intensity = (intensity - intensity.min()) / \
-                    (intensity.max() - intensity.min())
-        intensity = (2. * intensity - 1.) * fraction
-        # convert to rgb, then rgb to hsv
-        #rgb = cmap((data-data.min())/(data.max()-data.min()))
-        hsv = rgb_to_hsv(rgb[:, :, 0:3])
-        # modify hsv values to simulate illumination.
 
+        Parameters
+        ----------
+        rgb : array-like
+            An MxNx3 RGB array, assumed to be in the range of 0 to 1.
+        elevation : array-like
+            A 2d array (or equivalent) of the height values used to generate a
+            shaded map.
+        fraction : number
+            Increases or decreases the contrast of the hillshade.  Values
+            greater than one will cause intermediate values to move closer to
+            full illumination or shadow (and clipping any values that move
+            beyond 0 or 1). Note that this is not visually or mathematically
+            the same as vertical exaggeration.
+        blend_mode : {'hsv', 'overlay', 'soft'} or callable, optional
+            The type of blending used to combine the colormapped data values
+            with the illumination intensity.  For backwards compatibility, this
+            defaults to "hsv". Note that for most topographic surfaces,
+            "overlay" or "soft" appear more visually realistic. If a
+            user-defined function is supplied, it is expected to combine an
+            MxNx3 RGB array of floats (ranging 0 to 1) with an MxNx1 hillshade
+            array (also 0 to 1).  (Call signature `func(rgb, illum, **kwargs)`)
+            Additional kwargs supplied to this function will be passed on to
+            the *blend_mode* function.
+        vert_exag : number, optional
+            The amount to exaggerate the elevation values by when calculating
+            illumination. This can be used either to correct for differences in
+            units between the x-y coordinate system and the elevation
+            coordinate system (e.g. decimal degrees vs meters) or to exaggerate
+            or de-emphasize topography.
+        dx : number, optional
+            The x-spacing (columns) of the input *elevation* grid.
+        dy : number, optional
+            The y-spacing (rows) of the input *elevation* grid.
+        Additional kwargs are passed on to the *blend_mode* function.
+
+        Returns
+        -------
+        shaded_rgb : ndarray
+            An MxNx3 array of floats ranging between 0-1.
+        """
+        # Calculate the "hillshade" intensity.
+        intensity = self.hillshade(elevation, vert_exag, dx, dy, fraction)
+        intensity = intensity[..., np.newaxis]
+
+        # Blend the hillshade and rgb data using the specified mode
+        lookup = {
+                'hsv': self.blend_hsv,
+                'soft': self.blend_soft_light,
+                'overlay': self.blend_overlay,
+                }
+        if blend_mode in lookup:
+            blend = lookup[blend_mode](rgb, intensity, **kwargs)
+        else:
+            try:
+                blend = blend_mode(rgb, intensity, **kwargs)
+            except TypeError:
+                msg = '"blend_mode" must be callable or one of {}'
+                raise ValueError(msg.format(lookup.keys))
+
+        # Only apply result where hillshade intensity isn't masked
+        if hasattr(intensity, 'mask'):
+            mask = intensity.mask[..., 0]
+            for i in range(3):
+                blend[..., i][mask] = rgb[..., i][mask]
+
+        return blend
+
+    def blend_hsv(self, rgb, intensity, hsv_max_sat=None, hsv_max_val=None,
+                  hsv_min_val=None, hsv_min_sat=None):
+        """
+        Take the input data array, convert to HSV values in the given colormap,
+        then adjust those color values to give the impression of a shaded
+        relief map with a specified light source.  RGBA values are returned,
+        which can then be used to plot the shaded image with imshow.
+
+        The color of the resulting image will be darkened by moving the (s,v)
+        values (in hsv colorspace) toward (hsv_min_sat, hsv_min_val) in the
+        shaded regions, or lightened by sliding (s,v) toward (hsv_max_sat
+        hsv_max_val) in regions that are illuminated.  The default extremes are
+        chose so that completely shaded points are nearly black (s = 1, v = 0)
+        and completely illuminated points are nearly white (s = 0, v = 1).
+
+        Parameters
+        ----------
+        rgb : ndarray
+            An MxNx3 RGB array of floats ranging from 0 to 1 (color image).
+        intensity : ndarray
+            An MxNx1 array of floats ranging from 0 to 1 (grayscale image).
+        hsv_max_sat : number, optional
+            The maximum saturation value that the *intensity* map can shift the
+            output image to. Defaults to 1.
+        hsv_min_sat : number, optional
+            The minimum saturation value that the *intensity* map can shift the
+            output image to. Defaults to 0.
+        hsv_max_val : number, optional
+            The maximum value ("v" in "hsv") that the *intensity* map can shift
+            the output image to. Defaults to 1.
+        hsv_min_val: number, optional
+            The minimum value ("v" in "hsv") that the *intensity* map can shift
+            the output image to. Defaults to 0.
+
+        Returns
+        -------
+        rgb : ndarray
+            An MxNx3 RGB array representing the combined images.
+        """
+        # Backward compatibility...
+        if hsv_max_sat is None:
+            hsv_max_sat = self.hsv_max_sat
+        if hsv_max_val is None:
+            hsv_max_val = self.hsv_max_val
+        if hsv_min_sat is None:
+            hsv_min_sat = self.hsv_min_sat
+        if hsv_min_val is None:
+            hsv_min_val = self.hsv_min_val
+
+        # Expects a 2D intensity array scaled between -1 to 1...
+        intensity = intensity[..., 0]
+        intensity = 2 * intensity - 1
+
+        # convert to rgb, then rgb to hsv
+        hsv = rgb_to_hsv(rgb[:, :, 0:3])
+
+        # modify hsv values to simulate illumination.
         hsv[:, :, 1] = np.where(np.logical_and(np.abs(hsv[:, :, 1]) > 1.e-10,
                                                intensity > 0),
                                 ((1. - intensity) * hsv[:, :, 1] +
-                                 intensity * self.hsv_max_sat),
+                                 intensity * hsv_max_sat),
                                 hsv[:, :, 1])
 
         hsv[:, :, 2] = np.where(intensity > 0,
                                 ((1. - intensity) * hsv[:, :, 2] +
-                                 intensity * self.hsv_max_val),
+                                 intensity * hsv_max_val),
                                 hsv[:, :, 2])
 
         hsv[:, :, 1] = np.where(np.logical_and(np.abs(hsv[:, :, 1]) > 1.e-10,
                                                intensity < 0),
                                 ((1. + intensity) * hsv[:, :, 1] -
-                                 intensity * self.hsv_min_sat),
+                                 intensity * hsv_min_sat),
                                 hsv[:, :, 1])
         hsv[:, :, 2] = np.where(intensity < 0,
                                 ((1. + intensity) * hsv[:, :, 2] -
-                                 intensity * self.hsv_min_val),
+                                 intensity * hsv_min_val),
                                 hsv[:, :, 2])
         hsv[:, :, 1:] = np.where(hsv[:, :, 1:] < 0., 0, hsv[:, :, 1:])
         hsv[:, :, 1:] = np.where(hsv[:, :, 1:] > 1., 1, hsv[:, :, 1:])
         # convert modified hsv back to rgb.
         return hsv_to_rgb(hsv)
+
+    def blend_soft_light(self, rgb, intensity):
+        """
+        Combines an rgb image with an intensity map using "soft light"
+        blending.  Uses the "pegtop" formula.
+
+        Parameters
+        ----------
+        rgb : ndarray
+            An MxNx3 RGB array of floats ranging from 0 to 1 (color image).
+        intensity : ndarray
+            An MxNx1 array of floats ranging from 0 to 1 (grayscale image).
+
+        Returns
+        -------
+        rgb : ndarray
+            An MxNx3 RGB array representing the combined images.
+        """
+        return 2 * intensity * rgb + (1 - 2 * intensity) * rgb**2
+
+    def blend_overlay(self, rgb, intensity):
+        """
+        Combines an rgb image with an intensity map using "overlay" blending.
+
+        Parameters
+        ----------
+        rgb : ndarray
+            An MxNx3 RGB array of floats ranging from 0 to 1 (color image).
+        intensity : ndarray
+            An MxNx1 array of floats ranging from 0 to 1 (grayscale image).
+
+        Returns
+        -------
+        rgb : ndarray
+            An MxNx3 RGB array representing the combined images.
+        """
+        low = 2 * intensity * rgb
+        high = 1 - 2 * (1 - intensity) * (1 - rgb)
+        return np.where(rgb <= 0.5, low, high)
 
 
 def from_levels_and_colors(levels, colors, extend='neither'):
