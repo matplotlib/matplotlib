@@ -10,7 +10,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange
+from six.moves import xrange, zip
+from itertools import repeat
 
 import datetime
 import errno
@@ -122,9 +123,12 @@ def warn_deprecated(
 
     Examples
     --------
-    # To warn of the deprecation of "matplotlib.name_of_module"
-    warn_deprecated('1.4.0', name='matplotlib.name_of_module',
-                    obj_type='module')
+
+        Basic example::
+
+            # To warn of the deprecation of "matplotlib.name_of_module"
+            warn_deprecated('1.4.0', name='matplotlib.name_of_module',
+                            obj_type='module')
 
     """
     message = _generate_deprecation_message(
@@ -174,9 +178,12 @@ def deprecated(since, message='', name='', alternative='', pending=False,
 
     Examples
     --------
-    @deprecated('1.4.0')
-    def the_function_to_deprecate():
-        pass
+
+        Basic example::
+
+            @deprecated('1.4.0')
+            def the_function_to_deprecate():
+                pass
 
     """
     def deprecate(func, message=message, name=name, alternative=alternative,
@@ -1890,7 +1897,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
         ========   ===================================
         label      tick label for the boxplot
         mean       arithemetic mean value
-        median     50th percentile
+        med        50th percentile
         q1         first quartile (25th percentile)
         q3         third quartile (75th percentile)
         cilo       lower notch around the median
@@ -1911,7 +1918,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
 
     General approach from:
     McGill, R., Tukey, J.W., and Larsen, W.A. (1978) "Variations of
-        Boxplots", The American Statistician, 32:12-16.
+    Boxplots", The American Statistician, 32:12-16.
 
     '''
 
@@ -1950,14 +1957,40 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
 
     ncols = len(X)
     if labels is None:
-        labels = [str(i) for i in range(1, ncols+1)]
+        labels = repeat(None)
     elif len(labels) != ncols:
         raise ValueError("Dimensions of labels and X must be compatible")
 
+    input_whis = whis
     for ii, (x, label) in enumerate(zip(X, labels), start=0):
+
         # empty dict
         stats = {}
-        stats['label'] = label
+        if label is not None:
+            stats['label'] = label
+
+        # restore whis to the input values in case it got changed in the loop
+        whis = input_whis
+
+        # note tricksyness, append up here and then mutate below
+        bxpstats.append(stats)
+
+        # if empty, bail
+        if len(x) == 0:
+            stats['fliers'] = np.array([])
+            stats['mean'] = np.nan
+            stats['med'] = np.nan
+            stats['q1'] = np.nan
+            stats['q3'] = np.nan
+            stats['cilo'] = np.nan
+            stats['ciho'] = np.nan
+            stats['whislo'] = np.nan
+            stats['whishi'] = np.nan
+            stats['med'] = np.nan
+            continue
+
+        # up-convert to an array, just to be safe
+        x = np.asarray(x)
 
         # arithmetic mean
         stats['mean'] = np.mean(x)
@@ -2011,9 +2044,9 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
             np.compress(x > stats['whishi'], x)
         ])
 
-        # add in teh remaining stats and append to final output
+        # add in the remaining stats
         stats['q1'], stats['med'], stats['q3'] = q1, med, q3
-        bxpstats.append(stats)
+
 
     return bxpstats
 

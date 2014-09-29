@@ -203,7 +203,6 @@ def test_pep8_conformance_installed_files():
                           'tri/triinterpolate.py',
                           'tests/test_axes.py',
                           'tests/test_bbox_tight.py',
-                          'tests/test_dates.py',
                           'tests/test_delaunay.py',
                           'tests/test_dviread.py',
                           'tests/test_image.py',

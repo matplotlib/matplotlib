@@ -568,7 +568,7 @@ grestore
             ps_cmd.extend(['clip', 'newpath', '} bind def\n'])
             self._pswriter.write('\n'.join(ps_cmd))
             self._clip_paths[key] = pid
-        return id
+        return pid
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         """

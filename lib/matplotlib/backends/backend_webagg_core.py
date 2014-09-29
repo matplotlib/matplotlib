@@ -65,13 +65,19 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # sent to the clients will be a full frame.
         self._force_full = True
 
+        # Store the current image mode so that at any point, clients can
+        # request the information. This should be changed by calling
+        # self.set_image_mode(mode) so that the notification can be given
+        # to the connected clients.
+        self._current_image_mode = 'full'
+
     def show(self):
         # show the figure window
         from matplotlib.pyplot import show
         show()
 
     def draw(self):
-        renderer = self.get_renderer()
+        renderer = self.get_renderer(cleared=True)
 
         self._png_is_old = True
 
@@ -86,26 +92,47 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     def draw_idle(self):
         self.send_event("draw")
 
+    def set_image_mode(self, mode):
+        """
+        Set the image mode for any subsequent images which will be sent
+        to the clients. The modes may currently be either 'full' or 'diff'.
+
+        Note: diff images may not contain transparency, therefore upon
+        draw this mode may be changed if the resulting image has any
+        transparent component.
+
+        """
+        if mode not in ['full', 'diff']:
+            raise ValueError('image mode must be either full or diff.')
+        if self._current_image_mode != mode:
+            self._current_image_mode = mode
+            self.handle_send_image_mode(None)
+
     def get_diff_image(self):
         if self._png_is_old:
+            renderer = self.get_renderer()
+
             # The buffer is created as type uint32 so that entire
             # pixels can be compared in one numpy call, rather than
             # needing to compare each plane separately.
-            buff = np.frombuffer(
-                self.get_renderer().buffer_rgba(), dtype=np.uint32)
-            buff.shape = (
-                self._renderer.height, self._renderer.width)
+            buff = np.frombuffer(renderer.buffer_rgba(), dtype=np.uint32)
+            buff.shape = (renderer.height, renderer.width)
 
-            if not self._force_full:
-                last_buffer = np.frombuffer(
-                    self._last_renderer.buffer_rgba(), dtype=np.uint32)
-                last_buffer.shape = (
-                    self._renderer.height, self._renderer.width)
+            # If any pixels have transparency, we need to force a full
+            # draw as we cannot overlay new on top of old.
+            pixels = buff.view(dtype=np.uint8).reshape(buff.shape + (4,))
+
+            if self._force_full or np.any(pixels[:, :, 3] != 255):
+                self.set_image_mode('full')
+                output = buff
+            else:
+                self.set_image_mode('diff')
+                last_buffer = np.frombuffer(self._last_renderer.buffer_rgba(),
+                                            dtype=np.uint32)
+                last_buffer.shape = (renderer.height, renderer.width)
 
                 diff = buff != last_buffer
                 output = np.where(diff, buff, 0)
-            else:
-                output = buff
 
             # Clear out the PNG data buffer rather than recreating it
             # each time.  This reduces the number of memory
@@ -122,7 +149,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
             # Swap the renderer frames
             self._renderer, self._last_renderer = (
-                self._last_renderer, self._renderer)
+                self._last_renderer, renderer)
             self._force_full = False
             self._png_is_old = False
         return self._png_buffer.getvalue()
@@ -146,6 +173,9 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             self._last_renderer = backend_agg.RendererAgg(
                 w, h, self.figure.dpi)
             self._lastKey = key
+
+        elif cleared:
+            self._renderer.clear()
 
         return self._renderer
 
@@ -223,6 +253,10 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         self._png_is_old = True
         self.manager.resize(w, h)
 
+    def handle_send_image_mode(self, event):
+        # The client requests notification of what the current image mode is.
+        self.send_event('image_mode', mode=self._current_image_mode)
+
     def send_event(self, event_type, **kwargs):
         self.manager._send_event(event_type, **kwargs)
 
@@ -238,24 +272,26 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         backend_bases.FigureCanvasBase.stop_event_loop_default.__doc__
 
 
+_JQUERY_ICON_CLASSES = {
+    'home': 'ui-icon ui-icon-home',
+    'back': 'ui-icon ui-icon-circle-arrow-w',
+    'forward': 'ui-icon ui-icon-circle-arrow-e',
+    'zoom_to_rect': 'ui-icon ui-icon-search',
+    'move': 'ui-icon ui-icon-arrow-4',
+    'download': 'ui-icon ui-icon-disk',
+    None: None,
+}
+
+
 class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
-    _jquery_icon_classes = {
-        'home': 'ui-icon ui-icon-home',
-        'back': 'ui-icon ui-icon-circle-arrow-w',
-        'forward': 'ui-icon ui-icon-circle-arrow-e',
-        'zoom_to_rect': 'ui-icon ui-icon-search',
-        'move': 'ui-icon ui-icon-arrow-4',
-        'download': 'ui-icon ui-icon-disk',
-        None: None,
-    }
 
     # Use the standard toolbar items + download button
-    toolitems = [(text, tooltip_text, _jquery_icon_classes[image_file],
+    toolitems = [(text, tooltip_text, _JQUERY_ICON_CLASSES[image_file],
                   name_of_method)
                  for text, tooltip_text, image_file, name_of_method
                  in (backend_bases.NavigationToolbar2.toolitems +
                      (('Download', 'Download plot', 'download', 'download'),))
-                 if image_file in _jquery_icon_classes]
+                 if image_file in _JQUERY_ICON_CLASSES]
 
     def _init_toolbar(self):
         self.message = ''

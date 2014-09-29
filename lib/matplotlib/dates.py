@@ -520,22 +520,23 @@ class AutoDateFormatter(ticker.Formatter):
     >>> formatter = AutoDateFormatter()
     >>> formatter.scaled[1/(24.*60.)] = '%M:%S' # only show min and sec
 
-    Custom `FunctionFormatter`s can also be used. The following example shows
-    how to use a custom format function to strip trailing zeros from decimal
-    seconds and adds the date to the first ticklabel::
+    A custom :class:`~matplotlib.ticker.FuncFormatter` can also be used.
+    The following example shows how to use a custom format function to strip
+    trailing zeros from decimal seconds and adds the date to the first
+    ticklabel::
 
-    >>> def my_format_function(x, pos=None):
-    ...     x = matplotlib.dates.num2date(x)
-    ...     if pos == 0:
-    ...         fmt = '%D %H:%M:%S.%f'
-    ...     else:
-    ...         fmt = '%H:%M:%S.%f'
-    ...     label = x.strftime(fmt)
-    ...     label = label.rstrip("0")
-    ...     label = label.rstrip(".")
-    ...     return label
-    >>> from matplotlib.ticker import FuncFormatter
-    >>> formatter.scaled[1/(24.*60.)] = FuncFormatter(my_format_function)
+        >>> def my_format_function(x, pos=None):
+        ...     x = matplotlib.dates.num2date(x)
+        ...     if pos == 0:
+        ...         fmt = '%D %H:%M:%S.%f'
+        ...     else:
+        ...         fmt = '%H:%M:%S.%f'
+        ...     label = x.strftime(fmt)
+        ...     label = label.rstrip("0")
+        ...     label = label.rstrip(".")
+        ...     return label
+        >>> from matplotlib.ticker import FuncFormatter
+        >>> formatter.scaled[1/(24.*60.)] = FuncFormatter(my_format_function)
     """
 
     # This can be improved by providing some user-level direction on
@@ -897,6 +898,10 @@ class AutoDateLocator(DateLocator):
     def get_locator(self, dmin, dmax):
         'Pick the best locator based on a distance.'
         delta = relativedelta(dmax, dmin)
+
+        # take absolute difference
+        if dmin > dmax:
+            delta = -delta
 
         numYears = (delta.years * 1.0)
         numMonths = (numYears * 12.0) + delta.months

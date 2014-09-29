@@ -937,6 +937,7 @@ class Line2D(Artist):
 
         ACCEPTS: [``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'None'`` |
                   ``' '`` | ``''``]
+
         and any drawstyle in combination with a linestyle, e.g., ``'steps--'``.
         """
 
