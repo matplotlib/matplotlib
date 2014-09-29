@@ -523,7 +523,7 @@ def _get_home():
         http://mail.python.org/pipermail/python-list/2005-February/325395.html
     """
     try:
-        path = os.path.expanduser("~")
+        path = os.path.expanduser(b"~").decode(sys.getfilesystemencoding())
     except ImportError:
         # This happens on Google App Engine (pwd module is not present).
         pass
