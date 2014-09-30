@@ -6,6 +6,7 @@ import os
 
 from nose.tools import assert_equal
 from nose.plugins.skip import SkipTest
+from matplotlib.testing.noseclasses import KnownFailureTest
 
 try:
     import pep8
@@ -256,8 +257,10 @@ def test_pep8_conformance_installed_files():
 
 
 def test_pep8_conformance_examples():
-    mpldirdefault = os.path.join(os.getcwd(), '..', '..', '..')
-    mpldir = os.environ.get('MPL_REPO_DIR', mpldirdefault)
+    mpldir = os.environ.get('MPL_REPO_DIR', None)
+    if mpldir is None:
+        raise KnownFailureTest("can not find the examples")
+
     exdir = os.path.join(mpldir, 'examples')
     blacklist = ['color',
                  'event_handling',
