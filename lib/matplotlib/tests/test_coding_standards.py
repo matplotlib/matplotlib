@@ -259,7 +259,9 @@ def test_pep8_conformance_installed_files():
 def test_pep8_conformance_examples():
     mpldir = os.environ.get('MPL_REPO_DIR', None)
     if mpldir is None:
-        raise KnownFailureTest("can not find the examples")
+        raise KnownFailureTest("can not find the examples, set env "
+                               "MPL_REPO_DIR to point to the top-level path "
+                               "of the source tree")
 
     exdir = os.path.join(mpldir, 'examples')
     blacklist = ['color',
