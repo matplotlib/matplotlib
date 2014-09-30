@@ -523,7 +523,10 @@ def _get_home():
         http://mail.python.org/pipermail/python-list/2005-February/325395.html
     """
     try:
-        path = os.path.expanduser("~")
+        if six.PY2 and sys.platform == 'win32':
+            path = os.path.expanduser(b"~").decode(sys.getfilesystemencoding())
+        else:
+            path = os.path.expanduser("~")
     except ImportError:
         # This happens on Google App Engine (pwd module is not present).
         pass
