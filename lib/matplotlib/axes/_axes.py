@@ -3064,6 +3064,8 @@ class Axes(_AxesBase):
                 flierprops = dict(linestyle='none', marker='',
                     markeredgecolor='none',
                     markerfacecolor='none')
+                # turn the fliers off just to be safe
+                showfliers = False
             # now process the symbol string
             else:
                 # process the symbol string
@@ -3080,10 +3082,6 @@ class Axes(_AxesBase):
                     # flierprops
                     flierprops['markeredgecolor'] = color
                     flierprops['markerfacecolor'] = color
-
-        # do not show fliers if sym is empty string
-        if sym == '':
-            showfliers = False
 
         # replace medians if necessary:
         if usermedians is not None:
