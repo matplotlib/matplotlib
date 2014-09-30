@@ -3064,6 +3064,8 @@ class Axes(_AxesBase):
                 flierprops = dict(linestyle='none', marker='',
                     markeredgecolor='none',
                     markerfacecolor='none')
+                # turn the fliers off just to be safe
+                showfliers = False
             # now process the symbol string
             else:
                 # process the symbol string
