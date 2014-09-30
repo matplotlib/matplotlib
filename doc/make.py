@@ -149,12 +149,30 @@ required_symlinks = [
     ('mpl_toolkits/axes_grid/examples', '../../../examples/axes_grid/')
     ]
 
+symlink_warnings = []
 for link, target in required_symlinks:
+    if sys.platform == 'win32' and os.path.isfile(link):
+        # This is special processing that applies on platforms that don't deal
+        # with git symlinks -- probably only MS windows.
+        delete = False
+        with open(link, 'r') as content:
+            delete = target == content.read()
+        if delete:
+            symlink_warnings.append('deleted:  doc/{}'.format(link))
+            os.unlink(link)
+        else:
+            raise RuntimeError("doc/{} should be a directory or symlink -- it isn't")
     if not os.path.exists(link):
         if hasattr(os, 'symlink'):
             os.symlink(target, link)
         else:
+            symlink_warnings.append('files copied to {}'.format(link))
             shutil.copytree(os.path.join(link, '..', target), link)
+
+if sys.platform == 'win32' and len(symlink_warnings) > 0:
+    print('The following items related to symlinks will show up '+ 
+            'as spurious changes in your \'git status\':\n\t{}' 
+                    .format('\n\t'.join(symlink_warnings)))
 
 if len(sys.argv)>1:
     if '--small' in sys.argv[1:]:

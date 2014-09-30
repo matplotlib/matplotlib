@@ -513,6 +513,22 @@ def test_polycollection_close():
     ax.set_ylim3d(0, 4)
 
 
+@image_comparison(baseline_images=['regularpolycollection_rotate'],
+                  extensions=['png'], remove_text=True)
+def test_regularpolycollection_rotate():
+    xx, yy = np.mgrid[:10, :10]
+    xy_points = np.transpose([xx.flatten(), yy.flatten()])
+    rotations = np.linspace(0, 2*np.pi, len(xy_points))
+
+    fig, ax = plt.subplots()
+    for xy, alpha in zip(xy_points, rotations):
+        col = mcollections.RegularPolyCollection(
+            4, sizes=(100,), rotation=alpha,
+            offsets=xy, transOffset=ax.transData)
+        ax.add_collection(col, autolim=True)
+    ax.autoscale_view()
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
