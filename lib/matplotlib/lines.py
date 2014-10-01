@@ -256,7 +256,7 @@ class Line2D(Artist):
                  markeredgecolor=None,
                  markerfacecolor=None,
                  markerfacecoloralt='none',
-                 fillstyle='full',
+                 fillstyle=None,
                  antialiased=None,
                  dash_capstyle=None,
                  solid_capstyle=None,

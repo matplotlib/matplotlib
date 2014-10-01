@@ -392,6 +392,10 @@ validate_capstyle = ValidateInStrings('capstyle',
                                       ['butt', 'round', 'projecting'],
                                       ignorecase=True)
 
+validate_fillstyle = ValidateInStrings('markers.fillstyle',
+                                       ['full', 'left', 'right', 'bottom',
+                                        'top', 'none'])
+
 validate_negative_linestyle = ValidateInStrings('negative_linestyle',
                                                 ['solid', 'dashed'],
                                                 ignorecase=True)
@@ -551,6 +555,9 @@ defaultParams = {
     'lines.solid_joinstyle': ['round', validate_joinstyle],
     'lines.dash_capstyle':   ['butt', validate_capstyle],
     'lines.solid_capstyle':  ['projecting', validate_capstyle],
+
+    # marker props
+    'markers.fillstyle': ['full', validate_fillstyle],
 
     ## patch props
     'patch.linewidth':   [1.0, validate_float],  # line width in points
