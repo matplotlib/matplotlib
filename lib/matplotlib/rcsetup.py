@@ -267,10 +267,10 @@ def validate_colorlist(s):
 def validate_stringlist(s):
     'return a list'
     if isinstance(s, six.string_types):
-        return [six.text_type(v.strip()) for v in s.split(',')]
+        return [six.text_type(v.strip()) for v in s.split(',') if v.strip()]
     else:
         assert type(s) in [list, tuple]
-        return [six.text_type(v) for v in s]
+        return [six.text_type(v) for v in s if v]
 
 
 validate_orientation = ValidateInStrings(
