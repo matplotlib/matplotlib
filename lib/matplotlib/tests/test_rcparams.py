@@ -170,6 +170,9 @@ def _validation_test_helper(validator, arg, target):
 
 
 def _validation_fail_helper(validator, arg, exception_type):
+    if sys.version_info[:2] < (2, 7):
+        raise nose.SkipTest("assert_raises as context manager not "
+                            "supported with Python < 2.7")
     with assert_raises(exception_type):
         validator(arg)
 
