@@ -817,7 +817,9 @@ defaultParams = {
 
     'animation.convert_args':  [[], validate_stringlist]}
 
-
+obsolete_rcparams = ('tk.pythoninspect', 'savefig.extension',
+                                           'svg.embed_char_paths',
+                                           'svg.embed_char_paths')
 if __name__ == '__main__':
     rc = defaultParams
     rc['datapath'][0] = '/'
