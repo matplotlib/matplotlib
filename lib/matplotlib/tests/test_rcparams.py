@@ -103,6 +103,19 @@ font.weight: normal""".lstrip()
     assert ['font.family'] == list(six.iterkeys(rc.find_all('family')))
 
 
+def test_rcparams_update():
+    rc = mpl.RcParams({'figure.figsize': (3.5, 42)})
+    bad_dict = {'figure.figsize': (3.5, 42, 1)}
+    # make sure validation happens on input
+    with assert_raises(ValueError):
+        rc.update(bad_dict)
+
+
+def test_rcparams_init():
+    with assert_raises(ValueError):
+        mpl.RcParams({'figure.figsize': (3.5, 42, 1)})
+
+
 def test_Bug_2543():
     # Test that it possible to add all values to itself / deepcopy
     # This was not possible because validate_bool_maybe_none did not
