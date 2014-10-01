@@ -801,21 +801,21 @@ defaultParams = {
     # Path to FFMPEG binary. If just binary name, subprocess uses $PATH.
     'animation.ffmpeg_path':  ['ffmpeg', six.text_type],
 
-    ## Additional arguments for ffmpeg movie writer (using pipes)
-    'animation.ffmpeg_args':   ['', validate_stringlist],
+    # Additional arguments for ffmpeg movie writer (using pipes)
+    'animation.ffmpeg_args':   [[], validate_stringlist],
     # Path to AVConv binary. If just binary name, subprocess uses $PATH.
     'animation.avconv_path':   ['avconv', six.text_type],
     # Additional arguments for avconv movie writer (using pipes)
-    'animation.avconv_args':   ['', validate_stringlist],
+    'animation.avconv_args':   [[], validate_stringlist],
     # Path to MENCODER binary. If just binary name, subprocess uses $PATH.
     'animation.mencoder_path': ['mencoder', six.text_type],
     # Additional arguments for mencoder movie writer (using pipes)
-    'animation.mencoder_args': ['', validate_stringlist],
+    'animation.mencoder_args': [[], validate_stringlist],
      # Path to convert binary. If just binary name, subprocess uses $PATH
     'animation.convert_path':  ['convert', six.text_type],
      # Additional arguments for mencoder movie writer (using pipes)
 
-    'animation.convert_args':  ['', validate_stringlist]}
+    'animation.convert_args':  [[], validate_stringlist]}
 
 
 if __name__ == '__main__':
