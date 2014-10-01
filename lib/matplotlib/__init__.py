@@ -105,6 +105,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 import sys
 import distutils.version
+from itertools import chain
 
 __version__  = '1.4.x'
 __version__numpy__ = '1.6' # minimum required numpy version
@@ -191,7 +192,7 @@ if not hasattr(sys, 'argv'):  # for modpython
 
 
 from matplotlib.rcsetup import (defaultParams,
-                                validate_backend, obsolete_rcparams)
+                                validate_backend)
 
 major, minor1, minor2, s, tmp = sys.version_info
 _python24 = (major == 2 and minor1 >= 4) or major >= 3
@@ -803,6 +804,10 @@ _deprecated_map = {
 _deprecated_ignore_map = {
     }
 
+_obsolete_set = set(['tk.pythoninspect', ])
+_all_deprecated = set(chain(_deprecated_ignore_map,
+                            _deprecated_map, _obsolete_set))
+
 
 class RcParams(dict):
 
@@ -815,7 +820,7 @@ class RcParams(dict):
 
     validate = dict((key, converter) for key, (default, converter) in
                     six.iteritems(defaultParams)
-                    if key not in obsolete_rcparams)
+                    if key not in _all_deprecated)
     msg_depr = "%s is deprecated and replaced with %s; please use the latter."
     msg_depr_ignore = "%s is deprecated and ignored. Use %s"
 
@@ -920,7 +925,7 @@ def rc_params(fail_on_error=False):
         message = 'could not find rc file; returning defaults'
         ret = RcParams([(key, default) for key, (default, _) in
                         six.iteritems(defaultParams)
-                        if key not in obsolete_rcparams])
+                        if key not in _all_deprecated])
         warnings.warn(message)
         return ret
 
@@ -1043,7 +1048,7 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
 
     iter_params = six.iteritems(defaultParams)
     config = RcParams([(key, default) for key, (default, _) in iter_params
-                                      if key not in obsolete_rcparams])
+                                      if key not in _all_deprecated])
     config.update(config_from_file)
 
     verbose.set_level(config['verbose.level'])
@@ -1087,7 +1092,7 @@ rcParamsOrig = rcParams.copy()
 
 rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
                             six.iteritems(defaultParams)
-                            if key not in obsolete_rcparams])
+                            if key not in _all_deprecated])
 
 
 rcParams['ps.usedistiller'] = checkdep_ps_distiller(
