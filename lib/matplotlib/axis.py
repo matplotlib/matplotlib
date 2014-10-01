@@ -634,7 +634,7 @@ class Axis(artist.Artist):
         self._smart_bounds = False
 
         self.label = self._get_label()
-        self.labelpad = 5
+        self.labelpad = rcParams['axes.labelpad']
         self.offsetText = self._get_offset_text()
         self.majorTicks = []
         self.minorTicks = []
