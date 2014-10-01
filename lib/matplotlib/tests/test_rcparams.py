@@ -9,6 +9,7 @@ import warnings
 
 import matplotlib as mpl
 from matplotlib.tests import assert_str_equal
+from matplotlib.testing.decorators import cleanup
 from nose.tools import assert_true, assert_raises, assert_equal
 import nose
 from itertools import chain
@@ -116,6 +117,7 @@ def test_rcparams_init():
         mpl.RcParams({'figure.figsize': (3.5, 42, 1)})
 
 
+@cleanup
 def test_Bug_2543():
     # Test that it possible to add all values to itself / deepcopy
     # This was not possible because validate_bool_maybe_none did not
@@ -146,6 +148,7 @@ def test_Bug_2543():
             assert_true(mpl.rcParams['svg.fonttype'] == "none")
 
 
+@cleanup
 def test_Bug_2543_newer_python():
     # only split from above because of the usage of assert_raises
     # as a context manager, which only works in 2.7 and above
