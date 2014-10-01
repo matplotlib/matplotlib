@@ -818,6 +818,11 @@ class RcParams(dict):
     msg_depr = "%s is deprecated and replaced with %s; please use the latter."
     msg_depr_ignore = "%s is deprecated and ignored. Use %s"
 
+    # validate values on the way in
+    def __init__(self, *args, **kwargs):
+        for k, v in six.iteritems(dict(*args, **kwargs)):
+            self[k] = v
+
     def __setitem__(self, key, val):
         try:
             if key in _deprecated_map:
