@@ -68,8 +68,8 @@ RcParams({'font.cursive': ['Apple Chancery',
                            'Textile',
                            'Zapf Chancery',
                            'cursive'],
-          'font.family': 'sans-serif',
-          'font.size': 12,
+          'font.family': ['sans-serif'],
+          'font.size': 12.0,
           'font.weight': 'normal'})""".lstrip()
     else:
         expected_repr = """
@@ -77,8 +77,8 @@ RcParams({u'font.cursive': [u'Apple Chancery',
                             u'Textile',
                             u'Zapf Chancery',
                             u'cursive'],
-          u'font.family': u'sans-serif',
-          u'font.size': 12,
+          u'font.family': [u'sans-serif'],
+          u'font.size': 12.0,
           u'font.weight': u'normal'})""".lstrip()
 
     assert_str_equal(expected_repr, repr(rc))
@@ -86,14 +86,14 @@ RcParams({u'font.cursive': [u'Apple Chancery',
     if six.PY3:
         expected_str = """
 font.cursive: ['Apple Chancery', 'Textile', 'Zapf Chancery', 'cursive']
-font.family: sans-serif
-font.size: 12
+font.family: ['sans-serif']
+font.size: 12.0
 font.weight: normal""".lstrip()
     else:
         expected_str = """
 font.cursive: [u'Apple Chancery', u'Textile', u'Zapf Chancery', u'cursive']
-font.family: sans-serif
-font.size: 12
+font.family: [u'sans-serif']
+font.size: 12.0
 font.weight: normal""".lstrip()
 
     assert_str_equal(expected_str, str(rc))
