@@ -66,6 +66,8 @@ def validate_any(s):
 
 def validate_path_exists(s):
     """If s is a path, return s, else False"""
+    if s is None:
+        return None
     if os.path.exists(s):
         return s
     else:
