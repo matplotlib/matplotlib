@@ -191,7 +191,7 @@ if not hasattr(sys, 'argv'):  # for modpython
 
 
 from matplotlib.rcsetup import (defaultParams,
-                                validate_backend)
+                                validate_backend, obsolete_rcparams)
 
 major, minor1, minor2, s, tmp = sys.version_info
 _python24 = (major == 2 and minor1 >= 4) or major >= 3
@@ -814,7 +814,8 @@ class RcParams(dict):
     """
 
     validate = dict((key, converter) for key, (default, converter) in
-                    six.iteritems(defaultParams))
+                    six.iteritems(defaultParams)
+                    if key not in obsolete_rcparams)
     msg_depr = "%s is deprecated and replaced with %s; please use the latter."
     msg_depr_ignore = "%s is deprecated and ignored. Use %s"
 
@@ -917,8 +918,9 @@ def rc_params(fail_on_error=False):
     if not os.path.exists(fname):
         # this should never happen, default in mpl-data should always be found
         message = 'could not find rc file; returning defaults'
-        ret = RcParams([(key, default) for key, (default, _) in \
-                        six.iteritems(defaultParams)])
+        ret = RcParams([(key, default) for key, (default, _) in
+                        six.iteritems(defaultParams)
+                        if key not in obsolete_rcparams])
         warnings.warn(message)
         return ret
 
@@ -1040,7 +1042,8 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
         return config_from_file
 
     iter_params = six.iteritems(defaultParams)
-    config = RcParams([(key, default) for key, (default, _) in iter_params])
+    config = RcParams([(key, default) for key, (default, _) in iter_params
+                                      if key not in obsolete_rcparams])
     config.update(config_from_file)
 
     verbose.set_level(config['verbose.level'])
@@ -1082,15 +1085,19 @@ if rcParams['examples.directory']:
 
 rcParamsOrig = rcParams.copy()
 
-rcParamsDefault = RcParams([(key, default) for key, (default, converter) in \
-                            six.iteritems(defaultParams)])
+rcParamsDefault = RcParams([(key, default) for key, (default, converter) in
+                            six.iteritems(defaultParams)
+                            if key not in obsolete_rcparams])
 
-rcParams['ps.usedistiller'] = checkdep_ps_distiller(rcParams['ps.usedistiller'])
+
+rcParams['ps.usedistiller'] = checkdep_ps_distiller(
+                      rcParams['ps.usedistiller'])
 rcParams['text.usetex'] = checkdep_usetex(rcParams['text.usetex'])
 
 if rcParams['axes.formatter.use_locale']:
     import locale
     locale.setlocale(locale.LC_ALL, '')
+
 
 def rc(group, **kwargs):
     """
