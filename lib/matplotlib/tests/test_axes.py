@@ -1627,6 +1627,18 @@ def test_boxplot_bad_ci_2():
                   conf_intervals=[[1, 2], [1]])
 
 
+@image_comparison(baseline_images=['boxplot_mod_artists_after_plotting'],
+                  remove_text=True, extensions=['png'],
+                  savefig_kwarg={'dpi': 40})
+def test_boxplot_mod_artist_after_plotting():
+    x = [0.15, 0.11, 0.06, 0.06, 0.12, 0.56, -0.56]
+    fig, ax = plt.subplots()
+    bp = ax.boxplot(x, sym="o")
+    for key in bp:
+        for obj in bp[key]:
+            obj.set_color('green')
+
+
 @image_comparison(baseline_images=['violinplot_vert_baseline'],
                   extensions=['png'])
 def test_vert_violinplot_baseline():
