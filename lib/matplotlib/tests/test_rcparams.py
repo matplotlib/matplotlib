@@ -105,6 +105,9 @@ font.weight: normal""".lstrip()
 
 
 def test_rcparams_update():
+    if sys.version_info[:2] < (2, 7):
+        raise nose.SkipTest("assert_raises as context manager "
+                            "not supported with Python < 2.7")
     rc = mpl.RcParams({'figure.figsize': (3.5, 42)})
     bad_dict = {'figure.figsize': (3.5, 42, 1)}
     # make sure validation happens on input
@@ -113,6 +116,9 @@ def test_rcparams_update():
 
 
 def test_rcparams_init():
+    if sys.version_info[:2] < (2, 7):
+        raise nose.SkipTest("assert_raises as context manager "
+                            "not supported with Python < 2.7")
     with assert_raises(ValueError):
         mpl.RcParams({'figure.figsize': (3.5, 42, 1)})
 
