@@ -3080,7 +3080,6 @@ class Axes(_AxesBase):
                     # flierprops
                     flierprops['color'] = color
 
-
         # replace medians if necessary:
         if usermedians is not None:
             if (len(np.ravel(usermedians)) != len(bxpstats) or
