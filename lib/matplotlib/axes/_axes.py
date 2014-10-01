@@ -3062,8 +3062,9 @@ class Axes(_AxesBase):
             if sym == '':
                 # blow away existing dict and make one for invisible markers
                 flierprops = dict(linestyle='none', marker='',
-                    markeredgecolor='none',
-                    markerfacecolor='none')
+                    #markeredgecolor='none',
+                    #markerfacecolor='none',
+                    color='none')
                 # turn the fliers off just to be safe
                 showfliers = False
             # now process the symbol string
@@ -3080,8 +3081,8 @@ class Axes(_AxesBase):
                     # assume that if color is passed in the user want
                     # filled symbol, if the users want more control use
                     # flierprops
-                    flierprops['markeredgecolor'] = color
-                    flierprops['markerfacecolor'] = color
+                    #flierprops['markeredgecolor'] = color
+                    #flierprops['markerfacecolor'] = color
 
         # replace medians if necessary:
         if usermedians is not None:
@@ -3320,9 +3321,7 @@ class Axes(_AxesBase):
             final_whiskerprops.update(whiskerprops)
 
         # set up the default flier properties
-        final_flierprops = dict(linestyle='none', marker='+',
-                    markeredgecolor='b',
-                    markerfacecolor='none')
+        final_flierprops = dict(linestyle='none', marker='+', color='blue')
 
         # flier (outlier) properties
         if flierprops is not None:
