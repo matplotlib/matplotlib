@@ -333,7 +333,7 @@ class Slider(AxesWidget):
 
 
         dragging : bool
-            if the silder can be dragged by the mouse
+            if the slider can be dragged by the mouse
 
         """
         AxesWidget.__init__(self, ax)
