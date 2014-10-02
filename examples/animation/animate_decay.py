@@ -7,7 +7,7 @@ def data_gen(t=0):
     cnt = 0
     while cnt < 1000:
         cnt += 1
-        t += 0.05
+        t += 0.1
         yield t, np.sin(2*np.pi*t) * np.exp(-t/10.)
 
 fig, ax = plt.subplots()
@@ -32,6 +32,6 @@ def run(data):
 
     return line,
 
-ani = animation.FuncAnimation(fig, run, data_gen, blit=True, interval=10,
+ani = animation.FuncAnimation(fig, run, data_gen, blit=False, interval=10,
                               repeat=False)
 plt.show()
