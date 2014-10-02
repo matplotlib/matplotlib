@@ -89,7 +89,7 @@ def connection_info():
 _FONT_AWESOME_CLASSES = {
     'home': 'fa fa-home icon-home',
     'back': 'fa fa-arrow-left icon-arrow-left',
-    'forward': 'fa fa--arrow-right icon-arrow-right',
+    'forward': 'fa fa-arrow-right icon-arrow-right',
     'zoom_to_rect': 'fa fa-square-o icon-check-empty',
     'move': 'fa fa-arrows icon-move',
     None: None
