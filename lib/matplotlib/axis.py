@@ -1991,7 +1991,7 @@ class YAxis(Axis):
         """
         Returns the amount, in data coordinates, that a single pixel
         corresponds to in the locality given by *where*, which is also given
-        in data coordinates, and is an y coordinate.
+        in data coordinates, and is a y coordinate.
 
         *perturb* is the amount to perturb the pixel.  Usually +0.5 or -0.5.
 

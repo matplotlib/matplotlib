@@ -1,11 +1,11 @@
 """
-The axes_divider module provide helper classes to adjust the positions of
-multiple axes at the drawing time.
+The axes_divider module provides helper classes to adjust the positions of
+multiple axes at drawing time.
 
- Divider: this is the class that is used calculates the axes
+ Divider: this is the class that is used to calculate the axes
     position. It divides the given rectangular area into several sub
     rectangles. You initialize the divider by setting the horizontal
-    and vertical list of sizes that the division will be based on. You
+    and vertical lists of sizes that the division will be based on. You
     then use the new_locator method, whose return value is a callable
     object that can be used to set the axes_locator of the axes.
 
@@ -31,7 +31,7 @@ class Divider(object):
     horizontal and vertical lists of sizes
     (:mod:`mpl_toolkits.axes_grid.axes_size`) that the division will
     be based on. You then use the new_locator method to create a
-    callable object that can be used to as the axes_locator of the
+    callable object that can be used as the axes_locator of the
     axes.
     """
 
@@ -49,7 +49,7 @@ class Divider(object):
                     for vertical division
         :param aspect: if True, the overall rectangular area is reduced
                     so that the relative part of the horizontal and
-                    vertical scales have same scale.
+                    vertical scales have the same scale.
         :param anchor: Determine how the reduced rectangle is placed
                        when aspect is True.
         """
