@@ -1005,12 +1005,12 @@ class FT2Font(SetupPackage):
     def get_extension(self):
         sources = [
             'src/ft2font.cpp',
+            'src/ft2font_wrapper.cpp',
             'src/mplutils.cpp'
             ]
         ext = make_extension('matplotlib.ft2font', sources)
         FreeType().add_flags(ext)
         Numpy().add_flags(ext)
-        CXX().add_flags(ext)
         return ext
 
 
@@ -1039,14 +1039,14 @@ class Png(SetupPackage):
 
     def get_extension(self):
         sources = [
-            'src/_png.cpp', 'src/mplutils.cpp'
+            'src/_png.cpp',
+            'src/mplutils.cpp'
             ]
         ext = make_extension('matplotlib._png', sources)
         pkg_config.setup_extension(
             ext, 'libpng', default_libraries=['png', 'z'],
             alt_exec='libpng-config --ldflags')
         Numpy().add_flags(ext)
-        CXX().add_flags(ext)
         return ext
 
 
@@ -1092,7 +1092,6 @@ class TTConv(SetupPackage):
             ]
         ext = make_extension('matplotlib.ttconv', sources)
         Numpy().add_flags(ext)
-        CXX().add_flags(ext)
         ext.include_dirs.append('extern')
         return ext
 
@@ -1102,15 +1101,13 @@ class Path(SetupPackage):
 
     def get_extension(self):
         sources = [
-            'src/_path.cpp',
-            'src/path_cleanup.cpp',
-            'src/agg_py_transforms.cpp'
+            'src/py_converters.cpp',
+            'src/_path_wrapper.cpp'
             ]
 
         ext = make_extension('matplotlib._path', sources)
         Numpy().add_flags(ext)
         LibAgg().add_flags(ext)
-        CXX().add_flags(ext)
         return ext
 
 
@@ -1119,12 +1116,13 @@ class Image(SetupPackage):
 
     def get_extension(self):
         sources = [
-            'src/_image.cpp', 'src/mplutils.cpp'
+            'src/_image.cpp',
+            'src/mplutils.cpp',
+            'src/_image_wrapper.cpp'
             ]
         ext = make_extension('matplotlib._image', sources)
         Numpy().add_flags(ext)
         LibAgg().add_flags(ext)
-        CXX().add_flags(ext)
         return ext
 
 
@@ -1317,14 +1315,14 @@ class BackendAgg(OptionalBackendPackage):
     def get_extension(self):
         sources = [
             "src/mplutils.cpp",
-            "src/agg_py_transforms.cpp",
-            "src/_backend_agg.cpp"
+            "src/py_converters.cpp",
+            "src/_backend_agg.cpp",
+            "src/_backend_agg_wrapper.cpp"
             ]
         ext = make_extension('matplotlib.backends._backend_agg', sources)
         Numpy().add_flags(ext)
         LibAgg().add_flags(ext)
         FreeType().add_flags(ext)
-        CXX().add_flags(ext)
         return ext
 
 
@@ -1363,7 +1361,7 @@ class BackendTkAgg(OptionalBackendPackage):
 
     def get_extension(self):
         sources = [
-            'src/agg_py_transforms.cpp',
+            'src/py_converters.cpp',
             'src/_tkagg.cpp'
             ]
 
@@ -1371,7 +1369,6 @@ class BackendTkAgg(OptionalBackendPackage):
         self.add_flags(ext)
         Numpy().add_flags(ext)
         LibAgg().add_flags(ext)
-        CXX().add_flags(ext)
         return ext
 
     def query_tcltk(self):
@@ -1740,14 +1737,13 @@ class BackendGtkAgg(BackendGtk):
 
     def get_extension(self):
         sources = [
-            'src/agg_py_transforms.cpp',
+            'src/py_converters.cpp',
             'src/_gtkagg.cpp',
             'src/mplutils.cpp'
             ]
         ext = make_extension('matplotlib.backends._gtkagg', sources)
         self.add_flags(ext)
         LibAgg().add_flags(ext)
-        CXX().add_flags(ext)
         Numpy().add_flags(ext)
         return ext
 
@@ -1919,14 +1915,13 @@ class BackendMacOSX(OptionalBackendPackage):
     def get_extension(self):
         sources = [
             'src/_macosx.m',
-            'src/agg_py_transforms.cpp',
+            'src/py_converters.cpp',
             'src/path_cleanup.cpp'
             ]
 
         ext = make_extension('matplotlib.backends._macosx', sources)
         Numpy().add_flags(ext)
         LibAgg().add_flags(ext)
-        CXX().add_flags(ext)
         ext.extra_link_args.extend(['-framework', 'Cocoa'])
         return ext
 

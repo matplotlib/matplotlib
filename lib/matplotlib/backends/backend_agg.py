@@ -127,15 +127,19 @@ class RendererAgg(RendererBase):
         return self._renderer.draw_path_collection(*kl, **kw)
 
     def _update_methods(self):
-        #self.draw_path = self._renderer.draw_path  # see below
-        #self.draw_markers = self._renderer.draw_markers
-        #self.draw_path_collection = self._renderer.draw_path_collection
         self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.draw_gouraud_triangle = self._renderer.draw_gouraud_triangle
         self.draw_gouraud_triangles = self._renderer.draw_gouraud_triangles
         self.draw_image = self._renderer.draw_image
         self.copy_from_bbox = self._renderer.copy_from_bbox
-        self.tostring_rgba_minimized = self._renderer.tostring_rgba_minimized
+        self.get_content_extents = self._renderer.get_content_extents
+
+    def tostring_rgba_minimized(self):
+        extents = self.get_content_extents()
+        bbox = [[extents[0], self.height - (extents[1] + extents[3])],
+                [extents[0] + extents[2], self.height - extents[1]]]
+        region = self.copy_from_bbox(bbox)
+        return np.array(region), extents
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         """
@@ -203,7 +207,7 @@ class RendererAgg(RendererBase):
 
         #print x, y, int(x), int(y), s
         self._renderer.draw_text_image(
-            font.get_image(), np.round(x - xd), np.round(y + yd) + 1, angle, gc)
+            font, np.round(x - xd), np.round(y + yd) + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
         """
@@ -354,7 +358,7 @@ class RendererAgg(RendererBase):
             else:
                 ox, oy = xy
 
-            self._renderer.restore_region2(region, x1, y1, x2, y2, ox, oy)
+            self._renderer.restore_region(region, x1, y1, x2, y2, ox, oy)
 
         else:
             self._renderer.restore_region(region)
@@ -394,7 +398,7 @@ class RendererAgg(RendererBase):
 
         width, height = int(self.width), int(self.height)
 
-        buffer, bounds = self._renderer.tostring_rgba_minimized()
+        buffer, bounds = self.tostring_rgba_minimized()
 
         l, b, w, h = bounds
 
@@ -407,7 +411,6 @@ class RendererAgg(RendererBase):
             img, ox, oy = post_processing(img.reshape((h, w, 4)) / 255.,
                                           self.dpi)
             image = fromarray(img, 1)
-            image.flipud_out()
 
             gc = self.new_gc()
             self._renderer.draw_image(gc,
@@ -505,12 +508,13 @@ class FigureCanvasAgg(FigureCanvasBase):
         original_dpi = renderer.dpi
         renderer.dpi = self.figure.dpi
         if is_string_like(filename_or_obj):
-            filename_or_obj = open(filename_or_obj, 'wb')
+            fileobj = open(filename_or_obj, 'wb')
             close = True
         else:
+            fileobj = filename_or_obj
             close = False
         try:
-            renderer._renderer.write_rgba(filename_or_obj)
+            fileobj.write(renderer._renderer.buffer_rgba())
         finally:
             if close:
                 filename_or_obj.close()
@@ -528,9 +532,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         else:
             close = False
         try:
-            _png.write_png(renderer._renderer.buffer_rgba(),
-                           renderer.width, renderer.height,
-                           filename_or_obj, self.figure.dpi)
+            _png.write_png(renderer._renderer, filename_or_obj, self.figure.dpi)
         finally:
             if close:
                 filename_or_obj.close()

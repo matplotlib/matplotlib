@@ -375,4 +375,4 @@ def save_diff_image(expected, actual, output):
     # Hard-code the alpha channel to fully solid
     save_image_np[:, :, 3] = 255
 
-    _png.write_png(save_image_np.tostring(), width, height, output)
+    _png.write_png(save_image_np, output)

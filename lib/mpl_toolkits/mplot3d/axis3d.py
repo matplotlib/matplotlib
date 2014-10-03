@@ -260,8 +260,8 @@ class Axis(maxis.XAxis):
         # edge points of the plane to display coordinates and calculate
         # an angle from that.
         # TODO: Maybe Text objects should handle this themselves?
-        dx, dy = (self.axes.transAxes.transform(peparray[0:2, 1]) -
-                  self.axes.transAxes.transform(peparray[0:2, 0]))
+        dx, dy = (self.axes.transAxes.transform([peparray[0:2, 1]]) -
+                  self.axes.transAxes.transform([peparray[0:2, 0]]))[0]
 
         lxyz = 0.5*(edgep1 + edgep2)
 

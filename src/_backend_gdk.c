@@ -7,12 +7,10 @@
 
 #include <pygtk/pygtk.h>
 
-
 static PyTypeObject *_PyGdkPixbuf_Type;
 #define PyGdkPixbuf_Type (*_PyGdkPixbuf_Type)
 
-static PyObject *
-pixbuf_get_pixels_array(PyObject *self, PyObject *args)
+static PyObject *pixbuf_get_pixels_array(PyObject *self, PyObject *args)
 {
     /* 1) read in Python pixbuf, get the underlying gdk_pixbuf */
     PyGObject *py_pixbuf;
@@ -20,9 +18,8 @@ pixbuf_get_pixels_array(PyObject *self, PyObject *args)
     PyArrayObject *array;
     npy_intp dims[3] = { 0, 0, 3 };
 
-    if (!PyArg_ParseTuple(args, "O!:pixbuf_get_pixels_array",
-			  &PyGdkPixbuf_Type, &py_pixbuf))
-	return NULL;
+    if (!PyArg_ParseTuple(args, "O!:pixbuf_get_pixels_array", &PyGdkPixbuf_Type, &py_pixbuf))
+        return NULL;
 
     gdk_pixbuf = GDK_PIXBUF(py_pixbuf->obj);
 
@@ -35,8 +32,8 @@ pixbuf_get_pixels_array(PyObject *self, PyObject *args)
     if (gdk_pixbuf_get_has_alpha(gdk_pixbuf))
         dims[2] = 4;
 
-    array = (PyArrayObject *)PyArray_SimpleNewFromData(3, dims, NPY_UBYTE,
-			     (char *)gdk_pixbuf_get_pixels(gdk_pixbuf));
+    array = (PyArrayObject *)PyArray_SimpleNewFromData(
+        3, dims, PyArray_UBYTE, (char *)gdk_pixbuf_get_pixels(gdk_pixbuf));
     if (array == NULL)
         return NULL;
 
@@ -52,12 +49,10 @@ static PyMethodDef _backend_gdk_functions[] = {
     { NULL, NULL, 0 }
 };
 
-PyMODINIT_FUNC
-init_backend_gdk(void)
+PyMODINIT_FUNC init_backend_gdk(void)
 {
     PyObject *mod;
-    mod = Py_InitModule("matplotlib.backends._backend_gdk",
-                                        _backend_gdk_functions);
+    mod = Py_InitModule("matplotlib.backends._backend_gdk", _backend_gdk_functions);
     import_array();
     init_pygtk();
 

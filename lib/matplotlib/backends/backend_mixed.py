@@ -121,7 +121,6 @@ class MixedModeRenderer(object):
             if w > 0 and h > 0:
                 image = frombuffer(buffer, w, h, True)
                 image.is_grayscale = False
-                image.flipud_out()
                 gc = self._renderer.new_gc()
                 # TODO: If the mixedmode resolution differs from the figure's
                 #       dpi, the image must be scaled (dpi->_figdpi). Not all
