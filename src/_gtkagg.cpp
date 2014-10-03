@@ -1,153 +1,164 @@
 
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
+#include <vector>
+
 #include <pygobject.h>
 #include <pygtk/pygtk.h>
 
-#include <cstring>
-#include <cerrno>
-#include <cstdio>
-#include <iostream>
-#include <cmath>
-#include <utility>
-#include <fstream>
-
 #include "agg_basics.h"
-#include "numpy/arrayobject.h"
-#include "_backend_agg.h"
-#include "agg_py_transforms.h"
+#include "agg_pixfmt_rgba.h"
+#include "agg_renderer_base.h"
+#include "agg_rendering_buffer.h"
 
-// the extension module
-class _gtkagg_module : public Py::ExtensionModule<_gtkagg_module>
+#include "numpy_cpp.h"
+#include "py_converters.h"
+
+static PyObject *Py_agg_to_gtk_drawable(PyObject *self, PyObject *args, PyObject *kwds)
 {
-public:
-    _gtkagg_module()
-        : Py::ExtensionModule<_gtkagg_module>("_gtkagg")
-    {
-        add_varargs_method("agg_to_gtk_drawable",
-                           &_gtkagg_module::agg_to_gtk_drawable,
-                           "Draw to a gtk drawable from a agg buffer.");
-        initialize("The _gtkagg module");
+    typedef agg::pixfmt_rgba32_plain pixfmt;
+    typedef agg::renderer_base<pixfmt> renderer_base;
+
+    PyGObject *py_drawable;
+    numpy::array_view<agg::int8u, 3> buffer;
+    agg::rect_d rect;
+
+    // args are gc, renderer, bbox where bbox is a transforms BBox
+    // (possibly None).  If bbox is None, blit the entire agg buffer
+    // to gtk.  If bbox is not None, blit only the region defined by
+    // the bbox
+
+    if (!PyArg_ParseTuple(args,
+                          "OO&O&:agg_to_gtk_drawable",
+                          &py_drawable,
+                          &numpy::convert_array<agg::int8u, 3>,
+                          &buffer,
+                          &convert_rect,
+                          &rect)) {
+        return NULL;
     }
 
-    virtual ~_gtkagg_module() {}
-
-private:
-
-    Py::Object agg_to_gtk_drawable(const Py::Tuple &args)
-    {
-        // args are gc, renderer, bbox where bbox is a transforms BBox
-        // (possibly None).  If bbox is None, blit the entire agg buffer
-        // to gtk.  If bbox is not None, blit only the region defined by
-        // the bbox
-        args.verify_length(3);
-
-        PyGObject *py_drawable = (PyGObject *)(args[0].ptr());
-        RendererAgg* aggRenderer = static_cast<RendererAgg*>(args[1].ptr());
-
-        GdkDrawable *drawable = GDK_DRAWABLE(py_drawable->obj);
-        GdkGC* gc = gdk_gc_new(drawable);
-
-        int srcstride = aggRenderer->get_width() * 4;
-        int srcwidth = (int)aggRenderer->get_width();
-        int srcheight = (int)aggRenderer->get_height();
-
-        // these three will be overridden below
-        int destx = 0;
-        int desty = 0;
-        int destwidth = 1;
-        int destheight = 1;
-        int deststride = 1;
-
-
-        bool needfree = false;
-
-        agg::int8u *destbuffer = NULL;
-
-        if (args[2].ptr() == Py_None)
-        {
-            //bbox is None; copy the entire image
-            destbuffer = aggRenderer->pixBuffer;
-            destwidth = srcwidth;
-            destheight = srcheight;
-            deststride = srcstride;
-        }
-        else
-        {
-            //bbox is not None; copy the image in the bbox
-            PyObject* clipbox = args[2].ptr();
-            double l, b, r, t;
-
-            if (!py_convert_bbox(clipbox, l, b, r, t))
-            {
-                throw Py::TypeError
-                ("Argument 3 to agg_to_gtk_drawable must be a Bbox object.");
-            }
-
-            destx = (int)l;
-            desty = srcheight - (int)t;
-            destwidth = (int)(r - l);
-            destheight = (int)(t - b);
-            deststride = destwidth * 4;
-
-            needfree = true;
-            destbuffer = new agg::int8u[deststride*destheight];
-            if (destbuffer == NULL)
-            {
-                throw Py::MemoryError("_gtkagg could not allocate memory for destbuffer");
-            }
-
-            agg::rendering_buffer destrbuf;
-            destrbuf.attach(destbuffer, destwidth, destheight, deststride);
-            pixfmt destpf(destrbuf);
-            renderer_base destrb(destpf);
-
-            //destrb.clear(agg::rgba(1, 1, 1, 0));
-
-            agg::rect_base<int> region(destx, desty, (int)r, srcheight - (int)b);
-            destrb.copy_from(aggRenderer->renderingBuffer, &region,
-                             -destx, -desty);
-        }
-
-        /*std::cout << desty << " "
-              << destheight << " "
-              << srcheight << std::endl;*/
-
-
-        //gdk_rgb_init();
-        gdk_draw_rgb_32_image(drawable, gc, destx, desty,
-                              destwidth,
-                              destheight,
-                              GDK_RGB_DITHER_NORMAL,
-                              destbuffer,
-                              deststride);
-
-        gdk_gc_destroy(gc);
-        if (needfree)
-        {
-            delete [] destbuffer;
-        }
-
-        return Py::Object();
-
+    if (buffer.dim(2) != 4) {
+        PyErr_SetString(PyExc_ValueError, "Invalid image buffer.  Must be NxMx4.");
+        return NULL;
     }
-};
 
-PyMODINIT_FUNC
-init_gtkagg(void)
-{
-    init_pygobject();
-    init_pygtk();
+    GdkDrawable *drawable = GDK_DRAWABLE(py_drawable->obj);
+    GdkGC *gc = gdk_gc_new(drawable);
 
-    import_array();
-    //suppress unused warning by creating in two lines
-    static _gtkagg_module* _gtkagg = NULL;
-    _gtkagg = new _gtkagg_module;
+    int srcstride = buffer.dim(1) * 4;
+    int srcwidth = buffer.dim(1);
+    int srcheight = buffer.dim(0);
+
+    // these three will be overridden below
+    int destx = 0;
+    int desty = 0;
+    int destwidth = 1;
+    int destheight = 1;
+    int deststride = 1;
+
+    std::vector<agg::int8u> destbuffer;
+    agg::int8u *destbufferptr;
+
+    if (rect.x1 == 0.0 && rect.x2 == 0.0 && rect.y1 == 0.0 && rect.y2 == 0.0) {
+        // bbox is None; copy the entire image
+        destbufferptr = (agg::int8u *)buffer;
+        destwidth = srcwidth;
+        destheight = srcheight;
+        deststride = srcstride;
+    } else {
+        destx = (int)rect.x1;
+        desty = srcheight - (int)rect.y2;
+        destwidth = (int)(rect.x2 - rect.x1);
+        destheight = (int)(rect.y2 - rect.y1);
+        deststride = destwidth * 4;
+        destbuffer.reserve(destheight * deststride);
+        destbufferptr = &destbuffer[0];
+
+        agg::rendering_buffer destrbuf;
+        destrbuf.attach(destbufferptr, destwidth, destheight, deststride);
+        pixfmt destpf(destrbuf);
+        renderer_base destrb(destpf);
+
+        agg::rendering_buffer srcrbuf;
+        srcrbuf.attach((agg::int8u *)buffer, buffer.dim(1), buffer.dim(0), buffer.dim(1) * 4);
+
+        agg::rect_base<int> region(destx, desty, (int)rect.x2, srcheight - (int)rect.y1);
+        destrb.copy_from(srcrbuf, &region, -destx, -desty);
+    }
+
+    gdk_draw_rgb_32_image(drawable,
+                          gc,
+                          destx,
+                          desty,
+                          destwidth,
+                          destheight,
+                          GDK_RGB_DITHER_NORMAL,
+                          destbufferptr,
+                          deststride);
+
+    gdk_gc_destroy(gc);
+
+    Py_RETURN_NONE;
 }
 
+static PyMethodDef module_methods[] = {
+    {"agg_to_gtk_drawable", (PyCFunction)Py_agg_to_gtk_drawable, METH_VARARGS, NULL},
+    NULL
+};
 
+extern "C" {
 
+    struct module_state
+    {
+        /* The Sun compiler can't handle empty structs */
+#if defined(__SUNPRO_C) || defined(_MSC_VER)
+        int _dummy;
+#endif
+    };
 
+#if PY3K
+    static struct PyModuleDef moduledef = {
+        PyModuleDef_HEAD_INIT,
+        "_gtkagg",
+        NULL,
+        sizeof(struct module_state),
+        module_methods,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+    };
 
+#define INITERROR return NULL
 
+    PyMODINIT_FUNC PyInit__gtkagg(void)
 
+#else
+#define INITERROR return
+
+    PyMODINIT_FUNC init_gtkagg(void)
+#endif
+
+    {
+        PyObject *m;
+
+#if PY3K
+        m = PyModule_Create(&moduledef);
+#else
+        m = Py_InitModule3("_gtkagg", module_methods, NULL);
+#endif
+
+        if (m == NULL) {
+            INITERROR;
+        }
+
+        init_pygobject();
+        init_pygtk();
+        import_array();
+
+#if PY3K
+        return m;
+#endif
+    }
+}

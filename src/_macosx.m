@@ -4546,11 +4546,7 @@ NavigationToolbar_get_active (NavigationToolbar* self)
     {
         if(states[i]==1)
         {
-#if PY3K
             PyList_SET_ITEM(list, j, PyLong_FromLong(i));
-#else
-            PyList_SET_ITEM(list, j, PyInt_FromLong(i));
-#endif
             j++;
         }
     }

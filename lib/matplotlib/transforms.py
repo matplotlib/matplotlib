@@ -662,7 +662,7 @@ class BboxBase(TransformNode):
 
         bboxes is a sequence of :class:`BboxBase` objects
         """
-        return count_bboxes_overlapping_bbox(self, bboxes)
+        return count_bboxes_overlapping_bbox(self, [np.array(x) for x in bboxes])
 
     def expanded(self, sw, sh):
         """
@@ -1668,7 +1668,7 @@ class Affine2DBase(AffineBase):
 
     def transform_point(self, point):
         mtx = self.get_matrix()
-        return affine_transform(point, mtx)
+        return affine_transform([point], mtx)[0]
     transform_point.__doc__ = AffineBase.transform_point.__doc__
 
     if DEBUG:

@@ -1,34 +1,21 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-#include <iostream>
-#include <cstdarg>
-#include <cstdio>
 #include "mplutils.h"
 
-void _VERBOSE(const std::string& s)
+int add_dict_int(PyObject *dict, const char *key, long val)
 {
-#ifdef VERBOSE
-    std::cout << s << std::endl;
-#endif
-}
+    PyObject *valobj;
+    valobj = PyLong_FromLong(val);
+    if (valobj == NULL) {
+        return 1;
+    }
 
+    if (PyDict_SetItemString(dict, (char *)key, valobj)) {
+        Py_DECREF(valobj);
+        return 1;
+    }
 
-Printf::Printf(const char *fmt, ...)
-    : buffer(new char[1024]) // some reasonably large number
-{
-    va_list ap;
-    va_start(ap, fmt);
-    vsprintf(buffer, fmt, ap);
-    va_end(ap);  // look ma - I rememberd it this time
-}
+    Py_DECREF(valobj);
 
-Printf::~Printf()
-{
-    delete [] buffer;
-}
-
-
-std::ostream &operator<<(std::ostream &o, const Printf &p)
-{
-    return o << p.buffer;
+    return 0;
 }

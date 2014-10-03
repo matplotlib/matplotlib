@@ -36,6 +36,13 @@ from nose.plugins import multiprocess
 multiprocess._instantiate_plugins = plugins
 
 def run():
+    try:
+        import faulthandler
+    except ImportError:
+        pass
+    else:
+        faulthandler.enable()
+
     nose.main(addplugins=[x() for x in plugins],
               defaultTest=default_test_modules)
 

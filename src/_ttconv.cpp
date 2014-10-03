@@ -10,13 +10,9 @@
 
 #include <Python.h>
 #include "ttconv/pprdrv.h"
+#include "py_exceptions.h"
 #include <vector>
 #include <cassert>
-
-class PythonExceptionOccurred
-{
-
-};
 
 /**
  * An implementation of TTStreamWriter that writes to a Python
@@ -24,9 +20,9 @@ class PythonExceptionOccurred
  */
 class PythonFileWriter : public TTStreamWriter
 {
-    PyObject* _write_method;
+    PyObject *_write_method;
 
-public:
+  public:
     PythonFileWriter()
     {
         _write_method = NULL;
@@ -37,41 +33,38 @@ public:
         Py_XDECREF(_write_method);
     }
 
-    void set(PyObject* write_method)
+    void set(PyObject *write_method)
     {
         Py_XDECREF(_write_method);
         _write_method = write_method;
         Py_XINCREF(_write_method);
     }
 
-    virtual void write(const char* a)
+    virtual void write(const char *a)
     {
-        PyObject* result = NULL;
-        if (_write_method)
-        {
-            PyObject* decoded = NULL;
+        PyObject *result = NULL;
+        if (_write_method) {
+            PyObject *decoded = NULL;
             decoded = PyUnicode_DecodeLatin1(a, strlen(a), "");
             if (decoded == NULL) {
-                throw PythonExceptionOccurred();
+                throw py::exception();
             }
-            result = PyObject_CallFunction(_write_method, "O", decoded);
+            result = PyObject_CallFunction(_write_method, (char *)"O", decoded);
             Py_DECREF(decoded);
-            if (! result)
-            {
-                throw PythonExceptionOccurred();
+            if (!result) {
+                throw py::exception();
             }
             Py_DECREF(result);
         }
     }
 };
 
-int fileobject_to_PythonFileWriter(PyObject* object, void* address)
+int fileobject_to_PythonFileWriter(PyObject *object, void *address)
 {
-    PythonFileWriter* file_writer = (PythonFileWriter*)address;
+    PythonFileWriter *file_writer = (PythonFileWriter *)address;
 
-    PyObject* write_method = PyObject_GetAttrString(object, "write");
-    if (write_method == NULL || ! PyCallable_Check(write_method))
-    {
+    PyObject *write_method = PyObject_GetAttrString(object, "write");
+    if (write_method == NULL || !PyCallable_Check(write_method)) {
         PyErr_SetString(PyExc_TypeError, "Expected a file-like object with a write method.");
         return 0;
     }
@@ -82,30 +75,27 @@ int fileobject_to_PythonFileWriter(PyObject* object, void* address)
     return 1;
 }
 
-int pyiterable_to_vector_int(PyObject* object, void* address)
+int pyiterable_to_vector_int(PyObject *object, void *address)
 {
-    std::vector<int>* result = (std::vector<int>*)address;
+    std::vector<int> *result = (std::vector<int> *)address;
 
-    PyObject* iterator = PyObject_GetIter(object);
-    if (! iterator)
-    {
+    PyObject *iterator = PyObject_GetIter(object);
+    if (!iterator) {
         return 0;
     }
 
-    PyObject* item;
-    while ((item = PyIter_Next(iterator)))
-    {
-        #if PY3K
+    PyObject *item;
+    while ((item = PyIter_Next(iterator))) {
+#if PY3K
         long value = PyLong_AsLong(item);
-        #else
+#else
         long value = PyInt_AsLong(item);
-        #endif
+#endif
         Py_DECREF(item);
-        if (value == -1 && PyErr_Occurred())
-        {
+        if (value == -1 && PyErr_Occurred()) {
             return 0;
         }
-        result->push_back(value);
+        result->push_back((int)value);
     }
 
     Py_DECREF(iterator);
@@ -113,38 +103,32 @@ int pyiterable_to_vector_int(PyObject* object, void* address)
     return 1;
 }
 
-static PyObject*
-convert_ttf_to_ps(PyObject* self, PyObject* args, PyObject* kwds)
+static PyObject *convert_ttf_to_ps(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    const char*         filename;
-    PythonFileWriter    output;
-    int                 fonttype;
-    std::vector<int>    glyph_ids;
+    const char *filename;
+    PythonFileWriter output;
+    int fonttype;
+    std::vector<int> glyph_ids;
 
-    static const char *kwlist[] =
-    {
-        "filename", "output", "fonttype", "glyph_ids", NULL
-    };
-    if (! PyArg_ParseTupleAndKeywords
-        (args, kwds,
-         #if PY_MAJOR_VERSION == 3
-         "yO&i|O&:convert_ttf_to_ps",
-         #else
-         "sO&i|O&:convert_ttf_to_ps",
-         #endif
-         (char**)kwlist,
-         &filename,
-         fileobject_to_PythonFileWriter,
-         &output,
-         &fonttype,
-         pyiterable_to_vector_int,
-         &glyph_ids))
-    {
+    static const char *kwlist[] = { "filename", "output", "fonttype", "glyph_ids", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args,
+                                     kwds,
+#if PY_MAJOR_VERSION == 3
+                                     "yO&i|O&:convert_ttf_to_ps",
+#else
+                                     "sO&i|O&:convert_ttf_to_ps",
+#endif
+                                     (char **)kwlist,
+                                     &filename,
+                                     fileobject_to_PythonFileWriter,
+                                     &output,
+                                     &fonttype,
+                                     pyiterable_to_vector_int,
+                                     &glyph_ids)) {
         return NULL;
     }
 
-    if (fonttype != 3 && fonttype != 42)
-    {
+    if (fonttype != 3 && fonttype != 42) {
         PyErr_SetString(PyExc_ValueError,
                         "fonttype must be either 3 (raw Postscript) or 42 "
                         "(embedded Truetype)");
@@ -155,12 +139,12 @@ convert_ttf_to_ps(PyObject* self, PyObject* args, PyObject* kwds)
     {
         insert_ttfont(filename, output, (font_type_enum)fonttype, glyph_ids);
     }
-    catch (TTException& e)
+    catch (TTException &e)
     {
         PyErr_SetString(PyExc_RuntimeError, e.getMessage());
         return NULL;
     }
-    catch (PythonExceptionOccurred&)
+    catch (const py::exception &)
     {
         return NULL;
     }
@@ -176,58 +160,53 @@ convert_ttf_to_ps(PyObject* self, PyObject* args, PyObject* kwds)
 
 class PythonDictionaryCallback : public TTDictionaryCallback
 {
-    PyObject* _dict;
+    PyObject *_dict;
 
-public:
-    PythonDictionaryCallback(PyObject* dict)
+  public:
+    PythonDictionaryCallback(PyObject *dict)
     {
         _dict = dict;
     }
 
-    virtual void add_pair(const char* a, const char* b)
+    virtual void add_pair(const char *a, const char *b)
     {
         assert(a != NULL);
         assert(b != NULL);
-        PyObject* value = PyBytes_FromString(b);
-        if (!value)
-        {
-            throw PythonExceptionOccurred();
+        PyObject *value = PyBytes_FromString(b);
+        if (!value) {
+            throw py::exception();
         }
-        if (PyDict_SetItemString(_dict, a, value))
-        {
+        if (PyDict_SetItemString(_dict, a, value)) {
             Py_DECREF(value);
-            throw PythonExceptionOccurred();
+            throw py::exception();
         }
         Py_DECREF(value);
     }
 };
 
-static PyObject*
-py_get_pdf_charprocs(PyObject* self, PyObject* args, PyObject* kwds)
+static PyObject *py_get_pdf_charprocs(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    const char*         filename;
-    std::vector<int>    glyph_ids;
-    PyObject*             result;
+    const char *filename;
+    std::vector<int> glyph_ids;
+    PyObject *result;
 
     static const char *kwlist[] = { "filename", "glyph_ids", NULL };
-    if (! PyArg_ParseTupleAndKeywords
-            (args, kwds,
-             #if PY_MAJOR_VERSION == 3
-             "y|O&:get_pdf_charprocs",
-             #else
-             "s|O&:get_pdf_charprocs",
-             #endif
-             (char **)kwlist,
-             &filename,
-             pyiterable_to_vector_int,
-             &glyph_ids))
-    {
+    if (!PyArg_ParseTupleAndKeywords(args,
+                                     kwds,
+#if PY_MAJOR_VERSION == 3
+                                     "y|O&:get_pdf_charprocs",
+#else
+                                     "s|O&:get_pdf_charprocs",
+#endif
+                                     (char **)kwlist,
+                                     &filename,
+                                     pyiterable_to_vector_int,
+                                     &glyph_ids)) {
         return NULL;
     }
 
     result = PyDict_New();
-    if (!result)
-    {
+    if (!result) {
         return NULL;
     }
 
@@ -237,13 +216,13 @@ py_get_pdf_charprocs(PyObject* self, PyObject* args, PyObject* kwds)
     {
         ::get_pdf_charprocs(filename, glyph_ids, dict);
     }
-    catch (TTException& e)
+    catch (TTException &e)
     {
         Py_DECREF(result);
         PyErr_SetString(PyExc_RuntimeError, e.getMessage());
         return NULL;
     }
-    catch (PythonExceptionOccurred&)
+    catch (const py::exception &)
     {
         Py_DECREF(result);
         return NULL;
@@ -295,7 +274,7 @@ static PyMethodDef ttconv_methods[] =
     {0, 0, 0, 0}  /* Sentinel */
 };
 
-static const char* module_docstring =
+static const char *module_docstring =
     "Module to handle converting and subsetting TrueType "
     "fonts to Postscript Type 3, Postscript Type 42 and "
     "Pdf Type 3 fonts.";

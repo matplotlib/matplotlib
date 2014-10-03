@@ -1,0 +1,545 @@
+#define NO_IMPORT_ARRAY
+
+#include "py_converters.h"
+#include "numpy_cpp.h"
+
+#include "agg_basics.h"
+#include "agg_color_rgba.h"
+#include "agg_math_stroke.h"
+
+extern "C" {
+
+int convert_from_method(PyObject *obj, const char *name, converter func, void *p)
+{
+    PyObject *value;
+
+    value = PyObject_CallMethod(obj, (char *)name, NULL);
+    if (value == NULL) {
+        if (!PyObject_HasAttrString(obj, (char *)name)) {
+            PyErr_Clear();
+            return 1;
+        }
+        return 0;
+    }
+
+    if (!func(value, p)) {
+        Py_DECREF(value);
+        return 0;
+    }
+
+    Py_DECREF(value);
+    return 1;
+}
+
+int convert_from_attr(PyObject *obj, const char *name, converter func, void *p)
+{
+    PyObject *value;
+
+    value = PyObject_GetAttrString(obj, (char *)name);
+    if (value == NULL) {
+        if (!PyObject_HasAttrString(obj, (char *)name)) {
+            PyErr_Clear();
+            return 1;
+        }
+        return 0;
+    }
+
+    if (!func(value, p)) {
+        Py_DECREF(value);
+        return 0;
+    }
+
+    Py_DECREF(value);
+    return 1;
+}
+
+int convert_double(PyObject *obj, void *p)
+{
+    double *val = (double *)p;
+
+    *val = PyFloat_AsDouble(obj);
+    if (PyErr_Occurred()) {
+        return 0;
+    }
+
+    return 1;
+}
+
+int convert_bool(PyObject *obj, void *p)
+{
+    bool *val = (bool *)p;
+
+    *val = PyObject_IsTrue(obj);
+
+    return 1;
+}
+
+int convert_cap(PyObject *capobj, void *capp)
+{
+    PyObject *capstrobj;
+    char *capstr;
+    agg::line_cap_e *cap = (agg::line_cap_e *)capp;
+
+    if (capobj == NULL || capobj == Py_None) {
+        return 1;
+    }
+
+    capstrobj = PyUnicode_AsASCIIString(capobj);
+    if (capstrobj == NULL) {
+        return 0;
+    }
+
+    capstr = PyBytes_AsString(capstrobj);
+    if (capstr == NULL) {
+        Py_DECREF(capstrobj);
+        return 0;
+    }
+
+    if (strncmp(capstr, "butt", 5) == 0) {
+        *cap = agg::butt_cap;
+    } else if (strncmp(capstr, "round", 6) == 0) {
+        *cap = agg::round_cap;
+    } else if (strncmp(capstr, "projecting", 11) == 0) {
+        *cap = agg::square_cap;
+    } else {
+        PyErr_Format(PyExc_ValueError, "Unknown capstyle '%s'", capstr);
+        Py_DECREF(capstrobj);
+        return 0;
+    }
+
+    Py_DECREF(capstrobj);
+
+    return 1;
+}
+
+int convert_join(PyObject *joinobj, void *joinp)
+{
+    PyObject *joinstrobj;
+    char *joinstr;
+    agg::line_join_e *join = (agg::line_join_e *)joinp;
+
+    if (joinobj == NULL || joinobj == Py_None) {
+        return 1;
+    }
+
+    joinstrobj = PyUnicode_AsASCIIString(joinobj);
+    if (joinstrobj == NULL) {
+        return 0;
+    }
+
+    joinstr = PyBytes_AsString(joinstrobj);
+    if (joinstr == NULL) {
+        Py_DECREF(joinstrobj);
+        return 0;
+    }
+
+    if (strncmp(joinstr, "miter", 6) == 0) {
+        *join = agg::miter_join_revert;
+    } else if (strncmp(joinstr, "round", 6) == 0) {
+        *join = agg::round_join;
+    } else if (strncmp(joinstr, "bevel", 6) == 0) {
+        *join = agg::bevel_join;
+    } else {
+        PyErr_Format(PyExc_ValueError, "Unknown joinstyle '%s'", joinstr);
+        Py_DECREF(joinstrobj);
+        return 0;
+    }
+
+    Py_DECREF(joinstrobj);
+    return 1;
+}
+
+int convert_rect(PyObject *rectobj, void *rectp)
+{
+    agg::rect_d *rect = (agg::rect_d *)rectp;
+
+    if (rectobj == NULL || rectobj == Py_None) {
+        rect->x1 = 0.0;
+        rect->y1 = 0.0;
+        rect->x2 = 0.0;
+        rect->y2 = 0.0;
+    } else {
+        try
+        {
+            numpy::array_view<const double, 2> rect_arr(rectobj);
+
+            if (rect_arr.dim(0) != 2 || rect_arr.dim(1) != 2) {
+                PyErr_SetString(PyExc_ValueError, "Invalid bounding box");
+                return 0;
+            }
+
+            rect->x1 = rect_arr(0, 0);
+            rect->y1 = rect_arr(0, 1);
+            rect->x2 = rect_arr(1, 0);
+            rect->y2 = rect_arr(1, 1);
+        }
+        catch (py::exception)
+        {
+            PyErr_Clear();
+
+            try
+            {
+                numpy::array_view<const double, 1> rect_arr(rectobj);
+
+                if (rect_arr.dim(0) != 4) {
+                    PyErr_SetString(PyExc_ValueError, "Invalid bounding box");
+                    return 0;
+                }
+
+                rect->x1 = rect_arr(0);
+                rect->y1 = rect_arr(1);
+                rect->x2 = rect_arr(2);
+                rect->y2 = rect_arr(3);
+            }
+            catch (py::exception)
+            {
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
+
+int convert_rgba(PyObject *rgbaobj, void *rgbap)
+{
+    agg::rgba *rgba = (agg::rgba *)rgbap;
+
+    if (rgbaobj == NULL || rgbaobj == Py_None) {
+        rgba->r = 0.0;
+        rgba->g = 0.0;
+        rgba->b = 0.0;
+        rgba->a = 0.0;
+    } else {
+        rgba->a = 1.0;
+        if (!PyArg_ParseTuple(
+                 rgbaobj, "ddd|d:rgba", &(rgba->r), &(rgba->g), &(rgba->b), &(rgba->a))) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+int convert_dashes(PyObject *dashobj, void *dashesp)
+{
+    Dashes *dashes = (Dashes *)dashesp;
+
+    if (dashobj == NULL && dashobj == Py_None) {
+        return 1;
+    }
+
+    PyObject *dash_offset_obj = NULL;
+    double dash_offset = 0.0;
+    PyObject *dashes_seq = NULL;
+    Py_ssize_t nentries;
+
+    if (!PyArg_ParseTuple(dashobj, "OO:dashes", &dash_offset_obj, &dashes_seq)) {
+        return 0;
+    }
+
+    if (dash_offset_obj != Py_None) {
+        dash_offset = PyFloat_AsDouble(dash_offset_obj);
+        if (PyErr_Occurred()) {
+            return 0;
+        }
+    }
+
+    if (dashes_seq == Py_None) {
+        return 1;
+    }
+
+    if (!PySequence_Check(dashes_seq)) {
+        PyErr_SetString(PyExc_TypeError, "Invalid dashes sequence");
+        return 0;
+    }
+
+    nentries = PySequence_Size(dashes_seq);
+    if (nentries % 2 != 0) {
+        PyErr_Format(PyExc_ValueError, "dashes sequence must have an even number of elements");
+        return 0;
+    }
+
+    for (Py_ssize_t i = 0; i < nentries; ++i) {
+        PyObject *item;
+        double length;
+        double skip;
+
+        item = PySequence_GetItem(dashes_seq, i);
+        if (item == NULL) {
+            return 0;
+        }
+        length = PyFloat_AsDouble(item);
+        if (PyErr_Occurred()) {
+            Py_DECREF(item);
+            return 0;
+        }
+        Py_DECREF(item);
+
+        ++i;
+
+        item = PySequence_GetItem(dashes_seq, i);
+        if (item == NULL) {
+            return 0;
+        }
+        skip = PyFloat_AsDouble(item);
+        if (PyErr_Occurred()) {
+            Py_DECREF(item);
+            return 0;
+        }
+        Py_DECREF(item);
+
+        dashes->add_dash_pair(length, skip);
+    }
+
+    dashes->set_dash_offset(dash_offset);
+
+    return 1;
+}
+
+int convert_dashes_vector(PyObject *obj, void *dashesp)
+{
+    DashesVector *dashes = (DashesVector *)dashesp;
+
+    if (!PySequence_Check(obj)) {
+        return 0;
+    }
+
+    Py_ssize_t n = PySequence_Size(obj);
+
+    for (Py_ssize_t i = 0; i < n; ++i) {
+        PyObject *item;
+        Dashes subdashes;
+
+        item = PySequence_GetItem(obj, i);
+        if (item == NULL) {
+            return 0;
+        }
+
+        if (!convert_dashes(item, &subdashes)) {
+            Py_DECREF(item);
+            return 0;
+        }
+        Py_DECREF(item);
+
+        dashes->push_back(subdashes);
+    }
+
+    return 1;
+}
+
+int convert_trans_affine(PyObject *obj, void *transp)
+{
+    agg::trans_affine *trans = (agg::trans_affine *)transp;
+
+    /** If None assume identity transform. */
+    if (obj == NULL || obj == Py_None) {
+        return 1;
+    }
+
+    try
+    {
+        numpy::array_view<const double, 2> matrix(obj);
+
+        if (matrix.dim(0) == 3 && matrix.dim(1) == 3) {
+            trans->sx = matrix(0, 0);
+            trans->shx = matrix(0, 1);
+            trans->tx = matrix(0, 2);
+
+            trans->shy = matrix(1, 0);
+            trans->sy = matrix(1, 1);
+            trans->ty = matrix(1, 2);
+
+            return 1;
+        }
+    }
+    catch (py::exception)
+    {
+        return 0;
+    }
+
+    PyErr_SetString(PyExc_ValueError, "Invalid affine transformation matrix");
+    return 0;
+}
+
+int convert_path(PyObject *obj, void *pathp)
+{
+    py::PathIterator *path = (py::PathIterator *)pathp;
+
+    PyObject *vertices_obj = NULL;
+    PyObject *codes_obj = NULL;
+    PyObject *should_simplify_obj = NULL;
+    PyObject *simplify_threshold_obj = NULL;
+    bool should_simplify;
+    double simplify_threshold;
+
+    int status = 0;
+
+    if (obj == NULL || obj == Py_None) {
+        return 1;
+    }
+
+    vertices_obj = PyObject_GetAttrString(obj, "vertices");
+    if (vertices_obj == NULL) {
+        goto exit;
+    }
+
+    codes_obj = PyObject_GetAttrString(obj, "codes");
+    if (codes_obj == NULL) {
+        goto exit;
+    }
+
+    should_simplify_obj = PyObject_GetAttrString(obj, "should_simplify");
+    if (should_simplify_obj == NULL) {
+        goto exit;
+    }
+    should_simplify = PyObject_IsTrue(should_simplify_obj);
+
+    simplify_threshold_obj = PyObject_GetAttrString(obj, "simplify_threshold");
+    if (simplify_threshold_obj == NULL) {
+        goto exit;
+    }
+    simplify_threshold = PyFloat_AsDouble(simplify_threshold_obj);
+    if (PyErr_Occurred()) {
+        goto exit;
+    }
+
+    if (!path->set(vertices_obj, codes_obj, should_simplify, simplify_threshold)) {
+        goto exit;
+    }
+
+    status = 1;
+
+exit:
+    Py_XDECREF(vertices_obj);
+    Py_XDECREF(codes_obj);
+    Py_XDECREF(should_simplify_obj);
+    Py_XDECREF(simplify_threshold_obj);
+
+    return status;
+}
+
+int convert_clippath(PyObject *clippath_tuple, void *clippathp)
+{
+    ClipPath *clippath = (ClipPath *)clippathp;
+    py::PathIterator path;
+    agg::trans_affine trans;
+
+    if (clippath_tuple != NULL && clippath_tuple != Py_None) {
+        if (!PyArg_ParseTuple(clippath_tuple,
+                              "O&O&:clippath",
+                              &convert_path,
+                              &clippath->path,
+                              &convert_trans_affine,
+                              &clippath->trans)) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+int convert_snap(PyObject *obj, void *snapp)
+{
+    e_snap_mode *snap = (e_snap_mode *)snapp;
+
+    if (obj == NULL || obj == Py_None) {
+        *snap = SNAP_AUTO;
+    } else if (PyObject_IsTrue(obj)) {
+        *snap = SNAP_TRUE;
+    } else {
+        *snap = SNAP_FALSE;
+    }
+
+    return 1;
+}
+
+int convert_sketch_params(PyObject *obj, void *sketchp)
+{
+    SketchParams *sketch = (SketchParams *)sketchp;
+
+    if (obj == NULL || obj == Py_None) {
+        sketch->scale = 0.0;
+    } else if (!PyArg_ParseTuple(obj,
+                                 "ddd:sketch_params",
+                                 &sketch->scale,
+                                 &sketch->length,
+                                 &sketch->randomness)) {
+        return 0;
+    }
+
+    return 1;
+}
+
+int convert_gcagg(PyObject *pygc, void *gcp)
+{
+    GCAgg *gc = (GCAgg *)gcp;
+
+    // TODO: Publicize GCAgg members so we can write directly into them
+
+    if (!(convert_from_attr(pygc, "_linewidth", &convert_double, &gc->linewidth) &&
+          convert_from_attr(pygc, "_alpha", &convert_double, &gc->alpha) &&
+          convert_from_attr(pygc, "_forced_alpha", &convert_bool, &gc->forced_alpha) &&
+          convert_from_attr(pygc, "_rgb", &convert_rgba, &gc->color) &&
+          convert_from_attr(pygc, "_antialiased", &convert_bool, &gc->isaa) &&
+          convert_from_attr(pygc, "_capstyle", &convert_cap, &gc->cap) &&
+          convert_from_attr(pygc, "_joinstyle", &convert_join, &gc->join) &&
+          convert_from_attr(pygc, "_dashes", &convert_dashes, &gc->dashes) &&
+          convert_from_attr(pygc, "_cliprect", &convert_rect, &gc->cliprect) &&
+          convert_from_method(pygc, "get_clip_path", &convert_clippath, &gc->clippath) &&
+          convert_from_method(pygc, "get_snap", &convert_snap, &gc->snap_mode) &&
+          convert_from_method(pygc, "get_hatch_path", &convert_path, &gc->hatchpath) &&
+          convert_from_method(pygc, "get_sketch_params", &convert_sketch_params, &gc->sketch))) {
+        return 0;
+    }
+
+    return 1;
+}
+
+int convert_offset_position(PyObject *obj, void *offsetp)
+{
+    e_offset_position *offset = (e_offset_position *)offsetp;
+    PyObject *offsetstrobj;
+    char *offsetstr;
+
+    *offset = OFFSET_POSITION_FIGURE;
+
+    if (obj == NULL || obj == Py_None) {
+        return 1;
+    }
+
+    offsetstrobj = PyUnicode_AsASCIIString(obj);
+    if (offsetstrobj == NULL) {
+        return 0;
+    }
+
+    offsetstr = PyBytes_AsString(offsetstrobj);
+    if (offsetstr == NULL) {
+        Py_DECREF(offsetstrobj);
+        return 0;
+    }
+
+    if (strncmp(offsetstr, "data", 5) == 0) {
+        *offset = OFFSET_POSITION_DATA;
+    }
+
+    Py_DECREF(offsetstrobj);
+
+    return 1;
+}
+
+int convert_face(PyObject *color, GCAgg &gc, agg::rgba *rgba)
+{
+    if (!convert_rgba(color, rgba)) {
+        return 0;
+    }
+
+    if (color != NULL && color != Py_None) {
+        if (gc.forced_alpha || PySequence_Size(color) == 3) {
+            rgba->a = gc.alpha;
+        }
+    }
+
+    return 1;
+}
+}

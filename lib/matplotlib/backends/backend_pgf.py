@@ -14,6 +14,8 @@ import atexit
 import weakref
 import warnings
 
+import numpy as np
+
 import matplotlib as mpl
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
     FigureManagerBase, FigureCanvasBase
@@ -619,9 +621,7 @@ class RendererPgf(RendererBase):
         fname = os.path.splitext(os.path.basename(self.fh.name))[0]
         fname_img = "%s-img%d.png" % (fname, self.image_counter)
         self.image_counter += 1
-        im.flipud_out()
-        rows, cols, buf = im.as_rgba_str()
-        _png.write_png(buf, cols, rows, os.path.join(path, fname_img))
+        _png.write_png(np.array(im)[::-1], os.path.join(path, fname_img))
 
         # reference the image in the pgf picture
         writeln(self.fh, r"\begin{pgfscope}")

@@ -800,10 +800,7 @@ class RendererSVG(RendererBase):
             self.writer.start('a', attrib={'xlink:href': url})
         if rcParams['svg.image_inline']:
             bytesio = io.BytesIO()
-            im.flipud_out()
-            rows, cols, buffer = im.as_rgba_str()
-            _png.write_png(buffer, cols, rows, bytesio)
-            im.flipud_out()
+            _png.write_png(np.array(im)[::-1], bytesio)
             oid = oid or self._make_id('image', bytesio)
             attrib['xlink:href'] = (
                 "data:image/png;base64,\n" +
@@ -812,10 +809,7 @@ class RendererSVG(RendererBase):
             self._imaged[self.basename] = self._imaged.get(self.basename,0) + 1
             filename = '%s.image%d.png'%(self.basename, self._imaged[self.basename])
             verbose.report( 'Writing image file for inclusion: %s' % filename)
-            im.flipud_out()
-            rows, cols, buffer = im.as_rgba_str()
-            _png.write_png(buffer, cols, rows, filename)
-            im.flipud_out()
+            _png.write_png(np.array(im)[::-1], filename)
             oid = oid or 'Im_' + self._make_id('image', filename)
             attrib['xlink:href'] = filename
 
