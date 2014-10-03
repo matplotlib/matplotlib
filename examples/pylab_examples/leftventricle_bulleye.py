@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
-In this example we create the bull eye representation for the left ventricle
-according to the American Heart Association (AHA)
+This example demonstrates how to create the 17 segment model for the left
+ventricle recommended by the American Heart Association (AHA).
 """
 
 import numpy as np
@@ -9,10 +9,33 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 
-def bulleye_plot(data, ax, vlim=None, segBold=[]):
+def bullseye_plot(ax, data, vlim=None, segBold=[]):
     """
-    Left Ventricle bull eye for the Left Ventricle according to the
-    American Heart Association (AHA)
+    Bullseye representation for the left ventricle.
+
+    Parameters
+    ----------
+    ax : axes
+    data : list of int and float
+        The intensity values for each of the 17 segments
+    vlim : [min, max] or None
+        Optional argument to set the Intensity range
+    segBold: list of int
+        A list with the segments to highlight
+
+
+    Notes
+    -----
+    This function create the 17 segment model for the left ventricle according
+    to the American Heart Association (AHA) [1]_
+
+    References
+    ----------
+    .. [1] M. D. Cerqueira, N. J. Weissman, V. Dilsizian, A. K. Jacobs,
+        S. Kaul, W. K. Laskey, D. J. Pennell, J. A. Rumberger, T. Ryan,
+        and M. S. Verani, “Standardized myocardial segmentation and nomenclature
+        for tomographic imaging of the heart,” Circulation, vol. 105, no. 4,
+        pp. 539–542, 2002.
     """
 
     linewidth = 2
@@ -101,13 +124,13 @@ vlim = [data.min(), data.max()]
 
 fig, ax = plt.subplots(figsize=(12, 8), nrows=1, ncols=2,
                        subplot_kw=dict(projection='polar'))
-fig.canvas.set_window_title('Left Ventricle Bull Eyes (AHA)')
+fig.canvas.set_window_title('Left Ventricle Bulls Eyes (AHA)')
 
-bulleye_plot(data, ax[0], vlim=vlim)
-ax[0].set_title('Bull Eye (AHA)')
+bullseye_plot(ax[0], data, vlim=vlim)
+ax[0].set_title('Bulls Eye (AHA)')
 
-bulleye_plot(data, ax[1], segBold=[3,5,6,11,12,16],
-             vlim=vlim)
+bullseye_plot(ax[1], data, segBold=[3, 5, 6, 11, 12, 16],
+              vlim=vlim)
 ax[1].set_title('Segments [3,5,6,11,12,16] in bold')
 
 
