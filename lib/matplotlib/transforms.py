@@ -648,10 +648,11 @@ class BboxBase(TransformNode):
             return 0
         vertices = np.asarray(vertices)
         x0, y0, x1, y1 = self._get_extents()
-        dx0 = np.sign(vertices[:, 0] - x0)
-        dy0 = np.sign(vertices[:, 1] - y0)
-        dx1 = np.sign(vertices[:, 0] - x1)
-        dy1 = np.sign(vertices[:, 1] - y1)
+        with np.errstate(invalid='ignore'):
+            dx0 = np.sign(vertices[:, 0] - x0)
+            dy0 = np.sign(vertices[:, 1] - y0)
+            dx1 = np.sign(vertices[:, 0] - x1)
+            dy1 = np.sign(vertices[:, 1] - y1)
         inside = ((abs(dx0 + dx1) + abs(dy0 + dy1)) == 0)
         return np.sum(inside)
 
