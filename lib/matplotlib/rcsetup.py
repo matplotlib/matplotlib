@@ -523,7 +523,7 @@ defaultParams = {
 
 
     ## font props
-    'font.family':     ['sans-serif', validate_stringlist],  # used by text object
+    'font.family':     [['sans-serif'], validate_stringlist],  # used by text object
     'font.style':      ['normal', six.text_type],
     'font.variant':    ['normal', six.text_type],
     'font.stretch':    ['normal', six.text_type],
@@ -782,14 +782,14 @@ defaultParams = {
     'keymap.home':         [['h', 'r', 'home'], validate_stringlist],
     'keymap.back':         [['left', 'c', 'backspace'], validate_stringlist],
     'keymap.forward':      [['right', 'v'], validate_stringlist],
-    'keymap.pan':          ['p', validate_stringlist],
-    'keymap.zoom':         ['o', validate_stringlist],
-    'keymap.save':         [('s', 'ctrl+s'), validate_stringlist],
-    'keymap.quit':         [('ctrl+w', 'cmd+w'), validate_stringlist],
-    'keymap.grid':         ['g', validate_stringlist],
-    'keymap.yscale':       ['l', validate_stringlist],
+    'keymap.pan':          [['p'], validate_stringlist],
+    'keymap.zoom':         [['o'], validate_stringlist],
+    'keymap.save':         [['s', 'ctrl+s'], validate_stringlist],
+    'keymap.quit':         [['ctrl+w', 'cmd+w'], validate_stringlist],
+    'keymap.grid':         [['g'], validate_stringlist],
+    'keymap.yscale':       [['l'], validate_stringlist],
     'keymap.xscale':       [['k', 'L'], validate_stringlist],
-    'keymap.all_axes':     ['a', validate_stringlist],
+    'keymap.all_axes':     [['a'], validate_stringlist],
 
     # sample data
     'examples.directory': ['', six.text_type],
