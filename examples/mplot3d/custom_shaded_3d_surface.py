@@ -29,4 +29,3 @@ surf = ax.plot_surface(x, y, z, rstride=1, cstride=1, facecolors=rgb,
                        linewidth=0, antialiased=False, shade=False)
 
 plt.show()
-
