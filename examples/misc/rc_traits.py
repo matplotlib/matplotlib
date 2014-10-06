@@ -102,9 +102,6 @@ def file_exists(ob, name, val):
     fh = file(val, 'r')
     return val
 
-
-def path_exists(ob, name, val):
-    os.path.exists(val)
 linestyles  = ('-', '--', '-.', ':', 'steps', 'None')
 TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN = range(4)
 linemarkers = (None, '.', ',', 'o', '^', 'v', '<', '>', 's',
