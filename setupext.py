@@ -253,6 +253,11 @@ class PkgConfig(object):
             self.set_pkgconfig_path()
             status, output = getstatusoutput("pkg-config --help")
             self.has_pkgconfig = (status == 0)
+            if not self.has_pkgconfig:
+                print("IMPORTANT WARNING:")
+                print(
+                    "    pkg-config is not installed.\n"
+                    "    matplotlib may not be able to find some of its dependencies")
 
     def set_pkgconfig_path(self):
         pkgconfig_path = sysconfig.get_config_var('LIBDIR')
@@ -981,19 +986,13 @@ class FreeType(SetupPackage):
         pkg_config.setup_extension(
             ext, 'freetype2',
             default_include_dirs=[
-                'freetype2', 'lib/freetype2/include',
+                'include/freetype2', 'freetype2',
+                'lib/freetype2/include',
                 'lib/freetype2/include/freetype2'],
             default_library_dirs=[
                 'freetype2/lib'],
-            default_libraries=['freetype', 'z'],
-            alt_exec='freetype-config')
+            default_libraries=['freetype', 'z'])
 
-    def get_extension(self):
-        if sys.platform == 'win32':
-            return None
-        ext = make_extension('freetype2', [])
-        self.add_flags(ext)
-        return ext
 
 
 class FT2Font(SetupPackage):
