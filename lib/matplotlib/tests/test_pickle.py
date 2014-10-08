@@ -195,17 +195,34 @@ def test_complete():
 
 def test_no_pyplot():
     # tests pickle-ability of a figure not created with pyplot
-
-    import pickle as p
     from matplotlib.backends.backend_pdf import FigureCanvasPdf as fc
     from matplotlib.figure import Figure
 
     fig = Figure()
-    can = fc(fig)
+    _ = fc(fig)
     ax = fig.add_subplot(1, 1, 1)
     ax.plot([1, 2, 3], [1, 2, 3])
-
-    # Uncomment to debug any unpicklable objects. This is slow so is not
-    # uncommented by default.
-#    recursive_pickle(fig)
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
+
+
+def test_renderer():
+    from matplotlib.backends.backend_agg import RendererAgg
+    renderer = RendererAgg(10, 20, 30)
+    pickle.dump(renderer, BytesIO())
+
+
+def test_image():
+    # Prior to v1.4.0 the Image would cache data which was not picklable
+    # once it had been drawn.
+    from matplotlib.backends.backend_agg import new_figure_manager
+    manager = new_figure_manager(1000)
+    fig = manager.canvas.figure
+    ax = fig.add_subplot(1,1,1)
+    ax.imshow(np.arange(12).reshape(3, 4))
+    manager.canvas.draw()
+    pickle.dump(fig, BytesIO())
+
+
+if __name__ == '__main__':
+    import nose
+    nose.runmodule(argv=['-s'])
