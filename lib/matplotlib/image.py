@@ -10,10 +10,8 @@ import six
 
 import os
 import warnings
-import math
 
 import numpy as np
-from numpy import ma
 
 from matplotlib import rcParams
 import matplotlib.artist as martist
@@ -112,6 +110,12 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         self._image_skew_coordinate = None
 
         self.update(kwargs)
+
+    def __getstate__(self):
+        state = super(_AxesImageBase, self).__getstate__()
+        # We can't pickle the C Image cached object.
+        state.pop('_imcache', None)
+        return state
 
     def get_size(self):
         """Get the numrows, numcols of the input image"""
