@@ -8,34 +8,14 @@ individual character metrices, use the Glyp object, as returned by
 load_char
 """
 import matplotlib
-from matplotlib.ft2font import FT2Font
+import matplotlib.ft2font as ft
+
 
 #fname = '/usr/local/share/matplotlib/VeraIt.ttf'
 fname = matplotlib.get_data_path() + '/fonts/ttf/VeraIt.ttf'
 #fname = '/usr/local/share/matplotlib/cmr10.ttf'
 
-font = FT2Font(fname)
-
-# these globals are used to access the style_flags and face_flags
-FT_STYLE_FLAGS = (
-    ('Italics', 0),
-    ('Bold', 1)
-)
-
-FT_FACE_FLAGS = (
-    ('Scalable', 0),
-    ('Fixed sizes', 1),
-    ('Fixed width', 2),
-    ('SFNT', 3),
-    ('Horizontal', 4),
-    ('Vertical', 5),
-    ('Kerning', 6),
-    ('Fast glyphs', 7),
-    ('Mult. masters', 8),
-    ('Glyph names', 9),
-    ('External stream', 10)
-)
-
+font = ft.FT2Font(fname)
 
 print('Num faces   :', font.num_faces)       # number of faces in file
 print('Num glyphs  :', font.num_glyphs)      # number of glyphs in the face
@@ -65,10 +45,21 @@ if font.scalable:
     # vertical thickness of the underline
     print('Underline thickness :', font.underline_thickness)
 
-for desc, val in FT_STYLE_FLAGS:
-    print('%-16s:' % desc, bool(font.style_flags & (1 << val)))
-for desc, val in FT_FACE_FLAGS:
-    print('%-16s:' % desc, bool(font.style_flags & (1 << val)))
+for style in ('Italic',
+              'Bold',
+              'Scalable',
+              'Fixed sizes',
+              'Fixed width',
+              'SFNT',
+              'Horizontal',
+              'Vertical',
+              'Kerning',
+              'Fast glyphs',
+              'Multiple masters',
+              'Glyph names',
+              'External stream'):
+    bitpos = getattr(ft, style.replace(' ', '_').upper()) - 1
+    print('%-17s:' % style, bool(font.style_flags & (1 << bitpos)))
 
 print(dir(font))
 
