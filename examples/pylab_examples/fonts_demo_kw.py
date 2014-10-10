@@ -26,7 +26,7 @@ for k in range(5):
 
 ###  Show style options
 
-style  = ['normal', 'italic', 'oblique']
+style = ['normal', 'italic', 'oblique']
 
 t = text(-0.4, 0.9, 'style', **alignment)
 
@@ -56,8 +56,8 @@ for k in range(7):
 
 ###  Show size options
 
-size  = ['xx-small', 'x-small', 'small', 'medium', 'large',
-         'x-large', 'xx-large']
+size = ['xx-small', 'x-small', 'small', 'medium', 'large',
+        'x-large', 'xx-large']
 
 t = text( 0.8, 0.9, 'size', **alignment)
 
