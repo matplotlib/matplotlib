@@ -178,6 +178,9 @@ class ScalarMappable:
         norm : :class:`matplotlib.colors.Normalize` instance
             The normalizing object which scales data, typically into the
             interval ``[0, 1]``.
+            If not given or *None*, norm defaults to a *colors.Normalize*
+            object which initializes its scaling based on the first 
+            data processed.
         cmap : str or :class:`~matplotlib.colors.Colormap` instance
             The colormap used to map normalized data values to RGBA colors.
 
