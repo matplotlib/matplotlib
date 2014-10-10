@@ -381,7 +381,7 @@ def drive(backend, directories, python=['python'], switches = []):
                  for fname in files[d]]
 
     for fullpath in testcases:
-        print('\tdriving %-40s' % (fullpath)),
+        print('\tdriving %-40s' % (fullpath))
         sys.stdout.flush()
         fpath, fname = os.path.split(fullpath)
 
