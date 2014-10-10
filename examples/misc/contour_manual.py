@@ -39,7 +39,7 @@ plt.title('User-specified contours')
 
 plt.figure()
 filled01 = [ [[0,0],[3,0],[3,3],[0,3],[1,1],[1,2],[2,2],[2,1]] ]
-kinds01  = [ [1,2,2,2,1,2,2,2] ]
+kinds01 = [ [1,2,2,2,1,2,2,2] ]
 cs = ContourSet(plt.gca(), [0,1], [filled01], [kinds01], filled=True)
 cbar = plt.colorbar(cs)
 

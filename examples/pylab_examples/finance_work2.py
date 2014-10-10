@@ -96,12 +96,12 @@ rect3 = [left, 0.1, width, 0.2]
 
 
 fig = plt.figure(facecolor='white')
-axescolor  = '#f6f6f6'  # the axes background color
+axescolor = '#f6f6f6'  # the axes background color
 
 ax1 = fig.add_axes(rect1, axisbg=axescolor)  #left, bottom, width, height
 ax2 = fig.add_axes(rect2, axisbg=axescolor, sharex=ax1)
 ax2t = ax2.twinx()
-ax3  = fig.add_axes(rect3, axisbg=axescolor, sharex=ax1)
+ax3 = fig.add_axes(rect3, axisbg=axescolor, sharex=ax1)
 
 
 ### plot the relative strength indicator

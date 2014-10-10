@@ -17,9 +17,9 @@ import gtk.glade
 
 def simple_msg(msg, parent=None, title=None):
     dialog = gtk.MessageDialog(
-        parent         = None,
-        type           = gtk.MESSAGE_INFO,
-        buttons        = gtk.BUTTONS_OK,
+        parent = None,
+        type = gtk.MESSAGE_INFO,
+        buttons = gtk.BUTTONS_OK,
         message_format = msg)
     if parent is not None:
         dialog.set_transient_for(parent)
@@ -58,8 +58,8 @@ class WidgetsWrapper:
         self.canvas.show()
         self.canvas.set_size_request(600, 400)
         self.canvas.set_events(
-            gtk.gdk.BUTTON_PRESS_MASK      |
-            gtk.gdk.KEY_PRESS_MASK      |
+            gtk.gdk.BUTTON_PRESS_MASK |
+            gtk.gdk.KEY_PRESS_MASK |
             gtk.gdk.KEY_RELEASE_MASK
             )
         self.canvas.set_flags(gtk.HAS_FOCUS|gtk.CAN_FOCUS)

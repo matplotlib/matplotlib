@@ -34,9 +34,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
-majorLocator   = MultipleLocator(20)
+majorLocator = MultipleLocator(20)
 majorFormatter = FormatStrFormatter('%d')
-minorLocator   = MultipleLocator(5)
+minorLocator = MultipleLocator(5)
 
 
 t = np.arange(0.0, 100.0, 0.1)

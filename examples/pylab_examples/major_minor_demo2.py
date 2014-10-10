@@ -16,7 +16,7 @@ from matplotlib.ticker import AutoMinorLocator
 # minorLocator = AutoMinorLocator(2)
 # would lead to a single minor tick between major ticks.
 
-minorLocator   = AutoMinorLocator()
+minorLocator = AutoMinorLocator()
 
 
 t = np.arange(0.0, 100.0, 0.01)
