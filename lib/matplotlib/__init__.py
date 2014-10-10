@@ -106,8 +106,9 @@ import six
 import sys
 import distutils.version
 
-__version__ = '1.5.x'
-__version__numpy__ = '1.6'  # minimum required numpy version
+__version__ = str('1.5.x')
+__version__numpy__ = str('1.6')  # minimum required numpy version
+
 
 try:
     import dateutil
@@ -1322,12 +1323,7 @@ def interactive(b):
 
 def is_interactive():
     'Return true if plot mode is interactive'
-    # ps1 exists if the python interpreter is running in an
-    # interactive console; sys.flags.interactive is true if a script
-    # is being run via "python -i".
-    b = rcParams['interactive'] and (
-        hasattr(sys, 'ps1') or sys.flags.interactive)
-    return b
+    return rcParams['interactive']
 
 
 def tk_window_focus():

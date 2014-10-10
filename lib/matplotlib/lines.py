@@ -352,6 +352,12 @@ class Line2D(Artist):
         self._invalidy = True
         self.set_data(xdata, ydata)
 
+    def __getstate__(self):
+        state = super(Line2D, self).__getstate__()
+        # _linefunc will be restored on draw time.
+        state.pop('_lineFunc', None)
+        return state
+
     def contains(self, mouseevent):
         """
         Test whether the mouse event occurred on the line.  The pick
