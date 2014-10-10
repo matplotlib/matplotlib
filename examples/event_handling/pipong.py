@@ -62,7 +62,7 @@ class Puck(object):
     def _reset(self,pad):
         self.x = pad.x + pad.xoffset
         if pad.y < 0:
-            self.y = pad.y +  pad.yoffset
+            self.y = pad.y + pad.yoffset
         else:
             self.y = pad.y - pad.yoffset
         self.vx = pad.x - self.x
