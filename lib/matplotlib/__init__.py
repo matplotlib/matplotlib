@@ -245,6 +245,7 @@ def _is_writable_dir(p):
 
     return True
 
+
 class Verbose:
     """
     A class to handle reporting.  Set the fileo attribute to any file
@@ -808,6 +809,14 @@ _obsolete_set = set(['tk.pythoninspect', ])
 _all_deprecated = set(chain(_deprecated_ignore_map,
                             _deprecated_map, _obsolete_set))
 
+_rcparam_warn_str = ("Trying to set {key} to {value} via the {func} "
+                     "method of RcParams which does not validate cleanly. "
+                     "This warning will turn into an Exception in 1.5. "
+                     "If you think {value} should validate correctly for "
+                     "rcParams[{key}] "
+                     "please create an issue on github."
+                     )
+
 
 class RcParams(dict):
 
@@ -827,7 +836,14 @@ class RcParams(dict):
     # validate values on the way in
     def __init__(self, *args, **kwargs):
         for k, v in six.iteritems(dict(*args, **kwargs)):
-            self[k] = v
+            try:
+                self[k] = v
+            except (ValueError, RuntimeError):
+                # force the issue
+                warnings.warn(_rcparam_warn_str.format(key=repr(k),
+                                                       value=repr(v),
+                                                       func='__init__'))
+                dict.__setitem__(self, k, v)
 
     def __setitem__(self, key, val):
         try:
@@ -866,9 +882,15 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
     # all of the validation over-ride update to force
     # through __setitem__
     def update(self, *args, **kwargs):
-
         for k, v in six.iteritems(dict(*args, **kwargs)):
-            self[k] = v
+            try:
+                self[k] = v
+            except (ValueError, RuntimeError):
+                # force the issue
+                warnings.warn(_rcparam_warn_str.format(key=repr(k),
+                                                       value=repr(v),
+                                                       func='update'))
+                dict.__setitem__(self, k, v)
 
     def __repr__(self):
         import pprint
