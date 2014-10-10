@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 N = 5
 menMeans = (150*cm, 160*cm, 146*cm, 172*cm, 155*cm)
-menStd =   ( 20*cm,  30*cm,  32*cm,  10*cm,  20*cm)
+menStd = ( 20*cm,  30*cm,  32*cm,  10*cm,  20*cm)
 
 fig, ax = plt.subplots()
 
@@ -16,7 +16,7 @@ p1 = ax.bar(ind, menMeans, width, color='r', bottom=0*cm, yerr=menStd)
 
 
 womenMeans = (145*cm, 149*cm, 172*cm, 165*cm, 200*cm)
-womenStd =   (30*cm, 25*cm, 20*cm, 31*cm, 22*cm)
+womenStd = (30*cm, 25*cm, 20*cm, 31*cm, 22*cm)
 p2 = ax.bar(ind+width, womenMeans, width, color='y', bottom=0*cm, yerr=womenStd)
 
 ax.set_title('Scores by group and gender')

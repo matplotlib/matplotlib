@@ -30,7 +30,7 @@ for ccode, glyphind in codes:
     coded[name] = ccode
     glyphd[name] = glyphind
 
-code =  coded['A']
+code = coded['A']
 glyph = font.load_char(code)
 #print glyph.bbox
 print(glyphd['A'], glyphd['V'], coded['A'], coded['V'])

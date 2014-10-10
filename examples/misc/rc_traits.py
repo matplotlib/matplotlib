@@ -83,7 +83,7 @@ hex_to_rgba.info = 'a hex color string'
 
 def colorname_to_rgba(ob, name, val):
     hex = colors[val.lower()]
-    r,g,b =  hex2color(hex)
+    r,g,b = hex2color(hex)
     return RGBA(r,g,b,1.0)
 colorname_to_rgba.info = 'a named color'
 
