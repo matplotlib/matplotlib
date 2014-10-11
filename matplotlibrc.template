@@ -474,7 +474,7 @@ backend      : %(backend)s
 
 ###ANIMATION settings
 #animation.writer : ffmpeg         # MovieWriter 'backend' to use
-#animation.codec : mp4             # Codec to use for writing movie
+#animation.codec : mpeg4           # Codec to use for writing movie
 #animation.bitrate: -1             # Controls size/quality tradeoff for movie.
                                    # -1 implies let utility auto-determine
 #animation.frame_format: 'png'     # Controls frame format used by temp files
