@@ -40,6 +40,9 @@ from matplotlib.transforms import Affine2D
 
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 
+from matplotlib.backend_bases import _has_pil
+if _has_pil:
+    from PIL import Image
 
 import numpy as np
 import binascii
@@ -202,7 +205,8 @@ class RendererPS(RendererBase):
     fontd = maxdict(50)
     afmfontd = maxdict(50)
 
-    def __init__(self, width, height, pswriter, imagedpi=72):
+    def __init__(self, width, height, pswriter, imagedpi=72,
+                 compress_images=False):
         """
         Although postscript itself is dpi independent, we need to
         imform the image code about a requested dpi to generate high
@@ -216,6 +220,7 @@ class RendererPS(RendererBase):
             self.textcnt = 0
             self.psfrag = []
         self.imagedpi = imagedpi
+        self.compress_images = compress_images
 
         # current renderer state (None=uninitialised)
         self.color = None
@@ -451,13 +456,21 @@ class RendererPS(RendererBase):
         """
         return True
 
-    def _get_image_h_w_bits_command(self, im):
+    def _get_image_h_w_bits_command(self, im,
+                                    compress=False):
         if im.is_grayscale:
             h, w, bits = self._gray(im)
             imagecmd = "image"
         else:
-            h, w, bits = self._rgb(im)
             imagecmd = "false 3 colorimage"
+            if not compress:
+                h, w, bits = self._rgb(im)
+            else:
+                h,w,s = im.as_rgba_str()
+                pil_im = Image.fromstring("RGBA", (w, h), s)
+                c = io.BytesIO()
+                pil_im.save(c, format="jpeg", quality=75)
+                bits = c.getvalue()
 
         return h, w, bits, imagecmd
 
@@ -474,7 +487,10 @@ class RendererPS(RendererBase):
 
         im.flipud_out()
 
-        h, w, bits, imagecmd = self._get_image_h_w_bits_command(im)
+        compress = self.compress_images
+
+        h, w, bits, imagecmd = self._get_image_h_w_bits_command(im,
+                                                                compress=compress)
         hexlines = b'\n'.join(self._hex_lines(bits)).decode('ascii')
 
         if dx is None:
@@ -509,7 +525,39 @@ class RendererPS(RendererBase):
         clip = '\n'.join(clip)
 
         #y = figh-(y+h)
-        ps = """gsave
+        if compress:
+            ps1 = """gsave
+/DeviceRGB setcolorspace
+
+%(clip)s
+[%(matrix)s] concat
+%(x)s %(y)s translate
+%(xscale)s %(yscale)s scale
+
+
+<< %% Start image dictionary
+/ImageType 1
+/Width %(w)s  %% Dimensions of source image
+/Height %(h)s
+/BitsPerComponent 8
+/Decode [0 1 0 1 0 1] %% Decode color values in normal way
+/ImageMatrix [%(w)s 0 0 -%(h)s 0 %(h)s] %% Map unit square to source
+/DataSource currentfile /ASCIIHexDecode filter /DCTDecode filter %% Obtain in-line data through filter
+>>
+image
+
+"""  % locals()
+            ps2 = hexlines
+            ps3 = """
+> % End-of-data marker for ASCIIHexDecode
+
+grestore
+"""
+            self._pswriter.write(ps1)
+            self._pswriter.write(ps2)
+            self._pswriter.write(ps3)
+        else:
+            ps = """gsave
 %(clip)s
 [%(matrix)s] concat
 %(x)s %(y)s translate
@@ -522,7 +570,7 @@ currentfile DataString readhexstring pop
 %(hexlines)s
 grestore
 """ % locals()
-        self._pswriter.write(ps)
+            self._pswriter.write(ps)
 
         # unflip
         im.flipud_out()
@@ -986,9 +1034,19 @@ class FigureCanvasPS(FigureCanvasBase):
         return 'ps'
 
     def print_ps(self, outfile, *args, **kwargs):
+        """
+          *compress_images*:
+            If 'True', the embedded images are
+            jpeg compressed. 'ghostscript' distiller is not supported.
+        """
         return self._print_ps(outfile, 'ps', *args, **kwargs)
 
     def print_eps(self, outfile, *args, **kwargs):
+        """
+          *compress_images*:
+            If 'True', the embedded images are
+            jpeg compressed. 'ghostscript' distiller is not supported.
+        """
         return self._print_ps(outfile, 'eps', *args, **kwargs)
 
     def _print_ps(self, outfile, format, *args, **kwargs):
@@ -1101,8 +1159,22 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # mixed mode rendering
         _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
+        compress_images = kwargs.pop("compress_images", False)
+
+        if (compress_images and
+            rcParams['ps.usedistiller'] not in ['xpdf']):
+            # renderer does not compress images if distiller is used.
+            if _has_pil:
+                renderer_compress_images = True
+            else:
+                verbose.report("compress_images option requires 'PIL' module.", 'helpful')
+                renderer_compress_images = False
+        else:
+            renderer_compress_images = False
+
         ps_renderer = self._renderer_class(width, height, self._pswriter,
-                                           imagedpi=dpi)
+                                           imagedpi=dpi,
+                                           compress_images=renderer_compress_images)
         renderer = MixedModeRenderer(self.figure,
             width, height, dpi, ps_renderer,
             bbox_inches_restore=_bbox_inches_restore)
@@ -1219,9 +1291,11 @@ class FigureCanvasPS(FigureCanvasBase):
 
         if rcParams['ps.usedistiller']:
             if rcParams['ps.usedistiller'] == 'ghostscript':
-                gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+                gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
+                           compress_images=compress_images)
             elif rcParams['ps.usedistiller'] == 'xpdf':
-                xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+                xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
+                             compress_images=compress_images)
 
             if passed_in_file_object:
                 if file_requires_unicode(outfile):
@@ -1284,8 +1358,11 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # mixed mode rendering
         _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
+        compress_images = kwargs.pop("compress_images", False)
+
         ps_renderer = self._renderer_class(width, height,
                                            self._pswriter, imagedpi=dpi)
+
         renderer = MixedModeRenderer(self.figure,
             width, height, dpi, ps_renderer,
             bbox_inches_restore=_bbox_inches_restore)
@@ -1371,14 +1448,17 @@ class FigureCanvasPS(FigureCanvasBase):
 
         if rcParams['ps.usedistiller'] == 'ghostscript':
             gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
-                       rotated=psfrag_rotated)
+                       rotated=psfrag_rotated,
+                       compress_images=compress_images)
         elif rcParams['ps.usedistiller'] == 'xpdf':
             xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
-                         rotated=psfrag_rotated)
+                         rotated=psfrag_rotated,
+                         compress_images=compress_images)
         elif rcParams['text.usetex']:
             if False: pass # for debugging
             else: gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
-                             rotated=psfrag_rotated)
+                             rotated=psfrag_rotated,
+                             compress_images=compress_images)
 
         if is_writable_file_like(outfile):
             if file_requires_unicode(outfile):
@@ -1505,7 +1585,8 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
 
     return psfrag_rotated
 
-def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
+def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False,
+               compress_images=False):
     """
     Use ghostscript's pswrite or epswrite device to distill a file.
     This yields smaller files without illegal encapsulated postscript
@@ -1525,6 +1606,9 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
         device_name = "ps2write"
     else:
         device_name = "pswrite"
+
+    if compress_images:
+        verbose.report("'ghostscript' distiller currently does not support 'compress_images' option. Try 'xpdf' distiller instead.", 'helpful')
 
     command = '%s -dBATCH -dNOPAUSE -r%d -sDEVICE=%s %s -sOutputFile="%s" \
                 "%s" > "%s"'% (gs_exe, dpi, device_name,
@@ -1559,7 +1643,9 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
             pstoeps(tmpfile)
 
 
-def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
+def xpdf_distill(tmpfile, eps=False, ptype='letter',
+                 bbox=None, rotated=False,
+                 compress_images=False):
     """
     Use ghostscript's ps2pdf and xpdf's/poppler's pdftops to distill a file.
     This yields smaller files without illegal encapsulated postscript
@@ -1573,9 +1659,14 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     if eps: paper_option = "-dEPSCrop"
     else: paper_option = "-sPAPERSIZE=%s" % ptype
 
-    command = 'ps2pdf -dAutoFilterColorImages=false \
--sColorImageFilter=FlateEncode %s "%s" "%s" > "%s"'% \
-(paper_option, tmpfile, pdffile, outfile)
+    if compress_images:
+        # using ps2pdf does not seem to work, so we use gs directly.
+        command = 'gs -dAutoFilterColorImages=false -dColorImageFilter=/DCTEncode -q -P- -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile="%s" -c ".setpdfwrite << /ColorImageDict <</QFactor 0.5 >> >> setdistillerparams" %s -f "%s" > "%s"'% \
+                  (pdffile, paper_option, tmpfile, outfile)
+    else:
+        command = 'ps2pdf -dAutoFilterColorImages=false -sColorImageFilter=FlateEncode %s "%s" "%s" > "%s"'% \
+                  (paper_option, tmpfile, pdffile, outfile)
+
     if sys.platform == 'win32': command = command.replace('=', '#')
     verbose.report(command, 'debug')
     exit_status = os.system(command)
