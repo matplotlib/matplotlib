@@ -247,3 +247,9 @@ def test_validators():
             yield _validation_test_helper, validator, arg, target
         for arg, error_type in validator_dict['fail']:
             yield _validation_fail_helper, validator, arg, error_type
+
+
+def test_keymaps():
+    key_list = [k for k in mpl.rcParams if 'keymap' in k]
+    for k in key_list:
+        assert(isinstance(mpl.rcParams[k], list))
