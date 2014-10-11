@@ -41,17 +41,17 @@ variant= ['normal', 'small-caps']
 t = text(0.0, 0.9, 'variant', **alignment)
 
 for k in range(2):
-    t = text( 0.0, yp[k], variant[k], family='serif', variant=variant[k],
+    t = text(0.0, yp[k], variant[k], family='serif', variant=variant[k],
               **alignment)
 
 ###  Show weight options
 
 weight = ['light', 'normal', 'medium', 'semibold', 'bold', 'heavy', 'black']
 
-t = text( 0.4, 0.9, 'weight',  **alignment)
+t = text(0.4, 0.9, 'weight',  **alignment)
 
 for k in range(7):
-    t = text( 0.4, yp[k], weight[k], weight=weight[k],
+    t = text(0.4, yp[k], weight[k], weight=weight[k],
               **alignment)
 
 ###  Show size options
@@ -59,10 +59,10 @@ for k in range(7):
 size = ['xx-small', 'x-small', 'small', 'medium', 'large',
         'x-large', 'xx-large']
 
-t = text( 0.8, 0.9, 'size', **alignment)
+t = text(0.8, 0.9, 'size', **alignment)
 
 for k in range(7):
-    t = text( 0.8, yp[k], size[k], size=size[k],
+    t = text(0.8, yp[k], size[k], size=size[k],
              **alignment)
 
 x = 0

@@ -28,7 +28,7 @@ w, h = int(w), int(h)
 X = pylab.fromstring(s, pylab.uint8)
 X.shape = h, w, 3
 
-im = Image.fromstring( "RGB", (w,h), s)
+im = Image.fromstring("RGB", (w,h), s)
 
 # Uncomment this line to display the image using ImageMagick's
 # `display` tool.

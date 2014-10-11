@@ -42,6 +42,6 @@ bp = ax.boxplot(treatments, sym='k+', positions=pos,
 
 ax.set_xlabel('treatment')
 ax.set_ylabel('response')
-plt.setp(bp['whiskers'], color='k',  linestyle='-' )
+plt.setp(bp['whiskers'], color='k',  linestyle='-')
 plt.setp(bp['fliers'], markersize=3.0)
 plt.show()

@@ -41,12 +41,12 @@ while not happy:
     pts = []
     while len(pts) < 3:
         tellme('Select 3 corners with mouse')
-        pts = np.asarray( plt.ginput(3,timeout=-1) )
+        pts = np.asarray(plt.ginput(3,timeout=-1))
         if len(pts) < 3:
             tellme('Too few points, starting over')
             time.sleep(1) # Wait a second
 
-    ph = plt.fill( pts[:,0], pts[:,1], 'r', lw=2 )
+    ph = plt.fill(pts[:,0], pts[:,1], 'r', lw=2)
 
     tellme('Happy? Key click for yes, mouse click for no')
 
@@ -69,30 +69,30 @@ def f(x,y,pts):
         z = z + 1/(np.sqrt((x-p[0])**2+(y-p[1])**2))
     return 1/z
 
-X,Y = np.meshgrid( np.linspace(-1,1,51), np.linspace(-1,1,51) )
+X,Y = np.meshgrid(np.linspace(-1,1,51), np.linspace(-1,1,51))
 Z = f(X,Y,pts)
 
-CS = plt.contour( X, Y, Z, 20 )
+CS = plt.contour(X, Y, Z, 20)
 
-tellme( 'Use mouse to select contour label locations, middle button to finish' )
-CL = plt.clabel( CS, manual=True )
+tellme('Use mouse to select contour label locations, middle button to finish')
+CL = plt.clabel(CS, manual=True)
 
 ##################################################
 # Now do a zoom
 ##################################################
-tellme( 'Now do a nested zoom, click to begin' )
+tellme('Now do a nested zoom, click to begin')
 plt.waitforbuttonpress()
 
 happy = False
 while not happy:
-    tellme( 'Select two corners of zoom, middle mouse button to finish' )
-    pts = np.asarray( plt.ginput(2,timeout=-1) )
+    tellme('Select two corners of zoom, middle mouse button to finish')
+    pts = np.asarray(plt.ginput(2,timeout=-1))
 
     happy = len(pts) < 2
     if happy: break
 
     pts = np.sort(pts,axis=0)
-    plt.axis( pts.T.ravel() )
+    plt.axis(pts.T.ravel())
 
 tellme('All Done!')
 plt.show()

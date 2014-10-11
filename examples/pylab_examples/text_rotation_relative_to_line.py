@@ -13,7 +13,7 @@ coordinate system, as shown in the example below.
 from pylab import *
 
 # Plot diagonal line (45 degrees)
-h = plot( r_[:10], r_[:10] )
+h = plot(r_[:10], r_[:10])
 
 # set limits so that it no longer looks on screen to be 45 degrees
 xlim([-10,20])

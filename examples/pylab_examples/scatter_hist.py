@@ -33,17 +33,17 @@ axScatter.scatter(x, y)
 
 # now determine nice limits by hand:
 binwidth = 0.25
-xymax = np.max( [np.max(np.fabs(x)), np.max(np.fabs(y))] )
-lim = ( int(xymax/binwidth) + 1) * binwidth
+xymax = np.max([np.max(np.fabs(x)), np.max(np.fabs(y))])
+lim = (int(xymax/binwidth) + 1) * binwidth
 
-axScatter.set_xlim( (-lim, lim) )
-axScatter.set_ylim( (-lim, lim) )
+axScatter.set_xlim((-lim, lim))
+axScatter.set_ylim((-lim, lim))
 
 bins = np.arange(-lim, lim + binwidth, binwidth)
 axHistx.hist(x, bins=bins)
 axHisty.hist(y, bins=bins, orientation='horizontal')
 
-axHistx.set_xlim( axScatter.get_xlim() )
-axHisty.set_ylim( axScatter.get_ylim() )
+axHistx.set_xlim(axScatter.get_xlim())
+axHisty.set_ylim(axScatter.get_ylim())
 
 plt.show()
