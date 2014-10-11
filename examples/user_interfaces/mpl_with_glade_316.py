@@ -15,7 +15,7 @@ class Window1Signals:
 
 def main():
     builder = Gtk.Builder()
-    builder.add_objects_from_file("mpl_with_glade_316.glade", ("window1", "") )
+    builder.add_objects_from_file("mpl_with_glade_316.glade", ("window1", ""))
     builder.connect_signals(Window1Signals())
     window = builder.get_object("window1")
     sw = builder.get_object("scrolledwindow1")

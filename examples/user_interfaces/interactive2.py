@@ -122,7 +122,7 @@ class OutputStream:
     def __init__(self,view,old_out,style):
         self.view = view
         self.buffer = view.get_buffer()
-        self.mark = self.buffer.create_mark("End",self.buffer.get_end_iter(), False )
+        self.mark = self.buffer.create_mark("End",self.buffer.get_end_iter(), False)
         self.out = old_out
         self.style = style
         self.tee = 1
@@ -161,32 +161,32 @@ class GTKInterpreterConsole(gtk.ScrolledWindow):
         self.ps1 = ">>> "
         self.ps2 = "... "
 
-        self.text.add_events( gtk.gdk.KEY_PRESS_MASK )
-        self.text.connect( "key_press_event", self.key_pressed )
+        self.text.add_events(gtk.gdk.KEY_PRESS_MASK)
+        self.text.connect("key_press_event", self.key_pressed)
 
         self.current_history = -1
 
-        self.mark = self.text.get_buffer().create_mark("End",self.text.get_buffer().get_end_iter(), False )
+        self.mark = self.text.get_buffer().create_mark("End",self.text.get_buffer().get_end_iter(), False)
 
                 #setup colors
         self.style_banner = gtk.TextTag("banner")
-        self.style_banner.set_property( "foreground", "saddle brown" )
+        self.style_banner.set_property("foreground", "saddle brown")
 
         self.style_ps1 = gtk.TextTag("ps1")
-        self.style_ps1.set_property( "foreground", "DarkOrchid4" )
-        self.style_ps1.set_property( "editable", False )
-        self.style_ps1.set_property("font", "courier" )
+        self.style_ps1.set_property("foreground", "DarkOrchid4")
+        self.style_ps1.set_property("editable", False)
+        self.style_ps1.set_property("font", "courier")
 
         self.style_ps2 = gtk.TextTag("ps2")
-        self.style_ps2.set_property( "foreground", "DarkOliveGreen" )
-        self.style_ps2.set_property( "editable", False  )
-        self.style_ps2.set_property("font", "courier" )
+        self.style_ps2.set_property("foreground", "DarkOliveGreen")
+        self.style_ps2.set_property("editable", False)
+        self.style_ps2.set_property("font", "courier")
 
         self.style_out = gtk.TextTag("stdout")
-        self.style_out.set_property( "foreground", "midnight blue" )
+        self.style_out.set_property("foreground", "midnight blue")
         self.style_err = gtk.TextTag("stderr")
-        self.style_err.set_property( "style", pango.STYLE_ITALIC )
-        self.style_err.set_property( "foreground", "red" )
+        self.style_err.set_property("style", pango.STYLE_ITALIC)
+        self.style_err.set_property("foreground", "red")
 
         self.text.get_buffer().get_tag_table().add(self.style_banner)
         self.text.get_buffer().get_tag_table().add(self.style_ps1)
@@ -260,12 +260,12 @@ class GTKInterpreterConsole(gtk.ScrolledWindow):
             if self.current_history > 0:
                 self.current_history = 0
             return self.show_history()
-        elif event.keyval == gtk.gdk.keyval_from_name( 'Home'):
+        elif event.keyval == gtk.gdk.keyval_from_name('Home'):
             l = self.text.get_buffer().get_line_count() - 1
             start = self.text.get_buffer().get_iter_at_line_offset(l,4)
             self.text.get_buffer().place_cursor(start)
             return True
-        elif event.keyval == gtk.gdk.keyval_from_name( 'space') and event.state & gtk.gdk.CONTROL_MASK:
+        elif event.keyval == gtk.gdk.keyval_from_name('space') and event.state & gtk.gdk.CONTROL_MASK:
             return self.complete_line()
         return False
 
@@ -273,7 +273,7 @@ class GTKInterpreterConsole(gtk.ScrolledWindow):
         if self.current_history == 0:
             return True
         else:
-            self.replace_line( self.history[self.current_history] )
+            self.replace_line(self.history[self.current_history])
             return True
 
     def current_line(self):
@@ -359,8 +359,8 @@ def main():
 
     w.connect("destroy", destroy)
 
-    w.add_events( gtk.gdk.KEY_PRESS_MASK )
-    w.connect( 'key_press_event', key_event)
+    w.add_events(gtk.gdk.KEY_PRESS_MASK)
+    w.connect('key_press_event', key_event)
     w.show_all()
 
     console.execute_line('import matplotlib')

@@ -78,7 +78,7 @@ class WidgetsWrapper:
             print(xmin, xmax)
 
         span = SpanSelector(self.axis, onselect, 'horizontal', useblit=False,
-                            rectprops=dict(alpha=0.5, facecolor='red') )
+                            rectprops=dict(alpha=0.5, facecolor='red'))
 
         self['vboxMain'].pack_start(self.canvas, True, True)
         self['vboxMain'].show()

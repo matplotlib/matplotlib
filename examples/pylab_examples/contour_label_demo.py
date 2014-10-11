@@ -48,7 +48,7 @@ class nf(float):
             return '%.1f' % self.__float__()
 
 # Recast levels to new class
-CS.levels = [nf(val) for val in CS.levels ]
+CS.levels = [nf(val) for val in CS.levels]
 
 # Label levels with specially formatted floats
 if plt.rcParams["text.usetex"]:
@@ -67,8 +67,8 @@ plt.figure()
 CS = plt.contour(X, Y, Z)
 
 fmt = {}
-strs = [ 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh' ]
-for l,s in zip( CS.levels, strs ):
+strs = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh']
+for l,s in zip(CS.levels, strs):
     fmt[l] = s
 
 # Label every other level using strings

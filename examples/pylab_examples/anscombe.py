@@ -23,7 +23,7 @@ def fit(x):
     return 3+0.5*x
 
 
-xfit = array( [amin(x), amax(x) ] )
+xfit = array([amin(x), amax(x)])
 
 subplot(221)
 plot(x,y1,'ks', xfit, fit(xfit), 'r-', lw=2)

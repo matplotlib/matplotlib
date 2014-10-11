@@ -21,17 +21,17 @@ class Cursor:
         self.ly = ax.axvline(color='k')  # the vert line
 
         # text location in axes coords
-        self.txt = ax.text( 0.7, 0.9, '', transform=ax.transAxes)
+        self.txt = ax.text(0.7, 0.9, '', transform=ax.transAxes)
 
     def mouse_move(self, event):
         if not event.inaxes: return
 
         x, y = event.xdata, event.ydata
         # update the line positions
-        self.lx.set_ydata(y )
-        self.ly.set_xdata(x )
+        self.lx.set_ydata(y)
+        self.ly.set_xdata(x)
 
-        self.txt.set_text( 'x=%1.2f, y=%1.2f'%(x,y) )
+        self.txt.set_text('x=%1.2f, y=%1.2f'%(x,y))
         draw()
 
 
@@ -48,7 +48,7 @@ class SnaptoCursor:
         self.x = x
         self.y = y
         # text location in axes coords
-        self.txt = ax.text( 0.7, 0.9, '', transform=ax.transAxes)
+        self.txt = ax.text(0.7, 0.9, '', transform=ax.transAxes)
 
     def mouse_move(self, event):
 
@@ -60,10 +60,10 @@ class SnaptoCursor:
         x = self.x[indx]
         y = self.y[indx]
         # update the line positions
-        self.lx.set_ydata(y )
-        self.ly.set_xdata(x )
+        self.lx.set_ydata(y)
+        self.ly.set_xdata(x)
 
-        self.txt.set_text( 'x=%1.2f, y=%1.2f'%(x,y) )
+        self.txt.set_text('x=%1.2f, y=%1.2f'%(x,y))
         print ('x=%1.2f, y=%1.2f'%(x,y))
         draw()
 

@@ -57,20 +57,20 @@ for k in range(2):
     font = font0.copy()
     font.set_family('serif')
     font.set_variant(variant[k])
-    t = text( 0.0, yp[k], variant[k], fontproperties=font,
+    t = text(0.0, yp[k], variant[k], fontproperties=font,
              **alignment)
 
 ###  Show weight options
 
 weight = ['light', 'normal', 'medium', 'semibold', 'bold', 'heavy', 'black']
 
-t = text( 0.4, 0.9, 'weight', fontproperties=font1,
+t = text(0.4, 0.9, 'weight', fontproperties=font1,
          **alignment)
 
 for k in range(7):
     font = font0.copy()
     font.set_weight(weight[k])
-    t = text( 0.4, yp[k], weight[k], fontproperties=font,
+    t = text(0.4, yp[k], weight[k], fontproperties=font,
              **alignment)
 
 ###  Show size options
@@ -78,13 +78,13 @@ for k in range(7):
 size = ['xx-small', 'x-small', 'small', 'medium', 'large',
         'x-large', 'xx-large']
 
-t = text( 0.8, 0.9, 'size', fontproperties=font1,
+t = text(0.8, 0.9, 'size', fontproperties=font1,
          **alignment)
 
 for k in range(7):
     font = font0.copy()
     font.set_size(size[k])
-    t = text( 0.8, yp[k], size[k], fontproperties=font,
+    t = text(0.8, yp[k], size[k], fontproperties=font,
              **alignment)
 
 ###  Show bold italic

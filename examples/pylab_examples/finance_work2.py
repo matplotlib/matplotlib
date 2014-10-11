@@ -144,7 +144,7 @@ s = '%s O:%1.2f H:%1.2f L:%1.2f C:%1.2f, V:%1.1fM Chg:%+1.2f' % (
     last.open, last.high,
     last.low, last.close,
     last.volume*1e-6,
-    last.close-last.open )
+    last.close-last.open)
 t4 = ax2.text(0.3, 0.9, s, transform=ax2.transAxes, fontsize=textsize)
 
 props = font_manager.FontProperties(size=10)
