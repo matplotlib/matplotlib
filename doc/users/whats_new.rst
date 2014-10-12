@@ -811,7 +811,7 @@ without closing them.
 matplotlib will now display a `RuntimeWarning` when too many figures
 have been opened at once.  By default, this is displayed for 20 or
 more figures, but the exact number may be controlled using the
-``figure.max_num_figures`` rcParam.
+``figure.max_open_warning`` rcParam.
 
 .. _whats-new-1-2-2:
 
