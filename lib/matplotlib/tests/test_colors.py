@@ -3,6 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 import itertools
+from distutils.version import LooseVersion as V
 
 from nose.tools import assert_raises
 
@@ -13,7 +14,8 @@ import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import (image_comparison,
+                                           cleanup, knownfailureif)
 
 
 def test_colormap_endian():
@@ -255,6 +257,7 @@ def test_light_source_topo_surface():
             ax.set(xticks=[], yticks=[])
 
 
+@knownfailureif(V(np.__version__) >= V('1.9.0'))
 def test_light_source_shading_default():
     """Array comparison test for the default "hsv" blend mode. Ensure the
     default result doesn't change without warning."""
@@ -304,6 +307,7 @@ def test_light_source_shading_default():
     assert_array_almost_equal(rgb, expect, decimal=2)
 
 
+@knownfailureif(V(np.__version__) >= V('1.9.0'))
 def test_light_source_masked_shading():
     """Array comparison test for a surface with a masked portion. Ensures that
     we don't wind up with "fringes" of odd colors around masked regions."""
