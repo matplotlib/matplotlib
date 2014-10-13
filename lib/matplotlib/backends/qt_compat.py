@@ -14,21 +14,37 @@ QT_API_PYQTv2 = 'PyQt4v2'   # forced to Version 2 API
 QT_API_PYSIDE = 'PySide'    # only supports Version 2 API
 QT_API_PYQT5 = 'PyQt5'       # use PyQt5 API; Version 2 with module shim
 
-ETS = dict(pyqt=QT_API_PYQTv2, pyside=QT_API_PYSIDE, pyqt5=QT_API_PYQT5)
-# If the ETS QT_API environment variable is set, use it.  Note that
+ETS = dict(pyqt=(QT_API_PYQTv2, 4), pyside=(QT_API_PYSIDE, 4),
+           pyqt5=(QT_API_PYQT5, 5))
+# ETS is a dict of env variable to (QT_API, QT_MAJOR_VERSION)
+# If the ETS QT_API environment variable is set, use it, but only
+# if the varible if of the same major QT version.  Note that
 # ETS requires the version 2 of PyQt4, which is not the platform
 # default for Python 2.x.
 
 QT_API_ENV = os.environ.get('QT_API')
-if QT_API_ENV is not None:
+
+if rcParams['backend'] == 'Qt5Agg':
+    QT_RC_MAJOR_VERSION = 5
+else:
+    QT_RC_MAJOR_VERSION = 4
+
+QT_API = None
+
+if (QT_API_ENV is not None):
     try:
-        QT_API = ETS[QT_API_ENV]
+        QT_ENV_MAJOR_VERSION = ETS[QT_API_ENV][1]
     except KeyError:
         raise RuntimeError(
-          'Unrecognized environment variable %r, valid values are: %r or %r' %
-          (QT_API_ENV, 'pyqt', 'pyside', 'pyqt5'))
-else:
-    # No ETS environment, so use rcParams.
+            ('Unrecognized environment variable %r, valid values are:'
+             ' %r, %r or %r' % (QT_API_ENV, 'pyqt', 'pyside', 'pyqt5')))
+    if QT_ENV_MAJOR_VERSION == QT_RC_MAJOR_VERSION:
+        # Only if backend and env qt major version are
+        # compatible use the env variable.
+        QT_API = ETS[QT_API_ENV][0]
+
+if QT_API is None:
+    # No ETS environment or incompatible so use rcParams.
     if rcParams['backend'] == 'Qt5Agg':
         QT_API = rcParams['backend.qt5']
     else:
