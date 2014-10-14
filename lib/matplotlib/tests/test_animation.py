@@ -28,7 +28,7 @@ def test_save_animation_smoketest():
         yield check_save_animation, writer, extension
 
 
-@with_setup(CleanupTest.setup_class, CleanupTest.teardown_class)
+@cleanup
 def check_save_animation(writer, extension='mp4'):
     if not animation.writers.is_available(writer):
         raise KnownFailureTest("writer '%s' not available on this system"
@@ -38,6 +38,9 @@ def check_save_animation(writer, extension='mp4'):
 
     fig, ax = plt.subplots()
     line, = ax.plot([], [])
+
+    ax.set_xlim(0, 10)
+    ax.set_ylim(-1, 1)
 
     def init():
         line.set_data([], [])
