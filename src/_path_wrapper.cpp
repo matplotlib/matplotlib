@@ -67,7 +67,7 @@ static PyObject *Py_points_in_path(PyObject *self, PyObject *args, PyObject *kwd
 
     if (!PyArg_ParseTuple(args,
                           "O&dO&O&:points_in_path",
-                          &numpy::convert_array<const double, 2>,
+                          &points.converter,
                           &points,
                           &r,
                           &convert_path,
@@ -126,7 +126,7 @@ static PyObject *Py_points_on_path(PyObject *self, PyObject *args, PyObject *kwd
 
     if (!PyArg_ParseTuple(args,
                           "O&dO&O&:points_on_path",
-                          &numpy::convert_array<const double, 2>,
+                          &points.converter,
                           &points,
                           &r,
                           &convert_path,
@@ -191,7 +191,7 @@ static PyObject *Py_update_path_extents(PyObject *self, PyObject *args, PyObject
                           &trans,
                           &convert_rect,
                           &rect,
-                          &numpy::convert_array<double, 1>,
+                          &minpos.converter,
                           &minpos,
                           &ignore)) {
         return NULL;
@@ -261,9 +261,9 @@ static PyObject *Py_get_path_collection_extents(PyObject *self, PyObject *args, 
                           &convert_trans_affine,
                           &master_transform,
                           &pathsobj,
-                          &numpy::convert_array<const double, 3>,
+                          &transforms.converter,
                           &transforms,
-                          &numpy::convert_array<const double, 2>,
+                          &offsets.converter,
                           &offsets,
                           &convert_trans_affine,
                           &offset_trans)) {
@@ -317,9 +317,9 @@ static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyO
                           &convert_trans_affine,
                           &master_transform,
                           &pathsobj,
-                          &numpy::convert_array<const double, 3>,
+                          &transforms.converter,
                           &transforms,
-                          &numpy::convert_array<const double, 2>,
+                          &offsets.converter,
                           &offsets,
                           &convert_trans_affine,
                           &offset_trans,
@@ -422,7 +422,7 @@ static PyObject *Py_affine_transform(PyObject *self, PyObject *args, PyObject *k
 
     if (!PyArg_ParseTuple(args,
                           "O&O&:affine_transform",
-                          &numpy::convert_array<const double, 2>,
+                          &vertices.converter,
                           &vertices,
                           &convert_trans_affine,
                           &trans)) {
@@ -449,7 +449,7 @@ static PyObject *Py_count_bboxes_overlapping_bbox(PyObject *self, PyObject *args
                           "O&O&:count_bboxes_overlapping_bbox",
                           &convert_rect,
                           &bbox,
-                          &numpy::convert_array<const double, 3>,
+                          &bboxes.converter,
                           &bboxes)) {
         return NULL;
     }
@@ -662,7 +662,7 @@ extern "C" {
         {"convert_path_to_polygons", (PyCFunction)Py_convert_path_to_polygons, METH_VARARGS, Py_convert_path_to_polygons__doc__},
         {"cleanup_path", (PyCFunction)Py_cleanup_path, METH_VARARGS, Py_cleanup_path__doc__},
         {"convert_to_svg", (PyCFunction)Py_convert_to_svg, METH_VARARGS, Py_convert_to_svg__doc__},
-        {NULL, NULL, NULL, NULL}
+        {NULL}
     };
 
     struct module_state

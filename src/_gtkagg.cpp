@@ -31,7 +31,7 @@ static PyObject *Py_agg_to_gtk_drawable(PyObject *self, PyObject *args, PyObject
     if (!PyArg_ParseTuple(args,
                           "OO&O&:agg_to_gtk_drawable",
                           &py_drawable,
-                          &numpy::convert_array<agg::int8u, 3>,
+                          &buffer.converter,
                           &buffer,
                           &convert_rect,
                           &rect)) {

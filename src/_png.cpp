@@ -79,7 +79,7 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
                                      kwds,
                                      "O&O|d:write_png",
                                      (char **)names,
-                                     &numpy::convert_array<unsigned char, 3>,
+                                     &buffer.converter,
                                      &buffer,
                                      &filein,
                                      &dpi)) {

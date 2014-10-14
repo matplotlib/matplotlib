@@ -530,9 +530,9 @@ static PyObject *image_fromarray(PyObject *self, PyObject *args, PyObject *kwds)
     numpy::array_view<const double, 2> grey_array;
     Image *result = NULL;
 
-    if (numpy::convert_array<const double, 3>(array, &color_array)) {
+    if (color_array.converter(array, &color_array)) {
         CALL_CPP("fromarray", result = from_color_array(color_array, isoutput));
-    } else if (numpy::convert_array<const double, 2>(array, &grey_array)) {
+    } else if (grey_array.converter(array, &grey_array)) {
         CALL_CPP("fromarray", result = from_grey_array(grey_array, isoutput));
     } else {
         PyErr_SetString(PyExc_ValueError, "invalid array");
@@ -561,7 +561,7 @@ static PyObject *image_frombyte(PyObject *self, PyObject *args, PyObject *kwds)
                                      kwds,
                                      "O&|i:frombyte",
                                      (char **)names,
-                                     &numpy::convert_array_contiguous<const uint8_t, 3>,
+                                     &array.converter,
                                      &array,
                                      &isoutput)) {
         return NULL;
@@ -644,11 +644,11 @@ static PyObject *image_pcolor(PyObject *self, PyObject *args, PyObject *kwds)
 
     if (!PyArg_ParseTuple(args,
                           "O&O&O&II(ffff)i:pcolor",
-                          &numpy::convert_array_contiguous<const float, 1>,
+                          &x.converter,
                           &x,
-                          &numpy::convert_array_contiguous<const float, 1>,
+                          &y.converter,
                           &y,
-                          &numpy::convert_array_contiguous<const agg::int8u, 3>,
+                          &d.converter_contiguous,
                           &d,
                           &rows,
                           &cols,
@@ -686,11 +686,11 @@ static PyObject *image_pcolor2(PyObject *self, PyObject *args, PyObject *kwds)
 
     if (!PyArg_ParseTuple(args,
                           "O&O&O&II(ffff)O&:pcolor2",
-                          &numpy::convert_array_contiguous<const double, 1>,
+                          &x.converter,
                           &x,
-                          &numpy::convert_array_contiguous<const double, 1>,
+                          &y.converter,
                           &y,
-                          &numpy::convert_array<const agg::int8u, 3>,
+                          &d.converter_contiguous,
                           &d,
                           &rows,
                           &cols,
@@ -698,7 +698,7 @@ static PyObject *image_pcolor2(PyObject *self, PyObject *args, PyObject *kwds)
                           &bounds[1],
                           &bounds[2],
                           &bounds[3],
-                          &numpy::convert_array<const agg::int8u, 1>,
+                          &bg.converter,
                           &bg)) {
         return NULL;
     }

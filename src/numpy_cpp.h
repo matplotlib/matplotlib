@@ -309,7 +309,43 @@ class array_view_accessors<AV, T, 3>
                      self->m_shape + 1,
                      self->m_strides + 1);
     }
+
+
 };
+
+    // /* These are converter functions designed for use with the "O&"
+    //    functionality of PyArg_ParseTuple and friends. */
+
+    // template<class T>
+    // class array_converter {
+    // public:
+    //     int operator()(PyObject *obj, void *arrp)
+    //     {
+    //         T *arr = (T *)arrp;
+
+    //         if (!arr->set(obj)) {
+    //             return 0;
+    //         }
+
+    //         return 1;
+    //     }
+    // };
+
+    // template <class T>
+    // class array_converter_contiguous {
+    // public:
+    //     int operator()(PyObject *obj, void *arrp)
+    //     {
+    //         T *arr = (T *)arrp;
+
+    //         if (!arr->set(obj, true)) {
+    //             return 0;
+    //         }
+
+    //         return 1;
+    //     }
+    // };
+
 }
 
 static npy_intp zeros[] = { 0, 0, 0 };
@@ -328,6 +364,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
 
   public:
     typedef T value_type;
+
     enum {
         ndim = ND
     };
@@ -446,35 +483,31 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         Py_INCREF(m_arr);
         return (PyObject *)m_arr;
     }
+
+    static int converter(PyObject *obj, void *arrp)
+    {
+        array_view<T, ND> *arr = (array_view<T, ND> *)arrp;
+
+        if (!arr->set(obj)) {
+            return 0;
+        }
+
+        return 1;
+    }
+
+    static int converter_contiguous(PyObject *obj, void *arrp)
+    {
+        array_view<T, ND> *arr = (array_view<T, ND> *)arrp;
+
+        if (!arr->set(obj, true)) {
+            return 0;
+        }
+
+        return 1;
+    }
 };
 
-/* These are converter functions designed for use with the "O&"
-   functionality of PyArg_ParseTuple and friends. */
-
-template <class T, int ND>
-int convert_array(PyObject *obj, void *arrp)
-{
-    numpy::array_view<T, ND> *arr = (numpy::array_view<T, ND> *)arrp;
-
-    if (!arr->set(obj)) {
-        return 0;
-    }
-
-    return 1;
-}
-
-template <class T, int ND>
-int convert_array_contiguous(PyObject *obj, void *arrp)
-{
-    numpy::array_view<T, ND> *arr = (numpy::array_view<T, ND> *)arrp;
-
-    if (!arr->set(obj, true)) {
-        return 0;
-    }
-
-    return 1;
-}
-
 } // namespace numpy
+
 
 #endif
