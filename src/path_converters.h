@@ -59,7 +59,7 @@ class EmbeddedQueue
         {
         }
 
-        inline void set(const unsigned cmd_, const double &x_, const double &y_)
+        inline void set(const unsigned cmd_, const double x_, const double y_)
         {
             cmd = cmd_;
             x = x_;
@@ -73,7 +73,7 @@ class EmbeddedQueue
     int m_queue_write;
     item m_queue[QueueSize];
 
-    inline void queue_push(const unsigned cmd, const double &x, const double &y)
+    inline void queue_push(const unsigned cmd, const double x, const double y)
     {
         m_queue[m_queue_write++].set(cmd, x, y);
     }
@@ -107,6 +107,14 @@ class EmbeddedQueue
     }
 };
 
+/* Defines when path segment types have more than one vertex */
+static const size_t num_extra_points_map[] =
+    {0, 0, 0, 1,
+     2, 0, 0, 0,
+     0, 0, 0, 0,
+     0, 0, 0, 0
+    };
+
 /*
   PathNanRemover is a vertex converter that removes non-finite values
   from the vertices list, and inserts MOVETO commands as necessary to
@@ -119,7 +127,6 @@ class PathNanRemover : protected EmbeddedQueue<4>
     VertexSource *m_source;
     bool m_remove_nans;
     bool m_has_curves;
-    static const unsigned char num_extra_points_map[16];
 
   public:
     /* has_curves should be true if the path contains bezier curve
@@ -171,11 +178,12 @@ class PathNanRemover : protected EmbeddedQueue<4>
                 size_t num_extra_points = num_extra_points_map[code & 0xF];
                 bool has_nan = (MPL_notisfinite64(*x) || MPL_notisfinite64(*y));
                 queue_push(code, *x, *y);
+
                 /* Note: this test can not be short-circuited, since we need to
                    advance through the entire curve no matter what */
                 for (size_t i = 0; i < num_extra_points; ++i) {
                     m_source->vertex(x, y);
-                    has_nan |= (MPL_notisfinite64(*x) || MPL_notisfinite64(*y));
+                    has_nan = has_nan || (MPL_notisfinite64(*x) || MPL_notisfinite64(*y));
                     queue_push(code, *x, *y);
                 }
 
@@ -226,15 +234,6 @@ class PathNanRemover : protected EmbeddedQueue<4>
         }
     }
 };
-
-/* Defines when path segment types have more than one vertex */
-template<class VertexSource>
-const unsigned char PathNanRemover<VertexSource>::num_extra_points_map[] =
-    {0, 0, 0, 1,
-     2, 0, 0, 0,
-     0, 0, 0, 0,
-     0, 0, 0, 0
-    };
 
 /************************************************************
  PathClipper uses the Liang-Barsky line clipping algorithm (as
