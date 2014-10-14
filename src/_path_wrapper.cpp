@@ -242,7 +242,7 @@ static PyObject *Py_update_path_extents(PyObject *self, PyObject *args, PyObject
     outminpos(1) = e.ym;
 
     return Py_BuildValue(
-        "NNO", outextents.pyobj(), outminpos.pyobj(), changed ? Py_True : Py_False);
+        "NNi", outextents.pyobj(), outminpos.pyobj(), changed);
 }
 
 const char *Py_get_path_collection_extents__doc__ = "get_path_collection_extents(";
