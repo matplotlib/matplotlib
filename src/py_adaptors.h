@@ -18,9 +18,6 @@ extern "C" {
 int convert_path(PyObject *obj, void *pathp);
 }
 
-// TODO: Base this on numpy::array_view so we don't have to do our own
-// reference counting
-
 namespace py
 {
 
