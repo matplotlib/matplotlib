@@ -2,6 +2,8 @@
 
 #define NO_IMPORT_ARRAY
 
+#include <string>
+
 #include "ft2font.h"
 #include "mplutils.h"
 
@@ -649,8 +651,7 @@ void FT2Font::set_text(
         }
         error = FT_Load_Glyph(face, glyph_index, flags);
         if (error) {
-            std::cerr << "\tcould not load glyph for " << thischar << std::endl;
-            continue;
+            throw "could not load glyph";
         }
         // ignore errors, jump to next glyph
 
@@ -660,8 +661,7 @@ void FT2Font::set_text(
         error = FT_Get_Glyph(face->glyph, &thisGlyph);
 
         if (error) {
-            std::cerr << "\tcould not get glyph for " << thischar << std::endl;
-            continue;
+            throw "could not get glyph";
         }
         // ignore errors, jump to next glyph
 
