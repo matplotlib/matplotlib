@@ -475,8 +475,6 @@ int convert_gcagg(PyObject *pygc, void *gcp)
 {
     GCAgg *gc = (GCAgg *)gcp;
 
-    // TODO: Publicize GCAgg members so we can write directly into them
-
     if (!(convert_from_attr(pygc, "_linewidth", &convert_double, &gc->linewidth) &&
           convert_from_attr(pygc, "_alpha", &convert_double, &gc->alpha) &&
           convert_from_attr(pygc, "_forced_alpha", &convert_bool, &gc->forced_alpha) &&
