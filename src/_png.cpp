@@ -12,6 +12,11 @@
 
 #include <vector>
 
+#include "numpy_cpp.h"
+#include "mplutils.h"
+#include "file_compat.h"
+
+extern "C" {
 #ifdef __linux__
 #   include <png.h>
 #   ifdef _POSIX_C_SOURCE
@@ -28,10 +33,8 @@
 
 #   include <png.h>
 #endif
+}
 
-#include "file_compat.h"
-#include "numpy_cpp.h"
-#include "mplutils.h"
 
 // As reported in [3082058] build _png.so on aix
 #ifdef _AIX
