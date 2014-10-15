@@ -180,8 +180,8 @@ static PyObject *Py_update_path_extents(PyObject *self, PyObject *args, PyObject
     agg::trans_affine trans;
     agg::rect_d rect;
     numpy::array_view<double, 1> minpos;
-    bool ignore;
-    bool changed;
+    int ignore;
+    int changed;
 
     if (!PyArg_ParseTuple(args,
                           "O&O&O&O&i:update_path_extents",
@@ -466,7 +466,7 @@ static PyObject *Py_path_intersects_path(PyObject *self, PyObject *args, PyObjec
 {
     py::PathIterator p1;
     py::PathIterator p2;
-    bool filled = false;
+    int filled = 0;
     const char *names[] = { "p1", "p2", "filled", NULL };
     bool result;
 
