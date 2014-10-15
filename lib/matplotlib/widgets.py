@@ -439,7 +439,7 @@ class Slider(AxesWidget):
         self.poly.xy = xy
         self.valtext.set_text(self.valfmt % val)
         if self.drawon:
-            self.ax.figure.canvas.draw()
+            self.ax.figure.canvas.draw_idle()
         self.val = val
         if not self.eventson:
             return
@@ -1025,7 +1025,7 @@ class MultiCursor(Widget):
         self.background = None
         self.needclear = False
 
-        if useblit:
+        if self.useblit:
             lineprops['animated'] = True
 
         if vertOn:
@@ -1219,6 +1219,9 @@ class SpanSelector(_SelectorWidget):
 
     def ignore(self, event):
         """return *True* if *event* should be ignored"""
+        # If canvas was locked
+        if not self.canvas.widgetlock.available(self):
+            return True
         widget_off = not self.visible or not self.active
         non_event = event.inaxes != self.ax or event.button != 1
         return widget_off or non_event

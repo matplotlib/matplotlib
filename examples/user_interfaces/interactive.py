@@ -141,7 +141,7 @@ class MTConsole(code.InteractiveConsole):
         self.ready.release()
         return True
 
-    def kill (self):
+    def kill(self):
         """Kill the thread, returning when it has been shut down."""
         self.ready.acquire()
         self._kill = True

@@ -315,7 +315,7 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
             "rubberband", x0=x0, y0=y0, x1=x1, y1=y1)
 
     def release_zoom(self, event):
-        super(NavigationToolbar2WebAgg, self).release_zoom(event)
+        backend_bases.NavigationToolbar2.release_zoom(self, event)
         self.canvas.send_event(
             "rubberband", x0=-1, y0=-1, x1=-1, y1=-1)
 
