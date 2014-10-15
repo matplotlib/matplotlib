@@ -1,4 +1,3 @@
-
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
 #include <vector>
@@ -62,7 +61,7 @@ static PyObject *Py_agg_to_gtk_drawable(PyObject *self, PyObject *args, PyObject
 
     if (rect.x1 == 0.0 && rect.x2 == 0.0 && rect.y1 == 0.0 && rect.y2 == 0.0) {
         // bbox is None; copy the entire image
-        destbufferptr = (agg::int8u *)buffer;
+        destbufferptr = (agg::int8u *)buffer.data();
         destwidth = srcwidth;
         destheight = srcheight;
         deststride = srcstride;
@@ -81,7 +80,7 @@ static PyObject *Py_agg_to_gtk_drawable(PyObject *self, PyObject *args, PyObject
         renderer_base destrb(destpf);
 
         agg::rendering_buffer srcrbuf;
-        srcrbuf.attach((agg::int8u *)buffer, buffer.dim(1), buffer.dim(0), buffer.dim(1) * 4);
+        srcrbuf.attach((agg::int8u *)buffer.data(), buffer.dim(1), buffer.dim(0), buffer.dim(1) * 4);
 
         agg::rect_base<int> region(destx, desty, (int)rect.x2, srcheight - (int)rect.y1);
         destrb.copy_from(srcrbuf, &region, -destx, -desty);

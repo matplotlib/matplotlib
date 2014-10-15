@@ -116,6 +116,7 @@ struct type_num_of<npy_double>
         value = NPY_DOUBLE
     };
 };
+#if NPY_LONGDOUBLE != NPY_DOUBLE
 template <>
 struct type_num_of<npy_longdouble>
 {
@@ -123,6 +124,7 @@ struct type_num_of<npy_longdouble>
         value = NPY_LONGDOUBLE
     };
 };
+#endif
 template <>
 struct type_num_of<npy_cfloat>
 {
@@ -151,6 +153,7 @@ struct type_num_of<std::complex<npy_double> >
         value = NPY_CDOUBLE
     };
 };
+#if NPY_CLONGDOUBLE != NPY_CDOUBLE
 template <>
 struct type_num_of<npy_clongdouble>
 {
@@ -158,6 +161,7 @@ struct type_num_of<npy_clongdouble>
         value = NPY_CLONGDOUBLE
     };
 };
+#endif
 template <>
 struct type_num_of<std::complex<npy_longdouble> >
 {

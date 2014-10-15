@@ -231,7 +231,7 @@ Image *pcolor(CoordinateArray &x,
     // Check dimensions match
     unsigned long nx = x.dim(0);
     unsigned long ny = y.dim(0);
-    if (nx != d.dim(1) || ny != d.dim(0)) {
+    if (nx != (unsigned long)d.dim(1) || ny != (unsigned long)d.dim(0)) {
         throw "data and axis dimensions do not match";
     }
 
@@ -337,7 +337,7 @@ Image *pcolor2(CoordinateArray &x,
     // Check dimensions match
     unsigned long nx = x.dim(0);
     unsigned long ny = y.dim(0);
-    if (nx != d.dim(1) + 1 || ny != d.dim(0) + 1) {
+    if (nx != (unsigned long)d.dim(1) + 1 || ny != (unsigned long)d.dim(0) + 1) {
         throw "data and axis bin boundary dimensions are incompatible";
     }
 

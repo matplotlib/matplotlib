@@ -5,6 +5,12 @@
 #ifndef _MPLUTILS_H
 #define _MPLUTILS_H
 
+#ifdef _MSC_VER && _MSC_VER <= 1600
+typedef unsigned __int8   uint8_t;
+#else
+#include <stdint.h>
+#endif
+
 #include <Python.h>
 
 #if PY_MAJOR_VERSION >= 3
