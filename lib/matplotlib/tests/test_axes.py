@@ -472,7 +472,7 @@ def test_hexbin_pickable():
     data = np.arange(200.)/200.
     data.shape = 2, 100
     x, y = data
-    hb = ax.hexbin(x, y, extent=[.1, .3, .6, .7], picker=1)
+    hb = ax.hexbin(x, y, extent=[.1, .3, .6, .7], picker=-1)
 
     assert hb.contains(FauxMouseEvent(400, 300))[0]
 
