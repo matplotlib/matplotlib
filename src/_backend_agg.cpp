@@ -46,7 +46,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi)
       rendererBase(),
       rendererAA(),
       rendererBin(),
-      theRasterizer(),
+      theRasterizer(4096),
       lastclippath(NULL),
       _fill_color(agg::rgba(1, 1, 1, 0))
 {
