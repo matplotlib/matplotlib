@@ -1,3 +1,5 @@
+#include "numpy_cpp.h"
+
 #include "_path.h"
 
 #include "py_converters.h"
