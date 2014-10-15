@@ -851,11 +851,11 @@ class Normalize(object):
     """
     def __init__(self, vmin=None, vmax=None, clip=False):
         """
-        If *vmin* or *vmax* is not given, they are initialized from the 
+        If *vmin* or *vmax* is not given, they are initialized from the
         minimum and maximum value respectively of the first input
         processed.  That is, *__call__(A)* calls *autoscale_None(A)*.
         If *clip* is *True* and the given value falls outside the range,
-        the returned value will be 0 or 1, whichever is closer. 
+        the returned value will be 0 or 1, whichever is closer.
         Returns 0 if::
 
             vmin==vmax
@@ -905,10 +905,10 @@ class Normalize(object):
 
     def __call__(self, value, clip=None):
         """
-        Normalize *value* data in the ``[vmin, vmax]`` interval into 
+        Normalize *value* data in the ``[vmin, vmax]`` interval into
         the ``[0.0, 1.0]`` interval and return it.  *clip* defaults
         to *self.clip* (which defaults to *False*).  If not already
-        initialized, *vmin* and *vmax* are initialized using 
+        initialized, *vmin* and *vmax* are initialized using
         *autoscale_None(value)*.
         """
         if clip is None:
