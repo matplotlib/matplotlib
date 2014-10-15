@@ -190,7 +190,7 @@ template <class PathIterator, class PointArray, class ResultArray>
 inline void points_in_path(PointArray &points,
                            const double r,
                            PathIterator &path,
-                           const agg::trans_affine &trans,
+                           agg::trans_affine &trans,
                            ResultArray &result)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
@@ -218,7 +218,7 @@ inline void points_in_path(PointArray &points,
 
 template <class PathIterator>
 inline bool point_in_path(
-    double x, double y, const double r, PathIterator &path, const agg::trans_affine &trans)
+    double x, double y, const double r, PathIterator &path, agg::trans_affine &trans)
 {
     std::vector<double> point;
     std::vector<std::vector<double> > points;
@@ -238,7 +238,7 @@ template <class PathIterator, class PointArray, class ResultArray>
 void points_on_path(PointArray &points,
                     const double r,
                     PathIterator &path,
-                    const agg::trans_affine &trans,
+                    agg::trans_affine &trans,
                     ResultArray result)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
@@ -261,7 +261,7 @@ void points_on_path(PointArray &points,
 
 template <class PathIterator>
 inline bool point_on_path(
-    double x, double y, const double r, PathIterator &path, const agg::trans_affine &trans)
+    double x, double y, const double r, PathIterator &path, agg::trans_affine &trans)
 {
     std::vector<double> point;
     std::vector<std::vector<double> > points;
@@ -318,7 +318,7 @@ inline void update_limits(double x, double y, extent_limits &e)
 }
 
 template <class PathIterator>
-void update_path_extents(PathIterator &path, const agg::trans_affine &trans, extent_limits &extents)
+void update_path_extents(PathIterator &path, agg::trans_affine &trans, extent_limits &extents)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removed_t;
@@ -451,9 +451,9 @@ void point_in_path_collection(double x,
 
 template <class PathIterator1, class PathIterator2>
 bool path_in_path(PathIterator1 &a,
-                  const agg::trans_affine &atrans,
+                  agg::trans_affine &atrans,
                   PathIterator2 &b,
-                  const agg::trans_affine &btrans)
+                  agg::trans_affine &btrans)
 {
     typedef agg::conv_transform<PathIterator2> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> no_nans_t;
@@ -863,7 +863,7 @@ __cleanup_path(VertexSource &source, std::vector<double> &vertices, std::vector<
 
 template <class PathIterator>
 void cleanup_path(PathIterator &path,
-                  const agg::trans_affine &trans,
+                  agg::trans_affine &trans,
                   bool remove_nans,
                   bool do_clip,
                   const agg::rect_base<double> &rect,

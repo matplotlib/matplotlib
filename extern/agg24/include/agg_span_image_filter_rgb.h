@@ -44,11 +44,7 @@ namespace agg
         typedef span_image_filter<source_type, interpolator_type> base_type;
         typedef typename color_type::value_type value_type;
         typedef typename color_type::calc_type calc_type;
-        enum base_scale_e
-        {
-            base_shift = color_type::base_shift,
-            base_mask  = color_type::base_mask
-        };
+        typedef typename color_type::long_type long_type;
 
         //--------------------------------------------------------------------
         span_image_filter_rgb_nn() {}
@@ -72,7 +68,7 @@ namespace agg
                 span->r = fg_ptr[order_type::R];
                 span->g = fg_ptr[order_type::G];
                 span->b = fg_ptr[order_type::B];
-                span->a = base_mask;
+                span->a = color_type::full_value();
                 ++span;
                 ++base_type::interpolator();
 
@@ -95,11 +91,7 @@ namespace agg
         typedef span_image_filter<source_type, interpolator_type> base_type;
         typedef typename color_type::value_type value_type;
         typedef typename color_type::calc_type calc_type;
-        enum base_scale_e
-        {
-            base_shift = color_type::base_shift,
-            base_mask  = color_type::base_mask
-        };
+        typedef typename color_type::long_type long_type;
 
         //--------------------------------------------------------------------
         span_image_filter_rgb_bilinear() {}
@@ -114,7 +106,7 @@ namespace agg
         {
             base_type::interpolator().begin(x + base_type::filter_dx_dbl(), 
                                             y + base_type::filter_dy_dbl(), len);
-            calc_type fg[3];
+            long_type fg[3];
             const value_type *fg_ptr;
             do
             {
@@ -131,9 +123,7 @@ namespace agg
 
                 unsigned weight;
 
-                fg[0] = 
-                fg[1] = 
-                fg[2] = image_subpixel_scale * image_subpixel_scale / 2;
+                fg[0] = fg[1] = fg[2] = 0;
 
                 x_hr &= image_subpixel_mask;
                 y_hr &= image_subpixel_mask;
@@ -163,10 +153,10 @@ namespace agg
                 fg[1] += weight * *fg_ptr++;
                 fg[2] += weight * *fg_ptr;
 
-                span->r = value_type(fg[order_type::R] >> (image_subpixel_shift * 2));
-                span->g = value_type(fg[order_type::G] >> (image_subpixel_shift * 2));
-                span->b = value_type(fg[order_type::B] >> (image_subpixel_shift * 2));
-                span->a = base_mask;
+                span->r = color_type::downshift(fg[order_type::R], image_subpixel_shift * 2);
+                span->g = color_type::downshift(fg[order_type::G], image_subpixel_shift * 2);
+                span->b = color_type::downshift(fg[order_type::B], image_subpixel_shift * 2);
+                span->a = color_type::full_value();
 
                 ++span;
                 ++base_type::interpolator();
@@ -190,11 +180,7 @@ namespace agg
         typedef span_image_filter<source_type, interpolator_type> base_type;
         typedef typename color_type::value_type value_type;
         typedef typename color_type::calc_type calc_type;
-        enum base_scale_e
-        {
-            base_shift = color_type::base_shift,
-            base_mask  = color_type::base_mask
-        };
+        typedef typename color_type::long_type long_type;
 
         //--------------------------------------------------------------------
         span_image_filter_rgb_bilinear_clip() {}
@@ -212,8 +198,8 @@ namespace agg
         {
             base_type::interpolator().begin(x + base_type::filter_dx_dbl(), 
                                             y + base_type::filter_dy_dbl(), len);
-            calc_type fg[3];
-            calc_type src_alpha;
+            long_type fg[3];
+            long_type src_alpha;
             value_type back_r = m_back_color.r;
             value_type back_g = m_back_color.g;
             value_type back_b = m_back_color.b;
@@ -241,9 +227,7 @@ namespace agg
                 if(x_lr >= 0    && y_lr >= 0 &&
                    x_lr <  maxx && y_lr <  maxy) 
                 {
-                    fg[0] = 
-                    fg[1] = 
-                    fg[2] = image_subpixel_scale * image_subpixel_scale / 2;
+                    fg[0] = fg[1] = fg[2] = 0;
 
                     x_hr &= image_subpixel_mask;
                     y_hr &= image_subpixel_mask;
@@ -276,10 +260,10 @@ namespace agg
                     fg[1] += weight * *fg_ptr++;
                     fg[2] += weight * *fg_ptr++;
 
-                    fg[0] >>= image_subpixel_shift * 2;
-                    fg[1] >>= image_subpixel_shift * 2;
-                    fg[2] >>= image_subpixel_shift * 2;
-                    src_alpha = base_mask;
+                    fg[0] = color_type::downshift(fg[0], image_subpixel_shift * 2);
+                    fg[1] = color_type::downshift(fg[1], image_subpixel_shift * 2);
+                    fg[2] = color_type::downshift(fg[2], image_subpixel_shift * 2);
+                    src_alpha = color_type::full_value();
                 }
                 else
                 {
@@ -293,10 +277,7 @@ namespace agg
                     }
                     else
                     {
-                        fg[0] = 
-                        fg[1] = 
-                        fg[2] = 
-                        src_alpha = image_subpixel_scale * image_subpixel_scale / 2;
+                        fg[0] = fg[1] = fg[2] = src_alpha = 0;
 
                         x_hr &= image_subpixel_mask;
                         y_hr &= image_subpixel_mask;
@@ -312,7 +293,7 @@ namespace agg
                             fg[0] += weight * *fg_ptr++;
                             fg[1] += weight * *fg_ptr++;
                             fg[2] += weight * *fg_ptr++;
-                            src_alpha += weight * base_mask;
+                            src_alpha += weight * color_type::full_value();
                         }
                         else
                         {
@@ -334,7 +315,7 @@ namespace agg
                             fg[0]     += weight * *fg_ptr++;
                             fg[1]     += weight * *fg_ptr++;
                             fg[2]     += weight * *fg_ptr++;
-                            src_alpha += weight * base_mask;
+                            src_alpha += weight * color_type::full_value();
                         }
                         else
                         {
@@ -357,7 +338,7 @@ namespace agg
                             fg[0] += weight * *fg_ptr++;
                             fg[1] += weight * *fg_ptr++;
                             fg[2] += weight * *fg_ptr++;
-                            src_alpha += weight * base_mask;
+                            src_alpha += weight * color_type::full_value();
                         }
                         else
                         {
@@ -379,7 +360,7 @@ namespace agg
                             fg[0] += weight * *fg_ptr++;
                             fg[1] += weight * *fg_ptr++;
                             fg[2] += weight * *fg_ptr++;
-                            src_alpha += weight * base_mask;
+                            src_alpha += weight * color_type::full_value();
                         }
                         else
                         {
@@ -389,10 +370,10 @@ namespace agg
                             src_alpha         += back_a * weight;
                         }
 
-                        fg[0] >>= image_subpixel_shift * 2;
-                        fg[1] >>= image_subpixel_shift * 2;
-                        fg[2] >>= image_subpixel_shift * 2;
-                        src_alpha >>= image_subpixel_shift * 2;
+                        fg[0] = color_type::downshift(fg[0], image_subpixel_shift * 2);
+                        fg[1] = color_type::downshift(fg[1], image_subpixel_shift * 2);
+                        fg[2] = color_type::downshift(fg[2], image_subpixel_shift * 2);
+                        src_alpha = color_type::downshift(src_alpha, image_subpixel_shift * 2);
                     }
                 }
 
@@ -424,17 +405,13 @@ namespace agg
         typedef span_image_filter<source_type, interpolator_type> base_type;
         typedef typename color_type::value_type value_type;
         typedef typename color_type::calc_type calc_type;
-        enum base_scale_e
-        {
-            base_shift = color_type::base_shift,
-            base_mask  = color_type::base_mask
-        };
+        typedef typename color_type::long_type long_type;
 
         //--------------------------------------------------------------------
         span_image_filter_rgb_2x2() {}
         span_image_filter_rgb_2x2(source_type& src, 
                                   interpolator_type& inter,
-                                  const image_filter_lut& filter) :
+                                  image_filter_lut& filter) :
             base_type(src, inter, &filter) 
         {}
 
@@ -445,7 +422,7 @@ namespace agg
             base_type::interpolator().begin(x + base_type::filter_dx_dbl(), 
                                             y + base_type::filter_dy_dbl(), len);
 
-            calc_type fg[3];
+            long_type fg[3];
 
             const value_type *fg_ptr;
             const int16* weight_array = base_type::filter().weight_array() + 
@@ -465,7 +442,7 @@ namespace agg
                 int y_lr = y_hr >> image_subpixel_shift;
 
                 unsigned weight;
-                fg[0] = fg[1] = fg[2] = image_filter_scale / 2;
+                fg[0] = fg[1] = fg[2] = 0;
 
                 x_hr &= image_subpixel_mask;
                 y_hr &= image_subpixel_mask;
@@ -506,18 +483,18 @@ namespace agg
                 fg[1] += weight * *fg_ptr++;
                 fg[2] += weight * *fg_ptr;
 
-                fg[0] >>= image_filter_shift;
-                fg[1] >>= image_filter_shift;
-                fg[2] >>= image_filter_shift;
+                fg[0] = color_type::downshift(fg[0], image_filter_shift);
+                fg[1] = color_type::downshift(fg[1], image_filter_shift);
+                fg[2] = color_type::downshift(fg[2], image_filter_shift);
 
-                if(fg[order_type::R] > base_mask) fg[order_type::R] = base_mask;
-                if(fg[order_type::G] > base_mask) fg[order_type::G] = base_mask;
-                if(fg[order_type::B] > base_mask) fg[order_type::B] = base_mask;
+                if(fg[order_type::R] > color_type::full_value()) fg[order_type::R] = color_type::full_value();
+                if(fg[order_type::G] > color_type::full_value()) fg[order_type::G] = color_type::full_value();
+                if(fg[order_type::B] > color_type::full_value()) fg[order_type::B] = color_type::full_value();
 
                 span->r = (value_type)fg[order_type::R];
                 span->g = (value_type)fg[order_type::G];
                 span->b = (value_type)fg[order_type::B];
-                span->a = base_mask;
+                span->a = color_type::full_value();
 
                 ++span;
                 ++base_type::interpolator();
@@ -541,17 +518,13 @@ namespace agg
         typedef span_image_filter<source_type, interpolator_type> base_type;
         typedef typename color_type::value_type value_type;
         typedef typename color_type::calc_type calc_type;
-        enum base_scale_e
-        {
-            base_shift = color_type::base_shift,
-            base_mask  = color_type::base_mask
-        };
+        typedef typename color_type::long_type long_type;
 
         //--------------------------------------------------------------------
         span_image_filter_rgb() {}
         span_image_filter_rgb(source_type& src, 
                               interpolator_type& inter,
-                              const image_filter_lut& filter) :
+                              image_filter_lut& filter) :
             base_type(src, inter, &filter) 
         {}
 
@@ -561,7 +534,7 @@ namespace agg
             base_type::interpolator().begin(x + base_type::filter_dx_dbl(), 
                                             y + base_type::filter_dy_dbl(), len);
 
-            int fg[3];
+            long_type fg[3];
             const value_type *fg_ptr;
 
             unsigned     diameter     = base_type::filter().diameter();
@@ -584,7 +557,7 @@ namespace agg
                 int x_lr = x_hr >> image_subpixel_shift;
                 int y_lr = y_hr >> image_subpixel_shift;
 
-                fg[0] = fg[1] = fg[2] = image_filter_scale / 2;
+                fg[0] = fg[1] = fg[2] = 0;
 
                 int x_fract = x_hr & image_subpixel_mask;
                 unsigned y_count = diameter;
@@ -618,22 +591,22 @@ namespace agg
                     fg_ptr = (const value_type*)base_type::source().next_y();
                 }
 
-                fg[0] >>= image_filter_shift;
-                fg[1] >>= image_filter_shift;
-                fg[2] >>= image_filter_shift;
+                fg[0] = color_type::downshift(fg[0], image_filter_shift);
+                fg[1] = color_type::downshift(fg[1], image_filter_shift);
+                fg[2] = color_type::downshift(fg[2], image_filter_shift);
 
                 if(fg[0] < 0) fg[0] = 0;
                 if(fg[1] < 0) fg[1] = 0;
                 if(fg[2] < 0) fg[2] = 0;
 
-                if(fg[order_type::R] > base_mask) fg[order_type::R] = base_mask;
-                if(fg[order_type::G] > base_mask) fg[order_type::G] = base_mask;
-                if(fg[order_type::B] > base_mask) fg[order_type::B] = base_mask;
+                if(fg[order_type::R] > color_type::full_value()) fg[order_type::R] = color_type::full_value();
+                if(fg[order_type::G] > color_type::full_value()) fg[order_type::G] = color_type::full_value();
+                if(fg[order_type::B] > color_type::full_value()) fg[order_type::B] = color_type::full_value();
 
                 span->r = (value_type)fg[order_type::R];
                 span->g = (value_type)fg[order_type::G];
                 span->b = (value_type)fg[order_type::B];
-                span->a = base_mask;
+                span->a = color_type::full_value();
 
                 ++span;
                 ++base_type::interpolator();
@@ -659,8 +632,6 @@ namespace agg
         typedef typename color_type::long_type long_type;
         enum base_scale_e
         {
-            base_shift      = color_type::base_shift,
-            base_mask       = color_type::base_mask,
             downscale_shift = image_filter_shift
         };
 
@@ -668,7 +639,7 @@ namespace agg
         span_image_resample_rgb_affine() {}
         span_image_resample_rgb_affine(source_type& src, 
                                        interpolator_type& inter,
-                                       const image_filter_lut& filter) :
+                                       image_filter_lut& filter) :
             base_type(src, inter, filter) 
         {}
 
@@ -698,7 +669,7 @@ namespace agg
                 x += base_type::filter_dx_int() - radius_x;
                 y += base_type::filter_dy_int() - radius_y;
 
-                fg[0] = fg[1] = fg[2] = image_filter_scale / 2;
+                fg[0] = fg[1] = fg[2] = 0;
 
                 int y_lr = y >> image_subpixel_shift;
                 int y_hr = ((image_subpixel_mask - (y & image_subpixel_mask)) * 
@@ -744,14 +715,14 @@ namespace agg
                 if(fg[1] < 0) fg[1] = 0;
                 if(fg[2] < 0) fg[2] = 0;
 
-                if(fg[order_type::R] > base_mask) fg[order_type::R] = base_mask;
-                if(fg[order_type::G] > base_mask) fg[order_type::G] = base_mask;
-                if(fg[order_type::B] > base_mask) fg[order_type::B] = base_mask;
+                if(fg[order_type::R] > color_type::full_value()) fg[order_type::R] = color_type::full_value();
+                if(fg[order_type::G] > color_type::full_value()) fg[order_type::G] = color_type::full_value();
+                if(fg[order_type::B] > color_type::full_value()) fg[order_type::B] = color_type::full_value();
 
                 span->r = (value_type)fg[order_type::R];
                 span->g = (value_type)fg[order_type::G];
                 span->b = (value_type)fg[order_type::B];
-                span->a = base_mask;
+                span->a = color_type::full_value();
 
                 ++span;
                 ++base_type::interpolator();
@@ -776,8 +747,6 @@ namespace agg
         typedef typename color_type::long_type long_type;
         enum base_scale_e
         {
-            base_shift = color_type::base_shift,
-            base_mask  = color_type::base_mask,
             downscale_shift = image_filter_shift
         };
 
@@ -785,7 +754,7 @@ namespace agg
         span_image_resample_rgb() {}
         span_image_resample_rgb(source_type& src, 
                                 interpolator_type& inter,
-                                const image_filter_lut& filter) :
+                                image_filter_lut& filter) :
             base_type(src, inter, filter)
         {}
 
@@ -822,7 +791,7 @@ namespace agg
                 x += base_type::filter_dx_int() - radius_x;
                 y += base_type::filter_dy_int() - radius_y;
 
-                fg[0] = fg[1] = fg[2] = image_filter_scale / 2;
+                fg[0] = fg[1] = fg[2] = 0;
 
                 int y_lr = y >> image_subpixel_shift;
                 int y_hr = ((image_subpixel_mask - (y & image_subpixel_mask)) * 
@@ -867,14 +836,14 @@ namespace agg
                 if(fg[1] < 0) fg[1] = 0;
                 if(fg[2] < 0) fg[2] = 0;
 
-                if(fg[order_type::R] > base_mask) fg[order_type::R] = base_mask;
-                if(fg[order_type::G] > base_mask) fg[order_type::G] = base_mask;
-                if(fg[order_type::B] > base_mask) fg[order_type::B] = base_mask;
+                if(fg[order_type::R] > color_type::full_value()) fg[order_type::R] = color_type::full_value();
+                if(fg[order_type::G] > color_type::full_value()) fg[order_type::G] = color_type::full_value();
+                if(fg[order_type::B] > color_type::full_value()) fg[order_type::B] = color_type::full_value();
 
                 span->r = (value_type)fg[order_type::R];
                 span->g = (value_type)fg[order_type::G];
                 span->b = (value_type)fg[order_type::B];
-                span->a = base_mask;
+                span->a = color_type::full_value();
 
                 ++span;
                 ++base_type::interpolator();

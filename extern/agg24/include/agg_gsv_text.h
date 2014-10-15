@@ -112,7 +112,7 @@ namespace agg
     template<class Transformer = trans_affine> class gsv_text_outline
     {
     public:
-        gsv_text_outline(gsv_text& text, const Transformer& trans) :
+        gsv_text_outline(gsv_text& text, Transformer& trans) :
           m_polyline(text),
           m_trans(m_polyline, trans)
         {

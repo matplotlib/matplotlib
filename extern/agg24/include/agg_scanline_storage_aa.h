@@ -198,7 +198,7 @@ namespace agg
                 };
 
                 const_iterator() : m_storage(0) {}
-                const_iterator(const embedded_scanline& sl) :
+                const_iterator(embedded_scanline& sl) :
                     m_storage(sl.m_storage),
                     m_span_idx(sl.m_scanline.start_span)
                 {
@@ -223,7 +223,7 @@ namespace agg
                     m_span.covers = m_storage->covers_by_index(s.covers_id);
                 }
 
-                const scanline_storage_aa* m_storage;
+                scanline_storage_aa* m_storage;
                 unsigned                   m_span_idx;
                 span                       m_span;
             };
@@ -557,9 +557,9 @@ namespace agg
                 };
 
                 const_iterator() : m_ptr(0) {}
-                const_iterator(const embedded_scanline& sl) :
-                    m_ptr(sl.m_ptr),
-                    m_dx(sl.m_dx)
+                const_iterator(const embedded_scanline* sl) :
+                    m_ptr(sl->m_ptr),
+                    m_dx(sl->m_dx)
                 {
                     init_span();
                 }
@@ -613,7 +613,7 @@ namespace agg
             void     reset(int, int)     {}
             unsigned num_spans()   const { return m_num_spans;  }
             int      y()           const { return m_y;          }
-            const_iterator begin() const { return const_iterator(*this); }
+            const_iterator begin() const { return const_iterator(this); }
 
 
         private:

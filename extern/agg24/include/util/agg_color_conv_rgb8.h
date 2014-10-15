@@ -48,10 +48,13 @@ namespace agg
         {
             do
             {
-                *dst++ = src[2];
-                *dst++ = src[1];
-                *dst++ = src[0];
-                src += 3;
+                int8u tmp[3];
+                tmp[0] = *src++;
+                tmp[1] = *src++;
+                tmp[2] = *src++;
+                *dst++ = tmp[2];
+                *dst++ = tmp[1];
+                *dst++ = tmp[0];
             }
             while(--width);
         }
@@ -75,11 +78,15 @@ namespace agg
         {
             do
             {
-                *dst++ = src[I1];
-                *dst++ = src[I2];
-                *dst++ = src[I3];
-                *dst++ = src[I4]; 
-                src += 4;
+                int8u tmp[4];
+                tmp[0] = *src++;
+                tmp[1] = *src++;
+                tmp[2] = *src++;
+                tmp[3] = *src++;
+                *dst++ = tmp[I1];
+                *dst++ = tmp[I2];
+                *dst++ = tmp[I3];
+                *dst++ = tmp[I4]; 
             }
             while(--width);
         }

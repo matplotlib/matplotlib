@@ -39,8 +39,8 @@ namespace agg
 
         //--------------------------------------------------------------------
         span_interpolator_trans() {}
-        span_interpolator_trans(const trans_type& trans) : m_trans(&trans) {}
-        span_interpolator_trans(const trans_type& trans,
+        span_interpolator_trans(trans_type& trans) : m_trans(&trans) {}
+        span_interpolator_trans(trans_type& trans,
                                 double x, double y, unsigned) :
             m_trans(&trans)
         {
@@ -80,7 +80,7 @@ namespace agg
         }
 
     private:
-        const trans_type* m_trans;
+        trans_type*       m_trans;
         double            m_x;
         double            m_y;
         int               m_ix;

@@ -749,7 +749,7 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
     filter.calculate(agg::image_filter_spline36());
     interpolator_type interpolator(inv_mtx);
     color_span_alloc_type sa;
-    image_accessor_type ia(pixf_img, 0);
+    image_accessor_type ia(pixf_img, agg::gray8(0));
     image_span_gen_type image_span_generator(ia, interpolator, filter);
     span_gen_type output_span_generator(&image_span_generator, gc.color);
     renderer_type ri(rendererBase, sa, output_span_generator);
