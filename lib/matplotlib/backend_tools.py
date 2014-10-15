@@ -56,9 +56,6 @@ class ToolBase(object):
     `name` is used as a label in the toolbar button
     """
 
-    intoolbar = True
-    """Add the tool to the toolbar"""
-
     cursor = None
     """Cursor to use when the tool is active"""
 
@@ -143,7 +140,6 @@ class ToolToggleBase(ToolBase):
 class ToolQuit(ToolBase):
     """Tool to call the figure manager destroy method"""
 
-    intoolbar = False
     description = 'Quit the figure'
     keymap = rcParams['keymap.quit']
 
@@ -154,7 +150,6 @@ class ToolQuit(ToolBase):
 class ToolEnableAllNavigation(ToolBase):
     """Tool to enable all axes for navigation interaction"""
 
-    intoolbar = False
     description = 'Enables all axes navigation'
     keymap = rcParams['keymap.all_axes']
 
@@ -171,7 +166,6 @@ class ToolEnableAllNavigation(ToolBase):
 class ToolEnableNavigation(ToolBase):
     """Tool to enable a specific axes for navigation interaction"""
 
-    intoolbar = False
     description = 'Enables one axes navigation'
     keymap = (1, 2, 3, 4, 5, 6, 7, 8, 9)
 
@@ -191,7 +185,6 @@ class ToolEnableNavigation(ToolBase):
 class ToolToggleGrid(ToolBase):
     """Tool to toggle the grid of the figure"""
 
-    intoolbar = False
     description = 'Toogle Grid'
     keymap = rcParams['keymap.grid']
 
@@ -205,7 +198,6 @@ class ToolToggleGrid(ToolBase):
 class ToolToggleFullScreen(ToolBase):
     """Tool to toggle full screen"""
 
-    intoolbar = False
     description = 'Toogle Fullscreen mode'
     keymap = rcParams['keymap.fullscreen']
 
@@ -218,7 +210,6 @@ class ToolToggleYScale(ToolBase):
 
     description = 'Toogle Scale Y axis'
     keymap = rcParams['keymap.yscale']
-    intoolbar = False
 
     def trigger(self, event):
         ax = event.inaxes
@@ -239,7 +230,6 @@ class ToolToggleXScale(ToolBase):
 
     description = 'Toogle Scale X axis'
     keymap = rcParams['keymap.xscale']
-    intoolbar = False
 
     def trigger(self, event):
         ax = event.inaxes
@@ -720,20 +710,12 @@ class ToolPan(ZoomPanBase):
         self.navigation.canvas.draw_idle()
 
 
-tools = (('Grid', ToolToggleGrid),
-         ('Fullscreen', ToolToggleFullScreen),
-         ('Quit', ToolQuit),
-         ('EnableAll', ToolEnableAllNavigation),
-         ('EnableOne', ToolEnableNavigation),
-         ('XScale', ToolToggleXScale),
-         ('YScale', ToolToggleYScale),
-         ('Home', ToolHome),
-         ('Back', ToolBack),
-         ('Forward', ToolForward),
-         ('Spacer1', None),
-         ('Zoom', ToolZoom),
-         ('Pan', ToolPan),
-         ('Spacer2', None),
-         ('Subplots', 'ConfigureSubplots'),
-         ('Save', 'SaveFigure'))
+tools = {'navigation': [ToolHome, ToolBack, ToolForward],
+         'zoompan': [ToolZoom, ToolPan],
+         'layout': ['ConfigureSubplots', ],
+         'io': ['SaveFigure', ],
+         None: [ToolToggleGrid, ToolToggleFullScreen, ToolQuit,
+                ToolEnableAllNavigation, ToolEnableNavigation,
+                ToolToggleXScale, ToolToggleYScale]}
+
 """Default tools"""
