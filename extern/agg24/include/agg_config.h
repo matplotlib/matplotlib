@@ -37,7 +37,7 @@
 // Provides cheaper creation and destruction (no mem allocs):
 // #define AGG_RENDERING_BUFFER row_accessor<int8u>
 //
-// You can still use both of them simultaneouslyin your applications 
+// You can still use both of them simultaneously in your applications 
 // This #define is used only for default rendering_buffer type,
 // in short hand typedefs like pixfmt_rgba32.
 

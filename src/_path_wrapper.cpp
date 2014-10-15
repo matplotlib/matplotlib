@@ -468,6 +468,8 @@ static PyObject *Py_path_intersects_path(PyObject *self, PyObject *args, PyObjec
 {
     py::PathIterator p1;
     py::PathIterator p2;
+    agg::trans_affine t1;
+    agg::trans_affine t2;
     int filled = 0;
     const char *names[] = { "p1", "p2", "filled", NULL };
     bool result;
@@ -488,11 +490,11 @@ static PyObject *Py_path_intersects_path(PyObject *self, PyObject *args, PyObjec
     if (filled) {
         if (!result) {
             CALL_CPP("path_intersects_path",
-                     (result = path_in_path(p1, agg::trans_affine(), p2, agg::trans_affine())));
+                     (result = path_in_path(p1, t1, p2, t2)));
         }
         if (!result) {
             CALL_CPP("path_intersects_path",
-                     (result = path_in_path(p2, agg::trans_affine(), p1, agg::trans_affine())));
+                     (result = path_in_path(p2, t1, p1, t2)));
         }
     }
 

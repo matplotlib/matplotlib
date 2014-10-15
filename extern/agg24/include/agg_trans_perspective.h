@@ -148,22 +148,22 @@ namespace agg
 
         // Multiply the matrix by another one and return
         // the result in a separete matrix.
-        trans_perspective operator * (const trans_perspective& m)
+        trans_perspective operator * (const trans_perspective& m) const
         {
             return trans_perspective(*this).multiply(m);
         }
-        trans_perspective operator * (const trans_affine& m)
+        trans_perspective operator * (const trans_affine& m) const
         {
             return trans_perspective(*this).multiply(m);
         }
 
         // Multiply the matrix by inverse of another one 
         // and return the result in a separete matrix.
-        trans_perspective operator / (const trans_perspective& m)
+        trans_perspective operator / (const trans_perspective& m) const
         {
             return trans_perspective(*this).multiply_inv(m);
         }
-        trans_perspective operator / (const trans_affine& m)
+        trans_perspective operator / (const trans_affine& m) const
         {
             return trans_perspective(*this).multiply_inv(m);
         }

@@ -43,8 +43,8 @@ namespace agg
 
         //--------------------------------------------------------------------
         span_gradient_alpha(interpolator_type& inter,
-                            const GradientF& gradient_function,
-                            const AlphaF& alpha_function,
+                            GradientF& gradient_function,
+                            AlphaF& alpha_function,
                             double d1, double d2) : 
             m_interpolator(&inter),
             m_gradient_function(&gradient_function),
@@ -93,8 +93,8 @@ namespace agg
 
     private:
         interpolator_type* m_interpolator;
-        const GradientF*   m_gradient_function;
-        const AlphaF*      m_alpha_function;
+        GradientF*         m_gradient_function;
+        AlphaF*            m_alpha_function;
         int                m_d1;
         int                m_d2;
     };

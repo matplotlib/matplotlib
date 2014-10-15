@@ -32,16 +32,16 @@ namespace agg
 
         //--------------------------------------------------------------------
         span_interpolator_adaptor() {}
-        span_interpolator_adaptor(const trans_type& trans, 
-                                  const distortion_type& dist) :
+        span_interpolator_adaptor(trans_type& trans, 
+                                  distortion_type& dist) :
             base_type(trans),
             m_distortion(&dist)
         {   
         }
 
         //--------------------------------------------------------------------
-        span_interpolator_adaptor(const trans_type& trans,
-                                  const distortion_type& dist,
+        span_interpolator_adaptor(trans_type& trans,
+                                  distortion_type& dist,
                                   double x, double y, unsigned len) :
             base_type(trans, x, y, len),
             m_distortion(&dist)
@@ -49,13 +49,13 @@ namespace agg
         }
 
         //--------------------------------------------------------------------
-        const distortion_type& distortion() const
+        distortion_type& distortion() const
         {
             return *m_distortion;
         }
 
         //--------------------------------------------------------------------
-        void distortion(const distortion_type& dist)
+        void distortion(distortion_type& dist)
         {
             m_distortion = dist;
         }
@@ -69,7 +69,7 @@ namespace agg
 
     private:
         //--------------------------------------------------------------------
-        const distortion_type* m_distortion;
+        distortion_type* m_distortion;
     };
 }
 

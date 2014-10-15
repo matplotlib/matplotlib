@@ -59,12 +59,12 @@ namespace agg
 
 
     public:
-        pixfmt_amask_adaptor(pixfmt_type& pixf, const amask_type& mask) :
+        pixfmt_amask_adaptor(pixfmt_type& pixf, amask_type& mask) :
             m_pixf(&pixf), m_mask(&mask), m_span()
         {}
 
-        void attach_pixfmt(pixfmt_type& pixf)          { m_pixf = &pixf; }
-        void attach_alpha_mask(const amask_type& mask) { m_mask = &mask; }
+        void attach_pixfmt(pixfmt_type& pixf) { m_pixf = &pixf; }
+        void attach_alpha_mask(amask_type& mask) { m_mask = &mask; }
 
         //--------------------------------------------------------------------
         template<class PixFmt2>

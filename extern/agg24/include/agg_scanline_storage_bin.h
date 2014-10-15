@@ -64,9 +64,9 @@ namespace agg
             {
             public:
                 const_iterator() : m_storage(0) {}
-                const_iterator(const embedded_scanline& sl) :
-                    m_storage(sl.m_storage),
-                    m_span_idx(sl.m_scanline.start_span)
+                const_iterator(const embedded_scanline* sl) :
+                    m_storage(sl->m_storage),
+                    m_span_idx(sl->m_scanline.start_span)
                 {
                     m_span = m_storage->span_by_index(m_span_idx);
                 }
@@ -90,7 +90,7 @@ namespace agg
 
 
             //-----------------------------------------------------------
-            embedded_scanline(const scanline_storage_bin& storage) :
+            embedded_scanline(scanline_storage_bin& storage) :
                 m_storage(&storage)
             {
                 setup(0);
@@ -100,7 +100,7 @@ namespace agg
             void     reset(int, int)     {}
             unsigned num_spans()   const { return m_scanline.num_spans;  }
             int      y()           const { return m_scanline.y;          }
-            const_iterator begin() const { return const_iterator(*this); }
+            const_iterator begin() const { return const_iterator(this); }
 
             //-----------------------------------------------------------
             void setup(unsigned scanline_idx)
@@ -110,7 +110,7 @@ namespace agg
             }
 
         private:
-            const scanline_storage_bin* m_storage;
+            scanline_storage_bin*       m_storage;
             scanline_data               m_scanline;
             unsigned                    m_scanline_idx;
         };
@@ -362,9 +362,9 @@ namespace agg
                 };
 
                 const_iterator() : m_ptr(0) {}
-                const_iterator(const embedded_scanline& sl) :
-                    m_ptr(sl.m_ptr),
-                    m_dx(sl.m_dx)
+                const_iterator(const embedded_scanline* sl) :
+                    m_ptr(sl->m_ptr),
+                    m_dx(sl->m_dx)
                 {
                     m_span.x   = read_int32() + m_dx;
                     m_span.len = read_int32();
@@ -405,7 +405,7 @@ namespace agg
             void     reset(int, int)     {}
             unsigned num_spans()   const { return m_num_spans;  }
             int      y()           const { return m_y;          }
-            const_iterator begin() const { return const_iterator(*this); }
+            const_iterator begin() const { return const_iterator(this); }
 
 
         private:

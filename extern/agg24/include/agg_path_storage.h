@@ -490,14 +490,14 @@ namespace agg
             m_stop(false)
         {}
 
-        poly_container_reverse_adaptor(const Container& data, bool closed) :
+        poly_container_reverse_adaptor(Container& data, bool closed) :
             m_container(&data), 
             m_index(-1),
             m_closed(closed),
             m_stop(false)
         {}
 
-        void init(const Container& data, bool closed)
+        void init(Container& data, bool closed)
         {
             m_container = &data;
             m_index = m_container->size() - 1;
@@ -531,7 +531,7 @@ namespace agg
         }
 
     private:
-        const Container* m_container;
+        Container* m_container;
         int  m_index;
         bool m_closed;
         bool m_stop;

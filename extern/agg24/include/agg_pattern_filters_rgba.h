@@ -67,7 +67,7 @@ namespace agg
                                               color_type* p, int x, int y)
         {
             calc_type r, g, b, a;
-            r = g = b = a = line_subpixel_scale * line_subpixel_scale / 2;
+            r = g = b = a = 0;
 
             calc_type weight;
             int x_lr = x >> line_subpixel_shift;
@@ -108,15 +108,16 @@ namespace agg
             b += weight * ptr->b;
             a += weight * ptr->a;
 
-            p->r = (value_type)(r >> line_subpixel_shift * 2);
-            p->g = (value_type)(g >> line_subpixel_shift * 2);
-            p->b = (value_type)(b >> line_subpixel_shift * 2);
-            p->a = (value_type)(a >> line_subpixel_shift * 2);
+            p->r = (value_type)color_type::downshift(r, line_subpixel_shift * 2);
+            p->g = (value_type)color_type::downshift(g, line_subpixel_shift * 2);
+            p->b = (value_type)color_type::downshift(b, line_subpixel_shift * 2);
+            p->a = (value_type)color_type::downshift(a, line_subpixel_shift * 2);
         }
     };
 
     typedef pattern_filter_bilinear_rgba<rgba8>  pattern_filter_bilinear_rgba8;
     typedef pattern_filter_bilinear_rgba<rgba16> pattern_filter_bilinear_rgba16;
+    typedef pattern_filter_bilinear_rgba<rgba32> pattern_filter_bilinear_rgba32;
 }
 
 #endif

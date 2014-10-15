@@ -805,7 +805,7 @@ namespace agg
             base_shift = color_type::base_shift,
             base_scale = color_type::base_scale,
             base_mask  = color_type::base_mask,
-            pix_width  = sizeof(pixel_type)
+            pix_width  = sizeof(pixel_type),
         };
 
     private:
@@ -1144,9 +1144,11 @@ namespace agg
                               int8u cover)
         {
             typedef typename SrcPixelFormatRenderer::value_type src_value_type;
+            typedef typename SrcPixelFormatRenderer::color_type src_color_type;
             const src_value_type* psrc = (src_value_type*)from.row_ptr(ysrc);
             if(psrc)
             {
+                psrc += xsrc * SrcPixelFormatRenderer::pix_step + SrcPixelFormatRenderer::pix_offset;
                 pixel_type* pdst = 
                     (pixel_type*)m_rbuf->row_ptr(xdst, ydst, len) + xdst;
 
@@ -1155,7 +1157,7 @@ namespace agg
                     m_blender.blend_pix(pdst, 
                                         color.r, color.g, color.b, color.a,
                                         cover);
-                    ++psrc;
+                    psrc += SrcPixelFormatRenderer::pix_step;
                     ++pdst;
                 }
                 while(--len);
@@ -1175,6 +1177,7 @@ namespace agg
             const src_value_type* psrc = (src_value_type*)from.row_ptr(ysrc);
             if(psrc)
             {
+                psrc += xsrc * SrcPixelFormatRenderer::pix_step + SrcPixelFormatRenderer::pix_offset;
                 pixel_type* pdst = 
                     (pixel_type*)m_rbuf->row_ptr(xdst, ydst, len) + xdst;
 
@@ -1184,7 +1187,7 @@ namespace agg
                     m_blender.blend_pix(pdst, 
                                         color.r, color.g, color.b, color.a,
                                         cover);
-                    ++psrc;
+                    psrc += SrcPixelFormatRenderer::pix_step;
                     ++pdst;
                 }
                 while(--len);

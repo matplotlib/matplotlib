@@ -251,6 +251,12 @@ namespace agg
             case 64: n *= 8; 
                      break;
 
+            case 96: n *= 12; 
+                     break;
+
+            case 128: n *= 16; 
+                     break;
+
             default: n = 0;
                      break;
         }

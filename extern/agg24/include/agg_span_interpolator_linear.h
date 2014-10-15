@@ -38,8 +38,8 @@ namespace agg
 
         //--------------------------------------------------------------------
         span_interpolator_linear() {}
-        span_interpolator_linear(const trans_type& trans) : m_trans(&trans) {}
-        span_interpolator_linear(const trans_type& trans,
+        span_interpolator_linear(trans_type& trans) : m_trans(&trans) {}
+        span_interpolator_linear(trans_type& trans,
                                  double x, double y, unsigned len) :
             m_trans(&trans)
         {
@@ -48,7 +48,7 @@ namespace agg
 
         //----------------------------------------------------------------
         const trans_type& transformer() const { return *m_trans; }
-        void transformer(const trans_type& trans) { m_trans = &trans; }
+        void transformer(trans_type& trans) { m_trans = &trans; }
 
         //----------------------------------------------------------------
         void begin(double x, double y, unsigned len)
@@ -95,7 +95,7 @@ namespace agg
         }
 
     private:
-        const trans_type* m_trans;
+        trans_type* m_trans;
         dda2_line_interpolator m_li_x;
         dda2_line_interpolator m_li_y;
     };
@@ -125,14 +125,14 @@ namespace agg
             m_subdiv_size(1 << m_subdiv_shift),
             m_subdiv_mask(m_subdiv_size - 1) {}
 
-        span_interpolator_linear_subdiv(const trans_type& trans, 
+        span_interpolator_linear_subdiv(trans_type& trans, 
                                         unsigned subdiv_shift = 4) : 
             m_subdiv_shift(subdiv_shift),
             m_subdiv_size(1 << m_subdiv_shift),
             m_subdiv_mask(m_subdiv_size - 1),
             m_trans(&trans) {}
 
-        span_interpolator_linear_subdiv(const trans_type& trans,
+        span_interpolator_linear_subdiv(trans_type& trans,
                                         double x, double y, unsigned len,
                                         unsigned subdiv_shift = 4) :
             m_subdiv_shift(subdiv_shift),
@@ -213,7 +213,7 @@ namespace agg
         unsigned m_subdiv_shift;
         unsigned m_subdiv_size;
         unsigned m_subdiv_mask;
-        const trans_type* m_trans;
+        trans_type* m_trans;
         dda2_line_interpolator m_li_x;
         dda2_line_interpolator m_li_y;
         int      m_src_x;

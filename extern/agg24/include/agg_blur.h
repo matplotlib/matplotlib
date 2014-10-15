@@ -28,6 +28,7 @@
 #define AGG_BLUR_INCLUDED
 
 #include "agg_array.h"
+#include "agg_pixfmt_base.h"
 #include "agg_pixfmt_transposer.h"
 
 namespace agg
@@ -399,7 +400,7 @@ namespace agg
                 }
                 for(i = 1; i <= rx; i++)
                 {
-                    if(i <= wm) src_pix_ptr += Img::pix_step; 
+                    if(i <= wm) src_pix_ptr += Img::pix_width; 
                     pix = *src_pix_ptr; 
                     stack[i + rx] = pix;
                     sum    += pix * (rx + 1 - i);
@@ -414,7 +415,7 @@ namespace agg
                 for(x = 0; x < w; x++)
                 {
                     *dst_pix_ptr = (sum * mul_sum) >> shr_sum;
-                    dst_pix_ptr += Img::pix_step;
+                    dst_pix_ptr += Img::pix_width;
 
                     sum -= sum_out;
        
@@ -424,7 +425,7 @@ namespace agg
 
                     if(xp < wm) 
                     {
-                        src_pix_ptr += Img::pix_step;
+                        src_pix_ptr += Img::pix_width;
                         pix = *src_pix_ptr;
                         ++xp;
                     }
@@ -1203,10 +1204,10 @@ namespace agg
         AGG_INLINE void to_pix(ColorT& c) const
         {
             typedef typename ColorT::value_type cv_type;
-            c.r = (cv_type)uround(r);
-            c.g = (cv_type)uround(g);
-            c.b = (cv_type)uround(b);
-            c.a = (cv_type)uround(a);
+            c.r = cv_type(r);
+            c.g = cv_type(g);
+            c.b = cv_type(b);
+            c.a = cv_type(a);
         }
     };
 
@@ -1245,9 +1246,9 @@ namespace agg
         AGG_INLINE void to_pix(ColorT& c) const
         {
             typedef typename ColorT::value_type cv_type;
-            c.r = (cv_type)uround(r);
-            c.g = (cv_type)uround(g);
-            c.b = (cv_type)uround(b);
+            c.r = cv_type(r);
+            c.g = cv_type(g);
+            c.b = cv_type(b);
         }
     };
 
@@ -1282,10 +1283,218 @@ namespace agg
         AGG_INLINE void to_pix(ColorT& c) const
         {
             typedef typename ColorT::value_type cv_type;
-            c.v = (cv_type)uround(v);
+            c.v = cv_type(v);
         }
     };
 
+    //================================================slight_blur
+    // Special-purpose filter for applying a Gaussian blur with a radius small enough 
+    // that the blur only affects adjacent pixels. A Gaussian curve with a standard
+    // deviation of r/2 is used, as per the HTML/CSS spec. At 3 standard deviations, 
+    // the contribution drops to less than 0.005, i.e. less than half a percent, 
+    // therefore the radius can be at least 1.33 before errors become significant.
+    // This filter is useful for smoothing artifacts caused by detail rendered 
+    // at the pixel scale, e.g. single-pixel lines. Note that the filter should 
+    // only be used with premultiplied pixel formats (or those without alpha).
+    // See the "line_thickness" example for a demonstration.
+    template<class PixFmt>
+    class slight_blur
+    {
+    public:
+        typedef typename PixFmt::pixel_type pixel_type;
+        typedef typename PixFmt::value_type value_type;
+        typedef typename PixFmt::order_type order_type;
+
+        slight_blur(double r = 1.33)
+        {
+            radius(r);
+        }
+
+        void radius(double r)
+        {
+            if (r > 0)
+            {
+                // Sample the gaussian curve at 0 and r/2 standard deviations. 
+                // At 3 standard deviations, the response is < 0.005.
+                double pi = 3.14159;
+                double n = 2 / r;
+                m_g0 = 1 / sqrt(2 * pi);
+                m_g1 = m_g0 * exp(-n * n);
+
+                // Normalize.
+                double sum = m_g0 + 2 * m_g1;
+                m_g0 /= sum;
+                m_g1 /= sum;
+            }
+            else
+            {
+                m_g0 = 1;
+                m_g1 = 0;
+            }
+        }
+
+        void blur(PixFmt& img, rect_i bounds)
+        {
+            // Make sure we stay within the image area.
+            bounds.clip(rect_i(0, 0, img.width() - 1, img.height() - 1));
+
+            int w = bounds.x2 - bounds.x1 + 1;
+            int h = bounds.y2 - bounds.y1 + 1;
+
+            if (w < 3 || h < 3) return;
+
+            // Allocate 3 rows of buffer space.
+            m_buf.allocate(w * 3);
+
+            // Set up row pointers
+            pixel_type * begin = &m_buf[0];
+            pixel_type * r0 = begin;
+            pixel_type * r1 = r0 + w;
+            pixel_type * r2 = r1 + w;
+            pixel_type * end = r2 + w;
+
+            // Horizontally blur the first two input rows.
+            calc_row(img, bounds.x1, bounds.y1, w, r0);
+            memcpy(r1, r0, w * sizeof(pixel_type));
+
+            for (int y = 0; ; )
+            {
+                // Get pointer to first pixel.
+                pixel_type* p = img.pix_value_ptr(bounds.x1, bounds.y1 + y, bounds.x1 + w);
+
+                // Horizontally blur the row below.
+                if (y + 1 < h)
+                {
+                    calc_row(img, bounds.x1, bounds.y1 + y + 1, w, r2);
+                }
+                else
+                {
+                    memcpy(r2, r1, w * sizeof(pixel_type)); // duplicate bottom row
+                }
+
+                // Combine blurred rows into destination.
+                for (int x = 0; x < w; ++x)
+                {
+                    calc_pixel(*r0++, *r1++, *r2++, *p++);
+                }
+
+                if (++y >= h) break;
+
+                // Wrap bottom row pointer around to top of buffer.
+                if (r2 == end) r2 = begin;
+                else if (r1 == end) r1 = begin;
+                else if (r0 == end) r0 = begin;
+            }
+        }
+
+    private:
+        void calc_row(PixFmt& img, int x, int y, int w, pixel_type* row)
+        {
+            const int wm = w - 1;
+
+            pixel_type* p = img.pix_value_ptr(x, y, w);
+
+            pixel_type c[3];
+            pixel_type* p0 = c;
+            pixel_type* p1 = c + 1;
+            pixel_type* p2 = c + 2;
+            pixel_type* end = c + 3;
+            *p0 = *p1 = *p;
+
+            for (int x = 0; x < wm; ++x)
+            {
+                *p2 = *(p = p->next());
+
+                calc_pixel(*p0++, *p1++, *p2++, *row++);
+
+                if (p0 == end) p0 = c;
+                else if (p1 == end) p1 = c;
+                else if (p2 == end) p2 = c;
+            }
+
+            calc_pixel(*p0, *p1, *p1, *row);
+        }
+
+        void calc_pixel(
+            pixel_type const & c1,
+            pixel_type const & c2,
+            pixel_type const & c3,
+            pixel_type & x)
+        {
+            calc_pixel(c1, c2, c3, x, PixFmt::pixfmt_category());
+        }
+
+        void calc_pixel(
+            pixel_type const & c1,
+            pixel_type const & c2,
+            pixel_type const & c3,
+            pixel_type & x,
+            pixfmt_gray_tag)
+        {
+            x.c[0] = calc_value(c1.c[0], c2.c[0], c3.c[0]);
+        }
+
+        void calc_pixel(
+            pixel_type const & c1,
+            pixel_type const & c2,
+            pixel_type const & c3,
+            pixel_type & x,
+            pixfmt_rgb_tag)
+        {
+            enum { R = order_type::R, G = order_type::G, B = order_type::B };
+            x.c[R] = calc_value(c1.c[R], c2.c[R], c3.c[R]);
+            x.c[G] = calc_value(c1.c[G], c2.c[G], c3.c[G]);
+            x.c[B] = calc_value(c1.c[B], c2.c[B], c3.c[B]);
+        }
+
+        void calc_pixel(
+            pixel_type const & c1,
+            pixel_type const & c2,
+            pixel_type const & c3,
+            pixel_type & x,
+            pixfmt_rgba_tag)
+        {
+            enum { R = order_type::R, G = order_type::G, B = order_type::B, A = order_type::A };
+            x.c[R] = calc_value(c1.c[R], c2.c[R], c3.c[R]);
+            x.c[G] = calc_value(c1.c[G], c2.c[G], c3.c[G]);
+            x.c[B] = calc_value(c1.c[B], c2.c[B], c3.c[B]);
+            x.c[A] = calc_value(c1.c[A], c2.c[A], c3.c[A]);
+        }
+
+        value_type calc_value(value_type v1, value_type v2, value_type v3)
+        {
+            return value_type(m_g1 * v1 + m_g0 * v2 + m_g1 * v3);
+        }
+
+        double m_g0, m_g1;
+        pod_vector<pixel_type> m_buf;
+    };
+
+    // Helper functions for applying blur to a surface without having to create an intermediate object.
+
+    template<class PixFmt>
+    void apply_slight_blur(PixFmt& img, const rect_i& bounds, double r = 1)
+    {
+        if (r > 0) slight_blur<PixFmt>(r).blur(img, bounds);
+    }
+
+    template<class PixFmt>
+    void apply_slight_blur(PixFmt& img, double r = 1)
+    {
+        if (r > 0) slight_blur<PixFmt>(r).blur(img, rect_i(0, 0, img.width() - 1, img.height() - 1));
+    }
+
+    template<class PixFmt>
+    void apply_slight_blur(renderer_base<PixFmt>& img, const rect_i& bounds, double r = 1)
+    {
+        if (r > 0) slight_blur<PixFmt>(r).blur(img.ren(), bounds);
+    }
+
+    template<class PixFmt>
+    void apply_slight_blur(renderer_base<PixFmt>& img, double r = 1)
+    {
+        if (r > 0) slight_blur<PixFmt>(r).blur(img.ren(), img.clip_box());
+    }
 }
 
 
