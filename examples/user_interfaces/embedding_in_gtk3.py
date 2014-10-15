@@ -22,13 +22,13 @@ s = sin(2*pi*t)
 a.plot(t,s)
 
 sw = Gtk.ScrolledWindow()
-win.add (sw)
+win.add(sw)
 # A scrolled window border goes outside the scrollbars and viewport
-sw.set_border_width (10)
+sw.set_border_width(10)
 
 canvas = FigureCanvas(f)  # a Gtk.DrawingArea
 canvas.set_size_request(800,600)
-sw.add_with_viewport (canvas)
+sw.add_with_viewport(canvas)
 
 win.show_all()
 Gtk.main()

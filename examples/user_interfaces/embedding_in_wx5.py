@@ -32,9 +32,9 @@ class PlotNotebook(wx.Panel):
         self.SetSizer(sizer)
 
     def add(self,name="plot"):
-       page = Plot(self.nb)
-       self.nb.AddPage(page,name)
-       return page.figure
+        page = Plot(self.nb)
+        self.nb.AddPage(page,name)
+        return page.figure
 
 
 def demo():

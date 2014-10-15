@@ -104,6 +104,14 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
 
+    def __getstate__(self):
+        # We only want to preserve the init keywords of the Renderer.
+        # Anything else can be re-created.
+        return {'width': self.width, 'height': self.height, 'dpi': self.dpi}
+
+    def __setstate__(self, state):
+        self.__init__(state['width'], state['height'], state['dpi'])
+
     def _get_hinting_flag(self):
         if rcParams['text.hinting']:
             return LOAD_FORCE_AUTOHINT

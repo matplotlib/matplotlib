@@ -18,7 +18,7 @@ ax2.set_xticks([1.5,2.5,3.5,4.5])
 
 patterns = ('-', '+', 'x', '\\', '*', 'o', 'O', '.')
 for bar, pattern in zip(bars, patterns):
-     bar.set_hatch(pattern)
+    bar.set_hatch(pattern)
 
 ax3 = fig.add_subplot(133)
 ax3.fill([1,3,3,1],[1,1,2,2], fill=False, hatch='\\')
