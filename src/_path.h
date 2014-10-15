@@ -442,8 +442,9 @@ void point_in_path_collection(double x,
                 result.push_back(i);
             }
         } else {
-            if (point_on_path(x, y, radius, path, trans))
+            if (point_on_path(x, y, radius, path, trans)) {
                 result.push_back(i);
+            }
         }
     }
 }
