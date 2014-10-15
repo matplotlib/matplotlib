@@ -905,12 +905,10 @@ class Normalize(object):
 
     def __call__(self, value, clip=None):
         """
-        ``norm.__call__(value) <==> norm(value)``
-        
-        Normalize data in the ``[vmin, vmax]`` interval into the 
-        ``[0.0, 1.0]`` interval.  *clip* defaults to *self.clip*
-        (which defaults to *False*).  If not already initialized, 
-        *vmin* and *vmax* are initialized using 
+        Normalize *value* data in the ``[vmin, vmax]`` interval into 
+        the ``[0.0, 1.0]`` interval and return it.  *clip* defaults
+        to *self.clip* (which defaults to *False*).  If not already
+        initialized, *vmin* and *vmax* are initialized using 
         *autoscale_None(value)*.
         """
         if clip is None:
