@@ -109,8 +109,8 @@ namespace agg
         };
 
         //--------------------------------------------------------------------
-        rasterizer_compound_aa() : 
-            m_outline(),
+        rasterizer_compound_aa(unsigned cell_block_limit=1024) :
+            m_outline(cell_block_limit),
             m_clipper(),
             m_filling_rule(fill_non_zero),
             m_layer_order(layer_direct),
