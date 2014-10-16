@@ -615,7 +615,7 @@ class Axes(_AxesBase):
             position of the label `s`
 
         xycoords : string, optional, default: "data"
-            string that indicates what tye of coordinates `xy` is. Examples:
+            string that indicates what type of coordinates `xy` is. Examples:
             "figure points", "figure pixels", "figure fraction", "axes
             points", .... See `matplotlib.text.Annotation` for more details.
 
