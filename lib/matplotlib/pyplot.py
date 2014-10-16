@@ -420,7 +420,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
                 "(`matplotlib.pyplot.figure`) are retained until "
                 "explicitly closed and may consume too much memory. "
                 "(To control this warning, see the rcParam "
-                "`figure.max_num_figures`)." %
+                "`figure.max_open_warning`)." %
                 max_open_warning, RuntimeWarning)
 
         if get_backend().lower() == 'ps':
