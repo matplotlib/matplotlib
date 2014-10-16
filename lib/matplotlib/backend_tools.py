@@ -182,7 +182,7 @@ class ToolEnableNavigation(ToolBase):
                     a.set_navigate(i == n)
 
 
-class ToolToggleGrid(ToolBase):
+class ToolGrid(ToolBase):
     """Tool to toggle the grid of the figure"""
 
     description = 'Toogle Grid'
@@ -195,7 +195,7 @@ class ToolToggleGrid(ToolBase):
         self.figure.canvas.draw()
 
 
-class ToolToggleFullScreen(ToolBase):
+class ToolFullScreen(ToolBase):
     """Tool to toggle full screen"""
 
     description = 'Toogle Fullscreen mode'
@@ -205,7 +205,7 @@ class ToolToggleFullScreen(ToolBase):
         self.figure.canvas.manager.full_screen_toggle()
 
 
-class ToolToggleYScale(ToolBase):
+class ToolYScale(ToolBase):
     """Tool to toggle between linear and logarithmic the Y axis"""
 
     description = 'Toogle Scale Y axis'
@@ -225,7 +225,7 @@ class ToolToggleYScale(ToolBase):
             ax.figure.canvas.draw()
 
 
-class ToolToggleXScale(ToolBase):
+class ToolXScale(ToolBase):
     """Tool to toggle between linear and logarithmic the X axis"""
 
     description = 'Toogle Scale X axis'
@@ -710,12 +710,42 @@ class ToolPan(ZoomPanBase):
         self.navigation.canvas.draw_idle()
 
 
-tools = {'navigation': [ToolHome, ToolBack, ToolForward],
-         'zoompan': [ToolZoom, ToolPan],
-         'layout': ['ConfigureSubplots', ],
-         'io': ['SaveFigure', ],
-         None: [ToolToggleGrid, ToolToggleFullScreen, ToolQuit,
-                ToolEnableAllNavigation, ToolEnableNavigation,
-                ToolToggleXScale, ToolToggleYScale]}
+# Not so nice, extra order need for groups
+# tools = {'home': {'cls': ToolHome, 'group': 'navigation', 'pos': 0},
+#          'back': {'cls': ToolBack, 'group': 'navigation', 'pos': 1},
+#          'forward': {'cls': ToolForward,  'group': 'navigation', 'pos': 2},
+#          'zoom': {'cls': ToolZoom, 'group': 'zoompan', 'pos': 0},
+#          'pan': {'cls': ToolPan, 'group': 'zoompan', 'pos': 1},
+#          'subplots': {'cls': 'ConfigureSubplots', 'group': 'layout'},
+#          'save': {'cls': 'SaveFigure', 'group': 'io'},
+#          'grid': {'cls': ToolGrid},
+#          'fullscreen': {'cls': ToolFullScreen},
+#          'quit': {'cls': ToolQuit},
+#          'allnavigation': {'cls': ToolEnableAllNavigation},
+#          'navigation': {'cls': ToolEnableNavigation},
+#          'xscale': {'cls': ToolXScale},
+#          'yscale': {'cls': ToolYScale}
+#          }
+
+# Horrible with implicit order
+tools = [['navigation', [(ToolHome, 'home'),
+                         (ToolBack, 'back'),
+                         (ToolForward, 'forward')]],
+
+         ['zoompan', [(ToolZoom, 'zoom'),
+                      (ToolPan, 'pan')]],
+
+         ['layout', [('ConfigureSubplots', 'subplots'), ]],
+
+         ['io', [('SaveFigure', 'save'), ]],
+
+         [None, [(ToolGrid, 'grid'),
+                 (ToolFullScreen, 'fullscreen'),
+                 (ToolQuit, 'quit'),
+                 (ToolEnableAllNavigation, 'allnav'),
+                 (ToolEnableNavigation, 'nav'),
+                 (ToolXScale, 'xscale'),
+                 (ToolYScale, 'yscale')]]]
+
 
 """Default tools"""

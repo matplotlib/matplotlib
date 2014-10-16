@@ -3183,13 +3183,38 @@ class NavigationToolbar2(object):
         pass
 
 
+class NavigationEvent(object):
+    """"A Navigation Event ('tool_add_event',
+                   'tool_remove_event',
+                   'tool_trigger_event',
+                   'navigation_message_event').
+    Attributes
+    ----------
+    name: String
+        Name of the event
+    tool: ToolInstance
+    data: Extra data
+    source: String
+        Name of the object responsible for emiting the event
+        ('toolbar', 'navigation', 'keypress', etc...)
+    event: Event
+        Original event that causes navigation to emit this event
+    """
+
+    def __init__(self, name, tool, source, data=None, event=None):
+        self.name = name
+        self.tool = tool
+        self.data = data
+        self.source = source
+        self.event = event
+
+
 class NavigationBase(object):
     """ Helper class that groups all the user interactions for a FigureManager
 
      Attributes
     ----------
     manager : `FigureManager` instance
-    toolbar : `Toolbar` instance that is controlled by this `Navigation`
     keypresslock : `LockDraw` to know if the `canvas` key_press_event is
         locked
     messagelock : `LockDraw` to know if the message is available to write
@@ -3198,11 +3223,9 @@ class NavigationBase(object):
     _default_cursor = cursors.POINTER
 
     def __init__(self, manager):
-        """.. automethod:: _toolbar_callback"""
-
         self.manager = manager
         self.canvas = manager.canvas
-        self.toolbar = manager.toolbar
+        self.callbacks = cbook.CallbackRegistry()
 
         self._key_press_handler_id = self.canvas.mpl_connect(
             'key_press_event', self._key_press)
@@ -3216,10 +3239,76 @@ class NavigationBase(object):
 
         # to process keypress event
         self.keypresslock = widgets.LockDraw()
-        # to write into toolbar message
+        # To prevent the firing of 'navigation_message_event'
         self.messagelock = widgets.LockDraw()
 
         self._last_cursor = self._default_cursor
+
+    def mpl_connect(self, s, func):
+        return self.callbacks.connect(s, func)
+
+    def mpl_disconnect(self, cid):
+        return self.callbacks.disconnect(cid)
+
+    def tool_add_event(self, tool, group, position):
+        """
+        This method will call all functions connected to the
+        'tool_add_event' with a :class:`NavigationEvent`
+        """
+        s = 'tool_add_event'
+        data = {'group': group,
+                'position': position}
+        event = NavigationEvent(s, tool, 'navigation', data)
+        self.callbacks.process(s, event)
+
+    def tool_remove_event(self, tool):
+        """
+        This method will call all functions connected to the
+        'tool_remove_event' with a :class:`NavigationEvent`
+        """
+        s = 'tool_remove_event'
+        event = NavigationEvent(s, tool, 'navigation')
+        self.callbacks.process(s, event)
+
+    def tool_trigger_event(self, name, source, originalevent=None):
+        """
+        This method will call all functions connected to the
+        'tool_trigger_event' with a :class:`NavigationEvent`
+        """
+        if name not in self._tools:
+            raise AttributeError('%s not in Tools' % name)
+
+        tool = self._tools[name]
+
+        if isinstance(tool, tools.ToolToggleBase):
+            if self._toggled == name:
+                self._toggled = None
+            elif self._toggled is not None:
+                self.tool_trigger_event(self._toggled, 'navigation',
+                                        originalevent)
+                self._toggled = name
+            else:
+                self._toggled = name
+
+        tool.trigger(originalevent)
+
+        s = 'tool_trigger_event'
+        event = NavigationEvent(s, tool, source, originalevent)
+        self.callbacks.process(s, event)
+
+        for a in self.canvas.figure.get_axes():
+            a.set_navigate_mode(self._toggled)
+
+        self._set_cursor(originalevent)
+
+    def message_event(self, message, source='navigation'):
+        """
+        This method will call all functions connected to the
+        'navigation_message_event' with a :class:`NavigationEvent`
+        """
+        s = 'navigation_message_event'
+        event = NavigationEvent(s, None, source, data=message)
+        self.callbacks.process(s, event)
 
     @property
     def active_toggle(self):
@@ -3286,12 +3375,11 @@ class NavigationBase(object):
         tool.destroy()
 
         if self._toggled == name:
-            self._handle_toggle(name, from_toolbar=False)
+            self.tool_trigger_event(tool, 'navigation')
 
         self._remove_keys(name)
 
-        if self.toolbar and tool.intoolbar:
-            self.toolbar._remove_toolitem(name)
+        self.tool_remove_event(tool)
 
         del self._tools[name]
 
@@ -3304,14 +3392,12 @@ class NavigationBase(object):
         a either a reference to the tool Tool class itself, or None to
         insert a spacer.  See :func:`add_tool`.
         """
-        for name, tool in tools:
-            if tool is None:
-                if self.toolbar is not None:
-                    self.toolbar.add_separator(-1)
-            else:
-                self.add_tool(name, tool, None)
 
-    def add_tool(self, name, tool, position=None):
+        for group, grouptools in tools:
+            for position, tool in enumerate(grouptools):
+                self.add_tool(tool[1], tool[0], group, position)
+
+    def add_tool(self, name, tool, group=None, position=None):
         """Add tool to `Navigation`
 
         Parameters
@@ -3338,20 +3424,7 @@ class NavigationBase(object):
         if tool_cls.keymap is not None:
             self.set_tool_keymap(name, tool_cls.keymap)
 
-        if self.toolbar and tool_cls.intoolbar:
-            # TODO: better search for images, they are not always in the
-            # datapath
-            basedir = os.path.join(rcParams['datapath'], 'images')
-            if tool_cls.image is not None:
-                fname = os.path.join(basedir, tool_cls.image)
-            else:
-                fname = None
-            toggle = issubclass(tool_cls, tools.ToolToggleBase)
-            self.toolbar._add_toolitem(name,
-                                       tool_cls.description,
-                                       fname,
-                                       position,
-                                       toggle)
+        self.tool_add_event(self._tools[name], group, position)
 
     def _get_cls_to_instantiate(self, callback_class):
         if isinstance(callback_class, six.string_types):
@@ -3372,18 +3445,7 @@ class NavigationBase(object):
 
         Method to programatically "click" on Tools
         """
-
-        self._trigger_tool(name, event, False)
-
-    def _trigger_tool(self, name, event, from_toolbar):
-        if name not in self._tools:
-            raise AttributeError('%s not in Tools' % name)
-
-        tool = self._tools[name]
-        if isinstance(tool, tools.ToolToggleBase):
-            self._handle_toggle(name, event=event, from_toolbar=from_toolbar)
-        else:
-            tool.trigger(event)
+        self.tool_trigger_event(name, 'navigation', event)
 
     def _key_press(self, event):
         if event.key is None or self.keypresslock.locked():
@@ -3392,50 +3454,8 @@ class NavigationBase(object):
         name = self._keys.get(event.key, None)
         if name is None:
             return
-        self._trigger_tool(name, event, False)
 
-    def _toolbar_callback(self, name):
-        """Callback for the `Toolbar`
-
-        All Toolbar implementations have to call this method to signal that a
-        toolitem was clicked on
-
-        Parameters
-        ----------
-        name : string
-            Name of the tool that was activated (click) by the user using the
-            toolbar
-        """
-
-        self._trigger_tool(name, None, True)
-
-    def _handle_toggle(self, name, event=None, from_toolbar=False):
-        # toggle toolbar without callback
-        if not from_toolbar and self.toolbar:
-            self.toolbar._toggle(name, False)
-
-        tool = self._tools[name]
-        if self._toggled is None:
-            # first trigger of tool
-            self._toggled = name
-        elif self._toggled == name:
-            # second trigger of tool
-            self._toggled = None
-        else:
-            # other tool is triggered so trigger toggled tool
-            if self.toolbar:
-                # untoggle the previous toggled tool
-                self.toolbar._toggle(self._toggled, False)
-            self._tools[self._toggled].trigger(event)
-            self._toggled = name
-
-        tool.trigger(event)
-
-        for a in self.canvas.figure.get_axes():
-            a.set_navigate_mode(self._toggled)
-
-        # Change the cursor inmediately, don't wait for mouse move
-        self._set_cursor(event)
+        self.tool_trigger_event(name, 'keypress', event)
 
     def get_tools(self):
         """Return the tools controlled by `Navigation`"""
@@ -3453,6 +3473,9 @@ class NavigationBase(object):
         """Call the backend specific set_cursor method,
         if the pointer is inaxes
         """
+        if not event:
+            return
+
         if not event.inaxes or not self._toggled:
             if self._last_cursor != self._default_cursor:
                 self.set_cursor(self._default_cursor)
@@ -3467,8 +3490,10 @@ class NavigationBase(object):
     def _mouse_move(self, event):
         self._set_cursor(event)
 
-        if self.toolbar is None or self.messagelock.locked():
+        if self.messagelock.locked():
             return
+
+        message = ' '
 
         if event.inaxes and event.inaxes.get_navigate():
 
@@ -3478,15 +3503,13 @@ class NavigationBase(object):
                 pass
             else:
                 if self._toggled:
-                    self.toolbar.set_message('%s, %s' % (self._toggled, s))
+                    message = '%s, %s' % (self._toggled, s)
                 else:
-                    self.toolbar.set_message(s)
-        else:
-            self.toolbar.set_message('')
+                    message = s
+        self.message_event(message)
 
     def set_cursor(self, cursor):
-        """
-        Set the current cursor to one of the :class:`Cursors`
+        """Set the current cursor to one of the :class:`Cursors`
         enums values
         """
 
@@ -3533,33 +3556,92 @@ class ToolbarBase(object):
     """
 
     def __init__(self, manager):
-        """
-        .. automethod:: _add_toolitem
-        .. automethod:: _remove_toolitem
-        .. automethod:: _toggle
-        """
-
         self.manager = manager
+        self._tool_trigger_id = None
+        self._add_tool_id = None
+        self._remove_tool_id = None
+        self._navigation = None
 
-    def _add_toolitem(self, name, description, image_file, position,
-                      toggle):
+    def _get_image_filename(self, image):
+        # TODO: better search for images, they are not always in the
+        # datapath
+        basedir = os.path.join(rcParams['datapath'], 'images')
+        if image is not None:
+            fname = os.path.join(basedir, image)
+        else:
+            fname = None
+        return fname
+
+    def _add_tool_callback(self, event):
+        name = event.tool.name
+        group = event.data['group']
+        position = event.data['position']
+        image = self._get_image_filename(event.tool.image)
+        description = event.tool.description
+        toggle = isinstance(event.tool, tools.ToolToggleBase)
+        self.add_toolitem(name, group, position, image, description, toggle)
+
+    def _remove_tool_callback(self, event):
+        self.remove_toolitem(event.tool.name)
+
+    def _tool_trigger_callback(self, event):
+        if event.source == 'toolbar':
+            return
+
+        if isinstance(event.tool, tools.ToolToggleBase):
+            self.toggle_toolitem(event.tool.name)
+
+    def _message_event_callback(self, event):
+        self.set_message(event.data)
+
+    def trigger_tool(self, name):
+        """Inform navigation of a toolbar event
+
+        Uses the navigation method to emit a 'tool_trigger_event'
+        with 'navigation' as the source
+
+        Parameters
+        ----------
+        name : String
+            Name(id) of the tool that was triggered in the toolbar
+
+        """
+        self._navigation.tool_trigger_event(name, 'toolbar')
+
+    def set_navigation(self, navigation):
+        """Initialize the callbacks for navigation events"""
+        self._navigation = navigation
+        self._add_tool_id = self._navigation.mpl_connect(
+            'tool_add_event', self._add_tool_callback)
+
+        self._tool_trigger_id = self._navigation.mpl_connect(
+            'tool_trigger_event', self._tool_trigger_callback)
+
+        self._message_id = self._navigation.mpl_connect(
+            'navigation_message_event', self._message_event_callback)
+
+        self._remove_tool_id = self._navigation.mpl_connect(
+            'tool_remove_event', self._remove_tool_callback)
+
+    def add_toolitem(self, name, group, position, image, description, toggle):
         """Add a toolitem to the toolbar
 
         The callback associated with the button click event,
-        must be **EXACTLY** `self.manager.navigation._toolbar_callback(name)`
+        must be **EXACTLY** `self.trigger_tool(name)`
 
         Parameters
         ----------
         name : string
             Name of the tool to add, this is used as ID and as default label
             of the buttons
-        description : string
-            Description of the tool, used for the tooltips
+        group : String
+            Name of the group that the tool belongs to
+        position : Int
+            Position of the tool whthin its group if -1 at the End
         image_file : string
             Filename of the image for the button or `None`
-        position : integer
-            Position of the toolitem within the other toolitems
-            if -1 at the End
+        description : string
+            Description of the tool, used for the tooltips
         toggle : bool
             * `True` : The button is a toggle (change the pressed/unpressed
                 state between consecutive clicks)
@@ -3569,41 +3651,12 @@ class ToolbarBase(object):
 
         raise NotImplementedError
 
-    def add_separator(self, pos):
-        """Add a separator
-
-        Parameters
-        ----------
-        pos : integer
-            Position where to add the separator within the toolitems
-            if -1 at the end
-        """
-
-        pass
-
     def set_message(self, s):
         """Display a message on toolbar or in status bar"""
 
         pass
 
-    def _toggle(self, name, callback=False):
-        """Toogle a button
-
-        Parameters
-        ----------
-        name : string
-            Name of the button to toggle
-        callback : bool
-            * `True`: call the button callback during toggle
-            * `False`: toggle the button without calling the callback
-
-        """
-
-        # carefull, callback means to perform or not the callback while
-        # toggling
-        raise NotImplementedError
-
-    def _remove_toolitem(self, name):
+    def remove_toolitem(self, name):
         """Remove a toolitem from the `Toolbar`
 
         Parameters
@@ -3614,30 +3667,3 @@ class ToolbarBase(object):
         """
 
         raise NotImplementedError
-
-    def move_toolitem(self, pos_ini, pos_fin):
-        """Change the position of a toolitem
-
-        Parameters
-        ----------
-        pos_ini : integer
-            Initial position of the toolitem to move
-        pos_fin : integer
-            Final position of the toolitem
-        """
-
-        pass
-
-    def set_toolitem_visibility(self, name, visible):
-        """Change the visibility of a toolitem
-
-        Parameters
-        ----------
-        name : string
-            Name of the `Tool`
-        visible : bool
-            * `True`: set the toolitem visible
-            * `False`: set the toolitem invisible
-        """
-
-        pass

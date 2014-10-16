@@ -416,6 +416,7 @@ class FigureManagerGTK3(FigureManagerBase):
         self.toolbar = self._get_toolbar()
         self.navigation = self._get_navigation()
         if matplotlib.rcParams['toolbar'] == 'navigation':
+            self.toolbar.set_navigation(self.navigation)
             self.navigation.add_tools(tools)
 
         # calculate size for window
@@ -780,8 +781,11 @@ class ToolbarGTK3(ToolbarBase, Gtk.Box):
         self.pack_end(sep, False, True, 0)
         sep.show_all()
 
-    def _add_toolitem(self, name, tooltip_text, image_file, position,
-                      toggle):
+    def add_toolitem(self, name, group, position, image_file, description,
+                     toggle):
+        if group is None:
+            return
+
         if toggle:
             tbutton = Gtk.ToggleToolButton()
         else:
@@ -795,34 +799,29 @@ class ToolbarGTK3(ToolbarBase, Gtk.Box):
 
         if position is None:
             position = -1
-        self._toolbar.insert(tbutton, position)
+        self._toolbar.insert(tbutton, -1)
         signal = tbutton.connect('clicked', self._call_tool, name)
-        tbutton.set_tooltip_text(tooltip_text)
+        tbutton.set_tooltip_text(description)
         tbutton.show_all()
         self._toolitems[name] = tbutton
         self._signals[name] = signal
 
     def _call_tool(self, btn, name):
-        self.manager.navigation._toolbar_callback(name)
+        self.trigger_tool(name)
 
     def set_message(self, s):
         self.message.set_label(s)
 
-    def _toggle(self, name, callback=False):
+    def toggle_toolitem(self, name):
         if name not in self._toolitems:
-            self.set_message('%s Not in toolbar' % name)
             return
 
         status = self._toolitems[name].get_active()
-        if not callback:
-            self._toolitems[name].handler_block(self._signals[name])
-
+        self._toolitems[name].handler_block(self._signals[name])
         self._toolitems[name].set_active(not status)
+        self._toolitems[name].handler_unblock(self._signals[name])
 
-        if not callback:
-            self._toolitems[name].handler_unblock(self._signals[name])
-
-    def _remove_toolitem(self, name):
+    def remove_toolitem(self, name):
         if name not in self._toolitems:
             self.set_message('%s Not in toolbar' % name)
             return
@@ -834,20 +833,6 @@ class ToolbarGTK3(ToolbarBase, Gtk.Box):
         self._toolbar.insert(toolitem, pos)
         toolitem.show()
         return toolitem
-
-    def move_toolitem(self, pos_ini, pos_fin):
-        widget = self._toolbar.get_nth_item(pos_ini)
-        if not widget:
-            self.set_message('Impossible to remove tool %d' % pos_ini)
-            return
-        self._toolbar.remove(widget)
-        self._toolbar.insert(widget, pos_fin)
-
-    def set_toolitem_visibility(self, name, visible):
-        if name not in self._toolitems:
-            self.set_message('%s Not in toolbar' % name)
-            return
-        self._toolitems[name].set_visible(visible)
 
 
 class SaveFigureGTK3(SaveFigureBase):
