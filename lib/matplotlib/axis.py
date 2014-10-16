@@ -2001,9 +2001,11 @@ class YAxis(Axis):
 
     def _get_pixel_distance_along_axis(self, where, perturb):
         """
-        Returns the amount, in data coordinates, that a single pixel corresponds to in the
-        locality given by "where", which is also given in data coordinates, and is an y coordinate.
-        "perturb" is the amount to perturb the pixel.  Usually +0.5 or -0.5.
+        Returns the amount, in data coordinates, that a single pixel
+        corresponds to in the locality given by *where*, which is also given
+        in data coordinates, and is a y coordinate.
+
+        *perturb* is the amount to perturb the pixel.  Usually +0.5 or -0.5.
 
         Implementing this routine for an axis is optional; if present, it will ensure that no
         ticks are lost due to round-off at the extreme ends of an axis.
