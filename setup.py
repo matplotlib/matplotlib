@@ -122,6 +122,49 @@ classifiers = [
     'Topic :: Scientific/Engineering :: Visualization',
     ]
 
+from setuptools.command.test import test as TestCommand
+class NoseTestCommand(TestCommand):
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        try:
+            import matplotlib
+            matplotlib.use('agg')
+            import nose
+            from matplotlib.testing.noseclasses import KnownFailure
+            from matplotlib import default_test_modules
+            from matplotlib import font_manager
+            import time
+            # Make sure the font caches are created before starting any possibly
+            # parallel tests
+            if font_manager._fmcache is not None:
+                while not os.path.exists(font_manager._fmcache):
+                    time.sleep(0.5)
+            plugins = [KnownFailure]
+
+            # Nose doesn't automatically instantiate all of the plugins in the
+            # child processes, so we have to provide the multiprocess plugin
+            # with a list.
+            from nose.plugins import multiprocess
+            multiprocess._instantiate_plugins = plugins
+
+            if '--no-pep8' in sys.argv:
+                default_test_modules.remove('matplotlib.tests.test_coding_standards')
+                sys.argv.remove('--no-pep8')
+            elif '--pep8' in sys.argv:
+                default_test_modules = ['matplotlib.tests.test_coding_standards']
+                sys.argv.remove('--pep8')
+            nose.main(addplugins=[x() for x in plugins],
+                      defaultTest=default_test_modules,
+                      argv=['nosetests'],
+                      exit=False)
+        except ImportError:
+            sys.exit(-1)
+
+
 # One doesn't normally see `if __name__ == '__main__'` blocks in a setup.py,
 # however, this is needed on Windows to avoid creating infinite subprocesses
 # when using multiprocessing.
@@ -136,6 +179,7 @@ if __name__ == '__main__':
     package_dir = {'': 'lib'}
     install_requires = []
     setup_requires = []
+    tests_require = []
     default_backend = None
 
 
@@ -199,6 +243,7 @@ if __name__ == '__main__':
             package_data[key] = list(set(val + package_data[key]))
         install_requires.extend(package.get_install_requires())
         setup_requires.extend(package.get_setup_requires())
+        tests_require.extend(package.get_tests_require())
 
     # Write the default matplotlibrc file
     if default_backend is None:
@@ -259,11 +304,13 @@ if __name__ == '__main__':
         # List third-party Python packages that we require
         install_requires=install_requires,
         setup_requires=setup_requires,
+        tests_require=tests_require,
 
         # matplotlib has C/C++ extensions, so it's not zip safe.
         # Telling setuptools this prevents it from doing an automatic
         # check for zip safety.
         zip_safe=False,
+        cmdclass={'test': NoseTestCommand},
 
         **extra_args
     )
