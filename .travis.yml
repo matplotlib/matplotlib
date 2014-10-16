@@ -25,9 +25,9 @@ env:
     - secure: E7OCdqhZ+PlwJcn+Hd6ns9TDJgEUXiUNEI0wu7xjxB2vBRRIKtZMbuaZjd+iKDqCKuVOJKu0ClBUYxmgmpLicTwi34CfTUYt6D4uhrU+8hBBOn1iiK51cl/aBvlUUrqaRLVhukNEBGZcyqAjXSA/Qsnp2iELEmAfOUa92ZYo1sk=
     - secure: "dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU="
     - BUILD_DOCS=false
-    - TEST_ARGS=--no-pep8
     - NUMPY=numpy
     - NPROC=2
+    - TEST_ARGS=--omit-pep8
 
 language: python
 
@@ -39,7 +39,7 @@ matrix:
     - python: 3.3
     - python: 3.4
     - python: 2.7
-      env: TEST_ARGS=--pep8
+      env: TEST_ARGS=--pep8-only
     - python: 2.7
       env: BUILD_DOCS=true
     - python: "nightly"
@@ -72,7 +72,7 @@ install:
   # Neihter is installed as a dependency of IPython since they are not used by the IPython console.
   - |
     if [[ $BUILD_DOCS == true ]]; then
-      pip install $PRE numpydoc ipython jsonschema mistune
+      pip install $PRE numpydoc ipython jsonschema mistune mock
       pip install -q $PRE linkchecker
       wget https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O Felipa-Regular.ttf
       wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
@@ -96,9 +96,10 @@ script:
   - |
     if [[ $BUILD_DOCS == false ]]; then
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
-      mkdir ../tmp_test_dir
-      cd ../tmp_test_dir
-      gdb -return-child-result -batch -ex r -ex bt --args python ../matplotlib/tests.py -s --processes=$NPROC --process-timeout=300 $TEST_ARGS
+      # mkdir ../tmp_test_dir
+      # cd ../tmp_test_dir
+      # gdb -return-child-result -batch -ex r -ex bt --args python ../matplotlib/tests.py -s --processes=$NPROC --process-timeout=300 $TEST_ARGS
+      gdb -return-child-result -batch -ex r -ex bt --args python setup.py test --nocapture --nose-verbose --processes=8 --process-timeout=300 $TEST_ARGS
     else
       cd doc
       python make.py html --small --warningsaserrors
