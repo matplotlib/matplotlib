@@ -139,7 +139,7 @@ const char *PyFT2Image_as_array__doc__ =
 static PyObject *PyFT2Image_as_array(PyFT2Image *self, PyObject *args, PyObject *kwds)
 {
     npy_intp dims[] = {(npy_intp)self->x->get_height(), (npy_intp)self->x->get_width() };
-    return PyArray_SimpleNewFromData(2, dims, PyArray_UBYTE, self->x->get_buffer());
+    return PyArray_SimpleNewFromData(2, dims, NPY_UBYTE, self->x->get_buffer());
 }
 
 static PyObject *PyFT2Image_get_width(PyFT2Image *self, PyObject *args, PyObject *kwds)

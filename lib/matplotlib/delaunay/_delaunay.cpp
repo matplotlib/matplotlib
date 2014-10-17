@@ -6,7 +6,7 @@
 #include "VoronoiDiagramGenerator.h"
 #include "delaunay_utils.h"
 #include "natneighbors.h"
-#include "numpy/noprefix.h"
+#include "numpy/ndarrayobject.h"
 
 // support numpy 1.6 - this macro got renamed and deprecated at once in 1.7
 #ifndef NPY_ARRAY_IN_ARRAY
@@ -123,7 +123,7 @@ static PyObject* getMesh(int npoints, double *x, double *y)
     int tri0, tri1, reg0, reg1;
     double tri0x, tri0y, tri1x, tri1y;
     int length, numtri, i, j;
-    intp dim[MAX_DIMS];
+    npy_intp dim[NPY_MAXDIMS];
     int *edge_db_ptr, *tri_edges_ptr, *tri_nbrs_ptr;
     double *vertices_ptr;
     VoronoiDiagramGenerator vdg;
@@ -221,7 +221,7 @@ fail:
 static PyObject *linear_planes(int ntriangles, double *x, double *y, double *z,
     int *nodes)
 {
-    intp dims[2];
+    npy_intp dims[2];
     PyObject *planes;
     int i;
     double *planes_ptr;
@@ -286,7 +286,7 @@ static PyObject *linear_interpolate_grid(double x0, double x1, int xsteps,
     int rowtri, coltri, tri;
     PyObject *z;
     double *z_ptr;
-    intp dims[2];
+    npy_intp dims[2];
 
     dims[0] = ysteps;
     dims[1] = xsteps;
@@ -596,7 +596,7 @@ static PyObject *nn_interpolate_method(PyObject *self, PyObject *args)
     double x0, x1, y0, y1, defvalue;
     int xsteps, ysteps;
     int npoints, ntriangles;
-    intp dims[2];
+    npy_intp dims[2];
 
     if (!PyArg_ParseTuple(args, "ddiddidOOOOOO", &x0, &x1, &xsteps,
         &y0, &y1, &ysteps, &defvalue, &pyx, &pyy, &pyz, &pycenters, &pynodes,

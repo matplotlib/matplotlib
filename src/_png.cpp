@@ -249,6 +249,8 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
     png_uint_32 height = 0;
     int bit_depth;
 
+    // TODO: Remove direct calls to Numpy API here
+
     if (PyBytes_Check(filein) || PyUnicode_Check(filein)) {
         if ((py_file = mpl_PyFile_OpenFile(filein, (char *)"rb")) == NULL) {
             goto exit;
@@ -381,18 +383,15 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
         for (png_uint_32 y = 0; y < height; y++) {
             png_byte *row = row_pointers[y];
             for (png_uint_32 x = 0; x < width; x++) {
-                size_t offset = y * A->strides[0] + x * A->strides[1];
                 if (bit_depth == 16) {
                     png_uint_16 *ptr = &reinterpret_cast<png_uint_16 *>(row)[x * dimensions[2]];
                     for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
-                        *(float *)(A->data + offset + p *A->strides[2]) =
-                            (float)(ptr[p]) / max_value;
+                        *(float *)PyArray_GETPTR3(A, y, x, p) = (float)(ptr[p]) / max_value;
                     }
                 } else {
                     png_byte *ptr = &(row[x * dimensions[2]]);
                     for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
-                        *(float *)(A->data + offset + p *A->strides[2]) =
-                            (float)(ptr[p]) / max_value;
+                        *(float *)PyArray_GETPTR3(A, y, x, p) = (float)(ptr[p]) / max_value;
                     }
                 }
             }
@@ -414,28 +413,27 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
         for (png_uint_32 y = 0; y < height; y++) {
             png_byte *row = row_pointers[y];
             for (png_uint_32 x = 0; x < width; x++) {
-                size_t offset = y * A->strides[0] + x * A->strides[1];
                 if (bit_depth == 16) {
                     png_uint_16 *ptr = &reinterpret_cast<png_uint_16 *>(row)[x * dimensions[2]];
 
                     if (bit_depth == 16) {
                         for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
-                            *(png_uint_16 *)(A->data + offset + p *A->strides[2]) = ptr[p];
+                            *(png_uint_16 *)PyArray_GETPTR3(A, y, x, p) = ptr[p];
                         }
                     } else {
                         for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
-                            *(png_byte *)(A->data + offset + p *A->strides[2]) = ptr[p] >> 8;
+                            *(png_byte *)PyArray_GETPTR3(A, y, x, p) = ptr[p] >> 8;
                         }
                     }
                 } else {
                     png_byte *ptr = &(row[x * dimensions[2]]);
                     if (bit_depth == 16) {
                         for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
-                            *(png_uint_16 *)(A->data + offset + p *A->strides[2]) = ptr[p];
+                            *(png_uint_16 *)PyArray_GETPTR3(A, y, x, p) = ptr[p];
                         }
                     } else {
                         for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
-                            *(png_byte *)(A->data + offset + p *A->strides[2]) = ptr[p];
+                            *(png_byte *)PyArray_GETPTR3(A, y, x, p) = ptr[p];
                         }
                     }
                 }
