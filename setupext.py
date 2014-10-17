@@ -1985,24 +1985,21 @@ def backend_pyqt4_internal_check(self):
         return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
 
 def backend_qt4_internal_check(self):
+    successes = []
+    failures = []
     try:
-        result1 = backend_pyside_internal_check(self)
-    except CheckFailed:
-        result1 = None
+        successes.append(backend_pyside_internal_check(self))
+    except CheckFailed as e:
+        failures.append(str(e))
 
     try:
-        result2 = backend_pyqt4_internal_check(self)
-    except CheckFailed:
-        if result1 == None:
-            raise
-        result2 = None
+        successes.append(backend_pyqt4_internal_check(self))
+    except CheckFailed as e:
+        failures.append(str(e))
 
-    if result1 == None:
-        return result2
-    if result2 == None:
-        return result1
-    return '{}; {}'.format(result1, result2)
-
+    if len(successes) == 0:
+        raise CheckFailed('; '.join(failures))
+    return '; '.join(successes+failures)
 
 class BackendQt4(BackendQtBase):
     name = "qt4agg"
