@@ -17,10 +17,10 @@ import gtk.glade
 
 def simple_msg(msg, parent=None, title=None):
     dialog = gtk.MessageDialog(
-        parent = None,
-        type = gtk.MESSAGE_INFO,
-        buttons = gtk.BUTTONS_OK,
-        message_format = msg)
+        parent=None,
+        type=gtk.MESSAGE_INFO,
+        buttons=gtk.BUTTONS_OK,
+        message_format=msg)
     if parent is not None:
         dialog.set_transient_for(parent)
     if title is not None:

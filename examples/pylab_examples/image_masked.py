@@ -36,7 +36,7 @@ Zm = ma.masked_where(Z > 1.2, Z)
 subplot(1,2,1)
 im = imshow(Zm, interpolation='bilinear',
     cmap=palette,
-    norm = colors.Normalize(vmin = -1.0, vmax = 1.0, clip = False),
+    norm=colors.Normalize(vmin=-1.0, vmax=1.0, clip=False),
     origin='lower', extent=[-3,3,-3,3])
 title('Green=low, Red=high, Blue=bad')
 colorbar(im, extend='both', orientation='horizontal', shrink=0.8)
@@ -44,8 +44,8 @@ colorbar(im, extend='both', orientation='horizontal', shrink=0.8)
 subplot(1,2,2)
 im = imshow(Zm, interpolation='nearest',
     cmap=palette,
-    norm = colors.BoundaryNorm([-1, -0.5, -0.2, 0, 0.2, 0.5, 1],
-                        ncolors=256, clip = False),
+    norm=colors.BoundaryNorm([-1, -0.5, -0.2, 0, 0.2, 0.5, 1],
+                        ncolors=256, clip=False),
     origin='lower', extent=[-3,3,-3,3])
 title('With BoundaryNorm')
 colorbar(im, extend='both', spacing='proportional',

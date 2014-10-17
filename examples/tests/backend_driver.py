@@ -42,10 +42,10 @@ dirs = dict(files=os.path.join('..', 'lines_bars_and_markers'),
             subplots=os.path.join('..', 'subplots_axes_and_figures'),
             specialty=os.path.join('..', 'specialty_plots'),
             showcase=os.path.join('..', 'showcase'),
-            pylab = os.path.join('..', 'pylab_examples'),
-            api = os.path.join('..', 'api'),
-            units = os.path.join('..', 'units'),
-            mplot3d = os.path.join('..', 'mplot3d'))
+            pylab=os.path.join('..', 'pylab_examples'),
+            api=os.path.join('..', 'api'),
+            units=os.path.join('..', 'units'),
+            mplot3d=os.path.join('..', 'mplot3d'))
 
 
 # files in each dir
@@ -341,7 +341,7 @@ def report_all_missing(directories):
 # tests known to fail on a given backend
 
 failbackend = dict(
-    svg = ('tex_demo.py', ),
+    svg=('tex_demo.py', ),
     agg = ('hyperlinks.py', ),
     pdf = ('hyperlinks.py', ),
     ps = ('hyperlinks.py', ),
@@ -363,7 +363,7 @@ except ImportError:
         os.system(' '.join(arglist))
 
 
-def drive(backend, directories, python=['python'], switches = []):
+def drive(backend, directories, python=['python'], switches=[]):
     exclude = failbackend.get(backend, [])
 
     # Clear the destination directory for the examples
@@ -470,12 +470,12 @@ def parse_options():
         backends += [be.lower() for be in options.backends.split(',')]
 
     result = Bunch(
-        dirs = options.dirs.split(','),
-        backends = backends or ['agg', 'ps', 'svg', 'pdf', 'template'],
-        clean = options.clean,
-        coverage = options.coverage,
-        valgrind = options.valgrind,
-        switches = switches)
+        dirs=options.dirs.split(','),
+        backends=backends or ['agg', 'ps', 'svg', 'pdf', 'template'],
+        clean=options.clean,
+        coverage=options.coverage,
+        valgrind=options.valgrind,
+        switches=switches)
     if 'pylab_examples' in result.dirs:
         result.dirs[result.dirs.index('pylab_examples')] = 'pylab'
     #print(result)

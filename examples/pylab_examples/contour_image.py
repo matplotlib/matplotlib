@@ -47,7 +47,7 @@ cset1 = contourf(X, Y, Z, levels,
 # of the polygons in the collections returned by contourf.
 # Use levels output from previous call to guarantee they are the same.
 cset2 = contour(X, Y, Z, cset1.levels,
-                        colors = 'k',
+                        colors='k',
                         hold='on')
 # We don't really need dashed contour lines to indicate negative
 # regions, so let's turn them off.
@@ -59,8 +59,8 @@ for c in cset2.collections:
 # We are making a thick green line as a zero contour.
 # Specify the zero level as a tuple with only 0 in it.
 cset3 = contour(X, Y, Z, (0,),
-                colors = 'g',
-                linewidths = 2,
+                colors='g',
+                linewidths=2,
                 hold='on')
 title('Filled contours')
 colorbar(cset1)
@@ -71,7 +71,7 @@ subplot(2,2,2)
 
 imshow(Z, extent=extent, cmap=cmap, norm=norm)
 v = axis()
-contour(Z, levels, hold='on', colors = 'k',
+contour(Z, levels, hold='on', colors='k',
         origin='upper', extent=extent)
 axis(v)
 title("Image, origin 'upper'")
@@ -80,7 +80,7 @@ subplot(2,2,3)
 
 imshow(Z, origin='lower', extent=extent, cmap=cmap, norm=norm)
 v = axis()
-contour(Z, levels, hold='on', colors = 'k',
+contour(Z, levels, hold='on', colors='k',
         origin='lower', extent=extent)
 axis(v)
 title("Image, origin 'lower'")
@@ -95,7 +95,7 @@ subplot(2,2,4)
 # domain that is contoured does not extend beyond these pixel centers.
 im = imshow(Z, interpolation='nearest', extent=extent, cmap=cmap, norm=norm)
 v = axis()
-contour(Z, levels, hold='on', colors = 'k',
+contour(Z, levels, hold='on', colors='k',
         origin='image', extent=extent)
 axis(v)
 ylim = get(gca(), 'ylim')

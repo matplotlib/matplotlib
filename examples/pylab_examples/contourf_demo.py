@@ -44,7 +44,7 @@ CS = plt.contourf(X, Y, Z, 10, # [-1, -0.1, 0, 0.1],
 # or leave out the levels kwarg to use all of the original levels.
 
 CS2 = plt.contour(CS, levels=CS.levels[::2],
-                        colors = 'r',
+                        colors='r',
                         origin=origin,
                         hold='on')
 
@@ -65,7 +65,7 @@ plt.figure()
 # of colors.
 levels = [-1.5, -1, -0.5, 0, 0.5, 1]
 CS3 = plt.contourf(X, Y, Z, levels,
-                        colors = ('r', 'g', 'b'),
+                        colors=('r', 'g', 'b'),
                         origin=origin,
                         extend='both')
 # Our data range extends outside the range of levels; make
@@ -75,11 +75,11 @@ CS3.cmap.set_under('yellow')
 CS3.cmap.set_over('cyan')
 
 CS4 = plt.contour(X, Y, Z, levels,
-                       colors = ('k',),
+                       colors=('k',),
                        linewidths = (3,),
                        origin = origin)
 plt.title('Listed colors (3 masked regions)')
-plt.clabel(CS4, fmt = '%2.1f', colors = 'w', fontsize=14)
+plt.clabel(CS4, fmt='%2.1f', colors='w', fontsize=14)
 
 # Notice that the colorbar command gets all the information it
 # needs from the ContourSet object, CS3.

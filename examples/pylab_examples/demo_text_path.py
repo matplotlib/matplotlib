@@ -35,7 +35,7 @@ class PathClippedImagePatch(mpatches.PathPatch):
     def _init_bbox_image(self, im):
 
         bbox_image = BboxImage(self.get_window_extent,
-                               norm = None,
+                               norm=None,
                                origin=None,
                                )
         bbox_image.set_transform(IdentityTransform())

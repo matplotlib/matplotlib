@@ -51,24 +51,24 @@ class RibbonBoxImage(BboxImage):
     zorder = 1
 
     def __init__(self, bbox, color,
-                 cmap = None,
-                 norm = None,
+                 cmap=None,
+                 norm=None,
                  interpolation=None,
                  origin=None,
                  filternorm=1,
                  filterrad=4.0,
-                 resample = False,
+                 resample=False,
                  **kwargs
                  ):
 
         BboxImage.__init__(self, bbox,
-                           cmap = cmap,
-                           norm = norm,
+                           cmap=cmap,
+                           norm=norm,
                            interpolation=interpolation,
                            origin=origin,
                            filternorm=filternorm,
                            filterrad=filterrad,
-                           resample = resample,
+                           resample=resample,
                            **kwargs
                            )
 

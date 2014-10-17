@@ -25,7 +25,7 @@ def add_dicts(d1, d2):
 
 
 def make_arrow_plot(data, size=4, display='length', shape='right', \
-        max_arrow_width=0.03, arrow_sep = 0.02, alpha=0.5, \
+        max_arrow_width=0.03, arrow_sep=0.02, alpha=0.5, \
         normalize_data=False, ec=None, labelcolor=None, \
         head_starts_at_zero=True, rate_labels=lettered_bases_to_rates,\
         **kwargs):

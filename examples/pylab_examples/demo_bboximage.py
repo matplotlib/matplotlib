@@ -12,7 +12,7 @@ if __name__ == "__main__":
     kwargs = dict()
 
     bbox_image = BboxImage(txt.get_window_extent,
-                           norm = None,
+                           norm=None,
                            origin=None,
                            clip_on=False,
                            **kwargs
@@ -48,8 +48,8 @@ if __name__ == "__main__":
         bbox = TransformedBbox(bbox0, ax.transAxes)
 
         bbox_image = BboxImage(bbox,
-                               cmap = plt.get_cmap(m),
-                               norm = None,
+                               cmap=plt.get_cmap(m),
+                               norm=None,
                                origin=None,
                                **kwargs
                                )
