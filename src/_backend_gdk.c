@@ -35,7 +35,7 @@ pixbuf_get_pixels_array(PyObject *self, PyObject *args)
     if (gdk_pixbuf_get_has_alpha(gdk_pixbuf))
         dims[2] = 4;
 
-    array = (PyArrayObject *)PyArray_SimpleNewFromData(3, dims, PyArray_UBYTE,
+    array = (PyArrayObject *)PyArray_SimpleNewFromData(3, dims, NPY_UBYTE,
 			     (char *)gdk_pixbuf_get_pixels(gdk_pixbuf));
     if (array == NULL)
         return NULL;

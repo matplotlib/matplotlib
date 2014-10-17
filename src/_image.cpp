@@ -903,7 +903,7 @@ _image_module::fromarray(const Py::Tuple& args)
 
     Py::Object x = args[0];
     int isoutput = Py::Int(args[1]);
-    PyArrayObject *A = (PyArrayObject *) PyArray_FromObject(x.ptr(), PyArray_DOUBLE, 2, 3);
+    PyArrayObject *A = (PyArrayObject *) PyArray_FromObject(x.ptr(), NPY_DOUBLE, 2, 3);
     if (A == NULL)
     {
         throw Py::ValueError("Array must be rank 2 or 3 of doubles");
@@ -912,8 +912,8 @@ _image_module::fromarray(const Py::Tuple& args)
 
     Image* imo = new Image;
 
-    imo->rowsIn  = A->dimensions[0];
-    imo->colsIn  = A->dimensions[1];
+    imo->rowsIn  = PyArray_DIM(A, 0);
+    imo->colsIn  = PyArray_DIM(A, 1);
 
     size_t NUMBYTES(imo->colsIn * imo->rowsIn * imo->BPP);
     agg::int8u *buffer = new agg::int8u[NUMBYTES];
@@ -939,14 +939,14 @@ _image_module::fromarray(const Py::Tuple& args)
         imo->rbufIn->attach(buffer, imo->colsIn, imo->rowsIn, imo->colsIn*imo->BPP);
     }
 
-    if (A->nd == 2)     //assume luminance for now;
+    if (PyArray_NDIM(A) == 2)     //assume luminance for now;
     {
         agg::int8u gray;
         for (size_t rownum = 0; rownum < imo->rowsIn; rownum++)
         {
             for (size_t colnum = 0; colnum < imo->colsIn; colnum++)
             {
-                double val = *(double *)(A->data + rownum * A->strides[0] + colnum * A->strides[1]);
+                double val = *(double *)PyArray_GETPTR2(A, rownum, colnum);
 
                 gray = int(255 * val);
                 *buffer++ = gray;       // red
@@ -956,15 +956,16 @@ _image_module::fromarray(const Py::Tuple& args)
             }
         }
     }
-    else if (A->nd == 3)     // assume RGB
+    else if (PyArray_NDIM(A) == 3)     // assume RGB
     {
 
-        if (A->dimensions[2] != 3 && A->dimensions[2] != 4)
+        if (PyArray_DIM(A, 2) != 3 && PyArray_DIM(A, 2) != 4)
         {
-            throw Py::ValueError(Printf("3rd dimension must be length 3 (RGB) or 4 (RGBA); found %d", A->dimensions[2]).str());
+            throw Py::ValueError(Printf("3rd dimension must be length 3 (RGB) or 4 (RGBA); found %d",
+                                        PyArray_DIM(A, 2)).str());
         }
 
-        int rgba = A->dimensions[2] == 4;
+        int rgba = PyArray_DIM(A, 2) == 4;
         double r, g, b, alpha;
         size_t offset = 0;
 
@@ -972,14 +973,13 @@ _image_module::fromarray(const Py::Tuple& args)
         {
             for (size_t colnum = 0; colnum < imo->colsIn; colnum++)
             {
-                offset = rownum * A->strides[0] + colnum * A->strides[1];
-                r = *(double *)(A->data + offset);
-                g = *(double *)(A->data + offset + A->strides[2]);
-                b = *(double *)(A->data + offset + 2 * A->strides[2]);
+                r = *(double*)PyArray_GETPTR3(A, rownum, colnum, 0);
+                g = *(double*)PyArray_GETPTR3(A, rownum, colnum, 1);
+                b = *(double*)PyArray_GETPTR3(A, rownum, colnum, 2);
 
                 if (rgba)
                 {
-                    alpha = *(double *)(A->data + offset + 3 * A->strides[2]);
+                    alpha = *(double*)PyArray_GETPTR3(A, rownum, colnum, 3);
                 }
                 else
                 {
@@ -1018,7 +1018,7 @@ _image_module::fromarray2(const Py::Tuple& args)
 
     Py::Object x = args[0];
     int isoutput = Py::Int(args[1]);
-    PyArrayObject *A = (PyArrayObject *) PyArray_ContiguousFromObject(x.ptr(), PyArray_DOUBLE, 2, 3);
+    PyArrayObject *A = (PyArrayObject *) PyArray_ContiguousFromObject(x.ptr(), NPY_DOUBLE, 2, 3);
     if (A == NULL)
     {
         throw Py::ValueError("Array must be rank 2 or 3 of doubles");
@@ -1027,8 +1027,8 @@ _image_module::fromarray2(const Py::Tuple& args)
 
     Image* imo = new Image;
 
-    imo->rowsIn  = A->dimensions[0];
-    imo->colsIn  = A->dimensions[1];
+    imo->rowsIn  = PyArray_DIM(A, 0);
+    imo->colsIn  = PyArray_DIM(A, 1);
 
     size_t NUMBYTES(imo->colsIn * imo->rowsIn * imo->BPP);
     agg::int8u *buffer = new agg::int8u[NUMBYTES];
@@ -1054,50 +1054,45 @@ _image_module::fromarray2(const Py::Tuple& args)
         imo->rbufIn->attach(buffer, imo->colsIn, imo->rowsIn, imo->colsIn*imo->BPP);
     }
 
-    if (A->nd == 2)     //assume luminance for now;
+    if (PyArray_NDIM(A) == 2)     //assume luminance for now;
     {
         agg::int8u gray;
-        const size_t N = imo->rowsIn * imo->colsIn;
-        size_t i = 0;
-        while (i++ < N)
-        {
-            double val = *(double *)(A->data++);
-
-            gray = int(255 * val);
-            *buffer++ = gray;       // red
-            *buffer++ = gray;       // green
-            *buffer++ = gray;       // blue
-            *buffer++   = 255;        // alpha
+        for (size_t row = 0; row < imo->rowsIn; row++) {
+            for (size_t col = 0; col < imo->colsIn; col++) {
+                const double val = *(double*)PyArray_GETPTR2(A, row, col);
+                gray = int(255 * val);
+                *buffer++ = gray;  // red
+                *buffer++ = gray;  // green
+                *buffer++ = gray;  // blue
+                *buffer++ = 255;   // alpha
+            }
         }
-
     }
-    else if (A->nd == 3)     // assume RGB
+    else if (PyArray_NDIM(A) == 3)     // assume RGB
     {
-        if (A->dimensions[2] != 3 && A->dimensions[2] != 4)
+        if (PyArray_DIM(A, 2) != 3 && PyArray_DIM(A, 2) != 4)
         {
-            throw Py::ValueError(Printf("3rd dimension must be length 3 (RGB) or 4 (RGBA); found %d", A->dimensions[2]).str());
+            throw Py::ValueError(Printf("3rd dimension must be length 3 (RGB) or 4 (RGBA); found %d",
+                                        PyArray_DIM(A, 2)).str());
 
         }
 
-        int rgba = A->dimensions[2] == 4;
+        int rgba = PyArray_DIM(A, 2) == 4;
         double r, g, b, alpha;
-        const size_t N = imo->rowsIn * imo->colsIn;
-        for (size_t i = 0; i < N; ++i)
-        {
-            r = *(double *)(A->data++);
-            g = *(double *)(A->data++);
-            b = *(double *)(A->data++);
-
-            if (rgba)
-                alpha = *(double *)(A->data++);
-            else
-                alpha = 1.0;
-
-            *buffer++ = int(255 * r);       // red
-            *buffer++ = int(255 * g);       // green
-            *buffer++ = int(255 * b);       // blue
-            *buffer++ = int(255 * alpha);   // alpha
-
+        for (size_t row = 0; row < imo->rowsIn; row++) {
+            for (size_t col = 0; col < imo->colsIn; col++) {
+                r = *(double*)PyArray_GETPTR3(A, row, col, 0);
+                g = *(double*)PyArray_GETPTR3(A, row, col, 1);
+                b = *(double*)PyArray_GETPTR3(A, row, col, 2);
+                if (rgba)
+                    alpha = *(double*)PyArray_GETPTR3(A, row, col, 3);
+                else
+                    alpha = 1.0;
+                *buffer++ = int(255 * r);       // red
+                *buffer++ = int(255 * g);       // green
+                *buffer++ = int(255 * b);       // blue
+                *buffer++ = int(255 * alpha);   // alpha
+            }
         }
     }
     else     // error
@@ -1126,28 +1121,28 @@ _image_module::frombyte(const Py::Tuple& args)
     Py::Object x = args[0];
     int isoutput = Py::Int(args[1]);
 
-    PyArrayObject *A = (PyArrayObject *) PyArray_FromObject(x.ptr(), PyArray_UBYTE, 3, 3);
+    PyArrayObject *A = (PyArrayObject *) PyArray_FromObject(x.ptr(), NPY_UBYTE, 3, 3);
     if (A == NULL)
     {
         throw Py::ValueError("Array must have 3 dimensions");
     }
     Py::Object A_obj((PyObject*)A, true);
 
-    if (A->dimensions[2] < 3 || A->dimensions[2] > 4)
+    if (PyArray_DIM(A, 2) < 3 || PyArray_DIM(A, 2) > 4)
     {
         throw Py::ValueError("Array dimension 3 must have size 3 or 4");
     }
 
     Image* imo = new Image;
 
-    imo->rowsIn = A->dimensions[0];
-    imo->colsIn = A->dimensions[1];
+    imo->rowsIn = PyArray_DIM(A, 0);
+    imo->colsIn = PyArray_DIM(A, 1);
 
     agg::int8u *arrbuf;
     agg::int8u *buffer;
     agg::int8u *dstbuf;
 
-    arrbuf = reinterpret_cast<agg::int8u *>(A->data);
+    arrbuf = reinterpret_cast<agg::int8u *>(PyArray_DATA(A));
 
     size_t NUMBYTES(imo->colsIn * imo->rowsIn * imo->BPP);
     buffer = dstbuf = new agg::int8u[NUMBYTES];
@@ -1157,9 +1152,9 @@ _image_module::frombyte(const Py::Tuple& args)
         throw Py::MemoryError("_image_module::frombyte could not allocate memory");
     }
 
-    if PyArray_ISCONTIGUOUS(A)
+    if (PyArray_ISCONTIGUOUS(A))
     {
-        if (A->dimensions[2] == 4)
+        if (PyArray_DIM(A, 2) == 4)
         {
             memmove(dstbuf, arrbuf, imo->rowsIn * imo->colsIn * 4);
         }
@@ -1175,10 +1170,10 @@ _image_module::frombyte(const Py::Tuple& args)
             }
         }
     }
-    else if ((A->strides[1] == 4) && (A->strides[2] == 1))
+    else if ((PyArray_STRIDE(A, 1) == 4) && (PyArray_STRIDE(A, 2) == 1))
     {
         const size_t N = imo->colsIn * 4;
-        const size_t stride = A->strides[0];
+        const size_t stride = PyArray_STRIDE(A, 0);
         for (size_t rownum = 0; rownum < imo->rowsIn; rownum++)
         {
             memmove(dstbuf, arrbuf, N);
@@ -1186,9 +1181,9 @@ _image_module::frombyte(const Py::Tuple& args)
             dstbuf += N;
         }
     }
-    else if ((A->strides[1] == 3) && (A->strides[2] == 1))
+    else if ((PyArray_STRIDE(A, 1) == 3) && (PyArray_STRIDE(A, 2) == 1))
     {
-        const size_t stride = A->strides[0] - imo->colsIn * 3;
+        const size_t stride = PyArray_STRIDE(A, 0) - imo->colsIn * 3;
         for (size_t rownum = 0; rownum < imo->rowsIn; rownum++)
         {
             for (size_t colnum = 0; colnum < imo->colsIn; colnum++)
@@ -1205,7 +1200,7 @@ _image_module::frombyte(const Py::Tuple& args)
     {
         PyArrayIterObject *iter;
         iter = (PyArrayIterObject *)PyArray_IterNew((PyObject *)A);
-        if (A->dimensions[2] == 4)
+        if (PyArray_DIM(A, 2) == 4)
         {
             while (iter->index < iter->size) {
                 *dstbuf++ = *((unsigned char *)iter->dataptr);
@@ -1610,34 +1605,34 @@ _image_module::pcolor(const Py::Tuple& args)
     float *arows = NULL;
 
     // Get numpy arrays
-    x = (PyArrayObject *) PyArray_ContiguousFromObject(xp.ptr(), PyArray_FLOAT, 1, 1);
+    x = (PyArrayObject *) PyArray_ContiguousFromObject(xp.ptr(), NPY_FLOAT, 1, 1);
     if (x == NULL)
     {
         _pcolor_cleanup(x, y, d, rowstarts, colstarts, acols, arows);
         throw Py::ValueError("x is of incorrect type (wanted 1D float)");
     }
-    y = (PyArrayObject *) PyArray_ContiguousFromObject(yp.ptr(), PyArray_FLOAT, 1, 1);
+    y = (PyArrayObject *) PyArray_ContiguousFromObject(yp.ptr(), NPY_FLOAT, 1, 1);
     if (y == NULL)
     {
         _pcolor_cleanup(x, y, d, rowstarts, colstarts, acols, arows);
         throw Py::ValueError("y is of incorrect type (wanted 1D float)");
     }
-    d = (PyArrayObject *) PyArray_ContiguousFromObject(dp.ptr(), PyArray_UBYTE, 3, 3);
+    d = (PyArrayObject *) PyArray_ContiguousFromObject(dp.ptr(), NPY_UBYTE, 3, 3);
     if (d == NULL)
     {
         _pcolor_cleanup(x, y, d, rowstarts, colstarts, acols, arows);
         throw Py::ValueError("data is of incorrect type (wanted 3D UInt8)");
     }
-    if (d->dimensions[2] != 4)
+    if (PyArray_DIM(d, 2) != 4)
     {
         _pcolor_cleanup(x, y, d, rowstarts, colstarts, acols, arows);
         throw Py::ValueError("data must be in RGBA format");
     }
 
     // Check dimensions match
-    int nx = x->dimensions[0];
-    int ny = y->dimensions[0];
-    if (nx != d->dimensions[1] || ny != d->dimensions[0])
+    int nx = PyArray_DIM(x, 0);
+    int ny = PyArray_DIM(y, 0);
+    if (nx != PyArray_DIM(d, 1) || ny != PyArray_DIM(d, 0))
     {
         _pcolor_cleanup(x, y, d, rowstarts, colstarts, acols, arows);
         throw Py::ValueError("data and axis dimensions do not match");
@@ -1676,8 +1671,8 @@ _image_module::pcolor(const Py::Tuple& args)
     unsigned int i, j;
     unsigned int * colstart = colstarts;
     unsigned int * rowstart = rowstarts;
-    float *xs1 = reinterpret_cast<float*>(x->data);
-    float *ys1 = reinterpret_cast<float*>(y->data);
+    float *xs1 = reinterpret_cast<float*>(PyArray_DATA(x));
+    float *ys1 = reinterpret_cast<float*>(PyArray_DATA(y));
 
 
     // Copy data to output buffer
@@ -1687,9 +1682,9 @@ _image_module::pcolor(const Py::Tuple& args)
     size_t rowsize(cols*4);
     agg::int8u * position = buffer;
     agg::int8u * oldposition = NULL;
-    start = reinterpret_cast<unsigned char*>(d->data);
-    int s0 = d->strides[0];
-    int s1 = d->strides[1];
+    start = reinterpret_cast<unsigned char*>(PyArray_DATA(d));
+    int s0 = PyArray_STRIDE(d, 0);
+    int s1 = PyArray_STRIDE(d, 1);
 
     if (interpolation == Image::NEAREST)
     {
@@ -1851,46 +1846,46 @@ _image_module::pcolor2(const Py::Tuple& args)
     int* jcols = NULL;
 
     // Get numpy arrays
-    x = (PyArrayObject *) PyArray_ContiguousFromObject(xp.ptr(), PyArray_DOUBLE, 1, 1);
+    x = (PyArrayObject *) PyArray_ContiguousFromObject(xp.ptr(), NPY_DOUBLE, 1, 1);
     if (x == NULL)
     {
         _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::ValueError("x is of incorrect type (wanted 1D double)");
     }
-    y = (PyArrayObject *) PyArray_ContiguousFromObject(yp.ptr(), PyArray_DOUBLE, 1, 1);
+    y = (PyArrayObject *) PyArray_ContiguousFromObject(yp.ptr(), NPY_DOUBLE, 1, 1);
     if (y == NULL)
     {
         _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::ValueError("y is of incorrect type (wanted 1D double)");
     }
-    d = (PyArrayObject *) PyArray_ContiguousFromObject(dp.ptr(), PyArray_UBYTE, 3, 3);
+    d = (PyArrayObject *) PyArray_ContiguousFromObject(dp.ptr(), NPY_UBYTE, 3, 3);
     if (d == NULL)
     {
         _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::ValueError("data is of incorrect type (wanted 3D uint8)");
     }
-    if (d->dimensions[2] != 4)
+    if (PyArray_DIM(d, 2) != 4)
     {
         _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::ValueError("data must be in RGBA format");
     }
 
     // Check dimensions match
-    int nx = x->dimensions[0];
-    int ny = y->dimensions[0];
-    if (nx != d->dimensions[1] + 1 || ny != d->dimensions[0] + 1)
+    int nx = PyArray_DIM(x, 0);
+    int ny = PyArray_DIM(y, 0);
+    if (nx != PyArray_DIM(d, 1) + 1 || ny != PyArray_DIM(d, 0) + 1)
     {
         _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::ValueError("data and axis bin boundary dimensions are incompatible");
     }
 
-    bg = (PyArrayObject *) PyArray_ContiguousFromObject(bgp.ptr(), PyArray_UBYTE, 1, 1);
+    bg = (PyArrayObject *) PyArray_ContiguousFromObject(bgp.ptr(), NPY_UBYTE, 1, 1);
     if (bg == NULL)
     {
         _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::ValueError("bg is of incorrect type (wanted 1D uint8)");
     }
-    if (bg->dimensions[0] != 4)
+    if (PyArray_DIM(bg, 0) != 4)
     {
         _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::ValueError("bg must be in RGBA format");
@@ -1926,8 +1921,8 @@ _image_module::pcolor2(const Py::Tuple& args)
 
     // Calculate the pointer arrays to map input x to output x
     int i, j;
-    double *x0 = reinterpret_cast<double*>(x->data);
-    double *y0 = reinterpret_cast<double*>(y->data);
+    double *x0 = reinterpret_cast<double*>(PyArray_DATA(x));
+    double *y0 = reinterpret_cast<double*>(PyArray_DATA(y));
     double sx = cols / (x_right - x_left);
     double sy = rows / (y_top - y_bot);
     _bin_indices(jcols, cols, x0, nx, sx, x_left);
@@ -1935,10 +1930,10 @@ _image_module::pcolor2(const Py::Tuple& args)
 
     // Copy data to output buffer
     agg::int8u * position = buffer;
-    unsigned char *start = reinterpret_cast<unsigned char*>(d->data);
-    unsigned char *bgptr = reinterpret_cast<unsigned char*>(bg->data);
-    int s0 = d->strides[0];
-    int s1 = d->strides[1];
+    unsigned char *start = reinterpret_cast<unsigned char*>(PyArray_DATA(d));
+    unsigned char *bgptr = reinterpret_cast<unsigned char*>(PyArray_DATA(bg));
+    int s0 = PyArray_STRIDE(d, 0);
+    int s1 = PyArray_STRIDE(d, 1);
 
     for (i = 0; i < rows; i++)
     {
