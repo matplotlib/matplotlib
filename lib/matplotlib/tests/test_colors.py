@@ -373,7 +373,14 @@ def test_light_source_hillshading():
         dy = -dy
         dz = np.ones_like(dy)
         normals = np.dstack([dx, dy, dz])
-        normals /= np.linalg.norm(normals, axis=2)[..., None]
+        dividers = np.zeros_like(z)[..., None]
+        for i, mat in enumerate(normals):
+            for j, vec in enumerate(mat):
+                dividers[i, j, 0] = np.linalg.norm(vec)
+        normals /= dividers
+        # once we drop support for numpy 1.7.x the above can be written as
+        # normals /= np.linalg.norm(normals, axis=2)[..., None]
+        # aviding the double loop.
 
         intensity = np.tensordot(normals, illum, axes=(2, 0))
         intensity -= intensity.min()
