@@ -416,7 +416,6 @@ class FigureManagerGTK3(FigureManagerBase):
         self.toolbar = self._get_toolbar()
         self.navigation = self._get_navigation()
         if matplotlib.rcParams['toolbar'] == 'navigation':
-            self.toolbar.set_navigation(self.navigation)
             self.navigation.add_tools(tools)
 
         # calculate size for window
