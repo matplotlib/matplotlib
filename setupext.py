@@ -2003,7 +2003,18 @@ class BackendQtBase(OptionalBackendPackage):
         return msg
 
 
-def backend_qt4_internal_check(self):
+def backend_pyside_internal_check(self):
+    try:
+        from PySide import __version__
+        from PySide import QtCore
+    except ImportError:
+        raise CheckFailed("PySide not found")
+    else:
+        BackendAgg.force = True
+        return ("Qt: %s, PySide: %s" %
+                (QtCore.__version__, __version__))
+
+def backend_pyqt4_internal_check(self):
     try:
         from PyQt4 import QtCore
     except ImportError:
@@ -2018,6 +2029,22 @@ def backend_qt4_internal_check(self):
         BackendAgg.force = True
         return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
 
+def backend_qt4_internal_check(self):
+    successes = []
+    failures = []
+    try:
+        successes.append(backend_pyside_internal_check(self))
+    except CheckFailed as e:
+        failures.append(str(e))
+
+    try:
+        successes.append(backend_pyqt4_internal_check(self))
+    except CheckFailed as e:
+        failures.append(str(e))
+
+    if len(successes) == 0:
+        raise CheckFailed('; '.join(failures))
+    return '; '.join(successes+failures)
 
 class BackendQt4(BackendQtBase):
     name = "qt4agg"
@@ -2049,27 +2076,6 @@ class BackendQt5(BackendQtBase):
     def __init__(self, *args, **kwargs):
         BackendQtBase.__init__(self, *args, **kwargs)
         self.callback = backend_qt5_internal_check
-
-
-def backend_pyside_internal_check(self):
-    try:
-        from PySide import __version__
-        from PySide import QtCore
-    except ImportError:
-        raise CheckFailed("PySide not found")
-    else:
-        BackendAgg.force = True
-        return ("Qt: %s, PySide: %s" %
-                (QtCore.__version__, __version__))
-
-
-class BackendPySide(BackendQtBase):
-    name = "pyside"
-
-    def __init__(self, *args, **kwargs):
-        BackendQtBase.__init__(self, *args, **kwargs)
-        self.callback = backend_pyside_internal_check
-
 
 
 class BackendCairo(OptionalBackendPackage):
