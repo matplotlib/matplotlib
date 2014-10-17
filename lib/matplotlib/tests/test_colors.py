@@ -237,13 +237,14 @@ def test_colors_no_float():
 def test_light_source_topo_surface():
     """Shades a DEM using different v.e.'s and blend modes."""
     fname = cbook.get_sample_data('jacksboro_fault_dem.npz', asfileobj=False)
-    with np.load(fname) as dem:
-        elev = dem['elevation']
-        # Get the true cellsize in meters for accurate vertical exaggeration
-        #   Convert from decimal degrees to meters
-        dx, dy = dem['dx'], dem['dy']
-        dx = 111320.0 * dx * np.cos(dem['ymin'])
-        dy = 111320.0 * dy
+    dem = np.load(fname)
+    elev = dem['elevation']
+    # Get the true cellsize in meters for accurate vertical exaggeration
+    #   Convert from decimal degrees to meters
+    dx, dy = dem['dx'], dem['dy']
+    dx = 111320.0 * dx * np.cos(dem['ymin'])
+    dy = 111320.0 * dy
+    dem.close()
 
     ls = mcolors.LightSource(315, 45)
     cmap = cm.gist_earth
@@ -307,7 +308,8 @@ def test_light_source_shading_default():
     assert_array_almost_equal(rgb, expect, decimal=2)
 
 
-@knownfailureif(V(np.__version__) >= V('1.9.0'))
+@knownfailureif(V(np.__version__) >= V('1.9.0') or
+                V(np.__version__) < V('1.7.0'))
 def test_light_source_masked_shading():
     """Array comparison test for a surface with a masked portion. Ensures that
     we don't wind up with "fringes" of odd colors around masked regions."""
@@ -371,7 +373,14 @@ def test_light_source_hillshading():
         dy = -dy
         dz = np.ones_like(dy)
         normals = np.dstack([dx, dy, dz])
-        normals /= np.linalg.norm(normals, axis=2)[..., None]
+        dividers = np.zeros_like(z)[..., None]
+        for i, mat in enumerate(normals):
+            for j, vec in enumerate(mat):
+                dividers[i, j, 0] = np.linalg.norm(vec)
+        normals /= dividers
+        # once we drop support for numpy 1.7.x the above can be written as
+        # normals /= np.linalg.norm(normals, axis=2)[..., None]
+        # aviding the double loop.
 
         intensity = np.tensordot(normals, illum, axes=(2, 0))
         intensity -= intensity.min()
