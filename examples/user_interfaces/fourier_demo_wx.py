@@ -175,18 +175,18 @@ class FourierDemoWindow(wx.Window, Knob):
         self.lines += self.subplot2.plot(x2, y2, color=color, linewidth=2)
         #Set some plot attributes
         self.subplot1.set_title("Click and drag waveforms to change frequency and amplitude", fontsize=12)
-        self.subplot1.set_ylabel("Frequency Domain Waveform X(f)", fontsize = 8)
-        self.subplot1.set_xlabel("frequency f", fontsize = 8)
-        self.subplot2.set_ylabel("Time Domain Waveform x(t)", fontsize = 8)
-        self.subplot2.set_xlabel("time t", fontsize = 8)
+        self.subplot1.set_ylabel("Frequency Domain Waveform X(f)", fontsize=8)
+        self.subplot1.set_xlabel("frequency f", fontsize=8)
+        self.subplot2.set_ylabel("Time Domain Waveform x(t)", fontsize=8)
+        self.subplot2.set_xlabel("time t", fontsize=8)
         self.subplot1.set_xlim([-6, 6])
         self.subplot1.set_ylim([0, 1])
         self.subplot2.set_xlim([-2, 2])
         self.subplot2.set_ylim([-2, 2])
         self.subplot1.text(0.05, .95, r'$X(f) = \mathcal{F}\{x(t)\}$', \
-            verticalalignment='top', transform = self.subplot1.transAxes)
+            verticalalignment='top', transform=self.subplot1.transAxes)
         self.subplot2.text(0.05, .95, r'$x(t) = a \cdot \cos(2\pi f_0 t) e^{-\pi t^2}$', \
-            verticalalignment='top', transform = self.subplot2.transAxes)
+            verticalalignment='top', transform=self.subplot2.transAxes)
 
     def compute(self, f0, A):
         f = np.arange(-6., 6., 0.02)

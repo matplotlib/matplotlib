@@ -12,6 +12,6 @@ x,y,s,c = rand(4, 30)
 s*= 10**2.
 
 fig, ax = plt.subplots()
-ax.scatter(x,y,s,c,marker=None,verts =verts)
+ax.scatter(x,y,s,c,marker=None,verts=verts)
 
 plt.show()
