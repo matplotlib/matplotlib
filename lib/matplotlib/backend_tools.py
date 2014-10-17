@@ -16,6 +16,7 @@ from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
 from weakref import WeakKeyDictionary
 import numpy as np
+from pydispatch import dispatcher
 
 
 class Cursors:
@@ -64,6 +65,18 @@ class ToolBase(object):
         self.figure = None
         self.navigation = None
         self.set_figure(figure)
+        dispatcher.connect(self._trigger_cbk,
+                           signal='tool-trigger-%s' % self.name,
+                           sender=dispatcher.Any)
+
+    def _trigger_cbk(self, signal, sender, event=None):
+        # Inform the rest of the world that we are going to trigger
+        # Used mainly to untoggle other tools
+        dispatcher.send(signal='tool-pre-trigger-%s' % self.name,
+                        sender=sender,
+                        event=event)
+
+        self.trigger(event)
 
     def trigger(self, event):
         """Called when this tool gets used
@@ -135,6 +148,58 @@ class ToolToggleBase(ToolBase):
         """State of the toggled tool"""
 
         return self._toggled
+
+
+class ToolSetCursor(ToolBase):
+    def __init__(self, *args, **kwargs):
+        ToolBase.__init__(self, *args, **kwargs)
+        self._idDrag = self.figure.canvas.mpl_connect(
+            'motion_notify_event', self.set_cursor)
+        self._cursor = None
+        self._default_cursor = cursors.POINTER
+        self._last_cursor = self._default_cursor
+
+    def set_cursor(self, event):
+        if not event:
+            return
+
+        if not getattr(event, 'inaxes', False) or not self._cursor:
+            if self._last_cursor != self._default_cursor:
+                self.navigation.set_cursor(self._default_cursor)
+                self._last_cursor = self._default_cursor
+        else:
+            if self._cursor:
+                cursor = self._cursor
+                if cursor and self._last_cursor != cursor:
+                    self.navigation.set_cursor(cursor)
+                    self._last_cursor = cursor
+
+    def trigger(self, event):
+        self._cursor = event.cursor
+        self.set_cursor(event)
+
+
+class ToolCursorPosition(ToolBase):
+    def __init__(self, *args, **kwargs):
+        ToolBase.__init__(self, *args, **kwargs)
+        self._idDrag = self.figure.canvas.mpl_connect(
+            'motion_notify_event', self.send_message)
+
+    def send_message(self, event):
+        if self.navigation.messagelock.locked():
+            return
+
+        message = ' '
+
+        if event.inaxes and event.inaxes.get_navigate():
+
+            try:
+                s = event.inaxes.format_coord(event.xdata, event.ydata)
+            except (ValueError, OverflowError):
+                pass
+            else:
+                message = s
+        self.navigation.send_message(message, self)
 
 
 class ToolQuit(ToolBase):
@@ -745,7 +810,9 @@ tools = [['navigation', [(ToolHome, 'home'),
                  (ToolEnableAllNavigation, 'allnav'),
                  (ToolEnableNavigation, 'nav'),
                  (ToolXScale, 'xscale'),
-                 (ToolYScale, 'yscale')]]]
+                 (ToolYScale, 'yscale'),
+                 (ToolCursorPosition, 'position'),
+                 (ToolSetCursor, 'cursor')]]]
 
 
 """Default tools"""
