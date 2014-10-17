@@ -40,14 +40,14 @@ static PyObject *pixbuf_get_pixels_array(PyObject *self, PyObject *args)
     array = (PyArrayObject*)
         PyArray_New(&PyArray_Type, 3, dims, NPY_UBYTE, strides,
                     (void*)gdk_pixbuf_get_pixels(gdk_pixbuf), 1,
-                    0, NULL);
+                    NPY_ARRAY_WRITEABLE, NULL);
 
     if (array == NULL)
         return NULL;
 
     /* the array holds a ref to the pixbuf pixels through this wrapper*/
     Py_INCREF(py_pixbuf);
-    array->base = (PyObject *)py_pixbuf;
+    PyArray_SetBaseObject(array, (PyObject *)py_pixbuf);
     return PyArray_Return(array);
 }
 
