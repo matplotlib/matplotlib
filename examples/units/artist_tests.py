@@ -37,7 +37,7 @@ ax.add_line(line)
 if 0:
     # test a patch
     # Not supported at present.
-    rect = patches.Rectangle( (1*cm, 1*cm), width=5*cm, height=2*cm, alpha=0.2, axes=ax)
+    rect = patches.Rectangle((1*cm, 1*cm), width=5*cm, height=2*cm, alpha=0.2, axes=ax)
     ax.add_patch(rect)
 
 

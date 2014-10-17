@@ -14,8 +14,8 @@ if 1:
     text(2, 7,'this is\nyet another test',
          rotation=45,
          horizontalalignment = 'center',
-         verticalalignment   = 'top',
-         multialignment      = 'center')
+         verticalalignment = 'top',
+         multialignment = 'center')
 
     grid(True)
 

@@ -14,8 +14,8 @@ import datetime
 rule = rrulewrapper(YEARLY, byeaster=1, interval=5)
 loc = RRuleLocator(rule)
 formatter = DateFormatter('%m/%d/%y')
-date1 = datetime.date( 1952, 1, 1 )
-date2 = datetime.date( 2004, 4, 12 )
+date1 = datetime.date(1952, 1, 1)
+date2 = datetime.date(2004, 4, 12)
 delta = datetime.timedelta(days=100)
 
 dates = drange(date1, date2, delta)

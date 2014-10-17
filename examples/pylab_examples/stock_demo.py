@@ -14,6 +14,6 @@ xlim(0, 3)
 ax.xaxis.set_major_locator(MultipleLocator(1))
 
 title('INTC vs AAPL')
-legend( ('INTC', 'AAPL') )
+legend(('INTC', 'AAPL'))
 
 show()
