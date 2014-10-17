@@ -308,7 +308,8 @@ def test_light_source_shading_default():
     assert_array_almost_equal(rgb, expect, decimal=2)
 
 
-@knownfailureif(V(np.__version__) >= V('1.9.0'))
+@knownfailureif(V(np.__version__) >= V('1.9.0') or
+                V(np.__version__) < V('1.7.0'))
 def test_light_source_masked_shading():
     """Array comparison test for a surface with a masked portion. Ensures that
     we don't wind up with "fringes" of odd colors around masked regions."""
