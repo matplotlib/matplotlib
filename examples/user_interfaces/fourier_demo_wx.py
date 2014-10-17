@@ -9,7 +9,7 @@ from matplotlib.figure import Figure
 from matplotlib.pyplot import gcf, setp
 
 
-class Knob:
+class Knob(object):
     """
     Knob - simple class with a "setKnob" method.  
     A Knob instance is attached to a Param instance, e.g., param.attach(knob)
@@ -20,7 +20,7 @@ class Knob:
         pass
 
 
-class Param:
+class Param(object):
     """
     The idea of the "Param" class is that some parameter in the GUI may have
     several knobs that both control it and reflect the parameter's state, e.g.

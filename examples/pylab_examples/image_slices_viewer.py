@@ -3,7 +3,7 @@ import numpy
 from matplotlib.pyplot import figure, show
 
 
-class IndexTracker:
+class IndexTracker(object):
     def __init__(self, ax, X):
         self.ax = ax
         ax.set_title('use scroll wheel to navigate images')

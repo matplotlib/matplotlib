@@ -23,7 +23,7 @@ from .lines import Line2D
 from .transforms import blended_transform_factory
 
 
-class LockDraw:
+class LockDraw(object):
     """
     Some widgets, like the cursor, draw onto the canvas, and this is not
     desirable under all circumstances, like when the toolbar is in

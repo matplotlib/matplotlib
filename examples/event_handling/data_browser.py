@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class PointBrowser:
+class PointBrowser(object):
     """
     Click on a point to select and highlight it -- the data that
     generated the point will be shown in the lower axes.  Use the 'n'

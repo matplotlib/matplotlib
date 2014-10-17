@@ -604,7 +604,7 @@ class FigureManagerTkAgg(FigureManagerBase):
         self.window.attributes('-fullscreen', not is_fullscreen)
 
 
-class AxisMenu:
+class AxisMenu(object):
     def __init__(self, master, naxes):
         self._master = master
         self._naxes = naxes

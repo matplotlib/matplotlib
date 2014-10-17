@@ -33,7 +33,7 @@ Welcome to matplotlib.
 """
 
 
-class Completer:
+class Completer(object):
     """
     Taken from rlcompleter, with readline references stripped, and a local dictionary to use.
     """
@@ -112,7 +112,7 @@ def get_class_members(klass):
     return ret
 
 
-class OutputStream:
+class OutputStream(object):
     """
     A Multiplexing output stream.
     It can replace another stream, and tee output to the original stream and too

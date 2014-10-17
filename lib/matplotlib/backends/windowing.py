@@ -23,7 +23,7 @@ except ImportError:
     def SetForegroundWindow(hwnd):
         pass
 
-class FocusManager:
+class FocusManager(object):
     def __init__(self):
         self._shellWindow = GetForegroundWindow()
 

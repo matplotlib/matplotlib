@@ -8,7 +8,7 @@ from numpy import arange, sin, pi
 from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
 
 
-class Window1Signals:
+class Window1Signals(object):
     def on_window1_destroy(self, widget):
         Gtk.main_quit()
 

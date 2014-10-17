@@ -57,7 +57,7 @@ UP = 1
 DOWN = 3
 
 
-class Sankey:
+class Sankey(object):
     """
     Sankey diagram in matplotlib
 
