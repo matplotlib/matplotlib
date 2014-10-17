@@ -240,7 +240,6 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
     bool close_file = false;
     bool close_dup_file = false;
     PyObject *py_file = NULL;
-    PyArrayObject *A = NULL;
     png_structp png_ptr = NULL;
     png_infop info_ptr = NULL;
     int num_dims;
@@ -248,6 +247,7 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
     png_uint_32 width = 0;
     png_uint_32 height = 0;
     int bit_depth;
+    PyObject *result = NULL;
 
     // TODO: Remove direct calls to Numpy API here
 
@@ -375,10 +375,7 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
     if (float_result) {
         double max_value = (1 << bit_depth) - 1;
 
-        A = (PyArrayObject *)PyArray_SimpleNew(num_dims, dimensions, NPY_FLOAT);
-        if (A == NULL) {
-            goto exit;
-        }
+        numpy::array_view<float, 3> A(dimensions);
 
         for (png_uint_32 y = 0; y < height; y++) {
             png_byte *row = row_pointers[y];
@@ -386,59 +383,49 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
                 if (bit_depth == 16) {
                     png_uint_16 *ptr = &reinterpret_cast<png_uint_16 *>(row)[x * dimensions[2]];
                     for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
-                        *(float *)PyArray_GETPTR3(A, y, x, p) = (float)(ptr[p]) / max_value;
+                        A(y, x, p) = (float)(ptr[p]) / max_value;
                     }
                 } else {
                     png_byte *ptr = &(row[x * dimensions[2]]);
                     for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
-                        *(float *)PyArray_GETPTR3(A, y, x, p) = (float)(ptr[p]) / max_value;
+                        A(y, x, p) = (float)(ptr[p]) / max_value;
                     }
                 }
             }
         }
+
+        result = A.pyobj();
+    } else if (bit_depth == 16) {
+        numpy::array_view<png_uint_16, 3> A(dimensions);
+
+        for (png_uint_32 y = 0; y < height; y++) {
+            png_byte *row = row_pointers[y];
+            for (png_uint_32 x = 0; x < width; x++) {
+                png_uint_16 *ptr = &reinterpret_cast<png_uint_16 *>(row)[x * dimensions[2]];
+                for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
+                    A(y, x, p) = ptr[p];
+                }
+            }
+        }
+
+        result = A.pyobj();
+    } else if (bit_depth == 8) {
+        numpy::array_view<png_byte, 3> A(dimensions);
+
+        for (png_uint_32 y = 0; y < height; y++) {
+            png_byte *row = row_pointers[y];
+            for (png_uint_32 x = 0; x < width; x++) {
+                png_byte *ptr = &(row[x * dimensions[2]]);
+                for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
+                    A(y, x, p) = ptr[p];
+                }
+            }
+        }
+
+        result = A.pyobj();
     } else {
-        if (bit_depth == 8) {
-            A = (PyArrayObject *)PyArray_SimpleNew(num_dims, dimensions, NPY_UBYTE);
-        } else if (bit_depth == 16) {
-            A = (PyArrayObject *)PyArray_SimpleNew(num_dims, dimensions, NPY_UINT16);
-        } else {
-            PyErr_SetString(PyExc_RuntimeError, "image has unknown bit depth");
-            goto exit;
-        }
-
-        if (A == NULL) {
-            goto exit;
-        }
-
-        for (png_uint_32 y = 0; y < height; y++) {
-            png_byte *row = row_pointers[y];
-            for (png_uint_32 x = 0; x < width; x++) {
-                if (bit_depth == 16) {
-                    png_uint_16 *ptr = &reinterpret_cast<png_uint_16 *>(row)[x * dimensions[2]];
-
-                    if (bit_depth == 16) {
-                        for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
-                            *(png_uint_16 *)PyArray_GETPTR3(A, y, x, p) = ptr[p];
-                        }
-                    } else {
-                        for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
-                            *(png_byte *)PyArray_GETPTR3(A, y, x, p) = ptr[p] >> 8;
-                        }
-                    }
-                } else {
-                    png_byte *ptr = &(row[x * dimensions[2]]);
-                    if (bit_depth == 16) {
-                        for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
-                            *(png_uint_16 *)PyArray_GETPTR3(A, y, x, p) = ptr[p];
-                        }
-                    } else {
-                        for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++) {
-                            *(png_byte *)PyArray_GETPTR3(A, y, x, p) = ptr[p];
-                        }
-                    }
-                }
-            }
-        }
+        PyErr_SetString(PyExc_RuntimeError, "image has unknown bit depth");
+        goto exit;
     }
 
     // free the png memory
@@ -467,10 +454,10 @@ exit:
     }
 
     if (PyErr_Occurred()) {
-        Py_XDECREF((PyObject *)A);
+        Py_XDECREF(result);
         return NULL;
     } else {
-        return (PyObject *)A;
+        return result;
     }
 }
 
