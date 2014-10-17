@@ -397,7 +397,7 @@ FT2Image::py_as_array(const Py::Tuple & args)
     dimensions[1] = get_width();   //numcols
 
 
-    PyArrayObject *A = (PyArrayObject *) PyArray_SimpleNewFromData(2, dimensions, PyArray_UBYTE, _buffer);
+    PyArrayObject *A = (PyArrayObject *) PyArray_SimpleNewFromData(2, dimensions, NPY_UBYTE, _buffer);
 
     return Py::asObject((PyObject*)A);
 }
@@ -636,13 +636,13 @@ FT2Font::get_path()
 
     npy_intp vertices_dims[2] = {count, 2};
     vertices = (PyArrayObject*)PyArray_SimpleNew(
-        2, vertices_dims, PyArray_DOUBLE);
+        2, vertices_dims, NPY_DOUBLE);
     if (vertices == NULL) {
         throw;
     }
     npy_intp codes_dims[1] = {count};
     codes = (PyArrayObject*)PyArray_SimpleNew(
-        1, codes_dims, PyArray_UINT8);
+        1, codes_dims, NPY_UINT8);
     if (codes == NULL) {
         throw;
     }

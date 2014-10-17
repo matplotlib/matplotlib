@@ -947,16 +947,16 @@ RendererAgg::draw_text_image(const Py::Tuple& args)
     if (PyArray_Check(image_obj.ptr()))
     {
         PyObject* image_array = PyArray_FromObject(
-            image_obj.ptr(), PyArray_UBYTE, 2, 2);
+            image_obj.ptr(), NPY_UBYTE, 2, 2);
         if (!image_array)
         {
             throw Py::ValueError(
                 "First argument to draw_text_image must be a FT2Font.Image object or a Nx2 uint8 numpy array.");
         }
         image_obj = Py::Object(image_array, true);
-        buffer = (unsigned char *)PyArray_DATA(image_array);
-        width = PyArray_DIM(image_array, 1);
-        height = PyArray_DIM(image_array, 0);
+        buffer = (unsigned char *)PyArray_DATA((PyArrayObject*)image_array);
+        width = PyArray_DIM((PyArrayObject*)image_array, 1);
+        height = PyArray_DIM((PyArrayObject*)image_array, 0);
     }
     else
     {
@@ -1500,7 +1500,7 @@ RendererAgg::_draw_path_collection_generic
     typedef agg::conv_curve<clipped_t>                                 curve_t;
 
     PyArrayObject* offsets = (PyArrayObject*)PyArray_FromObject
-        (offsets_obj.ptr(), PyArray_DOUBLE, 0, 2);
+        (offsets_obj.ptr(), NPY_DOUBLE, 0, 2);
     if (!offsets ||
         (PyArray_NDIM(offsets) == 2 && PyArray_DIM(offsets, 1) != 2) ||
         (PyArray_NDIM(offsets) == 1 && PyArray_DIM(offsets, 0) != 0))
@@ -1511,7 +1511,7 @@ RendererAgg::_draw_path_collection_generic
     Py::Object offsets_arr_obj((PyObject*)offsets, true);
 
     PyArrayObject* facecolors = (PyArrayObject*)PyArray_FromObject
-        (facecolors_obj.ptr(), PyArray_DOUBLE, 1, 2);
+        (facecolors_obj.ptr(), NPY_DOUBLE, 1, 2);
     if (!facecolors ||
         (PyArray_NDIM(facecolors) == 1 && PyArray_DIM(facecolors, 0) != 0) ||
         (PyArray_NDIM(facecolors) == 2 && PyArray_DIM(facecolors, 1) != 4))
@@ -1522,7 +1522,7 @@ RendererAgg::_draw_path_collection_generic
     Py::Object facecolors_arr_obj((PyObject*)facecolors, true);
 
     PyArrayObject* edgecolors = (PyArrayObject*)PyArray_FromObject
-        (edgecolors_obj.ptr(), PyArray_DOUBLE, 1, 2);
+        (edgecolors_obj.ptr(), NPY_DOUBLE, 1, 2);
     if (!edgecolors ||
         (PyArray_NDIM(edgecolors) == 1 && PyArray_DIM(edgecolors, 0) != 0) ||
         (PyArray_NDIM(edgecolors) == 2 && PyArray_DIM(edgecolors, 1) != 4))
@@ -1533,7 +1533,7 @@ RendererAgg::_draw_path_collection_generic
     Py::Object edgecolors_arr_obj((PyObject*)edgecolors, true);
 
     PyArrayObject* transforms_arr = (PyArrayObject*)PyArray_FromObject
-        (transforms_obj.ptr(), PyArray_DOUBLE, 1, 3);
+        (transforms_obj.ptr(), NPY_DOUBLE, 1, 3);
     if (!transforms_arr ||
         (PyArray_NDIM(transforms_arr) == 1 && PyArray_DIM(transforms_arr, 0) != 0) ||
         (PyArray_NDIM(transforms_arr) == 2) ||
@@ -1546,11 +1546,11 @@ RendererAgg::_draw_path_collection_generic
     }
 
     size_t Npaths      = path_generator.num_paths();
-    size_t Noffsets    = offsets->dimensions[0];
+    size_t Noffsets    = PyArray_DIM(offsets, 0);
     size_t N           = std::max(Npaths, Noffsets);
-    size_t Ntransforms = transforms_arr->dimensions[0];
-    size_t Nfacecolors = facecolors->dimensions[0];
-    size_t Nedgecolors = edgecolors->dimensions[0];
+    size_t Ntransforms = PyArray_DIM(transforms_arr, 0);
+    size_t Nfacecolors = PyArray_DIM(facecolors, 0);
+    size_t Nedgecolors = PyArray_DIM(edgecolors, 0);
     size_t Nlinewidths = linewidths.length();
     size_t Nlinestyles = std::min(linestyles_obj.length(), N);
     size_t Naa         = antialiaseds.length();
@@ -1867,7 +1867,7 @@ public:
     {
         PyArrayObject* coordinates_array = \
             (PyArrayObject*)PyArray_ContiguousFromObject(
-                coordinates, PyArray_DOUBLE, 3, 3);
+                coordinates, NPY_DOUBLE, 3, 3);
 
         if (!coordinates_array)
         {
@@ -1931,7 +1931,7 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args)
         else
         {
             npy_intp dims[] = { 0, 0 };
-            edgecolors_obj = PyArray_SimpleNew(1, dims, PyArray_DOUBLE);
+            edgecolors_obj = PyArray_SimpleNew(1, dims, NPY_DOUBLE);
         }
     }
 
@@ -2040,7 +2040,7 @@ RendererAgg::draw_gouraud_triangle(const Py::Tuple& args)
     bool has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
 
     PyArrayObject* points = (PyArrayObject*)PyArray_ContiguousFromAny
-        (points_obj.ptr(), PyArray_DOUBLE, 2, 2);
+        (points_obj.ptr(), NPY_DOUBLE, 2, 2);
     if (!points ||
         PyArray_DIM(points, 0) != 3 || PyArray_DIM(points, 1) != 2)
     {
@@ -2050,7 +2050,7 @@ RendererAgg::draw_gouraud_triangle(const Py::Tuple& args)
     points_obj = Py::Object((PyObject*)points, true);
 
     PyArrayObject* colors = (PyArrayObject*)PyArray_ContiguousFromAny
-        (colors_obj.ptr(), PyArray_DOUBLE, 2, 2);
+        (colors_obj.ptr(), NPY_DOUBLE, 2, 2);
     if (!colors ||
         PyArray_DIM(colors, 0) != 3 || PyArray_DIM(colors, 1) != 4)
     {
@@ -2089,7 +2089,7 @@ RendererAgg::draw_gouraud_triangles(const Py::Tuple& args)
     bool has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
 
     PyArrayObject* points = (PyArrayObject*)PyArray_FromObject
-        (points_obj.ptr(), PyArray_DOUBLE, 3, 3);
+        (points_obj.ptr(), NPY_DOUBLE, 3, 3);
     if (!points ||
         PyArray_DIM(points, 1) != 3 || PyArray_DIM(points, 2) != 2)
     {
@@ -2099,7 +2099,7 @@ RendererAgg::draw_gouraud_triangles(const Py::Tuple& args)
     points_obj = Py::Object((PyObject*)points, true);
 
     PyArrayObject* colors = (PyArrayObject*)PyArray_FromObject
-        (colors_obj.ptr(), PyArray_DOUBLE, 3, 3);
+        (colors_obj.ptr(), NPY_DOUBLE, 3, 3);
     if (!colors ||
         PyArray_DIM(colors, 1) != 3 || PyArray_DIM(colors, 2) != 4)
     {

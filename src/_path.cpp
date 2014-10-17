@@ -362,7 +362,7 @@ _path_module::points_in_path(const Py::Tuple& args)
 
     npy_intp n;
     PyArrayObject* points_array;
-    points_array = (PyArrayObject*)PyArray_FromObject(args[0].ptr(), PyArray_DOUBLE, 2, 2);
+    points_array = (PyArrayObject*)PyArray_FromObject(args[0].ptr(), NPY_DOUBLE, 2, 2);
     if (points_array == NULL || PyArray_DIM(points_array, 1) != 2) {
         throw Py::TypeError(
             "Argument 0 to points_in_path must be an Nx2 numpy array");
@@ -373,7 +373,7 @@ _path_module::points_in_path(const Py::Tuple& args)
     agg::trans_affine trans = py_to_agg_transformation_matrix(args[3].ptr(), false);
 
     n = PyArray_DIM(points_array, 0);
-    PyObject* result = PyArray_ZEROS(1, &n, PyArray_BOOL, 0);
+    PyObject* result = PyArray_ZEROS(1, &n, NPY_BOOL, 0);
     if (result == NULL) {
         throw Py::MemoryError("Could not allocate memory for result");
     }
@@ -382,7 +382,7 @@ _path_module::points_in_path(const Py::Tuple& args)
                      PyArray_STRIDE(points_array, 0),
                      PyArray_STRIDE(points_array, 1),
                      n, r, path, trans,
-                     (npy_bool *)PyArray_DATA(result));
+                     (npy_bool *)PyArray_DATA((PyArrayObject*)result));
     Py_DECREF(points_array);
 
     return Py::Object(result, true);;
@@ -460,7 +460,7 @@ _path_module::get_path_extents(const Py::Tuple& args)
     try
     {
         extents = (PyArrayObject*)PyArray_SimpleNew
-                  (2, extent_dims, PyArray_DOUBLE);
+                  (2, extent_dims, NPY_DOUBLE);
         if (extents == NULL)
         {
             throw Py::MemoryError("Could not allocate result array");
@@ -511,7 +511,7 @@ _path_module::update_path_extents(const Py::Tuple& args)
     try
     {
         input_minpos = (PyArrayObject*)PyArray_FromObject(
-            minpos_obj.ptr(), PyArray_DOUBLE, 1, 1);
+            minpos_obj.ptr(), NPY_DOUBLE, 1, 1);
         if (!input_minpos || PyArray_DIM(input_minpos, 0) != 2)
         {
             throw Py::TypeError(
@@ -538,13 +538,13 @@ _path_module::update_path_extents(const Py::Tuple& args)
     try
     {
         extents = (PyArrayObject*)PyArray_SimpleNew
-                  (2, extent_dims, PyArray_DOUBLE);
+                  (2, extent_dims, NPY_DOUBLE);
         if (extents == NULL)
         {
             throw Py::MemoryError("Could not allocate result array");
         }
         minpos = (PyArrayObject*)PyArray_SimpleNew
-                 (1, minpos_dims, PyArray_DOUBLE);
+                 (1, minpos_dims, NPY_DOUBLE);
         if (minpos == NULL)
         {
             throw Py::MemoryError("Could not allocate result array");
@@ -636,7 +636,7 @@ _path_module::get_path_collection_extents(const Py::Tuple& args)
     try
     {
         offsets = (PyArrayObject*)PyArray_FromObject(
-            offsets_obj.ptr(), PyArray_DOUBLE, 0, 2);
+            offsets_obj.ptr(), NPY_DOUBLE, 0, 2);
         if (!offsets ||
             (PyArray_NDIM(offsets) == 2 && PyArray_DIM(offsets, 1) != 2) ||
             (PyArray_NDIM(offsets) == 1 && PyArray_DIM(offsets, 0) != 0))
@@ -645,7 +645,7 @@ _path_module::get_path_collection_extents(const Py::Tuple& args)
         }
 
         size_t Npaths      = paths.length();
-        size_t Noffsets    = offsets->dimensions[0];
+        size_t Noffsets    = PyArray_DIM(offsets, 0);
         size_t N           = std::max(Npaths, Noffsets);
         size_t Ntransforms = std::min(transforms_obj.length(), N);
         size_t i;
@@ -761,7 +761,7 @@ _path_module::point_in_path_collection(const Py::Tuple& args)
     bool data_offsets = (offset_position == "data");
 
     PyArrayObject* offsets = (PyArrayObject*)PyArray_FromObject(
-        offsets_obj.ptr(), PyArray_DOUBLE, 0, 2);
+        offsets_obj.ptr(), NPY_DOUBLE, 0, 2);
     if (!offsets ||
             (PyArray_NDIM(offsets) == 2 && PyArray_DIM(offsets, 1) != 2) ||
             (PyArray_NDIM(offsets) == 1 && PyArray_DIM(offsets, 0) != 0))
@@ -778,7 +778,8 @@ _path_module::point_in_path_collection(const Py::Tuple& args)
         return result;
     }
 
-    size_t Noffsets    = offsets->dimensions[0];
+    size_t Noffsets    = PyArray_DIM(offsets, 0);
+
     size_t N           = std::max(Npaths, Noffsets);
     size_t Ntransforms = std::min(transforms_obj.length(), N);
     size_t i;
@@ -1126,18 +1127,19 @@ _path_module::clip_path_to_rect(const Py::Tuple &args)
         {
             size_t size = p->size();
             dims[0] = (npy_intp)size + 1;
-            PyArrayObject* pyarray = (PyArrayObject*)PyArray_SimpleNew(2, dims, PyArray_DOUBLE);
+            PyArrayObject* pyarray = (PyArrayObject*)PyArray_SimpleNew(2, dims, NPY_DOUBLE);
             if (pyarray == NULL)
             {
                 throw Py::MemoryError("Could not allocate result array");
             }
+            double* const data = (double*)PyArray_DATA(pyarray);
             for (size_t i = 0; i < size; ++i)
             {
-                ((double *)pyarray->data)[2*i]   = (*p)[i].x;
-                ((double *)pyarray->data)[2*i+1] = (*p)[i].y;
+                data[2*i]   = (*p)[i].x;
+                data[2*i+1] = (*p)[i].y;
             }
-            ((double *)pyarray->data)[2*size]   = (*p)[0].x;
-            ((double *)pyarray->data)[2*size+1] = (*p)[0].y;
+            data[2*size]   = (*p)[0].x;
+            data[2*size+1] = (*p)[0].y;
 
             if (PyList_SetItem(py_results, p - results.begin(), (PyObject *)pyarray) == -1)
             {
@@ -1169,7 +1171,7 @@ _path_module::affine_transform(const Py::Tuple& args)
     try
     {
         vertices = (PyArrayObject*)PyArray_FromObject
-                   (vertices_obj.ptr(), PyArray_DOUBLE, 1, 2);
+                   (vertices_obj.ptr(), NPY_DOUBLE, 1, 2);
         if (!vertices ||
             (PyArray_NDIM(vertices) == 2 && PyArray_DIM(vertices, 0) != 0 &&
              PyArray_DIM(vertices, 1) != 2) ||
@@ -1180,7 +1182,7 @@ _path_module::affine_transform(const Py::Tuple& args)
         }
 
         transform = (PyArrayObject*) PyArray_FromObject
-                    (transform_obj.ptr(), PyArray_DOUBLE, 2, 2);
+                    (transform_obj.ptr(), NPY_DOUBLE, 2, 2);
         if (!transform ||
             PyArray_DIM(transform, 0) != 3 ||
             PyArray_DIM(transform, 1) != 3)
@@ -1209,7 +1211,7 @@ _path_module::affine_transform(const Py::Tuple& args)
         }
 
         result = (PyArrayObject*)PyArray_SimpleNew
-                 (PyArray_NDIM(vertices), PyArray_DIMS(vertices), PyArray_DOUBLE);
+                 (PyArray_NDIM(vertices), PyArray_DIMS(vertices), NPY_DOUBLE);
         if (result == NULL)
         {
             throw Py::MemoryError("Could not allocate memory for path");
@@ -1430,7 +1432,7 @@ _add_polygon(Py::List& polygons, const std::vector<double>& polygon)
     npy_intp polygon_dims[] = { static_cast<npy_intp>(polygon.size() / 2), 2, 0 };
     PyArrayObject* polygon_array = NULL;
     polygon_array = (PyArrayObject*)PyArray_SimpleNew
-                    (2, polygon_dims, PyArray_DOUBLE);
+                    (2, polygon_dims, NPY_DOUBLE);
     if (!polygon_array)
     {
         throw Py::MemoryError("Error creating polygon array");
@@ -1647,14 +1649,14 @@ _path_module::cleanup_path(const Py::Tuple& args)
     try
     {
         vertices_obj = (PyArrayObject*)PyArray_SimpleNew
-                       (2, dims, PyArray_DOUBLE);
+                       (2, dims, NPY_DOUBLE);
         if (vertices_obj == NULL)
         {
             throw Py::MemoryError("Could not allocate result array");
         }
 
         codes_obj = (PyArrayObject*)PyArray_SimpleNew
-                    (1, dims, PyArray_UINT8);
+                    (1, dims, NPY_UINT8);
         if (codes_obj == NULL)
         {
             throw Py::MemoryError("Could not allocate result array");
