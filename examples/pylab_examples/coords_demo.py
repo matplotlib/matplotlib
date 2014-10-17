@@ -20,7 +20,7 @@ def on_move(event):
 
     if event.inaxes:
         ax = event.inaxes  # the axes instance
-        print ('data coords %f %f' % (event.xdata, event.ydata))
+        print('data coords %f %f' % (event.xdata, event.ydata))
 
 
 def on_click(event):
@@ -28,13 +28,13 @@ def on_click(event):
     x, y = event.x, event.y
     if event.button==1:
         if event.inaxes is not None:
-            print ('data coords %f %f' % (event.xdata, event.ydata))
+            print('data coords %f %f' % (event.xdata, event.ydata))
 
 binding_id = connect('motion_notify_event', on_move)
 connect('button_press_event', on_click)
 
 if "test_disconnect" in sys.argv:
-    print ("disconnecting console coordinate printout...")
+    print("disconnecting console coordinate printout...")
     disconnect(binding_id)
 
 show()

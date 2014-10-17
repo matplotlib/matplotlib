@@ -78,20 +78,20 @@ setp(l1, linewidth=2, color='r')  # line1 is thick and red
 setp(l2, linewidth=1, color='g')  # line2 is thicker and green
 
 
-print ('Line setters')
+print('Line setters')
 setp(l1)
-print ('Line getters')
+print('Line getters')
 getp(l1)
 
-print ('Rectangle setters')
+print('Rectangle setters')
 setp(gca().patch)
-print ('Rectangle getters')
+print('Rectangle getters')
 getp(gca().patch)
 
 t = title('Hi mom')
-print ('Text setters')
+print('Text setters')
 setp(t)
-print ('Text getters')
+print('Text getters')
 getp(t)
 
 show()
