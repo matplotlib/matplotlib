@@ -53,7 +53,7 @@ class ClabelText(text.Text):
         return new_angles[0]
 
 
-class ContourLabeler:
+class ContourLabeler(object):
     """Mixin to provide labelling capability to ContourSet"""
 
     def clabel(self, *args, **kwargs):

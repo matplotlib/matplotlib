@@ -1653,7 +1653,7 @@ def prepca(P, frac=0):
     return Pcomponents, Trans, fracVar[ind]
 
 
-class PCA:
+class PCA(object):
     def __init__(self, a, standardize=True):
         """
         compute the SVD of a and store data for PCA.  Use project to
@@ -2057,7 +2057,7 @@ def fftsurr(x, detrend=detrend_none, window=window_none):
     return np.fft.ifft(z).real
 
 
-class FIFOBuffer:
+class FIFOBuffer(object):
     """
     A FIFO queue to hold incoming *x*, *y* data in a rotating buffer
     using numpy arrays under the hood.  It is assumed that you will
@@ -3107,7 +3107,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
 
 # a series of classes for describing the format intentions of various rec views
-class FormatObj:
+class FormatObj(object):
     def tostr(self, x):
         return self.toval(x)
 

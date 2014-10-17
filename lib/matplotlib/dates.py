@@ -244,7 +244,7 @@ def _from_ordinalf(x, tz=None):
 _from_ordinalf_np_vectorized = np.vectorize(_from_ordinalf)
 
 
-class strpdate2num:
+class strpdate2num(object):
     """
     Use this class to parse date strings to matplotlib datenums when
     you know the date format string of the date you are parsing.  See
@@ -587,7 +587,7 @@ class AutoDateFormatter(ticker.Formatter):
         return result
 
 
-class rrulewrapper:
+class rrulewrapper(object):
 
     def __init__(self, freq, **kwargs):
         self._construct = kwargs.copy()

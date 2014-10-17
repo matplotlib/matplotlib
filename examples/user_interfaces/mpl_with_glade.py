@@ -31,14 +31,14 @@ def simple_msg(msg, parent=None, title=None):
     return None
 
 
-class GladeHandlers:
+class GladeHandlers(object):
     def on_buttonClickMe_clicked(event):
         simple_msg('Nothing to say, really',
                    parent=widgets['windowMain'],
                    title='Thanks!')
 
 
-class WidgetsWrapper:
+class WidgetsWrapper(object):
     def __init__(self):
         self.widgets = gtk.glade.XML('mpl_with_glade.glade')
         self.widgets.signal_autoconnect(GladeHandlers.__dict__)

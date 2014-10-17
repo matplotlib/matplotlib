@@ -151,7 +151,7 @@ class AxesStack(Stack):
         return a in self.as_list()
 
 
-class SubplotParams:
+class SubplotParams(object):
     """
     A class to hold the parameters for a subplot
     """

@@ -699,7 +699,7 @@ class FileChooserDialog(Gtk.FileChooserDialog):
 
         return filename, self.ext
 
-class DialogLineprops:
+class DialogLineprops(object):
     """
     A GUI dialog for controlling lineprops
     """

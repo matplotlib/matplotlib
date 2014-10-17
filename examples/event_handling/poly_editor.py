@@ -9,7 +9,7 @@ from matplotlib.artist import Artist
 from matplotlib.mlab import dist_point_to_segment
 
 
-class PolygonInteractor:
+class PolygonInteractor(object):
     """
     An polygon editor.
 

@@ -92,7 +92,7 @@ def escape_attrib(s):
 # @param file A file or file-like object.  This object must implement
 #    a <b>write</b> method that takes an 8-bit string.
 
-class XMLWriter:
+class XMLWriter(object):
     def __init__(self, file):
         self.__write = file.write
         if hasattr(file, "flush"):

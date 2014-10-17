@@ -1312,7 +1312,7 @@ class Line2D(Artist):
         return self._linestyle in ('--', '-.', ':')
 
 
-class VertexSelector:
+class VertexSelector(object):
     """
     Manage the callbacks to maintain a list of selected vertices for
     :class:`matplotlib.lines.Line2D`. Derived classes should override
