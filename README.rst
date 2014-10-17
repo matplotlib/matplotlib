@@ -20,7 +20,7 @@ Testing
 
 After installation, you can launch the test suite::
 
-  python tests.py
+  python setup.py tests
 
 Consider reading http://matplotlib.org/devel/coding_guide.html#testing for
 more information.
