@@ -8,7 +8,7 @@ import matplotlib.image as image
 import matplotlib.pyplot as plt
 
 datafile = cbook.get_sample_data('logo2.png', asfileobj=False)
-print ('loading %s' % datafile)
+print('loading %s' % datafile)
 im = image.imread(datafile)
 im[:, :, -1] = 0.5  # set the alpha channel
 

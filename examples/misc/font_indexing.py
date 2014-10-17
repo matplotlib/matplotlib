@@ -19,7 +19,7 @@ codes = font.get_charmap().items()
 #for ccode, glyphind in dsu:
 #    try: name = font.get_glyph_name(glyphind)
 #    except RuntimeError: pass
-#    else: print '% 4d % 4d %s %s'%(glyphind, ccode, hex(int(ccode)), name)
+#    else: print('% 4d % 4d %s %s' % (glyphind, ccode, hex(int(ccode)), name))
 
 
 # make a charname to charcode and glyphind dictionary
@@ -32,7 +32,7 @@ for ccode, glyphind in codes:
 
 code = coded['A']
 glyph = font.load_char(code)
-#print glyph.bbox
+#print(glyph.bbox)
 print(glyphd['A'], glyphd['V'], coded['A'], coded['V'])
 print('AV', font.get_kerning(glyphd['A'], glyphd['V'], KERNING_DEFAULT))
 print('AV', font.get_kerning(glyphd['A'], glyphd['V'], KERNING_UNFITTED))

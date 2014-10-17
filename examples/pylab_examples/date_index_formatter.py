@@ -16,7 +16,7 @@ import matplotlib.cbook as cbook
 from matplotlib.ticker import Formatter
 
 datafile = cbook.get_sample_data('msft.csv', asfileobj=False)
-print ('loading %s' % datafile)
+print('loading %s' % datafile)
 r = csv2rec(datafile)[-40:]
 
 

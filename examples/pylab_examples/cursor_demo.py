@@ -64,7 +64,7 @@ class SnaptoCursor(object):
         self.ly.set_xdata(x)
 
         self.txt.set_text('x=%1.2f, y=%1.2f'%(x,y))
-        print ('x=%1.2f, y=%1.2f'%(x,y))
+        print('x=%1.2f, y=%1.2f'%(x,y))
         draw()
 
 t = arange(0.0, 1.0, 0.01)

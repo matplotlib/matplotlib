@@ -40,7 +40,7 @@ if 1:   # plot the EEG
 
     numSamples, numRows = 800,4
     eegfile = cbook.get_sample_data('eeg.dat', asfileobj=False)
-    print ('loading eeg %s' % eegfile)
+    print('loading eeg %s' % eegfile)
     data = np.fromstring(open(eegfile, 'rb').read(), float)
     data.shape = numSamples, numRows
     t = 10.0 * np.arange(numSamples, dtype=float)/numSamples
