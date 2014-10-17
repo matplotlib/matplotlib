@@ -104,7 +104,7 @@ class PathIterator
         m_simplify_threshold = simplify_threshold;
 
         Py_XDECREF(m_vertices);
-        m_vertices = (PyArrayObject *)PyArray_FromObject(vertices, PyArray_DOUBLE, 2, 2);
+        m_vertices = (PyArrayObject *)PyArray_FromObject(vertices, NPY_DOUBLE, 2, 2);
 
         if (!m_vertices || PyArray_DIM(m_vertices, 1) != 2) {
             PyErr_SetString(PyExc_ValueError, "Invalid vertices array");
@@ -115,7 +115,7 @@ class PathIterator
         m_codes = NULL;
 
         if (codes != NULL && codes != Py_None) {
-            m_codes = (PyArrayObject *)PyArray_FromObject(codes, PyArray_UINT8, 1, 1);
+            m_codes = (PyArrayObject *)PyArray_FromObject(codes, NPY_UINT8, 1, 1);
 
             if (!m_codes || PyArray_DIM(m_codes, 0) != PyArray_DIM(m_vertices, 0)) {
                 PyErr_SetString(PyExc_ValueError, "Invalid codes array");
