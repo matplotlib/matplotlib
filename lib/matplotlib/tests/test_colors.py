@@ -237,13 +237,14 @@ def test_colors_no_float():
 def test_light_source_topo_surface():
     """Shades a DEM using different v.e.'s and blend modes."""
     fname = cbook.get_sample_data('jacksboro_fault_dem.npz', asfileobj=False)
-    with np.load(fname) as dem:
-        elev = dem['elevation']
-        # Get the true cellsize in meters for accurate vertical exaggeration
-        #   Convert from decimal degrees to meters
-        dx, dy = dem['dx'], dem['dy']
-        dx = 111320.0 * dx * np.cos(dem['ymin'])
-        dy = 111320.0 * dy
+    dem = np.load(fname)
+    elev = dem['elevation']
+    # Get the true cellsize in meters for accurate vertical exaggeration
+    #   Convert from decimal degrees to meters
+    dx, dy = dem['dx'], dem['dy']
+    dx = 111320.0 * dx * np.cos(dem['ymin'])
+    dy = 111320.0 * dy
+    dem.close()
 
     ls = mcolors.LightSource(315, 45)
     cmap = cm.gist_earth
