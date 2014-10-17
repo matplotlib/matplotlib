@@ -37,13 +37,13 @@ s2 = exp(-t)
 s3 = sin(4*pi*t)
 ax1 = subplot(311)
 plot(t,s1)
-setp( ax1.get_xticklabels(), fontsize=6)
+setp(ax1.get_xticklabels(), fontsize=6)
 
 ## share x only
 ax2 = subplot(312, sharex=ax1)
 plot(t, s2)
 # make these tick labels invisible
-setp( ax2.get_xticklabels(), visible=False)
+setp(ax2.get_xticklabels(), visible=False)
 
 # share x and y
 ax3 = subplot(313,  sharex=ax1, sharey=ax1)

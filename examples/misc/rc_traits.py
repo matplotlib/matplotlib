@@ -13,10 +13,10 @@ from matplotlib.artist import Artist
 doprint = True
 flexible_true_trait = traits.Trait(
    True,
-   { 'true':  True, 't': True, 'yes': True, 'y': True, 'on':  True, True: True,
+   {'true':  True, 't': True, 'yes': True, 'y': True, 'on':  True, True: True,
      'false': False, 'f': False, 'no':  False, 'n': False, 'off': False, False: False
-                              } )
-flexible_false_trait = traits.Trait( False, flexible_true_trait )
+                              })
+flexible_false_trait = traits.Trait(False, flexible_true_trait)
 
 colors = {
    'c' : '#00bfbf',
@@ -83,7 +83,7 @@ hex_to_rgba.info = 'a hex color string'
 
 def colorname_to_rgba(ob, name, val):
     hex = colors[val.lower()]
-    r,g,b =  hex2color(hex)
+    r,g,b = hex2color(hex)
     return RGBA(r,g,b,1.0)
 colorname_to_rgba.info = 'a named color'
 
@@ -102,7 +102,7 @@ def file_exists(ob, name, val):
     fh = file(val, 'r')
     return val
 
-linestyles  = ('-', '--', '-.', ':', 'steps', 'None')
+linestyles = ('-', '--', '-.', ':', 'steps', 'None')
 TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN = range(4)
 linemarkers = (None, '.', ',', 'o', '^', 'v', '<', '>', 's',
                  '+', 'x', 'd', 'D', '|', '_', 'h', 'H',
@@ -116,23 +116,23 @@ linemarkers = (None, '.', ',', 'o', '^', 'v', '<', '>', 's',
 
 
 class LineRC(traits.HasTraits):
-    linewidth       = traits.Float(0.5)
-    linestyle       = traits.Trait(*linestyles)
-    color           = Color
-    marker          = traits.Trait(*linemarkers)
+    linewidth = traits.Float(0.5)
+    linestyle = traits.Trait(*linestyles)
+    color = Color
+    marker = traits.Trait(*linemarkers)
     markerfacecolor = Color
     markeredgecolor = Color
     markeredgewidth = traits.Float(0.5)
-    markersize      = traits.Float(6)
-    antialiased     = flexible_true_trait
-    data_clipping   = flexible_false_trait
+    markersize = traits.Float(6)
+    antialiased = flexible_true_trait
+    data_clipping = flexible_false_trait
 
 
 class PatchRC(traits.HasTraits):
-    linewidth       = traits.Float(1.0)
+    linewidth = traits.Float(1.0)
     facecolor = Color
     edgecolor = Color
-    antialiased     = flexible_true_trait
+    antialiased = flexible_true_trait
 
 timezones = 'UTC', 'US/Central', 'ES/Eastern' # fixme: and many more
 backends = ('GTKAgg', 'Cairo', 'GDK', 'GTK', 'Agg',
@@ -142,11 +142,11 @@ backends = ('GTKAgg', 'Cairo', 'GDK', 'GTK', 'Agg',
 
 class RC(traits.HasTraits):
     backend = traits.Trait(*backends)
-    interactive  = flexible_false_trait
-    toolbar      = traits.Trait('toolbar2', 'classic', None)
-    timezone     = traits.Trait(*timezones)
-    lines        = traits.Trait(LineRC())
-    patch        = traits.Trait(PatchRC())
+    interactive = flexible_false_trait
+    toolbar = traits.Trait('toolbar2', 'classic', None)
+    timezone = traits.Trait(*timezones)
+    lines = traits.Trait(LineRC())
+    patch = traits.Trait(PatchRC())
 
 rc = RC()
 rc.lines.color = 'r'

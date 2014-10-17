@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
     # draw a horizontal bar with length of 0.1 in Data coordinate
     # (ax.transData) with a label underneath.
-    asb =  AnchoredSizeBar(ax.transData,
+    asb = AnchoredSizeBar(ax.transData,
                           0.1,
                           r"1$^{\prime}$",
                           loc=8,

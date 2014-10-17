@@ -36,7 +36,7 @@ def moving_average(x, n, type='simple'):
 
     weights /= weights.sum()
 
-    a =  np.convolve(x, weights, mode='full')[:len(x)]
+    a = np.convolve(x, weights, mode='full')[:len(x)]
     a[:n] = a[n]
     return a
 
@@ -96,12 +96,12 @@ rect3 = [left, 0.1, width, 0.2]
 
 
 fig = plt.figure(facecolor='white')
-axescolor  = '#f6f6f6'  # the axes background color
+axescolor = '#f6f6f6'  # the axes background color
 
 ax1 = fig.add_axes(rect1, axisbg=axescolor)  #left, bottom, width, height
 ax2 = fig.add_axes(rect2, axisbg=axescolor, sharex=ax1)
 ax2t = ax2.twinx()
-ax3  = fig.add_axes(rect3, axisbg=axescolor, sharex=ax1)
+ax3 = fig.add_axes(rect3, axisbg=axescolor, sharex=ax1)
 
 
 ### plot the relative strength indicator
@@ -144,7 +144,7 @@ s = '%s O:%1.2f H:%1.2f L:%1.2f C:%1.2f, V:%1.1fM Chg:%+1.2f' % (
     last.open, last.high,
     last.low, last.close,
     last.volume*1e-6,
-    last.close-last.open )
+    last.close-last.open)
 t4 = ax2.text(0.3, 0.9, s, transform=ax2.transAxes, fontsize=textsize)
 
 props = font_manager.FontProperties(size=10)

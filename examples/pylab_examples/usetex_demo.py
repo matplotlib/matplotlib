@@ -37,7 +37,7 @@ pylab.xticks((-1, 0,  1), ('-1', '0',  '1'), color = 'k', size = 20)
 
 ## Left Y-axis labels
 pylab.ylabel(r'\bf{phase field} $\phi$', {'color'    : 'b',
-                                   'fontsize'   : 20 })
+                                   'fontsize'   : 20})
 pylab.yticks((0, 0.5, 1), ('0', '.5', '1'), color = 'k', size = 20)
 
 ## Right Y-axis labels

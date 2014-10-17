@@ -27,7 +27,7 @@ x = mu + sigma*randn(10000)
 n, bins, patches = ax.hist(x, 50, normed=1)
 
 # add a 'best fit' line
-y = normpdf( bins, mu, sigma)
+y = normpdf(bins, mu, sigma)
 line, = ax.plot(bins, y, 'r--')
 line.set_linewidth(1)
 
@@ -35,8 +35,8 @@ ax.set_xlabel('Smarts')
 ax.set_ylabel('Probability')
 ax.set_title(r'$\mathrm{Histogram of IQ: }\mu=100, \sigma=15$')
 
-ax.set_xlim( (40, 160))
-ax.set_ylim( (0, 0.03))
+ax.set_xlim((40, 160))
+ax.set_ylim((0, 0.03))
 
 canvas.draw()
 
@@ -55,5 +55,5 @@ if 0:
 if 0:
     # pass off to PIL
     from PIL import Image
-    im = Image.fromstring( "RGB", (w,h), s)
+    im = Image.fromstring("RGB", (w,h), s)
     im.show()

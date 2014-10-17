@@ -13,7 +13,7 @@ plt.axis([0, 1, -10, 10])
 
 axcolor = 'lightgoldenrodyellow'
 axfreq = plt.axes([0.25, 0.1, 0.65, 0.03], axisbg=axcolor)
-axamp  = plt.axes([0.25, 0.15, 0.65, 0.03], axisbg=axcolor)
+axamp = plt.axes([0.25, 0.15, 0.65, 0.03], axisbg=axcolor)
 
 sfreq = Slider(axfreq, 'Freq', 0.1, 30.0, valinit=f0)
 samp = Slider(axamp, 'Amp', 0.1, 10.0, valinit=a0)
