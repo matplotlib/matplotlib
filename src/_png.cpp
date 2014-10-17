@@ -369,8 +369,6 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
     } else {
         dimensions[2] = 1; // Greyscale images
     }
-    // For gray, return an x by y array, not an x by y by 1
-    num_dims = (png_get_color_type(png_ptr, info_ptr) & PNG_COLOR_MASK_COLOR) ? 3 : 2;
 
     if (float_result) {
         double max_value = (1 << bit_depth) - 1;
@@ -430,6 +428,16 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
 
     // free the png memory
     png_read_end(png_ptr, info_ptr);
+
+    // For gray, return an x by y array, not an x by y by 1
+    num_dims = (png_get_color_type(png_ptr, info_ptr) & PNG_COLOR_MASK_COLOR) ? 3 : 2;
+
+    if (num_dims == 2) {
+        PyArray_Dims dims = {dimensions, 2};
+        PyObject *reshaped = PyArray_Newshape((PyArrayObject *)result, &dims, NPY_CORDER);
+        Py_DECREF(result);
+        result = reshaped;
+    }
 
 exit:
     if (png_ptr && info_ptr) {
