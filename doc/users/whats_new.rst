@@ -29,6 +29,12 @@ revision, see the :ref:`github-stats`.
 new in matplotlib-1.5
 =====================
 
+Legend
+------
+Added ability to place the label before the marker in a legend box with
+``markerfirst`` keyword
+
+
 Widgets
 -------
 
