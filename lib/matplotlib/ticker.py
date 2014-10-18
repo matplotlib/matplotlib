@@ -1145,7 +1145,7 @@ def closeto(x, y):
         return False
 
 
-class Base:
+class Base(object):
     'this solution has some hacks to deal with floating point inaccuracies'
     def __init__(self, base):
         assert(base > 0)

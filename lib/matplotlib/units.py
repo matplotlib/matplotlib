@@ -51,7 +51,7 @@ from matplotlib.cbook import iterable, is_numlike
 import numpy as np
 
 
-class AxisInfo:
+class AxisInfo(object):
     """information to support default axis labeling and tick labeling, and
        default limits"""
     def __init__(self, majloc=None, minloc=None,
@@ -72,7 +72,7 @@ class AxisInfo:
         self.default_limits = default_limits
 
 
-class ConversionInterface:
+class ConversionInterface(object):
     """
     The minimal interface for a converter to take custom instances (or
     sequences) and convert them to values mpl can use

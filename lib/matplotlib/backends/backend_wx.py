@@ -102,7 +102,7 @@ def debug_on_error(type, value, tb):
     print()
     pdb.pm()  # jdh uncomment
 
-class fake_stderr:
+class fake_stderr(object):
     """Wx does strange things with stderr, as it makes the assumption that there
     is probably no console. This redirects stderr to the console, since we know
     that there is one!"""

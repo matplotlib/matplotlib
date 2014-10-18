@@ -873,7 +873,7 @@ class Artist(object):
         return artists
 
 
-class ArtistInspector:
+class ArtistInspector(object):
     """
     A helper class to inspect an :class:`~matplotlib.artist.Artist`
     and return information about it's settable properties and their
