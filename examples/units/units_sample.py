@@ -28,6 +28,6 @@ ax3.set_xlim(3, 6)  # scalars are interpreted in current units
 ax4 = fig.add_subplot(2,2,4)
 ax4.plot(cms, cms, xunits=inch, yunits=inch)
 #fig.savefig('simple_conversion_plot.png')
-ax4.set_xlim(3*cm, 6*cm) # cm are converted to inches
+ax4.set_xlim(3*cm, 6*cm)  # cm are converted to inches
 
 plt.show()

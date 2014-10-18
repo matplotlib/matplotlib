@@ -47,7 +47,7 @@ xticks = pylab.setp(ax2, xticklabels=['0', '10', '20', '30', '40', '50', '60',
                                       '70', '80', '90', '100'])
 ax2.xaxis.grid(True, linestyle='--', which='major', color='grey',
 alpha=0.25)
-#Plot a solid vertical gridline to highlight the median position
+# Plot a solid vertical gridline to highlight the median position
 plt.plot([50, 50], [0, 5], 'grey', alpha=0.25)
 
 # Build up the score labels for the right Y-axis by first appending a carriage
@@ -74,7 +74,7 @@ ax2.set_ylim(ax1.get_ylim())
 
 
 ax2.set_ylabel('Test Scores')
-#Make list of numerical suffixes corresponding to position in a list
+# Make list of numerical suffixes corresponding to position in a list
 #            0     1     2     3     4     5     6     7     8     9
 suffixes = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th']
 ax2.set_xlabel('Percentile Ranking Across ' + str(grade) + suffixes[grade]

@@ -123,7 +123,7 @@ if 1:
                                )
     gradient = np.zeros((2, 2, 4), dtype=np.float)
     gradient[:,:,:3] = [1, 1, 0.]
-    gradient[:,:,3] = [[0.1, 0.3],[0.3, 0.5]] # alpha channel
+    gradient[:,:,3] = [[0.1, 0.3],[0.3, 0.5]]  # alpha channel
     patch_gradient.set_array(gradient)
     ax.add_artist(patch_gradient)
 

@@ -11,7 +11,7 @@ import matplotlib.cbook as cbook
 # the date column
 datafile = cbook.get_sample_data('goog.npy')
 price_data = np.load(datafile).view(np.recarray)
-price_data = price_data[-250:] # get the most recent 250 trading days
+price_data = price_data[-250:]  # get the most recent 250 trading days
 
 delta1 = np.diff(price_data.adj_close)/price_data.adj_close[:-1]
 

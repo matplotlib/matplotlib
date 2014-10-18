@@ -48,7 +48,7 @@ plt.plot(t,s)
 ax.xaxis.set_major_locator(majorLocator)
 ax.xaxis.set_major_formatter(majorFormatter)
 
-#for the minor ticks, use no labels; default NullFormatter
+# for the minor ticks, use no labels; default NullFormatter
 ax.xaxis.set_minor_locator(minorLocator)
 
 plt.show()

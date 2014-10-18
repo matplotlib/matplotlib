@@ -37,7 +37,7 @@ def make_fig():
     # make a translucent scatter collection
     x = np.random.rand(100)
     y = np.random.rand(100)
-    area = np.pi * (10 * np.random.rand(100)) ** 2 # 0 to 10 point radiuses
+    area = np.pi * (10 * np.random.rand(100)) ** 2  # 0 to 10 point radiuses
     c = ax.scatter(x, y, area)
     c.set_alpha(0.5)
 

@@ -25,14 +25,14 @@ ax.plot(pts)
 ax2.plot(pts)
 
 # zoom-in / limit the view to different portions of the data
-ax.set_ylim(.78,1.) # outliers only
-ax2.set_ylim(0,.22) # most of the data
+ax.set_ylim(.78,1.)  # outliers only
+ax2.set_ylim(0,.22)  # most of the data
 
 # hide the spines between ax and ax2
 ax.spines['bottom'].set_visible(False)
 ax2.spines['top'].set_visible(False)
 ax.xaxis.tick_top()
-ax.tick_params(labeltop='off') # don't put tick labels at the top
+ax.tick_params(labeltop='off')  # don't put tick labels at the top
 ax2.xaxis.tick_bottom()
 
 # This looks pretty good, and was fairly painless, but you can get that
@@ -43,7 +43,7 @@ ax2.xaxis.tick_bottom()
 # appropriate corners of each of our axes, and so long as we use the
 # right transform and disable clipping.
 
-d = .015 # how big to make the diagonal lines in axes coordinates
+d = .015  # how big to make the diagonal lines in axes coordinates
 # arguments to pass plot, just so we don't keep repeating them
 kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
 ax.plot((-d,+d),(-d,+d), **kwargs)      # top-left diagonal
@@ -51,7 +51,7 @@ ax.plot((1-d,1+d),(-d,+d), **kwargs)    # top-right diagonal
 
 kwargs.update(transform=ax2.transAxes)  # switch to the bottom axes
 ax2.plot((-d,+d),(1-d,1+d), **kwargs)   # bottom-left diagonal
-ax2.plot((1-d,1+d),(1-d,1+d), **kwargs) # bottom-right diagonal
+ax2.plot((1-d,1+d),(1-d,1+d), **kwargs)  # bottom-right diagonal
 
 # What's cool about this is that now if we vary the distance between
 # ax and ax2 via f.subplots_adjust(hspace=...) or plt.subplot_tool(),

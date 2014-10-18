@@ -39,14 +39,14 @@ class MandlebrotDisplay(object):
         return threshold_time
 
     def ax_update(self, ax):
-        ax.set_autoscale_on(False) # Otherwise, infinite loop
+        ax.set_autoscale_on(False)  # Otherwise, infinite loop
 
-        #Get the number of points from the number of pixels in the window
+        # Get the number of points from the number of pixels in the window
         dims = ax.axesPatch.get_window_extent().bounds
         self.width = int(dims[2] + 0.5)
         self.height = int(dims[2] + 0.5)
 
-        #Get the range for the new area
+        # Get the range for the new area
         xstart,ystart,xdelta,ydelta = ax.viewLim.bounds
         xend = xstart + xdelta
         yend = ystart + ydelta

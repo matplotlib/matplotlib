@@ -1,8 +1,10 @@
+"""
+Copy of fill_between.py but using fill_betweenx() instead.
+"""
 import matplotlib.mlab as mlab
 from matplotlib.pyplot import figure, show
 import numpy as np
 
-## Copy of fill_between.py but using fill_betweenx() instead.
 
 x = np.arange(0.0, 2, 0.01)
 y1 = np.sin(2*np.pi*x)

@@ -49,8 +49,8 @@ def avoid_outliers():
 def shade_other_data():
     """Demonstrates displaying different variables through shade and color."""
     y, x = np.mgrid[-4:2:200j, -4:2:200j]
-    z1 = np.sin(x**2) # Data to hillshade
-    z2 = np.cos(x**2 + y**2) # Data to color
+    z1 = np.sin(x**2)  # Data to hillshade
+    z2 = np.cos(x**2 + y**2)  # Data to color
 
     norm=Normalize(z2.min(), z2.max())
     cmap = plt.cm.jet

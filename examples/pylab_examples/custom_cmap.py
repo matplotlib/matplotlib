@@ -129,7 +129,7 @@ plt.register_cmap(cmap=blue_red2)
 # Third, for LinearSegmentedColormap only,
 # leave everything to register_cmap:
 
-plt.register_cmap(name='BlueRed3', data=cdict3) # optional lut kwarg
+plt.register_cmap(name='BlueRed3', data=cdict3)  # optional lut kwarg
 plt.register_cmap(name='BlueRedAlpha', data=cdict4)
 
 # Make some illustrative fake data:

@@ -41,7 +41,7 @@ class PolygonInteractor(object):
         #self._update_line(poly)
 
         cid = self.poly.add_callback(self.poly_changed)
-        self._ind = None # the active vert
+        self._ind = None  # the active vert
 
         canvas.mpl_connect('draw_event', self.draw_callback)
         canvas.mpl_connect('button_press_event', self.button_press_callback)
@@ -106,7 +106,7 @@ class PolygonInteractor(object):
                 self.line.set_data(zip(*self.poly.xy))
         elif event.key=='i':
             xys = self.poly.get_transform().transform(self.poly.xy)
-            p = event.x, event.y # display coords
+            p = event.x, event.y  # display coords
             for i in range(len(xys)-1):
                 s0 = xys[i]
                 s1 = xys[i+1]

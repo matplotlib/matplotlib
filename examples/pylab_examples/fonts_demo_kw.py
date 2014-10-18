@@ -9,7 +9,8 @@ from pylab import *
 
 subplot(111, axisbg='w')
 alignment = {'horizontalalignment':'center', 'verticalalignment':'baseline'}
-###  Show family options
+
+# Show family options
 
 family = ['serif', 'sans-serif', 'cursive', 'fantasy', 'monospace']
 
@@ -24,7 +25,7 @@ for k in range(5):
     else:
         t = text(-0.8, yp[k], family[k], family=family[k], **alignment)
 
-###  Show style options
+# Show style options
 
 style = ['normal', 'italic', 'oblique']
 
@@ -34,7 +35,7 @@ for k in range(3):
     t = text(-0.4, yp[k], style[k], family='sans-serif', style=style[k],
              **alignment)
 
-###  Show variant options
+# Show variant options
 
 variant= ['normal', 'small-caps']
 
@@ -44,7 +45,7 @@ for k in range(2):
     t = text(0.0, yp[k], variant[k], family='serif', variant=variant[k],
               **alignment)
 
-###  Show weight options
+# Show weight options
 
 weight = ['light', 'normal', 'medium', 'semibold', 'bold', 'heavy', 'black']
 
@@ -54,7 +55,7 @@ for k in range(7):
     t = text(0.4, yp[k], weight[k], weight=weight[k],
               **alignment)
 
-###  Show size options
+# Show size options
 
 size = ['xx-small', 'x-small', 'small', 'medium', 'large',
         'x-large', 'xx-large']
@@ -66,7 +67,7 @@ for k in range(7):
              **alignment)
 
 x = 0
-###  Show bold italic
+# Show bold italic
 t = text(x, 0.1, 'bold italic', style='italic',
          weight='bold', size='x-small',
          **alignment)
