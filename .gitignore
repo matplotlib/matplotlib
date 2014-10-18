@@ -60,3 +60,5 @@ examples/tests/*
 !examples/tests/backend_driver.py
 texput.log
 result_images
+
+*.swp
