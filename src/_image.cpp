@@ -786,9 +786,11 @@ _image_module::from_images(const Py::Tuple& args)
     size_t numrows = (long)Py::Int(args[0]);
     size_t numcols = (long)Py::Int(args[1]);
 
-    if (numrows >= 32768 || numcols >= 32768)
+    char msg [256];
+    if (numrows >= INT_MAX || numcols >= INT_MAX)
     {
-        throw Py::RuntimeError("numrows and numcols must both be less than 32768");
+        sprintf(msg, "numrows and numcols must both be less than %d", INT_MAX);
+        throw Py::ValueError(msg);
     }
 
     Py::SeqBase<Py::Object> tups = args[2];
@@ -1263,9 +1265,11 @@ _image_module::frombuffer(const Py::Tuple& args)
     size_t x = (long)Py::Int(args[1]);
     size_t y = (long)Py::Int(args[2]);
 
-    if (x >= 32768 || y >= 32768)
+    char msg [256];
+    if (x >= INT_MAX || y >= INT_MAX)
     {
-        throw Py::ValueError("x and y must both be less than 32768");
+        sprintf(msg, "numrows and numcols must both be less than %d", INT_MAX);
+        throw Py::ValueError(msg);
     }
 
     int isoutput = Py::Int(args[3]);
@@ -1571,9 +1575,11 @@ _image_module::pcolor(const Py::Tuple& args)
     Py::Tuple bounds = args[5];
     unsigned int interpolation = (unsigned long)Py::Int(args[6]);
 
-    if (rows >= 32768 || cols >= 32768)
+    char msg [256];
+    if (rows >= INT_MAX || cols >= INT_MAX)
     {
-        throw Py::ValueError("rows and cols must both be less than 32768");
+        sprintf(msg, "rows and cols must both be less than %d", INT_MAX);
+        throw Py::ValueError(msg);
     }
 
     if (bounds.length() != 4)
@@ -1817,10 +1823,14 @@ _image_module::pcolor2(const Py::Tuple& args)
     Py::Tuple bounds = args[5];
     Py::Object bgp = args[6];
 
-    if (rows >= 32768 || cols >= 32768)
+    char msg [256];
+    if (rows >= INT_MAX || cols >= INT_MAX)
     {
-        throw Py::ValueError("rows and cols must both be less than 32768");
+        sprintf(msg, "rows and cols must both be less than %d", INT_MAX);
+        throw Py::ValueError(msg);
     }
+
+
 
     if (bounds.length() != 4)
     {

@@ -2518,9 +2518,11 @@ Py::Object _backend_agg_module::new_renderer(const Py::Tuple &args,
     unsigned int height = (int)Py::Int(args[1]);
     double dpi = Py::Float(args[2]);
 
-    if (width > 1 << 15 || height > 1 << 15)
+    char msg [256];
+    if (width > INT_MAX || height > INT_MAX)
     {
-        throw Py::ValueError("width and height must each be below 32768");
+        sprintf(msg, "width and height must each be below %d", INT_MAX);
+        throw Py::ValueError(msg);
     }
 
     if (dpi <= 0.0)

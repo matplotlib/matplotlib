@@ -7,6 +7,7 @@
 #ifndef _IMAGE_H
 #define _IMAGE_H
 #include <utility>
+#include <climits>
 #include "Python.h"
 
 #include "agg_trans_affine.h"
