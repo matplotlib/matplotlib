@@ -35,106 +35,106 @@ class Gcf(object):
     _activeQue = []
     figs = {}
 
-    @staticmethod
-    def get_fig_manager(num):
+    @classmethod
+    def get_fig_manager(cls, num):
         """
         If figure manager *num* exists, make it the active
         figure and return the manager; otherwise return *None*.
         """
-        manager = Gcf.figs.get(num, None)
+        manager = cls.figs.get(num, None)
         if manager is not None:
-            Gcf.set_active(manager)
+            cls.set_active(manager)
         return manager
 
-    @staticmethod
-    def destroy(num):
+    @classmethod
+    def destroy(cls, num):
         """
         Try to remove all traces of figure *num*.
 
         In the interactive backends, this is bound to the
         window "destroy" and "delete" events.
         """
-        if not Gcf.has_fignum(num):
+        if not cls.has_fignum(num):
             return
-        manager = Gcf.figs[num]
+        manager = cls.figs[num]
         manager.canvas.mpl_disconnect(manager._cidgcf)
 
         # There must be a good reason for the following careful
         # rebuilding of the activeQue; what is it?
-        oldQue = Gcf._activeQue[:]
-        Gcf._activeQue = []
+        oldQue = cls._activeQue[:]
+        cls._activeQue = []
         for f in oldQue:
             if f != manager:
-                Gcf._activeQue.append(f)
+                cls._activeQue.append(f)
 
-        del Gcf.figs[num]
+        del cls.figs[num]
         manager.destroy()
         gc.collect(1)
 
-    @staticmethod
-    def destroy_fig(fig):
+    @classmethod
+    def destroy_fig(cls, fig):
         "*fig* is a Figure instance"
         num = None
-        for manager in six.itervalues(Gcf.figs):
+        for manager in six.itervalues(cls.figs):
             if manager.canvas.figure == fig:
                 num = manager.num
                 break
         if num is not None:
-            Gcf.destroy(num)
+            cls.destroy(num)
 
-    @staticmethod
-    def destroy_all():
-        for manager in list(Gcf.figs.values()):
+    @classmethod
+    def destroy_all(cls):
+        for manager in list(cls.figs.values()):
             manager.canvas.mpl_disconnect(manager._cidgcf)
             manager.destroy()
 
-        Gcf._activeQue = []
-        Gcf.figs.clear()
+        cls._activeQue = []
+        cls.figs.clear()
         gc.collect(1)
 
-    @staticmethod
-    def has_fignum(num):
+    @classmethod
+    def has_fignum(cls, num):
         """
         Return *True* if figure *num* exists.
         """
-        return num in Gcf.figs
+        return num in cls.figs
 
-    @staticmethod
-    def get_all_fig_managers():
+    @classmethod
+    def get_all_fig_managers(cls):
         """
         Return a list of figure managers.
         """
-        return list(Gcf.figs.values())
+        return list(cls.figs.values())
 
-    @staticmethod
-    def get_num_fig_managers():
+    @classmethod
+    def get_num_fig_managers(cls):
         """
         Return the number of figures being managed.
         """
-        return len(Gcf.figs.values())
+        return len(cls.figs.values())
 
-    @staticmethod
-    def get_active():
+    @classmethod
+    def get_active(cls):
         """
         Return the manager of the active figure, or *None*.
         """
-        if len(Gcf._activeQue) == 0:
+        if len(cls._activeQue) == 0:
             return None
         else:
-            return Gcf._activeQue[-1]
+            return cls._activeQue[-1]
 
-    @staticmethod
-    def set_active(manager):
+    @classmethod
+    def set_active(cls, manager):
         """
         Make the figure corresponding to *manager* the active one.
         """
-        oldQue = Gcf._activeQue[:]
-        Gcf._activeQue = []
+        oldQue = cls._activeQue[:]
+        cls._activeQue = []
         for m in oldQue:
             if m != manager:
-                Gcf._activeQue.append(m)
-        Gcf._activeQue.append(manager)
-        Gcf.figs[manager.num] = manager
+                cls._activeQue.append(m)
+        cls._activeQue.append(manager)
+        cls.figs[manager.num] = manager
 
 
 atexit.register(Gcf.destroy_all)
