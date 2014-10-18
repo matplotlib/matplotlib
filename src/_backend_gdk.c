@@ -17,6 +17,7 @@ static PyObject *pixbuf_get_pixels_array(PyObject *self, PyObject *args)
     GdkPixbuf *gdk_pixbuf;
     PyArrayObject *array;
     npy_intp dims[3] = { 0, 0, 3 };
+    npy_intp strides[3];
 
     if (!PyArg_ParseTuple(args, "O!:pixbuf_get_pixels_array", &PyGdkPixbuf_Type, &py_pixbuf))
         return NULL;
@@ -32,15 +33,21 @@ static PyObject *pixbuf_get_pixels_array(PyObject *self, PyObject *args)
     if (gdk_pixbuf_get_has_alpha(gdk_pixbuf))
         dims[2] = 4;
 
-    array = (PyArrayObject *)PyArray_SimpleNewFromData(
-        3, dims, PyArray_UBYTE, (char *)gdk_pixbuf_get_pixels(gdk_pixbuf));
+    strides[0] = gdk_pixbuf_get_rowstride(gdk_pixbuf);
+    strides[1] = dims[2];
+    strides[2] = 1;
+
+    array = (PyArrayObject*)
+        PyArray_New(&PyArray_Type, 3, dims, NPY_UBYTE, strides,
+                    (void*)gdk_pixbuf_get_pixels(gdk_pixbuf), 1,
+                    NPY_ARRAY_WRITEABLE, NULL);
+
     if (array == NULL)
         return NULL;
 
-    array->strides[0] = gdk_pixbuf_get_rowstride(gdk_pixbuf);
     /* the array holds a ref to the pixbuf pixels through this wrapper*/
     Py_INCREF(py_pixbuf);
-    array->base = (PyObject *)py_pixbuf;
+    PyArray_SetBaseObject(array, (PyObject *)py_pixbuf);
     return PyArray_Return(array);
 }
 
