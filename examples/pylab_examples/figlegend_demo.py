@@ -12,7 +12,7 @@ l1, l2 = ax1.plot(x, y1, 'rs-', x, y2, 'go')
 
 y3 = np.sin(4*np.pi*x)
 y4 = np.exp(-2*x)
-l3, l4 = ax2.plot(x, y3, 'yd-', x, y3, 'k^')
+l3, l4 = ax2.plot(x, y3, 'yd-', x, y4, 'k^')
 
 fig.legend((l1, l2), ('Line 1', 'Line 2'), 'upper left')
 fig.legend((l3, l4), ('Line 3', 'Line 4'), 'upper right')
