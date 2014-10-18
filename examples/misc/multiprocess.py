@@ -64,8 +64,8 @@ class NBPlot(object):
     def __init__(self):
         self.plot_pipe, plotter_pipe = Pipe()
         self.plotter = ProcessPlotter()
-        self.plot_process = Process(target = self.plotter,
-                                    args = (plotter_pipe,))
+        self.plot_process = Process(target=self.plotter,
+                                    args=(plotter_pipe,))
         self.plot_process.daemon = True
         self.plot_process.start()
 

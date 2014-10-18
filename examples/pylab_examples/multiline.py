@@ -13,9 +13,9 @@ if 1:
     #ylabel('this is another!')
     text(2, 7,'this is\nyet another test',
          rotation=45,
-         horizontalalignment = 'center',
-         verticalalignment = 'top',
-         multialignment = 'center')
+         horizontalalignment='center',
+         verticalalignment='top',
+         multialignment='center')
 
     grid(True)
 

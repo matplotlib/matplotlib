@@ -170,7 +170,7 @@ class Patch(Artist, traits.HasTraits):
                  edgecolor=None,
                  facecolor=None,
                  linewidth=None,
-                 antialiased = None,
+                 antialiased=None,
                  fill=1,
                  **kwargs
                  ):

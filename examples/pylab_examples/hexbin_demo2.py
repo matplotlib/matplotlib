@@ -4,7 +4,7 @@ pcolor of a 2-D histogram with hexagonal cells.
 """
 
 import numpy as np
-import  matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 
 delta = 0.025

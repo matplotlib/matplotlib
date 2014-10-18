@@ -17,7 +17,7 @@ for z in zs:
     ys[0], ys[-1] = 0, 0
     verts.append(list(zip(xs, ys)))
 
-poly = PolyCollection(verts, facecolors = [cc('r'), cc('g'), cc('b'),
+poly = PolyCollection(verts, facecolors=[cc('r'), cc('g'), cc('b'),
                                            cc('y')])
 poly.set_alpha(0.7)
 ax.add_collection3d(poly, zs=zs, zdir='y')
