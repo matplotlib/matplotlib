@@ -434,7 +434,7 @@ class _BoundMethodProxy(object):
         return not self.__eq__(other)
 
 
-class CallbackRegistry:
+class CallbackRegistry(object):
     """
     Handle registering and disconnecting for a set of signals and
     callbacks:
@@ -641,7 +641,7 @@ def strip_math(s):
     return s
 
 
-class Bunch:
+class Bunch(object):
     """
     Often we want to just collect a bunch of stuff together, naming each
     item of the bunch; a dictionary's OK for that, but a small do- nothing
@@ -847,7 +847,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
                 yield subitem
 
 
-class Sorter:
+class Sorter(object):
     """
     Sort by attribute or item
 
@@ -955,7 +955,7 @@ def soundex(name, len=4):
     return (sndx + (len * '0'))[:len]
 
 
-class Null:
+class Null(object):
     """ Null objects always and reliably "do nothing." """
 
     def __init__(self, *args, **kwargs):
@@ -1008,7 +1008,7 @@ def mkdirs(newdir, mode=0o777):
             raise
 
 
-class GetRealpathAndStat:
+class GetRealpathAndStat(object):
     def __init__(self):
         self._cache = {}
 
@@ -1036,7 +1036,7 @@ def dict_delall(d, keys):
             pass
 
 
-class RingBuffer:
+class RingBuffer(object):
     """ class that implements a not-yet-full buffer """
     def __init__(self, size_max):
         self.max = size_max
@@ -1499,7 +1499,7 @@ def safe_masked_invalid(x):
     return xm
 
 
-class MemoryMonitor:
+class MemoryMonitor(object):
     def __init__(self, nmax=20000):
         self._nmax = nmax
         self._mem = np.zeros((self._nmax,), np.int32)

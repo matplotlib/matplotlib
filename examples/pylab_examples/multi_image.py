@@ -52,7 +52,7 @@ for i in range(Nr):
 # observing it for changes in cmap or norm.
 
 
-class ImageFollower:
+class ImageFollower(object):
     'update image in response to changes in clim or cmap on another image'
 
     def __init__(self, follower):

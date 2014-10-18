@@ -244,7 +244,7 @@ def _is_writable_dir(p):
     return True
 
 
-class Verbose:
+class Verbose(object):
     """
     A class to handle reporting.  Set the fileo attribute to any file
     instance to handle the output.  Default is sys.stdout

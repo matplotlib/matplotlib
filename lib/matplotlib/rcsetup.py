@@ -38,7 +38,7 @@ non_interactive_bk = ['agg', 'cairo', 'emf', 'gdk',
 all_backends = interactive_bk + non_interactive_bk
 
 
-class ValidateInStrings:
+class ValidateInStrings(object):
     def __init__(self, key, valid, ignorecase=False):
         'valid is a list of legal strings'
         self.key = key
@@ -172,7 +172,7 @@ def validate_maskedarray(v):
                   ' please delete it from your matplotlibrc file')
 
 
-class validate_nseq_float:
+class validate_nseq_float(object):
     def __init__(self, n):
         self.n = n
 
@@ -195,7 +195,7 @@ class validate_nseq_float:
             return [float(val) for val in s]
 
 
-class validate_nseq_int:
+class validate_nseq_int(object):
     def __init__(self, n):
         self.n = n
 
@@ -443,7 +443,7 @@ def validate_sketch(s):
         raise ValueError("path.sketch must be a tuple (scale, length, randomness)")
     return result
 
-class ValidateInterval:
+class ValidateInterval(object):
     """
     Value must be in interval
     """

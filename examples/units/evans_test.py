@@ -10,7 +10,7 @@ import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
 
 
-class Foo:
+class Foo(object):
     def __init__(self, val, unit=1.0):
         self.unit = unit
         self._val = val * unit
@@ -20,7 +20,7 @@ class Foo:
         return self._val / unit
 
 
-class FooConverter:
+class FooConverter(object):
     @staticmethod
     def axisinfo(unit, axis):
         'return the Foo AxisInfo'

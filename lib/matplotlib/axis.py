@@ -590,7 +590,7 @@ class YTick(Tick):
         return self.axes.viewLim.intervaly
 
 
-class Ticker:
+class Ticker(object):
     locator = None
     formatter = None
 

@@ -86,7 +86,7 @@ def dvipng_hack_alpha():
     return False
 
 
-class TexManager:
+class TexManager(object):
     """
     Convert strings to dvi files using TeX, caching the results to a
     working dir

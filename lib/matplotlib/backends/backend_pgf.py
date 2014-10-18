@@ -214,7 +214,7 @@ class LatexError(Exception):
         self.latex_output = latex_output
 
 
-class LatexManagerFactory:
+class LatexManagerFactory(object):
     previous_instance = None
 
     @staticmethod
@@ -235,7 +235,7 @@ class LatexManagerFactory:
             LatexManagerFactory.previous_instance = new_inst
             return new_inst
 
-class WeakSet:
+class WeakSet(object):
     # TODO: Poor man's weakref.WeakSet.
     #       Remove this once python 2.6 support is dropped from matplotlib.
 
@@ -253,7 +253,7 @@ class WeakSet:
         return six.iterkeys(self.weak_key_dict)
 
 
-class LatexManager:
+class LatexManager(object):
     """
     The LatexManager opens an instance of the LaTeX application for
     determining the metrics of text elements. The LaTeX environment can be
@@ -737,7 +737,7 @@ def new_figure_manager_given_figure(num, figure):
     return manager
 
 
-class TmpDirCleaner:
+class TmpDirCleaner(object):
     remaining_tmpdirs = set()
 
     @staticmethod

@@ -12,7 +12,7 @@ ax.plot(x, y, alpha=0.2)
 line, = ax.plot(x, y, alpha=1.0, clip_path=circ)
 
 
-class EventHandler:
+class EventHandler(object):
     def __init__(self):
         fig.canvas.mpl_connect('button_press_event', self.onpress)
         fig.canvas.mpl_connect('button_release_event', self.onrelease)

@@ -25,7 +25,7 @@ patch = mpatches.PathPatch(path, facecolor='green', edgecolor='yellow', alpha=0.
 ax.add_patch(patch)
 
 
-class PathInteractor:
+class PathInteractor(object):
     """
     An path editor.
 

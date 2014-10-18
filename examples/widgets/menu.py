@@ -9,7 +9,7 @@ import matplotlib.artist as artist
 import matplotlib.image as image
 
 
-class ItemProperties:
+class ItemProperties(object):
     def __init__(self, fontsize=14, labelcolor='black', bgcolor='yellow',
                  alpha=1.0):
         self.fontsize = fontsize
@@ -118,7 +118,7 @@ class MenuItem(artist.Artist):
         return changed
 
 
-class Menu:
+class Menu(object):
     def __init__(self, fig, menuitems):
         self.figure = fig
         fig.suppressComposite = True

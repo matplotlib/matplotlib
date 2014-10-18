@@ -23,7 +23,7 @@ import matplotlib.cbook as cbook
 is_string_like = cbook.is_string_like
 
 
-class ParasiteAxesBase:
+class ParasiteAxesBase(object):
 
     def get_images_artists(self):
         artists = set([a for a in self.get_children() if a.get_visible()])
@@ -81,7 +81,7 @@ ParasiteAxes = parasite_axes_class_factory()
 
 
 
-class ParasiteAxesAuxTransBase:
+class ParasiteAxesAuxTransBase(object):
     def __init__(self, parent_axes, aux_transform, viewlim_mode=None,
                  **kwargs):
 
@@ -242,7 +242,7 @@ def _get_handles(ax):
     return handles
 
 
-class HostAxesBase:
+class HostAxesBase(object):
     def __init__(self, *args, **kwargs):
 
         self.parasites = []

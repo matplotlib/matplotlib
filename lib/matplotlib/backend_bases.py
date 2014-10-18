@@ -741,7 +741,7 @@ class RendererBase(object):
         pass
 
 
-class GraphicsContextBase:
+class GraphicsContextBase(object):
     """
     An abstract base class that provides color, line styles, etc...
     """
@@ -1280,7 +1280,7 @@ class TimerBase(object):
             self.stop()
 
 
-class Event:
+class Event(object):
     """
     A matplotlib event.  Attach additional attributes as defined in
     :meth:`FigureCanvasBase.mpl_connect`.  The following attributes
@@ -2595,7 +2595,7 @@ class FigureManagerBase(object):
         pass
 
 
-class Cursors:
+class Cursors(object):
     # this class is only used as a simple namespace
     HAND, POINTER, SELECT_REGION, MOVE = list(range(4))
 cursors = Cursors()

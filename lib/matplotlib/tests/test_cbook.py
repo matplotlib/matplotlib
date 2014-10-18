@@ -43,7 +43,7 @@ def test_restrict_dict():
     assert_equal(d, {'foo': 'bar', 1: 2})
 
 
-class Test_delete_masked_points:
+class Test_delete_masked_points(object):
     def setUp(self):
         self.mask1 = [False, False, True, True, False, False]
         self.arr0 = np.arange(1.0, 7.0)
@@ -95,7 +95,7 @@ def test_allequal():
     assert(not cbook.allequal(('a', 'b')))
 
 
-class Test_boxplot_stats:
+class Test_boxplot_stats(object):
     def setup(self):
         np.random.seed(937)
         self.nrows = 37

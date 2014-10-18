@@ -380,7 +380,7 @@ class FileMovieWriter(MovieWriter):
 
 # Base class of ffmpeg information. Has the config keys and the common set
 # of arguments that controls the *output* side of things.
-class FFMpegBase:
+class FFMpegBase(object):
     exec_key = 'animation.ffmpeg_path'
     args_key = 'animation.ffmpeg_args'
 
@@ -450,7 +450,7 @@ class AVConvFileWriter(AVConvBase, FFMpegFileWriter):
 
 # Base class of mencoder information. Contains configuration key information
 # as well as arguments for controlling *output*
-class MencoderBase:
+class MencoderBase(object):
     exec_key = 'animation.mencoder_path'
     args_key = 'animation.mencoder_args'
 
@@ -509,7 +509,7 @@ class MencoderFileWriter(FileMovieWriter, MencoderBase):
 
 
 # Base class for animated GIFs with convert utility
-class ImageMagickBase:
+class ImageMagickBase(object):
     exec_key = 'animation.convert_path'
     args_key = 'animation.convert_args'
 

@@ -242,7 +242,7 @@ class AxisArtistHelper(object):
 
 
 
-class AxisArtistHelperRectlinear:
+class AxisArtistHelperRectlinear(object):
 
     class Fixed(AxisArtistHelper.Fixed):
 

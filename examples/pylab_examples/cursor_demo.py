@@ -14,7 +14,7 @@ from __future__ import print_function
 from pylab import *
 
 
-class Cursor:
+class Cursor(object):
     def __init__(self, ax):
         self.ax = ax
         self.lx = ax.axhline(color='k')  # the horiz line
@@ -35,7 +35,7 @@ class Cursor:
         draw()
 
 
-class SnaptoCursor:
+class SnaptoCursor(object):
     """
     Like Cursor but the crosshair snaps to the nearest x,y point
     For simplicity, I'm assuming x is sorted
