@@ -11,7 +11,7 @@ import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
 
 datafile = cbook.get_sample_data('aapl.csv', asfileobj=False)
-print ('loading %s' % datafile)
+print('loading %s' % datafile)
 r = mlab.csv2rec(datafile)
 
 r.sort()
