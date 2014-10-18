@@ -3092,8 +3092,7 @@ class MathTextParser(object):
         image in pixels.
         """
         rgba, depth = self.to_rgba(texstr, color=color, dpi=dpi, fontsize=fontsize)
-        numrows, numcols, tmp = rgba.shape
-        _png.write_png(rgba.tostring(), numcols, numrows, filename)
+        _png.write_png(rgba, filename)
         return depth
 
     def get_depth(self, texstr, dpi=120, fontsize=14):

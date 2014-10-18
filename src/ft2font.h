@@ -3,16 +3,10 @@
 /* A python interface to freetype2 */
 #ifndef _FT2FONT_H
 #define _FT2FONT_H
-#include "CXX/Extensions.hxx"
-#include "CXX/Objects.hxx"
-#include <iostream>
 #include <vector>
-#include <string>
-#include <cmath>
-#include <utility>
+#include <stdint.h>
 
-extern "C"
-{
+extern "C" {
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
@@ -21,129 +15,110 @@ extern "C"
 #include FT_TRUETYPE_TABLES_H
 }
 
+/*
+ By definition, FT_FIXED as 2 16bit values stored in a single long.
+ */
+#define FIXED_MAJOR(val) (long)((val & 0xffff000) >> 16)
+#define FIXED_MINOR(val) (long)(val & 0xffff)
+
 // the freetype string rendered into a width, height buffer
-class FT2Image : public Py::PythonClass<FT2Image>
+class FT2Image
 {
-public:
-    FT2Image(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds);
+  public:
+    FT2Image();
+    FT2Image(unsigned long width, unsigned long height);
     virtual ~FT2Image();
-    static Py::PythonClassObject<FT2Image> factory(int width, int height);
-
-    static void init_type();
-
-    void draw_bitmap(FT_Bitmap* bitmap, FT_Int x, FT_Int y);
-    void write_bitmap(FILE* fp) const;
-    void draw_rect(unsigned long x0, unsigned long y0,
-                   unsigned long x1, unsigned long y1);
-    void draw_rect_filled(unsigned long x0, unsigned long y0,
-                          unsigned long x1, unsigned long y1);
-
-    unsigned int get_width() const
-    {
-        return _width;
-    };
-    unsigned int get_height() const
-    {
-        return _height;
-    };
-    const unsigned char *const get_buffer() const
-    {
-        return _buffer;
-    };
-
-    static char write_bitmap__doc__ [];
-    Py::Object py_write_bitmap(const Py::Tuple & args);
-    static char draw_rect__doc__ [];
-    Py::Object py_draw_rect(const Py::Tuple & args);
-    static char draw_rect_filled__doc__ [];
-    Py::Object py_draw_rect_filled(const Py::Tuple & args);
-    static char as_array__doc__ [];
-    Py::Object py_as_array(const Py::Tuple & args);
-    static char as_str__doc__ [];
-    Py::Object py_as_str(const Py::Tuple & args);
-    static char as_rgb_str__doc__ [];
-    Py::Object py_as_rgb_str(const Py::Tuple & args);
-    static char as_rgba_str__doc__ [];
-    Py::Object py_as_rgba_str(const Py::Tuple & args);
-    Py::Object py_get_width(const Py::Tuple & args);
-    Py::Object py_get_height(const Py::Tuple & args);
-
-private:
-    bool _isDirty;
-    unsigned char *_buffer;
-    unsigned long _width;
-    unsigned long _height;
 
     void resize(long width, long height);
+    void draw_bitmap(FT_Bitmap *bitmap, FT_Int x, FT_Int y);
+    void write_bitmap(FILE *fp) const;
+    void draw_rect(unsigned long x0, unsigned long y0, unsigned long x1, unsigned long y1);
+    void draw_rect_filled(unsigned long x0, unsigned long y0, unsigned long x1, unsigned long y1);
+
+    unsigned char *get_buffer()
+    {
+        return m_buffer;
+    }
+    unsigned long get_width()
+    {
+        return m_width;
+    }
+    unsigned long get_height()
+    {
+        return m_height;
+    }
+
+  private:
+    bool m_dirty;
+    unsigned char *m_buffer;
+    unsigned long m_width;
+    unsigned long m_height;
 
     // prevent copying
-    FT2Image(const FT2Image&);
-    FT2Image& operator=(const FT2Image&);
+    FT2Image(const FT2Image &);
+    FT2Image &operator=(const FT2Image &);
 };
 
-class Glyph : public Py::PythonClass<Glyph>
-{
-public:
-    Glyph(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds) :
-        Py::PythonClass<Glyph>(self, args, kwds) { }
-    virtual ~Glyph();
-    static Py::PythonClassObject<Glyph> factory(const FT_Face&, const FT_Glyph&, size_t, long);
-    int setattro(const Py::String &name, const Py::Object &value);
-    Py::Object getattro(const Py::String &name);
-    static void init_type(void);
-    size_t glyphInd;
-private:
-    Py::Dict __dict__;
+extern FT_Library _ft2Library;
 
-    // prevent copying
-    Glyph(const Glyph&);
-    Glyph& operator=(const Glyph&);
-};
-
-class FT2Font : public Py::PythonClass<FT2Font>
+class FT2Font
 {
 
-public:
-    FT2Font(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds);
+  public:
+    FT2Font(FT_Open_Args &open_args, long hinting_factor);
     virtual ~FT2Font();
-    static void init_type(void);
-    Py::Object clear(const Py::Tuple & args);
-    Py::Object set_size(const Py::Tuple & args);
-    Py::Object set_charmap(const Py::Tuple & args);
-    Py::Object select_charmap(const Py::Tuple & args);
-    Py::Object set_text(const Py::Tuple & args, const Py::Dict & kwargs);
-    Py::Object get_kerning(const Py::Tuple & args);
-    Py::Object get_num_glyphs(const Py::Tuple & args);
-    Py::Object load_char(const Py::Tuple & args, const Py::Dict & kws);
-    Py::Object load_glyph(const Py::Tuple & args, const Py::Dict & kws);
-    Py::Object get_width_height(const Py::Tuple & args);
-    Py::Object get_descent(const Py::Tuple & args);
-    Py::Object draw_rect_filled(const Py::Tuple & args);
-    Py::Object get_xys(const Py::Tuple & args, const Py::Dict & kws);
-    Py::Object draw_glyphs_to_bitmap(const Py::Tuple & args, const Py::Dict & kws);
-    Py::Object draw_glyph_to_bitmap(const Py::Tuple & args, const Py::Dict & kws);
-    Py::Object get_glyph_name(const Py::Tuple & args);
-    Py::Object get_charmap(const Py::Tuple & args);
-    Py::Object get_sfnt(const Py::Tuple & args);
-    Py::Object get_name_index(const Py::Tuple & args);
-    Py::Object get_ps_font_info(const Py::Tuple & args);
-    Py::Object get_sfnt_table(const Py::Tuple & args);
-    Py::Object get_image(const Py::Tuple & args);
-    Py::Object attach_file(const Py::Tuple & args);
-    int setattro(const Py::String &name, const Py::Object &value);
-    Py::Object getattro(const Py::String &name);
-    Py::Object get_path();
-    Py::Object image;
+    void clear();
+    void set_size(double ptsize, double dpi);
+    void set_charmap(int i);
+    void select_charmap(unsigned long i);
+    void set_text(
+        size_t N, uint32_t *codepoints, double angle, FT_UInt32 flags, std::vector<double> &xys);
+    int get_kerning(int left, int right, int mode);
+    void load_char(long charcode, FT_UInt32 flags);
+    void load_glyph(FT_UInt glyph_index, FT_UInt32 flags);
+    void get_width_height(long *width, long *height);
+    long get_descent();
+    // TODO: Since we know the size of the array upfront, we probably don't
+    // need to dynamically allocate like this
+    void get_xys(bool antialiased, std::vector<double> &xys);
+    void draw_glyphs_to_bitmap(bool antialiased);
+    void draw_glyph_to_bitmap(FT2Image &im, int x, int y, size_t glyphInd, bool antialiased);
+    void get_glyph_name(unsigned int glyph_number, char *buffer);
+    long get_name_index(char *name);
+    int get_path_count();
+    void get_path(double *outpoints, unsigned char *outcodes);
 
-private:
-    Py::Dict __dict__;
-    FT_Face       face;
-    FT_Matrix     matrix;                 /* transformation matrix */
-    FT_Vector     pen;                    /* untransformed origin  */
-    FT_Error      error;
-    FT_StreamRec  stream;
-    FT_Byte *     mem;
-    size_t        mem_size;
+    FT_Face &get_face()
+    {
+        return face;
+    }
+    FT2Image &get_image()
+    {
+        return image;
+    }
+    FT_Glyph &get_last_glyph()
+    {
+        return glyphs.back();
+    }
+    size_t get_last_glyph_index()
+    {
+        return glyphs.size() - 1;
+    }
+    size_t get_num_glyphs()
+    {
+        return glyphs.size();
+    }
+    long get_hinting_factor()
+    {
+        return hinting_factor;
+    }
+
+  private:
+    FT2Image image;
+    FT_Face face;
+    FT_Matrix matrix; /* transformation matrix */
+    FT_Vector pen;    /* untransformed origin  */
+    FT_Error error;
     std::vector<FT_Glyph> glyphs;
     std::vector<FT_Vector> pos;
     double angle;
@@ -154,49 +129,9 @@ private:
     FT_BBox compute_string_bbox();
     void set_scalable_attributes();
 
-    int make_open_args(PyObject *fileobj, FT_Open_Args *open_args);
-
-    static char clear__doc__ [];
-    static char set_size__doc__ [];
-    static char set_charmap__doc__ [];
-    static char select_charmap__doc__ [];
-    static char set_text__doc__ [];
-    static char get_glyph__doc__ [];
-    static char get_num_glyphs__doc__ [];
-    static char load_char__doc__ [];
-    static char load_glyph__doc__ [];
-    static char get_width_height__doc__ [];
-    static char get_descent__doc__ [];
-    static char get_kerning__doc__ [];
-    static char draw_glyphs_to_bitmap__doc__ [];
-    static char get_xys__doc__ [];
-    static char draw_glyph_to_bitmap__doc__ [];
-    static char get_glyph_name__doc__[];
-    static char get_charmap__doc__[];
-    static char get_sfnt__doc__ [];
-    static char get_name_index__doc__[];
-    static char get_ps_font_info__doc__[];
-    static char get_sfnt_table__doc__[];
-    static char get_image__doc__[];
-    static char attach_file__doc__[];
-    static char get_path__doc__[];
-
     // prevent copying
-    FT2Font(const FT2Font&);
-    FT2Font& operator=(const FT2Font&);
-};
-
-// the extension module
-class ft2font_module : public Py::ExtensionModule<ft2font_module>
-{
-public:
-    ft2font_module();
-    virtual ~ft2font_module();
-
-private:
-    // prevent copying
-    ft2font_module(const ft2font_module&);
-    ft2font_module operator=(const ft2font_module&);
+    FT2Font(const FT2Font &);
+    FT2Font &operator=(const FT2Font &);
 };
 
 #endif

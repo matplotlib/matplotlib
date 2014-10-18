@@ -167,8 +167,6 @@ class RendererCairo(RendererBase):
         # bbox - not currently used
         if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
 
-        im.flipud_out()
-
         rows, cols, buf = im.color_conv (BYTE_FORMAT)
         surface = cairo.ImageSurface.create_for_data (
                       buf, cairo.FORMAT_ARGB32, cols, rows, cols*4)
@@ -182,8 +180,6 @@ class RendererCairo(RendererBase):
         else:
             ctx.paint()
         ctx.restore()
-
-        im.flipud_out()
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # Note: x,y are device/display coords, not user-coords, unlike other

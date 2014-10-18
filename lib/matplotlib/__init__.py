@@ -1405,6 +1405,13 @@ default_test_modules = [
 
 def test(verbosity=1):
     """run the matplotlib test suite"""
+    try:
+        import faulthandler
+    except ImportError:
+        pass
+    else:
+        faulthandler.enable()
+
     old_backend = rcParams['backend']
     try:
         use('agg')

@@ -143,8 +143,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             # TODO: We should write a new version of write_png that
             # handles the differencing inline
             _png.write_png(
-                output.tostring(),
-                output.shape[1], output.shape[0],
+                output,
                 self._png_buffer)
 
             # Swap the renderer frames

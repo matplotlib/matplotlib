@@ -234,13 +234,13 @@ Triangulation::Triangulation(PyArrayObject* x,
       _edges(edges),
       _neighbors(neighbors)
 {
-    _VERBOSE("Triangulation::Triangulation");
+
     correct_triangles();
 }
 
 Triangulation::~Triangulation()
 {
-    _VERBOSE("Triangulation::~Triangulation");
+
     Py_XDECREF(_x);
     Py_XDECREF(_y);
     Py_XDECREF(_triangles);
@@ -251,7 +251,7 @@ Triangulation::~Triangulation()
 
 void Triangulation::calculate_boundaries()
 {
-    _VERBOSE("Triangulation::calculate_boundaries");
+
 
     get_neighbors();  // Ensure _neighbors has been created.
 
@@ -309,7 +309,7 @@ void Triangulation::calculate_boundaries()
 
 void Triangulation::calculate_edges()
 {
-    _VERBOSE("Triangulation::calculate_edges");
+
     Py_XDECREF(_edges);
 
     // Create set of all edges, storing them with start point index less than
@@ -338,7 +338,7 @@ void Triangulation::calculate_edges()
 
 void Triangulation::calculate_neighbors()
 {
-    _VERBOSE("Triangulation::calculate_neighbors");
+
     Py_XDECREF(_neighbors);
 
     // Create _neighbors array with shape (ntri,3) and initialise all to -1.
@@ -382,7 +382,7 @@ void Triangulation::calculate_neighbors()
 
 Py::Object Triangulation::calculate_plane_coefficients(const Py::Tuple &args)
 {
-    _VERBOSE("Triangulation::calculate_plane_coefficients");
+
     args.verify_length(1);
 
     PyArrayObject* z = (PyArrayObject*)PyArray_ContiguousFromObject(
@@ -485,7 +485,7 @@ void Triangulation::correct_triangles()
 
 const Triangulation::Boundaries& Triangulation::get_boundaries() const
 {
-    _VERBOSE("Triangulation::get_boundaries");
+
     if (_boundaries.empty())
         const_cast<Triangulation*>(this)->calculate_boundaries();
     return _boundaries;
@@ -517,7 +517,7 @@ int Triangulation::get_edge_in_triangle(int tri, int point) const
 
 Py::Object Triangulation::get_edges()
 {
-    _VERBOSE("Triangulation::get_edges");
+
     if (_edges == 0)
         calculate_edges();
     return Py::asObject(Py::new_reference_to((PyObject*)_edges));
@@ -544,7 +544,7 @@ TriEdge Triangulation::get_neighbor_edge(int tri, int edge) const
 
 Py::Object Triangulation::get_neighbors()
 {
-    _VERBOSE("Triangulation::get_neighbors");
+
     if (_neighbors == 0) calculate_neighbors();
     return Py::asObject(Py::new_reference_to((PyObject*)_neighbors));
 }
@@ -592,7 +592,7 @@ const int* Triangulation::get_triangles_ptr() const
 
 void Triangulation::init_type()
 {
-    _VERBOSE("Triangulation::init_type");
+
 
     behaviors().name("Triangulation");
     behaviors().doc("Triangulation");
@@ -616,7 +616,7 @@ bool Triangulation::is_masked(int tri) const
 
 Py::Object Triangulation::set_mask(const Py::Tuple &args)
 {
-    _VERBOSE("Triangulation::set_mask");
+
     args.verify_length(1);
 
     Py_XDECREF(_mask);
@@ -667,12 +667,12 @@ TriContourGenerator::TriContourGenerator(Py::Object triangulation,
       _boundaries_visited(0),
       _boundaries_used(0)
 {
-    _VERBOSE("TriContourGenerator::TriContourGenerator");
+
 }
 
 TriContourGenerator::~TriContourGenerator()
 {
-    _VERBOSE("TriContourGenerator::~TriContourGenerator");
+
     Py_XDECREF(_z);
 }
 
@@ -761,7 +761,7 @@ Py::Object TriContourGenerator::contour_to_segs_and_kinds(const Contour& contour
 
 Py::Object TriContourGenerator::create_contour(const Py::Tuple &args)
 {
-    _VERBOSE("TriContourGenerator::create_contour");
+
     args.verify_length(1);
 
     double level = (Py::Float)args[0];
@@ -777,7 +777,7 @@ Py::Object TriContourGenerator::create_contour(const Py::Tuple &args)
 
 Py::Object TriContourGenerator::create_filled_contour(const Py::Tuple &args)
 {
-    _VERBOSE("TriContourGenerator::create_filled_contour");
+
     args.verify_length(2);
 
     double lower_level = (Py::Float)args[0];
@@ -1089,7 +1089,7 @@ const double& TriContourGenerator::get_z(int point) const
 
 void TriContourGenerator::init_type()
 {
-    _VERBOSE("TriContourGenerator::init_type");
+
 
     behaviors().name("TriContourGenerator");
     behaviors().doc("TriContourGenerator");
@@ -1124,12 +1124,12 @@ TrapezoidMapTriFinder::TrapezoidMapTriFinder(Py::Object triangulation)
       _points(0),
       _tree(0)
 {
-    _VERBOSE("TrapezoidMapTriFinder::TrapezoidMapTriFinder");
+
 }
 
 TrapezoidMapTriFinder::~TrapezoidMapTriFinder()
 {
-    _VERBOSE("TrapezoidMapTriFinder::~TrapezoidMapTriFinder");
+
     clear();
 }
 
@@ -1452,7 +1452,7 @@ TrapezoidMapTriFinder::find_trapezoids_intersecting_edge(
 Py::Object
 TrapezoidMapTriFinder::get_tree_stats()
 {
-    _VERBOSE("TrapezoidMapTriFinder::get_tree_stats");
+
 
     NodeStats stats;
     _tree->get_stats(0, stats);
@@ -1477,7 +1477,7 @@ TrapezoidMapTriFinder::get_triangulation() const
 void
 TrapezoidMapTriFinder::init_type()
 {
-    _VERBOSE("TrapezoidMapTriFinder::init_type");
+
 
     behaviors().name("TrapezoidMapTriFinder");
     behaviors().doc("TrapezoidMapTriFinder");
@@ -1499,7 +1499,7 @@ TrapezoidMapTriFinder::init_type()
 Py::Object
 TrapezoidMapTriFinder::initialize()
 {
-    _VERBOSE("TrapezoidMapTriFinder::initialize");
+
 
     clear();
     const Triangulation& triang = get_triangulation();
@@ -1594,7 +1594,7 @@ TrapezoidMapTriFinder::initialize()
 Py::Object
 TrapezoidMapTriFinder::print_tree()
 {
-    _VERBOSE("TrapezoidMapTriFinder::print_tree");
+
 
     assert(_tree != 0 && "Null Node tree");
     _tree->print();
@@ -2229,7 +2229,7 @@ TriModule::TriModule()
 
 Py::Object TriModule::new_triangulation(const Py::Tuple &args)
 {
-    _VERBOSE("TriModule::new_triangulation");
+
     args.verify_length(6);
 
     // x and y.
@@ -2310,7 +2310,7 @@ Py::Object TriModule::new_triangulation(const Py::Tuple &args)
 
 Py::Object TriModule::new_tricontourgenerator(const Py::Tuple &args)
 {
-    _VERBOSE("TriModule::new_tricontourgenerator");
+
     args.verify_length(2);
 
     Py::Object tri = args[0];
@@ -2332,7 +2332,7 @@ Py::Object TriModule::new_tricontourgenerator(const Py::Tuple &args)
 Py::Object
 TriModule::new_TrapezoidMapTriFinder(const Py::Tuple &args)
 {
-    _VERBOSE("TriModule::new_TrapezoidMapTriFinder");
+
     args.verify_length(1);
 
     Py::Object triangulation = args[0];

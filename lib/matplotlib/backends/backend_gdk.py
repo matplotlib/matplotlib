@@ -109,7 +109,6 @@ class RendererGDK(RendererBase):
             #             int(w), int(h))
             # set clip rect?
 
-        im.flipud_out()
         rows, cols, image_str = im.as_rgba_str()
 
         image_array = np.fromstring(image_str, np.uint8)
@@ -120,7 +119,7 @@ class RendererGDK(RendererBase):
                                 width=cols, height=rows)
 
         array = pixbuf_get_pixels_array(pixbuf)
-        array[:,:,:] = image_array
+        array[:,:,:] = image_array[::-1]
 
         gc = self.new_gc()
 
@@ -137,9 +136,6 @@ class RendererGDK(RendererBase):
             pixbuf.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
                                   int(x), int(y), cols, rows,
                                   gdk.RGB_DITHER_NONE, 0, 0)
-
-        # unflip
-        im.flipud_out()
 
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):

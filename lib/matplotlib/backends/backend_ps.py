@@ -414,13 +414,14 @@ class RendererPS(RendererBase):
 
         rgba = np.fromstring(s, np.uint8)
         rgba.shape = (h, w, 4)
-        rgb = rgba[:,:,:3]
+        rgb = rgba[::-1,:,:3]
         return h, w, rgb.tostring()
 
     def _gray(self, im, rc=0.3, gc=0.59, bc=0.11):
         rgbat = im.as_rgba_str()
         rgba = np.fromstring(rgbat[2], np.uint8)
         rgba.shape = (rgbat[0], rgbat[1], 4)
+        rgba = rgba[::-1]
         rgba_f = rgba.astype(np.float32)
         r = rgba_f[:,:,0]
         g = rgba_f[:,:,1]
@@ -472,8 +473,6 @@ class RendererPS(RendererBase):
         interpreted as the coordinate of the transform.
         """
 
-        im.flipud_out()
-
         h, w, bits, imagecmd = self._get_image_h_w_bits_command(im)
         hexlines = b'\n'.join(self._hex_lines(bits)).decode('ascii')
 
@@ -523,9 +522,6 @@ currentfile DataString readhexstring pop
 grestore
 """ % locals()
         self._pswriter.write(ps)
-
-        # unflip
-        im.flipud_out()
 
     def _convert_path(self, path, transform, clip=False, simplify=None):
         ps = []
