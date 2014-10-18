@@ -20,7 +20,8 @@ from matplotlib.cbook import is_string_like
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase
 from matplotlib.backend_bases import FigureManagerBase, FigureCanvasBase
 from matplotlib.backend_bases import NavigationToolbar2, cursors, TimerBase
-from matplotlib.backend_bases import ShowBase
+from matplotlib.backend_bases import ShowBase, ToolbarBase, NavigationBase
+from matplotlib.backend_tools import SaveFigureBase, ConfigureSubplotsBase, tools
 from matplotlib._pylab_helpers import Gcf
 
 from matplotlib.figure import Figure
@@ -533,10 +534,12 @@ class FigureManagerTkAgg(FigureManagerBase):
         _, _, w, h = canvas.figure.bbox.bounds
         w, h = int(w), int(h)
         self.window.minsize(int(w*3/4),int(h*3/4))
-        if matplotlib.rcParams['toolbar']=='toolbar2':
-            self.toolbar = NavigationToolbar2TkAgg( canvas, self.window )
-        else:
-            self.toolbar = None
+
+        self.toolbar = self._get_toolbar()
+        self.navigation = self._get_navigation()
+        if matplotlib.rcParams['toolbar'] == 'navigation':
+            self.navigation.add_tools(tools)
+
         if self.toolbar is not None:
             self.toolbar.update()
         self.canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
@@ -544,8 +547,28 @@ class FigureManagerTkAgg(FigureManagerBase):
 
         def notify_axes_change(fig):
             'this will be called whenever the current axes is changed'
-            if self.toolbar != None: self.toolbar.update()
+            if self.navigation is not None:
+                pass
+            elif self.toolbar is not None:
+                self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
+
+    def _get_toolbar(self):
+        if matplotlib.rcParams['toolbar'] == 'toolbar2':
+            toolbar = NavigationToolbar2TkAgg(self.canvas, self.window)
+        elif matplotlib.rcParams['toolbar'] == 'navigation':
+            toolbar = ToolbarTk(self)
+        else:
+            toolbar = None
+        return toolbar
+
+    def _get_navigation(self):
+        # must be inited after toolbar is setted
+        if rcParams['toolbar'] != 'toolbar2':
+            navigation = NavigationTk(self)
+        else:
+            navigation = None
+        return navigation
 
     def resize(self, width, height=None):
         # before 09-12-22, the resize method takes a single *event*
@@ -873,5 +896,186 @@ class ToolTip(object):
         if tw:
             tw.destroy()
 
+
+class NavigationTk(NavigationBase):
+    def __init__(self, *args, **kwargs):
+        NavigationBase.__init__(self, *args, **kwargs)
+
+    def set_cursor(self, cursor):
+        self.canvas.manager.window.configure(cursor=cursord[cursor])
+
+    def draw_rubberband(self, event, caller, x0, y0, x1, y1):
+        if not self.canvas.widgetlock.available(caller):
+            return
+        height = self.canvas.figure.bbox.height
+        y0 = height - y0
+        y1 = height - y1
+        try:
+            self.lastrect
+        except AttributeError:
+            pass
+        else:
+            self.canvas._tkcanvas.delete(self.lastrect)
+        self.lastrect = self.canvas._tkcanvas.create_rectangle(x0, y0, x1, y1)
+
+    def remove_rubberband(self, event, caller):
+        try:
+            self.lastrect
+        except AttributeError:
+            pass
+        else:
+            self.canvas._tkcanvas.delete(self.lastrect)
+            del self.lastrect
+
+
+class ToolbarTk(ToolbarBase, Tk.Frame):
+    def __init__(self, manager):
+        ToolbarBase.__init__(self, manager)
+        xmin, xmax = self.manager.canvas.figure.bbox.intervalx
+        height, width = 50, xmax - xmin
+        Tk.Frame.__init__(self, master=self.manager.window,
+                          width=int(width), height=int(height),
+                          borderwidth=2)
+        self._toolitems = {}
+        self._add_message()
+
+    def _add_toolitem(self, name, tooltip_text, image_file, position,
+                      toggle):
+
+        button = self._Button(name, image_file, toggle)
+        if tooltip_text is not None:
+            ToolTip.createToolTip(button, tooltip_text)
+        self._toolitems[name] = button
+
+    def _Button(self, text, image_file, toggle):
+        if image_file is not None:
+            im = Tk.PhotoImage(master=self, file=image_file)
+        else:
+            im = None
+
+        if not toggle:
+            b = Tk.Button(master=self, text=text, padx=2, pady=2, image=im,
+                          command=lambda: self._button_click(text))
+        else:
+            b = Tk.Checkbutton(master=self, text=text, padx=2, pady=2,
+                               image=im, indicatoron=False,
+                               command=lambda: self._button_click(text))
+        b._ntimage = im
+        b.pack(side=Tk.LEFT)
+        return b
+
+    def _button_click(self, name):
+        self.manager.navigation._toolbar_callback(name)
+
+    def _toggle(self, name, callback=False):
+        if name not in self._toolitems:
+            self.set_message('%s Not in toolbar' % name)
+            return
+        self._toolitems[name].toggle()
+        if callback:
+            self._button_click(name)
+
+    def _add_message(self):
+        self.message = Tk.StringVar(master=self)
+        self._message_label = Tk.Label(master=self, textvariable=self.message)
+        self._message_label.pack(side=Tk.RIGHT)
+        self.pack(side=Tk.BOTTOM, fill=Tk.X)
+
+    def set_message(self, s):
+        self.message.set(s)
+
+    def _remove_toolitem(self, name):
+        self._toolitems[name].pack_forget()
+        del self._toolitems[name]
+
+    def set_toolitem_visibility(self, name, visible):
+        pass
+
+
+class SaveFigureTk(SaveFigureBase):
+    def trigger(self, *args):
+        from six.moves import tkinter_tkfiledialog, tkinter_messagebox
+        filetypes = self.figure.canvas.get_supported_filetypes().copy()
+        default_filetype = self.figure.canvas.get_default_filetype()
+
+        # Tk doesn't provide a way to choose a default filetype,
+        # so we just have to put it first
+        default_filetype_name = filetypes[default_filetype]
+        del filetypes[default_filetype]
+
+        sorted_filetypes = list(six.iteritems(filetypes))
+        sorted_filetypes.sort()
+        sorted_filetypes.insert(0, (default_filetype, default_filetype_name))
+
+        tk_filetypes = [
+            (name, '*.%s' % ext) for (ext, name) in sorted_filetypes]
+
+        # adding a default extension seems to break the
+        # asksaveasfilename dialog when you choose various save types
+        # from the dropdown.  Passing in the empty string seems to
+        # work - JDH!
+        # defaultextension = self.figure.canvas.get_default_filetype()
+        defaultextension = ''
+        initialdir = rcParams.get('savefig.directory', '')
+        initialdir = os.path.expanduser(initialdir)
+        initialfile = self.figure.canvas.get_default_filename()
+        fname = tkinter_tkfiledialog.asksaveasfilename(
+            master=self.figure.canvas.manager.window,
+            title='Save the figure',
+            filetypes=tk_filetypes,
+            defaultextension=defaultextension,
+            initialdir=initialdir,
+            initialfile=initialfile,
+            )
+
+        if fname == "" or fname == ():
+            return
+        else:
+            if initialdir == '':
+                # explicitly missing key or empty str signals to use cwd
+                rcParams['savefig.directory'] = initialdir
+            else:
+                # save dir for next time
+                rcParams['savefig.directory'] = os.path.dirname(
+                    six.text_type(fname))
+            try:
+                # This method will handle the delegation to the correct type
+                self.figure.canvas.print_figure(fname)
+            except Exception as e:
+                tkinter_messagebox.showerror("Error saving file", str(e))
+
+
+class ConfigureSubplotsTk(ConfigureSubplotsBase):
+    def __init__(self, *args, **kwargs):
+        ConfigureSubplotsBase.__init__(self, *args, **kwargs)
+        self.window = None
+
+    def trigger(self, event):
+        self.init_window()
+        self.window.lift()
+
+    def init_window(self):
+        if self.window:
+            return
+
+        toolfig = Figure(figsize=(6, 3))
+        self.window = Tk.Tk()
+
+        canvas = FigureCanvasTkAgg(toolfig, master=self.window)
+        toolfig.subplots_adjust(top=0.9)
+        _tool = SubplotTool(self.figure, toolfig)
+        canvas.show()
+        canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+        self.window.protocol("WM_DELETE_WINDOW", self.destroy)
+
+    def destroy(self, *args, **kwargs):
+        self.window.destroy()
+        self.window = None
+
+
+SaveFigure = SaveFigureTk
+ConfigureSubplots = ConfigureSubplotsTk
+Toolbar = ToolbarTk
+Navigation = NavigationTk
 FigureCanvas = FigureCanvasTkAgg
 FigureManager = FigureManagerTkAgg

@@ -156,7 +156,7 @@ validate_qt5 = ValidateInStrings('backend.qt5', ['PyQt5'])
 def validate_toolbar(s):
     validator = ValidateInStrings(
                 'toolbar',
-                ['None', 'toolbar2'],
+                ['None', 'toolbar2', 'navigation'],
                 ignorecase=True)
     return validator(s)
 

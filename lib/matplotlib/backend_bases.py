@@ -25,6 +25,14 @@ graphics contexts must implement to serve as a matplotlib backend
     the 'show' callable is then set to Show.__call__, inherited from
     ShowBase.
 
+:class:`NavigationBase`
+    The base class for the Navigation class that makes the bridge between
+    user interaction (key press, toolbar clicks, ..) and the actions in
+    response to the user inputs.
+
+:class:`ToolbarBase`
+     The base class for the Toolbar class of each interactive backend.
+
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -46,6 +54,7 @@ import matplotlib.transforms as transforms
 import matplotlib.widgets as widgets
 #import matplotlib.path as path
 from matplotlib import rcParams
+from matplotlib.rcsetup import validate_stringlist
 from matplotlib import is_interactive
 from matplotlib import get_backend
 from matplotlib._pylab_helpers import Gcf
@@ -56,6 +65,7 @@ import matplotlib.tight_bbox as tight_bbox
 import matplotlib.textpath as textpath
 from matplotlib.path import Path
 from matplotlib.cbook import mplDeprecation
+import matplotlib.backend_tools as tools
 
 try:
     from importlib import import_module
@@ -2535,8 +2545,10 @@ class FigureManagerBase(object):
         canvas.manager = self  # store a pointer to parent
         self.num = num
 
-        self.key_press_handler_id = self.canvas.mpl_connect('key_press_event',
-                                                            self.key_press)
+        if rcParams['toolbar'] != 'navigation':
+            self.key_press_handler_id = self.canvas.mpl_connect(
+                                                'key_press_event',
+                                                self.key_press)
         """
         The returned id from connecting the default key handler via
         :meth:`FigureCanvasBase.mpl_connnect`.
@@ -2572,7 +2584,8 @@ class FigureManagerBase(object):
         Implement the default mpl key bindings defined at
         :ref:`key-event-handling`
         """
-        key_press_handler(event, self.canvas, self.canvas.toolbar)
+        if rcParams['toolbar'] != 'navigation':
+            key_press_handler(event, self.canvas, self.canvas.toolbar)
 
     def show_popup(self, msg):
         """
@@ -2595,10 +2608,7 @@ class FigureManagerBase(object):
         pass
 
 
-class Cursors:
-    # this class is only used as a simple namespace
-    HAND, POINTER, SELECT_REGION, MOVE = list(range(4))
-cursors = Cursors()
+cursors = tools.cursors
 
 
 class NavigationToolbar2(object):
@@ -3177,4 +3187,464 @@ class NavigationToolbar2(object):
 
     def set_history_buttons(self):
         """Enable or disable back/forward button"""
+        pass
+
+
+class NavigationBase(object):
+    """ Helper class that groups all the user interactions for a FigureManager
+
+     Attributes
+    ----------
+    manager : `FigureManager` instance
+    toolbar : `Toolbar` instance that is controlled by this `Navigation`
+    keypresslock : `LockDraw` to know if the `canvas` key_press_event is
+        locked
+    messagelock : `LockDraw` to know if the message is available to write
+    """
+
+    _default_cursor = cursors.POINTER
+
+    def __init__(self, manager):
+        """.. automethod:: _toolbar_callback"""
+
+        self.manager = manager
+        self.canvas = manager.canvas
+        self.toolbar = manager.toolbar
+
+        self._key_press_handler_id = self.canvas.mpl_connect(
+            'key_press_event', self._key_press)
+
+        self._idDrag = self.canvas.mpl_connect(
+            'motion_notify_event', self._mouse_move)
+
+        self._tools = {}
+        self._keys = {}
+        self._toggled = None
+
+        # to process keypress event
+        self.keypresslock = widgets.LockDraw()
+        # to write into toolbar message
+        self.messagelock = widgets.LockDraw()
+
+        self._last_cursor = self._default_cursor
+
+    @property
+    def active_toggle(self):
+        """Toggled Tool
+
+        **string** :  Currently toggled tool, or None
+        """
+
+        return self._toggled
+
+    def get_tool_keymap(self, name):
+        """Get the keymap associated with a tool
+
+        Parameters
+        ----------
+        name : string
+            Name of the Tool
+
+        Returns
+        ----------
+        list : list of keys associated with the Tool
+        """
+
+        keys = [k for k, i in six.iteritems(self._keys) if i == name]
+        return keys
+
+    def _remove_keys(self, name):
+        keys = [k for k, v in six.iteritems(self._keys) if v == name]
+        for k in keys:
+            del self._keys[k]
+
+    def set_tool_keymap(self, name, *keys):
+        """Set the keymap associated with a tool
+
+        Parameters
+        ----------
+        name : string
+            Name of the Tool
+        keys : keys to associated with the Tool
+        """
+
+        if name not in self._tools:
+            raise AttributeError('%s not in Tools' % name)
+
+        self._remove_keys(name)
+
+        for key in keys:
+            for k in validate_stringlist(key):
+                if k in self._keys:
+                    warnings.warn('Key %s changed from %s to %s' %
+                                  (k, self._keys[k], name))
+                self._keys[k] = name
+
+    def remove_tool(self, name):
+        """Remove tool from the `Navigation`
+
+        Parameters
+        ----------
+        name : string
+            Name of the Tool
+        """
+
+        tool = self._tools[name]
+        tool.destroy()
+
+        if self._toggled == name:
+            self._handle_toggle(name, from_toolbar=False)
+
+        self._remove_keys(name)
+
+        if self.toolbar and tool.intoolbar:
+            self.toolbar._remove_toolitem(name)
+
+        del self._tools[name]
+
+    def add_tools(self, tools):
+        """ Add multiple tools to `Navigation`
+
+        Parameters
+        ----------
+        tools : a list of tuples which contains the id of the tool and
+        a either a reference to the tool Tool class itself, or None to
+        insert a spacer.  See :func:`add_tool`.
+        """
+        for name, tool in tools:
+            if tool is None:
+                if self.toolbar is not None:
+                    self.toolbar.add_separator(-1)
+            else:
+                self.add_tool(name, tool, None)
+
+    def add_tool(self, name, tool, position=None):
+        """Add tool to `Navigation`
+
+        Parameters
+        ----------
+        name : string
+            Name of the tool, treated as the ID, has to be unique
+        tool : string or `Tool` class
+            Reference to find the class of the Tool to be added
+        position : int or None (default)
+            Position in the toolbar, if None, is positioned at the end
+        """
+
+        tool_cls = self._get_cls_to_instantiate(tool)
+        if tool_cls is False:
+            warnings.warn('Impossible to find class for %s' % str(tool))
+            return
+
+        if name in self._tools:
+            warnings.warn('A tool_cls with the same name already exist, '
+                          'not added')
+            return
+
+        self._tools[name] = tool_cls(self.canvas.figure, name)
+        if tool_cls.keymap is not None:
+            self.set_tool_keymap(name, tool_cls.keymap)
+
+        if self.toolbar and tool_cls.intoolbar:
+            # TODO: better search for images, they are not always in the
+            # datapath
+            basedir = os.path.join(rcParams['datapath'], 'images')
+            if tool_cls.image is not None:
+                fname = os.path.join(basedir, tool_cls.image)
+            else:
+                fname = None
+            toggle = issubclass(tool_cls, tools.ToolToggleBase)
+            self.toolbar._add_toolitem(name,
+                                       tool_cls.description,
+                                       fname,
+                                       position,
+                                       toggle)
+
+    def _get_cls_to_instantiate(self, callback_class):
+        if isinstance(callback_class, six.string_types):
+            # FIXME: make more complete searching structure
+            if callback_class in globals():
+                return globals()[callback_class]
+
+            mod = self.__class__.__module__
+            current_module = __import__(mod,
+                                        globals(), locals(), [mod], 0)
+
+            return getattr(current_module, callback_class, False)
+
+        return callback_class
+
+    def trigger_tool(self, name, event=None):
+        """Trigger on a tool
+
+        Method to programatically "click" on Tools
+        """
+
+        self._trigger_tool(name, event, False)
+
+    def _trigger_tool(self, name, event, from_toolbar):
+        if name not in self._tools:
+            raise AttributeError('%s not in Tools' % name)
+
+        tool = self._tools[name]
+        if isinstance(tool, tools.ToolToggleBase):
+            self._handle_toggle(name, event=event, from_toolbar=from_toolbar)
+        else:
+            tool.trigger(event)
+
+    def _key_press(self, event):
+        if event.key is None or self.keypresslock.locked():
+            return
+
+        name = self._keys.get(event.key, None)
+        if name is None:
+            return
+        self._trigger_tool(name, event, False)
+
+    def _toolbar_callback(self, name):
+        """Callback for the `Toolbar`
+
+        All Toolbar implementations have to call this method to signal that a
+        toolitem was clicked on
+
+        Parameters
+        ----------
+        name : string
+            Name of the tool that was activated (click) by the user using the
+            toolbar
+        """
+
+        self._trigger_tool(name, None, True)
+
+    def _handle_toggle(self, name, event=None, from_toolbar=False):
+        # toggle toolbar without callback
+        if not from_toolbar and self.toolbar:
+            self.toolbar._toggle(name, False)
+
+        tool = self._tools[name]
+        if self._toggled is None:
+            # first trigger of tool
+            self._toggled = name
+        elif self._toggled == name:
+            # second trigger of tool
+            self._toggled = None
+        else:
+            # other tool is triggered so trigger toggled tool
+            if self.toolbar:
+                # untoggle the previous toggled tool
+                self.toolbar._toggle(self._toggled, False)
+            self._tools[self._toggled].trigger(event)
+            self._toggled = name
+
+        tool.trigger(event)
+
+        for a in self.canvas.figure.get_axes():
+            a.set_navigate_mode(self._toggled)
+
+        # Change the cursor inmediately, don't wait for mouse move
+        self._set_cursor(event)
+
+    def get_tools(self):
+        """Return the tools controlled by `Navigation`"""
+
+        d = {}
+        for name in sorted(self._tools.keys()):
+            tool = self._tools[name]
+            keys = [k for k, i in six.iteritems(self._keys) if i == name]
+            d[name] = {'obj': tool,
+                       'description': tool.description,
+                       'keymap': keys}
+        return d
+
+    def _set_cursor(self, event):
+        """Call the backend specific set_cursor method,
+        if the pointer is inaxes
+        """
+        if not event.inaxes or not self._toggled:
+            if self._last_cursor != self._default_cursor:
+                self.set_cursor(self._default_cursor)
+                self._last_cursor = self._default_cursor
+        else:
+            if self._toggled:
+                cursor = self._tools[self._toggled].cursor
+                if cursor and self._last_cursor != cursor:
+                    self.set_cursor(cursor)
+                    self._last_cursor = cursor
+
+    def _mouse_move(self, event):
+        self._set_cursor(event)
+
+        if self.toolbar is None or self.messagelock.locked():
+            return
+
+        if event.inaxes and event.inaxes.get_navigate():
+
+            try:
+                s = event.inaxes.format_coord(event.xdata, event.ydata)
+            except (ValueError, OverflowError):
+                pass
+            else:
+                if self._toggled:
+                    self.toolbar.set_message('%s, %s' % (self._toggled, s))
+                else:
+                    self.toolbar.set_message(s)
+        else:
+            self.toolbar.set_message('')
+
+    def set_cursor(self, cursor):
+        """
+        Set the current cursor to one of the :class:`Cursors`
+        enums values
+        """
+
+        pass
+
+    def draw_rubberband(self, event, caller, x0, y0, x1, y1):
+        """Draw a rectangle rubberband to indicate zoom limits
+
+        Draw a rectanlge in the canvas, if
+        `self.canvas.widgetlock` is available to **caller**
+
+        Parameters
+        ----------
+        event : `FigureCanvas` event
+        caller : instance trying to draw the rubberband
+        x0, y0, x1, y1 : coordinates
+        """
+
+        if not self.canvas.widgetlock.available(caller):
+            warnings.warn("%s doesn't own the canvas widgetlock" % caller)
+
+    def remove_rubberband(self, event, caller):
+        """Remove the rubberband
+
+        Remove the rubberband if the `self.canvas.widgetlock` is
+        available to **caller**
+
+        Parameters
+        ----------
+        event : `FigureCanvas` event
+        caller : instance trying to remove the rubberband
+        """
+
+        if not self.canvas.widgetlock.available(caller):
+            warnings.warn("%s doesn't own the canvas widgetlock" % caller)
+
+
+class ToolbarBase(object):
+    """Base class for `Toolbar` implementation
+
+     Attributes
+    ----------
+    manager : `FigureManager` instance that integrates this `Toolbar`
+    """
+
+    def __init__(self, manager):
+        """
+        .. automethod:: _add_toolitem
+        .. automethod:: _remove_toolitem
+        .. automethod:: _toggle
+        """
+
+        self.manager = manager
+
+    def _add_toolitem(self, name, description, image_file, position,
+                      toggle):
+        """Add a toolitem to the toolbar
+
+        The callback associated with the button click event,
+        must be **EXACTLY** `self.manager.navigation._toolbar_callback(name)`
+
+        Parameters
+        ----------
+        name : string
+            Name of the tool to add, this is used as ID and as default label
+            of the buttons
+        description : string
+            Description of the tool, used for the tooltips
+        image_file : string
+            Filename of the image for the button or `None`
+        position : integer
+            Position of the toolitem within the other toolitems
+            if -1 at the End
+        toggle : bool
+            * `True` : The button is a toggle (change the pressed/unpressed
+                state between consecutive clicks)
+            * `False` : The button is a normal button (returns to unpressed
+                state after release)
+        """
+
+        raise NotImplementedError
+
+    def add_separator(self, pos):
+        """Add a separator
+
+        Parameters
+        ----------
+        pos : integer
+            Position where to add the separator within the toolitems
+            if -1 at the end
+        """
+
+        pass
+
+    def set_message(self, s):
+        """Display a message on toolbar or in status bar"""
+
+        pass
+
+    def _toggle(self, name, callback=False):
+        """Toogle a button
+
+        Parameters
+        ----------
+        name : string
+            Name of the button to toggle
+        callback : bool
+            * `True`: call the button callback during toggle
+            * `False`: toggle the button without calling the callback
+
+        """
+
+        # carefull, callback means to perform or not the callback while
+        # toggling
+        raise NotImplementedError
+
+    def _remove_toolitem(self, name):
+        """Remove a toolitem from the `Toolbar`
+
+        Parameters
+        ----------
+        name : string
+            Name of the tool to remove
+
+        """
+
+        raise NotImplementedError
+
+    def move_toolitem(self, pos_ini, pos_fin):
+        """Change the position of a toolitem
+
+        Parameters
+        ----------
+        pos_ini : integer
+            Initial position of the toolitem to move
+        pos_fin : integer
+            Final position of the toolitem
+        """
+
+        pass
+
+    def set_toolitem_visibility(self, name, visible):
+        """Change the visibility of a toolitem
+
+        Parameters
+        ----------
+        name : string
+            Name of the `Tool`
+        visible : bool
+            * `True`: set the toolitem visible
+            * `False`: set the toolitem invisible
+        """
+
         pass
