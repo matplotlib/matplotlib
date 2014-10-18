@@ -19,7 +19,7 @@ from matplotlib.collections import PatchCollection
 
 
 def label(xy, text):
-    y = xy[1] - 0.15 # shift y-value for label so that it's below the artist
+    y = xy[1] - 0.15  # shift y-value for label so that it's below the artist
     plt.text(xy[0], y, text, ha="center", family='sans-serif', size=14)
 
 
@@ -49,12 +49,12 @@ polygon = mpatches.RegularPolygon(grid[3], 5, 0.1)
 patches.append(polygon)
 label(grid[3], "Polygon")
 
-#add an ellipse
+# add an ellipse
 ellipse = mpatches.Ellipse(grid[4], 0.2, 0.1)
 patches.append(ellipse)
 label(grid[4], "Ellipse")
 
-#add an arrow
+# add an arrow
 arrow = mpatches.Arrow(grid[5, 0]-0.05, grid[5, 1]-0.05, 0.1, 0.1, width=0.1)
 patches.append(arrow)
 label(grid[5], "Arrow")

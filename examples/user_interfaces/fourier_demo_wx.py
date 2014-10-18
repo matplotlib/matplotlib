@@ -173,7 +173,7 @@ class FourierDemoWindow(wx.Window, Knob):
         color = (1., 0., 0.)
         self.lines += self.subplot1.plot(x1, y1, color=color, linewidth=2)
         self.lines += self.subplot2.plot(x2, y2, color=color, linewidth=2)
-        #Set some plot attributes
+        # Set some plot attributes
         self.subplot1.set_title("Click and drag waveforms to change frequency and amplitude", fontsize=12)
         self.subplot1.set_ylabel("Frequency Domain Waveform X(f)", fontsize=8)
         self.subplot1.set_xlabel("frequency f", fontsize=8)

@@ -39,7 +39,7 @@ ax1 = subplot(311)
 plot(t,s1)
 setp(ax1.get_xticklabels(), fontsize=6)
 
-## share x only
+# share x only
 ax2 = subplot(312, sharex=ax1)
 plot(t, s2)
 # make these tick labels invisible

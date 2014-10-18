@@ -12,7 +12,7 @@ subplot(111, axisbg='w')
 
 font0 = FontProperties()
 alignment = {'horizontalalignment':'center', 'verticalalignment':'baseline'}
-###  Show family options
+# Show family options
 
 family = ['serif', 'sans-serif', 'cursive', 'fantasy', 'monospace']
 
@@ -32,7 +32,7 @@ for k in range(5):
     t = text(-0.8, yp[k], family[k], fontproperties=font,
              **alignment)
 
-###  Show style options
+# Show style options
 
 style = ['normal', 'italic', 'oblique']
 
@@ -46,7 +46,7 @@ for k in range(3):
     t = text(-0.4, yp[k], style[k], fontproperties=font,
              **alignment)
 
-###  Show variant options
+# Show variant options
 
 variant= ['normal', 'small-caps']
 
@@ -60,7 +60,7 @@ for k in range(2):
     t = text(0.0, yp[k], variant[k], fontproperties=font,
              **alignment)
 
-###  Show weight options
+# Show weight options
 
 weight = ['light', 'normal', 'medium', 'semibold', 'bold', 'heavy', 'black']
 
@@ -73,7 +73,7 @@ for k in range(7):
     t = text(0.4, yp[k], weight[k], fontproperties=font,
              **alignment)
 
-###  Show size options
+# Show size options
 
 size = ['xx-small', 'x-small', 'small', 'medium', 'large',
         'x-large', 'xx-large']
@@ -87,7 +87,7 @@ for k in range(7):
     t = text(0.8, yp[k], size[k], fontproperties=font,
              **alignment)
 
-###  Show bold italic
+# Show bold italic
 
 font = font0.copy()
 font.set_style('italic')

@@ -37,7 +37,7 @@ import numpy as np
 import wx
 import wx.xrc as xrc
 
-ERR_TOL = 1e-5 # floating point slop for peak-detection
+ERR_TOL = 1e-5  # floating point slop for peak-detection
 
 
 matplotlib.rc('image', origin='lower')
@@ -49,7 +49,7 @@ class PlotPanel(wx.Panel):
 
         self.fig = Figure((5,4), 75)
         self.canvas = FigureCanvasWxAgg(self, -1, self.fig)
-        self.toolbar = Toolbar(self.canvas) #matplotlib toolbar
+        self.toolbar = Toolbar(self.canvas)  # matplotlib toolbar
         self.toolbar.Realize()
         #self.toolbar.set_active([0,1])
 
@@ -69,7 +69,7 @@ class PlotPanel(wx.Panel):
         y = np.arange(100.0)*2*np.pi/50.0
         self.x, self.y = np.meshgrid(x, y)
         z = np.sin(self.x) + np.cos(self.y)
-        self.im = a.imshow(z, cmap=cm.jet)#, interpolation='nearest')
+        self.im = a.imshow(z, cmap=cm.jet)  # , interpolation='nearest')
 
         zmax = np.amax(z) - ERR_TOL
         ymax_i, xmax_i = np.nonzero(z >= zmax)
@@ -77,7 +77,7 @@ class PlotPanel(wx.Panel):
             ymax_i = z.shape[0]-ymax_i
         self.lines = a.plot(xmax_i,ymax_i,'ko')
 
-        self.toolbar.update() # Not sure why this is needed - ADS
+        self.toolbar.update()  # Not sure why this is needed - ADS
 
     def GetToolBar(self):
         # You will need to override GetToolBar if you are using an

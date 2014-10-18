@@ -19,7 +19,7 @@ date2 = datetime.date(2004, 4, 12)
 delta = datetime.timedelta(days=100)
 
 dates = drange(date1, date2, delta)
-s = np.random.rand(len(dates)) # make up some random y values
+s = np.random.rand(len(dates))  # make up some random y values
 
 
 fig, ax = plt.subplots()

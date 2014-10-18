@@ -79,7 +79,7 @@ class Puck(object):
                 self.vx *= 1.2 *pad.signx
                 self.vy *= 1.2 *pad.signy
         fudge = .001
-        #probably cleaner with something like...if not self.field.contains(self.x, self.y):
+        # probably cleaner with something like...if not self.field.contains(self.x, self.y):
         if self.x < 0+fudge:
             #print "player A loses"
             pads[1].score += 1;

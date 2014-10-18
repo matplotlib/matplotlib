@@ -10,7 +10,7 @@ keyword arguments to imshow and contour.
 '''
 from pylab import *
 
-#Default delta is large because that makes it fast, and it illustrates
+# Default delta is large because that makes it fast, and it illustrates
 # the correct registration between image and contours.
 delta = 0.5
 
@@ -23,7 +23,7 @@ Z1 = bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
 Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
 Z = (Z1 - Z2) * 10
 
-levels = arange(-2.0, 1.601, 0.4) # Boost the upper limit to avoid truncation
+levels = arange(-2.0, 1.601, 0.4)  # Boost the upper limit to avoid truncation
                                   # errors.
 
 norm = cm.colors.Normalize(vmax=abs(Z).max(), vmin=-abs(Z).max())
@@ -42,7 +42,7 @@ cset1 = contourf(X, Y, Z, levels,
 # number of levels minus 1.  To avoid discretization error, use
 # either this number or a large number such as the default (256).
 
-#If we want lines as well as filled regions, we need to call
+# If we want lines as well as filled regions, we need to call
 # contour separately; don't try to change the edgecolor or edgewidth
 # of the polygons in the collections returned by contourf.
 # Use levels output from previous call to guarantee they are the same.

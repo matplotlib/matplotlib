@@ -35,10 +35,10 @@ scatter(x,y,s=120, zorder=2)
 x=frange(0,2*pi,npts=100)
 figure()
 plot(x,sin(x),linewidth=10, color='black',label='zorder=10',zorder=10)  # on top
-plot(x,cos(1.3*x),linewidth=10, color='red', label='zorder=1',zorder=1) # bottom
+plot(x,cos(1.3*x),linewidth=10, color='red', label='zorder=1',zorder=1)  # bottom
 plot(x,sin(2.1*x),linewidth=10, color='green', label='zorder=3',zorder=3)
 axhline(0,linewidth=10, color='blue', label='zorder=2',zorder=2)
 l = legend()
-l.set_zorder(20) # put the legend on top
+l.set_zorder(20)  # put the legend on top
 
 show()

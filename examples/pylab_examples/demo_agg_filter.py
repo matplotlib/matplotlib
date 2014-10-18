@@ -32,7 +32,7 @@ class BaseFilter(object):
         padded_src = np.zeros([pad*2+ny, pad*2+nx, depth], dtype="d")
         padded_src[pad:-pad, pad:-pad,:] = src_image[:,:,:]
 
-        return padded_src#, tgt_image
+        return padded_src  # , tgt_image
 
     def get_pad(self, dpi):
         return 0
@@ -110,8 +110,6 @@ class LightFilter(BaseFilter):
         self.gauss_filter = GaussianFilter(sigma, alpha=1)
         self.light_source = LightSource()
         self.fraction = fraction
-        #hsv_min_val=0.5,hsv_max_val=0.9,
-        #                                hsv_min_sat=0.1,hsv_max_sat=0.1)
 
     def get_pad(self, dpi):
         return self.gauss_filter.get_pad(dpi)
@@ -215,7 +213,8 @@ def filtered_text(ax):
     from matplotlib.patheffects import Normal
     for t in cl:
         t.set_color("k")
-        t.set_path_effects([Normal()]) # to force TextPath (i.e., same font in all backends)
+        # to force TextPath (i.e., same font in all backends)
+        t.set_path_effects([Normal()])
 
     # Add white glows to improve visibility of labels.
     white_glows = FilteredArtistList(cl, GrowFilter(3))
@@ -256,7 +255,7 @@ def drop_shadow_line(ax):
         # original lines
         shadow.set_zorder(l.get_zorder()-0.5)
         shadow.set_agg_filter(gauss)
-        shadow.set_rasterized(True) # to support mixed-mode renderers
+        shadow.set_rasterized(True)  # to support mixed-mode renderers
 
     ax.set_xlim(0., 1.)
     ax.set_ylim(0., 1.)
@@ -300,7 +299,7 @@ def light_filter_pie(ax):
     light_filter = LightFilter(9)
     for p in pies[0]:
         p.set_agg_filter(light_filter)
-        p.set_rasterized(True) # to support mixed-mode renderers
+        p.set_rasterized(True)  # to support mixed-mode renderers
         p.set(ec="none",
               lw=2)
 

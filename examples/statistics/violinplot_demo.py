@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # fake data
-fs = 10 # fontsize
+fs = 10  # fontsize
 pos = [1,2,4,5,7,8]
 data = [np.random.normal(size=100) for i in pos]
 

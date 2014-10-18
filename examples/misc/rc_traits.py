@@ -134,7 +134,7 @@ class PatchRC(traits.HasTraits):
     edgecolor = Color
     antialiased = flexible_true_trait
 
-timezones = 'UTC', 'US/Central', 'ES/Eastern' # fixme: and many more
+timezones = 'UTC', 'US/Central', 'ES/Eastern'  # fixme: and many more
 backends = ('GTKAgg', 'Cairo', 'GDK', 'GTK', 'Agg',
            'GTKCairo', 'PS', 'SVG', 'Template', 'TkAgg',
            'WX')

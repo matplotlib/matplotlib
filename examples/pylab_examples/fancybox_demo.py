@@ -57,7 +57,7 @@ def test2(ax):
     # forgotten even if the boxstyle name is same.
 
     p_fancy.set_boxstyle("round,pad=0.1, rounding_size=0.2")
-    #or
+    # or
     #p_fancy.set_boxstyle("round", pad=0.1, rounding_size=0.2)
 
     ax.text(0.1, 0.8,

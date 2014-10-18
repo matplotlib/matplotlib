@@ -44,7 +44,7 @@ while not happy:
         pts = np.asarray(plt.ginput(3,timeout=-1))
         if len(pts) < 3:
             tellme('Too few points, starting over')
-            time.sleep(1) # Wait a second
+            time.sleep(1)  # Wait a second
 
     ph = plt.fill(pts[:,0], pts[:,1], 'r', lw=2)
 
