@@ -24,8 +24,8 @@ matrix:
 
 install:
   - pip install -q --use-mirrors nose python-dateutil $NUMPY pep8 pyparsing pillow
-  - sudo apt-get update && sudo apt-get -qq install inkscape libav-tools
-  # We use --no-install-recommends to avoid pulling in additional large latex docs that we don't need 
+  - sudo apt-get update && sudo apt-get -qq install inkscape libav-tools gdb
+  # We use --no-install-recommends to avoid pulling in additional large latex docs that we don't need
   - if [[ $BUILD_DOCS == true ]]; then sudo apt-get install -qq --no-install-recommends dvipng texlive-latex-base texlive-latex-extra texlive-fonts-recommended graphviz; fi
   - if [[ $BUILD_DOCS == true ]]; then pip install sphinx numpydoc linkchecker; fi
   - python setup.py install
@@ -37,11 +37,12 @@ script:
   - echo Testing using 8 processes
   # Generate the font caches in a single process before starting the
   # multiple processes
+  - gcc --version
   - python -c "from matplotlib import font_manager"
   - if [[ $BUILD_DOCS == false ]]; then export MPL_REPO_DIR=$PWD; fi # pep8-conformance test of the examples
   - if [[ $BUILD_DOCS == false ]]; then mkdir ../tmp_test_dir; fi
   - if [[ $BUILD_DOCS == false ]]; then cd ../tmp_test_dir; fi
-  - if [[ $BUILD_DOCS == false ]]; then python ../matplotlib/tests.py -sv --processes=8 --process-timeout=300 $TEST_ARGS; fi
+  - if [[ $BUILD_DOCS == false ]]; then gdb -return-child-result -batch -ex r -ex bt --args python ../matplotlib/tests.py -sv --processes=8 --process-timeout=300 $TEST_ARGS; fi
   - if [[ $BUILD_DOCS == true ]]; then cd doc; python make.py html --small; fi
   # We don't build the LaTeX docs here, so linkchecker will complain
   - if [[ $BUILD_DOCS == true ]]; then touch build/html/Matplotlib.pdf; fi

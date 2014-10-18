@@ -110,10 +110,8 @@ class RendererMac(RendererBase):
         return self.gc.get_image_magnification()
 
     def draw_image(self, gc, x, y, im):
-        im.flipud_out()
         nrows, ncols, data = im.as_rgba_str()
         gc.draw_image(x, y, nrows, ncols, data)
-        im.flipud_out()
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         # todo, handle props, angle, origins

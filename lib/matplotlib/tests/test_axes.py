@@ -4,6 +4,8 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange
 
+import io
+
 from nose.tools import assert_equal, assert_raises
 import datetime
 
@@ -470,7 +472,7 @@ def test_hexbin_pickable():
     data = np.arange(200.)/200.
     data.shape = 2, 100
     x, y = data
-    hb = ax.hexbin(x, y, extent=[.1, .3, .6, .7], picker=1)
+    hb = ax.hexbin(x, y, extent=[.1, .3, .6, .7], picker=-1)
 
     assert hb.contains(FauxMouseEvent(400, 300))[0]
 
@@ -3392,11 +3394,13 @@ def test_margins():
 @cleanup
 def test_pathological_hexbin():
     # issue #2863
+    out = io.BytesIO()
+
     with warnings.catch_warnings(record=True) as w:
         mylist = [10] * 100
         fig, ax = plt.subplots(1, 1)
         ax.hexbin(mylist, mylist)
-        plt.show()
+        fig.savefig(out)
         assert_equal(len(w), 0)
 
 

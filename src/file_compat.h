@@ -10,12 +10,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 #if defined(_MSC_VER) && defined(_WIN64) && (_MSC_VER > 1400)
     #include <io.h>
-    #define npy_fseek _fseeki64
-    #define npy_ftell _ftelli64
-    #define npy_lseek _lseeki64
+    #define mpl_fseek _fseeki64
+    #define mpl_ftell _ftelli64
+    #define mpl_lseek _lseeki64
     #define mpl_off_t npy_int64
 
     #if NPY_SIZEOF_INT == 8
@@ -28,9 +27,9 @@ extern "C" {
         #error Unsupported size for type off_t
     #endif
 #else
-    #define npy_fseek fseek
-    #define npy_ftell ftell
-    #define npy_lseek lseek
+    #define mpl_fseek fseek
+    #define mpl_ftell ftell
+    #define mpl_lseek lseek
     #define mpl_off_t off_t
 
     #if NPY_SIZEOF_INT == NPY_SIZEOF_SHORT
@@ -54,8 +53,7 @@ extern "C" {
 /*
  * Get a FILE* handle to the file represented by the Python object
  */
-static NPY_INLINE FILE*
-mpl_PyFile_Dup(PyObject *file, char *mode, mpl_off_t *orig_pos)
+static NPY_INLINE FILE *mpl_PyFile_Dup(PyObject *file, char *mode, mpl_off_t *orig_pos)
 {
     int fd, fd2;
     PyObject *ret, *os;
@@ -63,7 +61,7 @@ mpl_PyFile_Dup(PyObject *file, char *mode, mpl_off_t *orig_pos)
     FILE *handle;
 
     /* Flush first to ensure things end up in the file in the correct order */
-    ret = PyObject_CallMethod(file, "flush", "");
+    ret = PyObject_CallMethod(file, (char *)"flush", (char *)"");
     if (ret == NULL) {
         return NULL;
     }
@@ -79,7 +77,7 @@ mpl_PyFile_Dup(PyObject *file, char *mode, mpl_off_t *orig_pos)
     if (os == NULL) {
         return NULL;
     }
-    ret = PyObject_CallMethod(os, "dup", "i", fd);
+    ret = PyObject_CallMethod(os, (char *)"dup", (char *)"i", fd);
     Py_DECREF(os);
     if (ret == NULL) {
         return NULL;
@@ -87,26 +85,25 @@ mpl_PyFile_Dup(PyObject *file, char *mode, mpl_off_t *orig_pos)
     fd2 = PyNumber_AsSsize_t(ret, NULL);
     Py_DECREF(ret);
 
-    /* Convert to FILE* handle */
+/* Convert to FILE* handle */
 #ifdef _WIN32
     handle = _fdopen(fd2, mode);
 #else
     handle = fdopen(fd2, mode);
 #endif
     if (handle == NULL) {
-        PyErr_SetString(PyExc_IOError,
-                        "Getting a FILE* from a Python file object failed");
+        PyErr_SetString(PyExc_IOError, "Getting a FILE* from a Python file object failed");
     }
 
     /* Record the original raw file handle position */
-    *orig_pos = npy_ftell(handle);
+    *orig_pos = mpl_ftell(handle);
     if (*orig_pos == -1) {
         // handle is a stream, so we don't have to worry about this
         return handle;
     }
 
     /* Seek raw handle to the Python-side position */
-    ret = PyObject_CallMethod(file, "tell", "");
+    ret = PyObject_CallMethod(file, (char *)"tell", (char *)"");
     if (ret == NULL) {
         fclose(handle);
         return NULL;
@@ -117,7 +114,7 @@ mpl_PyFile_Dup(PyObject *file, char *mode, mpl_off_t *orig_pos)
         fclose(handle);
         return NULL;
     }
-    if (npy_fseek(handle, pos, SEEK_SET) == -1) {
+    if (mpl_fseek(handle, pos, SEEK_SET) == -1) {
         PyErr_SetString(PyExc_IOError, "seeking file failed");
         return NULL;
     }
@@ -127,14 +124,13 @@ mpl_PyFile_Dup(PyObject *file, char *mode, mpl_off_t *orig_pos)
 /*
  * Close the dup-ed file handle, and seek the Python one to the current position
  */
-static NPY_INLINE int
-mpl_PyFile_DupClose(PyObject *file, FILE* handle, mpl_off_t orig_pos)
+static NPY_INLINE int mpl_PyFile_DupClose(PyObject *file, FILE *handle, mpl_off_t orig_pos)
 {
     int fd;
     PyObject *ret;
     mpl_off_t position;
 
-    position = npy_ftell(handle);
+    position = mpl_ftell(handle);
 
     /* Close the FILE* handle */
     fclose(handle);
@@ -145,14 +141,14 @@ mpl_PyFile_DupClose(PyObject *file, FILE* handle, mpl_off_t orig_pos)
     if (fd == -1) {
         return -1;
     }
-    if (npy_lseek(fd, orig_pos, SEEK_SET) != -1) {
+    if (mpl_lseek(fd, orig_pos, SEEK_SET) != -1) {
         if (position == -1) {
             PyErr_SetString(PyExc_IOError, "obtaining file position failed");
             return -1;
         }
 
         /* Seek Python-side handle to the FILE* handle position */
-        ret = PyObject_CallMethod(file, "seek", MPL_OFF_T_PYFMT "i", position, 0);
+        ret = PyObject_CallMethod(file, (char *)"seek", (char *)(MPL_OFF_T_PYFMT "i"), position, 0);
         if (ret == NULL) {
             return -1;
         }
@@ -161,8 +157,7 @@ mpl_PyFile_DupClose(PyObject *file, FILE* handle, mpl_off_t orig_pos)
     return 0;
 }
 
-static NPY_INLINE int
-mpl_PyFile_Check(PyObject *file)
+static NPY_INLINE int mpl_PyFile_Check(PyObject *file)
 {
     int fd;
     fd = PyObject_AsFileDescriptor(file);
@@ -175,29 +170,39 @@ mpl_PyFile_Check(PyObject *file)
 
 #else
 
-#define mpl_PyFile_Dup(file, mode, orig_pos_p) PyFile_AsFile(file)
-#define mpl_PyFile_DupClose(file, handle, orig_pos) (0)
-#define mpl_PyFile_Check PyFile_Check
+static NPY_INLINE FILE *mpl_PyFile_Dup(PyObject *file, const char *mode, mpl_off_t *orig_pos)
+{
+    return PyFile_AsFile(file);
+}
+
+static NPY_INLINE int mpl_PyFile_DupClose(PyObject *file, FILE *handle, mpl_off_t orig_pos)
+{
+    // deliberately nothing
+    return 0;
+}
+
+static NPY_INLINE int mpl_PyFile_Check(PyObject *file)
+{
+    return PyFile_Check(file);
+}
 
 #endif
 
-static NPY_INLINE PyObject*
-mpl_PyFile_OpenFile(PyObject *filename, const char *mode)
+static NPY_INLINE PyObject *mpl_PyFile_OpenFile(PyObject *filename, const char *mode)
 {
     PyObject *open;
     open = PyDict_GetItemString(PyEval_GetBuiltins(), "open");
     if (open == NULL) {
         return NULL;
     }
-    return PyObject_CallFunction(open, (char*)"Os", filename, mode);
+    return PyObject_CallFunction(open, (char *)"Os", filename, mode);
 }
 
-static NPY_INLINE int
-mpl_PyFile_CloseFile(PyObject *file)
+static NPY_INLINE int mpl_PyFile_CloseFile(PyObject *file)
 {
     PyObject *ret;
 
-    ret = PyObject_CallMethod(file, (char*)"close", NULL);
+    ret = PyObject_CallMethod(file, (char *)"close", NULL);
     if (ret == NULL) {
         return -1;
     }

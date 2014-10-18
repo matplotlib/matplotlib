@@ -1241,6 +1241,7 @@ end"""
 
         rgba = np.fromstring(s, np.uint8)
         rgba.shape = (h, w, 4)
+        rgba = rgba[::-1]
         rgb = rgba[:, :, :3]
         a = rgba[:, :, 3:]
         return h, w, rgb.tostring(), a.tostring()
@@ -1249,6 +1250,7 @@ end"""
         rgbat = im.as_rgba_str()
         rgba = np.fromstring(rgbat[2], np.uint8)
         rgba.shape = (rgbat[0], rgbat[1], 4)
+        rgba = rgba[::-1]
         rgba_f = rgba.astype(np.float32)
         r = rgba_f[:, :, 0]
         g = rgba_f[:, :, 1]
@@ -1258,7 +1260,6 @@ end"""
 
     def writeImages(self):
         for img, pair in six.iteritems(self.images):
-            img.flipud_out()
             if img.is_grayscale:
                 height, width, data = self._gray(img)
                 self.beginStream(
@@ -1293,8 +1294,6 @@ end"""
                 # TODO: predictors (i.e., output png)
                 self.currentstream.write(data)
                 self.endStream()
-
-            img.flipud_out()
 
     def markerObject(self, path, trans, fillp, strokep, lw, joinstyle,
                      capstyle):

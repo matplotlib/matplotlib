@@ -1045,8 +1045,8 @@ class Figure(Artist):
             ims = [(im.make_image(mag), im.ox, im.oy, im.get_alpha())
                    for im in self.images]
 
-            im = _image.from_images(self.bbox.height * mag,
-                                    self.bbox.width * mag,
+            im = _image.from_images(int(self.bbox.height * mag),
+                                    int(self.bbox.width * mag),
                                     ims)
 
             im.is_grayscale = False
