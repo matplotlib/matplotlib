@@ -19,7 +19,7 @@ text(0.5, 0.5,'matplotlib', color='r',
      fontsize=40, fontname='Courier',
      horizontalalignment='center',
      verticalalignment='center',
-     transform = ax.transAxes,
+     transform=ax.transAxes,
      )
 axis([1, 1.72,-60, 10])
 setp(gca(), 'xticklabels', [])

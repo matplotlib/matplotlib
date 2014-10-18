@@ -134,7 +134,7 @@ class _TaggedValue(object):
         self.unit = unit
         self.proxy_target = self.value
 
-    def  __getattribute__(self, name):
+    def __getattribute__(self, name):
         if (name.startswith('__')):
             return object.__getattribute__(self, name)
         variable = object.__getattribute__(self, 'value')

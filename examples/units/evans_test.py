@@ -26,8 +26,8 @@ class FooConverter:
         'return the Foo AxisInfo'
         if unit==1.0 or unit==2.0:
             return units.AxisInfo(
-                majloc = ticker.IndexLocator(8, 0),
-                majfmt = ticker.FormatStrFormatter("VAL: %s"),
+                majloc=ticker.IndexLocator(8, 0),
+                majfmt=ticker.FormatStrFormatter("VAL: %s"),
                 label='foo',
                 )
 

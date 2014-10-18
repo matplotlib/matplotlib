@@ -1,7 +1,7 @@
 # use masked arrays to plot a line with different colors by y-value
 from numpy import logical_or, arange, sin, pi
 from numpy import ma
-from matplotlib.pyplot import  plot, show
+from matplotlib.pyplot import plot, show
 
 t = arange(0.0, 2.0, 0.01)
 s = sin(2*pi*t)

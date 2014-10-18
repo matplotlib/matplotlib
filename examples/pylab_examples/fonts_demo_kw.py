@@ -72,7 +72,7 @@ t = text(x, 0.1, 'bold italic', style='italic',
          **alignment)
 
 t = text(x, 0.2, 'bold italic',
-         style = 'italic', weight='bold', size='medium',
+         style='italic', weight='bold', size='medium',
          **alignment)
 
 t = text(x, 0.3, 'bold italic',
