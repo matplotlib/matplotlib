@@ -17,7 +17,7 @@ python:
   - 3.3
 
 install:
-  - pip install -q --use-mirrors nose python-dateutil numpy pep8 pyparsing pillow
+  - pip install -q --use-mirrors nose python-dateutil numpy pep8 pyparsing pillow pydispatch
   - sudo apt-get update && sudo apt-get -qq install inkscape libav-tools
   - python setup.py install
 
