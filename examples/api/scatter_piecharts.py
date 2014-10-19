@@ -20,21 +20,28 @@ sizes = [60, 80, 120]
 # some points on a circle cos,sin
 x = [0] + np.cos(np.linspace(0, 2*math.pi*r1, 10)).tolist()
 y = [0] + np.sin(np.linspace(0, 2*math.pi*r1, 10)).tolist()
+
+
 xy1 = list(zip(x, y))
+s1 = max(max(x), max(y))
 
 # ...
 x = [0] + np.cos(np.linspace(2*math.pi*r1, 2*math.pi*r2, 10)).tolist()
 y = [0] + np.sin(np.linspace(2*math.pi*r1, 2*math.pi*r2, 10)).tolist()
 xy2 = list(zip(x, y))
+s2 = max(max(x), max(y))
 
 x = [0] + np.cos(np.linspace(2*math.pi*r2, 2*math.pi, 10)).tolist()
 y = [0] + np.sin(np.linspace(2*math.pi*r2, 2*math.pi, 10)).tolist()
 xy3 = list(zip(x, y))
-
+s3 = max(max(x), max(y))
 
 fig, ax = plt.subplots()
-d = np.arange(3)
-ax.scatter(d, d, marker=(xy1, 0), s=sizes, facecolor='blue')
-ax.scatter(d, d, marker=(xy2, 0), s=sizes, facecolor='green')
-ax.scatter(d, d, marker=(xy3, 0), s=sizes, facecolor='red')
+ax.scatter(np.arange(3), np.arange(3), marker=(xy1,0),
+            s=[s1*s1*_ for _ in sizes], facecolor='blue')
+ax.scatter(np.arange(3), np.arange(3), marker=(xy2,0),
+            s=[s2*s2*_ for _ in sizes], facecolor='green')
+ax.scatter(np.arange(3), np.arange(3), marker=(xy3,0),
+            s=[s3*s3*_ for _ in sizes], facecolor='red')
+
 plt.show()
