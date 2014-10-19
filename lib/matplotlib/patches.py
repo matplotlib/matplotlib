@@ -339,9 +339,10 @@ class Patch(artist.Artist):
         """
         Set the patch linestyle
 
-        ACCEPTS: ['-' | '--' | '-.' | ':' |
-        'solid' | 'dashed' | 'dashdot' | 'dotted' |
-        (offset, on-off-dash-seq) ]
+        Parameters
+        ----------
+        ls : { '-',  '--', '-.', ':' , 'solid', 'dashed', 'dashdot', 'dotted', (offset, on-off-dash-seq)}
+            The line style.  [[EXPLAIN on-off-dash-seq]]
         """
         if ls is None:
             ls = "solid"

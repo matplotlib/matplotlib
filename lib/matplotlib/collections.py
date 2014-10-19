@@ -463,9 +463,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         Set the linestyle(s) for the collection.
 
-        ACCEPTS: [ '-' | '--' | '-.' | ':' |
-        'solid' | 'dashed', 'dashdot', 'dotted' |
-        (offset, on-off-dash-seq) ]
+
+        Parameters
+        ----------
+        ls : { '-',  '--', '-.', ':' , 'solid', 'dashed', 'dashdot', 'dotted', (offset, on-off-dash-seq)}
+            The line style.  [[EXPLAIN on-off-dash-seq]]
         """
         try:
             dashd = backend_bases.GraphicsContextBase.dashd

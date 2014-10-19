@@ -915,9 +915,9 @@ class Line2D(Artist):
         Set the linestyle of the line (also accepts drawstyles)
 
 
-        ================              =================
+        ===========================   =================
         linestyle                     description
-        ================              =================
+        ===========================   =================
         ``'-'`` or ``'solid'``        solid line
         ``'--'`` or  ``'dashed'``     dashed line
         ``'-.'`` or  ``'dash_dot'``   dash-dotted line
@@ -925,7 +925,7 @@ class Line2D(Artist):
         ``'None'``                    draw nothing
         ``' '``                       draw nothing
         ``''``                        draw nothing
-        ================              =================
+        ===========================   =================
 
         'steps' is equivalent to 'steps-pre' and is maintained for
         backward-compatibility.
@@ -935,10 +935,12 @@ class Line2D(Artist):
             :meth:`set_drawstyle`
                To set the drawing style (stepping) of the plot.
 
-        ACCEPTS: [``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` |
-                  ``'solid'`` | ``'dashed'`` | ``'dash_dot'`` | ``'dotted'`` |
-                  ``'None'`` | ``' '`` | ``''``]
-                 and any drawstyle in combination with a linestyle, e.g., ``'steps--'``.
+        Parameters
+        ----------
+        ls : { '-',  '--', '-.', ':' , 'solid', 'dashed', 'dashdot', 'dotted', (offset, on-off-dash-seq)}
+            The line style.  [[EXPLAIN on-off-dash-seq]]
+            Also accepts any drawstyle in combination with a linestyle,
+            e.g., ``'steps--'``.
         """
         if not is_string_like(linestyle):
             if len(linestyle) != 2:
