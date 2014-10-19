@@ -207,7 +207,6 @@ def test_clipping_of_log():
     # line segment is effectively removed. That means that the closepoly
     # operation must be replaced by a move to the first point.
     assert np.allclose(tcodes, [ M, M, L, L, L ])
-    assert np.allclose(tpoints[-1], tpoints[0])
 
 
 class NonAffineForTest(mtrans.Transform):
