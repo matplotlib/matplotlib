@@ -37,11 +37,11 @@ xy3 = list(zip(x, y))
 s3 = max(max(x), max(y))
 
 fig, ax = plt.subplots()
-ax.scatter(np.arange(3), np.arange(3), marker=(xy1,0),
+ax.scatter(np.arange(3), np.arange(3), marker=(xy1, 0),
             s=[s1*s1*_ for _ in sizes], facecolor='blue')
-ax.scatter(np.arange(3), np.arange(3), marker=(xy2,0),
+ax.scatter(np.arange(3), np.arange(3), marker=(xy2, 0),
             s=[s2*s2*_ for _ in sizes], facecolor='green')
-ax.scatter(np.arange(3), np.arange(3), marker=(xy3,0),
+ax.scatter(np.arange(3), np.arange(3), marker=(xy3, 0),
             s=[s3*s3*_ for _ in sizes], facecolor='red')
 
 plt.show()
