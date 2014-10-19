@@ -566,6 +566,9 @@ class Text(Artist):
         self._set_gc_clip(gc)
 
         if self._bbox:
+            self._bbox.update(dict(clip_box=self.clipbox,
+                                   clip_path=self._clippath,
+                                   clip_on=self._clipon))
             bbox_artist(self, renderer, self._bbox)
         angle = self.get_rotation()
 
