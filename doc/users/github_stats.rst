@@ -3,11 +3,11 @@
 Github stats
 ============
 
-GitHub stats for 2013/07/31 - 2014/08/25 (tag: v1.3.0)
+GitHub stats for 2013/07/31 - 2014/10/18 (tag: v1.3.0)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-The following 170 authors contributed 1904 commits.
+The following 169 authors contributed 2105 commits.
 
 * Adam Heck
 * Adrian Price-Whelan
@@ -18,6 +18,7 @@ The following 170 authors contributed 1904 commits.
 * Andrew Dawson
 * Andrew Merrill
 * Aseem Bansal
+* Behram Mistree
 * Ben Cohen
 * Ben Gamari
 * Ben Keller
@@ -42,10 +43,12 @@ The following 170 authors contributed 1904 commits.
 * DonaldSeo
 * Elliott Sales de Andrade
 * Eric Firing
+* Eugene Yurtsev
 * Federico Ariza
 * Felipe
 * Filipe
 * Francesco Montesano
+* Francis Colas
 * Geoffroy Billotey
 * Gregory Ashton
 * Guillaume Gay
@@ -58,11 +61,11 @@ The following 170 authors contributed 1904 commits.
 * JamesMakela
 * Jan Schulz
 * Jason Grout
-* Jens H Nielsen
-* Jens H. Nielsen
+* Jason Miller
 * Jens Hedegaard Nielsen
 * Joe Kington
 * Joel B. Mohler
+* Jorrit Wronski
 * José Ricardo
 * Jouni K. Seppänen
 * Julian Taylor
@@ -86,7 +89,7 @@ The following 170 authors contributed 1904 commits.
 * Matt Klein
 * Matt Terry
 * Matthew Brett
-* Matthias BUSSONNIER
+* Matthias Bussonnier
 * Matthieu Caneill
 * Matěj Týč
 * Michael
@@ -98,19 +101,18 @@ The following 170 authors contributed 1904 commits.
 * Nelle Varoquaux
 * Nic Eggert
 * Nicolas P. Rougier
-* Nicolas Rougier
 * Oliver Willekens
 * Patrick Marsh
 * Paul
 * Paul Hobson
 * Paul Ivanov
-* Per
 * Per Parker
 * Peter Iannucci
 * Peter Würtz
 * Phil Elson
 * Pierre Haessig
 * Puneeth Chaganti
+* Remi Rampin
 * Richard Hattersley
 * Ricky
 * Robert Johansson
@@ -138,10 +140,10 @@ The following 170 authors contributed 1904 commits.
 * Trevor Bekolay
 * Vadim Markovtsev
 * Valentin Haenel
-* Varoquaux
 * Viktor Kerkez
 * Vlad Seghete
 * Wieland Hoffmann
+* William Manley
 * Yaron de Leeuw
 * anykraus
 * arokem
@@ -157,6 +159,7 @@ The following 170 authors contributed 1904 commits.
 * endolith
 * fardal
 * grdlok
+* jowr
 * kcrisman
 * kelsiegr
 * khyox
@@ -164,14 +167,10 @@ The following 170 authors contributed 1904 commits.
 * kshramt
 * limtaesu
 * marky
-* pelson
 * profholzer
-* pwuertz
 * rahiel
 * rhoef
-* selasley
 * sfroid
-* solvents
 * spiessbuerger
 * stahlous
 * syngron
@@ -181,12 +180,122 @@ The following 170 authors contributed 1904 commits.
 * xbtsw
 
 
-We closed a total of 1631 issues, 512 pull requests and 1119 regular issues;
+We closed a total of 1964 issues, 622 pull requests and 1342 regular issues;
 this is the full list (generated with the script 
 :file:`tools/github_stats.py`):
 
-Pull Requests (512):
+Pull Requests (622):
 
+* :ghpull:`3672`: Python3 pep8 fixes
+* :ghpull:`3558`: Adds multiple histograms side-by-side example
+* :ghpull:`3665`: Remove usage of raw strides member in _backend_gdk.c
+* :ghpull:`3309`: Explicitly close read and write of Popen process (latex)
+* :ghpull:`3662`: Make all classes new-style.
+* :ghpull:`3646`: Remove PyCXX dependency for core extension modules
+* :ghpull:`3664`: [examples] pep8 fix e251 e27*
+* :ghpull:`3294`: fix typo in figlegend_demo.py
+* :ghpull:`3666`: remove print from test
+* :ghpull:`3638`: MNT : slight refactoring of Gcf
+* :ghpull:`3387`: include PySide in qt4agg backend check
+* :ghpull:`3597`: BUG/TST : skip example pep8 if don't know source path
+* :ghpull:`3661`: Numpy 1.6 fixes
+* :ghpull:`3635`: fix pep8 error classes e20[12] and e22[12] in examples
+* :ghpull:`3547`: Don't use deprecated numpy APIs
+* :ghpull:`3628`: Document auto-init behavior of colors.Normalize and cm.ScalarMappable.
+* :ghpull:`3640`: figure.max_num_figures was renamed to figure.max_open_warning.
+* :ghpull:`3650`: Typo fixes. [backport to doc branch]
+* :ghpull:`3564`: Rcparam validation fix
+* :ghpull:`3642`: TST : know-fail shadding tests
+* :ghpull:`3632`: Fix for #3623
+* :ghpull:`3619`: PatchCollection: pass other kwargs for match_original=True
+* :ghpull:`3637`: typo: mp4 -> mpeg4. Closes #3636.
+* :ghpull:`3629`: examples: fix pep8 error class E211
+* :ghpull:`3622`: setup.py creates a zombie C extension called "freetype2"
+* :ghpull:`3627`: Fixed Image and Renderer pickling
+* :ghpull:`3515`: examples: fix pep8 error classes E111 and E113
+* :ghpull:`3625`: animate_decay.py example code is less complicated
+* :ghpull:`3621`: matplotlib.__version__ is now unicode as of 1.4.0
+* :ghpull:`3620`: Revert interactive determination
+* :ghpull:`3613`: Fix problem with legend if data has NaN's [backport to 1.4.x]
+* :ghpull:`3313`: BUG: 3 fixes for widgets (MultiCrusor, SpanSelector, Slider)
+* :ghpull:`3496`: BUG : fix str vs bytes issue in py3 in ps backend
+* :ghpull:`3609`: Nbagg icons
+* :ghpull:`3611`: Fix spelling error
+* :ghpull:`3600`: BUG: now only set 'marker' and 'color' attribute of fliers in boxplots
+* :ghpull:`3560`: Updated whats new for nbagg and legend/patheffects docs.
+* :ghpull:`3594`: Unicode decode error [backport to 1.4.x]
+* :ghpull:`3574`: `rotation` parameter has no effect on `RegularPolyCollection`
+* :ghpull:`3409`: Win fixes
+* :ghpull:`3595`: Some small doc fixes only relevant on the master branch
+* :ghpull:`3291`: Lightsource enhancements
+* :ghpull:`3592`: Fix crash in picking for zero-length path collection
+* :ghpull:`3585`: merge V1.4.0-doc into v1.4.x 
+* :ghpull:`3566`: BUG : don't assume label in boxpplot_stat
+* :ghpull:`3567`: Fixed the differencing of images for the webagg/nbagg backends.
+* :ghpull:`3571`: BUG : deal with empty list passed to boxplot
+* :ghpull:`3533`: BUG : fix handling of flierprop by boxplot
+* :ghpull:`3514`: Ticks on top axis disappear if tick size is too large (when using bbox_inches='tight')
+* :ghpull:`3578`: Fixes test to assert instead of print
+* :ghpull:`3575`: Supports locale-specified encoding for rcfile.
+* :ghpull:`3479`: Build dep updates
+* :ghpull:`3552`: Nbagg enhancements
+* :ghpull:`3559`: Install texlive and other dependencies when building docs.
+* :ghpull:`3555`: Typo in comment documentation for example timers.py
+* :ghpull:`3556`: copy/paste corrections in test_backend_qt5
+* :ghpull:`3545`: Provide an informative error message if something goes wrong in setfont [backport to 1.4.x]
+* :ghpull:`3548`: Silence some Sphinx warnings by rewriting docstrings.
+* :ghpull:`3539`: DEP : update six minimum version
+* :ghpull:`3543`: DOC : fix main-page tags
+* :ghpull:`3524`: Bug in AutoDateLocator when dates are in reverse order
+* :ghpull:`3464`: BUG : nbagg py3k compatibility
+* :ghpull:`3534`: BUG : fixes whis over-writing in boxplot_stats
+* :ghpull:`3535`: BUG/DOC : Correct default value listed in docstring
+* :ghpull:`3369`: Added legend.framealpha to rcParams, as mentioned in axes.legend docstring
+* :ghpull:`3510`: Fix setupext [backport to 1.4.x]
+* :ghpull:`3530`: Only insert links to pdfs if we are actually generating these.
+* :ghpull:`3487`: Can not import matplotlib when launching from non-ascii path 
+* :ghpull:`3526`: BUG : fix eps corruption when using clipping
+* :ghpull:`3492`: Allow python 3 version of PyCXX
+* :ghpull:`3521`: More doc fixes
+* :ghpull:`3513`: examples: fully automated fixing of E30 pep8 errors
+* :ghpull:`3461`: This fixes a bunch of Sphinx warnings
+* :ghpull:`3507`: general pep8 fixes 
+* :ghpull:`3506`: Named colors example, figure size correction [backport to 1.4.0-doc]
+* :ghpull:`3503`: Win fix simple
+* :ghpull:`3495`: BUG : don't use super(self.__class__, self)
+* :ghpull:`3501`: Bugfix for text.xytext property
+* :ghpull:`3376`: Move widget.{get,set}_active to AxisWidget.
+* :ghpull:`3419`: Better repr for Bboxes.
+* :ghpull:`3474`: call set cursor on zoom/pan toggle [backpont to 1.4.x]
+* :ghpull:`3425`: Pep8ify examples
+* :ghpull:`3477`: Better check for required dependency libpng
+* :ghpull:`3478`: BUG : restore back-compatibility of regisiter_backend
+* :ghpull:`2900`: Remove no-longer-necessary KnownFail for python 3.2.
+* :ghpull:`3467`: Bugfix in mlab for strided views of np.arrays [backport to 1.4.x]
+* :ghpull:`3469`: Fix handling of getSaveFileName to be consistent [backport to 1.4.x]
+* :ghpull:`3384`: Test marker styles
+* :ghpull:`3456`: DOC : add known-bug + fix for QT5 toolbar issue
+* :ghpull:`3458`: DOC : minor import tweaks
+* :ghpull:`3457`: Add Qt5Agg to backends in matplotlibrc.template.
+* :ghpull:`3422`: Use mailmap in github stats
+* :ghpull:`3429`: DOC : added pytz to optional dependencies docs
+* :ghpull:`3453`: Bbox rebase 14
+* :ghpull:`3427`: DOC : added DOI link to citing.html
+* :ghpull:`3438`: Get rid of unused pre python 2.6 code in doc make.py
+* :ghpull:`3414`: Fixes TypeError when installing without freetype
+* :ghpull:`3428`: DOC : add caveat about freetype 2.3
+* :ghpull:`3430`: DOC : fixed markup / boxplot text in whats_new
+* :ghpull:`3426`: DOC : remove piwik code
+* :ghpull:`3432`: Update whats_new.rst
+* :ghpull:`3415`: DOC: fix markup and download link in the Windows install section
+* :ghpull:`3408`: test_text Modify filter warning regex
+* :ghpull:`3282`: Catch warning thrown in Mollweide projection.
+* :ghpull:`2635`: Crash on saving figure if text.usetex is True
+* :ghpull:`3241`: Cast to integer to get rid of numpy warning
+* :ghpull:`3335`: Fix and new test for #3327
+* :ghpull:`3278`: Use libpng-config if available
+* :ghpull:`3244`: Filter warnings in rcparams test (and others)
+* :ghpull:`3378`: BUG: Fixes custom path marker sizing for issue #1980
 * :ghpull:`3401`: enlarge on windows build instructions slightly
 * :ghpull:`3399`: Cherrypick doc changes to v1.4.0
 * :ghpull:`3397`: Install guide tweaks
@@ -700,16 +809,240 @@ Pull Requests (512):
 * :ghpull:`1547`: qt4_editor/formlayout.py TypeError: float() argument must be a string or a number
 * :ghpull:`2260`: texmanager font family fix
 
-Issues (1119):
+Issues (1342):
 
+* :ghissue:`3672`: Python3 pep8 fixes
+* :ghissue:`3355`: Unneeded argument in get_linestyle
+* :ghissue:`3558`: Adds multiple histograms side-by-side example
+* :ghissue:`3665`: Remove usage of raw strides member in _backend_gdk.c
+* :ghissue:`3309`: Explicitly close read and write of Popen process (latex)
+* :ghissue:`3488`: pep8ify examples (part2)
+* :ghissue:`3589`: ENH: add to_grayscale() method to color maps
+* :ghissue:`3662`: Make all classes new-style.
+* :ghissue:`3646`: Remove PyCXX dependency for core extension modules
+* :ghissue:`3664`: [examples] pep8 fix e251 e27*
+* :ghissue:`3294`: fix typo in figlegend_demo.py
+* :ghissue:`3666`: remove print from test
+* :ghissue:`3667`: A bug in mpl_toolkits.mplot3d.axes3d
+* :ghissue:`3638`: MNT : slight refactoring of Gcf
+* :ghissue:`3387`: include PySide in qt4agg backend check
+* :ghissue:`3597`: BUG/TST : skip example pep8 if don't know source path
+* :ghissue:`3596`: Pep8 tests fails when running python tests.py from base mpl dir.
+* :ghissue:`3661`: Numpy 1.6 fixes
+* :ghissue:`3660`: shading tests + numpy 1.6
+* :ghissue:`3635`: fix pep8 error classes e20[12] and e22[12] in examples
+* :ghissue:`3653`: Make ScalarMappable a new-style class.
+* :ghissue:`3547`: Don't use deprecated numpy APIs
+* :ghissue:`2092`: Move to new Numpy API
+* :ghissue:`3601`: matplotlib.style.available not updated upon adding/deleting .mplstyle files
+* :ghissue:`3616`: matplotlib.pyplot.imread silently fails on uint16 images.
+* :ghissue:`3628`: Document auto-init behavior of colors.Normalize and cm.ScalarMappable.
+* :ghissue:`3640`: figure.max_num_figures was renamed to figure.max_open_warning.
+* :ghissue:`3650`: Typo fixes. [backport to doc branch]
+* :ghissue:`3651`: Error when saving rasterized figure to PDF
+* :ghissue:`3470`: MacOSX backend breaks for matplotlib 1.4 after importing seaborn
+* :ghissue:`3564`: Rcparam validation fix
+* :ghissue:`3642`: TST : know-fail shadding tests
+* :ghissue:`3641`: Annotations with Latex code cause errors in 1.5 master
+* :ghissue:`3623`: Qt5 backend doesn't work with Qt 5.3
+* :ghissue:`3636`: mp4 is a container format, not a codec
+* :ghissue:`3632`: Fix for #3623
+* :ghissue:`3639`: Shading tests failing on master
+* :ghissue:`3619`: PatchCollection: pass other kwargs for match_original=True
+* :ghissue:`3617`: PatchCollection.__init__ ignores all kwargs if match_original=True
+* :ghissue:`3637`: typo: mp4 -> mpeg4. Closes #3636.
+* :ghissue:`3629`: examples: fix pep8 error class E211
+* :ghissue:`2873`: Add violin plots
+* :ghissue:`3622`: setup.py creates a zombie C extension called "freetype2"
+* :ghissue:`3213`: add whats_new entry for nbagg
+* :ghissue:`3392`: Cannot pickle `figure` or `axes` (TypeError: instancemethod)
+* :ghissue:`3614`: Pickling imshow fails (?due to _imcache)
+* :ghissue:`3606`: nbagg issues with ipython 3.0
+* :ghissue:`3494`: corrupt eps output on python3
+* :ghissue:`3627`: Fixed Image and Renderer pickling
+* :ghissue:`3515`: examples: fix pep8 error classes E111 and E113
+* :ghissue:`3625`: animate_decay.py example code is less complicated
+* :ghissue:`3621`: matplotlib.__version__ is now unicode as of 1.4.0
+* :ghissue:`3505`: Interactive mode not working in 1.4
+* :ghissue:`3620`: Revert interactive determination
+* :ghissue:`3311`: Ship conda package metadata with matplotlib?
+* :ghissue:`3248`: Divide by zero error in matplotlib.tests.test_colors.test_light_source_shading_color_range
+* :ghissue:`3613`: Fix problem with legend if data has NaN's [backport to 1.4.x]
+* :ghissue:`3618`: UnicodeDecodeError when I try to import matplotlib from directory with non-ascii name
+* :ghissue:`3313`: BUG: 3 fixes for widgets (MultiCrusor, SpanSelector, Slider)
+* :ghissue:`3496`: BUG : fix str vs bytes issue in py3 in ps backend
+* :ghissue:`3609`: Nbagg icons
+* :ghissue:`3611`: Fix spelling error
+* :ghissue:`3607`: Icon for font awesome 3.2.1 and 4 [backport to 1.4.x]
+* :ghissue:`3605`: matplotlib.pylab.specgram generate bad image in 1.4.0
+* :ghissue:`3604`: regression in pandas test suite with mpl 1.4.0
+* :ghissue:`3603`: Error saving file (Qt5 backend)
+* :ghissue:`2907`: Expose ax.yaxis.labelpad and ax.xaxis.labelpad to the rc file
+* :ghissue:`3096`: Axes labelpad rc
+* :ghissue:`3544`: flier objects missing from structure return by boxplot
+* :ghissue:`3600`: BUG: now only set 'marker' and 'color' attribute of fliers in boxplots
+* :ghissue:`3599`: BUG: now only set 'marker' and 'color' attribute of fliers in boxplots
+* :ghissue:`3516`: import error when non-ascii characters are present in cwd or user name (windows)
+* :ghissue:`3560`: Updated whats new for nbagg and legend/patheffects docs.
+* :ghissue:`3594`: Unicode decode error [backport to 1.4.x]
+* :ghissue:`3532`: BUG : skip looking up expanduser if unicode error
+* :ghissue:`3574`: `rotation` parameter has no effect on `RegularPolyCollection`
+* :ghissue:`3409`: Win fixes
+* :ghissue:`3573`: Bug: Empty sym string for boxplots still displays fliers.
+* :ghissue:`3595`: Some small doc fixes only relevant on the master branch
+* :ghissue:`3291`: Lightsource enhancements
+* :ghissue:`3459`: boxplot in version 1.4.0 does not respect property settings for fliers (flierprops)
+* :ghissue:`3592`: Fix crash in picking for zero-length path collection
+* :ghissue:`3590`: Won't use a font although it can be found by the FontManager
+* :ghissue:`3591`: BUG: Cannot pick empty vline
+* :ghissue:`3586`: Merge V1.4.x into master. 
+* :ghissue:`3585`: merge V1.4.0-doc into v1.4.x 
+* :ghissue:`3412`: Matplotlib 1.4 doesn't install from source on CentOS 6
+* :ghissue:`3423`: Pytz should be specified and documented as a required dependency
+* :ghissue:`3569`: boxplot stats regression on empty data
+* :ghissue:`3563`: boxplot() and xticklabels
+* :ghissue:`3566`: BUG : don't assume label in boxpplot_stat
+* :ghissue:`3567`: Fixed the differencing of images for the webagg/nbagg backends.
+* :ghissue:`3571`: BUG : deal with empty list passed to boxplot
+* :ghissue:`3533`: BUG : fix handling of flierprop by boxplot
+* :ghissue:`3581`: pep8 cleanup on scatter_demo.py
+* :ghissue:`3514`: Ticks on top axis disappear if tick size is too large (when using bbox_inches='tight')
+* :ghissue:`3578`: Fixes test to assert instead of print
+* :ghissue:`1713`: Can't store Unicode values in .matplotlibrc
+* :ghissue:`3575`: Supports locale-specified encoding for rcfile.
+* :ghissue:`3479`: Build dep updates
+* :ghissue:`233`: Make hist with 'step' histtype draw Line2D instead of Patch
+* :ghissue:`3522`: Inverting a datetime / plot_date y-axis
+* :ghissue:`3570`: matplotlib save dynamic user changes to plot
+* :ghissue:`3568`: Daily build fails at "import matplotlib.pyplot as plt"
+* :ghissue:`3541`: pyplot: Fix exception in `_backend_selection` during import [backport to 1.4.x]
+* :ghissue:`3565`: clabel randomly inconsistend when placed manually
+* :ghissue:`3552`: Nbagg enhancements
+* :ghissue:`3559`: Install texlive and other dependencies when building docs.
+* :ghissue:`3550`: Install texlive when building docs.
+* :ghissue:`3555`: Typo in comment documentation for example timers.py
+* :ghissue:`3556`: copy/paste corrections in test_backend_qt5
+* :ghissue:`3545`: Provide an informative error message if something goes wrong in setfont [backport to 1.4.x]
+* :ghissue:`3551`: Window isn't drawn
+* :ghissue:`3538`: Importing matplotlib failing when pacakge "six" is 1.3.0
+* :ghissue:`3542`: fix boxplot docs
+* :ghissue:`3548`: Silence some Sphinx warnings by rewriting docstrings.
+* :ghissue:`3549`: Texlive travis
+* :ghissue:`3539`: DEP : update six minimum version
+* :ghissue:`3543`: DOC : fix main-page tags
+* :ghissue:`3524`: Bug in AutoDateLocator when dates are in reverse order
+* :ghissue:`3455`: Documentation bug: boxplot docs have contradicting information
+* :ghissue:`3468`: boxplot() draws (min, max) whiskers after a zero-IQR input regardless of whis value
+* :ghissue:`3436`: matplotlib.use('nbagg ') does not work in Python 3
+* :ghissue:`3464`: BUG : nbagg py3k compatibility
+* :ghissue:`3534`: BUG : fixes whis over-writing in boxplot_stats
+* :ghissue:`3529`: Symlog norm still gives wrong result with integer lintresh.
+* :ghissue:`3535`: BUG/DOC : Correct default value listed in docstring
+* :ghissue:`3537`: 3D figures cannot be created in 1.4.0: 'module' object has no attribute '_string_to_bool'
+* :ghissue:`3369`: Added legend.framealpha to rcParams, as mentioned in axes.legend docstring
+* :ghissue:`3510`: Fix setupext [backport to 1.4.x]
+* :ghissue:`3530`: Only insert links to pdfs if we are actually generating these.
+* :ghissue:`3487`: Can not import matplotlib when launching from non-ascii path 
+* :ghissue:`3527`: Drawing an arrow using axis.annotate raises DeprecationWarning
+* :ghissue:`3525`: BUG : decode byte-strings in afm.py
+* :ghissue:`3523`: invalid EPS figure in Mac OS X
+* :ghissue:`3526`: BUG : fix eps corruption when using clipping
+* :ghissue:`3492`: Allow python 3 version of PyCXX
+* :ghissue:`3521`: More doc fixes
+* :ghissue:`3504`: postscript axes corner is not perfect
+* :ghissue:`3520`: a question about subplot in spyder
+* :ghissue:`3513`: examples: fully automated fixing of E30 pep8 errors
+* :ghissue:`3512`: What else apart from `useOffset` is controlling tick label offsets?
+* :ghissue:`3461`: This fixes a bunch of Sphinx warnings
+* :ghissue:`3507`: general pep8 fixes 
+* :ghissue:`3506`: Named colors example, figure size correction [backport to 1.4.0-doc]
+* :ghissue:`3493`: Incorrect use of super() in mplot3d?
+* :ghissue:`3439`: Registering backends broken by backwards incompatible change
+* :ghissue:`3511`: Error in plot-gui while saving image
+* :ghissue:`3509`: Add Build Instructions for Windows 7 Using Visual Studio?
+* :ghissue:`3503`: Win fix simple
+* :ghissue:`3495`: BUG : don't use super(self.__class__, self)
+* :ghissue:`3500`: Annotation xytext property does not return xyann value
+* :ghissue:`3501`: Bugfix for text.xytext property
+* :ghissue:`3376`: Move widget.{get,set}_active to AxisWidget.
+* :ghissue:`3497`: Ortho basemap projection with limits crashes
+* :ghissue:`3447`: cursor doesn't change on keypress (GTKAgg backend)
+* :ghissue:`3419`: Better repr for Bboxes.
+* :ghissue:`3474`: call set cursor on zoom/pan toggle [backpont to 1.4.x]
+* :ghissue:`3425`: Pep8ify examples
+* :ghissue:`3477`: Better check for required dependency libpng
+* :ghissue:`3472`: Memory leak displaying PIL image.
+* :ghissue:`3484`: TclError for draw_event handler calling close()
+* :ghissue:`3480`: Duplicate labels produced when using custom Locators/Formatters
+* :ghissue:`3475`: need for rubberband in zoom tool
+* :ghissue:`3478`: BUG : restore back-compatibility of regisiter_backend
+* :ghissue:`3471`: Fix for invalid check of freetype version when no freetype library exists [backport to 1.4.x]
+* :ghissue:`2900`: Remove no-longer-necessary KnownFail for python 3.2.
+* :ghissue:`3465`: psd() draw a wrong line with sliced array(Matplotlib 1.4.0)
+* :ghissue:`3454`: backend_qt5 (1.4.0): Not saving the figure with NavigationToolbar (solved)
+* :ghissue:`3467`: Bugfix in mlab for strided views of np.arrays [backport to 1.4.x]
+* :ghissue:`3469`: Fix handling of getSaveFileName to be consistent [backport to 1.4.x]
+* :ghissue:`3416`: Specify difficulties installing mpl on OSX.
+* :ghissue:`2970`: add test of all the standard marker symbols
+* :ghissue:`3318`: Running `setup.py egg_info` starts to compile everything
+* :ghissue:`3384`: Test marker styles
+* :ghissue:`3466`: Invalid DISPLAY variable
+* :ghissue:`3463`: when executing a small script nothing happens!!
+* :ghissue:`3462`: Add legend.framealpha to matplotlibrc
+* :ghissue:`2934`: Line labels don't update in the legend after changing them through the Qt4Agg dialog box
+* :ghissue:`3431`: Qt5 toolbar support not working in release 1.4.0
+* :ghissue:`3407`: Update dns/IP adress
+* :ghissue:`3456`: DOC : add known-bug + fix for QT5 toolbar issue
+* :ghissue:`3458`: DOC : minor import tweaks
+* :ghissue:`3460`: zoomed_inset_axes shows a incorrect result.
+* :ghissue:`3457`: Add Qt5Agg to backends in matplotlibrc.template.
+* :ghissue:`3417`: update citation page
+* :ghissue:`3450`: Wrong permissions when installing from source on Linux
+* :ghissue:`3422`: Use mailmap in github stats
+* :ghissue:`3429`: DOC : added pytz to optional dependencies docs
+* :ghissue:`3434`: Update tight_bbox.py [backport to 1.4.x]
+* :ghissue:`3453`: Bbox rebase 14
+* :ghissue:`3452`: Bbox fix rebase
+* :ghissue:`3449`: matplotlib/colors.py: modifying dict while iterating
+* :ghissue:`3445`: can't bring plot to front eclipse after running the script on mac ox 10.9
+* :ghissue:`3427`: DOC : added DOI link to citing.html
+* :ghissue:`3443`: Pip install matplotlib does not work on Python 3.2 anymore
+* :ghissue:`3440`: V1.4.x (Mac backend's "Save as ...")
+* :ghissue:`3438`: Get rid of unused pre python 2.6 code in doc make.py
+* :ghissue:`3414`: Fixes TypeError when installing without freetype
+* :ghissue:`2931`: Added center and frame arguments for pie-charts
+* :ghissue:`3411`: fix rst mark up
+* :ghissue:`3413`: update freetype version in docs
+* :ghissue:`3428`: DOC : add caveat about freetype 2.3
+* :ghissue:`3430`: DOC : fixed markup / boxplot text in whats_new
+* :ghissue:`3426`: DOC : remove piwik code
+* :ghissue:`3432`: Update whats_new.rst
+* :ghissue:`3396`: Sort out OSX dmg files
+* :ghissue:`2803`: Get wx backends and examples compitable with Phoenix
+* :ghissue:`3415`: DOC: fix markup and download link in the Windows install section
+* :ghissue:`3410`: Latex rendering fails in ipython
+* :ghissue:`3408`: test_text Modify filter warning regex
+* :ghissue:`3404`: Wrong plot on basemap with `latlon=True` 
+* :ghissue:`3406`: A layer stacking problem of exported svg image compatible with inkscape
+* :ghissue:`3282`: Catch warning thrown in Mollweide projection.
+* :ghissue:`2635`: Crash on saving figure if text.usetex is True
+* :ghissue:`3327`: FontProperties are shared by all three titles of an Axes object
+* :ghissue:`3328`: copy FontProperty objects when creating titles (fix #3327)
+* :ghissue:`3241`: Cast to integer to get rid of numpy warning
+* :ghissue:`3335`: Fix and new test for #3327
+* :ghissue:`3278`: Use libpng-config if available
+* :ghissue:`3244`: Filter warnings in rcparams test (and others)
+* :ghissue:`1980`: Custom marker created from vertex list scales wrong
+* :ghissue:`3378`: BUG: Fixes custom path marker sizing for issue #1980
+* :ghissue:`3395`: Update Downloads page
 * :ghissue:`2545`: Some of Russian letters are not visible in EPS
 * :ghissue:`3405`: The memory taken up from the RAM pool by imshow
 * :ghissue:`1717`: Definitive docs for how to compile on Windows
 * :ghissue:`3401`: enlarge on windows build instructions slightly
 * :ghissue:`3398`: windows build comments with winbuild repository link
 * :ghissue:`3399`: Cherrypick doc changes to v1.4.0
-* :ghissue:`2999`: Update and clarify installation documentation
 * :ghissue:`3397`: Install guide tweaks
+* :ghissue:`2999`: Update and clarify installation documentation
 * :ghissue:`3394`: DOC : add note about np.matrix and pandas objects
 * :ghissue:`2138`: pyplot.scatter not converting *x* and *y* to a 1-D sequence when the input is a 1xN matrix...
 * :ghissue:`3388`: Build support with dependencies for Windows
@@ -859,8 +1192,8 @@ Issues (1119):
 * :ghissue:`3239`: Fix auto-closing in PolyCollection
 * :ghissue:`3193`: Fix plot directive when used with multiple options.
 * :ghissue:`3236`: Test PEP8 stuff in separate Travis build.
-* :ghissue:`3186`: Numpy 1.9 issues.
 * :ghissue:`3188`: Np error patch
+* :ghissue:`3186`: Numpy 1.9 issues.
 * :ghissue:`3154`: whitelist mpl_toolkits tests
 * :ghissue:`3230`: DOC : added note about useoffset rcparam
 * :ghissue:`3216`: edit useoffset docs in ticker to mention rcparam
@@ -876,8 +1209,8 @@ Issues (1119):
 * :ghissue:`3191`: Test errors with numpy 1.5 - advice?
 * :ghissue:`3222`: add reduce to the list of imports from six.moves
 * :ghissue:`3126`: insertion of Annotation class docs into annotate docstring broken
-* :ghissue:`3219`: pep8 test failure on macosx
 * :ghissue:`3221`: Fixes #3219 by ignoring pep8 noncomplicant auto-generated file.
+* :ghissue:`3219`: pep8 test failure on macosx
 * :ghissue:`1541`: Transparecy of figures in 3D plots (mplot3d)
 * :ghissue:`2227`: Refactor of top-level doc/README.rst
 * :ghissue:`3211`: Mplot3d/depthshade
@@ -890,8 +1223,8 @@ Issues (1119):
 * :ghissue:`3042`: boxplot does not take parameters into account
 * :ghissue:`3207`: Fix memory leak in tostring_rgba_minimize(). (#3197)
 * :ghissue:`3210`: Fix PEP8 error.
-* :ghissue:`3049`: PDF Embedded fonts with python3 mpl reported as 'Unknown' by pdffonts and pdf readers
 * :ghissue:`3203`: Make type1font.py work better on Python 3.x
+* :ghissue:`3049`: PDF Embedded fonts with python3 mpl reported as 'Unknown' by pdffonts and pdf readers
 * :ghissue:`3155`: BUG : fix fetch of freetype version during build
 * :ghissue:`3192`: TST : drop 3.2, add 3.4
 * :ghissue:`3090`: Set up travis to test 3.4/drop 3.2
@@ -909,13 +1242,13 @@ Issues (1119):
 * :ghissue:`3199`: triplot, etc examples broken by merged PR #3182
 * :ghissue:`3201`: Revert "[examples/api] autopep8 + use np.radians/np.degree where appropr...
 * :ghissue:`3200`: Revert "pep8ify more examples in examples/ + use np.radians/np.degrees"
-* :ghissue:`3172`: replace qt4_compat.py
 * :ghissue:`3174`: MNT : replace and deprecated qt4_compat
+* :ghissue:`3172`: replace qt4_compat.py
 * :ghissue:`3112`: BUG : patches.Wedge.set_radius set wrong attribute
-* :ghissue:`2518`: pie chart is trimmed
 * :ghissue:`2952`: BUG : turned clipping off on pie chart components
-* :ghissue:`2394`: AnchoredSizeBar does not respect FontProperties size setting.
+* :ghissue:`2518`: pie chart is trimmed
 * :ghissue:`2951`: BUG/API : tweaked how AnchoredSizeBar handles font properties
+* :ghissue:`2394`: AnchoredSizeBar does not respect FontProperties size setting.
 * :ghissue:`3157`: BLD : fix build on windows
 * :ghissue:`3140`: Building issue under windows.
 * :ghissue:`3189`: BUG: use unittest.mock for Python 3.3+
@@ -925,8 +1258,8 @@ Issues (1119):
 * :ghissue:`3143`: Document r/c stride in plot_surface/wire frame
 * :ghissue:`3182`: pep8ify more examples in examples/ + use np.radians/np.degrees
 * :ghissue:`3181`: [examples/api] autopep8 + use np.radians/np.degree where appropriate
-* :ghissue:`3136`: bottom keyword argument of hist() not documented
 * :ghissue:`3163`: DOC : documented bottom kwarg of hist
+* :ghissue:`3136`: bottom keyword argument of hist() not documented
 * :ghissue:`3180`: DOC: Fix order of parameters in ax.text docstring.
 * :ghissue:`3178`: Regression in IPython Sphinx extension
 * :ghissue:`3176`: rendering bugs in log/log-base-2 histograms
@@ -943,8 +1276,8 @@ Issues (1119):
 * :ghissue:`3160`: Glade tutorial branch fixed
 * :ghissue:`3008`: Nbagg backend
 * :ghissue:`3066`: BUG: restore default boxplot style and respect for the sym kwarg
-* :ghissue:`3161`: Docs build failure
 * :ghissue:`3164`: fix bad pathing in whats_new.rst
+* :ghissue:`3161`: Docs build failure
 * :ghissue:`3088`: Add tutorial file for Glade 3.16-GTK3.10-Python 3
 * :ghissue:`3159`: BUG : fix qt4 backends
 * :ghissue:`3158`: backend_pgf: Error message for missing latex executable (fix #3051)
@@ -966,22 +1299,22 @@ Issues (1119):
 * :ghissue:`3133`: Doc cleanup
 * :ghissue:`3110`: BUG: Add Figure.delcolorbar() to fully delete a colorbar
 * :ghissue:`2688`: Deleting axis in matplotlib > v1.2.1 does not work similar to v1.1.1
-* :ghissue:`3117`: Qt4 backend using unichr() in python3
 * :ghissue:`3131`: DOC : sixify unichr
+* :ghissue:`3117`: Qt4 backend using unichr() in python3
 * :ghissue:`3132`: DOC : added note about maintain ref to widgets
 * :ghissue:`3105`: Sliders unresponsive when created inside a function
-* :ghissue:`2828`: PS backend fails to save polar plot
 * :ghissue:`2927`: BUG : don't use mutable objects as dictionary keys
+* :ghissue:`2828`: PS backend fails to save polar plot
 * :ghissue:`3122`: DOC: mention Anaconda; clean some old junk out of the FAQ
 * :ghissue:`3130`: Scatter set sizes whats new
 * :ghissue:`3113`: BUG: PathCollection' object has no attribute 'set_sizes'
 * :ghissue:`3127`: DOC : added inherited-members to Axes autodoc
-* :ghissue:`2608`: Docs: pyplot.axes() should mention the `aspect` keyword argument
 * :ghissue:`3128`: Axes aspect doc
+* :ghissue:`2608`: Docs: pyplot.axes() should mention the `aspect` keyword argument
 * :ghissue:`3103`: errorbar: fmt kwarg defaults to None; use 'none' to suppress plot call
 * :ghissue:`2366`: Errorbar plot ignores linestyle rcParam
-* :ghissue:`3035`: Add docs to Polygon `*_xy`
 * :ghissue:`3123`: DOC : add documentation to Polygon methods
+* :ghissue:`3035`: Add docs to Polygon `*_xy`
 * :ghissue:`3124`: Zooming to a point changes a picked point's index for data longer than 100 points
 * :ghissue:`3120`: typo fix
 * :ghissue:`2492`: subplots() shared scale is off
@@ -998,8 +1331,8 @@ Issues (1119):
 * :ghissue:`3107`: Bug-fix for issue 3106
 * :ghissue:`3079`: Scatter plot color array length should raise Error
 * :ghissue:`3092`: Adds check that rgb sequence is of length 3
-* :ghissue:`3095`: Memory issue when plotting large arrays with pcolormesh
 * :ghissue:`3100`: Use autolim kwarg in add_collection to prevent duplication of effort.
+* :ghissue:`3095`: Memory issue when plotting large arrays with pcolormesh
 * :ghissue:`2738`: BUG : errorbar does not respect `lines.linestyle` rcparam
 * :ghissue:`3104`: BUG: in Spine.set_position(), preserve most Axis info.
 * :ghissue:`2941`: Order of ax.spines[].set_position() and ax.yaxis.set_major_formatter() produces different results
@@ -1061,8 +1394,8 @@ Issues (1119):
 * :ghissue:`1381`: Figure.add_subplot documentation doesn't explain args
 * :ghissue:`2898`: Fix animation errors
 * :ghissue:`3031`: avoid np.nan values in colors array returned by axes3d._shade_colors
-* :ghissue:`2863`: ensure non-singular extent in hexbin
 * :ghissue:`3038`: BUG : expand x/y range in hexbin if singular
+* :ghissue:`2863`: ensure non-singular extent in hexbin
 * :ghissue:`3005`: Remove all references to ```ipython --pylab```
 * :ghissue:`3048`: Animation example displaying earthquakes
 * :ghissue:`3043`: CHANGELOG whats_new.rst / Re-generate simple auto legend
@@ -1090,12 +1423,12 @@ Issues (1119):
 * :ghissue:`2839`: BUG : fixes non-float args to stem
 * :ghissue:`2896`: add doc for qt repaint
 * :ghissue:`2837`: EXP : turn of clipping in spine example
-* :ghissue:`2651`: in animation writer object not instanciated
 * :ghissue:`2772`: BUG : instantiate fall-back writer
+* :ghissue:`2651`: in animation writer object not instanciated
 * :ghissue:`2922`: ENH : add flag to box_plot and bxp to manage (or not) xticks
 * :ghissue:`2921`: Boxplot resets x-axis limits and ticks
-* :ghissue:`2490`: INSTALL should list ffmpeg/avconv/mencoder/imagemagick optional dependencies and versions
 * :ghissue:`2950`: DOC : edits to optional dependencies
+* :ghissue:`2490`: INSTALL should list ffmpeg/avconv/mencoder/imagemagick optional dependencies and versions
 * :ghissue:`2916`: Docs build segfaults on Launchpad
 * :ghissue:`2995`: Added 'interpolation_none_vs_nearest' example, without .DS_store files
 * :ghissue:`3002`: BUG/DOC : fix bad merge of INSTALL
@@ -1118,15 +1451,15 @@ Issues (1119):
 * :ghissue:`2979`: add 'buttons' parameter in LassoSelector and SpanSelector
 * :ghissue:`2967`: Exception with sphinx 1.2.2 using the ipython directive
 * :ghissue:`2984`: small error in install faq
-* :ghissue:`2097`: PGF-related test failures on Mac OS-X
 * :ghissue:`2829`: (fix #2097) PGF: get fonts from fc-list, use builtin fonts for tests
+* :ghissue:`2097`: PGF-related test failures on Mac OS-X
 * :ghissue:`2976`: Gtk3Agg backend (Ubuntu 14.04)
 * :ghissue:`2892`: Reset plot_directive context
 * :ghissue:`2913`: Allow :context: directive to take 'reset' option. Fixes #2892.
-* :ghissue:`2890`: plot_apply_rcparams=True causes figure to not appear when updated
 * :ghissue:`2914`: Don't close figure if context and apply_rcparams are both set.
-* :ghissue:`2982`: Docs build failure on Launchpad.
+* :ghissue:`2890`: plot_apply_rcparams=True causes figure to not appear when updated
 * :ghissue:`2983`: DOC/BUG : fixed sphinx markup
+* :ghissue:`2982`: Docs build failure on Launchpad.
 * :ghissue:`2981`: TST: __spec__ (an import-related variable for modules) was added in pyth...
 * :ghissue:`2978`: BUG: EllipseCollection: fix transform error
 * :ghissue:`2964`: line style rendering error
@@ -1195,12 +1528,12 @@ Issues (1119):
 * :ghissue:`2888`: Is there any way to keep the length between ticks in symlog plot the same?
 * :ghissue:`2887`: fix a bug introduced in c998561d6cc1236
 * :ghissue:`2882`: [arm] segfault with matplotlib.mlab.PCA  
-* :ghissue:`2878`: merging 1.3.x broke build on master
 * :ghissue:`2884`: Fixed the failing tests on master.
+* :ghissue:`2878`: merging 1.3.x broke build on master
 * :ghissue:`2159`: Add darken and lighten to colors
 * :ghissue:`2537`: Clockwise pie diagram
-* :ghissue:`2808`: BUG: master has broken some 3d plots
 * :ghissue:`2851`: Fix positional/kwarg handling of the Z argument
+* :ghissue:`2808`: BUG: master has broken some 3d plots
 * :ghissue:`2852`: AttributeError: 'module' object has no attribute 'next'
 * :ghissue:`2876`: Added called process error to __all__
 * :ghissue:`2860`: Fix subprocess.CalledProcessError on Google App Engine
@@ -1247,7 +1580,6 @@ Issues (1119):
 * :ghissue:`2826`: GTK3 backend: Replaced deprecated GObject calls with GLib
 * :ghissue:`2805`: ENH: Updated inset locator axes to return a HostAxes by default
 * :ghissue:`2652`: Axis tickmarks of 1e20 and higher fail
-* :ghissue:`2517`: PDF output does not respect zorder when using imshow
 * :ghissue:`2281`: Documentation fails to build with Python 3
 * :ghissue:`2807`: Python 3 METH_VARARGS with METH_KEYWORDS
 * :ghissue:`2202`: Autoscale does not work for artists added with Axes.add_artist
@@ -1256,8 +1588,8 @@ Issues (1119):
 * :ghissue:`2817`: Provide 'lite' version of release tar file
 * :ghissue:`2164`: [SPRINT] Single letter colors different than full name colors [sprint]
 * :ghissue:`2809`: BUGFIX:  This change fixes #2475
-* :ghissue:`2810`: Segfault when blitting multiple subplots with the gtk3agg backend
 * :ghissue:`2813`: GTK3Agg backend: Only convert the cairo context to a cairocffi context o...
+* :ghissue:`2810`: Segfault when blitting multiple subplots with the gtk3agg backend
 * :ghissue:`2814`: nanovg backend?
 * :ghissue:`2811`: plot_surface displays darkened colormap
 * :ghissue:`2801`: Named colors example
@@ -1474,8 +1806,8 @@ Issues (1119):
 * :ghissue:`2709`: matplotlib colors darker than equivalent matlab colors
 * :ghissue:`2690`: Build failure on MacOS X 10.5.8 (PowerPC G5) with Python 3.3.3
 * :ghissue:`2507`: AutoDateFormatter: More customizable formatting
-* :ghissue:`1715`: axes.get_xticklabels() doesn't return all tick labels.
 * :ghissue:`2628`: improved get_ticklabels kwarg
+* :ghissue:`1715`: axes.get_xticklabels() doesn't return all tick labels.
 * :ghissue:`2634`: address FuncAnimantion trying to take lengths of generators
 * :ghissue:`1769`: FunctionAnimator tries to take length of iterator
 * :ghissue:`2468`: Add "sage" colors to colors.py
