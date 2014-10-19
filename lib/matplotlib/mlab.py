@@ -3825,15 +3825,15 @@ class GaussianKDE(object):
             raise ValueError("`dataset` input should have multiple elements.")
 
         self.dim, self.num_dp = np.array(self.dataset).shape
+        isString = isinstance(bw_method, six.string_types)
 
         if bw_method is None:
             pass
-        elif bw_method == 'scott':
+        elif (isString and bw_method == 'scott'):
             self.covariance_factor = self.scotts_factor
-        elif bw_method == 'silverman':
+        elif (isString and bw_method == 'silverman'):
             self.covariance_factor = self.silverman_factor
-        elif (np.isscalar(bw_method) and not
-              isinstance(bw_method, six.string_types)):
+        elif (np.isscalar(bw_method) and not isString):
                 self._bw_method = 'use constant'
                 self.covariance_factor = lambda: bw_method
         elif callable(bw_method):
