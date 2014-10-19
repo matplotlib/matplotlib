@@ -49,15 +49,20 @@ def get_rotation(rotation):
 
     *rotation* may be 'horizontal', 'vertical', or a numeric value in degrees.
     """
-    if rotation in ('horizontal', None):
-        angle = 0.
-    elif rotation == 'vertical':
-        angle = 90.
-    else:
+    try:
         angle = float(rotation)
-    return angle % 360
+    except (ValueError, TypeError):
+        isString = isinstance(rotation, six.string_types)
+        if ((isString and rotation == 'horizontal') or rotation is None):
+            angle = 0.
+        elif (isString and rotation == 'vertical'):
+            angle = 90.
+        else:
+            raise ValueError("rotation is {0} expected either 'horizontal'"
+                             " 'vertical', numeric value or"
+                             "None".format(rotation))
 
-
+    return angle
 # these are not available for the object inspector until after the
 # class is build so we define an initial set here for the init
 # function and they will be overridden after object defn
