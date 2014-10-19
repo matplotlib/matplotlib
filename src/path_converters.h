@@ -341,6 +341,16 @@ public:
 
             while ((code = m_source->vertex(x, y)) != agg::path_cmd_stop)
             {
+                if (code == (agg::path_cmd_end_poly | agg::path_flags_close)) {
+                    if (m_has_init) {
+                        *x = m_initX;
+                        *y = m_initY;
+                        code = agg::path_cmd_line_to;
+                    } else {
+                        continue;
+                    }
+                }
+
                 if (code == agg::path_cmd_move_to)
                 {
                     m_initX = *x;
@@ -383,13 +393,6 @@ public:
                         *y = y1;
                         return code;
                     }
-                }
-                else if (code == (agg::path_cmd_end_poly | agg::path_flags_close)
-                         && m_broke_path && m_has_init)
-                {
-                    *x = m_initX;
-                    *y = m_initY;
-                    return agg::path_cmd_line_to;
                 }
                 else
                 {
