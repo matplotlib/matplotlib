@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import numpy as np
+from numpy.testing import assert_almost_equal
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 import matplotlib.pyplot as plt
@@ -271,3 +272,9 @@ def test_get_rotation_raises():
 def test_get_rotation_none():
     from matplotlib import text
     assert text.get_rotation(None) == 0.0
+
+
+def test_get_rotation_mod360():
+    from matplotlib import text
+    for i, j in zip([360., 377., 720+177.2], [0., 17., 177.2]):
+        assert_almost_equal(text.get_rotation(i), j)

@@ -45,7 +45,8 @@ def _process_text_args(override, fontdict=None, **kwargs):
 # Extracted from Text's method to serve as a function
 def get_rotation(rotation):
     """
-    Return the text angle as float.
+    Return the text angle as float. The returned
+    angle is between 0 and 360 deg.
 
     *rotation* may be 'horizontal', 'vertical', or a numeric value in degrees.
     """
@@ -62,7 +63,7 @@ def get_rotation(rotation):
                              " 'vertical', numeric value or"
                              "None".format(rotation))
 
-    return angle
+    return angle % 360
 # these are not available for the object inspector until after the
 # class is build so we define an initial set here for the init
 # function and they will be overridden after object defn
