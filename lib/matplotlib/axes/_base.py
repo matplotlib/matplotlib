@@ -80,7 +80,7 @@ def _process_plot_format(fmt):
     except ValueError:
         pass  # No, not just a color.
 
-    for ls in sorted(mlines.lineStyles, key=len):
+    for ls in sorted(mlines.lineStyles, key=len, reverse=True):
         if fmt.find(ls) >= 0:
             linestyle = ls
             fmt = fmt.replace(ls, '')
