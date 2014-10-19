@@ -832,8 +832,6 @@ class Path(object):
         eta1 = np.arctan2(np.sin(theta1), np.cos(theta1))
         eta2 = np.arctan2(np.sin(theta2), np.cos(theta2))
         eta2 -= twopi * np.floor((eta2 - eta1) / twopi)
-        if (theta2 - theta1 > np.pi) and (eta2 - eta1 < np.pi):
-            eta2 += twopi
 
         # number of curve segments to make
         if n is None:
