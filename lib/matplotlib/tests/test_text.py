@@ -8,7 +8,8 @@ import matplotlib
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 import matplotlib.pyplot as plt
 import warnings
-from nose.tools import with_setup
+from nose import SkipTest
+from nose.tools import with_setup, assert_raises
 
 
 @image_comparison(baseline_images=['font_styles'])
@@ -236,3 +237,37 @@ def test_set_position():
 
     for a, b in zip(init_pos.min, post_pos.min):
         assert a + shift_val == b
+
+
+def test_get_rotation_string():
+    from matplotlib import text
+    assert text.get_rotation('horizontal') == 0.
+    assert text.get_rotation('vertical') == 90.
+    assert text.get_rotation('15.') == 15.
+
+
+def test_get_rotation_float():
+    from matplotlib import text
+    for i in [15., 16.70, 77.4]:
+        assert text.get_rotation(i) == i
+
+
+def test_get_rotation_int():
+    from matplotlib import text
+    for i in [67, 16, 41]:
+        assert text.get_rotation(i) == float(i)
+
+
+def test_get_rotation_raises():
+    from matplotlib import text
+    import sys
+    if sys.version_info[:2] < (2, 7):
+        raise SkipTest("assert_raises as context manager "
+                       "not supported with Python < 2.7")
+    with assert_raises(ValueError):
+        text.get_rotation('hozirontal')
+
+
+def test_get_rotation_none():
+    from matplotlib import text
+    assert text.get_rotation(None) == 0.0
