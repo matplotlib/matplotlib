@@ -234,6 +234,19 @@ class SubplotParams(object):
 
         setattr(self, s, val)
 
+import functools
+def _interactive(func):
+    @functools.wraps(func)
+    def inner(self, *args, **kw):
+        outer = self.check_interactive()
+        drawn = True  # default in "finally" clause is to clear.
+        try:
+            ret = func(self, *args, **kw)
+            drawn = self.draw_if_interactive(outer)
+        finally:
+            self.clear_interactive(drawn)
+        return ret
+    return inner
 
 class Figure(Artist):
 
@@ -355,8 +368,8 @@ class Figure(Artist):
 
     def draw_if_interactive(self, outer=False):
         # Not sure whether this should be public or private...
-        if outer or not is_interactive():
-            return
+        if not outer or not is_interactive():
+            return False
         # Leave out the following check for now; it probably
         # has to be modified so that it does not require importing
         # all the available interactive backends just to make
@@ -366,7 +379,8 @@ class Figure(Artist):
         #    return
         self.canvas.draw()
         print("drawing complete")
-        self._in_outer_method = False
+        #self._in_outer_method = False
+        return True
 
     def check_interactive(self):
         if not self._in_outer_method:
@@ -376,8 +390,9 @@ class Figure(Artist):
         print("checking: False")
         return False
 
-    def clear_interactive(self):
-        self._in_outer_method = False
+    def clear_interactive(self, drawn):
+        if drawn:
+            self._in_outer_method = False
 
 
     def _repr_html_(self):
@@ -524,6 +539,7 @@ class Figure(Artist):
         'get the figure bounding box in display space; kwargs are void'
         return self.bbox
 
+    @_interactive
     def suptitle(self, t, **kwargs):
         """
         Add a centered title to the figure.
@@ -549,7 +565,7 @@ class Figure(Artist):
 
           fig.suptitle('this is the figure title', fontsize=12)
         """
-        outer = self.check_interactive()
+        #outer = self.check_interactive()
         x = kwargs.pop('x', 0.5)
         y = kwargs.pop('y', 0.98)
 
@@ -571,7 +587,7 @@ class Figure(Artist):
             sup.remove()
         else:
             self._suptitle = sup
-        self.draw_if_interactive(outer)
+        #self.draw_if_interactive(outer)
         return self._suptitle
 
     def set_canvas(self, canvas):
@@ -1242,6 +1258,7 @@ class Figure(Artist):
         l._remove_method = lambda h: self.legends.remove(h)
         return l
 
+    @_interactive
     @docstring.dedent_interpd
     def text(self, x, y, s, *args, **kwargs):
         """
@@ -1259,7 +1276,7 @@ class Figure(Artist):
 
         %(Text)s
         """
-        outer = self.check_interactive()
+        #outer = self.check_interactive()
         override = _process_text_args({}, *args, **kwargs)
         t = Text(x=x, y=y, text=s)
 
@@ -1267,7 +1284,7 @@ class Figure(Artist):
         self._set_artist_props(t)
         self.texts.append(t)
         t._remove_method = lambda h: self.texts.remove(h)
-        self.draw_if_interactive(outer)
+        #self.draw_if_interactive(outer)
         return t
 
     def _set_artist_props(self, a):
