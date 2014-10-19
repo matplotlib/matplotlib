@@ -37,6 +37,10 @@ multiple images on a set of axes into a single composite image.  Saving each
 image individually can be useful if you generate vector graphics files in
 matplotlib and then edit the files further in Inkscape or other programs.
 
+Added ``markers.fillstyle`` key to rcParams
+```````````````````````````````````````````
+Controls the default fillstyle of markers. Possible values are ``'full'`` (the
+default), ``'left'``, ``'right'``, ``'bottom'``, ``'top'`` and ``'none'``.
 
 Added "toolmanager" to "toolbar" possible values
 ````````````````````````````````````````````````

@@ -2366,6 +2366,16 @@ def test_marker_styles():
                 markersize=10+y/5, label=marker)
 
 
+@image_comparison(baseline_images=['rc_markerfill'], extensions=['png'])
+def test_markers_fillstyle_rcparams():
+    fig, ax = plt.subplots()
+    x = np.arange(7)
+    for idx, (style, marker) in enumerate(
+        [('top', 's'), ('bottom', 'o'), ('none', '^')]):
+        matplotlib.rcParams['markers.fillstyle'] = style
+        ax.plot(x+idx, marker=marker)
+
+
 @image_comparison(baseline_images=['vertex_markers'], extensions=['png'],
                   remove_text=True)
 def test_vertex_markers():
