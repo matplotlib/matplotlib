@@ -1293,8 +1293,8 @@ class Line2D(Artist):
 
     def is_dashed(self):
         'return True if line is dashstyle'
-        return self._linestyle in ('dashed', 'dashdot', 'dotted') or \
-            not is_string_like(self._linestyle)
+        return (self._linestyle in ('dashed', 'dashdot', 'dotted') or
+            not is_string_like(self._linestyle))
 
 
 class VertexSelector(object):
