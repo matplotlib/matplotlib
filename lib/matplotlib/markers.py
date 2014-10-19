@@ -165,6 +165,9 @@ class MarkerStyle(object):
         fillstyle : string, optional, default: 'full'
             'full', 'left", 'right', 'bottom', 'top', 'none'
         """
+        # The fillstyle has to be set here as it might be accessed by calls to
+        # _recache() in set_marker.
+        self._fillstyle = fillstyle
         self.set_marker(marker)
         self.set_fillstyle(fillstyle)
 
