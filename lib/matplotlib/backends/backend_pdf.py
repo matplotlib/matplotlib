@@ -1617,12 +1617,24 @@ class RendererPdf(RendererBase):
         if not len(edgecolors):
             stroked = False
         else:
-            if np.all(edgecolors[:, 3] == edgecolors[0, 3]):
+            if np.all(np.asarray(linewidths) == 0.0):
+                stroked = False
+            elif np.all(edgecolors[:, 3] == edgecolors[0, 3]):
                 stroked = edgecolors[0, 3] != 0.0
             else:
                 can_do_optimization = False
 
-        if not can_do_optimization:
+        # Is the optimization worth it? Rough calculation:
+        # cost of emitting a path in-line is len_path * uses_per_path
+        # cost of XObject is len_path + 5 for the definition,
+        #    uses_per_path for the uses
+        len_path = len(paths[0].vertices) if len(paths) > 0 else 0
+        uses_per_path = self._iter_collection_uses_per_path(
+            paths, all_transforms, offsets, facecolors, edgecolors)
+        should_do_optimization = \
+            len_path + uses_per_path + 5 < len_path * uses_per_path
+
+        if (not can_do_optimization) or (not should_do_optimization):
             return RendererBase.draw_path_collection(
                 self, gc, master_transform, paths, all_transforms,
                 offsets, offsetTrans, facecolors, edgecolors,
@@ -1654,9 +1666,10 @@ class RendererPdf(RendererBase):
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
                      rgbFace=None):
-        # For simple paths or small numbers of markers, don't bother
-        # making an XObject
-        if len(path) * len(marker_path) <= 10:
+        # Same logic as in draw_path_collection
+        len_marker_path = len(marker_path)
+        uses = len(path)
+        if len_marker_path * uses < len_marker_path + uses + 5:
             RendererBase.draw_markers(self, gc, marker_path, marker_trans,
                                       path, trans, rgbFace)
             return

@@ -1372,6 +1372,7 @@ default_test_modules = [
     'matplotlib.tests.test_artist',
     'matplotlib.tests.test_axes',
     'matplotlib.tests.test_axes_grid1',
+    'matplotlib.tests.test_backend_bases',
     'matplotlib.tests.test_backend_pdf',
     'matplotlib.tests.test_backend_pgf',
     'matplotlib.tests.test_backend_ps',
