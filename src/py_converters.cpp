@@ -499,6 +499,8 @@ int convert_offset_position(PyObject *obj, void *offsetp)
 
     if (convert_string_enum(obj, "offset_position", names, values, &result)) {
         *offset = (e_offset_position)result;
+    } else {
+        PyErr_Clear();
     }
 
     return 1;
