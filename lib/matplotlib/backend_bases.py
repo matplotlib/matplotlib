@@ -46,7 +46,6 @@ import sys
 import warnings
 import time
 import io
-from pydispatch import dispatcher
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -3226,10 +3225,34 @@ class NavigationToolbar2(object):
         pass
 
 
-class NavigationBase(object):
-    """ Helper class that groups all the user interactions for a FigureManager
+class ToolEvent(object):
+    """Base event for tool communication"""
+    def __init__(self, name, sender):
+        self.name = name
+        self.sender = sender
 
-     Attributes
+
+class ToolTriggerEvent(ToolEvent):
+    """Event to inform  that a tool has been triggered"""
+    def __init__(self, name, toolname, sender, canvasevent=None, data=None):
+        ToolEvent.__init__(self, name, sender)
+        self.toolname = toolname
+        self.canvasevent = canvasevent
+        self.data = data
+
+
+class NavigationEvent(ToolEvent):
+    """Event for navigation tool management (add/remove/message)"""
+    def __init__(self, name, sender, **kwargs):
+        ToolEvent.__init__(self, name, sender)
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+
+class NavigationBase(object):
+    """Helper class that groups all the user interactions for a FigureManager
+
+    Attributes
     ----------
     manager : `FigureManager` instance
     keypresslock : `LockDraw` to know if the `canvas` key_press_event is
@@ -3247,18 +3270,51 @@ class NavigationBase(object):
         self._tools = {}
         self._keys = {}
         self._toggled = None
+        self.callbacks = cbook.CallbackRegistry()
 
         # to process keypress event
         self.keypresslock = widgets.LockDraw()
         self.messagelock = widgets.LockDraw()
 
-    def send_message(self, message, sender=None):
-        """ Send a navigation-message event"""
+    def mpl_connect(self, s, func):
+        """Connect event with string *s* to *func*.
+
+        Parameters:
+        -----------
+        s: String
+            Name of the event
+            The following events are recognized
+            - 'tool_message_even'
+            - 'tool_removed_event'
+            - 'tool_added_event'
+            For every tool added a new event is created
+            - 'tool_trigger_TOOLNAME
+            Where TOOLNAME is the id of the tool.
+        func: function
+            Function to be called with signature
+            def func(event)
+        """
+        return self.callbacks.connect(s, func)
+
+    def mpl_disconnect(self, cid):
+        """Disconnect callback id cid
+
+        Example usage::
+
+            cid = navigation.mpl_connect('tool-trigger-zoom', on_press)
+            #...later
+            navigation.mpl_disconnect(cid)
+        """
+        return self.callbacks.disconnect(cid)
+
+    def message_event(self, message, sender=None):
+        """ Send a tool_message_event event"""
         if sender is None:
             sender = self
-        dispatcher.send(signal='navigation-message',
-                        sender=sender,
-                        message=message)
+
+        s = 'tool_message_event'
+        event = NavigationEvent(s, sender, message=message)
+        self.callbacks.process(s, event)
 
     @property
     def active_toggle(self):
@@ -3329,9 +3385,9 @@ class NavigationBase(object):
 
         self._remove_keys(name)
 
-        dispatcher.send(signal='navigation-tool-removed',
-                        sender=self,
-                        tool=tool)
+        s = 'tool_removed_event'
+        event = NavigationEvent(s, self, tool=tool)
+        self.callbacks.process(s, event)
 
         del self._tools[name]
 
@@ -3351,6 +3407,11 @@ class NavigationBase(object):
 
     def add_tool(self, name, tool, group=None, position=None):
         """Add tool to `Navigation`
+
+        Add a tool to the tools controlled by Navigation
+        If successful adds a new event `tool_trigger_name` where name is
+        the name of the tool, this event is fired everytime
+        the tool is triggered.
 
         Parameters
         ----------
@@ -3374,40 +3435,38 @@ class NavigationBase(object):
                           'not added')
             return
 
-        self._tools[name] = tool_cls(self.canvas.figure, name)
+        self._tools[name] = tool_cls(self, name)
         if tool_cls.keymap is not None:
             self.set_tool_keymap(name, tool_cls.keymap)
 
-        dispatcher.send(signal='navigation-tool-added',
-                        sender=self,
-                        tool=self._tools[name],
-                        group=group,
-                        position=position)
+        self._tool_added_event(self._tools[name], group, position)
 
-        if isinstance(self._tools[name], tools.ToolToggleBase):
-            dispatcher.connect(self._handle_toggle,
-                               'tool-pre-trigger-%s' % name,
-                               sender=dispatcher.Any)
+    def _tool_added_event(self, tool, group, position):
+        s = 'tool_added_event'
+        event = NavigationEvent(s, self,
+                                tool=tool,
+                                group=group,
+                                position=position)
+        self.callbacks.process(s, event)
 
-    def _handle_toggle(self, signal, sender, event=None):
+    def _handle_toggle(self, name, sender, canvasevent, data):
         # Toggle tools, need to be untoggled before other Toggle tool is used
-        # This is connected to the 'tool-pre-trigger-toolname' signal
-        name = '-'.join(signal.split('-')[3:])
+        # This is called from tool_trigger_event
+
         if self._toggled == name:
             toggled = None
         elif self._toggled is None:
             toggled = name
         else:
-            # untoggle currently toggled tool
-            dispatcher.send(signal='tool-trigger-%s' % self._toggled,
-                            sender=self)
+            # Untoggle previously toggled tool
+            self.tool_trigger_event(self._toggled, self, canvasevent, data)
             toggled = name
 
         self._toggled = toggled
         for a in self.canvas.figure.get_axes():
             a.set_navigate_mode(self._toggled)
 
-        self._set_cursor(event)
+        self._set_cursor(canvasevent)
 
     def _get_cls_to_instantiate(self, callback_class):
         # Find the class that corresponds to the tool
@@ -3424,14 +3483,47 @@ class NavigationBase(object):
 
         return callback_class
 
-    def trigger_tool(self, name, event=None):
+    def tool_trigger_event(self, name, sender=None, canvasevent=None,
+                           data=None):
+        """Trigger a tool and fire the tool-trigger-[name] event
+
+        Parameters
+        ----------
+        name : string
+            Name of the tool
+        sender: object
+            Object that wish to trigger the tool
+        canvasevent: Event
+            Original Canvas event or None
+        data: Object
+            Extra data to pass to the tool when triggering
+        """
+        if name not in self._tools:
+            warnings.warn("%s is not a tool controlled by Navigation" % name)
+            return
+
+        if sender is None:
+            sender = self
+
+        self._trigger_tool(name, sender, canvasevent, data)
+
+        s = 'tool-trigger-%s' % name
+        event = ToolTriggerEvent(s, name, sender, canvasevent, data)
+        self.callbacks.process(s, event)
+
+    def _trigger_tool(self, name, sender=None, canvasevent=None, data=None):
         """Trigger on a tool
 
-        Method to programatically "click" on Tools
+        Method to actually trigger the tool
         """
-        dispatcher.send(signal='tool-trigger-%s' % name,
-                        sender=self,
-                        event=event)
+        tool = self._tools[name]
+
+        if isinstance(tool, tools.ToolToggleBase):
+            self._handle_toggle(name, sender, canvasevent, data)
+
+        # Important!!!
+        # This is where the Tool object is triggered
+        tool.trigger(sender, canvasevent, data)
 
     def _key_press(self, event):
         if event.key is None or self.keypresslock.locked():
@@ -3440,7 +3532,7 @@ class NavigationBase(object):
         name = self._keys.get(event.key, None)
         if name is None:
             return
-        self.trigger_tool(name, event)
+        self.tool_trigger_event(name, canvasevent=event)
 
     def get_tools(self):
         """Return the tools controlled by `Navigation`"""
@@ -3454,63 +3546,15 @@ class NavigationBase(object):
                        'keymap': keys}
         return d
 
-    def _set_cursor(self, event):
-        """Fire the tool-trigger-cursor event,
+    def _set_cursor(self, canvasevent):
+        """Sets the current cursor in ToolSetCursor"""
 
-        This event set the current cursor
-        in the tool ToolSetCursor
-        """
-        if event is None:
-            class dummy(object):
-                cursor = None
-            event = dummy()
         if self._toggled:
             cursor = self._tools[self._toggled].cursor
         else:
             cursor = None
-        setattr(event, 'cursor', cursor)
-#         event.cursor = cursor
-        dispatcher.send(signal='tool-trigger-cursor',
-                        sender=self,
-                        event=event)
 
-    def set_cursor(self, cursor):
-        """Set the current cursor to one of the :class:`Cursors`
-        enums values
-        """
-
-        pass
-
-    def draw_rubberband(self, event, caller, x0, y0, x1, y1):
-        """Draw a rectangle rubberband to indicate zoom limits
-
-        Draw a rectanlge in the canvas, if
-        `self.canvas.widgetlock` is available to **caller**
-
-        Parameters
-        ----------
-        event : `FigureCanvas` event
-        caller : instance trying to draw the rubberband
-        x0, y0, x1, y1 : coordinates
-        """
-
-        if not self.canvas.widgetlock.available(caller):
-            warnings.warn("%s doesn't own the canvas widgetlock" % caller)
-
-    def remove_rubberband(self, event, caller):
-        """Remove the rubberband
-
-        Remove the rubberband if the `self.canvas.widgetlock` is
-        available to **caller**
-
-        Parameters
-        ----------
-        event : `FigureCanvas` event
-        caller : instance trying to remove the rubberband
-        """
-
-        if not self.canvas.widgetlock.available(caller):
-            warnings.warn("%s doesn't own the canvas widgetlock" % caller)
+        self.tool_trigger_event('cursor', self, canvasevent, data=cursor)
 
 
 class ToolbarBase(object):
@@ -3523,50 +3567,44 @@ class ToolbarBase(object):
 
     def __init__(self, manager):
         self.manager = manager
+        self.navigation = manager.navigation
 
-        dispatcher.connect(self._add_tool_cbk,
-                           signal='navigation-tool-added',
-                           sender=dispatcher.Any)
+        self.navigation.mpl_connect('tool_message_event', self._message_cbk)
+        self.navigation.mpl_connect('tool_added_event', self._add_tool_cbk)
+        self.navigation.mpl_connect('tool_removed_event',
+                                    self._remove_tool_cbk)
 
-        dispatcher.connect(self._remove_tool_cbk,
-                           signal='navigation-tool-removed',
-                           sender=dispatcher.Any)
+    def _message_cbk(self, event):
+        """Captures the 'tool_message_event' to set message on the toolbar"""
+        self.set_message(event.message)
 
-        dispatcher.connect(self._message_cbk,
-                           signal='navigation-message',
-                           sender=dispatcher.Any)
-
-    def _message_cbk(self, signal, sender, message):
-        """Captures the 'navigation-message to set message on the toolbar"""
-        self.set_message(message)
-
-    def _tool_triggered_cbk(self, signal, sender):
+    def _tool_triggered_cbk(self, event):
         """Captures the 'tool-trigger-toolname
 
         This is only used for toggled tools
-        If the sender is not the toolbar itself, just untoggle the toggled tool
         """
-        if sender is self:
+        if event.sender is self:
             return
 
-        name = '-'.join(signal.split('-')[2:])
-        self.toggle_toolitem(name)
+        self.toggle_toolitem(event.toolname)
 
-    def _add_tool_cbk(self, tool, group, position, signal, sender):
-        """Captures 'navigation-tool-added' and add the tool to the toolbar"""
-        name = tool.name
-        image = self._get_image_filename(tool.image)
-        description = tool.description
-        toggle = isinstance(tool, tools.ToolToggleBase)
-        self.add_toolitem(name, group, position, image, description, toggle)
+    def _add_tool_cbk(self, event):
+        """Captures 'tool_added_event' and add the tool to the toolbar"""
+        image = self._get_image_filename(event.tool.image)
+        toggle = isinstance(event.tool, tools.ToolToggleBase)
+        self.add_toolitem(event.tool.name,
+                          event.group,
+                          event.position,
+                          image,
+                          event.tool.description,
+                          toggle)
         if toggle:
-            dispatcher.connect(self._tool_triggered_cbk,
-                               signal='tool-trigger-%s' % name,
-                               sender=dispatcher.Any)
+            self.navigation.mpl_connect('tool-trigger-%s' % event.tool.name,
+                                        self._tool_triggered_cbk)
 
-    def _remove_tool_cbk(self, tool, signal, sender):
-        """Captures the 'navigation-tool-removed' signal and remove the tool"""
-        self.remove_toolitem(tool.name)
+    def _remove_tool_cbk(self, event):
+        """Captures the 'tool_removed_event' signal and remove the tool"""
+        self.remove_toolitem(event.tool.name)
 
     def _get_image_filename(self, image):
         """"Base on the image name find the corresponding image"""
@@ -3579,11 +3617,8 @@ class ToolbarBase(object):
             fname = None
         return fname
 
-#     def _message_event_callback(self, event):
-#         self.set_message(event.data)
-
     def trigger_tool(self, name):
-        """fire the 'tool-trigger-toolname' signal
+        """Trigger the tool
 
         Parameters
         ----------
@@ -3591,8 +3626,7 @@ class ToolbarBase(object):
             Name(id) of the tool that was triggered in the toolbar
 
         """
-        dispatcher.send(signal='tool-trigger-%s' % name,
-                        sender=self)
+        self.navigation.tool_trigger_event(name, sender=self)
 
     def add_toolitem(self, name, group, position, image, description, toggle):
         """Add a toolitem to the toolbar
@@ -3626,6 +3660,10 @@ class ToolbarBase(object):
         """Display a message on toolbar or in status bar"""
 
         pass
+
+    def toggle_toolitem(self, name):
+        """Toggle the toolitem without firing event"""
+        raise NotImplementedError
 
     def remove_toolitem(self, name):
         """Remove a toolitem from the `Toolbar`
