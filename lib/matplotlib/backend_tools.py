@@ -16,7 +16,6 @@ from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
 from weakref import WeakKeyDictionary
 import numpy as np
-from pydispatch import dispatcher
 
 
 class Cursors:
@@ -60,37 +59,29 @@ class ToolBase(object):
     cursor = None
     """Cursor to use when the tool is active"""
 
-    def __init__(self, figure, name, event=None):
+    def __init__(self, navigation, name, event=None):
         self._name = name
         self.figure = None
-        self.navigation = None
-        self.set_figure(figure)
-        dispatcher.connect(self._trigger_cbk,
-                           signal='tool-trigger-%s' % self.name,
-                           sender=dispatcher.Any)
+        self.navigation = navigation
+        self.set_figure(navigation.canvas.figure)
 
-    def _trigger_cbk(self, signal, sender, event=None):
-        # Inform the rest of the world that we are going to trigger
-        # Used mainly to untoggle other tools
-        dispatcher.send(signal='tool-pre-trigger-%s' % self.name,
-                        sender=sender,
-                        event=event)
-
-        self.trigger(event)
-
-    def trigger(self, event):
+    def trigger(self, sender, event, data=None):
         """Called when this tool gets used
 
         Parameters
         ----------
         event : `Event`
-            The event that caused this tool to be called
+            The Canvas event that caused this tool to be called
+        sender: object
+            Object that requested the tool to be triggered
+        data: object
+            Extra data
         """
 
         pass
 
     def set_figure(self, figure):
-        """Set the figure and navigation
+        """Set the figure
 
         Set the figure to be affected by this tool
 
@@ -100,7 +91,6 @@ class ToolBase(object):
         """
 
         self.figure = figure
-        self.navigation = figure.canvas.manager.navigation
 
     @property
     def name(self):
@@ -116,9 +106,11 @@ class ToolToggleBase(ToolBase):
     Every time it is triggered, it switches between enable and disable
     """
 
-    _toggled = False
+    def __init__(self, *args, **kwargs):
+        ToolBase.__init__(self, *args, **kwargs)
+        self._toggled = False
 
-    def trigger(self, event):
+    def trigger(self, sender, event, data=None):
         if self._toggled:
             self.disable(event)
         else:
@@ -150,36 +142,45 @@ class ToolToggleBase(ToolBase):
         return self._toggled
 
 
-class ToolSetCursor(ToolBase):
+class SetCursorBase(ToolBase):
+    """Change to the current cursor while inaxes"""
     def __init__(self, *args, **kwargs):
         ToolBase.__init__(self, *args, **kwargs)
         self._idDrag = self.figure.canvas.mpl_connect(
-            'motion_notify_event', self.set_cursor)
+            'motion_notify_event', self._set_cursor_cbk)
         self._cursor = None
         self._default_cursor = cursors.POINTER
         self._last_cursor = self._default_cursor
 
-    def set_cursor(self, event):
+    def _set_cursor_cbk(self, event):
         if not event:
             return
 
         if not getattr(event, 'inaxes', False) or not self._cursor:
             if self._last_cursor != self._default_cursor:
-                self.navigation.set_cursor(self._default_cursor)
+                self.set_cursor(self._default_cursor)
                 self._last_cursor = self._default_cursor
         else:
             if self._cursor:
                 cursor = self._cursor
                 if cursor and self._last_cursor != cursor:
-                    self.navigation.set_cursor(cursor)
+                    self.set_cursor(cursor)
                     self._last_cursor = cursor
 
-    def trigger(self, event):
-        self._cursor = event.cursor
-        self.set_cursor(event)
+    def trigger(self, sender, event, data):
+        self._cursor = data
+        self._set_cursor_cbk(event)
+
+    def set_cursor(self, cursor):
+        """Set the cursor
+
+        This method has to be implemented per backend
+        """
+        pass
 
 
 class ToolCursorPosition(ToolBase):
+    """Send message with the current pointer position"""
     def __init__(self, *args, **kwargs):
         ToolBase.__init__(self, *args, **kwargs)
         self._idDrag = self.figure.canvas.mpl_connect(
@@ -199,7 +200,32 @@ class ToolCursorPosition(ToolBase):
                 pass
             else:
                 message = s
-        self.navigation.send_message(message, self)
+        self.navigation.message_event(message, self)
+
+
+class RubberbandBase(ToolBase):
+    """Draw and remove rubberband"""
+    def trigger(self, sender, event, data):
+        if not self.figure.canvas.widgetlock.available(sender):
+            return
+        if data is not None:
+            self.draw_rubberband(*data)
+        else:
+            self.remove_rubberband()
+
+    def draw_rubberband(self, *data):
+        """Draw rubberband
+
+        This method has to be implemented per backend
+        """
+        pass
+
+    def remove_rubberband(self):
+        """Remove rubberband
+
+        This method has to be implemented per backend
+        """
+        pass
 
 
 class ToolQuit(ToolBase):
@@ -208,7 +234,7 @@ class ToolQuit(ToolBase):
     description = 'Quit the figure'
     keymap = rcParams['keymap.quit']
 
-    def trigger(self, event):
+    def trigger(self, sender, event, data=None):
         Gcf.destroy_fig(self.figure)
 
 
@@ -218,7 +244,7 @@ class ToolEnableAllNavigation(ToolBase):
     description = 'Enables all axes navigation'
     keymap = rcParams['keymap.all_axes']
 
-    def trigger(self, event):
+    def trigger(self, sender, event, data=None):
         if event.inaxes is None:
             return
 
@@ -234,7 +260,7 @@ class ToolEnableNavigation(ToolBase):
     description = 'Enables one axes navigation'
     keymap = (1, 2, 3, 4, 5, 6, 7, 8, 9)
 
-    def trigger(self, event):
+    def trigger(self, sender, event, data=None):
         if event.inaxes is None:
             return
 
@@ -253,7 +279,7 @@ class ToolGrid(ToolBase):
     description = 'Toogle Grid'
     keymap = rcParams['keymap.grid']
 
-    def trigger(self, event):
+    def trigger(self, sender, event, data=None):
         if event.inaxes is None:
             return
         event.inaxes.grid()
@@ -266,7 +292,7 @@ class ToolFullScreen(ToolBase):
     description = 'Toogle Fullscreen mode'
     keymap = rcParams['keymap.fullscreen']
 
-    def trigger(self, event):
+    def trigger(self, sender, event):
         self.figure.canvas.manager.full_screen_toggle()
 
 
@@ -276,7 +302,7 @@ class ToolYScale(ToolBase):
     description = 'Toogle Scale Y axis'
     keymap = rcParams['keymap.yscale']
 
-    def trigger(self, event):
+    def trigger(self, sender, event, data=None):
         ax = event.inaxes
         if ax is None:
             return
@@ -296,7 +322,7 @@ class ToolXScale(ToolBase):
     description = 'Toogle Scale X axis'
     keymap = rcParams['keymap.xscale']
 
-    def trigger(self, event):
+    def trigger(self, sender, event, data=None):
         ax = event.inaxes
         if ax is None:
             return
@@ -416,15 +442,15 @@ class ViewsPositions(object):
 
 
 class ViewsPositionsBase(ToolBase):
-    # Simple base to avoid repeating code on Home, Back and Forward
-    # Not of much use for other tools, so not documented
+    """Base class for ToolHome, ToolBack and ToolForward"""
+
     _on_trigger = None
 
     def __init__(self, *args, **kwargs):
         ToolBase.__init__(self, *args, **kwargs)
         self.viewspos = ViewsPositions()
 
-    def trigger(self, *args):
+    def trigger(self, sender, event, data=None):
         self.viewspos.add_figure(self.figure)
         getattr(self.viewspos, self._on_trigger)(self.figure)
         self.viewspos.update_view(self.figure)
@@ -496,9 +522,9 @@ class ZoomPanBase(ToolToggleBase):
         self.figure.canvas.mpl_disconnect(self._idPress)
         self.figure.canvas.mpl_disconnect(self._idRelease)
 
-    def trigger(self, *args):
+    def trigger(self, sender, event, data=None):
         self.viewspos.add_figure(self.figure)
-        ToolToggleBase.trigger(self, *args)
+        ToolToggleBase.trigger(self, sender, event, data)
 
 
 class ToolZoom(ZoomPanBase):
@@ -516,7 +542,7 @@ class ToolZoom(ZoomPanBase):
     def _cancel_action(self):
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)
-        self.navigation.remove_rubberband(None, self)
+        self.navigation.tool_trigger_event('rubberband', self)
         self.viewspos.refresh_locators(self.figure)
         self._xypress = None
         self._button_pressed = None
@@ -585,7 +611,11 @@ class ToolZoom(ZoomPanBase):
                 x1, y1, x2, y2 = a.bbox.extents
                 x, lastx = x1, x2
 
-            self.navigation.draw_rubberband(event, self, x, y, lastx, lasty)
+#             self.navigation.draw_rubberband(event, self, x, y, lastx, lasty)
+#             data = {'x': x, 'y': y, 'lastx': lastx, 'lasty': lasty}
+            self.navigation.tool_trigger_event('rubberband',
+                                               self,
+                                               data=(x, y, lastx, lasty))
 
     def _release(self, event):
         """the release mouse button callback in zoom to rect mode"""
@@ -800,9 +830,9 @@ tools = [['navigation', [(ToolHome, 'home'),
          ['zoompan', [(ToolZoom, 'zoom'),
                       (ToolPan, 'pan')]],
 
-         ['layout', [('ConfigureSubplots', 'subplots'), ]],
+         ['layout', [('ToolConfigureSubplots', 'subplots'), ]],
 
-         ['io', [('SaveFigure', 'save'), ]],
+         ['io', [('ToolSaveFigure', 'save'), ]],
 
          [None, [(ToolGrid, 'grid'),
                  (ToolFullScreen, 'fullscreen'),
@@ -812,7 +842,8 @@ tools = [['navigation', [(ToolHome, 'home'),
                  (ToolXScale, 'xscale'),
                  (ToolYScale, 'yscale'),
                  (ToolCursorPosition, 'position'),
-                 (ToolSetCursor, 'cursor')]]]
+                 ('ToolSetCursor', 'cursor'),
+                 ('ToolRubberband', 'rubberband')]]]
 
 
 """Default tools"""

@@ -31,7 +31,8 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
 from matplotlib.backend_bases import ShowBase, ToolbarBase, NavigationBase
-from matplotlib.backend_tools import SaveFigureBase, ConfigureSubplotsBase, tools
+from matplotlib.backend_tools import SaveFigureBase, ConfigureSubplotsBase, \
+    tools, SetCursorBase, RubberbandBase
 
 from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.colors import colorConverter
@@ -416,8 +417,8 @@ class FigureManagerGTK3(FigureManagerBase):
 
         self.vbox.pack_start(self.canvas, True, True, 0)
 
-        self.toolbar = self._get_toolbar()
         self.navigation = self._get_navigation()
+        self.toolbar = self._get_toolbar()
         if matplotlib.rcParams['toolbar'] == 'navigation':
             self.navigation.add_tools(tools)
 
@@ -444,7 +445,8 @@ class FigureManagerGTK3(FigureManagerBase):
             'this will be called whenever the current axes is changed'
             if self.navigation is not None:
                 pass
-            elif self.toolbar is not None: self.toolbar.update()
+            elif self.toolbar is not None:
+                self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
         self.canvas.grab_focus()
@@ -720,26 +722,24 @@ class FileChooserDialog(Gtk.FileChooserDialog):
 
 
 class NavigationGTK3(NavigationBase):
+    pass
+
+
+class RubberbandGTK3(RubberbandBase):
     def __init__(self, *args, **kwargs):
-        NavigationBase.__init__(self, *args, **kwargs)
+        RubberbandBase.__init__(self, *args, **kwargs)
         self.ctx = None
 
-    def set_cursor(self, cursor):
-        self.canvas.get_property("window").set_cursor(cursord[cursor])
-
-    def draw_rubberband(self, event, caller, x0, y0, x1, y1):
-        if not self.canvas.widgetlock.available(caller):
-            return
-
+    def draw_rubberband(self, x0, y0, x1, y1):
         # 'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/
         # Recipe/189744'
-        self.ctx = self.canvas.get_property("window").cairo_create()
+        self.ctx = self.figure.canvas.get_property("window").cairo_create()
 
         # todo: instead of redrawing the entire figure, copy the part of
         # the figure that was covered by the previous rubberband rectangle
-        self.canvas.draw()
+        self.figure.canvas.draw()
 
-        height = self.canvas.figure.bbox.height
+        height = self.figure.bbox.height
         y1 = height - y1
         y0 = height - y0
         w = abs(x1 - x0)
@@ -751,6 +751,8 @@ class NavigationGTK3(NavigationBase):
         self.ctx.rectangle(rect[0], rect[1], rect[2], rect[3])
         self.ctx.set_source_rgb(0, 0, 0)
         self.ctx.stroke()
+
+ToolRubberband = RubberbandGTK3
 
 
 class ToolbarGTK3(ToolbarBase, Gtk.Box):
@@ -849,7 +851,7 @@ class SaveFigureGTK3(SaveFigureBase):
         fc.set_current_name(self.figure.canvas.get_default_filename())
         return fc
 
-    def trigger(self, *args):
+    def trigger(self, *args, **kwargs):
         chooser = self.get_filechooser()
         fname, format_ = chooser.get_filename_from_user()
         chooser.destroy()
@@ -868,7 +870,14 @@ class SaveFigureGTK3(SaveFigureBase):
             except Exception as e:
                 error_msg_gtk(str(e), parent=self)
 
-SaveFigure = SaveFigureGTK3
+ToolSaveFigure = SaveFigureGTK3
+
+
+class SetCursorGTK3(SetCursorBase):
+    def set_cursor(self, cursor):
+        self.figure.canvas.get_property("window").set_cursor(cursord[cursor])
+
+ToolSetCursor = SetCursorGTK3
 
 
 class ConfigureSubplotsGTK3(ConfigureSubplotsBase, Gtk.Window):
@@ -919,12 +928,12 @@ class ConfigureSubplotsGTK3(ConfigureSubplotsBase, Gtk.Window):
     def _get_canvas(self, fig):
         return self.canvas.__class__(fig)
 
-    def trigger(self, event):
+    def trigger(self, sender, event, data=None):
         self.init_window()
         self.window.present()
 
 
-ConfigureSubplots = ConfigureSubplotsGTK3
+ToolConfigureSubplots = ConfigureSubplotsGTK3
 
 
 class DialogLineprops:

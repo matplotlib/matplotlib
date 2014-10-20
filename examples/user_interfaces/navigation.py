@@ -12,7 +12,7 @@ class ListTools(ToolBase):
     keymap = 'm'
     description = 'List Tools'
  
-    def trigger(self, event):
+    def trigger(self, *args, **kwargs):
         tools = self.navigation.get_tools()
   
         print ('_' * 80)
@@ -36,16 +36,13 @@ class CopyToolGTK3(ToolBase):
     # It is not added to the toolbar as a button
     intoolbar = False
  
-    def trigger(self, event):
+    def trigger(self, *args, **kwargs):
         from gi.repository import Gtk, Gdk
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         window = self.figure.canvas.get_window()
         x, y, width, height = window.get_geometry()
         pb = Gdk.pixbuf_get_from_window(window, x, y, width, height)
         clipboard.set_image(pb)
-
-
-
 
 
 fig = plt.figure()
@@ -56,8 +53,7 @@ fig.canvas.manager.navigation.add_tool('List', ListTools)
 if matplotlib.rcParams['backend'] == 'GTK3Cairo':
     fig.canvas.manager.navigation.add_tool('copy', CopyToolGTK3)
  
-# # Just for fun, lets remove the forward button
+# Uncomment to remove the forward button
 # fig.canvas.manager.navigation.remove_tool('forward')
-
 
 plt.show()
