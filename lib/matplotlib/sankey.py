@@ -728,7 +728,7 @@ class Sankey(object):
         if prior is None:
             if rotation != 0:  # By default, none of this is needed.
                 angles = [_get_angle(angle, rotation) for angle in angles]
-                rotate = Affine2D().rotate_deg(rotation * 90).transform_point
+                rotate = Affine2D().rotate_deg(rotation * 90).transform_affine
                 tips = rotate(tips)
                 label_locations = rotate(label_locations)
                 vertices = rotate(vertices)
@@ -737,10 +737,10 @@ class Sankey(object):
             rotation = (self.diagrams[prior].angles[connect[0]] -
                         angles[connect[1]])
             angles = [_get_angle(angle, rotation) for angle in angles]
-            rotate = Affine2D().rotate_deg(rotation * 90).transform_point
+            rotate = Affine2D().rotate_deg(rotation * 90).transform_affine
             tips = rotate(tips)
             offset = self.diagrams[prior].tips[connect[0]] - tips[connect[1]]
-            translate = Affine2D().translate(*offset).transform_point
+            translate = Affine2D().translate(*offset).transform_affine
             tips = translate(tips)
             label_locations = translate(rotate(label_locations))
             vertices = translate(rotate(vertices))
