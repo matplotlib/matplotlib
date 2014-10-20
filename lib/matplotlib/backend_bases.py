@@ -3546,6 +3546,16 @@ class NavigationBase(object):
                        'keymap': keys}
         return d
 
+    def get_tool(self, name):
+        """Return the tool object
+
+        Parameters:
+        -----------
+        name: String
+            Name of the tool
+        """
+        return self._tools[name]
+
     def _set_cursor(self, canvasevent):
         """Sets the current cursor in ToolSetCursor"""
 
