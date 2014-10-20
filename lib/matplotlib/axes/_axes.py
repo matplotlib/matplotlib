@@ -4672,6 +4672,12 @@ class Axes(_AxesBase):
         self.add_image(im)
         return im
 
+    imshow.interpolation = ['none', 'nearest', 'bilinear', 'bicubic',
+                            'spline16', 'spline36', 'hanning', 'hamming',
+                            'hermite', 'kaiser', 'quadric', 'catrom',
+                            'gaussian', 'bessel', 'mitchell', 'sinc',
+                            'lanczos']
+
     @staticmethod
     def _pcolorargs(funcname, *args, **kw):
         # This takes one kwarg, allmatch.
