@@ -336,47 +336,56 @@ class ToolXScale(ToolBase):
             ax.figure.canvas.draw()
 
 
-class ViewsPositions(object):
-    """Auxiliary class to handle changes in views and positions"""
+class ToolViewsPositions(ToolBase):
+    """Auxiliary Tool to handle changes in views and positions
 
-    views = WeakKeyDictionary()
-    """Record of views with Figure objects as keys"""
+    This tool is accessed by navigation.manipulate_tool
+    This tool is used by all the tools that need to access the record of
+    views and positions of the figure
+    - Zoom
+    - Pan
+    - Home
+    - Back
+    - Forward
+    """
 
-    positions = WeakKeyDictionary()
-    """Record of positions with Figure objects as keys"""
+    def __init__(self, *args, **kwargs):
+        self.views = WeakKeyDictionary()
+        self.positions = WeakKeyDictionary()
+        ToolBase.__init__(self, *args, **kwargs)
 
-    @classmethod
-    def add_figure(cls, figure):
-        """Add a figure to the list of figures handled by this class"""
-        if figure not in cls.views:
-            cls.views[figure] = cbook.Stack()
-            cls.positions[figure] = cbook.Stack()
+    def set_figure(self, figure):
+        ToolBase.set_figure(self, figure)
+
+    def add_figure(self):
+        """Add the current figure to the stack of views and positions"""
+        if self.figure not in self.views:
+            self.views[self.figure] = cbook.Stack()
+            self.positions[self.figure] = cbook.Stack()
             # Define Home
-            cls.push_current(figure)
+            self.push_current()
             # Adding the clear method as axobserver, removes this burden from
             # the backend
-            figure.add_axobserver(cls.clear)
+            self.figure.add_axobserver(self.clear)
 
-    @classmethod
-    def clear(cls, figure):
+    def clear(self, figure):
         """Reset the axes stack"""
-        if figure in cls.views:
-            cls.views[figure].clear()
-            cls.positions[figure].clear()
+        if figure in self.views:
+            self.views[figure].clear()
+            self.positions[figure].clear()
 
-    @classmethod
-    def update_view(cls, figure):
+    def update_view(self):
         """Update the viewlim and position from the view and
         position stack for each axes
         """
 
-        lims = cls.views[figure]()
+        lims = self.views[self.figure]()
         if lims is None:
             return
-        pos = cls.positions[figure]()
+        pos = self.positions[self.figure]()
         if pos is None:
             return
-        for i, a in enumerate(figure.get_axes()):
+        for i, a in enumerate(self.figure.get_axes()):
             xmin, xmax, ymin, ymax = lims[i]
             a.set_xlim((xmin, xmax))
             a.set_ylim((ymin, ymax))
@@ -384,15 +393,14 @@ class ViewsPositions(object):
             a.set_position(pos[i][0], 'original')
             a.set_position(pos[i][1], 'active')
 
-        figure.canvas.draw_idle()
+        self.figure.canvas.draw_idle()
 
-    @classmethod
-    def push_current(cls, figure):
+    def push_current(self):
         """push the current view limits and position onto the stack"""
 
         lims = []
         pos = []
-        for a in figure.get_axes():
+        for a in self.figure.get_axes():
             xmin, xmax = a.get_xlim()
             ymin, ymax = a.get_ylim()
             lims.append((xmin, xmax, ymin, ymax))
@@ -400,13 +408,12 @@ class ViewsPositions(object):
             pos.append((
                 a.get_position(True).frozen(),
                 a.get_position().frozen()))
-        cls.views[figure].push(lims)
-        cls.positions[figure].push(pos)
+        self.views[self.figure].push(lims)
+        self.positions[self.figure].push(pos)
 
-    @classmethod
-    def refresh_locators(cls, figure):
+    def refresh_locators(self):
         """Redraw the canvases, update the locators"""
-        for a in figure.get_axes():
+        for a in self.figure.get_axes():
             xaxis = getattr(a, 'xaxis', None)
             yaxis = getattr(a, 'yaxis', None)
             zaxis = getattr(a, 'zaxis', None)
@@ -423,22 +430,19 @@ class ViewsPositions(object):
 
             for loc in locators:
                 loc.refresh()
-        figure.canvas.draw_idle()
+        self.figure.canvas.draw_idle()
 
-    @classmethod
-    def home(cls, figure):
-        cls.views[figure].home()
-        cls.positions[figure].home()
+    def home(self):
+        self.views[self.figure].home()
+        self.positions[self.figure].home()
 
-    @classmethod
-    def back(cls, figure):
-        cls.views[figure].back()
-        cls.positions[figure].back()
+    def back(self):
+        self.views[self.figure].back()
+        self.positions[self.figure].back()
 
-    @classmethod
-    def forward(cls, figure):
-        cls.views[figure].forward()
-        cls.positions[figure].forward()
+    def forward(self):
+        self.views[self.figure].forward()
+        self.positions[self.figure].forward()
 
 
 class ViewsPositionsBase(ToolBase):
@@ -446,14 +450,10 @@ class ViewsPositionsBase(ToolBase):
 
     _on_trigger = None
 
-    def __init__(self, *args, **kwargs):
-        ToolBase.__init__(self, *args, **kwargs)
-        self.viewspos = ViewsPositions()
-
     def trigger(self, sender, event, data=None):
-        self.viewspos.add_figure(self.figure)
-        getattr(self.viewspos, self._on_trigger)(self.figure)
-        self.viewspos.update_view(self.figure)
+        self.navigation.get_tool('viewpos').add_figure()
+        getattr(self.navigation.get_tool('viewpos'), self._on_trigger)()
+        self.navigation.get_tool('viewpos').update_view()
 
 
 class ToolHome(ViewsPositionsBase):
@@ -499,15 +499,13 @@ class SaveFigureBase(ToolBase):
 
 
 class ZoomPanBase(ToolToggleBase):
-    # Base class to group common functionality between zoom and pan
-    # Not of much use for other tools, so not documented
+    """Base class for Zoom and Pan tools"""
     def __init__(self, *args):
         ToolToggleBase.__init__(self, *args)
         self._button_pressed = None
         self._xypress = None
         self._idPress = None
         self._idRelease = None
-        self.viewspos = ViewsPositions()
 
     def enable(self, event):
         self.figure.canvas.widgetlock(self)
@@ -523,7 +521,7 @@ class ZoomPanBase(ToolToggleBase):
         self.figure.canvas.mpl_disconnect(self._idRelease)
 
     def trigger(self, sender, event, data=None):
-        self.viewspos.add_figure(self.figure)
+        self.navigation.get_tool('viewpos').add_figure()
         ToolToggleBase.trigger(self, sender, event, data)
 
 
@@ -543,7 +541,7 @@ class ToolZoom(ZoomPanBase):
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)
         self.navigation.tool_trigger_event('rubberband', self)
-        self.viewspos.refresh_locators(self.figure)
+        self.navigation.get_tool('viewpos').refresh_locators()
         self._xypress = None
         self._button_pressed = None
         self._ids_zoom = []
@@ -611,8 +609,6 @@ class ToolZoom(ZoomPanBase):
                 x1, y1, x2, y2 = a.bbox.extents
                 x, lastx = x1, x2
 
-#             self.navigation.draw_rubberband(event, self, x, y, lastx, lasty)
-#             data = {'x': x, 'y': y, 'lastx': lastx, 'lasty': lasty}
             self.navigation.tool_trigger_event('rubberband',
                                                self,
                                                data=(x, y, lastx, lasty))
@@ -736,7 +732,7 @@ class ToolZoom(ZoomPanBase):
                     a.set_ylim((ry1, ry2))
 
         self._zoom_mode = None
-        self.viewspos.push_current(self.figure)
+        self.navigation.get_tool('viewpos').push_current()
         self._cancel_action()
 
 
@@ -757,7 +753,7 @@ class ToolPan(ZoomPanBase):
         self._xypress = []
         self.figure.canvas.mpl_disconnect(self._idDrag)
         self.navigation.messagelock.release(self)
-        self.viewspos.refresh_locators(self.figure)
+        self.navigation.get_tool('viewpos').refresh_locators()
 
     def _press(self, event):
         if event.button == 1:
@@ -794,7 +790,7 @@ class ToolPan(ZoomPanBase):
             self._cancel_action()
             return
 
-        self.viewspos.push_current(self.figure)
+        self.navigation.get_tool('viewpos').push_current()
         self._cancel_action()
 
     def _mouse_move(self, event):
@@ -842,6 +838,7 @@ tools = [['navigation', [(ToolHome, 'home'),
                  (ToolXScale, 'xscale'),
                  (ToolYScale, 'yscale'),
                  (ToolCursorPosition, 'position'),
+                 (ToolViewsPositions, 'viewpos'),
                  ('ToolSetCursor', 'cursor'),
                  ('ToolRubberband', 'rubberband')]]]
 
