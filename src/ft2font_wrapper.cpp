@@ -1671,7 +1671,7 @@ PyMODINIT_FUNC initft2font(void)
         add_dict_int(d, "FIXED_WIDTH", FT_FACE_FLAG_FIXED_WIDTH) ||
         add_dict_int(d, "SFNT", FT_FACE_FLAG_SFNT) ||
         add_dict_int(d, "HORIZONTAL", FT_FACE_FLAG_HORIZONTAL) ||
-        add_dict_int(d, "VERTICAL", FT_FACE_FLAG_SCALABLE) ||
+        add_dict_int(d, "VERTICAL", FT_FACE_FLAG_VERTICAL) ||
         add_dict_int(d, "KERNING", FT_FACE_FLAG_KERNING) ||
         add_dict_int(d, "FAST_GLYPHS", FT_FACE_FLAG_FAST_GLYPHS) ||
         add_dict_int(d, "MULTIPLE_MASTERS", FT_FACE_FLAG_MULTIPLE_MASTERS) ||
