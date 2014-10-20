@@ -111,6 +111,11 @@ def _process_plot_format(fmt):
             raise ValueError(
                 'Unrecognized character %c in format string' % c)
 
+    if linestyle is None and marker is not None:
+        linestyle = 'None'
+    if marker is None and linestyle is not None:
+        marker = 'None'
+
     return linestyle, marker, color
 
 
