@@ -79,8 +79,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
     _transOffset = transforms.IdentityTransform()
     _transforms = []
 
-
-
     def __init__(self,
                  edgecolors=None,
                  facecolors=None,
@@ -275,11 +273,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         facecolors = self.get_facecolor()
         edgecolors = self.get_edgecolor()
         if (len(paths) == 1 and len(trans) <= 1 and
-            len(facecolors) == 1 and len(edgecolors) == 1 and
-            len(self._linewidths) == 1 and
-            self._linestyles == [(None, None)] and
-            len(self._antialiaseds) == 1 and len(self._urls) == 1 and
-            self.get_hatch() is None):
+                len(facecolors) == 1 and len(edgecolors) == 1 and
+                len(self._linewidths) == 1 and
+                self._linestyles == [(None, None)] and
+                len(self._antialiaseds) == 1 and len(self._urls) == 1 and
+                self.get_hatch() is None):
             gc.set_foreground(tuple(edgecolors[0]))
             gc.set_linewidth(self._linewidths[0])
             gc.set_linestyle(self._linestyles[0])
@@ -383,7 +381,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         can only be specified for the collection as a whole, not separately
         for each member.
 
-        ACCEPTS: [ '/' | '\\\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]
+        ACCEPTS: [ '/' | '\\\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.'
+        | '*']
         """
         self._hatch = hatch
 
@@ -400,7 +399,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         offsets = np.asanyarray(offsets, np.float_)
         offsets.shape = (-1, 2)             # Make it Nx2
-        #This decision is based on how they are initialized above
+        # This decision is based on how they are initialized above
         if self._uniform_offsets is None:
             self._offsets = offsets
         else:
@@ -410,7 +409,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         Return the offsets for the collection.
         """
-        #This decision is based on how they are initialized above in __init__()
+        # This decision is based on how they are initialized above in
+        # __init__()
         if self._uniform_offsets is None:
             return self._offsets
         else:
@@ -962,7 +962,6 @@ class LineCollection(Collection):
     i.e., the properties cycle if the ``len`` of props is less than the
     number of segments.
     """
-
 
     def __init__(self, segments,     # Can be None.
                  linewidths=None,
@@ -1687,13 +1686,13 @@ class QuadMesh(Collection):
         else:
             c = coordinates
 
-        points = np.concatenate((
-                    c[0:-1, 0:-1],
-                    c[0:-1, 1:],
-                    c[1:, 1:],
-                    c[1:, 0:-1],
-                    c[0:-1, 0:-1]
-                ), axis=2)
+        points = np.concatenate(
+            (c[0:-1, 0:-1],
+             c[0:-1, 1:],
+             c[1:, 1:],
+             c[1:, 0:-1],
+             c[0:-1, 0:-1]), axis=2
+        )
         points = points.reshape((meshWidth * meshHeight, 5, 2))
         return [Path(x) for x in points]
 
@@ -1714,12 +1713,12 @@ class QuadMesh(Collection):
         p_d = p[1:, :-1]
         p_center = (p_a + p_b + p_c + p_d) / 4.0
 
-        triangles = np.concatenate((
-                p_a, p_b, p_center,
-                p_b, p_c, p_center,
-                p_c, p_d, p_center,
-                p_d, p_a, p_center,
-            ), axis=2)
+        triangles = np.concatenate(
+            (p_a, p_b, p_center,
+             p_b, p_c, p_center,
+             p_c, p_d, p_center,
+             p_d, p_a, p_center), axis=2
+        )
         triangles = triangles.reshape((meshWidth * meshHeight * 4, 3, 2))
 
         c = self.get_facecolor().reshape((meshHeight + 1, meshWidth + 1, 4))
@@ -1729,12 +1728,12 @@ class QuadMesh(Collection):
         c_d = c[1:, :-1]
         c_center = (c_a + c_b + c_c + c_d) / 4.0
 
-        colors = np.concatenate((
-                        c_a, c_b, c_center,
-                        c_b, c_c, c_center,
-                        c_c, c_d, c_center,
-                        c_d, c_a, c_center,
-                    ), axis=2)
+        colors = np.concatenate(
+            (c_a, c_b, c_center,
+             c_b, c_c, c_center,
+             c_c, c_d, c_center,
+             c_d, c_a, c_center), axis=2
+        )
         colors = colors.reshape((meshWidth * meshHeight * 4, 3, 4))
 
         return triangles, colors

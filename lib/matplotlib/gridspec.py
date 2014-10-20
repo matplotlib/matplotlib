@@ -28,6 +28,7 @@ import matplotlib.transforms as mtransforms
 import numpy as np
 import warnings
 
+
 class GridSpecBase(object):
     """
     A base class of GridSpec that specifies the geometry of the grid
@@ -41,8 +42,7 @@ class GridSpecBase(object):
         be set. Optionally, the ratio of heights and widths of rows and
         columns can be specified.
         """
-        #self.figure = figure
-        self._nrows , self._ncols = nrows, ncols
+        self._nrows, self._ncols = nrows, ncols
 
         self.set_height_ratios(height_ratios)
         self.set_width_ratios(width_ratios)
@@ -62,7 +62,6 @@ class GridSpecBase(object):
         subplotspec = self[loc1:loc1+rowspan, loc2:loc2+colspan]
         return subplotspec
 
-
     def set_width_ratios(self, width_ratios):
         self._col_width_ratios = width_ratios
 
@@ -74,7 +73,6 @@ class GridSpecBase(object):
 
     def get_height_ratios(self):
         return self._row_height_ratios
-
 
     def get_grid_positions(self, fig):
         """
@@ -105,8 +103,9 @@ class GridSpecBase(object):
             cellHeights = [cellH] * nrows
 
         sepHeights = [0] + ([sepH] * (nrows-1))
-        cellHs = np.add.accumulate(np.ravel(list(zip(sepHeights, cellHeights))))
-
+        cellHs = np.add.accumulate(
+            np.ravel(list(zip(sepHeights, cellHeights)))
+        )
 
         # calculate accumulated widths of rows
         cellW = totWidth/(ncols + wspace*(ncols-1))
@@ -122,13 +121,10 @@ class GridSpecBase(object):
         sepWidths = [0] + ([sepW] * (ncols-1))
         cellWs = np.add.accumulate(np.ravel(list(zip(sepWidths, cellWidths))))
 
-
-
         figTops = [top - cellHs[2*rowNum] for rowNum in range(nrows)]
         figBottoms = [top - cellHs[2*rowNum+1] for rowNum in range(nrows)]
         figLefts = [left + cellWs[2*colNum] for colNum in range(ncols)]
         figRights = [left + cellWs[2*colNum+1] for colNum in range(ncols)]
-
 
         return figBottoms, figTops, figLefts, figRights
 
@@ -150,20 +146,18 @@ class GridSpecBase(object):
             else:
                 if k1 < 0:
                     k1 += nrows
-                if k1 >= nrows or k1 < 0 :
+                if k1 >= nrows or k1 < 0:
                     raise IndexError("index out of range")
                 row1, row2 = k1, k1+1
-
 
             if isinstance(k2, slice):
                 col1, col2, _ = k2.indices(ncols)
             else:
                 if k2 < 0:
                     k2 += ncols
-                if k2 >= ncols or k2 < 0 :
+                if k2 >= ncols or k2 < 0:
                     raise IndexError("index out of range")
                 col1, col2 = k2, k2+1
-
 
             num1 = row1*ncols + col1
             num2 = (row2-1)*ncols + (col2-1)
@@ -176,10 +170,9 @@ class GridSpecBase(object):
             else:
                 if key < 0:
                     key += total
-                if key >= total or key < 0 :
+                if key >= total or key < 0:
                     raise IndexError("index out of range")
                 num1, num2 = key, None
-
 
         return SubplotSpec(self, num1, num2)
 
@@ -200,20 +193,16 @@ class GridSpec(GridSpecBase):
         grid need to be set. Optionally, the subplot layout parameters
         (e.g., left, right, etc.) can be tuned.
         """
-        #self.figure = figure
-        self.left=left
-        self.bottom=bottom
-        self.right=right
-        self.top=top
-        self.wspace=wspace
-        self.hspace=hspace
+        self.left = left
+        self.bottom = bottom
+        self.right = right
+        self.top = top
+        self.wspace = wspace
+        self.hspace = hspace
 
         GridSpecBase.__init__(self, nrows, ncols,
                               width_ratios=width_ratios,
                               height_ratios=height_ratios)
-        #self.set_width_ratios(width_ratios)
-        #self.set_height_ratios(height_ratios)
-
 
     _AllowedKeys = ["left", "bottom", "right", "top", "wspace", "hspace"]
 
@@ -229,7 +218,6 @@ class GridSpec(GridSpecBase):
             else:
                 raise AttributeError("%s is unknown keyword" % (k,))
 
-
         from matplotlib import _pylab_helpers
         from matplotlib.axes import SubplotBase
         for figmanager in six.itervalues(_pylab_helpers.Gcf.figs):
@@ -237,11 +225,13 @@ class GridSpec(GridSpecBase):
                 # copied from Figure.subplots_adjust
                 if not isinstance(ax, SubplotBase):
                     # Check if sharing a subplots axis
-                    if ax._sharex is not None and isinstance(ax._sharex, SubplotBase):
+                    if ax._sharex is not None and isinstance(ax._sharex,
+                                                             SubplotBase):
                         if ax._sharex.get_subplotspec().get_gridspec() == self:
                             ax._sharex.update_params()
                             ax.set_position(ax._sharex.figbox)
-                    elif ax._sharey is not None and isinstance(ax._sharey,SubplotBase):
+                    elif ax._sharey is not None and isinstance(ax._sharey,
+                                                               SubplotBase):
                         if ax._sharey.get_subplotspec().get_gridspec() == self:
                             ax._sharey.update_params()
                             ax.set_position(ax._sharey.figbox)
@@ -251,8 +241,6 @@ class GridSpec(GridSpecBase):
                         ax.update_params()
                         ax.set_position(ax.figbox)
 
-
-
     def get_subplot_params(self, fig=None):
         """
         return a dictionary of subplot layout parameters. The default
@@ -261,7 +249,7 @@ class GridSpec(GridSpecBase):
         from matplotlib.figure import SubplotParams
         import copy
         if fig is None:
-            kw = dict([(k, rcParams["figure.subplot."+k]) \
+            kw = dict([(k, rcParams["figure.subplot."+k])
                        for k in self._AllowedKeys])
             subplotpars = SubplotParams(**kw)
         else:
@@ -275,15 +263,16 @@ class GridSpec(GridSpecBase):
     def locally_modified_subplot_params(self):
         return [k for k in self._AllowedKeys if getattr(self, k)]
 
-
-    def tight_layout(self, fig, renderer=None, pad=1.08, h_pad=None, w_pad=None, rect=None):
+    def tight_layout(self, fig, renderer=None, pad=1.08, h_pad=None,
+                     w_pad=None, rect=None):
         """
         Adjust subplot parameters to give specified padding.
 
         Parameters:
 
         pad : float
-            padding between the figure edge and the edges of subplots, as a fraction of the font-size.
+            padding between the figure edge and the edges of subplots, as a
+            fraction of the font-size.
         h_pad, w_pad : float
             padding (height/width) between edges of adjacent subplots.
             Defaults to `pad_inches`.
@@ -331,15 +320,14 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         and hspace of the layout can be optionally specified or the
         default values (from the figure or rcParams) will be used.
         """
-        self._wspace=wspace
-        self._hspace=hspace
+        self._wspace = wspace
+        self._hspace = hspace
 
         self._subplot_spec = subplot_spec
 
         GridSpecBase.__init__(self, nrows, ncols,
                               width_ratios=width_ratios,
                               height_ratios=height_ratios)
-
 
     def get_subplot_params(self, fig=None):
         """
@@ -373,7 +361,6 @@ class GridSpecFromSubplotSpec(GridSpecBase):
 
         return sp
 
-
     def get_topmost_subplotspec(self):
         'get the topmost SubplotSpec instance associated with the subplot'
         return self._subplot_spec.get_topmost_subplotspec()
@@ -403,7 +390,6 @@ class SubplotSpec(object):
     def get_gridspec(self):
         return self._gridspec
 
-
     def get_geometry(self):
         """
         get the subplot geometry, eg 2,2,3. Unlike SuplorParams,
@@ -411,7 +397,6 @@ class SubplotSpec(object):
         """
         rows, cols = self.get_gridspec().get_geometry()
         return rows, cols, self.num1, self.num2
-
 
     def get_position(self, fig, return_all=False):
         """
@@ -421,11 +406,11 @@ class SubplotSpec(object):
         gridspec = self.get_gridspec()
         nrows, ncols = gridspec.get_geometry()
 
-        figBottoms, figTops, figLefts, figRights = \
-                    gridspec.get_grid_positions(fig)
+        figBottoms, figTops, figLefts, figRights = (
+            gridspec.get_grid_positions(fig)
+        )
 
-
-        rowNum, colNum =  divmod(self.num1, ncols)
+        rowNum, colNum = divmod(self.num1, ncols)
         figBottom = figBottoms[rowNum]
         figTop = figTops[rowNum]
         figLeft = figLefts[colNum]
@@ -433,7 +418,7 @@ class SubplotSpec(object):
 
         if self.num2 is not None:
 
-            rowNum2, colNum2 =  divmod(self.num2, ncols)
+            rowNum2, colNum2 = divmod(self.num2, ncols)
             figBottom2 = figBottoms[rowNum2]
             figTop2 = figTops[rowNum2]
             figLeft2 = figLefts[colNum2]
@@ -447,12 +432,10 @@ class SubplotSpec(object):
         figbox = mtransforms.Bbox.from_extents(figLeft, figBottom,
                                                figRight, figTop)
 
-
         if return_all:
             return figbox, rowNum, colNum, nrows, ncols
         else:
             return figbox
-
 
     def get_topmost_subplotspec(self):
         'get the topmost SubplotSpec instance associated with the subplot'

@@ -87,8 +87,7 @@ class HandlerBase(object):
         height = height - self._ypad * fontsize
         return xdescent, ydescent, width, height
 
-    def legend_artist(self, legend, orig_handle,
-                       fontsize, handlebox):
+    def legend_artist(self, legend, orig_handle, fontsize, handlebox):
         """
         Return the artist that this HandlerBase generates for the given
         original artist/handle.
@@ -109,10 +108,9 @@ class HandlerBase(object):
 
         """
         xdescent, ydescent, width, height = self.adjust_drawing_area(
-                 legend, orig_handle,
-                 handlebox.xdescent, handlebox.ydescent,
-                 handlebox.width, handlebox.height,
-                 fontsize)
+            legend, orig_handle, handlebox.xdescent, handlebox.ydescent,
+            handlebox.width, handlebox.height, fontsize
+        )
         artists = self.create_artists(legend, orig_handle,
                                       xdescent, ydescent, width, height,
                                       fontsize, handlebox.get_transform())
@@ -179,7 +177,8 @@ class HandlerLine2D(HandlerNpoints):
     Handler for Line2D instances.
     """
     def __init__(self, marker_pad=0.3, numpoints=None, **kw):
-        HandlerNpoints.__init__(self, marker_pad=marker_pad, numpoints=numpoints, **kw)
+        HandlerNpoints.__init__(self, marker_pad=marker_pad,
+                                numpoints=numpoints, **kw)
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
@@ -269,7 +268,7 @@ class HandlerLineCollection(HandlerLine2D):
         color = orig_handle.get_colors()[0]
         legend_handle.set_color(color)
         legend_handle.set_linewidth(lw)
-        if dashes[0] is not None: # dashed line
+        if dashes[0] is not None:  # dashed line
             legend_handle.set_dashes(dashes[1])
 
     def create_artists(self, legend, orig_handle,
@@ -302,7 +301,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
             return self._numpoints
 
     def get_sizes(self, legend, orig_handle,
-                 xdescent, ydescent, width, height, fontsize):
+                  xdescent, ydescent, width, height, fontsize):
         if self._sizes is None:
             size_max = max(orig_handle.get_sizes()) * legend.markerscale ** 2
             size_min = min(orig_handle.get_sizes()) * legend.markerscale ** 2
@@ -324,7 +323,6 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
         self._update_prop(legend_handle, orig_handle)
 
         legend_handle.set_figure(legend.figure)
-        #legend._set_artist_props(legend_handle)
         legend_handle.set_clip_box(None)
         legend_handle.set_clip_path(None)
 
@@ -393,10 +391,11 @@ class HandlerErrorbar(HandlerLine2D):
         self._xerr_size = xerr_size
         self._yerr_size = yerr_size
 
-        HandlerLine2D.__init__(self, marker_pad=marker_pad, numpoints=numpoints,
-                               **kw)
+        HandlerLine2D.__init__(self, marker_pad=marker_pad,
+                               numpoints=numpoints, **kw)
 
-    def get_err_size(self, legend, xdescent, ydescent, width, height, fontsize):
+    def get_err_size(self, legend, xdescent, ydescent, width, height,
+                     fontsize):
         xerr_size = self._xerr_size * fontsize
 
         if self._yerr_size is None:
@@ -417,7 +416,6 @@ class HandlerErrorbar(HandlerLine2D):
 
         ydata = ((height - ydescent) / 2.) * np.ones(xdata.shape, float)
         legline = Line2D(xdata, ydata)
-
 
         xdata_marker = np.asarray(xdata_marker)
         ydata_marker = np.asarray(ydata[:len(xdata_marker)])
@@ -449,8 +447,8 @@ class HandlerErrorbar(HandlerLine2D):
         handle_caplines = []
 
         if orig_handle.has_xerr:
-            verts = [ ((x - xerr_size, y), (x + xerr_size, y))
-                      for x, y in zip(xdata_marker, ydata_marker)]
+            verts = [((x - xerr_size, y), (x + xerr_size, y))
+                     for x, y in zip(xdata_marker, ydata_marker)]
             coll = mcoll.LineCollection(verts)
             self.update_prop(coll, barlinecols[0], legend)
             handle_barlinecols.append(coll)
@@ -467,8 +465,8 @@ class HandlerErrorbar(HandlerLine2D):
                 handle_caplines.append(capline_right)
 
         if orig_handle.has_yerr:
-            verts = [ ((x, y - yerr_size), (x, y + yerr_size))
-                      for x, y in zip(xdata_marker, ydata_marker)]
+            verts = [((x, y - yerr_size), (x, y + yerr_size))
+                     for x, y in zip(xdata_marker, ydata_marker)]
             coll = mcoll.LineCollection(verts)
             self.update_prop(coll, barlinecols[0], legend)
             handle_barlinecols.append(coll)
@@ -494,6 +492,7 @@ class HandlerErrorbar(HandlerLine2D):
             artist.set_transform(trans)
 
         return artists
+
 
 class HandlerStem(HandlerNpointsYoffsets):
     """

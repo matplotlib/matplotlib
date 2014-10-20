@@ -1158,7 +1158,9 @@ class SpanSelector(_SelectorWidget):
         if rectprops is None:
             rectprops = dict(facecolor='red', alpha=0.5)
 
-        assert direction in ['horizontal', 'vertical'], 'Must choose horizontal or vertical for direction'
+        assert direction in ['horizontal', 'vertical'], (
+            'Must choose horizontal or vertical for direction'
+        )
         self.direction = direction
 
         self.visible = True
@@ -1472,7 +1474,7 @@ class RectangleSelector(_SelectorWidget):
         # Only do rectangle selection if event was triggered
         # with a desired button
         if self.validButtons is not None:
-            if not event.button in self.validButtons:
+            if event.button not in self.validButtons:
                 return True
 
         # If no button was pressed yet ignore the event if it was out
@@ -1548,10 +1550,10 @@ class RectangleSelector(_SelectorWidget):
             # neither x nor y-direction
             return
 
+        # call desired function
         self.onselect(self.eventpress, self.eventrelease)
-                                              # call desired function
-        self.eventpress = None                # reset the variables to their
-        self.eventrelease = None              # inital values
+        self.eventpress = None              # reset the variables to their
+        self.eventrelease = None            # inital values
         return False
 
     def update(self):
@@ -1572,8 +1574,8 @@ class RectangleSelector(_SelectorWidget):
         """on motion notify event if box/line is wanted"""
         if self.eventpress is None or self.ignore(event):
             return
-        x, y = event.xdata, event.ydata             # actual position (with
-                                                   #   (button still pressed)
+        # actual position (with button still pressed)
+        x, y = event.xdata, event.ydata
         if self.drawtype == 'box':
             minx, maxx = self.eventpress.xdata, x  # click-x and actual mouse-x
             miny, maxy = self.eventpress.ydata, y  # click-y and actual mouse-y
