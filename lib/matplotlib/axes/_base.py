@@ -63,7 +63,8 @@ def _process_plot_format(fmt):
 
     # Is fmt just a colorspec?
     try:
-        color = mcolors.colorConverter.to_rgb(fmt)
+        mcolors.colorConverter.to_rgb(fmt)
+        color = fmt
 
         # We need to differentiate grayscale '1.0' from tri_down marker '1'
         try:
@@ -109,13 +110,6 @@ def _process_plot_format(fmt):
         else:
             raise ValueError(
                 'Unrecognized character %c in format string' % c)
-
-    if linestyle is None and marker is None:
-        linestyle = rcParams['lines.linestyle']
-    if linestyle is None:
-        linestyle = 'None'
-    if marker is None:
-        marker = 'None'
 
     return linestyle, marker, color
 
