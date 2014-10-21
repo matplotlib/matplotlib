@@ -168,7 +168,7 @@ class NoseTestCommand(TestCommand):
 
         if self.process_timeout:
             self.test_args.append("--process-timeout={tout}".format(
-                self.process_timeout))
+                tout=self.process_timeout))
 
         if self.nose_verbose:
             self.test_args.append("--verbose")
