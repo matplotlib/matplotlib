@@ -1865,7 +1865,7 @@ class RendererPdf(RendererBase):
             if elt[0] == 'font':
                 self.file.output(elt[1], elt[2], Op.selectfont)
             elif elt[0] == 'text':
-                curx, cury = mytrans.transform((elt[1], elt[2]))
+                curx, cury = mytrans.transform_point((elt[1], elt[2]))
                 self._setup_textpos(curx, cury, angle, oldx, oldy)
                 oldx, oldy = curx, cury
                 if len(elt[3]) == 1:

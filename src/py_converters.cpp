@@ -9,6 +9,47 @@
 
 extern "C" {
 
+static int convert_string_enum(PyObject *obj, const char *name, const char **names, int *values, int *result)
+{
+    PyObject *bytesobj;
+    char *str;
+
+    if (obj == NULL || obj == Py_None) {
+        return 1;
+    }
+
+    if (PyUnicode_Check(obj)) {
+        bytesobj = PyUnicode_AsASCIIString(obj);
+        if (bytesobj == NULL) {
+            return 0;
+        }
+    } else if (PyBytes_Check(obj)) {
+        Py_INCREF(obj);
+        bytesobj = obj;
+    } else {
+        PyErr_Format(PyExc_TypeError, "%s must be bytes or unicode", name);
+        return 0;
+    }
+
+    str = PyBytes_AsString(bytesobj);
+    if (str == NULL) {
+        Py_DECREF(bytesobj);
+        return 0;
+    }
+
+    for ( ; *names != NULL; names++, values++) {
+        if (strncmp(str, *names, 64) == 0) {
+            *result = *values;
+            Py_DECREF(bytesobj);
+            return 1;
+        }
+    }
+
+    PyErr_Format(PyExc_ValueError, "invalid %s value", name);
+    Py_DECREF(bytesobj);
+    return 0;
+}
+
 int convert_from_method(PyObject *obj, const char *name, converter func, void *p)
 {
     PyObject *value;
@@ -76,76 +117,29 @@ int convert_bool(PyObject *obj, void *p)
 
 int convert_cap(PyObject *capobj, void *capp)
 {
-    PyObject *capstrobj;
-    char *capstr;
-    agg::line_cap_e *cap = (agg::line_cap_e *)capp;
+    const char *names[] = {"butt", "round", "projecting", NULL};
+    int values[] = {agg::butt_cap, agg::round_cap, agg::square_cap};
+    int result;
 
-    if (capobj == NULL || capobj == Py_None) {
-        return 1;
-    }
-
-    capstrobj = PyUnicode_AsASCIIString(capobj);
-    if (capstrobj == NULL) {
+    if (!convert_string_enum(capobj, "capstyle", names, values, &result)) {
         return 0;
     }
 
-    capstr = PyBytes_AsString(capstrobj);
-    if (capstr == NULL) {
-        Py_DECREF(capstrobj);
-        return 0;
-    }
-
-    if (strncmp(capstr, "butt", 5) == 0) {
-        *cap = agg::butt_cap;
-    } else if (strncmp(capstr, "round", 6) == 0) {
-        *cap = agg::round_cap;
-    } else if (strncmp(capstr, "projecting", 11) == 0) {
-        *cap = agg::square_cap;
-    } else {
-        PyErr_Format(PyExc_ValueError, "Unknown capstyle '%s'", capstr);
-        Py_DECREF(capstrobj);
-        return 0;
-    }
-
-    Py_DECREF(capstrobj);
-
+    *(agg::line_cap_e *)capp = (agg::line_cap_e)result;
     return 1;
 }
 
 int convert_join(PyObject *joinobj, void *joinp)
 {
-    PyObject *joinstrobj;
-    char *joinstr;
-    agg::line_join_e *join = (agg::line_join_e *)joinp;
+    const char *names[] = {"miter", "round", "bevel", NULL};
+    int values[] = {agg::miter_join_revert, agg::round_join, agg::bevel_join};
+    int result;
 
-    if (joinobj == NULL || joinobj == Py_None) {
-        return 1;
-    }
-
-    joinstrobj = PyUnicode_AsASCIIString(joinobj);
-    if (joinstrobj == NULL) {
+    if (!convert_string_enum(joinobj, "joinstyle", names, values, &result)) {
         return 0;
     }
 
-    joinstr = PyBytes_AsString(joinstrobj);
-    if (joinstr == NULL) {
-        Py_DECREF(joinstrobj);
-        return 0;
-    }
-
-    if (strncmp(joinstr, "miter", 6) == 0) {
-        *join = agg::miter_join_revert;
-    } else if (strncmp(joinstr, "round", 6) == 0) {
-        *join = agg::round_join;
-    } else if (strncmp(joinstr, "bevel", 6) == 0) {
-        *join = agg::bevel_join;
-    } else {
-        PyErr_Format(PyExc_ValueError, "Unknown joinstyle '%s'", joinstr);
-        Py_DECREF(joinstrobj);
-        return 0;
-    }
-
-    Py_DECREF(joinstrobj);
+    *(agg::line_join_e *)joinp = (agg::line_join_e)result;
     return 1;
 }
 
@@ -497,31 +491,17 @@ int convert_gcagg(PyObject *pygc, void *gcp)
 int convert_offset_position(PyObject *obj, void *offsetp)
 {
     e_offset_position *offset = (e_offset_position *)offsetp;
-    PyObject *offsetstrobj;
-    char *offsetstr;
+    const char *names[] = {"data", NULL};
+    int values[] = {OFFSET_POSITION_DATA};
+    int result;
 
     *offset = OFFSET_POSITION_FIGURE;
 
-    if (obj == NULL || obj == Py_None) {
-        return 1;
+    if (convert_string_enum(obj, "offset_position", names, values, &result)) {
+        *offset = (e_offset_position)result;
+    } else {
+        PyErr_Clear();
     }
-
-    offsetstrobj = PyUnicode_AsASCIIString(obj);
-    if (offsetstrobj == NULL) {
-        return 0;
-    }
-
-    offsetstr = PyBytes_AsString(offsetstrobj);
-    if (offsetstr == NULL) {
-        Py_DECREF(offsetstrobj);
-        return 0;
-    }
-
-    if (strncmp(offsetstr, "data", 5) == 0) {
-        *offset = OFFSET_POSITION_DATA;
-    }
-
-    Py_DECREF(offsetstrobj);
 
     return 1;
 }
