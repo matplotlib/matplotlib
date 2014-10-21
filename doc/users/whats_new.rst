@@ -280,6 +280,12 @@ polar-plot r-tick locations
 Added the ability to control the angular position of the r-tick labels
 on a polar plot via :func:`~matplotlib.Axes.axes.set_rlabel_position`.
 
+Support for legend for PolyCollection and stackplot
+```````````````````````````````````````````````````
+Added a `legend_handler` for :class:`~matplotlib.collections.PolyCollection` as well as a `labels` argument to
+:func:`~matplotlib.axes.Axes.stackplot`.
+
+
 Date handling
 -------------
 
