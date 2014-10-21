@@ -11,7 +11,7 @@ ax.set_xlim(0, 10)
 ax.set_ylim(-1, 1)
 
 xdata, ydata = 5, 0
-xdisplay, ydisplay = ax.transData.transform((xdata, ydata))
+xdisplay, ydisplay = ax.transData.transform_point((xdata, ydata))
 
 bbox = dict(boxstyle="round", fc="0.8")
 arrowprops = dict(
