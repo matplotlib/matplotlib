@@ -5,7 +5,7 @@ env:
     - secure: RgJI7BBL8aX5FTOQe7xiXqWHMxWokd6GNUWp1NUV2mRLXPb9dI0RXqZt3UJwKTAzf1z/OtlHDmEkBoTVK81E9iUxK5npwyyjhJ8yTJmwfQtQF2n51Q1Ww9p+XSLORrOzZc7kAo6Kw6FIXN1pfctgYq2bQkrwJPRx/oPR8f6hcbY=
     - secure: E7OCdqhZ+PlwJcn+Hd6ns9TDJgEUXiUNEI0wu7xjxB2vBRRIKtZMbuaZjd+iKDqCKuVOJKu0ClBUYxmgmpLicTwi34CfTUYt6D4uhrU+8hBBOn1iiK51cl/aBvlUUrqaRLVhukNEBGZcyqAjXSA/Qsnp2iELEmAfOUa92ZYo1sk=
     - BUILD_DOCS=false
-    - TEST_ARGS=--no-pep8
+    - TEST_ARGS=--omit-pep8
 
 language: python
 
@@ -16,7 +16,7 @@ matrix:
     - python: 3.3
     - python: 3.4
     - python: 2.7
-      env: TEST_ARGS=--pep8
+      env: TEST_ARGS=--pep8-only
     - python: 2.7
       env: BUILD_DOCS=true
 
@@ -38,7 +38,7 @@ script:
   - python -c "from matplotlib import font_manager"
   - if [[ $BUILD_DOCS == false ]]; then mkdir ../tmp_test_dir; fi
   - if [[ $BUILD_DOCS == false ]]; then cd ../tmp_test_dir; fi
-  - if [[ $BUILD_DOCS == false ]]; then python ../matplotlib/tests.py -sv --processes=8 --process-timeout=300 $TEST_ARGS; fi
+  - if [[ $BUILD_DOCS == false ]]; then python ../matplotlib/setup.py --nocapture --verbose --processes=8 --process-timeout=300 $TEST_ARGS; fi
   - if [[ $BUILD_DOCS == true ]]; then cd doc; python make.py html --small; fi
   # We don't build the LaTeX docs here, so linkchecker will complain
   - if [[ $BUILD_DOCS == true ]]; then touch build/html/Matplotlib.pdf; fi
