@@ -8,6 +8,7 @@ from __future__ import print_function, absolute_import
 # This needs to be the very first thing to use distribute
 from distribute_setup import use_setuptools
 use_setuptools()
+from setuptools.command.test import test as TestCommand
 
 import sys
 
@@ -122,12 +123,64 @@ classifiers = [
     'Topic :: Scientific/Engineering :: Visualization',
     ]
 
-from setuptools.command.test import test as TestCommand
+
 class NoseTestCommand(TestCommand):
+    """Invoke unit tests using nose after an in-place build."""
+
+    description = "Invoke unit tests using nose after an in-place build."
+    user_options = [
+        ("pep8-only", None, "pep8 checks"),
+        ("omit-pep8", None, "Do not perform pep8 checks"),
+        ("no-capture", None, "do not capture stdout (nosetests)"),
+        ("nose-verbose", None, "be verbose (nosetests)"),
+        ("processes=", None, "number of processes (nosetests)"),
+        ("process-timeout=", None, "process timeout (nosetests)"),
+    ]
+
+    def initialize_options(self):
+        self.pep8_only = None
+        self.omit_pep8 = None
+
+        # parameters passed to nose tests
+        self.processes = None
+        self.process_timeout = None
+        self.nose_verbose = None
+
     def finalize_options(self):
-        TestCommand.finalize_options(self)
         self.test_args = []
-        self.test_suite = True
+        if self.pep8_only:
+            self.pep8_only = True
+        if self.omit_pep8:
+            self.omit_pep8 = True
+
+        if self.pep8_only and self.omit_pep8:
+            from distutils.errors import DistutilsOptionError
+            raise DistutilsOptionError(
+                "You are using several options for the test command in an "
+                "incompatible manner. Please use either one of --pep8-only,"
+                "--omit-pep8"
+            )
+
+        if self.processes:
+            self.test_args.append("--processes={}".format(self.processes))
+
+        if self.process_timeout:
+            self.test_args.append("--process-timeout={}".format(
+                self.process_timeout))
+
+        if self.nose_verbose:
+            self.test_args.append("--verbose")
+
+    def run(self):
+        if self.distribution.install_requires:
+            self.distribution.fetch_build_eggs(
+                self.distribution.install_requires)
+        if self.distribution.tests_require:
+            self.distribution.fetch_build_eggs(self.distribution.tests_require)
+
+        self.announce('running unittests with nose')
+        self.with_project_on_sys_path(self.run_tests)
+
 
     def run_tests(self):
         try:
@@ -135,7 +188,7 @@ class NoseTestCommand(TestCommand):
             matplotlib.use('agg')
             import nose
             from matplotlib.testing.noseclasses import KnownFailure
-            from matplotlib import default_test_modules
+            from matplotlib import default_test_modules as testmodules
             from matplotlib import font_manager
             import time
             # Make sure the font caches are created before starting any possibly
@@ -151,15 +204,14 @@ class NoseTestCommand(TestCommand):
             from nose.plugins import multiprocess
             multiprocess._instantiate_plugins = plugins
 
-            if '--no-pep8' in sys.argv:
-                default_test_modules.remove('matplotlib.tests.test_coding_standards')
-                sys.argv.remove('--no-pep8')
-            elif '--pep8' in sys.argv:
-                default_test_modules = ['matplotlib.tests.test_coding_standards']
-                sys.argv.remove('--pep8')
+            if self.omit_pep8:
+                testmodules.remove('matplotlib.tests.test_coding_standards')
+            elif self.pep8_only:
+                testmodules = ['matplotlib.tests.test_coding_standards']
+
             nose.main(addplugins=[x() for x in plugins],
-                      defaultTest=default_test_modules,
-                      argv=['nosetests'],
+                      defaultTest=testmodules,
+                      argv=['nosetests'] + self.test_args,
                       exit=False)
         except ImportError:
             sys.exit(-1)
