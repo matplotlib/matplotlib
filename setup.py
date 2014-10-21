@@ -163,10 +163,11 @@ class NoseTestCommand(TestCommand):
             )
 
         if self.processes:
-            self.test_args.append("--processes={}".format(self.processes))
+            self.test_args.append("--processes={prc}".format(
+                prc=self.processes))
 
         if self.process_timeout:
-            self.test_args.append("--process-timeout={}".format(
+            self.test_args.append("--process-timeout={tout}".format(
                 self.process_timeout))
 
         if self.nose_verbose:
