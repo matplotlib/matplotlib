@@ -11,6 +11,13 @@ typedef unsigned __int8   uint8_t;
 #include <stdint.h>
 #endif
 
+#ifdef _POSIX_C_SOURCE
+#    undef _POSIX_C_SOURCE
+#endif
+#ifdef _XOPEN_SOURCE
+#    undef _XOPEN_SOURCE
+#endif
+
 #include <Python.h>
 
 #if PY_MAJOR_VERSION >= 3
