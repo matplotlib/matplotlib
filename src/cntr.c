@@ -717,6 +717,8 @@ slit_cutter (Csite * site, int up, int pass2)
 
     if (up)
     {
+        assert(pass2);
+
         /* upward stroke of slit proceeds up left side of slit until
          * it hits a boundary or a point not between the contour levels
          * -- this never happens on the first pass */
@@ -1406,7 +1408,11 @@ int reorder(double *xpp, double *ypp, short *kpp,
 
     /* Find the subpaths as sets of connected segments. */
 
-    subp = (int *)malloc(nsegs * sizeof(int));
+    if (nsegs) {
+        subp = (int *)malloc(nsegs * sizeof(int));
+    } else {
+        subp = NULL;
+    }
     for (i=0; i<nsegs; i++) subp[i] = -1;
 
     nsp = 0;
@@ -2025,5 +2031,3 @@ init_cntr(void)
         return m;
     #endif
 }
-
-

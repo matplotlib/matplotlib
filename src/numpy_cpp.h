@@ -425,6 +425,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         PyArrayObject *tmp;
 
         if (arr == NULL || arr == Py_None) {
+            Py_XDECREF(m_arr);
             m_arr = NULL;
             m_data = NULL;
             m_shape = zeros;
@@ -440,6 +441,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
             }
 
             if (PyArray_NDIM(tmp) == 0 || PyArray_DIM(tmp, 0) == 0) {
+                Py_XDECREF(m_arr);
                 m_arr = NULL;
                 m_data = NULL;
                 m_shape = zeros;
