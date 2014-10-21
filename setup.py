@@ -131,7 +131,7 @@ class NoseTestCommand(TestCommand):
     user_options = [
         ("pep8-only", None, "pep8 checks"),
         ("omit-pep8", None, "Do not perform pep8 checks"),
-        ("no-capture", None, "do not capture stdout (nosetests)"),
+        ("nocapture", None, "do not capture stdout (nosetests)"),
         ("nose-verbose", None, "be verbose (nosetests)"),
         ("processes=", None, "number of processes (nosetests)"),
         ("process-timeout=", None, "process timeout (nosetests)"),
@@ -145,6 +145,7 @@ class NoseTestCommand(TestCommand):
         self.processes = None
         self.process_timeout = None
         self.nose_verbose = None
+        self.nocapture = None
 
     def finalize_options(self):
         self.test_args = []
@@ -170,6 +171,9 @@ class NoseTestCommand(TestCommand):
 
         if self.nose_verbose:
             self.test_args.append("--verbose")
+
+        if self.nocapture:
+            self.test_args.append("--nocapture")
 
     def run(self):
         if self.distribution.install_requires:
