@@ -39,6 +39,16 @@ All selectors now implement ``set_active`` and ``get_active`` methods (also
 called when accessing the ``active`` property) to properly update and query
 whether they are active.
 
+
+New plotting features
+---------------------
+
+Support for legend for PolyCollection and stackplot
+```````````````````````````````````````````````````
+Added a `legend_handler` for :class:`~matplotlib.collections.PolyCollection` as well as a `labels` argument to
+:func:`~matplotlib.axes.Axes.stackplot`.
+
+
 .. _whats-new-1-4:
 
 new in matplotlib-1.4
@@ -279,11 +289,6 @@ polar-plot r-tick locations
 ```````````````````````````
 Added the ability to control the angular position of the r-tick labels
 on a polar plot via :func:`~matplotlib.Axes.axes.set_rlabel_position`.
-
-Support for legend for PolyCollection and stackplot
-```````````````````````````````````````````````````
-Added a `legend_handler` for :class:`~matplotlib.collections.PolyCollection` as well as a `labels` argument to
-:func:`~matplotlib.axes.Axes.stackplot`.
 
 
 Date handling
