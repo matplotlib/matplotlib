@@ -68,14 +68,11 @@ void FT2Image::resize(long width, long height)
             delete[] m_buffer;
             m_buffer = NULL;
             m_buffer = new unsigned char[numBytes];
+            memset(m_buffer, 0, numBytes);
         }
 
         m_width = (unsigned long)width;
         m_height = (unsigned long)height;
-    }
-
-    if (numBytes) {
-        memset(m_buffer, 0, numBytes);
     }
 
     m_dirty = true;
