@@ -1,3 +1,7 @@
+# Author: Randal S. Olson (randalolson.com / @randal_olson)
+# Uses Tableau's Tableau20 color scheme
+
+
 figure.figsize: 12, 7
 figure.edgecolor: white
 figure.facecolor: white
