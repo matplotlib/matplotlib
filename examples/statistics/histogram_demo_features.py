@@ -16,8 +16,8 @@ import matplotlib.pyplot as plt
 
 
 # example data
-mu = 100 # mean of distribution
-sigma = 15 # standard deviation of distribution
+mu = 100  # mean of distribution
+sigma = 15  # standard deviation of distribution
 x = mu + sigma * np.random.randn(10000)
 
 num_bins = 50

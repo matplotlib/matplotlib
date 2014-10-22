@@ -61,7 +61,7 @@ class MTConsole(code.InteractiveConsole):
             import rlcompleter
             try:  # this form only works with python 2.3
                 self.completer = rlcompleter.Completer(self.locals)
-            except: # simpler for py2.2
+            except:  # simpler for py2.2
                 self.completer = rlcompleter.Completer()
 
             readline.set_completer(self.completer.complete)
@@ -155,7 +155,7 @@ class GTKInterpreter(threading.Thread):
     This is implemented by periodically checking for passed code using a
     GTK timeout callback.
     """
-    TIMEOUT = 100 # Millisecond interval between timeouts.
+    TIMEOUT = 100  # Millisecond interval between timeouts.
 
     def __init__(self,banner=None):
         threading.Thread.__init__(self)
@@ -216,7 +216,7 @@ class MatplotLibInterpreter(GTKInterpreter):
         # Execute file if given.
         if len(sys.argv)>1:
             import matplotlib
-            matplotlib.interactive(0) # turn off interaction
+            matplotlib.interactive(0)  # turn off interaction
             fname = sys.argv[1]
             try:
                 inFile = file(fname, 'r')

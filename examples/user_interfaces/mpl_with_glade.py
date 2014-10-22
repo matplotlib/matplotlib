@@ -54,7 +54,7 @@ class WidgetsWrapper(object):
         self.axis.set_xlabel('time (s)')
         self.axis.set_ylabel('voltage')
 
-        self.canvas = FigureCanvas(self.figure) # a gtk.DrawingArea
+        self.canvas = FigureCanvas(self.figure)  # a gtk.DrawingArea
         self.canvas.show()
         self.canvas.set_size_request(600, 400)
         self.canvas.set_events(

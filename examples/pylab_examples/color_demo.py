@@ -21,6 +21,6 @@ t = arange(0.0, 2.0, 0.01)
 s = sin(2*pi*t)
 plot(t, s, 'y')
 xlabel('time (s)', color='r')
-ylabel('voltage (mV)', color='0.5') # grayscale color
+ylabel('voltage (mV)', color='0.5')  # grayscale color
 title('About as silly as it gets, folks', color='#afeeee')
 show()

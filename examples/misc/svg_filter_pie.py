@@ -91,5 +91,5 @@ for i, pie_name in enumerate(labels):
     shadow.set("filter",'url(#dropshadow)')
 
 fn = "svg_filter_pie.svg"
-print "Saving '%s'" % fn
+print("Saving '%s'" % fn)
 ET.ElementTree(tree).write(fn)

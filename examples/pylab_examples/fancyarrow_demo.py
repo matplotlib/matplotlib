@@ -24,7 +24,7 @@ def to_texstring(s):
 
 for i, (stylename, styleclass) in enumerate(sorted(styles.items())):
     x = 3.2 + (i//nrow)*4
-    y = (figheight - 0.7 - i%nrow) # /figheight
+    y = (figheight - 0.7 - i%nrow)  # /figheight
     p = mpatches.Circle((x, y), 0.2, fc="w")
     ax.add_patch(p)
 

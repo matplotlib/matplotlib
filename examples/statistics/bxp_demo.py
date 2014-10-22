@@ -21,7 +21,7 @@ for n in range(len(stats)):
     stats[n]['mean'] *= 2
 
 print(stats[0].keys())
-fs = 10 # fontsize
+fs = 10  # fontsize
 
 # demonstrate how to toggle the display of different elements:
 fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(6,6))

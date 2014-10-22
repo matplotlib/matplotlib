@@ -19,7 +19,7 @@ def func(x):
     return (x - 3) * (x - 5) * (x - 7) + 85
 
 
-a, b = 2, 9 # integral limits
+a, b = 2, 9  # integral limits
 x = np.linspace(0, 10)
 y = func(x)
 

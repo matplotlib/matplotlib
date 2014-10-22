@@ -33,10 +33,11 @@ Z[interior] = np.ma.masked
 # this is usually not such a good idea, because they don't
 # occur on nice boundaries, but we do it here for purposes
 # of illustration.
-CS = plt.contourf(X, Y, Z, 10, # [-1, -0.1, 0, 0.1],
-                        #alpha=0.5,
-                        cmap=plt.cm.bone,
-                        origin=origin)
+CS = plt.contourf(X, Y, Z, 10,
+                  #[-1, -0.1, 0, 0.1],
+                  #alpha=0.5,
+                  cmap=plt.cm.bone,
+                  origin=origin)
 
 # Note that in the following, we explicitly pass in a subset of
 # the contour levels used for the filled contours.  Alternatively,

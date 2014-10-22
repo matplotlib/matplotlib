@@ -7,7 +7,7 @@ fig, ax = plt.subplots()
 Ntotal = 1000
 N, bins, patches = ax.hist(np.random.rand(Ntotal), 20)
 
-#I'll color code by height, but you could use any scalar
+# I'll color code by height, but you could use any scalar
 
 
 # we need to normalize the data to 0..1 for the full
