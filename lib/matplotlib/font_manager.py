@@ -864,6 +864,7 @@ class FontProperties(object):
         except ValueError:
             if weight not in weight_dict:
                 raise ValueError("weight is invalid")
+            weight = weight_dict[weight]
         self._weight = weight
 
     def set_stretch(self, stretch):
