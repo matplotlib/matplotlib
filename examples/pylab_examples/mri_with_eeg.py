@@ -19,7 +19,7 @@ if 1:   # load the data
     im = np.fromstring(dfile.read(), np.uint16).astype(float)
     im.shape = 256, 256
 
-if 1: # plot the MRI in pcolor
+if 1:  # plot the MRI in pcolor
     subplot(221)
     imshow(im, cmap=cm.gray)
     axis('off')
@@ -27,8 +27,8 @@ if 1: # plot the MRI in pcolor
 if 1:  # plot the histogram of MRI intensity
     subplot(222)
     im = np.ravel(im)
-    im = im[np.nonzero(im)] # ignore the background
-    im = im/(2.0**15) # normalize
+    im = im[np.nonzero(im)]  # ignore the background
+    im = im/(2.0**15)  # normalize
     hist(im, 100)
     xticks([-1, -.5, 0, .5, 1])
     yticks([])
@@ -40,7 +40,7 @@ if 1:   # plot the EEG
 
     numSamples, numRows = 800,4
     eegfile = cbook.get_sample_data('eeg.dat', asfileobj=False)
-    print ('loading eeg %s' % eegfile)
+    print('loading eeg %s' % eegfile)
     data = np.fromstring(open(eegfile, 'rb').read(), float)
     data.shape = numSamples, numRows
     t = 10.0 * np.arange(numSamples, dtype=float)/numSamples
@@ -50,7 +50,7 @@ if 1:   # plot the EEG
     xticks(np.arange(10))
     dmin = data.min()
     dmax = data.max()
-    dr = (dmax - dmin)*0.7 # Crowd them a bit.
+    dr = (dmax - dmin)*0.7  # Crowd them a bit.
     y0 = dmin
     y1 = (numRows-1) * dr + dmax
     ylim(y0, y1)

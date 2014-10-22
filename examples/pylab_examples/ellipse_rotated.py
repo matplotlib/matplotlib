@@ -1,7 +1,7 @@
 from pylab import *
 from matplotlib.patches import Ellipse
 
-delta = 45.0 # degrees
+delta = 45.0  # degrees
 
 angles = arange(0, 360+delta, delta)
 ells = [Ellipse((1, 1), 4, 2, a) for a in angles]

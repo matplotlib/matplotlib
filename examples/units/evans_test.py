@@ -82,7 +82,7 @@ ax.set_title("xunits = 2.0")
 
 # plot without specifying units; will use the None branch for axisinfo
 ax = fig.add_subplot(1,2,1)
-ax.plot(x, y) # uses default units
+ax.plot(x, y)  # uses default units
 ax.set_title('default units')
 for label in ax.get_xticklabels():
     label.set_rotation(30)

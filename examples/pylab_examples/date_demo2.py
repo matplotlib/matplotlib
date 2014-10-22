@@ -26,7 +26,7 @@ monthsFmt = DateFormatter("%b '%y")
 
 quotes = quotes_historical_yahoo_ochl('INTC', date1, date2)
 if len(quotes) == 0:
-    print ('Found no quotes')
+    print('Found no quotes')
     raise SystemExit
 
 dates = [q[0] for q in quotes]

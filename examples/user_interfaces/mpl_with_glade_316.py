@@ -20,7 +20,7 @@ def main():
     window = builder.get_object("window1")
     sw = builder.get_object("scrolledwindow1")
 
-    #Start of Matplotlib specific code
+    # Start of Matplotlib specific code
     figure = Figure(figsize=(8,6), dpi=71)
     axis = figure.add_subplot(111)
     t = arange(0.0, 3.0, 0.01)
@@ -33,7 +33,7 @@ def main():
     canvas = FigureCanvas(figure)  # a Gtk.DrawingArea
     canvas.set_size_request(800,600)
     sw.add_with_viewport(canvas)
-    #End of Matplotlib specific code
+    # End of Matplotlib specific code
 
     window.show_all()
     Gtk.main()

@@ -111,7 +111,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
     G = text(0,0, '$G_3$', color='g', size=do_fontsize('G'), **text_params)
     C = text(1,0, '$C_3$', color='b', size=do_fontsize('C'), **text_params)
 
-    arrow_h_offset = 0.25  #data coordinates, empirically determined
+    arrow_h_offset = 0.25  # data coordinates, empirically determined
     max_arrow_length = 1 - 2*arrow_h_offset
 
     max_arrow_width = max_arrow_width
@@ -120,12 +120,12 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
     arrow_params={'length_includes_head':True, 'shape':shape, \
         'head_starts_at_zero':head_starts_at_zero}
     ax = gca()
-    sf = 0.6   #max arrow size represents this in data coords
+    sf = 0.6  # max arrow size represents this in data coords
 
-    d = (r2/2 + arrow_h_offset - 0.5)/r2    #distance for diags
-    r2v = arrow_sep/r2                      #offset for diags
+    d = (r2/2 + arrow_h_offset - 0.5)/r2  # distance for diags
+    r2v = arrow_sep/r2  # offset for diags
 
-    #tuple of x, y for start position
+    # tuple of x, y for start position
     positions = {\
         'AT': (arrow_h_offset, 1+arrow_sep),
         'TA': (1-arrow_h_offset, 1-arrow_sep),
@@ -142,28 +142,28 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
         }
 
     if normalize_data:
-        #find maximum value for rates, i.e. where keys are 2 chars long
+        # find maximum value for rates, i.e. where keys are 2 chars long
         max_val = 0
         for k, v in data.items():
             if len(k) == 2:
                 max_val = max(max_val, v)
-        #divide rates by max val, multiply by arrow scale factor
+        # divide rates by max val, multiply by arrow scale factor
         for k, v in data.items():
             data[k] = v/max_val*sf
 
     def draw_arrow(pair, alpha=alpha, ec=ec, labelcolor=labelcolor):
-        #set the length of the arrow
+        # set the length of the arrow
         if display == 'length':
             length = max_head_length+(max_arrow_length-max_head_length)*\
                 data[pair]/sf
         else:
             length = max_arrow_length
-        #set the transparency of the arrow
+        # set the transparency of the arrow
         if display == 'alph':
             alpha = min(data[pair]/sf, alpha)
         else:
             alpha=alpha
-        #set the width of the arrow
+        # set the width of the arrow
         if display == 'width':
             scale = data[pair]/sf
             width = max_arrow_width*scale
@@ -183,11 +183,11 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
             fc=fc, ec=ec, alpha=alpha, width=width, head_width=head_width, \
             head_length=head_length, **arrow_params)
 
-        #figure out coordinates for text
-        #if drawing relative to base: x and y are same as for arrow
-        #dx and dy are one arrow width left and up
-        #need to rotate based on direction of arrow, use x_scale and y_scale
-        #as sin x and cos x?
+        # figure out coordinates for text
+        # if drawing relative to base: x and y are same as for arrow
+        # dx and dy are one arrow width left and up
+        # need to rotate based on direction of arrow, use x_scale and y_scale
+        # as sin x and cos x?
         sx, cx = y_scale, x_scale
 
         where = label_positions[pair]
@@ -215,7 +215,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
     for p in positions.keys():
         draw_arrow(p)
 
-    #test data
+# test data
 all_on_max = dict([(i, 1) for i in 'TCAG'] + \
         [(i+j, 0.6) for i in 'TCAG' for j in 'TCAG'])
 

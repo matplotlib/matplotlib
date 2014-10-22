@@ -21,7 +21,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
-#define a list of markevery cases to plot
+# define a list of markevery cases to plot
 cases = [None,
          8,
          (30, 8),
@@ -30,17 +30,17 @@ cases = [None,
          0.1, 0.3, 1.5,
          (0.0, 0.1), (0.45, 0.1)]
 
-#define the figure size and grid layout properties
+# define the figure size and grid layout properties
 figsize = (10, 8)
 cols = 3
 gs = gridspec.GridSpec(len(cases) // cols + 1, cols)
 
-#define the data for cartesian plots
+# define the data for cartesian plots
 delta = 0.11
 x = np.linspace(0, 10 - 2 * delta, 200) + delta
 y = np.sin(x) + 1.0 + delta
 
-#plot each markevery case for linear x and y scales
+# plot each markevery case for linear x and y scales
 fig1 = plt.figure(num=1, figsize=figsize)
 ax = []
 for i, case in enumerate(cases):
@@ -51,7 +51,7 @@ for i, case in enumerate(cases):
     ax[-1].plot(x, y, 'o', ls='-', ms=4,  markevery=case)
 #fig1.tight_layout()
 
-#plot each markevery case for log x and y scales
+# plot each markevery case for log x and y scales
 fig2 = plt.figure(num=2, figsize=figsize)
 axlog = []
 for i, case in enumerate(cases):
@@ -64,10 +64,10 @@ for i, case in enumerate(cases):
     axlog[-1].plot(x, y, 'o', ls='-', ms=4,  markevery=case)
 fig2.tight_layout()
 
-#plot each markevery case for linear x and y scales but zoomed in
-#note the behaviour when zoomed in.  When a start marker offset is specified
-#it is always interpreted with respect to the first data point which might be
-#different to the first visible data point.
+# plot each markevery case for linear x and y scales but zoomed in
+# note the behaviour when zoomed in.  When a start marker offset is specified
+# it is always interpreted with respect to the first data point which might be
+# different to the first visible data point.
 fig3 = plt.figure(num=3, figsize=figsize)
 axzoom = []
 for i, case in enumerate(cases):
@@ -80,11 +80,11 @@ for i, case in enumerate(cases):
     axzoom[-1].set_ylim((1.1, 1.7))
 fig3.tight_layout()
 
-#define data for polar plots
+# define data for polar plots
 r = np.linspace(0, 3.0, 200)
 theta = 2 * np.pi * r
 
-#plot each markevery case for polar plots
+# plot each markevery case for polar plots
 fig4 = plt.figure(num=4, figsize=figsize)
 axpolar = []
 for i, case in enumerate(cases):

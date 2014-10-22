@@ -13,7 +13,7 @@ s2 = s2 * mask
 # add some noise into the mix
 nse = 0.01*randn(len(t))
 
-x = s1 + s2 + nse # the signal
+x = s1 + s2 + nse  # the signal
 NFFT = 1024       # the length of the windowing segments
 Fs = int(1.0/dt)  # the sampling frequency
 

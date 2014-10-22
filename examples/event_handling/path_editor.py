@@ -51,7 +51,7 @@ class PathInteractor(object):
 
         self.line, = ax.plot(x,y,marker='o', markerfacecolor='r', animated=True)
 
-        self._ind = None # the active vert
+        self._ind = None  # the active vert
 
         canvas.mpl_connect('draw_event', self.draw_callback)
         canvas.mpl_connect('button_press_event', self.button_press_callback)

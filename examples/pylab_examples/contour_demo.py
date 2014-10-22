@@ -47,7 +47,7 @@ plt.title('labels at selected locations')
 # You can force all the contours to be the same color.
 plt.figure()
 CS = plt.contour(X, Y, Z, 6,
-                 colors='k', # negative contours will be dashed by default
+                 colors='k',  # negative contours will be dashed by default
                  )
 plt.clabel(CS, fontsize=9, inline=1)
 plt.title('Single color - negative contours dashed')
@@ -56,7 +56,7 @@ plt.title('Single color - negative contours dashed')
 matplotlib.rcParams['contour.negative_linestyle'] = 'solid'
 plt.figure()
 CS = plt.contour(X, Y, Z, 6,
-                 colors='k', # negative contours will be dashed by default
+                 colors='k',  # negative contours will be dashed by default
                  )
 plt.clabel(CS, fontsize=9, inline=1)
 plt.title('Single color - negative contours solid')
@@ -83,7 +83,7 @@ CS = plt.contour(Z, levels,
                  linewidths=2,
                  extent=(-3,3,-2,2))
 
-#Thicken the zero contour.
+# Thicken the zero contour.
 zc = CS.collections[6]
 plt.setp(zc, linewidth=4)
 
