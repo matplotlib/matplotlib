@@ -7,10 +7,10 @@ import numpy as np
 N = 500
 delta = 0.6
 X = -1 + 2. * np.arange(N) / (N - 1)
-pylab.plot(X, (1 - np.tanh(4. * X / delta)) / 2,  # phase field tanh profiles
-           X, (X + 1) / 2,  # level set distance function
-           X, (1.4 + np.tanh(4. * X / delta)) / 4,  # composition profile
-           X, X < 0, 'k--',  # sharp interface
+pylab.plot(X, (1 - np.tanh(4.*X/delta))/2,   # phase field tanh profiles
+           X, (X + 1)/2,                     # level set distance function
+           X, (1.4 + np.tanh(4.*X/delta))/4, # composition profile
+           X, X < 0, 'k--',                  # sharp interface
            linewidth=5)
 
 ## legend
