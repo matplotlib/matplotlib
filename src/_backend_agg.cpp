@@ -715,6 +715,7 @@ RendererAgg::draw_markers(const Py::Tuple& args)
     theRasterizer.reset();
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
+    agg::rect_i marker_size(0x7FFFFFFF, 0x7FFFFFFF, -0x7FFFFFFF, -0x7FFFFFFF);
 
     agg::int8u  staticFillCache[MARKER_CACHE_SIZE];
     agg::int8u  staticStrokeCache[MARKER_CACHE_SIZE];
@@ -738,6 +739,8 @@ RendererAgg::draw_markers(const Py::Tuple& args)
                 fillCache = new agg::int8u[fillSize];
             }
             scanlines.serialize(fillCache);
+            marker_size = agg::rect_i(scanlines.min_x(), scanlines.min_y(),
+                                      scanlines.max_x(), scanlines.max_y());
         }
 
         stroke_t stroke(marker_path_curve);
@@ -757,6 +760,10 @@ RendererAgg::draw_markers(const Py::Tuple& args)
             strokeCache = new agg::int8u[strokeSize];
         }
         scanlines.serialize(strokeCache);
+        marker_size = agg::rect_i(std::min(marker_size.x1, scanlines.min_x()),
+                                  std::min(marker_size.y1, scanlines.min_y()),
+                                  std::max(marker_size.x2, scanlines.max_x()),
+                                  std::max(marker_size.y2, scanlines.max_y()));
 
         theRasterizer.reset_clipping();
         rendererBase.reset_clipping(true);
@@ -769,10 +776,10 @@ RendererAgg::draw_markers(const Py::Tuple& args)
         agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
 
         agg::rect_d clipping_rect(
-            -1.0 - scanlines.max_x(),
-            -1.0 - scanlines.max_y(),
-            1.0 + width - scanlines.min_x(),
-            1.0 + height - scanlines.min_y());
+            -1.0 - marker_size.x2,
+            -1.0 - marker_size.y2,
+            1.0 + width - marker_size.x1,
+            1.0 + height - marker_size.y1);
 
         if (has_clippath)
         {
