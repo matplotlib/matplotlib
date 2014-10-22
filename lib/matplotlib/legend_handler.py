@@ -35,6 +35,7 @@ import numpy as np
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 import matplotlib.collections as mcoll
+import matplotlib.colors as mcolors
 
 
 def update_from_first_child(tgt, src):
@@ -581,3 +582,38 @@ class HandlerTuple(HandlerBase):
             a_list.extend(_a_list)
 
         return a_list
+
+
+class HandlerPolyCollection(HandlerBase):
+    """
+    Handler for PolyCollection used in fill_between and stackplot.
+    """
+    def _update_prop(self, legend_handle, orig_handle):
+        def first_color(colors):
+            colors = mcolors.colorConverter.to_rgba_array(colors)
+            if len(colors):
+                return colors[0]
+            else:
+                return "none"
+        def get_first(prop_array):
+            if len(prop_array):
+                return prop_array[0]
+            else:
+                return None
+        legend_handle.set_edgecolor(first_color(orig_handle.get_edgecolor()))
+        legend_handle.set_facecolor(first_color(orig_handle.get_facecolor()))
+        legend_handle.set_fill(orig_handle.get_fill())
+        legend_handle.set_hatch(orig_handle.get_hatch())
+        legend_handle.set_linewidth(get_first(orig_handle.get_linewidths()))
+        legend_handle.set_linestyle(get_first(orig_handle.get_linestyles()))
+        legend_handle.set_transform(get_first(orig_handle.get_transforms()))
+        legend_handle.set_figure(orig_handle.get_figure())
+        legend_handle.set_alpha(orig_handle.get_alpha())
+
+    def create_artists(self, legend, orig_handle,
+                       xdescent, ydescent, width, height, fontsize, trans):
+        p = Rectangle(xy=(-xdescent, -ydescent),
+                      width=width, height=height)
+        self.update_prop(p, orig_handle, legend)
+        p.set_transform(trans)
+        return [p]
