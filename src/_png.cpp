@@ -11,10 +11,6 @@
 */
 
 
-#include "numpy_cpp.h"
-#include "mplutils.h"
-#include "file_compat.h"
-
 extern "C" {
 #   include <png.h>
 #   ifdef _POSIX_C_SOURCE
@@ -24,6 +20,11 @@ extern "C" {
 #       undef _XOPEN_SOURCE
 #   endif
 }
+
+#include "numpy_cpp.h"
+#include "mplutils.h"
+#include "file_compat.h"
+
 #   include <vector>
 #   include "Python.h"
 
