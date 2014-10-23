@@ -147,9 +147,10 @@ def get_base_dirs():
         return options['basedirlist']
 
     basedir_map = {
-        'win32': ['win32_static',],
-        'darwin': ['/usr/local/', '/usr', '/usr/X11', '/opt/local'],
-        'sunos5': [os.getenv('MPLIB_BASE') or '/usr/local',],
+        'win32': ['win32_static', ],
+        'darwin': ['/usr/local/', '/usr', '/usr/X11',
+                   '/opt/X11', '/opt/local'],
+        'sunos5': [os.getenv('MPLIB_BASE') or '/usr/local', ],
         'gnu0': ['/usr'],
         'aix5': ['/usr/local'],
         }
