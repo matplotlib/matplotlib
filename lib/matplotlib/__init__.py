@@ -1373,9 +1373,18 @@ for s in sys.argv[1:]:
     if s.startswith(str('-d')) and len(s) > 2:  # look for a -d flag
         try:
             use(s[2:])
+            break
         except (KeyError, ValueError):
             pass
         # we don't want to assume all -d flags are backends, e.g., -debug
+else:
+    # no backend selected from the command line, so we check the environment
+    # variable MPL_BACKEND
+    if 'MPL_BACKEND' in os.environ:
+        try:
+            use(os.environ['MPL_BACKEND'])
+        except (KeyError, ValueError):
+            pass
 
 default_test_modules = [
     'matplotlib.tests.test_agg',
