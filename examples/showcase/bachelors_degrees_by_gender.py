@@ -30,6 +30,11 @@ majors = ['Health Professions', 'Public Administration', 'Education', 'Psycholog
           'Architecture', 'Physical Sciences', 'Computer Science',  
           'Engineering']
 
+y_offsets = {"Foreign Languages":0.5, "English":-0.5, "Communications\nand Journalism":0.75,
+             "Art and Performance":-0.25, "Agriculture":1.25, "Social Sciences and History":0.25,
+             "Business":-0.75, "Math and Statistics":0.75, "Architecture":-0.75,
+             "Computer Science":0.75, "Engineering":-0.25}
+
 for rank, column in enumerate(majors):
     # Plot each line separately with its own color, using the Tableau 20  
     # color set in order.
@@ -40,29 +45,10 @@ for rank, column in enumerate(majors):
     
     # Add a text label to the right end of every line. Most of the code below
     # is adding specific offsets y position because some labels overlapped.
-    y_pos = gender_degree_data[column.replace("\n", " ")].values[-1] - 0.5  
-    if column == "Foreign Languages":  
-        y_pos += 0.5  
-    elif column == "English":  
-        y_pos -= 0.5  
-    elif column == "Communications\nand Journalism":  
-        y_pos += 0.75  
-    elif column == "Art and Performance":  
-        y_pos -= 0.25  
-    elif column == "Agriculture":  
-        y_pos += 1.25  
-    elif column == "Social Sciences and History":  
-        y_pos += 0.25  
-    elif column == "Business":  
-        y_pos -= 0.75  
-    elif column == "Math and Statistics":  
-        y_pos += 0.75  
-    elif column == "Architecture":  
-        y_pos -= 0.75  
-    elif column == "Computer Science":  
-        y_pos += 0.75  
-    elif column == "Engineering":  
-        y_pos -= 0.25  
+    y_pos = gender_degree_data[column.replace("\n", " ")].values[-1] - 0.5
+    
+    if column in y_offsets:
+        y_pos += y_offsets[column]
       
     # Again, make sure that all labels are large enough to be easily read  
     # by the viewer.  
@@ -77,7 +63,7 @@ for rank, column in enumerate(majors):
 # Note that if the title is descriptive enough, it is unnecessary to include
 # axis labels; they are self-evident, in this plot's case.
 plt.text(1995, 92,"Percentage of Bachelor's degrees conferred to women in the "
-             "U.S.A. by major (1970-2010)", fontsize=17, ha="center")  
+             "U.S.A. by major (1970-2010)", fontsize=17, ha="center") 
 
 # Finally, save the figure as a PNG.
 # You can also save it as a PDF, JPEG, etc.
