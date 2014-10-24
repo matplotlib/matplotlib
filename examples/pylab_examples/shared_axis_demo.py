@@ -46,7 +46,7 @@ plot(t, s2)
 setp(ax2.get_xticklabels(), visible=False)
 
 # share x and y
-ax3 = subplot(313,  sharex=ax1, sharey=ax1)
+ax3 = subplot(313, sharex=ax1, sharey=ax1)
 plot(t, s3)
 xlim(0.01, 5.0)
 show()

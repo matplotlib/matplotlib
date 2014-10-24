@@ -13,8 +13,8 @@ from matplotlib.artist import Artist
 doprint = True
 flexible_true_trait = traits.Trait(
    True,
-   {'true':  True, 't': True, 'yes': True, 'y': True, 'on':  True, True: True,
-     'false': False, 'f': False, 'no':  False, 'n': False, 'off': False, False: False
+   {'true': True, 't': True, 'yes': True, 'y': True, 'on': True, True: True,
+     'false': False, 'f': False, 'no': False, 'n': False, 'off': False, False: False
                               })
 flexible_false_trait = traits.Trait(False, flexible_true_trait)
 

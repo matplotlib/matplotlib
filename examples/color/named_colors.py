@@ -60,7 +60,7 @@ for i, (name, color) in enumerate(sorted_colors):
     xf_line = w * (col + 0.25)
     xi_text = w * (col + 0.3)
 
-    ax.text(xi_text,  y, name, fontsize=(h * 0.8),
+    ax.text(xi_text, y, name, fontsize=(h * 0.8),
             horizontalalignment='left',
             verticalalignment='center')
 

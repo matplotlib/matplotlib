@@ -31,7 +31,7 @@ gumbBoot = gumb[bootstrapIndices]
 lognBoot = logn[bootstrapIndices]
 triaBoot = tria[bootstrapIndices]
 
-data = [norm, normBoot,  logn, lognBoot, expo, expoBoot, gumb, gumbBoot,
+data = [norm, normBoot, logn, lognBoot, expo, expoBoot, gumb, gumbBoot,
        tria, triaBoot]
 
 fig, ax1 = plt.subplots(figsize=(10, 6))
@@ -106,7 +106,7 @@ for tick, label in zip(range(numBoxes), ax1.get_xticklabels()):
          color=boxColors[k])
 
 # Finally, add a basic legend
-plt.figtext(0.80, 0.08,  str(N) + ' Random Numbers' ,
+plt.figtext(0.80, 0.08, str(N) + ' Random Numbers' ,
            backgroundcolor=boxColors[0], color='black', weight='roman',
            size='x-small')
 plt.figtext(0.80, 0.045, 'IID Bootstrap Resample',

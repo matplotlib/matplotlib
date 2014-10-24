@@ -50,20 +50,20 @@ if 1:
     s = np.cos(2*np.pi*t)
     line, = ax.plot(t, s, lw=3, color='purple')
 
-    ax.annotate('axes center', xy=(.5, .5),  xycoords='axes fraction',
+    ax.annotate('axes center', xy=(.5, .5), xycoords='axes fraction',
                 horizontalalignment='center', verticalalignment='center')
 
-    ax.annotate('pixels', xy=(20, 20),  xycoords='figure pixels')
+    ax.annotate('pixels', xy=(20, 20), xycoords='figure pixels')
 
-    ax.annotate('points', xy=(100, 300),  xycoords='figure points')
+    ax.annotate('points', xy=(100, 300), xycoords='figure points')
 
-    ax.annotate('offset', xy=(1, 1),  xycoords='data',
+    ax.annotate('offset', xy=(1, 1), xycoords='data',
                 xytext=(-15, 10), textcoords='offset points',
                 arrowprops=dict(facecolor='black', shrink=0.05),
                 horizontalalignment='right', verticalalignment='bottom',
                 )
 
-    ax.annotate('local max', xy=(3, 1),  xycoords='data',
+    ax.annotate('local max', xy=(3, 1), xycoords='data',
                 xytext=(0.8, 0.95), textcoords='axes fraction',
                 arrowprops=dict(facecolor='black', shrink=0.05),
                 horizontalalignment='right', verticalalignment='top',
