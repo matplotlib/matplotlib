@@ -31,7 +31,7 @@ ylim(-1, 1)
 
 ax2 = subplot(312, sharex=ax1)
 ax2.plot(t, s2)
-yticks(arange(0.1, 1.0,  0.2))
+yticks(arange(0.1, 1.0, 0.2))
 ylim(0, 1)
 
 ax3 = subplot(313, sharex=ax1)

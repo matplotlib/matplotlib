@@ -33,7 +33,7 @@ pylab.plot((delta / 2, delta / 2 - offset * 2), (height, height + offset), 'k', 
 pylab.text(-0.06, height - 0.06, r'$\delta$', {'color' : 'k', 'fontsize' : 24})
 
 # X-axis label
-pylab.xticks((-1, 0,  1), ('-1', '0',  '1'), color='k', size=20)
+pylab.xticks((-1, 0, 1), ('-1', '0', '1'), color='k', size=20)
 
 # Left Y-axis labels
 pylab.ylabel(r'\bf{phase field} $\phi$', {'color'    : 'b',

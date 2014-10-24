@@ -133,7 +133,7 @@ class Game(object):
         self.line2, = self.ax.plot(self.x, np.cos(self.x), "g", animated=True, lw=4)
         self.line3, = self.ax.plot(self.x, np.cos(self.x), "g", animated=True, lw=4)
         self.line4, = self.ax.plot(self.x, np.cos(self.x), "r", animated=True, lw=4)
-        self.centerline, = self.ax.plot([3.5, 3.5], [1, -1], 'k', alpha=.5, animated=True,  lw=8)
+        self.centerline, = self.ax.plot([3.5, 3.5], [1, -1], 'k', alpha=.5, animated=True, lw=8)
         self.puckdisp = self.ax.scatter([1], [1], label='_nolegend_', s=200, c='g', alpha=.9, animated=True)
 
         self.canvas = self.ax.figure.canvas

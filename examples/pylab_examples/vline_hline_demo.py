@@ -5,7 +5,7 @@ Small demonstration of the hlines and vlines plots.
 """
 
 from matplotlib import pyplot as plt
-from numpy import sin, exp,  absolute, pi, arange
+from numpy import sin, exp, absolute, pi, arange
 from numpy.random import normal
 
 

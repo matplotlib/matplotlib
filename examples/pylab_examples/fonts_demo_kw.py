@@ -49,7 +49,7 @@ for k in range(2):
 
 weight = ['light', 'normal', 'medium', 'semibold', 'bold', 'heavy', 'black']
 
-t = text(0.4, 0.9, 'weight',  **alignment)
+t = text(0.4, 0.9, 'weight', **alignment)
 
 for k in range(7):
     t = text(0.4, yp[k], weight[k], weight=weight[k],
