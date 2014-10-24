@@ -37,7 +37,7 @@ for k in range(3):
 
 # Show variant options
 
-variant= ['normal', 'small-caps']
+variant = ['normal', 'small-caps']
 
 t = text(0.0, 0.9, 'variant', **alignment)
 

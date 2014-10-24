@@ -224,7 +224,7 @@ class GTKInterpreterConsole(gtk.ScrolledWindow):
 
     def write_line(self, text, style=None):
         start, end = self.text.get_buffer().get_bounds()
-        if style==None:
+        if style == None:
             self.text.get_buffer().insert(end, text)
         else:
             self.text.get_buffer().insert_with_tags(end, text, style)
@@ -368,7 +368,7 @@ def main():
     console.execute_line('matplotlib.interactive(1)')
     console.execute_line('from pylab import *')
 
-    if len(sys.argv)>1:
+    if len(sys.argv) > 1:
         fname = sys.argv[1]
         if not os.path.exists(fname):
             print('%s does not exist' % fname)

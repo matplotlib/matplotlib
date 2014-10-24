@@ -38,10 +38,10 @@ class Pad(object):
         self.score = 0
         self.xoffset = 0.3
         self.yoffset = 0.1
-        if type=='r':
+        if type == 'r':
             self.xoffset *= -1.0
 
-        if type=='l' or type=='r':
+        if type == 'l' or type == 'r':
             self.signx = -1.0
             self.signy = 1.0
         else:
@@ -54,7 +54,7 @@ class Pad(object):
 
 class Puck(object):
     def __init__(self, disp, pad, field):
-        self.vmax= .2
+        self.vmax = .2
         self.disp = disp
         self.field = field
         self._reset(pad)
@@ -76,8 +76,8 @@ class Puck(object):
         self.y += self.vy
         for pad in pads:
             if pad.contains(self):
-                self.vx *= 1.2 *pad.signx
-                self.vy *= 1.2 *pad.signy
+                self.vx *= 1.2 * pad.signx
+                self.vy *= 1.2 * pad.signy
         fudge = .001
         # probably cleaner with something like...if not self.field.contains(self.x, self.y):
         if self.x < 0+fudge:
@@ -121,9 +121,9 @@ class Game(object):
     def __init__(self, ax):
         # create the initial line
         self.ax = ax
-        padAx = padBx= .50
-        padAy = padBy= .30
-        padBx+=6.3
+        padAx = padBx = .50
+        padAy = padBy = .30
+        padBx += 6.3
         pA, = self.ax.barh(padAy, .2, height=.3, color='k', alpha=.5, edgecolor='b', lw=2, label="Player B", animated=True)
         pB, = self.ax.barh(padBy, .2, height=.3, left=padBx, color='k', alpha=.5, edgecolor='r', lw=2, label="Player A", animated=True)
 
@@ -147,7 +147,7 @@ class Game(object):
         self.pads = []
         self.pads.append(Pad(pA, 0, padAy))
         self.pads.append(Pad(pB, padBx, padBy, 'r'))
-        self.pucks =[]
+        self.pucks = []
         self.i = self.ax.annotate(instructions, (.5, 0.5),
                      name='monospace',
                      verticalalignment='center',
@@ -190,8 +190,8 @@ class Game(object):
             for puck in self.pucks:
                 if puck.update(self.pads):
                     # we only get here if someone scored
-                    self.pads[0].disp.set_label("   "+ str(self.pads[0].score))
-                    self.pads[1].disp.set_label("   "+ str(self.pads[1].score))
+                    self.pads[0].disp.set_label("   " + str(self.pads[0].score))
+                    self.pads[1].disp.set_label("   " + str(self.pads[1].score))
                     self.ax.legend(loc='center')
                     self.leg = self.ax.get_legend()
                     #self.leg.draw_frame(False) #don't draw the legend border
@@ -207,7 +207,7 @@ class Game(object):
         # just redraw the axes rectangle
         self.canvas.blit(self.ax.bbox)
 
-        if self.cnt==50000:
+        if self.cnt == 50000:
             # just so we don't get carried away
             print("...and you've been playing for too long!!!")
             plt.close()

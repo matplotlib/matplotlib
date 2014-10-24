@@ -10,7 +10,7 @@ import sys, os, glob
 import matplotlib.image as image
 
 
-if len(sys.argv)!=2:
+if len(sys.argv) != 2:
     print('Usage: python %s IMAGEDIR'%__file__)
     raise SystemExit
 indir = sys.argv[1]

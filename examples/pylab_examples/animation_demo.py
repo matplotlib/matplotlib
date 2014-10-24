@@ -14,7 +14,7 @@ y = np.arange(5)
 z = x * y[:, np.newaxis]
 
 for i in xrange(5):
-    if i==0:
+    if i == 0:
         p = plt.imshow(z)
         fig = plt.gcf()
         plt.clim()   # clamp the color limits

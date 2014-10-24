@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 styles = mpatches.ArrowStyle.get_styles()
 
-ncol=2
+ncol = 2
 nrow = (len(styles)+1) // ncol
 figheight = (nrow+0.5)
 fig1 = plt.figure(1, (4.*ncol/1.5, figheight/1.5))

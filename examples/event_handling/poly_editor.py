@@ -74,7 +74,7 @@ class PolygonInteractor(object):
         indseq = np.nonzero(np.equal(d, np.amin(d)))[0]
         ind = indseq[0]
 
-        if d[ind]>=self.epsilon:
+        if d[ind] >= self.epsilon:
             ind = None
 
         return ind
@@ -82,7 +82,7 @@ class PolygonInteractor(object):
     def button_press_callback(self, event):
         'whenever a mouse button is pressed'
         if not self.showverts: return
-        if event.inaxes==None: return
+        if event.inaxes == None: return
         if event.button != 1: return
         self._ind = self.get_ind_under_point(event)
 
@@ -95,23 +95,23 @@ class PolygonInteractor(object):
     def key_press_callback(self, event):
         'whenever a key is pressed'
         if not event.inaxes: return
-        if event.key=='t':
+        if event.key == 't':
             self.showverts = not self.showverts
             self.line.set_visible(self.showverts)
             if not self.showverts: self._ind = None
-        elif event.key=='d':
+        elif event.key == 'd':
             ind = self.get_ind_under_point(event)
             if ind is not None:
-                self.poly.xy = [tup for i, tup in enumerate(self.poly.xy) if i!=ind]
+                self.poly.xy = [tup for i, tup in enumerate(self.poly.xy) if i != ind]
                 self.line.set_data(zip(*self.poly.xy))
-        elif event.key=='i':
+        elif event.key == 'i':
             xys = self.poly.get_transform().transform(self.poly.xy)
             p = event.x, event.y  # display coords
             for i in range(len(xys)-1):
                 s0 = xys[i]
                 s1 = xys[i+1]
                 d = dist_point_to_segment(p, s0, s1)
-                if d<=self.epsilon:
+                if d <= self.epsilon:
                     self.poly.xy = np.array(
                         list(self.poly.xy[:i]) +
                         [(event.xdata, event.ydata)] +

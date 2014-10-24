@@ -36,7 +36,7 @@ toolitem.set_tooltip(
     'Click me for fun and profit')
 
 toolitem.add(button)
-toolbar.insert(toolitem, next); next +=1
+toolbar.insert(toolitem, next); next += 1
 
 # now let's add a widget to the vbox
 label = gtk.Label()

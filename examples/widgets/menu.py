@@ -47,7 +47,7 @@ class MenuItem(artist.Artist):
         x, self.depth = self.parser.to_mask(
             labelstr, fontsize=props.fontsize, dpi=fig.dpi)
 
-        if props.fontsize!=hoverprops.fontsize:
+        if props.fontsize != hoverprops.fontsize:
             raise NotImplementedError(
                         'support for different font sizes not implemented')
 

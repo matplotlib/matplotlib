@@ -63,7 +63,7 @@ class DataManager(gtk.Window):
         self.add_columns()
 
         self.add_events(gdk.BUTTON_PRESS_MASK |
-                        gdk.KEY_PRESS_MASK|
+                        gdk.KEY_PRESS_MASK |
                         gdk.KEY_RELEASE_MASK)
 
     def plot_row(self, treeview, path, view_column):

@@ -26,7 +26,7 @@ def on_move(event):
 def on_click(event):
     # get the x and y coords, flip y from top to bottom
     x, y = event.x, event.y
-    if event.button==1:
+    if event.button == 1:
         if event.inaxes is not None:
             print('data coords %f %f' % (event.xdata, event.ydata))
 
