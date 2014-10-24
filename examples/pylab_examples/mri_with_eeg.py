@@ -38,7 +38,7 @@ if 1:  # plot the histogram of MRI intensity
 if 1:   # plot the EEG
     # load the data
 
-    numSamples, numRows = 800,4
+    numSamples, numRows = 800, 4
     eegfile = cbook.get_sample_data('eeg.dat', asfileobj=False)
     print('loading eeg %s' % eegfile)
     data = np.fromstring(open(eegfile, 'rb').read(), float)
@@ -46,7 +46,7 @@ if 1:   # plot the EEG
     t = 10.0 * np.arange(numSamples, dtype=float)/numSamples
     ticklocs = []
     ax = subplot(212)
-    xlim(0,10)
+    xlim(0, 10)
     xticks(np.arange(10))
     dmin = data.min()
     dmax = data.max()
@@ -57,11 +57,11 @@ if 1:   # plot the EEG
 
     segs = []
     for i in range(numRows):
-        segs.append(np.hstack((t[:,np.newaxis], data[:,i,np.newaxis])))
+        segs.append(np.hstack((t[:, np.newaxis], data[:, i, np.newaxis])))
         ticklocs.append(i*dr)
 
-    offsets = np.zeros((numRows,2), dtype=float)
-    offsets[:,1] = ticklocs
+    offsets = np.zeros((numRows, 2), dtype=float)
+    offsets[:, 1] = ticklocs
 
     lines = LineCollection(segs, offsets=offsets,
                            transOffset=None,

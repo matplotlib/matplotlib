@@ -18,7 +18,7 @@ patch = PathPatch(path, facecolor='none')
 plt.gca().add_patch(patch)
 
 im = plt.imshow(Z, interpolation='bilinear', cmap=cm.gray,
-                origin='lower', extent=[-3,3,-3,3],
+                origin='lower', extent=[-3, 3, -3, 3],
                 clip_path=patch, clip_on=True)
 im.set_clip_path(patch)
 

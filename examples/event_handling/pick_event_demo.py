@@ -74,7 +74,7 @@ import numpy as np
 from numpy.random import rand
 
 if 1:  # simple picking, lines, rectangles and text
-    fig, (ax1, ax2) = plt.subplots(2,1)
+    fig, (ax1, ax2) = plt.subplots(2, 1)
     ax1.set_title('click on points, rectangles or text', picker=True)
     ax1.set_ylabel('ylabel', picker=True, bbox=dict(facecolor='red'))
     line, = ax1.plot(rand(100), 'o', picker=5)  # 5 points tolerance
@@ -155,11 +155,11 @@ if 1:  # picking on a scatter plot (matplotlib.collections.RegularPolyCollection
 
 if 1:  # picking images (matplotlib.image.AxesImage)
     fig, ax = plt.subplots()
-    im1 = ax.imshow(rand(10,5), extent=(1,2,1,2), picker=True)
-    im2 = ax.imshow(rand(5,10), extent=(3,4,1,2), picker=True)
-    im3 = ax.imshow(rand(20,25), extent=(1,2,3,4), picker=True)
-    im4 = ax.imshow(rand(30,12), extent=(3,4,3,4), picker=True)
-    ax.axis([0,5,0,5])
+    im1 = ax.imshow(rand(10, 5), extent=(1, 2, 1, 2), picker=True)
+    im2 = ax.imshow(rand(5, 10), extent=(3, 4, 1, 2), picker=True)
+    im3 = ax.imshow(rand(20, 25), extent=(1, 2, 3, 4), picker=True)
+    im4 = ax.imshow(rand(30, 12), extent=(3, 4, 3, 4), picker=True)
+    ax.axis([0, 5, 0, 5])
 
     def onpick4(event):
         artist = event.artist

@@ -33,20 +33,20 @@ Zm = ma.masked_where(Z > 1.2, Z)
 # range to which the regular palette color scale is applied.
 # Anything above that range is colored based on palette.set_over, etc.
 
-subplot(1,2,1)
+subplot(1, 2, 1)
 im = imshow(Zm, interpolation='bilinear',
     cmap=palette,
     norm=colors.Normalize(vmin=-1.0, vmax=1.0, clip=False),
-    origin='lower', extent=[-3,3,-3,3])
+    origin='lower', extent=[-3, 3, -3, 3])
 title('Green=low, Red=high, Blue=bad')
 colorbar(im, extend='both', orientation='horizontal', shrink=0.8)
 
-subplot(1,2,2)
+subplot(1, 2, 2)
 im = imshow(Zm, interpolation='nearest',
     cmap=palette,
     norm=colors.BoundaryNorm([-1, -0.5, -0.2, 0, 0.2, 0.5, 1],
                         ncolors=256, clip=False),
-    origin='lower', extent=[-3,3,-3,3])
+    origin='lower', extent=[-3, 3, -3, 3])
 title('With BoundaryNorm')
 colorbar(im, extend='both', spacing='proportional',
                 orientation='horizontal', shrink=0.8)

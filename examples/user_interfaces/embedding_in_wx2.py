@@ -29,17 +29,17 @@ import wx
 
 class CanvasFrame(wx.Frame):
     def __init__(self):
-        wx.Frame.__init__(self,None,-1,
-                         'CanvasFrame',size=(550,350))
+        wx.Frame.__init__(self, None, -1,
+                         'CanvasFrame', size=(550, 350))
 
         self.SetBackgroundColour(wx.NamedColour("WHITE"))
 
         self.figure = Figure()
         self.axes = self.figure.add_subplot(111)
-        t = arange(0.0,3.0,0.01)
+        t = arange(0.0, 3.0, 0.01)
         s = sin(2*pi*t)
 
-        self.axes.plot(t,s)
+        self.axes.plot(t, s)
         self.canvas = FigureCanvas(self, -1, self.figure)
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)

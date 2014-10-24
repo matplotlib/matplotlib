@@ -7,14 +7,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import SpanSelector
 
-fig = plt.figure(figsize=(8,6))
+fig = plt.figure(figsize=(8, 6))
 ax = fig.add_subplot(211, axisbg='#FFFFCC')
 
 x = np.arange(0.0, 5.0, 0.01)
 y = np.sin(2*np.pi*x) + 0.5*np.random.randn(len(x))
 
 ax.plot(x, y, '-')
-ax.set_ylim(-2,2)
+ax.set_ylim(-2, 2)
 ax.set_title('Press left mouse button and drag to test')
 
 ax2 = fig.add_subplot(212, axisbg='#FFFFCC')

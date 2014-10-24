@@ -27,7 +27,7 @@ if 1:
                         xybox=(1.02, xy[1]),
                         xycoords='data',
                         boxcoords=("axes fraction", "data"),
-                        box_alignment=(0.,0.5),
+                        box_alignment=(0., 0.5),
                         arrowprops=dict(arrowstyle="->"))
     ax.add_artist(ab)
 
@@ -41,13 +41,13 @@ if 1:
                         xybox=(1.02, xy[1]),
                         xycoords='data',
                         boxcoords=("axes fraction", "data"),
-                        box_alignment=(0.,0.5),
+                        box_alignment=(0., 0.5),
                         arrowprops=dict(arrowstyle="->"))
                         #arrowprops=None)
 
     ax.add_artist(ab)
 
-    arr = np.arange(100).reshape((10,10))
+    arr = np.arange(100).reshape((10, 10))
     im = OffsetImage(arr, zoom=2)
 
     ab = AnnotationBbox(im, xy,

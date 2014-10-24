@@ -3,9 +3,9 @@ import matplotlib.patheffects as PathEffects
 import numpy as np
 
 if 1:
-    plt.figure(1, figsize=(8,3))
+    plt.figure(1, figsize=(8, 3))
     ax1 = plt.subplot(131)
-    ax1.imshow([[1,2],[2,3]])
+    ax1.imshow([[1, 2], [2, 3]])
     txt = ax1.annotate("test", (1., 1.), (0., 0),
                        arrowprops=dict(arrowstyle="->",
                                        connectionstyle="angle3", lw=2),
@@ -23,7 +23,7 @@ if 1:
         l.set_path_effects(pe)
 
     ax2 = plt.subplot(132)
-    arr = np.arange(25).reshape((5,5))
+    arr = np.arange(25).reshape((5, 5))
     ax2.imshow(arr)
     cntr = ax2.contour(arr, colors="k")
 

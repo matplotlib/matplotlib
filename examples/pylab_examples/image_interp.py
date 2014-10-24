@@ -47,7 +47,7 @@ suggested.
 
 """
 from pylab import *
-A = rand(5,5)
+A = rand(5, 5)
 figure(1)
 imshow(A, interpolation='nearest')
 grid(True)

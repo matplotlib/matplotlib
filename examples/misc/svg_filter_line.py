@@ -79,7 +79,7 @@ for l in [l1, l2]:
     # pick up the svg element with given id
     shadow = xmlid[l.get_label()+"_shadow"]
     # apply shdow filter
-    shadow.set("filter",'url(#dropshadow)')
+    shadow.set("filter", 'url(#dropshadow)')
 
 fn = "svg_filter_line.svg"
 print("Saving '%s'" % fn)

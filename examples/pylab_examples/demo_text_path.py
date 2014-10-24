@@ -102,12 +102,12 @@ if 1:
     ab = AnnotationBbox(offsetbox2, (0.95, 0.05),
                         xycoords='axes fraction',
                         boxcoords="offset points",
-                        box_alignment=(1.,0.),
+                        box_alignment=(1., 0.),
                         frameon=False
                         )
     ax.add_artist(ab)
 
-    ax.imshow([[0,1,2],[1,2,3]], cmap=plt.cm.gist_gray_r,
+    ax.imshow([[0, 1, 2], [1, 2, 3]], cmap=plt.cm.gist_gray_r,
               interpolation="bilinear",
               aspect="auto")
 
@@ -115,7 +115,7 @@ if 1:
 
     ax = plt.subplot(212)
 
-    arr = np.arange(256).reshape(1,256)/256.
+    arr = np.arange(256).reshape(1, 256)/256.
 
     if usetex:
         s = r"$\displaystyle\left[\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}\right]$!"
@@ -138,7 +138,7 @@ if 1:
     ab = AnnotationBbox(offsetbox, (0.5, 0.5),
                         xycoords='data',
                         boxcoords="offset points",
-                        box_alignment=(0.5,0.5),
+                        box_alignment=(0.5, 0.5),
                         )
     #text_path.set_size(10)
 

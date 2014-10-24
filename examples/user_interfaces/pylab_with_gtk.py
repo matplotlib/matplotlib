@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 
 
 fig, ax = plt.subplots()
-plt.plot([1,2,3], 'ro-', label='easy as 1 2 3')
-plt.plot([1,4,9], 'gs--', label='easy as 1 2 3 squared')
+plt.plot([1, 2, 3], 'ro-', label='easy as 1 2 3')
+plt.plot([1, 4, 9], 'gs--', label='easy as 1 2 3 squared')
 plt.legend()
 
 

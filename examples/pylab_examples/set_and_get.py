@@ -68,7 +68,7 @@ from __future__ import print_function
 from pylab import *
 
 
-x = arange(0,1.0,0.01)
+x = arange(0, 1.0, 0.01)
 y1 = sin(2*pi*x)
 y2 = sin(4*pi*x)
 lines = plot(x, y1, x, y2)

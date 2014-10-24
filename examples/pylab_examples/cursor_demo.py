@@ -31,7 +31,7 @@ class Cursor(object):
         self.lx.set_ydata(y)
         self.ly.set_xdata(x)
 
-        self.txt.set_text('x=%1.2f, y=%1.2f'%(x,y))
+        self.txt.set_text('x=%1.2f, y=%1.2f'%(x, y))
         draw()
 
 
@@ -63,8 +63,8 @@ class SnaptoCursor(object):
         self.lx.set_ydata(y)
         self.ly.set_xdata(x)
 
-        self.txt.set_text('x=%1.2f, y=%1.2f'%(x,y))
-        print('x=%1.2f, y=%1.2f'%(x,y))
+        self.txt.set_text('x=%1.2f, y=%1.2f'%(x, y))
+        print('x=%1.2f, y=%1.2f'%(x, y))
         draw()
 
 t = arange(0.0, 1.0, 0.01)
@@ -76,5 +76,5 @@ cursor = Cursor(ax)
 connect('motion_notify_event', cursor.mouse_move)
 
 ax.plot(t, s, 'o')
-axis([0,1,-1,1])
+axis([0, 1, -1, 1])
 show()

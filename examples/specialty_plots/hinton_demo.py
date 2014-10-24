@@ -24,7 +24,7 @@ def hinton(matrix, max_weight=None, ax=None):
     ax.xaxis.set_major_locator(plt.NullLocator())
     ax.yaxis.set_major_locator(plt.NullLocator())
 
-    for (x,y),w in np.ndenumerate(matrix):
+    for (x, y), w in np.ndenumerate(matrix):
         color = 'white' if w > 0 else 'black'
         size = np.sqrt(np.abs(w))
         rect = plt.Rectangle([x - size / 2, y - size / 2], size, size,

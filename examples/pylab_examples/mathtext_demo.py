@@ -10,7 +10,7 @@ fig = figure()
 fig.subplots_adjust(bottom=0.2)
 
 ax = fig.add_subplot(111, axisbg='y')
-ax.plot([1,2,3], 'r')
+ax.plot([1, 2, 3], 'r')
 x = np.arange(0.0, 3.0, 0.1)
 
 ax.grid(True)

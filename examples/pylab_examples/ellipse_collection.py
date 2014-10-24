@@ -6,7 +6,7 @@ x = np.arange(10)
 y = np.arange(15)
 X, Y = np.meshgrid(x, y)
 
-XY = np.hstack((X.ravel()[:,np.newaxis], Y.ravel()[:,np.newaxis]))
+XY = np.hstack((X.ravel()[:, np.newaxis], Y.ravel()[:, np.newaxis]))
 
 ww = X/10.0
 hh = Y/15.0

@@ -29,7 +29,7 @@ Then as you are working interactively, you just need to do
 from pylab import *
 
 subplot(311)
-plot([1,2,3])
+plot([1, 2, 3])
 
 # the axes attributes need to be set before the call to subplot
 rc('font', weight='bold')
@@ -41,11 +41,11 @@ rc('grid', c='0.5', ls='-', lw=5)
 rc('lines', lw=2, color='g')
 subplot(312)
 
-plot([1,2,3])
+plot([1, 2, 3])
 grid(True)
 
 rcdefaults()
 subplot(313)
-plot([1,2,3])
+plot([1, 2, 3])
 grid(True)
 show()

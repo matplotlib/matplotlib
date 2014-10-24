@@ -72,7 +72,7 @@ y = [i for i in range(len(x))]
 fig = plt.figure()
 fig.suptitle("Custom units")
 fig.subplots_adjust(bottom=0.2)
-ax = fig.add_subplot(1,2,2)
+ax = fig.add_subplot(1, 2, 2)
 ax.plot(x, y, 'o', xunits=2.0)
 for label in ax.get_xticklabels():
     label.set_rotation(30)
@@ -81,7 +81,7 @@ ax.set_title("xunits = 2.0")
 
 
 # plot without specifying units; will use the None branch for axisinfo
-ax = fig.add_subplot(1,2,1)
+ax = fig.add_subplot(1, 2, 1)
 ax.plot(x, y)  # uses default units
 ax.set_title('default units')
 for label in ax.get_xticklabels():

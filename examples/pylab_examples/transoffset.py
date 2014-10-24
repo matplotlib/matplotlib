@@ -23,8 +23,8 @@ from matplotlib.transforms import offset_copy
 X = P.arange(7)
 Y = X**2
 
-fig = P.figure(figsize=(5,10))
-ax = P.subplot(2,1,1)
+fig = P.figure(figsize=(5, 10))
+ax = P.subplot(2, 1, 1)
 
 # If we want the same offset for each text instance,
 # we only need to make one transform.  To get the
@@ -35,19 +35,19 @@ transOffset = offset_copy(ax.transData, fig=fig,
                             x=0.05, y=0.10, units='inches')
 
 for x, y in zip(X, Y):
-    P.plot((x,),(y,), 'ro')
-    P.text(x, y, '%d, %d' % (int(x),int(y)), transform=transOffset)
+    P.plot((x,), (y,), 'ro')
+    P.text(x, y, '%d, %d' % (int(x), int(y)), transform=transOffset)
 
 
 # offset_copy works for polar plots also.
 
-ax = P.subplot(2,1,2, polar=True)
+ax = P.subplot(2, 1, 2, polar=True)
 
 transOffset = offset_copy(ax.transData, fig=fig, y=6, units='dots')
 
 for x, y in zip(X, Y):
-    P.polar((x,),(y,), 'ro')
-    P.text(x, y, '%d, %d' % (int(x),int(y)),
+    P.polar((x,), (y,), 'ro')
+    P.text(x, y, '%d, %d' % (int(x), int(y)),
                 transform=transOffset,
                 horizontalalignment='center',
                 verticalalignment='bottom')

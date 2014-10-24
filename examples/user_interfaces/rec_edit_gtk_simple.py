@@ -9,7 +9,7 @@ import matplotlib.cbook as cbook
 import mpl_toolkits.gtktools as gtktools
 
 datafile = cbook.get_sample_data('demodata.csv', asfileobj=False)
-r = mlab.csv2rec(datafile, converterd={'weekdays':str})
+r = mlab.csv2rec(datafile, converterd={'weekdays': str})
 
 liststore, treeview, win = gtktools.edit_recarray(r)
 win.set_title('click to edit')

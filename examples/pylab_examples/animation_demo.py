@@ -11,7 +11,7 @@ import numpy as np
 
 x = np.arange(6)
 y = np.arange(5)
-z = x * y[:,np.newaxis]
+z = x * y[:, np.newaxis]
 
 for i in xrange(5):
     if i==0:

@@ -11,7 +11,7 @@ from pylab import *
 t = arange(0.0, 1.0, 0.01)
 s = sin(2*pi*t)
 fig, ax = plt.subplots()
-ax.plot(t,s)
+ax.plot(t, s)
 
 
 def on_move(event):

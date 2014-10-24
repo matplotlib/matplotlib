@@ -8,10 +8,10 @@ import matplotlib.pyplot as plt
 
 # fake data
 fs = 10  # fontsize
-pos = [1,2,4,5,7,8]
+pos = [1, 2, 4, 5, 7, 8]
 data = [np.random.normal(size=100) for i in pos]
 
-fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(6,6))
+fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(6, 6))
 
 axes[0, 0].violinplot(data, pos, points=20, widths=0.1, 
                       showmeans=True, showextrema=True, showmedians=True)
