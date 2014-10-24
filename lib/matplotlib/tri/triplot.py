@@ -7,6 +7,7 @@ import numpy as np
 from matplotlib.tri.triangulation import Triangulation
 import matplotlib
 
+
 def triplot(ax, *args, **kwargs):
     """
     Draw a unstructured triangular grid as lines and/or markers.
