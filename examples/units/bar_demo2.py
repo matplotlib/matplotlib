@@ -12,9 +12,9 @@ from basic_units import cm, inch
 import matplotlib.pyplot as plt
 
 
-cms = cm *np.arange(0, 10, 2)
-bottom=0*cm
-width=0.8*cm
+cms = cm * np.arange(0, 10, 2)
+bottom = 0*cm
+width = 0.8*cm
 
 fig = plt.figure()
 

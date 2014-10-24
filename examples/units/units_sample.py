@@ -11,7 +11,7 @@ from basic_units import cm, inch
 import matplotlib.pyplot as plt
 import numpy
 
-cms = cm *numpy.arange(0, 10, 2)
+cms = cm * numpy.arange(0, 10, 2)
 
 fig = plt.figure()
 

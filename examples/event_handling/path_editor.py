@@ -83,7 +83,7 @@ class PathInteractor(object):
         d = np.sqrt((xt-event.x)**2 + (yt-event.y)**2)
         ind = d.argmin()
 
-        if d[ind]>=self.epsilon:
+        if d[ind] >= self.epsilon:
             ind = None
 
         return ind
@@ -91,7 +91,7 @@ class PathInteractor(object):
     def button_press_callback(self, event):
         'whenever a mouse button is pressed'
         if not self.showverts: return
-        if event.inaxes==None: return
+        if event.inaxes == None: return
         if event.button != 1: return
         self._ind = self.get_ind_under_point(event)
 
@@ -104,7 +104,7 @@ class PathInteractor(object):
     def key_press_callback(self, event):
         'whenever a key is pressed'
         if not event.inaxes: return
-        if event.key=='t':
+        if event.key == 't':
             self.showverts = not self.showverts
             self.line.set_visible(self.showverts)
             if not self.showverts: self._ind = None

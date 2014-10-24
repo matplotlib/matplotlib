@@ -7,11 +7,11 @@
 from pylab import *
 
 # fake up some data
-spread= rand(50) * 100
+spread = rand(50) * 100
 center = ones(25) * 50
 flier_high = rand(10) * 100 + 100
 flier_low = rand(10) * -100
-data =concatenate((spread, center, flier_high, flier_low), 0)
+data = concatenate((spread, center, flier_high, flier_low), 0)
 
 # basic plot
 boxplot(data)
@@ -37,7 +37,7 @@ figure()
 boxplot(data, 0, 'rs', 0, 0.75)
 
 # fake up some more data
-spread= rand(50) * 100
+spread = rand(50) * 100
 center = ones(25) * 40
 flier_high = rand(10) * 100 + 100
 flier_low = rand(10) * -100

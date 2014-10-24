@@ -214,7 +214,7 @@ class MatplotLibInterpreter(GTKInterpreter):
         map(push, lines)
 
         # Execute file if given.
-        if len(sys.argv)>1:
+        if len(sys.argv) > 1:
             import matplotlib
             matplotlib.interactive(0)  # turn off interaction
             fname = sys.argv[1]
@@ -225,7 +225,7 @@ class MatplotLibInterpreter(GTKInterpreter):
             else:
                 print('*** Executing file <%s>:' % fname)
                 for line in inFile:
-                    if line.lstrip().find('show()')==0: continue
+                    if line.lstrip().find('show()') == 0: continue
                     print('>>', line)
                     push(line)
                 inFile.close()
@@ -237,7 +237,7 @@ if __name__ == '__main__':
     sys.exit()
     # Quick sys.argv hack to extract the option and leave filenames in sys.argv.
     # For real option handling, use optparse or getopt.
-    if len(sys.argv) > 1 and sys.argv[1]=='-pylab':
+    if len(sys.argv) > 1 and sys.argv[1] == '-pylab':
         sys.argv = [sys.argv[0]]+sys.argv[2:]
         MatplotLibInterpreter().mainloop()
     else:

@@ -3,8 +3,8 @@
 from pylab import *
 from matplotlib.ticker import OldScalarFormatter
 
-x=frange(0, 1, .01)
-f=figure(figsize=(6, 6))
+x = frange(0, 1, .01)
+f = figure(figsize=(6, 6))
 f.text(0.5, 0.975, 'The old formatter', horizontalalignment='center', verticalalignment='top')
 subplot(221)
 plot(x*1e5+1e10, x*1e-10+1e-5)
@@ -23,8 +23,8 @@ plot(-x*1e5, -x*1e-4)
 gca().xaxis.set_major_formatter(OldScalarFormatter())
 gca().yaxis.set_major_formatter(OldScalarFormatter())
 
-x=frange(0, 1, .01)
-f=figure(figsize=(6, 6))
+x = frange(0, 1, .01)
+f = figure(figsize=(6, 6))
 f.text(0.5, 0.975, 'The new formatter, default settings', horizontalalignment='center',
        verticalalignment='top')
 subplot(221)
@@ -44,8 +44,8 @@ plot(-x*1e5, -x*1e-4)
 gca().xaxis.set_major_formatter(ScalarFormatter())
 gca().yaxis.set_major_formatter(ScalarFormatter())
 
-x=frange(0, 1, .01)
-f=figure(figsize=(6, 6))
+x = frange(0, 1, .01)
+f = figure(figsize=(6, 6))
 f.text(0.5, 0.975, 'The new formatter, no numerical offset', horizontalalignment='center',
        verticalalignment='top')
 subplot(221)
@@ -65,8 +65,8 @@ plot(-x*1e5, -x*1e-4)
 gca().xaxis.set_major_formatter(ScalarFormatter(useOffset=False))
 gca().yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
 
-x=frange(0, 1, .01)
-f=figure(figsize=(6, 6))
+x = frange(0, 1, .01)
+f = figure(figsize=(6, 6))
 f.text(0.5, 0.975, 'The new formatter, with mathtext', horizontalalignment='center',
        verticalalignment='top')
 subplot(221)

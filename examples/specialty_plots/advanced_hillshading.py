@@ -52,7 +52,7 @@ def shade_other_data():
     z1 = np.sin(x**2)  # Data to hillshade
     z2 = np.cos(x**2 + y**2)  # Data to color
 
-    norm=Normalize(z2.min(), z2.max())
+    norm = Normalize(z2.min(), z2.max())
     cmap = plt.cm.jet
 
     ls = LightSource(315, 45)

@@ -15,7 +15,7 @@ from matplotlib.gridspec import GridSpec
 labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
 fracs = [15, 30, 45, 10]
 
-explode=(0, 0.05, 0, 0)
+explode = (0, 0.05, 0, 0)
 
 # Make square figures and axes
 

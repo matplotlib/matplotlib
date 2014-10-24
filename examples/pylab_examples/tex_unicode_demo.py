@@ -6,8 +6,8 @@ more information.
 """
 from __future__ import unicode_literals
 import matplotlib as mpl
-mpl.rcParams['text.usetex']=True
-mpl.rcParams['text.latex.unicode']=True
+mpl.rcParams['text.usetex'] = True
+mpl.rcParams['text.latex.unicode'] = True
 from numpy import arange, cos, pi
 from matplotlib.pyplot import (figure, axes, plot, xlabel, ylabel, title,
      grid, savefig, show)

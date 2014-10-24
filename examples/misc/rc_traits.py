@@ -52,16 +52,16 @@ class RGBA(traits.HasTraits):
         self.a = a
 
     def __repr__(self):
-        return 'r,g,b,a = (%1.2f, %1.2f, %1.2f, %1.2f)'%\
+        return 'r,g,b,a = (%1.2f, %1.2f, %1.2f, %1.2f)' %\
                (self.r, self.g, self.b, self.a)
 
 
 def tuple_to_rgba(ob, name, val):
     tup = [float(x) for x in val]
-    if len(tup)==3:
+    if len(tup) == 3:
         r, g, b = tup
         return RGBA(r, g, b)
-    elif len(tup)==4:
+    elif len(tup) == 4:
         r, g, b, a = tup
         return RGBA(r, g, b, a)
     else:

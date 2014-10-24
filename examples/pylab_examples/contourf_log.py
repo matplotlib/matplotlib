@@ -25,7 +25,7 @@ z[:5, :5] = -1
 
 # The following is not strictly essential, but it will eliminate
 # a warning.  Comment it out to see the warning.
-z = ma.masked_where(z<= 0, z)
+z = ma.masked_where(z <= 0, z)
 
 
 # Automatic selection of levels works; setting the

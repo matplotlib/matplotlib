@@ -42,7 +42,7 @@ CS = plt.contour(X, Y, Z)
 class nf(float):
     def __repr__(self):
         str = '%.1f' % (self.__float__(),)
-        if str[-1]=='0':
+        if str[-1] == '0':
             return '%.0f' % self.__float__()
         else:
             return '%.1f' % self.__float__()

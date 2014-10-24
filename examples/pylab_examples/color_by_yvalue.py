@@ -12,7 +12,7 @@ lower = -0.77
 
 supper = ma.masked_where(s < upper, s)
 slower = ma.masked_where(s > lower, s)
-smiddle = ma.masked_where(logical_or(s<lower, s>upper), s)
+smiddle = ma.masked_where(logical_or(s < lower, s > upper), s)
 
 plot(t, slower, 'r', t, smiddle, 'b', t, supper, 'g')
 show()

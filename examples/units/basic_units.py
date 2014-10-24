@@ -321,13 +321,13 @@ class BasicUnitConverter(units.ConversionInterface):
     def axisinfo(unit, axis):
         'return AxisInfo instance for x and unit'
 
-        if unit==radians:
+        if unit == radians:
             return units.AxisInfo(
                 majloc=ticker.MultipleLocator(base=np.pi/2),
                 majfmt=ticker.FuncFormatter(rad_fn),
                 label=unit.fullname,
             )
-        elif unit==degrees:
+        elif unit == degrees:
             return units.AxisInfo(
                 majloc=ticker.AutoLocator(),
                 majfmt=ticker.FormatStrFormatter(r'$%i^\circ$'),

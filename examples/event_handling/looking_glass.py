@@ -21,7 +21,7 @@ class EventHandler(object):
         self.pressevent = None
 
     def onpress(self, event):
-        if event.inaxes!=ax:
+        if event.inaxes != ax:
             return
 
         if not circ.contains(event)[0]:
@@ -34,7 +34,7 @@ class EventHandler(object):
         self.x0, self.y0 = circ.center
 
     def onmove(self, event):
-        if self.pressevent is None or event.inaxes!=self.pressevent.inaxes:
+        if self.pressevent is None or event.inaxes != self.pressevent.inaxes:
             return
 
         dx = event.xdata - self.pressevent.xdata
