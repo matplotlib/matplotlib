@@ -5,7 +5,7 @@ import six
 
 import numpy as np
 from matplotlib.tri.triangulation import Triangulation
-
+import matplotlib
 
 def triplot(ax, *args, **kwargs):
     """
@@ -54,6 +54,10 @@ def triplot(ax, *args, **kwargs):
     if len(args) > 0:
         fmt = args[0]
     linestyle, marker, color = matplotlib.axes._base._process_plot_format(fmt)
+    if linestyle is None:
+            linestyle = matplotlib.rcParams['lines.linestyle']
+    if marker is None:
+            marker = matplotlib.rcParams['lines.marker']
 
     # Insert plot format string into a copy of kwargs (kwargs values prevail).
     kw = kwargs.copy()
