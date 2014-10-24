@@ -44,7 +44,7 @@ if 1:
     # if only one location is given, the text and xypoint being
     # annotated are assumed to be the same
     fig = figure()
-    ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1,5), ylim=(-3,5))
+    ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1, 5), ylim=(-3, 5))
 
     t = np.arange(0.0, 5.0, 0.01)
     s = np.cos(2*np.pi*t)
@@ -95,7 +95,7 @@ if 1:
     # respected
     fig = figure()
     ax = fig.add_subplot(111, polar=True)
-    r = np.arange(0,1,0.001)
+    r = np.arange(0, 1, 0.001)
     theta = 2*2*np.pi*r
     line, = ax.plot(theta, r, color='#ee8d18', lw=3)
 
@@ -118,7 +118,7 @@ if 1:
     # specify the xycoords and textcoords as 'polar' if you want to
     # use (theta, radius)
 
-    el = Ellipse((0,0), 10, 20, facecolor='r', alpha=0.5)
+    el = Ellipse((0, 0), 10, 20, facecolor='r', alpha=0.5)
 
     fig = figure()
     ax = fig.add_subplot(111, aspect='equal')

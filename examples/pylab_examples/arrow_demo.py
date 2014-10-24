@@ -11,9 +11,9 @@ usage:
 """
 from pylab import *
 
-rates_to_bases={'r1':'AT', 'r2':'TA', 'r3':'GA','r4':'AG','r5':'CA','r6':'AC', \
-            'r7':'GT', 'r8':'TG', 'r9':'CT','r10':'TC','r11':'GC','r12':'CG'}
-numbered_bases_to_rates = dict([(v,k) for k, v in rates_to_bases.items()])
+rates_to_bases={'r1': 'AT', 'r2': 'TA', 'r3': 'GA', 'r4': 'AG', 'r5': 'CA', 'r6': 'AC', \
+            'r7': 'GT', 'r8': 'TG', 'r9': 'CT', 'r10': 'TC', 'r11': 'GC', 'r12': 'CG'}
+numbered_bases_to_rates = dict([(v, k) for k, v in rates_to_bases.items()])
 lettered_bases_to_rates = dict([(v, 'r'+v) for k, v in rates_to_bases.items()])
 
 
@@ -45,71 +45,71 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
     linewidth and edgecolor.
     """
 
-    xlim(-0.5,1.5)
-    ylim(-0.5,1.5)
-    gcf().set_size_inches(size,size)
+    xlim(-0.5, 1.5)
+    ylim(-0.5, 1.5)
+    gcf().set_size_inches(size, size)
     xticks([])
     yticks([])
     max_text_size = size*12
     min_text_size = size
     label_text_size = size*2.5
-    text_params={'ha':'center', 'va':'center', 'family':'sans-serif',\
-        'fontweight':'bold'}
+    text_params={'ha': 'center', 'va': 'center', 'family': 'sans-serif',\
+        'fontweight': 'bold'}
     r2 = sqrt(2)
 
     deltas = {\
-        'AT':(1,0),
-        'TA':(-1,0),
-        'GA':(0,1),
-        'AG':(0,-1),
-        'CA':(-1/r2, 1/r2),
-        'AC':(1/r2, -1/r2),
-        'GT':(1/r2, 1/r2),
-        'TG':(-1/r2,-1/r2),
-        'CT':(0,1),
-        'TC':(0,-1),
-        'GC':(1,0),
-        'CG':(-1,0)
+        'AT': (1, 0),
+        'TA': (-1, 0),
+        'GA': (0, 1),
+        'AG': (0, -1),
+        'CA': (-1/r2, 1/r2),
+        'AC': (1/r2, -1/r2),
+        'GT': (1/r2, 1/r2),
+        'TG': (-1/r2, -1/r2),
+        'CT': (0, 1),
+        'TC': (0, -1),
+        'GC': (1, 0),
+        'CG': (-1, 0)
         }
 
     colors = {\
-        'AT':'r',
-        'TA':'k',
-        'GA':'g',
-        'AG':'r',
-        'CA':'b',
-        'AC':'r',
-        'GT':'g',
-        'TG':'k',
-        'CT':'b',
-        'TC':'k',
-        'GC':'g',
-        'CG':'b'
+        'AT': 'r',
+        'TA': 'k',
+        'GA': 'g',
+        'AG': 'r',
+        'CA': 'b',
+        'AC': 'r',
+        'GT': 'g',
+        'TG': 'k',
+        'CT': 'b',
+        'TC': 'k',
+        'GC': 'g',
+        'CG': 'b'
         }
 
     label_positions = {\
-        'AT':'center',
-        'TA':'center',
-        'GA':'center',
-        'AG':'center',
-        'CA':'left',
-        'AC':'left',
-        'GT':'left',
-        'TG':'left',
-        'CT':'center',
-        'TC':'center',
-        'GC':'center',
-        'CG':'center'
+        'AT': 'center',
+        'TA': 'center',
+        'GA': 'center',
+        'AG': 'center',
+        'CA': 'left',
+        'AC': 'left',
+        'GT': 'left',
+        'TG': 'left',
+        'CT': 'center',
+        'TC': 'center',
+        'GC': 'center',
+        'CG': 'center'
         }
 
     def do_fontsize(k):
         return float(clip(max_text_size*sqrt(data[k]),\
-            min_text_size,max_text_size))
+            min_text_size, max_text_size))
 
-    A = text(0,1, '$A_3$', color='r', size=do_fontsize('A'), **text_params)
-    T = text(1,1, '$T_3$', color='k', size=do_fontsize('T'), **text_params)
-    G = text(0,0, '$G_3$', color='g', size=do_fontsize('G'), **text_params)
-    C = text(1,0, '$C_3$', color='b', size=do_fontsize('C'), **text_params)
+    A = text(0, 1, '$A_3$', color='r', size=do_fontsize('A'), **text_params)
+    T = text(1, 1, '$T_3$', color='k', size=do_fontsize('T'), **text_params)
+    G = text(0, 0, '$G_3$', color='g', size=do_fontsize('G'), **text_params)
+    C = text(1, 0, '$C_3$', color='b', size=do_fontsize('C'), **text_params)
 
     arrow_h_offset = 0.25  # data coordinates, empirically determined
     max_arrow_length = 1 - 2*arrow_h_offset
@@ -117,8 +117,8 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
     max_arrow_width = max_arrow_width
     max_head_width = 2.5*max_arrow_width
     max_head_length = 2*max_arrow_width
-    arrow_params={'length_includes_head':True, 'shape':shape, \
-        'head_starts_at_zero':head_starts_at_zero}
+    arrow_params={'length_includes_head': True, 'shape': shape, \
+        'head_starts_at_zero': head_starts_at_zero}
     ax = gca()
     sf = 0.6  # max arrow size represents this in data coords
 
@@ -203,7 +203,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
         else:
             raise ValueError("Got unknown position parameter %s" % where)
 
-        M = array([[cx, sx],[-sx,cx]])
+        M = array([[cx, sx], [-sx, cx]])
         coords = dot(orig_position, M) + [[x_pos, y_pos]]
         x, y = ravel(coords)
         orig_label = rate_labels[pair]
@@ -220,60 +220,60 @@ all_on_max = dict([(i, 1) for i in 'TCAG'] + \
         [(i+j, 0.6) for i in 'TCAG' for j in 'TCAG'])
 
 realistic_data = {
-        'A':0.4,
-        'T':0.3,
-        'G':0.5,
-        'C':0.2,
-        'AT':0.4,
-        'AC':0.3,
-        'AG':0.2,
-        'TA':0.2,
-        'TC':0.3,
-        'TG':0.4,
-        'CT':0.2,
-        'CG':0.3,
-        'CA':0.2,
-        'GA':0.1,
-        'GT':0.4,
-        'GC':0.1,
+        'A': 0.4,
+        'T': 0.3,
+        'G': 0.5,
+        'C': 0.2,
+        'AT': 0.4,
+        'AC': 0.3,
+        'AG': 0.2,
+        'TA': 0.2,
+        'TC': 0.3,
+        'TG': 0.4,
+        'CT': 0.2,
+        'CG': 0.3,
+        'CA': 0.2,
+        'GA': 0.1,
+        'GT': 0.4,
+        'GC': 0.1,
     }
 
 extreme_data = {
-        'A':0.75,
-        'T':0.10,
-        'G':0.10,
-        'C':0.05,
-        'AT':0.6,
-        'AC':0.3,
-        'AG':0.1,
-        'TA':0.02,
-        'TC':0.3,
-        'TG':0.01,
-        'CT':0.2,
-        'CG':0.5,
-        'CA':0.2,
-        'GA':0.1,
-        'GT':0.4,
-        'GC':0.2,
+        'A': 0.75,
+        'T': 0.10,
+        'G': 0.10,
+        'C': 0.05,
+        'AT': 0.6,
+        'AC': 0.3,
+        'AG': 0.1,
+        'TA': 0.02,
+        'TC': 0.3,
+        'TG': 0.01,
+        'CT': 0.2,
+        'CG': 0.5,
+        'CA': 0.2,
+        'GA': 0.1,
+        'GT': 0.4,
+        'GC': 0.2,
     }
 
 sample_data = {
-        'A':0.2137,
-        'T':0.3541,
-        'G':0.1946,
-        'C':0.2376,
-        'AT':0.0228,
-        'AC':0.0684,
-        'AG':0.2056,
-        'TA':0.0315,
-        'TC':0.0629,
-        'TG':0.0315,
-        'CT':0.1355,
-        'CG':0.0401,
-        'CA':0.0703,
-        'GA':0.1824,
-        'GT':0.0387,
-        'GC':0.1106,
+        'A': 0.2137,
+        'T': 0.3541,
+        'G': 0.1946,
+        'C': 0.2376,
+        'AT': 0.0228,
+        'AC': 0.0684,
+        'AG': 0.2056,
+        'TA': 0.0315,
+        'TC': 0.0629,
+        'TG': 0.0315,
+        'CT': 0.1355,
+        'CG': 0.0401,
+        'CA': 0.0703,
+        'GA': 0.1824,
+        'GT': 0.0387,
+        'GC': 0.1106,
     }
 
 
@@ -302,7 +302,7 @@ if __name__ == '__main__':
         display = 'length'
 
     size = 4
-    figure(figsize=(size,size))
+    figure(figsize=(size, size))
 
     make_arrow_plot(d, display=display, linewidth=0.001, edgecolor=None,
         normalize_data=scaled, head_starts_at_zero=True, size=size)

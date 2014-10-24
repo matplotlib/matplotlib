@@ -8,7 +8,7 @@ from matplotlib.font_manager import FontProperties
 from pylab import *
 
 subplot(111, axisbg='w')
-alignment = {'horizontalalignment':'center', 'verticalalignment':'baseline'}
+alignment = {'horizontalalignment': 'center', 'verticalalignment': 'baseline'}
 
 # Show family options
 

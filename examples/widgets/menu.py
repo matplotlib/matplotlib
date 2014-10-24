@@ -61,7 +61,7 @@ class MenuItem(artist.Artist):
         self.label.set_array(self.labelArray)
 
         # we'll update these later
-        self.rect = patches.Rectangle((0,0), 1,1)
+        self.rect = patches.Rectangle((0, 0), 1, 1)
 
         self.set_hover_props(False)
 
@@ -107,7 +107,7 @@ class MenuItem(artist.Artist):
 
     def set_hover(self, event):
         'check the hover status of event and return true if status is changed'
-        b,junk = self.rect.contains(event)
+        b, junk = self.rect.contains(event)
 
         changed = (b != self.hover)
 

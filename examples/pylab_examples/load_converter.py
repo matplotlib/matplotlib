@@ -10,8 +10,8 @@ print('loading', datafile)
 
 dates, closes = np.loadtxt(
     datafile, delimiter=',',
-    converters={0:strpdate2num('%d-%b-%y')},
-    skiprows=1, usecols=(0,2), unpack=True)
+    converters={0: strpdate2num('%d-%b-%y')},
+    skiprows=1, usecols=(0, 2), unpack=True)
 
 fig = figure()
 ax = fig.add_subplot(111)

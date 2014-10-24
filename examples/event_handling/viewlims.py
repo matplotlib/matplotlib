@@ -27,7 +27,7 @@ class MandlebrotDisplay(object):
 
     def __call__(self, xstart, xend, ystart, yend):
         self.x = np.linspace(xstart, xend, self.width)
-        self.y = np.linspace(ystart, yend, self.height).reshape(-1,1)
+        self.y = np.linspace(ystart, yend, self.height).reshape(-1, 1)
         c = self.x + 1.0j * self.y
         threshold_time = np.zeros((self.height, self.width))
         z = np.zeros(threshold_time.shape, dtype=np.complex)
@@ -47,7 +47,7 @@ class MandlebrotDisplay(object):
         self.height = int(dims[2] + 0.5)
 
         # Get the range for the new area
-        xstart,ystart,xdelta,ydelta = ax.viewLim.bounds
+        xstart, ystart, xdelta, ydelta = ax.viewLim.bounds
         xend = xstart + xdelta
         yend = ystart + ydelta
 

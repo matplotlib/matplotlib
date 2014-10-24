@@ -97,7 +97,7 @@ cmap.set_over("yellow")
 # no effect:
 #cmap.set_bad("red")
 
-fig, axs = plt.subplots(2,2)
+fig, axs = plt.subplots(2, 2)
 for ax, extend in zip(axs.ravel(), extends):
     cs = ax.contourf(X, Y, Z, levels, cmap=cmap, extend=extend, origin=origin)
     fig.colorbar(cs, ax=ax, shrink=0.9)

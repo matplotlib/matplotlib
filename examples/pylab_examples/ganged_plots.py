@@ -25,19 +25,19 @@ subplots_adjust(hspace=0.001)
 
 
 ax1 = subplot(311)
-ax1.plot(t,s1)
+ax1.plot(t, s1)
 yticks(arange(-0.9, 1.0, 0.4))
-ylim(-1,1)
+ylim(-1, 1)
 
 ax2 = subplot(312, sharex=ax1)
-ax2.plot(t,s2)
+ax2.plot(t, s2)
 yticks(arange(0.1, 1.0,  0.2))
-ylim(0,1)
+ylim(0, 1)
 
 ax3 = subplot(313, sharex=ax1)
-ax3.plot(t,s3)
+ax3.plot(t, s3)
 yticks(arange(-0.9, 1.0, 0.4))
-ylim(-1,1)
+ylim(-1, 1)
 
 xticklabels = ax1.get_xticklabels()+ax2.get_xticklabels()
 setp(xticklabels, visible=False)

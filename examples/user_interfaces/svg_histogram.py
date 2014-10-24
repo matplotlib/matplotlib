@@ -43,7 +43,7 @@ plt.rcParams['svg.embed_char_paths'] = 'none'
 # Apparently, this `register_namespace` method works only with 
 # python 2.7 and up and is necessary to avoid garbling the XML name
 # space with ns0.
-ET.register_namespace("","http://www.w3.org/2000/svg")
+ET.register_namespace("", "http://www.w3.org/2000/svg")
 
 
 # --- Create histogram, legend and title ---
@@ -51,7 +51,7 @@ plt.figure()
 r = np.random.randn(100)
 r1 = r + 1
 labels = ['Rabbits', 'Frogs']
-H = plt.hist([r,r1], label=labels)
+H = plt.hist([r, r1], label=labels)
 containers = H[-1]
 leg = plt.legend(frameon=False)
 plt.title("""From a web browser, click on the legend 
@@ -65,7 +65,7 @@ for ic, c in enumerate(containers):
     hist_patches['hist_%d'%ic] = []
     for il, element in enumerate(c):
         element.set_gid('hist_%d_patch_%d'%(ic, il))
-        hist_patches['hist_%d'%ic].append('hist_%d_patch_%d'%(ic,il))    
+        hist_patches['hist_%d'%ic].append('hist_%d_patch_%d'%(ic, il))    
 
 # Set ids for the legend patches    
 for i, t in enumerate(leg.get_patches()):

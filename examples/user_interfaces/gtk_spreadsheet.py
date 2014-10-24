@@ -19,7 +19,7 @@ from matplotlib.figure import Figure
 
 
 class DataManager(gtk.Window):
-    numRows, numCols = 20,10
+    numRows, numCols = 20, 10
 
     data = random((numRows, numCols))
 
@@ -50,12 +50,12 @@ class DataManager(gtk.Window):
         self.treeview.set_rules_hint(True)
 
         # matplotlib stuff
-        fig = Figure(figsize=(6,4))
+        fig = Figure(figsize=(6, 4))
 
         self.canvas = FigureCanvas(fig)  # a gtk.DrawingArea
         vbox.pack_start(self.canvas, True, True)
         ax = fig.add_subplot(111)
-        self.line, = ax.plot(self.data[0,:], 'go')  # plot the first row
+        self.line, = ax.plot(self.data[0, :], 'go')  # plot the first row
 
         self.treeview.connect('row-activated', self.plot_row)
         sw.add(self.treeview)
@@ -68,7 +68,7 @@ class DataManager(gtk.Window):
 
     def plot_row(self, treeview, path, view_column):
         ind, = path  # get the index into data
-        points = self.data[ind,:]
+        points = self.data[ind, :]
         self.line.set_ydata(points)
         self.canvas.draw()
 

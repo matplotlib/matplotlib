@@ -14,7 +14,7 @@ from pylab import *
 # the correct registration between image and contours.
 delta = 0.5
 
-extent = (-3,4,-4,3)
+extent = (-3, 4, -4, 3)
 
 x = arange(-3.0, 4.001, delta)
 y = arange(-4.0, 3.001, delta)
@@ -32,7 +32,7 @@ cmap = cm.PRGn
 figure()
 
 
-subplot(2,2,1)
+subplot(2, 2, 1)
 
 cset1 = contourf(X, Y, Z, levels,
                         cmap=cm.get_cmap(cmap, len(levels)-1),
@@ -67,7 +67,7 @@ colorbar(cset1)
 #hot()
 
 
-subplot(2,2,2)
+subplot(2, 2, 2)
 
 imshow(Z, extent=extent, cmap=cmap, norm=norm)
 v = axis()
@@ -76,7 +76,7 @@ contour(Z, levels, hold='on', colors='k',
 axis(v)
 title("Image, origin 'upper'")
 
-subplot(2,2,3)
+subplot(2, 2, 3)
 
 imshow(Z, origin='lower', extent=extent, cmap=cmap, norm=norm)
 v = axis()
@@ -85,7 +85,7 @@ contour(Z, levels, hold='on', colors='k',
 axis(v)
 title("Image, origin 'lower'")
 
-subplot(2,2,4)
+subplot(2, 2, 4)
 
 # We will use the interpolation "nearest" here to show the actual
 # image pixels.

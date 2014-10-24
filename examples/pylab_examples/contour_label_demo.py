@@ -68,11 +68,11 @@ CS = plt.contour(X, Y, Z)
 
 fmt = {}
 strs = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh']
-for l,s in zip(CS.levels, strs):
+for l, s in zip(CS.levels, strs):
     fmt[l] = s
 
 # Label every other level using strings
-plt.clabel(CS,CS.levels[::2],inline=True,fmt=fmt,fontsize=10)
+plt.clabel(CS, CS.levels[::2], inline=True, fmt=fmt, fontsize=10)
 
 # Use a Formatter
 

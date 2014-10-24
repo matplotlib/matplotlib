@@ -13,7 +13,7 @@ f = np.array([150, 140]).reshape(-1, 1)
 xn = (A * np.exp(2j * np.pi * f * t)).sum(axis=0) + 5 * np.random.randn(*t.shape)
 
 yticks = np.arange(-50, 30, 10)
-xticks = np.arange(-500,550,100)
+xticks = np.arange(-500, 550, 100)
 plt.subplots_adjust(hspace=0.45, wspace=0.3)
 ax = plt.subplot(1, 2, 1)
 

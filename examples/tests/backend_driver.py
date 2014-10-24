@@ -313,8 +313,8 @@ files['mplot3d'] = [
 # examples that generate multiple figures
 
 excluded = {
-    'pylab' : ['__init__.py', 'toggle_images.py',],
-    'units' : ['__init__.py', 'date_support.py',],
+    'pylab' : ['__init__.py', 'toggle_images.py', ],
+    'units' : ['__init__.py', 'date_support.py', ],
 }
 
 

@@ -15,7 +15,7 @@ from matplotlib.mlab import normpdf
 from numpy.random import randn
 import numpy
 
-fig = Figure(figsize=(5,4), dpi=100)
+fig = Figure(figsize=(5, 4), dpi=100)
 ax = fig.add_subplot(111)
 
 canvas = FigureCanvasAgg(fig)
@@ -44,7 +44,7 @@ s = canvas.tostring_rgb()  # save this and convert to bitmap as needed
 
 # get the figure dimensions for creating bitmaps or numpy arrays,
 # etc.
-l,b,w,h = fig.bbox.bounds
+l, b, w, h = fig.bbox.bounds
 w, h = int(w), int(h)
 
 if 0:
@@ -55,5 +55,5 @@ if 0:
 if 0:
     # pass off to PIL
     from PIL import Image
-    im = Image.fromstring("RGB", (w,h), s)
+    im = Image.fromstring("RGB", (w, h), s)
     im.show()

@@ -102,7 +102,7 @@ class PolygonInteractor(object):
         elif event.key=='d':
             ind = self.get_ind_under_point(event)
             if ind is not None:
-                self.poly.xy = [tup for i,tup in enumerate(self.poly.xy) if i!=ind]
+                self.poly.xy = [tup for i, tup in enumerate(self.poly.xy) if i!=ind]
                 self.line.set_data(zip(*self.poly.xy))
         elif event.key=='i':
             xys = self.poly.get_transform().transform(self.poly.xy)
@@ -127,9 +127,9 @@ class PolygonInteractor(object):
         if self._ind is None: return
         if event.inaxes is None: return
         if event.button != 1: return
-        x,y = event.xdata, event.ydata
+        x, y = event.xdata, event.ydata
 
-        self.poly.xy[self._ind] = x,y
+        self.poly.xy[self._ind] = x, y
         self.line.set_data(zip(*self.poly.xy))
 
         self.canvas.restore_region(self.background)
@@ -156,6 +156,6 @@ if __name__ == '__main__':
 
     #ax.add_line(p.line)
     ax.set_title('Click and drag a point to move it')
-    ax.set_xlim((-2,2))
-    ax.set_ylim((-2,2))
+    ax.set_xlim((-2, 2))
+    ax.set_ylim((-2, 2))
     plt.show()

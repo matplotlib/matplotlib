@@ -7,7 +7,7 @@ dt = 0.001
 t = arange(0.0, 10.0, dt)
 r = exp(-t[:1000]/0.05)               # impulse response
 x = randn(len(t))
-s = convolve(x,r)[:len(x)]*dt  # colored noise
+s = convolve(x, r)[:len(x)]*dt  # colored noise
 
 # the main axes is subplot(111) by default
 plot(t, s)
@@ -26,7 +26,7 @@ setp(a, xticks=[], yticks=[])
 a = axes([0.2, 0.6, .2, .2], axisbg='y')
 plot(t[:len(r)], r)
 title('Impulse response')
-setp(a, xlim=(0,.2), xticks=[], yticks=[])
+setp(a, xlim=(0, .2), xticks=[], yticks=[])
 
 
 show()

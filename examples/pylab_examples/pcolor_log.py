@@ -12,11 +12,11 @@ X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
 # linear scale only shows the spike.
 Z1 = bivariate_normal(X, Y, 0.1, 0.2, 1.0, 1.0) + 0.1 * bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
 
-plt.subplot(2,1,1)
+plt.subplot(2, 1, 1)
 plt.pcolor(X, Y, Z1, norm=LogNorm(vmin=Z1.min(), vmax=Z1.max()), cmap='PuBu_r')
 plt.colorbar()
 
-plt.subplot(2,1,2)
+plt.subplot(2, 1, 2)
 plt.pcolor(X, Y, Z1, cmap='PuBu_r')
 plt.colorbar()
 

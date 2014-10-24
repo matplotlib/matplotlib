@@ -4,8 +4,8 @@ from matplotlib.patches import Ellipse
 import numpy as np
 
 if 1:
-    fig = figure(1,figsize=(8,5))
-    ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1,5), ylim=(-4,3))
+    fig = figure(1, figsize=(8, 5))
+    ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1, 5), ylim=(-4, 3))
 
     t = np.arange(0.0, 5.0, 0.01)
     s = np.cos(2*np.pi*t)
@@ -82,7 +82,7 @@ if 1:
 if 1:
     fig = figure(2)
     fig.clf()
-    ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1,5), ylim=(-5,3))
+    ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1, 5), ylim=(-5, 3))
 
     el = Ellipse((2, -1), 0.5, 0.5)
     ax.add_patch(el)

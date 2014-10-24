@@ -9,7 +9,7 @@ rc('xtick', labelsize=15)
 rc('ytick', labelsize=15)
 
 # force square figure and square axes looks better for polar, IMO
-fig = figure(figsize=(8,8))
+fig = figure(figsize=(8, 8))
 ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True, axisbg='#d5de9c')
 
 r = np.arange(0, 3.0, 0.01)

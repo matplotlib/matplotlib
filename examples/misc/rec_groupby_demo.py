@@ -18,7 +18,7 @@ def daily_return(prices):
 
 def volume_code(volume):
     'code the continuous volume data categorically'
-    ind = np.searchsorted([1e5,1e6, 5e6,10e6, 1e7], volume)
+    ind = np.searchsorted([1e5, 1e6, 5e6, 10e6, 1e7], volume)
     return ind
 
 # a list of (dtype_name, summary_function, output_dtype_name).
@@ -57,7 +57,7 @@ print(mlab.rec2txt(rm))
 
 # or over multiple variables like years and months
 print('summary by year and month')
-rym = mlab.rec_groupby(rsum, ('years','months'), stats)
+rym = mlab.rec_groupby(rsum, ('years', 'months'), stats)
 print(mlab.rec2txt(rym))
 
 print('summary by volume')

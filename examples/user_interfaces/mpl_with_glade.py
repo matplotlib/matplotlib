@@ -44,13 +44,13 @@ class WidgetsWrapper(object):
         self.widgets.signal_autoconnect(GladeHandlers.__dict__)
 
         self['windowMain'].connect('destroy', lambda x: gtk.main_quit())
-        self['windowMain'].move(10,10)
-        self.figure = Figure(figsize=(8,6), dpi=72)
+        self['windowMain'].move(10, 10)
+        self.figure = Figure(figsize=(8, 6), dpi=72)
         self.axis = self.figure.add_subplot(111)
 
-        t = arange(0.0,3.0,0.01)
+        t = arange(0.0, 3.0, 0.01)
         s = sin(2*pi*t)
-        self.axis.plot(t,s)
+        self.axis.plot(t, s)
         self.axis.set_xlabel('time (s)')
         self.axis.set_ylabel('voltage')
 
@@ -93,7 +93,7 @@ class WidgetsWrapper(object):
         sep.show()
         self['vboxMain'].pack_start(sep, True, True)
 
-        self['vboxMain'].reorder_child(self['buttonClickMe'],-1)
+        self['vboxMain'].reorder_child(self['buttonClickMe'], -1)
 
     def __getitem__(self, key):
         return self.widgets.get_widget(key)

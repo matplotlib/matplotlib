@@ -12,7 +12,7 @@ axes([0.025, 0.025, 0.95, 0.95], axisbg='#bfd1d4')
 
 t = arange(0, 2, 0.05)
 s = sin(2*pi*t)
-plot(t,s, linewidth=4, color="#ca7900")
+plot(t, s, linewidth=4, color="#ca7900")
 axis([-.2, 2.2, -1.2, 1.2])
 
 # grid(True)

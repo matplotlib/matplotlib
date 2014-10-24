@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-x,y = np.random.randn(2,100)
+x, y = np.random.randn(2, 100)
 fig = plt.figure()
 ax1 = fig.add_subplot(211)
 ax1.xcorr(x, y, usevlines=True, maxlags=50, normed=True, lw=2)

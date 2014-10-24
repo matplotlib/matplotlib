@@ -18,23 +18,23 @@ boxplot(data)
 
 # notched plot
 figure()
-boxplot(data,1)
+boxplot(data, 1)
 
 # change outlier point symbols
 figure()
-boxplot(data,0,'gD')
+boxplot(data, 0, 'gD')
 
 # don't show outlier points
 figure()
-boxplot(data,0,'')
+boxplot(data, 0, '')
 
 # horizontal boxes
 figure()
-boxplot(data,0,'rs',0)
+boxplot(data, 0, 'rs', 0)
 
 # change whisker length
 figure()
-boxplot(data,0,'rs',0,0.75)
+boxplot(data, 0, 'rs', 0, 0.75)
 
 # fake up some more data
 spread= rand(50) * 100
@@ -49,7 +49,7 @@ d2.shape = (-1, 1)
 # same length.  If they are not, then use a list instead.
 # This is actually more efficient because boxplot converts
 # a 2-D array into a list of vectors internally anyway.
-data = [data, d2, d2[::2,0]]
+data = [data, d2, d2[::2, 0]]
 # multiple box plots on one figure
 figure()
 boxplot(data)
