@@ -466,8 +466,17 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        ls : { '-',  '--', '-.', ':' , 'solid', 'dashed', 'dashdot', 'dotted', (offset, on-off-dash-seq)}
-            The line style.  [[EXPLAIN on-off-dash-seq]]
+        ls : { '-',  '--', '-.', ':'} and more see description
+            The line style.  The written out linestyles
+            'solid', 'dashed', 'dashdot' and 'dotted' and drawstyle in
+            combination with a linestyle, e.g., ``'steps--'`` are also allowed.
+
+            Alternatively a dash tuple of the following form can be provided::
+
+                        (offset, onoffseq),
+
+            where ``onoffseq`` is an even length tuple of on and off ink
+            in points.
         """
         try:
             dashd = backend_bases.GraphicsContextBase.dashd

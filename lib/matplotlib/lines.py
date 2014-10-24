@@ -937,10 +937,17 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        ls : { '-',  '--', '-.', ':' , 'solid', 'dashed', 'dashdot', 'dotted', (offset, on-off-dash-seq)}
-            The line style.  [[EXPLAIN on-off-dash-seq]]
-            Also accepts any drawstyle in combination with a linestyle,
-            e.g., ``'steps--'``.
+        ls : { '-',  '--', '-.', ':'} and more see description
+            The line style.  The written out linestyles
+            'solid', 'dashed', 'dashdot' and 'dotted' and drawstyle in
+            combination with a linestyle, e.g., ``'steps--'`` are also allowed.
+
+            Alternatively a dash tuple of the following form can be provided::
+
+                        (offset, onoffseq),
+
+            where ``onoffseq`` is an even length tuple of on and off ink
+            in points.
         """
         if not is_string_like(linestyle):
             if len(linestyle) != 2:
