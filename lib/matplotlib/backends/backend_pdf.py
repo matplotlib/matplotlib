@@ -2273,7 +2273,10 @@ class GraphicsContextPdf(GraphicsContextBase):
                 ours = getattr(self, p)
                 theirs = getattr(other, p)
                 try:
-                    different = bool(ours != theirs)
+                    if (ours is None or theirs is None):
+                        different = bool(not(ours is theirs))
+                    else:
+                        different = bool(ours != theirs)
                 except ValueError:
                     ours = np.asarray(ours)
                     theirs = np.asarray(theirs)
