@@ -569,16 +569,31 @@ class CheckButtons(AxesWidget):
         if event.inaxes != self.ax:
             return
 
-        for p, t, lines in zip(self.rectangles, self.labels, self.lines):
+        for i, (p, t) in enumerate(zip(self.rectangles, self.labels)):
             if (t.get_window_extent().contains(event.x, event.y) or
                     p.get_window_extent().contains(event.x, event.y)):
-                l1, l2 = lines
-                l1.set_visible(not l1.get_visible())
-                l2.set_visible(not l2.get_visible())
-                thist = t
+                self.set_active(i)
                 break
         else:
             return
+
+    def set_active(self, index):
+        """
+        Directly (de)activate a check button by index.
+
+        *index* is an index into the original label list
+            that this object was constructed with.
+            Raises ValueError if *index* is invalid.
+
+        Callbacks will be triggered if :attr:`eventson` is True.
+
+        """
+        if 0 > index >= len(self.labels):
+            raise ValueError("Invalid CheckButton index: %d" % index)
+
+        l1, l2 = self.lines[index]
+        l1.set_visible(not l1.get_visible())
+        l2.set_visible(not l2.get_visible())
 
         if self.drawon:
             self.ax.figure.canvas.draw()
@@ -586,7 +601,7 @@ class CheckButtons(AxesWidget):
         if not self.eventson:
             return
         for cid, func in six.iteritems(self.observers):
-            func(thist.get_text())
+            func(self.labels[index].get_text())
 
     def on_clicked(self, func):
         """
@@ -700,12 +715,10 @@ class RadioButtons(AxesWidget):
 
         for i, (p, t) in enumerate(zip(self.circles, self.labels)):
             if t.get_window_extent().contains(event.x, event.y) or inside(p):
-                index_match = i
+                self.set_active(i)
                 break
         else:
             return
-
-        self.set_active(index_match)
 
     def set_active(self, index):
         """
@@ -713,6 +726,9 @@ class RadioButtons(AxesWidget):
 
         *index* is an index into the original label list
             that this object was constructed with.
+            Raise ValueError if the index is invalid.
+
+        Callbacks will be triggered if :attr:`eventson` is True.
 
         """
         if 0 > index >= len(self.labels):
