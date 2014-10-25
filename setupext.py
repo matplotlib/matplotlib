@@ -1171,11 +1171,11 @@ class Tri(SetupPackage):
     def get_extension(self):
         sources = [
             "lib/matplotlib/tri/_tri.cpp",
+            "lib/matplotlib/tri/_tri_wrapper.cpp",
             "src/mplutils.cpp"
             ]
         ext = make_extension('matplotlib._tri', sources)
         Numpy().add_flags(ext)
-        CXX().add_flags(ext)
         return ext
 
 
