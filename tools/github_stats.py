@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 """Simple tools to query github.com and gather stats about issues.
 
-To generate a report for IPython 2.0, run:
+The tool is copied from IPython rev 59f77d02558ed9b42303d04a22c49a230f5c7159
 
-    python github_stats.py --milestone 2.0 --since-tag rel-1.0.0
+To generate a report for Matplotlib 1.4.0, run:
+
+    python github_stats.py --since-tag v1.3.0
 """
 #-----------------------------------------------------------------------------
 # Imports
@@ -128,7 +130,7 @@ if __name__ == "__main__":
     parser.add_argument('--days', type=int,
         help="The number of days of data to summarize (use this or --since-tag)."
     )
-    parser.add_argument('--project', type=str, default="ipython/ipython",
+    parser.add_argument('--project', type=str, default="matplotlib/matplotlib",
         help="The project to summarize."
     )
     
@@ -183,6 +185,11 @@ if __name__ == "__main__":
     print()
     since_day = since.strftime("%Y/%m/%d")
     today = datetime.today().strftime("%Y/%m/%d")
+    print(".. _github-stats:")
+    print()
+    print('Github stats')
+    print('============')
+    print()
     print("GitHub stats for %s - %s (tag: %s)" % (since_day, today, tag))
     print()
     print("These lists are automatically generated, and may be incomplete or contain duplicates.")
