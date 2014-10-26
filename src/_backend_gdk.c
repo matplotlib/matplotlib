@@ -7,6 +7,11 @@
 
 #include <pygtk/pygtk.h>
 
+// support numpy 1.6 - this macro was renamed and deprecated at once in 1.7
+#ifndef NPY_ARRAY_WRITEABLE
+#define NPY_ARRAY_WRITEABLE NPY_WRITEABLE
+#endif
+
 static PyTypeObject *_PyGdkPixbuf_Type;
 #define PyGdkPixbuf_Type (*_PyGdkPixbuf_Type)
 
