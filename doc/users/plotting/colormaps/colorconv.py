@@ -3,6 +3,11 @@
 
 """Functions for converting between color spaces.
 
+Colorconv is copied from scikit-image to avoid an additional dependency on scikit-image
+in the matplotlib documentation. You should almost sertanly use the original module 
+for any other use. This only contains the bare minumum functions needed for rgb2lab
+Utility functions copied from dtype.py
+
 The "central" color space in this module is RGB, more specifically the linear
 sRGB color space using D65 as a white-point [1]_.  This represents a
 standard monitor (w/o gamma correction). For a good FAQ on color spaces see
@@ -54,88 +59,7 @@ References
 from __future__ import division
 
 import numpy as np
-from scipy import linalg
-from ..util import dtype
-
-
-def guess_spatial_dimensions(image):
-    """Make an educated guess about whether an image has a channels dimension.
-
-    Parameters
-    ----------
-    image : ndarray
-        The input image.
-
-    Returns
-    -------
-    spatial_dims : int or None
-        The number of spatial dimensions of `image`. If ambiguous, the value
-        is ``None``.
-
-    Raises
-    ------
-    ValueError
-        If the image array has less than two or more than four dimensions.
-    """
-    if image.ndim == 2:
-        return 2
-    if image.ndim == 3 and image.shape[-1] != 3:
-        return 3
-    if image.ndim == 3 and image.shape[-1] == 3:
-        return None
-    if image.ndim == 4 and image.shape[-1] == 3:
-        return 3
-    else:
-        raise ValueError("Expected 2D, 3D, or 4D array, got %iD." % image.ndim)
-
-
-def convert_colorspace(arr, fromspace, tospace):
-    """Convert an image array to a new color space.
-
-    Parameters
-    ----------
-    arr : array_like
-        The image to convert.
-    fromspace : str
-        The color space to convert from. Valid color space strings are
-        ``['RGB', 'HSV', 'RGB CIE', 'XYZ']``. Value may also be specified as
-        lower case.
-    tospace : str
-        The color space to convert to. Valid color space strings are
-        ``['RGB', 'HSV', 'RGB CIE', 'XYZ']``. Value may also be specified as
-        lower case.
-
-    Returns
-    -------
-    newarr : ndarray
-        The converted image.
-
-    Notes
-    -----
-    Conversion occurs through the "central" RGB color space, i.e. conversion
-    from XYZ to HSV is implemented as ``XYZ -> RGB -> HSV`` instead of
-    directly.
-
-    Examples
-    --------
-    >>> from skimage import data
-    >>> lena = data.lena()
-    >>> lena_hsv = convert_colorspace(lena, 'RGB', 'HSV')
-    """
-    fromdict = {'RGB': lambda im: im, 'HSV': hsv2rgb, 'RGB CIE': rgbcie2rgb,
-                'XYZ': xyz2rgb}
-    todict = {'RGB': lambda im: im, 'HSV': rgb2hsv, 'RGB CIE': rgb2rgbcie,
-              'XYZ': rgb2xyz}
-
-    fromspace = fromspace.upper()
-    tospace = tospace.upper()
-    if fromspace not in fromdict.keys():
-        raise ValueError('fromspace needs to be one of %s' % fromdict.keys())
-    if tospace not in todict.keys():
-        raise ValueError('tospace needs to be one of %s' % todict.keys())
-
-    return todict[tospace](fromdict[fromspace](arr))
-
+from numpy import linalg
 
 def _prepare_colorarray(arr):
     """Check the shape of the array and convert it to
@@ -149,142 +73,7 @@ def _prepare_colorarray(arr):
                "got (" + (", ".join(map(str, arr.shape))) + ")")
         raise ValueError(msg)
 
-    return dtype.img_as_float(arr)
-
-
-def rgb2hsv(rgb):
-    """RGB to HSV color space conversion.
-
-    Parameters
-    ----------
-    rgb : array_like
-        The image in RGB format, in a 3-D array of shape ``(.., .., 3)``.
-
-    Returns
-    -------
-    out : ndarray
-        The image in HSV format, in a 3-D array of shape ``(.., .., 3)``.
-
-    Raises
-    ------
-    ValueError
-        If `rgb` is not a 3-D array of shape ``(.., .., 3)``.
-
-    Notes
-    -----
-    The conversion assumes an input data range of [0, 1] for all
-    color components.
-
-    Conversion between RGB and HSV color spaces results in some loss of
-    precision, due to integer arithmetic and rounding [1]_.
-
-    References
-    ----------
-    .. [1] http://en.wikipedia.org/wiki/HSL_and_HSV
-
-    Examples
-    --------
-    >>> from skimage import color
-    >>> from skimage import data
-    >>> lena = data.lena()
-    >>> lena_hsv = color.rgb2hsv(lena)
-    """
-    arr = _prepare_colorarray(rgb)
-    out = np.empty_like(arr)
-
-    # -- V channel
-    out_v = arr.max(-1)
-
-    # -- S channel
-    delta = arr.ptp(-1)
-    # Ignore warning for zero divided by zero
-    old_settings = np.seterr(invalid='ignore')
-    out_s = delta / out_v
-    out_s[delta == 0.] = 0.
-
-    # -- H channel
-    # red is max
-    idx = (arr[:, :, 0] == out_v)
-    out[idx, 0] = (arr[idx, 1] - arr[idx, 2]) / delta[idx]
-
-    # green is max
-    idx = (arr[:, :, 1] == out_v)
-    out[idx, 0] = 2. + (arr[idx, 2] - arr[idx, 0]) / delta[idx]
-
-    # blue is max
-    idx = (arr[:, :, 2] == out_v)
-    out[idx, 0] = 4. + (arr[idx, 0] - arr[idx, 1]) / delta[idx]
-    out_h = (out[:, :, 0] / 6.) % 1.
-    out_h[delta == 0.] = 0.
-
-    np.seterr(**old_settings)
-
-    # -- output
-    out[:, :, 0] = out_h
-    out[:, :, 1] = out_s
-    out[:, :, 2] = out_v
-
-    # remove NaN
-    out[np.isnan(out)] = 0
-
-    return out
-
-
-def hsv2rgb(hsv):
-    """HSV to RGB color space conversion.
-
-    Parameters
-    ----------
-    hsv : array_like
-        The image in HSV format, in a 3-D array of shape ``(.., .., 3)``.
-
-    Returns
-    -------
-    out : ndarray
-        The image in RGB format, in a 3-D array of shape ``(.., .., 3)``.
-
-    Raises
-    ------
-    ValueError
-        If `hsv` is not a 3-D array of shape ``(.., .., 3)``.
-
-    Notes
-    -----
-    The conversion assumes an input data range of ``[0, 1]`` for all
-    color components.
-
-    Conversion between RGB and HSV color spaces results in some loss of
-    precision, due to integer arithmetic and rounding [1]_.
-
-    References
-    ----------
-    .. [1] http://en.wikipedia.org/wiki/HSL_and_HSV
-
-    Examples
-    --------
-    >>> from skimage import data
-    >>> lena = data.lena()
-    >>> lena_hsv = rgb2hsv(lena)
-    >>> lena_rgb = hsv2rgb(lena_hsv)
-    """
-    arr = _prepare_colorarray(hsv)
-
-    hi = np.floor(arr[:, :, 0] * 6)
-    f = arr[:, :, 0] * 6 - hi
-    p = arr[:, :, 2] * (1 - arr[:, :, 1])
-    q = arr[:, :, 2] * (1 - f * arr[:, :, 1])
-    t = arr[:, :, 2] * (1 - (1 - f) * arr[:, :, 1])
-    v = arr[:, :, 2]
-
-    hi = np.dstack([hi, hi, hi]).astype(np.uint8) % 6
-    out = np.choose(hi, [np.dstack((v, t, p)),
-                         np.dstack((q, v, p)),
-                         np.dstack((p, v, t)),
-                         np.dstack((p, q, v)),
-                         np.dstack((t, p, v)),
-                         np.dstack((v, p, q))])
-
-    return out
+    return img_as_float(arr)
 
 
 # ---------------------------------------------------------------
@@ -303,28 +92,6 @@ xyz_from_rgb = np.array([[0.412453, 0.357580, 0.180423],
                         [0.019334, 0.119193, 0.950227]])
 
 rgb_from_xyz = linalg.inv(xyz_from_rgb)
-
-# From http://en.wikipedia.org/wiki/CIE_1931_color_space
-# Note: Travis's code did not have the divide by 0.17697
-xyz_from_rgbcie = np.array([[0.49, 0.31, 0.20],
-                            [0.17697, 0.81240, 0.01063],
-                            [0.00, 0.01, 0.99]]) / 0.17697
-
-rgbcie_from_xyz = linalg.inv(xyz_from_rgbcie)
-
-# construct matrices to and from rgb:
-rgbcie_from_rgb = np.dot(rgbcie_from_xyz, xyz_from_rgb)
-rgb_from_rgbcie = np.dot(rgb_from_xyz, xyz_from_rgbcie)
-
-
-gray_from_rgb = np.array([[0.2125, 0.7154, 0.0721],
-                          [0, 0, 0],
-                          [0, 0, 0]])
-
-# CIE LAB constants for Observer=2A, Illuminant=D65
-# NOTE: this is actually the XYZ values for the illuminant above.
-lab_ref_white = np.array([0.95047, 1., 1.08883])
-
 # XYZ coordinates of the illuminants, scaled to [0, 1]. For each illuminant I
 # we have:
 #
@@ -397,93 +164,6 @@ def get_xyz_coords(illuminant, observer):
         raise ValueError("Unknown illuminant/observer combination\
         (\'{0}\', \'{1}\')".format(illuminant, observer))
 
-# Haematoxylin-Eosin-DAB colorspace
-# From original Ruifrok's paper: A. C. Ruifrok and D. A. Johnston,
-# "Quantification of histochemical staining by color deconvolution.,"
-# Analytical and quantitative cytology and histology / the International
-# Academy of Cytology [and] American Society of Cytology, vol. 23, no. 4,
-# pp. 291-9, Aug. 2001.
-rgb_from_hed = np.array([[0.65, 0.70, 0.29],
-                         [0.07, 0.99, 0.11],
-                         [0.27, 0.57, 0.78]])
-hed_from_rgb = linalg.inv(rgb_from_hed)
-
-# Following matrices are adapted form the Java code written by G.Landini.
-# The original code is available at:
-# http://www.dentistry.bham.ac.uk/landinig/software/cdeconv/cdeconv.html
-
-# Hematoxylin + DAB
-rgb_from_hdx = np.array([[0.650, 0.704, 0.286],
-                         [0.268, 0.570, 0.776],
-                         [0.0, 0.0, 0.0]])
-rgb_from_hdx[2, :] = np.cross(rgb_from_hdx[0, :], rgb_from_hdx[1, :])
-hdx_from_rgb = linalg.inv(rgb_from_hdx)
-
-# Feulgen + Light Green
-rgb_from_fgx = np.array([[0.46420921, 0.83008335, 0.30827187],
-                         [0.94705542, 0.25373821, 0.19650764],
-                         [0.0, 0.0, 0.0]])
-rgb_from_fgx[2, :] = np.cross(rgb_from_fgx[0, :], rgb_from_fgx[1, :])
-fgx_from_rgb = linalg.inv(rgb_from_fgx)
-
-# Giemsa: Methyl Blue + Eosin
-rgb_from_bex = np.array([[0.834750233, 0.513556283, 0.196330403],
-                         [0.092789, 0.954111, 0.283111],
-                         [0.0, 0.0, 0.0]])
-rgb_from_bex[2, :] = np.cross(rgb_from_bex[0, :], rgb_from_bex[1, :])
-bex_from_rgb = linalg.inv(rgb_from_bex)
-
-# FastRed + FastBlue +  DAB
-rgb_from_rbd = np.array([[0.21393921, 0.85112669, 0.47794022],
-                         [0.74890292, 0.60624161, 0.26731082],
-                         [0.268, 0.570, 0.776]])
-rbd_from_rgb = linalg.inv(rgb_from_rbd)
-
-# Methyl Green + DAB
-rgb_from_gdx = np.array([[0.98003, 0.144316, 0.133146],
-                         [0.268, 0.570, 0.776],
-                         [0.0, 0.0, 0.0]])
-rgb_from_gdx[2, :] = np.cross(rgb_from_gdx[0, :], rgb_from_gdx[1, :])
-gdx_from_rgb = linalg.inv(rgb_from_gdx)
-
-# Hematoxylin + AEC
-rgb_from_hax = np.array([[0.650, 0.704, 0.286],
-                         [0.2743, 0.6796, 0.6803],
-                         [0.0, 0.0, 0.0]])
-rgb_from_hax[2, :] = np.cross(rgb_from_hax[0, :], rgb_from_hax[1, :])
-hax_from_rgb = linalg.inv(rgb_from_hax)
-
-# Blue matrix Anilline Blue + Red matrix Azocarmine + Orange matrix Orange-G
-rgb_from_bro = np.array([[0.853033, 0.508733, 0.112656],
-                         [0.09289875, 0.8662008, 0.49098468],
-                         [0.10732849, 0.36765403, 0.9237484]])
-bro_from_rgb = linalg.inv(rgb_from_bro)
-
-# Methyl Blue + Ponceau Fuchsin
-rgb_from_bpx = np.array([[0.7995107, 0.5913521, 0.10528667],
-                         [0.09997159, 0.73738605, 0.6680326],
-                         [0.0, 0.0, 0.0]])
-rgb_from_bpx[2, :] = np.cross(rgb_from_bpx[0, :], rgb_from_bpx[1, :])
-bpx_from_rgb = linalg.inv(rgb_from_bpx)
-
-# Alcian Blue + Hematoxylin
-rgb_from_ahx = np.array([[0.874622, 0.457711, 0.158256],
-                         [0.552556, 0.7544, 0.353744],
-                         [0.0, 0.0, 0.0]])
-rgb_from_ahx[2, :] = np.cross(rgb_from_ahx[0, :], rgb_from_ahx[1, :])
-ahx_from_rgb = linalg.inv(rgb_from_ahx)
-
-# Hematoxylin + PAS
-rgb_from_hpx = np.array([[0.644211, 0.716556, 0.266844],
-                         [0.175411, 0.972178, 0.154589],
-                         [0.0, 0.0, 0.0]])
-rgb_from_hpx[2, :] = np.cross(rgb_from_hpx[0, :], rgb_from_hpx[1, :])
-hpx_from_rgb = linalg.inv(rgb_from_hpx)
-
-# -------------------------------------------------------------
-# The conversion functions that make use of the matrices above
-# -------------------------------------------------------------
-
 
 def _convert(matrix, arr):
     """Do the color space conversion.
@@ -509,50 +189,6 @@ def _convert(matrix, arr):
     out = np.swapaxes(out, -1, 0)
 
     return np.ascontiguousarray(out)
-
-
-def xyz2rgb(xyz):
-    """XYZ to RGB color space conversion.
-
-    Parameters
-    ----------
-    xyz : array_like
-        The image in XYZ format, in a 3-D array of shape ``(.., .., 3)``.
-
-    Returns
-    -------
-    out : ndarray
-        The image in RGB format, in a 3-D array of shape ``(.., .., 3)``.
-
-    Raises
-    ------
-    ValueError
-        If `xyz` is not a 3-D array of shape ``(.., .., 3)``.
-
-    Notes
-    -----
-    The CIE XYZ color space is derived from the CIE RGB color space. Note
-    however that this function converts to sRGB.
-
-    References
-    ----------
-    .. [1] http://en.wikipedia.org/wiki/CIE_1931_color_space
-
-    Examples
-    --------
-    >>> from skimage import data
-    >>> from skimage.color import rgb2xyz, xyz2rgb
-    >>> lena = data.lena()
-    >>> lena_xyz = rgb2xyz(lena)
-    >>> lena_rgb = xyz2rgb(lena_xyz)
-    """
-    # Follow the algorithm from http://www.easyrgb.com/index.php
-    # except we don't multiply/divide by 100 in the conversion
-    arr = _convert(rgb_from_xyz, xyz)
-    mask = arr > 0.0031308
-    arr[mask] = 1.055 * np.power(arr[mask], 1 / 2.4) - 0.055
-    arr[~mask] *= 12.92
-    return arr
 
 
 def rgb2xyz(rgb):
@@ -597,147 +233,6 @@ def rgb2xyz(rgb):
     arr[mask] = np.power((arr[mask] + 0.055) / 1.055, 2.4)
     arr[~mask] /= 12.92
     return _convert(xyz_from_rgb, arr)
-
-
-def rgb2rgbcie(rgb):
-    """RGB to RGB CIE color space conversion.
-
-    Parameters
-    ----------
-    rgb : array_like
-        The image in RGB format, in a 3-D array of shape ``(.., .., 3)``.
-
-    Returns
-    -------
-    out : ndarray
-        The image in RGB CIE format, in a 3-D array of shape ``(.., .., 3)``.
-
-    Raises
-    ------
-    ValueError
-        If `rgb` is not a 3-D array of shape ``(.., .., 3)``.
-
-    References
-    ----------
-    .. [1] http://en.wikipedia.org/wiki/CIE_1931_color_space
-
-    Examples
-    --------
-    >>> from skimage import data
-    >>> from skimage.color import rgb2rgbcie
-    >>> lena = data.lena()
-    >>> lena_rgbcie = rgb2rgbcie(lena)
-    """
-    return _convert(rgbcie_from_rgb, rgb)
-
-
-def rgbcie2rgb(rgbcie):
-    """RGB CIE to RGB color space conversion.
-
-    Parameters
-    ----------
-    rgbcie : array_like
-        The image in RGB CIE format, in a 3-D array of shape ``(.., .., 3)``.
-
-    Returns
-    -------
-    out : ndarray
-        The image in RGB format, in a 3-D array of shape ``(.., .., 3)``.
-
-    Raises
-    ------
-    ValueError
-        If `rgbcie` is not a 3-D array of shape ``(.., .., 3)``.
-
-    References
-    ----------
-    .. [1] http://en.wikipedia.org/wiki/CIE_1931_color_space
-
-    Examples
-    --------
-    >>> from skimage import data
-    >>> from skimage.color import rgb2rgbcie, rgbcie2rgb
-    >>> lena = data.lena()
-    >>> lena_rgbcie = rgb2rgbcie(lena)
-    >>> lena_rgb = rgbcie2rgb(lena_rgbcie)
-    """
-    return _convert(rgb_from_rgbcie, rgbcie)
-
-
-def rgb2gray(rgb):
-    """Compute luminance of an RGB image.
-
-    Parameters
-    ----------
-    rgb : array_like
-        The image in RGB format, in a 3-D array of shape ``(.., .., 3)``,
-        or in RGBA format with shape ``(.., .., 4)``.
-
-    Returns
-    -------
-    out : ndarray
-        The luminance image, a 2-D array.
-
-    Raises
-    ------
-    ValueError
-        If `rgb2gray` is not a 3-D array of shape ``(.., .., 3)`` or
-        ``(.., .., 4)``.
-
-    References
-    ----------
-    .. [1] http://www.poynton.com/PDFs/ColorFAQ.pdf
-
-    Notes
-    -----
-    The weights used in this conversion are calibrated for contemporary
-    CRT phosphors::
-
-        Y = 0.2125 R + 0.7154 G + 0.0721 B
-
-    If there is an alpha channel present, it is ignored.
-
-    Examples
-    --------
-    >>> from skimage.color import rgb2gray
-    >>> from skimage import data
-    >>> lena = data.lena()
-    >>> lena_gray = rgb2gray(lena)
-    """
-    if rgb.ndim == 2:
-        return rgb
-
-    return _convert(gray_from_rgb, rgb[:, :, :3])[..., 0]
-
-rgb2grey = rgb2gray
-
-
-def gray2rgb(image):
-    """Create an RGB representation of a gray-level image.
-
-    Parameters
-    ----------
-    image : array_like
-        Input image of shape ``(M, N [, P])``.
-
-    Returns
-    -------
-    rgb : ndarray
-        RGB image of shape ``(M, N, [, P], 3)``.
-
-    Raises
-    ------
-    ValueError
-        If the input is not a 2- or 3-dimensional image.
-
-    """
-    if np.squeeze(image).ndim == 3 and image.shape[2] in (3, 4):
-        return image
-    elif image.ndim != 1 and np.squeeze(image).ndim in (1, 2, 3):
-        image = image[..., np.newaxis]
-        return np.concatenate(3 * (image,), axis=-1)
-    else:
-        raise ValueError("Input image expected to be RGB, RGBA or gray.")
 
 
 def xyz2lab(xyz, illuminant="D65", observer="2"):
@@ -809,6 +304,102 @@ def xyz2lab(xyz, illuminant="D65", observer="2"):
     return np.concatenate([x[..., np.newaxis] for x in [L, a, b]], axis=-1)
 
 
+def xyz2rgb(xyz):
+    """XYZ to RGB color space conversion.
+
+    Parameters
+    ----------
+    xyz : array_like
+        The image in XYZ format, in a 3-D array of shape ``(.., .., 3)``.
+
+    Returns
+    -------
+    out : ndarray
+        The image in RGB format, in a 3-D array of shape ``(.., .., 3)``.
+
+    Raises
+    ------
+    ValueError
+        If `xyz` is not a 3-D array of shape ``(.., .., 3)``.
+
+    Notes
+    -----
+    The CIE XYZ color space is derived from the CIE RGB color space. Note
+    however that this function converts to sRGB.
+
+    References
+    ----------
+    .. [1] http://en.wikipedia.org/wiki/CIE_1931_color_space
+
+    Examples
+    --------
+    >>> from skimage import data
+    >>> from skimage.color import rgb2xyz, xyz2rgb
+    >>> lena = data.lena()
+    >>> lena_xyz = rgb2xyz(lena)
+    >>> lena_rgb = xyz2rgb(lena_xyz)
+    """
+    # Follow the algorithm from http://www.easyrgb.com/index.php
+    # except we don't multiply/divide by 100 in the conversion
+    arr = _convert(rgb_from_xyz, xyz)
+    mask = arr > 0.0031308
+    arr[mask] = 1.055 * np.power(arr[mask], 1 / 2.4) - 0.055
+    arr[~mask] *= 12.92
+    return arr
+
+
+def rgb2lab(rgb):
+    """RGB to lab color space conversion.
+
+    Parameters
+    ----------
+    rgb : array_like
+        The image in RGB format, in a 3- or 4-D array of shape
+        ``(.., ..,[ ..,] 3)``.
+
+    Returns
+    -------
+    out : ndarray
+        The image in Lab format, in a 3- or 4-D array of shape
+        ``(.., ..,[ ..,] 3)``.
+
+    Raises
+    ------
+    ValueError
+        If `rgb` is not a 3- or 4-D array of shape ``(.., ..,[ ..,] 3)``.
+
+    Notes
+    -----
+    This function uses rgb2xyz and xyz2lab.
+    """
+    return xyz2lab(rgb2xyz(rgb))
+
+
+def lab2rgb(lab):
+    """Lab to RGB color space conversion.
+
+    Parameters
+    ----------
+    lab : array_like
+        The image in Lab format, in a 3-D array of shape ``(.., .., 3)``.
+
+    Returns
+    -------
+    out : ndarray
+        The image in RGB format, in a 3-D array of shape ``(.., .., 3)``.
+
+    Raises
+    ------
+    ValueError
+        If `lab` is not a 3-D array of shape ``(.., .., 3)``.
+
+    Notes
+    -----
+    This function uses lab2xyz and xyz2rgb.
+    """
+    return xyz2rgb(lab2xyz(lab))
+
+
 def lab2xyz(lab, illuminant="D65", observer="2"):
     """CIE-LAB to XYZcolor space conversion.
 
@@ -867,545 +458,245 @@ def lab2xyz(lab, illuminant="D65", observer="2"):
     return out
 
 
-def rgb2lab(rgb):
-    """RGB to lab color space conversion.
-
-    Parameters
-    ----------
-    rgb : array_like
-        The image in RGB format, in a 3- or 4-D array of shape
-        ``(.., ..,[ ..,] 3)``.
-
-    Returns
-    -------
-    out : ndarray
-        The image in Lab format, in a 3- or 4-D array of shape
-        ``(.., ..,[ ..,] 3)``.
-
-    Raises
-    ------
-    ValueError
-        If `rgb` is not a 3- or 4-D array of shape ``(.., ..,[ ..,] 3)``.
-
-    Notes
-    -----
-    This function uses rgb2xyz and xyz2lab.
+def convert(image, dtype, force_copy=False, uniform=False):
     """
-    return xyz2lab(rgb2xyz(rgb))
+    Convert an image to the requested data-type.
 
+    Warnings are issued in case of precision loss, or when negative values
+    are clipped during conversion to unsigned integer types (sign loss).
 
-def lab2rgb(lab):
-    """Lab to RGB color space conversion.
+    Floating point values are expected to be normalized and will be clipped
+    to the range [0.0, 1.0] or [-1.0, 1.0] when converting to unsigned or
+    signed integers respectively.
 
-    Parameters
-    ----------
-    lab : array_like
-        The image in Lab format, in a 3-D array of shape ``(.., .., 3)``.
-
-    Returns
-    -------
-    out : ndarray
-        The image in RGB format, in a 3-D array of shape ``(.., .., 3)``.
-
-    Raises
-    ------
-    ValueError
-        If `lab` is not a 3-D array of shape ``(.., .., 3)``.
-
-    Notes
-    -----
-    This function uses lab2xyz and xyz2rgb.
-    """
-    return xyz2rgb(lab2xyz(lab))
-
-
-def xyz2luv(xyz, illuminant="D65", observer="2"):
-    """XYZ to CIE-Luv color space conversion.
+    Numbers are not shifted to the negative side when converting from
+    unsigned to signed integer types. Negative values will be clipped when
+    converting to unsigned integers.
 
     Parameters
     ----------
-    xyz : (M, N, [P,] 3) array_like
-        The 3 or 4 dimensional image in XYZ format. Final dimension denotes
-        channels.
-    illuminant : {"A", "D50", "D55", "D65", "D75", "E"}, optional
-        The name of the illuminant (the function is NOT case sensitive).
-    observer : {"2", "10"}, optional
-        The aperture angle of the observer.
-
-    Returns
-    -------
-    out : (M, N, [P,] 3) ndarray
-        The image in CIE-Luv format. Same dimensions as input.
-
-    Raises
-    ------
-    ValueError
-        If `xyz` is not a 3-D or 4-D array of shape ``(M, N, [P,] 3)``.
-    ValueError
-        If either the illuminant or the observer angle are not supported or
-        unknown.
-
-    Notes
-    -----
-    By default XYZ conversion weights use observer=2A. Reference whitepoint
-    for D65 Illuminant, with XYZ tristimulus values of ``(95.047, 100.,
-    108.883)``. See function 'get_xyz_coords' for a list of supported
-    illuminants.
+    image : ndarray
+        Input image.
+    dtype : dtype
+        Target data-type.
+    force_copy : bool
+        Force a copy of the data, irrespective of its current dtype.
+    uniform : bool
+        Uniformly quantize the floating point range to the integer range.
+        By default (uniform=False) floating point values are scaled and
+        rounded to the nearest integers, which minimizes back and forth
+        conversion errors.
 
     References
     ----------
-    .. [1] http://www.easyrgb.com/index.php?X=MATH&H=16#text16
-    .. [2] http://en.wikipedia.org/wiki/CIELUV
+    (1) DirectX data conversion rules.
+        http://msdn.microsoft.com/en-us/library/windows/desktop/dd607323%28v=vs.85%29.aspx
+    (2) Data Conversions.
+        In "OpenGL ES 2.0 Specification v2.0.25", pp 7-8. Khronos Group, 2010.
+    (3) Proper treatment of pixels as integers. A.W. Paeth.
+        In "Graphics Gems I", pp 249-256. Morgan Kaufmann, 1990.
+    (4) Dirty Pixels. J. Blinn.
+        In "Jim Blinn's corner: Dirty Pixels", pp 47-57. Morgan Kaufmann, 1998.
 
-    Examples
-    --------
-    >>> from skimage import data
-    >>> from skimage.color import rgb2xyz, xyz2luv
-    >>> lena = data.lena()
-    >>> lena_xyz = rgb2xyz(lena)
-    >>> lena_luv = xyz2luv(lena_xyz)
     """
-    arr = _prepare_colorarray(xyz)
+    image = np.asarray(image)
+    dtypeobj = np.dtype(dtype)
+    dtypeobj_in = image.dtype
+    dtype = dtypeobj.type
+    dtype_in = dtypeobj_in.type
 
-    # extract channels
-    x, y, z = arr[..., 0], arr[..., 1], arr[..., 2]
+    if dtype_in == dtype:
+        if force_copy:
+            image = image.copy()
+        return image
 
-    eps = np.finfo(np.float).eps
+    if not (dtype_in in _supported_types and dtype in _supported_types):
+        raise ValueError("can not convert %s to %s." % (dtypeobj_in, dtypeobj))
 
-    # compute y_r and L
-    xyz_ref_white = get_xyz_coords(illuminant, observer)
-    L = y / xyz_ref_white[1]
-    mask = L > 0.008856
-    L[mask] = 116. * np.power(L[mask], 1. / 3.) - 16.
-    L[~mask] = 903.3 * L[~mask]
+    def sign_loss():
+        warn("Possible sign loss when converting negative image of type "
+             "%s to positive image of type %s." % (dtypeobj_in, dtypeobj))
 
-    u0 = 4*xyz_ref_white[0] / np.dot([1, 15, 3], xyz_ref_white)
-    v0 = 9*xyz_ref_white[1] / np.dot([1, 15, 3], xyz_ref_white)
+    def prec_loss():
+        warn("Possible precision loss when converting from "
+             "%s to %s" % (dtypeobj_in, dtypeobj))
 
-    # u' and v' helper functions
-    def fu(X, Y, Z):
-        return (4.*X) / (X + 15.*Y + 3.*Z + eps)
+    def _dtype(itemsize, *dtypes):
+        # Return first of `dtypes` with itemsize greater than `itemsize`
+        return next(dt for dt in dtypes if itemsize < np.dtype(dt).itemsize)
 
-    def fv(X, Y, Z):
-        return (9.*Y) / (X + 15.*Y + 3.*Z + eps)
+    def _dtype2(kind, bits, itemsize=1):
+        # Return dtype of `kind` that can store a `bits` wide unsigned int
+        c = lambda x, y: x <= y if kind == 'u' else x < y
+        s = next(i for i in (itemsize, ) + (2, 4, 8) if c(bits, i * 8))
+        return np.dtype(kind + str(s))
 
-    # compute u and v using helper functions
-    u = 13.*L * (fu(x, y, z) - u0)
-    v = 13.*L * (fv(x, y, z) - v0)
+    def _scale(a, n, m, copy=True):
+        # Scale unsigned/positive integers from n to m bits
+        # Numbers can be represented exactly only if m is a multiple of n
+        # Output array is of same kind as input.
+        kind = a.dtype.kind
+        if n == m:
+            return a.copy() if copy else a
+        elif n > m:
+            # downscale with precision loss
+            prec_loss()
+            if copy:
+                b = np.empty(a.shape, _dtype2(kind, m))
+                np.floor_divide(a, 2**(n - m), out=b, dtype=a.dtype,
+                                casting='unsafe')
+                return b
+            else:
+                a //= 2**(n - m)
+                return a
+        elif m % n == 0:
+            # exact upscale to a multiple of n bits
+            if copy:
+                b = np.empty(a.shape, _dtype2(kind, m))
+                np.multiply(a, (2**m - 1) // (2**n - 1), out=b, dtype=b.dtype)
+                return b
+            else:
+                a = np.array(a, _dtype2(kind, m, a.dtype.itemsize), copy=False)
+                a *= (2**m - 1) // (2**n - 1)
+                return a
+        else:
+            # upscale to a multiple of n bits,
+            # then downscale with precision loss
+            prec_loss()
+            o = (m // n + 1) * n
+            if copy:
+                b = np.empty(a.shape, _dtype2(kind, o))
+                np.multiply(a, (2**o - 1) // (2**n - 1), out=b, dtype=b.dtype)
+                b //= 2**(o - m)
+                return b
+            else:
+                a = np.array(a, _dtype2(kind, o, a.dtype.itemsize), copy=False)
+                a *= (2**o - 1) // (2**n - 1)
+                a //= 2**(o - m)
+                return a
 
-    return np.concatenate([q[..., np.newaxis] for q in [L, u, v]], axis=-1)
+    kind = dtypeobj.kind
+    kind_in = dtypeobj_in.kind
+    itemsize = dtypeobj.itemsize
+    itemsize_in = dtypeobj_in.itemsize
+
+    if kind == 'b':
+        # to binary image
+        if kind_in in "fi":
+            sign_loss()
+        prec_loss()
+        return image > dtype_in(dtype_range[dtype_in][1] / 2)
+
+    if kind_in == 'b':
+        # from binary image, to float and to integer
+        result = image.astype(dtype)
+        if kind != 'f':
+            result *= dtype(dtype_range[dtype][1])
+        return result
+
+    if kind in 'ui':
+        imin = np.iinfo(dtype).min
+        imax = np.iinfo(dtype).max
+    if kind_in in 'ui':
+        imin_in = np.iinfo(dtype_in).min
+        imax_in = np.iinfo(dtype_in).max
+
+    if kind_in == 'f':
+        if np.min(image) < -1.0 or np.max(image) > 1.0:
+            raise ValueError("Images of type float must be between -1 and 1.")
+        if kind == 'f':
+            # floating point -> floating point
+            if itemsize_in > itemsize:
+                prec_loss()
+            return image.astype(dtype)
+
+        # floating point -> integer
+        prec_loss()
+        # use float type that can represent output integer type
+        image = np.array(image, _dtype(itemsize, dtype_in,
+                                       np.float32, np.float64))
+        if not uniform:
+            if kind == 'u':
+                image *= imax
+            else:
+                image *= imax - imin
+                image -= 1.0
+                image /= 2.0
+            np.rint(image, out=image)
+            np.clip(image, imin, imax, out=image)
+        elif kind == 'u':
+            image *= imax + 1
+            np.clip(image, 0, imax, out=image)
+        else:
+            image *= (imax - imin + 1.0) / 2.0
+            np.floor(image, out=image)
+            np.clip(image, imin, imax, out=image)
+        return image.astype(dtype)
+
+    if kind == 'f':
+        # integer -> floating point
+        if itemsize_in >= itemsize:
+            prec_loss()
+        # use float type that can exactly represent input integers
+        image = np.array(image, _dtype(itemsize_in, dtype,
+                                       np.float32, np.float64))
+        if kind_in == 'u':
+            image /= imax_in
+            # DirectX uses this conversion also for signed ints
+            #if imin_in:
+            #    np.maximum(image, -1.0, out=image)
+        else:
+            image *= 2.0
+            image += 1.0
+            image /= imax_in - imin_in
+        return image.astype(dtype)
+
+    if kind_in == 'u':
+        if kind == 'i':
+            # unsigned integer -> signed integer
+            image = _scale(image, 8 * itemsize_in, 8 * itemsize - 1)
+            return image.view(dtype)
+        else:
+            # unsigned integer -> unsigned integer
+            return _scale(image, 8 * itemsize_in, 8 * itemsize)
+
+    if kind == 'u':
+        # signed integer -> unsigned integer
+        sign_loss()
+        image = _scale(image, 8 * itemsize_in - 1, 8 * itemsize)
+        result = np.empty(image.shape, dtype)
+        np.maximum(image, 0, out=result, dtype=image.dtype, casting='unsafe')
+        return result
+
+    # signed integer -> signed integer
+    if itemsize_in > itemsize:
+        return _scale(image, 8 * itemsize_in - 1, 8 * itemsize - 1)
+    image = image.astype(_dtype2('i', itemsize * 8))
+    image -= imin_in
+    image = _scale(image, 8 * itemsize_in, 8 * itemsize, copy=False)
+    image += imin
+    return image.astype(dtype)
 
 
-def luv2xyz(luv, illuminant="D65", observer="2"):
-    """CIE-Luv to XYZ color space conversion.
+def img_as_float(image, force_copy=False):
+    """Convert an image to double-precision floating point format.
 
     Parameters
     ----------
-    luv : (M, N, [P,] 3) array_like
-        The 3 or 4 dimensional image in CIE-Luv format. Final dimension denotes
-        channels.
-    illuminant : {"A", "D50", "D55", "D65", "D75", "E"}, optional
-        The name of the illuminant (the function is NOT case sensitive).
-    observer : {"2", "10"}, optional
-        The aperture angle of the observer.
+    image : ndarray
+        Input image.
+    force_copy : bool
+        Force a copy of the data, irrespective of its current dtype.
 
     Returns
     -------
-    out : (M, N, [P,] 3) ndarray
-        The image in XYZ format. Same dimensions as input.
-
-    Raises
-    ------
-    ValueError
-        If `luv` is not a 3-D or 4-D array of shape ``(M, N, [P,] 3)``.
-    ValueError
-        If either the illuminant or the observer angle are not supported or
-        unknown.
+    out : ndarray of float64
+        Output image.
 
     Notes
     -----
-    XYZ conversion weights use observer=2A. Reference whitepoint for D65
-    Illuminant, with XYZ tristimulus values of ``(95.047, 100., 108.883)``. See
-    function 'get_xyz_coords' for a list of supported illuminants.
-
-    References
-    ----------
-    .. [1] http://www.easyrgb.com/index.php?X=MATH&H=16#text16
-    .. [2] http://en.wikipedia.org/wiki/CIELUV
+    The range of a floating point image is [0.0, 1.0] or [-1.0, 1.0] when
+    converting from unsigned or signed datatypes, respectively.
 
     """
-
-    arr = _prepare_colorarray(luv).copy()
-
-    L, u, v = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
-
-    eps = np.finfo(np.float).eps
-
-    # compute y
-    y = L.copy()
-    mask = y > 7.999625
-    y[mask] = np.power((y[mask]+16.) / 116., 3.)
-    y[~mask] = y[~mask] / 903.3
-    xyz_ref_white = get_xyz_coords(illuminant, observer)
-    y *= xyz_ref_white[1]
-
-    # reference white x,z
-    uv_weights = [1, 15, 3]
-    u0 = 4*xyz_ref_white[0] / np.dot(uv_weights, xyz_ref_white)
-    v0 = 9*xyz_ref_white[1] / np.dot(uv_weights, xyz_ref_white)
-
-    # compute intermediate values
-    a = u0 + u / (13.*L + eps)
-    b = v0 + v / (13.*L + eps)
-    c = 3*y * (5*b-3)
-
-    # compute x and z
-    z = ((a-4)*c - 15*a*b*y) / (12*b)
-    x = -(c/b + 3.*z)
-
-    return np.concatenate([q[..., np.newaxis] for q in [x, y, z]], axis=-1)
-
-
-def rgb2luv(rgb):
-    """RGB to CIE-Luv color space conversion.
-
-    Parameters
-    ----------
-    rgb : (M, N, [P,] 3) array_like
-        The 3 or 4 dimensional image in RGB format. Final dimension denotes
-        channels.
-
-    Returns
-    -------
-    out : (M, N, [P,] 3) ndarray
-        The image in CIE Luv format. Same dimensions as input.
-
-    Raises
-    ------
-    ValueError
-        If `rgb` is not a 3-D or 4-D array of shape ``(M, N, [P,] 3)``.
-
-    Notes
-    -----
-    This function uses rgb2xyz and xyz2luv.
-    """
-    return xyz2luv(rgb2xyz(rgb))
-
-
-def luv2rgb(luv):
-    """Luv to RGB color space conversion.
-
-    Parameters
-    ----------
-    luv : (M, N, [P,] 3) array_like
-        The 3 or 4 dimensional image in CIE Luv format. Final dimension denotes
-        channels.
-
-    Returns
-    -------
-    out : (M, N, [P,] 3) ndarray
-        The image in RGB format. Same dimensions as input.
-
-    Raises
-    ------
-    ValueError
-        If `luv` is not a 3-D or 4-D array of shape ``(M, N, [P,] 3)``.
-
-    Notes
-    -----
-    This function uses luv2xyz and xyz2rgb.
-    """
-    return xyz2rgb(luv2xyz(luv))
-
-
-def rgb2hed(rgb):
-    """RGB to Haematoxylin-Eosin-DAB (HED) color space conversion.
-
-    Parameters
-    ----------
-    rgb : array_like
-        The image in RGB format, in a 3-D array of shape ``(.., .., 3)``.
-
-    Returns
-    -------
-    out : ndarray
-        The image in HED format, in a 3-D array of shape ``(.., .., 3)``.
-
-    Raises
-    ------
-    ValueError
-        If `rgb` is not a 3-D array of shape ``(.., .., 3)``.
-
-
-    References
-    ----------
-    .. [1] A. C. Ruifrok and D. A. Johnston, "Quantification of histochemical
-           staining by color deconvolution.," Analytical and quantitative
-           cytology and histology / the International Academy of Cytology [and]
-           American Society of Cytology, vol. 23, no. 4, pp. 291-9, Aug. 2001.
-
-    Examples
-    --------
-    >>> from skimage import data
-    >>> from skimage.color import rgb2hed
-    >>> ihc = data.immunohistochemistry()
-    >>> ihc_hed = rgb2hed(ihc)
-    """
-    return separate_stains(rgb, hed_from_rgb)
-
-
-def hed2rgb(hed):
-    """Haematoxylin-Eosin-DAB (HED) to RGB color space conversion.
-
-    Parameters
-    ----------
-    hed : array_like
-        The image in the HED color space, in a 3-D array of shape
-        ``(.., .., 3)``.
-
-    Returns
-    -------
-    out : ndarray
-        The image in RGB, in a 3-D array of shape ``(.., .., 3)``.
-
-    Raises
-    ------
-    ValueError
-        If `hed` is not a 3-D array of shape ``(.., .., 3)``.
-
-    References
-    ----------
-    .. [1] A. C. Ruifrok and D. A. Johnston, "Quantification of histochemical
-           staining by color deconvolution.," Analytical and quantitative
-           cytology and histology / the International Academy of Cytology [and]
-           American Society of Cytology, vol. 23, no. 4, pp. 291-9, Aug. 2001.
-
-    Examples
-    --------
-    >>> from skimage import data
-    >>> from skimage.color import rgb2hed, hed2rgb
-    >>> ihc = data.immunohistochemistry()
-    >>> ihc_hed = rgb2hed(ihc)
-    >>> ihc_rgb = hed2rgb(ihc_hed)
-    """
-    return combine_stains(hed, rgb_from_hed)
-
-
-def separate_stains(rgb, conv_matrix):
-    """RGB to stain color space conversion.
-
-    Parameters
-    ----------
-    rgb : array_like
-        The image in RGB format, in a 3-D array of shape ``(.., .., 3)``.
-    conv_matrix: ndarray
-        The stain separation matrix as described by G. Landini [1]_.
-
-    Returns
-    -------
-    out : ndarray
-        The image in stain color space, in a 3-D array of shape
-        ``(.., .., 3)``.
-
-    Raises
-    ------
-    ValueError
-        If `rgb` is not a 3-D array of shape ``(.., .., 3)``.
-
-    Notes
-    -----
-    Stain separation matrices available in the ``color`` module and their
-    respective colorspace:
-
-    * ``hed_from_rgb``: Hematoxylin + Eosin + DAB
-    * ``hdx_from_rgb``: Hematoxylin + DAB
-    * ``fgx_from_rgb``: Feulgen + Light Green
-    * ``bex_from_rgb``: Giemsa stain : Methyl Blue + Eosin
-    * ``rbd_from_rgb``: FastRed + FastBlue +  DAB
-    * ``gdx_from_rgb``: Methyl Green + DAB
-    * ``hax_from_rgb``: Hematoxylin + AEC
-    * ``bro_from_rgb``: Blue matrix Anilline Blue + Red matrix Azocarmine\
-                        + Orange matrix Orange-G
-    * ``bpx_from_rgb``: Methyl Blue + Ponceau Fuchsin
-    * ``ahx_from_rgb``: Alcian Blue + Hematoxylin
-    * ``hpx_from_rgb``: Hematoxylin + PAS
-
-    References
-    ----------
-    .. [1] http://www.dentistry.bham.ac.uk/landinig/software/cdeconv/cdeconv.html
-
-    Examples
-    --------
-    >>> from skimage import data
-    >>> from skimage.color import separate_stains, hdx_from_rgb
-    >>> ihc = data.immunohistochemistry()
-    >>> ihc_hdx = separate_stains(ihc, hdx_from_rgb)
-    """
-    rgb = dtype.img_as_float(rgb, force_copy=True)
-    rgb += 2
-    stains = np.dot(np.reshape(-np.log(rgb), (-1, 3)), conv_matrix)
-    return np.reshape(stains, rgb.shape)
-
-
-def combine_stains(stains, conv_matrix):
-    """Stain to RGB color space conversion.
-
-    Parameters
-    ----------
-    stains : array_like
-        The image in stain color space, in a 3-D array of shape
-        ``(.., .., 3)``.
-    conv_matrix: ndarray
-        The stain separation matrix as described by G. Landini [1]_.
-
-    Returns
-    -------
-    out : ndarray
-        The image in RGB format, in a 3-D array of shape ``(.., .., 3)``.
-
-    Raises
-    ------
-    ValueError
-        If `stains` is not a 3-D array of shape ``(.., .., 3)``.
-
-    Notes
-    -----
-    Stain combination matrices available in the ``color`` module and their
-    respective colorspace:
-
-    * ``rgb_from_hed``: Hematoxylin + Eosin + DAB
-    * ``rgb_from_hdx``: Hematoxylin + DAB
-    * ``rgb_from_fgx``: Feulgen + Light Green
-    * ``rgb_from_bex``: Giemsa stain : Methyl Blue + Eosin
-    * ``rgb_from_rbd``: FastRed + FastBlue +  DAB
-    * ``rgb_from_gdx``: Methyl Green + DAB
-    * ``rgb_from_hax``: Hematoxylin + AEC
-    * ``rgb_from_bro``: Blue matrix Anilline Blue + Red matrix Azocarmine\
-                        + Orange matrix Orange-G
-    * ``rgb_from_bpx``: Methyl Blue + Ponceau Fuchsin
-    * ``rgb_from_ahx``: Alcian Blue + Hematoxylin
-    * ``rgb_from_hpx``: Hematoxylin + PAS
-
-    References
-    ----------
-    .. [1] http://www.dentistry.bham.ac.uk/landinig/software/cdeconv/cdeconv.html
-
-
-    Examples
-    --------
-    >>> from skimage import data
-    >>> from skimage.color import (separate_stains, combine_stains,
-    ...                            hdx_from_rgb, rgb_from_hdx)
-    >>> ihc = data.immunohistochemistry()
-    >>> ihc_hdx = separate_stains(ihc, hdx_from_rgb)
-    >>> ihc_rgb = combine_stains(ihc_hdx, rgb_from_hdx)
-    """
-    from ..exposure import rescale_intensity
-
-    stains = dtype.img_as_float(stains)
-    logrgb2 = np.dot(-np.reshape(stains, (-1, 3)), conv_matrix)
-    rgb2 = np.exp(logrgb2)
-    return rescale_intensity(np.reshape(rgb2 - 2, stains.shape),
-                             in_range=(-1, 1))
-
-
-def lab2lch(lab):
-    """CIE-LAB to CIE-LCH color space conversion.
-
-    LCH is the cylindrical representation of the LAB (Cartesian) colorspace
-
-    Parameters
-    ----------
-    lab : array_like
-        The N-D image in CIE-LAB format. The last (``N+1``-th) dimension must
-        have at least 3 elements, corresponding to the ``L``, ``a``, and ``b``
-        color channels.  Subsequent elements are copied.
-
-    Returns
-    -------
-    out : ndarray
-        The image in LCH format, in a N-D array with same shape as input `lab`.
-
-    Raises
-    ------
-    ValueError
-        If `lch` does not have at least 3 color channels (i.e. l, a, b).
-
-    Notes
-    -----
-    The Hue is expressed as an angle between ``(0, 2*pi)``
-
-    Examples
-    --------
-    >>> from skimage import data
-    >>> from skimage.color import rgb2lab, lab2lch
-    >>> lena = data.lena()
-    >>> lena_lab = rgb2lab(lena)
-    >>> lena_lch = lab2lch(lena_lab)
-    """
-    lch = _prepare_lab_array(lab)
-
-    a, b = lch[..., 1], lch[..., 2]
-    lch[..., 1], lch[..., 2] = _cart2polar_2pi(a, b)
-    return lch
-
-
-def _cart2polar_2pi(x, y):
-    """convert cartesian coordiantes to polar (uses non-standard theta range!)
-
-    NON-STANDARD RANGE! Maps to ``(0, 2*pi)`` rather than usual ``(-pi, +pi)``
-    """
-    r, t = np.hypot(x, y), np.arctan2(y, x)
-    t += np.where(t < 0., 2 * np.pi, 0)
-    return r, t
-
-
-def lch2lab(lch):
-    """CIE-LCH to CIE-LAB color space conversion.
-
-    LCH is the cylindrical representation of the LAB (Cartesian) colorspace
-
-    Parameters
-    ----------
-    lch : array_like
-        The N-D image in CIE-LCH format. The last (``N+1``-th) dimension must
-        have at least 3 elements, corresponding to the ``L``, ``a``, and ``b``
-        color channels.  Subsequent elements are copied.
-
-    Returns
-    -------
-    out : ndarray
-        The image in LAB format, with same shape as input `lch`.
-
-    Raises
-    ------
-    ValueError
-        If `lch` does not have at least 3 color channels (i.e. l, c, h).
-
-    Examples
-    --------
-    >>> from skimage import data
-    >>> from skimage.color import rgb2lab, lch2lab
-    >>> lena = data.lena()
-    >>> lena_lab = rgb2lab(lena)
-    >>> lena_lch = lab2lch(lena_lab)
-    >>> lena_lab2 = lch2lab(lena_lch)
-    """
-    lch = _prepare_lab_array(lch)
-
-    c, h = lch[..., 1], lch[..., 2]
-    lch[..., 1], lch[..., 2] = c * np.cos(h), c * np.sin(h)
-    return lch
-
-
-def _prepare_lab_array(arr):
-    """Ensure input for lab2lch, lch2lab are well-posed.
-
-    Arrays must be in floating point and have at least 3 elements in
-    last dimension.  Return a new array.
-    """
-    arr = np.asarray(arr)
-    shape = arr.shape
-    if shape[-1] < 3:
-        raise ValueError('Input array has less than 3 color channels')
-    return dtype.img_as_float(arr, force_copy=True)
+    return convert(image, np.float64, force_copy)
