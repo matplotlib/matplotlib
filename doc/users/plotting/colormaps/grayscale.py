@@ -3,7 +3,10 @@ Show what matplotlib colormaps look like in grayscale.
 Uses lightness L* as a proxy for grayscale value.
 '''
 
-from skimage import color
+import colorconv as color
+#from skimage import color
+# we are using a local copy of colorconv from scikit-image to reduce dependencies. 
+# You should probably use the one from scikit-image in most cases. 
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
@@ -71,6 +74,7 @@ def plot_color_gradients(cmap_category, cmap_list):
     for ax in axes:
         ax[0].set_axis_off()
         ax[1].set_axis_off()
+    plt.show()
 
 
 for cmap_category, cmap_list in cmaps:
