@@ -3,6 +3,11 @@
 
 """Functions for converting between color spaces.
 
+Colorconv is copied from scikit-image to avoid an additional dependency on scikit-image
+in the matplotlib documentation. You should almost sertanly use the original module 
+for any other use. Two modifications have been made. Change import of dtype to use bundled 
+version from this dir. Use linalg from numpy rather than scipy. 
+
 The "central" color space in this module is RGB, more specifically the linear
 sRGB color space using D65 as a white-point [1]_.  This represents a
 standard monitor (w/o gamma correction). For a good FAQ on color spaces see
@@ -54,8 +59,8 @@ References
 from __future__ import division
 
 import numpy as np
-from scipy import linalg
-from ..util import dtype
+from numpy import linalg
+import dtype
 
 
 def guess_spatial_dimensions(image):
