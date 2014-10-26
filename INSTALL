@@ -257,12 +257,8 @@ Required libraries that ship with matplotlib
     agg template source statically, so it will not affect anything on
     your system outside of matplotlib.
 
-`PyCXX` 6.2.4
-    A library for writing Python extensions in C++.
-
 `qhull` 2012.1
-   A library for computing convex hulls.  Used for computing triangulation
-   and meshes.
+    A library for computing Delaunay triangulations.
 
 `ttconv`
    truetype font utility
