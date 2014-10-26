@@ -105,8 +105,6 @@ font.weight: normal""".lstrip()
     assert ['font.family'] == list(six.iterkeys(rc.find_all('family')))
 
 
-# remove know failure + warnings after merging to master
-@knownfailureif(not (sys.version_info[:2] < (2, 7)))
 def test_rcparams_update():
     if sys.version_info[:2] < (2, 7):
         raise nose.SkipTest("assert_raises as context manager "
@@ -123,8 +121,6 @@ def test_rcparams_update():
             rc.update(bad_dict)
 
 
-# remove know failure + warnings after merging to master
-@knownfailureif(not (sys.version_info[:2] < (2, 7)))
 def test_rcparams_init():
     if sys.version_info[:2] < (2, 7):
         raise nose.SkipTest("assert_raises as context manager "
