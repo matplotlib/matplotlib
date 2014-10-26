@@ -764,8 +764,6 @@ PyMODINIT_FUNC init_image(void)
         INITERROR;
     }
 
-    import_array();
-
     if (!PyImage_init_type(m, &PyImageType)) {
         INITERROR;
     }
