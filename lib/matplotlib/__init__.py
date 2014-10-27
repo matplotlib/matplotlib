@@ -1379,12 +1379,11 @@ for s in sys.argv[1:]:
         # we don't want to assume all -d flags are backends, e.g., -debug
 else:
     # no backend selected from the command line, so we check the environment
-    # variable MPL_BACKEND
-    if 'MPL_BACKEND' in os.environ:
-        try:
-            use(os.environ['MPL_BACKEND'])
-        except (KeyError, ValueError):
-            pass
+    # variable MPLBACKEND
+    try:
+        use(os.environ['MPLBACKEND'])
+    except (KeyError, ValueError):
+        pass
 
 default_test_modules = [
     'matplotlib.tests.test_agg',

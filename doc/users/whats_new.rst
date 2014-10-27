@@ -60,6 +60,13 @@ Added a :code:`pivot` kwarg to :func:`~mpl_toolkits.mplot3d.Axes3D.quiver`
 that controls the pivot point around which the quiver line rotates. This also
 determines the placement of the arrow head along the quiver line.
 
+New backend selection
+---------------------
+
+The environment variable :envvar:`MPLBACKEND` can now be used to set the
+matplotlib backend.
+
+
 .. _whats-new-1-4:
 
 new in matplotlib-1.4
