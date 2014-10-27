@@ -957,7 +957,7 @@ def test_markevery_polar():
 
 
 @image_comparison(baseline_images=['marker_edges'],
-                  remove_text=True)
+                  remove_text=True, tol=3)
 def test_marker_edges():
     x = np.linspace(0, 1, 10)
     fig = plt.figure()
