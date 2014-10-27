@@ -51,7 +51,7 @@ def update(event):
     if event.xdata is None:
         label.set_markup('Drag mouse over axes for position')
     else:
-        label.set_markup('<span color="#ef0000">x,y=(%f, %f)</span>'%(event.xdata, event.ydata))
+        label.set_markup('<span color="#ef0000">x,y=(%f, %f)</span>' % (event.xdata, event.ydata))
 
 plt.connect('motion_notify_event', update)
 

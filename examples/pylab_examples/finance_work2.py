@@ -119,7 +119,7 @@ ax1.text(0.6, 0.1, '<30 = oversold', transform=ax1.transAxes, fontsize=textsize)
 ax1.set_ylim(0, 100)
 ax1.set_yticks([30, 70])
 ax1.text(0.025, 0.95, 'RSI (14)', va='top', transform=ax1.transAxes, fontsize=textsize)
-ax1.set_title('%s daily'%ticker)
+ax1.set_title('%s daily' % ticker)
 
 # plot the price and volume data
 dx = r.adj_close - r.close
@@ -171,7 +171,7 @@ ax3.plot(r.date, ema9, color='blue', lw=1)
 ax3.fill_between(r.date, macd-ema9, 0, alpha=0.5, facecolor=fillcolor, edgecolor=fillcolor)
 
 
-ax3.text(0.025, 0.95, 'MACD (%d, %d, %d)'%(nfast, nslow, nema), va='top',
+ax3.text(0.025, 0.95, 'MACD (%d, %d, %d)' % (nfast, nslow, nema), va='top',
          transform=ax3.transAxes, fontsize=textsize)
 
 #ax3.set_yticks([])

@@ -30,7 +30,7 @@ treeview = gtktools.RecTreeView(liststore, constant=constant)
 
 
 def mycallback(liststore, rownum, colname, oldval, newval):
-    print('verify: old=%s, new=%s, rec=%s'%(oldval, newval, liststore.r[rownum][colname]))
+    print('verify: old=%s, new=%s, rec=%s' % (oldval, newval, liststore.r[rownum][colname]))
 
 liststore.callbacks.connect('cell_changed', mycallback)
 

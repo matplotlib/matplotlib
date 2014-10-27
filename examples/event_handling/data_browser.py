@@ -52,13 +52,13 @@ class PointBrowser(object):
         ax2.cla()
         ax2.plot(X[dataind])
 
-        ax2.text(0.05, 0.9, 'mu=%1.3f\nsigma=%1.3f'%(xs[dataind], ys[dataind]),
+        ax2.text(0.05, 0.9, 'mu=%1.3f\nsigma=%1.3f' % (xs[dataind], ys[dataind]),
                  transform=ax2.transAxes, va='top')
         ax2.set_ylim(-0.5, 1.5)
         self.selected.set_visible(True)
         self.selected.set_data(xs[dataind], ys[dataind])
 
-        self.text.set_text('selected: %d'%dataind)
+        self.text.set_text('selected: %d' % dataind)
         fig.canvas.draw()
 
 

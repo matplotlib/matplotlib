@@ -74,7 +74,7 @@ class DataManager(gtk.Window):
 
     def add_columns(self):
         for i in range(self.numCols):
-            column = gtk.TreeViewColumn('%d'%i, gtk.CellRendererText(), text=i)
+            column = gtk.TreeViewColumn('%d' % i, gtk.CellRendererText(), text=i)
             self.treeview.append_column(column)
 
     def create_model(self):

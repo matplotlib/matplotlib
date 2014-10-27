@@ -43,7 +43,7 @@ vbox.pack_start(toolbar, False, False)
 
 
 def on_key_event(event):
-    print('you pressed %s'%event.key)
+    print('you pressed %s' % event.key)
     key_press_handler(event, canvas, toolbar)
 
 canvas.mpl_connect('key_press_event', on_key_event)

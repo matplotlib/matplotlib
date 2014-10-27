@@ -54,6 +54,6 @@ text(3, 12, 'IV', fontsize=20)
 # verify the stats
 pairs = (x, y1), (x, y2), (x, y3), (x4, y4)
 for x, y in pairs:
-    print('mean=%1.2f, std=%1.2f, r=%1.2f'%(mean(y), std(y), corrcoef(x, y)[0][1]))
+    print('mean=%1.2f, std=%1.2f, r=%1.2f' % (mean(y), std(y), corrcoef(x, y)[0][1]))
 
 show()
