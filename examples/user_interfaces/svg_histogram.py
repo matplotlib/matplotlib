@@ -62,18 +62,18 @@ marker to toggle the corresponding histogram.""")
 
 hist_patches = {}
 for ic, c in enumerate(containers):
-    hist_patches['hist_%d'%ic] = []
+    hist_patches['hist_%d' % ic] = []
     for il, element in enumerate(c):
-        element.set_gid('hist_%d_patch_%d'%(ic, il))
-        hist_patches['hist_%d'%ic].append('hist_%d_patch_%d'%(ic, il))    
+        element.set_gid('hist_%d_patch_%d' % (ic, il))
+        hist_patches['hist_%d' %ic].append('hist_%d_patch_%d' % (ic, il))
 
 # Set ids for the legend patches    
 for i, t in enumerate(leg.get_patches()):
-    t.set_gid('leg_patch_%d'%i)
+    t.set_gid('leg_patch_%d' % i)
 
 # Set ids for the text patches
 for i, t in enumerate(leg.get_texts()):
-    t.set_gid('leg_text_%d'%i)
+    t.set_gid('leg_text_%d' % i)
 
 # Save SVG in a fake file object.
 f = StringIO()
@@ -87,13 +87,13 @@ tree, xmlid = ET.XMLID(f.getvalue())
 
 # Add attributes to the patch objects.    
 for i, t in enumerate(leg.get_patches()):
-    el = xmlid['leg_patch_%d'%i]
+    el = xmlid['leg_patch_%d' % i]
     el.set('cursor', 'pointer')
     el.set('onclick', "toggle_hist(this)")
 
 # Add attributes to the text objects.    
 for i, t in enumerate(leg.get_texts()):
-    el = xmlid['leg_text_%d'%i]
+    el = xmlid['leg_text_%d' % i]
     el.set('cursor', 'pointer')
     el.set('onclick', "toggle_hist(this)")
 
@@ -142,7 +142,7 @@ function toggle_hist(obj) {
     }
 ]]>
 </script>
-"""%json.dumps(hist_patches)
+""" % json.dumps(hist_patches)
 
 # Add a transition effect
 css = tree.getchildren()[0][0]

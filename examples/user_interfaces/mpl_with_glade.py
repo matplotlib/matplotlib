@@ -62,7 +62,7 @@ class WidgetsWrapper(object):
             gtk.gdk.KEY_PRESS_MASK |
             gtk.gdk.KEY_RELEASE_MASK
             )
-        self.canvas.set_flags(gtk.HAS_FOCUS|gtk.CAN_FOCUS)
+        self.canvas.set_flags(gtk.HAS_FOCUS | gtk.CAN_FOCUS)
         self.canvas.grab_focus()
 
         def keypress(widget, event):

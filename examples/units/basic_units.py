@@ -201,7 +201,7 @@ class BasicUnit(object):
         self.conversions = dict()
 
     def __repr__(self):
-        return 'BasicUnit(%s)'%self.name
+        return 'BasicUnit(%s)' % self.name
 
     def __str__(self):
         return self.fullname
