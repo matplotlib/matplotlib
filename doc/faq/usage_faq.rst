@@ -302,19 +302,37 @@ pygtk, wxpython, tkinter, qt4, or macosx; also referred to as
 "interactive backends") and hardcopy backends to make image files
 (PNG, SVG, PDF, PS; also referred to as "non-interactive backends").
 
-There are a two primary ways to configure your backend.  One is to set
+There are a four ways to configure your backend.  One is to set
 the ``backend`` parameter in your ``matplotlibrc`` file (see
 :ref:`customizing-matplotlib`)::
 
     backend : WXAgg   # use wxpython with antigrain (agg) rendering
 
-The other is to use the matplotlib :func:`~matplotlib.use` directive::
+Another way to do this is setting the :envvar:`MPLBACKEND` environment
+variable, either globally or for a single script::
+
+    > export MPLBACKEND="module://my_backend"
+    > python simple_plot.py
+
+To set the backend for a single script, you can alternatively use the `-d`
+command line argument::
+
+    > python script.py -dbackend
+
+You should be aware though that this might conflict with scripts which use the
+command line arguments.
+
+If your script depends on a specific backend you can use the matplotlib
+:func:`~matplotlib.use` directive::
 
     import matplotlib
     matplotlib.use('PS')   # generate postscript output by default
 
 If you use the ``use`` directive, this must be done before importing
-:mod:`matplotlib.pyplot` or :mod:`matplotlib.pylab`.
+:mod:`matplotlib.pyplot` or :mod:`matplotlib.pylab`. Using this function will
+require a change in your code for users who would like to use a different
+backend. Therefore you should avoid explicitly calling ``use`` unless
+necessary.
 
 .. note::
    Backend name specifications are not case-sensitive; e.g., 'GTKAgg'
@@ -325,7 +343,7 @@ binary installer or a linux distribution package, a good default
 backend will already be set, allowing both interactive work and
 plotting from scripts, with output to the screen and/or to
 a file, so at least initially you will not need to use either of the
-two methods given above.
+methods given above.
 
 If, however, you want to write graphical user interfaces, or a web
 application server (:ref:`howto-webapp`), or need a better

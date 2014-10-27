@@ -270,15 +270,20 @@ external backend via the ``module`` directive.  if
 
     backend : module://my_backend
 
+
+* with the :envvar:`MPLBACKEND` environment variable::
+
+    > export MPLBACKEND="module://my_backend"
+    > python simple_plot.py
+
+* from the command shell with the `-d` flag::
+
+    > python simple_plot.py -dmodule://my_backend
+
 * with the use directive is your script::
 
     import matplotlib
     matplotlib.use('module://my_backend')
-
-* from the command shell with the -d flag::
-
-    > python simple_plot.py -d module://my_backend
-
 
 .. _sample-data:
 
