@@ -69,7 +69,6 @@ mpl_packages = [
     setupext.Pytz(),
     setupext.Tornado(),
     setupext.Pyparsing(),
-    setupext.CXX(),
     setupext.LibAgg(),
     setupext.FreeType(),
     setupext.FT2Font(),
