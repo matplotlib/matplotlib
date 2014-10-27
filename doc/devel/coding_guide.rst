@@ -152,10 +152,11 @@ C/C++ extensions
   address C++, but most of its admonitions still apply).
 
 * Interfacing with Python may be done either with the raw Python/C API
-  or Cython.  Use of PyCXX is discouraged for new code.
+  or Cython.
 
 * Python/C interface code should be kept separate from the core C/C++
-  code.  The interface code should be named `FOO_wrap.cpp`.
+  code.  The interface code should be named `FOO_wrap.cpp` or
+  `FOO_wrapper.cpp`.
 
 * Header file documentation (aka docstrings) should be in Numpydoc
   format.  We don't plan on using automated tools for these

@@ -63,10 +63,10 @@
 #ifndef _TRI_H
 #define _TRI_H
 
-#include "CXX/Extensions.hxx"
-#include "CXX/Objects.hxx"
+#include "Python.h"
 #include "numpy/arrayobject.h"
 
+#include <iostream>
 #include <list>
 #include <map>
 #include <set>
@@ -159,7 +159,7 @@ void write_contour(const Contour& contour);
 
 /* Triangulation with npoints points and ntri triangles.  Derived fields are
  * calculated when they are first needed. */
-class Triangulation : public Py::PythonExtension<Triangulation>
+class Triangulation
 {
 public:
     /* A single boundary is a vector of the TriEdges that make up that boundary
@@ -180,7 +180,9 @@ public:
      *          once.
      *   neighbors: Optional int array of shape (ntri,3) indicating which
      *              triangles are the neighbors of which TriEdges, or -1 if
-     *              there is no such neighbor. */
+     *              there is no such neighbor.
+     * Argument reference counts are not incremented in the constructor, but
+     * are decremented when no longer needed. */
     Triangulation(PyArrayObject* x,
                   PyArrayObject* y,
                   PyArrayObject* triangles,
@@ -188,14 +190,16 @@ public:
                   PyArrayObject* edges,
                   PyArrayObject* neighbors);
 
-    virtual ~Triangulation();
+    ~Triangulation();
 
     /* Calculate plane equation coefficients for all unmasked triangles from
      * the point (x,y) coordinates and point z-array of shape (npoints) passed
-     * in via the args.  Returned array has shape (npoints,3) and allows
+     * in via the args.  Returned array must have shape (npoints,3) and allows
      * z-value at (x,y) coordinates in triangle tri to be calculated using
-     *      z = array[tri,0]*x + array[tri,1]*y + array[tri,2]. */
-    Py::Object calculate_plane_coefficients(const Py::Tuple &args);
+     *      z = array[tri,0]*x + array[tri,1]*y + array[tri,2].
+     * Does not alter reference counts of z or plane_coefficients. */
+    void calculate_plane_coefficients(PyArrayObject* z,
+                                      PyArrayObject* plane_coefficients);
 
     // Return the boundaries collection, creating it if necessary.
     const Boundaries& get_boundaries() const;
@@ -205,8 +209,9 @@ public:
                            int& boundary,
                            int& edge) const;
 
-    // Return the edges array, creating it if necessary.
-    Py::Object get_edges();
+    /* Return a borrowed reference to the edges array, creating it if
+     * necessary. */
+    PyArrayObject* get_edges();
 
     /* Return the triangle index of the neighbor of the specified triangle
      * edge. */
@@ -216,8 +221,9 @@ public:
      * or TriEdge(-1,-1) if there is no such neighbor. */
     TriEdge get_neighbor_edge(int tri, int edge) const;
 
-    // Return the neighbors array, creating it if necessary.
-    Py::Object get_neighbors();
+    /* Return a borrowed reference to the neighbors array, creating it if
+     * necessary. */
+    PyArrayObject* get_neighbors();
 
     // Return the number of points in this triangulation.
     int get_npoints() const;
@@ -233,16 +239,14 @@ public:
     // Return the coordinates of the specified point index.
     XY get_point_coords(int point) const;
 
-    // CXX initialisation function.
-    static void init_type();
-
     // Indicates if the specified triangle is masked or not.
     bool is_masked(int tri) const;
 
     /* Set or clear the mask array.  Clears various derived fields so they are
      * recalculated when next needed.
-     *   args[0]: mask, either Py::None or boolean array of shape (ntri). */
-    Py::Object set_mask(const Py::Tuple &args);
+     *   mask: New reference to bool array of shape (ntri) indicating which
+     *         triangles are masked, or 0 to clear mask. */
+    void set_mask(PyArrayObject* mask);
 
     // Debug function to write boundaries.
     void write_boundaries() const;
@@ -326,37 +330,36 @@ private:
 
 
 
-
 // Contour generator for a triangulation.
-class TriContourGenerator : public Py::PythonExtension<TriContourGenerator>
+class TriContourGenerator
 {
 public:
     /* Constructor.
      *   triangulation: Triangulation to generate contours for.
      *   z: Double array of shape (npoints) of z-values at triangulation
-     *      points. */
-    TriContourGenerator(Py::Object triangulation,
+     *      points.
+     * Argument reference counts are not incremented in the constructor, but
+     * are decremented when no longer needed. */
+    TriContourGenerator(PyObject* triangulation,
                         PyArrayObject* z);
 
-    virtual ~TriContourGenerator();
+    ~TriContourGenerator();
 
     /* Create and return a non-filled contour.
      *   level: Contour level.
-     * Returns python list [segs0, segs1, ...] where
+     * Returns reference to new python list [segs0, segs1, ...] where
      *   segs0: double array of shape (?,2) of point coordinates of first
      *   contour line, etc. */
-    Py::Object create_contour(const Py::Tuple &args);
+    PyObject* create_contour(const double& level);
 
     /* Create and return a filled contour.
      *   lower_level: Lower contour level.
      *   upper_level: Upper contour level.
-     * Returns python tuple (segs, kinds) where
+     * Returns reference to new python tuple (segs, kinds) where
      *   segs: double array of shape (n_points,2) of all point coordinates,
      *   kinds: ubyte array of shape (n_points) of all point code types. */
-    Py::Object create_filled_contour(const Py::Tuple &args);
-
-    // CXX initialisation function.
-    static void init_type();
+    PyObject* create_filled_contour(const double& lower_level,
+                                    const double& upper_level);
 
 private:
     typedef Triangulation::Boundary Boundary;
@@ -368,16 +371,16 @@ private:
     void clear_visited_flags(bool include_boundaries);
 
     /* Convert a non-filled Contour from C++ to Python.
-     * Returns python list [segs0, segs1, ...] where
+     * Returns reference to new python list [segs0, segs1, ...] where
      *   segs0: double array of shape (?,2) of point coordinates of first
      *   contour line, etc. */
-    Py::Object contour_to_segs(const Contour& contour);
+    PyObject* contour_to_segs(const Contour& contour);
 
     /* Convert a filled Contour from C++ to Python.
-     * Returns python tuple (segs, kinds) where
+     * Returns reference to new python tuple (segs, kinds) where
      *   segs: double array of shape (n_points,2) of all point coordinates,
      *   kinds: ubyte array of shape (n_points) of all point code types. */
-    Py::Object contour_to_segs_and_kinds(const Contour& contour);
+    PyObject* contour_to_segs_and_kinds(const Contour& contour);
 
     /* Return the point on the specified TriEdge that intersects the specified
      * level. */
@@ -465,7 +468,7 @@ private:
 
 
     // Variables shared with python, always set.
-    Py::Object _triangulation;
+    PyObject* _triangulation;
     PyArrayObject* _z;        // double array (npoints).
 
     // Variables internal to C++ only.
@@ -478,7 +481,6 @@ private:
     BoundariesVisited _boundaries_visited;  // Only used for filled contours.
     BoundariesUsed _boundaries_used;        // Only used for filled contours.
 };
-
 
 
 
@@ -509,22 +511,27 @@ private:
  * colinear points but only in the simplest of cases.  No explicit testing of
  * the validity of the triangulation is performed as this is a computationally
  * more complex task than the trifinding itself. */
-class TrapezoidMapTriFinder : public Py::PythonExtension<TrapezoidMapTriFinder>
+class TrapezoidMapTriFinder
 {
 public:
     /* Constructor.  A separate call to initialize() is required to initialize
      * the object before use.
-     *   triangulation: Triangulation to find triangles in. */
-    TrapezoidMapTriFinder(Py::Object triangulation);
+     *   triangulation: Triangulation to find triangles in.
+     * Triangulation reference count is not incremented in the constructor, but
+     * is decremented when no longer needed. */
+    TrapezoidMapTriFinder(PyObject* triangulation);
 
-    virtual ~TrapezoidMapTriFinder();
+    ~TrapezoidMapTriFinder();
 
     /* Return an array of triangle indices.  Takes any-shaped arrays x and y of
      * point coordinates, and returns an array of the same shape containing the
-     * indices of the triangles at those points. */
-    Py::Object find_many(const Py::Tuple& args);
+     * indices of the triangles at those points.
+     * Argument reference counts are not modified, return is a reference to a
+     * new array. */
+    PyArrayObject* find_many(PyArrayObject* x, PyArrayObject* y);
 
-    /* Return a python list containing the following statistics about the tree:
+    /* Return a reference to a new python list containing the following
+     * statistics about the tree:
      *   0: number of nodes (tree size)
      *   1: number of unique nodes (number of unique Node objects in tree)
      *   2: number of trapezoids (tree leaf nodes)
@@ -535,17 +542,14 @@ public:
      *          comparisons needed to search through the tree)
      *   6: mean of all trapezoid depths (one more than the average number of
      *          comparisons needed to search through the tree) */
-    Py::Object get_tree_stats();
-
-    // CXX initialisation function.
-    static void init_type();
+    PyObject* get_tree_stats();
 
     /* Initialize this object before use.  May be called multiple times, if,
      * for example, the triangulation is changed by setting the mask. */
-    Py::Object initialize();
+    void initialize();
 
     // Print the search tree as text to stdout; useful for debug purposes.
-    Py::Object print_tree();
+    void print_tree();
 
 private:
     /* A Point consists of x,y coordinates as well as the index of a triangle
@@ -786,7 +790,7 @@ private:
 
 
     // Variables shared with python, always set.
-    Py::Object _triangulation;
+    PyObject* _triangulation;
 
     // Variables internal to C++ only.
     Point* _points;    // Array of all points in triangulation plus corners of
@@ -798,6 +802,7 @@ private:
 
     Node* _tree;    // Root node of the trapezoid map search tree.  Owned.
 };
+
 
 
 /* Linear congruential random number generator.  Edges in the triangulation are
@@ -820,20 +825,6 @@ public:
 private:
     const unsigned long _m, _a, _c;
     unsigned long _seed;
-};
-
-
-
-// The extension module.
-class TriModule : public Py::ExtensionModule<TriModule>
-{
-public:
-    TriModule();
-
-private:
-    Py::Object new_triangulation(const Py::Tuple &args);
-    Py::Object new_tricontourgenerator(const Py::Tuple &args);
-    Py::Object new_TrapezoidMapTriFinder(const Py::Tuple &args);
 };
 
 #endif
