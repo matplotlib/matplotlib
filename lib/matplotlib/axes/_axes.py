@@ -1180,11 +1180,8 @@ class Axes(_AxesBase):
         if len(linewidths) == 1:
             linewidths = np.tile(linewidths, len(positions))
         if len(colors) == 1:
-            if colors[0] is None:
-                colors = colors * len(positions)
-            else:
-                colors = np.asanyarray(colors)
-                colors = np.tile(colors, [len(positions), 1])
+            colors = list(colors)
+            colors = colors * len(positions)
         if len(linestyles) == 1:
             linestyles = [linestyles] * len(positions)
 
