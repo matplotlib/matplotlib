@@ -2439,10 +2439,11 @@ class Axes3D(Axes):
         Arguments:
 
             *X*, *Y*, *Z*:
-                The x, y and z coordinates of the arrow locations
+                The x, y and z coordinates of the arrow locations (default is
+                tip of arrow; see *pivot* kwarg)
 
             *U*, *V*, *W*:
-                The direction vector that the arrow is pointing
+                The x, y and z components of the arrow vectors
 
         The arguments could be array-like or scalars, so long as they
         they can be broadcast together. The arguments can also be
@@ -2458,6 +2459,10 @@ class Axes3D(Axes):
             *arrow_length_ratio*: [0.3 | float]
                 The ratio of the arrow head with respect to the quiver,
                 default to 0.3
+
+            *pivot*: [ 'tail' | 'middle' | 'tip' ]
+                The part of the arrow that is at the grid point; the arrow
+                rotates about this point, hence the name *pivot*.
 
         Any additional keyword arguments are delegated to
         :class:`~matplotlib.collections.LineCollection`
@@ -2504,16 +2509,6 @@ class Axes3D(Axes):
             # compute and return the two arrowhead direction unit vectors
             return rotatefunction(angle), rotatefunction(-angle)
 
-        def point_vector_to_line(point, vector, length):
-            """
-            use a point and vector to generate lines
-            """
-            lines = []
-            for var in np.linspace(0, length, num=2):
-                lines.append(list(zip(*(point - var * vector))))
-            lines = np.array(lines).swapaxes(0, 1)
-            return lines.tolist()
-
         had_data = self.has_data()
 
         # handle kwargs
@@ -2521,6 +2516,8 @@ class Axes3D(Axes):
         length = kwargs.pop('length', 1)
         # arrow length ratio to the shaft length
         arrow_length_ratio = kwargs.pop('arrow_length_ratio', 0.3)
+        # pivot point
+        pivot = kwargs.pop('pivot', 'tip')
 
         # handle args
         argi = 6
@@ -2564,52 +2561,40 @@ class Axes3D(Axes):
         xs, ys, zs, us, vs, ws = input_args[:argi]
         lines = []
 
+        # TODO: num should probably get parameterized
+        shaft_dt = np.linspace(0, length, num=20)
+        arrow_dt = shaft_dt * arrow_length_ratio
+
+        if pivot == 'tail':
+            shaft_dt -= length
+        elif pivot == 'middle':
+            shaft_dt -= length/2.
+        elif pivot != 'tip':
+            raise ValueError('Invalid pivot argument: ' + str(pivot))
+
         # for each arrow
         for i in range(xs.shape[0]):
             # calulate body
-            x = xs[i]
-            y = ys[i]
-            z = zs[i]
-            u = us[i]
-            v = vs[i]
-            w = ws[i]
+            xyz = np.array([xs[i], ys[i], zs[i]])
+            uvw = np.array([us[i], vs[i], ws[i]], dtype=np.float)
 
             # (u,v,w) expected to be normalized, recursive to fix A=0 scenario.
-            if u == 0 and v == 0 and w == 0:
+            if np.all(uvw==0):
                 # Just don't make a quiver for such a case.
                 continue
 
             # normalize
-            norm = math.sqrt(u ** 2 + v ** 2 + w ** 2)
-            u /= norm
-            v /= norm
-            w /= norm
+            uvw /= np.linalg.norm(uvw)
 
             # draw main line
-            t = np.linspace(0, length, num=20)
-            lx = x - t * u
-            ly = y - t * v
-            lz = z - t * w
-            line = list(zip(lx, ly, lz))
-            lines.append(line)
+            shaft = xyz - np.outer(shaft_dt, uvw)
 
-            d1, d2 = calc_arrow(u, v, w)
-            ua1, va1, wa1 = d1[0], d1[1], d1[2]
-            ua2, va2, wa2 = d2[0], d2[1], d2[2]
+            # draw arrow head
+            d1, d2 = calc_arrow(*uvw)
+            arrow1 = shaft[0] - np.outer(arrow_dt, d1)
+            arrow2 = shaft[0] - np.outer(arrow_dt, d2)
 
-            # TODO: num should probably get parameterized
-            t = np.linspace(0, length * arrow_length_ratio, num=20)
-            la1x = x - t * ua1
-            la1y = y - t * va1
-            la1z = z - t * wa1
-            la2x = x - t * ua2
-            la2y = y - t * va2
-            la2z = z - t * wa2
-
-            line = list(zip(la1x, la1y, la1z))
-            lines.append(line)
-            line = list(zip(la2x, la2y, la2z))
-            lines.append(line)
+            lines.extend([shaft, arrow1, arrow2])
 
         linec = art3d.Line3DCollection(lines, *args[argi:], **kwargs)
         self.add_collection(linec)
