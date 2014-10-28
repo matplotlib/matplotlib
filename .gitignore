@@ -1,4 +1,8 @@
 #########################################
+# OS-specific temporary and backup files
+.DS_Store
+
+#########################################
 # Editor temporary/working/backup files #
 .#*
 [#]*#
