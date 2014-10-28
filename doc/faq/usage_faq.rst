@@ -302,37 +302,41 @@ pygtk, wxpython, tkinter, qt4, or macosx; also referred to as
 "interactive backends") and hardcopy backends to make image files
 (PNG, SVG, PDF, PS; also referred to as "non-interactive backends").
 
-There are a four ways to configure your backend.  One is to set
-the ``backend`` parameter in your ``matplotlibrc`` file (see
-:ref:`customizing-matplotlib`)::
+There are a four ways to configure your backend, in reversed order
+of precedence:
 
-    backend : WXAgg   # use wxpython with antigrain (agg) rendering
+#. The ``backend`` parameter in your ``matplotlibrc`` file (see
+   :ref:`customizing-matplotlib`)::
 
-Another way to do this is setting the :envvar:`MPLBACKEND` environment
-variable, either globally or for a single script::
+       backend : WXAgg   # use wxpython with antigrain (agg) rendering
 
-    > export MPLBACKEND="module://my_backend"
-    > python simple_plot.py
+#. Setting the :envvar:`MPLBACKEND` environment
+   variable, either globally or for a single script::
 
-To set the backend for a single script, you can alternatively use the `-d`
-command line argument::
+        > export MPLBACKEND="module://my_backend"
+        > python simple_plot.py
 
-    > python script.py -dbackend
+#. To set the backend for a single script, you can alternatively use the `-d`
+   command line argument::
 
-You should be aware though that this might conflict with scripts which use the
-command line arguments.
+       > python script.py -dbackend
 
-If your script depends on a specific backend you can use the matplotlib
-:func:`~matplotlib.use` directive::
+   This might conflict with scripts which parse
+   command line arguments (see issue
+   `#1986 <https://github.com/matplotlib/matplotlib/issues/1986>`_).
 
-    import matplotlib
-    matplotlib.use('PS')   # generate postscript output by default
+#. If your script depends on a specific backend you can use the
+   :func:`~matplotlib.use` function::
 
-If you use the ``use`` directive, this must be done before importing
-:mod:`matplotlib.pyplot` or :mod:`matplotlib.pylab`. Using this function will
-require a change in your code for users who would like to use a different
-backend. Therefore you should avoid explicitly calling ``use`` unless
-necessary.
+      import matplotlib
+      matplotlib.use('PS')   # generate postscript output by default
+
+   If you use the ``use``, this must be done before importing
+   :mod:`matplotlib.pyplot`, calling :func:`~matplotlib.use` after pyplot
+   has been imported will have no effect.  Using `use` will
+   require changes in your code if users want to use a different
+   backend.  Therefore, you should avoid explicitly calling ``use`` unless
+   absolutely necessary.
 
 .. note::
    Backend name specifications are not case-sensitive; e.g., 'GTKAgg'
