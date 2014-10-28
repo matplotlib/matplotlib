@@ -717,13 +717,14 @@ slit_cutter (Csite * site, int up, int pass2)
 
     if (up)
     {
-        assert(pass2);
-
         /* upward stroke of slit proceeds up left side of slit until
          * it hits a boundary or a point not between the contour levels
          * -- this never happens on the first pass */
         long p1 = site->edge;
         int z1;
+
+        assert(pass2);
+
         for (;;)
         {
             z1 = data[p1] & Z_VALUE;
