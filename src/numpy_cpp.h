@@ -324,39 +324,6 @@ class array_view_accessors<AV, T, 3>
 
 };
 
-    // /* These are converter functions designed for use with the "O&"
-    //    functionality of PyArg_ParseTuple and friends. */
-
-    // template<class T>
-    // class array_converter {
-    // public:
-    //     int operator()(PyObject *obj, void *arrp)
-    //     {
-    //         T *arr = (T *)arrp;
-
-    //         if (!arr->set(obj)) {
-    //             return 0;
-    //         }
-
-    //         return 1;
-    //     }
-    // };
-
-    // template <class T>
-    // class array_converter_contiguous {
-    // public:
-    //     int operator()(PyObject *obj, void *arrp)
-    //     {
-    //         T *arr = (T *)arrp;
-
-    //         if (!arr->set(obj, true)) {
-    //             return 0;
-    //         }
-
-    //         return 1;
-    //     }
-    // };
-
 }
 
 static npy_intp zeros[] = { 0, 0, 0 };
