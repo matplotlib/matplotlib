@@ -2565,7 +2565,7 @@ class Axes3D(Axes):
         # If any row of UVW is all zeros, don't make a quiver for it
         mask = norm > 1e-10
         XYZ = XYZ[mask]
-        UVW = UVW[mask] / norm[mask, np.newaxis]
+        UVW = UVW[mask] / norm[mask].reshape((-1, 1))
 
         if len(XYZ) > 0:
             # compute the shaft lines all at once with an outer product
