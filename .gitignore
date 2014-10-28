@@ -12,6 +12,7 @@
 *.kdev4
 .project
 .pydevproject
+.swp
 
 # Compiled source #
 ###################
