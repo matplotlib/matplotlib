@@ -74,7 +74,7 @@ void FT2Image::resize(long width, long height)
         m_height = (unsigned long)height;
     }
 
-    if (numBytes) {
+    if (numBytes && m_buffer) {
         memset(m_buffer, 0, numBytes);
     }
 

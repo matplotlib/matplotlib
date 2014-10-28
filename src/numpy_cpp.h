@@ -18,6 +18,13 @@
 
 #include <complex>
 
+#ifdef _POSIX_C_SOURCE
+#    undef _POSIX_C_SOURCE
+#endif
+#ifdef _XOPEN_SOURCE
+#    undef _XOPEN_SOURCE
+#endif
+
 #include <Python.h>
 #include <numpy/ndarrayobject.h>
 
@@ -317,39 +324,6 @@ class array_view_accessors<AV, T, 3>
 
 };
 
-    // /* These are converter functions designed for use with the "O&"
-    //    functionality of PyArg_ParseTuple and friends. */
-
-    // template<class T>
-    // class array_converter {
-    // public:
-    //     int operator()(PyObject *obj, void *arrp)
-    //     {
-    //         T *arr = (T *)arrp;
-
-    //         if (!arr->set(obj)) {
-    //             return 0;
-    //         }
-
-    //         return 1;
-    //     }
-    // };
-
-    // template <class T>
-    // class array_converter_contiguous {
-    // public:
-    //     int operator()(PyObject *obj, void *arrp)
-    //     {
-    //         T *arr = (T *)arrp;
-
-    //         if (!arr->set(obj, true)) {
-    //             return 0;
-    //         }
-
-    //         return 1;
-    //     }
-    // };
-
 }
 
 static npy_intp zeros[] = { 0, 0, 0 };
@@ -425,6 +399,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         PyArrayObject *tmp;
 
         if (arr == NULL || arr == Py_None) {
+            Py_XDECREF(m_arr);
             m_arr = NULL;
             m_data = NULL;
             m_shape = zeros;
@@ -440,6 +415,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
             }
 
             if (PyArray_NDIM(tmp) == 0 || PyArray_DIM(tmp, 0) == 0) {
+                Py_XDECREF(m_arr);
                 m_arr = NULL;
                 m_data = NULL;
                 m_shape = zeros;

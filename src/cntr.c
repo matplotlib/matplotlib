@@ -722,6 +722,9 @@ slit_cutter (Csite * site, int up, int pass2)
          * -- this never happens on the first pass */
         long p1 = site->edge;
         int z1;
+
+        assert(pass2);
+
         for (;;)
         {
             z1 = data[p1] & Z_VALUE;
@@ -1406,7 +1409,11 @@ int reorder(double *xpp, double *ypp, short *kpp,
 
     /* Find the subpaths as sets of connected segments. */
 
-    subp = (int *)malloc(nsegs * sizeof(int));
+    if (nsegs) {
+        subp = (int *)malloc(nsegs * sizeof(int));
+    } else {
+        subp = NULL;
+    }
     for (i=0; i<nsegs; i++) subp[i] = -1;
 
     nsp = 0;
@@ -2025,5 +2032,3 @@ init_cntr(void)
         return m;
     #endif
 }
-
-
