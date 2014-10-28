@@ -342,7 +342,7 @@ With a typical installation of matplotlib, such as from a
 binary installer or a linux distribution package, a good default
 backend will already be set, allowing both interactive work and
 plotting from scripts, with output to the screen and/or to
-a file, so at least initially you will not need to use either of the
+a file, so at least initially you will not need to use any of the
 methods given above.
 
 If, however, you want to write graphical user interfaces, or a web
