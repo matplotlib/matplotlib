@@ -493,15 +493,13 @@ int convert_offset_position(PyObject *obj, void *offsetp)
     e_offset_position *offset = (e_offset_position *)offsetp;
     const char *names[] = {"data", NULL};
     int values[] = {OFFSET_POSITION_DATA};
-    int result;
+    int result = (int)OFFSET_POSITION_FIGURE;
 
-    *offset = OFFSET_POSITION_FIGURE;
-
-    if (convert_string_enum(obj, "offset_position", names, values, &result)) {
-        *offset = (e_offset_position)result;
-    } else {
+    if (!convert_string_enum(obj, "offset_position", names, values, &result)) {
         PyErr_Clear();
     }
+
+    *offset = (e_offset_position)result;
 
     return 1;
 }

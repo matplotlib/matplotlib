@@ -670,10 +670,7 @@ extern "C" {
 
 struct module_state
 {
-/* The Sun compiler can't handle empty structs */
-#if defined(__SUNPRO_C) || defined(_MSC_VER)
     int _dummy;
-#endif
 };
 
 #if PY3K
