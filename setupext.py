@@ -1788,17 +1788,26 @@ class BackendGtk3Agg(OptionalBackendPackage):
         except:
             return "unknown (can not use multiprocessing to determine)"
         try:
-             res = p.map_async(backend_gtk3agg_internal_check, [0])
-             success, msg = res.get(timeout=5)[0]
+            res = p.map_async(backend_gtk3agg_internal_check, [0])
+            success, msg = res.get(timeout=5)[0]
+        except Queue.Empty:
+            p.terminate()
+            # No result returned. Probaly hanging, terminate the process.
+            success = False
+            raise
         except:
+            p.close()
+            # Some other error.
             success = False
             msg = "Could not determine"
-        finally:
+            raise
+        else:
             p.close()
+        finally:
             p.join()
+
         if success:
             BackendAgg.force = True
-
             return msg
         else:
             raise CheckFailed(msg)
@@ -1856,15 +1865,22 @@ class BackendGtk3Cairo(OptionalBackendPackage):
         try:
             res = p.map_async(backend_gtk3cairo_internal_check, [0])
             success, msg = res.get(timeout=5)[0]
-        except:
+        except Queue.Empty:
+            p.terminate()
+            # No result returned. Probaly hanging, terminate the process.
             success = False
             raise
-        finally:
+        except:
             p.close()
+            success = False
+            raise
+        else:
+            p.close()
+        finally:
             p.join()
+
         if success:
             BackendAgg.force = True
-
             return msg
         else:
             raise CheckFailed(msg)
@@ -1997,12 +2013,19 @@ class BackendQtBase(OptionalBackendPackage):
             try:
                 res = p.map_async(self.callback, [self])
                 msg = res.get(timeout=5)[0]
-            except:
-                # If we hit an error on multiprocessing raise it
+            except Queue.Empty:
+                p.terminate()
+                # No result returned. Probaly hanging, terminate the process.
                 raise
+            except:
+                # Some other error.
+                p.close()
+                raise
+            else:
+                # Clean exit
+                p.close()
             finally:
                 # Tidy up multiprocessing
-                p.close()
                 p.join()
 
         return msg
