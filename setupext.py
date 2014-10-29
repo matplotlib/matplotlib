@@ -1782,10 +1782,15 @@ class BackendGtk3Cairo(OptionalBackendPackage):
             p = multiprocessing.Pool()
         except:
             return "unknown (can not use multiprocessing to determine)"
-        res = p.map_async(backend_gtk3cairo_internal_check, [0])
-        success, msg = res.get(timeout=5)[0]
-        p.close()
-        p.join()
+        try:
+            res = p.map_async(backend_gtk3cairo_internal_check, [0])
+            success, msg = res.get(timeout=5)[0]
+        except:
+            success = False
+            raise
+        finally:
+            p.close()
+            p.join()
         if success:
             BackendAgg.force = True
 
