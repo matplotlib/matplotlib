@@ -2569,15 +2569,15 @@ class Axes3D(Axes):
 
         if len(XYZ) > 0:
             # compute the shaft lines all at once with an outer product
-            shafts = (XYZ - np.multiply.outer(shaft_dt, UVW)).swapaxes(0,1)
+            shafts = (XYZ - np.multiply.outer(shaft_dt, UVW)).swapaxes(0, 1)
             # compute head direction vectors, n heads by 2 sides by 3 dimensions
             head_dirs = np.array([calc_arrow(d) for d in UVW])
             # compute all head lines at once, starting from where the shaft ends
-            heads = shafts[:,:1] - np.multiply.outer(arrow_dt, head_dirs)
+            heads = shafts[:, :1] - np.multiply.outer(arrow_dt, head_dirs)
             # stack left and right head lines together
             heads.shape = (len(arrow_dt), -1, 3)
             # transpose to get a list of lines
-            heads = heads.swapaxes(0,1)
+            heads = heads.swapaxes(0, 1)
 
             lines = list(shafts) + list(heads)
         else:
@@ -2586,7 +2586,7 @@ class Axes3D(Axes):
         linec = art3d.Line3DCollection(lines, *args[argi:], **kwargs)
         self.add_collection(linec)
 
-        self.auto_scale_xyz(XYZ[:,0], XYZ[:,1], XYZ[:,2], had_data)
+        self.auto_scale_xyz(XYZ[:, 0], XYZ[:, 1], XYZ[:, 2], had_data)
 
         return linec
 
