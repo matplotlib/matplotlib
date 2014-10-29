@@ -1717,7 +1717,8 @@ class BackendGtk3Agg(OptionalBackendPackage):
         except:
             return "unknown (can not use multiprocessing to determine)"
         try:
-            success, msg = p.map(backend_gtk3agg_internal_check, [0])[0]
+             res = p.map_async(backend_gtk3agg_internal_check, [0])
+             success, msg = res.get(timeout=5)[0]
         except:
             success = False
             msg = "Could not determine"
@@ -1781,7 +1782,8 @@ class BackendGtk3Cairo(OptionalBackendPackage):
             p = multiprocessing.Pool()
         except:
             return "unknown (can not use multiprocessing to determine)"
-        success, msg = p.map(backend_gtk3cairo_internal_check, [0])[0]
+        res = p.map_async(backend_gtk3cairo_internal_check, [0])
+        success, msg = res.get(timeout=5)[0]
         p.close()
         p.join()
         if success:
@@ -1916,7 +1918,8 @@ class BackendQtBase(OptionalBackendPackage):
         else:
             # Multiprocessing OK
             try:
-                msg = p.map(self.callback, [self])[0]
+                res = p.map_async(self.callback, [self])
+                msg = res.get(timeout=5)[0]
             except:
                 # If we hit an error on multiprocessing raise it
                 raise
