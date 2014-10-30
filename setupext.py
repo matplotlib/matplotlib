@@ -13,7 +13,6 @@ import sys
 import warnings
 from textwrap import fill
 
-
 PY3 = (sys.version_info[0] >= 3)
 
 
@@ -1789,12 +1788,12 @@ class BackendGtk3Agg(OptionalBackendPackage):
             return "unknown (can not use multiprocessing to determine)"
         try:
             res = p.map_async(backend_gtk3agg_internal_check, [0])
-            success, msg = res.get(timeout=5)[0]
-        except Queue.Empty:
+            success, msg = res.get(timeout=10)[0]
+        except multiprocessing.TimeoutError:
             p.terminate()
             # No result returned. Probaly hanging, terminate the process.
             success = False
-            raise
+            raise CheckFailed("Check timed out")
         except:
             p.close()
             # Some other error.
@@ -1864,12 +1863,12 @@ class BackendGtk3Cairo(OptionalBackendPackage):
             return "unknown (can not use multiprocessing to determine)"
         try:
             res = p.map_async(backend_gtk3cairo_internal_check, [0])
-            success, msg = res.get(timeout=5)[0]
-        except Queue.Empty:
+            success, msg = res.get(timeout=10)[0]
+        except multiprocessing.TimeoutError:
             p.terminate()
             # No result returned. Probaly hanging, terminate the process.
             success = False
-            raise
+            raise CheckFailed("Check timed out")
         except:
             p.close()
             success = False
@@ -2012,11 +2011,11 @@ class BackendQtBase(OptionalBackendPackage):
             # Multiprocessing OK
             try:
                 res = p.map_async(self.callback, [self])
-                msg = res.get(timeout=5)[0]
-            except Queue.Empty:
+                msg = res.get(timeout=10)[0]
+            except multiprocessing.TimeoutError:
                 p.terminate()
                 # No result returned. Probaly hanging, terminate the process.
-                raise
+                raise CheckFailed("Check timed out")
             except:
                 # Some other error.
                 p.close()
