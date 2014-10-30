@@ -2,8 +2,9 @@ import matplotlib.pyplot as plt
 from matplotlib.mlab import csv2rec
 from matplotlib.cbook import get_sample_data
 
-# Activate the Tableau 20 styling. This call does most of the styling for you.
-plt.style.use("tableau20")
+# Activate the Tableau 20 and clean styling.
+# This call does most of the styling for you.
+plt.style.use(["clean", "tableau_20colors"])
 
 fname = get_sample_data("percent_bachelors_degrees_women_usa.csv")
 gender_degree_data = csv2rec(fname)

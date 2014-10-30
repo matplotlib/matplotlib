@@ -1,7 +1,6 @@
 # Author: Randal S. Olson (randalolson.com / @randal_olson)
-# Uses Tableau's Color Blind 10 color scheme
+# Produces a clean plotting template with default matplotlib colors.
 
-figure.figsize: 12, 7
 figure.edgecolor: white
 figure.facecolor: white
 
@@ -14,7 +13,6 @@ legend.fancybox: True
 
 font.size: 14
 
-axes.color_cycle: 006ba4, ff800e, ababab, 595959, 5f9ed1, c85200, 898989, a2c8ec, ffbc79, cfcfcf
 axes.linewidth: 0
 axes.titlesize: 22
 axes.labelsize: 16
