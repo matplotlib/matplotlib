@@ -1622,7 +1622,7 @@ def prepca(P, frac=0):
 
       - *Pcomponents* : a (numVars, numObs) array
 
-      - *Trans* : the weights matrix, ie, *Pcomponents* = *Trans* *
+      - *Trans* : the weights matrix, i.e., *Pcomponents* = *Trans* *
          *P*
 
       - *fracVar* : the fraction of the variance accounted for by each

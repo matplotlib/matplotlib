@@ -170,7 +170,7 @@ numcols, fignum`` where ``fignum`` ranges from 1 to
 ``numrows*numcols``.  The commas in the ``subplot`` command are
 optional if ``numrows*numcols<10``.  So ``subplot(211)`` is identical
 to ``subplot(2,1,1)``.  You can create an arbitrary number of subplots
-and axes.  If you want to place an axes manually, ie, not on a
+and axes.  If you want to place an axes manually, i.e., not on a
 rectangular grid, use the :func:`~matplotlib.pyplot.axes` command,
 which allows you to specify the location as ``axes([left, bottom,
 width, height])`` where all values are in fractional (0 to 1)
