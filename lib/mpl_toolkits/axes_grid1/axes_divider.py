@@ -390,7 +390,7 @@ class SubplotDivider(Divider):
 
         # total = rows*cols
         # num -= 1    # convert from matlab to python indexing
-        #             # ie num in range(0,total)
+        #             # i.e., num in range(0,total)
         # if num >= total:
         #     raise ValueError( 'Subplot number exceeds total subplots')
         # self._rows = rows

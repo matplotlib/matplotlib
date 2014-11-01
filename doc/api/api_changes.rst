@@ -2078,7 +2078,7 @@ Transformations
   implementations, matplotlib.transforms.SeparableTransformation and
   matplotlib.transforms.Affine.  The SeparableTransformation is
   constructed with the bounding box of the input (this determines the
-  rectangular coordinate system of the input, ie the x and y view
+  rectangular coordinate system of the input, i.e., the x and y view
   limits), the bounding box of the display, and possibly nonlinear
   transformations of x and y.  The 2 most frequently used
   transformations, data coordinates -> display and axes coordinates ->
