@@ -295,7 +295,7 @@ others in web application servers to dynamically serve up graphs.
 
 To support all of these use cases, matplotlib can target different
 outputs, and each of these capabilities is called a backend; the
-"frontend" is the user facing code, ie the plotting code, whereas the
+"frontend" is the user facing code, i.e., the plotting code, whereas the
 "backend" does all the hard work behind-the-scenes to make the figure.
 There are two types of backends: user interface backends (for use in
 pygtk, wxpython, tkinter, qt4, or macosx; also referred to as

@@ -993,7 +993,7 @@ class IndexLocator(Locator):
     """
     Place a tick on every multiple of some base number of points
     plotted, e.g., on every 5th point.  It is assumed that you are doing
-    index plotting; ie the axis is 0, len(data).  This is mainly
+    index plotting; i.e., the axis is 0, len(data).  This is mainly
     useful for x ticks.
     """
     def __init__(self, base, offset):

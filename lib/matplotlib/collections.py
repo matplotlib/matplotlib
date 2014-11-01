@@ -70,7 +70,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     The use of :class:`~matplotlib.cm.ScalarMappable` is optional.  If
     the :class:`~matplotlib.cm.ScalarMappable` matrix _A is not None
-    (ie a call to set_array has been made), at draw time a call to
+    (i.e., a call to set_array has been made), at draw time a call to
     scalar mappable will be made to set the face colors.
     """
     _offsets = np.array([], np.float_)
@@ -1030,7 +1030,7 @@ class LineCollection(Collection):
 
         The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
         If the :class:`~matplotlib.cm.ScalarMappable` array
-        :attr:`~matplotlib.cm.ScalarMappable._A` is not None (ie a call to
+        :attr:`~matplotlib.cm.ScalarMappable._A` is not None (i.e., a call to
         :meth:`~matplotlib.cm.ScalarMappable.set_array` has been made), at
         draw time a call to scalar mappable will be made to set the colors.
         """
@@ -1190,7 +1190,7 @@ class EventCollection(LineCollection):
 
         The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
         If the :class:`~matplotlib.cm.ScalarMappable` array
-        :attr:`~matplotlib.cm.ScalarMappable._A` is not None (ie a call to
+        :attr:`~matplotlib.cm.ScalarMappable._A` is not None (i.e., a call to
         :meth:`~matplotlib.cm.ScalarMappable.set_array` has been made), at
         draw time a call to scalar mappable will be made to set the colors.
 
@@ -1517,7 +1517,7 @@ class PatchCollection(Collection):
 
         The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
         If the :class:`~matplotlib.cm.ScalarMappable` matrix _A is not
-        None (ie a call to set_array has been made), at draw time a
+        None (i.e., a call to set_array has been made), at draw time a
         call to scalar mappable will be made to set the face colors.
         """
 
