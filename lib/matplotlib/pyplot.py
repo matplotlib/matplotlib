@@ -2182,7 +2182,7 @@ def clim(vmin=None, vmax=None):
     """
     im = gci()
     if im is None:
-        raise RuntimeError('You must first define an image, eg with imshow')
+        raise RuntimeError('You must first define an image, e.g., with imshow')
 
     im.set_clim(vmin, vmax)
     draw_if_interactive()

@@ -32,7 +32,7 @@ use any module in your PYTHONPATH with the syntax::
   matplotlib.use('module://my_backend')
 
 where my_backend.py is your module name.  This syntax is also
-recognized in the rc file and in the -d argument in pylab, eg::
+recognized in the rc file and in the -d argument in pylab, e.g.,::
 
   python simple_plot.py -dmodule://my_backend
 
@@ -131,7 +131,7 @@ class RendererTemplate(RendererBase):
         return GraphicsContextTemplate()
 
     def points_to_pixels(self, points):
-        # if backend doesn't have dpi, eg, postscript or svg
+        # if backend doesn't have dpi, e.g., postscript or svg
         return points
         # elif backend assumes a value for pixels_per_inch
         #return points/72.0 * self.dpi.get() * pixels_per_inch/72.0
@@ -156,7 +156,7 @@ class GraphicsContextTemplate(GraphicsContextBase):
     methods.
 
     The base GraphicsContext stores colors as a RGB tuple on the unit
-    interval, eg, (0.5, 0.0, 1.0). You may need to map this to colors
+    interval, e.g., (0.5, 0.0, 1.0). You may need to map this to colors
     appropriate for your backend.
     """
     pass
@@ -227,7 +227,7 @@ class FigureCanvasTemplate(FigureCanvasBase):
     mouse movements and key presses to functions that call the base
     class methods button_press_event, button_release_event,
     motion_notify_event, key_press_event, and key_release_event.  See,
-    eg backend_gtk.py, backend_wx.py and backend_tkagg.py
+    e.g., backend_gtk.py, backend_wx.py and backend_tkagg.py
     """
 
     def draw(self):

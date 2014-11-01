@@ -285,7 +285,7 @@ Using offset transforms to create a shadow effect
 =================================================
 
 One use of transformations is to create a new transformation that is
-offset from another transformation, eg to place one object shifted a
+offset from another transformation, e.g., to place one object shifted a
 bit relative to another object.  Typically you want the shift to be in
 some physical dimension, like points or inches rather than in data
 coordinates, so that the shift effect is constant at different zoom

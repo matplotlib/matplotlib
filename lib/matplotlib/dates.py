@@ -78,9 +78,9 @@ Here are all the date tickers:
 
     * :class:`DayLocator`: locate specifed days of the month
 
-    * :class:`WeekdayLocator`: Locate days of the week, eg MO, TU
+    * :class:`WeekdayLocator`: Locate days of the week, e.g., MO, TU
 
-    * :class:`MonthLocator`: locate months, eg 7 for july
+    * :class:`MonthLocator`: locate months, e.g., 7 for july
 
     * :class:`YearLocator`: locate years that are multiples of base
 
@@ -407,7 +407,7 @@ class DateFormatter(ticker.Formatter):
             raise ValueError('DateFormatter found a value of x=0, which is '
                              'an illegal date.  This usually occurs because '
                              'you have not informed the axis that it is '
-                             'plotting dates, eg with ax.xaxis_date()')
+                             'plotting dates, e.g., with ax.xaxis_date()')
         dt = num2date(x, self.tz)
         return self.strftime(dt, self.fmt)
 
@@ -1042,7 +1042,7 @@ class YearLocator(DateLocator):
 
 class MonthLocator(RRuleLocator):
     """
-    Make ticks on occurances of each month month, eg 1, 3, 12.
+    Make ticks on occurances of each month month, e.g., 1, 3, 12.
     """
     def __init__(self,  bymonth=None, bymonthday=1, interval=1, tz=None):
         """

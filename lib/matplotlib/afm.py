@@ -446,7 +446,7 @@ class AFM(object):
 
     def get_name_char(self, c, isord=False):
         """
-        Get the name of the character, ie, ';' is 'semicolon'
+        Get the name of the character, i.e., ';' is 'semicolon'
         """
         if not isord:
             c = ord(c)
