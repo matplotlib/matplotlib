@@ -915,7 +915,7 @@ class Barbs(mcollections.PolyCollection):
         '''
         Find how many of each of the tail pieces is necessary.  Flag
         specifies the increment for a flag, barb for a full barb, and half for
-        half a barb. Mag should be the magnitude of a vector (ie. >= 0).
+        half a barb. Mag should be the magnitude of a vector (i.e., >= 0).
 
         This returns a tuple of:
 
