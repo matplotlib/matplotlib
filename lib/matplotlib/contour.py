@@ -77,7 +77,7 @@ class ContourLabeler:
         Optional keyword arguments:
 
           *fontsize*:
-            size in points or relative size eg 'smaller', 'x-large'
+            size in points or relative size e.g., 'smaller', 'x-large'
 
           *colors*:
             - if *None*, the color of each label matches the color of
@@ -1703,7 +1703,7 @@ class QuadContourSet(ContourSet):
 
           *levels*: [level0, level1, ..., leveln]
             A list of floating point numbers indicating the level
-            curves to draw; eg to draw just the zero contour pass
+            curves to draw; e.g., to draw just the zero contour pass
             ``levels=[0]``
 
           *origin*: [ *None* | 'upper' | 'lower' | 'image' ]

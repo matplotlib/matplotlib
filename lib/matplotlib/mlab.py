@@ -1622,7 +1622,7 @@ def prepca(P, frac=0):
 
       - *Pcomponents* : a (numVars, numObs) array
 
-      - *Trans* : the weights matrix, ie, *Pcomponents* = *Trans* *
+      - *Trans* : the weights matrix, i.e., *Pcomponents* = *Trans* *
          *P*
 
       - *fracVar* : the fraction of the variance accounted for by each
@@ -1677,7 +1677,7 @@ class PCA:
           *Y* : a projected into PCA space
 
 
-        The factor loadings are in the Wt factor, ie the factor
+        The factor loadings are in the Wt factor, i.e., the factor
         loadings for the 1st principal component are given by Wt[0].
         This row is also the 1st eigenvector.
 
@@ -2049,7 +2049,7 @@ class FIFOBuffer:
     and plot it to screen less freqeuently than the incoming.
 
     If you set the *dataLim* attr to
-    :class:`~matplotlib.transforms.BBox` (eg
+    :class:`~matplotlib.transforms.BBox` (e.g.,
     :attr:`matplotlib.Axes.dataLim`), the *dataLim* will be updated as
     new data come in.
 
@@ -2521,7 +2521,7 @@ def rec_groupby(r, groupby, stats):
     *r* is a numpy record array
 
     *groupby* is a sequence of record array attribute names that
-    together form the grouping key.  eg ('date', 'productcode')
+    together form the grouping key.  e.g., ('date', 'productcode')
 
     *stats* is a sequence of (*attr*, *func*, *outname*) tuples which
     will call ``x = func(attr)`` and assign *x* to the record array
@@ -3859,7 +3859,7 @@ def poly_below(xmin, xs, ys):
     polygon that has a horizontal base at *xmin* and an upper bound at
     the *ys*.  *xmin* is a scalar.
 
-    Intended for use with :meth:`matplotlib.axes.Axes.fill`, eg::
+    Intended for use with :meth:`matplotlib.axes.Axes.fill`, e.g.,::
 
       xv, yv = poly_below(0, x, y)
       ax.fill(xv, yv)
@@ -3944,7 +3944,7 @@ def contiguous_regions(mask):
 def cross_from_below(x, threshold):
     """
     return the indices into *x* where *x* crosses some threshold from
-    below, eg the i's where::
+    below, e.g., the i's where::
 
       x[i-1]<threshold and x[i]>=threshold
 
@@ -3983,7 +3983,7 @@ def cross_from_below(x, threshold):
 def cross_from_above(x, threshold):
     """
     return the indices into *x* where *x* crosses some threshold from
-    below, eg the i's where::
+    below, e.g., the i's where::
 
       x[i-1]>threshold and x[i]<=threshold
 

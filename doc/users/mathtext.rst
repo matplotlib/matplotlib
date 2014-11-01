@@ -161,7 +161,7 @@ The default font is *italics* for mathematical symbols.
    This is useful, for example, to use the same font as regular
    non-math text for math text, by setting it to ``regular``.
 
-To change fonts, eg, to write "sin" in a Roman font, enclose the text
+To change fonts, e.g., to write "sin" in a Roman font, enclose the text
 in a font command::
 
     r'$s(t) = \mathcal{A}\mathrm{sin}(2 \omega t)$'

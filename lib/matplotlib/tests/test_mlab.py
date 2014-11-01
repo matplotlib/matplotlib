@@ -2906,7 +2906,7 @@ class gaussian_kde_evaluate_tests(object):
         np.testing.assert_array_almost_equal(y, y_expected, 7)
 
     def test_evaluate_inv_dim(self):
-        """ Invert the dimensions. ie, Give the dataset a dimension of
+        """ Invert the dimensions. i.e., Give the dataset a dimension of
         1 [3,2,4], and the points will have a dimension of 3 [[3],[2],[4]].
         ValueError should be raised"""
         np.random.seed(8765678)

@@ -19,7 +19,7 @@ Testing
 * Run :file:`unit/memleak_hawaii3.py` and make sure there are no
   memory leaks
 
-* try some GUI examples, eg :file:`simple_plot.py` with GTKAgg, TkAgg, etc...
+* try some GUI examples, e.g., :file:`simple_plot.py` with GTKAgg, TkAgg, etc...
 
 * remove font cache and tex cache from :file:`.matplotlib` and test
   with and without cache on some example script

@@ -841,7 +841,7 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
         an Axes instance to plot to
     quotes : sequence of (time, open, close, high, low, ...) sequences
         As long as the first 5 elements are these values,
-        the record can be as long as you want (eg it may store volume).
+        the record can be as long as you want (e.g., it may store volume).
 
         time must be in float days format - see date2num
 
@@ -884,7 +884,7 @@ def candlestick_ochl(ax, quotes, width=0.2, colorup='k', colordown='r',
         an Axes instance to plot to
     quotes : sequence of (time, open, close, high, low, ...) sequences
         As long as the first 5 elements are these values,
-        the record can be as long as you want (eg it may store volume).
+        the record can be as long as you want (e.g., it may store volume).
 
         time must be in float days format - see date2num
 
@@ -924,7 +924,7 @@ def candlestick_ohlc(ax, quotes, width=0.2, colorup='k', colordown='r',
         an Axes instance to plot to
     quotes : sequence of (time, open, high, low, close, ...) sequences
         As long as the first 5 elements are these values,
-        the record can be as long as you want (eg it may store volume).
+        the record can be as long as you want (e.g., it may store volume).
 
         time must be in float days format - see date2num
 
