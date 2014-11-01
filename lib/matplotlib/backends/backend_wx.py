@@ -466,7 +466,7 @@ class GraphicsContextWx(GraphicsContextBase):
     bitmap object that is passed in.
 
     The base GraphicsContext stores colors as a RGB tuple on the unit
-    interval, eg, (0.5, 0.0, 1.0).  wxPython uses an int interval, but
+    interval, e.g., (0.5, 0.0, 1.0).  wxPython uses an int interval, but
     since wxPython colour management is rather simple, I have not chosen
     to implement a separate colour manager class.
     """

@@ -83,12 +83,12 @@ docstring.interpd.update(Text="""
     linespacing                float
     lod                        [True | False]
     multialignment             ['left' | 'right' | 'center' ]
-    name or fontname           string eg,
+    name or fontname           string e.g.,
                                ['Sans' | 'Courier' | 'Helvetica' ...]
     position                   (x,y)
     rotation                   [ angle in degrees 'vertical' | 'horizontal'
     rotation_mode              [ None | 'anchor']
-    size or fontsize           [size in points | relative size eg 'smaller',
+    size or fontsize           [size in points | relative size e.g., 'smaller',
                                                                   'x-large']
     style or fontstyle         [ 'normal' | 'italic' | 'oblique']
     text                       string
@@ -437,7 +437,7 @@ class Text(Artist):
     def set_bbox(self, rectprops):
         """
         Draw a bounding box around self.  rectprops are any settable
-        properties for a rectangle, eg facecolor='red', alpha=0.5.
+        properties for a rectangle, e.g., facecolor='red', alpha=0.5.
 
           t.set_bbox(dict(facecolor='red', alpha=0.5))
 
@@ -677,7 +677,7 @@ class Text(Artist):
         Return a hashable tuple of properties.
 
         Not intended to be human readable, but useful for backends who
-        want to cache derived information about text (eg layouts) and
+        want to cache derived information about text (e.g., layouts) and
         need to know if the text has changed.
         """
         x, y = self.get_position()
@@ -1121,7 +1121,7 @@ class TextWithDash(Text):
         Return a hashable tuple of properties.
 
         Not intended to be human readable, but useful for backends who
-        want to cache derived information about text (eg layouts) and
+        want to cache derived information about text (e.g., layouts) and
         need to know if the text has changed.
         """
         props = [p for p in Text.get_prop_tup(self)]
@@ -1703,7 +1703,7 @@ class Annotation(Text, _AnnotationBase):
                     annotated.  If *d* is the distance between the text and
                     annotated point, shrink will shorten the arrow so the tip
                     and base are shink percent of the distance *d* away from
-                    the endpoints.  ie, ``shrink=0.05 is 5%%``
+                    the endpoints.  i.e., ``shrink=0.05 is 5%%``
         ?           any key for :class:`matplotlib.patches.polygon`
         =========   ===========================================================
 

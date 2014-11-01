@@ -1104,7 +1104,7 @@ class Axes(_AxesBase):
           A float or array-like containing floats.
 
         *colors*
-          must be a sequence of RGBA tuples (eg arbitrary color
+          must be a sequence of RGBA tuples (e.g., arbitrary color
           strings, etc, not allowed) or a list of such sequences
 
         *linestyles* :
@@ -2213,11 +2213,11 @@ class Axes(_AxesBase):
 
         %(BrokenBarHCollection)s
 
-        these can either be a single argument, ie::
+        these can either be a single argument, i.e.,::
 
           facecolors = 'black'
 
-        or a sequence of arguments for the various bars, ie::
+        or a sequence of arguments for the various bars, i.e.,::
 
           facecolors = ('black', 'red', 'green')
 
@@ -5420,7 +5420,7 @@ class Axes(_AxesBase):
         normed : boolean, optional, default: False
             If `True`, the first element of the return tuple will
             be the counts normalized to form a probability density, i.e.,
-            ``n/(len(x)`dbin)``, ie the integral of the histogram will sum to
+            ``n/(len(x)`dbin)``, i.e., the integral of the histogram will sum to
             1. If *stacked* is also *True*, the sum of the histograms is
             normalized to 1.
 

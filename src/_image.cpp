@@ -685,7 +685,7 @@ char Image::set_interpolation__doc__[] =
     "set_interpolation(scheme)\n"
     "\n"
     "Set the interpolation scheme to one of the module constants, "
-    "eg, image.NEAREST, image.BILINEAR, etc..."
+    "e.g., image.NEAREST, image.BILINEAR, etc..."
     ;
 
 Py::Object
@@ -721,7 +721,7 @@ char Image::set_aspect__doc__[] =
     "set_aspect(scheme)\n"
     "\n"
     "Set the aspect ration to one of the image module constant."
-    "eg, one of image.ASPECT_PRESERVE, image.ASPECT_FREE"
+    "e.g., one of image.ASPECT_PRESERVE, image.ASPECT_FREE"
     ;
 Py::Object
 Image::set_aspect(const Py::Tuple& args)
