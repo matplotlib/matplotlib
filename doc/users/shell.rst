@@ -20,8 +20,18 @@ python shell.
 
 .. _ipython-pylab:
 
-Ipython to the rescue
+IPython to the rescue
 =====================
+
+.. note::
+
+    The mode described here still exists for historical reasons, but it is
+    highly advised not to use. It pollutes namespaces with functions that will
+    shadow python built-in and can lead to hard to track bugs. To get IPython
+    integration without imports the use of the  `%matplotlib` magic is
+    preferred. See
+    `ipython documentation <http://ipython.org/ipython-doc/stable/interactive/reference.html#plotting-with-matplotlib>`_
+    .
 
 Fortunately, `ipython <http://ipython.org/>`_, an enhanced
 interactive python shell, has figured out all of these tricks, and is
