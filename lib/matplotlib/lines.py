@@ -72,7 +72,7 @@ class Line2D(Artist):
     """
     A line - the line can have both a solid linestyle connecting all
     the vertices, and a marker at each vertex.  Additionally, the
-    drawing of the solid line is influenced by the drawstyle, eg one
+    drawing of the solid line is influenced by the drawstyle, e.g. one
     can create "stepped" lines in various styles.
 
 
