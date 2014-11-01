@@ -410,7 +410,7 @@ Object picking
 ==============
 
 You can enable picking by setting the ``picker`` property of an
-:class:`~matplotlib.artist.Artist` (eg a matplotlib
+:class:`~matplotlib.artist.Artist` (e.g., a matplotlib
 :class:`~matplotlib.lines.Line2D`, :class:`~matplotlib.text.Text`,
 :class:`~matplotlib.patches.Patch`, :class:`~matplotlib.patches.Polygon`,
 :class:`~matplotlib.patches.AxesImage`, etc...)
@@ -429,7 +429,7 @@ There are a variety of meanings of the ``picker`` property:
 	points and the the artist will fire off an event if its data is
 	within epsilon of the mouse event.  For some artists like lines
 	and patch collections, the artist may provide additional data to
-	the pick event that is generated, eg the indices of the data
+	the pick event that is generated, e.g., the indices of the data
 	within epsilon of the pick event.
 
     ``function``
@@ -457,7 +457,7 @@ your callback is always fired with two attributes:
 
     ``mouseevent`` the mouse event that generate the pick event.  The
 	mouse event in turn has attributes like ``x`` and ``y`` (the
-	coords in display space, eg pixels from left, bottom) and xdata,
+	coords in display space, e.g., pixels from left, bottom) and xdata,
 	ydata (the coords in data space).  Additionally, you can get
 	information about which buttons were pressed, which keys were
 	pressed, which :class:`~matplotlib.axes.Axes` the mouse is over,
@@ -471,7 +471,7 @@ your callback is always fired with two attributes:
 Additionally, certain artists like :class:`~matplotlib.lines.Line2D`
 and :class:`~matplotlib.collections.PatchCollection` may attach
 additional meta data like the indices into the data that meet the
-picker criteria (eg all the points in the line that are within the
+picker criteria (e.g., all the points in the line that are within the
 specified epsilon tolerance)
 
 Simple picking example

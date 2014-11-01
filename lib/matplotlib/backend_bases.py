@@ -1551,7 +1551,7 @@ class PickEvent(Event):
         the :class:`~matplotlib.artist.Artist` picked
 
     other
-        extra class dependent attrs -- eg a
+        extra class dependent attrs -- e.g., a
         :class:`~matplotlib.lines.Line2D` pick may define different
         extra attributes than a
         :class:`~matplotlib.collections.PatchCollection` pick event

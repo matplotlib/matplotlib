@@ -3011,7 +3011,7 @@ class MathTextParser(object):
     def to_mask(self, texstr, dpi=120, fontsize=14):
         """
         *texstr*
-            A valid mathtext string, eg r'IQ: $\sigma_i=15$'
+            A valid mathtext string, e.g., r'IQ: $\sigma_i=15$'
 
         *dpi*
             The dots-per-inch to render the text
@@ -3037,7 +3037,7 @@ class MathTextParser(object):
     def to_rgba(self, texstr, color='black', dpi=120, fontsize=14):
         """
         *texstr*
-            A valid mathtext string, eg r'IQ: $\sigma_i=15$'
+            A valid mathtext string, e.g., r'IQ: $\sigma_i=15$'
 
         *color*
             Any matplotlib color argument
@@ -3077,7 +3077,7 @@ class MathTextParser(object):
             A writable filename or fileobject
 
         *texstr*
-            A valid mathtext string, eg r'IQ: $\sigma_i=15$'
+            A valid mathtext string, e.g., r'IQ: $\sigma_i=15$'
 
         *color*
             A valid matplotlib color argument
@@ -3102,7 +3102,7 @@ class MathTextParser(object):
         image in pixels.
 
         *texstr*
-            A valid mathtext string, eg r'IQ: $\sigma_i=15$'
+            A valid mathtext string, e.g., r'IQ: $\sigma_i=15$'
 
         *dpi*
             The dots-per-inch to render the text

@@ -1104,7 +1104,7 @@ class Axes(_AxesBase):
           A float or array-like containing floats.
 
         *colors*
-          must be a sequence of RGBA tuples (eg arbitrary color
+          must be a sequence of RGBA tuples (e.g., arbitrary color
           strings, etc, not allowed) or a list of such sequences
 
         *linestyles* :

@@ -1305,7 +1305,7 @@ Changes for 0.90.1
     units.ConversionInterface.tickers renamed to
     units.ConversionInterface.axisinfo and it now returns a
     units.AxisInfo object rather than a tuple.  This will make it
-    easier to add axis info functionality (eg I added a default label
+    easier to add axis info functionality (e.g., I added a default label
     on this iteration) w/o having to change the tuple length and hence
     the API of the client code every time new functionality is added.
     Also, units.ConversionInterface.convert_to_value is now simply
@@ -1790,7 +1790,7 @@ Changes for 0.71
    pylab still imports most of the symbols from Numerix, MLab, fft,
    etc, but is more cautious.  For names that clash with python names
    (min, max, sum), pylab keeps the builtins and provides the numeric
-   versions with an a* prefix, eg (amin, amax, asum)
+   versions with an a* prefix, e.g., (amin, amax, asum)
 
 Changes for 0.70
 ================
@@ -1937,7 +1937,7 @@ pcolor_classic and scatter_classic.
 
 The return value from pcolor is a PolyCollection.  Most of the
 propertes that are available on rectangles or other patches are also
-available on PolyCollections, eg you can say::
+available on PolyCollections, e.g., you can say::
 
   c = scatter(blah, blah)
   c.set_linewidth(1.0)
@@ -1955,7 +1955,7 @@ over the return value of scatter or pcolor to set properties for the
 entire list.
 
 If you want the different elements of a collection to vary on a
-property, eg to have different line widths, see matplotlib.collections
+property, e.g., to have different line widths, see matplotlib.collections
 for a discussion on how to set the properties as a sequence.
 
 For scatter, the size argument is now in points^2 (the area of the
@@ -2215,7 +2215,7 @@ Changes for 0.42
     needed with double buffered drawing.  Ditto with state change.
     Text instances have a get_prop_tup method that returns a hashable
     tuple of text properties which you can use to see if text props
-    have changed, eg by caching a font or layout instance in a dict
+    have changed, e.g., by caching a font or layout instance in a dict
     with the prop tup as a key -- see RendererGTK.get_pango_layout in
     backend_gtk for an example.
 
@@ -2236,7 +2236,7 @@ Changes for 0.42
 
   * matplotlib.matlab._get_current_fig_manager renamed to
     matplotlib.matlab.get_current_fig_manager to allow user access to
-    the GUI window attribute, eg figManager.window for GTK and
+    the GUI window attribute, e.g., figManager.window for GTK and
     figManager.frame for wx
 
 Changes for 0.40

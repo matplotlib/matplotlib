@@ -4,9 +4,9 @@ I'm not trying to make a good looking figure here, but just to show
 some examples of customizing rc params on the fly
 
 If you like to work interactively, and need to create different sets
-of defaults for figures (eg one set of defaults for publication, one
+of defaults for figures (e.g., one set of defaults for publication, one
 set for interactive exploration), you may want to define some
-functions in a custom module that set the defaults, eg
+functions in a custom module that set the defaults, e.g.,
 
 def set_pub():
     rc('font', weight='bold')    # bold fonts are easier to see

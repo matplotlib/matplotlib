@@ -202,7 +202,7 @@ class _process_plot_var_args(object):
             if self.command != 'plot':
                 # the Line2D class can handle unitized data, with
                 # support for post hoc unit changes etc.  Other mpl
-                # artists, eg Polygon which _process_plot_var_args
+                # artists, e.g., Polygon which _process_plot_var_args
                 # also serves on calls to fill, cannot.  So this is a
                 # hack to say: if you are not "plot", which is
                 # creating Line2D, then convert the data now to
@@ -420,7 +420,7 @@ class _AxesBase(martist.Artist):
 
         self.spines = self._gen_axes_spines()
 
-        # this call may differ for non-sep axes, eg polar
+        # this call may differ for non-sep axes, e.g., polar
         self._init_axis()
 
         if axisbg is None:
@@ -2168,7 +2168,7 @@ class _AxesBase(martist.Artist):
         *axis* can be 'both' (default), 'x', or 'y' to control which
         set of gridlines are drawn.
 
-        *kwargs* are used to set the grid line properties, eg::
+        *kwargs* are used to set the grid line properties, e.g.,::
 
            ax.grid(color='r', linestyle='-', linewidth=2)
 

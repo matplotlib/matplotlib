@@ -392,7 +392,7 @@ So we can include plots from the examples dir using the symlink::
 
 
 We used to use a symlink for :file:`mpl-data` too, but the distro
-becomes very large on platforms that do not support links (eg the font
+becomes very large on platforms that do not support links (e.g., the font
 files are duplicated and large)
 
 .. _internal-section-refs:
@@ -401,7 +401,7 @@ Internal section references
 ===========================
 
 To maximize internal consistency in section labeling and references,
-use hyphen separated, descriptive labels for section references, eg::
+use hyphen separated, descriptive labels for section references, e.g.,::
 
     .. _howto-webapp:
 
@@ -429,7 +429,7 @@ Section names, etc
 ==================
 
 For everything but top level chapters, please use ``Upper lower`` for
-section titles, eg ``Possible hangups`` rather than ``Possible
+section titles, e.g., ``Possible hangups`` rather than ``Possible
 Hangups``
 
 Inheritance diagrams

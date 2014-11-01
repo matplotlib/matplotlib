@@ -35,7 +35,7 @@ Tick locating
 The Locator class is the base class for all tick locators.  The locators
 handle autoscaling of the view limits based on the data limits, and the
 choosing of tick locations.  A useful semi-automatic tick locator is
-MultipleLocator.  You initialize this with a base, eg 10, and it picks axis
+MultipleLocator.  You initialize this with a base, e.g., 10, and it picks axis
 limits and ticks that are multiples of your base.
 
 The Locator subclasses defined here are
@@ -93,7 +93,7 @@ methods are::
   ax.yaxis.set_major_locator( ymajorLocator )
   ax.yaxis.set_minor_locator( yminorLocator )
 
-The default minor locator is the NullLocator, eg no minor ticks on by
+The default minor locator is the NullLocator, e.g., no minor ticks on by
 default.
 
 Tick formatting
@@ -992,7 +992,7 @@ class Locator(TickHelper):
 class IndexLocator(Locator):
     """
     Place a tick on every multiple of some base number of points
-    plotted, eg on every 5th point.  It is assumed that you are doing
+    plotted, e.g., on every 5th point.  It is assumed that you are doing
     index plotting; ie the axis is 0, len(data).  This is mainly
     useful for x ticks.
     """

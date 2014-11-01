@@ -595,7 +595,7 @@ class Figure(Artist):
           Keyword     Description
           =========   =========================================================
           xo or yo    An integer, the *x* and *y* image offset in pixels
-          cmap        a :class:`matplotlib.colors.Colormap` instance, eg
+          cmap        a :class:`matplotlib.colors.Colormap` instance, e.g.,
                       cm.jet. If *None*, default to the rc ``image.cmap``
                       value
           norm        a :class:`matplotlib.colors.Normalize` instance. The
@@ -649,7 +649,7 @@ class Figure(Artist):
              fig.set_size_inches((w,h) )
 
         optional kwarg *forward=True* will cause the canvas size to be
-        automatically updated; eg you can resize the figure window
+        automatically updated; e.g., you can resize the figure window
         from the shell
 
         ACCEPTS: a w,h tuple with w,h in inches
@@ -1663,7 +1663,7 @@ def figaspect(arg):
     determine the width and height for a figure that would fit array
     preserving aspect ratio.  The figure width, height in inches are
     returned.  Be sure to create an axes with equal with and height,
-    eg
+    e.g.,
 
     Example usage::
 
