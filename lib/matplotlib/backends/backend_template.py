@@ -131,7 +131,7 @@ class RendererTemplate(RendererBase):
         return GraphicsContextTemplate()
 
     def points_to_pixels(self, points):
-        # if backend doesn't have dpi, eg, postscript or svg
+        # if backend doesn't have dpi, e.g., postscript or svg
         return points
         # elif backend assumes a value for pixels_per_inch
         #return points/72.0 * self.dpi.get() * pixels_per_inch/72.0
@@ -156,7 +156,7 @@ class GraphicsContextTemplate(GraphicsContextBase):
     methods.
 
     The base GraphicsContext stores colors as a RGB tuple on the unit
-    interval, eg, (0.5, 0.0, 1.0). You may need to map this to colors
+    interval, e.g., (0.5, 0.0, 1.0). You may need to map this to colors
     appropriate for your backend.
     """
     pass

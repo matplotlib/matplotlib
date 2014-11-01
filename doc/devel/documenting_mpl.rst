@@ -362,7 +362,7 @@ Referring to mpl documents
 In the documentation, you may want to include to a document in the
 matplotlib src, e.g., a license file or an image file from `mpl-data`,
 refer to it via a relative path from the document where the rst file
-resides, eg, in :file:`users/navigation_toolbar.rst`, we refer to the
+resides, e.g., in :file:`users/navigation_toolbar.rst`, we refer to the
 image icons with::
 
     .. image:: ../../lib/matplotlib/mpl-data/images/subplots.png

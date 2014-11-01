@@ -1587,7 +1587,7 @@ char FT2Font::draw_glyph_to_bitmap__doc__[] =
     "\n"
     "If you want automatic layout, use set_text in combinations with\n"
     "draw_glyphs_to_bitmap.  This function is intended for people who\n"
-    "want to render individual glyphs at precise locations, eg, a\n"
+    "want to render individual glyphs at precise locations, e.g., a\n"
     "a glyph returned by load_char\n";
 
 Py::Object

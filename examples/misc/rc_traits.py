@@ -33,7 +33,7 @@ colors = {
    }
 
 def hex2color(s):
-   "Convert hex string (like html uses, eg, #efefef) to a r,g,b tuple"
+   "Convert hex string (like html uses, e.g., #efefef) to a r,g,b tuple"
    return tuple([int(n, 16)/255.0 for n in (s[1:3], s[3:5], s[5:7])])
 
 class RGBA(traits.HasTraits):

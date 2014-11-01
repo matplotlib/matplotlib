@@ -10,7 +10,7 @@ to update the plot every time a single property is changed, only once
 after all the properties have changed.
 
 But when working from the python shell, you usually do want to update
-the plot with every command, eg, after changing the
+the plot with every command, e.g., after changing the
 :func:`~matplotlib.pyplot.xlabel`, or the marker style of a line.
 While this is simple in concept, in practice it can be tricky, because
 matplotlib is a graphical user interface application under the hood,
