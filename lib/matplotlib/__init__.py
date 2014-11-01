@@ -1135,7 +1135,7 @@ def rc(group, **kwargs):
     for ``lines.linewidth`` the group is ``lines``, for
     ``axes.facecolor``, the group is ``axes``, and so on.  Group may
     also be a list or tuple of group names, e.g., (*xtick*, *ytick*).
-    *kwargs* is a dictionary attribute name/value pairs, eg::
+    *kwargs* is a dictionary attribute name/value pairs, e.g.,::
 
       rc('lines', linewidth=2, color='r')
 
@@ -1363,7 +1363,7 @@ for s in sys.argv[1:]:
             use(s[2:])
         except (KeyError, ValueError):
             pass
-        # we don't want to assume all -d flags are backends, eg -debug
+        # we don't want to assume all -d flags are backends, e.g., -debug
 
 default_test_modules = [
     'matplotlib.tests.test_agg',

@@ -458,7 +458,7 @@ class SubplotDivider(Divider):
         self.figbox = self.get_subplotspec().get_position(self.figure)
 
     def get_geometry(self):
-        'get the subplot geometry, eg 2,2,3'
+        'get the subplot geometry, e.g., 2,2,3'
         rows, cols, num1, num2 = self.get_subplotspec().get_geometry()
         return rows, cols, num1+1  # for compatibility
 

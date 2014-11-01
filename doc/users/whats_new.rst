@@ -1501,7 +1501,7 @@ Here are the 0.98.4 notes from the CHANGELOG::
 
     Some of the changes Michael made to improve the output of the
     property tables in the rest docs broke of made difficult to use
-    some of the interactive doc helpers, eg setp and getp.  Having all
+    some of the interactive doc helpers, e.g., setp and getp.  Having all
     the rest markup in the ipython shell also confused the docstrings.
     I added a new rc param docstring.harcopy, to format the docstrings
     differently for hardcopy and other use.  The ArtistInspector

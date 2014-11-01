@@ -32,7 +32,7 @@ use any module in your PYTHONPATH with the syntax::
   matplotlib.use('module://my_backend')
 
 where my_backend.py is your module name.  This syntax is also
-recognized in the rc file and in the -d argument in pylab, eg::
+recognized in the rc file and in the -d argument in pylab, e.g.,::
 
   python simple_plot.py -dmodule://my_backend
 
@@ -227,7 +227,7 @@ class FigureCanvasTemplate(FigureCanvasBase):
     mouse movements and key presses to functions that call the base
     class methods button_press_event, button_release_event,
     motion_notify_event, key_press_event, and key_release_event.  See,
-    eg backend_gtk.py, backend_wx.py and backend_tkagg.py
+    e.g., backend_gtk.py, backend_wx.py and backend_tkagg.py
     """
 
     def draw(self):

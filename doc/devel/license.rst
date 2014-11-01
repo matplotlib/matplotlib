@@ -14,7 +14,7 @@ distributing L/GPL code through an separate channel, possibly a
 toolkit.  If you include code, make sure you include a copy of that
 code's license in the license directory if the code's license requires
 you to distribute the license with it.  Non-BSD compatible licenses
-are acceptable in matplotlib toolkits (eg basemap), but make sure you
+are acceptable in matplotlib toolkits (e.g., basemap), but make sure you
 clearly state the licenses you are using.
 
 Why BSD compatible?

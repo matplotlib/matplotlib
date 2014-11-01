@@ -24,7 +24,7 @@
 # Colors: for the color values below, you can either use - a
 # matplotlib color string, such as r, k, or b - an rgb tuple, such as
 # (1.0, 0.5, 0.0) - a hex string, such as ff00ff or #ff00ff - a scalar
-# grayscale intensity such as 0.75 - a legal html color name, eg red,
+# grayscale intensity such as 0.75 - a legal html color name, e.g., red,
 # blue, darkslategray
 
 #### CONFIGURATION BEGINS HERE
@@ -68,7 +68,7 @@ backend      : %(backend)s
 
 #interactive  : False
 #toolbar      : toolbar2   # None | toolbar2  ("classic" is deprecated)
-#timezone     : UTC        # a pytz timezone string, eg US/Central or Europe/Paris
+#timezone     : UTC        # a pytz timezone string, e.g., US/Central or Europe/Paris
 
 # Where your matplotlib data lives if you installed to a non-default
 # location.  This is where the matplotlib fonts, bitmaps, etc reside
@@ -445,7 +445,7 @@ backend      : %(backend)s
 #
 # You can override the rc default verbosity from the command line by
 # giving the flags --verbose-LEVEL where LEVEL is one of the legal
-# levels, eg --verbose-helpful.
+# levels, e.g., --verbose-helpful.
 #
 # You can access the verbose instance in your code
 #   from matplotlib import verbose.

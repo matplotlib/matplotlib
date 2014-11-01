@@ -4,8 +4,8 @@ matplotlib supports accented characters via TeX mathtext
 
 The following accents are provided: \hat, \breve, \grave, \bar,
 \acute, \tilde, \vec, \dot, \ddot.  All of them have the same syntax,
-eg to make an overbar you do \bar{o} or to make an o umlaut you do
-\ddot{o}.  The shortcuts are also provided, eg: \"o \'e \`e \~n \.x
+e.g., to make an overbar you do \bar{o} or to make an o umlaut you do
+\ddot{o}.  The shortcuts are also provided, e.g.,: \"o \'e \`e \~n \.x
 \^y
 
 """

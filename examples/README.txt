@@ -8,7 +8,7 @@ Probably the most common way people use matplotlib is with the
 procedural interface, which follows the matlab/IDL/mathematica
 approach of using simple procedures like "plot" or "title" to modify
 the current figure.  These examples are included in the "pylab_examples"
-directory.  If you want to write more robust scripts, eg for
+directory.  If you want to write more robust scripts, e.g., for
 production use or in a web application server, you will probably want
 to use the matplotlib API for full control.  These examples are found
 in the "api" directory.  Below is a brief description of the different
@@ -41,7 +41,7 @@ directories found here:
 
   * units - working with unit data an custom types in matplotlib
 
-  * user_interfaces - using matplotlib in a GUI application, eg
+  * user_interfaces - using matplotlib in a GUI application, e.g.,
     TkInter, WXPython, pygtk, pyqt or FLTK widgets
 
   * widgets - Examples using interactive widgets

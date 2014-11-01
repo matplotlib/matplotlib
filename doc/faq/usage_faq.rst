@@ -336,7 +336,7 @@ from the canvas (the place where the drawing goes).  The canonical
 renderer for user interfaces is ``Agg`` which uses the `Anti-Grain
 Geometry`_ C++ library to make a raster (pixel) image of the figure.
 All of the user interfaces except ``macosx`` can be used with
-agg rendering, eg
+agg rendering, e.g.,
 ``WXAgg``, ``GTKAgg``, ``QT4Agg``, ``TkAgg``.  In
 addition, some of the user interfaces support other rendering engines.
 For example, with GTK, you can also select GDK rendering (backend

@@ -1291,7 +1291,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         or *vmax* is None, that limit is determined from the *arr*
         min/max value.
       *cmap*:
-        cmap is a colors.Colormap instance, eg cm.jet.
+        cmap is a colors.Colormap instance, e.g., cm.jet.
         If None, default to the rc image.cmap value.
       *format*:
         One of the file extensions supported by the active

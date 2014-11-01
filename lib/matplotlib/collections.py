@@ -987,7 +987,7 @@ class LineCollection(Collection):
             can be a different length.
 
         *colors*
-            must be a sequence of RGBA tuples (eg arbitrary color
+            must be a sequence of RGBA tuples (e.g., arbitrary color
             strings, etc, not allowed).
 
         *antialiaseds*
@@ -1169,7 +1169,7 @@ class EventCollection(LineCollection):
             a single numerical value
 
         *color*
-            must be a sequence of RGBA tuples (eg arbitrary color
+            must be a sequence of RGBA tuples (e.g., arbitrary color
             strings, etc, not allowed).
 
         *linestyle* [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
