@@ -1703,7 +1703,7 @@ class Annotation(Text, _AnnotationBase):
                     annotated.  If *d* is the distance between the text and
                     annotated point, shrink will shorten the arrow so the tip
                     and base are shink percent of the distance *d* away from
-                    the endpoints.  ie, ``shrink=0.05 is 5%%``
+                    the endpoints.  i.e., ``shrink=0.05 is 5%%``
         ?           any key for :class:`matplotlib.patches.polygon`
         =========   ===========================================================
 
