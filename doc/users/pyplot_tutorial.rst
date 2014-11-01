@@ -7,7 +7,7 @@ Pyplot tutorial
 :mod:`matplotlib.pyplot` is a collection of command style functions
 that make matplotlib  work like MATLAB.
 Each ``pyplot`` function makes
-some change to a figure: eg, create a figure, create a plotting area
+some change to a figure: e.g., create a figure, create a plotting area
 in a figure, plot some lines in a plotting area, decorate the plot
 with labels, etc....  :mod:`matplotlib.pyplot` is stateful, in that it
 keeps track of the current figure and plotting area, and the plotting

@@ -24,7 +24,7 @@ horizontalalignment or ha   [ ``'center'`` | ``'right'`` | ``'left'`` ]
 label			    any string
 linespacing		    float
 multialignment		    [``'left'`` | ``'right'`` | ``'center'`` ]
-name or fontname	    string eg, [``'Sans'`` | ``'Courier'`` | ``'Helvetica'`` ...]
+name or fontname	    string e.g., [``'Sans'`` | ``'Courier'`` | ``'Helvetica'`` ...]
 picker			    [None|float|boolean|callable]
 position		    (x,y)
 rotation		    [ angle in degrees ``'vertical'`` | ``'horizontal'``

@@ -125,7 +125,7 @@ If you compiled matplotlib yourself, please also provide
     platform that are useful for the matplotlib developers to diagnose
     your problem.
 
-  * your compiler version -- eg, ``gcc --version``
+  * your compiler version -- e.g., ``gcc --version``
 
 Including this information in your first e-mail to the mailing list
 will save a lot of time.

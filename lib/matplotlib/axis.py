@@ -1347,7 +1347,7 @@ class Axis(artist.Artist):
         *kwargs* are supplied, it is assumed you want the grid on and *b*
         will be set to True.
 
-        *kwargs* are used to set the line properties of the grids, eg,
+        *kwargs* are used to set the line properties of the grids, e.g.,
 
           xax.grid(color='r', linestyle='-', linewidth=2)
         """

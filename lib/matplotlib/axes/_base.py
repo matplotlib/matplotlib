@@ -1899,7 +1899,7 @@ class _AxesBase(martist.Artist):
     def autoscale_view(self, tight=None, scalex=True, scaley=True):
         """
         Autoscale the view limits using the data limits. You can
-        selectively autoscale only a single axis, eg, the xaxis by
+        selectively autoscale only a single axis, e.g., the xaxis by
         setting *scaley* to *False*.  The autoscaling preserves any
         axis direction reversal that has already been done.
 
