@@ -1249,10 +1249,15 @@ class rc_context(object):
         self.rcdict = rc
         self.fname = fname
         self._rcparams = rcParams.copy()
-        if self.fname:
-            rc_file(self.fname)
-        if self.rcdict:
-            rcParams.update(self.rcdict)
+        try:
+            if self.fname:
+                rc_file(self.fname)
+            if self.rcdict:
+                rcParams.update(self.rcdict)
+        except:
+            # if anything goes wrong, revert rc parameters and re-raise
+            rcParams.update(self._rcparams)
+            raise
 
     def __enter__(self):
         return self
