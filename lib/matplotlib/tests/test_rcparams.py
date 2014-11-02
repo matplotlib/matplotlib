@@ -272,7 +272,7 @@ def test_rcparams_reset_after_fail():
 
     try:
         from collections import OrderedDict
-    except:
+    except ImportError:
         return  # can't run this test on Python 2.6
 
     with mpl.rc_context(rc={'text.usetex': False}):

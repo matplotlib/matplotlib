@@ -1256,6 +1256,7 @@ class rc_context(object):
                 rcParams.update(self.rcdict)
         except:
             # if anything goes wrong, revert rc parameters and re-raise
+            rcParams.clear()
             rcParams.update(self._rcparams)
             raise
 
