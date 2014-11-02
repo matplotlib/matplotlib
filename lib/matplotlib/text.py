@@ -1030,7 +1030,7 @@ class TextWithDash(Text):
     *dashrotation* specifies the rotation of the dash, and should
     generally stay *None*. In this case
     :meth:`~matplotlib.text.TextWithDash.get_dashrotation` returns
-    :meth:`~matplotlib.text.Text.get_rotation`.  (I.e., the dash takes
+    :meth:`~matplotlib.text.Text.get_rotation`.  (i.e., the dash takes
     its rotation from the text's rotation). Because the text center is
     projected onto the dash, major deviations in the rotation cause
     what may be considered visually unappealing results.
