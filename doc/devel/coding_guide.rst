@@ -200,7 +200,7 @@ illustration) just passes them on to the
       self.update(kwargs)
 
 ``update`` does the work looking for methods named like
-``set_property`` if ``property`` is a keyword argument.  I.e., no one
+``set_property`` if ``property`` is a keyword argument.  i.e., no one
 looks at the keywords, they just get passed through the API to the
 artist constructor which looks for suitably named methods and calls
 them with the value.
