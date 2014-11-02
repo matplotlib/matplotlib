@@ -1339,7 +1339,7 @@ Changes for 0.90.1
 
     Moved data files into lib/matplotlib so that setuptools' develop
     mode works. Re-organized the mpl-data layout so that this source
-    structure is maintained in the installation. (I.e. the 'fonts' and
+    structure is maintained in the installation. (i.e., the 'fonts' and
     'images' sub-directories are maintained in site-packages.).
     Suggest removing site-packages/matplotlib/mpl-data and
     ~/.matplotlib/ttffont.cache before installing
