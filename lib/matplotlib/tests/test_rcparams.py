@@ -262,3 +262,25 @@ def test_keymaps():
     key_list = [k for k in mpl.rcParams if 'keymap' in k]
     for k in key_list:
         assert(isinstance(mpl.rcParams[k], list))
+
+
+def test_rcparams_reset_after_fail():
+
+    # There was previously a bug that meant that if rc_context failed and
+    # raised an exception due to issues in the supplied rc parameters, the
+    # global rc parameters were left in a modified state.
+
+    try:
+        from collections import OrderedDict
+    except:
+        return  # can't run this test on Python 2.6
+
+    with mpl.rc_context(rc={'text.usetex': False}):
+
+        assert mpl.rcParams['text.usetex'] is False
+
+        with assert_raises(KeyError):
+            with mpl.rc_context(rc=OrderedDict([('text.usetex', True),('test.blah', True)])):
+                pass
+
+        assert mpl.rcParams['text.usetex'] is False
