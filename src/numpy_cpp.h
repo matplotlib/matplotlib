@@ -35,10 +35,17 @@ namespace numpy
 template <typename T>
 struct type_num_of;
 
-// This is dodgy - need sizeof(bool) == 1 consistently for this to be valid...
-// template <> struct type_num_of<bool> {
-//    enum {value = NPY_BOOL};
-//};
+/* Be careful with bool arrays as python has sizeof(npy_bool) == 1, but it is
+ * not always the case that sizeof(bool) == 1.  Using the array_view_accessors
+ * is always fine regardless of sizeof(bool), so do this rather than using
+ * array.data() and pointer arithmetic which will not work correctly if
+ * sizeof(bool) != 1. */
+template <> struct type_num_of<bool>
+{
+    enum {
+        value = NPY_BOOL
+    };
+};
 template <>
 struct type_num_of<npy_byte>
 {
@@ -394,6 +401,20 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         Py_XDECREF(m_arr);
     }
 
+    const array_view& operator=(const array_view &other)
+    {
+        if (this != &other)
+        {
+            Py_XDECREF(m_arr);
+            m_arr = other.m_arr;
+            Py_XINCREF(m_arr);
+            m_data = other.m_data;
+            m_shape = other.m_shape;
+            m_strides = other.m_strides;
+        }
+        return *this;
+    }
+
     int set(PyObject *arr, bool contiguous = false)
     {
         PyArrayObject *tmp;
@@ -440,7 +461,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         return 1;
     }
 
-    npy_intp dim(size_t i)
+    npy_intp dim(size_t i) const
     {
         if (i > ND) {
             return 0;
@@ -448,11 +469,17 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         return m_shape[i];
     }
 
-    size_t size()
+    size_t size() const
     {
         return (size_t)dim(0);
     }
 
+    bool empty() const
+    {
+        return size() == 0;
+    }
+
+    // Do not use this for array_view<bool, ND>.  See comment near top of file.
     T *data()
     {
         return (T *)m_data;
