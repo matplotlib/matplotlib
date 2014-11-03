@@ -360,7 +360,8 @@ backend      : %(backend)s
 #image.resample  : False
 
 ### CONTOUR PLOTS
-#contour.negative_linestyle :  dashed # dashed | solid
+#contour.negative_linestyle : dashed # dashed | solid
+#contour.corner_mask        : True   # True | False | legacy
 
 ### Agg rendering
 ### Warning: experimental, 2008/10/10

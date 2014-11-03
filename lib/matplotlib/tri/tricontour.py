@@ -258,13 +258,6 @@ class TriContourSet(ContourSet):
           *antialiased*: [ *True* | *False* ]
             enable antialiasing
 
-          *nchunk*: [ 0 | integer ]
-            If 0, no subdivision of the domain. Specify a positive integer to
-            divide the domain into subdomains of roughly *nchunk* by *nchunk*
-            points. This may never actually be advantageous, so this option may
-            be removed. Chunking introduces artifacts at the chunk boundaries
-            unless *antialiased* is *False*.
-
         Note: tricontourf fills intervals that are closed at the top; that
         is, for boundaries *z1* and *z2*, the filled region is::
 

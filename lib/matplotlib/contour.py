@@ -13,6 +13,7 @@ import matplotlib as mpl
 import numpy as np
 from numpy import ma
 import matplotlib._cntr as _cntr
+import matplotlib._contour as _contour
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 import matplotlib.cm as cm
@@ -989,9 +990,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
     def __getstate__(self):
         state = self.__dict__.copy()
-        # the C object Cntr cannot currently be pickled. This isn't a big issue
-        # as it is not actually used once the contour has been calculated
-        state['Cntr'] = None
+        # the C object _contour_generator cannot currently be pickled. This
+        # isn't a big issue as it is not actually used once the contour has
+        # been calculated.
+        state['_contour_generator'] = None
         return state
 
     def legend_elements(self, variable_name='x', str_format=str):
@@ -1433,18 +1435,34 @@ class QuadContourSet(ContourSet):
         Process args and kwargs.
         """
         if isinstance(args[0], QuadContourSet):
-            C = args[0].Cntr
             if self.levels is None:
                 self.levels = args[0].levels
             self.zmin = args[0].zmin
             self.zmax = args[0].zmax
+            self._corner_mask = args[0]._corner_mask
+            if self._corner_mask == 'legacy':
+                contour_generator = args[0].Cntr
+            else:
+                contour_generator = args[0]._contour_generator
         else:
             x, y, z = self._contour_args(args, kwargs)
 
             _mask = ma.getmask(z)
-            if _mask is ma.nomask:
+            if _mask is ma.nomask or not _mask.any():
                 _mask = None
-            C = _cntr.Cntr(x, y, z.filled(), _mask)
+
+            self._corner_mask = kwargs.get('corner_mask', None)
+            if self._corner_mask is None:
+                self._corner_mask = mpl.rcParams['contour.corner_mask']
+
+            if self._corner_mask == 'legacy':
+                cbook.warn_deprecated('1.5',
+                                      name="corner_mask='legacy'",
+                                      alternative='corner_mask=False or True')
+                contour_generator = _cntr.Cntr(x, y, z.filled(), _mask)
+            else:
+                contour_generator = _contour.QuadContourGenerator(
+                    x, y, z.filled(), _mask, self._corner_mask, self.nchunk)
 
             t = self.get_transform()
 
@@ -1465,7 +1483,10 @@ class QuadContourSet(ContourSet):
             self.ax.update_datalim([(x0, y0), (x1, y1)])
             self.ax.autoscale_view(tight=True)
 
-        self.Cntr = C
+        if self._corner_mask == 'legacy':
+            self.Cntr = contour_generator
+        else:
+            self._contour_generator = contour_generator
 
     def _get_allsegs_and_allkinds(self):
         """
@@ -1476,20 +1497,28 @@ class QuadContourSet(ContourSet):
             lowers, uppers = self._get_lowers_and_uppers()
             allkinds = []
             for level, level_upper in zip(lowers, uppers):
-                nlist = self.Cntr.trace(level, level_upper,
-                                        nchunk=self.nchunk)
-                nseg = len(nlist) // 2
-                segs = nlist[:nseg]
-                kinds = nlist[nseg:]
-                allsegs.append(segs)
+                if self._corner_mask == 'legacy':
+                    nlist = self.Cntr.trace(level, level_upper,
+                                            nchunk=self.nchunk)
+                    nseg = len(nlist) // 2
+                    vertices = nlist[:nseg]
+                    kinds = nlist[nseg:]
+                else:
+                    vertices, kinds = \
+                        self._contour_generator.create_filled_contour(
+                                                           level, level_upper)
+                allsegs.append(vertices)
                 allkinds.append(kinds)
         else:
             allkinds = None
             for level in self.levels:
-                nlist = self.Cntr.trace(level)
-                nseg = len(nlist) // 2
-                segs = nlist[:nseg]
-                allsegs.append(segs)
+                if self._corner_mask == 'legacy':
+                    nlist = self.Cntr.trace(level)
+                    nseg = len(nlist) // 2
+                    vertices = nlist[:nseg]
+                else:
+                    vertices = self._contour_generator.create_contour(level)
+                allsegs.append(vertices)
         return allsegs, allkinds
 
     def _contour_args(self, args, kwargs):
@@ -1672,6 +1701,20 @@ class QuadContourSet(ContourSet):
 
         Optional keyword arguments:
 
+          *corner_mask*: [ *True* | *False* | 'legacy' ]
+            Enable/disable corner masking, which only has an effect if *Z* is
+            a masked array.  If *False*, any quad touching a masked point is
+            masked out.  If *True*, only the triangular corners of quads
+            nearest those points are always masked out, other triangular
+            corners comprising three unmasked points are contoured as usual.
+            If 'legacy', the old contouring algorithm is used, which is
+            equivalent to *False* and is deprecated, only remaining whilst the
+            new algorithm is tested fully.
+
+            If not specified, the default is taken from
+            rcParams['contour.corner_mask'], which is True unless it has
+            been modified.
+
           *colors*: [ *None* | string | (mpl_colors) ]
             If *None*, the colormap specified by cmap will be used.
 
@@ -1750,6 +1793,15 @@ class QuadContourSet(ContourSet):
             filled contours, the default is *True*.  For line contours,
             it is taken from rcParams['lines.antialiased'].
 
+          *nchunk*: [ 0 | integer ]
+            If 0, no subdivision of the domain.  Specify a positive integer to
+            divide the domain into subdomains of *nchunk* by *nchunk* quads.
+            Chunking reduces the maximum length of polygons generated by the
+            contouring algorithm which reduces the rendering workload passed
+            on to the backend and also requires slightly less RAM.  It can
+            however introduce rendering artifacts at chunk boundaries depending
+            on the backend, the *antialiased* flag and value of *alpha*.
+
         contour-only keyword arguments:
 
           *linewidths*: [ *None* | number | tuple of numbers ]
@@ -1774,13 +1826,6 @@ class QuadContourSet(ContourSet):
 
         contourf-only keyword arguments:
 
-          *nchunk*: [ 0 | integer ]
-            If 0, no subdivision of the domain. Specify a positive integer to
-            divide the domain into subdomains of roughly *nchunk* by *nchunk*
-            points. This may never actually be advantageous, so this option may
-            be removed. Chunking introduces artifacts at the chunk boundaries
-            unless *antialiased* is *False*.
-
           *hatches*:
             A list of cross hatch patterns to use on the filled areas.
             If None, no hatching will be added to the contour.
@@ -1802,4 +1847,6 @@ class QuadContourSet(ContourSet):
         .. plot:: mpl_examples/pylab_examples/contour_demo.py
 
         .. plot:: mpl_examples/pylab_examples/contourf_demo.py
+
+        .. plot:: mpl_examples/pylab_examples/contour_corner_mask.py
         """
