@@ -204,6 +204,8 @@ libpng 1.2 (or later)
 `pytz`
     Used to manipulate time-zone aware datetimes.
 
+:term:`freetype` 2.3 or later
+    library for reading true type font files.
 
 
 Optional GUI framework
@@ -243,10 +245,6 @@ Optional dependencies
 `Pillow <http://python-imaging.github.io/>`__
     If Pillow is installed, matplotlib can read and write a larger
     selection of image file formats.
-
-
-:term:`freetype` 2.3 or later
-    library for reading true type font files.
 
 
 Required libraries that ship with matplotlib
