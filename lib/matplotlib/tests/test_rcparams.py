@@ -12,6 +12,7 @@ import matplotlib as mpl
 from matplotlib.tests import assert_str_equal
 from matplotlib.testing.decorators import cleanup, knownfailureif
 from nose.tools import assert_true, assert_raises, assert_equal
+from nose.plugins.skip import SkipTest
 import nose
 from itertools import chain
 import numpy as np
@@ -262,3 +263,25 @@ def test_keymaps():
     key_list = [k for k in mpl.rcParams if 'keymap' in k]
     for k in key_list:
         assert(isinstance(mpl.rcParams[k], list))
+
+
+def test_rcparams_reset_after_fail():
+
+    # There was previously a bug that meant that if rc_context failed and
+    # raised an exception due to issues in the supplied rc parameters, the
+    # global rc parameters were left in a modified state.
+
+    if sys.version_info[:2] >= (2, 7):
+        from collections import OrderedDict
+    else:
+        raise SkipTest("Test can only be run in Python >= 2.7 as it requires OrderedDict")
+
+    with mpl.rc_context(rc={'text.usetex': False}):
+
+        assert mpl.rcParams['text.usetex'] is False
+
+        with assert_raises(KeyError):
+            with mpl.rc_context(rc=OrderedDict([('text.usetex', True),('test.blah', True)])):
+                pass
+
+        assert mpl.rcParams['text.usetex'] is False
