@@ -12,6 +12,7 @@ import matplotlib as mpl
 from matplotlib.tests import assert_str_equal
 from matplotlib.testing.decorators import cleanup, knownfailureif
 from nose.tools import assert_true, assert_raises, assert_equal
+from nose.plugins.skip import SkipTest
 import nose
 from itertools import chain
 import numpy as np
@@ -270,10 +271,10 @@ def test_rcparams_reset_after_fail():
     # raised an exception due to issues in the supplied rc parameters, the
     # global rc parameters were left in a modified state.
 
-    try:
+    if sys.version_info[:2] >= (2, 7):
         from collections import OrderedDict
-    except ImportError:
-        return  # can't run this test on Python 2.6
+    else:
+        raise SkipTest("Test can only be run in Python >= 2.7 as it requires OrderedDict")
 
     with mpl.rc_context(rc={'text.usetex': False}):
 
