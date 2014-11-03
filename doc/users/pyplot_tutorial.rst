@@ -280,3 +280,22 @@ variety of other coordinate systems one can choose -- see
 :ref:`annotations-tutorial` and :ref:`plotting-guide-annotation` for
 details.  More examples can be found in
 :ref:`pylab_examples-annotation_demo`.
+
+
+Logarithmic and other nonlinear axis
+====================================
+
+:mod:`matplotlib.pyplot` supports not only linear axis scales, but also
+logarithmic and logit scales. This is commonly used if data spans many orders
+of magnitude. Changing the scale of an axis is easy:
+
+    plt.xscale('log')
+
+An example of four plots with the same data and different scales for the y axis
+is shown below.
+
+.. plot:: pyplots/pyplot_scales.py
+   :include-source:
+
+It is also possible to add your own scale, see :ref:`adding-new-scales` for
+details.
