@@ -389,6 +389,13 @@ def validate_negative_linestyle_legacy(s):
         return (0, dashes)  # (offset, (solid, blank))
 
 
+def validate_corner_mask(s):
+    if s == 'legacy':
+        return s
+    else:
+        return validate_bool(s)
+
+
 def validate_tkpythoninspect(s):
     # Introduced 2010/07/05
     warnings.warn("tk.pythoninspect is obsolete, and has no effect")
@@ -589,8 +596,10 @@ defaultParams = {
     'image.origin':        ['upper', six.text_type],  # lookup table
     'image.resample':      [False, validate_bool],
 
+    # contour props
     'contour.negative_linestyle': ['dashed',
                                     validate_negative_linestyle_legacy],
+    'contour.corner_mask':        [True, validate_corner_mask],
 
     # axes props
     'axes.axisbelow':        [False, validate_bool],

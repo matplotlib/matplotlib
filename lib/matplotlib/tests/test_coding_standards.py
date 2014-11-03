@@ -163,6 +163,7 @@ def test_pep8_conformance_installed_files():
                      '_tkagg.py',
                      'ft2font.py',
                      '_cntr.py',
+                     '_contour.py',
                      '_png.py',
                      '_path.py',
                      'ttconv.py',
