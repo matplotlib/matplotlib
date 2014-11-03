@@ -1,9 +1,15 @@
-#include "_tri_wrapper.h"
+#include "_tri.h"
 #include "src/mplutils.h"
 #include "src/py_exceptions.h"
 
 
 /* Triangulation */
+
+typedef struct
+{
+    PyObject_HEAD;
+    Triangulation* ptr;
+} PyTriangulation;
 
 static PyTypeObject PyTriangulationType;
 
@@ -24,103 +30,64 @@ const char* PyTriangulation_init__doc__ =
 
 static int PyTriangulation_init(PyTriangulation* self, PyObject* args, PyObject* kwds)
 {
-    PyObject* x_arg;
-    PyObject* y_arg ;
-    PyObject* triangles_arg;
-    PyObject* mask_arg;
-    PyObject* edges_arg;
-    PyObject* neighbors_arg;
-    if (!PyArg_ParseTuple(args, "OOOOOO", &x_arg, &y_arg, &triangles_arg,
-                          &mask_arg, &edges_arg, &neighbors_arg)) {
+    Triangulation::CoordinateArray x, y;
+    Triangulation::TriangleArray triangles;
+    Triangulation::MaskArray mask;
+    Triangulation::EdgeArray edges;
+    Triangulation::NeighborArray neighbors;
+
+    if (!PyArg_ParseTuple(args,
+                          "O&O&O&O&O&O&",
+                          &x.converter, &x,
+                          &y.converter, &y,
+                          &triangles.converter, &triangles,
+                          &mask.converter, &mask,
+                          &edges.converter, &edges,
+                          &neighbors.converter, &neighbors)) {
         return -1;
     }
 
     // x and y.
-    PyArrayObject* x = (PyArrayObject*)PyArray_ContiguousFromObject(
-                           x_arg, NPY_DOUBLE, 1, 1);
-    PyArrayObject* y = (PyArrayObject*)PyArray_ContiguousFromObject(
-                           y_arg, NPY_DOUBLE, 1, 1);
-    if (x == 0 || y == 0 || PyArray_DIM(x,0) != PyArray_DIM(y,0)) {
-        Py_XDECREF(x);
-        Py_XDECREF(y);
+    if (x.empty() || y.empty() || x.dim(0) != y.dim(0)) {
         PyErr_SetString(PyExc_ValueError,
             "x and y must be 1D arrays of the same length");
     }
 
     // triangles.
-    PyArrayObject* triangles = (PyArrayObject*)PyArray_ContiguousFromObject(
-                                   triangles_arg, NPY_INT, 2, 2);
-    if (triangles == 0 || PyArray_DIM(triangles,1) != 3) {
-        Py_XDECREF(x);
-        Py_XDECREF(y);
-        Py_XDECREF(triangles);
+    if (triangles.empty() || triangles.dim(1) != 3) {
         PyErr_SetString(PyExc_ValueError,
             "triangles must be a 2D array of shape (?,3)");
     }
 
     // Optional mask.
-    PyArrayObject* mask = 0;
-    if (mask_arg != 0 && mask_arg != Py_None)
-    {
-        mask = (PyArrayObject*)PyArray_ContiguousFromObject(
-                   mask_arg, NPY_BOOL, 1, 1);
-        if (mask == 0 || PyArray_DIM(mask,0) != PyArray_DIM(triangles,0)) {
-            Py_XDECREF(x);
-            Py_XDECREF(y);
-            Py_XDECREF(triangles);
-            Py_XDECREF(mask);
-            PyErr_SetString(PyExc_ValueError,
-                "mask must be a 1D array with the same length as the triangles array");
-        }
+    if (!mask.empty() && mask.dim(0) != triangles.dim(0)) {
+        PyErr_SetString(PyExc_ValueError,
+            "mask must be a 1D array with the same length as the triangles array");
     }
 
     // Optional edges.
-    PyArrayObject* edges = 0;
-    if (edges_arg != 0 && edges_arg != Py_None)
-    {
-        edges = (PyArrayObject*)PyArray_ContiguousFromObject(
-                    edges_arg, NPY_INT, 2, 2);
-        if (edges == 0 || PyArray_DIM(edges,1) != 2) {
-            Py_XDECREF(x);
-            Py_XDECREF(y);
-            Py_XDECREF(triangles);
-            Py_XDECREF(mask);
-            Py_XDECREF(edges);
-            PyErr_SetString(PyExc_ValueError,
-                "edges must be a 2D array with shape (?,2)");
-        }
+    if (!edges.empty() && edges.dim(1) != 2) {
+        PyErr_SetString(PyExc_ValueError,
+            "edges must be a 2D array with shape (?,2)");
     }
 
     // Optional neighbors.
-    PyArrayObject* neighbors = 0;
-    if (neighbors_arg != 0 && neighbors_arg != Py_None)
-    {
-        neighbors = (PyArrayObject*)PyArray_ContiguousFromObject(
-                        neighbors_arg, NPY_INT, 2, 2);
-        if (neighbors == 0 ||
-            PyArray_DIM(neighbors,0) != PyArray_DIM(triangles,0) ||
-            PyArray_DIM(neighbors,1) != PyArray_DIM(triangles,1)) {
-            Py_XDECREF(x);
-            Py_XDECREF(y);
-            Py_XDECREF(triangles);
-            Py_XDECREF(mask);
-            Py_XDECREF(edges);
-            Py_XDECREF(neighbors);
-            PyErr_SetString(PyExc_ValueError,
-                "neighbors must be a 2D array with the same shape as the triangles array");
-        }
+    if (!neighbors.empty() && (neighbors.dim(0) != triangles.dim(0) ||
+                               neighbors.dim(1) != triangles.dim(1))) {
+        PyErr_SetString(PyExc_ValueError,
+            "neighbors must be a 2D array with the same shape as the triangles array");
     }
 
     CALL_CPP_INIT("Triangulation",
-                  (self->ptr = new Triangulation(x, y, triangles, mask, edges,
-                                                 neighbors)));
+                  (self->ptr = new Triangulation(x, y, triangles, mask,
+                                                 edges, neighbors)));
     return 0;
 }
 
 static void PyTriangulation_dealloc(PyTriangulation* self)
 {
     delete self->ptr;
-    Py_TYPE(self)->tp_free((PyObject *)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 const char* PyTriangulation_calculate_plane_coefficients__doc__ =
@@ -130,29 +97,21 @@ const char* PyTriangulation_calculate_plane_coefficients__doc__ =
 
 static PyObject* PyTriangulation_calculate_plane_coefficients(PyTriangulation* self, PyObject* args, PyObject* kwds)
 {
-    PyObject* z_arg;
-    if (!PyArg_ParseTuple(args, "O:calculate_plane_coefficients", &z_arg)) {
+    Triangulation::CoordinateArray z;
+    if (!PyArg_ParseTuple(args, "O&:calculate_plane_coefficients",
+                          &z.converter, &z)) {
         return NULL;
     }
 
-    PyArrayObject* z = (PyArrayObject*)PyArray_ContiguousFromObject(
-                           z_arg, NPY_DOUBLE, 1, 1);
-    if (z == 0 || PyArray_DIM(z,0) != self->ptr->get_npoints()) {
-        Py_XDECREF(z);
+    if (z.empty() || z.dim(0) != self->ptr->get_npoints()) {
         PyErr_SetString(PyExc_ValueError,
             "z array must have same length as triangulation x and y arrays");
     }
 
-    npy_intp dims[2] = {self->ptr->get_ntri(), 3};
-    PyArrayObject* result = (PyArrayObject*)PyArray_SimpleNew(
-                                2, dims, NPY_DOUBLE);
-
-    CALL_CPP_CLEANUP("calculate_plane_coefficients",
-                     (self->ptr->calculate_plane_coefficients(z, result)),
-                      Py_XDECREF(z); Py_XDECREF(result));
-
-    Py_XDECREF(z);
-    return (PyObject*)result;
+    Triangulation::TwoCoordinateArray result;
+    CALL_CPP("calculate_plane_coefficients",
+             (result = self->ptr->calculate_plane_coefficients(z)));
+    return result.pyobj();
 }
 
 const char* PyTriangulation_get_edges__doc__ =
@@ -162,10 +121,14 @@ const char* PyTriangulation_get_edges__doc__ =
 
 static PyObject* PyTriangulation_get_edges(PyTriangulation* self, PyObject* args, PyObject* kwds)
 {
-    PyArrayObject* result;
-    CALL_CPP("get_edges", (result = self->ptr->get_edges()));
-    Py_XINCREF(result);
-    return (PyObject*)result;
+    Triangulation::EdgeArray* result;
+    CALL_CPP("get_edges", (result = &self->ptr->get_edges()));
+
+    if (result->empty()) {
+        Py_RETURN_NONE;
+    }
+    else
+        return result->pyobj();
 }
 
 const char* PyTriangulation_get_neighbors__doc__ =
@@ -175,10 +138,14 @@ const char* PyTriangulation_get_neighbors__doc__ =
 
 static PyObject* PyTriangulation_get_neighbors(PyTriangulation* self, PyObject* args, PyObject* kwds)
 {
-    PyArrayObject* result;
-    CALL_CPP("get_neighbors", (result = self->ptr->get_neighbors()));
-    Py_XINCREF(result);
-    return (PyObject*)result;
+    Triangulation::NeighborArray* result;
+    CALL_CPP("get_neighbors", (result = &self->ptr->get_neighbors()));
+
+    if (result->empty()) {
+        Py_RETURN_NONE;
+    }
+    else
+        return result->pyobj();
 }
 
 const char* PyTriangulation_set_mask__doc__ =
@@ -188,26 +155,18 @@ const char* PyTriangulation_set_mask__doc__ =
 
 static PyObject* PyTriangulation_set_mask(PyTriangulation* self, PyObject* args, PyObject* kwds)
 {
-    PyObject* mask_arg;
-    if (!PyArg_ParseTuple(args, "O:set_mask", &mask_arg)) {
+    Triangulation::MaskArray mask;
+
+    if (!PyArg_ParseTuple(args, "O&:set_mask", &mask.converter, &mask)) {
         return NULL;
     }
 
-    // Optional mask.
-    PyArrayObject* mask = 0;
-    if (mask_arg != 0 && mask_arg != Py_None)
-    {
-        mask = (PyArrayObject*)PyArray_ContiguousFromObject(
-                   mask_arg, NPY_BOOL, 1, 1);
-        if (mask == 0 || PyArray_DIM(mask,0) != self->ptr->get_ntri()) {
-            Py_XDECREF(mask);
-            PyErr_SetString(PyExc_ValueError,
-                "mask must be a 1D array with the same length as the triangles array");
-        }
+    if (!mask.empty() && mask.dim(0) != self->ptr->get_ntri()) {
+        PyErr_SetString(PyExc_ValueError,
+            "mask must be a 1D array with the same length as the triangles array");
     }
 
     CALL_CPP("set_mask", (self->ptr->set_mask(mask)));
-
     Py_RETURN_NONE;
 }
 
@@ -245,6 +204,13 @@ static PyTypeObject* PyTriangulation_init_type(PyObject* m, PyTypeObject* type)
 
 /* TriContourGenerator */
 
+typedef struct
+{
+    PyObject_HEAD;
+    TriContourGenerator* ptr;
+    PyTriangulation* py_triangulation;
+} PyTriContourGenerator;
+
 static PyTypeObject PyTriContourGeneratorType;
 
 static PyObject* PyTriContourGenerator_new(PyTypeObject* type, PyObject* args, PyObject* kwds)
@@ -252,6 +218,7 @@ static PyObject* PyTriContourGenerator_new(PyTypeObject* type, PyObject* args, P
     PyTriContourGenerator* self;
     self = (PyTriContourGenerator*)type->tp_alloc(type, 0);
     self->ptr = NULL;
+    self->py_triangulation = NULL;
     return (PyObject*)self;
 }
 
@@ -264,34 +231,34 @@ const char* PyTriContourGenerator_init__doc__ =
 
 static int PyTriContourGenerator_init(PyTriContourGenerator* self, PyObject* args, PyObject* kwds)
 {
-    PyObject* triangulation;
-    PyObject* z_arg;
-    if (!PyArg_ParseTuple(args, "O!O", &PyTriangulationType, &triangulation,
-                          &z_arg)) {
+    PyObject* triangulation_arg;
+    TriContourGenerator::CoordinateArray z;
+
+    if (!PyArg_ParseTuple(args, "O!O&",
+                          &PyTriangulationType, &triangulation_arg,
+                          &z.converter, &z)) {
         return -1;
     }
-    Py_INCREF(triangulation);
 
-    int npoints = ((PyTriangulation*)triangulation)->ptr->get_npoints();
+    PyTriangulation* py_triangulation = (PyTriangulation*)triangulation_arg;
+    Py_INCREF(py_triangulation);
+    self->py_triangulation = py_triangulation;
+    Triangulation& triangulation = *(py_triangulation->ptr);
 
-    PyArrayObject* z = (PyArrayObject*)PyArray_ContiguousFromObject(
-                           z_arg, NPY_DOUBLE, 1, 1);
-    if (z == 0 && PyArray_DIM(z,0) != npoints) {
-        Py_DECREF(triangulation);
-        Py_XDECREF(z);
+    if (z.empty() || z.dim(0) != triangulation.get_npoints()) {
         PyErr_SetString(PyExc_ValueError,
             "z must be a 1D array with the same length as the x and y arrays");
     }
 
     CALL_CPP_INIT("TriContourGenerator",
                   (self->ptr = new TriContourGenerator(triangulation, z)));
-
     return 0;
 }
 
 static void PyTriContourGenerator_dealloc(PyTriContourGenerator* self)
 {
     delete self->ptr;
+    Py_XDECREF(self->py_triangulation);
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
@@ -363,6 +330,13 @@ static PyTypeObject* PyTriContourGenerator_init_type(PyObject* m, PyTypeObject* 
 
 /* TrapezoidMapTriFinder */
 
+typedef struct
+{
+    PyObject_HEAD;
+    TrapezoidMapTriFinder* ptr;
+    PyTriangulation* py_triangulation;
+} PyTrapezoidMapTriFinder;
+
 static PyTypeObject PyTrapezoidMapTriFinderType;
 
 static PyObject* PyTrapezoidMapTriFinder_new(PyTypeObject* type, PyObject* args, PyObject* kwds)
@@ -370,6 +344,7 @@ static PyObject* PyTrapezoidMapTriFinder_new(PyTypeObject* type, PyObject* args,
     PyTrapezoidMapTriFinder* self;
     self = (PyTrapezoidMapTriFinder*)type->tp_alloc(type, 0);
     self->ptr = NULL;
+    self->py_triangulation = NULL;
     return (PyObject*)self;
 }
 
@@ -382,11 +357,16 @@ const char* PyTrapezoidMapTriFinder_init__doc__ =
 
 static int PyTrapezoidMapTriFinder_init(PyTrapezoidMapTriFinder* self, PyObject* args, PyObject* kwds)
 {
-    PyObject* triangulation;
-    if (!PyArg_ParseTuple(args, "O!", &PyTriangulationType, &triangulation)) {
+    PyObject* triangulation_arg;
+    if (!PyArg_ParseTuple(args, "O!",
+                          &PyTriangulationType, &triangulation_arg)) {
         return -1;
     }
-    Py_INCREF(triangulation);
+
+    PyTriangulation* py_triangulation = (PyTriangulation*)triangulation_arg;
+    Py_INCREF(py_triangulation);
+    self->py_triangulation = py_triangulation;
+    Triangulation& triangulation = *(py_triangulation->ptr);
 
     CALL_CPP_INIT("TrapezoidMapTriFinder",
                   (self->ptr = new TrapezoidMapTriFinder(triangulation)));
@@ -396,6 +376,7 @@ static int PyTrapezoidMapTriFinder_init(PyTrapezoidMapTriFinder* self, PyObject*
 static void PyTrapezoidMapTriFinder_dealloc(PyTrapezoidMapTriFinder* self)
 {
     delete self->ptr;
+    Py_XDECREF(self->py_triangulation);
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
@@ -406,37 +387,21 @@ const char* PyTrapezoidMapTriFinder_find_many__doc__ =
 
 static PyObject* PyTrapezoidMapTriFinder_find_many(PyTrapezoidMapTriFinder* self, PyObject* args, PyObject* kwds)
 {
-    PyObject* x_arg;
-    PyObject* y_arg;
-    if (!PyArg_ParseTuple(args, "OO:find_many", &x_arg, &y_arg)) {
+    TrapezoidMapTriFinder::CoordinateArray x, y;
+    if (!PyArg_ParseTuple(args, "O&O&:find_many",
+                          &x.converter, &x,
+                          &y.converter, &y)) {
         return NULL;
     }
 
-    PyArrayObject* x = (PyArrayObject*)PyArray_ContiguousFromObject(
-                           x_arg, NPY_DOUBLE, 0, 0);
-    PyArrayObject* y = (PyArrayObject*)PyArray_ContiguousFromObject(
-                           y_arg, NPY_DOUBLE, 0, 0);
-
-    bool ok = (x != 0 && y != 0 && PyArray_NDIM(x) == PyArray_NDIM(y));
-    int ndim = (x == 0 ? 0 : PyArray_NDIM(x));
-    for (int i = 0; ok && i < ndim; ++i)
-        ok = (PyArray_DIM(x,i) == PyArray_DIM(y,i));
-
-    if (!ok) {
-        Py_XDECREF(x);
-        Py_XDECREF(y);
+    if (x.empty() || y.empty() || x.dim(0) != y.dim(0)) {
         PyErr_SetString(PyExc_ValueError,
             "x and y must be array_like with same shape");
     }
 
-    PyArrayObject* result;
-    CALL_CPP_CLEANUP("find_many",
-                     (result = self->ptr->find_many(x, y)),
-                     Py_XDECREF(x); Py_XDECREF(y));
-
-    Py_XDECREF(x);
-    Py_XDECREF(y);
-    return (PyObject*)result;
+    TrapezoidMapTriFinder::TriIndexArray result;
+    CALL_CPP("find_many", (result = self->ptr->find_many(x, y)));
+    return result.pyobj();
 }
 
 const char* PyTrapezoidMapTriFinder_get_tree_stats__doc__ =
