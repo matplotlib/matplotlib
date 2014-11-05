@@ -61,6 +61,13 @@ def test_path_clipping():
             xy, facecolor='none', edgecolor='red', closed=True))
 
 
+def test_point_in_path_nan():
+    box = np.array([[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]])
+    p = Path(box)
+    test = np.array([[np.nan, 0.5]])
+    assert p.contains_points(test)[0] == False
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
