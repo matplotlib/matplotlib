@@ -2544,8 +2544,7 @@ class Axes3D(Axes):
         # must all in same shape
         assert len(set([k.shape for k in input_args])) == 1
 
-        # TODO: num should probably get parameterized
-        shaft_dt = np.linspace(0, length, num=20)
+        shaft_dt = np.linspace(0, length, num=2)
         arrow_dt = shaft_dt * arrow_length_ratio
 
         if pivot == 'tail':
