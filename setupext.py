@@ -13,7 +13,6 @@ import sys
 import warnings
 from textwrap import fill
 
-
 PY3 = (sys.version_info[0] >= 3)
 
 
@@ -147,9 +146,10 @@ def get_base_dirs():
         return options['basedirlist']
 
     basedir_map = {
-        'win32': ['win32_static',],
-        'darwin': ['/usr/local/', '/usr', '/usr/X11', '/opt/local'],
-        'sunos5': [os.getenv('MPLIB_BASE') or '/usr/local',],
+        'win32': ['win32_static', ],
+        'darwin': ['/usr/local/', '/usr', '/usr/X11',
+                   '/opt/X11', '/opt/local'],
+        'sunos5': [os.getenv('MPLIB_BASE') or '/usr/local', ],
         'gnu0': ['/usr'],
         'aix5': ['/usr/local'],
         }
@@ -1717,16 +1717,26 @@ class BackendGtk3Agg(OptionalBackendPackage):
         except:
             return "unknown (can not use multiprocessing to determine)"
         try:
-            success, msg = p.map(backend_gtk3agg_internal_check, [0])[0]
+            res = p.map_async(backend_gtk3agg_internal_check, [0])
+            success, msg = res.get(timeout=10)[0]
+        except multiprocessing.TimeoutError:
+            p.terminate()
+            # No result returned. Probaly hanging, terminate the process.
+            success = False
+            raise CheckFailed("Check timed out")
         except:
+            p.close()
+            # Some other error.
             success = False
             msg = "Could not determine"
-        finally:
+            raise
+        else:
             p.close()
+        finally:
             p.join()
+
         if success:
             BackendAgg.force = True
-
             return msg
         else:
             raise CheckFailed(msg)
@@ -1781,12 +1791,25 @@ class BackendGtk3Cairo(OptionalBackendPackage):
             p = multiprocessing.Pool()
         except:
             return "unknown (can not use multiprocessing to determine)"
-        success, msg = p.map(backend_gtk3cairo_internal_check, [0])[0]
-        p.close()
-        p.join()
+        try:
+            res = p.map_async(backend_gtk3cairo_internal_check, [0])
+            success, msg = res.get(timeout=10)[0]
+        except multiprocessing.TimeoutError:
+            p.terminate()
+            # No result returned. Probaly hanging, terminate the process.
+            success = False
+            raise CheckFailed("Check timed out")
+        except:
+            p.close()
+            success = False
+            raise
+        else:
+            p.close()
+        finally:
+            p.join()
+
         if success:
             BackendAgg.force = True
-
             return msg
         else:
             raise CheckFailed(msg)
@@ -1916,13 +1939,21 @@ class BackendQtBase(OptionalBackendPackage):
         else:
             # Multiprocessing OK
             try:
-                msg = p.map(self.callback, [self])[0]
+                res = p.map_async(self.callback, [self])
+                msg = res.get(timeout=10)[0]
+            except multiprocessing.TimeoutError:
+                p.terminate()
+                # No result returned. Probaly hanging, terminate the process.
+                raise CheckFailed("Check timed out")
             except:
-                # If we hit an error on multiprocessing raise it
+                # Some other error.
+                p.close()
                 raise
+            else:
+                # Clean exit
+                p.close()
             finally:
                 # Tidy up multiprocessing
-                p.close()
                 p.join()
 
         return msg

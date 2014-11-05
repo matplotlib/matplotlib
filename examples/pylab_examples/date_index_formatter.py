@@ -1,7 +1,7 @@
 
 """
 When plotting daily data, a frequent request is to plot the data
-ignoring skips, eg no extra spaces for weekends.  This is particularly
+ignoring skips, e.g., no extra spaces for weekends.  This is particularly
 common in financial time series, when you may have data for M-F and
 not Sat, Sun and you don't want gaps in the x axis.  The approach is
 to simply use the integer index for the xdata and a custom tick

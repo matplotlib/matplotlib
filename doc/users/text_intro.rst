@@ -6,7 +6,7 @@ Text introduction
 matplotlib has excellent text support, including mathematical
 expressions, truetype support for raster and vector outputs, newline
 separated text with arbitrary rotations, and unicode support.  Because
-we embed the fonts directly in the output documents, eg for postscript
+we embed the fonts directly in the output documents, e.g., for postscript
 or PDF, what you see on the screen is what you get in the hardcopy.
 `freetype2 <http://freetype.sourceforge.net/index2.html>`_ support
 produces very nice, antialiased fonts, that look good even at small

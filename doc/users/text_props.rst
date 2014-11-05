@@ -5,7 +5,7 @@ Text properties and layout
 
 The :class:`matplotlib.text.Text` instances have a variety of
 properties which can be configured via keyword arguments to the text
-commands (eg :func:`~matplotlib.pyplot.title`,
+commands (e.g., :func:`~matplotlib.pyplot.title`,
 :func:`~matplotlib.pyplot.xlabel` and :func:`~matplotlib.pyplot.text`).
 
 ==========================  ==============================================================================
@@ -24,11 +24,11 @@ horizontalalignment or ha   [ ``'center'`` | ``'right'`` | ``'left'`` ]
 label			    any string
 linespacing		    float
 multialignment		    [``'left'`` | ``'right'`` | ``'center'`` ]
-name or fontname	    string eg, [``'Sans'`` | ``'Courier'`` | ``'Helvetica'`` ...]
+name or fontname	    string e.g., [``'Sans'`` | ``'Courier'`` | ``'Helvetica'`` ...]
 picker			    [None|float|boolean|callable]
 position		    (x,y)
 rotation		    [ angle in degrees ``'vertical'`` | ``'horizontal'``
-size or fontsize	    [ size in points | relative size eg ``'smaller'``, ``'x-large'`` ]
+size or fontsize	    [ size in points | relative size, e.g., ``'smaller'``, ``'x-large'`` ]
 style or fontstyle	    [ ``'normal'`` | ``'italic'`` | ``'oblique'``]
 text			    string or anything printable with '%s' conversion
 transform		    a matplotlib.transform transformation instance

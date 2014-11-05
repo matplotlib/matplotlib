@@ -122,14 +122,14 @@ All of the simple patch primitives in matplotlib, Rectangle, Circle,
 Polygon, etc, are implemented with simple path.  Plotting functions
 like :meth:`~matplotlib.axes.Axes.hist` and
 :meth:`~matplotlib.axes.Axes.bar`, which create a number of
-primitives, eg a bunch of Rectangles, can usually be implemented more
+primitives, e.g., a bunch of Rectangles, can usually be implemented more
 efficiently using a compound path.  The reason ``bar`` creates a list
 of rectangles and not a compound path is largely historical: the
 :class:`~matplotlib.path.Path` code is comparatively new and ``bar``
 predates it.  While we could change it now, it would break old code,
 so here we will cover how to create compound paths, replacing the
 functionality in bar, in case you need to do so in your own code for
-efficiency reasons, eg you are creating an animated bar plot.
+efficiency reasons, e.g., you are creating an animated bar plot.
 
 We will make the histogram chart by creating a series of rectangles
 for each histogram bar: the rectangle width is the bin width and the

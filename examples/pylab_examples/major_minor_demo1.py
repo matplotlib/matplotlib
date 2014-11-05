@@ -16,7 +16,7 @@ that are multiples of 5.  Label major ticks with %d formatting but
 don't label minor ticks
 
 The MultipleLocator ticker class is used to place ticks on multiples of
-some base.  The FormatStrFormatter uses a string format string (eg
+some base.  The FormatStrFormatter uses a string format string (e.g.,
 '%d' or '%1.2f' or '%1.1f cm' ) to format the tick
 
 The pylab interface grid command changes the grid settings of the

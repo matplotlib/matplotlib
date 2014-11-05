@@ -295,7 +295,7 @@ others in web application servers to dynamically serve up graphs.
 
 To support all of these use cases, matplotlib can target different
 outputs, and each of these capabilities is called a backend; the
-"frontend" is the user facing code, ie the plotting code, whereas the
+"frontend" is the user facing code, i.e., the plotting code, whereas the
 "backend" does all the hard work behind-the-scenes to make the figure.
 There are two types of backends: user interface backends (for use in
 pygtk, wxpython, tkinter, qt4, or macosx; also referred to as
@@ -336,7 +336,7 @@ from the canvas (the place where the drawing goes).  The canonical
 renderer for user interfaces is ``Agg`` which uses the `Anti-Grain
 Geometry`_ C++ library to make a raster (pixel) image of the figure.
 All of the user interfaces except ``macosx`` can be used with
-agg rendering, eg
+agg rendering, e.g.,
 ``WXAgg``, ``GTKAgg``, ``QT4Agg``, ``TkAgg``.  In
 addition, some of the user interfaces support other rendering engines.
 For example, with GTK, you can also select GDK rendering (backend
