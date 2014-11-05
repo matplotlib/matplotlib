@@ -1,5 +1,5 @@
 """
-Make a "broken" horizontal bar plot, ie one with gaps
+Make a "broken" horizontal bar plot, i.e., one with gaps
 """
 import matplotlib.pyplot as plt
 

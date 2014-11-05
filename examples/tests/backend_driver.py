@@ -307,7 +307,7 @@ files['mplot3d'] = [
     'wire3d_demo.py',
     ]
 
-# dict from dir to files we know we don't want to test (eg examples
+# dict from dir to files we know we don't want to test (e.g., examples
 # not using pyplot, examples requiring user input, animation examples,
 # examples that may only work in certain environs (usetex examples?),
 # examples that generate multiple figures

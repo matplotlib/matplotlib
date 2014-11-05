@@ -2182,7 +2182,7 @@ def clim(vmin=None, vmax=None):
     """
     im = gci()
     if im is None:
-        raise RuntimeError('You must first define an image, eg with imshow')
+        raise RuntimeError('You must first define an image, e.g., with imshow')
 
     im.set_clim(vmin, vmax)
     draw_if_interactive()
@@ -2620,8 +2620,8 @@ def boxplot(x, notch=False, sym=None, vert=True, whis=1.5, positions=None,
             widths=None, patch_artist=False, bootstrap=None, usermedians=None,
             conf_intervals=None, meanline=False, showmeans=False, showcaps=True,
             showbox=True, showfliers=True, boxprops=None, labels=None,
-            flierprops=None, medianprops=None, meanprops=None,
-            manage_xticks=True, hold=None):
+            flierprops=None, medianprops=None, meanprops=None, capprops=None,
+            whiskerprops=None, manage_xticks=True, hold=None):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
@@ -2638,7 +2638,8 @@ def boxplot(x, notch=False, sym=None, vert=True, whis=1.5, positions=None,
                          showbox=showbox, showfliers=showfliers,
                          boxprops=boxprops, labels=labels,
                          flierprops=flierprops, medianprops=medianprops,
-                         meanprops=meanprops, manage_xticks=manage_xticks)
+                         meanprops=meanprops, capprops=capprops,
+                         whiskerprops=whiskerprops, manage_xticks=manage_xticks)
         draw_if_interactive()
     finally:
         ax.hold(washold)

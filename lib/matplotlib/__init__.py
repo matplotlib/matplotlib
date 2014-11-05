@@ -110,7 +110,6 @@ from itertools import chain
 __version__ = str('1.5.x')
 __version__numpy__ = str('1.6')  # minimum required numpy version
 
-
 try:
     import dateutil
 except ImportError:
@@ -1136,7 +1135,7 @@ def rc(group, **kwargs):
     for ``lines.linewidth`` the group is ``lines``, for
     ``axes.facecolor``, the group is ``axes``, and so on.  Group may
     also be a list or tuple of group names, e.g., (*xtick*, *ytick*).
-    *kwargs* is a dictionary attribute name/value pairs, eg::
+    *kwargs* is a dictionary attribute name/value pairs, e.g.,::
 
       rc('lines', linewidth=2, color='r')
 
@@ -1345,7 +1344,7 @@ def interactive(b):
     """
     Set interactive mode to boolean b.
 
-    If b is True, then draw after every plotting command, eg, after xlabel
+    If b is True, then draw after every plotting command, e.g., after xlabel
     """
     rcParams['interactive'] = b
 
@@ -1376,7 +1375,7 @@ for s in sys.argv[1:]:
             use(s[2:])
         except (KeyError, ValueError):
             pass
-        # we don't want to assume all -d flags are backends, eg -debug
+        # we don't want to assume all -d flags are backends, e.g., -debug
 
 default_test_modules = [
     'matplotlib.tests.test_agg',

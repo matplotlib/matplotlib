@@ -7,7 +7,7 @@ Pyplot tutorial
 :mod:`matplotlib.pyplot` is a collection of command style functions
 that make matplotlib  work like MATLAB.
 Each ``pyplot`` function makes
-some change to a figure: eg, create a figure, create a plotting area
+some change to a figure: e.g., create a figure, create a plotting area
 in a figure, plot some lines in a plotting area, decorate the plot
 with labels, etc....  :mod:`matplotlib.pyplot` is stateful, in that it
 keeps track of the current figure and plotting area, and the plotting
@@ -71,7 +71,7 @@ several ways to set line properties
 
 
 * Use the setter methods of the ``Line2D`` instance.  ``plot`` returns a list
-  of lines; eg ``line1, line2 = plot(x1,y1,x2,y2)``.  Below I have only
+  of lines; e.g., ``line1, line2 = plot(x1,y1,x2,y2)``.  Below I have only
   one line so it is a list of length 1.  I use tuple unpacking in the
   ``line, = plot(x, y, 'o')`` to get the first element of the list::
 
@@ -170,7 +170,7 @@ numcols, fignum`` where ``fignum`` ranges from 1 to
 ``numrows*numcols``.  The commas in the ``subplot`` command are
 optional if ``numrows*numcols<10``.  So ``subplot(211)`` is identical
 to ``subplot(2,1,1)``.  You can create an arbitrary number of subplots
-and axes.  If you want to place an axes manually, ie, not on a
+and axes.  If you want to place an axes manually, i.e., not on a
 rectangular grid, use the :func:`~matplotlib.pyplot.axes` command,
 which allows you to specify the location as ``axes([left, bottom,
 width, height])`` where all values are in fractional (0 to 1)

@@ -577,7 +577,7 @@ set_major_formatter)
 ======================  =========================================================
 Accessor method         Description
 ======================  =========================================================
-get_scale               The scale of the axis, eg 'log' or 'linear'
+get_scale               The scale of the axis, e.g., 'log' or 'linear'
 get_view_interval       The interval instance of the axis view limits
 get_data_interval       The interval instance of the axis data limits
 get_gridlines           A list of grid lines for the Axis

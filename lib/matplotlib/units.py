@@ -1,9 +1,9 @@
 """
 The classes here provide support for using custom classes with
-matplotlib, eg those that do not expose the array interface but know
+matplotlib, e.g., those that do not expose the array interface but know
 how to converter themselves to arrays.  It also supoprts classes with
 units and units conversion.  Use cases include converters for custom
-objects, eg a list of datetime objects, as well as for objects that
+objects, e.g., a list of datetime objects, as well as for objects that
 are unit aware.  We don't assume any particular units implementation,
 rather a units implementation must provide a ConversionInterface, and
 the register with the Registry converter dictionary.  For example,

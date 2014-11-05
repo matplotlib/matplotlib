@@ -48,7 +48,7 @@ class GridSpecBase(object):
         self.set_width_ratios(width_ratios)
 
     def get_geometry(self):
-        'get the geometry of the grid, eg 2,3'
+        'get the geometry of the grid, e.g., 2,3'
         return self._nrows, self._ncols
 
     def get_subplot_params(self, fig=None):
@@ -406,7 +406,7 @@ class SubplotSpec(object):
 
     def get_geometry(self):
         """
-        get the subplot geometry, eg 2,2,3. Unlike SuplorParams,
+        get the subplot geometry, e.g., 2,2,3. Unlike SuplorParams,
         index is 0-based
         """
         rows, cols = self.get_gridspec().get_geometry()

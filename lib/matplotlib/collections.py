@@ -70,7 +70,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     The use of :class:`~matplotlib.cm.ScalarMappable` is optional.  If
     the :class:`~matplotlib.cm.ScalarMappable` matrix _A is not None
-    (ie a call to set_array has been made), at draw time a call to
+    (i.e., a call to set_array has been made), at draw time a call to
     scalar mappable will be made to set the face colors.
     """
     _offsets = np.array([], np.float_)
@@ -991,7 +991,7 @@ class LineCollection(Collection):
             can be a different length.
 
         *colors*
-            must be a sequence of RGBA tuples (eg arbitrary color
+            must be a sequence of RGBA tuples (e.g., arbitrary color
             strings, etc, not allowed).
 
         *antialiaseds*
@@ -1034,7 +1034,7 @@ class LineCollection(Collection):
 
         The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
         If the :class:`~matplotlib.cm.ScalarMappable` array
-        :attr:`~matplotlib.cm.ScalarMappable._A` is not None (ie a call to
+        :attr:`~matplotlib.cm.ScalarMappable._A` is not None (i.e., a call to
         :meth:`~matplotlib.cm.ScalarMappable.set_array` has been made), at
         draw time a call to scalar mappable will be made to set the colors.
         """
@@ -1173,7 +1173,7 @@ class EventCollection(LineCollection):
             a single numerical value
 
         *color*
-            must be a sequence of RGBA tuples (eg arbitrary color
+            must be a sequence of RGBA tuples (e.g., arbitrary color
             strings, etc, not allowed).
 
         *linestyle* [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
@@ -1194,7 +1194,7 @@ class EventCollection(LineCollection):
 
         The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
         If the :class:`~matplotlib.cm.ScalarMappable` array
-        :attr:`~matplotlib.cm.ScalarMappable._A` is not None (ie a call to
+        :attr:`~matplotlib.cm.ScalarMappable._A` is not None (i.e., a call to
         :meth:`~matplotlib.cm.ScalarMappable.set_array` has been made), at
         draw time a call to scalar mappable will be made to set the colors.
 
@@ -1521,7 +1521,7 @@ class PatchCollection(Collection):
 
         The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
         If the :class:`~matplotlib.cm.ScalarMappable` matrix _A is not
-        None (ie a call to set_array has been made), at draw time a
+        None (i.e., a call to set_array has been made), at draw time a
         call to scalar mappable will be made to set the face colors.
         """
 

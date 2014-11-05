@@ -55,7 +55,7 @@ get:
 Aliases:
 
   To reduce keystrokes in interactive mode, a number of properties
-  have short aliases, eg 'lw' for 'linewidth' and 'mec' for
+  have short aliases, e.g., 'lw' for 'linewidth' and 'mec' for
   'markeredgecolor'.  When calling set or get in introspection mode,
   these properties will be listed as 'fullname or aliasname', as in
 
