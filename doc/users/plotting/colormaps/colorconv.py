@@ -3,10 +3,10 @@
 
 """Functions for converting between color spaces.
 
-Colorconv is copied from scikit-image to avoid an additional dependency on scikit-image
-in the matplotlib documentation. You should almost sertanly use the original module 
-for any other use. This only contains the bare minumum functions needed for rgb2lab
-Utility functions copied from dtype.py
+Colorconv is copied from scikit-image to avoid an additional dependency on
+scikit-image in the matplotlib documentation. You should almost sertanly use
+the original module for any other use. This only contains the bare minumum
+functions needed for rgb2lab Utility functions copied from dtype.py
 
 The "central" color space in this module is RGB, more specifically the linear
 sRGB color space using D65 as a white-point [1]_.  This represents a
@@ -220,11 +220,7 @@ def rgb2xyz(rgb):
     ----------
     .. [1] http://en.wikipedia.org/wiki/CIE_1931_color_space
 
-    Examples
-    --------
-    >>> from skimage import data
-    >>> lena = data.lena()
-    >>> lena_xyz = rgb2xyz(lena)
+
     """
     # Follow the algorithm from http://www.easyrgb.com/index.php
     # except we don't multiply/divide by 100 in the conversion
@@ -272,14 +268,6 @@ def xyz2lab(xyz, illuminant="D65", observer="2"):
     ----------
     .. [1] http://www.easyrgb.com/index.php?X=MATH&H=07#text7
     .. [2] http://en.wikipedia.org/wiki/Lab_color_space
-
-    Examples
-    --------
-    >>> from skimage import data
-    >>> from skimage.color import rgb2xyz, xyz2lab
-    >>> lena = data.lena()
-    >>> lena_xyz = rgb2xyz(lena)
-    >>> lena_lab = xyz2lab(lena_xyz)
 
     """
     arr = _prepare_colorarray(xyz)
@@ -331,13 +319,7 @@ def xyz2rgb(xyz):
     ----------
     .. [1] http://en.wikipedia.org/wiki/CIE_1931_color_space
 
-    Examples
-    --------
-    >>> from skimage import data
-    >>> from skimage.color import rgb2xyz, xyz2rgb
-    >>> lena = data.lena()
-    >>> lena_xyz = rgb2xyz(lena)
-    >>> lena_rgb = xyz2rgb(lena_xyz)
+
     """
     # Follow the algorithm from http://www.easyrgb.com/index.php
     # except we don't multiply/divide by 100 in the conversion
