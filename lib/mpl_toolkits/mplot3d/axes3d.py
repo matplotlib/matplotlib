@@ -2439,10 +2439,11 @@ class Axes3D(Axes):
         Arguments:
 
             *X*, *Y*, *Z*:
-                The x, y and z coordinates of the arrow locations
+                The x, y and z coordinates of the arrow locations (default is
+                tip of arrow; see *pivot* kwarg)
 
             *U*, *V*, *W*:
-                The direction vector that the arrow is pointing
+                The x, y and z components of the arrow vectors
 
         The arguments could be array-like or scalars, so long as they
         they can be broadcast together. The arguments can also be
@@ -2459,60 +2460,40 @@ class Axes3D(Axes):
                 The ratio of the arrow head with respect to the quiver,
                 default to 0.3
 
+            *pivot*: [ 'tail' | 'middle' | 'tip' ]
+                The part of the arrow that is at the grid point; the arrow
+                rotates about this point, hence the name *pivot*.
+
         Any additional keyword arguments are delegated to
         :class:`~matplotlib.collections.LineCollection`
 
         """
-        def calc_arrow(u, v, w, angle=15):
+        def calc_arrow(uvw, angle=15):
             """
-            To calculate the arrow head. (u, v, w) should be unit vector.
+            To calculate the arrow head. uvw should be a unit vector.
             """
-
-            # this part figures out the axis of rotation to use
-
-            # use unit vector perpendicular to (u,v,w) when |w|=1, by default
-            x, y, z = 0, 1, 0
-
-            # get the norm
-            norm = math.sqrt(v**2 + u**2)
-            # normalize it if it is safe
+            # get unit direction vector perpendicular to (u,v,w)
+            norm = np.linalg.norm(uvw[:2])
             if norm > 0:
-                # get unit direction vector perpendicular to (u,v,w)
-                x, y = v/norm, -u/norm
+                x = uvw[1] / norm
+                y = -uvw[0] / norm
+            else:
+                x, y = 0, 1
 
-            # this function takes an angle, and rotates the (u,v,w)
-            # angle degrees around (x,y,z)
-            def rotatefunction(angle):
-                ra = math.radians(angle)
-                c = math.cos(ra)
-                s = math.sin(ra)
+            # compute the two arrowhead direction unit vectors
+            ra = math.radians(angle)
+            c = math.cos(ra)
+            s = math.sin(ra)
 
-                # construct the rotation matrix
-                R = np.matrix([[c+(x**2)*(1-c), x*y*(1-c)-z*s, x*z*(1-c)+y*s],
-                               [y*x*(1-c)+z*s, c+(y**2)*(1-c), y*z*(1-c)-x*s],
-                               [z*x*(1-c)-y*s, z*y*(1-c)+x*s, c+(z**2)*(1-c)]])
+            # construct the rotation matrices
+            Rpos = np.array([[c+(x**2)*(1-c), x*y*(1-c), y*s],
+                             [y*x*(1-c), c+(y**2)*(1-c), -x*s],
+                             [-y*s, x*s, c]])
+            # opposite rotation negates everything but the diagonal
+            Rneg = Rpos * (np.eye(3)*2 - 1)
 
-                # construct the column vector for (u,v,w)
-                line = np.matrix([[u],[v],[w]])
-
-                # use numpy to multiply them to get the rotated vector
-                rotatedline = R*line
-
-                # return the rotated (u,v,w) from the computed matrix
-                return (rotatedline[0,0], rotatedline[1,0], rotatedline[2,0])
-
-            # compute and return the two arrowhead direction unit vectors
-            return rotatefunction(angle), rotatefunction(-angle)
-
-        def point_vector_to_line(point, vector, length):
-            """
-            use a point and vector to generate lines
-            """
-            lines = []
-            for var in np.linspace(0, length, num=2):
-                lines.append(list(zip(*(point - var * vector))))
-            lines = np.array(lines).swapaxes(0, 1)
-            return lines.tolist()
+            # multiply them to get the rotated vector
+            return Rpos.dot(uvw), Rneg.dot(uvw)
 
         had_data = self.has_data()
 
@@ -2521,6 +2502,8 @@ class Axes3D(Axes):
         length = kwargs.pop('length', 1)
         # arrow length ratio to the shaft length
         arrow_length_ratio = kwargs.pop('arrow_length_ratio', 0.3)
+        # pivot point
+        pivot = kwargs.pop('pivot', 'tip')
 
         # handle args
         argi = 6
@@ -2561,60 +2544,49 @@ class Axes3D(Axes):
         # must all in same shape
         assert len(set([k.shape for k in input_args])) == 1
 
-        xs, ys, zs, us, vs, ws = input_args[:argi]
-        lines = []
+        # TODO: num should probably get parameterized
+        shaft_dt = np.linspace(0, length, num=20)
+        arrow_dt = shaft_dt * arrow_length_ratio
 
-        # for each arrow
-        for i in range(xs.shape[0]):
-            # calulate body
-            x = xs[i]
-            y = ys[i]
-            z = zs[i]
-            u = us[i]
-            v = vs[i]
-            w = ws[i]
+        if pivot == 'tail':
+            shaft_dt -= length
+        elif pivot == 'middle':
+            shaft_dt -= length/2.
+        elif pivot != 'tip':
+            raise ValueError('Invalid pivot argument: ' + str(pivot))
 
-            # (u,v,w) expected to be normalized, recursive to fix A=0 scenario.
-            if u == 0 and v == 0 and w == 0:
-                # Just don't make a quiver for such a case.
-                continue
+        XYZ = np.column_stack(input_args[:3])
+        UVW = np.column_stack(input_args[3:argi]).astype(float)
 
-            # normalize
-            norm = math.sqrt(u ** 2 + v ** 2 + w ** 2)
-            u /= norm
-            v /= norm
-            w /= norm
+        # Normalize rows of UVW
+        # Note: with numpy 1.9+, could use np.linalg.norm(UVW, axis=1)
+        norm = np.sqrt(np.sum(UVW**2, axis=1))
 
-            # draw main line
-            t = np.linspace(0, length, num=20)
-            lx = x - t * u
-            ly = y - t * v
-            lz = z - t * w
-            line = list(zip(lx, ly, lz))
-            lines.append(line)
+        # If any row of UVW is all zeros, don't make a quiver for it
+        mask = norm > 1e-10
+        XYZ = XYZ[mask]
+        UVW = UVW[mask] / norm[mask].reshape((-1, 1))
 
-            d1, d2 = calc_arrow(u, v, w)
-            ua1, va1, wa1 = d1[0], d1[1], d1[2]
-            ua2, va2, wa2 = d2[0], d2[1], d2[2]
+        if len(XYZ) > 0:
+            # compute the shaft lines all at once with an outer product
+            shafts = (XYZ - np.multiply.outer(shaft_dt, UVW)).swapaxes(0, 1)
+            # compute head direction vectors, n heads by 2 sides by 3 dimensions
+            head_dirs = np.array([calc_arrow(d) for d in UVW])
+            # compute all head lines at once, starting from where the shaft ends
+            heads = shafts[:, :1] - np.multiply.outer(arrow_dt, head_dirs)
+            # stack left and right head lines together
+            heads.shape = (len(arrow_dt), -1, 3)
+            # transpose to get a list of lines
+            heads = heads.swapaxes(0, 1)
 
-            # TODO: num should probably get parameterized
-            t = np.linspace(0, length * arrow_length_ratio, num=20)
-            la1x = x - t * ua1
-            la1y = y - t * va1
-            la1z = z - t * wa1
-            la2x = x - t * ua2
-            la2y = y - t * va2
-            la2z = z - t * wa2
-
-            line = list(zip(la1x, la1y, la1z))
-            lines.append(line)
-            line = list(zip(la2x, la2y, la2z))
-            lines.append(line)
+            lines = list(shafts) + list(heads)
+        else:
+            lines = []
 
         linec = art3d.Line3DCollection(lines, *args[argi:], **kwargs)
         self.add_collection(linec)
 
-        self.auto_scale_xyz(xs, ys, zs, had_data)
+        self.auto_scale_xyz(XYZ[:, 0], XYZ[:, 1], XYZ[:, 2], had_data)
 
         return linec
 

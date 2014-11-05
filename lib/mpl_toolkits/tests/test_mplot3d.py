@@ -203,6 +203,35 @@ def test_quiver3d_masked():
 
     ax.quiver(x, y, z, u, v, w, length=0.1)
 
+@image_comparison(baseline_images=['quiver3d_pivot_middle'], remove_text=True,
+                  extensions=['png'])
+def test_quiver3d_pivot_middle():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    x, y, z = np.ogrid[-1:0.8:10j, -1:0.8:10j, -1:0.6:3j]
+
+    u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
+    v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
+    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
+            np.sin(np.pi * z))
+
+    ax.quiver(x, y, z, u, v, w, length=0.1, pivot='middle')
+
+@image_comparison(baseline_images=['quiver3d_pivot_tail'], remove_text=True,
+                  extensions=['png'])
+def test_quiver3d_pivot_tail():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    x, y, z = np.ogrid[-1:0.8:10j, -1:0.8:10j, -1:0.6:3j]
+
+    u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
+    v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
+    w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
+            np.sin(np.pi * z))
+
+    ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tail')
 
 if __name__ == '__main__':
     import nose
