@@ -165,10 +165,12 @@ point_in_path_impl(const void* const points_, const size_t s0,
         for (i = 0; i < n; ++i) {
             ty = *(double *)(points + s0 * i + s1);
 
-            // get test bit for above/below X axis
-            yflag0[i] = (vty0 >= ty);
+            if (MPL_isfinite64(ty)) {
+                // get test bit for above/below X axis
+                yflag0[i] = (vty0 >= ty);
 
-            subpath_flag[i] = 0;
+                subpath_flag[i] = 0;
+            }
         }
 
         do
@@ -190,6 +192,10 @@ point_in_path_impl(const void* const points_, const size_t s0,
             for (i = 0; i < n; ++i) {
                 tx = *(double *)(points + s0 * i);
                 ty = *(double *)(points + s0 * i + s1);
+
+                if (MPL_notisfinite64(tx) || MPL_notisfinite64(ty)) {
+                    continue;
+                }
 
                 yflag1 = (vty1 >= ty);
                 // Check if endpoints straddle (are on opposite sides) of
@@ -236,6 +242,10 @@ point_in_path_impl(const void* const points_, const size_t s0,
         for (i = 0; i < n; ++i) {
             tx = *(double *)(points + s0 * i);
             ty = *(double *)(points + s0 * i + s1);
+
+            if (MPL_notisfinite64(tx) || MPL_notisfinite64(ty)) {
+                continue;
+            }
 
             yflag1 = (vty1 >= ty);
             if (yflag0[i] != yflag1) {
