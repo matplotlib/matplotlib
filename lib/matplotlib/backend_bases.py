@@ -68,6 +68,7 @@ except:
 try:
     from PIL import Image
     _has_pil = True
+    del Image
 except ImportError:
     _has_pil = False
 
