@@ -472,13 +472,7 @@ class CallbackRegistry(object):
     `"Mindtrove" blog
     <http://mindtrove.info/articles/python-weak-references/>`_.
     """
-    def __init__(self, *args):
-        if len(args):
-            warn_deprecated(
-                '1.3',
-                message="CallbackRegistry no longer requires a list of "
-                        "callback types. Ignoring arguments. *args will "
-                        "be removed in 1.5")
+    def __init__(self):
         self.callbacks = dict()
         self._cid = 0
         self._func_cid_map = {}
