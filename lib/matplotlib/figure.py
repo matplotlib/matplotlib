@@ -1151,7 +1151,7 @@ class Figure(Artist):
           *markerfirst*: [ *True* | *False* ]
             if *True*, legend marker is placed to the left of the legend label
             if *False*, legend marker is placed to the right of the legend
-                        label
+            label
 
           *fancybox*: [ *None* | *False* | *True* ]
             if *True*, draw a frame with a round fancybox.  If *None*, use rc
