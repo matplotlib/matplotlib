@@ -278,6 +278,28 @@ texinfo_documents = [
    1),
 ]
 
+from mock import MagicMock, patch
+import sys
+
+
+class MyWX(MagicMock):
+    class Panel(object):
+        pass
+
+    class ToolBar(object):
+        pass
+
+    class Frame(object):
+        pass
+
+    VERSION_STRING = '2.8'
+
+mockwxversion = MagicMock()
+mockwx = MyWX()
+patch.dict('sys.modules', {'wxversion': mockwxversion, 'wx': mockwx})
+sys.modules['wxversion'] = mockwxversion
+sys.modules['wx'] = mockwx
+
 
 ################# numpydoc config ####################
 numpydoc_show_class_members = False
