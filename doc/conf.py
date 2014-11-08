@@ -280,8 +280,6 @@ texinfo_documents = [
 
 from mock import MagicMock, patch
 import sys
-
-
 class MyWX(MagicMock):
     class Panel(object):
         pass
@@ -294,12 +292,31 @@ class MyWX(MagicMock):
 
     VERSION_STRING = '2.8'
 
+
+class MyPyQt4(MagicMock):
+    class QtGui(object):
+        class QToolBar(object):
+            pass
+
+        class QDialog(object):
+            pass
+
+        class QWidget(object):
+            pass
+
+        class QMainWindow(object):
+            pass
+
+
 mockwxversion = MagicMock()
 mockwx = MyWX()
+mockpyqt4 = MyPyQt4()
+mocksip = MagicMock()
 patch.dict('sys.modules', {'wxversion': mockwxversion, 'wx': mockwx})
 sys.modules['wxversion'] = mockwxversion
 sys.modules['wx'] = mockwx
-
+sys.modules['sip'] = mocksip
+sys.modules['PyQt4'] = mockpyqt4
 
 ################# numpydoc config ####################
 numpydoc_show_class_members = False
