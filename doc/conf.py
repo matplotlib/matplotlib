@@ -278,8 +278,12 @@ texinfo_documents = [
    1),
 ]
 
-from mock import MagicMock, patch
-import sys
+try:
+    from unittest.mock import MagicMock
+except:
+    from mock import MagicMock
+
+
 class MyWX(MagicMock):
     class Panel(object):
         pass
@@ -312,7 +316,6 @@ mockwxversion = MagicMock()
 mockwx = MyWX()
 mockpyqt4 = MyPyQt4()
 mocksip = MagicMock()
-patch.dict('sys.modules', {'wxversion': mockwxversion, 'wx': mockwx})
 sys.modules['wxversion'] = mockwxversion
 sys.modules['wx'] = mockwx
 sys.modules['sip'] = mocksip
