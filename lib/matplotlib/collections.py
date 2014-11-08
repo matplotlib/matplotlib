@@ -482,8 +482,26 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         Set the linestyle(s) for the collection.
 
-        ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' |
-        (offset, on-off-dash-seq) ]
+        ===========================   =================
+        linestyle                     description
+        ===========================   =================
+        ``'-'`` or ``'solid'``        solid line
+        ``'--'`` or  ``'dashed'``     dashed line
+        ``'-.'`` or  ``'dash_dot'``   dash-dotted line
+        ``':'`` or ``'dotted'``       dotted line
+        ===========================   =================
+
+        Alternatively a dash tuple of the following form can be provided::
+
+            (offset, onoffseq),
+
+        where ``onoffseq`` is an even length tuple of on and off ink
+        in points.
+
+        Parameters
+        ----------
+        ls : { '-',  '--', '-.', ':'} and more see description
+            The line style.
         """
         try:
             dashd = backend_bases.GraphicsContextBase.dashd
