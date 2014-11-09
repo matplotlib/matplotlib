@@ -1423,7 +1423,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     where:
 
       - *Cxy*: dictionary of (*i*, *j*) tuples -> coherence vector for
-        that pair.  I.e., ``Cxy[(i,j) = cohere(X[:,i], X[:,j])``.
+        that pair.  i.e., ``Cxy[(i,j) = cohere(X[:,i], X[:,j])``.
         Number of dictionary keys is ``len(ij)``.
 
       - *Phase*: dictionary of phases of the cross spectral density at
