@@ -7,11 +7,11 @@ matplotlibrc file; see http://matplotlib.org/matplotlibrc
 """
 from pylab import *
 
-x = arange(100.0); x.shape = 10,10
+x = arange(100.0); x.shape = 10, 10
 
 interp = 'bilinear';
 #interp = 'nearest';
-lim = -2,11,-2,6
+lim = -2, 11, -2, 6
 subplot(211, axisbg='g')
 title('blue should be up')
 imshow(x, origin='upper', interpolation=interp)

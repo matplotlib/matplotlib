@@ -40,14 +40,14 @@ def rainbow_text(x, y, strings, colors, ax=None, **kw):
     canvas = ax.figure.canvas
 
     # horizontal version
-    for s,c in zip(strings, colors):
+    for s, c in zip(strings, colors):
         text = ax.text(x, y, " " + s + " ", color=c, transform=t, **kw)
         text.draw(canvas.get_renderer())
         ex = text.get_window_extent()
         t = transforms.offset_copy(text._transform, x=ex.width, units='dots')
 
     # vertical version
-    for s,c in zip(strings, colors):
+    for s, c in zip(strings, colors):
         text = ax.text(x, y, " " + s + " ", color=c, transform=t,
                 rotation=90, va='bottom', ha='center', **kw)
         text.draw(canvas.get_renderer())

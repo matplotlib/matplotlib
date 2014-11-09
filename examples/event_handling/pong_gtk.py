@@ -22,7 +22,7 @@ canvas = ax.figure.canvas
 
 def start_anim(event):
 #    gobject.idle_add(animation.draw,animation)
-    gobject.timeout_add(10,animation.draw,animation)
+    gobject.timeout_add(10, animation.draw, animation)
     canvas.mpl_disconnect(start_anim.cid)
 
 animation = pipong.Game(ax)

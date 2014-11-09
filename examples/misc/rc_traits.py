@@ -13,8 +13,8 @@ from matplotlib.artist import Artist
 doprint = True
 flexible_true_trait = traits.Trait(
    True,
-   {'true':  True, 't': True, 'yes': True, 'y': True, 'on':  True, True: True,
-     'false': False, 'f': False, 'no':  False, 'n': False, 'off': False, False: False
+   {'true': True, 't': True, 'yes': True, 'y': True, 'on': True, True: True,
+     'false': False, 'f': False, 'no': False, 'n': False, 'off': False, False: False
                               })
 flexible_false_trait = traits.Trait(False, flexible_true_trait)
 
@@ -59,11 +59,11 @@ class RGBA(traits.HasTraits):
 def tuple_to_rgba(ob, name, val):
     tup = [float(x) for x in val]
     if len(tup)==3:
-        r,g,b = tup
-        return RGBA(r,g,b)
+        r, g, b = tup
+        return RGBA(r, g, b)
     elif len(tup)==4:
-        r,g,b,a = tup
-        return RGBA(r,g,b,a)
+        r, g, b, a = tup
+        return RGBA(r, g, b, a)
     else:
         raise ValueError
 tuple_to_rgba.info = 'a RGB or RGBA tuple of floats'
@@ -76,15 +76,15 @@ def hex_to_rgba(ob, name, val):
         raise TypeError
     if rgx.match(val) is None:
         raise ValueError
-    r,g,b = hex2color(val)
-    return RGBA(r,g,b,1.0)
+    r, g, b = hex2color(val)
+    return RGBA(r, g, b, 1.0)
 hex_to_rgba.info = 'a hex color string'
 
 
 def colorname_to_rgba(ob, name, val):
     hex = colors[val.lower()]
-    r,g,b = hex2color(hex)
-    return RGBA(r,g,b,1.0)
+    r, g, b = hex2color(hex)
+    return RGBA(r, g, b, 1.0)
 colorname_to_rgba.info = 'a named color'
 
 
@@ -191,7 +191,7 @@ class Patch(Artist, traits.HasTraits):
 p = Patch()
 p.facecolor = '#bfbf00'
 p.edgecolor = 'gold'
-p.facecolor = (1,.5,.5,.25)
+p.facecolor = (1, .5, .5, .25)
 p.facecolor = 0.25
 p.fill = 'f'
 print('p.facecolor', type(p.facecolor), p.facecolor)

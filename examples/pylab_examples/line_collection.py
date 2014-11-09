@@ -13,8 +13,8 @@ x = np.arange(100)
 ys = x[:50, np.newaxis] + x[np.newaxis, :]
 
 segs = np.zeros((50, 100, 2), float)
-segs[:,:,1] = ys
-segs[:,:,0] = x
+segs[:, :, 1] = ys
+segs[:, :, 0] = x
 
 # Mask some values to test masked array support:
 segs = np.ma.masked_where((segs > 50) & (segs < 60), segs)
@@ -31,9 +31,9 @@ ax.set_ylim(ys.min(), ys.max())
 #          If linestyle is omitted, 'solid' is used
 # See matplotlib.collections.LineCollection for more information
 line_segments = LineCollection(segs,
-                                linewidths=(0.5,1,1.5,2),
+                                linewidths=(0.5, 1, 1.5, 2),
                                 colors        = [colorConverter.to_rgba(i) \
-                                                 for i in ('b','g','r','c','m','y','k')],
+                                                 for i in ('b', 'g', 'r', 'c', 'm', 'y', 'k')],
                                 linestyle = 'solid')
 ax.add_collection(line_segments)
 ax.set_title('Line collection with masked arrays')

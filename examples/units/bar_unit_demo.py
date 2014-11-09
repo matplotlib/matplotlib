@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 N = 5
 menMeans = (150*cm, 160*cm, 146*cm, 172*cm, 155*cm)
-menStd = (20*cm,  30*cm,  32*cm,  10*cm,  20*cm)
+menStd = (20*cm, 30*cm, 32*cm, 10*cm, 20*cm)
 
 fig, ax = plt.subplots()
 

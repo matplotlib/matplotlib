@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.font_manager as font_manager
 
 
-startdate = datetime.date(2006,1,1)
+startdate = datetime.date(2006, 1, 1)
 today = enddate = datetime.date.today()
 ticker = 'SPY'
 
@@ -117,7 +117,7 @@ ax1.fill_between(r.date, rsi, 30, where=(rsi<=30), facecolor=fillcolor, edgecolo
 ax1.text(0.6, 0.9, '>70 = overbought', va='top', transform=ax1.transAxes, fontsize=textsize)
 ax1.text(0.6, 0.1, '<30 = oversold', transform=ax1.transAxes, fontsize=textsize)
 ax1.set_ylim(0, 100)
-ax1.set_yticks([30,70])
+ax1.set_yticks([30, 70])
 ax1.text(0.025, 0.95, 'RSI (14)', va='top', transform=ax1.transAxes, fontsize=textsize)
 ax1.set_title('%s daily'%ticker)
 

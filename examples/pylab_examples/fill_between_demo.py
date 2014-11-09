@@ -6,7 +6,7 @@ x = np.arange(0.0, 2, 0.01)
 y1 = np.sin(2*np.pi*x)
 y2 = 1.2*np.sin(4*np.pi*x)
 
-fig, (ax1, ax2, ax3) = plt.subplots(3,1, sharex=True)
+fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True)
 
 ax1.fill_between(x, 0, y1)
 ax1.set_ylabel('between y1 and 0')

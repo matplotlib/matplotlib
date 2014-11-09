@@ -38,7 +38,7 @@ for i in range(Nr):
             a.set_xticklabels([])
         # Make some fake data with a range that varies
         # somewhat from one plot to the next.
-        data =((1+i+j)/10.0)*rand(10,20)*1e-6
+        data =((1+i+j)/10.0)*rand(10, 20)*1e-6
         dd = ravel(data)
         # Manually find the min and max of all colors for
         # use in setting the color scale.

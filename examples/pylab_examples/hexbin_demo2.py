@@ -27,9 +27,9 @@ if 1:
     ynew = y[cond]
     znew = z[cond]
     for i in range(20):
-        x = np.hstack((x,xnew))
-        y = np.hstack((y,ynew))
-        z = np.hstack((z,znew))
+        x = np.hstack((x, xnew))
+        y = np.hstack((y, ynew))
+        z = np.hstack((z, znew))
 
 xmin = x.min()
 xmax = x.max()
@@ -39,7 +39,7 @@ ymax = y.max()
 gridsize=30
 
 plt.subplot(211)
-plt.hexbin(x,y, C=z, gridsize=gridsize, marginals=True, cmap=plt.cm.RdBu, 
+plt.hexbin(x, y, C=z, gridsize=gridsize, marginals=True, cmap=plt.cm.RdBu, 
            vmax=abs(z).max(), vmin=-abs(z).max())
 plt.axis([xmin, xmax, ymin, ymax])
 cb = plt.colorbar()
@@ -47,7 +47,7 @@ cb.set_label('mean value')
 
 
 plt.subplot(212)
-plt.hexbin(x,y, gridsize=gridsize, cmap=plt.cm.Blues_r)
+plt.hexbin(x, y, gridsize=gridsize, cmap=plt.cm.Blues_r)
 plt.axis([xmin, xmax, ymin, ymax])
 cb = plt.colorbar()
 cb.set_label('N observations')

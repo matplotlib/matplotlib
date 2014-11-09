@@ -11,7 +11,7 @@ from pylab import *
 subplot(111, axisbg='w')
 
 font0 = FontProperties()
-alignment = {'horizontalalignment':'center', 'verticalalignment':'baseline'}
+alignment = {'horizontalalignment': 'center', 'verticalalignment': 'baseline'}
 # Show family options
 
 family = ['serif', 'sans-serif', 'cursive', 'fantasy', 'monospace']
@@ -110,6 +110,6 @@ font.set_size('x-large')
 t = text(0, 0.3, 'bold italic', fontproperties=font,
          **alignment)
 
-axis([-1,1,0,1])
+axis([-1, 1, 0, 1])
 
 show()

@@ -15,7 +15,7 @@ y -= 0.5
 step(x, y, where='post', label='post')
 
 y = ma.masked_where((y0>-0.15)&(y0<0.15), y - 0.5)
-step(x,y, label='masked (pre)')
+step(x, y, label='masked (pre)')
 
 legend()
 

@@ -15,10 +15,10 @@ import pylab
 import time
 
 
-for N in (20,100,1000,10000,50000):
+for N in (20, 100, 1000, 10000, 50000):
     tstart = time.time()
     x = 0.9*pylab.rand(N)
     y = 0.9*pylab.rand(N)
     s = 20*pylab.rand(N)
-    pylab.scatter(x,y,s)
+    pylab.scatter(x, y, s)
     print('%d symbols in %1.2f s' % (N, time.time()-tstart))

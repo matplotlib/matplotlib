@@ -30,7 +30,7 @@ grid = np.mgrid[0.2:0.8:3j, 0.2:0.8:3j].reshape(2, -1).T
 patches = []
 
 # add a circle
-circle = mpatches.Circle(grid[0], 0.1,ec="none")
+circle = mpatches.Circle(grid[0], 0.1, ec="none")
 patches.append(circle)
 label(grid[0], "Circle")
 
@@ -86,7 +86,7 @@ patches.append(fancybox)
 label(grid[7], "FancyBoxPatch")
 
 # add a line
-x,y = np.array([[-0.06, 0.0, 0.1], [0.05, -0.05, 0.05]])
+x, y = np.array([[-0.06, 0.0, 0.1], [0.05, -0.05, 0.05]])
 line = mlines.Line2D(x + grid[8, 0], y + grid[8, 1], lw=5., alpha=0.3)
 label(grid[8], "Line2D")
 

@@ -55,14 +55,14 @@ for col, ve in zip(axes.T, [0.1, 1, 10]):
 # Label rows and columns
 for ax, ve in zip(axes[0], [0.1, 1, 10]):
     ax.set_title('{}'.format(ve), size=18)
-for ax, mode in zip(axes[:,0], ['Hillshade', 'hsv', 'overlay', 'soft']):
+for ax, mode in zip(axes[:, 0], ['Hillshade', 'hsv', 'overlay', 'soft']):
     ax.set_ylabel(mode, size=18)
 
 # Group labels...
-axes[0,1].annotate('Vertical Exaggeration', (0.5, 1), xytext=(0, 30),
+axes[0, 1].annotate('Vertical Exaggeration', (0.5, 1), xytext=(0, 30),
                    textcoords='offset points', xycoords='axes fraction',
                    ha='center', va='bottom', size=20)
-axes[2,0].annotate('Blend Mode', (0, 0.5), xytext=(-30, 0),
+axes[2, 0].annotate('Blend Mode', (0, 0.5), xytext=(-30, 0),
                    textcoords='offset points', xycoords='axes fraction',
                    ha='right', va='center', size=20, rotation=90)
 fig.subplots_adjust(bottom=0.05, right=0.95)

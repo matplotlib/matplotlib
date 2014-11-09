@@ -8,9 +8,9 @@ import matplotlib.mlab as mlab
 def smooth1d(x, window_len):
     # copied from http://www.scipy.org/Cookbook/SignalSmooth
 
-    s=np.r_[2*x[0]-x[window_len:1:-1],x,2*x[-1]-x[-1:-window_len:-1]]
+    s=np.r_[2*x[0]-x[window_len:1:-1], x, 2*x[-1]-x[-1:-window_len:-1]]
     w = np.hanning(window_len)
-    y=np.convolve(w/w.sum(),s,mode='same')
+    y=np.convolve(w/w.sum(), s, mode='same')
     return y[window_len-1:-window_len+1]
 
 
@@ -30,7 +30,7 @@ class BaseFilter(object):
         ny, nx, depth = src_image.shape
         #tgt_image = np.zeros([pad*2+ny, pad*2+nx, depth], dtype="d")
         padded_src = np.zeros([pad*2+ny, pad*2+nx, depth], dtype="d")
-        padded_src[pad:-pad, pad:-pad,:] = src_image[:,:,:]
+        padded_src[pad:-pad, pad:-pad, :] = src_image[:, :, :]
 
         return padded_src  # , tgt_image
 
@@ -78,10 +78,10 @@ class GaussianFilter(BaseFilter):
     def process_image(self, padded_src, dpi):
         #offsetx, offsety = int(self.offsets[0]), int(self.offsets[1])
         tgt_image = np.zeros_like(padded_src)
-        aa = smooth2d(padded_src[:,:,-1]*self.alpha,
+        aa = smooth2d(padded_src[:, :, -1]*self.alpha,
                       self.sigma/72.*dpi)
-        tgt_image[:,:,-1] = aa
-        tgt_image[:,:,:-1] = self.color
+        tgt_image[:, :, -1] = aa
+        tgt_image[:, :, :-1] = self.color
         return tgt_image
 
 
@@ -116,15 +116,15 @@ class LightFilter(BaseFilter):
 
     def process_image(self, padded_src, dpi):
         t1 = self.gauss_filter.process_image(padded_src, dpi)
-        elevation = t1[:,:,3]
-        rgb = padded_src[:,:,:3]
+        elevation = t1[:, :, 3]
+        rgb = padded_src[:, :, :3]
 
         rgb2 = self.light_source.shade_rgb(rgb, elevation,
                                            fraction=self.fraction)
 
         tgt = np.empty_like(padded_src)
-        tgt[:,:,:3] = rgb2
-        tgt[:,:,3] = padded_src[:,:,3]
+        tgt[:, :, :3] = rgb2
+        tgt[:, :, 3] = padded_src[:, :, 3]
 
         return tgt
 
@@ -143,12 +143,12 @@ class GrowFilter(BaseFilter):
         pad = self.pixels
         ny, nx, depth = im.shape
         new_im = np.empty([pad*2+ny, pad*2+nx, depth], dtype="d")
-        alpha = new_im[:,:,3]
+        alpha = new_im[:, :, 3]
         alpha.fill(0)
-        alpha[pad:-pad, pad:-pad] = im[:,:,-1]
+        alpha[pad:-pad, pad:-pad] = im[:, :, -1]
         alpha2 = np.clip(smooth2d(alpha, self.pixels/72.*dpi) * 5, 0, 1)
-        new_im[:,:,-1] = alpha2
-        new_im[:,:,:-1] = self.color
+        new_im[:, :, -1] = alpha2
+        new_im[:, :, :-1] = self.color
         offsetx, offsety = -pad, -pad
 
         return new_im, offsetx, offsety
@@ -194,12 +194,12 @@ def filtered_text(ax):
 
     # draw
     im = ax.imshow(Z, interpolation='bilinear', origin='lower',
-                   cmap=cm.gray, extent=(-3,3,-2,2))
+                   cmap=cm.gray, extent=(-3, 3, -2, 2))
     levels = np.arange(-1.2, 1.6, 0.2)
     CS = ax.contour(Z, levels,
                     origin='lower',
                     linewidths=2,
-                    extent=(-3,3,-2,2))
+                    extent=(-3, 3, -2, 2))
 
     ax.set_aspect("auto")
 
@@ -278,7 +278,7 @@ def drop_shadow_patches(ax):
     rects2 = ax.bar(ind+width+0.1, womenMeans, width, color='y', ec="w", lw=2)
 
     #gauss = GaussianFilter(1.5, offsets=(1,1), )
-    gauss = DropShadowFilter(5, offsets=(1,1), )
+    gauss = DropShadowFilter(5, offsets=(1, 1), )
     shadow = FilteredArtistList(rects1+rects2, gauss)
     ax.add_artist(shadow)
     shadow.set_zorder(rects1[0].get_zorder()-0.1)
@@ -291,7 +291,7 @@ def drop_shadow_patches(ax):
 
 
 def light_filter_pie(ax):
-    fracs = [15,30,45, 10]
+    fracs = [15, 30, 45, 10]
     explode=(0, 0.05, 0, 0)
     pies = ax.pie(fracs, explode=explode)
     ax.patch.set_visible(True)
@@ -303,7 +303,7 @@ def light_filter_pie(ax):
         p.set(ec="none",
               lw=2)
 
-    gauss = DropShadowFilter(9, offsets=(3,4), alpha=0.7)
+    gauss = DropShadowFilter(9, offsets=(3, 4), alpha=0.7)
     shadow = FilteredArtistList(pies[0], gauss)
     ax.add_artist(shadow)
     shadow.set_zorder(pies[0][0].get_zorder()-0.1)

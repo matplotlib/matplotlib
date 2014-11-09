@@ -17,7 +17,7 @@ radio = RadioButtons(rax, ('2 Hz', '4 Hz', '8 Hz'))
 
 
 def hzfunc(label):
-    hzdict = {'2 Hz':s0, '4 Hz':s1, '8 Hz':s2}
+    hzdict = {'2 Hz': s0, '4 Hz': s1, '8 Hz': s2}
     ydata = hzdict[label]
     l.set_ydata(ydata)
     plt.draw()

@@ -21,17 +21,17 @@ def main():
     sw = builder.get_object("scrolledwindow1")
 
     # Start of Matplotlib specific code
-    figure = Figure(figsize=(8,6), dpi=71)
+    figure = Figure(figsize=(8, 6), dpi=71)
     axis = figure.add_subplot(111)
     t = arange(0.0, 3.0, 0.01)
     s = sin(2*pi*t)
-    axis.plot(t,s)
+    axis.plot(t, s)
 
     axis.set_xlabel('time [s]')
     axis.set_ylabel('voltage [V]')
 
     canvas = FigureCanvas(figure)  # a Gtk.DrawingArea
-    canvas.set_size_request(800,600)
+    canvas.set_size_request(800, 600)
     sw.add_with_viewport(canvas)
     # End of Matplotlib specific code
 

@@ -33,7 +33,7 @@ pylab.plot((delta / 2, delta / 2 - offset * 2), (height, height + offset), 'k', 
 pylab.text(-0.06, height - 0.06, r'$\delta$', {'color' : 'k', 'fontsize' : 24})
 
 # X-axis label
-pylab.xticks((-1, 0,  1), ('-1', '0',  '1'), color='k', size=20)
+pylab.xticks((-1, 0, 1), ('-1', '0', '1'), color='k', size=20)
 
 # Left Y-axis labels
 pylab.ylabel(r'\bf{phase field} $\phi$', {'color'    : 'b',
@@ -57,7 +57,7 @@ pylab.text(0.1, 0.85, r'$|\nabla\phi| = 1,$ \newline $ \frac{\partial \phi}{\par
 pylab.text(0.2, 0.15, r'$\mathcal{F} = \int f\left( \phi, c \right) dV,$ \newline $ \frac{ \partial \phi } { \partial t } = -M_{ \phi } \frac{ \delta \mathcal{F} } { \delta \phi }$', {'color' : 'b', 'fontsize' : 20})
 
 # these went wrong in pdf in a previous version
-pylab.text(-.9,.42,r'gamma: $\gamma$', {'color': 'r', 'fontsize': 20})
-pylab.text(-.9,.36,r'Omega: $\Omega$', {'color': 'b', 'fontsize': 20})
+pylab.text(-.9, .42, r'gamma: $\gamma$', {'color': 'r', 'fontsize': 20})
+pylab.text(-.9, .36, r'Omega: $\Omega$', {'color': 'b', 'fontsize': 20})
 
 pylab.show()

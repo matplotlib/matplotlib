@@ -27,25 +27,25 @@ def get_stats():
 ion()
 
 fig, ax = plt.subplots()
-ind = arange(1,4)
+ind = arange(1, 4)
 pm, pc, pn = bar(ind, get_stats())
 centers = ind + 0.5*pm.get_width()
 pm.set_facecolor('r')
 pc.set_facecolor('g')
 pn.set_facecolor('b')
-ax.set_xlim([0.5,4])
+ax.set_xlim([0.5, 4])
 ax.set_xticks(centers)
-ax.set_ylim([0,100])
+ax.set_ylim([0, 100])
 ax.set_xticklabels(['Memory', 'CPU', 'Bandwidth'])
 ax.set_ylabel('Percent usage')
 ax.set_title('System Monitor')
 
 for i in range(200):  # run for a little while
-    m,c,n = get_stats()
+    m, c, n = get_stats()
 
     pm.set_height(m)
     pc.set_height(c)
     pn.set_height(n)
-    ax.set_ylim([0,100])
+    ax.set_ylim([0, 100])
 
     draw()
