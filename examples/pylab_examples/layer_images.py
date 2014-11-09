@@ -29,7 +29,7 @@ extent = xmin, xmax, ymin, ymax
 fig = plt.figure(frameon=False)
 
 Z1 = array(([0, 1]*4 + [1, 0]*4)*4)
-Z1.shape = 8, 8  # chessboard
+Z1.shape = (8, 8)  # chessboard
 im1 = imshow(Z1, cmap=cm.gray, interpolation='nearest',
              extent=extent)
 hold(True)
