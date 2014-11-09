@@ -275,6 +275,8 @@ def test_pep8_conformance_examples():
     blacklist = ()
     assert_pep8_conformance(dirname=exdir,
                             extra_exclude_directories=blacklist,
+                            pep8_additional_ignore=PEP8_ADDITIONAL_IGNORE +
+                            ['E501'],
                             expected_bad_files=())
 
 
