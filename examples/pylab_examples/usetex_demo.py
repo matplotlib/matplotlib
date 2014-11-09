@@ -13,7 +13,7 @@ pylab.plot(X, (1 - np.tanh(4.*X/delta))/2,    # phase field tanh profiles
            X, X < 0, 'k--',                   # sharp interface
            linewidth=5)
 
-## legend
+# legend
 pylab.legend((r'phase field', r'level set', r'composition', r'sharp interface'), shadow=True, loc=(0.01, 0.55))
 
 ltext = pylab.gca().get_legend().get_texts()

@@ -23,8 +23,7 @@ Z1 = bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
 Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
 Z = (Z1 - Z2) * 10
 
-levels = arange(-2.0, 1.601, 0.4)  # Boost the upper limit to avoid truncation
-                                  # errors.
+levels = arange(-2.0, 1.601, 0.4)  # Boost the upper limit to avoid truncation errors.
 
 norm = cm.colors.Normalize(vmax=abs(Z).max(), vmin=-abs(Z).max())
 cmap = cm.PRGn

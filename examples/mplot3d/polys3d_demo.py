@@ -4,10 +4,13 @@ from matplotlib.colors import colorConverter
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 
-cc = lambda arg: colorConverter.to_rgba(arg, alpha=0.6)
+
+def cc(arg):
+    return colorConverter.to_rgba(arg, alpha=0.6)
 
 xs = np.arange(0, 10, 0.4)
 verts = []
