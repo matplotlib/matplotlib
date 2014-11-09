@@ -278,6 +278,48 @@ texinfo_documents = [
    1),
 ]
 
+try:
+    from unittest.mock import MagicMock
+except:
+    from mock import MagicMock
+
+
+class MyWX(MagicMock):
+    class Panel(object):
+        pass
+
+    class ToolBar(object):
+        pass
+
+    class Frame(object):
+        pass
+
+    VERSION_STRING = '2.8'
+
+
+class MyPyQt4(MagicMock):
+    class QtGui(object):
+        class QToolBar(object):
+            pass
+
+        class QDialog(object):
+            pass
+
+        class QWidget(object):
+            pass
+
+        class QMainWindow(object):
+            pass
+
+
+mockwxversion = MagicMock()
+mockwx = MyWX()
+mockpyqt4 = MyPyQt4()
+mocksip = MagicMock()
+sys.modules['wxversion'] = mockwxversion
+sys.modules['wx'] = mockwx
+sys.modules['sip'] = mocksip
+sys.modules['PyQt4'] = mockpyqt4
 
 ################# numpydoc config ####################
 numpydoc_show_class_members = False
