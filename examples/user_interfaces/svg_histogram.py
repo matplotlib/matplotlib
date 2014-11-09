@@ -3,29 +3,29 @@
 
 """
 Demonstrate how to create an interactive histogram, in which bars
-are hidden or shown by cliking on legend markers. 
+are hidden or shown by cliking on legend markers.
 
-The interactivity is encoded in ecmascript (javascript) and inserted in 
-the SVG code in a post-processing step. To render the image, open it in 
-a web browser. SVG is supported in most web browsers used by Linux and 
-OSX users. Windows IE9 supports SVG, but earlier versions do not. 
+The interactivity is encoded in ecmascript (javascript) and inserted in
+the SVG code in a post-processing step. To render the image, open it in
+a web browser. SVG is supported in most web browsers used by Linux and
+OSX users. Windows IE9 supports SVG, but earlier versions do not.
 
 Notes
 -----
 The matplotlib backend lets us assign ids to each object. This is the
-mechanism used here to relate matplotlib objects created in python and 
+mechanism used here to relate matplotlib objects created in python and
 the corresponding SVG constructs that are parsed in the second step.
-While flexible, ids are cumbersome to use for large collection of 
+While flexible, ids are cumbersome to use for large collection of
 objects. Two mechanisms could be used to simplify things:
  * systematic grouping of objects into SVG <g> tags,
  * assingning classes to each SVG object according to its origin.
- 
-For example, instead of modifying the properties of each individual bar, 
+
+For example, instead of modifying the properties of each individual bar,
 the bars from the `hist` function could either be grouped in
-a PatchCollection, or be assigned a class="hist_##" attribute. 
+a PatchCollection, or be assigned a class="hist_##" attribute.
 
 CSS could also be used more extensively to replace repetitive markup
-troughout the generated SVG. 
+troughout the generated SVG.
 
 __author__="david.huard@gmail.com"
 
@@ -40,7 +40,7 @@ import json
 
 plt.rcParams['svg.embed_char_paths'] = 'none'
 
-# Apparently, this `register_namespace` method works only with 
+# Apparently, this `register_namespace` method works only with
 # python 2.7 and up and is necessary to avoid garbling the XML name
 # space with ns0.
 ET.register_namespace("", "http://www.w3.org/2000/svg")
@@ -54,11 +54,11 @@ labels = ['Rabbits', 'Frogs']
 H = plt.hist([r, r1], label=labels)
 containers = H[-1]
 leg = plt.legend(frameon=False)
-plt.title("""From a web browser, click on the legend 
+plt.title("""From a web browser, click on the legend
 marker to toggle the corresponding histogram.""")
 
 
-# --- Add ids to the svg objects we'll modify 
+# --- Add ids to the svg objects we'll modify
 
 hist_patches = {}
 for ic, c in enumerate(containers):
@@ -67,7 +67,7 @@ for ic, c in enumerate(containers):
         element.set_gid('hist_%d_patch_%d' % (ic, il))
         hist_patches['hist_%d' %ic].append('hist_%d_patch_%d' % (ic, il))
 
-# Set ids for the legend patches    
+# Set ids for the legend patches
 for i, t in enumerate(leg.get_patches()):
     t.set_gid('leg_patch_%d' % i)
 
@@ -85,32 +85,32 @@ tree, xmlid = ET.XMLID(f.getvalue())
 
 # --- Add interactivity ---
 
-# Add attributes to the patch objects.    
+# Add attributes to the patch objects.
 for i, t in enumerate(leg.get_patches()):
     el = xmlid['leg_patch_%d' % i]
     el.set('cursor', 'pointer')
     el.set('onclick', "toggle_hist(this)")
 
-# Add attributes to the text objects.    
+# Add attributes to the text objects.
 for i, t in enumerate(leg.get_texts()):
     el = xmlid['leg_text_%d' % i]
     el.set('cursor', 'pointer')
     el.set('onclick', "toggle_hist(this)")
 
-# Create script defining the function `toggle_hist`. 
-# We create a global variable `container` that stores the patches id 
-# belonging to each histogram. Then a function "toggle_element" sets the 
+# Create script defining the function `toggle_hist`.
+# We create a global variable `container` that stores the patches id
+# belonging to each histogram. Then a function "toggle_element" sets the
 # visibility attribute of all patches of each histogram and the opacity
-# of the marker itself. 
+# of the marker itself.
 
 script = """
 <script type="text/ecmascript">
 <![CDATA[
-var container = %s 
+var container = %s
 
 function toggle(oid, attribute, values) {
-    /* Toggle the style attribute of an object between two values. 
-    
+    /* Toggle the style attribute of an object between two values.
+
     Parameters
     ----------
     oid : str
@@ -122,20 +122,20 @@ function toggle(oid, attribute, values) {
     */
     var obj = document.getElementById(oid);
     var a = obj.style[attribute];
-    
+
     a = (a == values[0] || a == "") ? values[1] : values[0];
     obj.style[attribute] = a;
     }
 
 function toggle_hist(obj) {
-    
+
     var num = obj.id.slice(-1);
-    
+
     toggle('leg_patch_' + num, 'opacity', [1, 0.3]);
     toggle('leg_text_' + num, 'opacity', [1, 0.5]);
-    
+
     var names = container['hist_'+num]
-    
+
     for (var i=0; i < names.length; i++) {
         toggle(names[i], 'opacity', [1,0])
     };
@@ -146,7 +146,8 @@ function toggle_hist(obj) {
 
 # Add a transition effect
 css = tree.getchildren()[0][0]
-css.text = css.text + "g {-webkit-transition:opacity 0.4s ease-out;-moz-transition:opacity 0.4s ease-out;}"
+css.text = css.text + "g {-webkit-transition:opacity 0.4s ease-out;" + \
+           "-moz-transition:opacity 0.4s ease-out;}"
 
 # Insert the script and save to file.
 tree.insert(0, ET.XML(script))
