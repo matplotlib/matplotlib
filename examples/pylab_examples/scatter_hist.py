@@ -8,7 +8,7 @@ y = np.random.randn(1000)
 
 nullfmt = NullFormatter()         # no labels
 
-# definitions for the axes 
+# definitions for the axes
 left, width = 0.1, 0.65
 bottom, height = 0.1, 0.65
 bottom_h = left_h = left+width+0.02

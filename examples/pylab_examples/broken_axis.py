@@ -11,7 +11,7 @@ pts = np.array([0.015,  0.166,  0.133,  0.159,  0.041,  0.024,  0.195,
     0.043,  0.021,  0.138,  0.075,  0.109,  0.195,  0.05 , 0.074, 0.079,
     0.155,  0.02 ,  0.01 ,  0.061,  0.008])
 
-# Now let's make two outlier points which are far away from everything. 
+# Now let's make two outlier points which are far away from everything.
 pts[[3, 14]] += .8
 
 # If we were to simply plot pts, we'd lose most of the interesting

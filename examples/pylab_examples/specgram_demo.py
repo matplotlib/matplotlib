@@ -24,7 +24,7 @@ Fs = int(1.0/dt)  # the sampling frequency
 
 ax1 = subplot(211)
 plot(t, x)
-subplot(212, sharex=ax1)           
-Pxx, freqs, bins, im = specgram(x, NFFT=NFFT, Fs=Fs, noverlap=900, 
+subplot(212, sharex=ax1)
+Pxx, freqs, bins, im = specgram(x, NFFT=NFFT, Fs=Fs, noverlap=900,
                                 cmap=cm.gist_heat)
 show()

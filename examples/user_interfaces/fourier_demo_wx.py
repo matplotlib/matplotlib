@@ -11,7 +11,7 @@ from matplotlib.pyplot import gcf, setp
 
 class Knob(object):
     """
-    Knob - simple class with a "setKnob" method.  
+    Knob - simple class with a "setKnob" method.
     A Knob instance is attached to a Param instance, e.g., param.attach(knob)
     Base class is for documentation purposes.
     """
@@ -25,8 +25,8 @@ class Param(object):
     The idea of the "Param" class is that some parameter in the GUI may have
     several knobs that both control it and reflect the parameter's state, e.g.
     a slider, text, and dragging can all change the value of the frequency in
-    the waveform of this example.  
-    The class allows a cleaner way to update/"feedback" to the other knobs when 
+    the waveform of this example.
+    The class allows a cleaner way to update/"feedback" to the other knobs when
     one is being changed.  Also, this class handles min/max constraints for all
     the knobs.
     Idea - knob list - in "set" method, knob object is passed as well
