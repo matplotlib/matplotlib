@@ -34,7 +34,7 @@ def pastel(colour, weight=2.4):
 
 def get_colours(n):
     """ Return n pastel colours. """
-    base = np.asarray([[1,0,0], [0,1,0], [0,0,1]])
+    base = np.asarray([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
 
     if n <= 3:
         return base[0:n]

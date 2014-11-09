@@ -13,11 +13,11 @@ from matplotlib.patches import Polygon
 # properties of the original sample, and a boxplot is one visual tool
 # to make this assessment
 numDists = 5
-randomDists = ['Normal(1,1)',' Lognormal(1,1)', 'Exp(1)', 'Gumbel(6,4)',
+randomDists = ['Normal(1,1)', ' Lognormal(1,1)', 'Exp(1)', 'Gumbel(6,4)',
               'Triangular(2,9,11)']
 N = 500
-norm = np.random.normal(1,1, N)
-logn = np.random.lognormal(1,1, N)
+norm = np.random.normal(1, 1, N)
+logn = np.random.lognormal(1, 1, N)
 expo = np.random.exponential(1, N)
 gumb = np.random.gumbel(6, 4, N)
 tria = np.random.triangular(2, 9, 11, N)
@@ -31,10 +31,10 @@ gumbBoot = gumb[bootstrapIndices]
 lognBoot = logn[bootstrapIndices]
 triaBoot = tria[bootstrapIndices]
 
-data = [norm, normBoot,  logn, lognBoot, expo, expoBoot, gumb, gumbBoot,
+data = [norm, normBoot, logn, lognBoot, expo, expoBoot, gumb, gumbBoot,
        tria, triaBoot]
 
-fig, ax1 = plt.subplots(figsize=(10,6))
+fig, ax1 = plt.subplots(figsize=(10, 6))
 fig.canvas.set_window_title('A Boxplot Example')
 plt.subplots_adjust(left=0.075, right=0.95, top=0.9, bottom=0.25)
 
@@ -55,7 +55,7 @@ ax1.set_xlabel('Distribution')
 ax1.set_ylabel('Value')
 
 # Now fill the boxes with desired colors
-boxColors = ['darkkhaki','royalblue']
+boxColors = ['darkkhaki', 'royalblue']
 numBoxes = numDists*2
 medians = range(numBoxes)
 for i in range(numBoxes):
@@ -65,7 +65,7 @@ for i in range(numBoxes):
     for j in range(5):
         boxX.append(box.get_xdata()[j])
         boxY.append(box.get_ydata()[j])
-    boxCoords = zip(boxX,boxY)
+    boxCoords = zip(boxX, boxY)
     # Alternate between Dark Khaki and Royal Blue
     k = i % 2
     boxPolygon = Polygon(boxCoords, facecolor=boxColors[k])
@@ -99,14 +99,14 @@ plt.setp(xtickNames, rotation=45, fontsize=8)
 pos = np.arange(numBoxes)+1
 upperLabels = [str(np.round(s, 2)) for s in medians]
 weights = ['bold', 'semibold']
-for tick,label in zip(range(numBoxes),ax1.get_xticklabels()):
+for tick, label in zip(range(numBoxes), ax1.get_xticklabels()):
     k = tick % 2
     ax1.text(pos[tick], top-(top*0.05), upperLabels[tick],
          horizontalalignment='center', size='x-small', weight=weights[k],
          color=boxColors[k])
 
 # Finally, add a basic legend
-plt.figtext(0.80, 0.08,  str(N) + ' Random Numbers' ,
+plt.figtext(0.80, 0.08, str(N) + ' Random Numbers' ,
            backgroundcolor=boxColors[0], color='black', weight='roman',
            size='x-small')
 plt.figtext(0.80, 0.045, 'IID Bootstrap Resample',

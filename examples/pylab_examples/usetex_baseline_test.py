@@ -55,13 +55,13 @@ def test_window_extent(ax, usetex, preview):
         ax.axhline(i, color="r")
         ax.text(0., 3-i, s, **text_kw)
 
-    ax.set_xlim(-0.1,1.1)
-    ax.set_ylim(-.8,3.9)
+    ax.set_xlim(-0.1, 1.1)
+    ax.set_ylim(-.8, 3.9)
 
     ax.set_title("usetex=%s\npreview=%s" % (str(usetex), str(preview)))
 
 
-F = plt.figure(figsize=(2.*3,6.5))
+F = plt.figure(figsize=(2.*3, 6.5))
 
 for i, usetex, preview in [[0, False, False],
                            [1, True, False],

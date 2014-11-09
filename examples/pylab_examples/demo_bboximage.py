@@ -17,13 +17,13 @@ if __name__ == "__main__":
                            clip_on=False,
                            **kwargs
                            )
-    a = np.arange(256).reshape(1,256)/256.
+    a = np.arange(256).reshape(1, 256)/256.
     bbox_image.set_data(a)
     ax.add_artist(bbox_image)
 
     ax = plt.subplot(122)
-    a = np.linspace(0, 1, 256).reshape(1,-1)
-    a = np.vstack((a,a))
+    a = np.linspace(0, 1, 256).reshape(1, -1)
+    a = np.vstack((a, a))
 
     maps = sorted(m for m in plt.cm.datad if not m.endswith("_r"))
     #nmaps = len(maps) + 1
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     ypad_fraction = 0.3
     dy = 1./(nrow + ypad_fraction*(nrow-1))
 
-    for i,m in enumerate(maps):
+    for i, m in enumerate(maps):
         ix, iy = divmod(i, nrow)
         #plt.figimage(a, 10, i*10, cmap=plt.get_cmap(m), origin='lower')
         bbox0 = Bbox.from_bounds(ix*dx*(1+xpad_fraction),

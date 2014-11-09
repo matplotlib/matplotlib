@@ -26,7 +26,7 @@ if 0:
     verts = []
     for i in range(10):
         # a random line segment in inches
-        verts.append(zip(*inch*10*np.random.rand(2, random.randint(2,15))))
+        verts.append(zip(*inch*10*np.random.rand(2, random.randint(2, 15))))
     lc = collections.LineCollection(verts, axes=ax)
     ax.add_collection(lc)
 

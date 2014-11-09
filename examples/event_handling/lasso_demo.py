@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
     data = [Datum(*xy) for xy in rand(100, 2)]
 
-    ax = plt.axes(xlim=(0,1), ylim=(0,1), autoscale_on=False)
+    ax = plt.axes(xlim=(0, 1), ylim=(0, 1), autoscale_on=False)
     lman = LassoManager(ax, data)
 
     plt.show()

@@ -17,13 +17,13 @@ dash_style = (
 
 fig, ax = plt.subplots()
 
-(x,y) = zip(*DATA)
+(x, y) = zip(*DATA)
 ax.plot(x, y, marker='o')
 for i in range(len(DATA)):
-    (x,y) = DATA[i]
+    (x, y) = DATA[i]
     (dd, dl, r, dr, dp) = dash_style[i]
     #print('dashlen call %d' % dl)
-    t = ax.text(x, y, str((x,y)), withdash=True,
+    t = ax.text(x, y, str((x, y)), withdash=True,
                dashdirection=dd,
                dashlength=dl,
                rotation=r,

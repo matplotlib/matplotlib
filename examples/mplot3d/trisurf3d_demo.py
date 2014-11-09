@@ -14,7 +14,7 @@ radii = np.linspace(0.125, 1.0, n_radii)
 angles = np.linspace(0, 2*np.pi, n_angles, endpoint=False)
 
 # Repeat all angles for each radius
-angles = np.repeat(angles[...,np.newaxis], n_radii, axis=1)
+angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
 
 # Convert polar (radii, angles) coords to cartesian (x, y) coords
 # (0, 0) is added here. There are no duplicate points in the (x, y) plane

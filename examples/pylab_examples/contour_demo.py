@@ -66,7 +66,7 @@ plt.title('Single color - negative contours solid')
 plt.figure()
 CS = plt.contour(X, Y, Z, 6,
                  linewidths=np.arange(.5, 4, .5),
-                 colors=('r', 'green', 'blue', (1,1,0), '#afeeee', '0.5')
+                 colors=('r', 'green', 'blue', (1, 1, 0), '#afeeee', '0.5')
                  )
 plt.clabel(CS, fontsize=9, inline=1)
 plt.title('Crazy lines')
@@ -76,12 +76,12 @@ plt.title('Crazy lines')
 # colormap will be used for the contour lines
 plt.figure()
 im = plt.imshow(Z, interpolation='bilinear', origin='lower',
-                cmap=cm.gray, extent=(-3,3,-2,2))
+                cmap=cm.gray, extent=(-3, 3, -2, 2))
 levels = np.arange(-1.2, 1.6, 0.2)
 CS = plt.contour(Z, levels,
                  origin='lower',
                  linewidths=2,
-                 extent=(-3,3,-2,2))
+                 extent=(-3, 3, -2, 2))
 
 # Thicken the zero contour.
 zc = CS.collections[6]
@@ -105,8 +105,8 @@ CBI = plt.colorbar(im, orientation='horizontal', shrink=0.8)
 # This makes the original colorbar look a bit out of place,
 # so let's improve its position.
 
-l,b,w,h = plt.gca().get_position().bounds
-ll,bb,ww,hh = CB.ax.get_position().bounds
+l, b, w, h = plt.gca().get_position().bounds
+ll, bb, ww, hh = CB.ax.get_position().bounds
 CB.ax.set_position([ll, b+0.1*h, ww, h*0.8])
 
 

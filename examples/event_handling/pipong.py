@@ -30,7 +30,7 @@ press 'g' -- toggle the game on/off
 
 
 class Pad(object):
-    def __init__(self, disp,x,y,type='l'):
+    def __init__(self, disp, x, y, type='l'):
         self.disp = disp
         self.x = x
         self.y = y
@@ -49,7 +49,7 @@ class Pad(object):
             self.signy = -1.0
 
     def contains(self, loc):
-        return self.disp.get_bbox().contains(loc.x,loc.y)
+        return self.disp.get_bbox().contains(loc.x, loc.y)
 
 
 class Puck(object):
@@ -59,7 +59,7 @@ class Puck(object):
         self.field = field
         self._reset(pad)
 
-    def _reset(self,pad):
+    def _reset(self, pad):
         self.x = pad.x + pad.xoffset
         if pad.y < 0:
             self.y = pad.y + pad.yoffset
@@ -71,7 +71,7 @@ class Puck(object):
         self._slower()
         self._slower()
 
-    def update(self,pads):
+    def update(self, pads):
         self.x += self.vx
         self.y += self.vy
         for pad in pads:
@@ -124,17 +124,17 @@ class Game(object):
         padAx = padBx= .50
         padAy = padBy= .30
         padBx+=6.3
-        pA, = self.ax.barh(padAy,.2, height=.3,color='k', alpha=.5, edgecolor='b',lw=2,label="Player B", animated=True)
-        pB, = self.ax.barh(padBy,.2, height=.3, left=padBx, color='k',alpha=.5, edgecolor='r',lw=2,label="Player A",animated=True)
+        pA, = self.ax.barh(padAy, .2, height=.3, color='k', alpha=.5, edgecolor='b', lw=2, label="Player B", animated=True)
+        pB, = self.ax.barh(padBy, .2, height=.3, left=padBx, color='k', alpha=.5, edgecolor='r', lw=2, label="Player A", animated=True)
 
         # distractors
-        self.x = np.arange(0,2.22*np.pi,0.01)
-        self.line, = self.ax.plot(self.x, np.sin(self.x),"r", animated=True, lw=4)
-        self.line2, = self.ax.plot(self.x, np.cos(self.x),"g", animated=True, lw=4)
-        self.line3, = self.ax.plot(self.x, np.cos(self.x),"g", animated=True, lw=4)
-        self.line4, = self.ax.plot(self.x, np.cos(self.x),"r", animated=True, lw=4)
-        self.centerline,= self.ax.plot([3.5,3.5], [1,-1],'k',alpha=.5, animated=True,  lw=8)
-        self.puckdisp = self.ax.scatter([1],[1],label='_nolegend_', s=200,c='g',alpha=.9,animated=True)
+        self.x = np.arange(0, 2.22*np.pi, 0.01)
+        self.line, = self.ax.plot(self.x, np.sin(self.x), "r", animated=True, lw=4)
+        self.line2, = self.ax.plot(self.x, np.cos(self.x), "g", animated=True, lw=4)
+        self.line3, = self.ax.plot(self.x, np.cos(self.x), "g", animated=True, lw=4)
+        self.line4, = self.ax.plot(self.x, np.cos(self.x), "r", animated=True, lw=4)
+        self.centerline, = self.ax.plot([3.5, 3.5], [1, -1], 'k', alpha=.5, animated=True, lw=8)
+        self.puckdisp = self.ax.scatter([1], [1], label='_nolegend_', s=200, c='g', alpha=.9, animated=True)
 
         self.canvas = self.ax.figure.canvas
         self.background = None
@@ -145,15 +145,15 @@ class Game(object):
         self.inst = True    # show instructions from the beginning
         self.background = None
         self.pads = []
-        self.pads.append(Pad(pA,0,padAy))
-        self.pads.append(Pad(pB,padBx,padBy,'r'))
+        self.pads.append(Pad(pA, 0, padAy))
+        self.pads.append(Pad(pB, padBx, padBy, 'r'))
         self.pucks =[]
-        self.i = self.ax.annotate(instructions,(.5,0.5),
+        self.i = self.ax.annotate(instructions, (.5, 0.5),
                      name='monospace',
                      verticalalignment='center',
                      horizontalalignment='center',
                      multialignment='left',
-                     textcoords='axes fraction',animated=True)
+                     textcoords='axes fraction', animated=True)
         self.canvas.mpl_connect('key_press_event', self.key_press)
 
     def draw(self, evt):
@@ -196,12 +196,12 @@ class Game(object):
                     self.leg = self.ax.get_legend()
                     #self.leg.draw_frame(False) #don't draw the legend border
                     self.leg.get_frame().set_alpha(.2)
-                    plt.setp(self.leg.get_texts(),fontweight='bold',fontsize='xx-large')
+                    plt.setp(self.leg.get_texts(), fontweight='bold', fontsize='xx-large')
                     self.leg.get_frame().set_facecolor('0.2')
                     self.background = None
                     self.ax.figure.canvas.draw()
                     return True
-                puck.disp.set_offsets([puck.x,puck.y])
+                puck.disp.set_offsets([puck.x, puck.y])
                 self.ax.draw_artist(puck.disp)
 
         # just redraw the axes rectangle
@@ -215,7 +215,7 @@ class Game(object):
         self.cnt += 1
         return True
 
-    def key_press(self,event):
+    def key_press(self, event):
         if event.key == '3':
             self.res *= 5.0
         if event.key == '4':
@@ -240,7 +240,7 @@ class Game(object):
                 self.pads[1].y = -1
 
         if event.key == 'a':
-            self.pucks.append(Puck(self.puckdisp,self.pads[randint(2)],self.ax.bbox))
+            self.pucks.append(Puck(self.puckdisp, self.pads[randint(2)], self.ax.bbox))
         if event.key == 'A' and len(self.pucks):
             self.pucks.pop()
         if event.key == ' ' and len(self.pucks):

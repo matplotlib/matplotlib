@@ -13,14 +13,14 @@ class PointBrowser(object):
 
         self.text = ax.text(0.05, 0.95, 'selected: none',
                             transform=ax.transAxes, va='top')
-        self.selected,  = ax.plot([xs[0]], [ys[0]], 'o', ms=12, alpha=0.4,
+        self.selected, = ax.plot([xs[0]], [ys[0]], 'o', ms=12, alpha=0.4,
                                   color='yellow', visible=False)
 
     def onpress(self, event):
         if self.lastind is None: return
         if event.key not in ('n', 'p'): return
         if event.key=='n': inc = 1
-        else:  inc = -1
+        else: inc = -1
 
         self.lastind += inc
         self.lastind = np.clip(self.lastind, 0, len(xs)-1)

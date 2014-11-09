@@ -24,7 +24,7 @@ ax.set_xlim(dates[0], dates[-1])
 # tick, not the base multiple
 
 ax.xaxis.set_major_locator(DayLocator())
-ax.xaxis.set_minor_locator(HourLocator(arange(0,25,6)))
+ax.xaxis.set_minor_locator(HourLocator(arange(0, 25, 6)))
 ax.xaxis.set_major_formatter(DateFormatter('%Y-%m-%d'))
 
 ax.fmt_xdata = DateFormatter('%Y-%m-%d %H:%M:%S')

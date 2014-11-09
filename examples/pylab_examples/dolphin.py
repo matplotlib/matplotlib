@@ -11,9 +11,9 @@ t = np.random.rand(50) * np.pi * 2.0
 x = r * np.cos(t)
 y = r * np.sin(t)
 
-fig, ax = plt.subplots(figsize=(6,6))
+fig, ax = plt.subplots(figsize=(6, 6))
 circle = Circle((0, 0), 1, facecolor='none',
-                edgecolor=(0,0.8,0.8), linewidth=3, alpha=0.5)
+                edgecolor=(0, 0.8, 0.8), linewidth=3, alpha=0.5)
 ax.add_patch(circle)
 
 im = plt.imshow(np.random.random((100, 100)),
@@ -74,7 +74,7 @@ while i < len(parts):
     vertices.extend([[float(x) for x in y.split(',')] for y in parts[i+1:i+npoints+1]])
     i += npoints + 1
 vertices = np.array(vertices, np.float)
-vertices[:,1] -= 160
+vertices[:, 1] -= 160
 
 dolphin_path = Path(vertices, codes)
 dolphin_patch = PathPatch(dolphin_path, facecolor=(0.6, 0.6, 0.6),

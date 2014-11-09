@@ -43,7 +43,7 @@ t = np.arange(0.0, 100.0, 0.1)
 s = np.sin(0.1*np.pi*t)*np.exp(-t*0.01)
 
 fig, ax = plt.subplots()
-plt.plot(t,s)
+plt.plot(t, s)
 
 ax.xaxis.set_major_locator(majorLocator)
 ax.xaxis.set_major_formatter(majorFormatter)

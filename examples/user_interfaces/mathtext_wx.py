@@ -109,7 +109,7 @@ class CanvasFrame(wx.Frame):
         self.change_plot(event.GetId() - 1000)
 
     def change_plot(self, plot_number):
-        t = arange(1.0,3.0,0.01)
+        t = arange(1.0, 3.0, 0.01)
         s = functions[plot_number][1](t)
         self.axes.clear()
         self.axes.plot(t, s)

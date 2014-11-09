@@ -4,7 +4,7 @@ import numpy as np
 
 ax = plt.axes([0.1, 0.3, 0.5, 0.5])
 
-ax.pcolormesh(np.array([[1,2],[3,4]]))
+ax.pcolormesh(np.array([[1, 2], [3, 4]]))
 plt.yticks([0.5, 1.5], ["long long tick label",
                         "tick label"])
 plt.ylabel("My y-label")

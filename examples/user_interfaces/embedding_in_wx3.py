@@ -47,7 +47,7 @@ class PlotPanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent, -1)
 
-        self.fig = Figure((5,4), 75)
+        self.fig = Figure((5, 4), 75)
         self.canvas = FigureCanvasWxAgg(self, -1, self.fig)
         self.toolbar = Toolbar(self.canvas)  # matplotlib toolbar
         self.toolbar.Realize()
@@ -75,7 +75,7 @@ class PlotPanel(wx.Panel):
         ymax_i, xmax_i = np.nonzero(z >= zmax)
         if self.im.origin == 'upper':
             ymax_i = z.shape[0]-ymax_i
-        self.lines = a.plot(xmax_i,ymax_i,'ko')
+        self.lines = a.plot(xmax_i, ymax_i, 'ko')
 
         self.toolbar.update()  # Not sure why this is needed - ADS
 
@@ -84,7 +84,7 @@ class PlotPanel(wx.Panel):
         # unmanaged toolbar in your frame
         return self.toolbar
 
-    def OnWhiz(self,evt):
+    def OnWhiz(self, evt):
         self.x += np.pi/15
         self.y += np.pi/20
         z = np.sin(self.x) + np.cos(self.y)
@@ -94,7 +94,7 @@ class PlotPanel(wx.Panel):
         ymax_i, xmax_i = np.nonzero(z >= zmax)
         if self.im.origin == 'upper':
             ymax_i = z.shape[0]-ymax_i
-        self.lines[0].set_data(xmax_i,ymax_i)
+        self.lines[0].set_data(xmax_i, ymax_i)
 
         self.canvas.draw()
 
@@ -112,14 +112,14 @@ class MyApp(wx.App):
 
         # main frame and panel ---------
 
-        self.frame = self.res.LoadFrame(None,"MainFrame")
-        self.panel = xrc.XRCCTRL(self.frame,"MainPanel")
+        self.frame = self.res.LoadFrame(None, "MainFrame")
+        self.panel = xrc.XRCCTRL(self.frame, "MainPanel")
 
         # matplotlib panel -------------
 
         # container for matplotlib panel (I like to make a container
         # panel for our panel so I know where it'll go when in XRCed.)
-        plot_container = xrc.XRCCTRL(self.frame,"plot_container_panel")
+        plot_container = xrc.XRCCTRL(self.frame, "plot_container_panel")
         sizer = wx.BoxSizer(wx.VERTICAL)
 
         # matplotlib panel itself
@@ -132,13 +132,13 @@ class MyApp(wx.App):
 
         # whiz button ------------------
 
-        whiz_button = xrc.XRCCTRL(self.frame,"whiz_button")
+        whiz_button = xrc.XRCCTRL(self.frame, "whiz_button")
         wx.EVT_BUTTON(whiz_button, whiz_button.GetId(),
                       self.plotpanel.OnWhiz)
 
         # bang button ------------------
 
-        bang_button = xrc.XRCCTRL(self.frame,"bang_button")
+        bang_button = xrc.XRCCTRL(self.frame, "bang_button")
         wx.EVT_BUTTON(bang_button, bang_button.GetId(),
                       self.OnBang)
 
@@ -151,8 +151,8 @@ class MyApp(wx.App):
 
         return True
 
-    def OnBang(self,event):
-        bang_count = xrc.XRCCTRL(self.frame,"bang_count")
+    def OnBang(self, event):
+        bang_count = xrc.XRCCTRL(self.frame, "bang_count")
         bangs = bang_count.GetValue()
         bangs = int(bangs)+1
         bang_count.SetValue(str(bangs))

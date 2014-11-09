@@ -17,7 +17,7 @@ def make_xaxis(ax, yloc, offset=0.05, **props):
     xmin, xmax = ax.get_xlim()
     locs = [loc for loc in ax.xaxis.get_majorticklocs()
             if loc>=xmin and loc<=xmax]
-    tickline, = ax.plot(locs, [yloc]*len(locs),linestyle='',
+    tickline, = ax.plot(locs, [yloc]*len(locs), linestyle='',
             marker=lines.TICKDOWN, **props)
     axline, = ax.plot([xmin, xmax], [yloc, yloc], **props)
     tickline.set_clip_on(False)

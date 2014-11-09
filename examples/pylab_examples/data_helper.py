@@ -17,14 +17,14 @@ def get_two_stock_data():
     file2 = cbook.get_sample_data('AAPL.dat.gz')
     M1 = fromstring(file1.read(), '<d')
 
-    M1 = resize(M1, (M1.shape[0]/2,2))
+    M1 = resize(M1, (M1.shape[0]/2, 2))
 
     M2 = fromstring(file2.read(), '<d')
-    M2 = resize(M2, (M2.shape[0]/2,2))
+    M2 = resize(M2, (M2.shape[0]/2, 2))
 
-    d1, p1 = M1[:,0], M1[:,1]
-    d2, p2 = M2[:,0], M2[:,1]
-    return (d1,p1,d2,p2)
+    d1, p1 = M1[:, 0], M1[:, 1]
+    d2, p2 = M2[:, 0], M2[:, 1]
+    return (d1, p1, d2, p2)
 
 
 def get_daily_data():
@@ -48,11 +48,11 @@ def get_daily_data():
 
         M = array(vals)
         c = C()
-        c.open = M[:,0]
-        c.high = M[:,1]
-        c.low = M[:,2]
-        c.close = M[:,3]
-        c.volume = M[:,4]
+        c.open = M[:, 0]
+        c.high = M[:, 1]
+        c.low = M[:, 2]
+        c.close = M[:, 3]
+        c.volume = M[:, 4]
         return c
     c1 = get_ticker('intc')
     c2 = get_ticker('msft')

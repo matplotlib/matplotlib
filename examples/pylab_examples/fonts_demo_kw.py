@@ -8,7 +8,7 @@ from matplotlib.font_manager import FontProperties
 from pylab import *
 
 subplot(111, axisbg='w')
-alignment = {'horizontalalignment':'center', 'verticalalignment':'baseline'}
+alignment = {'horizontalalignment': 'center', 'verticalalignment': 'baseline'}
 
 # Show family options
 
@@ -49,7 +49,7 @@ for k in range(2):
 
 weight = ['light', 'normal', 'medium', 'semibold', 'bold', 'heavy', 'black']
 
-t = text(0.4, 0.9, 'weight',  **alignment)
+t = text(0.4, 0.9, 'weight', **alignment)
 
 for k in range(7):
     t = text(0.4, yp[k], weight[k], weight=weight[k],

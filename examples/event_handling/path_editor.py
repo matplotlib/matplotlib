@@ -49,7 +49,7 @@ class PathInteractor(object):
 
         x, y = zip(*self.pathpatch.get_path().vertices)
 
-        self.line, = ax.plot(x,y,marker='o', markerfacecolor='r', animated=True)
+        self.line, = ax.plot(x, y, marker='o', markerfacecolor='r', animated=True)
 
         self._ind = None  # the active vert
 
@@ -117,11 +117,11 @@ class PathInteractor(object):
         if self._ind is None: return
         if event.inaxes is None: return
         if event.button != 1: return
-        x,y = event.xdata, event.ydata
+        x, y = event.xdata, event.ydata
 
         vertices = self.pathpatch.get_path().vertices
 
-        vertices[self._ind] = x,y
+        vertices[self._ind] = x, y
         self.line.set_data(zip(*vertices))
 
         self.canvas.restore_region(self.background)
@@ -132,7 +132,7 @@ class PathInteractor(object):
 
 interactor = PathInteractor(patch)
 ax.set_title('drag vertices to update path')
-ax.set_xlim(-3,4)
-ax.set_ylim(-3,4)
+ax.set_xlim(-3, 4)
+ax.set_ylim(-3, 4)
 
 plt.show()

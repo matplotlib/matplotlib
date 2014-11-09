@@ -27,7 +27,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         sep in points.
         """
         self.size_bar = AuxTransformBox(transform)
-        self.size_bar.add_artist(Rectangle((0,0), size, 0, fc="none"))
+        self.size_bar.add_artist(Rectangle((0, 0), size, 0, fc="none"))
 
         self.txt_label = TextArea(label, minimumdescent=False)
 
@@ -50,7 +50,7 @@ class AnchoredEllipse(AnchoredOffsetbox):
         pad, borderpad in fraction of the legend font size (or prop)
         """
         self._box = AuxTransformBox(transform)
-        self.ellipse = Ellipse((0,0), width, height, angle)
+        self.ellipse = Ellipse((0, 0), width, height, angle)
         self._box.add_artist(self.ellipse)
 
         AnchoredOffsetbox.__init__(self, loc, pad=pad, borderpad=borderpad,
