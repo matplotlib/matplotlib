@@ -16,7 +16,7 @@ from numpy import ma
 from matplotlib import verbose
 from . import artist
 from .artist import Artist
-from .cbook import iterable, is_string_like, is_numlike, ls_mapperr
+from .cbook import iterable, is_string_like, is_numlike, ls_mapper_r
 from .colors import colorConverter
 from .path import Path
 from .transforms import Bbox, TransformedPath, IdentityTransform
@@ -977,8 +977,8 @@ class Line2D(Artist):
                 break
 
         if linestyle not in self._lineStyles:
-            if linestyle in ls_mapperr:
-                linestyle = ls_mapperr[linestyle]
+            if linestyle in ls_mapper_r:
+                linestyle = ls_mapper_r[linestyle]
             else:
                 verbose.report('Unrecognized line style %s, %s' %
                                (linestyle, type(linestyle)))
