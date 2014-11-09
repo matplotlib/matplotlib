@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, \
-     AnnotationBbox
+    AnnotationBbox
 from matplotlib.cbook import get_sample_data
 
 import numpy as np

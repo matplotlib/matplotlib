@@ -20,7 +20,7 @@ big_im_path = cbook.get_sample_data('necked_tensile_specimen.png')
 big_im = plt.imread(big_im_path)
 # Define small image
 small_im = np.array([[0.25, 0.75, 1.0, 0.75], [0.1, 0.65, 0.5, 0.4],
-    [0.6, 0.3, 0.0, 0.2], [0.7, 0.9, 0.4, 0.6]])
+                     [0.6, 0.3, 0.0, 0.2], [0.7, 0.9, 0.4, 0.6]])
 
 # Create a 2x2 table of plots
 fig = plt.figure(figsize=[8.0, 7.5])
@@ -33,7 +33,7 @@ ax.imshow(small_im, interpolation='none')
 ax = plt.subplot(2, 2, 4)
 ax.imshow(small_im, interpolation='nearest')
 plt.subplots_adjust(left=0.24, wspace=0.2, hspace=0.1,
-    bottom=0.05, top=0.86)
+                    bottom=0.05, top=0.86)
 
 # Label the rows and columns of the table
 fig.text(0.03, 0.645, 'Big Image\nScaled Down', ha='left')

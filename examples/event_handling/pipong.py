@@ -149,11 +149,11 @@ class Game(object):
         self.pads.append(Pad(pB, padBx, padBy, 'r'))
         self.pucks = []
         self.i = self.ax.annotate(instructions, (.5, 0.5),
-                     name='monospace',
-                     verticalalignment='center',
-                     horizontalalignment='center',
-                     multialignment='left',
-                     textcoords='axes fraction', animated=True)
+                                  name='monospace',
+                                  verticalalignment='center',
+                                  horizontalalignment='center',
+                                  multialignment='left',
+                                  textcoords='axes fraction', animated=True)
         self.canvas.mpl_connect('key_press_event', self.key_press)
 
     def draw(self, evt):

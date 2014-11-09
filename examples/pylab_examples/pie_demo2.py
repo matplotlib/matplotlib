@@ -45,8 +45,8 @@ autotexts[0].set_color('y')
 plt.subplot(the_grid[1, 1], aspect=1)
 
 patches, texts, autotexts = plt.pie(fracs, explode=explode,
-                                labels=labels, autopct='%.0f%%',
-                                shadow=False, radius=0.5)
+                                    labels=labels, autopct='%.0f%%',
+                                    shadow=False, radius=0.5)
                                 # Turn off shadow for tiny plot
                                 # with exploded slice.
 for t in texts:

@@ -49,7 +49,7 @@ class MenuItem(artist.Artist):
 
         if props.fontsize != hoverprops.fontsize:
             raise NotImplementedError(
-                        'support for different font sizes not implemented')
+                'support for different font sizes not implemented')
 
         self.labelwidth = x.shape[1]
         self.labelheight = x.shape[0]

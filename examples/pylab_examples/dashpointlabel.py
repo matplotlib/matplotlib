@@ -24,12 +24,12 @@ for i in range(len(DATA)):
     (dd, dl, r, dr, dp) = dash_style[i]
     #print('dashlen call %d' % dl)
     t = ax.text(x, y, str((x, y)), withdash=True,
-               dashdirection=dd,
-               dashlength=dl,
-               rotation=r,
-               dashrotation=dr,
-               dashpush=dp,
-               )
+                dashdirection=dd,
+                dashlength=dl,
+                rotation=r,
+                dashrotation=dr,
+                dashpush=dp,
+                )
 
 ax.set_xlim((0.0, 5.0))
 ax.set_ylim((0.0, 5.0))

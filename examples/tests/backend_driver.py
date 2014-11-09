@@ -415,9 +415,9 @@ def drive(backend, directories, python=['python'], switches=[]):
         for line in open(fullpath):
             line_lstrip = line.lstrip()
             if (line_lstrip.startswith('from __future__ import') or
-                line_lstrip.startswith('matplotlib.use') or
-                line_lstrip.startswith('savefig') or
-                line_lstrip.startswith('show')):
+                    line_lstrip.startswith('matplotlib.use') or
+                    line_lstrip.startswith('savefig') or
+                    line_lstrip.startswith('show')):
                 continue
             tmpfile.write(line)
         if backend in rcsetup.interactive_bk:

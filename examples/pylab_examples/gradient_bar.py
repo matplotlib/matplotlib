@@ -15,11 +15,11 @@ fig = figure()
 xmin, xmax = xlim = 0, 10
 ymin, ymax = ylim = 0, 1
 ax = fig.add_subplot(111, xlim=xlim, ylim=ylim,
-                    autoscale_on=False)
+                     autoscale_on=False)
 X = [[.6, .6], [.7, .7]]
 
 ax.imshow(X, interpolation='bicubic', cmap=cm.copper,
-         extent=(xmin, xmax, ymin, ymax), alpha=1)
+          extent=(xmin, xmax, ymin, ymax), alpha=1)
 
 N = 10
 x = arange(N) + 0.25

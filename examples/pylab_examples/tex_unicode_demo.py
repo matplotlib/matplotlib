@@ -10,7 +10,7 @@ mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.unicode'] = True
 from numpy import arange, cos, pi
 from matplotlib.pyplot import (figure, axes, plot, xlabel, ylabel, title,
-     grid, savefig, show)
+                               grid, savefig, show)
 
 figure(1, figsize=(6, 4))
 ax = axes([0.1, 0.1, 0.8, 0.7])

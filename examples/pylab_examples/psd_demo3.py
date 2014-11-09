@@ -18,7 +18,7 @@ plt.subplots_adjust(hspace=0.45, wspace=0.3)
 plt.subplot(1, 2, 1)
 
 plt.psd(xn, NFFT=301, Fs=fs, window=mlab.window_none, pad_to=1024,
-    scale_by_freq=True)
+        scale_by_freq=True)
 plt.title('Periodogram')
 plt.yticks(yticks)
 plt.xticks(xticks)
@@ -26,7 +26,7 @@ plt.grid(True)
 
 plt.subplot(1, 2, 2)
 plt.psd(xn, NFFT=150, Fs=fs, window=mlab.window_none, noverlap=75, pad_to=512,
-    scale_by_freq=True)
+        scale_by_freq=True)
 plt.title('Welch')
 plt.xticks(xticks)
 plt.yticks(yticks)
