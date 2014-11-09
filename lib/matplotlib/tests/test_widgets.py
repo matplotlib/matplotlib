@@ -50,7 +50,8 @@ def get_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
     """
     event = mock.Mock()
     event.button = button
-    event.x, event.y = ax.transData.transform(([xdata], [ydata]))
+    event.x, event.y = ax.transData.transform([(xdata, ydata),
+                                               (xdata, ydata)])[00]
     event.xdata, event.ydata = xdata, ydata
     event.inaxes = ax
     event.canvas = ax.figure.canvas
