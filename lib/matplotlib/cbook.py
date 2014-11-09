@@ -2134,7 +2134,10 @@ _linestyles = [('-', 'solid'),
                (':', 'dotted')]
 
 ls_mapper = dict(_linestyles)
-ls_mapperr = dict([(ls[1], ls[0]) for ls in _linestyles])
+# The ls_mapper maps short codes for line style to their full name used
+# by backends
+# The reverse mapper is for mapping full names to short ones
+ls_mapper_r = dict([(ls[1], ls[0]) for ls in _linestyles])
 
 
 def align_iterators(func, *iterables):
