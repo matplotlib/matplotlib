@@ -8,9 +8,9 @@ import matplotlib.mlab as mlab
 def smooth1d(x, window_len):
     # copied from http://www.scipy.org/Cookbook/SignalSmooth
 
-    s=np.r_[2*x[0]-x[window_len:1:-1], x, 2*x[-1]-x[-1:-window_len:-1]]
+    s = np.r_[2*x[0]-x[window_len:1:-1], x, 2*x[-1]-x[-1:-window_len:-1]]
     w = np.hanning(window_len)
-    y=np.convolve(w/w.sum(), s, mode='same')
+    y = np.convolve(w/w.sum(), s, mode='same')
     return y[window_len-1:-window_len+1]
 
 
@@ -68,9 +68,9 @@ class GaussianFilter(BaseFilter):
         self.sigma = sigma
         self.alpha = alpha
         if color is None:
-            self.color=(0, 0, 0)
+            self.color = (0, 0, 0)
         else:
-            self.color=color
+            self.color = color
 
     def get_pad(self, dpi):
         return int(self.sigma*3/72.*dpi)
@@ -135,9 +135,9 @@ class GrowFilter(BaseFilter):
     def __init__(self, pixels, color=None):
         self.pixels = pixels
         if color is None:
-            self.color=(1, 1, 1)
+            self.color = (1, 1, 1)
         else:
-            self.color=color
+            self.color = color
 
     def __call__(self, im, dpi):
         pad = self.pixels
@@ -292,7 +292,7 @@ def drop_shadow_patches(ax):
 
 def light_filter_pie(ax):
     fracs = [15, 30, 45, 10]
-    explode=(0, 0.05, 0, 0)
+    explode = (0, 0.05, 0, 0)
     pies = ax.pie(fracs, explode=explode)
     ax.patch.set_visible(True)
 

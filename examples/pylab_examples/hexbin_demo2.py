@@ -36,7 +36,7 @@ xmax = x.max()
 ymin = y.min()
 ymax = y.max()
 
-gridsize=30
+gridsize = 30
 
 plt.subplot(211)
 plt.hexbin(x, y, C=z, gridsize=gridsize, marginals=True, cmap=plt.cm.RdBu, 

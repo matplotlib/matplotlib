@@ -13,7 +13,7 @@ fig, ax = plt.subplots(figsize=(5, 5))
 for i in range(50):  # 50 frames
     plt.cla()
     plt.imshow(np.random.rand(5, 5), interpolation='nearest')
-    fname = '_tmp%03d.png'%i
+    fname = '_tmp%03d.png' % i
     print('Saving frame', fname)
     plt.savefig(fname)
     files.append(fname)

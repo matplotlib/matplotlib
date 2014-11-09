@@ -17,7 +17,7 @@ class IndexTracker(object):
 
     def onscroll(self, event):
         print("%s %s" % (event.button, event.step))
-        if event.button=='up':
+        if event.button == 'up':
             self.ind = numpy.clip(self.ind+1, 0, self.slices-1)
         else:
             self.ind = numpy.clip(self.ind-1, 0, self.slices-1)
@@ -26,7 +26,7 @@ class IndexTracker(object):
 
     def update(self):
         self.im.set_data(self.X[:, :, self.ind])
-        ax.set_ylabel('slice %s'%self.ind)
+        ax.set_ylabel('slice %s' % self.ind)
         self.im.axes.figure.canvas.draw()
 
 

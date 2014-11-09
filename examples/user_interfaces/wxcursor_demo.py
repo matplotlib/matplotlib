@@ -54,7 +54,7 @@ class CanvasFrame(wx.Frame):
         if event.inaxes:
             x, y = event.xdata, event.ydata
             self.statusBar.SetStatusText(("x= " + str(x) +
-                                           "  y=" +str(y)),
+                                           "  y=" + str(y)),
                                            0)
 
 
@@ -66,6 +66,6 @@ class App(wx.App):
         frame.Show(True)
         return True
 
-if __name__=='__main__':
+if __name__ == '__main__':
     app = App(0)
     app.MainLoop()

@@ -19,7 +19,7 @@ class PointBrowser(object):
     def onpress(self, event):
         if self.lastind is None: return
         if event.key not in ('n', 'p'): return
-        if event.key=='n': inc = 1
+        if event.key == 'n': inc = 1
         else: inc = -1
 
         self.lastind += inc
@@ -28,7 +28,7 @@ class PointBrowser(object):
 
     def onpick(self, event):
 
-        if event.artist!=line: return True
+        if event.artist != line: return True
 
         N = len(event.ind)
         if not N: return True
@@ -52,13 +52,13 @@ class PointBrowser(object):
         ax2.cla()
         ax2.plot(X[dataind])
 
-        ax2.text(0.05, 0.9, 'mu=%1.3f\nsigma=%1.3f'%(xs[dataind], ys[dataind]),
+        ax2.text(0.05, 0.9, 'mu=%1.3f\nsigma=%1.3f' % (xs[dataind], ys[dataind]),
                  transform=ax2.transAxes, va='top')
         ax2.set_ylim(-0.5, 1.5)
         self.selected.set_visible(True)
         self.selected.set_data(xs[dataind], ys[dataind])
 
-        self.text.set_text('selected: %d'%dataind)
+        self.text.set_text('selected: %d' % dataind)
         fig.canvas.draw()
 
 

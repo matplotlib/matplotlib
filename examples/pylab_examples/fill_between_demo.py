@@ -24,15 +24,15 @@ ax3.set_xlabel('x')
 # because of edge effects over multiple contiguous regions.
 fig, (ax, ax1) = plt.subplots(2, 1, sharex=True)
 ax.plot(x, y1, x, y2, color='black')
-ax.fill_between(x, y1, y2, where=y2>=y1, facecolor='green', interpolate=True)
-ax.fill_between(x, y1, y2, where=y2<=y1, facecolor='red', interpolate=True)
+ax.fill_between(x, y1, y2, where=y2 >= y1, facecolor='green', interpolate=True)
+ax.fill_between(x, y1, y2, where=y2 <= y1, facecolor='red', interpolate=True)
 ax.set_title('fill between where')
 
 # Test support for masked arrays.
 y2 = np.ma.masked_greater(y2, 1.0)
 ax1.plot(x, y1, x, y2, color='black')
-ax1.fill_between(x, y1, y2, where=y2>=y1, facecolor='green', interpolate=True)
-ax1.fill_between(x, y1, y2, where=y2<=y1, facecolor='red', interpolate=True)
+ax1.fill_between(x, y1, y2, where=y2 >= y1, facecolor='green', interpolate=True)
+ax1.fill_between(x, y1, y2, where=y2 <= y1, facecolor='red', interpolate=True)
 ax1.set_title('Now regions with y2>1 are masked')
 
 # This example illustrates a problem; because of the data
@@ -51,8 +51,8 @@ trans = mtransforms.blended_transform_factory(ax.transData, ax.transAxes)
 theta = 0.9
 ax.axhline(theta, color='green', lw=2, alpha=0.5)
 ax.axhline(-theta, color='red', lw=2, alpha=0.5)
-ax.fill_between(x, 0, 1, where=y>theta, facecolor='green', alpha=0.5, transform=trans)
-ax.fill_between(x, 0, 1, where=y<-theta, facecolor='red', alpha=0.5, transform=trans)
+ax.fill_between(x, 0, 1, where=y > theta, facecolor='green', alpha=0.5, transform=trans)
+ax.fill_between(x, 0, 1, where=y < -theta, facecolor='red', alpha=0.5, transform=trans)
 
 
 plt.show()

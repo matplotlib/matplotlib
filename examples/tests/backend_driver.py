@@ -330,7 +330,7 @@ def report_missing(dir, flist):
     missing = list(pyfiles-flist-exclude)
     missing.sort()
     if missing:
-        print('%s files not tested: %s'%(dir, ', '.join(missing)))
+        print('%s files not tested: %s' % (dir, ', '.join(missing)))
 
 
 def report_all_missing(directories):
@@ -386,7 +386,7 @@ def drive(backend, directories, python=['python'], switches=[]):
         fpath, fname = os.path.split(fullpath)
 
         if fname in exclude:
-            print('\tSkipping %s, known to fail on backend: %s'%backend)
+            print('\tSkipping %s, known to fail on backend: %s' % backend)
             continue
 
         basename, ext = os.path.splitext(fname)
@@ -492,7 +492,7 @@ if __name__ == '__main__':
         for d in localdirs:
             if d.lower() not in all_backends_set:
                 continue
-            print('removing %s'%d)
+            print('removing %s' % d)
             for fname in glob.glob(os.path.join(d, '*')):
                 os.remove(fname)
             os.rmdir(d)

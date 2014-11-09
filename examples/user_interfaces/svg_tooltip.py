@@ -59,11 +59,11 @@ rect_tip = ax.annotate('This is a green rectangle.',
 
 # Set id for the patches    
 for i, t in enumerate(ax.patches):
-    t.set_gid('patch_%d'%i)
+    t.set_gid('patch_%d' % i)
 
 # Set id for the annotations
 for i, t in enumerate(ax.texts):
-    t.set_gid('tooltip_%d'%i)
+    t.set_gid('tooltip_%d' % i)
 
 
 # Save the figure in a fake file object
@@ -82,12 +82,12 @@ tree.set('onload', 'init(evt)')
 
 # Hide the tooltips
 for i, t in enumerate(ax.texts):
-    el = xmlid['tooltip_%d'%i]
+    el = xmlid['tooltip_%d' % i]
     el.set('visibility', 'hidden')
 
 # Assign onmouseover and onmouseout callbacks to patches.        
 for i, t in enumerate(ax.patches):
-    el = xmlid['patch_%d'%i]
+    el = xmlid['patch_%d' % i]
     el.set('onmouseover', "ShowTooltip(this)")
     el.set('onmouseout', "HideTooltip(this)")
 

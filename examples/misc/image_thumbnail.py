@@ -10,12 +10,12 @@ import sys, os, glob
 import matplotlib.image as image
 
 
-if len(sys.argv)!=2:
-    print('Usage: python %s IMAGEDIR'%__file__)
+if len(sys.argv) != 2:
+    print('Usage: python %s IMAGEDIR' % __file__)
     raise SystemExit
 indir = sys.argv[1]
 if not os.path.isdir(indir):
-    print('Could not find input directory "%s"'%indir)
+    print('Could not find input directory "%s"' % indir)
     raise SystemExit
 
 outdir = 'thumbs'
@@ -26,4 +26,4 @@ for fname in glob.glob(os.path.join(indir, '*.png')):
     basedir, basename = os.path.split(fname)
     outfile = os.path.join(outdir, basename)
     fig = image.thumbnail(fname, outfile, scale=0.15)
-    print('saved thumbnail of %s to %s'%(fname, outfile))
+    print('saved thumbnail of %s to %s' % (fname, outfile))

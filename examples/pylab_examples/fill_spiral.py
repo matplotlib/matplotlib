@@ -3,8 +3,8 @@
 from pylab import *
 
 theta = arange(0, 8*pi, 0.1)
-a=1
-b=.2
+a = 1
+b = .2
 
 for dt in arange(0, 2*pi, pi/2.0):
 
@@ -19,6 +19,6 @@ for dt in arange(0, 2*pi, pi/2.0):
     xf = concatenate((x, x2[::-1]))
     yf = concatenate((y, y2[::-1]))
 
-    p1=fill(xf, yf)
+    p1 = fill(xf, yf)
 
 show()

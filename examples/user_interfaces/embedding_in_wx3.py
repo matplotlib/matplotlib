@@ -56,7 +56,7 @@ class PlotPanel(wx.Panel):
         # Now put all into a sizer
         sizer = wx.BoxSizer(wx.VERTICAL)
         # This way of adding to sizer allows resizing
-        sizer.Add(self.canvas, 1, wx.LEFT|wx.TOP|wx.GROW)
+        sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
         # Best to allow the toolbar to resize!
         sizer.Add(self.toolbar, 0, wx.GROW)
         self.SetSizer(sizer)
