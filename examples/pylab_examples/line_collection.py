@@ -35,7 +35,7 @@ line_segments = LineCollection(segs,
                                colors=[colorConverter.to_rgba(i)
                                        for i in ('b', 'g', 'r', 'c',
                                                  'm', 'y', 'k')],
-                               linestyle = 'solid')
+                               linestyle='solid')
 ax.add_collection(line_segments)
 ax.set_title('Line collection with masked arrays')
 plt.show()
