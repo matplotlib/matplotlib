@@ -54,8 +54,8 @@ labels = ['Rabbits', 'Frogs']
 H = plt.hist([r, r1], label=labels)
 containers = H[-1]
 leg = plt.legend(frameon=False)
-plt.title("""From a web browser, click on the legend
-marker to toggle the corresponding histogram.""")
+plt.title("From a web browser, click on the legend\n"
+          "marker to toggle the corresponding histogram.")
 
 
 # --- Add ids to the svg objects we'll modify
