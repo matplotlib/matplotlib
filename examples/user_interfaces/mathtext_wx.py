@@ -30,10 +30,10 @@ def mathtext_to_wxbitmap(s):
 ############################################################
 
 functions = [
-    (r'$\sin(2 \pi x)$',      lambda x: sin(2*pi*x)),
-    (r'$\frac{4}{3}\pi x^3$', lambda x: (4.0 / 3.0) * pi * x**3),
-    (r'$\cos(2 \pi x)$',      lambda x: cos(2*pi*x)),
-    (r'$\log(x)$',            lambda x: log(x))
+    (r'$\sin(2 \pi x)$', lambda x: sin(2*pi*x)),
+    (r'$\frac{4}{3}\pi x^3$', lambda x: (4.0/3.0)*pi*x**3),
+    (r'$\cos(2 \pi x)$', lambda x: cos(2*pi*x)),
+    (r'$\log(x)$', lambda x: log(x))
 ]
 
 

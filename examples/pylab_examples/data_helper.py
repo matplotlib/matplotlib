@@ -38,6 +38,7 @@ def get_daily_data():
     """
     class C:
         pass
+
     def get_ticker(ticker):
         vals = []
 
