@@ -33,7 +33,8 @@ im2.set_visible(False)
 
 def toggle_images(event):
     'toggle the visible state of the two images'
-    if event.key != 't': return
+    if event.key != 't':
+        return
     b1 = im1.get_visible()
     b2 = im2.get_visible()
     im1.set_visible(not b1)

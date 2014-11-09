@@ -54,7 +54,8 @@ while not happy:
 
     # Get rid of fill
     if not happy:
-        for p in ph: p.remove()
+        for p in ph:
+            p.remove()
 
 ##################################################
 # Now contour according to distance from triangle
@@ -89,7 +90,8 @@ while not happy:
     pts = np.asarray(plt.ginput(2, timeout=-1))
 
     happy = len(pts) < 2
-    if happy: break
+    if happy:
+        break
 
     pts = np.sort(pts, axis=0)
     plt.axis(pts.T.ravel())

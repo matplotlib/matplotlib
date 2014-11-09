@@ -24,7 +24,8 @@ class Cursor(object):
         self.txt = ax.text(0.7, 0.9, '', transform=ax.transAxes)
 
     def mouse_move(self, event):
-        if not event.inaxes: return
+        if not event.inaxes:
+            return
 
         x, y = event.xdata, event.ydata
         # update the line positions
@@ -52,7 +53,8 @@ class SnaptoCursor(object):
 
     def mouse_move(self, event):
 
-        if not event.inaxes: return
+        if not event.inaxes:
+            return
 
         x, y = event.xdata, event.ydata
 

@@ -176,10 +176,14 @@ class Patch(Artist, traits.HasTraits):
                  ):
         Artist.__init__(self)
 
-        if edgecolor is None: edgecolor = rc.patch.edgecolor
-        if facecolor is None: facecolor = rc.patch.facecolor
-        if linewidth is None: linewidth = rc.patch.linewidth
-        if antialiased is None: antialiased = rc.patch.antialiased
+        if edgecolor is None:
+            edgecolor = rc.patch.edgecolor
+        if facecolor is None:
+            facecolor = rc.patch.facecolor
+        if linewidth is None:
+            linewidth = rc.patch.linewidth
+        if antialiased is None:
+            antialiased = rc.patch.antialiased
 
         self.edgecolor = edgecolor
         self.facecolor = facecolor
@@ -196,8 +200,10 @@ p.facecolor = 0.25
 p.fill = 'f'
 print('p.facecolor', type(p.facecolor), p.facecolor)
 print('p.fill', type(p.fill), p.fill)
-if p.fill_: print('fill')
-else: print('no fill')
+if p.fill_:
+    print('fill')
+else:
+    print('no fill')
 if doprint:
     print()
     print('Patch')

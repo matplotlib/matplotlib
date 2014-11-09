@@ -16,7 +16,8 @@ class Foo(object):
         self._val = val * unit
 
     def value(self, unit):
-        if unit is None: unit = self.unit
+        if unit is None:
+            unit = self.unit
         return self._val / unit
 
 
