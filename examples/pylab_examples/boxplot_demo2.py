@@ -24,7 +24,7 @@ tria = np.random.triangular(2, 9, 11, N)
 
 # Generate some random indices that we'll use to resample the original data
 # arrays. For code brevity, just use the same random indices for each array
-bootstrapIndices = np.random.random_integers(0, N-1, N)
+bootstrapIndices = np.random.random_integers(0, N - 1, N)
 normBoot = norm[bootstrapIndices]
 expoBoot = expo[bootstrapIndices]
 gumbBoot = gumb[bootstrapIndices]
@@ -85,7 +85,7 @@ for i in range(numBoxes):
              color='w', marker='*', markeredgecolor='k')
 
 # Set the axes ranges and axes labels
-ax1.set_xlim(0.5, numBoxes+0.5)
+ax1.set_xlim(0.5, numBoxes + 0.5)
 top = 40
 bottom = -5
 ax1.set_ylim(bottom, top)
@@ -96,17 +96,17 @@ plt.setp(xtickNames, rotation=45, fontsize=8)
 # hard to compare differences in medians across the samples. Add upper
 # X-axis tick labels with the sample medians to aid in comparison
 # (just use two decimal places of precision)
-pos = np.arange(numBoxes)+1
+pos = np.arange(numBoxes) + 1
 upperLabels = [str(np.round(s, 2)) for s in medians]
 weights = ['bold', 'semibold']
 for tick, label in zip(range(numBoxes), ax1.get_xticklabels()):
     k = tick % 2
-    ax1.text(pos[tick], top-(top*0.05), upperLabels[tick],
+    ax1.text(pos[tick], top - (top*0.05), upperLabels[tick],
          horizontalalignment='center', size='x-small', weight=weights[k],
          color=boxColors[k])
 
 # Finally, add a basic legend
-plt.figtext(0.80, 0.08, str(N) + ' Random Numbers' ,
+plt.figtext(0.80, 0.08, str(N) + ' Random Numbers',
            backgroundcolor=boxColors[0], color='black', weight='roman',
            size='x-small')
 plt.figtext(0.80, 0.045, 'IID Bootstrap Resample',

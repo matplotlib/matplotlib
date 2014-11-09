@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 styles = mpatches.ArrowStyle.get_styles()
 
 ncol = 2
-nrow = (len(styles)+1) // ncol
-figheight = (nrow+0.5)
+nrow = (len(styles) + 1) // ncol
+figheight = (nrow + 0.5)
 fig1 = plt.figure(1, (4.*ncol/1.5, figheight/1.5))
 fontsize = 0.2 * 70
 
@@ -29,7 +29,7 @@ for i, (stylename, styleclass) in enumerate(sorted(styles.items())):
     ax.add_patch(p)
 
     ax.annotate(to_texstring(stylename), (x, y),
-                (x-1.2, y),
+                (x - 1.2, y),
                 #xycoords="figure fraction", textcoords="figure fraction",
                 ha="right", va="center",
                 size=fontsize,

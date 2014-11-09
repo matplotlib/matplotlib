@@ -19,17 +19,17 @@ flexible_true_trait = traits.Trait(
 flexible_false_trait = traits.Trait(False, flexible_true_trait)
 
 colors = {
-   'c' : '#00bfbf',
-   'b' : '#0000ff',
-   'g' : '#008000',
-   'k' : '#000000',
-   'm' : '#bf00bf',
-   'r' : '#ff0000',
-   'w' : '#ffffff',
-   'y' : '#bfbf00',
-   'gold'                 : '#FFD700',
-   'peachpuff'            : '#FFDAB9',
-   'navajowhite'          : '#FFDEAD',
+   'c': '#00bfbf',
+   'b': '#0000ff',
+   'g': '#008000',
+   'k': '#000000',
+   'm': '#bf00bf',
+   'r': '#ff0000',
+   'w': '#ffffff',
+   'y': '#bfbf00',
+   'gold':        '#FFD700',
+   'peachpuff':   '#FFDAB9',
+   'navajowhite': '#FFDEAD',
    }
 
 

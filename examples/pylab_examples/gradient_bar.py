@@ -6,7 +6,7 @@ from numpy.random import rand
 def gbar(ax, x, y, width=0.5, bottom=0):
     X = [[.6, .6], [.7, .7]]
     for left, top in zip(x, y):
-        right = left+width
+        right = left + width
         ax.imshow(X, interpolation='bicubic', cmap=cm.Blues,
                   extent=(left, right, bottom, top), alpha=1)
 
@@ -22,7 +22,7 @@ ax.imshow(X, interpolation='bicubic', cmap=cm.copper,
          extent=(xmin, xmax, ymin, ymax), alpha=1)
 
 N = 10
-x = arange(N)+0.25
+x = arange(N) + 0.25
 y = rand(N)
 gbar(ax, x, y, width=0.7)
 ax.set_aspect('auto')

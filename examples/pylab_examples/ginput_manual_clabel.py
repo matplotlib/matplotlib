@@ -66,7 +66,7 @@ while not happy:
 def f(x, y, pts):
     z = np.zeros_like(x)
     for p in pts:
-        z = z + 1/(np.sqrt((x-p[0])**2+(y-p[1])**2))
+        z = z + 1/(np.sqrt((x - p[0])**2 + (y - p[1])**2))
     return 1/z
 
 X, Y = np.meshgrid(np.linspace(-1, 1, 51), np.linspace(-1, 1, 51))

@@ -29,7 +29,7 @@ rankings = np.round(np.random.uniform(0, 1, numTests)*100, 0)
 fig, ax1 = plt.subplots(figsize=(9, 7))
 plt.subplots_adjust(left=0.115, right=0.88)
 fig.canvas.set_window_title('Eldorado K-8 Fitness Chart')
-pos = np.arange(numTests)+0.5    # Center bars on the Y-axis ticks
+pos = np.arange(numTests) + 0.5  # Center bars on the Y-axis ticks
 rects = ax1.barh(pos, rankings, align='center', height=0.5, color='m')
 
 ax1.axis([0, 100, 0, 5])
@@ -64,7 +64,7 @@ def withnew(i, scr):
         return scr
 
 scoreLabels = [withnew(i, scr) for i, scr in enumerate(scores)]
-scoreLabels = [i+j for i, j in zip(scoreLabels, testMeta)]
+scoreLabels = [i + j for i, j in zip(scoreLabels, testMeta)]
 # set the tick locations
 ax2.set_yticks(pos)
 # set the tick labels
@@ -107,7 +107,7 @@ for rect in rects:
         align = 'right'
 
     # Center the text vertically in the bar
-    yloc = rect.get_y()+rect.get_height()/2.0
+    yloc = rect.get_y() + rect.get_height()/2.0
     ax1.text(xloc, yloc, rankStr, horizontalalignment=align,
             verticalalignment='center', color=clr, weight='bold')
 

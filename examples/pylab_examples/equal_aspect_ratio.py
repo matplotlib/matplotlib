@@ -5,7 +5,7 @@ Show how to make a plot that has equal aspect ratio
 """
 from pylab import *
 
-t = arange(0.0, 1.0+0.01, 0.01)
+t = arange(0.0, 1.0 + 0.01, 0.01)
 s = cos(2*2*pi*t)
 plot(t, s, '-', lw=2)
 

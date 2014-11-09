@@ -71,7 +71,8 @@ while i < len(parts):
     code = parts[i]
     path_code, npoints = code_map[code]
     codes.extend([path_code] * npoints)
-    vertices.extend([[float(x) for x in y.split(',')] for y in parts[i+1:i+npoints+1]])
+    vertices.extend([[float(x) for x in y.split(',')] for y in
+                     parts[i + 1:i + npoints + 1]])
     i += npoints + 1
 vertices = np.array(vertices, np.float)
 vertices[:, 1] -= 160

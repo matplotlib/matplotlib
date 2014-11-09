@@ -30,8 +30,8 @@ axzoom.scatter(x, y, s, c)
 def onpress(event):
     if event.button != 1: return
     x, y = event.xdata, event.ydata
-    axzoom.set_xlim(x-0.1, x+0.1)
-    axzoom.set_ylim(y-0.1, y+0.1)
+    axzoom.set_xlim(x - 0.1, x + 0.1)
+    axzoom.set_ylim(y - 0.1, y + 0.1)
     figzoom.canvas.draw()
 
 figsrc.canvas.mpl_connect('button_press_event', onpress)

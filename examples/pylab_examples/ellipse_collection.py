@@ -22,7 +22,7 @@ ec = EllipseCollection(
                         units='x',
                         offsets=XY,
                         transOffset=ax.transData)
-ec.set_array((X+Y).ravel())
+ec.set_array((X + Y).ravel())
 ax.add_collection(ec)
 ax.autoscale_view()
 ax.set_xlabel('X')
