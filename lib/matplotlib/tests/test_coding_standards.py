@@ -272,29 +272,10 @@ def test_pep8_conformance_examples():
                                "of the source tree")
 
     exdir = os.path.join(mpldir, 'examples')
-    blacklist = ['color',
-                 'event_handling',
-                 'images_contours_and_fields',
-                 'lines_bars_and_markers',
-                 'misc',
-                 'mplot3d',
-                 'pie_and_polar_charts',
-                 'pylab_examples',
-                 'shapes_and_collections',
-                 'showcase',
-                 'specialty_plots',
-                 'statistics',
-                 'style_sheets',
-                 'subplots_axes_and_figures',
-                 'tests',
-                 'text_labels_and_annotations',
-                 'ticks_and_spines',
-                 'units',
-                 'user_interfaces',
-                 'widgets']
+    blacklist = ()
     assert_pep8_conformance(dirname=exdir,
                             extra_exclude_directories=blacklist,
-                            expected_bad_files=[])
+                            expected_bad_files=())
 
 
 if __name__ == '__main__':
