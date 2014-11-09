@@ -6,7 +6,7 @@ import os
 import shutil
 import sys
 import re
-
+import argparse
 
 def copy_if_out_of_date(original, derived):
     if (not os.path.exists(derived) or
@@ -174,17 +174,23 @@ if sys.platform == 'win32' and len(symlink_warnings) > 0:
             'as spurious changes in your \'git status\':\n\t{}' 
                     .format('\n\t'.join(symlink_warnings)))
 
-if len(sys.argv)>1:
-    if '--small' in sys.argv[1:]:
-        small_docs = True
-        sys.argv.remove('--small')
-    for arg in sys.argv[1:]:
-        func = funcd.get(arg)
+parser = argparse.ArgumentParser(description='Build matplotlib docs')
+parser.add_argument("cmd", help=("Command to execute. Can be multiple. "
+                    "Valid options are: %s" % (funcd.keys())), nargs='*')
+parser.add_argument("--small",
+                    help="Smaller docs with only low res png figures",
+                    action="store_true")
+args = parser.parse_args()
+if args.small:
+    small_docs = True
+
+if args.cmd:
+    for command in args.cmd:
+        func = funcd.get(command)
         if func is None:
-            raise SystemExit('Do not know how to handle %s; valid args are %s'%(
-                    arg, funcd.keys()))
+            raise SystemExit(('Do not know how to handle %s; valid commands'
+                              ' are %s' % (command, funcd.keys())))
         func()
 else:
-    small_docs = False
     all()
 os.chdir(current_dir)
