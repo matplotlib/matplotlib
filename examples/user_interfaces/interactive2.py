@@ -11,7 +11,8 @@ import gtk
 import gtk.gdk
 
 import code
-import os, sys
+import os
+import sys
 import pango
 
 import __builtin__

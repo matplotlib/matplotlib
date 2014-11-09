@@ -5,7 +5,9 @@
 
 from __future__ import print_function
 
-import sys, os, re
+import sys
+import os
+import re
 import traits.api as traits
 from matplotlib.cbook import is_string_like
 from matplotlib.artist import Artist

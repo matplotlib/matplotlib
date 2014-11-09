@@ -6,7 +6,9 @@ image types transparently if your have PIL installed
 
 from __future__ import print_function
 # build thumbnails of all images in a directory
-import sys, os, glob
+import sys
+import os
+import glob
 import matplotlib.image as image
 
 
