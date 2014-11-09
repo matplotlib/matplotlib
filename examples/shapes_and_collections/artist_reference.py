@@ -8,7 +8,8 @@ available at http://matplotlib.org/api/artist_api.html.
 Copyright (c) 2010, Bartosz Telenczuk
 BSD License
 """
-import matplotlib.pyplot as plt; plt.rcdefaults()
+import matplotlib.pyplot as plt
+plt.rcdefaults()
 
 import numpy as np
 import matplotlib.pyplot as plt

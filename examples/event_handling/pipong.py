@@ -82,12 +82,12 @@ class Puck(object):
         # probably cleaner with something like...if not self.field.contains(self.x, self.y):
         if self.x < 0 + fudge:
             #print("player A loses")
-            pads[1].score += 1;
+            pads[1].score += 1
             self._reset(pads[0])
             return True
         if self.x > 7 - fudge:
             #print("player B loses")
-            pads[0].score += 1;
+            pads[0].score += 1
             self._reset(pads[1])
             return True
         if self.y < -1 + fudge or self.y > 1 - fudge:
