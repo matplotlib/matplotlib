@@ -17,10 +17,14 @@ class PointBrowser(object):
                                   color='yellow', visible=False)
 
     def onpress(self, event):
-        if self.lastind is None: return
-        if event.key not in ('n', 'p'): return
-        if event.key == 'n': inc = 1
-        else: inc = -1
+        if self.lastind is None:
+            return
+        if event.key not in ('n', 'p'):
+            return
+        if event.key == 'n':
+            inc = 1
+        else:
+            inc = -1
 
         self.lastind += inc
         self.lastind = np.clip(self.lastind, 0, len(xs) - 1)
@@ -28,10 +32,12 @@ class PointBrowser(object):
 
     def onpick(self, event):
 
-        if event.artist != line: return True
+        if event.artist != line:
+            return True
 
         N = len(event.ind)
-        if not N: return True
+        if not N:
+            return True
 
         # the click locations
         x = event.mouseevent.xdata
@@ -45,7 +51,8 @@ class PointBrowser(object):
         self.update()
 
     def update(self):
-        if self.lastind is None: return
+        if self.lastind is None:
+            return
 
         dataind = self.lastind
 

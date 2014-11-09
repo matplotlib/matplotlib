@@ -81,24 +81,31 @@ class PolygonInteractor(object):
 
     def button_press_callback(self, event):
         'whenever a mouse button is pressed'
-        if not self.showverts: return
-        if event.inaxes == None: return
-        if event.button != 1: return
+        if not self.showverts:
+            return
+        if event.inaxes == None:
+            return
+        if event.button != 1:
+            return
         self._ind = self.get_ind_under_point(event)
 
     def button_release_callback(self, event):
         'whenever a mouse button is released'
-        if not self.showverts: return
-        if event.button != 1: return
+        if not self.showverts:
+            return
+        if event.button != 1:
+            return
         self._ind = None
 
     def key_press_callback(self, event):
         'whenever a key is pressed'
-        if not event.inaxes: return
+        if not event.inaxes:
+            return
         if event.key == 't':
             self.showverts = not self.showverts
             self.line.set_visible(self.showverts)
-            if not self.showverts: self._ind = None
+            if not self.showverts:
+                self._ind = None
         elif event.key == 'd':
             ind = self.get_ind_under_point(event)
             if ind is not None:
@@ -123,10 +130,14 @@ class PolygonInteractor(object):
 
     def motion_notify_callback(self, event):
         'on mouse movement'
-        if not self.showverts: return
-        if self._ind is None: return
-        if event.inaxes is None: return
-        if event.button != 1: return
+        if not self.showverts:
+            return
+        if self._ind is None:
+            return
+        if event.inaxes is None:
+            return
+        if event.button != 1:
+            return
         x, y = event.xdata, event.ydata
 
         self.poly.xy[self._ind] = x, y

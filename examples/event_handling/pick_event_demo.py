@@ -116,7 +116,8 @@ if 1:  # picking with a custom hit test function
         data coords and attach some extra attributes, pickx and picky
         which are the data points that were picked
         """
-        if mouseevent.xdata is None: return False, dict()
+        if mouseevent.xdata is None:
+            return False, dict()
         xdata = line.get_xdata()
         ydata = line.get_ydata()
         maxd = 0.05

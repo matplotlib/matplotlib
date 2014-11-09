@@ -225,7 +225,8 @@ class MatplotLibInterpreter(GTKInterpreter):
             else:
                 print('*** Executing file <%s>:' % fname)
                 for line in inFile:
-                    if line.lstrip().find('show()') == 0: continue
+                    if line.lstrip().find('show()') == 0:
+                        continue
                     print('>>', line)
                     push(line)
                 inFile.close()

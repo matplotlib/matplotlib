@@ -18,10 +18,12 @@ line, = ax.plot(xs, ys, 'o', picker=5)  # 5 points tolerance
 
 def onpick(event):
 
-    if event.artist != line: return True
+    if event.artist != line:
+        return True
 
     N = len(event.ind)
-    if not N: return True
+    if not N:
+        return True
 
     figi = plt.figure()
     for subplotnum, dataind in enumerate(event.ind):
