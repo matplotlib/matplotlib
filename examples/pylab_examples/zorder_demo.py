@@ -21,7 +21,8 @@ The second figure shows how to control the zorder of individual lines.
 """
 
 from pylab import *
-x = rand(20); y = rand(20)
+x = rand(20)
+y = rand(20)
 
 subplot(211)
 plot(x, y, 'r', lw=3)

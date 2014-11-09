@@ -17,7 +17,8 @@ ticker = 'SPY'
 fh = finance.fetch_historical_yahoo(ticker, startdate, enddate)
 # a numpy record array with fields: date, open, high, low, close, volume, adj_close)
 
-r = mlab.csv2rec(fh); fh.close()
+r = mlab.csv2rec(fh)
+fh.close()
 r.sort()
 
 
