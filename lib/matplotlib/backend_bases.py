@@ -1974,6 +1974,7 @@ class FigureCanvasBase(object):
         s = 'idle_event'
         event = IdleEvent(s, self, guiEvent=guiEvent)
         self.callbacks.process(s, event)
+        return True
 
     def grab_mouse(self, ax):
         """
