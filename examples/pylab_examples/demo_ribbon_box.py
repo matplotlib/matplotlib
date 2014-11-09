@@ -24,7 +24,7 @@ class RibbonBox(object):
                       self.original_image.dtype)
 
         im[:, :, :3] = self.b_and_h[:, :, np.newaxis]
-        im[:, :, :3] -= self.color[:, :, np.newaxis]*(1.-np.array(rgb))
+        im[:, :, :3] -= self.color[:, :, np.newaxis]*(1. - np.array(rgb))
         im[:, :, 3] = self.alpha
 
         self.im = im
@@ -40,8 +40,8 @@ class RibbonBox(object):
         stretched_image[:, :, :] = cut
         stretched_image[:self.cut_location, :, :] = \
                 self.im[:self.cut_location, :, :]
-        stretched_image[-(ny-self.cut_location):, :, :] = \
-                self.im[-(ny-self.cut_location):, :, :]
+        stretched_image[-(ny - self.cut_location):, :, :] = \
+                self.im[-(ny - self.cut_location):, :, :]
 
         self._cached_im = stretched_image
         return stretched_image
@@ -108,7 +108,7 @@ if 1:
     ax.xaxis.set_major_formatter(fmt)
 
     for year, h, bc in zip(years, heights, box_colors):
-        bbox0 = Bbox.from_extents(year-0.4, 0., year+0.4, h)
+        bbox0 = Bbox.from_extents(year - 0.4, 0., year + 0.4, h)
         bbox = TransformedBbox(bbox0, ax.transData)
         rb_patch = RibbonBoxImage(bbox, bc, interpolation="bicubic")
 
@@ -127,7 +127,7 @@ if 1:
     patch_gradient.set_array(gradient)
     ax.add_artist(patch_gradient)
 
-    ax.set_xlim(years[0]-0.5, years[-1]+0.5)
+    ax.set_xlim(years[0] - 0.5, years[-1] + 0.5)
     ax.set_ylim(0, 10000)
 
     fig.savefig('ribbon_box.png')

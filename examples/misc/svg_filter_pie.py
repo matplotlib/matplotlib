@@ -36,7 +36,7 @@ for w in pies[0]:
 for w in pies[0]:
     # create shadow patch
     s = Shadow(w, -0.01, -0.01)
-    s.set_gid(w.get_gid()+"_shadow")
+    s.set_gid(w.get_gid() + "_shadow")
     s.set_zorder(w.get_zorder() - 0.1)
     ax.add_patch(s)
 

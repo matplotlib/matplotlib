@@ -23,7 +23,7 @@ class PointBrowser(object):
         else: inc = -1
 
         self.lastind += inc
-        self.lastind = np.clip(self.lastind, 0, len(xs)-1)
+        self.lastind = np.clip(self.lastind, 0, len(xs) - 1)
         self.update()
 
     def onpick(self, event):
@@ -37,7 +37,7 @@ class PointBrowser(object):
         x = event.mouseevent.xdata
         y = event.mouseevent.ydata
 
-        distances = np.hypot(x-xs[event.ind], y-ys[event.ind])
+        distances = np.hypot(x - xs[event.ind], y - ys[event.ind])
         indmin = distances.argmin()
         dataind = event.ind[indmin]
 

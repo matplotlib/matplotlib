@@ -14,7 +14,7 @@ from pylab import *
 rates_to_bases = {'r1': 'AT', 'r2': 'TA', 'r3': 'GA', 'r4': 'AG', 'r5': 'CA', 'r6': 'AC', \
             'r7': 'GT', 'r8': 'TG', 'r9': 'CT', 'r10': 'TC', 'r11': 'GC', 'r12': 'CG'}
 numbered_bases_to_rates = dict([(v, k) for k, v in rates_to_bases.items()])
-lettered_bases_to_rates = dict([(v, 'r'+v) for k, v in rates_to_bases.items()])
+lettered_bases_to_rates = dict([(v, 'r' + v) for k, v in rates_to_bases.items()])
 
 
 def add_dicts(d1, d2):
@@ -127,18 +127,18 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
 
     # tuple of x, y for start position
     positions = {\
-        'AT': (arrow_h_offset, 1+arrow_sep),
-        'TA': (1-arrow_h_offset, 1-arrow_sep),
+        'AT': (arrow_h_offset, 1 + arrow_sep),
+        'TA': (1 - arrow_h_offset, 1 - arrow_sep),
         'GA': (-arrow_sep, arrow_h_offset),
-        'AG': (arrow_sep, 1-arrow_h_offset),
-        'CA': (1-d-r2v, d-r2v),
-        'AC': (d+r2v, 1-d+r2v),
-        'GT': (d-r2v, d+r2v),
-        'TG': (1-d+r2v, 1-d-r2v),
-        'CT': (1-arrow_sep, arrow_h_offset),
-        'TC': (1+arrow_sep, 1-arrow_h_offset),
+        'AG': (arrow_sep, 1 - arrow_h_offset),
+        'CA': (1 - d - r2v, d - r2v),
+        'AC': (d + r2v, 1 - d + r2v),
+        'GT': (d - r2v, d + r2v),
+        'TG': (1 - d + r2v, 1 - d - r2v),
+        'CT': (1 - arrow_sep, arrow_h_offset),
+        'TC': (1 + arrow_sep, 1 - arrow_h_offset),
         'GC': (arrow_h_offset, arrow_sep),
-        'CG': (1-arrow_h_offset, -arrow_sep),
+        'CG': (1 - arrow_h_offset, -arrow_sep),
         }
 
     if normalize_data:
@@ -154,8 +154,8 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
     def draw_arrow(pair, alpha=alpha, ec=ec, labelcolor=labelcolor):
         # set the length of the arrow
         if display == 'length':
-            length = max_head_length+(max_arrow_length-max_head_length) *\
-                data[pair]/sf
+            length = max_head_length + data[pair]/sf*(max_arrow_length -
+                                                      max_head_length)
         else:
             length = max_arrow_length
         # set the transparency of the arrow
@@ -196,8 +196,8 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
         elif where == 'absolute':
             orig_position = array([[max_arrow_length/2.0, 3*max_arrow_width]])
         elif where == 'right':
-            orig_position = array([[length-3*max_arrow_width,\
-                3*max_arrow_width]])
+            orig_position = array([[length - 3*max_arrow_width,
+                                    3*max_arrow_width]])
         elif where == 'center':
             orig_position = array([[length/2.0, 3*max_arrow_width]])
         else:
@@ -217,7 +217,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
 
 # test data
 all_on_max = dict([(i, 1) for i in 'TCAG'] + \
-        [(i+j, 0.6) for i in 'TCAG' for j in 'TCAG'])
+        [(i + j, 0.6) for i in 'TCAG' for j in 'TCAG'])
 
 realistic_data = {
         'A': 0.4,

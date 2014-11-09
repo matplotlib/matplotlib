@@ -46,12 +46,12 @@ ax2.xaxis.tick_bottom()
 d = .015  # how big to make the diagonal lines in axes coordinates
 # arguments to pass plot, just so we don't keep repeating them
 kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
-ax.plot((-d, +d), (-d, +d), **kwargs)      # top-left diagonal
-ax.plot((1-d, 1+d), (-d, +d), **kwargs)    # top-right diagonal
+ax.plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
+ax.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
 
 kwargs.update(transform=ax2.transAxes)  # switch to the bottom axes
-ax2.plot((-d, +d), (1-d, 1+d), **kwargs)   # bottom-left diagonal
-ax2.plot((1-d, 1+d), (1-d, 1+d), **kwargs)  # bottom-right diagonal
+ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
+ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
 
 # What's cool about this is that now if we vary the distance between
 # ax and ax2 via f.subplots_adjust(hspace=...) or plt.subplot_tool(),

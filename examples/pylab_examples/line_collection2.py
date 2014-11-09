@@ -8,7 +8,7 @@ from matplotlib.collections import LineCollection
 N = 50
 x = arange(N)
 # Here are many sets of y to plot vs x
-ys = [x+i for i in x]
+ys = [x + i for i in x]
 
 # We need to set the plot limits, they will not autoscale
 ax = axes()

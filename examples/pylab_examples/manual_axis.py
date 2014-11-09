@@ -23,7 +23,7 @@ def make_xaxis(ax, yloc, offset=0.05, **props):
     tickline.set_clip_on(False)
     axline.set_clip_on(False)
     for loc in locs:
-        ax.text(loc, yloc-offset, '%1.1f' % loc,
+        ax.text(loc, yloc - offset, '%1.1f' % loc,
                 horizontalalignment='center',
                 verticalalignment='top')
 
@@ -39,14 +39,14 @@ def make_yaxis(ax, xloc=0, offset=0.05, **props):
     axline.set_clip_on(False)
 
     for loc in locs:
-        ax.text(xloc-offset, loc, '%1.1f' % loc,
+        ax.text(xloc - offset, loc, '%1.1f' % loc,
                 verticalalignment='center',
                 horizontalalignment='right')
 
 
 props = dict(color='black', linewidth=2, markeredgewidth=2)
 x = np.arange(200.)
-y = np.sin(2*np.pi*x/200.) + np.random.rand(200)-0.5
+y = np.sin(2*np.pi*x/200.) + np.random.rand(200) - 0.5
 fig = figure(facecolor='white')
 ax = fig.add_subplot(111, frame_on=False)
 ax.axison = False

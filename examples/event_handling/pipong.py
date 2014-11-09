@@ -80,17 +80,17 @@ class Puck(object):
                 self.vy *= 1.2 * pad.signy
         fudge = .001
         # probably cleaner with something like...if not self.field.contains(self.x, self.y):
-        if self.x < 0+fudge:
+        if self.x < 0 + fudge:
             #print("player A loses")
             pads[1].score += 1;
             self._reset(pads[0])
             return True
-        if self.x > 7-fudge:
+        if self.x > 7 - fudge:
             #print("player B loses")
             pads[0].score += 1;
             self._reset(pads[1])
             return True
-        if self.y < -1+fudge or self.y > 1-fudge:
+        if self.y < -1 + fudge or self.y > 1 - fudge:
             self.vy *= -1.0
             # add some randomness, just to make it interesting
             self.vy -= (randn()/300.0 + 1/300.0) * np.sign(self.vy)
@@ -166,10 +166,10 @@ class Game(object):
 
         # show the distractors
         if self.distract:
-            self.line.set_ydata(np.sin(self.x+self.cnt/self.res))
-            self.line2.set_ydata(np.cos(self.x-self.cnt/self.res))
-            self.line3.set_ydata(np.tan(self.x+self.cnt/self.res))
-            self.line4.set_ydata(np.tan(self.x-self.cnt/self.res))
+            self.line.set_ydata(np.sin(self.x + self.cnt/self.res))
+            self.line2.set_ydata(np.cos(self.x - self.cnt/self.res))
+            self.line3.set_ydata(np.tan(self.x + self.cnt/self.res))
+            self.line4.set_ydata(np.tan(self.x - self.cnt/self.res))
             draw_artist(self.line)
             draw_artist(self.line2)
             draw_artist(self.line3)
@@ -224,7 +224,7 @@ class Game(object):
         if event.key == 'e':
             self.pads[0].y += .1
             if self.pads[0].y > 1 - .3:
-                self.pads[0].y = 1-.3
+                self.pads[0].y = 1 - .3
         if event.key == 'd':
             self.pads[0].y -= .1
             if self.pads[0].y < -1:
@@ -233,7 +233,7 @@ class Game(object):
         if event.key == 'i':
             self.pads[1].y += .1
             if self.pads[1].y > 1 - .3:
-                self.pads[1].y = 1-.3
+                self.pads[1].y = 1 - .3
         if event.key == 'k':
             self.pads[1].y -= .1
             if self.pads[1].y < -1:

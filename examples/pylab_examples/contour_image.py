@@ -35,7 +35,7 @@ figure()
 subplot(2, 2, 1)
 
 cset1 = contourf(X, Y, Z, levels,
-                        cmap=cm.get_cmap(cmap, len(levels)-1),
+                        cmap=cm.get_cmap(cmap, len(levels) - 1),
                         norm=norm,
                         )
 # It is not necessary, but for the colormap, we need only the

@@ -12,7 +12,7 @@ r.sort()
 def daily_return(prices):
     'an array of daily returns from price array'
     g = np.zeros_like(prices)
-    g[1:] = (prices[1:]-prices[:-1])/prices[:-1]
+    g[1:] = (prices[1:] - prices[:-1])/prices[:-1]
     return g
 
 

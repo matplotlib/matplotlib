@@ -11,7 +11,7 @@ c = np.exp(a)
 d = c[::-1]
 
 fig, ax = plt.subplots()
-plt.plot(a, c, 'k--', a, d, 'k:', a, c+d, 'k')
+plt.plot(a, c, 'k--', a, d, 'k:', a, c + d, 'k')
 plt.legend(('Model length', 'Data length', 'Total message length'),
            'upper center', shadow=True)
 plt.ylim([-1, 20])

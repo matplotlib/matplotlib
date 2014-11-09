@@ -32,4 +32,4 @@ start_anim.cid = canvas.mpl_connect('draw_event', start_anim)
 tstart = time.time()
 plt.grid()  # to ensure proper background restore
 plt.show()
-print('FPS:' , animation.cnt/(time.time()-tstart))
+print('FPS:', animation.cnt/(time.time() - tstart))
