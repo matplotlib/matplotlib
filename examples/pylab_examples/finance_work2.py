@@ -29,7 +29,7 @@ def moving_average(x, n, type='simple'):
 
     """
     x = np.asarray(x)
-    if type=='simple':
+    if type == 'simple':
         weights = np.ones(n)
     else:
         weights = np.exp(np.linspace(-1., 0., n))
@@ -50,8 +50,8 @@ def relative_strength(prices, n=14):
 
     deltas = np.diff(prices)
     seed = deltas[:n+1]
-    up = seed[seed>=0].sum()/n
-    down = -seed[seed<0].sum()/n
+    up = seed[seed >= 0].sum()/n
+    down = -seed[seed < 0].sum()/n
     rs = up/down
     rsi = np.zeros_like(prices)
     rsi[:n] = 100. - 100./(1.+rs)
@@ -59,7 +59,7 @@ def relative_strength(prices, n=14):
     for i in range(n, len(prices)):
         delta = deltas[i-1]  # cause the diff is 1 shorter
 
-        if delta>0:
+        if delta > 0:
             upval = delta
             downval = 0.
         else:
@@ -112,14 +112,14 @@ fillcolor = 'darkgoldenrod'
 ax1.plot(r.date, rsi, color=fillcolor)
 ax1.axhline(70, color=fillcolor)
 ax1.axhline(30, color=fillcolor)
-ax1.fill_between(r.date, rsi, 70, where=(rsi>=70), facecolor=fillcolor, edgecolor=fillcolor)
-ax1.fill_between(r.date, rsi, 30, where=(rsi<=30), facecolor=fillcolor, edgecolor=fillcolor)
+ax1.fill_between(r.date, rsi, 70, where=(rsi >= 70), facecolor=fillcolor, edgecolor=fillcolor)
+ax1.fill_between(r.date, rsi, 30, where=(rsi <= 30), facecolor=fillcolor, edgecolor=fillcolor)
 ax1.text(0.6, 0.9, '>70 = overbought', va='top', transform=ax1.transAxes, fontsize=textsize)
 ax1.text(0.6, 0.1, '<30 = oversold', transform=ax1.transAxes, fontsize=textsize)
 ax1.set_ylim(0, 100)
 ax1.set_yticks([30, 70])
 ax1.text(0.025, 0.95, 'RSI (14)', va='top', transform=ax1.transAxes, fontsize=textsize)
-ax1.set_title('%s daily'%ticker)
+ax1.set_title('%s daily' % ticker)
 
 # plot the price and volume data
 dx = r.adj_close - r.close
@@ -128,7 +128,7 @@ high = r.high + dx
 
 deltas = np.zeros_like(prices)
 deltas[1:] = np.diff(prices)
-up = deltas>0
+up = deltas > 0
 ax2.vlines(r.date[up], low[up], high[up], color='black', label='_nolegend_')
 ax2.vlines(r.date[~up], low[~up], high[~up], color='black', label='_nolegend_')
 ma20 = moving_average(prices, 20, type='simple')
@@ -171,13 +171,13 @@ ax3.plot(r.date, ema9, color='blue', lw=1)
 ax3.fill_between(r.date, macd-ema9, 0, alpha=0.5, facecolor=fillcolor, edgecolor=fillcolor)
 
 
-ax3.text(0.025, 0.95, 'MACD (%d, %d, %d)'%(nfast, nslow, nema), va='top',
+ax3.text(0.025, 0.95, 'MACD (%d, %d, %d)' % (nfast, nslow, nema), va='top',
          transform=ax3.transAxes, fontsize=textsize)
 
 #ax3.set_yticks([])
 # turn off upper axis tick labels, rotate the lower ones, etc
 for ax in ax1, ax2, ax2t, ax3:
-    if ax!=ax3:
+    if ax != ax3:
         for label in ax.get_xticklabels():
             label.set_visible(False)
     else:

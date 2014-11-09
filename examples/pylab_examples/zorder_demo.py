@@ -32,7 +32,7 @@ plot(x, y, 'r', zorder=1, lw=3)
 scatter(x, y, s=120, zorder=2)
 
 # A new figure, with individually ordered items
-x=frange(0, 2*pi, npts=100)
+x = frange(0, 2*pi, npts=100)
 figure()
 plot(x, sin(x), linewidth=10, color='black', label='zorder=10', zorder=10)  # on top
 plot(x, cos(1.3*x), linewidth=10, color='red', label='zorder=1', zorder=1)  # bottom

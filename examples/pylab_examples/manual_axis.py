@@ -16,14 +16,14 @@ import matplotlib.lines as lines
 def make_xaxis(ax, yloc, offset=0.05, **props):
     xmin, xmax = ax.get_xlim()
     locs = [loc for loc in ax.xaxis.get_majorticklocs()
-            if loc>=xmin and loc<=xmax]
+            if loc >= xmin and loc <= xmax]
     tickline, = ax.plot(locs, [yloc]*len(locs), linestyle='',
             marker=lines.TICKDOWN, **props)
     axline, = ax.plot([xmin, xmax], [yloc, yloc], **props)
     tickline.set_clip_on(False)
     axline.set_clip_on(False)
     for loc in locs:
-        ax.text(loc, yloc-offset, '%1.1f'%loc,
+        ax.text(loc, yloc-offset, '%1.1f' % loc,
                 horizontalalignment='center',
                 verticalalignment='top')
 
@@ -31,7 +31,7 @@ def make_xaxis(ax, yloc, offset=0.05, **props):
 def make_yaxis(ax, xloc=0, offset=0.05, **props):
     ymin, ymax = ax.get_ylim()
     locs = [loc for loc in ax.yaxis.get_majorticklocs()
-            if loc>=ymin and loc<=ymax]
+            if loc >= ymin and loc <= ymax]
     tickline, = ax.plot([xloc]*len(locs), locs, linestyle='',
             marker=lines.TICKLEFT, **props)
     axline, = ax.plot([xloc, xloc], [ymin, ymax], **props)
@@ -39,7 +39,7 @@ def make_yaxis(ax, xloc=0, offset=0.05, **props):
     axline.set_clip_on(False)
 
     for loc in locs:
-        ax.text(xloc-offset, loc, '%1.1f'%loc,
+        ax.text(xloc-offset, loc, '%1.1f' % loc,
                 verticalalignment='center',
                 horizontalalignment='right')
 

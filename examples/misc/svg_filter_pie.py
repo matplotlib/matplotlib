@@ -20,7 +20,7 @@ ax = fig1.add_axes([0.1, 0.1, 0.8, 0.8])
 labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
 fracs = [15, 30, 45, 10]
 
-explode=(0, 0.05, 0, 0)
+explode = (0, 0.05, 0, 0)
 
 # We want to draw the shadow for each pie but we will not use "shadow"
 # option as it does'n save the references to the shadow patches.

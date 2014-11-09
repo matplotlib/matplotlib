@@ -7,7 +7,7 @@ s1 = sin(2*pi*100*t)
 s2 = 2*sin(2*pi*400*t)
 
 # create a transient "chirp"
-mask = where(logical_and(t>10, t<12), 1.0, 0.0)
+mask = where(logical_and(t > 10, t < 12), 1.0, 0.0)
 s2 = s2 * mask
 
 # add some noise into the mix

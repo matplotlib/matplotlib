@@ -11,7 +11,7 @@ usage:
 """
 from pylab import *
 
-rates_to_bases={'r1': 'AT', 'r2': 'TA', 'r3': 'GA', 'r4': 'AG', 'r5': 'CA', 'r6': 'AC', \
+rates_to_bases = {'r1': 'AT', 'r2': 'TA', 'r3': 'GA', 'r4': 'AG', 'r5': 'CA', 'r6': 'AC', \
             'r7': 'GT', 'r8': 'TG', 'r9': 'CT', 'r10': 'TC', 'r11': 'GC', 'r12': 'CG'}
 numbered_bases_to_rates = dict([(v, k) for k, v in rates_to_bases.items()])
 lettered_bases_to_rates = dict([(v, 'r'+v) for k, v in rates_to_bases.items()])
@@ -53,7 +53,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
     max_text_size = size*12
     min_text_size = size
     label_text_size = size*2.5
-    text_params={'ha': 'center', 'va': 'center', 'family': 'sans-serif',\
+    text_params = {'ha': 'center', 'va': 'center', 'family': 'sans-serif',\
         'fontweight': 'bold'}
     r2 = sqrt(2)
 
@@ -117,7 +117,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
     max_arrow_width = max_arrow_width
     max_head_width = 2.5*max_arrow_width
     max_head_length = 2*max_arrow_width
-    arrow_params={'length_includes_head': True, 'shape': shape, \
+    arrow_params = {'length_includes_head': True, 'shape': shape, \
         'head_starts_at_zero': head_starts_at_zero}
     ax = gca()
     sf = 0.6  # max arrow size represents this in data coords
@@ -154,7 +154,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
     def draw_arrow(pair, alpha=alpha, ec=ec, labelcolor=labelcolor):
         # set the length of the arrow
         if display == 'length':
-            length = max_head_length+(max_arrow_length-max_head_length)*\
+            length = max_head_length+(max_arrow_length-max_head_length) *\
                 data[pair]/sf
         else:
             length = max_arrow_length
@@ -162,7 +162,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
         if display == 'alph':
             alpha = min(data[pair]/sf, alpha)
         else:
-            alpha=alpha
+            alpha = alpha
         # set the width of the arrow
         if display == 'width':
             scale = data[pair]/sf
@@ -295,7 +295,7 @@ if __name__ == '__main__':
             scaled = True
     if d is None:
         d = all_on_max
-        scaled=False
+        scaled = False
     if len(argv) > 2:
         display = argv[2]
     else:

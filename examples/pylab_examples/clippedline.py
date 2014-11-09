@@ -35,7 +35,7 @@ class ClippedLine(Line2D):
         self._x = self.xorig[ind0:ind1]
         self._y = self.yorig[ind0:ind1]
         N = len(self._x)
-        if N<1000:
+        if N < 1000:
             self._marker = 's'
             self._linestyle = '-'
         else:

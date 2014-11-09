@@ -49,9 +49,9 @@ def zoom_effect01(ax1, ax2, xmin, xmax, **kwargs):
     mybbox1 = TransformedBbox(bbox, trans1)
     mybbox2 = TransformedBbox(bbox, trans2)
 
-    prop_patches=kwargs.copy()
-    prop_patches["ec"]="none"
-    prop_patches["alpha"]=0.2
+    prop_patches = kwargs.copy()
+    prop_patches["ec"] = "none"
+    prop_patches["alpha"] = 0.2
 
     c1, c2, bbox_patch1, bbox_patch2, p = \
         connect_bbox(mybbox1, mybbox2,
@@ -82,9 +82,9 @@ def zoom_effect02(ax1, ax2, **kwargs):
     mybbox1 = ax1.bbox
     mybbox2 = TransformedBbox(ax1.viewLim, trans)
 
-    prop_patches=kwargs.copy()
-    prop_patches["ec"]="none"
-    prop_patches["alpha"]=0.2
+    prop_patches = kwargs.copy()
+    prop_patches["ec"] = "none"
+    prop_patches["alpha"] = 0.2
 
     c1, c2, bbox_patch1, bbox_patch2, p = \
         connect_bbox(mybbox1, mybbox2,

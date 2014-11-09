@@ -18,7 +18,7 @@ line, = ax.plot(xs, ys, 'o', picker=5)  # 5 points tolerance
 
 def onpick(event):
 
-    if event.artist!=line: return True
+    if event.artist != line: return True
 
     N = len(event.ind)
     if not N: return True
@@ -27,7 +27,7 @@ def onpick(event):
     for subplotnum, dataind in enumerate(event.ind):
         ax = figi.add_subplot(N, 1, subplotnum+1)
         ax.plot(X[dataind])
-        ax.text(0.05, 0.9, 'mu=%1.3f\nsigma=%1.3f'%(xs[dataind], ys[dataind]),
+        ax.text(0.05, 0.9, 'mu=%1.3f\nsigma=%1.3f' % (xs[dataind], ys[dataind]),
                 transform=ax.transAxes, va='top')
         ax.set_ylim(-0.5, 1.5)
     figi.show()

@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib.image import NonUniformImage
 from matplotlib import cm
 
-interp='nearest'
+interp = 'nearest'
 
 x = np.linspace(-4, 4, 9)
 x2 = x**3

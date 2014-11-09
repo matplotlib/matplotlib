@@ -40,7 +40,7 @@ def get_daily_data():
     def get_ticker(ticker):
         vals = []
 
-        datafile = cbook.get_sample_data('%s.csv'%ticker, asfileobj=False)
+        datafile = cbook.get_sample_data('%s.csv' % ticker, asfileobj=False)
 
         lines = open(datafile).readlines()
         for line in lines[1:]:

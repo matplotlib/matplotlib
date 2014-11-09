@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import matplotlib.axes as maxes
 
 from matplotlib import rcParams
-rcParams['text.usetex']=True
-rcParams['text.latex.unicode']=True
+rcParams['text.usetex'] = True
+rcParams['text.latex.unicode'] = True
 
 
 class Axes(maxes.Axes):
