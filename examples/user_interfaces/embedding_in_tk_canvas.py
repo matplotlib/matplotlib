@@ -8,7 +8,7 @@ import matplotlib.backends.tkagg as tkagg
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 
-def draw_figure(canvas, figure, loc=[0, 0]):
+def draw_figure(canvas, figure, loc=(0, 0)):
     """ Draw a matplotlib figure onto a Tk canvas
 
     loc: location of top-left corner of figure on canvas in pixels.
@@ -49,7 +49,7 @@ ax.plot(X, Y)
 
 # Keep this handle alive, or else figure will disappear
 fig_x, fig_y = 100, 100
-fig_photo = draw_figure(canvas, fig, loc=[fig_x, fig_y])
+fig_photo = draw_figure(canvas, fig, loc=(fig_x, fig_y))
 fig_w, fig_h = fig_photo.width(), fig_photo.height()
 
 # Add more elements to the canvas, potentially on top of the figure
