@@ -7,7 +7,8 @@ from __future__ import print_function
 # http://www.scipy.org/wikis/topical_software/MatplotlibAnimation
 import time
 
-import gtk, gobject
+import gtk
+import gobject
 
 import matplotlib
 matplotlib.use('GTKAgg')

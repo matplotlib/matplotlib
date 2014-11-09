@@ -2,7 +2,9 @@
 
 from __future__ import unicode_literals
 
-import os, sys, re
+import os
+import sys
+import re
 
 import gc
 

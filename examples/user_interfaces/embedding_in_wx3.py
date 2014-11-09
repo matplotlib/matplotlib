@@ -25,7 +25,10 @@ from __future__ import print_function
 import wxversion
 wxversion.ensureMinimal('2.8')
 
-import sys, time, os, gc
+import sys
+import time
+import os
+import gc
 import matplotlib
 matplotlib.use('WXAgg')
 import matplotlib.cm as cm
