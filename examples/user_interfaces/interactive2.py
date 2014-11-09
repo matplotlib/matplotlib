@@ -134,7 +134,7 @@ class OutputStream(object):
 
         end = self.buffer.get_end_iter()
 
-        if not self.view == None:
+        if self.view is not None:
             self.view.scroll_to_mark(self.mark, 0, True, 1, 1)
 
         self.buffer.insert_with_tags(end, text, self.style)
@@ -225,7 +225,7 @@ class GTKInterpreterConsole(gtk.ScrolledWindow):
 
     def write_line(self, text, style=None):
         start, end = self.text.get_buffer().get_bounds()
-        if style == None:
+        if style is None:
             self.text.get_buffer().insert(end, text)
         else:
             self.text.get_buffer().insert_with_tags(end, text, style)
@@ -325,7 +325,7 @@ class GTKInterpreterConsole(gtk.ScrolledWindow):
 
         completions = []
         p = self.completer.complete(token, len(completions))
-        while p != None:
+        while p is not None:
             completions.append(p)
             p = self.completer.complete(token, len(completions))
 
@@ -353,7 +353,7 @@ def main():
         gtk.main_quit()
 
     def key_event(widget, event):
-        if gtk.gdk.keyval_name( event.keyval) == 'd' and \
+        if gtk.gdk.keyval_name(event.keyval) == 'd' and \
                 event.state & gtk.gdk.CONTROL_MASK:
             destroy()
         return False

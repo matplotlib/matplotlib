@@ -54,7 +54,7 @@ class MTConsole(code.InteractiveConsole):
         # Check that all things to kill are callable:
         for _ in on_kill:
             if not callable(_):
-                raise TypeError, 'on_kill must be a list of callables'
+                raise TypeError('on_kill must be a list of callables')
         self.on_kill = on_kill
         # Set up tab-completer
         if has_readline:

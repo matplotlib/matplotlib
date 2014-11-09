@@ -83,7 +83,7 @@ class PolygonInteractor(object):
         'whenever a mouse button is pressed'
         if not self.showverts:
             return
-        if event.inaxes == None:
+        if event.inaxes is None:
             return
         if event.button != 1:
             return
