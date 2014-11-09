@@ -19,7 +19,7 @@ class Plot(wx.Panel):
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(self.canvas, 1, wx.EXPAND)
-        sizer.Add(self.toolbar, 0 , wx.LEFT | wx.EXPAND)
+        sizer.Add(self.toolbar, 0, wx.LEFT | wx.EXPAND)
         self.SetSizer(sizer)
 
 

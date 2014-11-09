@@ -65,7 +65,7 @@ for ic, c in enumerate(containers):
     hist_patches['hist_%d' % ic] = []
     for il, element in enumerate(c):
         element.set_gid('hist_%d_patch_%d' % (ic, il))
-        hist_patches['hist_%d' %ic].append('hist_%d_patch_%d' % (ic, il))
+        hist_patches['hist_%d' % ic].append('hist_%d_patch_%d' % (ic, il))
 
 # Set ids for the legend patches
 for i, t in enumerate(leg.get_patches()):

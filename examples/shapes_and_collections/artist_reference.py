@@ -55,7 +55,7 @@ patches.append(ellipse)
 label(grid[4], "Ellipse")
 
 # add an arrow
-arrow = mpatches.Arrow(grid[5, 0]-0.05, grid[5, 1]-0.05, 0.1, 0.1, width=0.1)
+arrow = mpatches.Arrow(grid[5, 0] - 0.05, grid[5, 1] - 0.05, 0.1, 0.1, width=0.1)
 patches.append(arrow)
 label(grid[5], "Arrow")
 

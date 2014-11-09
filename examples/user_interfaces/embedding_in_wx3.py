@@ -74,7 +74,7 @@ class PlotPanel(wx.Panel):
         zmax = np.amax(z) - ERR_TOL
         ymax_i, xmax_i = np.nonzero(z >= zmax)
         if self.im.origin == 'upper':
-            ymax_i = z.shape[0]-ymax_i
+            ymax_i = z.shape[0] - ymax_i
         self.lines = a.plot(xmax_i, ymax_i, 'ko')
 
         self.toolbar.update()  # Not sure why this is needed - ADS
@@ -93,7 +93,7 @@ class PlotPanel(wx.Panel):
         zmax = np.amax(z) - ERR_TOL
         ymax_i, xmax_i = np.nonzero(z >= zmax)
         if self.im.origin == 'upper':
-            ymax_i = z.shape[0]-ymax_i
+            ymax_i = z.shape[0] - ymax_i
         self.lines[0].set_data(xmax_i, ymax_i)
 
         self.canvas.draw()
@@ -154,7 +154,7 @@ class MyApp(wx.App):
     def OnBang(self, event):
         bang_count = xrc.XRCCTRL(self.frame, "bang_count")
         bangs = bang_count.GetValue()
-        bangs = int(bangs)+1
+        bangs = int(bangs) + 1
         bang_count.SetValue(str(bangs))
 
 if __name__ == '__main__':
