@@ -97,7 +97,7 @@ xmid = x[triangles].mean(axis=1)
 ymid = y[triangles].mean(axis=1)
 x0 = -5
 y0 = 52
-zfaces = np.exp(-0.01*((xmid-x0)*(xmid-x0) + (ymid-y0)*(ymid-y0)))
+zfaces = np.exp(-0.01*((xmid - x0)*(xmid - x0) + (ymid - y0)*(ymid - y0)))
 
 # Rather than create a Triangulation object, can simply pass x, y and triangles
 # arrays to tripcolor directly.  It would be better to use a Triangulation

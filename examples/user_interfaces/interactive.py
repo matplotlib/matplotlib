@@ -238,7 +238,7 @@ if __name__ == '__main__':
     # Quick sys.argv hack to extract the option and leave filenames in sys.argv.
     # For real option handling, use optparse or getopt.
     if len(sys.argv) > 1 and sys.argv[1] == '-pylab':
-        sys.argv = [sys.argv[0]]+sys.argv[2:]
+        sys.argv = [sys.argv[0]] + sys.argv[2:]
         MatplotLibInterpreter().mainloop()
     else:
         GTKInterpreter().mainloop()

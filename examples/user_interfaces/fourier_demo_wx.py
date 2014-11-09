@@ -155,12 +155,12 @@ class FourierDemoWindow(wx.Window, Knob):
         if x is None:  # outside the axes
             return
         x0, y0, f0Init, AInit = self.mouseInfo
-        self.A.set(AInit+(AInit*(y-y0)/y0), self)
+        self.A.set(AInit + (AInit*(y - y0)/y0), self)
         if self.state == 'frequency':
-            self.f0.set(f0Init+(f0Init*(x-x0)/x0))
+            self.f0.set(f0Init + (f0Init*(x - x0)/x0))
         elif self.state == 'time':
-            if (x-x0)/x0 != -1.:
-                self.f0.set(1./(1./f0Init+(1./f0Init*(x-x0)/x0)))
+            if (x - x0)/x0 != -1.:
+                self.f0.set(1./(1./f0Init + (1./f0Init*(x - x0)/x0)))
 
     def mouseUp(self, evt):
         self.state = ''
@@ -192,7 +192,7 @@ class FourierDemoWindow(wx.Window, Knob):
         f = np.arange(-6., 6., 0.02)
         t = np.arange(-2., 2., 0.01)
         x = A*np.cos(2*np.pi*f0*t)*np.exp(-np.pi*t**2)
-        X = A/2*(np.exp(-np.pi*(f-f0)**2) + np.exp(-np.pi*(f+f0)**2))
+        X = A/2*(np.exp(-np.pi*(f - f0)**2) + np.exp(-np.pi*(f + f0)**2))
         return f, X, t, x
 
     def repaint(self):

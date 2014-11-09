@@ -53,7 +53,7 @@ def test_window_extent(ax, usetex, preview):
     for i, s in enumerate(test_strings):
 
         ax.axhline(i, color="r")
-        ax.text(0., 3-i, s, **text_kw)
+        ax.text(0., 3 - i, s, **text_kw)
 
     ax.set_xlim(-0.1, 1.1)
     ax.set_ylim(-.8, 3.9)
@@ -66,7 +66,7 @@ F = plt.figure(figsize=(2.*3, 6.5))
 for i, usetex, preview in [[0, False, False],
                            [1, True, False],
                            [2, True, True]]:
-    ax = Subplot(F, 1, 3, i+1, usetex=usetex, preview=preview)
+    ax = Subplot(F, 1, 3, i + 1, usetex=usetex, preview=preview)
     F.add_subplot(ax)
     F.subplots_adjust(top=0.85)
 

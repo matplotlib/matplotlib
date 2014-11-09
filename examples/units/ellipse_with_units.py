@@ -18,8 +18,8 @@ y = 0.5 * height * np.sin(theta)
 
 rtheta = angle*np.pi/180.
 R = np.array([
-    [np.cos(rtheta),  -np.sin(rtheta)],
-    [np.sin(rtheta), np.cos(rtheta)],
+    [np.cos(rtheta), -np.sin(rtheta)],
+    [np.sin(rtheta),  np.cos(rtheta)],
     ])
 
 
