@@ -64,6 +64,33 @@ def test_various_labels():
     ax.legend(numpoints=1, loc=0)
 
 
+@image_comparison(baseline_images=['rgba_alpha'],
+                  extensions=['png'], remove_text=True)
+def test_alpha_rgba():
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(range(10), lw=5)
+    leg = plt.legend(['Longlabel that will go away'], loc=10)
+    leg.legendPatch.set_facecolor([1, 0, 0, 0.5])
+
+
+@image_comparison(baseline_images=['rcparam_alpha'],
+                  extensions=['png'], remove_text=True)
+def test_alpha_rcparam():
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(range(10), lw=5)
+    with mpl.rc_context(rc={'legend.framealpha': .75}):
+        leg = plt.legend(['Longlabel that will go away'], loc=10)
+        # this alpha is going to be over-ridden by the rcparam whith
+        # sets the alpha of the patch to be non-None which causes the alpha
+        # value of the face color to be discarded.  This behavior may not be
+        # ideal, but it is what it is and we should keep track of it changing
+        leg.legendPatch.set_facecolor([1, 0, 0, 0.5])
+
+
 @image_comparison(baseline_images=['fancy'], remove_text=True)
 def test_fancy():
     # using subplot triggers some offsetbox functionality untested elsewhere
