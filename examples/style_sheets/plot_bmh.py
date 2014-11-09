@@ -1,5 +1,5 @@
 """
-This example demonstrates the "bmh" style, which is the design used in the 
+This example demonstrates the "bmh" style, which is the design used in the
 Bayesian Methods for Hackers online book.
 """
 from numpy.random import beta

@@ -92,7 +92,7 @@ if 1:
 
     p1 = PathPatch(text_path, ec="w", lw=3, fc="w", alpha=0.9,
                    transform=IdentityTransform())
-    p2 = PathPatch(text_path, ec="none", fc="k", 
+    p2 = PathPatch(text_path, ec="none", fc="k",
                    transform=IdentityTransform())
 
     offsetbox2 = AuxTransformBox(IdentityTransform())
