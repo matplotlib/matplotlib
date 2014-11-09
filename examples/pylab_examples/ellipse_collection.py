@@ -16,12 +16,12 @@ aa = X*9
 fig, ax = plt.subplots()
 
 ec = EllipseCollection(
-                        ww,
-                        hh,
-                        aa,
-                        units='x',
-                        offsets=XY,
-                        transOffset=ax.transData)
+    ww,
+    hh,
+    aa,
+    units='x',
+    offsets=XY,
+    transOffset=ax.transData)
 ec.set_array((X + Y).ravel())
 ax.add_collection(ec)
 ax.autoscale_view()

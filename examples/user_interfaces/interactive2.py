@@ -353,7 +353,7 @@ def main():
 
     def key_event(widget, event):
         if gtk.gdk.keyval_name( event.keyval) == 'd' and \
-               event.state & gtk.gdk.CONTROL_MASK:
+                event.state & gtk.gdk.CONTROL_MASK:
             destroy()
         return False
 

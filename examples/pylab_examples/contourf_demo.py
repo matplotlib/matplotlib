@@ -45,9 +45,9 @@ CS = plt.contourf(X, Y, Z, 10,
 # or leave out the levels kwarg to use all of the original levels.
 
 CS2 = plt.contour(CS, levels=CS.levels[::2],
-                        colors='r',
-                        origin=origin,
-                        hold='on')
+                  colors='r',
+                  origin=origin,
+                  hold='on')
 
 plt.title('Nonsense (3 masked regions)')
 plt.xlabel('word length anomaly')
@@ -66,9 +66,9 @@ plt.figure()
 # of colors.
 levels = [-1.5, -1, -0.5, 0, 0.5, 1]
 CS3 = plt.contourf(X, Y, Z, levels,
-                        colors=('r', 'g', 'b'),
-                        origin=origin,
-                        extend='both')
+                   colors=('r', 'g', 'b'),
+                   origin=origin,
+                   extend='both')
 # Our data range extends outside the range of levels; make
 # data below the lowest contour level yellow, and above the
 # highest level cyan:
@@ -76,9 +76,9 @@ CS3.cmap.set_under('yellow')
 CS3.cmap.set_over('cyan')
 
 CS4 = plt.contour(X, Y, Z, levels,
-                       colors=('k',),
-                       linewidths = (3,),
-                       origin = origin)
+                  colors=('k',),
+                  linewidths = (3,),
+                  origin = origin)
 plt.title('Listed colors (3 masked regions)')
 plt.clabel(CS4, fmt='%2.1f', colors='w', fontsize=14)
 

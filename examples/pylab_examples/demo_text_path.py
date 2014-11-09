@@ -9,7 +9,7 @@ from matplotlib.transforms import IdentityTransform
 import matplotlib.patches as mpatches
 
 from matplotlib.offsetbox import AnnotationBbox,\
-     AnchoredOffsetbox, AuxTransformBox
+    AnchoredOffsetbox, AuxTransformBox
 
 from matplotlib.cbook import get_sample_data
 

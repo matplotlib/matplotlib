@@ -22,8 +22,8 @@ ax.set_ylim((amin(amin(ys)), amax(amax(ys))))
 #          If linestyle is omitted, 'solid' is used
 # See matplotlib.collections.LineCollection for more information
 line_segments = LineCollection([list(zip(x, y)) for y in ys],  # Make a sequence of x,y pairs
-                                linewidths=(0.5, 1, 1.5, 2),
-                                linestyles = 'solid')
+                               linewidths=(0.5, 1, 1.5, 2),
+                               linestyles = 'solid')
 line_segments.set_array(x)
 ax.add_collection(line_segments)
 fig = gcf()

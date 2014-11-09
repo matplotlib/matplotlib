@@ -19,8 +19,8 @@ cmap = cm.cool
 
 figtitle = 'Multiple images'
 t = fig.text(0.5, 0.95, figtitle,
-               horizontalalignment='center',
-               fontproperties=FontProperties(size=16))
+             horizontalalignment='center',
+             fontproperties=FontProperties(size=16))
 
 cax = fig.add_axes([0.2, 0.08, 0.6, 0.04])
 

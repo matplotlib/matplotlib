@@ -63,15 +63,15 @@ label(grid[5], "Arrow")
 # add a path patch
 Path = mpath.Path
 path_data = [
-     (Path.MOVETO,    [0.018, -0.110]),
-     (Path.CURVE4,   [-0.031, -0.051]),
-     (Path.CURVE4,   [-0.115,  0.073]),
-     (Path.CURVE4,   [-0.030,  0.073]),
-     (Path.LINETO,   [-0.011,  0.039]),
-     (Path.CURVE4,    [0.043,  0.121]),
-     (Path.CURVE4,    [0.075, -0.005]),
-     (Path.CURVE4,    [0.035, -0.027]),
-     (Path.CLOSEPOLY, [0.018, -0.110])
+    (Path.MOVETO,    [0.018, -0.110]),
+    (Path.CURVE4,   [-0.031, -0.051]),
+    (Path.CURVE4,   [-0.115,  0.073]),
+    (Path.CURVE4,   [-0.030,  0.073]),
+    (Path.LINETO,   [-0.011,  0.039]),
+    (Path.CURVE4,    [0.043,  0.121]),
+    (Path.CURVE4,    [0.075, -0.005]),
+    (Path.CURVE4,    [0.035, -0.027]),
+    (Path.CLOSEPOLY, [0.018, -0.110])
     ]
 codes, verts = zip(*path_data)
 path = mpath.Path(verts + grid[6], codes)
@@ -81,8 +81,8 @@ label(grid[6], "PathPatch")
 
 # add a fancy box
 fancybox = mpatches.FancyBboxPatch(
-        grid[7] - [0.025, 0.05], 0.05, 0.1,
-        boxstyle=mpatches.BoxStyle("Round", pad=0.02))
+    grid[7] - [0.025, 0.05], 0.05, 0.1,
+    boxstyle=mpatches.BoxStyle("Round", pad=0.02))
 patches.append(fancybox)
 label(grid[7], "FancyBoxPatch")
 

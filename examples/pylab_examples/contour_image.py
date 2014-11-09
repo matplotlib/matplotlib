@@ -35,9 +35,9 @@ figure()
 subplot(2, 2, 1)
 
 cset1 = contourf(X, Y, Z, levels,
-                        cmap=cm.get_cmap(cmap, len(levels) - 1),
-                        norm=norm,
-                        )
+                 cmap=cm.get_cmap(cmap, len(levels) - 1),
+                 norm=norm,
+                 )
 # It is not necessary, but for the colormap, we need only the
 # number of levels minus 1.  To avoid discretization error, use
 # either this number or a large number such as the default (256).
@@ -47,8 +47,8 @@ cset1 = contourf(X, Y, Z, levels,
 # of the polygons in the collections returned by contourf.
 # Use levels output from previous call to guarantee they are the same.
 cset2 = contour(X, Y, Z, cset1.levels,
-                        colors='k',
-                        hold='on')
+                colors='k',
+                hold='on')
 # We don't really need dashed contour lines to indicate negative
 # regions, so let's turn them off.
 for c in cset2.collections:

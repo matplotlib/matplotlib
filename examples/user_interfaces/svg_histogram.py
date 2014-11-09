@@ -147,7 +147,7 @@ function toggle_hist(obj) {
 # Add a transition effect
 css = tree.getchildren()[0][0]
 css.text = css.text + "g {-webkit-transition:opacity 0.4s ease-out;" + \
-           "-moz-transition:opacity 0.4s ease-out;}"
+    "-moz-transition:opacity 0.4s ease-out;}"
 
 # Insert the script and save to file.
 tree.insert(0, ET.XML(script))

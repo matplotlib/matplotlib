@@ -14,8 +14,8 @@ doprint = True
 flexible_true_trait = traits.Trait(
    True,
    {'true': True, 't': True, 'yes': True, 'y': True, 'on': True, True: True,
-     'false': False, 'f': False, 'no': False, 'n': False, 'off': False, False: False
-                              })
+    'false': False, 'f': False, 'no': False, 'n': False, 'off': False, False: False
+    })
 flexible_false_trait = traits.Trait(False, flexible_true_trait)
 
 colors = {
@@ -95,7 +95,7 @@ float_to_rgba.info = 'a grayscale intensity'
 
 
 Color = traits.Trait(RGBA(), float_to_rgba, colorname_to_rgba, RGBA,
-             hex_to_rgba, tuple_to_rgba)
+                     hex_to_rgba, tuple_to_rgba)
 
 
 def file_exists(ob, name, val):
@@ -105,14 +105,14 @@ def file_exists(ob, name, val):
 linestyles = ('-', '--', '-.', ':', 'steps', 'None')
 TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN = range(4)
 linemarkers = (None, '.', ',', 'o', '^', 'v', '<', '>', 's',
-                 '+', 'x', 'd', 'D', '|', '_', 'h', 'H',
-                 'p', '1', '2', '3', '4',
-                 TICKLEFT,
-                 TICKRIGHT,
-                 TICKUP,
-                 TICKDOWN,
-                 'None'
-              )
+               '+', 'x', 'd', 'D', '|', '_', 'h', 'H',
+               'p', '1', '2', '3', '4',
+               TICKLEFT,
+               TICKRIGHT,
+               TICKUP,
+               TICKDOWN,
+               'None'
+               )
 
 
 class LineRC(traits.HasTraits):
@@ -136,8 +136,8 @@ class PatchRC(traits.HasTraits):
 
 timezones = 'UTC', 'US/Central', 'ES/Eastern'  # fixme: and many more
 backends = ('GTKAgg', 'Cairo', 'GDK', 'GTK', 'Agg',
-           'GTKCairo', 'PS', 'SVG', 'Template', 'TkAgg',
-           'WX')
+            'GTKCairo', 'PS', 'SVG', 'Template', 'TkAgg',
+            'WX')
 
 
 class RC(traits.HasTraits):

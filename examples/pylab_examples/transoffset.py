@@ -32,7 +32,7 @@ ax = P.subplot(2, 1, 1)
 # first; the subplot command above is one way to do this.
 
 transOffset = offset_copy(ax.transData, fig=fig,
-                            x=0.05, y=0.10, units='inches')
+                          x=0.05, y=0.10, units='inches')
 
 for x, y in zip(X, Y):
     P.plot((x,), (y,), 'ro')
@@ -48,9 +48,9 @@ transOffset = offset_copy(ax.transData, fig=fig, y=6, units='dots')
 for x, y in zip(X, Y):
     P.polar((x,), (y,), 'ro')
     P.text(x, y, '%d, %d' % (int(x), int(y)),
-                transform=transOffset,
-                horizontalalignment='center',
-                verticalalignment='bottom')
+           transform=transOffset,
+           horizontalalignment='center',
+           verticalalignment='bottom')
 
 
 P.show()

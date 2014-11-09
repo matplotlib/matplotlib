@@ -100,16 +100,16 @@ class FourierDemoFrame(wx.Frame):
 
         self.fourierDemoWindow = FourierDemoWindow(self)
         self.frequencySliderGroup = SliderGroup(self, label='Frequency f0:',
-            param=self.fourierDemoWindow.f0)
+                                                param=self.fourierDemoWindow.f0)
         self.amplitudeSliderGroup = SliderGroup(self, label=' Amplitude a:',
-            param=self.fourierDemoWindow.A)
+                                                param=self.fourierDemoWindow.A)
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(self.fourierDemoWindow, 1, wx.EXPAND)
         sizer.Add(self.frequencySliderGroup.sizer, 0,
-            wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=5)
+                  wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=5)
         sizer.Add(self.amplitudeSliderGroup.sizer, 0,
-            wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=5)
+                  wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=5)
         self.SetSizer(sizer)
 
 
@@ -184,9 +184,9 @@ class FourierDemoWindow(wx.Window, Knob):
         self.subplot2.set_xlim([-2, 2])
         self.subplot2.set_ylim([-2, 2])
         self.subplot1.text(0.05, .95, r'$X(f) = \mathcal{F}\{x(t)\}$',
-            verticalalignment='top', transform=self.subplot1.transAxes)
+                           verticalalignment='top', transform=self.subplot1.transAxes)
         self.subplot2.text(0.05, .95, r'$x(t) = a \cdot \cos(2\pi f_0 t) e^{-\pi t^2}$',
-            verticalalignment='top', transform=self.subplot2.transAxes)
+                           verticalalignment='top', transform=self.subplot2.transAxes)
 
     def compute(self, f0, A):
         f = np.arange(-6., 6., 0.02)

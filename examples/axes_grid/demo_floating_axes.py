@@ -4,7 +4,7 @@ import numpy as np
 import mpl_toolkits.axisartist.angle_helper as angle_helper
 from matplotlib.projections import PolarAxes
 from mpl_toolkits.axisartist.grid_finder import (FixedLocator, MaxNLocator,
-     DictFormatter)
+                                                 DictFormatter)
 import matplotlib.pyplot as plt
 
 

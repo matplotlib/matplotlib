@@ -42,7 +42,7 @@ R = np.sqrt(X**2 + Y**2)
 Z = np.sin(R)
 
 surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
-        linewidth=0, antialiased=False)
+                       linewidth=0, antialiased=False)
 
 ax.set_zlim3d(-1, 1)
 

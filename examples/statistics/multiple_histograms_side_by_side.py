@@ -12,8 +12,8 @@ number_of_bins = 20
 number_of_data_points = 1000
 labels = ["A", "B", "C"]
 data_sets = [np.random.normal(0, 1, number_of_data_points),
-            np.random.normal(6, 1, number_of_data_points),
-            np.random.normal(-3, 1, number_of_data_points)]
+             np.random.normal(6, 1, number_of_data_points),
+             np.random.normal(-3, 1, number_of_data_points)]
 
 # Computed quantities to aid plotting
 hist_range = (np.min(data_sets), np.max(data_sets))

@@ -21,6 +21,6 @@ setp(lines[1], linewidth=2)
 setp(lines[2], markersize=10)
 
 legend(('No mask', 'Masked if > 0.5', 'Masked if < -0.5'),
-        loc='upper right')
+       loc='upper right')
 title('Masked line demo')
 show()
