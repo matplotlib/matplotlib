@@ -43,6 +43,8 @@ def html(buildername='html'):
         options = "-D plot_formats=\"[('png', 80)]\""
     else:
         options = ''
+    if warnings_as_errors:
+        options = options + ' -W'
     if os.system('sphinx-build %s -b %s -d build/doctrees . build/%s' % (options, buildername, buildername)):
         raise SystemExit("Building HTML failed.")
 
@@ -136,6 +138,7 @@ funcd = {
 
 
 small_docs = False
+warnings_as_errors = False
 
 # Change directory to the one containing this file
 current_dir = os.getcwd()
@@ -180,9 +183,14 @@ parser.add_argument("cmd", help=("Command to execute. Can be multiple. "
 parser.add_argument("--small",
                     help="Smaller docs with only low res png figures",
                     action="store_true")
+parser.add_argument("--warningsaserrors",
+                    help="Turn Sphinx warnings into errors",
+                    action="store_true")
 args = parser.parse_args()
 if args.small:
     small_docs = True
+if args.warningsaserrors:
+    warnings_as_errors = True
 
 if args.cmd:
     for command in args.cmd:
