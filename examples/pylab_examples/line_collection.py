@@ -32,7 +32,7 @@ ax.set_ylim(ys.min(), ys.max())
 # See matplotlib.collections.LineCollection for more information
 line_segments = LineCollection(segs,
                                 linewidths=(0.5, 1, 1.5, 2),
-                                colors        = [colorConverter.to_rgba(i) \
+                                colors        = [colorConverter.to_rgba(i)
                                                  for i in ('b', 'g', 'r', 'c', 'm', 'y', 'k')],
                                 linestyle = 'solid')
 ax.add_collection(line_segments)
