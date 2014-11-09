@@ -39,9 +39,9 @@ class RibbonBox(object):
         cut = self.im[self.cut_location, :, :]
         stretched_image[:, :, :] = cut
         stretched_image[:self.cut_location, :, :] = \
-        self.im[:self.cut_location, :, :]
+            self.im[:self.cut_location, :, :]
         stretched_image[-(ny - self.cut_location):, :, :] = \
-        self.im[-(ny - self.cut_location):, :, :]
+            self.im[-(ny - self.cut_location):, :, :]
 
         self._cached_im = stretched_image
         return stretched_image
