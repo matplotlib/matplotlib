@@ -93,7 +93,7 @@ def test_line_colors():
 
 
 @cleanup
-def test_linestyle_accents():
+def test_linestyle_variants():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     for ls in ["-", "solid", "--", "dashed",

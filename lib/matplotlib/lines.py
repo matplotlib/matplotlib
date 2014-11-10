@@ -977,11 +977,7 @@ class Line2D(Artist):
                 break
 
         if linestyle not in self._lineStyles:
-            if linestyle in ls_mapper_r:
-                linestyle = ls_mapper_r[linestyle]
-            else:
-                verbose.report('Unrecognized line style %s, %s' %
-                               (linestyle, type(linestyle)))
+            linestyle = ls_mapper_r.get(linestyle, linestyle)
         if linestyle in [' ', '']:
             linestyle = 'None'
         self._linestyle = linestyle
