@@ -9,6 +9,7 @@ except ImportError:
 
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
+from matplotlib.testing.decorators import cleanup
 
 
 def get_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
@@ -86,6 +87,7 @@ def check_rectangle(**kwargs):
     assert ax._got_onselect
 
 
+@cleanup
 def test_rectangle_selector():
     check_rectangle()
     check_rectangle(drawtype='line', useblit=False)
@@ -128,6 +130,7 @@ def check_span(*args, **kwargs):
         assert ax._got_on_move
 
 
+@cleanup
 def test_span_selector():
     check_span('horizontal', minspan=10, useblit=True)
     check_span('vertical', onmove_callback=True, button=1)
@@ -156,6 +159,7 @@ def check_lasso_selector(**kwargs):
     assert ax._got_onselect
 
 
+@cleanup
 def test_lasso_selector():
     check_lasso_selector()
     check_lasso_selector(useblit=False, lineprops=dict(color='red'))
