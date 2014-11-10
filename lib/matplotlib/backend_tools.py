@@ -196,7 +196,7 @@ class SetCursorBase(ToolBase):
     # If the tool is toggleable, set the cursor when the tool is triggered
     def _add_tool(self, tool):
         if getattr(tool, 'cursor', None) is not None:
-            self.navigation.mpl_connect('tool-trigger-%s' % tool.name,
+            self.navigation.mpl_connect('tool_trigger_%s' % tool.name,
                                         self._tool_trigger_cbk)
 
     # If tool is added, process it
