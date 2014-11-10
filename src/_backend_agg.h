@@ -79,21 +79,6 @@ struct fixed_blender_rgba_plain : agg::conv_rgba_plain<ColorT, Order>
 
 /**********************************************************************/
 
-typedef fixed_blender_rgba_plain<agg::rgba8, agg::order_rgba> fixed_blender_rgba32_plain;
-typedef agg::pixfmt_alpha_blend_rgba<fixed_blender_rgba32_plain, agg::rendering_buffer> pixfmt;
-typedef agg::renderer_base<pixfmt> renderer_base;
-typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_aa;
-typedef agg::renderer_scanline_bin_solid<renderer_base> renderer_bin;
-typedef agg::rasterizer_scanline_aa<agg::rasterizer_sl_clip_dbl> rasterizer;
-
-typedef agg::scanline_p8 scanline_p8;
-typedef agg::scanline_bin scanline_bin;
-typedef agg::amask_no_clip_gray8 alpha_mask_type;
-typedef agg::scanline_u8_am<alpha_mask_type> scanline_am;
-
-typedef agg::renderer_base<agg::pixfmt_gray8> renderer_base_alpha_mask_type;
-typedef agg::renderer_scanline_aa_solid<renderer_base_alpha_mask_type> renderer_alpha_mask_type;
-
 // a helper class to pass agg::buffer objects around.  agg::buffer is
 // a class in the swig wrapper
 class BufferRegion
@@ -157,10 +142,26 @@ class BufferRegion
 // the renderer
 class RendererAgg
 {
+  public:
+
+    typedef fixed_blender_rgba_plain<agg::rgba8, agg::order_rgba> fixed_blender_rgba32_plain;
+    typedef agg::pixfmt_alpha_blend_rgba<fixed_blender_rgba32_plain, agg::rendering_buffer> pixfmt;
+    typedef agg::renderer_base<pixfmt> renderer_base;
+    typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_aa;
+    typedef agg::renderer_scanline_bin_solid<renderer_base> renderer_bin;
+    typedef agg::rasterizer_scanline_aa<agg::rasterizer_sl_clip_dbl> rasterizer;
+
+    typedef agg::scanline_p8 scanline_p8;
+    typedef agg::scanline_bin scanline_bin;
+    typedef agg::amask_no_clip_gray8 alpha_mask_type;
+    typedef agg::scanline_u8_am<alpha_mask_type> scanline_am;
+
+    typedef agg::renderer_base<agg::pixfmt_gray8> renderer_base_alpha_mask_type;
+    typedef agg::renderer_scanline_aa_solid<renderer_base_alpha_mask_type> renderer_alpha_mask_type;
+
     /* TODO: Remove facepair_t */
     typedef std::pair<bool, agg::rgba> facepair_t;
 
-  public:
     RendererAgg(unsigned int width, unsigned int height, double dpi);
 
     virtual ~RendererAgg();
