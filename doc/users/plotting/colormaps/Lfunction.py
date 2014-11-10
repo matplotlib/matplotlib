@@ -6,7 +6,10 @@ adding blackness to a color at different rates.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from skimage import color
+import colorconv as color
+#from skimage import color
+# we are using a local copy of colorconv from scikit-image to reduce dependencies. 
+# You should probably use the one from scikit-image in most cases. 
 import matplotlib as mpl
 from matplotlib import cm
 
