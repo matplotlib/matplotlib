@@ -18,7 +18,7 @@ from weakref import WeakKeyDictionary
 import numpy as np
 
 
-class Cursors:
+class Cursors(object):
     """Simple namespace for cursor reference"""
     HAND, POINTER, SELECT_REGION, MOVE = list(range(4))
 cursors = Cursors()
@@ -118,6 +118,9 @@ class ToolToggleBase(ToolBase):
     Every time it is triggered, it switches between enable and disable
     """
 
+    radio_group = None
+    """Attribute to group 'radio' like tools"""
+
     cursor = None
     """Cursor to use when the tool is active"""
 
@@ -192,7 +195,7 @@ class SetCursorBase(ToolBase):
 
     # If the tool is toggleable, set the cursor when the tool is triggered
     def _add_tool(self, tool):
-        if getattr(tool, 'toggled', None) is not None:
+        if getattr(tool, 'cursor', None) is not None:
             self.navigation.mpl_connect('tool-trigger-%s' % tool.name,
                                         self._tool_trigger_cbk)
 
