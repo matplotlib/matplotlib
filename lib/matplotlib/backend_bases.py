@@ -3226,27 +3226,38 @@ class NavigationToolbar2(object):
 
 
 class ToolEvent(object):
-    """Base event for tool communication"""
-    def __init__(self, name, sender):
+    """Event for tool manipulation (add/remove)"""
+    def __init__(self, name, sender, tool):
         self.name = name
         self.sender = sender
+        self.tool = tool
 
 
 class ToolTriggerEvent(ToolEvent):
     """Event to inform  that a tool has been triggered"""
-    def __init__(self, name, tool, sender, canvasevent=None, data=None):
-        ToolEvent.__init__(self, name, sender)
-        self.tool = tool
+    def __init__(self, name, sender, tool, canvasevent=None, data=None):
+        ToolEvent.__init__(self, name, sender, tool)
         self.canvasevent = canvasevent
         self.data = data
 
 
-class NavigationEvent(ToolEvent):
-    """Event for navigation tool management (add/remove/message)"""
-    def __init__(self, name, sender, **kwargs):
-        ToolEvent.__init__(self, name, sender)
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+class ToolAddedEvent(ToolEvent):
+    """Event triggered when a tool is added"""
+    def __init__(self, name, sender, tool, group, position):
+        ToolEvent.__init__(self, name, sender, tool)
+        self.group = group
+        self.position = position
+
+
+class NavigationMessageEvent(object):
+    """Event carring messages from navigation
+
+    Messages are generaly displayed to the user by the toolbar
+    """
+    def __init__(self, name, sender, message):
+        self.name = name
+        self.sender = sender
+        self.message = message
 
 
 class NavigationBase(object):
@@ -3303,7 +3314,7 @@ class NavigationBase(object):
 
         Example usage::
 
-            cid = navigation.mpl_connect('tool-trigger-zoom', on_press)
+            cid = navigation.mpl_connect('tool_trigger_zoom', on_press)
             #...later
             navigation.mpl_disconnect(cid)
         """
@@ -3315,7 +3326,7 @@ class NavigationBase(object):
             sender = self
 
         s = 'tool_message_event'
-        event = NavigationEvent(s, sender, message=message)
+        event = NavigationMessageEvent(s, sender, message)
         self._callbacks.process(s, event)
 
     @property
@@ -3388,7 +3399,7 @@ class NavigationBase(object):
         self._remove_keys(name)
 
         s = 'tool_removed_event'
-        event = NavigationEvent(s, self, tool=tool)
+        event = ToolEvent(s, self, tool)
         self._callbacks.process(s, event)
 
         del self._tools[name]
@@ -3449,28 +3460,28 @@ class NavigationBase(object):
 
     def _tool_added_event(self, tool, group, position):
         s = 'tool_added_event'
-        event = NavigationEvent(s, self,
-                                tool=tool,
-                                group=group,
-                                position=position)
+        event = ToolAddedEvent(s, self,
+                               tool,
+                               group,
+                               position)
         self._callbacks.process(s, event)
 
-    def _handle_toggle(self, name, sender, canvasevent, data):
+    def _handle_toggle(self, tool, sender, canvasevent, data):
         # Toggle tools, need to be untoggled before other Toggle tool is used
         # This is called from tool_trigger_event
 
-        if self._toggled == name:
+        if self._toggled == tool.name:
             toggled = None
         elif self._toggled is None:
-            toggled = name
+            toggled = tool.name
         else:
             # Untoggle previously toggled tool
             self.tool_trigger_event(self._toggled, self, canvasevent, data)
-            toggled = name
+            toggled = tool.name
 
         self._toggled = toggled
-        for a in self.canvas.figure.get_axes():
-            a.set_navigate_mode(self._toggled)
+#         for a in self.canvas.figure.get_axes():
+#             a.set_navigate_mode(self._toggled)
 
     def _get_cls_to_instantiate(self, callback_class):
         # Find the class that corresponds to the tool
@@ -3512,7 +3523,8 @@ class NavigationBase(object):
         self._trigger_tool(name, sender, canvasevent, data)
 
         s = 'tool-trigger-%s' % name
-        event = ToolTriggerEvent(s, self._tools[name], sender, canvasevent, data)
+        event = ToolTriggerEvent(s, sender, self._tools[name], canvasevent,
+                                 data)
         self._callbacks.process(s, event)
 
     def _trigger_tool(self, name, sender=None, canvasevent=None, data=None):
@@ -3523,7 +3535,7 @@ class NavigationBase(object):
         tool = self._tools[name]
 
         if isinstance(tool, tools.ToolToggleBase):
-            self._handle_toggle(name, sender, canvasevent, data)
+            self._handle_toggle(tool, sender, canvasevent, data)
 
         # Important!!!
         # This is where the Tool object is triggered
