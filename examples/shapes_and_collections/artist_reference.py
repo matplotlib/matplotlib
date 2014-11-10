@@ -63,15 +63,15 @@ label(grid[5], "Arrow")
 # add a path patch
 Path = mpath.Path
 path_data = [
-    (Path.MOVETO,    [0.018, -0.110]),
-    (Path.CURVE4,   [-0.031, -0.051]),
-    (Path.CURVE4,   [-0.115,  0.073]),
-    (Path.CURVE4,   [-0.030,  0.073]),
-    (Path.LINETO,   [-0.011,  0.039]),
-    (Path.CURVE4,    [0.043,  0.121]),
-    (Path.CURVE4,    [0.075, -0.005]),
-    (Path.CURVE4,    [0.035, -0.027]),
-    (Path.CLOSEPOLY, [0.018, -0.110])
+    (Path.MOVETO, [0.018, -0.11]),
+    (Path.CURVE4, [-0.031, -0.051]),
+    (Path.CURVE4, [-0.115,  0.073]),
+    (Path.CURVE4, [-0.03 ,  0.073]),
+    (Path.LINETO, [-0.011,  0.039]),
+    (Path.CURVE4, [0.043,  0.121]),
+    (Path.CURVE4, [0.075, -0.005]),
+    (Path.CURVE4, [0.035, -0.027]),
+    (Path.CLOSEPOLY, [0.018, -0.11])
     ]
 codes, verts = zip(*path_data)
 path = mpath.Path(verts + grid[6], codes)
