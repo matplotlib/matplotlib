@@ -856,7 +856,7 @@ class LibAgg(SetupPackage):
         if self.found_external:
             pkg_config.setup_extension(ext, 'libagg')
         else:
-            ext.include_dirs.append('extern/agg24/include')
+            ext.include_dirs.append('extern/agg24-svn/include')
             if add_sources:
                 agg_sources = [
                     'agg_bezier_arc.cpp',
@@ -869,7 +869,7 @@ class LibAgg(SetupPackage):
                     'agg_vpgen_segmentator.cpp'
                     ]
                 ext.sources.extend(
-                    os.path.join('extern', 'agg24', 'src', x) for x in agg_sources)
+                    os.path.join('extern', 'agg24-svn', 'src', x) for x in agg_sources)
 
 
 class FreeType(SetupPackage):
