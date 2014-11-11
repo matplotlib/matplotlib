@@ -638,7 +638,7 @@ class RendererPgf(RendererBase):
         # prepare string for tex
         s = common_texification(s)
         prop_cmds = _font_properties_str(prop)
-        s = r"{%s %s}" % (prop_cmds, s)
+        s = r"%s %s" % (prop_cmds, s)
 
 
         writeln(self.fh, r"\begin{pgfscope}")
@@ -652,6 +652,7 @@ class RendererPgf(RendererBase):
             writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % rgb)
             writeln(self.fh, r"\pgfsetstrokecolor{textcolor}")
             writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
+            s = r"\color{textcolor}" + s
 
         f = 1.0 / self.figure.dpi
         text_args = []
