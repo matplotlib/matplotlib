@@ -6,6 +6,7 @@ typedef struct
 {
     PyObject_HEAD;
     RendererAgg *x;
+    uint8_t *tmp_buffer;
     Py_ssize_t shape[3];
     Py_ssize_t strides[3];
     Py_ssize_t suboffsets[3];
@@ -14,12 +15,11 @@ typedef struct
 typedef struct
 {
     PyObject_HEAD;
-    BufferRegion *x;
+    BufferRegion<typename RendererAgg::pixfmt> *x;
     Py_ssize_t shape[3];
     Py_ssize_t strides[3];
     Py_ssize_t suboffsets[3];
 } PyBufferRegion;
-
 
 /**********************************************************************
  * BufferRegion
@@ -158,6 +158,7 @@ static PyObject *PyRendererAgg_new(PyTypeObject *type, PyObject *args, PyObject 
     PyRendererAgg *self;
     self = (PyRendererAgg *)type->tp_alloc(type, 0);
     self->x = NULL;
+    self->tmp_buffer = NULL;
     return (PyObject *)self;
 }
 
@@ -185,6 +186,7 @@ static int PyRendererAgg_init(PyRendererAgg *self, PyObject *args, PyObject *kwd
 static void PyRendererAgg_dealloc(PyRendererAgg *self)
 {
     delete self->x;
+    delete self->tmp_buffer;
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
@@ -551,21 +553,54 @@ PyRendererAgg_get_content_extents(PyRendererAgg *self, PyObject *args, PyObject 
 
 static PyObject *PyRendererAgg_buffer_rgba(PyRendererAgg *self, PyObject *args, PyObject *kwds)
 {
-#if PY3K
-    return PyBytes_FromStringAndSize((const char *)self->x->pixBuffer,
-                                     self->x->get_width() * self->x->get_height() * 4);
-#else
-    return PyBuffer_FromReadWriteMemory(self->x->pixBuffer,
-                                        self->x->get_width() * self->x->get_height() * 4);
-#endif
+    PyObject *result;
+    unsigned char *output_buffer;
+
+    result = PyBytes_FromStringAndSize(NULL, self->x->get_width() * self->x->get_height() * 4);
+    if (result == NULL) {
+        return NULL;
+    }
+
+    output_buffer = (unsigned char *)PyBytes_AsString(result);
+
+    agg::rendering_buffer dst(output_buffer,
+                              self->x->get_width(),
+                              self->x->get_height(),
+                              self->x->get_width() * sizeof(agg::rgba8));
+
+    agg::convert<agg::pixfmt_rgba32, RendererAgg::pixfmt>(&dst, &self->x->renderingBuffer);
+
+    return result;
+
+    // Below is the fast path if we are already in rgba8
+
+    // #if PY3K
+    //     return PyBytes_FromStringAndSize((const char *)self->x->pixBuffer,
+    //                                      self->x->get_width() * self->x->get_height() * 4);
+    // #else
+    //     return PyBuffer_FromReadWriteMemory(self->x->pixBuffer,
+    //                                         self->x->get_width() * self->x->get_height() * 4);
+    // #endif
 }
 
 int PyRendererAgg_get_buffer(PyRendererAgg *self, Py_buffer *buf, int flags)
 {
     Py_INCREF(self);
+    if (self->tmp_buffer == NULL) {
+        self->tmp_buffer =
+            new uint8_t[self->x->get_width() * self->x->get_height() * sizeof(agg::rgba8)];
+    }
+
+    agg::rendering_buffer dst(self->tmp_buffer,
+                              self->x->get_width(),
+                              self->x->get_height(),
+                              self->x->get_width() * sizeof(agg::rgba8));
+
+    agg::convert<agg::pixfmt_rgba32, RendererAgg::pixfmt>(&dst, &self->x->renderingBuffer);
+
     buf->obj = (PyObject *)self;
-    buf->buf = self->x->pixBuffer;
-    buf->len = self->x->get_width() * self->x->get_height() * 4;
+    buf->buf = self->tmp_buffer;
+    buf->len = self->x->get_width() * self->x->get_height() * sizeof(agg::rgba8);
     buf->readonly = 0;
     buf->format = (char *)"B";
     buf->ndim = 3;
@@ -573,7 +608,7 @@ int PyRendererAgg_get_buffer(PyRendererAgg *self, Py_buffer *buf, int flags)
     self->shape[1] = self->x->get_width();
     self->shape[2] = 4;
     buf->shape = self->shape;
-    self->strides[0] = self->x->get_width() * 4;
+    self->strides[0] = self->x->get_width() * sizeof(agg::rgba8);
     self->strides[1] = 4;
     self->strides[2] = 1;
     buf->strides = self->strides;
@@ -594,7 +629,7 @@ static PyObject *PyRendererAgg_clear(PyRendererAgg *self, PyObject *args, PyObje
 static PyObject *PyRendererAgg_copy_from_bbox(PyRendererAgg *self, PyObject *args, PyObject *kwds)
 {
     agg::rect_d bbox;
-    BufferRegion *reg;
+    BufferRegion<typename RendererAgg::pixfmt> *reg;
     PyObject *regobj;
 
     if (!PyArg_ParseTuple(args, "O&:copy_from_bbox", &convert_rect, &bbox)) {

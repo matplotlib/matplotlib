@@ -43,6 +43,7 @@
 
 // a helper class to pass agg::buffer objects around.  agg::buffer is
 // a class in the swig wrapper
+template <class PixFmt>
 class BufferRegion
 {
   public:
@@ -50,7 +51,7 @@ class BufferRegion
     {
         width = r.x2 - r.x1;
         height = r.y2 - r.y1;
-        stride = width * 4;
+        stride = width * sizeof(typename PixFmt::color_type);
         data = new agg::int8u[stride * height];
     }
 
@@ -84,7 +85,13 @@ class BufferRegion
         return stride;
     }
 
-    void to_string_argb(uint8_t *buf);
+    void to_string_argb(uint8_t *buf)
+    {
+        agg::rendering_buffer src(data, width, height, width * sizeof(typename PixFmt::color_type));
+        agg::rendering_buffer dst(buf, width, height, width * sizeof(agg::rgba8));
+
+        agg::convert<agg::pixfmt_argb32, PixFmt>(&dst, &src);
+    }
 
   private:
     agg::int8u *data;
@@ -105,9 +112,8 @@ class BufferRegion
 class RendererAgg
 {
   public:
-
-    typedef fixed_blender_rgba_plain<agg::rgba8, agg::order_rgba> fixed_blender_rgba32_plain;
-    typedef agg::pixfmt_alpha_blend_rgba<fixed_blender_rgba32_plain, agg::rendering_buffer> pixfmt;
+    typedef agg::pixfmt_rgba128_plain pixfmt;
+    typedef typename pixfmt::color_type color_type;
     typedef agg::renderer_base<pixfmt> renderer_base;
     typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_aa;
     typedef agg::renderer_scanline_bin_solid<renderer_base> renderer_bin;
@@ -211,9 +217,54 @@ class RendererAgg
     agg::rect_i get_content_extents();
     void clear();
 
-    BufferRegion *copy_from_bbox(agg::rect_d in_rect);
-    void restore_region(BufferRegion &reg);
-    void restore_region(BufferRegion &region, int x, int y, int xx1, int yy1, int xx2, int yy2);
+    BufferRegion<pixfmt> *copy_from_bbox(agg::rect_d in_rect)
+    {
+        agg::rect_i rect(
+            (int)in_rect.x1, height - (int)in_rect.y2, (int)in_rect.x2, height - (int)in_rect.y1);
+
+        BufferRegion<pixfmt> *reg = NULL;
+        reg = new BufferRegion<pixfmt>(rect);
+
+        agg::rendering_buffer rbuf;
+        rbuf.attach(reg->get_data(), reg->get_width(), reg->get_height(), reg->get_stride());
+
+        pixfmt pf(rbuf);
+        renderer_base rb(pf);
+        rb.copy_from(renderingBuffer, &rect, -rect.x1, -rect.y1);
+
+        return reg;
+    }
+
+    void restore_region(BufferRegion<pixfmt> &region)
+    {
+        if (region.get_data() == NULL) {
+            throw "Cannot restore_region from NULL data";
+        }
+
+        agg::rendering_buffer rbuf;
+        rbuf.attach(
+            region.get_data(), region.get_width(), region.get_height(), region.get_stride());
+
+        rendererBase.copy_from(rbuf, 0, region.get_rect().x1, region.get_rect().y1);
+    }
+
+    void
+    restore_region(BufferRegion<pixfmt> &region, int x, int y, int xx1, int yy1, int xx2, int yy2)
+    {
+        if (region.get_data() == NULL) {
+            throw "Cannot restore_region from NULL data";
+        }
+
+        agg::rect_i &rrect = region.get_rect();
+
+        agg::rect_i rect(xx1 - rrect.x1, (yy1 - rrect.y1), xx2 - rrect.x1, (yy2 - rrect.y1));
+
+        agg::rendering_buffer rbuf;
+        rbuf.attach(
+            region.get_data(), region.get_width(), region.get_height(), region.get_stride());
+
+        rendererBase.copy_from(rbuf, &rect, x, y);
+    }
 
     unsigned int width, height;
     double dpi;
@@ -392,7 +443,7 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const facepair_t &face,
                                          agg::wrap_mode_repeat_auto_pow2,
                                          agg::wrap_mode_repeat_auto_pow2> img_source_type;
         typedef agg::span_pattern_rgba<img_source_type> span_gen_type;
-        agg::span_allocator<agg::rgba8> sa;
+        agg::span_allocator<pixfmt::color_type> sa;
         img_source_type img_src(hatch_img_pixf);
         span_gen_type sg(img_src, 0, 0);
         theRasterizer.add_path(path);
@@ -551,10 +602,8 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
                 fillCache = new agg::int8u[fillSize];
             }
             scanlines.serialize(fillCache);
-            marker_size = agg::rect_i(scanlines.min_x(),
-                                      scanlines.min_y(),
-                                      scanlines.max_x(),
-                                      scanlines.max_y());
+            marker_size = agg::rect_i(
+                scanlines.min_x(), scanlines.min_y(), scanlines.max_x(), scanlines.max_y());
         }
 
         stroke_t stroke(marker_path_curve);
@@ -676,26 +725,25 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
  * This is a custom span generator that converts spans in the
  * 8-bit inverted greyscale font buffer to rgba that agg can use.
  */
-template <class ChildGenerator>
+template <class ChildGenerator, class ColorType>
 class font_to_rgba
 {
   public:
     typedef ChildGenerator child_type;
-    typedef agg::rgba8 color_type;
     typedef typename child_type::color_type child_color_type;
     typedef agg::span_allocator<child_color_type> span_alloc_type;
 
   private:
     child_type *_gen;
-    color_type _color;
+    ColorType _color;
     span_alloc_type _allocator;
 
   public:
-    font_to_rgba(child_type *gen, color_type color) : _gen(gen), _color(color)
+    font_to_rgba(child_type *gen, ColorType color) : _gen(gen), _color(color)
     {
     }
 
-    inline void generate(color_type *output_span, int x, int y, unsigned len)
+    inline void generate(ColorType *output_span, int x, int y, unsigned len)
     {
         _allocator.allocate(len);
         child_color_type *input_span = _allocator.span();
@@ -703,7 +751,8 @@ class font_to_rgba
 
         do {
             *output_span = _color;
-            output_span->a = ((unsigned int)_color.a * (unsigned int)input_span->v) >> 8;
+            output_span->opacity(_color.opacity() *
+                                 input_span->to_double(input_span->v));
             ++output_span;
             ++input_span;
         } while (--len);
@@ -718,11 +767,11 @@ class font_to_rgba
 template <class ImageArray>
 inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, int y, double angle)
 {
-    typedef agg::span_allocator<agg::rgba8> color_span_alloc_type;
+    typedef agg::span_allocator<pixfmt::color_type> color_span_alloc_type;
     typedef agg::span_interpolator_linear<> interpolator_type;
     typedef agg::image_accessor_clip<agg::pixfmt_gray8> image_accessor_type;
     typedef agg::span_image_filter_gray<image_accessor_type, interpolator_type> image_span_gen_type;
-    typedef font_to_rgba<image_span_gen_type> span_gen_type;
+    typedef font_to_rgba<image_span_gen_type, color_type> span_gen_type;
     typedef agg::renderer_scanline_aa<renderer_base, color_span_alloc_type, span_gen_type>
     renderer_type;
 
@@ -763,11 +812,10 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
     agg::render_scanlines(theRasterizer, slineP8, ri);
 }
 
+template <class color_type>
 class span_conv_alpha
 {
   public:
-    typedef agg::rgba8 color_type;
-
     double m_alpha;
 
     span_conv_alpha(double alpha) : m_alpha(alpha)
@@ -835,18 +883,19 @@ inline void RendererAgg::draw_image(GCAgg &gc,
         agg::trans_affine inv_mtx(mtx);
         inv_mtx.invert();
 
-        typedef agg::span_allocator<agg::rgba8> color_span_alloc_type;
+        typedef agg::span_allocator<pixfmt::color_type> color_span_alloc_type;
         typedef agg::image_accessor_clip<pixfmt> image_accessor_type;
         typedef agg::span_interpolator_linear<> interpolator_type;
         typedef agg::span_image_filter_rgba_nn<image_accessor_type, interpolator_type>
         image_span_gen_type;
-        typedef agg::span_converter<image_span_gen_type, span_conv_alpha> span_conv;
+        typedef agg::span_converter<image_span_gen_type, span_conv_alpha<pixfmt::color_type> >
+        span_conv;
 
         color_span_alloc_type sa;
-        image_accessor_type ia(pixf, agg::rgba8(0, 0, 0, 0));
+        image_accessor_type ia(pixf, pixfmt::color_type(0, 0, 0, 0));
         interpolator_type interpolator(inv_mtx);
         image_span_gen_type image_span_generator(ia, interpolator);
-        span_conv_alpha conv_alpha(alpha);
+        span_conv_alpha<pixfmt::color_type> conv_alpha(alpha);
         span_conv spans(image_span_generator, conv_alpha);
 
         if (has_clippath) {
@@ -1200,7 +1249,7 @@ inline void RendererAgg::_draw_gouraud_triangle(PointArray &points,
                                                 agg::trans_affine trans,
                                                 bool has_clippath)
 {
-    typedef agg::rgba8 color_t;
+    typedef pixfmt::color_type color_t;
     typedef agg::span_gouraud_rgba<color_t> span_gen_t;
     typedef agg::span_allocator<color_t> span_alloc_t;
 
@@ -1266,7 +1315,7 @@ inline void RendererAgg::draw_gouraud_triangle(GCAgg &gc,
         throw "colors must be a 3x4 array";
     }
 
-    _draw_gouraud_triangle(points, colors, trans, has_clippath);
+    // _draw_gouraud_triangle(points, colors, trans, has_clippath);
 }
 
 template <class PointArray, class ColorArray>
@@ -1296,7 +1345,7 @@ inline void RendererAgg::draw_gouraud_triangles(GCAgg &gc,
         typename PointArray::sub_t point = points[i];
         typename ColorArray::sub_t color = colors[i];
 
-        _draw_gouraud_triangle(point, color, trans, has_clippath);
+        // _draw_gouraud_triangle(point, color, trans, has_clippath);
     }
 }
 
