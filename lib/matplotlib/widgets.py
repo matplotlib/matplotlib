@@ -1155,7 +1155,7 @@ class _SelectorWidget(AxesWidget):
         # Only do rectangle selection if event was triggered
         # with a desired button
         if self.validButtons is not None:
-            if not event.button in self.validButtons:
+            if event.button not in self.validButtons:
                 return True
 
         # If no button was pressed yet ignore the event if it was out
@@ -1164,7 +1164,7 @@ class _SelectorWidget(AxesWidget):
             return event.inaxes != self.ax
 
         # If a button was pressed, check if the release-button is the
-        # same. 
+        # same.
         if event.button == self.eventpress.button:
             return False
 
@@ -1217,7 +1217,7 @@ class _SelectorWidget(AxesWidget):
 
     def release(self, event):
         """Button release event"""
-        if not self.ignore(event) and not self.eventpress is None:
+        if not self.ignore(event) and self.eventpress is not None:
             self.eventrelease = copy.copy(event)
             self.eventrelease.xdata, self.eventrelease.ydata = (
                 self._get_data(event))
