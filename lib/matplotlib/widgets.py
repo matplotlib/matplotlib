@@ -1108,10 +1108,10 @@ class _SelectorWidget(AxesWidget):
         self.artists = []
         self.useblit = useblit and self.canvas.supports_blit
 
-        if button is None or isinstance(button, list):
-            self.validButtons = button
-        elif isinstance(button, int):
+        if isinstance(button, int):
             self.validButtons = [button]
+        else:
+            self.validButtons = button
 
         # will save the data (position at mouseclick)
         self.eventpress = None
@@ -1192,8 +1192,16 @@ class _SelectorWidget(AxesWidget):
             if self.background is not None:
                 self.canvas.restore_region(self.background)
             for artist in self.artists:
-                self.ax.draw_artist(artist)
-            self.canvas.blit(self.ax.bbox)
+                try:
+                    self.ax.draw_artist(artist)
+                except AssertionError:
+                    self.canvas.draw_idle()
+                    return False
+            try:
+                self.canvas.blit(self.ax.bbox)
+            except AttributeError:
+                self.canvas.draw_idle()
+                return False
         else:
             self.canvas.draw_idle()
         return False
@@ -1425,7 +1433,6 @@ class SpanSelector(_SelectorWidget):
             self.onmove_callback(vmin, vmax)
 
         self.update()
-        self.eventpress = None
         return False
 
 
