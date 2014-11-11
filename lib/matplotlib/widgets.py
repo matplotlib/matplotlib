@@ -1182,16 +1182,10 @@ class _SelectorWidget(AxesWidget):
             if self.background is not None:
                 self.canvas.restore_region(self.background)
             for artist in self.artists:
-                try:
-                    self.ax.draw_artist(artist)
-                except AssertionError:
-                    self.canvas.draw_idle()
-                    return False
-            try:
-                self.canvas.blit(self.ax.bbox)
-            except AttributeError:
-                self.canvas.draw_idle()
-                return False
+                self.ax.draw_artist(artist)
+
+            self.canvas.blit(self.ax.bbox)
+
         else:
             self.canvas.draw_idle()
         return False
