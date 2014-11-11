@@ -72,8 +72,8 @@ def check_rectangle(**kwargs):
         ax._got_onselect = True
         assert epress.xdata == 100
         assert epress.ydata == 100
-        assert erelease.xdata == 150
-        assert erelease.ydata == 150
+        assert erelease.xdata == 200
+        assert erelease.ydata == 200
 
     tool = widgets.RectangleSelector(ax, onselect, **kwargs)
     event = get_event(ax, xdata=100, ydata=100, button=1)
@@ -82,7 +82,8 @@ def check_rectangle(**kwargs):
     event = get_event(ax, xdata=125, ydata=125, button=1)
     tool.onmove(event)
 
-    event = get_event(ax, xdata=150, ydata=150, button=1)
+    # purposely drag outside of axis for release
+    event = get_event(ax, xdata=250, ydata=250, button=1)
     tool.release(event)
 
     assert ax._got_onselect

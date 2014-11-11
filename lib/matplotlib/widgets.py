@@ -12,6 +12,7 @@ wide and tall you want your Axes to be to accommodate your widget.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import copy
 import six
 from six.moves import zip
 
@@ -1163,19 +1164,8 @@ class _SelectorWidget(AxesWidget):
             return event.inaxes != self.ax
 
         # If a button was pressed, check if the release-button is the
-        # same. If event is out of axis, limit the data coordinates to axes
-        # boundaries.
-        if event.button == self.eventpress.button and event.inaxes != self.ax:
-            (xdata, ydata) = self.ax.transData.inverted().transform_point(
-                (event.x, event.y))
-            x0, x1 = self.ax.get_xbound()
-            y0, y1 = self.ax.get_ybound()
-            xdata = max(x0, xdata)
-            xdata = min(x1, xdata)
-            ydata = max(y0, ydata)
-            ydata = min(y1, ydata)
-            event.xdata = xdata
-            event.ydata = ydata
+        # same. 
+        if event.button == self.eventpress.button:
             return False
 
         # If a button was pressed, check if the release-button is the
@@ -1206,17 +1196,31 @@ class _SelectorWidget(AxesWidget):
             self.canvas.draw_idle()
         return False
 
+    def _get_data(self, event):
+        """Limit the xdata and ydata to the axes limits"""
+        x0, x1 = self.ax.get_xbound()
+        y0, y1 = self.ax.get_ybound()
+        xdata = max(x0, event.xdata)
+        xdata = min(x1, xdata)
+        ydata = max(y0, event.ydata)
+        ydata = min(y1, ydata)
+        return xdata, ydata
+
     def press(self, event):
         """Button press handler"""
         if not self.ignore(event):
-            self.eventpress = event
+            self.eventpress = copy.copy(event)
+            self.eventpress.xdata, self.eventpress.ydata = (
+                self._get_data(event))
             return True
         return False
 
     def release(self, event):
         """Button release event"""
         if not self.ignore(event) and not self.eventpress is None:
-            self.eventrelease = event
+            self.eventrelease = copy.copy(event)
+            self.eventrelease.xdata, self.eventrelease.ydata = (
+                self._get_data(event))
             return True
         else:
             return False
@@ -1363,10 +1367,11 @@ class SpanSelector(_SelectorWidget):
         if self.span_stays:
             self.stay_rect.set_visible(False)
 
+        xdata, ydata = self._get_data(event)
         if self.direction == 'horizontal':
-            self.pressv = event.xdata
+            self.pressv = xdata
         else:
-            self.pressv = event.ydata
+            self.pressv = ydata
         return False
 
     def release(self, event):
@@ -1386,10 +1391,11 @@ class SpanSelector(_SelectorWidget):
 
         self.canvas.draw()
         vmin = self.pressv
+        xdata, ydata = self._get_data(event)
         if self.direction == 'horizontal':
-            vmax = event.xdata or self.prev[0]
+            vmax = xdata or self.prev[0]
         else:
-            vmax = event.ydata or self.prev[1]
+            vmax = ydata or self.prev[1]
 
         if vmin > vmax:
             vmin, vmax = vmax, vmin
@@ -1404,7 +1410,7 @@ class SpanSelector(_SelectorWidget):
         """on motion notify event"""
         if self.pressv is None or self.ignore(event):
             return
-        x, y = event.xdata, event.ydata
+        x, y = self._get_data(event)
         self.prev = x, y
         if self.direction == 'horizontal':
             v = x
@@ -1423,10 +1429,11 @@ class SpanSelector(_SelectorWidget):
 
         if self.onmove_callback is not None:
             vmin = self.pressv
+            xdata, ydata = self._get_data(event)
             if self.direction == 'horizontal':
-                vmax = event.xdata or self.prev[0]
+                vmax = xdata or self.prev[0]
             else:
-                vmax = event.ydata or self.prev[1]
+                vmax = ydata or self.prev[1]
 
             if vmin > vmax:
                 vmin, vmax = vmax, vmin
@@ -1609,7 +1616,8 @@ class RectangleSelector(_SelectorWidget):
         """on motion notify event if box/line is wanted"""
         if self.eventpress is None or self.ignore(event):
             return
-        x, y = event.xdata, event.ydata             # actual position (with
+
+        x, y = self._get_data(event)            # actual position (with
                                                    #   (button still pressed)
         if self.drawtype == 'box':
             minx, maxx = self.eventpress.xdata, x  # click-x and actual mouse-x
@@ -1695,7 +1703,7 @@ class LassoSelector(_SelectorWidget):
     def press(self, event):
         if not _SelectorWidget.press(self, event):
             return
-        self.verts = [(event.xdata, event.ydata)]
+        self.verts = [self._get_data(event)]
         self.line.set_visible(True)
 
     def onrelease(self, event):
@@ -1705,7 +1713,7 @@ class LassoSelector(_SelectorWidget):
         if not _SelectorWidget.release(self, event):
             return
         if self.verts is not None:
-            self.verts.append((event.xdata, event.ydata))
+            self.verts.append(self._get_data(event))
             self.onselect(self.verts)
         self.line.set_data([[], []])
         self.line.set_visible(False)
@@ -1714,7 +1722,7 @@ class LassoSelector(_SelectorWidget):
     def onmove(self, event):
         if self.ignore(event) or self.verts is None:
             return
-        self.verts.append((event.xdata, event.ydata))
+        self.verts.append(self._get_data(event))
 
         self.line.set_data(list(zip(*self.verts)))
 
