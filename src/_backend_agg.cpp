@@ -39,7 +39,8 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi)
     rendererBase.clear(_fill_color);
     rendererAA.attach(rendererBase);
     rendererBin.attach(rendererBase);
-    hatchRenderingBuffer.attach(hatchBuffer, HATCH_SIZE, HATCH_SIZE, HATCH_SIZE * 4);
+    hatchRenderingBuffer.attach(
+        hatchBuffer, HATCH_SIZE, HATCH_SIZE, HATCH_SIZE * sizeof(color_type));
 }
 
 RendererAgg::~RendererAgg()
@@ -95,34 +96,37 @@ void RendererAgg::tostring_rgb(uint8_t *buf)
     agg::rendering_buffer renderingBufferTmp;
     renderingBufferTmp.attach(buf, width, height, row_len);
 
-    agg::color_conv(&renderingBufferTmp, &renderingBuffer, agg::color_conv_rgba32_to_rgb24());
+    agg::convert<agg::pixfmt_rgb24, pixfmt, agg::rendering_buffer>(&renderingBufferTmp, &renderingBuffer);
 }
 
 void RendererAgg::tostring_argb(uint8_t *buf)
 {
     //"Return the rendered buffer as an RGB string";
 
-    int row_len = width * 4;
+    int row_len = width * sizeof(agg::rgba8);
 
     agg::rendering_buffer renderingBufferTmp;
     renderingBufferTmp.attach(buf, width, height, row_len);
-    agg::color_conv(&renderingBufferTmp, &renderingBuffer, agg::color_conv_rgba32_to_argb32());
+
+    agg::convert<agg::pixfmt_argb32, pixfmt, agg::rendering_buffer>(&renderingBufferTmp, &renderingBuffer);
 }
 
 void RendererAgg::tostring_bgra(uint8_t *buf)
 {
     //"Return the rendered buffer as an RGB string";
 
-    int row_len = width * 4;
+    int row_len = width * sizeof(agg::rgba8);
 
     agg::rendering_buffer renderingBufferTmp;
     renderingBufferTmp.attach(buf, width, height, row_len);
 
-    agg::color_conv(&renderingBufferTmp, &renderingBuffer, agg::color_conv_rgba32_to_bgra32());
+    agg::convert<agg::pixfmt_bgra32, pixfmt, agg::rendering_buffer>(&renderingBufferTmp, &renderingBuffer);
 }
 
 agg::rect_i RendererAgg::get_content_extents()
 {
+    // TODO: This is most definitely broken
+
     agg::rect_i r(width, height, 0, 0);
 
     // Looks at the alpha channel to find the minimum extents of the image
