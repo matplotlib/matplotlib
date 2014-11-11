@@ -2,19 +2,19 @@
 // Anti-Grain Geometry - Version 2.4
 // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
-// Permission to copy, use, modify, sell and distribute this software 
-// is granted provided this copyright notice appears in all copies. 
+// Permission to copy, use, modify, sell and distribute this software
+// is granted provided this copyright notice appears in all copies.
 // This software is provided "as is" without express or implied
 // warranty, and with no claim as to its suitability for any purpose.
 //
 //----------------------------------------------------------------------------
 //
-// Adaptation for high precision colors has been sponsored by 
+// Adaptation for high precision colors has been sponsored by
 // Liberty Technology Systems, Inc., visit http://lib-sys.com
 //
 // Liberty Technology Systems, Inc. is the provider of
 // PostScript and PDF technology for software developers.
-// 
+//
 //----------------------------------------------------------------------------
 // Contact: mcseem@antigrain.com
 //          mcseemagg@yahoo.com
@@ -80,8 +80,8 @@ namespace agg
         //--------------------------------------------------------------------
         rgba& opacity(double a_)
         {
-            if (a_ < 0) a_ = 0;
-            else if (a_ > 1) a_ = 1;
+            if (a_ < 0) a = 0;
+            else if (a_ > 1) a = 1;
             else a = a_;
             return *this;
         }
@@ -171,7 +171,7 @@ namespace agg
 
         //--------------------------------------------------------------------
         static rgba from_wavelength(double wl, double gamma = 1.0);
-    
+
         //--------------------------------------------------------------------
         explicit rgba(double wavelen, double gamma=1.0)
         {
@@ -240,7 +240,7 @@ namespace agg
         return rgba(r, g, b, a).premultiply();
     }
 
-    
+
     //===================================================================rgba8
     template<class Colorspace>
     struct rgba8T
@@ -318,9 +318,9 @@ namespace agg
 
         //--------------------------------------------------------------------
         rgba8T(unsigned r_, unsigned g_, unsigned b_, unsigned a_ = base_mask) :
-            r(value_type(r_)), 
-            g(value_type(g_)), 
-            b(value_type(b_)), 
+            r(value_type(r_)),
+            g(value_type(g_)),
+            b(value_type(b_)),
             a(value_type(a_)) {}
 
         //--------------------------------------------------------------------
@@ -341,7 +341,7 @@ namespace agg
         }
 
         //--------------------------------------------------------------------
-        operator rgba() const 
+        operator rgba() const
         {
             rgba c;
             convert(c, *this);
@@ -385,21 +385,21 @@ namespace agg
         }
 
         //--------------------------------------------------------------------
-        static AGG_INLINE value_type invert(value_type x) 
+        static AGG_INLINE value_type invert(value_type x)
         {
             return base_mask - x;
         }
 
         //--------------------------------------------------------------------
         // Fixed-point multiply, exact over int8u.
-        static AGG_INLINE value_type multiply(value_type a, value_type b) 
+        static AGG_INLINE value_type multiply(value_type a, value_type b)
         {
             calc_type t = a * b + base_MSB;
             return value_type(((t >> base_shift) + t) >> base_shift);
         }
-        
+
         //--------------------------------------------------------------------
-        static AGG_INLINE value_type demultiply(value_type a, value_type b) 
+        static AGG_INLINE value_type demultiply(value_type a, value_type b)
         {
             if (a * b == 0)
             {
@@ -409,19 +409,19 @@ namespace agg
             {
                 return base_mask;
             }
-            else return value_type((a * base_mask + (b >> 1)) / b); 
+            else return value_type((a * base_mask + (b >> 1)) / b);
         }
 
         //--------------------------------------------------------------------
         template<typename T>
-        static AGG_INLINE T downscale(T a) 
+        static AGG_INLINE T downscale(T a)
         {
             return a >> base_shift;
         }
 
         //--------------------------------------------------------------------
         template<typename T>
-        static AGG_INLINE T downshift(T a, unsigned n) 
+        static AGG_INLINE T downshift(T a, unsigned n)
         {
             return a >> n;
         }
@@ -429,39 +429,39 @@ namespace agg
         //--------------------------------------------------------------------
         // Fixed-point multiply, exact over int8u.
         // Specifically for multiplying a color component by a cover.
-        static AGG_INLINE value_type mult_cover(value_type a, cover_type b) 
+        static AGG_INLINE value_type mult_cover(value_type a, cover_type b)
         {
             return multiply(a, b);
         }
-        
+
         //--------------------------------------------------------------------
-        static AGG_INLINE cover_type scale_cover(cover_type a, value_type b) 
+        static AGG_INLINE cover_type scale_cover(cover_type a, value_type b)
         {
             return multiply(b, a);
         }
-        
+
         //--------------------------------------------------------------------
         // Interpolate p to q by a, assuming q is premultiplied by a.
-        static AGG_INLINE value_type prelerp(value_type p, value_type q, value_type a) 
+        static AGG_INLINE value_type prelerp(value_type p, value_type q, value_type a)
         {
             return p + q - multiply(p, a);
         }
-        
+
         //--------------------------------------------------------------------
         // Interpolate p to q by a.
-        static AGG_INLINE value_type lerp(value_type p, value_type q, value_type a) 
+        static AGG_INLINE value_type lerp(value_type p, value_type q, value_type a)
         {
             int t = (q - p) * a + base_MSB - (p > q);
             return value_type(p + (((t >> base_shift) + t) >> base_shift));
         }
-        
+
         //--------------------------------------------------------------------
         self_type& clear()
         {
             r = g = b = a = 0;
 			return *this;
         }
-        
+
         //--------------------------------------------------------------------
         self_type& transparent()
         {
@@ -472,8 +472,8 @@ namespace agg
         //--------------------------------------------------------------------
         self_type& opacity(double a_)
         {
-            if (a_ < 0) a_ = 0;
-            else if (a_ > 1) a_ = 1;
+            if (a_ < 0) a = 0;
+            else if (a_ > 1) a = 1;
             else a = (value_type)uround(a_ * double(base_mask));
             return *this;
         }
@@ -566,17 +566,17 @@ namespace agg
             calc_type cr, cg, cb, ca;
             if (cover == cover_mask)
             {
-                if (c.a == base_mask) 
+                if (c.a == base_mask)
                 {
                     *this = c;
                     return;
                 }
                 else
                 {
-                    cr = r + c.r; 
-                    cg = g + c.g; 
-                    cb = b + c.b; 
-                    ca = a + c.a; 
+                    cr = r + c.r;
+                    cg = g + c.g;
+                    cb = b + c.b;
+                    ca = a + c.a;
                 }
             }
             else
@@ -683,9 +683,9 @@ namespace agg
 
         //--------------------------------------------------------------------
         rgba16(unsigned r_, unsigned g_, unsigned b_, unsigned a_=base_mask) :
-            r(value_type(r_)), 
-            g(value_type(g_)), 
-            b(value_type(b_)), 
+            r(value_type(r_)),
+            g(value_type(g_)),
+            b(value_type(b_)),
             a(value_type(a_)) {}
 
         //--------------------------------------------------------------------
@@ -694,49 +694,49 @@ namespace agg
 
         //--------------------------------------------------------------------
         rgba16(const rgba& c) :
-            r((value_type)uround(c.r * double(base_mask))), 
-            g((value_type)uround(c.g * double(base_mask))), 
-            b((value_type)uround(c.b * double(base_mask))), 
+            r((value_type)uround(c.r * double(base_mask))),
+            g((value_type)uround(c.g * double(base_mask))),
+            b((value_type)uround(c.b * double(base_mask))),
             a((value_type)uround(c.a * double(base_mask))) {}
 
         //--------------------------------------------------------------------
         rgba16(const rgba8& c) :
-            r(value_type((value_type(c.r) << 8) | c.r)), 
-            g(value_type((value_type(c.g) << 8) | c.g)), 
-            b(value_type((value_type(c.b) << 8) | c.b)), 
+            r(value_type((value_type(c.r) << 8) | c.r)),
+            g(value_type((value_type(c.g) << 8) | c.g)),
+            b(value_type((value_type(c.b) << 8) | c.b)),
             a(value_type((value_type(c.a) << 8) | c.a)) {}
 
         //--------------------------------------------------------------------
         rgba16(const srgba8& c) :
-            r(sRGB_conv<value_type>::rgb_from_sRGB(c.r)), 
-            g(sRGB_conv<value_type>::rgb_from_sRGB(c.g)), 
-            b(sRGB_conv<value_type>::rgb_from_sRGB(c.b)), 
+            r(sRGB_conv<value_type>::rgb_from_sRGB(c.r)),
+            g(sRGB_conv<value_type>::rgb_from_sRGB(c.g)),
+            b(sRGB_conv<value_type>::rgb_from_sRGB(c.b)),
             a(sRGB_conv<value_type>::alpha_from_sRGB(c.a)) {}
 
         //--------------------------------------------------------------------
-        operator rgba() const 
+        operator rgba() const
         {
             return rgba(
-                r / 65535.0, 
-                g / 65535.0, 
-                b / 65535.0, 
+                r / 65535.0,
+                g / 65535.0,
+                b / 65535.0,
                 a / 65535.0);
         }
 
         //--------------------------------------------------------------------
-        operator rgba8() const 
+        operator rgba8() const
         {
             return rgba8(r >> 8, g >> 8, b >> 8, a >> 8);
         }
 
         //--------------------------------------------------------------------
-        operator srgba8() const 
+        operator srgba8() const
         {
             // Return (non-premultiplied) sRGB values.
             return srgba8(
-                sRGB_conv<value_type>::rgb_to_sRGB(r), 
-                sRGB_conv<value_type>::rgb_to_sRGB(g), 
-                sRGB_conv<value_type>::rgb_to_sRGB(b), 
+                sRGB_conv<value_type>::rgb_to_sRGB(r),
+                sRGB_conv<value_type>::rgb_to_sRGB(g),
+                sRGB_conv<value_type>::rgb_to_sRGB(b),
                 sRGB_conv<value_type>::alpha_to_sRGB(a));
         }
 
@@ -777,21 +777,21 @@ namespace agg
         }
 
         //--------------------------------------------------------------------
-        static AGG_INLINE value_type invert(value_type x) 
+        static AGG_INLINE value_type invert(value_type x)
         {
             return base_mask - x;
         }
 
         //--------------------------------------------------------------------
         // Fixed-point multiply, exact over int16u.
-        static AGG_INLINE value_type multiply(value_type a, value_type b) 
+        static AGG_INLINE value_type multiply(value_type a, value_type b)
         {
             calc_type t = a * b + base_MSB;
             return value_type(((t >> base_shift) + t) >> base_shift);
         }
-        
+
         //--------------------------------------------------------------------
-        static AGG_INLINE value_type demultiply(value_type a, value_type b) 
+        static AGG_INLINE value_type demultiply(value_type a, value_type b)
         {
             if (a * b == 0)
             {
@@ -801,19 +801,19 @@ namespace agg
             {
                 return base_mask;
             }
-            else return value_type((a * base_mask + (b >> 1)) / b); 
+            else return value_type((a * base_mask + (b >> 1)) / b);
         }
 
         //--------------------------------------------------------------------
         template<typename T>
-        static AGG_INLINE T downscale(T a) 
+        static AGG_INLINE T downscale(T a)
         {
             return a >> base_shift;
         }
 
         //--------------------------------------------------------------------
         template<typename T>
-        static AGG_INLINE T downshift(T a, unsigned n) 
+        static AGG_INLINE T downshift(T a, unsigned n)
         {
             return a >> n;
         }
@@ -821,39 +821,39 @@ namespace agg
         //--------------------------------------------------------------------
         // Fixed-point multiply, almost exact over int16u.
         // Specifically for multiplying a color component by a cover.
-        static AGG_INLINE value_type mult_cover(value_type a, cover_type b) 
+        static AGG_INLINE value_type mult_cover(value_type a, cover_type b)
         {
             return multiply(a, (b << 8) | b);
         }
-        
+
         //--------------------------------------------------------------------
-        static AGG_INLINE cover_type scale_cover(cover_type a, value_type b) 
+        static AGG_INLINE cover_type scale_cover(cover_type a, value_type b)
         {
             return multiply((a << 8) | a, b) >> 8;
         }
-        
+
         //--------------------------------------------------------------------
         // Interpolate p to q by a, assuming q is premultiplied by a.
-        static AGG_INLINE value_type prelerp(value_type p, value_type q, value_type a) 
+        static AGG_INLINE value_type prelerp(value_type p, value_type q, value_type a)
         {
             return p + q - multiply(p, a);
         }
-        
+
         //--------------------------------------------------------------------
         // Interpolate p to q by a.
-        static AGG_INLINE value_type lerp(value_type p, value_type q, value_type a) 
+        static AGG_INLINE value_type lerp(value_type p, value_type q, value_type a)
         {
             int t = (q - p) * a + base_MSB - (p > q);
             return value_type(p + (((t >> base_shift) + t) >> base_shift));
         }
-        
+
         //--------------------------------------------------------------------
         self_type& clear()
         {
             r = g = b = a = 0;
 			return *this;
         }
-        
+
         //--------------------------------------------------------------------
         self_type& transparent()
         {
@@ -864,8 +864,8 @@ namespace agg
         //--------------------------------------------------------------------
         AGG_INLINE self_type& opacity(double a_)
         {
-            if (a_ < 0) a_ = 0;
-            if (a_ > 1) a_ = 1;
+            if (a_ < 0) a = 0;
+            if (a_ > 1) a = 1;
             a = value_type(uround(a_ * double(base_mask)));
             return *this;
         }
@@ -879,7 +879,7 @@ namespace agg
         //--------------------------------------------------------------------
         AGG_INLINE self_type& premultiply()
         {
-            if (a != base_mask) 
+            if (a != base_mask)
             {
                 if (a == 0)
                 {
@@ -958,17 +958,17 @@ namespace agg
             calc_type cr, cg, cb, ca;
             if (cover == cover_mask)
             {
-                if (c.a == base_mask) 
+                if (c.a == base_mask)
                 {
                     *this = c;
                     return;
                 }
                 else
                 {
-                    cr = r + c.r; 
-                    cg = g + c.g; 
-                    cb = b + c.b; 
-                    ca = a + c.a; 
+                    cr = r + c.r;
+                    cg = g + c.g;
+                    cb = b + c.b;
+                    ca = a + c.a;
                 }
             }
             else
@@ -1057,58 +1057,58 @@ namespace agg
 
         //--------------------------------------------------------------------
         rgba32(const rgba8& c) :
-            r(value_type(c.r / 255.0)), 
-            g(value_type(c.g / 255.0)), 
-            b(value_type(c.b / 255.0)), 
+            r(value_type(c.r / 255.0)),
+            g(value_type(c.g / 255.0)),
+            b(value_type(c.b / 255.0)),
             a(value_type(c.a / 255.0)) {}
 
         //--------------------------------------------------------------------
         rgba32(const srgba8& c) :
-            r(sRGB_conv<value_type>::rgb_from_sRGB(c.r)), 
-            g(sRGB_conv<value_type>::rgb_from_sRGB(c.g)), 
-            b(sRGB_conv<value_type>::rgb_from_sRGB(c.b)), 
+            r(sRGB_conv<value_type>::rgb_from_sRGB(c.r)),
+            g(sRGB_conv<value_type>::rgb_from_sRGB(c.g)),
+            b(sRGB_conv<value_type>::rgb_from_sRGB(c.b)),
             a(sRGB_conv<value_type>::alpha_from_sRGB(c.a)) {}
 
         //--------------------------------------------------------------------
         rgba32(const rgba16& c) :
-            r(value_type(c.r / 65535.0)), 
-            g(value_type(c.g / 65535.0)), 
-            b(value_type(c.b / 65535.0)), 
+            r(value_type(c.r / 65535.0)),
+            g(value_type(c.g / 65535.0)),
+            b(value_type(c.b / 65535.0)),
             a(value_type(c.a / 65535.0)) {}
 
         //--------------------------------------------------------------------
-        operator rgba() const 
+        operator rgba() const
         {
             return rgba(r, g, b, a);
         }
 
         //--------------------------------------------------------------------
-        operator rgba8() const 
+        operator rgba8() const
         {
             return rgba8(
-                uround(r * 255.0), 
-                uround(g * 255.0), 
-                uround(b * 255.0), 
+                uround(r * 255.0),
+                uround(g * 255.0),
+                uround(b * 255.0),
                 uround(a * 255.0));
         }
 
         //--------------------------------------------------------------------
-        operator srgba8() const 
+        operator srgba8() const
         {
             return srgba8(
-                sRGB_conv<value_type>::rgb_to_sRGB(r), 
-                sRGB_conv<value_type>::rgb_to_sRGB(g), 
-                sRGB_conv<value_type>::rgb_to_sRGB(b), 
+                sRGB_conv<value_type>::rgb_to_sRGB(r),
+                sRGB_conv<value_type>::rgb_to_sRGB(g),
+                sRGB_conv<value_type>::rgb_to_sRGB(b),
                 sRGB_conv<value_type>::alpha_to_sRGB(a));
         }
 
         //--------------------------------------------------------------------
-        operator rgba16() const 
+        operator rgba16() const
         {
             return rgba8(
-                uround(r * 65535.0), 
-                uround(g * 65535.0), 
-                uround(b * 65535.0), 
+                uround(r * 65535.0),
+                uround(g * 65535.0),
+                uround(b * 65535.0),
                 uround(a * 65535.0));
         }
 
@@ -1149,74 +1149,74 @@ namespace agg
         }
 
         //--------------------------------------------------------------------
-        static AGG_INLINE value_type invert(value_type x) 
+        static AGG_INLINE value_type invert(value_type x)
         {
             return 1 - x;
         }
 
         //--------------------------------------------------------------------
-        static AGG_INLINE value_type multiply(value_type a, value_type b) 
+        static AGG_INLINE value_type multiply(value_type a, value_type b)
         {
             return value_type(a * b);
         }
 
         //--------------------------------------------------------------------
-        static AGG_INLINE value_type demultiply(value_type a, value_type b) 
+        static AGG_INLINE value_type demultiply(value_type a, value_type b)
         {
             return (b == 0) ? 0 : value_type(a / b);
         }
 
         //--------------------------------------------------------------------
         template<typename T>
-        static AGG_INLINE T downscale(T a) 
+        static AGG_INLINE T downscale(T a)
         {
             return a;
         }
 
         //--------------------------------------------------------------------
         template<typename T>
-        static AGG_INLINE T downshift(T a, unsigned n) 
+        static AGG_INLINE T downshift(T a, unsigned n)
         {
             return n > 0 ? a / (1 << n) : a;
         }
 
         //--------------------------------------------------------------------
-        static AGG_INLINE value_type mult_cover(value_type a, cover_type b) 
+        static AGG_INLINE value_type mult_cover(value_type a, cover_type b)
         {
             return value_type(a * b / cover_mask);
         }
 
         //--------------------------------------------------------------------
-        static AGG_INLINE cover_type scale_cover(cover_type a, value_type b) 
+        static AGG_INLINE cover_type scale_cover(cover_type a, value_type b)
         {
             return cover_type(uround(a * b));
         }
-        
+
         //--------------------------------------------------------------------
         // Interpolate p to q by a, assuming q is premultiplied by a.
-        static AGG_INLINE value_type prelerp(value_type p, value_type q, value_type a) 
+        static AGG_INLINE value_type prelerp(value_type p, value_type q, value_type a)
         {
             return (1 - a) * p + q; // more accurate than "p + q - p * a"
         }
-        
+
         //--------------------------------------------------------------------
         // Interpolate p to q by a.
-        static AGG_INLINE value_type lerp(value_type p, value_type q, value_type a) 
+        static AGG_INLINE value_type lerp(value_type p, value_type q, value_type a)
         {
-			// The form "p + a * (q - p)" avoids a multiplication, but may produce an 
-			// inaccurate result. For example, "p + (q - p)" may not be exactly equal 
-			// to q. Therefore, stick to the basic expression, which at least produces 
+			// The form "p + a * (q - p)" avoids a multiplication, but may produce an
+			// inaccurate result. For example, "p + (q - p)" may not be exactly equal
+			// to q. Therefore, stick to the basic expression, which at least produces
 			// the correct result at either extreme.
 			return (1 - a) * p + a * q;
         }
-        
+
         //--------------------------------------------------------------------
         self_type& clear()
         {
             r = g = b = a = 0;
 			return *this;
         }
-        
+
         //--------------------------------------------------------------------
         self_type& transparent()
         {
@@ -1227,8 +1227,8 @@ namespace agg
         //--------------------------------------------------------------------
         AGG_INLINE self_type& opacity(double a_)
         {
-            if (a_ < 0) a_ = 0;
-            else if (a_ > 1) a_ = 1;
+            if (a_ < 0) a = 0;
+            else if (a_ > 1) a = 1;
             else a = value_type(a_);
             return *this;
         }
@@ -1293,17 +1293,17 @@ namespace agg
         {
             if (cover == cover_mask)
             {
-                if (c.is_opaque()) 
+                if (c.is_opaque())
                 {
                     *this = c;
                     return;
                 }
                 else
                 {
-                    r += c.r; 
-                    g += c.g; 
-                    b += c.b; 
-                    a += c.a; 
+                    r += c.r;
+                    g += c.g;
+                    b += c.b;
+                    a += c.a;
                 }
             }
             else
