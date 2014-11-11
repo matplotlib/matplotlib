@@ -852,23 +852,24 @@ class LibAgg(SetupPackage):
             self.__class__.found_external = False
             return str(e) + ' Using local copy.'
 
-    def add_flags(self, ext):
+    def add_flags(self, ext, add_sources=True):
         if self.found_external:
             pkg_config.setup_extension(ext, 'libagg')
         else:
             ext.include_dirs.append('extern/agg24/include')
-            agg_sources = [
-                'agg_bezier_arc.cpp',
-                'agg_curves.cpp',
-                'agg_image_filters.cpp',
-                'agg_trans_affine.cpp',
-                'agg_vcgen_contour.cpp',
-                'agg_vcgen_dash.cpp',
-                'agg_vcgen_stroke.cpp',
-                'agg_vpgen_segmentator.cpp'
-                ]
-            ext.sources.extend(
-                os.path.join('extern', 'agg24', 'src', x) for x in agg_sources)
+            if add_sources:
+                agg_sources = [
+                    'agg_bezier_arc.cpp',
+                    'agg_curves.cpp',
+                    'agg_image_filters.cpp',
+                    'agg_trans_affine.cpp',
+                    'agg_vcgen_contour.cpp',
+                    'agg_vcgen_dash.cpp',
+                    'agg_vcgen_stroke.cpp',
+                    'agg_vpgen_segmentator.cpp'
+                    ]
+                ext.sources.extend(
+                    os.path.join('extern', 'agg24', 'src', x) for x in agg_sources)
 
 
 class FreeType(SetupPackage):
@@ -1298,7 +1299,7 @@ class BackendTkAgg(OptionalBackendPackage):
         ext = make_extension('matplotlib.backends._tkagg', sources)
         self.add_flags(ext)
         Numpy().add_flags(ext)
-        LibAgg().add_flags(ext)
+        LibAgg().add_flags(ext, add_sources=False)
         return ext
 
     def query_tcltk(self):
