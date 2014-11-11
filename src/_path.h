@@ -102,10 +102,12 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
         for (i = 0; i < n; ++i) {
             ty = points[i][1];
 
-            // get test bit for above/below X axis
-            yflag0[i] = (vty0 >= ty);
+            if (MPL_isfinite64(ty)) {
+                // get test bit for above/below X axis
+                yflag0[i] = (vty0 >= ty);
 
-            subpath_flag[i] = 0;
+                subpath_flag[i] = 0;
+            }
         }
 
         do {
@@ -123,6 +125,10 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
             for (i = 0; i < n; ++i) {
                 tx = points[i][0];
                 ty = points[i][1];
+
+                if (MPL_notisfinite64(tx) || MPL_notisfinite64(ty)) {
+                    continue;
+                }
 
                 yflag1 = (vty1 >= ty);
                 // Check if endpoints straddle (are on opposite sides) of
@@ -167,6 +173,10 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
         for (i = 0; i < n; ++i) {
             tx = points[i][0];
             ty = points[i][1];
+
+            if (MPL_notisfinite64(tx) || MPL_notisfinite64(ty)) {
+                continue;
+            }
 
             yflag1 = (vty1 >= ty);
             if (yflag0[i] != yflag1) {
