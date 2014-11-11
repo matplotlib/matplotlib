@@ -75,6 +75,7 @@ def check_rectangle(**kwargs):
         assert erelease.xdata == 150
         assert erelease.ydata == 150
 
+
     tool = widgets.RectangleSelector(ax, onselect, **kwargs)
     event = get_event(ax, xdata=100, ydata=100, button=1)
     tool.press(event)
@@ -144,7 +145,6 @@ def check_lasso_selector(**kwargs):
 
     def onselect(verts):
         ax._got_onselect = True
-        print(verts)
         assert verts == [(100, 100), (125, 125), (150, 150)]
 
     tool = widgets.LassoSelector(ax, onselect, **kwargs)
