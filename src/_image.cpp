@@ -25,9 +25,12 @@
 
 #include "_image.h"
 #include "mplutils.h"
+#include "agg_workaround.h"
 
-typedef agg::pixfmt_rgba32_plain pixfmt;
-typedef agg::pixfmt_rgba32_pre pixfmt_pre;
+typedef fixed_blender_rgba_plain<agg::rgba8, agg::order_rgba> fixed_blender_rgba32_plain;
+typedef agg::pixfmt_alpha_blend_rgba<fixed_blender_rgba32_plain, agg::rendering_buffer> pixfmt;
+typedef fixed_blender_rgba_pre<agg::rgba8, agg::order_rgba> fixed_blender_rgba32_pre;
+typedef agg::pixfmt_alpha_blend_rgba<fixed_blender_rgba32_pre, agg::rendering_buffer> pixfmt_pre;
 typedef agg::renderer_base<pixfmt> renderer_base;
 typedef agg::span_interpolator_linear<> interpolator_type;
 typedef agg::rasterizer_scanline_aa<agg::rasterizer_sl_clip_dbl> rasterizer;
