@@ -65,8 +65,9 @@ def get_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
 
 @cleanup
 def check_rectangle(**kwargs):
-    ax = plt.gca()
+    fig, ax = plt.subplots(1, 1)
     ax.plot([0, 200], [0, 200])
+    ax.figure.canvas.draw()
 
     def onselect(epress, erelease):
         ax._got_onselect = True
@@ -100,8 +101,9 @@ def test_rectangle_selector():
 
 @cleanup
 def check_span(*args, **kwargs):
-    ax = plt.gca()
+    fig, ax = plt.subplots(1, 1)
     ax.plot([0, 200], [0, 200])
+    ax.figure.canvas.draw()
 
     def onselect(vmin, vmax):
         ax._got_onselect = True
@@ -140,8 +142,10 @@ def test_span_selector():
 
 @cleanup
 def check_lasso_selector(**kwargs):
+    fig, ax = plt.subplots(1, 1)
     ax = plt.gca()
     ax.plot([0, 200], [0, 200])
+    ax.figure.canvas.draw()
 
     def onselect(verts):
         ax._got_onselect = True
