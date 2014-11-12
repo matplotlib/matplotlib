@@ -42,13 +42,12 @@ except ImportError:
         return output
 
 
-try:
+if sys.platform != 'win32':
     if sys.version_info[0] < 3:
         from commands import getstatusoutput
     else:
         from subprocess import getstatusoutput
-except ImportError:
-    pass
+
 
 if PY3:
     import configparser
@@ -147,7 +146,6 @@ def get_base_dirs():
         return options['basedirlist']
 
     basedir_map = {
-
         'win32': ['win32_static', ],
         'darwin': ['/usr/local/', '/usr', '/usr/X11',
                    '/opt/X11', '/opt/local'],
