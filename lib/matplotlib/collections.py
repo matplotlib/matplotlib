@@ -463,16 +463,27 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         Set the linestyle(s) for the collection.
 
-        ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' |
-        (offset, on-off-dash-seq) ]
+
+        Parameters
+        ----------
+        ls : { '-',  '--', '-.', ':'} and more see description
+            The line style.  The written out linestyles
+            'solid', 'dashed', 'dashdot' and 'dotted' and drawstyle in
+            combination with a linestyle, e.g., ``'steps--'`` are also allowed.
+
+            Alternatively a dash tuple of the following form can be provided::
+
+                        (offset, onoffseq),
+
+            where ``onoffseq`` is an even length tuple of on and off ink
+            in points.
         """
         try:
             dashd = backend_bases.GraphicsContextBase.dashd
             if cbook.is_string_like(ls):
+                ls = cbook.ls_mapper.get(ls, ls)
                 if ls in dashd:
                     dashes = [dashd[ls]]
-                elif ls in cbook.ls_mapper:
-                    dashes = [dashd[cbook.ls_mapper[ls]]]
                 else:
                     raise ValueError()
             elif cbook.iterable(ls):
@@ -480,10 +491,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
                     dashes = []
                     for x in ls:
                         if cbook.is_string_like(x):
+                            x = cbook.ls_mapper.get(x, x)
                             if x in dashd:
                                 dashes.append(dashd[x])
-                            elif x in cbook.ls_mapper:
-                                dashes.append(dashd[cbook.ls_mapper[x]])
                             else:
                                 raise ValueError()
                         elif cbook.iterable(x) and len(x) == 2:
@@ -492,7 +502,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                             raise ValueError()
                 except ValueError:
                     if len(ls) == 2:
-                        dashes = ls
+                        dashes = [ls]
                     else:
                         raise ValueError()
             else:

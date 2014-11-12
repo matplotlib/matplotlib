@@ -13,7 +13,7 @@ from numpy.testing import assert_almost_equal
 
 from matplotlib.patches import Polygon
 from matplotlib.patches import Rectangle
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.collections as mcollections
@@ -201,6 +201,36 @@ def test_patch_custom_linestyle():
 
     ax.set_xlim([-1, 2])
     ax.set_ylim([-1, 2])
+
+
+@cleanup
+def test_patch_linestyle_accents():
+    #: Test if linestyle can also be specified with short menoics
+    #: like "--"
+    #: c.f. Gihub issue #2136
+    star = mpath.Path.unit_regular_star(6)
+    circle = mpath.Path.unit_circle()
+    # concatenate the star with an internal cutout of the circle
+    verts = np.concatenate([circle.vertices, star.vertices[::-1]])
+    codes = np.concatenate([circle.codes, star.codes])
+
+    linestyles = ["-", "--", "-.", ":",
+                  "solid", "dashed", "dashdot", "dotted"]
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    for i, ls in enumerate(linestyles):
+        star = mpath.Path(verts + i, codes)
+        patch = mpatches.PathPatch(star,
+                                   linewidth=3, linestyle=ls,
+                                   facecolor=(1, 0, 0),
+                                   edgecolor=(0, 0, 1))
+        ax.add_patch(patch)
+
+    ax.set_xlim([-1, i + 1])
+    ax.set_ylim([-1, i + 1])
+    fig.canvas.draw()
+    assert True
 
 
 def test_wedge_movement():

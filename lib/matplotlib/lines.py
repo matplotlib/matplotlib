@@ -25,6 +25,8 @@ from matplotlib import rcParams
 from .artist import allow_rasterization
 from matplotlib import docstring
 from matplotlib.markers import MarkerStyle
+import matplotlib.backend_bases
+
 # Imported here for backward compatibility, even though they don't
 # really belong.
 from matplotlib.markers import TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
@@ -194,15 +196,9 @@ class Line2D(Artist):
 
 
     """
-    lineStyles = _lineStyles = {  # hidden names deprecated
-        '-':    '_draw_solid',
-        '--':   '_draw_dashed',
-        '-.':   '_draw_dash_dot',
-        ':':    '_draw_dotted',
-        'None': '_draw_nothing',
-        ' ':    '_draw_nothing',
-        '':     '_draw_nothing',
-    }
+    lineStyles = _lineStyles = [  # hidden names deprecated
+        '-', '--', '-.', ':'  # , 'None', ' ', #''
+    ]
 
     _drawStyles_l = {
         'default':    '_draw_lines',
@@ -328,7 +324,6 @@ class Line2D(Artist):
         self.set_markevery(markevery)
         self.set_antialiased(antialiased)
         self.set_markersize(markersize)
-        self._dashSeq = None
 
         self.set_markerfacecolor(markerfacecolor)
         self.set_markerfacecoloralt(markerfacecoloralt)
@@ -408,7 +403,7 @@ class Line2D(Artist):
         olderrflags = np.seterr(all='ignore')
         try:
             # Check for collision
-            if self._linestyle in ['None', None]:
+            if not self._linestyle:
                 # If no line, return the nearby point(s)
                 d = (xt - mouseevent.x) ** 2 + (yt - mouseevent.y) ** 2
                 ind, = np.nonzero(np.less_equal(d, pixels ** 2))
@@ -702,11 +697,10 @@ class Line2D(Artist):
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())
 
-        funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
-        if funcname != '_draw_nothing':
+        linestyle = self._linestyle
+        if linestyle:
             tpath, affine = transf_path.get_transformed_path_and_affine()
             if len(tpath.vertices):
-                self._lineFunc = getattr(self, funcname)
                 funcname = self.drawStyles.get(self._drawstyle, '_draw_lines')
                 drawFunc = getattr(self, funcname)
                 drawFunc(renderer, gc, tpath, affine.frozen())
@@ -921,17 +915,17 @@ class Line2D(Artist):
         Set the linestyle of the line (also accepts drawstyles)
 
 
-        ================    =================
-        linestyle           description
-        ================    =================
-        ``'-'``             solid
-        ``'--'``            dashed
-        ``'-.'``            dash_dot
-        ``':'``             dotted
-        ``'None'``          draw nothing
-        ``' '``             draw nothing
-        ``''``              draw nothing
-        ================    =================
+        ===========================   =================
+        linestyle                     description
+        ===========================   =================
+        ``'-'`` or ``'solid'``        solid line
+        ``'--'`` or  ``'dashed'``     dashed line
+        ``'-.'`` or  ``'dash_dot'``   dash-dotted line
+        ``':'`` or ``'dotted'``       dotted line
+        ``'None'``                    draw nothing
+        ``' '``                       draw nothing
+        ``''``                        draw nothing
+        ===========================   =================
 
         'steps' is equivalent to 'steps-pre' and is maintained for
         backward-compatibility.
@@ -941,11 +935,26 @@ class Line2D(Artist):
             :meth:`set_drawstyle`
                To set the drawing style (stepping) of the plot.
 
-        ACCEPTS: [``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'None'`` |
-                  ``' '`` | ``''``]
+        Parameters
+        ----------
+        ls : { '-',  '--', '-.', ':'} and more see description
+            The line style.  The written out linestyles
+            'solid', 'dashed', 'dashdot' and 'dotted' and drawstyle in
+            combination with a linestyle, e.g., ``'steps--'`` are also allowed.
 
-        and any drawstyle in combination with a linestyle, e.g., ``'steps--'``.
+            Alternatively a dash tuple of the following form can be provided::
+
+                        (offset, onoffseq),
+
+            where ``onoffseq`` is an even length tuple of on and off ink
+            in points.
         """
+        if not is_string_like(linestyle):
+            if len(linestyle) != 2:
+                raise ValueError()
+
+            self._linestyle = linestyle
+            return
 
         for ds in self.drawStyleKeys:  # long names are first in the list
             if linestyle.startswith(ds):
@@ -956,14 +965,19 @@ class Line2D(Artist):
                     linestyle = '-'
                 break
 
-        if linestyle not in self._lineStyles:
-            if linestyle in ls_mapper:
-                linestyle = ls_mapper[linestyle]
-            else:
+        linestyle = ls_mapper.get(linestyle, linestyle)
+        # TODO: check if in dashd of backend?
+        #else:
+        #    verbose.report('Unrecognized line style %s, %s' %
+        #                   (linestyle, type(linestyle)))
+        if linestyle in [' ', 'None', 'none', '']:
+            linestyle = ''
+        else:
+            dashd = matplotlib.backend_bases.GraphicsContextBase.dashd
+            if linestyle not in dashd:
                 verbose.report('Unrecognized line style %s, %s' %
                                (linestyle, type(linestyle)))
-        if linestyle in [' ', '']:
-            linestyle = 'None'
+                linestyle = ''
         self._linestyle = linestyle
 
     @docstring.dedent_interpd
@@ -1060,11 +1074,11 @@ class Line2D(Artist):
         if seq == (None, None) or len(seq) == 0:
             self.set_linestyle('-')
         else:
-            self.set_linestyle('--')
-        self._dashSeq = seq  # TODO: offset ignored for now
+            self._linestyle = (0, seq)  # TODO: offset ignored for now
 
     def _draw_lines(self, renderer, gc, path, trans):
-        self._lineFunc(renderer, gc, path, trans)
+        gc.set_linestyle(self._linestyle)
+        renderer.draw_path(gc, path, trans)
 
     def _draw_steps_pre(self, renderer, gc, path, trans):
         vertices = self._xy
@@ -1075,7 +1089,7 @@ class Line2D(Artist):
 
         path = Path(steps)
         path = path.transformed(self.get_transform())
-        self._lineFunc(renderer, gc, path, IdentityTransform())
+        self._draw_lines(renderer, gc, path, IdentityTransform())
 
     def _draw_steps_post(self, renderer, gc, path, trans):
         vertices = self._xy
@@ -1086,7 +1100,7 @@ class Line2D(Artist):
 
         path = Path(steps)
         path = path.transformed(self.get_transform())
-        self._lineFunc(renderer, gc, path, IdentityTransform())
+        self._draw_lines(renderer, gc, path, IdentityTransform())
 
     def _draw_steps_mid(self, renderer, gc, path, trans):
         vertices = self._xy
@@ -1100,26 +1114,7 @@ class Line2D(Artist):
 
         path = Path(steps)
         path = path.transformed(self.get_transform())
-        self._lineFunc(renderer, gc, path, IdentityTransform())
-
-    def _draw_solid(self, renderer, gc, path, trans):
-        gc.set_linestyle('solid')
-        renderer.draw_path(gc, path, trans)
-
-    def _draw_dashed(self, renderer, gc, path, trans):
-        gc.set_linestyle('dashed')
-        if self._dashSeq is not None:
-            gc.set_dashes(0, self._dashSeq)
-
-        renderer.draw_path(gc, path, trans)
-
-    def _draw_dash_dot(self, renderer, gc, path, trans):
-        gc.set_linestyle('dashdot')
-        renderer.draw_path(gc, path, trans)
-
-    def _draw_dotted(self, renderer, gc, path, trans):
-        gc.set_linestyle('dotted')
-        renderer.draw_path(gc, path, trans)
+        self._draw_lines(renderer, gc, path, IdentityTransform())
 
     def update_from(self, other):
         """copy properties from other to self"""
@@ -1132,13 +1127,11 @@ class Line2D(Artist):
         self._markerfacecoloralt = other._markerfacecoloralt
         self._markeredgecolor = other._markeredgecolor
         self._markeredgewidth = other._markeredgewidth
-        self._dashSeq = other._dashSeq
         self._dashcapstyle = other._dashcapstyle
         self._dashjoinstyle = other._dashjoinstyle
         self._solidcapstyle = other._solidcapstyle
         self._solidjoinstyle = other._solidjoinstyle
 
-        self._linestyle = other._linestyle
         self._marker = MarkerStyle(other._marker.get_marker(),
                                    other._marker.get_fillstyle())
         self._drawstyle = other._drawstyle
@@ -1309,7 +1302,8 @@ class Line2D(Artist):
 
     def is_dashed(self):
         'return True if line is dashstyle'
-        return self._linestyle in ('--', '-.', ':')
+        return (self._linestyle in ('dashed', 'dashdot', 'dotted') or
+            not is_string_like(self._linestyle))
 
 
 class VertexSelector(object):

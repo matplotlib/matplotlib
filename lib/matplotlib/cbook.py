@@ -2102,7 +2102,6 @@ _linestyles = [('-', 'solid'),
                (':', 'dotted')]
 
 ls_mapper = dict(_linestyles)
-ls_mapper.update([(ls[1], ls[0]) for ls in _linestyles])
 
 
 def align_iterators(func, *iterables):

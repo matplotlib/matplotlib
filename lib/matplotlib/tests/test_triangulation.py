@@ -765,7 +765,7 @@ def test_tri_smooth_contouring():
     refiner = mtri.UniformTriRefiner(triang0)
     tri_refi, z_test_refi = refiner.refine_field(z0, subdiv=4)
     levels = np.arange(0., 1., 0.025)
-    plt.triplot(triang0, lw=0.5, color='0.5')
+    plt.triplot(triang0, '0.5', lw=0.5)
     plt.tricontour(tri_refi, z_test_refi, levels=levels, colors="black")
 
 

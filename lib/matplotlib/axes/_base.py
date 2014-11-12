@@ -63,7 +63,8 @@ def _process_plot_format(fmt):
 
     # Is fmt just a colorspec?
     try:
-        color = mcolors.colorConverter.to_rgb(fmt)
+        mcolors.colorConverter.to_rgb(fmt)
+        color = fmt
 
         # We need to differentiate grayscale '1.0' from tri_down marker '1'
         try:
@@ -80,27 +81,23 @@ def _process_plot_format(fmt):
     except ValueError:
         pass  # No, not just a color.
 
-    # handle the multi char special cases and strip them from the
-    # string
-    if fmt.find('--') >= 0:
-        linestyle = '--'
-        fmt = fmt.replace('--', '')
-    if fmt.find('-.') >= 0:
-        linestyle = '-.'
-        fmt = fmt.replace('-.', '')
-    if fmt.find(' ') >= 0:
-        linestyle = 'None'
-        fmt = fmt.replace(' ', '')
+    for ls in sorted(mlines.lineStyles, key=len, reverse=True):
+        if fmt.find(ls) >= 0:
+            linestyle = ls
+            fmt = fmt.replace(ls, '')
+            break
+
+    # Check for double linestyle definition
+    if linestyle:
+        for ls in sorted(mlines.lineStyles, key=len):
+            if fmt.find(ls) >= 0:
+                raise ValueError(
+                    'Illegal format string "%s"; two linestyle symbols' % fmt)
 
     chars = [c for c in fmt]
 
     for c in chars:
-        if c in mlines.lineStyles:
-            if linestyle is not None:
-                raise ValueError(
-                    'Illegal format string "%s"; two linestyle symbols' % fmt)
-            linestyle = c
-        elif c in mlines.lineMarkers:
+        if c in mlines.lineMarkers:
             if marker is not None:
                 raise ValueError(
                     'Illegal format string "%s"; two marker symbols' % fmt)
@@ -114,11 +111,9 @@ def _process_plot_format(fmt):
             raise ValueError(
                 'Unrecognized character %c in format string' % c)
 
-    if linestyle is None and marker is None:
-        linestyle = rcParams['lines.linestyle']
-    if linestyle is None:
+    if linestyle is None and marker is not None:
         linestyle = 'None'
-    if marker is None:
+    if marker is None and linestyle is not None:
         marker = 'None'
 
     return linestyle, marker, color
