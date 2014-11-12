@@ -80,8 +80,7 @@ class Axis(maxis.XAxis):
         # This is a temporary member variable.
         # Do not depend on this existing in future releases!
         self._axinfo = self._AXINFO[adir].copy()
-        self._axinfo.update({'label' : {'space_factor': 1.6,
-                                        'va': 'center',
+        self._axinfo.update({'label' : {'va': 'center',
                                         'ha': 'center'},
                              'tick' : {'inward_factor': 0.2,
                                        'outward_factor': 0.1},
@@ -94,6 +93,8 @@ class Axis(maxis.XAxis):
 
 
         maxis.XAxis.__init__(self, axes, *args, **kwargs)
+
+        self.labelpad = 1.6
 
         self.set_rotate_label(kwargs.get('rotate_label', None))
 
@@ -265,7 +266,7 @@ class Axis(maxis.XAxis):
 
         lxyz = 0.5*(edgep1 + edgep2)
 
-        labeldeltas = info['label']['space_factor'] * deltas
+        labeldeltas = self.labelpad * deltas
         axmask = [True, True, True]
         axmask[index] = False
         lxyz = move_from_center(lxyz, centers, labeldeltas, axmask)
