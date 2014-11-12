@@ -1326,7 +1326,7 @@ class SpanSelector(_SelectorWidget):
     def new_axes(self, ax):
         self.ax = ax
         if self.canvas is not ax.figure.canvas:
-            if not self.canvas is None:
+            if self.canvas is not None:
                 self.disconnect_events()
 
             self.canvas = ax.figure.canvas
@@ -1548,7 +1548,7 @@ class RectangleSelector(_SelectorWidget):
                 lineprops = dict(color='black', linestyle='-',
                                  linewidth=2, alpha=0.5)
             self.lineprops = lineprops
-            if useblit:
+            if self.useblit:
                 self.lineprops['animated'] = True
             self.to_draw = Line2D([0, 0], [0, 0], visible=False,
                                   **self.lineprops)
