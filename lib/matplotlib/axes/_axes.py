@@ -688,8 +688,8 @@ class Axes(_AxesBase):
 
         Notes
         -----
-        kwargs are passed to :class:`~matplotlib.lines.Line2D` and can be used to
-        control the line properties.
+        kwargs are passed to :class:`~matplotlib.lines.Line2D` and can be used
+        to control the line properties.
 
         Examples
         --------
