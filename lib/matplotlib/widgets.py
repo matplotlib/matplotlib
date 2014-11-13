@@ -1255,7 +1255,7 @@ class SpanSelector(_SelectorWidget):
         span = SpanSelector(ax, onselect, 'horizontal')
 
     *onmove_callback* is an optional callback that is called on mouse
-      move within the span range
+    move within the span range
 
     """
 
@@ -1275,6 +1275,7 @@ class SpanSelector(_SelectorWidget):
         If *minspan* is not *None*, ignore events smaller than *minspan*
 
         The span rectangle is drawn with *rectprops*; default::
+        
           rectprops = dict(facecolor='red', alpha=0.5)
 
         Set the visible attribute to *False* if you want to turn off
@@ -1283,7 +1284,7 @@ class SpanSelector(_SelectorWidget):
         If *span_stays* is True, the span stays visble after making
         a valid selection.
 
-         *button* is a list of integers indicating which mouse buttons should
+        *button* is a list of integers indicating which mouse buttons should
         be used for selection.  You can also specify a single
         integer if only a single button is desired.  Default is *None*,
         which does not limit which button can be used.
@@ -1292,6 +1293,7 @@ class SpanSelector(_SelectorWidget):
          1 = left mouse button
          2 = center mouse button (scroll wheel)
          3 = right mouse button
+
         """
         _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
             button=button)
