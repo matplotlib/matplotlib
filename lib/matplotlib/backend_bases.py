@@ -784,7 +784,6 @@ class GraphicsContextBase(object):
         self._linestyle = 'solid'
         self._linewidth = 1
         self._rgb = (0.0, 0.0, 0.0, 1.0)
-        self._orig_color = (0.0, 0.0, 0.0, 1.0)
         self._hatch = None
         self._url = None
         self._gid = None
@@ -804,7 +803,6 @@ class GraphicsContextBase(object):
         self._linestyle = gc._linestyle
         self._linewidth = gc._linewidth
         self._rgb = gc._rgb
-        self._orig_color = gc._orig_color
         self._hatch = gc._hatch
         self._url = gc._url
         self._gid = gc._gid
@@ -938,7 +936,7 @@ class GraphicsContextBase(object):
         else:
             self._alpha = 1.0
             self._forced_alpha = False
-        self.set_foreground(self._orig_color)
+        self.set_foreground(self._rgb, isRGBA=True)
 
     def set_antialiased(self, b):
         """
@@ -1000,8 +998,9 @@ class GraphicsContextBase(object):
 
         If you know fg is rgba, set ``isRGBA=True`` for efficiency.
         """
-        self._orig_color = fg
-        if self._forced_alpha:
+        if self._forced_alpha and isRGBA:
+            self._rgb = fg[:3] + (self._alpha,)
+        elif self._forced_alpha:
             self._rgb = colors.colorConverter.to_rgba(fg, self._alpha)
         elif isRGBA:
             self._rgb = fg
@@ -1012,7 +1011,6 @@ class GraphicsContextBase(object):
         """
         Set the foreground color to be a gray level with *frac*
         """
-        self._orig_color = frac
         self._rgb = (frac, frac, frac, self._alpha)
 
     def set_joinstyle(self, js):
