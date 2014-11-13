@@ -3433,22 +3433,6 @@ def test_pie_frame_grid():
     plt.axis('equal')
 
 
-@image_comparison(baseline_images=['axes3d_labelpad'], extensions=['png'])
-def test_axes3d_labelpad():
-    from mpl_toolkits.mplot3d import Axes3D
-    # The slices will be ordered and plotted counter-clockwise.
-    fig = plt.figure()
-    ax = Axes3D(fig)
-
-    # labelpad can be set in constructor
-    ax.set_xlabel('X LABEL', labelpad=1.3)
-    ax.set_ylabel('Y LABEL')
-    ax.set_zlabel('Z LABEL')
-    # or manually
-    ax.yaxis.labelpad = 3
-    ax.zaxis.labelpad = -1
-
-
 @cleanup
 def test_margins():
     # test all ways margins can be called
