@@ -1284,7 +1284,7 @@ class BackendTkAgg(OptionalBackendPackage):
             tk_v = Tkinter.__version__.split()[-2]
         except (AttributeError, IndexError):
             # Tkinter.__version__ has been removed in python 3
-            tk_v = 'version not identified'
+            tk_v = 'not identified'
 
         BackendAgg.force = True
 
