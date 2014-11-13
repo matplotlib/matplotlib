@@ -692,6 +692,10 @@ defaultParams = {
 
 
     ## figure props
+    # figure title
+    'figure.titlesize':   ['medium', validate_fontsize],
+    'figure.titleweight': ['normal', six.text_type],
+
     # figure size in inches: width by height
     'figure.figsize':    [[8.0, 6.0], validate_nseq_float(2)],
     'figure.dpi':        [80, validate_float],   # DPI
