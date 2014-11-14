@@ -67,6 +67,48 @@ def test_context():
     # Check that this value is reset after the exiting the context.
     assert mpl.rcParams[PARAM] == 'gray'
 
+def test_context_dict():
+    ORIGINAL = 'gray'
+    VALUE_OTHER = 'blue'
+    mpl.rcParams[PARAM] = ORIGINAL
+    with style.context({PARAM: VALUE_OTHER}):
+        assert mpl.rcParams[PARAM] == VALUE_OTHER
+    assert mpl.rcParams[PARAM] == ORIGINAL
+
+def test_context_dictname1():
+    # Test dict after style name where dict modifies the same parameter.
+    ORIGINAL = 'gray'
+    VALUE_OTHER = 'blue'
+    mpl.rcParams[PARAM] = ORIGINAL
+    with temp_style('test', DUMMY_SETTINGS):
+        with style.context(['test', {PARAM: VALUE_OTHER}]):
+            assert mpl.rcParams[PARAM] == VALUE_OTHER
+    assert mpl.rcParams[PARAM] == ORIGINAL
+
+def test_context_dictname2():
+    # Test dict before style name where dict modifies the same parameter.
+    ORIGINAL = 'gray'
+    VALUE_OTHER = 'blue'
+    mpl.rcParams[PARAM] = ORIGINAL
+    with temp_style('test', DUMMY_SETTINGS):
+        with style.context([{PARAM: VALUE_OTHER}, 'test']):
+            assert mpl.rcParams[PARAM] == VALUE
+    assert mpl.rcParams[PARAM] == ORIGINAL
+
+def test_context_dictname3():
+    # Test dict after style name where dict modifies the a different parameter.
+    ORIGINAL = 'gray'
+    PARAM_OTHER = 'text.usetex'
+    VALUE_OTHER = True
+    d = {PARAM_OTHER: VALUE_OTHER}
+    mpl.rcParams[PARAM] = ORIGINAL
+    mpl.rcParams[PARAM_OTHER] = (not VALUE_OTHER)
+    with temp_style('test', DUMMY_SETTINGS):
+        with style.context(['test', d]):
+            assert mpl.rcParams[PARAM] == VALUE
+            assert mpl.rcParams[PARAM_OTHER] == VALUE_OTHER
+    assert mpl.rcParams[PARAM] == ORIGINAL
+    assert mpl.rcParams[PARAM_OTHER] == (not VALUE_OTHER)
 
 if __name__ == '__main__':
     from numpy import testing
