@@ -67,6 +67,7 @@ def test_context():
     # Check that this value is reset after the exiting the context.
     assert mpl.rcParams[PARAM] == 'gray'
 
+
 def test_context_dict():
     ORIGINAL = 'gray'
     VALUE_OTHER = 'blue'
@@ -74,6 +75,7 @@ def test_context_dict():
     with style.context({PARAM: VALUE_OTHER}):
         assert mpl.rcParams[PARAM] == VALUE_OTHER
     assert mpl.rcParams[PARAM] == ORIGINAL
+
 
 def test_context_dictname1():
     # Test dict after style name where dict modifies the same parameter.
@@ -85,6 +87,7 @@ def test_context_dictname1():
             assert mpl.rcParams[PARAM] == VALUE_OTHER
     assert mpl.rcParams[PARAM] == ORIGINAL
 
+
 def test_context_dictname2():
     # Test dict before style name where dict modifies the same parameter.
     ORIGINAL = 'gray'
@@ -94,6 +97,7 @@ def test_context_dictname2():
         with style.context([{PARAM: VALUE_OTHER}, 'test']):
             assert mpl.rcParams[PARAM] == VALUE
     assert mpl.rcParams[PARAM] == ORIGINAL
+
 
 def test_context_dictname3():
     # Test dict after style name where dict modifies the a different parameter.
@@ -109,6 +113,7 @@ def test_context_dictname3():
             assert mpl.rcParams[PARAM_OTHER] == VALUE_OTHER
     assert mpl.rcParams[PARAM] == ORIGINAL
     assert mpl.rcParams[PARAM_OTHER] == (not VALUE_OTHER)
+
 
 if __name__ == '__main__':
     from numpy import testing
