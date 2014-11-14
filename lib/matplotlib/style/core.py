@@ -21,7 +21,7 @@ import contextlib
 
 import matplotlib as mpl
 from matplotlib import cbook
-from matplotlib import rc_params_from_file, RcParams
+from matplotlib import rc_params_from_file
 
 
 __all__ = ['use', 'context', 'available', 'library', 'reload_library']
@@ -44,19 +44,23 @@ def use(name):
 
     Parameters
     ----------
-    name : str, list of str, or RcParams
-        Name of style or path/URL to a style file. For a list of available
-        style names, see `style.available`. If given a list, each style is
-        applied from first to last in the list. Instead of strings, each style
-        may also be specified directly as an instance of `RcParams`.
+    name : str, dict, list of str and/or dict
+        If `name` is a str, then it is the name of a style or a path/URL to a
+        style file. For a list of available style names, see `style.available`.
+        If `name` is a dict, then it contains valid rc key/value pairs. If
+        `name` is a list of styles, then each style (str or dict) is applied
+        from first to last in the list.
     """
-    if cbook.is_string_like(name) or isinstance(name, RcParams):
+    # If name is a single str or dict, make it a single element list.
+    if cbook.is_string_like(name) or hasattr(name, 'keys'):
         name = [name]
 
     for style in name:
-        if isinstance(style, RcParams):
+        if not cbook.is_string_like(name):
             mpl.rcParams.update(style)
-        elif style in library:
+            continue
+
+        if style in library:
             mpl.rcParams.update(library[style])
         else:
             try:
@@ -75,11 +79,12 @@ def context(name, after_reset=False):
 
     Parameters
     ----------
-    name : str, list of str, or RcParams
-        Name of style or path/URL to a style file. For a list of available
-        style names, see `style.available`. If given a list, each style is
-        applied from first to last in the list. Instead of strings, each style
-        may also be specified directly as an instance of `RcParams`.
+    name : str, dict, list of str and/or dict
+        If `name` is a str, then it is the name of a style or a path/URL to a
+        style file. For a list of available style names, see `style.available`.
+        If `name` is a dict, then it contains valid rc key/value pairs. If
+        `name` is a list of styles, then each style (str or dict) is applied
+        from first to last in the list.
     after_reset : bool
         If True, apply style after resetting settings to their defaults;
         otherwise, apply style on top of the current settings.
