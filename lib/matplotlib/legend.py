@@ -356,7 +356,6 @@ class Legend(Artist):
         else:
             edgecolor = rcParams["legend.edgecolor"]
 
-
         self.legendPatch = FancyBboxPatch(
             xy=(0.0, 0.0), width=1., height=1.,
             facecolor=facecolor,
