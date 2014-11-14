@@ -1164,7 +1164,7 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
     QuadMeshGenerator<CoordinateArray> path_generator(mesh_width, mesh_height, coordinates);
 
     array::empty<double> transforms;
-    array::scalar<double, 1> linewidths(points_to_pixels(gc.linewidth));
+    array::scalar<double, 1> linewidths(gc.linewidth);
     array::scalar<uint8_t, 1> antialiaseds(antialiased);
     DashesVector linestyles;
     ColorArray *edgecolors_ptr = &edgecolors;
