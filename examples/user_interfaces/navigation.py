@@ -13,20 +13,25 @@ class ListTools(ToolBase):
     description = 'List Tools'
 
     def trigger(self, *args, **kwargs):
-        print ('_' * 80)
-        print ("{0:12} {1:45} {2}".format('Name (id)',
-                                          'Tool description',
-                                          'Keymap'))
-        print ('-' * 80)
+        print('_' * 80)
+        print("{0:12} {1:45} {2}".format('Name (id)',
+                                         'Tool description',
+                                         'Keymap'))
+        print('-' * 80)
         tools = self.navigation.tools
         for name in sorted(tools.keys()):
             if not tools[name].description:
                 continue
             keys = ', '.join(sorted(self.navigation.get_tool_keymap(name)))
-            print ("{0:12} {1:45} {2}".format(name,
-                                              tools[name].description,
-                                              keys))
-        print ('_' * 80)
+            print("{0:12} {1:45} {2}".format(name,
+                                             tools[name].description,
+                                             keys))
+        print('_' * 80)
+        print("Active Toggle tools")
+        print("{0:12} {1:45}").format("Group", "Active")
+        print('-' * 80)
+        for group, active in self.navigation.active_toggle.items():
+            print("{0:12} {1:45}").format(group, active)
 
 
 # A simple example of copy canvas
