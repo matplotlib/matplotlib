@@ -3280,7 +3280,7 @@ class NavigationBase(object):
 
         self._tools = {}
         self._keys = {}
-        self._toggled = None
+        self._toggled = {}
         self._callbacks = cbook.CallbackRegistry()
 
         # to process keypress event
@@ -3333,7 +3333,7 @@ class NavigationBase(object):
     def active_toggle(self):
         """Toggled Tool
 
-        **string** :  Currently toggled tool, or None
+        **dict** :  Currently toggled tools
         """
 
         return self._toggled
@@ -3393,7 +3393,8 @@ class NavigationBase(object):
         tool = self._tools[name]
         tool.destroy()
 
-        if self._toggled == name:
+        # If is a toggle tool and toggled, untoggle
+        if getattr(tool, 'toggled', False):
             self.tool_trigger_event(tool, 'navigation')
 
         self._remove_keys(name)
@@ -3456,6 +3457,15 @@ class NavigationBase(object):
         if tool_cls.keymap is not None:
             self.set_tool_keymap(name, tool_cls.keymap)
 
+        # For toggle tools init the radio_grop in self._toggled
+        if getattr(tool_cls, 'toggled', False) is not False:
+            # None group is not mutually exclusive, a set is used to keep track
+            # of all toggled tools in this group
+            if tool_cls.radio_group is None:
+                self._toggled.setdefault(None, set())
+            else:
+                self._toggled.setdefault(tool_cls.radio_group, None)
+
         self._tool_added_event(self._tools[name], group, position)
 
     def _tool_added_event(self, tool, group, position):
@@ -3470,16 +3480,35 @@ class NavigationBase(object):
         # Toggle tools, need to be untoggled before other Toggle tool is used
         # This is called from tool_trigger_event
 
-        if self._toggled == tool.name:
+        radio_group = tool.radio_group
+        # radio_group None is not mutually exclusive
+        # just keep track of toggled tools in this group
+        if radio_group is None:
+            if tool.toggled:
+                self._toggled[None].remove(tool.name)
+            else:
+                self._toggled[None].add(tool.name)
+            return
+
+        # If it is the same tool that is toggled in the radio_group
+        # untoggle it
+        if self._toggled[radio_group] == tool.name:
             toggled = None
-        elif self._toggled is None:
+        # If no tool was toggled in the radio_group
+        # toggle it
+        elif self._toggled.get(radio_group, None) is None:
             toggled = tool.name
+        # Other tool in the radio_group is toggled
         else:
             # Untoggle previously toggled tool
-            self.tool_trigger_event(self._toggled, self, canvasevent, data)
+            self.tool_trigger_event(self._toggled[radio_group],
+                                    self,
+                                    canvasevent,
+                                    data)
             toggled = tool.name
 
-        self._toggled = toggled
+        # Keep track of the toggled tool in the radio_group
+        self._toggled[radio_group] = toggled
 #         for a in self.canvas.figure.get_axes():
 #             a.set_navigate_mode(self._toggled)
 

@@ -119,7 +119,11 @@ class ToolToggleBase(ToolBase):
     """
 
     radio_group = None
-    """Attribute to group 'radio' like tools"""
+    """Attribute to group 'radio' like tools (mutually exclusive)
+
+    **String** that identifies the group or **None** if not belonging to a
+    group
+    """
 
     cursor = None
     """Cursor to use when the tool is active"""
@@ -328,7 +332,7 @@ class ToolEnableNavigation(ToolBase):
                     a.set_navigate(i == n)
 
 
-class ToolGrid(ToolBase):
+class ToolGrid(ToolToggleBase):
     """Tool to toggle the grid of the figure"""
 
     description = 'Toogle Grid'
@@ -337,60 +341,65 @@ class ToolGrid(ToolBase):
     def trigger(self, sender, event, data=None):
         if event.inaxes is None:
             return
-        event.inaxes.grid()
+        ToolToggleBase.trigger(self, sender, event, data)
+
+    def enable(self, event):
+        event.inaxes.grid(True)
+        self.figure.canvas.draw()
+
+    def disable(self, event):
+        event.inaxes.grid(False)
         self.figure.canvas.draw()
 
 
-class ToolFullScreen(ToolBase):
+class ToolFullScreen(ToolToggleBase):
     """Tool to toggle full screen"""
 
     description = 'Toogle Fullscreen mode'
     keymap = rcParams['keymap.fullscreen']
 
-    def trigger(self, sender, event):
+    def enable(self, event):
+        self.figure.canvas.manager.full_screen_toggle()
+
+    def disable(self, event):
         self.figure.canvas.manager.full_screen_toggle()
 
 
-class ToolYScale(ToolBase):
+class AxisScaleBase(ToolToggleBase):
+    """Base Tool to toggle between linear and logarithmic"""
+
+    def trigger(self, sender, event, data=None):
+        if event.inaxes is None:
+            return
+        ToolToggleBase.trigger(self, sender, event, data)
+
+    def enable(self, event):
+        self.set_scale(event.inaxes, 'log')
+        self.figure.canvas.draw()
+
+    def disable(self, event):
+        self.set_scale(event.inaxes, 'linear')
+        self.figure.canvas.draw()
+
+
+class ToolYScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic the Y axis"""
 
     description = 'Toogle Scale Y axis'
     keymap = rcParams['keymap.yscale']
 
-    def trigger(self, sender, event, data=None):
-        """Toggle axis scale"""
-        ax = event.inaxes
-        if ax is None:
-            return
-
-        scale = ax.get_yscale()
-        if scale == 'log':
-            ax.set_yscale('linear')
-            ax.figure.canvas.draw()
-        elif scale == 'linear':
-            ax.set_yscale('log')
-            ax.figure.canvas.draw()
+    def set_scale(self, ax, scale):
+        ax.set_yscale(scale)
 
 
-class ToolXScale(ToolBase):
+class ToolXScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic the X axis"""
 
     description = 'Toogle Scale X axis'
     keymap = rcParams['keymap.xscale']
 
-    def trigger(self, sender, event, data=None):
-        """Toggle axis scale"""
-        ax = event.inaxes
-        if ax is None:
-            return
-
-        scalex = ax.get_xscale()
-        if scalex == 'log':
-            ax.set_xscale('linear')
-            ax.figure.canvas.draw()
-        elif scalex == 'linear':
-            ax.set_xscale('log')
-            ax.figure.canvas.draw()
+    def set_scale(self, ax, scale):
+        ax.set_xscale(scale)
 
 
 class ToolViewsPositions(ToolBase):
@@ -591,6 +600,7 @@ class ToolZoom(ZoomPanBase):
     image = 'zoom_to_rect.png'
     keymap = rcParams['keymap.zoom']
     cursor = cursors.SELECT_REGION
+    radio_group = 'default'
 
     def __init__(self, *args):
         ZoomPanBase.__init__(self, *args)
@@ -802,6 +812,7 @@ class ToolPan(ZoomPanBase):
     description = 'Pan axes with left mouse, zoom with right'
     image = 'move.png'
     cursor = cursors.MOVE
+    radio_group = 'default'
 
     def __init__(self, *args):
         ZoomPanBase.__init__(self, *args)
