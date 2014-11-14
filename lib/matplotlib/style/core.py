@@ -21,7 +21,7 @@ import contextlib
 
 import matplotlib as mpl
 from matplotlib import cbook
-from matplotlib import rc_params_from_file
+from matplotlib import rc_params_from_file, RcParams
 
 
 __all__ = ['use', 'context', 'available', 'library', 'reload_library']
@@ -44,16 +44,19 @@ def use(name):
 
     Parameters
     ----------
-    name : str or list of str
+    name : str, list of str, or RcParams
         Name of style or path/URL to a style file. For a list of available
         style names, see `style.available`. If given a list, each style is
-        applied from first to last in the list.
+        applied from first to last in the list. Instead of strings, each style
+        may also be specified directly as an instance of `RcParams`.
     """
-    if cbook.is_string_like(name):
+    if cbook.is_string_like(name) or isinstance(name, RcParams):
         name = [name]
 
     for style in name:
-        if style in library:
+        if isinstance(style, RcParams):
+            mpl.rcParams.update(style)
+        elif style in library:
             mpl.rcParams.update(library[style])
         else:
             try:
@@ -72,10 +75,11 @@ def context(name, after_reset=False):
 
     Parameters
     ----------
-    name : str or list of str
+    name : str, list of str, or RcParams
         Name of style or path/URL to a style file. For a list of available
         style names, see `style.available`. If given a list, each style is
-        applied from first to last in the list.
+        applied from first to last in the list. Instead of strings, each style
+        may also be specified directly as an instance of `RcParams`.
     after_reset : bool
         If True, apply style after resetting settings to their defaults;
         otherwise, apply style on top of the current settings.
