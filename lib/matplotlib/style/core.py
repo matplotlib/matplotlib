@@ -56,7 +56,7 @@ def use(name):
         name = [name]
 
     for style in name:
-        if not cbook.is_string_like(name):
+        if not cbook.is_string_like(style):
             mpl.rcParams.update(style)
             continue
 
