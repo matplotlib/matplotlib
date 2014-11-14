@@ -256,10 +256,10 @@ backend      : %(backend)s
                                    # separator in the fr_FR locale.
 #axes.formatter.use_mathtext : False # When True, use mathtext for scientific
                                      # notation.
-#axes.formatter.useoffset      : True    # If True, the tick label formatter 
-                                         # will default to labeling ticks relative 
-                                         # to an offset when the data range is very 
-                                         # small compared to the minimum absolute 
+#axes.formatter.useoffset      : True    # If True, the tick label formatter
+                                         # will default to labeling ticks relative
+                                         # to an offset when the data range is very
+                                         # small compared to the minimum absolute
                                          # value of the data.
 
 #axes.unicode_minus  : True    # use unicode for the minus symbol
@@ -307,7 +307,7 @@ backend      : %(backend)s
 ### Legend
 #legend.fancybox      : False  # if True, use a rounded box for the
                                # legend, else a rectangle
-#legend.isaxes        : True
+#legend.isaxes        : True   # this option is internally ignored
 #legend.numpoints     : 2      # the number of points in the legend line
 #legend.fontsize      : large
 #legend.borderpad     : 0.5    # border whitespace in fontsize units
@@ -323,6 +323,10 @@ backend      : %(backend)s
 #legend.frameon       : True   # whether or not to draw a frame around legend
 #legend.framealpha    : 1.0    # opacity of of legend frame
 #legend.scatterpoints : 3 # number of scatter points
+#legend.facecolor     : None   # legend background color (when None inherits from axes.facecolor)
+#legend.edgecolor     : None   # legend edge color (when None inherits from axes.facecolor)
+
+
 
 ### FIGURE
 # See http://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
@@ -402,7 +406,7 @@ backend      : %(backend)s
 #savefig.jpeg_quality: 95       # when a jpeg is saved, the default quality parameter.
 #savefig.directory   : ~        # default directory in savefig dialog box,
                                 # leave empty to always use current working directory
-#savefig.transparent : False    # setting that controls whether figures are saved with a 
+#savefig.transparent : False    # setting that controls whether figures are saved with a
                                 # transparent background by default
 
 # tk backend params
@@ -492,5 +496,5 @@ backend      : %(backend)s
                                    # $PATH is searched
 #animation.mencoder_args: ''       # Additional arguments to pass to mencoder
 #animation.convert_path: 'convert' # Path to ImageMagick's convert binary.
-                                   # On Windows use the full path since convert 
+                                   # On Windows use the full path since convert
                                    # is also the name of a system tool.
