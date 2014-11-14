@@ -530,7 +530,8 @@ int Triangulation::get_triangle_point(const TriEdge& tri_edge) const
 bool Triangulation::is_masked(int tri) const
 {
     assert(tri >= 0 && tri < get_ntri() && "Triangle index out of bounds.");
-    return !_mask.empty() && _mask(tri);
+    const npy_bool* mask_ptr = reinterpret_cast<const npy_bool*>(_mask.data());
+    return !_mask.empty() && mask_ptr[tri];
 }
 
 void Triangulation::set_mask(const MaskArray& mask)

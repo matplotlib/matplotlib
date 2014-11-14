@@ -480,6 +480,12 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
     }
 
     // Do not use this for array_view<bool, ND>.  See comment near top of file.
+    const T *data() const
+    {
+        return (const T *)m_data;
+    }
+
+    // Do not use this for array_view<bool, ND>.  See comment near top of file.
     T *data()
     {
         return (T *)m_data;
