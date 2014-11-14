@@ -1925,7 +1925,7 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args)
 
     Py::Object transforms_obj = Py::List(0);
     Py::Tuple linewidths(1);
-    linewidths[0] = Py::Float(gc.linewidth);
+    linewidths[0] = Py::Float(gc.linewidth * 72.0 / dpi);
     Py::SeqBase<Py::Object> linestyles_obj;
     Py::Tuple antialiaseds(1);
     antialiaseds[0] = Py::Int(antialiased ? 1 : 0);
