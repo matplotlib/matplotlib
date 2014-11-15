@@ -312,13 +312,14 @@ class MyPyQt4(MagicMock):
             pass
 
 
-class mocksip(MagicMock):
+class MySip(MagicMock):
     def getapi(*args):
         return 1
 
 
 mockwxversion = MagicMock()
 mockwx = MyWX()
+mocksip = MySip()
 mockpyqt4 = MyPyQt4()
 sys.modules['wxversion'] = mockwxversion
 sys.modules['wx'] = mockwx
