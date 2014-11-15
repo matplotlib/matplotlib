@@ -5888,7 +5888,9 @@ show(PyObject* self)
         NSEnumerator *enumerator = [windowsArray objectEnumerator];
         NSWindow *window;
         while ((window = [enumerator nextObject])) {
-            [window orderFront:nil];
+            if ([window isVisible]) {
+                [window orderFront:nil];
+            }
         }
         [pool release];
         [NSApp run];
