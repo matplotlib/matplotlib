@@ -52,7 +52,7 @@ if 1:   # plot the EEG
     dmax = data.max()
     dr = (dmax - dmin)*0.7  # Crowd them a bit.
     y0 = dmin
-    y1 = (numRows-1) * dr + dmax
+    y1 = (numRows - 1) * dr + dmax
     ylim(y0, y1)
 
     segs = []

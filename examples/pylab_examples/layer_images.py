@@ -7,7 +7,7 @@ from pylab import *
 
 
 def func3(x, y):
-    return (1 - x/2 + x**5 + y**3)*exp(-x**2-y**2)
+    return (1 - x/2 + x**5 + y**3)*exp(-(x**2 + y**2))
 
 # make these smaller to increase the resolution
 dx, dy = 0.05, 0.05
@@ -28,7 +28,8 @@ xmin, xmax, ymin, ymax = amin(x), amax(x), amin(y), amax(y)
 extent = xmin, xmax, ymin, ymax
 fig = plt.figure(frameon=False)
 
-Z1 = array(([0, 1]*4 + [1, 0]*4)*4); Z1.shape = 8, 8  # chessboard
+Z1 = array(([0, 1]*4 + [1, 0]*4)*4)
+Z1.shape = (8, 8)  # chessboard
 im1 = imshow(Z1, cmap=cm.gray, interpolation='nearest',
              extent=extent)
 hold(True)

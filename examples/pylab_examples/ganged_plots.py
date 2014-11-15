@@ -39,7 +39,7 @@ ax3.plot(t, s3)
 yticks(arange(-0.9, 1.0, 0.4))
 ylim(-1, 1)
 
-xticklabels = ax1.get_xticklabels()+ax2.get_xticklabels()
+xticklabels = ax1.get_xticklabels() + ax2.get_xticklabels()
 setp(xticklabels, visible=False)
 
 show()

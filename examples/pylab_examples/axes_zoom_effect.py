@@ -1,8 +1,8 @@
 from matplotlib.transforms import Bbox, TransformedBbox, \
-     blended_transform_factory
+    blended_transform_factory
 
 from mpl_toolkits.axes_grid1.inset_locator import BboxPatch, BboxConnector,\
-     BboxConnectorPatch
+    BboxConnectorPatch
 
 
 def connect_bbox(bbox1, bbox2,

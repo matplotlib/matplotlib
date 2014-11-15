@@ -18,7 +18,7 @@ X, Y = np.meshgrid(x, y)
 # Needs to have z/colour axis on a log scale so we see both hump and spike.
 # linear scale only shows the spike.
 z = (bivariate_normal(X, Y, 0.1, 0.2, 1.0, 1.0)
-        + 0.1 * bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0))
+     + 0.1 * bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0))
 
 # Put in some negative values (lower left corner) to cause trouble with logs:
 z[:5, :5] = -1

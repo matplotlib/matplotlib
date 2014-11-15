@@ -30,11 +30,10 @@ ax.set_ylim(ys.min(), ys.max())
 #          where onoffseq is an even length tuple of on and off ink in points.
 #          If linestyle is omitted, 'solid' is used
 # See matplotlib.collections.LineCollection for more information
-line_segments = LineCollection(segs,
-                                linewidths=(0.5, 1, 1.5, 2),
-                                colors        = [colorConverter.to_rgba(i) \
-                                                 for i in ('b', 'g', 'r', 'c', 'm', 'y', 'k')],
-                                linestyle = 'solid')
+colors = [colorConverter.to_rgba(i) for i in 'bgrcmyk']
+
+line_segments = LineCollection(segs, linewidths=(0.5, 1, 1.5, 2),
+                               colors=colors, linestyle='solid')
 ax.add_collection(line_segments)
 ax.set_title('Line collection with masked arrays')
 plt.show()

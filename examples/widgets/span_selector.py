@@ -23,7 +23,7 @@ line2, = ax2.plot(x, y, '-')
 
 def onselect(xmin, xmax):
     indmin, indmax = np.searchsorted(x, (xmin, xmax))
-    indmax = min(len(x)-1, indmax)
+    indmax = min(len(x) - 1, indmax)
 
     thisx = x[indmin:indmax]
     thisy = y[indmin:indmax]

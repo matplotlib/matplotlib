@@ -24,15 +24,15 @@ P.xlim(-1, 10)
 
 fig = P.figure()
 x = arange(10.0)/10.0
-y = (x+0.1)**2
+y = (x + 0.1)**2
 
 P.errorbar(x, y, xerr=0.1, xlolims=True)
-y = (x+0.1)**3
+y = (x + 0.1)**3
 
-P.errorbar(x+0.6, y, xerr=0.1, xuplims=upperlimits, xlolims=lowerlimits)
+P.errorbar(x + 0.6, y, xerr=0.1, xuplims=upperlimits, xlolims=lowerlimits)
 
-y = (x+0.1)**4
-P.errorbar(x+1.2, y, xerr=0.1, xuplims=True)
+y = (x + 0.1)**4
+P.errorbar(x + 1.2, y, xerr=0.1, xuplims=True)
 
 P.xlim(-0.2, 2.4)
 P.ylim(-0.1, 1.3)

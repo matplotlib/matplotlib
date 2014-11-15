@@ -5,7 +5,7 @@ Example: simple line plots with NaNs inserted.
 from pylab import *
 import numpy as np
 
-t = arange(0.0, 1.0+0.01, 0.01)
+t = arange(0.0, 1.0 + 0.01, 0.01)
 s = cos(2*2*pi*t)
 t[41:60] = NaN
 #t[50:60] = np.inf

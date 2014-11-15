@@ -16,7 +16,7 @@ import wx
 class CanvasFrame(wx.Frame):
     def __init__(self, ):
         wx.Frame.__init__(self, None, -1,
-                         'CanvasFrame', size=(550, 350))
+                          'CanvasFrame', size=(550, 350))
 
         self.SetBackgroundColour(wx.NamedColour("WHITE"))
 
@@ -54,8 +54,8 @@ class CanvasFrame(wx.Frame):
         if event.inaxes:
             x, y = event.xdata, event.ydata
             self.statusBar.SetStatusText(("x= " + str(x) +
-                                           "  y=" + str(y)),
-                                           0)
+                                          "  y=" + str(y)),
+                                         0)
 
 
 class App(wx.App):

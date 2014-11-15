@@ -11,7 +11,7 @@ x = y = np.arange(-3.0, 3.0, delta)
 X, Y = np.meshgrid(x, y)
 Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
 Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
-Z = Z2-Z1  # difference of Gaussians
+Z = Z2 - Z1  # difference of Gaussians
 
 path = Path([[0, 1], [1, 0], [0, -1], [-1, 0], [0, 1]])
 patch = PathPatch(path, facecolor='none')
