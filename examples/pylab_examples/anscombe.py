@@ -20,7 +20,7 @@ y4 = array([6.58, 5.76, 7.71, 8.84, 8.47, 7.04, 5.25, 12.50, 5.56, 7.91, 6.89])
 
 
 def fit(x):
-    return 3+0.5*x
+    return 3 + 0.5*x
 
 
 xfit = array([amin(x), amax(x)])

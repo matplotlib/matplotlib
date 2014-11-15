@@ -14,7 +14,7 @@ w = 0.75
 dimw = w / dim
 
 x = pylab.arange(len(data))
-for i in range(len(data[0])) :
+for i in range(len(data[0])):
     y = [d[i] for d in data]
     b = pylab.bar(x + i * dimw, y, dimw, bottom=0.001)
 pylab.gca().set_xticks(x + w / 2)

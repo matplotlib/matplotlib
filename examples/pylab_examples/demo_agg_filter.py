@@ -8,7 +8,7 @@ import matplotlib.mlab as mlab
 def smooth1d(x, window_len):
     # copied from http://www.scipy.org/Cookbook/SignalSmooth
 
-    s = np.r_[2*x[0]-x[window_len:1:-1], x, 2*x[-1]-x[-1:-window_len:-1]]
+    s = np.r_[2*x[0] - x[window_len:1:-1], x, 2*x[-1] - x[-1:-window_len:-1]]
     w = np.hanning(window_len)
     y = np.convolve(w/w.sum(), s, mode='same')
     return y[window_len-1:-window_len+1]
@@ -16,7 +16,7 @@ def smooth1d(x, window_len):
 
 def smooth2d(A, sigma=3):
 
-    window_len = max(int(sigma), 3)*2+1
+    window_len = max(int(sigma), 3)*2 + 1
     A1 = np.array([smooth1d(x, window_len) for x in np.asarray(A)])
     A2 = np.transpose(A1)
     A3 = np.array([smooth1d(x, window_len) for x in A2])
@@ -29,7 +29,7 @@ class BaseFilter(object):
     def prepare_image(self, src_image, dpi, pad):
         ny, nx, depth = src_image.shape
         #tgt_image = np.zeros([pad*2+ny, pad*2+nx, depth], dtype="d")
-        padded_src = np.zeros([pad*2+ny, pad*2+nx, depth], dtype="d")
+        padded_src = np.zeros([pad*2 + ny, pad*2 + nx, depth], dtype="d")
         padded_src[pad:-pad, pad:-pad, :] = src_image[:, :, :]
 
         return padded_src  # , tgt_image
@@ -142,7 +142,7 @@ class GrowFilter(BaseFilter):
     def __call__(self, im, dpi):
         pad = self.pixels
         ny, nx, depth = im.shape
-        new_im = np.empty([pad*2+ny, pad*2+nx, depth], dtype="d")
+        new_im = np.empty([pad*2 + ny, pad*2 + nx, depth], dtype="d")
         alpha = new_im[:, :, 3]
         alpha.fill(0)
         alpha[pad:-pad, pad:-pad] = im[:, :, -1]
@@ -219,7 +219,7 @@ def filtered_text(ax):
     # Add white glows to improve visibility of labels.
     white_glows = FilteredArtistList(cl, GrowFilter(3))
     ax.add_artist(white_glows)
-    white_glows.set_zorder(cl[0].get_zorder()-0.1)
+    white_glows.set_zorder(cl[0].get_zorder() - 0.1)
 
     ax.xaxis.set_visible(False)
     ax.yaxis.set_visible(False)
@@ -253,7 +253,7 @@ def drop_shadow_line(ax):
 
         # adjust zorder of the shadow lines so that it is drawn below the
         # original lines
-        shadow.set_zorder(l.get_zorder()-0.5)
+        shadow.set_zorder(l.get_zorder() - 0.5)
         shadow.set_agg_filter(gauss)
         shadow.set_rasterized(True)  # to support mixed-mode renderers
 
@@ -275,15 +275,15 @@ def drop_shadow_patches(ax):
     rects1 = ax.bar(ind, menMeans, width, color='r', ec="w", lw=2)
 
     womenMeans = (25, 32, 34, 20, 25)
-    rects2 = ax.bar(ind+width+0.1, womenMeans, width, color='y', ec="w", lw=2)
+    rects2 = ax.bar(ind + width + 0.1, womenMeans, width, color='y', ec="w", lw=2)
 
     #gauss = GaussianFilter(1.5, offsets=(1,1), )
     gauss = DropShadowFilter(5, offsets=(1, 1), )
-    shadow = FilteredArtistList(rects1+rects2, gauss)
+    shadow = FilteredArtistList(rects1 + rects2, gauss)
     ax.add_artist(shadow)
-    shadow.set_zorder(rects1[0].get_zorder()-0.1)
+    shadow.set_zorder(rects1[0].get_zorder() - 0.1)
 
-    ax.set_xlim(ind[0]-0.5, ind[-1]+1.5)
+    ax.set_xlim(ind[0] - 0.5, ind[-1] + 1.5)
     ax.set_ylim(0, 40)
 
     ax.xaxis.set_visible(False)
@@ -306,7 +306,7 @@ def light_filter_pie(ax):
     gauss = DropShadowFilter(9, offsets=(3, 4), alpha=0.7)
     shadow = FilteredArtistList(pies[0], gauss)
     ax.add_artist(shadow)
-    shadow.set_zorder(pies[0][0].get_zorder()-0.1)
+    shadow.set_zorder(pies[0][0].get_zorder() - 0.1)
 
 
 if 1:

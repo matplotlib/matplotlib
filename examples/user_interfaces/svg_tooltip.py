@@ -2,20 +2,20 @@
 SVG tooltip example
 ===================
 
-This example shows how to create a tooltip that will show up when 
-hovering over a matplotlib patch. 
+This example shows how to create a tooltip that will show up when
+hovering over a matplotlib patch.
 
-Although it is possible to create the tooltip from CSS or javascript, 
-here we create it in matplotlib and simply toggle its visibility on 
-when hovering over the patch. This approach provides total control over 
+Although it is possible to create the tooltip from CSS or javascript,
+here we create it in matplotlib and simply toggle its visibility on
+when hovering over the patch. This approach provides total control over
 the tooltip placement and appearance, at the expense of more code up
-front. 
+front.
 
-The alternative approach would be to put the tooltip content in `title` 
-atttributes of SVG objects. Then, using an existing js/CSS library, it 
-would be relatively straightforward to create the tooltip in the 
-browser. The content would be dictated by the `title` attribute, and 
-the appearance by the CSS. 
+The alternative approach would be to put the tooltip content in `title`
+atttributes of SVG objects. Then, using an existing js/CSS library, it
+would be relatively straightforward to create the tooltip in the
+browser. The content would be dictated by the `title` attribute, and
+the appearance by the CSS.
 
 
 :author: David Huard
@@ -38,26 +38,27 @@ ax.add_patch(circle)
 ax.add_patch(rect)
 
 # Create the tooltips
-circle_tip = ax.annotate('This is a blue circle.', 
-            xy=(0, 0), 
-            xytext=(30, -30), 
-            textcoords='offset points', 
-            color='w', 
-            ha='left', 
-            bbox=dict(boxstyle='round,pad=.5', fc=(.1, .1, .1, .92), ec=(1., 1., 1.), lw=1, zorder=1),
-            )
+circle_tip = ax.annotate(
+    'This is a blue circle.',
+    xy=(0, 0),
+    xytext=(30, -30),
+    textcoords='offset points',
+    color='w',
+    ha='left',
+    bbox=dict(boxstyle='round,pad=.5', fc=(.1, .1, .1, .92),
+              ec=(1., 1., 1.), lw=1, zorder=1))
 
-rect_tip = ax.annotate('This is a green rectangle.', 
-            xy=(-5, 10), 
-            xytext=(30, 40), 
-            textcoords='offset points', 
-            color='w', 
-            ha='left', 
-            bbox=dict(boxstyle='round,pad=.5', fc=(.1, .1, .1, .92), ec=(1., 1., 1.), lw=1, zorder=1),
-            )
+rect_tip = ax.annotate(
+    'This is a green rectangle.',
+    xy=(-5, 10),
+    xytext=(30, 40),
+    textcoords='offset points',
+    color='w',
+    ha='left',
+    bbox=dict(boxstyle='round,pad=.5', fc=(.1, .1, .1, .92),
+              ec=(1., 1., 1.), lw=1, zorder=1))
 
-
-# Set id for the patches    
+# Set id for the patches
 for i, t in enumerate(ax.patches):
     t.set_gid('patch_%d' % i)
 
@@ -85,7 +86,7 @@ for i, t in enumerate(ax.texts):
     el = xmlid['tooltip_%d' % i]
     el.set('visibility', 'hidden')
 
-# Assign onmouseover and onmouseout callbacks to patches.        
+# Assign onmouseover and onmouseout callbacks to patches.
 for i, t in enumerate(ax.patches):
     el = xmlid['patch_%d' % i]
     el.set('onmouseover', "ShowTooltip(this)")
@@ -95,26 +96,26 @@ for i, t in enumerate(ax.patches):
 script = """
     <script type="text/ecmascript">
     <![CDATA[
-    
+
     function init(evt) {
         if ( window.svgDocument == null ) {
             svgDocument = evt.target.ownerDocument;
             }
         }
-        
+
     function ShowTooltip(obj) {
         var cur = obj.id.slice(-1);
-        
+
         var tip = svgDocument.getElementById('tooltip_' + cur);
         tip.setAttribute('visibility',"visible")
         }
-        
+
     function HideTooltip(obj) {
         var cur = obj.id.slice(-1);
         var tip = svgDocument.getElementById('tooltip_' + cur);
         tip.setAttribute('visibility',"hidden")
         }
-        
+
     ]]>
     </script>
     """

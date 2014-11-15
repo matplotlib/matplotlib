@@ -20,7 +20,7 @@ toolbar = manager.toolbar
 
 # now let's add a button to the toolbar
 import gtk
-next = 8;  # where to insert this in the mpl toolbar
+next = 8  # where to insert this in the mpl toolbar
 button = gtk.Button('Click me')
 button.show()
 
@@ -36,7 +36,8 @@ toolitem.set_tooltip(
     'Click me for fun and profit')
 
 toolitem.add(button)
-toolbar.insert(toolitem, next); next += 1
+toolbar.insert(toolitem, next)
+next += 1
 
 # now let's add a widget to the vbox
 label = gtk.Label()

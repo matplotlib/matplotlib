@@ -9,6 +9,7 @@ from matplotlib.cbook import get_sample_data
 # or Generic Mapping Tools
 # (http://gmt.soest.hawaii.edu/gmt/doc/gmt/html/GMT_Docs/node145.html)
 
+
 def main():
     # Test data
     x, y = np.mgrid[-5:5:0.05, -5:5:0.05]
@@ -25,6 +26,7 @@ def main():
     fig.suptitle('Overlay Blending Looks Best with Rough Surfaces', y=0.95)
 
     plt.show()
+
 
 def compare(z, cmap, ve=1):
     # Create subplots and hide ticks

@@ -70,13 +70,13 @@ if 1:
                 )
 
     ann = ax.annotate('', xy=(4., 1.), xycoords='data',
-                xytext=(4.5, -1), textcoords='data',
-                arrowprops=dict(arrowstyle="<->",
-                                connectionstyle="bar",
-                                ec="k",
-                                shrinkA=5, shrinkB=5,
-                                )
-                )
+                      xytext=(4.5, -1), textcoords='data',
+                      arrowprops=dict(arrowstyle="<->",
+                                      connectionstyle="bar",
+                                      ec="k",
+                                      shrinkA=5, shrinkB=5,
+                                      )
+                      )
 
 
 if 1:
@@ -126,28 +126,28 @@ if 1:
                 )
 
     ann = ax.annotate('wedge', xy=(2., -1), xycoords='data',
-                xytext=(0, -45), textcoords='offset points',
-                size=20,
-                bbox=dict(boxstyle="round", fc=(1.0, 0.7, 0.7), ec=(1., .5, .5)),
-                arrowprops=dict(arrowstyle="wedge,tail_width=1.",
-                                fc=(1.0, 0.7, 0.7), ec=(1., .5, .5),
-                                patchA=None,
-                                patchB=el,
-                                relpos=(0.2, 0.8),
-                                connectionstyle="arc3,rad=-0.1"),
-                )
+                      xytext=(0, -45), textcoords='offset points',
+                      size=20,
+                      bbox=dict(boxstyle="round", fc=(1.0, 0.7, 0.7), ec=(1., .5, .5)),
+                      arrowprops=dict(arrowstyle="wedge,tail_width=1.",
+                                      fc=(1.0, 0.7, 0.7), ec=(1., .5, .5),
+                                      patchA=None,
+                                      patchB=el,
+                                      relpos=(0.2, 0.8),
+                                      connectionstyle="arc3,rad=-0.1"),
+                      )
 
     ann = ax.annotate('wedge', xy=(2., -1), xycoords='data',
-                xytext=(35, 0), textcoords='offset points',
-                size=20, va="center",
-                bbox=dict(boxstyle="round", fc=(1.0, 0.7, 0.7), ec="none"),
-                arrowprops=dict(arrowstyle="wedge,tail_width=1.",
-                                fc=(1.0, 0.7, 0.7), ec="none",
-                                patchA=None,
-                                patchB=el,
-                                relpos=(0.2, 0.5),
-                                )
-                )
+                      xytext=(35, 0), textcoords='offset points',
+                      size=20, va="center",
+                      bbox=dict(boxstyle="round", fc=(1.0, 0.7, 0.7), ec="none"),
+                      arrowprops=dict(arrowstyle="wedge,tail_width=1.",
+                                      fc=(1.0, 0.7, 0.7), ec="none",
+                                      patchA=None,
+                                      patchB=el,
+                                      relpos=(0.2, 0.5),
+                                      )
+                      )
 
 
 show()

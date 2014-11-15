@@ -43,7 +43,7 @@ t = text(0.0, 0.9, 'variant', **alignment)
 
 for k in range(2):
     t = text(0.0, yp[k], variant[k], family='serif', variant=variant[k],
-              **alignment)
+             **alignment)
 
 # Show weight options
 
@@ -53,7 +53,7 @@ t = text(0.4, 0.9, 'weight', **alignment)
 
 for k in range(7):
     t = text(0.4, yp[k], weight[k], weight=weight[k],
-              **alignment)
+             **alignment)
 
 # Show size options
 

@@ -17,12 +17,12 @@ fname = matplotlib.get_data_path() + '/fonts/ttf/VeraIt.ttf'
 
 font = ft.FT2Font(fname)
 
-print('Num faces   :', font.num_faces)       # number of faces in file
-print('Num glyphs  :', font.num_glyphs)      # number of glyphs in the face
-print('Family name :', font.family_name)     # face family name
-print('Syle name   :', font.style_name)      # face syle name
-print('PS name     :', font.postscript_name) # the postscript name
-print('Num fixed   :', font.num_fixed_sizes) # number of embedded bitmap in face
+print('Num faces   :', font.num_faces)        # number of faces in file
+print('Num glyphs  :', font.num_glyphs)       # number of glyphs in the face
+print('Family name :', font.family_name)      # face family name
+print('Syle name   :', font.style_name)       # face syle name
+print('PS name     :', font.postscript_name)  # the postscript name
+print('Num fixed   :', font.num_fixed_sizes)  # number of embedded bitmap in face
 
 # the following are only available if face.scalable
 if font.scalable:

@@ -21,7 +21,7 @@ N = 100
 def on_idle(event):
     on_idle.count += 1
     print('idle', on_idle.count)
-    line1.set_ydata(np.sin(2*np.pi*t*(N-on_idle.count)/float(N)))
+    line1.set_ydata(np.sin(2*np.pi*t*(N - on_idle.count)/float(N)))
     event.canvas.draw()
     # test boolean return removal
     if on_idle.count == N:

@@ -42,7 +42,7 @@ points = np.array([x, y]).T.reshape(-1, 1, 2)
 segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
 lc = LineCollection(segments, cmap=plt.get_cmap('copper'),
-    norm=plt.Normalize(0, 10))
+                    norm=plt.Normalize(0, 10))
 lc.set_array(t)
 lc.set_linewidth(3)
 

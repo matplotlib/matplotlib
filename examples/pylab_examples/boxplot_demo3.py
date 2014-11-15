@@ -34,7 +34,7 @@ medians = [None, None, med1, med2]
 conf_intervals = [None, None, CI1, CI2]
 
 fig, ax = plt.subplots()
-pos = np.array(range(len(treatments)))+1
+pos = np.array(range(len(treatments))) + 1
 bp = ax.boxplot(treatments, sym='k+', positions=pos,
                 notch=1, bootstrap=5000,
                 usermedians=medians,

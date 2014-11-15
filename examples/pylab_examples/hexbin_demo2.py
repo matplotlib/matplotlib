@@ -12,7 +12,7 @@ x = y = np.arange(-3.0, 3.0, delta)
 X, Y = np.meshgrid(x, y)
 Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
 Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
-Z = Z2-Z1  # difference of Gaussians
+Z = Z2 - Z1  # difference of Gaussians
 
 x = X.ravel()
 y = Y.ravel()
@@ -39,7 +39,7 @@ ymax = y.max()
 gridsize = 30
 
 plt.subplot(211)
-plt.hexbin(x, y, C=z, gridsize=gridsize, marginals=True, cmap=plt.cm.RdBu, 
+plt.hexbin(x, y, C=z, gridsize=gridsize, marginals=True, cmap=plt.cm.RdBu,
            vmax=abs(z).max(), vmin=-abs(z).max())
 plt.axis([xmin, xmax, ymin, ymax])
 cb = plt.colorbar()

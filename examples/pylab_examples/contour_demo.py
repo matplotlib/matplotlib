@@ -107,7 +107,7 @@ CBI = plt.colorbar(im, orientation='horizontal', shrink=0.8)
 
 l, b, w, h = plt.gca().get_position().bounds
 ll, bb, ww, hh = CB.ax.get_position().bounds
-CB.ax.set_position([ll, b+0.1*h, ww, h*0.8])
+CB.ax.set_position([ll, b + 0.1*h, ww, h*0.8])
 
 
 plt.show()

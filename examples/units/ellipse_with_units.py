@@ -18,8 +18,8 @@ y = 0.5 * height * np.sin(theta)
 
 rtheta = angle*np.pi/180.
 R = np.array([
-    [np.cos(rtheta),  -np.sin(rtheta)],
-    [np.sin(rtheta), np.cos(rtheta)],
+    [np.cos(rtheta), -np.sin(rtheta)],
+    [np.sin(rtheta),  np.cos(rtheta)],
     ])
 
 
@@ -32,14 +32,14 @@ ax = fig.add_subplot(211, aspect='auto')
 ax.fill(x, y, alpha=0.2, facecolor='yellow', edgecolor='yellow', linewidth=1, zorder=1)
 
 e1 = patches.Ellipse((xcenter, ycenter), width, height,
-             angle=angle, linewidth=2, fill=False, zorder=2)
+                     angle=angle, linewidth=2, fill=False, zorder=2)
 
 ax.add_patch(e1)
 
 ax = fig.add_subplot(212, aspect='equal')
 ax.fill(x, y, alpha=0.2, facecolor='green', edgecolor='green', zorder=1)
 e2 = patches.Ellipse((xcenter, ycenter), width, height,
-             angle=angle, linewidth=2, fill=False, zorder=2)
+                     angle=angle, linewidth=2, fill=False, zorder=2)
 
 
 ax.add_patch(e2)
@@ -52,14 +52,14 @@ ax = fig.add_subplot(211, aspect='auto')
 ax.fill(x, y, alpha=0.2, facecolor='yellow', edgecolor='yellow', linewidth=1, zorder=1)
 
 e1 = patches.Arc((xcenter, ycenter), width, height,
-             angle=angle, linewidth=2, fill=False, zorder=2)
+                 angle=angle, linewidth=2, fill=False, zorder=2)
 
 ax.add_patch(e1)
 
 ax = fig.add_subplot(212, aspect='equal')
 ax.fill(x, y, alpha=0.2, facecolor='green', edgecolor='green', zorder=1)
 e2 = patches.Arc((xcenter, ycenter), width, height,
-             angle=angle, linewidth=2, fill=False, zorder=2)
+                 angle=angle, linewidth=2, fill=False, zorder=2)
 
 
 ax.add_patch(e2)
