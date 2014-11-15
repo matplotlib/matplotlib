@@ -222,9 +222,9 @@ latex_font_size = '11pt'
 # (source start file, target name, title, author, document class [howto/manual]).
 
 latex_documents = [
-  ('contents', 'Matplotlib.tex', 'Matplotlib',
-   'John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the '
-   'matplotlib development team', 'manual'),
+    ('contents', 'Matplotlib.tex', 'Matplotlib',
+     'John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the '
+     'matplotlib development team', 'manual'),
 ]
 
 
@@ -233,7 +233,7 @@ latex_documents = [
 latex_logo = None
 
 # Additional stuff for the LaTeX preamble.
-latex_preamble =r"""
+latex_preamble = r"""
    % In the parameters section, place a newline after the Parameters
    % header.  (This is stolen directly from Numpy's conf.py, since it
    % affects Numpy-style docstrings).
@@ -271,11 +271,11 @@ rst_epilog = """
 """ % matplotlib.__version__numpy__
 
 texinfo_documents = [
-  ("contents", 'matplotlib', 'Matplotlib Documentation',
-   'John Hunter@*Darren Dale@*Eric Firing@*Michael Droettboom@*'
-   'The matplotlib development team',
-   'Matplotlib', "Python plotting package", 'Programming',
-   1),
+    ("contents", 'matplotlib', 'Matplotlib Documentation',
+     'John Hunter@*Darren Dale@*Eric Firing@*Michael Droettboom@*'
+     'The matplotlib development team',
+     'Matplotlib', "Python plotting package", 'Programming',
+     1),
 ]
 
 try:
@@ -312,10 +312,15 @@ class MyPyQt4(MagicMock):
             pass
 
 
+class MySip(MagicMock):
+    def getapi(*args):
+        return 1
+
+
 mockwxversion = MagicMock()
 mockwx = MyWX()
+mocksip = MySip()
 mockpyqt4 = MyPyQt4()
-mocksip = MagicMock()
 sys.modules['wxversion'] = mockwxversion
 sys.modules['wx'] = mockwx
 sys.modules['sip'] = mocksip
