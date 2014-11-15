@@ -273,11 +273,16 @@ def test_pep8_conformance_examples():
 
     exdir = os.path.join(mpldir, 'examples')
     blacklist = ()
+    expected_bad_files = ['*/pylab_examples/table_demo.py',
+                          '*/pylab_examples/tricontour_demo.py',
+                          '*/pylab_examples/tripcolor_demo.py',
+                          '*/pylab_examples/triplot_demo.py',
+                          '*/shapes_and_collections/artist_reference.py']
     assert_pep8_conformance(dirname=exdir,
                             extra_exclude_directories=blacklist,
                             pep8_additional_ignore=PEP8_ADDITIONAL_IGNORE +
                             ['E116', 'E501'],
-                            expected_bad_files=())
+                            expected_bad_files=expected_bad_files)
 
 
 if __name__ == '__main__':
