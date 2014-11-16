@@ -5,7 +5,7 @@ import matplotlib.colors as mcolors
 import numpy as np
 from numpy.random import multivariate_normal
 
-data = np.vstack([multivariate_normal([10, 10], [[3, 5], [4, 2]], size=100000),
+data = np.vstack([multivariate_normal([10, 10], [[2, 2], [2, 2]], size=100000),
                   multivariate_normal([30, 20], [[2, 3], [1, 3]], size=1000)
                   ])
 
