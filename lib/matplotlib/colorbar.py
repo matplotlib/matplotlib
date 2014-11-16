@@ -653,12 +653,14 @@ class ColorbarBase(cm.ScalarMappable):
             self._values = v
             return
         else:
-            self.norm.vmin, self.norm.vmax = mtrans.nonsingular(self.norm.vmin,
-                                                                self.norm.vmax,
-                                                                expander=0.1)
             if not self.norm.scaled():
                 self.norm.vmin = 0
                 self.norm.vmax = 1
+
+            self.norm.vmin, self.norm.vmax = mtrans.nonsingular(self.norm.vmin,
+                                                                self.norm.vmax,
+                                                                expander=0.1)
+
             b = self.norm.inverse(self._uniform_y(self.cmap.N + 1))
             if self._extend_lower():
                 b[0] = b[0] - 1
