@@ -13,7 +13,7 @@ d = c[::-1]
 fig, ax = plt.subplots()
 plt.plot(a, c, 'k--', a, d, 'k:', a, c + d, 'k')
 plt.legend(('Model length', 'Data length', 'Total message length'),
-           'upper center', shadow=True)
+           loc='upper center', shadow=True)
 plt.ylim([-1, 20])
 plt.grid(False)
 plt.xlabel('Model complexity --->')
