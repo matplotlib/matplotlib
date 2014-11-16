@@ -246,6 +246,13 @@ def test_remove_from_figure_no_gridspec():
     _test_remove_from_figure(False)
 
 
+@cleanup
+def test_colorbarbase():
+    # smoke test from #3805
+    ax = plt.gca()
+    ColorbarBase(ax, plt.cm.bone)
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
