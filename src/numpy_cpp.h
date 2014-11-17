@@ -175,7 +175,6 @@ struct type_num_of<npy_clongdouble>
         value = NPY_CLONGDOUBLE
     };
 };
-#endif
 template <>
 struct type_num_of<std::complex<npy_longdouble> >
 {
@@ -183,6 +182,7 @@ struct type_num_of<std::complex<npy_longdouble> >
         value = NPY_CLONGDOUBLE
     };
 };
+#endif
 template <>
 struct type_num_of<PyObject *>
 {
