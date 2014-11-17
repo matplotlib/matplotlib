@@ -369,9 +369,11 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
 
     array_view(const array_view &other, bool contiguous = false) : m_arr(NULL), m_data(NULL)
     {
-        if (!set((PyObject *)other.m_arr)) {
-            throw py::exception();
-        }
+        m_arr = other.m_arr;
+        Py_INCREF(m_arr);
+        m_data = other.m_data;
+        m_shape = other.m_shape;
+        m_strides = other.m_strides;
     }
 
     array_view(PyArrayObject *arr, char *data, npy_intp *shape, npy_intp *strides)
