@@ -236,16 +236,21 @@ def test_quiver3d_pivot_tail():
 
 @image_comparison(baseline_images=['axes3d_labelpad'], extensions=['png'])
 def test_axes3d_labelpad():
+    from nose.tools import assert_equal
+    from matplotlib import rcParams
+
     fig = plt.figure()
     ax = Axes3D(fig)
-
-    # labelpad can be set in constructor
-    ax.set_xlabel('X LABEL', labelpad=1.3)
+    # labelpad respects rcParams
+    assert_equal(ax.xaxis.labelpad, rcParams['axes.labelpad'])
+    # labelpad can be set in set_label
+    ax.set_xlabel('X LABEL', labelpad=3)
+    assert_equal(ax.xaxis.labelpad, 3)
     ax.set_ylabel('Y LABEL')
     ax.set_zlabel('Z LABEL')
     # or manually
-    ax.yaxis.labelpad = 3
-    ax.zaxis.labelpad = -1
+    ax.yaxis.labelpad = 20
+    ax.zaxis.labelpad = -40
 
 
 if __name__ == '__main__':
