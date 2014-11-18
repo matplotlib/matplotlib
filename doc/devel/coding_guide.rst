@@ -280,7 +280,7 @@ external backend via the ``module`` directive.  if
 
     > python simple_plot.py -dmodule://my_backend
 
-* with the use directive is your script::
+* with the use directive in your script::
 
     import matplotlib
     matplotlib.use('module://my_backend')

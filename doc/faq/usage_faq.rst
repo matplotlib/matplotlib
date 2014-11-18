@@ -302,8 +302,10 @@ pygtk, wxpython, tkinter, qt4, or macosx; also referred to as
 "interactive backends") and hardcopy backends to make image files
 (PNG, SVG, PDF, PS; also referred to as "non-interactive backends").
 
-There are a four ways to configure your backend, in reversed order
-of precedence:
+There are a four ways to configure your backend. If they conflict each other,
+the method mentioned last in the following list will be used, e.g. calling
+:func:`~matplotlib.use()` will override the setting in your ``matplotlibrc``.
+
 
 #. The ``backend`` parameter in your ``matplotlibrc`` file (see
    :ref:`customizing-matplotlib`)::
@@ -329,9 +331,9 @@ of precedence:
 
        > python script.py -dbackend
 
-   This might conflict with scripts which parse
-   command line arguments (see issue
-   `#1986 <https://github.com/matplotlib/matplotlib/issues/1986>`_), so you
+   This method is **deprecated** as the `-d` argument might conflict with
+   scripts which parse command line arguments (see issue
+   `#1986 <https://github.com/matplotlib/matplotlib/issues/1986>`_). You
    should use :envvar:`MPLBACKEND` instead.
 
 #. If your script depends on a specific backend you can use the
@@ -340,12 +342,12 @@ of precedence:
       import matplotlib
       matplotlib.use('PS')   # generate postscript output by default
 
-   If you use the ``use``, this must be done before importing
-   :mod:`matplotlib.pyplot`, calling :func:`~matplotlib.use` after pyplot
-   has been imported will have no effect.  Using `use` will
-   require changes in your code if users want to use a different
-   backend.  Therefore, you should avoid explicitly calling ``use`` unless
-   absolutely necessary.
+   If you use the :func:`~matplotlib.use` function, this must be done before
+   importing :mod:`matplotlib.pyplot`. Calling :func:`~matplotlib.use` after
+   pyplot has been imported will have no effect.  Using
+   :func:`~matplotlib.use` will require changes in your code if users want to
+   use a different backend.  Therefore, you should avoid explicitly calling
+   :func:`~matplotlib.use` unless absolutely necessary.
 
 .. note::
    Backend name specifications are not case-sensitive; e.g., 'GTKAgg'
