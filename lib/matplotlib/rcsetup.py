@@ -661,8 +661,8 @@ defaultParams = {
     # the relative size of legend markers vs. original
     'legend.markerscale': [1.0, validate_float],
     'legend.shadow': [False, validate_bool],
-    'legend.facecolor': ['w', validate_color], # background color; white
-    'legend.edgecolor': ['k', validate_color], # edge color; black
+    'legend.facecolor': [None, validate_color], # background color; white
+    'legend.edgecolor': [None, validate_color], # edge color; black
 
 
     ## tick properties
