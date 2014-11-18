@@ -271,8 +271,8 @@ class HammerAxes(Axes):
 
         In this case, we want them to be displayed in degrees N/S/E/W.
         """
-        lon = lon * (180.0 / np.pi)
-        lat = lat * (180.0 / np.pi)
+        lon = np.degrees(lon)
+        lat = np.degrees(lat)
         if lat >= 0.0:
             ns = 'N'
         else:
@@ -294,8 +294,7 @@ class HammerAxes(Axes):
             self._round_to = round_to
 
         def __call__(self, x, pos=None):
-            degrees = (x / np.pi) * 180.0
-            degrees = round(degrees / self._round_to) * self._round_to
+            degrees = round(np.degrees(x) / self._round_to) * self._round_to
             # \u00b0 : degree symbol
             return "%d\u00b0" % degrees
 
@@ -347,7 +346,7 @@ class HammerAxes(Axes):
         class -- it provides an interface to something that has no
         analogy in the base Axes class.
         """
-        longitude_cap = degrees * (np.pi / 180.0)
+        longitude_cap = np.radians(degrees)
         # Change the xaxis gridlines transform so that it draws from
         # -degrees to degrees, rather than -pi to pi.
         self._xaxis_pretransform \
