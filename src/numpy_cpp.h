@@ -367,7 +367,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         }
     }
 
-    array_view(const array_view &other, bool contiguous = false) : m_arr(NULL), m_data(NULL)
+    array_view(const array_view &other) : m_arr(NULL), m_data(NULL)
     {
         m_arr = other.m_arr;
         Py_XINCREF(m_arr);
