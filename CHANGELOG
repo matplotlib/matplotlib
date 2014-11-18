@@ -1,3 +1,6 @@
+2014-10-27 Allowed selection of the backend using the `MPLBACKEND` environment
+           variable. Added documentation on backend selection methods.
+
 2014-09-27 Overhauled `colors.LightSource`.  Added `LightSource.hillshade` to
 	   allow the independent generation of illumination maps. Added new
 	   types of blending for creating more visually appealing shaded relief

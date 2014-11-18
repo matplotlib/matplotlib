@@ -180,7 +180,7 @@ import distutils.sysconfig
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
-from matplotlib.cbook import is_string_like
+from matplotlib.cbook import is_string_like, mplDeprecation
 from matplotlib.compat import subprocess
 
 try:
@@ -1373,9 +1373,21 @@ for s in sys.argv[1:]:
     if s.startswith(str('-d')) and len(s) > 2:  # look for a -d flag
         try:
             use(s[2:])
+            warnings.warn("Using the -d command line argument to select a "
+                          "matplotlib backend is deprecated. Please use the "
+                          "MPLBACKEND environment variable instead.",
+                          mplDeprecation)
+            break
         except (KeyError, ValueError):
             pass
         # we don't want to assume all -d flags are backends, e.g., -debug
+else:
+    # no backend selected from the command line, so we check the environment
+    # variable MPLBACKEND
+    try:
+        use(os.environ['MPLBACKEND'])
+    except (KeyError, ValueError):
+        pass
 
 default_test_modules = [
     'matplotlib.tests.test_agg',
