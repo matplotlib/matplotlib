@@ -311,10 +311,18 @@ of precedence:
        backend : WXAgg   # use wxpython with antigrain (agg) rendering
 
 #. Setting the :envvar:`MPLBACKEND` environment
-   variable, either globally or for a single script::
+   variable, either for your current shell or for a single script::
 
         > export MPLBACKEND="module://my_backend"
         > python simple_plot.py
+
+        > MPLBACKEND="module://my_backend" python simple_plot.py
+
+   Setting this environment variable will override the ``backend`` parameter
+   in *any* ``matplotlibrc``, even if there is a ``matplotlibrc`` in your
+   current working directory. Therefore setting :envvar:`MPLBACKEND`
+   globally, e.g. in your ``.bashrc`` or ``.profile``, is discouraged as it
+   might lead to counter-intuitive behavior.
 
 #. To set the backend for a single script, you can alternatively use the `-d`
    command line argument::
@@ -323,7 +331,8 @@ of precedence:
 
    This might conflict with scripts which parse
    command line arguments (see issue
-   `#1986 <https://github.com/matplotlib/matplotlib/issues/1986>`_).
+   `#1986 <https://github.com/matplotlib/matplotlib/issues/1986>`_), so you
+   should use :envvar:`MPLBACKEND` instead.
 
 #. If your script depends on a specific backend you can use the
    :func:`~matplotlib.use` function::
