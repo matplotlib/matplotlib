@@ -6,12 +6,13 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-from nose.tools import assert_true
+from nose.tools import assert_true, assert_raises
 from timeit import repeat
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup, image_comparison
+import sys
 
 
 @cleanup
@@ -102,6 +103,17 @@ def test_linestyle_variants():
 
     fig.canvas.draw()
     assert True
+
+
+@cleanup
+def test_valid_linestyles():
+    if sys.version_info[:2] < (2, 7):
+        raise nose.SkipTest("assert_raises as context manager "
+                            "not supported with Python < 2.7")
+
+    line = mpl.lines.Line2D([], [])
+    with assert_raises(ValueError):
+        line.set_linestyle('aardvark')
 
 
 @image_comparison(baseline_images=['line_collection_dashes'], remove_text=True)
