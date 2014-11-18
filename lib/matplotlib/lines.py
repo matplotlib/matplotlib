@@ -976,15 +976,18 @@ class Line2D(Artist):
                     linestyle = '-'
                 break
 
+        if linestyle in [' ', '', 'none']:
+            linestyle = 'None'
+
         if linestyle not in self._lineStyles:
             try:
                 linestyle = ls_mapper_r[linestyle]
             except KeyError:
-                raise ValueError("You passed in an invalid linestyle, see "
-                                 "docs of Line2D.set_linestyle for "
-                                 "valid values")
-        if linestyle in [' ', '']:
-            linestyle = 'None'
+                raise ValueError(("You passed in an invalid linestyle, "
+                                  "`{}`.  See "
+                                  "docs of Line2D.set_linestyle for "
+                                  "valid values.").format(linestyle))
+
         self._linestyle = linestyle
 
     @docstring.dedent_interpd
