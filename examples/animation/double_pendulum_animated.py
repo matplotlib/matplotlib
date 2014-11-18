@@ -1,7 +1,7 @@
 # Double pendulum formula translated from the C code at
 # http://www.physics.usyd.edu.au/~wheat/dpend_html/solve_dpend.c
 
-from numpy import sin, cos, pi, array
+from numpy import sin, cos
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate as integrate
