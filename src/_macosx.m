@@ -3222,8 +3222,14 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
 
     CGFloat deviceScale = _get_device_scale(cr);
 
-    CGContextDrawImage(cr, CGRectMake(x, y, ncols/deviceScale, nrows/deviceScale), bitmap);
+    CGContextSaveGState(cr);
+    CGContextTranslateCTM(cr, 0, y + nrows/deviceScale);
+    CGContextScaleCTM(cr, 1.0, -1.0);
+
+    CGContextDrawImage(cr, CGRectMake(x, 0, ncols/deviceScale, nrows/deviceScale), bitmap);
     CGImageRelease(bitmap);
+
+    CGContextRestoreGState(cr);
 
     Py_INCREF(Py_None);
     return Py_None;
