@@ -158,7 +158,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     t = np.arange(-180.0, 180.0, 0.1)
-    s = np.radius(t)/2.
+    s = np.radians(t)/2.
 
     plt.plot(t, s, '-', lw=2)
     plt.gca().set_yscale('mercator')
