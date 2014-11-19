@@ -403,7 +403,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         Py_XDECREF(m_arr);
     }
 
-    const array_view& operator=(const array_view &other)
+    array_view& operator=(const array_view &other)
     {
         if (this != &other)
         {
