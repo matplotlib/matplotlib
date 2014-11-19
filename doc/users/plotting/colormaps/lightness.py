@@ -58,7 +58,7 @@ for cmap_category, cmap_list in cmaps:
 
     fig = plt.figure(figsize=(11.5,4*nsubplots))
 
-    for i, subplot in enumerate(xrange(nsubplots)):
+    for i, subplot in enumerate(range(nsubplots)):
 
         locs = [] # locations for text labels
 
