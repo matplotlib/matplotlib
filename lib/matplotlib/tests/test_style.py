@@ -68,51 +68,51 @@ def test_context():
     assert mpl.rcParams[PARAM] == 'gray'
 
 
-def test_context_dict():
-    ORIGINAL = 'gray'
-    VALUE_OTHER = 'blue'
-    mpl.rcParams[PARAM] = ORIGINAL
-    with style.context({PARAM: VALUE_OTHER}):
-        assert mpl.rcParams[PARAM] == VALUE_OTHER
-    assert mpl.rcParams[PARAM] == ORIGINAL
+def test_context_with_dict():
+    original_value = 'gray'
+    other_value = 'blue'
+    mpl.rcParams[PARAM] = original_value
+    with style.context({PARAM: other_value}):
+        assert mpl.rcParams[PARAM] == other_value
+    assert mpl.rcParams[PARAM] == original_value
 
 
-def test_context_dictname1():
+def test_context_with_dict_after_namedstyle():
     # Test dict after style name where dict modifies the same parameter.
-    ORIGINAL = 'gray'
-    VALUE_OTHER = 'blue'
-    mpl.rcParams[PARAM] = ORIGINAL
+    original_value = 'gray'
+    other_value = 'blue'
+    mpl.rcParams[PARAM] = original_value
     with temp_style('test', DUMMY_SETTINGS):
-        with style.context(['test', {PARAM: VALUE_OTHER}]):
-            assert mpl.rcParams[PARAM] == VALUE_OTHER
-    assert mpl.rcParams[PARAM] == ORIGINAL
+        with style.context(['test', {PARAM: other_value}]):
+            assert mpl.rcParams[PARAM] == other_value
+    assert mpl.rcParams[PARAM] == original_value
 
 
-def test_context_dictname2():
+def test_context_with_dict_before_namedstyle():
     # Test dict before style name where dict modifies the same parameter.
-    ORIGINAL = 'gray'
-    VALUE_OTHER = 'blue'
-    mpl.rcParams[PARAM] = ORIGINAL
+    original_value = 'gray'
+    other_value = 'blue'
+    mpl.rcParams[PARAM] = original_value
     with temp_style('test', DUMMY_SETTINGS):
-        with style.context([{PARAM: VALUE_OTHER}, 'test']):
+        with style.context([{PARAM: other_value}, 'test']):
             assert mpl.rcParams[PARAM] == VALUE
-    assert mpl.rcParams[PARAM] == ORIGINAL
+    assert mpl.rcParams[PARAM] == original_value
 
 
-def test_context_dictname3():
+def test_context_with_union_of_dict_and_namedstyle():
     # Test dict after style name where dict modifies the a different parameter.
-    ORIGINAL = 'gray'
-    PARAM_OTHER = 'text.usetex'
-    VALUE_OTHER = True
-    d = {PARAM_OTHER: VALUE_OTHER}
-    mpl.rcParams[PARAM] = ORIGINAL
-    mpl.rcParams[PARAM_OTHER] = (not VALUE_OTHER)
+    original_value = 'gray'
+    other_param = 'text.usetex'
+    other_value = True
+    d = {other_param: other_value}
+    mpl.rcParams[PARAM] = original_value
+    mpl.rcParams[other_param] = (not other_value)
     with temp_style('test', DUMMY_SETTINGS):
         with style.context(['test', d]):
             assert mpl.rcParams[PARAM] == VALUE
-            assert mpl.rcParams[PARAM_OTHER] == VALUE_OTHER
-    assert mpl.rcParams[PARAM] == ORIGINAL
-    assert mpl.rcParams[PARAM_OTHER] == (not VALUE_OTHER)
+            assert mpl.rcParams[other_param] == other_value
+    assert mpl.rcParams[PARAM] == original_value
+    assert mpl.rcParams[other_param] == (not other_value)
 
 
 if __name__ == '__main__':
