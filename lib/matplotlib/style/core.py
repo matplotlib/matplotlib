@@ -39,23 +39,26 @@ def is_style_file(filename):
     return STYLE_FILE_PATTERN.match(filename) is not None
 
 
-def use(name):
-    """Use matplotlib style settings from a known style sheet or from a file.
+def use(style):
+    """Use matplotlib style settings from a style specification.
 
     Parameters
     ----------
-    name : str, dict, list of str and/or dict
-        If `name` is a str, then it is the name of a style or a path/URL to a
-        style file. For a list of available style names, see `style.available`.
-        If `name` is a dict, then it contains valid rc key/value pairs. If
-        `name` is a list of styles, then each style (str or dict) is applied
-        from first to last in the list.
-    """
-    # If name is a single str or dict, make it a single element list.
-    if cbook.is_string_like(name) or hasattr(name, 'keys'):
-        name = [name]
+    style : str, dict, or list
+        str: The name of a style or a path/URL to a style file. For a list of
+            available style names, see `style.available`.
+        dict: Dictionary with valid key/value pairs in `matplotlib.rcParams`.
+        list: List of style specifiers (str or dict) applied from first to
+            last in the list.
 
-    for style in name:
+    """
+    if cbook.is_string_like(style) or hasattr(style, 'keys'):
+        # If name is a single str or dict, make it a single element list.
+        styles = [style]
+    else:
+        styles = style
+
+    for style in styles:
         if not cbook.is_string_like(style):
             mpl.rcParams.update(style)
             continue
@@ -74,17 +77,17 @@ def use(name):
 
 
 @contextlib.contextmanager
-def context(name, after_reset=False):
+def context(style, after_reset=False):
     """Context manager for using style settings temporarily.
 
     Parameters
     ----------
-    name : str, dict, list of str and/or dict
-        If `name` is a str, then it is the name of a style or a path/URL to a
-        style file. For a list of available style names, see `style.available`.
-        If `name` is a dict, then it contains valid rc key/value pairs. If
-        `name` is a list of styles, then each style (str or dict) is applied
-        from first to last in the list.
+    style : str, dict, or list
+        str: The name of a style or a path/URL to a style file. For a list of
+            available style names, see `style.available`.
+        dict: Dictionary with valid key/value pairs in `matplotlib.rcParams`.
+        list: List of style specifiers (str or dict) applied from first to
+            last in the list.
     after_reset : bool
         If True, apply style after resetting settings to their defaults;
         otherwise, apply style on top of the current settings.
@@ -92,7 +95,7 @@ def context(name, after_reset=False):
     initial_settings = mpl.rcParams.copy()
     if after_reset:
         mpl.rcdefaults()
-    use(name)
+    use(style)
     yield
     mpl.rcParams.update(initial_settings)
 
