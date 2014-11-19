@@ -32,9 +32,10 @@ def split_list(a_list):
 fig, axes = plt.subplots(ncols=2)
 
 # Filter out filled markers and marker settings that do nothing.
-unfilled_markers = [m for m, func in Line2D.markers.iteritems()
+unfilled_markers = [m for m, func in Line2D.markers.items()
                     if func != 'nothing' and m not in Line2D.filled_markers]
-unfilled_markers = sorted(unfilled_markers)[::-1]  # Reverse-sort for pretty
+# Reverse-sort for pretty
+unfilled_markers = sorted(unfilled_markers, key=str)[::-1]
 for ax, markers in zip(axes, split_list(unfilled_markers)):
     for y, marker in enumerate(markers):
         ax.text(-0.5, y, nice_repr(marker), **text_style)
