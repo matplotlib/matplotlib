@@ -16,7 +16,7 @@ theta = np.arange(0.0, 360.0, 1.0)*np.pi/180.0
 x = 0.5 * width * np.cos(theta)
 y = 0.5 * height * np.sin(theta)
 
-rtheta = angle*np.pi/180.
+rtheta = np.radians(angle)
 R = np.array([
     [np.cos(rtheta), -np.sin(rtheta)],
     [np.sin(rtheta),  np.cos(rtheta)],
