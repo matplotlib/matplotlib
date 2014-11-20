@@ -140,6 +140,7 @@ class _process_plot_var_args(object):
         self.axes = axes
         self.command = command
         self.set_color_cycle()
+        self.set_linestyle_cycle()
 
     def __getstate__(self):
         # note: it is not possible to pickle a itertools.cycle instance
@@ -148,11 +149,17 @@ class _process_plot_var_args(object):
     def __setstate__(self, state):
         self.__dict__ = state.copy()
         self.set_color_cycle()
+        self.set_linestyle_cycle()
 
     def set_color_cycle(self, clist=None):
         if clist is None:
             clist = rcParams['axes.color_cycle']
         self.color_cycle = itertools.cycle(clist)
+
+    def set_linestyle_cycle(self, clist=None):
+        if clist is None:
+            clist = rcParams['axes.linestyle_cycle']
+        self.linestyle_cycle = itertools.cycle(clist)
 
     def __call__(self, *args, **kwargs):
 
@@ -236,6 +243,8 @@ class _process_plot_var_args(object):
             kw['color'] = six.next(self.color_cycle)
             # (can't use setdefault because it always evaluates
             # its second argument)
+        if 'linestyle' not in kw and 'linestyle' not in kwargs:
+            kw['linestyle'] = six.next(self.linestyle_cycle)
         seg = mlines.Line2D(x, y,
                             axes=self.axes,
                             **kw
@@ -954,6 +963,14 @@ class _AxesBase(martist.Artist):
         """
         self._get_lines.set_color_cycle(clist)
         self._get_patches_for_fill.set_color_cycle(clist)
+
+    def set_linestyle_cycle(self, clist):
+        """
+        Set the linestyle cycle for any future plot commands on this Axes.
+
+        *clist* is a list of mpl linestyle specifiers.
+        """
+        self._get_lines.set_linestyle_cycle(clist)
 
     def ishold(self):
         """return the HOLD status of the axes"""
