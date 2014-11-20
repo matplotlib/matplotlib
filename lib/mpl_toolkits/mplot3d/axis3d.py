@@ -70,11 +70,6 @@ class Axis(maxis.XAxis):
             'color': (0.925, 0.925, 0.925, 0.5)},
     }
 
-    # Factors for converting 2D labelpad properties to 3D
-    # Determined by trial and error
-    _DELTAS_PER_POINT = 0.05
-    _DEFAULT_LABEL_OFFSET = 1.35  # In deltas
-
     def __init__(self, adir, v_intervalx, d_intervalx, axes, *args, **kwargs):
         # adir identifies which axes this is
         self.adir = adir
@@ -269,8 +264,11 @@ class Axis(maxis.XAxis):
 
         lxyz = 0.5*(edgep1 + edgep2)
 
-        labeldeltas = (self.labelpad * self._DELTAS_PER_POINT +
-                       self._DEFAULT_LABEL_OFFSET) * deltas
+        # A rough estimate; points are ambiguous since 3D plots rotate
+        deltas_per_point = 48 / (self.axes.bbox.height + self.axes.bbox.width)
+        default_offset = 30
+        labeldeltas = (self.labelpad + default_offset) * deltas_per_point\
+            * deltas
         axmask = [True, True, True]
         axmask[index] = False
         lxyz = move_from_center(lxyz, centers, labeldeltas, axmask)
