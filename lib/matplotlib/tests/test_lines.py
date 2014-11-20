@@ -6,6 +6,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import nose
 from nose.tools import assert_true, assert_raises
 from timeit import repeat
 import numpy as np
@@ -133,5 +134,4 @@ def test_nan_is_sorted():
 
 
 if __name__ == '__main__':
-    import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
