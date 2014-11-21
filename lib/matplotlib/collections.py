@@ -274,31 +274,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
         trans = self.get_transforms()
         facecolors = self.get_facecolor()
         edgecolors = self.get_edgecolor()
-        if (len(paths) == 1 and len(trans) <= 1 and
-            len(facecolors) == 1 and len(edgecolors) == 1 and
-            len(self._linewidths) == 1 and
-            self._linestyles == [(None, None)] and
-            len(self._antialiaseds) == 1 and len(self._urls) == 1 and
-            self.get_hatch() is None):
-            gc.set_foreground(tuple(edgecolors[0]))
-            gc.set_linewidth(self._linewidths[0])
-            gc.set_linestyle(self._linestyles[0])
-            gc.set_antialiased(self._antialiaseds[0])
-            gc.set_url(self._urls[0])
-            if len(trans):
-                transform = (transforms.Affine2D(trans[0]) +
-                             transform)
-            renderer.draw_markers(
-                gc, paths[0], transform.frozen(),
-                mpath.Path(offsets), transOffset, tuple(facecolors[0]))
-        else:
-            renderer.draw_path_collection(
-                gc, transform.frozen(), paths,
-                self.get_transforms(), offsets, transOffset,
-                self.get_facecolor(), self.get_edgecolor(),
-                self._linewidths, self._linestyles,
-                self._antialiaseds, self._urls,
-                self._offset_position)
+        renderer.draw_path_collection(
+            gc, transform.frozen(), paths,
+            self.get_transforms(), offsets, transOffset,
+            self.get_facecolor(), self.get_edgecolor(),
+            self._linewidths, self._linestyles,
+            self._antialiaseds, self._urls,
+            self._offset_position)
 
         gc.restore()
         renderer.close_group(self.__class__.__name__)
