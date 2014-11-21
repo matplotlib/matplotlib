@@ -60,6 +60,8 @@ __license__ = "BSD"
 #     spring, summer, winter, and spectral.
 
 import numpy as np
+
+import matplotlib
 import matplotlib.spines as mspines
 import matplotlib.axis as maxis
 import matplotlib.text as mtext
@@ -71,7 +73,7 @@ import matplotlib.markers as mmarkers
 import matplotlib.ticker as mticker
 
 from matplotlib import rcParams
-from matplotlib.axes import _string_to_bool
+#from matplotlib.cbook import _string_to_bool
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.axes import Axes
@@ -782,13 +784,20 @@ class TernaryBCAxes(TernaryABAxes):
         output_dims = 2
         is_separable = False
 
-        def transform(self, bc):
+        def transform_non_affine(self, bc):
             b = bc[:, 0:1]
             c  = bc[:, 1:2]
             x = b
             y = c + b - 1
             return np.concatenate((x, y), 1)
-        transform.__doc__ = Transform.transform.__doc__
+        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
+
+        if matplotlib.__version__ < '1.2':
+            # Note: For compatibility with matplotlib v1.1 and older, you'll
+            # need to explicitly implement a ``transform`` method as well.
+            # Otherwise a ``NotImplementedError`` will be raised. This isn't
+            # necessary for v1.2 and newer, however.
+            transform = transform_non_affine
 
         def inverted(self):
             return TernaryBCAxes.InvertedTernaryTransform()
@@ -803,13 +812,19 @@ class TernaryBCAxes(TernaryABAxes):
         output_dims = 2
         is_separable = False
 
-        def transform(self, xy):
+        def transform_non_affine(self, xy):
             x = xy[:, 0:1]
             y = xy[:, 1:2]
             b = x
             c = y + b - 1
             return np.concatenate((b, c), 1)
-        transform.__doc__ = Transform.transform.__doc__
+        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
+
+        # As before, we need to implement the "transform" method for
+        # compatibility with matplotlib v1.1 and older.
+        if matplotlib.__version__ < '1.2':
+            transform = transform_non_affine
+
 
         def inverted(self):
             return TernaryBCAxes.TernaryTransform()
@@ -858,14 +873,21 @@ class TernaryCAAxes(TernaryABAxes):
         output_dims = 2
         is_separable = False
 
-        def transform(self, ca):
+        def transform_non_affine(self, ca):
             c = ca[:, 0:1]
             a  = ca[:, 1:2]
             x = a
             y = c + a - 1
 
             return np.concatenate((x, y), 1)
-        transform.__doc__ = Transform.transform.__doc__
+        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
+
+        if matplotlib.__version__ < '1.2':
+            # Note: For compatibility with matplotlib v1.1 and older, you'll
+            # need to explicitly implement a ``transform`` method as well.
+            # Otherwise a ``NotImplementedError`` will be raised. This isn't
+            # necessary for v1.2 and newer, however.
+            transform = transform_non_affine
 
         def inverted(self):
             return TernaryCAAxes.InvertedTernaryTransform()
@@ -880,13 +902,18 @@ class TernaryCAAxes(TernaryABAxes):
         output_dims = 2
         is_separable = False
 
-        def transform(self, xy):
+        def transform_non_affine(self, xy):
             x = xy[:, 0:1]
             y = xy[:, 1:2]
             a = x
             b = y + 1 - a
             return np.concatenate((a, b), 1)
-        transform.__doc__ = Transform.transform.__doc__
+        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
+
+        # As before, we need to implement the "transform" method for
+        # compatibility with matplotlib v1.1 and older.
+        if matplotlib.__version__ < '1.2':
+            transform = transform_non_affine
 
         def inverted(self):
             return TernaryCAAxes.TernaryTransform()
@@ -911,3 +938,13 @@ class TernaryCAAxes(TernaryABAxes):
         """Return the angle [deg] of these axes relative to the *c*, *a* axes.
         """
         return 0
+
+if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+    # Now make a simple example using the custom projection.
+    plt.subplot(111, projection="ternaryab")
+    p = plt.plot([-1, 1, 1], [-1, -1, 1], "o-")
+    plt.grid(True)
+
+    plt.show()
+    
