@@ -14,6 +14,8 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.testing.decorators import cleanup
 from matplotlib import pyplot as plt
+from matplotlib import collections
+from matplotlib import path
 
 
 @cleanup
@@ -57,10 +59,10 @@ def test_large_single_path_collection():
     # would cause a segfault if the draw_markers optimization is
     # applied.
     f, ax = plt.subplots()
-    x = np.logspace(-10, 5, 20)
-    data = np.random.random((2, 20))
-    ax.stackplot(x, *data)
-    ax.set_xlim(10**-3, 1) # broken
+    collection = collections.PathCollection(
+        [path.Path([[-10, 5], [10, 5], [10, -5], [-10, -5], [-10, 5]])])
+    ax.add_artist(collection)
+    ax.set_xlim(10**-3, 1)
     plt.savefig(buff)
 
 
