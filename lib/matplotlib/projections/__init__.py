@@ -5,7 +5,7 @@ import six
 
 from .geo import AitoffAxes, HammerAxes, LambertAxes, MollweideAxes
 from .polar import PolarAxes
-from ternary import TernaryABAxes, TernaryBCAxes, TernaryCAAxes
+from .ternary import TernaryABAxes, TernaryBCAxes, TernaryCAAxes
 
 from matplotlib import axes
 
