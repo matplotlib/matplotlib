@@ -5,6 +5,8 @@ import six
 
 from .geo import AitoffAxes, HammerAxes, LambertAxes, MollweideAxes
 from .polar import PolarAxes
+from ternary import TernaryABAxes, TernaryBCAxes, TernaryCAAxes
+
 from matplotlib import axes
 
 class ProjectionRegistry(object):
@@ -44,7 +46,10 @@ projection_registry.register(
     AitoffAxes,
     HammerAxes,
     LambertAxes,
-    MollweideAxes)
+    MollweideAxes,
+    TernaryABAxes,
+    TernaryBCAxes,
+    TernaryCAAxes)
 
 
 def register_projection(cls):
