@@ -3993,6 +3993,7 @@ FigureManager_show(FigureManager* self)
     {
         NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
         [window makeKeyAndOrderFront: nil];
+        [window orderFrontRegardless];
         [pool release];
     }
     Py_INCREF(Py_None);
