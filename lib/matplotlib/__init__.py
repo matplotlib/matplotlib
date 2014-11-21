@@ -582,8 +582,8 @@ def _get_config_or_cache_dir(xdg_base):
 
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir is not None:
+        configdir = os.path.abspath(configdir)
         if not os.path.exists(configdir):
-            from matplotlib.cbook import mkdirs
             mkdirs(configdir)
 
         if not _is_writable_dir(configdir):
