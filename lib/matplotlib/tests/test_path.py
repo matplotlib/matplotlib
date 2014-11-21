@@ -36,8 +36,10 @@ def test_contains_points_negative_radius():
 
     points = [(0.0, 0.0), (1.25, 0.0), (0.9, 0.9)]
     expected = [True, False, False]
+    result = path.contains_points(points, radius=-0.5)
 
-    assert np.all(path.contains_points(points, radius=-0.5) == expected)
+    assert result.dtype == np.bool
+    assert np.all(result == expected)
 
 
 @image_comparison(baseline_images=['path_clipping'],

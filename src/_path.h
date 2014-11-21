@@ -67,7 +67,7 @@ struct XY
 template <class PathIterator, class PointArray, class ResultArray>
 void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &inside_flag)
 {
-    int yflag1;
+    bool yflag1;
     double vtx0, vty0, vtx1, vty1;
     double tx, ty;
     double sx, sy;
@@ -77,13 +77,13 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
 
     size_t n = points.size();
 
-    std::vector<int> yflag0(n);
-    std::vector<int> subpath_flag(n);
+    std::vector<bool> yflag0(n);
+    std::vector<bool> subpath_flag(n);
 
     path.rewind(0);
 
     for (i = 0; i < n; ++i) {
-        inside_flag[i] = 0;
+        inside_flag[i] = false;
     }
 
     unsigned code = 0;
@@ -106,7 +106,7 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
                 // get test bit for above/below X axis
                 yflag0[i] = (vty0 >= ty);
 
-                subpath_flag[i] = 0;
+                subpath_flag[i] = false;
             }
         }
 
@@ -152,7 +152,7 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
                     // Haigh-Hutchinson's different polygon inclusion
                     // tests.
                     if (((vty1 - ty) * (vtx0 - vtx1) >= (vtx1 - tx) * (vty0 - vty1)) == yflag1) {
-                        subpath_flag[i] ^= 1;
+                        subpath_flag[i] = subpath_flag[i] ^ true;
                     }
                 }
 
@@ -181,11 +181,11 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
             yflag1 = (vty1 >= ty);
             if (yflag0[i] != yflag1) {
                 if (((vty1 - ty) * (vtx0 - vtx1) >= (vtx1 - tx) * (vty0 - vty1)) == yflag1) {
-                    subpath_flag[i] ^= 1;
+                    subpath_flag[i] = subpath_flag[i] ^ true;
                 }
             }
-            inside_flag[i] |= subpath_flag[i];
-            if (inside_flag[i] == 0) {
+            inside_flag[i] = inside_flag[i] || subpath_flag[i];
+            if (inside_flag[i] == false) {
                 all_done = false;
             }
         }
@@ -210,7 +210,7 @@ inline void points_in_path(PointArray &points,
 
     size_t i;
     for (i = 0; i < result.size(); ++i) {
-        result[i] = 0;
+        result[i] = false;
     }
 
     if (path.total_vertices() < 3) {
@@ -236,8 +236,8 @@ inline bool point_in_path(
     point.push_back(y);
     points.push_back(point);
 
-    std::vector<uint8_t> result(1);
-    result[0] = 0;
+    std::vector<bool> result(1);
+    result[0] = false;
 
     points_in_path(points, r, path, trans, result);
 
@@ -258,7 +258,7 @@ void points_on_path(PointArray &points,
 
     size_t i;
     for (i = 0; i < result.size(); ++i) {
-        result[i] = 0;
+        result[i] = false;
     }
 
     transformed_path_t trans_path(path, trans);
@@ -279,8 +279,8 @@ inline bool point_on_path(
     point.push_back(y);
     points.push_back(point);
 
-    std::vector<uint8_t> result(1);
-    result[0] = 0;
+    std::vector<bool> result(1);
+    result[0] = false;
 
     points_on_path(points, r, path, trans, result);
 
