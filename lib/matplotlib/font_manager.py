@@ -142,7 +142,7 @@ OSXFontDirectories = [
     ""
 ]
 
-if not USE_FONTCONFIG:
+if not USE_FONTCONFIG and sys.platform != 'win32':
     home = os.environ.get('HOME')
     if home is not None:
         # user fonts on OSX
