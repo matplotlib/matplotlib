@@ -142,3 +142,11 @@ class MixedModeRenderer(object):
                                                self._bbox_inches_restore,
                                                self._figdpi)
             self._bbox_inches_restore = r
+
+    @property
+    def width(self):
+        return _width
+
+    @property
+    def height(self):
+        return _height
