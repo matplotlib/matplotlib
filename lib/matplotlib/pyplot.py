@@ -52,7 +52,6 @@ import numpy as np
 
 # We may not need the following imports here:
 from matplotlib.colors import Normalize
-from matplotlib.colors import normalize  # for backwards compat.
 from matplotlib.lines import Line2D
 from matplotlib.text import Text, Annotation
 from matplotlib.patches import Polygon, Rectangle, Circle, Arrow
