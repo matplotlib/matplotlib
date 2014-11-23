@@ -123,11 +123,11 @@ class _TaggedValue(object):
                           {})
             if subcls not in units.registry:
                 units.registry[subcls] = basicConverter
-            return object.__new__(subcls, value, unit)
+            return object.__new__(subcls)
         except TypeError:
             if cls not in units.registry:
                 units.registry[cls] = basicConverter
-            return object.__new__(cls, value, unit)
+            return object.__new__(cls)
 
     def __init__(self, value, unit):
         self.value = value
