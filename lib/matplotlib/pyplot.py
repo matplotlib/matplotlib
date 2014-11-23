@@ -611,14 +611,12 @@ def waitforbuttonpress(*args, **kwargs):
 def figtext(*args, **kwargs):
 
     ret =  gcf().text(*args, **kwargs)
-    draw_if_interactive()
     return ret
 
 
 @docstring.copy_dedent(Figure.suptitle)
 def suptitle(*args, **kwargs):
     ret =  gcf().suptitle(*args, **kwargs)
-    draw_if_interactive()
     return ret
 
 

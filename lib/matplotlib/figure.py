@@ -378,16 +378,19 @@ class Figure(Artist):
         #if not isinstance(self.canvas, interactive_canvases):
         #    return
         self.canvas.draw()
-        print("drawing complete")
-        #self._in_outer_method = False
+        # print("drawing complete")
         return True
 
     def check_interactive(self):
+        """
+        Return True upon entering an outer method, and set the
+        flag; return False if already in an outer method.
+        """
         if not self._in_outer_method:
             self._in_outer_method = True
-            print("checking: True")
+            print("checking: toggled _in_outer_method to True")
             return True
-        print("checking: False")
+        print("checking: already _in_outer_method; returning False")
         return False
 
     def clear_interactive(self, drawn):
