@@ -311,7 +311,7 @@ def rad_fn(x, pos=None):
     elif n == 2:
         return r'$\pi$'
     elif n % 2 == 0:
-        return r'$%s\pi$' % (n/2,)
+        return r'$%s\pi$' % (n//2,)
     else:
         return r'$%s\pi/2$' % (n,)
 
