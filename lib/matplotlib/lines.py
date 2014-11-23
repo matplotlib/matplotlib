@@ -536,15 +536,17 @@ class Line2D(Artist):
             bbox = bbox.padded(ms)
         return bbox
 
-    def set_axes(self, ax):
-        Artist.set_axes(self, ax)
+    @Artist.axes.setter
+    def axes(self, ax):
+        # call the set method from the base-class property
+        Artist.axes.fset(self, ax)
+        # connect unit-related callbacks
         if ax.xaxis is not None:
             self._xcid = ax.xaxis.callbacks.connect('units',
                                                     self.recache_always)
         if ax.yaxis is not None:
             self._ycid = ax.yaxis.callbacks.connect('units',
                                                     self.recache_always)
-    set_axes.__doc__ = Artist.set_axes.__doc__
 
     def set_data(self, *args):
         """
