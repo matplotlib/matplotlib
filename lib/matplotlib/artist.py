@@ -87,7 +87,6 @@ class Artist(object):
         self.clipbox = None
         self._clippath = None
         self._clipon = True
-        self._lod = False
         self._label = ''
         self._picker = None
         self._contains = None
@@ -712,17 +711,6 @@ class Artist(object):
         self._alpha = alpha
         self.pchanged()
 
-    def set_lod(self, on):
-        """
-        Set Level of Detail on or off.  If on, the artists may examine
-        things like the pixel width of the axes and draw a subset of
-        their contents accordingly
-
-        ACCEPTS: [True | False]
-        """
-        self._lod = on
-        self.pchanged()
-
     def set_visible(self, b):
         """
         Set the artist's visiblity.
@@ -803,7 +791,6 @@ class Artist(object):
         self.clipbox = other.clipbox
         self._clipon = other._clipon
         self._clippath = other._clippath
-        self._lod = other._lod
         self._label = other._label
         self._sketch = other._sketch
         self._path_effects = other._path_effects
