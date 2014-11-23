@@ -298,7 +298,11 @@ class Figure(Artist):
             Defaults to rc ``figure.autolayout``.
         """
         Artist.__init__(self)
-
+        # remove the non-figure artist _axes property
+        # as it makes no sense for a figure to be _in_ an axes
+        # this is used by the property methods in the artist base class
+        # which are over-ridden in this class
+        del self._axes
         self.callbacks = cbook.CallbackRegistry()
 
         if figsize is None:

@@ -392,7 +392,8 @@ class _AxesBase(martist.Artist):
         else:
             self._position = mtransforms.Bbox.from_bounds(*rect)
         self._originalPosition = self._position.frozen()
-        self.set_axes(self)
+        # self.set_axes(self)
+        self.axes = self
         self.set_aspect('auto')
         self._adjustable = 'box'
         self.set_anchor('C')
@@ -774,7 +775,7 @@ class _AxesBase(martist.Artist):
         if not a.is_transform_set():
             a.set_transform(self.transData)
 
-        a.set_axes(self)
+        a.axes = self
 
     def _gen_axes_patch(self):
         """
@@ -1431,7 +1432,7 @@ class _AxesBase(martist.Artist):
 
         Returns the artist.
         """
-        a.set_axes(self)
+        a.axes = self
         self.artists.append(a)
         self._set_artist_props(a)
         a.set_clip_path(self.patch)
