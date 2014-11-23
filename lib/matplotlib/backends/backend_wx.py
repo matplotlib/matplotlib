@@ -766,11 +766,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
 
         self.macros = {} # dict from wx id to seq of macros
 
-        # printer attributes and methods deprecated, 2010/06/19
-        self._printerData = None
-        self._printerPageData = None
-        self.printer_width = 5.5
-        self.printer_margin = 0.5
 
     def Destroy(self, *args, **kwargs):
         wx.Panel.Destroy(self, *args, **kwargs)
