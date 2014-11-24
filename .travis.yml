@@ -30,6 +30,7 @@ before_install:
   - export PATH=/home/travis/miniconda/bin:$PATH
   - conda update --yes conda
 
+
 install:
   # Set up Conda environment
   - conda create --yes -n test python=$TRAVIS_PYTHON_VERSION
