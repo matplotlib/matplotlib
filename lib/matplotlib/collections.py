@@ -271,6 +271,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
             from matplotlib.patheffects import PathEffectRenderer
             renderer = PathEffectRenderer(self.get_path_effects(), renderer)
 
+        # If the collection is made up of a single shape/color/stroke,
+        # it can be rendered once and blitted multiple times, using
+        # `draw_markers` rather than `draw_path_collection`.  This is
+        # *much* faster for Agg, and results in smaller file sizes in
+        # PDF/SVG/PS.
+
         trans = self.get_transforms()
         facecolors = self.get_facecolor()
         edgecolors = self.get_edgecolor()
