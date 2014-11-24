@@ -287,8 +287,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
             else:
                 combined_transform = transform
             extents = paths[0].get_extents(combined_transform)
-            if (extents.width < renderer.width and
-                extents.height < renderer.height):
+            width, height = renderer.get_canvas_width_height()
+            if (extents.width < width and
+                extents.height < height):
                 do_single_path_optimization = True
 
         if do_single_path_optimization:
