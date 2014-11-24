@@ -37,7 +37,7 @@ install:
   - source activate test
 
   # Install core Python dependencies using conda
-  - conda install --yes nose python-dateutil numpy=$NUMPY_VERSION pep8 pyparsing pillow
+  - conda install --yes nose dateutil numpy=$NUMPY_VERSION pep8 pyparsing pillow
 
   # Install some non-Python dependencies through apt-get
   - sudo apt-get update
