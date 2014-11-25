@@ -45,11 +45,19 @@ def use(style):
     Parameters
     ----------
     style : str, dict, or list
-        str: The name of a style or a path/URL to a style file. For a list of
-            available style names, see `style.available`.
-        dict: Dictionary with valid key/value pairs in `matplotlib.rcParams`.
-        list: List of style specifiers (str or dict) applied from first to
-            last in the list.
+        A style specification. Valid options are:
+
+        +------+-------------------------------------------------------------+
+        | str  | The name of a style or a path/URL to a style file. For a    |
+        |      | list of available style names, see `style.available`.       |
+        +------+-------------------------------------------------------------+
+        | dict | Dictionary with valid key/value pairs for                   |
+        |      | `matplotlib.rcParams`.                                      |
+        +------+-------------------------------------------------------------+
+        | list | A list of style specifiers (str or dict) applied from first |
+        |      | to last in the list.                                        |
+        +------+-------------------------------------------------------------+
+
 
     """
     if cbook.is_string_like(style) or hasattr(style, 'keys'):
@@ -83,11 +91,19 @@ def context(style, after_reset=False):
     Parameters
     ----------
     style : str, dict, or list
-        str: The name of a style or a path/URL to a style file. For a list of
-            available style names, see `style.available`.
-        dict: Dictionary with valid key/value pairs in `matplotlib.rcParams`.
-        list: List of style specifiers (str or dict) applied from first to
-            last in the list.
+        A style specification. Valid options are:
+
+        +------+-------------------------------------------------------------+
+        | str  | The name of a style or a path/URL to a style file. For a    |
+        |      | list of available style names, see `style.available`.       |
+        +------+-------------------------------------------------------------+
+        | dict | Dictionary with valid key/value pairs for                   |
+        |      | `matplotlib.rcParams`.                                      |
+        +------+-------------------------------------------------------------+
+        | list | A list of style specifiers (str or dict) applied from first |
+        |      | to last in the list.                                        |
+        +------+-------------------------------------------------------------+
+
     after_reset : bool
         If True, apply style after resetting settings to their defaults;
         otherwise, apply style on top of the current settings.
