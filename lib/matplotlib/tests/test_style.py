@@ -2,16 +2,19 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import os
+import sys
 import shutil
 import tempfile
 from contextlib import contextmanager
+
+from nose import SkipTest
+from nose.tools import assert_raises
 
 import matplotlib as mpl
 from matplotlib import style
 from matplotlib.style.core import USER_LIBRARY_PATHS, STYLE_EXTENSION
 
 import six
-
 
 PARAM = 'image.cmap'
 VALUE = 'pink'
@@ -66,6 +69,70 @@ def test_context():
             assert mpl.rcParams[PARAM] == VALUE
     # Check that this value is reset after the exiting the context.
     assert mpl.rcParams[PARAM] == 'gray'
+
+
+def test_context_with_dict():
+    original_value = 'gray'
+    other_value = 'blue'
+    mpl.rcParams[PARAM] = original_value
+    with style.context({PARAM: other_value}):
+        assert mpl.rcParams[PARAM] == other_value
+    assert mpl.rcParams[PARAM] == original_value
+
+
+def test_context_with_dict_after_namedstyle():
+    # Test dict after style name where dict modifies the same parameter.
+    original_value = 'gray'
+    other_value = 'blue'
+    mpl.rcParams[PARAM] = original_value
+    with temp_style('test', DUMMY_SETTINGS):
+        with style.context(['test', {PARAM: other_value}]):
+            assert mpl.rcParams[PARAM] == other_value
+    assert mpl.rcParams[PARAM] == original_value
+
+
+def test_context_with_dict_before_namedstyle():
+    # Test dict before style name where dict modifies the same parameter.
+    original_value = 'gray'
+    other_value = 'blue'
+    mpl.rcParams[PARAM] = original_value
+    with temp_style('test', DUMMY_SETTINGS):
+        with style.context([{PARAM: other_value}, 'test']):
+            assert mpl.rcParams[PARAM] == VALUE
+    assert mpl.rcParams[PARAM] == original_value
+
+
+def test_context_with_union_of_dict_and_namedstyle():
+    # Test dict after style name where dict modifies the a different parameter.
+    original_value = 'gray'
+    other_param = 'text.usetex'
+    other_value = True
+    d = {other_param: other_value}
+    mpl.rcParams[PARAM] = original_value
+    mpl.rcParams[other_param] = (not other_value)
+    with temp_style('test', DUMMY_SETTINGS):
+        with style.context(['test', d]):
+            assert mpl.rcParams[PARAM] == VALUE
+            assert mpl.rcParams[other_param] == other_value
+    assert mpl.rcParams[PARAM] == original_value
+    assert mpl.rcParams[other_param] == (not other_value)
+
+
+def test_context_with_badparam():
+    if sys.version_info[:2] >= (2, 7):
+        from collections import OrderedDict
+    else:
+        m = "Test can only be run in Python >= 2.7 as it requires OrderedDict"
+        raise SkipTest(m)
+
+    original_value = 'gray'
+    other_value = 'blue'
+    d = OrderedDict([(PARAM, original_value), ('badparam', None)])
+    with style.context({PARAM: other_value}):
+        assert mpl.rcParams[PARAM] == other_value
+        x = style.context([d])
+        assert_raises(KeyError, x.__enter__)
+        assert mpl.rcParams[PARAM] == other_value
 
 
 if __name__ == '__main__':
