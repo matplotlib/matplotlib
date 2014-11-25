@@ -121,8 +121,8 @@ def test_context_with_badparam():
     if sys.version_info[:2] >= (2, 7):
         from collections import OrderedDict
     else:
-        msg = "Test can only be run in Python >= 2.7 as it requires OrderedDict"
-        raise SkipTest(msg)
+        m = "Test can only be run in Python >= 2.7 as it requires OrderedDict"
+        raise SkipTest(m)
 
     original_value = 'gray'
     other_value = 'blue'
@@ -132,6 +132,7 @@ def test_context_with_badparam():
         x = style.context([d])
         assert_raises(KeyError, x.__enter__)
         assert mpl.rcParams[PARAM] == other_value
+
 
 if __name__ == '__main__':
     from numpy import testing

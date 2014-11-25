@@ -114,7 +114,7 @@ def context(style, after_reset=False):
     try:
         use(style)
     except:
-        # Restore original settings before raising any errors during the update.
+        # Restore original settings before raising errors during the update.
         mpl.rcParams.update(initial_settings)
         raise
     else:
