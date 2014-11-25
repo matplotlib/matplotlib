@@ -2,6 +2,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import os
+import sys
 import shutil
 import tempfile
 from contextlib import contextmanager
@@ -12,6 +13,7 @@ from matplotlib.style.core import USER_LIBRARY_PATHS, STYLE_EXTENSION
 
 import six
 
+from nose.tools import assert_raises
 
 PARAM = 'image.cmap'
 VALUE = 'pink'
@@ -114,6 +116,22 @@ def test_context_with_union_of_dict_and_namedstyle():
     assert mpl.rcParams[PARAM] == original_value
     assert mpl.rcParams[other_param] == (not other_value)
 
+
+def test_context_with_badparam():
+    if sys.version_info[:2] >= (2, 7):
+        from collections import OrderedDict
+    else:
+        msg = "Test can only be run in Python >= 2.7 as it requires OrderedDict"
+        raise SkipTest(msg)
+
+    original_value = 'gray'
+    other_value = 'blue'
+    d = OrderedDict([(PARAM, original_value), ('badparam', None)])
+    with style.context({PARAM: other_value}):
+        assert mpl.rcParams[PARAM] == other_value
+        x = style.context([d])
+        assert_raises(KeyError, x.__enter__)
+        assert mpl.rcParams[PARAM] == other_value
 
 if __name__ == '__main__':
     from numpy import testing

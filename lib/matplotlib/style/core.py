@@ -77,11 +77,11 @@ def use(style):
             try:
                 rc = rc_params_from_file(style, use_default_template=False)
                 mpl.rcParams.update(rc)
-            except:
+            except IOError:
                 msg = ("'%s' not found in the style library and input is "
                        "not a valid URL or path. See `style.available` for "
                        "list of available styles.")
-                raise ValueError(msg % style)
+                raise IOError(msg % style)
 
 
 @contextlib.contextmanager
@@ -111,9 +111,16 @@ def context(style, after_reset=False):
     initial_settings = mpl.rcParams.copy()
     if after_reset:
         mpl.rcdefaults()
-    use(style)
-    yield
-    mpl.rcParams.update(initial_settings)
+    try:
+        use(style)
+    except:
+        # Restore original settings before raising any errors during the update.
+        mpl.rcParams.update(initial_settings)
+        raise
+    else:
+        yield
+    finally:
+        mpl.rcParams.update(initial_settings)
 
 
 def load_base_library():
