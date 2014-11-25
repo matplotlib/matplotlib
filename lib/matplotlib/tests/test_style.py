@@ -7,13 +7,14 @@ import shutil
 import tempfile
 from contextlib import contextmanager
 
+from nose import SkipTest
+from nose.tools import assert_raises
+
 import matplotlib as mpl
 from matplotlib import style
 from matplotlib.style.core import USER_LIBRARY_PATHS, STYLE_EXTENSION
 
 import six
-
-from nose.tools import assert_raises
 
 PARAM = 'image.cmap'
 VALUE = 'pink'
