@@ -786,8 +786,8 @@ class Figure(Artist):
             ret = []
             for k, v in items:
                 if iterable(v):
-                    # some objects can define __getitem__ without being 
-                    # iterable and in those cases the conversion to tuples 
+                    # some objects can define __getitem__ without being
+                    # iterable and in those cases the conversion to tuples
                     # will fail.
                     try:
                         v = tuple(v)
