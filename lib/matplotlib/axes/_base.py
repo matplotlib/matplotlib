@@ -233,7 +233,7 @@ class _process_plot_var_args(object):
     def _makeline(self, x, y, kw, kwargs):
         kw = kw.copy()  # Don't modify the original kw.
         kwargs = kwargs.copy()
-        if kw.get('color',None) is None and kwargs.get('color',None) is None:
+        if kw.get('color', None) is None and kwargs.get('color', None) is None:
             kwargs['color'] = kw['color'] = six.next(self.color_cycle)
             # (can't use setdefault because it always evaluates
             # its second argument)
