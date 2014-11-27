@@ -785,14 +785,14 @@ class Figure(Artist):
             # to tuples for the key
             ret = []
             for k, v in items:
-                if iterable(v):
-                    # some objects can define __getitem__ without being
-                    # iterable and in those cases the conversion to tuples
-                    # will fail.
-                    try:
-                        v = tuple(v)
-                    except:
-                        pass
+                # some objects can define __getitem__ without being
+                # iterable and in those cases the conversion to tuples
+                # will fail. So instead of using the iterable(v) function
+                # we simply try and convert to a tuple, and proceed if not.
+                try:
+                    v = tuple(v)
+                except Exception:
+                    pass
                 ret.append((k, v))
             return tuple(ret)
 
