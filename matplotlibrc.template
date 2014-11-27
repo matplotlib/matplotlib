@@ -323,8 +323,8 @@ backend      : %(backend)s
 #legend.frameon       : True   # whether or not to draw a frame around legend
 #legend.framealpha    : 1.0    # opacity of of legend frame
 #legend.scatterpoints : 3 # number of scatter points
-#legend.facecolor     : w   # legend background color (when None inherits from axes.facecolor)
-#legend.edgecolor     : k   # legend edge color (when None inherits from axes.facecolor)
+#legend.facecolor     : None   # legend background color (when None inherits from axes.facecolor)
+#legend.edgecolor     : None   # legend edge color (when None inherits from axes.facecolor)
 
 
 
