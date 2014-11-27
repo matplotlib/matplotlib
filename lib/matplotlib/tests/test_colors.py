@@ -5,7 +5,8 @@ from matplotlib.externals import six
 import itertools
 from distutils.version import LooseVersion as V
 
-from nose.tools import assert_raises, assert_equal, assert_true
+from nose.tools import (assert_raises, assert_equal, assert_true, assert_false
+                        raises)
 
 import numpy as np
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
@@ -163,6 +164,182 @@ def test_Normalize():
     _mask_tester(norm, vals)
 
 
+class _base_NormMixin(object):
+    def test_call(self):
+        normed_vals = self.norm(self.vals)
+        assert_array_almost_equal(normed_vals, self.expected)
+
+    def test_inverse(self):
+        _inverse_tester(self.norm, self.vals)
+
+    def test_scalar(self):
+        _scalar_tester(self.norm, self.vals)
+
+    def test_mask(self):
+        _mask_tester(self.norm, self.vals)
+
+    def test_autoscale(self):
+        norm = self.normclass()
+        norm.autoscale([10, 20, 30, 40])
+        assert_equal(norm.vmin, 10.)
+        assert_equal(norm.vmax, 40.)
+
+    def test_autoscale_None_vmin(self):
+        norm = self.normclass(vmin=0, vmax=None)
+        norm.autoscale_None([1, 2, 3, 4, 5])
+        assert_equal(norm.vmin, 0.)
+        assert_equal(norm.vmax, 5.)
+
+    def test_autoscale_None_vmax(self):
+        norm = self.normclass(vmin=None, vmax=10)
+        norm.autoscale_None([1, 2, 3, 4, 5])
+        assert_equal(norm.vmin, 1.)
+        assert_equal(norm.vmax, 10.)
+
+    def test_scale(self):
+        norm = self.normclass()
+        assert_false(norm.scaled())
+
+        norm([1, 2, 3, 4])
+        assert_true(norm.scaled())
+
+    def test_process_value_scalar(self):
+        res, is_scalar = mcolors.Normalize.process_value(5)
+        assert_true(is_scalar)
+        assert_array_equal(res, np.array([5.]))
+
+    def test_process_value_list(self):
+        res, is_scalar = mcolors.Normalize.process_value([5, 10])
+        assert_false(is_scalar)
+        assert_array_equal(res, np.array([5., 10.]))
+
+    def test_process_value_tuple(self):
+        res, is_scalar = mcolors.Normalize.process_value((5, 10))
+        assert_false(is_scalar)
+        assert_array_equal(res, np.array([5., 10.]))
+
+    def test_process_value_array(self):
+        res, is_scalar = mcolors.Normalize.process_value(np.array([5, 10]))
+        assert_false(is_scalar)
+        assert_array_equal(res, np.array([5., 10.]))
+
+
+class test_OffsetNorm_Even(_base_NormMixin):
+    def setup(self):
+        self.normclass = mcolors.OffsetNorm
+        self.norm = self.normclass(vmin=-1, vcenter=0, vmax=4)
+        self.vals = np.array([-1.0, -0.5, 0.0, 1.0, 2.0, 3.0, 4.0])
+        self.expected = np.array([0.0, 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
+
+
+class test_OffsetNorm_Odd(_base_NormMixin):
+    def setup(self):
+        self.normclass = mcolors.OffsetNorm
+        self.norm = self.normclass(vmin=-2, vcenter=0, vmax=5)
+        self.vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
+        self.expected = np.array([0.0, 0.25, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+
+
+class test_OffsetNorm_AllNegative(_base_NormMixin):
+    def setup(self):
+        self.normclass = mcolors.OffsetNorm
+        self.norm = self.normclass(vmin=-10, vcenter=-8, vmax=-2)
+        self.vals = np.array([-10., -9., -8., -6., -4., -2.])
+        self.expected = np.array([0.0, 0.25, 0.5, 0.666667, 0.833333, 1.0])
+
+
+class test_OffsetNorm_AllPositive(_base_NormMixin):
+    def setup(self):
+        self.normclass = mcolors.OffsetNorm
+        self.norm = self.normclass(vmin=0, vcenter=3, vmax=9)
+        self.vals = np.array([0., 1.5, 3., 4.5, 6.0, 7.5, 9.])
+        self.expected = np.array([0.0, 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
+
+
+class test_OffsetNorm_NoVs(_base_NormMixin):
+    def setup(self):
+        self.normclass = mcolors.OffsetNorm
+        self.norm = self.normclass(vmin=None, vcenter=None, vmax=None)
+        self.vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0])
+        self.expected = np.array([0., 0.16666667, 0.33333333,
+                                  0.5, 0.66666667, 0.83333333, 1.0])
+        self.expected_vmin = -2
+        self.expected_vcenter = 1
+        self.expected_vmax = 4
+
+    def test_vmin(self):
+        assert_true(self.norm.vmin is None)
+        self.norm(self.vals)
+        assert_equal(self.norm.vmin, self.expected_vmin)
+
+    def test_vcenter(self):
+        assert_true(self.norm.vcenter is None)
+        self.norm(self.vals)
+        assert_equal(self.norm.vcenter, self.expected_vcenter)
+
+    def test_vmax(self):
+        assert_true(self.norm.vmax is None)
+        self.norm(self.vals)
+        assert_equal(self.norm.vmax, self.expected_vmax)
+
+
+class test_OffsetNorm_VminEqualsVcenter(_base_NormMixin):
+    def setup(self):
+        self.normclass = mcolors.OffsetNorm
+        self.norm = self.normclass(vmin=-2, vcenter=-2, vmax=2)
+        self.vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0])
+        self.expected = np.array([0.5, 0.625, 0.75, 0.875, 1.0])
+
+
+class test_OffsetNorm_VmaxEqualsVcenter(_base_NormMixin):
+    def setup(self):
+        self.normclass = mcolors.OffsetNorm
+        self.norm = self.normclass(vmin=-2, vcenter=2, vmax=2)
+        self.vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0])
+        self.expected = np.array([0.0, 0.125, 0.25, 0.375, 0.5])
+
+
+class test_OffsetNorm_VsAllEqual(_base_NormMixin):
+    def setup(self):
+        self.v = 10
+        self.normclass = mcolors.OffsetNorm
+        self.norm = self.normclass(vmin=self.v, vcenter=self.v, vmax=self.v)
+        self.vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0])
+        self.expected = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
+        self.expected_inv = self.expected + self.v
+
+    def test_inverse(self):
+        assert_array_almost_equal(
+            self.norm.inverse(self.norm(self.vals)),
+            self.expected_inv
+        )
+
+
+class test_OffsetNorm_Errors(object):
+    def setup(self):
+        self.vals = np.arange(50)
+
+    @raises(ValueError)
+    def test_VminGTVcenter(self):
+        norm = mcolors.OffsetNorm(vmin=10, vcenter=0, vmax=20)
+        norm(self.vals)
+
+    @raises(ValueError)
+    def test_VminGTVmax(self):
+        norm = mcolors.OffsetNorm(vmin=10, vcenter=0, vmax=5)
+        norm(self.vals)
+
+    @raises(ValueError)
+    def test_VcenterGTVmax(self):
+        norm = mcolors.OffsetNorm(vmin=10, vcenter=25, vmax=20)
+        norm(self.vals)
+
+    @raises(ValueError)
+    def test_premature_scaling(self):
+        norm = mcolors.OffsetNorm()
+        norm.inverse(np.array([0.1, 0.5, 0.9]))
+
+
 def test_SymLogNorm():
     """
     Test SymLogNorm behavior
@@ -281,7 +458,12 @@ def test_cmap_and_norm_from_levels_and_colors2():
                                'Wih extend={0!r} and data '
                                'value={1!r}'.format(extend, d_val))
 
-    assert_raises(ValueError, mcolors.from_levels_and_colors, levels, colors)
+    assert_raises(
+        ValueError,
+        mcolors.from_levels_and_colors,
+        levels,
+        colors
+    )
 
 
 def test_rgb_hsv_round_trip():

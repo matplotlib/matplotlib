@@ -225,6 +225,7 @@ def rgb2hex(rgb):
     a = '#%02x%02x%02x' % tuple([int(np.round(val * 255)) for val in rgb[:3]])
     return a
 
+
 hexColorPattern = re.compile("\A#[a-fA-F0-9]{6}\Z")
 
 
@@ -961,6 +962,127 @@ class Normalize(object):
     def scaled(self):
         'return true if vmin and vmax set'
         return (self.vmin is not None and self.vmax is not None)
+
+
+class OffsetNorm(Normalize):
+    """
+    A subclass of matplotlib.colors.Normalize.
+
+    Normalizes data into the ``[0.0, 1.0]`` interval.
+    """
+    def __init__(self, vmin=None, vcenter=None, vmax=None, clip=False):
+        """Normalize data with an offset midpoint
+
+        Useful when mapping data unequally centered around a conceptual
+        center, e.g., data that range from -2 to 4, with 0 as the midpoint.
+
+        Parameters
+        ----------
+        vmin : optional float
+            The data value that defines ``0.0`` in the normalized data.
+            Defaults to the min value of the dataset.
+
+        vcenter : optional float
+            The data value that defines ``0.5`` in the normalized data.
+            Defaults to halfway between *vmin* and *vmax*.
+
+        vmax : option float
+            The data value that defines ``1.0`` in the normalized data.
+            Defaults to the the max value of the dataset.
+
+        clip : optional bool (default is False)
+            If *clip* is True, values beyond *vmin* and *vmax* will be set
+            to ``0.0`` or ``1.0``, respectively. Otherwise, values outside
+            the ``[0.0, 1.0]`` will be returned.
+
+        Examples
+        --------
+        >>> import matplotlib.colors as mcolors
+        >>> offset = mcolors.OffsetNorm(vmin=-2., vcenter=0., vmax=4.)
+        >>> data = [-2., -1., 0., 1., 2., 3., 4.]
+        >>> offset(data)
+        array([0., 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
+
+        """
+
+        self.vmin = vmin
+        self.vcenter = vcenter
+        self.vmax = vmax
+        self.clip = clip
+
+    def __call__(self, value, clip=None):
+        if clip is None:
+            clip = self.clip
+
+        result, is_scalar = self.process_value(value)
+
+        self.autoscale_None(result)
+        vmin, vcenter, vmax = self.vmin, self.vcenter, self.vmax
+        if vmin == vmax == vcenter:
+            result.fill(0)
+        elif not vmin <= vcenter <= vmax:
+            raise ValueError("minvalue must be less than or equal to "
+                             "centervalue which must be less than or "
+                             "equal to maxvalue")
+        else:
+            vmin = float(vmin)
+            vcenter = float(vcenter)
+            vmax = float(vmax)
+            if clip:
+                mask = ma.getmask(result)
+                result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
+                                  mask=mask)
+
+            # ma division is very slow; we can take a shortcut
+            resdat = result.data
+
+            #First scale to -1 to 1 range, than to from 0 to 1.
+            resdat -= vcenter
+            resdat[resdat > 0] /= abs(vmax - vcenter)
+            resdat[resdat < 0] /= abs(vmin - vcenter)
+
+            resdat /= 2.
+            resdat += 0.5
+            result = np.ma.array(resdat, mask=result.mask, copy=False)
+
+        if is_scalar:
+            result = result[0]
+
+        return result
+
+    def inverse(self, value):
+        if not self.scaled():
+            raise ValueError("Not invertible until scaled")
+
+        vmin, vcenter, vmax = self.vmin, self.vcenter, self.vmax
+        vmin = float(self.vmin)
+        vcenter = float(self.vcenter)
+        vmax = float(self.vmax)
+
+        if cbook.iterable(value):
+            val = ma.asarray(value)
+            val = 2 * (val - 0.5)
+            val[val > 0] *= abs(vmax - vcenter)
+            val[val < 0] *= abs(vmin - vcenter)
+            val += vcenter
+            return val
+        else:
+            val = 2 * (val - 0.5)
+            if val < 0:
+                return val * abs(vmin - vcenter) + vcenter
+            else:
+                return val * abs(vmax - vcenter) + vcenter
+
+    def autoscale_None(self, A):
+        ' autoscale only None-valued vmin or vmax'
+        if self.vmin is None and np.size(A) > 0:
+            self.vmin = ma.min(A)
+
+        if self.vmax is None and np.size(A) > 0:
+            self.vmax = ma.max(A)
+
+        if self.vcenter is None:
+            self.vcenter = (self.vmax + self.vmin) * 0.5
 
 
 class LogNorm(Normalize):
