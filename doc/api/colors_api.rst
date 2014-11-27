@@ -25,6 +25,7 @@ Classes
 
    BoundaryNorm
    Colormap
+   DivergingNorm
    LightSource
    LinearSegmentedColormap
    ListedColormap
