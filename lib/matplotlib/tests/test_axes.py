@@ -3402,6 +3402,12 @@ def test_pathological_hexbin():
         plt.show()
         assert_equal(len(w), 0)
 
+@cleanup
+def test_color_None():
+    # issue 3855
+    fig, ax = plt.subplots()
+    ax.plot([1,2], [1,2], color=None)
+    plt.show()
 
 if __name__ == '__main__':
     import nose
