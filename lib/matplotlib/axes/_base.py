@@ -237,7 +237,6 @@ class _process_plot_var_args(object):
             # (can't use setdefault because it always evaluates
             # its second argument)
         seg = mlines.Line2D(x, y,
-                            axes=self.axes,
                             **kw
                             )
         self.set_lineprops(seg, **kwargs)
