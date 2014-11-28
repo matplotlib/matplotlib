@@ -921,7 +921,7 @@ class Line2D(Artist):
         """
         self._linewidth = w
 
-    def set_linestyle(self, linestyle):
+    def set_linestyle(self, ls):
         """
         Set the linestyle of the line (also accepts drawstyles,
         e.g., ``'steps--'``)
@@ -959,36 +959,36 @@ class Line2D(Artist):
         ls : { '-',  '--', '-.', ':'} and more see description
             The line style.
         """
-        if not is_string_like(linestyle):
-            if len(linestyle) != 2:
+        if not is_string_like(ls):
+            if len(ls) != 2:
                 raise ValueError()
 
-            self.set_dashes(linestyle[1])
+            self.set_dashes(ls[1])
             self._linestyle = "--"
             return
 
         for ds in self.drawStyleKeys:  # long names are first in the list
-            if linestyle.startswith(ds):
+            if ls.startswith(ds):
                 self.set_drawstyle(ds)
-                if len(linestyle) > len(ds):
-                    linestyle = linestyle[len(ds):]
+                if len(ls) > len(ds):
+                    ls = ls[len(ds):]
                 else:
-                    linestyle = '-'
+                    ls = '-'
                 break
 
-        if linestyle in [' ', '', 'none']:
-            linestyle = 'None'
+        if ls in [' ', '', 'none']:
+            ls = 'None'
 
-        if linestyle not in self._lineStyles:
+        if ls not in self._lineStyles:
             try:
-                linestyle = ls_mapper_r[linestyle]
+                ls = ls_mapper_r[ls]
             except KeyError:
                 raise ValueError(("You passed in an invalid linestyle, "
                                   "`{}`.  See "
                                   "docs of Line2D.set_linestyle for "
-                                  "valid values.").format(linestyle))
+                                  "valid values.").format(ls))
 
-        self._linestyle = linestyle
+        self._linestyle = ls
 
     @docstring.dedent_interpd
     def set_marker(self, marker):
