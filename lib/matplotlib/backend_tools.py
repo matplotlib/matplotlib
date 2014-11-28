@@ -572,6 +572,8 @@ class ZoomPanBase(ToolToggleBase):
         self._xypress = None
         self._idPress = None
         self._idRelease = None
+        self._idScroll = None
+        self.base_scale = 2.
 
     def enable(self, event):
         """Connect press/release events and lock the canvas"""
@@ -580,6 +582,8 @@ class ZoomPanBase(ToolToggleBase):
             'button_press_event', self._press)
         self._idRelease = self.figure.canvas.mpl_connect(
             'button_release_event', self._release)
+        self._idScroll = self.figure.canvas.mpl_connect(
+            'scroll_event', self.scroll_zoom)
 
     def disable(self, event):
         """Release the canvas and disconnect press/release events"""
@@ -587,10 +591,39 @@ class ZoomPanBase(ToolToggleBase):
         self.figure.canvas.widgetlock.release(self)
         self.figure.canvas.mpl_disconnect(self._idPress)
         self.figure.canvas.mpl_disconnect(self._idRelease)
+        self.figure.canvas.mpl_disconnect(self._idScroll)
 
     def trigger(self, sender, event, data=None):
         self.navigation.get_tool('viewpos').add_figure()
         ToolToggleBase.trigger(self, sender, event, data)
+
+    def scroll_zoom(self, event):
+        # https://gist.github.com/tacaswell/3144287
+        if event.inaxes is None:
+            return
+        ax = event.inaxes
+        cur_xlim = ax.get_xlim()
+        cur_ylim = ax.get_ylim()
+        # set the range
+        cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
+        cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
+        xdata = event.xdata  # get event x location
+        ydata = event.ydata  # get event y location
+        if event.button == 'up':
+            # deal with zoom in
+            scale_factor = 1 / self.base_scale
+        elif event.button == 'down':
+            # deal with zoom out
+            scale_factor = self.base_scale
+        else:
+            # deal with something that should never happen
+            scale_factor = 1
+        # set new limits
+        ax.set_xlim([xdata - cur_xrange*scale_factor,
+                     xdata + cur_xrange*scale_factor])
+        ax.set_ylim([ydata - cur_yrange*scale_factor,
+                     ydata + cur_yrange*scale_factor])
+        self.figure.canvas.draw()  # force re-draw
 
 
 class ToolZoom(ZoomPanBase):
