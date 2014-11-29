@@ -1944,7 +1944,7 @@ class IdentityTransform(Affine2DBase):
     get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
 
     def transform(self, points):
-        return points
+        return np.asanyarray(points)
     transform.__doc__ = Affine2DBase.transform.__doc__
 
     transform_affine = transform
