@@ -348,13 +348,13 @@ def test_get_window_extent_for_AxisImage():
     ax.set_position([0, 0, 1, 1])
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
-    im_obj = ax.imshow(im, extent=[0.4, 0.7, 0.22, 0.9], interpolation='nearest')
+    im_obj = ax.imshow(im, extent=[0.4, 0.7, 0.2, 0.9], interpolation='nearest')
 
     fig.canvas.draw()
     renderer = fig.canvas.renderer
     im_bbox = im_obj.get_window_extent(renderer)
 
-    assert_array_equal(im_bbox.get_points(), [[400, 220], [700, 900]])
+    assert_array_equal(im_bbox.get_points(), [[400, 200], [700, 900]])
 
 
 if __name__=='__main__':
