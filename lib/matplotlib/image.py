@@ -574,6 +574,10 @@ class AxesImage(_AxesImageBase):
                                 **kwargs
                                 )
 
+    def get_window_extent(self, renderer=None):
+        x0, x1, y0, y1 = self._extent
+        return Bbox.from_extents([x0, y0, x1, y1]).transformed(self.axes.transData)
+
     def make_image(self, magnification=1.0):
         if self._A is None:
             raise RuntimeError('You must first set the image'
