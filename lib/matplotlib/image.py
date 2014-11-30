@@ -576,7 +576,8 @@ class AxesImage(_AxesImageBase):
 
     def get_window_extent(self, renderer=None):
         x0, x1, y0, y1 = self._extent
-        return Bbox.from_extents([x0, y0, x1, y1]).transformed(self.axes.transData)
+        bbox = Bbox.from_extents([x0, y0, x1, y1])
+        return bbox.transformed(self.axes.transData)
 
     def make_image(self, magnification=1.0):
         if self._A is None:
