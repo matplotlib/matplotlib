@@ -18,7 +18,6 @@
 #green      ='#859900'
 #orange     ='#cb4b16'
 
-
 figure.facecolor    : FDF6E3
 
 patch.facecolor     : eee8d5    # Not sure what this does
@@ -52,7 +51,6 @@ grid.linewidth      : 1         # in points
 ### TICKS
 xtick.color         : 657b83
 xtick.direction     : out
-
 
 ytick.color         : 657b83
 ytick.direction     : out
