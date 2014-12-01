@@ -41,9 +41,7 @@ axes.color_cycle    : 268BD2, 2AA198, 859900, B58900, CB4B16, DC322F, D33682, 6C
                         # Red
                         # Magenta
                         # Violet
-
 axes.grid           : True
-
 grid.color          : fdf6e3    # grid color
 grid.linestyle      : -         # line
 grid.linewidth      : 1         # in points
