@@ -5,9 +5,12 @@ tries to replicate the styles of:
     - http://ethanschoonover.com/solarized
     - https://github.com/jrnold/ggthemes
     - http://pygal.org/builtin_styles/#idlight-solarized
-	and work of:
+
+    and work of:
     - https://github.com/tonysyu/mpltools
+
 using all 8 accents of the color palette - starting with blue
+
 ToDo:
     - Create alpha values for bar and stacked charts. .33 or .5
     - Apply Layout Rules
@@ -25,7 +28,7 @@ with plt.style.context('Solarize_Light2'):
     plt.plot(x, np.sin(x) + 7 * x + np.random.randn(50))
     plt.plot(x, np.sin(x) + 8 * x + np.random.randn(50))
     #Number of accent colors in the color scheme
-    plt.title('8 Random Lines') 
+    plt.title('8 Random Lines - Line')
     plt.xlabel('x label', fontsize=14)
     plt.ylabel('y label', fontsize=14)
-plt.show()
+plt.show( )
