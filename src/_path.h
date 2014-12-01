@@ -687,9 +687,9 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside, std::vecto
 }
 
 template <class VerticesArray, class ResultArray>
-void affine_transform(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
+void affine_transform_2d(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
 {
-    if (vertices.dim(0) != 0 && vertices.dim(1) != 2) {
+    if (vertices.dim(0) != 1 && vertices.dim(1) != 2) {
         throw "Invalid vertices array.";
     }
 
@@ -714,6 +714,33 @@ void affine_transform(VerticesArray &vertices, agg::trans_affine &trans, ResultA
         t = t0 + t1 + trans.ty;
         result(i, 1) = t;
     }
+}
+
+template <class VerticesArray, class ResultArray>
+void affine_transform_1d(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
+{
+    if (vertices.dim(0) != 2) {
+        throw "Invalid vertices array.";
+    }
+
+    double x;
+    double y;
+    double t0;
+    double t1;
+    double t;
+
+    x = vertices(0);
+    y = vertices(1);
+
+    t0 = trans.sx * x;
+    t1 = trans.shx * y;
+    t = t0 + t1 + trans.tx;
+    result(0) = t;
+
+    t0 = trans.shy * x;
+    t1 = trans.sy * y;
+    t = t0 + t1 + trans.ty;
+    result(1) = t;
 }
 
 template <class BBoxArray>
