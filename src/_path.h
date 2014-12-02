@@ -689,7 +689,7 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside, std::vecto
 template <class VerticesArray, class ResultArray>
 void affine_transform_2d(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
 {
-    if (vertices.dim(0) != 1 && vertices.dim(1) != 2) {
+    if (vertices.dim(0) != 0 && vertices.dim(1) != 2) {
         throw "Invalid vertices array.";
     }
 
