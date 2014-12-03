@@ -971,6 +971,8 @@ class Line2D(Artist):
         """
         Set the line marker
 
+        ACCEPTS: :mod:`A valid marker style <matplotlib.markers>`
+
         Parameters
         -----------
 
