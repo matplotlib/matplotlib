@@ -552,7 +552,8 @@ def test_regularpolycollection_scale():
     fig, ax = plt.subplots()
 
     xy = [(0, 0)]
-    # Unit square has a half-diagonal of `1 / sqrt(2)`, so `pi * r**2` equals...
+    # Unit square has a half-diagonal of `1 / sqrt(2)`, so `pi * r**2`
+    # equals...
     circle_areas = [np.pi / 2]
     squares = SquareCollection(sizes=circle_areas, offsets=xy,
                                transOffset=ax.transData)
