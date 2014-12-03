@@ -3420,7 +3420,7 @@ def triplot(*args, **kwargs):
 @_autogen_docstring(Axes.violinplot)
 def violinplot(dataset, positions=None, vert=True, widths=0.5, showmeans=False,
                showextrema=True, showmedians=False, points=100, bw_method=None,
-               color='y', line_kw={}, hold=None, **fill_kw):
+               color='y', line_kw=None, hold=None, **fill_kw):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()

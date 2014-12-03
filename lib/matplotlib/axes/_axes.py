@@ -6870,7 +6870,7 @@ class Axes(_AxesBase):
 
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
-                   points=100, bw_method=None, color='y', line_kw={},
+                   points=100, bw_method=None, color='y', line_kw=None,
                    **fill_kw):
         """Make a violin plot.
 
@@ -6878,7 +6878,7 @@ class Axes(_AxesBase):
 
           violinplot(dataset, positions=None, vert=True, widths=0.5,
                      showmeans=False, showextrema=True, showmedians=False,
-                     points=100, bw_method=None, color='y', line_kw={},
+                     points=100, bw_method=None, color='y', line_kw=None,
                      **fill_kw):
 
         Make a violin plot for each column of *dataset* or each vector in
@@ -6986,14 +6986,14 @@ class Axes(_AxesBase):
 
     def violin(self, vpstats, positions=None, vert=True, widths=0.5,
                showmeans=False, showextrema=True, showmedians=False,
-               color='y', line_kw={}, **fill_kw):
+               color='y', line_kw=None, **fill_kw):
         """Drawing function for violin plots.
 
         Call signature::
 
           violin(vpstats, positions=None, vert=True, widths=0.5,
                  showmeans=False, showextrema=True, showmedians=False,
-                 color='y', line_kw={}, **fill_kw):
+                 color='y', line_kw=None, **fill_kw):
 
         Draw a violin plot for each column of `vpstats`. Each filled area
         extends to represent the entire data range, with optional lines at the
@@ -7123,6 +7123,9 @@ class Axes(_AxesBase):
             color = [color] * N
         elif len(color) != N:
             raise ValueError(datashape_message.format("color"))
+
+        if line_kw is None:
+            line_kw = {}
 
         # original default values for line color and alpha
         line_color = line_kw.pop('colors', 'r')
