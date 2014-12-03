@@ -30,6 +30,9 @@ from matplotlib import _path
 import matplotlib.mlab as mlab
 
 
+CIRCLE_AREA_FACTOR = 1.0 / np.sqrt(np.pi)
+
+
 class Collection(artist.Artist, cm.ScalarMappable):
     """
     Base class for Collections.  Must be subclassed to be usable.
@@ -725,6 +728,8 @@ class _CollectionWithSizes(Collection):
     """
     Base class for collections that have an array of sizes.
     """
+    _factor = 1.0
+
     def get_sizes(self):
         """
         Returns the sizes of the elements in the collection.  The
@@ -756,7 +761,7 @@ class _CollectionWithSizes(Collection):
         else:
             self._sizes = np.asarray(sizes)
             self._transforms = np.zeros((len(self._sizes), 3, 3))
-            scale = np.sqrt(self._sizes) * dpi / 72.0
+            scale = np.sqrt(self._sizes) * dpi / 72.0 * self._factor
             self._transforms[:, 0, 0] = scale
             self._transforms[:, 1, 1] = scale
             self._transforms[:, 2, 2] = 1.0
@@ -893,6 +898,8 @@ class BrokenBarHCollection(PolyCollection):
 class RegularPolyCollection(_CollectionWithSizes):
     """Draw a collection of regular polygons with *numsides*."""
     _path_generator = mpath.Path.unit_regular_polygon
+
+    _factor = CIRCLE_AREA_FACTOR
 
     @docstring.dedent_interpd
     def __init__(self,
@@ -1401,6 +1408,8 @@ class CircleCollection(_CollectionWithSizes):
     """
     A collection of circles, drawn using splines.
     """
+    _factor = CIRCLE_AREA_FACTOR
+
     @docstring.dedent_interpd
     def __init__(self, sizes, **kwargs):
         """
