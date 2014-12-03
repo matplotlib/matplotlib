@@ -30,6 +30,9 @@ from matplotlib import _path
 import matplotlib.mlab as mlab
 
 
+CIRCLE_AREA_FACTOR = 1.0 / np.sqrt(np.pi)
+
+
 class Collection(artist.Artist, cm.ScalarMappable):
     """
     Base class for Collections.  Must be subclassed to be usable.
@@ -896,7 +899,7 @@ class RegularPolyCollection(_CollectionWithSizes):
     """Draw a collection of regular polygons with *numsides*."""
     _path_generator = mpath.Path.unit_regular_polygon
 
-    _factor = 1.0 / np.sqrt(np.pi)
+    _factor = CIRCLE_AREA_FACTOR
 
     @docstring.dedent_interpd
     def __init__(self,
@@ -1405,7 +1408,7 @@ class CircleCollection(_CollectionWithSizes):
     """
     A collection of circles, drawn using splines.
     """
-    _factor = 1.0 / np.sqrt(np.pi)
+    _factor = CIRCLE_AREA_FACTOR
 
     @docstring.dedent_interpd
     def __init__(self, sizes, **kwargs):
