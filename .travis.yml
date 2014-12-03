@@ -46,7 +46,7 @@ install:
   - |
     if [[ $BUILD_DOCS == true ]]; then
         sudo apt-get install -qq --no-install-recommends dvipng texlive-latex-base texlive-latex-extra texlive-fonts-recommended graphviz;
-        conda install sphinx numpydoc;
+        conda install --yes sphinx numpydoc;
         pip install linkchecker;
     fi
 
