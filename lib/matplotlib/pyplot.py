@@ -453,7 +453,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
 
 def gcf():
-    "Return a reference to the current figure."
+    "Get a reference to the current figure."
 
     figManager = _pylab_helpers.Gcf.get_active()
     if figManager is not None:
@@ -809,7 +809,7 @@ def sca(ax):
 
 def gca(**kwargs):
     """
-    Return the current :class:`~matplotlib.axes.Axes` instance on the
+    Get the current :class:`~matplotlib.axes.Axes` instance on the
     current figure matching the given keyword args, or create one.
 
     Examples

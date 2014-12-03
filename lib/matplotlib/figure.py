@@ -1226,7 +1226,7 @@ class Figure(Artist):
     @docstring.dedent_interpd
     def gca(self, **kwargs):
         """
-        Return the current axes, creating one if necessary
+        Get the current axes, creating one if necessary
 
         The following kwargs are supported for ensuring the returned axes
         adheres to the given projection etc., and for axes creation if
