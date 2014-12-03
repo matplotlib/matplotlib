@@ -1797,6 +1797,52 @@ def test_horiz_violinplot_custompoints_200():
                   showextrema=0, showmedians=0, points=200)
 
 
+@image_comparison(baseline_images=['violinplot_custom_color'],
+                  extensions=['png'])
+def test_violinplot_custom_color():
+    ax = plt.axes()
+    # First 9 digits of frac(sqrt(42))
+    np.random.seed(480740698)
+    data = [np.random.normal(size=100) for i in range(4)]
+    ax.violinplot(data, positions=range(4), vert=True, showmeans=0,
+                  showextrema=0, showmedians=0, color='c')
+
+
+@image_comparison(baseline_images=['violinplot_custom_multicolor'],
+                  extensions=['png'])
+def test_violinplot_custom_multicolor():
+    ax = plt.axes()
+    # First 9 digits of frac(sqrt(44))
+    np.random.seed(633249580)
+    data = [np.random.normal(size=100) for i in range(4)]
+    ax.violinplot(data, positions=range(4), vert=True, showmeans=0,
+                  showextrema=0, showmedians=0, color=['r', 'g', 'b', 'c'])
+
+
+@image_comparison(baseline_images=['violinplot_line_kw'],
+                  extensions=['png'])
+def test_violinplot_line_kw():
+    ax = plt.axes()
+    # First 9 digits of frac(sqrt(45))
+    np.random.seed(708203932)
+    data = [np.random.normal(size=100) for i in range(4)]
+    ax.violinplot(data, positions=range(4), vert=True, showmeans=1,
+                  showextrema=1, showmedians=1,
+                  line_kw=dict(colors='g', linestyles='dashed', alpha=0.5))
+
+
+@image_comparison(baseline_images=['violinplot_fill_kw'],
+                  extensions=['png'])
+def test_violinplot_fill_kw():
+    ax = plt.axes()
+    # First 9 digits of frac(sqrt(46))
+    np.random.seed(782329983)
+    data = [np.random.normal(size=100) for i in range(4)]
+    ax.violinplot(data, positions=range(4), vert=True, showmeans=0,
+                  showextrema=0, showmedians=0, alpha=1, edgecolor='r',
+                  linewidths=2, linestyles='dashed')
+
+
 @cleanup
 def test_violinplot_bad_positions():
     ax = plt.axes()
