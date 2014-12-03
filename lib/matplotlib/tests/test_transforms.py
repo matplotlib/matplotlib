@@ -489,8 +489,8 @@ def test_bbox_as_strings():
 
 def test_transform_single_point():
     t = mtrans.Affine2D()
-    t.transform_affine((1, 1))
-
+    r = t.transform_affine((1, 1))
+    assert r.shape == (2,)
 
 if __name__=='__main__':
     import nose
