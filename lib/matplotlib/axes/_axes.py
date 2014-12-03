@@ -6870,14 +6870,16 @@ class Axes(_AxesBase):
 
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
-                   points=100, bw_method=None):
+                   points=100, bw_method=None, color='y', line_kw={},
+                   **fill_kw):
         """Make a violin plot.
 
         Call signature::
 
           violinplot(dataset, positions=None, vert=True, widths=0.5,
                      showmeans=False, showextrema=True, showmedians=False,
-                     points=100, bw_method=None):
+                     points=100, bw_method=None, color='y', line_kw={},
+                     **fill_kw):
 
         Make a violin plot for each column of *dataset* or each vector in
         sequence *dataset*.  Each filled area extends to represent the
@@ -6921,6 +6923,18 @@ class Axes(_AxesBase):
           scalar, this will be used directly as `kde.factor`.  If a
           callable, it should take a `GaussianKDE` instance as its only
           parameter and return a scalar. If None (default), 'scott' is used.
+
+        color : color or array_like of colors, optional, default: 'y'
+          Color spec or sequence of color specs, one per violin plot.
+
+        line_kw : dict
+          :class:`matplotlib.collections.LineCollection` properties, applied
+          to the lines representing the means, extrema and/or medians.
+
+        fill_kw : dict
+          :class:`matplotlib.collections.PolyCollection` properties, applied to
+          the filled area of the plot(s). Note that any keyword arguments not
+          recognized above will be automatically included here.
 
         Returns
         -------
@@ -6967,16 +6981,19 @@ class Axes(_AxesBase):
         vpstats = cbook.violin_stats(dataset, _kde_method, points=points)
         return self.violin(vpstats, positions=positions, vert=vert,
                            widths=widths, showmeans=showmeans,
-                           showextrema=showextrema, showmedians=showmedians)
+                           showextrema=showextrema, showmedians=showmedians,
+                           color=color, line_kw=line_kw, **fill_kw)
 
     def violin(self, vpstats, positions=None, vert=True, widths=0.5,
-               showmeans=False, showextrema=True, showmedians=False):
+               showmeans=False, showextrema=True, showmedians=False,
+               color='y', line_kw={}, **fill_kw):
         """Drawing function for violin plots.
 
         Call signature::
 
           violin(vpstats, positions=None, vert=True, widths=0.5,
-                 showmeans=False, showextrema=True, showmedians=False):
+                 showmeans=False, showextrema=True, showmedians=False,
+                 color='y', line_kw={}, **fill_kw):
 
         Draw a violin plot for each column of `vpstats`. Each filled area
         extends to represent the entire data range, with optional lines at the
@@ -7025,6 +7042,18 @@ class Axes(_AxesBase):
 
         showmedians : bool, default = False
           If true, will toggle rendering of the medians.
+
+        color : color or array_like of colors, optional, default: 'y'
+          Color spec or sequence of color specs, one per violin plot.
+
+        line_kw : dict
+          :class:`matplotlib.collections.LineCollection` properties, applied
+          to the lines representing the means, extrema and/or medians.
+
+        fill_kw : dict
+          :class:`matplotlib.collections.PolyCollection` properties, applied to
+          the filled area of the plot(s). Note that any keyword arguments not
+          recognized above will be automatically included here.
 
         Returns
         -------
@@ -7089,6 +7118,16 @@ class Axes(_AxesBase):
         elif len(widths) != N:
             raise ValueError(datashape_message.format("widths"))
 
+        # Validate colors
+        if np.isscalar(color):
+            color = [color] * N
+        elif len(color) != N:
+            raise ValueError(datashape_message.format("color"))
+
+        # original default values for line color and alpha
+        line_color = line_kw.pop('colors', 'r')
+        alpha = fill_kw.pop('alpha', 0.3)
+
         # Calculate ranges for statistics lines
         pmins = -0.25 * np.array(widths) + positions
         pmaxes = 0.25 * np.array(widths) + positions
@@ -7105,7 +7144,7 @@ class Axes(_AxesBase):
 
         # Render violins
         bodies = []
-        for stats, pos, width in zip(vpstats, positions, widths):
+        for stats, pos, width, c in zip(vpstats, positions, widths, color):
             # The 0.5 factor reflects the fact that we plot from v-p to
             # v+p
             vals = np.array(stats['vals'])
@@ -7113,8 +7152,9 @@ class Axes(_AxesBase):
             bodies += [fill(stats['coords'],
                             -vals + pos,
                             vals + pos,
-                            facecolor='y',
-                            alpha=0.3)]
+                            facecolor=c,
+                            alpha=alpha,
+                            **fill_kw)]
             means.append(stats['mean'])
             mins.append(stats['min'])
             maxes.append(stats['max'])
@@ -7123,20 +7163,22 @@ class Axes(_AxesBase):
 
         # Render means
         if showmeans:
-            artists['cmeans'] = perp_lines(means, pmins, pmaxes, colors='r')
+            artists['cmeans'] = perp_lines(means, pmins, pmaxes,
+                                           colors=line_color, **line_kw)
 
         # Render extrema
         if showextrema:
-            artists['cmaxes'] = perp_lines(maxes, pmins, pmaxes, colors='r')
-            artists['cmins'] = perp_lines(mins, pmins, pmaxes, colors='r')
-            artists['cbars'] = par_lines(positions, mins, maxes, colors='r')
+            artists['cmaxes'] = perp_lines(maxes, pmins, pmaxes,
+                                           colors=line_color, **line_kw)
+            artists['cmins'] = perp_lines(mins, pmins, pmaxes,
+                                          colors=line_color, **line_kw)
+            artists['cbars'] = par_lines(positions, mins, maxes,
+                                         colors=line_color, **line_kw)
 
         # Render medians
         if showmedians:
-            artists['cmedians'] = perp_lines(medians,
-                                             pmins,
-                                             pmaxes,
-                                             colors='r')
+            artists['cmedians'] = perp_lines(medians, pmins, pmaxes,
+                                             colors=line_color, **line_kw)
 
         return artists
 
