@@ -487,6 +487,11 @@ def test_bbox_as_strings():
         assert_equal(eval(format(getattr(b, k), fmt)), v)
 
 
+def test_transform_single_point():
+    t = mtrans.Affine2D()
+    r = t.transform_affine((1, 1))
+    assert r.shape == (2,)
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
