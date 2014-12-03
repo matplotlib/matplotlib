@@ -814,7 +814,7 @@ def gca(**kwargs):
 
     Examples
     ---------
-    To get the the current polar axes on the current figure::
+    To get the current polar axes on the current figure::
 
         plt.gca(projection='polar')
 
