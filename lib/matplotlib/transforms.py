@@ -2040,7 +2040,7 @@ class BlendedGenericTransform(Transform):
         return "BlendedGenericTransform(%s,%s)" % (self._x, self._y)
 
     def transform_non_affine(self, points):
-        points = np.asanyarray(points)
+        points = np.asanyarray(points).reshape((-1, 2))
 
         if self._x.is_affine and self._y.is_affine:
             return points
