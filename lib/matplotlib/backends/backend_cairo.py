@@ -475,17 +475,10 @@ class FigureCanvasCairo (FigureCanvasBase):
                 raise RuntimeError ('cairo has not been compiled with SVG '
                                     'support enabled')
             if format == 'svgz':
-                filename = fo
                 if is_string_like(fo):
-                    fo = open(fo, 'wb')
-                    close = True
+                    fo = gzip.GzipFile(fo, 'wb')
                 else:
-                    close = False
-                try:
                     fo = gzip.GzipFile(None, 'wb', fileobj=fo)
-                finally:
-                    if close:
-                        fo.close()
             surface = cairo.SVGSurface (fo, width_in_points, height_in_points)
         else:
             warnings.warn ("unknown format: %s" % format)
@@ -523,6 +516,8 @@ class FigureCanvasCairo (FigureCanvasBase):
 
         ctx.show_page()
         surface.finish()
+        if format == 'svgz':
+            fo.close()
 
 
 FigureCanvas = FigureCanvasCairo
