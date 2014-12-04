@@ -1285,8 +1285,30 @@ class Transform(TransformNode):
 
         Accepts a numpy array of shape (N x :attr:`input_dims`) and
         returns a numpy array of shape (N x :attr:`output_dims`).
+
+        Alternatively, accepts a numpy array of length :attr:`input_dims`
+        and returns a numpy array of length :attr:`output_dims`.
         """
-        return self.transform_affine(self.transform_non_affine(values))
+        # Ensure that values is a 2d array (but remember whether
+        # we started with a 1d or 2d array).
+        values = np.asanyarray(values)
+        ndim = values.ndim
+        values = values.reshape((-1, self.input_dims))
+
+        # Transform the values
+        res = self.transform_affine(self.transform_non_affine(values))
+
+        # Convert the result back to the shape of the input values.
+        if ndim == 1:
+            return res.reshape(-1)
+        elif ndim == 2:
+            return res
+        else:
+            raise ValueError(
+                "Input values must have shape (N x {dims}) "
+                "or ({dims}).".format(dims=self.input_dims))
+
+        return res
 
     def transform_affine(self, values):
         """
@@ -1302,6 +1324,9 @@ class Transform(TransformNode):
 
         Accepts a numpy array of shape (N x :attr:`input_dims`) and
         returns a numpy array of shape (N x :attr:`output_dims`).
+
+        Alternatively, accepts a numpy array of length :attr:`input_dims`
+        and returns a numpy array of length :attr:`output_dims`.
         """
         return self.get_affine().transform(values)
 
@@ -1318,6 +1343,9 @@ class Transform(TransformNode):
 
         Accepts a numpy array of shape (N x :attr:`input_dims`) and
         returns a numpy array of shape (N x :attr:`output_dims`).
+
+        Alternatively, accepts a numpy array of length :attr:`input_dims`
+        and returns a numpy array of length :attr:`output_dims`.
         """
         return values
 
@@ -2040,8 +2068,6 @@ class BlendedGenericTransform(Transform):
         return "BlendedGenericTransform(%s,%s)" % (self._x, self._y)
 
     def transform_non_affine(self, points):
-        points = np.asanyarray(points).reshape((-1, 2))
-
         if self._x.is_affine and self._y.is_affine:
             return points
         x = self._x
