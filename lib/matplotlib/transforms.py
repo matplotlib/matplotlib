@@ -1299,6 +1299,9 @@ class Transform(TransformNode):
         res = self.transform_affine(self.transform_non_affine(values))
 
         # Convert the result back to the shape of the input values.
+        if ndim == 0:
+            assert not np.ma.is_masked(res)  # just to be on the safe side                                             
+            return res[0, 0]
         if ndim == 1:
             return res.reshape(-1)
         elif ndim == 2:
