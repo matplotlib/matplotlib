@@ -5555,6 +5555,9 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
 
+        if np.isscalar(x):
+            x = [x]
+
         # xrange becomes range after 2to3
         bin_range = range
         range = __builtins__["range"]
@@ -5584,9 +5587,6 @@ class Axes(_AxesBase):
         flat = np.ravel(x)
         if len(flat) == 0:
             raise ValueError("x must have at least one data point")
-        elif len(flat) == 1 and not binsgiven:
-            raise ValueError(
-                "x has only one data point. bins or range kwarg must be given")
 
         # Massage 'x' for processing.
         # NOTE: Be sure any changes here is also done below to 'weights'
