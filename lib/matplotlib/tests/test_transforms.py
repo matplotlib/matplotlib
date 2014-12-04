@@ -487,6 +487,12 @@ def test_bbox_as_strings():
         assert_equal(eval(format(getattr(b, k), fmt)), v)
 
 
+def test_transform_single_point():
+    t = mtrans.Affine2D()
+    r = t.transform_affine((1, 1))
+    assert r.shape == (2,)
+
+
 @cleanup
 def test_log_transform():
     # Tests that the last line runs without exception (previously the
