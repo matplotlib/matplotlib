@@ -143,7 +143,7 @@ class ToolToggleBase(ToolBase):
     def enable(self, event=None):
         """Enable the toggle tool
 
-        This method is called dby `trigger` when the `toggled` is False
+        `trigger` calls this method when `toggled` is False
         """
 
         pass
@@ -151,7 +151,7 @@ class ToolToggleBase(ToolBase):
     def disable(self, event=None):
         """Disable the toggle tool
 
-        This method is called by `trigger` when the `toggled` is True.
+        `trigger` call this methond when `toggled` is True.
 
         This can happen in different circumstances
 
@@ -174,7 +174,7 @@ class SetCursorBase(ToolBase):
     """Change to the current cursor while inaxes
 
     This tool, keeps track of all `ToolToggleBase` derived tools, and calls
-    set_cursor when one of these tools is triggered
+    set_cursor when a tool gets triggered
     """
     def __init__(self, *args, **kwargs):
         ToolBase.__init__(self, *args, **kwargs)
@@ -251,7 +251,6 @@ class ToolCursorPosition(ToolBase):
         message = ' '
 
         if event.inaxes and event.inaxes.get_navigate():
-
             try:
                 s = event.inaxes.format_coord(event.xdata, event.ydata)
             except (ValueError, OverflowError):
@@ -275,14 +274,14 @@ class RubberbandBase(ToolBase):
     def draw_rubberband(self, *data):
         """Draw rubberband
 
-        This method has to be implemented per backend
+        This method must get implemented per backend
         """
         pass
 
     def remove_rubberband(self):
         """Remove rubberband
 
-        This method has to be implemented per backend
+        This method must get implemented per backend
         """
         pass
 
@@ -383,7 +382,7 @@ class AxisScaleBase(ToolToggleBase):
 
 
 class ToolYScale(AxisScaleBase):
-    """Tool to toggle between linear and logarithmic the Y axis"""
+    """Tool to toggle between linear and logarithmic scales on the Y axis"""
 
     description = 'Toogle Scale Y axis'
     keymap = rcParams['keymap.yscale']
@@ -393,7 +392,7 @@ class ToolYScale(AxisScaleBase):
 
 
 class ToolXScale(AxisScaleBase):
-    """Tool to toggle between linear and logarithmic the X axis"""
+    """Tool to toggle between linear and logarithmic scales on the X axis"""
 
     description = 'Toogle Scale X axis'
     keymap = rcParams['keymap.xscale']
@@ -405,8 +404,8 @@ class ToolXScale(AxisScaleBase):
 class ToolViewsPositions(ToolBase):
     """Auxiliary Tool to handle changes in views and positions
 
-    Runs in the background and is used by all the tools that
-    need to access the record of views and positions of the figure
+    Runs in the background and should get used by all the tools that
+    need to access the figure's history of views and positions, e.g.
 
     * `ToolZoom`
     * `ToolPan`
