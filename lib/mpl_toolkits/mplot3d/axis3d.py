@@ -265,8 +265,8 @@ class Axis(maxis.XAxis):
         lxyz = 0.5*(edgep1 + edgep2)
 
         # A rough estimate; points are ambiguous since 3D plots rotate
-        deltas_per_point = 48 / (self.axes.bbox.height + self.axes.bbox.width)
-        default_offset = 30
+        deltas_per_point = 24 / (self.axes.bbox.height + self.axes.bbox.width)
+        default_offset = 50
         labeldeltas = (self.labelpad + default_offset) * deltas_per_point\
             * deltas
         axmask = [True, True, True]
