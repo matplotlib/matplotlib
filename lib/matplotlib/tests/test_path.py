@@ -36,8 +36,10 @@ def test_contains_points_negative_radius():
 
     points = [(0.0, 0.0), (1.25, 0.0), (0.9, 0.9)]
     expected = [True, False, False]
+    result = path.contains_points(points, radius=-0.5)
 
-    assert np.all(path.contains_points(points, radius=-0.5) == expected)
+    assert result.dtype == np.bool
+    assert np.all(result == expected)
 
 
 @image_comparison(baseline_images=['path_clipping'],
@@ -59,6 +61,15 @@ def test_path_clipping():
         ax.set_ylim(bbox[1], bbox[1] + bbox[3])
         ax.add_patch(Polygon(
             xy, facecolor='none', edgecolor='red', closed=True))
+
+
+def test_point_in_path_nan():
+    box = np.array([[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]])
+    p = Path(box)
+    test = np.array([[np.nan, 0.5]])
+    contains = p.contains_points(test)
+    assert len(contains) == 1
+    assert not contains[0]
 
 
 if __name__ == '__main__':

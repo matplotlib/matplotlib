@@ -60,7 +60,7 @@ class MyNavigationToolbar(NavigationToolbar2WxAgg):
 class CanvasFrame(wx.Frame):
     def __init__(self):
         wx.Frame.__init__(self, None, -1,
-                         'CanvasFrame', size=(550, 350))
+                          'CanvasFrame', size=(550, 350))
 
         self.SetBackgroundColour(wx.NamedColour("WHITE"))
 

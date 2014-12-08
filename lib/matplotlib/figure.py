@@ -518,11 +518,16 @@ class Figure(Artist):
         """
         x = kwargs.pop('x', 0.5)
         y = kwargs.pop('y', 0.98)
+
         if ('horizontalalignment' not in kwargs) and ('ha' not in kwargs):
             kwargs['horizontalalignment'] = 'center'
-
         if ('verticalalignment' not in kwargs) and ('va' not in kwargs):
             kwargs['verticalalignment'] = 'top'
+
+        if 'fontsize' not in kwargs:
+            kwargs['fontsize'] = rcParams['figure.titlesize']
+        if 'fontweight' not in kwargs:
+            kwargs['fontweight'] = rcParams['figure.titleweight']
 
         sup = self.text(x, y, t, **kwargs)
         if self._suptitle is not None:
@@ -780,8 +785,14 @@ class Figure(Artist):
             # to tuples for the key
             ret = []
             for k, v in items:
-                if iterable(v):
+                # some objects can define __getitem__ without being
+                # iterable and in those cases the conversion to tuples
+                # will fail. So instead of using the iterable(v) function
+                # we simply try and convert to a tuple, and proceed if not.
+                try:
                     v = tuple(v)
+                except Exception:
+                    pass
                 ret.append((k, v))
             return tuple(ret)
 

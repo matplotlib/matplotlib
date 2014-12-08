@@ -19,8 +19,8 @@ cmap = cm.cool
 
 figtitle = 'Multiple images'
 t = fig.text(0.5, 0.95, figtitle,
-               horizontalalignment='center',
-               fontproperties=FontProperties(size=16))
+             horizontalalignment='center',
+             fontproperties=FontProperties(size=16))
 
 cax = fig.add_axes([0.2, 0.08, 0.6, 0.04])
 
@@ -38,7 +38,7 @@ for i in range(Nr):
             a.set_xticklabels([])
         # Make some fake data with a range that varies
         # somewhat from one plot to the next.
-        data = ((1+i+j)/10.0)*rand(10, 20)*1e-6
+        data = ((1 + i + j)/10.0)*rand(10, 20)*1e-6
         dd = ravel(data)
         # Manually find the min and max of all colors for
         # use in setting the color scale.

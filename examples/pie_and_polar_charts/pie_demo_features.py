@@ -34,16 +34,16 @@ ax = fig.gca()
 import numpy as np
 
 ax.pie(np.random.random(4), explode=explode, labels=labels, colors=colors,
-        autopct='%1.1f%%', shadow=True, startangle=90,
+       autopct='%1.1f%%', shadow=True, startangle=90,
        radius=0.25, center=(0, 0), frame=True)
 ax.pie(np.random.random(4), explode=explode, labels=labels, colors=colors,
-        autopct='%1.1f%%', shadow=True, startangle=90,
+       autopct='%1.1f%%', shadow=True, startangle=90,
        radius=0.25, center=(1, 1), frame=True)
 ax.pie(np.random.random(4), explode=explode, labels=labels, colors=colors,
-        autopct='%1.1f%%', shadow=True, startangle=90,
+       autopct='%1.1f%%', shadow=True, startangle=90,
        radius=0.25, center=(0, 1), frame=True)
 ax.pie(np.random.random(4), explode=explode, labels=labels, colors=colors,
-        autopct='%1.1f%%', shadow=True, startangle=90,
+       autopct='%1.1f%%', shadow=True, startangle=90,
        radius=0.25, center=(1, 0), frame=True)
 
 ax.set_xticks([0, 1])

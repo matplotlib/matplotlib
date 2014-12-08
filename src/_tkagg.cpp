@@ -16,8 +16,6 @@
 #include <cstdio>
 #include <sstream>
 
-#include "agg_basics.h"
-#include "_backend_agg_wrapper.h"
 #include "py_converters.h"
 
 extern "C"
@@ -50,14 +48,14 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int argc, 
 {
     Tk_PhotoHandle photo;
     Tk_PhotoImageBlock block;
-    PyObject *aggo;
+    PyObject *bufferobj;
 
     // vars for blitting
     PyObject *bboxo;
 
     size_t aggl, bboxl;
     bool has_bbox;
-    agg::int8u *destbuffer;
+    uint8_t *destbuffer;
     int destx, desty, destwidth, destheight, deststride;
     //unsigned long tmp_ptr;
 
@@ -84,12 +82,17 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int argc, 
         Tcl_AppendResult(interp, "error casting pointer", (char *)NULL);
         return TCL_ERROR;
     }
-    aggo = (PyObject *)aggl;
+    bufferobj = (PyObject *)aggl;
 
-    // TODO: This is really brittle and will break when RendererAgg
-    // comes in multiple flavors
-    RendererAgg *aggRenderer = ((PyRendererAgg *)(aggo))->x;
-    int srcheight = (int)aggRenderer->get_height();
+    numpy::array_view<uint8_t, 3> buffer;
+    try {
+        buffer = numpy::array_view<uint8_t, 3>(bufferobj);
+    } catch (...) {
+        Tcl_AppendResult(interp, "buffer is of wrong type", (char *)NULL);
+        PyErr_Clear();
+        return TCL_ERROR;
+    }
+    int srcheight = buffer.dim(0);
 
     /* XXX insert aggRenderer type check */
 
@@ -127,13 +130,11 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int argc, 
             return TCL_ERROR;
         }
 
-        agg::rendering_buffer destrbuf;
-        destrbuf.attach(destbuffer, destwidth, destheight, deststride);
-        pixfmt destpf(destrbuf);
-        renderer_base destrb(destpf);
-
-        agg::rect_base<int> region(destx, desty, (int)rect.x2, srcheight - (int)rect.y1);
-        destrb.copy_from(aggRenderer->renderingBuffer, &region, -destx, -desty);
+        for (int i = 0; i < destheight; ++i) {
+            memcpy(destbuffer + (deststride * i),
+                   &buffer(i + desty, destx, 0),
+                   deststride);
+        }
     } else {
         has_bbox = false;
         destbuffer = NULL;
@@ -170,10 +171,10 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int argc, 
         delete[] destbuffer;
 
     } else {
-        block.width = aggRenderer->get_width();
-        block.height = aggRenderer->get_height();
+        block.width = buffer.dim(1);
+        block.height = buffer.dim(0);
         block.pitch = (int)block.width * nval;
-        block.pixelPtr = aggRenderer->pixBuffer;
+        block.pixelPtr = buffer.data();
 
         /* Clear current contents */
         Tk_PhotoBlank(photo);

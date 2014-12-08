@@ -590,6 +590,11 @@ def stride_windows(x, n, noverlap=None, axis=0):
     if n > x.size:
         raise ValueError('n cannot be greater than the length of x')
 
+    # np.lib.stride_tricks.as_strided easily leads to memory corruption for
+    # non integer shape and strides, i.e. noverlap or n. See #3845.
+    noverlap = int(noverlap)
+    n = int(n)
+
     step = n - noverlap
     if axis == 0:
         shape = (n, (x.shape[-1]-noverlap)//step)
@@ -641,6 +646,10 @@ def stride_repeat(x, n, axis=0):
             return np.atleast_2d(x).T
     if n < 1:
         raise ValueError('n cannot be less than 1')
+
+    # np.lib.stride_tricks.as_strided easily leads to memory corruption for
+    # non integer shape and strides, i.e. n. See #3845.
+    n = int(n)
 
     if axis == 0:
         shape = (n, x.size)
@@ -1423,7 +1432,7 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     where:
 
       - *Cxy*: dictionary of (*i*, *j*) tuples -> coherence vector for
-        that pair.  I.e., ``Cxy[(i,j) = cohere(X[:,i], X[:,j])``.
+        that pair.  i.e., ``Cxy[(i,j) = cohere(X[:,i], X[:,j])``.
         Number of dictionary keys is ``len(ij)``.
 
       - *Phase*: dictionary of phases of the cross spectral density at

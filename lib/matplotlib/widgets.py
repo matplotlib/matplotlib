@@ -12,6 +12,7 @@ wide and tall you want your Axes to be to accommodate your widget.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import copy
 import six
 from six.moves import zip
 
@@ -1096,6 +1097,28 @@ class MultiCursor(Widget):
 
 
 class _SelectorWidget(AxesWidget):
+
+    def __init__(self, ax, onselect, useblit=False, button=None):
+        AxesWidget.__init__(self, ax)
+
+        self.visible = True
+        self.onselect = onselect
+        self.connect_default_events()
+
+        self.background = None
+        self.artists = []
+        self.useblit = useblit and self.canvas.supports_blit
+
+        if isinstance(button, int):
+            self.validButtons = [button]
+        else:
+            self.validButtons = button
+
+        # will save the data (position at mouseclick)
+        self.eventpress = None
+        # will save the data (pos. at mouserelease)
+        self.eventrelease = None
+
     def set_active(self, active):
         AxesWidget.set_active(self, active)
         if active:
@@ -1107,6 +1130,112 @@ class _SelectorWidget(AxesWidget):
         # `release` can call a draw event even when `ignore` is True.
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+
+    def connect_default_events(self):
+        """Connect the major canvas events to methods."""
+        self.connect_event('motion_notify_event', self.onmove)
+        self.connect_event('button_press_event', self.press)
+        self.connect_event('button_release_event', self.release)
+        self.connect_event('draw_event', self.update_background)
+        self.connect_event('key_press_event', self.on_key_press)
+        self.connect_event('scroll_event', self.on_scroll)
+
+    def ignore(self, event):
+        """return *True* if *event* should be ignored"""
+        if not self.active:
+            return True
+
+        # If canvas was locked
+        if not self.canvas.widgetlock.available(self):
+            return True
+
+        if not hasattr(event, 'button'):
+            event.button = None
+
+        # Only do rectangle selection if event was triggered
+        # with a desired button
+        if self.validButtons is not None:
+            if event.button not in self.validButtons:
+                return True
+
+        # If no button was pressed yet ignore the event if it was out
+        # of the axes
+        if self.eventpress is None:
+            return event.inaxes != self.ax
+
+        # If a button was pressed, check if the release-button is the
+        # same.
+        if event.button == self.eventpress.button:
+            return False
+
+        # If a button was pressed, check if the release-button is the
+        # same.
+        return (event.inaxes != self.ax or
+                event.button != self.eventpress.button)
+
+    def update(self):
+        """draw using newfangled blit or oldfangled draw depending on
+        useblit
+
+        """
+        if self.useblit:
+            if self.background is not None:
+                self.canvas.restore_region(self.background)
+            for artist in self.artists:
+                self.ax.draw_artist(artist)
+
+            self.canvas.blit(self.ax.bbox)
+
+        else:
+            self.canvas.draw_idle()
+        return False
+
+    def _get_data(self, event):
+        """Limit the xdata and ydata to the axes limits"""
+        x0, x1 = self.ax.get_xbound()
+        y0, y1 = self.ax.get_ybound()
+        xdata = max(x0, event.xdata)
+        xdata = min(x1, xdata)
+        ydata = max(y0, event.ydata)
+        ydata = min(y1, ydata)
+        return xdata, ydata
+
+    def press(self, event):
+        """Button press handler"""
+        if not self.ignore(event):
+            self.eventpress = copy.copy(event)
+            self.eventpress.xdata, self.eventpress.ydata = (
+                self._get_data(event))
+            return True
+        return False
+
+    def release(self, event):
+        """Button release event"""
+        if not self.ignore(event) and self.eventpress is not None:
+            self.eventrelease = copy.copy(event)
+            self.eventrelease.xdata, self.eventrelease.ydata = (
+                self._get_data(event))
+            return True
+        else:
+            return False
+
+    def onmove(self, event):
+        """Cursor move event"""
+        pass
+
+    def on_scroll(self, event):
+        """Mouse scroll event"""
+        pass
+
+    def on_key_press(self, event):
+        """Key press event"""
+        pass
+
+    def set_visible(self, visible):
+        """ Set the visibility of our artists """
+        self.visible = visible
+        for artist in self.artists:
+            artist.set_visible(visible)
 
 
 class SpanSelector(_SelectorWidget):
@@ -1126,12 +1255,13 @@ class SpanSelector(_SelectorWidget):
         span = SpanSelector(ax, onselect, 'horizontal')
 
     *onmove_callback* is an optional callback that is called on mouse
-      move within the span range
+    move within the span range
 
     """
 
     def __init__(self, ax, onselect, direction, minspan=None, useblit=False,
-                 rectprops=None, onmove_callback=None, span_stays=False):
+                 rectprops=None, onmove_callback=None, span_stays=False,
+                 button=None):
         """
         Create a span selector in *ax*.  When a selection is made, clear
         the span and call *onselect* with::
@@ -1145,6 +1275,7 @@ class SpanSelector(_SelectorWidget):
         If *minspan* is not *None*, ignore events smaller than *minspan*
 
         The span rectangle is drawn with *rectprops*; default::
+        
           rectprops = dict(facecolor='red', alpha=0.5)
 
         Set the visible attribute to *False* if you want to turn off
@@ -1152,8 +1283,20 @@ class SpanSelector(_SelectorWidget):
 
         If *span_stays* is True, the span stays visble after making
         a valid selection.
+
+        *button* is a list of integers indicating which mouse buttons should
+        be used for selection.  You can also specify a single
+        integer if only a single button is desired.  Default is *None*,
+        which does not limit which button can be used.
+
+        Note, typically:
+         1 = left mouse button
+         2 = center mouse button (scroll wheel)
+         3 = right mouse button
+
         """
-        AxesWidget.__init__(self, ax)
+        _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
+            button=button)
 
         if rectprops is None:
             rectprops = dict(facecolor='red', alpha=0.5)
@@ -1161,24 +1304,16 @@ class SpanSelector(_SelectorWidget):
         assert direction in ['horizontal', 'vertical'], 'Must choose horizontal or vertical for direction'
         self.direction = direction
 
-        self.visible = True
-
         self.rect = None
-        self.background = None
         self.pressv = None
 
         self.rectprops = rectprops
-        self.onselect = onselect
         self.onmove_callback = onmove_callback
         self.minspan = minspan
         self.span_stays = span_stays
 
         # Needed when dragging out of axes
-        self.buttonDown = False
         self.prev = (0, 0)
-
-        # Set useblit based on original canvas.
-        self.useblit = useblit and self.canvas.supports_blit
 
         # Reset canvas so that `new_axes` connects events.
         self.canvas = None
@@ -1187,13 +1322,11 @@ class SpanSelector(_SelectorWidget):
     def new_axes(self, ax):
         self.ax = ax
         if self.canvas is not ax.figure.canvas:
-            self.disconnect_events()
+            if self.canvas is not None:
+                self.disconnect_events()
 
             self.canvas = ax.figure.canvas
-            self.connect_event('motion_notify_event', self.onmove)
-            self.connect_event('button_press_event', self.press)
-            self.connect_event('button_release_event', self.release)
-            self.connect_event('draw_event', self.update_background)
+            self.connect_default_events()
 
         if self.direction == 'horizontal':
             trans = blended_transform_factory(self.ax.transData,
@@ -1216,37 +1349,30 @@ class SpanSelector(_SelectorWidget):
 
         if not self.useblit:
             self.ax.add_patch(self.rect)
+            self.artists = [self.rect]
 
     def ignore(self, event):
         """return *True* if *event* should be ignored"""
-        # If canvas was locked
-        if not self.canvas.widgetlock.available(self):
-            return True
-        widget_off = not self.visible or not self.active
-        non_event = event.inaxes != self.ax or event.button != 1
-        return widget_off or non_event
+        return _SelectorWidget.ignore(self, event) or not self.visible
 
     def press(self, event):
         """on button press event"""
-        if self.ignore(event):
-            return
-        self.buttonDown = True
-
+        if not _SelectorWidget.press(self, event):
+            return False
         self.rect.set_visible(self.visible)
         if self.span_stays:
             self.stay_rect.set_visible(False)
 
+        xdata, ydata = self._get_data(event)
         if self.direction == 'horizontal':
-            self.pressv = event.xdata
+            self.pressv = xdata
         else:
-            self.pressv = event.ydata
+            self.pressv = ydata
         return False
 
     def release(self, event):
         """on button release event"""
-        if self.ignore(event) and not self.buttonDown:
-            return
-        if self.pressv is None:
+        if not _SelectorWidget.release(self, event) or self.pressv is None:
             return
         self.buttonDown = False
 
@@ -1261,10 +1387,11 @@ class SpanSelector(_SelectorWidget):
 
         self.canvas.draw()
         vmin = self.pressv
+        xdata, ydata = self._get_data(event)
         if self.direction == 'horizontal':
-            vmax = event.xdata or self.prev[0]
+            vmax = xdata or self.prev[0]
         else:
-            vmax = event.ydata or self.prev[1]
+            vmax = ydata or self.prev[1]
 
         if vmin > vmax:
             vmin, vmax = vmax, vmin
@@ -1275,26 +1402,11 @@ class SpanSelector(_SelectorWidget):
         self.pressv = None
         return False
 
-    def update(self):
-        """
-        Draw using newfangled blit or oldfangled draw depending
-        on *useblit*
-        """
-        if self.useblit:
-            if self.background is not None:
-                self.canvas.restore_region(self.background)
-            self.ax.draw_artist(self.rect)
-            self.canvas.blit(self.ax.bbox)
-        else:
-            self.canvas.draw_idle()
-
-        return False
-
     def onmove(self, event):
         """on motion notify event"""
         if self.pressv is None or self.ignore(event):
             return
-        x, y = event.xdata, event.ydata
+        x, y = self._get_data(event)
         self.prev = x, y
         if self.direction == 'horizontal':
             v = x
@@ -1313,10 +1425,11 @@ class SpanSelector(_SelectorWidget):
 
         if self.onmove_callback is not None:
             vmin = self.pressv
+            xdata, ydata = self._get_data(event)
             if self.direction == 'horizontal':
-                vmax = event.xdata or self.prev[0]
+                vmax = xdata or self.prev[0]
             else:
-                vmax = event.ydata or self.prev[1]
+                vmax = ydata or self.prev[1]
 
             if vmin > vmax:
                 vmin, vmax = vmax, vmin
@@ -1409,16 +1522,10 @@ class RectangleSelector(_SelectorWidget):
          2 = center mouse button (scroll wheel)
          3 = right mouse button
         """
-        AxesWidget.__init__(self, ax)
-
-        self.visible = True
-        self.connect_event('motion_notify_event', self.onmove)
-        self.connect_event('button_press_event', self.press)
-        self.connect_event('button_release_event', self.release)
-        self.connect_event('draw_event', self.update_background)
+        _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
+                                                          button=button)
 
         self.to_draw = None
-        self.background = None
 
         if drawtype == 'none':
             drawtype = 'line'                        # draw a line but make it
@@ -1437,89 +1544,37 @@ class RectangleSelector(_SelectorWidget):
                 lineprops = dict(color='black', linestyle='-',
                                  linewidth=2, alpha=0.5)
             self.lineprops = lineprops
+            if self.useblit:
+                self.lineprops['animated'] = True
             self.to_draw = Line2D([0, 0], [0, 0], visible=False,
                                   **self.lineprops)
             self.ax.add_line(self.to_draw)
 
-        self.onselect = onselect
-        self.useblit = useblit and self.canvas.supports_blit
         self.minspanx = minspanx
         self.minspany = minspany
-
-        if button is None or isinstance(button, list):
-            self.validButtons = button
-        elif isinstance(button, int):
-            self.validButtons = [button]
 
         assert(spancoords in ('data', 'pixels'))
 
         self.spancoords = spancoords
         self.drawtype = drawtype
-        # will save the data (position at mouseclick)
-        self.eventpress = None
-        # will save the data (pos. at mouserelease)
-        self.eventrelease = None
-
-    def ignore(self, event):
-        """return *True* if *event* should be ignored"""
-        if not self.active:
-            return True
-
-        # If canvas was locked
-        if not self.canvas.widgetlock.available(self):
-            return True
-
-        # Only do rectangle selection if event was triggered
-        # with a desired button
-        if self.validButtons is not None:
-            if not event.button in self.validButtons:
-                return True
-
-        # If no button was pressed yet ignore the event if it was out
-        # of the axes
-        if self.eventpress is None:
-            return event.inaxes != self.ax
-
-        # If a button was pressed, check if the release-button is the
-        # same. If event is out of axis, limit the data coordinates to axes
-        # boundaries.
-        if event.button == self.eventpress.button and event.inaxes != self.ax:
-            (xdata, ydata) = self.ax.transData.inverted().transform_point(
-                (event.x, event.y))
-            x0, x1 = self.ax.get_xbound()
-            y0, y1 = self.ax.get_ybound()
-            xdata = max(x0, xdata)
-            xdata = min(x1, xdata)
-            ydata = max(y0, ydata)
-            ydata = min(y1, ydata)
-            event.xdata = xdata
-            event.ydata = ydata
-            return False
-
-        # If a button was pressed, check if the release-button is the
-        # same.
-        return (event.inaxes != self.ax or
-                event.button != self.eventpress.button)
+        self.artists = [self.to_draw]
 
     def press(self, event):
         """on button press event"""
-        if self.ignore(event):
-            return
-        # make the drawed box/line visible get the click-coordinates,
-        # button, ...
+        if not _SelectorWidget.press(self, event):
+            return True
+        # make the drawed box/line visible
         self.to_draw.set_visible(self.visible)
-        self.eventpress = event
         return False
 
     def release(self, event):
         """on button release event"""
-        if self.eventpress is None or self.ignore(event):
-            return
+        if not _SelectorWidget.release(self, event):
+            return True
+
         # make the box/line invisible again
         self.to_draw.set_visible(False)
         self.canvas.draw()
-        # release coordinates, button, ...
-        self.eventrelease = event
 
         if self.spancoords == 'data':
             xmin, ymin = self.eventpress.xdata, self.eventpress.ydata
@@ -1550,29 +1605,15 @@ class RectangleSelector(_SelectorWidget):
 
         self.onselect(self.eventpress, self.eventrelease)
                                               # call desired function
-        self.eventpress = None                # reset the variables to their
-        self.eventrelease = None              # inital values
-        return False
-
-    def update(self):
-        """draw using newfangled blit or oldfangled draw depending on
-        useblit
-
-        """
-        if self.useblit:
-            if self.background is not None:
-                self.canvas.restore_region(self.background)
-            self.ax.draw_artist(self.to_draw)
-            self.canvas.blit(self.ax.bbox)
-        else:
-            self.canvas.draw_idle()
+        self.eventpress = None
         return False
 
     def onmove(self, event):
         """on motion notify event if box/line is wanted"""
         if self.eventpress is None or self.ignore(event):
             return
-        x, y = event.xdata, event.ydata             # actual position (with
+
+        x, y = self._get_data(event)            # actual position (with
                                                    #   (button still pressed)
         if self.drawtype == 'box':
             minx, maxx = self.eventpress.xdata, x  # click-x and actual mouse-x
@@ -1625,66 +1666,63 @@ class LassoSelector(_SelectorWidget):
             print verts
         lasso = LassoSelector(ax, onselect)
 
+     *button* is a list of integers indicating which mouse buttons should
+        be used for rectangle selection.  You can also specify a single
+        integer if only a single button is desired.  Default is *None*,
+        which does not limit which button can be used.
+
+        Note, typically:
+         1 = left mouse button
+         2 = center mouse button (scroll wheel)
+         3 = right mouse button
+
     """
 
-    def __init__(self, ax, onselect=None, useblit=True, lineprops=None):
-        AxesWidget.__init__(self, ax)
+    def __init__(self, ax, onselect=None, useblit=True, lineprops=None,
+            button=None):
+        _SelectorWidget.__init__(self, ax, onselect, useblit=useblit, button=button)
 
-        self.useblit = useblit and self.canvas.supports_blit
-        self.onselect = onselect
         self.verts = None
 
         if lineprops is None:
             lineprops = dict()
+        if useblit:
+            lineprops['animated'] = True
         self.line = Line2D([], [], **lineprops)
         self.line.set_visible(False)
         self.ax.add_line(self.line)
-
-        self.connect_event('button_press_event', self.onpress)
-        self.connect_event('button_release_event', self.onrelease)
-        self.connect_event('motion_notify_event', self.onmove)
-        self.connect_event('draw_event', self.update_background)
-
-    def ignore(self, event):
-        wrong_button = hasattr(event, 'button') and event.button != 1
-        return not self.active or wrong_button
+        self.artists = [self.line]
 
     def onpress(self, event):
-        if self.ignore(event) or event.inaxes != self.ax:
+        self.press(event)
+
+    def press(self, event):
+        if not _SelectorWidget.press(self, event):
             return
-        self.verts = [(event.xdata, event.ydata)]
+        self.verts = [self._get_data(event)]
         self.line.set_visible(True)
 
     def onrelease(self, event):
-        if self.ignore(event):
+        self.release(event)
+
+    def release(self, event):
+        if not _SelectorWidget.release(self, event):
             return
         if self.verts is not None:
-            if event.inaxes == self.ax:
-                self.verts.append((event.xdata, event.ydata))
+            self.verts.append(self._get_data(event))
             self.onselect(self.verts)
         self.line.set_data([[], []])
         self.line.set_visible(False)
         self.verts = None
 
     def onmove(self, event):
-        if self.ignore(event) or event.inaxes != self.ax:
+        if self.ignore(event) or self.verts is None:
             return
-        if self.verts is None:
-            return
-        if event.inaxes != self.ax:
-            return
-        if event.button != 1:
-            return
-        self.verts.append((event.xdata, event.ydata))
+        self.verts.append(self._get_data(event))
 
         self.line.set_data(list(zip(*self.verts)))
 
-        if self.useblit:
-            self.canvas.restore_region(self.background)
-            self.ax.draw_artist(self.line)
-            self.canvas.blit(self.ax.bbox)
-        else:
-            self.canvas.draw_idle()
+        self.update()
 
 
 class Lasso(AxesWidget):

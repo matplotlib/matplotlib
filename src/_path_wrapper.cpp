@@ -80,7 +80,7 @@ static PyObject *Py_points_in_path(PyObject *self, PyObject *args, PyObject *kwd
     }
 
     npy_intp dims[] = { points.dim(0) };
-    numpy::array_view<uint8_t, 1> results(dims);
+    numpy::array_view<bool, 1> results(dims);
 
     CALL_CPP("points_in_path", (points_in_path(points, r, path, trans, results)));
 
@@ -139,7 +139,7 @@ static PyObject *Py_points_on_path(PyObject *self, PyObject *args, PyObject *kwd
     }
 
     npy_intp dims[] = { points.dim(0) };
-    numpy::array_view<uint8_t, 1> results(dims);
+    numpy::array_view<bool, 1> results(dims);
 
     CALL_CPP("points_on_path", (points_on_path(points, r, path, trans, results)));
 
@@ -419,24 +419,30 @@ const char *Py_affine_transform__doc__ = "affine_transform(points, trans)";
 
 static PyObject *Py_affine_transform(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    numpy::array_view<const double, 2> vertices;
+    PyObject *vertices_obj;
     agg::trans_affine trans;
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&:affine_transform",
-                          &vertices.converter,
-                          &vertices,
+                          "OO&:affine_transform",
+                          &vertices_obj,
                           &convert_trans_affine,
                           &trans)) {
         return NULL;
     }
 
-    npy_intp dims[] = { vertices.dim(0), 2 };
-    numpy::array_view<double, 2> result(dims);
-
-    CALL_CPP("affine_transform", (affine_transform(vertices, trans, result)));
-
-    return result.pyobj();
+    try {
+        numpy::array_view<double, 2> vertices(vertices_obj);
+        npy_intp dims[] = { vertices.dim(0), 2 };
+        numpy::array_view<double, 2> result(dims);
+        CALL_CPP("affine_transform", (affine_transform_2d(vertices, trans, result)));
+        return result.pyobj();
+    } catch (py::exception) {
+        numpy::array_view<double, 1> vertices(vertices_obj);
+        npy_intp dims[] = { vertices.dim(0) };
+        numpy::array_view<double, 1> result(dims);
+        CALL_CPP("affine_transform", (affine_transform_1d(vertices, trans, result)));
+        return result.pyobj();
+    }
 }
 
 const char *Py_count_bboxes_overlapping_bbox__doc__ = "count_bboxes_overlapping_bbox(bbox, bboxes)";
@@ -468,6 +474,8 @@ static PyObject *Py_path_intersects_path(PyObject *self, PyObject *args, PyObjec
 {
     py::PathIterator p1;
     py::PathIterator p2;
+    agg::trans_affine t1;
+    agg::trans_affine t2;
     int filled = 0;
     const char *names[] = { "p1", "p2", "filled", NULL };
     bool result;
@@ -488,11 +496,11 @@ static PyObject *Py_path_intersects_path(PyObject *self, PyObject *args, PyObjec
     if (filled) {
         if (!result) {
             CALL_CPP("path_intersects_path",
-                     (result = path_in_path(p1, agg::trans_affine(), p2, agg::trans_affine())));
+                     (result = path_in_path(p1, t1, p2, t2)));
         }
         if (!result) {
             CALL_CPP("path_intersects_path",
-                     (result = path_in_path(p2, agg::trans_affine(), p1, agg::trans_affine())));
+                     (result = path_in_path(p2, t1, p1, t2)));
         }
     }
 

@@ -54,7 +54,7 @@ class MTConsole(code.InteractiveConsole):
         # Check that all things to kill are callable:
         for _ in on_kill:
             if not callable(_):
-                raise TypeError, 'on_kill must be a list of callables'
+                raise TypeError('on_kill must be a list of callables')
         self.on_kill = on_kill
         # Set up tab-completer
         if has_readline:
@@ -225,7 +225,8 @@ class MatplotLibInterpreter(GTKInterpreter):
             else:
                 print('*** Executing file <%s>:' % fname)
                 for line in inFile:
-                    if line.lstrip().find('show()') == 0: continue
+                    if line.lstrip().find('show()') == 0:
+                        continue
                     print('>>', line)
                     push(line)
                 inFile.close()
@@ -238,7 +239,7 @@ if __name__ == '__main__':
     # Quick sys.argv hack to extract the option and leave filenames in sys.argv.
     # For real option handling, use optparse or getopt.
     if len(sys.argv) > 1 and sys.argv[1] == '-pylab':
-        sys.argv = [sys.argv[0]]+sys.argv[2:]
+        sys.argv = [sys.argv[0]] + sys.argv[2:]
         MatplotLibInterpreter().mainloop()
     else:
         GTKInterpreter().mainloop()

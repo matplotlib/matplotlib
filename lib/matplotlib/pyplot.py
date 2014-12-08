@@ -52,7 +52,6 @@ import numpy as np
 
 # We may not need the following imports here:
 from matplotlib.colors import Normalize
-from matplotlib.colors import normalize  # for backwards compat.
 from matplotlib.lines import Line2D
 from matplotlib.text import Text, Annotation
 from matplotlib.patches import Polygon, Rectangle, Circle, Arrow
@@ -3066,7 +3065,7 @@ def phase_spectrum(x, Fs=None, Fc=None, window=None, pad_to=None, sides=None,
 def pie(x, explode=None, labels=None, colors=None, autopct=None,
         pctdistance=0.6, shadow=False, labeldistance=1.1, startangle=None,
         radius=None, counterclock=True, wedgeprops=None, textprops=None,
-        hold=None,center=(0,0),frame=False):
+        center=(0, 0), frame=False, hold=None):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
@@ -3078,8 +3077,8 @@ def pie(x, explode=None, labels=None, colors=None, autopct=None,
                      autopct=autopct, pctdistance=pctdistance, shadow=shadow,
                      labeldistance=labeldistance, startangle=startangle,
                      radius=radius, counterclock=counterclock,
-                     wedgeprops=wedgeprops, textprops=textprops,
-                     center=center,frame=frame)
+                     wedgeprops=wedgeprops, textprops=textprops, center=center,
+                     frame=frame)
         draw_if_interactive()
     finally:
         ax.hold(washold)

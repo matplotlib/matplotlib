@@ -37,20 +37,9 @@
 #include "_backend_agg_basic_types.h"
 #include "path_converters.h"
 #include "array.h"
+#include "agg_workaround.h"
 
-typedef agg::pixfmt_rgba32_plain pixfmt;
-typedef agg::renderer_base<pixfmt> renderer_base;
-typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_aa;
-typedef agg::renderer_scanline_bin_solid<renderer_base> renderer_bin;
-typedef agg::rasterizer_scanline_aa<agg::rasterizer_sl_clip_dbl> rasterizer;
-
-typedef agg::scanline_p8 scanline_p8;
-typedef agg::scanline_bin scanline_bin;
-typedef agg::amask_no_clip_gray8 alpha_mask_type;
-typedef agg::scanline_u8_am<alpha_mask_type> scanline_am;
-
-typedef agg::renderer_base<agg::pixfmt_gray8> renderer_base_alpha_mask_type;
-typedef agg::renderer_scanline_aa_solid<renderer_base_alpha_mask_type> renderer_alpha_mask_type;
+/**********************************************************************/
 
 // a helper class to pass agg::buffer objects around.  agg::buffer is
 // a class in the swig wrapper
@@ -115,10 +104,26 @@ class BufferRegion
 // the renderer
 class RendererAgg
 {
+  public:
+
+    typedef fixed_blender_rgba_plain<agg::rgba8, agg::order_rgba> fixed_blender_rgba32_plain;
+    typedef agg::pixfmt_alpha_blend_rgba<fixed_blender_rgba32_plain, agg::rendering_buffer> pixfmt;
+    typedef agg::renderer_base<pixfmt> renderer_base;
+    typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_aa;
+    typedef agg::renderer_scanline_bin_solid<renderer_base> renderer_bin;
+    typedef agg::rasterizer_scanline_aa<agg::rasterizer_sl_clip_dbl> rasterizer;
+
+    typedef agg::scanline_p8 scanline_p8;
+    typedef agg::scanline_bin scanline_bin;
+    typedef agg::amask_no_clip_gray8 alpha_mask_type;
+    typedef agg::scanline_u8_am<alpha_mask_type> scanline_am;
+
+    typedef agg::renderer_base<agg::pixfmt_gray8> renderer_base_alpha_mask_type;
+    typedef agg::renderer_scanline_aa_solid<renderer_base_alpha_mask_type> renderer_alpha_mask_type;
+
     /* TODO: Remove facepair_t */
     typedef std::pair<bool, agg::rgba> facepair_t;
 
-  public:
     RendererAgg(unsigned int width, unsigned int height, double dpi);
 
     virtual ~RendererAgg();
@@ -749,7 +754,7 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
     filter.calculate(agg::image_filter_spline36());
     interpolator_type interpolator(inv_mtx);
     color_span_alloc_type sa;
-    image_accessor_type ia(pixf_img, 0);
+    image_accessor_type ia(pixf_img, agg::gray8(0));
     image_span_gen_type image_span_generator(ia, interpolator, filter);
     span_gen_type output_span_generator(&image_span_generator, gc.color);
     renderer_type ri(rendererBase, sa, output_span_generator);
@@ -831,7 +836,7 @@ inline void RendererAgg::draw_image(GCAgg &gc,
         inv_mtx.invert();
 
         typedef agg::span_allocator<agg::rgba8> color_span_alloc_type;
-        typedef agg::image_accessor_clip<agg::pixfmt_rgba32_plain> image_accessor_type;
+        typedef agg::image_accessor_clip<pixfmt> image_accessor_type;
         typedef agg::span_interpolator_linear<> interpolator_type;
         typedef agg::span_image_filter_rgba_nn<image_accessor_type, interpolator_type>
         image_span_gen_type;
@@ -1159,7 +1164,7 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
     QuadMeshGenerator<CoordinateArray> path_generator(mesh_width, mesh_height, coordinates);
 
     array::empty<double> transforms;
-    array::scalar<double, 1> linewidths(points_to_pixels(gc.linewidth));
+    array::scalar<double, 1> linewidths(gc.linewidth);
     array::scalar<uint8_t, 1> antialiaseds(antialiased);
     DashesVector linestyles;
     ColorArray *edgecolors_ptr = &edgecolors;

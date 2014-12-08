@@ -10,7 +10,7 @@ def to_percent(y, position):
     s = str(100 * y)
 
     # The percent symbol needs escaping in latex
-    if matplotlib.rcParams['text.usetex'] == True:
+    if matplotlib.rcParams['text.usetex'] is True:
         return s + r'$\%$'
     else:
         return s + '%'

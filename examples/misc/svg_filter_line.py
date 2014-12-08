@@ -36,7 +36,7 @@ for l in [l1, l2]:
     shadow.set_color("0.2")
     # adjust zorder of the shadow lines so that it is drawn below the
     # original lines
-    shadow.set_zorder(l.get_zorder()-0.5)
+    shadow.set_zorder(l.get_zorder() - 0.5)
 
     # offset transform
     ot = mtransforms.offset_copy(l.get_transform(), fig1,
@@ -45,7 +45,7 @@ for l in [l1, l2]:
     shadow.set_transform(ot)
 
     # set the id for a later use
-    shadow.set_gid(l.get_label()+"_shadow")
+    shadow.set_gid(l.get_label() + "_shadow")
 
 
 ax.set_xlim(0., 1.)
@@ -77,7 +77,7 @@ tree.insert(0, ET.XML(filter_def))
 
 for l in [l1, l2]:
     # pick up the svg element with given id
-    shadow = xmlid[l.get_label()+"_shadow"]
+    shadow = xmlid[l.get_label() + "_shadow"]
     # apply shdow filter
     shadow.set("filter", 'url(#dropshadow)')
 

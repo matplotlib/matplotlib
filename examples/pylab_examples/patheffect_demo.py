@@ -10,7 +10,7 @@ if 1:
                        arrowprops=dict(arrowstyle="->",
                                        connectionstyle="angle3", lw=2),
                        size=20, ha="center", path_effects=[PathEffects.withStroke(linewidth=3,
-                                                 foreground="w")])
+                                                                                  foreground="w")])
     txt.arrow_patch.set_path_effects([
         PathEffects.Stroke(linewidth=5, foreground="w"),
         PathEffects.Normal()])

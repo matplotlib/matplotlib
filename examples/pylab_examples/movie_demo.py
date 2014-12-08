@@ -23,4 +23,5 @@ os.system("mencoder 'mf://_tmp*.png' -mf type=png:fps=10 -ovc lavc -lavcopts vco
 #os.system("convert _tmp*.png animation.mng")
 
 # cleanup
-for fname in files: os.remove(fname)
+for fname in files:
+    os.remove(fname)

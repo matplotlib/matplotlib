@@ -136,8 +136,11 @@ class PathIterator
 
     inline unsigned vertex(double *x, double *y)
     {
-        if (m_iterator >= m_total_vertices)
+        if (m_iterator >= m_total_vertices) {
+            *x = 0.0;
+            *y = 0.0;
             return agg::path_cmd_stop;
+        }
 
         const size_t idx = m_iterator++;
 

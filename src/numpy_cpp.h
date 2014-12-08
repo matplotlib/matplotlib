@@ -175,7 +175,6 @@ struct type_num_of<npy_clongdouble>
         value = NPY_CLONGDOUBLE
     };
 };
-#endif
 template <>
 struct type_num_of<std::complex<npy_longdouble> >
 {
@@ -183,6 +182,7 @@ struct type_num_of<std::complex<npy_longdouble> >
         value = NPY_CLONGDOUBLE
     };
 };
+#endif
 template <>
 struct type_num_of<PyObject *>
 {
@@ -367,17 +367,19 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         }
     }
 
-    array_view(const array_view &other, bool contiguous = false) : m_arr(NULL), m_data(NULL)
+    array_view(const array_view &other) : m_arr(NULL), m_data(NULL)
     {
-        if (!set((PyObject *)other.m_arr)) {
-            throw py::exception();
-        }
+        m_arr = other.m_arr;
+        Py_XINCREF(m_arr);
+        m_data = other.m_data;
+        m_shape = other.m_shape;
+        m_strides = other.m_strides;
     }
 
     array_view(PyArrayObject *arr, char *data, npy_intp *shape, npy_intp *strides)
     {
         m_arr = arr;
-        Py_INCREF(arr);
+        Py_XINCREF(arr);
         m_data = data;
         m_shape = shape;
         m_strides = strides;
@@ -401,7 +403,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         Py_XDECREF(m_arr);
     }
 
-    const array_view& operator=(const array_view &other)
+    array_view& operator=(const array_view &other)
     {
         if (this != &other)
         {
@@ -477,6 +479,12 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
     bool empty() const
     {
         return size() == 0;
+    }
+
+    // Do not use this for array_view<bool, ND>.  See comment near top of file.
+    const T *data() const
+    {
+        return (const T *)m_data;
     }
 
     // Do not use this for array_view<bool, ND>.  See comment near top of file.

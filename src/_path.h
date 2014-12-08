@@ -67,7 +67,7 @@ struct XY
 template <class PathIterator, class PointArray, class ResultArray>
 void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &inside_flag)
 {
-    int yflag1;
+    bool yflag1;
     double vtx0, vty0, vtx1, vty1;
     double tx, ty;
     double sx, sy;
@@ -77,13 +77,13 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
 
     size_t n = points.size();
 
-    std::vector<int> yflag0(n);
-    std::vector<int> subpath_flag(n);
+    std::vector<bool> yflag0(n);
+    std::vector<bool> subpath_flag(n);
 
     path.rewind(0);
 
     for (i = 0; i < n; ++i) {
-        inside_flag[i] = 0;
+        inside_flag[i] = false;
     }
 
     unsigned code = 0;
@@ -102,10 +102,12 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
         for (i = 0; i < n; ++i) {
             ty = points[i][1];
 
-            // get test bit for above/below X axis
-            yflag0[i] = (vty0 >= ty);
+            if (MPL_isfinite64(ty)) {
+                // get test bit for above/below X axis
+                yflag0[i] = (vty0 >= ty);
 
-            subpath_flag[i] = 0;
+                subpath_flag[i] = false;
+            }
         }
 
         do {
@@ -123,6 +125,10 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
             for (i = 0; i < n; ++i) {
                 tx = points[i][0];
                 ty = points[i][1];
+
+                if (MPL_notisfinite64(tx) || MPL_notisfinite64(ty)) {
+                    continue;
+                }
 
                 yflag1 = (vty1 >= ty);
                 // Check if endpoints straddle (are on opposite sides) of
@@ -146,7 +152,7 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
                     // Haigh-Hutchinson's different polygon inclusion
                     // tests.
                     if (((vty1 - ty) * (vtx0 - vtx1) >= (vtx1 - tx) * (vty0 - vty1)) == yflag1) {
-                        subpath_flag[i] ^= 1;
+                        subpath_flag[i] = subpath_flag[i] ^ true;
                     }
                 }
 
@@ -168,14 +174,18 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
             tx = points[i][0];
             ty = points[i][1];
 
+            if (MPL_notisfinite64(tx) || MPL_notisfinite64(ty)) {
+                continue;
+            }
+
             yflag1 = (vty1 >= ty);
             if (yflag0[i] != yflag1) {
                 if (((vty1 - ty) * (vtx0 - vtx1) >= (vtx1 - tx) * (vty0 - vty1)) == yflag1) {
-                    subpath_flag[i] ^= 1;
+                    subpath_flag[i] = subpath_flag[i] ^ true;
                 }
             }
-            inside_flag[i] |= subpath_flag[i];
-            if (inside_flag[i] == 0) {
+            inside_flag[i] = inside_flag[i] || subpath_flag[i];
+            if (inside_flag[i] == false) {
                 all_done = false;
             }
         }
@@ -190,7 +200,7 @@ template <class PathIterator, class PointArray, class ResultArray>
 inline void points_in_path(PointArray &points,
                            const double r,
                            PathIterator &path,
-                           const agg::trans_affine &trans,
+                           agg::trans_affine &trans,
                            ResultArray &result)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
@@ -200,7 +210,7 @@ inline void points_in_path(PointArray &points,
 
     size_t i;
     for (i = 0; i < result.size(); ++i) {
-        result[i] = 0;
+        result[i] = false;
     }
 
     if (path.total_vertices() < 3) {
@@ -218,7 +228,7 @@ inline void points_in_path(PointArray &points,
 
 template <class PathIterator>
 inline bool point_in_path(
-    double x, double y, const double r, PathIterator &path, const agg::trans_affine &trans)
+    double x, double y, const double r, PathIterator &path, agg::trans_affine &trans)
 {
     std::vector<double> point;
     std::vector<std::vector<double> > points;
@@ -226,8 +236,8 @@ inline bool point_in_path(
     point.push_back(y);
     points.push_back(point);
 
-    std::vector<uint8_t> result(1);
-    result[0] = 0;
+    std::vector<bool> result(1);
+    result[0] = false;
 
     points_in_path(points, r, path, trans, result);
 
@@ -238,7 +248,7 @@ template <class PathIterator, class PointArray, class ResultArray>
 void points_on_path(PointArray &points,
                     const double r,
                     PathIterator &path,
-                    const agg::trans_affine &trans,
+                    agg::trans_affine &trans,
                     ResultArray result)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
@@ -248,7 +258,7 @@ void points_on_path(PointArray &points,
 
     size_t i;
     for (i = 0; i < result.size(); ++i) {
-        result[i] = 0;
+        result[i] = false;
     }
 
     transformed_path_t trans_path(path, trans);
@@ -261,7 +271,7 @@ void points_on_path(PointArray &points,
 
 template <class PathIterator>
 inline bool point_on_path(
-    double x, double y, const double r, PathIterator &path, const agg::trans_affine &trans)
+    double x, double y, const double r, PathIterator &path, agg::trans_affine &trans)
 {
     std::vector<double> point;
     std::vector<std::vector<double> > points;
@@ -269,8 +279,8 @@ inline bool point_on_path(
     point.push_back(y);
     points.push_back(point);
 
-    std::vector<uint8_t> result(1);
-    result[0] = 0;
+    std::vector<bool> result(1);
+    result[0] = false;
 
     points_on_path(points, r, path, trans, result);
 
@@ -318,7 +328,7 @@ inline void update_limits(double x, double y, extent_limits &e)
 }
 
 template <class PathIterator>
-void update_path_extents(PathIterator &path, const agg::trans_affine &trans, extent_limits &extents)
+void update_path_extents(PathIterator &path, agg::trans_affine &trans, extent_limits &extents)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removed_t;
@@ -451,9 +461,9 @@ void point_in_path_collection(double x,
 
 template <class PathIterator1, class PathIterator2>
 bool path_in_path(PathIterator1 &a,
-                  const agg::trans_affine &atrans,
+                  agg::trans_affine &atrans,
                   PathIterator2 &b,
-                  const agg::trans_affine &btrans)
+                  agg::trans_affine &btrans)
 {
     typedef agg::conv_transform<PathIterator2> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> no_nans_t;
@@ -677,7 +687,7 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside, std::vecto
 }
 
 template <class VerticesArray, class ResultArray>
-void affine_transform(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
+void affine_transform_2d(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
 {
     if (vertices.dim(0) != 0 && vertices.dim(1) != 2) {
         throw "Invalid vertices array.";
@@ -704,6 +714,33 @@ void affine_transform(VerticesArray &vertices, agg::trans_affine &trans, ResultA
         t = t0 + t1 + trans.ty;
         result(i, 1) = t;
     }
+}
+
+template <class VerticesArray, class ResultArray>
+void affine_transform_1d(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
+{
+    if (vertices.dim(0) != 2) {
+        throw "Invalid vertices array.";
+    }
+
+    double x;
+    double y;
+    double t0;
+    double t1;
+    double t;
+
+    x = vertices(0);
+    y = vertices(1);
+
+    t0 = trans.sx * x;
+    t1 = trans.shx * y;
+    t = t0 + t1 + trans.tx;
+    result(0) = t;
+
+    t0 = trans.shy * x;
+    t1 = trans.sy * y;
+    t = t0 + t1 + trans.ty;
+    result(1) = t;
 }
 
 template <class BBoxArray>
@@ -863,7 +900,7 @@ __cleanup_path(VertexSource &source, std::vector<double> &vertices, std::vector<
 
 template <class PathIterator>
 void cleanup_path(PathIterator &path,
-                  const agg::trans_affine &trans,
+                  agg::trans_affine &trans,
                   bool remove_nans,
                   bool do_clip,
                   const agg::rect_base<double> &rect,

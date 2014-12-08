@@ -1480,7 +1480,8 @@ class EllipseCollection(Collection):
         self._transforms[:, 1, 0] = widths * sin_angle
         self._transforms[:, 1, 1] = heights * cos_angle
         self._transforms[:, 2, 2] = 1.0
-
+        
+        _affine = transforms.Affine2D
         if self._units == 'xy':
             m = ax.transData.get_affine().get_matrix().copy()
             m[:2, 2:] = 0

@@ -14,7 +14,7 @@ lines2 = [[[3, 0], [3, 2]], [[3, 3], [3, 4]]]  # Note two lines.
 # Points can be ordered clockwise or anticlockwise.
 filled01 = [[[0, 0], [0, 4], [1, 3], [1, 2], [2, 0]]]
 filled12 = [[[2, 0], [3, 0], [3, 2], [1, 3], [1, 2]],   # Note two polygons.
-             [[1, 4], [3, 4], [3, 3]]]
+            [[1, 4], [3, 4], [3, 3]]]
 
 
 plt.figure()

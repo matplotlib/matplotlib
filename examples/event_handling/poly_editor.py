@@ -70,7 +70,7 @@ class PolygonInteractor(object):
         xy = np.asarray(self.poly.xy)
         xyt = self.poly.get_transform().transform(xy)
         xt, yt = xyt[:, 0], xyt[:, 1]
-        d = np.sqrt((xt-event.x)**2 + (yt-event.y)**2)
+        d = np.sqrt((xt - event.x)**2 + (yt - event.y)**2)
         indseq = np.nonzero(np.equal(d, np.amin(d)))[0]
         ind = indseq[0]
 
@@ -81,24 +81,31 @@ class PolygonInteractor(object):
 
     def button_press_callback(self, event):
         'whenever a mouse button is pressed'
-        if not self.showverts: return
-        if event.inaxes == None: return
-        if event.button != 1: return
+        if not self.showverts:
+            return
+        if event.inaxes is None:
+            return
+        if event.button != 1:
+            return
         self._ind = self.get_ind_under_point(event)
 
     def button_release_callback(self, event):
         'whenever a mouse button is released'
-        if not self.showverts: return
-        if event.button != 1: return
+        if not self.showverts:
+            return
+        if event.button != 1:
+            return
         self._ind = None
 
     def key_press_callback(self, event):
         'whenever a key is pressed'
-        if not event.inaxes: return
+        if not event.inaxes:
+            return
         if event.key == 't':
             self.showverts = not self.showverts
             self.line.set_visible(self.showverts)
-            if not self.showverts: self._ind = None
+            if not self.showverts:
+                self._ind = None
         elif event.key == 'd':
             ind = self.get_ind_under_point(event)
             if ind is not None:
@@ -107,9 +114,9 @@ class PolygonInteractor(object):
         elif event.key == 'i':
             xys = self.poly.get_transform().transform(self.poly.xy)
             p = event.x, event.y  # display coords
-            for i in range(len(xys)-1):
+            for i in range(len(xys) - 1):
                 s0 = xys[i]
-                s1 = xys[i+1]
+                s1 = xys[i + 1]
                 d = dist_point_to_segment(p, s0, s1)
                 if d <= self.epsilon:
                     self.poly.xy = np.array(
@@ -123,10 +130,14 @@ class PolygonInteractor(object):
 
     def motion_notify_callback(self, event):
         'on mouse movement'
-        if not self.showverts: return
-        if self._ind is None: return
-        if event.inaxes is None: return
-        if event.button != 1: return
+        if not self.showverts:
+            return
+        if self._ind is None:
+            return
+        if event.inaxes is None:
+            return
+        if event.button != 1:
+            return
         x, y = event.xdata, event.ydata
 
         self.poly.xy[self._ind] = x, y

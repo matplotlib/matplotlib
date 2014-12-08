@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LightSource, Normalize
 
+
 def display_colorbar():
     """Display a correct numeric colorbar for a shaded plot."""
     y, x = np.mgrid[-4:2:200j, -4:2:200j]
@@ -23,6 +24,7 @@ def display_colorbar():
     fig.colorbar(im)
 
     ax.set_title('Using a colorbar with a shaded plot', size='x-large')
+
 
 def avoid_outliers():
     """Use a custom norm to control the displayed z-range of a shaded plot."""
@@ -45,6 +47,7 @@ def avoid_outliers():
     ax2.set_title('Manually set range')
 
     fig.suptitle('Avoiding Outliers in Shaded Plots', size='x-large')
+
 
 def shade_other_data():
     """Demonstrates displaying different variables through shade and color."""

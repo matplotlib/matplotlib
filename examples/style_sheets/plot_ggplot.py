@@ -36,8 +36,8 @@ x = np.arange(5)
 y1, y2 = np.random.randint(1, 25, size=(2, 5))
 width = 0.25
 ax3.bar(x, y1, width)
-ax3.bar(x+width, y2, width, color=plt.rcParams['axes.color_cycle'][2])
-ax3.set_xticks(x+width)
+ax3.bar(x + width, y2, width, color=plt.rcParams['axes.color_cycle'][2])
+ax3.set_xticks(x + width)
 ax3.set_xticklabels(['a', 'b', 'c', 'd', 'e'])
 
 # circles with colors from default color cycle

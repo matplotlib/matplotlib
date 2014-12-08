@@ -9,7 +9,7 @@ from matplotlib.transforms import IdentityTransform
 import matplotlib.patches as mpatches
 
 from matplotlib.offsetbox import AnnotationBbox,\
-     AnchoredOffsetbox, AuxTransformBox
+    AnchoredOffsetbox, AuxTransformBox
 
 from matplotlib.cbook import get_sample_data
 
@@ -92,7 +92,7 @@ if 1:
 
     p1 = PathPatch(text_path, ec="w", lw=3, fc="w", alpha=0.9,
                    transform=IdentityTransform())
-    p2 = PathPatch(text_path, ec="none", fc="k", 
+    p2 = PathPatch(text_path, ec="none", fc="k",
                    transform=IdentityTransform())
 
     offsetbox2 = AuxTransformBox(IdentityTransform())

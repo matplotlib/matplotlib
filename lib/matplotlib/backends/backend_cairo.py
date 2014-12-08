@@ -488,8 +488,8 @@ class FigureCanvasCairo (FigureCanvasBase):
                         fo.close()
             surface = cairo.SVGSurface (fo, width_in_points, height_in_points)
         else:
-           warnings.warn ("unknown format: %s" % format)
-           return
+            warnings.warn ("unknown format: %s" % format)
+            return
 
         # surface.set_dpi() can be used
         renderer = RendererCairo (self.figure.dpi)

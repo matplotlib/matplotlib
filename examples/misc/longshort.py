@@ -34,8 +34,8 @@ r = mlab.rec_join('date', r1, r2)
 
 
 # long appl, short goog
-g = r.gains1-r.gains2
-tr = (1+g).cumprod()  # the total return
+g = r.gains1 - r.gains2
+tr = (1 + g).cumprod()  # the total return
 
 # plot the return
 fig, ax = plt.subplots()
