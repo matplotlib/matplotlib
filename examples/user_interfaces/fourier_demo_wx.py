@@ -11,7 +11,7 @@ from matplotlib.pyplot import gcf, setp
 
 class Knob(object):
     """
-    Knob - simple class with a "setKnob" method.  
+    Knob - simple class with a "setKnob" method.
     A Knob instance is attached to a Param instance, e.g., param.attach(knob)
     Base class is for documentation purposes.
     """
@@ -25,8 +25,8 @@ class Param(object):
     The idea of the "Param" class is that some parameter in the GUI may have
     several knobs that both control it and reflect the parameter's state, e.g.
     a slider, text, and dragging can all change the value of the frequency in
-    the waveform of this example.  
-    The class allows a cleaner way to update/"feedback" to the other knobs when 
+    the waveform of this example.
+    The class allows a cleaner way to update/"feedback" to the other knobs when
     one is being changed.  Also, this class handles min/max constraints for all
     the knobs.
     Idea - knob list - in "set" method, knob object is passed as well
@@ -99,17 +99,17 @@ class FourierDemoFrame(wx.Frame):
         wx.Frame.__init__(self, *args, **kwargs)
 
         self.fourierDemoWindow = FourierDemoWindow(self)
-        self.frequencySliderGroup = SliderGroup(self, label='Frequency f0:', \
-            param=self.fourierDemoWindow.f0)
-        self.amplitudeSliderGroup = SliderGroup(self, label=' Amplitude a:', \
-            param=self.fourierDemoWindow.A)
+        self.frequencySliderGroup = SliderGroup(self, label='Frequency f0:',
+                                                param=self.fourierDemoWindow.f0)
+        self.amplitudeSliderGroup = SliderGroup(self, label=' Amplitude a:',
+                                                param=self.fourierDemoWindow.A)
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(self.fourierDemoWindow, 1, wx.EXPAND)
-        sizer.Add(self.frequencySliderGroup.sizer, 0, \
-            wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=5)
-        sizer.Add(self.amplitudeSliderGroup.sizer, 0, \
-            wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=5)
+        sizer.Add(self.frequencySliderGroup.sizer, 0,
+                  wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=5)
+        sizer.Add(self.amplitudeSliderGroup.sizer, 0,
+                  wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=5)
         self.SetSizer(sizer)
 
 
@@ -155,12 +155,12 @@ class FourierDemoWindow(wx.Window, Knob):
         if x is None:  # outside the axes
             return
         x0, y0, f0Init, AInit = self.mouseInfo
-        self.A.set(AInit+(AInit*(y-y0)/y0), self)
+        self.A.set(AInit + (AInit*(y - y0)/y0), self)
         if self.state == 'frequency':
-            self.f0.set(f0Init+(f0Init*(x-x0)/x0))
+            self.f0.set(f0Init + (f0Init*(x - x0)/x0))
         elif self.state == 'time':
-            if (x-x0)/x0 != -1.:
-                self.f0.set(1./(1./f0Init+(1./f0Init*(x-x0)/x0)))
+            if (x - x0)/x0 != -1.:
+                self.f0.set(1./(1./f0Init + (1./f0Init*(x - x0)/x0)))
 
     def mouseUp(self, evt):
         self.state = ''
@@ -183,16 +183,16 @@ class FourierDemoWindow(wx.Window, Knob):
         self.subplot1.set_ylim([0, 1])
         self.subplot2.set_xlim([-2, 2])
         self.subplot2.set_ylim([-2, 2])
-        self.subplot1.text(0.05, .95, r'$X(f) = \mathcal{F}\{x(t)\}$', \
-            verticalalignment='top', transform=self.subplot1.transAxes)
-        self.subplot2.text(0.05, .95, r'$x(t) = a \cdot \cos(2\pi f_0 t) e^{-\pi t^2}$', \
-            verticalalignment='top', transform=self.subplot2.transAxes)
+        self.subplot1.text(0.05, .95, r'$X(f) = \mathcal{F}\{x(t)\}$',
+                           verticalalignment='top', transform=self.subplot1.transAxes)
+        self.subplot2.text(0.05, .95, r'$x(t) = a \cdot \cos(2\pi f_0 t) e^{-\pi t^2}$',
+                           verticalalignment='top', transform=self.subplot2.transAxes)
 
     def compute(self, f0, A):
         f = np.arange(-6., 6., 0.02)
         t = np.arange(-2., 2., 0.01)
         x = A*np.cos(2*np.pi*f0*t)*np.exp(-np.pi*t**2)
-        X = A/2*(np.exp(-np.pi*(f-f0)**2) + np.exp(-np.pi*(f+f0)**2))
+        X = A/2*(np.exp(-np.pi*(f - f0)**2) + np.exp(-np.pi*(f + f0)**2))
         return f, X, t, x
 
     def repaint(self):

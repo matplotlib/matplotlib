@@ -302,19 +302,52 @@ pygtk, wxpython, tkinter, qt4, or macosx; also referred to as
 "interactive backends") and hardcopy backends to make image files
 (PNG, SVG, PDF, PS; also referred to as "non-interactive backends").
 
-There are a two primary ways to configure your backend.  One is to set
-the ``backend`` parameter in your ``matplotlibrc`` file (see
-:ref:`customizing-matplotlib`)::
+There are a four ways to configure your backend. If they conflict each other,
+the method mentioned last in the following list will be used, e.g. calling
+:func:`~matplotlib.use()` will override the setting in your ``matplotlibrc``.
 
-    backend : WXAgg   # use wxpython with antigrain (agg) rendering
 
-The other is to use the matplotlib :func:`~matplotlib.use` directive::
+#. The ``backend`` parameter in your ``matplotlibrc`` file (see
+   :ref:`customizing-matplotlib`)::
 
-    import matplotlib
-    matplotlib.use('PS')   # generate postscript output by default
+       backend : WXAgg   # use wxpython with antigrain (agg) rendering
 
-If you use the ``use`` directive, this must be done before importing
-:mod:`matplotlib.pyplot` or :mod:`matplotlib.pylab`.
+#. Setting the :envvar:`MPLBACKEND` environment
+   variable, either for your current shell or for a single script::
+
+        > export MPLBACKEND="module://my_backend"
+        > python simple_plot.py
+
+        > MPLBACKEND="module://my_backend" python simple_plot.py
+
+   Setting this environment variable will override the ``backend`` parameter
+   in *any* ``matplotlibrc``, even if there is a ``matplotlibrc`` in your
+   current working directory. Therefore setting :envvar:`MPLBACKEND`
+   globally, e.g. in your ``.bashrc`` or ``.profile``, is discouraged as it
+   might lead to counter-intuitive behavior.
+
+#. To set the backend for a single script, you can alternatively use the `-d`
+   command line argument::
+
+       > python script.py -dbackend
+
+   This method is **deprecated** as the `-d` argument might conflict with
+   scripts which parse command line arguments (see issue
+   `#1986 <https://github.com/matplotlib/matplotlib/issues/1986>`_). You
+   should use :envvar:`MPLBACKEND` instead.
+
+#. If your script depends on a specific backend you can use the
+   :func:`~matplotlib.use` function::
+
+      import matplotlib
+      matplotlib.use('PS')   # generate postscript output by default
+
+   If you use the :func:`~matplotlib.use` function, this must be done before
+   importing :mod:`matplotlib.pyplot`. Calling :func:`~matplotlib.use` after
+   pyplot has been imported will have no effect.  Using
+   :func:`~matplotlib.use` will require changes in your code if users want to
+   use a different backend.  Therefore, you should avoid explicitly calling
+   :func:`~matplotlib.use` unless absolutely necessary.
 
 .. note::
    Backend name specifications are not case-sensitive; e.g., 'GTKAgg'
@@ -324,8 +357,8 @@ With a typical installation of matplotlib, such as from a
 binary installer or a linux distribution package, a good default
 backend will already be set, allowing both interactive work and
 plotting from scripts, with output to the screen and/or to
-a file, so at least initially you will not need to use either of the
-two methods given above.
+a file, so at least initially you will not need to use any of the
+methods given above.
 
 If, however, you want to write graphical user interfaces, or a web
 application server (:ref:`howto-webapp`), or need a better

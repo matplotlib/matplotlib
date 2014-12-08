@@ -313,8 +313,8 @@ files['mplot3d'] = [
 # examples that generate multiple figures
 
 excluded = {
-    'pylab' : ['__init__.py', 'toggle_images.py', ],
-    'units' : ['__init__.py', 'date_support.py', ],
+    'pylab': ['__init__.py', 'toggle_images.py', ],
+    'units': ['__init__.py', 'date_support.py', ],
 }
 
 
@@ -327,7 +327,7 @@ def report_missing(dir, flist):
 
     exclude = set(excluded.get(dir, []))
     flist = set(flist)
-    missing = list(pyfiles-flist-exclude)
+    missing = list(pyfiles - flist - exclude)
     missing.sort()
     if missing:
         print('%s files not tested: %s' % (dir, ', '.join(missing)))
@@ -403,7 +403,7 @@ def drive(backend, directories, python=['python'], switches=[]):
                 future_imports = future_imports + ', unicode_literals'
 
         tmpfile.writelines((
-            future_imports+'\n',
+            future_imports + '\n',
             'import sys\n',
             'sys.path.append("%s")\n' % fpath.replace('\\', '\\\\'),
             'import matplotlib\n',
@@ -415,9 +415,9 @@ def drive(backend, directories, python=['python'], switches=[]):
         for line in open(fullpath):
             line_lstrip = line.lstrip()
             if (line_lstrip.startswith('from __future__ import') or
-                line_lstrip.startswith('matplotlib.use') or
-                line_lstrip.startswith('savefig') or
-                line_lstrip.startswith('show')):
+                    line_lstrip.startswith('matplotlib.use') or
+                    line_lstrip.startswith('savefig') or
+                    line_lstrip.startswith('show')):
                 continue
             tmpfile.write(line)
         if backend in rcsetup.interactive_bk:
@@ -518,7 +518,7 @@ if __name__ == '__main__':
         failures[backend] = \
             drive(backend, options.dirs, python, options.switches)
         t1 = time.time()
-        times[backend] = (t1-t0)/60.0
+        times[backend] = (t1 - t0)/60.0
 
     #print(times)
     for backend, elapsed in times.items():
@@ -528,4 +528,4 @@ if __name__ == '__main__':
             print('  Failures: %s' % failed)
         if 'template' in times:
             print('\ttemplate ratio %1.3f, template residual %1.3f' % (
-                elapsed/times['template'], elapsed-times['template']))
+                elapsed/times['template'], elapsed - times['template']))

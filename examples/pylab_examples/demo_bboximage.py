@@ -34,16 +34,16 @@ if __name__ == "__main__":
     nrow = len(maps)//ncol + 1
 
     xpad_fraction = 0.3
-    dx = 1./(ncol + xpad_fraction*(ncol-1))
+    dx = 1./(ncol + xpad_fraction*(ncol - 1))
 
     ypad_fraction = 0.3
-    dy = 1./(nrow + ypad_fraction*(nrow-1))
+    dy = 1./(nrow + ypad_fraction*(nrow - 1))
 
     for i, m in enumerate(maps):
         ix, iy = divmod(i, nrow)
         #plt.figimage(a, 10, i*10, cmap=plt.get_cmap(m), origin='lower')
-        bbox0 = Bbox.from_bounds(ix*dx*(1+xpad_fraction),
-                                 1.-iy*dy*(1+ypad_fraction)-dy,
+        bbox0 = Bbox.from_bounds(ix*dx*(1 + xpad_fraction),
+                                 1. - iy*dy*(1 + ypad_fraction) - dy,
                                  dx, dy)
         bbox = TransformedBbox(bbox0, ax.transAxes)
 

@@ -5,7 +5,9 @@
 
 from __future__ import print_function
 
-import sys, os, re
+import sys
+import os
+import re
 import traits.api as traits
 from matplotlib.cbook import is_string_like
 from matplotlib.artist import Artist
@@ -14,22 +16,22 @@ doprint = True
 flexible_true_trait = traits.Trait(
    True,
    {'true': True, 't': True, 'yes': True, 'y': True, 'on': True, True: True,
-     'false': False, 'f': False, 'no': False, 'n': False, 'off': False, False: False
-                              })
+    'false': False, 'f': False, 'no': False, 'n': False, 'off': False, False: False
+    })
 flexible_false_trait = traits.Trait(False, flexible_true_trait)
 
 colors = {
-   'c' : '#00bfbf',
-   'b' : '#0000ff',
-   'g' : '#008000',
-   'k' : '#000000',
-   'm' : '#bf00bf',
-   'r' : '#ff0000',
-   'w' : '#ffffff',
-   'y' : '#bfbf00',
-   'gold'                 : '#FFD700',
-   'peachpuff'            : '#FFDAB9',
-   'navajowhite'          : '#FFDEAD',
+   'c': '#00bfbf',
+   'b': '#0000ff',
+   'g': '#008000',
+   'k': '#000000',
+   'm': '#bf00bf',
+   'r': '#ff0000',
+   'w': '#ffffff',
+   'y': '#bfbf00',
+   'gold':        '#FFD700',
+   'peachpuff':   '#FFDAB9',
+   'navajowhite': '#FFDEAD',
    }
 
 
@@ -95,7 +97,7 @@ float_to_rgba.info = 'a grayscale intensity'
 
 
 Color = traits.Trait(RGBA(), float_to_rgba, colorname_to_rgba, RGBA,
-             hex_to_rgba, tuple_to_rgba)
+                     hex_to_rgba, tuple_to_rgba)
 
 
 def file_exists(ob, name, val):
@@ -105,14 +107,14 @@ def file_exists(ob, name, val):
 linestyles = ('-', '--', '-.', ':', 'steps', 'None')
 TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN = range(4)
 linemarkers = (None, '.', ',', 'o', '^', 'v', '<', '>', 's',
-                 '+', 'x', 'd', 'D', '|', '_', 'h', 'H',
-                 'p', '1', '2', '3', '4',
-                 TICKLEFT,
-                 TICKRIGHT,
-                 TICKUP,
-                 TICKDOWN,
-                 'None'
-              )
+               '+', 'x', 'd', 'D', '|', '_', 'h', 'H',
+               'p', '1', '2', '3', '4',
+               TICKLEFT,
+               TICKRIGHT,
+               TICKUP,
+               TICKDOWN,
+               'None'
+               )
 
 
 class LineRC(traits.HasTraits):
@@ -136,8 +138,8 @@ class PatchRC(traits.HasTraits):
 
 timezones = 'UTC', 'US/Central', 'ES/Eastern'  # fixme: and many more
 backends = ('GTKAgg', 'Cairo', 'GDK', 'GTK', 'Agg',
-           'GTKCairo', 'PS', 'SVG', 'Template', 'TkAgg',
-           'WX')
+            'GTKCairo', 'PS', 'SVG', 'Template', 'TkAgg',
+            'WX')
 
 
 class RC(traits.HasTraits):
@@ -176,10 +178,14 @@ class Patch(Artist, traits.HasTraits):
                  ):
         Artist.__init__(self)
 
-        if edgecolor is None: edgecolor = rc.patch.edgecolor
-        if facecolor is None: facecolor = rc.patch.facecolor
-        if linewidth is None: linewidth = rc.patch.linewidth
-        if antialiased is None: antialiased = rc.patch.antialiased
+        if edgecolor is None:
+            edgecolor = rc.patch.edgecolor
+        if facecolor is None:
+            facecolor = rc.patch.facecolor
+        if linewidth is None:
+            linewidth = rc.patch.linewidth
+        if antialiased is None:
+            antialiased = rc.patch.antialiased
 
         self.edgecolor = edgecolor
         self.facecolor = facecolor
@@ -196,8 +202,10 @@ p.facecolor = 0.25
 p.fill = 'f'
 print('p.facecolor', type(p.facecolor), p.facecolor)
 print('p.fill', type(p.fill), p.fill)
-if p.fill_: print('fill')
-else: print('no fill')
+if p.fill_:
+    print('fill')
+else:
+    print('no fill')
 if doprint:
     print()
     print('Patch')

@@ -541,9 +541,10 @@ defaultParams = {
                          'Arial', 'Helvetica', 'Avant Garde', 'sans-serif'],
                         validate_stringlist],
     'font.cursive':    [['Apple Chancery', 'Textile', 'Zapf Chancery',
-                         'Sand', 'cursive'], validate_stringlist],
+                         'Sand', 'Script MT', 'cursive'], validate_stringlist],
     'font.fantasy':    [['Comic Sans MS', 'Chicago', 'Charcoal', 'Impact'
-                         'Western', 'fantasy'], validate_stringlist],
+                         'Western', 'Humor Sans', 'fantasy'],
+                        validate_stringlist],
     'font.monospace':  [['Bitstream Vera Sans Mono', 'DejaVu Sans Mono',
                          'Andale Mono', 'Nimbus Mono L', 'Courier New',
                          'Courier', 'Fixed', 'Terminal', 'monospace'],
@@ -692,6 +693,10 @@ defaultParams = {
 
 
     ## figure props
+    # figure title
+    'figure.titlesize':   ['medium', validate_fontsize],
+    'figure.titleweight': ['normal', six.text_type],
+
     # figure size in inches: width by height
     'figure.figsize':    [[8.0, 6.0], validate_nseq_float(2)],
     'figure.dpi':        [80, validate_float],   # DPI

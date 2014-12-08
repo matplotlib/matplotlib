@@ -49,7 +49,7 @@ class MenuItem(artist.Artist):
 
         if props.fontsize != hoverprops.fontsize:
             raise NotImplementedError(
-                        'support for different font sizes not implemented')
+                'support for different font sizes not implemented')
 
         self.labelwidth = x.shape[1]
         self.labelheight = x.shape[0]
@@ -82,8 +82,8 @@ class MenuItem(artist.Artist):
         self.rect.set_width(w)
         self.rect.set_height(h)
 
-        self.label.ox = x+self.padx
-        self.label.oy = y-self.depth+self.pady/2.
+        self.label.ox = x + self.padx
+        self.label.oy = y - self.depth + self.pady/2.
 
         self.rect._update_patch_transform()
         self.hover = False
@@ -129,17 +129,17 @@ class Menu(object):
         maxw = max([item.labelwidth for item in menuitems])
         maxh = max([item.labelheight for item in menuitems])
 
-        totalh = self.numitems*maxh + (self.numitems+1)*2*MenuItem.pady
+        totalh = self.numitems*maxh + (self.numitems + 1)*2*MenuItem.pady
 
         x0 = 100
         y0 = 400
 
         width = maxw + 2*MenuItem.padx
-        height = maxh+MenuItem.pady
+        height = maxh + MenuItem.pady
 
         for item in menuitems:
             left = x0
-            bottom = y0-maxh-MenuItem.pady
+            bottom = y0 - maxh - MenuItem.pady
 
             item.set_extent(left, bottom, width, height)
 

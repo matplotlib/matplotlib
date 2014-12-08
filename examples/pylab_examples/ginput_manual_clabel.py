@@ -54,7 +54,8 @@ while not happy:
 
     # Get rid of fill
     if not happy:
-        for p in ph: p.remove()
+        for p in ph:
+            p.remove()
 
 ##################################################
 # Now contour according to distance from triangle
@@ -66,7 +67,7 @@ while not happy:
 def f(x, y, pts):
     z = np.zeros_like(x)
     for p in pts:
-        z = z + 1/(np.sqrt((x-p[0])**2+(y-p[1])**2))
+        z = z + 1/(np.sqrt((x - p[0])**2 + (y - p[1])**2))
     return 1/z
 
 X, Y = np.meshgrid(np.linspace(-1, 1, 51), np.linspace(-1, 1, 51))
@@ -89,7 +90,8 @@ while not happy:
     pts = np.asarray(plt.ginput(2, timeout=-1))
 
     happy = len(pts) < 2
-    if happy: break
+    if happy:
+        break
 
     pts = np.sort(pts, axis=0)
     plt.axis(pts.T.ravel())

@@ -1,7 +1,7 @@
 from matplotlib.patches import Rectangle, Ellipse
 
 from matplotlib.offsetbox import AnchoredOffsetbox, AuxTransformBox, VPacker,\
-     TextArea, DrawingArea
+    TextArea, DrawingArea
 
 
 class AnchoredText(AnchoredOffsetbox):

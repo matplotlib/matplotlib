@@ -30,6 +30,12 @@ Environment Variables
   used to find a base directory in which the :file:`matplotlib`
   subdirectory is created.
 
+.. envvar:: MPLBACKEND
+
+  This optional variable can be set to choose the matplotlib backend. Using the
+  `-d` command line parameter or the :func:`~matplotlib.use` function will
+  override this value. See :ref:`what-is-a-backend`.
+
 .. _setting-linux-osx-environment-variables:
 
 Setting environment variables in Linux and OS-X

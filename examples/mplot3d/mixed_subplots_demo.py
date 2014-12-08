@@ -23,7 +23,7 @@ t3 = np.arange(0.0, 2.0, 0.01)
 fig = plt.figure(figsize=plt.figaspect(2.))
 fig.suptitle('A tale of 2 subplots')
 ax = fig.add_subplot(2, 1, 1)
-l = ax.plot(t1, f(t1), 'bo', 
+l = ax.plot(t1, f(t1), 'bo',
             t2, f(t2), 'k--', markerfacecolor='green')
 ax.grid(True)
 ax.set_ylabel('Damped oscillation')
@@ -42,7 +42,7 @@ R = np.sqrt(X**2 + Y**2)
 Z = np.sin(R)
 
 surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
-        linewidth=0, antialiased=False)
+                       linewidth=0, antialiased=False)
 
 ax.set_zlim3d(-1, 1)
 

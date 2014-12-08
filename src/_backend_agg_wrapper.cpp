@@ -1,4 +1,25 @@
-#include "_backend_agg_wrapper.h"
+#include "mplutils.h"
+#include "py_converters.h"
+#include "_backend_agg.h"
+
+typedef struct
+{
+    PyObject_HEAD;
+    RendererAgg *x;
+    Py_ssize_t shape[3];
+    Py_ssize_t strides[3];
+    Py_ssize_t suboffsets[3];
+} PyRendererAgg;
+
+typedef struct
+{
+    PyObject_HEAD;
+    BufferRegion *x;
+    Py_ssize_t shape[3];
+    Py_ssize_t strides[3];
+    Py_ssize_t suboffsets[3];
+} PyBufferRegion;
+
 
 /**********************************************************************
  * BufferRegion

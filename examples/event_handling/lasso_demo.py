@@ -23,8 +23,10 @@ class Datum(object):
     def __init__(self, x, y, include=False):
         self.x = x
         self.y = y
-        if include: self.color = self.colorin
-        else: self.color = self.colorout
+        if include:
+            self.color = self.colorin
+        else:
+            self.color = self.colorout
 
 
 class LassoManager(object):
@@ -63,8 +65,10 @@ class LassoManager(object):
         del self.lasso
 
     def onpress(self, event):
-        if self.canvas.widgetlock.locked(): return
-        if event.inaxes is None: return
+        if self.canvas.widgetlock.locked():
+            return
+        if event.inaxes is None:
+            return
         self.lasso = Lasso(event.inaxes, (event.xdata, event.ydata), self.callback)
         # acquire a lock on the widget drawing
         self.canvas.widgetlock(self.lasso)

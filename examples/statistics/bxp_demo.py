@@ -68,7 +68,7 @@ axes[0, 1].bxp(stats, flierprops=flierprops, medianprops=medianprops)
 axes[0, 1].set_title('Custom medianprops\nand flierprops', fontsize=fs)
 
 axes[1, 0].bxp(stats, meanprops=meanpointprops, meanline=False,
-                   showmeans=True)
+               showmeans=True)
 axes[1, 0].set_title('Custom mean\nas point', fontsize=fs)
 
 axes[1, 1].bxp(stats, meanprops=meanlineprops, meanline=True, showmeans=True)

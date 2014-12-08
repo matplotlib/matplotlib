@@ -17,7 +17,8 @@ ticker = 'SPY'
 fh = finance.fetch_historical_yahoo(ticker, startdate, enddate)
 # a numpy record array with fields: date, open, high, low, close, volume, adj_close)
 
-r = mlab.csv2rec(fh); fh.close()
+r = mlab.csv2rec(fh)
+fh.close()
 r.sort()
 
 
@@ -54,10 +55,10 @@ def relative_strength(prices, n=14):
     down = -seed[seed < 0].sum()/n
     rs = up/down
     rsi = np.zeros_like(prices)
-    rsi[:n] = 100. - 100./(1.+rs)
+    rsi[:n] = 100. - 100./(1. + rs)
 
     for i in range(n, len(prices)):
-        delta = deltas[i-1]  # cause the diff is 1 shorter
+        delta = deltas[i - 1]  # cause the diff is 1 shorter
 
         if delta > 0:
             upval = delta
@@ -66,11 +67,11 @@ def relative_strength(prices, n=14):
             upval = 0.
             downval = -delta
 
-        up = (up*(n-1) + upval)/n
-        down = (down*(n-1) + downval)/n
+        up = (up*(n - 1) + upval)/n
+        down = (down*(n - 1) + downval)/n
 
         rs = up/down
-        rsi[i] = 100. - 100./(1.+rs)
+        rsi[i] = 100. - 100./(1. + rs)
 
     return rsi
 
@@ -144,7 +145,7 @@ s = '%s O:%1.2f H:%1.2f L:%1.2f C:%1.2f, V:%1.1fM Chg:%+1.2f' % (
     last.open, last.high,
     last.low, last.close,
     last.volume*1e-6,
-    last.close-last.open)
+    last.close - last.open)
 t4 = ax2.text(0.3, 0.9, s, transform=ax2.transAxes, fontsize=textsize)
 
 props = font_manager.FontProperties(size=10)
@@ -168,7 +169,7 @@ emaslow, emafast, macd = moving_average_convergence(prices, nslow=nslow, nfast=n
 ema9 = moving_average(macd, nema, type='exponential')
 ax3.plot(r.date, macd, color='black', lw=2)
 ax3.plot(r.date, ema9, color='blue', lw=1)
-ax3.fill_between(r.date, macd-ema9, 0, alpha=0.5, facecolor=fillcolor, edgecolor=fillcolor)
+ax3.fill_between(r.date, macd - ema9, 0, alpha=0.5, facecolor=fillcolor, edgecolor=fillcolor)
 
 
 ax3.text(0.025, 0.95, 'MACD (%d, %d, %d)' % (nfast, nslow, nema), va='top',

@@ -1,5 +1,5 @@
 """
-This shows an example of the "fivethirtyeight" styling, which 
+This shows an example of the "fivethirtyeight" styling, which
 tries to replicate the styles from FiveThirtyEight.com.
 """
 

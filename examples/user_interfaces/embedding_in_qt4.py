@@ -119,7 +119,7 @@ class ApplicationWindow(QtGui.QMainWindow):
 
     def about(self):
         QtGui.QMessageBox.about(self, "About",
-"""embedding_in_qt4.py example
+                                """embedding_in_qt4.py example
 Copyright 2005 Florent Rougon, 2006 Darren Dale
 
 This program is a simple example of a Qt4 application embedding matplotlib
@@ -127,7 +127,7 @@ canvases.
 
 It may be used and modified with no restriction; raw copies as well as
 modified versions may be distributed without limitation."""
-)
+                                )
 
 
 qApp = QtGui.QApplication(sys.argv)

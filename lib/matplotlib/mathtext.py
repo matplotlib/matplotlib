@@ -111,7 +111,7 @@ class MathtextBackend(object):
     Subclasses need to override the following:
 
       - :meth:`render_glyph`
-      - :meth:`render_filled_rect`
+      - :meth:`render_rect_filled`
       - :meth:`get_results`
 
     And optionally, if you need to use a Freetype hinting style:
@@ -136,7 +136,7 @@ class MathtextBackend(object):
         """
         raise NotImplementedError()
 
-    def render_filled_rect(self, x1, y1, x2, y2):
+    def render_rect_filled(self, x1, y1, x2, y2):
         """
         Draw a filled black rectangle from (*x1*, *y1*) to (*x2*, *y2*).
         """

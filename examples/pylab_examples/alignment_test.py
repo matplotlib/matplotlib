@@ -48,24 +48,24 @@ ax.text(right, bottom, 'center top',
         verticalalignment='top',
         transform=ax.transAxes)
 
-ax.text(left, 0.5*(bottom+top), 'right center',
+ax.text(left, 0.5*(bottom + top), 'right center',
         horizontalalignment='right',
         verticalalignment='center',
         rotation='vertical',
         transform=ax.transAxes)
 
-ax.text(left, 0.5*(bottom+top), 'left center',
+ax.text(left, 0.5*(bottom + top), 'left center',
         horizontalalignment='left',
         verticalalignment='center',
         rotation='vertical',
         transform=ax.transAxes)
 
-ax.text(0.5*(left+right), 0.5*(bottom+top), 'middle',
+ax.text(0.5*(left + right), 0.5*(bottom + top), 'middle',
         horizontalalignment='center',
         verticalalignment='center',
         transform=ax.transAxes)
 
-ax.text(right, 0.5*(bottom+top), 'centered',
+ax.text(right, 0.5*(bottom + top), 'centered',
         horizontalalignment='center',
         verticalalignment='center',
         rotation='vertical',

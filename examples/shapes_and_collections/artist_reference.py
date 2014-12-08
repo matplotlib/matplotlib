@@ -8,7 +8,8 @@ available at http://matplotlib.org/api/artist_api.html.
 Copyright (c) 2010, Bartosz Telenczuk
 BSD License
 """
-import matplotlib.pyplot as plt; plt.rcdefaults()
+import matplotlib.pyplot as plt
+plt.rcdefaults()
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -55,22 +56,22 @@ patches.append(ellipse)
 label(grid[4], "Ellipse")
 
 # add an arrow
-arrow = mpatches.Arrow(grid[5, 0]-0.05, grid[5, 1]-0.05, 0.1, 0.1, width=0.1)
+arrow = mpatches.Arrow(grid[5, 0] - 0.05, grid[5, 1] - 0.05, 0.1, 0.1, width=0.1)
 patches.append(arrow)
 label(grid[5], "Arrow")
 
 # add a path patch
 Path = mpath.Path
 path_data = [
-     (Path.MOVETO, [0.018, -0.11]),
-     (Path.CURVE4, [-0.031, -0.051]),
-     (Path.CURVE4, [-0.115,  0.073]),
-     (Path.CURVE4, [-0.03 ,  0.073]),
-     (Path.LINETO, [-0.011,  0.039]),
-     (Path.CURVE4, [0.043,  0.121]),
-     (Path.CURVE4, [0.075, -0.005]),
-     (Path.CURVE4, [0.035, -0.027]),
-     (Path.CLOSEPOLY, [0.018, -0.11])
+    (Path.MOVETO, [0.018, -0.11]),
+    (Path.CURVE4, [-0.031, -0.051]),
+    (Path.CURVE4, [-0.115,  0.073]),
+    (Path.CURVE4, [-0.03 ,  0.073]),
+    (Path.LINETO, [-0.011,  0.039]),
+    (Path.CURVE4, [0.043,  0.121]),
+    (Path.CURVE4, [0.075, -0.005]),
+    (Path.CURVE4, [0.035, -0.027]),
+    (Path.CLOSEPOLY, [0.018, -0.11])
     ]
 codes, verts = zip(*path_data)
 path = mpath.Path(verts + grid[6], codes)
@@ -80,8 +81,8 @@ label(grid[6], "PathPatch")
 
 # add a fancy box
 fancybox = mpatches.FancyBboxPatch(
-        grid[7] - [0.025, 0.05], 0.05, 0.1,
-        boxstyle=mpatches.BoxStyle("Round", pad=0.02))
+    grid[7] - [0.025, 0.05], 0.05, 0.1,
+    boxstyle=mpatches.BoxStyle("Round", pad=0.02))
 patches.append(fancybox)
 label(grid[7], "FancyBoxPatch")
 

@@ -20,17 +20,17 @@ plt.errorbar(x, y, xerr=xerr, yerr=yerr, ls=ls, color='blue')
 # including upper limits
 uplims = np.zeros(x.shape)
 uplims[[1, 5, 9]] = True
-plt.errorbar(x, y+0.5, xerr=xerr, yerr=yerr, uplims=uplims, ls=ls,
+plt.errorbar(x, y + 0.5, xerr=xerr, yerr=yerr, uplims=uplims, ls=ls,
              color='green')
 
 # including lower limits
 lolims = np.zeros(x.shape)
 lolims[[2, 4, 8]] = True
-plt.errorbar(x, y+1.0, xerr=xerr, yerr=yerr, lolims=lolims, ls=ls,
+plt.errorbar(x, y + 1.0, xerr=xerr, yerr=yerr, lolims=lolims, ls=ls,
              color='red')
 
 # including upper and lower limits
-plt.errorbar(x, y+1.5, marker='o', ms=8, xerr=xerr, yerr=yerr,
+plt.errorbar(x, y + 1.5, marker='o', ms=8, xerr=xerr, yerr=yerr,
              lolims=lolims, uplims=uplims, ls=ls, color='magenta')
 
 # including xlower and xupper limits
@@ -43,7 +43,7 @@ lolims = np.zeros(x.shape)
 uplims = np.zeros(x.shape)
 lolims[[6]] = True
 uplims[[3]] = True
-plt.errorbar(x, y+2.1, marker='o', ms=8, xerr=xerr, yerr=yerr,
+plt.errorbar(x, y + 2.1, marker='o', ms=8, xerr=xerr, yerr=yerr,
              xlolims=xlolims, xuplims=xuplims, uplims=uplims, lolims=lolims,
              ls='none', mec='blue', capsize=0, color='cyan')
 

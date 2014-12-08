@@ -1308,14 +1308,6 @@ class NoNorm(Normalize):
     def inverse(self, value):
         return value
 
-# compatibility with earlier class names that violated convention:
-normalize = cbook.deprecated('1.3', alternative='Normalize',
-                             name='normalize',
-                             obj_type='class alias')(Normalize)
-no_norm = cbook.deprecated('1.3', alternative='NoNorm',
-                           name='no_norm',
-                           obj_type='class alias')(NoNorm)
-
 
 def rgb_to_hsv(arr):
     """

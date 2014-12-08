@@ -80,7 +80,7 @@ class PathInteractor(object):
         xy = np.asarray(self.pathpatch.get_path().vertices)
         xyt = self.pathpatch.get_transform().transform(xy)
         xt, yt = xyt[:, 0], xyt[:, 1]
-        d = np.sqrt((xt-event.x)**2 + (yt-event.y)**2)
+        d = np.sqrt((xt - event.x)**2 + (yt - event.y)**2)
         ind = d.argmin()
 
         if d[ind] >= self.epsilon:
@@ -90,33 +90,44 @@ class PathInteractor(object):
 
     def button_press_callback(self, event):
         'whenever a mouse button is pressed'
-        if not self.showverts: return
-        if event.inaxes == None: return
-        if event.button != 1: return
+        if not self.showverts:
+            return
+        if event.inaxes is None:
+            return
+        if event.button != 1:
+            return
         self._ind = self.get_ind_under_point(event)
 
     def button_release_callback(self, event):
         'whenever a mouse button is released'
-        if not self.showverts: return
-        if event.button != 1: return
+        if not self.showverts:
+            return
+        if event.button != 1:
+            return
         self._ind = None
 
     def key_press_callback(self, event):
         'whenever a key is pressed'
-        if not event.inaxes: return
+        if not event.inaxes:
+            return
         if event.key == 't':
             self.showverts = not self.showverts
             self.line.set_visible(self.showverts)
-            if not self.showverts: self._ind = None
+            if not self.showverts:
+                self._ind = None
 
         self.canvas.draw()
 
     def motion_notify_callback(self, event):
         'on mouse movement'
-        if not self.showverts: return
-        if self._ind is None: return
-        if event.inaxes is None: return
-        if event.button != 1: return
+        if not self.showverts:
+            return
+        if self._ind is None:
+            return
+        if event.inaxes is None:
+            return
+        if event.button != 1:
+            return
         x, y = event.xdata, event.ydata
 
         vertices = self.pathpatch.get_path().vertices

@@ -10,7 +10,7 @@ bb = mtransforms.Bbox([[0.3, 0.4], [0.7, 0.6]])
 def draw_bbox(ax, bb):
     # boxstyle=square with pad=0, i.e. bbox itself.
     p_bbox = FancyBboxPatch((bb.xmin, bb.ymin),
-                            abs(bb.width), abs(bb.height), 
+                            abs(bb.width), abs(bb.height),
                             boxstyle="square,pad=0.",
                             ec="k", fc="none", zorder=10.,
                             )
@@ -113,7 +113,7 @@ def test4(ax):
     p_fancy = FancyBboxPatch((bb.xmin, bb.ymin),
                              abs(bb.width), abs(bb.height),
                              boxstyle="round,pad=0.3",
-                             mutation_aspect=.5, 
+                             mutation_aspect=.5,
                              fc=(1., 0.8, 1.),
                              ec=(1., 0.5, 1.))
 

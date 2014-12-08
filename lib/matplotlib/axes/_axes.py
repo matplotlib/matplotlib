@@ -684,12 +684,12 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `~matplotlib.lines.Line2D`
+        :class:`~matplotlib.lines.Line2D`
 
         Notes
         -----
-        kwargs are the same as kwargs to plot, and can be
-        used to control the line properties.  e.g.,
+        kwargs are passed to :class:`~matplotlib.lines.Line2D` and can be used
+        to control the line properties.
 
         Examples
         --------
@@ -702,7 +702,7 @@ class Axes(_AxesBase):
 
             >>> axhline(y=1)
 
-        * draw a default hline at 'y' = .5 that spans the the middle half of
+        * draw a default hline at 'y' = .5 that spans the middle half of
           the xrange::
 
             >>> axhline(y=.5, xmin=0.25, xmax=0.75)
@@ -746,16 +746,16 @@ class Axes(_AxesBase):
             x position in data coordinates of the vertical line.
 
         ymin : scalar, optional, default: 0
-            Should be between 0 and 1, 0 being the far left of the plot, 1 the
-            far right of the plot.
+            Should be between 0 and 1, 0 being the bottom of the plot, 1 the
+            top of the plot.
 
         ymax : scalar, optional, default: 1
-            Should be between 0 and 1, 0 being the far left of the plot, 1 the
-            far right of the plot.
+            Should be between 0 and 1, 0 being the bottom of the plot, 1 the
+            top of the plot.
 
         Returns
         -------
-        `~matplotlib.lines.Line2D`
+        :class:`~matplotlib.lines.Line2D`
 
 
         Examples
