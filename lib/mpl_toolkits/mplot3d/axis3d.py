@@ -84,7 +84,6 @@ class Axis(maxis.XAxis):
                                         'ha': 'center'},
                              'tick' : {'inward_factor': 0.2,
                                        'outward_factor': 0.1},
-                             'ticklabel': {'space_factor': 0.7},
                              'axisline': {'linewidth': 0.75,
                                           'color': (0, 0, 0, 1)},
                              'grid' : {'color': (0.9, 0.9, 0.9, 1),
@@ -265,8 +264,8 @@ class Axis(maxis.XAxis):
         lxyz = 0.5*(edgep1 + edgep2)
 
         # A rough estimate; points are ambiguous since 3D plots rotate
-        deltas_per_point = 24 / (self.axes.bbox.height + self.axes.bbox.width)
-        default_offset = 50
+        deltas_per_point = 48 / (self.axes.bbox.height + self.axes.bbox.width)
+        default_offset = 31.5
         labeldeltas = (self.labelpad + default_offset) * deltas_per_point\
             * deltas
         axmask = [True, True, True]
@@ -397,8 +396,10 @@ class Axis(maxis.XAxis):
                     renderer.M)
 
             # Get position of label
-            labeldeltas = [info['ticklabel']['space_factor'] * x for
-                           x in deltas]
+            default_offset = 12  # A rough estimate
+            labeldeltas = (tick.get_pad() + default_offset) * deltas_per_point\
+                * deltas
+
             axmask = [True, True, True]
             axmask[index] = False
             pos[tickdir] = edgep1[tickdir]
