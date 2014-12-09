@@ -264,8 +264,11 @@ class Axis(maxis.XAxis):
         lxyz = 0.5*(edgep1 + edgep2)
 
         # A rough estimate; points are ambiguous since 3D plots rotate
-        deltas_per_point = 48 / (self.axes.bbox.height + self.axes.bbox.width)
-        default_offset = 31.5
+        ax_scale = self.axes.bbox.size / self.figure.bbox.size
+        ax_inches = np.multiply(ax_scale, self.figure.get_size_inches())
+        ax_points_estimate = sum(72. * ax_inches)
+        deltas_per_point = 48. / ax_points_estimate
+        default_offset = 21.
         labeldeltas = (self.labelpad + default_offset) * deltas_per_point\
             * deltas
         axmask = [True, True, True]
@@ -396,7 +399,7 @@ class Axis(maxis.XAxis):
                     renderer.M)
 
             # Get position of label
-            default_offset = 12  # A rough estimate
+            default_offset = 8.  # A rough estimate
             labeldeltas = (tick.get_pad() + default_offset) * deltas_per_point\
                 * deltas
 

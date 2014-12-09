@@ -250,7 +250,7 @@ def test_axes3d_labelpad():
     ax.set_zlabel('Z LABEL')
     # or manually
     ax.yaxis.labelpad = 20
-    ax.zaxis.labelpad = -60
+    ax.zaxis.labelpad = -40
 
     # Tick labels also respect tick.pad (also from rcParams)
     for i, tick in enumerate(ax.yaxis.get_major_ticks()):
