@@ -492,6 +492,16 @@ def test_transform_single_point():
     r = t.transform_affine((1, 1))
     assert r.shape == (2,)
 
+
+@cleanup
+def test_log_transform():
+    # Tests that the last line runs without exception (previously the
+    # transform would fail if one of the axes was logarithmic).
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    ax.transData.transform((1,1))
+
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
