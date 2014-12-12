@@ -17,3 +17,13 @@ def test_font_priority():
         font = findfont(
             FontProperties(family=["sans-serif"]))
     assert_equal(os.path.basename(font), 'cmmi10.ttf')
+
+def test_font_ttc():
+# the font should be available(ttf-wqy-zenhei in ubuntu)
+    font = findfont(
+        FontProperties(family=["WenQuanYi Zen Hei"]))
+    assert_equal(os.path.basename(font), 'wqy-zenhei.ttc')
+
+if __name__=='__main__':
+    import nose
+    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
