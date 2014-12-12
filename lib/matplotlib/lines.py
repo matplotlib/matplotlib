@@ -463,8 +463,8 @@ class Line2D(Artist):
 
         e.g., if `every=5`, every 5-th marker will be plotted.
 
-        ACCEPTS: [None | int | length-2 tuple of int | slice | list/array of int
-        | float | length-2 tuple of float]
+        ACCEPTS: [None | int | length-2 tuple of int | slice | 
+        list/array of int | float | length-2 tuple of float]
 
         Parameters
         ----------
