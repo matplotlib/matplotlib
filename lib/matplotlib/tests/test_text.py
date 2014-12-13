@@ -10,7 +10,7 @@ from matplotlib.testing.decorators import image_comparison, knownfailureif, clea
 import matplotlib.pyplot as plt
 import warnings
 from nose import SkipTest
-from nose.tools import with_setup, assert_raises
+from nose.tools import with_setup, assert_raises, eq_, ok_
 
 
 @image_comparison(baseline_images=['font_styles'])
@@ -278,3 +278,55 @@ def test_get_rotation_mod360():
     from matplotlib import text
     for i, j in zip([360., 377., 720+177.2], [0., 17., 177.2]):
         assert_almost_equal(text.get_rotation(i), j)
+
+
+def test_arrow_annotation_get_window_extent():
+    from matplotlib.figure import Figure
+    from matplotlib.text import Annotation
+    from matplotlib.backends.backend_agg import RendererAgg
+
+    figure = Figure(dpi=100)
+    figure.set_figwidth(2.0)
+    figure.set_figheight(2.0)
+    renderer = RendererAgg(200, 200, 100)
+
+    # Text annotation with arrow
+    annotation = Annotation(
+        '', xy=(0.0, 50.0), xytext=(50.0, 50.0), xycoords='figure pixels',
+        arrowprops={
+            'facecolor': 'black', 'width': 8, 'headwidth': 10, 'shrink': 0.0})
+    annotation.set_figure(figure)
+    annotation.draw(renderer)
+
+    bbox = annotation.get_window_extent()
+    points = bbox.get_points()
+
+    eq_(bbox.width, 50.0)
+    assert_almost_equal(bbox.height, 10.0 / 0.72)
+    eq_(points[0, 0], 0.0)
+    eq_(points[0, 1], 50.0 - 5 / 0.72)
+
+
+def test_empty_annotation_get_window_extent():
+    from matplotlib.figure import Figure
+    from matplotlib.text import Annotation
+    from matplotlib.backends.backend_agg import RendererAgg
+
+    figure = Figure(dpi=100)
+    figure.set_figwidth(2.0)
+    figure.set_figheight(2.0)
+    renderer = RendererAgg(200, 200, 100)
+
+    # Text annotation with arrow
+    annotation = Annotation(
+        '', xy=(0.0, 50.0), xytext=(0.0, 50.0), xycoords='figure pixels')
+    annotation.set_figure(figure)
+    annotation.draw(renderer)
+
+    bbox = annotation.get_window_extent()
+    points = bbox.get_points()
+
+    eq_(points[0, 0], 0.0)
+    eq_(points[1, 0], 0.0)
+    eq_(points[1, 1], 50.0)
+    eq_(points[0, 1], 50.0)
