@@ -304,7 +304,7 @@ class Legend(Artist):
 
         if isinstance(parent, Axes):
             self.isaxes = True
-            self.set_axes(parent)
+            self.axes = parent
             self.set_figure(parent.figure)
         elif isinstance(parent, Figure):
             self.isaxes = False
@@ -391,7 +391,9 @@ class Legend(Artist):
         """
         a.set_figure(self.figure)
         if self.isaxes:
-            a.set_axes(self.axes)
+            # a.set_axes(self.axes)
+            a.axes = self.axes
+
         a.set_transform(self.get_transform())
 
     def _set_loc(self, loc):

@@ -407,14 +407,12 @@ def test_null_collection_datalim():
 def test_add_collection():
     # Test if data limits are unchanged by adding an empty collection.
     # Github issue #1490, pull #1497.
-    ax = plt.axes()
     plt.figure()
-    ax2 = plt.axes()
-    coll = ax2.scatter([0, 1], [0, 1])
+    ax = plt.axes()
+    coll = ax.scatter([0, 1], [0, 1])
     ax.add_collection(coll)
     bounds = ax.dataLim.bounds
-    coll = ax2.scatter([], [])
-    ax.add_collection(coll)
+    coll = ax.scatter([], [])
     assert_equal(ax.dataLim.bounds, bounds)
 
 
