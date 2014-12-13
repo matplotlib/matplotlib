@@ -8,7 +8,8 @@ import matplotlib
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 import matplotlib.pyplot as plt
 import warnings
-from nose.tools import with_setup
+from nose import SkipTest
+from nose.tools import with_setup, assert_raises, eq_, ok_
 
 
 @image_comparison(baseline_images=['font_styles'])
@@ -260,3 +261,55 @@ def test_annotation_negative_coords():
     ax.annotate("-fpx", (-45, -30), xycoords="figure pixels")
     ax.annotate("-apt", (-35, -20), xycoords="axes points")
     ax.annotate("-apx", (-25, -10), xycoords="axes pixels")
+
+
+def test_arrow_annotation_get_window_extent():
+    from matplotlib.figure import Figure
+    from matplotlib.text import Annotation
+    from matplotlib.backends.backend_agg import RendererAgg
+
+    figure = Figure(dpi=100)
+    figure.set_figwidth(2.0)
+    figure.set_figheight(2.0)
+    renderer = RendererAgg(200, 200, 100)
+
+    # Text annotation with arrow
+    annotation = Annotation(
+        '', xy=(0.0, 50.0), xytext=(50.0, 50.0), xycoords='figure pixels',
+        arrowprops={
+            'facecolor': 'black', 'width': 8, 'headwidth': 10, 'shrink': 0.0})
+    annotation.set_figure(figure)
+    annotation.draw(renderer)
+
+    bbox = annotation.get_window_extent()
+    points = bbox.get_points()
+
+    eq_(bbox.width, 50.0)
+    assert_almost_equal(bbox.height, 10.0 / 0.72)
+    eq_(points[0, 0], 0.0)
+    eq_(points[0, 1], 50.0 - 5 / 0.72)
+
+
+def test_empty_annotation_get_window_extent():
+    from matplotlib.figure import Figure
+    from matplotlib.text import Annotation
+    from matplotlib.backends.backend_agg import RendererAgg
+
+    figure = Figure(dpi=100)
+    figure.set_figwidth(2.0)
+    figure.set_figheight(2.0)
+    renderer = RendererAgg(200, 200, 100)
+
+    # Text annotation with arrow
+    annotation = Annotation(
+        '', xy=(0.0, 50.0), xytext=(0.0, 50.0), xycoords='figure pixels')
+    annotation.set_figure(figure)
+    annotation.draw(renderer)
+
+    bbox = annotation.get_window_extent()
+    points = bbox.get_points()
+
+    eq_(points[0, 0], 0.0)
+    eq_(points[1, 0], 0.0)
+    eq_(points[1, 1], 50.0)
+    eq_(points[0, 1], 50.0)
