@@ -52,6 +52,7 @@ try:
     set
 except NameError:
     from sets import Set as set
+from collections import Iterable
 import matplotlib
 from matplotlib import afm
 from matplotlib import ft2font
@@ -822,7 +823,9 @@ class FontProperties(object):
         if family is None:
             family = rcParams['font.family']
         if is_string_like(family):
-            family = [family]
+            family = [six.text_type(family)]
+        elif (not is_string_like(family) and isinstance(family, Iterable)):
+            family = [six.text_type(f) for f in family]
         self._family = family
     set_name = set_family
 
