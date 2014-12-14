@@ -2,11 +2,11 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-
+from matplotlib.artist import Artist
 import matplotlib.cbook as cbook
 
 
-class Container(tuple):
+class Container(tuple, Artist):
     """
     Base class for containers.
     """
@@ -17,92 +17,34 @@ class Container(tuple):
     def __new__(cls, *kl, **kwargs):
         return tuple.__new__(cls, kl[0])
 
-    def __init__(self, kl, label=None):
-
-        self.eventson = False  # fire events only if eventson
-        self._oid = 0  # an observer id
-        self._propobservers = {}  # a dict from oids to funcs
-
-        self._remove_method = None
-
-        self.set_label(label)
-
-    def set_remove_method(self, f):
-        self._remove_method = f
+    def __init__(self, kl, label=None, **kwargs):
+        Artist.__init__(self, **kwargs)
+        self.set_label(label=label)
 
     def remove(self):
+        # remove the children
         for c in self:
             c.remove()
-
-        if self._remove_method:
-            self._remove_method(self)
-
-    def __getstate__(self):
-        d = self.__dict__.copy()
-        # remove the unpicklable remove method, this will get re-added on load
-        # (by the axes) if the artist lives on an axes.
-        d['_remove_method'] = None
-        return d
-
-    def get_label(self):
-        """
-        Get the label used for this artist in the legend.
-        """
-        return self._label
-
-    def set_label(self, s):
-        """
-        Set the label to *s* for auto legend.
-
-        ACCEPTS: string or anything printable with '%s' conversion.
-        """
-        if s is not None:
-            self._label = '%s' % (s, )
-        else:
-            self._label = None
-        self.pchanged()
-
-    def add_callback(self, func):
-        """
-        Adds a callback function that will be called whenever one of
-        the :class:`Artist`'s properties changes.
-
-        Returns an *id* that is useful for removing the callback with
-        :meth:`remove_callback` later.
-        """
-        oid = self._oid
-        self._propobservers[oid] = func
-        self._oid += 1
-        return oid
-
-    def remove_callback(self, oid):
-        """
-        Remove a callback based on its *id*.
-
-        .. seealso::
-
-            :meth:`add_callback`
-               For adding callbacks
-
-        """
-        try:
-            del self._propobservers[oid]
-        except KeyError:
-            pass
-
-    def pchanged(self):
-        """
-        Fire an event when property changed, calling all of the
-        registered callbacks.
-        """
-        for oid, func in list(six.iteritems(self._propobservers)):
-            func(self)
+        # call up to the Artist remove method
+        super(Container, self).remove(self)
 
     def get_children(self):
         return list(cbook.flatten(self))
 
+    def draw(self, renderer, *args, **kwargs):
+        # just broadcast the draw down to children
+        for a in self:
+            a.draw(renderer, *args, **kwargs)
+
 
 class BarContainer(Container):
+    def __new__(cls, patches, errorbar=None, **kwargs):
+        if errorbar is None:
+            errorbar = tuple()
+        else:
+            errorbar = tuple(errorbar)
+        patches = tuple(patches)
+        return super(BarContainer, cls).__new__(patches + errorbar, **kwargs)
 
     def __init__(self, patches, errorbar=None, **kwargs):
         self.patches = patches

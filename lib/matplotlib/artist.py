@@ -701,6 +701,9 @@ class Artist(object):
         "return True if the artist is to be rasterized"
         return self._rasterized
 
+    def set_remove_method(self, f):
+        self._remove_method = f
+
     def set_rasterized(self, rasterized):
         """
         Force rasterized (bitmap) drawing in vector backend output.
