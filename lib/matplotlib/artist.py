@@ -138,6 +138,10 @@ class Artist(object):
         # protected attribute if Python supported that sort of thing.  The
         # callback has one parameter, which is the child to be removed.
         if self._remove_method is not None:
+            # set the current axes to None
+            self._axes = None
+            # use the call back registered by the axes when the artist
+            # was added to remove it the artist from the axes
             self._remove_method(self)
         else:
             raise NotImplementedError('cannot remove artist')

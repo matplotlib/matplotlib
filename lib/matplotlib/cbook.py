@@ -2311,6 +2311,70 @@ class _InstanceMethodPickler(object):
         return getattr(self.parent_obj, self.instancemethod_name)
 
 
+_art_list_msg = ("The use of Axes.lines, Axes.patches, Axes.texts "
+                 "Axes.tables, Axes.artists, Axes.collections, "
+                 "Axes.containers, "
+                 "and Axes.images have been "
+                 "deprecated.  All artists are now stored is a single "
+                 "tree accessible via the Axes.artist_tree property. "
+                 "Please use the ``remove`` method on the artists to remove"
+                 "them from an Axes.  \n\n"
+                 "These lists will be removed in 1.7 or 2.0.")
+
+
+class MPLRemoverList(list):
+    """
+
+    This is a sub-class of list which implements the logic to manage the
+    backwards compatibility during deprecation of the lines, patches,
+    texts, tables, artists, images, collections, and containers
+    attributes from the Axes class.  This will allow users to continue
+    to use `ax.lines.pop()` to remove lines from an axes, even though
+    the draw method no longer looks at those lists at render time.
+
+    This class will be removed when the list are.
+
+    """
+    def __delslice__(self, a, b):
+        # warn
+        warnings.warn(_art_list_msg, mplDeprecation, stacklevel=1)
+        # grab what we will be removing
+        res = self[a:b]
+        # remove it from this list
+        super(MPLRemoverList, self).__delslice__(self, a, b)
+        # see if we need to call the real remove
+        # Artist.remove sets _axes = None so if this is called
+        # remove it won't be called again, but if a user removes
+        # an artist from these lists directly, remove will correctly
+        # be called.
+        for a in res:
+            # this works because of details of how Artist.remove works
+            if a.axes:
+                a.remove()
+
+    def __delitem__(self, y):
+        # see __delslice__ for explanation of logic
+        warnings.warn(_art_list_msg, mplDeprecation, stacklevel=1)
+        res = self[y]
+        super(MPLRemoverList, self).__delitem__(self, y)
+        if res.axes:
+            res.remove()
+
+    def pop(self, i):
+        # see __delslice__ for explanation of logic
+        warnings.warn(_art_list_msg, mplDeprecation, stacklevel=1)
+        res = super(MPLRemoverList, self).pop(self, i)
+        if res.axes:
+            res.remove()
+
+    def remove(self, item):
+        # see __delslice__ for explanation of logic
+        warnings.warn(_art_list_msg, mplDeprecation, stacklevel=1)
+        res = super(MPLRemoverList, self).remove(self, item)
+        if item.axes:
+            res.remove()
+
+
 # Numpy > 1.6.x deprecates putmask in favor of the new copyto.
 # So long as we support versions 1.6.x and less, we need the
 # following local version of putmask.  We choose to make a
