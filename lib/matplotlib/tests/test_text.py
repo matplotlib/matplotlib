@@ -280,6 +280,41 @@ def test_get_rotation_mod360():
         assert_almost_equal(text.get_rotation(i), j)
 
 
+def test_text_annotation_get_window_extent():
+    from matplotlib.figure import Figure
+    from matplotlib.text import Annotation, Text
+    from matplotlib.backends.backend_agg import RendererAgg
+
+    figure = Figure(dpi=100)
+    renderer = RendererAgg(200, 200, 100)
+
+
+    # Only text annotation
+    annotation = Annotation('test', xy=(0, 0))
+    annotation.set_figure(figure)
+
+    text = Text(text='test', x=0, y=0)
+    text.set_figure(figure)
+
+    bbox = annotation.get_window_extent(renderer=renderer)
+
+    text_bbox = text.get_window_extent(renderer=renderer)
+    eq_(bbox.width, text_bbox.width)
+    eq_(bbox.height, text_bbox.height)
+
+    _, _, d = renderer.get_text_width_height_descent(
+        'text', annotation._fontproperties, ismath=False)
+    _, _, lp_d = renderer.get_text_width_height_descent(
+        'lp', annotation._fontproperties, ismath=False)
+    below_line = max(d, lp_d)
+
+    # These numbers are specific to the current implementation of Text
+    points = bbox.get_points()
+    eq_(points[0, 0], 0.0)
+    eq_(points[1, 0], text_bbox.width)
+    eq_(points[0, 1], -below_line)
+    eq_(points[1, 1], text_bbox.height - below_line)
+
 def test_arrow_annotation_get_window_extent():
     from matplotlib.figure import Figure
     from matplotlib.text import Annotation
