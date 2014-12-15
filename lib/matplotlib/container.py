@@ -10,6 +10,7 @@ class Container(tuple, Artist):
     """
     Base class for containers.
     """
+    _no_broadcast = ['label', ]
 
     def __repr__(self):
         return "<Container object of %d artists>" % (len(self))
@@ -18,7 +19,9 @@ class Container(tuple, Artist):
         return tuple.__new__(cls, kl[0])
 
     def __init__(self, kl, label=None, **kwargs):
+        # set up the artist details
         Artist.__init__(self, **kwargs)
+        # for some reason we special case label
         self.set_label(label=label)
 
     def remove(self):
@@ -30,6 +33,23 @@ class Container(tuple, Artist):
 
     def get_children(self):
         return list(cbook.flatten(self))
+
+    def __getattribute__(self, key):
+
+        # broadcast set_* and get_* methods across members
+        # except for these explicitly not.
+        if (('set' in key or 'get' in key) and
+              all(k not in key for k in self._no_broadcast)):
+
+            def inner(*args, **kwargs):
+                return [getattr(a, key)(*args, **kwargs)
+                        for a in self]
+            inner.__name__ = key
+            doc = getattr(self[0], key).__doc__
+            inner.__doc__ = doc
+            return inner
+        else:
+            return super(Container, self).__getattribute__(key)
 
     def draw(self, renderer, *args, **kwargs):
         # just broadcast the draw down to children
