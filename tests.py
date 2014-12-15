@@ -35,6 +35,7 @@ plugins = [KnownFailure]
 from nose.plugins import multiprocess
 multiprocess._instantiate_plugins = plugins
 
+
 def run():
     try:
         import faulthandler
