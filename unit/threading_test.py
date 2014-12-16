@@ -19,6 +19,7 @@ thread_count = 8
 max_iterations = 50
 exception_raised = False
 
+
 def png_thread(tn):
     png_fname = 'out%d.png' % tn
     vals = 100 + 15 * np.random.randn(10000)
@@ -49,10 +50,11 @@ def png_thread(tn):
 
     os.unlink(png_fname)
 
+
 def main(tc):
     threads = []
     for i in range(tc):
-        threads.append(threading.Thread(target=png_thread, args=(i+1,)))
+        threads.append(threading.Thread(target=png_thread, args=(i + 1,)))
 
     for t in threads:
         t.start()
@@ -67,6 +69,5 @@ def main(tc):
 
     print(msg % (tc, max_iterations))
 
-if __name__== "__main__":
+if __name__ == "__main__":
     main(thread_count)
-
