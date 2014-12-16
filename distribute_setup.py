@@ -531,6 +531,7 @@ def _build_install_args(options):
         install_args.append('--user')
     return install_args
 
+
 def _parse_args():
     """
     Parse the command line for options
@@ -546,6 +547,7 @@ def _parse_args():
     options, args = parser.parse_args()
     # positional arguments are ignored
     return options
+
 
 def main(version=DEFAULT_VERSION):
     """Install or upgrade setuptools and EasyInstall"""

@@ -201,6 +201,8 @@ else:
 
 # Remove the -Wstrict-prototypesoption, is it's not valid for C++
 customize_compiler = sysconfig.customize_compiler
+
+
 def my_customize_compiler(compiler):
     retval = customize_compiler(compiler)
     try:
@@ -372,7 +374,6 @@ class SetupPackage(object):
         `distutils.setup`.
         """
         return []
-
 
     def get_py_modules(self):
         """
@@ -645,7 +646,6 @@ class Tests(OptionalPackage):
                         'suite.  pip/easy_install may attempt to install it '
                         'after matplotlib.')
 
-
         bad_nose = msg_template.format(
             package='nose %s or later' % self.nose_min_version
         )
@@ -657,7 +657,6 @@ class Tests(OptionalPackage):
                 msgs += [bad_nose]
         except ImportError:
             msgs += [bad_nose]
-
 
         if sys.version_info >= (3, 3):
             msgs += ['using unittest.mock']
@@ -694,6 +693,7 @@ class Tests(OptionalPackage):
         if not sys.version_info >= (3, 3):
             requires += ['mock']
         return requires
+
 
 class Toolkits_Tests(Tests):
     name = "toolkits_tests"
@@ -927,7 +927,6 @@ class FreeType(SetupPackage):
             default_library_dirs=[
                 'freetype2/lib'],
             default_libraries=['freetype', 'z'])
-
 
 
 class FT2Font(SetupPackage):
@@ -1971,6 +1970,7 @@ def backend_pyside_internal_check(self):
         return ("Qt: %s, PySide: %s" %
                 (QtCore.__version__, __version__))
 
+
 def backend_pyqt4_internal_check(self):
     try:
         from PyQt4 import QtCore
@@ -1985,6 +1985,7 @@ def backend_pyqt4_internal_check(self):
     else:
         BackendAgg.force = True
         return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
+
 
 def backend_qt4_internal_check(self):
     successes = []
@@ -2001,7 +2002,8 @@ def backend_qt4_internal_check(self):
 
     if len(successes) == 0:
         raise CheckFailed('; '.join(failures))
-    return '; '.join(successes+failures)
+    return '; '.join(successes + failures)
+
 
 class BackendQt4(BackendQtBase):
     name = "qt4agg"
