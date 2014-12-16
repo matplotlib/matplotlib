@@ -23,7 +23,7 @@ matrix:
       env: BUILD_DOCS=true
 
 install:
-  - pip install -q --use-mirrors nose python-dateutil $NUMPY pep8 pyparsing pillow
+  - pip install -q --use-mirrors nose python-dateutil $NUMPY pep8 pyparsing pillow sphinx
   - sudo apt-get update && sudo apt-get -qq install inkscape libav-tools gdb
   # We use --no-install-recommends to avoid pulling in additional large latex docs that we don't need
 
@@ -33,7 +33,7 @@ install:
   - |
     if [[ $BUILD_DOCS == true ]]; then
       sudo apt-get install -qq --no-install-recommends dvipng texlive-latex-base texlive-latex-extra texlive-fonts-recommended graphviz
-      pip install sphinx numpydoc linkchecker
+      pip install numpydoc linkchecker
       wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
       sudo dpkg -i fonts-humor-sans_1.0-1_all.deb
       wget https://googlefontdirectory.googlecode.com/hg/ofl/felipa/Felipa-Regular.ttf
