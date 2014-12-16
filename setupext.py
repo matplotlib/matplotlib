@@ -672,6 +672,7 @@ class Tests(OptionalPackage):
     def get_packages(self):
         return [
             'matplotlib.tests',
+            'matplotlib.sphinxext.tests',
             ]
 
     def get_package_data(self):
@@ -686,6 +687,9 @@ class Tests(OptionalPackage):
                 'tests/mpltest.ttf',
                 'tests/test_rcparams.rc',
                 'tests/test_utf32_be_rcparams.rc',
+                'sphinxext/tests/tinypages/*.rst',
+                'sphinxext/tests/tinypages/*.py',
+                'sphinxext/tests/tinypages/_static/*',
             ]}
 
     def get_install_requires(self):

@@ -62,8 +62,11 @@ The ``plot`` directive supports the following options:
         If provided, the code will be run in the context of all
         previous plot directives for which the `:context:` option was
         specified.  This only applies to inline code plot directives,
-        not those run from files. If the ``:context: reset`` is specified,
-        the context is reset for this and future plots.
+        not those run from files. If the ``:context: reset`` option is
+        specified, the context is reset for this and future plots, and
+        previous figures are closed prior to running the code.
+        ``:context:close-figs`` keeps the context but closes previous figures
+        before running the code.
 
     nofigs : bool
         If specified, the code block will be run, but no figures will
@@ -190,11 +193,9 @@ def _option_boolean(arg):
 
 
 def _option_context(arg):
-    if arg in [None, 'reset']:
+    if arg in [None, 'reset', 'close-figs']:
         return arg
-    else:
-        raise ValueError("argument should be None or 'reset'")
-    return directives.choice(arg, ('None', 'reset'))
+    raise ValueError("argument should be None or 'reset' or 'close-figs'")
 
 
 def _option_format(arg):
@@ -524,7 +525,8 @@ def clear_state(plot_rcparams, close=True):
 
 
 def render_figures(code, code_path, output_dir, output_base, context,
-                   function_name, config, context_reset=False):
+                   function_name, config, context_reset=False,
+                   close_figs=False):
     """
     Run a pyplot script and save the low and high res PNGs and a PDF
     in *output_dir*.
@@ -600,11 +602,16 @@ def render_figures(code, code_path, output_dir, output_base, context,
 
     if context_reset:
         clear_state(config.plot_rcparams)
+        plot_context.clear()
+
+    close_figs = not context or close_figs
 
     for i, code_piece in enumerate(code_pieces):
 
         if not context or config.plot_apply_rcparams:
-            clear_state(config.plot_rcparams, close=not context)
+            clear_state(config.plot_rcparams, close_figs)
+        elif close_figs:
+            plt.close('all')
 
         run_code(code_piece, code_path, ns, function_name)
 
@@ -644,8 +651,8 @@ def run(arguments, content, options, state_machine, state, lineno):
     nofigs = 'nofigs' in options
 
     options.setdefault('include-source', config.plot_include_source)
-    context = 'context' in options
-    context_reset = True if (context and options['context'] == 'reset') else False
+    keep_context = 'context' in options
+    context_opt = None if not keep_context else options['context']
 
     rst_file = document.attributes['source']
     rst_dir = os.path.dirname(rst_file)
@@ -729,9 +736,15 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # make figures
     try:
-        results = render_figures(code, source_file_name, build_dir, output_base,
-                                 context, function_name, config,
-                                 context_reset=context_reset)
+        results = render_figures(code,
+                                 source_file_name,
+                                 build_dir,
+                                 output_base,
+                                 keep_context,
+                                 function_name,
+                                 config,
+                                 context_reset=context_opt == 'reset',
+                                 close_figs=context_opt == 'close-figs')
         errors = []
     except PlotError as err:
         reporter = state.memo.reporter
