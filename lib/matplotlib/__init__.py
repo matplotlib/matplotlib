@@ -1442,6 +1442,7 @@ default_test_modules = [
     'matplotlib.tests.test_triangulation',
     'mpl_toolkits.tests.test_mplot3d',
     'matplotlib.tests.test_widgets',
+    'matplotlib.tests.test_cycles',
     ]
 
 

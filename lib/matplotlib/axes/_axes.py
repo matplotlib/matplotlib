@@ -1271,7 +1271,9 @@ class Axes(_AxesBase):
 
         By default, each line is assigned a different color specified by a
         'color cycle'.  To change this behavior, you can edit the
-        axes.color_cycle rcParam.
+        axes.color_cycle rcParam. Similarly, the default linestyle is
+        also specified by a 'linestyle cycle'. Edit the axes.linestyle_cycle
+        rcParam to specify a non-trivial cycle.
 
         The following format string characters are accepted to control
         the line style or marker:
