@@ -99,6 +99,7 @@ docstring.interpd.update(Text="""
     style or fontstyle         [ 'normal' | 'italic' | 'oblique']
     text                       string
     transform                  a matplotlib.transform transformation instance
+    usetex                     [True | False | None]
     variant                    ['normal' | 'small-caps']
     verticalalignment or va    ['center' | 'top' | 'bottom' | 'baseline']
     visible                    [True | False]
@@ -173,6 +174,7 @@ class Text(Artist):
                  rotation=None,
                  linespacing=None,
                  rotation_mode=None,
+                 usetex=None,          # defaults to rcParams['text.usetex']
                  **kwargs
                  ):
         """
@@ -195,6 +197,7 @@ class Text(Artist):
 
         self.set_text(text)
         self.set_color(color)
+        self.set_usetex(usetex)
         self._verticalalignment = verticalalignment
         self._horizontalalignment = horizontalalignment
         self._multialignment = multialignment
@@ -582,7 +585,7 @@ class Text(Artist):
                 renderer = PathEffectRenderer(self.get_path_effects(),
                                               renderer)
 
-            if rcParams['text.usetex']:
+            if self.get_usetex():
                 renderer.draw_tex(gc, x, y, clean_line,
                                   self._fontproperties, angle, mtext=mtext)
             else:
@@ -1009,6 +1012,30 @@ class Text(Artist):
     def set_font_properties(self, fp):
         'alias for set_fontproperties'
         self.set_fontproperties(fp)
+
+    def set_usetex(self, usetex):
+        """
+        Set this `Text` object to render using TeX (or not).
+
+        If `None` is given, the option will be reset to use the value of
+        `rcParams['text.usetex']`
+        """
+        if usetex is None:
+            self._usetex = None
+        else:
+            self._usetex = bool(usetex)
+
+    def get_usetex(self):
+        """
+        Return whether this `Text` object will render using TeX.
+
+        If the user has not manually set this value, it will default to
+        the value of `rcParams['text.usetex']`
+        """
+        if self._usetex is None:
+            return rcParams['text.usetex']
+        else:
+            return self._usetex
 
 docstring.interpd.update(Text=artist.kwdoc(Text))
 docstring.dedent_interpd(Text.__init__)
