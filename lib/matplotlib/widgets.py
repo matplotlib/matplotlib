@@ -1886,6 +1886,13 @@ class RectangleSelector(_SelectorWidget):
         x0, x1, y0, y1 = extents
         xmin, xmax = sorted([x0, x1])
         ymin, ymax = sorted([y0, y1])
+        xlim = self.ax.get_xlim()
+        ylim = self.ax.get_ylim()
+
+        xmin = max(xlim[0], xmin)
+        ymin = max(ylim[0], ymin)
+        xmax = min(xmax, xlim[1])
+        ymax = min(ymax, ylim[1])
 
         if self.drawtype == 'patch':
             self.to_draw.set_x(xmin)
@@ -1927,6 +1934,10 @@ class RectangleSelector(_SelectorWidget):
         if self.active_handle in ['N', 'NW', 'NE']:
             y1, y2 = y2, event.ydata
         self._extents_on_press = x1, x2, y1, y2
+
+    @property
+    def path(self):
+        return self.to_draw.get_path()
 
 
 class EllipseSelector(RectangleSelector):
