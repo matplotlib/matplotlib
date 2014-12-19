@@ -1155,6 +1155,7 @@ class _SelectorWidget(AxesWidget):
         self.eventpress = None
         # will save the data (pos. at mouserelease)
         self.eventrelease = None
+        self._prev_event = None
 
     def set_active(self, active):
         AxesWidget.set_active(self, active)
@@ -1241,6 +1242,7 @@ class _SelectorWidget(AxesWidget):
         """Button press handler"""
         if not self.ignore(event):
             self.eventpress = copy.copy(event)
+            self._prev_event = copy.copy(event)
             self.eventpress.xdata, self.eventpress.ydata = (
                 self._get_data(event))
             return True
@@ -1249,16 +1251,25 @@ class _SelectorWidget(AxesWidget):
     def release(self, event):
         """Button release event"""
         if not self.ignore(event) and self.eventpress is not None:
+            if event.xdata is None:
+                event = copy.copy(self._prev_event)
             self.eventrelease = copy.copy(event)
             self.eventrelease.xdata, self.eventrelease.ydata = (
                 self._get_data(event))
-            return True
+            return event
         else:
-            return False
+            return None
 
     def onmove(self, event):
         """Cursor move event"""
-        pass
+        if not self.ignore(event) and self.eventpress is not None:
+            if event.xdata is None:
+                event = copy.copy(self._prev_event)
+            else:
+                self._prev_event = copy.copy(event)
+            return event
+        else:
+            return False
 
     def on_scroll(self, event):
         """Mouse scroll event"""
