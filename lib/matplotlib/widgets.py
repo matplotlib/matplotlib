@@ -1548,6 +1548,7 @@ class ToolHandles(object):
         else:
             return 0, np.sqrt(np.sum(diff ** 2))
 
+
 class RectangleSelector(_SelectorWidget):
     """
     Select a rectangular region of an axes.
@@ -1679,7 +1680,7 @@ class RectangleSelector(_SelectorWidget):
         if rectprops is None:
             props = dict(mec='r')
         else:
-            props = dict(mec=rectprops['edgecolor'])
+            props = dict(mec=rectprops.get('edgecolor', 'k'))
         self._corner_order = ['NW', 'NE', 'SE', 'SW']
         xc, yc = self.corners
         self._corner_handles = ToolHandles(self.ax, xc, yc, marker_props=props,
@@ -1962,12 +1963,6 @@ class EllipseSelector(RectangleSelector):
             x0, x1 = min(x), max(x)
             y0, y1 = min(y), max(y)
             return x0, y0, x1 - x0, y1 - y0
-
-    @property
-    def geometry(self):
-        x0, y0, width, height = self._rect_bbox
-        return x0 + width / 2., y0 + width / 2., width, height
-
 
 
 class LassoSelector(_SelectorWidget):
