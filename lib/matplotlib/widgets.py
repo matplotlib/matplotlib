@@ -19,7 +19,7 @@ from matplotlib.externals.six.moves import zip
 import numpy as np
 
 from .mlab import dist
-from .patches import Circle, Rectangle
+from .patches import Circle, Rectangle, Ellipse
 from .lines import Line2D
 from .transforms import blended_transform_factory
 
@@ -1526,10 +1526,13 @@ class RectangleSelector(_SelectorWidget):
         connect('key_press_event', toggle_selector)
         show()
     """
-    def __init__(self, ax, onselect, drawtype='box',
+
+    _shape_klass = Rectangle
+
+    def __init__(self, ax, onselect, drawtype='patch',
                  minspanx=None, minspany=None, useblit=False,
                  lineprops=None, rectprops=None, spancoords='data',
-                 button=None):
+                 button=None, maxdist=10, marker_props=None):
 
         """
         Create a selector in *ax*.  When a selection is made, clear
@@ -1573,20 +1576,24 @@ class RectangleSelector(_SelectorWidget):
          3 = right mouse button
         """
         _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
-                                                          button=button)
+                                                button=button)
 
         self.to_draw = None
+        self.visible = True
+
+        if drawtype == 'box':  # backwards compatibility
+            drawtype = 'patch'
 
         if drawtype == 'none':
             drawtype = 'line'                        # draw a line but make it
             self.visible = False                     # invisible
 
-        if drawtype == 'box':
+        if drawtype == 'patch':
             if rectprops is None:
-                rectprops = dict(facecolor='white', edgecolor='black',
-                                 alpha=0.5, fill=False)
+                rectprops = dict(facecolor='red', edgecolor='black',
+                                 alpha=0.2, fill=True)
             self.rectprops = rectprops
-            self.to_draw = Rectangle((0, 0),
+            self.to_draw = self._shape_klass((0, 0),
                                      0, 1, visible=False, **self.rectprops)
             self.ax.add_patch(self.to_draw)
         if drawtype == 'line':
@@ -1594,9 +1601,7 @@ class RectangleSelector(_SelectorWidget):
                 lineprops = dict(color='black', linestyle='-',
                                  linewidth=2, alpha=0.5)
             self.lineprops = lineprops
-            if self.useblit:
-                self.lineprops['animated'] = True
-            self.to_draw = Line2D([0, 0], [0, 0], visible=False,
+            self.to_draw = Line2D([0, 0, 0, 0, 0], [0, 0, 0, 0, 0], visible=False,
                                   **self.lineprops)
             self.ax.add_line(self.to_draw)
 
@@ -1609,24 +1614,50 @@ class RectangleSelector(_SelectorWidget):
 
         self.spancoords = spancoords
         self.drawtype = drawtype
-        self.artists = [self.to_draw]
+
+        self.maxdist = maxdist
+
+        if rectprops is None:
+            props = dict(mec='r')
+        else:
+            props = dict(mec=rectprops['edgecolor'])
+        self._corner_order = ['NW', 'NE', 'SE', 'SW']
+        xc, yc = self.corners
+        self._corner_handles = ToolHandles(self.ax, xc, yc, marker_props=props,
+                                           useblit=self.useblit)
+
+        self._edge_order = ['W', 'N', 'E', 'S']
+        xe, ye = self.edge_centers
+        self._edge_handles = ToolHandles(self.ax, xe, ye, marker='s',
+                                         marker_props=props, useblit=self.useblit)
+
+        xc, yc = self.center
+        self._center_handle = ToolHandles(self.ax, [xc], [yc], marker='s',
+                                          marker_props=props, useblit=self.useblit)
+
+        self.artists = [self.to_draw, self._center_handle.artist,
+                        self._corner_handles.artist,
+                        self._edge_handles.artist]
 
     def press(self, event):
         """on button press event"""
         if not _SelectorWidget.press(self, event):
             return True
-        # make the drawed box/line visible
-        self.to_draw.set_visible(self.visible)
-        return False
+        # make the drawed box/line visible get the click-coordinates,
+        # button, ...
+        self.set_visible(self.visible)
+        self._set_active_handle(event)
+
+        if self.active_handle is None:
+            # Clear previous rectangle before drawing new rectangle.
+            self.update()
+
+        self.set_visible(self.visible)
 
     def release(self, event):
         """on button release event"""
         if not _SelectorWidget.release(self, event):
             return True
-
-        # make the box/line invisible again
-        self.to_draw.set_visible(False)
-        self.canvas.draw()
 
         if self.spancoords == 'data':
             xmin, ymin = self.eventpress.xdata, self.eventpress.ydata
@@ -1655,36 +1686,229 @@ class RectangleSelector(_SelectorWidget):
             # neither x nor y-direction
             return
 
+        # update the eventpress and eventrelease with the resulting extents
+        x1, x2, y1, y2 = self.extents
+        self.eventpress.xdata = x1
+        self.eventpress.ydata = y1
+        xy1 = self.ax.transData.transform_point([x1, y1])
+        self.eventpress.x, self.eventpress.y = xy1
+
+        self.eventrelease.xdata = x2
+        self.eventrelease.ydata = y2
+        xy2 = self.ax.transData.transform_point([x2, y2])
+        self.eventrelease.x, self.eventrelease.y = xy2
+
         self.onselect(self.eventpress, self.eventrelease)
                                               # call desired function
-        self.eventpress = None
+        self.update()
+
         return False
 
     def onmove(self, event):
         """on motion notify event if box/line is wanted"""
-        if self.eventpress is None or self.ignore(event):
-            return
+        event = _SelectorWidget.onmove(self, event)
+        if not event:
+            return True
 
-        x, y = self._get_data(event)            # actual position (with
-                                                   #   (button still pressed)
-        if self.drawtype == 'box':
-            minx, maxx = self.eventpress.xdata, x  # click-x and actual mouse-x
-            miny, maxy = self.eventpress.ydata, y  # click-y and actual mouse-y
-            if minx > maxx:
-                minx, maxx = maxx, minx  # get them in the right order
-            if miny > maxy:
-                miny, maxy = maxy, miny
-            self.to_draw.set_x(minx)             # set lower left of box
-            self.to_draw.set_y(miny)
-            self.to_draw.set_width(maxx - minx)  # set width and height of box
-            self.to_draw.set_height(maxy - miny)
-            self.update()
-            return False
-        if self.drawtype == 'line':
-            self.to_draw.set_data([self.eventpress.xdata, x],
-                                  [self.eventpress.ydata, y])
-            self.update()
-            return False
+        key = self.eventpress.key or ''
+
+        # resize an existing shape
+        if self.active_handle and not self.active_handle == 'C':
+            x1, x2, y1, y2 = self._extents_on_press
+            if self.active_handle in ['E', 'W'] + self._corner_order:
+                x2 = event.xdata
+            if self.active_handle in ['N', 'S'] + self._corner_order:
+                y2 = event.ydata
+
+        # move existing shape
+        elif self.active_handle == 'C':
+            x1, x2, y1, y2 = self._extents_on_press
+            dx = event.xdata - self.eventpress.xdata
+            dy = event.ydata - self.eventpress.ydata
+            x1 += dx
+            x2 += dx
+            y1 += dy
+            y2 += dy
+
+        # new shape
+        else:
+            center = [self.eventpress.xdata, self.eventpress.ydata]
+            center_pix = [self.eventpress.x, self.eventpress.y]
+            dx = (event.xdata - center[0]) / 2.
+            dy = (event.ydata - center[1]) / 2.
+
+            # square shape
+            if 'shift' in key:
+                dx_pix = abs(event.x - center_pix[0])
+                dy_pix = abs(event.y - center_pix[1])
+                if not dx_pix:
+                    return
+                maxd = max(abs(dx_pix), abs(dy_pix))
+                if abs(dx_pix) < maxd:
+                    dx *= maxd / abs(dx_pix)
+                if abs(dy_pix) < maxd:
+                    dy *= maxd / abs(dy_pix)
+
+            # from center
+            if key == 'control' or key == 'ctrl+shift':
+                dx *= 2
+                dy *= 2
+
+            # from corner
+            else:
+                center[0] += dx
+                center[1] += dy
+
+            x1, x2, y1, y2 = (center[0] - dx, center[0] + dx,
+                              center[1] - dy, center[1] + dy)
+
+        self.extents = x1, x2, y1, y2
+
+    @property
+    def _rect_bbox(self):
+        if self.drawtype == 'patch':
+            x0 = self.to_draw.get_x()
+            y0 = self.to_draw.get_y()
+            width = self.to_draw.get_width()
+            height = self.to_draw.get_height()
+            return x0, y0, width, height
+        else:
+            x, y = self.to_draw.get_data()
+            x0, x1 = min(x), max(x)
+            y0, y1 = min(y), max(y)
+            return x0, y0, x1 - x0, y1 - y0
+
+    @property
+    def corners(self):
+        """Corners of rectangle from lower left, moving clockwise."""
+        x0, y0, width, height = self._rect_bbox
+        xc = x0, x0 + width, x0 + width, x0
+        yc = y0, y0, y0 + height, y0 + height
+        return xc, yc
+
+    @property
+    def edge_centers(self):
+        """Midpoint of rectangle edges from left, moving clockwise."""
+        x0, y0, width, height = self._rect_bbox
+        w = width / 2.
+        h = height / 2.
+        xe = x0, x0 + w, x0 + width, x0 + w
+        ye = y0 + h, y0, y0 + h, y0 + height
+        return xe, ye
+
+    @property
+    def center(self):
+        """Center of rectangle"""
+        x0, y0, width, height = self._rect_bbox
+        return x0 + width / 2., y0 + height / 2.
+
+    @property
+    def extents(self):
+        """Return (xmin, xmax, ymin, ymax)."""
+        x0, y0, width, height = self._rect_bbox
+        xmin, xmax = sorted([x0, x0 + width])
+        ymin, ymax = sorted([y0, y0 + height])
+        return xmin, xmax, ymin, ymax
+
+    @extents.setter
+    def extents(self, extents):
+        # Update displayed shape
+        self.draw_shape(extents)
+        # Update displayed handles
+        self._corner_handles.set_data(*self.corners)
+        self._edge_handles.set_data(*self.edge_centers)
+        self._center_handle.set_data(*self.center)
+        self.set_visible(self.visible)
+
+        self.canvas.draw_idle()
+
+    def draw_shape(self, extents):
+        x0, x1, y0, y1 = extents
+        xmin, xmax = sorted([x0, x1])
+        ymin, ymax = sorted([y0, y1])
+
+        if self.drawtype == 'patch':
+            self.to_draw.set_x(xmin)
+            self.to_draw.set_y(ymin)
+            self.to_draw.set_width(xmax - xmin)
+            self.to_draw.set_height(ymax - ymin)
+
+        elif self.drawtype == 'line':
+            self.to_draw.set_data([xmin,  xmin, xmax, xmax, xmin],
+                                  [ymin, ymax, ymax, ymin, ymin])
+
+    def _set_active_handle(self, event):
+        """Set active handle based on the location of the mouse event"""
+        # Note: event.xdata/ydata in data coordinates, event.x/y in pixels
+        c_idx, c_dist = self._corner_handles.closest(event.x, event.y)
+        e_idx, e_dist = self._edge_handles.closest(event.x, event.y)
+        m_idx, m_dist = self._center_handle.closest(event.x, event.y)
+
+        if event.key in ['alt', ' ']:
+            self.active_handle = 'C'
+            self._extents_on_press = self.extents
+
+        # Set active handle as closest handle, if mouse click is close enough.
+        elif m_dist < self.maxdist * 2:
+            self.active_handle = 'C'
+        elif c_dist > self.maxdist and e_dist > self.maxdist:
+            self.active_handle = None
+            return
+        elif c_dist < e_dist:
+            self.active_handle = self._corner_order[c_idx]
+        else:
+            self.active_handle = self._edge_order[e_idx]
+
+        # Save coordinates of rectangle at the start of handle movement.
+        x1, x2, y1, y2 = self.extents
+        # Switch variables so that only x2 and/or y2 are updated on move.
+        if self.active_handle in ['W', 'SW', 'NW']:
+            x1, x2 = x2, event.xdata
+        if self.active_handle in ['N', 'NW', 'NE']:
+            y1, y2 = y2, event.ydata
+        self._extents_on_press = x1, x2, y1, y2
+
+
+class EllipseSelector(RectangleSelector):
+
+    _shape_klass = Ellipse
+
+    def draw_shape(self, extents):
+        x1, x2, y1, y2 = extents
+        xmin, xmax = sorted([x1, x2])
+        ymin, ymax = sorted([y1, y2])
+        center = [x1 + (x2 - x1) / 2., y1 + (y2 - y1) / 2.]
+        a = (xmax - xmin) / 2.
+        b = (ymax - ymin) / 2.
+
+        if self.drawtype == 'patch':
+            self.to_draw.center = center
+            self.to_draw.width = 2 * a
+            self.to_draw.height = 2 * b
+        else:
+            rad = np.arange(31) * 12 * np.pi / 180
+            x = a * np.cos(rad) + center[0]
+            y = b * np.sin(rad) + center[1]
+            self.to_draw.set_data(x, y)
+
+    @property
+    def _rect_bbox(self):
+        if self.drawtype == 'patch':
+            x, y = self.to_draw.center
+            width = self.to_draw.width
+            height = self.to_draw.height
+            return x - width / 2., y - height / 2., width, height
+        else:
+            x, y = self.to_draw.get_data()
+            x0, x1 = min(x), max(x)
+            y0, y1 = min(y), max(y)
+            return x0, y0, x1 - x0, y1 - y0
+
+    @property
+    def geometry(self):
+        x0, y0, width, height = self._rect_bbox
+        return x0 + width / 2., y0 + width / 2., width, height
+
 
 
 class LassoSelector(_SelectorWidget):
