@@ -16,6 +16,7 @@ from matplotlib.testing.decorators import cleanup
 def get_ax():
     fig, ax = plt.subplots(1, 1)
     ax.plot([0, 200], [0, 200])
+    ax.set_aspect(1.0)
     ax.figure.canvas.draw()
     return ax
 
@@ -105,9 +106,54 @@ def test_rectangle_selector():
     check_rectangle(rectprops=dict(fill=True))
 
 
-def test_rectangle_modifiers():
-    # TODO: add tests for center, square, center, shift+drag
-    pass
+def test_ellipse():
+    """For ellipse, test out the key modifiers"""
+    ax = get_ax()
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = widgets.EllipseSelector(ax, onselect=onselect,
+                                     maxdist=10)
+    tool.extents = (100, 150, 100, 150)
+
+    # drag the rectangle
+    event = get_event(ax, xdata=10, ydata=10, button=1,
+                    key='alt')
+    tool.press(event)
+    event = get_event(ax, xdata=30, ydata=30, button=1)
+    tool.onmove(event)
+    tool.release(event)
+    assert tool.extents == (120, 170, 120, 170)
+
+    # create from center
+    event = get_event(ax, xdata=100, ydata=100, button=1,
+                    key='control')
+    tool.press(event)
+    event = get_event(ax, xdata=125, ydata=125, button=1)
+    tool.onmove(event)
+    tool.release(event)
+    assert tool.extents == (75, 125, 75, 125)
+
+    # create a square
+    event = get_event(ax, xdata=10, ydata=10, button=1,
+                    key='shift')
+    tool.press(event)
+    event = get_event(ax, xdata=35, ydata=30, button=1)
+    tool.onmove(event)
+    tool.release(event)
+    extents = [int(e) for e in tool.extents]
+    assert extents == [10, 35, 10, 35]
+
+    # create a square from center
+    event = get_event(ax, xdata=100, ydata=100, button=1,
+                      key='ctrl+shift')
+    tool.press(event)
+    event = get_event(ax, xdata=125, ydata=130, button=1)
+    tool.onmove(event)
+    tool.release(event)
+    extents = [int(e) for e in tool.extents]
+    assert extents == [70, 130, 70, 130], extents
 
 
 def test_rectangle_handles():
@@ -118,9 +164,6 @@ def test_rectangle_handles():
 
     tool = widgets.RectangleSelector(ax, onselect=onselect,
                                      maxdist=10)
-    event = get_event(ax, xdata=100, ydata=100, button=1)
-    tool.press(event)
-
     tool.extents = (100, 150, 100, 150)
 
     assert tool.corners == (
@@ -137,6 +180,14 @@ def test_rectangle_handles():
     tool.onmove(event)
     tool.release(event)
     assert tool.extents ==  (120, 150, 120, 150)
+
+    # grab the center and move it
+    event = get_event(ax, xdata=132, ydata=132)
+    tool.press(event)
+    event = get_event(ax, xdata=120, ydata=120)
+    tool.onmove(event)
+    tool.release(event)
+    assert tool.extents ==  (108, 138, 108, 138)
 
     # create a new rectangle
     event = get_event(ax, xdata=10, ydata=10)
