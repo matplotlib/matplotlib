@@ -73,14 +73,14 @@ def check_rectangle(**kwargs):
         ax._got_onselect = True
         assert epress.xdata == 100
         assert epress.ydata == 100
-        assert erelease.xdata == 200
-        assert erelease.ydata == 200
+        assert erelease.xdata == 199
+        assert erelease.ydata == 199
 
     tool = widgets.RectangleSelector(ax, onselect, **kwargs)
     event = get_event(ax, xdata=100, ydata=100, button=1)
     tool.press(event)
 
-    event = get_event(ax, xdata=125, ydata=125, button=1)
+    event = get_event(ax, xdata=199, ydata=199, button=1)
     tool.onmove(event)
 
     # purposely drag outside of axis for release
@@ -97,6 +97,50 @@ def test_rectangle_selector():
     check_rectangle(drawtype='none', minspanx=10, minspany=10)
     check_rectangle(minspanx=10, minspany=10, spancoords='pixels')
     check_rectangle(rectprops=dict(fill=True))
+
+
+def test_rectangle_modifiers():
+    # TODO: add tests for center, square, center, shift+drag
+    pass
+
+
+def test_rectangle_handles():
+    fig, ax = plt.subplots(1, 1)
+    ax.plot([0, 200], [0, 200])
+    ax.figure.canvas.draw()
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = widgets.RectangleSelector(ax, onselect=onselect,
+                                     maxdist=10)
+    event = get_event(ax, xdata=100, ydata=100, button=1)
+    tool.press(event)
+
+    tool.extents = (100, 150, 100, 150)
+
+    assert tool.corners == (
+        (100, 150, 150, 100), (100, 100, 150, 150))
+    assert tool.extents == (100, 150, 100, 150)
+    assert tool.edge_centers == (
+        (100, 125.0, 150, 125.0), (125.0, 100, 125.0, 150))
+    assert tool.extents == (100, 150, 100, 150)
+
+    # grab a corner and move it
+    event = get_event(ax, xdata=100, ydata=100)
+    tool.press(event)
+    event = get_event(ax, xdata=120, ydata=120)
+    tool.onmove(event)
+    tool.release(event)
+    assert tool.extents ==  (120, 150, 120, 150)
+
+    # create a new rectangle
+    event = get_event(ax, xdata=10, ydata=10)
+    tool.press(event)
+    event = get_event(ax, xdata=100, ydata=100)
+    tool.onmove(event)
+    tool.release(event)
+    assert tool.extents == (10, 100, 10, 100)
 
 
 @cleanup
