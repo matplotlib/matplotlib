@@ -12,6 +12,14 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup
 
 
+
+def get_ax():
+    fig, ax = plt.subplots(1, 1)
+    ax.plot([0, 200], [0, 200])
+    ax.figure.canvas.draw()
+    return ax
+
+
 def get_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
     """
      *name*
@@ -65,9 +73,7 @@ def get_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
 
 @cleanup
 def check_rectangle(**kwargs):
-    fig, ax = plt.subplots(1, 1)
-    ax.plot([0, 200], [0, 200])
-    ax.figure.canvas.draw()
+    ax = get_ax()
 
     def onselect(epress, erelease):
         ax._got_onselect = True
@@ -105,9 +111,7 @@ def test_rectangle_modifiers():
 
 
 def test_rectangle_handles():
-    fig, ax = plt.subplots(1, 1)
-    ax.plot([0, 200], [0, 200])
-    ax.figure.canvas.draw()
+    ax = get_ax()
 
     def onselect(epress, erelease):
         pass
@@ -145,9 +149,7 @@ def test_rectangle_handles():
 
 @cleanup
 def check_span(*args, **kwargs):
-    fig, ax = plt.subplots(1, 1)
-    ax.plot([0, 200], [0, 200])
-    ax.figure.canvas.draw()
+    ax = get_ax()
 
     def onselect(vmin, vmax):
         ax._got_onselect = True
@@ -186,10 +188,7 @@ def test_span_selector():
 
 @cleanup
 def check_lasso_selector(**kwargs):
-    fig, ax = plt.subplots(1, 1)
-    ax = plt.gca()
-    ax.plot([0, 200], [0, 200])
-    ax.figure.canvas.draw()
+    ax = get_ax()
 
     def onselect(verts):
         ax._got_onselect = True
