@@ -1285,6 +1285,15 @@ class _SelectorWidget(AxesWidget):
         """Cursor move event handler and validator"""
         if not self.ignore(event):
             event = self._clean_event(event)
+            # update the state
+            if 'move' in self.state:
+                self.state = ['move']
+            else:
+                self.state = []
+            if 'shift' in event.key:
+                self.state.append('square')
+            if 'ctrl' in event.key or 'control' in event.key:
+                self.state.append('center')
             self.onmove(event)
 
     def onmove(self, event):
