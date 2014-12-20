@@ -1230,6 +1230,18 @@ class _SelectorWidget(AxesWidget):
             self.canvas.draw_idle()
         return False
 
+    def _get_data(self, event):
+        """Get the xdata and ydata for event, with limits"""
+        if event.xdata is None:
+            return None, None
+        x0, x1 = self.ax.get_xbound()
+        y0, y1 = self.ax.get_ybound()
+        xdata = max(x0, event.xdata)
+        xdata = min(x1, xdata)
+        ydata = max(y0, event.ydata)
+        ydata = min(y1, ydata)
+        return xdata, ydata
+
     def _clean_event(self, event):
         """Clean up an event
 
@@ -1241,14 +1253,8 @@ class _SelectorWidget(AxesWidget):
             event = self._prev_event
         else:
             event = copy.copy(event)
-
-        x0, x1 = self.ax.get_xbound()
-        y0, y1 = self.ax.get_ybound()
-        xdata = max(x0, event.xdata)
-        event.xdata = min(x1, xdata)
-        ydata = max(y0, event.ydata)
-        event.ydata = min(y1, ydata)
-
+        event.xdata, event.ydata = self._get_data(event)
+        
         self._prev_event = event
         return event
 
@@ -1269,10 +1275,11 @@ class _SelectorWidget(AxesWidget):
 
     def _release(self, event):
         """Button release event handler and validator"""
-        if not self.ignore(event):
+        if not self.ignore(event) and self.eventpress:
             event = self._clean_event(event)
             self.eventrelease = event
             self.release(event)
+            self.state.discard('move')
 
     def release(self, event):
         """Button release event handler"""
@@ -1840,9 +1847,9 @@ class RectangleSelector(_SelectorWidget):
                     return
                 maxd = max(abs(dx_pix), abs(dy_pix))
                 if abs(dx_pix) < maxd:
-                    dx *= maxd / abs(dx_pix)
+                    dx *= maxd / (abs(dx_pix) + 1e-6)
                 if abs(dy_pix) < maxd:
-                    dy *= maxd / abs(dy_pix)
+                    dy *= maxd / (abs(dy_pix) + 1e-6)
 
             # from center
             if 'center' in self.state:
