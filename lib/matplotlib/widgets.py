@@ -1171,12 +1171,12 @@ class _SelectorWidget(AxesWidget):
 
     def connect_default_events(self):
         """Connect the major canvas events to methods."""
-        self.connect_event('motion_notify_event', self.onmove)
-        self.connect_event('button_press_event', self.press)
-        self.connect_event('button_release_event', self.release)
+        self.connect_event('motion_notify_event', self._onmove)
+        self.connect_event('button_press_event', self._press)
+        self.connect_event('button_release_event', self._release)
         self.connect_event('draw_event', self.update_background)
-        self.connect_event('key_press_event', self.on_key_press)
-        self.connect_event('scroll_event', self.on_scroll)
+        self.connect_event('key_press_event', self._on_key_press)
+        self.connect_event('scroll_event', self._on_scroll)
 
     def ignore(self, event):
         """return *True* if *event* should be ignored"""
@@ -1238,45 +1238,64 @@ class _SelectorWidget(AxesWidget):
         ydata = min(y1, ydata)
         return xdata, ydata
 
-    def press(self, event):
-        """Button press handler"""
+    def _press(self, event):
+        """Button press handler and validator"""
         if not self.ignore(event):
             self.eventpress = copy.copy(event)
-            self._prev_event = copy.copy(event)
+            self._prev_event = event
             self.eventpress.xdata, self.eventpress.ydata = (
                 self._get_data(event))
-            return True
-        return False
+            if event.key in ['alt', ' ']:
+                self._moving = True
+            self.press(event)
 
-    def release(self, event):
-        """Button release event"""
+    def press(self, event):
+        """Button press handler"""
+        pass
+
+    def _release(self, event):
+        """Button release event handler and validator"""
         if not self.ignore(event) and self.eventpress is not None:
             if event.xdata is None:
-                event = copy.copy(self._prev_event)
+                event = self._prev_event
             self.eventrelease = copy.copy(event)
             self.eventrelease.xdata, self.eventrelease.ydata = (
                 self._get_data(event))
-            return event
-        else:
-            return None
+            self.release(event)
 
-    def onmove(self, event):
-        """Cursor move event"""
+    def release(self, event):
+        """Button release event handler"""
+        pass
+            
+    def _onmove(self, event):
+        """Cursor move event handler and validator"""
         if not self.ignore(event) and self.eventpress is not None:
             if event.xdata is None:
                 event = copy.copy(self._prev_event)
             else:
-                self._prev_event = copy.copy(event)
-            return event
-        else:
-            return False
+                self._prev_event = event
+            self.onmove(event)
 
-    def on_scroll(self, event):
-        """Mouse scroll event"""
+    def onmove(self, event):
+        """Cursor move event handler"""
         pass
 
+    def _on_scroll(self, event):
+        """Mouse scroll event handler and validator"""
+        if not self.ignore(event):
+            self.on_scroll(event)
+
+    def on_scroll(self, event):
+        """Mouse scroll event handler"""
+        pass
+
+    def _on_key_press(self, event):
+        """Key press event handler and validator"""
+        if not self.ignore(event):
+            self.on_key_press(event)
+
     def on_key_press(self, event):
-        """Key press event"""
+        """Key press event handler"""
         pass
 
     def set_visible(self, visible):
@@ -1407,8 +1426,6 @@ class SpanSelector(_SelectorWidget):
 
     def press(self, event):
         """on button press event"""
-        if not _SelectorWidget.press(self, event):
-            return False
         self.rect.set_visible(self.visible)
         if self.span_stays:
             self.stay_rect.set_visible(False)
@@ -1422,7 +1439,7 @@ class SpanSelector(_SelectorWidget):
 
     def release(self, event):
         """on button release event"""
-        if not _SelectorWidget.release(self, event) or self.pressv is None:
+        if self.pressv is None:
             return
         self.buttonDown = False
 
@@ -1454,7 +1471,7 @@ class SpanSelector(_SelectorWidget):
 
     def onmove(self, event):
         """on motion notify event"""
-        if self.pressv is None or self.ignore(event):
+        if self.pressv is None:
             return
         x, y = self._get_data(event)
         self.prev = x, y
@@ -1701,8 +1718,6 @@ class RectangleSelector(_SelectorWidget):
 
     def press(self, event):
         """on button press event"""
-        if not _SelectorWidget.press(self, event):
-            return True
         # make the drawed box/line visible get the click-coordinates,
         # button, ...
         self.set_visible(self.visible)
@@ -1716,9 +1731,6 @@ class RectangleSelector(_SelectorWidget):
 
     def release(self, event):
         """on button release event"""
-        if not _SelectorWidget.release(self, event):
-            return True
-
         if self.spancoords == 'data':
             xmin, ymin = self.eventpress.xdata, self.eventpress.ydata
             xmax, ymax = self.eventrelease.xdata, self.eventrelease.ydata
@@ -1766,10 +1778,6 @@ class RectangleSelector(_SelectorWidget):
 
     def onmove(self, event):
         """on motion notify event if box/line is wanted"""
-        event = _SelectorWidget.onmove(self, event)
-        if not event:
-            return True
-
         key = self.eventpress.key or ''
 
         # resize an existing shape
@@ -2043,8 +2051,6 @@ class LassoSelector(_SelectorWidget):
         self.press(event)
 
     def press(self, event):
-        if not _SelectorWidget.press(self, event):
-            return
         self.verts = [self._get_data(event)]
         self.line.set_visible(True)
 
@@ -2052,8 +2058,6 @@ class LassoSelector(_SelectorWidget):
         self.release(event)
 
     def release(self, event):
-        if not _SelectorWidget.release(self, event):
-            return
         if self.verts is not None:
             self.verts.append(self._get_data(event))
             self.onselect(self.verts)
@@ -2062,7 +2066,7 @@ class LassoSelector(_SelectorWidget):
         self.verts = None
 
     def onmove(self, event):
-        if self.ignore(event) or self.verts is None:
+        if self.verts is None:
             return
         self.verts.append(self._get_data(event))
 
