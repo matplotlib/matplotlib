@@ -1228,26 +1228,43 @@ class _SelectorWidget(AxesWidget):
             self.canvas.draw_idle()
         return False
 
-    def _get_data(self, event):
-        """Limit the xdata and ydata to the axes limits"""
+    def _clean_event(self, event):
+        """Clean up an event
+
+        Use prev event if there is no xdata
+        Limit the xdata and ydata to the axes limits
+        Set the prev event
+        """
+        if event.xdata is None:
+            event = self._prev_event
+        else:
+            event = copy.copy(event)
+
         x0, x1 = self.ax.get_xbound()
         y0, y1 = self.ax.get_ybound()
         xdata = max(x0, event.xdata)
-        xdata = min(x1, xdata)
+        event.xdata = min(x1, xdata)
         ydata = max(y0, event.ydata)
-        ydata = min(y1, ydata)
-        return xdata, ydata
+        event.ydata = min(y1, ydata)
+
+        self._prev_event = event
+        return event
 
     def _press(self, event):
         """Button press handler and validator"""
         if not self.ignore(event):
-            self.eventpress = copy.copy(event)
+            event = self._clean_event(event)
+            self.eventpress = event
             self._prev_event = event
-            self.eventpress.xdata, self.eventpress.ydata = (
-                self._get_data(event))
-            if event.key in ['alt', ' ']:
-                self._moving = True
-            self.press(event)
+
+            self.state = []
+            if 'alt' in event.key or event.key == ' ':
+                self.state.append('move')
+            if 'shift' in event.key:
+                self.state.append('square')
+            if 'ctrl' in event.key or 'control' in event.key:
+                self.state.append('center')
+            return event
 
     def press(self, event):
         """Button press handler"""
@@ -1255,12 +1272,9 @@ class _SelectorWidget(AxesWidget):
 
     def _release(self, event):
         """Button release event handler and validator"""
-        if not self.ignore(event) and self.eventpress is not None:
-            if event.xdata is None:
-                event = self._prev_event
-            self.eventrelease = copy.copy(event)
-            self.eventrelease.xdata, self.eventrelease.ydata = (
-                self._get_data(event))
+        if not self.ignore(event):
+            event = self._clean_event(event)
+            self.eventrelease = event
             self.release(event)
 
     def release(self, event):
@@ -1269,11 +1283,8 @@ class _SelectorWidget(AxesWidget):
             
     def _onmove(self, event):
         """Cursor move event handler and validator"""
-        if not self.ignore(event) and self.eventpress is not None:
-            if event.xdata is None:
-                event = copy.copy(self._prev_event)
-            else:
-                self._prev_event = event
+        if not self.ignore(event):
+            event = self._clean_event(event)
             self.onmove(event)
 
     def onmove(self, event):
@@ -1778,7 +1789,6 @@ class RectangleSelector(_SelectorWidget):
 
     def onmove(self, event):
         """on motion notify event if box/line is wanted"""
-        key = self.eventpress.key or ''
 
         # resize an existing shape
         if self.active_handle and not self.active_handle == 'C':
@@ -1789,7 +1799,7 @@ class RectangleSelector(_SelectorWidget):
                 y2 = event.ydata
 
         # move existing shape
-        elif self.active_handle == 'C':
+        elif self.active_handle == 'C' or 'move' in self.state:
             x1, x2, y1, y2 = self._extents_on_press
             dx = event.xdata - self.eventpress.xdata
             dy = event.ydata - self.eventpress.ydata
@@ -1806,7 +1816,7 @@ class RectangleSelector(_SelectorWidget):
             dy = (event.ydata - center[1]) / 2.
 
             # square shape
-            if 'shift' in key:
+            if 'square' in self.state:
                 dx_pix = abs(event.x - center_pix[0])
                 dy_pix = abs(event.y - center_pix[1])
                 if not dx_pix:
@@ -1818,7 +1828,7 @@ class RectangleSelector(_SelectorWidget):
                     dy *= maxd / abs(dy_pix)
 
             # from center
-            if key == 'control' or key == 'ctrl+shift':
+            if 'center' in self.state:
                 dx *= 2
                 dy *= 2
 
