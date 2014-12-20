@@ -11,6 +11,7 @@ import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup
 
+from numpy.testing import assert_allclose
 
 
 def get_ax():
@@ -94,6 +95,10 @@ def check_rectangle(**kwargs):
     event = get_event(ax, xdata=250, ydata=250, button=1)
     tool.release(event)
 
+    assert_allclose(tool.geometry,
+        [[100., 100, 199, 199, 100], [100, 199, 199, 100, 100]],
+        err_msg=tool.geometry)
+
     assert ax._got_onselect
 
 
@@ -155,6 +160,8 @@ def test_ellipse():
     extents = [int(e) for e in tool.extents]
     assert extents == [70, 130, 70, 130], extents
 
+    assert tool.geometry.shape == (2, 74)
+    assert_allclose(tool.geometry[:, 0], [70., 100])
 
 def test_rectangle_handles():
     ax = get_ax()
