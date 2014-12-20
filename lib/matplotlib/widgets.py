@@ -1936,8 +1936,14 @@ class RectangleSelector(_SelectorWidget):
         self._extents_on_press = x1, x2, y1, y2
 
     @property
-    def path(self):
-        return self.to_draw.get_path()
+    def geometry(self):
+        if hasattr(self.to_draw, 'get_verts'):
+            xfm = self.ax.transData.inverted()
+            y, x = xfm.transform(self.to_draw.get_verts()).T
+            return np.array([x[:-1], y[:-1]])
+        else:
+            return np.array(self.to_draw.get_data())
+
 
 
 class EllipseSelector(RectangleSelector):
