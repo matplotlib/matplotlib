@@ -1156,7 +1156,7 @@ class _SelectorWidget(AxesWidget):
         # will save the data (pos. at mouserelease)
         self.eventrelease = None
         self._prev_event = None
-        self.state = []
+        self.state = set()
 
     def set_active(self, active):
         AxesWidget.set_active(self, active)
@@ -1177,6 +1177,7 @@ class _SelectorWidget(AxesWidget):
         self.connect_event('button_release_event', self._release)
         self.connect_event('draw_event', self.update_background)
         self.connect_event('key_press_event', self._on_key_press)
+        self.connect_event('key_release_event', self._on_key_release)
         self.connect_event('scroll_event', self._on_scroll)
 
     def ignore(self, event):
@@ -1257,15 +1258,9 @@ class _SelectorWidget(AxesWidget):
             event = self._clean_event(event)
             self.eventpress = event
             self._prev_event = event
-
-            self.state = []
             key = event.key or ''
             if 'alt' in key or key == ' ':
-                self.state.append('move')
-            if 'shift' in key:
-                self.state.append('square')
-            if 'ctrl' in key or 'control' in key:
-                self.state.append('center')
+                self.state.add('move')
             self.press(event)
 
     def press(self, event):
@@ -1287,16 +1282,6 @@ class _SelectorWidget(AxesWidget):
         """Cursor move event handler and validator"""
         if not self.ignore(event) and self.eventpress:
             event = self._clean_event(event)
-            # update the state
-            if 'move' in self.state:
-                self.state = ['move']
-            else:
-                self.state = []
-            key = event.key or ''
-            if 'shift' in key:
-                self.state.append('square')
-            if 'ctrl' in key or 'control' in key:
-                self.state.append('center')
             self.onmove(event)
 
     def onmove(self, event):
@@ -1314,11 +1299,30 @@ class _SelectorWidget(AxesWidget):
 
     def _on_key_press(self, event):
         """Key press event handler and validator"""
-        if not self.ignore(event):
+        if self.active:
+            key = event.key or ''
+            if 'shift' in key:
+                self.state.add('square')
+            if 'ctrl' in key or 'control' in key:
+                self.state.add('center')
             self.on_key_press(event)
 
     def on_key_press(self, event):
         """Key press event handler"""
+        pass
+
+    def _on_key_release(self, event):
+        """Key release event handler and validator"""
+        if self.active:
+            key = event.key or ''
+            if 'shift' in key:
+                self.state.discard('square')
+            if 'ctrl' in key or 'control' in key:
+                self.state.discard('center')
+            self.on_key_release(event)
+
+    def on_key_release(self, event):
+        """Key release event handler"""
         pass
 
     def set_visible(self, visible):
