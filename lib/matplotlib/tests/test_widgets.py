@@ -22,7 +22,7 @@ def get_ax():
     return ax
 
 
-def get_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
+def do_event(tool, etype, button=1, xdata=0, ydata=0, key=None, step=1):
     """
      *name*
         the event name
@@ -61,6 +61,7 @@ def get_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
     """
     event = mock.Mock()
     event.button = button
+    ax = tool.ax
     event.x, event.y = ax.transData.transform([(xdata, ydata),
                                                (xdata, ydata)])[00]
     event.xdata, event.ydata = xdata, ydata
@@ -70,7 +71,9 @@ def get_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
     event.step = step
     event.guiEvent = None
     event.name = 'Custom'
-    return event
+
+    func = getattr(tool, '_%s' % etype)
+    func(event)
 
 
 @cleanup
@@ -85,15 +88,11 @@ def check_rectangle(**kwargs):
         assert erelease.ydata == 199
 
     tool = widgets.RectangleSelector(ax, onselect, **kwargs)
-    event = get_event(ax, xdata=100, ydata=100, button=1)
-    tool.press(event)
-
-    event = get_event(ax, xdata=199, ydata=199, button=1)
-    tool.onmove(event)
+    do_event(tool, 'press', xdata=100, ydata=100, button=1)
+    do_event(tool, 'onmove', xdata=199, ydata=199, button=1)
 
     # purposely drag outside of axis for release
-    event = get_event(ax, xdata=250, ydata=250, button=1)
-    tool.release(event)
+    do_event(tool, 'release', xdata=250, ydata=250, button=1)
 
     assert_allclose(tool.geometry,
         [[100., 100, 199, 199, 100], [100, 199, 199, 100, 100]],
@@ -123,42 +122,43 @@ def test_ellipse():
     tool.extents = (100, 150, 100, 150)
 
     # drag the rectangle
-    event = get_event(ax, xdata=10, ydata=10, button=1,
+    do_event(tool, 'press', xdata=10, ydata=10, button=1,
                     key='alt')
-    tool.press(event)
-    event = get_event(ax, xdata=30, ydata=30, button=1)
-    tool.onmove(event)
-    tool.release(event)
+    do_event(tool, 'onmove', xdata=30, ydata=30, button=1)
+    do_event(tool, 'release', xdata=30, ydata=30, button=1)
     assert tool.extents == (120, 170, 120, 170)
 
     # create from center
-    event = get_event(ax, xdata=100, ydata=100, button=1,
+    do_event(tool, 'on_key_press', xdata=100, ydata=100, button=1,
                     key='control')
-    tool.press(event)
-    event = get_event(ax, xdata=125, ydata=125, button=1)
-    tool.onmove(event)
-    tool.release(event)
-    assert tool.extents == (75, 125, 75, 125)
+    do_event(tool, 'press', xdata=100, ydata=100, button=1)
+    do_event(tool, 'onmove', xdata=125, ydata=125, button=1)
+    do_event(tool, 'release', xdata=125, ydata=125, button=1)
+    do_event(tool, 'on_key_release', xdata=100, ydata=100, button=1,
+                    key='control')
+    assert tool.extents == (75, 125, 75, 125), tool.extents
 
     # create a square
-    event = get_event(ax, xdata=10, ydata=10, button=1,
+    do_event(tool, 'on_key_press', xdata=10, ydata=10, button=1,
                     key='shift')
-    tool.press(event)
-    event = get_event(ax, xdata=35, ydata=30, button=1)
-    tool.onmove(event)
-    tool.release(event)
+    do_event(tool, 'press', xdata=10, ydata=10, button=1)
+    do_event(tool, 'onmove', xdata=35, ydata=30, button=1)
+    do_event(tool, 'release', xdata=35, ydata=30, button=1)
+    do_event(tool, 'on_key_release', xdata=10, ydata=10, button=1,
+                    key='shift')
     extents = [int(e) for e in tool.extents]
-    assert extents == [10, 35, 10, 35]
+    assert extents == [10, 35, 10, 34]
 
     # create a square from center
-    event = get_event(ax, xdata=100, ydata=100, button=1,
+    do_event(tool, 'on_key_press', xdata=100, ydata=100, button=1,
                       key='ctrl+shift')
-    tool.press(event)
-    event = get_event(ax, xdata=125, ydata=130, button=1)
-    tool.onmove(event)
-    tool.release(event)
+    do_event(tool, 'press', xdata=100, ydata=100, button=1)
+    do_event(tool, 'onmove', xdata=125, ydata=130, button=1)
+    do_event(tool, 'release', xdata=125, ydata=130, button=1)
+    do_event(tool, 'on_key_release', xdata=100, ydata=100, button=1,
+                      key='ctrl+shift')
     extents = [int(e) for e in tool.extents]
-    assert extents == [70, 130, 70, 130], extents
+    assert extents == [70, 129, 70, 130], extents
 
     assert tool.geometry.shape == (2, 74)
     assert_allclose(tool.geometry[:, 0], [70., 100])
@@ -181,27 +181,21 @@ def test_rectangle_handles():
     assert tool.extents == (100, 150, 100, 150)
 
     # grab a corner and move it
-    event = get_event(ax, xdata=100, ydata=100)
-    tool.press(event)
-    event = get_event(ax, xdata=120, ydata=120)
-    tool.onmove(event)
-    tool.release(event)
+    do_event(tool, 'press', xdata=100, ydata=100)
+    do_event(tool, 'onmove', xdata=120, ydata=120)
+    do_event(tool, 'release', xdata=120, ydata=120)
     assert tool.extents ==  (120, 150, 120, 150)
 
     # grab the center and move it
-    event = get_event(ax, xdata=132, ydata=132)
-    tool.press(event)
-    event = get_event(ax, xdata=120, ydata=120)
-    tool.onmove(event)
-    tool.release(event)
+    do_event(tool, 'press', xdata=132, ydata=132)
+    do_event(tool, 'onmove', xdata=120, ydata=120)
+    do_event(tool, 'release', xdata=120, ydata=120)
     assert tool.extents ==  (108, 138, 108, 138)
 
     # create a new rectangle
-    event = get_event(ax, xdata=10, ydata=10)
-    tool.press(event)
-    event = get_event(ax, xdata=100, ydata=100)
-    tool.onmove(event)
-    tool.release(event)
+    do_event(tool, 'press', xdata=10, ydata=10)
+    do_event(tool, 'onmove', xdata=100, ydata=100)
+    do_event(tool, 'release', xdata=100, ydata=100)
     assert tool.extents == (10, 100, 10, 100)
 
 
@@ -223,14 +217,9 @@ def check_span(*args, **kwargs):
         kwargs['onmove_callback'] = onmove
 
     tool = widgets.SpanSelector(ax, onselect, *args, **kwargs)
-    event = get_event(ax, xdata=100, ydata=100, button=1)
-    tool.press(event)
-
-    event = get_event(ax, xdata=125, ydata=125, button=1)
-    tool.onmove(event)
-
-    event = get_event(ax, xdata=150, ydata=150, button=1)
-    tool.release(event)
+    do_event(tool, 'press', xdata=100, ydata=100, button=1)
+    do_event(tool, 'onmove', xdata=125, ydata=125, button=1)
+    do_event(tool, 'release', xdata=150, ydata=150, button=1)
 
     assert ax._got_onselect
 
@@ -253,14 +242,9 @@ def check_lasso_selector(**kwargs):
         assert verts == [(100, 100), (125, 125), (150, 150)]
 
     tool = widgets.LassoSelector(ax, onselect, **kwargs)
-    event = get_event(ax, xdata=100, ydata=100, button=1)
-    tool.press(event)
-
-    event = get_event(ax, xdata=125, ydata=125, button=1)
-    tool.onmove(event)
-
-    event = get_event(ax, xdata=150, ydata=150, button=1)
-    tool.release(event)
+    do_event(tool, 'press', xdata=100, ydata=100, button=1)
+    do_event(tool, 'onmove', xdata=125, ydata=125, button=1)
+    do_event(tool, 'release', xdata=150, ydata=150, button=1)
 
     assert ax._got_onselect
 
