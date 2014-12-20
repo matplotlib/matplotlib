@@ -1550,6 +1550,7 @@ class _AxesBase(martist.Artist):
         self._update_patch_limits(p)
         self.patches.append(p)
         p._remove_method = lambda h: self.patches.remove(h)
+        self.axes.autoscale_view()
         return p
 
     def _update_patch_limits(self, patch):
