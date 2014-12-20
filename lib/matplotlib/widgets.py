@@ -1945,7 +1945,6 @@ class RectangleSelector(_SelectorWidget):
             return np.array(self.to_draw.get_data())
 
 
-
 class EllipseSelector(RectangleSelector):
 
     _shape_klass = Ellipse
