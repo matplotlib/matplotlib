@@ -1156,6 +1156,7 @@ class _SelectorWidget(AxesWidget):
         # will save the data (pos. at mouserelease)
         self.eventrelease = None
         self._prev_event = None
+        self.state = []
 
     def set_active(self, active):
         AxesWidget.set_active(self, active)
@@ -1258,13 +1259,14 @@ class _SelectorWidget(AxesWidget):
             self._prev_event = event
 
             self.state = []
-            if 'alt' in event.key or event.key == ' ':
+            key = event.key or ''
+            if 'alt' in key or key == ' ':
                 self.state.append('move')
-            if 'shift' in event.key:
+            if 'shift' in key:
                 self.state.append('square')
-            if 'ctrl' in event.key or 'control' in event.key:
+            if 'ctrl' in key or 'control' in key:
                 self.state.append('center')
-            return event
+            self.press(event)
 
     def press(self, event):
         """Button press handler"""
@@ -1283,16 +1285,17 @@ class _SelectorWidget(AxesWidget):
             
     def _onmove(self, event):
         """Cursor move event handler and validator"""
-        if not self.ignore(event):
+        if not self.ignore(event) and self.eventpress:
             event = self._clean_event(event)
             # update the state
             if 'move' in self.state:
                 self.state = ['move']
             else:
                 self.state = []
-            if 'shift' in event.key:
+            key = event.key or ''
+            if 'shift' in key:
                 self.state.append('square')
-            if 'ctrl' in event.key or 'control' in event.key:
+            if 'ctrl' in key or 'control' in key:
                 self.state.append('center')
             self.onmove(event)
 
@@ -1732,6 +1735,8 @@ class RectangleSelector(_SelectorWidget):
         self._center_handle = ToolHandles(self.ax, [xc], [yc], marker='s',
                                           marker_props=props, useblit=self.useblit)
 
+        self.active_handle = None
+
         self.artists = [self.to_draw, self._center_handle.artist,
                         self._corner_handles.artist,
                         self._edge_handles.artist]
@@ -1797,8 +1802,7 @@ class RectangleSelector(_SelectorWidget):
         return False
 
     def onmove(self, event):
-        """on motion notify event if box/line is wanted"""
-
+        """on motion notify event if box/line is wanted"""     
         # resize an existing shape
         if self.active_handle and not self.active_handle == 'C':
             x1, x2, y1, y2 = self._extents_on_press
@@ -1913,8 +1917,8 @@ class RectangleSelector(_SelectorWidget):
         x0, x1, y0, y1 = extents
         xmin, xmax = sorted([x0, x1])
         ymin, ymax = sorted([y0, y1])
-        xlim = self.ax.get_xlim()
-        ylim = self.ax.get_ylim()
+        xlim = sorted(self.ax.get_xlim())
+        ylim = sorted(self.ax.get_ylim())
 
         xmin = max(xlim[0], xmin)
         ymin = max(ylim[0], ymin)
@@ -1937,10 +1941,10 @@ class RectangleSelector(_SelectorWidget):
         c_idx, c_dist = self._corner_handles.closest(event.x, event.y)
         e_idx, e_dist = self._edge_handles.closest(event.x, event.y)
         m_idx, m_dist = self._center_handle.closest(event.x, event.y)
-
-        if self._moving:
+        
+        if 'move' in self.state:
             self.active_handle = 'C'
-            self._extents_on_press = self.extents
+            self._extents_on_press = self.extents    
 
         # Set active handle as closest handle, if mouse click is close enough.
         elif m_dist < self.maxdist * 2:
