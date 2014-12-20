@@ -1919,7 +1919,7 @@ class RectangleSelector(_SelectorWidget):
         e_idx, e_dist = self._edge_handles.closest(event.x, event.y)
         m_idx, m_dist = self._center_handle.closest(event.x, event.y)
 
-        if event.key in ['alt', ' ']:
+        if self._moving:
             self.active_handle = 'C'
             self._extents_on_press = self.extents
 
