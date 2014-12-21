@@ -72,7 +72,7 @@ def do_event(tool, etype, button=1, xdata=0, ydata=0, key=None, step=1):
     event.guiEvent = None
     event.name = 'Custom'
 
-    func = getattr(tool, '_%s' % etype)
+    func = getattr(tool, etype)
     func(event)
 
 
