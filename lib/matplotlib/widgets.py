@@ -1140,11 +1140,11 @@ class _SelectorWidget(AxesWidget):
 
         self.visible = True
         self.onselect = onselect
+        self.useblit = useblit and self.canvas.supports_blit
         self.connect_default_events()
 
         self.background = None
         self.artists = []
-        self.useblit = useblit and self.canvas.supports_blit
 
         if isinstance(button, int):
             self.validButtons = [button]
@@ -1172,13 +1172,13 @@ class _SelectorWidget(AxesWidget):
 
     def connect_default_events(self):
         """Connect the major canvas events to methods."""
-        self.connect_event('motion_notify_event', self._onmove)
-        self.connect_event('button_press_event', self._press)
-        self.connect_event('button_release_event', self._release)
+        self.connect_event('motion_notify_event', self.onmove)
+        self.connect_event('button_press_event', self.press)
+        self.connect_event('button_release_event', self.release)
         self.connect_event('draw_event', self.update_background)
-        self.connect_event('key_press_event', self._on_key_press)
-        self.connect_event('key_release_event', self._on_key_release)
-        self.connect_event('scroll_event', self._on_scroll)
+        self.connect_event('key_press_event', self.on_key_press)
+        self.connect_event('key_release_event', self.on_key_release)
+        self.connect_event('scroll_event', self.on_scroll)
 
     def ignore(self, event):
         """return *True* if *event* should be ignored"""
@@ -1258,7 +1258,7 @@ class _SelectorWidget(AxesWidget):
         self._prev_event = event
         return event
 
-    def _press(self, event):
+    def press(self, event):
         """Button press handler and validator"""
         if not self.ignore(event):
             event = self._clean_event(event)
@@ -1267,44 +1267,44 @@ class _SelectorWidget(AxesWidget):
             key = event.key or ''
             if 'alt' in key or key == ' ':
                 self.state.add('move')
-            self.press(event)
+            self._press(event)
 
-    def press(self, event):
+    def _press(self, event):
         """Button press handler"""
         pass
 
-    def _release(self, event):
+    def release(self, event):
         """Button release event handler and validator"""
         if not self.ignore(event) and self.eventpress:
             event = self._clean_event(event)
             self.eventrelease = event
-            self.release(event)
+            self._release(event)
             self.state.discard('move')
 
-    def release(self, event):
+    def _release(self, event):
         """Button release event handler"""
         pass
             
-    def _onmove(self, event):
+    def onmove(self, event):
         """Cursor move event handler and validator"""
         if not self.ignore(event) and self.eventpress:
             event = self._clean_event(event)
-            self.onmove(event)
+            self._onmove(event)
 
-    def onmove(self, event):
+    def _onmove(self, event):
         """Cursor move event handler"""
         pass
 
-    def _on_scroll(self, event):
+    def on_scroll(self, event):
         """Mouse scroll event handler and validator"""
         if not self.ignore(event):
-            self.on_scroll(event)
+            self._on_scroll(event)
 
-    def on_scroll(self, event):
+    def _on_scroll(self, event):
         """Mouse scroll event handler"""
         pass
 
-    def _on_key_press(self, event):
+    def on_key_press(self, event):
         """Key press event handler and validator"""
         if self.active:
             key = event.key or ''
@@ -1312,13 +1312,13 @@ class _SelectorWidget(AxesWidget):
                 self.state.add('square')
             if 'ctrl' in key or 'control' in key:
                 self.state.add('center')
-            self.on_key_press(event)
+            self._on_key_press(event)
 
-    def on_key_press(self, event):
+    def _on_key_press(self, event):
         """Key press event handler"""
         pass
 
-    def _on_key_release(self, event):
+    def on_key_release(self, event):
         """Key release event handler and validator"""
         if self.active:
             key = event.key or ''
@@ -1326,9 +1326,9 @@ class _SelectorWidget(AxesWidget):
                 self.state.discard('square')
             if 'ctrl' in key or 'control' in key:
                 self.state.discard('center')
-            self.on_key_release(event)
+            self._on_key_release(event)
 
-    def on_key_release(self, event):
+    def _on_key_release(self, event):
         """Key release event handler"""
         pass
 
@@ -1458,7 +1458,7 @@ class SpanSelector(_SelectorWidget):
         """return *True* if *event* should be ignored"""
         return _SelectorWidget.ignore(self, event) or not self.visible
 
-    def press(self, event):
+    def _press(self, event):
         """on button press event"""
         self.rect.set_visible(self.visible)
         if self.span_stays:
@@ -1471,7 +1471,7 @@ class SpanSelector(_SelectorWidget):
             self.pressv = ydata
         return False
 
-    def release(self, event):
+    def _release(self, event):
         """on button release event"""
         if self.pressv is None:
             return
@@ -1503,7 +1503,7 @@ class SpanSelector(_SelectorWidget):
         self.pressv = None
         return False
 
-    def onmove(self, event):
+    def _onmove(self, event):
         """on motion notify event"""
         if self.pressv is None:
             return
@@ -1752,7 +1752,7 @@ class RectangleSelector(_SelectorWidget):
                         self._corner_handles.artist,
                         self._edge_handles.artist]
 
-    def press(self, event):
+    def _press(self, event):
         """on button press event"""
         # make the drawed box/line visible get the click-coordinates,
         # button, ...
@@ -1765,7 +1765,7 @@ class RectangleSelector(_SelectorWidget):
 
         self.set_visible(self.visible)
 
-    def release(self, event):
+    def _release(self, event):
         """on button release event"""
         if self.spancoords == 'data':
             xmin, ymin = self.eventpress.xdata, self.eventpress.ydata
@@ -1812,7 +1812,7 @@ class RectangleSelector(_SelectorWidget):
 
         return False
 
-    def onmove(self, event):
+    def _onmove(self, event):
         """on motion notify event if box/line is wanted"""     
         # resize an existing shape
         if self.active_handle and not self.active_handle == 'C':
@@ -2084,14 +2084,14 @@ class LassoSelector(_SelectorWidget):
     def onpress(self, event):
         self.press(event)
 
-    def press(self, event):
+    def _press(self, event):
         self.verts = [self._get_data(event)]
         self.line.set_visible(True)
 
     def onrelease(self, event):
         self.release(event)
 
-    def release(self, event):
+    def _release(self, event):
         if self.verts is not None:
             self.verts.append(self._get_data(event))
             self.onselect(self.verts)
@@ -2099,7 +2099,7 @@ class LassoSelector(_SelectorWidget):
         self.line.set_visible(False)
         self.verts = None
 
-    def onmove(self, event):
+    def _onmove(self, event):
         if self.verts is None:
             return
         self.verts.append(self._get_data(event))
