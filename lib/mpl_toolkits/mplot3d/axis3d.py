@@ -89,6 +89,7 @@ class Axis(maxis.XAxis):
                              'axisline': {'linewidth': 0.75,
                                           'color': (0, 0, 0, 1)},
                              'grid' : {'color': (0.9, 0.9, 0.9, 1),
+                                       'linestyle': '-',
                                        'linewidth': 1.0},
                             })
 
