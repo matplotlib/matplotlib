@@ -2,7 +2,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from matplotlib.artist import Artist
+from matplotlib.artist import Artist, allow_rasterization
 import matplotlib.cbook as cbook
 
 
@@ -51,6 +51,7 @@ class Container(tuple, Artist):
         else:
             return super(Container, self).__getattribute__(key)
 
+    @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
         # just broadcast the draw down to children
         for a in self:
