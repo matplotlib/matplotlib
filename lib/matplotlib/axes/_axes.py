@@ -489,29 +489,10 @@ class Axes(_AxesBase):
             handles = [handle for handle, _
                        in zip(self._get_legend_handles(handlers), labels)]
 
-        # Two arguments. Either:
+        # Two arguments:
         #   * user defined handles and labels
-        #   * user defined labels and location (deprecated)
         elif len(args) == 2:
-            if is_string_like(args[1]) or isinstance(args[1], int):
-                cbook.warn_deprecated('1.4', 'The "loc" positional argument '
-                                      'to legend is deprecated. Please use '
-                                      'the "loc" keyword instead.')
-                labels, loc = args
-                handles = [handle for handle, _
-                           in zip(self._get_legend_handles(handlers), labels)]
-                kwargs['loc'] = loc
-            else:
-                handles, labels = args
-
-        # Three arguments. User defined handles, labels and
-        # location (deprecated).
-        elif len(args) == 3:
-            cbook.warn_deprecated('1.4', 'The "loc" positional argument '
-                                         'to legend is deprecated. Please '
-                                         'use the "loc" keyword instead.')
-            handles, labels, loc = args
-            kwargs['loc'] = loc
+            handles, labels = args
 
         else:
             raise TypeError('Invalid arguments to legend.')
