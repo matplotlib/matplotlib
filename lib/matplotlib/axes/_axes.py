@@ -459,7 +459,16 @@ class Axes(_AxesBase):
         handles = kwargs.pop('handles', None)
         labels = kwargs.pop('labels', None)
 
-        if handles is not None and labels is None:
+        if (handles is not None or labels is not None) and len(args):
+            warnings.warn("You have mixed positional and keyword "
+                          "arguments, some input will be "
+                          "be discarded.")
+
+        # if got both handles and labels as kwargs, make same length
+        if handles and labels:
+            handles, labels = zip(*zip(handles, labels))
+
+        elif handles is not None and labels is None:
             labels = [handle.get_label() for handle in handles]
             for label, handle in zip(labels[:], handles[:]):
                 if label.startswith('_'):
