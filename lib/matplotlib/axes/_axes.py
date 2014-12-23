@@ -471,7 +471,7 @@ class Axes(_AxesBase):
 
         elif labels is not None and handles is None:
             # Get as many handles as there are labels.
-            handles = [handle for handle, _
+            handles = [handle for handle, label
                        in zip(self._get_legend_handles(handlers), labels)]
 
         # No arguments - automatically detect labels and handles.
@@ -486,7 +486,7 @@ class Axes(_AxesBase):
         elif len(args) == 1:
             labels, = args
             # Get as many handles as there are labels.
-            handles = [handle for handle, _
+            handles = [handle for handle, label
                        in zip(self._get_legend_handles(handlers), labels)]
 
         # Two arguments:
