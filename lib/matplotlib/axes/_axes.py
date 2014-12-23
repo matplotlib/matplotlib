@@ -13,7 +13,7 @@ from numpy import ma
 import matplotlib
 
 import matplotlib.cbook as cbook
-from matplotlib.cbook import _string_to_bool, mplDeprecation
+from matplotlib.cbook import mplDeprecation
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
