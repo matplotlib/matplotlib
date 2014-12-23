@@ -2805,7 +2805,7 @@ class Axes(_AxesBase):
                 else:
                     marker = mlines.CARETLEFT
                 caplines.extend(
-                    self.plot(leftlo,  ylo, ls='None', marker=marker,
+                    self.plot(leftlo, ylo, ls='None', marker=marker,
                               **plot_kw))
                 if capsize > 0:
                     xup, yup = xywhere(x, y, xuplims & everymask)
