@@ -462,7 +462,7 @@ class Axes(_AxesBase):
         if (handles is not None or labels is not None) and len(args):
             warnings.warn("You have mixed positional and keyword "
                           "arguments, some input will be "
-                          "be discarded.")
+                          "discarded.")
 
         # if got both handles and labels as kwargs, make same length
         if handles and labels:

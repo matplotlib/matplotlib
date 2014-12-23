@@ -222,7 +222,7 @@ class TestLegendFunction(object):
 
         warn.assert_called_with("You have mixed positional and keyword "
                           "arguments, some input will be "
-                          "be discarded.")
+                          "discarded.")
 
 
 @image_comparison(baseline_images=['legend_stackplot'], extensions=['png'])
