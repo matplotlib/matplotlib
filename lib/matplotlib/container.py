@@ -10,7 +10,8 @@ class Container(tuple, Artist):
     """
     Base class for containers.
     """
-    _no_broadcast = ['label', ]
+    _no_broadcast = ['label', 'visible', 'zorder', 'animated',
+                     'agg_filter']
 
     def __repr__(self):
         return "<Container object of %d artists>" % (len(self))
@@ -22,7 +23,7 @@ class Container(tuple, Artist):
         # set up the artist details
         Artist.__init__(self, **kwargs)
         # for some reason we special case label
-        self.set_label(label=label)
+        self.set_label(label)
 
     def remove(self):
         # remove the children

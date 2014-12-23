@@ -3,7 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import reduce, xrange, zip, zip_longest
-
+import itertools
 import math
 import warnings
 
@@ -35,7 +35,8 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 import matplotlib.transforms as mtrans
-from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
+from matplotlib.container import (BarContainer, ErrorbarContainer,
+                                  StemContainer, Container)
 from matplotlib.axes._base import _AxesBase
 from matplotlib.axes._base import _process_plot_format
 
@@ -2755,7 +2756,7 @@ class Axes(_AxesBase):
 
         if xerr is not None:
             if (iterable(xerr) and len(xerr) == 2 and
-                iterable(xerr[0]) and iterable(xerr[1])):
+                    iterable(xerr[0]) and iterable(xerr[1])):
                 # using list comps rather than arrays to preserve units
                 left = [thisx - thiserr for (thisx, thiserr)
                         in cbook.safezip(x, xerr[0])]
@@ -2886,14 +2887,18 @@ class Axes(_AxesBase):
         self.autoscale_view()
         self._hold = holdstate
 
-        errorbar_container = ErrorbarContainer((l0, tuple(caplines),
-                                                tuple(barcols)),
+        # hack to put these artist in the right place in the
+        # draw tree
+        for ll in itertools.chain((l0, ), caplines, barcols):
+            ll.remove()
+
+        errorbar_container = ErrorbarContainer((l0,
+                                                Container(caplines),
+                                                Container(barcols)),
                                                has_xerr=(xerr is not None),
                                                has_yerr=(yerr is not None),
                                                label=label)
-        self.containers.append(errorbar_container)
-
-        return errorbar_container  # (l0, caplines, barcols)
+        return self.add_container(errorbar_container)
 
     def boxplot(self, x, notch=False, sym=None, vert=True, whis=1.5,
                 positions=None, widths=None, patch_artist=False,

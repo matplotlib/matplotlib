@@ -1605,13 +1605,19 @@ class _AxesBase(martist.Artist):
         Add a :class:`~matplotlib.container.Container` instance
         to the axes.
 
-        Returns the collection.
+        Returns the container.
         """
+        container.set_axes(self)
+        self._set_artist_props(container)
+        self.containers.append(container)
+
+        container.set_clip_path(self.patch)
+        container.set_remove_method(lambda h: self.containers.remove(h))
+
         label = container.get_label()
         if not label:
             container.set_label('_container%d' % len(self.containers))
-        self.containers.append(container)
-        container.set_remove_method(lambda h: self.containers.remove(h))
+
         return container
 
     def relim(self, visible_only=False):
@@ -1998,6 +2004,7 @@ class _AxesBase(martist.Artist):
         artists.extend(self.lines)
         artists.extend(self.texts)
         artists.extend(self.artists)
+        artists.extend(self.containers)
 
         # the frame draws the edges around the axes patch -- we
         # decouple these so the patch can be in the background and the
