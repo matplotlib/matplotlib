@@ -191,12 +191,13 @@ DAYS_PER_MONTH = 30.
 DAYS_PER_YEAR = 365.0
 
 MINUTES_PER_DAY = MIN_PER_HOUR * HOURS_PER_DAY
-SECONDS_PER_DAY = SEC_PER_MIN * MINUTES_PER_DAY
-MUSECONDS_PER_DAY = 1e6 * SECONDS_PER_DAY
 
 SEC_PER_HOUR = SEC_PER_MIN * MIN_PER_HOUR
 SEC_PER_DAY = SEC_PER_HOUR * HOURS_PER_DAY
-SEC_PER_WEEK = SEC_PER_DAY * DAYS_PER_WEEK                      # Days per week
+SEC_PER_WEEK = SEC_PER_DAY * DAYS_PER_WEEK
+
+MUSECONDS_PER_DAY = 1e6 * SEC_PER_DAY
+
 MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = (
     MO, TU, WE, TH, FR, SA, SU)
 WEEKDAYS = (MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY)
@@ -219,7 +220,7 @@ def _to_ordinalf(dt):
 
     base = float(base)
     if td_remainder > 0:
-        base ++ td_remainder / SECONDS_PER_DAY
+        base ++ td_remainder / SEC_PER_DAY
 
     return base
 
@@ -238,18 +239,8 @@ def _from_ordinalf(x, tz=None):
     ix = int(x)
     dt = datetime.datetime.fromordinal(ix)
     remainder = float(x) - ix
-    hour, remainder = divmod(HOURS_PER_DAY * remainder, 1)
-    minute, remainder = divmod(MIN_PER_HOUR * remainder, 1)
-    second, remainder = divmod(SEC_PER_MIN * remainder, 1)
-    microsecond = int(1e6 * remainder)
-    if microsecond < 10:
-        microsecond = 0  # compensate for rounding errors
-    dt = datetime.datetime(
-        dt.year, dt.month, dt.day, int(hour), int(minute), int(second),
-        microsecond, tzinfo=UTC).astimezone(tz)
 
-    if microsecond > 999990:  # compensate for rounding errors
-        dt += datetime.timedelta(microseconds=1e6 - microsecond)
+    dt += datetime.timedelta(seconds = remainder*SEC_PER_DAY)
 
     return dt
 
@@ -374,7 +365,7 @@ def drange(dstart, dend, delta):
     *dend* are :class:`datetime` instances.  *delta* is a
     :class:`datetime.timedelta` instance.
     """
-    step = (delta.days + delta.seconds / SECONDS_PER_DAY +
+    step = (delta.days + delta.seconds / SEC_PER_DAY +
             delta.microseconds / MUSECONDS_PER_DAY)
     f1 = _to_ordinalf(dstart)
     f2 = _to_ordinalf(dend)
@@ -767,7 +758,7 @@ class RRuleLocator(DateLocator):
         elif (freq == MINUTELY):
             return (1.0 / MINUTES_PER_DAY)
         elif (freq == SECONDLY):
-            return (1.0 / SECONDS_PER_DAY)
+            return (1.0 / SEC_PER_DAY)
         else:
             # error
             return -1   # or should this just return '1'?
