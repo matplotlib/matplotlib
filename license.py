@@ -1,4 +1,5 @@
-import sys, datetime
+import sys
+import datetime
 
 if len(sys.argv) != 3:
     print >>sys.stderr, 'Usage: license.py version_num filename'
@@ -60,4 +61,3 @@ Agreement.
 
 
 file(sys.argv[2], 'w').write(s)
-
