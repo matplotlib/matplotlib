@@ -110,6 +110,7 @@ def test_rectangle_selector():
     check_rectangle(rectprops=dict(fill=True))
 
 
+@cleanup
 def test_ellipse():
     """For ellipse, test out the key modifiers"""
     ax = get_ax()
@@ -163,6 +164,8 @@ def test_ellipse():
     assert tool.geometry.shape == (2, 74)
     assert_allclose(tool.geometry[:, 0], [70., 100])
 
+
+@cleanup
 def test_rectangle_handles():
     ax = get_ax()
 

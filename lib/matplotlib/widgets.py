@@ -1737,7 +1737,7 @@ class RectangleSelector(_SelectorWidget):
         if rectprops is None:
             props = dict(mec='r')
         else:
-            props = dict(mec=rectprops.get('edgecolor', 'k'))
+            props = dict(mec=rectprops.get('edgecolor', 'r'))
         self._corner_order = ['NW', 'NE', 'SE', 'SW']
         xc, yc = self.corners
         self._corner_handles = ToolHandles(self.ax, xc, yc, marker_props=props,
