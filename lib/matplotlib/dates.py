@@ -175,15 +175,28 @@ def _get_rc_timezone():
     import pytz
     return pytz.timezone(s)
 
+"""
+Time-related constants.
+"""
+EPOCH_OFFSET = 719163.                # Days between 0001-01-01 and epoch, +1.
+JULIAN_OFFSET = 1721424.5            # Julian date at 0001-01-01
 MICROSECONDLY = SECONDLY + 1
 HOURS_PER_DAY = 24.
-MINUTES_PER_DAY = 60. * HOURS_PER_DAY
-SECONDS_PER_DAY = 60. * MINUTES_PER_DAY
+MIN_PER_HOUR = 60.
+SEC_PER_MIN = 60.
+MONTHS_PER_YEAR = 12.
+
+DAYS_PER_WEEK = 7.
+DAYS_PER_MONTH = 30.
+DAYS_PER_YEAR = 365.0
+
+MINUTES_PER_DAY = MIN_PER_HOUR * HOURS_PER_DAY
+SECONDS_PER_DAY = SEC_PER_MIN * MINUTES_PER_DAY
 MUSECONDS_PER_DAY = 1e6 * SECONDS_PER_DAY
-SEC_PER_MIN = 60
-SEC_PER_HOUR = 3600
-SEC_PER_DAY = SEC_PER_HOUR * 24
-SEC_PER_WEEK = SEC_PER_DAY * 7
+
+SEC_PER_HOUR = SEC_PER_MIN * MIN_PER_HOUR
+SEC_PER_DAY = SEC_PER_HOUR * HOURS_PER_DAY
+SEC_PER_WEEK = SEC_PER_DAY * DAYS_PER_WEEK                      # Days per week
 MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY = (
     MO, TU, WE, TH, FR, SA, SU)
 WEEKDAYS = (MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY)
@@ -224,9 +237,9 @@ def _from_ordinalf(x, tz=None):
     ix = int(x)
     dt = datetime.datetime.fromordinal(ix)
     remainder = float(x) - ix
-    hour, remainder = divmod(24 * remainder, 1)
-    minute, remainder = divmod(60 * remainder, 1)
-    second, remainder = divmod(60 * remainder, 1)
+    hour, remainder = divmod(HOURS_PER_DAY * remainder, 1)
+    minute, remainder = divmod(MIN_PER_HOUR * remainder, 1)
+    second, remainder = divmod(SEC_PER_MIN * remainder, 1)
     microsecond = int(1e6 * remainder)
     if microsecond < 10:
         microsecond = 0  # compensate for rounding errors
@@ -316,7 +329,7 @@ def julian2num(j):
     """
     if cbook.iterable(j):
         j = np.asarray(j)
-    return j - 1721424.5
+    return j - JULIAN_OFFSET
 
 
 def num2julian(n):
@@ -325,7 +338,7 @@ def num2julian(n):
     """
     if cbook.iterable(n):
         n = np.asarray(n)
-    return n + 1721424.5
+    return n + JULIAN_OFFSET
 
 
 def num2date(x, tz=None):
@@ -436,8 +449,19 @@ class DateFormatter(ticker.Formatter):
     # calendar.
 
     def strftime(self, dt, fmt):
+        """
+        Prints `datetime.datetime` object `dt` using a C-like `strftime()`
+        format string.
+
+        Currently `datetime.datetime.strftime()` is not supported for
+        years <= 1900 in Python 2.x and years <= 1000 in Python 3.x. This
+        function extends this functionality to
+        """
         fmt = self.illegal_s.sub(r"\1", fmt)
         fmt = fmt.replace("%s", "s")
+
+        # strftime is not supported on datetime for years <= 1900 in Python 2.x
+        # or years <= 1000 in Python 3.x
         if dt.year > 1900:
             return cbook.unicode_safe(dt.strftime(fmt))
 
@@ -564,11 +588,11 @@ class AutoDateFormatter(ticker.Formatter):
         self._tz = tz
         self.defaultfmt = defaultfmt
         self._formatter = DateFormatter(self.defaultfmt, tz)
-        self.scaled = {365.0: '%Y',
-                       30.: '%b %Y',
+        self.scaled = {DAYS_PER_YEAR: '%Y',
+                       DAYS_PER_MONTH: '%b %Y',
                        1.0: '%b %d %Y',
-                       1. / 24.: '%H:%M:%S',
-                       1. / (24. * 60.): '%H:%M:%S.%f'}
+                       1. / HOURS_PER_DAY: '%H:%M:%S',
+                       1. / (MINUTES_PER_DAY): '%H:%M:%S.%f'}
 
     def __call__(self, x, pos=None):
         locator_unit_scale = float(self._locator._get_unit())
@@ -730,19 +754,19 @@ class RRuleLocator(DateLocator):
     @staticmethod
     def get_unit_generic(freq):
         if (freq == YEARLY):
-            return 365.0
+            return DAYS_PER_YEAR
         elif (freq == MONTHLY):
-            return 30.0
+            return DAYS_PER_MONTH
         elif (freq == WEEKLY):
-            return 7.0
+            return DAYS_PER_WEEK
         elif (freq == DAILY):
             return 1.0
         elif (freq == HOURLY):
-            return (1.0 / 24.0)
+            return (1.0 / HOURS_PER_DAY)
         elif (freq == MINUTELY):
-            return (1.0 / (24 * 60))
+            return (1.0 / MINUTES_PER_DAY)
         elif (freq == SECONDLY):
-            return (1.0 / (24 * 3600))
+            return (1.0 / SECONDS_PER_DAY)
         else:
             # error
             return -1   # or should this just return '1'?
@@ -886,8 +910,8 @@ class AutoDateLocator(DateLocator):
         # whatever is thrown at us, we can scale the unit.
         # But default nonsingular date plots at an ~4 year period.
         if vmin == vmax:
-            vmin = vmin - 365 * 2
-            vmax = vmax + 365 * 2
+            vmin = vmin - DAYS_PER_YEAR * 2
+            vmax = vmax + DAYS_PER_YEAR * 2
         return vmin, vmax
 
     def set_axis(self, axis):
@@ -920,11 +944,11 @@ class AutoDateLocator(DateLocator):
             delta = -delta
 
         numYears = (delta.years * 1.0)
-        numMonths = (numYears * 12.0) + delta.months
-        numDays = (numMonths * 31.0) + delta.days
-        numHours = (numDays * 24.0) + delta.hours
-        numMinutes = (numHours * 60.0) + delta.minutes
-        numSeconds = (numMinutes * 60.0) + delta.seconds
+        numMonths = (numYears * MONTHS_PER_YEAR) + delta.months
+        numDays = (numMonths * DAYS_PER_MONTH) + delta.days
+        numHours = (numDays * HOURS_PER_DAY) + delta.hours
+        numMinutes = (numHours * MIN_PER_HOUR) + delta.minutes
+        numSeconds = (numMinutes * SEC_PER_MIN) + delta.seconds
         numMicroseconds = (numSeconds * 1e6) + delta.microseconds
 
         nums = [numYears, numMonths, numDays, numHours, numMinutes,
@@ -1246,16 +1270,14 @@ def epoch2num(e):
     Convert an epoch or sequence of epochs to the new date format,
     that is days since 0001.
     """
-    spd = 24. * 3600.
-    return 719163 + np.asarray(e) / spd
+    return EPOCH_OFFSET + np.asarray(e) / SEC_PER_DAY
 
 
 def num2epoch(d):
     """
     Convert days since 0001 to epoch.  *d* can be a number or sequence.
     """
-    spd = 24. * 3600.
-    return (np.asarray(d) - 719163) * spd
+    return (np.asarray(d) - EPOCH_OFFSET) * SEC_PER_DAY
 
 
 def mx2num(mxdates):
@@ -1281,14 +1303,14 @@ def date_ticker_factory(span, tz=None, numticks=5):
     """
 
     if span == 0:
-        span = 1 / 24.
+        span = 1 / HOURS_PER_DAY
 
-    minutes = span * 24 * 60
-    hours = span * 24
+    minutes = span * MINUTES_PER_DAY
+    hours = span * HOURS_PER_DAY
     days = span
-    weeks = span / 7.
-    months = span / 31.  # approx
-    years = span / 365.
+    weeks = span / DAYS_PER_WEEK
+    months = span / DAYS_PER_MONTH      # Approx
+    years = span / DAYS_PER_YEAR        # Approx
 
     if years > numticks:
         locator = YearLocator(int(years / numticks), tz=tz)  # define
@@ -1335,14 +1357,14 @@ def hours(h):
     """
     Return hours as days.
     """
-    return h / 24.
+    return h / HOURS_PER_DAY
 
 
 def weeks(w):
     """
     Return weeks as days.
     """
-    return w * 7.
+    return w * DAYS_PER_WEEK
 
 
 class DateConverter(units.ConversionInterface):
