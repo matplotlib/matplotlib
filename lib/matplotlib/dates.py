@@ -609,6 +609,9 @@ class rrulewrapper(object):
 
 
 class DateLocator(ticker.Locator):
+    """
+    Determines the tick locations when plotting dates.
+    """
     hms0d = {'byhour': 0, 'byminute': 0, 'bysecond': 0}
 
     def __init__(self, tz=None):
@@ -620,13 +623,22 @@ class DateLocator(ticker.Locator):
         self.tz = tz
 
     def set_tzinfo(self, tz):
+        """
+        Set time zone info.
+        """
         self.tz = tz
 
     def datalim_to_dt(self):
+        """
+        Convert axis data interval to datetime objects.
+        """
         dmin, dmax = self.axis.get_data_interval()
         return num2date(dmin, self.tz), num2date(dmax, self.tz)
 
     def viewlim_to_dt(self):
+        """
+        Converts the view interval to datetime objects.
+        """
         vmin, vmax = self.axis.get_view_interval()
         return num2date(vmin, self.tz), num2date(vmax, self.tz)
 
