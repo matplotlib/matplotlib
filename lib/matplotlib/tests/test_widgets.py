@@ -187,13 +187,13 @@ def test_rectangle_handles():
     do_event(tool, 'press', xdata=100, ydata=100)
     do_event(tool, 'onmove', xdata=120, ydata=120)
     do_event(tool, 'release', xdata=120, ydata=120)
-    assert tool.extents ==  (120, 150, 120, 150)
+    assert tool.extents == (120, 150, 120, 150)
 
     # grab the center and move it
     do_event(tool, 'press', xdata=132, ydata=132)
     do_event(tool, 'onmove', xdata=120, ydata=120)
     do_event(tool, 'release', xdata=120, ydata=120)
-    assert tool.extents ==  (108, 138, 108, 138)
+    assert tool.extents == (108, 138, 108, 138)
 
     # create a new rectangle
     do_event(tool, 'press', xdata=10, ydata=10)
