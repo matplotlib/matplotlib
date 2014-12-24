@@ -1268,6 +1268,8 @@ class _SelectorWidget(AxesWidget):
             if 'alt' in key or key == ' ':
                 self.state.add('move')
             self._press(event)
+            return True
+        return False
 
     def _press(self, event):
         """Button press handler"""
@@ -1280,6 +1282,8 @@ class _SelectorWidget(AxesWidget):
             self.eventrelease = event
             self._release(event)
             self.state.discard('move')
+            return True
+        return False
 
     def _release(self, event):
         """Button release event handler"""
@@ -1290,6 +1294,8 @@ class _SelectorWidget(AxesWidget):
         if not self.ignore(event) and self.eventpress:
             event = self._clean_event(event)
             self._onmove(event)
+            return True
+        return False
 
     def _onmove(self, event):
         """Cursor move event handler"""
