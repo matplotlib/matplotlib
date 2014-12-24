@@ -178,8 +178,8 @@ def _get_rc_timezone():
 """
 Time-related constants.
 """
-EPOCH_OFFSET = 719163.                # Days between 0001-01-01 and epoch, +1.
-JULIAN_OFFSET = 1721424.5            # Julian date at 0001-01-01
+EPOCH_OFFSET = float(datetime.datetime(1970, 1, 1))        # Epoch in ordinal
+JULIAN_OFFSET = 1721424.5                         # Julian date at 0001-01-01
 MICROSECONDLY = SECONDLY + 1
 HOURS_PER_DAY = 24.
 MIN_PER_HOUR = 60.
@@ -214,12 +214,13 @@ def _to_ordinalf(dt):
         if delta is not None:
             dt -= delta
 
-    base = float(dt.toordinal())
-    if hasattr(dt, 'hour'):
-        base += (dt.hour / HOURS_PER_DAY + dt.minute / MINUTES_PER_DAY +
-                 dt.second / SECONDS_PER_DAY +
-                 dt.microsecond / MUSECONDS_PER_DAY
-                 )
+    base = dt.toordinal()
+    td_remainder = (dt-datetime.datetime.fromordinal(base)).total_seconds()
+
+    base = float(base)
+    if td_remainder > 0:
+        base ++ td_remainder / SECONDS_PER_DAY
+
     return base
 
 
