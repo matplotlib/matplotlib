@@ -311,14 +311,18 @@ def date2num(d):
 
 
 def julian2num(j):
-    'Convert a Julian date (or sequence) to a matplotlib date (or sequence).'
+    """
+    Convert a Julian date (or sequence) to a matplotlib date (or sequence).
+    """
     if cbook.iterable(j):
         j = np.asarray(j)
     return j - 1721424.5
 
 
 def num2julian(n):
-    'Convert a matplotlib date (or sequence) to a Julian date (or sequence).'
+    """
+    Convert a matplotlib date (or sequence) to a Julian date (or sequence).
+    """
     if cbook.iterable(n):
         n = np.asarray(n)
     return n + 1721424.5
@@ -1207,7 +1211,9 @@ class MicrosecondLocator(DateLocator):
 
 
 def _close_to_dt(d1, d2, epsilon=5):
-    'Assert that datetimes *d1* and *d2* are within *epsilon* microseconds.'
+    """
+    Assert that datetimes *d1* and *d2* are within *epsilon* microseconds.
+    """
     delta = d2 - d1
     mus = abs(delta.days * MUSECONDS_PER_DAY + delta.seconds * 1e6 +
               delta.microseconds)
@@ -1300,22 +1306,30 @@ def date_ticker_factory(span, tz=None, numticks=5):
 
 
 def seconds(s):
-    'Return seconds as days.'
+    """
+    Return seconds as days.
+    """
     return float(s) / SEC_PER_DAY
 
 
 def minutes(m):
-    'Return minutes as days.'
+    """
+    Return minutes as days.
+    """
     return float(m) / MINUTES_PER_DAY
 
 
 def hours(h):
-    'Return hours as days.'
+    """
+    Return hours as days.
+    """
     return h / 24.
 
 
 def weeks(w):
-    'Return weeks as days.'
+    """
+    Return weeks as days.
+    """
     return w * 7.
 
 
@@ -1360,7 +1374,9 @@ class DateConverter(units.ConversionInterface):
 
     @staticmethod
     def default_units(x, axis):
-        'Return the tzinfo instance of *x* or of its first element, or None'
+        """
+        Return the tzinfo instance of *x* or of its first element, or None
+        """
         if isinstance(x, np.ndarray):
             x = x.ravel()
 
