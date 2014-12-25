@@ -178,7 +178,7 @@ def _get_rc_timezone():
 """
 Time-related constants.
 """
-EPOCH_OFFSET = float(datetime.datetime(1970, 1, 1))        # Epoch in ordinal
+EPOCH_OFFSET = float(datetime.datetime(1970, 1, 1).toordinal())
 JULIAN_OFFSET = 1721424.5                         # Julian date at 0001-01-01
 MICROSECONDLY = SECONDLY + 1
 HOURS_PER_DAY = 24.
