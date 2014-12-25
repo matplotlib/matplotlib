@@ -247,7 +247,7 @@ def _from_ordinalf(x, tz=None):
     dt = datetime.datetime.fromordinal(ix)
     remainder = float(x) - ix
 
-    dt += datetime.timedelta(seconds = remainder*SEC_PER_DAY)
+    dt += datetime.timedelta(seconds = remainder * SEC_PER_DAY)
 
     return dt
 
