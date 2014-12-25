@@ -205,10 +205,13 @@ WEEKDAYS = (MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY)
 
 def _to_ordinalf(dt):
     """
-    Convert :mod:`datetime` to the Gregorian date as UTC float days,
-    preserving hours, minutes, seconds and microseconds.  Return value
+    Convert :mod:`datetime` or :mod:`date` to the Gregorian date as UTC float 
+    days, preserving hours, minutes, seconds and microseconds.  Return value
     is a :func:`float`.
     """
+
+    if isinstance(dt, datetime.date):
+        return float(datetime.datetime.toordinal(dt))
 
     if hasattr(dt, 'tzinfo') and dt.tzinfo is not None:
         delta = dt.tzinfo.utcoffset(dt)
