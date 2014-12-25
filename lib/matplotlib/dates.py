@@ -215,12 +215,16 @@ def _to_ordinalf(dt):
         if delta is not None:
             dt -= delta
 
-    base = dt.toordinal()
-    td_remainder = (dt-datetime.datetime.fromordinal(base)).total_seconds()
+    # Get a datetime object at midnight in the same time zone as dt.
+    cdate = dt.date()
+    midnight_time = datetime.time(0, 0, 0, tzinfo=dt.tzinfo)
 
-    base = float(base)
+    rdt = datetime.datetime.combine(cdate, midnight_time)
+    td_remainder = (dt-rdt).total_seconds()
+
+    base = float(dt.toordinal())
     if td_remainder > 0:
-        base ++ td_remainder / SEC_PER_DAY
+        base += td_remainder / SEC_PER_DAY
 
     return base
 
