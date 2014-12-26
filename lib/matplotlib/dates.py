@@ -169,6 +169,9 @@ UTC = _UTC()
 
 
 def _get_rc_timezone():
+    """
+    Retrieve the preferred timeszone from the rcParams dictionary.
+    """
     s = matplotlib.rcParams['timezone']
     if s == 'UTC':
         return UTC
@@ -247,7 +250,8 @@ def _from_ordinalf(x, tz=None):
     dt = datetime.datetime.fromordinal(ix)
     remainder = float(x) - ix
 
-    dt += datetime.timedelta(seconds = remainder * SEC_PER_DAY)
+    dt += datetime.timedelta(seconds=remainder * SEC_PER_DAY)
+    dt = dt.astimezone(tz)
 
     return dt
 
@@ -752,20 +756,20 @@ class RRuleLocator(DateLocator):
 
     @staticmethod
     def get_unit_generic(freq):
-        if (freq == YEARLY):
+        if freq == YEARLY:
             return DAYS_PER_YEAR
-        elif (freq == MONTHLY):
+        elif freq == MONTHLY:
             return DAYS_PER_MONTH
-        elif (freq == WEEKLY):
+        elif freq == WEEKLY:
             return DAYS_PER_WEEK
-        elif (freq == DAILY):
+        elif freq == DAILY:
             return 1.0
-        elif (freq == HOURLY):
-            return (1.0 / HOURS_PER_DAY)
-        elif (freq == MINUTELY):
-            return (1.0 / MINUTES_PER_DAY)
-        elif (freq == SECONDLY):
-            return (1.0 / SEC_PER_DAY)
+        elif freq == HOURLY:
+            return 1.0 / HOURS_PER_DAY
+        elif freq == MINUTELY:
+            return 1.0 / MINUTES_PER_DAY
+        elif freq == SECONDLY:
+            return 1.0 / SEC_PER_DAY
         else:
             # error
             return -1   # or should this just return '1'?
@@ -1083,7 +1087,7 @@ class MonthLocator(RRuleLocator):
     """
     Make ticks on occurances of each month month, eg 1, 3, 12.
     """
-    def __init__(self,  bymonth=None, bymonthday=1, interval=1, tz=None):
+    def __init__(self, bymonth=None, bymonthday=1, interval=1, tz=None):
         """
         Mark every month in *bymonth*; *bymonth* can be an int or
         sequence.  Default is ``range(1,13)``, i.e. every month.
@@ -1103,7 +1107,7 @@ class WeekdayLocator(RRuleLocator):
     Make ticks on occurances of each weekday.
     """
 
-    def __init__(self,  byweekday=1, interval=1, tz=None):
+    def __init__(self, byweekday=1, interval=1, tz=None):
         """
         Mark every weekday in *byweekday*; *byweekday* can be a number or
         sequence.
@@ -1125,7 +1129,7 @@ class DayLocator(RRuleLocator):
     Make ticks on occurances of each day of the month.  For example,
     1, 15, 30.
     """
-    def __init__(self,  bymonthday=None, interval=1, tz=None):
+    def __init__(self, bymonthday=None, interval=1, tz=None):
         """
         Mark every day in *bymonthday*; *bymonthday* can be an int or
         sequence.
@@ -1143,7 +1147,7 @@ class HourLocator(RRuleLocator):
     """
     Make ticks on occurances of each hour.
     """
-    def __init__(self,  byhour=None, interval=1, tz=None):
+    def __init__(self, byhour=None, interval=1, tz=None):
         """
         Mark every hour in *byhour*; *byhour* can be an int or sequence.
         Default is to tick every hour: ``byhour=range(24)``
@@ -1162,7 +1166,7 @@ class MinuteLocator(RRuleLocator):
     """
     Make ticks on occurances of each minute.
     """
-    def __init__(self,  byminute=None, interval=1, tz=None):
+    def __init__(self, byminute=None, interval=1, tz=None):
         """
         Mark every minute in *byminute*; *byminute* can be an int or
         sequence.  Default is to tick every minute: ``byminute=range(60)``
@@ -1181,7 +1185,7 @@ class SecondLocator(RRuleLocator):
     """
     Make ticks on occurances of each second.
     """
-    def __init__(self,  bysecond=None, interval=1, tz=None):
+    def __init__(self, bysecond=None, interval=1, tz=None):
         """
         Mark every second in *bysecond*; *bysecond* can be an int or
         sequence.  Default is to tick every second: ``bysecond = range(60)``
@@ -1252,7 +1256,7 @@ def _close_to_dt(d1, d2, epsilon=5):
     delta = d2 - d1
     mus = abs(delta.days * MUSECONDS_PER_DAY + delta.seconds * 1e6 +
               delta.microseconds)
-    assert(mus < epsilon)
+    assert mus < epsilon
 
 
 def _close_to_num(o1, o2, epsilon=5):
@@ -1261,7 +1265,7 @@ def _close_to_num(o1, o2, epsilon=5):
     microseconds.
     """
     delta = abs((o2 - o1) * MUSECONDS_PER_DAY)
-    assert(delta < epsilon)
+    assert delta < epsilon
 
 
 def epoch2num(e):
@@ -1304,10 +1308,10 @@ def date_ticker_factory(span, tz=None, numticks=5):
     if span == 0:
         span = 1 / HOURS_PER_DAY
 
-    minutes = span * MINUTES_PER_DAY
-    hours = span * HOURS_PER_DAY
+    mins = span * MINUTES_PER_DAY
+    hrs = span * HOURS_PER_DAY
     days = span
-    weeks = span / DAYS_PER_WEEK
+    wks = span / DAYS_PER_WEEK
     months = span / DAYS_PER_MONTH      # Approx
     years = span / DAYS_PER_YEAR        # Approx
 
@@ -1317,17 +1321,17 @@ def date_ticker_factory(span, tz=None, numticks=5):
     elif months > numticks:
         locator = MonthLocator(tz=tz)
         fmt = '%b %Y'
-    elif weeks > numticks:
+    elif wks > numticks:
         locator = WeekdayLocator(tz=tz)
         fmt = '%a, %b %d'
     elif days > numticks:
         locator = DayLocator(interval=int(math.ceil(days / numticks)), tz=tz)
         fmt = '%b %d'
-    elif hours > numticks:
-        locator = HourLocator(interval=int(math.ceil(hours / numticks)), tz=tz)
+    elif hrs > numticks:
+        locator = HourLocator(interval=int(math.ceil(hrs / numticks)), tz=tz)
         fmt = '%H:%M\n%b %d'
-    elif minutes > numticks:
-        locator = MinuteLocator(interval=int(math.ceil(minutes / numticks)),
+    elif mins > numticks:
+        locator = MinuteLocator(interval=int(math.ceil(mins / numticks)),
                                 tz=tz)
         fmt = '%H:%M:%S'
     else:
