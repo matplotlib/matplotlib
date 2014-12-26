@@ -213,24 +213,22 @@ def _to_ordinalf(dt):
     is a :func:`float`.
     """
 
-    if isinstance(dt, datetime.date):
-        return float(datetime.datetime.toordinal(dt))
-
     if hasattr(dt, 'tzinfo') and dt.tzinfo is not None:
         delta = dt.tzinfo.utcoffset(dt)
         if delta is not None:
             dt -= delta
 
-    # Get a datetime object at midnight in the same time zone as dt.
-    cdate = dt.date()
-    midnight_time = datetime.time(0, 0, 0, tzinfo=dt.tzinfo)
-
-    rdt = datetime.datetime.combine(cdate, midnight_time)
-    td_remainder = (dt - rdt).total_seconds()
-
     base = float(dt.toordinal())
-    if td_remainder > 0:
-        base += td_remainder / SEC_PER_DAY
+    if isinstance(dt, datetime.datetime):
+        # Get a datetime object at midnight in the same time zone as dt.
+        cdate = dt.date()
+        midnight_time = datetime.time(0, 0, 0, tzinfo=dt.tzinfo)
+
+        rdt = datetime.datetime.combine(cdate, midnight_time)
+        td_remainder = (dt - rdt).total_seconds()
+
+        if td_remainder > 0:
+            base += td_remainder / SEC_PER_DAY
 
     return base
 
@@ -382,10 +380,9 @@ def drange(dstart, dend, delta):
     *dend* are :class:`datetime` instances.  *delta* is a
     :class:`datetime.timedelta` instance.
     """
-    step = (delta.days + delta.seconds / SEC_PER_DAY +
-            delta.microseconds / MUSECONDS_PER_DAY)
     f1 = _to_ordinalf(dstart)
     f2 = _to_ordinalf(dend)
+    step = delta.total_seconds() / SEC_PER_DAY
 
     # calculate the difference between dend and dstart in times of delta
     num = int(np.ceil((f2 - f1) / step))
