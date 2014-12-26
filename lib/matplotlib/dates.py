@@ -208,7 +208,7 @@ WEEKDAYS = (MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY)
 
 def _to_ordinalf(dt):
     """
-    Convert :mod:`datetime` or :mod:`date` to the Gregorian date as UTC float 
+    Convert :mod:`datetime` or :mod:`date` to the Gregorian date as UTC float
     days, preserving hours, minutes, seconds and microseconds.  Return value
     is a :func:`float`.
     """
@@ -226,7 +226,7 @@ def _to_ordinalf(dt):
     midnight_time = datetime.time(0, 0, 0, tzinfo=dt.tzinfo)
 
     rdt = datetime.datetime.combine(cdate, midnight_time)
-    td_remainder = (dt-rdt).total_seconds()
+    td_remainder = (dt - rdt).total_seconds()
 
     base = float(dt.toordinal())
     if td_remainder > 0:
@@ -243,15 +243,21 @@ def _from_ordinalf(x, tz=None):
     """
     Convert Gregorian float of the date, preserving hours, minutes,
     seconds and microseconds.  Return value is a :class:`datetime`.
+
+    The input date `x` is a float in ordinal days at UTC, and the output will
+    be the specified :class:`datetime` object corresponding to that time in
+    timezone `tz`, or if `tz` is `None`, in the timezone specified in
+    `rcParams['timezone']`.
     """
     if tz is None:
         tz = _get_rc_timezone()
+
     ix = int(x)
-    dt = datetime.datetime.fromordinal(ix)
+    dt = datetime.datetime.fromordinal(ix).replace(tzinfo=UTC)
+
     remainder = float(x) - ix
 
     dt += datetime.timedelta(seconds=remainder * SEC_PER_DAY)
-    dt = dt.astimezone(tz)
 
     return dt
 
