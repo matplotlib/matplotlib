@@ -957,13 +957,17 @@ class AutoDateLocator(DateLocator):
             delta = -delta
             tdelta = -tdelta
 
-        numYears = delta.years * 1.0
+        # The following uses a mix of calls to relativedelta and timedelta
+        # methods because there is incomplete overlap in the functionality of
+        # these similar functions, and it's best to avoid doing our own math
+        # whenever possible.
+        numYears = float(delta.years)
         numMonths = (numYears * MONTHS_PER_YEAR) + delta.months
-        numDays = tdelta.days   # Avoid estimates of days/month, days/year
+        numDays = tdelta.days   # Avoids estimates of days/month, days/year
         numHours = (numDays * HOURS_PER_DAY) + delta.hours
         numMinutes = (numHours * MIN_PER_HOUR) + delta.minutes
-        numSeconds = (numMinutes * SEC_PER_MIN) + delta.seconds
-        numMicroseconds = (numSeconds * 1e6) + delta.microseconds
+        numSeconds = np.floor(tdelta.total_seconds())
+        numMicroseconds = np.floor(tdelta.total_seconds() * 1e6)
 
         nums = [numYears, numMonths, numDays, numHours, numMinutes,
                 numSeconds, numMicroseconds]
