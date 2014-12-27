@@ -36,6 +36,9 @@ install:
       pip install sphinx numpydoc linkchecker
       wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
       sudo dpkg -i fonts-humor-sans_1.0-1_all.deb
+      wget https://googlefontdirectory.googlecode.com/hg/ofl/felipa/Felipa-Regular.ttf
+      sudo cp Felipa-Regular.ttf /usr/local/share/fonts/
+      fc-cache -f -v
     fi;
   - python setup.py install
 
