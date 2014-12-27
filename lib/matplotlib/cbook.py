@@ -1895,7 +1895,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
         q1         first quartile (25th percentile)
         q3         third quartile (75th percentile)
         cilo       lower notch around the median
-        ciho       upper notch around the median
+        cihi       upper notch around the median
         whislo     end of the lower whisker
         whishi     end of the upper whisker
         fliers     outliers
@@ -1977,7 +1977,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
             stats['q1'] = np.nan
             stats['q3'] = np.nan
             stats['cilo'] = np.nan
-            stats['ciho'] = np.nan
+            stats['cihi'] = np.nan
             stats['whislo'] = np.nan
             stats['whishi'] = np.nan
             stats['med'] = np.nan

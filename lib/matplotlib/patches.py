@@ -2304,7 +2304,6 @@ class BoxStyle(_Style):
             codes = ([Path.MOVETO] +
                  [Path.CURVE3, Path.CURVE3] * ((len(saw_vertices)-1) // 2) +
                  [Path.CLOSEPOLY])
-            print(len(codes), saw_vertices.shape)
             return Path(saw_vertices, codes)
 
     _style_list["roundtooth"] = Roundtooth
