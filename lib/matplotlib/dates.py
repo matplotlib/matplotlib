@@ -632,6 +632,7 @@ class rrulewrapper(object):
     def __init__(self, freq, **kwargs):
         self._construct = kwargs.copy()
         self._construct["freq"] = freq
+        print(self._construct)
         self._rrule = rrule(**self._construct)
 
     def set(self, **kwargs):
@@ -1153,9 +1154,9 @@ class DayLocator(RRuleLocator):
         """
         if bymonthday is None:
             bymonthday = list(xrange(1, 32))
-        o = rrulewrapper(DAILY, bymonthday=bymonthday,
+        rule = rrulewrapper(DAILY, bymonthday=bymonthday,
                          interval=interval, **self.hms0d)
-        RRuleLocator.__init__(self, o, tz)
+        RRuleLocator.__init__(self, rule, tz)
 
 
 class HourLocator(RRuleLocator):
