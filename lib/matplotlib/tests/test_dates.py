@@ -25,7 +25,7 @@ import matplotlib.dates as mdates
 def test_date_empty():
     # make sure mpl does the right thing when told to plot dates even
     # if no date data has been presented, cf
-    # http://sourceforge.net/tracker/?func=detail&aid=2850075&group_id=80706&atid=560720
+    # http://sourceforge.net/tracker/?func=detail&aid=2850075&group_id=80706&atid=560720 # noqa
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     ax.xaxis_date()
@@ -88,7 +88,7 @@ def test_date_axvline():
 @cleanup
 def test_too_many_date_ticks():
     # Attempt to test SF 2715172, see
-    # https://sourceforge.net/tracker/?func=detail&aid=2715172&group_id=80706&atid=560720
+    # https://sourceforge.net/tracker/?func=detail&aid=2715172&group_id=80706&atid=560720 # noqa
     # setting equal datetimes triggers and expander call in
     # transforms.nonsingular which results in too many ticks in the
     # DayLocator.  This should trigger a Locator.MAXTICKS RuntimeError
@@ -202,7 +202,7 @@ def test_drange():
 @cleanup
 def test_empty_date_with_year_formatter():
     # exposes sf bug 2861426:
-    # https://sourceforge.net/tracker/?func=detail&aid=2861426&group_id=80706&atid=560720
+    # https://sourceforge.net/tracker/?func=detail&aid=2861426&group_id=80706&atid=560720 # noqa
 
     # update: I am no longer believe this is a bug, as I commented on
     # the tracker.  The question is now: what to do with this test

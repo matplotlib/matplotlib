@@ -885,7 +885,8 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
             key = alt
         return dict.__getitem__(self, key)
 
-    # http://stackoverflow.com/questions/2390827/how-to-properly-subclass-dict-and-override-get-set
+    # http://stackoverflow.com/questions/2390827
+    # (how-to-properly-subclass-dict-and-override-get-set)
     # the default dict `update` does not use __setitem__
     # so rcParams.update(...) (such as in seaborn) side-steps
     # all of the validation over-ride update to force

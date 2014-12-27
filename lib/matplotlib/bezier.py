@@ -73,7 +73,7 @@ def get_normal_points(cx, cy, cos_t, sin_t, length):
 # BEZIER routines
 
 # subdividing bezier curve
-# http://www.cs.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/Bezier/bezier-sub.html
+# http://www.cs.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/Bezier/bezier-sub.html # noqa
 
 
 def _de_casteljau1(beta, t):
