@@ -955,6 +955,7 @@ class AutoDateLocator(DateLocator):
         # take absolute difference
         if dmin > dmax:
             delta = -delta
+            tdelta = -tdelta
 
         numYears = delta.years * 1.0
         numMonths = (numYears * MONTHS_PER_YEAR) + delta.months
