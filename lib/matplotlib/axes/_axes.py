@@ -3187,7 +3187,7 @@ class Axes(_AxesBase):
           - ``fliers``: Data beyond the whiskers (sequence of floats).
             Needed if ``showfliers=True``.
 
-          - ``cilo`` & ``ciho``: Lower and upper confidence intervals
+          - ``cilo`` & ``cihi``: Lower and upper confidence intervals
             about the median. Needed if ``shownotches=True``.
 
           - ``label``: Name of the dataset (string). If available,

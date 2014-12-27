@@ -1246,7 +1246,7 @@ class Figure(Artist):
     @docstring.dedent_interpd
     def gca(self, **kwargs):
         """
-        Return the current axes, creating one if necessary
+        Get the current axes, creating one if necessary
 
         The following kwargs are supported for ensuring the returned axes
         adheres to the given projection etc., and for axes creation if
@@ -1629,6 +1629,9 @@ class Figure(Artist):
         for ax in self.axes:
             if ax.get_visible():
                 bb.append(ax.get_tightbbox(renderer))
+
+        if len(bb) == 0:
+            return self.bbox_inches
 
         _bbox = Bbox.union([b for b in bb if b.width != 0 or b.height != 0])
 

@@ -6,12 +6,16 @@ import six
 import io
 import os
 
+import numpy as np
 from numpy.testing import assert_array_almost_equal
 
 from matplotlib.image import imread
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.testing.decorators import cleanup
+from matplotlib import pyplot as plt
+from matplotlib import collections
+from matplotlib import path
 
 
 @cleanup
@@ -45,6 +49,21 @@ def test_repeated_save_with_alpha():
     assert_array_almost_equal(tuple(imread(buf)[0, 0]),
                               (0.0, 1.0, 0.4, 0.250),
                               decimal=3)
+
+
+@cleanup
+def test_large_single_path_collection():
+    buff = io.BytesIO()
+
+    # Generates a too-large single path in a path collection that
+    # would cause a segfault if the draw_markers optimization is
+    # applied.
+    f, ax = plt.subplots()
+    collection = collections.PathCollection(
+        [path.Path([[-10, 5], [10, 5], [10, -5], [-10, -5], [-10, 5]])])
+    ax.add_artist(collection)
+    ax.set_xlim(10**-3, 1)
+    plt.savefig(buff)
 
 
 def report_memory(i):
