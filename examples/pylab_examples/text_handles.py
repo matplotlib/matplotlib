@@ -27,6 +27,6 @@ xtext = xlabel('time (s)')
 setp(ttext, size='large', color='r', style='italic')
 setp(xtext, size='medium', name=['Courier', 'Bitstream Vera Sans Mono'],
      weight='bold', color='g')
-setp(ytext, size='medium', name=['Helvetica', 'Liberation Sans'],
+setp(ytext, size='medium', name=['Helvetica', 'Bitstream Vera Sans'],
      weight='light', color='b')
 show()
