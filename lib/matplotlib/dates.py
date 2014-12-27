@@ -257,6 +257,12 @@ def _from_ordinalf(x, tz=None):
 
     dt += datetime.timedelta(seconds=remainder * SEC_PER_DAY)
 
+    # Compensate for rounding errors
+    if dt.microsecond < 10:
+        dt = dt.replace(microsecond=0)
+    elif dt.microsecond > 999990:
+        dt += datetime.timedelta(microseconds=1e6 - dt.microsecond)
+
     return dt
 
 
@@ -944,14 +950,15 @@ class AutoDateLocator(DateLocator):
     def get_locator(self, dmin, dmax):
         'Pick the best locator based on a distance.'
         delta = relativedelta(dmax, dmin)
+        tdelta = dmax - dmin
 
         # take absolute difference
         if dmin > dmax:
             delta = -delta
 
-        numYears = (delta.years * 1.0)
+        numYears = delta.years * 1.0
         numMonths = (numYears * MONTHS_PER_YEAR) + delta.months
-        numDays = (numMonths * DAYS_PER_MONTH) + delta.days
+        numDays = tdelta.days   # Avoid estimates of days/month, days/year
         numHours = (numDays * HOURS_PER_DAY) + delta.hours
         numMinutes = (numHours * MIN_PER_HOUR) + delta.minutes
         numSeconds = (numMinutes * SEC_PER_MIN) + delta.seconds
