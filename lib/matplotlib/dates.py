@@ -237,8 +237,7 @@ def _to_ordinalf(dt):
 _to_ordinalf_np_vectorized = np.vectorize(_to_ordinalf)
 
 try:
-    datetime.timedelta(datetime.datetime(1970, 1, 1),
-                       datetime.datetime(1970, 1, 2)).total_seconds()
+    datetime.timedelta(0).total_seconds()       # Fails if method doesn't exist
 
     def _total_seconds(tdelta):
         """
