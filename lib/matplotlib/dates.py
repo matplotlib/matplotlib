@@ -632,7 +632,6 @@ class rrulewrapper(object):
     def __init__(self, freq, **kwargs):
         self._construct = kwargs.copy()
         self._construct["freq"] = freq
-        print(self._construct)
         self._rrule = rrule(**self._construct)
 
     def set(self, **kwargs):
@@ -1270,8 +1269,7 @@ def _close_to_dt(d1, d2, epsilon=5):
     Assert that datetimes *d1* and *d2* are within *epsilon* microseconds.
     """
     delta = d2 - d1
-    mus = abs(delta.days * MUSECONDS_PER_DAY + delta.seconds * 1e6 +
-              delta.microseconds)
+    mus = abs(delta.total_seconds() * 1e6)
     assert mus < epsilon
 
 
