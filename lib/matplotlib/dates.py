@@ -225,7 +225,7 @@ def _to_ordinalf(dt):
         midnight_time = datetime.time(0, 0, 0, tzinfo=dt.tzinfo)
 
         rdt = datetime.datetime.combine(cdate, midnight_time)
-        td_remainder = (dt - rdt).total_seconds()
+        td_remainder = _total_seconds(dt - rdt)
 
         if td_remainder > 0:
             base += td_remainder / SEC_PER_DAY
@@ -235,6 +235,27 @@ def _to_ordinalf(dt):
 
 # a version of _to_ordinalf that can operate on numpy arrays
 _to_ordinalf_np_vectorized = np.vectorize(_to_ordinalf)
+
+try:
+    datetime.timedelta(datetime.datetime(1970, 1, 1),
+                       datetime.datetime(1970, 1, 2)).total_seconds()
+
+    def _total_seconds(tdelta):
+        """
+        Alias providing support for datetime.timedelta.total_seconds() function
+        calls even in Python < 2.7.
+
+        The input `tdelta` is a datetime.timedelta object, and returns a float
+        containing the total number of seconds representing the `tdelta`
+        duration. For large durations (> 270 on most platforms), this loses
+        microsecond accuracy.
+        """
+
+        return tdelta.total_seconds()
+except AttributeError:
+    def _total_seconds(tdelta):
+        return (tdelta.microseconds +
+                (tdelta.seconds + tdelta.days * SEC_PER_DAY) * 1e6) * 1e-6
 
 
 def _from_ordinalf(x, tz=None):
@@ -389,7 +410,7 @@ def drange(dstart, dend, delta):
     """
     f1 = _to_ordinalf(dstart)
     f2 = _to_ordinalf(dend)
-    step = delta.total_seconds() / SEC_PER_DAY
+    step = _total_seconds(delta) / SEC_PER_DAY
 
     # calculate the difference between dend and dstart in times of delta
     num = int(np.ceil((f2 - f1) / step))
@@ -967,8 +988,8 @@ class AutoDateLocator(DateLocator):
         numDays = tdelta.days   # Avoids estimates of days/month, days/year
         numHours = (numDays * HOURS_PER_DAY) + delta.hours
         numMinutes = (numHours * MIN_PER_HOUR) + delta.minutes
-        numSeconds = np.floor(tdelta.total_seconds())
-        numMicroseconds = np.floor(tdelta.total_seconds() * 1e6)
+        numSeconds = np.floor(_total_seconds(tdelta))
+        numMicroseconds = np.floor(_total_seconds(tdelta) * 1e6)
 
         nums = [numYears, numMonths, numDays, numHours, numMinutes,
                 numSeconds, numMicroseconds]
@@ -1270,7 +1291,7 @@ def _close_to_dt(d1, d2, epsilon=5):
     Assert that datetimes *d1* and *d2* are within *epsilon* microseconds.
     """
     delta = d2 - d1
-    mus = abs(delta.total_seconds() * 1e6)
+    mus = abs(_total_seconds(delta) * 1e6)
     assert mus < epsilon
 
 
