@@ -1537,20 +1537,21 @@ class Axis(artist.Artist):
         else:
             self.set_major_formatter(mticker.FixedFormatter(ticklabels))
             ticks = self.get_major_ticks()
+        ret = []
+        for tick_label, tick in zip(ticklabels, ticks):
+            # deal with label1
+            tick.label1.set_text(tick_label)
+            tick.label1.update(kwargs)
+            # deal with label2
+            tick.label2.set_text(tick_label)
+            tick.label2.update(kwargs)
+            # only return visible tick labels
+            if tick.label1On:
+                ret.append(tick.label1)
+            if tick.label2On:
+                ret.append(tick.label2)
 
-        ret1 = []
-        ret2 = []
-        for i, tick in enumerate(ticks):
-            if i < len(ticklabels):
-                if tick.label1On:
-                    tick.label1.set_text(ticklabels[i])
-                    tick.label1.update(kwargs)
-                    ret1.append(tick.label1)
-                if tick.label2On:
-                    tick.label2.set_text(ticklabels[i])
-                    ret2.append(tick.label2)
-                    tick.label2.update(kwargs)
-        return ret1 + ret2
+        return ret
 
     def set_ticks(self, ticks, minor=False):
         """
