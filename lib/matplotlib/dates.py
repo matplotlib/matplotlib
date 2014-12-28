@@ -255,7 +255,8 @@ def _from_ordinalf(x, tz=None):
 
     remainder = float(x) - ix
 
-    dt += datetime.timedelta(seconds=remainder * SEC_PER_DAY)
+    # Round down to the nearest microsecond.
+    dt += datetime.timedelta(microseconds=int(remainder * MUSECONDS_PER_DAY))
 
     # Compensate for rounding errors
     if dt.microsecond < 10:
