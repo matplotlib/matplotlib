@@ -5853,11 +5853,8 @@ class Axes(_AxesBase):
             labels = [None]
         elif is_string_like(label):
             labels = [label]
-        elif is_sequence_of_strings(label):
-            labels = list(label)
         else:
-            raise ValueError(
-                'invalid label: must be string or sequence of strings')
+            labels = [str(lab) for lab in label]
 
         if len(labels) < nx:
             labels += [None] * (nx - len(labels))
