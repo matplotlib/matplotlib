@@ -1739,8 +1739,10 @@ def _simpleprint_styles(_styles):
     (stylename : styleclass), return a string rep of the list of keys.
     Used to update the documentation.
     """
-
-    return str([i for i in list(_styles.keys())])
+    styles = "[ \'"
+    styles += "\' | \'".join(str(i) for i in sorted(_styles.keys()))
+    styles += "\' ]"
+    return styles
 
 
 class _Style(object):
