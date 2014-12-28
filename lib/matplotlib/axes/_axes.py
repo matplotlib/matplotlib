@@ -2,11 +2,10 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import reduce, xrange, zip
+from six.moves import reduce, xrange, zip, zip_longest
 
 import math
 import warnings
-import itertools
 
 import numpy as np
 from numpy import ma
@@ -5856,10 +5855,7 @@ class Axes(_AxesBase):
         else:
             labels = [str(lab) for lab in label]
 
-        if len(labels) < nx:
-            labels += [None] * (nx - len(labels))
-
-        for (patch, lbl) in zip(patches, labels):
+        for (patch, lbl) in zip_longest(patches, labels, fillvalue=None):
             if patch:
                 p = patch[0]
                 p.update(kwargs)
