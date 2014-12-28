@@ -136,7 +136,7 @@ Keyword arguments:
     is less than this, plot a dot (hexagon) of this diameter instead.
     Default is 1.
 
-  *pivot*: [ 'tail' | 'middle' | 'tip' ]
+  *pivot*: [ 'tail' | 'mid' | 'middle' | 'tip' ]
     The part of the arrow that is at the grid point; the arrow rotates
     about this point, hence the name *pivot*.
 
@@ -405,6 +405,8 @@ class Quiver(mcollections.PolyCollection):
     in the draw() method.
     """
 
+    _PIVOT_VALS = ('tail', 'mid', 'middle', 'tip')
+
     @docstring.Substitution(_quiver_doc)
     def __init__(self, ax, *args, **kw):
         """
@@ -430,7 +432,18 @@ class Quiver(mcollections.PolyCollection):
         self.angles = kw.pop('angles', 'uv')
         self.width = kw.pop('width', None)
         self.color = kw.pop('color', 'k')
-        self.pivot = kw.pop('pivot', 'tail')
+
+        pivot = kw.pop('pivot', 'tail').lower()
+        # validate pivot
+        if pivot not in self._PIVOT_VALS:
+            raise ValueError(
+                'pivot must be one of {keys}, you passed {inp}'.format(
+                      keys=self._PIVOT_VALS, inp=pivot))
+        # normalize to 'middle'
+        if pivot == 'mid':
+            pivot = 'middle'
+        self.pivot = pivot
+
         self.transform = kw.pop('transform', ax.transData)
         kw.setdefault('facecolors', self.color)
         kw.setdefault('linewidths', (0,))
@@ -681,9 +694,9 @@ class Quiver(mcollections.PolyCollection):
         # Now select X0, Y0 if short, otherwise X, Y
         cbook._putmask(X, short, X0)
         cbook._putmask(Y, short, Y0)
-        if self.pivot[:3] == 'mid':
+        if self.pivot == 'middle':
             X -= 0.5 * X[:, 3, np.newaxis]
-        elif self.pivot[:3] == 'tip':
+        elif self.pivot == 'tip':
             X = X - X[:, 3, np.newaxis]   # numpy bug? using -= does not
                                           # work here unless we multiply
                                           # by a float first, as with 'mid'.
