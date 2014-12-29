@@ -4065,7 +4065,11 @@ class Axes(_AxesBase):
             ind = coarse.searchsorted(x).clip(0, len(coarse) - 1)
             mus = np.zeros(len(coarse))
             for i in range(len(coarse)):
-                mu = reduce_C_function(y[ind == i])
+                yi = y[ind == i]
+                if len(yi) > 0:
+                    mu = reduce_C_function(yi)
+                else:
+                    mu = np.nan
                 mus[i] = mu
             return mus
 
