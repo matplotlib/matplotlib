@@ -16,7 +16,7 @@ figure(1, figsize=(7, 1), dpi=100)
 ax = subplot(111, axisbg='y')
 plot(t, x)
 text(0.5, 0.5, 'matplotlib', color='r',
-     fontsize=40, fontname='Courier',
+     fontsize=40, fontname=['Courier', 'Bitstream Vera Sans Mono'],
      horizontalalignment='center',
      verticalalignment='center',
      transform=ax.transAxes,

@@ -26,8 +26,20 @@ install:
   - pip install -q --use-mirrors nose python-dateutil $NUMPY pep8 pyparsing pillow
   - sudo apt-get update && sudo apt-get -qq install inkscape libav-tools gdb
   # We use --no-install-recommends to avoid pulling in additional large latex docs that we don't need
-  - if [[ $BUILD_DOCS == true ]]; then sudo apt-get install -qq --no-install-recommends dvipng texlive-latex-base texlive-latex-extra texlive-fonts-recommended graphviz; fi
-  - if [[ $BUILD_DOCS == true ]]; then pip install sphinx numpydoc linkchecker; fi
+
+  # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
+  # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
+  # version since is it basically just a .ttf file
+  - |
+    if [[ $BUILD_DOCS == true ]]; then
+      sudo apt-get install -qq --no-install-recommends dvipng texlive-latex-base texlive-latex-extra texlive-fonts-recommended graphviz
+      pip install sphinx numpydoc linkchecker
+      wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
+      sudo dpkg -i fonts-humor-sans_1.0-1_all.deb
+      wget https://googlefontdirectory.googlecode.com/hg/ofl/felipa/Felipa-Regular.ttf
+      sudo cp Felipa-Regular.ttf /usr/local/share/fonts/
+      fc-cache -f -v
+    fi;
   - python setup.py install
 
 script:

@@ -541,7 +541,8 @@ defaultParams = {
                          'Arial', 'Helvetica', 'Avant Garde', 'sans-serif'],
                         validate_stringlist],
     'font.cursive':    [['Apple Chancery', 'Textile', 'Zapf Chancery',
-                         'Sand', 'Script MT', 'cursive'], validate_stringlist],
+                         'Sand', 'Script MT', 'Felipa', 'cursive'],
+                        validate_stringlist],
     'font.fantasy':    [['Comic Sans MS', 'Chicago', 'Charcoal', 'Impact'
                          'Western', 'Humor Sans', 'fantasy'],
                         validate_stringlist],
