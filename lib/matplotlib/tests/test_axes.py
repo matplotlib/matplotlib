@@ -3455,6 +3455,13 @@ def test_margins():
 
 
 @cleanup
+def test_length_one_hist():
+    fig, ax = plt.subplots()
+    ax.hist(1)
+    ax.hist([1])
+
+
+@cleanup
 def test_pathological_hexbin():
     # issue #2863
     out = io.BytesIO()
