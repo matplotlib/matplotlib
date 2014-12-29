@@ -237,8 +237,9 @@ def _to_ordinalf(dt):
 _to_ordinalf_np_vectorized = np.vectorize(_to_ordinalf)
 
 try:
-    datetime.timedelta(0).total_seconds()       # Fails if method doesn't exist
-
+    # Available as a native method in Python >= 2.7.
+    _total_seconds = datetime.timedelta.total_seconds
+except AttributeError:
     def _total_seconds(tdelta):
         """
         Alias providing support for datetime.timedelta.total_seconds() function
@@ -249,10 +250,6 @@ try:
         duration. For large durations (> 270 on most platforms), this loses
         microsecond accuracy.
         """
-
-        return tdelta.total_seconds()
-except AttributeError:
-    def _total_seconds(tdelta):
         return (tdelta.microseconds +
                 (tdelta.seconds + tdelta.days * SEC_PER_DAY) * 1e6) * 1e-6
 
