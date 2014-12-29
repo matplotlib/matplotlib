@@ -247,8 +247,9 @@ class QuiverKey(martist.Artist):
             if self_weakref is not None:
                 self_weakref.labelsep = (self_weakref._labelsep_inches*fig.dpi)
                 self_weakref._initialized = False  # simple brute force update
-                                           # works because _init is called
-                                           # at the start of draw.
+                                                   # works because _init is
+                                                   # called at the start of
+                                                   # draw.
 
         self._cid = Q.ax.figure.callbacks.connect('dpi_changed',
                                                   on_dpi_change)
@@ -258,7 +259,7 @@ class QuiverKey(martist.Artist):
         self.fontproperties = kw.pop('fontproperties', dict())
         self.kw = kw
         _fp = self.fontproperties
-        #boxprops = dict(facecolor='red')
+        # boxprops = dict(facecolor='red')
         self.text = mtext.Text(
                         text=label,  # bbox=boxprops,
                         horizontalalignment=self.halign[self.labelpos],
@@ -465,10 +466,11 @@ class Quiver(mcollections.PolyCollection):
             self_weakref = weak_self()
             if self_weakref is not None:
                 self_weakref._new_UV = True  # vertices depend on width, span
-                                     # which in turn depend on dpi
+                                             # which in turn depend on dpi
                 self_weakref._initialized = False  # simple brute force update
-                                           # works because _init is called
-                                           # at the start of draw.
+                                                   # works because _init is
+                                                   # called at the start of
+                                                   # draw.
 
         self._cid = self.ax.figure.callbacks.connect('dpi_changed',
                                                      on_dpi_change)
@@ -667,7 +669,7 @@ class Quiver(mcollections.PolyCollection):
         length = length.reshape(N, 1)
         # This number is chosen based on when pixel values overflow in Agg
         # causing rendering errors
-        #length = np.minimum(length, 2 ** 16)
+        # length = np.minimum(length, 2 ** 16)
         np.clip(length, 0, 2 ** 16, out=length)
         # x, y: normal horizontal arrow
         x = np.array([0, -self.headaxislength,
@@ -870,9 +872,9 @@ class Barbs(mcollections.PolyCollection):
     From there :meth:`_make_barbs` is used to find the vertices of the
     polygon to represent the barb based on this information.
     '''
-    #This may be an abuse of polygons here to render what is essentially maybe
-    #1 triangle and a series of lines.  It works fine as far as I can tell
-    #however.
+    # This may be an abuse of polygons here to render what is essentially maybe
+    # 1 triangle and a series of lines.  It works fine as far as I can tell
+    # however.
     @docstring.interpd
     def __init__(self, ax, *args, **kw):
         """
@@ -892,10 +894,11 @@ class Barbs(mcollections.PolyCollection):
         self.flip = kw.pop('flip_barb', False)
         transform = kw.pop('transform', ax.transData)
 
-        #Flagcolor and and barbcolor provide convenience parameters for setting
-        #the facecolor and edgecolor, respectively, of the barb polygon.  We
-        #also work here to make the flag the same color as the rest of the barb
-        #by default
+        # Flagcolor and and barbcolor provide convenience parameters for
+        # setting the facecolor and edgecolor, respectively, of the barb
+        # polygon.  We also work here to make the flag the same color as the
+        # rest of the barb by default
+
         if None in (barbcolor, flagcolor):
             kw['edgecolors'] = 'face'
             if flagcolor:
@@ -903,19 +906,19 @@ class Barbs(mcollections.PolyCollection):
             elif barbcolor:
                 kw['facecolors'] = barbcolor
             else:
-                #Set to facecolor passed in or default to black
+                # Set to facecolor passed in or default to black
                 kw.setdefault('facecolors', 'k')
         else:
             kw['edgecolors'] = barbcolor
             kw['facecolors'] = flagcolor
 
-        #Parse out the data arrays from the various configurations supported
+        # Parse out the data arrays from the various configurations supported
         x, y, u, v, c = _parse_args(*args)
         self.x = x
         self.y = y
         xy = np.hstack((x[:, np.newaxis], y[:, np.newaxis]))
 
-        #Make a collection
+        # Make a collection
         barb_size = self._length ** 2 / 4  # Empirically determined
         mcollections.PolyCollection.__init__(self, [], (barb_size,),
                                              offsets=xy,
@@ -940,8 +943,8 @@ class Barbs(mcollections.PolyCollection):
         a barb is empty (too low to plot any barbs/flags.
         '''
 
-        #If rounding, round to the nearest multiple of half, the smallest
-        #increment
+        # If rounding, round to the nearest multiple of half, the smallest
+        # increment
         if rounding:
             mag = half * (mag / half + 0.5).astype(np.int)
 
@@ -1002,17 +1005,17 @@ class Barbs(mcollections.PolyCollection):
         properly align with the vector direction.
         '''
 
-        #These control the spacing and size of barb elements relative to the
-        #length of the shaft
+        # These control the spacing and size of barb elements relative to the
+        # length of the shaft
         spacing = length * sizes.get('spacing', 0.125)
         full_height = length * sizes.get('height', 0.4)
         full_width = length * sizes.get('width', 0.25)
         empty_rad = length * sizes.get('emptybarb', 0.15)
 
-        #Controls y point where to pivot the barb.
+        # Controls y point where to pivot the barb.
         pivot_points = dict(tip=0.0, middle=-length / 2.)
 
-        #Check for flip
+        # Check for flip
         if flip:
             full_height = -full_height
 
@@ -1039,11 +1042,11 @@ class Barbs(mcollections.PolyCollection):
 
         barb_list = []
         for index, angle in np.ndenumerate(angles):
-            #If the vector magnitude is too weak to draw anything, plot an
-            #empty circle instead
+            # If the vector magnitude is too weak to draw anything, plot an
+            # empty circle instead
             if empty_flag[index]:
-                #We can skip the transform since the circle has no preferred
-                #orientation
+                # We can skip the transform since the circle has no preferred
+                # orientation
                 barb_list.append(empty_barb)
                 continue
 
