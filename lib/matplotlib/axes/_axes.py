@@ -458,7 +458,16 @@ class Axes(_AxesBase):
         handles = kwargs.pop('handles', None)
         labels = kwargs.pop('labels', None)
 
-        if handles is not None and labels is None:
+        if (handles is not None or labels is not None) and len(args):
+            warnings.warn("You have mixed positional and keyword "
+                          "arguments, some input will be "
+                          "discarded.")
+
+        # if got both handles and labels as kwargs, make same length
+        if handles and labels:
+            handles, labels = zip(*zip(handles, labels))
+
+        elif handles is not None and labels is None:
             labels = [handle.get_label() for handle in handles]
             for label, handle in zip(labels[:], handles[:]):
                 if label.startswith('_'):
@@ -470,7 +479,7 @@ class Axes(_AxesBase):
 
         elif labels is not None and handles is None:
             # Get as many handles as there are labels.
-            handles = [handle for handle, _
+            handles = [handle for handle, label
                        in zip(self._get_legend_handles(handlers), labels)]
 
         # No arguments - automatically detect labels and handles.
@@ -485,32 +494,13 @@ class Axes(_AxesBase):
         elif len(args) == 1:
             labels, = args
             # Get as many handles as there are labels.
-            handles = [handle for handle, _
+            handles = [handle for handle, label
                        in zip(self._get_legend_handles(handlers), labels)]
 
-        # Two arguments. Either:
+        # Two arguments:
         #   * user defined handles and labels
-        #   * user defined labels and location (deprecated)
         elif len(args) == 2:
-            if is_string_like(args[1]) or isinstance(args[1], int):
-                cbook.warn_deprecated('1.4', 'The "loc" positional argument '
-                                      'to legend is deprecated. Please use '
-                                      'the "loc" keyword instead.')
-                labels, loc = args
-                handles = [handle for handle, _
-                           in zip(self._get_legend_handles(handlers), labels)]
-                kwargs['loc'] = loc
-            else:
-                handles, labels = args
-
-        # Three arguments. User defined handles, labels and
-        # location (deprecated).
-        elif len(args) == 3:
-            cbook.warn_deprecated('1.4', 'The "loc" positional argument '
-                                         'to legend is deprecated. Please '
-                                         'use the "loc" keyword instead.')
-            handles, labels, loc = args
-            kwargs['loc'] = loc
+            handles, labels = args
 
         else:
             raise TypeError('Invalid arguments to legend.')
