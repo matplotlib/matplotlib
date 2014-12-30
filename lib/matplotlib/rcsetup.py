@@ -108,6 +108,16 @@ def validate_float(s):
         raise ValueError('Could not convert "%s" to float' % s)
 
 
+def validate_float_or_None(s):
+    """convert s to float or raise"""
+    if s is None:
+        return None
+    try:
+        return float(s)
+    except ValueError:
+        raise ValueError('Could not convert "%s" to float' % s)
+
+
 def validate_int(s):
     """convert s to int or raise"""
     try:
@@ -640,7 +650,7 @@ defaultParams = {
      # whether or not to draw a frame around legend
     'legend.frameon': [True, validate_bool],
      # alpha value of the legend frame
-    'legend.framealpha': [1.0, validate_float],
+    'legend.framealpha': [None, validate_float_or_None],
 
     ## the following dimensions are in fraction of the font size
     'legend.borderpad': [0.4, validate_float],  # units are fontsize
