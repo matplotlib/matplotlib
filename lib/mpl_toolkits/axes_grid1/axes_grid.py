@@ -640,6 +640,13 @@ class ImageGrid(Grid):
             if self._colorbar_mode == "single":
                 for ax in self.axes_all:
                     ax.cax = self.cbar_axes[0]
+            elif self._colorbar_mode == "edge":
+                for index, ax in enumerate(self.axes_all):
+                    col, row = self._get_col_row(index)
+                    if self._direction == "row":
+                        ax.cax = self.cbar_axes[row]
+                    else:
+                        ax.cax = self.cbar_axes[col]
             else:
                 for ax, cax in zip(self.axes_all, self.cbar_axes):
                     ax.cax = cax
