@@ -3480,6 +3480,11 @@ def test_color_None():
     ax.plot([1,2], [1,2], color=None)
     plt.show()
 
+@cleanup
+def test_numerical_hist_label():
+    fig, ax = plt.subplots()
+    ax.hist([range(15)] * 5, label=range(5))
+
 if __name__ == '__main__':
     import nose
     import sys
