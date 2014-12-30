@@ -37,8 +37,10 @@ fig, axes = plt.subplots(ncols=2)
 # in both python 2 and 3
 unfilled_markers = [m for m, func in iteritems(Line2D.markers)
                     if func != 'nothing' and m not in Line2D.filled_markers]
-# Reverse-sort for pretty
-unfilled_markers = sorted(unfilled_markers, key=str)[::-1]
+# Reverse-sort for pretty. We use our own sort key which is essentially
+# a python3 compatible reimplementation of python2 sort.
+unfilled_markers = sorted(unfilled_markers,
+                          key=lambda x: (str(type(x)), str(x)))[::-1]
 for ax, markers in zip(axes, split_list(unfilled_markers)):
     for y, marker in enumerate(markers):
         ax.text(-0.5, y, nice_repr(marker), **text_style)
