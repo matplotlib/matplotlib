@@ -4,6 +4,7 @@ from mpl_toolkits.axes_grid1 import ImageGrid
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 @image_comparison(baseline_images=['imagegrid_cbar_mode'],
                   extensions=['png'],
                   remove_text=True)
@@ -14,11 +15,10 @@ def test_imagegrid_cbar_mode_edge():
     fig = plt.figure(figsize=(6, 6))
 
     grid = ImageGrid(fig, 111,
-                          nrows_ncols = (2, 2),
-                          direction='row',
-                          cbar_location='right',
-                          cbar_mode='edge',
-                     )
+                     nrows_ncols=(2, 2),
+                     direction='row',
+                     cbar_location='right',
+                     cbar_mode='edge')
     ax1, ax2, ax3, ax4, = grid
 
     im1 = ax1.imshow(arr.real, cmap='spectral')
