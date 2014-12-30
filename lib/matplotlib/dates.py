@@ -927,9 +927,8 @@ class AutoDateLocator(DateLocator):
             MICROSECONDLY: [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000,
                             5000, 10000, 20000, 50000, 100000, 200000, 500000,
                             1000000]}
-        self._byranges = [None, list(xrange(1, 13)), list(xrange(1, 32)),
-                          list(xrange(0, 24)), list(xrange(0, 60)),
-                          list(xrange(0, 60)), None]
+        self._byranges = [None, range(1, 13), range(1, 32),
+                          range(0, 24), range(0, 60), range(0, 60), None]
 
     def __call__(self):
         'Return the locations of the ticks'
@@ -1129,10 +1128,16 @@ class MonthLocator(RRuleLocator):
         example, if ``interval=2``, mark every second occurance.
         """
         if bymonth is None:
-            bymonth = list(xrange(1, 13))
-        o = rrulewrapper(MONTHLY, bymonth=bymonth, bymonthday=bymonthday,
+            bymonth = range(1, 13)
+        elif isinstance(bymonth, np.ndarray):
+            # This fixes a bug in dateutil <= 2.3 which prevents the use of
+            # numpy arrays in (among other things) the bymonthday, byweekday
+            # and bymonth parameters.
+            bymonth = [x.item() for x in bymonth.astype(int)]
+
+        rule = rrulewrapper(MONTHLY, bymonth=bymonth, bymonthday=bymonthday,
                          interval=interval, **self.hms0d)
-        RRuleLocator.__init__(self, o, tz)
+        RRuleLocator.__init__(self, rule, tz)
 
 
 class WeekdayLocator(RRuleLocator):
@@ -1152,9 +1157,15 @@ class WeekdayLocator(RRuleLocator):
         *interval* specifies the number of weeks to skip.  For example,
         ``interval=2`` plots every second week.
         """
-        o = rrulewrapper(DAILY, byweekday=byweekday,
-                         interval=interval, **self.hms0d)
-        RRuleLocator.__init__(self, o, tz)
+        if isinstance(byweekday, np.ndarray):
+            # This fixes a bug in dateutil <= 2.3 which prevents the use of
+            # numpy arrays in (among other things) the bymonthday, byweekday
+            # and bymonth parameters.
+            [x.item() for x in byweekday.astype(int)]
+
+        rule = rrulewrapper(DAILY, byweekday=byweekday,
+                            interval=interval, **self.hms0d)
+        RRuleLocator.__init__(self, rule, tz)
 
 
 class DayLocator(RRuleLocator):
@@ -1170,9 +1181,15 @@ class DayLocator(RRuleLocator):
         Default is to tick every day of the month: ``bymonthday=range(1,32)``
         """
         if bymonthday is None:
-            bymonthday = list(xrange(1, 32))
+            bymonthday = range(1, 32)
+        elif isinstance(bymonthday, np.ndarray):
+            # This fixes a bug in dateutil <= 2.3 which prevents the use of
+            # numpy arrays in (among other things) the bymonthday, byweekday
+            # and bymonth parameters.
+            bymonthday = [x.item() for x in bymonthday.astype(int)]
+
         rule = rrulewrapper(DAILY, bymonthday=bymonthday,
-                         interval=interval, **self.hms0d)
+                            interval=interval, **self.hms0d)
         RRuleLocator.__init__(self, rule, tz)
 
 
@@ -1189,7 +1206,8 @@ class HourLocator(RRuleLocator):
         example, if ``interval=2``, mark every second occurrence.
         """
         if byhour is None:
-            byhour = list(xrange(24))
+            byhour = range(24)
+
         rule = rrulewrapper(HOURLY, byhour=byhour, interval=interval,
                             byminute=0, bysecond=0)
         RRuleLocator.__init__(self, rule, tz)
@@ -1208,7 +1226,8 @@ class MinuteLocator(RRuleLocator):
         example, if ``interval=2``, mark every second occurrence.
         """
         if byminute is None:
-            byminute = list(xrange(60))
+            byminute = range(60)
+
         rule = rrulewrapper(MINUTELY, byminute=byminute, interval=interval,
                             bysecond=0)
         RRuleLocator.__init__(self, rule, tz)
@@ -1228,7 +1247,8 @@ class SecondLocator(RRuleLocator):
 
         """
         if bysecond is None:
-            bysecond = list(xrange(60))
+            bysecond = range(60)
+
         rule = rrulewrapper(SECONDLY, bysecond=bysecond, interval=interval)
         RRuleLocator.__init__(self, rule, tz)
 
