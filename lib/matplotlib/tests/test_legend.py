@@ -144,22 +144,6 @@ def test_legend_remove():
 class TestLegendFunction(object):
     # Tests the legend function on the Axes and pyplot.
 
-    deprecation_message = ('The "loc" positional argument '
-                           'to legend is deprecated. Please use '
-                           'the "loc" keyword instead.')
-
-    @cleanup
-    def test_legend_label_loc_args(self):
-        # Check the deprecated warning is created and that the appropriate
-        # call to Legend is made. This wouldn't actually create a valid
-        # legend as there is no artist to legendify, but that doesn't matter.
-        with mock.patch('matplotlib.cbook.warn_deprecated') as deprecation:
-            with mock.patch('matplotlib.legend.Legend') as Legend:
-                plt.legend(['hello world'], 1)
-
-        deprecation.assert_called_with('1.4', self.deprecation_message)
-        Legend.assert_called_with(plt.gca(), [], ['hello world'], loc=1)
-
     @cleanup
     def test_old_legend_handler_interface(self):
         # Check the deprecated warning is created and that the appropriate
@@ -186,18 +170,6 @@ class TestLegendFunction(object):
                                 'being a callable.',
                                 MatplotlibDeprecationWarning,
                                 stacklevel=1)
-
-    @cleanup
-    def test_legend_handle_label_loc_args(self):
-        # Check the deprecated warning is created and that the appropriate
-        # call to Legend is made.
-        lines = plt.plot(range(10))
-        with mock.patch('matplotlib.cbook.warn_deprecated') as deprecation:
-            with mock.patch('matplotlib.legend.Legend') as Legend:
-                plt.legend(lines, ['hello world'], 1)
-
-        deprecation.assert_called_with('1.4', self.deprecation_message)
-        Legend.assert_called_with(plt.gca(), lines, ['hello world'], loc=1)
 
     @cleanup
     def test_legend_handle_label(self):
@@ -228,6 +200,29 @@ class TestLegendFunction(object):
             handles_labels.return_value = lines, ['hello world']
             plt.legend(handler_map={'1': 2})
         handles_labels.assert_called_with({'1': 2})
+
+    @cleanup
+    def test_kwargs(self):
+        fig, ax = plt.subplots(1, 1)
+        th = np.linspace(0, 2*np.pi, 1024)
+        lns, = ax.plot(th, np.sin(th), label='sin', lw=5)
+        lnc, = ax.plot(th, np.cos(th), label='cos', lw=5)
+        with mock.patch('matplotlib.legend.Legend') as Legend:
+            ax.legend(handles=(lnc, lns), labels=('a', 'b'))
+        Legend.assert_called_with(ax, (lnc, lns), ('a', 'b'))
+
+    @cleanup
+    def test_warn_args_kwargs(self):
+        fig, ax = plt.subplots(1, 1)
+        th = np.linspace(0, 2*np.pi, 1024)
+        lns, = ax.plot(th, np.sin(th), label='sin', lw=5)
+        lnc, = ax.plot(th, np.cos(th), label='cos', lw=5)
+        with mock.patch('warnings.warn') as warn:
+            ax.legend((lnc, lns), labels=('a', 'b'))
+
+        warn.assert_called_with("You have mixed positional and keyword "
+                          "arguments, some input will be "
+                          "discarded.")
 
 
 @image_comparison(baseline_images=['legend_stackplot'], extensions=['png'])
