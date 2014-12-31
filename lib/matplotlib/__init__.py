@@ -1442,6 +1442,7 @@ default_test_modules = [
     'matplotlib.tests.test_widgets',
     'mpl_toolkits.tests.test_mplot3d',
     'mpl_toolkits.tests.test_axes_grid1',
+    'mpl_toolkits.tests.test_axes_grid',
     ]
 
 
