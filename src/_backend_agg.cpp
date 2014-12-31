@@ -665,7 +665,8 @@ Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args)
 {
     typedef agg::conv_transform<PathIterator>                  transformed_path_t;
-    typedef PathSnapper<transformed_path_t>                    snap_t;
+    typedef PathNanRemover<transformed_path_t>                 nan_removed_t;
+    typedef PathSnapper<nan_removed_t>                         snap_t;
     typedef agg::conv_curve<snap_t>                            curve_t;
     typedef agg::conv_stroke<curve_t>                          stroke_t;
     typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
@@ -693,7 +694,8 @@ RendererAgg::draw_markers(const Py::Tuple& args)
 
     PathIterator       marker_path(marker_path_obj);
     transformed_path_t marker_path_transformed(marker_path, marker_trans);
-    snap_t             marker_path_snapped(marker_path_transformed,
+    nan_removed_t      marker_path_nan_removed(marker_path_transformed, true, marker_path.has_curves());
+    snap_t             marker_path_snapped(marker_path_nan_removed,
                                            gc.snap_mode,
                                            marker_path.total_vertices(),
                                            gc.linewidth);
@@ -701,7 +703,8 @@ RendererAgg::draw_markers(const Py::Tuple& args)
 
     PathIterator path(path_obj);
     transformed_path_t path_transformed(path, trans);
-    snap_t             path_snapped(path_transformed,
+    nan_removed_t      path_nan_removed(path_transformed, false, false);
+    snap_t             path_snapped(path_nan_removed,
                                     SNAP_FALSE,
                                     path.total_vertices(),
                                     0.0);
