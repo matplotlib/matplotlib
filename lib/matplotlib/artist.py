@@ -984,6 +984,19 @@ class ArtistInspector(object):
         match = self._get_valid_values_regex.search(docstring)
         if match is not None:
             return match.group(1).replace('\n', ' ')
+        else:
+            try:
+                from numpydoc.docscrape import FunctionDoc
+                from inspect import getargspec
+                npdoc = FunctionDoc(func)
+                sig = getargspec(func)
+                params = npdoc._parsed_data["Parameters"]
+                if params:
+                    param1 = npdoc._parsed_data["Parameters"][0]
+                    if param1[0] == sig[0][1] or param1[0] == sig[0][1]:
+                        return param1[1]
+            except ImportError, KeyError:
+                pass
         return 'unknown'
 
     def _get_setters_and_targets(self):
