@@ -7,9 +7,9 @@ from nose.tools import assert_raises
 from numpy.testing import assert_almost_equal
 import numpy as np
 import matplotlib
-
+import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
-
+from matplotlib.testing.decorators import cleanup
 
 def test_MaxNLocator():
     loc = mticker.MaxNLocator(nbins=5)
@@ -36,10 +36,9 @@ def test_MultipleLocator():
     assert_almost_equal(loc.tick_values(-7, 10), test_value)
 
 
+@cleanup
 def test_AutoMinorLocator():
-    from pylab import figure
-    fig = figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.set_xlim(0, 1.39)
     ax.minorticks_on()
     test_value = np.array([0.05, 0.1, 0.15, 0.25, 0.3, 0.35, 0.45,
