@@ -131,6 +131,7 @@ def report_memory(i):
 ##     # w/ text and w/ write_png  : Average memory consumed per loop: 0.32
 
 
+@cleanup
 def test_marker_with_nan():
     # This creates a marker with nans in it, which was segfaulting the
     # Agg backend (see #3722)
