@@ -157,7 +157,7 @@ def get_fontext_synonyms(fontext):
     Return a list of file extensions extensions that are synonyms for
     the given file extension *fileext*.
     """
-    return {'ttf': ('ttf', 'otf'),
+    return {'ttf': ('ttf', 'ttc', 'otf'),
             'otf': ('ttf', 'otf'),
             'afm': ('afm',)}[fontext]
 

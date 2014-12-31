@@ -24,7 +24,7 @@ matrix:
 
 install:
   - pip install -q --use-mirrors nose python-dateutil $NUMPY pep8 pyparsing pillow
-  - sudo apt-get update && sudo apt-get -qq install inkscape libav-tools gdb
+  - sudo apt-get update && sudo apt-get -qq install inkscape libav-tools gdb ttf-wqy-zenhei
   # We use --no-install-recommends to avoid pulling in additional large latex docs that we don't need
 
   # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
