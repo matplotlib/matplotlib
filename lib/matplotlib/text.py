@@ -479,6 +479,8 @@ class Text(Artist):
             self._bbox_patch = None
             self._bbox = rectprops
 
+        self._update_clip_properties()
+
     def get_bbox_patch(self):
         """
         Return the bbox Patch object. Returns None if the the
@@ -530,6 +532,61 @@ class Text(Artist):
         self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
         self._bbox_patch.draw(renderer)
 
+    def _update_clip_properties(self):
+        clipprops = dict(clip_box=self.clipbox,
+                         clip_path=self._clippath,
+                         clip_on=self._clipon)
+
+        if self._bbox:
+            bbox = self._bbox.update(clipprops)
+        if self._bbox_patch:
+            bbox = self._bbox_patch.update(clipprops)
+
+    def set_clip_box(self, clipbox):
+        """
+        Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
+
+        ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
+        """
+        super(Text, self).set_clip_box(clipbox)
+        self._update_clip_properties()
+
+    def set_clip_path(self, path, transform=None):
+        """
+        Set the artist's clip path, which may be:
+
+          * a :class:`~matplotlib.patches.Patch` (or subclass) instance
+
+          * a :class:`~matplotlib.path.Path` instance, in which case
+             an optional :class:`~matplotlib.transforms.Transform`
+             instance may be provided, which will be applied to the
+             path before using it for clipping.
+
+          * *None*, to remove the clipping path
+
+        For efficiency, if the path happens to be an axis-aligned
+        rectangle, this method will set the clipping box to the
+        corresponding rectangle and set the clipping path to *None*.
+
+        ACCEPTS: [ (:class:`~matplotlib.path.Path`,
+        :class:`~matplotlib.transforms.Transform`) |
+        :class:`~matplotlib.patches.Patch` | None ]
+        """
+        super(Text, self).set_clip_path(path, transform)
+        self._update_clip_properties()
+
+    def set_clip_on(self, b):
+        """
+        Set whether artist uses clipping.
+
+        When False artists will be visible out side of the axes which
+        can lead to unexpected results.
+
+        ACCEPTS: [True | False]
+        """
+        super(Text, self).set_clip_on(b)
+        self._update_clip_properties()
+
     @allow_rasterization
     def draw(self, renderer):
         """
@@ -566,9 +623,6 @@ class Text(Artist):
         self._set_gc_clip(gc)
 
         if self._bbox:
-            self._bbox.update(dict(clip_box=self.clipbox,
-                                   clip_path=self._clippath,
-                                   clip_on=self._clipon))
             bbox_artist(self, renderer, self._bbox)
         angle = self.get_rotation()
 
@@ -773,6 +827,8 @@ class Text(Artist):
             self._bbox = dict(facecolor=color, edgecolor=color)
         else:
             self._bbox.update(dict(facecolor=color))
+
+        self._update_clip_properties()
 
     def set_color(self, color):
         """
