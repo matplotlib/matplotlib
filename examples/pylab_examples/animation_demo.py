@@ -13,7 +13,7 @@ x = np.arange(6)
 y = np.arange(5)
 z = x * y[:, np.newaxis]
 
-for i in xrange(5):
+for i in range(5):
     if i == 0:
         p = plt.imshow(z)
         fig = plt.gcf()
