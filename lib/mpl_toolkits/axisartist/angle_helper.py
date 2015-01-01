@@ -385,7 +385,11 @@ class ExtremeFinderCycle(ExtremeFinderSimple):
         lon, lat = transform_xy(np.ravel(x), np.ravel(y))
 
         # iron out jumps, but algorithm should be improved.
-        # Tis is just naive way of doing and my fail for some cases.
+        # This is just naive way of doing and my fail for some cases.
+        # Consider replacing this with numpy.unwrap
+        # We are ignoring invalid warnings. They are triggered when
+        # comparing arrays with NaNs using > We are already handling
+        # that correctly using np.nanmin and np.nanmax
         with np.errstate(invalid='ignore'):
             if self.lon_cycle is not None:
                 lon0 = np.nanmin(lon)
