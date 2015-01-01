@@ -1,7 +1,7 @@
-.. _git-development:
+.. _setting_up_for_development:
 
 =====================
- Git for development
+ Setting up for development
 =====================
 
 Contents:
@@ -11,5 +11,6 @@ Contents:
 
    forking_hell
    set_up_fork
+   matplotlib_for_dev
    configure_git
    development_workflow
