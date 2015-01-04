@@ -19,6 +19,7 @@ import io
 import json
 import os
 import time
+import warnings
 
 import numpy as np
 
@@ -317,6 +318,10 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
         backend_bases.NavigationToolbar2.release_zoom(self, event)
         self.canvas.send_event(
             "rubberband", x0=-1, y0=-1, x1=-1, y1=-1)
+
+    def save_figure(self, *args):
+        """Save the current figure"""
+        warnings.warn('"Save figure" not implemented in Web Backend')
 
 
 class FigureManagerWebAgg(backend_bases.FigureManagerBase):
