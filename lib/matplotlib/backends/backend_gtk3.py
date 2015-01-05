@@ -803,6 +803,7 @@ class ToolbarGTK3(ToolbarBase, Gtk.Box):
 
         if position is None:
             position = -1
+        # TODO implement groups positions
         self._toolbar.insert(tbutton, -1)
         signal = tbutton.connect('clicked', self._call_tool, name)
         tbutton.set_tooltip_text(description)
