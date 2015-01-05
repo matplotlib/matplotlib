@@ -3292,9 +3292,12 @@ class NavigationBase(object):
             - 'tool_message_event'
             - 'tool_removed_event'
             - 'tool_added_event'
+
             For every tool added a new event is created
-            - 'tool_trigger_TOOLNAME
-            Where TOOLNAME is the id of the tool.
+
+            - 'tool_trigger_TOOLNAME`
+              Where TOOLNAME is the id of the tool.
+
         func : function
             Function to be called with signature
             def func(event)
@@ -3347,8 +3350,7 @@ class NavigationBase(object):
         return keys
 
     def _remove_keys(self, name):
-        keys = [k for k, v in six.iteritems(self._keys) if v == name]
-        for k in keys:
+        for k in self.get_tool_keymap(name):
             del self._keys[k]
 
     def set_tool_keymap(self, name, *keys):

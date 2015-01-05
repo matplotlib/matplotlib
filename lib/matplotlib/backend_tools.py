@@ -244,7 +244,7 @@ class ToolCursorPosition(ToolBase):
             'motion_notify_event', self.send_message)
 
     def send_message(self, event):
-        """Call `matplotlib.backend_bases.NavigationBase.message_event"""
+        """Call `matplotlib.backend_bases.NavigationBase.message_event`"""
         if self.navigation.messagelock.locked():
             return
 
