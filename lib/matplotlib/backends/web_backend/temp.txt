@@ -1,0 +1,21 @@
+import matplotlib
+import itertools
+import numpy as np
+matplotlib.use('webagg')
+import matplotlib.pyplot as plt
+plt.close('all')
+fig, ax = plt.subplots()
+x = np.linspace(0,10,100)
+y = np.sin(x)
+ln, = ax.plot(x,y, 'o', picker=5)
+evt = []
+colors = iter(itertools.cycle(['r', 'g', 'b', 'k', 'c']))
+def on_event(event):
+    evt.append(event)
+    ln.set_color(next(colors))
+    fig.canvas.draw()
+    fig.canvas.draw_idle()
+fig.canvas.mpl_connect('figure_enter_event', on_event)
+fig.canvas.mpl_connect('figure_leave_event', on_event)
+plt.show()
+
