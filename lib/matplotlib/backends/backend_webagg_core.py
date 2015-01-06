@@ -253,6 +253,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # identical or within a pixel or so).
         self._png_is_old = True
         self.manager.resize(w, h)
+        self.resize_event()
 
     def handle_send_image_mode(self, event):
         # The client requests notification of what the current image mode is.
