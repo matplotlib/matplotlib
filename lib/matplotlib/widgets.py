@@ -628,7 +628,7 @@ class RadioButtons(AxesWidget):
      *circles*
         A list of :class:`matplotlib.patches.Circle` instances
         
-     *val*
+     *value_selected*
         A string listing the current value selected
 
     Connect to the RadioButtons with the :meth:`on_clicked` method
@@ -648,6 +648,7 @@ class RadioButtons(AxesWidget):
         """
         AxesWidget.__init__(self, ax)
         self.activecolor = activecolor
+        self.value_selected = None
 
         ax.set_xticks([])
         ax.set_yticks([])
@@ -665,7 +666,7 @@ class RadioButtons(AxesWidget):
                         verticalalignment='center')
 
             if cnt == active:
-                self.val = label
+                self.value_selected = label
                 facecolor = activecolor
             else:
                 facecolor = axcolor
@@ -701,7 +702,7 @@ class RadioButtons(AxesWidget):
             if t.get_window_extent().contains(event.x, event.y) or inside(p):
                 inp = p
                 thist = t
-                self.val = t.get_text()
+                self.value_selected = t.get_text()
                 break
         else:
             return
