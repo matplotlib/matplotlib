@@ -192,7 +192,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             pass
         elif e_type == 'draw':
             self.draw()
-        elif e_type in ('button_press', 'button_release', 'motion_notify'):
+        elif e_type in ('button_press', 'button_release', 'motion_notify',
+                        'figure_enter', 'figure_leave'):
             x = event['x']
             y = event['y']
             y = self.get_renderer().height - y
@@ -214,6 +215,10 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 self.button_release_event(x, y, button)
             elif e_type == 'motion_notify':
                 self.motion_notify_event(x, y)
+            elif e_type == 'figure_enter':
+                self.enter_notify_event(xy=(x, y))
+            elif e_type == 'figure_leave':
+                self.leave_notify_event()
         elif e_type in ('key_press', 'key_release'):
             key = event['key']
 
