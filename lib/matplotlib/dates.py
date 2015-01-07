@@ -491,9 +491,11 @@ class DateFormatter(ticker.Formatter):
         fmt = fmt.replace("%s", "s")
 
         # strftime is not supported on datetime for years <= 1900 in Python 2.x
-        # or years <= 1000 in Python 3.x
-        if dt.year > 1900:
+        # or years <= 1000 in Python 3.3. Raises ValueError on failure.
+        try:
             return cbook.unicode_safe(dt.strftime(fmt))
+        except ValueError:
+            pass
 
         year = dt.year
         # For every non-leap year century, advance by
