@@ -186,10 +186,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             iy0 = max(0, int(y0 - self._filterrad))
             y1 = (viewlim.y1-ymin)/dyintv * numrows
             iy1 = min(numrows, int(y1 + self._filterrad))
-            if self.origin == 'upper':
-                yslice = slice(numrows-iy1, numrows-iy0)
-            else:
-                yslice = slice(iy0, iy1)
+            yslice = slice(iy0, iy1)
             ymin_old = ymin
             ymin = ymin_old + iy0*dyintv/numrows
             ymax = ymin_old + iy1*dyintv/numrows
