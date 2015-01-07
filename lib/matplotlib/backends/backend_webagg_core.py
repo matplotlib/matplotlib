@@ -329,7 +329,7 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
 
     def save_figure(self, *args):
         """Save the current figure"""
-        warnings.warn('"Save figure" not implemented in Web Backend')
+        self.canvas.send_event('save')
 
 
 class FigureManagerWebAgg(backend_bases.FigureManagerBase):
