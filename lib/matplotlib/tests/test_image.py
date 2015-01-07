@@ -357,6 +357,20 @@ def test_get_window_extent_for_AxisImage():
     assert_array_equal(im_bbox.get_points(), [[400, 200], [700, 900]])
 
 
+@image_comparison(baseline_images=['zoom_and_clip_upper_origin'],
+                  remove_text=True,
+                  extensions=['png'])
+def test_zoom_and_clip_upper_origin():
+    image = np.arange(100)
+    image = image.reshape((10, 10))
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.imshow(image)
+    ax.set_ylim(2.0, -0.5)
+    ax.set_xlim(-0.5, 2.0)
+
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
