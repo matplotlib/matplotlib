@@ -794,28 +794,12 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         """
         DEBUG_MSG("draw_idle()", 1, self)
         self._isDrawn = False  # Force redraw
-        # Create a timer for handling draw_idle requests
-        # If there are events pending when the timer is
-        # complete, reset the timer and continue.  The
-        # alternative approach, binding to wx.EVT_IDLE,
-        # doesn't behave as nicely.
-        if hasattr(self,'_idletimer'):
-            self._idletimer.Restart(IDLE_DELAY)
-        else:
-            self._idletimer = wx.FutureCall(IDLE_DELAY,self._onDrawIdle)
-            # FutureCall is a backwards-compatible alias;
-            # CallLater became available in 2.7.1.1.
-
-    def _onDrawIdle(self, *args, **kwargs):
-        if wx.GetApp().Pending():
-            self._idletimer.Restart(IDLE_DELAY, *args, **kwargs)
-        else:
-            del self._idletimer
-            # GUI event or explicit draw call may already
-            # have caused the draw to take place
-            if not self._isDrawn:
-                self.draw(*args, **kwargs)
-
+        
+        # Triggering a paint event is all that is needed to defer drawing
+        # until later. The platform will send the event when it thinks it is
+        # a good time (usually as soon as there are no other events pending).
+        self.Refresh(eraseBackground=False)
+        
     def draw(self, drawDC=None):
         """
         Render the figure using RendererWx instance renderer, or using a
@@ -1714,30 +1698,30 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.canvas.draw()
             self._idle = True
 
+    def press(self, event):
+        if self._active == 'ZOOM':
+            self.wxoverlay = wx.Overlay()
+
+    def release(self, event):
+        if self._active == 'ZOOM':
+            # When the mouse is released we reset the overlay and it
+            # restores the former content to the window.
+            self.wxoverlay.Reset()
+            del self.wxoverlay
+
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        'adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/189744'
-        canvas = self.canvas
-        dc =wx.ClientDC(canvas)
+        # Use an Overlay to draw a rubberband-like bounding box.
 
-        # Set logical function to XOR for rubberbanding
-        dc.SetLogicalFunction(wx.XOR)
+        dc = wx.ClientDC(self.canvas)
+        odc = wx.DCOverlay(self.wxoverlay, dc)
+        odc.Clear()
 
-        # Set dc brush and pen
-        # Here I set brush and pen to white and grey respectively
-        # You can set it to your own choices
+        # Mac's DC is already the same as a GCDC, and it causes
+        # problems with the overlay if we try to use an actual
+        # wx.GCDC so don't try it.
+        if 'wxMac' not in wx.PlatformInfo:
+            dc = wx.GCDC(dc)
 
-        # The brush setting is not really needed since we
-        # dont do any filling of the dc. It is set just for
-        # the sake of completion.
-
-        wbrush =wx.Brush(wx.Colour(255,255,255), wx.TRANSPARENT)
-        wpen =wx.Pen(wx.Colour(200, 200, 200), 1, wx.SOLID)
-        dc.SetBrush(wbrush)
-        dc.SetPen(wpen)
-
-
-        dc.ResetBoundingBox()
-        dc.BeginDrawing()
         height = self.canvas.figure.bbox.height
         y1 = height - y1
         y0 = height - y0
@@ -1747,14 +1731,20 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
         w = x1 - x0
         h = y1 - y0
+        rect = wx.Rect(x0, y0, w, h)
 
-        rect = int(x0), int(y0), int(w), int(h)
-        try: lastrect = self.lastrect
-        except AttributeError: pass
-        else: dc.DrawRectangle(*lastrect)  #erase last
-        self.lastrect = rect
-        dc.DrawRectangle(*rect)
-        dc.EndDrawing()
+        rubberBandColor = '#C0C0FF' # or load from config?
+
+        # Set a pen for the border
+        color = wx.NamedColour(rubberBandColor)
+        dc.SetPen(wx.Pen(color, 1))
+
+        # use the same color, plus alpha for the brush
+        r, g, b = color.Get()
+        color.Set(r,g,b, 0x60)
+        dc.SetBrush(wx.Brush(color))
+        dc.DrawRectangleRect(rect)
+        
 
     def set_status_bar(self, statbar):
         self.statbar = statbar
