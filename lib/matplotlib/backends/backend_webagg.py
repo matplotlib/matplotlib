@@ -17,7 +17,6 @@ import six
 
 import datetime
 import errno
-import io
 import json
 import os
 import random
@@ -197,13 +196,7 @@ class WebAggApplication(tornado.web.Application):
 
             self.set_header('Content-Type', mimetypes.get(fmt, 'binary'))
 
-            # override fileno to raise AttributeError to prevent PIL error
-            class BytesIO(io.BytesIO):
-                @property
-                def fileno(self):
-                    raise AttributeError
-
-            buff = BytesIO()
+            buff = six.BytesIO()
             manager.canvas.print_figure(buff, format=fmt)
             self.write(buff.getvalue())
 
