@@ -431,7 +431,10 @@ class RendererPgf(RendererBase):
                     self.__dict__[m] = nop
         else:
             # if fh does not belong to a filename, deactivate draw_image
-            if not os.path.exists(fh.name):
+            if not hasattr(fh, 'name') or not os.path.exists(fh.name):
+                warnings.warn("streamed pgf-code does not support raster "
+                              "graphics, consider using the pgf-to-pdf option",
+                              UserWarning)
                 self.__dict__["draw_image"] = lambda *args, **kwargs: None
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
@@ -835,11 +838,8 @@ class FigureCanvasPgf(FigureCanvasBase):
             with codecs.open(fname_or_fh, "w", encoding="utf-8") as fh:
                 self._print_pgf_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
-            if not os.path.exists(fname_or_fh.name):
-                warnings.warn("streamed pgf-code does not support raster "
-                              "graphics, consider using the pgf-to-pdf option",
-                              UserWarning)
-            self._print_pgf_to_fh(fname_or_fh, *args, **kwargs)
+            fh = codecs.getwriter("utf-8")(fname_or_fh)
+            self._print_pgf_to_fh(fh, *args, **kwargs)
         else:
             raise ValueError("filename must be a path")
 
