@@ -197,7 +197,13 @@ class WebAggApplication(tornado.web.Application):
 
             self.set_header('Content-Type', mimetypes.get(fmt, 'binary'))
 
-            buff = io.BytesIO()
+            # override fileno to raise AttributeError so PIL doesn't error
+            class BytesIO(io.BytesIO):
+                @property
+                def fileno(self):
+                    raise AttributeError
+
+            buff = BytesIO()
             manager.canvas.print_figure(buff, format=fmt)
             self.write(buff.getvalue())
 
