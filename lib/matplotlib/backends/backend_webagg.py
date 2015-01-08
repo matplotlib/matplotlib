@@ -197,7 +197,7 @@ class WebAggApplication(tornado.web.Application):
 
             self.set_header('Content-Type', mimetypes.get(fmt, 'binary'))
 
-            # override fileno to raise AttributeError so PIL doesn't error
+            # override fileno to raise AttributeError to prevent PIL error
             class BytesIO(io.BytesIO):
                 @property
                 def fileno(self):
