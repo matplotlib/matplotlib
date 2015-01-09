@@ -693,7 +693,8 @@ class AxesImage(_AxesImageBase):
         array_extent = mtransforms.Bbox([[0, 0], arr.shape[:2]])
         trans = mtransforms.BboxTransformFrom(data_extent) +\
             mtransforms.BboxTransformTo(array_extent)
-        i, j = trans.transform_point([event.ydata, event.xdata]).astype(int)
+        y, x = event.ydata, event.xdata
+        i, j = trans.transform_point([y, x]).astype(int)
         z = arr[i, j]
         if z.size > 1:
             # Override default numpy formatting for this specific case. Bad idea?
