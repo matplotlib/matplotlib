@@ -2800,6 +2800,12 @@ class NavigationToolbar2(object):
             except (ValueError, OverflowError):
                 pass
             else:
+                ax = event.inaxes
+                artists = ax.artists + ax.images + ax.lines
+                artists = [a for a in artists if a.contains(event)[0]]
+                if artists:
+                    artist = artists[np.argmax([a.zorder for a in artists])]
+                    s += artist.get_zdata(event)
                 if len(self.mode):
                     self.set_message('%s, %s' % (self.mode, s))
                 else:

@@ -1020,6 +1020,12 @@ class ArtistInspector(object):
 
         return [prop for prop, target in self._get_setters_and_targets()]
 
+    def get_zdata(self, event):
+        """
+        Get the zdata for a given event, as a string message
+        """
+        return ''
+
     def is_alias(self, o):
         """
         Return *True* if method object *o* is an alias for another
