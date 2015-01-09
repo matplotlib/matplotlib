@@ -683,6 +683,23 @@ class AxesImage(_AxesImageBase):
             else:
                 return (-0.5, numcols-0.5, -0.5, numrows-0.5)
 
+    def get_zdata(self, event):
+        """Get the zdata message for a given event"""
+        xmin, xmax, ymin, ymax = self.get_extent()
+        if self.origin == 'upper':
+            ymin, ymax = ymax, ymin
+        arr = self.get_array()
+        data_extent = mtransforms.Bbox([[ymin, xmin], [ymax, xmax]])
+        array_extent = mtransforms.Bbox([[0, 0], arr.shape[:2]])
+        trans = mtransforms.BboxTransformFrom(data_extent) +\
+            mtransforms.BboxTransformTo(array_extent)
+        i, j = trans.transform_point([event.ydata, event.xdata]).astype(int)
+        z = arr[i, j]
+        if z.size > 1:
+            # Override default numpy formatting for this specific case. Bad idea?
+            z = ', '.join('{:0.3g}'.format(item) for item in z)
+        return 'z=%s' % z
+
 
 class NonUniformImage(AxesImage):
     def __init__(self, ax, **kwargs):
