@@ -3,7 +3,13 @@ Code Removal
 
 Legend
 ------
-Removed handling of `loc` as a positional argument to `Legend`
+ - Removed handling of `loc` as a positional argument to `Legend`
+
+
+Legend handlers
+~~~~~~~~~~~~~~~
+Remove code to allow legend handlers to be callable.  They must now
+implement a method ``legend_artist``.
 
 
 Axis
