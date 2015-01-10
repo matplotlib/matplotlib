@@ -63,3 +63,8 @@ patheffects.svg
 Remove ``testing.image_util.py``
 --------------------------------
 Contained only a no-longer used port of functionality from PIL
+
+
+Remove ``mlab.FIFOBuffer``
+--------------------------
+Not used internally and not part of core mission of mpl.
