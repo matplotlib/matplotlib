@@ -160,19 +160,6 @@ Example usage::
     gtk.main()
 
 
-Deprecated functions
----------------------
-
-The following are deprecated; please import directly from numpy (with
-care--function signatures may differ):
-
-
-:func:`load`
-    Load ASCII file - use numpy.loadtxt
-
-:func:`save`
-    Save ASCII file - use numpy.savetxt
-
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -1621,45 +1608,6 @@ def longest_contiguous_ones(x):
 def longest_ones(x):
     '''alias for longest_contiguous_ones'''
     return longest_contiguous_ones(x)
-
-
-def prepca(P, frac=0):
-    """
-
-    .. warning::
-
-        This function is deprecated -- please see class PCA instead
-
-    Compute the principal components of *P*.  *P* is a (*numVars*,
-    *numObs*) array.  *frac* is the minimum fraction of variance that a
-    component must contain to be included.
-
-    Return value is a tuple of the form (*Pcomponents*, *Trans*,
-    *fracVar*) where:
-
-      - *Pcomponents* : a (numVars, numObs) array
-
-      - *Trans* : the weights matrix, i.e., *Pcomponents* = *Trans* *
-         *P*
-
-      - *fracVar* : the fraction of the variance accounted for by each
-         component returned
-
-    A similar function of the same name was in the MATLAB
-    R13 Neural Network Toolbox but is not found in later versions;
-    its successor seems to be called "processpcs".
-    """
-    warnings.warn('This function is deprecated -- see class PCA instead')
-    U, s, v = np.linalg.svd(P)
-    varEach = s**2/P.shape[1]
-    totVar = varEach.sum()
-    fracVar = varEach/totVar
-    ind = slice((fracVar >= frac).sum())
-    # select the components that are greater
-    Trans = U[:, ind].transpose()
-    # The transformed data
-    Pcomponents = np.dot(Trans, P)
-    return Pcomponents, Trans, fracVar[ind]
 
 
 class PCA(object):
