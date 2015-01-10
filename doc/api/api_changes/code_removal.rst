@@ -73,3 +73,8 @@ Not used internally and not part of core mission of mpl.
 Remove ``mlab.prepca``
 ----------------------
 Deprecated in 2009.
+
+
+Remove ``NavigationToolbar2QTAgg``
+----------------------------------
+Added no functionality over the base ``NavigationToolbar2Qt``
