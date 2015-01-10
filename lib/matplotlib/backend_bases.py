@@ -1678,12 +1678,6 @@ class FigureCanvasBase(object):
         self.mouse_grabber = None  # the axes currently grabbing mouse
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_saving = False
-        if False:
-            ## highlight the artists that are hit
-            self.mpl_connect('motion_notify_event', self.onHilite)
-            ## delete the artists that are clicked on
-            #self.mpl_disconnect(self.button_pick_id)
-            #self.mpl_connect('button_press_event',self.onRemove)
 
     def is_saving(self):
         """
@@ -1734,15 +1728,16 @@ class FigureCanvasBase(object):
 
             canvas.mpl_connect('motion_notify_event',canvas.onHilite)
         """
+        msg = ("onHilite has been deprecated in 1.5 and will be removed "
+               "in 1.6.  This function has not been used internally by mpl "
+               "since 2007.")
+        warnings.warn(msg, mplDeprecation)
         if not hasattr(self, '_active'):
             self._active = dict()
 
         under = self.figure.hitlist(ev)
         enter = [a for a in under if a not in self._active]
         leave = [a for a in self._active if a not in under]
-        #print "within:"," ".join([str(x) for x in under])
-        #print "entering:",[str(a) for a in enter]
-        #print "leaving:",[str(a) for a in leave]
         # On leave restore the captured colour
         for a in leave:
             if hasattr(a, 'get_color'):
