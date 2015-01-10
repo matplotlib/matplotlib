@@ -41,3 +41,9 @@ Change your import from 'matplotlib.sphinxext.ipython_directive' to
 LineCollection.color
 --------------------
 Deprecated in 2005, use ``set_color``
+
+
+remove 'faceted' as a valid value for `shading` in ``tri.tripcolor``
+--------------------------------------------------------------------
+Use `edgecolor` instead.  Added validation on ``shading`` to
+only be valid values.
