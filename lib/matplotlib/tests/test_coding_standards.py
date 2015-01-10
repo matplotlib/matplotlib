@@ -159,8 +159,7 @@ def assert_pep8_conformance(module=matplotlib, exclude_files=None,
 def test_pep8_conformance_installed_files():
     __tracebackhide__ = True
 
-    exclude_files = ['_delaunay.py',
-                     '_image.py',
+    exclude_files = ['_image.py',
                      '_tri.py',
                      '_backend_agg.py',
                      '_tkagg.py',
@@ -206,7 +205,6 @@ def test_pep8_conformance_installed_files():
                           'tri/triinterpolate.py',
                           'tests/test_axes.py',
                           'tests/test_bbox_tight.py',
-                          'tests/test_delaunay.py',
                           'tests/test_image.py',
                           'tests/test_legend.py',
                           'tests/test_lines.py',
