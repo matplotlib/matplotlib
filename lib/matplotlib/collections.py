@@ -1139,18 +1139,6 @@ class LineCollection(Collection):
         """
         self.set_edgecolor(c)
 
-    def color(self, c):
-        """
-        Set the color(s) of the line collection.  *c* can be a
-        matplotlib color arg (all patches have same color), or a
-        sequence or rgba tuples; if it is a sequence the patches will
-        cycle through the sequence
-
-        ACCEPTS: matplotlib color arg or sequence of rgba tuples
-        """
-        warnings.warn('LineCollection.color deprecated; use set_color instead')
-        return self.set_color(c)
-
     def get_color(self):
         return self._edgecolors
     get_colors = get_color  # for compatibility with old versions
@@ -1505,7 +1493,7 @@ class EllipseCollection(Collection):
         self._transforms[:, 1, 0] = widths * sin_angle
         self._transforms[:, 1, 1] = heights * cos_angle
         self._transforms[:, 2, 2] = 1.0
-        
+
         _affine = transforms.Affine2D
         if self._units == 'xy':
             m = ax.transData.get_affine().get_matrix().copy()

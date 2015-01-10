@@ -36,3 +36,8 @@ Both ``ipython_console_highlighting`` and ``ipython_directive`` have been moved 
 Change your import from 'matplotlib.sphinxext.ipython_directive' to
 'IPython.sphinxext.ipython_directive' and from 'matplotlib.sphinxext.ipython_directive' to
 'IPython.sphinxext.ipython_directive'
+
+
+LineCollection.color
+--------------------
+Deprecated in 2005, use ``set_color``
