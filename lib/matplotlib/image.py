@@ -697,7 +697,7 @@ class AxesImage(_AxesImageBase):
         i, j = trans.transform_point([y, x]).astype(int)
         z = arr[i, j]
         if z.size > 1:
-            # Override default numpy formatting for this specific case. 
+            # Override default numpy formatting for this specific case.
             # Bad idea?
             z = ', '.join('{:0.3g}'.format(item) for item in z)
         return 'z=%s' % z
