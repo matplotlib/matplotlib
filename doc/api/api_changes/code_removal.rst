@@ -58,3 +58,8 @@ patheffects.svg
 ---------------
  - remove ``get_proxy_renderer`` method from ``AbstarctPathEffect`` class
  - remove ``patch_alpha`` and ``offset_xy`` from ``SimplePatchShadow``
+
+
+Remove ``testing.image_util.py``
+--------------------------------
+Contained only a no-longer used port of functionality from PIL
