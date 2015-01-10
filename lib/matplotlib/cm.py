@@ -200,11 +200,6 @@ class ScalarMappable(object):
         self.colorbar = None
         self.update_dict = {'array': False}
 
-    @cbook.deprecated('1.3', alternative='the colorbar attribute')
-    def set_colorbar(self, im, ax):
-        """set the colorbar and axes instances associated with mappable"""
-        self.colorbar = im
-
     def to_rgba(self, x, alpha=None, bytes=False):
         """
         Return a normalized rgba array corresponding to *x*.

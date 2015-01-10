@@ -47,3 +47,8 @@ remove 'faceted' as a valid value for `shading` in ``tri.tripcolor``
 --------------------------------------------------------------------
 Use `edgecolor` instead.  Added validation on ``shading`` to
 only be valid values.
+
+
+Remove ``set_colorbar`` method from ``ScalarMappable``
+------------------------------------------------------
+Remove ``set_colorbar`` method, use `colorbar` attribute directly.
