@@ -20,3 +20,13 @@ Removed functions with ambiguous argument order from finance.py
 Annotation
 ----------
 Removed ``textcoords`` and ``xytext`` proprieties from Annotation objects.
+
+
+spinxext.ipython_*.py
+---------------------
+Both ``ipython_console_highlighting`` and ``ipython_directive`` have been moved to
+`IPython`.
+
+Change your import from 'matplotlib.sphinxext.ipython_directive' to
+'IPython.sphinxext.ipython_directive' and from 'matplotlib.sphinxext.ipython_directive' to
+'IPython.sphinxext.ipython_directive'

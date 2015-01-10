@@ -241,8 +241,6 @@ def test_pep8_conformance_installed_files():
                           'backends/tkagg.py',
                           'backends/windowing.py',
                           'backends/qt_editor/formlayout.py',
-                          'sphinxext/ipython_console_highlighting.py',
-                          'sphinxext/ipython_directive.py',
                           'sphinxext/mathmpl.py',
                           'sphinxext/only_directives.py',
                           'sphinxext/plot_directive.py',
