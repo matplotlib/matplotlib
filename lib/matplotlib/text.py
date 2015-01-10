@@ -1723,30 +1723,6 @@ class _AnnotationBase(object):
 
         return self._draggable
 
-    @property
-    @cbook.deprecated('1.4', message='Use `anncoords` instead',
-                      name='textcoords', alternative='anncoords')
-    def textcoords(self):
-        return self.anncoords
-
-    @textcoords.setter
-    @cbook.deprecated('1.4', message='Use `anncoords` instead',
-                      name='textcoords', alternative='anncoords')
-    def textcoords(self, val):
-        self.anncoords = val
-
-    @property
-    @cbook.deprecated('1.4', message='Use `xyann` instead',
-                      name='xytext', alternative='xyann')
-    def xytext(self):
-        return self.xyann
-
-    @xytext.setter
-    @cbook.deprecated('1.4', message='Use `xyann` instead',
-                      name='xytext', alternative='xyann')
-    def xytext(self, val):
-        self.xyann = val
-
 
 class Annotation(Text, _AnnotationBase):
     """

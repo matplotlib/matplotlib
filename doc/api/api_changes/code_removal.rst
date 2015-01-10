@@ -15,3 +15,8 @@ which takes care of ensuring the coupled changes are also made to the Axes objec
 finance.py
 ----------
 Removed functions with ambiguous argument order from finance.py
+
+
+Annotation
+----------
+Removed ``textcoords`` and ``xytext`` proprieties from Annotation objects.
