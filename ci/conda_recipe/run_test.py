@@ -1,11 +1,10 @@
 import os
-import platform 
+import platform
 import sys
 
 import matplotlib
 import matplotlib.pyplot
 import matplotlib._cntr
-import matplotlib._delaunay
 import matplotlib._image
 import matplotlib._path
 import matplotlib._png

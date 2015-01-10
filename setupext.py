@@ -1396,21 +1396,6 @@ class Contour(SetupPackage):
         return ext
 
 
-class Delaunay(SetupPackage):
-    name = "delaunay"
-
-    def get_packages(self):
-        return ['matplotlib.delaunay']
-
-    def get_extension(self):
-        sources = ["_delaunay.cpp", "VoronoiDiagramGenerator.cpp",
-                   "delaunay_utils.cpp", "natneighbors.cpp"]
-        sources = [os.path.join('lib/matplotlib/delaunay', s) for s in sources]
-        ext = make_extension('matplotlib._delaunay', sources)
-        Numpy().add_flags(ext)
-        return ext
-
-
 class QhullWrap(SetupPackage):
     name = "qhull_wrap"
 
