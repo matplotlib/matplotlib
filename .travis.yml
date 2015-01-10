@@ -22,9 +22,6 @@ matrix:
     - python: 2.7
       env: BUILD_DOCS=true
 
-before_install:
-    - openssl aes-256-cbc -K $encrypted_cc802e084cd0_key -iv $encrypted_cc802e084cd0_iv -in .travis/matplotlibDeployKey.enc -out .travis/matplotlibDeployKey -d
-
 install:
   - pip install -q --use-mirrors nose python-dateutil $NUMPY pep8 pyparsing pillow
   - sudo apt-get update && sudo apt-get -qq install inkscape libav-tools gdb
@@ -62,6 +59,7 @@ after_success:
   if [[ $TRAVIS_PULL_REQUEST == false && $BUILD_DOCS == true && $TRAVIS_BRANCH == 'master' ]]; then
     echo "Uploading documentation"
     cd ..
+    openssl aes-256-cbc -K $encrypted_cc802e084cd0_key -iv $encrypted_cc802e084cd0_iv -in .travis/matplotlibDeployKey.enc -out .travis/matplotlibDeployKey -d
     eval `ssh-agent -s`
     chmod 600 .travis/matplotlibDeployKey
     ssh-add .travis/matplotlibDeployKey
@@ -78,5 +76,5 @@ after_success:
     git commit -m "Docs build of $TRAVIS_COMMIT"
     git push --set-upstream origin gh-pages --force
   else
-    echo "Will only build docs on master branch"
+    echo "Will only deploy docs build from matplotlib master branch"
   fi
