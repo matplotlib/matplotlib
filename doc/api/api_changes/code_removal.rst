@@ -52,3 +52,9 @@ only be valid values.
 Remove ``set_colorbar`` method from ``ScalarMappable``
 ------------------------------------------------------
 Remove ``set_colorbar`` method, use `colorbar` attribute directly.
+
+
+patheffects.svg
+---------------
+ - remove ``get_proxy_renderer`` method from ``AbstarctPathEffect`` class
+ - remove ``patch_alpha`` and ``offset_xy`` from ``SimplePatchShadow``
