@@ -77,7 +77,7 @@ after_success:
     ssh-add .travis/matplotlibDeployKey
     cd ..
     git clone git@github.com:matplotlib/devdocs.git
-    cd mplddocs
+    cd devdocs
     git checkout --orphan gh-pages
     cp -R ../matplotlib/doc/build/html/. .
     touch .nojekyll
