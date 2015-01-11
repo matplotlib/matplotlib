@@ -65,3 +65,28 @@ after_failure:
   - if [[ $TRAVIS_PULL_REQUEST == false ]]; then gem install travis-artifacts; fi
   - if [[ $TRAVIS_PULL_REQUEST == false ]]; then travis-artifacts upload --path result_images.tar.bz2; fi
   - if [[ $TRAVIS_PULL_REQUEST != false ]]; then echo "The result images will only be uploaded if they are on the matplotlib/matplotlib repo - this is for security reasons to prevent arbitrary PRs echoing security details." else echo https://s3.amazonaws.com/matplotlib-test-results/artifacts/${TRAVIS_BUILD_NUMBER}/${TRAVIS_JOB_NUMBER}/result_images.tar.bz2; fi
+
+after_success:
+  |
+  if [[ $TRAVIS_PULL_REQUEST == false && $BUILD_DOCS == true && $TRAVIS_BRANCH == 'master' ]]; then
+    echo "Uploading documentation"
+    cd ..
+    openssl aes-256-cbc -K $encrypted_cc802e084cd0_key -iv $encrypted_cc802e084cd0_iv -in .travis/matplotlibDeployKey.enc -out .travis/matplotlibDeployKey -d
+    eval `ssh-agent -s`
+    chmod 600 .travis/matplotlibDeployKey
+    ssh-add .travis/matplotlibDeployKey
+    cd ..
+    git clone git@github.com:matplotlib/devdocs.git
+    cd mplddocs
+    git checkout --orphan gh-pages
+    cp -R ../matplotlib/doc/build/html/. .
+    touch .nojekyll
+    git config --global user.email "MatplotlibTravisBot@nomail"
+    git config --global user.name "MatplotlibTravisBot"
+    git config --global push.default simple
+    git add .
+    git commit -m "Docs build of $TRAVIS_COMMIT"
+    git push --set-upstream origin gh-pages --force
+  else
+    echo "Will only deploy docs build from matplotlib master branch"
+  fi
