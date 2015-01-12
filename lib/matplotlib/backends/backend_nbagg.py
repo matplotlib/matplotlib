@@ -92,6 +92,7 @@ _FONT_AWESOME_CLASSES = {
     'forward': 'fa fa-arrow-right icon-arrow-right',
     'zoom_to_rect': 'fa fa-square-o icon-check-empty',
     'move': 'fa fa-arrows icon-move',
+    'download': 'fa fa-icon-save icon-save',
     None: None
 }
 
@@ -102,7 +103,8 @@ class NavigationIPy(NavigationToolbar2WebAgg):
     toolitems = [(text, tooltip_text,
                   _FONT_AWESOME_CLASSES[image_file], name_of_method)
                  for text, tooltip_text, image_file, name_of_method
-                 in NavigationToolbar2.toolitems
+                 in (NavigationToolbar2.toolitems +
+                     (('Download', 'Download plot', 'download', 'download'),))
                  if image_file in _FONT_AWESOME_CLASSES]
 
 
