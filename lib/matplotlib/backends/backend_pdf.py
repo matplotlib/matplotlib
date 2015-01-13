@@ -480,8 +480,8 @@ class PdfFile(object):
 
         self.paths = []
 
-        self.pageAnnotations = [] # A list of annotations for the
-                                  # current page
+        self.pageAnnotations = []  # A list of annotations for the
+                                   # current page
 
         # The PDF spec recommends to include every procset
         procsets = [Name(x)
@@ -526,7 +526,7 @@ class PdfFile(object):
         # Clear the list of annotations for the next page
         self.pageAnnotations = []
 
-    def newTextnote(self, text, positionRect = [-100, -100, 0, 0]):
+    def newTextnote(self, text, positionRect=[-100, -100, 0, 0]):
         # Create a new annotation of type text
         theNote = {'Type': Name('Annot'),
                    'Subtype': Name('Text'),
@@ -2468,6 +2468,7 @@ class PdfPages(object):
         Add a new text note to the page to be saved next.
         """
         self._file.newTextnote(text)
+
 
 class FigureCanvasPdf(FigureCanvasBase):
     """
