@@ -62,7 +62,7 @@ class CanvasFrame(wx.Frame):
             menu = wx.Menu()
             for i, (mt, func) in enumerate(functions):
                 bm = mathtext_to_wxbitmap(mt)
-                item = wx.MenuItem(menu, 1000 + i, "")
+                item = wx.MenuItem(menu, 1000 + i, " ")
                 item.SetBitmap(bm)
                 menu.AppendItem(item)
                 self.Bind(wx.EVT_MENU, self.OnChangePlot, item)
