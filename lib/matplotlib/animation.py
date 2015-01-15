@@ -472,9 +472,9 @@ class MencoderBase(object):
         lavcopts = {'vcodec': self.codec}
         if self.bitrate > 0:
             lavcopts.update(vbitrate=self.bitrate)
-
-        args = ['-o', self.outfile, '-ovc', 'lavc',
-                '-lavcopts', ':'.join(itertools.starmap('{0}={1}'.format, lavcopts.items()))]
+        args = ['-o', self.outfile, '-ovc', 'lavc', '-lavcopts',
+                ':'.join(itertools.starmap('{0}={1}'.format,
+                                           lavcopts.items()))]
         if self.extra_args:
             args.extend(self.extra_args)
         if self.metadata:
