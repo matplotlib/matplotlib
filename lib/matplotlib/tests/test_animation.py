@@ -33,9 +33,6 @@ def check_save_animation(writer, extension='mp4'):
     if not animation.writers.is_available(writer):
         raise KnownFailureTest("writer '%s' not available on this system"
                                % writer)
-    if 'mencoder' in writer:
-        raise KnownFailureTest("mencoder is broken")
-
     fig, ax = plt.subplots()
     line, = ax.plot([], [])
 
