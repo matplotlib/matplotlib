@@ -33,9 +33,6 @@ def check_save_animation(writer, extension='mp4'):
     if not animation.writers.is_available(writer):
         raise KnownFailureTest("writer '%s' not available on this system"
                                % writer)
-    if 'mencoder' in writer:
-        raise KnownFailureTest("mencoder is broken")
-
     fig, ax = plt.subplots()
     line, = ax.plot([], [])
 
@@ -57,7 +54,7 @@ def check_save_animation(writer, extension='mp4'):
     F.close()
     anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
     try:
-        anim.save(F.name, fps=30, writer=writer)
+        anim.save(F.name, fps=30, writer=writer, bitrate=500)
     except UnicodeDecodeError:
         raise KnownFailureTest("There can be errors in the numpy " +
                                "import stack, " +
