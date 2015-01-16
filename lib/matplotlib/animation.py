@@ -334,7 +334,7 @@ class FileMovieWriter(MovieWriter):
         All keyword arguments in savefig_kwargs are passed on to the 'savefig'
         command that saves the figure.
         '''
-        #Overloaded to explicitly close temp file.
+        # Overloaded to explicitly close temp file.
         verbose.report('MovieWriter.grab_frame: Grabbing frame.',
                        level='debug')
         try:
@@ -368,7 +368,7 @@ class FileMovieWriter(MovieWriter):
     def cleanup(self):
         MovieWriter.cleanup(self)
 
-        #Delete temporary files
+        # Delete temporary files
         if self.clear_temp:
             import os
             verbose.report(
@@ -416,7 +416,7 @@ class FFMpegWriter(MovieWriter, FFMpegBase):
         return args
 
 
-#Combine FFMpeg options with temp file-based writing
+# Combine FFMpeg options with temp file-based writing
 @writers.register('ffmpeg_file')
 class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
     supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
@@ -469,10 +469,12 @@ class MencoderBase(object):
     @property
     def output_args(self):
         self._remap_metadata()
-        args = ['-o', self.outfile, '-ovc', 'lavc', '-lavcopts',
-                'vcodec=%s' % self.codec]
+        lavcopts = {'vcodec': self.codec}
         if self.bitrate > 0:
-            args.append('vbitrate=%d' % self.bitrate)
+            lavcopts.update(vbitrate=self.bitrate)
+        args = ['-o', self.outfile, '-ovc', 'lavc', '-lavcopts',
+                ':'.join(itertools.starmap('{0}={1}'.format,
+                                           lavcopts.items()))]
         if self.extra_args:
             args.extend(self.extra_args)
         if self.metadata:
@@ -748,7 +750,7 @@ class Animation(object):
             for data in zip(*[a.new_saved_frame_seq()
                               for a in all_anim]):
                 for anim, d in zip(all_anim, data):
-                    #TODO: Need to see if turning off blit is really necessary
+                    # TODO: Need to see if turning off blit is really necessary
                     anim._draw_next_frame(d, blit=False)
                 writer.grab_frame(**savefig_kwargs)
 
