@@ -1300,7 +1300,7 @@ class Transform(TransformNode):
 
         # Convert the result back to the shape of the input values.
         if ndim == 0:
-            assert not np.ma.is_masked(res)  # just to be on the safe side                                             
+            assert not np.ma.is_masked(res)  # just to be on the safe side
             return res[0, 0]
         if ndim == 1:
             return res.reshape(-1)
@@ -1412,6 +1412,8 @@ class Transform(TransformNode):
         ``transform_path_affine(transform_path_non_affine(values))``.
         """
         x = self.transform_non_affine(path.vertices)
+        if ma.isMaskedArray(x):
+            x = x.astype(np.float_).filled(np.nan)
         return Path._fast_from_codes_and_verts(x, path.codes,
                 {'interpolation_steps': path._interpolation_steps})
 
