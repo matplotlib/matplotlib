@@ -72,6 +72,17 @@ def test_point_in_path_nan():
     assert not contains[0]
 
 
+@image_comparison(baseline_images=['semi_log_with_zero'], extensions=['png'])
+def test_log_transform_with_zero():
+    x = np.arange(-10, 10)
+    y = (1.0 - 1.0/(x**2+1))**20
+
+    fig, ax = plt.subplots()
+    ax.semilogy(x, y, "-o", lw=15)
+    ax.grid(True)
+    plt.show()
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
