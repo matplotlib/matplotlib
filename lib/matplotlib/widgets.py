@@ -1456,9 +1456,8 @@ class SpanSelector(_SelectorWidget):
                                        **self.rectprops)
             self.ax.add_patch(self.stay_rect)
 
-        if not self.useblit:
-            self.ax.add_patch(self.rect)
-            self.artists = [self.rect]
+        self.ax.add_patch(self.rect)
+        self.artists = [self.rect]
 
     def ignore(self, event):
         """return *True* if *event* should be ignored"""
