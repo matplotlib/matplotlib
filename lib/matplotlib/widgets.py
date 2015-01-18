@@ -1182,7 +1182,7 @@ class _SelectorWidget(AxesWidget):
 
     def ignore(self, event):
         """return *True* if *event* should be ignored"""
-        if not self.active:
+        if not self.active or not self.ax.get_visible():
             return True
 
         # If canvas was locked
