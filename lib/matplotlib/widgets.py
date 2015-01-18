@@ -1281,6 +1281,8 @@ class _SelectorWidget(AxesWidget):
             event = self._clean_event(event)
             self.eventrelease = event
             self._release(event)
+            self.eventpress = None
+            self.eventrelease = None
             self.state.discard('move')
             return True
         return False
