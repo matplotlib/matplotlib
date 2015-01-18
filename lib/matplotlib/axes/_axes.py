@@ -2928,7 +2928,7 @@ class Axes(_AxesBase):
             The default symbol for flier points.
             Enter an empty string ('') if you don't want to show fliers.
             If `None`, then the fliers default to 'b+'  If you want more
-            control use the fliersprop kwarg.
+            control use the flierprops kwarg.
 
           vert : bool, default = True
             If True (default), makes the boxes vertical.
