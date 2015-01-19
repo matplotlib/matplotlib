@@ -909,6 +909,21 @@ class Artist(object):
         """
         return ''
 
+    def format_zdata(self, z):
+        """
+        Return *z* string formatted.
+        """
+        try:
+            is_int = isinstance(z[0], int)
+        except (TypeError, IndexError):
+            is_int = isinstance(z, int)
+            z = [z]
+        if is_int:
+            z = ', '.join('{:0}'.format(item) for item in z)
+        else:
+            z = ', '.join('{:0.3g}'.format(item) for item in z)
+        return z
+
 
 class ArtistInspector(object):
     """
