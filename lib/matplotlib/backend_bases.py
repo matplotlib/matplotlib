@@ -38,7 +38,6 @@ import sys
 import warnings
 import time
 import io
-from operator import itemgetter
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -1697,7 +1696,7 @@ class FigureCanvasBase(object):
         """
         # Find the top artist under the cursor
         under = self.figure.hitlist(ev)
-        under.sort(key=itemgetter(0))
+        under.sort(key=key=lambda x: x.zorder)
         h = None
         if under:
             h = under[-1]
@@ -2796,7 +2795,7 @@ class NavigationToolbar2(object):
                 pass
             else:
                 artists = self.figure.hitlist(event)
-                artists.sort(key=itemgetter(0))
+                artists.sort(key=lambda x: x.zorder)
                 if artists:
                     s += artists[-1].get_zdata(event)
                 if len(self.mode):
