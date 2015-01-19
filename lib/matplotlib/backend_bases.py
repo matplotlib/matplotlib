@@ -1696,7 +1696,7 @@ class FigureCanvasBase(object):
         """
         # Find the top artist under the cursor
         under = self.figure.hitlist(ev)
-        under.sort(key=key=lambda x: x.zorder)
+        under.sort(key=lambda x: x.zorder)
         h = None
         if under:
             h = under[-1]
