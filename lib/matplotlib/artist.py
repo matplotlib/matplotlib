@@ -919,7 +919,7 @@ class Artist(object):
             is_int = isinstance(z, int)
             z = [z]
         if is_int:
-            z = ', '.join('{:0}'.format(item) for item in z)
+            z = ', '.join(item for item in z)
         else:
             z = ', '.join('{:0.3g}'.format(item) for item in z)
         return z
