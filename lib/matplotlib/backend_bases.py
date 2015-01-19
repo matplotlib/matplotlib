@@ -2795,6 +2795,8 @@ class NavigationToolbar2(object):
                 pass
             else:
                 artists = event.inaxes.hitlist(event)
+                if event.inaxes.patch in artists:
+                    artists.remove(event.inaxes.patch)
                 artists.sort(key=lambda x: x.zorder)
                 if artists:
                     s += artists[-1].get_zdata(event)
