@@ -26,6 +26,7 @@ def _extend_axes_pad(value):
         ret = (value, value)
     return ret
 
+
 def _tick_only(ax, bottom_on, left_on):
     bottom_off = not bottom_on
     left_off = not left_on
@@ -516,7 +517,8 @@ class ImageGrid(Grid):
           cbar_size         "5%"
           cbar_set_cax      True      [ True | False ]
           axes_class        None      a type object which must be a subclass
-                                      of :class:`~matplotlib.axes.Axes`
+                                      of axes_grid's subclass of
+                                      :class:`~matplotlib.axes.Axes`
           ================  ========  =========================================
 
         *cbar_set_cax* : if True, each axes in the grid has a cax
