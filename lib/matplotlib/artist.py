@@ -903,6 +903,12 @@ class Artist(object):
             artists.append(self)
         return artists
 
+    def get_zdata(self, event):
+        """
+        Get the zdata for a given event, as a string message
+        """
+        return ''
+
 
 class ArtistInspector(object):
     """
@@ -1019,12 +1025,6 @@ class ArtistInspector(object):
         """
 
         return [prop for prop, target in self._get_setters_and_targets()]
-
-    def get_zdata(self, event):
-        """
-        Get the zdata for a given event, as a string message
-        """
-        return ''
 
     def is_alias(self, o):
         """
