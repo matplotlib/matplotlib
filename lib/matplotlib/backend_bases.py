@@ -2794,7 +2794,7 @@ class NavigationToolbar2(object):
             except (ValueError, OverflowError):
                 pass
             else:
-                artists = self.figure.hitlist(event)
+                artists = event.inaxes.hitlist(event)
                 artists.sort(key=lambda x: x.zorder)
                 if artists:
                     s += artists[-1].get_zdata(event)
