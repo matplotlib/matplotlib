@@ -25,9 +25,9 @@ class ScaleBase(object):
 
       - :attr:`name`
       - :meth:`get_transform`
+      - :meth:`set_default_locators_and_formatters`
 
     And optionally:
-      - :meth:`set_default_locators_and_formatters`
       - :meth:`limit_range_for_scale`
     """
     def get_transform(self):
