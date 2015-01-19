@@ -38,6 +38,7 @@ import sys
 import warnings
 import time
 import io
+from operator import itemgetter
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -1694,15 +1695,9 @@ class FigureCanvasBase(object):
 
             canvas.mpl_connect('mouse_press_event',canvas.onRemove)
         """
-        def sort_artists(artists):
-            # This depends on stable sort and artists returned
-            # from get_children in z order.
-            L = [(h.zorder, h) for h in artists]
-            L.sort()
-            return [h for zorder, h in L]
-
         # Find the top artist under the cursor
-        under = sort_artists(self.figure.hitlist(ev))
+        under = self.figure.hitlist(ev)
+        under.sort(key=itemgetter(0))
         h = None
         if under:
             h = under[-1]
@@ -2800,12 +2795,10 @@ class NavigationToolbar2(object):
             except (ValueError, OverflowError):
                 pass
             else:
-                ax = event.inaxes
-                artists = ax.artists + ax.images + ax.lines
-                artists = [a for a in artists if a.contains(event)[0]]
+                artists = self.figure.hitlist(event)
+                artists.sort(key=itemgetter(0))
                 if artists:
-                    artist = artists[np.argmax([a.zorder for a in artists])]
-                    s += artist.get_zdata(event)
+                    s += artists[-1].get_zdata(event)
                 if len(self.mode):
                     self.set_message('%s, %s' % (self.mode, s))
                 else:
