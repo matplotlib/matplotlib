@@ -2006,6 +2006,10 @@ class _AxesBase(martist.Artist):
             else:
                 self.xaxis.set_zorder(2.5)
                 self.yaxis.set_zorder(2.5)
+        else:
+            artists.remove(self.xaxis)
+            artists.remove(self.yaxis)
+
         if inframe:
             artists.remove(self.title)
             artists.remove(self._left_title)
