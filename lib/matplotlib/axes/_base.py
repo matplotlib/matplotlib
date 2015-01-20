@@ -2028,7 +2028,7 @@ class _AxesBase(martist.Artist):
             dsu = [(a.zorder, a) for a in artists]
         else:
             dsu = [(a.zorder, a) for a in artists
-                   if (not a.get_animated() and not a in self.images)]
+                   if (not a.get_animated() or a in self.images)]
 
         dsu.sort(key=itemgetter(0))
 
