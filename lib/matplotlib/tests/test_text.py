@@ -279,8 +279,26 @@ def test_get_rotation_mod360():
     for i, j in zip([360., 377., 720+177.2], [0., 17., 177.2]):
         assert_almost_equal(text.get_rotation(i), j)
 
+
 @image_comparison(baseline_images=['text_bboxclip'])
 def test_bbox_clipping():
     plt.text(0.9, 0.2, 'Is bbox clipped?', backgroundcolor='r', clip_on=True)
     t = plt.text(0.9, 0.5, 'Is fancy bbox clipped?', clip_on=True)
     t.set_bbox({"boxstyle": "round, pad=0.1"})
+
+
+@image_comparison(baseline_images=['annotation_negative_coords'],
+                  extensions=['png'])
+def test_annotation_negative_coords():
+    fig = plt.figure()
+    ax = plt.subplot(1, 1, 1)
+
+    ax.annotate("+fpt", (15, 40), xycoords="figure points")
+    ax.annotate("+fpx", (25, 30), xycoords="figure pixels")
+    ax.annotate("+apt", (35, 20), xycoords="axes points")
+    ax.annotate("+apx", (45, 10), xycoords="axes pixels")
+
+    ax.annotate("-fpt", (-55, -40), xycoords="figure points")
+    ax.annotate("-fpx", (-45, -30), xycoords="figure pixels")
+    ax.annotate("-apt", (-35, -20), xycoords="axes points")
+    ax.annotate("-apx", (-25, -10), xycoords="axes pixels")
