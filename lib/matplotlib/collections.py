@@ -1687,7 +1687,8 @@ class QuadMesh(Collection):
 
         self._bbox = transforms.Bbox.unit()
         self._bbox.update_from_data_xy(coordinates.reshape(
-            ((meshWidth + 1) * (meshHeight + 1), 2)))
+            ((meshWidth + 1) * (meshHeight + 1), 2)),
+            ignore=True)
 
         # By converting to floats now, we can avoid that on every draw.
         self._coordinates = self._coordinates.reshape(
