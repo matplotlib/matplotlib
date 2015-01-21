@@ -317,7 +317,7 @@ class LatexManager(object):
                                      stdin=subprocess.PIPE,
                                      stdout=subprocess.PIPE,
                                      cwd=self.tmpdir)
-        except OSError, e:
+        except OSError as e:
             if e.errno == errno.ENOENT:
                 raise OSError(errno.ENOENT, "Latex command not found. "
                     "Install '%s' or change pgf.texsystem to the desired command."
