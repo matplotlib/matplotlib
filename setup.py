@@ -136,7 +136,6 @@ if __name__ == '__main__':
     setup_requires = []
     default_backend = None
 
-
     # Go through all of the packages and figure out which ones we are
     # going to build/install.
     print_line()
@@ -169,7 +168,6 @@ if __name__ == '__main__':
                         default_backend = package.name
     print_raw('')
 
-
     # Abort if any of the required packages can not be built.
     if required_failed:
         print_line()
@@ -178,7 +176,6 @@ if __name__ == '__main__':
             "be built: %s" %
             ', '.join(x.name for x in required_failed))
         sys.exit(1)
-
 
     # Now collect all of the information we need to build all of the
     # packages.
@@ -207,7 +204,6 @@ if __name__ == '__main__':
         template = fd.read()
     with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
         fd.write(template % {'backend': default_backend})
-
 
     # Build in verbose mode if requested
     if setupext.options['verbose']:
@@ -245,7 +241,7 @@ if __name__ == '__main__':
         """,
         license="BSD",
         packages=packages,
-        namespace_packages = namespace_packages,
+        namespace_packages=namespace_packages,
         platforms='any',
         py_modules=py_modules,
         ext_modules=ext_modules,

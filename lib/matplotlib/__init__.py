@@ -107,7 +107,7 @@ import sys
 import distutils.version
 from itertools import chain
 
-__version__ = str('1.5.x')
+__version__ = str('1.5.dev1')
 __version__numpy__ = str('1.6')  # minimum required numpy version
 
 try:
@@ -599,8 +599,8 @@ def _get_config_or_cache_dir(xdg_base):
 
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir is not None:
+        configdir = os.path.abspath(configdir)
         if not os.path.exists(configdir):
-            from matplotlib.cbook import mkdirs
             mkdirs(configdir)
 
         if not _is_writable_dir(configdir):
@@ -1395,7 +1395,6 @@ default_test_modules = [
     'matplotlib.tests.test_arrow_patches',
     'matplotlib.tests.test_artist',
     'matplotlib.tests.test_axes',
-    'matplotlib.tests.test_axes_grid1',
     'matplotlib.tests.test_backend_bases',
     'matplotlib.tests.test_backend_pdf',
     'matplotlib.tests.test_backend_pgf',
@@ -1440,8 +1439,10 @@ default_test_modules = [
     'matplotlib.tests.test_tightlayout',
     'matplotlib.tests.test_transforms',
     'matplotlib.tests.test_triangulation',
-    'mpl_toolkits.tests.test_mplot3d',
     'matplotlib.tests.test_widgets',
+    'matplotlib.sphinxext.tests.test_tinypages',
+    'mpl_toolkits.tests.test_mplot3d',
+    'mpl_toolkits.tests.test_axes_grid1',
     ]
 
 

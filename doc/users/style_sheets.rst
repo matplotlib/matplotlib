@@ -61,7 +61,7 @@ a list of styles::
    >>> plt.style.use(['dark_background', 'presentation'])
 
 Note that styles further to the right will overwrite values that are already
-defined by styles on the right.
+defined by styles on the left.
 
 
 Temporary styling

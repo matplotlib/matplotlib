@@ -108,6 +108,16 @@ def validate_float(s):
         raise ValueError('Could not convert "%s" to float' % s)
 
 
+def validate_float_or_None(s):
+    """convert s to float or raise"""
+    if s is None:
+        return None
+    try:
+        return float(s)
+    except ValueError:
+        raise ValueError('Could not convert "%s" to float' % s)
+
+
 def validate_int(s):
     """convert s to int or raise"""
     try:
@@ -227,16 +237,16 @@ class validate_nseq_int(object):
 
 def validate_color(s):
     'return a valid color arg'
-    try:
-        if s.lower() == 'none':
-            return 'None'
-    except AttributeError:
-        pass
+    if s in (None, 'none', 'None'):
+        return None
+
     if is_color_like(s):
         return s
+
     stmp = '#' + s
     if is_color_like(stmp):
         return stmp
+
     # If it is still valid, it must be a tuple.
     colorarg = s
     msg = ''
@@ -541,7 +551,8 @@ defaultParams = {
                          'Arial', 'Helvetica', 'Avant Garde', 'sans-serif'],
                         validate_stringlist],
     'font.cursive':    [['Apple Chancery', 'Textile', 'Zapf Chancery',
-                         'Sand', 'Script MT', 'cursive'], validate_stringlist],
+                         'Sand', 'Script MT', 'Felipa', 'cursive'],
+                        validate_stringlist],
     'font.fantasy':    [['Comic Sans MS', 'Chicago', 'Charcoal', 'Impact'
                          'Western', 'Humor Sans', 'fantasy'],
                         validate_stringlist],
@@ -643,7 +654,7 @@ defaultParams = {
      # whether or not to draw a frame around legend
     'legend.frameon': [True, validate_bool],
      # alpha value of the legend frame
-    'legend.framealpha': [1.0, validate_float],
+    'legend.framealpha': [None, validate_float_or_None],
 
     ## the following dimensions are in fraction of the font size
     'legend.borderpad': [0.4, validate_float],  # units are fontsize
@@ -662,6 +673,9 @@ defaultParams = {
     # the relative size of legend markers vs. original
     'legend.markerscale': [1.0, validate_float],
     'legend.shadow': [False, validate_bool],
+    'legend.facecolor': [None, validate_color], # background color; white
+    'legend.edgecolor': [None, validate_color], # edge color; black
+
 
     ## tick properties
     'xtick.major.size':  [4, validate_float],    # major xtick size in points

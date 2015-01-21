@@ -186,10 +186,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             iy0 = max(0, int(y0 - self._filterrad))
             y1 = (viewlim.y1-ymin)/dyintv * numrows
             iy1 = min(numrows, int(y1 + self._filterrad))
-            if self.origin == 'upper':
-                yslice = slice(numrows-iy1, numrows-iy0)
-            else:
-                yslice = slice(iy0, iy1)
+            yslice = slice(iy0, iy1)
             ymin_old = ymin
             ymin = ymin_old + iy0*dyintv/numrows
             ymax = ymin_old + iy1*dyintv/numrows
@@ -573,6 +570,11 @@ class AxesImage(_AxesImageBase):
                                 resample=resample,
                                 **kwargs
                                 )
+
+    def get_window_extent(self, renderer=None):
+        x0, x1, y0, y1 = self._extent
+        bbox = Bbox.from_extents([x0, y0, x1, y1])
+        return bbox.transformed(self.axes.transData)
 
     def make_image(self, magnification=1.0):
         if self._A is None:

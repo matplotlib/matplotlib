@@ -1733,6 +1733,18 @@ def _pprint_styles(_styles):
     return _pprint_table(_table)
 
 
+def _simpleprint_styles(_styles):
+    """
+    A helper function for the _Style class.  Given the dictionary of
+    (stylename : styleclass), return a string rep of the list of keys.
+    Used to update the documentation.
+    """
+    styles = "[ \'"
+    styles += "\' | \'".join(str(i) for i in sorted(_styles.keys()))
+    styles += "\' ]"
+    return styles
+
+
 class _Style(object):
     """
     A base class for the Styles. It is meant to be a container class,
@@ -2304,7 +2316,6 @@ class BoxStyle(_Style):
             codes = ([Path.MOVETO] +
                  [Path.CURVE3, Path.CURVE3] * ((len(saw_vertices)-1) // 2) +
                  [Path.CLOSEPOLY])
-            print(len(codes), saw_vertices.shape)
             return Path(saw_vertices, codes)
 
     _style_list["roundtooth"] = Roundtooth
@@ -2314,7 +2325,8 @@ class BoxStyle(_Style):
                {"AvailableBoxstyles": _pprint_styles(_style_list)}
 
 docstring.interpd.update(
-    AvailableBoxstyles=_pprint_styles(BoxStyle._style_list))
+    AvailableBoxstyles=_pprint_styles(BoxStyle._style_list),
+    ListBoxstyles=_simpleprint_styles(BoxStyle._style_list))
 
 
 class FancyBboxPatch(Patch):
@@ -2399,7 +2411,10 @@ class FancyBboxPatch(Patch):
         Without argument (or with *boxstyle* = None), it returns
         available box styles.
 
-        ACCEPTS: %(AvailableBoxstyles)s
+        The following boxstyles are available:
+        %(AvailableBoxstyles)s
+
+        ACCEPTS: %(ListBoxstyles)s
 
         """
         if boxstyle is None:

@@ -146,7 +146,7 @@ if __name__ == '__main__':
     # Now make a simple example using the custom projection.
     from matplotlib.ticker import ScalarFormatter, MultipleLocator
     import matplotlib.pyplot as plt
-    from StringIO import StringIO
+    from six import StringIO
     import numpy as np
 
     # Some examples data

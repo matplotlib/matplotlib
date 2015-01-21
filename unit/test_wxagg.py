@@ -49,11 +49,11 @@ import matplotlib.backends._wxagg as wxagg
 ####################
 
 # Simple tests -- write PNG images of the plots
-TEST_PY  = 0
+TEST_PY = 0
 TEST_EXT = 0
 
 # Timing tests -- print time per plot
-TIME_PY  = 1
+TIME_PY = 1
 TIME_EXT = 1
 
 
@@ -86,7 +86,7 @@ def time_loop(function, args):
     while i < NITERS:
         function(*args)
         i += 1
-    return (time.time() - start)/NITERS
+    return (time.time() - start) / NITERS
 
 
 def make_figure():
@@ -98,7 +98,7 @@ def make_figure():
 def plot_sin(figure):
     from pylab import arange, sin, pi
     t = arange(0.0, 2.0, 0.01)
-    s = sin(2*pi*t)
+    s = sin(2 * pi * t)
 
     axes = figure.gca()
     axes.plot(t, s, linewidth=1.0)
@@ -121,55 +121,55 @@ def main():
 
     # test the pure python implementation
     if TEST_PY:
-        i_py   = _py_convert_agg_to_wx_image( agg, None)
-        b_py   = _py_convert_agg_to_wx_bitmap(agg, None)
-        i_py_b = _py_convert_agg_to_wx_image( agg, BBOX)
+        i_py = _py_convert_agg_to_wx_image(agg, None)
+        b_py = _py_convert_agg_to_wx_bitmap(agg, None)
+        i_py_b = _py_convert_agg_to_wx_image(agg, BBOX)
         b_py_b = _py_convert_agg_to_wx_bitmap(agg, BBOX)
 
-        i_py.SaveFile(  'a_py_img.png', wx.BITMAP_TYPE_PNG)
-        b_py.SaveFile(  'a_py_bmp.png', wx.BITMAP_TYPE_PNG)
+        i_py.SaveFile('a_py_img.png', wx.BITMAP_TYPE_PNG)
+        b_py.SaveFile('a_py_bmp.png', wx.BITMAP_TYPE_PNG)
         i_py_b.SaveFile('b_py_img.png', wx.BITMAP_TYPE_PNG)
         b_py_b.SaveFile('b_py_bmp.png', wx.BITMAP_TYPE_PNG)
 
     # test the C++ implementation
     if TEST_EXT:
-        i_ext   = wxagg.convert_agg_to_wx_image( agg, None)
-        b_ext   = wxagg.convert_agg_to_wx_bitmap(agg, None)
-        i_ext_b = wxagg.convert_agg_to_wx_image( agg, BBOX)
+        i_ext = wxagg.convert_agg_to_wx_image(agg, None)
+        b_ext = wxagg.convert_agg_to_wx_bitmap(agg, None)
+        i_ext_b = wxagg.convert_agg_to_wx_image(agg, BBOX)
         b_ext_b = wxagg.convert_agg_to_wx_bitmap(agg, BBOX)
 
-        i_ext.SaveFile(  'a_ext_img.png', wx.BITMAP_TYPE_PNG)
-        b_ext.SaveFile(  'a_ext_bmp.png', wx.BITMAP_TYPE_PNG)
+        i_ext.SaveFile('a_ext_img.png', wx.BITMAP_TYPE_PNG)
+        b_ext.SaveFile('a_ext_bmp.png', wx.BITMAP_TYPE_PNG)
         i_ext_b.SaveFile('b_ext_img.png', wx.BITMAP_TYPE_PNG)
         b_ext_b.SaveFile('b_ext_bmp.png', wx.BITMAP_TYPE_PNG)
 
     # time the pure python implementation
     if TIME_PY:
-        t = time_loop(_py_convert_agg_to_wx_image, (agg,None))
-        print('Python agg2img:        %.4f seconds (%.1f HZ)' % (t, 1/t))
+        t = time_loop(_py_convert_agg_to_wx_image, (agg, None))
+        print('Python agg2img:        %.4f seconds (%.1f HZ)' % (t, 1 / t))
 
-        t = time_loop(_py_convert_agg_to_wx_bitmap, (agg,None))
-        print('Python agg2bmp:        %.4f seconds (%.1f HZ)' % (t, 1/t))
+        t = time_loop(_py_convert_agg_to_wx_bitmap, (agg, None))
+        print('Python agg2bmp:        %.4f seconds (%.1f HZ)' % (t, 1 / t))
 
-        t = time_loop(_py_convert_agg_to_wx_image, (agg,BBOX))
-        print('Python agg2img w/bbox: %.4f seconds (%.1f HZ)' % (t, 1/t))
+        t = time_loop(_py_convert_agg_to_wx_image, (agg, BBOX))
+        print('Python agg2img w/bbox: %.4f seconds (%.1f HZ)' % (t, 1 / t))
 
-        t = time_loop(_py_convert_agg_to_wx_bitmap, (agg,BBOX))
-        print('Python agg2bmp w/bbox: %.4f seconds (%.1f HZ)' % (t, 1/t))
+        t = time_loop(_py_convert_agg_to_wx_bitmap, (agg, BBOX))
+        print('Python agg2bmp w/bbox: %.4f seconds (%.1f HZ)' % (t, 1 / t))
 
     # time the C++ implementation
     if TIME_EXT:
-        t = time_loop(wxagg.convert_agg_to_wx_image, (agg,None))
-        print('_wxagg agg2img:        %.4f seconds (%.1f HZ)' % (t, 1/t))
+        t = time_loop(wxagg.convert_agg_to_wx_image, (agg, None))
+        print('_wxagg agg2img:        %.4f seconds (%.1f HZ)' % (t, 1 / t))
 
-        t = time_loop(wxagg.convert_agg_to_wx_bitmap, (agg,None))
-        print('_wxagg agg2bmp:        %.4f seconds (%.1f HZ)' % (t, 1/t))
+        t = time_loop(wxagg.convert_agg_to_wx_bitmap, (agg, None))
+        print('_wxagg agg2bmp:        %.4f seconds (%.1f HZ)' % (t, 1 / t))
 
-        t = time_loop(wxagg.convert_agg_to_wx_image, (agg,BBOX))
-        print('_wxagg agg2img w/bbox: %.4f seconds (%.1f HZ)' % (t, 1/t))
+        t = time_loop(wxagg.convert_agg_to_wx_image, (agg, BBOX))
+        print('_wxagg agg2img w/bbox: %.4f seconds (%.1f HZ)' % (t, 1 / t))
 
-        t = time_loop(wxagg.convert_agg_to_wx_bitmap, (agg,BBOX))
-        print('_wxagg agg2bmp w/bbox: %.4f seconds (%.1f HZ)' % (t, 1/t))
+        t = time_loop(wxagg.convert_agg_to_wx_bitmap, (agg, BBOX))
+        print('_wxagg agg2bmp w/bbox: %.4f seconds (%.1f HZ)' % (t, 1 / t))
 
 
 if __name__ == '__main__':

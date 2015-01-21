@@ -76,6 +76,33 @@ def test_labels_first():
     ax.legend(loc=0, markerfirst=False)
 
 
+@image_comparison(baseline_images=['rgba_alpha'],
+                  extensions=['png'], remove_text=True)
+def test_alpha_rgba():
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(range(10), lw=5)
+    leg = plt.legend(['Longlabel that will go away'], loc=10)
+    leg.legendPatch.set_facecolor([1, 0, 0, 0.5])
+
+
+@image_comparison(baseline_images=['rcparam_alpha'],
+                  extensions=['png'], remove_text=True)
+def test_alpha_rcparam():
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(range(10), lw=5)
+    with mpl.rc_context(rc={'legend.framealpha': .75}):
+        leg = plt.legend(['Longlabel that will go away'], loc=10)
+        # this alpha is going to be over-ridden by the rcparam whith
+        # sets the alpha of the patch to be non-None which causes the alpha
+        # value of the face color to be discarded.  This behavior may not be
+        # ideal, but it is what it is and we should keep track of it changing
+        leg.legendPatch.set_facecolor([1, 0, 0, 0.5])
+
+
 @image_comparison(baseline_images=['fancy'], remove_text=True)
 def test_fancy():
     # using subplot triggers some offsetbox functionality untested elsewhere
@@ -144,22 +171,6 @@ def test_legend_remove():
 class TestLegendFunction(object):
     # Tests the legend function on the Axes and pyplot.
 
-    deprecation_message = ('The "loc" positional argument '
-                           'to legend is deprecated. Please use '
-                           'the "loc" keyword instead.')
-
-    @cleanup
-    def test_legend_label_loc_args(self):
-        # Check the deprecated warning is created and that the appropriate
-        # call to Legend is made. This wouldn't actually create a valid
-        # legend as there is no artist to legendify, but that doesn't matter.
-        with mock.patch('matplotlib.cbook.warn_deprecated') as deprecation:
-            with mock.patch('matplotlib.legend.Legend') as Legend:
-                plt.legend(['hello world'], 1)
-
-        deprecation.assert_called_with('1.4', self.deprecation_message)
-        Legend.assert_called_with(plt.gca(), [], ['hello world'], loc=1)
-
     @cleanup
     def test_old_legend_handler_interface(self):
         # Check the deprecated warning is created and that the appropriate
@@ -186,18 +197,6 @@ class TestLegendFunction(object):
                                 'being a callable.',
                                 MatplotlibDeprecationWarning,
                                 stacklevel=1)
-
-    @cleanup
-    def test_legend_handle_label_loc_args(self):
-        # Check the deprecated warning is created and that the appropriate
-        # call to Legend is made.
-        lines = plt.plot(range(10))
-        with mock.patch('matplotlib.cbook.warn_deprecated') as deprecation:
-            with mock.patch('matplotlib.legend.Legend') as Legend:
-                plt.legend(lines, ['hello world'], 1)
-
-        deprecation.assert_called_with('1.4', self.deprecation_message)
-        Legend.assert_called_with(plt.gca(), lines, ['hello world'], loc=1)
 
     @cleanup
     def test_legend_handle_label(self):
@@ -229,6 +228,29 @@ class TestLegendFunction(object):
             plt.legend(handler_map={'1': 2})
         handles_labels.assert_called_with({'1': 2})
 
+    @cleanup
+    def test_kwargs(self):
+        fig, ax = plt.subplots(1, 1)
+        th = np.linspace(0, 2*np.pi, 1024)
+        lns, = ax.plot(th, np.sin(th), label='sin', lw=5)
+        lnc, = ax.plot(th, np.cos(th), label='cos', lw=5)
+        with mock.patch('matplotlib.legend.Legend') as Legend:
+            ax.legend(handles=(lnc, lns), labels=('a', 'b'))
+        Legend.assert_called_with(ax, (lnc, lns), ('a', 'b'))
+
+    @cleanup
+    def test_warn_args_kwargs(self):
+        fig, ax = plt.subplots(1, 1)
+        th = np.linspace(0, 2*np.pi, 1024)
+        lns, = ax.plot(th, np.sin(th), label='sin', lw=5)
+        lnc, = ax.plot(th, np.cos(th), label='cos', lw=5)
+        with mock.patch('warnings.warn') as warn:
+            ax.legend((lnc, lns), labels=('a', 'b'))
+
+        warn.assert_called_with("You have mixed positional and keyword "
+                          "arguments, some input will be "
+                          "discarded.")
+
 
 @image_comparison(baseline_images=['legend_stackplot'], extensions=['png'])
 def test_legend_stackplot():
@@ -244,6 +266,35 @@ def test_legend_stackplot():
     ax.set_xlim((0, 10))
     ax.set_ylim((0, 70))
     ax.legend(loc=0)
+
+
+@cleanup
+def _test_rcparams_helper(test_rcparams, facecolor_target, edgecolor_target):
+    with mpl.rc_context(test_rcparams):
+        fig, ax = plt.subplots(1, 1)
+        t = np.linspace(0, 2*np.pi)
+        ax.plot(t, np.sin(t), label='sin')
+        ax.plot(t, np.cos(t), label='cos')
+        leg = ax.legend()
+
+    assert_equal(mpl.colors.colorConverter.to_rgba(facecolor_target),
+                 leg.legendPatch.get_facecolor())
+
+    assert_equal(mpl.colors.colorConverter.to_rgba(edgecolor_target),
+                 leg.legendPatch.get_edgecolor())
+
+
+def test_rcparams_():
+    test_vals = [({}, mpl.rcParams['axes.facecolor'],
+                      mpl.rcParams['axes.edgecolor']),
+                 ({'axes.facecolor': 'r', 'axes.edgecolor': 'c'}, 'r', 'c'),
+                 ({'axes.facecolor': 'r', 'axes.edgecolor': 'c',
+                   'legend.facecolor': 'w', 'legend.edgecolor': 'k'},
+                   'w', 'k'),
+                 ]
+
+    for rc_dict, face, edge in test_vals:
+        yield _test_rcparams_helper, rc_dict, face, edge
 
 
 if __name__ == '__main__':

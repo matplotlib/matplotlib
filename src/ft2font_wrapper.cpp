@@ -1311,7 +1311,7 @@ static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args, PyObj
     case 6: {
         #if PY3K
         char pclt_dict[] =
-            "{s:(h,h), s:k, s:H, s:H, s:H, s:H, s:H, s:H, s:s, s:y, s:b, s:b, "
+            "{s:(h,h), s:k, s:H, s:H, s:H, s:H, s:H, s:H, s:y, s:y, s:b, s:b, "
             "s:b}";
         #else
         char pclt_dict[] =

@@ -298,7 +298,11 @@ class Figure(Artist):
             Defaults to rc ``figure.autolayout``.
         """
         Artist.__init__(self)
-
+        # remove the non-figure artist _axes property
+        # as it makes no sense for a figure to be _in_ an axes
+        # this is used by the property methods in the artist base class
+        # which are over-ridden in this class
+        del self._axes
         self.callbacks = cbook.CallbackRegistry()
 
         if figsize is None:
@@ -785,8 +789,14 @@ class Figure(Artist):
             # to tuples for the key
             ret = []
             for k, v in items:
-                if iterable(v):
+                # some objects can define __getitem__ without being
+                # iterable and in those cases the conversion to tuples
+                # will fail. So instead of using the iterable(v) function
+                # we simply try and convert to a tuple, and proceed if not.
+                try:
                     v = tuple(v)
+                except Exception:
+                    pass
                 ret.append((k, v))
             return tuple(ret)
 
@@ -1236,7 +1246,7 @@ class Figure(Artist):
     @docstring.dedent_interpd
     def gca(self, **kwargs):
         """
-        Return the current axes, creating one if necessary
+        Get the current axes, creating one if necessary
 
         The following kwargs are supported for ensuring the returned axes
         adheres to the given projection etc., and for axes creation if
@@ -1619,6 +1629,9 @@ class Figure(Artist):
         for ax in self.axes:
             if ax.get_visible():
                 bb.append(ax.get_tightbbox(renderer))
+
+        if len(bb) == 0:
+            return self.bbox_inches
 
         _bbox = Bbox.union([b for b in bb if b.width != 0 or b.height != 0])
 

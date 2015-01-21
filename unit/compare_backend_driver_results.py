@@ -1,6 +1,7 @@
 from __future__ import print_function
 import sys
 
+
 def parse_results(filename):
     results = {}
     fd = open(filename, 'r')
@@ -22,11 +23,11 @@ def check_results_are_compatible(results_a, results_b):
     for section in results_a.keys():
         if not section in results_b:
             raise RuntimeError("Backend '%s' in first set, but not in second" % section)
-    
+
     for section in results_b.keys():
         if not section in results_a:
             raise RuntimeError("Backend '%s' in second set, but not in first" % section)
-    
+
 
 def compare_results(results_a, results_b):
     check_results_are_compatible(results_a, results_b)

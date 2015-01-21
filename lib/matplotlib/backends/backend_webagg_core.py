@@ -19,6 +19,7 @@ import io
 import json
 import os
 import time
+import warnings
 
 import numpy as np
 
@@ -190,7 +191,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             pass
         elif e_type == 'draw':
             self.draw()
-        elif e_type in ('button_press', 'button_release', 'motion_notify'):
+        elif e_type in ('button_press', 'button_release', 'motion_notify',
+                        'figure_enter', 'figure_leave', 'scroll'):
             x = event['x']
             y = event['y']
             y = self.get_renderer().height - y
@@ -212,6 +214,12 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 self.button_release_event(x, y, button)
             elif e_type == 'motion_notify':
                 self.motion_notify_event(x, y)
+            elif e_type == 'figure_enter':
+                self.enter_notify_event(xy=(x, y))
+            elif e_type == 'figure_leave':
+                self.leave_notify_event()
+            elif e_type == 'scroll':
+                self.scroll_event(x, y, event['step'])
         elif e_type in ('key_press', 'key_release'):
             key = event['key']
 
@@ -251,6 +259,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # identical or within a pixel or so).
         self._png_is_old = True
         self.manager.resize(w, h)
+        self.resize_event()
 
     def handle_send_image_mode(self, event):
         # The client requests notification of what the current image mode is.
@@ -317,6 +326,10 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
         backend_bases.NavigationToolbar2.release_zoom(self, event)
         self.canvas.send_event(
             "rubberband", x0=-1, y0=-1, x1=-1, y1=-1)
+
+    def save_figure(self, *args):
+        """Save the current figure"""
+        self.canvas.send_event('save')
 
 
 class FigureManagerWebAgg(backend_bases.FigureManagerBase):
@@ -392,7 +405,8 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         for filetype, ext in sorted(FigureCanvasWebAggCore.
                                     get_supported_filetypes_grouped().
                                     items()):
-            extensions.append(ext[0])
+            if not ext[0] == 'pgf':  # pgf does not support BytesIO
+                extensions.append(ext[0])
         output.write("mpl.extensions = {0};\n\n".format(
             json.dumps(extensions)))
 

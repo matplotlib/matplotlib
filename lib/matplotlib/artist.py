@@ -8,6 +8,7 @@ import warnings
 import inspect
 import matplotlib
 import matplotlib.cbook as cbook
+from matplotlib.cbook import mplDeprecation
 from matplotlib import docstring, rcParams
 from .transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPath, Transform)
@@ -77,6 +78,7 @@ class Artist(object):
     zorder = 0
 
     def __init__(self):
+        self._axes = None
         self.figure = None
 
         self._transform = None
@@ -175,16 +177,42 @@ class Artist(object):
         Set the :class:`~matplotlib.axes.Axes` instance in which the
         artist resides, if any.
 
+        This has been deprecated in mpl 1.5, please use the
+        axes property.  Will be removed in 1.7 or 2.0.
+
         ACCEPTS: an :class:`~matplotlib.axes.Axes` instance
         """
+        warnings.warn(_get_axes_msg, mplDeprecation, stacklevel=1)
         self.axes = axes
 
     def get_axes(self):
         """
         Return the :class:`~matplotlib.axes.Axes` instance the artist
-        resides in, or *None*
+        resides in, or *None*.
+
+        This has been deprecated in mpl 1.5, please use the
+        axes property.  Will be removed in 1.7 or 2.0.
         """
+        warnings.warn(_get_axes_msg, mplDeprecation, stacklevel=1)
         return self.axes
+
+    @property
+    def axes(self):
+        """
+        The :class:`~matplotlib.axes.Axes` instance the artist
+        resides in, or *None*.
+        """
+        return self._axes
+
+    @axes.setter
+    def axes(self, new_axes):
+        if self._axes is not None and new_axes != self._axes:
+            raise ValueError("Can not reset the axes.  You are "
+                             "probably trying to re-use an artist "
+                             "in more than one Axes which is not "
+                             "supported")
+        self._axes = new_axes
+        return new_axes
 
     def get_window_extent(self, renderer):
         """
@@ -751,10 +779,13 @@ class Artist(object):
         changed = False
 
         for k, v in six.iteritems(props):
-            func = getattr(self, 'set_' + k, None)
-            if func is None or not six.callable(func):
-                raise AttributeError('Unknown property %s' % k)
-            func(v)
+            if k in ['axes']:
+                setattr(self, k, v)
+            else:
+                func = getattr(self, 'set_' + k, None)
+                if func is None or not six.callable(func):
+                    raise AttributeError('Unknown property %s' % k)
+                func(v)
             changed = True
         self.eventson = store
         if changed:
@@ -1328,3 +1359,6 @@ def kwdoc(a):
         return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))
 
 docstring.interpd.update(Artist=kwdoc(Artist))
+
+_get_axes_msg = """This has been deprecated in mpl 1.5, please use the
+axes property.  A removal date has not been set."""

@@ -66,6 +66,14 @@ New backend selection
 The environment variable :envvar:`MPLBACKEND` can now be used to set the
 matplotlib backend.
 
+New ``close-figs`` argument for plot directive
+----------------------------------------------
+
+Matplotlib has a sphinx extension ``plot_directive`` that creates plots for
+inclusion in sphinx documents.  Matplotlib 1.5 adds a new option to the plot
+directive - ``close-figs`` - that closes any previous figure windows before
+creating the plots.  This can help avoid some surprising duplicates of plots
+when using ``plot_directive``.
 
 .. _whats-new-1-4:
 

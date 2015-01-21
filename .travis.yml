@@ -23,11 +23,23 @@ matrix:
       env: BUILD_DOCS=true
 
 install:
-  - pip install -q --use-mirrors nose python-dateutil $NUMPY pep8 pyparsing pillow
-  - sudo apt-get update && sudo apt-get -qq install inkscape libav-tools gdb
+  - pip install -q --use-mirrors nose python-dateutil $NUMPY pep8 pyparsing pillow sphinx
+  - sudo apt-get update && sudo apt-get -qq install inkscape libav-tools gdb mencoder
   # We use --no-install-recommends to avoid pulling in additional large latex docs that we don't need
-  - if [[ $BUILD_DOCS == true ]]; then sudo apt-get install -qq --no-install-recommends dvipng texlive-latex-base texlive-latex-extra texlive-fonts-recommended graphviz; fi
-  - if [[ $BUILD_DOCS == true ]]; then pip install sphinx numpydoc linkchecker; fi
+
+  # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
+  # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
+  # version since is it basically just a .ttf file
+  - |
+    if [[ $BUILD_DOCS == true ]]; then
+      sudo apt-get install -qq --no-install-recommends dvipng texlive-latex-base texlive-latex-extra texlive-fonts-recommended graphviz
+      pip install numpydoc linkchecker
+      wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
+      sudo dpkg -i fonts-humor-sans_1.0-1_all.deb
+      wget https://googlefontdirectory.googlecode.com/hg/ofl/felipa/Felipa-Regular.ttf
+      sudo cp Felipa-Regular.ttf /usr/local/share/fonts/
+      fc-cache -f -v
+    fi;
   - python setup.py install
 
 script:
@@ -53,3 +65,28 @@ after_failure:
   - if [[ $TRAVIS_PULL_REQUEST == false ]]; then gem install travis-artifacts; fi
   - if [[ $TRAVIS_PULL_REQUEST == false ]]; then travis-artifacts upload --path result_images.tar.bz2; fi
   - if [[ $TRAVIS_PULL_REQUEST != false ]]; then echo "The result images will only be uploaded if they are on the matplotlib/matplotlib repo - this is for security reasons to prevent arbitrary PRs echoing security details." else echo https://s3.amazonaws.com/matplotlib-test-results/artifacts/${TRAVIS_BUILD_NUMBER}/${TRAVIS_JOB_NUMBER}/result_images.tar.bz2; fi
+
+after_success:
+  |
+  if [[ $TRAVIS_PULL_REQUEST == false && $BUILD_DOCS == true && $TRAVIS_BRANCH == 'master' ]]; then
+    echo "Uploading documentation"
+    cd ..
+    openssl aes-256-cbc -K $encrypted_cc802e084cd0_key -iv $encrypted_cc802e084cd0_iv -in .travis/matplotlibDeployKey.enc -out .travis/matplotlibDeployKey -d
+    eval `ssh-agent -s`
+    chmod 600 .travis/matplotlibDeployKey
+    ssh-add .travis/matplotlibDeployKey
+    cd ..
+    git clone git@github.com:matplotlib/devdocs.git
+    cd devdocs
+    git checkout --orphan gh-pages
+    cp -R ../matplotlib/doc/build/html/. .
+    touch .nojekyll
+    git config --global user.email "MatplotlibTravisBot@nomail"
+    git config --global user.name "MatplotlibTravisBot"
+    git config --global push.default simple
+    git add .
+    git commit -m "Docs build of $TRAVIS_COMMIT"
+    git push --set-upstream origin gh-pages --force
+  else
+    echo "Will only deploy docs build from matplotlib master branch"
+  fi

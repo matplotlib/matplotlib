@@ -4,7 +4,7 @@ from matplotlib.pyplot import show
 
 
 def adjust_spines(ax,spines):
-    for loc, spine in ax.spines.iteritems():
+    for loc, spine in ax.spines.items():
         if loc in spines:
             spine.set_position(('outward',10)) # outward by 10 points
         else:

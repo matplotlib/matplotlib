@@ -463,6 +463,9 @@ class Line2D(Artist):
 
         e.g., if `every=5`, every 5-th marker will be plotted.
 
+        ACCEPTS: [None | int | length-2 tuple of int | slice |
+        list/array of int | float | length-2 tuple of float]
+
         Parameters
         ----------
         every: None | int | length-2 tuple of int | slice | list/array of int |
@@ -536,15 +539,17 @@ class Line2D(Artist):
             bbox = bbox.padded(ms)
         return bbox
 
-    def set_axes(self, ax):
-        Artist.set_axes(self, ax)
+    @Artist.axes.setter
+    def axes(self, ax):
+        # call the set method from the base-class property
+        Artist.axes.fset(self, ax)
+        # connect unit-related callbacks
         if ax.xaxis is not None:
             self._xcid = ax.xaxis.callbacks.connect('units',
                                                     self.recache_always)
         if ax.yaxis is not None:
             self._ycid = ax.yaxis.callbacks.connect('units',
                                                     self.recache_always)
-    set_axes.__doc__ = Artist.set_axes.__doc__
 
     def set_data(self, *args):
         """
@@ -970,6 +975,8 @@ class Line2D(Artist):
     def set_marker(self, marker):
         """
         Set the line marker
+
+        ACCEPTS: :mod:`A valid marker style <matplotlib.markers>`
 
         Parameters
         -----------

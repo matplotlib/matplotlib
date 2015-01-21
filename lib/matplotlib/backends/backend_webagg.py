@@ -17,7 +17,6 @@ import six
 
 import datetime
 import errno
-import io
 import json
 import os
 import random
@@ -197,7 +196,7 @@ class WebAggApplication(tornado.web.Application):
 
             self.set_header('Content-Type', mimetypes.get(fmt, 'binary'))
 
-            buff = io.BytesIO()
+            buff = six.BytesIO()
             manager.canvas.print_figure(buff, format=fmt)
             self.write(buff.getvalue())
 

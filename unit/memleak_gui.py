@@ -15,7 +15,6 @@ You may need to edit cbook.report_memory to support your platform
 
 '''
 from __future__ import print_function
-import os, sys, time
 import gc
 from optparse import OptionParser
 
@@ -52,7 +51,7 @@ import matplotlib.cbook as cbook
 
 print('# columns are: iteration, OS memory (k), number of python objects')
 print('#')
-for i in range(indEnd+1):
+for i in range(indEnd + 1):
 
     fig = pylab.figure()
     fig.savefig('test')  # This seems to just slow down the testing.
@@ -63,9 +62,9 @@ for i in range(indEnd+1):
     if options.verbose:
         if i % 10 == 0:
             #print ("iter: %4d OS memory: %8d Python objects: %8d" %
-            print ("%4d %8d %8d" %
-                   (i, val, len(gc.get_objects())))
-    if i==indStart: start = val # wait a few cycles for memory usage to stabilize
+            print("%4d %8d %8d" % (i, val, len(gc.get_objects())))
+    if i == indStart:
+        start = val  # wait a few cycles for memory usage to stabilize
 
 gc.collect()
 end = val
@@ -98,7 +97,7 @@ if i > indStart:
 
     print('# Averaging over loops %d to %d' % (indStart, indEnd))
     print('# Memory went from %dk to %dk' % (start, end))
-    print('# Average memory consumed per loop: %1.4fk bytes\n' % ((end-start)/float(indEnd-indStart)))
+    print('# Average memory consumed per loop: %1.4fk bytes\n' % ((end - start) / float(indEnd - indStart)))
 
 if options.cycles:
     cbook.print_cycles(gc.garbage)

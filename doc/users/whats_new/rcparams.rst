@@ -11,3 +11,10 @@ Added "figure.titlesize" and "figure.titleweight" keys to rcParams
 
 Two new keys were added to rcParams to control the default font size and weight
 used by the figure title (as emitted by ``pyplot.suptitle()``).
+
+
+
+Added "legend.facecolor" and "legend.edgecolor" keys to rcParams
+````````````````````````````````````````````````````````````````
+
+The new keys control colors (background and edge) of legend patches.

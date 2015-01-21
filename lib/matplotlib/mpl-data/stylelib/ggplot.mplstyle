@@ -25,6 +25,9 @@ axes.color_cycle: E24A33, 348ABD, 988ED5, 777777, FBC15E, 8EBA42, FFB5B8
                    # 8EBA42 : green
                    # FFB5B8 : pink
 
+legend.facecolor: white
+legend.edgecolor: white
+
 xtick.color: 555555
 xtick.direction: out
 
@@ -36,4 +39,3 @@ grid.linestyle: -    # solid line
 
 figure.facecolor: white
 figure.edgecolor: 0.50
-

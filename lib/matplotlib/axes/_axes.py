@@ -2,11 +2,10 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import reduce, xrange, zip
+from six.moves import reduce, xrange, zip, zip_longest
 
 import math
 import warnings
-import itertools
 
 import numpy as np
 from numpy import ma
@@ -459,7 +458,16 @@ class Axes(_AxesBase):
         handles = kwargs.pop('handles', None)
         labels = kwargs.pop('labels', None)
 
-        if handles is not None and labels is None:
+        if (handles is not None or labels is not None) and len(args):
+            warnings.warn("You have mixed positional and keyword "
+                          "arguments, some input will be "
+                          "discarded.")
+
+        # if got both handles and labels as kwargs, make same length
+        if handles and labels:
+            handles, labels = zip(*zip(handles, labels))
+
+        elif handles is not None and labels is None:
             labels = [handle.get_label() for handle in handles]
             for label, handle in zip(labels[:], handles[:]):
                 if label.startswith('_'):
@@ -471,7 +479,7 @@ class Axes(_AxesBase):
 
         elif labels is not None and handles is None:
             # Get as many handles as there are labels.
-            handles = [handle for handle, _
+            handles = [handle for handle, label
                        in zip(self._get_legend_handles(handlers), labels)]
 
         # No arguments - automatically detect labels and handles.
@@ -486,32 +494,13 @@ class Axes(_AxesBase):
         elif len(args) == 1:
             labels, = args
             # Get as many handles as there are labels.
-            handles = [handle for handle, _
+            handles = [handle for handle, label
                        in zip(self._get_legend_handles(handlers), labels)]
 
-        # Two arguments. Either:
+        # Two arguments:
         #   * user defined handles and labels
-        #   * user defined labels and location (deprecated)
         elif len(args) == 2:
-            if is_string_like(args[1]) or isinstance(args[1], int):
-                cbook.warn_deprecated('1.4', 'The "loc" positional argument '
-                                      'to legend is deprecated. Please use '
-                                      'the "loc" keyword instead.')
-                labels, loc = args
-                handles = [handle for handle, _
-                           in zip(self._get_legend_handles(handlers), labels)]
-                kwargs['loc'] = loc
-            else:
-                handles, labels = args
-
-        # Three arguments. User defined handles, labels and
-        # location (deprecated).
-        elif len(args) == 3:
-            cbook.warn_deprecated('1.4', 'The "loc" positional argument '
-                                         'to legend is deprecated. Please '
-                                         'use the "loc" keyword instead.')
-            handles, labels, loc = args
-            kwargs['loc'] = loc
+            handles, labels = args
 
         else:
             raise TypeError('Invalid arguments to legend.')
@@ -2939,7 +2928,7 @@ class Axes(_AxesBase):
             The default symbol for flier points.
             Enter an empty string ('') if you don't want to show fliers.
             If `None`, then the fliers default to 'b+'  If you want more
-            control use the fliersprop kwarg.
+            control use the flierprops kwarg.
 
           vert : bool, default = True
             If True (default), makes the boxes vertical.
@@ -3187,7 +3176,7 @@ class Axes(_AxesBase):
           - ``fliers``: Data beyond the whiskers (sequence of floats).
             Needed if ``showfliers=True``.
 
-          - ``cilo`` & ``ciho``: Lower and upper confidence intervals
+          - ``cilo`` & ``cihi``: Lower and upper confidence intervals
             about the median. Needed if ``shownotches=True``.
 
           - ``label``: Name of the dataset (string). If available,
@@ -4065,7 +4054,11 @@ class Axes(_AxesBase):
             ind = coarse.searchsorted(x).clip(0, len(coarse) - 1)
             mus = np.zeros(len(coarse))
             for i in range(len(coarse)):
-                mu = reduce_C_function(y[ind == i])
+                yi = y[ind == i]
+                if len(yi) > 0:
+                    mu = reduce_C_function(yi)
+                else:
+                    mu = np.nan
                 mus[i] = mu
             return mus
 
@@ -5416,14 +5409,16 @@ class Axes(_AxesBase):
             Input values, this takes either a single array or a sequency of
             arrays which are not required to be of the same length
 
-        bins : integer or array_like, optional, default: 10
+        bins : integer or array_like, optional
             If an integer is given, `bins + 1` bin edges are returned,
             consistently with :func:`numpy.histogram` for numpy version >=
             1.3.
 
             Unequally spaced bins are supported if `bins` is a sequence.
 
-        range : tuple, optional, default: None
+            default is 10
+
+        range : tuple or None, optional
             The lower and upper range of the bins. Lower and upper outliers
             are ignored. If not provided, `range` is (x.min(), x.max()). Range
             has no effect if `bins` is a sequence.
@@ -5432,20 +5427,26 @@ class Axes(_AxesBase):
             is based on the specified bin range instead of the
             range of x.
 
-        normed : boolean, optional, default: False
+            Default is ``None``
+
+        normed : boolean, optional
             If `True`, the first element of the return tuple will
             be the counts normalized to form a probability density, i.e.,
             ``n/(len(x)`dbin)``, i.e., the integral of the histogram will sum
             to 1. If *stacked* is also *True*, the sum of the histograms is
             normalized to 1.
 
-        weights : array_like, shape (n, ), optional, default: None
+            Default is ``False``
+
+        weights : (n, ) array_like or None, optional
             An array of weights, of the same shape as `x`.  Each value in `x`
             only contributes its associated weight towards the bin count
             (instead of 1).  If `normed` is True, the weights are normalized,
             so that the integral of the density over the range remains 1.
 
-        cumulative : boolean, optional, default : False
+            Default is ``None``
+
+        cumulative : boolean, optional
             If `True`, then a histogram is computed where each bin gives the
             counts in that bin plus all bins for smaller values. The last bin
             gives the total number of datapoints.  If `normed` is also `True`
@@ -5455,13 +5456,17 @@ class Axes(_AxesBase):
             `True`, then the histogram is normalized such that the first bin
             equals 1.
 
-        bottom : array_like, scalar, or None, default: None
+            Default is ``False``
+
+        bottom : array_like, scalar, or None
             Location of the bottom baseline of each bin.  If a scalar,
             the base line for each bin is shifted by the same amount.
             If an array, each bin is shifted independently and the length
             of bottom must match the number of bins.  If None, defaults to 0.
 
-        histtype : ['bar' | 'barstacked' | 'step' | 'stepfilled'], optional
+            Default is ``None``
+
+        histtype : {'bar', 'barstacked', 'step',  'stepfilled'}, optional
             The type of histogram to draw.
 
             - 'bar' is a traditional bar-type histogram.  If multiple data
@@ -5476,7 +5481,9 @@ class Axes(_AxesBase):
             - 'stepfilled' generates a lineplot that is by default
               filled.
 
-        align : ['left' | 'mid' | 'right'], optional, default: 'mid'
+            Default is 'bar'
+
+        align : {'left', 'mid', 'right'}, optional
             Controls how the histogram is plotted.
 
                 - 'left': bars are centered on the left bin edges.
@@ -5485,33 +5492,46 @@ class Axes(_AxesBase):
 
                 - 'right': bars are centered on the right bin edges.
 
-        orientation : ['horizontal' | 'vertical'], optional
+            Default is 'mid'
+
+        orientation : {'horizontal', 'vertical'}, optional
             If 'horizontal', `~matplotlib.pyplot.barh` will be used for
             bar-type histograms and the *bottom* kwarg will be the left edges.
 
-        rwidth : scalar, optional, default: None
+        rwidth : scalar or None, optional
             The relative width of the bars as a fraction of the bin width.  If
-            `None`, automatically compute the width. Ignored if `histtype` =
-            'step' or 'stepfilled'.
+            `None`, automatically compute the width.
 
-        log : boolean, optional, default : False
+            Ignored if `histtype` is 'step' or 'stepfilled'.
+
+            Default is ``None``
+
+        log : boolean, optional
             If `True`, the histogram axis will be set to a log scale. If `log`
             is `True` and `x` is a 1D array, empty bins will be filtered out
             and only the non-empty (`n`, `bins`, `patches`) will be returned.
 
-        color : color or array_like of colors, optional, default: None
+            Default is ``False``
+
+        color : color or array_like of colors or None, optional
             Color spec or sequence of color specs, one per dataset.  Default
             (`None`) uses the standard line color sequence.
 
-        label : string, optional, default: ''
+            Default is ``None``
+
+        label : string or None, optional
             String, or sequence of strings to match multiple datasets.  Bar
             charts yield multiple patches per dataset, but only the first gets
             the label, so that the legend command will work as expected.
 
-        stacked : boolean, optional, default : False
+            default is ``None``
+
+        stacked : boolean, optional
             If `True`, multiple data are stacked on top of each other If
             `False` multiple data are aranged side by side if histtype is
             'bar' or on top of each other if histtype is 'step'
+
+            Default is ``False``
 
         Returns
         -------
@@ -5555,6 +5575,9 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
 
+        if np.isscalar(x):
+            x = [x]
+
         # xrange becomes range after 2to3
         bin_range = range
         range = __builtins__["range"]
@@ -5584,9 +5607,6 @@ class Axes(_AxesBase):
         flat = np.ravel(x)
         if len(flat) == 0:
             raise ValueError("x must have at least one data point")
-        elif len(flat) == 1 and not binsgiven:
-            raise ValueError(
-                "x has only one data point. bins or range kwarg must be given")
 
         # Massage 'x' for processing.
         # NOTE: Be sure any changes here is also done below to 'weights'
@@ -5868,16 +5888,10 @@ class Axes(_AxesBase):
             labels = [None]
         elif is_string_like(label):
             labels = [label]
-        elif is_sequence_of_strings(label):
-            labels = list(label)
         else:
-            raise ValueError(
-                'invalid label: must be string or sequence of strings')
+            labels = [str(lab) for lab in label]
 
-        if len(labels) < nx:
-            labels += [None] * (nx - len(labels))
-
-        for (patch, lbl) in zip(patches, labels):
+        for (patch, lbl) in zip_longest(patches, labels, fillvalue=None):
             if patch:
                 p = patch[0]
                 p.update(kwargs)

@@ -3,7 +3,7 @@ Recreate Josef Albers plot illustrating the Weber-Fechner law and illustrate
 with the binary matplotlib colormap, too. Trying to show the difference between
 adding blackness to a color at different rates.
 '''
-
+from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
 import colorconv as color
@@ -39,10 +39,10 @@ lab_geometric = lab_add.copy()
 
 # Alter successive rows with more black
 k = 1
-for i in xrange(red.shape[1]):
+for i in range(red.shape[1]):
     # more blackness is closer to 0 than one, and in first column of LAB
     lab_add[0,i,0] = lab_add[0,i,0] - 10*i
-    print i,k
+    print(i,k)
     if i != 0:
         lab_geometric[0,i,0] = lab_geometric[0,i,0] - 10*k
         k *= 2
@@ -57,15 +57,15 @@ rgb_geometric[0,:,0] = temp[0,:,0]
 
 fig = plt.figure()
 k = 1
-for i in xrange(red.shape[1]):
+for i in range(red.shape[1]):
 
     # LHS: additive
     ax1 = fig.add_subplot(nrows,2,i*2+1, axisbg=tuple(rgb_add[0,i,:]))
-    print tuple(lab_add[0,i,:])#, tuple(rgb_add[0,i,:])
+    print(tuple(lab_add[0,i,:]))#, tuple(rgb_add[0,i,:])
 
     # RHS: multiplicative
     ax2 = fig.add_subplot(nrows,2,i*2+2, axisbg=tuple(rgb_geometric[0,i,:]))
-    print tuple(lab_geometric[0,i,:])#, tuple(rgb_geometric[0,i,:])
+    print(tuple(lab_geometric[0,i,:]))#, tuple(rgb_geometric[0,i,:])
 
     # ylabels
     if i!=0:
@@ -117,16 +117,16 @@ rgb_geometric = np.empty((1,nrows,3))
 k = 1
 di = 8
 I0 = 5
-for i in xrange(nrows):
+for i in range(nrows):
     # Do more blackness via increasing indices
     rgb_add[:,i,:] = rgb[:,i*di+I0,:]
 
     if i != 0:
-        print i*di+I0, di*k+I0, (I0**(1./3)+i*di**(1./3))**3
+        print(i*di+I0, di*k+I0, (I0**(1./3)+i*di**(1./3))**3)
         rgb_geometric[:,i,:] = rgb[:,I0+di*k,:]
         k *= 2
     elif i==0:
-        print i*di+I0, I0, (I0**(1./3)+i*di**(1./3))**3
+        print(i*di+I0, I0, (I0**(1./3)+i*di**(1./3))**3)
         rgb_geometric[:,i,:] = rgb[:,I0,:]
 
 lab_add = color.rgb2lab(rgb_add)
@@ -134,7 +134,7 @@ lab_geometric = color.rgb2lab(rgb_geometric)
 
 fig = plt.figure()
 k = 1
-for i in xrange(nrows):
+for i in range(nrows):
 
     # LHS: additive
     ax1 = fig.add_subplot(nrows,ncols,i*2+1, axisbg=tuple(rgb_add[0,i,:]))

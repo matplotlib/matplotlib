@@ -6,12 +6,16 @@ import six
 import io
 import os
 
+import numpy as np
 from numpy.testing import assert_array_almost_equal
 
 from matplotlib.image import imread
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib.testing.decorators import cleanup
+from matplotlib import pyplot as plt
+from matplotlib import collections
+from matplotlib import path
 
 
 @cleanup
@@ -45,6 +49,21 @@ def test_repeated_save_with_alpha():
     assert_array_almost_equal(tuple(imread(buf)[0, 0]),
                               (0.0, 1.0, 0.4, 0.250),
                               decimal=3)
+
+
+@cleanup
+def test_large_single_path_collection():
+    buff = io.BytesIO()
+
+    # Generates a too-large single path in a path collection that
+    # would cause a segfault if the draw_markers optimization is
+    # applied.
+    f, ax = plt.subplots()
+    collection = collections.PathCollection(
+        [path.Path([[-10, 5], [10, 5], [10, -5], [-10, -5], [-10, 5]])])
+    ax.add_artist(collection)
+    ax.set_xlim(10**-3, 1)
+    plt.savefig(buff)
 
 
 def report_memory(i):
@@ -110,6 +129,19 @@ def report_memory(i):
 ##     # w/o text and w/o write_png: Average memory consumed per loop: 0.02
 ##     # w/o text and w/ write_png : Average memory consumed per loop: 0.3400
 ##     # w/ text and w/ write_png  : Average memory consumed per loop: 0.32
+
+
+@cleanup
+def test_marker_with_nan():
+    # This creates a marker with nans in it, which was segfaulting the
+    # Agg backend (see #3722)
+    fig, ax = plt.subplots(1)
+    steps = 1000
+    data = np.arange(steps)
+    ax.semilogx(data)
+    ax.fill_between(data, data*0.8, data*1.2)
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png')
 
 
 if __name__ == "__main__":

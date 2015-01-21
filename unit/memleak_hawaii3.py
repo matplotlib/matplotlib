@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-import os, sys, time, gc
+import gc
 import matplotlib
 matplotlib.use('PDF')
 
@@ -20,34 +20,32 @@ for i in range(indEnd):
     fig = figure(1)
     fig.clf()
 
-
     t1 = np.arange(0.0, 2.0, 0.01)
-    y1 = np.sin(2*np.pi*t1)
+    y1 = np.sin(2 * np.pi * t1)
     y2 = rand(len(t1))
-    X = rand(50,50)
+    X = rand(50, 50)
 
     ax = fig.add_subplot(221)
     ax.plot(t1, y1, '-')
     ax.plot(t1, y2, 's')
 
-
     ax = fig.add_subplot(222)
     ax.imshow(X)
 
     ax = fig.add_subplot(223)
-    ax.scatter(rand(50), rand(50), s=100*rand(50), c=rand(50))
+    ax.scatter(rand(50), rand(50), s=100 * rand(50), c=rand(50))
 
     ax = fig.add_subplot(224)
-    ax.pcolor(10*rand(50,50))
+    ax.pcolor(10 * rand(50, 50))
 
-    fig.savefig('tmp%d' % i, dpi = 75)
+    fig.savefig('tmp%d' % i, dpi=75)
     close(1)
 
     gc.collect()
     val = report_memory(i)
     print(i, val)
-    if i==indStart: start = val # wait a few cycles for memory usage to stabilize
+    if i == indStart:
+        start = val  # wait a few cycles for memory usage to stabilize
 
 end = val
-print('Average memory consumed per loop: %1.4fk bytes\n' % ((end-start)/float(indEnd-indStart)))
-
+print('Average memory consumed per loop: %1.4fk bytes\n' % ((end - start) / float(indEnd - indStart)))

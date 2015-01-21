@@ -407,14 +407,12 @@ def test_null_collection_datalim():
 def test_add_collection():
     # Test if data limits are unchanged by adding an empty collection.
     # Github issue #1490, pull #1497.
-    ax = plt.axes()
     plt.figure()
-    ax2 = plt.axes()
-    coll = ax2.scatter([0, 1], [0, 1])
+    ax = plt.axes()
+    coll = ax.scatter([0, 1], [0, 1])
     ax.add_collection(coll)
     bounds = ax.dataLim.bounds
-    coll = ax2.scatter([], [])
-    ax.add_collection(coll)
+    coll = ax.scatter([], [])
     assert_equal(ax.dataLim.bounds, bounds)
 
 
@@ -527,6 +525,38 @@ def test_regularpolycollection_rotate():
             offsets=xy, transOffset=ax.transData)
         ax.add_collection(col, autolim=True)
     ax.autoscale_view()
+
+
+@image_comparison(baseline_images=['regularpolycollection_scale'],
+                  extensions=['png'], remove_text=True)
+def test_regularpolycollection_scale():
+    # See issue #3860
+
+    class SquareCollection(mcollections.RegularPolyCollection):
+        def __init__(self, **kwargs):
+            super(SquareCollection, self).__init__(
+                4, rotation=np.pi/4., **kwargs)
+
+        def get_transform(self):
+            """Return transform scaling circle areas to data space."""
+            ax = self.axes
+
+            pts2pixels = 72.0 / ax.figure.dpi
+
+            scale_x = pts2pixels * ax.bbox.width / ax.viewLim.width
+            scale_y = pts2pixels * ax.bbox.height / ax.viewLim.height
+            return mtransforms.Affine2D().scale(scale_x, scale_y)
+
+    fig, ax = plt.subplots()
+
+    xy = [(0, 0)]
+    # Unit square has a half-diagonal of `1 / sqrt(2)`, so `pi * r**2`
+    # equals...
+    circle_areas = [np.pi / 2]
+    squares = SquareCollection(sizes=circle_areas, offsets=xy,
+                               transOffset=ax.transData)
+    ax.add_collection(squares, autolim=True)
+    ax.axis([-1, 1, -1, 1])
 
 
 if __name__ == '__main__':

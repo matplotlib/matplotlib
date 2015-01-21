@@ -280,6 +280,13 @@ def test_get_rotation_mod360():
         assert_almost_equal(text.get_rotation(i), j)
 
 
+@image_comparison(baseline_images=['text_bboxclip'])
+def test_bbox_clipping():
+    plt.text(0.9, 0.2, 'Is bbox clipped?', backgroundcolor='r', clip_on=True)
+    t = plt.text(0.9, 0.5, 'Is fancy bbox clipped?', clip_on=True)
+    t.set_bbox({"boxstyle": "round, pad=0.1"})
+
+
 def test_text_annotation_get_window_extent():
     from matplotlib.figure import Figure
     from matplotlib.text import Annotation, Text

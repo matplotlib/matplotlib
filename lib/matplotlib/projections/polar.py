@@ -146,7 +146,13 @@ class InvertedPolarTransform(Transform):
         x = xy[:, 0:1]
         y = xy[:, 1:]
         r = np.sqrt(x*x + y*y)
-        theta = np.arccos(x / r)
+        with np.errstate(invalid='ignore'):
+            # At x=y=r=0 this will raise an
+            # invalid value warning when doing 0/0
+            # Divide by zero warnings are only raised when
+            # the numerator is different from 0. That
+            # should not happen here.
+            theta = np.arccos(x / r)
         theta = np.where(y < 0, 2 * np.pi - theta, theta)
 
         theta -= theta_offset

@@ -45,6 +45,7 @@
    pyplot_api.rst
    sankey_api.rst
    spines_api.rst
+   style_api.rst
    text_api.rst
    ticker_api.rst
    tight_layout_api.rst

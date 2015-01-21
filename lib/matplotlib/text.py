@@ -99,6 +99,7 @@ docstring.interpd.update(Text="""
     style or fontstyle         [ 'normal' | 'italic' | 'oblique']
     text                       string
     transform                  a matplotlib.transform transformation instance
+    usetex                     [True | False | None]
     variant                    ['normal' | 'small-caps']
     verticalalignment or va    ['center' | 'top' | 'bottom' | 'baseline']
     visible                    [True | False]
@@ -173,6 +174,7 @@ class Text(Artist):
                  rotation=None,
                  linespacing=None,
                  rotation_mode=None,
+                 usetex=None,          # defaults to rcParams['text.usetex']
                  **kwargs
                  ):
         """
@@ -195,6 +197,7 @@ class Text(Artist):
 
         self.set_text(text)
         self.set_color(color)
+        self.set_usetex(usetex)
         self._verticalalignment = verticalalignment
         self._horizontalalignment = horizontalalignment
         self._multialignment = multialignment
@@ -476,6 +479,8 @@ class Text(Artist):
             self._bbox_patch = None
             self._bbox = rectprops
 
+        self._update_clip_properties()
+
     def get_bbox_patch(self):
         """
         Return the bbox Patch object. Returns None if the the
@@ -526,6 +531,61 @@ class Text(Artist):
         fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
         self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
         self._bbox_patch.draw(renderer)
+
+    def _update_clip_properties(self):
+        clipprops = dict(clip_box=self.clipbox,
+                         clip_path=self._clippath,
+                         clip_on=self._clipon)
+
+        if self._bbox:
+            bbox = self._bbox.update(clipprops)
+        if self._bbox_patch:
+            bbox = self._bbox_patch.update(clipprops)
+
+    def set_clip_box(self, clipbox):
+        """
+        Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
+
+        ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
+        """
+        super(Text, self).set_clip_box(clipbox)
+        self._update_clip_properties()
+
+    def set_clip_path(self, path, transform=None):
+        """
+        Set the artist's clip path, which may be:
+
+          * a :class:`~matplotlib.patches.Patch` (or subclass) instance
+
+          * a :class:`~matplotlib.path.Path` instance, in which case
+             an optional :class:`~matplotlib.transforms.Transform`
+             instance may be provided, which will be applied to the
+             path before using it for clipping.
+
+          * *None*, to remove the clipping path
+
+        For efficiency, if the path happens to be an axis-aligned
+        rectangle, this method will set the clipping box to the
+        corresponding rectangle and set the clipping path to *None*.
+
+        ACCEPTS: [ (:class:`~matplotlib.path.Path`,
+        :class:`~matplotlib.transforms.Transform`) |
+        :class:`~matplotlib.patches.Patch` | None ]
+        """
+        super(Text, self).set_clip_path(path, transform)
+        self._update_clip_properties()
+
+    def set_clip_on(self, b):
+        """
+        Set whether artist uses clipping.
+
+        When False artists will be visible out side of the axes which
+        can lead to unexpected results.
+
+        ACCEPTS: [True | False]
+        """
+        super(Text, self).set_clip_on(b)
+        self._update_clip_properties()
 
     @allow_rasterization
     def draw(self, renderer):
@@ -582,7 +642,7 @@ class Text(Artist):
                 renderer = PathEffectRenderer(self.get_path_effects(),
                                               renderer)
 
-            if rcParams['text.usetex']:
+            if self.get_usetex():
                 renderer.draw_tex(gc, x, y, clean_line,
                                   self._fontproperties, angle, mtext=mtext)
             else:
@@ -767,6 +827,8 @@ class Text(Artist):
             self._bbox = dict(facecolor=color, edgecolor=color)
         else:
             self._bbox.update(dict(facecolor=color))
+
+        self._update_clip_properties()
 
     def set_color(self, color):
         """
@@ -1009,6 +1071,30 @@ class Text(Artist):
     def set_font_properties(self, fp):
         'alias for set_fontproperties'
         self.set_fontproperties(fp)
+
+    def set_usetex(self, usetex):
+        """
+        Set this `Text` object to render using TeX (or not).
+
+        If `None` is given, the option will be reset to use the value of
+        `rcParams['text.usetex']`
+        """
+        if usetex is None:
+            self._usetex = None
+        else:
+            self._usetex = bool(usetex)
+
+    def get_usetex(self):
+        """
+        Return whether this `Text` object will render using TeX.
+
+        If the user has not manually set this value, it will default to
+        the value of `rcParams['text.usetex']`
+        """
+        if self._usetex is None:
+            return rcParams['text.usetex']
+        else:
+            return self._usetex
 
 docstring.interpd.update(Text=artist.kwdoc(Text))
 docstring.dedent_interpd(Text.__init__)

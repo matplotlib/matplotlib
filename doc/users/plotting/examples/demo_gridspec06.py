@@ -23,7 +23,7 @@ fig = plt.figure(figsize=(8, 8))
 # gridspec inside gridspec
 outer_grid = gridspec.GridSpec(4, 4, wspace=0.0, hspace=0.0)
 
-for i in xrange(16):
+for i in range(16):
     inner_grid = gridspec.GridSpecFromSubplotSpec(3, 3,
             subplot_spec=outer_grid[i], wspace=0.0, hspace=0.0)
     a, b = int(i/4)+1,i%4+1
