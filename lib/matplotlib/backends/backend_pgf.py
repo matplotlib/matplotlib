@@ -6,6 +6,7 @@ import six
 import math
 import os
 import sys
+import errno
 import re
 import shutil
 import tempfile
@@ -316,8 +317,14 @@ class LatexManager(object):
                                      stdin=subprocess.PIPE,
                                      stdout=subprocess.PIPE,
                                      cwd=self.tmpdir)
-        except OSError:
-            raise RuntimeError("Error starting process '%s'" % self.texcommand)
+        except OSError, e:
+            if e.errno == errno.ENOENT:
+                raise OSError(errno.ENOENT, "Latex command not found. "
+                    "Install '%s' or change pgf.texsystem to the desired command."
+                    % self.texcommand
+                )
+            else:
+                raise RuntimeError("Error starting process '%s'" % self.texcommand)
         test_input = self.latex_header + latex_end
         stdout, stderr = latex.communicate(test_input.encode("utf-8"))
         if latex.returncode != 0:
