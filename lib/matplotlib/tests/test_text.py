@@ -316,7 +316,6 @@ def test_text_annotation_get_window_extent():
     eq_(points[1, 1], text_bbox.height - below_line)
 
 
-def test_arrow_annotation_get_window_extent():
 def test_text_with_arrow_annotation_get_window_extent():
     from matplotlib.figure import Figure
     from matplotlib.text import Annotation, Text
@@ -347,6 +346,7 @@ def test_text_with_arrow_annotation_get_window_extent():
     assert_almost_equal(bbox.height, expected_height)
 
 
+def test_arrow_annotation_get_window_extent():
     from matplotlib.figure import Figure
     from matplotlib.text import Annotation
     from matplotlib.backends.backend_agg import RendererAgg
