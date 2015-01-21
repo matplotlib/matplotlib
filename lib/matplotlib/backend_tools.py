@@ -344,11 +344,11 @@ class ToolGrid(ToolToggleBase):
 
     def enable(self, event):
         event.inaxes.grid(True)
-        self.figure.canvas.draw()
+        self.figure.canvas.draw_idle()
 
     def disable(self, event):
         event.inaxes.grid(False)
-        self.figure.canvas.draw()
+        self.figure.canvas.draw_idle()
 
 
 class ToolFullScreen(ToolToggleBase):
@@ -374,11 +374,11 @@ class AxisScaleBase(ToolToggleBase):
 
     def enable(self, event):
         self.set_scale(event.inaxes, 'log')
-        self.figure.canvas.draw()
+        self.figure.canvas.draw_idle()
 
     def disable(self, event):
         self.set_scale(event.inaxes, 'linear')
-        self.figure.canvas.draw()
+        self.figure.canvas.draw_idle()
 
 
 class ToolYScale(AxisScaleBase):
@@ -622,7 +622,7 @@ class ZoomPanBase(ToolToggleBase):
                      xdata + cur_xrange*scale_factor])
         ax.set_ylim([ydata - cur_yrange*scale_factor,
                      ydata + cur_yrange*scale_factor])
-        self.figure.canvas.draw()  # force re-draw
+        self.figure.canvas.draw_idle()  # force re-draw
 
 
 class ToolZoom(ZoomPanBase):
