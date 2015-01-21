@@ -183,7 +183,7 @@ class SetCursorBase(ToolBase):
         self._cursor = None
         self._default_cursor = cursors.POINTER
         self._last_cursor = self._default_cursor
-        self.navigation.mpl_connect('tool_added_event', self._add_tool_cbk)
+        self.navigation.nav_connect('tool_added_event', self._add_tool_cbk)
 
         # process current tools
         for tool in self.navigation.tools.values():
@@ -200,7 +200,7 @@ class SetCursorBase(ToolBase):
     # If the tool is toggleable, set the cursor when the tool is triggered
     def _add_tool(self, tool):
         if getattr(tool, 'cursor', None) is not None:
-            self.navigation.mpl_connect('tool_trigger_%s' % tool.name,
+            self.navigation.nav_connect('tool_trigger_%s' % tool.name,
                                         self._tool_trigger_cbk)
 
     # If tool is added, process it

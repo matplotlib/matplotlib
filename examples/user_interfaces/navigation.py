@@ -39,8 +39,6 @@ class ListTools(ToolBase):
 class CopyToolGTK3(ToolBase):
     keymap = 'ctrl+c'
     description = 'Copy canvas'
-    # It is not added to the toolbar as a button
-    intoolbar = False
 
     def trigger(self, *args, **kwargs):
         from gi.repository import Gtk, Gdk

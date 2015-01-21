@@ -3279,7 +3279,7 @@ class NavigationBase(object):
         self.keypresslock = widgets.LockDraw()
         self.messagelock = widgets.LockDraw()
 
-    def mpl_connect(self, s, func):
+    def nav_connect(self, s, func):
         """Connect event with string *s* to *func*.
 
         Parameters
@@ -3304,14 +3304,14 @@ class NavigationBase(object):
         """
         return self._callbacks.connect(s, func)
 
-    def mpl_disconnect(self, cid):
+    def nav_disconnect(self, cid):
         """Disconnect callback id cid
 
         Example usage::
 
-            cid = navigation.mpl_connect('tool_trigger_zoom', on_press)
+            cid = navigation.nav_connect('tool_trigger_zoom', on_press)
             #...later
-            navigation.mpl_disconnect(cid)
+            navigation.nav_disconnect(cid)
         """
         return self._callbacks.disconnect(cid)
 
@@ -3603,9 +3603,9 @@ class ToolbarBase(object):
         self.manager = manager
         self.navigation = manager.navigation
 
-        self.navigation.mpl_connect('tool_message_event', self._message_cbk)
-        self.navigation.mpl_connect('tool_added_event', self._add_tool_cbk)
-        self.navigation.mpl_connect('tool_removed_event',
+        self.navigation.nav_connect('tool_message_event', self._message_cbk)
+        self.navigation.nav_connect('tool_added_event', self._add_tool_cbk)
+        self.navigation.nav_connect('tool_removed_event',
                                     self._remove_tool_cbk)
 
     def _message_cbk(self, event):
@@ -3633,7 +3633,7 @@ class ToolbarBase(object):
                           event.tool.description,
                           toggle)
         if toggle:
-            self.navigation.mpl_connect('tool_trigger_%s' % event.tool.name,
+            self.navigation.nav_connect('tool_trigger_%s' % event.tool.name,
                                         self._tool_triggered_cbk)
 
     def _remove_tool_cbk(self, event):
