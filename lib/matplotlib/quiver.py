@@ -85,6 +85,13 @@ Keyword arguments:
     height of the axes, respectively, when the the window is resized;
     for 'dots' or 'inches', resizing does not change the arrows.
 
+  *orientation*: ['absolute' | 'relative']
+    With the default 'absolute', *angles* are measured CCW from
+    the horizontal axis pointing from left to right.  With 'relative',
+    angles are measured from the positive *x* direction to the
+    positive *y* direction.  For example, if *U* is zero and *V*
+    is one, the arrow will point up if *y* is increasing upward,
+    and down if *y* is increasing downward.
 
   *angles*: [ 'uv' | 'xy' | array ]
     With the default 'uv', the arrow aspect ratio is 1, so that
@@ -433,6 +440,11 @@ class Quiver(mcollections.PolyCollection):
         self.angles = kw.pop('angles', 'uv')
         self.width = kw.pop('width', None)
         self.color = kw.pop('color', 'k')
+        self.orientation = kw.pop('orientation', 'absolute')
+
+        if self.orientation not in ('absolute', 'relative'):
+            raise ValueError(
+                'orientation must be "absolute" or "relative"')
 
         pivot = kw.pop('pivot', 'tail').lower()
         # validate pivot
@@ -520,11 +532,9 @@ class Quiver(mcollections.PolyCollection):
     @allow_rasterization
     def draw(self, renderer):
         self._init()
-        if (self._new_UV or self.angles == 'xy'
-                or self.scale_units in ['x', 'y', 'xy']):
-            verts = self._make_verts(self.U, self.V)
-            self.set_verts(verts, closed=False)
-            self._new_UV = False
+        verts = self._make_verts(self.U, self.V)
+        self.set_verts(verts, closed=False)
+        self._new_UV = False
         mcollections.PolyCollection.draw(self, renderer)
 
     def set_UVC(self, U, V, C=None):
@@ -647,6 +657,7 @@ class Quiver(mcollections.PolyCollection):
             theta = ma.masked_invalid(self.angles, copy=True).filled(0)
             theta = theta.ravel()
             theta *= (np.pi / 180.0)
+        theta = self._apply_orientation(theta)
         theta.shape = (theta.shape[0], 1)  # for broadcasting
         xy = (X + Y * 1j) * np.exp(1j * theta) * self.width
         xy = xy[:, :, np.newaxis]
@@ -658,6 +669,15 @@ class Quiver(mcollections.PolyCollection):
             # that nans will end up in the paths anyway.
 
         return XY
+
+    def _apply_orientation(self, theta):
+        if self.orientation == 'absolute':
+            return theta
+        if self.ax.xaxis_inverted():
+            theta = np.pi - theta
+        if self.ax.yaxis_inverted():
+            theta = -theta
+        return theta
 
     def _h_arrows(self, length):
         """ length is in arrow width units """
