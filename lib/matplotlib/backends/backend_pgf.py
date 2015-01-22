@@ -319,7 +319,7 @@ class LatexManager(object):
                                      cwd=self.tmpdir)
         except OSError as e:
             if e.errno == errno.ENOENT:
-                raise OSError(errno.ENOENT, "Latex command not found. "
+                raise RuntimeError("Latex command not found. "
                     "Install '%s' or change pgf.texsystem to the desired command."
                     % self.texcommand
                 )
