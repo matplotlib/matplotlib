@@ -1957,7 +1957,7 @@ class Annotation(Text, _AnnotationBase):
 
         if self.arrowprops:
             x0, y0 = xy_pixel
-            l, b, w, h = self.get_window_extent(renderer).bounds
+            l, b, w, h = Text.get_window_extent(self, renderer).bounds
             r = l + w
             t = b + h
             xc = 0.5 * (l + r)
@@ -1975,7 +1975,7 @@ class Annotation(Text, _AnnotationBase):
                 # the textbox.
                 # TODO : Rotation needs to be accounted.
                 relpos = self._arrow_relpos
-                bbox = self.get_window_extent(renderer)
+                bbox = Text.get_window_extent(self, renderer)
                 ox0 = bbox.x0 + bbox.width * relpos[0]
                 oy0 = bbox.y0 + bbox.height * relpos[1]
 
@@ -2007,7 +2007,7 @@ class Annotation(Text, _AnnotationBase):
                             self.arrow_patch.set_patchA(None)
                             return
 
-                        bbox = self.get_window_extent(renderer)
+                        bbox = Text.get_window_extent(self, renderer)
                         l, b, w, h = bbox.bounds
                         l -= pad / 2.
                         b -= pad / 2.
@@ -2045,7 +2045,6 @@ class Annotation(Text, _AnnotationBase):
                 width = d.pop('width', 4)
                 headwidth = d.pop('headwidth', 12)
                 frac = d.pop('frac', 0.1)
-
                 self.arrow = YAArrow(self.figure,
                                      (x0 + dx, y0 + dy), (x - dx, y - dy),
                                      width=width, headwidth=headwidth,
@@ -2107,6 +2106,40 @@ class Annotation(Text, _AnnotationBase):
             self.arrow_patch.draw(renderer)
 
         Text.draw(self, renderer)
+
+    def get_window_extent(self, renderer=None):
+        '''
+        Return a :class:`~matplotlib.transforms.Bbox` object bounding
+        the text and arrow annotation, in display units.
+
+        *renderer* defaults to the _renderer attribute of the text
+        object.  This is not assigned until the first execution of
+        :meth:`draw`, so you must use this kwarg if you want
+        to call :meth:`get_window_extent` prior to the first
+        :meth:`draw`.  For getting web page regions, it is
+        simpler to call the method after saving the figure. The
+        *dpi* used defaults to self.figure.dpi; the renderer dpi is
+        irrelevant.
+
+        '''
+        arrow = self.arrow
+        arrow_patch = self.arrow_patch
+
+        text_bbox = Text.get_window_extent(self, renderer=renderer)
+        if text_bbox.width == 0.0 and text_bbox.height == 0.0:
+            bboxes = []
+        else:
+            bboxes = [text_bbox]
+
+        if self.arrow is not None:
+            bboxes.append(arrow.get_window_extent(renderer=renderer))
+        elif self.arrow_patch is not None:
+            bboxes.append(arrow_patch.get_window_extent(renderer=renderer))
+
+        if len(bboxes) == 0:
+            return Bbox.from_bounds(self._x, self._y, 0.0, 0.0)
+        else:
+            return Bbox.union(bboxes)
 
 
 docstring.interpd.update(Annotation=Annotation.__init__.__doc__)

@@ -10,7 +10,7 @@ from matplotlib.testing.decorators import image_comparison, knownfailureif, clea
 import matplotlib.pyplot as plt
 import warnings
 from nose import SkipTest
-from nose.tools import with_setup, assert_raises
+from nose.tools import with_setup, assert_raises, eq_, ok_
 
 
 @image_comparison(baseline_images=['font_styles'])
@@ -279,8 +279,127 @@ def test_get_rotation_mod360():
     for i, j in zip([360., 377., 720+177.2], [0., 17., 177.2]):
         assert_almost_equal(text.get_rotation(i), j)
 
+
 @image_comparison(baseline_images=['text_bboxclip'])
 def test_bbox_clipping():
     plt.text(0.9, 0.2, 'Is bbox clipped?', backgroundcolor='r', clip_on=True)
     t = plt.text(0.9, 0.5, 'Is fancy bbox clipped?', clip_on=True)
     t.set_bbox({"boxstyle": "round, pad=0.1"})
+
+
+def test_text_annotation_get_window_extent():
+    from matplotlib.figure import Figure
+    from matplotlib.text import Annotation, Text
+    from matplotlib.backends.backend_agg import RendererAgg
+
+    figure = Figure(dpi=100)
+    renderer = RendererAgg(200, 200, 100)
+
+
+    # Only text annotation
+    annotation = Annotation('test', xy=(0, 0))
+    annotation.set_figure(figure)
+
+    text = Text(text='test', x=0, y=0)
+    text.set_figure(figure)
+
+    bbox = annotation.get_window_extent(renderer=renderer)
+
+    text_bbox = text.get_window_extent(renderer=renderer)
+    eq_(bbox.width, text_bbox.width)
+    eq_(bbox.height, text_bbox.height)
+
+    _, _, d = renderer.get_text_width_height_descent(
+        'text', annotation._fontproperties, ismath=False)
+    _, _, lp_d = renderer.get_text_width_height_descent(
+        'lp', annotation._fontproperties, ismath=False)
+    below_line = max(d, lp_d)
+
+    # These numbers are specific to the current implementation of Text
+    points = bbox.get_points()
+    eq_(points[0, 0], 0.0)
+    eq_(points[1, 0], text_bbox.width)
+    eq_(points[0, 1], -below_line)
+    eq_(points[1, 1], text_bbox.height - below_line)
+
+
+def test_text_with_arrow_annotation_get_window_extent():
+    from matplotlib.figure import Figure
+    from matplotlib.text import Annotation, Text
+    from matplotlib.backends.backend_agg import RendererAgg
+
+    figure = Figure(dpi=100)
+    renderer = RendererAgg(600, 600, 100)
+    headwidth = 21
+
+    text = Text(text='test', x=0, y=0)
+    text.set_figure(figure)
+    text_bbox = text.get_window_extent(renderer=renderer)
+
+    # Text annotation with arrow
+    annotation = Annotation(
+        'test',
+        xy=(0.0, 50.0 + (headwidth / 0.72) * 0.5),
+        xytext=(50.0, 50.0), xycoords='figure pixels',
+        arrowprops={
+            'facecolor': 'black', 'width': 2,
+            'headwidth': headwidth, 'shrink': 0.0})
+    annotation.set_figure(figure)
+    annotation.draw(renderer)
+
+    bbox = annotation.get_window_extent(renderer=renderer)
+    eq_(bbox.width, text_bbox.width + 50.0)
+    expected_height = max(text_bbox.height, headwidth / 0.72)
+    assert_almost_equal(bbox.height, expected_height)
+
+
+def test_arrow_annotation_get_window_extent():
+    from matplotlib.figure import Figure
+    from matplotlib.text import Annotation
+    from matplotlib.backends.backend_agg import RendererAgg
+
+    figure = Figure(dpi=100)
+    figure.set_figwidth(2.0)
+    figure.set_figheight(2.0)
+    renderer = RendererAgg(200, 200, 100)
+
+    # Text annotation with arrow
+    annotation = Annotation(
+        '', xy=(0.0, 50.0), xytext=(50.0, 50.0), xycoords='figure pixels',
+        arrowprops={
+            'facecolor': 'black', 'width': 8, 'headwidth': 10, 'shrink': 0.0})
+    annotation.set_figure(figure)
+    annotation.draw(renderer)
+
+    bbox = annotation.get_window_extent()
+    points = bbox.get_points()
+
+    eq_(bbox.width, 50.0)
+    assert_almost_equal(bbox.height, 10.0 / 0.72)
+    eq_(points[0, 0], 0.0)
+    eq_(points[0, 1], 50.0 - 5 / 0.72)
+
+
+def test_empty_annotation_get_window_extent():
+    from matplotlib.figure import Figure
+    from matplotlib.text import Annotation
+    from matplotlib.backends.backend_agg import RendererAgg
+
+    figure = Figure(dpi=100)
+    figure.set_figwidth(2.0)
+    figure.set_figheight(2.0)
+    renderer = RendererAgg(200, 200, 100)
+
+    # Text annotation with arrow
+    annotation = Annotation(
+        '', xy=(0.0, 50.0), xytext=(0.0, 50.0), xycoords='figure pixels')
+    annotation.set_figure(figure)
+    annotation.draw(renderer)
+
+    bbox = annotation.get_window_extent()
+    points = bbox.get_points()
+
+    eq_(points[0, 0], 0.0)
+    eq_(points[1, 0], 0.0)
+    eq_(points[1, 1], 50.0)
+    eq_(points[0, 1], 50.0)
