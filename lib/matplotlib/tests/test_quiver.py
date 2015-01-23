@@ -74,6 +74,20 @@ def test_quiver_with_key():
                                       'size': 'large'})
 
 
+@image_comparison(baseline_images=['quiver_orientation_test_image'],
+                  extensions=['png'])
+def test_quiver_orientation():
+    fig, axs = plt.subplots(nrows=2, ncols=2)
+    axs = axs.ravel()
+
+    for ax in axs:
+        Q = draw_quiver(ax, scale_units='xy', orientation='relative')
+        ax.margins(0.1)
+    for ax in (axs[1], axs[3]):
+        ax.invert_xaxis()
+    for ax in (axs[2], axs[3]):
+        ax.invert_yaxis()
+
 if __name__ == '__main__':
     import nose
     nose.runmodule()
