@@ -1,0 +1,13 @@
+Added 'orientation' kwarg to quiver
+```````````````````````````````````
+
+Prior to this change, quiver defined arrow angles as positive
+counter-clockwise from a horizontal axis that is positive to
+the right.  In most applications, however, one wants the
+arrows to retain their orientation relative to the data
+axes; for example, inverting the y-axis should cause the
+arrows to be reflected about the x-axis.  This behavior can
+now be enabled in `Axes.quiver` and `plt.quiver` with the
+kwarg `orientation='relative'`.  For the present release,
+the old behavior is retained as the default, with
+`orientation='absolute'`.
