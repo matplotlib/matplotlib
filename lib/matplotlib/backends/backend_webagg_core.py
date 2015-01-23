@@ -18,6 +18,7 @@ import six
 import io
 import json
 import os
+import re
 import time
 import warnings
 
@@ -45,6 +46,55 @@ def new_figure_manager_given_figure(num, figure):
     canvas = FigureCanvasWebAggCore(figure)
     manager = FigureManagerWebAgg(canvas, num)
     return manager
+
+
+_KEY_LUT = {'shift+À': '~',
+            'À': '`',
+            '\x1b': 'esc',
+            '\x08': 'backspace',
+            'shift+Ü': '|',
+            'Ü': '\\',
+            'shift+Ý': '}',
+            'Ý': ']',
+            'shift+Û': '{',
+            'Û': '[',
+            'shift+º': ':',
+            'º': ';',
+            'shift+Þ': '"',
+            'Þ': "'",
+            'shift+¼': '<',
+            '¼': ',',
+            'shift+¾': '>',
+            '¾': '.',
+            'shift+¿': '?',
+            '¿': '/',
+            'shift+»': '+',
+            '»': '=',
+            'shift+½': '_',
+            '½': '-',
+            '\x7f': 'del',
+            '\t': 'tab'}
+
+
+def _get_key(key):
+    """Handle key codes with unicode characters"""
+    ind = key.index('u+')
+    char = chr(int(key[ind + 2:], 16))
+    if re.match('\d', char):
+        if 'shift+' in key:
+            num = int(key[-1])
+            key = key.replace('shift+', '')
+            char = ')!@#$%^&*('[num]
+    elif 'shift+' in key:
+        if 'shift+' + char in _KEY_LUT:
+            key = key.replace('shift+', '')
+            char = _KEY_LUT['shift+' + char]
+        else:
+            char = _KEY_LUT[char]
+    else:
+        char = _KEY_LUT.get(char, char)
+    key = key[:key.index('u+')] + char
+    return key
 
 
 class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
@@ -222,7 +272,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 self.scroll_event(x, y, event['step'])
         elif e_type in ('key_press', 'key_release'):
             key = event['key']
-
+            if 'u+' in key:
+                key = _get_key(key)
             if e_type == 'key_press':
                 self.key_press_event(key)
             elif e_type == 'key_release':
