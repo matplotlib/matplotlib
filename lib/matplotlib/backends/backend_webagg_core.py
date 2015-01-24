@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Displays Agg images in the browser, with interactivity
 """
