@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Displays Agg images in the browser, with interactivity
 """
@@ -19,7 +18,6 @@ import six
 import io
 import json
 import os
-import re
 import time
 import warnings
 
