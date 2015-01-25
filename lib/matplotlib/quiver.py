@@ -87,12 +87,15 @@ Keyword arguments:
 
 
   *angles*: [ 'uv' | 'xy' | array ]
-    With the default 'uv', the arrow aspect ratio is 1, so that
-    if *U*==*V* the angle of the arrow on the plot is 45 degrees
-    CCW from the *x*-axis.
+    With the default 'uv', the arrow axis aspect ratio is 1, so that
+    if *U*==*V* the orientation of the arrow on the plot is 45 degrees
+    CCW from the horizontal axis (positive to the right).
     With 'xy', the arrow points from (x,y) to (x+u, y+v).
+    Use this for plotting a gradient field, for example.
     Alternatively, arbitrary angles may be specified as an array
-    of values in degrees, CCW from the *x*-axis.
+    of values in degrees, CCW from the horizontal axis.
+    Note: inverting a data axis will correspondingly invert the
+    arrows *only* with `angles='xy'`.
 
   *scale*: [ *None* | float ]
     Data units per arrow length unit, e.g., m/s per plot width; a smaller
@@ -505,11 +508,9 @@ class Quiver(mcollections.PolyCollection):
     @allow_rasterization
     def draw(self, renderer):
         self._init()
-        if (self._new_UV or self.angles == 'xy'
-                or self.scale_units in ['x', 'y', 'xy']):
-            verts = self._make_verts(self.U, self.V)
-            self.set_verts(verts, closed=False)
-            self._new_UV = False
+        verts = self._make_verts(self.U, self.V)
+        self.set_verts(verts, closed=False)
+        self._new_UV = False
         mcollections.PolyCollection.draw(self, renderer)
 
     def set_UVC(self, U, V, C=None):
