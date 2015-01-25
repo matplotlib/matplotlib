@@ -49,52 +49,93 @@ def new_figure_manager_given_figure(num, figure):
     return manager
 
 
-_KEY_LUT = {'shift+À': '~',
-            'À': '`',
-            '\x1b': 'esc',
-            '\x08': 'backspace',
-            'shift+Ü': '|',
-            'Ü': '\\',
-            'shift+Ý': '}',
-            'Ý': ']',
-            'shift+Û': '{',
-            'Û': '[',
-            'shift+º': ':',
-            'º': ';',
-            'shift+Þ': '"',
-            'Þ': "'",
-            'shift+¼': '<',
-            '¼': ',',
-            'shift+¾': '>',
-            '¾': '.',
-            'shift+¿': '?',
-            '¿': '/',
-            'shift+»': '+',
-            '»': '=',
-            'shift+½': '_',
-            '½': '-',
-            '\x7f': 'del',
-            '\t': 'tab'}
+# http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
+_SHIFT_LUT = {59: ':',
+              61: '+',
+              173: '_',
+              186: ':',
+              187: '+',
+              188: '<',
+              189: '_',
+              190: '>',
+              191: '?',
+              192: '~',
+              219: '{',
+              220: '|',
+              221: '}',
+              222: '"'}
+
+_LUT = {8: 'backspace',
+        9: 'tab',
+        13: 'enter',
+        16: 'shift',
+        17: 'control',
+        18: 'alt',
+        19: 'pause',
+        20: 'caps',
+        27: 'escape',
+        32: ' ',
+        33: 'pageup',
+        34: 'pagedown',
+        35: 'end',
+        36: 'home',
+        37: 'left',
+        38: 'up',
+        39: 'right',
+        40: 'down',
+        45: 'insert',
+        46: 'delete',
+        91: 'super',
+        92: 'super',
+        93: 'select',
+        106: '*',
+        107: '+',
+        109: '-',
+        110: '.',
+        111: '/',
+        144: 'num_lock',
+        145: 'scroll_lock',
+        186: ':',
+        187: '=',
+        188: ',',
+        189: '-',
+        190: '.',
+        191: '/',
+        192: '`',
+        219: '[',
+        220: '\\',
+        221: ']',
+        222: "'"}
 
 
-def _get_key(key):
-    """Handle key codes with unicode characters"""
-    ind = key.index('u+')
-    char = chr(int(key[ind + 2:], 16))
-    if re.match('\d', char):
+def _handle_key(key):
+    """Handle key codes"""
+    code = int(key[key.index('k') + 1:])
+    value = chr(code)
+    # letter keys
+    if code >= 65 and code <= 90:
         if 'shift+' in key:
-            num = int(key[-1])
             key = key.replace('shift+', '')
-            char = ')!@#$%^&*('[num]
-    elif 'shift+' in key:
-        if 'shift+' + char in _KEY_LUT:
-            key = key.replace('shift+', '')
-            char = _KEY_LUT['shift+' + char]
         else:
-            char = _KEY_LUT[char]
-    else:
-        char = _KEY_LUT.get(char, char)
-    key = key[:key.index('u+')] + char
+            value = value.lower()
+    # number keys
+    elif code >= 48 and code <= 57:
+        if 'shift+' in key:
+            value = ')!@#$%^&*('[int(value)]
+            key = key.replace('shift+', '')
+    # function keys
+    elif code >= 112 and code <= 123:
+        value = 'f%s' % (code - 111)
+    # number pad keys
+    elif code >= 96 and code <= 105:
+        value = '%s' % (code - 96)
+    # keys with shift alternatives
+    elif code in _SHIFT_LUT and 'shift+' in key:
+        key = key.replace('shift+', '')
+        value = _SHIFT_LUT[code]
+    elif code in _LUT:
+        value = _LUT[code]
+    key = key[:key.index('k')] + value
     return key
 
 
@@ -272,9 +313,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             elif e_type == 'scroll':
                 self.scroll_event(x, y, event['step'])
         elif e_type in ('key_press', 'key_release'):
-            key = event['key']
-            if 'u+' in key:
-                key = _get_key(key)
+            key = _handle_key(event['key'])
             if e_type == 'key_press':
                 self.key_press_event(key)
             elif e_type == 'key_release':
