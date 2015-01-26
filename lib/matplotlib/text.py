@@ -1498,17 +1498,17 @@ class _AnnotationBase(object):
         if s2 == 'data':
             y = float(self.convert_yunits(y))
 
-        tr = self._get_xy_transform(renderer, s)
+        tr = self._get_xy_transform(renderer, (x, y), s)
         x1, y1 = tr.transform_point((x, y))
         return x1, y1
 
-    def _get_xy_transform(self, renderer, s):
+    def _get_xy_transform(self, renderer, xy, s):
 
         if isinstance(s, tuple):
             s1, s2 = s
             from matplotlib.transforms import blended_transform_factory
-            tr1 = self._get_xy_transform(renderer, s1)
-            tr2 = self._get_xy_transform(renderer, s2)
+            tr1 = self._get_xy_transform(renderer, xy, s1)
+            tr2 = self._get_xy_transform(renderer, xy, s2)
             tr = blended_transform_factory(tr1, tr2)
             return tr
 
@@ -1557,7 +1557,17 @@ class _AnnotationBase(object):
         #     bbox0 = self._get_bbox(renderer, bbox)
 
         if bbox0 is not None:
-            xy0 = bbox0.bounds[:2]
+            x, y = xy
+            bounds = bbox0.extents
+            if x < 0:
+                x0 = bounds[2]
+            else:
+                x0 = bounds[0]
+            if y < 0:
+                y0 = bounds[3]
+            else:
+                y0 = bounds[1]
+            xy0 = (x0, y0)
         elif bbox_name == "offset":
             xy0 = self._get_ref_xy(renderer)
 
@@ -1917,7 +1927,8 @@ class Annotation(Text, _AnnotationBase):
         patch.
         """
         # generate transformation,
-        self.set_transform(self._get_xy_transform(renderer, self.anncoords))
+        self.set_transform(self._get_xy_transform(
+            renderer, self.xy, self.anncoords))
 
         ox0, oy0 = self._get_xy_display()
         ox1, oy1 = xy_pixel
