@@ -31,6 +31,11 @@ from matplotlib.compat import subprocess
 from matplotlib import verbose
 from matplotlib import rcParams
 
+# Process creation flag for subprocess to prevent it raising a terminal
+# window. See for example:
+# https://stackoverflow.com/questions/24130623/using-python-subprocess-popen-cant-prevent-exe-stopped-working-prompt
+CREATE_NO_WINDOW = 0x08000000
+
 # Other potential writing methods:
 # * http://pymedia.org/
 # * libmng (produces swf) python wrappers: https://github.com/libming/libming
@@ -189,7 +194,8 @@ class MovieWriter(object):
                        ' '.join(command))
         self._proc = subprocess.Popen(command, shell=False,
                                       stdout=output, stderr=output,
-                                      stdin=subprocess.PIPE)
+                                      stdin=subprocess.PIPE,
+                                      creationflags=CREATE_NO_WINDOW)
 
     def finish(self):
         'Finish any processing for writing the movie.'
@@ -251,7 +257,8 @@ class MovieWriter(object):
             p = subprocess.Popen(cls.bin_path(),
                              shell=False,
                              stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
+                             stderr=subprocess.PIPE,
+                             creationflags=CREATE_NO_WINDOW)
             p.communicate()
             return True
         except OSError:
