@@ -766,9 +766,10 @@ static PyObject *PyFT2Font_get_width_height(PyFT2Font *self, PyObject *args, PyO
 }
 
 const char *PyFT2Font_get_bitmap_offset__doc__ =
-    "w, h = get_bitmap_offset()\n"
+    "x, y = get_bitmap_offset()\n"
     "\n"
-    "Get the offset in 26.6 subpixels for the bitmap if ink hangs left or below (0, 0)\n";
+    "Get the offset in 26.6 subpixels for the bitmap if ink hangs left or below (0, 0).\n"
+    "Since matplotlib only supports left-to-right text, y is always 0.\n";
 
 static PyObject *PyFT2Font_get_bitmap_offset(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
