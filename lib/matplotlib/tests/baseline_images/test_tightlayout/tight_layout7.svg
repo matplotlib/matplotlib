@@ -5,7 +5,7 @@
 <svg height="432pt" version="1.1" viewBox="0 0 576 432" width="576pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -21,17 +21,41 @@ z
   <g id="axes_1">
    <g id="patch_2">
     <path d="
-M62.9381 375.207
-L554.525 375.207
-L554.525 36.4241
-L62.9381 36.4241
+M64.6256 375.207
+L553.463 375.207
+L553.463 36.4241
+L64.6256 36.4241
 z
 " style="fill:#ffffff;"/>
    </g>
    <g id="line2d_1">
-    <path clip-path="url(#p5d0be2faa4)" d="
-M62.9381 375.207
-L554.525 36.4241" style="fill:none;stroke:#0000ff;"/>
+    <path clip-path="url(#p6575bc1295)" d="
+M64.6256 375.207
+L553.463 36.4241" style="fill:none;stroke:#0000ff;stroke-linecap:square;"/>
+   </g>
+   <g id="patch_3">
+    <path d="
+M64.6256 36.4241
+L553.463 36.4241
+L553.463 36.4241" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
+   </g>
+   <g id="patch_4">
+    <path d="
+M553.463 375.207
+L553.463 36.4241
+L553.463 36.4241" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
+   </g>
+   <g id="patch_5">
+    <path d="
+M64.6256 375.207
+L553.463 375.207
+L553.463 375.207" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
+   </g>
+   <g id="patch_6">
+    <path d="
+M64.6256 375.207
+L64.6256 36.4241
+L64.6256 36.4241" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
    </g>
    <g id="matplotlib.axis_1">
     <g id="xtick_1">
@@ -39,20 +63,20 @@ L554.525 36.4241" style="fill:none;stroke:#0000ff;"/>
       <defs>
        <path d="
 M0 0
-L0 -4" id="mcb557df647" style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;"/>
+L0 -4" id="mb1445623b5" style="stroke:#000000;stroke-width:0.5;"/>
       </defs>
       <g>
-       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="62.938125" xlink:href="#mcb557df647" y="375.2071875"/>
+       <use style="stroke:#000000;stroke-width:0.5;" x="64.625625" xlink:href="#mb1445623b5" y="375.2071875"/>
       </g>
      </g>
      <g id="line2d_3">
       <defs>
        <path d="
 M0 0
-L0 4" id="mdad270ee8e" style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;"/>
+L0 4" id="m3a68111ca7" style="stroke:#000000;stroke-width:0.5;"/>
       </defs>
       <g>
-       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="62.938125" xlink:href="#mdad270ee8e" y="36.4240625"/>
+       <use style="stroke:#000000;stroke-width:0.5;" x="64.625625" xlink:href="#m3a68111ca7" y="36.4240625"/>
       </g>
      </g>
      <g id="text_1">
@@ -85,7 +109,7 @@ L10.6875 0
 z
 " id="BitstreamVeraSans-Roman-2e"/>
       </defs>
-      <g transform="translate(54.1903125 388.3253125)scale(0.12 -0.12)">
+      <g transform="translate(55.08375 388.3253125)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-30"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -95,12 +119,12 @@ z
     <g id="xtick_2">
      <g id="line2d_4">
       <g>
-       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="308.731640625" xlink:href="#mcb557df647" y="375.2071875"/>
+       <use style="stroke:#000000;stroke-width:0.5;" x="309.04453125" xlink:href="#mb1445623b5" y="375.2071875"/>
       </g>
      </g>
      <g id="line2d_5">
       <g>
-       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="308.731640625" xlink:href="#mdad270ee8e" y="36.4240625"/>
+       <use style="stroke:#000000;stroke-width:0.5;" x="309.04453125" xlink:href="#m3a68111ca7" y="36.4240625"/>
       </g>
      </g>
      <g id="text_2">
@@ -132,7 +156,7 @@ Q14.8906 38.1406 10.7969 36.2812
 z
 " id="BitstreamVeraSans-Roman-35"/>
       </defs>
-      <g transform="translate(300.109453125 388.3253125)scale(0.12 -0.12)">
+      <g transform="translate(299.50265625 388.3253125)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-30"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-35"/>
@@ -142,12 +166,12 @@ z
     <g id="xtick_3">
      <g id="line2d_6">
       <g>
-       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="554.52515625" xlink:href="#mcb557df647" y="375.2071875"/>
+       <use style="stroke:#000000;stroke-width:0.5;" x="553.4634375" xlink:href="#mb1445623b5" y="375.2071875"/>
       </g>
      </g>
      <g id="line2d_7">
       <g>
-       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="554.52515625" xlink:href="#mdad270ee8e" y="36.4240625"/>
+       <use style="stroke:#000000;stroke-width:0.5;" x="553.4634375" xlink:href="#m3a68111ca7" y="36.4240625"/>
       </g>
      </g>
      <g id="text_3">
@@ -168,7 +192,7 @@ L12.4062 0
 z
 " id="BitstreamVeraSans-Roman-31"/>
       </defs>
-      <g transform="translate(546.04078125 388.3253125)scale(0.12 -0.12)">
+      <g transform="translate(543.9215625 388.3253125)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -289,7 +313,7 @@ L18.1094 75.9844
 z
 " id="BitstreamVeraSans-Roman-62"/>
      </defs>
-     <g transform="translate(269.746640625 414.0571875)scale(0.24 -0.24)">
+     <g transform="translate(268.58953125 414.0571875)scale(0.24 -0.24)">
       <use xlink:href="#BitstreamVeraSans-Roman-78"/>
       <use x="59.1796875" xlink:href="#BitstreamVeraSans-Roman-2d"/>
       <use x="95.263671875" xlink:href="#BitstreamVeraSans-Roman-6c"/>
@@ -306,25 +330,25 @@ z
       <defs>
        <path d="
 M0 0
-L4 0" id="mc8fcea1516" style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;"/>
+L4 0" id="m71e820122c" style="stroke:#000000;stroke-width:0.5;"/>
       </defs>
       <g>
-       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="62.938125" xlink:href="#mc8fcea1516" y="375.2071875"/>
+       <use style="stroke:#000000;stroke-width:0.5;" x="64.625625" xlink:href="#m71e820122c" y="375.2071875"/>
       </g>
      </g>
      <g id="line2d_9">
       <defs>
        <path d="
 M0 0
-L-4 0" id="m0d5b0a6425" style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;"/>
+L-4 0" id="m81ec2b1422" style="stroke:#000000;stroke-width:0.5;"/>
       </defs>
       <g>
-       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="554.52515625" xlink:href="#m0d5b0a6425" y="375.2071875"/>
+       <use style="stroke:#000000;stroke-width:0.5;" x="553.4634375" xlink:href="#m81ec2b1422" y="375.2071875"/>
       </g>
      </g>
      <g id="text_5">
       <!-- 1.0 -->
-      <g transform="translate(41.969375 378.5184375)scale(0.12 -0.12)">
+      <g transform="translate(41.541875 378.5184375)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -334,17 +358,17 @@ L-4 0" id="m0d5b0a6425" style="stroke:#000000;stroke-linecap:butt;stroke-width:0
     <g id="ytick_2">
      <g id="line2d_10">
       <g>
-       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="62.938125" xlink:href="#mc8fcea1516" y="205.815625"/>
+       <use style="stroke:#000000;stroke-width:0.5;" x="64.625625" xlink:href="#m71e820122c" y="205.815625"/>
       </g>
      </g>
      <g id="line2d_11">
       <g>
-       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="554.52515625" xlink:href="#m0d5b0a6425" y="205.815625"/>
+       <use style="stroke:#000000;stroke-width:0.5;" x="553.4634375" xlink:href="#m81ec2b1422" y="205.815625"/>
       </g>
      </g>
      <g id="text_6">
       <!-- 1.5 -->
-      <g transform="translate(42.220625 209.126875)scale(0.12 -0.12)">
+      <g transform="translate(41.541875 209.126875)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-35"/>
@@ -354,12 +378,12 @@ L-4 0" id="m0d5b0a6425" style="stroke:#000000;stroke-linecap:butt;stroke-width:0
     <g id="ytick_3">
      <g id="line2d_12">
       <g>
-       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="62.938125" xlink:href="#mc8fcea1516" y="36.4240625"/>
+       <use style="stroke:#000000;stroke-width:0.5;" x="64.625625" xlink:href="#m71e820122c" y="36.4240625"/>
       </g>
      </g>
      <g id="line2d_13">
       <g>
-       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="554.52515625" xlink:href="#m0d5b0a6425" y="36.4240625"/>
+       <use style="stroke:#000000;stroke-width:0.5;" x="553.4634375" xlink:href="#m81ec2b1422" y="36.4240625"/>
       </g>
      </g>
      <g id="text_7">
@@ -389,7 +413,7 @@ Q49.8594 40.875 45.4062 35.4062
 Q44.1875 33.9844 37.6406 27.2188
 Q31.1094 20.4531 19.1875 8.29688" id="BitstreamVeraSans-Roman-32"/>
       </defs>
-      <g transform="translate(41.530625 39.7353125)scale(0.12 -0.12)">
+      <g transform="translate(41.541875 39.7353125)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-32"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -417,36 +441,16 @@ L56.2031 54.6875
 z
 " id="BitstreamVeraSans-Roman-79"/>
      </defs>
-     <g transform="translate(31.539375 244.5775)rotate(-90.0)scale(0.24 -0.24)">
+     <g transform="translate(31.550625 246.26875)rotate(-90.0)scale(0.24 -0.24)">
       <use xlink:href="#BitstreamVeraSans-Roman-79"/>
-      <use x="57.4296875" xlink:href="#BitstreamVeraSans-Roman-2d"/>
-      <use x="93.513671875" xlink:href="#BitstreamVeraSans-Roman-6c"/>
-      <use x="121.296875" xlink:href="#BitstreamVeraSans-Roman-61"/>
-      <use x="182.576171875" xlink:href="#BitstreamVeraSans-Roman-62"/>
-      <use x="246.052734375" xlink:href="#BitstreamVeraSans-Roman-65"/>
-      <use x="307.576171875" xlink:href="#BitstreamVeraSans-Roman-6c"/>
+      <use x="59.1640625" xlink:href="#BitstreamVeraSans-Roman-2d"/>
+      <use x="95.248046875" xlink:href="#BitstreamVeraSans-Roman-6c"/>
+      <use x="123.03125" xlink:href="#BitstreamVeraSans-Roman-61"/>
+      <use x="184.310546875" xlink:href="#BitstreamVeraSans-Roman-62"/>
+      <use x="247.787109375" xlink:href="#BitstreamVeraSans-Roman-65"/>
+      <use x="309.310546875" xlink:href="#BitstreamVeraSans-Roman-6c"/>
      </g>
     </g>
-   </g>
-   <g id="patch_3">
-    <path d="
-M62.9381 36.4241
-L554.525 36.4241" style="fill:none;stroke:#000000;"/>
-   </g>
-   <g id="patch_4">
-    <path d="
-M554.525 375.207
-L554.525 36.4241" style="fill:none;stroke:#000000;"/>
-   </g>
-   <g id="patch_5">
-    <path d="
-M62.9381 375.207
-L554.525 375.207" style="fill:none;stroke:#000000;"/>
-   </g>
-   <g id="patch_6">
-    <path d="
-M62.9381 375.207
-L62.9381 36.4241" style="fill:none;stroke:#000000;"/>
    </g>
    <g id="text_9">
     <!-- Left Title -->
@@ -528,17 +532,17 @@ Q19.3906 75.9844 28.6094 75.9844
 z
 " id="BitstreamVeraSans-Roman-66"/>
     </defs>
-    <g transform="translate(62.938125 31.4240625)scale(0.24 -0.24)">
+    <g transform="translate(64.625625 31.4240625)scale(0.24 -0.24)">
      <use xlink:href="#BitstreamVeraSans-Roman-4c"/>
-     <use x="53.962890625" xlink:href="#BitstreamVeraSans-Roman-65"/>
-     <use x="115.486328125" xlink:href="#BitstreamVeraSans-Roman-66"/>
-     <use x="148.94140625" xlink:href="#BitstreamVeraSans-Roman-74"/>
-     <use x="188.150390625" xlink:href="#BitstreamVeraSans-Roman-20"/>
-     <use x="219.9375" xlink:href="#BitstreamVeraSans-Roman-54"/>
-     <use x="277.896484375" xlink:href="#BitstreamVeraSans-Roman-69"/>
-     <use x="305.6796875" xlink:href="#BitstreamVeraSans-Roman-74"/>
-     <use x="344.888671875" xlink:href="#BitstreamVeraSans-Roman-6c"/>
-     <use x="372.671875" xlink:href="#BitstreamVeraSans-Roman-65"/>
+     <use x="55.697265625" xlink:href="#BitstreamVeraSans-Roman-65"/>
+     <use x="117.220703125" xlink:href="#BitstreamVeraSans-Roman-66"/>
+     <use x="152.41015625" xlink:href="#BitstreamVeraSans-Roman-74"/>
+     <use x="191.619140625" xlink:href="#BitstreamVeraSans-Roman-20"/>
+     <use x="223.40625" xlink:href="#BitstreamVeraSans-Roman-54"/>
+     <use x="284.443359375" xlink:href="#BitstreamVeraSans-Roman-69"/>
+     <use x="312.2265625" xlink:href="#BitstreamVeraSans-Roman-74"/>
+     <use x="351.435546875" xlink:href="#BitstreamVeraSans-Roman-6c"/>
+     <use x="379.21875" xlink:href="#BitstreamVeraSans-Roman-65"/>
     </g>
    </g>
    <g id="text_10">
@@ -623,7 +627,7 @@ Q30.0781 56 35.7969 56
 Q45.2188 56 50.0469 50.1719
 Q54.8906 44.3438 54.8906 33.0156" id="BitstreamVeraSans-Roman-68"/>
     </defs>
-    <g transform="translate(433.55765625 31.4240625)scale(0.24 -0.24)">
+    <g transform="translate(430.4784375 31.4240625)scale(0.24 -0.24)">
      <use xlink:href="#BitstreamVeraSans-Roman-52"/>
      <use x="69.482421875" xlink:href="#BitstreamVeraSans-Roman-69"/>
      <use x="97.265625" xlink:href="#BitstreamVeraSans-Roman-67"/>
@@ -631,17 +635,17 @@ Q54.8906 44.3438 54.8906 33.0156" id="BitstreamVeraSans-Roman-68"/>
      <use x="224.12109375" xlink:href="#BitstreamVeraSans-Roman-74"/>
      <use x="263.330078125" xlink:href="#BitstreamVeraSans-Roman-20"/>
      <use x="295.1171875" xlink:href="#BitstreamVeraSans-Roman-54"/>
-     <use x="353.076171875" xlink:href="#BitstreamVeraSans-Roman-69"/>
-     <use x="380.859375" xlink:href="#BitstreamVeraSans-Roman-74"/>
-     <use x="420.068359375" xlink:href="#BitstreamVeraSans-Roman-6c"/>
-     <use x="447.8515625" xlink:href="#BitstreamVeraSans-Roman-65"/>
+     <use x="356.154296875" xlink:href="#BitstreamVeraSans-Roman-69"/>
+     <use x="383.9375" xlink:href="#BitstreamVeraSans-Roman-74"/>
+     <use x="423.146484375" xlink:href="#BitstreamVeraSans-Roman-6c"/>
+     <use x="450.9296875" xlink:href="#BitstreamVeraSans-Roman-65"/>
     </g>
    </g>
   </g>
  </g>
  <defs>
-  <clipPath id="p5d0be2faa4">
-   <rect height="338.783125" width="491.58703125" x="62.938125" y="36.4240625"/>
+  <clipPath id="p6575bc1295">
+   <rect height="338.783125" width="488.8378125" x="64.625625" y="36.4240625"/>
   </clipPath>
  </defs>
 </svg>
