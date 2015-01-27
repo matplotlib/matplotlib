@@ -765,6 +765,20 @@ static PyObject *PyFT2Font_get_width_height(PyFT2Font *self, PyObject *args, PyO
     return Py_BuildValue("ll", width, height);
 }
 
+const char *PyFT2Font_get_bitmap_offset__doc__ =
+    "w, h = get_bitmap_offset()\n"
+    "\n"
+    "Get the offset in 26.6 subpixels for the bitmap if ink hangs left or below (0, 0)\n";
+
+static PyObject *PyFT2Font_get_bitmap_offset(PyFT2Font *self, PyObject *args, PyObject *kwds)
+{
+    long x, y;
+
+    CALL_CPP("get_bitmap_offset", (self->x->get_bitmap_offset(&x, &y)));
+
+    return Py_BuildValue("ll", x, y);
+}
+
 const char *PyFT2Font_get_descent__doc__ =
     "d = get_descent()\n"
     "\n"
@@ -1572,6 +1586,7 @@ static PyTypeObject *PyFT2Font_init_type(PyObject *m, PyTypeObject *type)
         {"load_char", (PyCFunction)PyFT2Font_load_char, METH_VARARGS|METH_KEYWORDS, PyFT2Font_load_char__doc__},
         {"load_glyph", (PyCFunction)PyFT2Font_load_glyph, METH_VARARGS|METH_KEYWORDS, PyFT2Font_load_glyph__doc__},
         {"get_width_height", (PyCFunction)PyFT2Font_get_width_height, METH_NOARGS, PyFT2Font_get_width_height__doc__},
+        {"get_bitmap_offset", (PyCFunction)PyFT2Font_get_bitmap_offset, METH_NOARGS, PyFT2Font_get_bitmap_offset__doc__},
         {"get_descent", (PyCFunction)PyFT2Font_get_descent, METH_NOARGS, PyFT2Font_get_descent__doc__},
         {"draw_glyphs_to_bitmap", (PyCFunction)PyFT2Font_draw_glyphs_to_bitmap, METH_VARARGS|METH_KEYWORDS, PyFT2Font_draw_glyphs_to_bitmap__doc__},
         {"get_xys", (PyCFunction)PyFT2Font_get_xys, METH_VARARGS|METH_KEYWORDS, PyFT2Font_get_xys__doc__},
