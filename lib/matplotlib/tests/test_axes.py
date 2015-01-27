@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange
 
-from nose.tools import assert_equal, assert_raises
+from nose.tools import assert_equal, assert_raises, assert_false, assert_true
 import datetime
 
 import numpy as np
@@ -98,6 +98,30 @@ def test_twin_axis_locaters_formatters():
     ax1.xaxis.set_minor_formatter(plt.FixedFormatter(['c', '3', 'p', 'o']))
     ax2 = ax1.twiny()
     ax3 = ax1.twinx()
+
+
+@cleanup
+def test_twinx_cla():
+    fig, ax = plt.subplots()
+    ax2 = ax.twinx()
+    ax3 = ax2.twiny()
+    plt.draw()
+    assert_false(ax2.xaxis.get_visible())
+    assert_false(ax2.patch.get_visible())
+    ax2.cla()
+    ax3.cla()
+
+    assert_false(ax2.xaxis.get_visible())
+    assert_false(ax2.patch.get_visible())
+    assert_true(ax2.yaxis.get_visible())
+
+    assert_true(ax3.xaxis.get_visible())
+    assert_false(ax3.patch.get_visible())
+    assert_false(ax3.yaxis.get_visible())
+
+    assert_true(ax.xaxis.get_visible())
+    assert_true(ax.patch.get_visible())
+    assert_true(ax.yaxis.get_visible())
 
 
 @image_comparison(baseline_images=["autoscale_tiny_range"], remove_text=True)
