@@ -1300,7 +1300,7 @@ class Transform(TransformNode):
 
         # Convert the result back to the shape of the input values.
         if ndim == 0:
-            assert not np.ma.is_masked(res)  # just to be on the safe side                                             
+            assert not np.ma.is_masked(res)  # just to be on the safe side
             return res[0, 0]
         if ndim == 1:
             return res.reshape(-1)
