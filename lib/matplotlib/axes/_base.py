@@ -817,6 +817,16 @@ class _AxesBase(martist.Artist):
     def cla(self):
         """Clear the current axes."""
         # Note: this is called by Axes.__init__()
+
+        # stash the current visibility state
+        if hasattr(self, 'patch'):
+            patch_visible = self.patch.get_visible()
+        else:
+            patch_visible = True
+
+        xaxis_visible = self.xaxis.get_visible()
+        yaxis_visible = self.yaxis.get_visible()
+
         self.xaxis.cla()
         self.yaxis.cla()
         for name, spine in six.iteritems(self.spines):
@@ -942,6 +952,13 @@ class _AxesBase(martist.Artist):
 
         self._shared_x_axes.clean()
         self._shared_y_axes.clean()
+        if self._sharex:
+            self.xaxis.set_visible(xaxis_visible)
+            self.patch.set_visible(patch_visible)
+
+        if self._sharey:
+            self.yaxis.set_visible(yaxis_visible)
+            self.patch.set_visible(patch_visible)
 
     def clear(self):
         """clear the axes"""
