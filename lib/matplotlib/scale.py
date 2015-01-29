@@ -87,12 +87,12 @@ class LinearScale(ScaleBase):
 def _mask_non_positives(a):
     """
     Return a Numpy masked array where all non-positive values are
-    masked.  If there are no non-positive values, the original array
-    is returned.
+    replaced with NaNs.  If there are no non-positive values, the
+    original array is returned.
     """
     mask = a <= 0.0
     if mask.any():
-        return ma.MaskedArray(a, mask=mask)
+        return np.where(mask, np.nan, a)
     return a
 
 
