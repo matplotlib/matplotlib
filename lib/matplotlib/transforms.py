@@ -1412,6 +1412,8 @@ class Transform(TransformNode):
         ``transform_path_affine(transform_path_non_affine(values))``.
         """
         x = self.transform_non_affine(path.vertices)
+        if ma.isMaskedArray(x):
+            x = x.astype(np.float_).filled(np.nan)
         return Path._fast_from_codes_and_verts(x, path.codes,
                 {'interpolation_steps': path._interpolation_steps})
 
@@ -2613,14 +2615,25 @@ class TransformedPath(TransformNode):
         self._transformed_points = None
 
     def _revalidate(self):
-        # only recompute if the invalidation includes the non_affine part of the transform
-        if ((self._invalid & self.INVALID_NON_AFFINE == self.INVALID_NON_AFFINE)
-            or self._transformed_path is None):
-            self._transformed_path = \
-                self._transform.transform_path_non_affine(self._path)
-            self._transformed_points = \
-                Path._fast_from_codes_and_verts(self._transform.transform_non_affine(self._path.vertices),
-                        None, {'interpolation_steps': self._path._interpolation_steps})
+        # only recompute if the invalidation includes
+        # the non_affine part of the transform
+        if ((self._invalid &
+             self.INVALID_NON_AFFINE == self.INVALID_NON_AFFINE)
+           or self._transformed_path is None):
+
+            tpath = self._transform.transform_path_non_affine(self._path)
+            self._transformed_path = tpath
+
+            x = self._transform.transform_non_affine(self._path.vertices)
+            if ma.isMaskedArray(x):
+                x = x.astype(np.float_).filled(np.nan)
+
+            tpts = Path._fast_from_codes_and_verts(verts=x, codes=None,
+                    internals={'interpolation_steps':
+                               self._path._interpolation_steps})
+
+            self._transformed_points = tpts
+
         self._invalid = 0
 
     def get_transformed_points_and_affine(self):

@@ -3498,17 +3498,20 @@ def test_pathological_hexbin():
         fig.savefig(out)
         assert_equal(len(w), 0)
 
+
 @cleanup
 def test_color_None():
     # issue 3855
     fig, ax = plt.subplots()
-    ax.plot([1,2], [1,2], color=None)
+    ax.plot([1, 2], [1, 2], color=None)
     plt.show()
+
 
 @cleanup
 def test_numerical_hist_label():
     fig, ax = plt.subplots()
     ax.hist([range(15)] * 5, label=range(5))
+
 
 if __name__ == '__main__':
     import nose
