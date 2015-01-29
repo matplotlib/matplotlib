@@ -80,7 +80,6 @@ def test_log_transform_with_zero():
     fig, ax = plt.subplots()
     ax.semilogy(x, y, "-o", lw=15)
     ax.grid(True)
-    plt.show()
 
 
 if __name__ == '__main__':
