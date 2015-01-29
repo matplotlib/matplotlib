@@ -23,6 +23,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange, zip
 
+import platform
 import sys
 import itertools
 import contextlib
@@ -30,6 +31,16 @@ from matplotlib.cbook import iterable, is_string_like
 from matplotlib.compat import subprocess
 from matplotlib import verbose
 from matplotlib import rcParams
+
+# Process creation flag for subprocess to prevent it raising a terminal
+# window. See for example:
+# https://stackoverflow.com/questions/24130623/using-python-subprocess-popen-cant-prevent-exe-stopped-working-prompt
+if platform.system() == 'Windows':
+    CREATE_NO_WINDOW = 0x08000000
+    subprocess_creation_flags = CREATE_NO_WINDOW
+else:
+    # Apparently None won't work here
+    subprocess_creation_flags = 0
 
 # Other potential writing methods:
 # * http://pymedia.org/
@@ -189,7 +200,8 @@ class MovieWriter(object):
                        ' '.join(command))
         self._proc = subprocess.Popen(command, shell=False,
                                       stdout=output, stderr=output,
-                                      stdin=subprocess.PIPE)
+                                      stdin=subprocess.PIPE,
+                                      creationflags=subprocess_creation_flags)
 
     def finish(self):
         'Finish any processing for writing the movie.'
@@ -250,7 +262,8 @@ class MovieWriter(object):
             p = subprocess.Popen(cls.bin_path(),
                              shell=False,
                              stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
+                             stderr=subprocess.PIPE,
+                             creationflags=subprocess_creation_flags)
             p.communicate()
             return True
         except OSError:
