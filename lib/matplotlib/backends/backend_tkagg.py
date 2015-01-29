@@ -562,7 +562,8 @@ class FigureManagerTkAgg(FigureManagerBase):
         else:
             self.canvas._tkcanvas.master.geometry("%dx%d" % (width, height))
 
-        self.toolbar.configure(width=width)
+        if self.toolbar is not None:
+            self.toolbar.configure(width=width)
 
     def show(self):
         """
