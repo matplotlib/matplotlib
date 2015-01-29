@@ -530,13 +530,6 @@ class FigureManagerTkAgg(FigureManagerBase):
         self.set_window_title("Figure %d" % num)
         self.canvas = canvas
         self._num =  num
-        # Minimum size limit on window unnecessary (doesn't crash, just 
-        # opens up the possibility of making really tiny windows), but 
-        # if desired should be set to a hard minimum value rather than a 
-        # sizable percentage of the original dimensions (as implemented 
-        # in v1.4.2 and prior) to allow initially large windows to 
-        # shrink
-        # self.window.minsize(10, 10)
         if matplotlib.rcParams['toolbar']=='toolbar2':
             self.toolbar = NavigationToolbar2TkAgg( canvas, self.window )
         else:
