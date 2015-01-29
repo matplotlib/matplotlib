@@ -532,12 +532,7 @@ class FigureManagerTkAgg(FigureManagerBase):
         self._num =  num
         _, _, w, h = canvas.figure.bbox.bounds
         w, h = int(w), int(h)
-        # Is there any need to limit the minimum size of the window? I would
-        # like to be able to dynamically change the window size of a figure and
-        # if my window starts out large and I want to go small, this line
-        # limits me. I'm not seeing the advantage of this limit in the first
-        # place, so I propose removal.
-        #self.window.minsize(int(w*3/4),int(h*3/4))
+        self.window.minsize(int(w*3/4),int(h*3/4))
         if matplotlib.rcParams['toolbar']=='toolbar2':
             self.toolbar = NavigationToolbar2TkAgg( canvas, self.window )
         else:
