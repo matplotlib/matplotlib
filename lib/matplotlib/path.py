@@ -172,7 +172,7 @@ class Path(object):
         Parameters
         ----------
         verts : numpy array
-        codes : numpy array (may not be None)
+        codes : numpy array
         internals : dict or None
             The attributes that the resulting path should have.
             Allowed keys are ``readonly``, ``should_simplify``,
@@ -182,6 +182,10 @@ class Path(object):
         """
         internals = internals or {}
         pth = cls.__new__(cls)
+        if ma.isMaskedArray(verts):
+            verts = verts.astype(np.float_).filled(np.nan)
+        else:
+            verts = np.asarray(verts, np.float_)
         pth._vertices = verts
         pth._codes = codes
         pth._readonly = internals.pop('readonly', False)
