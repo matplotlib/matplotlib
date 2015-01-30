@@ -502,7 +502,8 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
                                       agg::rgba color)
 {
     typedef agg::conv_transform<py::PathIterator> transformed_path_t;
-    typedef PathSnapper<transformed_path_t> snap_t;
+    typedef PathNanRemover<transformed_path_t> nan_removed_t;
+    typedef PathSnapper<nan_removed_t> snap_t;
     typedef agg::conv_curve<snap_t> curve_t;
     typedef agg::conv_stroke<curve_t> stroke_t;
     typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
@@ -515,14 +516,16 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
     trans *= agg::trans_affine_translation(0.5, (double)height + 0.5);
 
     transformed_path_t marker_path_transformed(marker_path, marker_trans);
-    snap_t marker_path_snapped(marker_path_transformed,
+    nan_removed_t marker_path_nan_removed(marker_path_transformed, true, marker_path.has_curves());
+    snap_t marker_path_snapped(marker_path_nan_removed,
                                gc.snap_mode,
                                marker_path.total_vertices(),
                                points_to_pixels(gc.linewidth));
     curve_t marker_path_curve(marker_path_snapped);
 
     transformed_path_t path_transformed(path, trans);
-    snap_t path_snapped(path_transformed, SNAP_FALSE, path.total_vertices(), 0.0);
+    nan_removed_t path_nan_removed(path_transformed, false, false);
+    snap_t path_snapped(path_nan_removed, SNAP_FALSE, path.total_vertices(), 0.0);
     curve_t path_curve(path_snapped);
     path_curve.rewind(0);
 
