@@ -92,7 +92,7 @@ _FONT_AWESOME_CLASSES = {
     'forward': 'fa fa-arrow-right icon-arrow-right',
     'zoom_to_rect': 'fa fa-square-o icon-check-empty',
     'move': 'fa fa-arrows icon-move',
-    'download': 'fa fa-icon-save icon-save',
+    'download': 'fa fa-floppy-o icon-save',
     None: None
 }
 
