@@ -1255,7 +1255,7 @@ def imread(fname, format=None):
         if im is None:
             raise ValueError('Only know how to handle extensions: %s; '
                              'with PIL installed matplotlib can handle '
-                             'more images' % list(six.iterkeys(handlers.keys)))
+                             'more images' % list(six.iterkeys(handlers)))
         return im
 
     handler = handlers[ext]
