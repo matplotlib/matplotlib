@@ -1351,7 +1351,7 @@ class Transform(TransformNode):
         Note, for smarter transforms including caching (a common
         requirement for matplotlib figures), see :class:`TransformedBbox`.
         """
-        return Bbox(self._transform.transform(bbox.get_points()))
+        return Bbox(self.transform(bbox.get_points()))
 
     def get_affine(self):
         """
