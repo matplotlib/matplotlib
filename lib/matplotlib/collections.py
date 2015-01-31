@@ -1701,6 +1701,9 @@ class QuadMesh(Collection):
         self._paths = self.convert_mesh_to_paths(
             self._meshWidth, self._meshHeight, self._coordinates)
 
+    def get_datalim(self, transData):
+        return (self.get_transform() - transData).transform_bbox(self._bbox)
+
     @staticmethod
     def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
         """
