@@ -1008,8 +1008,11 @@ class Axes3D(Axes):
         else:
             warnings.warn('Axes3D.figure.canvas is \'None\', mouse rotation disabled.  Set canvas then call Axes3D.mouse_init().')
 
-        self._rotate_btn = np.atleast_1d(rotate_btn)
-        self._zoom_btn = np.atleast_1d(zoom_btn)
+        # coerce scalars into array-like, then convert into
+        # a regular list to avoid comparisons against None
+        # which breaks in recent versions of numpy.
+        self._rotate_btn = np.atleast_1d(rotate_btn).tolist()
+        self._zoom_btn = np.atleast_1d(zoom_btn).tolist()
 
     def can_zoom(self) :
         """
