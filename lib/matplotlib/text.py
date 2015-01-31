@@ -2100,24 +2100,20 @@ class Annotation(Text, _AnnotationBase):
         irrelevant.
 
         '''
+        if not self.get_visible():
+            return Bbox.unit()
         arrow = self.arrow
         arrow_patch = self.arrow_patch
 
         text_bbox = Text.get_window_extent(self, renderer=renderer)
-        if text_bbox.width == 0.0 and text_bbox.height == 0.0:
-            bboxes = []
-        else:
-            bboxes = [text_bbox]
+        bboxes = [text_bbox]
 
         if self.arrow is not None:
             bboxes.append(arrow.get_window_extent(renderer=renderer))
         elif self.arrow_patch is not None:
             bboxes.append(arrow_patch.get_window_extent(renderer=renderer))
 
-        if len(bboxes) == 0:
-            return Bbox.from_bounds(self._x, self._y, 0.0, 0.0)
-        else:
-            return Bbox.union(bboxes)
+        return Bbox.union(bboxes)
 
 
 docstring.interpd.update(Annotation=Annotation.__init__.__doc__)
