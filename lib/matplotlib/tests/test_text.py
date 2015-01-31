@@ -6,9 +6,9 @@ import warnings
 
 import numpy as np
 from numpy.testing import assert_almost_equal
-from nose import SkipTest
-from nose.tools import assert_raises, eq_
+from nose.tools import eq_
 
+from matplotlib.transforms import Bbox
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison, cleanup
@@ -289,6 +289,7 @@ def test_annotation_negative_coords():
     ax.annotate("-apx", (-25, -10), xycoords="axes pixels")
 
 
+@cleanup
 def test_text_annotation_get_window_extent():
     figure = Figure(dpi=100)
     renderer = RendererAgg(200, 200, 100)
@@ -320,32 +321,42 @@ def test_text_annotation_get_window_extent():
     eq_(points[1, 1], text_bbox.height - below_line)
 
 
+@cleanup
 def test_text_with_arrow_annotation_get_window_extent():
-    figure = Figure(dpi=100)
-    renderer = RendererAgg(600, 600, 100)
     headwidth = 21
-
-    text = Text(text='test', x=0, y=0)
-    text.set_figure(figure)
-    text_bbox = text.get_window_extent(renderer=renderer)
-
-    # Text annotation with arrow
-    annotation = Annotation(
-        'test',
-        xy=(0.0, 50.0 + (headwidth / 0.72) * 0.5),
+    fig, ax = plt.subplots(dpi=100)
+    txt = ax.text(s='test', x=0, y=0)
+    ann = ax.annotate('test',
+        xy=(0.0, 50.0),
         xytext=(50.0, 50.0), xycoords='figure pixels',
         arrowprops={
             'facecolor': 'black', 'width': 2,
             'headwidth': headwidth, 'shrink': 0.0})
-    annotation.set_figure(figure)
-    annotation.draw(renderer)
 
-    bbox = annotation.get_window_extent(renderer=renderer)
+    plt.draw()
+    renderer = fig.canvas.renderer
+    # bounding box of text
+    text_bbox = txt.get_window_extent(renderer=renderer)
+    # bounding box of annotation (text + arrow)
+    bbox = ann.get_window_extent(renderer=renderer)
+    # bounding box of arrow
+    arrow_bbox = ann.arrow.get_window_extent(renderer)
+    # bounding box of annotation text
+    ann_txt_bbox = Text.get_window_extent(ann)
+
+    # make sure annotation with in 50 px wider than
+    # just the text
     eq_(bbox.width, text_bbox.width + 50.0)
-    expected_height = max(text_bbox.height, headwidth / 0.72)
-    assert_almost_equal(bbox.height, expected_height)
+    # make sure the annotation text bounding box is same size
+    # as the bounding box of the same string as a Text object
+    eq_(ann_txt_bbox.height, text_bbox.height)
+    eq_(ann_txt_bbox.width, text_bbox.width)
+    # compute the expected bounding box of arrow + text
+    expected_bbox = Bbox.union([ann_txt_bbox, arrow_bbox])
+    assert_almost_equal(bbox.height, expected_bbox.height)
 
 
+@cleanup
 def test_arrow_annotation_get_window_extent():
     figure = Figure(dpi=100)
     figure.set_figwidth(2.0)
@@ -369,6 +380,7 @@ def test_arrow_annotation_get_window_extent():
     eq_(points[0, 1], 50.0 - 5 / 0.72)
 
 
+@cleanup
 def test_empty_annotation_get_window_extent():
     figure = Figure(dpi=100)
     figure.set_figwidth(2.0)
