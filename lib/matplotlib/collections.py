@@ -82,8 +82,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
     _transOffset = transforms.IdentityTransform()
     _transforms = []
 
-
-
     def __init__(self,
                  edgecolors=None,
                  facecolors=None,
@@ -1501,7 +1499,7 @@ class EllipseCollection(Collection):
         self._transforms[:, 1, 0] = widths * sin_angle
         self._transforms[:, 1, 1] = heights * cos_angle
         self._transforms[:, 2, 2] = 1.0
-        
+
         _affine = transforms.Affine2D
         if self._units == 'xy':
             m = ax.transData.get_affine().get_matrix().copy()
@@ -1689,7 +1687,8 @@ class QuadMesh(Collection):
 
         self._bbox = transforms.Bbox.unit()
         self._bbox.update_from_data_xy(coordinates.reshape(
-            ((meshWidth + 1) * (meshHeight + 1), 2)))
+            ((meshWidth + 1) * (meshHeight + 1), 2)),
+            ignore=True)
 
         # By converting to floats now, we can avoid that on every draw.
         self._coordinates = self._coordinates.reshape(
@@ -1704,6 +1703,38 @@ class QuadMesh(Collection):
     def set_paths(self):
         self._paths = self.convert_mesh_to_paths(
             self._meshWidth, self._meshHeight, self._coordinates)
+
+    def get_window_extent(self, renderer):
+        # get a dummy bounding box
+        bbox = transforms.Bbox([[0, 0], [0, 0]])
+        # get the data and offset transforms
+        trans_data_to_xy = self.get_transform().transform
+        transOffset = self.get_offset_transform().transform
+        # convert the transforms to data-units
+        offsets = transOffset(self._offsets)
+
+        # deal with masked arrays
+        coordinates = self._coordinates
+        if ma.isMaskedArray(coordinates):
+            c = coordinates.data
+        else:
+            c = coordinates
+        # slice sets to pick out the corners of each patch
+        # bottom-left, top-left, top-right, bottom-right
+        slice_sets = ((slice(0, -1), slice(0, -1)),
+                      (slice(0, -1), slice(1, None)),
+                      (slice(1, None), slice(1, None)),
+                      (slice(1, None), slice(0, -1))
+                      )
+        # first time ignore the existing bounds
+        ignore = True
+        for x_slc, y_slc in slice_sets:
+            bbox.update_from_data_xy(
+                trans_data_to_xy(c[x_slc, y_slc].reshape(-1, 2) + offsets),
+                ignore=ignore)
+            # but on subsequent loops don't shrink the bounding box
+            ignore = False
+        return bbox
 
     @staticmethod
     def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
