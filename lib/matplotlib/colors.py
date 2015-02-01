@@ -1171,8 +1171,8 @@ class PowerNorm(Normalize):
             res_mask = result.data < 0
             if clip:
                 mask = ma.getmask(result)
-                val = ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                mask=mask)
+                result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
+                                  mask=mask)
             resdat = result.data
             resdat -= vmin
             np.power(resdat, gamma, resdat)
