@@ -69,6 +69,22 @@ def test_PowerNorm():
     assert_equal(pnorm(a[2]), expected[2])
     assert_array_almost_equal(a[1:], pnorm.inverse(pnorm(a))[1:])
 
+    # Clip = True
+    a = np.array([-0.5, 0, 1, 8, 16], dtype=np.float)
+    expected = [0, 0, 0, 1, 1]
+    pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=True)
+    assert_array_almost_equal(pnorm(a), expected)
+    assert_equal(pnorm(a[0]), expected[0])
+    assert_equal(pnorm(a[-1]), expected[-1])
+
+    # Clip = True at call time
+    a = np.array([-0.5, 0, 1, 8, 16], dtype=np.float)
+    expected = [0, 0, 0, 1, 1]
+    pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=False)
+    assert_array_almost_equal(pnorm(a, clip=True), expected)
+    assert_equal(pnorm(a[0], clip=True), expected[0])
+    assert_equal(pnorm(a[-1], clip=True), expected[-1])
+
 
 def test_Normalize():
     norm = mcolors.Normalize()
