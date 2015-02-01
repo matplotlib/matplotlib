@@ -1168,16 +1168,18 @@ class PowerNorm(Normalize):
         elif vmin == vmax:
             result.fill(0)
         else:
+            res_mask = result.data < 0
             if clip:
                 mask = ma.getmask(result)
-                val = ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                mask=mask)
+                result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
+                                  mask=mask)
             resdat = result.data
             resdat -= vmin
             np.power(resdat, gamma, resdat)
             resdat /= (vmax - vmin) ** gamma
+
             result = np.ma.array(resdat, mask=result.mask, copy=False)
-            result[value < 0] = 0
+            result[res_mask] = 0
         if is_scalar:
             result = result[0]
         return result
