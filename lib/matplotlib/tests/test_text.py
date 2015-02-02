@@ -7,6 +7,7 @@ import warnings
 import numpy as np
 from numpy.testing import assert_almost_equal
 from nose.tools import eq_, assert_raises
+from nose.plugins.skip import SkipTest
 
 from matplotlib.transforms import Bbox
 import matplotlib
