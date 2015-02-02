@@ -114,7 +114,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     def __getstate__(self):
         state = super(_AxesImageBase, self).__getstate__()
         # We can't pickle the C Image cached object.
-        state.pop('_imcache', None)
+        state['_imcache'] = None
         return state
 
     def get_size(self):

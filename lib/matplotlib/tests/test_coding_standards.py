@@ -214,7 +214,6 @@ def test_pep8_conformance_installed_files():
                           'tests/test_spines.py',
                           'tests/test_streamplot.py',
                           'tests/test_subplots.py',
-                          'tests/test_text.py',
                           'tests/test_tightlayout.py',
                           'tests/test_transforms.py',
                           'tests/test_triangulation.py',
