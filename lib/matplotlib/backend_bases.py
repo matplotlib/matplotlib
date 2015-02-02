@@ -527,12 +527,12 @@ class RendererBase(object):
         """
         raise NotImplementedError
 
-    def option_image_nocomposite(self):
+    def option_combine_images(self):
         """
         override this method for renderers that do not necessarily
-        want to rescale and composite raster images. (like SVG)
+        want to rescale and composite raster images. (like SVG, PDF, or PS)
         """
-        return False
+        return True
 
     def option_scale_image(self):
         """

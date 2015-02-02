@@ -527,11 +527,15 @@ class RendererSVG(RendererBase):
     def close_group(self, s):
         self.writer.end('g')
 
-    def option_image_nocomposite(self):
+    def option_combine_images(self):
         """
-        if svg.image_noscale is True, compositing multiple images into one is prohibited
+        if svg.image_noscale is True, combining multiple images into one is 
+        prohibited
         """
-        return rcParams['svg.image_noscale']
+        if rcParams['svg.image_noscale']:
+            return False
+        else:
+            return rcParams['image.combine_images']
 
     def _convert_path(self, path, transform=None, clip=None, simplify=None):
         if clip:

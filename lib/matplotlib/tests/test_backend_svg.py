@@ -56,6 +56,31 @@ def test_noscale():
 
 
 @cleanup
+def test_combine_images():
+    #Test that figures can be saved with and without combining multiple images
+    #(on a single set of axes) into a single image.
+    X, Y = np.meshgrid(np.arange(-5, 5, 1), np.arange(-5, 5, 1))
+    Z = np.sin(Y ** 2)
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.set_xlim(0, 3)
+    ax.imshow(Z, extent=[0, 1, 0, 1])
+    ax.imshow(Z[::-1], extent=[2, 3, 0, 1])
+    plt.rcParams['image.combine_images'] = True
+    with BytesIO() as svg:
+        fig.savefig(svg, format="svg")
+        svg.seek(0)
+        buff = svg.read()
+        assert buff.count(six.b('<image ')) == 1
+    plt.rcParams['image.combine_images'] = False
+    with BytesIO() as svg:
+        fig.savefig(svg, format="svg")
+        svg.seek(0)
+        buff = svg.read()
+        assert buff.count(six.b('<image ')) == 2
+
+
+@cleanup
 def test_text_urls():
     fig = plt.figure()
 

@@ -451,6 +451,13 @@ class RendererPS(RendererBase):
         ps backend support arbitrary scaling of image.
         """
         return True
+        
+    def option_combine_images(self):
+        """
+        return whether to combine multiple images on a set of axes into one 
+        image
+        """
+        return rcParams['image.combine_images']
 
     def _get_image_h_w_bits_command(self, im):
         if im.is_grayscale:
