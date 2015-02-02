@@ -1467,6 +1467,81 @@ class TextWithDash(Text):
 docstring.interpd.update(TextWithDash=artist.kwdoc(TextWithDash))
 
 
+class TextCollection(Text):
+    def __init__(self, x, y, text, **kwargs):
+        Text.__init__(self, **kwargs)
+        self.x = x
+        self.y = y
+        self.text = text
+
+    def __str__(self):
+        return "TextCollection"
+
+    @allow_rasterization
+    def draw(self, renderer):
+        """
+        Draws the :class:`TextCollection` object to the given *renderer*.
+        """
+        if renderer is not None:
+            self._renderer = renderer
+        if not self.get_visible():
+            return
+        if not any(self.text):
+            return
+
+        renderer.open_group('text', self.get_gid())
+        trans = self.get_transform()
+
+        posx = self.convert_xunits(self.x)
+        posy = self.convert_yunits(self.y)
+
+        pts = np.vstack((posx, posy)).T
+        pts = trans.transform(pts)
+        canvasw, canvash = renderer.get_canvas_width_height()
+
+        gc = renderer.new_gc()
+        gc.set_foreground(self.get_color())
+        gc.set_alpha(self.get_alpha())
+        gc.set_url(self._url)
+        self._set_gc_clip(gc)
+
+        if self._bbox:
+            bbox_artist(self, renderer, self._bbox)
+        angle = self.get_rotation()
+
+        for (posx, posy), t in zip(pts, self.text):
+            self._text = t # hack to allow self._get_layout to work
+            bbox, info, descent = self._get_layout(renderer)
+            for line, wh, x, y in info:
+                if not np.isfinite(x) or not np.isfinite(y):
+                    continue
+
+                mtext = self if len(info) == 1 else None
+                x = x + posx
+                y = y + posy
+                if renderer.flipy():
+                    y = canvash - y
+                clean_line, ismath = self.is_math_text(line)
+
+                if self.get_path_effects():
+                    from matplotlib.patheffects import PathEffectRenderer
+                    renderer = PathEffectRenderer(self.get_path_effects(),
+                                                  renderer)
+
+                if self.get_usetex():
+                    renderer.draw_tex(gc, x, y, clean_line,
+                                      self._fontproperties, angle, mtext=mtext)
+                else:
+                    renderer.draw_text(gc, x, y, clean_line,
+                                       self._fontproperties, angle,
+                                       ismath=ismath, mtext=mtext)
+
+        gc.restore()
+        renderer.close_group('text')
+
+docstring.interpd.update(TextCollection=artist.kwdoc(TextCollection))
+
+
 class OffsetFrom(object):
     def __init__(self, artist, ref_coord, unit="points"):
         self._artist = artist

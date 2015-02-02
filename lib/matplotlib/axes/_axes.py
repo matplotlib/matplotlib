@@ -592,6 +592,95 @@ class Axes(_AxesBase):
         return t
 
     @docstring.dedent_interpd
+    def scattertext(self, x, y, texts, loc=(0, 0), **kw):
+        """
+        Add text to the axes.
+
+        Add text in string `s` to axis at location `x`, `y`, data
+        coordinates.
+
+        Parameters
+        ----------
+        x, y : array_like, shape (n, )
+            Input positions
+
+        texts : array_like, shape (n, )
+            Collection of text that will be plotted at each (x,y) location
+
+        loc : length-2 tuple
+            Offset (in screen coordinates) from x,y position. Allows
+            positioning text relative to original point.
+
+        Other parameters
+        ----------------
+        kwargs : `~matplotlib.text.TextCollection` properties.
+            Other miscellaneous text parameters.
+
+        Examples
+        --------
+        Individual keyword arguments can be used to override any given
+        parameter::
+
+            >>> scattertext(x, y, texts, fontsize=12)
+
+        The default setting to to center the text at the specified x,y
+        locations in data coordinates, and to take the data and format as
+        float without any decimal places. The example below places the text
+        above and to the right by 10 pixels, with 2 decimal places::
+
+            >>> scattertext([0.25, 0.75], [0.25, 0.75], [0.5, 1.0],
+            ...             loc=(10, 10))
+        """
+        # Start with default args and update from kw
+        new_kw = {
+            'verticalalignment': 'center',
+            'horizontalalignment': 'center',
+            'transform': self.transData,
+            'clip_on': False}
+        new_kw.update(kw)
+
+        # Default to centered on point--special case it to keep tranform
+        # simpler.
+        t = new_kw['transform']
+        if loc == (0, 0):
+            trans = t
+        else:
+            x0, y0 = loc
+            trans = t + mtransforms.Affine2D().translate(x0, y0)
+        new_kw['transform'] = trans
+
+        # Handle masked arrays
+        x, y, texts = cbook.delete_masked_points(x, y, texts)
+
+        # If there is nothing left after deleting the masked points, return None
+        if not x.any():
+            return None
+
+        # Make the TextCollection object
+        text_obj = mtext.TextCollection(x, y, texts, **new_kw)
+
+        # Add it to the axes
+        self.add_artist(text_obj)
+
+        # Update plot range
+        minx = np.min(x)
+        maxx = np.max(x)
+        miny = np.min(y)
+        maxy = np.max(y)
+        w = maxx - minx
+        h = maxy - miny
+
+        # the pad is a little hack to deal with the fact that we don't
+        # want to transform all the symbols whose scales are in points
+        # to data coords to get the exact bounding box for efficiency
+        # reasons.  It can be done right if this is deemed important
+        padx, pady = 0.05 * w, 0.05 * h
+        corners = (minx - padx, miny - pady), (maxx + padx, maxy + pady)
+        self.update_datalim(corners)
+        self.autoscale_view()
+        return text_obj
+
+    @docstring.dedent_interpd
     def annotate(self, *args, **kwargs):
         """
         Create an annotation: a piece of text referring to a data
