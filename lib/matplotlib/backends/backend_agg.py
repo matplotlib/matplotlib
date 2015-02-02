@@ -322,11 +322,11 @@ class RendererAgg(RendererBase):
     def clear(self):
         self._renderer.clear()
 
-    def option_image_nocomposite(self):
-        # It is generally faster to composite each image directly to
-        # the Figure, and there's no file size benefit to compositing
+    def option_combine_images(self):
+        # It is generally faster to write each image directly to
+        # the Figure, and there's no file size benefit to combining images
         # with the Agg backend
-        return True
+        return False
 
     def option_scale_image(self):
         """
