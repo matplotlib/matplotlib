@@ -6,19 +6,23 @@
    axes_grid/index.rst
    mplot3d/index.rst
 
+.. _toolkits:
 
 ########
 Toolkits
 ########
 
-.. htmlonly::
 
-   :Release: |version|
-   :Date: |today|
-
-.. _toolkits:
 
 Toolkits are collections of application-specific functions that extend matplotlib.
+
+
+.. _toolkits-mapping:
+
+
+Mapping Toolkits
+****************
+
 
 .. _toolkit_basemap:
 
@@ -48,6 +52,59 @@ tools. An example plot from the
 
 .. image:: /_static/cartopy_hurricane_katrina_01_00.png
     :height: 400px
+
+
+.. _toolkits-shipped:
+
+
+General Toolkits
+****************
+
+.. _toolkit_mplot3d:
+
+mplot3d
+=======
+.. toctree::
+   :maxdepth: 2
+
+   mplot3d/index
+
+
+:ref:`mpl_toolkits.mplot3d <toolkit_mplot3d-index>` provides some basic 3D plotting (scatter, surf,
+line, mesh) tools.  Not the fastest or feature complete 3D library out
+there, but ships with matplotlib and thus may be a lighter weight
+solution for some use cases.
+
+.. plot:: mpl_examples/mplot3d/contourf3d_demo2.py
+
+.. _toolkit_axes_grid:
+
+AxesGrid
+========
+.. toctree::
+   :maxdepth: 2
+
+   axes_grid/index
+
+
+The matplotlib :ref:`AxesGrid <toolkit_axesgrid-index>` toolkit is a collection of helper classes to
+ease displaying multiple images in matplotlib. The AxesGrid toolkit is
+distributed with matplotlib source.
+
+
+
+.. image:: /_static/demo_axes_grid.png
+
+
+.. _toolkit_mpldatacursor:
+
+MplDataCursor
+=============
+(*Not distributed with matplotlib*)
+
+`MplDataCursor <https://github.com/joferkington/mpldatacursor>`_ is a
+toolkit written by Joe Kington to provide interactive "data cursors"
+(clickable annotation boxes) for matplotlib.
 
 
 .. _toolkit_gtk:
@@ -83,52 +140,10 @@ natgrid toolkit from the sourceforge `download
 page.
 
 
-.. _toolkit_mplot3d:
-
-mplot3d
-=======
-
-:ref:`mpl_toolkits.mplot3d <toolkit_mplot3d-index>` provides some basic 3D plotting (scatter, surf,
-line, mesh) tools.  Not the fastest or feature complete 3D library out
-there, but ships with matplotlib and thus may be a lighter weight
-solution for some use cases.
-
-.. plot:: mpl_examples/mplot3d/contourf3d_demo2.py
-
-.. _toolkit_axes_grid:
-
-AxesGrid
-========
-
-The matplotlib :ref:`AxesGrid <toolkit_axesgrid-index>` toolkit is a collection of helper classes to
-ease displaying multiple images in matplotlib. The AxesGrid toolkit is
-distributed with matplotlib source.
-
-.. image:: /_static/demo_axes_grid.png
-
-.. _toolkit_mpldatacursor:
-
-MplDataCursor
-=============
-(*Not distributed with matplotlib*)
-
-`MplDataCursor <https://github.com/joferkington/mpldatacursor>`_ is a
-toolkit written by Joe Kington to provide interactive "data cursors"
-(clickable annotation boxes) for matplotlib.
-
-.. _toolkit_prettyplotlib:
-
-prettyplotlib
-=============
-`prettyplotlib <https://olgabot.github.io/prettyplotlib>`_ is an extension
-to matplotlib which changes many of the defaults to make plots some
-consider more attractive.
-
 .. _hl_plotting:
 
-###################
 High-Level Plotting
-###################
+*******************
 
 Several projects have started to provide a higher-level interface to
 matplotlib.  These are independent projects.
@@ -152,3 +167,14 @@ ggplot
 
 `ggplot <https://github.com/yhat/ggplot>`_ is a port of the R ggplot2
 to python based on matplotlib.
+
+
+.. _toolkit_prettyplotlib:
+
+prettyplotlib
+=============
+(*Not distributed with matplotlib*)
+
+`prettyplotlib <https://olgabot.github.io/prettyplotlib>`_ is an extension
+to matplotlib which changes many of the defaults to make plots some
+consider more attractive.
