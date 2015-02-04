@@ -483,7 +483,7 @@ class FigureManagerGTK3(FigureManagerBase):
         if rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2GTK3 (self.canvas, self.window)
         elif rcParams['toolbar'] == 'navigation':
-            toolbar = ToolbarGTK3(self)
+            toolbar = ToolbarGTK3(self.navigation)
         else:
             toolbar = None
         return toolbar
@@ -491,7 +491,7 @@ class FigureManagerGTK3(FigureManagerBase):
     def _get_navigation(self):
         # must be initialised after toolbar has been setted
         if rcParams['toolbar'] != 'toolbar2':
-            navigation = NavigationGTK3(self)
+            navigation = NavigationGTK3(self.canvas)
         else:
             navigation = None
         return navigation
@@ -756,8 +756,8 @@ ToolRubberband = RubberbandGTK3
 
 
 class ToolbarGTK3(ToolbarBase, Gtk.Box):
-    def __init__(self, manager):
-        ToolbarBase.__init__(self, manager)
+    def __init__(self, navigation):
+        ToolbarBase.__init__(self, navigation)
         Gtk.Box.__init__(self)
         self.set_property("orientation", Gtk.Orientation.VERTICAL)
 

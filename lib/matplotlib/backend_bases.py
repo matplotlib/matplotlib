@@ -3263,9 +3263,8 @@ class NavigationBase(object):
     messagelock: `LockDraw` to know if the message is available to write
     """
 
-    def __init__(self, manager):
-        self.manager = manager
-        self.canvas = manager.canvas
+    def __init__(self, canvas):
+        self.canvas = canvas
 
         self._key_press_handler_id = self.canvas.mpl_connect(
             'key_press_event', self._key_press)
@@ -3599,9 +3598,8 @@ class ToolbarBase(object):
         this `Toolbar` wants to communicate with
     """
 
-    def __init__(self, manager):
-        self.manager = manager
-        self.navigation = manager.navigation
+    def __init__(self, navigation):
+        self.navigation = navigation
 
         self.navigation.nav_connect('tool_message_event', self._message_cbk)
         self.navigation.nav_connect('tool_added_event', self._add_tool_cbk)
