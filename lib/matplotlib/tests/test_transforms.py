@@ -1,6 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import pickle
 import six
 from six.moves import xrange, zip
 
@@ -500,6 +501,16 @@ def test_log_transform():
     fig, ax = plt.subplots()
     ax.set_yscale('log')
     ax.transData.transform((1,1))
+
+
+@cleanup
+def test_unpickling_transformnode():
+    # Before matplotlib 1.4.2 unpickling a polar plot would throw an
+    # AttributeError
+    ax = plt.subplot(111, polar=True)
+    fig = plt.gcf()
+    pfig = pickle.dumps(fig)
+    fig2 = pickle.loads(pfig)
 
 
 if __name__=='__main__':
