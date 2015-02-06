@@ -134,6 +134,13 @@ class RendererCairo(RendererBase):
 
     @staticmethod
     def convert_path(ctx, path, transform):
+        extents = ctx.clip_extents()
+        bbox = Bbox([[extents[0], extents[1]], [extents[2], extents[3]]])
+        try:
+            path = path.clip_to_bbox (bbox)
+        except ValueError:
+            pass
+
         for points, code in path.iter_segments(transform):
             if code == Path.MOVETO:
                 ctx.move_to(*points)
