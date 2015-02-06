@@ -3510,6 +3510,13 @@ def test_numerical_hist_label():
     fig, ax = plt.subplots()
     ax.hist([range(15)] * 5, label=range(5))
 
+
+@cleanup
+def test_emptydata_boxplot():
+    #issue 4071
+    fix, ax = plt.subplots()
+    ax.boxplot([[0], [], [0, 0]], notch=True)
+
 if __name__ == '__main__':
     import nose
     import sys
