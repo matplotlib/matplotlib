@@ -160,19 +160,6 @@ Example usage::
     gtk.main()
 
 
-Deprecated functions
----------------------
-
-The following are deprecated; please import directly from numpy (with
-care--function signatures may differ):
-
-
-:func:`load`
-    Load ASCII file - use numpy.loadtxt
-
-:func:`save`
-    Save ASCII file - use numpy.savetxt
-
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -1623,45 +1610,6 @@ def longest_ones(x):
     return longest_contiguous_ones(x)
 
 
-def prepca(P, frac=0):
-    """
-
-    .. warning::
-
-        This function is deprecated -- please see class PCA instead
-
-    Compute the principal components of *P*.  *P* is a (*numVars*,
-    *numObs*) array.  *frac* is the minimum fraction of variance that a
-    component must contain to be included.
-
-    Return value is a tuple of the form (*Pcomponents*, *Trans*,
-    *fracVar*) where:
-
-      - *Pcomponents* : a (numVars, numObs) array
-
-      - *Trans* : the weights matrix, i.e., *Pcomponents* = *Trans* *
-         *P*
-
-      - *fracVar* : the fraction of the variance accounted for by each
-         component returned
-
-    A similar function of the same name was in the MATLAB
-    R13 Neural Network Toolbox but is not found in later versions;
-    its successor seems to be called "processpcs".
-    """
-    warnings.warn('This function is deprecated -- see class PCA instead')
-    U, s, v = np.linalg.svd(P)
-    varEach = s**2/P.shape[1]
-    totVar = varEach.sum()
-    fracVar = varEach/totVar
-    ind = slice((fracVar >= frac).sum())
-    # select the components that are greater
-    Trans = U[:, ind].transpose()
-    # The transformed data
-    Pcomponents = np.dot(Trans, P)
-    return Pcomponents, Trans, fracVar[ind]
-
-
 class PCA(object):
     def __init__(self, a, standardize=True):
         """
@@ -2064,103 +2012,6 @@ def fftsurr(x, detrend=detrend_none, window=window_none):
     phase = a * np.random.rand(len(x))
     z = z*np.exp(phase)
     return np.fft.ifft(z).real
-
-
-class FIFOBuffer(object):
-    """
-    A FIFO queue to hold incoming *x*, *y* data in a rotating buffer
-    using numpy arrays under the hood.  It is assumed that you will
-    call asarrays much less frequently than you add data to the queue
-    -- otherwise another data structure will be faster.
-
-    This can be used to support plots where data is added from a real
-    time feed and the plot object wants to grab data from the buffer
-    and plot it to screen less freqeuently than the incoming.
-
-    If you set the *dataLim* attr to
-    :class:`~matplotlib.transforms.BBox` (e.g.,
-    :attr:`matplotlib.Axes.dataLim`), the *dataLim* will be updated as
-    new data come in.
-
-    TODO: add a grow method that will extend nmax
-
-    .. note::
-
-      mlab seems like the wrong place for this class.
-    """
-    @cbook.deprecated('1.3', name='FIFOBuffer', obj_type='class')
-    def __init__(self, nmax):
-        """
-        Buffer up to *nmax* points.
-        """
-        self._xa = np.zeros((nmax,), np.float_)
-        self._ya = np.zeros((nmax,), np.float_)
-        self._xs = np.zeros((nmax,), np.float_)
-        self._ys = np.zeros((nmax,), np.float_)
-        self._ind = 0
-        self._nmax = nmax
-        self.dataLim = None
-        self.callbackd = {}
-
-    def register(self, func, N):
-        """
-        Call *func* every time *N* events are passed; *func* signature
-        is ``func(fifo)``.
-        """
-        self.callbackd.setdefault(N, []).append(func)
-
-    def add(self, x, y):
-        """
-        Add scalar *x* and *y* to the queue.
-        """
-        if self.dataLim is not None:
-            xy = np.asarray([(x, y)])
-            self.dataLim.update_from_data_xy(xy, None)
-
-        ind = self._ind % self._nmax
-        self._xs[ind] = x
-        self._ys[ind] = y
-
-        for N, funcs in six.iteritems(self.callbackd):
-            if (self._ind % N) == 0:
-                for func in funcs:
-                    func(self)
-
-        self._ind += 1
-
-    def last(self):
-        """
-        Get the last *x*, *y* or *None*.  *None* if no data set.
-        """
-        if self._ind == 0:
-            return None, None
-        ind = (self._ind-1) % self._nmax
-        return self._xs[ind], self._ys[ind]
-
-    def asarrays(self):
-        """
-        Return *x* and *y* as arrays; their length will be the len of
-        data added or *nmax*.
-        """
-        if self._ind < self._nmax:
-            return self._xs[:self._ind], self._ys[:self._ind]
-        ind = self._ind % self._nmax
-
-        self._xa[:self._nmax-ind] = self._xs[ind:]
-        self._xa[self._nmax-ind:] = self._xs[:ind]
-        self._ya[:self._nmax-ind] = self._ys[ind:]
-        self._ya[self._nmax-ind:] = self._ys[:ind]
-
-        return self._xa, self._ya
-
-    def update_datalim_to_current(self):
-        """
-        Update the *datalim* in the current data in the fifo.
-        """
-        if self.dataLim is None:
-            raise ValueError('You must first set the dataLim attr')
-        x, y = self.asarrays()
-        self.dataLim.update_from_data(x, y, True)
 
 
 def movavg(x, n):

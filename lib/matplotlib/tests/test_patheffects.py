@@ -5,7 +5,8 @@ import six
 
 import numpy as np
 
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import (image_comparison, cleanup,
+                                           knownfailureif)
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
 
@@ -84,19 +85,7 @@ def test_patheffect3():
 
 
 @cleanup
-def test_PathEffect_get_proxy():
-    pe = path_effects.AbstractPathEffect()
-    fig = plt.gcf()
-    renderer = fig.canvas.get_renderer()
-
-    with mock.patch('matplotlib.cbook.deprecated') as dep:
-        proxy_renderer = pe.get_proxy_renderer(renderer)
-    assert_equal(proxy_renderer._renderer, renderer)
-    assert_equal(proxy_renderer._path_effects, [pe])
-    dep.assert_called()
-
-
-@cleanup
+@knownfailureif(True)
 def test_PathEffect_points_to_pixels():
     fig = plt.figure(dpi=150)
     p1, = plt.plot(range(10))
@@ -116,11 +105,9 @@ def test_PathEffect_points_to_pixels():
                  pe_renderer.points_to_pixels(15))
 
 
-def test_SimplePatchShadow_offset_xy():
-    with mock.patch('matplotlib.cbook.deprecated') as dep:
-        pe = path_effects.SimplePatchShadow(offset_xy=(4, 5))
+def test_SimplePatchShadow_offset():
+    pe = path_effects.SimplePatchShadow(offset=(4, 5))
     assert_equal(pe._offset, (4, 5))
-    dep.assert_called()
 
 
 @image_comparison(baseline_images=['collection'])

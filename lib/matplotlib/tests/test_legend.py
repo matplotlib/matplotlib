@@ -170,34 +170,6 @@ def test_legend_remove():
 
 class TestLegendFunction(object):
     # Tests the legend function on the Axes and pyplot.
-
-    @cleanup
-    def test_old_legend_handler_interface(self):
-        # Check the deprecated warning is created and that the appropriate
-        # call to the legend handler is made.
-        class AnyObject(object):
-            pass
-
-        class AnyObjectHandler(object):
-            def __call__(self, legend, orig_handle, fontsize, handlebox):
-                x0, y0 = handlebox.xdescent, handlebox.ydescent
-                width, height = handlebox.width, handlebox.height
-                patch = mpatches.Rectangle([x0, y0], width, height, facecolor='red',
-                                           edgecolor='black', hatch='xx', lw=3,
-                                           transform=handlebox.get_transform())
-                handlebox.add_artist(patch)
-                return patch
-
-        with mock.patch('warnings.warn') as warn:
-            plt.legend([None], ['My first handler'],
-                       handler_map={None: AnyObjectHandler()})
-
-        warn.assert_called_with('Legend handers must now implement a '
-                                '"legend_artist" method rather than '
-                                'being a callable.',
-                                MatplotlibDeprecationWarning,
-                                stacklevel=1)
-
     @cleanup
     def test_legend_handle_label(self):
         lines = plt.plot(range(10))

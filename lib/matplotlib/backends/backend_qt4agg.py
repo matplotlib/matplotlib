@@ -14,7 +14,7 @@ import warnings
 import matplotlib
 from matplotlib.figure import Figure
 
-from .backend_qt5agg import NavigationToolbar2QTAgg
+
 from .backend_qt5agg import FigureCanvasQTAggBase
 
 from .backend_agg import FigureCanvasAgg
@@ -27,7 +27,6 @@ from .backend_qt4 import show
 from .backend_qt4 import draw_if_interactive
 from .backend_qt4 import backend_version
 ######
-from matplotlib.cbook import mplDeprecation
 
 DEBUG = False
 
