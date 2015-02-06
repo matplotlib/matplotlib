@@ -3426,6 +3426,10 @@ class Axes(_AxesBase):
             box_right = pos + width * 0.5
             med_y = [stats['med'], stats['med']]
 
+            #There's no data to plot; skip plotting.
+            if np.isnan(stats['mean']):
+                continue
+
             # notched boxes
             if shownotches:
                 box_x = [box_left, box_right, box_right, cap_right, box_right,
