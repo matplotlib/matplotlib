@@ -44,8 +44,7 @@ def tripcolor(ax, *args, **kwargs):
     is 'flat' and C values are defined at points, the color values
     used for each triangle are from the mean C of the triangle's
     three points. If *shading* is 'gouraud' then color values must be
-    defined at points.  *shading* of 'faceted' is deprecated;
-    please use *edgecolors* instead.
+    defined at points.
 
     The remaining kwargs are the same as for
     :meth:`~matplotlib.axes.Axes.pcolor`.
@@ -64,6 +63,10 @@ def tripcolor(ax, *args, **kwargs):
     vmax = kwargs.pop('vmax', None)
     shading = kwargs.pop('shading', 'flat')
     facecolors = kwargs.pop('facecolors', None)
+
+    if shading not in ['flat', 'gouraud']:
+        raise ValueError("shading must be one of ['flat', 'gouraud'] "
+                         "not {}".format(shading))
 
     tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
 
@@ -97,10 +100,7 @@ def tripcolor(ax, *args, **kwargs):
         kwargs['linewidths'] = kwargs.pop('linewidth')
     kwargs.setdefault('linewidths', linewidths)
 
-    if shading == 'faceted':   # Deprecated.
-        edgecolors = 'k'
-    else:
-        edgecolors = 'none'
+    edgecolors = 'none'
     if 'edgecolor' in kwargs:
         kwargs['edgecolors'] = kwargs.pop('edgecolor')
     ec = kwargs.setdefault('edgecolors', edgecolors)

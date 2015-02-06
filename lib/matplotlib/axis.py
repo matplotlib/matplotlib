@@ -675,13 +675,6 @@ class Axis(artist.Artist):
     def get_scale(self):
         return self._scale.name
 
-    @cbook.deprecated('1.3')
-    def set_scale(self, value, **kwargs):
-        """
-        This should be a private function (moved to _set_scale)
-        """
-        self._set_scale(value, **kwargs)
-
     def _set_scale(self, value, **kwargs):
         self._scale = mscale.scale_factory(value, self, **kwargs)
         self._scale.set_default_locators_and_formatters(self)

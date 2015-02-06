@@ -33,8 +33,7 @@ import numpy as np
 
 from matplotlib import rcParams
 from matplotlib.artist import Artist, allow_rasterization
-from matplotlib.cbook import (is_string_like, iterable, silent_list, safezip,
-                              warn_deprecated)
+from matplotlib.cbook import (is_string_like, iterable, silent_list, safezip)
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
@@ -646,17 +645,6 @@ class Legend(Artist):
                                         height=height,
                                         xdescent=0., ydescent=descent)
                 handleboxes.append(handlebox)
-
-                # Deprecate the old behaviour of accepting callable
-                # legend handlers in favour of the "legend_artist"
-                # interface.
-                if (not hasattr(handler, 'legend_artist') and
-                        callable(handler)):
-                    handler.legend_artist = handler.__call__
-                    warn_deprecated('1.4',
-                                    ('Legend handers must now implement a '
-                                     '"legend_artist" method rather than '
-                                     'being a callable.'))
 
                 # Create the artist for the legend which represents the
                 # original artist/handle.
