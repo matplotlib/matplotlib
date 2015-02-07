@@ -22,3 +22,16 @@ Analysis on existing commit(master 8f10470):
 +++ _check_for_pkg_config() returns result from check_include_file() 
 
 ++++ check_include_file() searches for include files within paths in ext.include_dirs 
+++++ check_include_file() calls has_include_file(include_dirs, filename)
++++++ has_include_file(include_dirs, filename) searches for following files
+	/usr/local/include/ft2build.h
+	/usr/include/ft2build.h
+	/usr/X11/include/ft2build.h
+	/opt/X11/include/ft2build.h
+	./ft2build.h
++++++ possible locations are
+	/opt/X11/include/freetype2
+	/usr/local/include/freetype2
+
+++ Hence, it could be more desirable if FreeType get_extension() could return
+	an ext object with include_dirs information about paths above
