@@ -933,6 +933,17 @@ class FreeType(SetupPackage):
             default_libraries=['freetype', 'z'])
 
 
+    def get_extension(self):
+        sources = []
+        include_dirs = ['include/freetype2', 'freetype2',
+                'lib/freetype2/include',
+                'lib/freetype2/include/freetype2']
+        ext = make_extension('matplotlib.freetype', sources,
+                             include_dirs = include_dirs)
+        Numpy().add_flags(ext)
+        return ext
+
+
 class FT2Font(SetupPackage):
     name = 'ft2font'
 
