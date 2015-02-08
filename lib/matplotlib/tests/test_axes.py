@@ -16,6 +16,7 @@ from numpy import ma
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
+import matplotlib.markers as mmarkers
 from numpy.testing import assert_array_equal
 import warnings
 
@@ -1091,7 +1092,24 @@ def test_hist2d_transpose():
 @image_comparison(baseline_images=['scatter'])
 def test_scatter_plot():
     ax = plt.axes()
-    ax.scatter([3, 4, 2, 6], [2, 5, 2, 3], c=['r', 'y', 'b', 'lime'], s=[24, 15, 19, 29])
+    ax.scatter([3, 4, 2, 6], [2, 5, 2, 3],
+               c=['r', 'y', 'b', 'lime'], s=[24, 15, 19, 29])
+
+
+@image_comparison(baseline_images=['scatter_marker'], remove_text=True,
+                  extensions=['png'])
+def test_scatter_marker():
+    fig, (ax0, ax1) = plt.subplots(ncols=2)
+    ax0.scatter([3, 4, 2, 6], [2, 5, 2, 3],
+                c=[(1, 0, 0), 'y', 'b', 'lime'],
+                s=[60, 50, 40, 30],
+                edgecolors=['k', 'r', 'g', 'b'],
+                marker='s')
+    ax1.scatter([3, 4, 2, 6], [2, 5, 2, 3],
+                c=[(1, 0, 0), 'y', 'b', 'lime'],
+                s=[60, 50, 40, 30],
+                edgecolors=['k', 'r', 'g', 'b'],
+                marker=mmarkers.MarkerStyle('o', fillstyle='top'))
 
 
 @cleanup
