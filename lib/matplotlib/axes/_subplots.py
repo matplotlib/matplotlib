@@ -73,10 +73,14 @@ class SubplotBase(object):
         self._axes_class.__init__(self, fig, self.figbox, **kwargs)
 
     def __reduce__(self):
-        # get the first axes class which does not inherit from a subplotbase
-        not_subplotbase = lambda c: issubclass(c, Axes) and \
-            not issubclass(c, SubplotBase)
-        axes_class = [c for c in self.__class__.mro() if not_subplotbase(c)][0]
+        # get the first axes class which does not
+        # inherit from a subplotbase
+
+        def not_subplotbase(c):
+            return issubclass(c, Axes) and not issubclass(c, SubplotBase)
+
+        axes_class = [c for c in self.__class__.mro()
+                      if not_subplotbase(c)][0]
         r = [_PicklableSubplotClassConstructor(),
              (axes_class,),
              self.__getstate__()]
