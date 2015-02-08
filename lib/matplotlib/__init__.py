@@ -192,10 +192,6 @@ if not hasattr(sys, 'argv'):  # for modpython
 major, minor1, minor2, s, tmp = sys.version_info
 _python26 = (major == 2 and minor1 >= 6) or major >= 3
 
-# the havedate check was a legacy from old matplotlib which preceeded
-# datetime support
-_havedate = True
-
 if not _python26:
     raise ImportError('matplotlib requires Python 2.6 or later')
 
