@@ -4,7 +4,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import matplotlib
-rcParams = matplotlib.rcParams
 
 import matplotlib.artist as martist
 from matplotlib.artist import allow_rasterization
@@ -16,6 +15,8 @@ import matplotlib.path as mpath
 import matplotlib.cbook as cbook
 import numpy as np
 import warnings
+
+rcParams = matplotlib.rcParams
 
 
 class Spine(mpatches.Patch):
