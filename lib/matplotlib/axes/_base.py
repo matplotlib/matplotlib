@@ -13,7 +13,6 @@ import numpy as np
 from numpy import ma
 
 import matplotlib
-rcParams = matplotlib.rcParams
 
 from matplotlib import cbook
 from matplotlib.cbook import _string_to_bool
@@ -35,6 +34,7 @@ from matplotlib.artist import allow_rasterization
 
 from matplotlib.cbook import iterable
 
+rcParams = matplotlib.rcParams
 
 is_string_like = cbook.is_string_like
 is_sequence_of_strings = cbook.is_sequence_of_strings
