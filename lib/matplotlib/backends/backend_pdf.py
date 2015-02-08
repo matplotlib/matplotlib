@@ -1452,7 +1452,9 @@ end"""
     def writeInfoDict(self):
         """Write out the info dictionary, checking it for good form"""
 
-        is_date = lambda x: isinstance(x, datetime)
+        def is_date(x):
+            return isinstance(x, datetime)
+
         check_trapped = (lambda x: isinstance(x, Name) and
                          x.name in ('True', 'False', 'Unknown'))
         keywords = {'Title': is_string_like,
