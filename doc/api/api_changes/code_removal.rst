@@ -3,7 +3,7 @@ Code Removal
 
 Legend
 ------
- - Removed handling of `loc` as a positional argument to `Legend`
+Removed handling of `loc` as a positional argument to `Legend`
 
 
 Legend handlers
@@ -78,3 +78,10 @@ Deprecated in 2009.
 Remove ``NavigationToolbar2QTAgg``
 ----------------------------------
 Added no functionality over the base ``NavigationToolbar2Qt``
+
+
+mpl.py
+------
+
+Remove the module `matplotlib.mpl`.  Deprecated in 1.3 by
+PR #1670 and commit 78ce67d161625833cacff23cfe5d74920248c5b2
