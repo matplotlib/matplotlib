@@ -5,10 +5,9 @@ formsubplottool.py
 backend.qt4 (PyQt4|PySide) independent form of the subplot tool.
 
 """
+from matplotlib.backends.qt_compat import QtCore, QtGui, QtWidgets
 
 __author__ = 'rudolf.hoefler@gmail.com'
-
-from matplotlib.backends.qt_compat import QtCore, QtGui, QtWidgets
 
 
 class UiSubplotTool(QtWidgets.QDialog):
