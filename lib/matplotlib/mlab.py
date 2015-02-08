@@ -167,8 +167,6 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import map, xrange, zip
-if six.PY3:
-    long = int
 
 import copy
 import csv
@@ -177,12 +175,17 @@ import os
 import warnings
 
 import numpy as np
-ma = np.ma
 from matplotlib import verbose
 
 import matplotlib.cbook as cbook
 from matplotlib import docstring
 from matplotlib.path import Path
+import math
+
+ma = np.ma
+
+if six.PY3:
+    long = int
 
 
 def logspace(xmin, xmax, N):
@@ -2064,8 +2067,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
-
-import math
 
 
 # *****************************************************************************
