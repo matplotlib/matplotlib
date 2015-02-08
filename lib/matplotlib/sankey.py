@@ -8,11 +8,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import zip
 
-__author__ = "Kevin L. Davies"
-__credits__ = ["Yannick Copin"]
-__license__ = "BSD"
-__version__ = "2011/09/16"
-
 # Original version by Yannick Copin (ycopin@ipnl.in2p3.fr) 10/2/2010, available
 # at:
 #     http://matplotlib.org/examples/api/sankey_demo_old.html
@@ -49,6 +44,11 @@ from matplotlib.patches import PathPatch
 from matplotlib.transforms import Affine2D
 from matplotlib import verbose
 from matplotlib import docstring
+
+__author__ = "Kevin L. Davies"
+__credits__ = ["Yannick Copin"]
+__license__ = "BSD"
+__version__ = "2011/09/16"
 
 # Angles [deg/90]
 RIGHT = 0

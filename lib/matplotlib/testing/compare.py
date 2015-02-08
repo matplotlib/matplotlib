@@ -123,15 +123,15 @@ def make_external_conversion_command(cmd):
 def _update_converter():
     gs, gs_v = matplotlib.checkdep_ghostscript()
     if gs_v is not None:
-        cmd = lambda old, new: \
-            [gs, '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
+        def cmd(old, new):
+            return [gs, '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
              '-sOutputFile=' + new, old]
         converter['pdf'] = make_external_conversion_command(cmd)
         converter['eps'] = make_external_conversion_command(cmd)
 
     if matplotlib.checkdep_inkscape() is not None:
-        cmd = lambda old, new: \
-            ['inkscape', '-z', old, '--export-png', new]
+        def cmd(old, new):
+            return ['inkscape', '-z', old, '--export-png', new]
         converter['svg'] = make_external_conversion_command(cmd)
 
 

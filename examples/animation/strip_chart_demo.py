@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
-class Scope(object)
+class Scope(object):
     def __init__(self, ax, maxt=2, dt=0.02):
         self.ax = ax
         self.dt = dt

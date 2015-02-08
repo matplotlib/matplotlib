@@ -43,8 +43,8 @@ class LassoManager(object):
         self.collection = RegularPolyCollection(
             fig.dpi, 6, sizes=(100,),
             facecolors=facecolors,
-            offsets = self.xys,
-            transOffset = ax.transData)
+            offsets=self.xys,
+            transOffset=ax.transData)
 
         ax.add_collection(self.collection)
 
@@ -69,7 +69,9 @@ class LassoManager(object):
             return
         if event.inaxes is None:
             return
-        self.lasso = Lasso(event.inaxes, (event.xdata, event.ydata), self.callback)
+        self.lasso = Lasso(event.inaxes,
+                           (event.xdata, event.ydata),
+                           self.callback)
         # acquire a lock on the widget drawing
         self.canvas.widgetlock(self.lasso)
 

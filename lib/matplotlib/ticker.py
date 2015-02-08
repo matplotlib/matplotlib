@@ -146,8 +146,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-if six.PY3:
-    long = int
 
 import decimal
 import locale
@@ -156,6 +154,9 @@ import numpy as np
 from matplotlib import rcParams
 from matplotlib import cbook
 from matplotlib import transforms as mtransforms
+
+if six.PY3:
+    long = int
 
 
 class _DummyAxis(object):

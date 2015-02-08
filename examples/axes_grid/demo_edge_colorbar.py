@@ -17,13 +17,13 @@ def demo_bottom_cbar(fig):
     """
     grid = AxesGrid(fig, 121,  # similar to subplot(132)
                     nrows_ncols=(2, 2),
-                    axes_pad = 0.10,
+                    axes_pad=0.10,
                     share_all=True,
-                    label_mode = "1",
-                    cbar_location = "bottom",
+                    label_mode="1",
+                    cbar_location="bottom",
                     cbar_mode="edge",
-                    cbar_pad = 0.25,
-                    cbar_size = "15%",
+                    cbar_pad=0.25,
+                    cbar_size="15%",
                     direction="column"
                     )
 
@@ -51,9 +51,9 @@ def demo_right_cbar(fig):
 
     grid = AxesGrid(F, 122,  # similar to subplot(122)
                     nrows_ncols=(2, 2),
-                    axes_pad = 0.10,
-                    label_mode = "1",
-                    share_all = True,
+                    axes_pad=0.10,
+                    label_mode="1",
+                    share_all=True,
                     cbar_location="right",
                     cbar_mode="edge",
                     cbar_size="7%",

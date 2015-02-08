@@ -11,7 +11,6 @@ import numpy as np
 from numpy import ma
 
 import matplotlib
-rcParams = matplotlib.rcParams
 
 import matplotlib.cbook as cbook
 from matplotlib.cbook import _string_to_bool, mplDeprecation
@@ -39,6 +38,8 @@ import matplotlib.transforms as mtrans
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase
 from matplotlib.axes._base import _process_plot_format
+
+rcParams = matplotlib.rcParams
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
