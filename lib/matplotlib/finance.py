@@ -15,17 +15,7 @@ from six.moves import xrange, zip
 import contextlib
 import os
 import warnings
-
-if six.PY3:
-    from urllib.request import urlopen
-else:
-    from urllib2 import urlopen
-
-if six.PY3:
-    import hashlib
-    md5 = lambda x: hashlib.md5(x.encode())
-else:
-    from hashlib import md5
+from six.moves.urllib.request import urlopen
 
 import datetime
 
@@ -40,6 +30,14 @@ from matplotlib.lines import Line2D, TICKLEFT, TICKRIGHT
 from matplotlib.patches import Rectangle
 from matplotlib.transforms import Affine2D
 
+
+if six.PY3:
+    import hashlib
+
+    def md5(x):
+        return hashlib.md5(x.encode())
+else:
+    from hashlib import md5
 
 cachedir = get_cachedir()
 # cachedir will be None if there is no writable directory.
@@ -802,10 +800,10 @@ def _candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
 
         rect = Rectangle(
             xy=(t - OFFSET, lower),
-            width = width,
-            height = height,
-            facecolor = color,
-            edgecolor = color,
+            width=width,
+            height=height,
+            facecolor=color,
+            edgecolor=color,
         )
         rect.set_alpha(alpha)
 
@@ -1075,7 +1073,7 @@ def candlestick2_ohlc(ax, opens, highs, lows, closes, width=4,
     rangeCollection = LineCollection(rangeSegments,
                                      colors=((0, 0, 0, 1), ),
                                      linewidths=lw,
-                                     antialiaseds = useAA,
+                                     antialiaseds=useAA,
                                      )
 
     barCollection = PolyCollection(barVerts,
