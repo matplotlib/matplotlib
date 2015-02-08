@@ -342,9 +342,9 @@ def report_all_missing(directories):
 
 failbackend = dict(
     svg=('tex_demo.py', ),
-    agg = ('hyperlinks.py', ),
-    pdf = ('hyperlinks.py', ),
-    ps = ('hyperlinks.py', ),
+    agg=('hyperlinks.py', ),
+    pdf=('hyperlinks.py', ),
+    ps=('hyperlinks.py', ),
     )
 
 

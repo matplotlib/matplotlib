@@ -77,8 +77,8 @@ CS3.cmap.set_over('cyan')
 
 CS4 = plt.contour(X, Y, Z, levels,
                   colors=('k',),
-                  linewidths = (3,),
-                  origin = origin)
+                  linewidths=(3,),
+                  origin=origin)
 plt.title('Listed colors (3 masked regions)')
 plt.clabel(CS4, fmt='%2.1f', colors='w', fontsize=14)
 
@@ -95,7 +95,7 @@ cmap.set_over("yellow")
 # instead of using the "bad" colormap value for them, it draws
 # nothing at all in them.  Therefore the following would have
 # no effect:
-#cmap.set_bad("red")
+# cmap.set_bad("red")
 
 fig, axs = plt.subplots(2, 2)
 for ax, extend in zip(axs.ravel(), extends):
