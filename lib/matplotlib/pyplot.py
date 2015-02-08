@@ -2761,7 +2761,7 @@ def errorbar(x, y, yerr=None, xerr=None, fmt='', ecolor=None, elinewidth=None,
                           barsabove=barsabove, lolims=lolims, uplims=uplims,
                           xlolims=xlolims, xuplims=xuplims,
                           errorevery=errorevery, capthick=capthick, **kwargs)
-        draw_if_interactive()
+        #draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3095,7 +3095,7 @@ def plot(*args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.plot(*args, **kwargs)
-        draw_if_interactive()
+        #draw_if_interactive()
     finally:
         ax.hold(washold)
 

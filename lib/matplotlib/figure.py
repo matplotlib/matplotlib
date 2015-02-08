@@ -24,7 +24,9 @@ import numpy as np
 from matplotlib import rcParams
 from matplotlib import docstring
 from matplotlib import __version__ as _mpl_version
+
 from matplotlib import is_interactive
+from matplotlib import _interactive  # decorator
 
 import matplotlib.artist as martist
 from matplotlib.artist import Artist, allow_rasterization
@@ -233,20 +235,6 @@ class SubplotParams(object):
                 val = rcParams[key]
 
         setattr(self, s, val)
-
-import functools
-def _interactive(func):
-    @functools.wraps(func)
-    def inner(self, *args, **kw):
-        outer = self.check_interactive()
-        drawn = True  # default in "finally" clause is to clear.
-        try:
-            ret = func(self, *args, **kw)
-            drawn = self.draw_if_interactive(outer)
-        finally:
-            self.clear_interactive(drawn)
-        return ret
-    return inner
 
 class Figure(Artist):
 
