@@ -19,8 +19,9 @@ import matplotlib
 
 
 PEP8_ADDITIONAL_IGNORE = ['E111',
-                          'E112',
-                          'E113',
+                          'E114',
+                          'E115',
+                          'E116',
                           'E121',
                           'E122',
                           'E123',
@@ -31,7 +32,8 @@ PEP8_ADDITIONAL_IGNORE = ['E111',
                           'E128',
                           'E129',
                           'E131',
-                          'E265']
+                          'E265',
+                          'E266']
 
 EXTRA_EXCLUDE_FILE = os.path.join(os.path.dirname(__file__),
                                   '.pep8_test_exclude.txt')
