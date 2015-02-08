@@ -559,13 +559,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def set_facecolor(self, c):
         """
         Set the facecolor(s) of the collection.  *c* can be a
-        matplotlib color arg (all patches have same color), or a
-        sequence of rgba tuples; if it is a sequence the patches will
+        matplotlib color spec (all patches have same color), or a
+        sequence of specs; if it is a sequence the patches will
         cycle through the sequence.
 
         If *c* is 'none', the patch will not be filled.
 
-        ACCEPTS: matplotlib color arg or sequence of rgba tuples
+        ACCEPTS: matplotlib color spec or sequence of specs
         """
         self._is_filled = True
         try:
@@ -596,15 +596,15 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def set_edgecolor(self, c):
         """
         Set the edgecolor(s) of the collection. *c* can be a
-        matplotlib color arg (all patches have same color), or a
-        sequence of rgba tuples; if it is a sequence the patches will
+        matplotlib color spec (all patches have same color), or a
+        sequence of specs; if it is a sequence the patches will
         cycle through the sequence.
 
         If *c* is 'face', the edge color will always be the same as
         the face color.  If it is 'none', the patch boundary will not
         be drawn.
 
-        ACCEPTS: matplotlib color arg or sequence of rgba tuples
+        ACCEPTS: matplotlib color spec or sequence of specs
         """
         self._is_stroked = True
         try:
