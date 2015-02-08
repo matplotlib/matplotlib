@@ -7,10 +7,6 @@ import six
 from six.moves import zip
 
 import warnings
-if six.PY3:
-    from urllib.parse import quote as urllib_quote
-else:
-    from urllib import quote as urllib_quote
 
 import numpy as np
 
@@ -23,6 +19,7 @@ from matplotlib.mathtext import MathTextParser
 import matplotlib.dviread as dviread
 from matplotlib.font_manager import FontProperties
 from matplotlib.transforms import Affine2D
+from six.moves.urllib.parse import quote as urllib_quote
 
 
 class TextToPath(object):
