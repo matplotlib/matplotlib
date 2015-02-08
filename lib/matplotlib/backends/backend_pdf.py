@@ -480,6 +480,9 @@ class PdfFile(object):
 
         self.paths = []
 
+        self.pageAnnotations = []  # A list of annotations for the
+                                   # current page
+
         # The PDF spec recommends to include every procset
         procsets = [Name(x)
                     for x in "PDF Text ImageB ImageC ImageI".split()]
@@ -507,7 +510,8 @@ class PdfFile(object):
                    'Contents': contentObject,
                    'Group': {'Type': Name('Group'),
                              'S': Name('Transparency'),
-                             'CS': Name('DeviceRGB')}
+                             'CS': Name('DeviceRGB')},
+                   'Annots': self.pageAnnotations,
                    }
         pageObject = self.reserveObject('page')
         self.writeObject(pageObject, thePage)
@@ -518,6 +522,20 @@ class PdfFile(object):
         # Initialize the pdf graphics state to match the default mpl
         # graphics context: currently only the join style needs to be set
         self.output(GraphicsContextPdf.joinstyles['round'], Op.setlinejoin)
+
+        # Clear the list of annotations for the next page
+        self.pageAnnotations = []
+
+    def newTextnote(self, text, positionRect=[-100, -100, 0, 0]):
+        # Create a new annotation of type text
+        theNote = {'Type': Name('Annot'),
+                   'Subtype': Name('Text'),
+                   'Contents': text,
+                   'Rect': positionRect,
+                   }
+        annotObject = self.reserveObject('annotation')
+        self.writeObject(annotObject, theNote)
+        self.pageAnnotations.append(annotObject)
 
     def close(self):
         self.endStream()
@@ -2446,6 +2464,15 @@ class PdfPages(object):
         Returns the current number of pages in the multipage pdf file.
         """
         return len(self._file.pageList)
+
+    def attach_note(self, text, positionRect=[-100, -100, 0, 0]):
+        """
+        Add a new text note to the page to be saved next. The optional
+        positionRect specifies the position of the new note on the
+        page. It is outside the page per default to make sure it is
+        invisible on printouts.
+        """
+        self._file.newTextnote(text, positionRect)
 
 
 class FigureCanvasPdf(FigureCanvasBase):

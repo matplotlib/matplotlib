@@ -1,4 +1,7 @@
-# This is a demo of creating a pdf file with several pages.
+"""
+This is a demo of creating a pdf file with several pages,
+as well as adding metadata and annotations to pdf files.
+"""
 
 import datetime
 import numpy as np
@@ -20,6 +23,8 @@ with PdfPages('multipage_pdf.pdf') as pdf:
     x = np.arange(0, 5, 0.1)
     plt.plot(x, np.sin(x), 'b-')
     plt.title('Page Two')
+    pdf.attach_note("plot of sin(x)")  # you can add a pdf note to
+                                       # attach metadata to a page
     pdf.savefig()
     plt.close()
 
