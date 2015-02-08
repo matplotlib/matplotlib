@@ -107,6 +107,26 @@ import sys
 import distutils.version
 from itertools import chain
 
+import io
+import locale
+import os
+import re
+import tempfile
+import warnings
+import contextlib
+import distutils.sysconfig
+
+# cbook must import matplotlib only within function
+# definitions, so it is safe to import from it here.
+from matplotlib.cbook import is_string_like, mplDeprecation
+from matplotlib.compat import subprocess
+from matplotlib.rcsetup import (defaultParams,
+                                validate_backend)
+
+import numpy
+from six.moves.urllib.request import urlopen
+from six.moves import reload_module as reload
+
 __version__ = str('1.5.dev1')
 __version__numpy__ = str('1.6')  # minimum required numpy version
 
@@ -164,38 +184,10 @@ else:
             return self
         pyparsing.Forward.__ilshift__ = _forward_ilshift
 
-try:
-    from urllib.request import urlopen
-except ImportError:
-    from urllib2 import urlopen
-
-import io
-import locale
-import os
-import re
-import tempfile
-import warnings
-import contextlib
-import distutils.sysconfig
-
-# cbook must import matplotlib only within function
-# definitions, so it is safe to import from it here.
-from matplotlib.cbook import is_string_like, mplDeprecation
-from matplotlib.compat import subprocess
-
-try:
-    reload
-except NameError:
-    # Python 3
-    from imp import reload
-
 
 if not hasattr(sys, 'argv'):  # for modpython
     sys.argv = [str('modpython')]
 
-
-from matplotlib.rcsetup import (defaultParams,
-                                validate_backend)
 
 major, minor1, minor2, s, tmp = sys.version_info
 _python24 = (major == 2 and minor1 >= 4) or major >= 3
@@ -208,7 +200,6 @@ if not _python24:
     raise ImportError('matplotlib requires Python 2.4 or later')
 
 
-import numpy
 if not compare_versions(numpy.__version__, __version__numpy__):
     raise ImportError(
         'numpy %s or later is required; you have %s' % (
@@ -1125,7 +1116,6 @@ rcParams['ps.usedistiller'] = checkdep_ps_distiller(
 rcParams['text.usetex'] = checkdep_usetex(rcParams['text.usetex'])
 
 if rcParams['axes.formatter.use_locale']:
-    import locale
     locale.setlocale(locale.LC_ALL, '')
 
 
