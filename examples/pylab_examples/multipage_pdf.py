@@ -1,4 +1,7 @@
-# This is a demo of creating a pdf file with several pages.
+"""
+This is a demo of creating a pdf file with several pages,
+as well as adding metadata and annotations to pdf files.
+"""
 
 import datetime
 import numpy as np
