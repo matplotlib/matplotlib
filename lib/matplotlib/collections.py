@@ -134,6 +134,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._path_effects = None
         self.update(kwargs)
         self._paths = None
+        self._draworder = slice(None)
 
     @staticmethod
     def _get_value(val):
@@ -280,15 +281,21 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # *much* faster for Agg, and results in smaller file sizes in
         # PDF/SVG/PS.
 
-        trans = self.get_transforms()
-        facecolors = self.get_facecolor()
-        edgecolors = self.get_edgecolor()
+        offsets = offsets[self._draworder]
+        paths = paths[self._draworder]
+        trans = self.get_transforms()[self._draworder]
+        facecolors = self.get_facecolor()[self._draworder]
+        edgecolors = self.get_edgecolor()[self._draworder]
+        linewidths = self._linewidths[self._draworder]
+        linestyles = self._linestyles[self._draworder]
+        antialiaseds = self._antialiaseds[self._draworder]
+        urls = self.urls[self._draworder]
         do_single_path_optimization = False
         if (len(paths) == 1 and len(trans) <= 1 and
             len(facecolors) == 1 and len(edgecolors) == 1 and
-            len(self._linewidths) == 1 and
-            self._linestyles == [(None, None)] and
-            len(self._antialiaseds) == 1 and len(self._urls) == 1 and
+            len(linewidths) == 1 and
+            linestyles == [(None, None)] and
+            len(antialiaseds) == 1 and len(urls) == 1 and
             self.get_hatch() is None):
             if len(trans):
                 combined_transform = (transforms.Affine2D(trans[0]) +
@@ -303,20 +310,20 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         if do_single_path_optimization:
             gc.set_foreground(tuple(edgecolors[0]))
-            gc.set_linewidth(self._linewidths[0])
-            gc.set_linestyle(self._linestyles[0])
-            gc.set_antialiased(self._antialiaseds[0])
-            gc.set_url(self._urls[0])
+            gc.set_linewidth(linewidths[0])
+            gc.set_linestyle(linestyles[0])
+            gc.set_antialiased(antialiaseds[0])
+            gc.set_url(urls[0])
             renderer.draw_markers(
                 gc, paths[0], combined_transform.frozen(),
                 mpath.Path(offsets), transOffset, tuple(facecolors[0]))
         else:
             renderer.draw_path_collection(
                 gc, transform.frozen(), paths,
-                self.get_transforms(), offsets, transOffset,
-                self.get_facecolor(), self.get_edgecolor(),
-                self._linewidths, self._linestyles,
-                self._antialiaseds, self._urls,
+                trans, offsets, transOffset,
+                facecolors, edgecolors,
+                linewidths, linestyles,
+                antialiaseds, urls,
                 self._offset_position)
 
         gc.restore()
