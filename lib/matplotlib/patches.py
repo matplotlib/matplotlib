@@ -17,7 +17,13 @@ import matplotlib.colors as colors
 from matplotlib import docstring
 import matplotlib.transforms as transforms
 from matplotlib.path import Path
-from matplotlib.cbook import mplDeprecation
+
+from matplotlib.bezier import split_bezier_intersecting_with_closedpath
+from matplotlib.bezier import get_intersection, inside_circle, get_parallels
+from matplotlib.bezier import make_wedged_bezier2
+from matplotlib.bezier import split_path_inout, get_cos_sin
+from matplotlib.bezier import make_path_regular, concatenate_paths
+
 
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init
@@ -2538,13 +2544,6 @@ class FancyBboxPatch(Patch):
     def get_bbox(self):
         return transforms.Bbox.from_bounds(self._x, self._y,
                                            self._width, self._height)
-
-
-from matplotlib.bezier import split_bezier_intersecting_with_closedpath
-from matplotlib.bezier import get_intersection, inside_circle, get_parallels
-from matplotlib.bezier import make_wedged_bezier2
-from matplotlib.bezier import split_path_inout, get_cos_sin
-from matplotlib.bezier import make_path_regular, concatenate_paths
 
 
 class ConnectionStyle(_Style):
