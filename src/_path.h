@@ -209,7 +209,7 @@ inline void points_in_path(PointArray &points,
     typedef agg::conv_contour<curve_t> contour_t;
 
     size_t i;
-    for (i = 0; i < result.size(); ++i) {
+    for (i = 0; i < points.size(); ++i) {
         result[i] = false;
     }
 
@@ -236,8 +236,8 @@ inline bool point_in_path(
     point.push_back(y);
     points.push_back(point);
 
-    std::vector<bool> result(1);
-    result[0] = false;
+    int result[1];
+    result[0] = 0;
 
     points_in_path(points, r, path, trans, result);
 
@@ -257,7 +257,7 @@ void points_on_path(PointArray &points,
     typedef agg::conv_stroke<curve_t> stroke_t;
 
     size_t i;
-    for (i = 0; i < result.size(); ++i) {
+    for (i = 0; i < points.size(); ++i) {
         result[i] = false;
     }
 
@@ -279,8 +279,8 @@ inline bool point_on_path(
     point.push_back(y);
     points.push_back(point);
 
-    std::vector<bool> result(1);
-    result[0] = false;
+    int result[1];
+    result[0] = 0;
 
     points_on_path(points, r, path, trans, result);
 
@@ -406,7 +406,7 @@ void point_in_path_collection(double x,
                               agg::trans_affine &offset_trans,
                               bool filled,
                               e_offset_position offset_position,
-                              std::vector<size_t> &result)
+                              std::vector<int> &result)
 {
     size_t Npaths = paths.size();
 
@@ -432,6 +432,7 @@ void point_in_path_collection(double x,
                                       subtrans(1, 1),
                                       subtrans(0, 2),
                                       subtrans(1, 2));
+            trans *= master_transform;
         } else {
             trans = master_transform;
         }
