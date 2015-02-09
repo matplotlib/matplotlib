@@ -5,9 +5,12 @@ import six
 
 import numpy as np
 import matplotlib
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import (
+    image_comparison, knownfailureif, cleanup
+)
 import matplotlib.pyplot as plt
 from matplotlib import mathtext
+
 
 math_tests = [
     r'$a+b+\dots+\dot{s}+\ldots$',
@@ -101,6 +104,8 @@ uppergreek = ("\\Gamma \\Delta \\Theta \\Lambda \\Xi \\Pi \\Sigma \\Upsilon \\Ph
 lowergreek = ("\\alpha \\beta \\gamma \\delta \\epsilon \\zeta \\eta \\theta \\iota "
               "\\lambda \\mu \\nu \\xi \\pi \\kappa \\rho \\sigma \\tau \\upsilon "
               "\\phi \\chi \\psi")
+
+
 all = [digits, uppercase, lowercase, uppergreek, lowergreek]
 
 font_test_specs = [
@@ -141,8 +146,10 @@ for fonts, chars in font_test_specs:
     for set in chars:
         font_tests.append(wrapper % set)
 
+
 def make_set(basename, fontset, tests, extensions=None):
     def make_test(filename, test):
+        @cleanup
         @image_comparison(baseline_images=[filename], extensions=extensions,
                           tol=32)
         def single_test():
@@ -169,6 +176,7 @@ make_set('mathfont', 'cm', font_tests, ['png'])
 make_set('mathfont', 'stix', font_tests, ['png'])
 make_set('mathfont', 'stixsans', font_tests, ['png'])
 
+
 def test_fontinfo():
     import matplotlib.font_manager as font_manager
     import matplotlib.ft2font as ft2font
@@ -176,6 +184,7 @@ def test_fontinfo():
     font = ft2font.FT2Font(fontpath)
     table = font.get_sfnt_table("head")
     assert table['version'] == (1, 0)
+
 
 def test_mathtext_exceptions():
     errors = [
