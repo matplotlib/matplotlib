@@ -3509,7 +3509,7 @@ class Axes(_AxesBase):
                     medians=medians, fliers=fliers, means=means)
 
     @docstring.dedent_interpd
-    def scatter(self, x, y, s=20, c='b', marker='o', cmap=None, norm=None,
+    def scatter(self, x, y, s=20, c=None, marker='o', cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None,
                 verts=None, edgecolors=None,
                 **kwargs):
@@ -3592,6 +3592,32 @@ class Axes(_AxesBase):
 
         if not self._hold:
             self.cla()
+
+        # Process **kwargs to handle aliases, conflicts with explicit kwargs:
+
+        facecolors = None
+        ec = kwargs.pop('edgecolor', None)
+        if ec is not None:
+            edgecolors = ec
+        fc = kwargs.pop('facecolor', None)
+        if fc is not None:
+            facecolors = fc
+        fc = kwargs.pop('facecolors', None)
+        if fc is not None:
+            facecolors = fc
+        # 'color' should be deprecated in scatter, or clearly defined;
+        # since it isn't, I am giving it low priority.
+        co = kwargs.pop('color', None)
+        if co is not None:
+            if edgecolors is None:
+                edgecolors = co
+            if facecolors is None:
+                facecolors = co
+        if c is None:
+            if facecolors is not None:
+                c = facecolors
+            else:
+                c = 'b'  # the original default
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         x = self.convert_xunits(x)
