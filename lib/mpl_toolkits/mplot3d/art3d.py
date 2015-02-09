@@ -403,6 +403,16 @@ class Patch3DCollection(PatchCollection):
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
+    def set_facecolor(self, c):
+        # docstring inherited
+        super().set_facecolor(c)
+        self._facecolor3d = self.get_facecolor()
+
+    def set_edgecolor(self, c):
+        # docstring inherited
+        super().set_edgecolor(c)
+        self._edgecolor3d = self.get_edgecolor()
+
     def set_sort_zpos(self, val):
         """Set the position to use for z-sorting."""
         self._sort_zpos = val
@@ -490,6 +500,16 @@ class Path3DCollection(PathCollection):
         self._sizes3d = self.get_sizes()
         self._linewidth3d = self.get_linewidth()
         self.stale = True
+
+    def set_facecolor(self, c):
+        # docstring inherited
+        super().set_facecolor(c)
+        self._facecolor3d = self.get_facecolor()
+
+    def set_edgecolor(self, c):
+        # docstring inherited
+        super().set_edgecolor(c)
+        self._edgecolor3d = self.get_edgecolor()
 
     def do_3d_projection(self, renderer):
         xs, ys, zs = self._offsets3d
@@ -722,10 +742,12 @@ class Poly3DCollection(PolyCollection):
             return np.nan
 
     def set_facecolor(self, colors):
+        # docstring inherited
         super().set_facecolor(colors)
         self._facecolors3d = PolyCollection.get_facecolor(self)
 
     def set_edgecolor(self, colors):
+        # docstring inherited
         super().set_edgecolor(colors)
         self._edgecolors3d = PolyCollection.get_edgecolor(self)
 
