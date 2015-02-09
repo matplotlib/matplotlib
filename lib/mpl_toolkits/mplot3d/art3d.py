@@ -166,11 +166,12 @@ class Line3DCollection(LineCollection):
 
     def __init__(self, segments, *args, **kwargs):
         '''
-        Keyword arguments are passed onto :func:`~matplotlib.collections.LineCollection`.
+        Keyword arguments are passed on to
+        :func:`~matplotlib.collections.LineCollection`.
         '''
         LineCollection.__init__(self, segments, *args, **kwargs)
 
-    def set_sort_zpos(self,val):
+    def set_sort_zpos(self, val):
         '''Set the position to use for z-sorting.'''
         self._sort_zpos = val
 
@@ -537,9 +538,6 @@ class Poly3DCollection(PolyCollection):
         self.update_scalarmappable()
         self._sort_zpos = None
         self.set_zsort(True)
-        self._facecolors3d = PolyCollection.get_facecolors(self)
-        self._edgecolors3d = PolyCollection.get_edgecolors(self)
-        self._alpha3d = PolyCollection.get_alpha(self)
 
     def set_sort_zpos(self,val):
         '''Set the position to use for z-sorting.'''
@@ -552,96 +550,35 @@ class Poly3DCollection(PolyCollection):
         # FIXME: This may no longer be needed?
         if self._A is not None:
             self.update_scalarmappable()
-            self._facecolors3d = self._facecolors
 
         txs, tys, tzs = proj3d.proj_transform_vec(self._vec, renderer.M)
-        xyzlist = [(txs[si:ei], tys[si:ei], tzs[si:ei]) \
-                for si, ei in self._segis]
-
-        # This extra fuss is to re-order face / edge colors
-        cface = self._facecolors3d
-        cedge = self._edgecolors3d
-        if len(cface) != len(xyzlist):
-            cface = cface.repeat(len(xyzlist), axis=0)
-        if len(cedge) != len(xyzlist):
-            if len(cedge) == 0:
-                cedge = cface
-            cedge = cedge.repeat(len(xyzlist), axis=0)
+        xyzlist = [(txs[si:ei], tys[si:ei], tzs[si:ei])
+                   for si, ei in self._segis]
 
         # if required sort by depth (furthest drawn first)
         if self._zsort:
-            z_segments_2d = [(self._zsortfunc(zs), list(zip(xs, ys)), fc, ec) for
-                    (xs, ys, zs), fc, ec in zip(xyzlist, cface, cedge)]
-            z_segments_2d.sort(key=lambda x: x[0], reverse=True)
+            z_segments_2d = [(self._zsortfunc(zs), list(zip(xs, ys))) for
+                             (xs, ys, zs) in xyzlist]
         else:
             raise ValueError("whoops")
 
-        segments_2d = [s for z, s, fc, ec in z_segments_2d]
+        segments_2d = [s for z, s in z_segments_2d]
         PolyCollection.set_verts(self, segments_2d)
-
-        self._facecolors2d = [fc for z, s, fc, ec in z_segments_2d]
-        if len(self._edgecolors3d) == len(cface):
-            self._edgecolors2d = [ec for z, s, fc, ec in z_segments_2d]
-        else:
-            self._edgecolors2d = self._edgecolors3d
+        self._draworder = np.argsort([z for z, s in z_segments_2d])[::-1]
 
         # Return zorder value
         if self._sort_zpos is not None:
             zvec = np.array([[0], [0], [self._sort_zpos], [1]])
             ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
             return ztrans[2][0]
-        elif tzs.size > 0 :
+        elif tzs.size > 0:
             # FIXME: Some results still don't look quite right.
             #        In particular, examine contourf3d_demo2.py
             #        with az = -54 and elev = -45.
             return np.min(tzs)
-        else :
+        else:
             return np.nan
 
-    def set_facecolor(self, colors):
-        PolyCollection.set_facecolor(self, colors)
-        self._facecolors3d = PolyCollection.get_facecolor(self)
-    set_facecolors = set_facecolor
-
-    def set_edgecolor(self, colors):
-        PolyCollection.set_edgecolor(self, colors)
-        self._edgecolors3d = PolyCollection.get_edgecolor(self)
-    set_edgecolors = set_edgecolor
-
-    def set_alpha(self, alpha):
-        """
-        Set the alpha tranparencies of the collection.  *alpha* must be
-        a float or *None*.
-
-        ACCEPTS: float or None
-        """
-        if alpha is not None:
-            try:
-                float(alpha)
-            except TypeError:
-                raise TypeError('alpha must be a float or None')
-        artist.Artist.set_alpha(self, alpha)
-        try:
-            self._facecolors = mcolors.colorConverter.to_rgba_array(
-                self._facecolors3d, self._alpha)
-        except (AttributeError, TypeError, IndexError):
-            pass
-        try:
-            self._edgecolors = mcolors.colorConverter.to_rgba_array(
-                    self._edgecolors3d, self._alpha)
-        except (AttributeError, TypeError, IndexError):
-            pass
-
-    def get_facecolors(self):
-        return self._facecolors2d
-    get_facecolor = get_facecolors
-
-    def get_edgecolors(self):
-        return self._edgecolors2d
-    get_edgecolor = get_edgecolors
-
-    def draw(self, renderer):
-        return Collection.draw(self, renderer)
 
 def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
     """Convert a PolyCollection to a Poly3DCollection object."""
