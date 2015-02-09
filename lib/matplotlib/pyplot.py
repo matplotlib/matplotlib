@@ -22,6 +22,7 @@ import six
 
 import sys
 import warnings
+import types
 
 import matplotlib
 import matplotlib.colorbar
@@ -106,6 +107,35 @@ _backend_selection()
 
 from matplotlib.backends import pylab_setup
 _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
+
+
+def install_ipython_repl_hook():
+    try:
+        from IPython.core.displayhook import DisplayHook
+    except ImportError:
+        return
+    dh = sys.displayhook
+    # make sure we really have an IPython thing
+    if not isinstance(dh, DisplayHook):
+        return
+
+    orig_func = type(dh).finish_displayhook
+
+    def finish_displayhook(self):
+        draw_all()
+        return orig_func(self)
+
+    dh.finish_displayhook = types.MethodType(finish_displayhook, dh)
+
+
+def draw_all():
+    """
+    Redraw all figures registered with the pyplot
+    state machine.
+    """
+    for f_mgr in _pylab_helpers.Gcf.get_all_fig_managers():
+        # TODO add logic to check if figure is dirty
+        f_mgr.canvas.draw()
 
 
 @docstring.copy_dedent(Artist.findobj)
