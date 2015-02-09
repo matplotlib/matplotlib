@@ -346,6 +346,11 @@ class toint(converter):
             return self.missingval
         return int(s)
 
+def to_objarray(a):
+    'convert a non numpy array into an object numpy array'
+    b = np.empty(len(a), dtype=object)
+    b[:] = a
+    return b
 
 class _BoundMethodProxy(object):
     '''

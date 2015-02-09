@@ -281,15 +281,30 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # *much* faster for Agg, and results in smaller file sizes in
         # PDF/SVG/PS.
 
-        offsets = offsets[self._draworder]
-        paths = paths[self._draworder]
-        trans = self.get_transforms()[self._draworder]
-        facecolors = self.get_facecolor()[self._draworder]
-        edgecolors = self.get_edgecolor()[self._draworder]
-        linewidths = self._linewidths[self._draworder]
-        linestyles = self._linestyles[self._draworder]
-        antialiaseds = self._antialiaseds[self._draworder]
-        urls = self.urls[self._draworder]
+        prop_list = [offsets, paths, self.get_facecolor(),
+                     self.get_edgecolor(),
+                     self._linewidths, self._linestyles, self._antialiaseds,
+                     self._urls]
+
+        type_list = [type(a) for a in prop_list]
+        prop_list = [cbook.to_objarray(a)
+                     if not isinstance(a, np.ndarray) else a
+                     for a in prop_list]
+        elem_cnt = max([a.shape[0] for a in prop_list])
+        # "broadcast" (only the first axis, and only for non-zero lengths)
+        bcasted = [np.tile(a, [int(elem_cnt // a.shape[0])] + ([1]*(a.ndim-1)))
+                   if a.shape[0] else a for a in prop_list]
+        # Select only what is desired, in the particular order
+        bcasted = [a[self._draworder] if a.shape[0] else a for a in bcasted]
+        # Restore the original type of each object (may be list or tuple or
+        # some type of ndarray)
+        bcasted = [t(a) if not issubclass(t, np.ndarray) else a
+                   for a, t in zip(bcasted, type_list)]
+
+        (offsets, paths, facecolors, edgecolors,
+         linewidths, linestyles, antialiaseds, urls) = bcasted
+        trans = self.get_transforms()
+
         do_single_path_optimization = False
         if (len(paths) == 1 and len(trans) <= 1 and
             len(facecolors) == 1 and len(edgecolors) == 1 and
