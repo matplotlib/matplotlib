@@ -18,7 +18,10 @@ Printf::Printf(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    vsprintf(buffer, fmt, ap);
+    vsnprintf(buffer, 1024, fmt, ap);
+    // Null-terminate the string. Non-standard C implementations (e.g.,
+    // Microsoft Visual C++) do not do this automatically.
+    buffer[1023] = '\0';
     va_end(ap);  // look ma - I rememberd it this time
 }
 
