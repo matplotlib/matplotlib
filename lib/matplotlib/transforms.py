@@ -1422,7 +1422,8 @@ class Transform(TransformNode):
         """
         x = self.transform_non_affine(path.vertices)
         return Path._fast_from_codes_and_verts(x, path.codes,
-                {'interpolation_steps': path._interpolation_steps})
+                {'interpolation_steps': path._interpolation_steps,
+                 'should_simplify': path.should_simplify})
 
     def transform_angles(self, angles, pts, radians=False, pushoff=1e-5):
         """
@@ -2628,8 +2629,11 @@ class TransformedPath(TransformNode):
             self._transformed_path = \
                 self._transform.transform_path_non_affine(self._path)
             self._transformed_points = \
-                Path._fast_from_codes_and_verts(self._transform.transform_non_affine(self._path.vertices),
-                        None, {'interpolation_steps': self._path._interpolation_steps})
+                Path._fast_from_codes_and_verts(
+                    self._transform.transform_non_affine(self._path.vertices),
+                    None,
+                    {'interpolation_steps': self._path._interpolation_steps,
+                     'should_simplify': self._path.should_simplify})
         self._invalid = 0
 
     def get_transformed_points_and_affine(self):
