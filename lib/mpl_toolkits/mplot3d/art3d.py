@@ -323,6 +323,17 @@ class Patch3DCollection(PatchCollection):
         PatchCollection.__init__(self, *args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
+    def set_facecolor(self, c):
+        PatchCollection.set_facecolor(self, c)
+        self._facecolor3d = self.get_facecolor()
+    set_facecolor.__doc__ = PatchCollection.set_facecolor.__doc__
+    set_facecolors = set_facecolor
+
+    def set_edgecolor(self, c):
+        PatchCollection.set_edgecolor(self, c)
+        self._edgecolor3d = self.get_edgecolor()
+    set_edgecolor.__doc__ = PatchCollection.set_edgecolor.__doc__
+    set_edgecolors = set_edgecolor
 
     def set_sort_zpos(self,val):
         '''Set the position to use for z-sorting.'''
@@ -349,12 +360,12 @@ class Patch3DCollection(PatchCollection):
         fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.colorConverter.to_rgba_array(fcs, self._alpha)
-        self.set_facecolors(fcs)
+        PatchCollection.set_facecolors(self, fcs)
 
         ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.colorConverter.to_rgba_array(ecs, self._alpha)
-        self.set_edgecolors(ecs)
+        PatchCollection.set_edgecolors(self, ecs)
         PatchCollection.set_offsets(self, list(zip(vxs, vys)))
 
         if vzs.size > 0 :
@@ -408,6 +419,18 @@ class Path3DCollection(PathCollection):
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()
 
+    def set_facecolor(self, c):
+        PathCollection.set_facecolor(self, c)
+        self._facecolor3d = self.get_facecolor()
+    set_facecolor.__doc__ = PathCollection.set_facecolor.__doc__
+    set_facecolors = set_facecolor
+
+    def set_edgecolor(self, c):
+        PathCollection.set_edgecolor(self, c)
+        self._edgecolor3d = self.get_edgecolor()
+    set_edgecolor.__doc__ = PathCollection.set_edgecolor.__doc__
+    set_edgecolors = set_edgecolor
+
     def do_3d_projection(self, renderer):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
@@ -415,12 +438,12 @@ class Path3DCollection(PathCollection):
         fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.colorConverter.to_rgba_array(fcs, self._alpha)
-        self.set_facecolors(fcs)
+        PathCollection.set_facecolors(self, fcs)
 
         ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.colorConverter.to_rgba_array(ecs, self._alpha)
-        self.set_edgecolors(ecs)
+        PathCollection.set_edgecolors(self, ecs)
         PathCollection.set_offsets(self, list(zip(vxs, vys)))
 
         if vzs.size > 0 :
