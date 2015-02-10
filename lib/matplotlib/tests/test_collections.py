@@ -561,6 +561,7 @@ def test_regularpolycollection_scale():
     ax.axis([-1, 1, -1, 1])
 
 
+@cleanup
 def test_picking():
     fig, ax = plt.subplots()
     col = ax.scatter([0], [0], [1000])
