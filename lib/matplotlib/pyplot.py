@@ -109,23 +109,14 @@ from matplotlib.backends import pylab_setup
 _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
 
-def install_ipython_repl_hook():
-    try:
-        from IPython.core.displayhook import DisplayHook
-    except ImportError:
-        return
+def install_repl_displayhook():
     dh = sys.displayhook
-    # make sure we really have an IPython thing
-    if not isinstance(dh, DisplayHook):
-        return
 
-    orig_func = type(dh).finish_displayhook
-
-    def finish_displayhook(self):
+    def displayhook(*args):
+        dh(*args)
         draw_all()
-        return orig_func(self)
 
-    dh.finish_displayhook = types.MethodType(finish_displayhook, dh)
+    sys.displayhook = displayhook
 
 
 def draw_all():
