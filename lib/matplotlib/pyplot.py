@@ -111,28 +111,26 @@ _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
 def install_repl_displayhook():
 
-    class _WrongDisplayHook(Exception):
+    class _NotIPython(Exception):
         pass
 
     # see if we have IPython hooks around, if so monkey patch
     try:
-        from IPython.core.displayhook import DisplayHook
-        dh = sys.displayhook
-        # make sure we really have an IPython thing
-        if not isinstance(dh, DisplayHook):
-            raise _WrongDisplayHook()
+        from IPython import get_ipython
+        ip = get_ipython()
+        if ip is None:
+            raise _NotIPython()
 
-        orig_func = type(dh).finish_displayhook
-
-        def finish_displayhook(self):
-            draw_all()
-            return orig_func(self)
-
-        dh.finish_displayhook = types.MethodType(finish_displayhook, dh)
+        # IPython >= 2
+        try:
+            ip.events.register('post_execute', draw_all)
+        except AttributeError:
+            # IPython 1.x
+            ip.register_post_execute(draw_all)
 
     # import failed or sys.displayhook is not of correct type,
     # must not have IPython
-    except (ImportError, _WrongDisplayHook):
+    except (ImportError, _NotIPython):
         dh = sys.displayhook
 
         def displayhook(*args):
