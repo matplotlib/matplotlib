@@ -3383,7 +3383,7 @@ class NavigationBase(object):
             Name of the Tool
         """
 
-        tool = self._tools[name]
+        tool = self.get_tool(name)
         tool.destroy()
 
         # If is a toggle tool and toggled, untoggle
@@ -3534,8 +3534,8 @@ class NavigationBase(object):
         data : Object
             Extra data to pass to the tool when triggering
         """
-        if name not in self._tools:
-            warnings.warn("%s is not a tool controlled by Navigation" % name)
+        tool = self.get_tool(name)
+        if tool is None:
             return
 
         if sender is None:
@@ -3544,8 +3544,7 @@ class NavigationBase(object):
         self._trigger_tool(name, sender, canvasevent, data)
 
         s = 'tool_trigger_%s' % name
-        event = ToolTriggerEvent(s, sender, self._tools[name], canvasevent,
-                                 data)
+        event = ToolTriggerEvent(s, sender, tool, canvasevent, data)
         self._callbacks.process(s, event)
 
     def _trigger_tool(self, name, sender=None, canvasevent=None, data=None):
@@ -3553,7 +3552,7 @@ class NavigationBase(object):
 
         Method to actually trigger the tool
         """
-        tool = self._tools[name]
+        tool = self.get_tool(name)
 
         if isinstance(tool, tools.ToolToggleBase):
             self._handle_toggle(tool, sender, canvasevent, data)
@@ -3578,13 +3577,18 @@ class NavigationBase(object):
         return self._tools
 
     def get_tool(self, name):
-        """Return the tool object
+        """Return the tool object, also accepts the actual tool for convenience
 
         Parameters
         -----------
-        name : String
-            Name of the tool
+        name : String, ToolBase
+            Name of the tool, or the tool itself
         """
+        if isinstance(name, tools.ToolBase):
+            return name
+        if name not in self._tools:
+            warnings.warn("%s is not a tool controlled by Navigation" % name)
+            return None
         return self._tools[name]
 
 
