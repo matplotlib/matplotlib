@@ -309,7 +309,7 @@ static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyO
     agg::trans_affine offset_trans;
     int filled;
     e_offset_position offset_position;
-    std::vector<size_t> result;
+    std::vector<int> result;
 
     if (!PyArg_ParseTuple(args,
                           "dddO&OO&O&O&iO&:point_in_path_collection",
@@ -354,8 +354,8 @@ static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyO
     }
 
     npy_intp dims[] = {(npy_intp)result.size() };
-    numpy::array_view<size_t, 1> pyresult(dims);
-    memcpy(pyresult.data(), &result[0], result.size() * sizeof(size_t));
+    numpy::array_view<int, 1> pyresult(dims);
+    memcpy(pyresult.data(), &result[0], result.size() * sizeof(int));
     return pyresult.pyobj();
 }
 

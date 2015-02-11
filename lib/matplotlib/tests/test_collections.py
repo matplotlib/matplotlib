@@ -6,6 +6,8 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import io
+
 from nose.tools import assert_equal
 import numpy as np
 from numpy.testing import assert_array_equal, assert_array_almost_equal
@@ -557,6 +559,23 @@ def test_regularpolycollection_scale():
                                transOffset=ax.transData)
     ax.add_collection(squares, autolim=True)
     ax.axis([-1, 1, -1, 1])
+
+
+@cleanup
+def test_picking():
+    fig, ax = plt.subplots()
+    col = ax.scatter([0], [0], [1000])
+    fig.savefig(io.BytesIO(), dpi=fig.dpi)
+
+    class MouseEvent(object):
+        pass
+    event = MouseEvent()
+    event.x = 325
+    event.y = 240
+
+    found, indices = col.contains(event)
+    assert found
+    assert_array_equal(indices['ind'], [0])
 
 
 if __name__ == '__main__':
