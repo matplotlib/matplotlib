@@ -3405,17 +3405,15 @@ class NavigationBase(object):
         ----------
         tools : List
             List in the form
-            [[group1, [(Tool1, name1), (Tool2, name2) ...]][group2...]]
-            where group1 is the name of the group where the
-            Tool1, Tool2... are going to be added, and name1, name2... are the
-            names of the tools
+            [(Tool1, name1), (Tool2, name2) ...]
+            where Tool1, name1 represent the tool, and the respective name
+            of the tool which gets used as an id.
         """
 
-        for group, grouptools in tools:
-            for position, tool in enumerate(grouptools):
-                self.add_tool(tool[1], tool[0], group, position)
+        for tool, name in tools:
+            self.add_tool(name, tool)
 
-    def add_tool(self, name, tool, group=None, position=None):
+    def add_tool(self, name, tool):
         """Add tool to `NavigationBase`
 
         Add a tool to the tools controlled by Navigation
@@ -3430,10 +3428,6 @@ class NavigationBase(object):
             Name of the tool, treated as the ID, has to be unique
         tool : string or `matplotlib.backend_tools.ToolBase` derived class
             Reference to find the class of the Tool to be added
-        group: String
-            Group to position the tool in
-        position : int or None (default)
-            Position within its group in the toolbar, if None, it goes at the end
         """
 
         tool_cls = self._get_cls_to_instantiate(tool)
@@ -3459,14 +3453,11 @@ class NavigationBase(object):
             else:
                 self._toggled.setdefault(tool_cls.radio_group, None)
 
-        self._tool_added_event(self._tools[name], group, position)
+        self._tool_added_event(self._tools[name])
 
-    def _tool_added_event(self, tool, group, position):
+    def _tool_added_event(self, tool):
         s = 'tool_added_event'
-        event = ToolEvent(s,
-                          self,
-                          tool,
-                          data={'group': group, 'position': position})
+        event = ToolEvent(s, self, tool)
         self._callbacks.process(s, event)
 
     def _handle_toggle(self, tool, sender, canvasevent, data):
@@ -3606,7 +3597,6 @@ class ToolbarBase(object):
         self.navigation = navigation
 
         self.navigation.nav_connect('tool_message_event', self._message_cbk)
-        self.navigation.nav_connect('tool_added_event', self._add_tool_cbk)
         self.navigation.nav_connect('tool_removed_event',
                                     self._remove_tool_cbk)
 
@@ -3624,18 +3614,31 @@ class ToolbarBase(object):
 
         self.toggle_toolitem(event.tool.name)
 
-    def _add_tool_cbk(self, event):
-        """Captures 'tool_added_event' and adds the tool to the toolbar"""
-        image = self._get_image_filename(event.tool.image)
-        toggle = getattr(event.tool, 'toggled', None) is not None
-        self.add_toolitem(event.tool.name,
-                          event.data['group'],
-                          event.data['position'],
-                          image,
-                          event.tool.description,
-                          toggle)
+    def add_tools(self, tools):
+        """ Add multiple tools to `Navigation`
+
+        Parameters
+        ----------
+        tools : List
+            List in the form
+            [[group1, [name1, name2 ...]][group2...]]
+            where group1 is the name of the group where the
+            Tool1, Tool2... are going to be added, and name1, name2... are the
+            names of the tools
+        """
+
+        for group, grouptools in tools:
+            for position, tool in enumerate(grouptools):
+                self.add_tool(self.navigation.get_tool(tool), group, position)
+
+    def add_tool(self, tool, group, position):
+        """Adds a tool to the toolbar"""
+        image = self._get_image_filename(tool.image)
+        toggle = getattr(tool, 'toggled', None) is not None
+        self.add_toolitem(tool.name, group, position, image,
+                                            tool.description, toggle)
         if toggle:
-            self.navigation.nav_connect('tool_trigger_%s' % event.tool.name,
+            self.navigation.nav_connect('tool_trigger_%s' % tool.name,
                                         self._tool_triggered_cbk)
 
     def _remove_tool_cbk(self, event):

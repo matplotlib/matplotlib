@@ -32,7 +32,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
 from matplotlib.backend_bases import ShowBase, ToolbarBase, NavigationBase
 from matplotlib.backend_tools import SaveFigureBase, ConfigureSubplotsBase, \
-    tools, SetCursorBase, RubberbandBase
+    tools, toolbar_tools, SetCursorBase, RubberbandBase
 
 from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.colors import colorConverter
@@ -421,6 +421,7 @@ class FigureManagerGTK3(FigureManagerBase):
         self.toolbar = self._get_toolbar()
         if matplotlib.rcParams['toolbar'] == 'navigation':
             self.navigation.add_tools(tools)
+            self.toolbar.add_tools(toolbar_tools)
 
         # calculate size for window
         w = int (self.canvas.figure.bbox.width)
