@@ -104,7 +104,7 @@ The Axes also has helper methods to configure and decorate the x-axis
 and y-axis tick, tick labels and axis labels::
 
     xtext = ax.set_xlabel('my xdata') # returns a Text instance
-    ytext = ax.set_ylabel('my xdata')
+    ytext = ax.set_ylabel('my ydata')
 
 When you call :meth:`ax.set_xlabel <matplotlib.axes.Axes.set_xlabel>`,
 it passes the information on the :class:`~matplotlib.text.Text`
