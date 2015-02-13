@@ -2023,6 +2023,7 @@ class YAxis(Axis):
         assert position == 'left' or position == 'right'
         self.label.set_rotation_mode('anchor')
         self.label.set_horizontalalignment('center')
+        self.set_offset_position(position)
         if position == 'left':
             self.label.set_verticalalignment('bottom')
         else:
