@@ -271,6 +271,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
     def handle_event(self, event):
         e_type = event['type']
+        guiEvent = event.get('guiEvent', None)
+
         if e_type == 'ack':
             # Network latency tends to decrease if traffic is flowing
             # in both directions.  Therefore, the browser sends back
@@ -290,7 +292,6 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             # Javascript button numbers and matplotlib button numbers are
             # off by 1
             button = event['button'] + 1
-            guiEvent = event['guiEvent']
 
             # The right mouse button pops up a context menu, which
             # doesn't work very well, so use the middle mouse button
