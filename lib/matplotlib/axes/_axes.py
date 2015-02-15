@@ -3598,6 +3598,10 @@ class Axes(_AxesBase):
 
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
+        color = kwargs.pop('color', None)
+        if color is not None:
+            c = color
+
         c_is_stringy = is_string_like(c) or is_sequence_of_strings(c)
         if not c_is_stringy:
             c = np.asanyarray(c)
