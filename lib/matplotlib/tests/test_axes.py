@@ -1093,6 +1093,13 @@ def test_scatter_plot():
     ax = plt.axes()
     ax.scatter([3, 4, 2, 6], [2, 5, 2, 3], c=['r', 'y', 'b', 'lime'], s=[24, 15, 19, 29])
 
+@image_comparison(baseline_images=['scatter_color_kwarg'])
+def test_scatter_color_kwarg():
+    x = np.array([0, 1, 2, 3])
+    b = np.array([1, 0, 2, 3])
+    colors = np.array(['g', 'r', 'b', 'y'])
+    plt.scatter(x, np.log10(b), color=colors)
+
 
 @cleanup
 def test_as_mpl_axes_api():
