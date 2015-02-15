@@ -248,11 +248,11 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         self.mpl_idle_event(event)
 
     def enterEvent(self, event):
-        FigureCanvasBase.enter_notify_event(self, event)
+        FigureCanvasBase.enter_notify_event(self, event, guiEvent=event)
 
     def leaveEvent(self, event):
         QtWidgets.QApplication.restoreOverrideCursor()
-        FigureCanvasBase.leave_notify_event(self, event)
+        FigureCanvasBase.leave_notify_event(self, event, guiEvent=event)
 
     def mousePressEvent(self, event):
         x = event.pos().x()
@@ -260,7 +260,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         y = self.figure.bbox.height - event.pos().y()
         button = self.buttond.get(event.button())
         if button is not None:
-            FigureCanvasBase.button_press_event(self, x, y, button)
+            FigureCanvasBase.button_press_event(self, x, y, button,
+                                                guiEvent=event)
         if DEBUG:
             print('button pressed:', event.button())
 
@@ -271,7 +272,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         button = self.buttond.get(event.button())
         if button is not None:
             FigureCanvasBase.button_press_event(self, x, y,
-                                                button, dblclick=True)
+                                                button, dblclick=True,
+                                                guiEvent=event)
         if DEBUG:
             print('button doubleclicked:', event.button())
 
@@ -279,7 +281,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         x = event.x()
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height - event.y()
-        FigureCanvasBase.motion_notify_event(self, x, y)
+        FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
         # if DEBUG: print('mouse move')
 
     def mouseReleaseEvent(self, event):
@@ -288,7 +290,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         y = self.figure.bbox.height - event.y()
         button = self.buttond.get(event.button())
         if button is not None:
-            FigureCanvasBase.button_release_event(self, x, y, button)
+            FigureCanvasBase.button_release_event(self, x, y, button,
+                                                  guiEvent=event)
         if DEBUG:
             print('button released')
 
@@ -303,7 +306,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             steps = event.pixelDelta().y()
 
         if steps != 0:
-            FigureCanvasBase.scroll_event(self, x, y, steps)
+            FigureCanvasBase.scroll_event(self, x, y, steps, guiEvent=event)
             if DEBUG:
                 print('scroll event: delta = %i, '
                       'steps = %i ' % (event.delta(), steps))
@@ -312,7 +315,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         key = self._get_key(event)
         if key is None:
             return
-        FigureCanvasBase.key_press_event(self, key)
+        FigureCanvasBase.key_press_event(self, key, guiEvent=event)
         if DEBUG:
             print('key press', key)
 
@@ -320,7 +323,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         key = self._get_key(event)
         if key is None:
             return
-        FigureCanvasBase.key_release_event(self, key)
+        FigureCanvasBase.key_release_event(self, key, guiEvent=event)
         if DEBUG:
             print('key release', key)
 
