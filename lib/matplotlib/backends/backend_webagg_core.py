@@ -290,6 +290,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             # Javascript button numbers and matplotlib button numbers are
             # off by 1
             button = event['button'] + 1
+            guiEvent = event['guiEvent']
 
             # The right mouse button pops up a context menu, which
             # doesn't work very well, so use the middle mouse button
@@ -299,23 +300,23 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 button = 3
 
             if e_type == 'button_press':
-                self.button_press_event(x, y, button)
+                self.button_press_event(x, y, button, guiEvent=guiEvent)
             elif e_type == 'button_release':
-                self.button_release_event(x, y, button)
+                self.button_release_event(x, y, button, guiEvent=guiEvent)
             elif e_type == 'motion_notify':
-                self.motion_notify_event(x, y)
+                self.motion_notify_event(x, y, guiEvent=guiEvent)
             elif e_type == 'figure_enter':
-                self.enter_notify_event(xy=(x, y))
+                self.enter_notify_event(xy=(x, y), guiEvent=guiEvent)
             elif e_type == 'figure_leave':
                 self.leave_notify_event()
             elif e_type == 'scroll':
-                self.scroll_event(x, y, event['step'])
+                self.scroll_event(x, y, event['step'], guiEvent=guiEvent)
         elif e_type in ('key_press', 'key_release'):
             key = _handle_key(event['key'])
             if e_type == 'key_press':
-                self.key_press_event(key)
+                self.key_press_event(key, guiEvent=guiEvent)
             elif e_type == 'key_release':
-                self.key_release_event(key)
+                self.key_release_event(key, guiEvent=guiEvent)
         elif e_type == 'toolbar_button':
             # TODO: Be more suspicious of the input
             getattr(self.toolbar, event['name'])()
