@@ -2114,11 +2114,11 @@ class YAxis(Axis):
         if position == 'right':
             self.set_tick_params(which='both', right=True, labelright=True,
                                  left=False, labelleft=False)
-            self.set_offset_position(position)                     
+            self.set_offset_position(position)
         elif position == 'left':
             self.set_tick_params(which='both', right=False, labelright=False,
                                  left=True, labelleft=True)
-            self.set_offset_position(position)                    
+            self.set_offset_position(position)
         elif position == 'both':
             self.set_tick_params(which='both', right=True,
                                  left=True)
