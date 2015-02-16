@@ -271,6 +271,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
     def handle_event(self, event):
         e_type = event['type']
+        guiEvent = event.get('guiEvent', None)
+
         if e_type == 'ack':
             # Network latency tends to decrease if traffic is flowing
             # in both directions.  Therefore, the browser sends back
@@ -299,23 +301,23 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 button = 3
 
             if e_type == 'button_press':
-                self.button_press_event(x, y, button)
+                self.button_press_event(x, y, button, guiEvent=guiEvent)
             elif e_type == 'button_release':
-                self.button_release_event(x, y, button)
+                self.button_release_event(x, y, button, guiEvent=guiEvent)
             elif e_type == 'motion_notify':
-                self.motion_notify_event(x, y)
+                self.motion_notify_event(x, y, guiEvent=guiEvent)
             elif e_type == 'figure_enter':
-                self.enter_notify_event(xy=(x, y))
+                self.enter_notify_event(xy=(x, y), guiEvent=guiEvent)
             elif e_type == 'figure_leave':
                 self.leave_notify_event()
             elif e_type == 'scroll':
-                self.scroll_event(x, y, event['step'])
+                self.scroll_event(x, y, event['step'], guiEvent=guiEvent)
         elif e_type in ('key_press', 'key_release'):
             key = _handle_key(event['key'])
             if e_type == 'key_press':
-                self.key_press_event(key)
+                self.key_press_event(key, guiEvent=guiEvent)
             elif e_type == 'key_release':
-                self.key_release_event(key)
+                self.key_release_event(key, guiEvent=guiEvent)
         elif e_type == 'toolbar_button':
             # TODO: Be more suspicious of the input
             getattr(self.toolbar, event['name'])()
