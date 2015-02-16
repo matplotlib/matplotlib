@@ -3440,7 +3440,13 @@ class NavigationBase(object):
                           'not added')
             return
 
-        self._tools[name] = tool_cls(self, name)
+        if isinstance(tool_cls, type):
+            self._tools[name] = tool_cls(self, name)
+        else:
+            tool_cls.set_navigation(self)
+            tool.name = name
+            self._tools[name] = tool_cls
+
         if tool_cls.keymap is not None:
             self.set_tool_keymap(name, tool_cls.keymap)
 
@@ -3454,6 +3460,8 @@ class NavigationBase(object):
                 self._toggled.setdefault(tool_cls.radio_group, None)
 
         self._tool_added_event(self._tools[name])
+
+        return self._tools[name]
 
     def _tool_added_event(self, tool):
         s = 'tool_added_event'
@@ -3629,10 +3637,20 @@ class ToolbarBase(object):
 
         for group, grouptools in tools:
             for position, tool in enumerate(grouptools):
-                self.add_tool(self.navigation.get_tool(tool), group, position)
+                self.add_tool(tool, group, position)
 
     def add_tool(self, tool, group, position):
         """Adds a tool to the toolbar"""
+        t = self.navigation.get_tool(tool)
+        if t is None:
+            if isinstance(tool, (list, tuple)):
+                t = self.navigation.add_tool(tool[0], tool[1])
+            elif isinstance(tool, ToolBase):
+                t = self.navigation.add_tool(tool.name, tool)
+            else:
+                warning.warn('Cannot add tool %s'%tool)
+                return
+        tool = t
         image = self._get_image_filename(tool.image)
         toggle = getattr(tool, 'toggled', None) is not None
         self.add_toolitem(tool.name, group, position, image,
