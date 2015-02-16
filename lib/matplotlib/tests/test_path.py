@@ -7,7 +7,7 @@ import numpy as np
 
 from matplotlib.path import Path
 from matplotlib.patches import Polygon
-from nose.tools import assert_raises
+from nose.tools import assert_raises, assert_equal
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 
@@ -68,6 +68,13 @@ def test_point_in_path_nan():
     contains = p.contains_points(test)
     assert len(contains) == 1
     assert not contains[0]
+
+
+def test_make_compound_path_empty():
+    # We should be able to make a compound path with no arguments.
+    # This makes it easier to write generic path based code.
+    r = Path.make_compound_path()
+    assert_equal(r.vertices.shape, (0, 2))
 
 
 if __name__ == '__main__':
