@@ -3514,7 +3514,6 @@ def test_move_offsetlabel():
     data = np.random.random(10) * 1e-22
     fig, ax = plt.subplots()
     ax.plot(data)
-    ax.yaxis.set_label_position('right')
     ax.yaxis.tick_right()
     assert_equal((1, 0.5), ax.yaxis.offsetText.get_position())
 
