@@ -33,7 +33,8 @@ PEP8_ADDITIONAL_IGNORE = ['E111',
                           'E129',
                           'E131',
                           'E265',
-                          'E266']
+                          'E266',
+                          'W503']
 
 EXTRA_EXCLUDE_FILE = os.path.join(os.path.dirname(__file__),
                                   '.pep8_test_exclude.txt')
