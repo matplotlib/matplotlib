@@ -3688,7 +3688,6 @@ class ArrowStyle(_Style):
                               (Path.LINETO, tail_left[2]),
                               (Path.CURVE3, tail_left[1]),
                               (Path.CURVE3, tail_left[0]),
-                              (Path.LINETO, tail_right[0]),
                               (Path.CLOSEPOLY, tail_right[0]),
                               ]
             else:
@@ -3697,7 +3696,7 @@ class ArrowStyle(_Style):
                               (Path.CURVE3, head_right[2]),
                               (Path.CURVE3, head_left[1]),
                               (Path.CURVE3, head_left[0]),
-                              (Path.CLOSEPOLY, head_left[0]),
+                              (Path.CLOSEPOLY, head_right[0]),
                               ]
 
             path = Path([p for c, p in patch_path], [c for c, p in patch_path])
@@ -3805,7 +3804,6 @@ class ArrowStyle(_Style):
                               (Path.LINETO, tail_left[2]),
                               (Path.CURVE3, tail_left[1]),
                               (Path.CURVE3, tail_left[0]),
-                              (Path.LINETO, tail_start),
                               (Path.CLOSEPOLY, tail_start),
                               ]
             else:
@@ -3814,7 +3812,7 @@ class ArrowStyle(_Style):
                               (Path.CURVE3, head_right[2]),
                               (Path.CURVE3, head_left[1]),
                               (Path.CURVE3, head_left[0]),
-                              (Path.CLOSEPOLY, head_left[0]),
+                              (Path.CLOSEPOLY, head_right[0]),
                               ]
 
             path = Path([p for c, p in patch_path], [c for c, p in patch_path])

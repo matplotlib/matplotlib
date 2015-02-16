@@ -210,7 +210,7 @@ def test_patch_custom_linestyle():
 def test_patch_zerolength_fancy():
     # Github issue #3930 found a bug in the Fancy patch where a zero-length
     # connection path would result in no plot being shown due to a
-    # NoneIntersectingPathException
+    # NonIntersectingPathException
 
     xy1 = (0.3, 0.3)
     ax = plt.gca()
