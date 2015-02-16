@@ -3758,50 +3758,63 @@ class ArrowStyle(_Style):
 
             # path for head
             in_f = inside_circle(x2, y2, head_length * .8)
-            path_out, path_in = \
+            try: 
+                path_out, path_in = \
                        split_bezier_intersecting_with_closedpath(
                                         arrow_path,
                                         in_f,
                                         tolerence=0.01)
-            path_tail = path_out
+            except NonIntersectingPathException:
+                path_tail = None
+            else:
+                path_tail = path_out
 
             # head
             head_width = self.head_width * mutation_size
-            head_l, head_r = make_wedged_bezier2(path_head,
+            head_left, head_right = make_wedged_bezier2(path_head,
                                                  head_width / 2.,
                                                  wm=.6)
 
             # tail
-            tail_width = self.tail_width * mutation_size
-            tail_left, tail_right = make_wedged_bezier2(path_tail,
-                                                        tail_width * .5,
-                                                        w1=1., wm=0.6, w2=0.3)
+            if path_tail is not None:
+                tail_width = self.tail_width * mutation_size
+                tail_left, tail_right = make_wedged_bezier2(path_tail,
+                                                            tail_width * .5,
+                                                            w1=1., wm=0.6, w2=0.3)
 
-            # path for head
-            in_f = inside_circle(x0, y0, tail_width * .3)
-            path_in, path_out = \
-                       split_bezier_intersecting_with_closedpath(
-                                arrow_path,
-                                in_f,
-                                tolerence=0.01)
-            tail_start = path_in[-1]
+                # path for head
+                in_f = inside_circle(x0, y0, tail_width * .3)
+                path_in, path_out = \
+                           split_bezier_intersecting_with_closedpath(
+                                    arrow_path,
+                                    in_f,
+                                    tolerence=0.01)
+                tail_start = path_in[-1]
 
-            head_right, head_left = head_r, head_l
-            patch_path = [(Path.MOVETO, tail_start),
-                          (Path.LINETO, tail_right[0]),
-                          (Path.CURVE3, tail_right[1]),
-                          (Path.CURVE3, tail_right[2]),
-                          (Path.LINETO, head_right[0]),
-                          (Path.CURVE3, head_right[1]),
-                          (Path.CURVE3, head_right[2]),
-                          (Path.CURVE3, head_left[1]),
-                          (Path.CURVE3, head_left[0]),
-                          (Path.LINETO, tail_left[2]),
-                          (Path.CURVE3, tail_left[1]),
-                          (Path.CURVE3, tail_left[0]),
-                          (Path.LINETO, tail_start),
-                          (Path.CLOSEPOLY, tail_start),
-                          ]
+                patch_path = [(Path.MOVETO, tail_start),
+                              (Path.LINETO, tail_right[0]),
+                              (Path.CURVE3, tail_right[1]),
+                              (Path.CURVE3, tail_right[2]),
+                              (Path.LINETO, head_right[0]),
+                              (Path.CURVE3, head_right[1]),
+                              (Path.CURVE3, head_right[2]),
+                              (Path.CURVE3, head_left[1]),
+                              (Path.CURVE3, head_left[0]),
+                              (Path.LINETO, tail_left[2]),
+                              (Path.CURVE3, tail_left[1]),
+                              (Path.CURVE3, tail_left[0]),
+                              (Path.LINETO, tail_start),
+                              (Path.CLOSEPOLY, tail_start),
+                              ]
+            else:
+                patch_path = [(Path.MOVETO, head_right[0]),
+                              (Path.CURVE3, head_right[1]),
+                              (Path.CURVE3, head_right[2]),
+                              (Path.CURVE3, head_left[1]),
+                              (Path.CURVE3, head_left[0]),
+                              (Path.CLOSEPOLY, head_left[0]),
+                              ]
+
             path = Path([p for c, p in patch_path], [c for c, p in patch_path])
 
             return path, True
