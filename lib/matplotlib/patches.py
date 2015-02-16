@@ -3758,7 +3758,7 @@ class ArrowStyle(_Style):
 
             # path for head
             in_f = inside_circle(x2, y2, head_length * .8)
-            try: 
+            try:
                 path_out, path_in = \
                        split_bezier_intersecting_with_closedpath(
                                         arrow_path,
@@ -3780,7 +3780,9 @@ class ArrowStyle(_Style):
                 tail_width = self.tail_width * mutation_size
                 tail_left, tail_right = make_wedged_bezier2(path_tail,
                                                             tail_width * .5,
-                                                            w1=1., wm=0.6, w2=0.3)
+                                                            w1=1.,
+                                                            wm=0.6,
+                                                            w2=0.3)
 
                 # path for head
                 in_f = inside_circle(x0, y0, tail_width * .3)
