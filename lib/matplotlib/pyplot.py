@@ -1160,7 +1160,7 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, **kwargs):
 
     is identical to ::
 
-      gridspec=GridSpec(shape[0], shape[2])
+      gridspec=GridSpec(shape[0], shape[1])
       subplotspec=gridspec.new_subplotspec(loc, rowspan, colspan)
       subplot(subplotspec)
     """
