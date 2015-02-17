@@ -362,9 +362,10 @@ class _BoundMethodProxy(object):
     '''
     def __init__(self, cb):
         self._hash = hash(cb)
+        self._callbacks = []
         try:
             try:
-                self.inst = ref(cb.im_self)
+                self.inst = ref(cb.im_self, self._destroy)
             except TypeError:
                 self.inst = None
             if six.PY3:
@@ -377,6 +378,13 @@ class _BoundMethodProxy(object):
             self.inst = None
             self.func = cb
             self.klass = None
+
+    def add_callback(self, callback):
+        self._callbacks.append(_BoundMethodProxy(callback))
+
+    def _destroy(self, wk):
+        for callback in self._callbacks:
+            callback(self)
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -500,12 +508,18 @@ class CallbackRegistry(object):
         if proxy in self._func_cid_map[s]:
             return self._func_cid_map[s][proxy]
 
+        proxy.add_callback(self.remove_proxy) # Remove the proxy when it dies.
         self._cid += 1
         cid = self._cid
         self._func_cid_map[s][proxy] = cid
         self.callbacks.setdefault(s, dict())
         self.callbacks[s][cid] = proxy
         return cid
+
+    def remove_proxy(self, proxy):
+        for category, proxies in list(six.iteritems(self._func_cid_map)):
+            if proxy in proxies:
+                del self.callbacks[category][proxies[proxy]]
 
     def disconnect(self, cid):
         """
@@ -531,11 +545,7 @@ class CallbackRegistry(object):
         """
         if s in self.callbacks:
             for cid, proxy in list(six.iteritems(self.callbacks[s])):
-                # Clean out dead references
-                if proxy.inst is not None and proxy.inst() is None:
-                    del self.callbacks[s][cid]
-                else:
-                    proxy(*args, **kwargs)
+                proxy(*args, **kwargs)
 
 
 class Scheduler(threading.Thread):
