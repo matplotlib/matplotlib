@@ -5605,6 +5605,8 @@ class Axes(_AxesBase):
 
         # basic input validation
         flat = np.ravel(x)
+        if len(flat) == 0:
+            return [], [], cbook.silent_list('No Patches')
 
         # Massage 'x' for processing.
         # NOTE: Be sure any changes here is also done below to 'weights'
