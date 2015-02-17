@@ -1005,6 +1005,9 @@ def test_hist_log():
     ax.hist(data, fill=False, log=True)
 
 
+def test_hist_empty():
+    ax.hist([])
+
 @image_comparison(baseline_images=['hist_steplog'], remove_text=True)
 def test_hist_steplog():
     np.random.seed(0)
