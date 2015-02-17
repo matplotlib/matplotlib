@@ -361,6 +361,7 @@ class _BoundMethodProxy(object):
     Minor bugfixes by Michael Droettboom
     '''
     def __init__(self, cb):
+        self._hash = hash(cb)
         try:
             try:
                 self.inst = ref(cb.im_self)
@@ -433,6 +434,9 @@ class _BoundMethodProxy(object):
         '''
         return not self.__eq__(other)
 
+    def __hash__(self):
+        return self._hash
+
 
 class CallbackRegistry(object):
     """
@@ -492,14 +496,14 @@ class CallbackRegistry(object):
         func will be called
         """
         self._func_cid_map.setdefault(s, WeakKeyDictionary())
-        if func in self._func_cid_map[s]:
-            return self._func_cid_map[s][func]
+        proxy = _BoundMethodProxy(func)
+        if proxy in self._func_cid_map[s]:
+            return self._func_cid_map[s][proxy]
 
         self._cid += 1
         cid = self._cid
-        self._func_cid_map[s][func] = cid
+        self._func_cid_map[s][proxy] = cid
         self.callbacks.setdefault(s, dict())
-        proxy = _BoundMethodProxy(func)
         self.callbacks[s][cid] = proxy
         return cid
 
