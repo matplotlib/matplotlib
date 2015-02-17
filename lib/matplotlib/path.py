@@ -335,6 +335,10 @@ class Path(object):
     @classmethod
     def make_compound_path(cls, *args):
         """Make a compound path from a list of Path objects."""
+        # Handle an empty list in args (i.e. no args).
+        if not args:
+            return Path(np.empty([0, 2], dtype=np.float32))
+
         lengths = [len(x) for x in args]
         total_length = sum(lengths)
 
