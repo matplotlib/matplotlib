@@ -107,7 +107,7 @@ import sys
 import distutils.version
 from itertools import chain
 
-__version__ = str('1.4.3')
+__version__ = str('2.0.pre0')
 __version__numpy__ = str('1.6')  # minimum required numpy version
 
 try:
