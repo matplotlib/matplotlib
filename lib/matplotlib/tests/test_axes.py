@@ -482,6 +482,9 @@ def test_hexbin_extent():
 
     ax.hexbin(x, y, extent=[.1, .3, .6, .7])
 
+def test_hexbin_empty():
+    # From #3886: creating hexbin on empty dataset raises ValueError
+    ax.hexbin([], [])
 
 @cleanup
 def test_hexbin_pickable():

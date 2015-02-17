@@ -3846,10 +3846,9 @@ class Axes(_AxesBase):
         if extent is not None:
             xmin, xmax, ymin, ymax = extent
         else:
-            xmin = np.amin(x)
-            xmax = np.amax(x)
-            ymin = np.amin(y)
-            ymax = np.amax(y)
+            xmin, xmax  = (np.amin(x), np.amax(x)) if x else (0, 1) 
+            ymin, ymax = (np.amin(y), np.amax(y)) if y else (0, 1)  
+
             # to avoid issues with singular data, expand the min/max pairs
             xmin, xmax = mtrans.nonsingular(xmin, xmax, expander=0.1)
             ymin, ymax = mtrans.nonsingular(ymin, ymax, expander=0.1)
@@ -5606,8 +5605,6 @@ class Axes(_AxesBase):
 
         # basic input validation
         flat = np.ravel(x)
-        if len(flat) == 0:
-            raise ValueError("x must have at least one data point")
 
         # Massage 'x' for processing.
         # NOTE: Be sure any changes here is also done below to 'weights'
