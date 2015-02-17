@@ -242,7 +242,7 @@ class RendererCairo(RendererBase):
 
             size = fontsize * self.dpi / 72.0
             ctx.set_font_size(size)
-            if isinstance(s, six.text_type):
+            if not six.PY3 and isinstance(s, six.text_type):
                 s = s.encode("utf-8")
             ctx.show_text(s)
             ctx.restore()
