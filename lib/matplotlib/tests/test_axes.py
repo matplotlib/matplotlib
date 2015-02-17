@@ -483,7 +483,7 @@ def test_hexbin_extent():
     ax.hexbin(x, y, extent=[.1, .3, .6, .7])
 
 def test_hexbin_empty():
-    # From #3886: creating hexbin on empty dataset raises ValueError
+    # From #3886: creating hexbin from empty dataset raises ValueError
     ax.hexbin([], [])
 
 @cleanup
@@ -1006,6 +1006,7 @@ def test_hist_log():
 
 
 def test_hist_empty():
+    # From #3886: creating hist from empty dataset raises ValueError
     ax.hist([])
 
 @image_comparison(baseline_images=['hist_steplog'], remove_text=True)
