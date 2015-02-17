@@ -7,7 +7,7 @@ import numpy as np
 
 from matplotlib.path import Path
 from matplotlib.patches import Polygon
-from nose.tools import assert_raises
+from nose.tools import assert_raises, assert_equal
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 
@@ -80,6 +80,13 @@ def test_log_transform_with_zero():
     fig, ax = plt.subplots()
     ax.semilogy(x, y, "-o", lw=15)
     ax.grid(True)
+
+
+def test_make_compound_path_empty():
+    # We should be able to make a compound path with no arguments.
+    # This makes it easier to write generic path based code.
+    r = Path.make_compound_path()
+    assert_equal(r.vertices.shape, (0, 2))
 
 
 if __name__ == '__main__':
