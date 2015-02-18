@@ -22,8 +22,8 @@
   by David J. Raymond
 
 * `Ten Simple Rules for Better Figures
-   <http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003833>`_
-   by Nicolas P. Rougier, Michael Droettboom and Philip E. Bourne
+  <http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003833>`_
+  by Nicolas P. Rougier, Michael Droettboom and Philip E. Bourne
 
 =======
  Videos
