@@ -384,7 +384,9 @@ class _BoundMethodProxy(object):
 
     def _destroy(self, wk):
         for callback in self._callbacks:
-            callback(self)
+            try:
+                callback(self)
+            except ReferenceError: pass
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -508,7 +510,7 @@ class CallbackRegistry(object):
         if proxy in self._func_cid_map[s]:
             return self._func_cid_map[s][proxy]
 
-        proxy.add_callback(self.remove_proxy) # Remove the proxy when it dies.
+        proxy.add_callback(self._remove_proxy) # Remove the proxy when it dies.
         self._cid += 1
         cid = self._cid
         self._func_cid_map[s][proxy] = cid
@@ -516,10 +518,11 @@ class CallbackRegistry(object):
         self.callbacks[s][cid] = proxy
         return cid
 
-    def remove_proxy(self, proxy):
+    def _remove_proxy(self, proxy):
         for category, proxies in list(six.iteritems(self._func_cid_map)):
-            if proxy in proxies:
+            try:
                 del self.callbacks[category][proxies[proxy]]
+            except KeyError: pass
 
     def disconnect(self, cid):
         """
@@ -545,7 +548,10 @@ class CallbackRegistry(object):
         """
         if s in self.callbacks:
             for cid, proxy in list(six.iteritems(self.callbacks[s])):
-                proxy(*args, **kwargs)
+                try:
+                    proxy(*args, **kwargs)
+                except ReferenceError:
+                    self._remove_proxy(proxy)
 
 
 class Scheduler(threading.Thread):
