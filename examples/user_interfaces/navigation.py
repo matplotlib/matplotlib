@@ -56,7 +56,7 @@ plt.plot([1, 2, 3])
 fig.canvas.manager.navigation.add_tool('List', ListTools)
 if matplotlib.rcParams['backend'] == 'GTK3Cairo':
     fig.canvas.manager.navigation.add_tool('copy', CopyToolGTK3)
-
+fig.canvas.manager.toolbar.add_tool('zoom', 'foo')
 # Uncomment to remove the forward button
 # fig.canvas.manager.navigation.remove_tool('forward')
 
