@@ -65,9 +65,6 @@ class ToolBase(object):
     def __init__(self, navigation, name):
         self._name = name
         self.figure = None
-        self.set_navigation(navigation)
-
-    def set_navigation(self, navigation):
         self.navigation = navigation
         self.set_figure(navigation.canvas.figure)
 

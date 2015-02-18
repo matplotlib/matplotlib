@@ -3413,7 +3413,7 @@ class NavigationBase(object):
         for tool, name in tools:
             self.add_tool(name, tool)
 
-    def add_tool(self, name, tool):
+    def add_tool(self, name, tool, *args, **kwargs):
         """Add tool to `NavigationBase`
 
         Add a tool to the tools controlled by Navigation
@@ -3428,6 +3428,10 @@ class NavigationBase(object):
             Name of the tool, treated as the ID, has to be unique
         tool : string or `matplotlib.backend_tools.ToolBase` derived class
             Reference to find the class of the Tool to be added
+
+        Notes
+        -----
+        args and kwargs get passed directly to the tools constructor.
         """
 
         tool_cls = self._get_cls_to_instantiate(tool)
@@ -3440,12 +3444,7 @@ class NavigationBase(object):
                           'not added')
             return
 
-        if isinstance(tool_cls, type):
-            self._tools[name] = tool_cls(self, name)
-        else:
-            tool_cls.set_navigation(self)
-            tool.name = name
-            self._tools[name] = tool_cls
+        self._tools[name] = tool_cls(self, name, *args, **kwargs)
 
         if tool_cls.keymap is not None:
             self.set_tool_keymap(name, tool_cls.keymap)
@@ -3460,7 +3459,6 @@ class NavigationBase(object):
                 self._toggled.setdefault(tool_cls.radio_group, None)
 
         self._tool_added_event(self._tools[name])
-
         return self._tools[name]
 
     def _tool_added_event(self, tool):
@@ -3583,7 +3581,7 @@ class NavigationBase(object):
         name : String, ToolBase
             Name of the tool, or the tool itself
         """
-        if isinstance(name, tools.ToolBase):
+        if isinstance(name, tools.ToolBase) and tool.name in self._tools:
             return name
         if name not in self._tools:
             warnings.warn("%s is not a tool controlled by Navigation" % name)
@@ -3612,15 +3610,12 @@ class ToolbarBase(object):
         """Captures the 'tool_message_event' to set the message on the toolbar"""
         self.set_message(event.message)
 
-    def _tool_triggered_cbk(self, event):
+    def _tool_toggled_cbk(self, event):
         """Captures the 'tool-trigger-toolname
 
         This only gets used for toggled tools
         """
-        if event.sender is self:
-            return
-
-        self.toggle_toolitem(event.tool.name)
+        self.toggle_toolitem(event.tool.name, event.tool.toggled)
 
     def add_tools(self, tools):
         """ Add multiple tools to `Navigation`
@@ -3639,17 +3634,30 @@ class ToolbarBase(object):
             for position, tool in enumerate(grouptools):
                 self.add_tool(tool, group, position)
 
-    def add_tool(self, tool, group, position):
-        """Adds a tool to the toolbar"""
+    def add_tool(self, tool, group, position=-1, name=None, **kwargs):
+        """Adds a tool to the toolbar
+
+        Parameters
+        ----------
+        tool : string, tool
+            The name or the type of tool to add.
+        group : string
+            The name of the group to add this tool to.
+        position : int
+            the relative position within the group to place this tool.
+        name : string (optional)
+            If given, and the above fails, we use this to create a new tool of
+            type given by tool, and use this as the name of the tool.
+        """
         t = self.navigation.get_tool(tool)
         if t is None:
-            if isinstance(tool, (list, tuple)):
-                t = self.navigation.add_tool(tool[0], tool[1])
-            elif isinstance(tool, ToolBase):
-                t = self.navigation.add_tool(tool.name, tool)
-            else:
-                warning.warn('Cannot add tool %s'%tool)
-                return
+            if isinstance(tool, type):
+                tool = tool.__class__
+            if name is not None:
+                t = self.navigation.add_tool(name, tool, **kwargs)
+        if t is None:
+            warning.warn('Cannot add tool %s'%tool)
+            return
         tool = t
         image = self._get_image_filename(tool.image)
         toggle = getattr(tool, 'toggled', None) is not None
@@ -3657,7 +3665,7 @@ class ToolbarBase(object):
                                             tool.description, toggle)
         if toggle:
             self.navigation.nav_connect('tool_trigger_%s' % tool.name,
-                                        self._tool_triggered_cbk)
+                                        self._tool_toggled_cbk)
 
     def _remove_tool_cbk(self, event):
         """Captures the 'tool_removed_event' signal and removes the tool"""
