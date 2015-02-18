@@ -3846,8 +3846,8 @@ class Axes(_AxesBase):
         if extent is not None:
             xmin, xmax, ymin, ymax = extent
         else:
-            xmin, xmax  = (np.amin(x), np.amax(x)) if x else (0, 1) 
-            ymin, ymax = (np.amin(y), np.amax(y)) if y else (0, 1)  
+            xmin, xmax = (np.amin(x), np.amax(x)) if x.any() else (0, 1)
+            ymin, ymax = (np.amin(y), np.amax(y)) if y.any() else (0, 1)
 
             # to avoid issues with singular data, expand the min/max pairs
             xmin, xmax = mtrans.nonsingular(xmin, xmax, expander=0.1)
@@ -5394,7 +5394,7 @@ class Axes(_AxesBase):
         Compute and draw the histogram of *x*. The return value is a
         tuple (*n*, *bins*, *patches*) or ([*n0*, *n1*, ...], *bins*,
         [*patches0*, *patches1*,...]) if the input contains multiple
-        data.
+        data or ([], [], []) if input is an empty array.
 
         Multiple data can be provided via *x* as a list of datasets
         of potentially different length ([*x0*, *x1*, ...]), or as

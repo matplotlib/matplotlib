@@ -482,8 +482,10 @@ def test_hexbin_extent():
 
     ax.hexbin(x, y, extent=[.1, .3, .6, .7])
 
+@cleanup
 def test_hexbin_empty():
     # From #3886: creating hexbin from empty dataset raises ValueError
+    ax = plt.gca()
     ax.hexbin([], [])
 
 @cleanup
@@ -1004,9 +1006,10 @@ def test_hist_log():
     ax = fig.add_subplot(111)
     ax.hist(data, fill=False, log=True)
 
-
+@cleanup
 def test_hist_empty():
     # From #3886: creating hist from empty dataset raises ValueError
+    ax = plt.gca()
     ax.hist([])
 
 @image_comparison(baseline_images=['hist_steplog'], remove_text=True)
@@ -3515,7 +3518,7 @@ def test_color_None():
 def test_numerical_hist_label():
     fig, ax = plt.subplots()
     ax.hist([range(15)] * 5, label=range(5))
-    
+
 @cleanup
 def test_move_offsetlabel():
     data = np.random.random(10) * 1e-22
