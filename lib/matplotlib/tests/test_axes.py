@@ -1007,10 +1007,37 @@ def test_hist_log():
     ax.hist(data, fill=False, log=True)
 
 @cleanup
-def test_hist_empty():
+def test_hist_bar_empty():
     # From #3886: creating hist from empty dataset raises ValueError
     ax = plt.gca()
-    ax.hist([])
+
+    n, bins, patches = ax.hist([], histtype='bar')
+
+    # empty hist should match empty numpy histogram
+    n1, bins1 = np.histogram([])
+    assert_array_equal(n, n1)
+    assert_array_equal(bins, bins1)
+
+    # check zero size patches
+    assert_true(len(patches) == 10)
+    for patch in patches:
+        assert_false(patch._height)
+        assert_false(patch._width)
+
+@cleanup
+def test_hist_step_empty():
+    # From #3886: creating hist from empty dataset raises ValueError
+    ax = plt.gca()
+
+    n, bins, patches = ax.hist([], histtype='step')
+
+    # empty hist should match empty numpy histogram
+    n1, bins1 = np.histogram([])
+    assert_array_equal(n, n1)
+    assert_array_equal(bins, bins1)
+
+    # check zero size patches
+    assert_true(len(patches) == 1 and not patches[0]._linewidth)
 
 @image_comparison(baseline_images=['hist_steplog'], remove_text=True)
 def test_hist_steplog():

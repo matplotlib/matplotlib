@@ -5394,7 +5394,7 @@ class Axes(_AxesBase):
         Compute and draw the histogram of *x*. The return value is a
         tuple (*n*, *bins*, *patches*) or ([*n0*, *n1*, ...], *bins*,
         [*patches0*, *patches1*,...]) if the input contains multiple
-        data or ([], [], []) if input is an empty array.
+        data.
 
         Multiple data can be provided via *x* as a list of datasets
         of potentially different length ([*x0*, *x1*, ...]), or as
@@ -5605,12 +5605,14 @@ class Axes(_AxesBase):
 
         # basic input validation
         flat = np.ravel(x)
-        if len(flat) == 0:
-            return [], [], cbook.silent_list('No Patches')
+
+        input_empty = len(flat) == 0
 
         # Massage 'x' for processing.
         # NOTE: Be sure any changes here is also done below to 'weights'
-        if isinstance(x, np.ndarray) or not iterable(x[0]):
+        if input_empty:
+            x = np.asarray([[]])
+        elif isinstance(x, np.ndarray) or not iterable(x[0]):
             # TODO: support masked arrays;
             x = np.asarray(x)
             if x.ndim == 2:
@@ -5677,7 +5679,7 @@ class Axes(_AxesBase):
         #hist_kwargs = dict(range=range, normed=bool(normed))
         # We will handle the normed kwarg within mpl until we
         # get to the point of requiring numpy >= 1.5.
-        hist_kwargs = dict(range=bin_range)
+        hist_kwargs = dict(range=bin_range) if not input_empty else dict()
 
         n = []
         mlast = None
@@ -5760,6 +5762,8 @@ class Axes(_AxesBase):
             for m, c in zip(n, color):
                 if bottom is None:
                     bottom = np.zeros(len(m), np.float)
+                if input_empty:
+                    width = 0
                 if stacked:
                     height = m - bottom
                 else:
@@ -5842,6 +5846,8 @@ class Axes(_AxesBase):
                     xvals.append(x.copy())
                     yvals.append(y.copy())
 
+            fill_kwargs = dict() if not input_empty else dict(linewidth=0)
+
             if fill:
                 # add patches in reverse order so that when stacking,
                 # items lower in the stack are plottted on top of
@@ -5850,14 +5856,16 @@ class Axes(_AxesBase):
                     patches.append(self.fill(
                         x, y,
                         closed=True,
-                        facecolor=c))
+                        facecolor=c,
+                        **fill_kwargs))
             else:
                 for x, y, c in reversed(list(zip(xvals, yvals, color))):
                     split = 2 * len(bins)
                     patches.append(self.fill(
                         x[:split], y[:split],
                         closed=False, edgecolor=c,
-                        fill=False))
+                        fill=False,
+                        **fill_kwargs))
 
             # we return patches, so put it back in the expected order
             patches.reverse()
@@ -5870,17 +5878,18 @@ class Axes(_AxesBase):
                     if np.sum(m) > 0:  # make sure there are counts
                         xmin = np.amin(m[m != 0])
                         # filter out the 0 height bins
-                xmin = max(xmin*0.9, minimum)
+                xmin = max(xmin*0.9, minimum) if not input_empty else minimum
                 xmin = min(xmin0, xmin)
                 self.dataLim.intervalx = (xmin, xmax)
             elif orientation == 'vertical':
                 ymin0 = max(_saved_bounds[1]*0.9, minimum)
                 ymax = self.dataLim.intervaly[1]
+
                 for m in n:
                     if np.sum(m) > 0:  # make sure there are counts
                         ymin = np.amin(m[m != 0])
                         # filter out the 0 height bins
-                ymin = max(ymin*0.9, minimum)
+                ymin = max(ymin*0.9, minimum) if not input_empty else minimum
                 ymin = min(ymin0, ymin)
                 self.dataLim.intervaly = (ymin, ymax)
 
