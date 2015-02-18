@@ -30,7 +30,7 @@ import matplotlib
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
-from matplotlib.backend_bases import ShowBase, ToolbarBase, NavigationBase
+from matplotlib.backend_bases import ShowBase, ToolContainerBase, NavigationBase
 from matplotlib.backend_tools import SaveFigureBase, ConfigureSubplotsBase, \
     tools, toolbar_tools, SetCursorBase, RubberbandBase
 
@@ -756,9 +756,9 @@ class RubberbandGTK3(RubberbandBase):
 ToolRubberband = RubberbandGTK3
 
 
-class ToolbarGTK3(ToolbarBase, Gtk.Box):
+class ToolbarGTK3(ToolContainerBase, Gtk.Box):
     def __init__(self, navigation):
-        ToolbarBase.__init__(self, navigation)
+        ToolContainerBase.__init__(self, navigation)
         Gtk.Box.__init__(self)
         self.set_property("orientation", Gtk.Orientation.VERTICAL)
 

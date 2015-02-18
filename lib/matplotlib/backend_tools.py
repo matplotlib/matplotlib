@@ -903,23 +903,25 @@ class ToolPan(ZoomPanBase):
         self.navigation.canvas.draw_idle()
 
 
-tools = [(ToolHome, 'home'), (ToolBack, 'back'), (ToolForward, 'forward'),
-         (ToolZoom, 'zoom'), (ToolPan, 'pan'),
-         ('ToolConfigureSubplots', 'subplots'),
-         ('ToolSaveFigure', 'save'),
-         (ToolGrid, 'grid'),
-         (ToolFullScreen, 'fullscreen'),
-         (ToolQuit, 'quit'),
-         (ToolEnableAllNavigation, 'allnav'),
-         (ToolEnableNavigation, 'nav'),
-         (ToolXScale, 'xscale'),
-         (ToolYScale, 'yscale'),
-         (ToolCursorPosition, 'position'),
-         (ToolViewsPositions, 'viewpos'),
-         ('ToolSetCursor', 'cursor'),
-         ('ToolRubberband', 'rubberband')]
+tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
+         'zoom': ToolZoom, 'pan': ToolPan,
+         'subplots': 'ToolConfigureSubplots',
+         'save': 'ToolSaveFigure',
+         'grid': ToolGrid,
+         'fullscreen': ToolFullScreen,
+         'quit': ToolQuit,
+         'allnav': ToolEnableAllNavigation,
+         'nav': ToolEnableNavigation,
+         'xscale': ToolXScale,
+         'yscale': ToolYScale,
+         'position': ToolCursorPosition,
+         'viewpos': ToolViewsPositions,
+         'cursor': 'ToolSetCursor',
+         'rubberband': 'ToolRubberband'}
+"""Default tools"""
+
 toolbar_tools = [['navigation', ['home', 'back', 'forward']],
                   ['zoompan', ['zoom', 'pan']],
                   ['layout', ['subplots']],
                   ['io', ['save']]]
-"""Default tools"""
+"""Default tools in the toolbar"""
