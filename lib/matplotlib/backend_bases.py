@@ -1848,7 +1848,9 @@ class FigureCanvasBase(object):
         fire off :class:`PickEvent` callbacks registered listeners
         """
         s = 'pick_event'
-        event = PickEvent(s, self, mouseevent, artist, **kwargs)
+        event = PickEvent(s, self, mouseevent, artist,
+                          guiEvent=mouseevent.guiEvent,
+                          **kwargs)
         self.callbacks.process(s, event)
 
     def scroll_event(self, x, y, step, guiEvent=None):
