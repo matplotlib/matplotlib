@@ -77,6 +77,7 @@ class FT2Font
     void load_char(long charcode, FT_UInt32 flags);
     void load_glyph(FT_UInt glyph_index, FT_UInt32 flags);
     void get_width_height(long *width, long *height);
+    void get_bitmap_offset(long *x, long *y);
     long get_descent();
     // TODO: Since we know the size of the array upfront, we probably don't
     // need to dynamically allocate like this
@@ -121,12 +122,13 @@ class FT2Font
     FT_Error error;
     std::vector<FT_Glyph> glyphs;
     std::vector<FT_Vector> pos;
+    FT_BBox bbox;
+    FT_Pos advance;
     double angle;
     double ptsize;
     double dpi;
     long hinting_factor;
 
-    FT_BBox compute_string_bbox();
     void set_scalable_attributes();
 
     // prevent copying

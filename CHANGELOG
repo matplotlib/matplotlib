@@ -1,3 +1,6 @@
+2015-01-23 Text bounding boxes are now computed with advance width rather than
+  	   ink area.  This may result in slightly different placement of text.
+
 2014-10-27 Allowed selection of the backend using the `MPLBACKEND` environment
            variable. Added documentation on backend selection methods.
 

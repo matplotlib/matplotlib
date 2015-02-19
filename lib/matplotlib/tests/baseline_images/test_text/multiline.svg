@@ -28,28 +28,32 @@ L72 43.2
 z
 " style="fill:#ffffff;"/>
    </g>
-   <g id="matplotlib.axis_1"/>
-   <g id="matplotlib.axis_2"/>
    <g id="patch_3">
     <path d="
 M72 43.2
-L518.4 43.2" style="fill:none;stroke:#000000;"/>
+L518.4 43.2
+L518.4 43.2" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
    </g>
    <g id="patch_4">
     <path d="
 M518.4 388.8
-L518.4 43.2" style="fill:none;stroke:#000000;"/>
+L518.4 43.2
+L518.4 43.2" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
    </g>
    <g id="patch_5">
     <path d="
 M72 388.8
-L518.4 388.8" style="fill:none;stroke:#000000;"/>
+L518.4 388.8
+L518.4 388.8" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
    </g>
    <g id="patch_6">
     <path d="
 M72 388.8
-L72 43.2" style="fill:none;stroke:#000000;"/>
+L72 43.2
+L72 43.2" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
    </g>
+   <g id="matplotlib.axis_1"/>
+   <g id="matplotlib.axis_2"/>
    <g id="text_1">
     <!-- TpTpTp -->
     <defs>
@@ -89,7 +93,7 @@ Q26.2656 6.10938 33.4062 6.10938
 Q40.5312 6.10938 44.6094 11.75
 Q48.6875 17.3906 48.6875 27.2969" id="BitstreamVeraSans-Roman-70"/>
     </defs>
-    <g transform="translate(124.4284375 187.996875)scale(0.2 -0.2)">
+    <g transform="translate(123.91125 187.996875)scale(0.2 -0.2)">
      <use xlink:href="#BitstreamVeraSans-Roman-54"/>
      <use x="61.083984375" xlink:href="#BitstreamVeraSans-Roman-70"/>
      <use x="124.560546875" xlink:href="#BitstreamVeraSans-Roman-54"/>
@@ -162,7 +166,7 @@ z
      <use transform="translate(0.0 0.6875)" xlink:href="#Cmmi10-4d"/>
     </g>
     <!-- TpTpTp -->
-    <g transform="translate(124.4284375 232.788125)scale(0.2 -0.2)">
+    <g transform="translate(123.91125 232.788125)scale(0.2 -0.2)">
      <use xlink:href="#BitstreamVeraSans-Roman-54"/>
      <use x="61.083984375" xlink:href="#BitstreamVeraSans-Roman-70"/>
      <use x="124.560546875" xlink:href="#BitstreamVeraSans-Roman-54"/>
@@ -173,7 +177,7 @@ z
    </g>
    <g id="text_2">
     <!-- TpTpTp -->
-    <g transform="translate(258.3484375 187.996875)scale(0.2 -0.2)">
+    <g transform="translate(257.83125 187.996875)scale(0.2 -0.2)">
      <use xlink:href="#BitstreamVeraSans-Roman-54"/>
      <use x="61.083984375" xlink:href="#BitstreamVeraSans-Roman-70"/>
      <use x="124.560546875" xlink:href="#BitstreamVeraSans-Roman-54"/>
@@ -189,7 +193,7 @@ z
      <use transform="translate(212.477050781 94.5688125)scale(0.343)" xlink:href="#Cmmi10-4d"/>
     </g>
     <!-- TpTpTp -->
-    <g transform="translate(258.3484375 237.880625)scale(0.2 -0.2)">
+    <g transform="translate(257.83125 237.880625)scale(0.2 -0.2)">
      <use xlink:href="#BitstreamVeraSans-Roman-54"/>
      <use x="61.083984375" xlink:href="#BitstreamVeraSans-Roman-70"/>
      <use x="124.560546875" xlink:href="#BitstreamVeraSans-Roman-54"/>
@@ -200,7 +204,7 @@ z
    </g>
    <g id="text_3">
     <!-- TpTpTp -->
-    <g transform="translate(392.2684375 187.996875)scale(0.2 -0.2)">
+    <g transform="translate(391.75125 187.996875)scale(0.2 -0.2)">
      <use xlink:href="#BitstreamVeraSans-Roman-54"/>
      <use x="61.083984375" xlink:href="#BitstreamVeraSans-Roman-70"/>
      <use x="124.560546875" xlink:href="#BitstreamVeraSans-Roman-54"/>
@@ -256,7 +260,7 @@ Q14.2656 1.51562 17.4844 1.51562" id="Cmmi10-71"/>
      <use transform="translate(150.071777344 -55.17803125)scale(0.343)" xlink:href="#Cmmi10-71"/>
     </g>
     <!-- TpTpTp -->
-    <g transform="translate(392.2684375 241.22875)scale(0.2 -0.2)">
+    <g transform="translate(391.75125 241.22875)scale(0.2 -0.2)">
      <use xlink:href="#BitstreamVeraSans-Roman-54"/>
      <use x="61.083984375" xlink:href="#BitstreamVeraSans-Roman-70"/>
      <use x="124.560546875" xlink:href="#BitstreamVeraSans-Roman-54"/>
@@ -399,7 +403,7 @@ Q33.4062 -1.42188 27.6875 -1.42188
 Q18.2656 -1.42188 13.375 4.4375
 Q8.5 10.2969 8.5 21.5781" id="BitstreamVeraSans-Roman-75"/>
     </defs>
-    <g transform="translate(264.844125 22.07515)scale(0.144 -0.144)">
+    <g transform="translate(263.806875 22.07515)scale(0.144 -0.144)">
      <use xlink:href="#BitstreamVeraSans-Roman-6d"/>
      <use x="97.412109375" xlink:href="#BitstreamVeraSans-Roman-75"/>
      <use x="160.791015625" xlink:href="#BitstreamVeraSans-Roman-6c"/>
@@ -494,21 +498,21 @@ L44.2812 54.6875
 z
 " id="BitstreamVeraSans-Roman-78"/>
     </defs>
-    <g transform="translate(242.497125 38.2)scale(0.144 -0.144)">
+    <g transform="translate(242.200125 38.2)scale(0.144 -0.144)">
      <use xlink:href="#BitstreamVeraSans-Roman-74"/>
      <use x="39.208984375" xlink:href="#BitstreamVeraSans-Roman-65"/>
-     <use x="98.982421875" xlink:href="#BitstreamVeraSans-Roman-78"/>
-     <use x="158.162109375" xlink:href="#BitstreamVeraSans-Roman-74"/>
-     <use x="197.37109375" xlink:href="#BitstreamVeraSans-Roman-20"/>
-     <use x="229.158203125" xlink:href="#BitstreamVeraSans-Roman-61"/>
-     <use x="290.4375" xlink:href="#BitstreamVeraSans-Roman-6c"/>
-     <use x="318.220703125" xlink:href="#BitstreamVeraSans-Roman-69"/>
-     <use x="346.00390625" xlink:href="#BitstreamVeraSans-Roman-67"/>
-     <use x="409.48046875" xlink:href="#BitstreamVeraSans-Roman-6e"/>
-     <use x="472.859375" xlink:href="#BitstreamVeraSans-Roman-6d"/>
-     <use x="570.271484375" xlink:href="#BitstreamVeraSans-Roman-65"/>
-     <use x="631.794921875" xlink:href="#BitstreamVeraSans-Roman-6e"/>
-     <use x="695.173828125" xlink:href="#BitstreamVeraSans-Roman-74"/>
+     <use x="100.716796875" xlink:href="#BitstreamVeraSans-Roman-78"/>
+     <use x="159.896484375" xlink:href="#BitstreamVeraSans-Roman-74"/>
+     <use x="199.10546875" xlink:href="#BitstreamVeraSans-Roman-20"/>
+     <use x="230.892578125" xlink:href="#BitstreamVeraSans-Roman-61"/>
+     <use x="292.171875" xlink:href="#BitstreamVeraSans-Roman-6c"/>
+     <use x="319.955078125" xlink:href="#BitstreamVeraSans-Roman-69"/>
+     <use x="347.73828125" xlink:href="#BitstreamVeraSans-Roman-67"/>
+     <use x="411.21484375" xlink:href="#BitstreamVeraSans-Roman-6e"/>
+     <use x="474.59375" xlink:href="#BitstreamVeraSans-Roman-6d"/>
+     <use x="572.005859375" xlink:href="#BitstreamVeraSans-Roman-65"/>
+     <use x="633.529296875" xlink:href="#BitstreamVeraSans-Roman-6e"/>
+     <use x="696.908203125" xlink:href="#BitstreamVeraSans-Roman-74"/>
     </g>
    </g>
   </g>

@@ -569,46 +569,6 @@ void FT2Font::select_charmap(unsigned long i)
     }
 }
 
-FT_BBox FT2Font::compute_string_bbox()
-{
-    FT_BBox bbox;
-    /* initialize string bbox to "empty" values */
-    bbox.xMin = bbox.yMin = 32000;
-    bbox.xMax = bbox.yMax = -32000;
-
-    int right_side = 0;
-    for (size_t n = 0; n < glyphs.size(); n++) {
-        FT_BBox glyph_bbox;
-        FT_Glyph_Get_CBox(glyphs[n], ft_glyph_bbox_subpixels, &glyph_bbox);
-        if (glyph_bbox.xMin < bbox.xMin) {
-            bbox.xMin = glyph_bbox.xMin;
-        }
-        if (glyph_bbox.yMin < bbox.yMin) {
-            bbox.yMin = glyph_bbox.yMin;
-        }
-        if (glyph_bbox.xMin == glyph_bbox.xMax) {
-            right_side += glyphs[n]->advance.x >> 10;
-            if (right_side > bbox.xMax) {
-                bbox.xMax = right_side;
-            }
-        } else {
-            if (glyph_bbox.xMax > bbox.xMax) {
-                bbox.xMax = glyph_bbox.xMax;
-            }
-        }
-        if (glyph_bbox.yMax > bbox.yMax)
-            bbox.yMax = glyph_bbox.yMax;
-    }
-    /* check that we really grew the string bbox */
-    if (bbox.xMin > bbox.xMax) {
-        bbox.xMin = 0;
-        bbox.yMin = 0;
-        bbox.xMax = 0;
-        bbox.yMax = 0;
-    }
-    return bbox;
-}
-
 int FT2Font::get_kerning(int left, int right, int mode)
 {
     if (!FT_HAS_KERNING(face)) {
@@ -617,7 +577,7 @@ int FT2Font::get_kerning(int left, int right, int mode)
     FT_Vector delta;
 
     if (!FT_Get_Kerning(face, left, right, mode, &delta)) {
-        return (int)(delta.x / hinting_factor);
+        return (int)(delta.x) / (hinting_factor << 6);
     } else {
         return 0;
     }
@@ -641,9 +601,14 @@ void FT2Font::set_text(
     pen.x = 0;
     pen.y = 0;
 
+    bbox.xMin = bbox.yMin = 32000;
+    bbox.xMax = bbox.yMax = -32000;
+
     for (unsigned int n = 0; n < N; n++) {
         std::string thischar("?");
         FT_UInt glyph_index;
+        FT_BBox glyph_bbox;
+        FT_Pos last_advance;
 
         glyph_index = FT_Get_Char_Index(face, codepoints[n]);
 
@@ -651,7 +616,7 @@ void FT2Font::set_text(
         if (use_kerning && previous && glyph_index) {
             FT_Vector delta;
             FT_Get_Kerning(face, previous, glyph_index, FT_KERNING_DEFAULT, &delta);
-            pen.x += delta.x / hinting_factor;
+            pen.x += (delta.x << 10) / (hinting_factor << 16);
         }
         error = FT_Load_Glyph(face, glyph_index, flags);
         if (error) {
@@ -669,18 +634,30 @@ void FT2Font::set_text(
         }
         // ignore errors, jump to next glyph
 
+        last_advance = face->glyph->advance.x;
         FT_Glyph_Transform(thisGlyph, 0, &pen);
+        FT_Glyph_Transform(thisGlyph, &matrix, 0);
         xys.push_back(pen.x);
         xys.push_back(pen.y);
-        pen.x += face->glyph->advance.x;
+
+        FT_Glyph_Get_CBox(thisGlyph, ft_glyph_bbox_subpixels, &glyph_bbox);
+
+        bbox.xMin = std::min(bbox.xMin, glyph_bbox.xMin);
+        bbox.xMax = std::max(bbox.xMax, glyph_bbox.xMax);
+        bbox.yMin = std::min(bbox.yMin, glyph_bbox.yMin);
+        bbox.yMax = std::max(bbox.yMax, glyph_bbox.yMax);
+
+        pen.x += last_advance;
 
         previous = glyph_index;
         glyphs.push_back(thisGlyph);
     }
 
-    // now apply the rotation
-    for (unsigned int n = 0; n < glyphs.size(); n++) {
-        FT_Glyph_Transform(glyphs[n], &matrix, 0);
+    FT_Vector_Transform(&pen, &matrix);
+    advance = pen.x;
+
+    if (bbox.xMin > bbox.xMax) {
+        bbox.xMin = bbox.yMin = bbox.xMax = bbox.yMax = 0;
     }
 }
 
@@ -722,30 +699,29 @@ void FT2Font::load_glyph(FT_UInt glyph_index, FT_UInt32 flags)
 
 void FT2Font::get_width_height(long *width, long *height)
 {
-    FT_BBox bbox = compute_string_bbox();
-
-    *width = bbox.xMax - bbox.xMin;
+    *width = advance;
     *height = bbox.yMax - bbox.yMin;
 }
 
 long FT2Font::get_descent()
 {
-    FT_BBox bbox = compute_string_bbox();
     return -bbox.yMin;
+}
+
+void FT2Font::get_bitmap_offset(long *x, long *y)
+{
+    *x = bbox.xMin;
+    *y = 0;
 }
 
 void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
 {
-    FT_BBox string_bbox = compute_string_bbox();
-    size_t width = (string_bbox.xMax - string_bbox.xMin) / 64 + 2;
-    size_t height = (string_bbox.yMax - string_bbox.yMin) / 64 + 2;
+    size_t width = (bbox.xMax - bbox.xMin) / 64 + 2;
+    size_t height = (bbox.yMax - bbox.yMin) / 64 + 2;
 
     image.resize(width, height);
 
     for (size_t n = 0; n < glyphs.size(); n++) {
-        FT_BBox bbox;
-        FT_Glyph_Get_CBox(glyphs[n], ft_glyph_bbox_pixels, &bbox);
-
         error = FT_Glyph_To_Bitmap(
             &glyphs[n], antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO, 0, 1);
         if (error) {
@@ -756,8 +732,8 @@ void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
         // now, draw to our target surface (convert position)
 
         // bitmap left and top in pixel, string bbox in subpixel
-        FT_Int x = (FT_Int)(bitmap->left - (string_bbox.xMin / 64.));
-        FT_Int y = (FT_Int)((string_bbox.yMax / 64.) - bitmap->top + 1);
+        FT_Int x = (FT_Int)(bitmap->left - (bbox.xMin / 64.));
+        FT_Int y = (FT_Int)((bbox.yMax / 64.) - bitmap->top + 1);
 
         image.draw_bitmap(&bitmap->bitmap, x, y);
     }
@@ -765,12 +741,7 @@ void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
 
 void FT2Font::get_xys(bool antialiased, std::vector<double> &xys)
 {
-    FT_BBox string_bbox = compute_string_bbox();
-
     for (size_t n = 0; n < glyphs.size(); n++) {
-
-        FT_BBox bbox;
-        FT_Glyph_Get_CBox(glyphs[n], ft_glyph_bbox_pixels, &bbox);
 
         error = FT_Glyph_To_Bitmap(
             &glyphs[n], antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO, 0, 1);
@@ -781,8 +752,8 @@ void FT2Font::get_xys(bool antialiased, std::vector<double> &xys)
         FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[n];
 
         // bitmap left and top in pixel, string bbox in subpixel
-        FT_Int x = (FT_Int)(bitmap->left - string_bbox.xMin / 64.);
-        FT_Int y = (FT_Int)(string_bbox.yMax / 64. - bitmap->top + 1);
+        FT_Int x = (FT_Int)(bitmap->left - bbox.xMin / 64.);
+        FT_Int y = (FT_Int)(bbox.yMax / 64. - bitmap->top + 1);
         // make sure the index is non-neg
         x = x < 0 ? 0 : x;
         y = y < 0 ? 0 : y;
