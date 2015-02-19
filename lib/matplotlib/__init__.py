@@ -1429,6 +1429,7 @@ default_test_modules = [
     'matplotlib.sphinxext.tests.test_tinypages',
     'mpl_toolkits.tests.test_mplot3d',
     'mpl_toolkits.tests.test_axes_grid1',
+    'mpl_toolkits.tests.test_axes_grid',
     ]
 
 
