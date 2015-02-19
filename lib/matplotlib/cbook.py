@@ -362,7 +362,7 @@ class _BoundMethodProxy(object):
     '''
     def __init__(self, cb):
         self._hash = hash(cb)
-        self._callbacks = []
+        self._destroy_callbacks = []
         try:
             try:
                 self.inst = ref(cb.im_self, self._destroy)
@@ -379,14 +379,15 @@ class _BoundMethodProxy(object):
             self.func = cb
             self.klass = None
 
-    def add_callback(self, callback):
-        self._callbacks.append(_BoundMethodProxy(callback))
+    def add_destroy_callback(self, callback):
+        self._destroy_callbacks.append(_BoundMethodProxy(callback))
 
     def _destroy(self, wk):
-        for callback in self._callbacks:
+        for callback in self._destroy_callbacks:
             try:
                 callback(self)
-            except ReferenceError: pass
+            except ReferenceError:
+                pass
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -510,7 +511,7 @@ class CallbackRegistry(object):
         if proxy in self._func_cid_map[s]:
             return self._func_cid_map[s][proxy]
 
-        proxy.add_callback(self._remove_proxy) # Remove the proxy when it dies.
+        proxy.add_destroy_callback(self._remove_proxy) # Remove the proxy when it dies.
         self._cid += 1
         cid = self._cid
         self._func_cid_map[s][proxy] = cid
@@ -522,7 +523,8 @@ class CallbackRegistry(object):
         for category, proxies in list(six.iteritems(self._func_cid_map)):
             try:
                 del self.callbacks[category][proxies[proxy]]
-            except KeyError: pass
+            except KeyError:
+                pass
 
     def disconnect(self, cid):
         """
