@@ -85,3 +85,11 @@ mpl.py
 
 Remove the module `matplotlib.mpl`.  Deprecated in 1.3 by
 PR #1670 and commit 78ce67d161625833cacff23cfe5d74920248c5b2
+
+
+Remove ``faceted`` kwarg from scatter
+-------------------------------------
+
+Remove support for the ``faceted`` kwarg.  This was deprecated in
+d48b34288e9651ff95c3b8a071ef5ac5cf50bae7 (2008-04-18!) and replaced by
+``edgecolor``.
