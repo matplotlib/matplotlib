@@ -119,7 +119,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
 
         >>> import matplotlib.font_manager as fm
         >>> fontprops = fm.FontProperties(size=14, family='monospace')
-        >>> bar = AnchoredSizeBar(ax.transData, 3, '3 units', 4, pad=0.5, sep=5, borderpad=0.5, frameon=False, size_vertical=0.5, color='white', fontproperties=fontprops)  # noqa
+        >>> bar = AnchoredSizeBar(ax.transData, 3, '3 units', 4, pad=0.5, sep=5, borderpad=0.5, frameon=False, size_vertical=0.5, color='white', fontproperties=fontprops)
 
         """
 
