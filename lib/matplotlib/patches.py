@@ -3740,11 +3740,10 @@ class ArrowStyle(_Style):
             # path for head
             in_f = inside_circle(x2, y2, head_length)
             try:
-                path_out, path_in = \
-                          split_bezier_intersecting_with_closedpath(
-                                arrow_path,
-                                in_f,
-                                tolerence=0.01)
+                path_out, path_in = split_bezier_intersecting_with_closedpath(
+                                        arrow_path,
+                                        in_f,
+                                        tolerence=0.01)
             except NonIntersectingPathException:
                 # if this happens, make a straight line of the head_length
                 # long.
@@ -3758,8 +3757,7 @@ class ArrowStyle(_Style):
             # path for head
             in_f = inside_circle(x2, y2, head_length * .8)
             try:
-                path_out, path_in = \
-                       split_bezier_intersecting_with_closedpath(
+                path_out, path_in = split_bezier_intersecting_with_closedpath(
                                         arrow_path,
                                         in_f,
                                         tolerence=0.01)
@@ -3785,11 +3783,11 @@ class ArrowStyle(_Style):
 
                 # path for head
                 in_f = inside_circle(x0, y0, tail_width * .3)
-                path_in, path_out = \
-                           split_bezier_intersecting_with_closedpath(
-                                    arrow_path,
-                                    in_f,
-                                    tolerence=0.01)
+                path_in, path_out = split_bezier_intersecting_with_closedpath(
+                                        arrow_path,
+                                        in_f,
+                                        tolerence=0.01)
+
                 tail_start = path_in[-1]
 
                 patch_path = [(Path.MOVETO, tail_start),
