@@ -9,7 +9,7 @@ customizations to the nose testing infrastructure are in
 :mod:`matplotlib.testing`. (There is other old testing cruft around,
 please ignore it while we consolidate our testing to these locations.)
 
-.. _nose: http://somethingaboutorange.com/mrl/projects/nose/
+.. _nose: http://nose.readthedocs.org/en/latest/
 
 Requirements
 ------------
@@ -56,7 +56,7 @@ arguments works from within Python::
   import matplotlib
   matplotlib.test()
 
-.. _`nosetest arguments`: http://somethingaboutorange.com/mrl/projects/nose/1.0.0/usage.html
+.. _`nosetest arguments`: http://nose.readthedocs.org/en/latest/usage.html
 
 
 Running tests by any means other than `matplotlib.test()`
@@ -199,7 +199,7 @@ project.
 Travis CI is already enabled for the `main matplotlib GitHub
 repository <https://github.com/matplotlib/matplotlib/>`_ -- for
 example, see `its Travis page
-<http://travis-ci.org/#!/matplotlib/matplotlib>`_.
+<https://travis-ci.org/matplotlib/matplotlib>`_.
 
 If you want to enable Travis CI for your personal matplotlib GitHub
 repo, simply enable the repo to use Travis CI in either the Travis CI
@@ -210,8 +210,8 @@ generally isn't necessary, since any pull request submitted against
 the main matplotlib repository will be tested.
 
 Once this is configured, you can see the Travis CI results at
-http://travis-ci.org/#!/your_GitHub_user_name/matplotlib -- here's `an
-example <http://travis-ci.org/#!/msabramo/matplotlib>`_.
+http://travis-ci.org/your_GitHub_user_name/matplotlib -- here's `an
+example <https://travis-ci.org/msabramo/matplotlib>`_.
 
 
 Using tox
