@@ -248,11 +248,11 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         self.mpl_idle_event(event)
 
     def enterEvent(self, event):
-        FigureCanvasBase.enter_notify_event(self, event, guiEvent=event)
+        FigureCanvasBase.enter_notify_event(self, guiEvent=event)
 
     def leaveEvent(self, event):
         QtWidgets.QApplication.restoreOverrideCursor()
-        FigureCanvasBase.leave_notify_event(self, event, guiEvent=event)
+        FigureCanvasBase.leave_notify_event(self, guiEvent=event)
 
     def mousePressEvent(self, event):
         x = event.pos().x()
