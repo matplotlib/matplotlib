@@ -210,7 +210,7 @@ generally isn't necessary, since any pull request submitted against
 the main matplotlib repository will be tested.
 
 Once this is configured, you can see the Travis CI results at
-http://travis-ci.orgyour_GitHub_user_name/matplotlib -- here's `an
+http://travis-ci.org/your_GitHub_user_name/matplotlib -- here's `an
 example <https://travis-ci.org/msabramo/matplotlib>`_.
 
 
