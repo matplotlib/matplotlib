@@ -38,42 +38,46 @@ L518.4 273.6" style="fill:none;stroke:#0000ff;stroke-linecap:square;"/>
 M72 158.4
 L518.4 158.4" style="fill:none;stroke:#008000;stroke-linecap:square;"/>
    </g>
-   <g id="matplotlib.axis_1"/>
-   <g id="matplotlib.axis_2"/>
    <g id="patch_3">
     <path d="
 M72 43.2
-L518.4 43.2" style="fill:none;stroke:#000000;"/>
+L518.4 43.2
+L518.4 43.2" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
    </g>
    <g id="patch_4">
     <path d="
 M518.4 388.8
-L518.4 43.2" style="fill:none;stroke:#000000;"/>
+L518.4 43.2
+L518.4 43.2" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
    </g>
    <g id="patch_5">
     <path d="
 M72 388.8
-L518.4 388.8" style="fill:none;stroke:#000000;"/>
+L518.4 388.8
+L518.4 388.8" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
    </g>
    <g id="patch_6">
     <path d="
 M72 388.8
-L72 43.2" style="fill:none;stroke:#000000;"/>
+L72 43.2
+L72 43.2" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
    </g>
+   <g id="matplotlib.axis_1"/>
+   <g id="matplotlib.axis_2"/>
    <g id="text_1">
     <g id="patch_7">
      <path d="
 M116.64 288.814
-L149.657 288.814
-Q153.257 288.814 153.257 285.214
-L153.257 273.6
-Q153.257 270 149.657 270
+L150.782 288.814
+Q154.382 288.814 154.382 285.214
+L154.382 273.6
+Q154.382 270 150.782 270
 L116.64 270
 Q113.04 270 113.04 273.6
 L113.04 285.214
 Q113.04 288.814 116.64 288.814
 z
-" style="fill:#f5deb3;opacity:0.5;stroke:#000000;"/>
+" style="fill:#f5deb3;opacity:0.5;stroke:#000000;stroke-linejoin:miter;"/>
     </g>
     <!-- top Tj -->
     <defs>
@@ -360,16 +364,16 @@ z
     <g id="patch_8">
      <path d="
 M161.28 277.2
-L218.032 277.2
-Q221.632 277.2 221.632 273.6
-L221.632 261.986
-Q221.632 258.386 218.032 258.386
+L219.157 277.2
+Q222.757 277.2 222.757 273.6
+L222.757 261.986
+Q222.757 258.386 219.157 258.386
 L161.28 258.386
 Q157.68 258.386 157.68 261.986
 L157.68 273.6
 Q157.68 277.2 161.28 277.2
 z
-" style="fill:#f5deb3;opacity:0.5;stroke:#000000;"/>
+" style="fill:#f5deb3;opacity:0.5;stroke:#000000;stroke-linejoin:miter;"/>
     </g>
     <!-- bottom Tj -->
     <defs>
@@ -454,16 +458,16 @@ z
     <g id="patch_9">
      <path d="
 M205.92 279.696
-L269.535 279.696
-Q273.135 279.696 273.135 276.096
-L273.135 264.482
-Q273.135 260.882 269.535 260.882
+L270.66 279.696
+Q274.26 279.696 274.26 276.096
+L274.26 264.482
+Q274.26 260.882 270.66 260.882
 L205.92 260.882
 Q202.32 260.882 202.32 264.482
 L202.32 276.096
 Q202.32 279.696 205.92 279.696
 z
-" style="fill:#f5deb3;opacity:0.5;stroke:#000000;"/>
+" style="fill:#f5deb3;opacity:0.5;stroke:#000000;stroke-linejoin:miter;"/>
     </g>
     <!-- baseline Tj -->
     <defs>
@@ -620,16 +624,16 @@ Q40.5781 54.5469 44.2812 53.0781" id="BitstreamVeraSans-Roman-73"/>
     <g id="patch_10">
      <path d="
 M250.56 283.007
-L302.52 283.007
-Q306.12 283.007 306.12 279.407
-L306.12 267.793
-Q306.12 264.193 302.52 264.193
+L303.645 283.007
+Q307.245 283.007 307.245 279.407
+L307.245 267.793
+Q307.245 264.193 303.645 264.193
 L250.56 264.193
 Q246.96 264.193 246.96 267.793
 L246.96 279.407
 Q246.96 283.007 250.56 283.007
 z
-" style="fill:#f5deb3;opacity:0.5;stroke:#000000;"/>
+" style="fill:#f5deb3;opacity:0.5;stroke:#000000;stroke-linejoin:miter;"/>
     </g>
     <!-- center Tj -->
     <defs>
@@ -696,20 +700,20 @@ Q45.0625 54.2969 48.7812 52.5938" id="BitstreamVeraSans-Roman-63"/>
    <g id="text_9">
     <g id="patch_11">
      <path d="
-M302.807 303.284
-L331.4 286.775
-Q334.518 284.975 332.718 281.858
-L326.911 271.8
-Q325.111 268.682 321.993 270.482
-L293.4 286.991
-Q290.282 288.791 292.082 291.908
-L297.889 301.966
-Q299.689 305.084 302.807 303.284
+M302.807 303.846
+L332.375 286.775
+Q335.492 284.975 333.692 281.858
+L327.885 271.8
+Q326.085 268.682 322.968 270.482
+L293.4 287.553
+Q290.282 289.353 292.082 292.471
+L297.889 302.529
+Q299.689 305.646 302.807 303.846
 z
-" style="fill:#f5deb3;opacity:0.5;stroke:#000000;"/>
+" style="fill:#f5deb3;opacity:0.5;stroke:#000000;stroke-linejoin:miter;"/>
     </g>
     <!-- top Tj -->
-    <g transform="translate(299.7590625 298.004965385)rotate(-30.0)scale(0.12 -0.12)">
+    <g transform="translate(299.7590625 298.567465385)rotate(-30.0)scale(0.12 -0.12)">
      <use xlink:href="#BitstreamVeraSans-Roman-74"/>
      <use x="39.208984375" xlink:href="#BitstreamVeraSans-Roman-6f"/>
      <use x="100.390625" xlink:href="#BitstreamVeraSans-Roman-70"/>
@@ -732,16 +736,16 @@ z
     <g id="patch_12">
      <path d="
 M347.447 276.718
-L396.596 248.341
-Q399.714 246.541 397.914 243.424
-L392.107 233.366
-Q390.307 230.248 387.189 232.048
+L397.57 247.779
+Q400.688 245.979 398.888 242.861
+L393.081 232.803
+Q391.281 229.686 388.163 231.486
 L338.04 260.425
 Q334.922 262.225 336.722 265.342
 L342.529 275.4
 Q344.329 278.518 347.447 276.718
 z
-" style="fill:#f5deb3;opacity:0.5;stroke:#000000;"/>
+" style="fill:#f5deb3;opacity:0.5;stroke:#000000;stroke-linejoin:miter;"/>
     </g>
     <!-- bottom Tj -->
     <g transform="translate(344.3990625 271.438725352)rotate(-30.0)scale(0.12 -0.12)">
@@ -769,20 +773,20 @@ z
    <g id="text_13">
     <g id="patch_13">
      <path d="
-M392.087 309.465
-L447.179 277.657
-Q450.297 275.857 448.497 272.74
-L442.69 262.682
-Q440.89 259.564 437.772 261.364
-L382.68 293.172
-Q379.562 294.972 381.362 298.089
-L387.169 308.147
-Q388.969 311.265 392.087 309.465
+M392.087 310.027
+L448.153 277.657
+Q451.271 275.857 449.471 272.74
+L443.664 262.682
+Q441.864 259.564 438.746 261.364
+L382.68 293.734
+Q379.562 295.534 381.362 298.652
+L387.169 308.71
+Q388.969 311.827 392.087 310.027
 z
-" style="fill:#f5deb3;opacity:0.5;stroke:#000000;"/>
+" style="fill:#f5deb3;opacity:0.5;stroke:#000000;stroke-linejoin:miter;"/>
     </g>
     <!-- baseline Tj -->
-    <g transform="translate(389.0390625 304.185902885)rotate(-30.0)scale(0.12 -0.12)">
+    <g transform="translate(389.0390625 304.748402885)rotate(-30.0)scale(0.12 -0.12)">
      <use xlink:href="#BitstreamVeraSans-Roman-62"/>
      <use x="63.4765625" xlink:href="#BitstreamVeraSans-Roman-61"/>
      <use x="124.755859375" xlink:href="#BitstreamVeraSans-Roman-73"/>
@@ -809,20 +813,20 @@ z
    <g id="text_15">
     <g id="patch_14">
      <path d="
-M436.727 294.737
-L481.726 268.757
-Q484.843 266.957 483.043 263.839
-L477.236 253.781
-Q475.436 250.663 472.319 252.463
-L427.32 278.443
-Q424.202 280.243 426.002 283.361
-L431.809 293.419
-Q433.609 296.537 436.727 294.737
+M436.727 295.018
+L482.7 268.475
+Q485.818 266.675 484.018 263.558
+L478.211 253.5
+Q476.411 250.382 473.293 252.182
+L427.32 278.725
+Q424.202 280.525 426.002 283.642
+L431.809 293.7
+Q433.609 296.818 436.727 295.018
 z
-" style="fill:#f5deb3;opacity:0.5;stroke:#000000;"/>
+" style="fill:#f5deb3;opacity:0.5;stroke:#000000;stroke-linejoin:miter;"/>
     </g>
     <!-- center Tj -->
-    <g transform="translate(433.6790625 289.457626618)rotate(-30.0)scale(0.12 -0.12)">
+    <g transform="translate(433.6790625 289.738876618)rotate(-30.0)scale(0.12 -0.12)">
      <use xlink:href="#BitstreamVeraSans-Roman-63"/>
      <use x="54.98046875" xlink:href="#BitstreamVeraSans-Roman-65"/>
      <use x="116.50390625" xlink:href="#BitstreamVeraSans-Roman-6e"/>
