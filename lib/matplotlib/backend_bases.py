@@ -33,6 +33,8 @@ graphics contexts must implement to serve as a matplotlib backend
 :class:`ToolContainerBase`
      The base class for the Toolbar class of each interactive backend.
 
+:class:`StatusbarBase`
+    The base class for the messaging area.
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -3605,14 +3607,8 @@ class ToolContainerBase(object):
 
     def __init__(self, navigation):
         self.navigation = navigation
-
-        self.navigation.nav_connect('tool_message_event', self._message_cbk)
         self.navigation.nav_connect('tool_removed_event',
                                     self._remove_tool_cbk)
-
-    def _message_cbk(self, event):
-        """Captures the 'tool_message_event' to set the message on the toolbar"""
-        self.set_message(event.message)
 
     def _tool_toggled_cbk(self, event):
         """Captures the 'tool-trigger-toolname
@@ -3714,17 +3710,6 @@ class ToolContainerBase(object):
 
         raise NotImplementedError
 
-    def set_message(self, s):
-        """Display a message on toolbar or in status bar
-
-        Parameters
-        ----------
-        s : String
-            Message text
-        """
-
-        pass
-
     def toggle_toolitem(self, name, toggled):
         """Toggle the toolitem without firing event
 
@@ -3752,3 +3737,25 @@ class ToolContainerBase(object):
         """
 
         raise NotImplementedError
+
+
+class StatusbarBase(object):
+    """Base class for the statusbar"""
+    def __init__(self, navigation):
+        self.navigation = navigation
+        self.navigation.nav_connect('tool_message_event', self._message_cbk)
+
+    def _message_cbk(self, event):
+        """Captures the 'tool_message_event' and set the message"""
+        self.set_message(event.message)
+
+    def set_message(self, s):
+        """Display a message on toolbar or in status bar
+
+        Parameters
+        ----------
+        s : str
+            Message text
+        """
+
+        pass

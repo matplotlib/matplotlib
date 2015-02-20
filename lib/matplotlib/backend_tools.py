@@ -921,7 +921,7 @@ tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
 """Default tools"""
 
 toolbar_tools = [['navigation', ['home', 'back', 'forward']],
-                  ['zoompan', ['zoom', 'pan']],
-                  ['layout', ['subplots']],
-                  ['io', ['save']]]
+                 ['zoompan', ['zoom', 'pan']],
+                 ['layout', ['subplots']],
+                 ['io', ['save']]]
 """Default tools in the toolbar"""

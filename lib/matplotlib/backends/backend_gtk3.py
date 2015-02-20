@@ -30,9 +30,10 @@ import matplotlib
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
-from matplotlib.backend_bases import ShowBase, ToolContainerBase, NavigationBase
-from matplotlib.backend_tools import SaveFigureBase, ConfigureSubplotsBase, \
-    tools, toolbar_tools, SetCursorBase, RubberbandBase
+from matplotlib.backend_bases import (ShowBase, ToolContainerBase,
+                                      NavigationBase, StatusbarBase)
+from matplotlib.backend_tools import (SaveFigureBase, ConfigureSubplotsBase,
+    tools, toolbar_tools, SetCursorBase, RubberbandBase)
 
 from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.colors import colorConverter
@@ -416,22 +417,30 @@ class FigureManagerGTK3(FigureManagerBase):
         self.canvas.show()
 
         self.vbox.pack_start(self.canvas, True, True, 0)
-
-        self.navigation = self._get_navigation()
-        self.toolbar = self._get_toolbar()
-        if matplotlib.rcParams['toolbar'] == 'navigation':
-            self.navigation.add_tools(tools)
-            self.toolbar.add_tools(toolbar_tools)
-
         # calculate size for window
         w = int (self.canvas.figure.bbox.width)
         h = int (self.canvas.figure.bbox.height)
 
+        self.navigation = self._get_navigation()
+        self.toolbar = self._get_toolbar()
+        self.statusbar = None
+
+        def add_widget(child, expand, fill, padding):
+            child.show()
+            self.vbox.pack_end(child, False, False, 0)
+            size_request = child.size_request()
+            return size_request.height
+
+        if matplotlib.rcParams['toolbar'] == 'navigation':
+            self.navigation.add_tools(tools)
+            self.toolbar.add_tools(toolbar_tools)
+            self.statusbar = StatusbarGTK3(self.navigation)
+            h += add_widget(self.statusbar, False, False, 0)
+            h += add_widget(Gtk.HSeparator(), False, False, 0)
+
         if self.toolbar is not None:
             self.toolbar.show()
-            self.vbox.pack_end(self.toolbar, False, False, 0)
-            size_request = self.toolbar.size_request()
-            h += size_request.height
+            h += add_widget(self.toolbar, False, False, 0)
 
         self.window.set_default_size (w, h)
 
@@ -767,23 +776,6 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
         self.pack_start(self._toolbar, False, False, 0)
         self._toolbar.show_all()
         self._toolitems = {}
-        self._setup_message_area()
-
-    def _setup_message_area(self):
-        box = Gtk.Box()
-        box.set_property("orientation", Gtk.Orientation.HORIZONTAL)
-        sep = Gtk.Separator()
-        sep.set_property("orientation", Gtk.Orientation.VERTICAL)
-        box.pack_start(sep, False, True, 0)
-        self.message = Gtk.Label()
-        box.pack_end(self.message, False, False, 0)
-        self.pack_end(box, False, False, 5)
-        box.show_all()
-
-        sep = Gtk.Separator()
-        sep.set_property("orientation", Gtk.Orientation.HORIZONTAL)
-        self.pack_end(sep, False, True, 0)
-        sep.show_all()
 
     def add_toolitem(self, name, group, position, image_file, description,
                      toggle):
@@ -811,9 +803,6 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
     def _call_tool(self, btn, name):
         self.trigger_tool(name)
 
-    def set_message(self, s):
-        self.message.set_label(s)
-
     def toggle_toolitem(self, name, toggled):
         if name not in self._toolitems:
             return
@@ -824,9 +813,9 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
 
     def remove_toolitem(self, name):
         if name not in self._toolitems:
-            self.set_message('%s Not in toolbar' % name)
+            self.navigation.message_event('%s Not in toolbar' % name, self)
             return
-        for toolitem, signal in self._toolitems[name]:
+        for toolitem, _signal in self._toolitems[name]:
             self._toolbar.remove(toolitem)
         del self._toolitems[name]
 
@@ -835,6 +824,17 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
         self._toolbar.insert(toolitem, pos)
         toolitem.show()
         return toolitem
+
+
+class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
+    def __init__(self, *args, **kwargs):
+        StatusbarBase.__init__(self, *args, **kwargs)
+        Gtk.Statusbar.__init__(self)
+        self._context = self.get_context_id('message')
+
+    def set_message(self, s):
+        self.pop(self._context)
+        self.push(self._context, s)
 
 
 class SaveFigureGTK3(SaveFigureBase):
