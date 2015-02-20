@@ -1567,10 +1567,6 @@ class Axis(artist.Artist):
                 self.set_view_interval(min(ticks), max(ticks))
             else:
                 self.set_view_interval(max(ticks), min(ticks))
-        else:
-            self.set_ticks_position("none")
-            self.set_ticklabels("")
-            
         if minor:
             self.set_minor_locator(mticker.FixedLocator(ticks))
             return self.get_minor_ticks(len(ticks))
