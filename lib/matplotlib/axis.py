@@ -1733,7 +1733,9 @@ class XAxis(Axis):
         x, y = self.label.get_position()
         if self.label_position == 'bottom':
             if not len(bboxes):
-                bottom = self.axes.bbox.ymin
+                bottom = (self.axes.spines['bottom'].get_transform().
+                          transform_path(self.axes.spines['bottom'].
+                                         get_path()).get_extents().ymin)
             else:
                 bbox = mtransforms.Bbox.union(bboxes)
                 bottom = bbox.y0
@@ -1743,7 +1745,9 @@ class XAxis(Axis):
 
         else:
             if not len(bboxes2):
-                top = self.axes.bbox.ymax
+                top = (self.axes.spines['top'].get_transform().
+                       transform_path(self.axes.spines['top'].
+                                      get_path()).get_extents().ymax)
             else:
                 bbox = mtransforms.Bbox.union(bboxes2)
                 top = bbox.y1
@@ -2039,7 +2043,9 @@ class YAxis(Axis):
         x, y = self.label.get_position()
         if self.label_position == 'left':
             if not len(bboxes):
-                left = self.axes.bbox.xmin
+                left = (self.axes.spines['left'].get_transform().
+                        transform_path(self.axes.spines['left'].
+                                       get_path()).get_extents().xmin)
             else:
                 bbox = mtransforms.Bbox.union(bboxes)
                 left = bbox.x0
@@ -2050,7 +2056,9 @@ class YAxis(Axis):
 
         else:
             if not len(bboxes2):
-                right = self.axes.bbox.xmax
+                right = (self.axes.spines['right'].get_transform().
+                         transform_path(self.axes.spines['right'].
+                                        get_path()).get_extents().xmax)
             else:
                 bbox = mtransforms.Bbox.union(bboxes2)
                 right = bbox.x1
