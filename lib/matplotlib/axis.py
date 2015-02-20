@@ -2154,8 +2154,8 @@ class YAxis(Axis):
         majt = self.majorTicks[0]
         mT = self.minorTicks[0]
 
-        majorRight = ((not majt.tick1On) and majt.tick2On
-                      and (not majt.label1On) and majt.label2On)
+        majorRight = ((not majt.tick1On) and majt.tick2On and
+                      (not majt.label1On) and majt.label2On)
         minorRight = ((not mT.tick1On) and mT.tick2On and
                       (not mT.label1On) and mT.label2On)
         if majorRight and minorRight:
