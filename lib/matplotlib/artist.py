@@ -903,26 +903,26 @@ class Artist(object):
             artists.append(self)
         return artists
 
-    def get_zdata(self, event):
+    def get_pixel_data(self, event):
         """
-        Get the zdata for a given event, as a string message
+        Get the pixel data for a given event.
         """
         return ''
 
-    def format_zdata(self, z):
+    def format_pixel_data(self, data):
         """
-        Return *z* string formatted.
+        Return *pixel data* string formatted.
         """
         try:
-            is_int = isinstance(z[0], int)
+            is_int = isinstance(data[0], int)
         except (TypeError, IndexError):
-            is_int = isinstance(z, int)
-            z = [z]
+            is_int = isinstance(data, int)
+            data = [data]
         if is_int:
-            z = ', '.join(item for item in z)
+            data = ', '.join(item for item in data)
         else:
-            z = ', '.join('{:0.3g}'.format(item) for item in z)
-        return z
+            data = ', '.join('{:0.3g}'.format(item) for item in data)
+        return data
 
 
 class ArtistInspector(object):
