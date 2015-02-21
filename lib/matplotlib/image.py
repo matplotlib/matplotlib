@@ -696,7 +696,7 @@ class AxesImage(_AxesImageBase):
         y, x = event.ydata, event.xdata
         i, j = trans.transform_point([y, x]).astype(int)
         z = arr[i, j]
-        return 'z=%s' % self.format_zdata(z)
+        return z
 
 
 class NonUniformImage(AxesImage):

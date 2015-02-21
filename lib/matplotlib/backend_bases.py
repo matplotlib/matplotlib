@@ -2799,7 +2799,9 @@ class NavigationToolbar2(object):
                     artists.remove(event.inaxes.patch)
                 artists.sort(key=lambda x: x.zorder)
                 if artists:
-                    s += artists[-1].get_zdata(event)
+                    a = artists[-1]
+                    data = a.get_cursor_data(event)
+                    s += 'data= %s' % a.format_cursor_data(data)
                 if len(self.mode):
                     self.set_message('%s, %s' % (self.mode, s))
                 else:
