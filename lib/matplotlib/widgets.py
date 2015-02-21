@@ -1518,6 +1518,9 @@ class SpanSelector(_SelectorWidget):
         if self.pressv is None:
             return
         x, y = self._get_data(event)
+        if x is None:
+            return
+
         self.prev = x, y
         if self.direction == 'horizontal':
             v = x
