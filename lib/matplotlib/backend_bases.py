@@ -2800,8 +2800,9 @@ class NavigationToolbar2(object):
                 artists.sort(key=lambda x: x.zorder)
                 if artists:
                     a = artists[-1]
-                    data = a.get_cursor_data(event)
-                    s += 'data= %s' % a.format_cursor_data(data)
+                    data = a.get_pixel_data(event)
+                    if data is not None:
+                        s += ' data=%s' % a.format_pixel_data(data)
                 if len(self.mode):
                     self.set_message('%s, %s' % (self.mode, s))
                 else:
