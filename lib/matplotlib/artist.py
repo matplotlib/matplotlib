@@ -907,7 +907,7 @@ class Artist(object):
         """
         Get the pixel data for a given event.
         """
-        return ''
+        return None
 
     def format_pixel_data(self, data):
         """
