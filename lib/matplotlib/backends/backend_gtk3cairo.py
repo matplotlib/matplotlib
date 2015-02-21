@@ -7,6 +7,7 @@ from . import backend_gtk3
 from . import backend_cairo
 from .backend_cairo import cairo, HAS_CAIRO_CFFI
 from matplotlib.figure import Figure
+from matplotlib.backend_bases import FigureManager
 
 class RendererGTK3Cairo(backend_cairo.RendererCairo):
     def set_context(self, ctx):
@@ -51,7 +52,6 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
 class FigureManagerGTK3Cairo(backend_gtk3.FigureManagerGTK3):
     pass
 
-
 def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
@@ -66,10 +66,10 @@ def new_figure_manager_given_figure(num, figure):
     Create a new figure manager instance for the given figure.
     """
     canvas = FigureCanvasGTK3Cairo(figure)
-    manager = FigureManagerGTK3Cairo(canvas, num)
+    manager = FigureManager(canvas, num, classes)
     return manager
 
-
+classes = {'Window': backend_gtk3.WindowGTK3,
+            'Toolbar2': backend_gtk3.NavigationToolbar2GTK3}
 FigureCanvas = FigureCanvasGTK3Cairo
-FigureManager = FigureManagerGTK3Cairo
 show = backend_gtk3.show
