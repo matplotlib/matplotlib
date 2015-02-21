@@ -29,7 +29,7 @@ import matplotlib
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    NavigationToolbar2, RendererBase, TimerBase, cursors)
+    NavigationToolbar2, RendererBase, TimerBase, cursors, WindowBase)
 from matplotlib.backend_bases import (
     ShowBase, ToolContainerBase, StatusbarBase)
 from matplotlib.backend_managers import ToolManager
@@ -360,6 +360,85 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
     def stop_event_loop(self):
         FigureCanvasBase.stop_event_loop_default(self)
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
+
+class WindowGTK3(WindowBase):
+    def __init__(self, title):
+        WindowBase.__init__(self, title)
+        self.window = Gtk.Window()
+        self.set_window_title(title)
+
+        try:
+            self.window.set_icon_from_file(window_icon)
+        except (SystemExit, KeyboardInterrupt):
+            # re-raise exit type Exceptions
+            raise
+        except:
+            # some versions of gtk throw a glib.GError but not
+            # all, so I am not sure how to catch it.  I am unhappy
+            # doing a blanket catch here, but am not sure what a
+            # better way is - JDH
+            verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+
+        self.vbox = Gtk.Box()
+        self.vbox.set_property('orientation', Gtk.Orientation.VERTICAL)
+        self.window.add(self.vbox)
+        self.vbox.show()
+
+        self.window.connect('destroy', self.destroy_event) # TODO create in base
+        self.window.connect('delete_event', self.destroy_event)
+
+    def add_element_to_window(self, element, expand, fill, padding, from_start=False):
+        element.show()
+        if from_start:
+            self.vbox.pack_start(element, expand, fill, padding)
+        else:
+            self.vbox.pack_end(element, False, False, 0)
+        size_request = element.size_request()
+        return size_request.height
+
+    def set_default_size(self, width, height):
+        self.window.set_default_size(width, height)
+
+    def show(self):
+        # show the figure window
+        self.window.show()
+
+    def destroy(self):
+        self.vbox.destroy()
+        self.window.destroy()
+
+    # TODO refactor out on second pass.
+    def terminate_backend(self):
+        if Gtk.main_level() >= 1:
+            Gtk.main_quit()
+
+    def set_fullscreen(self, fullscreen):
+        if fullscreen:
+            self.window.fullscreen()
+        else:
+            self.window.unfullscreen()
+
+    def _get_toolbar(self, canvas):
+        # must be inited after the window, drawingArea and figure
+        # attrs are set
+        if rcParams['toolbar'] == 'toolbar2':
+            toolbar = NavigationToolbar2GTK3 (canvas, self.window)
+        else:
+            toolbar = None
+        return toolbar
+
+    def get_window_title(self):
+        return self.window.get_title()
+
+    def set_window_title(self, title):
+        self.window.set_title(title)
+
+    def resize(self, width, height):
+        'set the canvas size in pixels'
+        #_, _, cw, ch = self.canvas.allocation
+        #_, _, ww, wh = self.window.allocation
+        #self.window.resize (width-cw+ww, height-ch+wh)
+        self.window.resize(width, height)
 
 
 class FigureManagerGTK3(FigureManagerBase):
@@ -953,3 +1032,4 @@ backend_tools.ToolRubberband = RubberbandGTK3
 Toolbar = ToolbarGTK3
 FigureCanvas = FigureCanvasGTK3
 FigureManager = FigureManagerGTK3
+Window = WindowGTK3
