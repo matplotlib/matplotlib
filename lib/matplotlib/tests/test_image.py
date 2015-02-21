@@ -158,6 +158,39 @@ def test_imsave_color_alpha():
 
     assert_array_equal(data, arr_buf)
 
+
+@cleanup
+def test_cursor_data():
+    from matplotlib.backend_bases import MouseEvent
+
+    fig, ax = plt.subplots()
+    im = ax.imshow(np.arange(100).reshape(10, 10), origin='upper')
+
+    x, y = 4, 4
+    xdisp, ydisp = ax.transData.transform_point([x, y])
+
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.get_zdata(event) == 44
+
+    ax.clear()
+    im = ax.imshow(np.arange(100).reshape(10, 10), origin='lower')
+
+    x, y = 4, 4
+    xdisp, ydisp = ax.transData.transform_point([x, y])
+
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.get_zdata(event) == 44
+
+    fig, ax = plt.subplots()
+    im = ax.imshow(np.arange(100).reshape(10, 10), extent=[0, 0.5, 0, 0.5])
+
+    x, y = 0.25, 0.25
+    xdisp, ydisp = ax.transData.transform_point([x, y])
+
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.get_zdata(event) == 55
+
+
 @image_comparison(baseline_images=['image_clip'])
 def test_image_clip():
     from math import pi
