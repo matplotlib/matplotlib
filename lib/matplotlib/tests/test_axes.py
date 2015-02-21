@@ -12,6 +12,7 @@ import datetime
 
 import numpy as np
 from numpy import ma
+from numpy import arange
 
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, cleanup
@@ -3474,6 +3475,28 @@ def test_pie_frame_grid():
             frame=True, center=(3, 5))
     # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
+
+
+@image_comparison(baseline_images=['set_get_ticklabels'], extensions=['png'])
+def test_set_get_ticklabels():
+    # test issue 2246
+    fig, ax = plt.subplots(2)
+    ha = ['normal', 'set_x/yticklabels']
+
+    ax[0].plot(arange(10))
+    ax[0].set_title(ha[0])
+
+    ax[1].plot(arange(10))
+    ax[1].set_title(ha[1])
+
+    # set ticklabel to 1 plot in normal way
+    ax[0].set_xticklabels(('a', 'b', 'c', 'd'))
+    ax[0].set_yticklabels(('11', '12', '13', '14'))
+   
+    # set ticklabel to the other plot, expect the 2 plots have same label setting
+    # pass get_ticklabels return value as ticklabels argument    
+    ax[1].set_xticklabels(ax[0].get_xticklabels() ) 
+    ax[1].set_yticklabels(ax[0].get_yticklabels() )
 
 
 @cleanup
