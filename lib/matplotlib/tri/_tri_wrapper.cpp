@@ -275,7 +275,7 @@ static PyObject* PyTriContourGenerator_create_contour(PyTriContourGenerator* sel
     }
 
     PyObject* result;
-    CALL_CPP("get_edges", (result = self->ptr->create_contour(level)));
+    CALL_CPP("create_contour", (result = self->ptr->create_contour(level)));
     return result;
 }
 
@@ -287,12 +287,13 @@ const char* PyTriContourGenerator_create_filled_contour__doc__ =
 static PyObject* PyTriContourGenerator_create_filled_contour(PyTriContourGenerator* self, PyObject* args, PyObject* kwds)
 {
     double lower_level, upper_level;
-    if (!PyArg_ParseTuple(args, "dd:create_contour", &lower_level, &upper_level)) {
+    if (!PyArg_ParseTuple(args, "dd:create_filled_contour",
+                          &lower_level, &upper_level)) {
         return NULL;
     }
 
     PyObject* result;
-    CALL_CPP("get_edges",
+    CALL_CPP("create_filled_contour",
              (result = self->ptr->create_filled_contour(lower_level,
                                                         upper_level)));
     return result;

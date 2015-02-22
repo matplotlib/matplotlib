@@ -246,6 +246,24 @@ def test_labels():
         CS.add_label_near(x, y, inline=True, transform=False)
 
 
+@image_comparison(baseline_images=['contour_corner_mask_False',
+                                   'contour_corner_mask_True'],
+                  extensions=['png'], remove_text=True)
+def test_corner_mask():
+    n = 60
+    mask_level = 0.95
+    noise_amp = 1.0
+    np.random.seed([1])
+    x, y = np.meshgrid(np.linspace(0, 2.0, n), np.linspace(0, 2.0, n))
+    z = np.cos(7*x)*np.sin(8*y) + noise_amp*np.random.rand(n, n)
+    mask = np.where(np.random.rand(n, n) >= mask_level, True, False)
+    z = np.ma.array(z, mask=mask)
+
+    for corner_mask in [False, True]:
+        fig = plt.figure()
+        plt.contourf(z, corner_mask=corner_mask)
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

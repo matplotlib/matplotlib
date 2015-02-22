@@ -1060,14 +1060,27 @@ class Image(SetupPackage):
         return ext
 
 
-class Contour(SetupPackage):
-    name = "contour"
+class ContourLegacy(SetupPackage):
+    name = "contour_legacy"
 
     def get_extension(self):
         sources = [
             "src/cntr.c"
             ]
         ext = make_extension('matplotlib._cntr', sources)
+        Numpy().add_flags(ext)
+        return ext
+
+
+class Contour(SetupPackage):
+    name = "contour"
+
+    def get_extension(self):
+        sources = [
+            "src/_contour.cpp",
+            "src/_contour_wrapper.cpp",
+            ]
+        ext = make_extension('matplotlib._contour', sources)
         Numpy().add_flags(ext)
         return ext
 
