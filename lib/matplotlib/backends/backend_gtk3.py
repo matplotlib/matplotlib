@@ -27,11 +27,11 @@ except ImportError:
 
 import matplotlib
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import (
-    FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    NavigationToolbar2, RendererBase, TimerBase, cursors, WindowBase)
-from matplotlib.backend_bases import (
-    ShowBase, ToolContainerBase, StatusbarBase)
+from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
+     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors,
+     TimerBase, WindowBase, MainLoopBase)
+from matplotlib.backend_bases import (ShowBase, ToolContainerBase,
+                                      StatusbarBase)
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import is_writable_file_like
 from matplotlib.figure import Figure
@@ -62,6 +62,17 @@ def draw_if_interactive():
         figManager =  Gcf.get_active()
         if figManager is not None:
             figManager.canvas.draw_idle()
+
+
+class MainLoop(MainLoopBase):
+    def begin(self):
+        if Gtk.main_level() == 0:
+            Gtk.main()
+
+    def end(self):
+        if Gtk.main_level() >= 1:
+            Gtk.main_quit()
+
 
 class Show(ShowBase):
     def mainloop(self):
@@ -407,25 +418,11 @@ class WindowGTK3(WindowBase):
         self.vbox.destroy()
         self.window.destroy()
 
-    # TODO refactor out on second pass.
-    def terminate_backend(self):
-        if Gtk.main_level() >= 1:
-            Gtk.main_quit()
-
     def set_fullscreen(self, fullscreen):
         if fullscreen:
             self.window.fullscreen()
         else:
             self.window.unfullscreen()
-
-    def _get_toolbar(self, canvas):
-        # must be inited after the window, drawingArea and figure
-        # attrs are set
-        if rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2GTK3 (canvas, self.window)
-        else:
-            toolbar = None
-        return toolbar
 
     def get_window_title(self):
         return self.window.get_title()

@@ -48,7 +48,6 @@ import time
 import warnings
 
 import numpy as np
-import matplotlib # temporary )assuming we refactor where marked below)
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
 import matplotlib.transforms as transforms
@@ -141,6 +140,33 @@ def get_registered_canvas_class(format):
         backend_class = importlib.import_module(backend_class).FigureCanvas
         _default_backends[format] = backend_class
     return backend_class
+
+
+class MainLoopBase(object):
+    """This gets used as a key maintaining the event loop.
+    Backends should only need to override begin and end.
+    It should not matter if this gets used as a singleton or not due to
+    clever magic.
+    """
+    _instance_count = {}
+    def __init__(self):
+        MainLoopBase._instance_count.setdefault(self.__class__, 0)
+        MainLoopBase._instance_count[self.__class__] += 1
+
+    def begin(self):
+        pass
+
+    def end(self):
+        pass
+
+    def __call__(self):
+        self.begin()
+
+    def __del__(self):
+        MainLoopBase._instance_count[self.__class__] -= 1
+        if (MainLoopBase._instance_count[self.__class__] <= 0 and
+            not is_interactive()):
+            self.end()
 
 
 class ShowBase(object):
@@ -2483,7 +2509,10 @@ def key_press_handler(event, canvas, toolbar=None):
 
     # quit the figure (defaut key 'ctrl+w')
     if event.key in quit_keys:
-        Gcf.destroy_fig(canvas.figure)
+        if isinstance(canvas.manager.mainloop, MainLoopBase): # If new no Gcf.
+            canvas.manager._destroy('window_destroy_event')
+        else:
+            Gcf.destroy_fig(canvas.figure)
 
     if toolbar is not None:
         # home or reset mnemonic  (default key 'h', 'home' and 'r')
@@ -2610,20 +2639,16 @@ def key_press_handler(event, canvas, toolbar=None):
 class NonGuiException(Exception):
     pass
 
+
 class WindowEvent(object):
     def __init__(self, name, window):
         self.name = name
         self.window = window
 
-class WindowBase(object):
+
+class WindowBase(cbook.EventEmitter):
     def __init__(self, title):
-        self._callbacks = cbook.CallbackRegistry()
-
-    def mpl_connect(self, s, func):
-        return self._callbacks.connect(s, func)
-
-    def mpl_disconnect(self, cid):
-        return self._callbacks.disconnect(cid)
+        cbook.EventEmitter.__init__(self)
 
     def show(self):
         """
@@ -2664,111 +2689,11 @@ class WindowBase(object):
         """
         pass
 
-    def terminate_backend(self):
-        """Method to terminate the usage of the backend
-        """
-        # TODO refactor me out on second pass
-        pass
-
     def destroy_event(self, *args):
         s = 'window_destroy_event'
         event = WindowEvent(s, self)
         self._callbacks.process(s, event)
 
-
-class FigureManager(object):
-    def __init__(self, canvas, num, classes):
-        self._classes = classes
-        self.canvas = canvas
-        canvas.manager = self
-        self.num = num
-
-        self.key_press_handler_id = self.canvas.mpl_connect('key_press_event',
-                                                            self.key_press)
-
-        self.window = classes['Window']('Figure %d' % num)
-        self.window.mpl_connect('window_destroy_event', self._destroy)
-
-        w = int(self.canvas.figure.bbox.width)
-        h = int(self.canvas.figure.bbox.height)
-
-        self.window.add_element_to_window(self.canvas, True, True, 0, True)
-
-        self.toolbar = self._get_toolbar(canvas)
-        if self.toolbar is not None:
-            h += self.window.add_element_to_window(self.toolbar, False, False, 0)
-
-        self.window.set_default_size(w,h)
-
-        # Refactor this?  If so, delete import matplotlib from above.
-        if matplotlib.is_interactive():
-            self.window.show()
-
-        def notify_axes_change(fig):
-            'this will be called whenever the current axes is changed'
-            if self.toolbar is not None: self.toolbar.update()
-        self.canvas.figure.add_axobserver(notify_axes_change)
-
-        self.canvas.grab_focus()
-
-    def key_press(self, event):
-        """
-        Implement the default mpl key bindings defined at
-        :ref:`key-event-handling`
-        """
-        key_press_handler(event, self.canvas, self.canvas.toolbar)
-
-    def _destroy(self, event):
-        Gcf.destroy(self.num) # TODO refactor me out of here on second pass!
-
-    def destroy(self, *args):
-        self.window.destroy()
-        self.canvas.destroy()
-        if self.toolbar:
-            self.toolbar.destroy()
-
-        # TODO refactor out on second pass
-        if Gcf.get_num_fig_managers()==0 and not matplotlib.is_interactive():
-            self.window.terminate_backend()
-
-    def show(self):
-        self.window.show()
-
-    def full_screen_toggle(self):
-        self._full_screen_flag = not self._full_screen_flag
-        self.window.set_fullscreen(self._full_screen_flag)
-
-    def resize(self, w, h):
-        self.window.resize(w,h)
-
-    def get_window_title(self):
-        """
-        Get the title text of the window containing the figure.
-        Return None for non-GUI backends (e.g., a PS backend).
-        """
-        return self.window.get_window_title()
-
-    def set_window_title(self, title):
-        """
-        Set the title text of the window containing the figure.  Note that
-        this has no effect for non-GUI backends (e.g., a PS backend).
-        """
-        self.window.set_window_title(title)
-
-    def show_popup(self, msg):
-        """
-        Display message in a popup -- GUI only
-        """
-        pass
-
-    def _get_toolbar(self, canvas):
-        # must be inited after the window, drawingArea and figure
-        # attrs are set
-        if rcParams['toolbar'] == 'toolbar2':
-            toolbar = self._classes['Toolbar2'](canvas, self.window)
-        else:
-            toolbar = None
-        return toolbar
 
 class FigureManagerBase(object):
     """

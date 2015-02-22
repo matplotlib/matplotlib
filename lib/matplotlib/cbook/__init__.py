@@ -367,6 +367,17 @@ class CallbackRegistry(object):
                     self._remove_proxy(proxy)
 
 
+class EventEmitter(object):
+    def __init__(self):
+        self._callbacks = CallbackRegistry()
+
+    def mpl_connect(self, s, func):
+        return self._callbacks.connect(s, func)
+
+    def mpl_disconnect(self, cid):
+        return self._callbacks.disconnect(cid)
+
+
 class silent_list(list):
     """
     override repr when returning a list of matplotlib artists to
