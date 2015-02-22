@@ -5241,6 +5241,16 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
     return YES;
 }
 
+- (void)close
+{
+    [super close];
+    NSArray *windowsArray = [NSApp windows];
+    if([windowsArray count]==0) [NSApp stop: self];
+    /* This is needed for show(), which should exit from [NSApp run]
+     * after all windows are closed.
+     */
+}
+
 - (void)dealloc
 {
     PyGILState_STATE gstate;
