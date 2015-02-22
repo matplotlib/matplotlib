@@ -33,6 +33,7 @@ from matplotlib.cbook import (dedent, silent_list, is_string_like, is_numlike,
                               _string_to_bool)
 from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase
+import matplotlib.backend_managers as backend_managers
 from matplotlib.figure import Figure, figaspect
 from matplotlib.gridspec import GridSpec
 from matplotlib.image import imread as _imread
@@ -248,7 +249,10 @@ def show(*args, **kw):
     described above.
     """
     global _show
-    return _show(*args, **kw)
+    if _show is None:
+        return _pylab_helpers.Gcf.show_all(*args, **kw)
+    else:
+         _show(*args, **kw)
 
 
 def isinteractive():
@@ -524,13 +528,14 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         if get_backend().lower() == 'ps':
             dpi = 72
 
-        figManager = new_figure_manager(num, figsize=figsize,
-                                        dpi=dpi,
-                                        facecolor=facecolor,
-                                        edgecolor=edgecolor,
-                                        frameon=frameon,
-                                        FigureClass=FigureClass,
-                                        **kwargs)
+        figManager = backend_managers.new_figure_manager(num, figsize=figsize,
+                                                         dpi=dpi,
+                                                         facecolor=facecolor,
+                                                         edgecolor=edgecolor,
+                                                         frameon=frameon,
+                                                         FigureClass=FigureClass,
+                                                         show=_show,
+                                                         **kwargs)
 
         if figLabel:
             figManager.set_window_title(figLabel)
@@ -543,7 +548,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         cid = figManager.canvas.mpl_connect('button_press_event', make_active)
         figManager._cidgcf = cid
 
-        _pylab_helpers.Gcf.set_active(figManager)
+        _pylab_helpers.Gcf.add_figure_manager(figManager)
         fig = figManager.canvas.figure
         fig.number = num
 
