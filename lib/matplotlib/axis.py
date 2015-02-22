@@ -1521,8 +1521,20 @@ class Axis(artist.Artist):
         tick locations, regardless of the state of label1On and
         label2On.
 
-        ACCEPTS: sequence of strings
+        ACCEPTS: sequence of strings or Text objects
         """
+        get_labels = []
+        for t in ticklabels:
+            # try calling get_text() to check whether it is Text object
+            # if it is Text, get label content
+            try:
+                get_labels.append(t.get_text())
+            # otherwise add the label to the list directly
+            except AttributeError: 
+                get_labels.append(t)
+        # replace the ticklabels list with the processed one
+        ticklabels = get_labels
+
         minor = kwargs.pop('minor', False)
         if minor:
             self.set_minor_formatter(mticker.FixedFormatter(ticklabels))
