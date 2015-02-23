@@ -1653,7 +1653,7 @@ class _AxesBase(martist.Artist):
         check if there is no patches and lines need 
         to be changed, remain the original dataLim
         """
-        if ((self.lines == []) and (self.patches == [])):
+        if (not self.lines) or (not self.patches):
             return False
         else:
             return True
