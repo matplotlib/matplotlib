@@ -55,10 +55,10 @@ FT2Image::~FT2Image()
 
 void FT2Image::resize(long width, long height)
 {
-    if (width < 0) {
+    if (width <= 0) {
         width = 1;
     }
-    if (height < 0) {
+    if (height <= 0) {
         height = 1;
     }
     size_t numBytes = width * height;
