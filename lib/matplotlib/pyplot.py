@@ -52,6 +52,7 @@ import numpy as np
 
 # We may not need the following imports here:
 from matplotlib.colors import Normalize
+from matplotlib.colors import normalize  # for backwards compat.
 from matplotlib.lines import Line2D
 from matplotlib.text import Text, Annotation
 from matplotlib.patches import Polygon, Rectangle, Circle, Arrow
@@ -170,6 +171,46 @@ def ion():
     'Turn interactive mode on.'
     matplotlib.interactive(True)
 
+def pickle_save(obj, f=None, protocol=0):
+    """
+    Write a pickled representation of obj as a string or a file depending on the number and type of arguments used.
+
+    ``pickle_save(obj, file, protocol)`` Write a pickled representation of obj to the open file object file.
+    
+    ``pickle_save(obj, protocol)`` Return the pickled representation of the object as a string, instead of writing it to a file.
+    """
+    import pickle 
+    
+    if not f: 
+        return pickle.dumps(obj, protocol) 
+    
+    pickle.dump(obj, f, protocol)
+
+def pickle_load(*args, **kwargs):
+    """ 
+    Read a string or pickled object and reconstruct the original object hierarchy.
+    
+    ``pickle_load(file)`` Read a string from the open file object file and interpret it as a pickle data stream, reconstructing and returning the original object hierarchy.
+    
+    ``pick_load(str)`` Read a pickled object hierarchy from a string. Characters in the string past the pickled object’s representation are ignored.
+
+    """
+    import pickle
+    
+    state = isinteractive()
+    if state:
+        ioff()
+    if len(args) != 1 or not(isinstance(args[0], str) or isinstance(args[0], file)):
+        warnings.warn('Unsupported number/type of argument(s).')
+    if isinstance(args[0], str):
+        unpickledobj = pickle.loads(args[0])
+        if state:
+            ion()
+        return unpickledobj
+    
+    pickle.load(args[0])
+    if state:
+        ion()
 
 def pause(interval):
     """
@@ -452,7 +493,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
 
 def gcf():
-    "Get a reference to the current figure."
+    "Return a reference to the current figure."
 
     figManager = _pylab_helpers.Gcf.get_active()
     if figManager is not None:
@@ -808,12 +849,12 @@ def sca(ax):
 
 def gca(**kwargs):
     """
-    Get the current :class:`~matplotlib.axes.Axes` instance on the
+    Return the current :class:`~matplotlib.axes.Axes` instance on the
     current figure matching the given keyword args, or create one.
 
     Examples
     ---------
-    To get the current polar axes on the current figure::
+    To get the the current polar axes on the current figure::
 
         plt.gca(projection='polar')
 
@@ -1160,7 +1201,7 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, **kwargs):
 
     is identical to ::
 
-      gridspec=GridSpec(shape[0], shape[1])
+      gridspec=GridSpec(shape[0], shape[2])
       subplotspec=gridspec.new_subplotspec(loc, rowspan, colspan)
       subplot(subplotspec)
     """
@@ -2181,7 +2222,7 @@ def clim(vmin=None, vmax=None):
     """
     im = gci()
     if im is None:
-        raise RuntimeError('You must first define an image, e.g., with imshow')
+        raise RuntimeError('You must first define an image, eg with imshow')
 
     im.set_clim(vmin, vmax)
     draw_if_interactive()
@@ -3065,7 +3106,7 @@ def phase_spectrum(x, Fs=None, Fc=None, window=None, pad_to=None, sides=None,
 def pie(x, explode=None, labels=None, colors=None, autopct=None,
         pctdistance=0.6, shadow=False, labeldistance=1.1, startangle=None,
         radius=None, counterclock=True, wedgeprops=None, textprops=None,
-        center=(0, 0), frame=False, hold=None):
+        hold=None):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
@@ -3077,8 +3118,7 @@ def pie(x, explode=None, labels=None, colors=None, autopct=None,
                      autopct=autopct, pctdistance=pctdistance, shadow=shadow,
                      labeldistance=labeldistance, startangle=startangle,
                      radius=radius, counterclock=counterclock,
-                     wedgeprops=wedgeprops, textprops=textprops, center=center,
-                     frame=frame)
+                     wedgeprops=wedgeprops, textprops=textprops)
         draw_if_interactive()
     finally:
         ax.hold(washold)
