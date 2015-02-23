@@ -3,9 +3,11 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+import io
+
 import numpy as np
 import matplotlib
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 import matplotlib.pyplot as plt
 from matplotlib import mathtext
 
@@ -209,6 +211,22 @@ def test_mathtext_exceptions():
             assert exc[3].startswith(msg)
         else:
             assert False, "Expected '%s', but didn't get it" % msg
+
+@cleanup
+def test_single_minus_sign():
+    plt.figure(figsize=(0.3, 0.3))
+    plt.text(0.5, 0.5, '$-$')
+    for spine in plt.gca().spines.values():
+        spine.set_visible(False)
+    plt.gca().set_xticks([])
+    plt.gca().set_yticks([])
+
+    buff = io.BytesIO()
+    plt.savefig(buff, format="rgba", dpi=1000)
+    array = np.fromstring(buff.getvalue(), dtype=np.uint8)
+
+    # If this fails, it would be all white
+    assert not np.all(array == 0xff)
 
 
 if __name__ == '__main__':
