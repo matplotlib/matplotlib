@@ -1530,7 +1530,7 @@ class Axis(artist.Artist):
             try:
                 get_labels.append(t.get_text())
             # otherwise add the label to the list directly
-            except AttributeError: 
+            except AttributeError:
                 get_labels.append(t)
         # replace the ticklabels list with the processed one
         ticklabels = get_labels
