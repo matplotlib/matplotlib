@@ -55,10 +55,10 @@ FT2Image::~FT2Image()
 
 void FT2Image::resize(long width, long height)
 {
-    if (width < 0) {
+    if (width <= 0) {
         width = 1;
     }
-    if (height < 0) {
+    if (height <= 0) {
         height = 1;
     }
     size_t numBytes = width * height;
@@ -146,11 +146,11 @@ FT2Image::draw_rect_filled(unsigned long x0, unsigned long y0, unsigned long x1,
 {
     x0 = std::min(x0, m_width);
     y0 = std::min(y0, m_height);
-    x1 = std::min(x1, m_width);
-    y1 = std::min(y1, m_height);
+    x1 = std::min(x1 + 1, m_width);
+    y1 = std::min(y1 + 1, m_height);
 
-    for (size_t j = y0; j < y1 + 1; j++) {
-        for (size_t i = x0; i < x1 + 1; i++) {
+    for (size_t j = y0; j < y1; j++) {
+        for (size_t i = x0; i < x1; i++) {
             m_buffer[i + j * m_width] = 255;
         }
     }
