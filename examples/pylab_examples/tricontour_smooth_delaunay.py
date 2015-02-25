@@ -45,18 +45,19 @@ def experiment_res(x, y):
 # User parameters for data test points
 n_test = 200  # Number of test data points, tested from 3 to 5000 for subdiv=3
 
-subdiv = 3  # Number of recursive subdivisions of the initial mesh for smooth
-            # plots. Values >3 might result in a very high number of triangles
-            # for the refine mesh: new triangles numbering = (4**subdiv)*ntri
+# Number of recursive subdivisions of the initial mesh for smooth plots.
+# Values >3 might result in a very high number of triangles for the refine
+# mesh: new triangles numbering = (4**subdiv)*ntri
+subdiv = 3
 
-init_mask_frac = 0.0    # Float > 0. adjusting the proportion of
-                        # (invalid) initial triangles which will be masked
-                        # out. Enter 0 for no mask.
+# Float > 0. adjusting the proportion of (invalid) initial triangles which will
+# be masked out. Enter 0 for no mask.
+init_mask_frac = 0.0
 
-min_circle_ratio = .01  # Minimum circle ratio - border triangles with circle
-                        # ratio below this will be masked if they touch a
-                        # border. Suggested value 0.01 ; Use -1 to keep
-                        # all triangles.
+# Minimum circle ratio - border triangles with circle ratio below this will
+# be masked if they touch a border. Suggested value 0.01; Use -1 to keep
+# all triangles.
+min_circle_ratio = .01
 
 # Random points
 random_gen = np.random.mtrand.RandomState(seed=127260)

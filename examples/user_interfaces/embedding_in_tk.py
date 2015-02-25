@@ -48,8 +48,9 @@ canvas.mpl_connect('key_press_event', on_key_event)
 
 def _quit():
     root.quit()     # stops mainloop
-    root.destroy()  # this is necessary on Windows to prevent
-                    # Fatal Python Error: PyEval_RestoreThread: NULL tstate
+    # this is necessary on Windows to prevent
+    # Fatal Python Error: PyEval_RestoreThread: NULL tstate
+    root.destroy()
 
 button = Tk.Button(master=root, text='Quit', command=_quit)
 button.pack(side=Tk.BOTTOM)
