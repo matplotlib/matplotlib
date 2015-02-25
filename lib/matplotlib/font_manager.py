@@ -899,7 +899,9 @@ class FontProperties(object):
             size = float(size)
         except ValueError:
             if size is not None and size not in font_scalings:
-                raise ValueError("size is invalid")
+                raise ValueError(
+                    "Size is invalid. Valid font size are " + ", ".join(
+                        str(i) for i in font_scalings.keys()))
         self._size = size
 
     def set_file(self, file):
