@@ -54,7 +54,7 @@ script:
   - python -c "from matplotlib import font_manager"
   - |
     if [[ $BUILD_DOCS == false ]]; then
-      export MPL_REPO_DIR=$PWD  # pep8-conformance test of the examples
+      # pep8-conformance test of the examples
       mkdir ../tmp_test_dir
       cd ../tmp_test_dir
       gdb -return-child-result -batch -ex r -ex bt --args python ../matplotlib/tests.py -sv --processes=8 --process-timeout=300 $TEST_ARGS
@@ -70,7 +70,7 @@ after_failure:
   |
   if [[ $BUILD_DOCS == false && $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' ]]; then
     gem install travis-artifacts
-    cd $MPL_REPO_DIR/../tmp_test_dir
+    cd $TRAVIS_BUILD_DIR/../tmp_test_dir
     tar cjf result_images.tar.bz2 result_images
     travis-artifacts upload --path result_images.tar.bz2
     echo "The result images will only be uploaded if they are on the matplotlib/matplotlib repo - this is for security reasons to prevent arbitrary PRs echoing security details." else echo https://s3.amazonaws.com/matplotlib-test-results/artifacts/${TRAVIS_BUILD_NUMBER}/${TRAVIS_JOB_NUMBER}/result_images.tar.bz2
@@ -79,7 +79,7 @@ after_failure:
 after_success:
   |
   if [[ $TRAVIS_PULL_REQUEST == false && $BUILD_DOCS == true && $TRAVIS_BRANCH == 'master' ]]; then
-    cd $MPL_REPO_DIR
+    cd $TRAVIS_BUILD_DIR
     echo "Uploading documentation"
     openssl aes-256-cbc -K $encrypted_cc802e084cd0_key -iv $encrypted_cc802e084cd0_iv -in .travis/matplotlibDeployKey.enc -out .travis/matplotlibDeployKey -d
     eval `ssh-agent -s`
@@ -103,7 +103,7 @@ after_success:
   if [[ $TRAVIS_PULL_REQUEST == false ]] && \
      [[ $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' ]] && \
      [[ $TRAVIS_BRANCH == 'master' ]]; then
-      cd $MPL_REPO_DIR
+      cd $TRAVIS_BUILD_DIR
       python .travis/travis_after_all.py
       export $(cat .to_export_back)
       if [ "$BUILD_LEADER" = "YES" ]; then
@@ -114,5 +114,4 @@ after_success:
           echo "Some Failed; no OSX build"
         fi
       fi
-    fi
   fi
