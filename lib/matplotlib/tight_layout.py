@@ -123,9 +123,6 @@ def auto_adjust_subplotpars(fig, renderer,
     for subplots, ax_bbox, (num1, num2) in zip(subplot_list,
                                                ax_bbox_list,
                                                num1num2_list):
-
-        #ax_bbox = union([ax.get_position(original=True) for ax in subplots])
-
         tight_bbox_raw = union([ax.get_tightbbox(renderer) for ax in subplots])
         tight_bbox = TransformedBbox(tight_bbox_raw,
                                      fig.transFigure.inverted())
@@ -197,7 +194,7 @@ def auto_adjust_subplotpars(fig, renderer,
                       in hspaces[i * (cols + 1) + 1:(i + 1) * (cols + 1) - 1]])
         hspace += hpad_inches / fig_width_inch
         h_axes = ((1 - margin_right - margin_left) -
-                   hspace * (cols - 1)) / cols
+                  hspace * (cols - 1)) / cols
 
         kwargs["wspace"] = hspace / h_axes
 
@@ -299,9 +296,9 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
     ncols_list = []
     ax_bbox_list = []
 
-    subplot_dict = {}  # multiple axes can share
-                       # same subplot_interface (e.g., axes_grid1). Thus
-                       # we need to join them together.
+    # multiple axes can share same subplot_interface (e.g., axes_grid1). Thus
+    # we need to join them together.
+    subplot_dict = {}
 
     subplotspec_list2 = []
 

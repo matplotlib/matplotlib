@@ -249,10 +249,9 @@ class QuiverKey(martist.Artist):
             self_weakref = weak_self()
             if self_weakref is not None:
                 self_weakref.labelsep = (self_weakref._labelsep_inches*fig.dpi)
-                self_weakref._initialized = False  # simple brute force update
-                                                   # works because _init is
-                                                   # called at the start of
-                                                   # draw.
+                # simple brute force update works because _init is called at
+                # the start of draw
+                self_weakref._initialized = False
 
         self._cid = Q.ax.figure.callbacks.connect('dpi_changed',
                                                   on_dpi_change)
@@ -356,8 +355,8 @@ class QuiverKey(martist.Artist):
     def contains(self, mouseevent):
         # Maybe the dictionary should allow one to
         # distinguish between a text hit and a vector hit.
-        if (self.text.contains(mouseevent)[0]
-                or self.vector.contains(mouseevent)[0]):
+        if (self.text.contains(mouseevent)[0] or
+                self.vector.contains(mouseevent)[0]):
             return True, {}
         return False, {}
 
@@ -452,9 +451,9 @@ class Quiver(mcollections.PolyCollection):
         kw.setdefault('facecolors', self.color)
         kw.setdefault('linewidths', (0,))
         mcollections.PolyCollection.__init__(self, [], offsets=self.XY,
-                                            transOffset=self.transform,
-                                            closed=False,
-                                            **kw)
+                                             transOffset=self.transform,
+                                             closed=False,
+                                             **kw)
         self.polykw = kw
         self.set_UVC(U, V, C)
         self._initialized = False
@@ -468,12 +467,11 @@ class Quiver(mcollections.PolyCollection):
         def on_dpi_change(fig):
             self_weakref = weak_self()
             if self_weakref is not None:
-                self_weakref._new_UV = True  # vertices depend on width, span
-                                             # which in turn depend on dpi
-                self_weakref._initialized = False  # simple brute force update
-                                                   # works because _init is
-                                                   # called at the start of
-                                                   # draw.
+                # vertices depend on width, span which in turn depend on dpi
+                self_weakref._new_UV = True
+                # simple brute force update works because _init is called at
+                # the start of draw
+                self_weakref._initialized = False
 
         self._cid = self.ax.figure.callbacks.connect('dpi_changed',
                                                      on_dpi_change)
@@ -622,9 +620,9 @@ class Quiver(mcollections.PolyCollection):
                 amean = a[~self.Umask].mean()
             else:
                 amean = a.mean()
-            scale = 1.8 * amean * sn / self.span  # crude auto-scaling
-                # scale is typical arrow length as a multiple
-                # of the arrow width
+            # crude auto-scaling
+            # scale is typical arrow length as a multiple of the arrow width
+            scale = 1.8 * amean * sn / self.span
         if self.scale_units is None:
             if self.scale is None:
                 self.scale = scale
@@ -700,9 +698,9 @@ class Quiver(mcollections.PolyCollection):
         if self.pivot == 'middle':
             X -= 0.5 * X[:, 3, np.newaxis]
         elif self.pivot == 'tip':
-            X = X - X[:, 3, np.newaxis]   # numpy bug? using -= does not
-                                          # work here unless we multiply
-                                          # by a float first, as with 'mid'.
+            # numpy bug? using -= does not work here unless we multiply by a
+            # float first, as with 'mid'.
+            X = X - X[:, 3, np.newaxis]
         tooshort = length < self.minlength
         if tooshort.any():
             # Use a heptagonal dot:

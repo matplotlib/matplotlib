@@ -205,8 +205,6 @@ class ContourLabeler(object):
             self.labelMappable = cm.ScalarMappable(cmap=cmap,
                                                    norm=colors.NoNorm())
 
-        #self.labelTexts = []   # Initialized in ContourSet.__init__
-        #self.labelCValues = [] # same
         self.labelXYs = []
 
         if cbook.iterable(self.labelManual):
@@ -372,7 +370,7 @@ class ContourLabeler(object):
 
         XX = np.resize(linecontour[:, 0], (xsize, ysize))
         YY = np.resize(linecontour[:, 1], (xsize, ysize))
-        #I might have fouled up the following:
+        # I might have fouled up the following:
         yfirst = YY[:, 0].reshape(xsize, 1)
         ylast = YY[:, -1].reshape(xsize, 1)
         xfirst = XX[:, 0].reshape(xsize, 1)
@@ -381,13 +379,10 @@ class ContourLabeler(object):
         L = np.sqrt((xlast - xfirst) ** 2 + (ylast - yfirst) ** 2).ravel()
         dist = np.add.reduce(([(abs(s)[i] / L[i]) for i in range(xsize)]), -1)
         x, y, ind = self.get_label_coords(dist, XX, YY, ysize, labelwidth)
-        #print 'ind, x, y', ind, x, y
 
         # There must be a more efficient way...
         lc = [tuple(l) for l in linecontour]
         dind = lc.index((x, y))
-        #print 'dind', dind
-        #dind = list(linecontour).index((x,y))
 
         return x, y, dind
 
@@ -494,7 +489,7 @@ class ContourLabeler(object):
             # The current implementation removes contours completely
             # covered by labels.  Uncomment line below to keep
             # original contour if this is the preferred behavior.
-            #if not len(nlc): nlc = [ lc ]
+            # if not len(nlc): nlc = [ lc ]
 
         return rotation, nlc
 
@@ -843,8 +838,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.extend = kwargs.get('extend', 'neither')
         self.antialiased = kwargs.get('antialiased', None)
         if self.antialiased is None and self.filled:
-            self.antialiased = False  # eliminate artifacts; we are not
-                                      # stroking the boundaries.
+            # eliminate artifacts; we are not stroking the boundaries
+            self.antialiased = False
             # The default for line contours will be taken from
             # the LineCollection default, which uses the
             # rcParams['lines.antialiased']

@@ -906,8 +906,10 @@ class _AxesBase(martist.Artist):
         self.containers = []
 
         self.grid(self._gridOn, which=rcParams['axes.grid.which'])
-        props = font_manager.FontProperties(size=rcParams['axes.titlesize'],
-                                        weight=rcParams['axes.titleweight'])
+        props = font_manager.FontProperties(
+                    size=rcParams['axes.titlesize'],
+                    weight=rcParams['axes.titleweight']
+                )
 
         self.titleOffsetTrans = mtransforms.ScaledTranslation(
             0.0, 5.0 / 72.0, self.figure.dpi_scale_trans)
@@ -1179,7 +1181,7 @@ class _AxesBase(martist.Artist):
         else:
             A = aspect
 
-        #Ensure at drawing time that any Axes involved in axis-sharing
+        # Ensure at drawing time that any Axes involved in axis-sharing
         # does not have its position changed.
         if self in self._shared_x_axes or self in self._shared_y_axes:
             if self._adjustable == 'box':
@@ -1218,10 +1220,8 @@ class _AxesBase(martist.Artist):
         data_ratio = box_aspect / A
 
         y_expander = (data_ratio * xsize / ysize - 1.0)
-        #print 'y_expander', y_expander
         # If y_expander > 0, the dy/dx viewLim ratio needs to increase
         if abs(y_expander) < 0.005:
-            #print 'good enough already'
             return
 
         if aspect_scale_mode == "log":
@@ -1241,16 +1241,13 @@ class _AxesBase(martist.Artist):
         Xsize = ysize / data_ratio
         Xmarg = Xsize - xr
         Ymarg = Ysize - yr
-        xm = 0  # Setting these targets to, e.g., 0.05*xr does not seem to
-                # help.
+        xm = 0  # Setting these targets to, e.g., 0.05*xr does not seem to help
         ym = 0
-        #print 'xmin, xmax, ymin, ymax', xmin, xmax, ymin, ymax
-        #print 'xsize, Xsize, ysize, Ysize', xsize, Xsize, ysize, Ysize
 
-        changex = (self in self._shared_y_axes
-                   and self not in self._shared_x_axes)
-        changey = (self in self._shared_x_axes
-                   and self not in self._shared_y_axes)
+        changex = (self in self._shared_y_axes and
+                   self not in self._shared_x_axes)
+        changey = (self in self._shared_x_axes and
+                   self not in self._shared_y_axes)
         if changex and changey:
             warnings.warn("adjustable='datalim' cannot work with shared "
                           "x and y axes")
@@ -1258,13 +1255,11 @@ class _AxesBase(martist.Artist):
         if changex:
             adjust_y = False
         else:
-            #print 'xmarg, ymarg, Xmarg, Ymarg', xmarg, ymarg, Xmarg, Ymarg
             if xmarg > xm and ymarg > ym:
-                adjy = ((Ymarg > 0 and y_expander < 0)
-                        or (Xmarg < 0 and y_expander > 0))
+                adjy = ((Ymarg > 0 and y_expander < 0) or
+                        (Xmarg < 0 and y_expander > 0))
             else:
                 adjy = y_expander > 0
-            #print 'y_expander, adjy', y_expander, adjy
             adjust_y = changey or adjy  # (Ymarg > xmarg)
         if adjust_y:
             yc = 0.5 * (ymin + ymax)
@@ -1274,8 +1269,6 @@ class _AxesBase(martist.Artist):
                 self.set_ybound((10. ** y0, 10. ** y1))
             else:
                 self.set_ybound((y0, y1))
-            #print 'New y0, y1:', y0, y1
-            #print 'New ysize, ysize/xsize', y1-y0, (y1-y0)/xsize
         else:
             xc = 0.5 * (xmin + xmax)
             x0 = xc - Xsize / 2.0
@@ -1284,8 +1277,6 @@ class _AxesBase(martist.Artist):
                 self.set_xbound((10. ** x0, 10. ** x1))
             else:
                 self.set_xbound((x0, x1))
-            #print 'New x0, x1:', x0, x1
-            #print 'New xsize, ysize/xsize', x1-x0, ysize/(x1-x0)
 
     def axis(self, *v, **kwargs):
         """
@@ -1402,7 +1393,7 @@ class _AxesBase(martist.Artist):
         return cbook.silent_list('Line2D ytickline',
                                  self.yaxis.get_ticklines())
 
-    #### Adding and tracking artists
+    # Adding and tracking artists
 
     def _sci(self, im):
         """
@@ -1588,7 +1579,7 @@ class _AxesBase(martist.Artist):
             xys = patch.get_patch_transform().transform(vertices)
             if patch.get_data_transform() != self.transData:
                 patch_to_data = (patch.get_data_transform() -
-                                    self.transData)
+                                 self.transData)
                 xys = patch_to_data.transform(xys)
 
             updatex, updatey = patch.get_transform().\
@@ -1689,18 +1680,15 @@ class _AxesBase(martist.Artist):
         if self.xaxis is None or self.yaxis is None:
             return
 
-        #print 'processing', self.get_geometry()
         if xdata is not None:
             # we only need to update if there is nothing set yet.
             if not self.xaxis.have_units():
                 self.xaxis.update_units(xdata)
-            #print '\tset from xdata', self.xaxis.units
 
         if ydata is not None:
             # we only need to update if there is nothing set yet.
             if not self.yaxis.have_units():
                 self.yaxis.update_units(ydata)
-            #print '\tset from ydata', self.yaxis.units
 
         # process kwargs 2nd since these will override default units
         if kwargs is not None:
@@ -1708,7 +1696,6 @@ class _AxesBase(martist.Artist):
             if self.name == 'polar':
                 xunits = kwargs.pop('thetaunits', xunits)
             if xunits != self.xaxis.units:
-                #print '\tkw setting xunits', xunits
                 self.xaxis.set_units(xunits)
                 # If the units being set imply a different converter,
                 # we need to update.
@@ -1719,7 +1706,6 @@ class _AxesBase(martist.Artist):
             if self.name == 'polar':
                 yunits = kwargs.pop('runits', yunits)
             if yunits != self.yaxis.units:
-                #print '\tkw setting yunits', yunits
                 self.yaxis.set_units(yunits)
                 # If the units being set imply a different converter,
                 # we need to update.
@@ -1937,7 +1923,7 @@ class _AxesBase(martist.Artist):
         if scalex and self._autoscaleXon:
             xshared = self._shared_x_axes.get_siblings(self)
             dl = [ax.dataLim for ax in xshared]
-            #ignore non-finite data limits if good limits exist
+            # ignore non-finite data limits if good limits exist
             finite_dl = [d for d in dl if np.isfinite(d).all()]
             if len(finite_dl):
                 dl = finite_dl
@@ -1963,7 +1949,7 @@ class _AxesBase(martist.Artist):
         if scaley and self._autoscaleYon:
             yshared = self._shared_y_axes.get_siblings(self)
             dl = [ax.dataLim for ax in yshared]
-            #ignore non-finite data limits if good limits exist
+            # ignore non-finite data limits if good limits exist
             finite_dl = [d for d in dl if np.isfinite(d).all()]
             if len(finite_dl):
                 dl = finite_dl
@@ -1984,7 +1970,7 @@ class _AxesBase(martist.Artist):
                 y0, y1 = ylocator.view_limits(y0, y1)
             self.set_ybound(y0, y1)
 
-    #### Drawing
+    # Drawing
 
     @allow_rasterization
     def draw(self, renderer=None, inframe=False):
@@ -2056,7 +2042,7 @@ class _AxesBase(martist.Artist):
         # if the minimum zorder is negative, start rasterization
         rasterization_zorder = self._rasterization_zorder
         if (rasterization_zorder is not None and
-            len(dsu) > 0 and dsu[0][0] < rasterization_zorder):
+                len(dsu) > 0 and dsu[0][0] < rasterization_zorder):
             renderer.start_rasterizing()
             dsu_rasterized = [l for l in dsu if l[0] < rasterization_zorder]
             dsu = [l for l in dsu if l[0] >= rasterization_zorder]
@@ -2133,7 +2119,7 @@ class _AxesBase(martist.Artist):
     def get_renderer_cache(self):
         return self._cachedRenderer
 
-    #### Axes rectangle characteristics
+    # Axes rectangle characteristics
 
     def get_frame_on(self):
         """
@@ -2430,7 +2416,7 @@ class _AxesBase(martist.Artist):
         self._axisbg = color
         self.patch.set_facecolor(color)
 
-    ### data limits, ticks, tick labels, and formatting
+    # data limits, ticks, tick labels, and formatting
 
     def invert_xaxis(self):
         "Invert the x-axis."
@@ -2575,7 +2561,7 @@ class _AxesBase(martist.Artist):
                     other.set_xlim(self.viewLim.intervalx,
                                    emit=False, auto=auto)
                     if (other.figure != self.figure and
-                        other.figure.canvas is not None):
+                            other.figure.canvas is not None):
                         other.figure.canvas.draw_idle()
 
         return left, right
@@ -2910,8 +2896,8 @@ class _AxesBase(martist.Artist):
            List of :class:`~matplotlib.text.Text` instances.
         """
         return cbook.silent_list('Text yticklabel',
-                                  self.yaxis.get_ticklabels(minor=minor,
-                                                            which=which))
+                                 self.yaxis.get_ticklabels(minor=minor,
+                                                           which=which))
 
     @docstring.dedent_interpd
     def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
@@ -3004,7 +2990,7 @@ class _AxesBase(martist.Artist):
         self.xaxis.set_minor_locator(mticker.NullLocator())
         self.yaxis.set_minor_locator(mticker.NullLocator())
 
-    #### Interactive manipulation
+    # Interactive manipulation
 
     def can_zoom(self):
         """
