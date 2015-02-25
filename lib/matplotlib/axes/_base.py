@@ -1636,6 +1636,7 @@ class _AxesBase(martist.Artist):
         # the TODO note in artists.py.
         self.dataLim.ignore(True)
         # check if there is a need to create a null bbox
+        # by checking if lines and patches are empty or not
         if (self.conditionCheck()):
             self.dataLim.set_points(mtransforms.Bbox.null().get_points())
             self.ignore_existing_data_limits = True
@@ -1653,7 +1654,7 @@ class _AxesBase(martist.Artist):
         check if there is no patches and lines need 
         to be changed, remain the original dataLim
         """
-        if (not self.lines) and (not self.patches):
+        if not self.lines and not self.patches:
             return False
         else:
             return True
