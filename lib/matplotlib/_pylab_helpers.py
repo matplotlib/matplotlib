@@ -84,6 +84,7 @@ class Gcf(object):
 
     @classmethod
     def destroy_all(cls):
+        import gc
         for manager in list(cls.figs.values()):
             manager.canvas.mpl_disconnect(manager._cidgcf)
             manager.destroy()
