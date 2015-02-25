@@ -331,9 +331,10 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
         if numrows <= 0 or numcols <= 0:
             return
-        im.resize(numcols, numrows)  # just to create im.bufOut that
-                                     # is required by backends. There
-                                     # may be better solution -JJL
+
+        # just to create im.bufOut that is required by backends. There may be
+        # a better solution -JJL
+        im.resize(numcols, numrows)
 
         im._url = self.get_url()
         im._gid = self.get_gid()
@@ -353,7 +354,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         if not self.get_visible():
             return
         if (self.axes.get_xscale() != 'linear' or
-            self.axes.get_yscale() != 'linear'):
+                self.axes.get_yscale() != 'linear'):
             warnings.warn("Images are not supported on non-linear axes.")
 
         l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
@@ -392,7 +393,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             xmin, xmax = xmax, xmin
         if ymin > ymax:
             ymin, ymax = ymax, ymin
-        #print x, y, xmin, xmax, ymin, ymax
+
         if x is not None and y is not None:
             inside = ((x >= xmin) and (x <= xmax) and
                       (y >= ymin) and (y <= ymax))
@@ -426,11 +427,11 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             self._A = cbook.safe_masked_invalid(A)
 
         if (self._A.dtype != np.uint8 and
-            not np.can_cast(self._A.dtype, np.float)):
+                not np.can_cast(self._A.dtype, np.float)):
             raise TypeError("Image data can not convert to float")
 
         if (self._A.ndim not in (2, 3) or
-            (self._A.ndim == 3 and self._A.shape[-1] not in (3, 4))):
+                (self._A.ndim == 3 and self._A.shape[-1] not in (3, 4))):
             raise TypeError("Invalid dimensions for image data")
 
         self._imcache = None
@@ -677,7 +678,6 @@ class AxesImage(_AxesImageBase):
             return self._extent
         else:
             sz = self.get_size()
-            #print 'sz', sz
             numrows, numcols = sz
             if self.origin == 'upper':
                 return (-0.5, numcols-0.5, numrows-0.5, -0.5)
@@ -914,7 +914,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         if A.ndim == 3:
             if A.shape[2] in [3, 4]:
                 if ((A[:, :, 0] == A[:, :, 1]).all() and
-                    (A[:, :, 0] == A[:, :, 2]).all()):
+                        (A[:, :, 0] == A[:, :, 2]).all()):
                     self.is_grayscale = True
             else:
                 raise ValueError("3D arrays must have RGB or RGBA as last dim")
@@ -972,7 +972,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
             return self._contains(self, mouseevent)
         xmin, xmax, ymin, ymax = self.get_extent()
         xdata, ydata = mouseevent.x, mouseevent.y
-        #print xdata, ydata, xmin, xmax, ymin, ymax
+
         if xdata is not None and ydata is not None:
             inside = ((xdata >= xmin) and (xdata <= xmax) and
                       (ydata >= ymin) and (ydata <= ymax))
@@ -1014,7 +1014,6 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         self.magnification = magnification
         # if magnification is not one, we need to resize
         ismag = magnification != 1
-        #if ismag: raise RuntimeError
         if ismag:
             isoutput = 0
         else:
@@ -1170,16 +1169,13 @@ class BboxImage(_AxesImageBase):
         numrows, numcols = self._A.shape[:2]
 
         if (not self.interp_at_native and
-            widthDisplay == numcols and heightDisplay == numrows):
+                widthDisplay == numcols and heightDisplay == numrows):
             im.set_interpolation(0)
 
         # resize viewport to display
         rx = widthDisplay / numcols
         ry = heightDisplay / numrows
-        #im.apply_scaling(rx*sx, ry*sy)
         im.apply_scaling(rx, ry)
-        #im.resize(int(widthDisplay+0.5), int(heightDisplay+0.5),
-        #          norm=self._filternorm, radius=self._filterrad)
         im.resize(int(widthDisplay), int(heightDisplay),
                   norm=self._filternorm, radius=self._filterrad)
         return im
@@ -1195,7 +1191,6 @@ class BboxImage(_AxesImageBase):
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
         gc.set_alpha(self.get_alpha())
-        #gc.set_clip_path(self.get_clip_path())
 
         l = np.min([x0, x1])
         b = np.min([y0, y1])
@@ -1341,7 +1336,7 @@ def pil_to_array(pilImage):
         x.shape = im.size[1], im.size[0]
         return x
     elif pilImage.mode == 'RGB':
-        #return MxNx3 RGB array
+        # return MxNx3 RGB array
         im = pilImage  # no need to RGB images
         x = toarray(im)
         x.shape = im.size[1], im.size[0], 3

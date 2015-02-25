@@ -43,7 +43,6 @@ if 1:
                         boxcoords=("axes fraction", "data"),
                         box_alignment=(0., 0.5),
                         arrowprops=dict(arrowstyle="->"))
-                        #arrowprops=None)
 
     ax.add_artist(ab)
 
@@ -56,7 +55,6 @@ if 1:
                         boxcoords="offset points",
                         pad=0.3,
                         arrowprops=dict(arrowstyle="->"))
-                        #arrowprops=None)
 
     ax.add_artist(ab)
 
