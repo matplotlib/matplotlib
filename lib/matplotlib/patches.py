@@ -2316,7 +2316,7 @@ class BoxStyle(_Style):
             saw_vertices = np.concatenate([np.array(saw_vertices),
                                            [saw_vertices[0]]], axis=0)
             codes = ([Path.MOVETO] +
-                     [Path.CURVE3, Path.CURVE3] * ((len(saw_vertices)-1) // 2) +
+                     [Path.CURVE3, Path.CURVE3] * ((len(saw_vertices)-1)//2) +
                      [Path.CLOSEPOLY])
             return Path(saw_vertices, codes)
 
