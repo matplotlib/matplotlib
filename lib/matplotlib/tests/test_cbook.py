@@ -8,7 +8,7 @@ from datetime import datetime
 import numpy as np
 from numpy.testing.utils import (assert_array_equal, assert_approx_equal,
                                  assert_array_almost_equal)
-from nose.tools import assert_equal, raises, assert_true
+from nose.tools import assert_equal, assert_not_equal, raises, assert_true
 
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
@@ -243,3 +243,47 @@ class Test_boxplot_stats(object):
     def test_bad_dims(self):
         data = np.random.normal(size=(34, 34, 34))
         results = cbook.boxplot_stats(data)
+
+
+class Test_callback_registry(object):
+    def setup(self):
+        self.signal = 'test'
+        self.callbacks = cbook.CallbackRegistry()
+
+    def connect(self, s, func):
+        return self.callbacks.connect(s, func)
+
+    def is_empty(self):
+        assert_equal(self.callbacks._func_cid_map, {})
+        assert_equal(self.callbacks.callbacks, {})
+
+    def is_not_empty(self):
+        assert_not_equal(self.callbacks._func_cid_map, {})
+        assert_not_equal(self.callbacks.callbacks, {})
+
+    def test_callback_complete(self):
+        # ensure we start with an empty registry
+        self.is_empty()
+
+        # create a class for testing
+        mini_me = Test_callback_registry()
+
+        # test that we can add a callback
+        cid1 = self.connect(self.signal, mini_me.dummy)
+        assert_equal(type(cid1), int)
+        self.is_not_empty()
+
+        # test that we don't add a second callback
+        cid2 = self.connect(self.signal, mini_me.dummy)
+        assert_equal(cid1, cid2)
+        self.is_not_empty()
+        assert_equal(len(self.callbacks._func_cid_map), 1)
+        assert_equal(len(self.callbacks.callbacks), 1)
+
+        del mini_me
+
+        # check we now have no callbacks registered
+        self.is_empty()
+
+    def dummy(self):
+        pass
