@@ -24,7 +24,7 @@ matrix:
       env: BUILD_DOCS=true
 
 install:
-  - pip install -q --use-mirrors nose python-dateutil $NUMPY pep8==1.5.7 pyparsing pillow sphinx
+  - pip install -q --use-mirrors nose python-dateutil $NUMPY pep8 pyparsing pillow sphinx
   - sudo apt-get update && sudo apt-get -qq install inkscape libav-tools gdb mencoder
   # We use --no-install-recommends to avoid pulling in additional large latex docs that we don't need
 
