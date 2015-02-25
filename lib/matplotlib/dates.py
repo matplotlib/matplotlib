@@ -261,6 +261,32 @@ class strpdate2num(object):
         return date2num(datetime.datetime(*time.strptime(s, self.fmt)[:6]))
 
 
+class bytespdate2num(strpdate2num):
+    """
+    Use this class to parse date strings to matplotlib datenums when
+    you know the date format string of the date you are parsing.  See
+    :file:`examples/load_demo.py`.
+    """
+    def __init__(self, fmt, encoding='utf-8'):
+        """
+        Args:
+            fmt: any valid strptime format is supported
+            encoding: encoding to use on byte input (default: 'utf-8')
+        """
+        super(bytespdate2num, self).__init__(fmt)
+        self.encoding = encoding
+
+    def __call__(self, b):
+        """
+        Args:
+            b: byte input to be converted
+        Returns:
+            A date2num float
+        """
+        s = b.decode(self.encoding)
+        return super(bytespdate2num, self).__call__(s)
+
+
 # a version of dateutil.parser.parse that can operate on nump0y arrays
 _dateutil_parser_parse_np_vectorized = np.vectorize(dateutil.parser.parse)
 
