@@ -54,7 +54,7 @@ script:
   - python -c "from matplotlib import font_manager"
   - |
     if [[ $BUILD_DOCS == false ]]; then
-      # pep8-conformance test of the examples
+      export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
       mkdir ../tmp_test_dir
       cd ../tmp_test_dir
       gdb -return-child-result -batch -ex r -ex bt --args python ../matplotlib/tests.py -sv --processes=8 --process-timeout=300 $TEST_ARGS
