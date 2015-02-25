@@ -1,5 +1,5 @@
 from __future__ import print_function
-from matplotlib.dates import strpdate2num
+from matplotlib.dates import bytespdate2num
 #from matplotlib.mlab import load
 import numpy as np
 from pylab import figure, show
@@ -10,7 +10,7 @@ print('loading', datafile)
 
 dates, closes = np.loadtxt(
     datafile, delimiter=',',
-    converters={0: strpdate2num('%d-%b-%y')},
+    converters={0: bytespdate2num('%d-%b-%y')},
     skiprows=1, usecols=(0, 2), unpack=True)
 
 fig = figure()
