@@ -1508,6 +1508,12 @@ class _AxesBase(martist.Artist):
         line._remove_method = lambda h: self.lines.remove(h)
         return line
 
+    def _update_image_limits(self, image):
+        """
+        Figures out the data limit of the given image, updating self.dataLim.
+        """
+        return (image.set_extent(image.get_extent()))
+
     def _update_line_limits(self, line):
         """
         Figures out the data limit of the given line, updating self.dataLim.
@@ -1636,17 +1642,20 @@ class _AxesBase(martist.Artist):
         # the TODO note in artists.py.
         self.dataLim.ignore(True)
         # check if there is an image
-        if not self.images:
-            self.dataLim.set_points(mtransforms.Bbox.null().get_points())
-            self.ignore_existing_data_limits = True
+        self.dataLim.set_points(mtransforms.Bbox.null().get_points())
+        self.ignore_existing_data_limits = True
 
-            for line in self.lines:
-                if not visible_only or line.get_visible():
-                    self._update_line_limits(line)
+        for line in self.lines:
+            if not visible_only or line.get_visible():
+                self._update_line_limits(line)
  
-            for p in self.patches:
-                if not visible_only or p.get_visible():
-                    self._update_patch_limits(p)
+        for p in self.patches:
+            if not visible_only or p.get_visible():
+                self._update_patch_limits(p)
+
+        for image in self.images:
+            if not visible_only or image.get_visible():
+                self._update_image_limits(image)
 
     def update_datalim(self, xys, updatex=True, updatey=True):
         """
