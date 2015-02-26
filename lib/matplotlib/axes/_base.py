@@ -1635,9 +1635,8 @@ class _AxesBase(martist.Artist):
         # Collections are deliberately not supported (yet); see
         # the TODO note in artists.py.
         self.dataLim.ignore(True)
-        # check if there is a need to create a null bbox
-        # by checking if lines and patches are empty or not
-        if (self.conditionCheck()):
+        # check if there is an image
+        if not self.images:
             self.dataLim.set_points(mtransforms.Bbox.null().get_points())
             self.ignore_existing_data_limits = True
 
@@ -1648,16 +1647,6 @@ class _AxesBase(martist.Artist):
             for p in self.patches:
                 if not visible_only or p.get_visible():
                     self._update_patch_limits(p)
-
-    def conditionCheck(self):
-        """
-        check if there is no patches and lines need 
-        to be changed, remain the original dataLim
-        """
-        if not self.lines and not self.patches:
-            return False
-        else:
-            return True
 
     def update_datalim(self, xys, updatex=True, updatey=True):
         """
