@@ -1,13 +1,21 @@
+'''This example demonstrates how the `matplotlib.backend_bases.NavigationBase`
+class allows to:
+* Modify the Toolbar
+* Add tools
+* Remove tools
+'''
+
+
+from __future__ import print_function
 import matplotlib
 matplotlib.use('GTK3Cairo')
-# matplotlib.use('TkAGG')
 matplotlib.rcParams['toolbar'] = 'navigation'
 import matplotlib.pyplot as plt
 from matplotlib.backend_tools import ToolBase
 
 
-# Create a simple tool to list all the tools
 class ListTools(ToolBase):
+    '''List all the tools controlled by `Navigation`'''
     # keyboard shortcut
     keymap = 'm'
     description = 'List Tools'
@@ -34,9 +42,9 @@ class ListTools(ToolBase):
             print("{0:12} {1:45}").format(group, active)
 
 
-# A simple example of copy canvas
 # ref: at https://github.com/matplotlib/matplotlib/issues/1987
 class CopyToolGTK3(ToolBase):
+    '''Copy canvas to clipboard'''
     keymap = 'ctrl+c'
     description = 'Copy canvas'
 
@@ -54,10 +62,16 @@ plt.plot([1, 2, 3])
 
 # Add the custom tools that we created
 fig.canvas.manager.navigation.add_tool('List', ListTools)
-if matplotlib.rcParams['backend'] == 'GTK3Cairo':
-    fig.canvas.manager.navigation.add_tool('copy', CopyToolGTK3)
+fig.canvas.manager.navigation.add_tool('copy', CopyToolGTK3)
+
+# Add an existing tool to new group `foo`.
+# It can be added as many times as we want
 fig.canvas.manager.toolbar.add_tool('zoom', 'foo')
-# Uncomment to remove the forward button
-# fig.canvas.manager.navigation.remove_tool('forward')
+
+# Remove the forward button
+fig.canvas.manager.navigation.remove_tool('forward')
+
+# To add a custom tool to the toolbar at specific location
+fig.canvas.manager.toolbar.add_tool('List', 'navigation', 1)
 
 plt.show()
