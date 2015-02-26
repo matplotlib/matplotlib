@@ -331,10 +331,9 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
         if numrows <= 0 or numcols <= 0:
             return
-
-        # just to create im.bufOut that is required by backends. There may be
-        # a better solution -JJL
-        im.resize(numcols, numrows)
+        im.resize(numcols, numrows)  # just to create im.bufOut that
+                                     # is required by backends. There
+                                     # may be better solution -JJL
 
         im._url = self.get_url()
         im._gid = self.get_gid()

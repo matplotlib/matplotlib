@@ -838,8 +838,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.extend = kwargs.get('extend', 'neither')
         self.antialiased = kwargs.get('antialiased', None)
         if self.antialiased is None and self.filled:
-            # eliminate artifacts; we are not stroking the boundaries
-            self.antialiased = False
+            self.antialiased = False  # eliminate artifacts; we are not
+                                      # stroking the boundaries.
             # The default for line contours will be taken from
             # the LineCollection default, which uses the
             # rcParams['lines.antialiased']

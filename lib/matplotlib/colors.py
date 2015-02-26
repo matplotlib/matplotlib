@@ -482,8 +482,6 @@ def makeMappingArray(N, data, gamma=1.0):
     lut[-1] = y0[-1]
     # ensure that the lut is confined to values between 0 and 1 by clipping it
     np.clip(lut, 0.0, 1.0)
-    # lut = where(lut > 1., 1., lut)
-    # lut = where(lut < 0., 0., lut)
     return lut
 
 
@@ -614,9 +612,6 @@ class Colormap(object):
 
         rgba = np.empty(shape=xa.shape + (4,), dtype=lut.dtype)
         lut.take(xa, axis=0, mode='clip', out=rgba)
-        #  twice as fast as lut[xa];
-        #  using the clip or wrap mode and providing an
-        #  output array speeds it up a little more.
         if vtype == 'scalar':
             rgba = tuple(rgba[0, :])
         return rgba
@@ -810,8 +805,8 @@ class ListedColormap(Colormap):
             the list will be extended by repetition.
         """
         self.colors = colors
-        # True only if all colors in map are identical; needed for contouring.
-        self.monochrome = False
+        self.monochrome = False  # True only if all colors in map are
+                                 # identical; needed for contouring.
         if N is None:
             N = len(self.colors)
         else:
@@ -1384,7 +1379,6 @@ def hsv_to_rgb(hsv):
     rgb : (..., 3) ndarray
        Colors converted to RGB values in range [0, 1]
     """
-    # make sure it is an ndarray
     hsv = np.asarray(hsv)
 
     # check length of the last dimension, should be _some_ sort of rgb

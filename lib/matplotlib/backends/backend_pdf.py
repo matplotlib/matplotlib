@@ -462,8 +462,8 @@ class PdfFile(object):
         self.fontNames = {}     # maps filenames to internal font names
         self.nextFont = 1       # next free internal font name
         self.dviFontInfo = {}   # information on dvi fonts
-        # differently encoded Type-1 fonts may share the same descriptor
-        self.type1Descriptors = {}
+        self.type1Descriptors = {}  # differently encoded Type-1 fonts may
+                                    # share the same descriptor
         self.used_characters = {}
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
@@ -480,7 +480,8 @@ class PdfFile(object):
 
         self.paths = []
 
-        self.pageAnnotations = []  # A list of annotations for the current page
+        self.pageAnnotations = []  # A list of annotations for the
+                                   # current page
 
         # The PDF spec recommends to include every procset
         procsets = [Name(x)
