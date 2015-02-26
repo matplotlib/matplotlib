@@ -66,14 +66,14 @@ def test_LogLocator():
 
 
 def test_LogLocator_set_params():
-    """ 
-    Create log locator with default value, base=10.0, subs=[1.0], numdecs=4, numticks=15
-     and change it to something else.
-    See if change was successful. 
-    Should not exception. 
+    """
+    Create log locator with default value, base=10.0, subs=[1.0], numdecs=4,
+    numticks=15 and change it to something else.
+    See if change was successful.
+    Should not exception.
     """
     loc = mticker.LogLocator()
-    loc.set_params(numticks = 8, numdecs = 8, subs = [2.0], base = 8)
+    loc.set_params(numticks=8, numdecs=8, subs=[2.0], base=8)
     nose.tools.assert_equal(loc.numticks, 8)
     nose.tools.assert_equal(loc.numdecs, 8)
     nose.tools.assert_equal(loc.base, 8)
@@ -81,9 +81,9 @@ def test_LogLocator_set_params():
 
 
 def test_NullLocator_set_params():
-    """ 
-    Create null locator, and attempt to call set_params() on it. 
-    Should not exception, and should raise a warning. 
+    """
+    Create null locator, and attempt to call set_params() on it.
+    Should not exception, and should raise a warning.
     """
     loc = mticker.NullLocator()
     with warnings.catch_warnings(True) as w:
@@ -92,49 +92,49 @@ def test_NullLocator_set_params():
 
 
 def test_MultipleLocator_set_params():
-    """ 
-    Create multiple locator with 0.7 base, and change it to something else.
-    See if change was successful. 
-    Should not exception. 
     """
-    mult = mticker.MultipleLocator(base = 0.7)
-    mult.set_params(base = 1.7)
+    Create multiple locator with 0.7 base, and change it to something else.
+    See if change was successful.
+    Should not exception.
+    """
+    mult = mticker.MultipleLocator(base=0.7)
+    mult.set_params(base=1.7)
     nose.tools.assert_equal(mult.base, 1.7)
 
 
 def test_FixedLocator_set_params():
-    """ 
-    Create fixed locator with 5 nbins, and change it to something else.
-    See if change was successful. 
-    Should not exception. 
     """
-    fixed = mticker.FixedLocator(range (0,24),nbins=5)
-    fixed.set_params(nbins = 7)
+    Create fixed locator with 5 nbins, and change it to something else.
+    See if change was successful.
+    Should not exception.
+    """
+    fixed = mticker.FixedLocator(range(0, 24), nbins=5)
+    fixed.set_params(nbins=7)
     nose.tools.assert_equal(fixed.nbins, 7)
 
 
 def test_IndexLocator_set_params():
-    """ 
-    Create index locator with 3 base, 4 offset. and change it to something else.
-    See if change was successful. 
-    Should not exception. 
     """
-    index = mticker.IndexLocator(base = 3, offset = 4)
-    index.set_params(base = 7, offset = 7)
+    Create index locator with 3 base, 4 offset. and change it to something
+    else. See if change was successful.
+    Should not exception.
+    """
+    index = mticker.IndexLocator(base=3, offset=4)
+    index.set_params(base=7, offset=7)
     nose.tools.assert_equal(index.base, 7)
     nose.tools.assert_equal(index.offset, 7)
 
 
 def test_SymmetricalLogLocator_set_params():
-    """ 
+    """
     Create symmetrical log locator with default subs =[1.0] numticks = 15,
     and change it to something else.
-    See if change was successful. 
-    Should not exception. 
+    See if change was successful.
+    Should not exception.
     """
-    #since we only test for the params change. I will pass empty transform
+    # since we only test for the params change. I will pass empty transform
     sym = mticker.SymmetricalLogLocator(None)
-    sym.set_params(subs = [2.0], numticks = 8)
+    sym.set_params(subs=[2.0], numticks=8)
     nose.tools.assert_equal(sym._subs, [2.0])
     nose.tools.assert_equal(sym.numticks, 8)
 

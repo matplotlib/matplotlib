@@ -956,7 +956,8 @@ class Locator(TickHelper):
         raise NotImplementedError('Derived must override')
 
     def set_params(self, **kwargs):
-        warnings.warn("'set_params()' not defined for locator of type " + str(type(self)))
+        warnings.warn("'set_params()' not defined for locator of type " +
+                      str(type(self)))
 
     def __call__(self):
         """Return the locations of the ticks"""
