@@ -155,6 +155,8 @@ from matplotlib import rcParams
 from matplotlib import cbook
 from matplotlib import transforms as mtransforms
 
+import warnings
+
 if six.PY3:
     long = int
 
@@ -953,6 +955,9 @@ class Locator(TickHelper):
         """
         raise NotImplementedError('Derived must override')
 
+    def set_params(self, **kwargs):
+        warnings.warn("'set_params()' not defined for locator of type " + str(type(self)))
+
     def __call__(self):
         """Return the locations of the ticks"""
         # note: some locators return data limits, other return view limits,
@@ -1609,6 +1614,12 @@ class SymmetricalLogLocator(Locator):
         else:
             self._subs = subs
         self.numticks = 15
+
+    def set_params(self, **kwargs):
+        if 'numticks' in kwargs:
+            self.numticks = kwargs['numticks']
+        if 'subs' in kwargs:
+            self._subs = kwargs['subs']
 
     def __call__(self):
         'Return the locations of the ticks'
