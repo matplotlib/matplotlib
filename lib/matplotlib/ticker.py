@@ -1025,6 +1025,12 @@ class IndexLocator(Locator):
         self._base = base
         self.offset = offset
 
+    def set_params(self, **kwargs):
+        if 'base' in kwargs:
+            self.base = kwargs['base']
+        if 'offset' in kwargs:
+            self.offset = kwargs['offset']
+
     def __call__(self):
         """Return the locations of the ticks"""
         dmin, dmax = self.axis.get_data_interval()
@@ -1051,6 +1057,10 @@ class FixedLocator(Locator):
         self.nbins = nbins
         if self.nbins is not None:
             self.nbins = max(self.nbins, 2)
+
+    def set_params(self, **kwargs):
+        if 'nbins' in kwargs:
+            self.nbins = kwargs['nbins']
 
     def __call__(self):
         return self.tick_values(None, None)
@@ -1115,6 +1125,12 @@ class LinearLocator(Locator):
             self.presets = {}
         else:
             self.presets = presets
+
+    def set_params(self, **kwargs):
+        if 'presets' in kwargs:
+            self.presets = kwargs['presets']
+        if 'numticks' in kwargs:
+            self.numticks = kwargs['numticks']
 
     def __call__(self):
         'Return the locations of the ticks'
@@ -1217,6 +1233,10 @@ class MultipleLocator(Locator):
 
     def __init__(self, base=1.0):
         self._base = Base(base)
+
+    def set_params(self, **kwargs):
+        if 'base' in kwargs:
+            self.base = kwargs['base']
 
     def __call__(self):
         'Return the locations of the ticks'
@@ -1452,6 +1472,16 @@ class LogLocator(Locator):
         self.subs(subs)
         self.numticks = numticks
         self.numdecs = numdecs
+
+    def set_params(self, **kwargs):
+        if 'base' in kwargs:
+            self.base = kwargs['base']
+        if 'subs' in kwargs:
+            self.subs = kwargs['subs']
+        if 'numdecs' in kwargs:
+            self.numdecs = kwargs['numdecs']
+        if 'numticks' in kwargs:
+            self.numticks = kwargs['numticks']
 
     def base(self, base):
         """
