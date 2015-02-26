@@ -23,8 +23,8 @@ with PdfPages('multipage_pdf.pdf') as pdf:
     x = np.arange(0, 5, 0.1)
     plt.plot(x, np.sin(x), 'b-')
     plt.title('Page Two')
-    # you can add a pdf note to attach metadata to a page
-    pdf.attach_note("plot of sin(x)")
+    pdf.attach_note("plot of sin(x)")  # you can add a pdf note to
+                                       # attach metadata to a page
     pdf.savefig()
     plt.close()
 
