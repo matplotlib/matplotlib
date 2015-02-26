@@ -111,6 +111,24 @@ def test_formatstrformatter():
     tmp_form = mticker.StrMethodFormatter('{x:05d}')
     nose.tools.assert_equal('00002', tmp_form(2))
 
+@cleanup
+def test_set_params():
+    loc = mticker.LogLocator(numticks = 2)
+
+    assert_raises(ValueError, loc.tick_values, 0, 1000)
+    #this should return number of ticks as 5
+    test_value = np.array([  1.0000000e-10,   1.0000000e-03,   1.0000000e+04,   1.0000000e+11,
+         1.0000000e+18])
+    assert_almost_equal(loc.tick_values(0.001, 1.1e5), test_value)
+    #after the set_params(numticks=8), it should have 7 extra which should have 7 extra
+    #numticks. Also it won't casue to thrown the exception for bugs # #3658
+    loc.set_params(numticks = 8)
+    test_value = np.array([ 1.0000000e-04,   1.0000000e-03,   1.0000000e-02,   1.0000000e-01,
+         1.0000000e+00,   1.0000000e+01,   1.0000000e+02,   1.0000000e+03,
+         1.0000000e+04,   1.0000000e+05,   1.0000000e+06,   1.0000000e+07])
+    assert_almost_equal(loc.tick_values(0.001, 1.1e5), test_value)
+
+
 
 if __name__ == '__main__':
     import nose
