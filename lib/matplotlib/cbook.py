@@ -365,7 +365,10 @@ class _BoundMethodProxy(object):
         self._destroy_callbacks = []
         try:
             try:
-                self.inst = ref(cb.im_self, self._destroy)
+                if six.PY3:
+                    self.inst = ref(cb.__self__, self._destroy)
+                else:
+                    self.inst = ref(cb.im_self, self._destroy)
             except TypeError:
                 self.inst = None
             if six.PY3:
@@ -507,11 +510,13 @@ class CallbackRegistry(object):
         func will be called
         """
         self._func_cid_map.setdefault(s, WeakKeyDictionary())
+        # Note proxy not needed in python 3.
+        # TODO rewrite this when support for python2.x gets dropped.
         proxy = _BoundMethodProxy(func)
         if proxy in self._func_cid_map[s]:
             return self._func_cid_map[s][proxy]
 
-        proxy.add_destroy_callback(self._remove_proxy) # Remove the proxy when it dies.
+        proxy.add_destroy_callback(self._remove_proxy)
         self._cid += 1
         cid = self._cid
         self._func_cid_map[s][proxy] = cid
