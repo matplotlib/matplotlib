@@ -1038,7 +1038,7 @@ class IndexLocator(Locator):
     def set_params(self, base=None, offset=None):
         """Set parameters within this locator"""
         if base is not None:
-            self.base = base
+            self._base = base
         if offset is not None:
             self.offset = offset
 
@@ -1250,7 +1250,7 @@ class MultipleLocator(Locator):
     def set_params(self, base):
         """Set parameters within this locator."""
         if base is not None:
-            self.base = base
+            self._base = base
 
     def __call__(self):
         'Return the locations of the ticks'

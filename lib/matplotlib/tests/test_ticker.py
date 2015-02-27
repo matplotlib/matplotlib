@@ -109,7 +109,7 @@ def test_MultipleLocator_set_params():
     """
     mult = mticker.MultipleLocator(base=0.7)
     mult.set_params(base=1.7)
-    nose.tools.assert_equal(mult.base, 1.7)
+    nose.tools.assert_equal(mult._base, 1.7)
 
 
 def test_FixedLocator_set_params():
@@ -131,7 +131,7 @@ def test_IndexLocator_set_params():
     """
     index = mticker.IndexLocator(base=3, offset=4)
     index.set_params(base=7, offset=7)
-    nose.tools.assert_equal(index.base, 7)
+    nose.tools.assert_equal(index._base, 7)
     nose.tools.assert_equal(index.offset, 7)
 
 
