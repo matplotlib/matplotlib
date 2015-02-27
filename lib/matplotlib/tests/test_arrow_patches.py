@@ -16,6 +16,7 @@ def draw_arrow(ax, t, r):
 
 @image_comparison(baseline_images=['fancyarrow_test_image'])
 def test_fancyarrow():
+    # Added 0 to test division by zero error described in issue 3930
     r = [0.4, 0.3, 0.2, 0.1]
     t = ["fancy", "simple", matplotlib.patches.ArrowStyle.Fancy()]
 

@@ -125,9 +125,10 @@ def find_bezier_t_intersecting_with_closedpath(bezier_point_at_t,
     end_inside = inside_closedpath(end)
 
     if not xor(start_inside, end_inside):
-        raise NonIntersectingPathException(
-            "the segment does not seem to intersect with the path"
-        )
+        if (start != end):
+            raise NonIntersectingPathException(
+                "the segment does not seem to intersect with the path"
+            )
 
     while 1:
 
@@ -316,7 +317,7 @@ def inside_circle(cx, cy, r):
 
 def get_cos_sin(x0, y0, x1, y1):
     dx, dy = x1 - x0, y1 - y0
-    d = (dx * dx + dy * dy) ** .5
+    d = (dx * dx + dy * dy) ** .5 or 1  # Account for divide by zero
     return dx / d, dy / d
 
 
@@ -343,6 +344,11 @@ def get_parallels(bezier2, width):
     control points of quadratic bezier lines roughly parallel to given
     one separated by *width*.
     """
+
+    # # Return original bezier path for left and right paths
+    # # when start point equals midpoint equals endpoint.
+    # if (all(np.array_equal(x, bezier2[0]) for x in bezier2)):
+    #     return bezier2, bezier2
 
     # The parallel bezier lines are constructed by following ways.
     #  c1 and  c2 are contol points representing the begin and end of the
@@ -428,6 +434,11 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
     bezier lines having a width roughly parralel to given one separated by
     *width*.
     """
+
+    # # Return original bezier path for left and right paths
+    # # when start point equals midpoint equals endpoint.
+    # if (all(np.array_equal(x, bezier2[0]) for x in bezier2)):
+    #     return bezier2, bezier2
 
     # c1, cm, c2
     c1x, c1y = bezier2[0]
