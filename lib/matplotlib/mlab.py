@@ -3874,23 +3874,17 @@ def contiguous_regions(mask):
     """
     return a list of (ind0, ind1) such that mask[ind0:ind1].all() is
     True and we cover all such regions
-
-    TODO: this is a pure python implementation which probably has a much
-    faster numpy impl
     """
+    mask = np.asarray(mask, dtype=bool)
 
-    in_region = None
-    boundaries = []
-    for i, val in enumerate(mask):
-        if in_region is None and val:
-            in_region = i
-        elif in_region is not None and not val:
-            boundaries.append((in_region, i))
-            in_region = None
+    if not mask.size:
+        return []
 
-    if in_region is not None:
-        boundaries.append((in_region, i+1))
-    return boundaries
+    idx, = np.nonzero(mask[:-1] != mask[1:])
+    idx = np.concatenate((([0],) if mask[0] else ()) + (idx + 1,) +
+                          (([len(mask)],) if mask[-1] else ()))
+
+    return list(zip(idx[::2], idx[1::2]))
 
 
 def cross_from_below(x, threshold):
