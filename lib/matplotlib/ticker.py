@@ -956,6 +956,10 @@ class Locator(TickHelper):
         raise NotImplementedError('Derived must override')
 
     def set_params(self, **kwargs):
+        """
+        Do nothing, and rase a warning. Any locator class not supporting the
+        set_params() function will call this.
+        """
         warnings.warn("'set_params()' not defined for locator of type " +
                       str(type(self)))
 
@@ -1032,6 +1036,7 @@ class IndexLocator(Locator):
         self.offset = offset
 
     def set_params(self, base=None, offset=None):
+        """Set parameters within this locator"""
         if base is not None:
             self.base = base
         if offset is not None:
@@ -1065,8 +1070,9 @@ class FixedLocator(Locator):
             self.nbins = max(self.nbins, 2)
 
     def set_params(self, nbins=None):
+        """Set parameters within this locator."""
         if nbins is not None:
-            self.nbins=nbins
+            self.nbins = nbins
 
     def __call__(self):
         return self.tick_values(None, None)
@@ -1133,12 +1139,9 @@ class LinearLocator(Locator):
             self.presets = presets
 
     def set_params(self, numticks=None, presets=None):
-        """
-        [numticks : Int,present : dict] ->None
-        
-        """
+        """Set parameters within this locator."""
         if presets is not None:
-            self.presets = presents
+            self.presets = presets
         if numticks is not None:
             self.numticks = numticks
 
@@ -1245,10 +1248,8 @@ class MultipleLocator(Locator):
         self._base = Base(base)
 
     def set_params(self, base):
-        """
-
-        """
-        if base is not None :
+        """Set parameters within this locator."""
+        if base is not None:
             self.base = base
 
     def __call__(self):
@@ -1352,6 +1353,7 @@ class MaxNLocator(Locator):
         self.set_params(**kwargs)
 
     def set_params(self, **kwargs):
+        """Set parameters within this locator."""
         if 'nbins' in kwargs:
             self._nbins = int(kwargs['nbins'])
         if 'trim' in kwargs:
@@ -1487,6 +1489,7 @@ class LogLocator(Locator):
         self.numdecs = numdecs
 
     def set_params(self, base=None, subs=None, numdecs=None, numticks=None):
+        """Set parameters within this locator."""
         if base is not None:
             self.base = base
         if subs is not None:
@@ -1624,9 +1627,7 @@ class SymmetricalLogLocator(Locator):
         self.numticks = 15
 
     def set_params(self, subs=None, numticks=None):
-        """
-
-        """
+        """Set parameters within this locator."""
         if numticks is not None:
             self.numticks = numticks
         if subs is not None:
