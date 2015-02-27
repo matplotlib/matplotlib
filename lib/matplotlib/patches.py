@@ -1049,7 +1049,12 @@ class Arrow(Patch):
         %(Patch)s
         """
         Patch.__init__(self, **kwargs)
-        L = np.sqrt(dx ** 2 + dy ** 2) or 1  # account for div by zero
+        L = np.sqrt(dx ** 2 + dy ** 2)
+
+        # Account for divide by zero
+        if L == 0:
+            L = 1
+
         cx = float(dx) / L
         sx = float(dy) / L
 
@@ -1112,8 +1117,12 @@ class FancyArrow(Polygon):
         if head_length is None:
             head_length = 1.5 * head_width
 
+        distance = np.sqrt(dx ** 2 + dy ** 2)
+
         # Account for divide by zero
-        distance = np.sqrt(dx ** 2 + dy ** 2) or 1
+        if distance == 0:
+            distance = 1
+
         if length_includes_head:
             length = distance
         else:
@@ -3201,8 +3210,11 @@ class ArrowStyle(_Style):
             # arrow from x0, y0 to x1, y1
             dx, dy = x0 - x1, y0 - y1
 
+            cp_distance = math.sqrt(dx ** 2 + dy ** 2)
+
             # Account for divide by zero
-            cp_distance = math.sqrt(dx ** 2 + dy ** 2) or 1
+            if cp_distance == 0:
+                cp_distance = 1
 
             # pad_projected : amount of pad to account the
             # overshooting of the projection of the wedge
