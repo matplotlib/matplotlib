@@ -3880,9 +3880,18 @@ def contiguous_regions(mask):
     if not mask.size:
         return []
 
+    # Find the indices of region changes, and correct offset
     idx, = np.nonzero(mask[:-1] != mask[1:])
-    idx = np.concatenate((([0],) if mask[0] else ()) + (idx + 1,) +
-                          (([len(mask)],) if mask[-1] else ()))
+    idx += 1
+
+    # Add first and/or last index if needed
+    if mask[0] or mask[-1]:
+        idx = (idx,)
+        if mask[0]:
+            idx = ([0],) + idx
+        if mask[-1]:
+            idx = idx + ([len(mask)],)
+        idx = np.concatenate(idx)
 
     return list(zip(idx[::2], idx[1::2]))
 
