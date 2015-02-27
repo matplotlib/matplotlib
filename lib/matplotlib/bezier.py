@@ -347,8 +347,8 @@ def get_parallels(bezier2, width):
 
     # # Return original bezier path for left and right paths
     # # when start point equals midpoint equals endpoint.
-    # if (all(np.array_equal(x, bezier2[0]) for x in bezier2)):
-    #     return bezier2, bezier2
+    if (all(np.array_equal(x, bezier2[0]) for x in bezier2)):
+        return bezier2, bezier2
 
     # The parallel bezier lines are constructed by following ways.
     #  c1 and  c2 are contol points representing the begin and end of the
@@ -437,8 +437,8 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
 
     # # Return original bezier path for left and right paths
     # # when start point equals midpoint equals endpoint.
-    # if (all(np.array_equal(x, bezier2[0]) for x in bezier2)):
-    #     return bezier2, bezier2
+    if (all(np.array_equal(x, bezier2[0]) for x in bezier2)):
+        return bezier2, bezier2
 
     # c1, cm, c2
     c1x, c1y = bezier2[0]
