@@ -452,12 +452,12 @@ class RendererPS(RendererBase):
         """
         return True
         
-    def option_combine_images(self):
+    def option_image_nocomposite(self):
         """
-        return whether to combine multiple images on a set of axes into one 
-        image
+        return whether to generate a composite image from multiple images on 
+        a set of axes
         """
-        return rcParams['image.combine_images']
+        return not rcParams['image.composite_image']
 
     def _get_image_h_w_bits_command(self, im):
         if im.is_grayscale:

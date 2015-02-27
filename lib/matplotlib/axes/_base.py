@@ -2028,13 +2028,13 @@ class _AxesBase(martist.Artist):
             dsu = [(a.zorder, a) for a in artists
                    if not a.get_animated()]
 
-        # add images to dsu if the backend supports combining images.
-        # otherwise, perform manual combining, without adding images to dsu.
-        if len(self.images) <= 1 or not renderer.option_combine_images():
+        # add images to dsu if the backend supports compositing.
+        # otherwise, does the manual compositing  without adding images to dsu.
+        if len(self.images) <= 1 or renderer.option_image_nocomposite():
             dsu.extend([(im.zorder, im) for im in self.images])
-            _combine_images = False
+            _do_composite = False
         else:
-            _combine_images = True
+            _do_composite = True
 
         dsu.sort(key=itemgetter(0))
 
@@ -2054,8 +2054,8 @@ class _AxesBase(martist.Artist):
         if self.axison and self._frameon:
             self.patch.draw(renderer)
 
-        if _combine_images:
-            # combine images, blending alpha
+        if _do_composite:
+            # make a composite image, blending alpha
             # list of (mimage.Image, ox, oy)
 
             zorder_images = [(im.zorder, im) for im in self.images

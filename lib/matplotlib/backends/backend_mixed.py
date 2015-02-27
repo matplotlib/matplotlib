@@ -63,7 +63,7 @@ class MixedModeRenderer(object):
         draw_path_collection draw_quad_mesh draw_tex draw_text
         finalize flipy get_canvas_width_height get_image_magnification
         get_texmanager get_text_width_height_descent new_gc open_group
-        option_combine_images points_to_pixels strip_math
+        option_image_nocomposite points_to_pixels strip_math
         start_filter stop_filter draw_gouraud_triangle
         draw_gouraud_triangles option_scale_image
         _text2path _get_text_path_transform height width

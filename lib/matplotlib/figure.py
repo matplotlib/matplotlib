@@ -1045,16 +1045,16 @@ class Figure(Artist):
 
         # override the renderer default if self.suppressComposite
         # is not None
-        combine_images = renderer.option_combine_images()
+        not_composite = renderer.option_image_nocomposite()
         if self.suppressComposite is not None:
-            combine_images = not self.suppressComposite
+            not_composite = self.suppressComposite
 
-        if (len(self.images) <= 1 or not combine_images or
+        if (len(self.images) <= 1 or not_composite or
                 not cbook.allequal([im.origin for im in self.images])):
             for a in self.images:
                 dsu.append((a.get_zorder(), a, a.draw, [renderer]))
         else:
-            # make a combined image, blending alpha
+            # make a composite image blending alpha
             # list of (_image.Image, ox, oy)
             mag = renderer.get_image_magnification()
             ims = [(im.make_image(mag), im.ox, im.oy, im.get_alpha())
@@ -1067,7 +1067,7 @@ class Figure(Artist):
             im.is_grayscale = False
             l, b, w, h = self.bbox.bounds
 
-            def draw_combined_image():
+            def draw_composite():
                 gc = renderer.new_gc()
                 gc.set_clip_rectangle(self.bbox)
                 gc.set_clip_path(self.get_clip_path())
@@ -1075,7 +1075,7 @@ class Figure(Artist):
                 gc.restore()
 
             dsu.append((self.images[0].get_zorder(), self.images[0],
-                        draw_combined_image, []))
+                        draw_composite, []))
 
         # render the axes
         for a in self.axes:

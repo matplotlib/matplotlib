@@ -1,14 +1,12 @@
+2015-02-27 Added the rcParam 'image.composite_image' to permit users 
+		   to decide whether they want the vector graphics backends to combine 
+		   all images within a set of axes into a single composite image.  
+		   (If images do not get combined, users can open vector graphics files 
+		   in Adobe Illustrator or Inkscape and edit each image individually.)  
+
 2015-02-19 Rewrite of C++ code that calculates contours to add support for
            corner masking.  This is controlled by the 'corner_mask' keyword
            in plotting commands 'contour' and 'contourf'. - IMT
-
-2015-01-31 Added the rcParam 'image.combine_images' to permit users 
-		   to decide whether they want the vector graphics backends to combine 
-		   all images within a set of axes into a single image.  (If images do 
-		   not get combined, users can open vector graphics files in Adobe 
-		   Illustrator or Inkscape and edit each image individually.)  Also 
-		   changed 'renderer.option_nocomposite' to the clearer name 
-		   'renderer.option_combine_images'. 
 
 2015-01-23 Text bounding boxes are now computed with advance width rather than
            ink area.  This may result in slightly different placement of text.
