@@ -2701,7 +2701,7 @@ class WindowBase(cbook.EventEmitter):
         """
         pass
 
-    def add_element_to_window(self, element, expand, fill, padding, from_start=False):
+    def add_element_to_window(self, element, expand, fill, pad, side='bottom'):
         """ Adds a gui widget to the window.
         This has no effect for non-GUI backends
         """

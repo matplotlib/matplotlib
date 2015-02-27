@@ -395,15 +395,17 @@ class WindowGTK3(WindowBase):
         self.window.add(self.vbox)
         self.vbox.show()
 
-        self.window.connect('destroy', self.destroy_event) # TODO create in base
+        self.window.connect('destroy', self.destroy_event)
         self.window.connect('delete_event', self.destroy_event)
 
-    def add_element_to_window(self, element, expand, fill, padding, from_start=False):
+    def add_element_to_window(self, element, expand, fill, pad, side='bottom'):
         element.show()
-        if from_start:
-            self.vbox.pack_start(element, expand, fill, padding)
+        if side == 'top':
+            self.vbox.pack_start(element, expand, fill, pad)
+        elif side == 'bottom':
+            self.vbox.pack_end(element, expand, fill, pad)
         else:
-            self.vbox.pack_end(element, False, False, 0)
+            raise KeyError('Unknown value for side, %s' % side)
         size_request = element.size_request()
         return size_request.height
 
