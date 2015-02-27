@@ -1031,11 +1031,11 @@ class IndexLocator(Locator):
         self._base = base
         self.offset = offset
 
-    def set_params(self, **kwargs):
-        if 'base' in kwargs:
-            self.base = kwargs['base']
-        if 'offset' in kwargs:
-            self.offset = kwargs['offset']
+    def set_params(self, base=None, offset=None):
+        if base is not None:
+            self.base = base
+        if offset is not None:
+            self.offset = offset
 
     def __call__(self):
         """Return the locations of the ticks"""
@@ -1064,9 +1064,9 @@ class FixedLocator(Locator):
         if self.nbins is not None:
             self.nbins = max(self.nbins, 2)
 
-    def set_params(self, **kwargs):
-        if 'nbins' in kwargs:
-            self.nbins = kwargs['nbins']
+    def set_params(self, nbins=None):
+        if nbins is not None:
+            self.nbins=nbins
 
     def __call__(self):
         return self.tick_values(None, None)
@@ -1132,11 +1132,15 @@ class LinearLocator(Locator):
         else:
             self.presets = presets
 
-    def set_params(self, **kwargs):
-        if 'presets' in kwargs:
-            self.presets = kwargs['presets']
-        if 'numticks' in kwargs:
-            self.numticks = kwargs['numticks']
+    def set_params(self, numticks=None, presets=None):
+        """
+        [numticks : Int,present : dict] ->None
+        
+        """
+        if presets is not None:
+            self.presets = presents
+        if numticks is not None:
+            self.numticks = numticks
 
     def __call__(self):
         'Return the locations of the ticks'
@@ -1240,9 +1244,12 @@ class MultipleLocator(Locator):
     def __init__(self, base=1.0):
         self._base = Base(base)
 
-    def set_params(self, **kwargs):
-        if 'base' in kwargs:
-            self.base = kwargs['base']
+    def set_params(self, base):
+        """
+
+        """
+        if base is not None :
+            self.base = base
 
     def __call__(self):
         'Return the locations of the ticks'
@@ -1479,15 +1486,15 @@ class LogLocator(Locator):
         self.numticks = numticks
         self.numdecs = numdecs
 
-    def set_params(self, **kwargs):
-        if 'base' in kwargs:
-            self.base = kwargs['base']
-        if 'subs' in kwargs:
-            self.subs = kwargs['subs']
-        if 'numdecs' in kwargs:
-            self.numdecs = kwargs['numdecs']
-        if 'numticks' in kwargs:
-            self.numticks = kwargs['numticks']
+    def set_params(self, base=None, subs=None, numdecs=None, numticks=None):
+        if base is not None:
+            self.base = base
+        if subs is not None:
+            self.subs = subs
+        if numdecs is not None:
+            self.numdecs = numdecs
+        if numticks is not None:
+            self.numticks = numticks
 
     def base(self, base):
         """
@@ -1616,11 +1623,14 @@ class SymmetricalLogLocator(Locator):
             self._subs = subs
         self.numticks = 15
 
-    def set_params(self, **kwargs):
-        if 'numticks' in kwargs:
-            self.numticks = kwargs['numticks']
-        if 'subs' in kwargs:
-            self._subs = kwargs['subs']
+    def set_params(self, subs=None, numticks=None):
+        """
+
+        """
+        if numticks is not None:
+            self.numticks = numticks
+        if subs is not None:
+            self._subs = subs
 
     def __call__(self):
         'Return the locations of the ticks'
