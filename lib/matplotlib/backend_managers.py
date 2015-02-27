@@ -38,7 +38,7 @@ class FigureManager(cbook.EventEmitter):
         self.window = Window('Figure %d' % num)
         self.window.mpl_connect('window_destroy_event', self._destroy)
 
-        self.canvas = FigureCanvas(figure, self)
+        self.canvas = FigureCanvas(figure, manager=self)
 
         self.key_press_handler_id = self.canvas.mpl_connect('key_press_event',
                                                             self.key_press)
