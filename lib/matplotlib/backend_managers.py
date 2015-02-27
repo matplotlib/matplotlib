@@ -30,25 +30,25 @@ class FigureManagerEvent(object):
 
 
 class FigureManager(cbook.EventEmitter):
-    def __init__(self, canvas, num):
+    def __init__(self, figure, num):
         cbook.EventEmitter.__init__(self)
-        self.canvas = canvas
-        canvas.manager = self
         self.num = num
-
-        self.key_press_handler_id = self.canvas.mpl_connect('key_press_event',
-                                                            self.key_press)
 
         self.mainloop = MainLoop()
         self.window = Window('Figure %d' % num)
         self.window.mpl_connect('window_destroy_event', self._destroy)
+
+        self.canvas = FigureCanvas(figure, self)
+
+        self.key_press_handler_id = self.canvas.mpl_connect('key_press_event',
+                                                            self.key_press)
 
         w = int(self.canvas.figure.bbox.width)
         h = int(self.canvas.figure.bbox.height)
 
         self.window.add_element_to_window(self.canvas, True, True, 0, True)
 
-        self.toolbar = self._get_toolbar(canvas)
+        self.toolbar = self._get_toolbar()
         if self.toolbar is not None:
             h += self.window.add_element_to_window(self.toolbar,
                                                    False, False, 0)
@@ -63,8 +63,6 @@ class FigureManager(cbook.EventEmitter):
             if self.toolbar is not None:
                 self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
-
-        self.canvas.grab_focus()
 
     def key_press(self, event):
         """
@@ -111,20 +109,20 @@ class FigureManager(cbook.EventEmitter):
         """
         self.window.set_window_title(title)
 
+    def _get_toolbar(self):
+        # must be inited after the window, drawingArea and figure
+        # attrs are set
+        if rcParams['toolbar'] == 'toolbar2':
+            toolbar = Toolbar2(self.canvas, self.window)
+        else:
+            toolbar = None
+        return toolbar
+
     def show_popup(self, msg):
         """
         Display message in a popup -- GUI only
         """
         pass
-
-    def _get_toolbar(self, canvas):
-        # must be inited after the window, drawingArea and figure
-        # attrs are set
-        if rcParams['toolbar'] == 'toolbar2':
-            toolbar = Toolbar2(canvas, self.window)
-        else:
-            toolbar = None
-        return toolbar
 
 
 class ToolEvent(object):
@@ -553,17 +551,16 @@ def new_figure_manager(num, *args, **kwargs):
     Create a new figure manager instance
     """
     show = kwargs.pop('show', None)
-    if old_new_figure_manager is None:
+    if old_new_figure_manager is None:  # Test if we can use the new code
         FigureClass = kwargs.pop('FigureClass', Figure)
         thisFig = FigureClass(*args, **kwargs)
         manager = new_figure_manager_given_figure(num, thisFig)
-    else:  # TODO remove once Gcf removed from backends.
+    else:  # TODO remove once Gcf removed from backends.  Default to old code.
         manager = old_new_figure_manager(num, *args, **kwargs)
         manager.mainloop = MainLoop
     return manager
 
 
 def new_figure_manager_given_figure(num, figure):
-    canvas = FigureCanvas(figure)
-    manager = FigureManager(canvas, num)
+    manager = FigureManager(figure, num)
     return manager

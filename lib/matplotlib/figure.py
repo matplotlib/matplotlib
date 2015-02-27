@@ -1643,7 +1643,7 @@ class Figure(Artist):
 
         if restore_to_pylab:
             # lazy import to avoid circularity
-            # XXX clean on removal of Gcf from backends
+            # TODO clean on removal of Gcf from backends
             import matplotlib.pyplot as plt
             import matplotlib._pylab_helpers as pylab_helpers
             import matplotlib.backend_managers as managers
@@ -1654,7 +1654,7 @@ class Figure(Artist):
                                                                        self)
                 mgr.mainloop = plt._show
             else:
-                mgr = managers.new_figure_manager_given_figure(num, self)
+                mgr = managers.FigureManager(self, num)
 
             # XXX The following is a copy and paste from pyplot. Consider
             # factoring to pylab_helpers

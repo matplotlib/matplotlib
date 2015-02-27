@@ -22,8 +22,8 @@ class RendererGTK3Cairo(backend_cairo.RendererCairo):
 
 class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
                             backend_cairo.FigureCanvasCairo):
-    def __init__(self, figure):
-        backend_gtk3.FigureCanvasGTK3.__init__(self, figure)
+    def __init__(self, figure, manager=None):
+        backend_gtk3.FigureCanvasGTK3.__init__(self, figure, manager)
 
     def _renderer_init(self):
         """use cairo renderer"""
