@@ -192,9 +192,9 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
                   Gdk.EventMask.POINTER_MOTION_HINT_MASK|
                   Gdk.EventMask.SCROLL_MASK)
 
-    def __init__(self, figure):
+    def __init__(self, figure, manager=None):
         if _debug: print('FigureCanvasGTK3.%s' % fn_name())
-        FigureCanvasBase.__init__(self, figure)
+        FigureCanvasBase.__init__(self, figure, manager)
         GObject.GObject.__init__(self)
 
         self._idle_draw_id  = 0

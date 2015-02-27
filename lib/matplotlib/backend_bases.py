@@ -45,6 +45,7 @@ import os
 import sys
 import time
 import warnings
+import weakref
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -1692,7 +1693,7 @@ class FigureCanvasBase(object):
         register_backend('tiff', 'matplotlib.backends.backend_agg',
                          'Tagged Image File Format')
 
-    def __init__(self, figure):
+    def __init__(self, figure, manager=None):
         self._is_idle_drawing = True
         self._is_saving = False
         figure.set_canvas(self)
@@ -1707,6 +1708,7 @@ class FigureCanvasBase(object):
         self.scroll_pick_id = self.mpl_connect('scroll_event', self.pick)
         self.mouse_grabber = None  # the axes currently grabbing mouse
         self.toolbar = None  # NavigationToolbar2 will set me
+        self.manager = manager
         self._is_idle_drawing = False
 
     @contextmanager
@@ -2480,6 +2482,19 @@ class FigureCanvasBase(object):
         """
         self._looping = False
 
+    def destroy(self):
+        pass
+
+    @property
+    def manager(self):
+        if self._manager is not None:
+            return self._manager()
+
+    @manager.setter
+    def manager(self, manager):
+        if manager is not None:
+            self._manager = weakref.ref(manager)
+
 
 def key_press_handler(event, canvas, toolbar=None):
     """
@@ -2625,6 +2640,9 @@ class WindowBase(cbook.EventEmitter):
 
     def set_fullscreen(self, fullscreen):
         pass
+
+    def set_default_size(self, w, h):
+        self.resize(w, h)
 
     def resize(self, w, h):
         """"For gui backends, resize the window (in pixels)."""
