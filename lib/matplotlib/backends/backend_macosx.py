@@ -170,8 +170,8 @@ class RendererMac(RendererBase):
     def points_to_pixels(self, points):
         return points/72.0 * self.dpi
 
-    def option_combine_images(self):
-        return False
+    def option_image_nocomposite(self):
+        return True
 
 
 class GraphicsContextMac(_macosx.GraphicsContext, GraphicsContextBase):

@@ -248,8 +248,8 @@ def test_image_edges():
 
     assert g != 100, 'Expected a non-green edge - but sadly, it was.'
 
-@image_comparison(baseline_images=['image_combine_background'], remove_text=True)
-def test_image_combine_background():
+@image_comparison(baseline_images=['image_composite_background'], remove_text=True)
+def test_image_composite_background():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     arr = np.arange(12).reshape(4, 3)
@@ -258,8 +258,8 @@ def test_image_combine_background():
     ax.set_axis_bgcolor((1, 0, 0, 0.5))
     ax.set_xlim([0, 12])
 
-@image_comparison(baseline_images=['image_combine_alpha'], remove_text=True)
-def test_image_combine_alpha():
+@image_comparison(baseline_images=['image_composite_alpha'], remove_text=True)
+def test_image_composite_alpha():
     """
     Tests that the alpha value is recognized and correctly applied in the
     process of combining images together.

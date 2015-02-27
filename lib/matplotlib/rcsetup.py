@@ -595,9 +595,9 @@ defaultParams = {
     'image.lut':           [256, validate_int],  # lookup table
     'image.origin':        ['upper', six.text_type],  # lookup table
     'image.resample':      [False, validate_bool],
-    # Force vector graphics backends to combine all images on a set of axes 
-    # into a single image
-    'image.combine_images': [True, validate_bool],
+    # Specify whether vector graphics backends will combine all images on a 
+    # set of axes into a single composite image
+    'image.composite_image': [True, validate_bool],
 
     # contour props
     'contour.negative_linestyle': ['dashed',
