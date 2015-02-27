@@ -52,7 +52,6 @@ def test_AutoMinorLocator():
 
 def test_LogLocator():
     loc = mticker.LogLocator(numticks=5)
-
     assert_raises(ValueError, loc.tick_values, 0, 1000)
 
     test_value = np.array([1.00000000e-05, 1.00000000e-03, 1.00000000e-01,
@@ -63,6 +62,17 @@ def test_LogLocator():
     loc = mticker.LogLocator(base=2)
     test_value = np.array([0.5, 1., 2., 4., 8., 16., 32., 64., 128., 256.])
     assert_almost_equal(loc.tick_values(1, 100), test_value)
+
+
+def test_LinearLocator_set_params():
+    """
+    Create linear locator with presets={}, numticks=2 and change it to
+    something else. See if change was successful. Should not exception.
+    """
+    loc = mticker.LinearLocator(numticks=2)
+    loc.set_params(numticks=8, presets={(0, 1): []})
+    nose.tools.assert_equal(loc.numticks, 8)
+    nose.tools.assert_equal(loc.presets, {(0, 1): []})
 
 
 def test_LogLocator_set_params():
@@ -86,7 +96,7 @@ def test_NullLocator_set_params():
     Should not exception, and should raise a warning.
     """
     loc = mticker.NullLocator()
-    with warnings.catch_warnings(True) as w:
+    with warnings.catch_warnings(record=True) as w:
         loc.set_params()
         nose.tools.assert_equal(len(w), 1)
 
