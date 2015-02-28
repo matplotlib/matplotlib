@@ -32,12 +32,12 @@ install:
   # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
   # version since is it basically just a .ttf file
 
-  # We install ipython to use the console highlighting. From IPython 3 this depends on jsonschema which is
-  # not installed as a dependency since it is not used by the IPython console.
+  # We install ipython to use the console highlighting. From IPython 3 this depends on jsonschema and misture.
+  # Neihter is installed as a dependency of IPython since they are not used by the IPython console.
   - |
     if [[ $BUILD_DOCS == true ]]; then
       sudo apt-get install -qq --no-install-recommends dvipng texlive-latex-base texlive-latex-extra texlive-fonts-recommended graphviz
-      pip install numpydoc linkchecker ipython jsonschema
+      pip install numpydoc linkchecker ipython jsonschema mistune
       wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
       sudo dpkg -i fonts-humor-sans_1.0-1_all.deb
       wget https://googlefontdirectory.googlecode.com/hg/ofl/felipa/Felipa-Regular.ttf
