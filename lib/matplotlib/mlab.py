@@ -3884,14 +3884,14 @@ def contiguous_regions(mask):
     idx, = np.nonzero(mask[:-1] != mask[1:])
     idx += 1
 
+    # List operations are faster for moderately sized arrays
+    idx = idx.tolist()
+
     # Add first and/or last index if needed
-    if mask[0] or mask[-1]:
-        idx = (idx,)
-        if mask[0]:
-            idx = ([0],) + idx
-        if mask[-1]:
-            idx = idx + ([len(mask)],)
-        idx = np.concatenate(idx)
+    if mask[0]:
+        idx = [0] + idx
+    if mask[-1]:
+        idx.append(len(mask))
 
     return list(zip(idx[::2], idx[1::2]))
 
