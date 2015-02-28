@@ -13,6 +13,7 @@ from numpy.testing import assert_almost_equal
 
 from matplotlib.patches import Polygon
 from matplotlib.patches import Rectangle
+from matplotlib.patches import ConnectionPatch
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -201,6 +202,21 @@ def test_patch_custom_linestyle():
 
     ax.set_xlim([-1, 2])
     ax.set_ylim([-1, 2])
+
+
+@image_comparison(baseline_images=['patch_zerolength_fancy'],
+                  remove_text=True,
+                  extensions=['png'])
+def test_patch_zerolength_fancy():
+    # Github issue #3930 found a bug in the Fancy patch where a zero-length
+    # connection path would result in no plot being shown due to a
+    # NonIntersectingPathException
+
+    xy1 = (0.3, 0.3)
+    ax = plt.gca()
+    con = ConnectionPatch(xyA=xy1, xyB=xy1, arrowstyle='fancy', coordsA="data",
+                          coordsB="data", axesA=ax, axesB=ax)
+    ax.add_artist(con)
 
 
 def test_wedge_movement():
