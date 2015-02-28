@@ -372,14 +372,14 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         FigureCanvasBase.stop_event_loop_default(self)
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
 
-class WindowGTK3(WindowBase):
+class WindowGTK3(WindowBase, Gtk.Window):
     def __init__(self, title):
         WindowBase.__init__(self, title)
-        self.window = Gtk.Window()
+        Gtk.Window.__init__(self)
         self.set_window_title(title)
 
         try:
-            self.window.set_icon_from_file(window_icon)
+            self.set_icon_from_file(window_icon)
         except (SystemExit, KeyboardInterrupt):
             # re-raise exit type Exceptions
             raise
@@ -392,11 +392,11 @@ class WindowGTK3(WindowBase):
 
         self.vbox = Gtk.Box()
         self.vbox.set_property('orientation', Gtk.Orientation.VERTICAL)
-        self.window.add(self.vbox)
+        self.add(self.vbox)
         self.vbox.show()
 
-        self.window.connect('destroy', self.destroy_event)
-        self.window.connect('delete_event', self.destroy_event)
+        self.connect('destroy', self.destroy_event)
+        self.connect('delete_event', self.destroy_event)
 
     def add_element_to_window(self, element, expand, fill, pad, side='bottom'):
         element.show()
@@ -410,34 +410,27 @@ class WindowGTK3(WindowBase):
         return size_request.height
 
     def set_default_size(self, width, height):
-        self.window.set_default_size(width, height)
+        Gtk.Window.set_default_size(self, width, height)
 
     def show(self):
         # show the figure window
-        self.window.show()
+        Gtk.Window.show(self)
 
     def destroy(self):
         self.vbox.destroy()
-        self.window.destroy()
+        Gtk.Window.destroy(self)
 
     def set_fullscreen(self, fullscreen):
         if fullscreen:
-            self.window.fullscreen()
+            self.fullscreen()
         else:
-            self.window.unfullscreen()
+            self.unfullscreen()
 
     def get_window_title(self):
-        return self.window.get_title()
+        return self.get_title()
 
     def set_window_title(self, title):
-        self.window.set_title(title)
-
-    def resize(self, width, height):
-        'set the canvas size in pixels'
-        #_, _, cw, ch = self.canvas.allocation
-        #_, _, ww, wh = self.window.allocation
-        #self.window.resize (width-cw+ww, height-ch+wh)
-        self.window.resize(width, height)
+        self.set_title(title)
 
 
 class FigureManagerGTK3(FigureManagerBase):
@@ -1031,4 +1024,3 @@ backend_tools.ToolRubberband = RubberbandGTK3
 Toolbar = ToolbarGTK3
 FigureCanvas = FigureCanvasGTK3
 FigureManager = FigureManagerGTK3
-Window = WindowGTK3
