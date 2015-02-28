@@ -80,12 +80,10 @@ class Axis(maxis.XAxis):
         # This is a temporary member variable.
         # Do not depend on this existing in future releases!
         self._axinfo = self._AXINFO[adir].copy()
-        self._axinfo.update({'label' : {'space_factor': 1.6,
-                                        'va': 'center',
+        self._axinfo.update({'label' : {'va': 'center',
                                         'ha': 'center'},
                              'tick' : {'inward_factor': 0.2,
                                        'outward_factor': 0.1},
-                             'ticklabel': {'space_factor': 0.7},
                              'axisline': {'linewidth': 0.75,
                                           'color': (0, 0, 0, 1)},
                              'grid' : {'color': (0.9, 0.9, 0.9, 1),
@@ -265,7 +263,14 @@ class Axis(maxis.XAxis):
 
         lxyz = 0.5*(edgep1 + edgep2)
 
-        labeldeltas = info['label']['space_factor'] * deltas
+        # A rough estimate; points are ambiguous since 3D plots rotate
+        ax_scale = self.axes.bbox.size / self.figure.bbox.size
+        ax_inches = np.multiply(ax_scale, self.figure.get_size_inches())
+        ax_points_estimate = sum(72. * ax_inches)
+        deltas_per_point = 48. / ax_points_estimate
+        default_offset = 21.
+        labeldeltas = (self.labelpad + default_offset) * deltas_per_point\
+            * deltas
         axmask = [True, True, True]
         axmask[index] = False
         lxyz = move_from_center(lxyz, centers, labeldeltas, axmask)
@@ -394,8 +399,10 @@ class Axis(maxis.XAxis):
                     renderer.M)
 
             # Get position of label
-            labeldeltas = [info['ticklabel']['space_factor'] * x for
-                           x in deltas]
+            default_offset = 8.  # A rough estimate
+            labeldeltas = (tick.get_pad() + default_offset) * deltas_per_point\
+                * deltas
+
             axmask = [True, True, True]
             axmask[index] = False
             pos[tickdir] = edgep1[tickdir]

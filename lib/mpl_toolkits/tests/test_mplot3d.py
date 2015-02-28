@@ -233,6 +233,30 @@ def test_quiver3d_pivot_tail():
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tail')
 
+
+@image_comparison(baseline_images=['axes3d_labelpad'], extensions=['png'])
+def test_axes3d_labelpad():
+    from nose.tools import assert_equal
+    from matplotlib import rcParams
+
+    fig = plt.figure()
+    ax = Axes3D(fig)
+    # labelpad respects rcParams
+    assert_equal(ax.xaxis.labelpad, rcParams['axes.labelpad'])
+    # labelpad can be set in set_label
+    ax.set_xlabel('X LABEL', labelpad=10)
+    assert_equal(ax.xaxis.labelpad, 10)
+    ax.set_ylabel('Y LABEL')
+    ax.set_zlabel('Z LABEL')
+    # or manually
+    ax.yaxis.labelpad = 20
+    ax.zaxis.labelpad = -40
+
+    # Tick labels also respect tick.pad (also from rcParams)
+    for i, tick in enumerate(ax.yaxis.get_major_ticks()):
+        tick.set_pad(tick.get_pad() - i * 5)
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

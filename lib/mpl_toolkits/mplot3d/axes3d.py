@@ -1183,11 +1183,7 @@ class Axes3D(Axes):
         '''
         Set zlabel.  See doc for :meth:`set_ylabel` for description.
 
-        .. note::
-            Currently, *labelpad* does not have an effect on the labels.
         '''
-        # FIXME: With a rework of axis3d.py, the labelpad should work again
-        #        At that point, remove the above message in the docs.
         if labelpad is not None : self.zaxis.labelpad = labelpad
         return self.zaxis.set_label_text(zlabel, fontdict, **kwargs)
 
