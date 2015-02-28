@@ -37,10 +37,10 @@ def revcmap(data):
     for key, val in six.iteritems(data):
         if six.callable(val):
             valnew = _reverser(val)
-                # This doesn't work: lambda x: val(1-x)
-                # The same "val" (the first one) is used
-                # each time, so the colors are identical
-                # and the result is shades of gray.
+            # This doesn't work: lambda x: val(1-x)
+            # The same "val" (the first one) is used
+            # each time, so the colors are identical
+            # and the result is shades of gray.
         else:
             # Flip x and exchange the y values facing x = 0 and x = 1.
             valnew = [(1.0 - x, y1, y0) for x, y0, y1 in reversed(val)]

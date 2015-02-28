@@ -356,8 +356,8 @@ class QuiverKey(martist.Artist):
     def contains(self, mouseevent):
         # Maybe the dictionary should allow one to
         # distinguish between a text hit and a vector hit.
-        if (self.text.contains(mouseevent)[0]
-                or self.vector.contains(mouseevent)[0]):
+        if (self.text.contains(mouseevent)[0] or
+                self.vector.contains(mouseevent)[0]):
             return True, {}
         return False, {}
 
@@ -452,9 +452,9 @@ class Quiver(mcollections.PolyCollection):
         kw.setdefault('facecolors', self.color)
         kw.setdefault('linewidths', (0,))
         mcollections.PolyCollection.__init__(self, [], offsets=self.XY,
-                                            transOffset=self.transform,
-                                            closed=False,
-                                            **kw)
+                                             transOffset=self.transform,
+                                             closed=False,
+                                             **kw)
         self.polykw = kw
         self.set_UVC(U, V, C)
         self._initialized = False
@@ -622,9 +622,9 @@ class Quiver(mcollections.PolyCollection):
                 amean = a[~self.Umask].mean()
             else:
                 amean = a.mean()
-            scale = 1.8 * amean * sn / self.span  # crude auto-scaling
-                # scale is typical arrow length as a multiple
-                # of the arrow width
+            # crude auto-scaling
+            # scale is typical arrow length as a multiple of the arrow width
+            scale = 1.8 * amean * sn / self.span
         if self.scale_units is None:
             if self.scale is None:
                 self.scale = scale

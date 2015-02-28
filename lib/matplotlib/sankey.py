@@ -225,7 +225,7 @@ class Sankey(object):
                                  [5.19642327e-01, 8.94571235e-01],
                                  [2.65114773e-01, 1.00000000e+00],
                                  # Insignificant
-                                 #[6.12303177e-17, 1.00000000e+00]])
+                                 # [6.12303177e-17, 1.00000000e+00]])
                                  [0.00000000e+00, 1.00000000e+00]])
         if quadrant == 0 or quadrant == 2:
             if cw:
@@ -369,10 +369,10 @@ class Sankey(object):
         return reverse_path
         # This might be more efficient, but it fails because 'tuple' object
         # doesn't support item assignment:
-        #path[1] = path[1][-1:0:-1]
-        #path[1][0] = first_action
-        #path[2] = path[2][::-1]
-        #return path
+        # path[1] = path[1][-1:0:-1]
+        # path[1][0] = first_action
+        # path[2] = path[2][::-1]
+        # return path
 
     @docstring.dedent_interpd
     def add(self, patchlabel='', flows=None, orientations=None, labels='',
@@ -475,8 +475,8 @@ class Sankey(object):
             "orientations has length %d, but flows has length %d."
             % (len(orientations), n))
         if labels != '' and getattr(labels, '__iter__', False):
-        # iterable() isn't used because it would give True if labels is a
-        # string
+            # iterable() isn't used because it would give True if labels is a
+            # string
             assert len(labels) == n, (
                 "If labels is a list, then labels and flows must have the "
                 "same length.\nlabels has length %d, but flows has length %d."
@@ -590,7 +590,7 @@ class Sankey(object):
             # Determine the lengths of the bottom-side arrows
             # from the middle outwards.
             for i, (angle, is_input, flow) in enumerate(reversed(list(zip(
-                angles, are_inputs, scaled_flows)))):
+                  angles, are_inputs, scaled_flows)))):
                 if angle == UP and is_input:
                     pathlengths[n - i - 1] = lllength
                     lllength += flow
@@ -601,7 +601,7 @@ class Sankey(object):
             # from the bottom upwards.
             has_left_input = False
             for i, (angle, is_input, spec) in enumerate(reversed(list(zip(
-                angles, are_inputs, zip(scaled_flows, pathlengths))))):
+                  angles, are_inputs, zip(scaled_flows, pathlengths))))):
                 if angle == RIGHT:
                     if is_input:
                         if has_left_input:
@@ -612,7 +612,7 @@ class Sankey(object):
             # from the top downwards.
             has_right_output = False
             for i, (angle, is_input, spec) in enumerate(zip(
-                angles, are_inputs, list(zip(scaled_flows, pathlengths)))):
+                  angles, are_inputs, list(zip(scaled_flows, pathlengths)))):
                 if angle == RIGHT:
                     if not is_input:
                         if has_right_output:
@@ -656,7 +656,7 @@ class Sankey(object):
         label_locations = np.zeros((n, 2))
         # Add the top-side inputs and outputs from the middle outwards.
         for i, (angle, is_input, spec) in enumerate(zip(
-            angles, are_inputs, list(zip(scaled_flows, pathlengths)))):
+              angles, are_inputs, list(zip(scaled_flows, pathlengths)))):
             if angle == DOWN and is_input:
                 tips[i, :], label_locations[i, :] = self._add_input(
                     ulpath, angle, *spec)
@@ -665,7 +665,7 @@ class Sankey(object):
                     urpath, angle, *spec)
         # Add the bottom-side inputs and outputs from the middle outwards.
         for i, (angle, is_input, spec) in enumerate(reversed(list(zip(
-            angles, are_inputs, list(zip(scaled_flows, pathlengths)))))):
+              angles, are_inputs, list(zip(scaled_flows, pathlengths)))))):
             if angle == UP and is_input:
                 tip, label_location = self._add_input(llpath, angle, *spec)
                 tips[n - i - 1, :] = tip
@@ -677,7 +677,7 @@ class Sankey(object):
         # Add the left-side inputs from the bottom upwards.
         has_left_input = False
         for i, (angle, is_input, spec) in enumerate(reversed(list(zip(
-            angles, are_inputs, list(zip(scaled_flows, pathlengths)))))):
+              angles, are_inputs, list(zip(scaled_flows, pathlengths)))))):
             if angle == RIGHT and is_input:
                 if not has_left_input:
                     # Make sure the lower path extends
@@ -692,7 +692,7 @@ class Sankey(object):
         # Add the right-side outputs from the top downwards.
         has_right_output = False
         for i, (angle, is_input, spec) in enumerate(zip(
-            angles, are_inputs, list(zip(scaled_flows, pathlengths)))):
+              angles, are_inputs, list(zip(scaled_flows, pathlengths)))):
             if angle == RIGHT and not is_input:
                 if not has_right_output:
                     # Make sure the upper path extends

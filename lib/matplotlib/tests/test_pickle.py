@@ -83,7 +83,6 @@ def recursive_pickle(top_obj):
     objs = sorted(six.itervalues(objs), key=lambda val: (-val[0], val[2]))
 
     for _, obj, location in objs:
-#        print('trying %s' % location)
         try:
             pickle.dump(obj, BytesIO(), pickle.HIGHEST_PROTOCOL)
         except Exception as err:
