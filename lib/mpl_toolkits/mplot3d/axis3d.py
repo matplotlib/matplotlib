@@ -12,7 +12,7 @@ import math
 import copy
 
 from matplotlib import lines as mlines, axis as maxis, \
-        patches as mpatches
+        patches as mpatches, rcParams
 from . import art3d
 from . import proj3d
 
@@ -92,11 +92,11 @@ class Axis(maxis.XAxis):
                                        'linewidth': 1.0},
                             })
 
-
+        
         maxis.XAxis.__init__(self, axes, *args, **kwargs)
 
         self.set_rotate_label(kwargs.get('rotate_label', None))
-
+        self.labelpad = rcParams['axes3d.labelpad'] # 3D graph padding
 
     def init3d(self):
         self.line = mlines.Line2D(xdata=(0, 0), ydata=(0, 0),
@@ -264,13 +264,15 @@ class Axis(maxis.XAxis):
                   self.axes.transAxes.transform([peparray[0:2, 0]]))[0]
 
         lxyz = 0.5*(edgep1 + edgep2)
-
-        labeldeltas = info['label']['space_factor'] * deltas
+        
+        # Set label with padding while keeping backwords compatibility
+        labeldeltas = (self.labelpad + info['label']['space_factor']) * deltas
         axmask = [True, True, True]
         axmask[index] = False
         lxyz = move_from_center(lxyz, centers, labeldeltas, axmask)
         tlx, tly, tlz = proj3d.proj_transform(lxyz[0], lxyz[1], lxyz[2], \
                 renderer.M)
+                       
         self.label.set_position((tlx, tly))
         if self.get_rotate_label(self.label.get_text()):
             angle = art3d.norm_text_angle(math.degrees(math.atan2(dy, dx)))
@@ -281,7 +283,6 @@ class Axis(maxis.XAxis):
 
 
         # Draw Offset text
-
         # Which of the two edge points do we want to
         # use for locating the offset text?
         if juggled[2] == 2 :

@@ -642,7 +642,8 @@ defaultParams = {
     'polaraxes.grid': [True, validate_bool],  # display polar grid or
                                                      # not
     'axes3d.grid': [True, validate_bool],  # display 3d grid
-
+    'axes3d.labelpad': [0.0, validate_float], # 3D graph label padding
+    
     #legend properties
     'legend.fancybox': [False, validate_bool],
 
