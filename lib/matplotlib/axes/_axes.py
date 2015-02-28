@@ -2807,7 +2807,7 @@ class Axes(_AxesBase):
 
         if yerr is not None:
             if (iterable(yerr) and len(yerr) == 2 and
-                iterable(yerr[0]) and iterable(yerr[1])):
+                    iterable(yerr[0]) and iterable(yerr[1])):
                 # using list comps rather than arrays to preserve units
                 lower = [thisy - thiserr for (thisy, thiserr)
                          in cbook.safezip(y, yerr[0])]
@@ -3066,8 +3066,7 @@ class Axes(_AxesBase):
             # compatibility
             if sym == '':
                 # blow away existing dict and make one for invisible markers
-                flierprops = dict(linestyle='none', marker='',
-                    color='none')
+                flierprops = dict(linestyle='none', marker='', color='none')
                 # turn the fliers off just to be safe
                 showfliers = False
             # now process the symbol string
@@ -3088,7 +3087,7 @@ class Axes(_AxesBase):
         # replace medians if necessary:
         if usermedians is not None:
             if (len(np.ravel(usermedians)) != len(bxpstats) or
-                 np.shape(usermedians)[0] != len(bxpstats)):
+                    np.shape(usermedians)[0] != len(bxpstats)):
                 medmsg = 'usermedians length not compatible with x'
                 raise ValueError(medmsg)
             else:
@@ -4680,8 +4679,8 @@ class Axes(_AxesBase):
             aspect = rcParams['image.aspect']
         self.set_aspect(aspect)
         im = mimage.AxesImage(self, cmap, norm, interpolation, origin, extent,
-                       filternorm=filternorm,
-                       filterrad=filterrad, resample=resample, **kwargs)
+                              filternorm=filternorm, filterrad=filterrad,
+                              resample=resample, **kwargs)
 
         im.set_data(X)
         im.set_alpha(alpha)
@@ -4966,7 +4965,7 @@ class Axes(_AxesBase):
                              X3[:, newaxis], Y3[:, newaxis],
                              X4[:, newaxis], Y4[:, newaxis],
                              X1[:, newaxis], Y1[:, newaxis]),
-                             axis=1)
+                            axis=1)
         verts = xy.reshape((npoly, 5, 2))
 
         C = compress(ravelmask, ma.filled(C[0:Ny - 1, 0:Nx - 1]).ravel())
@@ -4992,7 +4991,7 @@ class Axes(_AxesBase):
         if 'antialiased' in kwargs:
             kwargs['antialiaseds'] = kwargs.pop('antialiased')
         if 'antialiaseds' not in kwargs and (is_string_like(ec) and
-                ec.lower() == "none"):
+                                             ec.lower() == "none"):
             kwargs['antialiaseds'] = False
 
         kwargs.setdefault('snap', False)
@@ -5014,8 +5013,8 @@ class Axes(_AxesBase):
 
         # Transform from native to data coordinates?
         t = collection._transform
-        if (not isinstance(t, mtransforms.Transform)
-            and hasattr(t, '_as_mpl_transform')):
+        if (not isinstance(t, mtransforms.Transform) and
+            hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
 
         if t and any(t.contains_branch_seperately(self.transData)):
@@ -5161,8 +5160,8 @@ class Axes(_AxesBase):
 
         # Transform from native to data coordinates?
         t = collection._transform
-        if (not isinstance(t, mtransforms.Transform)
-            and hasattr(t, '_as_mpl_transform')):
+        if (not isinstance(t, mtransforms.Transform) and
+            hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
 
         if t and any(t.contains_branch_seperately(self.transData)):
@@ -5310,8 +5309,9 @@ class Axes(_AxesBase):
 
             # convert to one dimensional arrays
             # This should also be moved to the QuadMesh class
-            C = ma.ravel(C)  # data point in each cell is value
-                             # at lower left corner
+
+            # data point in each cell is value at lower left corner
+            C = ma.ravel(C)
             X = x.ravel()
             Y = y.ravel()
             Nx = nc + 1

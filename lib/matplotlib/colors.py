@@ -482,8 +482,6 @@ def makeMappingArray(N, data, gamma=1.0):
     lut[-1] = y0[-1]
     # ensure that the lut is confined to values between 0 and 1 by clipping it
     np.clip(lut, 0.0, 1.0)
-    #lut = where(lut > 1., 1., lut)
-    #lut = where(lut < 0., 0., lut)
     return lut
 
 
@@ -614,9 +612,6 @@ class Colormap(object):
 
         rgba = np.empty(shape=xa.shape + (4,), dtype=lut.dtype)
         lut.take(xa, axis=0, mode='clip', out=rgba)
-                    #  twice as fast as lut[xa];
-                    #  using the clip or wrap mode and providing an
-                    #  output array speeds it up a little more.
         if vtype == 'scalar':
             rgba = tuple(rgba[0, :])
         return rgba
@@ -1384,13 +1379,12 @@ def hsv_to_rgb(hsv):
     rgb : (..., 3) ndarray
        Colors converted to RGB values in range [0, 1]
     """
-        # make sure it is an ndarray
     hsv = np.asarray(hsv)
 
     # check length of the last dimension, should be _some_ sort of rgb
     if hsv.shape[-1] != 3:
         raise ValueError("Last dimension of input array must be 3; "
-                            "shape {shp} was found.".format(shp=hsv.shape))
+                         "shape {shp} was found.".format(shp=hsv.shape))
 
     # if we got pased a 1D array, try to treat as
     # a single color and reshape as needed
@@ -1551,20 +1545,20 @@ class LightSource(object):
         # consistent to what `imshow` assumes, as well.
         dy = -dy
 
-        #-- Calculate the intensity from the illumination angle
+        # Calculate the intensity from the illumination angle
         dy, dx = np.gradient(vert_exag * elevation, dy, dx)
         # The aspect is defined by the _downhill_ direction, thus the negative
         aspect = np.arctan2(-dy, -dx)
         slope = 0.5 * np.pi - np.arctan(np.hypot(dx, dy))
-        intensity = (np.sin(alt) * np.sin(slope)
-                     + np.cos(alt) * np.cos(slope)
-                     * np.cos(az - aspect))
+        intensity = (np.sin(alt) * np.sin(slope) +
+                     np.cos(alt) * np.cos(slope) *
+                     np.cos(az - aspect))
 
-        #-- Apply contrast stretch
+        # Apply contrast stretch
         imin, imax = intensity.min(), intensity.max()
         intensity *= fraction
 
-        #-- Rescale to 0-1, keeping range before contrast stretch
+        # Rescale to 0-1, keeping range before contrast stretch
         # If constant slope, keep relative scaling (i.e. flat should be 0.5,
         # fully occluded 0, etc.)
         if (imax - imin) > 1e-6:

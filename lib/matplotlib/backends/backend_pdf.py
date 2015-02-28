@@ -769,7 +769,7 @@ class PdfFile(object):
             'FontFamily':  t1font.prop['FamilyName'],
             'StemV':       50,  # TODO
             # (see also revision 3874; but not all TeX distros have AFM files!)
-            #'FontWeight': a number where 400 = Regular, 700 = Bold
+            # 'FontWeight': a number where 400 = Regular, 700 = Bold
             }
 
         self.writeObject(fontdescObject, descriptor)
@@ -1251,8 +1251,8 @@ end"""
         self.images[image] = (name, ob)
         return name
 
-    ## These two from backend_ps.py
-    ## TODO: alpha (SMask, p. 518 of pdf spec)
+    # These two from backend_ps.py
+    # TODO: alpha (SMask, p. 518 of pdf spec)
 
     def _rgb(self, im):
         h, w, s = im.as_rgba_str()
@@ -1710,10 +1710,8 @@ class RendererPdf(RendererBase):
                 simplify=False):
             if len(vertices):
                 x, y = vertices[-2:]
-                if (x < 0 or
-                    y < 0 or
-                    x > self.file.width * 72 or
-                    y > self.file.height * 72):
+                if (x < 0 or y < 0 or
+                        x > self.file.width * 72 or y > self.file.height * 72):
                     continue
                 dx, dy = x - lastx, y - lasty
                 output(1, 0, 0, 1, dx, dy, Op.concat_matrix,
@@ -1970,8 +1968,8 @@ class RendererPdf(RendererBase):
                             chunks[-1][1].append(c)
                         else:
                             chunks.append((char_type, [c]))
-                    use_simple_method = (len(chunks) == 1
-                                         and chunks[-1][0] == 1)
+                    use_simple_method = (len(chunks) == 1 and
+                                         chunks[-1][0] == 1)
             return use_simple_method, chunks
 
         def draw_text_simple():
@@ -2255,7 +2253,7 @@ class GraphicsContextPdf(GraphicsContextBase):
             cmds.extend(self.pop())
         # Unless we hit the right one, set the clip polygon
         if ((self._cliprect, self._clippath) != (cliprect, clippath) or
-            self.parent is None):
+                self.parent is None):
             cmds.extend(self.push())
             if self._cliprect != cliprect:
                 cmds.extend([cliprect, Op.rectangle, Op.clip, Op.endpath])
@@ -2417,8 +2415,8 @@ class PdfPages(object):
         PDF file.
         """
         self._file.close()
-        if (self.get_pagecount() == 0 and not self.keep_empty
-                and not self._file.passed_in_file_object):
+        if (self.get_pagecount() == 0 and not self.keep_empty and
+                not self._file.passed_in_file_object):
             os.remove(self._file.fh.name)
         self._file = None
 
