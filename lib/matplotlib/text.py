@@ -21,7 +21,7 @@ from matplotlib.artist import Artist
 from matplotlib.cbook import is_string_like, maxdict
 from matplotlib import docstring
 from matplotlib.font_manager import FontProperties
-from matplotlib.patches import bbox_artist, YAArrow, FancyBboxPatch
+from matplotlib.patches import YAArrow, FancyBboxPatch
 from matplotlib.patches import FancyArrowPatch, Rectangle
 import matplotlib.transforms as mtransforms
 from matplotlib.transforms import Affine2D, Bbox, Transform
@@ -469,25 +469,19 @@ class Text(Artist):
     def set_bbox(self, rectprops):
         """
         Draw a bounding box around self.  rectprops are any settable
-        properties for a rectangle, e.g., facecolor='red', alpha=0.5.
+        properties for a FancyBboxPatch, e.g., facecolor='red', alpha=0.5.
 
           t.set_bbox(dict(facecolor='red', alpha=0.5))
 
-        If rectprops has "boxstyle" key. A FancyBboxPatch
-        is initialized with rectprops and will be drawn. The mutation
-        scale of the FancyBboxPath is set to the fontsize.
+        The default boxstyle is 'square'. The mutation
+        scale of the FancyBboxPatch is set to the fontsize.
 
-        ACCEPTS: rectangle prop dict
+        ACCEPTS: FancyBboxPatch prop dict
         """
 
-        # The self._bbox_patch object is created only if rectprops has
-        # boxstyle key. Otherwise, self._bbox will be set to the
-        # rectprops and the bbox will be drawn using bbox_artist
-        # function. This is to keep the backward compatibility.
-
-        if rectprops is not None and "boxstyle" in rectprops:
+        if rectprops is not None:
             props = rectprops.copy()
-            boxstyle = props.pop("boxstyle")
+            boxstyle = props.pop("boxstyle", "square")
             bbox_transmuter = props.pop("bbox_transmuter", None)
 
             self._bbox_patch = FancyBboxPatch(
@@ -497,10 +491,8 @@ class Text(Artist):
                                     bbox_transmuter=bbox_transmuter,
                                     transform=mtransforms.IdentityTransform(),
                                     **props)
-            self._bbox = None
         else:
             self._bbox_patch = None
-            self._bbox = rectprops
 
         self._update_clip_properties()
 
@@ -542,7 +534,7 @@ class Text(Artist):
     def _draw_bbox(self, renderer, posx, posy):
 
         """ Update the location and the size of the bbox
-        (FancyBoxPatch), and draw
+        (FancyBboxPatch), and draw
         """
 
         x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
@@ -560,8 +552,6 @@ class Text(Artist):
                          clip_path=self._clippath,
                          clip_on=self._clipon)
 
-        if self._bbox:
-            bbox = self._bbox.update(clipprops)
         if self._bbox_patch:
             bbox = self._bbox_patch.update(clipprops)
 
@@ -756,8 +746,6 @@ class Text(Artist):
             gc.set_url(textobj._url)
             textobj._set_gc_clip(gc)
 
-            if textobj._bbox:
-                bbox_artist(textobj, renderer, textobj._bbox)
             angle = textobj.get_rotation()
 
             for line, wh, x, y in info:
@@ -959,10 +947,10 @@ class Text(Artist):
 
         ACCEPTS: any matplotlib color
         """
-        if self._bbox is None:
-            self._bbox = dict(facecolor=color, edgecolor=color)
+        if self._bbox_patch is None:
+            self.set_bbox = dict(facecolor=color, edgecolor=color)
         else:
-            self._bbox.update(dict(facecolor=color))
+            self._bbox_patch.update(dict(facecolor=color))
 
         self._update_clip_properties()
         self.stale = True
@@ -2147,13 +2135,7 @@ class Annotation(Text, _AnnotationBase):
                     if self._bbox_patch:
                         self.arrow_patch.set_patchA(self._bbox_patch)
                     else:
-                        props = self._bbox
-                        if props is None:
-                            props = {}
-                        # don't want to alter the pad externally
-                        props = props.copy()
-                        pad = props.pop('pad', 4)
-                        pad = renderer.points_to_pixels(pad)
+                        pad = renderer.points_to_pixels(4)
                         if self.get_text().strip() == "":
                             self.arrow_patch.set_patchA(None)
                             return
@@ -2170,12 +2152,11 @@ class Annotation(Text, _AnnotationBase):
                                       )
                         r.set_transform(mtransforms.IdentityTransform())
                         r.set_clip_on(False)
-                        r.update(props)
 
                         self.arrow_patch.set_patchA(r)
 
             else:
-
+                # using YAArrow
                 # pick the x,y corner of the text bbox closest to point
                 # annotated
                 dsu = [(abs(val - x0), val) for val in (l, r, xc)]
