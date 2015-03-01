@@ -1195,7 +1195,7 @@ class PowerNorm(Normalize):
 
         if cbook.iterable(value):
             val = ma.asarray(value)
-            return ma.power(value, 1. / gamma) * (vmax - vmin) + vmin
+            return ma.power(val, 1. / gamma) * (vmax - vmin) + vmin
         else:
             return pow(value, 1. / gamma) * (vmax - vmin) + vmin
 
@@ -1550,8 +1550,7 @@ class LightSource(object):
         aspect = np.arctan2(-dy, -dx)
         slope = 0.5 * np.pi - np.arctan(np.hypot(dx, dy))
         intensity = (np.sin(alt) * np.sin(slope) +
-                     np.cos(alt) * np.cos(slope) *
-                     np.cos(az - aspect))
+                     np.cos(alt) * np.cos(slope) * np.cos(az - aspect))
 
         # Apply contrast stretch
         imin, imax = intensity.min(), intensity.max()
