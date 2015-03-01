@@ -7,6 +7,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import zip
 
+import copy
 import math
 import warnings
 
@@ -2092,7 +2093,9 @@ class Annotation(Text, _AnnotationBase):
                 self.arrow_patch.figure = self.figure
             self.arrow_patch.draw(renderer)
 
-        Text.draw(self, renderer)
+        astext = copy.copy(self)
+        astext.__class__ = Text
+        Text.draw(astext, renderer)
 
     def get_window_extent(self, renderer=None):
         '''
