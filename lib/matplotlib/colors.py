@@ -457,7 +457,7 @@ def makeMappingArray(N, data, gamma=1.0):
     except:
         raise TypeError("data must be convertable to an array")
     shape = adata.shape
-    if len(shape) != 2 and shape[1] != 3:
+    if len(shape) != 2 or shape[1] != 3:
         raise ValueError("data must be nx3 format")
 
     x = adata[:, 0]
@@ -476,13 +476,12 @@ def makeMappingArray(N, data, gamma=1.0):
     xind = (N - 1) * np.linspace(0, 1, N) ** gamma
     ind = np.searchsorted(x, xind)[1:-1]
 
-    lut[1:-1] = (((xind[1:-1] - x[ind - 1]) / (x[ind] - x[ind - 1])) *
-                 (y0[ind] - y1[ind - 1]) + y1[ind - 1])
+    distance = (xind[1:-1] - x[ind - 1]) / (x[ind] - x[ind - 1])
+    lut[1:-1] = distance * (y0[ind] - y1[ind - 1]) + y1[ind - 1]
     lut[0] = y1[0]
     lut[-1] = y0[-1]
     # ensure that the lut is confined to values between 0 and 1 by clipping it
-    np.clip(lut, 0.0, 1.0)
-    return lut
+    return np.clip(lut, 0.0, 1.0)
 
 
 class Colormap(object):
