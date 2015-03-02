@@ -319,7 +319,7 @@ class Text(Artist):
     def _get_layout(self, renderer):
         """
         return the extent (bbox) of the text together with
-        multile-alignment information. Note that it returns a extent
+        multiple-alignment information. Note that it returns an extent
         of a rotated text when necessary.
         """
         key = self.get_prop_tup()
@@ -481,6 +481,9 @@ class Text(Artist):
 
         if rectprops is not None:
             props = rectprops.copy()
+            # Dump the pad kwarg; we still need to figure out how to
+            # use it to expand the box, for backwards compatibility.
+            pad = props.pop('pad', 4)  # noqa
             boxstyle = props.pop("boxstyle", "square")
             bbox_transmuter = props.pop("bbox_transmuter", None)
 
@@ -948,7 +951,7 @@ class Text(Artist):
         ACCEPTS: any matplotlib color
         """
         if self._bbox_patch is None:
-            self.set_bbox = dict(facecolor=color, edgecolor=color)
+            self.set_bbox(dict(facecolor=color, edgecolor=color))
         else:
             self._bbox_patch.update(dict(facecolor=color))
 
@@ -2227,6 +2230,10 @@ class Annotation(Text, _AnnotationBase):
         self._update_position_xytext(renderer, xy_pixel)
         self.update_bbox_position_size(renderer)
 
+        # Draw text, including FancyBboxPatch, before FancyArrowPatch.
+        # Otherwise, the transform of the former Patch will be incomplete.
+        Text.draw(self, renderer)
+
         if self.arrow is not None:
             if self.arrow.figure is None and self.figure is not None:
                 self.arrow.figure = self.figure
@@ -2236,8 +2243,6 @@ class Annotation(Text, _AnnotationBase):
             if self.arrow_patch.figure is None and self.figure is not None:
                 self.arrow_patch.figure = self.figure
             self.arrow_patch.draw(renderer)
-
-        Text.draw(self, renderer)
 
     def get_window_extent(self, renderer=None):
         '''
