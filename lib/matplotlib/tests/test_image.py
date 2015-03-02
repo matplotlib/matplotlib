@@ -262,7 +262,7 @@ def test_image_composite_background():
 def test_image_composite_alpha():
     """
     Tests that the alpha value is recognized and correctly applied in the
-    process of combining images together.
+    process of compositing images together.
     """
     fig = plt.figure()
     ax = fig.add_subplot(111)
