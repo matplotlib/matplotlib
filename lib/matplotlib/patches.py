@@ -1049,14 +1049,14 @@ class Arrow(Patch):
         %(Patch)s
         """
         Patch.__init__(self, **kwargs)
-        L = np.sqrt(dx ** 2 + dy ** 2)
+        L = ny.hypot(dx, dy)
 
-        # Account for divide by zero
-        if L == 0:
-            L = 1
-
-        cx = float(dx) / L
-        sx = float(dy) / L
+        if L != 0:
+            cx = float(dx) / L
+            sx = float(dy) / L
+        else:
+            # Account for division by zero
+            cx, sx = 0, 1
 
         trans1 = transforms.Affine2D().scale(L, width)
         trans2 = transforms.Affine2D.from_values(cx, sx, -sx, cx, 0.0, 0.0)
@@ -1117,11 +1117,7 @@ class FancyArrow(Polygon):
         if head_length is None:
             head_length = 1.5 * head_width
 
-        distance = np.sqrt(dx ** 2 + dy ** 2)
-
-        # Account for divide by zero
-        if distance == 0:
-            distance = 1
+        distance = np.hypot(dx, dy)
 
         if length_includes_head:
             length = distance
@@ -1160,8 +1156,12 @@ class FancyArrow(Polygon):
                                              right_half_arrow[-2::-1]])
                 else:
                     raise ValueError("Got unknown shape: %s" % shape)
-            cx = float(dx) / distance
-            sx = float(dy) / distance
+            if distance != 0:
+                cx = float(dx) / distance
+                sx = float(dy) / distance
+            else:
+                #Account for division by zero
+                cx, sx = 0, 1
             M = np.array([[cx, sx], [-sx, cx]])
             verts = np.dot(coords, M) + (x + dx, y + dy)
 
@@ -3210,15 +3210,15 @@ class ArrowStyle(_Style):
             # arrow from x0, y0 to x1, y1
             dx, dy = x0 - x1, y0 - y1
 
-            cp_distance = math.sqrt(dx ** 2 + dy ** 2)
-
-            # Account for divide by zero
-            if cp_distance == 0:
-                cp_distance = 1
+            cp_distance = np.hypot(dx, dy)
 
             # pad_projected : amount of pad to account the
             # overshooting of the projection of the wedge
             pad_projected = (.5 * linewidth / sin_t)
+
+            # Account for division by zero
+            if cp_distance == 0:
+                cp_distance = 1
 
             # apply pad for projected edge
             ddx = pad_projected * dx / cp_distance
