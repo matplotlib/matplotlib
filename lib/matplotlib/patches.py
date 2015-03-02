@@ -2658,14 +2658,14 @@ class ConnectionStyle(_Style):
 
     class _Base(object):
         """
-        A base class for connectionstyle classes. The dervided needs
-        to implement a *connect* methods whose call signature is::
+        A base class for connectionstyle classes. The subclass needs
+        to implement a *connect* method whose call signature is::
 
           connect(posA, posB)
 
         where posA and posB are tuples of x, y coordinates to be
-        connected.  The methods needs to return a path connecting two
-        points. This base class defines a __call__ method, and few
+        connected.  The method needs to return a path connecting two
+        points. This base class defines a __call__ method, and a few
         helper methods.
         """
 
@@ -2749,7 +2749,7 @@ class ConnectionStyle(_Style):
             return shrinked_path
 
         def __reduce__(self):
-            # because we have decided to nest thes classes, we need to
+            # because we have decided to nest these classes, we need to
             # add some more information to allow instance pickling.
             import matplotlib.cbook as cbook
             return (cbook._NestedClassGetter(),
@@ -2994,7 +2994,7 @@ class ConnectionStyle(_Style):
     class Bar(_Base):
         """
         A line with *angle* between A and B with *armA* and
-        *armB*. One of the arm is extend so that they are connected in
+        *armB*. One of the arms is extended so that they are connected in
         a right angle. The length of armA is determined by (*armA*
         + *fraction* x AB distance). Same for armB.
         """
@@ -3968,7 +3968,7 @@ class FancyArrowPatch(Patch):
         """
         If *posA* and *posB* is given, a path connecting two point are
         created according to the connectionstyle. The path will be
-        clipped with *patchA* and *patchB* and further shirnked by
+        clipped with *patchA* and *patchB* and further shrinked by
         *shrinkA* and *shrinkB*. An arrow is drawn along this
         resulting path using the *arrowstyle* parameter. If *path*
         provided, an arrow is drawn along this path and *patchA*,
