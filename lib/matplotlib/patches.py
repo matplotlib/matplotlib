@@ -1049,7 +1049,7 @@ class Arrow(Patch):
         %(Patch)s
         """
         Patch.__init__(self, **kwargs)
-        L = ny.hypot(dx, dy)
+        L = np.hypot(dx, dy)
 
         if L != 0:
             cx = float(dx) / L
