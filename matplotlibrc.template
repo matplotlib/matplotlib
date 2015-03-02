@@ -359,7 +359,7 @@ backend      : %(backend)s
 #image.origin : upper             # lower | upper
 #image.resample  : False
 #image.composite_image : True     # When True, all the images on a set of axes are 
-								  # combined into a single composite image before 
+                                  # combined into a single composite image before 
                                   # saving a figure as a vector graphics file, 
                                   # such as a PDF.
 
