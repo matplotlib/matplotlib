@@ -155,6 +155,8 @@ from matplotlib import rcParams
 from matplotlib import cbook
 from matplotlib import transforms as mtransforms
 
+import warnings
+
 if six.PY3:
     long = int
 
@@ -953,6 +955,14 @@ class Locator(TickHelper):
         """
         raise NotImplementedError('Derived must override')
 
+    def set_params(self, **kwargs):
+        """
+        Do nothing, and rase a warning. Any locator class not supporting the
+        set_params() function will call this.
+        """
+        warnings.warn("'set_params()' not defined for locator of type " +
+                      str(type(self)))
+
     def __call__(self):
         """Return the locations of the ticks"""
         # note: some locators return data limits, other return view limits,
@@ -1025,6 +1035,13 @@ class IndexLocator(Locator):
         self._base = base
         self.offset = offset
 
+    def set_params(self, base=None, offset=None):
+        """Set parameters within this locator"""
+        if base is not None:
+            self._base = base
+        if offset is not None:
+            self.offset = offset
+
     def __call__(self):
         """Return the locations of the ticks"""
         dmin, dmax = self.axis.get_data_interval()
@@ -1051,6 +1068,11 @@ class FixedLocator(Locator):
         self.nbins = nbins
         if self.nbins is not None:
             self.nbins = max(self.nbins, 2)
+
+    def set_params(self, nbins=None):
+        """Set parameters within this locator."""
+        if nbins is not None:
+            self.nbins = nbins
 
     def __call__(self):
         return self.tick_values(None, None)
@@ -1115,6 +1137,13 @@ class LinearLocator(Locator):
             self.presets = {}
         else:
             self.presets = presets
+
+    def set_params(self, numticks=None, presets=None):
+        """Set parameters within this locator."""
+        if presets is not None:
+            self.presets = presets
+        if numticks is not None:
+            self.numticks = numticks
 
     def __call__(self):
         'Return the locations of the ticks'
@@ -1218,6 +1247,11 @@ class MultipleLocator(Locator):
     def __init__(self, base=1.0):
         self._base = Base(base)
 
+    def set_params(self, base):
+        """Set parameters within this locator."""
+        if base is not None:
+            self._base = base
+
     def __call__(self):
         'Return the locations of the ticks'
         vmin, vmax = self.axis.get_view_interval()
@@ -1319,6 +1353,7 @@ class MaxNLocator(Locator):
         self.set_params(**kwargs)
 
     def set_params(self, **kwargs):
+        """Set parameters within this locator."""
         if 'nbins' in kwargs:
             self._nbins = int(kwargs['nbins'])
         if 'trim' in kwargs:
@@ -1453,6 +1488,17 @@ class LogLocator(Locator):
         self.numticks = numticks
         self.numdecs = numdecs
 
+    def set_params(self, base=None, subs=None, numdecs=None, numticks=None):
+        """Set parameters within this locator."""
+        if base is not None:
+            self.base = base
+        if subs is not None:
+            self.subs = subs
+        if numdecs is not None:
+            self.numdecs = numdecs
+        if numticks is not None:
+            self.numticks = numticks
+
     def base(self, base):
         """
         set the base of the log scaling (major tick every base**i, i integer)
@@ -1579,6 +1625,13 @@ class SymmetricalLogLocator(Locator):
         else:
             self._subs = subs
         self.numticks = 15
+
+    def set_params(self, subs=None, numticks=None):
+        """Set parameters within this locator."""
+        if numticks is not None:
+            self.numticks = numticks
+        if subs is not None:
+            self._subs = subs
 
     def __call__(self):
         'Return the locations of the ticks'
@@ -1727,6 +1780,11 @@ class LogitLocator(Locator):
         place ticks on the logit locations
         """
         self.minor = minor
+
+    def set_params(self, minor=None):
+        """Set parameters within this locator."""
+        if minor is not None:
+            self.minor = minor
 
     def __call__(self):
         'Return the locations of the ticks'
