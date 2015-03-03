@@ -6,7 +6,7 @@ import six
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
-from nose.tools import assert_equal, assert_raises
+from nose.tools import assert_equal, assert_raises, assert_true, assert_false
 from numpy.testing import assert_array_equal, assert_array_almost_equal,\
     assert_array_less
 import numpy.ma.testutils as matest
@@ -960,6 +960,29 @@ def test_triplot_return():
         triangles=[[0, 1, 3], [3, 2, 0]])
     if ax.triplot(triang, "b-") is None:
         raise AssertionError("triplot should return the artist it adds")
+
+
+def test_trirefiner_fortran_contiguous_triangles():
+    # github issue 4180.  Test requires two arrays of triangles that are
+    # identical except that one is C-contiguous and one is fortran-contiguous.
+    triangles1 = np.array([[2, 0, 3], [2, 1, 0]])
+    assert_false(np.isfortran(triangles1))
+
+    triangles2 = np.copy(triangles1, order='F')
+    assert_true(np.isfortran(triangles2))
+
+    x = np.array([0.39, 0.59, 0.43, 0.32])
+    y = np.array([33.99, 34.01, 34.19, 34.18])
+    triang1 = mtri.Triangulation(x, y, triangles1)
+    triang2 = mtri.Triangulation(x, y, triangles2)
+
+    refiner1 = mtri.UniformTriRefiner(triang1)
+    refiner2 = mtri.UniformTriRefiner(triang2)
+
+    fine_triang1 = refiner1.refine_triangulation(subdiv=1)
+    fine_triang2 = refiner2.refine_triangulation(subdiv=1)
+
+    assert_array_equal(fine_triang1.triangles, fine_triang2.triangles)
 
 
 if __name__ == '__main__':
