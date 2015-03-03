@@ -126,6 +126,7 @@ mpl_example_sections = (
     ('color', 'Color'),
     ('text_labels_and_annotations', 'Text, labels, and annotations'),
     ('ticks_and_spines', 'Ticks and spines'),
+    ('scales', 'Axis scales'),
     ('subplots_axes_and_figures', 'Subplots, axes, and figures'),
     ('style_sheets', 'Style sheets'),
     ('specialty_plots', 'Specialty plots'),

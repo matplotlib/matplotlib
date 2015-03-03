@@ -807,6 +807,29 @@ class LogFormatterMathtext(LogFormatter):
                                                          nearest_long(fx))
 
 
+class LogitFormatter(Formatter):
+    '''Probability formatter (using Math text)'''
+    def __call__(self, x, pos=None):
+        s = ''
+        if 0.01 <= x <= 0.99:
+            s = '{:.2f}'.format(x)
+        elif x < 0.01:
+            if is_decade(x):
+                s = '$10^{{{:.0f}}}$'.format(np.log10(x))
+            else:
+                s = '${:.5f}$'.format(x)
+        else:  # x > 0.99
+            if is_decade(1-x):
+                s = '$1-10^{{{:.0f}}}$'.format(np.log10(1-x))
+            else:
+                s = '$1-{:.5f}$'.format(1-x)
+        return s
+
+    def format_data_short(self, value):
+        'return a short formatted string representation of a number'
+        return '%-12g' % value
+
+
 class EngFormatter(Formatter):
     """
     Formats axis values using engineering prefixes to represent powers of 1000,
@@ -1692,6 +1715,88 @@ class SymmetricalLogLocator(Locator):
                 vmax = decade_up(vmax, b)
         result = mtransforms.nonsingular(vmin, vmax)
         return result
+
+
+class LogitLocator(Locator):
+    """
+    Determine the tick locations for logit axes
+    """
+
+    def __init__(self, minor=False):
+        """
+        place ticks on the logit locations
+        """
+        self.minor = minor
+
+    def __call__(self):
+        'Return the locations of the ticks'
+        vmin, vmax = self.axis.get_view_interval()
+        return self.tick_values(vmin, vmax)
+
+    def tick_values(self, vmin, vmax):
+        # dummy axis has no axes attribute
+        if hasattr(self.axis, 'axes') and self.axis.axes.name == 'polar':
+            raise NotImplementedError('Polar axis cannot be logit scaled yet')
+
+        # what to do if a window beyond ]0, 1[ is chosen
+        if vmin <= 0.0:
+            if self.axis is not None:
+                vmin = self.axis.get_minpos()
+
+            if (vmin <= 0.0) or (not np.isfinite(vmin)):
+                raise ValueError(
+                    "Data has no values in ]0, 1[ and therefore can not be "
+                    "logit-scaled.")
+
+        # NOTE: for vmax, we should query a property similar to get_minpos, but
+        # related to the maximal, less-than-one data point. Unfortunately,
+        # get_minpos is defined very deep in the BBox and updated with data,
+        # so for now we use the trick below.
+        if vmax >= 1.0:
+            if self.axis is not None:
+                vmax = 1 - self.axis.get_minpos()
+
+            if (vmax >= 1.0) or (not np.isfinite(vmax)):
+                raise ValueError(
+                    "Data has no values in ]0, 1[ and therefore can not be "
+                    "logit-scaled.")
+
+        if vmax < vmin:
+            vmin, vmax = vmax, vmin
+
+        vmin = np.log10(vmin / (1 - vmin))
+        vmax = np.log10(vmax / (1 - vmax))
+
+        decade_min = np.floor(vmin)
+        decade_max = np.ceil(vmax)
+
+        # major ticks
+        if not self.minor:
+            ticklocs = []
+            if (decade_min <= -1):
+                expo = np.arange(decade_min, min(0, decade_max + 1))
+                ticklocs.extend(list(10**expo))
+            if (decade_min <= 0) and (decade_max >= 0):
+                ticklocs.append(0.5)
+            if (decade_max >= 1):
+                expo = -np.arange(max(1, decade_min), decade_max + 1)
+                ticklocs.extend(list(1 - 10**expo))
+
+        # minor ticks
+        else:
+            ticklocs = []
+            if (decade_min <= -2):
+                expo = np.arange(decade_min, min(-1, decade_max))
+                newticks = np.outer(np.arange(2, 10), 10**expo).ravel()
+                ticklocs.extend(list(newticks))
+            if (decade_min <= 0) and (decade_max >= 0):
+                ticklocs.extend([0.2, 0.3, 0.4, 0.6, 0.7, 0.8])
+            if (decade_max >= 2):
+                expo = -np.arange(max(2, decade_min), decade_max + 1)
+                newticks = 1 - np.outer(np.arange(2, 10), 10**expo).ravel()
+                ticklocs.extend(list(newticks))
+
+        return self.raise_if_exceeds(np.array(ticklocs))
 
 
 class AutoLocator(MaxNLocator):
