@@ -3854,3 +3854,4 @@ def spectral():
     draw_if_interactive()
 
 _setup_pyplot_info_docstrings()
+install_repl_displayhook()
