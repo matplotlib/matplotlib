@@ -139,15 +139,7 @@ def install_repl_displayhook():
 
         sys.displayhook = displayhook
 
-
-def draw_all():
-    """
-    Redraw all figures registered with the pyplot
-    state machine.
-    """
-    for f_mgr in _pylab_helpers.Gcf.get_all_fig_managers():
-        # TODO add logic to check if figure is dirty
-        f_mgr.canvas.draw()
+draw_all = _pylab_helpers.Gcf.draw_all
 
 
 @docstring.copy_dedent(Artist.findobj)
