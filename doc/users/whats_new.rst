@@ -82,8 +82,8 @@ Configuration (rcParams)
 ```````````````````````````````
 Controls whether vector graphics backends (i.e. PDF, PS, and SVG) combine
 multiple images on a set of axes into a single composite image.  Saving each
-image individually can be useful if you wish to edit a matplotlib generated 
-vector graphics file in Inkscape or other programs.
+image individually can be useful if you generate vector graphics files in 
+matplotlib and then edit the files further in Inkscape or other programs.
 
 .. _whats-new-1-4:
 
