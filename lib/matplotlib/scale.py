@@ -86,8 +86,8 @@ class LinearScale(ScaleBase):
 
 def _mask_non_positives(a):
     """
-    Return a Numpy masked array where all non-positive values are
-    replaced with NaNs.  If there are no non-positive values, the
+    Return a Numpy array where all non-positive values are
+    replaced with NaNs. If there are no non-positive values, the
     original array is returned.
     """
     mask = a <= 0.0
@@ -97,6 +97,7 @@ def _mask_non_positives(a):
 
 
 def _clip_non_positives(a):
+    a = np.array(a, float)
     a[a <= 0.0] = 1e-300
     return a
 
@@ -120,8 +121,6 @@ class Log10Transform(LogTransformBase):
 
     def transform_non_affine(self, a):
         a = self._handle_nonpos(a * 10.0)
-        if isinstance(a, ma.MaskedArray):
-            return ma.log10(a)
         return np.log10(a)
 
     def inverted(self):
@@ -147,8 +146,6 @@ class Log2Transform(LogTransformBase):
 
     def transform_non_affine(self, a):
         a = self._handle_nonpos(a * 2.0)
-        if isinstance(a, ma.MaskedArray):
-            return ma.log(a) / np.log(2)
         return np.log2(a)
 
     def inverted(self):
@@ -174,8 +171,6 @@ class NaturalLogTransform(LogTransformBase):
 
     def transform_non_affine(self, a):
         a = self._handle_nonpos(a * np.e)
-        if isinstance(a, ma.MaskedArray):
-            return ma.log(a)
         return np.log(a)
 
     def inverted(self):
@@ -212,8 +207,6 @@ class LogTransform(Transform):
 
     def transform_non_affine(self, a):
         a = self._handle_nonpos(a * self.base)
-        if isinstance(a, ma.MaskedArray):
-            return ma.log(a) / np.log(self.base)
         return np.log(a) / np.log(self.base)
 
     def inverted(self):
@@ -480,18 +473,18 @@ class SymmetricalLogScale(ScaleBase):
 
 def _mask_non_logit(a):
     """
-    Return a Numpy masked array where all values outside ]0, 1[ are
-    masked. If all values are inside ]0, 1[, the original array is
-    returned.
+    Return a Numpy array where all values outside ]0, 1[ are
+    replaced with NaNs. If all values are inside ]0, 1[, the original
+    array is returned.
     """
-    a = a.copy()
     mask = (a <= 0.0) | (a >= 1.0)
-    a[mask] = np.nan
+    if mask.any():
+        return np.where(mask, np.nan, a)
     return a
 
 
 def _clip_non_logit(a):
-    a = a.copy()
+    a = np.array(a, float)
     a[a <= 0.0] = 1e-300
     a[a >= 1.0] = 1 - 1e-300
     return a
@@ -514,8 +507,6 @@ class LogitTransform(Transform):
     def transform_non_affine(self, a):
         """logit transform (base 10), masked or clipped"""
         a = self._handle_nonpos(a)
-        if isinstance(a, ma.MaskedArray):
-            return ma.log10(1.0 * a / (1.0 - a))
         return np.log10(1.0 * a / (1.0 - a))
 
     def inverted(self):
@@ -574,6 +565,9 @@ class LogitScale(ScaleBase):
         axis.set_minor_formatter(LogitFormatter())
 
     def limit_range_for_scale(self, vmin, vmax, minpos):
+        """
+        Limit the domain to values between 0 and 1 (excluded).
+        """
         return (vmin <= 0 and minpos or vmin,
                 vmax >= 1 and (1 - minpos) or vmax)
 
