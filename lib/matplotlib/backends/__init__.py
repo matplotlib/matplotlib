@@ -39,21 +39,19 @@ def get_backend_name(name=None):
 def get_backends():
     backend_name = get_backend_name()
     _temp = __import__(backend_name, globals(), locals(),
-                       ['Window', 'Toolbar2', 'FigureCanvas', 'MainLoop',
-                        'new_figure_manager'], 0)
-    FigureCanvas = _temp.FigureCanvas
+                       ['Window', 'Toolbar2', 'FigureCanvas', 'MainLoop'], 0)
     try:
         Window = _temp.Window
         Toolbar2 = _temp.Toolbar2
+        FigureCanvas = _temp.FigureCanvas
         MainLoop = _temp.MainLoop
-        old_new_figure_manager = None
     except AttributeError:
         Window = None
         Toolbar2 = None
+        FigureCanvas = None
         MainLoop = getattr(_temp, 'show', do_nothing_show)
-        old_new_figure_manager = _temp.new_figure_manager
 
-    return FigureCanvas, Window, Toolbar2, MainLoop, old_new_figure_manager
+    return FigureCanvas, Window, Toolbar2, MainLoop
 
 
 def pylab_setup(name=None):
@@ -102,7 +100,7 @@ def pylab_setup(name=None):
 
     backend_version = getattr(backend_mod, 'backend_version', 'unknown')
 
-    show = None if hasattr(backend_mod, 'show') else do_nothing_show
+    show = getattr(backend_mod, 'show', do_nothing_show)
 
     draw_if_interactive = getattr(backend_mod, 'draw_if_interactive',
                                   do_nothing)

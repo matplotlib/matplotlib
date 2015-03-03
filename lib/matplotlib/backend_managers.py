@@ -19,22 +19,60 @@ from matplotlib import rcParams
 from matplotlib.figure import Figure
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends import get_backends
-(FigureCanvas, Window, Toolbar2, MainLoop,
-    old_new_figure_manager) = get_backends()
+FigureCanvas, Window, Toolbar2, MainLoop = get_backends()
 
 
 class FigureManagerEvent(object):
-    def __init__(self, s, fm):
-        self.name = s
-        self.figure_manager = fm
+    """Event for when something happens to this figure manager.
+    i.e. the figure it controls gets closed
+
+    Attributes
+    ----------
+    signal : str
+        The name of the signal.
+
+    figure_manager : FigureManager
+        The figure manager that fired the event.
+    """
+    def __init__(self, signal, figure_manager):
+        self.name = signal
+        self.figure_manager = figure_manager
 
 
 class FigureManager(cbook.EventEmitter):
+    """
+    The FigureManager creates and wraps the necessary components to display a
+    figure, namely the Window, FigureCanvas and Toolbar.  It gets used whenever
+    you want the figure in a standalone window.
+
+    Parameters
+    ----------
+    figure : `matplotlib.figure.Figure`
+        The figure to manage.
+
+    num : int
+        The figure number.
+
+    Attributes
+    ----------
+
+    canvas : `matplotlib.backend_bases.FigureCanvasBase`
+        The GUI element on which we draw.
+
+    toolbar : `matplotlib.backend_bases.NavigationToolbar2`
+        The toolbar used for interacting with the figure.
+
+    window : `matplotlib.backend_bases.WindowBase`
+        The window that holds the canvas and toolbar.
+
+    num : int
+        The figure number.
+    """
     def __init__(self, figure, num):
         cbook.EventEmitter.__init__(self)
         self.num = num
 
-        self.mainloop = MainLoop()
+        self._mainloop = MainLoop()
         self.window = Window('Figure %d' % num)
         self.window.mpl_connect('window_destroy_event', self._destroy)
 
@@ -78,21 +116,28 @@ class FigureManager(cbook.EventEmitter):
         self._callbacks.process(s, event)
 
     def destroy(self, *args):
+        """Called to destroy this FigureManager, gets called by Gcf through
+        event magic.
+        """
         self.canvas.destroy()
         if self.toolbar:
             self.toolbar.destroy()
         self.window.destroy()
 
-        self.mainloop.__del__()
+        self._mainloop.__del__()
 
     def show(self):
+        """Shows the figure"""
         self.window.show()
 
     def full_screen_toggle(self):
+        """Toggles whether we show fullscreen, alternatively call
+        `window.fullscreen()`"""
         self._full_screen_flag = not self._full_screen_flag
         self.window.set_fullscreen(self._full_screen_flag)
 
     def resize(self, w, h):
+        """"For gui backends, resize the window (in pixels)."""
         self.window.resize(w, h)
 
     def get_window_title(self):
@@ -544,23 +589,3 @@ class ToolManager(object):
                 warnings.warn("ToolManager does not control tool %s" % name)
             return None
         return self._tools[name]
-
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    show = kwargs.pop('show', None)
-    if old_new_figure_manager is None:  # Test if we can use the new code
-        FigureClass = kwargs.pop('FigureClass', Figure)
-        thisFig = FigureClass(*args, **kwargs)
-        manager = new_figure_manager_given_figure(num, thisFig)
-    else:  # TODO remove once Gcf removed from backends.  Default to old code.
-        manager = old_new_figure_manager(num, *args, **kwargs)
-        manager.mainloop = MainLoop
-    return manager
-
-
-def new_figure_manager_given_figure(num, figure):
-    manager = FigureManager(figure, num)
-    return manager

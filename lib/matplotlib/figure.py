@@ -1649,12 +1649,11 @@ class Figure(Artist):
             import matplotlib.backend_managers as managers
             allnums = plt.get_fignums()
             num = max(allnums) + 1 if allnums else 1
-            if managers.old_new_figure_manager:
+            if managers.Window is not None:  # Can we use the new code?
+                mgr = managers.FigureManager(self, num)
+            else:
                 mgr = plt._backend_mod.new_figure_manager_given_figure(num,
                                                                        self)
-                mgr.mainloop = plt._show
-            else:
-                mgr = managers.FigureManager(self, num)
 
             # XXX The following is a copy and paste from pyplot. Consider
             # factoring to pylab_helpers

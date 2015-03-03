@@ -250,10 +250,10 @@ def show(*args, **kw):
     described above.
     """
     global _show
-    if _show is None:
+    if backend_managers.Window is not None:  # Can we use the new code?
         return _pylab_helpers.Gcf.show_all(*args, **kw)
     else:
-         _show(*args, **kw)
+        _show(*args, **kw)
 
 
 def isinteractive():
@@ -539,14 +539,18 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         if get_backend().lower() == 'ps':
             dpi = 72
 
-        figManager = backend_managers.new_figure_manager(num, figsize=figsize,
-                                                         dpi=dpi,
-                                                         facecolor=facecolor,
-                                                         edgecolor=edgecolor,
-                                                         frameon=frameon,
-                                                         FigureClass=FigureClass,
-                                                         show=_show,
-                                                         **kwargs)
+        if backend_managers.Window is not None:  # Can we use the new code?
+            fig = FigureClass(figsize=figsize, dpi=dpi, facecolor=facecolor,
+                              edgecolor=edgecolor, frameon=frameon, **kwargs)
+            figManager = backend_managers.FigureManager(fig, num)
+        else:
+            figManager = new_figure_manager(num, figsize=figsize,
+                                            dpi=dpi,
+                                            facecolor=facecolor,
+                                            edgecolor=edgecolor,
+                                            frameon=frameon,
+                                            FigureClass=FigureClass,
+                                            **kwargs)
 
         if figLabel:
             figManager.set_window_title(figLabel)

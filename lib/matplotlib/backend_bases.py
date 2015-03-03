@@ -20,6 +20,12 @@ graphics contexts must implement to serve as a matplotlib backend
     pressed, x and y locations in pixel and
     :class:`~matplotlib.axes.Axes` coordinates.
 
+:class:`WindowBase`
+    The base class to display a window.
+
+:class:`MainLoopBase`
+    The base class to start the GUI's main loop.
+
 :class:`ShowBase`
     The base class for the Show class of each interactive backend;
     the 'show' callable is then set to Show.__call__, inherited from
@@ -2524,10 +2530,10 @@ def key_press_handler(event, canvas, toolbar=None):
 
     # quit the figure (defaut key 'ctrl+w')
     if event.key in quit_keys:
-        if isinstance(canvas.manager.mainloop, MainLoopBase): # If new no Gcf.
-            canvas.manager._destroy('window_destroy_event')
-        else:
+        if isinstance(canvas.manager, FigureManagerBase):  # Using old figman.
             Gcf.destroy_fig(canvas.figure)
+        else:
+            canvas.manager._destroy('window_destroy_event')
 
     if toolbar is not None:
         # home or reset mnemonic  (default key 'h', 'home' and 'r')
@@ -2662,6 +2668,14 @@ class WindowEvent(object):
 
 
 class WindowBase(cbook.EventEmitter):
+    """The base class to show a window on screen.
+
+    Parameters
+    ----------
+    title : str
+        The title of the window.
+    """
+
     def __init__(self, title):
         cbook.EventEmitter.__init__(self)
 
@@ -2675,22 +2689,51 @@ class WindowBase(cbook.EventEmitter):
         raise NonGuiException()
 
     def destroy(self):
+        """Destroys the window"""
         pass
 
     def set_fullscreen(self, fullscreen):
+        """Whether to show the window fullscreen or not, GUI only.
+
+        Parameters
+        ----------
+        fullscreen : bool
+            True for yes, False for no.
+        """
         pass
 
-    def set_default_size(self, w, h):
-        self.resize(w, h)
+    def set_default_size(self, width, height):
+        """Sets the default size of the window, defaults to a simple resize.
 
-    def resize(self, w, h):
-        """"For gui backends, resize the window (in pixels)."""
+        Parameters
+        ----------
+        width : int
+            The default width (in pixels) of the window.
+        height : int
+            The default height (in pixels) of the window.
+        """
+        self.resize(width, height)
+
+    def resize(self, width, height):
+        """"For gui backends, resizes the window.
+
+        Parameters
+        ----------
+        width : int
+            The new width (in pixels) for the window.
+        height : int
+            The new height (in pixels) for the window.
+        """
         pass
 
     def get_window_title(self):
         """
         Get the title text of the window containing the figure.
         Return None for non-GUI backends (e.g., a PS backend).
+
+        Returns
+        -------
+        str : The window's title.
         """
         return 'image'
 
@@ -2698,16 +2741,40 @@ class WindowBase(cbook.EventEmitter):
         """
         Set the title text of the window containing the figure.  Note that
         this has no effect for non-GUI backends (e.g., a PS backend).
+
+        Parameters
+        ----------
+        title : str
+            The title of the window.
         """
         pass
 
     def add_element_to_window(self, element, expand, fill, pad, side='bottom'):
         """ Adds a gui widget to the window.
-        This has no effect for non-GUI backends
+        This has no effect for non-GUI backends and properties only apply
+        to those backends that support them, or have a suitable workaround.
+
+        Parameters
+        ----------
+        element : A gui element.
+            The element to add to the window
+        expand : bool
+            Whether the element should auto expand to fill as much space within
+            the window as possible.
+        fill : bool
+            If the element can expand, should it make the element bigger,
+            or go into extra padding?  True, False respectfully.
+        pad : int
+            The extra amount of space in pixels to pad the element.
         """
         pass
 
     def destroy_event(self, *args):
+        """Fires this event when the window wants to destroy itself.
+
+        Note this method should hook up to the backend's internal window's
+        close event.
+        """
         s = 'window_destroy_event'
         event = WindowEvent(s, self)
         self._callbacks.process(s, event)

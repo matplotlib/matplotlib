@@ -68,6 +68,7 @@ class Gcf(object):
         it does not block if run inside ipython's "%pylab" mode
         it does not block in interactive mode.
         """
+
         managers = cls.get_all_fig_managers()
         if not managers:
             return
@@ -77,7 +78,7 @@ class Gcf(object):
 
         if block is not None:
             if block:
-                manager.mainloop()
+                manager._mainloop()
             return
 
         from matplotlib import pyplot
@@ -99,7 +100,7 @@ class Gcf(object):
             block = False
 
         if not is_interactive() or get_backend() == 'WebAgg':
-            manager.mainloop()
+            manager._mainloop()
 
     @classmethod
     def destroy(cls, num):
