@@ -57,7 +57,7 @@ class Triangulation(object):
         else:
             # Triangulation specified. Copy, since we may correct triangle
             # orientation.
-            self.triangles = np.array(triangles, dtype=np.int32)
+            self.triangles = np.array(triangles, dtype=np.int32, order='C')
             if self.triangles.ndim != 2 or self.triangles.shape[1] != 3:
                 raise ValueError('triangles must be a (?,3) array')
             if self.triangles.max() >= len(self.x):
