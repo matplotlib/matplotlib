@@ -111,6 +111,7 @@ def test_MultipleLocator_set_params():
     mult.set_params(base=1.7)
     nose.tools.assert_equal(mult._base, 1.7)
 
+
 def test_LogitLocator_set_params():
     """
     Create logit locator with default minor=False, and change it to something
