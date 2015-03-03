@@ -1781,6 +1781,11 @@ class LogitLocator(Locator):
         """
         self.minor = minor
 
+    def set_params(self, minor=None):
+        """Set parameters within this locator."""
+        if minor is not None:
+            self.minor = minor
+
     def __call__(self):
         'Return the locations of the ticks'
         vmin, vmax = self.axis.get_view_interval()

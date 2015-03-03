@@ -111,6 +111,15 @@ def test_MultipleLocator_set_params():
     mult.set_params(base=1.7)
     nose.tools.assert_equal(mult._base, 1.7)
 
+def test_LogitLocator_set_params():
+    """
+    Create logit locator with default minor=False, and change it to something
+    else. See if change was successful. Should not exception.
+    """
+    loc = mticker.LogitLocator()  # Defaults to false.
+    loc.set_params(minor=True)
+    nose.tools.assert_true(loc.minor)
+
 
 def test_FixedLocator_set_params():
     """
