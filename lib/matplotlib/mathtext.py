@@ -188,7 +188,7 @@ class MathtextBackendAgg(MathtextBackend):
                               oy - info.metrics.ymin)
         else:
             info.font.draw_glyph_to_bitmap(
-                self.image, ox, oy - info.metrics.iceberg, info.glyph,
+                self.image, ox, oy - info.metrics.ymax, info.glyph,
                 antialiased=rcParams['text.antialiased'])
 
     def render_rect_filled(self, x1, y1, x2, y2):
@@ -621,6 +621,8 @@ class TruetypeFonts(Fonts):
             ymax    = ymax+offset,
             # iceberg is the equivalent of TeX's "height"
             iceberg = glyph.horiBearingY/64.0 + offset,
+            vbearing = (glyph.horiBearingY/64.0 +
+                        glyph.vertBearingY/64.0 + offset),
             slanted = slanted
             )
 
@@ -1307,8 +1309,11 @@ class Char(Node):
             self.width = metrics.advance
         else:
             self.width = metrics.width
-        self.height = metrics.iceberg
-        self.depth = -(metrics.iceberg - metrics.height)
+        if self.c in ('-', '\minus'):
+            self.height = metrics.vbearing
+        else:
+            self.height = metrics.iceberg
+        self.depth = max(-metrics.ymin, 0)
 
     def is_slanted(self):
         return self._metrics.slanted
