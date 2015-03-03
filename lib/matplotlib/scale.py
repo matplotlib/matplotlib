@@ -8,9 +8,9 @@ from numpy import ma
 
 from matplotlib.cbook import dedent
 from matplotlib.ticker import (NullFormatter, ScalarFormatter,
-                               LogFormatterMathtext)
+                               LogFormatterMathtext, LogitFormatter)
 from matplotlib.ticker import (NullLocator, LogLocator, AutoLocator,
-                               SymmetricalLogLocator)
+                               SymmetricalLogLocator, LogitLocator)
 from matplotlib.transforms import Transform, IdentityTransform
 from matplotlib import docstring
 
@@ -86,8 +86,8 @@ class LinearScale(ScaleBase):
 
 def _mask_non_positives(a):
     """
-    Return a Numpy masked array where all non-positive values are
-    replaced with NaNs.  If there are no non-positive values, the
+    Return a Numpy array where all non-positive values are
+    replaced with NaNs. If there are no non-positive values, the
     original array is returned.
     """
     mask = a <= 0.0
@@ -97,6 +97,7 @@ def _mask_non_positives(a):
 
 
 def _clip_non_positives(a):
+    a = np.array(a, float)
     a[a <= 0.0] = 1e-300
     return a
 
@@ -120,8 +121,6 @@ class Log10Transform(LogTransformBase):
 
     def transform_non_affine(self, a):
         a = self._handle_nonpos(a * 10.0)
-        if isinstance(a, ma.MaskedArray):
-            return ma.log10(a)
         return np.log10(a)
 
     def inverted(self):
@@ -147,8 +146,6 @@ class Log2Transform(LogTransformBase):
 
     def transform_non_affine(self, a):
         a = self._handle_nonpos(a * 2.0)
-        if isinstance(a, ma.MaskedArray):
-            return ma.log(a) / np.log(2)
         return np.log2(a)
 
     def inverted(self):
@@ -174,8 +171,6 @@ class NaturalLogTransform(LogTransformBase):
 
     def transform_non_affine(self, a):
         a = self._handle_nonpos(a * np.e)
-        if isinstance(a, ma.MaskedArray):
-            return ma.log(a)
         return np.log(a)
 
     def inverted(self):
@@ -212,8 +207,6 @@ class LogTransform(Transform):
 
     def transform_non_affine(self, a):
         a = self._handle_nonpos(a * self.base)
-        if isinstance(a, ma.MaskedArray):
-            return ma.log(a) / np.log(self.base)
         return np.log(a) / np.log(self.base)
 
     def inverted(self):
@@ -478,10 +471,112 @@ class SymmetricalLogScale(ScaleBase):
         return self._transform
 
 
+def _mask_non_logit(a):
+    """
+    Return a Numpy array where all values outside ]0, 1[ are
+    replaced with NaNs. If all values are inside ]0, 1[, the original
+    array is returned.
+    """
+    mask = (a <= 0.0) | (a >= 1.0)
+    if mask.any():
+        return np.where(mask, np.nan, a)
+    return a
+
+
+def _clip_non_logit(a):
+    a = np.array(a, float)
+    a[a <= 0.0] = 1e-300
+    a[a >= 1.0] = 1 - 1e-300
+    return a
+
+
+class LogitTransform(Transform):
+    input_dims = 1
+    output_dims = 1
+    is_separable = True
+    has_inverse = True
+
+    def __init__(self, nonpos):
+        Transform.__init__(self)
+        if nonpos == 'mask':
+            self._handle_nonpos = _mask_non_logit
+        else:
+            self._handle_nonpos = _clip_non_logit
+        self._nonpos = nonpos
+
+    def transform_non_affine(self, a):
+        """logit transform (base 10), masked or clipped"""
+        a = self._handle_nonpos(a)
+        return np.log10(1.0 * a / (1.0 - a))
+
+    def inverted(self):
+        return LogisticTransform(self._nonpos)
+
+
+class LogisticTransform(Transform):
+    input_dims = 1
+    output_dims = 1
+    is_separable = True
+    has_inverse = True
+
+    def __init__(self, nonpos='mask'):
+        Transform.__init__(self)
+        self._nonpos = nonpos
+
+    def transform_non_affine(self, a):
+        """logistic transform (base 10)"""
+        return 1.0 / (1 + 10**(-a))
+
+    def inverted(self):
+        return LogitTransform(self._nonpos)
+
+
+class LogitScale(ScaleBase):
+    """
+    Logit scale for data between zero and one, both excluded.
+
+    This scale is similar to a log scale close to zero and to one, and almost
+    linear around 0.5. It maps the interval ]0, 1[ onto ]-infty, +infty[.
+    """
+    name = 'logit'
+
+    def __init__(self, axis, nonpos='mask'):
+        """
+        *nonpos*: ['mask' | 'clip' ]
+          values beyond ]0, 1[ can be masked as invalid, or clipped to a number
+          very close to 0 or 1
+        """
+        if nonpos not in ['mask', 'clip']:
+            raise ValueError("nonposx, nonposy kwarg must be 'mask' or 'clip'")
+
+        self._transform = LogitTransform(nonpos)
+
+    def get_transform(self):
+        """
+        Return a :class:`LogitTransform` instance.
+        """
+        return self._transform
+
+    def set_default_locators_and_formatters(self, axis):
+        # ..., 0.01, 0.1, 0.5, 0.9, 0.99, ...
+        axis.set_major_locator(LogitLocator())
+        axis.set_major_formatter(LogitFormatter())
+        axis.set_minor_locator(LogitLocator(minor=True))
+        axis.set_minor_formatter(LogitFormatter())
+
+    def limit_range_for_scale(self, vmin, vmax, minpos):
+        """
+        Limit the domain to values between 0 and 1 (excluded).
+        """
+        return (vmin <= 0 and minpos or vmin,
+                vmax >= 1 and (1 - minpos) or vmax)
+
+
 _scale_mapping = {
     'linear': LinearScale,
     'log':    LogScale,
-    'symlog': SymmetricalLogScale
+    'symlog': SymmetricalLogScale,
+    'logit':  LogitScale,
     }
 
 
