@@ -225,7 +225,7 @@ def _is_writable_dir(p):
             t.write(b'1')
         finally:
             t.close()
-    except OSError:
+    except:
         return False
 
     return True
