@@ -1189,6 +1189,8 @@ class FigureCanvasPS(FigureCanvasBase):
             print("%s translate"%_nums_to_str(xo, yo), file=fh)
             if rotation: print("%d rotate"%rotation, file=fh)
             print("%s clipbox"%_nums_to_str(width*72, height*72, 0, 0), file=fh)
+            # Disable any sort of miter limit
+            print("%s setmiterlimit" % 100000, file=fh)
 
             # write the figure
             content = self._pswriter.getvalue()
@@ -1338,6 +1340,8 @@ class FigureCanvasPS(FigureCanvasBase):
             #print >>fh, "gsave"
             print("%s translate"%_nums_to_str(xo, yo), file=fh)
             print("%s clipbox"%_nums_to_str(width*72, height*72, 0, 0), file=fh)
+            # Disable any sort of miter limit
+            print("%d setmiterlimit" % 100000, file=fh)
 
             # write the figure
             print(self._pswriter.getvalue(), file=fh)
