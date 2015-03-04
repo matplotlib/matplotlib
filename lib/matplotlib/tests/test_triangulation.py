@@ -968,7 +968,7 @@ def test_trirefiner_fortran_contiguous_triangles():
     triangles1 = np.array([[2, 0, 3], [2, 1, 0]])
     assert_false(np.isfortran(triangles1))
 
-    triangles2 = np.copy(triangles1, order='F')
+    triangles2 = np.array(triangles1, copy=True, order='F')
     assert_true(np.isfortran(triangles2))
 
     x = np.array([0.39, 0.59, 0.43, 0.32])
