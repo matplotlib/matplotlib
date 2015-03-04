@@ -417,6 +417,7 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const facepair_t &face,
             stroke.width(points_to_pixels(gc.linewidth));
             stroke.line_cap(gc.cap);
             stroke.line_join(gc.join);
+            stroke.miter_limit(points_to_pixels(gc.linewidth));
             theRasterizer.add_path(stroke);
         } else {
             dash_t dash(path);
@@ -425,6 +426,7 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const facepair_t &face,
             stroke.line_cap(gc.cap);
             stroke.line_join(gc.join);
             stroke.width(linewidth);
+            stroke.miter_limit(points_to_pixels(gc.linewidth));
             theRasterizer.add_path(stroke);
         }
 
@@ -564,6 +566,7 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
         stroke.width(points_to_pixels(gc.linewidth));
         stroke.line_cap(gc.cap);
         stroke.line_join(gc.join);
+        stroke.miter_limit(points_to_pixels(gc.linewidth));
         theRasterizer.reset();
         theRasterizer.add_path(stroke);
         agg::render_scanlines(theRasterizer, slineP8, scanlines);

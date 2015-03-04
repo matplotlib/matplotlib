@@ -253,6 +253,7 @@ class PathClipper
     double m_nextX;
     double m_nextY;
     bool m_has_next;
+    bool m_end_poly;
     double m_initX;
     double m_initY;
     bool m_has_init;
@@ -265,6 +266,7 @@ class PathClipper
           m_cliprect(-1.0, -1.0, width + 1.0, height + 1.0),
           m_moveto(true),
           m_has_next(false),
+          m_end_poly(false),
           m_has_init(false),
           m_broke_path(false)
     {
@@ -277,6 +279,7 @@ class PathClipper
           m_cliprect(rect),
           m_moveto(true),
           m_has_next(false),
+          m_end_poly(false),
           m_has_init(false),
           m_broke_path(false)
     {
@@ -300,6 +303,11 @@ class PathClipper
         if (m_do_clipping) {
             /* This is the slow path where we actually do clipping */
 
+            if (m_end_poly) {
+                m_end_poly = false;
+                return (agg::path_cmd_end_poly | agg::path_flags_close);
+            }
+
             if (m_has_next) {
                 m_has_next = false;
                 *x = m_nextX;
@@ -313,6 +321,7 @@ class PathClipper
                         *x = m_initX;
                         *y = m_initY;
                         code = agg::path_cmd_line_to;
+                        m_end_poly = true;
                     } else {
                         continue;
                     }
