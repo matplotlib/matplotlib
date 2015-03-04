@@ -260,7 +260,7 @@ def test_colorbarbase():
 def test_colorbar_closed_patch():
     fig = plt.figure(figsize=(8,6))
     ax1 = fig.add_axes([0.05, 0.85, 0.9, 0.1])
-    ax2 = fig.add_axes([0.05, 0.65, 0.9, 0.1])
+    ax2 = fig.add_axes([0.1, 0.65, 0.75, 0.1])
     ax3 = fig.add_axes([0.05, 0.45, 0.9, 0.1])
     ax4 = fig.add_axes([0.05, 0.25, 0.9, 0.1])
     ax5 = fig.add_axes([0.05, 0.05, 0.9, 0.1])
