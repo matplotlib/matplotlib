@@ -206,7 +206,7 @@ def test_clipping_of_log():
     # Because y coordinate -99 is outside the clip zone, the first
     # line segment is effectively removed. That means that the closepoly
     # operation must be replaced by a move to the first point.
-    assert np.allclose(tcodes, [ M, M, L, L, L ])
+    assert np.allclose(tcodes, [ M, M, L, L, L, C ])
 
 
 class NonAffineForTest(mtrans.Transform):
