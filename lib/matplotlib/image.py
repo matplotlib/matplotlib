@@ -520,7 +520,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         ACCEPTS: positive float
         """
         r = float(filterrad)
-        if r<=0:
+        if r <= 0:
             raise ValueError("The filter radius must be a positive number")
         self._filterrad = r
 
