@@ -3096,7 +3096,7 @@ class ArrowStyle(_Style):
             segments = list(path.iter_segments())
             if (len(segments) != 2) or (segments[0][1] != Path.MOVETO) or\
                (segments[1][1] != Path.CURVE3):
-                msg = "'path' it's not a valid quadratice bezier curve"
+                msg = "'path' it's not a valid quadratic bezier curve"
                 raise ValueError(msg)
 
             return list(segments[0][0]) + list(segments[1][0])
