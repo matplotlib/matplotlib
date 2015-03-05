@@ -75,16 +75,6 @@ directive - ``close-figs`` - that closes any previous figure windows before
 creating the plots.  This can help avoid some surprising duplicates of plots
 when using ``plot_directive``.
 
-Configuration (rcParams)
-------------------------
-
-``image.composite_image`` added
-```````````````````````````````
-Controls whether vector graphics backends (i.e. PDF, PS, and SVG) combine
-multiple images on a set of axes into a single composite image.  Saving each
-image individually can be useful if you generate vector graphics files in 
-matplotlib and then edit the files further in Inkscape or other programs.
-
 .. _whats-new-1-4:
 
 new in matplotlib-1.4
