@@ -441,7 +441,7 @@ class SymmetricalLogScale(ScaleBase):
             linscale = kwargs.pop('linscaley', 1.0)
 
         if base <= 1.0:
-            raise ValueError("'basex/basey' be larger than 1")
+            raise ValueError("'basex/basey' must be larger than 1")
         if linthresh <= 0.0:
             raise ValueError("'linthreshx/linthreshy' must be positive")
         if linscale <= 0.0:
