@@ -249,7 +249,7 @@ class Figure(Artist):
 
     *suppressComposite*
        For multiple figure images, the figure will make composite
-       images depending on the renderer option_combine_images
+       images depending on the renderer option_image_nocomposite
        function.  If suppressComposite is True|False, this will
        override the renderer.
     """
