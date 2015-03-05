@@ -147,14 +147,14 @@ class Path(object):
                 msg += "of 'vertices'"
                 raise ValueError(msg)
             if len(codes) and codes[0] != self.MOVETO:
-                msg = "The first element of 'code' must be equal to 'MOVETO': {}"
+                msg = "The first element of 'code' must be equal to 'MOVETO':"
+                msg += " {}"
                 raise ValueError(msg.format(self.MOVETO))
         elif closed:
             codes = np.empty(len(vertices), dtype=self.code_type)
             codes[0] = self.MOVETO
             codes[1:-1] = self.LINETO
             codes[-1] = self.CLOSEPOLY
-
 
         self._vertices = vertices
         self._codes = codes
