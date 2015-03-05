@@ -151,7 +151,7 @@ class Sankey(object):
             .. plot:: mpl_examples/api/sankey_demo_basics.py
         """
         # Check the arguments.
-        if gap <0:
+        if gap < 0:
             raise ValueError(
             "The gap is negative.\nThis isn't allowed because it "
             "would cause the paths to overlap.")
@@ -522,12 +522,12 @@ class Sankey(object):
                 "The index of the prior diagram is %d, but there are "
                 "only %d other diagrams.\nThe index is zero-based."
                 % (prior, len(self.diagrams)))
-            if connect[0] >= len(self.diagrams[prior].flows): 
+            if connect[0] >= len(self.diagrams[prior].flows):
                 raise ValueError(
                 "The connection index to the source diagram is %d, but "
                 "that diagram has only %d flows.\nThe index is zero-based."
                 % (connect[0], len(self.diagrams[prior].flows)))
-            if connect[1] >= n: 
+            if connect[1] >= n:
                 raise ValueError(
                 "The connection index to this diagram is %d, but this diagram"
                 "has only %d flows.\n The index is zero-based."
