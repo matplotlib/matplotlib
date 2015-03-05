@@ -919,7 +919,7 @@ def plot_day_summary2_ohlc(ax, opens, highs, lows, closes, ticksize=4,
     """Represent the time, open, high, low, close as a vertical line
     ranging from low to high.  The left tick is the open and the right
     tick is the close.
-    *opens*, *highs*, *lows* and *closes* must have the same length. 
+    *opens*, *highs*, *lows* and *closes* must have the same length.
     NOTE: this code assumes if any value open, high, low, close is
     missing (*-1*) they all are missing
 
@@ -948,7 +948,7 @@ def plot_day_summary2_ohlc(ax, opens, highs, lows, closes, ticksize=4,
         a list of lines added to the axes
     """
 
-    _check_input(opens, highs, lows, closes) 
+    _check_input(opens, highs, lows, closes)
 
     rangeSegments = [((i, low), (i, high)) for i, low, high in
                      zip(xrange(len(lows)), lows, highs) if low != -1]
@@ -1101,7 +1101,7 @@ def candlestick2_ohlc(ax, opens, highs, lows, closes, width=4,
         (lineCollection, barCollection)
     """
 
-    _check_input(opens, highs, lows, closes) 
+    _check_input(opens, highs, lows, closes)
 
     delta = width / 2.
     barVerts = [((i - delta, open),
