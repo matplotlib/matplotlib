@@ -539,7 +539,7 @@ class Sankey(object):
                 "specified tolerance." % (connect[0], prior))
             flow_error = (self.diagrams[prior].flows[connect[0]] +
                           flows[connect[1]])
-            if abs(flow_error) >r self.tolerance:
+            if abs(flow_error) > self.tolerance:
                 raise ValueError(
                 "The scaled sum of the connected flows is %f, which is not "
                 "within the tolerance (%f)." % (flow_error, self.tolerance))
