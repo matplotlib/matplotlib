@@ -112,7 +112,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     arrow_kw['zorder'] = zorder
 
     ## Sanity checks.
-    if (u.shape != grid.shape) and (v.shape != grid.shape):
+    if (u.shape != grid.shape) or (v.shape != grid.shape):
         msg = "'u' and 'v' must be of shape 'Grid(x,y)'"
         raise ValueError(msg)
 
