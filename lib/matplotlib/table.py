@@ -483,7 +483,7 @@ def table(ax,
     cols = len(cellText[0])
     for row in cellText:
         if len(row) != cols:
-            msg = "Each row in 'cellText' must have {} columns" 
+            msg = "Each row in 'cellText' must have {} columns"
             raise ValueError(msg.format(cols))
 
     if cellColours is not None:
@@ -491,7 +491,7 @@ def table(ax,
             raise ValueError("'cellColours' must have {} rows".format(rows))
         for row in cellColours:
             if len(row) != cols:
-                msg = "Each row in 'cellColours' must have {} columns" 
+                msg = "Each row in 'cellColours' must have {} columns"
                 raise ValueError(msg.format(cols))
     else:
         cellColours = ['w' * cols] * rows
