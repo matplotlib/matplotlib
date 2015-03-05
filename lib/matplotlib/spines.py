@@ -375,7 +375,7 @@ class Spine(mpatches.Patch):
             # special positions
             pass
         else:
-            if len(position) != 2: 
+            if len(position) != 2:
                 raise ValueError("position should be 'center' or 2-tuple")
             if position[0] not in ['outward', 'axes', 'data']:
                 msg = "position[0] should be in ['outward', 'axes', 'data']"
