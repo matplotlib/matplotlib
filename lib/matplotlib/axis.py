@@ -1732,9 +1732,9 @@ class XAxis(Axis):
             return
         x, y = self.label.get_position()
         if self.label_position == 'bottom':
-            spinebbox = (self.axes.spines['bottom'].get_transform().
-                         transform_path(self.axes.spines['bottom'].
-                                        get_path()).get_extents())
+            spine = self.axes.spines['bottom']
+            spinebbox = spine.get_transform().transform_path(
+                spine.get_path()).get_extents()
             bbox = mtransforms.Bbox.union(bboxes + [spinebbox])
             bottom = bbox.y0
 
@@ -1743,9 +1743,9 @@ class XAxis(Axis):
             )
 
         else:
-            spinebbox = (self.axes.spines['top'].get_transform().
-                         transform_path(self.axes.spines['top'].
-                                        get_path()).get_extents())
+            spine = self.axes.spines['top']
+            spinebbox = spine.get_transform().transform_path(
+                spine.get_path()).get_extents()
             bbox = mtransforms.Bbox.union(bboxes2 + [spinebbox])
             top = bbox.y1
 
@@ -2040,9 +2040,9 @@ class YAxis(Axis):
             return
         x, y = self.label.get_position()
         if self.label_position == 'left':
-            spinebbox = (self.axes.spines['left'].get_transform().
-                         transform_path(self.axes.spines['left'].
-                                        get_path()).get_extents())
+            spine = self.axes.spines['left']
+            spinebbox = spine.get_transform().transform_path(
+                spine.get_path()).get_extents()
             bbox = mtransforms.Bbox.union(bboxes + [spinebbox])
             left = bbox.x0
 
@@ -2051,9 +2051,9 @@ class YAxis(Axis):
             )
 
         else:
-            spinebbox = (self.axes.spines['right'].get_transform().
-                         transform_path(self.axes.spines['right'].
-                                        get_path()).get_extents())
+            spine = self.axes.spines['right']
+            spinebbox = spine.get_transform().transform_path(
+                spine.get_path()).get_extents()
             bbox = mtransforms.Bbox.union(bboxes2 + [spinebbox])
             right = bbox.x1
 
