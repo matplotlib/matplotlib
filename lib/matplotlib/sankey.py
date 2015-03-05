@@ -532,14 +532,14 @@ class Sankey(object):
                 "The connection index to this diagram is %d, but this diagram"
                 "has only %d flows.\n The index is zero-based."
                 % (connect[1], n))
-            if self.diagrams[prior].angles[connect[0]] is not None:
+            if self.diagrams[prior].angles[connect[0]] is None:
                 raise ValueError(
                 "The connection cannot be made.  Check that the magnitude "
                 "of flow %d of diagram %d is greater than or equal to the "
                 "specified tolerance." % (connect[0], prior))
             flow_error = (self.diagrams[prior].flows[connect[0]] +
                           flows[connect[1]])
-            if abs(flow_error) > self.tolerance:
+            if abs(flow_error) >= self.tolerance:
                 raise ValueError(
                 "The scaled sum of the connected flows is %f, which is not "
                 "within the tolerance (%f)." % (flow_error, self.tolerance))
