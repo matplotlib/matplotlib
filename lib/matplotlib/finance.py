@@ -736,7 +736,7 @@ def candlestick_ohlc(ax, quotes, width=0.2, colorup='k', colordown='r',
 
 
 def _candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
-                alpha=1.0, ochl=True):
+                 alpha=1.0, ochl=True):
 
     """
     Plot the time, open, high, low, close as a vertical line ranging
@@ -817,7 +817,7 @@ def _candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
 
 
 def _check_input(opens, closes, highs, lows, miss=-1):
-    """Checks that *opens*, *highs*, *lows* and *closes* have the same length. 
+    """Checks that *opens*, *highs*, *lows* and *closes* have the same length.
     NOTE: this code assumes if any value open, high, low, close is
     missing (*-1*) they all are missing
 
@@ -833,18 +833,24 @@ def _check_input(opens, closes, highs, lows, miss=-1):
         sequence of low values
     closes : sequence
         sequence of closing values
-    miss: 
+    miss : int
         identifier of the missing data
+
+    Raises
+    ------
+    ValueError
+        if the input sequences don't have the same length
     """
 
     def _missing(sequence, miss=-1):
         """Returns the index in *sequence* of the missing data, identified by
         *miss*
+
         Parameters
         ----------
-        sequence:
+        sequence :
             sequence to evaluate
-        miss: 
+        miss :
             identifier of the missing data
 
         Returns
@@ -852,65 +858,21 @@ def _check_input(opens, closes, highs, lows, miss=-1):
         where_miss: numpy.ndarray
             indices of the missing data
         """
-        return np.where(np.array(sequence)==miss)[0]
+        return np.where(np.array(sequence) == miss)[0]
 
     same_length = (len(opens) == len(highs)) and (len(opens) == len(lows)) and\
                   (len(opens) == len(closes))
     _missopens = _missing(opens)
-    same_missing = (_missopens == _missing(highs)).all() and (_missopens ==\
+    same_missing = (_missopens == _missing(highs)).all() and (_missopens ==
         _missing(lows)).all() and (_missopens == _missing(closes)).all()
 
     if not (same_length and same_missing):
         msg = """
-        *opens*, *highs*, *lows* and *closes* must have the same length. 
+        *opens*, *highs*, *lows* and *closes* must have the same length.
         NOTE: this code assumes if any value open, high, low, close is
         missing (*-1*) they all must be missing
         """
         raise ValueError(msg)
-
-
-def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
-                      colorup='k', colordown='r',
-                      ):
-    """Represent the time, open, close, high, low,  as a vertical line
-    ranging from low to high.  The left tick is the open and the right
-    tick is the close.
-
-
-    This function has been deprecated in 1.4 in favor of
-    `plot_day_summary2_ochl`, which maintains the original argument
-    order, or `plot_day_summary2_ohlc`, which uses the
-    open-high-low-close order.  This function will be removed in 1.5
-
-
-    Parameters
-    ----------
-    ax : `Axes`
-        an Axes instance to plot to
-    opens : sequence
-        sequence of opening values
-    closes : sequence
-        sequence of closing values
-    highs : sequence
-        sequence of high values
-    lows : sequence
-        sequence of low values
-    ticksize : int
-        size of open and close ticks in points
-    colorup : color
-        the color of the lines where close >= open
-    colordown : color
-         the color of the lines where close <  open
-
-    Returns
-    -------
-    ret : list
-        a list of lines added to the axes
-    """
-
-    warnings.warn(_warn_str.format(fun='plot_day_summary2'), mplDeprecation)
-    return plot_day_summary2_ohlc(ax, opens, highs, lows, closes, ticksize,
-                                 colorup, colordown)
 
 
 def plot_day_summary2_ochl(ax, opens, closes, highs, lows, ticksize=4,
