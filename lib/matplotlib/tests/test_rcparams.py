@@ -227,8 +227,8 @@ def test_validators():
                      (['a', 'b'], ['a', 'b']),
                      (('a', 'b'), ['a', 'b']),
                      ((1, 2), ['1', '2'])),
-            'fail': ((dict(), AssertionError),
-                     (1, AssertionError),)
+            'fail': ((dict(), ValueError),
+                     (1, ValueError),)
             },
         {'validator': validate_nseq_int(2),
          'success': ((_, [1, 2])
