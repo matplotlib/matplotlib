@@ -3576,8 +3576,8 @@ def stineman_interp(xi, x, y, yp=None):
     """
 
     # Cast key variables as float.
-    x=np.asarray(x, np.float_)
-    y=np.asarray(y, np.float_)
+    x = np.asarray(x, np.float_)
+    y = np.asarray(y, np.float_)
     if x.shape != y.shape:
         raise ValueError("'x' and 'y' must be of same shape")
 
@@ -3826,7 +3826,7 @@ def poly_below(xmin, xs, ys):
     ys = numpy.asarray(ys)
     Nx = len(xs)
     Ny = len(ys)
-    if Nx!=Ny:
+    if Nx != Ny:
         raise ValueError("'xs' and 'ys' must have the same length")
     x = xmin*numpy.ones(2*Nx)
     y = numpy.ones(2*Nx)
