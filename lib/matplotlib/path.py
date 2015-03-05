@@ -136,7 +136,7 @@ class Path(object):
         else:
             vertices = np.asarray(vertices, np.float_)
 
-        if (vertices.ndim != 2) and (vertices.shape[1] != 2):
+        if (vertices.ndim != 2) or (vertices.shape[1] != 2):
             msg = "'vertices' must be a 2D list or array with shape Nx2"
             raise ValueError(msg)
 
