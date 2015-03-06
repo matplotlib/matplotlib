@@ -939,24 +939,135 @@ void cleanup_path(PathIterator &path,
     }
 }
 
+void quad2cubic(double x0, double y0,
+                double x1, double y1,
+                double x2, double y2,
+                double *outx, double *outy)
+{
+
+    outx[0] = x0 + 2./3. * (x1 - x0);
+    outy[0] = y0 + 2./3. * (y1 - y0);
+    outx[1] = outx[0] + 1./3. * (x2 - x0);
+    outy[1] = outy[0] + 1./3. * (y2 - y0);
+    outx[2] = x2;
+    outy[2] = y2;
+}
+
+char *__append_to_string(char *p, char *buffer, size_t buffersize,
+                         const char *content)
+{
+    for (const char *i = content; *i; ++i) {
+        if (p < buffer || p - buffer >= (int)buffersize) {
+            return p;
+        }
+
+        *p++ = *i;
+    }
+
+    return p;
+}
+
 template <class PathIterator>
-void convert_to_svg(PathIterator &path,
-                    agg::trans_affine &trans,
-                    agg::rect_d &clip_rect,
-                    bool simplify,
-                    int precision,
-                    char *buffer,
-                    size_t *buffersize)
+void __convert_to_string(PathIterator &path,
+                         int precision,
+                         char **codes,
+                         bool postfix,
+                         char *buffer,
+                         size_t *buffersize)
 {
 #if PY_VERSION_HEX < 0x02070000
     char format[64];
     snprintf(format, 64, "%s.%dg", "%", precision);
 #endif
 
+    char *p = buffer;
+    double x[3];
+    double y[3];
+    double last_x = 0.0;
+    double last_y = 0.0;
+
+    const int sizes[] = { 1, 1, 2, 3 };
+    int size = 0;
+    unsigned code;
+
+    while ((code = path.vertex(&x[0], &y[0])) != agg::path_cmd_stop) {
+        if (code == 0x4f) {
+            p = __append_to_string(p, buffer, *buffersize, codes[4]);
+        } else {
+            size = sizes[code - 1];
+
+            for (int i = 1; i < size; ++i) {
+                path.vertex(&x[i], &y[i]);
+            }
+
+            /* For formats that don't support quad curves, convert to
+               cubic curves */
+            if (codes[code - 1][0] == '\0') {
+                quad2cubic(last_x, last_y, x[0], y[0], x[1], y[1], x, y);
+                code++;
+                size = 3;
+            }
+
+            if (!postfix) {
+                p = __append_to_string(p, buffer, *buffersize, codes[code - 1]);
+                p = __append_to_string(p, buffer, *buffersize, " ");
+            }
+
+            for (int i = 0; i < size; ++i) {
+#if PY_VERSION_HEX >= 0x02070000
+                char *str;
+                str = PyOS_double_to_string(x[i], 'g', precision, 0, NULL);
+                p = __append_to_string(p, buffer, *buffersize, str);
+                PyMem_Free(str);
+                p = __append_to_string(p, buffer, *buffersize, " ");
+                str = PyOS_double_to_string(y[i], 'g', precision, 0, NULL);
+                p = __append_to_string(p, buffer, *buffersize, str);
+                PyMem_Free(str);
+                p = __append_to_string(p, buffer, *buffersize, " ");
+#else
+                char str[64];
+                PyOS_ascii_formatd(str, 64, format, x[i]);
+                p = __append_to_string(p, buffer, *buffersize, str);
+                p = __append_to_string(p, buffer, *buffersize, " ");
+                PyOS_ascii_formatd(str, 64, format, y[i]);
+                p = __append_to_string(p, buffer, *buffersize, str);
+                p = __append_to_string(p, buffer, *buffersize, " ");
+#endif
+            }
+
+            if (postfix) {
+                p = __append_to_string(p, buffer, *buffersize, codes[code - 1]);
+            }
+
+            last_x = x[size - 1];
+            last_y = y[size - 1];
+        }
+
+        p = __append_to_string(p, buffer, *buffersize, "\n");
+    }
+
+    *p = '\0';
+    *buffersize = p - buffer;
+}
+
+template <class PathIterator>
+void convert_to_string(PathIterator &path,
+                       agg::trans_affine &trans,
+                       agg::rect_d &clip_rect,
+                       bool simplify,
+                       SketchParams sketch_params,
+                       int precision,
+                       char **codes,
+                       bool postfix,
+                       char *buffer,
+                       size_t *buffersize)
+{
     typedef agg::conv_transform<py::PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removal_t;
     typedef PathClipper<nan_removal_t> clipped_t;
     typedef PathSimplifier<clipped_t> simplify_t;
+    typedef agg::conv_curve<simplify_t> curve_t;
+    typedef Sketch<curve_t> sketch_t;
 
     bool do_clip = (clip_rect.x1 < clip_rect.x2 && clip_rect.y1 < clip_rect.y2);
 
@@ -965,53 +1076,14 @@ void convert_to_svg(PathIterator &path,
     clipped_t clipped(nan_removed, do_clip, clip_rect);
     simplify_t simplified(clipped, simplify, path.simplify_threshold());
 
-    char *p = buffer;
-
-    const char codes[] = { 'M', 'L', 'Q', 'C' };
-    const int waits[] = { 1, 1, 2, 3 };
-
-    int wait = 0;
-    unsigned code;
-    double x = 0, y = 0;
-    while ((code = simplified.vertex(&x, &y)) != agg::path_cmd_stop) {
-        if (wait == 0) {
-            *p++ = '\n';
-
-            if (code == 0x4f) {
-                *p++ = 'z';
-                *p++ = '\n';
-                continue;
-            }
-
-            *p++ = codes[code - 1];
-            wait = waits[code - 1];
-        } else {
-            *p++ = ' ';
-        }
-
-#if PY_VERSION_HEX >= 0x02070000
-        char *str;
-        str = PyOS_double_to_string(x, 'g', precision, 0, NULL);
-        p += snprintf(p, *buffersize - (p - buffer), "%s", str);
-        PyMem_Free(str);
-        *p++ = ' ';
-        str = PyOS_double_to_string(y, 'g', precision, 0, NULL);
-        p += snprintf(p, *buffersize - (p - buffer), "%s", str);
-        PyMem_Free(str);
-#else
-        char str[64];
-        PyOS_ascii_formatd(str, 64, format, x);
-        p += snprintf(p, *buffersize - (p - buffer), "%s", str);
-        *p++ = ' ';
-        PyOS_ascii_formatd(str, 64, format, y);
-        p += snprintf(p, *buffersize - (p - buffer), "%s", str);
-#endif
-
-        --wait;
+    if (sketch_params.scale == 0.0) {
+        __convert_to_string(simplified, precision, codes, postfix, buffer, buffersize);
+    } else {
+        curve_t curve(simplified);
+        sketch_t sketch(curve, sketch_params.scale, sketch_params.length, sketch_params.randomness);
+        __convert_to_string(sketch, precision, codes, postfix, buffer, buffersize);
     }
 
-    *p = '\0';
-    *buffersize = p - buffer;
 }
 
 #endif

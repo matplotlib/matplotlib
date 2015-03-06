@@ -37,7 +37,6 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.cbook import Bunch, is_string_like, \
     get_realpath_and_stat, is_writable_file_like, maxdict
-from matplotlib.mlab import quad2cubic
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, is_opentype_cff_font
 from matplotlib.afm import AFM
@@ -48,6 +47,7 @@ from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE, \
 from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
+from matplotlib import _path
 from matplotlib import ttconv
 
 # Overview
@@ -286,6 +286,17 @@ class Operator(object):
 
     def pdfRepr(self):
         return self.op
+
+
+class Verbatim(object):
+    """Store verbatim PDF command content for later inclusion in the
+    stream."""
+    def __init__(self, x):
+        self._x = x
+
+    def pdfRepr(self):
+        return self._x
+
 
 # PDF operators (not an exhaustive list)
 _pdfops = dict(
@@ -1388,32 +1399,11 @@ end"""
 
     @staticmethod
     def pathOperations(path, transform, clip=None, simplify=None, sketch=None):
-        cmds = []
-        last_points = None
-        for points, code in path.iter_segments(transform, clip=clip,
-                                               simplify=simplify,
-                                               sketch=sketch):
-            if code == Path.MOVETO:
-                # This is allowed anywhere in the path
-                cmds.extend(points)
-                cmds.append(Op.moveto)
-            elif code == Path.CLOSEPOLY:
-                cmds.append(Op.closepath)
-            elif last_points is None:
-                # The other operations require a previous point
-                raise ValueError('Path lacks initial MOVETO')
-            elif code == Path.LINETO:
-                cmds.extend(points)
-                cmds.append(Op.lineto)
-            elif code == Path.CURVE3:
-                points = quad2cubic(*(list(last_points[-2:]) + list(points)))
-                cmds.extend(points[2:])
-                cmds.append(Op.curveto)
-            elif code == Path.CURVE4:
-                cmds.extend(points)
-                cmds.append(Op.curveto)
-            last_points = points
-        return cmds
+        return [Verbatim(_path.convert_to_string(
+            path, transform, clip, simplify, sketch,
+            6,
+            [Op.moveto.op, Op.lineto.op, b'', Op.curveto.op, Op.closepath.op],
+            True))]
 
     def writePath(self, path, transform, clip=False, sketch=None):
         if clip:

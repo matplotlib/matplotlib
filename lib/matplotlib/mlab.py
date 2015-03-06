@@ -4007,6 +4007,8 @@ def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
     points of a quadratic curve, and the output is a tuple of *x* and
     *y* coordinates of the four control points of the cubic curve.
     """
+    # TODO: Candidate for deprecation -- no longer used internally
+
     # c0x, c0y = q0x, q0y
     c1x, c1y = q0x + 2./3. * (q1x - q0x), q0y + 2./3. * (q1y - q0y)
     c2x, c2y = c1x + 1./3. * (q2x - q0x), c1y + 1./3. * (q2y - q0y)
