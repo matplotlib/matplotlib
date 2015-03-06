@@ -213,7 +213,6 @@ def test_pep8_conformance_installed_files():
                           'tests/test_mathtext.py',
                           'tests/test_rcparams.py',
                           'tests/test_simplification.py',
-                          'tests/test_spines.py',
                           'tests/test_streamplot.py',
                           'tests/test_subplots.py',
                           'tests/test_tightlayout.py',
