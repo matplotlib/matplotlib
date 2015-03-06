@@ -595,6 +595,9 @@ defaultParams = {
     'image.lut':           [256, validate_int],  # lookup table
     'image.origin':        ['upper', six.text_type],  # lookup table
     'image.resample':      [False, validate_bool],
+    # Specify whether vector graphics backends will combine all images on a 
+    # set of axes into a single composite image
+    'image.composite_image': [True, validate_bool],
 
     # contour props
     'contour.negative_linestyle': ['dashed',
@@ -764,6 +767,7 @@ defaultParams = {
     # Maintain shell focus for TkAgg
     'tk.window_focus':  [False, validate_bool],
     'tk.pythoninspect': [False, validate_tkpythoninspect],  # obsolete
+
     # Set the papersize/type
     'ps.papersize':     ['letter', validate_ps_papersize],
     'ps.useafm':        [False, validate_bool],  # Set PYTHONINSPECT

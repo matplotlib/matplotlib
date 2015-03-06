@@ -451,6 +451,13 @@ class RendererPS(RendererBase):
         ps backend support arbitrary scaling of image.
         """
         return True
+        
+    def option_image_nocomposite(self):
+        """
+        return whether to generate a composite image from multiple images on 
+        a set of axes
+        """
+        return not rcParams['image.composite_image']
 
     def _get_image_h_w_bits_command(self, im):
         if im.is_grayscale:

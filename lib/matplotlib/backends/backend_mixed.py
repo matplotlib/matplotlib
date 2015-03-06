@@ -43,7 +43,6 @@ class MixedModeRenderer(object):
         self._height = height
         self.dpi = dpi
 
-        assert not vector_renderer.option_image_nocomposite()
         self._vector_renderer = vector_renderer
 
         self._raster_renderer = None
