@@ -1855,6 +1855,8 @@ class Axes(_AxesBase):
             If `edge`, aligns bars by their left edges (for vertical bars) and
             by their bottom edges (for horizontal bars). If `center`, interpret
             the `left` argument as the coordinates of the centers of the bars.
+            To align on the align bars on the right edge pass a negative
+            `width`.
 
         orientation : 'vertical' | 'horizontal', optional, default: 'vertical'
             The orientation of the bars.
