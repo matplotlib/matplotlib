@@ -462,8 +462,8 @@ class PdfFile(object):
         self.fontNames = {}     # maps filenames to internal font names
         self.nextFont = 1       # next free internal font name
         self.dviFontInfo = {}   # information on dvi fonts
-        self.type1Descriptors = {}  # differently encoded Type-1 fonts may
-                                    # share the same descriptor
+        # differently encoded Type-1 fonts may share the same descriptor
+        self.type1Descriptors = {}
         self.used_characters = {}
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
@@ -1475,6 +1475,7 @@ end"""
 
         check_trapped = (lambda x: isinstance(x, Name) and
                          x.name in ('True', 'False', 'Unknown'))
+
         keywords = {'Title': is_string_like,
                     'Author': is_string_like,
                     'Subject': is_string_like,
@@ -1575,6 +1576,13 @@ class RendererPdf(RendererBase):
         pdf backend support arbitrary scaling of image.
         """
         return True
+
+    def option_image_nocomposite(self):
+        """
+        return whether to generate a composite image from multiple images on
+        a set of axes
+        """
+        return not rcParams['image.composite_image']
 
     def draw_image(self, gc, x, y, im, dx=None, dy=None, transform=None):
         self.check_gc(gc)

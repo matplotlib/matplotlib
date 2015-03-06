@@ -30,8 +30,6 @@ import matplotlib.font_manager as font_manager
 import matplotlib.text as mtext
 import matplotlib.image as mimage
 from matplotlib.artist import allow_rasterization
-
-
 from matplotlib.cbook import iterable
 
 rcParams = matplotlib.rcParams
@@ -1241,7 +1239,9 @@ class _AxesBase(martist.Artist):
         Xsize = ysize / data_ratio
         Xmarg = Xsize - xr
         Ymarg = Ysize - yr
-        xm = 0  # Setting these targets to, e.g., 0.05*xr does not seem to help
+        # Setting these targets to, e.g., 0.05*xr does not seem to
+        # help.
+        xm = 0
         ym = 0
 
         changex = (self in self._shared_y_axes and
@@ -2028,8 +2028,8 @@ class _AxesBase(martist.Artist):
             dsu = [(a.zorder, a) for a in artists
                    if not a.get_animated()]
 
-        # add images to dsu if the backend support compositing.
-        # otherwise, does the manaul compositing  without adding images to dsu.
+        # add images to dsu if the backend supports compositing.
+        # otherwise, does the manual compositing  without adding images to dsu.
         if len(self.images) <= 1 or renderer.option_image_nocomposite():
             dsu.extend([(im.zorder, im) for im in self.images])
             _do_composite = False
@@ -2055,7 +2055,7 @@ class _AxesBase(martist.Artist):
             self.patch.draw(renderer)
 
         if _do_composite:
-            # make a composite image blending alpha
+            # make a composite image, blending alpha
             # list of (mimage.Image, ox, oy)
 
             zorder_images = [(im.zorder, im) for im in self.images

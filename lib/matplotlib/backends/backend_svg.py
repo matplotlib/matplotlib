@@ -532,9 +532,13 @@ class RendererSVG(RendererBase):
 
     def option_image_nocomposite(self):
         """
-        if svg.image_noscale is True, compositing multiple images into one is prohibited
+        return whether to generate a composite image from multiple images on 
+        a set of axes
         """
-        return rcParams['svg.image_noscale']
+        if rcParams['svg.image_noscale']:
+            return True
+        else:
+            return not rcParams['image.composite_image']
 
     def _convert_path(self, path, transform=None, clip=None, simplify=None):
         if clip:
