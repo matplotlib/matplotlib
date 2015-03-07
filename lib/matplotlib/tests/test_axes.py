@@ -3492,10 +3492,10 @@ def test_set_get_ticklabels():
     # set ticklabel to 1 plot in normal way
     ax[0].set_xticklabels(('a', 'b', 'c', 'd'))
     ax[0].set_yticklabels(('11', '12', '13', '14'))
-   
+
     # set ticklabel to the other plot, expect the 2 plots have same label setting
-    # pass get_ticklabels return value as ticklabels argument    
-    ax[1].set_xticklabels(ax[0].get_xticklabels() ) 
+    # pass get_ticklabels return value as ticklabels argument
+    ax[1].set_xticklabels(ax[0].get_xticklabels() )
     ax[1].set_yticklabels(ax[0].get_yticklabels() )
 
 
@@ -3546,10 +3546,17 @@ def test_color_None():
     ax.plot([1,2], [1,2], color=None)
 
 @cleanup
+def test_color_alias():
+    # issues 4157 and 4162
+    fig, ax = plt.subplots()
+    line = ax.plot([0, 1], c='lime')[0]
+    assert_equal('lime', line.get_color())
+
+@cleanup
 def test_numerical_hist_label():
     fig, ax = plt.subplots()
     ax.hist([range(15)] * 5, label=range(5))
-    
+
 @cleanup
 def test_move_offsetlabel():
     data = np.random.random(10) * 1e-22
