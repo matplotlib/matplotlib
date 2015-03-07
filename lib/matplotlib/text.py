@@ -639,16 +639,18 @@ class Text(Artist):
 
             if self.get_path_effects():
                 from matplotlib.patheffects import PathEffectRenderer
-                renderer = PathEffectRenderer(self.get_path_effects(),
-                                              renderer)
+                textrenderer = PathEffectRenderer(self.get_path_effects(),
+                                                  renderer)
+            else:
+                textrenderer = renderer
 
             if self.get_usetex():
-                renderer.draw_tex(gc, x, y, clean_line,
-                                  self._fontproperties, angle, mtext=mtext)
+                textrenderer.draw_tex(gc, x, y, clean_line,
+                                      self._fontproperties, angle, mtext=mtext)
             else:
-                renderer.draw_text(gc, x, y, clean_line,
-                                   self._fontproperties, angle,
-                                   ismath=ismath, mtext=mtext)
+                textrenderer.draw_text(gc, x, y, clean_line,
+                                       self._fontproperties, angle,
+                                       ismath=ismath, mtext=mtext)
 
         gc.restore()
         renderer.close_group('text')
