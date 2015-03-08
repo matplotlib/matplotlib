@@ -1366,6 +1366,12 @@ class Axes(_AxesBase):
             self.cla()
         lines = []
 
+        # Convert "c" alias to "color" immediately, to avoid
+        # confusion farther on.
+        c = kwargs.pop('c', None)
+        if c is not None:
+            kwargs['color'] = c
+
         for line in self._get_lines(*args, **kwargs):
             self.add_line(line)
             lines.append(line)
