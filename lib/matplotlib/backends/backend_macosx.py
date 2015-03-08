@@ -185,6 +185,17 @@ class GraphicsContextMac(_macosx.GraphicsContext, GraphicsContextBase):
     def __init__(self):
         GraphicsContextBase.__init__(self)
         _macosx.GraphicsContext.__init__(self)
+        self._savestack = []
+
+    def save(self):
+        savedvars = vars(self).copy()
+        savedvars.pop('_savestack', None)
+        self._savestack.append(savedvars)
+        _macosx.GraphicsContext.save(self)
+
+    def restore(self):
+        _macosx.GraphicsContext.restore(self)
+        vars(self).update(self._savestack.pop())
 
     def set_alpha(self, alpha):
         GraphicsContextBase.set_alpha(self, alpha)
