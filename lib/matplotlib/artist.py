@@ -903,15 +903,15 @@ class Artist(object):
             artists.append(self)
         return artists
 
-    def get_pixel_data(self, event):
+    def get_cursor_data(self, event):
         """
-        Get the pixel data for a given event.
+        Get the cursor data for a given event.
         """
         return None
 
-    def format_pixel_data(self, data):
+    def format_cursor_data(self, data):
         """
-        Return *pixel data* string formatted.
+        Return *cursor data* string formatted.
         """
         try:
             data[0]

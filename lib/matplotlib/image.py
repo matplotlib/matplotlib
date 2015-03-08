@@ -683,8 +683,8 @@ class AxesImage(_AxesImageBase):
             else:
                 return (-0.5, numcols-0.5, -0.5, numrows-0.5)
 
-    def get_pixel_data(self, event):
-        """Get the pixel data for a given event"""
+    def get_cursor_data(self, event):
+        """Get the cursor data for a given event"""
         xmin, xmax, ymin, ymax = self.get_extent()
         if self.origin == 'upper':
             ymin, ymax = ymax, ymin
