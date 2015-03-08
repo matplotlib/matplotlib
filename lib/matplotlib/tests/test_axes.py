@@ -3434,6 +3434,13 @@ def test_color_None():
     plt.show()
 
 @cleanup
+def test_color_alias():
+    # issues 4157 and 4162
+    fig, ax = plt.subplots()
+    line = ax.plot([0, 1], c='lime')[0]
+    assert_equal('lime', line.get_color())
+
+@cleanup
 def test_numerical_hist_label():
     fig, ax = plt.subplots()
     ax.hist([range(15)] * 5, label=range(5))
