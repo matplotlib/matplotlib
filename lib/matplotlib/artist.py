@@ -914,15 +914,10 @@ class Artist(object):
         Return *pixel data* string formatted.
         """
         try:
-            is_int = isinstance(data[0], int)
+            data[0]
         except (TypeError, IndexError):
-            is_int = isinstance(data, int)
             data = [data]
-        if is_int:
-            data = ', '.join(item for item in data)
-        else:
-            data = ', '.join('{:0.3g}'.format(item) for item in data)
-        return data
+        return ', '.join('{:0.3g}'.format(item) for item in data)
 
 
 class ArtistInspector(object):
