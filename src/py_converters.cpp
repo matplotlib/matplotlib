@@ -119,7 +119,7 @@ int convert_cap(PyObject *capobj, void *capp)
 {
     const char *names[] = {"butt", "round", "projecting", NULL};
     int values[] = {agg::butt_cap, agg::round_cap, agg::square_cap};
-    int result;
+    int result = agg::butt_cap;
 
     if (!convert_string_enum(capobj, "capstyle", names, values, &result)) {
         return 0;
@@ -133,7 +133,7 @@ int convert_join(PyObject *joinobj, void *joinp)
 {
     const char *names[] = {"miter", "round", "bevel", NULL};
     int values[] = {agg::miter_join_revert, agg::round_join, agg::bevel_join};
-    int result;
+    int result = agg::miter_join_revert;
 
     if (!convert_string_enum(joinobj, "joinstyle", names, values, &result)) {
         return 0;
