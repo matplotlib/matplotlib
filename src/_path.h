@@ -995,7 +995,7 @@ int __convert_to_string(PathIterator &path,
     while ((code = path.vertex(&x[0], &y[0])) != agg::path_cmd_stop) {
         if (code == 0x4f) {
             if ((p = __append_to_string(p, buffer, *buffersize, codes[4])) == NULL) return 1;
-        } else {
+        } else if (code < 5) {
             size = sizes[code - 1];
 
             for (int i = 1; i < size; ++i) {
@@ -1052,6 +1052,9 @@ int __convert_to_string(PathIterator &path,
 
             last_x = x[size - 1];
             last_y = y[size - 1];
+        } else {
+            // Unknown code value
+            return 2;
         }
 
         if ((p = __append_to_string(p, buffer, *buffersize, "\n")) == NULL) return 1;
