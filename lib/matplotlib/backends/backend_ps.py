@@ -1598,6 +1598,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     else: paper_option = "-sPAPERSIZE=%s" % ptype
 
     command = 'ps2pdf -dAutoFilterColorImages=false \
+-dAutoFilterGrayImages=false -sGrayImageFilter=FlateEncode \
 -sColorImageFilter=FlateEncode %s "%s" "%s" > "%s"'% \
 (paper_option, tmpfile, pdffile, outfile)
     if sys.platform == 'win32': command = command.replace('=', '#')
