@@ -44,7 +44,7 @@ Mac OSX : using pip
 -------------------
 
 If you are on Mac OSX you can probably install matplotlib binaries using the
-standard Python installation program `pip <https://pypi.python.org/pip>`_.
+standard Python installation program `pip <https://pypi.python.org/pypi/pip>`_.
 See :ref:`install_osx_binaries`.
 
 
@@ -243,7 +243,7 @@ ImageMagick
 Optional dependencies
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Pillow <http://python-imaging.github.io/>`__
+`Pillow <http://python-pillow.github.io/>`__
     If Pillow is installed, matplotlib can read and write a larger
     selection of image file formats.
 
