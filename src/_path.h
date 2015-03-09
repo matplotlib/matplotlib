@@ -1060,8 +1060,7 @@ int __convert_to_string(PathIterator &path,
         if ((p = __append_to_string(p, buffer, *buffersize, "\n")) == NULL) return 1;
     }
 
-    if ((p = __append_to_string(p, buffer, *buffersize, "\0")) == NULL) return 1;
-    *buffersize = p - buffer - 1;
+    *buffersize = p - buffer;
 
     return 0;
 }
