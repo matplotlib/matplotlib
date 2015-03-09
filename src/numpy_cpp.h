@@ -495,7 +495,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
 
     PyObject *pyobj()
     {
-        Py_INCREF(m_arr);
+        Py_XINCREF(m_arr);
         return (PyObject *)m_arr;
     }
 
