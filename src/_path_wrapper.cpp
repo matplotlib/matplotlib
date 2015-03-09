@@ -628,6 +628,7 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     PyObject *codesobj;
     char *codes[5];
     int postfix;
+    int status;
 
     if (!PyArg_ParseTuple(args,
                           "O&O&O&OO&iOi:convert_to_string",
@@ -677,9 +678,18 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     buffer.reserve(buffersize);
 
     CALL_CPP("convert_to_string",
-             (convert_to_string(path, trans, cliprect, simplify, sketch,
-                                precision, codes, (bool)postfix, &buffer[0],
-                                &buffersize)));
+             (status = convert_to_string(
+                 path, trans, cliprect, simplify, sketch,
+                 precision, codes, (bool)postfix, &buffer[0],
+                 &buffersize)));
+
+    if (status == 1) {
+        PyErr_SetString(PyExc_MemoryError, "Buffer overflow");
+        return NULL;
+    } else if (status == 2) {
+        PyErr_SetString(PyExc_ValueError, "Malformed path codes");
+        return NULL;
+    }
 
     return PyBytes_FromStringAndSize(&buffer[0], buffersize);
 }

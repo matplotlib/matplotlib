@@ -956,9 +956,11 @@ void quad2cubic(double x0, double y0,
 char *__append_to_string(char *p, char *buffer, size_t buffersize,
                          const char *content)
 {
+    int buffersize_int = (int)buffersize;
+
     for (const char *i = content; *i; ++i) {
-        if (p < buffer || p - buffer >= (int)buffersize) {
-            return p;
+        if (p < buffer || p - buffer >= buffersize_int) {
+            return NULL;
         }
 
         *p++ = *i;
@@ -968,12 +970,12 @@ char *__append_to_string(char *p, char *buffer, size_t buffersize,
 }
 
 template <class PathIterator>
-void __convert_to_string(PathIterator &path,
-                         int precision,
-                         char **codes,
-                         bool postfix,
-                         char *buffer,
-                         size_t *buffersize)
+int __convert_to_string(PathIterator &path,
+                        int precision,
+                        char **codes,
+                        bool postfix,
+                        char *buffer,
+                        size_t *buffersize)
 {
 #if PY_VERSION_HEX < 0x02070000
     char format[64];
@@ -992,75 +994,86 @@ void __convert_to_string(PathIterator &path,
 
     while ((code = path.vertex(&x[0], &y[0])) != agg::path_cmd_stop) {
         if (code == 0x4f) {
-            p = __append_to_string(p, buffer, *buffersize, codes[4]);
+            if ((p = __append_to_string(p, buffer, *buffersize, codes[4])) == NULL) return 1;
         } else {
             size = sizes[code - 1];
 
             for (int i = 1; i < size; ++i) {
-                path.vertex(&x[i], &y[i]);
+                unsigned subcode = path.vertex(&x[i], &y[i]);
+                if (subcode != code) {
+                    return 2;
+                }
             }
 
             /* For formats that don't support quad curves, convert to
                cubic curves */
-            if (codes[code - 1][0] == '\0') {
+            if (code == CURVE3 && codes[code - 1][0] == '\0') {
                 quad2cubic(last_x, last_y, x[0], y[0], x[1], y[1], x, y);
                 code++;
                 size = 3;
             }
 
             if (!postfix) {
-                p = __append_to_string(p, buffer, *buffersize, codes[code - 1]);
-                p = __append_to_string(p, buffer, *buffersize, " ");
+                if ((p = __append_to_string(p, buffer, *buffersize, codes[code - 1])) == NULL) return 1;
+                if ((p = __append_to_string(p, buffer, *buffersize, " ")) == NULL) return 1;
             }
 
             for (int i = 0; i < size; ++i) {
 #if PY_VERSION_HEX >= 0x02070000
                 char *str;
                 str = PyOS_double_to_string(x[i], 'g', precision, 0, NULL);
-                p = __append_to_string(p, buffer, *buffersize, str);
+                if ((p = __append_to_string(p, buffer, *buffersize, str)) == NULL) {
+                    PyMem_Free(str);
+                    return 1;
+                }
                 PyMem_Free(str);
-                p = __append_to_string(p, buffer, *buffersize, " ");
+                if ((p = __append_to_string(p, buffer, *buffersize, " ")) == NULL) return 1;
                 str = PyOS_double_to_string(y[i], 'g', precision, 0, NULL);
-                p = __append_to_string(p, buffer, *buffersize, str);
+                if ((p = __append_to_string(p, buffer, *buffersize, str)) == NULL) {
+                    PyMem_Free(str);
+                    return 1;
+                }
                 PyMem_Free(str);
-                p = __append_to_string(p, buffer, *buffersize, " ");
+                if ((p = __append_to_string(p, buffer, *buffersize, " ")) == NULL) return 1;
 #else
                 char str[64];
                 PyOS_ascii_formatd(str, 64, format, x[i]);
-                p = __append_to_string(p, buffer, *buffersize, str);
+                if ((p = __append_to_string(p, buffer, *buffersize, str)) == NULL) return 1;
                 p = __append_to_string(p, buffer, *buffersize, " ");
                 PyOS_ascii_formatd(str, 64, format, y[i]);
-                p = __append_to_string(p, buffer, *buffersize, str);
-                p = __append_to_string(p, buffer, *buffersize, " ");
+                if ((p = __append_to_string(p, buffer, *buffersize, str)) == NULL) return 1;
+                if ((p = __append_to_string(p, buffer, *buffersize, " ")) == NULL) return 1;
 #endif
             }
 
             if (postfix) {
-                p = __append_to_string(p, buffer, *buffersize, codes[code - 1]);
+                if ((p = __append_to_string(p, buffer, *buffersize, codes[code - 1])) == NULL) return 1;
             }
 
             last_x = x[size - 1];
             last_y = y[size - 1];
         }
 
-        p = __append_to_string(p, buffer, *buffersize, "\n");
+        if ((p = __append_to_string(p, buffer, *buffersize, "\n")) == NULL) return 1;
     }
 
     *p = '\0';
     *buffersize = p - buffer;
+
+    return 0;
 }
 
 template <class PathIterator>
-void convert_to_string(PathIterator &path,
-                       agg::trans_affine &trans,
-                       agg::rect_d &clip_rect,
-                       bool simplify,
-                       SketchParams sketch_params,
-                       int precision,
-                       char **codes,
-                       bool postfix,
-                       char *buffer,
-                       size_t *buffersize)
+int convert_to_string(PathIterator &path,
+                      agg::trans_affine &trans,
+                      agg::rect_d &clip_rect,
+                      bool simplify,
+                      SketchParams sketch_params,
+                      int precision,
+                      char **codes,
+                      bool postfix,
+                      char *buffer,
+                      size_t *buffersize)
 {
     typedef agg::conv_transform<py::PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removal_t;
@@ -1077,11 +1090,11 @@ void convert_to_string(PathIterator &path,
     simplify_t simplified(clipped, simplify, path.simplify_threshold());
 
     if (sketch_params.scale == 0.0) {
-        __convert_to_string(simplified, precision, codes, postfix, buffer, buffersize);
+        return __convert_to_string(simplified, precision, codes, postfix, buffer, buffersize);
     } else {
         curve_t curve(simplified);
         sketch_t sketch(curve, sketch_params.scale, sketch_params.length, sketch_params.randomness);
-        __convert_to_string(sketch, precision, codes, postfix, buffer, buffersize);
+        return __convert_to_string(sketch, precision, codes, postfix, buffer, buffersize);
     }
 
 }
