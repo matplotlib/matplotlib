@@ -289,7 +289,6 @@ void NaturalNeighbors::interpolate_unstructured(double *z, int size,
     int i, tri1, tri2;
 
     tri1 = 0;
-    tri2 = 0;
     for (i=0; i<size; i++) {
         tri2 = tri1;
         output[i] = interpolate_one(z, intx[i], inty[i], defvalue, tri2);
