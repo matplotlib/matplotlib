@@ -2667,6 +2667,8 @@ class Axes(_AxesBase):
 
         label = kwargs.pop("label", None)
 
+        zorder = kwargs.pop('zorder', 0)
+
         # make sure all the args are iterable; use lists not arrays to
         # preserve units
         if not iterable(x):
@@ -2898,6 +2900,7 @@ class Axes(_AxesBase):
                                                has_xerr=(xerr is not None),
                                                has_yerr=(yerr is not None),
                                                label=label)
+        errorbar_container.set_zorder(zorder)
         return self.add_container(errorbar_container)
 
     def boxplot(self, x, notch=False, sym=None, vert=True, whis=1.5,
