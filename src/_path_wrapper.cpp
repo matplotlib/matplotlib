@@ -674,24 +674,33 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     }
 
     size_t buffersize = path.total_vertices() * (precision + 5) * 4;
-    std::string buffer;
-    buffer.reserve(buffersize);
+    PyObject *bufferobj = PyBytes_FromStringAndSize(NULL, buffersize);
+    if (bufferobj == NULL) {
+        return NULL;
+    }
+    char *buffer = PyBytes_AsString(bufferobj);
 
     CALL_CPP("convert_to_string",
              (status = convert_to_string(
                  path, trans, cliprect, simplify, sketch,
-                 precision, codes, (bool)postfix, &buffer[0],
+                 precision, codes, (bool)postfix, buffer,
                  &buffersize)));
 
-    if (status == 1) {
-        PyErr_SetString(PyExc_MemoryError, "Buffer overflow");
-        return NULL;
-    } else if (status == 2) {
-        PyErr_SetString(PyExc_ValueError, "Malformed path codes");
+    if (status) {
+        Py_DECREF(bufferobj);
+        if (status == 1) {
+            PyErr_SetString(PyExc_MemoryError, "Buffer overflow");
+        } else if (status == 2) {
+            PyErr_SetString(PyExc_ValueError, "Malformed path codes");
+        }
         return NULL;
     }
 
-    return PyBytes_FromStringAndSize(&buffer[0], buffersize);
+    if (_PyBytes_Resize(&bufferobj, buffersize)) {
+        return NULL;
+    }
+
+    return bufferobj;
 }
 
 extern "C" {
