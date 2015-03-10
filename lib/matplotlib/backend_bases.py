@@ -2797,8 +2797,9 @@ class NavigationToolbar2(object):
                 artists = event.inaxes.hitlist(event)
                 if event.inaxes.patch in artists:
                     artists.remove(event.inaxes.patch)
-                artists.sort(key=lambda x: x.zorder)
+
                 if artists:
+                    artists.sort(key=lambda x: x.zorder)
                     a = artists[-1]
                     data = a.get_cursor_data(event)
                     if data is not None:
