@@ -160,7 +160,7 @@ backend      : %(backend)s
 
 #text.color          : black
 
-### LaTeX customizations. See http://www.scipy.org/Wiki/Cookbook/Matplotlib/UsingTex
+### LaTeX customizations. See http://wiki.scipy.org/Cookbook/Matplotlib/UsingTex
 #text.usetex         : False  # use latex for all text handling. The following fonts
                               # are supported through the usual rc parameter settings:
                               # new century schoolbook, bookman, times, palatino,
