@@ -124,10 +124,11 @@ def find_bezier_t_intersecting_with_closedpath(bezier_point_at_t,
     start_inside = inside_closedpath(start)
     end_inside = inside_closedpath(end)
 
-    if not xor(start_inside, end_inside):
-        raise NonIntersectingPathException(
-            "the segment does not seem to intersect with the path"
-        )
+    if start_inside == end_inside:
+        if start != end:
+            raise NonIntersectingPathException(
+                "the segment does not seem to intersect with the path"
+            )
 
     while 1:
 
@@ -317,6 +318,9 @@ def inside_circle(cx, cy, r):
 def get_cos_sin(x0, y0, x1, y1):
     dx, dy = x1 - x0, y1 - y0
     d = (dx * dx + dy * dy) ** .5
+    # Account for divide by zero
+    if d == 0:
+        return 0.0, 0.0
     return dx / d, dy / d
 
 
