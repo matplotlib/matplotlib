@@ -361,9 +361,14 @@ class _BoundMethodProxy(object):
     Minor bugfixes by Michael Droettboom
     '''
     def __init__(self, cb):
+        self._hash = hash(cb)
+        self._destroy_callbacks = []
         try:
             try:
-                self.inst = ref(cb.im_self)
+                if six.PY3:
+                    self.inst = ref(cb.__self__, self._destroy)
+                else:
+                    self.inst = ref(cb.im_self, self._destroy)
             except TypeError:
                 self.inst = None
             if six.PY3:
@@ -376,6 +381,16 @@ class _BoundMethodProxy(object):
             self.inst = None
             self.func = cb
             self.klass = None
+
+    def add_destroy_callback(self, callback):
+        self._destroy_callbacks.append(_BoundMethodProxy(callback))
+
+    def _destroy(self, wk):
+        for callback in self._destroy_callbacks:
+            try:
+                callback(self)
+            except ReferenceError:
+                pass
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -432,6 +447,9 @@ class _BoundMethodProxy(object):
         Inverse of __eq__.
         '''
         return not self.__eq__(other)
+
+    def __hash__(self):
+        return self._hash
 
 
 class CallbackRegistry(object):
@@ -492,16 +510,31 @@ class CallbackRegistry(object):
         func will be called
         """
         self._func_cid_map.setdefault(s, WeakKeyDictionary())
-        if func in self._func_cid_map[s]:
-            return self._func_cid_map[s][func]
+        # Note proxy not needed in python 3.
+        # TODO rewrite this when support for python2.x gets dropped.
+        proxy = _BoundMethodProxy(func)
+        if proxy in self._func_cid_map[s]:
+            return self._func_cid_map[s][proxy]
 
+        proxy.add_destroy_callback(self._remove_proxy)
         self._cid += 1
         cid = self._cid
-        self._func_cid_map[s][func] = cid
+        self._func_cid_map[s][proxy] = cid
         self.callbacks.setdefault(s, dict())
-        proxy = _BoundMethodProxy(func)
         self.callbacks[s][cid] = proxy
         return cid
+
+    def _remove_proxy(self, proxy):
+        for signal, proxies in list(six.iteritems(self._func_cid_map)):
+            try:
+                del self.callbacks[signal][proxies[proxy]]
+            except KeyError:
+                pass
+
+            if len(self.callbacks[signal]) == 0:
+                del self.callbacks[signal]
+                del self._func_cid_map[signal]
+
 
     def disconnect(self, cid):
         """
@@ -513,7 +546,7 @@ class CallbackRegistry(object):
             except KeyError:
                 continue
             else:
-                for category, functions in list(
+                for signal, functions in list(
                         six.iteritems(self._func_cid_map)):
                     for function, value in list(six.iteritems(functions)):
                         if value == cid:
@@ -527,11 +560,10 @@ class CallbackRegistry(object):
         """
         if s in self.callbacks:
             for cid, proxy in list(six.iteritems(self.callbacks[s])):
-                # Clean out dead references
-                if proxy.inst is not None and proxy.inst() is None:
-                    del self.callbacks[s][cid]
-                else:
+                try:
                     proxy(*args, **kwargs)
+                except ReferenceError:
+                    self._remove_proxy(proxy)
 
 
 class Scheduler(threading.Thread):
