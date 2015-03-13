@@ -613,19 +613,25 @@ static PyObject *Py_cleanup_path(PyObject *self, PyObject *args, PyObject *kwds)
     return Py_BuildValue("NN", pyvertices.pyobj(), pycodes.pyobj());
 }
 
-const char *Py_convert_to_svg__doc__ = "convert_to_svg(path, trans, cliprect, simplify, precision)";
+const char *Py_convert_to_string__doc__ = "convert_to_string(path, trans, "
+    "clip_rect, simplify, sketch, precision, codes, postfix)";
 
-static PyObject *Py_convert_to_svg(PyObject *self, PyObject *args, PyObject *kwds)
+static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *kwds)
 {
     py::PathIterator path;
     agg::trans_affine trans;
     agg::rect_d cliprect;
     PyObject *simplifyobj;
     bool simplify = false;
+    SketchParams sketch;
     int precision;
+    PyObject *codesobj;
+    char *codes[5];
+    int postfix;
+    int status;
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&O&Oi:convert_to_svg",
+                          "O&O&O&OO&iOi:convert_to_string",
                           &convert_path,
                           &path,
                           &convert_trans_affine,
@@ -633,7 +639,11 @@ static PyObject *Py_convert_to_svg(PyObject *self, PyObject *args, PyObject *kwd
                           &convert_rect,
                           &cliprect,
                           &simplifyobj,
-                          &precision)) {
+                          &convert_sketch_params,
+                          &sketch,
+                          &precision,
+                          &codesobj,
+                          &postfix)) {
         return NULL;
     }
 
@@ -643,14 +653,58 @@ static PyObject *Py_convert_to_svg(PyObject *self, PyObject *args, PyObject *kwd
         simplify = true;
     }
 
+    if (!PySequence_Check(codesobj)) {
+        return NULL;
+    }
+    if (PySequence_Size(codesobj) != 5) {
+        PyErr_SetString(
+            PyExc_ValueError,
+            "codes must be a 5-length sequence of byte strings");
+        return NULL;
+    }
+    for (int i = 0; i < 5; ++i) {
+        PyObject *item = PySequence_GetItem(codesobj, i);
+        if (item == NULL) {
+            return NULL;
+        }
+        codes[i] = PyBytes_AsString(item);
+        if (codes[i] == NULL) {
+            return NULL;
+        }
+    }
+
     size_t buffersize = path.total_vertices() * (precision + 5) * 4;
-    std::string buffer;
-    buffer.reserve(buffersize);
+    if (buffersize == 0) {
+        return PyBytes_FromString("");
+    }
 
-    CALL_CPP("convert_to_svg",
-             (convert_to_svg(path, trans, cliprect, simplify, precision, &buffer[0], &buffersize)));
+    PyObject *bufferobj = PyBytes_FromStringAndSize(NULL, buffersize);
+    if (bufferobj == NULL) {
+        return NULL;
+    }
+    char *buffer = PyBytes_AsString(bufferobj);
 
-    return PyUnicode_DecodeASCII(&buffer[0], buffersize, "");
+    CALL_CPP("convert_to_string",
+             (status = convert_to_string(
+                 path, trans, cliprect, simplify, sketch,
+                 precision, codes, (bool)postfix, buffer,
+                 &buffersize)));
+
+    if (status) {
+        Py_DECREF(bufferobj);
+        if (status == 1) {
+            PyErr_SetString(PyExc_MemoryError, "Buffer overflow");
+        } else if (status == 2) {
+            PyErr_SetString(PyExc_ValueError, "Malformed path codes");
+        }
+        return NULL;
+    }
+
+    if (_PyBytes_Resize(&bufferobj, buffersize)) {
+        return NULL;
+    }
+
+    return bufferobj;
 }
 
 extern "C" {
@@ -671,7 +725,7 @@ extern "C" {
         {"path_intersects_path", (PyCFunction)Py_path_intersects_path, METH_VARARGS|METH_KEYWORDS, Py_path_intersects_path__doc__},
         {"convert_path_to_polygons", (PyCFunction)Py_convert_path_to_polygons, METH_VARARGS, Py_convert_path_to_polygons__doc__},
         {"cleanup_path", (PyCFunction)Py_cleanup_path, METH_VARARGS, Py_cleanup_path__doc__},
-        {"convert_to_svg", (PyCFunction)Py_convert_to_svg, METH_VARARGS, Py_convert_to_svg__doc__},
+        {"convert_to_string", (PyCFunction)Py_convert_to_string, METH_VARARGS, Py_convert_to_string__doc__},
         {NULL}
     };
 

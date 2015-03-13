@@ -545,7 +545,9 @@ class RendererSVG(RendererBase):
             clip = (0.0, 0.0, self.width, self.height)
         else:
             clip = None
-        return _path.convert_to_svg(path, transform, clip, simplify, 6)
+        return _path.convert_to_string(
+            path, transform, clip, simplify, None, 6,
+            [b'M', b'L', b'Q', b'C', b'z'], False).decode('ascii')
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         trans_and_flip = self._make_flip_transform(transform)
