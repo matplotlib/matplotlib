@@ -26,7 +26,6 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
 
 from matplotlib.cbook import is_string_like, get_realpath_and_stat, \
     is_writable_file_like, maxdict, file_requires_unicode
-from matplotlib.mlab import quad2cubic
 from matplotlib.figure import Figure
 
 from matplotlib.font_manager import findfont, is_opentype_cff_font
@@ -36,6 +35,7 @@ from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.text import Text
 from matplotlib.path import Path
+from matplotlib import _path
 from matplotlib.transforms import Affine2D
 
 from matplotlib.backends.backend_mixed import MixedModeRenderer
@@ -538,27 +538,9 @@ grestore
                     self.height * 72.0)
         else:
             clip = None
-        for points, code in path.iter_segments(transform, clip=clip,
-                                               simplify=simplify):
-            if code == Path.MOVETO:
-                ps.append("%g %g m" % tuple(points))
-            elif code == Path.CLOSEPOLY:
-                ps.append("cl")
-            elif last_points is None:
-                # The other operations require a previous point
-                raise ValueError('Path lacks initial MOVETO')
-            elif code == Path.LINETO:
-                ps.append("%g %g l" % tuple(points))
-            elif code == Path.CURVE3:
-                points = quad2cubic(*(list(last_points[-2:]) + list(points)))
-                ps.append("%g %g %g %g %g %g c" %
-                          tuple(points[2:]))
-            elif code == Path.CURVE4:
-                ps.append("%g %g %g %g %g %g c" % tuple(points))
-            last_points = points
-
-        ps = "\n".join(ps)
-        return ps
+        return _path.convert_to_string(
+            path, transform, clip, simplify, None,
+            6, [b'm', b'l', b'', b'c', b'cl'], True).decode('ascii')
 
     def _get_clip_path(self, clippath, clippath_transform):
         key = (clippath, id(clippath_transform))
