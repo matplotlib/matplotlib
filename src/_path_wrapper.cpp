@@ -674,6 +674,10 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     }
 
     size_t buffersize = path.total_vertices() * (precision + 5) * 4;
+    if (buffersize == 0) {
+        return PyBytes_FromString("");
+    }
+
     PyObject *bufferobj = PyBytes_FromStringAndSize(NULL, buffersize);
     if (bufferobj == NULL) {
         return NULL;
