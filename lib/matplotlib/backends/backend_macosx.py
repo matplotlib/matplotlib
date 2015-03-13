@@ -138,6 +138,11 @@ class RendererMac(RendererBase):
         else:
             family =  prop.get_family()
             weight = prop.get_weight()
+            # transform weight into string for the native backend
+            if weight >= 700:
+                weight = 'bold'
+            else:
+                weight = 'normal'
             style = prop.get_style()
             points = prop.get_size_in_points()
             size = self.points_to_pixels(points)
@@ -157,6 +162,11 @@ class RendererMac(RendererBase):
             return width, height, descent
         family =  prop.get_family()
         weight = prop.get_weight()
+        # transform weight into string for the native backend
+        if weight >= 700:
+            weight = 'bold'
+        else:
+            weight = 'normal'
         style = prop.get_style()
         points = prop.get_size_in_points()
         size = self.points_to_pixels(points)
