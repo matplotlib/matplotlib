@@ -1,5 +1,7 @@
 '''
-For each colormap, plot the lightness parameter L* from CIELAB colorspace along the y axis vs index through the colormap. Colormaps are examined in categories as in the original matplotlib gallery of colormaps.
+For each colormap, plot the lightness parameter L* from CIELAB colorspace 
+along the y axis vs index through the colormap. Colormaps are examined in 
+categories as in the original matplotlib gallery of colormaps.
 '''
 
 from skimage import color
@@ -47,10 +49,10 @@ for cmap_category, cmap_list in cmaps:
 
     # Do subplots so that colormaps have enough space. 5 per subplot?
     dsub = 5 # number of colormaps per subplot
-    if cmap_category == 'Diverging': # because has 13 colormaps
+    if cmap_category == 'Diverging': # because has 12 colormaps
         dsub = 6
-    elif cmap_category == 'Sequential2':
-        dsub = 7
+    elif cmap_category == 'Sequential (2)':
+        dsub = 6
     elif cmap_category == 'Sequential':
         dsub = 7
     nsubplots = int(np.ceil(len(cmap_list)/float(dsub)))
@@ -84,22 +86,16 @@ for cmap_category, cmap_list in cmaps:
                     ax.axis([-0.1,4.7,0,100])
                 locs.append(x[-1]+j*dc) # store locations for colormap labels
 
-            elif cmap_category=='Sequential2':
+            elif cmap_category=='Sequential (2)':
                 dc = 1.15
                 ax.scatter(x+j*dc, lab[0,:,0], c=x, cmap=cmap, s=300, linewidths=0.)
-                if i==0:
-                    ax.axis([-0.1,8.1,0,100])
-                else:
-                    ax.axis([-0.1,7.0,0,100])
+                ax.axis([-0.1,7.0,0,100])
                 locs.append(x[-1]+j*dc) # store locations for colormap labels
 
             elif cmap_category=='Diverging':
                 dc = 1.2
                 ax.scatter(x+j*dc, lab[0,:,0], c=x, cmap=cmap, s=300, linewidths=0.)
-                if i==0:
-                    ax.axis([-0.1,7.1,0,100])
-                else:
-                    ax.axis([-0.1,6,0,100])
+                ax.axis([-0.1,7.1,0,100])
                 locs.append(x[int(x.size/2.)]+j*dc) # store locations for colormap labels
 
             elif cmap_category=='Qualitative':
