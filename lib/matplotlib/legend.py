@@ -345,20 +345,10 @@ class Legend(Artist):
         # We use FancyBboxPatch to draw a legend frame. The location
         # and size of the box will be updated during the drawing time.
 
-        if rcParams["legend.facecolor"] is None:
-            facecolor = rcParams["axes.facecolor"]
-        else:
-            facecolor = rcParams["legend.facecolor"]
-
-        if rcParams["legend.edgecolor"] is None:
-            edgecolor = rcParams["axes.edgecolor"]
-        else:
-            edgecolor = rcParams["legend.edgecolor"]
-
         self.legendPatch = FancyBboxPatch(
             xy=(0.0, 0.0), width=1., height=1.,
-            facecolor=facecolor,
-            edgecolor=edgecolor,
+            facecolor=rcParams["axes.facecolor"],
+            edgecolor=rcParams["axes.edgecolor"],
             mutation_scale=self._fontsize,
             snap=True
             )

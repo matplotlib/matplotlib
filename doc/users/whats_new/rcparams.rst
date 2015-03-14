@@ -9,13 +9,9 @@ Added "figure.titlesize" and "figure.titleweight" keys to rcParams
 Two new keys were added to rcParams to control the default font size and weight
 used by the figure title (as emitted by ``pyplot.suptitle()``).
 
-Added "legend.facecolor" and "legend.edgecolor" keys to rcParams
-````````````````````````````````````````````````````````````````
-The new keys control colors (background and edge) of legend patches.
-
 ``image.composite_image`` added to rcParams
 ```````````````````````````````````````````
 Controls whether vector graphics backends (i.e. PDF, PS, and SVG) combine
 multiple images on a set of axes into a single composite image.  Saving each
-image individually can be useful if you generate vector graphics files in 
+image individually can be useful if you generate vector graphics files in
 matplotlib and then edit the files further in Inkscape or other programs.
