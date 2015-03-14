@@ -1,3 +1,9 @@
+Added ``xtick.minor.visible`` and ``ytick.minor.visible`` key to rcParams
+`````````````````````````````````````````````````````````````````````````
+Two new keys to control the minor ticks on x/y axis respectively, default set to ``False`` (no minor ticks on the axis).
+
+When ``True``, the minor ticks are shown and located via a ``mticker.AutoMinorLocator()``.
+
 Added "legend.framealpha" key to rcParams
 `````````````````````````````````````````
 Added a key and the corresponding logic to control the default transparency of
