@@ -240,35 +240,6 @@ def test_legend_stackplot():
     ax.legend(loc=0)
 
 
-@cleanup
-def _test_rcparams_helper(test_rcparams, facecolor_target, edgecolor_target):
-    with mpl.rc_context(test_rcparams):
-        fig, ax = plt.subplots(1, 1)
-        t = np.linspace(0, 2*np.pi)
-        ax.plot(t, np.sin(t), label='sin')
-        ax.plot(t, np.cos(t), label='cos')
-        leg = ax.legend()
-
-    assert_equal(mpl.colors.colorConverter.to_rgba(facecolor_target),
-                 leg.legendPatch.get_facecolor())
-
-    assert_equal(mpl.colors.colorConverter.to_rgba(edgecolor_target),
-                 leg.legendPatch.get_edgecolor())
-
-
-def test_rcparams_():
-    test_vals = [({}, mpl.rcParams['axes.facecolor'],
-                      mpl.rcParams['axes.edgecolor']),
-                 ({'axes.facecolor': 'r', 'axes.edgecolor': 'c'}, 'r', 'c'),
-                 ({'axes.facecolor': 'r', 'axes.edgecolor': 'c',
-                   'legend.facecolor': 'w', 'legend.edgecolor': 'k'},
-                   'w', 'k'),
-                 ]
-
-    for rc_dict, face, edge in test_vals:
-        yield _test_rcparams_helper, rc_dict, face, edge
-
-
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
