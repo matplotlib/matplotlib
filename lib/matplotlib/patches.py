@@ -2738,15 +2738,15 @@ class ConnectionStyle(_Style):
                      shrinkA=2., shrinkB=2., patchA=None, patchB=None):
             """
             Calls the *connect* method to create a path between *posA*
-             and *posB*. The path is clipped and shrinked.
+             and *posB*. The path is clipped and shrunken.
             """
 
             path = self.connect(posA, posB)
 
             clipped_path = self._clip(path, patchA, patchB)
-            shrinked_path = self._shrink(clipped_path, shrinkA, shrinkB)
+            shrunk_path = self._shrink(clipped_path, shrinkA, shrinkB)
 
-            return shrinked_path
+            return shrunk_path
 
         def __reduce__(self):
             # because we have decided to nest these classes, we need to
@@ -3204,9 +3204,9 @@ class ArrowStyle(_Style):
                 vertices, codes = path.vertices[:], path.codes[:]
                 # Squeeze the height
                 vertices[:, 1] = vertices[:, 1] / aspect_ratio
-                path_shrinked = Path(vertices, codes)
+                path_shrunk = Path(vertices, codes)
                 # call transmute method with squeezed height.
-                path_mutated, fillable = self.transmute(path_shrinked,
+                path_mutated, fillable = self.transmute(path_shrunk,
                                                         linewidth,
                                                         mutation_size)
                 if cbook.iterable(fillable):
@@ -3261,7 +3261,7 @@ class ArrowStyle(_Style):
             Return the paths for arrow heads. Since arrow lines are
             drawn with capstyle=projected, The arrow goes beyond the
             desired point. This method also returns the amount of the path
-            to be shrinked so that it does not overshoot.
+            to be shrunken so that it does not overshoot.
             """
 
             # arrow from x0, y0 to x1, y1
@@ -3968,7 +3968,7 @@ class FancyArrowPatch(Patch):
         """
         If *posA* and *posB* is given, a path connecting two point are
         created according to the connectionstyle. The path will be
-        clipped with *patchA* and *patchB* and further shrinked by
+        clipped with *patchA* and *patchB* and further shrunken by
         *shrinkA* and *shrinkB*. An arrow is drawn along this
         resulting path using the *arrowstyle* parameter. If *path*
         provided, an arrow is drawn along this path and *patchA*,
