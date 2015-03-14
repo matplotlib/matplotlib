@@ -5611,7 +5611,7 @@ class Axes(_AxesBase):
         # Massage 'x' for processing.
         # NOTE: Be sure any changes here is also done below to 'weights'
         if input_empty:
-            x = np.asarray([[]])
+            x = np.array([[]])
         elif isinstance(x, np.ndarray) or not iterable(x[0]):
             # TODO: support masked arrays;
             x = np.asarray(x)
@@ -5641,7 +5641,9 @@ class Axes(_AxesBase):
 
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:
-            if isinstance(weights, np.ndarray) or not iterable(weights[0]):
+            if input_empty:
+                w = np.array([])
+            elif isinstance(weights, np.ndarray) or not iterable(weights[0]):
                 w = np.array(weights)
                 if w.ndim == 2:
                     w = w.T
@@ -5762,8 +5764,6 @@ class Axes(_AxesBase):
             for m, c in zip(n, color):
                 if bottom is None:
                     bottom = np.zeros(len(m), np.float)
-                if input_empty:
-                    width = 0
                 if stacked:
                     height = m - bottom
                 else:
@@ -5846,8 +5846,6 @@ class Axes(_AxesBase):
                     xvals.append(x.copy())
                     yvals.append(y.copy())
 
-            fill_kwargs = dict() if not input_empty else dict(linewidth=0)
-
             if fill:
                 # add patches in reverse order so that when stacking,
                 # items lower in the stack are plottted on top of
@@ -5856,16 +5854,14 @@ class Axes(_AxesBase):
                     patches.append(self.fill(
                         x, y,
                         closed=True,
-                        facecolor=c,
-                        **fill_kwargs))
+                        facecolor=c))
             else:
                 for x, y, c in reversed(list(zip(xvals, yvals, color))):
                     split = 2 * len(bins)
                     patches.append(self.fill(
                         x[:split], y[:split],
                         closed=False, edgecolor=c,
-                        fill=False,
-                        **fill_kwargs))
+                        fill=False))
 
             # we return patches, so put it back in the expected order
             patches.reverse()
