@@ -32,6 +32,23 @@ def test_figure_label():
     assert_equal(plt.get_figlabels(), ['', 'today'])
 
 
+@cleanup
+def test_fignum_exists():
+    # pyplot figure creation, selection and closing with fignum_exists
+    plt.figure('one')
+    plt.figure(2)
+    plt.figure('three')
+    plt.figure()
+    assert_equal(plt.fignum_exists('one'), True)
+    assert_equal(plt.fignum_exists(2), True)
+    assert_equal(plt.fignum_exists('three'), True)
+    assert_equal(plt.fignum_exists(4), True)
+    plt.close('one')
+    plt.close(4)
+    assert_equal(plt.fignum_exists('one'), False)
+    assert_equal(plt.fignum_exists(4), False)
+
+
 @image_comparison(baseline_images=['figure_today'])
 def test_figure():
     # named figure support
