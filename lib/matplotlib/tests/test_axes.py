@@ -129,6 +129,17 @@ def test_twinx_cla():
     assert_true(ax.yaxis.get_visible())
 
 
+@image_comparison(baseline_images=["minorticks_on_rcParams_both"], extensions=['png'])
+def test_minorticks_on_rcParams_both():
+    
+    fig = plt.figure()
+    matplotlib.rcParams['xtick.minor.visible'] = True
+    matplotlib.rcParams['ytick.minor.visible'] = True
+
+    plt.plot([0, 1], [0, 1])
+    plt.axis([0, 1, 0, 1])
+
+
 @image_comparison(baseline_images=["autoscale_tiny_range"], remove_text=True)
 def test_autoscale_tiny_range():
     # github pull #904
