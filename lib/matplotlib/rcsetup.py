@@ -235,9 +235,10 @@ class validate_nseq_int(object):
             raise ValueError('Could not convert all entries to ints')
 
 
-def validate_color_or_None(s):
-    if s is None:
-        return None
+def validate_color_or_inherit(s):
+    'return a valid color arg'
+    if s == 'inherit':
+        return s
     return validate_color(s)
 
 
@@ -692,8 +693,8 @@ defaultParams = {
     # the relative size of legend markers vs. original
     'legend.markerscale': [1.0, validate_float],
     'legend.shadow': [False, validate_bool],
-    'legend.facecolor': [None, validate_color_or_None],
-    'legend.edgecolor': [None, validate_color_or_None],
+    'legend.facecolor': ['inherit', validate_color_or_inherit],
+    'legend.edgecolor': ['inherit', validate_color_or_inherit],
 
     ## tick properties
     'xtick.major.size':  [4, validate_float],    # major xtick size in points
