@@ -2263,8 +2263,8 @@ class FigureCanvasBase(object):
         # ensure non-existing filename in save dir
         i = 1
         while os.path.isfile(os.path.join(save_dir, default_filename)):
-            # attach numerical value to basename
-            default_filename = '{}-{}.{}'.format(default_basename, i, default_filetype)
+            # attach numerical count to basename
+            default_filename = '{0}-{1}.{2}'.format(default_basename, i, default_filetype)
             i += 1
 
         return default_filename
