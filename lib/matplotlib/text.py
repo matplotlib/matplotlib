@@ -137,7 +137,7 @@ docstring.interpd.update(Text="""
 # function as a method with some refactoring of _get_layout method.
 
 
-def _get_textbox(text, renderer):
+def _get_textbox(text, renderer, with_descent=True):
     """
     Calculate the bounding box of the text. Unlike
     :meth:`matplotlib.text.Text.get_extents` method, The bbox size of
@@ -164,6 +164,10 @@ def _get_textbox(text, renderer):
 
     xt_box, yt_box = min(projected_xs), min(projected_ys)
     w_box, h_box = max(projected_xs) - xt_box, max(projected_ys) - yt_box
+
+    if not with_descent:
+        yt_box += d
+        h_box -= d
 
     tr = mtransforms.Affine2D().rotate(theta)
 
@@ -232,7 +236,6 @@ class Text(Artist):
         self._linespacing = linespacing
         self.set_rotation_mode(rotation_mode)
         self.update(kwargs)
-        # self.set_bbox(dict(pad=0))
 
     def __getstate__(self):
         d = super(Text, self).__getstate__()
@@ -481,10 +484,13 @@ class Text(Artist):
 
         if rectprops is not None:
             props = rectprops.copy()
-            # Dump the pad kwarg; we still need to figure out how to
-            # use it to expand the box, for backwards compatibility.
-            pad = props.pop('pad', 4)  # noqa
+            pad = props.pop('pad', 4)  # in points; hardwired default
             boxstyle = props.pop("boxstyle", "square")
+            # If pad is in the boxstyle string, it will be passed
+            # directly to the FancyBboxPatch as font units.
+            if 'pad' not in boxstyle:
+                boxstyle += ",pad=%0.2f" % (pad / self.get_size())
+
             bbox_transmuter = props.pop("bbox_transmuter", None)
 
             self._bbox_patch = FancyBboxPatch(
@@ -524,7 +530,8 @@ class Text(Artist):
 
             posx, posy = trans.transform_point((posx, posy))
 
-            x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
+            x_box, y_box, w_box, h_box = _get_textbox(self, renderer,
+                                                      with_descent=False)
             self._bbox_patch.set_bounds(0., 0., w_box, h_box)
             theta = np.deg2rad(self.get_rotation())
             tr = mtransforms.Affine2D().rotate(theta)
@@ -540,7 +547,8 @@ class Text(Artist):
         (FancyBboxPatch), and draw
         """
 
-        x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
+        x_box, y_box, w_box, h_box = _get_textbox(self, renderer,
+                                                  with_descent=False)
         self._bbox_patch.set_bounds(0., 0., w_box, h_box)
         theta = np.deg2rad(self.get_rotation())
         tr = mtransforms.Affine2D().rotate(theta)
