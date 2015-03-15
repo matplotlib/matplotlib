@@ -613,14 +613,12 @@ def waitforbuttonpress(*args, **kwargs):
 def figtext(*args, **kwargs):
 
     ret =  gcf().text(*args, **kwargs)
-    draw_if_interactive()
     return ret
 
 
 @docstring.copy_dedent(Figure.suptitle)
 def suptitle(*args, **kwargs):
     ret =  gcf().suptitle(*args, **kwargs)
-    draw_if_interactive()
     return ret
 
 
@@ -2765,7 +2763,7 @@ def errorbar(x, y, yerr=None, xerr=None, fmt='', ecolor=None, elinewidth=None,
                           barsabove=barsabove, lolims=lolims, uplims=uplims,
                           xlolims=xlolims, xuplims=xuplims,
                           errorevery=errorevery, capthick=capthick, **kwargs)
-        draw_if_interactive()
+        #draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3099,7 +3097,7 @@ def plot(*args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.plot(*args, **kwargs)
-        draw_if_interactive()
+        #draw_if_interactive()
     finally:
         ax.hold(washold)
 

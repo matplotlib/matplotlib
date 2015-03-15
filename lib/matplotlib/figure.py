@@ -25,6 +25,9 @@ from matplotlib import rcParams
 from matplotlib import docstring
 from matplotlib import __version__ as _mpl_version
 
+from matplotlib import is_interactive
+from matplotlib import _interactive  # decorator
+
 import matplotlib.artist as martist
 from matplotlib.artist import Artist, allow_rasterization
 
@@ -233,7 +236,6 @@ class SubplotParams(object):
 
         setattr(self, s, val)
 
-
 class Figure(Artist):
 
     """
@@ -346,10 +348,43 @@ class Figure(Artist):
         self._axstack = AxesStack()  # track all figure axes and current axes
         self.clf()
         self._cachedRenderer = None
+        self._in_outer_method = False
 
     # TODO: I'd like to dynamically add the _repr_html_ method
     # to the figure in the right context, but then IPython doesn't
     # use it, for some reason.
+
+    def draw_if_interactive(self, outer=False):
+        # Not sure whether this should be public or private...
+        if not outer or not is_interactive():
+            return False
+        # Leave out the following check for now; it probably
+        # has to be modified so that it does not require importing
+        # all the available interactive backends just to make
+        # the list of canvases.  Instead, the check could be based
+        # on the str() or (repr) of self.canvas.
+        #if not isinstance(self.canvas, interactive_canvases):
+        #    return
+        self.canvas.draw()
+        # print("drawing complete")
+        return True
+
+    def check_interactive(self):
+        """
+        Return True upon entering an outer method, and set the
+        flag; return False if already in an outer method.
+        """
+        if not self._in_outer_method:
+            self._in_outer_method = True
+            print("checking: toggled _in_outer_method to True")
+            return True
+        print("checking: already _in_outer_method; returning False")
+        return False
+
+    def clear_interactive(self, drawn):
+        if drawn:
+            self._in_outer_method = False
+
 
     def _repr_html_(self):
         # We can't use "isinstance" here, because then we'd end up importing
@@ -495,6 +530,7 @@ class Figure(Artist):
         'get the figure bounding box in display space; kwargs are void'
         return self.bbox
 
+    @_interactive
     def suptitle(self, t, **kwargs):
         """
         Add a centered title to the figure.
@@ -520,6 +556,7 @@ class Figure(Artist):
 
           fig.suptitle('this is the figure title', fontsize=12)
         """
+        #outer = self.check_interactive()
         x = kwargs.pop('x', 0.5)
         y = kwargs.pop('y', 0.98)
 
@@ -541,6 +578,7 @@ class Figure(Artist):
             sup.remove()
         else:
             self._suptitle = sup
+        #self.draw_if_interactive(outer)
         return self._suptitle
 
     def set_canvas(self, canvas):
@@ -1211,6 +1249,7 @@ class Figure(Artist):
         l._remove_method = lambda h: self.legends.remove(h)
         return l
 
+    @_interactive
     @docstring.dedent_interpd
     def text(self, x, y, s, *args, **kwargs):
         """
@@ -1228,7 +1267,7 @@ class Figure(Artist):
 
         %(Text)s
         """
-
+        #outer = self.check_interactive()
         override = _process_text_args({}, *args, **kwargs)
         t = Text(x=x, y=y, text=s)
 
@@ -1236,6 +1275,7 @@ class Figure(Artist):
         self._set_artist_props(t)
         self.texts.append(t)
         t._remove_method = lambda h: self.texts.remove(h)
+        #self.draw_if_interactive(outer)
         return t
 
     def _set_artist_props(self, a):

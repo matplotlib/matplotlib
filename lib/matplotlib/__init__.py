@@ -201,6 +201,31 @@ if not compare_versions(numpy.__version__, __version__numpy__):
         'numpy %s or later is required; you have %s' % (
             __version__numpy__, numpy.__version__))
 
+import functools
+def _interactive(func):
+    """
+    Decorator for Figure and Axes methods that will be wrapped in pyplot.
+
+    Methods so decorated no longer need a call to `draw_if_interactive`
+    in their pyplot wrappers, and are interactive when invoked as
+    methods with a gui backend in interactive mode.
+
+    Figure and Axes must define the methods `check_interactive`,
+    `draw_if_interactive`, and `clear_interactive` used in this
+    decorator.
+    """
+    @functools.wraps(func)
+    def inner(self, *args, **kw):
+        outer = self.check_interactive()
+        drawn = True  # default in "finally" clause is to clear.
+        try:
+            ret = func(self, *args, **kw)
+            drawn = self.draw_if_interactive(outer)
+        finally:
+            self.clear_interactive(drawn)
+        return ret
+    return inner
+
 
 def _is_writable_dir(p):
     """

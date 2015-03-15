@@ -31,6 +31,7 @@ import matplotlib.text as mtext
 import matplotlib.image as mimage
 from matplotlib.artist import allow_rasterization
 from matplotlib.cbook import iterable
+from matplotlib import is_interactive
 
 rcParams = matplotlib.rcParams
 
@@ -440,6 +441,7 @@ class _AxesBase(martist.Artist):
         self.set_cursor_props((1, 'k'))  # set the cursor properties for axes
 
         self._cachedRenderer = None
+        self._in_outer_method = False
         self.set_navigate(True)
         self.set_navigate_mode(None)
 
@@ -458,6 +460,40 @@ class _AxesBase(martist.Artist):
         if self.yaxis is not None:
             self._ycid = self.yaxis.callbacks.connect('units finalize',
                                                       self.relim)
+
+
+    def draw_if_interactive(self, outer=False):
+        print("entering draw_if_interactive in axes/_base, outer = ", outer)
+        # Not sure whether this should be public or private...
+        if not outer or not is_interactive():
+            return False
+        # Leave out the following check for now; it probably
+        # has to be modified so that it does not require importing
+        # all the available interactive backends just to make
+        # the list of canvases.  Instead, the check could be based
+        # on the str() or (repr) of self.canvas.
+        #if not isinstance(self.canvas, interactive_canvases):
+        #    return
+        self.figure.canvas.draw()
+        print("drawing complete in axes/_base")
+        return True
+
+    def check_interactive(self):
+        """
+        Return True upon entering an outer method, and set the
+        flag; return False if already in an outer method.
+        """
+        if not self._in_outer_method:
+            self._in_outer_method = True
+            print("checking: toggled _in_outer_method to True")
+            return True
+        print("checking: already _in_outer_method; returning False")
+        return False
+
+    def clear_interactive(self, drawn):
+        if drawn:
+            self._in_outer_method = False
+
 
     def __setstate__(self, state):
         self.__dict__ = state

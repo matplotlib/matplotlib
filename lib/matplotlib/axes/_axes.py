@@ -38,6 +38,7 @@ import matplotlib.transforms as mtrans
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase
 from matplotlib.axes._base import _process_plot_format
+from matplotlib import _interactive  # decorator
 
 rcParams = matplotlib.rcParams
 
@@ -1235,6 +1236,7 @@ class Axes(_AxesBase):
         return colls
 
     #### Basic plotting
+    @_interactive
     @docstring.dedent_interpd
     def plot(self, *args, **kwargs):
         """
@@ -2536,6 +2538,7 @@ class Axes(_AxesBase):
         else:
             return slices, texts, autotexts
 
+    @_interactive
     @docstring.dedent_interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
                  fmt='', ecolor=None, elinewidth=None, capsize=3,
