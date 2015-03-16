@@ -605,8 +605,9 @@ class Artist(object):
         ACCEPTS: a :class:`matplotlib.figure.Figure` instance
         """
         self.figure = fig
-        self.add_callback(_dirty_figure_callback)
-        self.pchanged()
+        if self.figure and self.figure is not self:
+            self.add_callback(_dirty_figure_callback)
+            self.pchanged()
 
     def set_clip_box(self, clipbox):
         """
