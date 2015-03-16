@@ -29,7 +29,7 @@ static int PyQuadContourGenerator_init(PyQuadContourGenerator* self, PyObject* a
 {
     QuadContourGenerator::CoordinateArray x, y, z;
     QuadContourGenerator::MaskArray mask;
-    bool corner_mask;
+    int corner_mask;
     long chunk_size;
 
     if (!PyArg_ParseTuple(args, "O&O&O&O&il",
