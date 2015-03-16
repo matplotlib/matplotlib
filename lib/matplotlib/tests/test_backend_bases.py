@@ -9,8 +9,10 @@ import matplotlib.path as path
 from nose.tools import assert_equal
 
 import numpy as np
-import tempfile
 import os
+import shutil
+import tempfile
+
 
 def test_uses_per_path():
     id = transforms.Affine2D()
@@ -52,28 +54,35 @@ def test_uses_per_path():
     check(id, paths, tforms, offsets, [], [])
     check(id, paths, tforms, offsets, facecolors[0:1], edgecolors)
 
+
 @cleanup
 def test_get_default_filename():
-    test_dir = tempfile.mkdtemp()
-    plt.rcParams['savefig.directory'] = test_dir
-    fig = plt.figure()
-    canvas = FigureCanvasBase(fig)
-    filename = canvas.get_default_filename()
-    assert_equal(filename, 'image.png')
+    try:
+        test_dir = tempfile.mkdtemp()
+        plt.rcParams['savefig.directory'] = test_dir
+        fig = plt.figure()
+        canvas = FigureCanvasBase(fig)
+        filename = canvas.get_default_filename()
+        assert_equal(filename, 'image.png')
+    finally:
+        shutil.rmtree(test_dir)
+
 
 @cleanup
-def test_get_default_filename_already_existing():
+def test_get_default_filename_already_exists():
     # From #3068: Suggest non-existing default filename
-    test_dir = tempfile.mkdtemp()
-    plt.rcParams['savefig.directory'] = test_dir
-    fig = plt.figure()
-    canvas = FigureCanvasBase(fig)
+    try:
+        test_dir = tempfile.mkdtemp()
+        plt.rcParams['savefig.directory'] = test_dir
+        fig = plt.figure()
+        canvas = FigureCanvasBase(fig)
 
-    # create 'image.png' in figure's save dir
-    with open(os.path.join(test_dir, 'image.png'), 'a'):
-        filename = canvas.get_default_filename()
-        assert_equal(filename, 'image-1.png')
-
+        # create 'image.png' in figure's save dir
+        with open(os.path.join(test_dir, 'image.png'), 'a'):
+            filename = canvas.get_default_filename()
+            assert_equal(filename, 'image-1.png')
+    finally:
+        shutil.rmtree(test_dir)
 
 if __name__ == "__main__":
     import nose
