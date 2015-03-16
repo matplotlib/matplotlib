@@ -110,7 +110,8 @@ it::
   from matplotlib.testing.decorators import image_comparison
   import matplotlib.pyplot as plt
 
-  @image_comparison(baseline_images=['spines_axes_positions'])
+  @image_comparison(baseline_images=['spines_axes_positions'],
+                    extensions=['png'])
   def test_spines_axes_positions():
       # SF bug 2852168
       fig = plt.figure()
@@ -128,23 +129,28 @@ it::
 
 The first time this test is run, there will be no baseline image to
 compare against, so the test will fail.  Copy the output images (in
-this case `result_images/test_category/spines_axes_positions.*`) to
+this case `result_images/test_category/spines_axes_positions.png`) to
 the correct subdirectory of `baseline_images` tree in the source
 directory (in this case
-`lib/matplotlib/tests/baseline_images/test_category`).  Note carefully
-the `.*` at the end: this will copy only the images we need to include
-in the `git` repository.  The files ending in `_pdf.png` and
-`_svg.png` are converted from the `pdf` and `svg` originals on the fly
-and do not need to be in the respository.  Put these new files under
-source code revision control (with `git add`).  When rerunning the
-tests, they should now pass.
+`lib/matplotlib/tests/baseline_images/test_category`).  Put this new
+file under source code revision control (with `git add`).  When
+rerunning the tests, they should now pass.
+
+The :func:`~matplotlib.testing.decorators.image_comparison` decorator
+defaults to generating ``png``, ``pdf`` and ``svg`` output, but in
+interest of keeping the size of the library from ballooning we should only
+include the ``svg`` or ``pdf`` outputs if the test is explicitly exercising
+a feature dependent on that backend.
 
 There are two optional keyword arguments to the `image_comparison`
 decorator:
 
-   - `extensions`: If you only wish to test some of the image formats
-     (rather than the default `png`, `svg` and `pdf` formats), pass a
-     list of the extensions to test.
+   - `extensions`: If you only wish to test additional image formats
+     (rather than just `png`), pass any additional file types in the
+     list of the extensions to test.  When copying the new
+     baseline files be sure to only copy the output files, not their
+     conversions to ``png``.  For example only copy the files
+     ending in ``pdf``, not in ``_pdf.png``.
 
    - `tol`: This is the image matching tolerance, the default `1e-3`.
      If some variation is expected in the image between runs, this
