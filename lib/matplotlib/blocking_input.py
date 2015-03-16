@@ -149,7 +149,7 @@ class BlockingMouseInput(BlockingInput):
         """
         This will be called to process events
         """
-        if len(self.events) <= 0:
+        if len(self.events) == 0:
             warnings.warn("No events yet")
         elif self.events[-1].name == 'key_press_event':
             self.key_event()
@@ -362,7 +362,7 @@ class BlockingKeyMouseInput(BlockingInput):
         """
         Determines if it is a key event
         """
-        if len(self.events) <= 0:
+        if len(self.events) == 0:
             warnings.warn("No events yet")
         else:
             self.keyormouse = self.events[-1].name == 'key_press_event'

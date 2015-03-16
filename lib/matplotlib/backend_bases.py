@@ -971,8 +971,8 @@ class GraphicsContextBase(object):
         """
         if path is not None and not isinstance(path,
                 transforms.TransformedPath):
-            msg = "Path should be a matplotlib.transforms.TransformedPath \
-            instance."
+            msg = ("Path should be a matplotlib.transforms.TransformedPath"
+                   "instance.")
             raise ValueError(msg)
         self._clippath = path
 

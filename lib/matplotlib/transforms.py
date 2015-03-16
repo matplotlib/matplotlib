@@ -2465,6 +2465,7 @@ class BboxTransform(Affine2DBase):
         """
         if not boxin.is_bbox or not boxout.is_bbox:
             msg = "'boxin' and 'boxout' must be bbox"
+            raise ValueError(msg)
 
         Affine2DBase.__init__(self, **kwargs)
         self._boxin = boxin

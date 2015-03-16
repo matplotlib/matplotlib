@@ -1307,7 +1307,7 @@ class SpanSelector(_SelectorWidget):
             rectprops = dict(facecolor='red', alpha=0.5)
 
         if direction not in ['horizontal', 'vertical']:
-            raise ValueError('Must choose horizontal or vertical for direction')
+            raise ValueError("direction must be in ['horizontal', 'vertical']")
         self.direction = direction
 
         self.rect = None
