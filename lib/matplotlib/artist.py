@@ -68,6 +68,14 @@ def allow_rasterization(draw):
     return draw_wrapper
 
 
+def _dirty_figure_callback(self):
+    self.figure.dirty = True
+
+
+def _dirty_axes_callback(self):
+    self.axes.dirty = True
+
+
 class Artist(object):
     """
     Abstract base class for someone who renders into a
@@ -109,6 +117,7 @@ class Artist(object):
         self._snap = None
         self._sketch = rcParams['path.sketch']
         self._path_effects = rcParams['path.effects']
+        self._dirty = True
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -210,8 +219,32 @@ class Artist(object):
                              "probably trying to re-use an artist "
                              "in more than one Axes which is not "
                              "supported")
+
         self._axes = new_axes
+        if new_axes is not None and new_axes is not self:
+            self.add_callback(_dirty_axes_callback)
+
         return new_axes
+
+    @property
+    def dirty(self):
+        """
+        If the artist is 'dirty' and needs to be re-drawn for the output to
+        match the internal state of the artist.
+        """
+        return self._dirty
+
+    @dirty.setter
+    def dirty(self, val):
+        # only trigger call-back stack on being marked as 'dirty'
+        # when not already dirty
+        # the draw process will take care of propagating the cleaning
+        # process
+        if not (self._dirty == val):
+            self._dirty = val
+            # only trigger propagation if marking as dirty
+            if self._dirty:
+                self.pchanged()
 
     def get_window_extent(self, renderer):
         """
@@ -572,6 +605,7 @@ class Artist(object):
         ACCEPTS: a :class:`matplotlib.figure.Figure` instance
         """
         self.figure = fig
+        self.add_callback(_dirty_figure_callback)
         self.pchanged()
 
     def set_clip_box(self, clipbox):
@@ -728,6 +762,7 @@ class Artist(object):
         'Derived classes drawing method'
         if not self.get_visible():
             return
+        self._dirty = False
 
     def set_alpha(self, alpha):
         """
