@@ -881,6 +881,13 @@ class _AxesBase(martist.Artist):
         else:
             self.yaxis._set_scale('linear')
 
+        # update the minor locator for x and y axis based on rcParams
+        if (rcParams['xtick.minor.visible']):
+            self.xaxis.set_minor_locator(mticker.AutoMinorLocator())
+
+        if (rcParams['ytick.minor.visible']):
+            self.yaxis.set_minor_locator(mticker.AutoMinorLocator())
+
         self._autoscaleXon = True
         self._autoscaleYon = True
         self._xmargin = rcParams['axes.xmargin']
