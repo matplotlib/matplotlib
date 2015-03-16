@@ -860,18 +860,16 @@ def _check_input(opens, closes, highs, lows, miss=-1):
         """
         return np.where(np.array(sequence) == miss)[0]
 
-    same_length = (len(opens) == len(highs)) and (len(opens) == len(lows)) and\
-                  (len(opens) == len(closes))
+    same_length = len(opens) == len(highs) == len(lows) == len(closes)
     _missopens = _missing(opens)
-    same_missing = (_missopens == _missing(highs)).all() and (_missopens ==
-        _missing(lows)).all() and (_missopens == _missing(closes)).all()
+    same_missing = ((_missopens == _missing(highs)).all() and
+                    (_missopens == _missing(lows)).all() and 
+                    (_missopens == _missing(closes)).all())
 
     if not (same_length and same_missing):
-        msg = """
-        *opens*, *highs*, *lows* and *closes* must have the same length.
-        NOTE: this code assumes if any value open, high, low, close is
-        missing (*-1*) they all must be missing
-        """
+        msg = ("*opens*, *highs*, *lows* and *closes* must have the same"
+               " length. NOTE: this code assumes if any value open, high,"
+               "low, close is missing (*-1*) they all must be missing.")
         raise ValueError(msg)
 
 
