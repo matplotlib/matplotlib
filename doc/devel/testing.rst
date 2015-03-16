@@ -140,14 +140,14 @@ The :func:`~matplotlib.testing.decorators.image_comparison` decorator
 defaults to generating ``png``, ``pdf`` and ``svg`` output, but in
 interest of keeping the size of the library from ballooning we should only
 include the ``svg`` or ``pdf`` outputs if the test is explicitly exercising
-a feature that this backend dependent.
+a feature dependent on that backend.
 
 There are two optional keyword arguments to the `image_comparison`
 decorator:
 
    - `extensions`: If you only wish to test additional image formats
      (rather than just `png`), pass any additional file types in the
-     list list of the extensions to test.  When copying the new
+     list of the extensions to test.  When copying the new
      baseline files be sure to only copy the output files, not their
      conversions to ``png``.  For example only copy the files
      ending in ``pdf``, not in ``_pdf.png``.
