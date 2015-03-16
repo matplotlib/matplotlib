@@ -1029,6 +1029,7 @@ class Figure(Artist):
         Render the figure using :class:`matplotlib.backend_bases.RendererBase`
         instance *renderer*.
         """
+
         # draw the figure bounding box, perhaps none for white figure
         if not self.get_visible():
             return
@@ -1105,11 +1106,12 @@ class Figure(Artist):
         dsu.sort(key=itemgetter(0))
         for zorder, a, func, args in dsu:
             func(*args)
+            a.dirty = False
 
         renderer.close_group('figure')
 
         self._cachedRenderer = renderer
-
+        self.dirty = False
         self.canvas.draw_event(renderer)
 
     def draw_artist(self, a):

@@ -147,6 +147,7 @@ class Gcf(object):
         """
         for f_mgr in cls.get_all_fig_managers():
             # TODO add logic to check if figure is dirty
-            f_mgr.canvas.draw()
+            if f_mgr.canvas.figure.dirty:
+                f_mgr.canvas.draw()
 
 atexit.register(Gcf.destroy_all)
