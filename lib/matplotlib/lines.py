@@ -676,6 +676,7 @@ class Line2D(Artist):
         Artist.set_transform(self, t)
         self._invalidx = True
         self._invalidy = True
+        self.dirty = True
 
     def _is_sorted(self, x):
         """return true if x is sorted"""
@@ -1044,6 +1045,7 @@ class Line2D(Artist):
 
         """
         self._marker.set_marker(marker)
+        self.dirty = True
 
     def set_markeredgecolor(self, ec):
         """
