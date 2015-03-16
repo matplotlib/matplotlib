@@ -461,8 +461,7 @@ def gcf():
         return figure()
 
 def fignum_exists(num):
-    allLabels = get_figlabels()
-    return _pylab_helpers.Gcf.has_fignum(num) or num in allLabels 
+    return _pylab_helpers.Gcf.has_fignum(num) or num in get_figlabels()
 
 
 def get_fignums():
