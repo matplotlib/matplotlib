@@ -140,14 +140,14 @@ class Gcf(object):
         cls.figs[manager.num] = manager
 
     @classmethod
-    def draw_all(cls):
+    def draw_all(cls, force=False):
         """
         Redraw all figures registered with the pyplot
         state machine.
         """
         for f_mgr in cls.get_all_fig_managers():
             # TODO add logic to check if figure is dirty
-            if f_mgr.canvas.figure.dirty:
+            if force or f_mgr.canvas.figure.dirty:
                 f_mgr.canvas.draw()
 
 atexit.register(Gcf.destroy_all)
