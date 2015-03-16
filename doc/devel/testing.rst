@@ -18,10 +18,20 @@ The following software is required to run the tests:
 
   - nose_, version 1.0 or later
 
+  - `mock <http://www.voidspace.org.uk/python/mock/>`_, when running python
+    versions < 3.3
+
   - `Ghostscript <http://pages.cs.wisc.edu/~ghost/>`_ (to render PDF
     files)
 
   - `Inkscape <http://inkscape.org>`_ (to render SVG files)
+
+Optionally you can install:
+
+  - `coverage <http://nedbatchelder.com/code/coverage/>`_ to collect coverage
+    information
+
+  - `pep8 <http://pep8.readthedocs.org/en/latest>`_ to test coding standards
 
 Running the tests
 -----------------
@@ -34,6 +44,13 @@ The script can take any of the usual `nosetest arguments`_, such as
 ``-v``               increase verbosity
 ``-d``               detailed error messages
 ``--with-coverage``  enable collecting coverage information
+===================  ===========
+
+Additionally it is possible to run only coding standard test or disable them:
+
+===================  ===========
+``--pep8``           run only PEP8 checks
+``--no-pep8``        disable PEP8 checks
 ===================  ===========
 
 To run a single test from the command line, you can provide a
