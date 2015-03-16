@@ -953,14 +953,20 @@ void quad2cubic(double x0, double y0,
     outy[2] = y2;
 }
 
-char *__append_to_string(char *p, char *buffer, size_t buffersize,
+char *__append_to_string(char *p, char **buffer, size_t *buffersize,
                          const char *content)
 {
-    int buffersize_int = (int)buffersize;
+    int buffersize_int = (int)*buffersize;
 
     for (const char *i = content; *i; ++i) {
-        if (p < buffer || p - buffer >= buffersize_int) {
-            return NULL;
+        if (p < *buffer || p - *buffer >= buffersize_int) {
+            int diff = p - *buffer;
+            *buffersize *= 2;
+            *buffer = (char *)realloc(*buffer, *buffersize);
+            if (*buffer == NULL) {
+                return NULL;
+            }
+            p = *buffer + diff;
         }
 
         *p++ = *i;
@@ -974,7 +980,7 @@ int __convert_to_string(PathIterator &path,
                         int precision,
                         char **codes,
                         bool postfix,
-                        char *buffer,
+                        char **buffer,
                         size_t *buffersize)
 {
 #if PY_VERSION_HEX < 0x02070000
@@ -982,7 +988,7 @@ int __convert_to_string(PathIterator &path,
     snprintf(format, 64, "%s.%dg", "%", precision);
 #endif
 
-    char *p = buffer;
+    char *p = *buffer;
     double x[3];
     double y[3];
     double last_x = 0.0;
@@ -994,7 +1000,7 @@ int __convert_to_string(PathIterator &path,
 
     while ((code = path.vertex(&x[0], &y[0])) != agg::path_cmd_stop) {
         if (code == 0x4f) {
-            if ((p = __append_to_string(p, buffer, *buffersize, codes[4])) == NULL) return 1;
+            if ((p = __append_to_string(p, buffer, buffersize, codes[4])) == NULL) return 1;
         } else if (code < 5) {
             size = sizes[code - 1];
 
@@ -1014,40 +1020,40 @@ int __convert_to_string(PathIterator &path,
             }
 
             if (!postfix) {
-                if ((p = __append_to_string(p, buffer, *buffersize, codes[code - 1])) == NULL) return 1;
-                if ((p = __append_to_string(p, buffer, *buffersize, " ")) == NULL) return 1;
+                if ((p = __append_to_string(p, buffer, buffersize, codes[code - 1])) == NULL) return 1;
+                if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
             }
 
             for (int i = 0; i < size; ++i) {
 #if PY_VERSION_HEX >= 0x02070000
                 char *str;
                 str = PyOS_double_to_string(x[i], 'g', precision, 0, NULL);
-                if ((p = __append_to_string(p, buffer, *buffersize, str)) == NULL) {
+                if ((p = __append_to_string(p, buffer, buffersize, str)) == NULL) {
                     PyMem_Free(str);
                     return 1;
                 }
                 PyMem_Free(str);
-                if ((p = __append_to_string(p, buffer, *buffersize, " ")) == NULL) return 1;
+                if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
                 str = PyOS_double_to_string(y[i], 'g', precision, 0, NULL);
-                if ((p = __append_to_string(p, buffer, *buffersize, str)) == NULL) {
+                if ((p = __append_to_string(p, buffer, buffersize, str)) == NULL) {
                     PyMem_Free(str);
                     return 1;
                 }
                 PyMem_Free(str);
-                if ((p = __append_to_string(p, buffer, *buffersize, " ")) == NULL) return 1;
+                if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
 #else
                 char str[64];
                 PyOS_ascii_formatd(str, 64, format, x[i]);
-                if ((p = __append_to_string(p, buffer, *buffersize, str)) == NULL) return 1;
-                p = __append_to_string(p, buffer, *buffersize, " ");
+                if ((p = __append_to_string(p, buffer, buffersize, str)) == NULL) return 1;
+                if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
                 PyOS_ascii_formatd(str, 64, format, y[i]);
-                if ((p = __append_to_string(p, buffer, *buffersize, str)) == NULL) return 1;
-                if ((p = __append_to_string(p, buffer, *buffersize, " ")) == NULL) return 1;
+                if ((p = __append_to_string(p, buffer, buffersize, str)) == NULL) return 1;
+                if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
 #endif
             }
 
             if (postfix) {
-                if ((p = __append_to_string(p, buffer, *buffersize, codes[code - 1])) == NULL) return 1;
+                if ((p = __append_to_string(p, buffer, buffersize, codes[code - 1])) == NULL) return 1;
             }
 
             last_x = x[size - 1];
@@ -1057,10 +1063,10 @@ int __convert_to_string(PathIterator &path,
             return 2;
         }
 
-        if ((p = __append_to_string(p, buffer, *buffersize, "\n")) == NULL) return 1;
+        if ((p = __append_to_string(p, buffer, buffersize, "\n")) == NULL) return 1;
     }
 
-    *buffersize = p - buffer;
+    *buffersize = p - *buffer;
 
     return 0;
 }
@@ -1074,7 +1080,7 @@ int convert_to_string(PathIterator &path,
                       int precision,
                       char **codes,
                       bool postfix,
-                      char *buffer,
+                      char **buffer,
                       size_t *buffersize)
 {
     typedef agg::conv_transform<py::PathIterator> transformed_path_t;
@@ -1090,6 +1096,21 @@ int convert_to_string(PathIterator &path,
     nan_removal_t nan_removed(tpath, true, path.has_curves());
     clipped_t clipped(nan_removed, do_clip, clip_rect);
     simplify_t simplified(clipped, simplify, path.simplify_threshold());
+
+    *buffersize = path.total_vertices() * (precision + 5) * 4;
+    if (*buffersize == 0) {
+        *buffer = NULL;
+        return 0;
+    }
+
+    if (sketch_params.scale != 0.0) {
+        *buffersize *= 10.0;
+    }
+
+    *buffer = (char *)malloc(*buffersize);
+    if (*buffer == NULL) {
+        return 1;
+    }
 
     if (sketch_params.scale == 0.0) {
         return __convert_to_string(simplified, precision, codes, postfix, buffer, buffersize);
