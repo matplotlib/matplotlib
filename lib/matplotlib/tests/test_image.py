@@ -170,7 +170,7 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    assert im.get_pixel_data(event) == 44
+    assert im.get_cursor_data(event) == 44
 
     ax.clear()
     im = ax.imshow(np.arange(100).reshape(10, 10), origin='lower')
@@ -179,7 +179,7 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    assert im.get_pixel_data(event) == 44
+    assert im.get_cursor_data(event) == 44
 
     fig, ax = plt.subplots()
     im = ax.imshow(np.arange(100).reshape(10, 10), extent=[0, 0.5, 0, 0.5])
@@ -188,7 +188,7 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    assert im.get_pixel_data(event) == 55
+    assert im.get_cursor_data(event) == 55
 
 
 @image_comparison(baseline_images=['image_clip'])
