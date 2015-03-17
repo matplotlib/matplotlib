@@ -540,13 +540,14 @@ class RendererSVG(RendererBase):
         else:
             return not rcParams['image.composite_image']
 
-    def _convert_path(self, path, transform=None, clip=None, simplify=None):
+    def _convert_path(self, path, transform=None, clip=None, simplify=None,
+                      sketch=None):
         if clip:
             clip = (0.0, 0.0, self.width, self.height)
         else:
             clip = None
         return _path.convert_to_string(
-            path, transform, clip, simplify, None, 6,
+            path, transform, clip, simplify, sketch, 6,
             [b'M', b'L', b'Q', b'C', b'z'], False).decode('ascii')
 
     def draw_path(self, gc, path, transform, rgbFace=None):
@@ -554,7 +555,8 @@ class RendererSVG(RendererBase):
         clip = (rgbFace is None and gc.get_hatch_path() is None)
         simplify = path.should_simplify and clip
         path_data = self._convert_path(
-            path, trans_and_flip, clip=clip, simplify=simplify)
+            path, trans_and_flip, clip=clip, simplify=simplify,
+            sketch=gc.get_sketch_params())
 
         attrib = {}
         attrib['style'] = self._get_style(gc, rgbFace)

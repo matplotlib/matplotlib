@@ -628,6 +628,8 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     PyObject *codesobj;
     char *codes[5];
     int postfix;
+    char *buffer;
+    size_t buffersize;
     int status;
 
     if (!PyArg_ParseTuple(args,
@@ -673,38 +675,27 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
         }
     }
 
-    size_t buffersize = path.total_vertices() * (precision + 5) * 4;
-    if (buffersize == 0) {
-        return PyBytes_FromString("");
-    }
-
-    PyObject *bufferobj = PyBytes_FromStringAndSize(NULL, buffersize);
-    if (bufferobj == NULL) {
-        return NULL;
-    }
-    char *buffer = PyBytes_AsString(bufferobj);
-
     CALL_CPP("convert_to_string",
              (status = convert_to_string(
                  path, trans, cliprect, simplify, sketch,
-                 precision, codes, (bool)postfix, buffer,
+                 precision, codes, (bool)postfix, &buffer,
                  &buffersize)));
 
     if (status) {
-        Py_DECREF(bufferobj);
+        free(buffer);
         if (status == 1) {
-            PyErr_SetString(PyExc_MemoryError, "Buffer overflow");
+            PyErr_SetString(PyExc_MemoryError, "Memory error");
         } else if (status == 2) {
             PyErr_SetString(PyExc_ValueError, "Malformed path codes");
         }
         return NULL;
     }
 
-    if (_PyBytes_Resize(&bufferobj, buffersize)) {
-        return NULL;
+    if (buffersize == 0) {
+        return PyBytes_FromString("");
+    } else {
+        return PyBytes_FromStringAndSize(buffer, buffersize);
     }
-
-    return bufferobj;
 }
 
 extern "C" {
