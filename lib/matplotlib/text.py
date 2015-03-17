@@ -741,7 +741,8 @@ class Text(Artist):
             # position in Text, and dash position in TextWithDash:
             posx = float(textobj.convert_xunits(textobj._x))
             posy = float(textobj.convert_yunits(textobj._y))
-
+            if not np.isfinite(posx) or not np.isfinite(posy):
+                raise ValueError("posx and posy should be finite values")
             posx, posy = trans.transform_point((posx, posy))
             canvasw, canvash = renderer.get_canvas_width_height()
 
@@ -760,8 +761,6 @@ class Text(Artist):
             angle = textobj.get_rotation()
 
             for line, wh, x, y in info:
-                if not np.isfinite(x) or not np.isfinite(y):
-                    continue
 
                 mtext = textobj if len(info) == 1 else None
                 x = x + posx
