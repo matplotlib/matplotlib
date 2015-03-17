@@ -1,7 +1,17 @@
+from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.backend_bases import RendererBase
+from matplotlib.testing.decorators import image_comparison, cleanup
+
+import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
 import matplotlib.path as path
+
+from nose.tools import assert_equal
+
 import numpy as np
+import os
+import shutil
+import tempfile
 
 
 def test_uses_per_path():
@@ -43,3 +53,38 @@ def test_uses_per_path():
     check(id, paths, tforms, offsets, facecolors, [])
     check(id, paths, tforms, offsets, [], [])
     check(id, paths, tforms, offsets, facecolors[0:1], edgecolors)
+
+
+@cleanup
+def test_get_default_filename():
+    try:
+        test_dir = tempfile.mkdtemp()
+        plt.rcParams['savefig.directory'] = test_dir
+        fig = plt.figure()
+        canvas = FigureCanvasBase(fig)
+        filename = canvas.get_default_filename()
+        assert_equal(filename, 'image.png')
+    finally:
+        shutil.rmtree(test_dir)
+
+
+@cleanup
+def test_get_default_filename_already_exists():
+    # From #3068: Suggest non-existing default filename
+    try:
+        test_dir = tempfile.mkdtemp()
+        plt.rcParams['savefig.directory'] = test_dir
+        fig = plt.figure()
+        canvas = FigureCanvasBase(fig)
+
+        # create 'image.png' in figure's save dir
+        open(os.path.join(test_dir, 'image.png'), 'w').close()
+
+        filename = canvas.get_default_filename()
+        assert_equal(filename, 'image-1.png')
+    finally:
+        shutil.rmtree(test_dir)
+
+if __name__ == "__main__":
+    import nose
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
