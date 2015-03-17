@@ -115,7 +115,7 @@ class TransformNode(object):
     def __setstate__(self, data_dict):
         self.__dict__ = data_dict
         # turn the normal dictionary back into a WeakValueDictionary
-        self._parents = WeakValueDictionary(self._parents)
+        self._parents = WeakValueDictionary(self.__dict__['_parents'])
 
     def __copy__(self, *args):
         raise NotImplementedError(
