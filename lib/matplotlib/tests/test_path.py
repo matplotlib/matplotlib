@@ -89,6 +89,16 @@ def test_make_compound_path_empty():
     assert_equal(r.vertices.shape, (0, 2))
 
 
+@image_comparison(baseline_images=['xkcd'], remove_text=True)
+def test_xkcd():
+    x = np.linspace(0, 2.0 * np.pi, 100.0)
+    y = np.sin(x)
+
+    with plt.xkcd():
+        fig, ax = plt.subplots()
+        ax.plot(x, y)
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
