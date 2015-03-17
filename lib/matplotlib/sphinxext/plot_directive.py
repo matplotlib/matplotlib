@@ -103,7 +103,9 @@ The plot directive has the following configuration options:
             [(suffix, dpi), suffix, ...]
 
         that determine the file format and the DPI. For entries whose
-        DPI was omitted, sensible defaults are chosen.
+        DPI was omitted, sensible defaults are chosen. When passing from
+        the command line through sphinx_build the list should be passed as
+        suffix:dpi,suffix:dpi, ....
 
     plot_html_show_formats
         Whether to show links to the files in HTML.
@@ -539,10 +541,17 @@ def render_figures(code, code_path, output_dir, output_base, context,
     formats = []
     plot_formats = config.plot_formats
     if isinstance(plot_formats, six.string_types):
-        plot_formats = eval(plot_formats)
+        # String Sphinx < 1.3, Split on , to mimic
+        # Sphinx 1.3 and later. Sphinx 1.3 always
+        # returns a list.
+        plot_formats = plot_formats.split(',')
     for fmt in plot_formats:
         if isinstance(fmt, six.string_types):
-            formats.append((fmt, default_dpi.get(fmt, 80)))
+            if ':' in fmt:
+                suffix,dpi = fmt.split(':')
+                formats.append((str(suffix), int(dpi)))
+            else:
+                formats.append((fmt, default_dpi.get(fmt, 80)))
         elif type(fmt) in (tuple, list) and len(fmt)==2:
             formats.append((str(fmt[0]), int(fmt[1])))
         else:
