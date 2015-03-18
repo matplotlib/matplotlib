@@ -145,19 +145,29 @@ class Cell(Rectangle):
         'update the text properties with kwargs'
         self._text.update(kwargs)
 
+
 class SciCell(Cell):
-    
+    """
+    A SciCell is a Cell, but it only draws the horizontal lines of the Cell
+
+    """
+
+    def __init__(self, *args, **kwargs):
+
+        # Call base
+        Cell.__init__(self, *args, **kwargs)
+
     @allow_rasterization
     def draw(self, renderer):
         if not self.get_visible():
             return
-        
+
         bbox = Rectangle.get_bbox(self)
         x, y, w, h = bbox.bounds
 
-        topLineVertices = [[x, y],[x + w, y]]
-        botLineVertices = [[x, y + h],[x + w, y + h]]
-        
+        topLineVertices = [[x, y], [x + w, y]]
+        botLineVertices = [[x, y + h], [x + w, y + h]]
+
         topLine = Polygon(topLineVertices)
         botLine = Polygon(botLineVertices)
 
@@ -170,6 +180,7 @@ class SciCell(Cell):
         # position the text
         self._set_text_position(renderer)
         self._text.draw(renderer)
+
 
 class Table(Artist):
     """
@@ -492,7 +503,7 @@ class Table(Artist):
 
         else:
             raise ValueError('Unrecognized cell type %s; '
-                'try default or scicell' % cellType)
+                'Has to be default or scicell' % cellType)
 
 
 def table(ax,
@@ -573,7 +584,7 @@ def table(ax,
     # Now create the table
     table = Table(ax, loc, bbox, **kwargs)
     height = table._approx_text_height()
-    
+
     if cellType is not None:
         table.set_cell_type(cellType)
 
