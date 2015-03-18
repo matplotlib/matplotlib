@@ -29,7 +29,7 @@ import warnings
 
 from . import artist
 from .artist import Artist, allow_rasterization
-from .patches import Rectangle
+from .patches import Rectangle, Polygon
 from .cbook import is_string_like
 from matplotlib import docstring
 from .text import Text
@@ -145,6 +145,31 @@ class Cell(Rectangle):
         'update the text properties with kwargs'
         self._text.update(kwargs)
 
+class SciCell(Cell):
+    
+    @allow_rasterization
+    def draw(self, renderer):
+        if not self.get_visible():
+            return
+        
+        bbox = Rectangle.get_bbox(self)
+        x, y, w, h = bbox.bounds
+
+        topLineVertices = [[x, y],[x + w, y]]
+        botLineVertices = [[x, y + h],[x + w, y + h]]
+        
+        topLine = Polygon(topLineVertices)
+        botLine = Polygon(botLineVertices)
+
+        topLine.update_from(self)
+        botLine.update_from(self)
+
+        topLine.draw(renderer)
+        botLine.draw(renderer)
+
+        # position the text
+        self._set_text_position(renderer)
+        self._text.draw(renderer)
 
 class Table(Artist):
     """
@@ -211,12 +236,17 @@ class Table(Artist):
         self.set_clip_on(False)
 
         self._cachedRenderer = None
+        self._cellType = 'default'
 
     def add_cell(self, row, col, *args, **kwargs):
         """ Add a cell to the table. """
         xy = (0, 0)
 
-        cell = Cell(xy, *args, **kwargs)
+        if self._cellType == 'default':
+            cell = Cell(xy, *args, **kwargs)
+        else:
+            cell = SciCell(xy, *args, **kwargs)
+
         cell.set_figure(self.figure)
         cell.set_transform(self.get_transform())
 
@@ -453,16 +483,27 @@ class Table(Artist):
         'return a dict of cells in the table'
         return self._cells
 
+    def get_cell_type(self):
+        return self._cellType
+
+    def set_cell_type(self, cellType):
+        if cellType in ('default', 'scicell'):
+            self._cellType = cellType
+
+        else:
+            raise ValueError('Unrecognized cell type %s; '
+                'try default or scicell' % cellType)
+
 
 def table(ax,
-    cellText=None, cellColours=None,
+    cellType=None, cellText=None, cellColours=None,
     cellLoc='right', colWidths=None,
     rowLabels=None, rowColours=None, rowLoc='left',
     colLabels=None, colColours=None, colLoc='center',
     loc='bottom', bbox=None,
     **kwargs):
     """
-    TABLE(cellText=None, cellColours=None,
+    TABLE(cellType='default', cellText=None, cellColours=None,
           cellLoc='right', colWidths=None,
           rowLabels=None, rowColours=None, rowLoc='left',
           colLabels=None, colColours=None, colLoc='center',
@@ -472,6 +513,9 @@ def table(ax,
 
     Thanks to John Gill for providing the class and table.
     """
+    if cellType is not None:
+        assert cellType in ('default', 'scicell')
+
     # Check we have some cellText
     if cellText is None:
         # assume just colours are needed
@@ -529,6 +573,9 @@ def table(ax,
     # Now create the table
     table = Table(ax, loc, bbox, **kwargs)
     height = table._approx_text_height()
+    
+    if cellType is not None:
+        table.set_cell_type(cellType)
 
     # Add the cells
     for row in xrange(rows):
