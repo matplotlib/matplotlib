@@ -6,11 +6,11 @@ Default Color changes
 
 As discussed at length elsewhere [insert links], ``jet`` is an
 empirically bad color map and should not be the default color map.
-Due to the position that changing the appearance of plot is a back
-compatibility breaking change, this change has been put off for far
-longer than it should have been.  In addition to changing the default
-color map we plan to take the chance to change the default color-cycle
-on plots and to adopt a different color map for filled plots (``imshow``,
+Due to the position that changing the appearance of the plot breaks
+backward compatibility, this change has been put off for far longer
+than it should have been.  In addition to changing the default color
+map we plan to take the chance to change the default color-cycle on
+plots and to adopt a different color map for filled plots (``imshow``,
 ``pcolor``, ``contourf``, etc) and for scatter like plots.
 
 
