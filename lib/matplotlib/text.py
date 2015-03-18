@@ -628,14 +628,14 @@ class Text(Artist):
 
         for line, wh, x, y in info:
             mtext = self if len(info) == 1 else None
-            
+
             x = x + posx
             y = y + posy
             if renderer.flipy():
                 y = canvash - y
             if not np.isfinite(x) or not np.isfinite(y):
                 continue
-                
+
             clean_line, ismath = self.is_math_text(line)
 
             if self.get_path_effects():
