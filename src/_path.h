@@ -989,7 +989,7 @@ int __convert_to_string(PathIterator &path,
 {
 #if PY_VERSION_HEX < 0x02070000
     char format[64];
-    snprintf(format, 64, "%s.%dg", "%", precision);
+    snprintf(format, 64, "%s.%df", "%", precision);
 #endif
 
     char *p = *buffer;
@@ -1031,14 +1031,14 @@ int __convert_to_string(PathIterator &path,
             for (int i = 0; i < size; ++i) {
 #if PY_VERSION_HEX >= 0x02070000
                 char *str;
-                str = PyOS_double_to_string(x[i], 'g', precision, 0, NULL);
+                str = PyOS_double_to_string(x[i], 'f', precision, 0, NULL);
                 if ((p = __append_to_string(p, buffer, buffersize, str)) == NULL) {
                     PyMem_Free(str);
                     return 1;
                 }
                 PyMem_Free(str);
                 if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
-                str = PyOS_double_to_string(y[i], 'g', precision, 0, NULL);
+                str = PyOS_double_to_string(y[i], 'f', precision, 0, NULL);
                 if ((p = __append_to_string(p, buffer, buffersize, str)) == NULL) {
                     PyMem_Free(str);
                     return 1;

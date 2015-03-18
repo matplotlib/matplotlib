@@ -99,6 +99,18 @@ def test_xkcd():
         ax.plot(x, y)
 
 
+@image_comparison(baseline_images=['marker_paths'], extensions=['pdf'],
+                  remove_text=True)
+def test_marker_paths_pdf():
+    N = 7
+
+    plt.errorbar(np.arange(N),
+                 np.ones(N) + 4,
+                 np.ones(N))
+    plt.xlim(-1, N)
+    plt.ylim(-1, 7)
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
