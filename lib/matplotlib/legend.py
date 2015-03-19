@@ -253,12 +253,14 @@ class Legend(Artist):
                 Line2D: legend_handler.HandlerLine2D(),
                 Patch: legend_handler.HandlerPatch(),
                 LineCollection: legend_handler.HandlerLineCollection(),
-                RegularPolyCollection: legend_handler.HandlerRegularPolyCollection(),
+                RegularPolyCollection:
+                    legend_handler.HandlerRegularPolyCollection(),
                 CircleCollection: legend_handler.HandlerCircleCollection(),
                 BarContainer: legend_handler.HandlerPatch(
                     update_func=legend_handler.update_from_first_child),
                 tuple: legend_handler.HandlerTuple(),
-                PathCollection: legend_handler.HandlerPathCollection(sizes=[uniform_size]),
+                PathCollection:
+                    legend_handler.HandlerPathCollection(sizes=[uniform_size]),
                 PolyCollection: legend_handler.HandlerPolyCollection()
                 }
             self.update_default_handler_map(uniform_handler_map)
@@ -1011,3 +1013,4 @@ class Legend(Artist):
             self._draggable = None
 
         return self._draggable
+
