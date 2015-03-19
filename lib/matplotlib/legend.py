@@ -185,6 +185,7 @@ class Legend(Artist):
                  bbox_transform=None,  # transform for the bbox
                  frameon=None,  # draw frame
                  handler_map=None,
+                 uniform_size=None,  # set legend points to be a uniform size
                  ):
         """
         - *parent*: the artist that contains the legend
@@ -244,6 +245,23 @@ class Legend(Artist):
         from matplotlib.figure import Figure
 
         Artist.__init__(self)
+
+        if uniform_size is not None:
+            uniform_handler_map = {
+                StemContainer: legend_handler.HandlerStem(),
+                ErrorbarContainer: legend_handler.HandlerErrorbar(),
+                Line2D: legend_handler.HandlerLine2D(),
+                Patch: legend_handler.HandlerPatch(),
+                LineCollection: legend_handler.HandlerLineCollection(),
+                RegularPolyCollection: legend_handler.HandlerRegularPolyCollection(),
+                CircleCollection: legend_handler.HandlerCircleCollection(),
+                BarContainer: legend_handler.HandlerPatch(
+                    update_func=legend_handler.update_from_first_child),
+                tuple: legend_handler.HandlerTuple(),
+                PathCollection: legend_handler.HandlerPathCollection(sizes=[uniform_size]),
+                PolyCollection: legend_handler.HandlerPolyCollection()
+                }
+            self.update_default_handler_map(uniform_handler_map)
 
         if prop is None:
             if fontsize is not None:
