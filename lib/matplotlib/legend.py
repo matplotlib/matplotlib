@@ -1013,4 +1013,3 @@ class Legend(Artist):
             self._draggable = None
 
         return self._draggable
-
