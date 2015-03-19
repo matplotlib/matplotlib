@@ -478,7 +478,7 @@ class RendererPgf(RendererBase):
         # draw the path
         self._print_pgf_clip(gc)
         self._print_pgf_path_styles(gc, rgbFace)
-        self._print_pgf_path(gc, path, transform)
+        self._print_pgf_path(gc, path, transform, rgbFace)
         self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0,
                             fill=rgbFace is not None)
         writeln(self.fh, r"\end{pgfscope}")
@@ -584,11 +584,11 @@ class RendererPgf(RendererBase):
             dash_str += r"}{%fpt}" % dash_offset
             writeln(self.fh, dash_str)
 
-    def _print_pgf_path(self, gc, path, transform):
+    def _print_pgf_path(self, gc, path, transform, rgbFace=None):
         f = 1. / self.dpi
-        # check for clip box
+        # check for clip box / ignore clip for filled paths
         bbox = gc.get_clip_rectangle() if gc else None
-        if bbox:
+        if bbox and (rgbFace is None):
             p1, p2 = bbox.get_points()
             clip = (p1[0], p1[1], p2[0], p2[1])
         else:
