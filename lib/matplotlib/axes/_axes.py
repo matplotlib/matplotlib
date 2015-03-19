@@ -3846,8 +3846,8 @@ class Axes(_AxesBase):
         if extent is not None:
             xmin, xmax, ymin, ymax = extent
         else:
-            xmin, xmax = (np.amin(x), np.amax(x)) if x.any() else (0, 1)
-            ymin, ymax = (np.amin(y), np.amax(y)) if y.any() else (0, 1)
+            xmin, xmax = (np.amin(x), np.amax(x)) if len(x) else (0, 1)
+            ymin, ymax = (np.amin(y), np.amax(y)) if len(y) else (0, 1)
 
             # to avoid issues with singular data, expand the min/max pairs
             xmin, xmax = mtrans.nonsingular(xmin, xmax, expander=0.1)
@@ -5641,9 +5641,7 @@ class Axes(_AxesBase):
 
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:
-            if input_empty:
-                w = np.array([])
-            elif isinstance(weights, np.ndarray) or not iterable(weights[0]):
+            if isinstance(weights, np.ndarray) or not iterable(weights[0]):
                 w = np.array(weights)
                 if w.ndim == 2:
                     w = w.T
@@ -5669,7 +5667,7 @@ class Axes(_AxesBase):
         # If bins are not specified either explicitly or via range,
         # we need to figure out the range required for all datasets,
         # and supply that to np.histogram.
-        if not binsgiven:
+        if not binsgiven and not input_empty:
             xmin = np.inf
             xmax = -np.inf
             for xi in x:
@@ -5681,7 +5679,7 @@ class Axes(_AxesBase):
         #hist_kwargs = dict(range=range, normed=bool(normed))
         # We will handle the normed kwarg within mpl until we
         # get to the point of requiring numpy >= 1.5.
-        hist_kwargs = dict(range=bin_range) if not input_empty else dict()
+        hist_kwargs = dict(range=bin_range)
 
         n = []
         mlast = None
