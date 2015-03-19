@@ -1,10 +1,3 @@
-.. contents:: Table of Contents
-
-.. author:: Michael Droettboom
-
-.. date:: August 3, 2012
-
-
 MEP Template
 ============
 
