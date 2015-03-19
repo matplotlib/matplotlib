@@ -246,14 +246,14 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         # event to the window containing the canvas instead.
         # See http://wiki.tcl.tk/3893 (mousewheel) for details
         root = self._tkcanvas.winfo_toplevel()
-        root.bind("<MouseWheel>", self.scroll_event_windows)
+        root.bind("<MouseWheel>", self.scroll_event_windows, "+")
 
         # Can't get destroy events by binding to _tkcanvas. Therefore, bind
         # to the window and filter.
         def filter_destroy(evt):
             if evt.widget is self._tkcanvas:
                 self.close_event()
-        root.bind("<Destroy>", filter_destroy)
+        root.bind("<Destroy>", filter_destroy, "+")
 
         self._master = master
         self._tkcanvas.focus_set()
