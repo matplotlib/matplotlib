@@ -1,8 +1,3 @@
-.. contents:: Table of Contents
-
-.. author:: Andrew Seier
-
-.. date:: July 11, 2014
 
 MEP25: Serialization
 ====================
