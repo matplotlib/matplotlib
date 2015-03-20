@@ -1101,9 +1101,8 @@ class MultiCursor(Widget):
                     ax.draw_artist(line)
             self.canvas.blit(self.canvas.figure.bbox)
         else:
-
             self.canvas.draw_idle()
-            
+
 
 class _SelectorWidget(AxesWidget):
 
