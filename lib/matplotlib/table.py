@@ -243,7 +243,7 @@ class Table(Artist):
 
         self._cachedRenderer = None
         self._cellType = 'default'
-        self._cellCreation = {"default" : Cell, "scicell" : SciCell}
+        self._cellCreation = {"default": Cell, "scicell": SciCell}
 
     def add_cell(self, row, col, *args, **kwargs):
         """ Add a cell to the table. """
@@ -523,7 +523,8 @@ def table(ax,
     Thanks to John Gill for providing the class and table.
     """
     if cellType is not None and cellType not in ('default', 'scicell'):
-            raise ValueError('cellType must be "default" or "scicell" instead of %s ' % cellType)
+            raise ValueError('cellType must be "default" or "scicell" '
+                'instead of %s ' % cellType)
 
     # Check we have some cellText
     if cellText is None:
