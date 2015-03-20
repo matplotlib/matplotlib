@@ -89,7 +89,7 @@ class TriContourSet(ContourSet):
         z = np.asarray(args[0])
         if z.shape != tri.x.shape:
             raise ValueError('z array must have same length as triangulation x'
-                             'and y arrays')
+                             ' and y arrays')
         self.zmax = z.max()
         self.zmin = z.min()
         if self.logscale and self.zmin <= 0:
