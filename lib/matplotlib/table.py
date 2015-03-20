@@ -152,11 +152,6 @@ class SciCell(Cell):
 
     """
 
-    def __init__(self, *args, **kwargs):
-
-        # Call base
-        Cell.__init__(self, *args, **kwargs)
-
     @allow_rasterization
     def draw(self, renderer):
         if not self.get_visible():
@@ -248,15 +243,13 @@ class Table(Artist):
 
         self._cachedRenderer = None
         self._cellType = 'default'
+        self._cellCreation = {"default" : Cell, "scicell" : SciCell}
 
     def add_cell(self, row, col, *args, **kwargs):
         """ Add a cell to the table. """
         xy = (0, 0)
 
-        if self._cellType == 'default':
-            cell = Cell(xy, *args, **kwargs)
-        else:
-            cell = SciCell(xy, *args, **kwargs)
+        cell = self._cellCreation[self._cellType](xy, *args, **kwargs)
 
         cell.set_figure(self.figure)
         cell.set_transform(self.get_transform())
@@ -494,24 +487,29 @@ class Table(Artist):
         'return a dict of cells in the table'
         return self._cells
 
-    def get_cell_type(self):
+    @property
+    def cellType(self):
         return self._cellType
 
-    def set_cell_type(self, cellType):
-        if cellType in ('default', 'scicell'):
+    @cellType.setter
+    def cellType(self, cellType):
+        if cellType is None:
+            self._cellType = 'default'
+
+        elif cellType in ('default', 'scicell'):
             self._cellType = cellType
 
         else:
-            raise ValueError('Unrecognized cell type %s; '
-                'Has to be default or scicell' % cellType)
+            raise ValueError('Unrecognized cellType %s; '
+                'must be "default" or "scicell"' % cellType)
 
 
 def table(ax,
-    cellType=None, cellText=None, cellColours=None,
+    cellText=None, cellColours=None,
     cellLoc='right', colWidths=None,
     rowLabels=None, rowColours=None, rowLoc='left',
     colLabels=None, colColours=None, colLoc='center',
-    loc='bottom', bbox=None,
+    loc='bottom', bbox=None, cellType=None,
     **kwargs):
     """
     TABLE(cellType='default', cellText=None, cellColours=None,
@@ -524,8 +522,8 @@ def table(ax,
 
     Thanks to John Gill for providing the class and table.
     """
-    if cellType is not None:
-        assert cellType in ('default', 'scicell')
+    if cellType is not None and cellType not in ('default', 'scicell'):
+            raise ValueError('cellType must be "default" or "scicell" instead of %s ' % cellType)
 
     # Check we have some cellText
     if cellText is None:
@@ -584,9 +582,7 @@ def table(ax,
     # Now create the table
     table = Table(ax, loc, bbox, **kwargs)
     height = table._approx_text_height()
-
-    if cellType is not None:
-        table.set_cell_type(cellType)
+    table.cellType = cellType
 
     # Add the cells
     for row in xrange(rows):
