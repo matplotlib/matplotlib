@@ -212,6 +212,7 @@ class Table(Artist):
 
     FONTSIZE = 10
     AXESPAD = 0.02    # the border between the axes and table edge
+    AVAILABLECELLTYPES = {"default": 0, "scicell": 1}
 
     def __init__(self, ax, loc=None, bbox=None, **kwargs):
 
@@ -243,13 +244,15 @@ class Table(Artist):
 
         self._cachedRenderer = None
         self._cellType = 'default'
-        self._cellCreation = {"default": Cell, "scicell": SciCell}
 
     def add_cell(self, row, col, *args, **kwargs):
         """ Add a cell to the table. """
         xy = (0, 0)
 
-        cell = self._cellCreation[self._cellType](xy, *args, **kwargs)
+        if self.AVAILABLECELLTYPES[self._cellType] == 1:
+            cell = SciCell(xy, *args, **kwargs)
+        else:
+            cell = Cell(xy, *args, **kwargs)
 
         cell.set_figure(self.figure)
         cell.set_transform(self.get_transform())
@@ -496,10 +499,11 @@ class Table(Artist):
         if cellType is None:
             self._cellType = 'default'
 
-        elif cellType in ('default', 'scicell'):
+        elif cellType in self.AVAILABLECELLTYPES:
             self._cellType = cellType
 
         else:
+
             raise ValueError('Unrecognized cellType %s; '
                 'must be "default" or "scicell"' % cellType)
 
@@ -522,7 +526,7 @@ def table(ax,
 
     Thanks to John Gill for providing the class and table.
     """
-    if cellType is not None and cellType not in ('default', 'scicell'):
+    if cellType is not None and cellType not in Table.AVAILABLECELLTYPES:
             raise ValueError('cellType must be "default" or "scicell" '
                 'instead of %s ' % cellType)
 
