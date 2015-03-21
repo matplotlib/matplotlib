@@ -514,11 +514,13 @@ class Quiver(mcollections.PolyCollection):
         mcollections.PolyCollection.draw(self, renderer)
 
     def set_UVC(self, U, V, C=None):
-        U = ma.masked_invalid(U, copy=False).ravel()
-        V = ma.masked_invalid(V, copy=False).ravel()
+        # We need to ensure we have a copy, not a reference
+        # to an array that might change before draw().
+        U = ma.masked_invalid(U, copy=True).ravel()
+        V = ma.masked_invalid(V, copy=True).ravel()
         mask = ma.mask_or(U.mask, V.mask, copy=False, shrink=True)
         if C is not None:
-            C = ma.masked_invalid(C, copy=False).ravel()
+            C = ma.masked_invalid(C, copy=True).ravel()
             mask = ma.mask_or(mask, C.mask, copy=False, shrink=True)
             if mask is ma.nomask:
                 C = C.filled()
