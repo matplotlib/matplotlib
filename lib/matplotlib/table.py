@@ -34,6 +34,7 @@ from .cbook import is_string_like
 from matplotlib import docstring
 from .text import Text
 from .transforms import Bbox
+from matplotlib.path import Path
 
 
 class Cell(Rectangle):
@@ -144,6 +145,16 @@ class Cell(Rectangle):
     def set_text_props(self, **kwargs):
         'update the text properties with kwargs'
         self._text.update(kwargs)
+
+class ScientificCell(Cell):
+
+    def get_path(self):
+        path = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0],
+                [0.0, 0.0]],
+                [Path.MOVETO, Path.LINETO, Path.MOVETO, Path.LINETO,
+                    Path.CLOSEPOLY],
+                readonly=True)
+        return path
 
 
 class Table(Artist):
@@ -454,12 +465,26 @@ class Table(Artist):
         return self._cells
 
 
+class ScientificTable(Table):
+
+    def add_cell(self, row, col, *args, **kwargs):
+        """ Add a scientific cell to the table. """
+        xy = (0, 0)
+
+        cell = ScientificCell(xy, *args, **kwargs)
+        cell.set_figure(self.figure)
+        cell.set_transform(self.get_transform())
+
+        cell.set_clip_on(False)
+        self._cells[(row, col)] = cell
+
+
 def table(ax,
     cellText=None, cellColours=None,
     cellLoc='right', colWidths=None,
     rowLabels=None, rowColours=None, rowLoc='left',
     colLabels=None, colColours=None, colLoc='center',
-    loc='bottom', bbox=None,
+    loc='bottom', bbox=None, tableType=None,
     **kwargs):
     """
     TABLE(cellText=None, cellColours=None,
@@ -472,6 +497,7 @@ def table(ax,
 
     Thanks to John Gill for providing the class and table.
     """
+
     # Check we have some cellText
     if cellText is None:
         # assume just colours are needed
@@ -527,7 +553,11 @@ def table(ax,
         cellColours = ['w' * cols] * rows
 
     # Now create the table
-    table = Table(ax, loc, bbox, **kwargs)
+    if tableType == "scientific":
+        table = ScientificTable(ax, loc, bbox, **kwargs)
+    else:
+        table = Table(ax, loc, bbox, **kwargs)
+
     height = table._approx_text_height()
 
     # Add the cells
