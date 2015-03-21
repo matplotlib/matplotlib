@@ -7,6 +7,9 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
+from six.moves.urllib.parse import urlparse
+from six.moves.urllib.request import urlopen
+from six import BytesIO
 
 import os
 import warnings
@@ -1225,10 +1228,17 @@ def imread(fname, format=None):
         except ImportError:
             return None
         if cbook.is_string_like(fname):
-            # force close the file after reading the image
-            with open(fname, "rb") as fh:
+            parsed = urlparse(fname)
+            # If the string is a URL, then download the data
+            if parsed.scheme is not '':
+                fh = BytesIO(urlopen(fname).read())
                 image = Image.open(fh)
                 return pil_to_array(image)
+            else:
+                # force close the file after reading the image
+                with open(fname, "rb") as fh:
+                    image = Image.open(fh)
+                    return pil_to_array(image)
         else:
             image = Image.open(fname)
             return pil_to_array(image)
@@ -1236,8 +1246,13 @@ def imread(fname, format=None):
     handlers = {'png': _png.read_png, }
     if format is None:
         if cbook.is_string_like(fname):
-            basename, ext = os.path.splitext(fname)
-            ext = ext.lower()[1:]
+            parsed = urlparse(fname)
+            # If the string is a URL, assume png
+            if parsed.scheme is not '':
+                ext = 'png'
+            else:
+                basename, ext = os.path.splitext(fname)
+                ext = ext.lower()[1:]
         elif hasattr(fname, 'name'):
             basename, ext = os.path.splitext(fname.name)
             ext = ext.lower()[1:]
@@ -1260,8 +1275,14 @@ def imread(fname, format=None):
     # reader extension, since Python handles them quite well, but it's
     # tricky in C.
     if cbook.is_string_like(fname):
-        with open(fname, 'rb') as fd:
+        parsed = urlparse(fname)
+        # If fname is a URL, download the data
+        if parsed.scheme is not '':
+            fd = BytesIO(urlopen(fname).read())
             return handler(fd)
+        else:
+            with open(fname, 'rb') as fd:
+                return handler(fd)
     else:
         return handler(fname)
 
