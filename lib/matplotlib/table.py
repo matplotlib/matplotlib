@@ -147,8 +147,13 @@ class Cell(Rectangle):
         self._text.update(kwargs)
 
 class ScientificCell(Cell):
+    """
+    A subclass of Cell where vertical lines are ommitted.
+
+    """
 
     def get_path(self):
+        'Return a path where vertical lines are not drawn'
         path = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0],
                 [0.0, 0.0]],
                 [Path.MOVETO, Path.LINETO, Path.MOVETO, Path.LINETO,
@@ -466,9 +471,13 @@ class Table(Artist):
 
 
 class ScientificTable(Table):
+    """
+    A subclass of Table which uses ScientificCell instead of Cell.
+
+    """
 
     def add_cell(self, row, col, *args, **kwargs):
-        """ Add a scientific cell to the table. """
+        'Add a scientific cell to the table.'
         xy = (0, 0)
 
         cell = ScientificCell(xy, *args, **kwargs)
@@ -491,7 +500,7 @@ def table(ax,
           cellLoc='right', colWidths=None,
           rowLabels=None, rowColours=None, rowLoc='left',
           colLabels=None, colColours=None, colLoc='center',
-          loc='bottom', bbox=None)
+          loc='bottom', bbox=None, tableType=None)
 
     Factory function to generate a Table instance.
 
