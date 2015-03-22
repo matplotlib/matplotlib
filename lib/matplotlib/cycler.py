@@ -134,6 +134,17 @@ class Cycler(object):
         self._right = copy.copy(other)
         return self
 
+    def __repr__(self):
+        op_map = {zip: '+', product: '*'}
+        if self._right is None:
+            lab = list(self.keys)[0]
+            itr = list(v[lab] for v in self.finite_iter())
+            return "cycler({lab!r}, {itr!r})".format(lab=lab, itr=itr)
+        else:
+            op = op_map.get(self._op, '?')
+            msg = "({left!r} {op} {right!r})"
+            return msg.format(left=self._left, op=op, right=self._right)
+
 
 def cycler(label, itr):
     """
