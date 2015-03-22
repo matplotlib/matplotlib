@@ -30,6 +30,8 @@ from matplotlib import verbose
 from matplotlib.cbook import is_sequence_of_strings
 import matplotlib.lines as mlines
 
+import warnings
+
 
 class BlockingInput(object):
     """
@@ -38,8 +40,8 @@ class BlockingInput(object):
     """
     def __init__(self, fig, eventslist=()):
         self.fig = fig
-        assert is_sequence_of_strings(
-            eventslist), "Requires a sequence of event name strings"
+        if not is_sequence_of_strings(eventslist):
+            raise ValueError("Requires a sequence of event name strings")
         self.eventslist = eventslist
 
     def on_event(self, event):
@@ -95,7 +97,8 @@ class BlockingInput(object):
         Blocking call to retrieve n events
         """
 
-        assert isinstance(n, int), "Requires an integer argument"
+        if not isinstance(n, int):
+            raise ValueError("Requires an integer argument")
         self.n = n
 
         self.events = []
@@ -146,9 +149,9 @@ class BlockingMouseInput(BlockingInput):
         """
         This will be called to process events
         """
-        assert len(self.events) > 0, "No events yet"
-
-        if self.events[-1].name == 'key_press_event':
+        if len(self.events) == 0:
+            warnings.warn("No events yet")
+        elif self.events[-1].name == 'key_press_event':
             self.key_event()
         else:
             self.mouse_event()
@@ -359,9 +362,10 @@ class BlockingKeyMouseInput(BlockingInput):
         """
         Determines if it is a key event
         """
-        assert len(self.events) > 0, "No events yet"
-
-        self.keyormouse = self.events[-1].name == 'key_press_event'
+        if len(self.events) == 0:
+            warnings.warn("No events yet")
+        else:
+            self.keyormouse = self.events[-1].name == 'key_press_event'
 
     def __call__(self, timeout=30):
         """

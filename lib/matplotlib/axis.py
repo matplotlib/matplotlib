@@ -1728,11 +1728,13 @@ class XAxis(Axis):
 
         ACCEPTS: [ 'top' | 'bottom' ]
         """
-        assert position == 'top' or position == 'bottom'
         if position == 'top':
             self.label.set_verticalalignment('baseline')
-        else:
+        elif position == 'bottom':
             self.label.set_verticalalignment('top')
+        else:
+            msg = "Position accepts only [ 'top' | 'bottom' ]"
+            raise ValueError(msg)
         self.label_position = position
 
     def _update_label_position(self, bboxes, bboxes2):
@@ -2042,13 +2044,15 @@ class YAxis(Axis):
 
         ACCEPTS: [ 'left' | 'right' ]
         """
-        assert position == 'left' or position == 'right'
         self.label.set_rotation_mode('anchor')
         self.label.set_horizontalalignment('center')
         if position == 'left':
             self.label.set_verticalalignment('bottom')
-        else:
+        elif position == 'right':
             self.label.set_verticalalignment('top')
+        else:
+            msg = "Position accepts only [ 'left' | 'right' ]"
+            raise ValueError(msg)
         self.label_position = position
 
     def _update_label_position(self, bboxes, bboxes2):
@@ -2101,13 +2105,14 @@ class YAxis(Axis):
         )
 
     def set_offset_position(self, position):
-        assert position == 'left' or position == 'right'
-
         x, y = self.offsetText.get_position()
         if position == 'left':
             x = 0
-        else:
+        elif position == 'right':
             x = 1
+        else:
+            msg = "Position accepts only [ 'left' | 'right' ]"
+            raise ValueError(msg)
 
         self.offsetText.set_ha(position)
         self.offsetText.set_position((x, y))

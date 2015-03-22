@@ -1335,7 +1335,9 @@ class SpanSelector(_SelectorWidget):
         if rectprops is None:
             rectprops = dict(facecolor='red', alpha=0.5)
 
-        assert direction in ['horizontal', 'vertical'], 'Must choose horizontal or vertical for direction'
+        if direction not in ['horizontal', 'vertical']:
+            msg = "direction must be in [ 'horizontal' | 'vertical' ]"
+            raise ValueError(msg)
         self.direction = direction
 
         self.rect = None
@@ -1587,7 +1589,9 @@ class RectangleSelector(_SelectorWidget):
         self.minspanx = minspanx
         self.minspany = minspany
 
-        assert(spancoords in ('data', 'pixels'))
+        if spancoords not in ('data', 'pixels'):
+            msg = "'spancoords' must be one of [ 'data' | 'pixels' ]"
+            raise ValueError(msg)
 
         self.spancoords = spancoords
         self.drawtype = drawtype
