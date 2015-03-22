@@ -146,6 +146,7 @@ class Cell(Rectangle):
         'update the text properties with kwargs'
         self._text.update(kwargs)
 
+
 class ScientificCell(Cell):
     """
     A subclass of Cell where vertical lines are ommitted.
@@ -155,10 +156,11 @@ class ScientificCell(Cell):
     def get_path(self):
         'Return a path where vertical lines are not drawn'
         path = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0],
-                [0.0, 0.0]],
-                [Path.MOVETO, Path.LINETO, Path.MOVETO, Path.LINETO,
+                    [0.0, 0.0]],
+                    [Path.MOVETO, Path.LINETO, Path.MOVETO, Path.LINETO,
                     Path.CLOSEPOLY],
-                readonly=True)
+                    readonly=True
+                    )
         return path
 
 
@@ -251,7 +253,7 @@ class Table(Artist):
     @cellType.setter
     def cellType(self, value):
         if value is None:
-            pass # Leave as previously set
+            pass  # Leave as previously set
         elif value in self.CELLTYPES:
             self._cellType = value
         else:
@@ -284,8 +286,8 @@ class Table(Artist):
         keys.sort()
         for key in keys:
             self._cells[key].draw(renderer)
-        #for c in self._cells.itervalues():
-        #    c.draw(renderer)
+        # for c in self._cells.itervalues():
+        #     c.draw(renderer)
         renderer.close_group('table')
 
     def _get_grid_bbox(self, renderer):
@@ -311,8 +313,8 @@ class Table(Artist):
         # doesn't have to bind to each one individually.
         if self._cachedRenderer is not None:
             boxes = [self._cells[pos].get_window_extent(self._cachedRenderer)
-                 for pos in six.iterkeys(self._cells)
-                 if pos[0] >= 0 and pos[1] >= 0]
+                     for pos in six.iterkeys(self._cells)
+                     if pos[0] >= 0 and pos[1] >= 0]
             bbox = Bbox.union(boxes)
             return bbox.contains(mouseevent.x, mouseevent.y), {}
         else:
@@ -493,12 +495,12 @@ class Table(Artist):
 
 
 def table(ax,
-    cellText=None, cellColours=None,
-    cellLoc='right', colWidths=None,
-    rowLabels=None, rowColours=None, rowLoc='left',
-    colLabels=None, colColours=None, colLoc='center',
-    loc='bottom', bbox=None, cellType=None,
-    **kwargs):
+          cellText=None, cellColours=None,
+          cellLoc='right', colWidths=None,
+          rowLabels=None, rowColours=None, rowLoc='left',
+          colLabels=None, colColours=None, colLoc='center',
+          loc='bottom', bbox=None, cellType=None,
+          **kwargs):
     """
     TABLE(cellText=None, cellColours=None,
           cellLoc='right', colWidths=None,
