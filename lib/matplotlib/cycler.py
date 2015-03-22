@@ -65,7 +65,7 @@ class Cycler(object):
             yield out
 
     @classmethod
-    def from_iter(cls, label, itr):
+    def _from_iter(cls, label, itr):
         """
         Class method to create 'base' Cycler objects
         that do not have a 'right' or 'op' and for which
@@ -100,6 +100,27 @@ class Cycler(object):
 
     def __len__(self):
         return len(list(self.finite_iter()))
+
+
+def cycler(label, itr):
+    """
+    Create a new `Cycler` object from a property name and
+    iterable of values.
+
+    Parameters
+    ----------
+    label : str
+        The property key.
+
+    itr : iterable
+        Finite length iterable of the property values.
+
+    Returns
+    -------
+    cycler : Cycler
+        New `Cycler` for the given property
+    """
+    return Cycler._from_iter(label, itr)
 
 
 class _base_cycler(object):
