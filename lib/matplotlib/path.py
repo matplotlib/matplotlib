@@ -143,12 +143,12 @@ class Path(object):
         if codes is not None:
             codes = np.asarray(codes, self.code_type)
             if (codes.ndim != 1) or len(codes) != len(vertices):
-                msg = "'codes' must be a 1D list or array with the same length"
-                msg += "of 'vertices'"
+                msg = ("'codes' must be a 1D list or array with the same"
+                       " length of 'vertices'")
                 raise ValueError(msg)
             if len(codes) and codes[0] != self.MOVETO:
-                msg = "The first element of 'code' must be equal to 'MOVETO':"
-                msg += " {}"
+                msg = ("The first element of 'code' must be equal to 'MOVETO':"
+                       " {0}")
                 raise ValueError(msg.format(self.MOVETO))
         elif closed:
             codes = np.empty(len(vertices), dtype=self.code_type)

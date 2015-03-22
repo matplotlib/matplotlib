@@ -858,8 +858,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.logscale = False
 
         if self.origin not in [None, 'lower', 'upper', 'image']:
-            raise ValueError("If given, *origin* must be one of ['lower',"
-                             " 'upper', 'image']")
+            raise ValueError("If given, *origin* must be one of [ 'lower' |"
+                             " 'upper' | 'image']")
         if self.extent is not None and len(self.extent) != 4:
             raise ValueError("If given, *extent* must be '[ *None* |"
                              " (x0,x1,y0,y1) ]'")

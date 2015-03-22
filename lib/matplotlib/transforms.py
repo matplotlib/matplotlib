@@ -1067,8 +1067,8 @@ class TransformedBbox(BboxBase):
         if not bbox.is_bbox:
             raise ValueError("'bbox' is not a bbox")
         if not isinstance(transform, Transform):
-            msg = "'transform' must be an instance of"
-            msg += " 'matplotlib.transform.Transform'"
+            msg = ("'transform' must be an instance of"
+                   " 'matplotlib.transform.Transform'")
             raise ValueError(msg)
         if transform.input_dims != 2 or transform.output_dims != 2:
             msg = "The input and output dimensions of 'transform' must be 2"
@@ -1526,8 +1526,8 @@ class TransformWrapper(Transform):
         be replaced with :meth:`set`.
         """
         if not isinstance(child, Transform):
-            msg = "'child' must be an instance of"
-            msg += " 'matplotlib.transform.Transform'"
+            msg = ("'child' must be an instance of"
+                   " 'matplotlib.transform.Transform'")
             raise ValueError(msg)
         Transform.__init__(self)
         self.input_dims = child.input_dims
@@ -1583,10 +1583,10 @@ class TransformWrapper(Transform):
         The new child must have the same number of input and output
         dimensions as the current child.
         """
-        if child.input_dims != self.input_dims or \
-        child.output_dims != self.output_dims:
-            msg = "The new child must have the same number of input and output"
-            msg += " dimensions as the current child."
+        if (child.input_dims != self.input_dims or
+                child.output_dims != self.output_dims):
+            msg = ("The new child must have the same number of input and"
+                   " output dimensions as the current child.")
             raise ValueError(msg)
 
         self._set(child)
@@ -1838,8 +1838,8 @@ class Affine2D(Affine2DBase):
         :class:`Affine2DBase` object.
         """
         if not isinstance(other, Affine2DBase):
-            msg = "'other' must be an instance of"
-            msg += " 'matplotlib.transform.Affine2DBase'"
+            msg = ("'other' must be an instance of"
+                   " 'matplotlib.transform.Affine2DBase'")
             raise ValueError(msg)
         self._mtx = other.get_matrix()
         self.invalidate()
@@ -2174,8 +2174,8 @@ class BlendedAffine2D(Affine2DBase):
         is_separable = x_transform.is_separable and y_transform.is_separable
         is_correct = is_affine and is_separable
         if not is_correct:
-            msg = "Both *x_transform* and *y_transform* must be 2D affine"
-            msg += " transforms."
+            msg = ("Both *x_transform* and *y_transform* must be 2D affine"
+                   " transforms.")
             raise ValueError(msg)
 
         Transform.__init__(self, **kwargs)
@@ -2254,8 +2254,8 @@ class CompositeGenericTransform(Transform):
         transform instance to create.
         """
         if a.output_dims != b.input_dims:
-            msg = "The output dimension of 'a' must be equal to the input"
-            msg += " dimensions of 'b'"
+            msg = ("The output dimension of 'a' must be equal to the input"
+                   " dimensions of 'b'")
             raise ValueError(msg)
         self.input_dims = a.input_dims
         self.output_dims = b.output_dims
@@ -2384,8 +2384,8 @@ class CompositeAffine2D(Affine2DBase):
         if not a.is_affine or not b.is_affine:
             raise ValueError("'a' and 'b' must be affine transforms")
         if a.output_dims != b.input_dims:
-            msg = "The output dimension of 'a' must be equal to the input"
-            msg += " dimensions of 'b'"
+            msg = ("The output dimension of 'a' must be equal to the input"
+                   " dimensions of 'b'")
             raise ValueError(msg)
         self.input_dims = a.input_dims
         self.output_dims = b.output_dims
@@ -2644,8 +2644,8 @@ class TransformedPath(TransformNode):
         :class:`~matplotlib.path.Path` and :class:`Transform`.
         """
         if not isinstance(transform, Transform):
-            msg = "'transform' must be an instance of"
-            msg += " 'matplotlib.transform.Transform'"
+            msg = ("'transform' must be an instance of"
+                   " 'matplotlib.transform.Transform'")
             raise ValueError(msg)
         TransformNode.__init__(self)
 
