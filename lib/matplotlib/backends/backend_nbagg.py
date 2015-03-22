@@ -74,10 +74,10 @@ def connection_info():
     result = []
     for manager in Gcf.get_all_fig_managers():
         fig = manager.canvas.figure
-        result.append('{} - {}'.format((fig.get_label() or
+        result.append('{0} - {0}'.format((fig.get_label() or
                                         "Figure {0}".format(manager.num)),
                                        manager.web_sockets))
-    result.append('Figures pending show: {}'.format(len(Gcf._activeQue)))
+    result.append('Figures pending show: {0}'.format(len(Gcf._activeQue)))
     return '\n'.join(result)
 
 
