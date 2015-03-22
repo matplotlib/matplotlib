@@ -378,7 +378,8 @@ class Spine(mpatches.Patch):
             if len(position) != 2:
                 raise ValueError("position should be 'center' or 2-tuple")
             if position[0] not in ['outward', 'axes', 'data']:
-                msg = "position[0] should be in ['outward', 'axes', 'data']"
+                msg = ("position[0] should be in [ 'outward' | 'axes' |"
+                       " 'data' ]")
                 raise ValueError(msg)
         self._position = position
         self._calc_offset_transform()

@@ -869,7 +869,7 @@ def _check_input(opens, closes, highs, lows, miss=-1):
     if not (same_length and same_missing):
         msg = ("*opens*, *highs*, *lows* and *closes* must have the same"
                " length. NOTE: this code assumes if any value open, high,"
-               "low, close is missing (*-1*) they all must be missing.")
+               " low, close is missing (*-1*) they all must be missing.")
         raise ValueError(msg)
 
 

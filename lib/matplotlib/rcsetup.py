@@ -275,7 +275,7 @@ def validate_colorlist(s):
     elif type(s) in (list, tuple):
         return [validate_color(c) for c in s]
     else:
-        msg = "'s' must be of type [string | list | tuple]"
+        msg = "'s' must be of type [ string | list | tuple ]"
         raise ValueError(msg)
 
 def validate_stringlist(s):
@@ -285,7 +285,7 @@ def validate_stringlist(s):
     elif type(s) in (list, tuple):
         return [six.text_type(v) for v in s if v]
     else:
-        msg = "'s' must be of type [string | list | tuple]"
+        msg = "'s' must be of type [ string | list | tuple ]"
         raise ValueError(msg)
 
 validate_orientation = ValidateInStrings(

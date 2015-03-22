@@ -574,7 +574,7 @@ class Sankey(object):
                 if orient != -1:
                     raise ValueError(
                     "The value of orientations[%d] is %d, "
-                    "but it must be -1, 0, or 1." % (i, orient))
+                    "but it must be [ -1 | 0 | 1 ]." % (i, orient))
                 if is_input:
                     angles[i] = UP
                 elif not is_input:

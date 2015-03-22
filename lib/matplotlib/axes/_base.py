@@ -2105,8 +2105,8 @@ class _AxesBase(martist.Artist):
         data (axis ticks, labels, etc are not updated)
         """
         if self._cachedRenderer is None:
-            msg = '''draw_artist can only be used after an initial draw which
-            caches the render'''
+            msg = ('draw_artist can only be used after an initial draw which'
+                   ' caches the render')
             raise AttributeError(msg)
         a.draw(self._cachedRenderer)
 
@@ -2117,8 +2117,8 @@ class _AxesBase(martist.Artist):
         data (axis ticks, labels, etc are not updated)
         """
         if self._cachedRenderer is None:
-            msg = '''redraw_in_frame can only be used after an initial draw
-            which caches the render'''
+            msg = ('redraw_in_frame can only be used after an initial draw'
+                   ' which caches the render')
             raise AttributeError(msg)
         self.draw(self._cachedRenderer, inframe=True)
 

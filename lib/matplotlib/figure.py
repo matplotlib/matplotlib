@@ -949,8 +949,8 @@ class Figure(Artist):
 
             a = args[0]
             if a.get_figure() is not self:
-                msg = "The Subplot must have been created in the present"
-                msg += " figure"
+                msg = ("The Subplot must have been created in the present"
+                       " figure")
                 raise ValueError(msg)
             # make a key for the subplot (which includes the axes object id
             # in the hash)
@@ -1110,8 +1110,8 @@ class Figure(Artist):
         this is available only after the figure is drawn
         """
         if self._cachedRenderer is None:
-            msg = '''draw_artist can only be used after an initial draw which \
-            caches the render'''
+            msg = ('draw_artist can only be used after an initial draw which'
+                   ' caches the render')
             raise AttributeError(msg)
         a.draw(self._cachedRenderer)
 

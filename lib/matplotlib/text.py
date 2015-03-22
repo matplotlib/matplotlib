@@ -1475,7 +1475,7 @@ class OffsetFrom(object):
 
     def set_unit(self, unit):
         if unit not in ["points", "pixels"]:
-            raise ValueError("'unit' must be one of ['points', 'pixels']")
+            raise ValueError("'unit' must be one of [ 'points' | 'pixels' ]")
         self._unit = unit
 
     def get_unit(self):
