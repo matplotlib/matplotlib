@@ -164,6 +164,18 @@ def cycler(label, itr):
     cycler : Cycler
         New `Cycler` for the given property
     """
+    if isinstance(itr, Cycler):
+        keys = itr.keys
+        if len(keys) != 1:
+            msg = "Can not create Cycler from a multi-property Cycler"
+            raise ValueError(msg)
+
+        if label in keys:
+            return copy.copy(itr)
+        else:
+            lab = keys.pop()
+            itr = list(v[lab] for v in itr.finite_iter())
+
     return Cycler._from_iter(label, itr)
 
 
