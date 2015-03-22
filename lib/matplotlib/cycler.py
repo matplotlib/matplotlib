@@ -137,7 +137,7 @@ class Cycler(object):
     def __repr__(self):
         op_map = {zip: '+', product: '*'}
         if self._right is None:
-            lab = list(self.keys)[0]
+            lab = self.keys.pop()
             itr = list(v[lab] for v in self.finite_iter())
             return "cycler({lab!r}, {itr!r})".format(lab=lab, itr=itr)
         else:
