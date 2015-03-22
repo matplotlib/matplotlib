@@ -55,7 +55,7 @@ class Cycler(object):
 
     @property
     def keys(self):
-        return self._keys
+        return set(self._keys)
 
     def finite_iter(self):
         """
