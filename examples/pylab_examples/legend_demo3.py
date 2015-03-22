@@ -6,7 +6,7 @@ x = np.linspace(0, 1)
 # Plot the lines y=x**n for n=1..4.
 ax = plt.subplot(2, 1, 1)
 for n in range(1, 5):
-    plt.plot(x, x**n, label="n={}".format(n))
+    plt.plot(x, x**n, label="n={0}".format(n))
 plt.legend(loc="upper left", bbox_to_anchor=[0, 1],
            ncol=2, shadow=True, title="Legend", fancybox=True)
 ax.get_legend().get_title().set_color("red")
