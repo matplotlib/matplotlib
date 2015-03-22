@@ -195,6 +195,10 @@ class Table(Artist):
              'bottom':       17,
              }
 
+    CELLTYPES = {'default':    Cell,
+                 'scientific': ScientificCell,
+                 }
+
     FONTSIZE = 10
     AXESPAD = 0.02    # the border between the axes and table edge
 
@@ -219,6 +223,7 @@ class Table(Artist):
 
         self._texts = []
         self._cells = {}
+        self._cellType = 'default'
         self._autoRows = []
         self._autoColumns = []
         self._autoFontsize = True
@@ -232,12 +237,29 @@ class Table(Artist):
         """ Add a cell to the table. """
         xy = (0, 0)
 
-        cell = Cell(xy, *args, **kwargs)
+        cell = self.CELLTYPES[self.cellType](xy, *args, **kwargs)
         cell.set_figure(self.figure)
         cell.set_transform(self.get_transform())
 
         cell.set_clip_on(False)
         self._cells[(row, col)] = cell
+
+    @property
+    def cellType(self):
+        return self._cellType
+
+    @cellType.setter
+    def cellType(self, value):
+        if value is None:
+            pass # Leave as previously set
+        elif value in self.CELLTYPES:
+            self._cellType = value
+        else:
+            msg = 'Unrecognized type of Cell: {0}, must be one of {1}.'.format(
+                    value,
+                    ", ".join(self.CELLTYPES.keys()),
+                    )
+            raise ValueError(msg)
 
     def _approx_text_height(self):
         return (self.FONTSIZE / 72.0 * self.figure.dpi /
@@ -470,37 +492,19 @@ class Table(Artist):
         return self._cells
 
 
-class ScientificTable(Table):
-    """
-    A subclass of Table which uses ScientificCell instead of Cell.
-
-    """
-
-    def add_cell(self, row, col, *args, **kwargs):
-        'Add a scientific cell to the table.'
-        xy = (0, 0)
-
-        cell = ScientificCell(xy, *args, **kwargs)
-        cell.set_figure(self.figure)
-        cell.set_transform(self.get_transform())
-
-        cell.set_clip_on(False)
-        self._cells[(row, col)] = cell
-
-
 def table(ax,
     cellText=None, cellColours=None,
     cellLoc='right', colWidths=None,
     rowLabels=None, rowColours=None, rowLoc='left',
     colLabels=None, colColours=None, colLoc='center',
-    loc='bottom', bbox=None, tableType=None,
+    loc='bottom', bbox=None, cellType=None,
     **kwargs):
     """
     TABLE(cellText=None, cellColours=None,
           cellLoc='right', colWidths=None,
           rowLabels=None, rowColours=None, rowLoc='left',
           colLabels=None, colColours=None, colLoc='center',
-          loc='bottom', bbox=None, tableType=None)
+          loc='bottom', bbox=None, cellType=None)
 
     Factory function to generate a Table instance.
 
@@ -562,11 +566,8 @@ def table(ax,
         cellColours = ['w' * cols] * rows
 
     # Now create the table
-    if tableType == "scientific":
-        table = ScientificTable(ax, loc, bbox, **kwargs)
-    else:
-        table = Table(ax, loc, bbox, **kwargs)
-
+    table = Table(ax, loc, bbox, **kwargs)
+    table.cellType = cellType
     height = table._approx_text_height()
 
     # Add the cells
