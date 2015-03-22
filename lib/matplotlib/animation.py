@@ -693,7 +693,7 @@ class Animation(object):
                       "'savefig_kwargs' as it is only currently supported "
                       "with the writers 'ffmpeg_file' and 'mencoder_file' "
                       "(writer used: "
-                      "'{}').".format(
+                      "'{0}').".format(
                           writer if isinstance(writer, six.string_types)
                           else writer.__class__.__name__))
                 savefig_kwargs.pop('bbox_inches')

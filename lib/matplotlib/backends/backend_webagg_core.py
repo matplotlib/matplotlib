@@ -329,10 +329,10 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             self._force_full = True
             self.draw_idle()
         else:
-            handler = getattr(self, 'handle_{}'.format(e_type), None)
+            handler = getattr(self, 'handle_{0}'.format(e_type), None)
             if handler is None:
                 import warnings
-                warnings.warn('Unhandled message type {}. {}'.format(
+                warnings.warn('Unhandled message type {0}. {1}'.format(
                                                         e_type, event))
             else:
                 return handler(event)

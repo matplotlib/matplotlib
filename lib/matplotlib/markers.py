@@ -244,7 +244,8 @@ class MarkerStyle(object):
                 Path(marker)
                 self._marker_function = self._set_vertices
             except ValueError:
-                raise ValueError('Unrecognized marker style {}'.format(marker))
+                raise ValueError('Unrecognized marker style'
+                                 ' {0}'.format(marker))
 
         self._marker = marker
         self._recache()
