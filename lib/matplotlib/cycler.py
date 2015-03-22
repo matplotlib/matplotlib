@@ -4,6 +4,27 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from itertools import product, cycle
 from six.moves import zip
+import copy
+
+
+def _process_keys(left, right):
+    """
+    Helper function to compose cycler keys
+
+    Parameters
+    ----------
+    left, right : Cycler or None
+        The cyclers to be composed
+    Returns
+    -------
+    keys : set
+        The keys in the composition of the two cyclers
+    """
+    l_key = left.keys if left is not None else set()
+    r_key = right.keys if right is not None else set()
+    if l_key & r_key:
+        raise ValueError("Can not compose overlapping cycles")
+    return l_key | r_key
 
 
 class Cycler(object):
@@ -27,14 +48,10 @@ class Cycler(object):
 
     """
     def __init__(self, left, right=None, op=None):
-        self._left = left
-        self._right = right
+        self._keys = _process_keys(left, right)
+        self._left = copy.copy(left)
+        self._right = copy.copy(right)
         self._op = op
-        l_key = left.keys if left is not None else set()
-        r_key = right.keys if right is not None else set()
-        if l_key & r_key:
-            raise ValueError("Can not compose overlapping cycles")
-        self._keys = l_key | r_key
 
     @property
     def keys(self):
@@ -100,6 +117,22 @@ class Cycler(object):
 
     def __len__(self):
         return len(list(self.finite_iter()))
+
+    def __iadd__(self, other):
+        old_self = copy.copy(self)
+        self._keys = _process_keys(old_self, other)
+        self._left = old_self
+        self._op = zip
+        self._right = copy.copy(other)
+        return self
+
+    def __imul__(self, other):
+        old_self = copy.copy(self)
+        self._keys = _process_keys(old_self, other)
+        self._left = old_self
+        self._op = product
+        self._right = copy.copy(other)
+        return self
 
 
 def cycler(label, itr):
