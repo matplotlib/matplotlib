@@ -272,19 +272,21 @@ def validate_colorlist(s):
     'return a list of colorspecs'
     if isinstance(s, six.string_types):
         return [validate_color(c.strip()) for c in s.split(',')]
-    else:
-        assert type(s) in [list, tuple]
+    elif type(s) in (list, tuple):
         return [validate_color(c) for c in s]
-
+    else:
+        msg = "'s' must be of type [ string | list | tuple ]"
+        raise ValueError(msg)
 
 def validate_stringlist(s):
     'return a list'
     if isinstance(s, six.string_types):
         return [six.text_type(v.strip()) for v in s.split(',') if v.strip()]
-    else:
-        assert type(s) in [list, tuple]
+    elif type(s) in (list, tuple):
         return [six.text_type(v) for v in s if v]
-
+    else:
+        msg = "'s' must be of type [ string | list | tuple ]"
+        raise ValueError(msg)
 
 validate_orientation = ValidateInStrings(
     'orientation', ['landscape', 'portrait'])

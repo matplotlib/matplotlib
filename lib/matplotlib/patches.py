@@ -3104,10 +3104,10 @@ class ArrowStyle(_Style):
             its control points if true.
             """
             segments = list(path.iter_segments())
-            assert len(segments) == 2
-
-            assert segments[0][1] == Path.MOVETO
-            assert segments[1][1] == Path.CURVE3
+            if ((len(segments) != 2) or (segments[0][1] != Path.MOVETO) or
+                    (segments[1][1] != Path.CURVE3)):
+                msg = "'path' it's not a valid quadratic bezier curve"
+                raise ValueError(msg)
 
             return list(segments[0][0]) + list(segments[1][0])
 
@@ -3819,7 +3819,7 @@ class ArrowStyle(_Style):
 
     class Wedge(_Base):
         """
-        Wedge(?) shape. Only wokrs with a quadratic bezier curve.  The
+        Wedge(?) shape. Only works with a quadratic bezier curve.  The
         begin point has a width of the tail_width and the end point has a
         width of 0. At the middle, the width is shrink_factor*tail_width.
 

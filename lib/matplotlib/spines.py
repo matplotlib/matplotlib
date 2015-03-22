@@ -71,7 +71,9 @@ class Spine(mpatches.Patch):
         # non-rectangular axes is currently implemented, and this lets
         # them pass through the spines machinery without errors.)
         self._position = None
-        assert isinstance(path, matplotlib.path.Path)
+        if not isinstance(path, matplotlib.path.Path):
+            msg = "'path' must be an instance of 'matplotlib.path.Path'"
+            raise ValueError(msg)
         self._path = path
 
         # To support drawing both linear and circular spines, this
@@ -176,7 +178,8 @@ class Spine(mpatches.Patch):
                 position = ('axes', 0.5)
             elif position == 'zero':
                 position = ('data', 0)
-        assert len(position) == 2, "position should be 2-tuple"
+        if len(position) != 2:
+            raise ValueError("position should be 2-tuple")
         position_type, amount = position
         if position_type == 'outward' and amount == 0:
             return True
@@ -372,8 +375,12 @@ class Spine(mpatches.Patch):
             # special positions
             pass
         else:
-            assert len(position) == 2, "position should be 'center' or 2-tuple"
-            assert position[0] in ['outward', 'axes', 'data']
+            if len(position) != 2:
+                raise ValueError("position should be 'center' or 2-tuple")
+            if position[0] not in ['outward', 'axes', 'data']:
+                msg = ("position[0] should be in [ 'outward' | 'axes' |"
+                       " 'data' ]")
+                raise ValueError(msg)
         self._position = position
         self._calc_offset_transform()
 

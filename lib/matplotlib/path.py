@@ -136,20 +136,25 @@ class Path(object):
         else:
             vertices = np.asarray(vertices, np.float_)
 
+        if (vertices.ndim != 2) or (vertices.shape[1] != 2):
+            msg = "'vertices' must be a 2D list or array with shape Nx2"
+            raise ValueError(msg)
+
         if codes is not None:
             codes = np.asarray(codes, self.code_type)
-            assert codes.ndim == 1
-            assert len(codes) == len(vertices)
-            if len(codes):
-                assert codes[0] == self.MOVETO
+            if (codes.ndim != 1) or len(codes) != len(vertices):
+                msg = ("'codes' must be a 1D list or array with the same"
+                       " length of 'vertices'")
+                raise ValueError(msg)
+            if len(codes) and codes[0] != self.MOVETO:
+                msg = ("The first element of 'code' must be equal to 'MOVETO':"
+                       " {0}")
+                raise ValueError(msg.format(self.MOVETO))
         elif closed:
             codes = np.empty(len(vertices), dtype=self.code_type)
             codes[0] = self.MOVETO
             codes[1:-1] = self.LINETO
             codes[-1] = self.CLOSEPOLY
-
-        assert vertices.ndim == 2
-        assert vertices.shape[1] == 2
 
         self._vertices = vertices
         self._codes = codes
@@ -320,7 +325,8 @@ class Path(object):
         # the CLOSEPOLY; the vert for the closepoly is ignored but we still
         # need it to keep the codes aligned with the vertices
         numpolys, numsides, two = XY.shape
-        assert(two == 2)
+        if two != 2:
+            raise ValueError("The third dimension of 'XY' must be 2")
         stride = numsides + 1
         nverts = numpolys * stride
         verts = np.zeros((nverts, 2))

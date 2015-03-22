@@ -129,7 +129,9 @@ class GeoAxes(Axes):
             .translate(0.5, 0.5)
 
     def get_xaxis_transform(self,which='grid'):
-        assert which in ['tick1','tick2','grid']
+        if which not in ['tick1','tick2','grid']:
+            msg = "'which' must be on of [ 'tick1' | 'tick2' | 'grid' ]"
+            raise ValueError(msg)
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
@@ -139,7 +141,9 @@ class GeoAxes(Axes):
         return self._xaxis_text2_transform, 'top', 'center'
 
     def get_yaxis_transform(self,which='grid'):
-        assert which in ['tick1','tick2','grid']
+        if which not in ['tick1','tick2','grid']:
+            msg = "'which' must be one of [ 'tick1' | 'tick2' | 'grid' ]"
+            raise ValueError(msg)
         return self._yaxis_transform
 
     def get_yaxis_text1_transform(self, pad):

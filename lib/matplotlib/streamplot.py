@@ -90,7 +90,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     use_multicolor_lines = isinstance(color, np.ndarray)
     if use_multicolor_lines:
-        assert color.shape == grid.shape
+        if color.shape != grid.shape:
+            msg = "If 'color' is given, must have the shape of 'Grid(x,y)'"
+            raise ValueError(msg)
         line_colors = []
         color = np.ma.masked_invalid(color)
     else:
@@ -98,7 +100,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         arrow_kw['color'] = color
 
     if isinstance(linewidth, np.ndarray):
-        assert linewidth.shape == grid.shape
+        if linewidth.shape != grid.shape:
+            msg = "If 'linewidth' is given, must have the shape of 'Grid(x,y)'"
+            raise ValueError(msg)
         line_kw['linewidth'] = []
     else:
         line_kw['linewidth'] = linewidth
@@ -108,8 +112,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     arrow_kw['zorder'] = zorder
 
     ## Sanity checks.
-    assert u.shape == grid.shape
-    assert v.shape == grid.shape
+    if (u.shape != grid.shape) or (v.shape != grid.shape):
+        msg = "'u' and 'v' must be of shape 'Grid(x,y)'"
+        raise ValueError(msg)
 
     u = np.ma.masked_invalid(u)
     v = np.ma.masked_invalid(v)
@@ -256,19 +261,25 @@ class Grid(object):
     """Grid of data."""
     def __init__(self, x, y):
 
-        if len(x.shape) == 2:
-            x_row = x[0]
-            assert np.allclose(x_row, x)
+        if x.ndim == 1:
+            pass
+        elif x.ndim == 2:
+            x_row = x[0, :]
+            if not np.allclose(x_row, x):
+                raise ValueError("The rows of 'x' must be equal")
             x = x_row
         else:
-            assert len(x.shape) == 1
+            raise ValueError("'x' can have at maximum 2 dimensions")
 
-        if len(y.shape) == 2:
+        if y.ndim == 1:
+            pass
+        elif y.ndim == 2:
             y_col = y[:, 0]
-            assert np.allclose(y_col, y.T)
+            if not np.allclose(y_col, y.T):
+                raise ValueError("The columns of 'y' must be equal")
             y = y_col
         else:
-            assert len(y.shape) == 1
+            raise ValueError("'y' can have at maximum 2 dimensions")
 
         self.nx = len(x)
         self.ny = len(y)
@@ -304,10 +315,12 @@ class StreamMask(object):
 
     def __init__(self, density):
         if np.isscalar(density):
-            assert density > 0
+            if density <= 0:
+                raise ValueError("If a scalar, 'density' must be positive")
             self.nx = self.ny = int(30 * density)
         else:
-            assert len(density) == 2
+            if len(density) != 2:
+                raise ValueError("'density' can have at maximum 2 dimensions")
             self.nx = int(30 * density[0])
             self.ny = int(30 * density[1])
         self._mask = np.zeros((self.ny, self.nx))
