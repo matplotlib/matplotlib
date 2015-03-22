@@ -105,5 +105,5 @@ def test_table_types():
             loc="upper center",
             colLoc="center",
             rowLoc="center",
-            tableType="scientific",
+            cellType="scientific",
             )
