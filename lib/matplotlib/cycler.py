@@ -123,7 +123,7 @@ def cycler(label, itr):
     return Cycler._from_iter(label, itr)
 
 
-class _base_cycler(object):
+class BaseCycler(object):
     """
     Helper base-class to provide composition logic to
     `SingleCycler` and `CompoundCycler`.
@@ -142,7 +142,7 @@ class _base_cycler(object):
         return CompoundCycler(self, other, product)
 
 
-class SingleCycler(_base_cycler):
+class SingleCycler(BaseCycler):
     """
     Class to hold the cycle for a single parameter and handle the
     composition.
@@ -183,7 +183,7 @@ class SingleCycler(_base_cycler):
         return set([self._label])
 
 
-class CompoundCycler(_base_cycler):
+class CompoundCycler(BaseCycler):
     """
     A class to handle cycling multiple artist properties.
 
@@ -197,10 +197,10 @@ class CompoundCycler(_base_cycler):
 
     Parameters
     ----------
-    left : _base_cycler
+    left : BaseCycler
         The 'left' cycler
 
-    right : _base_cycler
+    right : BaseCycler
         The 'right' cycler
 
     op : function
