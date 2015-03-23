@@ -112,10 +112,6 @@ class PolarAffine(Affine2DBase):
         return self._mtx
     get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
 
-    def __getstate__(self):
-        return {}
-
-
 class InvertedPolarTransform(Transform):
     """
     The inverse of the polar transform, mapping Cartesian
