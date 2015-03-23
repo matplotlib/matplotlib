@@ -3244,7 +3244,8 @@ class ToolTriggerEvent(ToolEvent):
 
 
 class NavigationMessageEvent(object):
-    """Event carrying messages from navigation
+    """
+    Event carrying messages from navigation
 
     Messages usually get displayed to the user by the toolbar
     """
@@ -3255,7 +3256,8 @@ class NavigationMessageEvent(object):
 
 
 class NavigationBase(object):
-    """Helper class that groups all the user interactions for a FigureManager
+    """
+    Helper class that groups all the user interactions for a FigureManager
 
     Attributes
     ----------
@@ -3281,7 +3283,8 @@ class NavigationBase(object):
         self.messagelock = widgets.LockDraw()
 
     def nav_connect(self, s, func):
-        """Connect event with string *s* to *func*.
+        """
+        Connect event with string *s* to *func*.
 
         Parameters
         -----------
@@ -3306,7 +3309,8 @@ class NavigationBase(object):
         return self._callbacks.connect(s, func)
 
     def nav_disconnect(self, cid):
-        """Disconnect callback id cid
+        """
+        Disconnect callback id cid
 
         Example usage::
 
@@ -3317,7 +3321,7 @@ class NavigationBase(object):
         return self._callbacks.disconnect(cid)
 
     def message_event(self, message, sender=None):
-        """ Emit a tool_message_event event"""
+        """ Emit a `NavigationMessageEvent`"""
         if sender is None:
             sender = self
 
@@ -3327,7 +3331,8 @@ class NavigationBase(object):
 
     @property
     def active_toggle(self):
-        """Toggled Tool
+        """
+        Toggled Tool
 
         **dict** :  Currently toggled tools
         """
@@ -3335,7 +3340,8 @@ class NavigationBase(object):
         return self._toggled
 
     def get_tool_keymap(self, name):
-        """Get the keymap associated with the specified tool
+        """
+        Get the keymap associated with the specified tool
 
         Parameters
         ----------
@@ -3355,7 +3361,8 @@ class NavigationBase(object):
             del self._keys[k]
 
     def set_tool_keymap(self, name, *keys):
-        """Set the keymap to associate with the specified tool
+        """
+        Set the keymap to associate with the specified tool
 
         Parameters
         ----------
@@ -3365,7 +3372,7 @@ class NavigationBase(object):
         """
 
         if name not in self._tools:
-            raise AttributeError('%s not in Tools' % name)
+            raise KeyError('%s not in Tools' % name)
 
         self._remove_keys(name)
 
@@ -3377,7 +3384,8 @@ class NavigationBase(object):
                 self._keys[k] = name
 
     def remove_tool(self, name):
-        """Remove tool from `Navigation`
+        """
+        Remove tool from `Navigation`
 
         Parameters
         ----------
@@ -3401,7 +3409,8 @@ class NavigationBase(object):
         del self._tools[name]
 
     def add_tools(self, tools):
-        """ Add multiple tools to `NavigationBase`
+        """
+        Add multiple tools to `NavigationBase`
 
         Parameters
         ----------
@@ -3414,7 +3423,8 @@ class NavigationBase(object):
             self.add_tool(name, tool)
 
     def add_tool(self, name, tool, *args, **kwargs):
-        """Add tool to `NavigationBase`
+        """
+        Add tool to `NavigationBase`
 
         Add a tool to the tools controlled by Navigation
 
@@ -3440,11 +3450,10 @@ class NavigationBase(object):
 
         tool_cls = self._get_cls_to_instantiate(tool)
         if tool_cls is False:
-            warnings.warn('Impossible to find class for %s' % str(tool))
-            return
+            raise ValueError('Impossible to find class for %s' % str(tool))
 
         if name in self._tools:
-            warnings.warn('A tool_cls with the same name already exist, '
+            warnings.warn('A "Tool class" with the same name already exists, '
                           'not added')
             return self._tools[name]
 
@@ -3454,7 +3463,7 @@ class NavigationBase(object):
             self.set_tool_keymap(name, tool_cls.keymap)
 
         # For toggle tools init the radio_group in self._toggled
-        if getattr(tool_cls, 'toggled', False) is not False:
+        if isinstance(self._tools[name], tools.ToolToggleBase):
             # None group is not mutually exclusive, a set is used to keep track
             # of all toggled tools in this group
             if tool_cls.radio_group is None:
@@ -3471,8 +3480,10 @@ class NavigationBase(object):
         self._callbacks.process(s, event)
 
     def _handle_toggle(self, tool, sender, canvasevent, data):
-        # Toggle tools, need to untoggle prior to using other Toggle tool
-        # Called from tool_trigger_event
+        """
+        Toggle tools, need to untoggle prior to using other Toggle tool
+        Called from tool_trigger_event
+        """
 
         radio_group = tool.radio_group
         # radio_group None is not mutually exclusive
@@ -3522,7 +3533,8 @@ class NavigationBase(object):
 
     def tool_trigger_event(self, name, sender=None, canvasevent=None,
                            data=None):
-        """Trigger a tool and emit the tool-trigger-[name] event
+        """
+        Trigger a tool and emit the tool_trigger_[name] event
 
         Parameters
         ----------
@@ -3549,7 +3561,8 @@ class NavigationBase(object):
         self._callbacks.process(s, event)
 
     def _trigger_tool(self, name, sender=None, canvasevent=None, data=None):
-        """Trigger on a tool
+        """
+        Trigger on a tool
 
         Method to actually trigger the tool
         """
@@ -3578,7 +3591,8 @@ class NavigationBase(object):
         return self._tools
 
     def get_tool(self, name, warn=True):
-        """Return the tool object, also accepts the actual tool for convenience
+        """
+        Return the tool object, also accepts the actual tool for convenience
 
         Parameters
         -----------
@@ -3597,7 +3611,8 @@ class NavigationBase(object):
 
 
 class ToolContainerBase(object):
-    """Base class for all tool containers, e.g. toolbars.
+    """
+    Base class for all tool containers, e.g. toolbars.
 
      Attributes
     ----------
@@ -3611,14 +3626,16 @@ class ToolContainerBase(object):
                                     self._remove_tool_cbk)
 
     def _tool_toggled_cbk(self, event):
-        """Captures the 'tool-trigger-toolname
+        """
+        Captures the 'tool_trigger_[name]'
 
         This only gets used for toggled tools
         """
         self.toggle_toolitem(event.tool.name, event.tool.toggled)
 
     def add_tools(self, tools):
-        """ Add multiple tools to the container.
+        """
+        Add multiple tools to the container.
 
         Parameters
         ----------
@@ -3634,7 +3651,8 @@ class ToolContainerBase(object):
                 self.add_tool(tool, group, position)
 
     def add_tool(self, tool, group, position=-1):
-        """Adds a tool to this container
+        """
+        Adds a tool to this container
 
         Parameters
         ----------
@@ -3670,7 +3688,8 @@ class ToolContainerBase(object):
         return fname
 
     def trigger_tool(self, name):
-        """Trigger the tool
+        """
+        Trigger the tool
 
         Parameters
         ----------
@@ -3681,7 +3700,8 @@ class ToolContainerBase(object):
         self.navigation.tool_trigger_event(name, sender=self)
 
     def add_toolitem(self, name, group, position, image, description, toggle):
-        """Add a toolitem to the container
+        """
+        Add a toolitem to the container
 
         This method must get implemented per backend
 
@@ -3711,7 +3731,8 @@ class ToolContainerBase(object):
         raise NotImplementedError
 
     def toggle_toolitem(self, name, toggled):
-        """Toggle the toolitem without firing event
+        """
+        Toggle the toolitem without firing event
 
         Parameters
         ----------
@@ -3723,7 +3744,8 @@ class ToolContainerBase(object):
         raise NotImplementedError
 
     def remove_toolitem(self, name):
-        """Remove a toolitem from the `ToolContainer`
+        """
+        Remove a toolitem from the `ToolContainer`
 
         This method must get implemented per backend
 
@@ -3750,7 +3772,8 @@ class StatusbarBase(object):
         self.set_message(event.message)
 
     def set_message(self, s):
-        """Display a message on toolbar or in status bar
+        """
+        Display a message on toolbar or in status bar
 
         Parameters
         ----------
