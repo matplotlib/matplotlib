@@ -74,6 +74,7 @@ above, only with a more limited luminence variation.
 Example script
 ++++++++++++++
 ::
+
    import numpy as np
    import matplotlib.pyplot as plt
 
@@ -112,6 +113,7 @@ ordering.
 Example script
 ++++++++++++++
 ::
+
    import numpy as np
    import matplotlib.pyplot as plt
 
