@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from itertools import product, cycle
 from six.moves import zip
+from operator import mul
 import copy
 
 
@@ -128,7 +129,12 @@ class Cycler(object):
         return Cycler(self, other, product)
 
     def __len__(self):
-        return len(list(self.finite_iter()))
+        op_dict = {zip: min, product: mul}
+        if self._right is None:
+            return len(self._left)
+        l_len = len(self._left)
+        r_len = len(self._right)
+        return op_dict[self._op](l_len, r_len)
 
     def __iadd__(self, other):
         old_self = copy.copy(self)
