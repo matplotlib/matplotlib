@@ -24,7 +24,7 @@ for i, corner_mask in enumerate(corner_masks):
     plt.subplot(1, 2, i+1)
     cs = plt.contourf(x, y, z, corner_mask=corner_mask)
     plt.contour(cs, colors='k')
-    plt.title('corner_mask = {}'.format(corner_mask))
+    plt.title('corner_mask = {0}'.format(corner_mask))
 
     # Plot grid.
     plt.grid(c='k', ls='-', alpha=0.3)

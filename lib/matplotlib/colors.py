@@ -1709,7 +1709,7 @@ class LightSource(object):
             try:
                 blend = blend_mode(rgb, intensity, **kwargs)
             except TypeError:
-                msg = '"blend_mode" must be callable or one of {}'
+                msg = '"blend_mode" must be callable or one of {0}'
                 raise ValueError(msg.format(lookup.keys))
 
         # Only apply result where hillshade intensity isn't masked

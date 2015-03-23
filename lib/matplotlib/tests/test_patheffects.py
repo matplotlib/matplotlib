@@ -97,7 +97,7 @@ def test_PathEffect_points_to_pixels():
 
     assert isinstance(pe_renderer, path_effects.PathEffectRenderer), (
                 'Expected a PathEffectRendere instance, got '
-                'a {} instance.'.format(type(pe_renderer)))
+                'a {0} instance.'.format(type(pe_renderer)))
 
     # Confirm that using a path effects renderer maintains point sizes
     # appropriately. Otherwise rendered font would be the wrong size.

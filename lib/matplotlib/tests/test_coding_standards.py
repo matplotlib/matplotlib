@@ -152,7 +152,7 @@ def assert_pep8_conformance(module=matplotlib, exclude_files=None,
             raise ValueError('Some exclude patterns were unnecessary as the '
                              'files they pointed to either passed the PEP8 '
                              'tests or do not point to a file:\n  '
-                             '{}'.format('\n  '.join(unexpectedly_good)))
+                             '{0}'.format('\n  '.join(unexpectedly_good)))
 
 
 def test_pep8_conformance_installed_files():
