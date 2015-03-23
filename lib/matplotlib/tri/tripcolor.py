@@ -66,7 +66,7 @@ def tripcolor(ax, *args, **kwargs):
 
     if shading not in ['flat', 'gouraud']:
         raise ValueError("shading must be one of ['flat', 'gouraud'] "
-                         "not {}".format(shading))
+                         "not {0}".format(shading))
 
     tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
 
