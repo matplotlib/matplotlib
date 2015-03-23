@@ -4574,7 +4574,7 @@ class Axes(_AxesBase):
     #### plotting z(x,y): imshow, pcolor and relatives, contour
 
     @docstring.dedent_interpd
-    def imshow(self, X, cmap=None, norm=None, aspect=None,
+    def imshow(self, X, barebones=False, cmap=None, norm=None, aspect=None,
                interpolation=None, alpha=None, vmin=None, vmax=None,
                origin=None, extent=None, shape=None, filternorm=1,
                filterrad=4.0, imlim=None, resample=None, url=None, **kwargs):
@@ -4595,6 +4595,10 @@ class Axes(_AxesBase):
             The value for each component of MxNx3 and MxNx4 float arrays
             should be in the range 0.0 to 1.0; MxN float arrays may be
             normalised.
+
+        barebones: True or False
+            If True, remove the axis, and remove the whitespaces from the
+            figure.
 
         cmap : `~matplotlib.colors.Colormap`, optional, default: None
             If None, default to rc `image.cmap` value. `cmap` is ignored when
@@ -4682,6 +4686,12 @@ class Axes(_AxesBase):
 
         if not self._hold:
             self.cla()
+
+        if barebones:
+            self.axis("off")
+            self.figure.subplots_adjust(left=0, right=1,
+                                        bottom=0, top=1,
+                                        wspace=0, hspace=0)
 
         if norm is not None and not isinstance(norm, mcolors.Normalize):
             msg = "'norm' must be an instance of 'mcolors.Normalize'"
