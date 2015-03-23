@@ -32,6 +32,7 @@ from .artist import Artist, allow_rasterization
 from .patches import Rectangle
 from .cbook import is_string_like
 from matplotlib import docstring
+from matplotlib.path import Path
 from .text import Text
 from .transforms import Bbox
 
@@ -154,7 +155,7 @@ class Table(Artist):
 
     Each entry in the table can be either text or patches.
 
-    Column widths and row heights for the table can be specified.
+    Column widths and row heights for the table can be specifified.
 
     Return value is a sequence of text, line and patch instances that make
     up the table
@@ -454,113 +455,226 @@ class Table(Artist):
         return self._cells
 
 
-def table(ax,
-    cellText=None, cellColours=None,
-    cellLoc='right', colWidths=None,
-    rowLabels=None, rowColours=None, rowLoc='left',
-    colLabels=None, colColours=None, colLoc='center',
-    loc='bottom', bbox=None,
-    **kwargs):
-    """
-    TABLE(cellText=None, cellColours=None,
+class ScienCell(Cell):
+
+    def draw(self, renderer):
+
+        'Draw the :class:`Patch` to the given *renderer*.'
+        if not self.get_visible():
+            return
+
+        renderer.open_group('patch', self.get_gid())
+        gc = renderer.new_gc()
+
+        gc.set_foreground(self._edgecolor, isRGBA=True)
+
+        lw = self._linewidth
+        if self._edgecolor[3] == 0:
+            lw = 0
+        gc.set_linewidth(lw)
+        gc.set_linestyle(self._linestyle)
+        gc.set_capstyle(self._capstyle)
+        gc.set_joinstyle(self._joinstyle)
+
+        gc.set_antialiased(self._antialiased)
+        self._set_gc_clip(gc)
+        gc.set_url(self._url)
+        gc.set_snap(self.get_snap())
+
+        rgbFace = self._facecolor
+        if rgbFace[3] == 0:
+            rgbFace = None  # (some?) renderers expect this as no-fill signal
+
+        gc.set_alpha(self._alpha)
+
+        if self._hatch:
+            gc.set_hatch(self._hatch)
+
+        if self.get_sketch_params() is not None:
+            gc.set_sketch_params(*self.get_sketch_params())
+
+        # path = self.get_path()
+        verts = [
+            (0.0, 0.0),  # left, bottom
+            (1.0, 0.0),  # left, top
+            (1.0, 1.0),  # right, top
+            (0.0, 1.0),  # right, bottom
+            (0.0, 0.0),  # ignored
+            ]
+
+        codes = [Path.MOVETO,
+                 Path.LINETO,
+                 Path.MOVETO,
+                 Path.LINETO,
+                 Path.CLOSEPOLY,
+                 ]
+
+        path = Path(verts, codes)
+
+        transform = self.get_transform()
+        tpath = transform.transform_path_non_affine(path)
+        affine = transform.get_affine()
+
+        if self.get_path_effects():
+            from matplotlib.patheffects import PathEffectRenderer
+            renderer = PathEffectRenderer(self.get_path_effects(), renderer)
+
+        renderer.draw_path(gc, tpath, affine, rgbFace)
+
+        gc.restore()
+        renderer.close_group('patch')
+        # position the text
+        self._set_text_position(renderer)
+        self._text.draw(renderer)
+
+
+class SciTable(Table):
+
+    def add_cell(self, row, col, *args, **kwargs):
+        """ Add a cell to the table. """
+        xy = (0, 0)
+
+        cell = ScienCell(xy, *args, **kwargs)
+
+        cell.set_figure(self.figure)
+        cell.set_transform(self.get_transform())
+
+        cell.set_clip_on(False)
+        self._cells[(row, col)] = cell
+
+class TableCreator():
+
+    def __init__(self, ax,
+        cellText=None, cellColours=None,
+        cellLoc='right', colWidths=None,
+        rowLabels=None, rowColours=None, rowLoc='left',
+        colLabels=None, colColours=None, colLoc='center',
+        loc='bottom', bbox=None,**kwargs):
+        """
+        TABLE(cellText=None, cellColours=None,
           cellLoc='right', colWidths=None,
           rowLabels=None, rowColours=None, rowLoc='left',
           colLabels=None, colColours=None, colLoc='center',
           loc='bottom', bbox=None)
 
-    Factory function to generate a Table instance.
+        Factory function to generate a Table instance.
 
-    Thanks to John Gill for providing the class and table.
-    """
-    # Check we have some cellText
-    if cellText is None:
-        # assume just colours are needed
-        rows = len(cellColours)
-        cols = len(cellColours[0])
-        cellText = [[''] * rows] * cols
+        Thanks to John Gill for providing the class and table.
+        """
+        # Check we have some cellText
+        if cellText is None:
+            # assume just colours are needed
+            rows = len(cellColours)
+            cols = len(cellColours[0])
+            cellText = [[''] * rows] * cols
 
-    rows = len(cellText)
-    cols = len(cellText[0])
-    for row in cellText:
-        if len(row) != cols:
-            msg = "Each row in 'cellText' must have {0} columns"
-            raise ValueError(msg.format(cols))
+        rows = len(cellText)
+        cols = len(cellText[0])
+        for row in cellText:
+            assert len(row) == cols
 
-    if cellColours is not None:
-        if len(cellColours) != rows:
-            raise ValueError("'cellColours' must have {0} rows".format(rows))
-        for row in cellColours:
-            if len(row) != cols:
-                msg = "Each row in 'cellColours' must have {0} columns"
-                raise ValueError(msg.format(cols))
-    else:
-        cellColours = ['w' * cols] * rows
-
-    # Set colwidths if not given
-    if colWidths is None:
-        colWidths = [1.0 / cols] * cols
-
-    # Fill in missing information for column
-    # and row labels
-    rowLabelWidth = 0
-    if rowLabels is None:
-        if rowColours is not None:
-            rowLabels = [''] * rows
-            rowLabelWidth = colWidths[0]
-    elif rowColours is None:
-        rowColours = 'w' * rows
-
-    if rowLabels is not None:
-        if len(rowLabels) != rows:
-            raise ValueError("'rowLabels' must be of length {0}".format(rows))
-
-    # If we have column labels, need to shift
-    # the text and colour arrays down 1 row
-    offset = 1
-    if colLabels is None:
-        if colColours is not None:
-            colLabels = [''] * cols
+        if cellColours is not None:
+            assert len(cellColours) == rows
+            for row in cellColours:
+                assert len(row) == cols
         else:
-            offset = 0
-    elif colColours is None:
-        colColours = 'w' * cols
+            cellColours = ['w' * cols] * rows
 
-    # Set up cell colours if not given
-    if cellColours is None:
-        cellColours = ['w' * cols] * rows
+        # Set colwidths if not given
+        if colWidths is None:
+            colWidths = [1.0 / cols] * cols
 
-    # Now create the table
-    table = Table(ax, loc, bbox, **kwargs)
-    height = table._approx_text_height()
+        # Fill in missing information for column
+        # and row labels
+        rowLabelWidth = 0
+        if rowLabels is None:
+            if rowColours is not None:
+                rowLabels = [''] * rows
+                rowLabelWidth = colWidths[0]
+        elif rowColours is None:
+            rowColours = 'w' * rows
 
-    # Add the cells
-    for row in xrange(rows):
-        for col in xrange(cols):
-            table.add_cell(row + offset, col,
-                           width=colWidths[col], height=height,
-                           text=cellText[row][col],
-                           facecolor=cellColours[row][col],
-                           loc=cellLoc)
-    # Do column labels
-    if colLabels is not None:
-        for col in xrange(cols):
-            table.add_cell(0, col,
-                           width=colWidths[col], height=height,
-                           text=colLabels[col], facecolor=colColours[col],
-                           loc=colLoc)
+        if rowLabels is not None:
+            assert len(rowLabels) == rows
 
-    # Do row labels
-    if rowLabels is not None:
-        for row in xrange(rows):
-            table.add_cell(row + offset, -1,
-                           width=rowLabelWidth or 1e-15, height=height,
-                           text=rowLabels[row], facecolor=rowColours[row],
-                           loc=rowLoc)
-        if rowLabelWidth == 0:
-            table.auto_set_column_width(-1)
+        # If we have column labels, need to shift
+        # the text and colour arrays down 1 row
+        offset = 1
+        if colLabels is None:
+            if colColours is not None:
+                colLabels = [''] * cols
+            else:
+                offset = 0
+        elif colColours is None:
+            colColours = 'w' * cols
 
-    ax.add_table(table)
-    return table
+        if rowLabels is not None:
+            assert len(rowLabels) == rows
+
+        # Set up cell colours if not given
+        if cellColours is None:
+            cellColours = ['w' * cols] * rows
+
+        # Now create the table
+        self.rows = rows
+        self.cols = cols
+        self.cellText = cellText
+        self.cellColours = cellColours
+        self.cellLoc = cellLoc
+        self.colWidths = colWidths
+        self.rowLabels = rowLabels
+        self.rowColours = rowColours
+        self.rowLoc = rowLoc
+        self.colLabels = colLabels
+        self.colColours = colColours
+        self.colLoc = colLoc
+        self.loc = loc
+        self.bbox = bbox
+        self.offset = offset
+        self.ax = ax
+        self.table = self.createTable(self.ax,self.loc,self.bbox,**kwargs)
+        self.add_table_cell()
+        self.ax.add_table(self.table)
+
+    def createTable(self,ax,loc,bbox,**kwargs):
+        raise  NotImplementedError
+
+    def add_table_cell(self):
+        height = self.table._approx_text_height()
+
+        # Add the cells
+        for row in xrange(self.rows):
+            for col in xrange(self.cols):
+                self.table.add_cell(row + self.offset, col,
+                               width=self.colWidths[col], height=height,
+                               text=self.cellText[row][col],
+                               facecolor=self.cellColours[row][col],
+                               loc=self.cellLoc)
+        # Do column labels
+        if self.colLabels is not None:
+            for col in xrange(self.cols):
+                self.table.add_cell(0, self.col,
+                               width=self.colWidths[col], height=height,
+                               text=self.colLabels[col], facecolor=self.colColours[col],
+                               loc=self.colLoc)
+
+        # Do row labels
+        if self.rowLabels is not None:
+            for row in xrange(self.rows):
+                self.table.add_cell(row + self.offset, -1,
+                               width=self.rowLabelWidth or 1e-15, height=height,
+                               text=self.rowLabels[row], facecolor=self.rowColours[row],
+                               loc=self.rowLoc)
+            if self.rowLabelWidth == 0:
+                self.table.auto_set_column_width(-1)
+
+class SciTableCreator(TableCreator):
+    def createTable(self,ax,loc,bbox,**kwargs):
+        return SciTable(ax,loc,bbox,**kwargs)
+
+class RegularTableCreator(TableCreator):
+    def createTable(self,ax,loc,bbox,**kwargs):
+        return Table(ax,loc,bbox,**kwargs)
 
 
 docstring.interpd.update(Table=artist.kwdoc(Table))

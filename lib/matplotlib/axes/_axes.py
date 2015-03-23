@@ -11,6 +11,7 @@ import numpy as np
 from numpy import ma
 
 import matplotlib
+rcParams = matplotlib.rcParams
 
 import matplotlib.cbook as cbook
 from matplotlib.cbook import _string_to_bool, mplDeprecation
@@ -38,8 +39,6 @@ import matplotlib.transforms as mtrans
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase
 from matplotlib.axes._base import _process_plot_format
-
-rcParams = matplotlib.rcParams
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
@@ -1366,12 +1365,6 @@ class Axes(_AxesBase):
             self.cla()
         lines = []
 
-        # Convert "c" alias to "color" immediately, to avoid
-        # confusion farther on.
-        c = kwargs.pop('c', None)
-        if c is not None:
-            kwargs['color'] = c
-
         for line in self._get_lines(*args, **kwargs):
             self.add_line(line)
             lines.append(line)
@@ -1984,19 +1977,19 @@ class Axes(_AxesBase):
             if len(edgecolor) < nbars:
                 edgecolor *= nbars
 
-        # input validation
-        if len(left) != nbars:
-            raise ValueError("incompatible sizes: argument 'left' must "
-                             "be length %d or scalar" % nbars)
-        if len(height) != nbars:
-            raise ValueError("incompatible sizes: argument 'height' "
-                              "must be length %d or scalar" % nbars)
-        if len(width) != nbars:
-            raise ValueError("incompatible sizes: argument 'width' "
-                             "must be length %d or scalar" % nbars)
-        if len(bottom) != nbars:
-            raise ValueError("incompatible sizes: argument 'bottom' "
-                             "must be length %d or scalar" % nbars)
+        # FIXME: convert the following to proper input validation
+        # raising ValueError; don't use assert for this.
+        assert len(left) == nbars, ("incompatible sizes: argument 'left' must "
+                                    "be length %d or scalar" % nbars)
+        assert len(height) == nbars, ("incompatible sizes: argument 'height' "
+                                      "must be length %d or scalar" %
+                                      nbars)
+        assert len(width) == nbars, ("incompatible sizes: argument 'width' "
+                                     "must be length %d or scalar" %
+                                     nbars)
+        assert len(bottom) == nbars, ("incompatible sizes: argument 'bottom' "
+                                      "must be length %d or scalar" %
+                                      nbars)
 
         patches = []
 
@@ -2434,10 +2427,8 @@ class Axes(_AxesBase):
             labels = [''] * len(x)
         if explode is None:
             explode = [0] * len(x)
-        if len(x) != len(labels):
-            raise ValueError("'label' must be of length 'x'")
-        if len(x) != len(explode):
-            raise ValueError("'explode' must be of length 'x'")
+        assert(len(x) == len(labels))
+        assert(len(x) == len(explode))
         if colors is None:
             colors = ('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w')
 
@@ -2815,7 +2806,7 @@ class Axes(_AxesBase):
 
         if yerr is not None:
             if (iterable(yerr) and len(yerr) == 2 and
-                    iterable(yerr[0]) and iterable(yerr[1])):
+                iterable(yerr[0]) and iterable(yerr[1])):
                 # using list comps rather than arrays to preserve units
                 lower = [thisy - thiserr for (thisy, thiserr)
                          in cbook.safezip(y, yerr[0])]
@@ -3074,7 +3065,8 @@ class Axes(_AxesBase):
             # compatibility
             if sym == '':
                 # blow away existing dict and make one for invisible markers
-                flierprops = dict(linestyle='none', marker='', color='none')
+                flierprops = dict(linestyle='none', marker='',
+                    color='none')
                 # turn the fliers off just to be safe
                 showfliers = False
             # now process the symbol string
@@ -3095,7 +3087,7 @@ class Axes(_AxesBase):
         # replace medians if necessary:
         if usermedians is not None:
             if (len(np.ravel(usermedians)) != len(bxpstats) or
-                    np.shape(usermedians)[0] != len(bxpstats)):
+                 np.shape(usermedians)[0] != len(bxpstats)):
                 medmsg = 'usermedians length not compatible with x'
                 raise ValueError(medmsg)
             else:
@@ -3516,10 +3508,9 @@ class Axes(_AxesBase):
                     medians=medians, fliers=fliers, means=means)
 
     @docstring.dedent_interpd
-    def scatter(self, x, y, s=20, c=None, marker='o', cmap=None, norm=None,
+    def scatter(self, x, y, s=20, c='b', marker='o', cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None,
-                verts=None, edgecolors=None,
-                **kwargs):
+                verts=None, **kwargs):
         """
         Make a scatter plot of x vs y, where x and y are sequence like objects
         of the same lengths.
@@ -3539,14 +3530,11 @@ class Axes(_AxesBase):
             (see below). Note that `c` should not be a single numeric RGB or
             RGBA sequence because that is indistinguishable from an array of
             values to be colormapped.  `c` can be a 2-D array in which the
-            rows are RGB or RGBA, however, including the case of a single
-            row to specify the same color for all points.
+            rows are RGB or RGBA, however.
 
         marker : `~matplotlib.markers.MarkerStyle`, optional, default: 'o'
             See `~matplotlib.markers` for more information on the different
-            styles of markers scatter supports. `marker` can be either
-            an instance of the class or the text shorthand for a particular
-            marker.
+            styles of markers scatter supports.
 
         cmap : `~matplotlib.colors.Colormap`, optional, default: None
             A `~matplotlib.colors.Colormap` instance or registered name.
@@ -3568,14 +3556,10 @@ class Axes(_AxesBase):
             The alpha blending value, between 0 (transparent) and 1 (opaque)
 
         linewidths : scalar or array_like, optional, default: None
-            If None, defaults to (lines.linewidth,).
-
-        edgecolors : color or sequence of color, optional, default: None
-            If None, defaults to (patch.edgecolor).
-            If 'face', the edge color will always be the same as
-            the face color.  If it is 'none', the patch boundary will not
-            be drawn.  For non-filled markers, the `edgecolors` kwarg
-            is ignored; color is determined by `c`.
+            If None, defaults to (lines.linewidth,).  Note that this is a
+            tuple, and if you set the linewidths argument you must set it as a
+            sequence of floats, as required by
+            `~matplotlib.collections.RegularPolyCollection`.
 
         Returns
         -------
@@ -3600,32 +3584,6 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
 
-        # Process **kwargs to handle aliases, conflicts with explicit kwargs:
-
-        facecolors = None
-        ec = kwargs.pop('edgecolor', None)
-        if ec is not None:
-            edgecolors = ec
-        fc = kwargs.pop('facecolor', None)
-        if fc is not None:
-            facecolors = fc
-        fc = kwargs.pop('facecolors', None)
-        if fc is not None:
-            facecolors = fc
-        # 'color' should be deprecated in scatter, or clearly defined;
-        # since it isn't, I am giving it low priority.
-        co = kwargs.pop('color', None)
-        if co is not None:
-            if edgecolors is None:
-                edgecolors = co
-            if facecolors is None:
-                facecolors = co
-        if c is None:
-            if facecolors is not None:
-                c = facecolors
-            else:
-                c = 'b'  # the original default
-
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         x = self.convert_xunits(x)
         y = self.convert_yunits(y)
@@ -3639,41 +3597,43 @@ class Axes(_AxesBase):
 
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
-        # After this block, c_array will be None unless
-        # c is an array for mapping.  The potential ambiguity
-        # with a sequence of 3 or 4 numbers is resolved in
-        # favor mapping, not rgb or rgba.
-        try:
-            c_array = np.asanyarray(c, dtype=float)
-            if c_array.shape == x.shape:
-                c = np.ma.ravel(c_array)
-            else:
-                # Wrong shape; it must not be intended for mapping.
-                c_array = None
-        except ValueError:
-            # Failed to make a floating-point array; c must be color specs.
-            c_array = None
+        c_is_stringy = is_string_like(c) or is_sequence_of_strings(c)
+        if not c_is_stringy:
+            c = np.asanyarray(c)
+            if c.size == x.size:
+                c = np.ma.ravel(c)
 
-        if c_array is None:
-            colors = c     # must be acceptable as PathCollection facecolors
-        else:
-            colors = None  # use cmap, norm after collection is created
-
-        # c will be unchanged unless it is the same length as x:
         x, y, s, c = cbook.delete_masked_points(x, y, s, c)
 
         scales = s   # Renamed for readability below.
+
+        if c_is_stringy:
+            colors = mcolors.colorConverter.to_rgba_array(c, alpha)
+        else:
+            # The inherent ambiguity is resolved in favor of color
+            # mapping, not interpretation as rgb or rgba:
+            if c.size == x.size:
+                colors = None  # use cmap, norm after collection is created
+            else:
+                colors = mcolors.colorConverter.to_rgba_array(c, alpha)
+
+        faceted = kwargs.pop('faceted', None)
+        edgecolors = kwargs.get('edgecolors', None)
+        if faceted is not None:
+            cbook.warn_deprecated(
+                '1.2', name='faceted', alternative='edgecolor',
+                obj_type='option')
+            if faceted:
+                edgecolors = None
+            else:
+                edgecolors = 'none'
 
         # to be API compatible
         if marker is None and not (verts is None):
             marker = (verts, 0)
             verts = None
 
-        if isinstance(marker, mmarkers.MarkerStyle):
-            marker_obj = marker
-        else:
-            marker_obj = mmarkers.MarkerStyle(marker)
-
+        marker_obj = mmarkers.MarkerStyle(marker)
         path = marker_obj.get_path().transformed(
             marker_obj.get_transform())
         if not marker_obj.is_filled():
@@ -3688,15 +3648,14 @@ class Axes(_AxesBase):
                 linewidths=linewidths,
                 offsets=offsets,
                 transOffset=kwargs.pop('transform', self.transData),
-                alpha=alpha
                 )
         collection.set_transform(mtransforms.IdentityTransform())
+        collection.set_alpha(alpha)
         collection.update(kwargs)
 
         if colors is None:
-            if norm is not None and not isinstance(norm, mcolors.Normalize):
-                msg = "'norm' must be an instance of 'mcolors.Normalize'"
-                raise ValueError(msg)
+            if norm is not None:
+                assert(isinstance(norm, mcolors.Normalize))
             collection.set_array(np.asarray(c))
             collection.set_cmap(cmap)
             collection.set_norm(norm)
@@ -4066,9 +4025,8 @@ class Axes(_AxesBase):
             bins = np.sort(bins)
             accum = bins.searchsorted(accum)
 
-        if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
-            raise ValueError(msg)
+        if norm is not None:
+            assert(isinstance(norm, mcolors.Normalize))
         collection.set_array(accum)
         collection.set_cmap(cmap)
         collection.set_norm(norm)
@@ -4683,15 +4641,14 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
 
-        if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
-            raise ValueError(msg)
+        if norm is not None:
+            assert(isinstance(norm, mcolors.Normalize))
         if aspect is None:
             aspect = rcParams['image.aspect']
         self.set_aspect(aspect)
         im = mimage.AxesImage(self, cmap, norm, interpolation, origin, extent,
-                              filternorm=filternorm, filterrad=filterrad,
-                              resample=resample, **kwargs)
+                       filternorm=filternorm,
+                       filterrad=filterrad, resample=resample, **kwargs)
 
         im.set_data(X)
         im.set_alpha(alpha)
@@ -4976,7 +4933,7 @@ class Axes(_AxesBase):
                              X3[:, newaxis], Y3[:, newaxis],
                              X4[:, newaxis], Y4[:, newaxis],
                              X1[:, newaxis], Y1[:, newaxis]),
-                            axis=1)
+                             axis=1)
         verts = xy.reshape((npoly, 5, 2))
 
         C = compress(ravelmask, ma.filled(C[0:Ny - 1, 0:Nx - 1]).ravel())
@@ -5002,7 +4959,7 @@ class Axes(_AxesBase):
         if 'antialiased' in kwargs:
             kwargs['antialiaseds'] = kwargs.pop('antialiased')
         if 'antialiaseds' not in kwargs and (is_string_like(ec) and
-                                             ec.lower() == "none"):
+                ec.lower() == "none"):
             kwargs['antialiaseds'] = False
 
         kwargs.setdefault('snap', False)
@@ -5011,9 +4968,8 @@ class Axes(_AxesBase):
 
         collection.set_alpha(alpha)
         collection.set_array(C)
-        if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
-            raise ValueError(msg)
+        if norm is not None:
+            assert(isinstance(norm, mcolors.Normalize))
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection.set_clim(vmin, vmax)
@@ -5025,8 +4981,8 @@ class Axes(_AxesBase):
 
         # Transform from native to data coordinates?
         t = collection._transform
-        if (not isinstance(t, mtransforms.Transform) and
-            hasattr(t, '_as_mpl_transform')):
+        if (not isinstance(t, mtransforms.Transform)
+            and hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
 
         if t and any(t.contains_branch_seperately(self.transData)):
@@ -5161,9 +5117,8 @@ class Axes(_AxesBase):
             antialiased=antialiased, shading=shading, **kwargs)
         collection.set_alpha(alpha)
         collection.set_array(C)
-        if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
-            raise ValueError(msg)
+        if norm is not None:
+            assert(isinstance(norm, mcolors.Normalize))
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection.set_clim(vmin, vmax)
@@ -5173,8 +5128,8 @@ class Axes(_AxesBase):
 
         # Transform from native to data coordinates?
         t = collection._transform
-        if (not isinstance(t, mtransforms.Transform) and
-            hasattr(t, '_as_mpl_transform')):
+        if (not isinstance(t, mtransforms.Transform)
+            and hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
 
         if t and any(t.contains_branch_seperately(self.transData)):
@@ -5287,9 +5242,8 @@ class Axes(_AxesBase):
         cmap = kwargs.pop('cmap', None)
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
-        if norm is not None and not isinstance(norm, mcolors.Normalize):
-            msg = "'norm' must be an instance of 'mcolors.Normalize'"
-            raise ValueError(msg)
+        if norm is not None:
+            assert(isinstance(norm, mcolors.Normalize))
 
         C = args[-1]
         nr, nc = C.shape
@@ -5323,9 +5277,8 @@ class Axes(_AxesBase):
 
             # convert to one dimensional arrays
             # This should also be moved to the QuadMesh class
-
-            # data point in each cell is value at lower left corner
-            C = ma.ravel(C)
+            C = ma.ravel(C)  # data point in each cell is value
+                             # at lower left corner
             X = x.ravel()
             Y = y.ravel()
             Nx = nc + 1
@@ -5425,7 +5378,11 @@ class Axes(_AxesBase):
 
         %(Table)s
         """
-        return mtable.table(self, **kwargs)
+        return mtable.RegularTableCreator(self, **kwargs)
+
+    def scitable(self, **kwargs):
+
+        return mtable.SciTableCreator(self, **kwargs)
 
     #### Data analysis
 
