@@ -12,6 +12,7 @@ matplotlib.use('GTK3Cairo')
 matplotlib.rcParams['toolbar'] = 'navigation'
 import matplotlib.pyplot as plt
 from matplotlib.backend_tools import ToolBase
+from gi.repository import Gtk, Gdk
 
 
 class ListTools(ToolBase):
@@ -36,10 +37,10 @@ class ListTools(ToolBase):
                                              keys))
         print('_' * 80)
         print("Active Toggle tools")
-        print("{0:12} {1:45}").format("Group", "Active")
+        print("{0:12} {1:45}".format("Group", "Active"))
         print('-' * 80)
         for group, active in self.navigation.active_toggle.items():
-            print("{0:12} {1:45}").format(group, active)
+            print("{0:12} {1:45}".format(group, active))
 
 
 # ref: at https://github.com/matplotlib/matplotlib/issues/1987
@@ -49,7 +50,6 @@ class CopyToolGTK3(ToolBase):
     description = 'Copy canvas'
 
     def trigger(self, *args, **kwargs):
-        from gi.repository import Gtk, Gdk
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         window = self.figure.canvas.get_window()
         x, y, width, height = window.get_geometry()

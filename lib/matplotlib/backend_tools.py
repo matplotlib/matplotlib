@@ -23,9 +23,13 @@ class Cursors(object):
     HAND, POINTER, SELECT_REGION, MOVE = list(range(4))
 cursors = Cursors()
 
+# Views positions tool
+_views_positions = 'viewpos'
+
 
 class ToolBase(object):
-    """Base tool class
+    """
+    Base tool class
 
     A base tool, only implements `trigger` method or not method at all.
     The tool is instantiated by `matplotlib.backend_bases.NavigationBase`
@@ -42,21 +46,24 @@ class ToolBase(object):
     """
 
     keymap = None
-    """Keymap to associate with this tool
+    """
+    Keymap to associate with this tool
 
     **String**: List of comma separated keys that will be used to call this
     tool when the keypress event of *self.figure.canvas* is emited
     """
 
     description = None
-    """Description of the Tool
+    """
+    Description of the Tool
 
     **String**: If the Tool is included in the Toolbar this text is used
     as a Tooltip
     """
 
     image = None
-    """Filename of the image
+    """
+    Filename of the image
 
     **String**: Filename of the image to use in the toolbar. If None, the
     `name` is used as a label in the toolbar button
@@ -64,19 +71,24 @@ class ToolBase(object):
 
     def __init__(self, navigation, name):
         self._name = name
-        self.figure = None
+        self._figure = None
         self.navigation = navigation
         self.set_figure(navigation.canvas.figure)
 
+    @property
+    def figure(self):
+        return self._figure
+
     def trigger(self, sender, event, data=None):
-        """Called when this tool gets used
+        """
+        Called when this tool gets used
 
         This method is called by
         `matplotlib.backend_bases.NavigationBase.tool_trigger_event`
 
         Parameters
         ----------
-        event : `Event`
+        event: `Event`
             The Canvas event that caused this tool to be called
         sender: object
             Object that requested the tool to be triggered
@@ -87,16 +99,17 @@ class ToolBase(object):
         pass
 
     def set_figure(self, figure):
-        """Set the figure
+        """
+        Set the figure
 
         Set the figure to be affected by this tool
 
         Parameters
         ----------
-        figure : `Figure`
+        figure: `Figure`
         """
 
-        self.figure = figure
+        self._figure = figure
 
     @property
     def name(self):
@@ -104,7 +117,8 @@ class ToolBase(object):
         return self._name
 
     def destroy(self):
-        """Destroy the tool
+        """
+        Destroy the tool
 
         This method is called when the tool is removed by
         `matplotlib.backend_bases.NavigationBase.remove_tool`
@@ -113,7 +127,8 @@ class ToolBase(object):
 
 
 class ToolToggleBase(ToolBase):
-    """Toggleable tool
+    """
+    Toggleable tool
 
     Every time it is triggered, it switches between enable and disable
     """
@@ -141,7 +156,8 @@ class ToolToggleBase(ToolBase):
         self._toggled = not self._toggled
 
     def enable(self, event=None):
-        """Enable the toggle tool
+        """
+        Enable the toggle tool
 
         `trigger` calls this method when `toggled` is False
         """
@@ -149,9 +165,10 @@ class ToolToggleBase(ToolBase):
         pass
 
     def disable(self, event=None):
-        """Disable the toggle tool
+        """
+        Disable the toggle tool
 
-        `trigger` call this methond when `toggled` is True.
+        `trigger` call this method when `toggled` is True.
 
         This can happen in different circumstances
 
@@ -171,7 +188,8 @@ class ToolToggleBase(ToolBase):
 
 
 class SetCursorBase(ToolBase):
-    """Change to the current cursor while inaxes
+    """
+    Change to the current cursor while inaxes
 
     This tool, keeps track of all `ToolToggleBase` derived tools, and calls
     set_cursor when a tool gets triggered
@@ -197,14 +215,14 @@ class SetCursorBase(ToolBase):
 
         self._set_cursor_cbk(event.canvasevent)
 
-    # If the tool is toggleable, set the cursor when the tool is triggered
     def _add_tool(self, tool):
+        """set the cursor when the tool is triggered"""
         if getattr(tool, 'cursor', None) is not None:
             self.navigation.nav_connect('tool_trigger_%s' % tool.name,
                                         self._tool_trigger_cbk)
 
-    # If tool is added, process it
     def _add_tool_cbk(self, event):
+        """Process every newly added tool"""
         if event.tool is self:
             return
 
@@ -218,23 +236,24 @@ class SetCursorBase(ToolBase):
             if self._last_cursor != self._default_cursor:
                 self.set_cursor(self._default_cursor)
                 self._last_cursor = self._default_cursor
-        else:
-            if self._cursor:
-                cursor = self._cursor
-                if cursor and self._last_cursor != cursor:
-                    self.set_cursor(cursor)
-                    self._last_cursor = cursor
+        elif self._cursor:
+            cursor = self._cursor
+            if cursor and self._last_cursor != cursor:
+                self.set_cursor(cursor)
+                self._last_cursor = cursor
 
     def set_cursor(self, cursor):
-        """Set the cursor
+        """
+        Set the cursor
 
         This method has to be implemented per backend
         """
-        pass
+        raise NotImplementedError
 
 
 class ToolCursorPosition(ToolBase):
-    """Send message with the current pointer position
+    """
+    Send message with the current pointer position
 
     This tool runs in the background reporting the position of the cursor
     """
@@ -272,16 +291,18 @@ class RubberbandBase(ToolBase):
             self.remove_rubberband()
 
     def draw_rubberband(self, *data):
-        """Draw rubberband
+        """
+        Draw rubberband
 
         This method must get implemented per backend
         """
-        pass
+        raise NotImplementedError
 
     def remove_rubberband(self):
-        """Remove rubberband
+        """
+        Remove rubberband
 
-        This method must get implemented per backend
+        This method should get implemented per backend
         """
         pass
 
@@ -307,8 +328,8 @@ class ToolEnableAllNavigation(ToolBase):
             return
 
         for a in self.figure.get_axes():
-            if event.x is not None and event.y is not None \
-                    and a.in_axes(event):
+            if (event.x is not None and event.y is not None
+                    and a.in_axes(event)):
                 a.set_navigate(True)
 
 
@@ -324,11 +345,9 @@ class ToolEnableNavigation(ToolBase):
 
         n = int(event.key) - 1
         for i, a in enumerate(self.figure.get_axes()):
-            # consider axes, in which the event was raised
-            # FIXME: Why only this axes?
-            if event.x is not None and event.y is not None \
-                    and a.in_axes(event):
-                    a.set_navigate(i == n)
+            if (event.x is not None and event.y is not None
+                    and a.in_axes(event)):
+                a.set_navigate(i == n)
 
 
 class ToolGrid(ToolToggleBase):
@@ -402,7 +421,8 @@ class ToolXScale(AxisScaleBase):
 
 
 class ToolViewsPositions(ToolBase):
-    """Auxiliary Tool to handle changes in views and positions
+    """
+    Auxiliary Tool to handle changes in views and positions
 
     Runs in the background and should get used by all the tools that
     need to access the figure's history of views and positions, e.g.
@@ -437,7 +457,8 @@ class ToolViewsPositions(ToolBase):
             self.positions[figure].clear()
 
     def update_view(self):
-        """Update the viewlim and position from the view and
+        """
+        Update the viewlim and position from the view and
         position stack for each axes
         """
 
@@ -516,9 +537,9 @@ class ViewsPositionsBase(ToolBase):
     _on_trigger = None
 
     def trigger(self, sender, event, data=None):
-        self.navigation.get_tool('viewpos').add_figure()
-        getattr(self.navigation.get_tool('viewpos'), self._on_trigger)()
-        self.navigation.get_tool('viewpos').update_view()
+        self.navigation.get_tool(_views_positions).add_figure()
+        getattr(self.navigation.get_tool(_views_positions), self._on_trigger)()
+        self.navigation.get_tool(_views_positions).update_view()
 
 
 class ToolHome(ViewsPositionsBase):
@@ -593,7 +614,7 @@ class ZoomPanBase(ToolToggleBase):
         self.figure.canvas.mpl_disconnect(self._idScroll)
 
     def trigger(self, sender, event, data=None):
-        self.navigation.get_tool('viewpos').add_figure()
+        self.navigation.get_tool(_views_positions).add_figure()
         ToolToggleBase.trigger(self, sender, event, data)
 
     def scroll_zoom(self, event):
@@ -642,7 +663,7 @@ class ToolZoom(ZoomPanBase):
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)
         self.navigation.tool_trigger_event('rubberband', self)
-        self.navigation.get_tool('viewpos').refresh_locators()
+        self.navigation.get_tool(_views_positions).refresh_locators()
         self._xypress = None
         self._button_pressed = None
         self._ids_zoom = []
@@ -833,7 +854,7 @@ class ToolZoom(ZoomPanBase):
                     a.set_ylim((ry1, ry2))
 
         self._zoom_mode = None
-        self.navigation.get_tool('viewpos').push_current()
+        self.navigation.get_tool(_views_positions).push_current()
         self._cancel_action()
 
 
@@ -855,7 +876,7 @@ class ToolPan(ZoomPanBase):
         self._xypress = []
         self.figure.canvas.mpl_disconnect(self._idDrag)
         self.navigation.messagelock.release(self)
-        self.navigation.get_tool('viewpos').refresh_locators()
+        self.navigation.get_tool(_views_positions).refresh_locators()
 
     def _press(self, event):
         if event.button == 1:
@@ -892,7 +913,7 @@ class ToolPan(ZoomPanBase):
             self._cancel_action()
             return
 
-        self.navigation.get_tool('viewpos').push_current()
+        self.navigation.get_tool(_views_positions).push_current()
         self._cancel_action()
 
     def _mouse_move(self, event):
@@ -915,7 +936,7 @@ tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
          'xscale': ToolXScale,
          'yscale': ToolYScale,
          'position': ToolCursorPosition,
-         'viewpos': ToolViewsPositions,
+         _views_positions: ToolViewsPositions,
          'cursor': 'ToolSetCursor',
          'rubberband': 'ToolRubberband'}
 """Default tools"""
