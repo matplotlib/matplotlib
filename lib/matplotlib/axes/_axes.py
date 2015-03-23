@@ -5411,7 +5411,11 @@ class Axes(_AxesBase):
 
         %(Table)s
         """
-        return mtable.table(self, **kwargs)
+        return mtable.RegularTableCreator(self, **kwargs)
+
+    def scitable(self, **kwargs):
+
+        return mtable.SciTableCreator(self, **kwargs)
 
     #### Data analysis
 
