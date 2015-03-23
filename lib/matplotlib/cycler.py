@@ -69,6 +69,18 @@ class Cycler(object):
                 return iter(self._left)
         return self._compose()
 
+    def to_list(self):
+        """
+        Return a list of the dictionaries yielded by
+        this Cycler.
+
+        Returns
+        -------
+        cycle : list
+            All of the dictionaries yielded by this Cycler in order.
+        """
+        return list(self.finite_iter())
+
     def _compose(self):
         """
         Compose the 'left' and 'right' components of this cycle
