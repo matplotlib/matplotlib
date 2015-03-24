@@ -242,6 +242,16 @@ def test_grid():
     pickle.dump(ax, BytesIO())
 
 
+@cleanup
+def test_polar():
+    ax = plt.subplot(111, polar=True)
+    fig = plt.gcf()
+    result = BytesIO()
+    pf = pickle.dumps(fig)
+    pickle.loads(pf)
+    plt.draw()
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s'])
