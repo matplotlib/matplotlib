@@ -692,9 +692,17 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
 
     def set_r_offset(self, input_offset):
         """
-        Creates an offset from the origin of polar plots where
-        input_offset is a float between 0 and 1 representing the percent of the
-        the graph to be offset.
+        Creates an offset from the origin of a polar plot
+        
+        Parameters
+        ----------
+        input_offset : float
+              A number between 0 and 1 where 0 is the center of the plot and 1
+              is the edge of the plot
+        
+        Returns
+        -------
+        No return value.              
         """
         if input_offset < 0 or input_offset >= 1:
             raise NotImplementedError("Offset must be greater than 0 and less than 1.")
@@ -710,7 +718,16 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
 
     def get_r_offset(self):
         """
-        Returns the polar origin offset
+        Returns the radial offset
+        
+        Parameters
+        ----------
+        None
+        
+        Returns
+        -------
+        self._r_offset : float
+            The current radial offset
         """
         return self._r_offset
 
