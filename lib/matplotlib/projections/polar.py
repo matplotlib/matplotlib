@@ -698,11 +698,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         ----------
         input_offset : float
               A number between 0 and 1 where 0 is the center of the plot and 1
-              is the edge of the plot
-        
-        Returns
-        -------
-        No return value.              
+              is the edge of the plot            
         """
         if input_offset < 0 or input_offset >= 1:
             raise NotImplementedError("Offset must be greater than 0 and less than 1.")
@@ -719,10 +715,6 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
     def get_r_offset(self):
         """
         Returns the radial offset
-        
-        Parameters
-        ----------
-        None
         
         Returns
         -------
