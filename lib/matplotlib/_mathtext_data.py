@@ -2281,7 +2281,7 @@ tex2uni = {
     'obar'                     : 9021,
     'supseteq'                 : 8839,
     'nu'                       : 957,
-    'AA'                       : 8491,
+    'AA'                       : 197,
     'AE'                       : 198,
     'models'                   : 8871,
     'ominus'                   : 8854,

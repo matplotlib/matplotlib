@@ -2475,7 +2475,7 @@ class Parser(object):
         # The first 2 entires in the tuple are (font, char, sizescale) for
         # the two symbols under and over.  The third element is the space
         # (in multiples of underline height)
-        r'AA' : (  ('rm', 'A', 1.0), (None, '\circ', 0.5), 0.0),
+        r'AA' : (  ('it', 'A', 1.0), (None, '\circ', 0.5), 0.0),
     }
 
     def c_over_c(self, s, loc, toks):
@@ -2532,7 +2532,8 @@ class Parser(object):
         r'.'     : r'\combiningdotabove',
         r'^'     : r'\circumflexaccent',
         r'overrightarrow' : r'\rightarrow',
-        r'overleftarrow'  : r'\leftarrow'
+        r'overleftarrow'  : r'\leftarrow',
+        r'mathring' : r'\circ'
         }
 
     _wide_accents = set(r"widehat widetilde widebar".split())
@@ -2546,11 +2547,14 @@ class Parser(object):
             raise ParseFatalException("Error parsing accent")
         accent, sym = toks[0]
         if accent in self._wide_accents:
-            accent = AutoWidthChar(
+            accent_box = AutoWidthChar(
                 '\\' + accent, sym.width, state, char_class=Accent)
         else:
-            accent = Accent(self._accent_map[accent], state)
-        centered = HCentered([accent])
+            accent_box = Accent(self._accent_map[accent], state)
+        if accent == 'mathring':
+            accent_box.shrink()
+            accent_box.shrink()
+        centered = HCentered([Hbox(sym.width / 4.0), accent_box])
         centered.hpack(sym.width, 'exactly')
         return Vlist([
                 centered,
