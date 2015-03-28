@@ -1,24 +1,25 @@
-MEP10: Docstring consistency
-============================
+==============================
+ MEP10: Docstring consistency
+==============================
 .. contents::
    :local:
 
 Status
-------
+======
 
 **Progress**
 
 Targeted for 1.3
 
 Branches and Pull requests
---------------------------
+==========================
 
 #1665
 #1757
 #1795
 
 Abstract
---------
+========
 
 matplotlib has a great deal of inconsistency between docstrings.  This
 not only makes the docs harder to read, but it is harder on
@@ -36,7 +37,7 @@ Building the documentation takes a long time and uses a `make.py`
 script rather than a Makefile.
 
 Detailed description
---------------------
+====================
 
 There are number of new tools and conventions available since
 matplotlib started using Sphinx that make life easier.  The following
@@ -44,7 +45,7 @@ is a list of proposed changes to docstrings, most of which involve
 these new features.
 
 Numpy docstring format
-''''''''''''''''''''''
+----------------------
 
 `Numpy docstring format
 <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_:
@@ -55,7 +56,7 @@ own, but this is a strong choice, as it's well used and understood in
 the Numpy/Scipy community.
 
 Cross references
-''''''''''''''''
+----------------
 
 Most of the docstrings in matplotlib use explicit "roles" when linking
 to other items, for example: ``:func:`myfunction```.  As of Sphinx
@@ -67,7 +68,7 @@ a current module, so links like ```~matplotlib.axes.Axes.set_xlim```
 could be written as ```~axes.Axes.set_xlim```.
 
 Overriding signatures
-'''''''''''''''''''''
+---------------------
 
 Many methods in matplotlib use the ``*args`` and ``**kwargs`` syntax
 to dynamically handle the keyword arguments that are accepted by the
@@ -104,7 +105,7 @@ The explicit signature will replace the actual Python one in the
 generated documentation.
 
 Linking rather than duplicating
-'''''''''''''''''''''''''''''''
+-------------------------------
 
 Many of the docstrings include long lists of accepted keywords by
 interpolating things into the docstring at load time.  This makes the
@@ -117,7 +118,7 @@ purpose is for help.  The docstrings that refer to these tables should
 link to them, rather than including them verbatim.
 
 autosummary extension
-'''''''''''''''''''''
+---------------------
 
 The Sphinx autosummary extension should be used to generate summary
 tables, that link to separate pages of documentation.  Some classes
@@ -126,7 +127,7 @@ one method per page, whereas smaller classes should have all of their
 methods together.
 
 Examples linking to relevant documentation
-''''''''''''''''''''''''''''''''''''''''''
+------------------------------------------
 
 The examples, while helpful at illustrating how to use a feature, do
 not link back to the relevant docstrings.  This could be addressed by
@@ -136,7 +137,7 @@ docstrings could easily include references to any other part of the
 documentation.
 
 Documentation using help() vs a browser
-''''''''''''''''''''''
+---------------------------------------
 
 Using Sphinx markup in the source allows for good-looking docs in your
 browser, but the markup also makes the raw text returned using help()
@@ -144,7 +145,7 @@ look terrible. One of the aims of improving the docstrings should be
 to make both methods of accessing the docs look good.
 
 Implementation
---------------
+==============
 
 1. The numpydoc extensions should be turned on for matplotlib.  There
    is an important question as to whether these should be included in
@@ -181,12 +182,12 @@ Steps 1, 2, and 3 are interdependent.  4 and 5 may be done
 independently, though 5 has some dependency on 3.
 
 Backward compatibility
-----------------------
+======================
 
 As this mainly involves docstrings, there should be minimal impact on
 backward compatibility.
 
 Alternatives
-------------
+============
 
 None yet discussed.
