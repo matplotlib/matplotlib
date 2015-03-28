@@ -14,6 +14,7 @@ Matplotlib Enhancement Proposals
 
    template
    MEP08
+   MEP09
    MEP10
    MEP11
    MEP12
