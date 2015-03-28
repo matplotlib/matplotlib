@@ -17,4 +17,5 @@ Matplotlib Enhancement Proposals
    MEP11
    MEP12
    MEP13
+   MEP14
    MEP25
