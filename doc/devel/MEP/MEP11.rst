@@ -1,5 +1,6 @@
-MEP11: Third-party dependencies
-===============================
+=================================
+ MEP11: Third-party dependencies
+=================================
 
 .. contents::
    :local:
@@ -8,12 +9,12 @@ This MEP attempts to improve the way in which third-party dependencies
 in matplotlib are handled.
 
 Status
-------
+======
 
 **Completed** -- needs to be merged
 
 Branches and Pull requests
---------------------------
+==========================
 
 #1157: Use automatic dependency resolution
 
@@ -22,7 +23,7 @@ Branches and Pull requests
 #1261: Update six to 1.2
 
 Abstract
---------
+========
 
 One of the goals of matplotlib has been to keep it as easy to install
 as possible.  To that end, some third-party dependencies are included
@@ -42,7 +43,7 @@ confuse the issue.  C libraries represent a larger and mostly
 orthogonal set of problems.
 
 Detailed description
---------------------
+====================
 
 matplotlib depends on the following third-party Python libraries:
 
@@ -56,7 +57,7 @@ matplotlib depends on the following third-party Python libraries:
      optional, but one is required for an interactive GUI)
 
 Current behavior
-````````````````
+----------------
 
 When installing from source, a `git` checkout or `pip`:
 
@@ -100,7 +101,7 @@ inclusion because of this burden.
 
 
 Desired behavior
-````````````````
+----------------
 
 Third-party dependencies are downloaded and installed from their
 canonical locations by leveraging `pip`, `distribute` and `PyPI`.
@@ -111,7 +112,7 @@ aren't installed.  This will allow the user to decide whether they
 want to bother installing a particular feature.
 
 Implementation
---------------
+==============
 
 For installing from source, and assuming the user has all of the
 C-level compilers and dependencies, this can be accomplished fairly
@@ -151,7 +152,7 @@ installed using an installer.
 TODO: How does this relate to the Mac OS-X installer?
 
 Backward compatibility
-----------------------
+======================
 
 At present, matplotlib can be installed from source on a machine
 without the third party dependencies and without an internet
@@ -161,7 +162,7 @@ PyPI) will be required to install matplotlib for the first time.
 accessing the network).
 
 Alternatives
-------------
+============
 
 Distributing binary `eggs` doesn't feel like a usable solution.  That
 requires getting `easy_install` installed first, and Windows users
