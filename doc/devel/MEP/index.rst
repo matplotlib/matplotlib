@@ -14,4 +14,5 @@ Matplotlib Enhancement Proposals
 
    template
    MEP10
+   MEP11
    MEP25
