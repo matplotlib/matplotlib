@@ -13,4 +13,5 @@ Matplotlib Enhancement Proposals
    :maxdepth: 1
 
    template
+   MEP10
    MEP25
