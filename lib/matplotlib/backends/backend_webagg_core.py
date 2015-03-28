@@ -138,7 +138,7 @@ def _handle_key(key):
 
 
 class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
-    supports_blit = False
+    supports_blit = True
 
     def __init__(self, *args, **kwargs):
         backend_agg.FigureCanvasAgg.__init__(self, *args, **kwargs)
@@ -180,8 +180,21 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             # Swap the frames
             self.manager.refresh_all()
 
+    def blit(self, bbox=None):
+        """
+        Blit the region in bbox
+        """
+        self._png_is_old = True
+        self.manager.refresh_all()
+
     def draw_idle(self):
         self.send_event("draw")
+
+    def copy_from_bbox(self, bbox):
+        # we really want the old one (which is what is currently 'on screen')
+        # this will behave badly if `draw` has never been called.
+        renderer = self._last_renderer
+        return renderer.copy_from_bbox(bbox)
 
     def set_image_mode(self, mode):
         """
@@ -241,6 +254,13 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             # Swap the renderer frames
             self._renderer, self._last_renderer = (
                 self._last_renderer, renderer)
+
+            # update the cached renders of the Figure and Axes so that
+            # draw_artist() methods work as expected.
+            self.figure._cachedRenderer = self._renderer
+            for ax in self.figure.axes:
+                ax._cachedRenderer = self._renderer
+
             self._force_full = False
             self._png_is_old = False
         return self._png_buffer.getvalue()
