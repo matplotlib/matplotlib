@@ -147,18 +147,48 @@ class Cell(Rectangle):
         self._text.update(kwargs)
 
 
-class ScientificCell(Cell):
+class FancyCell(Cell):
     """
-    A subclass of Cell where vertical lines are ommitted.
+    A subclass of Cell where vertical and horizontal lines may
+    be selectively ommited.
+    """
 
-    """
+    def __init__(self, xy, width, height,
+                 edgecolor='k', facecolor='w',
+                 fill=True,
+                 text='',
+                 loc=None,
+                 fontproperties=None,
+                 edgeVisibility="LRBT"
+                 ):
+        Cell.__init__(self, xy, width, height, edgecolor, facecolor, fill,
+                text, loc, fontproperties)
+        for letter in edgeVisibility:
+            if letter not in "LRBT":
+                msg = ('Invalid edgeVisibility params for FancyCell:' +
+                      '{0}, must only consist of {1}.').format(
+                        value,
+                        ", ".join({'T', 'B', 'L', 'R'}),
+                        )
+                raise ValueError(msg)
+        self._edgeVisibility = edgeVisibility
 
     def get_path(self):
-        'Return a path where vertical lines are not drawn'
+        'Return a path where the edges specificed by edgeVisibility are drawn'
+        edgeCodes = [Path.MOVETO, Path.MOVETO, Path.MOVETO,
+                     Path.MOVETO, Path.MOVETO]
+        if 'B' in self._edgeVisibility:
+            edgeCodes[1] = Path.LINETO
+        if 'R' in self._edgeVisibility:
+            edgeCodes[2] = Path.LINETO
+        if 'T' in self._edgeVisibility:
+            edgeCodes[3] = Path.LINETO
+        if 'L' in self._edgeVisibility:
+            edgeCodes[4] = Path.LINETO
+
         path = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0],
                     [0.0, 0.0]],
-                    [Path.MOVETO, Path.LINETO, Path.MOVETO, Path.LINETO,
-                    Path.CLOSEPOLY],
+                    edgeCodes,
                     readonly=True
                     )
         return path
@@ -197,9 +227,11 @@ class Table(Artist):
              'bottom':       17,
              }
 
-    CELLTYPES = {'default':    Cell,
-                 'scientific': ScientificCell,
-                 }
+    DRAWLINE_ALIASES = {'open':         '',
+                        'closed':       'LRBT',  # default
+                        'horizontal':   'TB',
+                        'vertical':     'LR'
+                        }
 
     FONTSIZE = 10
     AXESPAD = 0.02    # the border between the axes and table edge
@@ -225,7 +257,7 @@ class Table(Artist):
 
         self._texts = []
         self._cells = {}
-        self._cellType = 'default'
+        self._drawLines = "LTRB"
         self._autoRows = []
         self._autoColumns = []
         self._autoFontsize = True
@@ -239,7 +271,7 @@ class Table(Artist):
         """ Add a cell to the table. """
         xy = (0, 0)
 
-        cell = self.CELLTYPES[self.cellType](xy, *args, **kwargs)
+        cell = FancyCell(xy, edgeVisibility=self._drawLines, *args, **kwargs)
         cell.set_figure(self.figure)
         cell.set_transform(self.get_transform())
 
@@ -247,21 +279,26 @@ class Table(Artist):
         self._cells[(row, col)] = cell
 
     @property
-    def cellType(self):
-        return self._cellType
+    def drawLines(self):
+        return self._drawLines
 
-    @cellType.setter
-    def cellType(self, value):
+    @drawLines.setter
+    def drawLines(self, value):
         if value is None:
             pass  # Leave as previously set
-        elif value in self.CELLTYPES:
-            self._cellType = value
+        elif value in self.DRAWLINE_ALIASES.keys():
+            self._drawLines = self.DRAWLINE_ALIASES[value]
         else:
-            msg = 'Unrecognized type of Cell: {0}, must be one of {1}.'.format(
-                    value,
-                    ", ".join(self.CELLTYPES.keys()),
-                    )
-            raise ValueError(msg)
+            for letter in value:
+                if letter not in "LRBT":
+                    msg = ('Unrecognized draw lines for Cell:' +
+                           ' {0}, must be one of {1}.').format(
+                            value,
+                            ", ".join({'open', 'closed', 'horizontal',
+                            'vertical', 'string consisting of {T, B, R, L}'}),
+                            )
+                    raise ValueError(msg)
+            self._drawLines = value
 
     def _approx_text_height(self):
         return (self.FONTSIZE / 72.0 * self.figure.dpi /
@@ -499,14 +536,14 @@ def table(ax,
           cellLoc='right', colWidths=None,
           rowLabels=None, rowColours=None, rowLoc='left',
           colLabels=None, colColours=None, colLoc='center',
-          loc='bottom', bbox=None, cellType=None,
+          loc='bottom', bbox=None, drawLines='LRBT',
           **kwargs):
     """
     TABLE(cellText=None, cellColours=None,
           cellLoc='right', colWidths=None,
           rowLabels=None, rowColours=None, rowLoc='left',
           colLabels=None, colColours=None, colLoc='center',
-          loc='bottom', bbox=None, cellType=None)
+          loc='bottom', bbox=None, drawLines='LRBT')
 
     Factory function to generate a Table instance.
 
@@ -569,7 +606,7 @@ def table(ax,
 
     # Now create the table
     table = Table(ax, loc, bbox, **kwargs)
-    table.cellType = cellType
+    table.drawLines = drawLines
     height = table._approx_text_height()
 
     # Add the cells
