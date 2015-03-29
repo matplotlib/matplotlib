@@ -1424,9 +1424,10 @@ class Figure(Artist):
 
         Keyword arguments:
 
-          *dpi*: [ *None* | ``scalar > 0`` ]
+          *dpi*: [ *None* | ``scalar > 0`` | 'figure']
             The resolution in dots per inch.  If *None* it will default to
-            the value ``savefig.dpi`` in the matplotlibrc file.
+            the value ``savefig.dpi`` in the matplotlibrc file. If 'figure'
+            it will set the dpi to be the value of the figure.
 
           *facecolor*, *edgecolor*:
             the colors of the figure rectangle
@@ -1473,6 +1474,8 @@ class Figure(Artist):
         """
 
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])
+        if kwargs['dpi'] == 'figure':
+            kwargs['dpi'] = self.get_dpi()
         frameon = kwargs.pop('frameon', rcParams['savefig.frameon'])
         transparent = kwargs.pop('transparent',
                                  rcParams['savefig.transparent'])

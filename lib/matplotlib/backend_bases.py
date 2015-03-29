@@ -2084,7 +2084,6 @@ class FigureCanvasBase(object):
 
         *dpi*
             the dots per inch to save the figure in; if None, use savefig.dpi
-            if 'native' use dpi from figure
 
         *facecolor*
             the facecolor of the figure
@@ -2128,8 +2127,6 @@ class FigureCanvasBase(object):
 
         if dpi is None:
             dpi = rcParams['savefig.dpi']
-        elif dpi == 'native':
-            dpi = self.figure.dpi
 
         origDPI = self.figure.dpi
         origfacecolor = self.figure.get_facecolor()
