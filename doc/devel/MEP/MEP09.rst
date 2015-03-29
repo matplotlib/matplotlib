@@ -83,12 +83,14 @@ Implementation
   interactivity manager has a consistent interface for the
   interactivity manager to deal with.  The proposed methods to add to
   the artists, if they are to support interactivity, are:
+
   * get_pixel_position_ll(self): get the pixel position of the lower
-      left corner of the artist's bounding box
+    left corner of the artist's bounding box
   * get_pixel_size(self): get the size of the artist's bounding box,
-      in pixels
+    in pixels
   * set_pixel_position_and_size(self,x,y,dx,dy): set the new size of
-      the artist, such that it fits within the specified bounding box.
+    the artist, such that it fits within the specified bounding box.
+
 * add capability to the backends to 1) provide cursors, since these
   are needed for visual indication of moving/resizing, and 2) provide
   a function that gets the current mouse position
