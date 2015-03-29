@@ -58,6 +58,7 @@ source tree.
 
 Why add more text rendering engines?  The "built-in" text rendering
 has a number of shortcomings.
+
 - It only handles right-to-left languages, and doesn't handle many
   special features of Unicode, such as combining diacriticals.
 - The multiline support is imperfect and only supports manual
