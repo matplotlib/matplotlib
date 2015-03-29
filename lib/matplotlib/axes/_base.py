@@ -29,6 +29,8 @@ import matplotlib.spines as mspines
 import matplotlib.font_manager as font_manager
 import matplotlib.text as mtext
 import matplotlib.image as mimage
+import matplotlib.cycle as mcycle
+
 from matplotlib.artist import allow_rasterization
 from matplotlib.cbook import iterable
 
@@ -137,7 +139,7 @@ class _process_plot_var_args(object):
     def __init__(self, axes, command='plot'):
         self.axes = axes
         self.command = command
-        self.set_color_cycle()
+        self.cycle = mcycle.Cycle()
 
     def __getstate__(self):
         # note: it is not possible to pickle a itertools.cycle instance
@@ -145,12 +147,7 @@ class _process_plot_var_args(object):
 
     def __setstate__(self, state):
         self.__dict__ = state.copy()
-        self.set_color_cycle()
-
-    def set_color_cycle(self, clist=None):
-        if clist is None:
-            clist = rcParams['axes.color_cycle']
-        self.color_cycle = itertools.cycle(clist)
+        self.cycle.set_color_cycle()
 
     def __call__(self, *args, **kwargs):
 
@@ -229,12 +226,10 @@ class _process_plot_var_args(object):
         return x, y
 
     def _makeline(self, x, y, kw, kwargs):
-        kw = kw.copy()  # Don't modify the original kw.
+        args = self.cycle.next()
+        args.update(kw)
+        kw = args.copy()  # Don't modify the original kw.
         kwargs = kwargs.copy()
-        if kw.get('color', None) is None and kwargs.get('color', None) is None:
-            kwargs['color'] = kw['color'] = six.next(self.color_cycle)
-            # (can't use setdefault because it always evaluates
-            # its second argument)
         seg = mlines.Line2D(x, y,
                             **kw
                             )
@@ -245,7 +240,7 @@ class _process_plot_var_args(object):
         try:
             facecolor = kw['color']
         except KeyError:
-            facecolor = six.next(self.color_cycle)
+            facecolor = self.cycle.get_next_color()
         seg = mpatches.Polygon(np.hstack((x[:, np.newaxis],
                                           y[:, np.newaxis])),
                                facecolor=facecolor,
@@ -971,14 +966,47 @@ class _AxesBase(martist.Artist):
         """clear the axes"""
         self.cla()
 
+    def set_cycle(self, style, slist):
+        """
+        Set the cycle for a line attribute for any future plot commands
+        on this Axes
+        
+        *style* is a key to a dictionary for cycles in the cycle class
+        *slist* is a list of mpl style specifiers
+        """
+        self._get_lines.cycle.set_cycle(style, slist)
+        
+    def clear_all_cycle(self):
+        """
+        Clear all the current line attribute cycles
+        """
+        self._get_lines.cycle.clear_all_cycle()
+    
+    def clear_cycle(self, style):
+        """
+        Clear a cycle for a line attribute specified by style
+        
+        *style* is a key to a dictionary for cycles in the cycle class
+        """
+        self._get_lines.cycle.clear_cycle(style)
+
     def set_color_cycle(self, clist):
         """
         Set the color cycle for any future plot commands on this Axes.
 
         *clist* is a list of mpl color specifiers.
         """
-        self._get_lines.set_color_cycle(clist)
-        self._get_patches_for_fill.set_color_cycle(clist)
+        self._get_lines.cycle.set_color_cycle(clist)
+        self._get_patches_for_fill.cycle.set_color_cycle(clist)
+
+    def set_line_cycle(self, llist):
+        """
+        Set the line style cycle for any future plot commands on this
+        Axes.
+        
+        *llist* is a list of mpl line style specifiers.
+        """
+        self._get_lines.cycle.set_line_cycle(llist)
 
     def ishold(self):
         """return the HOLD status of the axes"""

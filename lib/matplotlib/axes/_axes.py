@@ -2876,7 +2876,7 @@ class Axes(_AxesBase):
 
         if ecolor is None:
             if l0 is None:
-                ecolor = six.next(self._get_lines.color_cycle)
+                ecolor = self._get_lines.cycle.get_next_color()
             else:
                 ecolor = l0.get_color()
 
@@ -5677,7 +5677,7 @@ class Axes(_AxesBase):
         nx = len(x)  # number of datasets
 
         if color is None:
-            color = [six.next(self._get_lines.color_cycle)
+            color = [self._get_lines.cycle.get_next_color()
                      for i in xrange(nx)]
         else:
             color = mcolors.colorConverter.to_rgba_array(color)
