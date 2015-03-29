@@ -3906,7 +3906,7 @@ class FancyArrowPatch(Patch):
         """
         If *posA* and *posB* is given, a path connecting two point are
         created according to the connectionstyle. The path will be
-        clipped with *patchA* and *patchB* and further shirnked by
+        clipped with *patchA* and *patchB* and further shrinked by
         *shrinkA* and *shrinkB*. An arrow is drawn along this
         resulting path using the *arrowstyle* parameter. If *path*
         provided, an arrow is drawn along this path and *patchA*,
