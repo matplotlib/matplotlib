@@ -25,4 +25,5 @@ Matplotlib Enhancement Proposals
    MEP21
    MEP22
    MEP23
+   MEP24
    MEP25
