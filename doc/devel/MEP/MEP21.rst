@@ -1,6 +1,7 @@
 ==============================
  MEP21: color and cm refactor
 ==============================
+
 .. contents::
    :local:
 
@@ -22,16 +23,21 @@ Abstract
 ========
 
 
- * color
-   * tidy up the namespace
-   * Define a "Color" class
-   * make it easy to convert from one color type to another ```hex -> RGB```, ```RGB -> hex```, ```HSV -> RGB``` etc.
-   * improve the construction of a colormap - the dictionary approach is archaic and overly complex (though incredibly powerful)
-   * make it possible to interpolate between two or more color types
-     in different modes, especially useful for construction of
-     colormaps in HSV space for instance
- * cm
-   * rename the module to something more descriptive - mappables?
+* color
+
+  * tidy up the namespace
+  * Define a "Color" class
+  * make it easy to convert from one color type to another ```hex ->
+    RGB```, ```RGB -> hex```, ```HSV -> RGB``` etc.
+  * improve the construction of a colormap - the dictionary approach
+    is archaic and overly complex (though incredibly powerful)
+  * make it possible to interpolate between two or more color types
+    in different modes, especially useful for construction of
+    colormaps in HSV space for instance
+
+* cm
+
+  * rename the module to something more descriptive - mappables?
 
 
 Overall, there are a lot of improvements that can be made with
