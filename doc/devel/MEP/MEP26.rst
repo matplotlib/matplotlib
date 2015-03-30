@@ -116,14 +116,14 @@ syntax ::
 
     selector {attribute: value;}
 
-Each rule can have any number of `attribute`:`value` pairs, and a
+Each rule can have any number of `attribute`: `value` pairs, and a
 stylesheet can have any number of rules.
 
 The initial syntax is designed only for `artist` primitives. It does
 not address the question of how to set properties on `container` types
 (whose properties may themselves be `artists` with settable
 properties), however, a future solution to this could simply be nested
-`RuleSet`s
+`RuleSet` s
 
 Selectors
 ~~~~~~~~~
@@ -221,7 +221,7 @@ Appendix
 ========
 
 Matplotlib primitives
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 This will form the initial selectors which stylesheets can use.
 

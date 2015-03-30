@@ -48,6 +48,7 @@ Two main places for generic code appear in the classes derived from
 ``FigureManagerBase`` and ``ShowBase``.
 
 1. ``FigureManagerBase`` has **three** jobs at the moment:
+
     1. The documentation describes it as a *``Helper class for pyplot
        mode, wraps everything up into a neat bundle''*
     2. But it doesn't just wrap the canvas and toolbar, it also does
@@ -63,6 +64,7 @@ Two main places for generic code appear in the classes derived from
 
 
 2. ``ShowBase`` has two jobs:
+
     1. It has the job of going through all figure managers registered
        in ``_pylab_helpers.Gcf`` and telling them to show themselves.
     2. And secondly it has the job of performing the backend specific
@@ -89,46 +91,42 @@ The description of this MEP gives us most of the solution:
 3. Now that ``FigureManagerBase`` has no backend specifics in it, to
    rename it to ``FigureManager``, and move to a new file
    ``backend_managers.py`` noting that:
-    1. This allows us to break up the conversion of backends into
-       separate PRs as we can keep the existing ``FigureManagerBase``
-       class and its dependencies intact.
-    2. and this also anticipates MEP22 where the new
-       ``NavigationBase`` has morphed into a backend independent
-       ``ToolManager``.
+
+   1. This allows us to break up the conversion of backends into
+      separate PRs as we can keep the existing ``FigureManagerBase``
+      class and its dependencies intact.
+   2. and this also anticipates MEP22 where the new
+      ``NavigationBase`` has morphed into a backend independent
+      ``ToolManager``.
 
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
 |FigureManagerBase(canvas, num)        |FigureManager(figure, num)    |``WindowBase(title)``|Notes                           |
 |                                      |                              |                     |                                |
 +======================================+==============================+=====================+================================+
-|show                                  |:arrow_right:                 |show                 |                                |
+|show                                  |                              |show                 |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
 |destroy                               |calls destroy on all          |destroy              |                                |
 |                                      |components                    |                     |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
 |full_screen_toggle                    |handles logic                 |set_fullscreen       |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
-|resize                                |:arrow_right:                 |resize               |                                |
+|resize                                |                              |resize               |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
-|key_press                             |key_press                     |:no_entry:           |                                |
+|key_press                             |key_press                     |                     |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
-|show_popup                            |show_poup                     |:no_entry:           |Not used anywhere in mpl, and   |
+|show_popup                            |show_poup                     |                     |Not used anywhere in mpl, and   |
 |                                      |                              |                     |does nothing.                   |
-|                                      |                              |                     |                                |
-|                                      |                              |                     |                                |
-|                                      |                              |                     |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
-|get_window_title                      |:arrow_right:                 |get_window_title     |                                |
+|get_window_title                      |                              |get_window_title     |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
-|set_window_title                      |:arrow_right:                 |set_window_title     |                                |
+|set_window_title                      |                              |set_window_title     |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
-|:no_entry:                            |_get_toolbar                  |                     |A common method to all          |
+|                                      |_get_toolbar                  |                     |A common method to all          |
 |                                      |                              |                     |subclasses of FigureManagerBase |
-|                                      |                              |                     |                                |
-|                                      |                              |                     |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
-|:no_entry:                            |:no_entry:                    |set_default_size     |                                |
+|                                      |                              |set_default_size     |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
-|:no_entry:                            |:no_entry:                    |add_element_to_window|                                |
+|                                      |                              |add_element_to_window|                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
 
 
@@ -137,14 +135,14 @@ The description of this MEP gives us most of the solution:
 +==========+============+=============+
 |mainloop  |begin       |             |
 +----------+------------+-------------+
-|:no_entry:|end         |Gets called  |
+|          |end         |Gets called  |
 |          |            |automagically|
 |          |            |when no more |
 |          |            |instances of |
 |          |            |the subclass |
 |          |            |exist        |
 +----------+------------+-------------+
-|__call__  |:no_entry:  |Method moved |
+|__call__  |            |Method moved |
 |          |            |to           |
 |          |            |Gcf.show_all |
 +----------+------------+-------------+
