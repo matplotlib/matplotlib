@@ -978,19 +978,19 @@ class OffsetNorm(Normalize):
 
         Parameters
         ----------
-        vmin : optional float
+        vmin : float, optional
             The data value that defines ``0.0`` in the normalized data.
             Defaults to the min value of the dataset.
 
-        vcenter : optional float
+        vcenter : float, optional
             The data value that defines ``0.5`` in the normalized data.
             Defaults to halfway between *vmin* and *vmax*.
 
-        vmax : option float
+        vmax : float, optional
             The data value that defines ``1.0`` in the normalized data.
             Defaults to the the max value of the dataset.
 
-        clip : optional bool (default is False)
+        clip : bool, optional (default is False)
             If *clip* is True, values beyond *vmin* and *vmax* will be set
             to ``0.0`` or ``1.0``, respectively. Otherwise, values outside
             the ``[0.0, 1.0]`` will be returned.
