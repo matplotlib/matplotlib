@@ -93,7 +93,7 @@ The following instance attributes are set at instantiation:
    * keypress associated with the Tool Keymap
    * Call to navigation.trigger_tool(name)
  * set_figure(self, figure): Set the figure and navigation attributes
- * destroy(self, *args): Destroy the `Tool` graphical interface (if exists)
+ * ``destroy(self, *args)``: Destroy the `Tool` graphical interface (if exists)
 
 **Available Tools**
  * ToolQuit
@@ -150,7 +150,7 @@ Public methods for **User use**:
    None
  * get_tool_keymap(self, name): Return a list of keys that are
    associated with the tool
- * set_tool_keymap(self, name, *keys): Set the keys for the given tool
+ * set_tool_keymap(self, name, ``*keys``): Set the keys for the given tool
  * remove_tool(self, name): Removes tool from the navigation control.
  * add_tools(self, tools): Add multiple tools to `Navigation`
  * add_tool(self, name, tool, group=None, position=None): Add a tool
