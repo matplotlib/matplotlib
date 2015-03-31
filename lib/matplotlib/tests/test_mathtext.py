@@ -92,7 +92,8 @@ math_tests = [
     r"$\left(2 \, a=b\right)$", # Sage bug #8125
     r"$? ! &$", # github issue #466
     r'$\operatorname{cos} x$', # github issue #553
-    r'$\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0<j<n}}P\left(i,j\right)$'
+    r'$\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0<j<n}}P\left(i,j\right)$',
+    r"$\left\Vert a \right\Vert \left\vert b \right\vert \left| a \right| \left\| b\right\| \Vert a \Vert \vert b \vert$"
 ]
 
 digits = "0123456789"
