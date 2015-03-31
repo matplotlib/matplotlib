@@ -96,7 +96,7 @@ latex_to_bakoma = {
     r'\chi'                      : ('cmmi10',  17),
     r'\psi'                      : ('cmmi10',  31),
     r'|'                         : ('cmsy10',  47),
-    r'\|'                        : ('cmsy10',  47),
+    r'\|'                        : ('cmsy10',  44),
     r'('                         : ('cmr10',  119),
     r'\leftparen'                : ('cmr10',  119),
     r'\rightparen'               : ('cmr10',   68),
