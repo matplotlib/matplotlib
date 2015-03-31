@@ -153,49 +153,59 @@ class CustomCell(Cell):
 
     """
 
-    EDGES = 'BRTL'
-    EDGE_ALIASES = {'open':         '',
-                    'closed':       EDGES,  # default
-                    'horizontal':   'BT',
-                    'vertical':     'RL'
-                    }
+    _edges = 'BRTL'
+    _edge_aliases = {'open':         '',
+                     'closed':       _edges,  # default
+                     'horizontal':   'BT',
+                     'vertical':     'RL'
+                     }
 
     def __init__(self, *args, **kwargs):
-
         visible_edges = kwargs.pop('visible_edges')
         Cell.__init__(self, *args, **kwargs)
+        self.visible_edges = visible_edges
 
-        if visible_edges is None:
-            self._visible_edges = self.EDGES
-        elif visible_edges in self.EDGE_ALIASES:
-            self._visible_edges = self.EDGE_ALIASES[visible_edges]
+    @property
+    def visible_edges(self):
+        return self._visible_edges
+
+    @visible_edges.setter
+    def visible_edges(self, value):
+        if value is None:
+            self._visible_edges = self._edges
+        elif value in self._edge_aliases:
+            self._visible_edges = self._edge_aliases[value]
         else:
-            for edge in visible_edges:
-                if edge not in self.EDGES:
-                    msg = 'Invalid edge param {0}, must only be one of {1} or \
-                            string of {2}.'.format(
-                                    visible_edges,
-                                    ", ".join(self.EDGE_ALIASES.keys()),
-                                    ", ".join(self.EDGES),
-                                    )
+            for edge in value:
+                if edge not in self._edges:
+                    msg = ('Invalid edge param {0}, must only be one of'
+                           ' {1} or string of {2}.').format(
+                                   value,
+                                   ", ".join(self._edge_aliases.keys()),
+                                   ", ".join(self._edges),
+                                   )
                     raise ValueError(msg)
-            self._visible_edges = visible_edges
+            self._visible_edges = value
 
     def get_path(self):
         'Return a path where the edges specificed by _visible_edges are drawn'
 
-        codes = [Path.MOVETO] * 4
-        codes.append(Path.CLOSEPOLY)
+        codes = [Path.MOVETO]
 
-        for i, edge in enumerate(self.EDGES, 1):
+        for edge in self._edges:
             if edge in self._visible_edges:
-                codes[i] = Path.LINETO
+                codes.append(Path.LINETO)
+            else:
+                codes.append(Path.MOVETO)
+
+        if Path.MOVETO not in codes[1:]:  # All sides are visible
+            codes[-1] = Path.CLOSEPOLY
 
         return Path(
-                [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]],
-                codes,
-                readonly=True
-                )
+            [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]],
+            codes,
+            readonly=True
+            )
 
 
 class Table(Artist):
@@ -255,7 +265,7 @@ class Table(Artist):
 
         self._texts = []
         self._cells = {}
-        self._drawLines = None
+        self._edges = None
         self._autoRows = []
         self._autoColumns = []
         self._autoFontsize = True
@@ -269,7 +279,7 @@ class Table(Artist):
         """ Add a cell to the table. """
         xy = (0, 0)
 
-        cell = CustomCell(xy, visible_edges=self._drawLines, *args, **kwargs)
+        cell = CustomCell(xy, visible_edges=self.edges, *args, **kwargs)
         cell.set_figure(self.figure)
         cell.set_transform(self.get_transform())
 
@@ -277,12 +287,12 @@ class Table(Artist):
         self._cells[(row, col)] = cell
 
     @property
-    def drawLines(self):
-        return self._drawLines
+    def edges(self):
+        return self._edges
 
-    @drawLines.setter
-    def drawLines(self, value):
-        self._drawLines = value
+    @edges.setter
+    def edges(self, value):
+        self._edges = value
 
     def _approx_text_height(self):
         return (self.FONTSIZE / 72.0 * self.figure.dpi /
@@ -520,14 +530,14 @@ def table(ax,
           cellLoc='right', colWidths=None,
           rowLabels=None, rowColours=None, rowLoc='left',
           colLabels=None, colColours=None, colLoc='center',
-          loc='bottom', bbox=None, drawLines='BRTL',
+          loc='bottom', bbox=None, edges='BRTL',
           **kwargs):
     """
     TABLE(cellText=None, cellColours=None,
           cellLoc='right', colWidths=None,
           rowLabels=None, rowColours=None, rowLoc='left',
           colLabels=None, colColours=None, colLoc='center',
-          loc='bottom', bbox=None, drawLines='BRTL')
+          loc='bottom', bbox=None, edges='BRTL')
 
     Factory function to generate a Table instance.
 
@@ -590,7 +600,7 @@ def table(ax,
 
     # Now create the table
     table = Table(ax, loc, bbox, **kwargs)
-    table.drawLines = drawLines
+    table.edges = edges
     height = table._approx_text_height()
 
     # Add the cells
