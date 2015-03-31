@@ -98,6 +98,6 @@ def test_diff_cell_table():
                 loc='center',
                 colLoc='center',
                 rowLoc='center',
-                drawLines=cell,
+                edges=cell,
                 )
     plt.tight_layout()
