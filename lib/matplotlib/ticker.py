@@ -287,10 +287,10 @@ class FixedFormatter(Formatter):
 
     def __call__(self, x, pos=None):
         'Return the format for tick val *x* at position *pos*'
-        if pos is None or pos >= len(self.seq):
+        if x is None or x >= len(self.seq) or x < 0:
             return ''
         else:
-            return self.seq[pos]
+            return self.seq[int(np.round(x)]
 
     def get_offset(self):
         return self.offset_string
