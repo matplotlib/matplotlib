@@ -1106,12 +1106,12 @@ class Figure(Artist):
         dsu.sort(key=itemgetter(0))
         for zorder, a, func, args in dsu:
             func(*args)
-            a.dirty = False
+            a.stale = False
 
         renderer.close_group('figure')
 
         self._cachedRenderer = renderer
-        self.dirty = False
+        self.stale = False
         self.canvas.draw_event(renderer)
 
     def draw_artist(self, a):
