@@ -2064,7 +2064,7 @@ class _AxesBase(martist.Artist):
         # will draw the edges
         if self.axison and self._frameon:
             self.patch.draw(renderer)
-            self.patch.dirty = False
+            self.patch.stale = False
 
         if _do_composite:
             # make a composite image, blending alpha
@@ -2097,22 +2097,22 @@ class _AxesBase(martist.Artist):
                 self.patch.get_transform()))
 
             renderer.draw_image(gc, round(l), round(b), im)
-            im.dirty = False
+            im.stale = False
             gc.restore()
 
         if dsu_rasterized:
             for zorder, a in dsu_rasterized:
                 a.draw(renderer)
-                a.dirty = False
+                a.stale = False
             renderer.stop_rasterizing()
 
         for zorder, a in dsu:
             a.draw(renderer)
-            a.dirty = False
+            a.stale = False
 
         renderer.close_group('axes')
         self._cachedRenderer = renderer
-        self.dirty = False
+        self.stale = False
 
     def draw_artist(self, a):
         """
@@ -2125,7 +2125,7 @@ class _AxesBase(martist.Artist):
                    ' caches the render')
             raise AttributeError(msg)
         a.draw(self._cachedRenderer)
-        a.dirty = False
+        a.stale = False
 
     def redraw_in_frame(self):
         """

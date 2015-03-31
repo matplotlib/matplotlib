@@ -68,12 +68,12 @@ def allow_rasterization(draw):
     return draw_wrapper
 
 
-def _dirty_figure_callback(self):
-    self.figure.dirty = True
+def _stale_figure_callback(self):
+    self.figure.stale = True
 
 
-def _dirty_axes_callback(self):
-    self.axes.dirty = True
+def _stale_axes_callback(self):
+    self.axes.stale = True
 
 
 class Artist(object):
@@ -117,7 +117,7 @@ class Artist(object):
         self._snap = None
         self._sketch = rcParams['path.sketch']
         self._path_effects = rcParams['path.effects']
-        self._dirty = True
+        self._stale = True
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -222,28 +222,28 @@ class Artist(object):
 
         self._axes = new_axes
         if new_axes is not None and new_axes is not self:
-            self.add_callback(_dirty_axes_callback)
+            self.add_callback(_stale_axes_callback)
 
         return new_axes
 
     @property
-    def dirty(self):
+    def stale(self):
         """
-        If the artist is 'dirty' and needs to be re-drawn for the output to
+        If the artist is 'stale' and needs to be re-drawn for the output to
         match the internal state of the artist.
         """
-        return self._dirty
+        return self._stale
 
-    @dirty.setter
-    def dirty(self, val):
-        # only trigger call-back stack on being marked as 'dirty'
-        # when not already dirty
+    @stale.setter
+    def stale(self, val):
+        # only trigger call-back stack on being marked as 'stale'
+        # when not already stale
         # the draw process will take care of propagating the cleaning
         # process
-        if not (self._dirty == val):
-            self._dirty = val
-            # only trigger propagation if marking as dirty
-            if self._dirty:
+        if not (self._stale == val):
+            self._stale = val
+            # only trigger propagation if marking as stale
+            if self._stale:
                 self.pchanged()
 
     def get_window_extent(self, renderer):
@@ -606,7 +606,7 @@ class Artist(object):
         """
         self.figure = fig
         if self.figure and self.figure is not self:
-            self.add_callback(_dirty_figure_callback)
+            self.add_callback(_stale_figure_callback)
             self.pchanged()
 
     def set_clip_box(self, clipbox):
@@ -763,7 +763,7 @@ class Artist(object):
         'Derived classes drawing method'
         if not self.get_visible():
             return
-        self._dirty = False
+        self._stale = False
 
     def set_alpha(self, alpha):
         """

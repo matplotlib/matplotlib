@@ -478,7 +478,7 @@ class Line2D(Artist):
         ACCEPTS: ['full' | 'left' | 'right' | 'bottom' | 'top' | 'none']
         """
         self._marker.set_fillstyle(fs)
-        self.dirty = True
+        self.stale = True
 
     def set_markevery(self, every):
         """Set the markevery property to subsample the plot when using markers.
@@ -532,7 +532,7 @@ class Line2D(Artist):
 
         """
         if self._markevery != every:
-            self.dirty = True
+            self.stale = True
         self._markevery = every
 
     def get_markevery(self):
@@ -676,7 +676,7 @@ class Line2D(Artist):
         Artist.set_transform(self, t)
         self._invalidx = True
         self._invalidy = True
-        self.dirty = True
+        self.stale = True
 
     def _is_sorted(self, x):
         """return true if x is sorted"""
@@ -915,7 +915,7 @@ class Line2D(Artist):
         ACCEPTS: [True | False]
         """
         if self._antialiased != b:
-            self.dirty = True
+            self.stale = True
         self._antialiased = b
 
     def set_color(self, color):
@@ -925,7 +925,7 @@ class Line2D(Artist):
         ACCEPTS: any matplotlib color
         """
         if color != self._color:
-            self.dirty = True
+            self.stale = True
         self._color = color
 
     def set_drawstyle(self, drawstyle):
@@ -940,7 +940,7 @@ class Line2D(Artist):
                   'steps-post']
         """
         if self._drawstyle != drawstyle:
-            self.dirty = True
+            self.stale = True
         self._drawstyle = drawstyle
 
     def set_linewidth(self, w):
@@ -951,7 +951,7 @@ class Line2D(Artist):
         """
         w = float(w)
         if self._linewidth != w:
-            self.dirty = True
+            self.stale = True
         self._linewidth = w
 
     def set_linestyle(self, ls):
@@ -1045,7 +1045,7 @@ class Line2D(Artist):
 
         """
         self._marker.set_marker(marker)
-        self.dirty = True
+        self.stale = True
 
     def set_markeredgecolor(self, ec):
         """
@@ -1056,7 +1056,7 @@ class Line2D(Artist):
         if ec is None:
             ec = 'auto'
         if self._markeredgecolor != ec:
-            self.dirty = True
+            self.stale = True
         self._markeredgecolor = ec
 
     def set_markeredgewidth(self, ew):
@@ -1068,7 +1068,7 @@ class Line2D(Artist):
         if ew is None:
             ew = rcParams['lines.markeredgewidth']
         if self._markeredgewidth != ew:
-            self.dirty = True
+            self.stale = True
         self._markeredgewidth = ew
 
     def set_markerfacecolor(self, fc):
@@ -1080,7 +1080,7 @@ class Line2D(Artist):
         if fc is None:
             fc = 'auto'
         if self._markerfacecolor != fc:
-            self.dirty = True
+            self.stale = True
         self._markerfacecolor = fc
 
     def set_markerfacecoloralt(self, fc):
@@ -1092,7 +1092,7 @@ class Line2D(Artist):
         if fc is None:
             fc = 'auto'
         if self._markerfacecoloralt != fc:
-            self.dirty = True
+            self.stale = True
         self._markerfacecoloralt = fc
 
     def set_markersize(self, sz):
@@ -1103,7 +1103,7 @@ class Line2D(Artist):
         """
         sz = float(sz)
         if self._markersize != sz:
-            self.dirty = True
+            self.stale = True
         self._markersize = sz
 
     def set_xdata(self, x):
@@ -1114,7 +1114,7 @@ class Line2D(Artist):
         """
         self._xorig = x
         self._invalidx = True
-        self.dirty = True
+        self.stale = True
 
     def set_ydata(self, y):
         """
@@ -1124,7 +1124,7 @@ class Line2D(Artist):
         """
         self._yorig = y
         self._invalidy = True
-        self.dirty = True
+        self.stale = True
 
     def set_dashes(self, seq):
         """
@@ -1139,7 +1139,7 @@ class Line2D(Artist):
         else:
             self.set_linestyle('--')
         if self._dashSeq != seq:
-            self.dirty = True
+            self.stale = True
         self._dashSeq = seq  # TODO: offset ignored for now
 
     def _draw_lines(self, renderer, gc, path, trans):
@@ -1324,7 +1324,7 @@ class Line2D(Artist):
             raise ValueError('set_dash_joinstyle passed "%s";\n' % (s,)
                              + 'valid joinstyles are %s' % (self.validJoin,))
         if self._dashjoinstyle != s:
-            self.dirty = True
+            self.stale = True
         self._dashjoinstyle = s
 
     def set_solid_joinstyle(self, s):
@@ -1338,7 +1338,7 @@ class Line2D(Artist):
                              + 'valid joinstyles are %s' % (self.validJoin,))
 
         if self._solidjoinstyle != s:
-            self.dirty = True
+            self.stale = True
         self._solidjoinstyle = s
 
     def get_dash_joinstyle(self):
@@ -1364,7 +1364,7 @@ class Line2D(Artist):
             raise ValueError('set_dash_capstyle passed "%s";\n' % (s,)
                              + 'valid capstyles are %s' % (self.validCap,))
         if self._dashcapstyle != s:
-            self.dirty = True
+            self.stale = True
         self._dashcapstyle = s
 
     def set_solid_capstyle(self, s):
@@ -1378,7 +1378,7 @@ class Line2D(Artist):
             raise ValueError('set_solid_capstyle passed "%s";\n' % (s,)
                              + 'valid capstyles are %s' % (self.validCap,))
         if self._solidcapstyle != s:
-            self.dirty = True
+            self.stale = True
         self._solidcapstyle = s
 
     def get_dash_capstyle(self):

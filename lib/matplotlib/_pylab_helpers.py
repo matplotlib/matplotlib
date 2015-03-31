@@ -146,8 +146,8 @@ class Gcf(object):
         state machine.
         """
         for f_mgr in cls.get_all_fig_managers():
-            # TODO add logic to check if figure is dirty
-            if force or f_mgr.canvas.figure.dirty:
+            # TODO add logic to check if figure is stale
+            if force or f_mgr.canvas.figure.stale:
                 f_mgr.canvas.draw()
 
 atexit.register(Gcf.destroy_all)
