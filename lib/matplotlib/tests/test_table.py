@@ -81,41 +81,23 @@ def test_label_colours():
               loc='best')
 
 
-@image_comparison(baseline_images=['table_cell_manipulation1',
-                  'table_cell_manipulation2', 'table_cell_manipulation3'],
-                  extensions=['png', 'png', 'png'])
+@image_comparison(baseline_images=['table_cell_manipulation'],
+                  extensions=['png'])
 def test_diff_cell_table():
-    l1 = ["", "t0", "t1", "t2", "t3 ", "t4", "t5", "t6"]
-    l2 = ["DLI", 35, 38, 10, 22, 25, 85, 22]
+    l1 = ('', 't0', 't1', 't2', 't3 ', 't4', 't5', 't6')
+    l2 = ('DLI', 35, 38, 10, 22, 25, 85, 22)
+    cells = ('horizontal', 'vertical', 'open', 'closed', 'T', 'R', 'B', 'L')
 
-    test_cell = ['horizontal', 'vertical', 'open', 'closed',
-                 'T', 'R', 'B', 'L']
-
-    ax = None
-    for i in range(0, 8):
-
-        if (i % 4) == 0:
-            fig = plt.figure()
-
-        ax = fig.add_subplot(4, 1, (i % 4) + 1)
+    fig = plt.figure(figsize=(4, len(cells)+1))
+    for i, cell in enumerate(cells, 1):
+        ax = fig.add_subplot(8, 1, i)
         ax.plot([1, 2, 3, 4, 5, 6])
         ax.table(
-            colWidths=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
-            cellText=[l1, l2],
-            loc="upper center",
-            colLoc="center",
-            rowLoc="center",
-            drawLines=test_cell[i]
-            )
-
-    fig = plt.figure()
-
-    ax = fig.add_subplot(4, 1, 1)
-    ax.plot([1, 2, 3, 4, 5, 6])
-    ax.table(
-        colWidths=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
-        cellText=[l1, l2],
-        loc="upper center",
-        colLoc="center",
-        rowLoc="center",
-        )
+                colWidths=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+                cellText=[l1, l2],
+                loc='center',
+                colLoc='center',
+                rowLoc='center',
+                drawLines=cell,
+                )
+    plt.tight_layout()
