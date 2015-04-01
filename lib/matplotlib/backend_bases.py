@@ -2586,6 +2586,8 @@ class FigureManagerBase(object):
             self.key_press_handler_id = self.canvas.mpl_connect(
                                                 'key_press_event',
                                                 self.key_press)
+        else:
+            self.key_press_handler_id = None
         """
         The returned id from connecting the default key handler via
         :meth:`FigureCanvasBase.mpl_connnect`.
@@ -3331,11 +3333,7 @@ class NavigationBase(object):
 
     @property
     def active_toggle(self):
-        """
-        Toggled Tool
-
-        **dict** :  Currently toggled tools
-        """
+        """Currently toggled tools"""
 
         return self._toggled
 
@@ -3360,7 +3358,7 @@ class NavigationBase(object):
         for k in self.get_tool_keymap(name):
             del self._keys[k]
 
-    def set_tool_keymap(self, name, *keys):
+    def update_keymap(self, name, *keys):
         """
         Set the keymap to associate with the specified tool
 
@@ -3449,7 +3447,7 @@ class NavigationBase(object):
         """
 
         tool_cls = self._get_cls_to_instantiate(tool)
-        if tool_cls is False:
+        if not tool_cls:
             raise ValueError('Impossible to find class for %s' % str(tool))
 
         if name in self._tools:
@@ -3457,22 +3455,23 @@ class NavigationBase(object):
                           'not added')
             return self._tools[name]
 
-        self._tools[name] = tool_cls(self, name, *args, **kwargs)
+        tool_obj = tool_cls(self, name, *args, **kwargs)
+        self._tools[name] = tool_obj
 
-        if tool_cls.keymap is not None:
-            self.set_tool_keymap(name, tool_cls.keymap)
+        if tool_cls.default_keymap is not None:
+            self.update_keymap(name, tool_cls.default_keymap)
 
         # For toggle tools init the radio_group in self._toggled
-        if isinstance(self._tools[name], tools.ToolToggleBase):
+        if isinstance(tool_obj, tools.ToolToggleBase):
             # None group is not mutually exclusive, a set is used to keep track
             # of all toggled tools in this group
-            if tool_cls.radio_group is None:
+            if tool_obj.radio_group is None:
                 self._toggled.setdefault(None, set())
             else:
-                self._toggled.setdefault(tool_cls.radio_group, None)
+                self._toggled.setdefault(tool_obj.radio_group, None)
 
-        self._tool_added_event(self._tools[name])
-        return self._tools[name]
+        self._tool_added_event(tool_obj)
+        return tool_obj
 
     def _tool_added_event(self, tool):
         s = 'tool_added_event'
@@ -3483,6 +3482,16 @@ class NavigationBase(object):
         """
         Toggle tools, need to untoggle prior to using other Toggle tool
         Called from tool_trigger_event
+
+        Parameters
+        ----------
+        tool: Tool object
+        sender: object
+            Object that wishes to trigger the tool
+        canvasevent : Event
+            Original Canvas event or None
+        data : Object
+            Extra data to pass to the tool when triggering
         """
 
         radio_group = tool.radio_group
@@ -3500,7 +3509,7 @@ class NavigationBase(object):
             toggled = None
         # If no tool was toggled in the radio_group
         # toggle it
-        elif self._toggled.get(radio_group, None) is None:
+        elif self._toggled[radio_group] is None:
             toggled = tool.name
         # Other tool in the radio_group is toggled
         else:
@@ -3521,15 +3530,18 @@ class NavigationBase(object):
         if isinstance(callback_class, six.string_types):
             # FIXME: make more complete searching structure
             if callback_class in globals():
-                return globals()[callback_class]
+                callback_class = globals()[callback_class]
+            else:
+                mod = self.__class__.__module__
+                current_module = __import__(mod,
+                                            globals(), locals(), [mod], 0)
 
-            mod = self.__class__.__module__
-            current_module = __import__(mod,
-                                        globals(), locals(), [mod], 0)
+                callback_class = getattr(current_module, callback_class, False)
 
-            return getattr(current_module, callback_class, False)
-
-        return callback_class
+        if callable(callback_class):
+            return callback_class
+        else:
+            return None
 
     def tool_trigger_event(self, name, sender=None, canvasevent=None,
                            data=None):
@@ -3598,7 +3610,7 @@ class NavigationBase(object):
         -----------
         name : str, ToolBase
             Name of the tool, or the tool itself
-        warn : bool
+        warn : bool, optional
             If this method should give warnings.
         """
         if isinstance(name, tools.ToolBase) and name.name in self._tools:
