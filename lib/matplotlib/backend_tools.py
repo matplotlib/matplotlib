@@ -45,7 +45,7 @@ class ToolBase(object):
         Navigation
     """
 
-    keymap = None
+    default_keymap = None
     """
     Keymap to associate with this tool
 
@@ -311,7 +311,7 @@ class ToolQuit(ToolBase):
     """Tool to call the figure manager destroy method"""
 
     description = 'Quit the figure'
-    keymap = rcParams['keymap.quit']
+    default_keymap = rcParams['keymap.quit']
 
     def trigger(self, sender, event, data=None):
         Gcf.destroy_fig(self.figure)
@@ -321,7 +321,7 @@ class ToolEnableAllNavigation(ToolBase):
     """Tool to enable all axes for navigation interaction"""
 
     description = 'Enables all axes navigation'
-    keymap = rcParams['keymap.all_axes']
+    default_keymap = rcParams['keymap.all_axes']
 
     def trigger(self, sender, event, data=None):
         if event.inaxes is None:
@@ -337,7 +337,7 @@ class ToolEnableNavigation(ToolBase):
     """Tool to enable a specific axes for navigation interaction"""
 
     description = 'Enables one axes navigation'
-    keymap = (1, 2, 3, 4, 5, 6, 7, 8, 9)
+    default_keymap = (1, 2, 3, 4, 5, 6, 7, 8, 9)
 
     def trigger(self, sender, event, data=None):
         if event.inaxes is None:
@@ -354,7 +354,7 @@ class ToolGrid(ToolToggleBase):
     """Tool to toggle the grid of the figure"""
 
     description = 'Toogle Grid'
-    keymap = rcParams['keymap.grid']
+    default_keymap = rcParams['keymap.grid']
 
     def trigger(self, sender, event, data=None):
         if event.inaxes is None:
@@ -374,7 +374,7 @@ class ToolFullScreen(ToolToggleBase):
     """Tool to toggle full screen"""
 
     description = 'Toogle Fullscreen mode'
-    keymap = rcParams['keymap.fullscreen']
+    default_keymap = rcParams['keymap.fullscreen']
 
     def enable(self, event):
         self.figure.canvas.manager.full_screen_toggle()
@@ -404,7 +404,7 @@ class ToolYScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic scales on the Y axis"""
 
     description = 'Toogle Scale Y axis'
-    keymap = rcParams['keymap.yscale']
+    default_keymap = rcParams['keymap.yscale']
 
     def set_scale(self, ax, scale):
         ax.set_yscale(scale)
@@ -414,7 +414,7 @@ class ToolXScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic scales on the X axis"""
 
     description = 'Toogle Scale X axis'
-    keymap = rcParams['keymap.xscale']
+    default_keymap = rcParams['keymap.xscale']
 
     def set_scale(self, ax, scale):
         ax.set_xscale(scale)
@@ -547,7 +547,7 @@ class ToolHome(ViewsPositionsBase):
 
     description = 'Reset original view'
     image = 'home.png'
-    keymap = rcParams['keymap.home']
+    default_keymap = rcParams['keymap.home']
     _on_trigger = 'home'
 
 
@@ -556,7 +556,7 @@ class ToolBack(ViewsPositionsBase):
 
     description = 'Back to  previous view'
     image = 'back.png'
-    keymap = rcParams['keymap.back']
+    default_keymap = rcParams['keymap.back']
     _on_trigger = 'back'
 
 
@@ -565,7 +565,7 @@ class ToolForward(ViewsPositionsBase):
 
     description = 'Forward to next view'
     image = 'forward.png'
-    keymap = rcParams['keymap.forward']
+    default_keymap = rcParams['keymap.forward']
     _on_trigger = 'forward'
 
 
@@ -581,7 +581,7 @@ class SaveFigureBase(ToolBase):
 
     description = 'Save the figure'
     image = 'filesave.png'
-    keymap = rcParams['keymap.save']
+    default_keymap = rcParams['keymap.save']
 
 
 class ZoomPanBase(ToolToggleBase):
@@ -651,7 +651,7 @@ class ToolZoom(ZoomPanBase):
 
     description = 'Zoom to rectangle'
     image = 'zoom_to_rect.png'
-    keymap = rcParams['keymap.zoom']
+    default_keymap = rcParams['keymap.zoom']
     cursor = cursors.SELECT_REGION
     radio_group = 'default'
 
@@ -861,7 +861,7 @@ class ToolZoom(ZoomPanBase):
 class ToolPan(ZoomPanBase):
     """Pan axes with left mouse, zoom with right"""
 
-    keymap = rcParams['keymap.pan']
+    default_keymap = rcParams['keymap.pan']
     description = 'Pan axes with left mouse, zoom with right'
     image = 'move.png'
     cursor = cursors.MOVE

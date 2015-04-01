@@ -18,7 +18,7 @@ from gi.repository import Gtk, Gdk
 class ListTools(ToolBase):
     '''List all the tools controlled by `Navigation`'''
     # keyboard shortcut
-    keymap = 'm'
+    default_keymap = 'm'
     description = 'List Tools'
 
     def trigger(self, *args, **kwargs):
@@ -46,7 +46,7 @@ class ListTools(ToolBase):
 # ref: at https://github.com/matplotlib/matplotlib/issues/1987
 class CopyToolGTK3(ToolBase):
     '''Copy canvas to clipboard'''
-    keymap = 'ctrl+c'
+    default_keymap = 'ctrl+c'
     description = 'Copy canvas'
 
     def trigger(self, *args, **kwargs):
