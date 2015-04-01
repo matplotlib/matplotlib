@@ -82,22 +82,19 @@ def test_label_colours():
 
 
 @image_comparison(baseline_images=['table_cell_manipulation'],
-                  extensions=['png'])
+                  extensions=['png'], remove_text=True)
 def test_diff_cell_table():
-    l1 = ('', 't0', 't1', 't2', 't3 ', 't4', 't5', 't6')
-    l2 = ('DLI', 35, 38, 10, 22, 25, 85, 22)
     cells = ('horizontal', 'vertical', 'open', 'closed', 'T', 'R', 'B', 'L')
+    cellText = [['1'] * len(cells)] * 2
+    colWidths = [0.1] * len(cells)
 
-    fig = plt.figure(figsize=(4, len(cells)+1))
-    for i, cell in enumerate(cells, 1):
-        ax = fig.add_subplot(8, 1, i)
-        ax.plot([1, 2, 3, 4, 5, 6])
+    _, axes = plt.subplots(nrows=len(cells), figsize=(4, len(cells)+1))
+    for ax, cell in zip(axes, cells):
         ax.table(
-                colWidths=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
-                cellText=[l1, l2],
+                colWidths=colWidths,
+                cellText=cellText,
                 loc='center',
-                colLoc='center',
-                rowLoc='center',
                 edges=cell,
                 )
+        ax.axis('off')
     plt.tight_layout()
