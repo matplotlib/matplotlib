@@ -74,7 +74,7 @@ class ToolBase(object):
         self._name = name
         self._figure = None
         self.navigation = navigation
-        self.set_figure(navigation.canvas.figure)
+        self.figure = navigation.canvas.figure
 
     @property
     def figure(self):
@@ -99,7 +99,8 @@ class ToolBase(object):
 
         pass
 
-    def set_figure(self, figure):
+    @figure.setter
+    def figure(self, figure):
         """
         Set the figure
 
