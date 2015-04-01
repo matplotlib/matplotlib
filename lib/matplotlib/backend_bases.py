@@ -3396,7 +3396,7 @@ class NavigationBase(object):
 
         # If is a toggle tool and toggled, untoggle
         if getattr(tool, 'toggled', False):
-            self.tool_trigger_event(tool, 'navigation')
+            self.trigger_tool(tool, 'navigation')
 
         self._remove_keys(name)
 
@@ -3481,7 +3481,7 @@ class NavigationBase(object):
     def _handle_toggle(self, tool, sender, canvasevent, data):
         """
         Toggle tools, need to untoggle prior to using other Toggle tool
-        Called from tool_trigger_event
+        Called from trigger_tool
 
         Parameters
         ----------
@@ -3514,7 +3514,7 @@ class NavigationBase(object):
         # Other tool in the radio_group is toggled
         else:
             # Untoggle previously toggled tool
-            self.tool_trigger_event(self._toggled[radio_group],
+            self.trigger_tool(self._toggled[radio_group],
                                     self,
                                     canvasevent,
                                     data)
@@ -3543,8 +3543,8 @@ class NavigationBase(object):
         else:
             return None
 
-    def tool_trigger_event(self, name, sender=None, canvasevent=None,
-                           data=None):
+    def trigger_tool(self, name, sender=None, canvasevent=None,
+                     data=None):
         """
         Trigger a tool and emit the tool_trigger_[name] event
 
@@ -3594,7 +3594,7 @@ class NavigationBase(object):
         name = self._keys.get(event.key, None)
         if name is None:
             return
-        self.tool_trigger_event(name, canvasevent=event)
+        self.trigger_tool(name, canvasevent=event)
 
     @property
     def tools(self):
@@ -3709,7 +3709,7 @@ class ToolContainerBase(object):
             Name(id) of the tool triggered from within the container
 
         """
-        self.navigation.tool_trigger_event(name, sender=self)
+        self.navigation.trigger_tool(name, sender=self)
 
     def add_toolitem(self, name, group, position, image, description, toggle):
         """
