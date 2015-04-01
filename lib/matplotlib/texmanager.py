@@ -60,12 +60,6 @@ import re
 
 DEBUG = False
 
-if sys.platform.startswith('win'):
-    cmd_split = '&'
-else:
-    cmd_split = ';'
-
-
 def dvipng_hack_alpha():
     try:
         p = Popen(['dvipng', '-version'], stdin=PIPE, stdout=PIPE,

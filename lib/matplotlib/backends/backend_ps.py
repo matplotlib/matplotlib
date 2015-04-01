@@ -49,9 +49,6 @@ try:
 except NameError:
     from sets import Set as set
 
-if sys.platform.startswith('win'): cmd_split = '&'
-else: cmd_split = ';'
-
 backend_version = 'Level II'
 
 debugPS = 0
