@@ -926,31 +926,31 @@ class ToolPan(ZoomPanBase):
         self.navigation.canvas.draw_idle()
 
 
-tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
-         'zoom': ToolZoom, 'pan': ToolPan,
-         'subplots': 'ToolConfigureSubplots',
-         'save': 'ToolSaveFigure',
-         'grid': ToolGrid,
-         'fullscreen': ToolFullScreen,
-         'quit': ToolQuit,
-         'allnav': ToolEnableAllNavigation,
-         'nav': ToolEnableNavigation,
-         'xscale': ToolXScale,
-         'yscale': ToolYScale,
-         'position': ToolCursorPosition,
-         _views_positions: ToolViewsPositions,
-         'cursor': 'ToolSetCursor',
-         'rubberband': 'ToolRubberband'}
+default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
+                 'zoom': ToolZoom, 'pan': ToolPan,
+                 'subplots': 'ToolConfigureSubplots',
+                 'save': 'ToolSaveFigure',
+                 'grid': ToolGrid,
+                 'fullscreen': ToolFullScreen,
+                 'quit': ToolQuit,
+                 'allnav': ToolEnableAllNavigation,
+                 'nav': ToolEnableNavigation,
+                 'xscale': ToolXScale,
+                 'yscale': ToolYScale,
+                 'position': ToolCursorPosition,
+                 _views_positions: ToolViewsPositions,
+                 'cursor': 'ToolSetCursor',
+                 'rubberband': 'ToolRubberband'}
 """Default tools"""
 
-toolbar_tools = [['navigation', ['home', 'back', 'forward']],
-                 ['zoompan', ['zoom', 'pan']],
-                 ['layout', ['subplots']],
-                 ['io', ['save']]]
+default_toolbar_tools = [['navigation', ['home', 'back', 'forward']],
+                         ['zoompan', ['zoom', 'pan']],
+                         ['layout', ['subplots']],
+                         ['io', ['save']]]
 """Default tools in the toolbar"""
 
 
-def add_tools_2_navigation(navigation, tools=tools):
+def add_tools_2_navigation(navigation, tools=default_tools):
     """
     Add multiple tools to `Navigation`
 
@@ -965,7 +965,7 @@ def add_tools_2_navigation(navigation, tools=tools):
         navigation.add_tool(name, tool)
 
 
-def add_tools_2_container(container, tools=toolbar_tools):
+def add_tools_2_container(container, tools=default_toolbar_tools):
     """
     Add multiple tools to the container.
 
