@@ -84,7 +84,7 @@ class ToolBase(object):
         Called when this tool gets used
 
         This method is called by
-        `matplotlib.backend_bases.NavigationBase.tool_trigger_event`
+        `matplotlib.backend_bases.NavigationBase.trigger_tool`
 
         Parameters
         ----------
@@ -173,7 +173,7 @@ class ToolToggleBase(ToolBase):
         This can happen in different circumstances
 
         * Click on the toolbar tool button
-        * Call to `matplotlib.backend_bases.NavigationBase.tool_trigger_event`
+        * Call to `matplotlib.backend_bases.NavigationBase.trigger_tool`
         * Another `ToolToggleBase` derived tool is triggered
           (from the same `Navigation`)
         """
@@ -662,7 +662,7 @@ class ToolZoom(ZoomPanBase):
     def _cancel_action(self):
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)
-        self.navigation.tool_trigger_event('rubberband', self)
+        self.navigation.trigger_tool('rubberband', self)
         self.navigation.get_tool(_views_positions).refresh_locators()
         self._xypress = None
         self._button_pressed = None
@@ -731,9 +731,9 @@ class ToolZoom(ZoomPanBase):
                 x1, y1, x2, y2 = a.bbox.extents
                 x, lastx = x1, x2
 
-            self.navigation.tool_trigger_event('rubberband',
-                                               self,
-                                               data=(x, y, lastx, lasty))
+            self.navigation.trigger_tool('rubberband',
+                                         self,
+                                         data=(x, y, lastx, lasty))
 
     def _release(self, event):
         """the release mouse button callback in zoom to rect mode"""
