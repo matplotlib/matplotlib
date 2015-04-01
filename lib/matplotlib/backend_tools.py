@@ -16,6 +16,7 @@ from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
 from weakref import WeakKeyDictionary
 import numpy as np
+import six
 
 
 class Cursors(object):
@@ -946,3 +947,36 @@ toolbar_tools = [['navigation', ['home', 'back', 'forward']],
                  ['layout', ['subplots']],
                  ['io', ['save']]]
 """Default tools in the toolbar"""
+
+
+def add_tools_2_navigation(navigation, tools=tools):
+    """
+    Add multiple tools to `Navigation`
+
+    Parameters
+    ----------
+    tools : {str: class_like}
+        The tools to add in a {name: tool} dict, see `add_tool` for more
+        info.
+    """
+
+    for name, tool in six.iteritems(tools):
+        navigation.add_tool(name, tool)
+
+
+def add_tools_2_container(container, tools=toolbar_tools):
+    """
+    Add multiple tools to the container.
+
+    Parameters
+    ----------
+    tools : list
+        List in the form
+        [[group1, [tool1, tool2 ...]], [group2, [...]]]
+        Where the tools given by tool1, and tool2 will display in group1.
+        See `add_tool` for details.
+    """
+
+    for group, grouptools in tools:
+        for position, tool in enumerate(grouptools):
+            container.add_tool(tool, group, position)
