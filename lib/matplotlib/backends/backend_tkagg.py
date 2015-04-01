@@ -22,8 +22,12 @@ from matplotlib.backend_bases import FigureManagerBase, FigureCanvasBase
 from matplotlib.backend_bases import NavigationToolbar2, cursors, TimerBase
 from matplotlib.backend_bases import (ShowBase, ToolContainerBase,
                                       NavigationBase, StatusbarBase)
-from matplotlib.backend_tools import (SaveFigureBase, ConfigureSubplotsBase,
-    tools, toolbar_tools, SetCursorBase, RubberbandBase)
+from matplotlib.backend_tools import (SaveFigureBase,
+                                      ConfigureSubplotsBase,
+                                      add_tools_2_navigation,
+                                      add_tools_2_container,
+                                      SetCursorBase,
+                                      RubberbandBase)
 from matplotlib._pylab_helpers import Gcf
 
 from matplotlib.figure import Figure
@@ -540,11 +544,10 @@ class FigureManagerTkAgg(FigureManagerBase):
         self.statusbar = None
 
         if matplotlib.rcParams['toolbar'] == 'navigation':
-            self.navigation.add_tools(tools)
-            self.toolbar.add_tools(toolbar_tools)
+            add_tools_2_navigation(self.navigation)
+            add_tools_2_container(self.toolbar)
             self.statusbar = StatusbarTk(self.window, self.navigation)
 
-        
         self._shown = False
 
         def notify_axes_change(fig):

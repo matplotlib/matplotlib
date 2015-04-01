@@ -3406,20 +3406,6 @@ class NavigationBase(object):
 
         del self._tools[name]
 
-    def add_tools(self, tools):
-        """
-        Add multiple tools to `NavigationBase`
-
-        Parameters
-        ----------
-        tools : {str: class_like}
-            The tools to add in a {name: tool} dict, see `add_tool` for more
-            info.
-        """
-
-        for name, tool in six.iteritems(tools):
-            self.add_tool(name, tool)
-
     def add_tool(self, name, tool, *args, **kwargs):
         """
         Add tool to `NavigationBase`
@@ -3515,9 +3501,9 @@ class NavigationBase(object):
         else:
             # Untoggle previously toggled tool
             self.trigger_tool(self._toggled[radio_group],
-                                    self,
-                                    canvasevent,
-                                    data)
+                              self,
+                              canvasevent,
+                              data)
             toggled = tool.name
 
         # Keep track of the toggled tool in the radio_group
@@ -3644,23 +3630,6 @@ class ToolContainerBase(object):
         This only gets used for toggled tools
         """
         self.toggle_toolitem(event.tool.name, event.tool.toggled)
-
-    def add_tools(self, tools):
-        """
-        Add multiple tools to the container.
-
-        Parameters
-        ----------
-        tools : list
-            List in the form
-            [[group1, [tool1, tool2 ...]], [group2, [...]]]
-            Where the tools given by tool1, and tool2 will display in group1.
-            See `add_tool` for details.
-        """
-
-        for group, grouptools in tools:
-            for position, tool in enumerate(grouptools):
-                self.add_tool(tool, group, position)
 
     def add_tool(self, tool, group, position=-1):
         """

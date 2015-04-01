@@ -32,8 +32,12 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
 from matplotlib.backend_bases import (ShowBase, ToolContainerBase,
                                       NavigationBase, StatusbarBase)
-from matplotlib.backend_tools import (SaveFigureBase, ConfigureSubplotsBase,
-    tools, toolbar_tools, SetCursorBase, RubberbandBase)
+from matplotlib.backend_tools import (SaveFigureBase,
+                                      ConfigureSubplotsBase,
+                                      add_tools_2_navigation,
+                                      add_tools_2_container,
+                                      SetCursorBase,
+                                      RubberbandBase)
 
 from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.colors import colorConverter
@@ -432,8 +436,10 @@ class FigureManagerGTK3(FigureManagerBase):
             return size_request.height
 
         if matplotlib.rcParams['toolbar'] == 'navigation':
-            self.navigation.add_tools(tools)
-            self.toolbar.add_tools(toolbar_tools)
+            add_tools_2_navigation(self.navigation)
+#             self.navigation.add_tools(tools)
+#             self.toolbar.add_tools(toolbar_tools)
+            add_tools_2_container(self.toolbar)
             self.statusbar = StatusbarGTK3(self.navigation)
             h += add_widget(self.statusbar, False, False, 0)
             h += add_widget(Gtk.HSeparator(), False, False, 0)
