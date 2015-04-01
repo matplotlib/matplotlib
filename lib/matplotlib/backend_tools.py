@@ -956,7 +956,9 @@ def add_tools_2_navigation(navigation, tools=default_tools):
 
     Parameters
     ----------
-    tools : {str: class_like}
+    navigation: Navigation
+        `backend_bases.NavigationBase` object that will get the tools added
+    tools : {str: class_like}, optional
         The tools to add in a {name: tool} dict, see `add_tool` for more
         info.
     """
@@ -971,7 +973,9 @@ def add_tools_2_container(container, tools=default_toolbar_tools):
 
     Parameters
     ----------
-    tools : list
+    container: Container
+        `backend_bases.ToolContainerBase` object that will get the tools added
+    tools : list, optional
         List in the form
         [[group1, [tool1, tool2 ...]], [group2, [...]]]
         Where the tools given by tool1, and tool2 will display in group1.
