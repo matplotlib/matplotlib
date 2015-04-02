@@ -1118,15 +1118,31 @@ class Figure(Artist):
     def get_axes(self):
         return self.axes
 
-    def legend(self, handles, labels, *args, **kwargs):
+    def legend(self, *args, **kwargs):
         """
-        Place a legend in the figure.  Labels are a sequence of
-        strings, handles is a sequence of
-        :class:`~matplotlib.lines.Line2D` or
-        :class:`~matplotlib.patches.Patch` instances, and loc can be a
-        string or an integer specifying the legend location
+        Place a legend in the figure.
+        
+        *labels*
+          a sequence of strings
 
-        USAGE::
+        *handles*
+          a sequence of :class:`~matplotlib.lines.Line2D` or
+          :class:`~matplotlib.patches.Patch` instances
+
+        *loc*
+          can be a string or an integer specifying the legend
+          location
+
+        A :class:`matplotlib.legend.Legend` instance is returned.
+
+              
+        Example::
+
+        To make a legend from existing artists on every axes::
+
+          legend()
+
+        To make a legend for a list of lines and labels::
 
           legend( (line1, line2, line3),
                   ('label1', 'label2', 'label3'),
@@ -1214,7 +1230,61 @@ class Figure(Artist):
 
         .. plot:: mpl_examples/pylab_examples/figlegend_demo.py
         """
-        l = Legend(self, handles, labels, *args, **kwargs)
+
+        if len(args) == 0:
+            handles = []
+            labels = []
+
+            def in_handles(h, l):
+                for f_h, f_l in zip(handles, labels):
+                    if f_l != l:
+                        continue
+                    if type(f_h) != type(h):
+                        continue
+
+                    try:
+                        if f_h.get_color() != h.get_color():
+                            continue
+                    except AttributeError:
+                        pass
+                    try:
+                        if f_h.get_facecolor() != h.get_facecolor():
+                            continue
+                    except AttributeError:
+                        pass
+                    try:
+                        if f_h.get_edgecolor() != h.get_edgecolor():
+                            continue
+                    except AttributeError:
+                        pass
+                        
+                    return True
+                return False
+
+            for ax in self.axes:
+                ax_handles, ax_labels = ax.get_legend_handles_labels()
+                for h, l in zip(ax_handles, ax_labels):
+                    if not in_handles(h, l):
+                        handles.append(h)
+                        labels.append(l)
+            if len(handles) == 0:
+                warnings.warn("No labeled objects found. "
+                              "Use label='...' kwarg on individual plots.")
+                return None
+
+        elif len(args) == 2:
+            # LINES, LABELS
+            handles, labels = args
+
+        elif len(args) == 3:
+            # LINES, LABELS, LOC
+            handles, labels, loc = args
+            kwargs['loc'] = loc
+            
+        else:
+            raise TypeError('Invalid arguments to legend')
+        
+        l = Legend(self, handles, labels, **kwargs)
         self.legends.append(l)
         l._remove_method = lambda h: self.legends.remove(h)
         return l
