@@ -1,34 +1,18 @@
 """
-:class:`NavigationBase`
-    The base class for the Navigation class that makes the bridge between
-    user interaction (key press, toolbar clicks, ..) and the actions in
-    response to the user inputs.
-
-:class:`ToolContainerBase`
-     The base class for the Toolbar class of each interactive backend.
-
-:class:`StatusbarBase`
-    The base class for the messaging area.
+`ToolManager`
+    Class that makes the bridge between user interaction (key press,
+    toolbar clicks, ..) and the actions in response to the user inputs.
 """
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import six
 import warnings
-import sys
 
 import matplotlib.cbook as cbook
 import matplotlib.widgets as widgets
 from matplotlib.rcsetup import validate_stringlist
 import matplotlib.backend_tools as tools
-
-try:
-    from importlib import import_module
-except:
-    # simple python 2.6 implementation (no relative imports)
-    def import_module(name):
-        __import__(name)
-        return sys.modules[name]
 
 
 class ToolEvent(object):

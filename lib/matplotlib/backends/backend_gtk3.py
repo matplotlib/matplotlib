@@ -758,8 +758,6 @@ class RubberbandGTK3(tools.RubberbandBase):
         self.ctx.set_source_rgb(0, 0, 0)
         self.ctx.stroke()
 
-tools.ToolRubberband = RubberbandGTK3
-
 
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
     def __init__(self, toolmanager):
@@ -879,14 +877,10 @@ class SaveFigureGTK3(tools.SaveFigureBase):
             except Exception as e:
                 error_msg_gtk(str(e), parent=self)
 
-tools.ToolSaveFigure = SaveFigureGTK3
-
 
 class SetCursorGTK3(tools.SetCursorBase):
     def set_cursor(self, cursor):
         self.figure.canvas.get_property("window").set_cursor(cursord[cursor])
-
-tools.ToolSetCursor = SetCursorGTK3
 
 
 class ConfigureSubplotsGTK3(tools.ConfigureSubplotsBase, Gtk.Window):
@@ -940,9 +934,6 @@ class ConfigureSubplotsGTK3(tools.ConfigureSubplotsBase, Gtk.Window):
     def trigger(self, sender, event, data=None):
         self.init_window()
         self.window.present()
-
-
-tools.ToolConfigureSubplots = ConfigureSubplotsGTK3
 
 
 class DialogLineprops:
@@ -1129,6 +1120,12 @@ def error_msg_gtk(msg, parent=None):
         message_format = msg)
     dialog.run()
     dialog.destroy()
+
+
+tools.ToolSaveFigure = SaveFigureGTK3
+tools.ToolConfigureSubplots = ConfigureSubplotsGTK3
+tools.ToolSetCursor = SetCursorGTK3
+tools.ToolRubberband = RubberbandGTK3
 
 Toolbar = ToolbarGTK3
 FigureCanvas = FigureCanvasGTK3
