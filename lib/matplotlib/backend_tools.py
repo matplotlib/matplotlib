@@ -1,13 +1,13 @@
 """
 Abstract base classes define the primitives for Tools.
-These tools are used by `NavigationBase`
+These tools are used by `ToolManager`
 
 :class:`ToolBase`
     Simple stateless tool
 
 :class:`ToolToggleBase`
     Tool that has two states, only one Toggle tool can be
-    active at any given time for the same `Navigation`
+    active at any given time for the same `ToolManager`
 """
 
 
@@ -33,17 +33,17 @@ class ToolBase(object):
     Base tool class
 
     A base tool, only implements `trigger` method or not method at all.
-    The tool is instantiated by `matplotlib.backend_bases.NavigationBase`
+    The tool is instantiated by `matplotlib.backend_managers.ToolManager`
 
     Attributes
     ----------
-    navigation: `matplotlib.backend_bases.NavigationBase`
-        Navigation that controls this Tool
+    toolmanager: `matplotlib.backend_managers.ToolManager`
+        ToolManager that controls this Tool
     figure: `FigureCanvas`
         Figure instance that is affected by this Tool
     name: String
         Used as **Id** of the tool, has to be unique among tools of the same
-        Navigation
+        ToolManager
     """
 
     default_keymap = None
@@ -70,11 +70,11 @@ class ToolBase(object):
     `name` is used as a label in the toolbar button
     """
 
-    def __init__(self, navigation, name):
+    def __init__(self, toolmanager, name):
         self._name = name
         self._figure = None
-        self.navigation = navigation
-        self.figure = navigation.canvas.figure
+        self.toolmanager = toolmanager
+        self.figure = toolmanager.canvas.figure
 
     @property
     def figure(self):
@@ -85,7 +85,7 @@ class ToolBase(object):
         Called when this tool gets used
 
         This method is called by
-        `matplotlib.backend_bases.NavigationBase.trigger_tool`
+        `matplotlib.backend_managers.ToolManager.trigger_tool`
 
         Parameters
         ----------
@@ -123,7 +123,7 @@ class ToolBase(object):
         Destroy the tool
 
         This method is called when the tool is removed by
-        `matplotlib.backend_bases.NavigationBase.remove_tool`
+        `matplotlib.backend_managers.ToolManager.remove_tool`
         """
         pass
 
@@ -175,9 +175,9 @@ class ToolToggleBase(ToolBase):
         This can happen in different circumstances
 
         * Click on the toolbar tool button
-        * Call to `matplotlib.backend_bases.NavigationBase.trigger_tool`
+        * Call to `matplotlib.backend_managers.ToolManager.trigger_tool`
         * Another `ToolToggleBase` derived tool is triggered
-          (from the same `Navigation`)
+          (from the same `ToolManager`)
         """
 
         pass
@@ -203,10 +203,11 @@ class SetCursorBase(ToolBase):
         self._cursor = None
         self._default_cursor = cursors.POINTER
         self._last_cursor = self._default_cursor
-        self.navigation.nav_connect('tool_added_event', self._add_tool_cbk)
+        self.toolmanager.toolmanager_connect('tool_added_event',
+                                             self._add_tool_cbk)
 
         # process current tools
-        for tool in self.navigation.tools.values():
+        for tool in self.toolmanager.tools.values():
             self._add_tool(tool)
 
     def _tool_trigger_cbk(self, event):
@@ -220,8 +221,8 @@ class SetCursorBase(ToolBase):
     def _add_tool(self, tool):
         """set the cursor when the tool is triggered"""
         if getattr(tool, 'cursor', None) is not None:
-            self.navigation.nav_connect('tool_trigger_%s' % tool.name,
-                                        self._tool_trigger_cbk)
+            self.toolmanager.toolmanager_connect('tool_trigger_%s' % tool.name,
+                                                 self._tool_trigger_cbk)
 
     def _add_tool_cbk(self, event):
         """Process every newly added tool"""
@@ -265,8 +266,8 @@ class ToolCursorPosition(ToolBase):
             'motion_notify_event', self.send_message)
 
     def send_message(self, event):
-        """Call `matplotlib.backend_bases.NavigationBase.message_event`"""
-        if self.navigation.messagelock.locked():
+        """Call `matplotlib.backend_managers.ToolManager.message_event`"""
+        if self.toolmanager.messagelock.locked():
             return
 
         message = ' '
@@ -278,7 +279,7 @@ class ToolCursorPosition(ToolBase):
                 pass
             else:
                 message = s
-        self.navigation.message_event(message, self)
+        self.toolmanager.message_event(message, self)
 
 
 class RubberbandBase(ToolBase):
@@ -320,9 +321,9 @@ class ToolQuit(ToolBase):
 
 
 class ToolEnableAllNavigation(ToolBase):
-    """Tool to enable all axes for navigation interaction"""
+    """Tool to enable all axes for toolmanager interaction"""
 
-    description = 'Enables all axes navigation'
+    description = 'Enables all axes toolmanager'
     default_keymap = rcParams['keymap.all_axes']
 
     def trigger(self, sender, event, data=None):
@@ -336,9 +337,9 @@ class ToolEnableAllNavigation(ToolBase):
 
 
 class ToolEnableNavigation(ToolBase):
-    """Tool to enable a specific axes for navigation interaction"""
+    """Tool to enable a specific axes for toolmanager interaction"""
 
-    description = 'Enables one axes navigation'
+    description = 'Enables one axes toolmanager'
     default_keymap = (1, 2, 3, 4, 5, 6, 7, 8, 9)
 
     def trigger(self, sender, event, data=None):
@@ -539,9 +540,10 @@ class ViewsPositionsBase(ToolBase):
     _on_trigger = None
 
     def trigger(self, sender, event, data=None):
-        self.navigation.get_tool(_views_positions).add_figure()
-        getattr(self.navigation.get_tool(_views_positions), self._on_trigger)()
-        self.navigation.get_tool(_views_positions).update_view()
+        self.toolmanager.get_tool(_views_positions).add_figure()
+        getattr(self.toolmanager.get_tool(_views_positions),
+                self._on_trigger)()
+        self.toolmanager.get_tool(_views_positions).update_view()
 
 
 class ToolHome(ViewsPositionsBase):
@@ -616,7 +618,7 @@ class ZoomPanBase(ToolToggleBase):
         self.figure.canvas.mpl_disconnect(self._idScroll)
 
     def trigger(self, sender, event, data=None):
-        self.navigation.get_tool(_views_positions).add_figure()
+        self.toolmanager.get_tool(_views_positions).add_figure()
         ToolToggleBase.trigger(self, sender, event, data)
 
     def scroll_zoom(self, event):
@@ -664,8 +666,8 @@ class ToolZoom(ZoomPanBase):
     def _cancel_action(self):
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)
-        self.navigation.trigger_tool('rubberband', self)
-        self.navigation.get_tool(_views_positions).refresh_locators()
+        self.toolmanager.trigger_tool('rubberband', self)
+        self.toolmanager.get_tool(_views_positions).refresh_locators()
         self._xypress = None
         self._button_pressed = None
         self._ids_zoom = []
@@ -733,9 +735,9 @@ class ToolZoom(ZoomPanBase):
                 x1, y1, x2, y2 = a.bbox.extents
                 x, lastx = x1, x2
 
-            self.navigation.trigger_tool('rubberband',
-                                         self,
-                                         data=(x, y, lastx, lasty))
+            self.toolmanager.trigger_tool('rubberband',
+                                          self,
+                                          data=(x, y, lastx, lasty))
 
     def _release(self, event):
         """the release mouse button callback in zoom to rect mode"""
@@ -856,7 +858,7 @@ class ToolZoom(ZoomPanBase):
                     a.set_ylim((ry1, ry2))
 
         self._zoom_mode = None
-        self.navigation.get_tool(_views_positions).push_current()
+        self.toolmanager.get_tool(_views_positions).push_current()
         self._cancel_action()
 
 
@@ -877,8 +879,8 @@ class ToolPan(ZoomPanBase):
         self._button_pressed = None
         self._xypress = []
         self.figure.canvas.mpl_disconnect(self._idDrag)
-        self.navigation.messagelock.release(self)
-        self.navigation.get_tool(_views_positions).refresh_locators()
+        self.toolmanager.messagelock.release(self)
+        self.toolmanager.get_tool(_views_positions).refresh_locators()
 
     def _press(self, event):
         if event.button == 1:
@@ -897,7 +899,7 @@ class ToolPan(ZoomPanBase):
                     a.get_navigate() and a.can_pan()):
                 a.start_pan(x, y, event.button)
                 self._xypress.append((a, i))
-                self.navigation.messagelock(self)
+                self.toolmanager.messagelock(self)
                 self._idDrag = self.figure.canvas.mpl_connect(
                     'motion_notify_event', self._mouse_move)
 
@@ -907,7 +909,7 @@ class ToolPan(ZoomPanBase):
             return
 
         self.figure.canvas.mpl_disconnect(self._idDrag)
-        self.navigation.messagelock.release(self)
+        self.toolmanager.messagelock.release(self)
 
         for a, _ind in self._xypress:
             a.end_pan()
@@ -915,7 +917,7 @@ class ToolPan(ZoomPanBase):
             self._cancel_action()
             return
 
-        self.navigation.get_tool(_views_positions).push_current()
+        self.toolmanager.get_tool(_views_positions).push_current()
         self._cancel_action()
 
     def _mouse_move(self, event):
@@ -923,7 +925,7 @@ class ToolPan(ZoomPanBase):
             # safer to use the recorded button at the _press than current
             # button: # multiple button can get pressed during motion...
             a.drag_pan(self._button_pressed, event.key, event.x, event.y)
-        self.navigation.canvas.draw_idle()
+        self.toolmanager.canvas.draw_idle()
 
 
 default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
@@ -940,7 +942,8 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'position': ToolCursorPosition,
                  _views_positions: ToolViewsPositions,
                  'cursor': 'ToolSetCursor',
-                 'rubberband': 'ToolRubberband'}
+                 'rubberband': 'ToolRubberband',
+                 }
 """Default tools"""
 
 default_toolbar_tools = [['navigation', ['home', 'back', 'forward']],
@@ -950,21 +953,21 @@ default_toolbar_tools = [['navigation', ['home', 'back', 'forward']],
 """Default tools in the toolbar"""
 
 
-def add_tools_2_navigation(navigation, tools=default_tools):
+def add_tools_2_toolmanager(toolmanager, tools=default_tools):
     """
-    Add multiple tools to `Navigation`
+    Add multiple tools to `ToolManager`
 
     Parameters
     ----------
-    navigation: Navigation
-        `backend_bases.NavigationBase` object that will get the tools added
+    toolmanager: ToolManager
+        `backend_managers.ToolManager` object that will get the tools added
     tools : {str: class_like}, optional
         The tools to add in a {name: tool} dict, see `add_tool` for more
         info.
     """
 
     for name, tool in six.iteritems(tools):
-        navigation.add_tool(name, tool)
+        toolmanager.add_tool(name, tool)
 
 
 def add_tools_2_container(container, tools=default_toolbar_tools):

@@ -24,17 +24,6 @@ graphics contexts must implement to serve as a matplotlib backend
     The base class for the Show class of each interactive backend;
     the 'show' callable is then set to Show.__call__, inherited from
     ShowBase.
-
-:class:`NavigationBase`
-    The base class for the Navigation class that makes the bridge between
-    user interaction (key press, toolbar clicks, ..) and the actions in
-    response to the user inputs.
-
-:class:`ToolContainerBase`
-     The base class for the Toolbar class of each interactive backend.
-
-:class:`StatusbarBase`
-    The base class for the messaging area.
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -56,7 +45,6 @@ import matplotlib.transforms as transforms
 import matplotlib.widgets as widgets
 #import matplotlib.path as path
 from matplotlib import rcParams
-from matplotlib.rcsetup import validate_stringlist
 from matplotlib import is_interactive
 from matplotlib import get_backend
 from matplotlib._pylab_helpers import Gcf
@@ -2582,7 +2570,7 @@ class FigureManagerBase(object):
         canvas.manager = self  # store a pointer to parent
         self.num = num
 
-        if rcParams['toolbar'] != 'navigation':
+        if rcParams['toolbar'] != 'toolmanager':
             self.key_press_handler_id = self.canvas.mpl_connect(
                                                 'key_press_event',
                                                 self.key_press)
@@ -2623,7 +2611,7 @@ class FigureManagerBase(object):
         Implement the default mpl key bindings defined at
         :ref:`key-event-handling`
         """
-        if rcParams['toolbar'] != 'navigation':
+        if rcParams['toolbar'] != 'toolmanager':
             key_press_handler(event, self.canvas, self.canvas.toolbar)
 
     def show_popup(self, msg):
@@ -3229,399 +3217,20 @@ class NavigationToolbar2(object):
         pass
 
 
-class ToolEvent(object):
-    """Event for tool manipulation (add/remove)"""
-    def __init__(self, name, sender, tool, data=None):
-        self.name = name
-        self.sender = sender
-        self.tool = tool
-        self.data = data
-
-
-class ToolTriggerEvent(ToolEvent):
-    """Event to inform  that a tool has been triggered"""
-    def __init__(self, name, sender, tool, canvasevent=None, data=None):
-        ToolEvent.__init__(self, name, sender, tool, data)
-        self.canvasevent = canvasevent
-
-
-class NavigationMessageEvent(object):
-    """
-    Event carrying messages from navigation
-
-    Messages usually get displayed to the user by the toolbar
-    """
-    def __init__(self, name, sender, message):
-        self.name = name
-        self.sender = sender
-        self.message = message
-
-
-class NavigationBase(object):
-    """
-    Helper class that groups all the user interactions for a FigureManager
-
-    Attributes
-    ----------
-    manager: `FigureManager` instance
-    keypresslock: `LockDraw` to know if the `canvas` key_press_event is
-     locked
-    messagelock: `LockDraw` to know if the message is available to write
-    """
-
-    def __init__(self, canvas):
-        self.canvas = canvas
-
-        self._key_press_handler_id = self.canvas.mpl_connect(
-            'key_press_event', self._key_press)
-
-        self._tools = {}
-        self._keys = {}
-        self._toggled = {}
-        self._callbacks = cbook.CallbackRegistry()
-
-        # to process keypress event
-        self.keypresslock = widgets.LockDraw()
-        self.messagelock = widgets.LockDraw()
-
-    def nav_connect(self, s, func):
-        """
-        Connect event with string *s* to *func*.
-
-        Parameters
-        -----------
-        s : String
-            Name of the event
-
-            The following events are recognized
-
-            - 'tool_message_event'
-            - 'tool_removed_event'
-            - 'tool_added_event'
-
-            For every tool added a new event is created
-
-            - 'tool_trigger_TOOLNAME`
-              Where TOOLNAME is the id of the tool.
-
-        func : function
-            Function to be called with signature
-            def func(event)
-        """
-        return self._callbacks.connect(s, func)
-
-    def nav_disconnect(self, cid):
-        """
-        Disconnect callback id cid
-
-        Example usage::
-
-            cid = navigation.nav_connect('tool_trigger_zoom', on_press)
-            #...later
-            navigation.nav_disconnect(cid)
-        """
-        return self._callbacks.disconnect(cid)
-
-    def message_event(self, message, sender=None):
-        """ Emit a `NavigationMessageEvent`"""
-        if sender is None:
-            sender = self
-
-        s = 'tool_message_event'
-        event = NavigationMessageEvent(s, sender, message)
-        self._callbacks.process(s, event)
-
-    @property
-    def active_toggle(self):
-        """Currently toggled tools"""
-
-        return self._toggled
-
-    def get_tool_keymap(self, name):
-        """
-        Get the keymap associated with the specified tool
-
-        Parameters
-        ----------
-        name : string
-            Name of the Tool
-
-        Returns
-        ----------
-        list : list of keys associated with the Tool
-        """
-
-        keys = [k for k, i in six.iteritems(self._keys) if i == name]
-        return keys
-
-    def _remove_keys(self, name):
-        for k in self.get_tool_keymap(name):
-            del self._keys[k]
-
-    def update_keymap(self, name, *keys):
-        """
-        Set the keymap to associate with the specified tool
-
-        Parameters
-        ----------
-        name : string
-            Name of the Tool
-        keys : keys to associate with the Tool
-        """
-
-        if name not in self._tools:
-            raise KeyError('%s not in Tools' % name)
-
-        self._remove_keys(name)
-
-        for key in keys:
-            for k in validate_stringlist(key):
-                if k in self._keys:
-                    warnings.warn('Key %s changed from %s to %s' %
-                                  (k, self._keys[k], name))
-                self._keys[k] = name
-
-    def remove_tool(self, name):
-        """
-        Remove tool from `Navigation`
-
-        Parameters
-        ----------
-        name : string
-            Name of the Tool
-        """
-
-        tool = self.get_tool(name)
-        tool.destroy()
-
-        # If is a toggle tool and toggled, untoggle
-        if getattr(tool, 'toggled', False):
-            self.trigger_tool(tool, 'navigation')
-
-        self._remove_keys(name)
-
-        s = 'tool_removed_event'
-        event = ToolEvent(s, self, tool)
-        self._callbacks.process(s, event)
-
-        del self._tools[name]
-
-    def add_tool(self, name, tool, *args, **kwargs):
-        """
-        Add tool to `NavigationBase`
-
-        Add a tool to the tools controlled by Navigation
-
-        If successful adds a new event `tool_trigger_name` where **name** is
-        the **name** of the tool, this event is fired everytime
-        the tool is triggered.
-
-        Parameters
-        ----------
-        name : str
-            Name of the tool, treated as the ID, has to be unique
-        tool : class_like, i.e. str or type
-            Reference to find the class of the Tool to added.
-
-        Notes
-        -----
-        args and kwargs get passed directly to the tools constructor.
-
-        See Also
-        --------
-        matplotlib.backend_tools.ToolBase : The base class for tools.
-        """
-
-        tool_cls = self._get_cls_to_instantiate(tool)
-        if not tool_cls:
-            raise ValueError('Impossible to find class for %s' % str(tool))
-
-        if name in self._tools:
-            warnings.warn('A "Tool class" with the same name already exists, '
-                          'not added')
-            return self._tools[name]
-
-        tool_obj = tool_cls(self, name, *args, **kwargs)
-        self._tools[name] = tool_obj
-
-        if tool_cls.default_keymap is not None:
-            self.update_keymap(name, tool_cls.default_keymap)
-
-        # For toggle tools init the radio_group in self._toggled
-        if isinstance(tool_obj, tools.ToolToggleBase):
-            # None group is not mutually exclusive, a set is used to keep track
-            # of all toggled tools in this group
-            if tool_obj.radio_group is None:
-                self._toggled.setdefault(None, set())
-            else:
-                self._toggled.setdefault(tool_obj.radio_group, None)
-
-        self._tool_added_event(tool_obj)
-        return tool_obj
-
-    def _tool_added_event(self, tool):
-        s = 'tool_added_event'
-        event = ToolEvent(s, self, tool)
-        self._callbacks.process(s, event)
-
-    def _handle_toggle(self, tool, sender, canvasevent, data):
-        """
-        Toggle tools, need to untoggle prior to using other Toggle tool
-        Called from trigger_tool
-
-        Parameters
-        ----------
-        tool: Tool object
-        sender: object
-            Object that wishes to trigger the tool
-        canvasevent : Event
-            Original Canvas event or None
-        data : Object
-            Extra data to pass to the tool when triggering
-        """
-
-        radio_group = tool.radio_group
-        # radio_group None is not mutually exclusive
-        # just keep track of toggled tools in this group
-        if radio_group is None:
-            if tool.toggled:
-                self._toggled[None].remove(tool.name)
-            else:
-                self._toggled[None].add(tool.name)
-            return
-
-        # If the tool already has a toggled state, untoggle it
-        if self._toggled[radio_group] == tool.name:
-            toggled = None
-        # If no tool was toggled in the radio_group
-        # toggle it
-        elif self._toggled[radio_group] is None:
-            toggled = tool.name
-        # Other tool in the radio_group is toggled
-        else:
-            # Untoggle previously toggled tool
-            self.trigger_tool(self._toggled[radio_group],
-                              self,
-                              canvasevent,
-                              data)
-            toggled = tool.name
-
-        # Keep track of the toggled tool in the radio_group
-        self._toggled[radio_group] = toggled
-#         for a in self.canvas.figure.get_axes():
-#             a.set_navigate_mode(self._toggled)
-
-    def _get_cls_to_instantiate(self, callback_class):
-        # Find the class that corresponds to the tool
-        if isinstance(callback_class, six.string_types):
-            # FIXME: make more complete searching structure
-            if callback_class in globals():
-                callback_class = globals()[callback_class]
-            else:
-                mod = self.__class__.__module__
-                current_module = __import__(mod,
-                                            globals(), locals(), [mod], 0)
-
-                callback_class = getattr(current_module, callback_class, False)
-
-        if callable(callback_class):
-            return callback_class
-        else:
-            return None
-
-    def trigger_tool(self, name, sender=None, canvasevent=None,
-                     data=None):
-        """
-        Trigger a tool and emit the tool_trigger_[name] event
-
-        Parameters
-        ----------
-        name : string
-            Name of the tool
-        sender: object
-            Object that wishes to trigger the tool
-        canvasevent : Event
-            Original Canvas event or None
-        data : Object
-            Extra data to pass to the tool when triggering
-        """
-        tool = self.get_tool(name)
-        if tool is None:
-            return
-
-        if sender is None:
-            sender = self
-
-        self._trigger_tool(name, sender, canvasevent, data)
-
-        s = 'tool_trigger_%s' % name
-        event = ToolTriggerEvent(s, sender, tool, canvasevent, data)
-        self._callbacks.process(s, event)
-
-    def _trigger_tool(self, name, sender=None, canvasevent=None, data=None):
-        """
-        Trigger on a tool
-
-        Method to actually trigger the tool
-        """
-        tool = self.get_tool(name)
-
-        if isinstance(tool, tools.ToolToggleBase):
-            self._handle_toggle(tool, sender, canvasevent, data)
-
-        # Important!!!
-        # This is where the Tool object gets triggered
-        tool.trigger(sender, canvasevent, data)
-
-    def _key_press(self, event):
-        if event.key is None or self.keypresslock.locked():
-            return
-
-        name = self._keys.get(event.key, None)
-        if name is None:
-            return
-        self.trigger_tool(name, canvasevent=event)
-
-    @property
-    def tools(self):
-        """Return the tools controlled by `Navigation`"""
-
-        return self._tools
-
-    def get_tool(self, name, warn=True):
-        """
-        Return the tool object, also accepts the actual tool for convenience
-
-        Parameters
-        -----------
-        name : str, ToolBase
-            Name of the tool, or the tool itself
-        warn : bool, optional
-            If this method should give warnings.
-        """
-        if isinstance(name, tools.ToolBase) and name.name in self._tools:
-            return name
-        if name not in self._tools:
-            if warn:
-                warnings.warn("Navigation does not control tool %s" % name)
-            return None
-        return self._tools[name]
-
-
 class ToolContainerBase(object):
     """
     Base class for all tool containers, e.g. toolbars.
 
      Attributes
     ----------
-    navigation : `NavigationBase` object that holds the tools that
+    toolmanager : `ToolManager` object that holds the tools that
         this `ToolContainer` wants to communicate with.
     """
 
-    def __init__(self, navigation):
-        self.navigation = navigation
-        self.navigation.nav_connect('tool_removed_event',
-                                    self._remove_tool_cbk)
+    def __init__(self, toolmanager):
+        self.toolmanager = toolmanager
+        self.toolmanager.toolmanager_connect('tool_removed_event',
+                                             self._remove_tool_cbk)
 
     def _tool_toggled_cbk(self, event):
         """
@@ -3638,20 +3247,20 @@ class ToolContainerBase(object):
         Parameters
         ----------
         tool : tool_like
-            The tool to add, see `NavigationBase.get_tool`.
+            The tool to add, see `ToolManager.get_tool`.
         group : str
             The name of the group to add this tool to.
         position : int (optional)
             The position within the group to place this tool.  Defaults to end.
         """
-        tool = self.navigation.get_tool(tool)
+        tool = self.toolmanager.get_tool(tool)
         image = self._get_image_filename(tool.image)
         toggle = getattr(tool, 'toggled', None) is not None
         self.add_toolitem(tool.name, group, position,
                           image, tool.description, toggle)
         if toggle:
-            self.navigation.nav_connect('tool_trigger_%s' % tool.name,
-                                        self._tool_toggled_cbk)
+            self.toolmanager.toolmanager_connect('tool_trigger_%s' % tool.name,
+                                                 self._tool_toggled_cbk)
 
     def _remove_tool_cbk(self, event):
         """Captures the 'tool_removed_event' signal and removes the tool"""
@@ -3678,7 +3287,7 @@ class ToolContainerBase(object):
             Name(id) of the tool triggered from within the container
 
         """
-        self.navigation.trigger_tool(name, sender=self)
+        self.toolmanager.trigger_tool(name, sender=self)
 
     def add_toolitem(self, name, group, position, image, description, toggle):
         """
@@ -3730,7 +3339,7 @@ class ToolContainerBase(object):
 
         This method must get implemented per backend
 
-        Called when `NavigationBase` emits a `tool_removed_event`
+        Called when `ToolManager` emits a `tool_removed_event`
 
         Parameters
         ----------
@@ -3744,9 +3353,10 @@ class ToolContainerBase(object):
 
 class StatusbarBase(object):
     """Base class for the statusbar"""
-    def __init__(self, navigation):
-        self.navigation = navigation
-        self.navigation.nav_connect('tool_message_event', self._message_cbk)
+    def __init__(self, toolmanager):
+        self.toolmanager = toolmanager
+        self.toolmanager.toolmanager_connect('tool_message_event',
+                                             self._message_cbk)
 
     def _message_cbk(self, event):
         """Captures the 'tool_message_event' and set the message"""

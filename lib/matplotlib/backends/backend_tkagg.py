@@ -21,13 +21,9 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase
 from matplotlib.backend_bases import FigureManagerBase, FigureCanvasBase
 from matplotlib.backend_bases import NavigationToolbar2, cursors, TimerBase
 from matplotlib.backend_bases import (ShowBase, ToolContainerBase,
-                                      NavigationBase, StatusbarBase)
-from matplotlib.backend_tools import (SaveFigureBase,
-                                      ConfigureSubplotsBase,
-                                      add_tools_2_navigation,
-                                      add_tools_2_container,
-                                      SetCursorBase,
-                                      RubberbandBase)
+                                      StatusbarBase)
+from matplotlib.backend_managers import ToolManager
+import matplotlib.backend_tools as tools
 from matplotlib._pylab_helpers import Gcf
 
 from matplotlib.figure import Figure
@@ -539,20 +535,20 @@ class FigureManagerTkAgg(FigureManagerBase):
         self.canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
         self._num = num
 
-        self.navigation = self._get_navigation()
+        self.toolmanager = self._get_toolmanager()
         self.toolbar = self._get_toolbar()
         self.statusbar = None
 
-        if matplotlib.rcParams['toolbar'] == 'navigation':
-            add_tools_2_navigation(self.navigation)
-            add_tools_2_container(self.toolbar)
-            self.statusbar = StatusbarTk(self.window, self.navigation)
+        if matplotlib.rcParams['toolbar'] == 'toolmanager':
+            tools.add_tools_2_toolmanager(self.toolmanager)
+            tools.add_tools_2_container(self.toolbar)
+            self.statusbar = StatusbarTk(self.window, self.toolmanager)
 
         self._shown = False
 
         def notify_axes_change(fig):
             'this will be called whenever the current axes is changed'
-            if self.navigation is not None:
+            if self.toolmanager is not None:
                 pass
             elif self.toolbar is not None:
                 self.toolbar.update()
@@ -561,19 +557,18 @@ class FigureManagerTkAgg(FigureManagerBase):
     def _get_toolbar(self):
         if matplotlib.rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2TkAgg(self.canvas, self.window)
-        elif matplotlib.rcParams['toolbar'] == 'navigation':
-            toolbar = ToolbarTk(self.navigation, self.window)
+        elif matplotlib.rcParams['toolbar'] == 'toolmanager':
+            toolbar = ToolbarTk(self.toolmanager, self.window)
         else:
             toolbar = None
         return toolbar
 
-    def _get_navigation(self):
-        # must be inited after toolbar is setted
+    def _get_toolmanager(self):
         if rcParams['toolbar'] != 'toolbar2':
-            navigation = NavigationTk(self.canvas)
+            toolmanager = ToolManager(self.canvas)
         else:
-            navigation = None
-        return navigation
+            toolmanager = None
+        return toolmanager
 
     def resize(self, width, height=None):
         # before 09-12-22, the resize method takes a single *event*
@@ -903,13 +898,9 @@ class ToolTip(object):
             tw.destroy()
 
 
-class NavigationTk(NavigationBase):
-    pass
-
-
-class RubberbandTk(RubberbandBase):
+class RubberbandTk(tools.RubberbandBase):
     def __init__(self, *args, **kwargs):
-        RubberbandBase.__init__(self, *args, **kwargs)
+        tools.RubberbandBase.__init__(self, *args, **kwargs)
 
     def draw_rubberband(self, x0, y0, x1, y1):
         height = self.figure.canvas.figure.bbox.height
@@ -932,20 +923,16 @@ class RubberbandTk(RubberbandBase):
             self.figure.canvas._tkcanvas.delete(self.lastrect)
             del self.lastrect
 
-ToolRubberband = RubberbandTk
 
-
-class SetCursorTk(SetCursorBase):
+class SetCursorTk(tools.SetCursorBase):
     def set_cursor(self, cursor):
         self.figure.canvas.manager.window.configure(cursor=cursord[cursor])
-
-ToolSetCursor = SetCursorTk
 
 
 class ToolbarTk(ToolContainerBase, Tk.Frame):
     def __init__(self, navigation, window):
         ToolContainerBase.__init__(self, navigation)
-        xmin, xmax = self.navigation.canvas.figure.bbox.intervalx
+        xmin, xmax = self.toolmanager.canvas.figure.bbox.intervalx
         height, width = 50, xmax - xmin
         Tk.Frame.__init__(self, master=window,
                           width=int(width), height=int(height),
@@ -996,7 +983,7 @@ class ToolbarTk(ToolContainerBase, Tk.Frame):
 class StatusbarTk(StatusbarBase, Tk.Frame):
     def __init__(self, window, *args, **kwargs):
         StatusbarBase.__init__(self, *args, **kwargs)
-        xmin, xmax = self.navigation.canvas.figure.bbox.intervalx
+        xmin, xmax = self.toolmanager.canvas.figure.bbox.intervalx
         height, width = 50, xmax - xmin
         Tk.Frame.__init__(self, master=window,
                           width=int(width), height=int(height),
@@ -1010,7 +997,7 @@ class StatusbarTk(StatusbarBase, Tk.Frame):
         self._message.set(s)
 
 
-class SaveFigureTk(SaveFigureBase):
+class SaveFigureTk(tools.SaveFigureBase):
     def trigger(self, *args):
         from six.moves import tkinter_tkfiledialog, tkinter_messagebox
         filetypes = self.figure.canvas.get_supported_filetypes().copy()
@@ -1063,9 +1050,9 @@ class SaveFigureTk(SaveFigureBase):
                 tkinter_messagebox.showerror("Error saving file", str(e))
 
 
-class ConfigureSubplotsTk(ConfigureSubplotsBase):
+class ConfigureSubplotsTk(tools.ConfigureSubplotsBase):
     def __init__(self, *args, **kwargs):
-        ConfigureSubplotsBase.__init__(self, *args, **kwargs)
+        tools.ConfigureSubplotsBase.__init__(self, *args, **kwargs)
         self.window = None
 
     def trigger(self, *args):
@@ -1091,9 +1078,10 @@ class ConfigureSubplotsTk(ConfigureSubplotsBase):
         self.window = None
 
 
-ToolSaveFigure = SaveFigureTk
-ToolConfigureSubplots = ConfigureSubplotsTk
+tools.ToolSaveFigure = SaveFigureTk
+tools.ToolConfigureSubplots = ConfigureSubplotsTk
+tools.ToolSetCursor = SetCursorTk
+tools.ToolRubberband = RubberbandTk
 Toolbar = ToolbarTk
-Navigation = NavigationTk
 FigureCanvas = FigureCanvasTkAgg
 FigureManager = FigureManagerTkAgg

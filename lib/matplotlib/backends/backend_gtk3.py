@@ -31,13 +31,9 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
 from matplotlib.backend_bases import (ShowBase, ToolContainerBase,
-                                      NavigationBase, StatusbarBase)
-from matplotlib.backend_tools import (SaveFigureBase,
-                                      ConfigureSubplotsBase,
-                                      add_tools_2_navigation,
-                                      add_tools_2_container,
-                                      SetCursorBase,
-                                      RubberbandBase)
+                                      StatusbarBase)
+from matplotlib.backend_managers import ToolManager
+import matplotlib.backend_tools as tools
 
 from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.colors import colorConverter
@@ -425,7 +421,7 @@ class FigureManagerGTK3(FigureManagerBase):
         w = int (self.canvas.figure.bbox.width)
         h = int (self.canvas.figure.bbox.height)
 
-        self.navigation = self._get_navigation()
+        self.toolmanager = self._get_toolmanager()
         self.toolbar = self._get_toolbar()
         self.statusbar = None
 
@@ -435,12 +431,10 @@ class FigureManagerGTK3(FigureManagerBase):
             size_request = child.size_request()
             return size_request.height
 
-        if matplotlib.rcParams['toolbar'] == 'navigation':
-            add_tools_2_navigation(self.navigation)
-#             self.navigation.add_tools(tools)
-#             self.toolbar.add_tools(toolbar_tools)
-            add_tools_2_container(self.toolbar)
-            self.statusbar = StatusbarGTK3(self.navigation)
+        if matplotlib.rcParams['toolbar'] == 'toolmanager':
+            tools.add_tools_2_toolmanager(self.toolmanager)
+            tools.add_tools_2_container(self.toolbar)
+            self.statusbar = StatusbarGTK3(self.toolmanager)
             h += add_widget(self.statusbar, False, False, 0)
             h += add_widget(Gtk.HSeparator(), False, False, 0)
 
@@ -459,7 +453,7 @@ class FigureManagerGTK3(FigureManagerBase):
 
         def notify_axes_change(fig):
             'this will be called whenever the current axes is changed'
-            if self.navigation is not None:
+            if self.toolmanager is not None:
                 pass
             elif self.toolbar is not None:
                 self.toolbar.update()
@@ -498,19 +492,19 @@ class FigureManagerGTK3(FigureManagerBase):
         # attrs are set
         if rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2GTK3 (self.canvas, self.window)
-        elif rcParams['toolbar'] == 'navigation':
-            toolbar = ToolbarGTK3(self.navigation)
+        elif rcParams['toolbar'] == 'toolmanager':
+            toolbar = ToolbarGTK3(self.toolmanager)
         else:
             toolbar = None
         return toolbar
 
-    def _get_navigation(self):
+    def _get_toolmanager(self):
         # must be initialised after toolbar has been setted
         if rcParams['toolbar'] != 'toolbar2':
-            navigation = NavigationGTK3(self.canvas)
+            toolmanager = ToolManager(self.canvas)
         else:
-            navigation = None
-        return navigation
+            toolmanager = None
+        return toolmanager
 
     def get_window_title(self):
         return self.window.get_title()
@@ -737,13 +731,9 @@ class FileChooserDialog(Gtk.FileChooserDialog):
         return filename, self.ext
 
 
-class NavigationGTK3(NavigationBase):
-    pass
-
-
-class RubberbandGTK3(RubberbandBase):
+class RubberbandGTK3(tools.RubberbandBase):
     def __init__(self, *args, **kwargs):
-        RubberbandBase.__init__(self, *args, **kwargs)
+        tools.RubberbandBase.__init__(self, *args, **kwargs)
         self.ctx = None
 
     def draw_rubberband(self, x0, y0, x1, y1):
@@ -768,12 +758,12 @@ class RubberbandGTK3(RubberbandBase):
         self.ctx.set_source_rgb(0, 0, 0)
         self.ctx.stroke()
 
-ToolRubberband = RubberbandGTK3
+tools.ToolRubberband = RubberbandGTK3
 
 
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
-    def __init__(self, navigation):
-        ToolContainerBase.__init__(self, navigation)
+    def __init__(self, toolmanager):
+        ToolContainerBase.__init__(self, toolmanager)
         Gtk.Box.__init__(self)
         self.set_property("orientation", Gtk.Orientation.VERTICAL)
 
@@ -786,7 +776,6 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
 
     def add_toolitem(self, name, group, position, image_file, description,
                      toggle):
-
         if toggle:
             tbutton = Gtk.ToggleToolButton()
         else:
@@ -832,7 +821,7 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
 
     def remove_toolitem(self, name):
         if name not in self._toolitems:
-            self.navigation.message_event('%s Not in toolbar' % name, self)
+            self.toolmanager.message_event('%s Not in toolbar' % name, self)
             return
 
         for group in self._groups:
@@ -859,7 +848,7 @@ class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
         self.push(self._context, s)
 
 
-class SaveFigureGTK3(SaveFigureBase):
+class SaveFigureGTK3(tools.SaveFigureBase):
 
     def get_filechooser(self):
         fc = FileChooserDialog(
@@ -890,19 +879,19 @@ class SaveFigureGTK3(SaveFigureBase):
             except Exception as e:
                 error_msg_gtk(str(e), parent=self)
 
-ToolSaveFigure = SaveFigureGTK3
+tools.ToolSaveFigure = SaveFigureGTK3
 
 
-class SetCursorGTK3(SetCursorBase):
+class SetCursorGTK3(tools.SetCursorBase):
     def set_cursor(self, cursor):
         self.figure.canvas.get_property("window").set_cursor(cursord[cursor])
 
-ToolSetCursor = SetCursorGTK3
+tools.ToolSetCursor = SetCursorGTK3
 
 
-class ConfigureSubplotsGTK3(ConfigureSubplotsBase, Gtk.Window):
+class ConfigureSubplotsGTK3(tools.ConfigureSubplotsBase, Gtk.Window):
     def __init__(self, *args, **kwargs):
-        ConfigureSubplotsBase.__init__(self, *args, **kwargs)
+        tools.ConfigureSubplotsBase.__init__(self, *args, **kwargs)
         self.window = None
 
     def init_window(self):
@@ -953,7 +942,7 @@ class ConfigureSubplotsGTK3(ConfigureSubplotsBase, Gtk.Window):
         self.window.present()
 
 
-ToolConfigureSubplots = ConfigureSubplotsGTK3
+tools.ToolConfigureSubplots = ConfigureSubplotsGTK3
 
 
 class DialogLineprops:
@@ -1142,6 +1131,5 @@ def error_msg_gtk(msg, parent=None):
     dialog.destroy()
 
 Toolbar = ToolbarGTK3
-Navigation = NavigationGTK3
 FigureCanvas = FigureCanvasGTK3
 FigureManager = FigureManagerGTK3
