@@ -24,6 +24,12 @@ graphics contexts must implement to serve as a matplotlib backend
     The base class for the Show class of each interactive backend;
     the 'show' callable is then set to Show.__call__, inherited from
     ShowBase.
+
+:class:`ToolContainerBase`
+     The base class for the Toolbar class of each interactive backend.
+
+:class:`StatusbarBase`
+    The base class for the messaging area.
 """
 
 from __future__ import (absolute_import, division, print_function,
