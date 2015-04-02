@@ -8,8 +8,7 @@ class allows to:
 
 from __future__ import print_function
 import matplotlib
-# matplotlib.use('GTK3Cairo')
-matplotlib.use('Tkagg')
+matplotlib.use('GTK3Cairo')
 matplotlib.rcParams['toolbar'] = 'toolmanager'
 import matplotlib.pyplot as plt
 from matplotlib.backend_tools import ToolBase
@@ -63,7 +62,7 @@ plt.plot([1, 2, 3])
 
 # Add the custom tools that we created
 fig.canvas.manager.toolmanager.add_tool('List', ListTools)
-# fig.canvas.manager.toolmanager.add_tool('copy', CopyToolGTK3)
+fig.canvas.manager.toolmanager.add_tool('copy', CopyToolGTK3)
 
 # Add an existing tool to new group `foo`.
 # It can be added as many times as we want

@@ -939,25 +939,41 @@ class ToolbarTk(ToolContainerBase, Tk.Frame):
                           borderwidth=2)
         self._toolitems = {}
         self.pack(side=Tk.TOP, fill=Tk.X)
+        self._groups = {}
 
     def add_toolitem(self, name, group, position, image_file, description,
                      toggle):
-        button = self._Button(name, image_file, toggle)
+        frame = self._get_groupframe(group)
+        button = self._Button(name, image_file, toggle, frame)
         if description is not None:
             ToolTip.createToolTip(button, description)
-        self._toolitems[name] = button
+        self._toolitems.setdefault(name, [])
+        self._toolitems[name].append(button)
 
-    def _Button(self, text, image_file, toggle):
+    def _get_groupframe(self, group):
+        if group not in self._groups:
+            if self._groups:
+                self._add_separator()
+            frame = Tk.Frame(master=self, borderwidth=0)
+            frame.pack(side=Tk.LEFT, fill=Tk.Y)
+            self._groups[group] = frame
+        return self._groups[group]
+
+    def _add_separator(self):
+        separator = Tk.Frame(master=self, bd=5, width=1, bg='black')
+        separator.pack(side=Tk.LEFT, fill=Tk.Y, padx=2)
+
+    def _Button(self, text, image_file, toggle, frame):
         if image_file is not None:
             im = Tk.PhotoImage(master=self, file=image_file)
         else:
             im = None
 
         if not toggle:
-            b = Tk.Button(master=self, text=text, padx=2, pady=2, image=im,
+            b = Tk.Button(master=frame, text=text, padx=2, pady=2, image=im,
                           command=lambda: self._button_click(text))
         else:
-            b = Tk.Checkbutton(master=self, text=text, padx=2, pady=2,
+            b = Tk.Checkbutton(master=frame, text=text, padx=2, pady=2,
                                image=im, indicatoron=False,
                                command=lambda: self._button_click(text))
         b._ntimage = im
@@ -970,13 +986,15 @@ class ToolbarTk(ToolContainerBase, Tk.Frame):
     def toggle_toolitem(self, name, toggled):
         if name not in self._toolitems:
             return
-        if toggled:
-            self._toolitems[name].select()
-        else:
-            self._toolitems[name].deselect()
+        for toolitem in self._toolitems[name]:
+            if toggled:
+                toolitem.select()
+            else:
+                toolitem.deselect()
 
     def remove_toolitem(self, name):
-        self._toolitems[name].pack_forget()
+        for toolitem in self._toolitems[name]:
+            toolitem.pack_forget()
         del self._toolitems[name]
 
 
