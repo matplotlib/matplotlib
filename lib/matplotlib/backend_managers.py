@@ -294,8 +294,6 @@ class ToolManager(object):
 
         # Keep track of the toggled tool in the radio_group
         self._toggled[radio_group] = toggled
-#         for a in self.canvas.figure.get_axes():
-#             a.set_navigate_mode(self._toggled)
 
     def _get_cls_to_instantiate(self, callback_class):
         # Find the class that corresponds to the tool
