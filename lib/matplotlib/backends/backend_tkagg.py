@@ -23,7 +23,7 @@ from matplotlib.backend_bases import NavigationToolbar2, cursors, TimerBase
 from matplotlib.backend_bases import (ShowBase, ToolContainerBase,
                                       StatusbarBase)
 from matplotlib.backend_managers import ToolManager
-import matplotlib.backend_tools as tools
+from matplotlib import backend_tools
 from matplotlib._pylab_helpers import Gcf
 
 from matplotlib.figure import Figure
@@ -540,8 +540,8 @@ class FigureManagerTkAgg(FigureManagerBase):
         self.statusbar = None
 
         if matplotlib.rcParams['toolbar'] == 'toolmanager':
-            tools.add_tools_2_toolmanager(self.toolmanager)
-            tools.add_tools_2_container(self.toolbar)
+            backend_tools.add_tools_2_toolmanager(self.toolmanager)
+            backend_tools.add_tools_2_container(self.toolbar)
             self.statusbar = StatusbarTk(self.window, self.toolmanager)
 
         self._shown = False
@@ -898,9 +898,9 @@ class ToolTip(object):
             tw.destroy()
 
 
-class RubberbandTk(tools.RubberbandBase):
+class RubberbandTk(backend_tools.RubberbandBase):
     def __init__(self, *args, **kwargs):
-        tools.RubberbandBase.__init__(self, *args, **kwargs)
+        backend_tools.RubberbandBase.__init__(self, *args, **kwargs)
 
     def draw_rubberband(self, x0, y0, x1, y1):
         height = self.figure.canvas.figure.bbox.height
@@ -924,7 +924,7 @@ class RubberbandTk(tools.RubberbandBase):
             del self.lastrect
 
 
-class SetCursorTk(tools.SetCursorBase):
+class SetCursorTk(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
         self.figure.canvas.manager.window.configure(cursor=cursord[cursor])
 
@@ -1015,7 +1015,7 @@ class StatusbarTk(StatusbarBase, Tk.Frame):
         self._message.set(s)
 
 
-class SaveFigureTk(tools.SaveFigureBase):
+class SaveFigureTk(backend_tools.SaveFigureBase):
     def trigger(self, *args):
         from six.moves import tkinter_tkfiledialog, tkinter_messagebox
         filetypes = self.figure.canvas.get_supported_filetypes().copy()
@@ -1068,9 +1068,9 @@ class SaveFigureTk(tools.SaveFigureBase):
                 tkinter_messagebox.showerror("Error saving file", str(e))
 
 
-class ConfigureSubplotsTk(tools.ConfigureSubplotsBase):
+class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
     def __init__(self, *args, **kwargs):
-        tools.ConfigureSubplotsBase.__init__(self, *args, **kwargs)
+        backend_tools.ConfigureSubplotsBase.__init__(self, *args, **kwargs)
         self.window = None
 
     def trigger(self, *args):
@@ -1096,10 +1096,10 @@ class ConfigureSubplotsTk(tools.ConfigureSubplotsBase):
         self.window = None
 
 
-tools.ToolSaveFigure = SaveFigureTk
-tools.ToolConfigureSubplots = ConfigureSubplotsTk
-tools.ToolSetCursor = SetCursorTk
-tools.ToolRubberband = RubberbandTk
+backend_tools.ToolSaveFigure = SaveFigureTk
+backend_tools.ToolConfigureSubplots = ConfigureSubplotsTk
+backend_tools.ToolSetCursor = SetCursorTk
+backend_tools.ToolRubberband = RubberbandTk
 Toolbar = ToolbarTk
 FigureCanvas = FigureCanvasTkAgg
 FigureManager = FigureManagerTkAgg
