@@ -33,7 +33,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
 from matplotlib.backend_bases import (ShowBase, ToolContainerBase,
                                       StatusbarBase)
 from matplotlib.backend_managers import ToolManager
-import matplotlib.backend_tools as tools
+from matplotlib import backend_tools
 
 from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.colors import colorConverter
@@ -432,8 +432,8 @@ class FigureManagerGTK3(FigureManagerBase):
             return size_request.height
 
         if matplotlib.rcParams['toolbar'] == 'toolmanager':
-            tools.add_tools_2_toolmanager(self.toolmanager)
-            tools.add_tools_2_container(self.toolbar)
+            backend_tools.add_tools_2_toolmanager(self.toolmanager)
+            backend_tools.add_tools_2_container(self.toolbar)
             self.statusbar = StatusbarGTK3(self.toolmanager)
             h += add_widget(self.statusbar, False, False, 0)
             h += add_widget(Gtk.HSeparator(), False, False, 0)
@@ -731,9 +731,9 @@ class FileChooserDialog(Gtk.FileChooserDialog):
         return filename, self.ext
 
 
-class RubberbandGTK3(tools.RubberbandBase):
+class RubberbandGTK3(backend_tools.RubberbandBase):
     def __init__(self, *args, **kwargs):
-        tools.RubberbandBase.__init__(self, *args, **kwargs)
+        backend_tools.RubberbandBase.__init__(self, *args, **kwargs)
         self.ctx = None
 
     def draw_rubberband(self, x0, y0, x1, y1):
@@ -846,7 +846,7 @@ class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
         self.push(self._context, s)
 
 
-class SaveFigureGTK3(tools.SaveFigureBase):
+class SaveFigureGTK3(backend_tools.SaveFigureBase):
 
     def get_filechooser(self):
         fc = FileChooserDialog(
@@ -878,14 +878,14 @@ class SaveFigureGTK3(tools.SaveFigureBase):
                 error_msg_gtk(str(e), parent=self)
 
 
-class SetCursorGTK3(tools.SetCursorBase):
+class SetCursorGTK3(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
         self.figure.canvas.get_property("window").set_cursor(cursord[cursor])
 
 
-class ConfigureSubplotsGTK3(tools.ConfigureSubplotsBase, Gtk.Window):
+class ConfigureSubplotsGTK3(backend_tools.ConfigureSubplotsBase, Gtk.Window):
     def __init__(self, *args, **kwargs):
-        tools.ConfigureSubplotsBase.__init__(self, *args, **kwargs)
+        backend_tools.ConfigureSubplotsBase.__init__(self, *args, **kwargs)
         self.window = None
 
     def init_window(self):
@@ -1122,10 +1122,10 @@ def error_msg_gtk(msg, parent=None):
     dialog.destroy()
 
 
-tools.ToolSaveFigure = SaveFigureGTK3
-tools.ToolConfigureSubplots = ConfigureSubplotsGTK3
-tools.ToolSetCursor = SetCursorGTK3
-tools.ToolRubberband = RubberbandGTK3
+backend_tools.ToolSaveFigure = SaveFigureGTK3
+backend_tools.ToolConfigureSubplots = ConfigureSubplotsGTK3
+backend_tools.ToolSetCursor = SetCursorGTK3
+backend_tools.ToolRubberband = RubberbandGTK3
 
 Toolbar = ToolbarGTK3
 FigureCanvas = FigureCanvasGTK3
