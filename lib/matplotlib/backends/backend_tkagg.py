@@ -930,8 +930,8 @@ class SetCursorTk(tools.SetCursorBase):
 
 
 class ToolbarTk(ToolContainerBase, Tk.Frame):
-    def __init__(self, navigation, window):
-        ToolContainerBase.__init__(self, navigation)
+    def __init__(self, toolmanager, window):
+        ToolContainerBase.__init__(self, toolmanager)
         xmin, xmax = self.toolmanager.canvas.figure.bbox.intervalx
         height, width = 50, xmax - xmin
         Tk.Frame.__init__(self, master=window,
