@@ -427,7 +427,9 @@ class SetupPackage(object):
         `min_version` is the minimum version required.
 
         `version` will override the found version if this package
-        requires an alternate method for that.
+        requires an alternate method for that. Set version='unknown'
+        if the version is not known but you still want to disabled
+        pkg_config version check.
         """
         if version is None:
             version = pkg_config.get_version(package)
@@ -441,7 +443,7 @@ class SetupPackage(object):
             raise CheckFailed(
                 "Requires patches that have not been merged upstream.")
 
-        if min_version:
+        if min_version and version != 'unknown':
             if (not is_min_version(version, min_version)):
                 raise CheckFailed(
                     "Requires %s %s or later.  Found %s." %
@@ -956,12 +958,15 @@ class FreeType(SetupPackage):
         if version is None or 'No such file or directory\ngrep:' in version:
             version = self.version_from_header()
 
+        # pkg_config returns the libtool version rather than the
+        # freetype version so we need to explicitly pass the version
+        # to _check_for_pkg_config
         return self._check_for_pkg_config(
             'freetype2', 'ft2build.h',
             min_version='2.3', version=version)
 
     def version_from_header(self):
-        version = 'Failed to identify version.'
+        version = 'unknown'
         ext = self.get_extension()
         if ext is None:
             return version
