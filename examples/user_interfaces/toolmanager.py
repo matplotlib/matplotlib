@@ -1,8 +1,9 @@
-'''This example demonstrates how the `matplotlib.backend_bases.NavigationBase`
-class allows to:
+'''This example demonstrates how to:
 * Modify the Toolbar
+* Create tools
 * Add tools
 * Remove tools
+Using `matplotlib.backend_managers.ToolManager`
 '''
 
 
