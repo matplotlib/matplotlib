@@ -3227,7 +3227,7 @@ class ToolContainerBase(object):
     """
     Base class for all tool containers, e.g. toolbars.
 
-     Attributes
+    Attributes
     ----------
     toolmanager : `ToolManager` object that holds the tools that
         this `ToolContainer` wants to communicate with.
