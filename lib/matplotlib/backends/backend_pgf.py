@@ -490,7 +490,7 @@ class RendererPgf(RendererBase):
 
             # combine clip and path for clipping
             self._print_pgf_clip(gc)
-            self._print_pgf_path(gc, path, transform)
+            self._print_pgf_path(gc, path, transform, rgbFace)
             writeln(self.fh, r"\pgfusepath{clip}")
 
             # build pattern definition
