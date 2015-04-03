@@ -936,7 +936,7 @@ class ConfigureSubplotsGTK3(tools.ConfigureSubplotsBase, Gtk.Window):
         self.window.present()
 
 
-class DialogLineprops:
+class DialogLineprops(object):
     """
     A GUI dialog for controlling lineprops
     """

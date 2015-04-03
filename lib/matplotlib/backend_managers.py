@@ -99,7 +99,7 @@ class ToolManager(object):
 
     def toolmanager_disconnect(self, cid):
         """
-        Disconnect callback id cid
+        Disconnect callback id *cid*
 
         Example usage::
 
@@ -196,9 +196,7 @@ class ToolManager(object):
 
     def add_tool(self, name, tool, *args, **kwargs):
         """
-        Add tool to `ToolManager`
-
-        Add a tool to the tools controlled by ToolManager
+        Add *tool* to `ToolManager`
 
         If successful adds a new event `tool_trigger_name` where **name** is
         the **name** of the tool, this event is fired everytime

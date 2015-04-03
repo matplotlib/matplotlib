@@ -17,7 +17,7 @@ from gi.repository import Gtk, Gdk
 
 
 class ListTools(ToolBase):
-    '''List all the tools controlled by `Navigation`'''
+    '''List all the tools controlled by the `ToolManager`'''
     # keyboard shortcut
     default_keymap = 'm'
     description = 'List Tools'
@@ -72,7 +72,8 @@ fig.canvas.manager.toolbar.add_tool('zoom', 'foo')
 # Remove the forward button
 fig.canvas.manager.toolmanager.remove_tool('forward')
 
-# To add a custom tool to the toolbar at specific location
+# To add a custom tool to the toolbar at specific location inside
+# the navigation group
 fig.canvas.manager.toolbar.add_tool('List', 'navigation', 1)
 
 plt.show()
