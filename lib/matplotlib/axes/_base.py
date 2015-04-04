@@ -1299,13 +1299,15 @@ class _AxesBase(martist.Artist):
             ymin, ymax = self.get_ylim()
             return xmin, xmax, ymin, ymax
 
+        emit = kwargs.get('emit', True)
+
         if len(v) == 1 and is_string_like(v[0]):
             s = v[0].lower()
             if s == 'on':
                 self.set_axis_on()
             elif s == 'off':
                 self.set_axis_off()
-            elif s in ('equal', 'tight', 'scaled', 'normal', 'auto', 'image'):
+            elif s in ('equal', 'tight', 'scaled', 'normal', 'auto', 'image', 'square'):
                 self.set_autoscale_on(True)
                 self.set_aspect('auto')
                 self.autoscale_view(tight=False)
@@ -1322,6 +1324,15 @@ class _AxesBase(martist.Artist):
                     self.autoscale_view(tight=True)
                     self.set_autoscale_on(False)
                     self.set_aspect('equal', adjustable='box', anchor='C')
+                elif s == 'square':
+                    self.set_aspect('equal', adjustable='box', anchor='C')
+                    self.set_autoscale_on(False)
+                    xlim = self.get_xlim()
+                    ylim = self.get_ylim()
+                    minlim = min(xlim[0], ylim[0])
+                    maxlim = max(xlim[1], ylim[1])
+                    self.set_xlim([minlim, maxlim], emit=emit, auto=False)
+                    self.set_ylim([minlim, maxlim], emit=emit, auto=False)
 
             else:
                 raise ValueError('Unrecognized string %s to axis; '
@@ -1329,8 +1340,7 @@ class _AxesBase(martist.Artist):
             xmin, xmax = self.get_xlim()
             ymin, ymax = self.get_ylim()
             return xmin, xmax, ymin, ymax
-
-        emit = kwargs.get('emit', True)
+        
         try:
             v[0]
         except IndexError:
