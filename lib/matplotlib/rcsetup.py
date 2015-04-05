@@ -238,11 +238,9 @@ def validate_line(s):
     'return a valid  arg'
     if s in (None, 'none', 'None', ' ', ''):
         return 'None'
-        
     if s in ('-', '--', '-.', ':'):
         return s
-    
-    raise ValueError("line given not valid")
+    raise ValueError('%s is not a valid line arg' % s)
 
 
 def validate_markercolor(s):
@@ -300,9 +298,11 @@ def validate_linelist(s):
     'return a list of colorspecs'
     if isinstance(s, six.string_types):
         return [validate_line(l.strip()) for l in s.split(',')]
-    else:
-        assert type(s) in [list, tuple]
+    elif type(s) in (list, tuple) and s != []:
         return [validate_line(l) for l in s]
+    else:
+        msg = "'s' must be of type [ string | list | tuple ] and non empty"
+        raise ValueError(msg)
 
 def validate_stringlist(s):
     'return a list'
@@ -550,7 +550,7 @@ defaultParams = {
 
     # line props
     'lines.linewidth':       [1.0, validate_float],  # line width in points
-    'lines.linestyle':       ['-', six.text_type],             # solid line
+    'lines.linestyle':       ['-', validate_line],   # solid line
     'lines.color':           ['b', validate_color],  # blue
     'lines.marker':          ['None', six.text_type],     # black
     'lines.markeredgewidth': [0.5, validate_float],

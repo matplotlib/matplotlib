@@ -142,12 +142,10 @@ class _process_plot_var_args(object):
         self.cycle = mcycle.Cycle()
 
     def __getstate__(self):
-        # note: it is not possible to pickle a itertools.cycle instance
-        return {'axes': self.axes, 'command': self.command}
+        return {'axes': self.axes, 'command': self.command, 'cycle': self.cycle}
 
     def __setstate__(self, state):
         self.__dict__ = state.copy()
-        self.cycle.set_color_cycle()
 
     def __call__(self, *args, **kwargs):
 
@@ -226,9 +224,7 @@ class _process_plot_var_args(object):
         return x, y
 
     def _makeline(self, x, y, kw, kwargs):
-        args = self.cycle.next()
-        args.update(kw)
-        kw = args.copy()  # Don't modify the original kw.
+        kw = self.cycle.next(kw.copy())
         kwargs = kwargs.copy()
         seg = mlines.Line2D(x, y,
                             **kw
