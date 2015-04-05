@@ -1307,7 +1307,8 @@ class _AxesBase(martist.Artist):
                 self.set_axis_on()
             elif s == 'off':
                 self.set_axis_off()
-            elif s in ('equal', 'tight', 'scaled', 'normal', 'auto', 'image', 'square'):
+            elif s in ('equal', 'tight', 'scaled', 'normal',
+                       'auto', 'image', 'square'):
                 self.set_autoscale_on(True)
                 self.set_aspect('auto')
                 self.autoscale_view(tight=False)
@@ -1329,18 +1330,18 @@ class _AxesBase(martist.Artist):
                     self.set_autoscale_on(False)
                     xlim = self.get_xlim()
                     ylim = self.get_ylim()
-                    minlim = min(xlim[0], ylim[0])
-                    maxlim = max(xlim[1], ylim[1])
-                    self.set_xlim([minlim, maxlim], emit=emit, auto=False)
-                    self.set_ylim([minlim, maxlim], emit=emit, auto=False)
-
+                    edge_size = max(np.diff(xlim), np.diff(ylim))
+                    self.set_xlim([xlim[0], xlim[0] + edge_size],
+                                  emit=emit, auto=False)
+                    self.set_ylim([ylim[0], ylim[0] + edge_size],
+                                  emit=emit, auto=False)
             else:
                 raise ValueError('Unrecognized string %s to axis; '
                                  'try on or off' % s)
             xmin, xmax = self.get_xlim()
             ymin, ymax = self.get_ylim()
             return xmin, xmax, ymin, ymax
-        
+
         try:
             v[0]
         except IndexError:
