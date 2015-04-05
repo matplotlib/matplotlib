@@ -15,7 +15,7 @@ graphics contexts must implement to serve as a matplotlib backend
 
 :class:`Event`
     The base class for all of the matplotlib event
-    handling.  Derived classes suh as :class:`KeyEvent` and
+    handling.  Derived classes such as :class:`KeyEvent` and
     :class:`MouseEvent` store the meta data like keys and buttons
     pressed, x and y locations in pixel and
     :class:`~matplotlib.axes.Axes` coordinates.
@@ -1499,7 +1499,9 @@ class MouseEvent(LocationEvent):
 
     *button*
         button pressed None, 1, 2, 3, 'up', 'down' (up and down are used
-        for scroll events)
+        for scroll events).  Note that in the nbagg backend, both the
+        middle and right clicks return 3 since right clicking will bring
+        up the context menu in some browsers.
 
     *key*
         the key depressed when the mouse event triggered (see
