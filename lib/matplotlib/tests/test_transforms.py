@@ -9,7 +9,7 @@ import unittest
 from nose.tools import assert_equal, assert_raises
 import numpy.testing as np_test
 from numpy.testing import assert_almost_equal, assert_array_equal
-from matplotlib.transforms import Affine2D, BlendedGenericTransform
+from matplotlib.transforms import Affine2D, BlendedGenericTransform, Bbox
 from matplotlib.path import Path
 from matplotlib.scale import LogScale
 from matplotlib.testing.decorators import cleanup, image_comparison
@@ -500,6 +500,12 @@ def test_log_transform():
     fig, ax = plt.subplots()
     ax.set_yscale('log')
     ax.transData.transform((1,1))
+
+@cleanup
+def test_nan_overlap():
+    a = Bbox([[0, 0], [1, 1]])
+    b = Bbox([[0, 0], [1, np.nan]])
+    assert not a.overlaps(b)
 
 
 if __name__=='__main__':

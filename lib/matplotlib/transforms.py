@@ -447,6 +447,8 @@ class BboxBase(TransformNode):
         """
         ax1, ay1, ax2, ay2 = self._get_extents()
         bx1, by1, bx2, by2 = other._get_extents()
+        if any(np.isnan(v) for v in [ax1, ay1, ax2, ay2, bx1, by1, bx2, by2]):
+            return False
 
         if ax2 < ax1:
             ax2, ax1 = ax1, ax2
