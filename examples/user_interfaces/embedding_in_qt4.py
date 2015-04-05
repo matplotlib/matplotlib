@@ -13,8 +13,8 @@ from __future__ import unicode_literals
 import sys
 import os
 import random
-from matplotlib.backends import qt4_compat
-use_pyside = qt4_compat.QT_API == qt4_compat.QT_API_PYSIDE
+from matplotlib.backends import qt_compat
+use_pyside = qt_compat.QT_API == qt_compat.QT_API_PYSIDE
 if use_pyside:
     from PySide import QtGui, QtCore
 else:
