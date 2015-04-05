@@ -61,6 +61,8 @@ if not hasattr(QtWidgets, 'QFormLayout'):
 
 import datetime
 
+BLACKLIST = set(["title", "label"])
+
 
 def col2hex(color):
     """Convert matplotlib color to hex before passing to Qt"""
@@ -262,7 +264,7 @@ class FormWidget(QtWidgets.QWidget):
                 continue
             elif tuple_to_qfont(value) is not None:
                 field = FontLayout(value, self)
-            elif is_color_like(value):
+            elif label.lower() not in BLACKLIST and is_color_like(value):
                 field = ColorLayout(to_qcolor(value), self)
             elif isinstance(value, six.string_types):
                 field = QtWidgets.QLineEdit(value, self)

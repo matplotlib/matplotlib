@@ -296,7 +296,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             # The right mouse button pops up a context menu, which
             # doesn't work very well, so use the middle mouse button
             # instead.  It doesn't seem that it's possible to disable
-            # the context menu in recent versions of Chrome.
+            # the context menu in recent versions of Chrome.  If this
+            # is resolved, please also adjust the docstring in MouseEvent.
             if button == 2:
                 button = 3
 
