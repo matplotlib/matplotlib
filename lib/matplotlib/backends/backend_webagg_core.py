@@ -191,8 +191,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         self.send_event("draw")
 
     def copy_from_bbox(self, bbox):
-        # we really want the old one (which is what is currently 'on screen')
-        # this will behave badly if `draw` has never been called.
+        # make sure both renderers exist
+        self.get_renderer()
         renderer = self._last_renderer
         return renderer.copy_from_bbox(bbox)
 
