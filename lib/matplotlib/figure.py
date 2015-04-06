@@ -568,7 +568,6 @@ class Figure(Artist):
             self._hold = b
 
     def figimage(self, X,
-                 resize=False,
                  xo=0,
                  yo=0,
                  alpha=None,
@@ -577,6 +576,7 @@ class Figure(Artist):
                  vmin=None,
                  vmax=None,
                  origin=None,
+                 resize=False,
                  **kwargs):
         """
         Adds a non-resampled image to the figure.
