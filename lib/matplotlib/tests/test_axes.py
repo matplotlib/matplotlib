@@ -131,7 +131,7 @@ def test_twinx_cla():
 
 @image_comparison(baseline_images=["minorticks_on_rcParams_both"], extensions=['png'])
 def test_minorticks_on_rcParams_both():
-    
+
     fig = plt.figure()
     matplotlib.rcParams['xtick.minor.visible'] = True
     matplotlib.rcParams['ytick.minor.visible'] = True
@@ -3569,11 +3569,13 @@ def test_pathological_hexbin():
         fig.savefig(out)
         assert_equal(len(w), 0)
 
+
 @cleanup
 def test_color_None():
     # issue 3855
     fig, ax = plt.subplots()
     ax.plot([1,2], [1,2], color=None)
+
 
 @cleanup
 def test_color_alias():
@@ -3582,10 +3584,12 @@ def test_color_alias():
     line = ax.plot([0, 1], c='lime')[0]
     assert_equal('lime', line.get_color())
 
+
 @cleanup
 def test_numerical_hist_label():
     fig, ax = plt.subplots()
     ax.hist([range(15)] * 5, label=range(5))
+
 
 @cleanup
 def test_move_offsetlabel():
@@ -3594,6 +3598,18 @@ def test_move_offsetlabel():
     ax.plot(data)
     ax.yaxis.tick_right()
     assert_equal((1, 0.5), ax.yaxis.offsetText.get_position())
+
+
+@cleanup
+def test_bar_negative_width():
+    fig, ax = plt.subplots()
+    res = ax.bar(range(1, 5), range(1, 5), width=-1)
+    assert_equal(len(res), 4)
+    for indx, b in enumerate(res):
+        assert_equal(b._x, indx)
+        assert_equal(b._width, 1)
+        assert_equal(b._height, indx + 1)
+
 
 if __name__ == '__main__':
     import nose
