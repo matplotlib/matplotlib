@@ -2749,7 +2749,7 @@ class WindowBase(cbook.EventEmitter):
         """
         pass
 
-    def add_element_to_window(self, element, expand, fill, pad, side='bottom'):
+    def add_element_to_window(self, element, expand, fill, pad, place):
         """ Adds a gui widget to the window.
         This has no effect for non-GUI backends and properties only apply
         to those backends that support them, or have a suitable workaround.
@@ -2766,6 +2766,9 @@ class WindowBase(cbook.EventEmitter):
             or go into extra padding?  True, False respectfully.
         pad : int
             The extra amount of space in pixels to pad the element.
+        place : string
+            The location to place the element, either compass points north,
+            east, south, west, or center.
         """
         pass
 

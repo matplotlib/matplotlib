@@ -84,12 +84,12 @@ class FigureManager(cbook.EventEmitter):
         w = int(self.canvas.figure.bbox.width)
         h = int(self.canvas.figure.bbox.height)
 
-        self.window.add_element_to_window(self.canvas, True, True, 0, 'top')
+        self.window.add_element_to_window(self.canvas, True, True, 0, 'center')
 
         self.toolbar = self._get_toolbar()
         if self.toolbar is not None:
             h += self.window.add_element_to_window(self.toolbar,
-                                                   False, False, 0, 'bottom')
+                                                   False, False, 0, 'south')
 
         self.window.set_default_size(w, h)
 

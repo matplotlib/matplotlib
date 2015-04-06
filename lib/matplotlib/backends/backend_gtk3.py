@@ -372,7 +372,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         FigureCanvasBase.stop_event_loop_default(self)
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
 
-class WindowGTK3(WindowBase, Gtk.Window):
+class Window(WindowBase, Gtk.Window):
     def __init__(self, title):
         WindowBase.__init__(self, title)
         Gtk.Window.__init__(self)
@@ -390,22 +390,35 @@ class WindowGTK3(WindowBase, Gtk.Window):
             # better way is - JDH
             verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
 
-        self.vbox = Gtk.Box()
-        self.vbox.set_property('orientation', Gtk.Orientation.VERTICAL)
-        self.add(self.vbox)
-        self.vbox.show()
+        self._layout = {}
+        self._setup_box('_outer', Gtk.Orientation.VERTICAL, False, None)
+        self._setup_box('north', Gtk.Orientation.VERTICAL, False, '_outer')
+        self._setup_box('_middle', Gtk.Orientation.HORIZONTAL, True, '_outer')
+        self._setup_box('south', Gtk.Orientation.VERTICAL, False, '_outer')
+
+        self._setup_box('west', Gtk.Orientation.HORIZONTAL, False, '_middle')
+        self._setup_box('center', Gtk.Orientation.VERTICAL, True, '_middle')
+        self._setup_box('east', Gtk.Orientation.HORIZONTAL, False, '_middle')
+
+        self.add(self._layout['_outer'])
 
         self.connect('destroy', self.destroy_event)
         self.connect('delete_event', self.destroy_event)
 
-    def add_element_to_window(self, element, expand, fill, pad, side='bottom'):
+    def _setup_box(self, name, orientation, grow, parent):
+        self._layout[name] = Gtk.Box(orientation=orientation)
+        if parent:
+            self._layout[parent].pack_start(self._layout[name], grow, grow, 0)
+        self._layout[name].show()
+
+    def add_element_to_window(self, element, expand, fill, pad, place):
         element.show()
-        if side == 'top':
-            self.vbox.pack_start(element, expand, fill, pad)
-        elif side == 'bottom':
-            self.vbox.pack_end(element, expand, fill, pad)
+        if place in ['north', 'west', 'center']:
+            self._layout[place].pack_start(element, expand, fill, pad)
+        elif place in ['south', 'east']:
+            self._layout[place].pack_end(element, expand, fill, pad)
         else:
-            raise KeyError('Unknown value for side, %s' % side)
+            raise KeyError('Unknown value for place, %s' % place)
         size_request = element.size_request()
         return size_request.height
 
@@ -417,7 +430,6 @@ class WindowGTK3(WindowBase, Gtk.Window):
         Gtk.Window.show(self)
 
     def destroy(self):
-        self.vbox.destroy()
         Gtk.Window.destroy(self)
 
     def set_fullscreen(self, fullscreen):

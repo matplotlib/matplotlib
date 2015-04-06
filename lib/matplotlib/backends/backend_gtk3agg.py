@@ -121,7 +121,7 @@ def new_figure_manager_given_figure(num, figure):
 
 FigureCanvas = FigureCanvasGTK3Agg
 FigureManager = FigureManagerGTK3Agg
-Window = backend_gtk3.WindowGTK3
+Window = backend_gtk3.Window
 Toolbar2 = backend_gtk3.NavigationToolbar2GTK3
 MainLoop = backend_gtk3.MainLoop
 show = backend_gtk3.show
