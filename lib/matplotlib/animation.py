@@ -578,11 +578,23 @@ class SvgAnimationError(Exception):
 class _SvgAnimate(object):
     """an object to carry svg animation information.
 
-    I store the element's attributes for each from of the animation.
+    Store the element's attributes for each frame of the animation.
     Call *add_to_element* to parse through these attributes and add the
     appropriate SVG animation elements to an XML element.
+
+    To create the SVG animation, an object of this type is added to each
+    element of the SVG.  This object tracks the XML attributes of the parent
+    element for each frame of the animation.  Finally, the XML attributes
+    are parsed for each frame and the appropriate SVG animation elements are
+    added.
+
+    Attributes
+    ----------
+    under_defs : bool
+        this element appears as a child of a <defs> element
     """
     def __init__(self):
+        # store xml attributes per frame as dict
         self._xml = {}
         # below, define CSS values to show/hide element
         self._css_value = 'opacity'
@@ -611,8 +623,21 @@ class _SvgAnimate(object):
     @classmethod
     def populate(cls, element, frame, under_defs=False):
         """add an _SvgAnimate object to an XML *element*'s attributes.
-        also adds the object to all children elements.  the current *frame* is
+
+        Given an *element*, walk through all children elements and add an
+        _SvgAnimate object to each element's attributes.  This method should
+        be used before attempting to call *add_to_element* so that an
+        _SvgAnimate object exists in the element.  The current *frame* is
         set as active on all touched elements.
+
+        Parameters
+        ----------
+        element : ElementTree.Element object
+            element to which to add animation
+        frame : int
+            frame id at which this element begins to be active
+        under_defs : bool
+            initialize new _SvgAnimate.under_defs value to *under_defs*
         """
         attribute = SVG_ANIMATION_ATTRIBUTE
         elements = [element]
