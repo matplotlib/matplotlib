@@ -105,8 +105,8 @@ class Cycle:
 
     def set_line_cycle(self, llist=None):
         """
-        Sets a line style cycle to be used for the lines on the graph, if none are
-        specified the default line style cycle will be used
+        Sets a line style cycle to be used for the lines on the graph,
+        if none are specified the default line style cycle will be used
         """
         if llist is None:
             llist = rcParams['axes.line_cycle']

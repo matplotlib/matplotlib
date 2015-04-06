@@ -142,7 +142,8 @@ class _process_plot_var_args(object):
         self.cycle = mcycle.Cycle()
 
     def __getstate__(self):
-        return {'axes': self.axes, 'command': self.command, 'cycle': self.cycle}
+        return {'axes': self.axes, 'command': self.command,
+                'cycle': self.cycle}
 
     def __setstate__(self, state):
         self.__dict__ = state.copy()
@@ -966,22 +967,22 @@ class _AxesBase(martist.Artist):
         """
         Set the cycle for a line attribute for any future plot commands
         on this Axes
-        
+
         *style* is a key to a dictionary for cycles in the cycle class
         *slist* is a list of mpl style specifiers
         """
         self._get_lines.cycle.set_cycle(style, slist)
-        
+
     def clear_all_cycle(self):
         """
         Clear all the current line attribute cycles
         """
         self._get_lines.cycle.clear_all_cycle()
-    
+
     def clear_cycle(self, style):
         """
         Clear a cycle for a line attribute specified by style
-        
+
         *style* is a key to a dictionary for cycles in the cycle class
         """
         self._get_lines.cycle.clear_cycle(style)
@@ -999,7 +1000,7 @@ class _AxesBase(martist.Artist):
         """
         Set the line style cycle for any future plot commands on this
         Axes.
-        
+
         *llist* is a list of mpl line style specifiers.
         """
         self._get_lines.cycle.set_line_cycle(llist)
