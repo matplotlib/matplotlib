@@ -18,8 +18,7 @@ from matplotlib import is_interactive
 from matplotlib import rcParams
 from matplotlib.figure import Figure
 from matplotlib.backend_bases import key_press_handler
-from matplotlib.backends import get_backends
-FigureCanvas, Window, Toolbar2, MainLoop = get_backends()
+from matplotlib.backends import get_backend
 
 
 class FigureManagerEvent(object):
@@ -72,11 +71,12 @@ class FigureManager(cbook.EventEmitter):
         cbook.EventEmitter.__init__(self)
         self.num = num
 
-        self._mainloop = MainLoop()
-        self.window = Window('Figure %d' % num)
+        self._backend = get_backend()
+        self._mainloop = self._backend.MainLoop()
+        self.window = self._backend.Window('Figure %d' % num)
         self.window.mpl_connect('window_destroy_event', self._destroy)
 
-        self.canvas = FigureCanvas(figure, manager=self)
+        self.canvas = self._backend.FigureCanvas(figure, manager=self)
 
         self.key_press_handler_id = self.canvas.mpl_connect('key_press_event',
                                                             self.key_press)
@@ -158,7 +158,7 @@ class FigureManager(cbook.EventEmitter):
         # must be inited after the window, drawingArea and figure
         # attrs are set
         if rcParams['toolbar'] == 'toolbar2':
-            toolbar = Toolbar2(self.canvas, self.window)
+            toolbar = self._backend.Toolbar2(self.canvas, self.window)
         else:
             toolbar = None
         return toolbar
