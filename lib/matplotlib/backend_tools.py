@@ -954,7 +954,7 @@ default_toolbar_tools = [['navigation', ['home', 'back', 'forward']],
 """Default tools in the toolbar"""
 
 
-def add_tools_2_toolmanager(toolmanager, tools=default_tools):
+def add_tools_to_manager(toolmanager, tools=default_tools):
     """
     Add multiple tools to `ToolManager`
 
@@ -971,7 +971,7 @@ def add_tools_2_toolmanager(toolmanager, tools=default_tools):
         toolmanager.add_tool(name, tool)
 
 
-def add_tools_2_container(container, tools=default_toolbar_tools):
+def add_tools_to_container(container, tools=default_toolbar_tools):
     """
     Add multiple tools to the container.
 

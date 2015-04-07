@@ -540,8 +540,8 @@ class FigureManagerTkAgg(FigureManagerBase):
         self.statusbar = None
 
         if matplotlib.rcParams['toolbar'] == 'toolmanager':
-            backend_tools.add_tools_2_toolmanager(self.toolmanager)
-            backend_tools.add_tools_2_container(self.toolbar)
+            backend_tools.add_tools_to_manager(self.toolmanager)
+            backend_tools.add_tools_to_container(self.toolbar)
             self.statusbar = StatusbarTk(self.window, self.toolmanager)
 
         self._shown = False
