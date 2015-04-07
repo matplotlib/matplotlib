@@ -36,22 +36,10 @@ def get_backend_name(name=None):
     return backend_name
 
 
-def get_backends():
+def get_backend():
     backend_name = get_backend_name()
-    _temp = __import__(backend_name, globals(), locals(),
-                       ['Window', 'Toolbar2', 'FigureCanvas', 'MainLoop'], 0)
-    try:
-        Window = _temp.Window
-        Toolbar2 = _temp.Toolbar2
-        FigureCanvas = _temp.FigureCanvas
-        MainLoop = _temp.MainLoop
-    except AttributeError:
-        Window = None
-        Toolbar2 = None
-        FigureCanvas = None
-        MainLoop = getattr(_temp, 'show', do_nothing_show)
-
-    return FigureCanvas, Window, Toolbar2, MainLoop
+    return __import__(backend_name, globals(), locals(),
+                       [backend_name], 0)
 
 
 def pylab_setup(name=None):
