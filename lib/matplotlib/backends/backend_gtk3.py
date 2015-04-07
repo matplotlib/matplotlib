@@ -431,12 +431,13 @@ class FigureManagerGTK3(FigureManagerBase):
             size_request = child.size_request()
             return size_request.height
 
-        if matplotlib.rcParams['toolbar'] == 'toolmanager':
+        if self.toolmanager:
             backend_tools.add_tools_to_manager(self.toolmanager)
-            backend_tools.add_tools_to_container(self.toolbar)
-            self.statusbar = StatusbarGTK3(self.toolmanager)
-            h += add_widget(self.statusbar, False, False, 0)
-            h += add_widget(Gtk.HSeparator(), False, False, 0)
+            if self.toolbar:
+                backend_tools.add_tools_to_container(self.toolbar)
+                self.statusbar = StatusbarGTK3(self.toolmanager)
+                h += add_widget(self.statusbar, False, False, 0)
+                h += add_widget(Gtk.HSeparator(), False, False, 0)
 
         if self.toolbar is not None:
             self.toolbar.show()
