@@ -12,7 +12,7 @@ import matplotlib
 matplotlib.use('GTK3Cairo')
 matplotlib.rcParams['toolbar'] = 'toolmanager'
 import matplotlib.pyplot as plt
-from matplotlib.backend_tools import ToolBase
+from matplotlib.backend_tools import ToolBase, ToolToggleBase
 from gi.repository import Gtk, Gdk
 
 
@@ -44,26 +44,39 @@ class ListTools(ToolBase):
             print("{0:12} {1:45}".format(group, active))
 
 
-# ref: at https://github.com/matplotlib/matplotlib/issues/1987
-class CopyToolGTK3(ToolBase):
-    '''Copy canvas to clipboard'''
-    default_keymap = 'ctrl+c'
-    description = 'Copy canvas'
+class GroupHideTool(ToolToggleBase):
+    '''Hide lines with a given gid'''
+    default_keymap = 'G'
+    description = 'Hide by gid'
 
-    def trigger(self, *args, **kwargs):
-        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
-        window = self.figure.canvas.get_window()
-        x, y, width, height = window.get_geometry()
-        pb = Gdk.pixbuf_get_from_window(window, x, y, width, height)
-        clipboard.set_image(pb)
+    def __init__(self, *args, **kwargs):
+        self.gid = kwargs.pop('gid')
+        ToolToggleBase.__init__(self, *args, **kwargs)
+
+    def enable(self, *args):
+        self.set_lines_visibility(False)
+
+    def disable(self, *args):
+        self.set_lines_visibility(True)
+
+    def set_lines_visibility(self, state):
+        gr_lines = []
+        for ax in self.figure.get_axes():
+            for line in ax.get_lines():
+                if line.get_gid() == self.gid:
+                    line.set_visible(state)
+        self.figure.canvas.draw()
 
 
 fig = plt.figure()
-plt.plot([1, 2, 3])
+plt.plot([1, 2, 3], gid='mygroup')
+plt.plot([2, 3, 4], gid='unknown')
+plt.plot([3, 2, 1], gid='mygroup')
 
 # Add the custom tools that we created
 fig.canvas.manager.toolmanager.add_tool('List', ListTools)
-fig.canvas.manager.toolmanager.add_tool('copy', CopyToolGTK3)
+fig.canvas.manager.toolmanager.add_tool('Hide', GroupHideTool, gid='mygroup')
+
 
 # Add an existing tool to new group `foo`.
 # It can be added as many times as we want
@@ -74,6 +87,6 @@ fig.canvas.manager.toolmanager.remove_tool('forward')
 
 # To add a custom tool to the toolbar at specific location inside
 # the navigation group
-fig.canvas.manager.toolbar.add_tool('List', 'navigation', 1)
+fig.canvas.manager.toolbar.add_tool('Hide', 'navigation', 1)
 
 plt.show()
