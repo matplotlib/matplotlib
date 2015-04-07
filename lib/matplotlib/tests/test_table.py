@@ -7,6 +7,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.testing.decorators import image_comparison
 
+from matplotlib.table import CustomCell
+from matplotlib.path import Path
+from nose.tools import assert_equal
+
 
 @image_comparison(baseline_images=['table_zorder'],
                   extensions=['png'],
@@ -98,3 +102,22 @@ def test_diff_cell_table():
                 )
         ax.axis('off')
     plt.tight_layout()
+
+
+def test_customcell():
+    types = ('horizontal', 'vertical', 'open', 'closed', 'T', 'R', 'B', 'L')
+    codes = (
+        (Path.MOVETO, Path.LINETO, Path.MOVETO, Path.LINETO, Path.MOVETO),
+        (Path.MOVETO, Path.MOVETO, Path.LINETO, Path.MOVETO, Path.LINETO),
+        (Path.MOVETO, Path.MOVETO, Path.MOVETO, Path.MOVETO, Path.MOVETO),
+        (Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY),
+        (Path.MOVETO, Path.MOVETO, Path.MOVETO, Path.LINETO, Path.MOVETO),
+        (Path.MOVETO, Path.MOVETO, Path.LINETO, Path.MOVETO, Path.MOVETO),
+        (Path.MOVETO, Path.LINETO, Path.MOVETO, Path.MOVETO, Path.MOVETO),
+        (Path.MOVETO, Path.MOVETO, Path.MOVETO, Path.MOVETO, Path.LINETO),
+        )
+
+    for t, c in zip(types, codes):
+        cell = CustomCell((0, 0), visible_edges=t, width=1, height=1)
+        code = tuple(s for _, s in cell.get_path().iter_segments())
+        assert_equal(c, code)
