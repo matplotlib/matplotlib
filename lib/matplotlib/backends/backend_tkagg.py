@@ -20,7 +20,10 @@ from matplotlib.cbook import is_string_like
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase
 from matplotlib.backend_bases import FigureManagerBase, FigureCanvasBase
 from matplotlib.backend_bases import NavigationToolbar2, cursors, TimerBase
-from matplotlib.backend_bases import ShowBase
+from matplotlib.backend_bases import (ShowBase, ToolContainerBase,
+                                      StatusbarBase)
+from matplotlib.backend_managers import ToolManager
+from matplotlib import backend_tools
 from matplotlib._pylab_helpers import Gcf
 
 from matplotlib.figure import Figure
@@ -529,20 +532,44 @@ class FigureManagerTkAgg(FigureManagerBase):
         self.window.withdraw()
         self.set_window_title("Figure %d" % num)
         self.canvas = canvas
-        self._num =  num
-        if matplotlib.rcParams['toolbar']=='toolbar2':
-            self.toolbar = NavigationToolbar2TkAgg( canvas, self.window )
-        else:
-            self.toolbar = None
-        if self.toolbar is not None:
-            self.toolbar.update()
         self.canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+        self._num = num
+
+        self.toolmanager = self._get_toolmanager()
+        self.toolbar = self._get_toolbar()
+        self.statusbar = None
+
+        if self.toolmanager:
+            backend_tools.add_tools_to_manager(self.toolmanager)
+            if self.toolbar:
+                backend_tools.add_tools_to_container(self.toolbar)
+                self.statusbar = StatusbarTk(self.window, self.toolmanager)
+
         self._shown = False
 
         def notify_axes_change(fig):
             'this will be called whenever the current axes is changed'
-            if self.toolbar != None: self.toolbar.update()
+            if self.toolmanager is not None:
+                pass
+            elif self.toolbar is not None:
+                self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
+
+    def _get_toolbar(self):
+        if matplotlib.rcParams['toolbar'] == 'toolbar2':
+            toolbar = NavigationToolbar2TkAgg(self.canvas, self.window)
+        elif matplotlib.rcParams['toolbar'] == 'toolmanager':
+            toolbar = ToolbarTk(self.toolmanager, self.window)
+        else:
+            toolbar = None
+        return toolbar
+
+    def _get_toolmanager(self):
+        if rcParams['toolbar'] != 'toolbar2':
+            toolmanager = ToolManager(self.canvas)
+        else:
+            toolmanager = None
+        return toolmanager
 
     def resize(self, width, height=None):
         # before 09-12-22, the resize method takes a single *event*
@@ -871,5 +898,209 @@ class ToolTip(object):
         if tw:
             tw.destroy()
 
+
+class RubberbandTk(backend_tools.RubberbandBase):
+    def __init__(self, *args, **kwargs):
+        backend_tools.RubberbandBase.__init__(self, *args, **kwargs)
+
+    def draw_rubberband(self, x0, y0, x1, y1):
+        height = self.figure.canvas.figure.bbox.height
+        y0 = height - y0
+        y1 = height - y1
+        try:
+            self.lastrect
+        except AttributeError:
+            pass
+        else:
+            self.figure.canvas._tkcanvas.delete(self.lastrect)
+        self.lastrect = self.figure.canvas._tkcanvas.create_rectangle(x0, y0, x1, y1)
+
+    def remove_rubberband(self):
+        try:
+            self.lastrect
+        except AttributeError:
+            pass
+        else:
+            self.figure.canvas._tkcanvas.delete(self.lastrect)
+            del self.lastrect
+
+
+class SetCursorTk(backend_tools.SetCursorBase):
+    def set_cursor(self, cursor):
+        self.figure.canvas.manager.window.configure(cursor=cursord[cursor])
+
+
+class ToolbarTk(ToolContainerBase, Tk.Frame):
+    def __init__(self, toolmanager, window):
+        ToolContainerBase.__init__(self, toolmanager)
+        xmin, xmax = self.toolmanager.canvas.figure.bbox.intervalx
+        height, width = 50, xmax - xmin
+        Tk.Frame.__init__(self, master=window,
+                          width=int(width), height=int(height),
+                          borderwidth=2)
+        self._toolitems = {}
+        self.pack(side=Tk.TOP, fill=Tk.X)
+        self._groups = {}
+
+    def add_toolitem(self, name, group, position, image_file, description,
+                     toggle):
+        frame = self._get_groupframe(group)
+        button = self._Button(name, image_file, toggle, frame)
+        if description is not None:
+            ToolTip.createToolTip(button, description)
+        self._toolitems.setdefault(name, [])
+        self._toolitems[name].append(button)
+
+    def _get_groupframe(self, group):
+        if group not in self._groups:
+            if self._groups:
+                self._add_separator()
+            frame = Tk.Frame(master=self, borderwidth=0)
+            frame.pack(side=Tk.LEFT, fill=Tk.Y)
+            self._groups[group] = frame
+        return self._groups[group]
+
+    def _add_separator(self):
+        separator = Tk.Frame(master=self, bd=5, width=1, bg='black')
+        separator.pack(side=Tk.LEFT, fill=Tk.Y, padx=2)
+
+    def _Button(self, text, image_file, toggle, frame):
+        if image_file is not None:
+            im = Tk.PhotoImage(master=self, file=image_file)
+        else:
+            im = None
+
+        if not toggle:
+            b = Tk.Button(master=frame, text=text, padx=2, pady=2, image=im,
+                          command=lambda: self._button_click(text))
+        else:
+            b = Tk.Checkbutton(master=frame, text=text, padx=2, pady=2,
+                               image=im, indicatoron=False,
+                               command=lambda: self._button_click(text))
+        b._ntimage = im
+        b.pack(side=Tk.LEFT)
+        return b
+
+    def _button_click(self, name):
+        self.trigger_tool(name)
+
+    def toggle_toolitem(self, name, toggled):
+        if name not in self._toolitems:
+            return
+        for toolitem in self._toolitems[name]:
+            if toggled:
+                toolitem.select()
+            else:
+                toolitem.deselect()
+
+    def remove_toolitem(self, name):
+        for toolitem in self._toolitems[name]:
+            toolitem.pack_forget()
+        del self._toolitems[name]
+
+
+class StatusbarTk(StatusbarBase, Tk.Frame):
+    def __init__(self, window, *args, **kwargs):
+        StatusbarBase.__init__(self, *args, **kwargs)
+        xmin, xmax = self.toolmanager.canvas.figure.bbox.intervalx
+        height, width = 50, xmax - xmin
+        Tk.Frame.__init__(self, master=window,
+                          width=int(width), height=int(height),
+                          borderwidth=2)
+        self._message = Tk.StringVar(master=self)
+        self._message_label = Tk.Label(master=self, textvariable=self._message)
+        self._message_label.pack(side=Tk.RIGHT)
+        self.pack(side=Tk.TOP, fill=Tk.X)
+
+    def set_message(self, s):
+        self._message.set(s)
+
+
+class SaveFigureTk(backend_tools.SaveFigureBase):
+    def trigger(self, *args):
+        from six.moves import tkinter_tkfiledialog, tkinter_messagebox
+        filetypes = self.figure.canvas.get_supported_filetypes().copy()
+        default_filetype = self.figure.canvas.get_default_filetype()
+
+        # Tk doesn't provide a way to choose a default filetype,
+        # so we just have to put it first
+        default_filetype_name = filetypes[default_filetype]
+        del filetypes[default_filetype]
+
+        sorted_filetypes = list(six.iteritems(filetypes))
+        sorted_filetypes.sort()
+        sorted_filetypes.insert(0, (default_filetype, default_filetype_name))
+
+        tk_filetypes = [
+            (name, '*.%s' % ext) for (ext, name) in sorted_filetypes]
+
+        # adding a default extension seems to break the
+        # asksaveasfilename dialog when you choose various save types
+        # from the dropdown.  Passing in the empty string seems to
+        # work - JDH!
+        # defaultextension = self.figure.canvas.get_default_filetype()
+        defaultextension = ''
+        initialdir = rcParams.get('savefig.directory', '')
+        initialdir = os.path.expanduser(initialdir)
+        initialfile = self.figure.canvas.get_default_filename()
+        fname = tkinter_tkfiledialog.asksaveasfilename(
+            master=self.figure.canvas.manager.window,
+            title='Save the figure',
+            filetypes=tk_filetypes,
+            defaultextension=defaultextension,
+            initialdir=initialdir,
+            initialfile=initialfile,
+            )
+
+        if fname == "" or fname == ():
+            return
+        else:
+            if initialdir == '':
+                # explicitly missing key or empty str signals to use cwd
+                rcParams['savefig.directory'] = initialdir
+            else:
+                # save dir for next time
+                rcParams['savefig.directory'] = os.path.dirname(
+                    six.text_type(fname))
+            try:
+                # This method will handle the delegation to the correct type
+                self.figure.canvas.print_figure(fname)
+            except Exception as e:
+                tkinter_messagebox.showerror("Error saving file", str(e))
+
+
+class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
+    def __init__(self, *args, **kwargs):
+        backend_tools.ConfigureSubplotsBase.__init__(self, *args, **kwargs)
+        self.window = None
+
+    def trigger(self, *args):
+        self.init_window()
+        self.window.lift()
+
+    def init_window(self):
+        if self.window:
+            return
+
+        toolfig = Figure(figsize=(6, 3))
+        self.window = Tk.Tk()
+
+        canvas = FigureCanvasTkAgg(toolfig, master=self.window)
+        toolfig.subplots_adjust(top=0.9)
+        _tool = SubplotTool(self.figure, toolfig)
+        canvas.show()
+        canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
+        self.window.protocol("WM_DELETE_WINDOW", self.destroy)
+
+    def destroy(self, *args, **kwargs):
+        self.window.destroy()
+        self.window = None
+
+
+backend_tools.ToolSaveFigure = SaveFigureTk
+backend_tools.ToolConfigureSubplots = ConfigureSubplotsTk
+backend_tools.ToolSetCursor = SetCursorTk
+backend_tools.ToolRubberband = RubberbandTk
+Toolbar = ToolbarTk
 FigureCanvas = FigureCanvasTkAgg
 FigureManager = FigureManagerTkAgg

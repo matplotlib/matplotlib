@@ -25,6 +25,11 @@ graphics contexts must implement to serve as a matplotlib backend
     the 'show' callable is then set to Show.__call__, inherited from
     ShowBase.
 
+:class:`ToolContainerBase`
+     The base class for the Toolbar class of each interactive backend.
+
+:class:`StatusbarBase`
+    The base class for the messaging area.
 """
 
 from __future__ import (absolute_import, division, print_function,
@@ -56,6 +61,7 @@ import matplotlib.tight_bbox as tight_bbox
 import matplotlib.textpath as textpath
 from matplotlib.path import Path
 from matplotlib.cbook import mplDeprecation
+import matplotlib.backend_tools as tools
 
 try:
     from importlib import import_module
@@ -2572,8 +2578,12 @@ class FigureManagerBase(object):
         canvas.manager = self  # store a pointer to parent
         self.num = num
 
-        self.key_press_handler_id = self.canvas.mpl_connect('key_press_event',
-                                                            self.key_press)
+        if rcParams['toolbar'] != 'toolmanager':
+            self.key_press_handler_id = self.canvas.mpl_connect(
+                                                'key_press_event',
+                                                self.key_press)
+        else:
+            self.key_press_handler_id = None
         """
         The returned id from connecting the default key handler via
         :meth:`FigureCanvasBase.mpl_connnect`.
@@ -2609,7 +2619,8 @@ class FigureManagerBase(object):
         Implement the default mpl key bindings defined at
         :ref:`key-event-handling`
         """
-        key_press_handler(event, self.canvas, self.canvas.toolbar)
+        if rcParams['toolbar'] != 'toolmanager':
+            key_press_handler(event, self.canvas, self.canvas.toolbar)
 
     def show_popup(self, msg):
         """
@@ -2632,10 +2643,7 @@ class FigureManagerBase(object):
         pass
 
 
-class Cursors(object):
-    # this class is only used as a simple namespace
-    HAND, POINTER, SELECT_REGION, MOVE = list(range(4))
-cursors = Cursors()
+cursors = tools.cursors
 
 
 class NavigationToolbar2(object):
@@ -3214,4 +3222,162 @@ class NavigationToolbar2(object):
 
     def set_history_buttons(self):
         """Enable or disable back/forward button"""
+        pass
+
+
+class ToolContainerBase(object):
+    """
+    Base class for all tool containers, e.g. toolbars.
+
+    Attributes
+    ----------
+    toolmanager : `ToolManager` object that holds the tools that
+        this `ToolContainer` wants to communicate with.
+    """
+
+    def __init__(self, toolmanager):
+        self.toolmanager = toolmanager
+        self.toolmanager.toolmanager_connect('tool_removed_event',
+                                             self._remove_tool_cbk)
+
+    def _tool_toggled_cbk(self, event):
+        """
+        Captures the 'tool_trigger_[name]'
+
+        This only gets used for toggled tools
+        """
+        self.toggle_toolitem(event.tool.name, event.tool.toggled)
+
+    def add_tool(self, tool, group, position=-1):
+        """
+        Adds a tool to this container
+
+        Parameters
+        ----------
+        tool : tool_like
+            The tool to add, see `ToolManager.get_tool`.
+        group : str
+            The name of the group to add this tool to.
+        position : int (optional)
+            The position within the group to place this tool.  Defaults to end.
+        """
+        tool = self.toolmanager.get_tool(tool)
+        image = self._get_image_filename(tool.image)
+        toggle = getattr(tool, 'toggled', None) is not None
+        self.add_toolitem(tool.name, group, position,
+                          image, tool.description, toggle)
+        if toggle:
+            self.toolmanager.toolmanager_connect('tool_trigger_%s' % tool.name,
+                                                 self._tool_toggled_cbk)
+
+    def _remove_tool_cbk(self, event):
+        """Captures the 'tool_removed_event' signal and removes the tool"""
+        self.remove_toolitem(event.tool.name)
+
+    def _get_image_filename(self, image):
+        """Find the image based on its name"""
+        # TODO: better search for images, they are not always in the
+        # datapath
+        basedir = os.path.join(rcParams['datapath'], 'images')
+        if image is not None:
+            fname = os.path.join(basedir, image)
+        else:
+            fname = None
+        return fname
+
+    def trigger_tool(self, name):
+        """
+        Trigger the tool
+
+        Parameters
+        ----------
+        name : String
+            Name(id) of the tool triggered from within the container
+
+        """
+        self.toolmanager.trigger_tool(name, sender=self)
+
+    def add_toolitem(self, name, group, position, image, description, toggle):
+        """
+        Add a toolitem to the container
+
+        This method must get implemented per backend
+
+        The callback associated with the button click event,
+        must be **EXACTLY** `self.trigger_tool(name)`
+
+        Parameters
+        ----------
+        name : string
+            Name of the tool to add, this gets used as the tool's ID and as the
+            default label of the buttons
+        group : String
+            Name of the group that this tool belongs to
+        position : Int
+            Position of the tool within its group, if -1 it goes at the End
+        image_file : String
+            Filename of the image for the button or `None`
+        description : String
+            Description of the tool, used for the tooltips
+        toggle : Bool
+            * `True` : The button is a toggle (change the pressed/unpressed
+              state between consecutive clicks)
+            * `False` : The button is a normal button (returns to unpressed
+              state after release)
+        """
+
+        raise NotImplementedError
+
+    def toggle_toolitem(self, name, toggled):
+        """
+        Toggle the toolitem without firing event
+
+        Parameters
+        ----------
+        name : String
+            Id of the tool to toggle
+        toggled : bool
+            Whether to set this tool as toggled or not.
+        """
+        raise NotImplementedError
+
+    def remove_toolitem(self, name):
+        """
+        Remove a toolitem from the `ToolContainer`
+
+        This method must get implemented per backend
+
+        Called when `ToolManager` emits a `tool_removed_event`
+
+        Parameters
+        ----------
+        name : string
+            Name of the tool to remove
+
+        """
+
+        raise NotImplementedError
+
+
+class StatusbarBase(object):
+    """Base class for the statusbar"""
+    def __init__(self, toolmanager):
+        self.toolmanager = toolmanager
+        self.toolmanager.toolmanager_connect('tool_message_event',
+                                             self._message_cbk)
+
+    def _message_cbk(self, event):
+        """Captures the 'tool_message_event' and set the message"""
+        self.set_message(event.message)
+
+    def set_message(self, s):
+        """
+        Display a message on toolbar or in status bar
+
+        Parameters
+        ----------
+        s : str
+            Message text
+        """
+
         pass
