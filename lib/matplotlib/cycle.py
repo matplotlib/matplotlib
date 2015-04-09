@@ -3,7 +3,7 @@ import six
 from matplotlib import rcParams
 
 
-class Cycle:
+class Cycle(object):
 
     def __init__(self):
         """
@@ -36,15 +36,18 @@ class Cycle:
         for style in self._styles_list.keys():
             self.set_cycle(style, self._styles_list[style])
 
-    def next(self, args={}):
+    def next(self, args=None):
         """
         Returns the next set of line attributes for a line on the graph to use
         *args* is an optional dictionary of style arguments
         Styles that already exist in *args* will not be cycled through
         """
-        args = args.copy()
+        if args is None:
+            args = {}
+        else:
+            args = args.copy()
         for style in self._styles.keys():
-            if self._styles[style] != None and style not in args:
+            if self._styles[style] is not None and style not in args:
                 args[style] = six.next(self._styles[style])
         return args
 
