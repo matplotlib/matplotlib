@@ -4683,6 +4683,12 @@ class Axes(_AxesBase):
         --------
         matshow : Plot a matrix or an array as an image.
 
+        Notes
+        -----
+        Unless *extent* is used, pixel centers will be located at integer
+        coordinates. In other words: the origin will coincide with the center
+        of pixel (0, 0).
+
         Examples
         --------
 
