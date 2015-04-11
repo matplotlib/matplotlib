@@ -117,6 +117,15 @@ def validate_float_or_None(s):
     except ValueError:
         raise ValueError('Could not convert "%s" to float' % s)
 
+def validate_dpi(s):
+    """confirm s is string 'figure' or convert s to float or raise"""
+    if s == 'figure':
+        return s
+    try:
+        return float(s)
+    except ValueError:
+        raise ValueError('"%s" is not string "figure" or'
+            ' could not convert "%s" to float' % (s, s))
 
 def validate_int(s):
     """convert s to int or raise"""
@@ -749,7 +758,7 @@ defaultParams = {
                                                      closedmax=False)],
 
     ## Saving figure's properties
-    'savefig.dpi':         [100, validate_float],   # DPI
+    'savefig.dpi':         [100, validate_dpi],   # DPI
     'savefig.facecolor':   ['w', validate_color],  # facecolor; white
     'savefig.edgecolor':   ['w', validate_color],  # edgecolor; white
     'savefig.frameon':     [True, validate_bool],
