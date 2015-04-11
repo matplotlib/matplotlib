@@ -576,6 +576,7 @@ class Figure(Artist):
                  vmin=None,
                  vmax=None,
                  origin=None,
+                 resize=False,
                  **kwargs):
         """
         Adds a non-resampled image to the figure.
@@ -603,6 +604,8 @@ class Figure(Artist):
           =========   =========================================================
           Keyword     Description
           =========   =========================================================
+          resize      a boolean, True or False. If "True", then re-size the
+                      Figure to match the given image size.
           xo or yo    An integer, the *x* and *y* image offset in pixels
           cmap        a :class:`matplotlib.colors.Colormap` instance, e.g.,
                       cm.jet. If *None*, default to the rc ``image.cmap``
@@ -636,6 +639,11 @@ class Figure(Artist):
 
         if not self._hold:
             self.clf()
+
+        if resize:
+            dpi = self.get_dpi()
+            figsize = [x / float(dpi) for x in (X.shape[1], X.shape[0])]
+            self.set_size_inches(figsize, forward=True)
 
         im = FigureImage(self, cmap, norm, xo, yo, origin, **kwargs)
         im.set_array(X)
