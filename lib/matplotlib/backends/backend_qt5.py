@@ -234,6 +234,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # NB: Using super for this call to avoid a TypeError:
         # __init__() takes exactly 2 arguments (1 given) on QWidget
         # PyQt5
+        # The need for this change is documented here
+        # http://pyqt.sourceforge.net/Docs/PyQt5/pyqt4_differences.html#cooperative-multi-inheritance
         super(FigureCanvasQT, self).__init__(figure=figure)
         self.figure = figure
         self.setMouseTracking(True)
