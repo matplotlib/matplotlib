@@ -73,6 +73,8 @@ def new_figure_manager_given_figure(num, figure):
 FigureCanvas = FigureCanvasGTK3Cairo
 FigureManager = FigureManagerGTK3Cairo
 Window = backend_gtk3.Window
+Toolbar = backend_gtk3.Toolbar
+Statusbar = backend_gtk3.Statusbar
 Toolbar2 = backend_gtk3.NavigationToolbar2GTK3
 MainLoop = backend_gtk3.MainLoop
 show = backend_gtk3.show

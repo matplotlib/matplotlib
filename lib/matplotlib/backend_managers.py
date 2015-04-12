@@ -1,4 +1,8 @@
 """
+`FigureManager`
+    Class that pulls all of the standard GUI elements together, and manages
+    the interaction between them.
+
 `ToolManager`
     Class that makes the bridge between user interaction (key press,
     toolbar clicks, ..) and the actions in response to the user inputs.
@@ -86,7 +90,17 @@ class FigureManager(cbook.EventEmitter):
 
         self.window.add_element_to_window(self.canvas, True, True, 0, 'center')
 
+        self.toolmanager = self._get_toolmanager()
         self.toolbar = self._get_toolbar()
+
+        if self.toolmanager:
+            tools.add_tools_to_manager(self.toolmanager)
+            if self.toolbar:
+                tools.add_tools_to_container(self.toolbar)
+                self.statusbar = self._backend.Statusbar(self.toolmanager)
+                h += self.window.add_element_to_window(self.statusbar, False,
+                                                       False, 0, 'south')
+
         if self.toolbar is not None:
             h += self.window.add_element_to_window(self.toolbar,
                                                    False, False, 0, 'south')
@@ -98,7 +112,7 @@ class FigureManager(cbook.EventEmitter):
 
         def notify_axes_change(fig):
             'this will be called whenever the current axes is changed'
-            if self.toolbar is not None:
+            if self.toolmanager is None and self.toolbar is not None:
                 self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
@@ -157,11 +171,21 @@ class FigureManager(cbook.EventEmitter):
     def _get_toolbar(self):
         # must be inited after the window, drawingArea and figure
         # attrs are set
-        if rcParams['toolbar'] == 'toolbar2':
+        if rcParams['toolbar'] == 'toolmanager':
+            toolbar = self._backend.Toolbar(self.toolmanager)
+        elif rcParams['toolbar'] == 'toolbar2':
             toolbar = self._backend.Toolbar2(self.canvas, self.window)
         else:
             toolbar = None
         return toolbar
+
+    def _get_toolmanager(self):
+        # must be initialised after toolbar has been setted
+        if rcParams['toolbar'] != 'toolbar2':
+            toolmanager = ToolManager(self.canvas)
+        else:
+            toolmanager = None
+        return toolmanager
 
     def show_popup(self, msg):
         """
