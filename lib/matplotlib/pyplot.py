@@ -1410,8 +1410,8 @@ def axis(*v, **kwargs):
 
       >>> axis('square')
 
-    changes the limits of the (*xmax*-*xmin*) and (*ymax*-*ymin*) of 
-    the *x* and *y* axes to be the same, and have the same scaling, 
+    changes the limits of the (*xmax*-*xmin*) and (*ymax*-*ymin*) of
+    the *x* and *y* axes to be the same, and have the same scaling,
     resulting in a square plot
 
     .. seealso::
