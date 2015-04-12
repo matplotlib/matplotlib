@@ -259,6 +259,7 @@ class RendererPS(RendererBase):
             if store: self.color = (r,g,b)
 
     def set_linewidth(self, linewidth, store=1):
+        linewidth = float(linewidth)
         if linewidth != self.linewidth:
             self._pswriter.write("%1.3f setlinewidth\n"%linewidth)
             if store: self.linewidth = linewidth
@@ -451,10 +452,10 @@ class RendererPS(RendererBase):
         ps backend support arbitrary scaling of image.
         """
         return True
-        
+
     def option_image_nocomposite(self):
         """
-        return whether to generate a composite image from multiple images on 
+        return whether to generate a composite image from multiple images on
         a set of axes
         """
         return not rcParams['image.composite_image']

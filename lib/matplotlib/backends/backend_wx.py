@@ -558,6 +558,7 @@ class GraphicsContextWx(GraphicsContextBase):
         """
         Set the line width.
         """
+        w = float(w)
         DEBUG_MSG("set_linewidth()", 1, self)
         self.select()
         if w > 0 and w < 1:
