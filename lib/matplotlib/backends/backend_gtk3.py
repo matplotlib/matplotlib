@@ -372,6 +372,10 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         FigureCanvasBase.stop_event_loop_default(self)
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
 
+
+_flow = [Gtk.Orientation.HORIZONTAL, Gtk.Orientation.VERTICAL]
+
+
 class Window(WindowBase, Gtk.Window):
     def __init__(self, title):
         WindowBase.__init__(self, title)
@@ -413,14 +417,19 @@ class Window(WindowBase, Gtk.Window):
 
     def add_element_to_window(self, element, expand, fill, pad, place):
         element.show()
+
+        flow = _flow[not _flow.index(self._layout[place].get_orientation())]
+        separator = Gtk.Separator(orientation=flow)
         if place in ['north', 'west', 'center']:
             self._layout[place].pack_start(element, expand, fill, pad)
+            self._layout[place].pack_start(separator, False, False, 0)
         elif place in ['south', 'east']:
             self._layout[place].pack_end(element, expand, fill, pad)
+            self._layout[place].pack_end(separator, False, False, 0)
         else:
             raise KeyError('Unknown value for place, %s' % place)
         size_request = element.size_request()
-        return size_request.height
+        return size_request.height + separator.size_request().height
 
     def set_default_size(self, width, height):
         Gtk.Window.set_default_size(self, width, height)
@@ -1034,5 +1043,6 @@ backend_tools.ToolSetCursor = SetCursorGTK3
 backend_tools.ToolRubberband = RubberbandGTK3
 
 Toolbar = ToolbarGTK3
+Statusbar = StatusbarGTK3
 FigureCanvas = FigureCanvasGTK3
 FigureManager = FigureManagerGTK3
