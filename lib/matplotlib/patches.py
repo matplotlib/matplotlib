@@ -334,7 +334,7 @@ class Patch(artist.Artist):
         """
         if w is None:
             w = mpl.rcParams['patch.linewidth']
-        self._linewidth = w
+        self._linewidth = float(w)
 
     def set_lw(self, lw):
         """alias for set_linewidth"""
