@@ -131,7 +131,6 @@ def test_twinx_cla():
 
 @image_comparison(baseline_images=["minorticks_on_rcParams_both"], extensions=['png'])
 def test_minorticks_on_rcParams_both():
-
     fig = plt.figure()
     matplotlib.rcParams['xtick.minor.visible'] = True
     matplotlib.rcParams['ytick.minor.visible'] = True
@@ -1009,6 +1008,32 @@ def test_marker_edges():
     ax.plot(x, np.sin(x), 'y.', ms=30.0, mew=0, mec='r')
     ax.plot(x+0.1, np.sin(x), 'y.', ms=30.0, mew=1, mec='r')
     ax.plot(x+0.2, np.sin(x), 'y.', ms=30.0, mew=2, mec='b')
+
+
+@image_comparison(baseline_images=['bar_tick_label_single'],
+                  extensions=['png'])
+def test_bar_tick_label_single():
+    # From 2516: plot bar with array of string labels for x axis
+    ax = plt.gca()
+    ax.bar(0, 1 , tick_label='a')
+
+
+@image_comparison(baseline_images=['bar_tick_label_multiple'],
+                  extensions=['png'])
+def test_bar_tick_label_multiple():
+    # From 2516: plot bar with array of string labels for x axis
+    ax = plt.gca()
+    ax.bar([1, 2.5], [1, 2], width=[0.2, 0.5], tick_label=['a', 'b'],
+           align='center')
+
+
+@image_comparison(baseline_images=['barh_tick_label'],
+                  extensions=['png'])
+def test_barh_tick_label():
+    # From 2516: plot barh with array of string labels for y axis
+    ax = plt.gca()
+    ax.barh([1, 2.5], [1, 2], height=[0.2, 0.5], tick_label=['a', 'b'],
+            align='center')
 
 
 @image_comparison(baseline_images=['hist_log'],

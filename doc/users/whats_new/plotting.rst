@@ -1,3 +1,11 @@
+Plot bar and barh with labels
+`````````````````````````````
+
+Added kwarg "tick_label" to bar and barh to support plotting bar graphs with a
+text label for each bar.
+Example:
+	bar([1, 2], [1, 1], tick_label=['bar1', 'bar2'])
+
 Added center and frame kwargs to pie
 ````````````````````````````````````
 
