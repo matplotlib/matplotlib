@@ -68,6 +68,29 @@ class Widget(object):
     """
     drawon = True
     eventson = True
+    _active = True
+
+    def set_active(self, active):
+        """Set whether the widget is active.
+        """
+        self._active = active
+
+    def get_active(self):
+        """Get whether the widget is active.
+        """
+        return self._active
+
+    # set_active is overriden by SelectorWidgets.
+    active = property(get_active, lambda self, active: self.set_active(active),
+                      doc="Is the widget active?")
+                      
+    def ignore(self, event):
+        """Return True if event should be ignored.
+
+        This method (or a version of it) should be called at the beginning
+        of any event callback.
+        """
+        return not self.active
 
 
 class AxesWidget(Widget):
@@ -96,7 +119,6 @@ class AxesWidget(Widget):
         self.ax = ax
         self.canvas = ax.figure.canvas
         self.cids = []
-        self._active = True
 
     def connect_event(self, event, callback):
         """Connect callback with an event.
@@ -111,28 +133,6 @@ class AxesWidget(Widget):
         """Disconnect all events created by this widget."""
         for c in self.cids:
             self.canvas.mpl_disconnect(c)
-
-    def set_active(self, active):
-        """Set whether the widget is active.
-        """
-        self._active = active
-
-    def get_active(self):
-        """Get whether the widget is active.
-        """
-        return self._active
-
-    # set_active is overriden by SelectorWidgets.
-    active = property(get_active, lambda self, active: self.set_active(active),
-                      doc="Is the widget active?")
-
-    def ignore(self, event):
-        """Return True if event should be ignored.
-
-        This method (or a version of it) should be called at the beginning
-        of any event callback.
-        """
-        return not self.active
 
 
 class Button(AxesWidget):
@@ -1090,6 +1090,8 @@ class MultiCursor(Widget):
 
     def clear(self, event):
         """clear the cursor"""
+        if self.ignore(event):
+            return        
         if self.useblit:
             self.background = (
                 self.canvas.copy_from_bbox(self.canvas.figure.bbox))
@@ -1097,6 +1099,8 @@ class MultiCursor(Widget):
             line.set_visible(False)
 
     def onmove(self, event):
+        if self.ignore(event):
+            return        
         if event.inaxes is None:
             return
         if not self.canvas.widgetlock.available(self):
@@ -1126,7 +1130,6 @@ class MultiCursor(Widget):
                     ax.draw_artist(line)
             self.canvas.blit(self.canvas.figure.bbox)
         else:
-
             self.canvas.draw_idle()
 
 
