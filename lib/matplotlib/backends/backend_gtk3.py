@@ -374,6 +374,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
 
 
 _flow = [Gtk.Orientation.HORIZONTAL, Gtk.Orientation.VERTICAL]
+flow_types = ['horizontal', 'vertical']
 
 
 class Window(WindowBase, Gtk.Window):
@@ -834,13 +835,12 @@ class RubberbandGTK3(backend_tools.RubberbandBase):
 
 
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
-    def __init__(self, toolmanager):
+    def __init__(self, toolmanager, flow='horizontal'):
         ToolContainerBase.__init__(self, toolmanager)
         Gtk.Box.__init__(self)
-        self.set_property("orientation", Gtk.Orientation.VERTICAL)
-
         self._toolarea = Gtk.Box()
-        self._toolarea.set_property('orientation', Gtk.Orientation.HORIZONTAL)
+        self.set_flow(flow)
+
         self.pack_start(self._toolarea, False, False, 0)
         self._toolarea.show_all()
         self._groups = {}
@@ -873,7 +873,7 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
         if group not in self._groups:
             if self._groups:
                 self._add_separator()
-            toolbar = Gtk.Toolbar()
+            toolbar = Gtk.Toolbar(orientation=_flow[self._flow])
             toolbar.set_style(Gtk.ToolbarStyle.ICONS)
             self._toolarea.pack_start(toolbar, False, False, 0)
             toolbar.show_all()
@@ -902,9 +902,22 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
                     self._groups[group].remove(toolitem)
         del self._toolitems[name]
 
+    def set_flow(self, flow):
+        try:
+            self._flow = flow_types.index(flow)
+        except ValueError:
+            raise ValueError('Flow (%s), not in list  %s' % (flow, flow_types))
+        self.set_property("orientation", _flow[not self._flow])
+        self._toolarea.set_property('orientation', _flow[self._flow])
+        for item in self._toolarea:
+            if isinstance(item, Gtk.Separator):
+                item.set_property("orientation", _flow[not self._flow])
+            else:
+                item.set_property("orientation", _flow[self._flow])
+
     def _add_separator(self):
         sep = Gtk.Separator()
-        sep.set_property("orientation", Gtk.Orientation.VERTICAL)
+        sep.set_property("orientation", _flow[not self._flow])
         self._toolarea.pack_start(sep, False, True, 0)
         sep.show_all()
 
