@@ -667,18 +667,21 @@ class RRuleLocator(DateLocator):
         except ValueError:
             return []
 
-        if dmin > dmax:
-            dmax, dmin = dmin, dmax
-        delta = relativedelta(dmax, dmin)
+        return self.tick_values(dmin, dmax)
+
+    def tick_values(self, vmin, vmax):
+        if vmin > vmax:
+            vmax, vmin = vmin, vmax
+        delta = relativedelta(vmax, vmin)
 
         # We need to cap at the endpoints of valid datetime
         try:
-            start = dmin - delta
+            start = vmin - delta
         except ValueError:
             start = _from_ordinalf(1.0)
 
         try:
-            stop = dmax + delta
+            stop = vmax + delta
         except ValueError:
             # The magic number!
             stop = _from_ordinalf(3652059.9999999)
@@ -688,19 +691,19 @@ class RRuleLocator(DateLocator):
         # estimate the number of ticks very approximately so we don't
         # have to do a very expensive (and potentially near infinite)
         # 'between' calculation, only to find out it will fail.
-        nmax, nmin = date2num((dmax, dmin))
+        nmax, nmin = date2num((vmax, vmin))
         estimate = (nmax - nmin) / (self._get_unit() * self._get_interval())
         # This estimate is only an estimate, so be really conservative
         # about bailing...
         if estimate > self.MAXTICKS * 2:
             raise RuntimeError(
                 'RRuleLocator estimated to generate %d ticks from %s to %s: '
-                'exceeds Locator.MAXTICKS * 2 (%d) ' % (estimate, dmin, dmax,
+                'exceeds Locator.MAXTICKS * 2 (%d) ' % (estimate, vmin, vmax,
                                                         self.MAXTICKS * 2))
 
-        dates = self.rule.between(dmin, dmax, True)
+        dates = self.rule.between(vmin, vmax, True)
         if len(dates) == 0:
-            return date2num([dmin, dmax])
+            return date2num([vmin, vmax])
         return self.raise_if_exceeds(date2num(dates))
 
     def _get_unit(self):
@@ -866,6 +869,9 @@ class AutoDateLocator(DateLocator):
         self.refresh()
         return self._locator()
 
+    def tick_values(self, vmin, vmax):
+        return self.get_locator(vmin, vmax).tick_values(vmin, vmax)
+
     def nonsingular(self, vmin, vmax):
         # whatever is thrown at us, we can scale the unit.
         # But default nonsingular date plots at an ~4 year period.
@@ -1012,11 +1018,19 @@ class YearLocator(DateLocator):
                          }
 
     def __call__(self):
-        dmin, dmax = self.viewlim_to_dt()
-        ymin = self.base.le(dmin.year)
-        ymax = self.base.ge(dmax.year)
+        # if no data have been set, this will tank with a ValueError
+        try:
+            dmin, dmax = self.viewlim_to_dt()
+        except ValueError:
+            return []
 
-        ticks = [dmin.replace(year=ymin, **self.replaced)]
+        return self.tick_values(dmin, dmax)
+
+    def tick_values(self, vmin, vmax):
+        ymin = self.base.le(vmin.year)
+        ymax = self.base.ge(vmax.year)
+
+        ticks = [vmin.replace(year=ymin, **self.replaced)]
         while 1:
             dt = ticks[-1]
             if dt.year >= ymax:
@@ -1184,11 +1198,20 @@ class MicrosecondLocator(DateLocator):
         self._wrapped_locator.set_data_interval(vmin, vmax)
         return DateLocator.set_data_interval(self, vmin, vmax)
 
-    def __call__(self, *args, **kwargs):
-        vmin, vmax = self.axis.get_view_interval()
-        vmin *= MUSECONDS_PER_DAY
-        vmax *= MUSECONDS_PER_DAY
-        ticks = self._wrapped_locator.tick_values(vmin, vmax)
+    def __call__(self):
+        # if no data have been set, this will tank with a ValueError
+        try:
+            dmin, dmax = self.viewlim_to_dt()
+        except ValueError:
+            return []
+
+        return self.tick_values(dmin, dmax)
+
+    def tick_values(self, vmin, vmax):
+        nmin, nmax = date2num((vmin, vmax))
+        nmin *= MUSECONDS_PER_DAY
+        nmax *= MUSECONDS_PER_DAY
+        ticks = self._wrapped_locator.tick_values(nmin, nmax)
         ticks = [tick / MUSECONDS_PER_DAY for tick in ticks]
         return ticks
 
