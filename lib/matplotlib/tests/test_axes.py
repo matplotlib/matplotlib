@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
 from numpy.testing import assert_array_equal
 import warnings
+from matplotlib.cbook import IgnoredKeywordWarning
 
 
 @image_comparison(baseline_images=['formatter_ticker_001',
@@ -2315,6 +2316,37 @@ def test_eventplot_defaults():
     fig = plt.figure()
     axobj = fig.add_subplot(111)
     colls = axobj.eventplot(data)
+
+
+@image_comparison(baseline_images=['test_eventplot_problem_kwargs'], extensions=['png'], remove_text=True)
+def test_eventplot_problem_kwargs():
+    '''
+    test that 'singular' versions of LineCollection props raise an
+    IgnoredKeywordWarning rather than overriding the 'plural' versions (e.g.
+    to prevent 'color' from overriding 'colors', see issue #4297)
+    '''
+    np.random.seed(0)
+
+    data1 = np.random.random([20]).tolist()
+    data2 = np.random.random([10]).tolist()
+    data = [data1, data2]
+
+    fig = plt.figure()
+    axobj = fig.add_subplot(111)
+
+    with warnings.catch_warnings(record=True) as w:
+        colls = axobj.eventplot(data,
+                                colors=['r', 'b'],
+                                color=['c', 'm'],
+                                linewidths=[2, 1],
+                                linewidth=[1, 2],
+                                linestyles=['solid', 'dashed'],
+                                linestyle=['dashdot', 'dotted'])
+
+        # check that three IgnoredKeywordWarnings were raised
+        assert_equal(len(w), 3)
+        assert_true(all(issubclass(wi.category, IgnoredKeywordWarning)
+                    for wi in w))
 
 
 @cleanup
