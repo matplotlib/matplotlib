@@ -1041,7 +1041,7 @@ class GraphicsContextBase(object):
         """
         Set the linewidth in points
         """
-        self._linewidth = w
+        self._linewidth = float(w)
 
     def set_linestyle(self, style):
         """
