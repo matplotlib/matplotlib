@@ -106,6 +106,7 @@ class FigureManager(cbook.EventEmitter):
                                                    False, False, 0, 'south')
 
         self.window.set_default_size(w, h)
+        self._full_screen_flag = False
 
         if is_interactive():
             self.window.show()
