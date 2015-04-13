@@ -658,6 +658,62 @@ class silent_list(list):
         self.extend(state['seq'])
 
 
+class IgnoredKeywordWarning(UserWarning):
+    """
+    A class for issuing warnings about keyword arguments that will be ignored
+    by matplotlib
+    """
+    pass
+
+
+def local_over_kwdict(local_var, kwargs, *keys):
+    """
+    Enforces the priority of a local variable over potentially conflicting
+    argument(s) from a kwargs dict. The following possible output values are
+    considered in order of priority:
+
+        local_var > kwargs[keys[0]] > ... > kwargs[keys[-1]]
+
+    The first of these whose value is not None will be returned. If all are
+    None then None will be returned. Each key in keys will be removed from the
+    kwargs dict in place.
+
+    Parameters
+    ------------
+        local_var: any object
+            The local variable (highest priority)
+
+        kwargs: dict
+            Dictionary of keyword arguments; modified in place
+
+        keys: str(s)
+            Name(s) of keyword arguments to process, in descending order of
+            priority
+
+    Returns
+    ---------
+        out: any object
+            Either local_var or one of kwargs[key] for key in keys
+
+    Raises
+    --------
+        IgnoredKeywordWarning
+            For each key in keys that is removed from kwargs but not used as
+            the output value
+
+    """
+    out = local_var
+    for key in keys:
+        kwarg_val = kwargs.pop(key, None)
+        if kwarg_val is not None:
+            if out is None:
+                out = kwarg_val
+            else:
+                warnings.warn('"%s" keyword argument will be ignored' % key,
+                              IgnoredKeywordWarning)
+    return out
+
+
 def strip_math(s):
     'remove latex formatting from mathtext'
     remove = (r'\mathdefault', r'\rm', r'\cal', r'\tt', r'\it', '\\', '{', '}')
