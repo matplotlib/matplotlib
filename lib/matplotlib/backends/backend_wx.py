@@ -558,12 +558,15 @@ class GraphicsContextWx(GraphicsContextBase):
         """
         Set the line width.
         """
+        w = float(w)
         DEBUG_MSG("set_linewidth()", 1, self)
         self.select()
-        if w>0 and w<1: w = 1
+        if w > 0 and w < 1:
+            w = 1
         GraphicsContextBase.set_linewidth(self, w)
         lw = int(self.renderer.points_to_pixels(self._linewidth))
-        if lw==0: lw = 1
+        if lw == 0:
+            lw = 1
         self._pen.SetWidth(lw)
         self.gfx_ctx.SetPen(self._pen)
         self.unselect()
@@ -789,12 +792,12 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         """
         DEBUG_MSG("draw_idle()", 1, self)
         self._isDrawn = False  # Force redraw
-        
+
         # Triggering a paint event is all that is needed to defer drawing
         # until later. The platform will send the event when it thinks it is
         # a good time (usually as soon as there are no other events pending).
         self.Refresh(eraseBackground=False)
-        
+
     def draw(self, drawDC=None):
         """
         Render the figure using RendererWx instance renderer, or using a
@@ -1739,7 +1742,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         color.Set(r,g,b, 0x60)
         dc.SetBrush(wx.Brush(color))
         dc.DrawRectangleRect(rect)
-        
+
 
     def set_status_bar(self, statbar):
         self.statbar = statbar

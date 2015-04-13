@@ -919,7 +919,7 @@ class Line2D(Artist):
 
         ACCEPTS: float value in points
         """
-        self._linewidth = w
+        self._linewidth = float(w)
 
     def set_linestyle(self, linestyle):
         """
