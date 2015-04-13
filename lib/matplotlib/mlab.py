@@ -772,7 +772,15 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
         # Also include scaling factors for one-sided densities and dividing by
         # the sampling frequency, if desired. Scale everything, except the DC
         # component and the NFFT/2 component:
-        result[1:-1] *= scaling_factor
+
+        # if we have a even number of frequencies, don't scale NFFT/2
+        if not NFFT % 2:
+            slc = slice(1, -1, None)
+        # if we have an odd number, just don't scale DC
+        else:
+            slc = slice(1, None, None)
+
+        result[slc] *= scaling_factor
 
         # MATLAB divides by the sampling frequency so that density function
         # has units of dB/Hz and can be integrated by the plotted frequency
