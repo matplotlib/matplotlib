@@ -8,14 +8,16 @@
 
 Status
 ======
-**Discussion**
+**Progress**
 
 Branches and Pull requests
 ==========================
 Main PR (including GTK3):
+
 + https://github.com/matplotlib/matplotlib/pull/4143
 
 Backend specific branch diffs:
+
 + https://github.com/OceanWolf/matplotlib/compare/backend-refactor...OceanWolf:backend-refactor-tkagg
 + https://github.com/OceanWolf/matplotlib/compare/backend-refactor...OceanWolf:backend-refactor-qt
 + https://github.com/OceanWolf/matplotlib/compare/backend-refactor...backend-refactor-wx
@@ -79,7 +81,7 @@ The description of this MEP gives us most of the solution:
 1. To remove the windowing aspect out of ``FigureManagerBase`` letting
    it simply wrap this new class along with the other backend classes.
    Create a new ``WindowBase`` class that can handle this
-   functionality, with pass-through methods (:arrow_right:) to
+   functionality, with pass-through methods (->) to
    ``WindowBase``.  Classes that subclass ``WindowBase`` should also
    subclass the GUI specific window class to ensure backward
    compatibility (``manager.window == manager.window``).
@@ -103,30 +105,30 @@ The description of this MEP gives us most of the solution:
 |FigureManagerBase(canvas, num)        |FigureManager(figure, num)    |``WindowBase(title)``|Notes                           |
 |                                      |                              |                     |                                |
 +======================================+==============================+=====================+================================+
-|show                                  |                              |show                 |                                |
+|show                                  |->                            |show                 |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
 |destroy                               |calls destroy on all          |destroy              |                                |
 |                                      |components                    |                     |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
 |full_screen_toggle                    |handles logic                 |set_fullscreen       |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
-|resize                                |                              |resize               |                                |
+|resize                                |->                            |resize               |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
-|key_press                             |key_press                     |                     |                                |
+|key_press                             |key_press                     |X                    |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
-|show_popup                            |show_poup                     |                     |Not used anywhere in mpl, and   |
+|show_popup                            |show_poup                     |X                    |Not used anywhere in mpl, and   |
 |                                      |                              |                     |does nothing.                   |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
-|get_window_title                      |                              |get_window_title     |                                |
+|get_window_title                      |->                            |get_window_title     |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
-|set_window_title                      |                              |set_window_title     |                                |
+|set_window_title                      |->                            |set_window_title     |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
-|                                      |_get_toolbar                  |                     |A common method to all          |
+|X                                     |_get_toolbar                  |X                    |A common method to all          |
 |                                      |                              |                     |subclasses of FigureManagerBase |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
-|                                      |                              |set_default_size     |                                |
+|X                                     |X                             |set_default_size     |                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
-|                                      |                              |add_element_to_window|                                |
+|X                                     |X                             |add_element_to_window|                                |
 +--------------------------------------+------------------------------+---------------------+--------------------------------+
 
 
@@ -135,14 +137,14 @@ The description of this MEP gives us most of the solution:
 +==========+============+=============+
 |mainloop  |begin       |             |
 +----------+------------+-------------+
-|          |end         |Gets called  |
+|X         |end         |Gets called  |
 |          |            |automagically|
 |          |            |when no more |
 |          |            |instances of |
 |          |            |the subclass |
 |          |            |exist        |
 +----------+------------+-------------+
-|__call__  |            |Method moved |
+|__call__  |X           |Method moved |
 |          |            |to           |
 |          |            |Gcf.show_all |
 +----------+------------+-------------+
@@ -190,6 +192,8 @@ in the same manner as everything else.
 |                         |                         |``frame`` as an alias to |
 |                         |                         |window, so this also     |
 |                         |                         |breaks BC.               |
++-------------------------+-------------------------+-------------------------+
+|WebAgg                   |canvas                   |                         |
 +-------------------------+-------------------------+-------------------------+
 
 
