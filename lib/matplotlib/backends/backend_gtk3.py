@@ -421,6 +421,7 @@ class Window(WindowBase, Gtk.Window):
 
         flow = _flow[not _flow.index(self._layout[place].get_orientation())]
         separator = Gtk.Separator(orientation=flow)
+        separator.show()
         if place in ['north', 'west', 'center']:
             self._layout[place].pack_start(element, expand, fill, pad)
             self._layout[place].pack_start(separator, False, False, 0)
@@ -501,23 +502,13 @@ class FigureManagerGTK3(FigureManagerBase):
         w = int (self.canvas.figure.bbox.width)
         h = int (self.canvas.figure.bbox.height)
 
-        self.toolmanager = self._get_toolmanager()
         self.toolbar = self._get_toolbar()
-        self.statusbar = None
 
         def add_widget(child, expand, fill, padding):
             child.show()
             self.vbox.pack_end(child, False, False, 0)
             size_request = child.size_request()
             return size_request.height
-
-        if self.toolmanager:
-            backend_tools.add_tools_to_manager(self.toolmanager)
-            if self.toolbar:
-                backend_tools.add_tools_to_container(self.toolbar)
-                self.statusbar = StatusbarGTK3(self.toolmanager)
-                h += add_widget(self.statusbar, False, False, 0)
-                h += add_widget(Gtk.HSeparator(), False, False, 0)
 
         if self.toolbar is not None:
             self.toolbar.show()
@@ -535,9 +526,7 @@ class FigureManagerGTK3(FigureManagerBase):
 
         def notify_axes_change(fig):
             'this will be called whenever the current axes is changed'
-            if self.toolmanager is not None:
-                pass
-            elif self.toolbar is not None:
+            if self.toolbar is not None:
                 self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
@@ -578,14 +567,6 @@ class FigureManagerGTK3(FigureManagerBase):
         else:
             toolbar = None
         return toolbar
-
-    def _get_toolmanager(self):
-        # must be initialised after toolbar has been setted
-        if rcParams['toolbar'] == 'toolmanager':
-            toolmanager = ToolManager(self.canvas.figure)
-        else:
-            toolmanager = None
-        return toolmanager
 
     def get_window_title(self):
         return self.window.get_title()

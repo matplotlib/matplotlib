@@ -13,7 +13,6 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
 
 
 from matplotlib import rcParams
-from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
 from weakref import WeakKeyDictionary
 import six
@@ -384,7 +383,12 @@ class ToolQuit(ToolBase):
     default_keymap = rcParams['keymap.quit']
 
     def trigger(self, sender, event, data=None):
-        Gcf.destroy_fig(self.figure)
+        try:
+            manager = self.figure.canvas.manager
+        except:
+            pass
+        else:
+            manager._destroy('window_destroy_event')
 
 
 class ToolQuitAll(ToolBase):

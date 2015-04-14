@@ -83,7 +83,7 @@ class FigureManager(cbook.EventEmitter):
         self.canvas = self._backend.FigureCanvas(figure, manager=self)
 
         self.key_press_handler_id = self.canvas.mpl_connect('key_press_event',
-                                                            self.key_press)
+            self.key_press) if rcParams['toolbar'] != 'toolmanager' else None
 
         w = int(self.canvas.figure.bbox.width)
         h = int(self.canvas.figure.bbox.height)
@@ -183,7 +183,7 @@ class FigureManager(cbook.EventEmitter):
     def _get_toolmanager(self):
         # must be initialised after toolbar has been setted
         if rcParams['toolbar'] != 'toolbar2':
-            toolmanager = ToolManager(self.canvas)
+            toolmanager = ToolManager(self.canvas.figure)
         else:
             toolmanager = None
         return toolmanager
