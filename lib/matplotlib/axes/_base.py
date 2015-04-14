@@ -1287,13 +1287,44 @@ class _AxesBase(martist.Artist):
 
     def axis(self, *v, **kwargs):
         """
-        Convenience method for manipulating the x and y view limits
-        and the aspect ratio of the plot. For details, see
-        :func:`~matplotlib.pyplot.axis`.
+        Call signature::
+
+          axis(*v, **kwargs)
+
+        Examples: 
+
+          axis('equal')
+          axis([0, 10, 2, 8])
+          axis(xmin=1, xmax=2)
+
+        Convenience method for manipulating axis properties such as 
+        the x and y view limits and the aspect ratio of the plot. 
+
+        ACCEPTS: [length 4 sequence of floats
+                  | 'on' | 'off' | 'equal' | 'tight' | 'scaled'
+                  | 'normal' | 'auto' | 'image'| 'square' ]
+
+        Keyword arguments:
+
+          *xmin*:scalar
+          Minimum limit on the x-axis
+
+          *xmax*:scalar
+          Maximum limit on the x-axis
+
+          *ymin*:scalar
+          Minimum limit on the y-axis
+
+          *ymax*:scalar
+          Maximum limit on the y-axis
 
         *kwargs* are passed on to :meth:`set_xlim` and
         :meth:`set_ylim`
+
+        For details, see
+        :func:`~matplotlib.pyplot.axis`.
         """
+
         if len(v) == 0 and len(kwargs) == 0:
             xmin, xmax = self.get_xlim()
             ymin, ymax = self.get_ylim()

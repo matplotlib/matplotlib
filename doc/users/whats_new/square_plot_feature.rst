@@ -3,11 +3,9 @@ Square Plot
 
 Square plot:
 
-Added implementation of square plot feature that sets the axes of a plot
-to have the same maximum difference between them, and set the scale to be
-the same for both axes, creating a square plot.
+Implemented square plots feature as a new parameter in the axis function. When argument 'square' is specified, equal scaling is set, and the limits are set such that xmax-xmin == ymax-ymin.  
 
-Example shown by:
+Example:
 
 ``ax.axis('square')``
 
