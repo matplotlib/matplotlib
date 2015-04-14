@@ -1227,21 +1227,8 @@ def imread(fname, format=None):
             from PIL import Image
         except ImportError:
             return None
-        if cbook.is_string_like(fname):
-            parsed = urlparse(fname)
-            # If the string is a URL, then download the data
-            if parsed.scheme is not '':
-                fh = BytesIO(urlopen(fname).read())
-                image = Image.open(fh)
-                return pil_to_array(image)
-            else:
-                # force close the file after reading the image
-                with open(fname, "rb") as fh:
-                    image = Image.open(fh)
-                    return pil_to_array(image)
-        else:
-            image = Image.open(fname)
-            return pil_to_array(image)
+        image = Image.open(fname)
+        return pil_to_array(image)
 
     handlers = {'png': _png.read_png, }
     if format is None:
