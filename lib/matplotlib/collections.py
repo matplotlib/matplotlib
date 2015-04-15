@@ -1115,13 +1115,14 @@ class LineCollection(Collection):
         _segments = []
 
         for seg in segments:
-
             if not np.ma.isMaskedArray(seg):
                 seg = np.asarray(seg, np.float_)
             _segments.append(seg)
+
         if self._uniform_offsets is not None:
             _segments = self._add_offsets(_segments)
-        self._paths = [mpath.Path(seg) for seg in _segments]
+
+        self._paths = [mpath.Path(_seg) for _seg in _segments]
 
     set_verts = set_segments  # for compatibility with PolyCollection
     set_paths = set_segments
