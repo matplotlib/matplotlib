@@ -367,7 +367,8 @@ def test_text_with_arrow_annotation_get_window_extent():
     headwidth = 21
     fig, ax = plt.subplots(dpi=100)
     txt = ax.text(s='test', x=0, y=0)
-    ann = ax.annotate('test',
+    ann = ax.annotate(
+        'test',
         xy=(0.0, 50.0),
         xytext=(50.0, 50.0), xycoords='figure pixels',
         arrowprops={
@@ -441,3 +442,38 @@ def test_empty_annotation_get_window_extent():
     eq_(points[1, 0], 0.0)
     eq_(points[1, 1], 50.0)
     eq_(points[0, 1], 50.0)
+
+
+@image_comparison(baseline_images=['basictext_wrap'],
+                  extensions=['png'])
+def test_basic_wrap():
+    fig = plt.figure()
+    plt.axis([0, 10, 0, 10])
+    t = "This is a really long string that I'd rather have wrapped so that" \
+        " it doesn't go outside of the figure, but if it's long enough it" \
+        " will go off the top or bottom!"
+    plt.text(4, 1, t, ha='left', rotation=15, wrap=True)
+    plt.text(6, 5, t, ha='left', rotation=15, wrap=True)
+    plt.text(5, 5, t, ha='right', rotation=-15, wrap=True)
+    plt.text(5, 10, t, fontsize=18, style='oblique', ha='center',
+             va='top', wrap=True)
+    plt.text(3, 4, t, family='serif', style='italic', ha='right', wrap=True)
+    plt.text(-1, 0, t, ha='left', rotation=-15, wrap=True)
+
+
+@image_comparison(baseline_images=['fonttext_wrap'],
+                  extensions=['png'])
+def test_font_wrap():
+    fig = plt.figure()
+    plt.axis([0, 10, 0, 10])
+    t = "This is a really long string that I'd rather have wrapped so that" \
+        " it doesn't go outside of the figure, but if it's long enough it" \
+        " will go off the top or bottom!"
+    plt.text(4, -1, t, fontsize=18, family='serif', ha='left', rotation=15,
+             wrap=True)
+    plt.text(6, 5, t, family='sans serif', ha='left', rotation=15, wrap=True)
+    plt.text(5, 5, t, weight='light', ha='right', rotation=-15, wrap=True)
+    plt.text(5, 10, t, weight='heavy', ha='center', va='top', wrap=True)
+    plt.text(3, 4, t, family='monospace', ha='right', wrap=True)
+    plt.text(-1, 0, t, fontsize=14, style='italic', ha='left', rotation=-15,
+             wrap=True)

@@ -105,6 +105,7 @@ docstring.interpd.update(Text="""
     visible                    [True | False]
     weight or fontweight       ['normal' | 'bold' | 'heavy' | 'light' |
                                 'ultrabold' | 'ultralight']
+    wrap                       [True | False]
     x                          float
     y                          float
     zorder                     any number
@@ -175,6 +176,7 @@ class Text(Artist):
                  linespacing=None,
                  rotation_mode=None,
                  usetex=None,          # defaults to rcParams['text.usetex']
+                 wrap=False,
                  **kwargs
                  ):
         """
@@ -198,6 +200,7 @@ class Text(Artist):
         self.set_text(text)
         self.set_color(color)
         self.set_usetex(usetex)
+        self.set_wrap(wrap)
         self._verticalalignment = verticalalignment
         self._horizontalalignment = horizontalalignment
         self._multialignment = multialignment
@@ -211,7 +214,7 @@ class Text(Artist):
         self._linespacing = linespacing
         self.set_rotation_mode(rotation_mode)
         self.update(kwargs)
-        #self.set_bbox(dict(pad=0))
+        # self.set_bbox(dict(pad=0))
 
     def __getstate__(self):
         d = super(Text, self).__getstate__()
@@ -315,18 +318,20 @@ class Text(Artist):
 
         # Find full vertical extent of font,
         # including ascenders and descenders:
-        tmp, lp_h, lp_bl = renderer.get_text_width_height_descent('lp',
-                                                         self._fontproperties,
-                                                         ismath=False)
+        tmp, lp_h, lp_bl = renderer.get_text_width_height_descent(
+            'lp',
+            self._fontproperties,
+            ismath=False)
         offsety = (lp_h - lp_bl) * self._linespacing
 
         baseline = 0
         for i, line in enumerate(lines):
             clean_line, ismath = self.is_math_text(line)
             if clean_line:
-                w, h, d = renderer.get_text_width_height_descent(clean_line,
-                                                        self._fontproperties,
-                                                        ismath=ismath)
+                w, h, d = renderer.get_text_width_height_descent(
+                    clean_line,
+                    self._fontproperties,
+                    ismath=ismath)
             else:
                 w, h, d = 0, 0, 0
 
@@ -468,12 +473,12 @@ class Text(Artist):
             bbox_transmuter = props.pop("bbox_transmuter", None)
 
             self._bbox_patch = FancyBboxPatch(
-                                    (0., 0.),
-                                    1., 1.,
-                                    boxstyle=boxstyle,
-                                    bbox_transmuter=bbox_transmuter,
-                                    transform=mtransforms.IdentityTransform(),
-                                    **props)
+                (0., 0.),
+                1., 1.,
+                boxstyle=boxstyle,
+                bbox_transmuter=bbox_transmuter,
+                transform=mtransforms.IdentityTransform(),
+                **props)
             self._bbox = None
         else:
             self._bbox_patch = None
@@ -514,7 +519,7 @@ class Text(Artist):
             self._bbox_patch.set_transform(tr)
             fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
             self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
-            #self._bbox_patch.draw(renderer)
+            # self._bbox_patch.draw(renderer)
 
     def _draw_bbox(self, renderer, posx, posy):
 
@@ -587,6 +592,115 @@ class Text(Artist):
         super(Text, self).set_clip_on(b)
         self._update_clip_properties()
 
+    def get_wrap(self):
+        """
+        Returns the wrapping state for the text.
+        """
+        return self._wrap
+
+    def set_wrap(self, wrap):
+        """
+        Sets the wrapping state for the text.
+        """
+        self._wrap = wrap
+
+    def _get_wrap_line_width(self):
+        """
+        Returns the maximum line width for wrapping text based on the
+        current orientation.
+        """
+        x0, y0 = self.get_transform().transform(self.get_position())
+        figure_box = self.get_figure().get_window_extent()
+
+        # Calculate available width based on text alignment
+        alignment = self.get_horizontalalignment()
+        self.set_rotation_mode('anchor')
+        rotation = self.get_rotation()
+
+        left = self._get_dist_to_box(rotation, x0, y0, figure_box)
+        right = self._get_dist_to_box(
+            (180 + rotation) % 360,
+            x0,
+            y0,
+            figure_box)
+
+        if alignment == 'left':
+            line_width = left
+        elif alignment == 'right':
+            line_width = right
+        else:
+            line_width = 2 * min(left, right)
+
+        return line_width
+
+    def _get_dist_to_box(self, rotation, x0, y0, figure_box):
+        """
+        Returns the distance from the given points, to the boundaries
+        of a rotated box in pixels.
+        """
+        if rotation > 270:
+            quad = rotation - 270
+            h1 = y0 / math.cos(math.radians(quad))
+            h2 = (figure_box.x1 - x0) / math.cos(math.radians(90 - quad))
+        elif rotation > 180:
+            quad = rotation - 180
+            h1 = x0 / math.cos(math.radians(quad))
+            h2 = y0 / math.cos(math.radians(90 - quad))
+        elif rotation > 90:
+            quad = rotation - 90
+            h1 = (figure_box.y1 - y0) / math.cos(math.radians(quad))
+            h2 = x0 / math.cos(math.radians(90 - quad))
+        else:
+            h1 = (figure_box.x1 - x0) / math.cos(math.radians(rotation))
+            h2 = (figure_box.y1 - y0) / math.cos(math.radians(90 - rotation))
+
+        return min(h1, h2)
+
+    def _get_rendered_text_width(self, text):
+        """
+        Returns the width of a given text string, in pixels.
+        """
+        w, h, d = self._renderer.get_text_width_height_descent(
+            text,
+            self.get_fontproperties(),
+            False)
+        return math.ceil(w)
+
+    def _get_wrapped_text(self):
+        """
+        Return a copy of the text with new lines added, so that
+        the text is wrapped relative to the parent figure.
+        """
+        # Not fit to handle breaking up latex syntax correctly, so
+        # ignore latex for now.
+        if self.get_usetex():
+            return self.get_text()
+
+        # Build the line incrementally, for a more accurate measure of length
+        line_width = self._get_wrap_line_width()
+        wrapped_str = ""
+        line = ""
+
+        for word in self.get_text().split(' '):
+            # New lines in the user's test need to force a split, so that it's
+            # not using the longest current line width in the line being built
+            sub_words = word.split('\n')
+            for i in range(len(sub_words)):
+                current_width = self._get_rendered_text_width(
+                    line + ' ' + sub_words[i])
+
+                # Split long lines, and each newline found in the current word
+                if current_width > line_width or i > 0:
+                    wrapped_str += line + '\n'
+                    line = ""
+
+                if line == "":
+                    line = sub_words[i]
+                else:
+                    line += ' ' + sub_words[i]
+
+        return wrapped_str + line
+
     @allow_rasterization
     def draw(self, renderer):
         """
@@ -600,6 +714,10 @@ class Text(Artist):
             return
 
         renderer.open_group('text', self.get_gid())
+
+        if self.get_wrap():
+            old_text = self.get_text()
+            self.set_text(self._get_wrapped_text())
 
         bbox, info, descent = self._get_layout(renderer)
         trans = self.get_transform()
@@ -651,6 +769,9 @@ class Text(Artist):
                 textrenderer.draw_text(gc, x, y, clean_line,
                                        self._fontproperties, angle,
                                        ismath=ismath, mtext=mtext)
+
+        if self.get_wrap():
+            self.set_text(old_text)
 
         gc.restore()
         renderer.close_group('text')
@@ -791,7 +912,7 @@ class Text(Artist):
         the value used when saving the figure, then the value that
         was used must be specified as the *dpi* argument.
         '''
-        #return _unit_box
+        # return _unit_box
         if not self.get_visible():
             return Bbox.unit()
         if dpi is not None:
@@ -1202,7 +1323,7 @@ class TextWithDash(Text):
         self._dashpad = dashpad
         self._dashpush = dashpush
 
-        #self.set_bbox(dict(pad=0))
+        # self.set_bbox(dict(pad=0))
 
     def get_position(self):
         "Return the position of the text as a tuple (*x*, *y*)"
@@ -1642,7 +1763,7 @@ class _AnnotationBase(object):
         if isinstance(self.xycoords, tuple):
             s1, s2 = self.xycoords
             if ((is_string_like(s1) and s1.split()[0] == "offset") or
-                  (is_string_like(s2) and s2.split()[0] == "offset")):
+                    (is_string_like(s2) and s2.split()[0] == "offset")):
                 raise ValueError("xycoords should not be an offset coordinate")
             x, y = self.xy
             x1, y1 = self._get_xy(renderer, x, y, s1)
@@ -1654,7 +1775,7 @@ class _AnnotationBase(object):
         else:
             x, y = self.xy
             return self._get_xy(renderer, x, y, self.xycoords)
-        #raise RuntimeError("must be defined by the derived class")
+        # raise RuntimeError("must be defined by the derived class")
 
     # def _get_bbox(self, renderer):
     #     if hasattr(bbox, "bounds"):
@@ -1958,7 +2079,7 @@ class Annotation(Text, _AnnotationBase):
             # Use FancyArrowPatch if self.arrowprops has "arrowstyle" key.
             # Otherwise, fallback to YAArrow.
 
-            #if d.has_key("arrowstyle"):
+            # if d.has_key("arrowstyle"):
             if self.arrow_patch:
 
                 # adjust the starting point of the arrow relative to
