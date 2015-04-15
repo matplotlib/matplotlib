@@ -1114,7 +1114,7 @@ class PlayPauseTool(ToolToggleBase):
     Toggles between playing and pausing the animation.
     """
     description = 'Play the Animation'
-    default_keymap = ' '  # FIXME Spacebar not valid due to validate_stringlist
+    default_keymap = [' ']
 
     def __init__(self, *args, **kargs):
         ToolToggleBase.__init__(self, *args, **kargs)
@@ -1198,8 +1198,10 @@ class AnimationSlider(object):
         if rcParams['toolbar'] == 'toolmanager':
             self.navigation = figure.canvas.manager.toolmanager
             tool = self.navigation.add_tool(self.play_name, PlayPauseTool)
-            tool.set_animation_manager(self)
+            # FIXME currently we must set the animation manager (self), after
+            # we have added it to the toolbar in order to set the state.
             figure.canvas.manager.toolbar.add_tool(self.play_name, 'animation')
+            tool.set_animation_manager(self)
 
     # The frame generator for the animator during play will cycle through
     # the frames index, when paused will return the same frame index.
