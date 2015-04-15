@@ -1141,6 +1141,12 @@ class Axes(_AxesBase):
         if len(positions) == 0:
             return []
 
+        # prevent 'singular' keys from **kwargs dict from overriding the effect
+        # of 'plural' keyword arguments (e.g. 'color' overriding 'colors')
+        colors = cbook.local_over_kwdict(colors, kwargs, 'color')
+        linewidths = cbook.local_over_kwdict(linewidths, kwargs, 'linewidth')
+        linestyles = cbook.local_over_kwdict(linestyles, kwargs, 'linestyle')
+
         if not iterable(lineoffsets):
             lineoffsets = [lineoffsets]
         if not iterable(linelengths):
