@@ -3264,8 +3264,9 @@ class ToolContainerBase(object):
         tool = self.toolmanager.get_tool(tool)
         image = self._get_image_filename(tool.image)
         toggle = getattr(tool, 'toggled', None) is not None
+        initial_state = getattr(tool, '_toggled', False)
         self.add_toolitem(tool.name, group, position,
-                          image, tool.description, toggle)
+                          image, tool.description, toggle, initial_state)
         if toggle:
             self.toolmanager.toolmanager_connect('tool_trigger_%s' % tool.name,
                                                  self._tool_toggled_cbk)

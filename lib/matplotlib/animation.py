@@ -1116,16 +1116,11 @@ class PlayPauseTool(ToolToggleBase):
     description = 'Play the Animation'
     default_keymap = [' ']
 
-    def __init__(self, *args, **kargs):
-        ToolToggleBase.__init__(self, *args, **kargs)
+    def __init__(self, tool_mgr, name, animation_manager, *args, **kargs):
+        ToolToggleBase.__init__(self, tool_mgr, name, *args, **kargs)
         self.animation_manager = None
-        # Fix me, can't set tool state (in set_ani_mnger) from init.
-
-    def set_animation_manager(self, animation_manager):
         self.animation_manager = animation_manager
-
-        if self.animation_manager.playing != self.toggled:
-            self.toolmanager.trigger_tool(self.name, sender=self)
+        self._initial_state = animation_manager.playing
 
     def trigger(self, sender, event, data=None):
         self.sender = sender
@@ -1197,11 +1192,8 @@ class AnimationSlider(object):
         self.play_name = '\u25B6'
         if rcParams['toolbar'] == 'toolmanager':
             self.navigation = figure.canvas.manager.toolmanager
-            tool = self.navigation.add_tool(self.play_name, PlayPauseTool)
-            # FIXME currently we must set the animation manager (self), after
-            # we have added it to the toolbar in order to set the state.
+            self.navigation.add_tool(self.play_name, PlayPauseTool, self)
             figure.canvas.manager.toolbar.add_tool(self.play_name, 'animation')
-            tool.set_animation_manager(self)
 
     # The frame generator for the animator during play will cycle through
     # the frames index, when paused will return the same frame index.

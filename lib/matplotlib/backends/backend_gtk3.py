@@ -774,9 +774,9 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
         self._toolitems = {}
 
     def add_toolitem(self, name, group, position, image_file, description,
-                     toggle):
+                     toggle, initial_state=False):
         if toggle:
-            tbutton = Gtk.ToggleToolButton()
+            tbutton = Gtk.ToggleToolButton(active=initial_state)
         else:
             tbutton = Gtk.ToolButton()
         tbutton.set_label(name)

@@ -243,6 +243,9 @@ class ToolManager(object):
                 self._toggled.setdefault(tool_obj.radio_group, None)
 
         self._tool_added_event(tool_obj)
+
+        if getattr(tool_obj, '_initial_state', False):
+            self.trigger_tool(name, sender=self)
         return tool_obj
 
     def _tool_added_event(self, tool):
