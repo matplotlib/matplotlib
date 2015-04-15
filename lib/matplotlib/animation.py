@@ -31,6 +31,8 @@ from matplotlib.cbook import iterable, is_string_like
 from matplotlib.compat import subprocess
 from matplotlib import verbose
 from matplotlib import rcParams
+from matplotlib.backend_tools import ToolToggleBase
+from matplotlib.widgets import Slider
 
 # Process creation flag for subprocess to prevent it raising a terminal
 # window. See for example:
@@ -1105,3 +1107,130 @@ class FuncAnimation(TimedAnimation):
         # Call the func with framedata and args. If blitting is desired,
         # func needs to return a sequence of any artists that were modified.
         self._drawn_artists = self._func(framedata, *self._args)
+
+
+class PlayPauseTool(ToolToggleBase):
+    """
+    Toggles between playing and pausing the animation.
+    """
+    description = 'Play the Animation'
+    default_keymap = ' '  # FIXME Spacebar not valid due to validate_stringlist
+
+    def __init__(self, *args, **kargs):
+        ToolToggleBase.__init__(self, *args, **kargs)
+        self.animation_manager = None
+        # Fix me, can't set tool state (in set_ani_mnger) from init.
+
+    def set_animation_manager(self, animation_manager):
+        self.animation_manager = animation_manager
+
+        if self.animation_manager.playing != self.toggled:
+            self.toolmanager.trigger_tool(self.name, sender=self)
+
+    def trigger(self, sender, event, data=None):
+        self.sender = sender
+        ToolToggleBase.trigger(self, sender, event, data=None)
+
+    def enable(self, *args, **kargs):
+        self.animation_manager.play()
+
+    def disable(self, *args, **kargs):
+        if self.sender is not self.animation_manager:
+            self.animation_manager.pause()
+
+
+class AnimationSlider(object):
+    def __init__(self, figure, time, label='', play_on_creation=True, dn=1,
+                 aax=None, orientation='horizontal', **kwargs):
+        """
+        Adds an animation slider to the figure, note to use you must pass the
+        data generator from this class to the animation function.
+
+        To use. create an instance of this class and pass the ``generator``
+        function as the ``frames`` argument to the animator.
+
+        Parameters
+        ----------
+        figure :
+            The figure to attach the slider to
+
+        time : array-like
+            An array of values over which we iterate, e.g a time axis.
+
+        label: string, optional
+            The label to use for the slider.
+
+        play_on_creation: boolean, optional
+            Whether or not to autostart the animation when we show the figure.
+
+        dn : integer, optional
+            The animation step to use, each frame of animation.
+
+        aax: Axes, optional
+            The axes to draw the animation slider in.
+
+        orientation: string, optional
+            The orientation of the slider, either 'horizontal' or 'vertical'.
+
+        """
+        self.time = time
+        self.playing = play_on_creation
+        self.dn = dn
+        self._updating_slider = False
+        self.navigation = None
+
+        kwargs['orientation'] = orientation
+        aspect = kwargs.pop('aspect', 1)
+        frac = kwargs.pop('fraction', 0.05)
+
+        self.axes = aax
+        if not self.axes:
+            figure.subplots_adjust(bottom=0.2)
+            self.axes = figure.add_axes([0.125, 0.075, 0.78, 0.075])
+
+        # Initialise the slider at the beginning with time on the main axis.
+        self.slider = Slider(self.axes, label, time[0], time[-1], time[0],
+                             wstyle='auto', **kwargs)
+        self.slider.on_changed(self.on_slider_value_changed)
+
+        #self.play_name = 'play'
+        self.play_name = '\u25B6'
+        if rcParams['toolbar'] == 'toolmanager':
+            self.navigation = figure.canvas.manager.toolmanager
+            tool = self.navigation.add_tool(self.play_name, PlayPauseTool)
+            tool.set_animation_manager(self)
+            figure.canvas.manager.toolbar.add_tool(self.play_name, 'animation')
+
+    # The frame generator for the animator during play will cycle through
+    # the frames index, when paused will return the same frame index.
+    def generator(self):
+        n = 0
+        while n < len(self.time):
+            self._updating_slider = True
+            self.slider.set_val(self.time[n])
+            self._updating_slider = False
+            yield n
+            if self.playing:
+                n += self.dn
+            else:
+                n = self.val
+
+    def play(self):
+        self.playing = True
+
+    def pause(self):
+        self.val = list(self.time).index(self.slider.val)
+        self.playing = False
+
+    def on_slider_value_changed(self, val):
+        if not self._updating_slider:
+            self.playing = False
+            start = self.time[0]
+            end = self.time[-1]
+
+            # calculate n from t, rough fast conversion
+            self.val = int(round((len(self.time)-1)*(val-start)/(end-start)))
+
+            if self.navigation and \
+                self.navigation.get_tool(self.play_name).toggled:
+                self.navigation.trigger_tool(self.play_name, sender=self)

@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate as integrate
 import matplotlib.animation as animation
+plt.rcParams['toolbar'] = 'toolmanager'
 
 G = 9.8  # acceleration due to gravity, in m/s^2
 L1 = 1.0  # length of pendulum 1 in m
@@ -65,13 +66,13 @@ ax.grid()
 
 line, = ax.plot([], [], 'o-', lw=2)
 time_template = 'time = %.1fs'
-time_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)
+#time_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)
 
 
 def init():
     line.set_data([], [])
-    time_text.set_text('')
-    return line, time_text
+    #time_text.set_text('')
+    return line,  # time_text
 
 
 def animate(i):
@@ -79,11 +80,14 @@ def animate(i):
     thisy = [0, y1[i], y2[i]]
 
     line.set_data(thisx, thisy)
-    time_text.set_text(time_template % (i*dt))
-    return line, time_text
+    #time_text.set_text(time_template % (i*dt))
+    return line,  # time_text
 
-ani = animation.FuncAnimation(fig, animate, np.arange(1, len(y)),
+slider = animation.AnimationSlider(fig, t, 't=', fc='none', ec='b')
+ani = animation.FuncAnimation(fig, animate, slider.generator,
                               interval=25, blit=True, init_func=init)
+
+slider.axes.plot(t, y2)
 
 #ani.save('double_pendulum.mp4', fps=15)
 plt.show()
