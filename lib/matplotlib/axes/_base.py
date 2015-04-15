@@ -1291,14 +1291,14 @@ class _AxesBase(martist.Artist):
 
           axis(*v, **kwargs)
 
-        Examples: 
+        Examples:
 
           axis('equal')
           axis([0, 10, 2, 8])
           axis(xmin=1, xmax=2)
 
-        Convenience method for manipulating axis properties such as 
-        the x and y view limits and the aspect ratio of the plot. 
+        Convenience method for manipulating axis properties such as
+        the x and y view limits and the aspect ratio of the plot.
 
         ACCEPTS: [length 4 sequence of floats
                   | 'on' | 'off' | 'equal' | 'tight' | 'scaled'
