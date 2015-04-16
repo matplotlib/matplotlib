@@ -663,20 +663,32 @@ def _get_data_path():
                                'directory')
         return path
 
-    path = os.sep.join([os.path.dirname(__file__.decode(sys.getfilesystemencoding())), 'mpl-data'])
+    if hasattr(__file__, 'decode'):
+        _file=__file__.decode(sys.getfilesystemencoding())
+    else:
+        _file=__file__
+    path = os.sep.join([os.path.dirname(_file), 'mpl-data'])
     if os.path.isdir(path):
         return path
 
     # setuptools' namespace_packages may highjack this init file
     # so need to try something known to be in matplotlib, not basemap
     import matplotlib.afm
-    path = os.sep.join([os.path.dirname(matplotlib.afm.__file__.decode(sys.getfilesystemencoding())), 'mpl-data'])
+    if hasattr(matplotlib.afm.__file__, 'decode'):
+        _file=matplotlib.afm.__file__.decode(sys.getfilesystemencoding())
+    else:
+        _file=matplotlib.afm.__file__
+    path = os.sep.join([os.path.dirname(_file), 'mpl-data'])
     if os.path.isdir(path):
         return path
 
     # py2exe zips pure python, so still need special check
     if getattr(sys, 'frozen', None):
-        exe_path = os.path.dirname(sys.executable.decode(sys.getfilesystemencoding()))
+        if hasattr(sys.executable, 'decode'):
+            _file=sys.executable.decode(sys.getfilesystemencoding())
+        else:
+            _file=sys.executable
+        exe_path = os.path.dirname(_file)
         path = os.path.join(exe_path, 'mpl-data')
         if os.path.isdir(path):
             return path
