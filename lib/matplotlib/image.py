@@ -1235,7 +1235,7 @@ def imread(fname, format=None):
         if cbook.is_string_like(fname):
             parsed = urlparse(fname)
             # If the string is a URL, assume png
-            if parsed.scheme is not '':
+            if parsed.scheme != '':
                 ext = 'png'
             else:
                 basename, ext = os.path.splitext(fname)
@@ -1264,7 +1264,8 @@ def imread(fname, format=None):
     if cbook.is_string_like(fname):
         parsed = urlparse(fname)
         # If fname is a URL, download the data
-        if parsed.scheme is not '':
+        if parsed.scheme != '':
+            print('Scheme: %s' % parsed.scheme)
             fd = BytesIO(urlopen(fname).read())
             return handler(fd)
         else:
