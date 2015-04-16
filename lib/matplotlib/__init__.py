@@ -664,9 +664,9 @@ def _get_data_path():
         return path
 
     if hasattr(__file__, 'decode'):
-        _file=__file__.decode(sys.getfilesystemencoding())
+        _file = __file__.decode(sys.getfilesystemencoding())
     else:
-        _file=__file__
+        _file = __file__
     path = os.sep.join([os.path.dirname(_file), 'mpl-data'])
     if os.path.isdir(path):
         return path
@@ -675,9 +675,9 @@ def _get_data_path():
     # so need to try something known to be in matplotlib, not basemap
     import matplotlib.afm
     if hasattr(matplotlib.afm.__file__, 'decode'):
-        _file=matplotlib.afm.__file__.decode(sys.getfilesystemencoding())
+        _file = matplotlib.afm.__file__.decode(sys.getfilesystemencoding())
     else:
-        _file=matplotlib.afm.__file__
+        _file = matplotlib.afm.__file__
     path = os.sep.join([os.path.dirname(_file), 'mpl-data'])
     if os.path.isdir(path):
         return path
@@ -685,9 +685,9 @@ def _get_data_path():
     # py2exe zips pure python, so still need special check
     if getattr(sys, 'frozen', None):
         if hasattr(sys.executable, 'decode'):
-            _file=sys.executable.decode(sys.getfilesystemencoding())
+            _file = sys.executable.decode(sys.getfilesystemencoding())
         else:
-            _file=sys.executable
+            _file = sys.executable
         exe_path = os.path.dirname(_file)
         path = os.path.join(exe_path, 'mpl-data')
         if os.path.isdir(path):
