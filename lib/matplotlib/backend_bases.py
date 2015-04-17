@@ -2749,7 +2749,7 @@ class WindowBase(cbook.EventEmitter):
         """
         pass
 
-    def add_element_to_window(self, element, expand, fill, pad, place):
+    def add_element(self, element, expand, place):
         """ Adds a gui widget to the window.
         This has no effect for non-GUI backends and properties only apply
         to those backends that support them, or have a suitable workaround.
@@ -2761,11 +2761,6 @@ class WindowBase(cbook.EventEmitter):
         expand : bool
             Whether the element should auto expand to fill as much space within
             the window as possible.
-        fill : bool
-            If the element can expand, should it make the element bigger,
-            or go into extra padding?  True, False respectfully.
-        pad : int
-            The extra amount of space in pixels to pad the element.
         place : string
             The location to place the element, either compass points north,
             east, south, west, or center.

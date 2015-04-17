@@ -416,17 +416,17 @@ class Window(WindowBase, Gtk.Window):
             self._layout[parent].pack_start(self._layout[name], grow, grow, 0)
         self._layout[name].show()
 
-    def add_element_to_window(self, element, expand, fill, pad, place):
+    def add_element(self, element, expand, place):
         element.show()
 
         flow = _flow[not _flow.index(self._layout[place].get_orientation())]
         separator = Gtk.Separator(orientation=flow)
         separator.show()
         if place in ['north', 'west', 'center']:
-            self._layout[place].pack_start(element, expand, fill, pad)
+            self._layout[place].pack_start(element, expand, expand, 0)
             self._layout[place].pack_start(separator, False, False, 0)
         elif place in ['south', 'east']:
-            self._layout[place].pack_end(element, expand, fill, pad)
+            self._layout[place].pack_end(element, expand, expand, 0)
             self._layout[place].pack_end(separator, False, False, 0)
         else:
             raise KeyError('Unknown value for place, %s' % place)

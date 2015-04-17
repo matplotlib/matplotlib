@@ -133,8 +133,7 @@ for i, c in enumerate(['yellowgreen', 'forestgreen']):
                          tool_mgr.add_tool('D%s' % i, DotTool, color=c)]],
              ['hide', [tool_mgr.add_tool('H%s' % i, GroupHideTool, gid=c)]]]
 
-    fig.canvas.manager.window.add_element_to_window(sidebar, False, False, 0,
-                                                    'west')
+    fig.canvas.manager.window.add_element(sidebar, False, 'west')
     add_tools_to_container(sidebar, tools)
 
 plt.show()
