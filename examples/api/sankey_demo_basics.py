@@ -24,7 +24,7 @@ plt.title("The default settings produce a diagram like this.")
 # This demonstrates:
 #   1. Setting one path longer than the others
 #   2. Placing a label in the middle of the diagram
-#   3. Using the the scale argument to normalize the flows
+#   3. Using the scale argument to normalize the flows
 #   4. Implicitly passing keyword arguments to PathPatch()
 #   5. Changing the angle of the arrow heads
 #   6. Changing the offset between the tips of the paths and their labels

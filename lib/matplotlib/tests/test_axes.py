@@ -1137,7 +1137,7 @@ def test_hist2d():
 @image_comparison(baseline_images=['hist2d_transpose'])
 def test_hist2d_transpose():
     np.random.seed(0)
-    # make sure the the output from np.histogram is transposed before
+    # make sure the output from np.histogram is transposed before
     # passing to pcolorfast
     x = np.array([5]*100)
     y = np.random.randn(100)-2

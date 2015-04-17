@@ -803,7 +803,7 @@ class Legend(Artist):
         return self._legend_title_box._text
 
     def get_window_extent(self, *args, **kwargs):
-        'return a extent of the the legend'
+        'return a extent of the legend'
         return self.legendPatch.get_window_extent(*args, **kwargs)
 
     def get_frame_on(self):

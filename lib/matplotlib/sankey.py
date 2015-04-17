@@ -454,7 +454,7 @@ class Sankey(object):
         placed along the sides of the diagram from the top down and along the
         bottom from the outside in.
 
-        If the the sum of the inputs and outputs is nonzero, the discrepancy
+        If the sum of the inputs and outputs is nonzero, the discrepancy
         will appear as a cubic Bezier curve along the top and bottom edges of
         the trunk.
 

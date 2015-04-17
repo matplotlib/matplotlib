@@ -1461,7 +1461,7 @@ def install_python(home_dir, lib_dir, inc_dir, bin_dir, site_packages, clear):
     if '.framework' in prefix:
         if 'Python.framework' in prefix:
             logger.debug('MacOSX Python framework detected')
-            # Make sure we use the the embedded interpreter inside
+            # Make sure we use the embedded interpreter inside
             # the framework, even if sys.executable points to
             # the stub executable in ${sys.prefix}/bin
             # See http://groups.google.com/group/python-virtualenv/
