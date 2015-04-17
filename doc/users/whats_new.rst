@@ -406,7 +406,7 @@ Qt4 backend
 ```````````
 Rudolf Höfler changed the appearance of the subplottool. All sliders are
 vertically arranged now, buttons for tight layout and reset were
-added. Furthermore, the the subplottool is now implemented as a modal
+added. Furthermore, the subplottool is now implemented as a modal
 dialog. It was previously a QMainWindow, leaving the SPT open if one closed the
 plot window.
 

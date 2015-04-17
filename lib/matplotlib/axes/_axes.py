@@ -758,7 +758,7 @@ class Axes(_AxesBase):
 
             >>> axvline(x=1)
 
-        * draw a default vline at *x* = .5 that spans the the middle half of
+        * draw a default vline at *x* = .5 that spans the middle half of
           the yrange::
 
             >>> axvline(x=.5, ymin=0.25, ymax=0.75)
@@ -4850,7 +4850,7 @@ class Axes(_AxesBase):
         than those of *C*; if the dimensions are the same, then the
         last row and column of *C* will be ignored.
 
-        Note that the the column index corresponds to the
+        Note that the column index corresponds to the
         *x*-coordinate, and the row index corresponds to *y*; for
         details, see the :ref:`Grid Orientation
         <axes-pcolor-grid-orientation>` section below.
@@ -5298,7 +5298,7 @@ class Axes(_AxesBase):
         produce faster and more compact output using ps, pdf, and
         svg backends, however.
 
-        Note that the the column index corresponds to the x-coordinate,
+        Note that the column index corresponds to the x-coordinate,
         and the row index corresponds to y; for details, see
         the "Grid Orientation" section below.
 

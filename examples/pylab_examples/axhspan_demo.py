@@ -18,7 +18,7 @@ l = plt.axvline(x=1)
 # the yrange
 l = plt.axvline(x=0, ymin=0.75, linewidth=4, color='b')
 
-# draw a default hline at y=.5 that spans the the middle half of
+# draw a default hline at y=.5 that spans the middle half of
 # the axes
 l = plt.axhline(y=.5, xmin=0.25, xmax=0.75)
 

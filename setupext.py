@@ -1189,7 +1189,7 @@ class Dateutil(SetupPackage):
             # dateutil 2.1 has a file encoding bug that breaks installation on
             # python 3.3
             # https://github.com/matplotlib/matplotlib/issues/2373
-            # hack around the problem by installing the the (working) v2.0
+            # hack around the problem by installing the (working) v2.0
             major, minor1, _, _, _ = sys.version_info
             if self.version is None and (major, minor1) == (3, 3):
                 self.version = '!=2.1'
