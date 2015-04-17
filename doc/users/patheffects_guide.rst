@@ -34,7 +34,7 @@ draws the artist without any effect:
     plt.show()
 
 Whilst the plot doesn't look any different to what you would expect without any path
-effects, the drawing of the text now been changed to use the the path effects
+effects, the drawing of the text now been changed to use the path effects
 framework, opening up the possibilities for more interesting examples.
 
 Adding a shadow

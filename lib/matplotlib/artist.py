@@ -525,7 +525,7 @@ class Artist(object):
 
     def set_sketch_params(self, scale=None, length=None, randomness=None):
         """
-        Sets the the sketch parameters.
+        Sets the sketch parameters.
 
         Parameters
         ----------

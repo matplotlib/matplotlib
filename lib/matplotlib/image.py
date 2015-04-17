@@ -242,7 +242,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
         It was intended to derive a skew transform that preserve the
         lower-left corner (x1, y1) and top-right corner(x2,y2), but
-        change the the lower-right-corner(x2, y1) to a new position
+        change the lower-right-corner(x2, y1) to a new position
         (x3, y3).
         """
         tr1 = mtransforms.Affine2D()
