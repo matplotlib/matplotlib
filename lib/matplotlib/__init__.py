@@ -668,7 +668,7 @@ def _get_data_path():
                                'directory')
         return path
     
-    _file=_decode_filesystem_path(__file__)
+    _file = _decode_filesystem_path(__file__)
     path = os.sep.join([os.path.dirname(_file), 'mpl-data'])
     if os.path.isdir(path):
         return path
@@ -676,7 +676,7 @@ def _get_data_path():
     # setuptools' namespace_packages may highjack this init file
     # so need to try something known to be in matplotlib, not basemap
     import matplotlib.afm
-    _file=_decode_filesystem_path(matplotlib.afm.__file__)
+    _file = _decode_filesystem_path(matplotlib.afm.__file__)
     path = os.sep.join([os.path.dirname(_file), 'mpl-data'])
     if os.path.isdir(path):
         return path
