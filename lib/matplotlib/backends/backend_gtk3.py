@@ -64,7 +64,7 @@ def draw_if_interactive():
             figManager.canvas.draw_idle()
 
 
-class MainLoop(MainLoopBase):
+class MainLoopGTK3(MainLoopBase):
     def begin(self):
         if Gtk.main_level() == 0:
             Gtk.main()
@@ -377,7 +377,7 @@ _flow = [Gtk.Orientation.HORIZONTAL, Gtk.Orientation.VERTICAL]
 flow_types = ['horizontal', 'vertical']
 
 
-class Window(WindowBase, Gtk.Window):
+class WindowGTK3(WindowBase, Gtk.Window):
     def __init__(self, title):
         WindowBase.__init__(self, title)
         Gtk.Window.__init__(self)
@@ -1037,6 +1037,5 @@ backend_tools.ToolSetCursor = SetCursorGTK3
 backend_tools.ToolRubberband = RubberbandGTK3
 
 Toolbar = ToolbarGTK3
-Statusbar = StatusbarGTK3
 FigureCanvas = FigureCanvasGTK3
 FigureManager = FigureManagerGTK3
