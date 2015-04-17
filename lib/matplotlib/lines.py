@@ -683,28 +683,6 @@ class Line2D(Artist):
             renderer = PathEffectRenderer(self.get_path_effects(), renderer)
 
         renderer.open_group('line2d', self.get_gid())
-        gc = renderer.new_gc()
-        self._set_gc_clip(gc)
-
-        ln_color_rgba = self._get_rgba_ln_color()
-        gc.set_foreground(ln_color_rgba, isRGBA=True)
-        gc.set_alpha(ln_color_rgba[3])
-
-        gc.set_antialiased(self._antialiased)
-        gc.set_linewidth(self._linewidth)
-
-        if self.is_dashed():
-            cap = self._dashcapstyle
-            join = self._dashjoinstyle
-        else:
-            cap = self._solidcapstyle
-            join = self._solidjoinstyle
-        gc.set_joinstyle(join)
-        gc.set_capstyle(cap)
-        gc.set_snap(self.get_snap())
-        if self.get_sketch_params() is not None:
-            gc.set_sketch_params(*self.get_sketch_params())
-
         funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
         if funcname != '_draw_nothing':
             tpath, affine = transf_path.get_transformed_path_and_affine()
@@ -712,7 +690,30 @@ class Line2D(Artist):
                 self._lineFunc = getattr(self, funcname)
                 funcname = self.drawStyles.get(self._drawstyle, '_draw_lines')
                 drawFunc = getattr(self, funcname)
+                gc = renderer.new_gc()
+                self._set_gc_clip(gc)
+
+                ln_color_rgba = self._get_rgba_ln_color()
+                gc.set_foreground(ln_color_rgba, isRGBA=True)
+                gc.set_alpha(ln_color_rgba[3])
+
+                gc.set_antialiased(self._antialiased)
+                gc.set_linewidth(self._linewidth)
+
+                if self.is_dashed():
+                    cap = self._dashcapstyle
+                    join = self._dashjoinstyle
+                else:
+                    cap = self._solidcapstyle
+                    join = self._solidjoinstyle
+                gc.set_joinstyle(join)
+                gc.set_capstyle(cap)
+                gc.set_snap(self.get_snap())
+                if self.get_sketch_params() is not None:
+                    gc.set_sketch_params(*self.get_sketch_params())
+
                 drawFunc(renderer, gc, tpath, affine.frozen())
+                gc.restore()
 
         if self._marker:
             gc = renderer.new_gc()
@@ -772,7 +773,6 @@ class Line2D(Artist):
 
             gc.restore()
 
-        gc.restore()
         renderer.close_group('line2d')
 
     def get_antialiased(self):
