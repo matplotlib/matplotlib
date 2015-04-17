@@ -82,7 +82,7 @@ Keyword arguments:
     'x' or 'y', the arrows get larger as one zooms in; for other
     units, the arrow size is independent of the zoom state.  For
     'width or 'height', the arrow size increases with the width and
-    height of the axes, respectively, when the the window is resized;
+    height of the axes, respectively, when the window is resized;
     for 'dots' or 'inches', resizing does not change the arrows.
 
 

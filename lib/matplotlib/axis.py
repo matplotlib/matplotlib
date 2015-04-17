@@ -1581,7 +1581,7 @@ class Axis(artist.Artist):
 
     def _update_label_position(self, bboxes, bboxes2):
         """
-        Update the label position based on the the bounding box enclosing
+        Update the label position based on the bounding box enclosing
         all the ticklabels and axis spine
         """
         raise NotImplementedError('Derived must override')
@@ -1739,7 +1739,7 @@ class XAxis(Axis):
 
     def _update_label_position(self, bboxes, bboxes2):
         """
-        Update the label position based on the the bounding box enclosing
+        Update the label position based on the bounding box enclosing
         all the ticklabels and axis spine
         """
         if not self._autolabelpos:
@@ -2057,7 +2057,7 @@ class YAxis(Axis):
 
     def _update_label_position(self, bboxes, bboxes2):
         """
-        Update the label position based on the the bounding box enclosing
+        Update the label position based on the bounding box enclosing
         all the ticklabels and axis spine
         """
         if not self._autolabelpos:

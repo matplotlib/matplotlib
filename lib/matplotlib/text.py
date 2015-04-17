@@ -483,7 +483,7 @@ class Text(Artist):
 
     def get_bbox_patch(self):
         """
-        Return the bbox Patch object. Returns None if the the
+        Return the bbox Patch object. Returns None if the
         FancyBboxPatch is not made.
         """
         return self._bbox_patch
@@ -1686,7 +1686,7 @@ class _AnnotationBase(object):
         return self._annotation_clip
 
     def _get_position_xy(self, renderer):
-        "Return the pixel position of the the annotated point."
+        "Return the pixel position of the annotated point."
         x, y = self.xy
         return self._get_xy(renderer, x, y, self.xycoords)
 

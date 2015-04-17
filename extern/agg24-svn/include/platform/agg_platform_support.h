@@ -644,7 +644,7 @@ namespace agg
         // open it in the current directory. The demos usually expect 
         // all the supplementary files to be placed in the current 
         // directory, that is usually coincides with the directory where
-        // the the executable is. However, in some systems (BeOS) it's not so. 
+        // the executable is. However, in some systems (BeOS) it's not so.
         // For those kinds of systems full_file_name() can help access files 
         // preserving commonly used policy.
         // So, it's a good idea to use in the demos the following:

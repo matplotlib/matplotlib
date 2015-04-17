@@ -426,7 +426,7 @@ There are a variety of meanings of the ``picker`` property:
 
     ``float``
 	if picker is a number it is interpreted as an epsilon tolerance in
-	points and the the artist will fire off an event if its data is
+	points and the artist will fire off an event if its data is
 	within epsilon of the mouse event.  For some artists like lines
 	and patch collections, the artist may provide additional data to
 	the pick event that is generated, e.g., the indices of the data

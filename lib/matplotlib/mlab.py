@@ -2440,7 +2440,7 @@ def rec_groupby(r, groupby, stats):
       stats = ( ('sales', len, 'numsales'), ('sales', np.mean, 'avgsale') )
 
     Return record array has *dtype* names for each attribute name in
-    the the *groupby* argument, with the associated group values, and
+    the *groupby* argument, with the associated group values, and
     for each outname name in the *stats* argument, with the associated
     stat summary output.
     """
@@ -2477,7 +2477,7 @@ def rec_summarize(r, summaryfuncs):
     *r* is a numpy record array
 
     *summaryfuncs* is a list of (*attr*, *func*, *outname*) tuples
-    which will apply *func* to the the array *r*[attr] and assign the
+    which will apply *func* to the array *r*[attr] and assign the
     output to a new attribute name *outname*.  The returned record
     array is identical to *r*, with extra arrays for each element in
     *summaryfuncs*.
