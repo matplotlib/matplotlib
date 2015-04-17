@@ -652,11 +652,13 @@ def _get_cachedir():
 
 get_cachedir = verbose.wrap('CACHEDIR=%s', _get_cachedir, always=False)
 
+
 def _decode_filesystem_path(path):
     if isinstance(path, bytes):
         return path.decode(sys.getfilesystemencoding())
     else:
         return path
+
 
 def _get_data_path():
     'get the path to matplotlib data'
@@ -667,7 +669,7 @@ def _get_data_path():
             raise RuntimeError('Path in environment MATPLOTLIBDATA not a '
                                'directory')
         return path
-    
+
     _file = _decode_filesystem_path(__file__)
     path = os.sep.join([os.path.dirname(_file), 'mpl-data'])
     if os.path.isdir(path):
