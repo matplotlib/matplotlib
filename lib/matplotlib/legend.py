@@ -1056,6 +1056,7 @@ class UniformLegend(Legend):
         Legend.__init__(self, parent, handles, labels,
                         loc=loc,
                         numpoints=numpoints,
+                        # markerscale does nothing when using uniform sizing.
                         markerscale=None,
                         markerfirst=markerfirst,
                         scatterpoints=scatterpoints,
@@ -1078,5 +1079,7 @@ class UniformLegend(Legend):
                         bbox_to_anchor=bbox_to_anchor,
                         bbox_transform=bbox_transform,
                         frameon=frameon,
+                        # Override with custom handler map that forces uniform
+                        # sizing.
                         handler_map=uniformHandlerMap,
                         )
