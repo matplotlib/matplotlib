@@ -803,7 +803,7 @@ class Legend(Artist):
         return self._legend_title_box._text
 
     def get_window_extent(self, *args, **kwargs):
-        'return a extent of the legend'
+        'return a extent of the the legend'
         return self.legendPatch.get_window_extent(*args, **kwargs)
 
     def get_frame_on(self):
@@ -993,3 +993,100 @@ class Legend(Artist):
             self._draggable = None
 
         return self._draggable
+
+
+class UniformLegend(Legend):
+    def __str__(self):
+        return "uniformLegend"
+
+    def __init__(self, parent, handles, labels,uniform_size,
+                 loc=None,
+                 numpoints=None,    # the number of points in the legend line
+                 markerfirst=True,  # controls ordering (left-to-right) of
+                                    # legend marker and label
+                 scatterpoints=None,    # number of scatter points
+                 scatteryoffsets=None,
+                 prop=None,          # properties for the legend texts
+                 fontsize=None,        # keyword to set font size directly
+
+                 # spacing & pad defined as a fraction of the font-size
+                 borderpad=None,      # the whitespace inside the legend border
+                 labelspacing=None,   # the vertical space between the legend
+                                      # entries
+                 handlelength=None,   # the length of the legend handles
+                 handleheight=None,   # the height of the legend handles
+                 handletextpad=None,  # the pad between the legend handle
+                                      # and text
+                 borderaxespad=None,  # the pad between the axes and legend
+                                      # border
+                 columnspacing=None,  # spacing between columns
+
+                 ncol=1,     # number of columns
+                 mode=None,  # mode for horizontal distribution of columns.
+                             # None, "expand"
+
+                 fancybox=None,  # True use a fancy box, false use a rounded
+                                 # box, none use rc
+                 shadow=None,
+                 title=None,  # set a title for the legend
+
+                 framealpha=None,  # set frame alpha
+
+                 bbox_to_anchor=None,  # bbox that the legend will be anchored.
+                 bbox_transform=None,  # transform for the bbox
+                 frameon=None
+                 ):
+        uniformHandlerMap = {
+        StemContainer:
+            legend_handler.HandlerUniformStem(uniform_size=uniform_size),
+        ErrorbarContainer:
+            legend_handler.HandlerUniformErrorBar(uniform_size=uniform_size),
+        Line2D: legend_handler.HandlerUniformLine2D(uniform_size=uniform_size),
+        PathCollection:
+            legend_handler.HandlerPathCollection(sizes=[uniform_size]*3),
+        RegularPolyCollection:
+            legend_handler.HandlerRegularPolyCollection(sizes=[uniform_size]*3),
+        CircleCollection: 
+            legend_handler.HandlerCircleCollection(sizes=[uniform_size]*3),
+        }
+
+        Legend.__init__(self,parent,handles,labels,
+                 loc=loc,
+                 numpoints=numpoints,    # the number of points in the legend line
+                 markerscale=None,  # the relative size of legend markers
+                                    # vs. original
+                 markerfirst=markerfirst,  # controls ordering (left-to-right) of
+                                    # legend marker and label
+                 scatterpoints=scatterpoints,    # number of scatter points
+                 scatteryoffsets=scatteryoffsets,
+                 prop=prop,          # properties for the legend texts
+                 fontsize=fontsize,        # keyword to set font size directly
+
+                 # spacing & pad defined as a fraction of the font-size
+                 borderpad=borderpad,      # the whitespace inside the legend border
+                 labelspacing=labelspacing,   # the vertical space between the legend
+                                      # entries
+                 handlelength=handlelength,   # the length of the legend handles
+                 handleheight=handleheight,   # the height of the legend handles
+                 handletextpad=handletextpad,  # the pad between the legend handle
+                                      # and text
+                 borderaxespad=borderaxespad,  # the pad between the axes and legend
+                                      # border
+                 columnspacing=columnspacing,  # spacing between columns
+
+                 ncol=1,     # number of columns
+                 mode=mode,  # mode for horizontal distribution of columns.
+                             # None, "expand"
+
+                 fancybox=fancybox,  # True use a fancy box, false use a rounded
+                                 # box, none use rc
+                 shadow=shadow,
+                 title=title,  # set a title for the legend
+
+                 framealpha=framealpha,  # set frame alpha
+
+                 bbox_to_anchor=bbox_to_anchor,  # bbox that the legend will be anchored.
+                 bbox_transform=bbox_transform,  # transform for the bbox
+                 frameon=frameon,  # draw frame
+                 handler_map=uniformHandlerMap,
+               )
