@@ -617,6 +617,8 @@ class HandlerPolyCollection(HandlerBase):
         self.update_prop(p, orig_handle, legend)
         p.set_transform(trans)
         return [p]
+
+
 class HandlerUniformLine2D(HandlerLine2D):
     """
     Handler for Uniform sized Line2D instances
@@ -630,10 +632,13 @@ class HandlerUniformLine2D(HandlerLine2D):
                        xdescent, ydescent, width, height, fontsize,
                        trans):
         artists = HandlerLine2D.create_artists(self, legend, orig_handle,
-                                               xdescent, ydescent, width, height, fontsize,
-                                               trans)
+                                               xdescent, ydescent,
+                                               width, height,
+                                               fontsize, trans)
         artists[-1].set_markersize(self._uniform_size)
         return artists
+
+
 class HandlerUniformErrorBar(HandlerErrorbar):
     """
     Handler for Uniform sized Error instances
@@ -647,10 +652,13 @@ class HandlerUniformErrorBar(HandlerErrorbar):
                        xdescent, ydescent, width, height, fontsize,
                        trans):
         artists = HandlerErrorbar.create_artists(self, legend, orig_handle,
-                                                 xdescent, ydescent, width, height, fontsize,
-                                                 trans)
+                                                 xdescent, ydescent,
+                                                 width, height,
+                                                 fontsize, trans)
         artists[-1].set_markersize(self._uniform_size)
         return artists
+
+
 class HandlerUniformStem(HandlerStem):
     def __init__(self, uniform_size, **kw):
 
@@ -662,7 +670,7 @@ class HandlerUniformStem(HandlerStem):
                        trans):
         artists = HandlerStem.create_artists(self, legend, orig_handle,
                                              xdescent, ydescent,
-                                             width, height, fontsize,
-                                             trans)
+                                             width, height,
+                                             fontsize, trans)
         artists[0].set_markersize(self._uniform_size)
         return artists
