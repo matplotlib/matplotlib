@@ -3675,6 +3675,17 @@ def test_no_None():
     assert_raises(ValueError, plt.plot, None, None)
 
 
+@cleanup
+def test_pcolor_fast_non_uniform():
+    Z = np.arange(6).reshape((3, 2))
+    X = np.array([0, 1, 2, 10])
+    Y = np.array([0, 1, 2])
+
+    plt.figure()
+    ax = plt.subplot(111)
+    ax.pcolorfast(X, Y, Z.T)
+
+
 if __name__ == '__main__':
     import nose
     import sys
