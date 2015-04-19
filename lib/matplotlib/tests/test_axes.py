@@ -3668,6 +3668,13 @@ def test_bar_negative_width():
         assert_equal(b._height, indx + 1)
 
 
+@cleanup
+def test_no_None():
+    fig, ax = plt.subplots()
+    assert_raises(ValueError, plt.plot, None)
+    assert_raises(ValueError, plt.plot, None, None)
+
+
 if __name__ == '__main__':
     import nose
     import sys
