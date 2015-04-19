@@ -498,6 +498,7 @@ class HandlerErrorbar(HandlerLine2D):
 
         return artists
 
+
 class HandlerStem(HandlerNpointsYoffsets):
     """
     Handler for Errorbars
@@ -609,13 +610,14 @@ class HandlerTuple(HandlerBase):
             width = (width - pad*(ndivide - 1)) / ndivide
 
         xds = [xdescent - (width + pad) * i for i in range(ndivide)]
-        xd_next = cycle(xds).next
+        xds_cycle = cycle(xds)
 
         a_list = []
         for handle1 in orig_handle:
             handler = legend.get_legend_handler(handler_map, handle1)
             _a_list = handler.create_artists(legend, handle1,
-                                             xd_next(), ydescent,
+                                             six.next(xds_cycle),
+                                             ydescent,
                                              width, height,
                                              fontsize,
                                              trans)
