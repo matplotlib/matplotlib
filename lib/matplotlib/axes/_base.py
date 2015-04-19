@@ -263,6 +263,13 @@ class _process_plot_var_args(object):
             raise ValueError('third arg must be a format string')
         else:
             linestyle, marker, color = None, None, None
+
+        # Don't allow any None value; These will be up-converted
+        # to one element array of None which causes problems
+        # downstream.
+        if any(v is None for v in tup):
+            raise ValueError("x and y must not be None")
+
         kw = {}
         for k, v in zip(('linestyle', 'marker', 'color'),
                         (linestyle, marker, color)):
