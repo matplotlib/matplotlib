@@ -1286,43 +1286,51 @@ class _AxesBase(martist.Artist):
                 self.set_xbound((x0, x1))
 
     def axis(self, *v, **kwargs):
-        """
-        Call signature::
+        """Set axis properties.
 
-          axis(*v, **kwargs)
+        If no positional or kwargs are given, returns the current
+        axes limits are returned with no side effects.
 
-        Examples:
+        If a positional argument is passed the keyword arguments are ignored.
 
-          axis('equal')
-          axis([0, 10, 2, 8])
-          axis(xmin=1, xmax=2)
+        If no positional argument is passed, the keyword arguments are used.
 
-        Convenience method for manipulating axis properties such as
-        the x and y view limits and the aspect ratio of the plot.
+        Parameters
+        ----------
+        v : list of float or {'on', 'off', 'equal', 'tight', 'scaled',\
+         'normal', 'auto', 'image', 'square'}
+            Optional positional argument
 
-        ACCEPTS: [length 4 sequence of floats
-                  | 'on' | 'off' | 'equal' | 'tight' | 'scaled'
-                  | 'normal' | 'auto' | 'image'| 'square' ]
+            Value to set the axis settings to.
+            If a list it is interpreted as [xmin, xmax, ymin, ymax].
+            If a string
 
-        Keyword arguments:
+                ========== ===============================================
+                Value      Description
+                ========== ===============================================
+                'on'       Toggle axis lines and labels on
+                'off'      Toggle axis lines and labels off
+                'equal'    Equal scaling by changing limits
+                'scaled'   Equal scaling by changing box dimensions
+                'tight'    Limits set such that all data is shown
+                'auto'     Automatic scaling, fill rectangle with data
+                'normal'   Same as 'auto'; deprecated
+                'image'    'scaled' with axis limits equal to data limits
+                'square'   Square plot; both axis have equal limit range
+                ========== ===============================================
 
-          *xmin*:scalar
-          Minimum limit on the x-axis
+        emit : bool, optional
+            Passed to set_{x,y}lim functions, if observers
+            are notified of axis limit change
 
-          *xmax*:scalar
-          Maximum limit on the x-axis
+        xmin, ymin, xmax, ymax : float, optional
+            The axis limits to be set
 
-          *ymin*:scalar
-          Minimum limit on the y-axis
+        Returns
+        -------
+        xmin, xmax, ymin, ymax : float
+            The axis limits
 
-          *ymax*:scalar
-          Maximum limit on the y-axis
-
-        *kwargs* are passed on to :meth:`set_xlim` and
-        :meth:`set_ylim`
-
-        For details, see
-        :func:`~matplotlib.pyplot.axis`.
         """
 
         if len(v) == 0 and len(kwargs) == 0:
