@@ -564,9 +564,27 @@ class HandlerStem(HandlerNpointsYoffsets):
 
 class HandlerTuple(HandlerBase):
     """
-    Handler for Tuple
+    Handler for Tuple.
+
+    Additional kwargs are passed through to `HandlerBase`.
+
+    Parameters
+    ----------
+
+    ndivide : int, optional
+        The number of sections to divide the legend area into.  If 0,
+        use the length of the input tuple.
+
+
+    pad : float, optional
+        If None, fall back to `legend.borderpad` as the default.
+        In units of fraction of font size.
+
+
+
     """
     def __init__(self, ndivide=1, pad=None, **kwargs):
+
         self._ndivide = ndivide
         self._pad = pad
         HandlerBase.__init__(self, **kwargs)
