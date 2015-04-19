@@ -29,6 +29,7 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import zip
+from itertools import cycle
 
 import numpy as np
 
@@ -593,7 +594,6 @@ class HandlerTuple(HandlerBase):
             width = (width - pad*(ndivide - 1)) / ndivide
 
         xds = [xdescent - (width + pad) * i for i in range(ndivide)]
-        from itertools import cycle
         xd_next = cycle(xds).next
 
         a_list = []
