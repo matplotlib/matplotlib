@@ -244,6 +244,23 @@ class validate_nseq_int(object):
             raise ValueError('Could not convert all entries to ints')
 
 
+def validate_line(s):
+    'return a valid  arg'
+    if s in (None, 'none', 'None', ' ', ''):
+        return 'None'
+    if s in ('-', '--', '-.', ':'):
+        return s
+    raise ValueError('%s is not a valid line arg' % s)
+
+
+def validate_markercolor(s):
+    'return a valid marker color arg'
+    if s == 'auto':
+        return s
+    else:
+        return validate_color(s)
+
+
 def validate_color(s):
     'return a valid color arg'
     try:
@@ -286,6 +303,18 @@ def validate_colorlist(s):
     else:
         msg = "'s' must be of type [ string | list | tuple ]"
         raise ValueError(msg)
+
+
+def validate_linelist(s):
+    'return a list of colorspecs'
+    if isinstance(s, six.string_types):
+        return [validate_line(l.strip()) for l in s.split(',')]
+    elif type(s) in (list, tuple) and s != []:
+        return [validate_line(l) for l in s]
+    else:
+        msg = "'s' must be of type [ string | list | tuple ] and non empty"
+        raise ValueError(msg)
+
 
 def validate_stringlist(s):
     'return a list'
@@ -533,11 +562,13 @@ defaultParams = {
 
     # line props
     'lines.linewidth':       [1.0, validate_float],  # line width in points
-    'lines.linestyle':       ['-', six.text_type],             # solid line
+    'lines.linestyle':       ['-', validate_line],   # solid line
     'lines.color':           ['b', validate_color],  # blue
     'lines.marker':          ['None', six.text_type],     # black
     'lines.markeredgewidth': [0.5, validate_float],
     'lines.markersize':      [6, validate_float],    # markersize, in points
+    'lines.markeredgecolor': ['auto', validate_markercolor],
+    'lines.markerfacecolor': ['auto', validate_markercolor],
     'lines.antialiased':     [True, validate_bool],  # antialised (no jaggies)
     'lines.dash_joinstyle':  ['round', validate_joinstyle],
     'lines.solid_joinstyle': ['round', validate_joinstyle],
@@ -645,7 +676,7 @@ defaultParams = {
     'axes.unicode_minus': [True, validate_bool],
     'axes.color_cycle': [['b', 'g', 'r', 'c', 'm', 'y', 'k'],
                          validate_colorlist],  # cycle of plot
-                                               # line colors
+    'axes.line_cycle': [['-'], validate_linelist],
     'axes.xmargin': [0, ValidateInterval(0, 1,
                                          closedmin=True,
                                          closedmax=True)],  # margin added to xaxis
