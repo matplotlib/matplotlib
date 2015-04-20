@@ -13,6 +13,8 @@ addons:
       - texlive-fonts-recommended
       - graphviz
       - fonts-humor-sans
+    sources:
+      - debian-sid
 
 env:
   global:
