@@ -1,47 +1,15 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-from six import unichr
-import os
-import re
-import signal
-import sys
-
-import matplotlib
-
-from matplotlib.cbook import is_string_like
-from matplotlib.backend_bases import FigureManagerBase
 from matplotlib.backend_bases import FigureCanvasBase
-from matplotlib.backend_bases import NavigationToolbar2
-
-from matplotlib.backend_bases import cursors
-from matplotlib.backend_bases import TimerBase
-from matplotlib.backend_bases import ShowBase
-
-from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 
+from .qt_compat import QtCore, QtWidgets, __version__
 
-from matplotlib.widgets import SubplotTool
-try:
-    import matplotlib.backends.qt_editor.figureoptions as figureoptions
-except ImportError:
-    figureoptions = None
-
-from .qt_compat import QtCore, QtWidgets, _getSaveFileName, __version__
-from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
-
-from .backend_qt5 import (backend_version, SPECIAL_KEYS, SUPER, ALT, CTRL,
-                        SHIFT, MODIFIER_KEYS, fn_name, cursord,
-                        draw_if_interactive, _create_qApp, show, TimerQT,
-                        MainWindow, FigureManagerQT, NavigationToolbar2QT,
-                        SubplotToolQt, error_msg_qt, exception_handler)
-
+from .backend_qt5 import (backend_version, _create_qApp, FigureManagerQT)
 from .backend_qt5 import FigureCanvasQT as FigureCanvasQT5
 
 DEBUG = False
-
 
 def new_figure_manager(num, *args, **kwargs):
     """

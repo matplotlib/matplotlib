@@ -22,13 +22,11 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
     FigureManagerBase, FigureCanvasBase
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
-from matplotlib.text import Text
 from matplotlib.path import Path
 from matplotlib import _png, rcParams
 from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.compat import subprocess
 from matplotlib.compat.subprocess import check_output
-
 
 ###############################################################################
 

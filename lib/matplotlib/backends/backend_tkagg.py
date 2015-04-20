@@ -4,7 +4,6 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import tkinter as Tk
-from six.moves import tkinter_filedialog as FileDialog
 
 import os, sys, math
 import os.path
@@ -17,24 +16,18 @@ import matplotlib.backends.windowing as windowing
 
 import matplotlib
 from matplotlib.cbook import is_string_like
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase
-from matplotlib.backend_bases import FigureManagerBase, FigureCanvasBase
-from matplotlib.backend_bases import NavigationToolbar2, cursors, TimerBase
-from matplotlib.backend_bases import (ShowBase, ToolContainerBase,
+from matplotlib.backend_bases import (FigureManagerBase, FigureCanvasBase,
+                                      NavigationToolbar2, cursors, TimerBase,
+                                      ShowBase, ToolContainerBase,
                                       StatusbarBase)
 from matplotlib.backend_managers import ToolManager
 from matplotlib import backend_tools
 from matplotlib._pylab_helpers import Gcf
-
 from matplotlib.figure import Figure
-
 from matplotlib.widgets import SubplotTool
-
-import matplotlib.cbook as cbook
 
 rcParams = matplotlib.rcParams
 verbose = matplotlib.verbose
-
 
 backend_version = Tk.TkVersion
 

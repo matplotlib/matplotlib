@@ -23,7 +23,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import os, sys, warnings, gzip
+import sys, warnings, gzip
 
 import numpy as np
 
@@ -55,11 +55,10 @@ from matplotlib.cbook        import is_string_like
 from matplotlib.figure       import Figure
 from matplotlib.mathtext     import MathTextParser
 from matplotlib.path         import Path
-from matplotlib.transforms   import Bbox, Affine2D
+from matplotlib.transforms   import Affine2D
 from matplotlib.font_manager import ttfFontProperty
 
 _debug = False
-#_debug = True
 
 # Image::color_conv(format) for draw_image()
 if sys.byteorder == 'little':

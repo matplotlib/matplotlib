@@ -1,15 +1,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
-import math
-import os
-import sys
 import warnings
-def fn_name(): return sys._getframe(1).f_code.co_name
 
-import gobject
 import gtk; gdk = gtk.gdk
 import pango
 pygtk_version_required = (2,2,0)
@@ -23,10 +16,8 @@ import numpy as np
 
 import matplotlib
 from matplotlib import rcParams
-from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook import is_string_like
 from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D

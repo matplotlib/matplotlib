@@ -1,11 +1,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
 from six.moves import tkinter as Tk
-
 import numpy as np
-
 from matplotlib.backends import _tkagg
 
 def blit(photoimage, aggimage, bbox=None, colormode=1):

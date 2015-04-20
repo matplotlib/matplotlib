@@ -65,15 +65,11 @@ Naming Conventions
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 import matplotlib
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.figure import Figure
-from matplotlib.transforms import Bbox
-
 
 class RendererTemplate(RendererBase):
     """

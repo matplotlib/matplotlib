@@ -4,16 +4,11 @@ Render to qt from agg
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
-import os  # not used
 import sys
 import ctypes
-import warnings
 
 import matplotlib
 from matplotlib.figure import Figure
-
 
 from .backend_qt5agg import FigureCanvasQTAggBase
 
@@ -21,12 +16,6 @@ from .backend_agg import FigureCanvasAgg
 from .backend_qt4 import QtCore
 from .backend_qt4 import FigureManagerQT
 from .backend_qt4 import FigureCanvasQT
-from .backend_qt4 import NavigationToolbar2QT
-##### not used
-from .backend_qt4 import show
-from .backend_qt4 import draw_if_interactive
-from .backend_qt4 import backend_version
-######
 
 DEBUG = False
 

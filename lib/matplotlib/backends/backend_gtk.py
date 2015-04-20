@@ -29,11 +29,11 @@ _new_tooltip_api =  (gtk.pygtk_version[1] >= 12)
 
 import matplotlib
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
+from matplotlib.backend_bases import (FigureManagerBase, FigureCanvasBase,
+                                      NavigationToolbar2, cursors, TimerBase)
 from matplotlib.backend_bases import ShowBase
 
-from matplotlib.backends.backend_gdk import RendererGDK, FigureCanvasGDK
+from matplotlib.backends.backend_gdk import RendererGDK
 from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.colors import colorConverter
 from matplotlib.figure import Figure
@@ -48,7 +48,6 @@ from matplotlib import rcParams
 backend_version = "%d.%d.%d" % gtk.pygtk_version
 
 _debug = False
-#_debug = True
 
 # the true dots per inch on the screen; should be display dependent
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi

@@ -5,28 +5,26 @@ import six
 from six.moves import xrange
 from six import unichr
 
-import os, base64, tempfile, gzip, io, sys, codecs, re
+import base64, gzip, io, codecs, re
 
 import numpy as np
 
 from hashlib import md5
 
 from matplotlib import verbose, __version__, rcParams
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     FigureManagerBase, FigureCanvasBase
+from matplotlib.backend_bases import (RendererBase, FigureManagerBase,
+                                      FigureCanvasBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.cbook import is_string_like, is_writable_file_like, maxdict
 from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
-from matplotlib.font_manager import findfont, FontProperties
-from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
+from matplotlib.font_manager import findfont
+from matplotlib.ft2font import FT2Font, LOAD_NO_HINTING
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib.transforms import Affine2D, Affine2DBase
 from matplotlib import _png
-
-from xml.sax.saxutils import escape as escape_xml_text
 
 backend_version = __version__
 

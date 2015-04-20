@@ -2,27 +2,22 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-
 import os
 import numpy
 
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, TimerBase
-from matplotlib.backend_bases import ShowBase
+from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
+    FigureManagerBase, FigureCanvasBase, NavigationToolbar2, TimerBase,
+    ShowBase)
 
 from matplotlib.cbook import maxdict
 from matplotlib.figure import Figure
-from matplotlib.path import Path
 from matplotlib.mathtext import MathTextParser
-from matplotlib.colors import colorConverter
 from matplotlib import rcParams
-
 from matplotlib.widgets import SubplotTool
 
 import matplotlib
 from matplotlib.backends import _macosx
-
 
 class Show(ShowBase):
     def mainloop(self):

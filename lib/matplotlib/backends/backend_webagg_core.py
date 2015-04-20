@@ -13,12 +13,9 @@ Displays Agg images in the browser, with interactivity
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 import io
 import json
 import os
-import time
 import warnings
 
 import numpy as np
@@ -27,7 +24,6 @@ from matplotlib.backends import backend_agg
 from matplotlib.figure import Figure
 from matplotlib import backend_bases
 from matplotlib import _png
-
 
 def new_figure_manager(num, *args, **kwargs):
     """

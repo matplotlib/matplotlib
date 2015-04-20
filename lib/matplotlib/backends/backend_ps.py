@@ -5,21 +5,15 @@ A PostScript backend, which can produce both PostScript .ps and .eps
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import binascii, glob, io, os, re, shutil, sys, time
+from tempfile import mkstemp
+
 import six
 from six.moves import StringIO
 
-import glob, math, os, shutil, sys, time
-def _fn_name(): return sys._getframe(1).f_code.co_name
-import io
+import numpy as np
 
-try:
-    from hashlib import md5
-except ImportError:
-    from md5 import md5 #Deprecated in 2.5
-
-from tempfile import mkstemp
 from matplotlib import verbose, __version__, rcParams, checkdep_ghostscript
-from matplotlib._pylab_helpers import Gcf
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
@@ -27,32 +21,23 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
 from matplotlib.cbook import is_string_like, get_realpath_and_stat, \
     is_writable_file_like, maxdict, file_requires_unicode
 from matplotlib.figure import Figure
-
 from matplotlib.font_manager import findfont, is_opentype_cff_font
 from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
-from matplotlib.text import Text
 from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib.transforms import Affine2D
-
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 
-
-import numpy as np
-import binascii
-import re
 try:
     set
 except NameError:
     from sets import Set as set
 
 backend_version = 'Level II'
-
 debugPS = 0
-
 
 class PsBackendHelper(object):
 

@@ -4,8 +4,6 @@ Render to qt from agg
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 import sys
 import ctypes
 
@@ -15,15 +13,8 @@ from .backend_agg import FigureCanvasAgg
 from .backend_qt5 import QtCore
 from .backend_qt5 import QtGui
 from .backend_qt5 import FigureManagerQT
-from .backend_qt5 import NavigationToolbar2QT
 ##### Modified Qt5 backend import
 from .backend_qt5 import FigureCanvasQT
-##### not used
-from .backend_qt5 import show
-from .backend_qt5 import draw_if_interactive
-from .backend_qt5 import backend_version
-######
-
 
 DEBUG = False
 

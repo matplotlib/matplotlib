@@ -4,16 +4,11 @@ Render to gtk from agg
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
-import os
-
 import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.backends.backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK,\
-     show, draw_if_interactive,\
-     error_msg_gtk, PIXELS_PER_INCH, backend_version, \
+     backend_version, \
      NavigationToolbar2GTK
 from matplotlib.backends._gtkagg import agg_to_gtk_drawable
 

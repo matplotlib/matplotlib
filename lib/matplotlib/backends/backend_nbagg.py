@@ -4,7 +4,6 @@
 # that changes made maintain expected behaviour.
 
 from base64 import b64encode
-from contextlib import contextmanager
 import json
 import io
 import os
@@ -18,7 +17,6 @@ from IPython.kernel.comm import Comm
 
 from matplotlib import rcParams
 from matplotlib.figure import Figure
-from matplotlib.backends import backend_agg
 from matplotlib.backends.backend_webagg_core import (FigureManagerWebAgg,
                                                      FigureCanvasWebAggCore,
                                                      NavigationToolbar2WebAgg)

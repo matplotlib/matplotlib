@@ -5,8 +5,6 @@ Author: Steve Chaplin
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 import gtk
 if gtk.pygtk_version < (2,7,0):
     import cairo.gtk
@@ -19,7 +17,6 @@ backend_version = 'PyGTK(%d.%d.%d) ' % gtk.pygtk_version + \
 
 
 _debug = False
-#_debug = True
 
 
 def new_figure_manager(num, *args, **kwargs):
