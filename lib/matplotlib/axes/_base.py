@@ -1288,26 +1288,24 @@ class _AxesBase(martist.Artist):
     def axis(self, *v, **kwargs):
         """Set axis properties.
 
-        If no positional or kwargs are given, returns the current
-        axes limits are returned with no side effects.
+        Valid signatures::
 
-        If a positional argument is passed the keyword arguments are ignored.
-
-        If no positional argument is passed, the keyword arguments are used.
+          xmin, xmax, ymin, ymax = axis()
+          xmin, xmax, ymin, ymax = axis(list_arg)
+          xmin, xmax, ymin, ymax = axis(string_arg)
+          xmin, xmax, ymin, ymax = axis(**kwargs)
 
         Parameters
         ----------
         v : list of float or {'on', 'off', 'equal', 'tight', 'scaled',\
-         'normal', 'auto', 'image', 'square'}
+            'normal', 'auto', 'image', 'square'}
             Optional positional argument
 
-            Value to set the axis settings to.
-            If a list it is interpreted as [xmin, xmax, ymin, ymax].
-            If a string
+            Axis data limits set from a list; or a command relating to axes:
 
-                ========== ===============================================
+                ========== ================================================
                 Value      Description
-                ========== ===============================================
+                ========== ================================================
                 'on'       Toggle axis lines and labels on
                 'off'      Toggle axis lines and labels off
                 'equal'    Equal scaling by changing limits
@@ -1316,8 +1314,9 @@ class _AxesBase(martist.Artist):
                 'auto'     Automatic scaling, fill rectangle with data
                 'normal'   Same as 'auto'; deprecated
                 'image'    'scaled' with axis limits equal to data limits
-                'square'   Square plot; both axis have equal limit range
-                ========== ===============================================
+                'square'   Square plot; similar to 'scaled', but initially\
+                           forcing xmax-xmin = ymax-ymin
+                ========== ================================================
 
         emit : bool, optional
             Passed to set_{x,y}lim functions, if observers
