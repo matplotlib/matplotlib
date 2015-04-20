@@ -357,8 +357,8 @@ class Legend(Artist):
 
         self.legendPatch = FancyBboxPatch(
             xy=(0.0, 0.0), width=1., height=1.,
-            facecolor=rcParams["axes.facecolor"],
-            edgecolor=rcParams["axes.edgecolor"],
+            facecolor=facecolor,
+            edgecolor=edgecolor,
             mutation_scale=self._fontsize,
             snap=True
             )
