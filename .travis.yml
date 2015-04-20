@@ -12,9 +12,9 @@ addons:
       - texlive-latex-extra
       - texlive-fonts-recommended
       - graphviz
-      - fonts-humor-sans
-    sources:
-      - debian-sid
+#     - fonts-humor-sans
+#    sources:
+#      - debian-sid
 
 env:
   global:
