@@ -1180,8 +1180,11 @@ class AnimationSlider(object):
 
         self.axes = aax
         if not self.axes:
-            figure.subplots_adjust(bottom=0.2)
-            self.axes = figure.add_axes([0.125, 0.075, 0.78, 0.075])
+            if orientation == 'horizontal':
+                figure.subplots_adjust(bottom=0.2)
+                self.axes = figure.add_axes([0.125, 0.075, 0.78, 0.075])
+            else:
+                self.axes = figure.add_axes([0.85, 0.1, 0.075, 0.8])
 
         # Initialise the slider at the beginning with time on the main axis.
         self.slider = Slider(self.axes, label, time[0], time[-1], time[0],
