@@ -173,6 +173,17 @@ decorator:
      If some variation is expected in the image between runs, this
      value may be adjusted.
 
+Freetype version
+----------------
+
+Due to subtle differences in the font rendering under different
+version of freetype some care must be taken when generating the
+baseline images.  Currently (early 2015), almost all of the images
+were generated using ``freetype 2.5.3-21`` on Fedora 21 and only the
+fonts that ship with ``matplotlib`` (regenerated in PR #4031 / commit
+005cfde02751d274f2ab8016eddd61c3b3828446) and travis is using
+``freetype 2.4.8`` on ubuntu.
+
 Known failing tests
 -------------------
 
