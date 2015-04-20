@@ -288,7 +288,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        loc : int or string or pair of floats, default: 0
+        loc : int or string or pair of floats, default: 'upper right'
             The location of the legend. Possible codes are:
 
                 ===============   =============
