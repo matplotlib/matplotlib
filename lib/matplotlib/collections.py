@@ -1027,7 +1027,6 @@ class LineCollection(Collection):
     number of segments.
     """
 
-
     def __init__(self, segments,     # Can be None.
                  linewidths=None,
                  colors=None,
@@ -1139,6 +1138,7 @@ class LineCollection(Collection):
             _segments = self._add_offsets(_segments)
 
         self._paths = [mpath.Path(_seg) for _seg in _segments]
+        self.stale = True
 
     set_verts = set_segments  # for compatibility with PolyCollection
     set_paths = set_segments
@@ -1176,9 +1176,11 @@ class LineCollection(Collection):
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
         self.set_edgecolor(c)
+        self.stale = True
 
     def get_color(self):
         return self._edgecolors
+
     get_colors = get_color  # for compatibility with old versions
 
 
@@ -1353,6 +1355,7 @@ class EventCollection(LineCollection):
             segments[i] = np.fliplr(segment)
         self.set_segments(segments)
         self._is_horizontal = not self.is_horizontal()
+        self.stale = True
 
     def set_orientation(self, orientation=None):
         '''
