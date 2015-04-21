@@ -321,6 +321,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         gc.restore()
         renderer.close_group(self.__class__.__name__)
+        self.stale = False
 
     def set_pickradius(self, pr):
         self._pickradius = pr
@@ -370,6 +371,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._urls = [None, ]
         else:
             self._urls = urls
+        self.stale = True
 
     def get_urls(self):
         return self._urls
@@ -405,6 +407,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ACCEPTS: [ '/' | '\\\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]
         """
         self._hatch = hatch
+        self.stale = True
 
     def get_hatch(self):
         'Return the current hatching pattern'
@@ -424,6 +427,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._offsets = offsets
         else:
             self._uniform_offsets = offsets
+        self.stale = True
 
     def get_offsets(self):
         """
@@ -446,6 +450,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if offset_position not in ('screen', 'data'):
             raise ValueError("offset_position must be 'screen' or 'data'")
         self._offset_position = offset_position
+        self.stale = True
 
     def get_offset_position(self):
         """
@@ -469,6 +474,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if lw is None:
             lw = mpl.rcParams['patch.linewidth']
         self._linewidths = self._get_value(lw)
+        self.stale = True
 
     def set_linewidths(self, lw):
         """alias for set_linewidth"""
@@ -540,6 +546,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         except ValueError:
             raise ValueError('Do not know how to convert %s to dashes' % ls)
         self._linestyles = dashes
+        self.stale = True
 
     def set_linestyles(self, ls):
         """alias for set_linestyle"""
@@ -558,6 +565,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if aa is None:
             aa = mpl.rcParams['patch.antialiased']
         self._antialiaseds = self._get_bool(aa)
+        self.stale = True
 
     def set_antialiaseds(self, aa):
         """alias for set_antialiased"""
@@ -598,6 +606,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             c = mpl.rcParams['patch.facecolor']
         self._facecolors_original = c
         self._facecolors = mcolors.colorConverter.to_rgba_array(c, self._alpha)
+        self.stale = True
 
     def set_facecolors(self, c):
         """alias for set_facecolor"""
@@ -644,6 +653,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             c = mpl.rcParams['patch.edgecolor']
         self._edgecolors_original = c
         self._edgecolors = mcolors.colorConverter.to_rgba_array(c, self._alpha)
+        self.stale = True
 
     def set_edgecolors(self, c):
         """alias for set_edgecolor"""
@@ -697,6 +707,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._facecolors = self.to_rgba(self._A, self._alpha)
         elif self._is_stroked:
             self._edgecolors = self.to_rgba(self._A, self._alpha)
+        self.stale = True
 
     def get_fill(self):
         'return whether fill is set'
@@ -721,7 +732,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.norm = other.norm
         self.cmap = other.cmap
         # self.update_dict = other.update_dict # do we need to copy this? -JJL
-
+        self.stale = True
 
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init
