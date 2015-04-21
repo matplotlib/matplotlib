@@ -801,6 +801,7 @@ class _CollectionWithSizes(Collection):
             self._transforms[:, 0, 0] = scale
             self._transforms[:, 1, 1] = scale
             self._transforms[:, 2, 2] = 1.0
+        self.stale = True
 
     @allow_rasterization
     def draw(self, renderer):
