@@ -56,6 +56,10 @@ install:
     if [[ $BUILD_DOCS == true ]]; then
       pip install numpydoc linkchecker ipython jsonschema mistune
       wget https://googlefontdirectory.googlecode.com/hg/ofl/felipa/Felipa-Regular.ttf
+      wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
+      mkdir -p tmp
+      dpkg -x fonts-humor-sans_1.0-1_all.deb tmp
+      cp tmp/usr/share/fonts/truetype/humor-sans/Humor-Sans.ttf ~/.local/share/fonts/
       cp Felipa-Regular.ttf ~/.local/share/fonts/
       fc-cache -f -v
     fi;
