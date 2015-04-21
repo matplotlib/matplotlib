@@ -825,9 +825,11 @@ class PathCollection(_CollectionWithSizes):
         Collection.__init__(self, **kwargs)
         self.set_paths(paths)
         self.set_sizes(sizes)
+        self.stale = True
 
     def set_paths(self, paths):
         self._paths = paths
+        self.stale = True
 
     def get_paths(self):
         return self._paths
