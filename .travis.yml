@@ -73,7 +73,6 @@ script:
   - echo Testing using $NPROC processes
   # Generate the font caches in a single process before starting the
   # multiple processes
-  - gcc --version
   - python -c "from matplotlib import font_manager"
   - |
     if [[ $BUILD_DOCS == false ]]; then
