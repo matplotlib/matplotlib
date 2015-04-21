@@ -859,6 +859,7 @@ class PolyCollection(_CollectionWithSizes):
         Collection.__init__(self, **kwargs)
         self.set_sizes(sizes)
         self.set_verts(verts, closed)
+        self.stale = True
 
     def set_verts(self, verts, closed=True):
         '''This allows one to delay initialization of the vertices.'''
@@ -883,6 +884,7 @@ class PolyCollection(_CollectionWithSizes):
                     self._paths.append(mpath.Path(xy))
         else:
             self._paths = [mpath.Path(xy) for xy in verts]
+        self.stale = True
 
     set_paths = set_verts
 
