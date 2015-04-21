@@ -1729,6 +1729,7 @@ class QuadMesh(Collection):
     def set_paths(self):
         self._paths = self.convert_mesh_to_paths(
             self._meshWidth, self._meshHeight, self._coordinates)
+        self.stale = True
 
     def get_datalim(self, transData):
         return (self.get_transform() - transData).transform_bbox(self._bbox)
@@ -1852,6 +1853,7 @@ class QuadMesh(Collection):
                 self._antialiased, self.get_edgecolors())
         gc.restore()
         renderer.close_group(self.__class__.__name__)
+        self.stale = False
 
 
 patchstr = artist.kwdoc(Collection)
