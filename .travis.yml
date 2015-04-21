@@ -27,6 +27,7 @@ env:
     - BUILD_DOCS=false
     - TEST_ARGS=--no-pep8
     - NUMPY=numpy
+    - NPROC=2
 
 language: python
 
@@ -69,7 +70,7 @@ script:
   # The number of processes is hardcoded, because using too many causes the
   # Travis VM to run out of memory (since so many copies of inkscape and
   # ghostscript are running at the same time).
-  - echo Testing using 8 processes
+  - echo Testing using $NPROC processes
   # Generate the font caches in a single process before starting the
   # multiple processes
   - gcc --version
@@ -79,7 +80,7 @@ script:
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
       mkdir ../tmp_test_dir
       cd ../tmp_test_dir
-      gdb -return-child-result -batch -ex r -ex bt --args python ../matplotlib/tests.py -sv --processes=2 --process-timeout=300 $TEST_ARGS
+      gdb -return-child-result -batch -ex r -ex bt --args python ../matplotlib/tests.py -sv --processes=$NPROC --process-timeout=300 $TEST_ARGS
     else
       cd doc
       python make.py html --small --warningsaserrors
