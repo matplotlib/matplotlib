@@ -23,6 +23,10 @@ from matplotlib import default_test_modules
 def run(extra_args):
     from nose.plugins import multiprocess
 
+    env = {"NOSE_WITH_COVERAGE": 1,
+           'NOSE_COVER_PACKAGE': 'matplotlib',
+           'NOSE_COVER_HTML': 1}
+
     matplotlib._init_tests()
 
     # Nose doesn't automatically instantiate all of the plugins in the
@@ -33,8 +37,8 @@ def run(extra_args):
 
     nose.main(addplugins=[x() for x in plugins],
               defaultTest=default_test_modules,
-              argv=sys.argv + extra_args)
-
+              argv=sys.argv + extra_args,
+              env=env)
 
 if __name__ == '__main__':
     extra_args = []
