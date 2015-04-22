@@ -45,7 +45,6 @@ matrix:
 
 install:
   - pip install -q --use-mirrors nose python-dateutil $NUMPY pep8 pyparsing pillow sphinx!=1.3.0
-    # We use --no-install-recommends to avoid pulling in additional large latex docs that we don't need
 
   # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
   # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
@@ -56,7 +55,7 @@ install:
   - |
     if [[ $BUILD_DOCS == true ]]; then
       pip install numpydoc linkchecker ipython jsonschema mistune
-      wget https://googlefontdirectory.googlecode.com/hg/ofl/felipa/Felipa-Regular.ttf
+      wget https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true
       wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
       mkdir -p tmp
       dpkg -x fonts-humor-sans_1.0-1_all.deb tmp
