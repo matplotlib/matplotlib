@@ -1,0 +1,10 @@
+[run]
+source=matplotlib
+[report]
+omit =
+    */python?.?/*
+    */site-packages/nose/*
+    *test*
+
+exclude_lines =
+    raise NotImplemented
