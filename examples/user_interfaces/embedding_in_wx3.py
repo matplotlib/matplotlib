@@ -21,9 +21,11 @@ Thanks to matplotlib and wx teams for creating such great software!
 """
 from __future__ import print_function
 
-# Used to guarantee to use at least Wx2.8
-import wxversion
-wxversion.ensureMinimal('2.8')
+# matplotlib requires wxPython 2.8+
+# set the wxPython version in lib\site-packages\wx.pth file
+# or if you have wxversion installed un-comment the lines below
+#import wxversion
+#wxversion.ensureMinimal('2.8')
 
 import sys
 import time
@@ -54,7 +56,7 @@ class PlotPanel(wx.Panel):
         self.canvas = FigureCanvasWxAgg(self, -1, self.fig)
         self.toolbar = Toolbar(self.canvas)  # matplotlib toolbar
         self.toolbar.Realize()
-        #self.toolbar.set_active([0,1])
+        # self.toolbar.set_active([0,1])
 
         # Now put all into a sizer
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -68,8 +70,8 @@ class PlotPanel(wx.Panel):
     def init_plot_data(self):
         a = self.fig.add_subplot(111)
 
-        x = np.arange(120.0)*2*np.pi/60.0
-        y = np.arange(100.0)*2*np.pi/50.0
+        x = np.arange(120.0) * 2 * np.pi / 60.0
+        y = np.arange(100.0) * 2 * np.pi / 50.0
         self.x, self.y = np.meshgrid(x, y)
         z = np.sin(self.x) + np.cos(self.y)
         self.im = a.imshow(z, cmap=cm.jet)  # , interpolation='nearest')
@@ -88,8 +90,8 @@ class PlotPanel(wx.Panel):
         return self.toolbar
 
     def OnWhiz(self, evt):
-        self.x += np.pi/15
-        self.y += np.pi/20
+        self.x += np.pi / 15
+        self.y += np.pi / 20
         z = np.sin(self.x) + np.cos(self.y)
         self.im.set_array(z)
 
@@ -108,7 +110,8 @@ class PlotPanel(wx.Panel):
 
 class MyApp(wx.App):
     def OnInit(self):
-        xrcfile = cbook.get_sample_data('embedding_in_wx3.xrc', asfileobj=False)
+        xrcfile = cbook.get_sample_data('embedding_in_wx3.xrc',
+                                        asfileobj=False)
         print('loading', xrcfile)
 
         self.res = xrc.XmlResource(xrcfile)
@@ -134,19 +137,14 @@ class MyApp(wx.App):
         plot_container.SetSizer(sizer)
 
         # whiz button ------------------
-
         whiz_button = xrc.XRCCTRL(self.frame, "whiz_button")
-        wx.EVT_BUTTON(whiz_button, whiz_button.GetId(),
-                      self.plotpanel.OnWhiz)
+        whiz_button.Bind(wx.EVT_BUTTON, self.plotpanel.OnWhiz)
 
         # bang button ------------------
-
         bang_button = xrc.XRCCTRL(self.frame, "bang_button")
-        wx.EVT_BUTTON(bang_button, bang_button.GetId(),
-                      self.OnBang)
+        bang_button.Bind(wx.EVT_BUTTON, self.OnBang)
 
         # final setup ------------------
-
         sizer = self.panel.GetSizer()
         self.frame.Show(1)
 
