@@ -2661,7 +2661,7 @@ class Axes(_AxesBase):
             before :meth:`errorbar`.
 
           *errorevery*: positive integer
-            subsamples the errorbars. e.g., if everyerror=5, errorbars for
+            subsamples the errorbars. e.g., if errorevery=5, errorbars for
             every 5-th datapoint will be plotted. The data plot itself still
             shows all data points.
 
