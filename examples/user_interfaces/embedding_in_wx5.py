@@ -1,9 +1,19 @@
-# Used to guarantee to use at least Wx2.8
-import wxversion
-wxversion.ensureMinimal('2.8')
+#!/usr/bin/env python
+
+# matplotlib requires wxPython 2.8+
+# set the wxPython version in lib\site-packages\wx.pth file
+# or if you have wxversion installed un-comment the lines below
+#import wxversion
+#wxversion.ensureMinimal('2.8')
 
 import wx
-import wx.aui
+import wx.lib.mixins.inspection as wit
+
+if 'phoenix' in wx.PlatformInfo:
+    import wx.lib.agw.aui as aui
+else:
+    import wx.aui as aui
+
 import matplotlib as mpl
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as Canvas
 from matplotlib.backends.backend_wxagg import NavigationToolbar2Wx as Toolbar
@@ -26,7 +36,7 @@ class Plot(wx.Panel):
 class PlotNotebook(wx.Panel):
     def __init__(self, parent, id=-1):
         wx.Panel.__init__(self, parent, id=id)
-        self.nb = wx.aui.AuiNotebook(self)
+        self.nb = aui.AuiNotebook(self)
         sizer = wx.BoxSizer()
         sizer.Add(self.nb, 1, wx.EXPAND)
         self.SetSizer(sizer)
@@ -38,15 +48,17 @@ class PlotNotebook(wx.Panel):
 
 
 def demo():
-    app = wx.PySimpleApp()
+    # alternatively you could use
+    #app = wx.App()
+    # InspectableApp is a great debug tool, see:
+    # http://wiki.wxpython.org/Widget%20Inspection%20Tool
+    app = wit.InspectableApp()
     frame = wx.Frame(None, -1, 'Plotter')
     plotter = PlotNotebook(frame)
     axes1 = plotter.add('figure 1').gca()
     axes1.plot([1, 2, 3], [2, 1, 4])
     axes2 = plotter.add('figure 2').gca()
     axes2.plot([1, 2, 3, 4, 5], [2, 1, 4, 2, 3])
-    #axes1.figure.canvas.draw()
-    #axes2.figure.canvas.draw()
     frame.Show()
     app.MainLoop()
 

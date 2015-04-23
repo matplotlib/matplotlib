@@ -1,16 +1,16 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 import matplotlib
 from matplotlib.figure import Figure
 
 from .backend_agg import FigureCanvasAgg
-from . import backend_wx    # already uses wxversion.ensureMinimal('2.8')
-from .backend_wx import FigureManagerWx, FigureCanvasWx, \
-    FigureFrameWx, DEBUG_MSG, NavigationToolbar2Wx, error_msg_wx, \
-    draw_if_interactive, show, Toolbar, backend_version
+
+from . import wx_compat as wxc
+from . import backend_wx
+from .backend_wx import (FigureManagerWx, FigureCanvasWx,
+    FigureFrameWx, DEBUG_MSG, NavigationToolbar2Wx, Toolbar)
+
 import wx
 
 
@@ -19,7 +19,7 @@ class FigureFrameWxAgg(FigureFrameWx):
         return FigureCanvasWxAgg(self, -1, fig)
 
     def _get_toolbar(self, statbar):
-        if matplotlib.rcParams['toolbar']=='toolbar2':
+        if matplotlib.rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2WxAgg(self.canvas)
             toolbar.set_status_bar(statbar)
         else:
@@ -47,7 +47,7 @@ class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
 
         self.bitmap = _convert_agg_to_wx_bitmap(self.get_renderer(), None)
         self._isDrawn = True
-        self.gui_repaint(drawDC=drawDC)
+        self.gui_repaint(drawDC=drawDC, origin='WXAgg')
 
     def blit(self, bbox=None):
         """
@@ -72,9 +72,7 @@ class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
         destDC = wx.MemoryDC()
         destDC.SelectObject(self.bitmap)
 
-        destDC.BeginDrawing()
         destDC.Blit(x, y, int(w), int(h), srcDC, x, y)
-        destDC.EndDrawing()
 
         destDC.SelectObject(wx.NullBitmap)
         srcDC.SelectObject(wx.NullBitmap)
@@ -112,6 +110,7 @@ def new_figure_manager(num, *args, **kwargs):
 
     return new_figure_manager_given_figure(num, fig)
 
+
 def new_figure_manager_given_figure(num, figure):
     """
     Create a new figure manager instance for the given figure.
@@ -136,7 +135,7 @@ def _convert_agg_to_wx_image(agg, bbox):
     """
     if bbox is None:
         # agg => rgb -> image
-        image = wx.EmptyImage(int(agg.width), int(agg.height))
+        image = wxc.EmptyImage(int(agg.width), int(agg.height))
         image.SetData(agg.tostring_rgb())
         return image
     else:
@@ -153,8 +152,8 @@ def _convert_agg_to_wx_bitmap(agg, bbox):
     """
     if bbox is None:
         # agg => rgba buffer -> bitmap
-        return wx.BitmapFromBufferRGBA(int(agg.width), int(agg.height),
-            agg.buffer_rgba())
+        return wxc.BitmapFromBuffer(int(agg.width), int(agg.height),
+                                    agg.buffer_rgba())
     else:
         # agg => rgba buffer -> bitmap => clipped bitmap
         return _WX28_clipped_agg_as_bitmap(agg, bbox)
@@ -170,20 +169,18 @@ def _WX28_clipped_agg_as_bitmap(agg, bbox):
     r = l + width
     t = b + height
 
-    srcBmp = wx.BitmapFromBufferRGBA(int(agg.width), int(agg.height),
-        agg.buffer_rgba())
+    srcBmp = wxc.BitmapFromBuffer(int(agg.width), int(agg.height),
+                                  agg.buffer_rgba())
     srcDC = wx.MemoryDC()
     srcDC.SelectObject(srcBmp)
 
-    destBmp = wx.EmptyBitmap(int(width), int(height))
+    destBmp = wxc.EmptyBitmap(int(width), int(height))
     destDC = wx.MemoryDC()
     destDC.SelectObject(destBmp)
 
-    destDC.BeginDrawing()
     x = int(l)
     y = int(int(agg.height) - t)
     destDC.Blit(0, 0, int(width), int(height), srcDC, x, y)
-    destDC.EndDrawing()
 
     srcDC.SelectObject(wx.NullBitmap)
     destDC.SelectObject(wx.NullBitmap)
