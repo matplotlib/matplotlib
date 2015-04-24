@@ -3026,6 +3026,9 @@ class Axes(_AxesBase):
             *meanprops*. Not recommended if *shownotches* is also True.
             Otherwise, means will be shown as points.
 
+          manage_xticks : bool, default = True
+            If the function should adjust the xlim and xtick locations.
+
         Returns
         -------
 
