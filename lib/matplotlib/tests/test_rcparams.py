@@ -9,6 +9,7 @@ import sys
 import warnings
 
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 from matplotlib.tests import assert_str_equal
 from matplotlib.testing.decorators import cleanup, knownfailureif
 from nose.tools import assert_true, assert_raises, assert_equal
@@ -179,6 +180,25 @@ def test_Bug_2543_newer_python():
     with assert_raises(ValueError):
         with mpl.rc_context():
             mpl.rcParams['svg.fonttype'] = True
+
+
+@cleanup
+def test_legend_facecolor():
+    with mpl.rc_context({'legend.facecolor': 'r'}):
+        _, ax = plt.subplots()
+        ax.plot(range(3), label='test')
+        leg = ax.legend()
+        assert_equal(leg.legendPatch.get_facecolor(), (1, 0, 0, 1))
+
+
+@cleanup
+def test_legend_edgecolor():
+    with mpl.rc_context({'legend.edgecolor': 'r'}):
+        _, ax = plt.subplots()
+        ax.plot(range(3), label='test')
+        leg = ax.legend()
+        assert_equal(leg.legendPatch.get_edgecolor(), (1, 0, 0, 1))
+
 
 def test_Issue_1713():
     utf32_be = os.path.join(os.path.dirname(__file__),
