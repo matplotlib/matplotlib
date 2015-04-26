@@ -12,6 +12,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.tests import assert_str_equal
 from matplotlib.testing.decorators import cleanup, knownfailureif
+import matplotlib.colors as mcolors
 from nose.tools import assert_true, assert_raises, assert_equal
 from nose.plugins.skip import SkipTest
 import nose
@@ -183,21 +184,46 @@ def test_Bug_2543_newer_python():
 
 
 @cleanup
+def _legend_rcparam_helper(param_dict, target, get_func):
+    with mpl.rc_context(param_dict):
+        _, ax = plt.subplots()
+        ax.plot(range(3), label='test')
+        leg = ax.legend()
+        assert_equal(getattr(leg.legendPatch, get_func)(), target)
+
+
 def test_legend_facecolor():
-    with mpl.rc_context({'legend.facecolor': 'r'}):
-        _, ax = plt.subplots()
-        ax.plot(range(3), label='test')
-        leg = ax.legend()
-        assert_equal(leg.legendPatch.get_facecolor(), (1, 0, 0, 1))
+    get_func = 'get_facecolor'
+    rcparam = 'legend.facecolor'
+    test_values = [({rcparam: 'r'},
+                    mcolors.colorConverter.to_rgba('r')),
+                   ({rcparam: 'inherit',
+                     'axes.facecolor': 'r'
+                     },
+                    mcolors.colorConverter.to_rgba('r')),
+                   ({rcparam: 'g',
+                     'axes.facecolor': 'r'},
+                   mcolors.colorConverter.to_rgba('g'))
+                   ]
+    for rc_dict, target in test_values:
+        yield _legend_rcparam_helper, rc_dict, target, get_func
 
 
-@cleanup
 def test_legend_edgecolor():
-    with mpl.rc_context({'legend.edgecolor': 'r'}):
-        _, ax = plt.subplots()
-        ax.plot(range(3), label='test')
-        leg = ax.legend()
-        assert_equal(leg.legendPatch.get_edgecolor(), (1, 0, 0, 1))
+    get_func = 'get_edgecolor'
+    rcparam = 'legend.edgecolor'
+    test_values = [({rcparam: 'r'},
+                    mcolors.colorConverter.to_rgba('r')),
+                   ({rcparam: 'inherit',
+                     'axes.edgecolor': 'r'
+                     },
+                    mcolors.colorConverter.to_rgba('r')),
+                   ({rcparam: 'g',
+                     'axes.facecolor': 'r'},
+                   mcolors.colorConverter.to_rgba('g'))
+                   ]
+    for rc_dict, target in test_values:
+        yield _legend_rcparam_helper, rc_dict, target, get_func
 
 
 def test_Issue_1713():
