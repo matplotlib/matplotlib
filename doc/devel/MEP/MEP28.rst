@@ -27,9 +27,8 @@ Status
 Branches and Pull requests
 ==========================
 
-Possibly related:
-
-*  https://github.com/matplotlib/matplotlib/issues/1109
+* `Issue 1109 <https://github.com/matplotlib/matplotlib/issues/1109>`_
+* `Initial thread (mailing list) <https://www.mail-archive.com/matplotlib-devel%40lists.sourceforge.net/msg11325.html>`_
 
 
 Abstract
@@ -97,15 +96,24 @@ should allow to specify moderately complex subplots.
 
 
 
-
 Implementation
 ==============
+
+Note: Implementation probably requires a geometry manager able to enforce
+      constraints but it is not yet clear if a full geometry manager is
+      required (constraints might realtively easy to solve).
+
 
 
 Backward compatibility
 ======================
 
+No backward compatibility since this MEP proposes a new method.
 
 
 Alternatives
 ============
+
+* `Axes <http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.axes>`_
+* `Subplot <http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.subplot>`_
+* `GridSpec <http://matplotlib.org/users/gridspec.html>`_
