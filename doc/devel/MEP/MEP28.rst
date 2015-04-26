@@ -99,10 +99,9 @@ should allow to specify moderately complex subplots.
 Implementation
 ==============
 
-Note: Implementation probably requires a geometry manager able to enforce
-      constraints but it is not yet clear if a full geometry manager is
-      required (constraints might realtively easy to solve).
-
+**Note**: Implementation probably requires a geometry manager able to enforce
+constraints but it is not yet clear if a full geometry manager is required
+(constraints might be relatively easy to solve).
 
 
 Backward compatibility
