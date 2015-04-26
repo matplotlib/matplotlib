@@ -4198,6 +4198,7 @@ class FancyArrowPatch(Patch):
                 renderer.draw_path(gc, p, affine, None)
 
         gc.restore()
+
         renderer.close_group('patch')
 
 
