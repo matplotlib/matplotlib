@@ -46,8 +46,11 @@ function. This ``subplot`` function is rather unintuitive and makes it
 difficult to specify moderately complex subplots. There are alternatives, some
 of them very powerful, but they generally require a lot of code to specifiy
 precisely the layout. There might be room for an in-between method that rely on
-the graphical description of the layout. It can cover all ``subplot``cases and
+the graphical description of the layout. It can cover all ``subplot`` cases and
 should allow to specify moderately complex subplots.
+
+Examples
+--------
 
 ::
 
@@ -93,6 +96,46 @@ should allow to specify moderately complex subplots.
   │ ││       ││       ││       ││ │
   │ ││       ││       ││       ││ │
   └─┘└───────┘└───────┘└───────┘└─┘
+
+
+Syntax
+------
+
+A subplot is described using a capital letter, from ``A`` to ``Z``, hence only
+26 subplots can be specified. Colorbars are specified using non-capital
+letters, from ``a`` to ``z``. The main command is the ``layout`` command that
+returns a list of axes (subplots and colorbars) following the lexicographic
+order, mixing capital and small letters. For example::
+
+  A,B,C = layout("ABC")
+  A,B,b = layout("ABb")
+
+A layout can span several lines. In such a case, it is necessary the specify the
+layout using an array of strings::
+
+  A,B = layout(["A",
+                "B"])
+
+The size of a subplot is relative to the size of its string representation, a
+single letter representing the logical unit. For example::
+
+
+  A,B = layout("AAB")
+
+means ``A`` is two logical block wide while ``B`` is one logical block
+wide. The final result should be ``A`` width to be 2/3 while ``B`` width should
+be 1/3.
+
+Colorbars can be specified using a small letter and has either a fixed width
+(vertical colorbar) or a fixed height (horizontal colorbar). For examples::
+
+  A,a = layout("Aa")
+
+The exact width of the colorbar must be specified throught matplotlib
+configuration tools or within the ``layout`` call::
+
+  A,a = layout("Aa", {"a.width" : 1*em} )
+
 
 
 
