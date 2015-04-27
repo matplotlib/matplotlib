@@ -14,13 +14,10 @@ User's Guide
 
     intro.rst
     configuration.rst
+    cycler.rst
     beginner.rst
     developer.rst
     whats_new.rst
     github_stats.rst
     license.rst
     credits.rst
-
-
-
-

@@ -43,6 +43,7 @@ except ImportError:
     extensions.append('matplotlib.sphinxext.ipython_console_highlighting')
 else:
     print("Using IPython's ipython_console_highlighting directive")
+    extensions.append('IPython.sphinxext.ipython_directive')
     extensions.append('IPython.sphinxext.ipython_console_highlighting')
 
 try:
