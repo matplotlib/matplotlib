@@ -2,7 +2,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from itertools import product, cycle
+from itertools import product
 from six.moves import zip
 from operator import mul
 import copy
@@ -58,37 +58,12 @@ class Cycler(object):
     def keys(self):
         return set(self._keys)
 
-    def finite_iter(self):
-        """
-        Return a finite iterator over the configurations in
-        this cycle.
-        """
-        if self._right is None:
-            try:
-                return self._left.finite_iter()
-            except AttributeError:
-                return iter(self._left)
-        return self._compose()
-
-    def to_list(self):
-        """
-        Return a list of the dictionaries yielded by
-        this Cycler.
-
-        Returns
-        -------
-        cycle : list
-            All of the dictionaries yielded by this Cycler in order.
-        """
-        return list(self.finite_iter())
-
     def _compose(self):
         """
         Compose the 'left' and 'right' components of this cycle
         with the proper operation (zip or product as of now)
         """
-        for a, b in self._op(self._left.finite_iter(),
-                             self._right.finite_iter()):
+        for a, b in self._op(self._left, self._right):
             out = dict()
             out.update(a)
             out.update(b)
@@ -120,7 +95,10 @@ class Cycler(object):
         return ret
 
     def __iter__(self):
-        return cycle(self.finite_iter())
+        if self._right is None:
+            return iter(self._left)
+
+        return self._compose()
 
     def __add__(self, other):
         return Cycler(self, other, zip)
@@ -156,7 +134,7 @@ class Cycler(object):
         op_map = {zip: '+', product: '*'}
         if self._right is None:
             lab = self.keys.pop()
-            itr = list(v[lab] for v in self.finite_iter())
+            itr = list(v[lab] for v in self)
             return "cycler({lab!r}, {itr!r})".format(lab=lab, itr=itr)
         else:
             op = op_map.get(self._op, '?')
@@ -192,6 +170,6 @@ def cycler(label, itr):
             return copy.copy(itr)
         else:
             lab = keys.pop()
-            itr = list(v[lab] for v in itr.finite_iter())
+            itr = list(v[lab] for v in itr)
 
     return Cycler._from_iter(label, itr)

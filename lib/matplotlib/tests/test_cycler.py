@@ -11,8 +11,7 @@ from operator import add, iadd, mul, imul
 
 def _cycler_helper(c, length, keys, values):
     assert_equal(len(c), length)
-    assert_equal(len(c), len(list(c.finite_iter())))
-    assert_equal(len(c), len(c.to_list()))
+    assert_equal(len(c), len(list(c)))
     assert_equal(c.keys, set(keys))
 
     for k, vals in zip(keys, values):
