@@ -43,6 +43,7 @@ def _process_text_args(override, fontdict=None, **kwargs):
     override.update(kwargs)
     return override
 
+
 @contextlib.contextmanager
 def _wrap_text(textobj):
     """
