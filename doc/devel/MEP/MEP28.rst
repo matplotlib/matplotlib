@@ -1,6 +1,6 @@
-===================
- MEP28: Text layout
-===================
+=======================================================
+ MEP28: Semi-graphical specification of subplots layout
+=======================================================
 
 .. contents::
    :local:
@@ -127,7 +127,7 @@ wide. The final result should be ``A`` width to be 2/3 while ``B`` width should
 be 1/3.
 
 Colorbars can be specified using a small letter and has either a fixed width
-(vertical colorbar) or a fixed height (horizontal colorbar). For examples::
+(vertical colorbar) or a fixed height (horizontal colorbar). For example::
 
   A,a = layout("Aa")
 
@@ -142,7 +142,7 @@ Subplots
 --------
 
 It is not yet clear how subplot aspects can be specified and how this
-constrains the overall layout. We need more example.
+constrains the overall layout. We need more examples.
 
 
 Implementation
