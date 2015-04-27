@@ -101,11 +101,11 @@ Examples
 Syntax
 ------
 
-A subplot is described using a capital letter, from ``A`` to ``Z``, hence only
-26 subplots can be specified. Colorbars are specified using non-capital
-letters, from ``a`` to ``z``. The main command is the ``layout`` command that
-returns a list of axes (subplots and colorbars) following the lexicographic
-order, mixing capital and small letters. For example::
+A subplot is described using a capital letter, from ``A`` to ``Z`` such that
+only 26 subplots can be specified at once. Colorbars are specified using
+non-capital letters, from ``a`` to ``z``. The main command is the ``layout``
+command that returns a list of axes (subplots and colorbars) following the
+lexicographic order, mixing capital and small letters. For example::
 
   A,B,C = layout("ABC")
   A,B,b = layout("ABb")
@@ -131,12 +131,18 @@ Colorbars can be specified using a small letter and has either a fixed width
 
   A,a = layout("Aa")
 
-The exact width of the colorbar must be specified throught matplotlib
-configuration tools or within the ``layout`` call::
+The exact width or height of colorbars must be specified throught matplotlib
+properties. The difficulty being the attachment of the colorbar to the right
+figure. In the example above, the size of ``A`` should be 1 minus the fixed
+width of the colorbar and the colorbar ``a`` should be attached to the right
+side of ``A``.
 
-  A,a = layout("Aa", {"a.width" : 1*em} )
 
+Subplots
+--------
 
+It is not yet clear how subplot aspects can be specified and how this
+constrains the overall layout. We need more example.
 
 
 Implementation
