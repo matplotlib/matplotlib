@@ -318,20 +318,18 @@ class Text(Artist):
 
         # Find full vertical extent of font,
         # including ascenders and descenders:
-        tmp, lp_h, lp_bl = renderer.get_text_width_height_descent(
-            'lp',
-            self._fontproperties,
-            ismath=False)
+        tmp, lp_h, lp_bl = renderer.get_text_width_height_descent('lp',
+                                                         self._fontproperties,
+                                                         ismath=False)
         offsety = (lp_h - lp_bl) * self._linespacing
 
         baseline = 0
         for i, line in enumerate(lines):
             clean_line, ismath = self.is_math_text(line)
             if clean_line:
-                w, h, d = renderer.get_text_width_height_descent(
-                    clean_line,
-                    self._fontproperties,
-                    ismath=ismath)
+                w, h, d = renderer.get_text_width_height_descent(clean_line,
+                                                        self._fontproperties,
+                                                        ismath=ismath)
             else:
                 w, h, d = 0, 0, 0
 
@@ -473,12 +471,12 @@ class Text(Artist):
             bbox_transmuter = props.pop("bbox_transmuter", None)
 
             self._bbox_patch = FancyBboxPatch(
-                (0., 0.),
-                1., 1.,
-                boxstyle=boxstyle,
-                bbox_transmuter=bbox_transmuter,
-                transform=mtransforms.IdentityTransform(),
-                **props)
+                                    (0., 0.),
+                                    1., 1.,
+                                    boxstyle=boxstyle,
+                                    bbox_transmuter=bbox_transmuter,
+                                    transform=mtransforms.IdentityTransform(),
+                                    **props)
             self._bbox = None
         else:
             self._bbox_patch = None
@@ -912,7 +910,7 @@ class Text(Artist):
         the value used when saving the figure, then the value that
         was used must be specified as the *dpi* argument.
         '''
-        # return _unit_box
+        #return _unit_box
         if not self.get_visible():
             return Bbox.unit()
         if dpi is not None:
@@ -1323,7 +1321,7 @@ class TextWithDash(Text):
         self._dashpad = dashpad
         self._dashpush = dashpush
 
-        # self.set_bbox(dict(pad=0))
+        #self.set_bbox(dict(pad=0))
 
     def get_position(self):
         "Return the position of the text as a tuple (*x*, *y*)"
@@ -1763,7 +1761,7 @@ class _AnnotationBase(object):
         if isinstance(self.xycoords, tuple):
             s1, s2 = self.xycoords
             if ((is_string_like(s1) and s1.split()[0] == "offset") or
-                    (is_string_like(s2) and s2.split()[0] == "offset")):
+                  (is_string_like(s2) and s2.split()[0] == "offset")):
                 raise ValueError("xycoords should not be an offset coordinate")
             x, y = self.xy
             x1, y1 = self._get_xy(renderer, x, y, s1)
@@ -1775,7 +1773,7 @@ class _AnnotationBase(object):
         else:
             x, y = self.xy
             return self._get_xy(renderer, x, y, self.xycoords)
-        # raise RuntimeError("must be defined by the derived class")
+        #raise RuntimeError("must be defined by the derived class")
 
     # def _get_bbox(self, renderer):
     #     if hasattr(bbox, "bounds"):
@@ -2079,7 +2077,7 @@ class Annotation(Text, _AnnotationBase):
             # Use FancyArrowPatch if self.arrowprops has "arrowstyle" key.
             # Otherwise, fallback to YAArrow.
 
-            # if d.has_key("arrowstyle"):
+            #if d.has_key("arrowstyle"):
             if self.arrow_patch:
 
                 # adjust the starting point of the arrow relative to
