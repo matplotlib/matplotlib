@@ -112,7 +112,7 @@ class Legend(Artist):
 
     The location codes are::
 
-      'best'         : 0, (only implemented for axis legends)
+      'best'         : 0, (only implemented for axes legends)
       'upper right'  : 1,
       'upper left'   : 2,
       'lower left'   : 3,
@@ -128,7 +128,7 @@ class Legend(Artist):
     respect its parent.
 
     """
-    codes = {'best':         0,  # only implemented for axis legends
+    codes = {'best':         0,  # only implemented for axes legends
              'upper right':  1,
              'upper left':   2,
              'lower left':   3,
