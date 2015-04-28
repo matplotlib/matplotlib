@@ -29,6 +29,7 @@ Branches and Pull requests
 
 * `Issue 1109 <https://github.com/matplotlib/matplotlib/issues/1109>`_
 * `Initial thread (mailing list) <https://www.mail-archive.com/matplotlib-devel%40lists.sourceforge.net/msg11325.html>`_
+* `MEP28 PR <https://github.com/matplotlib/matplotlib/pull/4384>`_
 
 
 Abstract
@@ -134,20 +135,28 @@ Colorbars can be specified using a small letter and has either a fixed width
 
 The exact width or height of colorbars must be specified throught matplotlib
 properties. The difficulty being the attachment of the colorbar to the right
-figure. In the example above, the size of ``A`` should be 1 minus the fixed
-width of the colorbar and the colorbar ``a`` should be attached to the right
-side of ``A``.
+figure. In the example above, the size of ``A`` should be logical block and the
+colorbar ``a`` should be attached to the right side of ``A``.
+
+  A,a,B = layout("AaB")
+
+In such a case, ``A`` and ``B`` size is one logical block and ``a`` should be
+attached to the right side of ``A``.
 
 
-Subplots
---------
+
+
+Subplot aspects
+---------------
 
 It is not yet clear how subplot aspects can be specified and how this
-constrains the overall layout. We need more examples.
+would constrain the overall layout. We need more examples.
 
 
 Implementation
 ==============
+
+
 
 **Note**: Implementation probably requires a geometry manager able to enforce
 constraints but it is not yet clear if a full geometry manager is required
