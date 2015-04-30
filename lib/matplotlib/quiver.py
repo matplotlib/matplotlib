@@ -528,6 +528,7 @@ class Quiver(mcollections.PolyCollection):
         self.set_verts(verts, closed=False)
         self._new_UV = False
         mcollections.PolyCollection.draw(self, renderer)
+        self.stale = False
 
     def set_UVC(self, U, V, C=None):
         # We need to ensure we have a copy, not a reference
@@ -548,6 +549,7 @@ class Quiver(mcollections.PolyCollection):
         if C is not None:
             self.set_array(C)
         self._new_UV = True
+        self.stale = True
 
     def _dots_per_unit(self, units):
         """
