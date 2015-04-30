@@ -546,6 +546,7 @@ class PaddedBox(OffsetBox):
             c.draw(renderer)
 
         #bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        self.stale = False
 
     def update_frame(self, bbox, fontsize=None):
         self.patch.set_bounds(bbox.x0, bbox.y0,
@@ -553,6 +554,7 @@ class PaddedBox(OffsetBox):
 
         if fontsize:
             self.patch.set_mutation_scale(fontsize)
+        self.stale = True
 
     def draw_frame(self, renderer):
         # update the location and size of the legend
