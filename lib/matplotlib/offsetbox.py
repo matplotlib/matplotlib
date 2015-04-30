@@ -716,6 +716,7 @@ class TextArea(OffsetBox):
     def set_text(self, s):
         "set text"
         self._text.set_text(s)
+        self.stale = True
 
     def get_text(self):
         "get text"
@@ -730,6 +731,7 @@ class TextArea(OffsetBox):
         singleline text.
         """
         self._multilinebaseline = t
+        self.stale = True
 
     def get_multilinebaseline(self):
         """
@@ -745,6 +747,7 @@ class TextArea(OffsetBox):
         it has minimum descent of "p"
         """
         self._minimumdescent = t
+        self.stale = True
 
     def get_minimumdescent(self):
         """
@@ -768,6 +771,7 @@ class TextArea(OffsetBox):
 
         self.offset_transform.clear()
         self.offset_transform.translate(xy[0], xy[1])
+        self.stale = True
 
     def get_offset(self):
         """
@@ -823,6 +827,7 @@ class TextArea(OffsetBox):
         self._text.draw(renderer)
 
         bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        self.stale = False
 
 
 class AuxTransformBox(OffsetBox):
