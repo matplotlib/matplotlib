@@ -4488,6 +4488,7 @@ class ConnectionPatch(FancyArrowPatch):
           * None: the self.xy will be checked only if *xycoords* is "data"
         """
         self._annotation_clip = b
+        self.stale = True
 
     def get_annotation_clip(self):
         """
