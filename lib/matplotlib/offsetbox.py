@@ -1104,11 +1104,11 @@ class AnchoredOffsetbox(OffsetBox):
         self.set_offset(_offset)
 
     def update_frame(self, bbox, fontsize=None):
-            self.patch.set_bounds(bbox.x0, bbox.y0,
-                                  bbox.width, bbox.height)
+        self.patch.set_bounds(bbox.x0, bbox.y0,
+                              bbox.width, bbox.height)
 
-            if fontsize:
-                self.patch.set_mutation_scale(fontsize)
+        if fontsize:
+            self.patch.set_mutation_scale(fontsize)
 
     def draw(self, renderer):
         "draw the artist"
