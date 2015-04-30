@@ -706,6 +706,7 @@ class Rectangle(Patch):
         ACCEPTS: float
         """
         self._x = x
+        self.stale = True
 
     def set_y(self, y):
         """
@@ -714,6 +715,7 @@ class Rectangle(Patch):
         ACCEPTS: float
         """
         self._y = y
+        self.stale = True
 
     def set_xy(self, xy):
         """
@@ -722,6 +724,7 @@ class Rectangle(Patch):
         ACCEPTS: 2-item sequence
         """
         self._x, self._y = xy
+        self.stale = True
 
     def set_width(self, w):
         """
@@ -730,6 +733,7 @@ class Rectangle(Patch):
         ACCEPTS: float
         """
         self._width = w
+        self.stale = True
 
     def set_height(self, h):
         """
@@ -738,6 +742,7 @@ class Rectangle(Patch):
         ACCEPTS: float
         """
         self._height = h
+        self.stale = True
 
     def set_bounds(self, *args):
         """
@@ -753,6 +758,7 @@ class Rectangle(Patch):
         self._y = b
         self._width = w
         self._height = h
+        self.stale = True
 
     def get_bbox(self):
         return transforms.Bbox.from_bounds(self._x, self._y,
