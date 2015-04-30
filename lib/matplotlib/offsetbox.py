@@ -1014,6 +1014,7 @@ class AnchoredOffsetbox(OffsetBox):
     def set_child(self, child):
         "set the child to be anchored"
         self._child = child
+        self.stale = True
 
     def get_child(self):
         "return the child"
@@ -1071,6 +1072,7 @@ class AnchoredOffsetbox(OffsetBox):
             self._bbox_to_anchor = Bbox.from_bounds(*bbox)
 
         self._bbox_to_anchor_transform = transform
+        self.stale = True
 
     def get_window_extent(self, renderer):
         '''
@@ -1131,6 +1133,7 @@ class AnchoredOffsetbox(OffsetBox):
 
         self.get_child().set_offset((px, py))
         self.get_child().draw(renderer)
+        self.stale = False
 
     def _get_anchored_bbox(self, loc, bbox, parentbbox, borderpad):
         """
