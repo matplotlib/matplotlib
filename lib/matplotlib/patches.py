@@ -1454,6 +1454,7 @@ class Circle(Ellipse):
         ACCEPTS: float
         """
         self.width = self.height = 2 * radius
+        self.stale = True
 
     def get_radius(self):
         'return the radius of the circle'
@@ -2457,6 +2458,7 @@ class FancyBboxPatch(Patch):
 
         self._mutation_scale = mutation_scale
         self._mutation_aspect = mutation_aspect
+        self.stale = True
 
     @docstring.dedent_interpd
     def set_boxstyle(self, boxstyle=None, **kw):
@@ -2490,6 +2492,7 @@ class FancyBboxPatch(Patch):
             self._bbox_transmuter = boxstyle
         else:
             self._bbox_transmuter = BoxStyle(boxstyle, **kw)
+        self.stale = True
 
     def set_mutation_scale(self, scale):
         """
@@ -2498,6 +2501,7 @@ class FancyBboxPatch(Patch):
         ACCEPTS: float
         """
         self._mutation_scale = scale
+        self.stale = True
 
     def get_mutation_scale(self):
         """
@@ -2512,6 +2516,7 @@ class FancyBboxPatch(Patch):
         ACCEPTS: float
         """
         self._mutation_aspect = aspect
+        self.stale = True
 
     def get_mutation_aspect(self):
         """
@@ -2559,6 +2564,7 @@ class FancyBboxPatch(Patch):
         ACCEPTS: float
         """
         self._x = x
+        self.stale = True
 
     def set_y(self, y):
         """
@@ -2567,6 +2573,7 @@ class FancyBboxPatch(Patch):
         ACCEPTS: float
         """
         self._y = y
+        self.stale = True
 
     def set_width(self, w):
         """
@@ -2575,6 +2582,7 @@ class FancyBboxPatch(Patch):
         ACCEPTS: float
         """
         self._width = w
+        self.stale = True
 
     def set_height(self, h):
         """
@@ -2583,6 +2591,7 @@ class FancyBboxPatch(Patch):
         ACCEPTS: float
         """
         self._height = h
+        self.stale = True
 
     def set_bounds(self, *args):
         """
@@ -2598,6 +2607,7 @@ class FancyBboxPatch(Patch):
         self._y = b
         self._width = w
         self._height = h
+        self.stale = True
 
     def get_bbox(self):
         return transforms.Bbox.from_bounds(self._x, self._y,
