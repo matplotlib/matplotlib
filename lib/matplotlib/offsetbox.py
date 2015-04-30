@@ -1406,6 +1406,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
     @xyann.setter
     def xyann(self, xyann):
         self.xybox = xyann
+        self.stale = True
 
     @property
     def anncoords(self):
@@ -1414,6 +1415,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
     @anncoords.setter
     def anncoords(self, coords):
         self.boxcoords = coords
+        self.stale = True
 
     def contains(self, event):
         t, tinfo = self.offsetbox.contains(event)
@@ -1446,6 +1448,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
             s = rcParams["legend.fontsize"]
 
         self.prop = FontProperties(size=s)
+        self.stale = True
 
     def get_fontsize(self, s=None):
         """
@@ -1552,6 +1555,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
             self.patch.draw(renderer)
 
         self.offsetbox.draw(renderer)
+        self.stale = False
 
 
 class DraggableBase(object):
