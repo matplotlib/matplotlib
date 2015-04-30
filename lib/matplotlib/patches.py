@@ -943,6 +943,7 @@ class Polygon(Patch):
             return
         self._closed = bool(closed)
         self.set_xy(self.get_xy())
+        self.stale = True
 
     def get_xy(self):
         """
@@ -974,6 +975,7 @@ class Polygon(Patch):
             if len(xy) > 2 and (xy[0] == xy[-1]).all():
                 xy = xy[:-1]
         self._path = Path(xy, closed=self._closed)
+        self.stale = True
 
     _get_xy = get_xy
     _set_xy = set_xy
