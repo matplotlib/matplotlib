@@ -174,6 +174,7 @@ class OffsetBox(martist.Artist):
         from .cbook import _InstanceMethodPickler
         if isinstance(self._offset, _InstanceMethodPickler):
             self._offset = self._offset.get_instancemethod()
+        self.stale = True
 
     def set_figure(self, fig):
         """
@@ -199,6 +200,7 @@ class OffsetBox(martist.Artist):
         accepts x, y, tuple, or a callable object.
         """
         self._offset = xy
+        self.stale = True
 
     def get_offset(self, width, height, xdescent, ydescent, renderer):
         """
@@ -218,6 +220,7 @@ class OffsetBox(martist.Artist):
         accepts float
         """
         self.width = width
+        self.stale = True
 
     def set_height(self, height):
         """
@@ -226,6 +229,7 @@ class OffsetBox(martist.Artist):
         accepts float
         """
         self.height = height
+        self.stale = True
 
     def get_visible_children(self):
         """
@@ -273,6 +277,7 @@ class OffsetBox(martist.Artist):
             c.draw(renderer)
 
         bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        self.stale = False
 
 
 class PackerBase(OffsetBox):
