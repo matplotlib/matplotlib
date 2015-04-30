@@ -1137,6 +1137,7 @@ class Barbs(mcollections.PolyCollection):
         # Update the offsets in case the masked data changed
         xy = np.hstack((x[:, np.newaxis], y[:, np.newaxis]))
         self._offsets = xy
+        self.stale = True
 
     def set_offsets(self, xy):
         """
@@ -1152,6 +1153,8 @@ class Barbs(mcollections.PolyCollection):
                                           self.u, self.v)
         xy = np.hstack((x[:, np.newaxis], y[:, np.newaxis]))
         mcollections.PolyCollection.set_offsets(self, xy)
+        self.stale = True
+
     set_offsets.__doc__ = mcollections.PolyCollection.set_offsets.__doc__
 
     barbs_doc = _barbs_doc
