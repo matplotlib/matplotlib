@@ -783,8 +783,12 @@ def is_sequence_of_strings(obj):
     """
     if not iterable(obj):
         return False
-    if is_string_like(obj):
-        return False
+    if is_string_like(obj) and not isinstance(obj, np.ndarray):
+        try:
+            obj = obj.values
+        except AttributeError:
+            # not pandas
+            return False
     for o in obj:
         if not is_string_like(o):
             return False
