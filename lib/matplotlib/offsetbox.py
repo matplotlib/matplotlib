@@ -862,6 +862,7 @@ class AuxTransformBox(OffsetBox):
         'Add any :class:`~matplotlib.artist.Artist` to the container box'
         self._children.append(a)
         a.set_transform(self.get_transform())
+        self.stale = True
 
     def get_transform(self):
         """
@@ -888,6 +889,7 @@ class AuxTransformBox(OffsetBox):
 
         self.offset_transform.clear()
         self.offset_transform.translate(xy[0], xy[1])
+        self.stale = True
 
     def get_offset(self):
         """
@@ -932,6 +934,7 @@ class AuxTransformBox(OffsetBox):
             c.draw(renderer)
 
         bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        self.stale = False
 
 
 class AnchoredOffsetbox(OffsetBox):
