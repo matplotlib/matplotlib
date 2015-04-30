@@ -4040,6 +4040,7 @@ class FancyArrowPatch(Patch):
         """
 
         self._dpi_cor = dpi_cor
+        self.stale = True
 
     def get_dpi_cor(self):
         """
@@ -4057,16 +4058,19 @@ class FancyArrowPatch(Patch):
             self._posA_posB[0] = posA
         if posB is not None:
             self._posA_posB[1] = posB
+        self.stale = True
 
     def set_patchA(self, patchA):
         """ set the begin patch.
         """
         self.patchA = patchA
+        self.stale = True
 
     def set_patchB(self, patchB):
         """ set the begin patch
         """
         self.patchB = patchB
+        self.stale = True
 
     def set_connectionstyle(self, connectionstyle, **kw):
         """
@@ -4095,6 +4099,7 @@ class FancyArrowPatch(Patch):
             self._connector = connectionstyle
         else:
             self._connector = ConnectionStyle(connectionstyle, **kw)
+        self.stale = True
 
     def get_connectionstyle(self):
         """
@@ -4126,6 +4131,7 @@ class FancyArrowPatch(Patch):
             self._arrow_transmuter = arrowstyle
         else:
             self._arrow_transmuter = ArrowStyle(arrowstyle, **kw)
+        self.stale = True
 
     def get_arrowstyle(self):
         """
@@ -4140,6 +4146,7 @@ class FancyArrowPatch(Patch):
         ACCEPTS: float
         """
         self._mutation_scale = scale
+        self.stale = True
 
     def get_mutation_scale(self):
         """
@@ -4154,6 +4161,7 @@ class FancyArrowPatch(Patch):
         ACCEPTS: float
         """
         self._mutation_aspect = aspect
+        self.stale = True
 
     def get_mutation_aspect(self):
         """
@@ -4261,6 +4269,7 @@ class FancyArrowPatch(Patch):
 
         gc.restore()
         renderer.close_group('patch')
+        self.stale = False
 
 
 class ConnectionPatch(FancyArrowPatch):
