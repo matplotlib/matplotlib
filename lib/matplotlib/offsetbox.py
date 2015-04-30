@@ -615,6 +615,7 @@ class DrawingArea(OffsetBox):
 
         self.offset_transform.clear()
         self.offset_transform.translate(xy[0], xy[1])
+        self.stale = True
 
     def get_offset(self):
         """
@@ -659,6 +660,7 @@ class DrawingArea(OffsetBox):
             c.draw(renderer)
 
         bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        self.stale = False
 
 
 class TextArea(OffsetBox):
