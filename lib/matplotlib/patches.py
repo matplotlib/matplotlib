@@ -257,6 +257,7 @@ class Patch(artist.Artist):
         if aa is None:
             aa = mpl.rcParams['patch.antialiased']
         self._antialiased = aa
+        self.stale = True
 
     def set_aa(self, aa):
         """alias for set_antialiased"""
@@ -272,6 +273,7 @@ class Patch(artist.Artist):
             color = mpl.rcParams['patch.edgecolor']
         self._original_edgecolor = color
         self._edgecolor = colors.colorConverter.to_rgba(color, self._alpha)
+        self.stale = True
 
     def set_ec(self, color):
         """alias for set_edgecolor"""
@@ -291,6 +293,7 @@ class Patch(artist.Artist):
         if not self._fill:
             self._facecolor = list(self._facecolor)
             self._facecolor[3] = 0
+        self.stale = True
 
     def set_fc(self, color):
         """alias for set_facecolor"""
@@ -325,6 +328,7 @@ class Patch(artist.Artist):
         # using self._fill and self._alpha
         self.set_facecolor(self._original_facecolor)
         self.set_edgecolor(self._original_edgecolor)
+        self.stale = True
 
     def set_linewidth(self, w):
         """
@@ -334,7 +338,10 @@ class Patch(artist.Artist):
         """
         if w is None:
             w = mpl.rcParams['patch.linewidth']
+
         self._linewidth = float(w)
+
+        self.stale = True
 
     def set_lw(self, lw):
         """alias for set_linewidth"""
@@ -375,6 +382,7 @@ class Patch(artist.Artist):
 
         ls = cbook.ls_mapper.get(ls, ls)
         self._linestyle = ls
+        self.stale = True
 
     def set_ls(self, ls):
         """alias for set_linestyle"""
@@ -388,6 +396,7 @@ class Patch(artist.Artist):
         """
         self._fill = bool(b)
         self.set_facecolor(self._original_facecolor)
+        self.stale = True
 
     def get_fill(self):
         'return whether fill is set'
@@ -409,6 +418,7 @@ class Patch(artist.Artist):
             raise ValueError('set_capstyle passed "%s";\n' % (s,) +
                              'valid capstyles are %s' % (self.validCap,))
         self._capstyle = s
+        self.stale = True
 
     def get_capstyle(self):
         "Return the current capstyle"
@@ -425,6 +435,7 @@ class Patch(artist.Artist):
             raise ValueError('set_joinstyle passed "%s";\n' % (s,) +
                              'valid joinstyles are %s' % (self.validJoin,))
         self._joinstyle = s
+        self.stale = True
 
     def get_joinstyle(self):
         "Return the current joinstyle"
@@ -457,6 +468,7 @@ class Patch(artist.Artist):
         ACCEPTS: ['/' | '\\\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*']
         """
         self._hatch = hatch
+        self.stale = True
 
     def get_hatch(self):
         'Return the current hatching pattern'
@@ -511,6 +523,7 @@ class Patch(artist.Artist):
 
         gc.restore()
         renderer.close_group('patch')
+        self.stale = False
 
     def get_path(self):
         """
