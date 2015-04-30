@@ -1248,12 +1248,14 @@ class OffsetImage(OffsetBox):
     def set_data(self, arr):
         self._data = np.asarray(arr)
         self.image.set_data(self._data)
+        self.stale = True
 
     def get_data(self):
         return self._data
 
     def set_zoom(self, zoom):
         self._zoom = zoom
+        self.stale = True
 
     def get_zoom(self):
         return self._zoom
@@ -1310,7 +1312,8 @@ class OffsetImage(OffsetBox):
         Draw the children
         """
         self.image.draw(renderer)
-        #bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        # bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        self.stale = False
 
 
 class AnnotationBbox(martist.Artist, _AnnotationBase):
