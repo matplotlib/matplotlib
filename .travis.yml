@@ -103,7 +103,7 @@ after_failure:
 
 after_success:
   |
-  if [[ $TRAVIS_PULL_REQUEST == false && $BUILD_DOCS == true && $TRAVIS_BRANCH == 'master' ]]; then
+  if [[ $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' && $BUILD_DOCS == true && $TRAVIS_BRANCH == 'master' ]]; then
     cd $TRAVIS_BUILD_DIR
     echo "Uploading documentation"
     openssl aes-256-cbc -K $encrypted_cc802e084cd0_key -iv $encrypted_cc802e084cd0_iv -in .travis/matplotlibDeployKey.enc -out .travis/matplotlibDeployKey -d
