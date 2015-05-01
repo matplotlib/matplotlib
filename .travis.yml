@@ -49,18 +49,20 @@ install:
   # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
   # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
   # version since is it basically just a .ttf file
+  # The current Travis Ubuntu image is to old to search .local/share/fonts so we store fonts in .fonts
 
   # We install ipython to use the console highlighting. From IPython 3 this depends on jsonschema and misture.
   # Neihter is installed as a dependency of IPython since they are not used by the IPython console.
   - |
     if [[ $BUILD_DOCS == true ]]; then
       pip install numpydoc linkchecker ipython jsonschema mistune
-      wget https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true
+      wget https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O Felipa-Regular.ttf
       wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
       mkdir -p tmp
+      mkdir -p ~/.fonts
       dpkg -x fonts-humor-sans_1.0-1_all.deb tmp
-      cp tmp/usr/share/fonts/truetype/humor-sans/Humor-Sans.ttf ~/.local/share/fonts/
-      cp Felipa-Regular.ttf ~/.local/share/fonts/
+      cp tmp/usr/share/fonts/truetype/humor-sans/Humor-Sans.ttf ~/.fonts
+      cp Felipa-Regular.ttf ~/.fonts
       fc-cache -f -v
     fi;
   - python setup.py install
