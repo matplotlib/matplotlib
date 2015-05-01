@@ -1036,7 +1036,7 @@ class Line2D(Artist):
 
         ACCEPTS: float
         """
-        self._markersize = sz
+        self._markersize = float(sz)
 
     def set_xdata(self, x):
         """
