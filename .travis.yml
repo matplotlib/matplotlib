@@ -44,7 +44,8 @@ matrix:
       env: BUILD_DOCS=true
 
 install:
-  - pip install -q nose python-dateutil $NUMPY pep8 pyparsing pillow sphinx!=1.3.0
+  - pip install python-dateutil $NUMPY pep8 pyparsing pillow sphinx!=1.3.0 coveralls coverage
+  - pip install --upgrade nose
 
   # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
   # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
@@ -66,7 +67,7 @@ install:
       cp Felipa-Regular.ttf ~/.fonts
       fc-cache -f -v
     fi;
-  - python setup.py install
+  - python setup.py install --single-version-externally-managed --record=/dev/null
 
 script:
   # The number of processes is hardcoded, because using too many causes the
@@ -141,4 +142,11 @@ after_success:
           echo "Some Failed; no OSX build"
         fi
       fi
+  fi
+  if [[ $BUILD_DOCS == false && $TEST_ARGS != "--pep8" ]]; then
+     # account for us running the test out-of-repo and coveralls expects in-repo
+     # tests
+     mv cover .coverage ../matplotlib
+     cd ../matplotlib
+     coveralls
   fi

@@ -67,3 +67,10 @@ examples/tests/*
 texput.log
 texput.aux
 result_images
+
+# Coverage generated files #
+############################
+
+.coverage
+.coverage.*
+cover/
