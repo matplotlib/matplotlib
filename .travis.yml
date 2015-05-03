@@ -67,7 +67,7 @@ install:
       cp Felipa-Regular.ttf ~/.fonts
       fc-cache -f -v
     fi;
-  - python setup.py install
+  - python setup.py install --single-version-externally-managed --record=record_junk.txt
 
 script:
   # The number of processes is hardcoded, because using too many causes the
