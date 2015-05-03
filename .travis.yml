@@ -48,7 +48,7 @@ matrix:
     - python : "nightly"
 
 install:
-  - pip install -q $PRE nose python-dateutil $NUMPY pep8 pyparsing pillow sphinx!=1.3.0
+  - pip install $PRE nose python-dateutil $NUMPY pep8 pyparsing pillow sphinx!=1.3.0
 
   # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
   # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
