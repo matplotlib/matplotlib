@@ -1,6 +1,9 @@
 [run]
 source=matplotlib
 [report]
+omit =
+    matplotlib/tests/*
+    matplotlib/testing/*
 
 exclude_lines =
     raise NotImplemented
