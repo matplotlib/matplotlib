@@ -170,7 +170,7 @@ after_success:
         fi
       fi
   fi
-  if [[ $BUILD_DOCS == false ]]; then
+  if [[ $BUILD_DOCS == false && $TEST_ARGS != "--pep8" ]]; then
      # account for us running the test out-of-repo and coveralls expects in-repo
      # tests
      mv cover .coverage ../matplotlib
