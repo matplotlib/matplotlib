@@ -170,4 +170,10 @@ after_success:
         fi
       fi
   fi
-  coveralls
+  if [[ $BUILD_DOCS == false ]]; then
+     # account for us running the test out-of-repo and coveralls expects in-repo
+     # tests
+     mv cover .coverage ../matplotlib
+     cd ../matplotlib
+     coveralls
+  fi
