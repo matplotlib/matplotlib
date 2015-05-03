@@ -5,7 +5,6 @@ import six
 
 import matplotlib.cbook as cbook
 
-import matplotlib.pyplot as plt
 import matplotlib.axes as maxes
 #import matplotlib.colorbar as mcolorbar
 from . import colorbar as mcolorbar
@@ -807,94 +806,3 @@ class ImageGrid(Grid):
 
 AxesGrid = ImageGrid
 
-#if __name__ == "__main__":
-if 0:
-    F = plt.figure(1, (7, 6))
-    F.clf()
-
-    F.subplots_adjust(left=0.15, right=0.9)
-
-    grid = Grid(F, 111,  # similar to subplot(111)
-                nrows_ncols=(2, 2),
-                direction="row",
-                axes_pad = 0.05,
-                add_all=True,
-                label_mode = "1",
-                )
-
-#if __name__ == "__main__":
-if 0:
-    from .axes_divider import get_demo_image
-    F = plt.figure(1, (9, 3.5))
-    F.clf()
-
-    F.subplots_adjust(left=0.05, right=0.98)
-
-    grid = ImageGrid(F, 131,  # similar to subplot(111)
-                     nrows_ncols=(2, 2),
-                     direction="row",
-                     axes_pad = 0.05,
-                     add_all=True,
-                     label_mode = "1",
-                     )
-
-    Z, extent = get_demo_image()
-    plt.ioff()
-    for i in range(4):
-        im = grid[i].imshow(Z, extent=extent, interpolation="nearest")
-
-    # This only affects axes in
-    # first column and second row as share_all = False.
-    grid.axes_llc.set_xticks([-2, 0, 2])
-    grid.axes_llc.set_yticks([-2, 0, 2])
-    plt.ion()
-
-    grid = ImageGrid(F, 132,  # similar to subplot(111)
-                     nrows_ncols=(2, 2),
-                     direction="row",
-                     axes_pad = 0.0,
-                     add_all=True,
-                     share_all=True,
-                     label_mode = "1",
-                     cbar_mode="single",
-                     )
-
-    Z, extent = get_demo_image()
-    plt.ioff()
-    for i in range(4):
-        im = grid[i].imshow(Z, extent=extent, interpolation="nearest")
-    plt.colorbar(im, cax=grid.cbar_axes[0])
-    plt.setp(grid.cbar_axes[0].get_yticklabels(), visible=False)
-
-    # This affects all axes as share_all = True.
-    grid.axes_llc.set_xticks([-2, 0, 2])
-    grid.axes_llc.set_yticks([-2, 0, 2])
-
-    plt.ion()
-
-    grid = ImageGrid(F, 133,  # similar to subplot(122)
-                     nrows_ncols=(2, 2),
-                     direction="row",
-                     axes_pad = 0.1,
-                     add_all=True,
-                     label_mode = "1",
-                     share_all = True,
-                     cbar_location="top",
-                     cbar_mode="each",
-                     cbar_size="7%",
-                     cbar_pad="2%",
-                     )
-    plt.ioff()
-    for i in range(4):
-        im = grid[i].imshow(Z, extent=extent, interpolation="nearest")
-        plt.colorbar(im, cax=grid.cbar_axes[i],
-                     orientation="horizontal")
-        grid.cbar_axes[i].xaxis.set_ticks_position("top")
-        plt.setp(grid.cbar_axes[i].get_xticklabels(), visible=False)
-
-    # This affects all axes as share_all = True.
-    grid.axes_llc.set_xticks([-2, 0, 2])
-    grid.axes_llc.set_yticks([-2, 0, 2])
-
-    plt.ion()
-    plt.draw()
