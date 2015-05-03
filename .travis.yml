@@ -43,11 +43,12 @@ matrix:
     - python: 2.7
       env: BUILD_DOCS=true
     - python: "nightly"
+      env: PRE=--pre
   allow_failures:
     - python : "nightly"
 
 install:
-  - pip install -q nose python-dateutil $NUMPY pep8 pyparsing pillow sphinx!=1.3.0
+  - pip install -q $PRE nose python-dateutil $NUMPY pep8 pyparsing pillow sphinx!=1.3.0
 
   # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
   # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
@@ -58,8 +59,8 @@ install:
   # Neihter is installed as a dependency of IPython since they are not used by the IPython console.
   - |
     if [[ $BUILD_DOCS == true ]]; then
-      pip install numpydoc ipython jsonschema mistune
-      pip install -q linkchecker
+      pip install $PRE numpydoc ipython jsonschema mistune
+      pip install -q $PRE linkchecker
       wget https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O Felipa-Regular.ttf
       wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
       mkdir -p tmp
