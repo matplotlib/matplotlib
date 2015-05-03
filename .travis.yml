@@ -42,6 +42,9 @@ matrix:
       env: TEST_ARGS=--pep8
     - python: 2.7
       env: BUILD_DOCS=true
+    - python: "nightly"
+  allow_failures:
+    - python : "nightly"
 
 install:
   - pip install -q nose python-dateutil $NUMPY pep8 pyparsing pillow sphinx!=1.3.0
