@@ -1103,7 +1103,6 @@ class LineCollection(Collection):
             linewidths = (mpl.rcParams['lines.linewidth'],)
         if antialiaseds is None:
             antialiaseds = (mpl.rcParams['lines.antialiased'],)
-        self.set_linestyles(linestyles)
 
         colors = mcolors.colorConverter.to_rgba_array(colors)
 
@@ -1121,6 +1120,8 @@ class LineCollection(Collection):
             pickradius=pickradius,
             zorder=zorder,
             **kwargs)
+
+        self.set_linestyles(linestyles)
 
         self.set_segments(segments)
 

@@ -86,6 +86,7 @@ class Artist(object):
     zorder = 0
 
     def __init__(self):
+        self._stale = True
         self._axes = None
         self.figure = None
 
@@ -117,7 +118,6 @@ class Artist(object):
         self._snap = None
         self._sketch = rcParams['path.sketch']
         self._path_effects = rcParams['path.effects']
-        self._stale = True
 
     def __getstate__(self):
         d = self.__dict__.copy()
