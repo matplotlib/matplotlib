@@ -1444,8 +1444,8 @@ class Circle(Ellipse):
         %(Patch)s
 
         """
-        self.radius = radius
         Ellipse.__init__(self, xy, radius * 2, radius * 2, **kwargs)
+        self.radius = radius
 
     def set_radius(self, radius):
         """
@@ -4002,6 +4002,7 @@ class FancyArrowPatch(Patch):
         Valid kwargs are:
         %(Patch)s
         """
+        Patch.__init__(self, **kwargs)
 
         if posA is not None and posB is not None and path is None:
             self._posA_posB = [posA, posB]
@@ -4020,8 +4021,6 @@ class FancyArrowPatch(Patch):
         self.patchB = patchB
         self.shrinkA = shrinkA
         self.shrinkB = shrinkB
-
-        Patch.__init__(self, **kwargs)
 
         self._path_original = path
 
