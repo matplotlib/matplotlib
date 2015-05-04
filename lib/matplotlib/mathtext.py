@@ -2738,7 +2738,7 @@ class Parser(object):
             x.shift_amount = shift_down
         else:
             super.shrink()
-            x = Hlist([super]) # , Kern(SCRIPT_SPACE * xHeight)])
+            x = Hlist([super])
             # x.width += SCRIPT_SPACE * xHeight
             clr = SUP1 * xHeight
             shift_up = max(shift_up, clr)
