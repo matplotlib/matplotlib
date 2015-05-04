@@ -2431,13 +2431,18 @@ class Parser(object):
             self._em_width_cache[key] = width
         return Kern(width * percentage)
 
-    _space_widths = { r'\ '      : 0.3,
-                      r'\,'      : 0.4,
-                      r'\;'      : 0.8,
-                      r'\quad'   : 1.6,
-                      r'\qquad'  : 3.2,
-                      r'\!'      : -0.4,
-                      r'\/'      : 0.4 }
+    _space_widths = { r'\,'         : 0.16667,  # 3/18 em = 3 mu
+                      r'\thinspace' : 0.16667,  # 3/18 em = 3 mu
+                      r'\/'         : 0.16667,  # 3/18 em = 3 mu
+                      r'\>'         : 0.22222,  # 4/18 em = 4 mu
+                      r'\:'         : 0.22222,  # 4/18 em = 4 mu
+                      r'\;'         : 0.27778,  # 5/18 em = 5 mu
+                      r'\ '         : 0.33333,  # 6/18 em = 6 mu
+                      r'\enspace'   : 0.5,      # 9/18 em = 9 mu
+                      r'\quad'      : 1,        # 1 em = 18 mu
+                      r'\qquad'     : 2,        # 2 em = 36 mu
+                      r'\!'         : -0.16667, # -3/18 em = -3 mu
+                      }
     def space(self, s, loc, toks):
         assert(len(toks)==1)
         num = self._space_widths[toks[0]]
