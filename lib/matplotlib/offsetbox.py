@@ -1353,6 +1353,13 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
 
         other parameters are identical to that of Annotation.
         """
+
+        martist.Artist.__init__(self, **kwargs)
+        _AnnotationBase.__init__(self,
+                                 xy,
+                                 xycoords=xycoords,
+                                 annotation_clip=annotation_clip)
+
         self.offsetbox = offsetbox
 
         self.arrowprops = arrowprops
@@ -1376,13 +1383,6 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         else:
             self._arrow_relpos = None
             self.arrow_patch = None
-
-        _AnnotationBase.__init__(self,
-                                 xy,
-                                 xycoords=xycoords,
-                                 annotation_clip=annotation_clip)
-
-        martist.Artist.__init__(self, **kwargs)
 
         #self._fw, self._fh = 0., 0. # for alignment
         self._box_alignment = box_alignment
