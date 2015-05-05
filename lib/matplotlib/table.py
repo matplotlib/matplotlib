@@ -68,6 +68,7 @@ class Cell(Rectangle):
     def set_transform(self, trans):
         Rectangle.set_transform(self, trans)
         # the text does not get the transform!
+        self.stale = True
 
     def set_figure(self, fig):
         Rectangle.set_figure(self, fig)
@@ -79,6 +80,7 @@ class Cell(Rectangle):
 
     def set_fontsize(self, size):
         self._text.set_fontsize(size)
+        self.stale = True
 
     def get_fontsize(self):
         'Return the cell fontsize'
@@ -105,6 +107,7 @@ class Cell(Rectangle):
         # position the text
         self._set_text_position(renderer)
         self._text.draw(renderer)
+        self.stale = False
 
     def _set_text_position(self, renderer):
         """ Set text up so it draws in the right place.
@@ -145,6 +148,7 @@ class Cell(Rectangle):
     def set_text_props(self, **kwargs):
         'update the text properties with kwargs'
         self._text.update(kwargs)
+        self.stale = True
 
 
 class CustomCell(Cell):
