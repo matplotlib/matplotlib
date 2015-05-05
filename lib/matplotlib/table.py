@@ -190,6 +190,7 @@ class CustomCell(Cell):
                                    )
                     raise ValueError(msg)
             self._visible_edges = value
+        self.stale = True
 
     def get_path(self):
         'Return a path where the edges specificed by _visible_edges are drawn'
