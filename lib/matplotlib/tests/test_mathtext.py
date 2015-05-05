@@ -91,7 +91,7 @@ math_tests = [
     r"$? ! &$", # github issue #466
     r'$\operatorname{cos} x$', # github issue #553
     r'$\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0<j<n}}P\left(i,j\right)$',
-    r'$M \, M \thinspace \/ M \> M \: M \; M \ M \enspace M \quad M \qquad M \! M$'
+    r'$M \, M \thinspace M \/ M \> M \: M \; M \ M \enspace M \quad M \qquad M \! M$'
 ]
 
 digits = "0123456789"
