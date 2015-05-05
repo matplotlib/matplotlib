@@ -290,6 +290,7 @@ class Table(Artist):
 
         cell.set_clip_on(False)
         self._cells[(row, col)] = cell
+        self.stale = True
 
     @property
     def edges(self):
@@ -298,6 +299,7 @@ class Table(Artist):
     @edges.setter
     def edges(self, value):
         self._edges = value
+        self.stale = True
 
     def _approx_text_height(self):
         return (self.FONTSIZE / 72.0 * self.figure.dpi /
@@ -325,6 +327,7 @@ class Table(Artist):
         # for c in self._cells.itervalues():
         #     c.draw(renderer)
         renderer.close_group('table')
+        self.stale = False
 
     def _get_grid_bbox(self, renderer):
         """Get a bbox, in axes co-ordinates for the cells.
@@ -408,6 +411,7 @@ class Table(Artist):
     def auto_set_column_width(self, col):
 
         self._autoColumns.append(col)
+        self.stale = True
 
     def _auto_set_column_width(self, col, renderer):
         """ Automagically set width for column.
@@ -427,6 +431,7 @@ class Table(Artist):
     def auto_set_font_size(self, value=True):
         """ Automatically set font size. """
         self._autoFontsize = value
+        self.stale = True
 
     def _auto_set_font_size(self, renderer):
 
@@ -461,6 +466,7 @@ class Table(Artist):
 
         for cell in six.itervalues(self._cells):
             cell.set_fontsize(size)
+        self.stale = True
 
     def _offset(self, ox, oy):
         'Move all the artists by ox,oy (axes coords)'
