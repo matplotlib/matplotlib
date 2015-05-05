@@ -76,19 +76,76 @@ the function provides a simple interface for creating 'base' `Cycler` objects.
 
 A 'base' `Cycler` object is some what useful
 
-.. ipython:: python
+.. plot::
+   :include-source:
 
    from matplotlib.cycler import cycler
+   from itertools import cycle
 
+   fig, (ax1, ax2) = plt.subplots(1, 2, tight_layout=True, figsize=(8, 4))
+   x = np.arange(10)
 
    single_cycle = cycler('c', ['r', 'g', 'b'])
 
-   print(single_cycle)
+   for i, sty in enumerate(single_cycle):
+      ax1.plot(x, x*(i+1), **sty)
 
-   for v in single_cycle:
+
+   for i, sty in zip(range(1, 10), cycle(single_cycle)):
+      ax2.plot(x, x*i, **sty)
+
+
+.. ipython:: python
+
+   from __future__ import print_function
+   from matplotlib.cycler import cycler
+
+
+   color_cycle = cycler('c', ['r', 'g', 'b'])
+
+   color_cycle
+
+   for v in color_cycle:
        print(v)
 
-   len(single_cycle)
+   len(color_cycle)
+
+
+
+However they are most useful when composed.  They can be added
+
+.. ipython:: python
+
+   lw_cycle = cycler('lw', range(1, 5))
+   add_cycle = color_cycle + lw_cycle
+
+   lw_cycle
+   add_cycle
+
+   for v in add_cycle:
+       print(v)
+
+   len(add_cycle)
+
+or multiplied
+
+.. ipython:: python
+
+   prod_cycle = color_cycle * lw_cycle
+
+   color_cycle
+   lw_cycle
+   prod_cycle
+
+   for v in prod_cycle:
+       print(v)
+
+   len(prod_cycle)
+
+The result of composition is another `Cycler` object which allows very
+complicated cycles to be defined very succinctly
+
+.. ipython:: python
 
 
 .. plot::
@@ -108,47 +165,3 @@ A 'base' `Cycler` object is some what useful
 
    for i, sty in zip(range(1, 10), cycle(single_cycle)):
       ax2.plot(x, x*i, **sty)
-
-However they are most useful when composed.  They can be added
-
-.. ipython:: python
-
-   from __future__ import print_function
-   from matplotlib.cycler import cycler
-
-   color_cycle = cycler('c', ['r', 'g', 'b'])
-   lw_cycle = cycler('lw', range(1, 5))
-   add_cycle = color_cycle + lw_cycle
-
-   print(color_cycle)
-   print(lw_cycle)
-   print('added cycle: ', add_cycle)
-
-   print('len A: {}, len B: {}, len A + B: {}'.format(len(color_cycle), len(lw_cycle), len(add_cycle)))
-
-   for v in add_cycle:
-       print(v)
-
-or multiplied
-
-.. ipython:: python
-
-   from __future__ import print_function
-   from matplotlib.cycler import cycler
-
-   color_cycle = cycler('c', ['r', 'g', 'b'])
-   lw_cycle = cycler('lw', range(1, 5))
-
-   prod_cycle = color_cycle * lw_cycle
-
-   print(color_cycle)
-   print(lw_cycle)
-   print('multiplied cycle: ', prod_cycle)
-
-   print('len A: {}, len B: {}, len A * B: {}'.format(len(color_cycle), len(lw_cycle), len(prod_cycle)))
-
-   for v in prod_cycle:
-       print(v)
-
-
-stuff
