@@ -95,7 +95,9 @@ class RendererAgg(RendererBase):
                 'RendererAgg.__init__ width=%s, height=%s' % (width, height),
                 'debug-annoying')
 
-        self._renderer = _RendererAgg(int(width), int(height), dpi, debug=False)
+        self._renderer = _RendererAgg(int(round(width)), int(round(height)),
+                                      dpi, debug=False)
+
         self._filter_renderers = []
 
         if __debug__: verbose.report('RendererAgg.__init__ _RendererAgg done',
