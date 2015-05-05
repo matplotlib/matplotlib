@@ -96,6 +96,7 @@ class Spine(mpatches.Patch):
             self.axes.yaxis.set_smart_bounds(value)
         elif self.spine_type in ('top', 'bottom'):
             self.axes.xaxis.set_smart_bounds(value)
+        self.stale = True
 
     def get_smart_bounds(self):
         """get whether the spine has smart bounds"""
@@ -110,10 +111,12 @@ class Spine(mpatches.Patch):
         self._angle = 0
         # circle drawn on axes transform
         self.set_transform(self.axes.transAxes)
+        self.stale = True
 
     def set_patch_line(self):
         """set the spine to be linear"""
         self._patch_type = 'line'
+        self.stale = True
 
     # Behavior copied from mpatches.Ellipse:
     def _recompute_transform(self):
@@ -158,6 +161,7 @@ class Spine(mpatches.Patch):
         self.axis = axis
         if self.axis is not None:
             self.axis.cla()
+        self.stale = True
 
     def cla(self):
         """Clear the current spine"""
@@ -274,7 +278,9 @@ class Spine(mpatches.Patch):
     @allow_rasterization
     def draw(self, renderer):
         self._adjust_location()
-        return super(Spine, self).draw(renderer)
+        ret = super(Spine, self).draw(renderer)
+        self.stale = False
+        return ret
 
     def _calc_offset_transform(self):
         """calculate the offset transform performed by the spine"""
@@ -388,6 +394,7 @@ class Spine(mpatches.Patch):
 
         if self.axis is not None:
             self.axis.reset_ticks()
+        self.stale = True
 
     def get_position(self):
         """get the spine position"""
@@ -437,6 +444,7 @@ class Spine(mpatches.Patch):
             raise ValueError(
                 'set_bounds() method incompatible with circular spines')
         self._bounds = (low, high)
+        self.stale = True
 
     def get_bounds(self):
         """Get the bounds of the spine."""
@@ -486,3 +494,4 @@ class Spine(mpatches.Patch):
         # The facecolor of a spine is always 'none' by default -- let
         # the user change it manually if desired.
         self.set_edgecolor(c)
+        self.stale = True
