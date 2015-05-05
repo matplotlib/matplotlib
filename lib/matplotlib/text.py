@@ -1385,6 +1385,7 @@ class TextWithDash(Text):
         Text.draw(self, renderer)
         if self.get_dashlength() > 0.0:
             self.dashline.draw(renderer)
+        self.stale = False
 
     def update_coords(self, renderer):
         """
@@ -1504,6 +1505,7 @@ class TextWithDash(Text):
         ACCEPTS: float (canvas units)
         """
         self._dashlength = dl
+        self.stale = True
 
     def get_dashdirection(self):
         """
@@ -1521,6 +1523,7 @@ class TextWithDash(Text):
         ACCEPTS: int (1 is before, 0 is after)
         """
         self._dashdirection = dd
+        self.stale = True
 
     def get_dashrotation(self):
         """
@@ -1538,6 +1541,7 @@ class TextWithDash(Text):
         ACCEPTS: float (degrees)
         """
         self._dashrotation = dr
+        self.stale = True
 
     def get_dashpad(self):
         """
@@ -1553,6 +1557,7 @@ class TextWithDash(Text):
         ACCEPTS: float (canvas units)
         """
         self._dashpad = dp
+        self.stale = True
 
     def get_dashpush(self):
         """
@@ -1570,6 +1575,7 @@ class TextWithDash(Text):
         ACCEPTS: float (canvas units)
         """
         self._dashpush = dp
+        self.stale = True
 
     def set_position(self, xy):
         """
@@ -1587,6 +1593,7 @@ class TextWithDash(Text):
         ACCEPTS: float
         """
         self._dashx = float(x)
+        self.stale = True
 
     def set_y(self, y):
         """
@@ -1595,6 +1602,7 @@ class TextWithDash(Text):
         ACCEPTS: float
         """
         self._dashy = float(y)
+        self.stale = True
 
     def set_transform(self, t):
         """
@@ -1605,6 +1613,7 @@ class TextWithDash(Text):
         """
         Text.set_transform(self, t)
         self.dashline.set_transform(t)
+        self.stale = True
 
     def get_figure(self):
         'return the figure instance the artist belongs to'
