@@ -1225,6 +1225,7 @@ class OffsetImage(OffsetBox):
                  **kwargs
                  ):
 
+        OffsetBox.__init__(self)
         self._dpi_cor = dpi_cor
 
         self.image = BboxImage(bbox=self.get_window_extent,
@@ -1242,8 +1243,6 @@ class OffsetImage(OffsetBox):
 
         self.set_zoom(zoom)
         self.set_data(arr)
-
-        OffsetBox.__init__(self)
 
     def set_data(self, arr):
         self._data = np.asarray(arr)
