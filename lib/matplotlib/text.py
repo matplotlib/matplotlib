@@ -297,6 +297,7 @@ class Text(Artist):
             self._rotation_mode = m
         else:
             raise ValueError("Unknown rotation_mode : %s" % repr(m))
+        self.stale = True
 
     def get_rotation_mode(self):
         "get text rotation mode"
@@ -313,6 +314,7 @@ class Text(Artist):
         self._rotation = other._rotation
         self._picker = other._picker
         self._linespacing = other._linespacing
+        self.stale = True
 
     def _get_layout(self, renderer):
         """
@@ -786,6 +788,7 @@ class Text(Artist):
 
         gc.restore()
         renderer.close_group('text')
+        self.stale = False
 
     def get_color(self):
         "Return the color of the text"
@@ -963,6 +966,7 @@ class Text(Artist):
             self._bbox.update(dict(facecolor=color))
 
         self._update_clip_properties()
+        self.stale = True
 
     def set_color(self, color):
         """
@@ -976,6 +980,7 @@ class Text(Artist):
         except TypeError:
             color = tuple(color)
         self._color = color
+        self.stale = True
 
     def set_ha(self, align):
         'alias for set_horizontalalignment'
@@ -992,6 +997,7 @@ class Text(Artist):
             raise ValueError('Horizontal alignment must be one of %s' %
                              str(legal))
         self._horizontalalignment = align
+        self.stale = True
 
     def set_ma(self, align):
         'alias for set_verticalalignment'
@@ -1011,6 +1017,7 @@ class Text(Artist):
             raise ValueError('Horizontal alignment must be one of %s' %
                              str(legal))
         self._multialignment = align
+        self.stale = True
 
     def set_linespacing(self, spacing):
         """
@@ -1020,6 +1027,7 @@ class Text(Artist):
         ACCEPTS: float (multiple of font size)
         """
         self._linespacing = spacing
+        self.stale = True
 
     def set_family(self, fontname):
         """
@@ -1033,6 +1041,7 @@ class Text(Artist):
                   'monospace' ]
         """
         self._fontproperties.set_family(fontname)
+        self.stale = True
 
     def set_variant(self, variant):
         """
@@ -1041,6 +1050,7 @@ class Text(Artist):
         ACCEPTS: [ 'normal' | 'small-caps' ]
         """
         self._fontproperties.set_variant(variant)
+        self.stale = True
 
     def set_fontvariant(self, variant):
         'alias for set_variant'
@@ -1061,6 +1071,7 @@ class Text(Artist):
         ACCEPTS: [ 'normal' | 'italic' | 'oblique']
         """
         self._fontproperties.set_style(fontstyle)
+        self.stale = True
 
     def set_fontstyle(self, fontstyle):
         'alias for set_style'
@@ -1075,6 +1086,7 @@ class Text(Artist):
                   'medium' | 'large' | 'x-large' | 'xx-large' ]
         """
         self._fontproperties.set_size(fontsize)
+        self.stale = True
 
     def set_fontsize(self, fontsize):
         'alias for set_size'
@@ -1090,6 +1102,7 @@ class Text(Artist):
                   'extra bold' | 'black' ]
         """
         self._fontproperties.set_weight(weight)
+        self.stale = True
 
     def set_fontweight(self, weight):
         'alias for set_weight'
@@ -1105,6 +1118,7 @@ class Text(Artist):
                   'ultra-expanded' ]
         """
         self._fontproperties.set_stretch(stretch)
+        self.stale = True
 
     def set_fontstretch(self, stretch):
         'alias for set_stretch'
@@ -1126,6 +1140,7 @@ class Text(Artist):
         ACCEPTS: float
         """
         self._x = x
+        self.stale = True
 
     def set_y(self, y):
         """
@@ -1134,6 +1149,7 @@ class Text(Artist):
         ACCEPTS: float
         """
         self._y = y
+        self.stale = True
 
     def set_rotation(self, s):
         """
@@ -1142,6 +1158,7 @@ class Text(Artist):
         ACCEPTS: [ angle in degrees | 'vertical' | 'horizontal' ]
         """
         self._rotation = s
+        self.stale = True
 
     def set_va(self, align):
         'alias for set_verticalalignment'
@@ -1159,6 +1176,7 @@ class Text(Artist):
                              str(legal))
 
         self._verticalalignment = align
+        self.stale = True
 
     def set_text(self, s):
         """
@@ -1169,6 +1187,7 @@ class Text(Artist):
         ACCEPTS: string or anything printable with '%s' conversion.
         """
         self._text = '%s' % (s,)
+        self.stale = True
 
     @staticmethod
     def is_math_text(s):
@@ -1201,6 +1220,7 @@ class Text(Artist):
         if is_string_like(fp):
             fp = FontProperties(fp)
         self._fontproperties = fp.copy()
+        self.stale = True
 
     def set_font_properties(self, fp):
         'alias for set_fontproperties'
@@ -1217,6 +1237,7 @@ class Text(Artist):
             self._usetex = None
         else:
             self._usetex = bool(usetex)
+        self.stale = True
 
     def get_usetex(self):
         """
