@@ -1121,8 +1121,6 @@ class LineCollection(Collection):
             zorder=zorder,
             **kwargs)
 
-        self.set_linestyles(linestyles)
-
         self.set_segments(segments)
 
     def set_segments(self, segments):
