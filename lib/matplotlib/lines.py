@@ -800,6 +800,7 @@ class Line2D(Artist):
             gc.restore()
 
         renderer.close_group('line2d')
+        self.stale = False
 
     def get_antialiased(self):
         return self._antialiased
