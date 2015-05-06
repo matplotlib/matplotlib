@@ -19,6 +19,10 @@ def _cycler_helper(c, length, keys, values):
             assert_equal(v[k], v_target)
 
 
+def _cycles_equal(c1, c2):
+    assert_equal(list(c1), list(c2))
+
+
 def test_creation():
     c = cycler('c', 'rgb')
     yield _cycler_helper, c, 3, ['c'], [['r', 'g', 'b']]
@@ -80,3 +84,12 @@ def test_failures():
     c3 = cycler('ec', c1)
 
     assert_raises(ValueError, cycler, 'c', c2 + c3)
+
+
+def test_simplify():
+    c1 = cycler('c', 'rgb')
+    c2 = cycler('ec', c1)
+    c3 = c1 * c2
+    c4 = c1 + c2
+    yield _cycles_equal, c3, c3.simplify()
+    yield _cycles_equal, c4, c4.simplify()

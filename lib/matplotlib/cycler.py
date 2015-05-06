@@ -3,8 +3,8 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from itertools import product
-from six.moves import zip
-from operator import mul
+from six.moves import zip, reduce
+from operator import mul, add
 import copy
 
 
@@ -140,6 +140,49 @@ class Cycler(object):
             op = op_map.get(self._op, '?')
             msg = "({left!r} {op} {right!r})"
             return msg.format(left=self._left, op=op, right=self._right)
+
+    def _transpose(self):
+        """
+        Internal helper function which iterates through the
+        styles and returns a dict of lists instead of a list of
+        dicts.  This is needed for multiplying by integers and
+        for __getitem__
+
+        Returns
+        -------
+        trans : dict
+            dict of lists for the styles
+        """
+
+        # TODO : sort out if this is a bottle neck, if there is a better way
+        # and if we care.
+
+        keys = self.keys
+        out = {k: list() for k in keys}
+
+        for d in self:
+            for k in keys:
+                out[k].append(d[k])
+        return out
+
+    def simplify(self):
+        """
+        Simplify the Cycler and return as a composition only
+        sums (no multiplications)
+
+        Returns
+        -------
+        simple : Cycler
+            An equivalent cycler using only summation
+        """
+        # TODO: sort out if it is worth the effort to make sure this is
+        # balanced.  Currently it is is
+        # (((a + b) + c) + d) vs
+        # ((a + b) + (c + d))
+        # I would believe that there is some performance implications
+
+        trans = self._transpose()
+        return reduce(add, (cycler(k, v) for k, v in six.iteritems(trans)))
 
 
 def cycler(label, itr):
