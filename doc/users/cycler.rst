@@ -1,10 +1,30 @@
 .. _cycler_guide:
+.. currentmodule:: matplotlib.cycler
 
 ==========================
  Style/kwarg cycler Guide
 ==========================
 
-.. currentmodule:: matplotlib.cycler
+`~matplotlib.cycler.Cycler` API
+===============================
+
+.. autosummary::
+   :toctree: generated/
+
+   cycler
+   Cycler
+
+
+The public API of `Cycler` consists of a class
+`~matplotlib.cycler.Cycler` and a factory function
+`~matplotlib.cycler.cycler`.  The class takes care of the composition
+and iteration logic while the function provides a simple interface for
+creating 'base' `Cycler` objects.
+
+
+Motivation
+==========
+
 
 When plotting more than one line it is common to want to be able to cycle over one
 or more artist styles.  For simple cases than can be done with out too much trouble:
@@ -58,23 +78,11 @@ the plotting logic can quickly become very involved.  To address this and allow 
 cycling over arbitrary ``kwargs`` the `~matplotlib.cycler.Cycler` class, a composable
 kwarg iterator, was developed.
 
+`Cycler` Usage
+==============
 
-`~matplotlib.cycler.Cycler`
-===========================
-
-The public API of `Cycler` consists of a class
-`~matplotlib.cycler.Cycler` and a factory function
-`~matplotlib.cycler.cycler`.  The class takes care of the composition and iteration logic while
-the function provides a simple interface for creating 'base' `Cycler` objects.
-
-.. autosummary::
-   :toctree: generated/
-
-   Cycler
-   cycler
-
-
-A 'base' `Cycler` object is some what useful
+A 'base' `Cycler` object is some what useful and can be used to easily
+cycle over a single style
 
 .. plot::
    :include-source:
@@ -85,13 +93,13 @@ A 'base' `Cycler` object is some what useful
    fig, (ax1, ax2) = plt.subplots(1, 2, tight_layout=True, figsize=(8, 4))
    x = np.arange(10)
 
-   single_cycle = cycler('c', ['r', 'g', 'b'])
+   color_cycle = cycler('c', ['r', 'g', 'b'])
 
-   for i, sty in enumerate(single_cycle):
+   for i, sty in enumerate(color_cycle):
       ax1.plot(x, x*(i+1), **sty)
 
 
-   for i, sty in zip(range(1, 10), cycle(single_cycle)):
+   for i, sty in zip(range(1, 10), cycle(color_cycle)):
       ax2.plot(x, x*i, **sty)
 
 
@@ -109,6 +117,16 @@ A 'base' `Cycler` object is some what useful
        print(v)
 
    len(color_cycle)
+
+
+   fig, (ax1, ax2) = plt.subplots(1, 2, tight_layout=True, figsize=(8, 4))
+   x = np.arange(10)
+
+
+   for i, sty in enumerate(color_cycle):
+      ax1.plot(x, x*(i+1), **sty)
+
+
 
 
 
@@ -157,11 +175,11 @@ complicated cycles to be defined very succinctly
    fig, (ax1, ax2) = plt.subplots(1, 2, tight_layout=True, figsize=(8, 4))
    x = np.arange(10)
 
-   single_cycle = cycler('c', ['r', 'g', 'b'])
+   color_cycle = cycler('c', ['r', 'g', 'b'])
 
-   for i, sty in enumerate(single_cycle):
+   for i, sty in enumerate(color_cycle):
       ax1.plot(x, x*(i+1), **sty)
 
 
-   for i, sty in zip(range(1, 10), cycle(single_cycle)):
+   for i, sty in zip(range(1, 10), cycle(color_cycle)):
       ax2.plot(x, x*i, **sty)
