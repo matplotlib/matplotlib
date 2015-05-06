@@ -87,6 +87,8 @@ def figure_edit(axes, parent=None):
                          ('Edgecolor', line.get_markeredgecolor()),
                          ]
             curves.append([curvedata, label, ""])
+    # make sure that there is at least one displayed curve
+    has_curve = bool(curves)
 
     datalist = [(general, "Axes", "")]
     if has_curve:
