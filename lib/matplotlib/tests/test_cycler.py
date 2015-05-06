@@ -89,7 +89,22 @@ def test_failures():
 def test_simplify():
     c1 = cycler('c', 'rgb')
     c2 = cycler('ec', c1)
+    for c in [c1 * c2, c2 * c1, c1 + c2]:
+        yield _cycles_equal, c, c.simplify()
+
+
+def test_multiply():
+    c1 = cycler('c', 'rgb')
+    yield _cycler_helper, 2*c1, 6, ['c'], ['rgb'*2]
+
+    c2 = cycler('ec', c1)
     c3 = c1 * c2
-    c4 = c1 + c2
-    yield _cycles_equal, c3, c3.simplify()
-    yield _cycles_equal, c4, c4.simplify()
+
+    yield _cycles_equal, 2*c3, c3*2
+
+
+def test_mul_fails():
+    c1 = cycler('c', 'rgb')
+    assert_raises(TypeError, mul, c1,  2.0)
+    assert_raises(TypeError, mul, c1,  'a')
+    assert_raises(TypeError, mul, c1,  [])

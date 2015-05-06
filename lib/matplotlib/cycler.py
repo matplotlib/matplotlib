@@ -104,7 +104,17 @@ class Cycler(object):
         return Cycler(self, other, zip)
 
     def __mul__(self, other):
-        return Cycler(self, other, product)
+        if isinstance(other, Cycler):
+            return Cycler(self, other, product)
+        elif isinstance(other, int):
+            trans = self._transpose()
+            return reduce(add, (cycler(k, v*other)
+                                for k, v in six.iteritems(trans)))
+        else:
+            return NotImplemented
+
+    def __rmul__(self, other):
+        return self * other
 
     def __len__(self):
         op_dict = {zip: min, product: mul}
