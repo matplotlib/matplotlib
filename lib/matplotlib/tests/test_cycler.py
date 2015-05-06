@@ -3,7 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import zip
-from matplotlib.cycler import cycler
+from matplotlib.cycler import cycler, Cycler
 from nose.tools import assert_equal, assert_raises
 from itertools import product
 from operator import add, iadd, mul, imul
@@ -110,3 +110,18 @@ def test_mul_fails():
     assert_raises(TypeError, mul, c1,  2.0)
     assert_raises(TypeError, mul, c1,  'a')
     assert_raises(TypeError, mul, c1,  [])
+
+
+def test_getitem():
+    c1 = cycler('lw', range(15))
+    for slc in (slice(None, None, None),
+                slice(None, None, -1),
+                slice(1, 5, None),
+                slice(0, 5, 2)):
+        yield _cycles_equal, c1[slc], cycler('lw', range(15)[slc])
+
+
+def test_fail_getime():
+    c1 = cycler('lw', range(15))
+    assert_raises(ValueError, Cycler.__getitem__, c1, 0)
+    assert_raises(ValueError, Cycler.__getitem__, c1, [0, 1])

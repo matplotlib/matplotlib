@@ -94,6 +94,15 @@ class Cycler(object):
         ret._keys = set([label])
         return ret
 
+    def __getitem__(self, key):
+        # TODO : maybe add numpy style fancy slicing
+        if isinstance(key, slice):
+            trans = self._transpose()
+            return reduce(add, (cycler(k, v[key])
+                                for k, v in six.iteritems(trans)))
+        else:
+            raise ValueError("Can only use slices with Cycler.__getitem__")
+
     def __iter__(self):
         if self._right is None:
             return iter(self._left)
