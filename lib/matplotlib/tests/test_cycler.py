@@ -39,9 +39,8 @@ def test_compose():
     yield _cycler_helper, c2+c1, 3, ['c', 'lw'], [list('rgb'), range(3)]
     yield _cycles_equal, c2+c1, c1+c2
     # miss-matched add lengths
-    yield _cycler_helper, c1+c3, 3, ['c', 'lw'], [list('rgb'), range(3)]
-    yield _cycler_helper, c3+c1, 3, ['c', 'lw'], [list('rgb'), range(3)]
-    yield _cycles_equal, c3+c1, c1+c3
+    assert_raises(ValueError, add, c1, c3)
+    assert_raises(ValueError, add, c3, c1)
 
     # multiplication
     target = zip(*product(list('rgb'), range(3)))

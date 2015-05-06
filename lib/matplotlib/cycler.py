@@ -110,6 +110,9 @@ class Cycler(object):
         return self._compose()
 
     def __add__(self, other):
+        if len(self) != len(other):
+            raise ValueError("Can only add equal length cycles, "
+                             "not {0} and {1}".format(len(self), len(other)))
         return Cycler(self, other, zip)
 
     def __mul__(self, other):
