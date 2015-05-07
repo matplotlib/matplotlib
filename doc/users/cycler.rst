@@ -81,27 +81,13 @@ kwarg iterator, was developed.
 `Cycler` Usage
 ==============
 
-A 'base' `Cycler` object is some what useful and can be used to easily
-cycle over a single style
+Basic
+-----
 
-.. plot::
-   :include-source:
-
-   from matplotlib.cycler import cycler
-   from itertools import cycle
-
-   fig, (ax1, ax2) = plt.subplots(1, 2, tight_layout=True, figsize=(8, 4))
-   x = np.arange(10)
-
-   color_cycle = cycler('c', ['r', 'g', 'b'])
-
-   for i, sty in enumerate(color_cycle):
-      ax1.plot(x, x*(i+1), **sty)
-
-
-   for i, sty in zip(range(1, 10), cycle(color_cycle)):
-      ax2.plot(x, x*i, **sty)
-
+A 'base' `Cycler` object is somewhat useful and can be used to easily
+cycle over a single style.  To create a base `Cycler` use the `cycler`
+function to link a key/style/kwarg to series of values.  The key can be
+any hashable object (as it will eventually be used as the key in a `dict`).
 
 .. ipython:: python
 
@@ -109,61 +95,136 @@ cycle over a single style
    from matplotlib.cycler import cycler
 
 
-   color_cycle = cycler('c', ['r', 'g', 'b'])
-
+   color_cycle = cycler('color', ['r', 'g', 'b'])
    color_cycle
+
+The `Cycler` object knows it's length and keys:
+
+.. ipython:: python
+
+
+   len(color_cycle)
+   color_cycle.keys
+
+Iterating over this object will yield a series of `dicts` keyed on
+the key with a single value from the series
+
+.. ipython:: python
 
    for v in color_cycle:
        print(v)
 
-   len(color_cycle)
-
-
-   fig, (ax1, ax2) = plt.subplots(1, 2, tight_layout=True, figsize=(8, 4))
-   x = np.arange(10)
-
-
-   for i, sty in enumerate(color_cycle):
-      ax1.plot(x, x*(i+1), **sty)
-
-
-
-
-
-However they are most useful when composed.  They can be added
+Basic `Cycler` objects can be passed as the second argument to `cycler`
+which is copy cyclers to a new key.
 
 .. ipython:: python
 
-   lw_cycle = cycler('lw', range(1, 5))
-   add_cycle = color_cycle + lw_cycle
+   cycler('ec', color_cycle)
 
-   lw_cycle
-   add_cycle
 
-   for v in add_cycle:
-       print(v)
+Composition
+-----------
 
-   len(add_cycle)
+A single `Cycler` is not all that useful, they can just as easily be
+replaced by a single `for` loop.  Fortunately, `Cycler` objects can be
+composed to easily generate complex, multi-key cycles.
 
-or multiplied
+Addition
+~~~~~~~~
+
+Equal length `Cycler` s with different keys can be added to get the
+'inner' product of two cycles
+
+.. ipython:: python
+
+   lw_cycle = cycler('lw', range(1, 4))
+
+   wc = lw_cycle + color_cycle
+
+The result has the same length and has keys which are the union of the
+two input `Cycler` s.
 
 .. ipython:: python
 
-   prod_cycle = color_cycle * lw_cycle
+   len(wc)
+   wc.keys
 
-   color_cycle
-   lw_cycle
-   prod_cycle
-
-   for v in prod_cycle:
-       print(v)
-
-   len(prod_cycle)
-
-The result of composition is another `Cycler` object which allows very
-complicated cycles to be defined very succinctly
+and iterating over the result is the zip of the two input cycles
 
 .. ipython:: python
+
+   for s in wc:
+       print(s)
+
+As with arithmetic, addition is commutative
+
+.. ipython:: python
+
+   for a, b in zip(lw_cycle + color_cycle, color_cycle + lw_cycle):
+      print(a == b)
+
+
+Multiplication
+~~~~~~~~~~~~~~
+
+Any pair of `Cycler` can be multiplied
+
+.. ipython:: python
+
+   m_cycle = cycler('marker', ['s', 'o'])
+
+   m_c = m_cycle * color_cycle
+
+which gives the 'outer product' of the two cycles (same as
+:func:`itertools.prod` )
+
+.. ipython:: python
+
+   len(m_c)
+   m_c.keys
+   for s in m_c:
+       print(s)
+
+Note that unlike addition, multiplication is not commutative (like
+matrices)
+
+.. ipython:: python
+
+   c_m = color_cycle * m_cycle
+   for a, b in zip(c_m, m_c):
+      print(a, b)
+
+
+
+
+Integer Multiplication
+~~~~~~~~~~~~~~~~~~~~~~
+
+`Cycler` s can also be multiplied by integer values to increase the length.
+
+.. ipython:: python
+
+   color_cycle * 2
+   2 * color_cycle
+
+
+
+Slicing
+-------
+
+Cycles can be sliced with `silce` objects
+
+.. ipython:: python
+
+   color_cycle[::-1]
+   color_cycle[:2]
+   color_cycle[1:]
+
+to return a sub-set of the cycle as a new `Cycler`.  They can also be multiplied
+by scalars to make fixed length periodic cycles
+
+Examples
+--------
 
 
 .. plot::
@@ -183,3 +244,42 @@ complicated cycles to be defined very succinctly
 
    for i, sty in zip(range(1, 10), cycle(color_cycle)):
       ax2.plot(x, x*i, **sty)
+
+
+.. plot::
+   :include-source:
+
+   from matplotlib.cycler import cycler
+   from itertools import cycle
+
+   fig, (ax1, ax2) = plt.subplots(1, 2, tight_layout=True, figsize=(8, 4))
+   x = np.arange(10)
+
+   color_cycle = cycler('c', ['r', 'g', 'b'])
+
+   for i, sty in enumerate(color_cycle):
+      ax1.plot(x, x*(i+1), **sty)
+
+
+   for i, sty in zip(range(1, 10), cycle(color_cycle)):
+      ax2.plot(x, x*i, **sty)
+
+
+Exceptions
+----------
+
+
+A `ValueError` is raised if unequal length `Cycler` s are added together
+
+.. ipython:: python
+   :okexcept:
+
+   color_cycle + ls_cycle
+
+or if two cycles which have overlapping keys are composed
+
+.. ipython:: python
+   :okexcept:
+
+   color_cycle + color_cycle
+   color_cycle * color_cycle
