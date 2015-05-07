@@ -163,6 +163,19 @@ class Cycler(object):
             msg = "({left!r} {op} {right!r})"
             return msg.format(left=self._left, op=op, right=self._right)
 
+    def _repr_html_(self):
+        # an table showing the value of each key through a full cycle
+        output = "<table>"
+        for key in self.keys:
+            output += "<th>{key!r}</th>".format(key=key)
+        for d in iter(self):
+            output += "<tr>"
+            for val in d.values():
+                output += "<td>{val!r}</td>".format(val=val)
+            output += "</tr>"
+        output += "</table>"
+        return output
+
     def _transpose(self):
         """
         Internal helper function which iterates through the
