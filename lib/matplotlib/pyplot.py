@@ -309,8 +309,10 @@ def xkcd(scale=1, length=100, randomness=2):
         rcParams['lines.linewidth'] = 2.0
         rcParams['figure.facecolor'] = 'white'
         rcParams['grid.linewidth'] = 0.0
+        rcParams['axes.grid'] = False
         rcParams['axes.unicode_minus'] = False
         rcParams['axes.color_cycle'] = ['b', 'r', 'c', 'm']
+        rcParams['axes.edgecolor'] = 'black'
         rcParams['xtick.major.size'] = 8
         rcParams['xtick.major.width'] = 3
         rcParams['ytick.major.size'] = 8
