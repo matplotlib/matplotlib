@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.org/) -->
+<svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0.000000 54.000000 
+L 378.000000 54.000000 
+L 378.000000 0.000000 
+L 0.000000 0.000000 
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="text_1">
+   <!-- $M \, M \thinspace M \/ M \&gt; M \: M \; M \ M \enspace M \quad M \qquad M \! M$ -->
+   <defs>
+    <path d="M 93.296875 66.203125 
+L 76.796875 0.000000 
+L 68.296875 0.000000 
+L 81.796875 54.296875 
+L 43.203125 0.000000 
+L 41.093750 0.000000 
+L 29.406250 54.093750 
+L 16.000000 0.000000 
+L 7.500000 0.000000 
+L 24.000000 66.203125 
+L 36.296875 66.203125 
+L 46.703125 18.000000 
+L 81.000000 66.203125 
+z
+" id="STIXGeneral-Italic-1d614"/>
+   </defs>
+   <g transform="translate(106.08 30.31125)scale(0.12 -0.12)">
+    <use transform="translate(0.0 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
+    <use transform="translate(96.9002382671 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
+    <use transform="translate(193.800476534 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
+    <use transform="translate(290.700714801 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
+    <use transform="translate(391.80053256 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
+    <use transform="translate(492.900350318 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
+    <use transform="translate(598.200503568 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
+    <use transform="translate(707.700236309 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
+    <use transform="translate(829.800219525 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
+    <use transform="translate(989.700198162 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
+    <use transform="translate(1225.20016764 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
+    <use transform="translate(1296.89990496 0.796875)" xlink:href="#STIXGeneral-Italic-1d614"/>
+   </g>
+  </g>
+ </g>
+</svg>
