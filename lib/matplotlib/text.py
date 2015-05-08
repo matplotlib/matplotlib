@@ -731,57 +731,57 @@ class Text(Artist):
 
         renderer.open_group('text', self.get_gid())
 
-        with _wrap_text(self) as self:
-            bbox, info, descent = self._get_layout(renderer)
-            trans = self.get_transform()
+        with _wrap_text(self) as textobj:
+            bbox, info, descent = textobj._get_layout(renderer)
+            trans = textobj.get_transform()
 
-            # don't use self.get_position here, which refers to text position
-            # in Text, and dash position in TextWithDash:
-            posx = float(self.convert_xunits(self._x))
-            posy = float(self.convert_yunits(self._y))
+            # don't use textobj.get_position here, which refers to text
+            # position in Text, and dash position in TextWithDash:
+            posx = float(textobj.convert_xunits(textobj._x))
+            posy = float(textobj.convert_yunits(textobj._y))
 
             posx, posy = trans.transform_point((posx, posy))
             canvasw, canvash = renderer.get_canvas_width_height()
 
             # draw the FancyBboxPatch
-            if self._bbox_patch:
-                self._draw_bbox(renderer, posx, posy)
+            if textobj._bbox_patch:
+                textobj._draw_bbox(renderer, posx, posy)
 
             gc = renderer.new_gc()
-            gc.set_foreground(self.get_color())
-            gc.set_alpha(self.get_alpha())
-            gc.set_url(self._url)
-            self._set_gc_clip(gc)
+            gc.set_foreground(textobj.get_color())
+            gc.set_alpha(textobj.get_alpha())
+            gc.set_url(textobj._url)
+            textobj._set_gc_clip(gc)
 
-            if self._bbox:
-                bbox_artist(self, renderer, self._bbox)
-            angle = self.get_rotation()
+            if textobj._bbox:
+                bbox_artist(textobj, renderer, textobj._bbox)
+            angle = textobj.get_rotation()
 
             for line, wh, x, y in info:
                 if not np.isfinite(x) or not np.isfinite(y):
                     continue
 
-                mtext = self if len(info) == 1 else None
+                mtext = textobj if len(info) == 1 else None
                 x = x + posx
                 y = y + posy
                 if renderer.flipy():
                     y = canvash - y
-                clean_line, ismath = self.is_math_text(line)
+                clean_line, ismath = textobj.is_math_text(line)
 
-                if self.get_path_effects():
+                if textobj.get_path_effects():
                     from matplotlib.patheffects import PathEffectRenderer
-                    textrenderer = PathEffectRenderer(self.get_path_effects(),
-                                                      renderer)
+                    textrenderer = PathEffectRenderer(
+                                        textobj.get_path_effects(), renderer)
                 else:
                     textrenderer = renderer
 
-                if self.get_usetex():
+                if textobj.get_usetex():
                     textrenderer.draw_tex(gc, x, y, clean_line,
-                                          self._fontproperties, angle,
+                                          textobj._fontproperties, angle,
                                           mtext=mtext)
                 else:
                     textrenderer.draw_text(gc, x, y, clean_line,
-                                           self._fontproperties, angle,
+                                           textobj._fontproperties, angle,
                                            ismath=ismath, mtext=mtext)
 
         gc.restore()
