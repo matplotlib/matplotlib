@@ -138,6 +138,10 @@ class Artist(object):
         # protected attribute if Python supported that sort of thing.  The
         # callback has one parameter, which is the child to be removed.
         if self._remove_method is not None:
+            # set the current axes to None
+            self._axes = None
+            # use the call back registered by the axes when the artist
+            # was added to remove it the artist from the axes
             self._remove_method(self)
         else:
             raise NotImplementedError('cannot remove artist')
@@ -700,6 +704,9 @@ class Artist(object):
     def get_rasterized(self):
         "return True if the artist is to be rasterized"
         return self._rasterized
+
+    def set_remove_method(self, f):
+        self._remove_method = f
 
     def set_rasterized(self, rasterized):
         """
