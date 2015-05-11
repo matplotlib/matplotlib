@@ -4440,37 +4440,46 @@ class Axes(_AxesBase):
         filling the regions between *y1* and *y2* where
         ``where==True``
 
-          *x* :
+        Parameters
+        ----------
+        x : array
             An N-length array of the x data
 
-          *y1* :
+        y1 : array
             An N-length array (or scalar) of the y data
 
-          *y2* :
+        y2 : array
             An N-length array (or scalar) of the y data
 
-          *where* :
-            If *None*, default to fill between everywhere.  If not *None*,
+        where : array, optional
+            If `None`, default to fill between everywhere.  If not `None`,
             it is an N-length numpy boolean array and the fill will
             only happen over the regions where ``where==True``.
 
-          *interpolate* :
-            If *True*, interpolate between the two lines to find the
+        interpolate : bool, optional
+            If `True`, interpolate between the two lines to find the
             precise point of intersection.  Otherwise, the start and
             end points of the filled region will only occur on explicit
             values in the *x* array.
 
-          *kwargs* :
-            Keyword args passed on to the
-            :class:`~matplotlib.collections.PolyCollection`.
+
+        Note
+        ----
+
+        Additional Keyword args passed on to the
+        :class:`~matplotlib.collections.PolyCollection`.
 
         kwargs control the :class:`~matplotlib.patches.Polygon` properties:
 
         %(PolyCollection)s
 
+        Examples
+        --------
+
         .. plot:: mpl_examples/pylab_examples/fill_between_demo.py
 
-        .. seealso::
+        See Also
+        --------
 
             :meth:`fill_betweenx`
                 for filling between two sets of x-values
