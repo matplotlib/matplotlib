@@ -107,7 +107,7 @@ def test_bold_font_output():
     ax.set_title('bold-title', fontweight='bold')
 
 
-@image_comparison(baseline_images=['bold_font_output'], extensions=['svg'])
+@image_comparison(baseline_images=['bold_font_output_with_none_fonttype'], extensions=['svg'])
 def test_bold_font_output_with_none_fonttype():
     plt.rcParams['svg.fonttype'] = 'none'
     fig = plt.figure()
