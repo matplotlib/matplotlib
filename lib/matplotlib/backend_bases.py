@@ -1046,7 +1046,8 @@ class GraphicsContextBase(object):
     def set_linestyle(self, style):
         """
         Set the linestyle to be one of ('solid', 'dashed', 'dashdot',
-        'dotted'). One may specify customized dash styles by providing
+        'dotted') or traditional shortcuts ('-', '--', '-.', ':'). 
+        One may specify customized dash styles by providing
         a tuple of (offset, dash pairs). For example, the predefiend
         linestyles have following values.:
 
@@ -1054,6 +1055,11 @@ class GraphicsContextBase(object):
          'dashdot' : (0, (3.0, 5.0, 1.0, 5.0)),
          'dotted'  : (0, (1.0, 3.0)),
         """
+
+        # Conversion from usual shortcuts
+        conversion = {'-': 'solid', '--': 'dashed',
+                      ':': 'dotted', '-.': 'dashdot'}
+        style = conversion.get(style, style)
 
         if style in self.dashd:
             offset, dashes = self.dashd[style]
