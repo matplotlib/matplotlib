@@ -949,6 +949,12 @@ class Line2D(Artist):
         where ``onoffseq`` is an even length tuple of on and off ink
         in points.
 
+
+        ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' |
+                   (offset, on-off-dash-seq) |
+                   ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'None'`` |
+                   ``' '`` | ``''``]
+
         .. seealso::
 
             :meth:`set_drawstyle`
