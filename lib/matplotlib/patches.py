@@ -360,6 +360,11 @@ class Patch(artist.Artist):
         where ``onoffseq`` is an even length tuple of on and off ink
         in points.
 
+        ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' |
+                   (offset, on-off-dash-seq) |
+                   ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'None'`` |
+                   ``' '`` | ``''``]
+
         Parameters
         ----------
         ls : { '-',  '--', '-.', ':'} and more see description
