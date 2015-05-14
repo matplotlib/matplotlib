@@ -344,10 +344,31 @@ class Patch(artist.Artist):
         """
         Set the patch linestyle
 
-        ACCEPTS: ['solid' | 'dashed' | 'dashdot' | 'dotted']
+        ===========================   =================
+        linestyle                     description
+        ===========================   =================
+        ``'-'`` or ``'solid'``        solid line
+        ``'--'`` or  ``'dashed'``     dashed line
+        ``'-.'`` or  ``'dash_dot'``   dash-dotted line
+        ``':'`` or ``'dotted'``       dotted line
+        ===========================   =================
+
+        Alternatively a dash tuple of the following form can be provided::
+
+            (offset, onoffseq),
+
+        where ``onoffseq`` is an even length tuple of on and off ink
+        in points.
+
+        Parameters
+        ----------
+        ls : { '-',  '--', '-.', ':'} and more see description
+            The line style.
         """
         if ls is None:
             ls = "solid"
+
+        ls = cbook.ls_mapper.get(ls, ls)
         self._linestyle = ls
 
     def set_ls(self, ls):

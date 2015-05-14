@@ -16,7 +16,7 @@ from numpy import ma
 from matplotlib import verbose
 from . import artist
 from .artist import Artist
-from .cbook import iterable, is_string_like, is_numlike, ls_mapper
+from .cbook import iterable, is_string_like, is_numlike, ls_mapper_r
 from .colors import colorConverter
 from .path import Path
 from .transforms import Bbox, TransformedPath, IdentityTransform
@@ -921,55 +921,74 @@ class Line2D(Artist):
         """
         self._linewidth = float(w)
 
-    def set_linestyle(self, linestyle):
+    def set_linestyle(self, ls):
         """
-        Set the linestyle of the line (also accepts drawstyles)
+        Set the linestyle of the line (also accepts drawstyles,
+        e.g., ``'steps--'``)
 
 
-        ================    =================
-        linestyle           description
-        ================    =================
-        ``'-'``             solid
-        ``'--'``            dashed
-        ``'-.'``            dash_dot
-        ``':'``             dotted
-        ``'None'``          draw nothing
-        ``' '``             draw nothing
-        ``''``              draw nothing
-        ================    =================
+        ===========================   =================
+        linestyle                     description
+        ===========================   =================
+        ``'-'`` or ``'solid'``        solid line
+        ``'--'`` or  ``'dashed'``     dashed line
+        ``'-.'`` or  ``'dash_dot'``   dash-dotted line
+        ``':'`` or ``'dotted'``       dotted line
+        ``'None'``                    draw nothing
+        ``' '``                       draw nothing
+        ``''``                        draw nothing
+        ===========================   =================
 
         'steps' is equivalent to 'steps-pre' and is maintained for
         backward-compatibility.
+
+        Alternatively a dash tuple of the following form can be provided::
+
+            (offset, onoffseq),
+
+        where ``onoffseq`` is an even length tuple of on and off ink
+        in points.
 
         .. seealso::
 
             :meth:`set_drawstyle`
                To set the drawing style (stepping) of the plot.
 
-        ACCEPTS: [``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'None'`` |
-                  ``' '`` | ``''``]
-
-        and any drawstyle in combination with a linestyle, e.g., ``'steps--'``.
+        Parameters
+        ----------
+        ls : { '-',  '--', '-.', ':'} and more see description
+            The line style.
         """
+        if not is_string_like(ls):
+            if len(ls) != 2:
+                raise ValueError()
+
+            self.set_dashes(ls[1])
+            self._linestyle = "--"
+            return
 
         for ds in self.drawStyleKeys:  # long names are first in the list
-            if linestyle.startswith(ds):
+            if ls.startswith(ds):
                 self.set_drawstyle(ds)
-                if len(linestyle) > len(ds):
-                    linestyle = linestyle[len(ds):]
+                if len(ls) > len(ds):
+                    ls = ls[len(ds):]
                 else:
-                    linestyle = '-'
+                    ls = '-'
                 break
 
-        if linestyle not in self._lineStyles:
-            if linestyle in ls_mapper:
-                linestyle = ls_mapper[linestyle]
-            else:
-                verbose.report('Unrecognized line style %s, %s' %
-                               (linestyle, type(linestyle)))
-        if linestyle in [' ', '']:
-            linestyle = 'None'
-        self._linestyle = linestyle
+        if ls in [' ', '', 'none']:
+            ls = 'None'
+
+        if ls not in self._lineStyles:
+            try:
+                ls = ls_mapper_r[ls]
+            except KeyError:
+                raise ValueError(("You passed in an invalid linestyle, "
+                                  "`{}`.  See "
+                                  "docs of Line2D.set_linestyle for "
+                                  "valid values.").format(ls))
+
+        self._linestyle = ls
 
     @docstring.dedent_interpd
     def set_marker(self, marker):

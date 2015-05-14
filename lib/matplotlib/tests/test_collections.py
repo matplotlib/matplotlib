@@ -325,6 +325,19 @@ def test__EventCollection__set_linestyle():
     splt.set_title('EventCollection: set_linestyle')
 
 
+@image_comparison(baseline_images=['EventCollection_plot__set_ls_dash'],
+                  remove_text=True)
+def test__EventCollection__set_linestyle_single_dash():
+    '''
+    check to make sure set_linestyle accepts a single dash pattern
+    '''
+    splt, coll, _ = generate_EventCollection_plot()
+    new_linestyle = (0, (6., 6.))
+    coll.set_linestyle(new_linestyle)
+    assert_equal(coll.get_linestyle(), [(0, (6.0, 6.0))])
+    splt.set_title('EventCollection: set_linestyle')
+
+
 @image_comparison(baseline_images=['EventCollection_plot__set_linewidth'])
 def test__EventCollection__set_linewidth():
     '''
@@ -496,7 +509,7 @@ def test_polycollection_close():
         vertsQuad * len(zpos), linewidth=0.25)
     poly.set_alpha(0.7)
 
-    ## need to have a z-value for *each* polygon = element!
+    # need to have a z-value for *each* polygon = element!
     zs = []
     cs = []
     for z, c in zip(zpos, colors):
@@ -507,7 +520,7 @@ def test_polycollection_close():
 
     ax.add_collection3d(poly, zs=zs, zdir='y')
 
-    ## axis limit settings:
+    # axis limit settings:
     ax.set_xlim3d(0, 4)
     ax.set_zlim3d(0, 3)
     ax.set_ylim3d(0, 4)
@@ -576,6 +589,12 @@ def test_picking():
     found, indices = col.contains(event)
     assert found
     assert_array_equal(indices['ind'], [0])
+
+
+@cleanup
+def test_linestyle_single_dashes():
+    plt.scatter([0, 1, 2], [0, 1, 2], linestyle=(0., [2., 2.]))
+    plt.draw()
 
 
 if __name__ == '__main__':
