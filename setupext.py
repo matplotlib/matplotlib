@@ -270,26 +270,11 @@ class PkgConfig(object):
             self.has_pkgconfig = False
         else:
             self.pkg_config = os.environ.get('PKG_CONFIG', 'pkg-config')
-            self.set_pkgconfig_path()
             self.has_pkgconfig = shutil.which(self.pkg_config) is not None
             if not self.has_pkgconfig:
                 print("IMPORTANT WARNING:\n"
                       "    pkg-config is not installed.\n"
                       "    matplotlib may not be able to find some of its dependencies")
-
-    def set_pkgconfig_path(self):
-        pkgconfig_path = sysconfig.get_config_var('LIBDIR')
-        if pkgconfig_path is None:
-            return
-
-        pkgconfig_path = os.path.join(pkgconfig_path, 'pkgconfig')
-        if not os.path.isdir(pkgconfig_path):
-            return
-
-        try:
-            os.environ['PKG_CONFIG_PATH'] += ':' + pkgconfig_path
-        except KeyError:
-            os.environ['PKG_CONFIG_PATH'] = pkgconfig_path
 
     def setup_extension(self, ext, package, default_include_dirs=[],
                         default_library_dirs=[], default_libraries=[],
