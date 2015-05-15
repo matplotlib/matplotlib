@@ -13,7 +13,7 @@ from numpy import ma
 import matplotlib
 
 import matplotlib.cbook as cbook
-from matplotlib.cbook import _string_to_bool, mplDeprecation
+from matplotlib.cbook import mplDeprecation, STEP_LOOKUP_MAP
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
@@ -4428,13 +4428,11 @@ class Axes(_AxesBase):
 
     @docstring.dedent_interpd
     def fill_between(self, x, y1, y2=0, where=None, interpolate=False,
+                     step_where=None,
                      **kwargs):
         """
         Make filled polygons between two curves.
 
-        Call signature::
-
-          fill_between(x, y1, y2=0, where=None, **kwargs)
 
         Create a :class:`~matplotlib.collections.PolyCollection`
         filling the regions between *y1* and *y2* where
@@ -4462,9 +4460,12 @@ class Axes(_AxesBase):
             end points of the filled region will only occur on explicit
             values in the *x* array.
 
+        step_where : {'pre', 'post', 'mid'}, optional
+            If not None, fill with step logic.
 
-        Note
-        ----
+
+        Notes
+        -----
 
         Additional Keyword args passed on to the
         :class:`~matplotlib.collections.PolyCollection`.
@@ -4516,6 +4517,9 @@ class Axes(_AxesBase):
             xslice = x[ind0:ind1]
             y1slice = y1[ind0:ind1]
             y2slice = y2[ind0:ind1]
+            if step_where is not None:
+                step_func = STEP_LOOKUP_MAP[step_where]
+                xslice, y1slice, y2slice = step_func(xslice, y1slice, y2slice)
 
             if not len(xslice):
                 continue
@@ -4576,7 +4580,8 @@ class Axes(_AxesBase):
         return collection
 
     @docstring.dedent_interpd
-    def fill_betweenx(self, y, x1, x2=0, where=None, **kwargs):
+    def fill_betweenx(self, y, x1, x2=0, where=None,
+                      step_where=None, **kwargs):
         """
         Make filled polygons between two horizontal curves.
 
@@ -4588,19 +4593,27 @@ class Axes(_AxesBase):
         filling the regions between *x1* and *x2* where
         ``where==True``
 
-          *y* :
+        Parameters
+        ----------
+        y : array
             An N-length array of the y data
 
-          *x1* :
+        x1 : array
             An N-length array (or scalar) of the x data
 
-          *x2* :
+        x2 : array, optional
             An N-length array (or scalar) of the x data
 
-          *where* :
-             If *None*, default to fill between everywhere.  If not *None*,
-             it is a N length numpy boolean array and the fill will
-             only happen over the regions where ``where==True``
+        where : array, optional
+            If *None*, default to fill between everywhere.  If not *None*,
+            it is a N length numpy boolean array and the fill will
+            only happen over the regions where ``where==True``
+
+        step_where : {'pre', 'post', 'mid'}, optional
+            If not None, fill with step logic.
+
+        Notes
+        -----
 
           *kwargs* :
             keyword args passed on to the
@@ -4610,9 +4623,13 @@ class Axes(_AxesBase):
 
         %(PolyCollection)s
 
+        Examples
+        --------
+
         .. plot:: mpl_examples/pylab_examples/fill_betweenx_demo.py
 
-        .. seealso::
+        See Also
+        --------
 
             :meth:`fill_between`
                 for filling between two sets of y-values
@@ -4649,6 +4666,9 @@ class Axes(_AxesBase):
             yslice = y[ind0:ind1]
             x1slice = x1[ind0:ind1]
             x2slice = x2[ind0:ind1]
+            if step_where is not None:
+                step_func = STEP_LOOKUP_MAP[step_where]
+                yslice, x1slice, x2slice = step_func(yslice, x1slice, x2slice)
 
             if not len(yslice):
                 continue
