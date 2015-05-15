@@ -16,7 +16,9 @@ from numpy import ma
 from matplotlib import verbose
 from . import artist
 from .artist import Artist
-from .cbook import iterable, is_string_like, is_numlike, ls_mapper_r
+from .cbook import (iterable, is_string_like, is_numlike, ls_mapper_r,
+                    pts_to_prestep, pts_to_poststep, pts_to_midstep)
+
 from .colors import colorConverter
 from .path import Path
 from .transforms import Bbox, TransformedPath, IdentityTransform
@@ -1154,36 +1156,21 @@ class Line2D(Artist):
         self._lineFunc(renderer, gc, path, trans)
 
     def _draw_steps_pre(self, renderer, gc, path, trans):
-        vertices = self._xy
-        steps = ma.zeros((2 * len(vertices) - 1, 2), np.float_)
-
-        steps[0::2, 0], steps[1::2, 0] = vertices[:, 0], vertices[:-1, 0]
-        steps[0::2, 1], steps[1:-1:2, 1] = vertices[:, 1], vertices[1:, 1]
+        steps = np.vstack(pts_to_prestep(*self._xy.T)).T
 
         path = Path(steps)
         path = path.transformed(self.get_transform())
         self._lineFunc(renderer, gc, path, IdentityTransform())
 
     def _draw_steps_post(self, renderer, gc, path, trans):
-        vertices = self._xy
-        steps = ma.zeros((2 * len(vertices) - 1, 2), np.float_)
-
-        steps[::2, 0], steps[1:-1:2, 0] = vertices[:, 0], vertices[1:, 0]
-        steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:-1, 1]
+        steps = np.vstack(pts_to_poststep(*self._xy.T)).T
 
         path = Path(steps)
         path = path.transformed(self.get_transform())
         self._lineFunc(renderer, gc, path, IdentityTransform())
 
     def _draw_steps_mid(self, renderer, gc, path, trans):
-        vertices = self._xy
-        steps = ma.zeros((2 * len(vertices), 2), np.float_)
-
-        steps[1:-1:2, 0] = 0.5 * (vertices[:-1, 0] + vertices[1:, 0])
-        steps[2::2, 0] = 0.5 * (vertices[:-1, 0] + vertices[1:, 0])
-        steps[0, 0] = vertices[0, 0]
-        steps[-1, 0] = vertices[-1, 0]
-        steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:, 1]
+        steps = np.vstack(pts_to_midstep(*self._xy.T)).T
 
         path = Path(steps)
         path = path.transformed(self.get_transform())
