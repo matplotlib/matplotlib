@@ -253,7 +253,8 @@ class PkgConfig(object):
             self.has_pkgconfig = False
         else:
             self.set_pkgconfig_path()
-            status, output = getstatusoutput("pkg-config --help")
+            self.pkgconfig = os.environ.get('PKG_CONFIG', 'pkg-config')
+            status, output = getstatusoutput("%s --help" % self.pkgconfig)
             self.has_pkgconfig = (status == 0)
             if not self.has_pkgconfig:
                 print("IMPORTANT WARNING:")
@@ -286,7 +287,7 @@ class PkgConfig(object):
 
         executable = alt_exec
         if self.has_pkgconfig:
-            executable = 'pkg-config {0}'.format(package)
+            executable = '%s %s' % (self.pkgconfig, package)
 
         use_defaults = True
 
@@ -330,7 +331,7 @@ class PkgConfig(object):
             return None
 
         status, output = getstatusoutput(
-            "pkg-config %s --modversion" % (package))
+            '%s %s --modversion' % (self.pkgconfig, package))
         if status == 0:
             return output
         return None
