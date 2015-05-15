@@ -252,7 +252,6 @@ class PkgConfig(object):
         if sys.platform == 'win32':
             self.has_pkgconfig = False
         else:
-            self.set_pkgconfig_path()
             self.pkgconfig = os.environ.get('PKG_CONFIG', 'pkg-config')
             status, output = getstatusoutput("%s --help" % self.pkgconfig)
             self.has_pkgconfig = (status == 0)
@@ -261,20 +260,6 @@ class PkgConfig(object):
                 print(
                     "    pkg-config is not installed.\n"
                     "    matplotlib may not be able to find some of its dependencies")
-
-    def set_pkgconfig_path(self):
-        pkgconfig_path = sysconfig.get_config_var('LIBDIR')
-        if pkgconfig_path is None:
-            return
-
-        pkgconfig_path = os.path.join(pkgconfig_path, 'pkgconfig')
-        if not os.path.isdir(pkgconfig_path):
-            return
-
-        try:
-            os.environ['PKG_CONFIG_PATH'] += ':' + pkgconfig_path
-        except KeyError:
-            os.environ['PKG_CONFIG_PATH'] = pkgconfig_path
 
     def setup_extension(self, ext, package, default_include_dirs=[],
                         default_library_dirs=[], default_libraries=[],
