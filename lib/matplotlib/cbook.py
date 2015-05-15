@@ -2551,6 +2551,12 @@ def pts_to_midstep(x, *args):
     # convert 2D array back to tuple
     return tuple(steps)
 
+STEP_LOOKUP_MAP = {'pre': pts_to_prestep,
+                   'post': pts_to_poststep,
+                   'mid': pts_to_midstep,
+                   'step-pre': pts_to_prestep,
+                   'step-post': pts_to_poststep,
+                   'step-mid': pts_to_midstep}
 
 # Numpy > 1.6.x deprecates putmask in favor of the new copyto.
 # So long as we support versions 1.6.x and less, we need the
