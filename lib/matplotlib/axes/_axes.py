@@ -4615,8 +4615,7 @@ class Axes(_AxesBase):
         Notes
         -----
 
-          *kwargs* :
-            keyword args passed on to the
+        keyword args passed on to the
             :class:`~matplotlib.collections.PolyCollection`
 
         kwargs control the :class:`~matplotlib.patches.Polygon` properties:
