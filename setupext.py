@@ -218,7 +218,7 @@ def make_extension(name, files, *args, **kwargs):
     """
     Make a new extension.  Automatically sets include_dirs and
     library_dirs to the base directories appropriate for this
-    platform.
+    platform when pkg-config is not available.
 
     `name` is the name of the extension.
 
@@ -228,14 +228,15 @@ def make_extension(name, files, *args, **kwargs):
     `distutils.core.Extension` constructor.
     """
     ext = DelayedExtension(name, files, *args, **kwargs)
-    for dir in get_base_dirs():
-        include_dir = os.path.join(dir, 'include')
-        if os.path.exists(include_dir):
-            ext.include_dirs.append(include_dir)
-        for lib in ('lib', 'lib64'):
-            lib_dir = os.path.join(dir, lib)
-            if os.path.exists(lib_dir):
-                ext.library_dirs.append(lib_dir)
+    if not self.has_pkgconfig:
+        for dir in get_base_dirs():
+            include_dir = os.path.join(dir, 'include')
+            if os.path.exists(include_dir):
+                ext.include_dirs.append(include_dir)
+            for lib in ('lib', 'lib64'):
+                lib_dir = os.path.join(dir, lib)
+                if os.path.exists(lib_dir):
+                    ext.library_dirs.append(lib_dir)
     ext.include_dirs.append('.')
 
     return ext
