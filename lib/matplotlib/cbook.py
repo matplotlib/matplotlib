@@ -2406,6 +2406,152 @@ class _InstanceMethodPickler(object):
         return getattr(self.parent_obj, self.instancemethod_name)
 
 
+def _step_validation(x, *args):
+    """
+    Helper function of `pts_to_*step` functions
+
+    This function does all of the normalization required to the
+    input and generate the template for output
+
+
+    """
+    args = tuple(np.asanyarray(y) for y in args)
+    x = np.asanyarray(x)
+    if x.ndim != 1:
+        raise ValueError("x must be 1 dimenional")
+    if len(args) == 0:
+        raise ValueError("At least one Y value must be passed")
+
+    return np.vstack((x, ) + args)
+
+
+def pts_to_prestep(x, *args):
+    """
+    Covert continuous line to pre-steps
+
+    Given a set of N points convert to 2 N -1 points
+    which when connected linearly give a step function
+    which changes values at the begining the intervals.
+
+    Parameters
+    ----------
+    x : array
+        The x location of the steps
+
+    y1, y2, ... : array
+        Any number of y arrays to be turned into steps.
+        All must be the same length as ``x``
+
+    Returns
+    -------
+    x, y1, y2, .. : array
+        The x and y values converted to steps in the same order
+        as the input.  If the input is length ``N``, each of these arrays
+        will be length ``2N + 1``
+
+
+    Example
+    -------
+
+    >> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
+    """
+    # do normalization
+    vertices = _step_validation(x, *args)
+    # create the output array
+    steps = np.zeros((vertices.shape[0], 2 * len(x) - 1), np.float)
+    # do the to step conversion logic
+    steps[0, 0::2], steps[0, 1::2] = vertices[0, :], vertices[0, :-1]
+    steps[1:, 0::2], steps[1:, 1:-1:2] = vertices[1:, :], vertices[1:, 1:]
+    # convert 2D array back to tuple
+    return tuple(steps)
+
+
+def pts_to_poststep(x, *args):
+    """
+    Covert continuous line to pre-steps
+
+    Given a set of N points convert to 2 N -1 points
+    which when connected linearly give a step function
+    which changes values at the begining the intervals.
+
+    Parameters
+    ----------
+    x : array
+        The x location of the steps
+
+    y1, y2, ... : array
+        Any number of y arrays to be turned into steps.
+        All must be the same length as ``x``
+
+    Returns
+    -------
+    x, y1, y2, .. : array
+        The x and y values converted to steps in the same order
+        as the input.  If the input is length ``N``, each of these arrays
+        will be length ``2N + 1``
+
+
+    Example
+    -------
+
+    >> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
+    """
+    # do normalization
+    vertices = _step_validation(x, *args)
+    # create the output array
+    steps = ma.zeros((vertices.shape[0], 2 * len(x) - 1), np.float)
+    # do the to step conversion logic
+    steps[0, ::2], steps[0, 1:-1:2] = vertices[0, :], vertices[0, 1:]
+    steps[1:, 0::2], steps[1:, 1::2] = vertices[1:, :], vertices[1:, :-1]
+
+    # convert 2D array back to tuple
+    return tuple(steps)
+
+
+def pts_to_midstep(x, *args):
+    """
+    Covert continuous line to pre-steps
+
+    Given a set of N points convert to 2 N -1 points
+    which when connected linearly give a step function
+    which changes values at the begining the intervals.
+
+    Parameters
+    ----------
+    x : array
+        The x location of the steps
+
+    y1, y2, ... : array
+        Any number of y arrays to be turned into steps.
+        All must be the same length as ``x``
+
+    Returns
+    -------
+    x, y1, y2, .. : array
+        The x and y values converted to steps in the same order
+        as the input.  If the input is length ``N``, each of these arrays
+        will be length ``2N + 1``
+
+
+    Example
+    -------
+
+    >> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
+    """
+    # do normalization
+    vertices = _step_validation(x, *args)
+    # create the output array
+    steps = ma.zeros((vertices.shape[0], 2 * len(x)), np.float)
+    steps[0, 1:-1:2] = 0.5 * (vertices[0, :-1] + vertices[0, 1:])
+    steps[0, 2::2] = 0.5 * (vertices[0, :-1] + vertices[0, 1:])
+    steps[0, 0] = vertices[0, 0]
+    steps[0, -1] = vertices[0, -1]
+    steps[1:, 0::2], steps[1:, 1::2] = vertices[1:, :], vertices[1:, :]
+
+    # convert 2D array back to tuple
+    return tuple(steps)
+
+
 # Numpy > 1.6.x deprecates putmask in favor of the new copyto.
 # So long as we support versions 1.6.x and less, we need the
 # following local version of putmask.  We choose to make a
