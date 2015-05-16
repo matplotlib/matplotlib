@@ -75,6 +75,7 @@ class Text3D(mtext.Text):
         x, y = self.get_position()
         self._position3d = np.array((x, y, z))
         self._dir_vec = get_dir_vector(zdir)
+        self.stale = True
 
     def draw(self, renderer):
         proj = proj3d.proj_trans_points([self._position3d, \
@@ -89,11 +90,14 @@ class Text3D(mtext.Text):
         self.set_position((proj[0][0], proj[1][0]))
         self.set_rotation(norm_text_angle(angle))
         mtext.Text.draw(self, renderer)
+        self.stale = False
+
 
 def text_2d_to_3d(obj, z=0, zdir='z'):
     """Convert a Text to a Text3D object."""
     obj.__class__ = Text3D
     obj.set_3d_properties(z, zdir)
+
 
 class Line3D(lines.Line2D):
     '''
@@ -119,12 +123,15 @@ class Line3D(lines.Line2D):
         except TypeError:
             pass
         self._verts3d = juggle_axes(xs, ys, zs, zdir)
+        self.stale = True
 
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
         xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
         self.set_data(xs, ys)
         lines.Line2D.draw(self, renderer)
+        self.stale = False
+
 
 def line_2d_to_3d(line, zs=0, zdir='z'):
     '''
@@ -170,9 +177,10 @@ class Line3DCollection(LineCollection):
         '''
         LineCollection.__init__(self, segments, *args, **kwargs)
 
-    def set_sort_zpos(self,val):
+    def set_sort_zpos(self, val):
         '''Set the position to use for z-sorting.'''
         self._sort_zpos = val
+        self.stale = True
 
     def set_segments(self, segments):
         '''
@@ -202,11 +210,13 @@ class Line3DCollection(LineCollection):
             self.do_3d_projection(renderer)
         LineCollection.draw(self, renderer)
 
+
 def line_collection_2d_to_3d(col, zs=0, zdir='z'):
     """Convert a LineCollection to a Line3DCollection object."""
     segments3d = paths_to_3d_segments(col.get_paths(), zs, zdir)
     col.__class__ = Line3DCollection
     col.set_segments(segments3d)
+
 
 class Patch3D(Patch):
     '''
@@ -322,10 +332,10 @@ class Patch3DCollection(PatchCollection):
         PatchCollection.__init__(self, *args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
-
-    def set_sort_zpos(self,val):
+    def set_sort_zpos(self, val):
         '''Set the position to use for z-sorting.'''
         self._sort_zpos = val
+        self.stale = True
 
     def set_3d_properties(self, zs, zdir):
         # Force the collection to initialize the face and edgecolors
@@ -340,6 +350,7 @@ class Patch3DCollection(PatchCollection):
         self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()
+        self.stale = True
 
     def do_3d_projection(self, renderer):
         xs, ys, zs = self._offsets3d
@@ -356,9 +367,9 @@ class Patch3DCollection(PatchCollection):
         self.set_edgecolors(ecs)
         PatchCollection.set_offsets(self, list(zip(vxs, vys)))
 
-        if vzs.size > 0 :
+        if vzs.size > 0:
             return min(vzs)
-        else :
+        else:
             return np.nan
 
 
@@ -392,6 +403,7 @@ class Path3DCollection(PathCollection):
     def set_sort_zpos(self, val):
         '''Set the position to use for z-sorting.'''
         self._sort_zpos = val
+        self.stale = True
 
     def set_3d_properties(self, zs, zdir):
         # Force the collection to initialize the face and edgecolors
@@ -406,6 +418,7 @@ class Path3DCollection(PathCollection):
         self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()
+        self.stale = True
 
     def do_3d_projection(self, renderer):
         xs, ys, zs = self._offsets3d
@@ -452,6 +465,7 @@ def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
         col.__class__ = Patch3DCollection
     col._depthshade = depthshade
     col.set_3d_properties(zs, zdir)
+
 
 class Poly3DCollection(PolyCollection):
     '''
@@ -502,6 +516,7 @@ class Poly3DCollection(PolyCollection):
         self._zsort = zsort
         self._sort_zpos = None
         self._zsortfunc = zsortfunc
+        self.stale = True
 
     def get_vector(self, segments3d):
         """Optimize points for projection"""
@@ -540,10 +555,12 @@ class Poly3DCollection(PolyCollection):
         self._facecolors3d = PolyCollection.get_facecolors(self)
         self._edgecolors3d = PolyCollection.get_edgecolors(self)
         self._alpha3d = PolyCollection.get_alpha(self)
+        self.stale = True
 
     def set_sort_zpos(self,val):
         '''Set the position to use for z-sorting.'''
         self._sort_zpos = val
+        self.stale = True
 
     def do_3d_projection(self, renderer):
         '''
@@ -631,6 +648,7 @@ class Poly3DCollection(PolyCollection):
                     self._edgecolors3d, self._alpha)
         except (AttributeError, TypeError, IndexError):
             pass
+        self.stale = True
 
     def get_facecolors(self):
         return self._facecolors2d
@@ -642,6 +660,7 @@ class Poly3DCollection(PolyCollection):
 
     def draw(self, renderer):
         return Collection.draw(self, renderer)
+
 
 def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
     """Convert a PolyCollection to a Poly3DCollection object."""
