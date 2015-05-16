@@ -113,6 +113,12 @@ _IP_REGISTERED = False
 
 
 def install_repl_displayhook():
+    """
+    Install a repl display hook so that any stale figure are automatically
+    redrawn when control is returned to the repl.
+
+    This works with both IPython terminals and vanilla python shells.
+    """
     global _BASE_DH
     global _IP_REGISTERED
 
