@@ -2546,7 +2546,6 @@ def acorr(x, hold=None, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.acorr(x, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2566,7 +2565,6 @@ def angle_spectrum(x, Fs=None, Fc=None, window=None, pad_to=None, sides=None,
     try:
         ret = ax.angle_spectrum(x, Fs=Fs, Fc=Fc, window=window, pad_to=pad_to,
                                 sides=sides, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2584,7 +2582,6 @@ def arrow(x, y, dx, dy, hold=None, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.arrow(x, y, dx, dy, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2602,7 +2599,6 @@ def axhline(y=0, xmin=0, xmax=1, hold=None, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.axhline(y=y, xmin=xmin, xmax=xmax, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2620,7 +2616,6 @@ def axhspan(ymin, ymax, xmin=0, xmax=1, hold=None, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.axhspan(ymin, ymax, xmin=xmin, xmax=xmax, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2638,7 +2633,6 @@ def axvline(x=0, ymin=0, ymax=1, hold=None, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.axvline(x=x, ymin=ymin, ymax=ymax, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2656,7 +2650,6 @@ def axvspan(xmin, xmax, ymin=0, ymax=1, hold=None, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.axvspan(xmin, xmax, ymin=ymin, ymax=ymax, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2674,7 +2667,6 @@ def bar(left, height, width=0.8, bottom=None, hold=None, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.bar(left, height, width=width, bottom=bottom, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2692,7 +2684,6 @@ def barh(bottom, width, height=0.8, left=None, hold=None, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.barh(bottom, width, height=height, left=left, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2710,7 +2701,6 @@ def broken_barh(xranges, yrange, hold=None, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.broken_barh(xranges, yrange, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2743,7 +2733,6 @@ def boxplot(x, notch=False, sym=None, vert=True, whis=1.5, positions=None,
                          flierprops=flierprops, medianprops=medianprops,
                          meanprops=meanprops, capprops=capprops,
                          whiskerprops=whiskerprops, manage_xticks=manage_xticks)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2765,7 +2754,6 @@ def cohere(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
         ret = ax.cohere(x, y, NFFT=NFFT, Fs=Fs, Fc=Fc, detrend=detrend,
                         window=window, noverlap=noverlap, pad_to=pad_to,
                         sides=sides, scale_by_freq=scale_by_freq, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2783,7 +2771,6 @@ def clabel(CS, *args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.clabel(CS, *args, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2801,7 +2788,6 @@ def contour(*args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.contour(*args, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
     if ret._A is not None: sci(ret)
@@ -2819,7 +2805,6 @@ def contourf(*args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.contourf(*args, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
     if ret._A is not None: sci(ret)
@@ -2842,7 +2827,6 @@ def csd(x, y, NFFT=None, Fs=None, Fc=None, detrend=None, window=None,
                      window=window, noverlap=noverlap, pad_to=pad_to,
                      sides=sides, scale_by_freq=scale_by_freq,
                      return_line=return_line, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2867,7 +2851,6 @@ def errorbar(x, y, yerr=None, xerr=None, fmt='', ecolor=None, elinewidth=None,
                           barsabove=barsabove, lolims=lolims, uplims=uplims,
                           xlolims=xlolims, xuplims=xuplims,
                           errorevery=errorevery, capthick=capthick, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2890,7 +2873,6 @@ def eventplot(positions, orientation='horizontal', lineoffsets=1, linelengths=1,
                            lineoffsets=lineoffsets, linelengths=linelengths,
                            linewidths=linewidths, colors=colors,
                            linestyles=linestyles, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2908,7 +2890,6 @@ def fill(*args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.fill(*args, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2927,7 +2908,6 @@ def fill_between(x, y1, y2=0, where=None, interpolate=False, hold=None, **kwargs
     try:
         ret = ax.fill_between(x, y1, y2=y2, where=where,
                               interpolate=interpolate, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2945,7 +2925,6 @@ def fill_betweenx(y, x1, x2=0, where=None, hold=None, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.fill_betweenx(y, x1, x2=x2, where=where, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -2972,7 +2951,6 @@ def hexbin(x, y, C=None, gridsize=100, bins=None, xscale='linear',
                         linewidths=linewidths, edgecolors=edgecolors,
                         reduce_C_function=reduce_C_function, mincnt=mincnt,
                         marginals=marginals, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
     sci(ret)
@@ -2997,7 +2975,6 @@ def hist(x, bins=10, range=None, normed=False, weights=None, cumulative=False,
                       histtype=histtype, align=align, orientation=orientation,
                       rwidth=rwidth, log=log, color=color, label=label,
                       stacked=stacked, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3017,7 +2994,6 @@ def hist2d(x, y, bins=10, range=None, normed=False, weights=None, cmin=None,
     try:
         ret = ax.hist2d(x, y, bins=bins, range=range, normed=normed,
                         weights=weights, cmin=cmin, cmax=cmax, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
     sci(ret[-1])
@@ -3037,7 +3013,6 @@ def hlines(y, xmin, xmax, colors='k', linestyles='solid', label='', hold=None,
     try:
         ret = ax.hlines(y, xmin, xmax, colors=colors, linestyles=linestyles,
                         label=label, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3062,7 +3037,6 @@ def imshow(X, cmap=None, norm=None, aspect=None, interpolation=None, alpha=None,
                         vmax=vmax, origin=origin, extent=extent, shape=shape,
                         filternorm=filternorm, filterrad=filterrad,
                         imlim=imlim, resample=resample, url=url, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
     sci(ret)
@@ -3080,7 +3054,6 @@ def loglog(*args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.loglog(*args, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3101,7 +3074,6 @@ def magnitude_spectrum(x, Fs=None, Fc=None, window=None, pad_to=None,
         ret = ax.magnitude_spectrum(x, Fs=Fs, Fc=Fc, window=window,
                                     pad_to=pad_to, sides=sides, scale=scale,
                                     **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3119,7 +3091,6 @@ def pcolor(*args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.pcolor(*args, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
     sci(ret)
@@ -3137,7 +3108,6 @@ def pcolormesh(*args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.pcolormesh(*args, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
     sci(ret)
@@ -3157,7 +3127,6 @@ def phase_spectrum(x, Fs=None, Fc=None, window=None, pad_to=None, sides=None,
     try:
         ret = ax.phase_spectrum(x, Fs=Fs, Fc=Fc, window=window, pad_to=pad_to,
                                 sides=sides, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3183,7 +3152,6 @@ def pie(x, explode=None, labels=None, colors=None, autopct=None,
                      radius=radius, counterclock=counterclock,
                      wedgeprops=wedgeprops, textprops=textprops, center=center,
                      frame=frame)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3201,7 +3169,6 @@ def plot(*args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.plot(*args, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3221,7 +3188,6 @@ def plot_date(x, y, fmt='o', tz=None, xdate=True, ydate=False, hold=None,
     try:
         ret = ax.plot_date(x, y, fmt=fmt, tz=tz, xdate=xdate, ydate=ydate,
                            **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3244,7 +3210,6 @@ def psd(x, NFFT=None, Fs=None, Fc=None, detrend=None, window=None,
                      window=window, noverlap=noverlap, pad_to=pad_to,
                      sides=sides, scale_by_freq=scale_by_freq,
                      return_line=return_line, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3262,7 +3227,6 @@ def quiver(*args, **kw):
         ax.hold(hold)
     try:
         ret = ax.quiver(*args, **kw)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
     sci(ret)
@@ -3280,7 +3244,6 @@ def quiverkey(*args, **kw):
         ax.hold(hold)
     try:
         ret = ax.quiverkey(*args, **kw)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3289,9 +3252,9 @@ def quiverkey(*args, **kw):
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
 @_autogen_docstring(Axes.scatter)
-def scatter(x, y, s=20, c='b', marker='o', cmap=None, norm=None, vmin=None,
-            vmax=None, alpha=None, linewidths=None, verts=None, hold=None,
-            **kwargs):
+def scatter(x, y, s=20, c=None, marker='o', cmap=None, norm=None, vmin=None,
+            vmax=None, alpha=None, linewidths=None, verts=None, edgecolors=None,
+            hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
@@ -3301,8 +3264,8 @@ def scatter(x, y, s=20, c='b', marker='o', cmap=None, norm=None, vmin=None,
     try:
         ret = ax.scatter(x, y, s=s, c=c, marker=marker, cmap=cmap, norm=norm,
                          vmin=vmin, vmax=vmax, alpha=alpha,
-                         linewidths=linewidths, verts=verts, **kwargs)
-        draw_if_interactive()
+                         linewidths=linewidths, verts=verts,
+                         edgecolors=edgecolors, **kwargs)
     finally:
         ax.hold(washold)
     sci(ret)
@@ -3320,7 +3283,6 @@ def semilogx(*args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.semilogx(*args, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3338,7 +3300,6 @@ def semilogy(*args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.semilogy(*args, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3363,7 +3324,6 @@ def specgram(x, NFFT=None, Fs=None, Fc=None, detrend=None, window=None,
                           xextent=xextent, pad_to=pad_to, sides=sides,
                           scale_by_freq=scale_by_freq, mode=mode, scale=scale,
                           vmin=vmin, vmax=vmax, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
     sci(ret[-1])
@@ -3381,7 +3341,6 @@ def stackplot(x, *args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.stackplot(x, *args, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3399,7 +3358,6 @@ def stem(*args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.stem(*args, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3417,7 +3375,6 @@ def step(x, y, *args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.step(x, y, *args, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3441,7 +3398,6 @@ def streamplot(x, y, u, v, density=1, linewidth=None, color=None, cmap=None,
                             arrowsize=arrowsize, arrowstyle=arrowstyle,
                             minlength=minlength, transform=transform,
                             zorder=zorder)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
     sci(ret.lines)
@@ -3459,7 +3415,6 @@ def tricontour(*args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.tricontour(*args, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
     if ret._A is not None: sci(ret)
@@ -3477,7 +3432,6 @@ def tricontourf(*args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.tricontourf(*args, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
     if ret._A is not None: sci(ret)
@@ -3495,7 +3449,6 @@ def tripcolor(*args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.tripcolor(*args, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
     sci(ret)
@@ -3513,7 +3466,6 @@ def triplot(*args, **kwargs):
         ax.hold(hold)
     try:
         ret = ax.triplot(*args, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3536,7 +3488,6 @@ def violinplot(dataset, positions=None, vert=True, widths=0.5, showmeans=False,
                             widths=widths, showmeans=showmeans,
                             showextrema=showextrema, showmedians=showmedians,
                             points=points, bw_method=bw_method)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3556,7 +3507,6 @@ def vlines(x, ymin, ymax, colors='k', linestyles='solid', label='', hold=None,
     try:
         ret = ax.vlines(x, ymin, ymax, colors=colors, linestyles=linestyles,
                         label=label, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3576,7 +3526,6 @@ def xcorr(x, y, normed=True, detrend=mlab.detrend_none, usevlines=True,
     try:
         ret = ax.xcorr(x, y, normed=normed, detrend=detrend,
                        usevlines=usevlines, maxlags=maxlags, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3594,7 +3543,6 @@ def barbs(*args, **kw):
         ax.hold(hold)
     try:
         ret = ax.barbs(*args, **kw)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
 
@@ -3605,7 +3553,6 @@ def barbs(*args, **kw):
 @docstring.copy_dedent(Axes.cla)
 def cla():
     ret = gca().cla()
-    draw_if_interactive()
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3613,7 +3560,6 @@ def cla():
 @docstring.copy_dedent(Axes.grid)
 def grid(b=None, which='major', axis='both', **kwargs):
     ret = gca().grid(b=b, which=which, axis=axis, **kwargs)
-    draw_if_interactive()
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3621,7 +3567,6 @@ def grid(b=None, which='major', axis='both', **kwargs):
 @docstring.copy_dedent(Axes.legend)
 def legend(*args, **kwargs):
     ret = gca().legend(*args, **kwargs)
-    draw_if_interactive()
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3629,7 +3574,6 @@ def legend(*args, **kwargs):
 @docstring.copy_dedent(Axes.table)
 def table(**kwargs):
     ret = gca().table(**kwargs)
-    draw_if_interactive()
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3637,7 +3581,6 @@ def table(**kwargs):
 @docstring.copy_dedent(Axes.text)
 def text(x, y, s, fontdict=None, withdash=False, **kwargs):
     ret = gca().text(x, y, s, fontdict=fontdict, withdash=withdash, **kwargs)
-    draw_if_interactive()
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3645,7 +3588,6 @@ def text(x, y, s, fontdict=None, withdash=False, **kwargs):
 @docstring.copy_dedent(Axes.annotate)
 def annotate(*args, **kwargs):
     ret = gca().annotate(*args, **kwargs)
-    draw_if_interactive()
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3653,7 +3595,6 @@ def annotate(*args, **kwargs):
 @docstring.copy_dedent(Axes.ticklabel_format)
 def ticklabel_format(**kwargs):
     ret = gca().ticklabel_format(**kwargs)
-    draw_if_interactive()
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3661,7 +3602,6 @@ def ticklabel_format(**kwargs):
 @docstring.copy_dedent(Axes.locator_params)
 def locator_params(axis='both', tight=None, **kwargs):
     ret = gca().locator_params(axis=axis, tight=tight, **kwargs)
-    draw_if_interactive()
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3669,7 +3609,6 @@ def locator_params(axis='both', tight=None, **kwargs):
 @docstring.copy_dedent(Axes.tick_params)
 def tick_params(axis='both', **kwargs):
     ret = gca().tick_params(axis=axis, **kwargs)
-    draw_if_interactive()
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3677,7 +3616,6 @@ def tick_params(axis='both', **kwargs):
 @docstring.copy_dedent(Axes.margins)
 def margins(*args, **kw):
     ret = gca().margins(*args, **kw)
-    draw_if_interactive()
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3685,7 +3623,6 @@ def margins(*args, **kw):
 @docstring.copy_dedent(Axes.autoscale)
 def autoscale(enable=True, axis='both', tight=None):
     ret = gca().autoscale(enable=enable, axis=axis, tight=tight)
-    draw_if_interactive()
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3700,7 +3637,6 @@ def autumn():
 
     if im is not None:
         im.set_cmap(cm.autumn)
-    draw_if_interactive()
 
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3715,7 +3651,6 @@ def bone():
 
     if im is not None:
         im.set_cmap(cm.bone)
-    draw_if_interactive()
 
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3730,7 +3665,6 @@ def cool():
 
     if im is not None:
         im.set_cmap(cm.cool)
-    draw_if_interactive()
 
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3745,7 +3679,6 @@ def copper():
 
     if im is not None:
         im.set_cmap(cm.copper)
-    draw_if_interactive()
 
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3760,7 +3693,6 @@ def flag():
 
     if im is not None:
         im.set_cmap(cm.flag)
-    draw_if_interactive()
 
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3775,7 +3707,6 @@ def gray():
 
     if im is not None:
         im.set_cmap(cm.gray)
-    draw_if_interactive()
 
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3790,7 +3721,6 @@ def hot():
 
     if im is not None:
         im.set_cmap(cm.hot)
-    draw_if_interactive()
 
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3805,7 +3735,6 @@ def hsv():
 
     if im is not None:
         im.set_cmap(cm.hsv)
-    draw_if_interactive()
 
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3820,7 +3749,6 @@ def jet():
 
     if im is not None:
         im.set_cmap(cm.jet)
-    draw_if_interactive()
 
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3835,7 +3763,6 @@ def pink():
 
     if im is not None:
         im.set_cmap(cm.pink)
-    draw_if_interactive()
 
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3850,7 +3777,6 @@ def prism():
 
     if im is not None:
         im.set_cmap(cm.prism)
-    draw_if_interactive()
 
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3865,7 +3791,6 @@ def spring():
 
     if im is not None:
         im.set_cmap(cm.spring)
-    draw_if_interactive()
 
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3880,7 +3805,6 @@ def summer():
 
     if im is not None:
         im.set_cmap(cm.summer)
-    draw_if_interactive()
 
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3895,7 +3819,6 @@ def winter():
 
     if im is not None:
         im.set_cmap(cm.winter)
-    draw_if_interactive()
 
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3910,6 +3833,5 @@ def spectral():
 
     if im is not None:
         im.set_cmap(cm.spectral)
-    draw_if_interactive()
 
 _setup_pyplot_info_docstrings()
