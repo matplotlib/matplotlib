@@ -177,6 +177,8 @@ class Tick(artist.Artist):
     def set_clip_path(self, clippath, transform=None):
         artist.Artist.set_clip_path(self, clippath, transform)
         self.gridline.set_clip_path(clippath, transform)
+        self.stale = True
+
     set_clip_path.__doc__ = artist.Artist.set_clip_path.__doc__
 
     def get_pad_pixels(self):
@@ -200,6 +202,7 @@ class Tick(artist.Artist):
         ACCEPTS: float
         """
         self._apply_params(pad=val)
+        self.stale = True
 
     def get_pad(self):
         'Get the value of the tick label pad in points'
@@ -251,6 +254,7 @@ class Tick(artist.Artist):
             self.label2.draw(renderer)
 
         renderer.close_group(self.__name__)
+        self.stale = False
 
     def set_label1(self, s):
         """
@@ -259,6 +263,8 @@ class Tick(artist.Artist):
         ACCEPTS: str
         """
         self.label1.set_text(s)
+        self.stale = True
+
     set_label = set_label1
 
     def set_label2(self, s):
@@ -268,6 +274,7 @@ class Tick(artist.Artist):
         ACCEPTS: str
         """
         self.label2.set_text(s)
+        self.stale = True
 
     def _set_artist_props(self, a):
         a.set_figure(self.figure)
@@ -349,6 +356,7 @@ class XTick(Tick):
         else:
             self._tickmarkers = (mlines.TICKDOWN, mlines.TICKUP)
             self._pad = self._base_pad + self._size
+        self.stale = True
 
     def _get_text1(self):
         'Get the default Text instance'
@@ -450,6 +458,7 @@ class XTick(Tick):
             self.gridline._invalid = True
 
         self._loc = loc
+        self.stale = True
 
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
@@ -483,6 +492,7 @@ class YTick(Tick):
         else:
             self._tickmarkers = (mlines.TICKLEFT, mlines.TICKRIGHT)
             self._pad = self._base_pad + self._size
+        self.stale = True
 
     # how far from the y axis line the right of the ticklabel are
     def _get_text1(self):
@@ -584,6 +594,7 @@ class YTick(Tick):
             self.gridline._invalid = True
 
         self._loc = loc
+        self.stale = True
 
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
