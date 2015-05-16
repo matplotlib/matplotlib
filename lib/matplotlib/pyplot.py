@@ -109,7 +109,7 @@ from matplotlib.backends import pylab_setup
 _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
 _BASE_DH = None
-_IP_REGISTERED = False
+_IP_REGISTERED = None
 
 
 def install_repl_displayhook():
@@ -136,14 +136,18 @@ def install_repl_displayhook():
         if _IP_REGISTERED:
             return
 
+        def displayhook():
+            if matplotlib.is_interactive():
+                draw_all()
+
         # IPython >= 2
         try:
-            ip.events.register('post_execute', draw_all)
+            ip.events.register('post_execute', displayhook)
         except AttributeError:
             # IPython 1.x
-            ip.register_post_execute(draw_all)
+            ip.register_post_execute(displayhook)
         finally:
-            _IP_REGISTERED = True
+            _IP_REGISTERED = displayhook
 
     # import failed or ipython is not running
     except (ImportError, _NotIPython):
@@ -155,7 +159,8 @@ def install_repl_displayhook():
 
         def displayhook(*args):
             dh(*args)
-            draw_all()
+            if matplotlib.is_interactive():
+                draw_all()
 
         sys.displayhook = displayhook
 
@@ -182,11 +187,11 @@ def uninstall_repl_displayhook():
         from IPython import get_ipython
         ip = get_ipython()
         try:
-            ip.events.unregister('post_execute', draw_all)
+            ip.events.unregister('post_execute', _IP_REGISTERED)
         except AttributeError:
             raise NotImplementedError("Can not unregister events "
                                       "in IPython < 2.0")
-        _IP_REGISTERED = False
+        _IP_REGISTERED = None
 
     if _BASE_DH:
         sys.displayhook = _BASE_DH
@@ -252,11 +257,13 @@ def isinteractive():
 def ioff():
     'Turn interactive mode off.'
     matplotlib.interactive(False)
+    uninstall_repl_displayhook()
 
 
 def ion():
     'Turn interactive mode on.'
     matplotlib.interactive(True)
+    install_repl_displayhook()
 
 
 def pause(interval):
@@ -3900,4 +3907,9 @@ def spectral():
     draw_if_interactive()
 
 _setup_pyplot_info_docstrings()
+# just to be safe.  Interactive mode can be turned on without
+# calling `plt.ion()` so register it again here.
+# This is safe because multiple calls to `install_repl_displayhook`
+# are no-ops and the registered function respect `mpl.is_interactive()`
+# to determine if they should trigger a draw.
 install_repl_displayhook()
