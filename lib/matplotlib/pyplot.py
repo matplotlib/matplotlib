@@ -146,8 +146,8 @@ def install_repl_displayhook():
         except AttributeError:
             # IPython 1.x
             ip.register_post_execute(displayhook)
-        finally:
-            _IP_REGISTERED = displayhook
+
+        _IP_REGISTERED = displayhook
 
     # import failed or ipython is not running
     except (ImportError, _NotIPython):
