@@ -159,6 +159,40 @@ def install_repl_displayhook():
 
         sys.displayhook = displayhook
 
+
+def uninstall_repl_displayhook():
+    """
+    Uninstalls the matplotlib display hook.
+
+    .. warning
+
+       Need IPython >= 2 for this to work.  For IPython < 2 will raise a
+       ``NotImplementedError``
+
+    .. warning
+
+       If you are using vanilla python and have installed another
+       display hook this will reset ``sys.displayhook`` to what ever
+       function was there when matplotlib installed it's displayhook,
+       possibly discarding your changes.
+    """
+    global _BASE_DH
+    global _IP_REGISTERED
+    if _IP_REGISTERED:
+        from IPython import get_ipython
+        ip = get_ipython()
+        try:
+            ip.events.unregister('post_execute', draw_all)
+        except AttributeError:
+            raise NotImplementedError("Can not unregister events "
+                                      "in IPython < 2.0")
+        _IP_REGISTERED = False
+
+    if _BASE_DH:
+        sys.displayhook = _BASE_DH
+        _BASE_DH = None
+
+
 draw_all = _pylab_helpers.Gcf.draw_all
 
 
