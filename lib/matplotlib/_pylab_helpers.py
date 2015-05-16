@@ -148,6 +148,6 @@ class Gcf(object):
         for f_mgr in cls.get_all_fig_managers():
             # TODO add logic to check if figure is stale
             if force or f_mgr.canvas.figure.stale:
-                f_mgr.canvas.draw()
+                f_mgr.canvas.draw_idle()
 
 atexit.register(Gcf.destroy_all)
