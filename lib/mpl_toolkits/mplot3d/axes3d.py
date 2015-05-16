@@ -126,9 +126,11 @@ class Axes3D(Axes):
 
     def set_axis_off(self):
         self._axis3don = False
+        self.stale = True
 
     def set_axis_on(self):
         self._axis3don = True
+        self.stale = True
 
     def have_units(self):
         """
@@ -342,6 +344,7 @@ class Axes3D(Axes):
         if m < 0 or m > 1 :
             raise ValueError("margin must be in range 0 to 1")
         self._zmargin = m
+        self.stale = True
 
     def margins(self, *args, **kw) :
         """
@@ -610,7 +613,7 @@ class Axes3D(Axes):
                     if (other.figure != self.figure and
                         other.figure.canvas is not None):
                         other.figure.canvas.draw_idle()
-
+        self.stale = True
         return left, right
     set_xlim = set_xlim3d
 
@@ -665,7 +668,7 @@ class Axes3D(Axes):
                     if (other.figure != self.figure and
                         other.figure.canvas is not None):
                         other.figure.canvas.draw_idle()
-
+        self.stale = True
         return bottom, top
     set_ylim = set_ylim3d
 
@@ -719,7 +722,7 @@ class Axes3D(Axes):
                     if (other.figure != self.figure and
                         other.figure.canvas is not None):
                         other.figure.canvas.draw_idle()
-
+        self.stale = True
         return bottom, top
     set_zlim = set_zlim3d
 
@@ -771,6 +774,7 @@ class Axes3D(Axes):
         self.yaxis._set_scale(value, **kwargs)
         self.autoscale_view(scalex=False, scalez=False)
         self._update_transScale()
+        self.stale = True
     set_yscale.__doc__ = maxes.Axes.set_yscale.__doc__ + """
 
         .. versionadded :: 1.1.0
@@ -802,6 +806,7 @@ class Axes3D(Axes):
         self.zaxis._set_scale(value, **kwargs)
         self.autoscale_view(scalex=False, scaley=False)
         self._update_transScale()
+        self.stale = True
 
     def set_zticks(self, *args, **kwargs):
         """
@@ -1216,6 +1221,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
         """
         self._frameon = bool(b)
+        self.stale = True
 
     def get_axisbelow(self):
         """
@@ -1241,6 +1247,7 @@ class Axes3D(Axes):
             This function was added for completeness.
         """
         self._axisbelow = True
+        self.stale = True
 
     def grid(self, b=True, **kwargs):
         '''
@@ -1259,6 +1266,7 @@ class Axes3D(Axes):
         if len(kwargs) :
             b = True
         self._draw_grid = cbook._string_to_bool(b)
+        self.stale = True
 
     def ticklabel_format(self, **kwargs) :
         """
