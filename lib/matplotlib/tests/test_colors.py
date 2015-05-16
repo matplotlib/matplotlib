@@ -10,7 +10,8 @@ from distutils.version import LooseVersion as V
 import numpy as np
 import pytest
 
-from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
+from numpy.testing.utils import (assert_array_equal,
+                                 assert_array_almost_equal, assert_equal)
 
 from matplotlib import cycler
 import matplotlib
@@ -708,3 +709,30 @@ def test_ndarray_subclass_norm():
                  mcolors.SymLogNorm(3, vmax=5, linscale=1),
                  mcolors.PowerNorm(1)]:
         assert_array_equal(norm(data.view(MyArray)), norm(data))
+
+
+def _shade_test_helper(color, shade, expected):
+    sc = mcolors.shade_color(color, shade)
+    assert_equal(sc, expected)
+
+
+def test_color_shading():
+    test_colors = (
+        'white',
+        'red',
+        'black',
+        [0, .5, .9],
+        'slategrey',
+    )
+    test_shade = (0, .5, 1, -.5, -1)
+    known_shaded_result = (
+        (1.0, 1.0, 1.0),
+        (1.0, 0.0049999999999998934, 0.0049999999999998934),
+        (0.0, 0.0, 0.0),
+        (0.0, 0.49749999999999983, 0.89549999999999996),
+        (0.43433441408059281, 0.49694117647058816, 0.55954793886058363)
+    )
+    for color, shade, expected in zip(test_colors,
+                                      test_shade,
+                                      known_shaded_result):
+        _shade_test_helper(color, shade, expected)

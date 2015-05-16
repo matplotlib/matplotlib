@@ -64,10 +64,12 @@ from six.moves import zip
 from collections import Sized
 import re
 import warnings
+from colorsys import rgb_to_hls, hls_to_rgb
+
 
 import numpy as np
 import matplotlib.cbook as cbook
-from colorsys import rgb_to_hls as rgb2hls, hls_to_rgb as hls2rgb
+
 from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 
 
@@ -1949,18 +1951,23 @@ def from_levels_and_colors(levels, colors, extend='neither'):
     norm = BoundaryNorm(levels, ncolors=n_data_colors)
     return cmap, norm
 
-def shade_color(color, percent):
-    """Shade Color
 
-    This color utility function allows the user to easily darken or lighten a color for
-    plotting purposes.
+def shade_color(color, percent):
+    """A color helper utility to either darken or lighten given color.
+
+    This color utility function allows the user to easily darken or
+    lighten a color for plotting purposes.  This function first
+    converts the given color to RGB using ColorConverter and then to
+    HSL.  The saturation is modified according to the given percentage
+    and converted back to RGB.
 
     Parameters
     ----------
     color : string, list, hexvalue
-        Any acceptable Matplotlib color value, such as 'red', 'slategrey', '#FFEE11', (1,0,0)
+        Any acceptable Matplotlib color value, such as 'red',
+        'slategrey', '#FFEE11', (1,0,0)
 
-    percent :  the amount by which to brighten or darken the color.
+    percent : the amount by which to brighten or darken the color.
 
     Returns
     -------
@@ -1969,17 +1976,12 @@ def shade_color(color, percent):
 
     """
 
-    cc = ColorConverter()
+    rgb = colorConverter.to_rgb(color)
 
-    rgb = cc.to_rgb(color)
-
-    h,l,s = rgb2hls(*rgb)
+    h, l, s = rgb_to_hls(*rgb)
 
     l *= 1 + float(percent)/100
 
-    l = min(1, l)
-    l = max(0, l)
+    l = np.clip(l, 0, 1)
 
-    r,g,b = hls2rgb(h,l,s)
-
-    return r,g,b
+    return hls_to_rgb(h, l, s)
