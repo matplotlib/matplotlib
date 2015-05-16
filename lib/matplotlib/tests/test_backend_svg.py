@@ -119,6 +119,48 @@ def test_bold_font_output_with_none_fonttype():
     ax.set_title('bold-title', fontweight='bold')
 
 
+def _test_determinism(filename):
+    # This function is mostly copy&paste from "def test_visibility"
+    # To require no GUI, we use Figure and FigureCanvasSVG
+    # instead of plt.figure and fig.savefig
+    from matplotlib.figure import Figure
+    from matplotlib.backends.backend_svg import FigureCanvasSVG
+    from matplotlib import rc
+    rc('svg', hashsalt='asdf')
+
+    fig = Figure()
+    ax = fig.add_subplot(111)
+
+    x = np.linspace(0, 4 * np.pi, 50)
+    y = np.sin(x)
+    yerr = np.ones_like(y)
+
+    a, b, c = ax.errorbar(x, y, yerr=yerr, fmt='ko')
+    for artist in b:
+        artist.set_visible(False)
+
+    FigureCanvasSVG(fig).print_svg(filename)
+
+
+@cleanup
+def test_determinism():
+    import os
+    import sys
+    from subprocess import check_call
+    from nose.tools import assert_equal
+    plots = []
+    for i in range(3):
+        check_call([sys.executable, '-R', '-c',
+                    'from matplotlib.tests.test_backend_svg '
+                    'import _test_determinism;'
+                    '_test_determinism("determinism.svg")'])
+        with open('determinism.svg', 'rb') as fd:
+            plots.append(fd.read())
+        os.unlink('determinism.svg')
+    for p in plots[1:]:
+        assert_equal(p, plots[0])
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
