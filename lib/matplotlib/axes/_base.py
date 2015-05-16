@@ -17,7 +17,7 @@ import matplotlib
 
 from matplotlib import cbook
 from matplotlib.cbook import (_check_1d, _string_to_bool, iterable,
-                              index_of, get_label)
+                              index_of, get_label, sorted_itervalues)
 from matplotlib import docstring
 import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
@@ -33,7 +33,6 @@ import matplotlib.text as mtext
 import matplotlib.image as mimage
 from matplotlib.offsetbox import OffsetBox
 from matplotlib.artist import allow_rasterization
-from matplotlib.cbook import iterable, index_of
 from matplotlib.rcsetup import cycler
 
 rcParams = matplotlib.rcParams
@@ -3687,7 +3686,7 @@ class _AxesBase(martist.Artist):
         children.extend(self.lines)
         children.extend(self.texts)
         children.extend(self.artists)
-        children.extend(six.itervalues(self.spines))
+        children.extend(sorted_itervalues(self.spines))
         children.append(self.xaxis)
         children.append(self.yaxis)
         children.append(self.title)
