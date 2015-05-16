@@ -484,10 +484,9 @@ class Poly3DCollection(PolyCollection):
         Note that this class does a bit of magic with the _facecolors
         and _edgecolors properties.
         '''
-
-        self.set_zsort(kwargs.pop('zsort', True))
-
+        zsort = kwargs.pop('zsort', True)
         PolyCollection.__init__(self, verts, *args, **kwargs)
+        self.set_zsort(zsort)
 
     _zsort_functions = {
         'average': np.average,
