@@ -219,8 +219,9 @@ def boilerplate_gen():
             else:
                 def_edited = []
                 for val in defaults:
-                    if isinstance(val, unicode):
-                        val = val.encode('ascii', 'ignore')
+                    if six.PY2:
+                        if isinstance(val, unicode):
+                            val = val.encode('ascii', 'ignore')
                     def_edited.append(val)
                 defaults = tuple(def_edited)
 
