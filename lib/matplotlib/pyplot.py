@@ -114,7 +114,8 @@ def install_repl_displayhook():
     class _NotIPython(Exception):
         pass
 
-    # see if we have IPython hooks around, if so monkey patch
+    # see if we have IPython hooks around, if use them
+
     try:
         from IPython import get_ipython
         ip = get_ipython()
@@ -128,8 +129,7 @@ def install_repl_displayhook():
             # IPython 1.x
             ip.register_post_execute(draw_all)
 
-    # import failed or sys.displayhook is not of correct type,
-    # must not have IPython
+    # import failed or ipython is not running
     except (ImportError, _NotIPython):
         dh = sys.displayhook
 
