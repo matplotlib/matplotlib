@@ -108,8 +108,13 @@ _backend_selection()
 from matplotlib.backends import pylab_setup
 _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
+_BASE_DH = None
+_IP_REGISTERED = False
+
 
 def install_repl_displayhook():
+    global _BASE_DH
+    global _IP_REGISTERED
 
     class _NotIPython(Exception):
         pass
@@ -122,16 +127,25 @@ def install_repl_displayhook():
         if ip is None:
             raise _NotIPython()
 
+        if _IP_REGISTERED:
+            return
+
         # IPython >= 2
         try:
             ip.events.register('post_execute', draw_all)
         except AttributeError:
             # IPython 1.x
             ip.register_post_execute(draw_all)
+        finally:
+            _IP_REGISTERED = True
 
     # import failed or ipython is not running
     except (ImportError, _NotIPython):
-        dh = sys.displayhook
+
+        if _BASE_DH is not None:
+            return
+
+        dh = _BASE_DH = sys.displayhook
 
         def displayhook(*args):
             dh(*args)
