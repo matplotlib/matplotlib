@@ -6,12 +6,14 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-from nose.tools import assert_true
+import nose
+from nose.tools import assert_true, assert_raises
 from timeit import repeat
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup, image_comparison
+import sys
 
 
 @cleanup
@@ -71,6 +73,14 @@ def test_set_line_coll_dash():
     assert True
 
 
+@image_comparison(baseline_images=['line_dashes'], remove_text=True)
+def test_line_dashes():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+
+    ax.plot(range(10), linestyle=(0, (3, 3)), lw=5)
+
+
 @cleanup
 def test_line_colors():
     fig = plt.figure()
@@ -82,6 +92,29 @@ def test_line_colors():
     ax.plot(range(10), color=(1, 0, 0))
     fig.canvas.draw()
     assert True
+
+
+@cleanup
+def test_linestyle_variants():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    for ls in ["-", "solid", "--", "dashed",
+               "-.", "dashdot", ":", "dotted"]:
+        ax.plot(range(10), linestyle=ls)
+
+    fig.canvas.draw()
+    assert True
+
+
+@cleanup
+def test_valid_linestyles():
+    if sys.version_info[:2] < (2, 7):
+        raise nose.SkipTest("assert_raises as context manager "
+                            "not supported with Python < 2.7")
+
+    line = mpl.lines.Line2D([], [])
+    with assert_raises(ValueError):
+        line.set_linestyle('aardvark')
 
 
 @image_comparison(baseline_images=['line_collection_dashes'], remove_text=True)
@@ -101,5 +134,4 @@ def test_nan_is_sorted():
 
 
 if __name__ == '__main__':
-    import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
