@@ -12,6 +12,7 @@ backends
    backend_qt5agg_api.rst
    backend_wxagg_api.rst
    backend_pdf_api.rst
+   backend_svg_api.rst
 ..   backend_webagg.rst
    dviread.rst
    type1font.rst

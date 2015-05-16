@@ -166,6 +166,16 @@ def validate_float_or_None(s):
         raise ValueError('Could not convert "%s" to float or None' % s)
 
 
+def validate_string_or_None(s):
+    """convert s to string or raise"""
+    if s is None:
+        return None
+    try:
+        return six.text_type(s)
+    except ValueError:
+        raise ValueError('Could not convert "%s" to string' % s)
+
+
 def validate_dpi(s):
     """confirm s is string 'figure' or convert s to float or raise"""
     if s == 'figure':
@@ -1154,7 +1164,7 @@ defaultParams = {
     # True to save all characters as paths in the SVG
     'svg.embed_char_paths': [True, deprecate_svg_embed_char_paths],
     'svg.fonttype':         ['path', validate_svg_fonttype],
-    'svg.hashsalt':         [None, validate_any],
+    'svg.hashsalt':         [None, validate_string_or_None],
 
     # set this when you want to generate hardcopy docstring
     'docstring.hardcopy': [False, validate_bool],

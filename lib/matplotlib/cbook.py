@@ -2491,3 +2491,17 @@ class Locked(object):
                     os.rmdir(path)
                 except OSError:
                     pass
+
+
+def sorted_iteritems(a):
+    """
+    Iterate over the items of a dictionary in an order defined by the keys
+    """
+    return ((k,v) for k,v in sorted(six.iteritems(a)))
+
+
+def sorted_itervalues(a):
+    """
+    Iterate over the values of a dictionary in an order defined by the keys
+    """
+    return (v for k,v in sorted_iteritems(a))
