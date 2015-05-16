@@ -973,6 +973,7 @@ class _AxesBase(martist.Artist):
         if self._sharey:
             self.yaxis.set_visible(yaxis_visible)
             self.patch.set_visible(patch_visible)
+        self.stale = True
 
     def clear(self):
         """clear the axes"""
