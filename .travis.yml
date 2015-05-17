@@ -85,7 +85,7 @@ script:
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
       mkdir ../tmp_test_dir
       cd ../tmp_test_dir
-      gdb -return-child-result -batch -ex r -ex bt --args python ../matplotlib/tests.py -sv --processes=$NPROC --process-timeout=300 $TEST_ARGS -q
+      gdb -return-child-result -batch -ex r -ex bt --args python ../matplotlib/tests.py -s --processes=$NPROC --process-timeout=300 $TEST_ARGS
     else
       cd doc
       python make.py html --small --warningsaserrors
