@@ -349,9 +349,7 @@ def sci(im):
 # (getp is simply imported)
 @docstring.copy(_setp)
 def setp(*args, **kwargs):
-    ret = _setp(*args, **kwargs)
-    draw_if_interactive()
-    return ret
+    return _setp(*args, **kwargs)
 
 
 def xkcd(scale=1, length=100, randomness=2):
@@ -544,7 +542,6 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         _pylab_helpers.Gcf.set_active(figManager)
         figManager.canvas.figure.number = num
 
-    draw_if_interactive()
     return figManager.canvas.figure
 
 
@@ -642,7 +639,6 @@ def clf():
     Clear the current figure.
     """
     gcf().clf()
-    draw_if_interactive()
 
 
 def draw():
@@ -707,27 +703,20 @@ def waitforbuttonpress(*args, **kwargs):
 
 @docstring.copy_dedent(Figure.text)
 def figtext(*args, **kwargs):
-
-    ret =  gcf().text(*args, **kwargs)
-    draw_if_interactive()
-    return ret
+    return gcf().text(*args, **kwargs)
 
 
 @docstring.copy_dedent(Figure.suptitle)
 def suptitle(*args, **kwargs):
-    ret =  gcf().suptitle(*args, **kwargs)
-    draw_if_interactive()
-    return ret
+    return gcf().suptitle(*args, **kwargs)
 
 
 @docstring.Appender("Addition kwargs: hold = [True|False] overrides default hold state", "\n")
 @docstring.copy_dedent(Figure.figimage)
 def figimage(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
-    ret =  gcf().figimage(*args, **kwargs)
-    draw_if_interactive()
     #sci(ret)  # JDH figimage should not set current image -- it is not mappable, etc
-    return ret
+    return gcf().figimage(*args, **kwargs)
 
 
 def figlegend(handles, labels, loc, **kwargs):
@@ -758,9 +747,7 @@ def figlegend(handles, labels, loc, **kwargs):
        :func:`~matplotlib.pyplot.legend`
 
     """
-    l = gcf().legend(handles, labels, loc, **kwargs)
-    draw_if_interactive()
-    return l
+    return gcf().legend(handles, labels, loc, **kwargs)
 
 
 ## Figure and Axes hybrid ##
@@ -869,7 +856,6 @@ def axes(*args, **kwargs):
     else:
         rect = arg
         a = gcf().add_axes(rect, **kwargs)
-    draw_if_interactive()
     return a
 
 
@@ -885,7 +871,6 @@ def delaxes(*args):
     else:
         ax = args[0]
     ret = gcf().delaxes(ax)
-    draw_if_interactive()
     return ret
 
 
@@ -922,10 +907,10 @@ def gca(**kwargs):
     --------
     matplotlib.figure.Figure.gca : The figure's gca method.
     """
-    ax =  gcf().gca(**kwargs)
-    return ax
+    return gcf().gca(**kwargs)
 
 # More ways of creating axes:
+
 
 def subplot(*args, **kwargs):
     """
@@ -1025,7 +1010,6 @@ def subplot(*args, **kwargs):
             byebye.append(other)
     for ax in byebye: delaxes(ax)
 
-    draw_if_interactive()
     return a
 
 
@@ -1277,7 +1261,6 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, **kwargs):
             byebye.append(other)
     for ax in byebye: delaxes(ax)
 
-    draw_if_interactive()
     return a
 
 
@@ -1296,7 +1279,6 @@ def twinx(ax=None):
     if ax is None:
         ax=gca()
     ax1 = ax.twinx()
-    draw_if_interactive()
     return ax1
 
 
@@ -1310,7 +1292,6 @@ def twiny(ax=None):
     if ax is None:
         ax=gca()
     ax1 = ax.twiny()
-    draw_if_interactive()
     return ax1
 
 
@@ -1336,7 +1317,6 @@ def subplots_adjust(*args, **kwargs):
     """
     fig = gcf()
     fig.subplots_adjust(*args, **kwargs)
-    draw_if_interactive()
 
 
 def subplot_tool(targetfig=None):
@@ -1383,7 +1363,6 @@ def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
 
     fig = gcf()
     fig.tight_layout(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
-    draw_if_interactive()
 
 
 def box(on=None):
@@ -1398,7 +1377,6 @@ def box(on=None):
     if on is None:
         on = not ax.get_frame_on()
     ax.set_frame_on(on)
-    draw_if_interactive()
 
 
 def title(s, *args, **kwargs):
@@ -1443,9 +1421,7 @@ def title(s, *args, **kwargs):
         properties.
 
     """
-    l =  gca().set_title(s, *args, **kwargs)
-    draw_if_interactive()
-    return l
+    return gca().set_title(s, *args, **kwargs)
 
 ## Axis ##
 
@@ -1510,10 +1486,7 @@ def axis(*v, **kwargs):
         :func:`xlim`, :func:`ylim`
            For setting the x- and y-limits individually.
     """
-    ax = gca()
-    v = ax.axis(*v, **kwargs)
-    draw_if_interactive()
-    return v
+    return gca().axis(*v, **kwargs)
 
 
 def xlabel(s, *args, **kwargs):
@@ -1533,9 +1506,7 @@ def xlabel(s, *args, **kwargs):
         :func:`~matplotlib.pyplot.text`
             For information on how override and the optional args work
     """
-    l =  gca().set_xlabel(s, *args, **kwargs)
-    draw_if_interactive()
-    return l
+    return gca().set_xlabel(s, *args, **kwargs)
 
 
 def ylabel(s, *args, **kwargs):
@@ -1556,9 +1527,7 @@ def ylabel(s, *args, **kwargs):
             For information on how override and the optional args
             work.
     """
-    l = gca().set_ylabel(s, *args, **kwargs)
-    draw_if_interactive()
-    return l
+    return gca().set_ylabel(s, *args, **kwargs)
 
 
 def xlim(*args, **kwargs):
@@ -1586,7 +1555,6 @@ def xlim(*args, **kwargs):
     if not args and not kwargs:
         return ax.get_xlim()
     ret = ax.set_xlim(*args, **kwargs)
-    draw_if_interactive()
     return ret
 
 
@@ -1614,7 +1582,6 @@ def ylim(*args, **kwargs):
     if not args and not kwargs:
         return ax.get_ylim()
     ret = ax.set_ylim(*args, **kwargs)
-    draw_if_interactive()
     return ret
 
 
@@ -1633,9 +1600,7 @@ def xscale(*args, **kwargs):
 
     %(scale_docs)s
     """
-    ax = gca()
-    ax.set_xscale(*args, **kwargs)
-    draw_if_interactive()
+    gca().set_xscale(*args, **kwargs)
 
 
 @docstring.dedent_interpd
@@ -1653,9 +1618,7 @@ def yscale(*args, **kwargs):
 
     %(scale_docs)s
     """
-    ax = gca()
-    ax.set_yscale(*args, **kwargs)
-    draw_if_interactive()
+    gca().set_yscale(*args, **kwargs)
 
 
 def xticks(*args, **kwargs):
@@ -1695,7 +1658,6 @@ def xticks(*args, **kwargs):
         for l in labels:
             l.update(kwargs)
 
-    draw_if_interactive()
     return locs, silent_list('Text xticklabel', labels)
 
 
@@ -1736,7 +1698,6 @@ def yticks(*args, **kwargs):
         for l in labels:
             l.update(kwargs)
 
-    draw_if_interactive()
 
     return ( locs,
              silent_list('Text yticklabel', labels)
@@ -1751,7 +1712,6 @@ def minorticks_on():
     minorticks_off() if drawing speed is a problem.
     """
     gca().minorticks_on()
-    draw_if_interactive()
 
 
 def minorticks_off():
@@ -1759,7 +1719,6 @@ def minorticks_off():
     Remove minor ticks from the current plot.
     """
     gca().minorticks_off()
-    draw_if_interactive()
 
 
 def rgrids(*args, **kwargs):
@@ -1802,7 +1761,6 @@ def rgrids(*args, **kwargs):
     else:
         lines, labels = ax.set_rgrids(*args, **kwargs)
 
-    draw_if_interactive()
     return ( silent_list('Line2D rgridline', lines),
              silent_list('Text rgridlabel', labels) )
 
@@ -1863,7 +1821,6 @@ def thetagrids(*args, **kwargs):
     else:
         lines, labels = ax.set_thetagrids(*args, **kwargs)
 
-    draw_if_interactive()
     return (silent_list('Line2D thetagridline', lines),
             silent_list('Text thetagridlabel', labels)
             )
@@ -2254,7 +2211,6 @@ def colorbar(mappable=None, cax=None, ax=None, **kw):
         ax = gca()
 
     ret = gcf().colorbar(mappable, cax = cax, ax=ax, **kw)
-    draw_if_interactive()
     return ret
 colorbar.__doc__ = matplotlib.colorbar.colorbar_doc
 
@@ -2282,7 +2238,6 @@ def clim(vmin=None, vmax=None):
         raise RuntimeError('You must first define an image, e.g., with imshow')
 
     im.set_clim(vmin, vmax)
-    draw_if_interactive()
 
 
 def set_cmap(cmap):
@@ -2304,7 +2259,6 @@ def set_cmap(cmap):
     if im is not None:
         im.set_cmap(cmap)
 
-    draw_if_interactive()
 
 
 @docstring.copy_dedent(_imread)
@@ -2355,7 +2309,6 @@ def matshow(A, fignum=None, **kw):
     im = ax.matshow(A, **kw)
     sci(im)
 
-    draw_if_interactive()
     return im
 
 
@@ -2373,7 +2326,6 @@ def polar(*args, **kwargs):
     """
     ax = gca(polar=True)
     ret = ax.plot(*args, **kwargs)
-    draw_if_interactive()
     return ret
 
 
@@ -2495,8 +2447,6 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     if xname=='date':
         fig.autofmt_xdate()
 
-    draw_if_interactive()
-
 
 def _autogen_docstring(base):
     """Autogenerated wrappers will get their docstring from a base function
@@ -2517,7 +2467,6 @@ def spy(Z, precision=0, marker=None, markersize=None, aspect='equal', hold=None,
         ax.hold(hold)
     try:
         ret = ax.spy(Z, precision, marker, markersize, aspect, **kwargs)
-        draw_if_interactive()
     finally:
         ax.hold(washold)
     if isinstance(ret, cm.ScalarMappable):
