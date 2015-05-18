@@ -311,7 +311,8 @@ def rc_context(rc=None, fname=None):
 @docstring.copy_dedent(matplotlib.rcdefaults)
 def rcdefaults():
     matplotlib.rcdefaults()
-    draw_if_interactive()
+    if matplotlib.is_interactive():
+        draw_all()
 
 
 # The current "image" (ScalarMappable) is retrieved or set
