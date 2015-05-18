@@ -188,4 +188,4 @@ iTerm2 terminal backend
 external matplotlib backend uses iTerm2 nightly build inline image display
 feature.
 
-.. image:: https://raw.githubusercontent.com/oselivanov/matplotlib_iterm2/master/demo.png
+.. image:: /_static/matplotlib_iterm2_demo.png
