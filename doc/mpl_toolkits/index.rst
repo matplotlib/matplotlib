@@ -178,3 +178,14 @@ prettyplotlib
 `prettyplotlib <https://olgabot.github.io/prettyplotlib>`_ is an extension
 to matplotlib which changes many of the defaults to make plots some
 consider more attractive.
+
+
+iTerm2 terminal backend
+=======================
+(*Not distributed with matplotlib*)
+
+`matplotlib_iterm2 <https://github.com/oselivanov/matplotlib_iterm2>`_ is an
+external matplotlib backend uses iTerm2 nightly build inline image display
+feature.
+
+.. image:: /_static/matplotlib_iterm2_demo.png
