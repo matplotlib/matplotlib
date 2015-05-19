@@ -35,15 +35,17 @@ static int PyTriangulation_init(PyTriangulation* self, PyObject* args, PyObject*
     Triangulation::MaskArray mask;
     Triangulation::EdgeArray edges;
     Triangulation::NeighborArray neighbors;
+    int correct_triangle_orientations;
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&O&O&O&O&",
+                          "O&O&O&O&O&O&i",
                           &x.converter, &x,
                           &y.converter, &y,
                           &triangles.converter, &triangles,
                           &mask.converter, &mask,
                           &edges.converter, &edges,
-                          &neighbors.converter, &neighbors)) {
+                          &neighbors.converter, &neighbors,
+                          &correct_triangle_orientations)) {
         return -1;
     }
 
@@ -80,7 +82,8 @@ static int PyTriangulation_init(PyTriangulation* self, PyObject* args, PyObject*
 
     CALL_CPP_INIT("Triangulation",
                   (self->ptr = new Triangulation(x, y, triangles, mask,
-                                                 edges, neighbors)));
+                                                 edges, neighbors,
+                                                 correct_triangle_orientations)));
     return 0;
 }
 
