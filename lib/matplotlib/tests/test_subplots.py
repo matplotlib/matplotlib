@@ -37,10 +37,10 @@ def check_shared(results, f, axs):
 def check_visible(result, f, axs):
     tostr = lambda v: "invisible" if v else "visible"
     for (ax, vx, vy) in zip(axs, result['x'], result['y']):
-        for l in ax.get_xticklabels():
+        for l in ax.get_xticklabels() + [ax.get_xaxis().offsetText]:
             assert l.get_visible() == vx, \
                     "X axis was incorrectly %s" % (tostr(vx))
-        for l in ax.get_yticklabels():
+        for l in ax.get_yticklabels() + [ax.get_yaxis().offsetText]:
             assert l.get_visible() == vy, \
                     "Y axis was incorrectly %s" % (tostr(vy))
 
@@ -100,6 +100,15 @@ def test_shared():
             check_visible(dict(x=visible['x'][xo], y=visible['y'][yo]), \
                     f, axs)
             plt.close(f)
+
+    # test label_outer
+    f, ((a1, a2), (a3, a4)) = plt.subplots(2, 2, sharex=True, sharey=True)
+    axs = [a1, a2, a3, a4]
+    for ax in axs:
+        ax.label_outer()
+    check_visible(
+        {'x': [False, False, True, True], 'y': [True, False, True, False]}, f, axs)
+
 
 
 def test_exceptions():
