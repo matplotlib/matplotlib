@@ -4428,7 +4428,7 @@ class Axes(_AxesBase):
 
     @docstring.dedent_interpd
     def fill_between(self, x, y1, y2=0, where=None, interpolate=False,
-                     step_where=None,
+                     step=None,
                      **kwargs):
         """
         Make filled polygons between two curves.
@@ -4460,7 +4460,7 @@ class Axes(_AxesBase):
             end points of the filled region will only occur on explicit
             values in the *x* array.
 
-        step_where : {'pre', 'post', 'mid'}, optional
+        step : {'pre', 'post', 'mid'}, optional
             If not None, fill with step logic.
 
 
@@ -4517,8 +4517,8 @@ class Axes(_AxesBase):
             xslice = x[ind0:ind1]
             y1slice = y1[ind0:ind1]
             y2slice = y2[ind0:ind1]
-            if step_where is not None:
-                step_func = STEP_LOOKUP_MAP[step_where]
+            if step is not None:
+                step_func = STEP_LOOKUP_MAP[step]
                 xslice, y1slice, y2slice = step_func(xslice, y1slice, y2slice)
 
             if not len(xslice):
@@ -4581,7 +4581,7 @@ class Axes(_AxesBase):
 
     @docstring.dedent_interpd
     def fill_betweenx(self, y, x1, x2=0, where=None,
-                      step_where=None, **kwargs):
+                      step=None, **kwargs):
         """
         Make filled polygons between two horizontal curves.
 
@@ -4609,7 +4609,7 @@ class Axes(_AxesBase):
             it is a N length numpy boolean array and the fill will
             only happen over the regions where ``where==True``
 
-        step_where : {'pre', 'post', 'mid'}, optional
+        step : {'pre', 'post', 'mid'}, optional
             If not None, fill with step logic.
 
         Notes
@@ -4665,8 +4665,8 @@ class Axes(_AxesBase):
             yslice = y[ind0:ind1]
             x1slice = x1[ind0:ind1]
             x2slice = x2[ind0:ind1]
-            if step_where is not None:
-                step_func = STEP_LOOKUP_MAP[step_where]
+            if step is not None:
+                step_func = STEP_LOOKUP_MAP[step]
                 yslice, x1slice, x2slice = step_func(yslice, x1slice, x2slice)
 
             if not len(yslice):
