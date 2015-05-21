@@ -14,6 +14,10 @@ if gtk.pygtk_version < (2,7,0):
 from matplotlib.backends import backend_cairo
 from matplotlib.backends.backend_gtk import *
 
+__all__ = list(map(str, ['backend_version', 'new_figure_manager',
+                         'FigureCanvasGTKCairo', 'FigureManagerGTKCairo',
+                         'FigureCanvas']))
+
 backend_version = 'PyGTK(%d.%d.%d) ' % gtk.pygtk_version + \
                   'Pycairo(%s)' % backend_cairo.backend_version
 

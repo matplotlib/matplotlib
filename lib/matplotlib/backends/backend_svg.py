@@ -31,6 +31,10 @@ from xml.sax.saxutils import escape as escape_xml_text
 
 backend_version = __version__
 
+__all__ = list(map(str, ['backend_version', 'new_figure_manager',
+                         'FigureCanvasSVG', 'FigureManagerSVG',
+                         'FigureCanvas']))
+
 # ----------------------------------------------------------------------
 # SimpleXMLWriter class
 #

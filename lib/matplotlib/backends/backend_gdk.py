@@ -32,6 +32,9 @@ from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D
 from matplotlib.backends._backend_gdk import pixbuf_get_pixels_array
 
+__all__ = list(map(str, ['backend_version', 'new_figure_manager',
+                         'RendererGDK', 'FigureCanvasGDK']))
+
 backend_version = "%d.%d.%d" % gtk.pygtk_version
 _debug = False
 

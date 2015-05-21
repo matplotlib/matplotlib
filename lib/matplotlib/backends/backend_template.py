@@ -74,6 +74,10 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
 
+__all__ = list(map(str, ['new_figure_manager', 'show', 'draw_if_interactive',
+                         'FigureCanvasTemplate', 'FigureManagerTemplate',
+                         'FigureCanvas']))
+
 
 class RendererTemplate(RendererBase):
     """

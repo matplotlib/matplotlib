@@ -25,6 +25,8 @@ from matplotlib.backends.backend_webagg_core import (FigureManagerWebAgg,
 from matplotlib.backend_bases import (ShowBase, NavigationToolbar2,
                                       TimerBase, FigureCanvasBase)
 
+__all__ = list(map(str, ['new_figure_manager', 'show', 'draw_if_interactive',
+                         'FigureManagerNbAgg', 'FigureCanvasNbAgg']))
 
 class Show(ShowBase):
     def __call__(self, block=None):

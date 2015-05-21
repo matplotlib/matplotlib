@@ -24,6 +24,9 @@ from .backend_qt5 import draw_if_interactive
 from .backend_qt5 import backend_version
 ######
 
+__all__ = list(map(str, ['backend_version', 'new_figure_manager', 'show',
+                         'draw_if_interactive', 'FigureCanvasQTAgg',
+                         'FigureManagerQT', 'FigureCanvas']))
 
 DEBUG = False
 

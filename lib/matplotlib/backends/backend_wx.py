@@ -89,6 +89,9 @@ class fake_stderr(object):
     #WxLogger =wx.LogStderr()
     #sys.stderr = fake_stderr
 
+__all__ = list(map(str, ['new_figure_manager', 'show', 'draw_if_interactive',
+                         'FigureCanvasWx', 'FigureManagerWx', 'FigureCanvas']))
+
 # the True dots per inch on the screen; should be display dependent
 # see
 # http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5

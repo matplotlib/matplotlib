@@ -58,6 +58,10 @@ from matplotlib.path         import Path
 from matplotlib.transforms   import Bbox, Affine2D
 from matplotlib.font_manager import ttfFontProperty
 
+__all__ = list(map(str, ['backend_version', 'new_figure_manager',
+                         'RendererCairo', 'FigureCanvasCairo',
+                         'FigureCanvas']))
+
 _debug = False
 #_debug = True
 

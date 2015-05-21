@@ -28,6 +28,9 @@ from matplotlib.figure import Figure
 from matplotlib import backend_bases
 from matplotlib import _png
 
+__all__ = list(map(str, ['new_figure_manager', 'FigureCanvasWebAggCore',
+                         'FigureManagerWebAgg']))
+
 
 def new_figure_manager(num, *args, **kwargs):
     """

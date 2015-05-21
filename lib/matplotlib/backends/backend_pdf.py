@@ -50,6 +50,10 @@ from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib import ttconv
 
+__all__ = list(map(str, ['new_figure_manager', 'RendererPdf',
+                         'FigureCanvasPdf', 'FigureManagerPdf',
+                         'FigureCanvas']))
+
 # Overview
 #
 # The low-level knowledge about pdf syntax lies mainly in the pdfRepr

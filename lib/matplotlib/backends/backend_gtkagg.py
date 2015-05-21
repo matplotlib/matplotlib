@@ -17,6 +17,9 @@ from matplotlib.backends.backend_gtk import gtk, FigureManagerGTK, FigureCanvasG
      NavigationToolbar2GTK
 from matplotlib.backends._gtkagg import agg_to_gtk_drawable
 
+__all__ = list(map(str, ['backend_version', 'new_figure_manager', 'show',
+                         'draw_if_interactive', 'FigureCanvasGTKAgg',
+                         'FigureManagerGTKAgg', 'FigureCanvas']))
 
 DEBUG = False
 

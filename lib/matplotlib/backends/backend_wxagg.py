@@ -15,6 +15,9 @@ from .backend_wx import (FigureManagerWx, FigureCanvasWx,
 
 import wx
 
+__all__ = list(map(str, ['new_figure_manager', 'show', 'FigureCanvasWxAgg',
+                         'FigureCanvas']))
+
 
 show = backend_wx.Show()
 

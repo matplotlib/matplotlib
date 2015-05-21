@@ -31,6 +31,10 @@ except ImportError:
 from .qt_compat import QtCore, QtGui, QtWidgets, _getSaveFileName, __version__
 from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
 
+__all__ = list(map(str, ['backend_version', 'new_figure_manager', 'show',
+                         'draw_if_interactive', 'FigureManagerQT',
+                         'FigureCanvasQT', 'FigureCanvas']))
+
 backend_version = __version__
 
 # SPECIAL_KEYS are keys that do *not* return their unicode name

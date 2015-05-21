@@ -18,6 +18,8 @@ if six.PY3 and not HAS_CAIRO_CFFI:
         "The Gtk3Agg backend is known to not work on Python 3.x with pycairo. "
         "Try installing cairocffi.")
 
+__all__ = list(map(str, ['new_figure_manager', 'show', 'FigureCanvasGTK3Agg',
+                         'FigureManagerGTK3Agg', 'FigureCanvas']))
 
 class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
                           backend_agg.FigureCanvasAgg):
