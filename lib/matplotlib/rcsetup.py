@@ -244,6 +244,13 @@ class validate_nseq_int(object):
             raise ValueError('Could not convert all entries to ints')
 
 
+def validate_color_or_inherit(s):
+    'return a valid color arg'
+    if s == 'inherit':
+        return s
+    return validate_color(s)
+
+
 def validate_color(s):
     'return a valid color arg'
     try:
@@ -254,6 +261,7 @@ def validate_color(s):
     if is_color_like(s):
         return s
     stmp = '#' + s
+
     if is_color_like(stmp):
         return stmp
     # If it is still valid, it must be a tuple.
@@ -606,7 +614,7 @@ defaultParams = {
     'image.lut':           [256, validate_int],  # lookup table
     'image.origin':        ['upper', six.text_type],  # lookup table
     'image.resample':      [False, validate_bool],
-    # Specify whether vector graphics backends will combine all images on a 
+    # Specify whether vector graphics backends will combine all images on a
     # set of axes into a single composite image
     'image.composite_image': [True, validate_bool],
 
@@ -696,6 +704,8 @@ defaultParams = {
     # the relative size of legend markers vs. original
     'legend.markerscale': [1.0, validate_float],
     'legend.shadow': [False, validate_bool],
+    'legend.facecolor': ['inherit', validate_color_or_inherit],
+    'legend.edgecolor': ['inherit', validate_color_or_inherit],
 
     ## tick properties
     'xtick.major.size':  [4, validate_float],    # major xtick size in points

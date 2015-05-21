@@ -75,7 +75,7 @@ class FigureCanvasQTAggBase(object):
         # FigureCanvasQT.paintEvent(self, e)
         if DEBUG:
             print('FigureCanvasQtAgg.paintEvent: ', self,
-                self.get_width_height())
+                  self.get_width_height())
 
         if self.blitbox is None:
             # matplotlib is in rgba byte order.  QImage wants to put the bytes
@@ -125,6 +125,10 @@ class FigureCanvasQTAggBase(object):
             stringBuffer = reg.to_string_argb()
             qImage = QtGui.QImage(stringBuffer, w, h,
                                   QtGui.QImage.Format_ARGB32)
+            # Adjust the stringBuffer reference count to work around a memory
+            # leak bug in QImage() under PySide on Python 3.x
+            ctypes.c_long.from_address(id(stringBuffer)).value = 1
+
             pixmap = QtGui.QPixmap.fromImage(qImage)
             p = QtGui.QPainter(self)
             p.drawPixmap(QtCore.QPoint(l, self.renderer.height-t), pixmap)

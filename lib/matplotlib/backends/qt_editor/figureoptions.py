@@ -17,6 +17,7 @@ import os.path as osp
 import matplotlib.backends.qt_editor.formlayout as formlayout
 from matplotlib.backends.qt_compat import QtGui
 from matplotlib import markers
+from matplotlib.colors import colorConverter, rgb2hex
 
 
 def get_icon(name):
@@ -73,20 +74,25 @@ def figure_edit(axes, parent=None):
         curvelabels = sorted(linedict.keys())
         for label in curvelabels:
             line = linedict[label]
+            color = rgb2hex(colorConverter.to_rgb(line.get_color()))
+            ec = rgb2hex(colorConverter.to_rgb(line.get_markeredgecolor()))
+            fc = rgb2hex(colorConverter.to_rgb(line.get_markerfacecolor()))
             curvedata = [('Label', label),
                          sep,
                          (None, '<b>Line</b>'),
                          ('Style', [line.get_linestyle()] + linestyles),
                          ('Width', line.get_linewidth()),
-                         ('Color', line.get_color()),
+                         ('Color', color),
                          sep,
                          (None, '<b>Marker</b>'),
                          ('Style', [line.get_marker()] + markers),
                          ('Size', line.get_markersize()),
-                         ('Facecolor', line.get_markerfacecolor()),
-                         ('Edgecolor', line.get_markeredgecolor()),
+                         ('Facecolor', fc),
+                         ('Edgecolor', ec),
                          ]
             curves.append([curvedata, label, ""])
+    # make sure that there is at least one displayed curve
+    has_curve = bool(curves)
 
     datalist = [(general, "Axes", "")]
     if has_curve:

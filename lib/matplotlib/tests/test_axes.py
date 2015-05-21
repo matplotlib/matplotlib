@@ -3586,6 +3586,18 @@ def test_set_get_ticklabels():
     ax[1].set_yticklabels(ax[0].get_yticklabels() )
 
 
+@image_comparison(baseline_images=['o_marker_path_snap'], extensions=['png'],
+                  savefig_kwarg={'dpi': 72})
+def test_o_marker_path_snap():
+    fig, ax = plt.subplots()
+    ax.margins(.1)
+    for ms in range(1, 15):
+        ax.plot([1, 2, ], np.ones(2) + ms, 'o', ms=ms)
+
+    for ms in np.linspace(1, 10, 25):
+        ax.plot([3, 4, ], np.ones(2) + ms, 'o', ms=ms)
+
+
 @cleanup
 def test_margins():
     # test all ways margins can be called
@@ -3666,6 +3678,24 @@ def test_bar_negative_width():
         assert_equal(b._x, indx)
         assert_equal(b._width, 1)
         assert_equal(b._height, indx + 1)
+
+
+@cleanup
+def test_no_None():
+    fig, ax = plt.subplots()
+    assert_raises(ValueError, plt.plot, None)
+    assert_raises(ValueError, plt.plot, None, None)
+
+
+@cleanup
+def test_pcolor_fast_non_uniform():
+    Z = np.arange(6).reshape((3, 2))
+    X = np.array([0, 1, 2, 10])
+    Y = np.array([0, 1, 2])
+
+    plt.figure()
+    ax = plt.subplot(111)
+    ax.pcolorfast(X, Y, Z.T)
 
 
 if __name__ == '__main__':

@@ -26,7 +26,7 @@ from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook import is_string_like
+from matplotlib.cbook import is_string_like, restrict_dict
 from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D
@@ -473,7 +473,7 @@ class FigureCanvasGDK (FigureCanvasBase):
 
         # set the default quality, if we are writing a JPEG.
         # http://www.pygtk.org/docs/pygtk/class-gdkpixbuf.html#method-gdkpixbuf--save
-        options = cbook.restrict_dict(kwargs, ['quality'])
+        options = restrict_dict(kwargs, ['quality'])
         if format in ['jpg','jpeg']:
            if 'quality' not in options:
               options['quality'] = rcParams['savefig.jpeg_quality']

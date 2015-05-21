@@ -26,6 +26,23 @@ def test_is_string_like():
     assert cbook.is_string_like("hello world")
     assert_equal(cbook.is_string_like(10), False)
 
+    y = ['a', 'b', 'c']
+    assert_equal(cbook.is_string_like(y), False)
+
+    y = np.array(y)
+    assert_equal(cbook.is_string_like(y), False)
+
+    y = np.array(y, dtype=object)
+    assert cbook.is_string_like(y)
+
+
+def test_is_sequence_of_strings():
+    y = ['a', 'b', 'c']
+    assert cbook.is_sequence_of_strings(y)
+
+    y = np.array(y, dtype=object)
+    assert cbook.is_sequence_of_strings(y)
+
 
 def test_restrict_dict():
     d = {'foo': 'bar', 1: 2}

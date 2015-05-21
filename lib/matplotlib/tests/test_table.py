@@ -7,6 +7,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.testing.decorators import image_comparison
 
+from matplotlib.table import CustomCell
+from matplotlib.path import Path
+from nose.tools import assert_equal
+
 
 @image_comparison(baseline_images=['table_zorder'],
                   extensions=['png'],
@@ -79,3 +83,41 @@ def test_label_colours():
               colColours=colours,
               colLabels=['Header'] * dim,
               loc='best')
+
+
+@image_comparison(baseline_images=['table_cell_manipulation'],
+                  extensions=['png'], remove_text=True)
+def test_diff_cell_table():
+    cells = ('horizontal', 'vertical', 'open', 'closed', 'T', 'R', 'B', 'L')
+    cellText = [['1'] * len(cells)] * 2
+    colWidths = [0.1] * len(cells)
+
+    _, axes = plt.subplots(nrows=len(cells), figsize=(4, len(cells)+1))
+    for ax, cell in zip(axes, cells):
+        ax.table(
+                colWidths=colWidths,
+                cellText=cellText,
+                loc='center',
+                edges=cell,
+                )
+        ax.axis('off')
+    plt.tight_layout()
+
+
+def test_customcell():
+    types = ('horizontal', 'vertical', 'open', 'closed', 'T', 'R', 'B', 'L')
+    codes = (
+        (Path.MOVETO, Path.LINETO, Path.MOVETO, Path.LINETO, Path.MOVETO),
+        (Path.MOVETO, Path.MOVETO, Path.LINETO, Path.MOVETO, Path.LINETO),
+        (Path.MOVETO, Path.MOVETO, Path.MOVETO, Path.MOVETO, Path.MOVETO),
+        (Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY),
+        (Path.MOVETO, Path.MOVETO, Path.MOVETO, Path.LINETO, Path.MOVETO),
+        (Path.MOVETO, Path.MOVETO, Path.LINETO, Path.MOVETO, Path.MOVETO),
+        (Path.MOVETO, Path.LINETO, Path.MOVETO, Path.MOVETO, Path.MOVETO),
+        (Path.MOVETO, Path.MOVETO, Path.MOVETO, Path.MOVETO, Path.LINETO),
+        )
+
+    for t, c in zip(types, codes):
+        cell = CustomCell((0, 0), visible_edges=t, width=1, height=1)
+        code = tuple(s for _, s in cell.get_path().iter_segments())
+        assert_equal(c, code)

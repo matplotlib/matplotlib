@@ -853,8 +853,9 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         l, b, r, t = self.axes.bbox.extents
         width = (round(r) + 0.5) - (round(l) - 0.5)
         height = (round(t) + 0.5) - (round(b) - 0.5)
-        width = width * magnification
-        height = height * magnification
+        # The extra cast-to-int is only needed for python2
+        width = int(round(width * magnification))
+        height = int(round(height * magnification))
         if self._rgbacache is None:
             A = self.to_rgba(self._A, bytes=True)
             self._rgbacache = A

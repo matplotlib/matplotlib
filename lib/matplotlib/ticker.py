@@ -115,6 +115,9 @@ axis.
 :class:`FuncFormatter`
     user defined function sets the labels
 
+:class:`StrMethodFormatter`
+    Use string `format` method
+
 :class:`FormatStrFormatter`
     use a sprintf format string
 
@@ -1991,8 +1994,8 @@ class OldAutoLocator(Locator):
 
 __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'NullFormatter', 'FuncFormatter', 'FormatStrFormatter',
-           'ScalarFormatter', 'LogFormatter', 'LogFormatterExponent',
-           'LogFormatterMathtext', 'Locator', 'IndexLocator',
-           'FixedLocator', 'NullLocator', 'LinearLocator',
-           'LogLocator', 'AutoLocator', 'MultipleLocator',
-           'MaxNLocator', 'AutoMinorLocator',)
+           'StrMethodFormatter', 'ScalarFormatter', 'LogFormatter',
+           'LogFormatterExponent', 'LogFormatterMathtext', 'Locator',
+           'IndexLocator', 'FixedLocator', 'NullLocator',
+           'LinearLocator', 'LogLocator', 'AutoLocator',
+           'MultipleLocator', 'MaxNLocator', 'AutoMinorLocator',)
