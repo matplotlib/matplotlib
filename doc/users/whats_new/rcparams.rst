@@ -1,3 +1,8 @@
+Added ``errorbar.capsize`` key to rcParams
+``````````````````````````````````````````
+Controls the length of end caps on error bars. If set to zero, errorbars
+are turned off by default.
+
 Added ``xtick.minor.visible`` and ``ytick.minor.visible`` key to rcParams
 `````````````````````````````````````````````````````````````````````````
 Two new keys to control the minor ticks on x/y axis respectively, default set to ``False`` (no minor ticks on the axis).
