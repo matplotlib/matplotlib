@@ -1860,7 +1860,7 @@ class Axes(_AxesBase):
             specifies the color of errorbar(s)
             default: None
 
-        capsize : integer, optional
+        capsize : scalar, optional
            determines the length in points of the error bar caps
            default: None, which will take the value from the
            ``errorbar.capsize`` :data:`rcParam<matplotlib.rcParams>`.
@@ -2190,7 +2190,7 @@ class Axes(_AxesBase):
         ecolor : scalar or array-like, optional, default: None
             specifies the color of errorbar(s)
 
-        capsize : integer, optional
+        capsize : scalar, optional
            determines the length in points of the error bar caps
            default: None, which will take the value from the
            ``errorbar.capsize`` :data:`rcParam<matplotlib.rcParams>`.
@@ -2634,7 +2634,8 @@ class Axes(_AxesBase):
 
           *capsize*: scalar
             The length of the error bar caps in points; if *None*, it will
-            take the value from ``errorbar.capsize`` :data:`rcParam<matplotlib.rcParams>`.
+            take the value from ``errorbar.capsize``
+            :data:`rcParam<matplotlib.rcParams>`.
 
           *capthick*: scalar
             An alias kwarg to *markeredgewidth* (a.k.a. - *mew*). This
