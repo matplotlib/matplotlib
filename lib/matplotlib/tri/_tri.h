@@ -180,13 +180,17 @@ public:
      *          once.
      *   neighbors: Optional int array of shape (ntri,3) indicating which
      *              triangles are the neighbors of which TriEdges, or -1 if
-     *              there is no such neighbor. */
+     *              there is no such neighbor.
+     *   correct_triangle_orientations: Whether or not should correct triangle
+     *                                  orientations so that vertices are
+     *                                  ordered anticlockwise. */
     Triangulation(PyArrayObject* x,
                   PyArrayObject* y,
                   PyArrayObject* triangles,
                   PyArrayObject* mask,
                   PyArrayObject* edges,
-                  PyArrayObject* neighbors);
+                  PyArrayObject* neighbors,
+                  int correct_triangle_orientations);
 
     virtual ~Triangulation();
 

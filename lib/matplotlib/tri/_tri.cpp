@@ -224,7 +224,8 @@ Triangulation::Triangulation(PyArrayObject* x,
                              PyArrayObject* triangles,
                              PyArrayObject* mask,
                              PyArrayObject* edges,
-                             PyArrayObject* neighbors)
+                             PyArrayObject* neighbors,
+                             int correct_triangle_orientations)
     : _npoints(PyArray_DIM(x,0)),
       _ntri(PyArray_DIM(triangles,0)),
       _x(x),
@@ -235,7 +236,8 @@ Triangulation::Triangulation(PyArrayObject* x,
       _neighbors(neighbors)
 {
     _VERBOSE("Triangulation::Triangulation");
-    correct_triangles();
+    if (correct_triangle_orientations)
+        correct_triangles();
 }
 
 Triangulation::~Triangulation()
@@ -2230,7 +2232,7 @@ TriModule::TriModule()
 Py::Object TriModule::new_triangulation(const Py::Tuple &args)
 {
     _VERBOSE("TriModule::new_triangulation");
-    args.verify_length(6);
+    args.verify_length(7);
 
     // x and y.
     PyArrayObject* x = (PyArrayObject*)PyArray_ContiguousFromObject(
@@ -2305,7 +2307,10 @@ Py::Object TriModule::new_triangulation(const Py::Tuple &args)
         }
     }
 
-    return Py::asObject(new Triangulation(x, y, triangles, mask, edges, neighbors));
+    int correct_triangle_orientations = Py::Int(args[6]);
+
+    return Py::asObject(new Triangulation(x, y, triangles, mask, edges, neighbors,
+                                          correct_triangle_orientations));
 }
 
 Py::Object TriModule::new_tricontourgenerator(const Py::Tuple &args)
