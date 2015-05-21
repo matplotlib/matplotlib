@@ -23,6 +23,14 @@ from matplotlib.widgets import SubplotTool
 import matplotlib
 from matplotlib.backends import _macosx
 
+if not _macosx.verify_main_display():
+    import warnings
+    warnings.warn("Python is not installed as a framework. The MacOSX "
+                  "backend may not work correctly if Python is not "
+                  "installed as a framework. Please see the Python "
+                  "documentation for more information on installing "
+                  "Python as a framework on Mac OS X.")
+
 
 class Show(ShowBase):
     def mainloop(self):
