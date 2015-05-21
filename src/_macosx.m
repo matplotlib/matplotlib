@@ -6208,7 +6208,24 @@ static PyTypeObject TimerType = {
     Timer_new,                 /* tp_new */
 };
 
+
+static PyObject*
+verify_main_display(PyObject* self)
+{
+    PyObject* result;
+    CGDirectDisplayID display = CGMainDisplayID();
+    if (display == 0) result = Py_False;
+    else result = Py_True;
+    Py_INCREF(result);
+    return result;
+}
+
 static struct PyMethodDef methods[] = {
+   {"verify_main_display",
+    (PyCFunction)verify_main_display,
+    METH_NOARGS,
+    "Verifies if the main display can be found. This function returns False if Python is not built as a framework."
+   },
    {"show",
     (PyCFunction)show,
     METH_NOARGS,
