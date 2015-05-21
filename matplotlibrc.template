@@ -363,6 +363,9 @@ backend      : %(backend)s
 #contour.negative_linestyle : dashed # dashed | solid
 #contour.corner_mask        : True   # True | False | legacy
 
+### ERRORBAR PLOTS
+#errorbar.capsize : 3             # length of end cap on error bars in pixels
+
 ### Agg rendering
 ### Warning: experimental, 2008/10/10
 #agg.path.chunksize : 0           # 0 to disable; values in the range
