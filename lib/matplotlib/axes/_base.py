@@ -263,6 +263,13 @@ class _process_plot_var_args(object):
             raise ValueError('third arg must be a format string')
         else:
             linestyle, marker, color = None, None, None
+
+        # Don't allow any None value; These will be up-converted
+        # to one element array of None which causes problems
+        # downstream.
+        if any(v is None for v in tup):
+            raise ValueError("x and y must not be None")
+
         kw = {}
         for k, v in zip(('linestyle', 'marker', 'color'),
                         (linestyle, marker, color)):
@@ -1998,20 +2005,16 @@ class _AxesBase(martist.Artist):
         else:
             self.apply_aspect()
 
-        artists = []
-
-        artists.extend(self.collections)
-        artists.extend(self.patches)
-        artists.extend(self.lines)
-        artists.extend(self.texts)
-        artists.extend(self.artists)
+        artists = self.get_children()
+        artists.remove(self.patch)
 
         # the frame draws the edges around the axes patch -- we
         # decouple these so the patch can be in the background and the
         # frame in the foreground. Do this before drawing the axis
         # objects so that the spine has the opportunity to update them.
-        if self.axison and self._frameon:
-            artists.extend(six.itervalues(self.spines))
+        if not (self.axison and self._frameon):
+            for spine in six.itervalues(self.spines):
+                artists.remove(spine)
 
         if self.axison and not inframe:
             if self._axisbelow:
@@ -2020,28 +2023,29 @@ class _AxesBase(martist.Artist):
             else:
                 self.xaxis.set_zorder(2.5)
                 self.yaxis.set_zorder(2.5)
-            artists.extend([self.xaxis, self.yaxis])
-        if not inframe:
-            artists.append(self.title)
-            artists.append(self._left_title)
-            artists.append(self._right_title)
-        artists.extend(self.tables)
-        if self.legend_ is not None:
-            artists.append(self.legend_)
+        else:
+            artists.remove(self.xaxis)
+            artists.remove(self.yaxis)
+
+        if inframe:
+            artists.remove(self.title)
+            artists.remove(self._left_title)
+            artists.remove(self._right_title)
+
+        # add images to dsu if the backend supports compositing.
+        # otherwise, does the manual compositing  without adding images to dsu.
+        if len(self.images) <= 1 or renderer.option_image_nocomposite():
+            _do_composite = False
+        else:
+            _do_composite = True
+            for im in self.images:
+                artists.remove(im)
 
         if self.figure.canvas.is_saving():
             dsu = [(a.zorder, a) for a in artists]
         else:
             dsu = [(a.zorder, a) for a in artists
-                   if not a.get_animated()]
-
-        # add images to dsu if the backend supports compositing.
-        # otherwise, does the manual compositing  without adding images to dsu.
-        if len(self.images) <= 1 or renderer.option_image_nocomposite():
-            dsu.extend([(im.zorder, im) for im in self.images])
-            _do_composite = False
-        else:
-            _do_composite = True
+                   if (not a.get_animated() or a in self.images)]
 
         dsu.sort(key=itemgetter(0))
 
@@ -3186,22 +3190,22 @@ class _AxesBase(martist.Artist):
     def get_children(self):
         """return a list of child artists"""
         children = []
+        children.extend(self.collections)
+        children.extend(self.patches)
+        children.extend(self.lines)
+        children.extend(self.texts)
+        children.extend(self.artists)
+        children.extend(six.itervalues(self.spines))
         children.append(self.xaxis)
         children.append(self.yaxis)
-        children.extend(self.lines)
-        children.extend(self.patches)
-        children.extend(self.texts)
-        children.extend(self.tables)
-        children.extend(self.artists)
-        children.extend(self.images)
-        if self.legend_ is not None:
-            children.append(self.legend_)
-        children.extend(self.collections)
         children.append(self.title)
         children.append(self._left_title)
         children.append(self._right_title)
+        children.extend(self.tables)
+        children.extend(self.images)
+        if self.legend_ is not None:
+            children.append(self.legend_)
         children.append(self.patch)
-        children.extend(six.itervalues(self.spines))
         return children
 
     def contains(self, mouseevent):

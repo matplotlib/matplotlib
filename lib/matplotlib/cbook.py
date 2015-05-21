@@ -783,8 +783,12 @@ def is_sequence_of_strings(obj):
     """
     if not iterable(obj):
         return False
-    if is_string_like(obj):
-        return False
+    if is_string_like(obj) and not isinstance(obj, np.ndarray):
+        try:
+            obj = obj.values
+        except AttributeError:
+            # not pandas
+            return False
     for o in obj:
         if not is_string_like(o):
             return False
@@ -2190,7 +2194,10 @@ _linestyles = [('-', 'solid'),
                (':', 'dotted')]
 
 ls_mapper = dict(_linestyles)
-ls_mapper.update([(ls[1], ls[0]) for ls in _linestyles])
+# The ls_mapper maps short codes for line style to their full name used
+# by backends
+# The reverse mapper is for mapping full names to short ones
+ls_mapper_r = dict([(ls[1], ls[0]) for ls in _linestyles])
 
 
 def align_iterators(func, *iterables):

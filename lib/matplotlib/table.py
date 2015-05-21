@@ -34,6 +34,7 @@ from .cbook import is_string_like
 from matplotlib import docstring
 from .text import Text
 from .transforms import Bbox
+from matplotlib.path import Path
 
 
 class Cell(Rectangle):
@@ -146,6 +147,67 @@ class Cell(Rectangle):
         self._text.update(kwargs)
 
 
+class CustomCell(Cell):
+    """
+    A subclass of Cell where the sides may be visibly toggled.
+
+    """
+
+    _edges = 'BRTL'
+    _edge_aliases = {'open':         '',
+                     'closed':       _edges,  # default
+                     'horizontal':   'BT',
+                     'vertical':     'RL'
+                     }
+
+    def __init__(self, *args, **kwargs):
+        visible_edges = kwargs.pop('visible_edges')
+        Cell.__init__(self, *args, **kwargs)
+        self.visible_edges = visible_edges
+
+    @property
+    def visible_edges(self):
+        return self._visible_edges
+
+    @visible_edges.setter
+    def visible_edges(self, value):
+        if value is None:
+            self._visible_edges = self._edges
+        elif value in self._edge_aliases:
+            self._visible_edges = self._edge_aliases[value]
+        else:
+            for edge in value:
+                if edge not in self._edges:
+                    msg = ('Invalid edge param {0}, must only be one of'
+                           ' {1} or string of {2}.').format(
+                                   value,
+                                   ", ".join(self._edge_aliases.keys()),
+                                   ", ".join(self._edges),
+                                   )
+                    raise ValueError(msg)
+            self._visible_edges = value
+
+    def get_path(self):
+        'Return a path where the edges specificed by _visible_edges are drawn'
+
+        codes = [Path.MOVETO]
+
+        for edge in self._edges:
+            if edge in self._visible_edges:
+                codes.append(Path.LINETO)
+            else:
+                codes.append(Path.MOVETO)
+
+        if Path.MOVETO not in codes[1:]:  # All sides are visible
+            codes[-1] = Path.CLOSEPOLY
+
+        return Path(
+            [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]],
+            codes,
+            readonly=True
+            )
+
+
 class Table(Artist):
     """
     Create a table of cells.
@@ -203,6 +265,7 @@ class Table(Artist):
 
         self._texts = []
         self._cells = {}
+        self._edges = None
         self._autoRows = []
         self._autoColumns = []
         self._autoFontsize = True
@@ -216,12 +279,20 @@ class Table(Artist):
         """ Add a cell to the table. """
         xy = (0, 0)
 
-        cell = Cell(xy, *args, **kwargs)
+        cell = CustomCell(xy, visible_edges=self.edges, *args, **kwargs)
         cell.set_figure(self.figure)
         cell.set_transform(self.get_transform())
 
         cell.set_clip_on(False)
         self._cells[(row, col)] = cell
+
+    @property
+    def edges(self):
+        return self._edges
+
+    @edges.setter
+    def edges(self, value):
+        self._edges = value
 
     def _approx_text_height(self):
         return (self.FONTSIZE / 72.0 * self.figure.dpi /
@@ -246,8 +317,8 @@ class Table(Artist):
         keys.sort()
         for key in keys:
             self._cells[key].draw(renderer)
-        #for c in self._cells.itervalues():
-        #    c.draw(renderer)
+        # for c in self._cells.itervalues():
+        #     c.draw(renderer)
         renderer.close_group('table')
 
     def _get_grid_bbox(self, renderer):
@@ -273,8 +344,8 @@ class Table(Artist):
         # doesn't have to bind to each one individually.
         if self._cachedRenderer is not None:
             boxes = [self._cells[pos].get_window_extent(self._cachedRenderer)
-                 for pos in six.iterkeys(self._cells)
-                 if pos[0] >= 0 and pos[1] >= 0]
+                     for pos in six.iterkeys(self._cells)
+                     if pos[0] >= 0 and pos[1] >= 0]
             bbox = Bbox.union(boxes)
             return bbox.contains(mouseevent.x, mouseevent.y), {}
         else:
@@ -455,23 +526,24 @@ class Table(Artist):
 
 
 def table(ax,
-    cellText=None, cellColours=None,
-    cellLoc='right', colWidths=None,
-    rowLabels=None, rowColours=None, rowLoc='left',
-    colLabels=None, colColours=None, colLoc='center',
-    loc='bottom', bbox=None,
-    **kwargs):
+          cellText=None, cellColours=None,
+          cellLoc='right', colWidths=None,
+          rowLabels=None, rowColours=None, rowLoc='left',
+          colLabels=None, colColours=None, colLoc='center',
+          loc='bottom', bbox=None, edges='closed',
+          **kwargs):
     """
     TABLE(cellText=None, cellColours=None,
           cellLoc='right', colWidths=None,
           rowLabels=None, rowColours=None, rowLoc='left',
           colLabels=None, colColours=None, colLoc='center',
-          loc='bottom', bbox=None)
+          loc='bottom', bbox=None, edges='closed')
 
     Factory function to generate a Table instance.
 
     Thanks to John Gill for providing the class and table.
     """
+
     # Check we have some cellText
     if cellText is None:
         # assume just colours are needed
@@ -531,6 +603,7 @@ def table(ax,
 
     # Now create the table
     table = Table(ax, loc, bbox, **kwargs)
+    table.edges = edges
     height = table._approx_text_height()
 
     # Add the cells

@@ -288,7 +288,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        loc : int or string or pair of floats, default: 0
+        loc : int or string or pair of floats, default: 'upper right'
             The location of the legend. Possible codes are:
 
                 ===============   =============
@@ -3076,6 +3076,9 @@ class Axes(_AxesBase):
             as a line spanning the full width of the box according to
             *meanprops*. Not recommended if *shownotches* is also True.
             Otherwise, means will be shown as points.
+
+          manage_xticks : bool, default = True
+            If the function should adjust the xlim and xtick locations.
 
         Returns
         -------

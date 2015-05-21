@@ -10,6 +10,7 @@ import os, base64, tempfile, gzip, io, sys, codecs, re
 import numpy as np
 
 from hashlib import md5
+import uuid
 
 from matplotlib import verbose, __version__, rcParams
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
@@ -255,7 +256,7 @@ class RendererSVG(RendererBase):
         self.width = width
         self.height = height
         self.writer = XMLWriter(svgwriter)
-        self.image_dpi = image_dpi # the actual dpi we want to rasterize stuff with
+        self.image_dpi = image_dpi  # the actual dpi we want to rasterize stuff with
 
         self._groupd = {}
         if not rcParams['svg.image_inline']:
@@ -309,9 +310,14 @@ class RendererSVG(RendererBase):
 
     def _make_id(self, type, content):
         content = str(content)
+        salt = str(uuid.uuid4())
         if six.PY3:
             content = content.encode('utf8')
-        return '%s%s' % (type, md5(content).hexdigest()[:10])
+            salt = salt.encode('utf8')
+        m = md5()
+        m.update(salt)
+        m.update(content)
+        return '%s%s' % (type, m.hexdigest()[:10])
 
     def _make_flip_transform(self, transform):
         return (transform +
@@ -532,7 +538,7 @@ class RendererSVG(RendererBase):
 
     def option_image_nocomposite(self):
         """
-        return whether to generate a composite image from multiple images on 
+        return whether to generate a composite image from multiple images on
         a set of axes
         """
         if rcParams['svg.image_noscale']:

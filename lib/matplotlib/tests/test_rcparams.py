@@ -9,8 +9,10 @@ import sys
 import warnings
 
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 from matplotlib.tests import assert_str_equal
 from matplotlib.testing.decorators import cleanup, knownfailureif
+import matplotlib.colors as mcolors
 from nose.tools import assert_true, assert_raises, assert_equal
 from nose.plugins.skip import SkipTest
 import nose
@@ -179,6 +181,50 @@ def test_Bug_2543_newer_python():
     with assert_raises(ValueError):
         with mpl.rc_context():
             mpl.rcParams['svg.fonttype'] = True
+
+
+@cleanup
+def _legend_rcparam_helper(param_dict, target, get_func):
+    with mpl.rc_context(param_dict):
+        _, ax = plt.subplots()
+        ax.plot(range(3), label='test')
+        leg = ax.legend()
+        assert_equal(getattr(leg.legendPatch, get_func)(), target)
+
+
+def test_legend_facecolor():
+    get_func = 'get_facecolor'
+    rcparam = 'legend.facecolor'
+    test_values = [({rcparam: 'r'},
+                    mcolors.colorConverter.to_rgba('r')),
+                   ({rcparam: 'inherit',
+                     'axes.facecolor': 'r'
+                     },
+                    mcolors.colorConverter.to_rgba('r')),
+                   ({rcparam: 'g',
+                     'axes.facecolor': 'r'},
+                   mcolors.colorConverter.to_rgba('g'))
+                   ]
+    for rc_dict, target in test_values:
+        yield _legend_rcparam_helper, rc_dict, target, get_func
+
+
+def test_legend_edgecolor():
+    get_func = 'get_edgecolor'
+    rcparam = 'legend.edgecolor'
+    test_values = [({rcparam: 'r'},
+                    mcolors.colorConverter.to_rgba('r')),
+                   ({rcparam: 'inherit',
+                     'axes.edgecolor': 'r'
+                     },
+                    mcolors.colorConverter.to_rgba('r')),
+                   ({rcparam: 'g',
+                     'axes.facecolor': 'r'},
+                   mcolors.colorConverter.to_rgba('g'))
+                   ]
+    for rc_dict, target in test_values:
+        yield _legend_rcparam_helper, rc_dict, target, get_func
+
 
 def test_Issue_1713():
     utf32_be = os.path.join(os.path.dirname(__file__),
