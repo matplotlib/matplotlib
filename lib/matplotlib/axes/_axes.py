@@ -2596,7 +2596,7 @@ class Axes(_AxesBase):
         Call signature::
 
           errorbar(x, y, yerr=None, xerr=None,
-                   fmt='', ecolor=None, elinewidth=None, capsize=3,
+                   fmt='', ecolor=None, elinewidth=None, capsize=None,
                    barsabove=False, lolims=False, uplims=False,
                    xlolims=False, xuplims=False, errorevery=1,
                    capthick=None)
