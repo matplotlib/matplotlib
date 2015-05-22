@@ -329,6 +329,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             self.send_event('figure_label', label=figure_label)
             self._force_full = True
             self.draw_idle()
+
         else:
             handler = getattr(self, 'handle_{0}'.format(e_type), None)
             if handler is None:
