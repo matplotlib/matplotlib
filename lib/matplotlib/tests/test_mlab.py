@@ -340,7 +340,6 @@ class csv_testcase(CleanupTestCase):
         assert_raises(ValueError, mlab.rec2csv, bad, self.fd)
 
     def test_csv2rec_names_with_comments(self):
-        self.fd.seek(0)
         self.fd.write('# comment\n1,2,3\n4,5,6\n')
         self.fd.seek(0)
         array = mlab.csv2rec(self.fd, names='a,b,c')
