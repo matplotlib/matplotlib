@@ -339,6 +339,14 @@ class csv_testcase(CleanupTestCase):
         # the bad recarray should trigger a ValueError for having ndim > 1.
         assert_raises(ValueError, mlab.rec2csv, bad, self.fd)
 
+    def test_csv2rec_names_with_comments(self):
+        self.fd.seek(0)
+        self.fd.write('# comment\n1,2,3\n4,5,6\n')
+        self.fd.seek(0)
+        array = mlab.csv2rec(self.fd, names='a,b,c')
+        assert len(array) == 2
+        assert len(array.dtype) == 3
+
 
 class window_testcase(CleanupTestCase):
     def setUp(self):
