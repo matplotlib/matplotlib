@@ -2948,16 +2948,20 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
         'print' : 'print_',
         }
 
-    def get_converters(reader):
+    def get_converters(reader, comments):
 
         converters = None
-        for i, row in enumerate(reader):
-            if i==0:
+        i = 0
+        for row in reader:
+            if (len(row) and comments is not None and
+                    row[0].startswith(comments)):
+                continue
+            if i == 0:
                 converters = [mybool]*len(row)
             if checkrows and i>checkrows:
                 break
-            #print i, len(names), len(row)
-            #print 'converters', zip(converters, row)
+            i += 1
+
             for j, (name, item) in enumerate(zip(names, row)):
                 func = converterd.get(j)
                 if func is None:
@@ -3009,7 +3013,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             names = [n.strip() for n in names.split(',')]
 
     # get the converter functions by inspecting checkrows
-    converters = get_converters(reader)
+    converters = get_converters(reader, comments)
     if converters is None:
         raise ValueError('Could not find any valid data in CSV file')
 
