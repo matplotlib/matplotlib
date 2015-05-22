@@ -2880,6 +2880,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             if checkrows and i > checkrows:
                 break
             i += 1
+
             for j, (name, item) in enumerate(zip(names, row)):
                 func = converterd.get(j)
                 if func is None:
