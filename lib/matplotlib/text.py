@@ -10,6 +10,8 @@ from six.moves import zip
 import math
 import warnings
 
+import contextlib
+
 import numpy as np
 
 from matplotlib import cbook
@@ -40,6 +42,22 @@ def _process_text_args(override, fontdict=None, **kwargs):
 
     override.update(kwargs)
     return override
+
+
+@contextlib.contextmanager
+def _wrap_text(textobj):
+    """
+    Temporarily inserts newlines to the text if the wrap option is enabled.
+    """
+    if textobj.get_wrap():
+        old_text = textobj.get_text()
+        try:
+            textobj.set_text(textobj._get_wrapped_text())
+            yield textobj
+        finally:
+            textobj.set_text(old_text)
+    else:
+        yield textobj
 
 
 # Extracted from Text's method to serve as a function
@@ -105,6 +123,7 @@ docstring.interpd.update(Text="""
     visible                    [True | False]
     weight or fontweight       ['normal' | 'bold' | 'heavy' | 'light' |
                                 'ultrabold' | 'ultralight']
+    wrap                       [True | False]
     x                          float
     y                          float
     zorder                     any number
@@ -175,6 +194,7 @@ class Text(Artist):
                  linespacing=None,
                  rotation_mode=None,
                  usetex=None,          # defaults to rcParams['text.usetex']
+                 wrap=False,
                  **kwargs
                  ):
         """
@@ -198,6 +218,7 @@ class Text(Artist):
         self.set_text(text)
         self.set_color(color)
         self.set_usetex(usetex)
+        self.set_wrap(wrap)
         self._verticalalignment = verticalalignment
         self._horizontalalignment = horizontalalignment
         self._multialignment = multialignment
@@ -211,7 +232,7 @@ class Text(Artist):
         self._linespacing = linespacing
         self.set_rotation_mode(rotation_mode)
         self.update(kwargs)
-        #self.set_bbox(dict(pad=0))
+        # self.set_bbox(dict(pad=0))
 
     def __getstate__(self):
         d = super(Text, self).__getstate__()
@@ -514,7 +535,7 @@ class Text(Artist):
             self._bbox_patch.set_transform(tr)
             fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
             self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
-            #self._bbox_patch.draw(renderer)
+            # self._bbox_patch.draw(renderer)
 
     def _draw_bbox(self, renderer, posx, posy):
 
@@ -587,6 +608,115 @@ class Text(Artist):
         super(Text, self).set_clip_on(b)
         self._update_clip_properties()
 
+    def get_wrap(self):
+        """
+        Returns the wrapping state for the text.
+        """
+        return self._wrap
+
+    def set_wrap(self, wrap):
+        """
+        Sets the wrapping state for the text.
+        """
+        self._wrap = wrap
+
+    def _get_wrap_line_width(self):
+        """
+        Returns the maximum line width for wrapping text based on the
+        current orientation.
+        """
+        x0, y0 = self.get_transform().transform(self.get_position())
+        figure_box = self.get_figure().get_window_extent()
+
+        # Calculate available width based on text alignment
+        alignment = self.get_horizontalalignment()
+        self.set_rotation_mode('anchor')
+        rotation = self.get_rotation()
+
+        left = self._get_dist_to_box(rotation, x0, y0, figure_box)
+        right = self._get_dist_to_box(
+            (180 + rotation) % 360,
+            x0,
+            y0,
+            figure_box)
+
+        if alignment == 'left':
+            line_width = left
+        elif alignment == 'right':
+            line_width = right
+        else:
+            line_width = 2 * min(left, right)
+
+        return line_width
+
+    def _get_dist_to_box(self, rotation, x0, y0, figure_box):
+        """
+        Returns the distance from the given points, to the boundaries
+        of a rotated box in pixels.
+        """
+        if rotation > 270:
+            quad = rotation - 270
+            h1 = y0 / math.cos(math.radians(quad))
+            h2 = (figure_box.x1 - x0) / math.cos(math.radians(90 - quad))
+        elif rotation > 180:
+            quad = rotation - 180
+            h1 = x0 / math.cos(math.radians(quad))
+            h2 = y0 / math.cos(math.radians(90 - quad))
+        elif rotation > 90:
+            quad = rotation - 90
+            h1 = (figure_box.y1 - y0) / math.cos(math.radians(quad))
+            h2 = x0 / math.cos(math.radians(90 - quad))
+        else:
+            h1 = (figure_box.x1 - x0) / math.cos(math.radians(rotation))
+            h2 = (figure_box.y1 - y0) / math.cos(math.radians(90 - rotation))
+
+        return min(h1, h2)
+
+    def _get_rendered_text_width(self, text):
+        """
+        Returns the width of a given text string, in pixels.
+        """
+        w, h, d = self._renderer.get_text_width_height_descent(
+            text,
+            self.get_fontproperties(),
+            False)
+        return math.ceil(w)
+
+    def _get_wrapped_text(self):
+        """
+        Return a copy of the text with new lines added, so that
+        the text is wrapped relative to the parent figure.
+        """
+        # Not fit to handle breaking up latex syntax correctly, so
+        # ignore latex for now.
+        if self.get_usetex():
+            return self.get_text()
+
+        # Build the line incrementally, for a more accurate measure of length
+        line_width = self._get_wrap_line_width()
+        wrapped_str = ""
+        line = ""
+
+        for word in self.get_text().split(' '):
+            # New lines in the user's test need to force a split, so that it's
+            # not using the longest current line width in the line being built
+            sub_words = word.split('\n')
+            for i in range(len(sub_words)):
+                current_width = self._get_rendered_text_width(
+                    line + ' ' + sub_words[i])
+
+                # Split long lines, and each newline found in the current word
+                if current_width > line_width or i > 0:
+                    wrapped_str += line + '\n'
+                    line = ""
+
+                if line == "":
+                    line = sub_words[i]
+                else:
+                    line += ' ' + sub_words[i]
+
+        return wrapped_str + line
+
     @allow_rasterization
     def draw(self, renderer):
         """
@@ -601,56 +731,58 @@ class Text(Artist):
 
         renderer.open_group('text', self.get_gid())
 
-        bbox, info, descent = self._get_layout(renderer)
-        trans = self.get_transform()
+        with _wrap_text(self) as textobj:
+            bbox, info, descent = textobj._get_layout(renderer)
+            trans = textobj.get_transform()
 
-        # don't use self.get_position here, which refers to text position
-        # in Text, and dash position in TextWithDash:
-        posx = float(self.convert_xunits(self._x))
-        posy = float(self.convert_yunits(self._y))
+            # don't use textobj.get_position here, which refers to text
+            # position in Text, and dash position in TextWithDash:
+            posx = float(textobj.convert_xunits(textobj._x))
+            posy = float(textobj.convert_yunits(textobj._y))
 
-        posx, posy = trans.transform_point((posx, posy))
-        canvasw, canvash = renderer.get_canvas_width_height()
+            posx, posy = trans.transform_point((posx, posy))
+            canvasw, canvash = renderer.get_canvas_width_height()
 
-        # draw the FancyBboxPatch
-        if self._bbox_patch:
-            self._draw_bbox(renderer, posx, posy)
+            # draw the FancyBboxPatch
+            if textobj._bbox_patch:
+                textobj._draw_bbox(renderer, posx, posy)
 
-        gc = renderer.new_gc()
-        gc.set_foreground(self.get_color())
-        gc.set_alpha(self.get_alpha())
-        gc.set_url(self._url)
-        self._set_gc_clip(gc)
+            gc = renderer.new_gc()
+            gc.set_foreground(textobj.get_color())
+            gc.set_alpha(textobj.get_alpha())
+            gc.set_url(textobj._url)
+            textobj._set_gc_clip(gc)
 
-        if self._bbox:
-            bbox_artist(self, renderer, self._bbox)
-        angle = self.get_rotation()
+            if textobj._bbox:
+                bbox_artist(textobj, renderer, textobj._bbox)
+            angle = textobj.get_rotation()
 
-        for line, wh, x, y in info:
-            if not np.isfinite(x) or not np.isfinite(y):
-                continue
+            for line, wh, x, y in info:
+                if not np.isfinite(x) or not np.isfinite(y):
+                    continue
 
-            mtext = self if len(info) == 1 else None
-            x = x + posx
-            y = y + posy
-            if renderer.flipy():
-                y = canvash - y
-            clean_line, ismath = self.is_math_text(line)
+                mtext = textobj if len(info) == 1 else None
+                x = x + posx
+                y = y + posy
+                if renderer.flipy():
+                    y = canvash - y
+                clean_line, ismath = textobj.is_math_text(line)
 
-            if self.get_path_effects():
-                from matplotlib.patheffects import PathEffectRenderer
-                textrenderer = PathEffectRenderer(self.get_path_effects(),
-                                                  renderer)
-            else:
-                textrenderer = renderer
+                if textobj.get_path_effects():
+                    from matplotlib.patheffects import PathEffectRenderer
+                    textrenderer = PathEffectRenderer(
+                                        textobj.get_path_effects(), renderer)
+                else:
+                    textrenderer = renderer
 
-            if self.get_usetex():
-                textrenderer.draw_tex(gc, x, y, clean_line,
-                                      self._fontproperties, angle, mtext=mtext)
-            else:
-                textrenderer.draw_text(gc, x, y, clean_line,
-                                       self._fontproperties, angle,
-                                       ismath=ismath, mtext=mtext)
+                if textobj.get_usetex():
+                    textrenderer.draw_tex(gc, x, y, clean_line,
+                                          textobj._fontproperties, angle,
+                                          mtext=mtext)
+                else:
+                    textrenderer.draw_text(gc, x, y, clean_line,
+                                           textobj._fontproperties, angle,
+                                           ismath=ismath, mtext=mtext)
 
         gc.restore()
         renderer.close_group('text')
