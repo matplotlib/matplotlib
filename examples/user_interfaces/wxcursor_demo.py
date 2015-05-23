@@ -1,12 +1,17 @@
 """
 Example to draw a cursor and report the data coords in wx
 """
+# matplotlib requires wxPython 2.8+
+# set the wxPython version in lib\site-packages\wx.pth file
+# or if you have wxversion installed un-comment the lines below
+#import wxversion
+#wxversion.ensureMinimal('2.8')
 
 import matplotlib
 matplotlib.use('WXAgg')
 
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.backends.backend_wx import NavigationToolbar2Wx
+from matplotlib.backends.backend_wx import NavigationToolbar2Wx, wxc
 from matplotlib.figure import Figure
 from numpy import arange, sin, pi
 
@@ -18,7 +23,7 @@ class CanvasFrame(wx.Frame):
         wx.Frame.__init__(self, None, -1,
                           'CanvasFrame', size=(550, 350))
 
-        self.SetBackgroundColour(wx.NamedColour("WHITE"))
+        self.SetBackgroundColour(wxc.NamedColour("WHITE"))
 
         self.figure = Figure()
         self.axes = self.figure.add_subplot(111)
@@ -40,7 +45,6 @@ class CanvasFrame(wx.Frame):
         self.Fit()
 
         self.statusBar = wx.StatusBar(self, -1)
-        self.statusBar.SetFieldsCount(1)
         self.SetStatusBar(self.statusBar)
 
         self.toolbar = NavigationToolbar2Wx(self.figure_canvas)
@@ -48,7 +52,7 @@ class CanvasFrame(wx.Frame):
         self.toolbar.Show()
 
     def ChangeCursor(self, event):
-        self.figure_canvas.SetCursor(wx.StockCursor(wx.CURSOR_BULLSEYE))
+        self.figure_canvas.SetCursor(wxc.StockCursor(wx.CURSOR_BULLSEYE))
 
     def UpdateStatusBar(self, event):
         if event.inaxes:
