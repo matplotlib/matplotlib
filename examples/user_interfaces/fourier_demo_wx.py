@@ -1,6 +1,13 @@
+#!/usr/bin/env python
 import numpy as np
-import wx
 
+# matplotlib requires wxPython 2.8+
+# set the wxPython version in lib\site-packages\wx.pth file
+# or if you have wxversion installed un-comment the lines below
+#import wxversion
+#wxversion.ensureMinimal('2.8')
+
+import wx
 import matplotlib
 matplotlib.interactive(False)
 matplotlib.use('WXAgg')
@@ -66,12 +73,17 @@ class SliderGroup(Knob):
         self.sliderLabel = wx.StaticText(parent, label=label)
         self.sliderText = wx.TextCtrl(parent, -1, style=wx.TE_PROCESS_ENTER)
         self.slider = wx.Slider(parent, -1)
-        self.slider.SetMax(param.maximum*1000)
+        # self.slider.SetMax(param.maximum*1000)
+        self.slider.SetRange(0, param.maximum * 1000)
         self.setKnob(param.value)
 
         sizer = wx.BoxSizer(wx.HORIZONTAL)
-        sizer.Add(self.sliderLabel, 0, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=2)
-        sizer.Add(self.sliderText, 0, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=2)
+        sizer.Add(self.sliderLabel, 0,
+                  wx.EXPAND | wx.ALIGN_CENTER | wx.ALL,
+                  border=2)
+        sizer.Add(self.sliderText, 0,
+                  wx.EXPAND | wx.ALIGN_CENTER | wx.ALL,
+                  border=2)
         sizer.Add(self.slider, 1, wx.EXPAND)
         self.sizer = sizer
 
@@ -91,7 +103,7 @@ class SliderGroup(Knob):
 
     def setKnob(self, value):
         self.sliderText.SetValue('%g' % value)
-        self.slider.SetValue(value*1000)
+        self.slider.SetValue(value * 1000)
 
 
 class FourierDemoFrame(wx.Frame):
@@ -99,8 +111,10 @@ class FourierDemoFrame(wx.Frame):
         wx.Frame.__init__(self, *args, **kwargs)
 
         self.fourierDemoWindow = FourierDemoWindow(self)
-        self.frequencySliderGroup = SliderGroup(self, label='Frequency f0:',
-                                                param=self.fourierDemoWindow.f0)
+        self.frequencySliderGroup = SliderGroup(
+            self,
+            label='Frequency f0:',
+            param=self.fourierDemoWindow.f0)
         self.amplitudeSliderGroup = SliderGroup(self, label=' Amplitude a:',
                                                 param=self.fourierDemoWindow.A)
 
@@ -136,6 +150,12 @@ class FourierDemoWindow(wx.Window, Knob):
         self.A.attach(self)
         self.Bind(wx.EVT_SIZE, self.sizeHandler)
 
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+
+    def OnPaint(self, event):
+        self.canvas.draw()
+        event.Skip()
+
     def sizeHandler(self, *args, **kwargs):
         self.canvas.SetSize(self.GetSize())
 
@@ -146,7 +166,9 @@ class FourierDemoWindow(wx.Window, Knob):
             self.state = 'time'
         else:
             self.state = ''
-        self.mouseInfo = (evt.xdata, evt.ydata, max(self.f0.value, .1), self.A.value)
+        self.mouseInfo = (evt.xdata, evt.ydata,
+                          max(self.f0.value, .1),
+                          self.A.value)
 
     def mouseMotion(self, evt):
         if self.state == '':
@@ -155,12 +177,12 @@ class FourierDemoWindow(wx.Window, Knob):
         if x is None:  # outside the axes
             return
         x0, y0, f0Init, AInit = self.mouseInfo
-        self.A.set(AInit + (AInit*(y - y0)/y0), self)
+        self.A.set(AInit + (AInit * (y - y0) / y0), self)
         if self.state == 'frequency':
-            self.f0.set(f0Init + (f0Init*(x - x0)/x0))
+            self.f0.set(f0Init + (f0Init * (x - x0) / x0))
         elif self.state == 'time':
-            if (x - x0)/x0 != -1.:
-                self.f0.set(1./(1./f0Init + (1./f0Init*(x - x0)/x0)))
+            if (x - x0) / x0 != -1.:
+                self.f0.set(1. / (1. / f0Init + (1. / f0Init * (x - x0) / x0)))
 
     def mouseUp(self, evt):
         self.state = ''
@@ -174,7 +196,9 @@ class FourierDemoWindow(wx.Window, Knob):
         self.lines += self.subplot1.plot(x1, y1, color=color, linewidth=2)
         self.lines += self.subplot2.plot(x2, y2, color=color, linewidth=2)
         # Set some plot attributes
-        self.subplot1.set_title("Click and drag waveforms to change frequency and amplitude", fontsize=12)
+        self.subplot1.set_title(
+            "Click and drag waveforms to change frequency and amplitude",
+            fontsize=12)
         self.subplot1.set_ylabel("Frequency Domain Waveform X(f)", fontsize=8)
         self.subplot1.set_xlabel("frequency f", fontsize=8)
         self.subplot2.set_ylabel("Time Domain Waveform x(t)", fontsize=8)
@@ -183,16 +207,21 @@ class FourierDemoWindow(wx.Window, Knob):
         self.subplot1.set_ylim([0, 1])
         self.subplot2.set_xlim([-2, 2])
         self.subplot2.set_ylim([-2, 2])
-        self.subplot1.text(0.05, .95, r'$X(f) = \mathcal{F}\{x(t)\}$',
-                           verticalalignment='top', transform=self.subplot1.transAxes)
-        self.subplot2.text(0.05, .95, r'$x(t) = a \cdot \cos(2\pi f_0 t) e^{-\pi t^2}$',
-                           verticalalignment='top', transform=self.subplot2.transAxes)
+        self.subplot1.text(0.05, .95,
+                           r'$X(f) = \mathcal{F}\{x(t)\}$',
+                           verticalalignment='top',
+                           transform=self.subplot1.transAxes)
+        self.subplot2.text(0.05, .95,
+                           r'$x(t) = a \cdot \cos(2\pi f_0 t) e^{-\pi t^2}$',
+                           verticalalignment='top',
+                           transform=self.subplot2.transAxes)
 
     def compute(self, f0, A):
         f = np.arange(-6., 6., 0.02)
         t = np.arange(-2., 2., 0.01)
-        x = A*np.cos(2*np.pi*f0*t)*np.exp(-np.pi*t**2)
-        X = A/2*(np.exp(-np.pi*(f - f0)**2) + np.exp(-np.pi*(f + f0)**2))
+        x = A * np.cos(2 * np.pi * f0 * t) * np.exp(-np.pi * t ** 2)
+        X = A / 2 * \
+            (np.exp(-np.pi * (f - f0) ** 2) + np.exp(-np.pi * (f + f0) ** 2))
         return f, X, t, x
 
     def repaint(self):
@@ -208,7 +237,8 @@ class FourierDemoWindow(wx.Window, Knob):
 
 class App(wx.App):
     def OnInit(self):
-        self.frame1 = FourierDemoFrame(parent=None, title="Fourier Demo", size=(640, 480))
+        self.frame1 = FourierDemoFrame(parent=None, title="Fourier Demo",
+                                       size=(640, 480))
         self.frame1.Show()
         return True
 

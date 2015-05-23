@@ -236,8 +236,6 @@ def test_pep8_conformance_installed_files():
                           'backends/backend_svg.py',
                           'backends/backend_template.py',
                           'backends/backend_tkagg.py',
-                          'backends/backend_wx.py',
-                          'backends/backend_wxagg.py',
                           'backends/tkagg.py',
                           'backends/windowing.py',
                           'backends/qt_editor/formlayout.py',
