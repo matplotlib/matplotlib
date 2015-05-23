@@ -1468,9 +1468,10 @@ class Transform(TransformNode):
         if pts.shape[1] != 2:
             raise ValueError("'pts' must be array with 2 columns for x,y")
 
-        if angles.ndim!=1 or angles.shape[0] != pts.shape[0]:
+        if angles.ndim != 1 or angles.shape[0] != pts.shape[0]:
             msg = "'angles' must be a column vector and have same number of"
             msg += " rows as 'pts'"
+            raise ValueError(msg)
 
         # Convert to radians if desired
         if not radians:

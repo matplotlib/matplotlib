@@ -9,6 +9,7 @@ import unittest
 from nose.tools import assert_equal, assert_raises
 import numpy.testing as np_test
 from numpy.testing import assert_almost_equal, assert_array_equal
+from numpy.testing import assert_array_almost_equal
 from matplotlib.transforms import Affine2D, BlendedGenericTransform, Bbox
 from matplotlib.path import Path
 from matplotlib.scale import LogScale
@@ -533,6 +534,22 @@ def test_nan_overlap():
     a = Bbox([[0, 0], [1, 1]])
     b = Bbox([[0, 0], [1, np.nan]])
     assert not a.overlaps(b)
+
+
+def test_transform_angles():
+    t = mtrans.Affine2D()  # Identity transform
+    angles = np.array([20, 45, 60])
+    points = np.array([[0, 0], [1, 1], [2, 2]])
+
+    # Identity transform does not change angles
+    new_angles = t.transform_angles(angles, points)
+    assert_array_almost_equal(angles, new_angles)
+
+    # points missing a 2nd dimension
+    assert_raises(ValueError, t.transform_angles, angles, points[0:2, 0:1])
+
+    # Number of angles != Number of points
+    assert_raises(ValueError, t.transform_angles, angles, points[0:2, :])
 
 
 if __name__ == '__main__':
