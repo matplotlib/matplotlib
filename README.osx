@@ -10,13 +10,13 @@ using brew:
 
 Example usage::
 
-  brew install libpng freetype pkgconfig
+  brew install libpng freetype pkg-config
 
 If you are using MacPorts, execute the following instead:
 
 Example usage::
 
-  port install libpng freetype
+  port install libpng freetype pkgconfig
 
 To install matplotlib from source, execute:
 
