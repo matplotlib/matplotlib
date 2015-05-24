@@ -1706,15 +1706,9 @@ class FigureCanvasBase(object):
 
             canvas.mpl_connect('mouse_press_event',canvas.onRemove)
         """
-        def sort_artists(artists):
-            # This depends on stable sort and artists returned
-            # from get_children in z order.
-            L = [(h.zorder, h) for h in artists]
-            L.sort()
-            return [h for zorder, h in L]
-
         # Find the top artist under the cursor
-        under = sort_artists(self.figure.hitlist(ev))
+        under = self.figure.hitlist(ev)
+        under.sort(key=lambda x: x.zorder)
         h = None
         if under:
             h = under[-1]
@@ -2814,6 +2808,16 @@ class NavigationToolbar2(object):
             except (ValueError, OverflowError):
                 pass
             else:
+                artists = event.inaxes.hitlist(event)
+                if event.inaxes.patch in artists:
+                    artists.remove(event.inaxes.patch)
+
+                if artists:
+                    artists.sort(key=lambda x: x.zorder)
+                    a = artists[-1]
+                    data = a.get_cursor_data(event)
+                    if data is not None:
+                        s += ' [%s]' % a.format_cursor_data(data)
                 if len(self.mode):
                     self.set_message('%s, %s' % (self.mode, s))
                 else:

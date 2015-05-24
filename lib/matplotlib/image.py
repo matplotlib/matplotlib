@@ -684,6 +684,20 @@ class AxesImage(_AxesImageBase):
             else:
                 return (-0.5, numcols-0.5, -0.5, numrows-0.5)
 
+    def get_cursor_data(self, event):
+        """Get the cursor data for a given event"""
+        xmin, xmax, ymin, ymax = self.get_extent()
+        if self.origin == 'upper':
+            ymin, ymax = ymax, ymin
+        arr = self.get_array()
+        data_extent = mtransforms.Bbox([[ymin, xmin], [ymax, xmax]])
+        array_extent = mtransforms.Bbox([[0, 0], arr.shape[:2]])
+        trans = mtransforms. BboxTransform(boxin=data_extent,
+                                           boxout=array_extent)
+        y, x = event.ydata, event.xdata
+        i, j = trans.transform_point([y, x]).astype(int)
+        return arr[i, j]
+
 
 class NonUniformImage(AxesImage):
     def __init__(self, ax, **kwargs):
