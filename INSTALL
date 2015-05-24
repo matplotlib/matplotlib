@@ -246,6 +246,11 @@ Optional dependencies
     If Pillow is installed, matplotlib can read and write a larger
     selection of image file formats.
 
+pkg-config
+    A tool used to find required non-python libraries.  This is not strictly
+    required, but can make installation go more smoothly if the libraries and
+    headers are not in the expected locations.
+
 
 Required libraries that ship with matplotlib
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
