@@ -201,7 +201,7 @@ def _parse_char_metrics(fh):
         vals = filter(lambda s: s != b'', line.split(b';'))
         vals = dict(map(lambda s: tuple(s.strip().split(b' ', 1)), vals))
         # check for the required metrics
-        if any([id not in vals.keys() for id in (b'C', b'WX', b'N', b'B')]) :
+        if any([id not in vals.keys() for id in (b'C', b'WX', b'N', b'B')]):
             raise RuntimeError('Bad char metrics line: %s' % line)
         num = _to_int(vals[b'C'])
         wx = _to_float(vals[b'WX'])
