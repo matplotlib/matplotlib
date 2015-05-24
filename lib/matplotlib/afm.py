@@ -206,7 +206,7 @@ def _parse_char_metrics(fh):
         name = vals[b'N']
         name = name.decode('ascii')
         bbox = _to_list_of_floats(vals[b'B'])
-        bbox = map(int, bbox)
+        bbox = list(map(int, bbox))
         # Workaround: If the character name is 'Euro', give it the
         # corresponding character code, according to WinAnsiEncoding (see PDF
         # Reference).
