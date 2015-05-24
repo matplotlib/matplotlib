@@ -6211,6 +6211,14 @@ static PyTypeObject TimerType = {
 
 static PyObject*
 verify_main_display(PyObject* self)
+/* Python2 contains a WMAvailable function in the MacOS module to check
+ * if python can interact with the display. This function calls
+ * CGMainDisplayID, which will return 0 if no window manager is available,
+ * or if we don't have permission to talk to it; this will happen if Python
+ * is not installed as a framework.
+ * The MacOS module was removed from Python3, so we need to provide a way
+ * to call CGMainDisplayID ourselves.
+ */
 {
     PyObject* result;
     CGDirectDisplayID display = CGMainDisplayID();
