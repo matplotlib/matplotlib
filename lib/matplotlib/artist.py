@@ -890,6 +890,22 @@ class Artist(object):
             artists.append(self)
         return artists
 
+    def get_cursor_data(self, event):
+        """
+        Get the cursor data for a given event.
+        """
+        return None
+
+    def format_cursor_data(self, data):
+        """
+        Return *cursor data* string formatted.
+        """
+        try:
+            data[0]
+        except (TypeError, IndexError):
+            data = [data]
+        return ', '.join('{:0.3g}'.format(item) for item in data)
+
 
 class ArtistInspector(object):
     """
