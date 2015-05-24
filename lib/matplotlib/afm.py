@@ -197,9 +197,11 @@ def _parse_char_metrics(fh):
         line = line.rstrip()
         if line.startswith(b'EndCharMetrics'):
             return ascii_d, name_d
-        vals = filter(lambda s: s != b'', line.split(b';'))  # Split into a list of metrics
-        vals = dict(map(lambda s: tuple(s.strip().split(b' ', 1)), vals))  # Split out the metric identifier and use as key for a dictionary
-        if b'C' not in vals.keys() or b'WX' not in vals.keys() or b'N' not in vals.keys() or b'B' not in vals.keys() :
+        # Split metric line into dictonary keyed by the metric identifiers
+        vals = filter(lambda s: s != b'', line.split(b';'))
+        vals = dict(map(lambda s: tuple(s.strip().split(b' ', 1)), vals))
+        # check for the required metrics
+        if any([id not in vals.keys() for id in (b'C', b'WX', b'N', b'B')]) :
             raise RuntimeError('Bad char metrics line: %s' % line)
         num = _to_int(vals[b'C'])
         wx = _to_float(vals[b'WX'])
