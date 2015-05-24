@@ -392,6 +392,7 @@ class ColorbarBase(cm.ScalarMappable):
 
         if update_ticks:
             self.update_ticks()
+        self.stale = True
 
     def set_ticklabels(self, ticklabels, update_ticks=True):
         """
@@ -405,6 +406,7 @@ class ColorbarBase(cm.ScalarMappable):
                 self.update_ticks()
         else:
             warnings.warn("set_ticks() must have been called.")
+        self.stale = True
 
     def _config_axes(self, X, Y):
         '''
@@ -444,6 +446,7 @@ class ColorbarBase(cm.ScalarMappable):
             self.ax.set_ylabel(self._label, **self._labelkw)
         else:
             self.ax.set_xlabel(self._label, **self._labelkw)
+        self.stale = True
 
     def set_label(self, label, **kw):
         '''
@@ -548,6 +551,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.lines.append(col)
         col.set_color(colors)
         self.ax.add_collection(col)
+        self.stale = True
 
     def _ticker(self):
         '''
@@ -942,6 +946,7 @@ class Colorbar(ColorbarBase):
             CS = self.mappable
             if not CS.filled:
                 self.add_lines(CS)
+        self.stale = True
 
     def update_bruteforce(self, mappable):
         '''
