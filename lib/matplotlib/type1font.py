@@ -333,7 +333,8 @@ class Type1Font(object):
                                            extend=effects.get('extend', 1.0)):
                 if six.PY3 and isinstance(value, int):
                     value = chr(value)
-                value = value.encode('latin-1')
+                if isinstance(value, six.text_type):
+                    value = value.encode('latin-1')
                 buffer.write(value)
             result = buffer.getvalue()
         finally:

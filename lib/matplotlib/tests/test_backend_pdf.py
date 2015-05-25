@@ -87,3 +87,13 @@ def test_multipage_keep_empty():
             pdf.savefig()
         assert os.path.exists(filename)
     os.remove(filename)
+
+
+@image_comparison(baseline_images=['test_type1font_encoding'],
+                  extensions=['pdf'])
+def test_type1font_encoding():
+    # This doesn't work
+    rcParams['font.serif'] = "Times, serif"
+    rcParams['text.usetex'] = "true"
+    fig, ax = plt.subplots()
+    ax.set_xlabel("$\gamma$")
