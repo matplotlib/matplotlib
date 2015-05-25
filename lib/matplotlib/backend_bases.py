@@ -2078,7 +2078,7 @@ class FigureCanvasBase(object):
                          'Supported formats: '
                          '%s.' % (format, ', '.join(formats)))
 
-    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
+    def print_figure(self, filename, dpi=None, facecolor=None, edgecolor=None,
                      orientation='portrait', format=None, **kwargs):
         """
         Render the figure to hardcopy. Set the figure patch face and edge
@@ -2098,10 +2098,10 @@ class FigureCanvasBase(object):
             the dots per inch to save the figure in; if None, use savefig.dpi
 
         *facecolor*
-            the facecolor of the figure
+            the facecolor of the figure; if None, defaults to savefig.facecolor
 
         *edgecolor*
-            the edgecolor of the figure
+            the edgecolor of the figure; if None, defaults to savefig.edgecolor
 
         *orientation*
             landscape' | 'portrait' (not supported on all backends)
@@ -2141,8 +2141,14 @@ class FigureCanvasBase(object):
 
         if dpi is None:
             dpi = rcParams['savefig.dpi']
+
         if dpi == 'figure':
             dpi = self.figure.dpi
+
+        if facecolor is None:
+            facecolor = rcParams['savefig.facecolor']
+        if edgecolor is None:
+            edgecolor = rcParams['savefig.edgecolor']
 
         origDPI = self.figure.dpi
         origfacecolor = self.figure.get_facecolor()
