@@ -310,7 +310,10 @@ class RendererSVG(RendererBase):
 
     def _make_id(self, type, content):
         content = str(content)
-        salt = str(uuid.uuid4())
+        if rcParams['svg.hashsalt'] is None: 
+            salt = str(uuid.uuid4())
+        else:
+            salt = rcParams['svg.hashsalt']
         if six.PY3:
             content = content.encode('utf8')
             salt = salt.encode('utf8')
