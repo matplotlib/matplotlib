@@ -1790,12 +1790,15 @@ class Axes(_AxesBase):
         Keyword arguments:
 
         *where*: [ 'pre' | 'post' | 'mid'  ]
-          If 'pre', the interval from x[i] to x[i+1] has level y[i+1]
+          If 'pre' (the default), the interval from x[i] to x[i+1] has level
+          y[i+1].
 
-          If 'post', that interval has level y[i]
+          If 'post', that interval has level y[i].
 
           If 'mid', the jumps in *y* occur half-way between the
           *x*-values.
+
+        Return value is a list of lines that were added.
         """
 
         where = kwargs.pop('where', 'pre')
