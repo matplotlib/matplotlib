@@ -194,20 +194,19 @@ def _parse_char_metrics(fh):
         line = fh.readline()
         if not line:
             break
-        line = line.rstrip()
-        if line.startswith(b'EndCharMetrics'):
+        line = line.rstrip().decode('ascii')  # Convert from byte-literal
+        if line.startswith('EndCharMetrics'):
             return ascii_d, name_d
-        # Split metric line into dictonary keyed by the metric identifiers
-        vals = filter(lambda s: s != b'', line.split(b';'))
-        vals = dict(map(lambda s: tuple(s.strip().split(b' ', 1)), vals))
-        # check for the required metrics
-        if any([id not in vals.keys() for id in (b'C', b'WX', b'N', b'B')]):
+        # Split the metric line into a dictonary, keyed by metric identifiers
+        vals = filter(lambda s: len(s) > 0, line.split(';'))
+        vals = dict(map(lambda s: tuple(s.strip().split(' ', 1)), vals))
+        # There may be other metrics present, but only these are needed
+        if any([id not in vals.keys() for id in ('C', 'WX', 'N', 'B')]):
             raise RuntimeError('Bad char metrics line: %s' % line)
-        num = _to_int(vals[b'C'])
-        wx = _to_float(vals[b'WX'])
-        name = vals[b'N']
-        name = name.decode('ascii')
-        bbox = _to_list_of_floats(vals[b'B'])
+        num = _to_int(vals['C'])
+        wx = _to_float(vals['WX'])
+        name = vals['N']
+        bbox = _to_list_of_floats(vals['B'])
         bbox = list(map(int, bbox))
         # Workaround: If the character name is 'Euro', give it the
         # corresponding character code, according to WinAnsiEncoding (see PDF
