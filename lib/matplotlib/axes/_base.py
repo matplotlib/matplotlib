@@ -474,6 +474,7 @@ class _AxesBase(martist.Artist):
             container = getattr(self, container_name)
             for artist in container:
                 artist._remove_method = container.remove
+        self.stale = True
 
     def get_window_extent(self, *args, **kwargs):
         """
@@ -754,6 +755,7 @@ class _AxesBase(martist.Artist):
             self._position.set(pos)
         if which in ('both', 'original'):
             self._originalPosition.set(pos)
+        self.stale = True
 
     def reset_position(self):
         """Make the original position the active position"""
@@ -768,6 +770,7 @@ class _AxesBase(martist.Artist):
                  returns a bbox.
         """
         self._axes_locator = locator
+        self.stale = True
 
     def get_axes_locator(self):
         """
@@ -973,6 +976,7 @@ class _AxesBase(martist.Artist):
         if self._sharey:
             self.yaxis.set_visible(yaxis_visible)
             self.patch.set_visible(patch_visible)
+        self.stale = True
 
     def clear(self):
         """clear the axes"""
@@ -1082,6 +1086,7 @@ class _AxesBase(martist.Artist):
             self.set_adjustable(adjustable)
         if anchor is not None:
             self.set_anchor(anchor)
+        self.stale = True
 
     def get_adjustable(self):
         return self._adjustable
@@ -1098,6 +1103,7 @@ class _AxesBase(martist.Artist):
             self._adjustable = adjustable
         else:
             raise ValueError('argument must be "box", or "datalim"')
+        self.stale = True
 
     def get_anchor(self):
         return self._anchor
@@ -1127,6 +1133,7 @@ class _AxesBase(martist.Artist):
         else:
             raise ValueError('argument must be among %s' %
                              ', '.join(six.iterkeys(mtransforms.Bbox.coefs)))
+        self.stale = True
 
     def get_data_ratio(self):
         """
@@ -1788,6 +1795,7 @@ class _AxesBase(martist.Artist):
         if m < 0 or m > 1:
             raise ValueError("margin must be in range 0 to 1")
         self._xmargin = m
+        self.stale = True
 
     def set_ymargin(self, m):
         """
@@ -1801,6 +1809,7 @@ class _AxesBase(martist.Artist):
         if m < 0 or m > 1:
             raise ValueError("margin must be in range 0 to 1")
         self._ymargin = m
+        self.stale = True
 
     def margins(self, *args, **kw):
         """
@@ -1866,6 +1875,7 @@ class _AxesBase(martist.Artist):
         zorder.
         """
         self._rasterization_zorder = z
+        self.stale = True
 
     def get_rasterization_zorder(self):
         """
@@ -2108,6 +2118,7 @@ class _AxesBase(martist.Artist):
 
         renderer.close_group('axes')
         self._cachedRenderer = renderer
+        self.stale = False
 
     def draw_artist(self, a):
         """
@@ -2151,6 +2162,7 @@ class _AxesBase(martist.Artist):
         ACCEPTS: [ *True* | *False* ]
         """
         self._frameon = b
+        self.stale = True
 
     def get_axisbelow(self):
         """
@@ -2166,6 +2178,7 @@ class _AxesBase(martist.Artist):
         ACCEPTS: [ *True* | *False* ]
         """
         self._axisbelow = b
+        self.stale = True
 
     @docstring.dedent_interpd
     def grid(self, b=None, which='major', axis='both', **kwargs):
@@ -2413,10 +2426,12 @@ class _AxesBase(martist.Artist):
     def set_axis_off(self):
         """turn off the axis"""
         self.axison = False
+        self.stale = True
 
     def set_axis_on(self):
         """turn on the axis"""
         self.axison = True
+        self.stale = True
 
     def get_axis_bgcolor(self):
         """Return the axis background color"""
@@ -2432,7 +2447,7 @@ class _AxesBase(martist.Artist):
 
         self._axisbg = color
         self.patch.set_facecolor(color)
-
+        self.stale = True
     # data limits, ticks, tick labels, and formatting
 
     def invert_xaxis(self):
@@ -2580,7 +2595,7 @@ class _AxesBase(martist.Artist):
                     if (other.figure != self.figure and
                             other.figure.canvas is not None):
                         other.figure.canvas.draw_idle()
-
+        self.stale = True
         return left, right
 
     def get_xscale(self):
@@ -2609,6 +2624,7 @@ class _AxesBase(martist.Artist):
         self.xaxis._set_scale(value, **kwargs)
         self.autoscale_view(scaley=False)
         self._update_transScale()
+        self.stale = True
 
     def get_xticks(self, minor=False):
         """Return the x ticks as a list of locations"""
@@ -2620,7 +2636,9 @@ class _AxesBase(martist.Artist):
 
         ACCEPTS: sequence of floats
         """
-        return self.xaxis.set_ticks(ticks, minor=minor)
+        ret = self.xaxis.set_ticks(ticks, minor=minor)
+        self.stale = True
+        return ret
 
     def get_xmajorticklabels(self):
         """
@@ -2679,8 +2697,10 @@ class _AxesBase(martist.Artist):
 
         ACCEPTS: sequence of strings
         """
-        return self.xaxis.set_ticklabels(labels, fontdict,
-                                         minor=minor, **kwargs)
+        ret = self.xaxis.set_ticklabels(labels, fontdict,
+                                        minor=minor, **kwargs)
+        self.stale = True
+        return ret
 
     def invert_yaxis(self):
         """
@@ -2828,7 +2848,7 @@ class _AxesBase(martist.Artist):
                     if (other.figure != self.figure and
                             other.figure.canvas is not None):
                         other.figure.canvas.draw_idle()
-
+        self.stale = True
         return bottom, top
 
     def get_yscale(self):
@@ -2857,6 +2877,7 @@ class _AxesBase(martist.Artist):
         self.yaxis._set_scale(value, **kwargs)
         self.autoscale_view(scalex=False)
         self._update_transScale()
+        self.stale = True
 
     def get_yticks(self, minor=False):
         """Return the y ticks as a list of locations"""
@@ -2873,7 +2894,8 @@ class _AxesBase(martist.Artist):
           *minor*: [ *False* | *True* ]
             Sets the minor ticks if *True*
         """
-        return self.yaxis.set_ticks(ticks, minor=minor)
+        ret = self.yaxis.set_ticks(ticks, minor=minor)
+        return ret
 
     def get_ymajorticklabels(self):
         """

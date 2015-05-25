@@ -375,6 +375,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             im._gid = self.get_gid()
             renderer.draw_image(gc, l, b, im)
         gc.restore()
+        self.stale = False
 
     def contains(self, mouseevent):
         """
@@ -437,6 +438,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         self._rgbacache = None
         self._oldxslice = None
         self._oldyslice = None
+        self.stale = True
 
     def set_array(self, A):
         """
@@ -481,6 +483,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         if s not in self._interpd:
             raise ValueError('Illegal interpolation string')
         self._interpolation = s
+        self.stale = True
 
     def set_resample(self, v):
         """
@@ -491,6 +494,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         if v is None:
             v = rcParams['image.resample']
         self._resample = v
+        self.stale = True
 
     def get_resample(self):
         """Return the image resample boolean"""
@@ -508,6 +512,8 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         else:
             self._filternorm = 0
 
+        self.stale = True
+
     def get_filternorm(self):
         """Return the filternorm setting"""
         return self._filternorm
@@ -523,6 +529,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         if r <= 0:
             raise ValueError("The filter radius must be a positive number")
         self._filterrad = r
+        self.stale = True
 
     def get_filterrad(self):
         """return the filterrad setting"""
@@ -671,6 +678,7 @@ class AxesImage(_AxesImageBase):
             self.axes.set_xlim((xmin, xmax), auto=None)
         if self.axes._autoscaleYon:
             self.axes.set_ylim((ymin, ymax), auto=None)
+        self.stale = True
 
     def get_extent(self):
         """Get the image extent: left, right, bottom, top"""
@@ -792,6 +800,7 @@ class NonUniformImage(AxesImage):
         # accessed - JDH 3/3/2010
         self._oldxslice = None
         self._oldyslice = None
+        self.stale = True
 
     def set_array(self, *args):
         raise NotImplementedError('Method not supported')
@@ -904,6 +913,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
                             round(self.axes.bbox.ymin),
                             im)
         gc.restore()
+        self.stale = False
 
     def set_data(self, x, y, A):
         A = cbook.safe_masked_invalid(A)
@@ -937,6 +947,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         self._Ax = x
         self._Ay = y
         self._rgbacache = None
+        self.stale = True
 
     def set_array(self, *args):
         raise NotImplementedError('Method not supported')
@@ -1060,6 +1071,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         gc.set_alpha(self.get_alpha())
         renderer.draw_image(gc, round(self.ox), round(self.oy), im)
         gc.restore()
+        self.stale = False
 
     def write_png(self, fname):
         """Write the image to png file with fname"""
@@ -1211,6 +1223,7 @@ class BboxImage(_AxesImageBase):
         b = np.min([y0, y1])
         renderer.draw_image(gc, round(l), round(b), im)
         gc.restore()
+        self.stale = True
 
 
 def imread(fname, format=None):

@@ -139,5 +139,15 @@ class Gcf(object):
         cls._activeQue.append(manager)
         cls.figs[manager.num] = manager
 
+    @classmethod
+    def draw_all(cls, force=False):
+        """
+        Redraw all figures registered with the pyplot
+        state machine.
+        """
+        for f_mgr in cls.get_all_fig_managers():
+            # TODO add logic to check if figure is stale
+            if force or f_mgr.canvas.figure.stale:
+                f_mgr.canvas.draw_idle()
 
 atexit.register(Gcf.destroy_all)

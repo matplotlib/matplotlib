@@ -56,7 +56,6 @@ def %(func)s(%(argspec)s):
         %(ax)s.hold(hold)
     try:
         %(ret)s = %(ax)s.%(func)s(%(call)s)
-        draw_if_interactive()
     finally:
         %(ax)s.hold(%(washold)s)
 %(mappable)s
@@ -69,7 +68,6 @@ MISC_FN_TEMPLATE = AUTOGEN_MSG + """
 @docstring.copy_dedent(Axes.%(func)s)
 def %(func)s(%(argspec)s):
     %(ret)s = gca().%(func)s(%(call)s)
-    draw_if_interactive()
     return %(ret)s
 """
 
@@ -85,7 +83,6 @@ def {name}():
 
     if im is not None:
         im.set_cmap(cm.{name})
-    draw_if_interactive()
 
 """
 
@@ -219,8 +216,9 @@ def boilerplate_gen():
             else:
                 def_edited = []
                 for val in defaults:
-                    if isinstance(val, unicode):
-                        val = val.encode('ascii', 'ignore')
+                    if six.PY2:
+                        if isinstance(val, unicode):
+                            val = val.encode('ascii', 'ignore')
                     def_edited.append(val)
                 defaults = tuple(def_edited)
 
@@ -273,7 +271,7 @@ def boilerplate_gen():
 
             # Since we can't avoid using some function names,
             # bail out if they are used as argument names
-            for reserved in ('gca', 'gci', 'draw_if_interactive'):
+            for reserved in ('gca', 'gci'):
                 if reserved in bad:
                     msg = 'Axes method %s has kwarg named %s' % (func, reserved)
                     raise ValueError(msg)

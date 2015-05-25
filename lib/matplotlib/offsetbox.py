@@ -174,6 +174,7 @@ class OffsetBox(martist.Artist):
         from .cbook import _InstanceMethodPickler
         if isinstance(self._offset, _InstanceMethodPickler):
             self._offset = self._offset.get_instancemethod()
+        self.stale = True
 
     def set_figure(self, fig):
         """
@@ -199,6 +200,7 @@ class OffsetBox(martist.Artist):
         accepts x, y, tuple, or a callable object.
         """
         self._offset = xy
+        self.stale = True
 
     def get_offset(self, width, height, xdescent, ydescent, renderer):
         """
@@ -218,6 +220,7 @@ class OffsetBox(martist.Artist):
         accepts float
         """
         self.width = width
+        self.stale = True
 
     def set_height(self, height):
         """
@@ -226,6 +229,7 @@ class OffsetBox(martist.Artist):
         accepts float
         """
         self.height = height
+        self.stale = True
 
     def get_visible_children(self):
         """
@@ -273,6 +277,7 @@ class OffsetBox(martist.Artist):
             c.draw(renderer)
 
         bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        self.stale = False
 
 
 class PackerBase(OffsetBox):
@@ -541,6 +546,7 @@ class PaddedBox(OffsetBox):
             c.draw(renderer)
 
         #bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        self.stale = False
 
     def update_frame(self, bbox, fontsize=None):
         self.patch.set_bounds(bbox.x0, bbox.y0,
@@ -548,6 +554,7 @@ class PaddedBox(OffsetBox):
 
         if fontsize:
             self.patch.set_mutation_scale(fontsize)
+        self.stale = True
 
     def draw_frame(self, renderer):
         # update the location and size of the legend
@@ -608,6 +615,7 @@ class DrawingArea(OffsetBox):
 
         self.offset_transform.clear()
         self.offset_transform.translate(xy[0], xy[1])
+        self.stale = True
 
     def get_offset(self):
         """
@@ -652,6 +660,7 @@ class DrawingArea(OffsetBox):
             c.draw(renderer)
 
         bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        self.stale = False
 
 
 class TextArea(OffsetBox):
@@ -707,6 +716,7 @@ class TextArea(OffsetBox):
     def set_text(self, s):
         "set text"
         self._text.set_text(s)
+        self.stale = True
 
     def get_text(self):
         "get text"
@@ -721,6 +731,7 @@ class TextArea(OffsetBox):
         singleline text.
         """
         self._multilinebaseline = t
+        self.stale = True
 
     def get_multilinebaseline(self):
         """
@@ -736,6 +747,7 @@ class TextArea(OffsetBox):
         it has minimum descent of "p"
         """
         self._minimumdescent = t
+        self.stale = True
 
     def get_minimumdescent(self):
         """
@@ -759,6 +771,7 @@ class TextArea(OffsetBox):
 
         self.offset_transform.clear()
         self.offset_transform.translate(xy[0], xy[1])
+        self.stale = True
 
     def get_offset(self):
         """
@@ -814,6 +827,7 @@ class TextArea(OffsetBox):
         self._text.draw(renderer)
 
         bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        self.stale = False
 
 
 class AuxTransformBox(OffsetBox):
@@ -848,6 +862,7 @@ class AuxTransformBox(OffsetBox):
         'Add any :class:`~matplotlib.artist.Artist` to the container box'
         self._children.append(a)
         a.set_transform(self.get_transform())
+        self.stale = True
 
     def get_transform(self):
         """
@@ -874,6 +889,7 @@ class AuxTransformBox(OffsetBox):
 
         self.offset_transform.clear()
         self.offset_transform.translate(xy[0], xy[1])
+        self.stale = True
 
     def get_offset(self):
         """
@@ -918,6 +934,7 @@ class AuxTransformBox(OffsetBox):
             c.draw(renderer)
 
         bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        self.stale = False
 
 
 class AnchoredOffsetbox(OffsetBox):
@@ -997,6 +1014,7 @@ class AnchoredOffsetbox(OffsetBox):
     def set_child(self, child):
         "set the child to be anchored"
         self._child = child
+        self.stale = True
 
     def get_child(self):
         "return the child"
@@ -1054,6 +1072,7 @@ class AnchoredOffsetbox(OffsetBox):
             self._bbox_to_anchor = Bbox.from_bounds(*bbox)
 
         self._bbox_to_anchor_transform = transform
+        self.stale = True
 
     def get_window_extent(self, renderer):
         '''
@@ -1087,11 +1106,11 @@ class AnchoredOffsetbox(OffsetBox):
         self.set_offset(_offset)
 
     def update_frame(self, bbox, fontsize=None):
-            self.patch.set_bounds(bbox.x0, bbox.y0,
-                                  bbox.width, bbox.height)
+        self.patch.set_bounds(bbox.x0, bbox.y0,
+                              bbox.width, bbox.height)
 
-            if fontsize:
-                self.patch.set_mutation_scale(fontsize)
+        if fontsize:
+            self.patch.set_mutation_scale(fontsize)
 
     def draw(self, renderer):
         "draw the artist"
@@ -1114,6 +1133,7 @@ class AnchoredOffsetbox(OffsetBox):
 
         self.get_child().set_offset((px, py))
         self.get_child().draw(renderer)
+        self.stale = False
 
     def _get_anchored_bbox(self, loc, bbox, parentbbox, borderpad):
         """
@@ -1205,6 +1225,7 @@ class OffsetImage(OffsetBox):
                  **kwargs
                  ):
 
+        OffsetBox.__init__(self)
         self._dpi_cor = dpi_cor
 
         self.image = BboxImage(bbox=self.get_window_extent,
@@ -1223,17 +1244,17 @@ class OffsetImage(OffsetBox):
         self.set_zoom(zoom)
         self.set_data(arr)
 
-        OffsetBox.__init__(self)
-
     def set_data(self, arr):
         self._data = np.asarray(arr)
         self.image.set_data(self._data)
+        self.stale = True
 
     def get_data(self):
         return self._data
 
     def set_zoom(self, zoom):
         self._zoom = zoom
+        self.stale = True
 
     def get_zoom(self):
         return self._zoom
@@ -1290,7 +1311,8 @@ class OffsetImage(OffsetBox):
         Draw the children
         """
         self.image.draw(renderer)
-        #bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        # bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        self.stale = False
 
 
 class AnnotationBbox(martist.Artist, _AnnotationBase):
@@ -1330,6 +1352,13 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
 
         other parameters are identical to that of Annotation.
         """
+
+        martist.Artist.__init__(self, **kwargs)
+        _AnnotationBase.__init__(self,
+                                 xy,
+                                 xycoords=xycoords,
+                                 annotation_clip=annotation_clip)
+
         self.offsetbox = offsetbox
 
         self.arrowprops = arrowprops
@@ -1354,13 +1383,6 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
             self._arrow_relpos = None
             self.arrow_patch = None
 
-        _AnnotationBase.__init__(self,
-                                 xy,
-                                 xycoords=xycoords,
-                                 annotation_clip=annotation_clip)
-
-        martist.Artist.__init__(self, **kwargs)
-
         #self._fw, self._fh = 0., 0. # for alignment
         self._box_alignment = box_alignment
 
@@ -1383,6 +1405,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
     @xyann.setter
     def xyann(self, xyann):
         self.xybox = xyann
+        self.stale = True
 
     @property
     def anncoords(self):
@@ -1391,6 +1414,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
     @anncoords.setter
     def anncoords(self, coords):
         self.boxcoords = coords
+        self.stale = True
 
     def contains(self, event):
         t, tinfo = self.offsetbox.contains(event)
@@ -1423,6 +1447,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
             s = rcParams["legend.fontsize"]
 
         self.prop = FontProperties(size=s)
+        self.stale = True
 
     def get_fontsize(self, s=None):
         """
@@ -1529,6 +1554,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
             self.patch.draw(renderer)
 
         self.offsetbox.draw(renderer)
+        self.stale = False
 
 
 class DraggableBase(object):
