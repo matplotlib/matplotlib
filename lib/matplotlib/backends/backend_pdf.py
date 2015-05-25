@@ -2283,6 +2283,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         needed to transform self into other.
         """
         cmds = []
+        fill_performed = False
         for params, cmd in self.commands:
             different = False
             for p in params:
@@ -2301,7 +2302,13 @@ class GraphicsContextPdf(GraphicsContextBase):
                 if different:
                     break
 
+            # Need to update hatching if we also updated fillcolor
+            if params == ('_hatch',) and fill_performed:
+                different = True
+
             if different:
+                if params == ('_fillcolor',):
+                    fill_performed = True
                 theirs = [getattr(other, p) for p in params]
                 cmds.extend(cmd(self, *theirs))
                 for p in params:
