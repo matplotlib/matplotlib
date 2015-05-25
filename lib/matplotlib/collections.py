@@ -321,6 +321,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         gc.restore()
         renderer.close_group(self.__class__.__name__)
+        self.stale = False
 
     def set_pickradius(self, pr):
         self._pickradius = pr
@@ -370,6 +371,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._urls = [None, ]
         else:
             self._urls = urls
+        self.stale = True
 
     def get_urls(self):
         return self._urls
@@ -405,6 +407,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ACCEPTS: [ '/' | '\\\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]
         """
         self._hatch = hatch
+        self.stale = True
 
     def get_hatch(self):
         'Return the current hatching pattern'
@@ -424,6 +427,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._offsets = offsets
         else:
             self._uniform_offsets = offsets
+        self.stale = True
 
     def get_offsets(self):
         """
@@ -446,6 +450,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if offset_position not in ('screen', 'data'):
             raise ValueError("offset_position must be 'screen' or 'data'")
         self._offset_position = offset_position
+        self.stale = True
 
     def get_offset_position(self):
         """
@@ -469,6 +474,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if lw is None:
             lw = mpl.rcParams['patch.linewidth']
         self._linewidths = self._get_value(lw)
+        self.stale = True
 
     def set_linewidths(self, lw):
         """alias for set_linewidth"""
@@ -540,6 +546,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         except ValueError:
             raise ValueError('Do not know how to convert %s to dashes' % ls)
         self._linestyles = dashes
+        self.stale = True
 
     def set_linestyles(self, ls):
         """alias for set_linestyle"""
@@ -558,6 +565,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if aa is None:
             aa = mpl.rcParams['patch.antialiased']
         self._antialiaseds = self._get_bool(aa)
+        self.stale = True
 
     def set_antialiaseds(self, aa):
         """alias for set_antialiased"""
@@ -598,6 +606,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             c = mpl.rcParams['patch.facecolor']
         self._facecolors_original = c
         self._facecolors = mcolors.colorConverter.to_rgba_array(c, self._alpha)
+        self.stale = True
 
     def set_facecolors(self, c):
         """alias for set_facecolor"""
@@ -644,6 +653,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             c = mpl.rcParams['patch.edgecolor']
         self._edgecolors_original = c
         self._edgecolors = mcolors.colorConverter.to_rgba_array(c, self._alpha)
+        self.stale = True
 
     def set_edgecolors(self, c):
         """alias for set_edgecolor"""
@@ -697,6 +707,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._facecolors = self.to_rgba(self._A, self._alpha)
         elif self._is_stroked:
             self._edgecolors = self.to_rgba(self._A, self._alpha)
+        self.stale = True
 
     def get_fill(self):
         'return whether fill is set'
@@ -721,7 +732,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.norm = other.norm
         self.cmap = other.cmap
         # self.update_dict = other.update_dict # do we need to copy this? -JJL
-
+        self.stale = True
 
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init
@@ -790,6 +801,7 @@ class _CollectionWithSizes(Collection):
             self._transforms[:, 0, 0] = scale
             self._transforms[:, 1, 1] = scale
             self._transforms[:, 2, 2] = 1.0
+        self.stale = True
 
     @allow_rasterization
     def draw(self, renderer):
@@ -813,9 +825,11 @@ class PathCollection(_CollectionWithSizes):
         Collection.__init__(self, **kwargs)
         self.set_paths(paths)
         self.set_sizes(sizes)
+        self.stale = True
 
     def set_paths(self, paths):
         self._paths = paths
+        self.stale = True
 
     def get_paths(self):
         return self._paths
@@ -845,6 +859,7 @@ class PolyCollection(_CollectionWithSizes):
         Collection.__init__(self, **kwargs)
         self.set_sizes(sizes)
         self.set_verts(verts, closed)
+        self.stale = True
 
     def set_verts(self, verts, closed=True):
         '''This allows one to delay initialization of the vertices.'''
@@ -869,6 +884,7 @@ class PolyCollection(_CollectionWithSizes):
                     self._paths.append(mpath.Path(xy))
         else:
             self._paths = [mpath.Path(xy) for xy in verts]
+        self.stale = True
 
     set_paths = set_verts
 
@@ -1011,7 +1027,6 @@ class LineCollection(Collection):
     number of segments.
     """
 
-
     def __init__(self, segments,     # Can be None.
                  linewidths=None,
                  colors=None,
@@ -1088,7 +1103,6 @@ class LineCollection(Collection):
             linewidths = (mpl.rcParams['lines.linewidth'],)
         if antialiaseds is None:
             antialiaseds = (mpl.rcParams['lines.antialiased'],)
-        self.set_linestyles(linestyles)
 
         colors = mcolors.colorConverter.to_rgba_array(colors)
 
@@ -1115,13 +1129,15 @@ class LineCollection(Collection):
         _segments = []
 
         for seg in segments:
-
             if not np.ma.isMaskedArray(seg):
                 seg = np.asarray(seg, np.float_)
             _segments.append(seg)
+
         if self._uniform_offsets is not None:
             _segments = self._add_offsets(_segments)
-        self._paths = [mpath.Path(seg) for seg in _segments]
+
+        self._paths = [mpath.Path(_seg) for _seg in _segments]
+        self.stale = True
 
     set_verts = set_segments  # for compatibility with PolyCollection
     set_paths = set_segments
@@ -1159,9 +1175,11 @@ class LineCollection(Collection):
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
         self.set_edgecolor(c)
+        self.stale = True
 
     def get_color(self):
         return self._edgecolors
+
     get_colors = get_color  # for compatibility with old versions
 
 
@@ -1336,6 +1354,7 @@ class EventCollection(LineCollection):
             segments[i] = np.fliplr(segment)
         self.set_segments(segments)
         self._is_horizontal = not self.is_horizontal()
+        self.stale = True
 
     def set_orientation(self, orientation=None):
         '''
@@ -1709,6 +1728,7 @@ class QuadMesh(Collection):
     def set_paths(self):
         self._paths = self.convert_mesh_to_paths(
             self._meshWidth, self._meshHeight, self._coordinates)
+        self.stale = True
 
     def get_datalim(self, transData):
         return (self.get_transform() - transData).transform_bbox(self._bbox)
@@ -1832,6 +1852,7 @@ class QuadMesh(Collection):
                 self._antialiased, self.get_edgecolors())
         gc.restore()
         renderer.close_group(self.__class__.__name__)
+        self.stale = False
 
 
 patchstr = artist.kwdoc(Collection)

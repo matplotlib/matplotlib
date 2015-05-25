@@ -177,6 +177,8 @@ class Tick(artist.Artist):
     def set_clip_path(self, clippath, transform=None):
         artist.Artist.set_clip_path(self, clippath, transform)
         self.gridline.set_clip_path(clippath, transform)
+        self.stale = True
+
     set_clip_path.__doc__ = artist.Artist.set_clip_path.__doc__
 
     def get_pad_pixels(self):
@@ -200,6 +202,7 @@ class Tick(artist.Artist):
         ACCEPTS: float
         """
         self._apply_params(pad=val)
+        self.stale = True
 
     def get_pad(self):
         'Get the value of the tick label pad in points'
@@ -251,6 +254,7 @@ class Tick(artist.Artist):
             self.label2.draw(renderer)
 
         renderer.close_group(self.__name__)
+        self.stale = False
 
     def set_label1(self, s):
         """
@@ -259,6 +263,8 @@ class Tick(artist.Artist):
         ACCEPTS: str
         """
         self.label1.set_text(s)
+        self.stale = True
+
     set_label = set_label1
 
     def set_label2(self, s):
@@ -268,6 +274,7 @@ class Tick(artist.Artist):
         ACCEPTS: str
         """
         self.label2.set_text(s)
+        self.stale = True
 
     def _set_artist_props(self, a):
         a.set_figure(self.figure)
@@ -349,6 +356,7 @@ class XTick(Tick):
         else:
             self._tickmarkers = (mlines.TICKDOWN, mlines.TICKUP)
             self._pad = self._base_pad + self._size
+        self.stale = True
 
     def _get_text1(self):
         'Get the default Text instance'
@@ -450,6 +458,7 @@ class XTick(Tick):
             self.gridline._invalid = True
 
         self._loc = loc
+        self.stale = True
 
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
@@ -483,6 +492,7 @@ class YTick(Tick):
         else:
             self._tickmarkers = (mlines.TICKLEFT, mlines.TICKRIGHT)
             self._pad = self._base_pad + self._size
+        self.stale = True
 
     # how far from the y axis line the right of the ticklabel are
     def _get_text1(self):
@@ -584,6 +594,7 @@ class YTick(Tick):
             self.gridline._invalid = True
 
         self._loc = loc
+        self.stale = True
 
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
@@ -668,6 +679,7 @@ class Axis(artist.Artist):
 
         self.label.set_transform(transform)
         self.label.set_position((x, y))
+        self.stale = True
 
     def get_transform(self):
         return self._scale.get_transform()
@@ -732,6 +744,7 @@ class Axis(artist.Artist):
         self.converter = None
         self.units = None
         self.set_units(None)
+        self.stale = True
 
     def reset_ticks(self):
         # build a few default ticks; grow as necessary later; only
@@ -771,6 +784,7 @@ class Axis(artist.Artist):
             if which == 'minor' or which == 'both':
                 for tick in self.minorTicks:
                     tick._apply_params(**self._minor_tick_kw)
+        self.stale = True
 
     @staticmethod
     def _translate_tick_kw(kw, to_init_kw=True):
@@ -835,6 +849,7 @@ class Axis(artist.Artist):
         artist.Artist.set_clip_path(self, clippath, transform)
         for child in self.majorTicks + self.minorTicks:
             child.set_clip_path(clippath, transform)
+        self.stale = True
 
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
@@ -917,6 +932,7 @@ class Axis(artist.Artist):
     def set_smart_bounds(self, value):
         """set the axis to have smart bounds"""
         self._smart_bounds = value
+        self.stale = True
 
     def get_smart_bounds(self):
         """get whether the axis has smart bounds"""
@@ -1114,6 +1130,7 @@ class Axis(artist.Artist):
             mpatches.bbox_artist(self.label, renderer)
 
         renderer.close_group(__name__)
+        self.stale = False
 
     def _get_label(self):
         raise NotImplementedError('Derived must override')
@@ -1354,6 +1371,7 @@ class Axis(artist.Artist):
                 if len(kwargs):
                     tick.gridline.update(kwargs)
             self._major_tick_kw['gridOn'] = self._gridOnMajor
+        self.stale = True
 
     def update_units(self, data):
         """
@@ -1374,6 +1392,7 @@ class Axis(artist.Artist):
 
         if neednew:
             self._update_axisinfo()
+        self.stale = True
         return True
 
     def _update_axisinfo(self):
@@ -1441,6 +1460,7 @@ class Axis(artist.Artist):
             self._update_axisinfo()
             self.callbacks.process('units')
             self.callbacks.process('units finalize')
+        self.stale = True
 
     def get_units(self):
         'return the units for axis'
@@ -1456,6 +1476,7 @@ class Axis(artist.Artist):
         if fontdict is not None:
             self.label.update(fontdict)
         self.label.update(kwargs)
+        self.stale = True
         return self.label
 
     def set_major_formatter(self, formatter):
@@ -1467,6 +1488,7 @@ class Axis(artist.Artist):
         self.isDefault_majfmt = False
         self.major.formatter = formatter
         formatter.set_axis(self)
+        self.stale = True
 
     def set_minor_formatter(self, formatter):
         """
@@ -1477,6 +1499,7 @@ class Axis(artist.Artist):
         self.isDefault_minfmt = False
         self.minor.formatter = formatter
         formatter.set_axis(self)
+        self.stale = True
 
     def set_major_locator(self, locator):
         """
@@ -1487,6 +1510,7 @@ class Axis(artist.Artist):
         self.isDefault_majloc = False
         self.major.locator = locator
         locator.set_axis(self)
+        self.stale = True
 
     def set_minor_locator(self, locator):
         """
@@ -1497,6 +1521,7 @@ class Axis(artist.Artist):
         self.isDefault_minloc = False
         self.minor.locator = locator
         locator.set_axis(self)
+        self.stale = True
 
     def set_pickradius(self, pickradius):
         """
@@ -1556,6 +1581,7 @@ class Axis(artist.Artist):
             if tick.label2On:
                 ret.append(tick.label2)
 
+        self.stale = True
         return ret
 
     def set_ticks(self, ticks, minor=False):
@@ -1736,6 +1762,7 @@ class XAxis(Axis):
             msg = "Position accepts only [ 'top' | 'bottom' ]"
             raise ValueError(msg)
         self.label_position = position
+        self.stale = True
 
     def _update_label_position(self, bboxes, bboxes2):
         """
@@ -1840,6 +1867,7 @@ class XAxis(Axis):
                                  bottom=True, labelbottom=True)
         else:
             raise ValueError("invalid position: %s" % position)
+        self.stale = True
 
     def tick_top(self):
         'use ticks only on top'
@@ -1918,6 +1946,7 @@ class XAxis(Axis):
         else:
             Vmin, Vmax = self.get_data_interval()
             self.axes.dataLim.intervalx = min(vmin, Vmin), max(vmax, Vmax)
+        self.stale = True
 
     def set_default_intervals(self):
         'set the default limits for the axis interval if they are not mutated'
@@ -1935,6 +1964,7 @@ class XAxis(Axis):
                 self.axes.dataLim.intervalx = xmin, xmax
             if not viewMutated:
                 self.axes.viewLim.intervalx = xmin, xmax
+        self.stale = True
 
 
 class YAxis(Axis):
@@ -2054,6 +2084,7 @@ class YAxis(Axis):
             msg = "Position accepts only [ 'left' | 'right' ]"
             raise ValueError(msg)
         self.label_position = position
+        self.stale = True
 
     def _update_label_position(self, bboxes, bboxes2):
         """
@@ -2116,6 +2147,7 @@ class YAxis(Axis):
 
         self.offsetText.set_ha(position)
         self.offsetText.set_position((x, y))
+        self.stale = True
 
     def get_text_widths(self, renderer):
         bbox, bbox2 = self.get_ticklabel_extents(renderer)
@@ -2165,6 +2197,7 @@ class YAxis(Axis):
                                  left=True, labelleft=True)
         else:
             raise ValueError("invalid position: %s" % position)
+        self.stale = True
 
     def tick_right(self):
         'use ticks only on right'
@@ -2228,6 +2261,7 @@ class YAxis(Axis):
             else:
                 self.axes.viewLim.intervaly = (max(vmin, vmax, Vmin),
                                                min(vmin, vmax, Vmax))
+        self.stale = True
 
     def get_minpos(self):
         return self.axes.dataLim.minposy
@@ -2243,6 +2277,7 @@ class YAxis(Axis):
         else:
             Vmin, Vmax = self.get_data_interval()
             self.axes.dataLim.intervaly = min(vmin, Vmin), max(vmax, Vmax)
+        self.stale = True
 
     def set_default_intervals(self):
         'set the default limits for the axis interval if they are not mutated'
@@ -2260,3 +2295,4 @@ class YAxis(Axis):
                 self.axes.dataLim.intervaly = ymin, ymax
             if not viewMutated:
                 self.axes.viewLim.intervaly = ymin, ymax
+        self.stale = True

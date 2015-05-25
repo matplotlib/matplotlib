@@ -141,6 +141,7 @@ class Axis(maxis.XAxis):
         xys = np.asarray(xys)
         xys = xys[:,:2]
         self.pane.xy = xys
+        self.stale = True
 
     def set_pane_color(self, color):
         '''Set pane color to a RGBA tuple'''
@@ -148,6 +149,7 @@ class Axis(maxis.XAxis):
         self.pane.set_edgecolor(color)
         self.pane.set_facecolor(color)
         self.pane.set_alpha(color[-1])
+        self.stale = True
 
     def set_rotate_label(self, val):
         '''
@@ -155,6 +157,7 @@ class Axis(maxis.XAxis):
         If set to None the label will be rotated if longer than 4 chars.
         '''
         self._rotate_label = val
+        self.stale = True
 
     def get_rotate_label(self, text):
         if self._rotate_label is not None:
@@ -416,6 +419,7 @@ class Axis(maxis.XAxis):
             tick.draw(renderer)
 
         renderer.close_group('axis3d')
+        self.stale = False
 
     def get_view_interval(self):
         """return the Interval instance for this 3d axis view limits"""

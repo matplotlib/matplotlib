@@ -336,6 +336,7 @@ class QuiverKey(martist.Artist):
         self.text.set_x(self._text_x(x))
         self.text.set_y(self._text_y(y))
         self.text.draw(renderer)
+        self.stale = False
 
     def _set_transform(self):
         if self.coord == 'data':
@@ -527,6 +528,7 @@ class Quiver(mcollections.PolyCollection):
         self.set_verts(verts, closed=False)
         self._new_UV = False
         mcollections.PolyCollection.draw(self, renderer)
+        self.stale = False
 
     def set_UVC(self, U, V, C=None):
         # We need to ensure we have a copy, not a reference
@@ -547,6 +549,7 @@ class Quiver(mcollections.PolyCollection):
         if C is not None:
             self.set_array(C)
         self._new_UV = True
+        self.stale = True
 
     def _dots_per_unit(self, units):
         """
@@ -1134,6 +1137,7 @@ class Barbs(mcollections.PolyCollection):
         # Update the offsets in case the masked data changed
         xy = np.hstack((x[:, np.newaxis], y[:, np.newaxis]))
         self._offsets = xy
+        self.stale = True
 
     def set_offsets(self, xy):
         """
@@ -1149,6 +1153,8 @@ class Barbs(mcollections.PolyCollection):
                                           self.u, self.v)
         xy = np.hstack((x[:, np.newaxis], y[:, np.newaxis]))
         mcollections.PolyCollection.set_offsets(self, xy)
+        self.stale = True
+
     set_offsets.__doc__ = mcollections.PolyCollection.set_offsets.__doc__
 
     barbs_doc = _barbs_doc

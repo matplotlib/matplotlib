@@ -426,6 +426,7 @@ class Figure(Artist):
             tight = rcParams['figure.autolayout']
         self._tight = bool(tight)
         self._tight_parameters = tight if isinstance(tight, dict) else {}
+        self.stale = True
 
     def autofmt_xdate(self, bottom=0.2, rotation=30, ha='right'):
         """
@@ -465,6 +466,7 @@ class Figure(Artist):
 
         if allsubplots:
             self.subplots_adjust(bottom=bottom)
+        self.stale = True
 
     def get_children(self):
         'get a list of artists contained in the figure'
@@ -541,6 +543,7 @@ class Figure(Artist):
             sup.remove()
         else:
             self._suptitle = sup
+        self.stale = True
         return self._suptitle
 
     def set_canvas(self, canvas):
@@ -550,6 +553,7 @@ class Figure(Artist):
         ACCEPTS: a FigureCanvas instance
         """
         self.canvas = canvas
+        self.stale = True
 
     def hold(self, b=None):
         """
@@ -652,6 +656,7 @@ class Figure(Artist):
             im.set_clim(vmin, vmax)
         self.images.append(im)
         im._remove_method = lambda h: self.images.remove(h)
+        self.stale = True
         return im
 
     def set_size_inches(self, *args, **kwargs):
@@ -693,6 +698,7 @@ class Figure(Artist):
             manager = getattr(self.canvas, 'manager', None)
             if manager is not None:
                 manager.resize(int(canvasw), int(canvash))
+        self.stale = True
 
     def get_size_inches(self):
         """
@@ -758,6 +764,7 @@ class Figure(Artist):
         ACCEPTS: float
         """
         self.dpi = val
+        self.stale = True
 
     def set_figwidth(self, val):
         """
@@ -766,6 +773,7 @@ class Figure(Artist):
         ACCEPTS: float
         """
         self.bbox_inches.x1 = val
+        self.stale = True
 
     def set_figheight(self, val):
         """
@@ -774,6 +782,7 @@ class Figure(Artist):
         ACCEPTS: float
         """
         self.bbox_inches.y1 = val
+        self.stale = True
 
     def set_frameon(self, b):
         """
@@ -782,12 +791,14 @@ class Figure(Artist):
         ACCEPTS: boolean
         """
         self.frameon = b
+        self.stale = True
 
     def delaxes(self, a):
         'remove a from the figure and update the current axes'
         self._axstack.remove(a)
         for func in self._axobservers:
             func(self)
+        self.stale = True
 
     def _make_key(self, *args, **kwargs):
         'make a hashable key out of args and kwargs'
@@ -900,6 +911,7 @@ class Figure(Artist):
 
         self._axstack.add(key, a)
         self.sca(a)
+        self.stale = True
         return a
 
     @docstring.dedent_interpd
@@ -987,6 +999,7 @@ class Figure(Artist):
 
         self._axstack.add(key, a)
         self.sca(a)
+        self.stale = True
         return a
 
     def clf(self, keep_observers=False):
@@ -1016,6 +1029,7 @@ class Figure(Artist):
         if not keep_observers:
             self._axobservers = []
         self._suptitle = None
+        self.stale = True
 
     def clear(self):
         """
@@ -1029,6 +1043,7 @@ class Figure(Artist):
         Render the figure using :class:`matplotlib.backend_bases.RendererBase`
         instance *renderer*.
         """
+
         # draw the figure bounding box, perhaps none for white figure
         if not self.get_visible():
             return
@@ -1105,11 +1120,12 @@ class Figure(Artist):
         dsu.sort(key=itemgetter(0))
         for zorder, a, func, args in dsu:
             func(*args)
+            a.stale = False
 
         renderer.close_group('figure')
 
         self._cachedRenderer = renderer
-
+        self.stale = False
         self.canvas.draw_event(renderer)
 
     def draw_artist(self, a):
@@ -1225,6 +1241,7 @@ class Figure(Artist):
         l = Legend(self, handles, labels, *args, **kwargs)
         self.legends.append(l)
         l._remove_method = lambda h: self.legends.remove(h)
+        self.stale = True
         return l
 
     @docstring.dedent_interpd
@@ -1252,6 +1269,7 @@ class Figure(Artist):
         self._set_artist_props(t)
         self.texts.append(t)
         t._remove_method = lambda h: self.texts.remove(h)
+        self.stale = True
         return t
 
     def _set_artist_props(self, a):
@@ -1397,6 +1415,7 @@ class Figure(Artist):
             self.number = num
 
             plt.draw_if_interactive()
+        self.stale = True
 
     def add_axobserver(self, func):
         'whenever the axes state change, ``func(self)`` will be called'
@@ -1539,6 +1558,7 @@ class Figure(Artist):
         cb = cbar.colorbar_factory(cax, mappable, **kw)
 
         self.sca(current_ax)
+        self.stale = True
         return cb
 
     def subplots_adjust(self, *args, **kwargs):
@@ -1567,6 +1587,7 @@ class Figure(Artist):
             else:
                 ax.update_params()
                 ax.set_position(ax.figbox)
+        self.stale = True
 
     def ginput(self, n=1, timeout=30, show_clicks=True, mouse_add=1,
                mouse_pop=3, mouse_stop=2):

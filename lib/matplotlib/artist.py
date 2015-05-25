@@ -68,6 +68,14 @@ def allow_rasterization(draw):
     return draw_wrapper
 
 
+def _stale_figure_callback(self):
+    self.figure.stale = True
+
+
+def _stale_axes_callback(self):
+    self.axes.stale = True
+
+
 class Artist(object):
     """
     Abstract base class for someone who renders into a
@@ -78,6 +86,7 @@ class Artist(object):
     zorder = 0
 
     def __init__(self):
+        self._stale = True
         self._axes = None
         self.figure = None
 
@@ -210,8 +219,32 @@ class Artist(object):
                              "probably trying to re-use an artist "
                              "in more than one Axes which is not "
                              "supported")
+
         self._axes = new_axes
+        if new_axes is not None and new_axes is not self:
+            self.add_callback(_stale_axes_callback)
+
         return new_axes
+
+    @property
+    def stale(self):
+        """
+        If the artist is 'stale' and needs to be re-drawn for the output to
+        match the internal state of the artist.
+        """
+        return self._stale
+
+    @stale.setter
+    def stale(self, val):
+        # only trigger call-back stack on being marked as 'stale'
+        # when not already stale
+        # the draw process will take care of propagating the cleaning
+        # process
+        if not (self._stale == val):
+            self._stale = val
+            # only trigger propagation if marking as stale
+            if self._stale:
+                self.pchanged()
 
     def get_window_extent(self, renderer):
         """
@@ -283,6 +316,7 @@ class Artist(object):
         self._transform = t
         self._transformSet = True
         self.pchanged()
+        self.stale = True
 
     def get_transform(self):
         """
@@ -499,6 +533,7 @@ class Artist(object):
         Only supported by the Agg and MacOSX backends.
         """
         self._snap = snap
+        self.stale = True
 
     def get_sketch_params(self):
         """
@@ -546,6 +581,7 @@ class Artist(object):
             self._sketch = None
         else:
             self._sketch = (scale, length or 128.0, randomness or 16.0)
+        self.stale = True
 
     def set_path_effects(self, path_effects):
         """
@@ -553,6 +589,7 @@ class Artist(object):
         matplotlib.patheffect._Base class or its derivatives.
         """
         self._path_effects = path_effects
+        self.stale = True
 
     def get_path_effects(self):
         return self._path_effects
@@ -572,7 +609,10 @@ class Artist(object):
         ACCEPTS: a :class:`matplotlib.figure.Figure` instance
         """
         self.figure = fig
-        self.pchanged()
+        if self.figure and self.figure is not self:
+            self.add_callback(_stale_figure_callback)
+            self.pchanged()
+        self.stale = True
 
     def set_clip_box(self, clipbox):
         """
@@ -582,6 +622,7 @@ class Artist(object):
         """
         self.clipbox = clipbox
         self.pchanged()
+        self.stale = True
 
     def set_clip_path(self, path, transform=None):
         """
@@ -634,8 +675,10 @@ class Artist(object):
         if not success:
             print(type(path), type(transform))
             raise TypeError("Invalid arguments to set_clip_path")
-
+        # this may result in the callbacks being hit twice, but grantees they
+        # will be hit at least once
         self.pchanged()
+        self.stale = True
 
     def get_alpha(self):
         """
@@ -684,7 +727,10 @@ class Artist(object):
         ACCEPTS: [True | False]
         """
         self._clipon = b
+        # This may result in the callbacks being hit twice, but ensures they
+        # are hit at least once
         self.pchanged()
+        self.stale = True
 
     def _set_gc_clip(self, gc):
         'Set the clip properly for the gc'
@@ -723,11 +769,13 @@ class Artist(object):
 
         """
         self._agg_filter = filter_func
+        self.stale = True
 
     def draw(self, renderer, *args, **kwargs):
         'Derived classes drawing method'
         if not self.get_visible():
             return
+        self.stale = False
 
     def set_alpha(self, alpha):
         """
@@ -738,6 +786,7 @@ class Artist(object):
         """
         self._alpha = alpha
         self.pchanged()
+        self.stale = True
 
     def set_visible(self, b):
         """
@@ -747,6 +796,7 @@ class Artist(object):
         """
         self._visible = b
         self.pchanged()
+        self.stale = True
 
     def set_animated(self, b):
         """
@@ -756,6 +806,7 @@ class Artist(object):
         """
         self._animated = b
         self.pchanged()
+        self.stale = True
 
     def update(self, props):
         """
@@ -778,6 +829,7 @@ class Artist(object):
         self.eventson = store
         if changed:
             self.pchanged()
+            self.stale = True
 
     def get_label(self):
         """
@@ -796,6 +848,7 @@ class Artist(object):
         else:
             self._label = None
         self.pchanged()
+        self.stale = True
 
     def get_zorder(self):
         """
@@ -812,6 +865,7 @@ class Artist(object):
         """
         self.zorder = level
         self.pchanged()
+        self.stale = True
 
     def update_from(self, other):
         'Copy properties from *other* to *self*.'
@@ -826,6 +880,7 @@ class Artist(object):
         self._sketch = other._sketch
         self._path_effects = other._path_effects
         self.pchanged()
+        self.stale = True
 
     def properties(self):
         """

@@ -257,6 +257,7 @@ class Patch(artist.Artist):
         if aa is None:
             aa = mpl.rcParams['patch.antialiased']
         self._antialiased = aa
+        self.stale = True
 
     def set_aa(self, aa):
         """alias for set_antialiased"""
@@ -272,6 +273,7 @@ class Patch(artist.Artist):
             color = mpl.rcParams['patch.edgecolor']
         self._original_edgecolor = color
         self._edgecolor = colors.colorConverter.to_rgba(color, self._alpha)
+        self.stale = True
 
     def set_ec(self, color):
         """alias for set_edgecolor"""
@@ -291,6 +293,7 @@ class Patch(artist.Artist):
         if not self._fill:
             self._facecolor = list(self._facecolor)
             self._facecolor[3] = 0
+        self.stale = True
 
     def set_fc(self, color):
         """alias for set_facecolor"""
@@ -325,6 +328,7 @@ class Patch(artist.Artist):
         # using self._fill and self._alpha
         self.set_facecolor(self._original_facecolor)
         self.set_edgecolor(self._original_edgecolor)
+        self.stale = True
 
     def set_linewidth(self, w):
         """
@@ -334,7 +338,10 @@ class Patch(artist.Artist):
         """
         if w is None:
             w = mpl.rcParams['patch.linewidth']
+
         self._linewidth = float(w)
+
+        self.stale = True
 
     def set_lw(self, lw):
         """alias for set_linewidth"""
@@ -375,6 +382,7 @@ class Patch(artist.Artist):
 
         ls = cbook.ls_mapper.get(ls, ls)
         self._linestyle = ls
+        self.stale = True
 
     def set_ls(self, ls):
         """alias for set_linestyle"""
@@ -388,6 +396,7 @@ class Patch(artist.Artist):
         """
         self._fill = bool(b)
         self.set_facecolor(self._original_facecolor)
+        self.stale = True
 
     def get_fill(self):
         'return whether fill is set'
@@ -409,6 +418,7 @@ class Patch(artist.Artist):
             raise ValueError('set_capstyle passed "%s";\n' % (s,) +
                              'valid capstyles are %s' % (self.validCap,))
         self._capstyle = s
+        self.stale = True
 
     def get_capstyle(self):
         "Return the current capstyle"
@@ -425,6 +435,7 @@ class Patch(artist.Artist):
             raise ValueError('set_joinstyle passed "%s";\n' % (s,) +
                              'valid joinstyles are %s' % (self.validJoin,))
         self._joinstyle = s
+        self.stale = True
 
     def get_joinstyle(self):
         "Return the current joinstyle"
@@ -457,6 +468,7 @@ class Patch(artist.Artist):
         ACCEPTS: ['/' | '\\\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*']
         """
         self._hatch = hatch
+        self.stale = True
 
     def get_hatch(self):
         'Return the current hatching pattern'
@@ -511,6 +523,7 @@ class Patch(artist.Artist):
 
         gc.restore()
         renderer.close_group('patch')
+        self.stale = False
 
     def get_path(self):
         """
@@ -693,6 +706,7 @@ class Rectangle(Patch):
         ACCEPTS: float
         """
         self._x = x
+        self.stale = True
 
     def set_y(self, y):
         """
@@ -701,6 +715,7 @@ class Rectangle(Patch):
         ACCEPTS: float
         """
         self._y = y
+        self.stale = True
 
     def set_xy(self, xy):
         """
@@ -709,6 +724,7 @@ class Rectangle(Patch):
         ACCEPTS: 2-item sequence
         """
         self._x, self._y = xy
+        self.stale = True
 
     def set_width(self, w):
         """
@@ -717,6 +733,7 @@ class Rectangle(Patch):
         ACCEPTS: float
         """
         self._width = w
+        self.stale = True
 
     def set_height(self, h):
         """
@@ -725,6 +742,7 @@ class Rectangle(Patch):
         ACCEPTS: float
         """
         self._height = h
+        self.stale = True
 
     def set_bounds(self, *args):
         """
@@ -740,6 +758,7 @@ class Rectangle(Patch):
         self._y = b
         self._width = w
         self._height = h
+        self.stale = True
 
     def get_bbox(self):
         return transforms.Bbox.from_bounds(self._x, self._y,
@@ -924,6 +943,7 @@ class Polygon(Patch):
             return
         self._closed = bool(closed)
         self.set_xy(self.get_xy())
+        self.stale = True
 
     def get_xy(self):
         """
@@ -955,6 +975,7 @@ class Polygon(Patch):
             if len(xy) > 2 and (xy[0] == xy[-1]).all():
                 xy = xy[:-1]
         self._path = Path(xy, closed=self._closed)
+        self.stale = True
 
     _get_xy = get_xy
     _set_xy = set_xy
@@ -1026,22 +1047,27 @@ class Wedge(Patch):
     def set_center(self, center):
         self._path = None
         self.center = center
+        self.stale = True
 
     def set_radius(self, radius):
         self._path = None
         self.r = radius
+        self.stale = True
 
     def set_theta1(self, theta1):
         self._path = None
         self.theta1 = theta1
+        self.stale = True
 
     def set_theta2(self, theta2):
         self._path = None
         self.theta2 = theta2
+        self.stale = True
 
     def set_width(self, width):
         self._path = None
         self.width = width
+        self.stale = True
 
     def get_path(self):
         if self._path is None:
@@ -1418,8 +1444,8 @@ class Circle(Ellipse):
         %(Patch)s
 
         """
-        self.radius = radius
         Ellipse.__init__(self, xy, radius * 2, radius * 2, **kwargs)
+        self.radius = radius
 
     def set_radius(self, radius):
         """
@@ -1428,6 +1454,7 @@ class Circle(Ellipse):
         ACCEPTS: float
         """
         self.width = self.height = 2 * radius
+        self.stale = True
 
     def get_radius(self):
         'return the radius of the circle'
@@ -2431,6 +2458,7 @@ class FancyBboxPatch(Patch):
 
         self._mutation_scale = mutation_scale
         self._mutation_aspect = mutation_aspect
+        self.stale = True
 
     @docstring.dedent_interpd
     def set_boxstyle(self, boxstyle=None, **kw):
@@ -2464,6 +2492,7 @@ class FancyBboxPatch(Patch):
             self._bbox_transmuter = boxstyle
         else:
             self._bbox_transmuter = BoxStyle(boxstyle, **kw)
+        self.stale = True
 
     def set_mutation_scale(self, scale):
         """
@@ -2472,6 +2501,7 @@ class FancyBboxPatch(Patch):
         ACCEPTS: float
         """
         self._mutation_scale = scale
+        self.stale = True
 
     def get_mutation_scale(self):
         """
@@ -2486,6 +2516,7 @@ class FancyBboxPatch(Patch):
         ACCEPTS: float
         """
         self._mutation_aspect = aspect
+        self.stale = True
 
     def get_mutation_aspect(self):
         """
@@ -2533,6 +2564,7 @@ class FancyBboxPatch(Patch):
         ACCEPTS: float
         """
         self._x = x
+        self.stale = True
 
     def set_y(self, y):
         """
@@ -2541,6 +2573,7 @@ class FancyBboxPatch(Patch):
         ACCEPTS: float
         """
         self._y = y
+        self.stale = True
 
     def set_width(self, w):
         """
@@ -2549,6 +2582,7 @@ class FancyBboxPatch(Patch):
         ACCEPTS: float
         """
         self._width = w
+        self.stale = True
 
     def set_height(self, h):
         """
@@ -2557,6 +2591,7 @@ class FancyBboxPatch(Patch):
         ACCEPTS: float
         """
         self._height = h
+        self.stale = True
 
     def set_bounds(self, *args):
         """
@@ -2572,6 +2607,7 @@ class FancyBboxPatch(Patch):
         self._y = b
         self._width = w
         self._height = h
+        self.stale = True
 
     def get_bbox(self):
         return transforms.Bbox.from_bounds(self._x, self._y,
@@ -3966,6 +4002,7 @@ class FancyArrowPatch(Patch):
         Valid kwargs are:
         %(Patch)s
         """
+        Patch.__init__(self, **kwargs)
 
         if posA is not None and posB is not None and path is None:
             self._posA_posB = [posA, posB]
@@ -3985,8 +4022,6 @@ class FancyArrowPatch(Patch):
         self.shrinkA = shrinkA
         self.shrinkB = shrinkB
 
-        Patch.__init__(self, **kwargs)
-
         self._path_original = path
 
         self.set_arrowstyle(arrowstyle)
@@ -4004,6 +4039,7 @@ class FancyArrowPatch(Patch):
         """
 
         self._dpi_cor = dpi_cor
+        self.stale = True
 
     def get_dpi_cor(self):
         """
@@ -4021,16 +4057,19 @@ class FancyArrowPatch(Patch):
             self._posA_posB[0] = posA
         if posB is not None:
             self._posA_posB[1] = posB
+        self.stale = True
 
     def set_patchA(self, patchA):
         """ set the begin patch.
         """
         self.patchA = patchA
+        self.stale = True
 
     def set_patchB(self, patchB):
         """ set the begin patch
         """
         self.patchB = patchB
+        self.stale = True
 
     def set_connectionstyle(self, connectionstyle, **kw):
         """
@@ -4059,6 +4098,7 @@ class FancyArrowPatch(Patch):
             self._connector = connectionstyle
         else:
             self._connector = ConnectionStyle(connectionstyle, **kw)
+        self.stale = True
 
     def get_connectionstyle(self):
         """
@@ -4090,6 +4130,7 @@ class FancyArrowPatch(Patch):
             self._arrow_transmuter = arrowstyle
         else:
             self._arrow_transmuter = ArrowStyle(arrowstyle, **kw)
+        self.stale = True
 
     def get_arrowstyle(self):
         """
@@ -4104,6 +4145,7 @@ class FancyArrowPatch(Patch):
         ACCEPTS: float
         """
         self._mutation_scale = scale
+        self.stale = True
 
     def get_mutation_scale(self):
         """
@@ -4118,6 +4160,7 @@ class FancyArrowPatch(Patch):
         ACCEPTS: float
         """
         self._mutation_aspect = aspect
+        self.stale = True
 
     def get_mutation_aspect(self):
         """
@@ -4225,6 +4268,7 @@ class FancyArrowPatch(Patch):
 
         gc.restore()
         renderer.close_group('patch')
+        self.stale = False
 
 
 class ConnectionPatch(FancyArrowPatch):
@@ -4443,6 +4487,7 @@ class ConnectionPatch(FancyArrowPatch):
           * None: the self.xy will be checked only if *xycoords* is "data"
         """
         self._annotation_clip = b
+        self.stale = True
 
     def get_annotation_clip(self):
         """
