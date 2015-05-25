@@ -1165,6 +1165,7 @@ defaultParams = {
     # True to save all characters as paths in the SVG
     'svg.embed_char_paths': [True, deprecate_svg_embed_char_paths],
     'svg.fonttype':         ['path', validate_svg_fonttype],
+    'svg.hashsalt':         [None, validate_any],
 
     # set this when you want to generate hardcopy docstring
     'docstring.hardcopy': [False, validate_bool],
