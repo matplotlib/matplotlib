@@ -24,6 +24,7 @@ import warnings
 import matplotlib.transforms as mtransforms
 import matplotlib.artist as martist
 import matplotlib.text as mtext
+import matplotlib.path as mpath
 import numpy as np
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 
@@ -569,14 +570,16 @@ class DrawingArea(OffsetBox):
     """
     The DrawingArea can contain any Artist as a child. The DrawingArea
     has a fixed width and height. The position of children relative to
-    the parent is fixed.
+    the parent is fixed. The children can be  clipped at the
+    boundaries of the parent.
     """
 
     def __init__(self, width, height, xdescent=0.,
-                 ydescent=0., clip=True):
+                 ydescent=0., clip=False):
         """
         *width*, *height* : width and height of the container box.
         *xdescent*, *ydescent* : descent of the box in x- and y-direction.
+        *clip* : Whether to clip the children
         """
 
         super(DrawingArea, self).__init__()
@@ -585,6 +588,7 @@ class DrawingArea(OffsetBox):
         self.height = height
         self.xdescent = xdescent
         self.ydescent = ydescent
+        self._clip_children = clip
 
         self.offset_transform = mtransforms.Affine2D()
         self.offset_transform.clear()
@@ -656,7 +660,17 @@ class DrawingArea(OffsetBox):
         self.dpi_transform.clear()
         self.dpi_transform.scale(dpi_cor, dpi_cor)
 
+        # At this point the DrawingArea has a transform
+        # to the display space so the path created is
+        # good for clipping children
+        tpath = mtransforms.TransformedPath(
+            mpath.Path([[0, 0], [0, self.height],
+                        [self.width, self.height],
+                        [self.width, 0]]),
+            self.get_transform())
         for c in self._children:
+            if self._clip_children and not (c.clipbox or c._clippath):
+                c.set_clip_path(tpath)
             c.draw(renderer)
 
         bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
