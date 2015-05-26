@@ -3950,7 +3950,6 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     rect.size.height = height;
     rect.size.width = width;
 
-    NSApp = [NSApplication sharedApplication];
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     self->window = [self->window initWithContentRect: rect
                                          styleMask: NSTitledWindowMask
@@ -6208,32 +6207,34 @@ static PyTypeObject TimerType = {
     Timer_new,                 /* tp_new */
 };
 
-
-static PyObject*
-verify_main_display(PyObject* self)
-/* Python2 contains a WMAvailable function in the MacOS module to check
- * if python can interact with the display. This function calls
- * CGMainDisplayID, which will return 0 if no window manager is available,
- * or if we don't have permission to talk to it; this will happen if Python
- * is not installed as a framework.
- * The MacOS module was removed from Python3, so we need to provide a way
- * to call CGMainDisplayID ourselves.
- */
+static bool verify_framework(void)
 {
-    PyObject* result;
-    CGDirectDisplayID display = CGMainDisplayID();
-    if (display == 0) result = Py_False;
-    else result = Py_True;
-    Py_INCREF(result);
-    return result;
+#ifdef COMPILING_FOR_10_6
+    NSRunningApplication* app = [NSRunningApplication currentApplication];
+    NSApplicationActivationPolicy activationPolicy = [app activationPolicy];
+    switch (activationPolicy) {
+        case NSApplicationActivationPolicyRegular:
+        case NSApplicationActivationPolicyAccessory:
+            return true;
+        case NSApplicationActivationPolicyProhibited:
+            break;
+    }
+#else
+    ProcessSerialNumber psn;
+    if (CGMainDisplayID()!=0
+     && GetCurrentProcess(&psn)==noErr
+     && SetFrontProcess(&psn)==noErr) return true;
+#endif
+    PyErr_SetString(PyExc_RuntimeError,
+        "Python is not installed as a framework. The Mac OS X backend will "
+        "not be able to function correctly if Python is not installed as a "
+        "framework. See the Python documentation for more information on "
+        "installing Python as a framework on Mac OS X. Please either reinstall "
+        "Python as a framework, or try one of the other backends.");
+    return false;
 }
 
 static struct PyMethodDef methods[] = {
-   {"verify_main_display",
-    (PyCFunction)verify_main_display,
-    METH_NOARGS,
-    "Verifies if the main display can be found. This function returns False if Python is not built as a framework."
-   },
    {"show",
     (PyCFunction)show,
     METH_NOARGS,
@@ -6273,7 +6274,6 @@ PyObject* PyInit__macosx(void)
 void init_macosx(void)
 #endif
 {
-#ifdef WITH_NEXT_FRAMEWORK
     PyObject *module;
     import_array();
 
@@ -6283,6 +6283,15 @@ void init_macosx(void)
      || PyType_Ready(&NavigationToolbarType) < 0
      || PyType_Ready(&NavigationToolbar2Type) < 0
      || PyType_Ready(&TimerType) < 0)
+#if PY3K
+        return NULL;
+#else
+        return;
+#endif
+
+    NSApp = [NSApplication sharedApplication];
+
+    if (!verify_framework())
 #if PY3K
         return NULL;
 #else
@@ -6324,22 +6333,5 @@ void init_macosx(void)
                              object: nil];
 #if PY3K
     return module;
-#endif
-#else
-    /* WITH_NEXT_FRAMEWORK is not defined. This means that Python is not
-     * installed as a framework, and therefore the Mac OS X backend will
-     * not interact properly with the window manager.
-     */
-    PyErr_SetString(PyExc_RuntimeError,
-        "Python is not installed as a framework. The Mac OS X backend will "
-        "not be able to function correctly if Python is not installed as a "
-        "framework. See the Python documentation for more information on "
-        "installing Python as a framework on Mac OS X. Please either reinstall "
-        "Python as a framework, or try one of the other backends.");
-#if PY3K
-    return NULL;
-#else
-    return;
-#endif
 #endif
 }
