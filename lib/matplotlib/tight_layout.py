@@ -1,7 +1,7 @@
 """
 This module provides routines to adjust subplot params so that subplots are
-nicely fit in the figure. In doing so, only axis labels, tick labels and axes
-titles are currently considered.
+nicely fit in the figure. In doing so, only axis labels, tick labels, axes
+titles and offsetboxes that are anchored to axes are currently considered.
 
 Internally, it assumes that the margins (left_margin, etc.) which are
 differences between ax.get_tightbbox and ax.bbox are independent of axes
