@@ -10,6 +10,8 @@ from matplotlib.testing.decorators import image_comparison, knownfailureif
 import matplotlib.pyplot as plt
 from nose.tools import assert_raises
 from numpy.testing import assert_array_equal
+from matplotlib.offsetbox import AnchoredOffsetbox, DrawingArea
+from matplotlib.patches import Rectangle
 
 
 def example_plot(ax, fontsize=12):
@@ -155,3 +157,73 @@ def test_tight_layout8():
     fig.set_tight_layout({'pad': .1})
     ax = fig.add_subplot(111)
     example_plot(ax, fontsize=24)
+
+
+def add_offsetboxes(ax, size=10, margin=.1, color='black'):
+    """
+    Surround ax with OffsetBoxes
+    """
+    da = DrawingArea(size, size)
+    background = Rectangle((0, 0), width=size,
+                           height=size,
+                           facecolor=color,
+                           edgecolor='None',
+                           linewidth=0,
+                           antialiased=False)
+    da.add_artist(background)
+    m, mp = margin, 1+margin
+    anchor_points = [(-m, -m), (-m, .5), (-m, mp),
+                     (mp, .5), (.5, mp), (mp, mp),
+                     (.5, -m), (mp, -m), (.5, -m)]
+    for point in anchor_points:
+        anchored_box = AnchoredOffsetbox(
+            loc=10,
+            child=da,
+            pad=0.,
+            frameon=False,
+            bbox_to_anchor=point,
+            bbox_transform=ax.transAxes,
+            borderpad=0.)
+        ax.add_artist(anchored_box)
+    return anchored_box
+
+
+@image_comparison(baseline_images=['tight_layout_offsetboxes1',
+                                   'tight_layout_offsetboxes2'])
+def test_tight_layout_offsetboxes():
+    # 1.
+    # - Create 4 subplots
+    # - Plot a diagonal line on them
+    # - Surround each plot with 7 boxes
+    # - Use tight_layout
+    # - See that the squares are included in the tight_layout
+    #   and that the squares in the middle do not overlap
+    #
+    # 2.
+    # - Make the squares around the right side axes invisible
+    # - See that the invisible squares do not affect the
+    #   tight_layout
+    rows = cols = 2
+    colors = ['red', 'blue', 'green', 'yellow']
+    x = y = [0, 1]
+
+    def _subplots():
+        _, axs = plt.subplots(rows, cols)
+        axs = axs.flat
+        for ax, color in zip(axs, colors):
+            ax.plot(x, y, color=color)
+            add_offsetboxes(ax, 20, color=color)
+        return axs
+
+    # 1.
+    axs = _subplots()
+    plt.tight_layout()
+
+    # 2.
+    axs = _subplots()
+    for ax in (axs[cols-1::rows]):
+        for child in ax.get_children():
+            if isinstance(child, AnchoredOffsetbox):
+                child.set_visible(False)
+
+    plt.tight_layout()
