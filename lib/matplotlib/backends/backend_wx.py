@@ -1271,8 +1271,12 @@ class FigureFrameWx(wx.Frame):
             self.toolbar.Realize()
             # On Windows platform, default window size is incorrect, so set
             # toolbar width to figure width.
-            tw, th = self.toolbar.GetSizeTuple()
-            fw, fh = self.canvas.GetSizeTuple()
+            if wxc.is_phoenix:
+                tw, th = self.toolbar.GetSize()
+                fw, fh = self.canvas.GetSize()
+            else:
+                tw, th = self.toolbar.GetSizeTuple()
+                fw, fh = self.canvas.GetSizeTuple()
             # By adding toolbar in sizer, we are able to put it at the bottom
             # of the frame - so appearance is closer to GTK version.
             self.toolbar.SetSize(wx.Size(fw, th))
@@ -1370,9 +1374,10 @@ class FigureManagerWx(FigureManagerBase):
     def destroy(self, *args):
         DEBUG_MSG("destroy()", 1, self)
         self.frame.Destroy()
-        #if self.tb is not None: self.tb.Destroy()
-        # wx.GetApp().ProcessIdle()
-        wx.WakeUpIdle()
+        wxapp = wx.GetApp()
+        if wxapp:
+            wxapp.Yield()
+        
 
     def get_window_title(self):
         return self.window.GetTitle()
