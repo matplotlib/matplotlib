@@ -1271,8 +1271,12 @@ class FigureFrameWx(wx.Frame):
             self.toolbar.Realize()
             # On Windows platform, default window size is incorrect, so set
             # toolbar width to figure width.
-            tw, th = self.toolbar.GetSizeTuple()
-            fw, fh = self.canvas.GetSizeTuple()
+            if wxc.is_phoenix:
+                tw, th = self.toolbar.GetSize()
+                fw, fh = self.canvas.GetSize()
+            else:
+                tw, th = self.toolbar.GetSizeTuple()
+                fw, fh = self.canvas.GetSizeTuple()
             # By adding toolbar in sizer, we are able to put it at the bottom
             # of the frame - so appearance is closer to GTK version.
             self.toolbar.SetSize(wx.Size(fw, th))
@@ -1370,9 +1374,9 @@ class FigureManagerWx(FigureManagerBase):
     def destroy(self, *args):
         DEBUG_MSG("destroy()", 1, self)
         self.frame.Destroy()
-        #if self.tb is not None: self.tb.Destroy()
-        # wx.GetApp().ProcessIdle()
-        wx.WakeUpIdle()
+        wxapp = wx.GetApp()
+        if wxapp:
+            wxapp.Yield()
 
     def get_window_title(self):
         return self.window.GetTitle()
@@ -1457,8 +1461,12 @@ class MenuButtonWx(wx.Button):
 
     def _onMenuButton(self, evt):
         """Handle menu button pressed."""
-        x, y = self.GetPositionTuple()
-        w, h = self.GetSizeTuple()
+        if wxc.is_phoenix:
+            x, y = self.GetPosition()
+            w, h = self.GetSize()
+        else:
+            x, y = self.GetPositionTuple()
+            w, h = self.GetSizeTuple()
         self.PopupMenuXY(self._menu, x, y + h - 4)
         # When menu returned, indicate selection in button
         evt.Skip()
@@ -1779,7 +1787,10 @@ class PrintoutWx(wx.Printout):
         (ppw, pph) = self.GetPPIPrinter()      # printer's pixels per in
         (pgw, pgh) = self.GetPageSizePixels()  # page size in pixels
         (dcw, dch) = dc.GetSize()
-        (grw, grh) = self.canvas.GetSizeTuple()
+        if wxc.is_phoenix:
+            (grw, grh) = self.canvas.GetSize()
+        else:
+            (grw, grh) = self.canvas.GetSizeTuple()
 
         # save current figure dpi resolution and bg color,
         # so that we can temporarily set them to the dpi of
