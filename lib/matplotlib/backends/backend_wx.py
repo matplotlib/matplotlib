@@ -1461,8 +1461,12 @@ class MenuButtonWx(wx.Button):
 
     def _onMenuButton(self, evt):
         """Handle menu button pressed."""
-        x, y = self.GetPositionTuple()
-        w, h = self.GetSizeTuple()
+        if wxc.is_phoenix:
+            x, y = self.GetPosition()
+            w, h = self.GetSize()
+        else:
+            x, y = self.GetPositionTuple()
+            w, h = self.GetSizeTuple()
         self.PopupMenuXY(self._menu, x, y + h - 4)
         # When menu returned, indicate selection in button
         evt.Skip()
@@ -1783,7 +1787,10 @@ class PrintoutWx(wx.Printout):
         (ppw, pph) = self.GetPPIPrinter()      # printer's pixels per in
         (pgw, pgh) = self.GetPageSizePixels()  # page size in pixels
         (dcw, dch) = dc.GetSize()
-        (grw, grh) = self.canvas.GetSizeTuple()
+        if wxc.is_phoenix:
+            (grw, grh) = self.canvas.GetSize()
+        else:
+            (grw, grh) = self.canvas.GetSizeTuple()
 
         # save current figure dpi resolution and bg color,
         # so that we can temporarily set them to the dpi of
