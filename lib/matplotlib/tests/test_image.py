@@ -89,6 +89,15 @@ def test_image_python_io():
     buffer.seek(0)
     plt.imread(buffer)
 
+@image_comparison(baseline_images=['imread_url'], extensions=['png'])
+def test_imread_url_string():
+    try:
+        img = plt.imread('http://matplotlib.org/_static/logo2.png')
+    except URLError:
+        print('No network access. Test imread_url_string skipped.')
+        img = plt.imread(os.path.join(os.path.dirname(__file__),
+                     'baseline_images', 'test_image', 'imread_url.png'))
+
 @knownfailureif(not HAS_PIL)
 def test_imread_pil_uint16():
     img = plt.imread(os.path.join(os.path.dirname(__file__),
