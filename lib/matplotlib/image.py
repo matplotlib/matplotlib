@@ -1204,8 +1204,9 @@ def imread(fname, format=None):
     """
     Read an image from a file into an array.
 
-    *fname* may be a string path or a Python file-like object.  If
-    using a file object, it must be opened in binary mode.
+    *fname* may be a string path, a valid URL, or a Python
+    file-like object.  If using a file object, it must be opened in binary
+    mode.
 
     If *format* is provided, will try to read file of that type,
     otherwise the format is deduced from the filename.  If nothing can
@@ -1218,7 +1219,9 @@ def imread(fname, format=None):
     matplotlib can only read PNGs natively, but if `PIL
     <http://www.pythonware.com/products/pil/>`_ is installed, it will
     use it to load the image and return an array (if possible) which
-    can be used with :func:`~matplotlib.pyplot.imshow`.
+    can be used with :func:`~matplotlib.pyplot.imshow`. Note, URL strings 
+    may not be compatible with PIL. Check the PIL documentation for more
+    information.
     """
 
     def pilread(fname):
