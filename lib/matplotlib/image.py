@@ -1265,7 +1265,6 @@ def imread(fname, format=None):
         parsed = urlparse(fname)
         # If fname is a URL, download the data
         if parsed.scheme != '':
-            print('Scheme: %s' % parsed.scheme)
             fd = BytesIO(urlopen(fname).read())
             return handler(fd)
         else:
