@@ -1219,7 +1219,7 @@ def imread(fname, format=None):
     matplotlib can only read PNGs natively, but if `PIL
     <http://www.pythonware.com/products/pil/>`_ is installed, it will
     use it to load the image and return an array (if possible) which
-    can be used with :func:`~matplotlib.pyplot.imshow`. Note, URL strings 
+    can be used with :func:`~matplotlib.pyplot.imshow`. Note, URL strings
     may not be compatible with PIL. Check the PIL documentation for more
     information.
     """
