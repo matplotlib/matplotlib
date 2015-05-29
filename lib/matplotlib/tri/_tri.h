@@ -186,13 +186,17 @@ public:
      *          once.
      *   neighbors: Optional int array of shape (ntri,3) indicating which
      *              triangles are the neighbors of which TriEdges, or -1 if
-     *              there is no such neighbor. */
+     *              there is no such neighbor.
+     *   correct_triangle_orientations: Whether or not should correct triangle
+     *                                  orientations so that vertices are
+     *                                  ordered anticlockwise. */
     Triangulation(const CoordinateArray& x,
                   const CoordinateArray& y,
                   const TriangleArray& triangles,
                   const MaskArray& mask,
                   const EdgeArray& edges,
-                  const NeighborArray& neighbors);
+                  const NeighborArray& neighbors,
+                  int correct_triangle_orientations);
 
     /* Calculate plane equation coefficients for all unmasked triangles from
      * the point (x,y) coordinates and point z-array of shape (npoints) passed
