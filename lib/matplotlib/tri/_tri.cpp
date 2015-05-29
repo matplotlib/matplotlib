@@ -222,7 +222,8 @@ Triangulation::Triangulation(const CoordinateArray& x,
                              const TriangleArray& triangles,
                              const MaskArray& mask,
                              const EdgeArray& edges,
-                             const NeighborArray& neighbors)
+                             const NeighborArray& neighbors,
+                             int correct_triangle_orientations)
     : _x(x),
       _y(y),
       _triangles(triangles),
@@ -230,7 +231,8 @@ Triangulation::Triangulation(const CoordinateArray& x,
       _edges(edges),
       _neighbors(neighbors)
 {
-    correct_triangles();
+    if (correct_triangle_orientations)
+        correct_triangles();
 }
 
 void Triangulation::calculate_boundaries()
