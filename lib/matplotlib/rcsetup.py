@@ -831,7 +831,6 @@ defaultParams = {
     'path.snap': [True, validate_bool],
     'path.sketch': [None, validate_sketch],
     'path.effects': [[], validate_any],
-    'agg.path.chunksize': [0, validate_int],       # 0 to disable chunking;
 
     # key-mappings (multi-character mappings should be a list/tuple)
     'keymap.fullscreen':   [('f', 'ctrl+f'), validate_stringlist],

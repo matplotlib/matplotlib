@@ -363,16 +363,6 @@ backend      : %(backend)s
 #contour.negative_linestyle : dashed # dashed | solid
 #contour.corner_mask        : True   # True | False | legacy
 
-### Agg rendering
-### Warning: experimental, 2008/10/10
-#agg.path.chunksize : 0           # 0 to disable; values in the range
-                                  # 10000 to 100000 can improve speed slightly
-                                  # and prevent an Agg rendering failure
-                                  # when plotting very large data sets,
-                                  # especially if they are very gappy.
-                                  # It may cause minor artifacts, though.
-                                  # A value of 20000 is probably a good
-                                  # starting point.
 ### SAVING FIGURES
 #path.simplify : True   # When True, simplify paths by removing "invisible"
                         # points to reduce file size and increase rendering
