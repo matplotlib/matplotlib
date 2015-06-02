@@ -2515,6 +2515,21 @@ def mappable_args_decorator(func, map_targets):
     return inner
 
 
+def apply_kwargs_mapping(ax, func, data, map_targets, *args, **kwargs):
+    for k, v in map_targets.items():
+        if k in kwargs:
+            raise ValueError(("Trying to map a column ({1} -> {0}) "
+                              "on to a passed in "
+                              "keyword arg ({0})").format(k, v))
+        kwargs[k] = data[v].values
+        return func(ax, *args, **kwargs)
+
+
+def apply_args_mapping(ax, func, data, map_targets, *args, **kwargs):
+    args = tuple(data[k] for k in map_targets) + args
+    return func(ax, *args, **kwargs)
+
+
 # Numpy > 1.6.x deprecates putmask in favor of the new copyto.
 # So long as we support versions 1.6.x and less, we need the
 # following local version of putmask.  We choose to make a
