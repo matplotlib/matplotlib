@@ -25,6 +25,9 @@ import warnings
 import types
 
 from cycler import cycler
+
+from functools import wraps
+
 import matplotlib
 import matplotlib.colorbar
 from matplotlib import style
@@ -188,6 +191,74 @@ def uninstall_repl_displayhook():
 
 
 draw_all = _pylab_helpers.Gcf.draw_all
+
+
+def ensure_ax(func):
+    """Decorator to ensure that the function gets an `Axes` object.
+
+
+    The intent of this decorator is to simplify the writing of helper
+    plotting functions that are useful for both interactive and
+    programmatic usage.
+
+    The encouraged signature for third-party and user functions ::
+
+       def my_function(ax, data, style)
+
+    explicitly expects an Axes object as input rather than using
+    plt.gca() or creating axes with in the function body.  This
+    allows for great flexibility, but some find it verbose for
+    interactive use.  This decorator allows the Axes input to be
+    omitted in which case `plt.gca()` is passed into the function.
+    Thus ::
+
+       wrapped = ensure_ax(my_function)
+
+    can be called as any of ::
+
+       wrapped(data, style)
+       wrapped(ax, data, style)
+       wrapped(data, style, ax=plt.gca())
+
+
+    """
+    @wraps(func)
+    def inner(*args, **kwargs):
+        if 'ax' in kwargs:
+            ax = kwargs.pop('ax', None)
+        elif len(args) > 0 and isinstance(args[0], Axes):
+            ax = args[0]
+            args = args[1:]
+        else:
+            ax = gca()
+        return func(ax, *args, **kwargs)
+    return inner
+
+
+def ensure_ax_meth(func):
+    """
+    The same as ensure axes, but for class methods ::
+
+       class foo(object):
+           @ensure_ax_meth
+           def my_function(self, ax, style):
+
+    will allow you to call your objects plotting methods with
+    out explicitly passing in an `Axes` object.
+    """
+    @wraps(func)
+    def inner(*args, **kwargs):
+        s = args[0]
+        args = args[1:]
+        if 'ax' in kwargs:
+            ax = kwargs.pop('ax', None)
+        elif len(args) > 1 and isinstance(args[0], Axes):
+            ax = args[0]
+            args = args[1:]
+        else:
+            ax = gca()
+        return func(s, ax, *args, **kwargs)
+    return inner
 
 
 @docstring.copy_dedent(Artist.findobj)
