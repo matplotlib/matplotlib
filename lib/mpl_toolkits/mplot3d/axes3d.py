@@ -2423,6 +2423,8 @@ class Axes3D(Axes):
         self.add_collection(col)
 
         self.auto_scale_xyz((minx, maxx), (miny, maxy), (minz, maxz), had_data)
+        
+        return col
 
     def set_title(self, label, fontdict=None, loc='center', **kwargs):
         ret = Axes.set_title(self, label, fontdict=fontdict, loc=loc, **kwargs)
