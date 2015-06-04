@@ -124,7 +124,7 @@ class Gcf(object):
                 cls._activeQue.append(f)
 
         del cls.figs[num]
-        manager.destroy()
+        manager.destroy()  # Unneeded with MEP27 remove later
         gc.collect(1)
 
     @classmethod

@@ -2533,7 +2533,7 @@ def key_press_handler(event, canvas, toolbar=None):
         if isinstance(canvas.manager, FigureManagerBase):  # Using old figman.
             Gcf.destroy_fig(canvas.figure)
         else:
-            canvas.manager._destroy('window_destroy_event')
+            canvas.manager.destroy('window_destroy_event')
 
     if toolbar is not None:
         # home or reset mnemonic  (default key 'h', 'home' and 'r')

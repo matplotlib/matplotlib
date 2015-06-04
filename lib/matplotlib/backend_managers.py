@@ -78,7 +78,7 @@ class FigureManager(cbook.EventEmitter):
         self._backend = get_backend()
         self._mainloop = self._backend.MainLoop()
         self.window = self._backend.Window('Figure %d' % num)
-        self.window.mpl_connect('window_destroy_event', self._destroy)
+        self.window.mpl_connect('window_destroy_event', self.destroy)
 
         self.canvas = self._backend.FigureCanvas(figure, manager=self)
 
@@ -122,22 +122,28 @@ class FigureManager(cbook.EventEmitter):
         """
         key_press_handler(event, self.canvas, self.canvas.toolbar)
 
-    def _destroy(self, event=None):
-        # Callback from the when the window wants to destroy itself
-        s = 'window_destroy_event'
-        event = FigureManagerEvent(s, self)
-        self._callbacks.process(s, event)
-
     def destroy(self, *args):
-        """Called to destroy this FigureManager, gets called by Gcf through
-        event magic.
+        """Called to destroy this FigureManager.
         """
+
+        # Make sure we run this routine only once for the FigureManager
+        # This ensures the nasty __del__ fix below works.
+        if getattr(self, '_destroying', False):
+            return
+
+        self._destroying = True
         self.canvas.destroy()
         if self.toolbar:
             self.toolbar.destroy()
         self.window.destroy()
 
+        # Fix as for some reason we have extra references to this#
+        # i.e. ``del self._mainloop`` doesn't work
         self._mainloop.__del__()
+
+        s = 'window_destroy_event'
+        event = FigureManagerEvent(s, self)
+        self._callbacks.process(s, event)
 
     def show(self):
         """Shows the figure"""

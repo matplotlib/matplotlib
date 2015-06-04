@@ -388,7 +388,7 @@ class ToolQuit(ToolBase):
         except:
             pass
         else:
-            manager._destroy('window_destroy_event')
+            manager.destroy('window_destroy_event')
 
 
 class ToolQuitAll(ToolBase):
