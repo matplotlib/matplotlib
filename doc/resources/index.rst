@@ -9,6 +9,10 @@
  Books, Chapters and Articles
 =============================
 
+* `Interactive Applications Using Matplotlib
+  <https://www.packtpub.com/application-development/interactive-applications-using-matplotlib>`_
+  by Benjamin Root
+
 * `Matplotlib for Python Developers
   <http://www.packtpub.com/matplotlib-python-development/book?mid/171109cna1h>`_
   by Sandro Tosi
