@@ -340,6 +340,23 @@ class test_OffsetNorm_Errors(object):
         norm.inverse(np.array([0.1, 0.5, 0.9]))
 
 
+@image_comparison(baseline_images=['test_offset_norm'], extensions=['png'])
+def test_offset_norm_img():
+    x = np.linspace(-2, 7)
+    y = np.linspace(-1*np.pi, np.pi)
+    X, Y = np.meshgrid(x, y)
+    Z = x * np.sin(Y)**2
+
+    fig, (ax1, ax2) = plt.subplots(ncols=2)
+    cmap = plt.cm.coolwarm
+    norm = mcolors.OffsetNorm(vmin=-2, vcenter=0, vmax=7)
+
+    img1 = ax1.imshow(Z, cmap=cmap, norm=None)
+    cbar1 = fig.colorbar(img1, ax=ax1)
+
+    img2 = ax2.imshow(Z, cmap=cmap, norm=norm)
+    cbar2 = fig.colorbar(img2, ax=ax2)
+
 def test_SymLogNorm():
     """
     Test SymLogNorm behavior
