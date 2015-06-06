@@ -1033,45 +1033,13 @@ class OffsetNorm(Normalize):
                 result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
                                   mask=mask)
 
-            # ma division is very slow; we can take a shortcut
-            resdat = result.data
-
-            #First scale to -1 to 1 range, than to from 0 to 1.
-            resdat -= vcenter
-            resdat[resdat > 0] /= abs(vmax - vcenter)
-            resdat[resdat < 0] /= abs(vmin - vcenter)
-
-            resdat /= 2.
-            resdat += 0.5
-            result = np.ma.array(resdat, mask=result.mask, copy=False)
+            x, y = [vmin, vcenter, vmax], [0, 0.5, 1]
+            result = np.ma.masked_array(np.interp(value, x, y))
 
         if is_scalar:
             result = result[0]
 
         return result
-
-    def inverse(self, value):
-        if not self.scaled():
-            raise ValueError("Not invertible until scaled")
-
-        vmin, vcenter, vmax = self.vmin, self.vcenter, self.vmax
-        vmin = float(self.vmin)
-        vcenter = float(self.vcenter)
-        vmax = float(self.vmax)
-
-        if cbook.iterable(value):
-            val = ma.asarray(value)
-            val = 2 * (val - 0.5)
-            val[val > 0] *= abs(vmax - vcenter)
-            val[val < 0] *= abs(vmin - vcenter)
-            val += vcenter
-            return val
-        else:
-            val = 2 * (val - 0.5)
-            if val < 0:
-                return val * abs(vmin - vcenter) + vcenter
-            else:
-                return val * abs(vmax - vcenter) + vcenter
 
     def autoscale_None(self, A):
         ' autoscale only None-valued vmin or vmax'
