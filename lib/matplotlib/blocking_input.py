@@ -25,7 +25,7 @@ windows:
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
+from matplotlib.externals import six
 from matplotlib import verbose
 from matplotlib.cbook import is_sequence_of_strings
 import matplotlib.lines as mlines

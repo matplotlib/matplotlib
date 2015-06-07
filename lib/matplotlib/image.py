@@ -6,10 +6,10 @@ operations.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-from six.moves.urllib.parse import urlparse
-from six.moves.urllib.request import urlopen
-from six import BytesIO
+from matplotlib.externals import six
+from matplotlib.externals.six.moves.urllib.parse import urlparse
+from matplotlib.externals.six.moves.urllib.request import urlopen
+from io import BytesIO
 
 import os
 import warnings

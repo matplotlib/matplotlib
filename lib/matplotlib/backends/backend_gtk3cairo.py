@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
+from matplotlib.externals import six
 
 from . import backend_gtk3
 from . import backend_cairo

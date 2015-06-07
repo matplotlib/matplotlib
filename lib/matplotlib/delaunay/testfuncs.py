@@ -7,8 +7,8 @@ http://netlib.org/toms/792
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-from six.moves import xrange
+from matplotlib.externals import six
+from matplotlib.externals.six.moves import xrange
 
 
 import numpy as np

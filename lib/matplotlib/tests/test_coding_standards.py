@@ -243,7 +243,8 @@ def test_pep8_conformance_installed_files():
                           'sphinxext/plot_directive.py',
                           'projections/__init__.py',
                           'projections/geo.py',
-                          'projections/polar.py']
+                          'projections/polar.py',
+                          'externals/six.py']
     expected_bad_files = ['*/matplotlib/' + s for s in expected_bad_files]
     assert_pep8_conformance(module=matplotlib,
                             exclude_files=exclude_files,

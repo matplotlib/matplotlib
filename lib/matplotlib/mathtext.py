@@ -20,10 +20,10 @@ please email mdroe@stsci.edu, but please check KNOWN ISSUES below first.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
+from matplotlib.externals import six
 
 import os, sys
-from six import unichr
+from matplotlib.externals.six import unichr
 from math import ceil
 try:
     set

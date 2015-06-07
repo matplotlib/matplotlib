@@ -4,7 +4,7 @@ Mesh refinement for triangular grids.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
+from matplotlib.externals import six
 
 import numpy as np
 from matplotlib.tri.triangulation import Triangulation

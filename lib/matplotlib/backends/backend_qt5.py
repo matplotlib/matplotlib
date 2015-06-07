@@ -1,12 +1,12 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-import six
+from matplotlib.externals import six
 
 import os
 import re
 import signal
 import sys
-from six import unichr
+from matplotlib.externals.six import unichr
 
 import matplotlib
 

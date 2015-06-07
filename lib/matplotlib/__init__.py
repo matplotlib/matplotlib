@@ -102,7 +102,7 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
+from matplotlib.externals import six
 import sys
 import distutils.version
 from itertools import chain
@@ -124,8 +124,8 @@ from matplotlib.rcsetup import (defaultParams,
                                 validate_backend)
 
 import numpy
-from six.moves.urllib.request import urlopen
-from six.moves import reload_module as reload
+from matplotlib.externals.six.moves.urllib.request import urlopen
+from matplotlib.externals.six.moves import reload_module as reload
 
 __version__ = str('1.5.dev1')
 __version__numpy__ = str('1.6')  # minimum required numpy version
