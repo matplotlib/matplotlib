@@ -2422,31 +2422,34 @@ def mappable_kwargs_decorator(func, map_targets):
 
     The function call ::
 
-        func(ax, x=data['foo'], y=data['bar'])
+       func(ax, x=data['foo'], y=data['bar'])
 
     is the same as ::
 
-        wrapped = mappable_kwargs_decorator(func, {'x': 'foo', 'y':'bar'})
-        wrapped(ax, data)
+       wrapped = mappable_kwargs_decorator(func, {'x': 'foo', 'y':'bar'})
+       wrapped(ax, data)
 
     Parameters
     ----------
     function : callable
+
         A function which expects an `Axes` objects as the first argument
         and can take data as kwargs.
 
     map_targets : dict
+
        Mapping between key expected by the function and the column name.
        ex ``{'x': 'foo', 'y': 'bar'}`` ->
-          ``kwargs['x'] == data['foo']`` and ``kwargs['y'] == data['bar']``
+       ``kwargs['x'] == data['foo']`` and ``kwargs['y'] == data['bar']``
 
 
     Returns
     -------
     callable
-        Decorated function with the signature ::
 
-           func(ax, df, *args, **kwargs)
+       Decorated function with the signature ::
+
+          func(ax, df, *args, **kwargs)
 
 
     """
