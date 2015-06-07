@@ -2460,7 +2460,7 @@ def mappable_kwargs_decorator(func, map_targets):
                 raise ValueError(("Trying to map a column ({1} -> {0}) "
                                   "on to a passed in "
                                   "keyword arg ({0})").format(k, v))
-            kwargs[k] = np.asarray(data[v])
+            kwargs[k] = np.asanyarray(data[v])
         return func(ax, *args, **kwargs)
 
     return inner
@@ -2512,7 +2512,7 @@ def mappable_args_decorator(func, map_targets):
     """
     @wraps(func)
     def inner(ax, data, *args, **kwargs):
-        args = tuple(np.asarray(data[k]) for k in map_targets) + args
+        args = tuple(np.asanyarray(data[k]) for k in map_targets) + args
         return func(ax, *args, **kwargs)
 
     return inner
@@ -2549,7 +2549,7 @@ def apply_kwargs_mapping(ax, func, data, map_targets, *args, **kwargs):
 
     data : pandas.DataFrame or dict-like
        Labeled data.  It is assumed that data[key] will return something
-       that `np.asarray` can convert to a numpy array
+       that `np.asanyarray` can convert to a numpy array
 
 
     map_targets : dict
@@ -2566,7 +2566,7 @@ def apply_kwargs_mapping(ax, func, data, map_targets, *args, **kwargs):
             raise ValueError(("Trying to map a column ({1} -> {0}) "
                               "on to a passed in "
                               "keyword arg ({0})").format(k, v))
-        kwargs[k] = np.asarary(data[v])
+        kwargs[k] = np.asanyarary(data[v])
         return func(ax, *args, **kwargs)
 
 
@@ -2600,14 +2600,14 @@ def apply_args_mapping(ax, func, data, map_targets, *args, **kwargs):
 
     data : pandas.DataFrame or dict-like
        Labeled data.  It is assumed that data[key] will return something
-       that `np.asarray` can convert to a numpy array
+       that `np.asanyarray` can convert to a numpy array
 
     map_targets : tuple
        Order of columns to extract to pass to the function.  These column
        are the 2nd -> n+1 args
 
     """
-    args = tuple(np.asarray(data[k]) for k in map_targets) + args
+    args = tuple(np.asanyarray(data[k]) for k in map_targets) + args
     return func(ax, *args, **kwargs)
 
 
