@@ -13,7 +13,7 @@ from __future__ import (absolute_import, division, print_function,
 # - `backend_webagg.py` contains a concrete implementation of a basic
 #   application, implemented with tornado.
 
-import six
+from matplotlib.externals import six
 
 import datetime
 import errno

@@ -35,8 +35,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-from six.moves import xrange
+from matplotlib.externals import six
+from matplotlib.externals.six.moves import xrange
 
 # History:
 # 1.0.10: added float validator (disable "Ok" and "Apply" button when not valid)

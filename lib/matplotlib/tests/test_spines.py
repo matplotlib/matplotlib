@@ -3,7 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import numpy as np
 from nose.tools import assert_true
-import six
+from matplotlib.externals import six
 
 import matplotlib
 import matplotlib.pyplot as plt

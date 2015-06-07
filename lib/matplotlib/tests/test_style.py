@@ -14,7 +14,7 @@ import matplotlib as mpl
 from matplotlib import style
 from matplotlib.style.core import USER_LIBRARY_PATHS, STYLE_EXTENSION
 
-import six
+from matplotlib.externals import six
 
 PARAM = 'image.cmap'
 VALUE = 'pink'

@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
+from matplotlib.externals import six
 
 from . import axes_size as Size
 from .axes_divider import Divider, SubplotDivider, LocatableAxes, \

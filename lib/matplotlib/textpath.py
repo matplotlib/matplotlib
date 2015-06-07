@@ -3,8 +3,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-from six.moves import zip
+from matplotlib.externals import six
+from matplotlib.externals.six.moves import zip
 
 import warnings
 
@@ -19,7 +19,7 @@ from matplotlib.mathtext import MathTextParser
 import matplotlib.dviread as dviread
 from matplotlib.font_manager import FontProperties
 from matplotlib.transforms import Affine2D
-from six.moves.urllib.parse import quote as urllib_quote
+from matplotlib.externals.six.moves.urllib.parse import quote as urllib_quote
 
 
 class TextToPath(object):
