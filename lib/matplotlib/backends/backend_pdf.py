@@ -7,7 +7,7 @@ Author: Jouni K Seppänen <jks@iki.fi>
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
+from matplotlib.externals import six
 
 import codecs
 import os
@@ -18,8 +18,8 @@ import warnings
 import zlib
 
 import numpy as np
-from six import unichr
-from io import BytesIO
+from matplotlib.externals.six import unichr
+from matplotlib.externals.six import BytesIO
 
 from datetime import datetime
 from math import ceil, cos, floor, pi, sin

@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
+from matplotlib.externals import six
 
 from matplotlib.offsetbox import AnchoredOffsetbox
  #from matplotlib.transforms import IdentityTransform

@@ -7,8 +7,8 @@ Various transforms used for by the 3D code
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-from six.moves import zip
+from matplotlib.externals import six
+from matplotlib.externals.six.moves import zip
 
 from matplotlib.collections import LineCollection
 from matplotlib.patches import Circle

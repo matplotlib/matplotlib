@@ -7,7 +7,7 @@ from base64 import b64encode
 import json
 import io
 import os
-import six
+from matplotlib.externals import six
 from uuid import uuid4 as uuid
 
 import tornado.ioloop

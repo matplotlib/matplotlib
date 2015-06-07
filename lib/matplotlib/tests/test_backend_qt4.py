@@ -1,8 +1,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-from six import unichr
+from matplotlib.externals import six
+from matplotlib.externals.six import unichr
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import cleanup
 from matplotlib.testing.decorators import knownfailureif

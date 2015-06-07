@@ -5,8 +5,8 @@ Module for creating Sankey diagrams using matplotlib
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-from six.moves import zip
+from matplotlib.externals import six
+from matplotlib.externals.six.moves import zip
 
 # Original version by Yannick Copin (ycopin@ipnl.in2p3.fr) 10/2/2010, available
 # at:
