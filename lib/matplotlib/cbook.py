@@ -2460,7 +2460,7 @@ def mappable_kwargs_decorator(func, map_targets):
                 raise ValueError(("Trying to map a column ({1} -> {0}) "
                                   "on to a passed in "
                                   "keyword arg ({0})").format(k, v))
-            kwargs[k] = data[v].values
+            kwargs[k] = np.asarray(data[v])
         return func(ax, *args, **kwargs)
 
     return inner
@@ -2512,7 +2512,7 @@ def mappable_args_decorator(func, map_targets):
     """
     @wraps(func)
     def inner(ax, data, *args, **kwargs):
-        args = tuple(data[k] for k in map_targets) + args
+        args = tuple(np.asarray(data[k]) for k in map_targets) + args
         return func(ax, *args, **kwargs)
 
     return inner
@@ -2524,12 +2524,12 @@ def apply_kwargs_mapping(ax, func, data, map_targets, *args, **kwargs):
             raise ValueError(("Trying to map a column ({1} -> {0}) "
                               "on to a passed in "
                               "keyword arg ({0})").format(k, v))
-        kwargs[k] = data[v].values
+        kwargs[k] = np.asarary(data[v])
         return func(ax, *args, **kwargs)
 
 
 def apply_args_mapping(ax, func, data, map_targets, *args, **kwargs):
-    args = tuple(data[k] for k in map_targets) + args
+    args = tuple(np.asarray(data[k]) for k in map_targets) + args
     return func(ax, *args, **kwargs)
 
 
