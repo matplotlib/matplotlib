@@ -2529,13 +2529,14 @@ def apply_kwargs_mapping(ax, func, data, map_targets, *args, **kwargs):
 
 
     The function call ::
+
         func(ax, x=data['foo'], y=data['bar'], *args, **kwargs)
 
 
     is the same as ::
 
-        apply_kwargs_mapping(ax, func, data, {'x': 'foo', 'y':'bar'},
-                             *args, **kwargs)
+        mapping = {'x': 'foo', 'y':'bar'}
+        apply_kwargs_mapping(ax, func, data, mapping, *args, **kwargs)
 
 
     Parameters
