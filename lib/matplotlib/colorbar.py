@@ -256,6 +256,8 @@ class ColorbarBase(cm.ScalarMappable):
                    'min': slice(1, None),
                    'max': slice(0, -1)}
 
+    n_rasterize = 50  # rasterize solids if number of colors >= n_rasterize
+
     def __init__(self, ax, cmap=None,
                  norm=None,
                  alpha=None,
@@ -517,6 +519,8 @@ class ColorbarBase(cm.ScalarMappable):
                                     colors=(mpl.rcParams['axes.edgecolor'],),
                                     linewidths=linewidths)
             self.ax.add_collection(self.dividers)
+        elif len(self._y) >= self.n_rasterize:
+            self.solids.set_rasterized(True)
 
     def add_lines(self, levels, colors, linewidths, erase=True):
         '''
