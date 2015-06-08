@@ -22,8 +22,8 @@ found.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-from six.moves import cPickle as pickle
+from matplotlib.externals import six
+from matplotlib.externals.six.moves import cPickle as pickle
 
 """
 KNOWN ISSUES
@@ -180,7 +180,7 @@ def win32FontDirectory():
     If the key is not found, $WINDIR/Fonts will be returned.
     """
     try:
-        from six.moves import winreg
+        from matplotlib.externals.six.moves import winreg
     except ImportError:
         pass # Fall through to default
     else:
@@ -205,7 +205,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
     'afm'.
     """
 
-    from six.moves import winreg
+    from matplotlib.externals.six.moves import winreg
     if directory is None:
         directory = win32FontDirectory()
 

@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
+from matplotlib.externals import six
 import nose.tools
 from nose.tools import assert_raises
 from numpy.testing import assert_almost_equal

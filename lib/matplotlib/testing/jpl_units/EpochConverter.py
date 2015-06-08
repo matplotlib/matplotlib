@@ -13,7 +13,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
+from matplotlib.externals import six
 
 import matplotlib.units as units
 import matplotlib.dates as date_ticker

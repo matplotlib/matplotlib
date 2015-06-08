@@ -45,7 +45,7 @@ datetime objects::
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
+from matplotlib.externals import six
 
 from matplotlib.cbook import iterable, is_numlike
 import numpy as np

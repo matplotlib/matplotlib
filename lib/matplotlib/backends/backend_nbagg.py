@@ -8,7 +8,7 @@ from contextlib import contextmanager
 import json
 import io
 import os
-import six
+from matplotlib.externals import six
 from uuid import uuid4 as uuid
 
 import tornado.ioloop

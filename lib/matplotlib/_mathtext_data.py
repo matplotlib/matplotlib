@@ -6,7 +6,7 @@ font data tables for truetype and afm computer modern fonts
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
+from matplotlib.externals import six
 
 """
 from matplotlib.ft2font import FT2Font
