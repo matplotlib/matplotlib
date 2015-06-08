@@ -164,13 +164,16 @@ def test_Normalize():
     _mask_tester(norm, vals)
 
 
-class _base_NormMixin(object):
+class BaseNormMixin(object):
     def test_call(self):
         normed_vals = self.norm(self.vals)
         assert_array_almost_equal(normed_vals, self.expected)
 
     def test_inverse(self):
-        _inverse_tester(self.norm, self.vals)
+        if self.test_inverse:
+            _inverse_tester(self.norm, self.vals)
+        else:
+            pass
 
     def test_scalar(self):
         _scalar_tester(self.norm, self.vals)
@@ -224,15 +227,18 @@ class _base_NormMixin(object):
         assert_array_equal(res, np.array([5., 10.]))
 
 
-class test_OffsetNorm_Even(_base_NormMixin):
+class BaseOffsetNorm(BaseNormMixin):
+    normclass = mcolors.OffsetNorm
+    test_inverse = False
+
+class test_OffsetNorm_Even(BaseOffsetNorm):
     def setup(self):
-        self.normclass = mcolors.OffsetNorm
         self.norm = self.normclass(vmin=-1, vcenter=0, vmax=4)
         self.vals = np.array([-1.0, -0.5, 0.0, 1.0, 2.0, 3.0, 4.0])
         self.expected = np.array([0.0, 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
 
 
-class test_OffsetNorm_Odd(_base_NormMixin):
+class test_OffsetNorm_Odd(BaseOffsetNorm):
     def setup(self):
         self.normclass = mcolors.OffsetNorm
         self.norm = self.normclass(vmin=-2, vcenter=0, vmax=5)
@@ -240,7 +246,7 @@ class test_OffsetNorm_Odd(_base_NormMixin):
         self.expected = np.array([0.0, 0.25, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
 
 
-class test_OffsetNorm_AllNegative(_base_NormMixin):
+class test_OffsetNorm_AllNegative(BaseOffsetNorm):
     def setup(self):
         self.normclass = mcolors.OffsetNorm
         self.norm = self.normclass(vmin=-10, vcenter=-8, vmax=-2)
@@ -248,7 +254,7 @@ class test_OffsetNorm_AllNegative(_base_NormMixin):
         self.expected = np.array([0.0, 0.25, 0.5, 0.666667, 0.833333, 1.0])
 
 
-class test_OffsetNorm_AllPositive(_base_NormMixin):
+class test_OffsetNorm_AllPositive(BaseOffsetNorm):
     def setup(self):
         self.normclass = mcolors.OffsetNorm
         self.norm = self.normclass(vmin=0, vcenter=3, vmax=9)
@@ -256,7 +262,7 @@ class test_OffsetNorm_AllPositive(_base_NormMixin):
         self.expected = np.array([0.0, 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
 
 
-class test_OffsetNorm_NoVs(_base_NormMixin):
+class test_OffsetNorm_NoVs(BaseOffsetNorm):
     def setup(self):
         self.normclass = mcolors.OffsetNorm
         self.norm = self.normclass(vmin=None, vcenter=None, vmax=None)
@@ -283,7 +289,7 @@ class test_OffsetNorm_NoVs(_base_NormMixin):
         assert_equal(self.norm.vmax, self.expected_vmax)
 
 
-class test_OffsetNorm_VminEqualsVcenter(_base_NormMixin):
+class test_OffsetNorm_VminEqualsVcenter(BaseOffsetNorm):
     def setup(self):
         self.normclass = mcolors.OffsetNorm
         self.norm = self.normclass(vmin=-2, vcenter=-2, vmax=2)
@@ -291,7 +297,7 @@ class test_OffsetNorm_VminEqualsVcenter(_base_NormMixin):
         self.expected = np.array([0.5, 0.625, 0.75, 0.875, 1.0])
 
 
-class test_OffsetNorm_VmaxEqualsVcenter(_base_NormMixin):
+class test_OffsetNorm_VmaxEqualsVcenter(BaseOffsetNorm):
     def setup(self):
         self.normclass = mcolors.OffsetNorm
         self.norm = self.normclass(vmin=-2, vcenter=2, vmax=2)
@@ -299,7 +305,7 @@ class test_OffsetNorm_VmaxEqualsVcenter(_base_NormMixin):
         self.expected = np.array([0.0, 0.125, 0.25, 0.375, 0.5])
 
 
-class test_OffsetNorm_VsAllEqual(_base_NormMixin):
+class test_OffsetNorm_VsAllEqual(BaseOffsetNorm):
     def setup(self):
         self.v = 10
         self.normclass = mcolors.OffsetNorm
