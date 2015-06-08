@@ -4,6 +4,16 @@
 Customizing matplotlib
 **********************
 
+Using style sheets
+==================
+
+Style sheets provide a means for more specific and/or temporary configuration
+modifications, but in a  repeatable and well-ordered manner. A style sheet is a
+file with the same syntax as the :file:`matplotlibrc` file, and when applied, it
+will override the :file:`matplotlibrc`.
+
+For more information and examples, see :ref:`style-sheets`.
+
 .. _customizing-with-dynamic-rc-settings:
 
 Dynamic rc settings
