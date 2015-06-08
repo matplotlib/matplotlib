@@ -507,8 +507,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     if figManager is None:
         max_open_warning = rcParams['figure.max_open_warning']
 
-        if (max_open_warning >= 1 and
-            len(allnums) >= max_open_warning):
+        if (max_open_warning >= 1 and len(allnums) >= max_open_warning):
             warnings.warn(
                 "More than %d figures have been opened. Figures "
                 "created through the pyplot interface "
