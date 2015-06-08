@@ -18,7 +18,7 @@ X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
 # z/colour axis on a log scale so we see both hump and spike.  linear
 # scale only shows the spike.
 Z1 = bivariate_normal(X, Y, 0.1, 0.2, 1.0, 1.0) +  \
-     0.1 * bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
+    0.1 * bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
 
 fig, ax = plt.subplots(2, 1)
 
@@ -37,7 +37,7 @@ PowerNorm: Here a power-law trend in X partially obscures a rectified
 sine wave in Y. We can remove the power law using a PowerNorm.
 '''
 X, Y = np.mgrid[0:3:complex(0, N), 0:2:complex(0, N)]
-Z1 = (1+np.sin(Y*10.))*X**(2.)
+Z1 = (1 + np.sin(Y * 10.)) * X**(2.)
 
 fig, ax = plt.subplots(2, 1)
 
@@ -60,7 +60,7 @@ Note that colorbar labels do not come out looking very good.
 
 X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
 Z1 = (bivariate_normal(X, Y, 1., 1., 1.0, 1.0))**2  \
-      - 0.4 * (bivariate_normal(X, Y, 1.0, 1.0, -1.0, 0.0))**2
+    - 0.4 * (bivariate_normal(X, Y, 1.0, 1.0, -1.0, 0.0))**2
 Z1 = Z1/0.03
 
 fig, ax = plt.subplots(2, 1)
@@ -83,7 +83,7 @@ from the positive.
 '''
 X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
 Z1 = (bivariate_normal(X, Y, 1., 1., 1.0, 1.0))**2  \
-      - 0.4 * (bivariate_normal(X, Y, 1.0, 1.0, -1.0, 0.0))**2
+    - 0.4 * (bivariate_normal(X, Y, 1.0, 1.0, -1.0, 0.0))**2
 Z1 = Z1/0.03
 
 # Example of making your own norm.  Also see matplotlib.colors.
