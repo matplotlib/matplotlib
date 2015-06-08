@@ -140,6 +140,15 @@ natgrid toolkit from the sourceforge `download
 page.
 
 
+.. _toolkit_matplotlibvenn:
+
+Matplotlib-Venn
+===============
+(*Not distributed with matplotlib*)
+
+`Matplotlib-Venn <https://github.com/konstantint/matplotlib-venn>`_ provides a set of functions for plotting 2- and 3-set area-weighted (or unweighted) Venn diagrams.
+
+
 .. _hl_plotting:
 
 High-Level Plotting
