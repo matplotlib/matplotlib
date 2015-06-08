@@ -276,7 +276,8 @@ def pause(interval):
         figManager = _pylab_helpers.Gcf.get_active()
         if figManager is not None:
             canvas = figManager.canvas
-            canvas.draw()
+            if canvas.figure.stale:
+                canvas.draw()
             show(block=False)
             canvas.start_event_loop(interval)
             return
