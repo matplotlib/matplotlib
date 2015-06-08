@@ -108,9 +108,8 @@ _backend_selection()
 from matplotlib.backends import pylab_setup
 _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
-_BASE_DH = None
 _IP_REGISTERED = None
-
+_INSTALL_FIG_OBSERVER = False
 
 def install_repl_displayhook():
     """
@@ -119,8 +118,8 @@ def install_repl_displayhook():
 
     This works with both IPython terminals and vanilla python shells.
     """
-    global _BASE_DH
     global _IP_REGISTERED
+    global _INSTALL_FIG_OBSERVER
 
     class _NotIPython(Exception):
         pass
@@ -148,21 +147,11 @@ def install_repl_displayhook():
             ip.register_post_execute(post_execute)
 
         _IP_REGISTERED = post_execute
+        _INSTALL_FIG_OBSERVER = False
 
     # import failed or ipython is not running
     except (ImportError, _NotIPython):
-
-        if _BASE_DH is not None:
-            return
-
-        dh = _BASE_DH = sys.displayhook
-
-        def displayhook(*args):
-            dh(*args)
-            if matplotlib.is_interactive():
-                draw_all()
-
-        sys.displayhook = displayhook
+        _INSTALL_FIG_OBSERVER = True
 
 
 def uninstall_repl_displayhook():
@@ -181,8 +170,8 @@ def uninstall_repl_displayhook():
        function was there when matplotlib installed it's displayhook,
        possibly discarding your changes.
     """
-    global _BASE_DH
     global _IP_REGISTERED
+    global _INSTALL_FIG_OBSERVER
     if _IP_REGISTERED:
         from IPython import get_ipython
         ip = get_ipython()
@@ -193,9 +182,8 @@ def uninstall_repl_displayhook():
                                       "in IPython < 2.0")
         _IP_REGISTERED = None
 
-    if _BASE_DH:
-        sys.displayhook = _BASE_DH
-        _BASE_DH = None
+    if _INSTALL_FIG_OBSERVER:
+        _INSTALL_FIG_OBSERVER = False
 
 
 draw_all = _pylab_helpers.Gcf.draw_all
@@ -541,6 +529,11 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
         _pylab_helpers.Gcf.set_active(figManager)
         figManager.canvas.figure.number = num
+        if _INSTALL_FIG_OBSERVER:
+            def auto_draw(fig):
+                if fig.stale and matplotlib.is_interactive():
+                    fig.canvas.draw_idle()
+            figManager.canvas.figure.add_callback(auto_draw)
 
     return figManager.canvas.figure
 
