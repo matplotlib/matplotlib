@@ -1034,10 +1034,8 @@ class OffsetNorm(Normalize):
                                   mask=mask)
 
             x, y = [vmin, vcenter, vmax], [0, 0.5, 1]
+            # returns a scalar if shape == (1,)
             result = np.ma.masked_array(np.interp(value, x, y))
-
-        if is_scalar:
-            result = result[0]
 
         return result
 
