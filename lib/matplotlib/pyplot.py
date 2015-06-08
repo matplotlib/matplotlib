@@ -136,18 +136,18 @@ def install_repl_displayhook():
         if _IP_REGISTERED:
             return
 
-        def displayhook():
+        def post_execute():
             if matplotlib.is_interactive():
                 draw_all()
 
         # IPython >= 2
         try:
-            ip.events.register('post_execute', displayhook)
+            ip.events.register('post_execute', post_execute)
         except AttributeError:
             # IPython 1.x
-            ip.register_post_execute(displayhook)
+            ip.register_post_execute(post_execute)
 
-        _IP_REGISTERED = displayhook
+        _IP_REGISTERED = post_execute
 
     # import failed or ipython is not running
     except (ImportError, _NotIPython):
