@@ -4,6 +4,43 @@
 Customizing matplotlib
 **********************
 
+Using style sheets
+==================
+
+Style sheets provide a means for more specific and/or temporary configuration
+modifications, but in a  repeatable and well-ordered manner. A style sheet is a
+file with the same syntax as the :file:`matplotlibrc` file, and when applied, it
+will override the :file:`matplotlibrc`.
+
+For more information and examples, see :ref:`style-sheets`.
+
+.. _customizing-with-dynamic-rc-settings:
+
+Dynamic rc settings
+===================
+
+You can also dynamically change the default rc settings in a python script or
+interactively from the python shell. All of the rc settings are stored in a
+dictionary-like variable called :data:`matplotlib.rcParams`, which is global to
+the matplotlib package. rcParams can be modified directly, for example::
+
+    import matplotlib as mpl
+    mpl.rcParams['lines.linewidth'] = 2
+    mpl.rcParams['lines.color'] = 'r'
+
+Matplotlib also provides a couple of convenience functions for modifying rc
+settings. The :func:`matplotlib.rc` command can be used to modify multiple
+settings in a single group at once, using keyword arguments::
+
+    import matplotlib as mpl
+    mpl.rc('lines', linewidth=2, color='r')
+
+The :func:`matplotlib.rcdefaults` command will restore the standard matplotlib
+default settings.
+
+There is some degree of validation when setting the values of rcParams, see
+:mod:`matplotlib.rcsetup` for details.
+
 .. _customizing-with-matplotlibrc-files:
 
 The :file:`matplotlibrc` file
@@ -45,34 +82,6 @@ loaded from, one can do the following::
   '/home/foo/.config/matplotlib/matplotlibrc'
 
 See below for a sample :ref:`matplotlibrc file<matplotlibrc-sample>`.
-
-.. _customizing-with-dynamic-rc-settings:
-
-Dynamic rc settings
-===================
-
-You can also dynamically change the default rc settings in a python script or
-interactively from the python shell. All of the rc settings are stored in a
-dictionary-like variable called :data:`matplotlib.rcParams`, which is global to
-the matplotlib package. rcParams can be modified directly, for example::
-
-    import matplotlib as mpl
-    mpl.rcParams['lines.linewidth'] = 2
-    mpl.rcParams['lines.color'] = 'r'
-
-Matplotlib also provides a couple of convenience functions for modifying rc
-settings. The :func:`matplotlib.rc` command can be used to modify multiple
-settings in a single group at once, using keyword arguments::
-
-    import matplotlib as mpl
-    mpl.rc('lines', linewidth=2, color='r')
-
-The :func:`matplotlib.rcdefaults` command will restore the standard matplotlib
-default settings.
-
-There is some degree of validation when setting the values of rcParams, see
-:mod:`matplotlib.rcsetup` for details.
-
 
 .. _matplotlibrc-sample:
 
