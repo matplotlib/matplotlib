@@ -75,6 +75,13 @@ directive - ``close-figs`` - that closes any previous figure windows before
 creating the plots.  This can help avoid some surprising duplicates of plots
 when using ``plot_directive``.
 
+Support for URL string arguments to ``imread``
+----------------------------------------------
+
+The ``imread`` function now accepts URL strings that point to remote PNG
+files. This circumvents the generation of a HTTPResponse object directly.
+
+
 .. _whats-new-1-4:
 
 new in matplotlib-1.4
