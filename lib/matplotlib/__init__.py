@@ -974,7 +974,9 @@ def _open_file_or_url(fname):
         yield _url_lines(f)
         f.close()
     else:
-        with io.open(fname, encoding=locale.getdefaultlocale()[1]) as f:
+        fname = os.path.expanduser(fname)
+        encoding = locale.getdefaultlocale()[1]
+        with io.open(fname, encoding=encoding) as f:
             yield f
 
 
