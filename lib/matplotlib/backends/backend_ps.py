@@ -49,12 +49,12 @@ try:
 except NameError:
     from sets import Set as set
 
-if sys.platform.startswith('win'): cmd_split = '&'
-else: cmd_split = ';'
-
 backend_version = 'Level II'
 
 debugPS = 0
+
+__all__ = list(map(str, ['backend_version', 'new_figure_manager', 'RendererPS',
+                         'FigureCanvasPS', 'FigureManagerPS', 'FigureCanvas']))
 
 
 class PsBackendHelper(object):

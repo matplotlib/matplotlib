@@ -45,6 +45,10 @@ from matplotlib import cbook
 from matplotlib import verbose
 from matplotlib import rcParams
 
+__all__ = list(map(str, ['backend_version', 'show', 'draw_if_interactive',
+                         'FigureCanvasGTK3', 'FigureManagerGTK3',
+                         'FigureCanvas']))
+
 backend_version = "%s.%s.%s" % (Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
 
 _debug = False

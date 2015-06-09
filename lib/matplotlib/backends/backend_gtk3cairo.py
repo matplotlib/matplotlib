@@ -8,6 +8,10 @@ from . import backend_cairo
 from .backend_cairo import cairo, HAS_CAIRO_CFFI
 from matplotlib.figure import Figure
 
+__all__ = list(map(str, ['new_figure_manager', 'show', 'RendererGTK3Cairo',
+                         'FigureCanvasGTK3Cairo', 'FigureManagerGTK3Cairo',
+                         'FigureCanvas']))
+
 class RendererGTK3Cairo(backend_cairo.RendererCairo):
     def set_context(self, ctx):
         if HAS_CAIRO_CFFI:

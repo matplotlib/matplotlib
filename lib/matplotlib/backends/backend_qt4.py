@@ -40,6 +40,10 @@ from .backend_qt5 import (backend_version, SPECIAL_KEYS, SUPER, ALT, CTRL,
 
 from .backend_qt5 import FigureCanvasQT as FigureCanvasQT5
 
+__all__ = list(map(str, ['backend_version', 'new_figure_manager', 'show',
+                         'draw_if_interactive', 'FigureCanvasQT',
+                         'FigureManagerQT', 'FigureCanvas']))
+
 DEBUG = False
 
 

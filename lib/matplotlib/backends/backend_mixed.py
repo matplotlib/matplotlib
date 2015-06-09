@@ -7,6 +7,7 @@ from matplotlib._image import frombuffer
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.tight_bbox import process_figure_for_rasterizing
 
+__all__ = [str('MixedModeRenderer')]
 
 class MixedModeRenderer(object):
     """

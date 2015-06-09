@@ -29,6 +29,8 @@ from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.compat import subprocess
 from matplotlib.compat.subprocess import check_output
 
+__all__ = list(map(str, ['new_figure_manager', 'FigureCanvasPgf',
+                         'FigureManagerPgf', 'FigureCanvas']))
 
 ###############################################################################
 
@@ -720,10 +722,6 @@ class GraphicsContextPgf(GraphicsContextBase):
     pass
 
 ########################################################################
-
-
-def draw_if_interactive():
-    pass
 
 
 def new_figure_manager(num, *args, **kwargs):

@@ -28,6 +28,10 @@ from .backend_qt4 import draw_if_interactive
 from .backend_qt4 import backend_version
 ######
 
+__all__ = list(map(str, ['backend_version', 'new_figure_manager', 'show',
+                         'draw_if_interactive', 'FigureCanvasQTAgg',
+                         'FigureManagerQT', 'FigureCanvas']))
+
 DEBUG = False
 
 _decref = ctypes.pythonapi.Py_DecRef

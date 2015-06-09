@@ -48,6 +48,9 @@ try:
 except ImportError:
     _has_pil = False
 
+__all__ = list(map(str, ['backend_version', 'new_figure_manager',
+                         'RendererAgg', 'FigureCanvasAgg', 'FigureCanvas']))
+
 backend_version = 'v2.2'
 
 def get_hinting_flag():

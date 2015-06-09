@@ -41,6 +41,9 @@ from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
 from .backend_nbagg import TimerTornado
 
+__all__ = list(map(str, ['new_figure_manager', 'show', 'draw_if_interactive',
+                         'FigureCanvasWebAgg', 'FigureCanvas']))
+
 
 def new_figure_manager(num, *args, **kwargs):
     """

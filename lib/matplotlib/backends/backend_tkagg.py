@@ -32,6 +32,10 @@ from matplotlib.widgets import SubplotTool
 
 import matplotlib.cbook as cbook
 
+__all__ = list(map(str, ['backend_version', 'new_figure_manager', 'show',
+                         'draw_if_interactive', 'FigureCanvasTkAgg',
+                         'FigureManagerTkAgg', 'FigureCanvas']))
+
 rcParams = matplotlib.rcParams
 verbose = matplotlib.verbose
 
