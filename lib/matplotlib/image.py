@@ -7,6 +7,9 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
+from six.moves.urllib.parse import urlparse
+from six.moves.urllib.request import urlopen
+from six import BytesIO
 
 import os
 import warnings
@@ -1230,8 +1233,9 @@ def imread(fname, format=None):
     """
     Read an image from a file into an array.
 
-    *fname* may be a string path or a Python file-like object.  If
-    using a file object, it must be opened in binary mode.
+    *fname* may be a string path, a valid URL, or a Python
+    file-like object.  If using a file object, it must be opened in binary
+    mode.
 
     If *format* is provided, will try to read file of that type,
     otherwise the format is deduced from the filename.  If nothing can
@@ -1244,7 +1248,9 @@ def imread(fname, format=None):
     matplotlib can only read PNGs natively, but if `PIL
     <http://www.pythonware.com/products/pil/>`_ is installed, it will
     use it to load the image and return an array (if possible) which
-    can be used with :func:`~matplotlib.pyplot.imshow`.
+    can be used with :func:`~matplotlib.pyplot.imshow`. Note, URL strings
+    may not be compatible with PIL. Check the PIL documentation for more
+    information.
     """
 
     def pilread(fname):
@@ -1253,20 +1259,19 @@ def imread(fname, format=None):
             from PIL import Image
         except ImportError:
             return None
-        if cbook.is_string_like(fname):
-            # force close the file after reading the image
-            with open(fname, "rb") as fh:
-                image = Image.open(fh)
-                return pil_to_array(image)
-        else:
-            image = Image.open(fname)
-            return pil_to_array(image)
+        image = Image.open(fname)
+        return pil_to_array(image)
 
     handlers = {'png': _png.read_png, }
     if format is None:
         if cbook.is_string_like(fname):
-            basename, ext = os.path.splitext(fname)
-            ext = ext.lower()[1:]
+            parsed = urlparse(fname)
+            # If the string is a URL, assume png
+            if parsed.scheme != '':
+                ext = 'png'
+            else:
+                basename, ext = os.path.splitext(fname)
+                ext = ext.lower()[1:]
         elif hasattr(fname, 'name'):
             basename, ext = os.path.splitext(fname.name)
             ext = ext.lower()[1:]
@@ -1289,8 +1294,14 @@ def imread(fname, format=None):
     # reader extension, since Python handles them quite well, but it's
     # tricky in C.
     if cbook.is_string_like(fname):
-        with open(fname, 'rb') as fd:
+        parsed = urlparse(fname)
+        # If fname is a URL, download the data
+        if parsed.scheme != '':
+            fd = BytesIO(urlopen(fname).read())
             return handler(fd)
+        else:
+            with open(fname, 'rb') as fd:
+                return handler(fd)
     else:
         return handler(fname)
 
