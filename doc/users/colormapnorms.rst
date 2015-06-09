@@ -66,7 +66,7 @@ Power-law
 Sometimes it is useful to remap the colors onto a power-law
 relationship (i.e. :math:`y=x^{\gamma}`, where :math:`\gamma` is the
 power).  For this we use the :func:`colors.PowerNorm`.  It takes as an
-argument *gamma* ( *gamma*==1.0 will just yield the defalut linear
+argument *gamma* ( *gamma* == 1.0 will just yield the defalut linear
 normalization):
 
 .. note::
@@ -83,7 +83,7 @@ normalization):
 
 
 Custom normalization: Two linear ranges
---------------------------------------
+-----------------------------------------
 
 It is possible to define your own normalization, as shown in the
 example below.  This example is plotting the same data as the
