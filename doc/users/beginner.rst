@@ -21,6 +21,7 @@ Beginner's Guide
     annotations_guide.rst
     screenshots.rst
     colormaps.rst
+    colormapnorms.rst
 
 
 
