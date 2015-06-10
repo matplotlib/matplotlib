@@ -149,10 +149,10 @@ def test_long_path():
     buff = io.BytesIO()
 
     fig, ax = plt.subplots()
-    with np.random.seed(0):
-        points = np.random.rand(70000)
-        ax.plot(points)
-        fig.savefig(buff, format='png')
+    np.random.seed(0)
+    points = np.random.rand(70000)
+    ax.plot(points)
+    fig.savefig(buff, format='png')
 
 
 if __name__ == "__main__":
