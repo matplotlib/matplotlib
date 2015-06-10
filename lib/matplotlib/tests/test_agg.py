@@ -144,6 +144,17 @@ def test_marker_with_nan():
     fig.savefig(buf, format='png')
 
 
+@cleanup
+def test_long_path():
+    buff = io.BytesIO()
+
+    fig, ax = plt.subplots()
+    with np.random.seed(0):
+        points = np.random.rand(70000)
+        ax.plot(points)
+        fig.savefig(buff, format='png')
+
+
 if __name__ == "__main__":
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
