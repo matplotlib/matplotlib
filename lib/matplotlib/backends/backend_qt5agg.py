@@ -23,7 +23,7 @@ from .backend_qt5 import show
 from .backend_qt5 import draw_if_interactive
 from .backend_qt5 import backend_version
 ######
-
+from .qt_compat import QT_API
 
 DEBUG = False
 
@@ -127,7 +127,8 @@ class FigureCanvasQTAggBase(object):
                                   QtGui.QImage.Format_ARGB32)
             # Adjust the stringBuffer reference count to work around a memory
             # leak bug in QImage() under PySide on Python 3.x
-            ctypes.c_long.from_address(id(stringBuffer)).value = 1
+            if QT_API == 'PySide' and six.PY3:
+                ctypes.c_long.from_address(id(stringBuffer)).value = 1
 
             pixmap = QtGui.QPixmap.fromImage(qImage)
             p = QtGui.QPainter(self)
