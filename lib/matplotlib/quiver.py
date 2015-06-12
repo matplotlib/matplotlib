@@ -243,7 +243,7 @@ class QuiverKey(martist.Artist):
         self.color = kw.pop('color', None)
         self.label = label
         self._labelsep_inches = kw.pop('labelsep', 0.1)
-        self._vswap = kw.pop('vswap',False)
+        self._vswap = kw.pop('vswap', False)
         vswap = {True: 'vertical', False: 0}
         self.labelsep = (self._labelsep_inches * Q.ax.figure.dpi)
 
@@ -303,7 +303,7 @@ class QuiverKey(martist.Artist):
             self.Q.Umask = ma.nomask
             if self._vswap:
                 self.verts = self.Q._make_verts(np.zeros((1,)),
-                                                array([self.U]))
+                                                np.array([self.U]))
             else:
                 self.verts = self.Q._make_verts(np.array([self.U]),
                                                 np.zeros((1,)))
