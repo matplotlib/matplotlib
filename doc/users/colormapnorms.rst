@@ -4,21 +4,22 @@ Colormap Normaliztions
 ================================
 
 Objects that use colormaps usually linearly map the colors in the
-colormap from data values ``vmin`` to ``vmax``.  For example::
+colormap from data values *vmin* to *vmax*.  For example::
 
     pcm = ax.pcolormesh(x, y, Z, vmin=-1., vmax=1., cmap='RdBu_r')
 
-will map the data in *Z* linearly from `-1` to `+1`, so *Z=0* will
+will map the data in *Z* linearly from -1 to +1, so *Z=0* will
 give a color at the center of the colormap *RdBu_r* (white in this
 case).  
 
-Normalizations are defined as part of :func:`matplotlib.colors`
-module.  The default normalization is
+Matplotlib does this mapping in two steps, with a normalization from
+[0,1] occuring first, and then mapping onto the indices in the
+colormap. Normalizations are defined as part of
+:func:`matplotlib.colors` module.  The default normalization is
 :func:`matplotlib.colors.Normalize`.  The artists that map data to
-color pass the arguments ``vmin`` and ``vmax`` to
-:func:`matplotlib.colors.Normalize`. We can
-substnatiate the normalization and see what it returns.  In this case
-it returns 0.5::
+color pass the arguments *vmin* and *vmax* to
+:func:`matplotlib.colors.Normalize`. We can substnatiate the
+normalization and see what it returns.  In this case it returns 0.5::
 
     norm = mpl.colors.Normalize(vmin=-1., vmax=1.)
     norm(0.)
@@ -32,10 +33,10 @@ Logarithmic
 One of the most common transformations is to plot data by taking its
 logarithm (to the base-10).  This transofrmation is useful when there
 are changes across disparate scales that we still want to be able to
-see.  Using :func:`colors.LogNorm` normalizes the data by :math:`log_{10}`.  In
-the example below, there are two bumps, one much smaller than the
-other. Using :func:`colors.LogNorm`, the shape and location of each
-bump can clearly be seen:
+see.  Using :func:`colors.LogNorm` normalizes the data by
+:math:`log_{10}`.  In the example below, there are two bumps, one much
+smaller than the other. Using :func:`colors.LogNorm`, the shape and
+location of each bump can clearly be seen:
 
 .. plot:: users/plotting/examples/colormap_normalizations_lognorm.py
    :include-source:
@@ -46,8 +47,9 @@ Symetric logarithmic
 Similarly, it sometimes happens that there is data that is positive
 and negative, but we would still like a logarithmic scaling applied to
 both.  In this case, the negative numbers are also scaled
-logarithmically, and mapped to small numbers.  i.e. If `vmin=-vmax`, then
-they the negative numbers are mapped from 0 to 0.5.  
+logarithmically, and mapped to small numbers.  i.e. If `vmin=-vmax`,
+then they the negative numbers are mapped from 0 to 0.5 and the
+positive from 0.5 to 1.
 
 Since the values close to zero tend toward infinity, there is a need
 to have a range around zero that is linear.  The parameter *linthresh*
@@ -74,7 +76,7 @@ normalization):
    There should probably be a good reason for plotting the data using
    this type of transformation.  Technical viewers are used to linear
    and logarithmic axes and data transformations.  Power laws are less
-   common, and readers should explictly be made aware that they have
+   common, and viewers should explictly be made aware that they have
    been used.
 
 
@@ -85,17 +87,18 @@ normalization):
 Custom normalization: Two linear ranges
 -----------------------------------------
 
-It is possible to define your own normalization, as shown in the
-example below.  This example is plotting the same data as the
-:func:`colors:SymLogNorm` example, but this time a different linear
-map is used for the negative number than the positive.  (Note that
-this example is simple, and does not account for the edge cases like
-masked data or invalid values of *vmin* and *vmax*)
+It is possible to define your own normalization.  This example
+plots the same data as the :func:`colors:SymLogNorm` example, but
+a different linear map is used for the negative data values than
+the positive.  (Note that this example is simple, and does not account
+for the edge cases like masked data or invalid values of *vmin* and
+*vmax*)
 
 .. note::
+   This may appear soon as :func:`colors.OffsetNorm`
 
    As above, non-symetric mapping of data to color is non-standard
-   practice, and should be used advisedly.  
+   practice, and should only be used advisedly.  
 
 .. plot:: users/plotting/examples/colormap_normalizations_custom.py
    :include-source:
@@ -111,10 +114,10 @@ instance, if ::
     
   bounds = np.array([-0.25, -0.125, 0, 0.5, 1])
   norm = colors.BoundaryNorm(boundaries=bounds, ncolors=4)
-  print norm([-0.2,-0.15,-0.02,0.3, 0.8, 0.99])
+  print norm([-0.2,-0.15,-0.02, 0.3, 0.8, 0.99])
   
 This returns: [0, 0, 1, 2, 3, 3].  Note unlike the other norms, this
-one returns values from 0 to *ncolors*-1.  
+norm returns values from 0 to *ncolors*-1.  
 
 
 .. plot:: users/plotting/examples/colormap_normalizations_bounds.py
