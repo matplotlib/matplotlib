@@ -3,7 +3,7 @@
 Colormap Normaliztions 
 ================================
 
-Objects that use colormaps usually linearly map the colors in the
+Objects that use colormaps by default linearly map the colors in the
 colormap from data values *vmin* to *vmax*.  For example::
 
     pcm = ax.pcolormesh(x, y, Z, vmin=-1., vmax=1., cmap='RdBu_r')
@@ -19,10 +19,16 @@ colormap. Normalizations are defined as part of
 :func:`matplotlib.colors.Normalize`.  The artists that map data to
 color pass the arguments *vmin* and *vmax* to
 :func:`matplotlib.colors.Normalize`. We can substnatiate the
-normalization and see what it returns.  In this case it returns 0.5::
+normalization and see what it returns.  In this case it returns 0.5:
 
-    norm = mpl.colors.Normalize(vmin=-1., vmax=1.)
-    norm(0.)
+.. ipython::
+
+   In [1]: import matplotlib as mpl
+   
+   In [2]: norm=mpl.colors.Normalize(vmin=-1.,vmax=1.)
+   	
+   In [3]: norm(0.)
+   Out[3]: 0.5
 
 However, there are sometimes cases where it is useful to map data to
 colormaps in a non-linear fashion. 
