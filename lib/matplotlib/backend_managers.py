@@ -173,6 +173,10 @@ class FigureManager(cbook.EventEmitter):
         """
         self.window.set_window_title(title)
 
+    @property
+    def backend(self):
+        return self._backend
+
     def _get_toolbar(self):
         # must be inited after the window, drawingArea and figure
         # attrs are set
