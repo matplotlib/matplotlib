@@ -110,30 +110,31 @@ plt.plot([2, 3, 4], gid='unknown')
 plt.plot([3, 2, 1], gid='mygroup')
 
 # Add the custom tools that we created
-tool_mgr = fig.canvas.manager.toolmanager
+manager = fig.canvas.manager
+tool_mgr = manager.toolmanager
 tool_mgr.add_tool('List', ListTools)
 tool_mgr.add_tool('Hide', GroupHideTool, gid='mygroup')
 
 
 # Add an existing tool to new group `foo`.
 # It can be added as many times as we want
-fig.canvas.manager.toolbar.add_tool('zoom', 'foo')
+manager.toolbar.add_tool('zoom', 'foo')
 
 # Remove the forward button
 tool_mgr.remove_tool('forward')
 
 # To add a custom tool to the toolbar at specific location inside
 # the navigation group
-fig.canvas.manager.toolbar.add_tool('Show', 'navigation', 1)
+manager.toolbar.add_tool('Hide', 'navigation', 1)
 
 for i, c in enumerate(['yellowgreen', 'forestgreen']):
-    sidebar = fig.canvas.manager._get_toolbar()
+    sidebar = manager.backend.Toolbar(manager)
     sidebar.set_flow('vertical')
     tools = [['shapes', [tool_mgr.add_tool('L%s' % i, LineTool, color=c),
                          tool_mgr.add_tool('D%s' % i, DotTool, color=c)]],
              ['hide', [tool_mgr.add_tool('H%s' % i, GroupHideTool, gid=c)]]]
 
-    fig.canvas.manager.window.add_element(sidebar, False, 'west')
+    manager.window.add_element(sidebar, False, 'west')
     add_tools_to_container(sidebar, tools)
 
 plt.show()
