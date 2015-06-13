@@ -128,7 +128,7 @@ tool_mgr.remove_tool('forward')
 manager.toolbar.add_tool('Hide', 'navigation', 1)
 
 for i, c in enumerate(['yellowgreen', 'forestgreen']):
-    sidebar = manager.backend.Toolbar(manager)
+    sidebar = manager.backend.Toolbar(tool_mgr)
     sidebar.set_flow('vertical')
     tools = [['shapes', [tool_mgr.add_tool('L%s' % i, LineTool, color=c),
                          tool_mgr.add_tool('D%s' % i, DotTool, color=c)]],
