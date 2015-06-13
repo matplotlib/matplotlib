@@ -90,7 +90,7 @@ class FigureManager(cbook.EventEmitter):
 
         self.window.add_element(self.canvas, True, 'center')
 
-        self.toolmanager = self._get_toolmanager()
+        self.toolmanager = ToolManager(self.canvas.figure)
         self.toolbar = self._get_toolbar()
 
         if self.toolmanager:
@@ -182,19 +182,9 @@ class FigureManager(cbook.EventEmitter):
         # attrs are set
         if rcParams['toolbar'] == 'toolmanager':
             toolbar = self._backend.Toolbar(self.toolmanager)
-        elif rcParams['toolbar'] == 'toolbar2':
-            toolbar = self._backend.Toolbar2(self.canvas, self.window)
         else:
             toolbar = None
         return toolbar
-
-    def _get_toolmanager(self):
-        # must be initialised after toolbar has been setted
-        if rcParams['toolbar'] != 'toolbar2':
-            toolmanager = ToolManager(self.canvas.figure)
-        else:
-            toolmanager = None
-        return toolmanager
 
     def show_popup(self, msg):
         """
