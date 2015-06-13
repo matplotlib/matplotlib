@@ -29,6 +29,7 @@ import matplotlib.spines as mspines
 import matplotlib.font_manager as font_manager
 import matplotlib.text as mtext
 import matplotlib.image as mimage
+from matplotlib.offsetbox import OffsetBox
 from matplotlib.artist import allow_rasterization
 from matplotlib.cbook import iterable
 
@@ -3305,6 +3306,10 @@ class _AxesBase(martist.Artist):
         bb_yaxis = self.yaxis.get_tightbbox(renderer)
         if bb_yaxis:
             bb.append(bb_yaxis)
+
+        for child in self.get_children():
+            if isinstance(child, OffsetBox) and child.get_visible():
+                bb.append(child.get_window_extent(renderer))
 
         _bbox = mtransforms.Bbox.union(
             [b for b in bb if b.width != 0 or b.height != 0])
