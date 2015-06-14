@@ -9,10 +9,12 @@ import os.path
 import difflib
 import hashlib
 
+
 def sha1(data):
     hash = hashlib.sha1()
     hash.update(data)
     return hash.hexdigest()
+
 
 def test_Type1Font():
     filename = os.path.join(os.path.dirname(__file__), 'cmr10.pfb')
@@ -30,24 +32,24 @@ def test_Type1Font():
     diff = set(differ.compare(font.parts[0].splitlines(),
                               slanted.parts[0].splitlines()))
     for line in (
-            # Removes UniqueID
-            '- FontDirectory/CMR10 known{/CMR10 findfont dup/UniqueID known{dup',
-            '+ FontDirectory/CMR10 known{/CMR10 findfont dup',
-            # Alters FontMatrix
-            '- /FontMatrix [0.001 0 0 0.001 0 0 ]readonly def',
-            '+ /FontMatrix [0.001 0.0 0.001 0.001 0.0 0.0]readonly def',
-            # Alters ItalicAngle
-            '-  /ItalicAngle 0 def',
-            '+  /ItalicAngle -45.0 def'):
+         # Removes UniqueID
+         '- FontDirectory/CMR10 known{/CMR10 findfont dup/UniqueID known{dup',
+         '+ FontDirectory/CMR10 known{/CMR10 findfont dup',
+         # Alters FontMatrix
+         '- /FontMatrix [0.001 0 0 0.001 0 0 ]readonly def',
+         '+ /FontMatrix [0.001 0.0 0.001 0.001 0.0 0.0]readonly def',
+         # Alters ItalicAngle
+         '-  /ItalicAngle 0 def',
+         '+  /ItalicAngle -45.0 def'):
         assert_in(line, diff, 'diff to slanted font must contain %s' % line)
 
     diff = set(differ.compare(font.parts[0].splitlines(),
                               condensed.parts[0].splitlines()))
     for line in (
-            # Removes UniqueID
-            '- FontDirectory/CMR10 known{/CMR10 findfont dup/UniqueID known{dup',
-            '+ FontDirectory/CMR10 known{/CMR10 findfont dup',
-            # Alters FontMatrix
-            '- /FontMatrix [0.001 0 0 0.001 0 0 ]readonly def',
-            '+ /FontMatrix [0.0005 0.0 0.0 0.001 0.0 0.0]readonly def'):
+         # Removes UniqueID
+         '- FontDirectory/CMR10 known{/CMR10 findfont dup/UniqueID known{dup',
+         '+ FontDirectory/CMR10 known{/CMR10 findfont dup',
+         # Alters FontMatrix
+         '- /FontMatrix [0.001 0 0 0.001 0 0 ]readonly def',
+         '+ /FontMatrix [0.0005 0.0 0.0 0.001 0.0 0.0]readonly def'):
         assert_in(line, diff, 'diff to condensed font must contain %s' % line)
