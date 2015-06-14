@@ -144,7 +144,7 @@ class Type1Font(object):
     _comment_re = re.compile(br'%[^\r\n\v]*')
     _instring_re = re.compile(br'[()\\]')
 
-    # token types
+    # token types, compared via object identity (poor man's enum)
     _whitespace = object()
     _name = object()
     _string = object()
