@@ -395,9 +395,10 @@ class Dvi(object):
                 'debug')
 
     def _fnt_def(self, k, c, s, d, a, l, n):
-        tfm = _tfmfile(n[-l:].decode('ascii'))
+        fontname = n[-l:].decode('ascii')
+        tfm = _tfmfile(fontname)
         if tfm is None:
-            raise FileNotFoundError("missing font metrics file: %s" % tfm)
+            raise FileNotFoundError("missing font metrics file: %s" % fontname)
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
             raise ValueError('tfm checksum mismatch: %s'%n)
         # It seems that the assumption behind the following check is incorrect:
@@ -405,7 +406,7 @@ class Dvi(object):
         #    raise ValueError, 'tfm design size mismatch: %d in dvi, %d in %s'%\
         #        (d, tfm.design_size, n)
 
-        vf = _vffile(n[-l:].decode('ascii'))
+        vf = _vffile(fontname)
 
         self.fonts[k] = DviFont(scale=s, tfm=tfm, texname=n, vf=vf)
 
