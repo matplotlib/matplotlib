@@ -1843,8 +1843,14 @@ Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
              " must have the same dimensions.");
         goto error;
     }
-    if (mpa) mask = PyArray_DATA(mpa);
-    else     mask = NULL;
+    if (mpa)
+    {
+	mask = (char *) PyArray_DATA(mpa);
+    }
+    else
+    {
+	mask = NULL;
+    }
     if ( cntr_init(self->site, iMax, jMax, (double *)PyArray_DATA(xpa),
                             (double *)PyArray_DATA(ypa),
                             (double *)PyArray_DATA(zpa), mask))
@@ -1901,7 +1907,7 @@ Cntr_get_cdata(Cntr *self)
     dims[1] = nj = self->site->jmax;
 
     Cdata = (PyArrayObject *) PyArray_SimpleNew(2, dims, NPY_SHORT);
-    data = PyArray_DATA(Cdata);
+    data = (char *) PyArray_DATA(Cdata);
     for (j=0; j<nj; j++)
         for (i=0; i<ni; i++)
             data[j + i*nj] = self->site->data[i + j*ni];
