@@ -7,13 +7,6 @@ from nose.tools import assert_equal, assert_in
 import matplotlib.type1font as t1f
 import os.path
 import difflib
-import hashlib
-
-
-def sha1(data):
-    hash = hashlib.sha1()
-    hash.update(data)
-    return hash.hexdigest()
 
 
 def test_Type1Font():
@@ -21,16 +14,16 @@ def test_Type1Font():
     font = t1f.Type1Font(filename)
     slanted = font.transform({'slant': 1})
     condensed = font.transform({'extend': 0.5})
-    assert_equal(map(sha1, font.parts),
-                 ['f4ce890d648e67d413a91b3109fe67a732ced96f',
-                  'af46adb6c528956580c125c6abf3b5eb9983bbc1',
-                  'e2538a88a810bc207cfa1194b658ee8967042db8'])
+    rawdata = open(filename, 'rb').read()
+    assert_equal(font.parts[0], rawdata[0x0006:0x10c5])
+    assert_equal(font.parts[1], rawdata[0x10cb:0x897f])
+    assert_equal(font.parts[2], rawdata[0x8985:0x8ba6])
     assert_equal(font.parts[1:], slanted.parts[1:])
     assert_equal(font.parts[1:], condensed.parts[1:])
 
     differ = difflib.Differ()
-    diff = set(differ.compare(font.parts[0].splitlines(),
-                              slanted.parts[0].splitlines()))
+    diff = set(differ.compare(font.parts[0].decode('latin-1').splitlines(),
+                              slanted.parts[0].decode('latin-1').splitlines()))
     for line in (
          # Removes UniqueID
          '- FontDirectory/CMR10 known{/CMR10 findfont dup/UniqueID known{dup',

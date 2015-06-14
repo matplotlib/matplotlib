@@ -29,6 +29,7 @@ import six
 from six.moves import filter
 from six import unichr
 
+import binascii
 import io
 import itertools
 import numpy as np
@@ -92,8 +93,7 @@ class Type1Font(object):
             if type == 1:       # ASCII text: include verbatim
                 data += segment
             elif type == 2:     # binary data: encode in hexadecimal
-                data += b''.join([('%02x' % ord(char)).encode('ascii')
-                                  for char in segment])
+                data += binascii.hexlify(segment)
             elif type == 3:     # end of file
                 break
             else:
@@ -123,9 +123,8 @@ class Type1Font(object):
         # zeros backward
         idx = data.rindex(b'cleartomark') - 1
         zeros = 512
-        while zeros and ord(data[idx]) in (
-            ord(b'0'[0]), ord(b'\n'[0]), ord(b'\r'[0])):
-            if ord(data[idx]) == ord(b'0'[0]):
+        while zeros and data[idx] in b'0\n\r':
+            if data[idx] in b'0':
                 zeros -= 1
             idx -= 1
         if zeros:
@@ -136,10 +135,9 @@ class Type1Font(object):
         # but if we read a pfa file, this part is already in hex, and
         # I am not quite sure if even the pfb format guarantees that
         # it will be in binary).
-        binary = b''.join([unichr(int(data[i:i + 2], 16)).encode('latin-1')
-                           for i in range(len1, idx, 2)])
+        binary = binascii.unhexlify(data[len1:idx+1])
 
-        return data[:len1], binary, data[idx:]
+        return data[:len1], binary, data[idx+1:]
 
     _whitespace_re = re.compile(br'[\0\t\r\014\n ]+')
     _token_re = re.compile(br'/{0,2}[^]\0\t\r\v\n ()<>{}/%[]+')
