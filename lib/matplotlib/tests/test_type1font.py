@@ -22,12 +22,15 @@ def test_Type1Font():
     assert_equal(font.parts[1:], condensed.parts[1:])
 
     differ = difflib.Differ()
-    diff = set(differ.compare(font.parts[0].decode('latin-1').splitlines(),
-                              slanted.parts[0].decode('latin-1').splitlines()))
+    diff = list(differ.compare(font.parts[0].decode('latin-1').splitlines(),
+                               slanted.parts[0].decode('latin-1').splitlines()))
     for line in (
          # Removes UniqueID
          '- FontDirectory/CMR10 known{/CMR10 findfont dup/UniqueID known{dup',
          '+ FontDirectory/CMR10 known{/CMR10 findfont dup',
+         # Changes the font name
+        '- /FontName /CMR10 def',
+        '+ /FontName /CMR10_Slant_1000 def',
          # Alters FontMatrix
          '- /FontMatrix [0.001 0 0 0.001 0 0 ]readonly def',
          '+ /FontMatrix [0.001 0.0 0.001 0.001 0.0 0.0]readonly def',
@@ -36,12 +39,15 @@ def test_Type1Font():
          '+  /ItalicAngle -45.0 def'):
         assert_in(line, diff, 'diff to slanted font must contain %s' % line)
 
-    diff = set(differ.compare(font.parts[0].splitlines(),
-                              condensed.parts[0].splitlines()))
+    diff = list(differ.compare(font.parts[0].decode('latin-1').splitlines(),
+                          condensed.parts[0].decode('latin-1').splitlines()))
     for line in (
          # Removes UniqueID
          '- FontDirectory/CMR10 known{/CMR10 findfont dup/UniqueID known{dup',
          '+ FontDirectory/CMR10 known{/CMR10 findfont dup',
+         # Changes the font name
+        '- /FontName /CMR10 def',
+        '+ /FontName /CMR10_Extend_500 def',
          # Alters FontMatrix
          '- /FontMatrix [0.001 0 0 0.001 0 0 ]readonly def',
          '+ /FontMatrix [0.0005 0.0 0.0 0.001 0.0 0.0]readonly def'):

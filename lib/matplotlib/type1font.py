@@ -164,7 +164,7 @@ class Type1Font(object):
             if match:
                 yield (cls._whitespace, match.group())
                 pos += match.end()
-            elif text[pos] == '(':
+            elif text[pos] == b'(':
                 start = pos
                 pos += 1
                 depth = 1
@@ -173,19 +173,19 @@ class Type1Font(object):
                     if match is None:
                         return
                     pos += match.end()
-                    if match.group() == '(':
+                    if match.group() == b'(':
                         depth += 1
-                    elif match.group() == ')':
+                    elif match.group() == b')':
                         depth -= 1
                     else:  # a backslash - skip the next character
                         pos += 1
                 yield (cls._string, text[start:pos])
-            elif text[pos:pos + 2] in ('<<', '>>'):
+            elif text[pos:pos + 2] in (b'<<', b'>>'):
                 yield (cls._delimiter, text[pos:pos + 2])
                 pos += 2
-            elif text[pos] == '<':
+            elif text[pos] == b'<':
                 start = pos
-                pos += text[pos:].index('>')
+                pos += text[pos:].index(b'>')
                 yield (cls._string, text[start:pos])
             else:
                 match = cls._token_re.match(text[pos:])
@@ -254,16 +254,16 @@ class Type1Font(object):
         def fontname(name):
             result = name
             if slant:
-                result += b'_Slant_' + bytes(int(1000 * slant))
+                result += b'_Slant_' + str(int(1000 * slant)).encode('latin-1')
             if extend != 1.0:
-                result += b'_Extend_' + bytes(int(1000 * extend))
+                result += b'_Extend_' + str(int(1000 * extend)).encode('latin-1')
             return result
 
         def italicangle(angle):
-            return bytes(float(angle) - np.arctan(slant) / np.pi * 180)
+            return str(float(angle) - np.arctan(slant) / np.pi * 180).encode('latin-1')
 
         def fontmatrix(array):
-            array = array.lstrip('[').rstrip(']').strip().split()
+            array = array.lstrip(b'[').rstrip(b']').strip().split()
             array = [float(x) for x in array]
             oldmatrix = np.eye(3, 3)
             oldmatrix[0:3, 0] = array[::2]
@@ -274,7 +274,8 @@ class Type1Font(object):
             newmatrix = np.dot(modifier, oldmatrix)
             array[::2] = newmatrix[0:3, 0]
             array[1::2] = newmatrix[0:3, 1]
-            return b'[' + ' '.join(bytes(x) for x in array) + b']'
+            as_string = u'[' + u' '.join(str(x) for x in array) + u']'
+            return as_string.encode('latin-1')
 
         def replace(fun):
             def replacer(tokens):
@@ -284,26 +285,26 @@ class Type1Font(object):
                 while token is cls._whitespace:
                     yield bytes(value)
                     token, value = next(tokens)
-                if value != '[':                  # name/number/etc.
+                if value != b'[':                # name/number/etc.
                     yield bytes(fun(value))
-                else:                             # array, e.g., [1 2 3]
-                    array = []
-                    while value != ']':
-                        array += value
+                else:                            # array, e.g., [1 2 3]
+                    result = b''
+                    while value != b']':
+                        result += value
                         token, value = next(tokens)
-                    array += value
-                    yield bytes(fun(''.join(array)))
+                    result += value
+                    yield fun(result)
             return replacer
 
         def suppress(tokens):
-            for x in itertools.takewhile(lambda x: x[1] != 'def', tokens):
+            for x in itertools.takewhile(lambda x: x[1] != b'def', tokens):
                 pass
             yield b''
 
-        table = {'/FontName': replace(fontname),
-                 '/ItalicAngle': replace(italicangle),
-                 '/FontMatrix': replace(fontmatrix),
-                 '/UniqueID': suppress}
+        table = {b'/FontName': replace(fontname),
+                 b'/ItalicAngle': replace(italicangle),
+                 b'/FontMatrix': replace(fontmatrix),
+                 b'/UniqueID': suppress}
 
         while True:
             token, value = next(tokens)
@@ -328,5 +329,5 @@ class Type1Font(object):
             transformed =  self._transformer(tokenizer,
                                              slant=effects.get('slant', 0.0),
                                              extend=effects.get('extend', 1.0))
-            map(buffer.write, transformed)
+            list(map(buffer.write, transformed))
             return Type1Font((buffer.getvalue(), self.parts[1], self.parts[2]))
