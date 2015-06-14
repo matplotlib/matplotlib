@@ -283,7 +283,7 @@ class Type1Font(object):
                 token, value = next(tokens)      # name, e.g., /FontMatrix
                 yield bytes(value)
                 token, value = next(tokens)      # possible whitespace
-                while token == 'whitespace':
+                while token is cls._whitespace:
                     yield bytes(value)
                     token, value = next(tokens)
                 if value != '[':                  # name/number/etc.
@@ -309,7 +309,7 @@ class Type1Font(object):
 
         while True:
             token, value = next(tokens)
-            if token == 'name' and value in table:
+            if token is cls._name and value in table:
                 for value in table[value](itertools.chain([(token, value)],
                                                           tokens)):
                     yield value
