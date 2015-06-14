@@ -396,6 +396,8 @@ class Dvi(object):
 
     def _fnt_def(self, k, c, s, d, a, l, n):
         tfm = _tfmfile(n[-l:].decode('ascii'))
+        if tfm is None:
+            raise FileNotFoundError("missing font metrics file: %s" % tfm)
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
             raise ValueError('tfm checksum mismatch: %s'%n)
         # It seems that the assumption behind the following check is incorrect:
