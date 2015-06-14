@@ -256,13 +256,13 @@ class Type1Font(object):
         def fontname(name):
             result = name
             if slant:
-                result += '_Slant_' + str(int(1000 * slant))
+                result += b'_Slant_' + bytes(int(1000 * slant))
             if extend != 1.0:
-                result += '_Extend_' + str(int(1000 * extend))
+                result += b'_Extend_' + bytes(int(1000 * extend))
             return result
 
         def italicangle(angle):
-            return str(float(angle) - np.arctan(slant) / np.pi * 180)
+            return bytes(float(angle) - np.arctan(slant) / np.pi * 180)
 
         def fontmatrix(array):
             array = array.lstrip('[').rstrip(']').strip().split()
@@ -276,31 +276,31 @@ class Type1Font(object):
             newmatrix = np.dot(modifier, oldmatrix)
             array[::2] = newmatrix[0:3, 0]
             array[1::2] = newmatrix[0:3, 1]
-            return '[' + ' '.join(str(x) for x in array) + ']'
+            return b'[' + ' '.join(bytes(x) for x in array) + b']'
 
         def replace(fun):
             def replacer(tokens):
                 token, value = next(tokens)      # name, e.g., /FontMatrix
-                yield value
+                yield bytes(value)
                 token, value = next(tokens)      # possible whitespace
                 while token == 'whitespace':
-                    yield value
+                    yield bytes(value)
                     token, value = next(tokens)
                 if value != '[':                  # name/number/etc.
-                    yield fun(value)
+                    yield bytes(fun(value))
                 else:                             # array, e.g., [1 2 3]
                     array = []
                     while value != ']':
                         array += value
                         token, value = next(tokens)
                     array += value
-                    yield fun(''.join(array))
+                    yield bytes(fun(''.join(array)))
             return replacer
 
         def suppress(tokens):
             for x in itertools.takewhile(lambda x: x[1] != 'def', tokens):
                 pass
-            yield ''
+            yield b''
 
         table = {'/FontName': replace(fontname),
                  '/ItalicAngle': replace(italicangle),
@@ -325,18 +325,10 @@ class Type1Font(object):
         multiplier by which the font is to be extended (so values less
         than 1.0 condense). Returns a new :class:`Type1Font` object.
         """
-        buffer = io.BytesIO()
-        try:
+        with io.BytesIO() as buffer:
             tokenizer = self._tokens(self.parts[0])
-            for value in self._transformer(tokenizer,
-                                           slant=effects.get('slant', 0.0),
-                                           extend=effects.get('extend', 1.0)):
-                if six.PY3 and isinstance(value, int):
-                    value = chr(value)
-                value = value.encode('latin-1')
-                buffer.write(value)
-            result = buffer.getvalue()
-        finally:
-            buffer.close()
-
-        return Type1Font((result, self.parts[1], self.parts[2]))
+            transformed =  self._transformer(tokenizer,
+                                             slant=effects.get('slant', 0.0),
+                                             extend=effects.get('extend', 1.0))
+            map(buffer.write, transformed)
+            return Type1Font((buffer.getvalue(), self.parts[1], self.parts[2]))
