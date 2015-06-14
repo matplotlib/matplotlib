@@ -22,8 +22,9 @@ def test_Type1Font():
     assert_equal(font.parts[1:], condensed.parts[1:])
 
     differ = difflib.Differ()
-    diff = list(differ.compare(font.parts[0].decode('latin-1').splitlines(),
-                               slanted.parts[0].decode('latin-1').splitlines()))
+    diff = list(differ.compare(
+        font.parts[0].decode('latin-1').splitlines(),
+        slanted.parts[0].decode('latin-1').splitlines()))
     for line in (
          # Removes UniqueID
          '- FontDirectory/CMR10 known{/CMR10 findfont dup/UniqueID known{dup',
