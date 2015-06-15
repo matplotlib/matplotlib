@@ -6,6 +6,7 @@
 #include <limits>
 #include <math.h>
 #include <vector>
+#include <cmath>
 
 #include "agg_conv_contour.h"
 #include "agg_conv_curve.h"
@@ -102,7 +103,7 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
         for (i = 0; i < n; ++i) {
             ty = points[i][1];
 
-            if (MPL_isfinite64(ty)) {
+            if (std::isfinite(ty)) {
                 // get test bit for above/below X axis
                 yflag0[i] = (vty0 >= ty);
 
@@ -126,7 +127,7 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
                 tx = points[i][0];
                 ty = points[i][1];
 
-                if (MPL_notisfinite64(tx) || MPL_notisfinite64(ty)) {
+                if (!(std::isfinite(tx) && std::isfinite(ty))) {
                     continue;
                 }
 
@@ -174,7 +175,7 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
             tx = points[i][0];
             ty = points[i][1];
 
-            if (MPL_notisfinite64(tx) || MPL_notisfinite64(ty)) {
+            if (!(std::isfinite(tx) && std::isfinite(ty))) {
                 continue;
             }
 

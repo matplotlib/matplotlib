@@ -4,7 +4,6 @@
 
 #include "_backend_agg.h"
 #include "mplutils.h"
-#include "MPL_isnan.h"
 
 void BufferRegion::to_string_argb(uint8_t *buf)
 {

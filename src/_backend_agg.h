@@ -6,6 +6,7 @@
 #ifndef __BACKEND_AGG_H__
 #define __BACKEND_AGG_H__
 
+#include <cmath>
 #include <vector>
 
 #include "agg_alpha_mask_u8.h"
@@ -597,7 +598,7 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
 
         if (has_clippath) {
             while (path_curve.vertex(&x, &y) != agg::path_cmd_stop) {
-                if (MPL_notisfinite64(x) || MPL_notisfinite64(y)) {
+                if (!(std::isfinite(x) && std::isfinite(y))) {
                     continue;
                 }
 
@@ -629,7 +630,7 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
             }
         } else {
             while (path_curve.vertex(&x, &y) != agg::path_cmd_stop) {
-                if (MPL_notisfinite64(x) || MPL_notisfinite64(y)) {
+                if (!(std::isfinite(x) && std::isfinite(y))) {
                     continue;
                 }
 
