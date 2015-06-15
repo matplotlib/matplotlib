@@ -753,6 +753,7 @@ class Text(Artist):
             prop = textobj._fontproperties
             gc = renderer.new_gc()
             gc.set_foreground(color)
+            color = gc.get_rgb()
             gc.set_alpha(textobj.get_alpha())
             gc.set_url(textobj._url)
             textobj._set_gc_clip(gc)
@@ -779,7 +780,6 @@ class Text(Artist):
                     if textobj.get_usetex():
                         ismath = "TeX"
                     path, transform = textrenderer._get_text_path_transform(x, y, clean_line, prop, angle, ismath)
-                    color = gc.get_rgb()
                     gc.set_linewidth(0.0)
                     textrenderer.draw_path(gc, path, transform, rgbFace=color)
                 else:
