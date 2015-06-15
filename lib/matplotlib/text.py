@@ -749,8 +749,9 @@ class Text(Artist):
             if textobj._bbox_patch:
                 textobj._draw_bbox(renderer, posx, posy)
 
+            color = textobj.get_color()
             gc = renderer.new_gc()
-            gc.set_foreground(textobj.get_color())
+            gc.set_foreground(color)
             gc.set_alpha(textobj.get_alpha())
             gc.set_url(textobj._url)
             textobj._set_gc_clip(gc)
