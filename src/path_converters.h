@@ -218,15 +218,22 @@ class PathNanRemover : protected EmbeddedQueue<4>
                 code == (agg::path_cmd_end_poly | agg::path_flags_close)) {
                 return code;
             }
+	    double _x, _y;
 
             if (MPL_notisfinite64(*x) || MPL_notisfinite64(*y)) {
                 do {
                     code = m_source->vertex(x, y);
+                    // This de-reference makes sure this loop is not
+                    // optimized out of existence
+		    // This is working around an apparent bug in gcc 5.1
+                    _x = *x;
+                    _y = *y;
+
                     if (code == agg::path_cmd_stop ||
                         code == (agg::path_cmd_end_poly | agg::path_flags_close)) {
                         return code;
                     }
-                } while (MPL_notisfinite64(*x) || MPL_notisfinite64(*y));
+                } while (MPL_notisfinite64(_x) || MPL_notisfinite64(_y));
                 return agg::path_cmd_move_to;
             }
 
