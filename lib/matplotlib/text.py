@@ -32,6 +32,7 @@ from matplotlib.artist import allow_rasterization
 
 from matplotlib.backend_bases import RendererBase
 from matplotlib.textpath import TextPath
+from matplotlib.colors import colorConverter
 
 
 def _process_text_args(override, fontdict=None, **kwargs):
@@ -750,10 +751,9 @@ class Text(Artist):
                 textobj._draw_bbox(renderer, posx, posy)
 
             color = textobj.get_color()
+            color = colorConverter.to_rgb(color)
             prop = textobj._fontproperties
             gc = renderer.new_gc()
-            gc.set_foreground(color)
-            color = gc.get_rgb()
             gc.set_alpha(textobj.get_alpha())
             gc.set_url(textobj._url)
             textobj._set_gc_clip(gc)
@@ -783,6 +783,7 @@ class Text(Artist):
                     gc.set_linewidth(0.0)
                     textrenderer.draw_path(gc, path, transform, rgbFace=color)
                 else:
+                    gc.set_foreground(color)
                     if textobj.get_usetex():
                         renderer.draw_tex(gc, x, y, clean_line,
                                           prop, angle,
