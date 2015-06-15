@@ -774,17 +774,24 @@ class Text(Artist):
                     from matplotlib.patheffects import PathEffectRenderer
                     textrenderer = PathEffectRenderer(
                                         textobj.get_path_effects(), renderer)
+                    if textobj.get_usetex():
+                        textrenderer.draw_tex(gc, x, y, clean_line,
+                                              textobj._fontproperties, angle,
+                                              mtext=mtext)
+                    else:
+                        textrenderer.draw_text(gc, x, y, clean_line,
+                                               textobj._fontproperties, angle,
+                                               ismath=ismath, mtext=mtext)
                 else:
                     textrenderer = renderer
-
-                if textobj.get_usetex():
-                    textrenderer.draw_tex(gc, x, y, clean_line,
-                                          textobj._fontproperties, angle,
-                                          mtext=mtext)
-                else:
-                    textrenderer.draw_text(gc, x, y, clean_line,
-                                           textobj._fontproperties, angle,
-                                           ismath=ismath, mtext=mtext)
+                    if textobj.get_usetex():
+                        textrenderer.draw_tex(gc, x, y, clean_line,
+                                              textobj._fontproperties, angle,
+                                              mtext=mtext)
+                    else:
+                        textrenderer.draw_text(gc, x, y, clean_line,
+                                               textobj._fontproperties, angle,
+                                               ismath=ismath, mtext=mtext)
 
         gc.restore()
         renderer.close_group('text')
