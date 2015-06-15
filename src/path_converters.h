@@ -225,6 +225,7 @@ class PathNanRemover : protected EmbeddedQueue<4>
                     code = m_source->vertex(x, y);
                     // This de-reference makes sure this loop is not
                     // optimized out of existence
+		    // This is working around an apparent bug in gcc 5.1
                     _x = *x;
                     _y = *y;
 
