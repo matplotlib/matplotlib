@@ -750,7 +750,7 @@ class Text(Artist):
                 textobj._draw_bbox(renderer, posx, posy)
 
             color = textobj.get_color()
-            props = textobj._fontproperties
+            prop = textobj._fontproperties
             gc = renderer.new_gc()
             gc.set_foreground(color)
             gc.set_alpha(textobj.get_alpha())
@@ -777,20 +777,19 @@ class Text(Artist):
                     textrenderer = PathEffectRenderer(
                                         textobj.get_path_effects(), renderer)
                     if textobj.get_usetex():
-                        textrenderer._draw_text_as_path(gc, x, y, clean_line,
-                                                        prop, angle,
-                                                        ismath="TeX")
-                    else:
-                        textrenderer._draw_text_as_path(gc, x, y, clean_line,
-                                                        props, angle, ismath)
+                        ismath = "TeX"
+                    path, transform = textrenderer._get_text_path_transform(x, y, clean_line, prop, angle, ismath)
+                    color = gc.get_rgb()
+                    gc.set_linewidth(0.0)
+                    textrenderer.draw_path(gc, path, transform, rgbFace=color)
                 else:
                     if textobj.get_usetex():
                         renderer.draw_tex(gc, x, y, clean_line,
-                                          props, angle,
+                                          prop, angle,
                                           mtext=mtext)
                     else:
                         renderer.draw_text(gc, x, y, clean_line,
-                                           props, angle,
+                                           prop, angle,
                                            ismath=ismath, mtext=mtext)
 
         gc.restore()
