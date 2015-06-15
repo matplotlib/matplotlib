@@ -21,7 +21,6 @@ import matplotlib.backend_tools as tools
 from matplotlib import is_interactive
 from matplotlib import rcParams
 from matplotlib.figure import Figure
-from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends import get_backend
 
 
@@ -82,9 +81,6 @@ class FigureManager(cbook.EventEmitter):
 
         self.canvas = self._backend.FigureCanvas(figure, manager=self)
 
-        self.key_press_handler_id = self.canvas.mpl_connect('key_press_event',
-            self.key_press) if rcParams['toolbar'] != 'toolmanager' else None
-
         w = int(self.canvas.figure.bbox.width)
         h = int(self.canvas.figure.bbox.height)
 
@@ -114,13 +110,6 @@ class FigureManager(cbook.EventEmitter):
             if self.toolmanager is None and self.toolbar is not None:
                 self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
-
-    def key_press(self, event):
-        """
-        Implement the default mpl key bindings defined at
-        :ref:`key-event-handling`
-        """
-        key_press_handler(event, self.canvas, self.canvas.toolbar)
 
     def destroy(self, *args):
         """Called to destroy this FigureManager.
