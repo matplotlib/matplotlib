@@ -165,14 +165,22 @@ static PyObject *PyImage_color_conv(PyImage *self, PyObject *args, PyObject *kwd
         return NULL;
     }
 
-    PyObject *result = PyBytes_FromStringAndSize(NULL, self->x->rowsOut * self->x->colsOut * 4);
-    if (result == NULL) {
+    Py_ssize_t size = self->x->rowsOut * self->x->colsOut * 4;
+    agg::int8u *buff = (agg::int8u *)malloc(size);
+    if (buff == NULL) {
+        PyErr_SetString(PyExc_MemoryError, "Out of memory");
         return NULL;
     }
 
     CALL_CPP_CLEANUP("color_conv",
-                     (self->x->color_conv(format, (agg::int8u *)PyBytes_AsString(result))),
-                     Py_DECREF(result));
+                     (self->x->color_conv(format, buff)),
+                     free(buff));
+
+    PyObject *result = PyByteArray_FromStringAndSize((const char *)buff, size);
+    if (result == NULL) {
+        free(buff);
+        return NULL;
+    }
 
     return Py_BuildValue("nnN", self->x->rowsOut, self->x->colsOut, result);
 }
