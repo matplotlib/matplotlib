@@ -774,14 +774,14 @@ class Text(Artist):
                 clean_line, ismath = textobj.is_math_text(line)
 
                 if textobj.get_path_effects():
-                    from matplotlib.patheffects import PathEffectRenderer
-                    textrenderer = PathEffectRenderer(
-                                        textobj.get_path_effects(), renderer)
+                    path_effects = textobj.get_path_effects()
                     if textobj.get_usetex():
                         ismath = "TeX"
-                    path, transform = textrenderer._get_text_path_transform(x, y, clean_line, prop, angle, ismath)
+                    path, transform = renderer._get_text_path_transform(x, y, clean_line, prop, angle, ismath)
                     gc.set_linewidth(0.0)
-                    textrenderer.draw_path(gc, path, transform, rgbFace=color)
+                    for path_effect in path_effects:
+                        path_effect.draw_path(renderer, gc, path, transform,
+                                              rgbFace=color)
                 else:
                     gc.set_foreground(color)
                     if textobj.get_usetex():
