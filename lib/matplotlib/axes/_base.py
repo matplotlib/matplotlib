@@ -1301,18 +1301,58 @@ class _AxesBase(martist.Artist):
                 self.set_xbound((x0, x1))
 
     def axis(self, *v, **kwargs):
-        """
-        Convenience method for manipulating the x and y view limits
-        and the aspect ratio of the plot. For details, see
-        :func:`~matplotlib.pyplot.axis`.
+        """Set axis properties.
 
-        *kwargs* are passed on to :meth:`set_xlim` and
-        :meth:`set_ylim`
+        Valid signatures::
+
+          xmin, xmax, ymin, ymax = axis()
+          xmin, xmax, ymin, ymax = axis(list_arg)
+          xmin, xmax, ymin, ymax = axis(string_arg)
+          xmin, xmax, ymin, ymax = axis(**kwargs)
+
+        Parameters
+        ----------
+        v : list of float or {'on', 'off', 'equal', 'tight', 'scaled',\
+            'normal', 'auto', 'image', 'square'}
+            Optional positional argument
+
+            Axis data limits set from a list; or a command relating to axes:
+
+                ========== ================================================
+                Value      Description
+                ========== ================================================
+                'on'       Toggle axis lines and labels on
+                'off'      Toggle axis lines and labels off
+                'equal'    Equal scaling by changing limits
+                'scaled'   Equal scaling by changing box dimensions
+                'tight'    Limits set such that all data is shown
+                'auto'     Automatic scaling, fill rectangle with data
+                'normal'   Same as 'auto'; deprecated
+                'image'    'scaled' with axis limits equal to data limits
+                'square'   Square plot; similar to 'scaled', but initially\
+                           forcing xmax-xmin = ymax-ymin
+                ========== ================================================
+
+        emit : bool, optional
+            Passed to set_{x,y}lim functions, if observers
+            are notified of axis limit change
+
+        xmin, ymin, xmax, ymax : float, optional
+            The axis limits to be set
+
+        Returns
+        -------
+        xmin, xmax, ymin, ymax : float
+            The axis limits
+
         """
+
         if len(v) == 0 and len(kwargs) == 0:
             xmin, xmax = self.get_xlim()
             ymin, ymax = self.get_ylim()
             return xmin, xmax, ymin, ymax
+
+        emit = kwargs.get('emit', True)
 
         if len(v) == 1 and is_string_like(v[0]):
             s = v[0].lower()
@@ -1320,7 +1360,8 @@ class _AxesBase(martist.Artist):
                 self.set_axis_on()
             elif s == 'off':
                 self.set_axis_off()
-            elif s in ('equal', 'tight', 'scaled', 'normal', 'auto', 'image'):
+            elif s in ('equal', 'tight', 'scaled', 'normal',
+                       'auto', 'image', 'square'):
                 self.set_autoscale_on(True)
                 self.set_aspect('auto')
                 self.autoscale_view(tight=False)
@@ -1337,7 +1378,16 @@ class _AxesBase(martist.Artist):
                     self.autoscale_view(tight=True)
                     self.set_autoscale_on(False)
                     self.set_aspect('equal', adjustable='box', anchor='C')
-
+                elif s == 'square':
+                    self.set_aspect('equal', adjustable='box', anchor='C')
+                    self.set_autoscale_on(False)
+                    xlim = self.get_xlim()
+                    ylim = self.get_ylim()
+                    edge_size = max(np.diff(xlim), np.diff(ylim))
+                    self.set_xlim([xlim[0], xlim[0] + edge_size],
+                                  emit=emit, auto=False)
+                    self.set_ylim([ylim[0], ylim[0] + edge_size],
+                                  emit=emit, auto=False)
             else:
                 raise ValueError('Unrecognized string %s to axis; '
                                  'try on or off' % s)
@@ -1345,7 +1395,6 @@ class _AxesBase(martist.Artist):
             ymin, ymax = self.get_ylim()
             return xmin, xmax, ymin, ymax
 
-        emit = kwargs.get('emit', True)
         try:
             v[0]
         except IndexError:

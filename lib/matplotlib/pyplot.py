@@ -1480,6 +1480,12 @@ def axis(*v, **kwargs):
     as kwargs selectively to alter just those limits without changing
     the others.
 
+      >>> axis('square')
+
+    changes the limit ranges (*xmax*-*xmin*) and (*ymax*-*ymin*) of
+    the *x* and *y* axes to be the same, and have the same scaling,
+    resulting in a square plot.
+
     The xmin, xmax, ymin, ymax tuple is returned
 
     .. seealso::
