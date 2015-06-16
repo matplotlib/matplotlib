@@ -2786,7 +2786,7 @@ def csd(x, y, NFFT=None, Fs=None, Fc=None, detrend=None, window=None,
 # changes will be lost
 @_autogen_docstring(Axes.errorbar)
 def errorbar(x, y, yerr=None, xerr=None, fmt='', ecolor=None, elinewidth=None,
-             capsize=3, barsabove=False, lolims=False, uplims=False,
+             capsize=None, barsabove=False, lolims=False, uplims=False,
              xlolims=False, xuplims=False, errorevery=1, capthick=None,
              hold=None, **kwargs):
     ax = gca()

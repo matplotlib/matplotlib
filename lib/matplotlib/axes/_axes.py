@@ -1863,9 +1863,10 @@ class Axes(_AxesBase):
             specifies the color of errorbar(s)
             default: None
 
-        capsize : integer, optional
+        capsize : scalar, optional
            determines the length in points of the error bar caps
-           default: 3
+           default: None, which will take the value from the
+           ``errorbar.capsize`` :data:`rcParam<matplotlib.rcParams>`.
 
         error_kw : dict, optional
             dictionary of kwargs to be passed to errorbar method. *ecolor* and
@@ -1931,7 +1932,7 @@ class Axes(_AxesBase):
         yerr = kwargs.pop('yerr', None)
         error_kw = kwargs.pop('error_kw', dict())
         ecolor = kwargs.pop('ecolor', None)
-        capsize = kwargs.pop('capsize', 3)
+        capsize = kwargs.pop('capsize', rcParams["errorbar.capsize"])
         error_kw.setdefault('ecolor', ecolor)
         error_kw.setdefault('capsize', capsize)
 
@@ -2192,8 +2193,10 @@ class Axes(_AxesBase):
         ecolor : scalar or array-like, optional, default: None
             specifies the color of errorbar(s)
 
-        capsize : integer, optional, default: 3
+        capsize : scalar, optional
            determines the length in points of the error bar caps
+           default: None, which will take the value from the
+           ``errorbar.capsize`` :data:`rcParam<matplotlib.rcParams>`.
 
         error_kw :
             dictionary of kwargs to be passed to errorbar method. `ecolor` and
@@ -2586,7 +2589,7 @@ class Axes(_AxesBase):
 
     @docstring.dedent_interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
-                 fmt='', ecolor=None, elinewidth=None, capsize=3,
+                 fmt='', ecolor=None, elinewidth=None, capsize=None,
                  barsabove=False, lolims=False, uplims=False,
                  xlolims=False, xuplims=False, errorevery=1, capthick=None,
                  **kwargs):
@@ -2596,7 +2599,7 @@ class Axes(_AxesBase):
         Call signature::
 
           errorbar(x, y, yerr=None, xerr=None,
-                   fmt='', ecolor=None, elinewidth=None, capsize=3,
+                   fmt='', ecolor=None, elinewidth=None, capsize=None,
                    barsabove=False, lolims=False, uplims=False,
                    xlolims=False, xuplims=False, errorevery=1,
                    capthick=None)
@@ -2633,7 +2636,9 @@ class Axes(_AxesBase):
             The linewidth of the errorbar lines. If *None*, use the linewidth.
 
           *capsize*: scalar
-            The length of the error bar caps in points
+            The length of the error bar caps in points; if *None*, it will
+            take the value from ``errorbar.capsize``
+            :data:`rcParam<matplotlib.rcParams>`.
 
           *capthick*: scalar
             An alias kwarg to *markeredgewidth* (a.k.a. - *mew*). This
@@ -2786,6 +2791,8 @@ class Axes(_AxesBase):
             return xs, ys
 
         plot_kw = {'label': '_nolegend_'}
+        if capsize is None:
+            capsize = rcParams["errorbar.capsize"]
         if capsize > 0:
             plot_kw['ms'] = 2. * capsize
         if capthick is not None:
