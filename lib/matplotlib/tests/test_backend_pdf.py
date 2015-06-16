@@ -107,3 +107,15 @@ def test_composite_image():
     with PdfPages(io.BytesIO()) as pdf:
         fig.savefig(pdf, format="pdf")
         assert len(pdf._file.images.keys()) == 2
+
+
+@image_comparison(baseline_images=['hatching_legend'],
+                  extensions=['pdf'])
+def test_hatching_legend():
+    """Test for correct hatching on patches in legend"""
+    fig = plt.figure(figsize=(1, 2))
+
+    a = plt.Rectangle([0, 0], 0, 0, facecolor="green", hatch="XXXX")
+    b = plt.Rectangle([0, 0], 0, 0, facecolor="blue", hatch="XXXX")
+
+    fig.legend([a, b, a, b], ["", "", "", ""])
