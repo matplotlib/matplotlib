@@ -240,14 +240,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         self.figure = figure
         self.setMouseTracking(True)
         self._idle = True
-        # hide until we can test and fix
-        # self.startTimer(backend_IdleEvent.milliseconds)
         w, h = self.get_width_height()
         self.resize(w, h)
-
-    def __timerEvent(self, event):
-        # hide until we can test and fix
-        self.mpl_idle_event(event)
 
     def enterEvent(self, event):
         FigureCanvasBase.enter_notify_event(self, guiEvent=event)

@@ -2331,6 +2331,10 @@ class FigureCanvasBase(object):
             cid = canvas.mpl_connect('button_press_event', on_press)
 
         """
+        if s == 'idle_event':
+            warnings.warn("idle_event is only implemented for the wx backend, "
+                          "and will be removed in matplotlib 2.1. Use the "
+                          "animations module instead.", mplDeprecation)
 
         return self.callbacks.connect(s, func)
 
