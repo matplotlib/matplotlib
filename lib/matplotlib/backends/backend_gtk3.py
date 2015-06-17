@@ -210,15 +210,11 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         self.set_double_buffered(True)
         self.set_can_focus(True)
         self._renderer_init()
-        self._idle_event_id = GLib.idle_add(self.idle_event)
         default_context = GLib.main_context_get_thread_default() or GLib.main_context_default()
-        self._idle_event_source = default_context.find_source_by_id(self._idle_event_id)
 
     def destroy(self):
         #Gtk.DrawingArea.destroy(self)
         self.close_event()
-        if not self._idle_event_source.is_destroyed():
-            GLib.source_remove(self._idle_event_id)
         if self._idle_draw_id != 0:
             GLib.source_remove(self._idle_draw_id)
 
