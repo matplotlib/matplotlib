@@ -119,8 +119,10 @@ class HandlerBase(object):
                                       fontsize, handlebox.get_transform())
 
         # create_artists will return a list of artists.
+        gid = orig_handle.get_gid()
         for a in artists:
             handlebox.add_artist(a)
+            a.set_gid(gid)
 
         # we only return the first artist
         return artists[0]
