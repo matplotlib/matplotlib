@@ -777,7 +777,8 @@ class Text(Artist):
                     path_effects = textobj.get_path_effects()
                     if textobj.get_usetex():
                         ismath = "TeX"
-                    path, transform = renderer._get_text_path_transform(x, y, clean_line, prop, angle, ismath)
+                    path, transform = renderer._get_text_path_transform(
+                        x, y, clean_line, prop, angle, ismath)
                     gc.set_linewidth(0.0)
                     for path_effect in path_effects:
                         path_effect.draw_path(renderer, gc, path, transform,
