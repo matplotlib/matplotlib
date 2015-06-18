@@ -1,6 +1,6 @@
 .. _colormapnorm-tutorial:
 
-Colormap Normaliztions 
+Colormap Normaliztions
 ================================
 
 Objects that use colormaps by default linearly map the colors in the
@@ -10,13 +10,15 @@ colormap from data values *vmin* to *vmax*.  For example::
 
 will map the data in *Z* linearly from -1 to +1, so *Z=0* will
 give a color at the center of the colormap *RdBu_r* (white in this
-case).  
+case).
 
 Matplotlib does this mapping in two steps, with a normalization from
 [0,1] occuring first, and then mapping onto the indices in the
 colormap. Normalizations are defined as part of
 :func:`matplotlib.colors` module.  The default normalization is
-:func:`matplotlib.colors.Normalize`.  The artists that map data to
+:func:`matplotlib.colors.Normalize`.
+
+The artists that map data to
 color pass the arguments *vmin* and *vmax* to
 :func:`matplotlib.colors.Normalize`. We can substnatiate the
 normalization and see what it returns.  In this case it returns 0.5:
@@ -24,20 +26,20 @@ normalization and see what it returns.  In this case it returns 0.5:
 .. ipython::
 
    In [1]: import matplotlib as mpl
-   
+
    In [2]: norm=mpl.colors.Normalize(vmin=-1.,vmax=1.)
-   	
+
    In [3]: norm(0.)
    Out[3]: 0.5
 
 However, there are sometimes cases where it is useful to map data to
-colormaps in a non-linear fashion. 
+colormaps in a non-linear fashion.
 
 Logarithmic
 ---------------------------------
 
 One of the most common transformations is to plot data by taking its
-logarithm (to the base-10).  This transofrmation is useful when there
+logarithm (to the base-10).  This transformation is useful when there
 are changes across disparate scales that we still want to be able to
 see.  Using :func:`colors.LogNorm` normalizes the data by
 :math:`log_{10}`.  In the example below, there are two bumps, one much
@@ -78,7 +80,7 @@ argument *gamma* ( *gamma* == 1.0 will just yield the defalut linear
 normalization):
 
 .. note::
-  
+
    There should probably be a good reason for plotting the data using
    this type of transformation.  Technical viewers are used to linear
    and logarithmic axes and data transformations.  Power laws are less
@@ -87,6 +89,31 @@ normalization):
 
 
 .. plot:: users/plotting/examples/colormap_normalizations_power.py
+   :include-source:
+
+Discrete bounds
+---------------------------------
+
+Another normaization that comes with matplolib is
+:func:`colors.BoundaryNorm`.  In addition to *vmin* and *vmax*, this
+takes as arguments boundaries between which data is to be mapped.  The
+colors are then linearly distributed between these "bounds".  For
+instance, if:
+
+.. ipython::
+
+  In [2]: import matplotlib.colors as colors
+
+  In [3]: bounds = np.array([-0.25, -0.125, 0, 0.5, 1])
+
+  In [4]: norm = colors.BoundaryNorm(boundaries=bounds, ncolors=4)
+
+  In [5]: print norm([-0.2,-0.15,-0.02, 0.3, 0.8, 0.99])
+  [0 0 1 2 3 3]
+
+Note unlike the other norms, this norm returns values from 0 to *ncolors*-1.
+
+.. plot:: users/plotting/examples/colormap_normalizations_bounds.py
    :include-source:
 
 
@@ -104,29 +131,9 @@ for the edge cases like masked data or invalid values of *vmin* and
    This may appear soon as :func:`colors.OffsetNorm`
 
    As above, non-symetric mapping of data to color is non-standard
-   practice, and should only be used advisedly.  
+   practice for quantitative data, and should only be used advisedly. A
+   practical example is having an ocean/land colormap where the land and
+   ocean data span different ranges.
 
 .. plot:: users/plotting/examples/colormap_normalizations_custom.py
    :include-source:
-
-Discrete bounds
----------------------------------
-
-Another normaization that comes with matplolib is
-:func:`colors.BoundaryNorm`.  In addition to *vmin* and *vmax*, this
-takes as arguments boundaries between which data is to be mapped.  The
-colors are then linearly distributed between these "bounds".  For
-instance, if ::
-    
-  bounds = np.array([-0.25, -0.125, 0, 0.5, 1])
-  norm = colors.BoundaryNorm(boundaries=bounds, ncolors=4)
-  print norm([-0.2,-0.15,-0.02, 0.3, 0.8, 0.99])
-  
-This returns: [0, 0, 1, 2, 3, 3].  Note unlike the other norms, this
-norm returns values from 0 to *ncolors*-1.  
-
-
-.. plot:: users/plotting/examples/colormap_normalizations_bounds.py
-   :include-source:
-
-
