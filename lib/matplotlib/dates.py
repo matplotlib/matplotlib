@@ -420,7 +420,7 @@ class DateFormatter(ticker.Formatter):
 
     def __init__(self, fmt, tz=None):
         """
-        *fmt* is an :func:`strftime` format string; *tz* is the
+        *fmt* is a :func:`strftime` format string; *tz* is the
          :class:`tzinfo` instance.
         """
         if tz is None:
@@ -440,28 +440,54 @@ class DateFormatter(ticker.Formatter):
     def set_tzinfo(self, tz):
         self.tz = tz
 
-    def _findall(self, text, substr):
-        # Also finds overlaps
-        sites = []
+    def _replace_common_substr(self, s1, s2, sub1, sub2, replacement):
+        """Helper function for replacing substrings sub1 and sub2
+        located at the same indexes in strings s1 and s2 respectively,
+        with the string replacement.  It is expected that sub1 and sub2
+        have the same length.  Returns the pair s1, s2 after the
+        substitutions.
+        """
+        # Find common indexes of substrings sub1 in s1 and sub2 in s2
+        # and make substitutions inplace. Because this is inplace,
+        # it is okay if len(replacement) != len(sub1), len(sub2).
         i = 0
-        while 1:
-            j = text.find(substr, i)
+        while True:
+            j = s1.find(sub1, i)
             if j == -1:
                 break
-            sites.append(j)
+
             i = j + 1
-        return sites
+            if s2[j:j + len(sub2)] != sub2:
+                continue
 
-    # Dalke: I hope I did this math right.  Every 28 years the
-    # calendar repeats, except through century leap years excepting
-    # the 400 year leap years.  But only if you're using the Gregorian
-    # calendar.
+            s1 = s1[:j] + replacement + s1[j + len(sub1):]
+            s2 = s2[:j] + replacement + s2[j + len(sub2):]
 
-    def strftime(self, dt, fmt):
-        fmt = self.illegal_s.sub(r"\1", fmt)
-        fmt = fmt.replace("%s", "s")
-        if dt.year > 1900:
-            return cbook.unicode_safe(dt.strftime(fmt))
+        return s1, s2
+
+    def strftime_pre_1900(self, dt, fmt=None):
+        """Call time.strftime for years before 1900 by rolling
+        forward a multiple of 28 years.
+
+        *fmt* is a :func:`strftime` format string.
+
+        Dalke: I hope I did this math right.  Every 28 years the
+        calendar repeats, except through century leap years excepting
+        the 400 year leap years.  But only if you're using the Gregorian
+        calendar.
+        """
+        if fmt is None:
+            fmt = self.fmt
+
+        # Since python's time module's strftime implementation does not
+        # support %f microsecond (but the datetime module does), use a
+        # regular expression substitution to replace instances of %f.
+        # Note that this can be useful since python's floating-point
+        # precision representation for datetime causes precision to be
+        # more accurate closer to year 0 (around the year 2000, precision
+        # can be at 10s of microseconds).
+        fmt = re.sub(r'((^|[^%])(%%)*)%f',
+                     r'\g<1>{0:06d}'.format(dt.microsecond), fmt)
 
         year = dt.year
         # For every non-leap year century, advance by
@@ -470,26 +496,52 @@ class DateFormatter(ticker.Formatter):
         off = 6 * (delta // 100 + delta // 400)
         year = year + off
 
-        # Move to around the year 2000
-        year = year + ((2000 - year) // 28) * 28
+        # Move to between the years 1973 and 2000
+        year1 = year + ((2000 - year) // 28) * 28
+        year2 = year1 + 28
         timetuple = dt.timetuple()
-        s1 = time.strftime(fmt, (year,) + timetuple[1:])
-        sites1 = self._findall(s1, str(year))
+        # Generate timestamp string for year and year+28
+        s1 = time.strftime(fmt, (year1,) + timetuple[1:])
+        s2 = time.strftime(fmt, (year2,) + timetuple[1:])
 
-        s2 = time.strftime(fmt, (year + 28,) + timetuple[1:])
-        sites2 = self._findall(s2, str(year + 28))
+        # Replace instances of respective years (both 2-digit and 4-digit)
+        # that are located at the same indexes of s1, s2 with dt's year.
+        # Note that C++'s strftime implementation does not use padded
+        # zeros or padded whitespace for %y or %Y for years before 100, but
+        # uses padded zeros for %x. (For example, try the runnable examples
+        # with .tm_year in the interval [-1900, -1800] on
+        # http://en.cppreference.com/w/c/chrono/strftime.) For ease of
+        # implementation, we always use padded zeros for %y, %Y, and %x.
+        s1, s2 = self._replace_common_substr(s1, s2,
+                                             "{0:04d}".format(year1),
+                                             "{0:04d}".format(year2),
+                                             "{0:04d}".format(dt.year))
+        s1, s2 = self._replace_common_substr(s1, s2,
+                                             "{0:02d}".format(year1 % 100),
+                                             "{0:02d}".format(year2 % 100),
+                                             "{0:02d}".format(dt.year % 100))
+        return cbook.unicode_safe(s1)
 
-        sites = []
-        for site in sites1:
-            if site in sites2:
-                sites.append(site)
+    def strftime(self, dt, fmt=None):
+        """Refer to documentation for datetime.strftime.
 
-        s = s1
-        syear = "%4d" % (dt.year,)
-        for site in sites:
-            s = s[:site] + syear + s[site + 4:]
+        *fmt* is a :func:`strftime` format string.
 
-        return cbook.unicode_safe(s)
+        Warning: For years before 1900, depending upon the current
+        locale it is possible that the year displayed with %x might
+        be incorrect. For years before 100, %y and %Y will yield
+        zero-padded strings.
+        """
+        if fmt is None:
+            fmt = self.fmt
+        fmt = self.illegal_s.sub(r"\1", fmt)
+        fmt = fmt.replace("%s", "s")
+        if dt.year >= 1900:
+            # Note: in python 3.3 this is okay for years >= 1000,
+            # refer to http://bugs.python.org/issue177742
+            return cbook.unicode_safe(dt.strftime(fmt))
+
+        return self.strftime_pre_1900(dt, fmt)
 
 
 class IndexDateFormatter(ticker.Formatter):
