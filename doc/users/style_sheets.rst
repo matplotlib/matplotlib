@@ -84,6 +84,6 @@ changes, you can write something like the following::
    >>> plt.show()
 
 
-.. _matplotlibrc: http://matplotlib.sourceforge.net/users/customizing.html
+.. _matplotlibrc: http://matplotlib.org/users/customizing.html
 .. _ggplot: http://had.co.nz/ggplot/
 .. _R: http://www.r-project.org/
