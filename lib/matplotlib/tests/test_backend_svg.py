@@ -107,6 +107,18 @@ def test_bold_font_output():
     ax.set_title('bold-title', fontweight='bold')
 
 
+@image_comparison(baseline_images=['bold_font_output_with_none_fonttype'],
+                  extensions=['svg'])
+def test_bold_font_output_with_none_fonttype():
+    plt.rcParams['svg.fonttype'] = 'none'
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot(np.arange(10), np.arange(10))
+    ax.set_xlabel('nonbold-xlabel')
+    ax.set_ylabel('bold-ylabel', fontweight='bold')
+    ax.set_title('bold-title', fontweight='bold')
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
