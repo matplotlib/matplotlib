@@ -27,7 +27,7 @@ import matplotlib.transforms as mtransforms
 from matplotlib.transforms import Affine2D, Bbox, Transform
 from matplotlib.transforms import BboxBase, BboxTransformTo
 from matplotlib.lines import Line2D
-
+from matplotlib.path import Path
 from matplotlib.artist import allow_rasterization
 
 from matplotlib.backend_bases import RendererBase
@@ -539,7 +539,7 @@ class Text(Artist):
             self._bbox_patch.set_transform(tr)
             fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
             self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
-            # self._bbox_patch.draw(renderer)
+
 
     def _draw_bbox(self, renderer, posx, posy):
 
@@ -557,6 +557,7 @@ class Text(Artist):
         fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
         self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
         self._bbox_patch.draw(renderer)
+
 
     def _update_clip_properties(self):
         clipprops = dict(clip_box=self.clipbox,
@@ -2046,9 +2047,18 @@ class Annotation(Text, _AnnotationBase):
 
         self.arrow = None
 
-        if arrowprops and "arrowstyle" in arrowprops:
-            arrowprops = self.arrowprops.copy()
-            self._arrow_relpos = arrowprops.pop("relpos", (0.5, 0.5))
+        if arrowprops:
+            if "arrowstyle" in arrowprops:
+                arrowprops = self.arrowprops.copy()
+                self._arrow_relpos = arrowprops.pop("relpos", (0.5, 0.5))
+            else:
+                # modified YAArrow API to be used with FancyArrowPatch
+                shapekeys = ('width', 'headwidth', 'headlength',
+                             'shrink', 'frac')
+                arrowprops = dict()
+                for key, val in self.arrowprops.items():
+                    if key not in shapekeys:
+                        arrowprops[key] = val  # basic Patch properties
             self.arrow_patch = FancyArrowPatch((0, 0), (1, 1),
                                                **arrowprops)
         else:
@@ -2059,7 +2069,9 @@ class Annotation(Text, _AnnotationBase):
         if self.arrow is not None:
             in_arrow, _ = self.arrow.contains(event)
             contains = contains or in_arrow
-        # self.arrow_patch is currently not checked as this can be a line - J
+        if self.arrow_patch is not None:
+            in_patch, _ = self.arrow_patch.contains(event)
+            contains = contains or in_patch
 
         return contains, tinfo
 
@@ -2102,6 +2114,7 @@ class Annotation(Text, _AnnotationBase):
         self.set_transform(self._get_xy_transform(
             renderer, self.xy, self.anncoords))
 
+
         ox0, oy0 = self._get_xy_display()
         ox1, oy1 = xy_pixel
 
@@ -2114,111 +2127,94 @@ class Annotation(Text, _AnnotationBase):
             yc = 0.5 * (b + t)
 
             d = self.arrowprops.copy()
+            ms = d.pop("mutation_scale", self.get_size())
+            ms = renderer.points_to_pixels(ms)
+            self.arrow_patch.set_mutation_scale(ms)
 
-            # Use FancyArrowPatch if self.arrowprops has "arrowstyle" key.
-            # Otherwise, fallback to YAArrow.
-
-            #if d.has_key("arrowstyle"):
-            if self.arrow_patch:
-
-                # adjust the starting point of the arrow relative to
-                # the textbox.
-                # TODO : Rotation needs to be accounted.
-                relpos = self._arrow_relpos
-                bbox = Text.get_window_extent(self, renderer)
-                ox0 = bbox.x0 + bbox.width * relpos[0]
-                oy0 = bbox.y0 + bbox.height * relpos[1]
-
-                # The arrow will be drawn from (ox0, oy0) to (ox1,
-                # oy1). It will be first clipped by patchA and patchB.
-                # Then it will be shrinked by shirnkA and shrinkB
-                # (in points). If patch A is not set, self.bbox_patch
-                # is used.
-
-                self.arrow_patch.set_positions((ox0, oy0), (ox1, oy1))
-                mutation_scale = d.pop("mutation_scale", self.get_size())
-                mutation_scale = renderer.points_to_pixels(mutation_scale)
-                self.arrow_patch.set_mutation_scale(mutation_scale)
-
-                if "patchA" in d:
-                    self.arrow_patch.set_patchA(d.pop("patchA"))
-                else:
-                    if self._bbox_patch:
-                        self.arrow_patch.set_patchA(self._bbox_patch)
-                    else:
-                        pad = renderer.points_to_pixels(4)
-                        if self.get_text().strip() == "":
-                            self.arrow_patch.set_patchA(None)
-                            return
-
-                        bbox = Text.get_window_extent(self, renderer)
-                        l, b, w, h = bbox.bounds
-                        l -= pad / 2.
-                        b -= pad / 2.
-                        w += pad
-                        h += pad
-                        r = Rectangle(xy=(l, b),
-                                      width=w,
-                                      height=h,
-                                      )
-                        r.set_transform(mtransforms.IdentityTransform())
-                        r.set_clip_on(False)
-
-                        self.arrow_patch.set_patchA(r)
-
-            else:
-                # using YAArrow
-                # pick the x,y corner of the text bbox closest to point
-                # annotated
-                dsu = [(abs(val - x0), val) for val in (l, r, xc)]
-                dsu.sort()
-                _, x = dsu[0]
-
-                dsu = [(abs(val - y0), val) for val in (b, t, yc)]
-                dsu.sort()
-                _, y = dsu[0]
-
+            if "arrowstyle" not in d:
+                # Approximately simulate the YAArrow.
+                # Pop its kwargs:
                 shrink = d.pop('shrink', 0.0)
-
-                theta = math.atan2(y - y0, x - x0)
-                r = np.hypot((y - y0), (x - x0))
-                dx = shrink * r * math.cos(theta)
-                dy = shrink * r * math.sin(theta)
-
                 width = d.pop('width', 4)
                 headwidth = d.pop('headwidth', 12)
-                frac = d.pop('frac', 0.1)
-                self.arrow = YAArrow(self.figure,
-                                     (x0 + dx, y0 + dy), (x - dx, y - dy),
-                                     width=width, headwidth=headwidth,
-                                     frac=frac,
-                                     **d)
+                # Ignore frac--it is useless.
+                frac = d.pop('frac', None)
+                if frac is not None:
+                    warnings.warn(
+                        "'frac' option in 'arrowstyle' is no longer supported;"
+                        " use 'headlength' to set the head length in points.")
+                headlength = d.pop('headlength', 12)
 
-                self.arrow.set_clip_box(self.get_clip_box())
+                stylekw = dict(head_length=headlength / ms,
+                               head_width=headwidth / ms,
+                               tail_width=width / ms)
 
-    def update_bbox_position_size(self, renderer):
-        """
-        Update the location and the size of the bbox. This method
-        should be used when the position and size of the bbox needs to
-        be updated before actually drawing the bbox.
-        """
+                self.arrow_patch.set_arrowstyle('simple', **stylekw)
 
-        # For arrow_patch, use textbox as patchA by default.
+                # using YAArrow style:
+                # pick the x,y corner of the text bbox closest to point
+                # annotated
+                xpos = ((l, 0), (xc, 0.5), (r, 1))
+                ypos = ((b, 0), (yc, 0.5), (t, 1))
 
-        if not isinstance(self.arrow_patch, FancyArrowPatch):
-            return
+                dsu = [(abs(val[0] - x0), val) for val in xpos]
+                dsu.sort()
+                _, (x, relposx) = dsu[0]
 
-        if self._bbox_patch:
-            posx, posy = self._x, self._y
+                dsu = [(abs(val[0] - y0), val) for val in ypos]
+                dsu.sort()
+                _, (y, relposy) = dsu[0]
 
-            x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
-            self._bbox_patch.set_bounds(0., 0., w_box, h_box)
-            theta = np.deg2rad(self.get_rotation())
-            tr = mtransforms.Affine2D().rotate(theta)
-            tr = tr.translate(posx + x_box, posy + y_box)
-            self._bbox_patch.set_transform(tr)
-            fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
-            self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
+                self._arrow_relpos = (relposx, relposy)
+
+                r = np.hypot((y - y0), (x - x0))
+                shrink_pts = shrink * r / renderer.points_to_pixels(1)
+                self.arrow_patch.shrinkA = shrink_pts
+                self.arrow_patch.shrinkB = shrink_pts
+
+
+            # adjust the starting point of the arrow relative to
+            # the textbox.
+            # TODO : Rotation needs to be accounted.
+            relpos = self._arrow_relpos
+            bbox = Text.get_window_extent(self, renderer)
+            ox0 = bbox.x0 + bbox.width * relpos[0]
+            oy0 = bbox.y0 + bbox.height * relpos[1]
+
+            # The arrow will be drawn from (ox0, oy0) to (ox1,
+            # oy1). It will be first clipped by patchA and patchB.
+            # Then it will be shrunk by shirnkA and shrinkB
+            # (in points). If patch A is not set, self.bbox_patch
+            # is used.
+
+            self.arrow_patch.set_positions((ox0, oy0), (ox1, oy1))
+
+            if "patchA" in d:
+                self.arrow_patch.set_patchA(d.pop("patchA"))
+            else:
+                if self._bbox_patch:
+                    self.arrow_patch.set_patchA(self._bbox_patch)
+                else:
+                    pad = renderer.points_to_pixels(4)
+                    if self.get_text().strip() == "":
+                        self.arrow_patch.set_patchA(None)
+                        return
+
+                    bbox = Text.get_window_extent(self, renderer)
+                    l, b, w, h = bbox.bounds
+                    l -= pad / 2.
+                    b -= pad / 2.
+                    w += pad
+                    h += pad
+                    r = Rectangle(xy=(l, b),
+                                  width=w,
+                                  height=h,
+                                  )
+                    r.set_transform(mtransforms.IdentityTransform())
+                    r.set_clip_on(False)
+
+                    self.arrow_patch.set_patchA(r)
+
 
     @allow_rasterization
     def draw(self, renderer):
@@ -2238,19 +2234,15 @@ class Annotation(Text, _AnnotationBase):
         self._update_position_xytext(renderer, xy_pixel)
         self.update_bbox_position_size(renderer)
 
-        # Draw text, including FancyBboxPatch, before FancyArrowPatch.
-        # Otherwise, the transform of the former Patch will be incomplete.
-        Text.draw(self, renderer)
-
-        if self.arrow is not None:
-            if self.arrow.figure is None and self.figure is not None:
-                self.arrow.figure = self.figure
-            self.arrow.draw(renderer)
-
-        if self.arrow_patch is not None:
+        if self.arrow_patch is not None:   # FancyArrowPatch
             if self.arrow_patch.figure is None and self.figure is not None:
                 self.arrow_patch.figure = self.figure
             self.arrow_patch.draw(renderer)
+
+        # Draw text, including FancyBboxPatch, after FancyArrowPatch.
+        # Otherwise, a wedge arrowstyle can land partly on top of the Bbox.
+        Text.draw(self, renderer)
+
 
     def get_window_extent(self, renderer=None):
         '''
