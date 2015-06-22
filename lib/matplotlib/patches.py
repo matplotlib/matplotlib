@@ -3119,14 +3119,14 @@ class ArrowStyle(_Style):
     %(AvailableArrowstyles)s
 
 
-    An instance of any arrow style class is an callable object,
+    An instance of any arrow style class is a callable object,
     whose call signature is::
 
         __call__(self, path, mutation_size, linewidth, aspect_ratio=1.)
 
     and it returns a tuple of a :class:`Path` instance and a boolean
-    value. *path* is a :class:`Path` instance along witch the arrow
-    will be drawn. *mutation_size* and *aspect_ratio* has a same
+    value. *path* is a :class:`Path` instance along which the arrow
+    will be drawn. *mutation_size* and *aspect_ratio* have the same
     meaning as in :class:`BoxStyle`. *linewidth* is a line width to be
     stroked. This is meant to be used to correct the location of the
     head so that it does not overshoot the destination point, but not all
@@ -3175,11 +3175,11 @@ class ArrowStyle(_Style):
 
         def transmute(self, path, mutation_size, linewidth):
             """
-            The transmute method is a very core of the ArrowStyle
+            The transmute method is the very core of the ArrowStyle
             class and must be overriden in the subclasses. It receives
             the path object along which the arrow will be drawn, and
-            the mutation_size, with which the amount arrow head and
-            etc. will be scaled. The linewidth may be used to adjust
+            the mutation_size, with which the arrow head etc.
+            will be scaled. The linewidth may be used to adjust
             the path so that it does not pass beyond the given
             points. It returns a tuple of a Path instance and a
             boolean. The boolean value indicate whether the path can
@@ -4077,7 +4077,7 @@ class FancyArrowPatch(Patch):
 
         *connectionstyle* can be a string with connectionstyle name with
          optional comma-separated attributes. Alternatively, the attrs can be
-         probided as keywords.
+         provided as keywords.
 
          set_connectionstyle("arc,angleA=0,armA=30,rad=10")
          set_connectionstyle("arc", angleA=0,armA=30,rad=10)
