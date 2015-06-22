@@ -36,8 +36,11 @@ def get_backend_name(name=None):
     return backend_name
 
 
-def get_backend():
-    backend_name = get_backend_name()
+def get_backend(name=None):
+    # Import the requested backend into a generic module object
+    # the last argument is specifies whether to use absolute or relative
+    # imports. 0 means only perform absolute imports.
+    backend_name = get_backend_name(name)
     return __import__(backend_name, globals(), locals(),
                        [backend_name], 0)
 
@@ -70,11 +73,7 @@ def pylab_setup(name=None):
 
     '''
     # Import the requested backend into a generic module object
-    backend_name = get_backend_name(name)
-    # the last argument is specifies whether to use absolute or relative
-    # imports. 0 means only perform absolute imports.
-    backend_mod = __import__(backend_name, globals(), locals(),
-                             [backend_name], 0)
+    backend_mod = get_backend(name)
 
     # Things we pull in from all backends
     new_figure_manager = backend_mod.new_figure_manager
@@ -82,6 +81,15 @@ def pylab_setup(name=None):
     # image backends like pdf, agg or svg do not need to do anything
     # for "show" or "draw_if_interactive", so if they are not defined
     # by the backend, just do nothing
+    def do_nothing_show(*args, **kwargs):
+        frame = inspect.currentframe()
+        fname = frame.f_back.f_code.co_filename
+        if fname in ('<stdin>', '<ipython console>'):
+            warnings.warn("""
+Your currently selected backend, '%s' does not support show().
+Please select a GUI backend in your matplotlibrc file ('%s')
+or with matplotlib.use()""" %
+                          (backend, matplotlib.matplotlib_fname()))
 
     def do_nothing(*args, **kwargs):
         pass
@@ -101,13 +109,3 @@ def pylab_setup(name=None):
     global backend
     backend = name
     return backend_mod, new_figure_manager, draw_if_interactive, show
-
-def do_nothing_show(*args, **kwargs):
-    frame = inspect.currentframe()
-    fname = frame.f_back.f_code.co_filename
-    if fname in ('<stdin>', '<ipython console>'):
-        warnings.warn("""
-Your currently selected backend, '%s' does not support show().
-Please select a GUI backend in your matplotlibrc file ('%s')
-or with matplotlib.use()""" %
-                          (name, matplotlib.matplotlib_fname()))
