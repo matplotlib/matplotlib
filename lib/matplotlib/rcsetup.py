@@ -473,6 +473,13 @@ def validate_bbox(s):
             return None
         raise ValueError("bbox should be 'tight' or 'standard'")
 
+validate_xtick_position = ValidateInStrings('xtick.position',
+                                            ['both', 'bottom', 'top', 'none'])
+
+validate_ytick_position = ValidateInStrings('ytick.position',
+                                            ['both', 'left', 'right', 'none'])
+
+
 def validate_sketch(s):
     if isinstance(s, six.string_types):
         s = s.lower()
@@ -632,6 +639,12 @@ defaultParams = {
     'axes.facecolor':        ['w', validate_color],  # background color; white
     'axes.edgecolor':        ['k', validate_color],  # edge color; black
     'axes.linewidth':        [1.0, validate_float],  # edge linewidth
+
+    'axes.spines.left':      [True, validate_bool],  # Set visibility of axes
+    'axes.spines.right':     [True, validate_bool],  # 'spines', the lines
+    'axes.spines.bottom':    [True, validate_bool],  # around the chart
+    'axes.spines.top':       [True, validate_bool],  # denoting data boundary
+
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
     'axes.titleweight':      ['normal', six.text_type],  # font weight of axes title
@@ -723,6 +736,7 @@ defaultParams = {
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
     'xtick.direction':   ['in', six.text_type],            # direction of xticks
+    'xtick.position':    ['both', validate_xtick_position],
 
     'ytick.major.size':  [4, validate_float],     # major ytick size in points
     'ytick.minor.size':  [2, validate_float],     # minor ytick size in points
@@ -736,6 +750,7 @@ defaultParams = {
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],
     'ytick.direction':   ['in', six.text_type],            # direction of yticks
+    'ytick.position':    ['both', validate_ytick_position],
 
     'grid.color':        ['k', validate_color],       # grid color
     'grid.linestyle':    [':', six.text_type],       # dotted
