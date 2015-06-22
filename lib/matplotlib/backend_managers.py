@@ -61,6 +61,9 @@ class FigureManager(cbook.EventEmitter):
     canvas : `matplotlib.backend_bases.FigureCanvasBase`
         The GUI element on which we draw.
 
+    figure : `matplotlib.figure.Figure`
+        The figure that holds the canvas
+
     toolbar : `matplotlib.backend_bases.NavigationToolbar2`
         The toolbar used for interacting with the figure.
 
@@ -79,14 +82,15 @@ class FigureManager(cbook.EventEmitter):
         self.window = self._backend.Window('Figure %d' % num)
         self.window.mpl_connect('window_destroy_event', self.destroy)
 
-        self.canvas = self._backend.FigureCanvas(figure, manager=self)
+        self._figure = None
+        self._set_figure(figure)
 
-        w = int(self.canvas.figure.bbox.width)
-        h = int(self.canvas.figure.bbox.height)
+        w = int(self.figure.bbox.width)
+        h = int(self.figure.bbox.height)
 
-        self.window.add_element(self.canvas, True, 'center')
+        self.window.add_element(self.figure.canvas, True, 'center')
 
-        self.toolmanager = ToolManager(self.canvas.figure)
+        self.toolmanager = ToolManager(self.figure)
         self.toolbar = self._get_toolbar()
 
         tools.add_tools_to_manager(self.toolmanager)
@@ -108,7 +112,20 @@ class FigureManager(cbook.EventEmitter):
             'this will be called whenever the current axes is changed'
             if self.toolmanager is None and self.toolbar is not None:
                 self.toolbar.update()
-        self.canvas.figure.add_axobserver(notify_axes_change)
+        self.figure.add_axobserver(notify_axes_change)
+
+    @property
+    def figure(self):
+        return self._figure
+
+    def _set_figure(self, figure):
+        if not figure.canvas:
+            self._backend.FigureCanvas(figure, manager=self)
+        self._figure = figure
+
+    @property
+    def canvas(self):
+        return self._figure.canvas
 
     def destroy(self, *args):
         """Called to destroy this FigureManager.
@@ -120,7 +137,7 @@ class FigureManager(cbook.EventEmitter):
             return
 
         self._destroying = True
-        self.canvas.destroy()
+        self.figure.canvas.destroy()
         if self.toolbar:
             self.toolbar.destroy()
         self.window.destroy()
