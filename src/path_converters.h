@@ -3,9 +3,9 @@
 #ifndef __PATH_CONVERTERS_H__
 #define __PATH_CONVERTERS_H__
 
+#include <cmath>
 #include "agg_path_storage.h"
 #include "agg_clip_liang_barsky.h"
-#include "MPL_isnan.h"
 #include "mplutils.h"
 #include "agg_conv_segmentator.h"
 
@@ -176,14 +176,14 @@ class PathNanRemover : protected EmbeddedQueue<4>
                 }
 
                 size_t num_extra_points = num_extra_points_map[code & 0xF];
-                bool has_nan = (MPL_notisfinite64(*x) || MPL_notisfinite64(*y));
+                bool has_nan = (!(std::isfinite(*x) && std::isfinite(*y)));
                 queue_push(code, *x, *y);
 
                 /* Note: this test can not be short-circuited, since we need to
                    advance through the entire curve no matter what */
                 for (size_t i = 0; i < num_extra_points; ++i) {
                     m_source->vertex(x, y);
-                    has_nan = has_nan || (MPL_notisfinite64(*x) || MPL_notisfinite64(*y));
+                    has_nan = has_nan || !(std::isfinite(*x) && std::isfinite(*y));
                     queue_push(code, *x, *y);
                 }
 
@@ -196,7 +196,7 @@ class PathNanRemover : protected EmbeddedQueue<4>
                 /* If the last point is finite, we use that for the
                    moveto, otherwise, we'll use the first vertex of
                    the next curve. */
-                if (!(MPL_notisfinite64(*x) || MPL_notisfinite64(*y))) {
+                if (std::isfinite(*x) && std::isfinite(*y)) {
                     queue_push(agg::path_cmd_move_to, *x, *y);
                     needs_move_to = false;
                 } else {
@@ -219,14 +219,14 @@ class PathNanRemover : protected EmbeddedQueue<4>
                 return code;
             }
 
-            if (MPL_notisfinite64(*x) || MPL_notisfinite64(*y)) {
+            if (!(std::isfinite(*x) && std::isfinite(*y))) {
                 do {
                     code = m_source->vertex(x, y);
                     if (code == agg::path_cmd_stop ||
                         code == (agg::path_cmd_end_poly | agg::path_flags_close)) {
                         return code;
                     }
-                } while (MPL_notisfinite64(*x) || MPL_notisfinite64(*y));
+                } while (!(std::isfinite(*x) && std::isfinite(*y)));
                 return agg::path_cmd_move_to;
             }
 
