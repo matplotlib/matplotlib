@@ -89,12 +89,11 @@ class FigureManager(cbook.EventEmitter):
         self.toolmanager = ToolManager(self.canvas.figure)
         self.toolbar = self._get_toolbar()
 
-        if self.toolmanager:
-            tools.add_tools_to_manager(self.toolmanager)
-            if self.toolbar:
-                tools.add_tools_to_container(self.toolbar)
-                self.statusbar = self._backend.Statusbar(self.toolmanager)
-                h += self.window.add_element(self.statusbar, False, 'south')
+        tools.add_tools_to_manager(self.toolmanager)
+        if self.toolbar:
+            tools.add_tools_to_container(self.toolbar)
+            self.statusbar = self._backend.Statusbar(self.toolmanager)
+            h += self.window.add_element(self.statusbar, False, 'south')
 
         if self.toolbar is not None:
             h += self.window.add_element(self.toolbar, False, 'south')
