@@ -2497,11 +2497,14 @@ class FigureCanvasBase(object):
     def manager(self):
         if self._manager is not None:
             return self._manager()
+        return None
 
     @manager.setter
     def manager(self, manager):
         if manager is not None:
             self._manager = weakref.ref(manager)
+        else:
+            self._manager = None
 
 
 def key_press_handler(event, canvas, toolbar=None):
