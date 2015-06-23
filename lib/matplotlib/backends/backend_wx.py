@@ -1713,7 +1713,10 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         rubberBandColor = '#C0C0FF'  # or load from config?
 
         # Set a pen for the border
-        color = wx.NamedColour(rubberBandColor)
+        if wxc.is_phoenix:
+            color = wx.Colour(rubberBandColor)
+        else:
+            color = wx.NamedColour(rubberBandColor)
         dc.SetPen(wx.Pen(color, 1))
 
         # use the same color, plus alpha for the brush
