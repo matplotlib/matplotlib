@@ -1720,7 +1720,10 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         r, g, b, a = color.Get(True)
         color.Set(r, g, b, 0x60)
         dc.SetBrush(wx.Brush(color))
-        dc.DrawRectangleRect(rect)
+        if wxc.is_phoenix:
+            dc.DrawRectangle(rect)
+        else:
+            dc.DrawRectangleRect(rect)
 
     def set_status_bar(self, statbar):
         self.statbar = statbar
