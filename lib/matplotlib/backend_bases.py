@@ -2274,7 +2274,7 @@ class FigureCanvasBase(object):
         Get the title text of the window containing the figure.
         Return None if there is no window (e.g., a PS backend).
         """
-        if hasattr(self, "manager"):
+        if getattr(self, "manager", None):
             return self.manager.get_window_title()
 
     def set_window_title(self, title):
@@ -2282,7 +2282,7 @@ class FigureCanvasBase(object):
         Set the title text of the window containing the figure.  Note that
         this has no effect if there is no window (e.g., a PS backend).
         """
-        if hasattr(self, "manager"):
+        if getattr(self, "manager", None):
             self.manager.set_window_title(title)
 
     def get_default_filename(self):
