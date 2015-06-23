@@ -9,7 +9,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 
-def bullseye_plot(ax, data, segBold=[], cmap=None, norm=None):
+def bullseye_plot(ax, data, segBold=None, cmap=None, norm=None):
     """
     Bullseye representation for the left ventricle.
 
@@ -18,12 +18,12 @@ def bullseye_plot(ax, data, segBold=[], cmap=None, norm=None):
     ax : axes
     data : list of int and float
         The intensity values for each of the 17 segments
-    cmap : ColorMap or None
-        Optional argument to set the disaried colormap
-    norm : Normalize or None
-        Optional argument to normalize data into the [0.0, 1.0] range
-    segBold: list of int
+    segBold: list of int, optional
         A list with the segments to highlight
+    cmap : ColorMap or None, optional
+        Optional argument to set the desired colormap
+    norm : Normalize or None, optional
+        Optional argument to normalize data into the [0.0, 1.0] range
 
 
     Notes
@@ -35,10 +35,12 @@ def bullseye_plot(ax, data, segBold=[], cmap=None, norm=None):
     ----------
     .. [1] M. D. Cerqueira, N. J. Weissman, V. Dilsizian, A. K. Jacobs,
         S. Kaul, W. K. Laskey, D. J. Pennell, J. A. Rumberger, T. Ryan,
-        and M. S. Verani, "Standardized myocardial segmentation and nomenclature
-        for tomographic imaging of the heart", Circulation, vol. 105, no. 4,
-        pp. 539-542, 2002.
+        and M. S. Verani, "Standardized myocardial segmentation and
+        nomenclature for tomographic imaging of the heart",
+        Circulation, vol. 105, no. 4, pp. 539-542, 2002.
     """
+    if segBold is None:
+        segBold = []
 
     linewidth = 2
     data = np.array(data).ravel()
@@ -108,7 +110,7 @@ def bullseye_plot(ax, data, segBold=[], cmap=None, norm=None):
             ax.plot(theta0[0], [r[0], r[1]], '-k', lw=linewidth+1)
             ax.plot(theta0[-1], [r[0], r[1]], '-k', lw=linewidth+1)
 
-    #Fill the segments 17
+    # Fill the segments 17
     if data.size == 17:
         r0 = np.array([0, r[0]])
         r0 = np.repeat(r0[:, np.newaxis], theta.size, axis=1).T
@@ -198,7 +200,8 @@ ax[0].set_title('Bulls Eye (AHA)')
 bullseye_plot(ax[1], data, cmap=cmap2, norm=norm2)
 ax[1].set_title('Bulls Eye (AHA)')
 
-bullseye_plot(ax[2], data, segBold=[3, 5, 6, 11, 12, 16], cmap=cmap3, norm=norm3)
+bullseye_plot(ax[2], data, segBold=[3, 5, 6, 11, 12, 16],
+              cmap=cmap3, norm=norm3)
 ax[2].set_title('Segments [3,5,6,11,12,16] in bold')
 
 plt.show()
