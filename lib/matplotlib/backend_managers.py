@@ -82,8 +82,7 @@ class FigureManager(cbook.EventEmitter):
         self.window = self._backend.Window('Figure %d' % num)
         self.window.mpl_connect('window_destroy_event', self.destroy)
 
-        self._figure = None
-        self._set_figure(figure)
+        self.figure = figure
 
         w = int(self.figure.bbox.width)
         h = int(self.figure.bbox.height)
@@ -118,7 +117,11 @@ class FigureManager(cbook.EventEmitter):
     def figure(self):
         return self._figure
 
-    def _set_figure(self, figure):
+    @figure.setter
+    def figure(self, figure):
+        if hasattr(self, '_figure'):
+            raise NotImplementedError
+
         if not figure.canvas:
             self._backend.FigureCanvas(figure, manager=self)
         self._figure = figure
