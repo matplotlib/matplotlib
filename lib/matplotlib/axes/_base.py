@@ -963,7 +963,7 @@ class _AxesBase(martist.Artist):
         self.patch.set_linewidth(0)
         self.patch.set_transform(self.transAxes)
 
-        self.axison = True
+        self.set_axis_on()
 
         self.xaxis.set_clip_path(self.patch)
         self.yaxis.set_clip_path(self.patch)
