@@ -74,7 +74,7 @@ class FigureManager(cbook.EventEmitter):
         The figure number.
     """
     def __init__(self, figure, num):
-        cbook.EventEmitter.__init__(self)
+        super(FigureManager, self).__init__()
         self.num = num
 
         self._backend = get_backend()

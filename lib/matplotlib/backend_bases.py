@@ -2639,8 +2639,8 @@ class WindowBase(cbook.EventEmitter):
         The title of the window.
     """
 
-    def __init__(self, title):
-        cbook.EventEmitter.__init__(self)
+    def __init__(self, title, **kwargs):
+        super(WindowBase, self).__init__(**kwargs)
 
     def show(self):
         """
@@ -3349,7 +3349,8 @@ class ToolContainerBase(object):
         this `ToolContainer` wants to communicate with.
     """
 
-    def __init__(self, toolmanager):
+    def __init__(self, toolmanager, **kwargs):
+        super(ToolContainerBase, self).__init__(**kwargs)
         self.toolmanager = toolmanager
         self.toolmanager.toolmanager_connect('tool_removed_event',
                                              self._remove_tool_cbk)
@@ -3475,7 +3476,8 @@ class ToolContainerBase(object):
 
 class StatusbarBase(object):
     """Base class for the statusbar"""
-    def __init__(self, toolmanager):
+    def __init__(self, toolmanager, **kwargs):
+        super(StatusbarBase, self).__init__(**kwargs)
         self.toolmanager = toolmanager
         self.toolmanager.toolmanager_connect('tool_message_event',
                                              self._message_cbk)
