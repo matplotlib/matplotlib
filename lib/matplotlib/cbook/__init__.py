@@ -369,6 +369,7 @@ class CallbackRegistry(object):
 
 class EventEmitter(object):
     def __init__(self):
+        super(EventEmitter, self).__init__()
         self._callbacks = CallbackRegistry()
 
     def mpl_connect(self, s, func):

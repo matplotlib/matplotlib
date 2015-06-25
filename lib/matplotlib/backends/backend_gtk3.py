@@ -378,9 +378,8 @@ flow_types = ['horizontal', 'vertical']
 
 
 class WindowGTK3(WindowBase, Gtk.Window):
-    def __init__(self, title):
-        WindowBase.__init__(self, title)
-        Gtk.Window.__init__(self)
+    def __init__(self, title, **kwargs):
+        super(WindowGTK3, self).__init__(title=title, **kwargs)
         self.set_window_title(title)
 
         try:
@@ -817,8 +816,7 @@ class RubberbandGTK3(backend_tools.RubberbandBase):
 
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
     def __init__(self, toolmanager, flow='horizontal'):
-        ToolContainerBase.__init__(self, toolmanager)
-        Gtk.Box.__init__(self)
+        super(ToolbarGTK3, self).__init__(toolmanager=toolmanager)
         self._toolarea = Gtk.Box()
         self.set_flow(flow)
 
@@ -905,8 +903,7 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
 
 class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
     def __init__(self, *args, **kwargs):
-        StatusbarBase.__init__(self, *args, **kwargs)
-        Gtk.Statusbar.__init__(self)
+        super(StatusbarGTK3, self).__init__(*args, **kwargs)
         self._context = self.get_context_id('message')
 
     def set_message(self, s):
