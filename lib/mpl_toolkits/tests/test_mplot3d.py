@@ -257,6 +257,15 @@ def test_axes3d_labelpad():
         tick.set_pad(tick.get_pad() - i * 5)
 
 
+@image_comparison(baseline_images=['axes3d_cla'], extensions=['png'])
+def test_axes3d_cla():
+    # fixed in pull request 4553
+    fig = plt.figure()
+    ax = fig.add_subplot(1,1,1, projection='3d')
+    ax.set_axis_off()
+    ax.cla()  # make sure the axis displayed is 3D (not 2D)
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
