@@ -832,7 +832,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         if self.IsShownOnScreen():
             if not drawDC:
                 # not called from OnPaint use a ClientDC
-                drawDC = wx.ClientDC(self)
+                drawDC = wxc.ClientDC(self)
 
             # ensure that canvas has no 'left' over stuff when resizing frame
             drawDC.Clear()
@@ -1687,7 +1687,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def draw_rubberband(self, event, x0, y0, x1, y1):
         # Use an Overlay to draw a rubberband-like bounding box.
 
-        dc = wx.ClientDC(self.canvas)
+        dc = wxc.ClientDC(self.canvas)
         odc = wx.DCOverlay(self.wxoverlay, dc)
         odc.Clear()
 
@@ -1713,7 +1713,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         rubberBandColor = '#C0C0FF'  # or load from config?
 
         # Set a pen for the border
-        color = wx.NamedColour(rubberBandColor)
+        color = wxc.NamedColour(rubberBandColor)
         dc.SetPen(wx.Pen(color, 1))
 
         # use the same color, plus alpha for the brush

@@ -1849,20 +1849,22 @@ class BackendWxAgg(OptionalBackendPackage):
     name = "wxagg"
 
     def check_requirements(self):
+        wxversioninstalled = True
         try:
             import wxversion
         except ImportError:
-            raise CheckFailed("requires wxPython")
+            wxversioninstalled = False
 
-        try:
-            _wx_ensure_failed = wxversion.AlreadyImportedError
-        except AttributeError:
-            _wx_ensure_failed = wxversion.VersionError
+        if wxversioninstalled:
+            try:
+                _wx_ensure_failed = wxversion.AlreadyImportedError
+            except AttributeError:
+                _wx_ensure_failed = wxversion.VersionError
 
-        try:
-            wxversion.ensureMinimal('2.8')
-        except _wx_ensure_failed:
-            pass
+            try:
+                wxversion.ensureMinimal('2.8')
+            except _wx_ensure_failed:
+                pass
 
         try:
             import wx
