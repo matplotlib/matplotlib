@@ -815,8 +815,8 @@ class RubberbandGTK3(backend_tools.RubberbandBase):
 
 
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
-    def __init__(self, toolmanager, flow='horizontal'):
-        super(ToolbarGTK3, self).__init__(toolmanager=toolmanager)
+    def __init__(self, toolmanager, flow='horizontal', **kwargs):
+        super(ToolbarGTK3, self).__init__(toolmanager=toolmanager, **kwargs)
         self._toolarea = Gtk.Box()
         self.set_flow(flow)
 

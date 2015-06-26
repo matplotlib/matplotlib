@@ -73,8 +73,8 @@ class FigureManager(cbook.EventEmitter):
     num : int
         The figure number.
     """
-    def __init__(self, figure, num):
-        super(FigureManager, self).__init__()
+    def __init__(self, figure, num, **kwargs):
+        super(FigureManager, self).__init__(**kwargs)
         self.num = num
 
         self._backend = get_backend()
