@@ -5,17 +5,10 @@ import six
 
 import os
 from nose.plugins.errorclass import ErrorClass, ErrorClassPlugin
+from matplotlib.testing.exceptions import (KnownFailureTest,
+                                           KnownFailureDidNotFailTest,
+                                           ImageComparisonFailure)
 
-class KnownFailureTest(Exception):
-    '''Raise this exception to mark a test as a known failing test.'''
-    pass
-
-class KnownFailureDidNotFailTest(Exception):
-    '''Raise this exception to mark a test should have failed but did not.'''
-    pass
-
-class ImageComparisonFailure(AssertionError):
-    '''Raise this exception to mark a test as a comparison between two images.'''
 
 class KnownFailure(ErrorClassPlugin):
     '''Plugin that installs a KNOWNFAIL error class for the
@@ -46,7 +39,7 @@ class KnownFailure(ErrorClassPlugin):
         if disable:
             self.enabled = False
 
-    def addError( self, test, err, *zero_nine_capt_args ):
+    def addError(self, test, err, *zero_nine_capt_args):
         # Fixme (Really weird): if I don't leave empty method here,
         # nose gets confused and KnownFails become testing errors when
         # using the MplNosePlugin and MplTestCase.
