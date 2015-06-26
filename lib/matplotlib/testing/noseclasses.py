@@ -9,6 +9,7 @@ from matplotlib.testing.exceptions import (KnownFailureTest,
                                            KnownFailureDidNotFailTest,
                                            ImageComparisonFailure)
 
+
 class KnownFailure(ErrorClassPlugin):
     '''Plugin that installs a KNOWNFAIL error class for the
     KnownFailureClass exception.  When KnownFailureTest is raised,
@@ -38,7 +39,7 @@ class KnownFailure(ErrorClassPlugin):
         if disable:
             self.enabled = False
 
-    def addError( self, test, err, *zero_nine_capt_args ):
+    def addError(self, test, err, *zero_nine_capt_args):
         # Fixme (Really weird): if I don't leave empty method here,
         # nose gets confused and KnownFails become testing errors when
         # using the MplNosePlugin and MplTestCase.
