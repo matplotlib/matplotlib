@@ -156,6 +156,7 @@ class FigureManager(cbook.EventEmitter):
     def show(self):
         """Shows the figure"""
         self.window.show()
+        self.canvas.grab_focus()
 
     def full_screen_toggle(self):
         """Toggles whether we show fullscreen, alternatively call
