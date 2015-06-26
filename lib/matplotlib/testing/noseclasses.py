@@ -5,17 +5,9 @@ import six
 
 import os
 from nose.plugins.errorclass import ErrorClass, ErrorClassPlugin
-
-class KnownFailureTest(Exception):
-    '''Raise this exception to mark a test as a known failing test.'''
-    pass
-
-class KnownFailureDidNotFailTest(Exception):
-    '''Raise this exception to mark a test should have failed but did not.'''
-    pass
-
-class ImageComparisonFailure(AssertionError):
-    '''Raise this exception to mark a test as a comparison between two images.'''
+from matplotlib.testing.exceptions import (KnownFailureTest,
+                                           KnownFailureDidNotFailTest,
+                                           ImageComparisonFailure)
 
 class KnownFailure(ErrorClassPlugin):
     '''Plugin that installs a KNOWNFAIL error class for the
