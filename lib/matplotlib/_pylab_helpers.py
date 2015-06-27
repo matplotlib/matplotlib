@@ -114,7 +114,7 @@ class Gcf(object):
         """
         Return the number of figures being managed.
         """
-        return len(cls.figs.values())
+        return len(cls.figs)
 
     @classmethod
     def get_active(cls):
