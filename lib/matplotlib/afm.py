@@ -169,7 +169,7 @@ def _parse_header(fh):
                   key, val, file=sys.stderr)
             continue
         except KeyError:
-            print('Found an unknown keyword in AFM header (was %s)' % key,
+            print('Found an unknown keyword in AFM header (was %r)' % key,
                   file=sys.stderr)
             continue
         if key == b'StartCharMetrics':
