@@ -555,6 +555,7 @@ def gcf():
     else:
         return figure()
 
+
 def fignum_exists(num):
     return _pylab_helpers.Gcf.has_fignum(num) or num in get_figlabels()
 
@@ -1138,20 +1139,20 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
             sharey = "none"
     share_values = ["all", "row", "col", "none"]
     if sharex not in share_values:
-        # This check was added because it is very easy to type subplots(1, 2, 1)
-        # when subplot(1, 2, 1) was intended. In most cases, no error will
-        # ever occur, but mysterious behavior will result because what was
-        # intended to be the subplot index is instead treated as a bool for
-        # sharex.
+        # This check was added because it is very easy to type
+        # `subplots(1, 2, 1)` when `subplot(1, 2, 1)` was intended.
+        # In most cases, no error will ever occur, but mysterious behavior will
+        # result because what was intended to be the subplot index is instead
+        # treated as a bool for sharex.
         if isinstance(sharex, int):
             warnings.warn("sharex argument to subplots() was an integer."
                           " Did you intend to use subplot() (without 's')?")
 
-        raise ValueError("sharex [%s] must be one of %s" % \
-                (sharex, share_values))
+        raise ValueError("sharex [%s] must be one of %s" %
+                         (sharex, share_values))
     if sharey not in share_values:
-        raise ValueError("sharey [%s] must be one of %s" % \
-                (sharey, share_values))
+        raise ValueError("sharey [%s] must be one of %s" %
+                         (sharey, share_values))
     if subplot_kw is None:
         subplot_kw = {}
     if gridspec_kw is None:
@@ -1167,10 +1168,6 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
     # Create first subplot separately, so we can share it if requested
     ax0 = fig.add_subplot(gs[0, 0], **subplot_kw)
-    #if sharex:
-    #    subplot_kw['sharex'] = ax0
-    #if sharey:
-    #    subplot_kw['sharey'] = ax0
     axarr[0] = ax0
 
     r, c = np.mgrid[:nrows, :ncols]
@@ -1203,7 +1200,6 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
     # turn off redundant tick labeling
     if sharex in ["col", "all"] and nrows > 1:
-    #if sharex and nrows>1:
         # turn off all but the bottom row
         for ax in axarr[:-1, :].flat:
             for label in ax.get_xticklabels():
@@ -1211,7 +1207,6 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
             ax.xaxis.offsetText.set_visible(False)
 
     if sharey in ["row", "all"] and ncols > 1:
-    #if sharey and ncols>1:
         # turn off all but the first column
         for ax in axarr[:, 1:].flat:
             for label in ax.get_yticklabels():
@@ -1222,8 +1217,8 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         # Reshape the array to have the final desired dimension (nrow,ncol),
         # though discarding unneeded dimensions that equal 1.  If we only have
         # one subplot, just return it instead of a 1-element array.
-        if nplots==1:
-            ret = fig, axarr[0,0]
+        if nplots == 1:
+            ret = fig, axarr[0, 0]
         else:
             ret = fig, axarr.squeeze()
     else:
@@ -1257,10 +1252,12 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, **kwargs):
     bbox = a.bbox
     byebye = []
     for other in fig.axes:
-        if other==a: continue
+        if other == a:
+            continue
         if bbox.fully_overlaps(other.bbox):
             byebye.append(other)
-    for ax in byebye: delaxes(ax)
+    for ax in byebye:
+        delaxes(ax)
 
     return a
 
