@@ -224,6 +224,9 @@ def new_figure_manager_given_figure(num, figure):
     if rcParams['nbagg.transparent']:
         figure.patch.set_alpha(0)
     manager = FigureManagerNbAgg(canvas, num)
+    if is_interactive():
+        manager.show()
+        figure.canvas.draw_idle()
     return manager
 
 
