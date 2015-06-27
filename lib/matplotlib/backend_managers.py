@@ -123,7 +123,7 @@ class FigureManager(cbook.EventEmitter):
             raise NotImplementedError
 
         if not figure.canvas:
-            self._backend.FigureCanvas(figure, manager=self)
+            self._backend.FigureCanvas(figure, manager=self, backend=self.backend)
         self._figure = figure
 
     @property
@@ -530,10 +530,7 @@ class ToolManager(object):
     def _get_cls_to_instantiate(self, callback_class):
         # Find the class that corresponds to the tool
         if isinstance(callback_class, six.string_types):
-            try:
-                backend = self.canvas.manager.backend
-            except:
-                backend = get_backend()
+            backend = self.canvas.backend
 
             # FIXME: make more complete searching structure
             if hasattr(backend, callback_class):

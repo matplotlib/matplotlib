@@ -127,7 +127,8 @@ class TimerGTK3(TimerBase):
             self._timer = None
             return False
 
-class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
+
+class FigureCanvasGTK3(FigureCanvasBase, Gtk.DrawingArea):
     keyvald = {65507 : 'control',
                65505 : 'shift',
                65513 : 'alt',
@@ -192,8 +193,8 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
                   Gdk.EventMask.POINTER_MOTION_HINT_MASK|
                   Gdk.EventMask.SCROLL_MASK)
 
-    def __init__(self, figure, manager=None):
-        FigureCanvasBase.__init__(self, figure, manager)
+    def __init__(self, *args, **kwargs):
+        FigureCanvasBase.__init__(self, *args, **kwargs)
         GObject.GObject.__init__(self)
 
         self._idle_draw_id  = 0
