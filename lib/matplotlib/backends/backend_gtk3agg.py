@@ -21,8 +21,8 @@ if six.PY3 and not HAS_CAIRO_CFFI:
 
 class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
                           backend_agg.FigureCanvasAgg):
-    def __init__(self, figure, manager=None):
-        backend_gtk3.FigureCanvasGTK3.__init__(self, figure, manager)
+    def __init__(self, *args, **kwargs):
+        backend_gtk3.FigureCanvasGTK3.__init__(self, *args, **kwargs)
         self._bbox_queue = []
 
     def _renderer_init(self):

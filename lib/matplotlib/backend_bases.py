@@ -1701,7 +1701,8 @@ class FigureCanvasBase(object):
         register_backend('tiff', 'matplotlib.backends.backend_agg',
                          'Tagged Image File Format')
 
-    def __init__(self, figure, manager=None):
+    def __init__(self, figure, manager=None, backend=None, **kwargs):
+        self._backend = backend
         self._is_idle_drawing = True
         self._is_saving = False
         figure.set_canvas(self)
@@ -1724,6 +1725,10 @@ class FigureCanvasBase(object):
         self._is_idle_drawing = True
         yield
         self._is_idle_drawing = False
+
+    @property
+    def backend(self):
+        return self._backend
 
     def is_saving(self):
         """
