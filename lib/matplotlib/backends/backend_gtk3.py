@@ -912,38 +912,6 @@ class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
         self.push(self._context, s)
 
 
-class SaveFigureGTK3(backend_tools.SaveFigureBase):
-
-    def get_filechooser(self):
-        fc = FileChooserDialog(
-            title='Save the figure',
-            parent=self.figure.canvas.manager.window,
-            path=os.path.expanduser(rcParams.get('savefig.directory', '')),
-            filetypes=self.figure.canvas.get_supported_filetypes(),
-            default_filetype=self.figure.canvas.get_default_filetype())
-        fc.set_current_name(self.figure.canvas.get_default_filename())
-        return fc
-
-    def trigger(self, *args, **kwargs):
-        chooser = self.get_filechooser()
-        fname, format_ = chooser.get_filename_from_user()
-        chooser.destroy()
-        if fname:
-            startpath = os.path.expanduser(
-                rcParams.get('savefig.directory', ''))
-            if startpath == '':
-                # explicitly missing key or empty str signals to use cwd
-                rcParams['savefig.directory'] = startpath
-            else:
-                # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(
-                    six.text_type(fname))
-            try:
-                self.figure.canvas.print_figure(fname, format=format_)
-            except Exception as e:
-                error_msg_gtk(str(e), parent=self)
-
-
 class SetCursorGTK3(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
         self.figure.canvas.get_property("window").set_cursor(cursord[cursor])
@@ -1029,7 +997,6 @@ def error_msg_gtk(msg, parent=None):
     dialog.destroy()
 
 
-backend_tools.ToolSaveFigure = SaveFigureGTK3
 backend_tools.ToolConfigureSubplots = ConfigureSubplotsGTK3
 backend_tools.ToolSetCursor = SetCursorGTK3
 backend_tools.ToolRubberband = RubberbandGTK3
