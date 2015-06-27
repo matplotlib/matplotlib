@@ -123,7 +123,8 @@ class FigureManager(cbook.EventEmitter):
             raise NotImplementedError
 
         if not figure.canvas:
-            self._backend.FigureCanvas(figure, manager=self, backend=self.backend)
+            self._backend.FigureCanvas(figure, manager=self,
+                                       backend=self.backend)
         self._figure = figure
 
     @property
