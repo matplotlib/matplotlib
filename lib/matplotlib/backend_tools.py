@@ -14,6 +14,8 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
 
 from matplotlib import rcParams
 import matplotlib.cbook as cbook
+from matplotlib.widgets import SubplotTool
+
 from weakref import WeakKeyDictionary
 import six
 import time
@@ -757,6 +759,43 @@ class ConfigureSubplotsBase(ToolBase):
 
     description = 'Configure subplots'
     image = 'subplots.png'
+
+
+class ToolConfigureSubplots(ToolBase):
+    """Tool for the configuration of subplots"""
+
+    description = 'Configure subplots'
+    image = 'subplots.png'
+
+    def __init__(self, *args, **kwargs):
+        ToolBase.__init__(self, *args, **kwargs)
+        self.dialog = None
+
+    def trigger(self, sender, event, data=None):
+        self.init_dialog()
+        self.dialog.show()
+
+    def init_dialog(self):
+        if self.dialog:
+            return
+
+        from matplotlib.figure import Figure
+        self.dialog = self.figure.canvas.backend.Window(self.description)
+        self.dialog.mpl_connect('window_destroy_event', self._window_destroy)
+
+        tool_fig = Figure(figsize=(6, 3))
+        self.tool_canvas = self.figure.canvas.__class__(tool_fig)
+        tool_fig.subplots_adjust(top=0.9)
+        SubplotTool(self.figure, tool_fig)
+
+        w, h = int(tool_fig.bbox.width), int(tool_fig.bbox.height)
+
+        self.dialog.add_element(self.tool_canvas, True, 'center')
+        self.dialog.set_default_size(w, h)
+
+    def _window_destroy(self, *args, **kwargs):
+        self.tool_canvas.destroy()
+        self.dialog = None
 
 
 class SaveFigureBase(ToolBase):
