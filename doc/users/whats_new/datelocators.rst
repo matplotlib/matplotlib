@@ -5,7 +5,7 @@ Date Locators (derived from :class:`~matplotlib.dates.DateLocator`) now
 implement the :meth:`~matplotlib.tickers.Locator.tick_values` method.
 This is expected of all Locators derived from :class:`~matplotlib.tickers.Locator`.
 
-The Date Locators can now be used easily without creating axes
+The Date Locators can now be used easily without creating axes ::
 
     from datetime import datetime
     from matplotlib.dates import YearLocator
