@@ -500,6 +500,7 @@ class FigureManagerQT(FigureManagerBase):
 
         if matplotlib.is_interactive():
             self.window.show()
+            self.canvas.draw_idle()
 
         def notify_axes_change(fig):
             # This will be called whenever the current axes is changed

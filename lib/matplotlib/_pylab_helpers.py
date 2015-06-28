@@ -114,7 +114,7 @@ class Gcf(object):
         """
         Return the number of figures being managed.
         """
-        return len(cls.figs.values())
+        return len(cls.figs)
 
     @classmethod
     def get_active(cls):
@@ -146,7 +146,6 @@ class Gcf(object):
         state machine.
         """
         for f_mgr in cls.get_all_fig_managers():
-            # TODO add logic to check if figure is stale
             if force or f_mgr.canvas.figure.stale:
                 f_mgr.canvas.draw_idle()
 

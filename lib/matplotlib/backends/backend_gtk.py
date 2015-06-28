@@ -586,6 +586,7 @@ class FigureManagerGTK(FigureManagerBase):
         self.window.connect("delete_event", destroy)
         if matplotlib.is_interactive():
             self.window.show()
+            self.canvas.draw_idle()
 
         def notify_axes_change(fig):
             'this will be called whenever the current axes is changed'
