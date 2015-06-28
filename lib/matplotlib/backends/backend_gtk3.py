@@ -949,9 +949,6 @@ def error_msg_gtk(msg, parent=None):
     dialog.destroy()
 
 
-backend_tools.ToolSetCursor = SetCursorGTK3
-backend_tools.ToolRubberband = RubberbandGTK3
-
 Toolbar = ToolbarGTK3
 FigureCanvas = FigureCanvasGTK3
 FigureManager = FigureManagerGTK3
