@@ -20,7 +20,8 @@ tool_mgr = manager.toolmanager
 
 # Create a new toolbar
 topbar = manager.backend.Toolbar(tool_mgr)
-# The options are north, east, west and south
+
+# Add it to the figure window, we can place it north, east, west and south
 manager.window.add_element(topbar, False, 'north')
 
 # Remove some tools from the main toolbar and add them to the
@@ -33,17 +34,17 @@ plt.plot([1, 2, 3])
 
 # Add a new window
 win = manager.backend.Window('Extra tools')
+
 # create a sidebar for the new window
 sidebar = manager.backend.Toolbar(tool_mgr)
-# set the direction of the sidebar
-# the options are horizontal and vertical
-sidebar.set_flow('vertical')
+
 # add the sidebar to the new window
 win.add_element(sidebar, False, 'west')
 
 # Add some tools to the new sidebar
 for tool in ('home', 'back', 'forward', 'zoom', 'pan'):
     sidebar.add_tool(tool, None)
+
 # show the new window
 win.show()
 
