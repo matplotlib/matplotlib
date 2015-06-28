@@ -30,8 +30,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors,
      TimerBase, WindowBase, MainLoopBase)
-from matplotlib.backend_bases import (ShowBase, ToolContainerBase,
-                                      StatusbarBase)
+from matplotlib.backend_bases import ShowBase, ToolbarBase, StatusbarBase
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import is_writable_file_like
 from matplotlib.figure import Figure
@@ -375,7 +374,6 @@ class FigureCanvasGTK3(FigureCanvasBase, Gtk.DrawingArea):
 
 
 _flow = [Gtk.Orientation.HORIZONTAL, Gtk.Orientation.VERTICAL]
-flow_types = ['horizontal', 'vertical']
 
 
 class WindowGTK3(WindowBase, Gtk.Window):
@@ -419,9 +417,17 @@ class WindowGTK3(WindowBase, Gtk.Window):
     def add_element(self, element, expand, place):
         element.show()
 
-        flow = _flow[not _flow.index(self._layout[place].get_orientation())]
+        # Get the flow of the element (the opposite of the container)
+        flow_index = not _flow.index(self._layout[place].get_orientation())
+        flow = _flow[flow_index]
         separator = Gtk.Separator(orientation=flow)
         separator.show()
+
+        try:
+            element.flow = element.flow_types[flow_index]
+        except AttributeError:
+            pass
+
         if place in ['north', 'west', 'center']:
             self._layout[place].pack_start(element, expand, expand, 0)
             self._layout[place].pack_start(separator, False, False, 0)
@@ -816,11 +822,10 @@ class RubberbandGTK3(backend_tools.RubberbandBase):
         self.ctx.stroke()
 
 
-class ToolbarGTK3(ToolContainerBase, Gtk.Box):
-    def __init__(self, toolmanager, flow='horizontal', **kwargs):
-        super(ToolbarGTK3, self).__init__(toolmanager=toolmanager, **kwargs)
+class ToolbarGTK3(ToolbarBase, Gtk.Box):
+    def __init__(self, toolmanager, **kwargs):
         self._toolarea = Gtk.Box()
-        self.set_flow(flow)
+        super(ToolbarGTK3, self).__init__(toolmanager=toolmanager, **kwargs)
 
         self.pack_start(self._toolarea, False, False, 0)
         self._toolarea.show_all()
@@ -883,11 +888,7 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
                     self._groups[group].remove(toolitem)
         del self._toolitems[name]
 
-    def set_flow(self, flow):
-        try:
-            self._flow = flow_types.index(flow)
-        except ValueError:
-            raise ValueError('Flow (%s), not in list  %s' % (flow, flow_types))
+    def _update_flow(self):
         self.set_property("orientation", _flow[not self._flow])
         self._toolarea.set_property('orientation', _flow[self._flow])
         for item in self._toolarea:

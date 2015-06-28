@@ -3499,6 +3499,38 @@ class ToolContainerBase(object):
         raise NotImplementedError
 
 
+class FlowBase(object):
+    flow_types = ['horizontal', 'vertical']
+
+    def __init__(self, flow='horizontal', flow_locked=False, **kwargs):
+        super(FlowBase, self).__init__(**kwargs)
+        self.flow_locked = flow_locked
+        self.flow = flow
+
+    @property
+    def flow(self):
+        return FlowBase.flow_types[self._flow]
+
+    @flow.setter
+    def flow(self, flow):
+        if self.flow_locked:
+            return
+
+        try:
+            self._flow = FlowBase.flow_types.index(flow)
+        except ValueError:
+            raise ValueError('Flow (%s), not in list  %s' % (flow, FlowBase.flow_types))
+
+        self._update_flow()
+
+    def _update_flow(self):
+        raise NotImplementedError
+
+
+class ToolbarBase(ToolContainerBase, FlowBase):
+    pass
+
+
 class StatusbarBase(object):
     """Base class for the statusbar"""
     def __init__(self, toolmanager, **kwargs):
