@@ -6,7 +6,6 @@ import six
 import numpy as np
 from .axes_divider import make_axes_locatable, Size, locatable_axes_factory
 import sys
-import warnings
 
 def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
     """
@@ -128,7 +127,7 @@ class RGBAxesBase(object):
                        "_defaultAxesClass attribute. If you are not sure which "
                        "axes class to use, consider using "
                        "mpl_toolkits.axes_grid1.mpl_axes.Axes.")
-            six.reraise(KeyError, AttributeError(new_msg),
+            six.reraise(AttributeError, AttributeError(new_msg),
                         sys.exc_info()[2])
 
         ax = axes_class(*kl, **kwargs)
