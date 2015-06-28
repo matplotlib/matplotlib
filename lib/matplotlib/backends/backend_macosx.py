@@ -386,6 +386,7 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
 
         if matplotlib.is_interactive():
             self.show()
+            self.canvas.draw_idle()
 
     def close(self):
         Gcf.destroy(self.num)

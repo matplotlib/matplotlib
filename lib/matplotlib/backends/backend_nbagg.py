@@ -4,7 +4,6 @@
 # that changes made maintain expected behaviour.
 
 from base64 import b64encode
-from contextlib import contextmanager
 import json
 import io
 import os
@@ -18,7 +17,7 @@ from IPython.kernel.comm import Comm
 
 from matplotlib import rcParams
 from matplotlib.figure import Figure
-from matplotlib.backends import backend_agg
+from matplotlib import is_interactive
 from matplotlib.backends.backend_webagg_core import (FigureManagerWebAgg,
                                                      FigureCanvasWebAggCore,
                                                      NavigationToolbar2WebAgg)
@@ -29,7 +28,6 @@ from matplotlib.backend_bases import (ShowBase, NavigationToolbar2,
 class Show(ShowBase):
     def __call__(self, block=None):
         from matplotlib._pylab_helpers import Gcf
-        from matplotlib import is_interactive
 
         managers = Gcf.get_all_fig_managers()
         if not managers:
@@ -54,7 +52,6 @@ show = Show()
 
 
 def draw_if_interactive():
-    from matplotlib import is_interactive
     import matplotlib._pylab_helpers as pylab_helpers
 
     if is_interactive():
@@ -227,6 +224,9 @@ def new_figure_manager_given_figure(num, figure):
     if rcParams['nbagg.transparent']:
         figure.patch.set_alpha(0)
     manager = FigureManagerNbAgg(canvas, num)
+    if is_interactive():
+        manager.show()
+        figure.canvas.draw_idle()
     return manager
 
 

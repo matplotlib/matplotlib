@@ -112,6 +112,7 @@ def new_figure_manager_given_figure(num, figure):
     figManager = FigureManagerTkAgg(canvas, num, window)
     if matplotlib.is_interactive():
         figManager.show()
+        canvas.draw_idle()
     return figManager
 
 
