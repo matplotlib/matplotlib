@@ -8,5 +8,5 @@ viewer that has this facility (Adobe Reader, OSX Preview, Skim,
 etc.). Per default the note itself is kept off-page to prevent it to
 appear in print-outs.
 
-PdfPages.attach_note needs to be called before savefig in order to be
+`PdfPages.attach_note` needs to be called before savefig in order to be
 added to the correct figure.

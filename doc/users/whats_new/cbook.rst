@@ -1,7 +1,7 @@
 cbook.is_sequence_of_strings recognizes string objects
 ``````````````````````````````````````````````````````
 
-This is primarily how pandas stores a sequence of strings.
+This is primarily how pandas stores a sequence of strings ::
 
     import pandas as pd
     import matplotlib.cbook as cbook

@@ -5,7 +5,7 @@ set_params() function, which sets parameters within a Locator type instance,
 is now available to all Locator types. The implementation also prevents unsafe
 usage by strictly defining the parameters that a user can set.
 
-To use, simply call set_params() on a Locator instance with desired arguments:
+To use, simply call ``set_params()`` on a Locator instance with desired arguments:
 ::
 
     loc = matplotlib.ticker.LogLocator()
