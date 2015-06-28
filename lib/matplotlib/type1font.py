@@ -123,7 +123,7 @@ class Type1Font(object):
         # zeros backward
         idx = data.rindex(b'cleartomark') - 1
         zeros = 512
-        while zeros and data[idx] in b'0\n\r':
+        while zeros and data[idx] in b'0' or data[idx] in b'\r\n':
             if data[idx] in b'0':
                 zeros -= 1
             idx -= 1
