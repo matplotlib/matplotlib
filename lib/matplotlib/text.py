@@ -21,7 +21,7 @@ from matplotlib.artist import Artist
 from matplotlib.cbook import is_string_like, maxdict
 from matplotlib import docstring
 from matplotlib.font_manager import FontProperties
-from matplotlib.patches import YAArrow, FancyBboxPatch
+from matplotlib.patches import FancyBboxPatch
 from matplotlib.patches import FancyArrowPatch, Rectangle
 import matplotlib.transforms as mtransforms
 from matplotlib.transforms import Affine2D, Bbox, Transform
@@ -531,7 +531,7 @@ class Text(Artist):
             posx, posy = trans.transform_point((posx, posy))
 
             x_box, y_box, w_box, h_box = _get_textbox(self, renderer,
-                                                      with_descent=False)
+                                                      with_descent=True)
             self._bbox_patch.set_bounds(0., 0., w_box, h_box)
             theta = np.deg2rad(self.get_rotation())
             tr = mtransforms.Affine2D().rotate(theta)
@@ -548,7 +548,7 @@ class Text(Artist):
         """
 
         x_box, y_box, w_box, h_box = _get_textbox(self, renderer,
-                                                  with_descent=False)
+                                                  with_descent=True)
         self._bbox_patch.set_bounds(0., 0., w_box, h_box)
         theta = np.deg2rad(self.get_rotation())
         tr = mtransforms.Affine2D().rotate(theta)
@@ -557,7 +557,6 @@ class Text(Artist):
         fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
         self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
         self._bbox_patch.draw(renderer)
-
 
     def _update_clip_properties(self):
         clipprops = dict(clip_box=self.clipbox,
@@ -2114,7 +2113,6 @@ class Annotation(Text, _AnnotationBase):
         self.set_transform(self._get_xy_transform(
             renderer, self.xy, self.anncoords))
 
-
         ox0, oy0 = self._get_xy_display()
         ox1, oy1 = xy_pixel
 
@@ -2171,7 +2169,6 @@ class Annotation(Text, _AnnotationBase):
                 shrink_pts = shrink * r / renderer.points_to_pixels(1)
                 self.arrow_patch.shrinkA = shrink_pts
                 self.arrow_patch.shrinkB = shrink_pts
-
 
             # adjust the starting point of the arrow relative to
             # the textbox.
@@ -2242,7 +2239,6 @@ class Annotation(Text, _AnnotationBase):
         # Draw text, including FancyBboxPatch, after FancyArrowPatch.
         # Otherwise, a wedge arrowstyle can land partly on top of the Bbox.
         Text.draw(self, renderer)
-
 
     def get_window_extent(self, renderer=None):
         '''
