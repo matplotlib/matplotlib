@@ -462,6 +462,9 @@ class WindowGTK3(WindowBase, Gtk.Window):
     def set_window_title(self, title):
         self.set_title(title)
 
+    def resize(self, width, height):
+        Gtk.Window.resize(self, width, height)
+
 
 class FigureManagerGTK3(FigureManagerBase):
     """
