@@ -382,11 +382,11 @@ def test_text_with_arrow_annotation_get_window_extent():
     # bounding box of annotation (text + arrow)
     bbox = ann.get_window_extent(renderer=renderer)
     # bounding box of arrow
-    arrow_bbox = ann.arrow.get_window_extent(renderer)
+    arrow_bbox = ann.arrow_patch.get_window_extent(renderer)
     # bounding box of annotation text
     ann_txt_bbox = Text.get_window_extent(ann)
 
-    # make sure annotation with in 50 px wider than
+    # make sure annotation width is 50 px wider than
     # just the text
     eq_(bbox.width, text_bbox.width + 50.0)
     # make sure the annotation text bounding box is same size
