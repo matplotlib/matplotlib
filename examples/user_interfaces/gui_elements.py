@@ -22,7 +22,7 @@ tool_mgr = manager.toolmanager
 topbar = manager.backend.Toolbar(tool_mgr)
 
 # Add it to the figure window, we can place it north, east, west and south
-manager.window.add_element(topbar, False, 'north')
+manager.window.add_element(topbar, 'north')
 
 # Remove some tools from the main toolbar and add them to the
 # new sidebar
@@ -39,7 +39,7 @@ win = manager.backend.Window('Extra tools')
 sidebar = manager.backend.Toolbar(tool_mgr)
 
 # add the sidebar to the new window
-win.add_element(sidebar, False, 'west')
+win.add_element(sidebar, 'west')
 
 # Add some tools to the new sidebar
 for tool in ('home', 'back', 'forward', 'zoom', 'pan'):

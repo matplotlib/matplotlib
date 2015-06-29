@@ -1708,7 +1708,61 @@ class KeyEvent(LocationEvent):
         self.key = key
 
 
-class FigureCanvasBase(object):
+class ExpandableBase(object):
+    """
+    Base class for GUI elements that can expand to fill the area given to them
+    by the encapsulating container (e.g. the main window).
+
+    At the moment this class does not do anything apart from mark such classes,
+    but this may well change at a later date, PRs welcome.
+    """
+    pass
+
+class FlowBase(object):
+    """
+    Base mixin class for all GUI elements that can flow, aka laid out in
+    different directions.
+
+    The MPL window class deals with the manipulation of this mixin, so users
+    don't actually need to interact with this class.
+
+    Classes the implement this class must override the _update_flow method.
+    """
+    flow_types = ['horizontal', 'vertical']
+
+    def __init__(self, flow='horizontal', flow_locked=False, **kwargs):
+        super(FlowBase, self).__init__(**kwargs)
+        self.flow_locked = flow_locked
+        self.flow = flow
+
+    @property
+    def flow(self):
+        """
+        The direction of flow, one of the strings in `flow_type`.
+        """
+        return FlowBase.flow_types[self._flow]
+
+    @flow.setter
+    def flow(self, flow):
+        if self.flow_locked:
+            return
+
+        try:
+            self._flow = FlowBase.flow_types.index(flow)
+        except ValueError:
+            raise ValueError('Flow (%s), not in list  %s' % (flow, FlowBase.flow_types))
+
+        self._update_flow()
+
+    def _update_flow(self):
+        """
+        Classes that extend FlowBase must override this method.
+        You can use the internal property self._flow whereby
+        flow_types[self._flow] gives the current flow.
+        """
+        raise NotImplementedError
+
+class FigureCanvasBase(ExpandableBase):
     """
     The canvas the figure renders into.
 
@@ -2756,7 +2810,7 @@ class WindowBase(cbook.EventEmitter):
         """
         pass
 
-    def add_element(self, element, expand, place):
+    def add_element(self, element, place):
         """ Adds a gui widget to the window.
         This has no effect for non-GUI backends and properties only apply
         to those backends that support them, or have a suitable workaround.
@@ -2765,9 +2819,6 @@ class WindowBase(cbook.EventEmitter):
         ----------
         element : A gui element.
             The element to add to the window
-        expand : bool
-            Whether the element should auto expand to fill as much space within
-            the window as possible.
         place : string
             The location to place the element, either compass points north,
             east, south, west, or center.
@@ -3495,51 +3546,6 @@ class ToolContainerBase(object):
         ----------
         name : string
             Name of the tool to remove
-        """
-        raise NotImplementedError
-
-
-class FlowBase(object):
-    """
-    Base mixin class for all GUI elements that can flow, aka laid out in
-    different directions.
-
-    The MPL window class deals with the manipulation of this mixin, so users
-    don't actually need to interact with this class.
-
-    Classes the implement this class must override the _update_flow method.
-    """
-    flow_types = ['horizontal', 'vertical']
-
-    def __init__(self, flow='horizontal', flow_locked=False, **kwargs):
-        super(FlowBase, self).__init__(**kwargs)
-        self.flow_locked = flow_locked
-        self.flow = flow
-
-    @property
-    def flow(self):
-        """
-        The direction of flow, one of the strings in `flow_type`.
-        """
-        return FlowBase.flow_types[self._flow]
-
-    @flow.setter
-    def flow(self, flow):
-        if self.flow_locked:
-            return
-
-        try:
-            self._flow = FlowBase.flow_types.index(flow)
-        except ValueError:
-            raise ValueError('Flow (%s), not in list  %s' % (flow, FlowBase.flow_types))
-
-        self._update_flow()
-
-    def _update_flow(self):
-        """
-        Classes that extend FlowBase must override this method.
-        You can use the internal property self._flow whereby
-        flow_types[self._flow] gives the current flow.
         """
         raise NotImplementedError
 

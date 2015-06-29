@@ -29,7 +29,7 @@ import matplotlib
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors,
-     TimerBase, WindowBase, MainLoopBase)
+     TimerBase, WindowBase, MainLoopBase, ExpandableBase)
 from matplotlib.backend_bases import ShowBase, ToolbarBase, StatusbarBase
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import is_writable_file_like
@@ -414,7 +414,7 @@ class WindowGTK3(WindowBase, Gtk.Window):
             self._layout[parent].pack_start(self._layout[name], grow, grow, 0)
         self._layout[name].show()
 
-    def add_element(self, element, expand, place):
+    def add_element(self, element, place):
         element.show()
 
         # Get the flow of the element (the opposite of the container)
@@ -427,6 +427,9 @@ class WindowGTK3(WindowBase, Gtk.Window):
             element.flow = element.flow_types[flow_index]
         except AttributeError:
             pass
+
+        # Determine if this element should fill all the space given to it
+        expand = isinstance(element, ExpandableBase)
 
         if place in ['north', 'west', 'center']:
             self._layout[place].pack_start(element, expand, expand, 0)
