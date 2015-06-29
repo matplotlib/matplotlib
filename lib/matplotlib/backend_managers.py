@@ -75,14 +75,18 @@ class FigureManager(cbook.EventEmitter):
     """
     def __init__(self, figure, num, **kwargs):
         super(FigureManager, self).__init__(**kwargs)
-        self.num = num
-
         self._backend = get_backend()
+
+        self.num = num
+        self.figure = figure
+
+        self._is_gui = hasattr(self._backend, 'Window')
+        if not self._is_gui:
+            return
+
         self._mainloop = self._backend.MainLoop()
         self.window = self._backend.Window('Figure %d' % num)
         self.window.mpl_connect('window_destroy_event', self.destroy)
-
-        self.figure = figure
 
         w = int(self.figure.bbox.width)
         h = int(self.figure.bbox.height)
@@ -137,7 +141,7 @@ class FigureManager(cbook.EventEmitter):
 
         # Make sure we run this routine only once for the FigureManager
         # This ensures the nasty __del__ fix below works.
-        if getattr(self, '_destroying', False):
+        if getattr(self, '_destroying', False) or self._is_gui is False:
             return
 
         self._destroying = True
@@ -157,7 +161,7 @@ class FigureManager(cbook.EventEmitter):
     def show(self):
         """Shows the figure"""
         self.window.show()
-        self.canvas.grab_focus()
+        self.canvas.focus()
 
     def full_screen_toggle(self):
         """Toggles whether we show fullscreen, alternatively call
@@ -188,13 +192,16 @@ class FigureManager(cbook.EventEmitter):
         return self._backend
 
     def _get_toolbar(self):
-        # must be inited after the window, drawingArea and figure
-        # attrs are set
-        if rcParams['toolbar'] == 'toolmanager':
-            toolbar = self._backend.Toolbar(self.toolmanager)
-        else:
-            toolbar = None
-        return toolbar
+        try:
+            # must be inited after the window, drawingArea and figure
+            # attrs are set
+            if rcParams['toolbar'] == 'toolmanager':
+                toolbar = self._backend.Toolbar(self.toolmanager)
+            else:
+                toolbar = None
+            return toolbar
+        except:
+            return None
 
     def show_popup(self, msg):
         """

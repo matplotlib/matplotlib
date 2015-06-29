@@ -1837,6 +1837,9 @@ class FigureCanvasBase(ExpandableBase):
     def backend(self):
         return self._backend
 
+    def focus(self):
+        pass
+
     def is_saving(self):
         """
         Returns whether the renderer is in the process of saving

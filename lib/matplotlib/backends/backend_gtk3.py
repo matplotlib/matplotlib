@@ -219,6 +219,9 @@ class FigureCanvasGTK3(FigureCanvasBase, Gtk.DrawingArea):
         self._renderer_init()
         default_context = GLib.main_context_get_thread_default() or GLib.main_context_default()
 
+    def focus(self):
+        self.grab_focus()
+
     def destroy(self):
         #Gtk.DrawingArea.destroy(self)
         self.close_event()

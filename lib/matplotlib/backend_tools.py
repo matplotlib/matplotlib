@@ -790,7 +790,7 @@ class ToolConfigureSubplots(ToolBase):
 
         w, h = int(tool_fig.bbox.width), int(tool_fig.bbox.height)
 
-        self.dialog.add_element(self.tool_canvas, True, 'center')
+        self.dialog.add_element(self.tool_canvas, 'center')
         self.dialog.set_default_size(w, h)
 
     def _window_destroy(self, *args, **kwargs):

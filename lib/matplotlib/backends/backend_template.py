@@ -16,7 +16,7 @@ any results.
 Copy this to backend_xxx.py and replace all instances of 'template'
 with 'xxx'.  Then implement the class methods and functions below, and
 add 'xxx' to the switchyard in matplotlib/backends/__init__.py and
-'xxx' to the backends list in the validate_backend methon in
+'xxx' to the backends list in the validate_backend method in
 matplotlib/__init__.py and you're off.  You can use your backend with::
 
   import matplotlib
@@ -25,14 +25,14 @@ matplotlib/__init__.py and you're off.  You can use your backend with::
   plot([1,2,3])
   show()
 
-matplotlib also supports external backends, so you can place you can
-use any module in your PYTHONPATH with the syntax::
+matplotlib also supports external backends, by placing
+any module in your PYTHONPATH and then using the syntax::
 
   import matplotlib
   matplotlib.use('module://my_backend')
 
 where my_backend.py is your module name.  This syntax is also
-recognized in the rc file and in the -d argument in pylab, e.g.,::
+recognized in the rc file and also with  the -d argument in pylab, e.g.,::
 
   python simple_plot.py -dmodule://my_backend
 
@@ -48,6 +48,7 @@ The files that are most relevant to backend_writers are
 
   matplotlib/backends/backend_your_backend.py
   matplotlib/backend_bases.py
+  matplotlib/backend_managers.py
   matplotlib/backends/__init__.py
   matplotlib/__init__.py
   matplotlib/_pylab_helpers.py
@@ -68,9 +69,9 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import matplotlib
-from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     FigureManagerBase, FigureCanvasBase
+     WindowBase, FigureCanvasBase, MainLoopBase, ToolbarBase
+from matplotlib import backend_tools
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
 
@@ -178,41 +179,6 @@ def draw_if_interactive():
     """
     pass
 
-def show():
-    """
-    For image backends - is not required
-    For GUI backends - show() is usually the last line of a pylab script and
-    tells the backend that it is time to draw.  In interactive mode, this may
-    be a do nothing func.  See the GTK backend for an example of how to handle
-    interactive versus batch mode
-    """
-    for manager in Gcf.get_all_fig_managers():
-        # do something to display the GUI
-        pass
-
-
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    # if a main-level app must be created, this (and
-    # new_figure_manager_given_figure) is the usual place to
-    # do it -- see backend_wx, backend_wxagg and backend_tkagg for
-    # examples.  Not all GUIs require explicit instantiation of a
-    # main-level app (egg backend_gtk, backend_gtkagg) for pylab
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """
-    Create a new figure manager instance for the given figure.
-    """
-    canvas = FigureCanvasTemplate(figure)
-    manager = FigureManagerTemplate(canvas, num)
-    return manager
-
 
 class FigureCanvasTemplate(FigureCanvasBase):
     """
@@ -258,19 +224,29 @@ class FigureCanvasTemplate(FigureCanvasBase):
     def get_default_filetype(self):
         return 'foo'
 
-class FigureManagerTemplate(FigureManagerBase):
-    """
-    Wrap everything up into a window for the pylab interface
 
-    For non interactive backends, the base class does all the work
-    """
+class WindowTemplate(WindowBase):
+    def show(self):
+        pass
+
+
+class RubberbandTemplate(backend_tools.RubberbandBase):
+    pass
+
+
+class SetCursorTemplate(backend_tools.SetCursorBase):
     pass
 
 ########################################################################
 #
-# Now just provide the standard names that backend.__init__ is expecting
+# Now just provide the standard names that backend.__init__ expects
 #
 ########################################################################
 
 FigureCanvas = FigureCanvasTemplate
-FigureManager = FigureManagerTemplate
+
+# Needed for a GUI
+MainLoop = MainLoopBase
+Window = WindowTemplate
+ToolRubberband = RubberbandTemplate
+ToolSetCursor = SetCursorTemplate
