@@ -64,7 +64,7 @@ class FigureManager(cbook.EventEmitter):
     figure : `matplotlib.figure.Figure`
         The figure that holds the canvas
 
-    toolbar : `matplotlib.backend_bases.NavigationToolbar2`
+    toolbar : `matplotlib.backend_bases.ToolbarBase`
         The toolbar used for interacting with the figure.
 
     window : `matplotlib.backend_bases.WindowBase`

@@ -3500,6 +3500,15 @@ class ToolContainerBase(object):
 
 
 class FlowBase(object):
+    """
+    Base mixin class for all GUI elements that can flow, aka laid out in
+    different directions.
+
+    The MPL window class deals with the manipulation of this mixin, so users
+    don't actually need to interact with this class.
+
+    Classes the implement this class must override the _update_flow method.
+    """
     flow_types = ['horizontal', 'vertical']
 
     def __init__(self, flow='horizontal', flow_locked=False, **kwargs):
@@ -3509,6 +3518,9 @@ class FlowBase(object):
 
     @property
     def flow(self):
+        """
+        The direction of flow, one of the strings in `flow_type`.
+        """
         return FlowBase.flow_types[self._flow]
 
     @flow.setter
@@ -3524,6 +3536,11 @@ class FlowBase(object):
         self._update_flow()
 
     def _update_flow(self):
+        """
+        Classes that extend FlowBase must override this method.
+        You can use the internal property self._flow whereby
+        flow_types[self._flow] gives the current flow.
+        """
         raise NotImplementedError
 
 
