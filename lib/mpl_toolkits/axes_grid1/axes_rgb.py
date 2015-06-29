@@ -203,7 +203,12 @@ class RGBAxesBase(object):
         b : matplotlib.image.AxesImage
         """
         ny, nx = r.shape
-        assert((nx, ny) == g.shape == b.shape)
+        if not ((nx, ny) == g.shape == b.shape):
+            raise ValueError('Input shapes do not match.''
+                             '\nr.shape = {}'
+                             '\ng.shape = {}'
+                             '\nb.shape = {}'
+                             ''.format(r.shape, g.shape, b.shape))
 
         R = np.zeros([ny, nx, 3], dtype="d")
         R[:,:,0] = r
