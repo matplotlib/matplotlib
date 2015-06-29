@@ -87,7 +87,7 @@ class FigureManager(cbook.EventEmitter):
         w = int(self.figure.bbox.width)
         h = int(self.figure.bbox.height)
 
-        self.window.add_element(self.figure.canvas, True, 'center')
+        self.window.add_element(self.figure.canvas, 'center')
 
         self.toolmanager = ToolManager(self.figure)
         self.toolbar = self._get_toolbar()
@@ -96,10 +96,10 @@ class FigureManager(cbook.EventEmitter):
         if self.toolbar:
             tools.add_tools_to_container(self.toolbar)
             self.statusbar = self._backend.Statusbar(self.toolmanager)
-            h += self.window.add_element(self.statusbar, False, 'south')
+            h += self.window.add_element(self.statusbar, 'south')
 
         if self.toolbar is not None:
-            h += self.window.add_element(self.toolbar, False, 'south')
+            h += self.window.add_element(self.toolbar, 'south')
 
         self.window.set_default_size(w, h)
         self._full_screen_flag = False
