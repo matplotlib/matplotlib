@@ -6,6 +6,8 @@ import six
 import numpy as np
 from .axes_divider import make_axes_locatable, Size, locatable_axes_factory
 import sys
+from .mpl_axes import Axes
+
 
 def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
     """
@@ -54,8 +56,6 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
 
     return ax_rgb
 
-#import matplotlib.axes as maxes
-
 
 def imshow_rgb(ax, r, g, b, **kwargs):
     ny, nx = r.shape
@@ -72,8 +72,6 @@ def imshow_rgb(ax, r, g, b, **kwargs):
 
     return im_rgb
 
-
-from .mpl_axes import Axes
 
 class RGBAxesBase(object):
     """base class for a 4-panel imshow (RGB, R, G, B)
