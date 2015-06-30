@@ -471,10 +471,10 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             The theta position of the radius labels in degrees.
         """
         return self._r_label_position.to_values()[4]
-    
+
     def set_rlabel_position(self, value):
         """Updates the theta position of the radius labels.
-        
+
         Parameters
         ----------
         value : number
@@ -659,7 +659,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             dt0 = t - startt
             dt1 = startt - t
             if abs(dt1) < abs(dt0):
-                dt = abs(dt1) * sign(dt0) * -1.0
+                dt = abs(dt1) * np.sign(dt0) * -1.0
             else:
                 dt = dt0 * -1.0
             dt = (dt / np.pi) * 180.0
