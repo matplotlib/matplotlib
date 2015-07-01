@@ -151,7 +151,8 @@ class SimpleAxisArtist(Artist):
 
 
 if __name__ == '__main__':
-    fig = figure()
+    import matplotlib.pyplot as plt
+    fig = plt.figure()
     ax = Axes(fig, [0.1, 0.1, 0.8, 0.8])
     fig.add_axes(ax)
     ax.cla()
