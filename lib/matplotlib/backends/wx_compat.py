@@ -28,7 +28,7 @@ if LooseVersion(wx.VERSION_STRING) < LooseVersion("2.8.12"):
     print(" wxPython version %s was imported." % backend_version)
     raise ImportError(missingwx)
 
-# Import ClientCD so we can Monkey patch it.
+# Import ClientCD so we can Monkey patch it.
 ClientDC = wx.ClientDC
 
 if is_phoenix:
