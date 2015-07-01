@@ -33,10 +33,11 @@ class Axes(maxes.Axes):
 
         def __getitem__(self, k):
             if isinstance(k, tuple):
-                r = SimpleChainedObjects([dict.__getitem__(self, k1) for k1 in k])
+                r = SimpleChainedObjects(
+                    [super(Axes.AxisDict, self).__getitem__(k1) for k1 in k])
                 return r
             elif isinstance(k, slice):
-                if k.start == None and k.stop == None and k.step == None:
+                if k.start is None and k.stop is None and k.step is None:
                     r = SimpleChainedObjects(list(six.itervalues(self)))
                     return r
                 else:
@@ -47,11 +48,8 @@ class Axes(maxes.Axes):
         def __call__(self, *v, **kwargs):
             return maxes.Axes.axis(self.axes, *v, **kwargs)
 
-
     def __init__(self, *kl, **kw):
         super(Axes, self).__init__(*kl, **kw)
-
-
 
     def _init_axis_artists(self, axes=None):
         if axes is None:
@@ -153,7 +151,8 @@ class SimpleAxisArtist(Artist):
 
 
 if __name__ == '__main__':
-    fig = figure()
+    import matplotlib.pyplot as plt
+    fig = plt.figure()
     ax = Axes(fig, [0.1, 0.1, 0.8, 0.8])
     fig.add_axes(ax)
     ax.cla()
