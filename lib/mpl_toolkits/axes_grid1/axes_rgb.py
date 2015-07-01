@@ -204,7 +204,7 @@ class RGBAxesBase(object):
         """
         ny, nx = r.shape
         if not ((nx, ny) == g.shape == b.shape):
-            raise ValueError('Input shapes do not match.''
+            raise ValueError('Input shapes do not match.'
                              '\nr.shape = {}'
                              '\ng.shape = {}'
                              '\nb.shape = {}'
