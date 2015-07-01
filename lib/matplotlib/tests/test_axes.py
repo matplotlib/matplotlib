@@ -743,7 +743,7 @@ def test_pcolormesh_datetime_axis():
     fig.subplots_adjust(hspace=0.4, top=0.98, bottom=.15)
     base = datetime.datetime(2013, 1, 1)
     x = np.array([base + datetime.timedelta(days=d) for d in range(21)])
-    y = np.arange(21)
+    y = range(21)
     z1, z2 = np.meshgrid(np.arange(20), np.arange(20))
     z = z1 * z2
     plt.subplot(221)
@@ -769,7 +769,7 @@ def test_pcolor_datetime_axis():
     fig.subplots_adjust(hspace=0.4, top=0.98, bottom=.15)
     base = datetime.datetime(2013, 1, 1)
     x = np.array([base + datetime.timedelta(days=d) for d in range(21)])
-    y = np.arange(21)
+    y = range(21)
     z1, z2 = np.meshgrid(np.arange(20), np.arange(20))
     z = z1 * z2
     plt.subplot(221)

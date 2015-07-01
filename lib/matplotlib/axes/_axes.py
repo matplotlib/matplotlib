@@ -4792,6 +4792,8 @@ class Axes(_AxesBase):
 
         if len(args) == 3:
             X, Y, C = args
+            X = np.asarray(X)
+            Y = np.asarray(Y)
             numRows, numCols = C.shape
         else:
             raise TypeError(
