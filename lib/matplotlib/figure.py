@@ -548,7 +548,7 @@ class Figure(Artist):
 
     def set_canvas(self, canvas):
         """
-        Set the canvas the contains the figure
+        Set the canvas that contains the figure
 
         ACCEPTS: a FigureCanvas instance
         """
