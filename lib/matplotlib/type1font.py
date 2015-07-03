@@ -29,6 +29,7 @@ import six
 from six.moves import filter
 from six import unichr
 
+import binascii
 import io
 import itertools
 import numpy as np
@@ -92,8 +93,7 @@ class Type1Font(object):
             if type == 1:       # ASCII text: include verbatim
                 data += segment
             elif type == 2:     # binary data: encode in hexadecimal
-                data += b''.join([('%02x' % ord(char)).encode('ascii')
-                                  for char in segment])
+                data += binascii.hexlify(segment)
             elif type == 3:     # end of file
                 break
             else:
@@ -123,9 +123,8 @@ class Type1Font(object):
         # zeros backward
         idx = data.rindex(b'cleartomark') - 1
         zeros = 512
-        while zeros and ord(data[idx]) in (
-            ord(b'0'[0]), ord(b'\n'[0]), ord(b'\r'[0])):
-            if ord(data[idx]) == ord(b'0'[0]):
+        while zeros and data[idx] in b'0' or data[idx] in b'\r\n':
+            if data[idx] in b'0':
                 zeros -= 1
             idx -= 1
         if zeros:
@@ -136,17 +135,16 @@ class Type1Font(object):
         # but if we read a pfa file, this part is already in hex, and
         # I am not quite sure if even the pfb format guarantees that
         # it will be in binary).
-        binary = b''.join([unichr(int(data[i:i + 2], 16)).encode('latin-1')
-                           for i in range(len1, idx, 2)])
+        binary = binascii.unhexlify(data[len1:idx+1])
 
-        return data[:len1], binary, data[idx:]
+        return data[:len1], binary, data[idx+1:]
 
     _whitespace_re = re.compile(br'[\0\t\r\014\n ]+')
     _token_re = re.compile(br'/{0,2}[^]\0\t\r\v\n ()<>{}/%[]+')
     _comment_re = re.compile(br'%[^\r\n\v]*')
     _instring_re = re.compile(br'[()\\]')
 
-    # token types
+    # token types, compared via object identity (poor man's enum)
     _whitespace = object()
     _name = object()
     _string = object()
@@ -166,7 +164,7 @@ class Type1Font(object):
             if match:
                 yield (cls._whitespace, match.group())
                 pos += match.end()
-            elif text[pos] == '(':
+            elif text[pos] == b'(':
                 start = pos
                 pos += 1
                 depth = 1
@@ -175,19 +173,19 @@ class Type1Font(object):
                     if match is None:
                         return
                     pos += match.end()
-                    if match.group() == '(':
+                    if match.group() == b'(':
                         depth += 1
-                    elif match.group() == ')':
+                    elif match.group() == b')':
                         depth -= 1
                     else:  # a backslash - skip the next character
                         pos += 1
                 yield (cls._string, text[start:pos])
-            elif text[pos:pos + 2] in ('<<', '>>'):
+            elif text[pos:pos + 2] in (b'<<', b'>>'):
                 yield (cls._delimiter, text[pos:pos + 2])
                 pos += 2
-            elif text[pos] == '<':
+            elif text[pos] == b'<':
                 start = pos
-                pos += text[pos:].index('>')
+                pos += text[pos:].index(b'>')
                 yield (cls._string, text[start:pos])
             else:
                 match = cls._token_re.match(text[pos:])
@@ -256,16 +254,16 @@ class Type1Font(object):
         def fontname(name):
             result = name
             if slant:
-                result += '_Slant_' + str(int(1000 * slant))
+                result += b'_Slant_' + str(int(1000 * slant)).encode('latin-1')
             if extend != 1.0:
-                result += '_Extend_' + str(int(1000 * extend))
+                result += b'_Extend_' + str(int(1000 * extend)).encode('latin-1')
             return result
 
         def italicangle(angle):
-            return str(float(angle) - np.arctan(slant) / np.pi * 180)
+            return str(float(angle) - np.arctan(slant) / np.pi * 180).encode('latin-1')
 
         def fontmatrix(array):
-            array = array.lstrip('[').rstrip(']').strip().split()
+            array = array.lstrip(b'[').rstrip(b']').strip().split()
             array = [float(x) for x in array]
             oldmatrix = np.eye(3, 3)
             oldmatrix[0:3, 0] = array[::2]
@@ -276,40 +274,41 @@ class Type1Font(object):
             newmatrix = np.dot(modifier, oldmatrix)
             array[::2] = newmatrix[0:3, 0]
             array[1::2] = newmatrix[0:3, 1]
-            return '[' + ' '.join(str(x) for x in array) + ']'
+            as_string = u'[' + u' '.join(str(x) for x in array) + u']'
+            return as_string.encode('latin-1')
 
         def replace(fun):
             def replacer(tokens):
                 token, value = next(tokens)      # name, e.g., /FontMatrix
-                yield value
+                yield bytes(value)
                 token, value = next(tokens)      # possible whitespace
-                while token == 'whitespace':
-                    yield value
+                while token is cls._whitespace:
+                    yield bytes(value)
                     token, value = next(tokens)
-                if value != '[':                  # name/number/etc.
-                    yield fun(value)
-                else:                             # array, e.g., [1 2 3]
-                    array = []
-                    while value != ']':
-                        array += value
+                if value != b'[':                # name/number/etc.
+                    yield bytes(fun(value))
+                else:                            # array, e.g., [1 2 3]
+                    result = b''
+                    while value != b']':
+                        result += value
                         token, value = next(tokens)
-                    array += value
-                    yield fun(''.join(array))
+                    result += value
+                    yield fun(result)
             return replacer
 
         def suppress(tokens):
-            for x in itertools.takewhile(lambda x: x[1] != 'def', tokens):
+            for x in itertools.takewhile(lambda x: x[1] != b'def', tokens):
                 pass
-            yield ''
+            yield b''
 
-        table = {'/FontName': replace(fontname),
-                 '/ItalicAngle': replace(italicangle),
-                 '/FontMatrix': replace(fontmatrix),
-                 '/UniqueID': suppress}
+        table = {b'/FontName': replace(fontname),
+                 b'/ItalicAngle': replace(italicangle),
+                 b'/FontMatrix': replace(fontmatrix),
+                 b'/UniqueID': suppress}
 
         while True:
             token, value = next(tokens)
-            if token == 'name' and value in table:
+            if token is cls._name and value in table:
                 for value in table[value](itertools.chain([(token, value)],
                                                           tokens)):
                     yield value
@@ -325,18 +324,10 @@ class Type1Font(object):
         multiplier by which the font is to be extended (so values less
         than 1.0 condense). Returns a new :class:`Type1Font` object.
         """
-        buffer = io.BytesIO()
-        try:
+        with io.BytesIO() as buffer:
             tokenizer = self._tokens(self.parts[0])
-            for value in self._transformer(tokenizer,
-                                           slant=effects.get('slant', 0.0),
-                                           extend=effects.get('extend', 1.0)):
-                if six.PY3 and isinstance(value, int):
-                    value = chr(value)
-                value = value.encode('latin-1')
-                buffer.write(value)
-            result = buffer.getvalue()
-        finally:
-            buffer.close()
-
-        return Type1Font((result, self.parts[1], self.parts[2]))
+            transformed =  self._transformer(tokenizer,
+                                             slant=effects.get('slant', 0.0),
+                                             extend=effects.get('extend', 1.0))
+            list(map(buffer.write, transformed))
+            return Type1Font((buffer.getvalue(), self.parts[1], self.parts[2]))
