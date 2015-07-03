@@ -73,8 +73,6 @@ class FigureCanvasQT(FigureCanvasQT5):
         self.figure = figure
         self.setMouseTracking(True)
         self._idle = True
-        # hide until we can test and fix
-        # self.startTimer(backend_IdleEvent.milliseconds)
         w, h = self.get_width_height()
         self.resize(w, h)
 
