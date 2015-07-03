@@ -2,6 +2,8 @@ from __future__ import print_function
 """
 Demonstrate/test the idle and timeout API
 
+WARNING: idle_event is deprecated. Use the animations module instead.
+
 This is only tested on gtk so far and is a prototype implementation
 """
 import numpy as np

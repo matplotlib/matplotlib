@@ -60,7 +60,7 @@ from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 import matplotlib.tight_bbox as tight_bbox
 import matplotlib.textpath as textpath
 from matplotlib.path import Path
-from matplotlib.cbook import mplDeprecation
+from matplotlib.cbook import mplDeprecation, warn_deprecated
 import matplotlib.backend_tools as tools
 
 try:
@@ -2331,6 +2331,11 @@ class FigureCanvasBase(object):
             cid = canvas.mpl_connect('button_press_event', on_press)
 
         """
+        if s == 'idle_event':
+            warn_deprecated(1.5,
+                "idle_event is only implemented for the wx backend, and will "
+                "be removed in matplotlib 2.1. Use the animations module "
+                "instead.")
 
         return self.callbacks.connect(s, func)
 

@@ -243,14 +243,11 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self.set_flags(gtk.CAN_FOCUS)
         self._renderer_init()
 
-        self._idle_event_id = gobject.idle_add(self.idle_event)
-
         self.last_downclick = {}
 
     def destroy(self):
         #gtk.DrawingArea.destroy(self)
         self.close_event()
-        gobject.source_remove(self._idle_event_id)
         if self._idle_draw_id != 0:
             gobject.source_remove(self._idle_draw_id)
 
