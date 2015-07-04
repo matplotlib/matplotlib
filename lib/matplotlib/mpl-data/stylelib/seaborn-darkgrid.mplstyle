@@ -1,26 +1,4 @@
-# Seaborn base context
-figure.figsize: 8.0, 5.5
-axes.labelsize: 11
-axes.titlesize: 12
-xtick.labelsize: 10
-ytick.labelsize: 10
-legend.fontsize: 10
-
-grid.linewidth: 1
-lines.linewidth: 1.75
-patch.linewidth: .3
-lines.markersize: 7
-lines.markeredgewidth: 0
-
-xtick.major.width: 1
-ytick.major.width: 1
-xtick.minor.width: .5
-ytick.minor.width: .5
-
-xtick.major.pad: 7
-ytick.major.pad: 7
-
-# Common parameters
+# Seaborn common parameters
 # .15 = dark_gray
 # .8 = light_gray
 figure.facecolor: white
@@ -40,7 +18,7 @@ font.sans-serif: Arial, Liberation Sans, Bitstream Vera Sans, sans-serif
 grid.linestyle: -
 lines.solid_capstyle: round
 
-# darkgrid parameters
+# Seaborn darkgrid parameters
 axes.grid: True
 axes.facecolor: EAEAF2
 axes.edgecolor: white
@@ -50,6 +28,3 @@ xtick.major.size: 0
 ytick.major.size: 0
 xtick.minor.size: 0
 ytick.minor.size: 0
-
-# deep palette
-axes.color_cycle: 4C72B0, 55A868, C44E52, 8172B2, CCB974, 64B5CD
