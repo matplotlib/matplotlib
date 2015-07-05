@@ -285,6 +285,7 @@ class CommSocket(object):
         # the FigureManager.
         self.comm.close()
         self.manager.clearup_closed()
+        self.manager.canvas.close_event()
 
     def send_json(self, content):
         self.comm.send({'data': json.dumps(content)})
@@ -307,7 +308,6 @@ class CommSocket(object):
         message = json.loads(message['content']['data'])
         if message['type'] == 'closing':
             self.on_close()
-            self.manager.canvas.close_event()
         elif message['type'] == 'supports_binary':
             self.supports_binary = message['value']
         else:
