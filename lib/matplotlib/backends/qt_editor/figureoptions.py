@@ -29,8 +29,11 @@ LINESTYLES = {'-': 'Solid',
               '--': 'Dashed',
               '-.': 'DashDot',
               ':': 'Dotted',
-              'steps': 'Steps',
               'none': 'None',
+              }
+
+DRAWSTYLES = {'default': 'Default',
+              'steps': 'Steps',
               }
 
 MARKERS = markers.MarkerStyle.markers
@@ -70,6 +73,7 @@ def figure_edit(axes, parent=None):
             linedict[label] = line
         curves = []
         linestyles = list(six.iteritems(LINESTYLES))
+        drawstyles = list(six.iteritems(DRAWSTYLES))
         markers = list(six.iteritems(MARKERS))
         curvelabels = sorted(linedict.keys())
         for label in curvelabels:
@@ -80,7 +84,8 @@ def figure_edit(axes, parent=None):
             curvedata = [('Label', label),
                          sep,
                          (None, '<b>Line</b>'),
-                         ('Style', [line.get_linestyle()] + linestyles),
+                         ('Line Style', [line.get_linestyle()] + linestyles),
+                         ('Draw Style', [line.get_drawstyle()] + drawstyles),
                          ('Width', line.get_linewidth()),
                          ('Color', color),
                          sep,
@@ -91,8 +96,9 @@ def figure_edit(axes, parent=None):
                          ('Edgecolor', ec),
                          ]
             curves.append([curvedata, label, ""])
-    # make sure that there is at least one displayed curve
-    has_curve = bool(curves)
+
+        # make sure that there is at least one displayed curve
+        has_curve = bool(curves)
 
     datalist = [(general, "Axes", "")]
     if has_curve:
@@ -120,11 +126,12 @@ def figure_edit(axes, parent=None):
             # Set / Curves
             for index, curve in enumerate(curves):
                 line = linedict[curvelabels[index]]
-                label, linestyle, linewidth, color, \
+                label, linestyle, drawstyle, linewidth, color, \
                     marker, markersize, markerfacecolor, markeredgecolor \
                     = curve
                 line.set_label(label)
                 line.set_linestyle(linestyle)
+                line.set_drawstyle(drawstyle)
                 line.set_linewidth(linewidth)
                 line.set_color(color)
                 if marker is not 'none':
