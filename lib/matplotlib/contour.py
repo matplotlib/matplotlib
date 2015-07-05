@@ -1667,7 +1667,7 @@ class QuadContourSet(ContourSet):
           contour(Z,N)
           contour(X,Y,Z,N)
 
-        contour *N* automatically-chosen levels.
+        contour up to *N* automatically-chosen levels.
 
         ::
 
