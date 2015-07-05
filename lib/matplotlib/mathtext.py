@@ -2263,8 +2263,8 @@ class Parser(object):
                               | Error("Expected \operatorname{value}"))
                          )
 
-        p.placeable     <<= ( p.accent # Must be first
-                         | p.symbol # Must be second
+        p.placeable     <<= ( p.symbol # Must be first
+                         | p.accent # Must be second
                          | p.c_over_c
                          | p.function
                          | p.group
