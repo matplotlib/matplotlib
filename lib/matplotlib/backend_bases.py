@@ -928,7 +928,7 @@ class GraphicsContextBase(object):
         """
         return self._snap
 
-    def set_alpha(self, alpha):
+    def set_alpha(self, alpha, update_foreground=True):
         """
         Set the alpha value used for blending - not supported on all backends.
         If ``alpha=None`` (the default), the alpha components of the
@@ -942,7 +942,9 @@ class GraphicsContextBase(object):
         else:
             self._alpha = 1.0
             self._forced_alpha = False
-        self.set_foreground(self._rgb, isRGBA=True)
+
+        if update_foreground:
+            self.set_foreground(self._rgb, isRGBA=True)
 
     def set_antialiased(self, b):
         """
