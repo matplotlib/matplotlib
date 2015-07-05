@@ -753,6 +753,12 @@ class Line2D(Artist):
             else:
                 gc.set_foreground(edgecolor)
                 gc.set_linewidth(self._markeredgewidth)
+                mec = self._markeredgecolor
+                if (is_string_like(mec) and mec == 'auto' and
+                    rgbaFace is not None):
+                    gc.set_alpha(rgbaFace[3])
+                else:
+                    gc.set_alpha(self.get_alpha())
 
             marker = self._marker
             tpath, affine = transf_path.get_transformed_points_and_affine()
@@ -779,7 +785,6 @@ class Line2D(Artist):
                     marker_trans = marker_trans.scale(w)
                 else:
                     gc.set_linewidth(0)
-                gc.set_alpha(self.get_alpha())
 
                 renderer.draw_markers(gc, marker_path, marker_trans,
                                       subsampled, affine.frozen(),
