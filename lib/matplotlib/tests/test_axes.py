@@ -2178,6 +2178,22 @@ def test_transparent_markers():
     ax.plot(data, 'D', mfc='none', markersize=100)
 
 
+@image_comparison(baseline_images=['rgba_markers'], remove_text=True)
+def test_rgba_markers():
+    fig, axs = plt.subplots(ncols=2)
+    rcolors = [(1, 0, 0, 1), (1, 0, 0, 0.5)]
+    bcolors = [(0, 0, 1, 1), (0, 0, 1, 0.5)]
+    alphas = [None, 0.2]
+    kw = dict(ms=100, mew=20)
+    for i, alpha in enumerate(alphas):
+        for j, rcolor in enumerate(rcolors):
+            for k, bcolor in enumerate(bcolors):
+                axs[i].plot(j+1, k+1, 'o', mfc=bcolor, mec=rcolor,
+                           alpha=alpha, **kw)
+                axs[i].plot(j+1, k+3, 'x', mec=rcolor, alpha=alpha, **kw)
+    for ax in axs:
+        ax.axis([-1, 4, 0, 5])
+
 @image_comparison(baseline_images=['mollweide_grid'], remove_text=True)
 def test_mollweide_grid():
     # test that both horizontal and vertical gridlines appear on the Mollweide

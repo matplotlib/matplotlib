@@ -779,8 +779,7 @@ class Line2D(Artist):
                     marker_trans = marker_trans.scale(w)
                 else:
                     gc.set_linewidth(0)
-                if rgbaFace is not None:
-                    gc.set_alpha(rgbaFace[3])
+                gc.set_alpha(self.get_alpha())
 
                 renderer.draw_markers(gc, marker_path, marker_trans,
                                       subsampled, affine.frozen(),
@@ -788,8 +787,6 @@ class Line2D(Artist):
 
                 alt_marker_path = marker.get_alt_path()
                 if alt_marker_path:
-                    if rgbaFaceAlt is not None:
-                        gc.set_alpha(rgbaFaceAlt[3])
                     alt_marker_trans = marker.get_alt_transform()
                     alt_marker_trans = alt_marker_trans.scale(w)
 
