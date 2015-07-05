@@ -780,7 +780,7 @@ class Line2D(Artist):
                 else:
                     gc.set_linewidth(0)
                 if rgbaFace is not None:
-                    gc.set_alpha(rgbaFace[3])
+                    gc.set_alpha(rgbaFace[3], False)
 
                 renderer.draw_markers(gc, marker_path, marker_trans,
                                       subsampled, affine.frozen(),
