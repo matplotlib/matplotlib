@@ -2013,9 +2013,15 @@ class _AxesBase(martist.Artist):
                 x0, x1 = mtransforms.nonsingular(x0, x1, increasing=False,
                                                  expander=0.05)
             if self._xmargin > 0:
-                delta = (x1 - x0) * self._xmargin
-                x0 -= delta
-                x1 += delta
+                if self.get_xscale() == 'linear':
+                    delta = (x1 - x0) * self._xmargin
+                    x0 -= delta
+                    x1 += delta
+                else: # log scale
+                    assert(0 < x0 < x1)
+                    factor = pow(x1 / x0, self._xmargin)
+                    x1 *= factor
+                    x0 /= factor
             if not _tight:
                 x0, x1 = xlocator.view_limits(x0, x1)
             self.set_xbound(x0, x1)
@@ -2037,9 +2043,15 @@ class _AxesBase(martist.Artist):
                 y0, y1 = mtransforms.nonsingular(y0, y1, increasing=False,
                                                  expander=0.05)
             if self._ymargin > 0:
-                delta = (y1 - y0) * self._ymargin
-                y0 -= delta
-                y1 += delta
+                if self.get_yscale() == 'linear':
+                    delta = (y1 - y0) * self._ymargin
+                    y0 -= delta
+                    y1 += delta
+                else: # log scale
+                    assert(0 < y0 < y1)
+                    factor = pow(y1 / y0, self._ymargin)
+                    y1 *= factor
+                    y0 /= factor
             if not _tight:
                 y0, y1 = ylocator.view_limits(y0, y1)
             self.set_ybound(y0, y1)
