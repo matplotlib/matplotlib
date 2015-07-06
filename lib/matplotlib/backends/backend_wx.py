@@ -832,7 +832,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         if self.IsShownOnScreen():
             if not drawDC:
                 # not called from OnPaint use a ClientDC
-                drawDC = wxc.ClientDC(self)
+                drawDC = wx.ClientDC(self)
 
             # ensure that canvas has no 'left' over stuff when resizing frame
             drawDC.Clear()
@@ -1688,7 +1688,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def draw_rubberband(self, event, x0, y0, x1, y1):
         # Use an Overlay to draw a rubberband-like bounding box.
 
-        dc = wxc.ClientDC(self.canvas)
+        dc = wx.ClientDC(self.canvas)
         odc = wx.DCOverlay(self.wxoverlay, dc)
         odc.Clear()
 
@@ -1721,7 +1721,10 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         r, g, b, a = color.Get(True)
         color.Set(r, g, b, 0x60)
         dc.SetBrush(wx.Brush(color))
-        dc.DrawRectangleRect(rect)
+        if wxc.is_phoenix:
+            dc.DrawRectangle(rect)
+        else:
+            dc.DrawRectangleRect(rect)
 
     def set_status_bar(self, statbar):
         self.statbar = statbar
