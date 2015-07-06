@@ -28,9 +28,6 @@ if LooseVersion(wx.VERSION_STRING) < LooseVersion("2.8.12"):
     print(" wxPython version %s was imported." % backend_version)
     raise ImportError(missingwx)
 
-# Import ClientCD so we can Monkey patch it.
-ClientDC = wx.ClientDC
-
 if is_phoenix:
     # define all the wxPython phoenix stuff
 
@@ -86,8 +83,6 @@ if is_phoenix:
     NamedColour = wx.Colour
     StockCursor = wx.Cursor
 
-    # Moneypatch ClientDC to for rename of DrawRectangleRect to DrawRectangle
-    ClientDC.DrawRectangleRect = ClientDC.DrawRectangle
 else:
     # define all the wxPython classic stuff
 
