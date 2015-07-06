@@ -765,9 +765,6 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
         pass
 
     if mode == 'psd':
-        # Scale the spectrum by the norm of the window to compensate for
-        # windowing loss; see Bendat & Piersol Sec 11.5.2.
-        result /= (np.abs(windowVals)**2).sum()
 
         # Also include scaling factors for one-sided densities and dividing by
         # the sampling frequency, if desired. Scale everything, except the DC
@@ -787,6 +784,12 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
         # values. Perform the same scaling here.
         if scale_by_freq:
             result /= Fs
+            # Scale the spectrum by the norm of the window to compensate for
+            # windowing loss; see Bendat & Piersol Sec 11.5.2.
+            result /= (np.abs(windowVals)**2).sum()
+        else:
+            # In this case, preserve power in the segment, not amplitude
+            result /= np.abs(windowVals).sum()**2
 
     t = np.arange(NFFT/2, len(x) - NFFT/2 + 1, NFFT - noverlap)/Fs
 
