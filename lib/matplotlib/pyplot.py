@@ -192,6 +192,18 @@ def uninstall_repl_displayhook():
 
 draw_all = _pylab_helpers.Gcf.draw_all
 
+_ENSURE_AX_DOC = """
+This function has been decorated by pyplot to have
+an implicit reference to the `plt.gca()` passed as the first argument.
+
+The wrapped function can be called as any of ::
+
+   func(*args, **kwargs)
+   func(ax, *args, **kwargs)
+   func(.., ax=ax)
+
+"""
+
 
 def ensure_ax(func):
     """Decorator to ensure that the function gets an `Axes` object.
@@ -232,6 +244,13 @@ def ensure_ax(func):
         else:
             ax = gca()
         return func(ax, *args, **kwargs)
+    pre_doc = inner.__doc__
+    if pre_doc is None:
+        pre_doc = ''
+    else:
+        pre_doc = dedent(pre_doc)
+    inner.__doc__ = _ENSURE_AX_DOC + pre_doc
+
     return inner
 
 
@@ -258,6 +277,12 @@ def ensure_ax_meth(func):
         else:
             ax = gca()
         return func(s, ax, *args, **kwargs)
+    pre_doc = inner.__doc__
+    if pre_doc is None:
+        pre_doc = ''
+    else:
+        pre_doc = dedent(pre_doc)
+    inner.__doc__ = _ENSURE_AX_DOC + pre_doc
     return inner
 
 
