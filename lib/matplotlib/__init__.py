@@ -548,10 +548,7 @@ def _create_tmp_config_dir():
     tempdir = os.path.join(tempdir, 'matplotlib-%s' % getpass.getuser())
     os.environ['MPLCONFIGDIR'] = tempdir
 
-    try:
-        mkdirs(tempdir)
-    except OSError:
-        pass
+    mkdirs(tempdir)
 
     return tempdir
 
