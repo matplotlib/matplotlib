@@ -2017,7 +2017,7 @@ class _AxesBase(martist.Artist):
                     delta = (x1 - x0) * self._xmargin
                     x0 -= delta
                     x1 += delta
-                else: # log scale
+                else:     # log scale
                     assert(0 < x0 < x1)
                     factor = pow(x1 / x0, self._xmargin)
                     x1 *= factor
@@ -2047,7 +2047,7 @@ class _AxesBase(martist.Artist):
                     delta = (y1 - y0) * self._ymargin
                     y0 -= delta
                     y1 += delta
-                else: # log scale
+                else:     # log scale
                     assert(0 < y0 < y1)
                     factor = pow(y1 / y0, self._ymargin)
                     y1 *= factor
