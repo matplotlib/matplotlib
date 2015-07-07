@@ -92,7 +92,6 @@ from matplotlib import ttconv
 
 # TODOs:
 #
-# * the alpha channel of images
 # * image compression could be improved (PDF supports png-like compression)
 # * encoding of fonts, including mathtext fonts and unicode support
 # * TTF support has lots of small TODOs, e.g., how do you know if a font
@@ -1262,18 +1261,19 @@ end"""
         self.images[image] = (name, ob)
         return name
 
-    # These two from backend_ps.py
-    # TODO: alpha (SMask, p. 518 of pdf spec)
-
     def _rgb(self, im):
         h, w, s = im.as_rgba_str()
 
         rgba = np.fromstring(s, np.uint8)
         rgba.shape = (h, w, 4)
         rgba = rgba[::-1]
-        rgb = rgba[:, :, :3]
-        a = rgba[:, :, 3:]
-        return h, w, rgb.tostring(), a.tostring()
+        rgb = rgba[:, :, :3].tostring()
+        a = rgba[:, :, 3]
+        if np.all(a == 255):
+            alpha = None
+        else:
+            alpha = a.tostring()
+        return h, w, rgb, alpha
 
     def _gray(self, im, rc=0.3, gc=0.59, bc=0.11):
         rgbat = im.as_rgba_str()
@@ -1284,24 +1284,30 @@ end"""
         r = rgba_f[:, :, 0]
         g = rgba_f[:, :, 1]
         b = rgba_f[:, :, 2]
-        gray = (r*rc + g*gc + b*bc).astype(np.uint8)
-        return rgbat[0], rgbat[1], gray.tostring()
+        a = rgba[:, :, 3]
+        if np.all(a == 255):
+            alpha = None
+        else:
+            alpha = a.tostring()
+        gray = (r*rc + g*gc + b*bc).astype(np.uint8).tostring()
+        return rgbat[0], rgbat[1], gray, alpha
 
     def writeImages(self):
         for img, pair in six.iteritems(self.images):
             if img.is_grayscale:
-                height, width, data = self._gray(img)
-                self.beginStream(
-                    pair[1].id,
-                    self.reserveObject('length of image stream'),
-                    {'Type': Name('XObject'), 'Subtype': Name('Image'),
-                     'Width': width, 'Height': height,
-                     'ColorSpace': Name('DeviceGray'), 'BitsPerComponent': 8})
-                # TODO: predictors (i.e., output png)
-                self.currentstream.write(data)
-                self.endStream()
+                height, width, data, adata = self._gray(img)
             else:
                 height, width, data, adata = self._rgb(img)
+
+            colorspace = 'DeviceGray' if img.is_grayscale else 'DeviceRGB'
+            obj = {'Type': Name('XObject'),
+                   'Subtype': Name('Image'),
+                   'Width': width,
+                   'Height': height,
+                   'ColorSpace': Name(colorspace),
+                   'BitsPerComponent': 8}
+
+            if adata is not None:
                 smaskObject = self.reserveObject("smask")
                 self.beginStream(
                     smaskObject.id,
@@ -1312,17 +1318,16 @@ end"""
                 # TODO: predictors (i.e., output png)
                 self.currentstream.write(adata)
                 self.endStream()
+                obj['SMask'] = smaskObject
 
-                self.beginStream(
-                    pair[1].id,
-                    self.reserveObject('length of image stream'),
-                    {'Type': Name('XObject'), 'Subtype': Name('Image'),
-                     'Width': width, 'Height': height,
-                     'ColorSpace': Name('DeviceRGB'), 'BitsPerComponent': 8,
-                     'SMask': smaskObject})
-                # TODO: predictors (i.e., output png)
-                self.currentstream.write(data)
-                self.endStream()
+            self.beginStream(
+                pair[1].id,
+                self.reserveObject('length of image stream'),
+                obj
+                )
+            # TODO: predictors (i.e., output png)
+            self.currentstream.write(data)
+            self.endStream()
 
     def markerObject(self, path, trans, fillp, strokep, lw, joinstyle,
                      capstyle):
