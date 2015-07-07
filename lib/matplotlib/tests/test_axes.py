@@ -3646,6 +3646,28 @@ def test_margins():
 
 
 @cleanup
+def test_view_limits_with_margins():
+    '''Tests that autoscale_view correctly calculates the new view limits
+    with a nonzero margin, for both linear and logarithmic axis scales.'''
+    MARGIN = 0.5
+    LIN_BOUNDS = (-0.35, 1.45)
+    LOG_BOUNDS = (0.1 / np.sqrt(10), np.sqrt(10))
+    data = [0.1, 1]
+
+    fig1, ax1 = plt.subplots(1, 1)
+    ax1.plot(data, data)
+    ax1.margins(MARGIN)
+    assert_equal(ax1.get_xbound(), LIN_BOUNDS)
+    assert_equal(ax1.get_ybound(), LIN_BOUNDS)
+
+    fig2, ax2 = plt.subplots(1, 1)
+    ax2.loglog(data, data)
+    ax2.margins(MARGIN)
+    assert_equal(ax2.get_xbound(), LOG_BOUNDS)
+    assert_equal(ax2.get_ybound(), LOG_BOUNDS)
+
+
+@cleanup
 def test_length_one_hist():
     fig, ax = plt.subplots()
     ax.hist(1)
