@@ -119,3 +119,16 @@ def test_hatching_legend():
     b = plt.Rectangle([0, 0], 0, 0, facecolor="blue", hatch="XXXX")
 
     fig.legend([a, b, a, b], ["", "", "", ""])
+
+
+@image_comparison(baseline_images=['grayscale_alpha'],
+                  extensions=['pdf'], tol=1e-3)
+def test_grayscale_alpha():
+    """Masking images with NaN did not work for grayscale images"""
+    x, y = np.ogrid[-2:2:.1, -2:2:.1]
+    dd = np.exp(-(x**2 + y**2))
+    dd[dd < .1] = np.nan
+    fig, ax = plt.subplots()
+    ax.imshow(dd, interpolation='none', cmap='gray_r')
+    ax.set_xticks([])
+    ax.set_yticks([])
