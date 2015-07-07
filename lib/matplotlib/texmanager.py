@@ -74,7 +74,7 @@ def dvipng_hack_alpha():
     except OSError:
         mpl.verbose.report('No dvipng was found', 'helpful')
         return False
-    lines = stdout.decode('ascii').split('\n')
+    lines = stdout.decode(sys.getdefaultencoding()).split('\n')
     for line in lines:
         if line.startswith('dvipng '):
             version = line.split()[-1]
