@@ -1,14 +1,13 @@
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 
 """
 A PDF matplotlib backend
-Author: Jouni K Sepp�nen <jks@iki.fi>
+Author: Jouni K Seppänen <jks@iki.fi>
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import map
 
 import codecs
 import os
@@ -20,14 +19,10 @@ import zlib
 
 import numpy as np
 from six import unichr
-from six import BytesIO
+from io import BytesIO
 
 from datetime import datetime
 from math import ceil, cos, floor, pi, sin
-try:
-    set
-except NameError:
-    from sets import Set as set
 
 import matplotlib
 from matplotlib import __version__, rcParams
@@ -592,7 +587,7 @@ class PdfFile(object):
             self.currentstream.write(data)
 
     def output(self, *data):
-        self.write(fill(list(map(pdfRepr, data))))
+        self.write(fill([pdfRepr(x) for x in data]))
         self.write(b'\n')
 
     def beginStream(self, id, len, extra=None):
