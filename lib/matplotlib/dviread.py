@@ -148,11 +148,6 @@ class Dvi(object):
         while True:
             byte = ord(self.file.read(1)[0])
             self._dispatch(byte)
-#             if self.state == _dvistate.inpage:
-#                 matplotlib.verbose.report(
-#                     'Dvi._read: after %d at %f,%f' %
-#                     (byte, self.h, self.v),
-#                     'debug-annoying')
             if byte == 140: # end of page
                 return True
             if self.state == _dvistate.post_post: # end of file
@@ -282,9 +277,6 @@ class Dvi(object):
         if font._vf is None:
             self.text.append((self.h, self.v, font, char,
                               font._width_of(char)))
-#             matplotlib.verbose.report(
-#                 'Dvi._put_char: %d,%d %d' %(self.h, self.v, char),
-#                 'debug-annoying')
         else:
             scale = font._scale
             for x, y, f, g, w in font._vf[char].text:
@@ -303,9 +295,6 @@ class Dvi(object):
             raise ValueError("misplaced put_rule in dvi file")
         if a > 0 and b > 0:
             self.boxes.append((self.h, self.v, a, b))
-#             matplotlib.verbose.report(
-#                 'Dvi._put_rule: %d,%d %d,%d' % (self.h, self.v, a, b),
-#                 'debug-annoying')
 
     def _nop(self):
         pass
@@ -401,10 +390,6 @@ class Dvi(object):
             raise FileNotFoundError("missing font metrics file: %s" % fontname)
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
             raise ValueError('tfm checksum mismatch: %s'%n)
-        # It seems that the assumption behind the following check is incorrect:
-        #if d != tfm.design_size:
-        #    raise ValueError, 'tfm design size mismatch: %d in dvi, %d in %s'%\
-        #        (d, tfm.design_size, n)
 
         vf = _vffile(fontname)
 
