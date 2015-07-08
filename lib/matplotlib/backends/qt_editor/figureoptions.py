@@ -141,14 +141,17 @@ def figure_edit(axes, parent=None):
                     line.set_markeredgecolor(markeredgecolor)
 
         # re-generate legend, if checkbox is checked
+
         if generate_legend:
+            draggable = None
+            ncol = None
             if axes.legend_ is not None:
                 old_legend = axes.get_legend()
-                new_legend = axes.legend(ncol=old_legend._ncol)
-                new_legend.draggable(old_legend._draggable is not None)
-            else:
-                new_legend = axes.legend()
-                new_legend.draggable(True)
+                draggable = old_legend._draggable is not None
+                ncol = old_legend._ncol
+            new_legend = axes.legend(ncol=ncol)
+            if new_legend:
+                new_legend.draggable(draggable)
 
         # Redraw
         figure = axes.get_figure()
