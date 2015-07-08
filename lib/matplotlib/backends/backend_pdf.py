@@ -1319,7 +1319,7 @@ end"""
                                         else 'DeviceRGB'),
                'BitsPerComponent': 8}
         if smask:
-            obj['Smask'] = smask
+            obj['SMask'] = smask
         if rcParams['pdf.compression']:
             png = {'Predictor': 10,
                    'Colors':    1 if grayscale else 3,
