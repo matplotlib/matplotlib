@@ -237,7 +237,7 @@ def ensure_ax(func):
     @wraps(func)
     def inner(*args, **kwargs):
         if 'ax' in kwargs:
-            ax = kwargs.pop('ax', None)
+            ax = kwargs.pop('ax')
         elif len(args) > 0 and isinstance(args[0], Axes):
             ax = args[0]
             args = args[1:]
@@ -270,7 +270,7 @@ def ensure_ax_meth(func):
         s = args[0]
         args = args[1:]
         if 'ax' in kwargs:
-            ax = kwargs.pop('ax', None)
+            ax = kwargs.pop('ax')
         elif len(args) > 1 and isinstance(args[0], Axes):
             ax = args[0]
             args = args[1:]
