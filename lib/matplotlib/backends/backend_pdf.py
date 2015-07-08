@@ -1,8 +1,8 @@
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 
 """
 A PDF matplotlib backend
-Author: Jouni K Sepp�nen <jks@iki.fi>
+Author: Jouni K Seppänen <jks@iki.fi>
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
