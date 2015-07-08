@@ -29,6 +29,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import zip
+from itertools import cycle
 
 import numpy as np
 
@@ -150,13 +151,14 @@ class HandlerNpoints(HandlerBase):
         if numpoints > 1:
             # we put some pad here to compensate the size of the
             # marker
-            xdata = np.linspace(-xdescent + self._marker_pad * fontsize,
-                                width - self._marker_pad * fontsize,
+            pad = self._marker_pad * fontsize
+            xdata = np.linspace(-xdescent + pad,
+                                -xdescent + width - pad,
                                 numpoints)
             xdata_marker = xdata
         elif numpoints == 1:
-            xdata = np.linspace(-xdescent, width, 2)
-            xdata_marker = [0.5 * width - 0.5 * xdescent]
+            xdata = np.linspace(-xdescent, -xdescent+width, 2)
+            xdata_marker = [-xdescent + 0.5 * width]
 
         return xdata, xdata_marker
 
@@ -496,6 +498,7 @@ class HandlerErrorbar(HandlerLine2D):
 
         return artists
 
+
 class HandlerStem(HandlerNpointsYoffsets):
     """
     Handler for Errorbars
@@ -562,9 +565,29 @@ class HandlerStem(HandlerNpointsYoffsets):
 
 class HandlerTuple(HandlerBase):
     """
-    Handler for Tuple
+    Handler for Tuple.
+
+    Additional kwargs are passed through to `HandlerBase`.
+
+    Parameters
+    ----------
+
+    ndivide : int, optional
+        The number of sections to divide the legend area into.  If 0,
+        use the length of the input tuple.
+
+
+    pad : float, optional
+        If None, fall back to `legend.borderpad` as the default.
+        In units of fraction of font size.
+
+
+
     """
-    def __init__(self, **kwargs):
+    def __init__(self, ndivide=1, pad=None, **kwargs):
+
+        self._ndivide = ndivide
+        self._pad = pad
         HandlerBase.__init__(self, **kwargs)
 
     def create_artists(self, legend, orig_handle,
@@ -572,11 +595,30 @@ class HandlerTuple(HandlerBase):
                        trans):
 
         handler_map = legend.get_legend_handler_map()
+
+        if self._ndivide == 0:
+            ndivide = len(orig_handle)
+        else:
+            ndivide = self._ndivide
+
+        if self._pad is None:
+            pad = legend.borderpad * fontsize
+        else:
+            pad = self._pad * fontsize
+
+        if ndivide > 1:
+            width = (width - pad*(ndivide - 1)) / ndivide
+
+        xds = [xdescent - (width + pad) * i for i in range(ndivide)]
+        xds_cycle = cycle(xds)
+
         a_list = []
         for handle1 in orig_handle:
             handler = legend.get_legend_handler(handler_map, handle1)
             _a_list = handler.create_artists(legend, handle1,
-                                             xdescent, ydescent, width, height,
+                                             six.next(xds_cycle),
+                                             ydescent,
+                                             width, height,
                                              fontsize,
                                              trans)
             a_list.extend(_a_list)
