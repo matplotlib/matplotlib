@@ -26,7 +26,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import filter
 from six import unichr
 
 import binascii
@@ -209,8 +208,9 @@ class Type1Font(object):
         # Start with reasonable defaults
         prop = {'weight': 'Regular', 'ItalicAngle': 0.0, 'isFixedPitch': False,
                 'UnderlinePosition': -100, 'UnderlineThickness': 50}
-        tokenizer = self._tokens(self.parts[0])
-        filtered = filter(lambda x: x[0] != self._whitespace, tokenizer)
+        filtered = ((token, value)
+                    for token, value in self._tokens(self.parts[0])
+                    if token is not self._whitespace)
         # The spec calls this an ASCII format; in Python 2.x we could
         # just treat the strings and names as opaque bytes but let's
         # turn them into proper Unicode, and be lenient in case of high bytes.
