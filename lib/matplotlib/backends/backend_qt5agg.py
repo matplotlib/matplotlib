@@ -63,7 +63,7 @@ class FigureCanvasQTAggBase(object):
 
     def drawRectangle(self, rect):
         self._drawRect = rect
-        self.repaint()
+        self.draw_idle()
 
     def paintEvent(self, e):
         """
@@ -71,6 +71,7 @@ class FigureCanvasQTAggBase(object):
         In Qt, all drawing should be done inside of here when a widget is
         shown onscreen.
         """
+        FigureCanvasAgg.draw(self)
 
         # FigureCanvasQT.paintEvent(self, e)
         if DEBUG:
