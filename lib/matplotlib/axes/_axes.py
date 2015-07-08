@@ -35,7 +35,10 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 import matplotlib.transforms as mtrans
-from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
+from matplotlib.container import (BarContainer,
+                                  ErrorbarContainer,
+                                  StemContainer,
+                                  CallContainer)
 from matplotlib.axes._base import _AxesBase
 from matplotlib.axes._base import _process_plot_format
 
@@ -2697,7 +2700,7 @@ class Axes(_AxesBase):
         .. plot:: mpl_examples/statistics/errorbar_demo.py
 
         """
-
+        keep_call = kwargs.pop('keep_call', False)
         if errorevery < 1:
             raise ValueError(
                 'errorevery has to be a strictly positive integer')
@@ -2948,6 +2951,9 @@ class Axes(_AxesBase):
                                                label=label)
         self.containers.append(errorbar_container)
 
+        if keep_call:
+            self.add_container(CallContainer(l0, Axes.errorbar, locals(), **kwargs))
+
         return errorbar_container  # (l0, caplines, barcols)
 
     def boxplot(self, x, notch=False, sym=None, vert=True, whis=1.5,
@@ -3114,6 +3120,7 @@ class Axes(_AxesBase):
 
         .. plot:: mpl_examples/statistics/boxplot_demo.py
         """
+        keep_call = kwargs.pop('keep_call', False)
         bxpstats = cbook.boxplot_stats(x, whis=whis, bootstrap=bootstrap,
                                        labels=labels)
         # make sure we have a dictionary
@@ -3185,6 +3192,9 @@ class Axes(_AxesBase):
                            meanline=meanline, showfliers=showfliers,
                            capprops=capprops, whiskerprops=whiskerprops,
                            manage_xticks=manage_xticks)
+        if keep_call:
+            self.add_container(CallContainer(artists, Axes.boxplot, locals(), **kwargs))
+
         return artists
 
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
@@ -3652,7 +3662,7 @@ class Axes(_AxesBase):
         .. plot:: mpl_examples/shapes_and_collections/scatter_demo.py
 
         """
-
+        keep_call = kwargs.pop('keep_call', False)
         if not self._hold:
             self.cla()
 
@@ -3775,6 +3785,8 @@ class Axes(_AxesBase):
 
         self.add_collection(collection)
         self.autoscale_view()
+        if keep_call:
+            self.add_container(CallContainer(collection, Axes.scatter, locals(), **kwargs))
 
         return collection
 
@@ -4984,7 +4996,7 @@ class Axes(_AxesBase):
                 For an explanation of the differences between
                 pcolor and pcolormesh.
         """
-
+        keep_call = kwargs.pop('keep_call', False)
         if not self._hold:
             self.cla()
 
@@ -5106,6 +5118,7 @@ class Axes(_AxesBase):
         self.update_datalim(corners)
         self.autoscale_view()
         self.add_collection(collection, autolim=False)
+        self.add_container(CallContainer(collection, Axes.pcolor, locals(), **kwargs))
         return collection
 
     @docstring.dedent_interpd
@@ -5186,6 +5199,7 @@ class Axes(_AxesBase):
                 For an explanation of the grid orientation and the
                 expansion of 1-D *X* and/or *Y* to 2-D arrays.
         """
+        keep_call = kwargs.pop('keep_call', False)
         if not self._hold:
             self.cla()
 
@@ -5254,6 +5268,7 @@ class Axes(_AxesBase):
         self.update_datalim(corners)
         self.autoscale_view()
         self.add_collection(collection, autolim=False)
+        self.add_container(CallContainer(collection, Axes.pcolormesh, locals(), **kwargs))
         return collection
 
     @docstring.dedent_interpd
@@ -5339,7 +5354,7 @@ class Axes(_AxesBase):
         collection in the general quadrilateral case.
 
         """
-
+        keep_call = kwargs.pop('keep_call', False)
         if not self._hold:
             self.cla()
 
@@ -5441,20 +5456,29 @@ class Axes(_AxesBase):
             ret.autoscale_None()
         self.update_datalim(np.array([[xl, yb], [xr, yt]]))
         self.autoscale_view(tight=True)
+        self.add_container(CallContainer([ret], Axes.pcolorfast, locals(), **kwargs))
         return ret
 
     def contour(self, *args, **kwargs):
+        keep_call = kwargs.pop('keep_call', False)
         if not self._hold:
             self.cla()
         kwargs['filled'] = False
-        return mcontour.QuadContourSet(self, *args, **kwargs)
+        image = mcontour.QuadContourSet(self, *args, **kwargs)
+        if keep_call:
+            self.add_container(CallContainer([image], Axes.contour, locals(), **kwargs))
+        return image
     contour.__doc__ = mcontour.QuadContourSet.contour_doc
 
     def contourf(self, *args, **kwargs):
+        keep_call = kwargs.pop('keep_call', False)
         if not self._hold:
             self.cla()
         kwargs['filled'] = True
-        return mcontour.QuadContourSet(self, *args, **kwargs)
+        image = mcontour.QuadContourSet(self, *args, **kwargs)
+        if keep_call:
+            self.add_container(CallContainer([image], Axes.contourf, locals(), **kwargs))
+        return image
     contourf.__doc__ = mcontour.QuadContourSet.contour_doc
 
     def clabel(self, CS, *args, **kwargs):
@@ -5494,8 +5518,7 @@ class Axes(_AxesBase):
     def hist(self, x, bins=10, range=None, normed=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
-             color=None, label=None, stacked=False,
-             **kwargs):
+             color=None, label=None, stacked=False, **kwargs):
         """
         Plot a histogram.
 
@@ -5680,6 +5703,7 @@ class Axes(_AxesBase):
         .. plot:: mpl_examples/statistics/histogram_demo_features.py
 
         """
+        keep_call = kwargs.pop('keep_call', False)
         if not self._hold:
             self.cla()
 
@@ -6024,9 +6048,14 @@ class Axes(_AxesBase):
                     [(0, bins[0]), (0, bins[-1])], updatex=False)
 
         if nx == 1:
-            return n[0], bins, cbook.silent_list('Patch', patches[0])
+            n, patches = n[0], cbook.silent_list('Patch', patches[0])
         else:
-            return n, bins, cbook.silent_list('Lists of Patches', patches)
+            n, patches = n, cbook.silent_list('Lists of Patches', patches)
+
+        if keep_call:
+            self.add_container(CallContainer(patches, Axes.hist, locals(), **kwargs))
+
+        return n, bins, patches
 
     @docstring.dedent_interpd
     def hist2d(self, x, y, bins=10, range=None, normed=False, weights=None,
@@ -6103,7 +6132,7 @@ class Axes(_AxesBase):
         --------
         .. plot:: mpl_examples/pylab_examples/hist2d_demo.py
         """
-
+        keep_call = kwargs.pop('keep_call', False)
         # xrange becomes range after 2to3
         bin_range = range
         range = __builtins__["range"]
@@ -6118,6 +6147,9 @@ class Axes(_AxesBase):
         pc = self.pcolorfast(xedges, yedges, h.T, **kwargs)
         self.set_xlim(xedges[0], xedges[-1])
         self.set_ylim(yedges[0], yedges[-1])
+
+        if keep_call:
+            self.add_container(CallContainer([pc], Axes.hist2d, locals(), **kwargs))
 
         return h, xedges, yedges, pc
 

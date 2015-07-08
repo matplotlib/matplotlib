@@ -127,3 +127,17 @@ class StemContainer(Container):
         self.stemlines = stemlines
         self.baseline = baseline
         Container.__init__(self, markerline_stemlines_baseline, **kwargs)
+
+
+class CallContainer(Container):
+
+    def __init__(self, artist_list, call_func, call_info, **kwargs):
+        self.call_func = call_func
+        for key in call_info:
+            setattr(self, key, call_info[key])
+        Container.__init__(self, artist_list, label=kwargs.pop('label', None))
+
+    def __repr__(self):
+        return ("<CallContainer object of {} artists for '{}' call>"
+                "".format(len(self), self.call_func.__name__)
+        )
