@@ -1261,34 +1261,32 @@ end"""
         self.images[image] = (name, ob)
         return name
 
-    def _rgb(self, im):
-        h, w, s = im.as_rgba_str()
+    def _unpack(self, im):
+        """Unpack the image object im into height, width, data, alpha,
+        where data and alpha are HxWx3 (RGB) or HxWx1 (grayscale or alpha)
+        arrays, except alpha is None if the image is fully opaque."""
 
+        h, w, s = im.as_rgba_str()
         rgba = np.fromstring(s, np.uint8)
         rgba.shape = (h, w, 4)
         rgba = rgba[::-1]
-        rgb = np.ascontiguousarray(rgba[:, :, :3])
-        alpha = np.ascontiguousarray(rgba[:, :, 3][..., None])
+        rgb = rgba[:, :, :3]
+        alpha = rgba[:, :, 3][..., None]
         if np.all(alpha == 255):
             alpha = None
-        return h, w, rgb, alpha
-
-    def _gray(self, im, rc=0.3, gc=0.59, bc=0.11):
-        rgbat = im.as_rgba_str()
-        rgba = np.fromstring(rgbat[2], np.uint8)
-        rgba.shape = (rgbat[0], rgbat[1], 4)
-        rgba = rgba[::-1]
-        rgba_f = rgba.astype(np.float32)
-        r = rgba_f[:, :, 0]
-        g = rgba_f[:, :, 1]
-        b = rgba_f[:, :, 2]
-        alpha = np.ascontiguousarray(rgba[:, :, 3][..., None])
-        if np.all(alpha == 255):
-            alpha = None
-        gray = (r*rc + g*gc + b*bc).astype(np.uint8)[..., None]
-        return rgbat[0], rgbat[1], gray, alpha
+        else:
+            alpha = np.array(alpha, order='C')
+        if im.is_grayscale:
+            r, g, b = rgb.astype(np.float32).transpose(2, 0, 1)
+            gray = (0.3 * r + 0.59 * g + 0.11 * b).astype(np.uint8)[..., None]
+            return h, w, gray, alpha
+        else:
+            rgb = np.array(rgb, order='C')
+            return h, w, rgb, alpha
 
     def _writePng(self, data):
+        """Write the image *data* into the pdf file using png
+        predictors with Flate compression."""
         buffer = BytesIO()
         _png.write_png(data, buffer)
         buffer.seek(8)
@@ -1311,6 +1309,9 @@ end"""
             buffer.seek(4, 1)   # skip CRC
 
     def _writeImg(self, data, height, width, grayscale, id, smask=None):
+        """Write the image *data* of size *height* x *width*, as grayscale
+        if *grayscale* is true and RGB otherwise, as pdf object *id*
+        and with the soft mask (alpha channel) *smask*."""
         obj = {'Type':             Name('XObject'),
                'Subtype':          Name('Image'),
                'Width':            width,
@@ -1340,11 +1341,7 @@ end"""
 
     def writeImages(self):
         for img, pair in six.iteritems(self.images):
-            if img.is_grayscale:
-                height, width, data, adata = self._gray(img)
-            else:
-                height, width, data, adata = self._rgb(img)
-
+            height, width, data, adata = self._unpack(img)
             if adata is not None:
                 smaskObject = self.reserveObject("smask")
                 self._writeImg(adata, height, width, True, smaskObject.id)
