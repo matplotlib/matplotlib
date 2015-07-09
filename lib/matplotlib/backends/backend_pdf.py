@@ -1262,9 +1262,11 @@ end"""
         return name
 
     def _unpack(self, im):
-        """Unpack the image object im into height, width, data, alpha,
+        """
+        Unpack the image object im into height, width, data, alpha,
         where data and alpha are HxWx3 (RGB) or HxWx1 (grayscale or alpha)
-        arrays, except alpha is None if the image is fully opaque."""
+        arrays, except alpha is None if the image is fully opaque.
+        """
 
         h, w, s = im.as_rgba_str()
         rgba = np.fromstring(s, np.uint8)
@@ -1285,8 +1287,11 @@ end"""
             return h, w, rgb, alpha
 
     def _writePng(self, data):
-        """Write the image *data* into the pdf file using png
-        predictors with Flate compression."""
+        """
+        Write the image *data* into the pdf file using png
+        predictors with Flate compression.
+        """
+
         buffer = BytesIO()
         _png.write_png(data, buffer)
         buffer.seek(8)
@@ -1309,9 +1314,13 @@ end"""
             buffer.seek(4, 1)   # skip CRC
 
     def _writeImg(self, data, height, width, grayscale, id, smask=None):
-        """Write the image *data* of size *height* x *width*, as grayscale
+        """
+        Write the image *data* of size *height* x *width*, as grayscale
         if *grayscale* is true and RGB otherwise, as pdf object *id*
-        and with the soft mask (alpha channel) *smask*."""
+        and with the soft mask (alpha channel) *smask*, which should be
+        either None or a *height* x *width* x 1 array.
+        """
+
         obj = {'Type':             Name('XObject'),
                'Subtype':          Name('Image'),
                'Width':            width,
