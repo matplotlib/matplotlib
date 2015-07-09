@@ -117,7 +117,7 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 	break;
     default:
         PyErr_SetString(PyExc_ValueError,
-			"Buffer must be RGBA NxMxD array with D in 1, 3, 4 "
+			"Buffer must be an NxMxD array with D in 1, 3, 4 "
 			"(grayscale, RGB, RGBA)");
         goto exit;
     }
