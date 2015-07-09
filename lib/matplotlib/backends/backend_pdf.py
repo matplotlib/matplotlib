@@ -1295,12 +1295,12 @@ end"""
         while True:
             n = buffer.readinto(header)
             assert n == 8
-            length, type = struct.unpack(b'!L4s', header)
+            length, type = struct.unpack(b'!L4s', bytes(header))
             if type == b'IDAT':
                 data = bytearray(length)
                 n = buffer.readinto(data)
                 assert n == length
-                self.currentstream.write(data)
+                self.currentstream.write(bytes(data))
                 written += n
             elif type == b'IEND':
                 break
