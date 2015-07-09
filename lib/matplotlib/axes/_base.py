@@ -1994,7 +1994,32 @@ class _AxesBase(martist.Artist):
         else:
             _tight = self._tight = bool(tight)
 
-        if scalex and self._autoscaleXon:
+        if not self._autoscaleXon:
+            scalex = False
+        if not self._autoscaleYon:
+            scaley = False
+
+        if not scalex and not scaley:
+            return
+
+        # In order to implement margins in a fully general way that respects
+        # all possible (separable) coordinate transformations, we need to do
+        # the autoscaling in three steps:
+        #  1. Compute the limits required to include the data points in this
+        #     axis and any shared axes, without accounting for margins.
+        #  2. If there are nonzero margins, update self.viewLim, so that
+        #     self.transLimits will compute the transformation required to map
+        #     the new view limits to (0,1). Use self.transLimits.inverted()
+        #     to calculate the view limits that correspond
+        #     to (-self._xmargin, -self._ymargin)
+        #     and (1 + self._xmargin, 1 + self._ymargin).
+        #  3. Finally, let the axis locators expand the view limits if
+        #     necessary to align them with tick marks.
+        # It's marginally more efficient to do each step for both axes, before
+        # proceeding to the next step.
+
+        # Step 1
+        if scalex:
             xshared = self._shared_x_axes.get_siblings(self)
             dl = [ax.dataLim for ax in xshared]
             # ignore non-finite data limits if good limits exist
@@ -2012,21 +2037,8 @@ class _AxesBase(martist.Artist):
                 # Default nonsingular for, e.g., MaxNLocator
                 x0, x1 = mtransforms.nonsingular(x0, x1, increasing=False,
                                                  expander=0.05)
-            if self._xmargin > 0:
-                if self.get_xscale() == 'linear':
-                    delta = (x1 - x0) * self._xmargin
-                    x0 -= delta
-                    x1 += delta
-                else:     # log scale
-                    assert(0 < x0 < x1)
-                    factor = pow(x1 / x0, self._xmargin)
-                    x1 *= factor
-                    x0 /= factor
-            if not _tight:
-                x0, x1 = xlocator.view_limits(x0, x1)
-            self.set_xbound(x0, x1)
 
-        if scaley and self._autoscaleYon:
+        if scaley:
             yshared = self._shared_y_axes.get_siblings(self)
             dl = [ax.dataLim for ax in yshared]
             # ignore non-finite data limits if good limits exist
@@ -2042,16 +2054,30 @@ class _AxesBase(martist.Artist):
             except AttributeError:
                 y0, y1 = mtransforms.nonsingular(y0, y1, increasing=False,
                                                  expander=0.05)
-            if self._ymargin > 0:
-                if self.get_yscale() == 'linear':
-                    delta = (y1 - y0) * self._ymargin
-                    y0 -= delta
-                    y1 += delta
-                else:     # log scale
-                    assert(0 < y0 < y1)
-                    factor = pow(y1 / y0, self._ymargin)
-                    y1 *= factor
-                    y0 /= factor
+
+        # Step 2
+        if self._xmargin > 0 or self._ymargin > 0:
+            if scalex:
+                self.set_xbound(x0, x1)
+            if scaley:
+                self.set_ybound(y0, y1)
+            # Handling the x and y transformations at the same time allows us
+            # to save a couple calls to invTransLimits.transform().
+            invTrans = (self.transScale + self.transLimits).inverted()
+            assert(x0 < x1 and y0 < y1)
+            p0 = invTrans.transform((-self._xmargin, -self._ymargin))
+            p1 = invTrans.transform((1 + self._xmargin, 1 + self._ymargin))
+            if scalex:
+                x0, x1 = p0[0], p1[0]
+            if scaley:
+                y0, y1 = p0[1], p1[1]
+
+        # Step 3
+        if scalex:
+            if not _tight:
+                x0, x1 = xlocator.view_limits(x0, x1)
+            self.set_xbound(x0, x1)
+        if scaley:
             if not _tight:
                 y0, y1 = ylocator.view_limits(y0, y1)
             self.set_ybound(y0, y1)
