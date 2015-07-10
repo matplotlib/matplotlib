@@ -3682,6 +3682,10 @@ def test_view_limits_with_margins():
     np.testing.assert_array_almost_equal(ax3.get_xbound(), (-BOUND, BOUND))
     np.testing.assert_array_almost_equal(ax3.get_ybound(), (-BOUND, BOUND))
 
+    ax4 = plt.subplot(111, polar=True)
+    data = np.linspace(0, 2*np.pi, 51)
+    ax4.plot(data, data)
+    assert_raises(NotImplementedError, ax4.margins, 0.5)
 
 @cleanup
 def test_length_one_hist():

@@ -2062,8 +2062,14 @@ class _AxesBase(martist.Artist):
             if scaley:
                 self.set_ybound(y0, y1)
             # Handling the x and y transformations at the same time allows us
-            # to save a couple calls to invTransLimits.transform().
-            invTrans = (self.transScale + self.transLimits).inverted()
+            # to save a couple calls to invTrans.transform().
+            try:
+                transLimits = self.transLimits
+            except AttributeError as e:
+                raise NotImplementedError(
+                    'margins are not implemented for non-separable axes')
+            else:
+                invTrans = (self.transScale + transLimits).inverted()
             assert(x0 < x1 and y0 < y1)
             p0 = invTrans.transform((-self._xmargin, -self._ymargin))
             p1 = invTrans.transform((1 + self._xmargin, 1 + self._ymargin))
