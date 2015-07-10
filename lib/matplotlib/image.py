@@ -733,8 +733,8 @@ class NonUniformImage(AxesImage):
     def __init__(self, ax, **kwargs):
         """
         kwargs are identical to those for AxesImage, except
-        that 'interpolation' defaults to 'nearest', and 'bilinear'
-        is the only alternative.
+        that 'nearest', and 'bilinear' are the only supported 'interpolation'
+        options.
         """
         interp = kwargs.pop('interpolation', 'nearest')
         AxesImage.__init__(self, ax,
