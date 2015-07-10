@@ -1259,8 +1259,10 @@ def imread(fname, format=None):
             from PIL import Image
         except ImportError:
             return None
-        image = Image.open(fname)
-        return pil_to_array(image)
+        with open(fname, 'rb') as f:
+            image = Image.open(f)
+            array = pil_to_array(image)
+        return array
 
     handlers = {'png': _png.read_png, }
     if format is None:
