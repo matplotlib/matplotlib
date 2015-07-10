@@ -353,7 +353,7 @@ backend      : %(backend)s
 
 ### IMAGES
 #image.aspect : equal             # equal | auto | a number
-#image.interpolation  : bilinear  # see help(imshow) for options
+#image.interpolation  : nearest   # see help(imshow) for options
 #image.cmap   : jet               # gray | jet etc...
 #image.lut    : 256               # the size of the colormap lookup table
 #image.origin : upper             # lower | upper
