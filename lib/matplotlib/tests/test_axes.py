@@ -1082,6 +1082,30 @@ def test_hist_steplog():
     plt.hist(data_big, 100, histtype='stepfilled', log=True, orientation='horizontal')
 
 
+@image_comparison(baseline_images=['hist_step_log_bottom'],
+                  remove_text=True, extensions=['png'])
+def test_hist_step_log_bottom():
+    # check that bottom doesn't get overwritten by the 'minimum' on a
+    # log scale histogram (https://github.com/matplotlib/matplotlib/pull/4608)
+    np.random.seed(0)
+    data = np.random.standard_normal(2000)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    # normal hist (should clip minimum to 1/base)
+    ax.hist(data, bins=10, log=True, histtype='stepfilled',
+            alpha=0.5, color='b')
+    # manual bottom < 1/base (previously buggy, see #4608)
+    ax.hist(data, bins=10, log=True, histtype='stepfilled',
+            alpha=0.5, color='g', bottom=1e-2)
+    # manual bottom > 1/base
+    ax.hist(data, bins=10, log=True, histtype='stepfilled',
+            alpha=0.5, color='r', bottom=0.5)
+    # array bottom with some less than 1/base (should clip to 1/base)
+    ax.hist(data, bins=10, log=True, histtype='stepfilled',
+            alpha=0.5, color='y', bottom=np.arange(10))
+    ax.set_ylim(9e-3, 1e3)
+
+
 def contour_dat():
     x = np.linspace(-3, 5, 150)
     y = np.linspace(-3, 5, 120)
