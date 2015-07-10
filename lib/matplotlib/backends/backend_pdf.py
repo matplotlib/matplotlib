@@ -1176,14 +1176,12 @@ end"""
                  'XStep': sidelen, 'YStep': sidelen,
                  'Resources': res})
 
-            # lst is a tuple of stroke color, fill color,
-            # number of - lines, number of / lines,
-            # number of | lines, number of \ lines
-            rgb = hatch_style[0]
-            self.output(rgb[0], rgb[1], rgb[2], Op.setrgb_stroke)
-            if hatch_style[1] is not None:
-                rgb = hatch_style[1]
-                self.output(rgb[0], rgb[1], rgb[2], Op.setrgb_nonstroke,
+            stroke_rgb, fill_rgb, path = hatch_style
+            self.output(stroke_rgb[0], stroke_rgb[1], stroke_rgb[2],
+                        Op.setrgb_stroke)
+            if fill_rgb is not None:
+                self.output(fill_rgb[0], fill_rgb[1], fill_rgb[2],
+                            Op.setrgb_nonstroke,
                             0, 0, sidelen, sidelen, Op.rectangle,
                             Op.fill)
 
@@ -1192,7 +1190,7 @@ end"""
             # TODO: We could make this dpi-dependent, but that would be
             # an API change
             self.output(*self.pathOperations(
-                Path.hatch(hatch_style[2]),
+                Path.hatch(path),
                 Affine2D().scale(sidelen),
                 simplify=False))
             self.output(Op.stroke)
