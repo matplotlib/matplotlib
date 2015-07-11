@@ -31,7 +31,7 @@ class Axes(maxes.Axes):
         plt.rcParams["text.usetex"] = usetex
         plt.rcParams["text.latex.preview"] = preview
 
-Subplot = maxes.subplot_class_factory(Axes)
+subplot = maxes.subplot_class_factory(Axes)
 
 
 def test_window_extent(ax, usetex, preview):
@@ -61,14 +61,14 @@ def test_window_extent(ax, usetex, preview):
     ax.set_title("usetex=%s\npreview=%s" % (str(usetex), str(preview)))
 
 
-F = plt.figure(figsize=(2.*3, 6.5))
+fig = plt.figure(figsize=(2.*3, 6.5))
 
 for i, usetex, preview in [[0, False, False],
                            [1, True, False],
                            [2, True, True]]:
-    ax = Subplot(F, 1, 3, i + 1, usetex=usetex, preview=preview)
-    F.add_subplot(ax)
-    F.subplots_adjust(top=0.85)
+    ax = subplot(fig, 1, 3, i + 1, usetex=usetex, preview=preview)
+    fig.add_subplot(ax)
+    fig.subplots_adjust(top=0.85)
 
     test_window_extent(ax, usetex=usetex, preview=preview)
 
