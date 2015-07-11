@@ -355,7 +355,9 @@ static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyO
 
     npy_intp dims[] = {(npy_intp)result.size() };
     numpy::array_view<int, 1> pyresult(dims);
-    memcpy(pyresult.data(), &result[0], result.size() * sizeof(int));
+    if (result.size() > 0) {
+        memcpy(pyresult.data(), &result[0], result.size() * sizeof(int));
+    }
     return pyresult.pyobj();
 }
 
