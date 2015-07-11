@@ -1,34 +1,31 @@
 #!/usr/bin/env python
 # -*- noplot -*-
 import time
-from pylab import *
-
+import matplotlib.pyplot as plt
+import numpy as np
 
 def get_memory():
     "Simulate a function that returns system memory"
-    return 100*(0.5 + 0.5*sin(0.5*pi*time.time()))
-
+    return 100*(0.5 + 0.5*np.sin(0.5*np.pi*time.time()))
 
 def get_cpu():
     "Simulate a function that returns cpu usage"
-    return 100*(0.5 + 0.5*sin(0.2*pi*(time.time() - 0.25)))
-
+    return 100*(0.5 + 0.5*np.sin(0.2*np.pi*(time.time() - 0.25)))
 
 def get_net():
     "Simulate a function that returns network bandwidth"
-    return 100*(0.5 + 0.5*sin(0.7*pi*(time.time() - 0.1)))
-
+    return 100*(0.5 + 0.5*np.sin(0.7*np.pi*(time.time() - 0.1)))
 
 def get_stats():
     return get_memory(), get_cpu(), get_net()
 
 # turn interactive mode on for dynamic updates.  If you aren't in
 # interactive mode, you'll need to use a GUI event handler/timer.
-ion()
+plt.ion()
 
 fig, ax = plt.subplots()
-ind = arange(1, 4)
-pm, pc, pn = bar(ind, get_stats())
+ind = np.arange(1, 4)
+pm, pc, pn = plt.bar(ind, get_stats())
 centers = ind + 0.5*pm.get_width()
 pm.set_facecolor('r')
 pc.set_facecolor('g')
@@ -48,4 +45,4 @@ for i in range(200):  # run for a little while
     pn.set_height(n)
     ax.set_ylim([0, 100])
 
-    draw()
+    plt.draw()
