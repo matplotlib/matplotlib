@@ -2,7 +2,7 @@
 Demonstrate use of a log color scale in contourf
 '''
 
-from matplotlib import pyplot as P
+import matplotlib.pyplot as plt
 import numpy as np
 from numpy import ma
 from matplotlib import colors, ticker, cm
@@ -30,7 +30,7 @@ z = ma.masked_where(z <= 0, z)
 
 # Automatic selection of levels works; setting the
 # log locator tells contourf to use a log scale:
-cs = P.contourf(X, Y, z, locator=ticker.LogLocator(), cmap=cm.PuBu_r)
+cs = plt.contourf(X, Y, z, locator=ticker.LogLocator(), cmap=cm.PuBu_r)
 
 # Alternatively, you can manually set the levels
 # and the norm:
@@ -41,6 +41,6 @@ cs = P.contourf(X, Y, z, locator=ticker.LogLocator(), cmap=cm.PuBu_r)
 
 # The 'extend' kwarg does not work yet with a log scale.
 
-cbar = P.colorbar()
+cbar = plt.colorbar()
 
-P.show()
+plt.show()
