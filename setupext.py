@@ -701,7 +701,7 @@ class Tests(OptionalPackage):
             ]}
 
     def get_tests_require(self):
-        requires = ['nose>=%s' % self.nose_min_version]
+        requires = ['nose>=%s' % self.nose_min_version, 'sphinx']
         if not sys.version_info >= (3, 3):
             requires += ['mock']
         return requires
