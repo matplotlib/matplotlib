@@ -52,4 +52,3 @@ for x, y in zip(xs, ys):
            verticalalignment='bottom')
 
 plt.show()
-
