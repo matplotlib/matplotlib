@@ -476,6 +476,10 @@ def validate_bbox(s):
         if s == 'standard':
             return None
         raise ValueError("bbox should be 'tight' or 'standard'")
+    elif s is not None:
+        # Backwards compatibility. None is equivalent to 'standard'.
+        raise ValueError("bbox should be 'tight' or 'standard'")
+    return s
 
 def validate_sketch(s):
     if isinstance(s, six.string_types):
@@ -790,7 +794,7 @@ defaultParams = {
     # value checked by backend at runtime
     'savefig.format':     ['png', update_savefig_format],
     # options are 'tight', or 'standard'. 'standard' validates to None.
-    'savefig.bbox':       [None, validate_bbox],
+    'savefig.bbox':       ['standard', validate_bbox],
     'savefig.pad_inches': [0.1, validate_float],
     # default directory in savefig dialog box
     'savefig.directory': ['~', six.text_type],
