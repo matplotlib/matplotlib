@@ -1,16 +1,15 @@
-#!/usr/bin/env python
+import matplotlib.pyplot as plt
+import numpy.random as rnd
 
-from pylab import *
+fig = plt.figure()
+plt.subplot(221)
+plt.imshow(rnd.random((100, 100)))
+plt.subplot(222)
+plt.imshow(rnd.random((100, 100)))
+plt.subplot(223)
+plt.imshow(rnd.random((100, 100)))
+plt.subplot(224)
+plt.imshow(rnd.random((100, 100)))
 
-fig = figure()
-subplot(221)
-imshow(rand(100, 100))
-subplot(222)
-imshow(rand(100, 100))
-subplot(223)
-imshow(rand(100, 100))
-subplot(224)
-imshow(rand(100, 100))
-
-subplot_tool()
-show()
+plt.subplot_tool()
+plt.show()
