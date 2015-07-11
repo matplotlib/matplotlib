@@ -1,28 +1,29 @@
 #!/usr/bin/env python
-from pylab import *
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 dt = 0.01
-x = arange(-50.0, 50.0, dt)
-y = arange(0, 100.0, dt)
+x = np.arange(-50.0, 50.0, dt)
+y = np.arange(0, 100.0, dt)
 
-subplot(311)
-plot(x, y)
-xscale('symlog')
-ylabel('symlogx')
-grid(True)
-gca().xaxis.grid(True, which='minor')  # minor grid on too
+plt.subplot(311)
+plt.plot(x, y)
+plt.xscale('symlog')
+plt.ylabel('symlogx')
+plt.grid(True)
+plt.gca().xaxis.grid(True, which='minor')  # minor grid on too
 
-subplot(312)
-plot(y, x)
-yscale('symlog')
-ylabel('symlogy')
+plt.subplot(312)
+plt.plot(y, x)
+plt.yscale('symlog')
+plt.ylabel('symlogy')
 
+plt.subplot(313)
+plt.plot(x, np.sin(x / 3.0))
+plt.xscale('symlog')
+plt.yscale('symlog', linthreshy=0.015)
+plt.grid(True)
+plt.ylabel('symlog both')
 
-subplot(313)
-plot(x, np.sin(x / 3.0))
-xscale('symlog')
-yscale('symlog', linthreshy=0.015)
-grid(True)
-ylabel('symlog both')
-
-show()
+plt.show()
