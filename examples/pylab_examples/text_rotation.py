@@ -31,12 +31,13 @@ def addtext(props):
 bbox = {'fc': '0.8', 'pad': 0}
 
 plt.subplot(211)
-plt.addtext({'ha': 'center', 'va': 'center', 'bbox': bbox})
+addtext({'ha': 'center', 'va': 'center', 'bbox': bbox})
 plt.xlim(0, 5)
 plt.xticks(np.arange(0, 5.1, 0.5), [])
 plt.ylabel('center / center')
+
 plt.subplot(212)
-plt.addtext({'ha': 'left', 'va': 'bottom', 'bbox': bbox})
+addtext({'ha': 'left', 'va': 'bottom', 'bbox': bbox})
 plt.xlim(0, 5)
 plt.xticks(np.arange(0, 5.1, 0.5))
 plt.ylabel('left / bottom')
