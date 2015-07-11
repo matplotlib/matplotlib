@@ -92,10 +92,6 @@ matplotlib library function :func:`matplotlib.test`::
 .. _`nosetest arguments`: http://nose.readthedocs.org/en/latest/usage.html
 
 
-Running tests by any means other than `matplotlib.test()` does not
-load the nose "knownfailureif" (Known failing tests) plugin, causing
-known-failing tests to fail for real.
-
 Writing a simple test
 ---------------------
 

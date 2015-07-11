@@ -13,7 +13,7 @@ A guide for developers who are doing a matplotlib release.
 Testing
 =======
 
-* Run all of the regression tests by running ``python setup.py tests`` script
+* Run all of the regression tests by running ``python setup.py test`` script
   at the root of the source tree.
 
 * Run :file:`unit/memleak_hawaii3.py` and make sure there are no
