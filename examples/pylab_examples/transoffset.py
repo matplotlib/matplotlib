@@ -17,40 +17,39 @@ this transform, where the modification consists of an
 offset.
 '''
 
-import pylab as P
+import matplotlib.pyplot as plt
 from matplotlib.transforms import offset_copy
+import matplotlib.transforms as tns
 
-X = P.arange(7)
-Y = X**2
+xs = np.arange(7)
+ys = xs**2
 
-fig = P.figure(figsize=(5, 10))
-ax = P.subplot(2, 1, 1)
+fig = plt.figure(figsize=(5, 10))
+ax = plt.subplot(2, 1, 1)
 
 # If we want the same offset for each text instance,
 # we only need to make one transform.  To get the
 # transform argument to offset_copy, we need to make the axes
 # first; the subplot command above is one way to do this.
-
-transOffset = offset_copy(ax.transData, fig=fig,
+trans_offset = tns.offset_copy(ax.transData, fig=fig,
                           x=0.05, y=0.10, units='inches')
 
-for x, y in zip(X, Y):
-    P.plot((x,), (y,), 'ro')
-    P.text(x, y, '%d, %d' % (int(x), int(y)), transform=transOffset)
+for x, y in zip(xs, ys):
+    plt.plot((x,), (y,), 'ro')
+    plt.text(x, y, '%d, %d' % (int(x), int(y)), transform=trans_offset)
 
 
 # offset_copy works for polar plots also.
+ax = plt.subplot(2, 1, 2, polar=True)
 
-ax = P.subplot(2, 1, 2, polar=True)
+trans_offset = tns.offset_copy(ax.transData, fig=fig, y=6, units='dots')
 
-transOffset = offset_copy(ax.transData, fig=fig, y=6, units='dots')
-
-for x, y in zip(X, Y):
-    P.polar((x,), (y,), 'ro')
-    P.text(x, y, '%d, %d' % (int(x), int(y)),
-           transform=transOffset,
+for x, y in zip(xs, ys):
+    plt.polar((x,), (y,), 'ro')
+    plt.text(x, y, '%d, %d' % (int(x), int(y)),
+           transform=trans_offset,
            horizontalalignment='center',
            verticalalignment='bottom')
 
+plt.show()
 
-P.show()
