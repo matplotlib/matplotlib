@@ -4,7 +4,6 @@
 import matplotlib.pyplot as plt
 matplotlib.rc('text', usetex=True)
 
-
 def setfont(font):
     return r'\font\a %s at 14pt\a ' % font
 
