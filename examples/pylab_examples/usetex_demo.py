@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib
 matplotlib.rc('text', usetex=True)
 import numpy as np
 
