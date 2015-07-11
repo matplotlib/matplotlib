@@ -198,9 +198,9 @@ an implicit reference to the `plt.gca()` passed as the first argument.
 
 The wrapped function can be called as any of ::
 
-   func(*args, **kwargs)
-   func(ax, *args, **kwargs)
-   func(.., ax=ax)
+   {obj}{func}(*args, **kwargs)
+   {obj}{func}(ax, *args, **kwargs)
+   {obj}{func}(.., ax=ax)
 
 """
 
@@ -249,7 +249,7 @@ def ensure_ax(func):
         pre_doc = ''
     else:
         pre_doc = dedent(pre_doc)
-    inner.__doc__ = _ENSURE_AX_DOC + pre_doc
+    inner.__doc__ = _ENSURE_AX_DOC.format(func=func.__name__, obj='') + pre_doc
 
     return inner
 
@@ -282,7 +282,8 @@ def ensure_ax_meth(func):
         pre_doc = ''
     else:
         pre_doc = dedent(pre_doc)
-    inner.__doc__ = _ENSURE_AX_DOC + pre_doc
+    inner.__doc__ = _ENSURE_AX_DOC.format(func=func.__name__,
+                                          obj='obj.') + pre_doc
     return inner
 
 
