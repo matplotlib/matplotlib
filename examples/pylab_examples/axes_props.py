@@ -3,30 +3,31 @@
 You can control the axis tick and grid properties
 """
 
-from pylab import *
+import matplotlib.pyplot as plt
+import numpy as np 
 
-t = arange(0.0, 2.0, 0.01)
-s = sin(2*pi*t)
-plot(t, s)
-grid(True)
+t = np.arange(0.0, 2.0, 0.01)
+s = np.sin(2*pi*t)
+plt.plot(t, s)
+plt.grid(True)
 
 # MATLAB style
-xticklines = getp(gca(), 'xticklines')
-yticklines = getp(gca(), 'yticklines')
-xgridlines = getp(gca(), 'xgridlines')
-ygridlines = getp(gca(), 'ygridlines')
-xticklabels = getp(gca(), 'xticklabels')
-yticklabels = getp(gca(), 'yticklabels')
+xticklines = plt.getp(plt.gca(), 'xticklines')
+yticklines = plt.getp(plt.gca(), 'yticklines')
+xgridlines = plt.getp(plt.gca(), 'xgridlines')
+ygridlines = plt.getp(plt.gca(), 'ygridlines')
+xticklabels = plt.getp(plt.gca(), 'xticklabels')
+yticklabels = plt.getp(plt.gca(), 'yticklabels')
 
-setp(xticklines, 'linewidth', 3)
-setp(yticklines, 'linewidth', 3)
-setp(xgridlines, 'linestyle', '-')
-setp(ygridlines, 'linestyle', '-')
-setp(yticklabels, 'color', 'r', fontsize='medium')
-setp(xticklabels, 'color', 'r', fontsize='medium')
+plt.setp(xticklines, 'linewidth', 3)
+plt.setp(yticklines, 'linewidth', 3)
+plt.setp(xgridlines, 'linestyle', '-')
+plt.setp(ygridlines, 'linestyle', '-')
+plt.setp(yticklabels, 'color', 'r', fontsize='medium')
+plt.setp(xticklabels, 'color', 'r', fontsize='medium')
 
 
-show()
+plt.show()
 
 
 """
