@@ -110,7 +110,7 @@ def validate_float(s):
 
 def validate_float_or_None(s):
     """convert s to float or raise"""
-    if s is None:
+    if s is None or s == 'None':
         return None
     try:
         return float(s)
