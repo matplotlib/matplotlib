@@ -51,29 +51,10 @@ const size_t NUM_VERTICES[] = { 1, 1, 1, 2, 3, 1 };
 
 extern "C" int add_dict_int(PyObject *dict, const char *key, long val);
 
-#if defined(_MSC_VER) && (_MSC_VER == 1400)
-
-/* Required by libpng and zlib */
-#pragma comment(lib, "bufferoverflowU")
-
-/* std::max and std::min are missing in Windows Server 2003 R2
-   Platform SDK compiler.  See matplotlib bug #3067191 */
-namespace std
-{
-
-template <class T>
-inline T max(const T &a, const T &b)
-{
-    return (a > b) ? a : b;
+#if defined(_MSC_VER) && (_MSC_VER < 1800)
+namespace std {
+  inline bool isfinite(double num) { return _finite(num); }
 }
-
-template <class T>
-inline T min(const T &a, const T &b)
-{
-    return (a < b) ? a : b;
-}
-}
-
 #endif
 
 #endif
