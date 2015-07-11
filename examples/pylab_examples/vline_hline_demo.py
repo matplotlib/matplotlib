@@ -8,13 +8,10 @@ import matplotlib.pyplot as plt
 import numpy as np 
 import numpy.random as rnd
 
-
-
 def f(t):
     s1 = np.sin(2 * np.pi * t)
     e1 = np.exp(-t)
     return np.absolute((s1 * e1)) + .05
-
 
 t = np.arange(0.0, 5.0, 0.1)
 s = f(t)
