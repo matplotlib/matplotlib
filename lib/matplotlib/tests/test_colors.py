@@ -227,44 +227,44 @@ class BaseNormMixin(object):
         assert_array_equal(res, np.array([5., 10.]))
 
 
-class BaseOffsetNorm(BaseNormMixin):
-    normclass = mcolors.OffsetNorm
+class BasePiecewiseLinearNorm(BaseNormMixin):
+    normclass = mcolors.PiecewiseLinearNorm
     test_inverse = False
 
-class test_OffsetNorm_Even(BaseOffsetNorm):
+class test_PiecewiseLinearNorm_Even(BasePiecewiseLinearNorm):
     def setup(self):
         self.norm = self.normclass(vmin=-1, vcenter=0, vmax=4)
         self.vals = np.array([-1.0, -0.5, 0.0, 1.0, 2.0, 3.0, 4.0])
         self.expected = np.array([0.0, 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
 
 
-class test_OffsetNorm_Odd(BaseOffsetNorm):
+class test_PiecewiseLinearNorm_Odd(BasePiecewiseLinearNorm):
     def setup(self):
-        self.normclass = mcolors.OffsetNorm
+        self.normclass = mcolors.PiecewiseLinearNorm
         self.norm = self.normclass(vmin=-2, vcenter=0, vmax=5)
         self.vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
         self.expected = np.array([0.0, 0.25, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
 
 
-class test_OffsetNorm_AllNegative(BaseOffsetNorm):
+class test_PiecewiseLinearNorm_AllNegative(BasePiecewiseLinearNorm):
     def setup(self):
-        self.normclass = mcolors.OffsetNorm
+        self.normclass = mcolors.PiecewiseLinearNorm
         self.norm = self.normclass(vmin=-10, vcenter=-8, vmax=-2)
         self.vals = np.array([-10., -9., -8., -6., -4., -2.])
         self.expected = np.array([0.0, 0.25, 0.5, 0.666667, 0.833333, 1.0])
 
 
-class test_OffsetNorm_AllPositive(BaseOffsetNorm):
+class test_PiecewiseLinearNorm_AllPositive(BasePiecewiseLinearNorm):
     def setup(self):
-        self.normclass = mcolors.OffsetNorm
+        self.normclass = mcolors.PiecewiseLinearNorm
         self.norm = self.normclass(vmin=0, vcenter=3, vmax=9)
         self.vals = np.array([0., 1.5, 3., 4.5, 6.0, 7.5, 9.])
         self.expected = np.array([0.0, 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
 
 
-class test_OffsetNorm_NoVs(BaseOffsetNorm):
+class test_PiecewiseLinearNorm_NoVs(BasePiecewiseLinearNorm):
     def setup(self):
-        self.normclass = mcolors.OffsetNorm
+        self.normclass = mcolors.PiecewiseLinearNorm
         self.norm = self.normclass(vmin=None, vcenter=None, vmax=None)
         self.vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0])
         self.expected = np.array([0., 0.16666667, 0.33333333,
@@ -289,26 +289,26 @@ class test_OffsetNorm_NoVs(BaseOffsetNorm):
         assert_equal(self.norm.vmax, self.expected_vmax)
 
 
-class test_OffsetNorm_VminEqualsVcenter(BaseOffsetNorm):
+class test_PiecewiseLinearNorm_VminEqualsVcenter(BasePiecewiseLinearNorm):
     def setup(self):
-        self.normclass = mcolors.OffsetNorm
+        self.normclass = mcolors.PiecewiseLinearNorm
         self.norm = self.normclass(vmin=-2, vcenter=-2, vmax=2)
         self.vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0])
         self.expected = np.array([0.5, 0.625, 0.75, 0.875, 1.0])
 
 
-class test_OffsetNorm_VmaxEqualsVcenter(BaseOffsetNorm):
+class test_PiecewiseLinearNorm_VmaxEqualsVcenter(BasePiecewiseLinearNorm):
     def setup(self):
-        self.normclass = mcolors.OffsetNorm
+        self.normclass = mcolors.PiecewiseLinearNorm
         self.norm = self.normclass(vmin=-2, vcenter=2, vmax=2)
         self.vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0])
         self.expected = np.array([0.0, 0.125, 0.25, 0.375, 0.5])
 
 
-class test_OffsetNorm_VsAllEqual(BaseOffsetNorm):
+class test_PiecewiseLinearNorm_VsAllEqual(BasePiecewiseLinearNorm):
     def setup(self):
         self.v = 10
-        self.normclass = mcolors.OffsetNorm
+        self.normclass = mcolors.PiecewiseLinearNorm
         self.norm = self.normclass(vmin=self.v, vcenter=self.v, vmax=self.v)
         self.vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0])
         self.expected = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
@@ -321,28 +321,28 @@ class test_OffsetNorm_VsAllEqual(BaseOffsetNorm):
         )
 
 
-class test_OffsetNorm_Errors(object):
+class test_PiecewiseLinearNorm_Errors(object):
     def setup(self):
         self.vals = np.arange(50)
 
     @raises(ValueError)
     def test_VminGTVcenter(self):
-        norm = mcolors.OffsetNorm(vmin=10, vcenter=0, vmax=20)
+        norm = mcolors.PiecewiseLinearNorm(vmin=10, vcenter=0, vmax=20)
         norm(self.vals)
 
     @raises(ValueError)
     def test_VminGTVmax(self):
-        norm = mcolors.OffsetNorm(vmin=10, vcenter=0, vmax=5)
+        norm = mcolors.PiecewiseLinearNorm(vmin=10, vcenter=0, vmax=5)
         norm(self.vals)
 
     @raises(ValueError)
     def test_VcenterGTVmax(self):
-        norm = mcolors.OffsetNorm(vmin=10, vcenter=25, vmax=20)
+        norm = mcolors.PiecewiseLinearNorm(vmin=10, vcenter=25, vmax=20)
         norm(self.vals)
 
     @raises(ValueError)
     def test_premature_scaling(self):
-        norm = mcolors.OffsetNorm()
+        norm = mcolors.PiecewiseLinearNorm()
         norm.inverse(np.array([0.1, 0.5, 0.9]))
 
 
@@ -355,7 +355,7 @@ def test_offset_norm_img():
 
     fig, (ax1, ax2) = plt.subplots(ncols=2)
     cmap = plt.cm.coolwarm
-    norm = mcolors.OffsetNorm(vmin=-2, vcenter=0, vmax=7)
+    norm = mcolors.PiecewiseLinearNorm(vmin=-2, vcenter=0, vmax=7)
 
     img1 = ax1.imshow(Z, cmap=cmap, norm=None)
     cbar1 = fig.colorbar(img1, ax=ax1)
