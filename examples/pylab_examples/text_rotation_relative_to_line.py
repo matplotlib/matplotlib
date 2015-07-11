@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Plot diagonal line (45 degrees)
-h = plt.plot(np.arange(0,10), np.arange(0, 10))
+h = plt.plot(np.arange(0, 10), np.arange(0, 10))
 
 # set limits so that it no longer looks on screen to be 45 degrees
 plt.xlim([-10, 20])
