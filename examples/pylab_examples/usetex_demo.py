@@ -1,6 +1,6 @@
-import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.rc('text', usetex=True)
+import matplotlib.pyplot as plt
 import numpy as np
 
 # interface tracking profiles
