@@ -40,8 +40,9 @@ def toggle_images(event):
     b2 = im2.get_visible()
     im1.set_visible(not b1)
     im2.set_visible(not b2)
-    draw()
+    plt.draw()
 
 plt.connect('key_press_event', toggle_images)
 
 plt.show()
+
