@@ -7,6 +7,7 @@ convert it to an array and pass it to Pillow for rendering.
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
+
 try:
     from PIL import Image
 except ImportError:
@@ -24,7 +25,6 @@ s = agg.tostring_rgb()
 l, b, w, h = agg.figure.bbox.bounds
 w, h = int(w), int(h)
 
-
 X = np.fromstring(s, np.uint8)
 X.shape = h, w, 3
 
@@ -33,4 +33,3 @@ im = Image.fromstring("RGB", (w, h), s)
 # Uncomment this line to display the image using ImageMagick's
 # `display` tool.
 # im.show()
-
