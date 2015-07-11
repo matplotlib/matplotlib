@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 The way matplotlib does text layout is counter-intuitive to some, so
 this example is designed to make it a little clearer.  The text is
@@ -17,6 +16,7 @@ But a picture is worth a thousand words!
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 
 def addtext(props):
     plt.text(0.5, 0.5, 'text 0', props, rotation=0)
