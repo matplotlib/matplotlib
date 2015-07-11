@@ -20,7 +20,7 @@ In the subplot below, the order is reversed.
 The second figure shows how to control the zorder of individual lines.
 """
 
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import numpy as np
 
 x = np.random.random(20)
