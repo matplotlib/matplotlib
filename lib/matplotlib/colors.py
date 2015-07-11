@@ -964,7 +964,7 @@ class Normalize(object):
         return (self.vmin is not None and self.vmax is not None)
 
 
-class OffsetNorm(Normalize):
+class PiecewiseLinearNorm(Normalize):
     """
     A subclass of matplotlib.colors.Normalize.
 
@@ -998,7 +998,7 @@ class OffsetNorm(Normalize):
         Examples
         --------
         >>> import matplotlib.colors as mcolors
-        >>> offset = mcolors.OffsetNorm(vmin=-2., vcenter=0., vmax=4.)
+        >>> offset = mcolors.PiecewiseLinearNorm(vmin=-2., vcenter=0., vmax=4.)
         >>> data = [-2., -1., 0., 1., 2., 3., 4.]
         >>> offset(data)
         array([0., 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
