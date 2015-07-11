@@ -60,6 +60,13 @@ Added a :code:`pivot` kwarg to :func:`~mpl_toolkits.mplot3d.Axes3D.quiver`
 that controls the pivot point around which the quiver line rotates. This also
 determines the placement of the arrow head along the quiver line.
 
+Offset Normalizers for Colormaps
+````````````````````````````````
+Paul Hobson/Geosyntec Consultants added a new :class:`matplotlib.colors.PiecewiseLinearNorm`
+class with the help of Till Stensitzki. This is particularly useful when using a
+diverging colormap on data that are asymetrically centered around a logical value
+(e.g., 0 when data range from -2 to 4).
+
 New backend selection
 ---------------------
 
