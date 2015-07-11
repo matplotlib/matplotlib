@@ -163,7 +163,7 @@ class NoseTestCommand(TestCommand):
             from distutils.errors import DistutilsOptionError
             raise DistutilsOptionError(
                 "You are using several options for the test command in an "
-                "incompatible manner. Please use either one of --pep8-only,"
+                "incompatible manner. Please use either --pep8-only or "
                 "--omit-pep8"
             )
 
@@ -203,38 +203,35 @@ class NoseTestCommand(TestCommand):
 
 
     def run_tests(self):
-        try:
-            import matplotlib
-            matplotlib.use('agg')
-            import nose
-            from matplotlib.testing.noseclasses import KnownFailure
-            from matplotlib import default_test_modules as testmodules
-            from matplotlib import font_manager
-            import time
-            # Make sure the font caches are created before starting any possibly
-            # parallel tests
-            if font_manager._fmcache is not None:
-                while not os.path.exists(font_manager._fmcache):
-                    time.sleep(0.5)
-            plugins = [KnownFailure]
+        import matplotlib
+        matplotlib.use('agg')
+        import nose
+        from matplotlib.testing.noseclasses import KnownFailure
+        from matplotlib import default_test_modules as testmodules
+        from matplotlib import font_manager
+        import time
+        # Make sure the font caches are created before starting any possibly
+        # parallel tests
+        if font_manager._fmcache is not None:
+            while not os.path.exists(font_manager._fmcache):
+                time.sleep(0.5)
+        plugins = [KnownFailure]
 
-            # Nose doesn't automatically instantiate all of the plugins in the
-            # child processes, so we have to provide the multiprocess plugin
-            # with a list.
-            from nose.plugins import multiprocess
-            multiprocess._instantiate_plugins = plugins
+        # Nose doesn't automatically instantiate all of the plugins in the
+        # child processes, so we have to provide the multiprocess plugin
+        # with a list.
+        from nose.plugins import multiprocess
+        multiprocess._instantiate_plugins = plugins
 
-            if self.omit_pep8:
-                testmodules.remove('matplotlib.tests.test_coding_standards')
-            elif self.pep8_only:
-                testmodules = ['matplotlib.tests.test_coding_standards']
+        if self.omit_pep8:
+            testmodules.remove('matplotlib.tests.test_coding_standards')
+        elif self.pep8_only:
+            testmodules = ['matplotlib.tests.test_coding_standards']
 
-            nose.main(addplugins=[x() for x in plugins],
-                      defaultTest=testmodules,
-                      argv=['nosetests'] + self.test_args,
-                      exit=False)
-        except ImportError:
-            sys.exit(-1)
+        nose.main(addplugins=[x() for x in plugins],
+                  defaultTest=testmodules,
+                  argv=['nosetests'] + self.test_args,
+                  exit=False)
 
 
 # One doesn't normally see `if __name__ == '__main__'` blocks in a setup.py,
