@@ -2,7 +2,7 @@
 Demonstrates high-resolution tricontouring on user-defined triangular grids
 with matplotlib.tri.UniformTriRefiner
 """
-from matplotlib.tri import Triangulation, UniformTriRefiner
+import matplotlib.tri as tri
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
@@ -43,7 +43,7 @@ z = function_z(x, y)
 # Now create the Triangulation.
 # (Creating a Triangulation without specifying the triangles results in the
 # Delaunay triangulation of the points.)
-triang = Triangulation(x, y)
+triang = tri.Triangulation(x, y)
 
 # Mask off unwanted triangles.
 xmid = x[triang.triangles].mean(axis=1)
@@ -54,7 +54,7 @@ triang.set_mask(mask)
 #-----------------------------------------------------------------------------
 # Refine data
 #-----------------------------------------------------------------------------
-refiner = UniformTriRefiner(triang)
+refiner = tri.UniformTriRefiner(triang)
 tri_refi, z_test_refi = refiner.refine_field(z, subdiv=3)
 
 #-----------------------------------------------------------------------------
