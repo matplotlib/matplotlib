@@ -17,7 +17,7 @@ If you know how to fix this, please email us!
 
 """
 
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import numpy as np
 
 # two images x1 is initially visible, x2 is not
@@ -45,4 +45,3 @@ def toggle_images(event):
 plt.connect('key_press_event', toggle_images)
 
 plt.show()
-
