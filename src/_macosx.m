@@ -2648,7 +2648,6 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
     const char* italic;
     float angle;
     CTFontRef font;
-    CGColorRef color;
     CGFloat descent;
 #if PY33
     const char* text;
@@ -2697,22 +2696,16 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    color = CGColorCreateGenericRGB(self->color[0],
-                                    self->color[1],
-                                    self->color[2],
-                                    self->color[3]);
-
     keys[0] = kCTFontAttributeName;
-    keys[1] = kCTForegroundColorAttributeName;
+    keys[1] = kCTForegroundColorFromContextAttributeName;
     values[0] = font;
-    values[1] = color;
+    values[1] = kCFBooleanTrue;
     CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault,
                                         (const void**)&keys,
                                         (const void**)&values,
                                         2,
                                         &kCFTypeDictionaryKeyCallBacks,
                                         &kCFTypeDictionaryValueCallBacks);
-    CGColorRelease(color);
     CFRelease(font);
 
     CFAttributedStringRef string = CFAttributedStringCreate(kCFAllocatorDefault,
