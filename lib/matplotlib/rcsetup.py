@@ -679,7 +679,7 @@ defaultParams = {
     'text.latex.preamble': [[''], validate_stringlist],
     'text.latex.preview':  [False, validate_bool],
     'text.dvipnghack':     [None, validate_bool_maybe_none],
-    'text.hinting':        [True, validate_hinting],
+    'text.hinting':        ['auto', validate_hinting],
     'text.hinting_factor': [8, validate_int],
     'text.antialiased':    [True, validate_bool],
 
