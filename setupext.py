@@ -1162,6 +1162,24 @@ class Pytz(SetupPackage):
         return ['pytz']
 
 
+class Cycler(SetupPackage):
+    name = "cycler"
+
+    def check(self):
+        try:
+            import cycler
+        except ImportError:
+            return (
+                "cycler was not found. "
+                "pip will attempt to install it "
+                "after matplotlib.")
+
+        return "using cycler version %s" % pytz.__version__
+
+    def get_install_requires(self):
+        return ['cycler']
+
+
 class Dateutil(SetupPackage):
     name = "dateutil"
 
