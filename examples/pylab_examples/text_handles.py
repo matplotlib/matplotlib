@@ -8,6 +8,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def f(t):
     s1 = np.sin(2*np.pi*t)
     e1 = np.exp(-t)
@@ -15,7 +16,6 @@ def f(t):
 
 t1 = np.arange(0.0, 5.0, 0.1)
 t2 = np.arange(0.0, 5.0, 0.02)
-
 
 fig, ax = plt.subplots()
 plt.plot(t1, f(t1), 'bo', t2, f(t2), 'k')
@@ -30,4 +30,3 @@ plt.setp(xtext, size='medium', name=['Courier', 'Bitstream Vera Sans Mono'],
 plt.setp(ytext, size='medium', name=['Helvetica', 'Bitstream Vera Sans'],
      weight='light', color='b')
 plt.show()
-
