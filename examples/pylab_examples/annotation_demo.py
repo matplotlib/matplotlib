@@ -35,7 +35,7 @@ analogous to negative indexing of sequences.
 """
 
 
-from matplotlib.pyplot import figure, show
+import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
 import numpy as np
 
@@ -43,7 +43,7 @@ import numpy as np
 if 1:
     # if only one location is given, the text and xypoint being
     # annotated are assumed to be the same
-    fig = figure()
+    fig = plt.figure()
     ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1, 5), ylim=(-3, 5))
 
     t = np.arange(0.0, 5.0, 0.01)
@@ -93,7 +93,7 @@ if 1:
     # example is placed in the fractional figure coordinate system.
     # Text keyword args like horizontal and vertical alignment are
     # respected
-    fig = figure()
+    fig = plt.figure()
     ax = fig.add_subplot(111, polar=True)
     r = np.arange(0, 1, 0.001)
     theta = 2*2*np.pi*r
@@ -138,4 +138,4 @@ if 1:
     ax.set_xlim(-20, 20)
     ax.set_ylim(-20, 20)
 
-show()
+plt.show()
