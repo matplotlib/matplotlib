@@ -651,8 +651,8 @@ class Tests(OptionalPackage):
 
         msgs = []
         msg_template = ('{package} is required to run the matplotlib test '
-                        'suite.  pip/easy_install may attempt to install it '
-                        'after matplotlib.')
+                        'suite. "setup.py test" will automatically download it.'
+                        ' Install {package} to run matplotlib.test()')
 
         bad_nose = msg_template.format(
             package='nose %s or later' % self.nose_min_version
