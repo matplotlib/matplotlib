@@ -1,7 +1,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
+import types
 
 import re
 import warnings
@@ -13,6 +14,8 @@ from matplotlib import docstring, rcParams
 from .transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPath, Transform)
 from .path import Path
+
+import .mpl_traitlets as mpltr
 
 # Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
@@ -75,8 +78,7 @@ def _stale_figure_callback(self):
 def _stale_axes_callback(self):
     self.axes.stale = True
 
-
-class Artist(object):
+class Artist(mpltr.Configurable):
     """
     Abstract base class for someone who renders into a
     :class:`FigureCanvas`.
@@ -85,13 +87,51 @@ class Artist(object):
     aname = 'Artist'
     zorder = 0
 
-    def __init__(self):
-        self._stale = True
-        self._axes = None
-        self.figure = None
 
-        self._transform = None
-        self._transformSet = False
+    # warn on all : check whether serialize is/isn't required.
+
+    # perishable=True ==> set stale = True
+    _transformSet = Bool(False, serialize=True)
+    stale = Bool(True, serialize=True)
+    # warn : oInstance used, new TraitType?
+    transform = ipytr.oInstance(matplotlib.transforms.Transform,
+                            serialize=True, perishable=True)
+    axes = ipytr.Instance(matplotlib.axes.Axes,allow_none=True,
+                            serialize=True)
+    contains = Callable(allow_none=True)
+    figure = ipytr.Instance(matplotlib.figure.Figure,
+                            allow_none=True,serialize=True,
+                            perishable=True, prop=True)
+    visible = Bool(True, perishable=True)
+    animated = Bool(False, perishable=True)
+    alpha = Float(allow_none=True, perishable=True)
+    # clipbox = Instance(matplotlib.transforms.Bbox)
+    # clippath = Union([matplotlib.patches.Patch,
+    #                 matplotlib.path.Path],
+    #                 allow_none=True)
+    # clipon = Bool(True)
+    # label = String('')
+    # picker = Union([Bool,Float,Callable],allow_none=True)
+    # rasterized = Bool(allow_none=True)
+    # agg_filter = Callable(alow_none=True)
+    # eventson = Bool(False)
+    # oid = Int(0)
+    # propobservers = Dict(trait=Callable)
+    # eventson = Bool(False)
+    # axes = Instance(matplotlib.axes.Axes, allow_none=True)
+    # _remove_method = Instance(Callable, allow_none=True)
+    # url = String(allow_none=True)
+    # grid = String(allow_none=True)
+    # snap = Bool(allow_none=True)
+    # sketch = Tuple(allow_none=True)
+    # path_effects = List(trait=Instance(matplotlib.patheffect._Base))
+
+    def __init__(self, *args, **kwargs):
+        super(Artist,self).__init__(*args, **kwargs)
+        pnames = self.trait_names(self._fire_callbacks, perishable=True)
+
+        self._axes = None
+
         self._visible = True
         self._animated = False
         self._alpha = None
@@ -118,7 +158,7 @@ class Artist(object):
         self._snap = None
         self._sketch = rcParams['path.sketch']
         self._path_effects = rcParams['path.effects']
-
+        
     def __getstate__(self):
         d = self.__dict__.copy()
         # remove the unpicklable remove method, this will get re-added on load
@@ -126,59 +166,80 @@ class Artist(object):
         d['_remove_method'] = None
         return d
 
-    def remove(self):
+    # can be superseded by on_trait_change or _%_changed methods
+    def _fire_callbacks(self):
+        """Calls all of the registered callbacks."""
+        self.stale = True
+        for oid, func in six.iteritems(self._propobservers):
+            func(self)
+
+    # can be superseded by on_trait_change or _%_changed methods
+    def add_callback(self, func):
         """
-        Remove the artist from the figure if possible.  The effect
-        will not be visible until the figure is redrawn, e.g., with
-        :meth:`matplotlib.axes.Axes.draw_idle`.  Call
-        :meth:`matplotlib.axes.Axes.relim` to update the axes limits
-        if desired.
+        Adds a callback function that will be called whenever one of
+        the :class:`Artist`'s "perishable" properties changes.
 
-        Note: :meth:`~matplotlib.axes.Axes.relim` will not see
-        collections even if the collection was added to axes with
-        *autolim* = True.
-
-        Note: there is no support for removing the artist's legend entry.
+        Returns an *id* that is useful for removing the callback with
+        :meth:`remove_callback` later.
         """
+        oid = self._oid
+        self._propobservers[oid] = func
+        self_oid += 1
+        return self.oid
 
-        # There is no method to set the callback.  Instead the parent should
-        # set the _remove_method attribute directly.  This would be a
-        # protected attribute if Python supported that sort of thing.  The
-        # callback has one parameter, which is the child to be removed.
-        if self._remove_method is not None:
-            self._remove_method(self)
+    # can be superseded by on_trait_change or _%_changed methods
+    def remove_callback(self, oid):
+        """
+        Remove a callback based on its *id*.
+
+        .. seealso::
+
+            :meth:`add_callback`
+               For adding callbacks
+
+        """
+        try:
+            del self._propobservers[oid]
+        except KeyError:
+            pass
+
+    # - - - - - - - -
+    # change handlers
+    # - - - - - - - -
+
+    def _transform_changed(self, name, new):
+        self._transformSet = True
+
+    def _transform_default(self):
+        return IdentityTransform()
+
+    def _transform_overload(self, trait, value):
+        if (not isinstance(value, Transform)
+            and hasattr(value, '_as_mpl_transform')):
+            return value._as_mpl_transform(self.axes)
         else:
-            raise NotImplementedError('cannot remove artist')
-        # TODO: the fix for the collections relim problem is to move the
-        # limits calculation into the artist itself, including the property of
-        # whether or not the artist should affect the limits.  Then there will
-        # be no distinction between axes.add_line, axes.add_patch, etc.
-        # TODO: add legend support
+            trait.error(self, value)
 
-    def have_units(self):
-        'Return *True* if units are set on the *x* or *y* axes'
-        ax = self.axes
-        if ax is None or ax.xaxis is None:
-            return False
-        return ax.xaxis.have_units() or ax.yaxis.have_units()
+    def get_transform(self):
+        # add warn
+        return self.transform
 
-    def convert_xunits(self, x):
-        """For artists in an axes, if the xaxis has units support,
-        convert *x* using xaxis unit type
-        """
-        ax = getattr(self, 'axes', None)
-        if ax is None or ax.xaxis is None:
-            return x
-        return ax.xaxis.convert_units(x)
+    def set_transform(self, t):
+        # add warn
+        self.transform = t
 
-    def convert_yunits(self, y):
-        """For artists in an axes, if the yaxis has units support,
-        convert *y* using yaxis unit type
-        """
-        ax = getattr(self, 'axes', None)
-        if ax is None or ax.yaxis is None:
-            return y
-        return ax.yaxis.convert_units(y)
+    def _axes_changed(self, name, old, new):
+        if old is not None:
+            # old != true already checked in `TraitType._validate`
+            raise ValueError("Can not reset the axes.  You are "
+                             "probably trying to re-use an artist "
+                             "in more than one Axes which is not "
+                             "supported")
+        self.axes = new
+        if new is not None and new is not self:
+            self.add_callback(_stale_axes_callback)
+        # return ?
+        return new
 
     def set_axes(self, axes):
         """
@@ -204,196 +265,38 @@ class Artist(object):
         warnings.warn(_get_axes_msg, mplDeprecation, stacklevel=1)
         return self.axes
 
-    @property
-    def axes(self):
-        """
-        The :class:`~matplotlib.axes.Axes` instance the artist
-        resides in, or *None*.
-        """
-        return self._axes
+    # only present to maintain current api.
+    def _contains_changed(self, name, new):
+        self._trait_values[name] = types.MethodType(new,self)
 
-    @axes.setter
-    def axes(self, new_axes):
-        if self._axes is not None and new_axes != self._axes:
-            raise ValueError("Can not reset the axes.  You are "
-                             "probably trying to re-use an artist "
-                             "in more than one Axes which is not "
-                             "supported")
+    def _contains_default(self):
+        def contains_defualt(*args, **kwargs):
+            warnings.warn("'%s' obj needs 'contains' method" % self.__class__.__name__)
+            return False, {}
+        return contains_default
 
-        self._axes = new_axes
-        if new_axes is not None and new_axes is not self:
-            self.add_callback(_stale_axes_callback)
-
-        return new_axes
-
-    @property
-    def stale(self):
-        """
-        If the artist is 'stale' and needs to be re-drawn for the output to
-        match the internal state of the artist.
-        """
-        return self._stale
-
-    @stale.setter
-    def stale(self, val):
-        # only trigger call-back stack on being marked as 'stale'
-        # when not already stale
-        # the draw process will take care of propagating the cleaning
-        # process
-        if not (self._stale == val):
-            self._stale = val
-            # only trigger propagation if marking as stale
-            if self._stale:
-                self.pchanged()
-
-    def get_window_extent(self, renderer):
-        """
-        Get the axes bounding box in display space.
-        Subclasses should override for inclusion in the bounding box
-        "tight" calculation. Default is to return an empty bounding
-        box at 0, 0.
-
-        Be careful when using this function, the results will not update
-        if the artist window extent of the artist changes.  The extent
-        can change due to any changes in the transform stack, such as
-        changing the axes limits, the figure size, or the canvas used
-        (as is done when saving a figure).  This can lead to unexpected
-        behavior where interactive figures will look fine on the screen,
-        but will save incorrectly.
-        """
-        return Bbox([[0, 0], [0, 0]])
-
-    def add_callback(self, func):
-        """
-        Adds a callback function that will be called whenever one of
-        the :class:`Artist`'s properties changes.
-
-        Returns an *id* that is useful for removing the callback with
-        :meth:`remove_callback` later.
-        """
-        oid = self._oid
-        self._propobservers[oid] = func
-        self._oid += 1
-        return oid
-
-    def remove_callback(self, oid):
-        """
-        Remove a callback based on its *id*.
-
-        .. seealso::
-
-            :meth:`add_callback`
-               For adding callbacks
-
-        """
-        try:
-            del self._propobservers[oid]
-        except KeyError:
-            pass
-
-    def pchanged(self):
-        """
-        Fire an event when property changed, calling all of the
-        registered callbacks.
-        """
-        for oid, func in six.iteritems(self._propobservers):
-            func(self)
-
-    def is_transform_set(self):
-        """
-        Returns *True* if :class:`Artist` has a transform explicitly
-        set.
-        """
-        return self._transformSet
-
-    def set_transform(self, t):
-        """
-        Set the :class:`~matplotlib.transforms.Transform` instance
-        used by this artist.
-
-        ACCEPTS: :class:`~matplotlib.transforms.Transform` instance
-        """
-        self._transform = t
-        self._transformSet = True
-        self.pchanged()
+    def _figure_changed(self, name, old, new):
+        self.figure = new
+        if old and old is not self:
+            self.add_callback(_stale_figure_callback)
+            self.pchanged()
         self.stale = True
 
-    def get_transform(self):
+    def get_figure(self):
         """
-        Return the :class:`~matplotlib.transforms.Transform`
-        instance used by this artist.
+        Return the :class:`~matplotlib.figure.Figure` instance the
+        artist belongs to.
         """
-        if self._transform is None:
-            self._transform = IdentityTransform()
-        elif (not isinstance(self._transform, Transform)
-              and hasattr(self._transform, '_as_mpl_transform')):
-            self._transform = self._transform._as_mpl_transform(self.axes)
-        return self._transform
+        return self.figure
 
-    def hitlist(self, event):
+    def set_figure(self, fig):
         """
-        List the children of the artist which contain the mouse event *event*.
+        Set the :class:`~matplotlib.figure.Figure` instance the artist
+        belongs to.
+
+        ACCEPTS: a :class:`matplotlib.figure.Figure` instance
         """
-        L = []
-        try:
-            hascursor, info = self.contains(event)
-            if hascursor:
-                L.append(self)
-        except:
-            import traceback
-            traceback.print_exc()
-            print("while checking", self.__class__)
-
-        for a in self.get_children():
-            L.extend(a.hitlist(event))
-        return L
-
-    def get_children(self):
-        """
-        Return a list of the child :class:`Artist`s this
-        :class:`Artist` contains.
-        """
-        return []
-
-    def contains(self, mouseevent):
-        """Test whether the artist contains the mouse event.
-
-        Returns the truth value and a dictionary of artist specific details of
-        selection, such as which points are contained in the pick radius.  See
-        individual artists for details.
-        """
-        if six.callable(self._contains):
-            return self._contains(self, mouseevent)
-        warnings.warn("'%s' needs 'contains' method" % self.__class__.__name__)
-        return False, {}
-
-    def set_contains(self, picker):
-        """
-        Replace the contains test used by this artist. The new picker
-        should be a callable function which determines whether the
-        artist is hit by the mouse event::
-
-            hit, props = picker(artist, mouseevent)
-
-        If the mouse event is over the artist, return *hit* = *True*
-        and *props* is a dictionary of properties you want returned
-        with the contains test.
-
-        ACCEPTS: a callable function
-        """
-        self._contains = picker
-
-    def get_contains(self):
-        """
-        Return the _contains test used by the artist, or *None* for default.
-        """
-        return self._contains
-
-    def pickable(self):
-        'Return *True* if :class:`Artist` is pickable.'
-        return (self.figure is not None and
-                self.figure.canvas is not None and
-                self._picker is not None)
+        self.figure = fig
 
     def pick(self, mouseevent):
         """
@@ -465,6 +368,119 @@ class Artist(object):
     def get_picker(self):
         'Return the picker object used by this artist'
         return self._picker
+
+# - - - - - - - -
+# other handlers
+# - - - - - - - -
+
+    def remove(self):
+        """
+        Remove the artist from the figure if possible.  The effect
+        will not be visible until the figure is redrawn, e.g., with
+        :meth:`matplotlib.axes.Axes.draw_idle`.  Call
+        :meth:`matplotlib.axes.Axes.relim` to update the axes limits
+        if desired.
+
+        Note: :meth:`~matplotlib.axes.Axes.relim` will not see
+        collections even if the collection was added to axes with
+        *autolim* = True.
+
+        Note: there is no support for removing the artist's legend entry.
+        """
+
+        # There is no method to set the callback. Instead the parent should
+        # set the _remove_method attribute directly.  This would be a
+        # protected attribute if Python supported that sort of thing.  The
+        # callback has one parameter, which is the child to be removed.
+        if self._remove_method is not None:
+            self._remove_method(self)
+        else:
+            raise NotImplementedError('cannot remove artist')
+        # TODO: the fix for the collections relim problem is to move the
+        # limits calculation into the artist itself, including the property of
+        # whether or not the artist should affect the limits.  Then there will
+        # be no distinction between axes.add_line, axes.add_patch, etc.
+        # TODO: add legend support
+
+    def have_units(self):
+        'Return *True* if units are set on the *x* or *y* axes'
+        ax = self.axes
+        if ax is None or ax.xaxis is None:
+            return False
+        return ax.xaxis.have_units() or ax.yaxis.have_units()
+
+    def convert_xunits(self, x):
+        """For artists in an axes, if the xaxis has units support,
+        convert *x* using xaxis unit type
+        """
+        ax = getattr(self, 'axes', None)
+        if ax is None or ax.xaxis is None:
+            return x
+        return ax.xaxis.convert_units(x)
+
+    def convert_yunits(self, y):
+        """For artists in an axes, if the yaxis has units support,
+        convert *y* using yaxis unit type
+        """
+        ax = getattr(self, 'axes', None)
+        if ax is None or ax.yaxis is None:
+            return y
+        return ax.yaxis.convert_units(y)
+
+    def is_transform_set(self):
+        """
+        Returns *True* if :class:`Artist` has a transform explicitly
+        set.
+        """
+        return self._transformSet
+
+    def get_window_extent(self, renderer):
+        """
+        Get the axes bounding box in display space.
+        Subclasses should override for inclusion in the bounding box
+        "tight" calculation. Default is to return an empty bounding
+        box at 0, 0.
+
+        Be careful when using this function, the results will not update
+        if the artist window extent of the artist changes.  The extent
+        can change due to any changes in the transform stack, such as
+        changing the axes limits, the figure size, or the canvas used
+        (as is done when saving a figure).  This can lead to unexpected
+        behavior where interactive figures will look fine on the screen,
+        but will save incorrectly.
+        """
+        return Bbox([[0, 0], [0, 0]])
+
+    def hitlist(self, event):
+        """
+        List the children of the artist which contain the mouse event *event*.
+        """
+        L = []
+        try:
+            hascursor, info = self.contains(event)
+            if hascursor:
+                L.append(self)
+        except:
+            import traceback
+            traceback.print_exc()
+            print("while checking", self.__class__)
+
+        for a in self.get_children():
+            L.extend(a.hitlist(event))
+        return L
+
+    def get_children(self):
+        """
+        Return a list of the child :class:`Artist`s this
+        :class:`Artist` contains.
+        """
+        return []
+
+    def pickable(self):
+        'Return *True* if :class:`Artist` is pickable.'
+        return (self.figure is not None and
+                self.figure.canvas is not None and
+                self._picker is not None)
 
     def is_figure_set(self):
         """
@@ -594,26 +610,6 @@ class Artist(object):
     def get_path_effects(self):
         return self._path_effects
 
-    def get_figure(self):
-        """
-        Return the :class:`~matplotlib.figure.Figure` instance the
-        artist belongs to.
-        """
-        return self.figure
-
-    def set_figure(self, fig):
-        """
-        Set the :class:`~matplotlib.figure.Figure` instance the artist
-        belongs to.
-
-        ACCEPTS: a :class:`matplotlib.figure.Figure` instance
-        """
-        self.figure = fig
-        if self.figure and self.figure is not self:
-            self.add_callback(_stale_figure_callback)
-            self.pchanged()
-        self.stale = True
-
     def set_clip_box(self, clipbox):
         """
         Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
@@ -650,8 +646,7 @@ class Artist(object):
         success = False
         if transform is None:
             if isinstance(path, Rectangle):
-                self.clipbox = TransformedBbox(Bbox.unit(),
-                                               path.get_transform())
+                self.clipbox = TransformedBbox(Bbox.unit(), path.get_transform())
                 self._clippath = None
                 success = True
             elif isinstance(path, Patch):
@@ -687,13 +682,7 @@ class Artist(object):
         """
         return self._alpha
 
-    def get_visible(self):
-        "Return the artist's visiblity"
-        return self._visible
-
-    def get_animated(self):
-        "Return the artist's animated state"
-        return self._animated
+    
 
     def get_clip_on(self):
         'Return whether artist uses clipping'
@@ -788,13 +777,27 @@ class Artist(object):
         self.pchanged()
         self.stale = True
 
+    def _visible_changed(self, name, new):
+        self.visible = new
+        self.pchanged()
+        self.stale = True
+
     def set_visible(self, b):
         """
         Set the artist's visiblity.
 
         ACCEPTS: [True | False]
         """
-        self._visible = b
+        # add warn
+        self.visible = b
+
+    def get_visible(self):
+        "Return the artist's visiblity"
+        # add warn
+        return self._visible
+
+    def _animated_changed(self, name, new):
+        self.animated = new
         self.pchanged()
         self.stale = True
 
@@ -804,9 +807,13 @@ class Artist(object):
 
         ACCEPTS: [True | False]
         """
-        self._animated = b
-        self.pchanged()
-        self.stale = True
+        # add warn
+        self.animated = b
+
+    def get_animated(self):
+        "Return the artist's animated state"
+        # add warn
+        return self.animated
 
     def update(self, props):
         """
@@ -869,7 +876,7 @@ class Artist(object):
 
     def update_from(self, other):
         'Copy properties from *other* to *self*.'
-        self._transform = other._transform
+        self.transform = other.transform
         self._transformSet = other._transformSet
         self._visible = other._visible
         self._alpha = other._alpha
