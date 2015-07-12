@@ -109,13 +109,18 @@ def validate_float(s):
 
 
 def validate_float_or_None(s):
-    """convert s to float or raise"""
-    if s is None:
+    """convert s to float, None or raise"""
+    # values directly from the rc file can only be strings,
+    # so we need to recognize the string "None" and convert
+    # it into the object. We will be case-sensitive here to
+    # avoid confusion between string values of 'none', which
+    # can be a valid string value for some other parameters.
+    if s is None or s == 'None':
         return None
     try:
         return float(s)
     except ValueError:
-        raise ValueError('Could not convert "%s" to float' % s)
+        raise ValueError('Could not convert "%s" to float or None' % s)
 
 def validate_dpi(s):
     """confirm s is string 'figure' or convert s to float or raise"""
@@ -476,6 +481,10 @@ def validate_bbox(s):
         if s == 'standard':
             return None
         raise ValueError("bbox should be 'tight' or 'standard'")
+    elif s is not None:
+        # Backwards compatibility. None is equivalent to 'standard'.
+        raise ValueError("bbox should be 'tight' or 'standard'")
+    return s
 
 def validate_sketch(s):
     if isinstance(s, six.string_types):
@@ -790,7 +799,7 @@ defaultParams = {
     # value checked by backend at runtime
     'savefig.format':     ['png', update_savefig_format],
     # options are 'tight', or 'standard'. 'standard' validates to None.
-    'savefig.bbox':       [None, validate_bbox],
+    'savefig.bbox':       ['standard', validate_bbox],
     'savefig.pad_inches': [0.1, validate_float],
     # default directory in savefig dialog box
     'savefig.directory': ['~', six.text_type],
