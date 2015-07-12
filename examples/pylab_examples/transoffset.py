@@ -18,8 +18,10 @@ offset.
 '''
 
 import matplotlib.pyplot as plt
+import matplotlib.transforms as mtrans
+import numpy as np
+
 from matplotlib.transforms import offset_copy
-import matplotlib.transforms as tns
 
 xs = np.arange(7)
 ys = xs**2
@@ -31,8 +33,8 @@ ax = plt.subplot(2, 1, 1)
 # we only need to make one transform.  To get the
 # transform argument to offset_copy, we need to make the axes
 # first; the subplot command above is one way to do this.
-trans_offset = tns.offset_copy(ax.transData, fig=fig,
-                          x=0.05, y=0.10, units='inches')
+trans_offset = mtrans.offset_copy(ax.transData, fig=fig,
+                                  x=0.05, y=0.10, units='inches')
 
 for x, y in zip(xs, ys):
     plt.plot((x,), (y,), 'ro')
@@ -42,13 +44,13 @@ for x, y in zip(xs, ys):
 # offset_copy works for polar plots also.
 ax = plt.subplot(2, 1, 2, polar=True)
 
-trans_offset = tns.offset_copy(ax.transData, fig=fig, y=6, units='dots')
+trans_offset = mtrans.offset_copy(ax.transData, fig=fig, y=6, units='dots')
 
 for x, y in zip(xs, ys):
     plt.polar((x,), (y,), 'ro')
     plt.text(x, y, '%d, %d' % (int(x), int(y)),
-           transform=trans_offset,
-           horizontalalignment='center',
-           verticalalignment='bottom')
+             transform=trans_offset,
+             horizontalalignment='center',
+             verticalalignment='bottom')
 
 plt.show()
