@@ -1,31 +1,29 @@
-#!/usr/bin/env python
-# python
-
-from pylab import *
+import matplotlib.pyplot as plt
+import numpy as np
 
 dt = 0.01
 Fs = 1/dt
-t = arange(0, 10, dt)
-nse = randn(len(t))
-r = exp(-t/0.05)
+t = np.arange(0, 10, dt)
+nse = np.random.randn(len(t))
+r = np.exp(-t/0.05)
 
-cnse = convolve(nse, r)*dt
+cnse = np.convolve(nse, r)*dt
 cnse = cnse[:len(t)]
-s = 0.1*sin(2*pi*t) + cnse
+s = 0.1*np.sin(2*np.pi*t) + cnse
 
-subplot(3, 2, 1)
-plot(t, s)
+plt.subplot(3, 2, 1)
+plt.plot(t, s)
 
-subplot(3, 2, 3)
-magnitude_spectrum(s, Fs=Fs)
+plt.subplot(3, 2, 3)
+plt.magnitude_spectrum(s, Fs=Fs)
 
-subplot(3, 2, 4)
-magnitude_spectrum(s, Fs=Fs, scale='dB')
+plt.subplot(3, 2, 4)
+plt.magnitude_spectrum(s, Fs=Fs, scale='dB')
 
-subplot(3, 2, 5)
-angle_spectrum(s, Fs=Fs)
+plt.subplot(3, 2, 5)
+plt.angle_spectrum(s, Fs=Fs)
 
-subplot(3, 2, 6)
-phase_spectrum(s, Fs=Fs)
+plt.subplot(3, 2, 6)
+plt.phase_spectrum(s, Fs=Fs)
 
-show()
+plt.show()
