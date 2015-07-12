@@ -139,6 +139,16 @@ def validate_int(s):
     except ValueError:
         raise ValueError('Could not convert "%s" to int' % s)
 
+def validate_int_or_None(s):
+    """if not None, tries to validate as an int"""
+    if s=='None':
+        s = None
+    if s is None:
+        return None
+    try:
+        return int(s)
+    except ValueError:
+        raise ValueError('Could not convert "%s" to int' % s)
 
 def validate_fonttype(s):
     """
@@ -352,6 +362,22 @@ validate_verbose = ValidateInStrings(
     'verbose',
     ['silent', 'helpful', 'debug', 'debug-annoying'])
 
+def validate_whiskers(s):
+    if s=='range':
+        return 'range'
+    else:
+        try:
+            v = validate_nseq_float(2)(s)
+            return v
+        except:
+            try:
+                v = float(s)
+                return v
+            except:
+                err_str = ("Not a valid whisker value ['range',"
+                            "float, (float, float)]")
+                raise ValueError(err_str)
+
 
 def deprecate_savefig_extension(value):
     warnings.warn("savefig.extension is deprecated.  Use savefig.format "
@@ -471,7 +497,7 @@ validate_movie_writer = ValidateInStrings('animation.writer',
 validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
     ['png', 'jpeg', 'tiff', 'raw', 'rgba'])
 
-validate_axis_locator = ValidateInStrings('major', ['minor','both','major'])
+validate_axis_locator = ValidateInStrings('major', ['minor', 'both', 'major'])
 
 def validate_bbox(s):
     if isinstance(s, six.string_types):
@@ -530,6 +556,7 @@ class ValidateInterval(object):
                                (self.vmax, s))
         return s
 
+validate_grid_axis = ValidateInStrings('axes.grid.axis', ['x', 'y', 'both'])
 
 # a map from key -> value, converter
 defaultParams = {
@@ -574,6 +601,45 @@ defaultParams = {
     'patch.facecolor':   ['b', validate_color],  # blue
     'patch.antialiased': [True, validate_bool],  # antialised (no jaggies)
 
+    ## Boxplot properties
+    'boxplot.notch': [False, validate_bool],
+    'boxplot.vertical': [True, validate_bool],
+    'boxplot.whiskers': [1.5, validate_whiskers],
+    'boxplot.bootstrap': [None, validate_int_or_None],
+    'boxplot.patchartist': [False, validate_bool],
+    'boxplot.showmeans': [False, validate_bool],
+    'boxplot.showcaps': [True, validate_bool],
+    'boxplot.showbox': [True, validate_bool],
+    'boxplot.showfliers': [True, validate_bool],
+    'boxplot.meanline': [False, validate_bool],
+
+    'boxplot.flierprops.color': ['b', validate_color],
+    'boxplot.flierprops.marker': ['+', six.text_type],
+    'boxplot.flierprops.markerfacecolor': ['b', validate_color],
+    'boxplot.flierprops.markeredgecolor': ['k', validate_color],
+    'boxplot.flierprops.markersize': [6, validate_float],
+    'boxplot.flierprops.linestyle': ['-', six.text_type],
+    'boxplot.flierprops.linewidth': [1.0, validate_float],
+
+    'boxplot.boxprops.color': ['b', validate_color],
+    'boxplot.boxprops.linewidth': [1.0, validate_float],
+    'boxplot.boxprops.linestyle': ['-', six.text_type],
+
+    'boxplot.whiskerprops.color': ['b', validate_color],
+    'boxplot.whiskerprops.linewidth': [1.0, validate_float],
+    'boxplot.whiskerprops.linestyle': ['--', six.text_type],
+
+    'boxplot.capprops.color': ['k', validate_color],
+    'boxplot.capprops.linewidth': [1.0, validate_float],
+    'boxplot.capprops.linestyle': ['-', six.text_type],
+
+    'boxplot.medianprops.color': ['r', validate_color],
+    'boxplot.medianprops.linewidth': [1.0, validate_float],
+    'boxplot.medianprops.linestyle': ['-', six.text_type],
+
+    'boxplot.meanprops.color': ['r', validate_color],
+    'boxplot.meanprops.linewidth': [1.0, validate_float],
+    'boxplot.meanprops.linestyle': ['-', six.text_type],
 
     ## font props
     'font.family':     [['sans-serif'], validate_stringlist],  # used by text object
@@ -648,6 +714,12 @@ defaultParams = {
     'axes.facecolor':        ['w', validate_color],  # background color; white
     'axes.edgecolor':        ['k', validate_color],  # edge color; black
     'axes.linewidth':        [1.0, validate_float],  # edge linewidth
+
+    'axes.spines.left':      [True, validate_bool],  # Set visibility of axes
+    'axes.spines.right':     [True, validate_bool],  # 'spines', the lines
+    'axes.spines.bottom':    [True, validate_bool],  # around the chart
+    'axes.spines.top':       [True, validate_bool],  # denoting data boundary
+
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
     'axes.titleweight':      ['normal', six.text_type],  # font weight of axes title
@@ -656,6 +728,8 @@ defaultParams = {
                                                                 # default draw on 'major'
                                                                 # 'minor' or 'both' kind of
                                                                 # axis locator
+    'axes.grid.axis':        ['both', validate_grid_axis], # grid type.
+                                                      # Can be 'x', 'y', 'both'
     'axes.labelsize':        ['medium', validate_fontsize],  # fontsize of the
                                                              # x any y labels
     'axes.labelpad':         [5.0, validate_float], # space between label and axis

@@ -2950,11 +2950,11 @@ class Axes(_AxesBase):
 
         return errorbar_container  # (l0, caplines, barcols)
 
-    def boxplot(self, x, notch=False, sym=None, vert=True, whis=1.5,
-                positions=None, widths=None, patch_artist=False,
+    def boxplot(self, x, notch=None, sym=None, vert=None, whis=None,
+                positions=None, widths=None, patch_artist=None,
                 bootstrap=None, usermedians=None, conf_intervals=None,
-                meanline=False, showmeans=False, showcaps=True,
-                showbox=True, showfliers=True, boxprops=None, labels=None,
+                meanline=None, showmeans=None, showcaps=None,
+                showbox=None, showfliers=None, boxprops=None, labels=None,
                 flierprops=None, medianprops=None, meanprops=None,
                 capprops=None, whiskerprops=None, manage_xticks=True):
         """
@@ -2962,7 +2962,7 @@ class Axes(_AxesBase):
 
         Call signature::
 
-          boxplot(self, x, notch=False, sym='b+', vert=True, whis=1.5,
+          boxplot(self, x, notch=None, sym=None, vert=None, whis=None,
                   positions=None, widths=None, patch_artist=False,
                   bootstrap=None, usermedians=None, conf_intervals=None,
                   meanline=False, showmeans=False, showcaps=True,
@@ -3114,11 +3114,59 @@ class Axes(_AxesBase):
 
         .. plot:: mpl_examples/statistics/boxplot_demo.py
         """
+        # If defined in matplotlibrc, apply the value from rc file
+        # Overridden if argument is passed
+        if whis is None:
+            whis = rcParams['boxplot.whiskers']
+        if bootstrap is None:
+            bootstrap = rcParams['boxplot.bootstrap']
         bxpstats = cbook.boxplot_stats(x, whis=whis, bootstrap=bootstrap,
                                        labels=labels)
-        # make sure we have a dictionary
-        if flierprops is None:
-            flierprops = dict()
+        if notch is None:
+            notch = rcParams['boxplot.notch']
+        if vert is None:
+            vert = rcParams['boxplot.vertical']
+        if patch_artist is None:
+            patch_artist = rcParams['boxplot.patchartist']
+        if meanline is None:
+            meanline = rcParams['boxplot.meanline']
+        if showmeans is None:
+            showmeans = rcParams['boxplot.showmeans']
+        if showcaps is None:
+            showcaps = rcParams['boxplot.showcaps']
+        if showbox is None:
+            showbox = rcParams['boxplot.showbox']
+        if showfliers is None:
+            showfliers = rcParams['boxplot.showfliers']
+
+        def _update_dict(dictionary, rc_name, properties):
+            """ Loads properties in the dictionary from rc file if not already
+            in the dictionary"""
+            rc_str = 'boxplot.{0}.{1}'
+            if dictionary is None:
+                dictionary = dict()
+            for prop_dict in properties:
+                dictionary.setdefault(prop_dict,
+                                rcParams[rc_str.format(rc_name, prop_dict)])
+            return dictionary
+
+        # Common property dictionnaries loading from rc
+        flier_props = ['color', 'marker', 'markerfacecolor', 'markeredgecolor',
+                       'markersize', 'linestyle', 'linewidth']
+        default_props = ['color', 'linewidth', 'linestyle']
+
+        boxprops = _update_dict(boxprops, 'boxprops', default_props)
+        whiskerprops = _update_dict(whiskerprops, 'whiskerprops',
+                                                            default_props)
+        capprops = _update_dict(capprops, 'capprops', default_props)
+        medianprops = _update_dict(medianprops, 'medianprops', default_props)
+        meanprops = _update_dict(meanprops, 'meanprops', default_props)
+        flierprops = _update_dict(flierprops, 'flierprops', flier_props)
+
+        if patch_artist:
+            boxprops['linestyle'] = 'solid'
+            boxprops['edgecolor'] = boxprops.pop('color')
+
         # if non-default sym value, put it into the flier dictionary
         # the logic for providing the default symbol ('b+') now lives
         # in bxp in the initial value of final_flierprops
@@ -3162,8 +3210,8 @@ class Axes(_AxesBase):
 
         if conf_intervals is not None:
             if np.shape(conf_intervals)[0] != len(bxpstats):
-                raise ValueError('conf_intervals length not '
-                                 'compatible with x')
+                err_mess = 'conf_intervals length not compatible with x'
+                raise ValueError(err_mess)
             else:
                 for stats, ci in zip(bxpstats, conf_intervals):
                     if ci is not None:
@@ -3680,7 +3728,7 @@ class Axes(_AxesBase):
             if facecolors is not None:
                 c = facecolors
             else:
-                c = 'b'  # the original default
+                c = 'b'  # The original default
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         x = self.convert_xunits(x)
