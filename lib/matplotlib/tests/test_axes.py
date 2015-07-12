@@ -1,8 +1,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import xrange
+import six
+from six.moves import xrange
 
 import io
 
@@ -1690,6 +1690,73 @@ def test_boxplot_autorange_whiskers():
 
     ax.boxplot([x, x], bootstrap=10000, notch=1)
     ax.set_ylim((-5, 5))
+
+def _rc_test_bxp_helper(ax, rc_dict):
+    x = np.linspace(-7, 7, 140)
+    x = np.hstack([-25, x, 25])
+    with matplotlib.rc_context(rc_dict):
+        ax.boxplot([x, x])
+    return ax
+
+@image_comparison(baseline_images=['boxplot_rc_parameters'],
+                  savefig_kwarg={'dpi': 100}, remove_text=True)
+def test_boxplot_rc_parameters():
+    fig, ax = plt.subplots(3)
+
+    rc_axis0 = {
+        'boxplot.notch':True,
+        'boxplot.whiskers': [5, 95],
+        'boxplot.bootstrap': 10000,
+
+        'boxplot.flierprops.color': 'b',
+        'boxplot.flierprops.marker': 'o',
+        'boxplot.flierprops.markerfacecolor': 'g',
+        'boxplot.flierprops.markeredgecolor': 'b',
+        'boxplot.flierprops.markersize': 5,
+        'boxplot.flierprops.linestyle': '--',
+        'boxplot.flierprops.linewidth': 2.0,
+
+        'boxplot.boxprops.color': 'r',
+        'boxplot.boxprops.linewidth': 2.0,
+        'boxplot.boxprops.linestyle': '--',
+
+        'boxplot.capprops.color': 'c',
+        'boxplot.capprops.linewidth': 2.0,
+        'boxplot.capprops.linestyle': '--',
+
+        'boxplot.medianprops.color': 'k',
+        'boxplot.medianprops.linewidth': 2.0,
+        'boxplot.medianprops.linestyle': '--',
+    }
+
+    rc_axis1 = {
+        'boxplot.vertical': False,
+        'boxplot.whiskers': 'range',
+        'boxplot.patchartist': True,
+    }
+
+    rc_axis2 = {
+        'boxplot.whiskers': 2.0,
+        'boxplot.showcaps': False,
+        'boxplot.showbox': False,
+        'boxplot.showfliers': False,
+        'boxplot.showmeans': True,
+        'boxplot.meanline': True,
+
+        'boxplot.meanprops.color': 'c',
+        'boxplot.meanprops.linewidth': 2.0,
+        'boxplot.meanprops.linestyle': '--',
+
+        'boxplot.whiskerprops.color': 'r',
+        'boxplot.whiskerprops.linewidth': 2.0,
+        'boxplot.whiskerprops.linestyle': '-.',
+    }
+    dict_list = [rc_axis0, rc_axis1, rc_axis2]
+    for axis, rc_axis in zip(ax, dict_list):
+        _rc_test_bxp_helper(axis, rc_axis)
+
+    assert (matplotlib.patches.PathPatch in
+            [type(t) for t in ax[1].get_children()])
 
 
 @image_comparison(baseline_images=['boxplot_with_CIarray'],
@@ -3718,7 +3785,37 @@ def test_move_offsetlabel():
     ax.yaxis.tick_right()
     assert_equal((1, 0.5), ax.yaxis.offsetText.get_position())
 
+@image_comparison(baseline_images=['rc_spines'], extensions=['png'],
+                  savefig_kwarg={'dpi':40})
+def test_rc_spines():
+    rc_dict = {
+        'axes.spines.left':False,
+        'axes.spines.right':False,
+        'axes.spines.top':False,
+        'axes.spines.bottom':False}
+    with matplotlib.rc_context(rc_dict):
+        fig, ax = plt.subplots()
 
+@image_comparison(baseline_images=['rc_grid'], extensions=['png'],
+                  savefig_kwarg={'dpi':40})
+def test_rc_grid():
+    fig = plt.figure()
+    rc_dict0 = {
+        'axes.grid.axis': 'both'
+    }
+    rc_dict1 = {
+        'axes.grid.axis': 'x'
+    }
+    rc_dict2 = {
+        'axes.grid.axis': 'y'
+    }
+    dict_list = [rc_dict0, rc_dict1, rc_dict2]
+
+    i=1
+    for rc_dict in dict_list:
+        with matplotlib.rc_context(rc_dict):
+            fig.add_subplot(3, 1, i)
+            i += 1
 @cleanup
 def test_bar_negative_width():
     fig, ax = plt.subplots()
