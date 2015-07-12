@@ -23,6 +23,8 @@ import warnings
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
+from cycler import cycler, Cycler
+
 #interactive_bk = ['gtk', 'gtkagg', 'gtkcairo', 'qt4agg',
 #                  'tkagg', 'wx', 'wxagg', 'cocoaagg', 'webagg']
 # The capitalized forms are needed for ipython at present; this may
@@ -299,6 +301,12 @@ def validate_color(s):
 
     raise ValueError('%s does not look like a color arg%s' % (s, msg))
 
+def deprecate_axes_colorcycle(value):
+    warnings.warn("axes.color_cycle is deprecated.  Use axes.style_cycle "
+                  "instead. Will be removed in 2.1.0")
+    return validate_colorlist(value)
+
+
 
 def validate_colorlist(s):
     'return a list of colorspecs'
@@ -309,6 +317,25 @@ def validate_colorlist(s):
     else:
         msg = "'s' must be of type [ string | list | tuple ]"
         raise ValueError(msg)
+
+def validate_cycler(s):
+    'return a cycler object from a string repr or the object itself'
+    if isinstance(s, six.string_types):
+        try:
+            # TODO: We might want to rethink this...
+            cycler_inst = eval(s, {'cycler': cycler, 'Cycler': Cycler})
+        except BaseException as e:
+            raise ValueError("'%s' is not a valid cycler construction: %s" %
+                             (s, e))
+    elif isinstance(s, Cycler):
+        cycler_inst = s
+    else:
+        raise ValueError("object was not a string or Cycler instance: %s" % s)
+
+    # TODO: apply validation to the cycled elements
+    # probably doable via traitlets
+
+    return cycler_inst
 
 def validate_stringlist(s):
     'return a list'
@@ -750,6 +777,11 @@ defaultParams = {
     'axes.color_cycle': [['b', 'g', 'r', 'c', 'm', 'y', 'k'],
                          validate_colorlist],  # cycle of plot
                                                # line colors
+    # This entry can be either a cycler object or a
+    # string repr of a cycler-object, which gets eval()'ed
+    # to create the object.
+    'axes.style_cycle': [cycler('color', 'bgrcmyk'),
+                         validate_cycler],
     'axes.xmargin': [0, ValidateInterval(0, 1,
                                          closedmin=True,
                                          closedmax=True)],  # margin added to xaxis
