@@ -2,10 +2,11 @@
 Example: simple line plot.
 Show how to make and save a simple line plot with labels, title and grid
 """
-from __future__ import print_function # not necessary in Python 3.x
+from __future__ import print_function  # not necessary in Python 3.x
 import matplotlib.pyplot as plt
 import numpy as np
 import time
+
 
 plt.ion()
 
