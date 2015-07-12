@@ -17,17 +17,18 @@ If you know how to fix this, please email us!
 
 """
 
-from pylab import *
+import matplotlib.pyplot as plt
+import numpy as np
 
 # two images x1 is initially visible, x2 is not
-x1 = rand(100, 100)
-x2 = rand(150, 175)
+x1 = np.random.random((100, 100))
+x2 = np.random.random((150, 175))
 
 # arbitrary extent - both images must have same extent if you want
 # them to be resampled into the same axes space
 extent = (0, 1, 0, 1)
-im1 = imshow(x1, extent=extent)
-im2 = imshow(x2, extent=extent, hold=True)
+im1 = plt.imshow(x1, extent=extent)
+im2 = plt.imshow(x2, extent=extent, hold=True)
 im2.set_visible(False)
 
 
@@ -39,8 +40,8 @@ def toggle_images(event):
     b2 = im2.get_visible()
     im1.set_visible(not b1)
     im2.set_visible(not b2)
-    draw()
+    plt.draw()
 
-connect('key_press_event', toggle_images)
+plt.connect('key_press_event', toggle_images)
 
-show()
+plt.show()
