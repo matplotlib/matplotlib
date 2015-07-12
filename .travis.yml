@@ -34,15 +34,15 @@ language: python
 matrix:
   include:
     - python: 2.6
-      env: NUMPY=numpy==1.6 MOCK=true
+      env: NUMPY=numpy==1.6 MOCK=mock==1.0.1
     - python: 2.7
-      env: MOCK=true
+      env: MOCK=mock
     - python: 3.3
     - python: 3.4
     - python: 2.7
       env: TEST_ARGS=--pep8
     - python: 2.7
-      env: BUILD_DOCS=true MOCK=true
+      env: BUILD_DOCS=true MOCK=mock
     - python: "nightly"
       env: PRE=--pre
   allow_failures:
@@ -64,11 +64,12 @@ install:
   # Always install from pypi
   - pip install $PRE nose pep8
 
-  # Install mock on python 2. We limit to 1.0.1 at the moment
-  # https://github.com/matplotlib/matplotlib/issues/4613
+  # Install mock on python 2. Python 2.6 requires mock 1.0.1
+  # Since later versions have dropped support
   - |
-    if [[ $MOCK == true ]]; then
-      pip install mock==1.0.1
+    if [[ -n "$MOCK"  ]]; then
+      echo $MOCK
+      pip install $MOCK
     fi;
   # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
   # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
