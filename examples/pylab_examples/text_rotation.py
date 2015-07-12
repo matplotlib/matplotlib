@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 The way matplotlib does text layout is counter-intuitive to some, so
 this example is designed to make it a little clearer.  The text is
@@ -14,29 +13,32 @@ text.
 
 But a picture is worth a thousand words!
 """
-from pylab import *
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def addtext(props):
-    text(0.5, 0.5, 'text 0', props, rotation=0)
-    text(1.5, 0.5, 'text 45', props, rotation=45)
-    text(2.5, 0.5, 'text 135', props, rotation=135)
-    text(3.5, 0.5, 'text 225', props, rotation=225)
-    text(4.5, 0.5, 'text -45', props, rotation=-45)
-    yticks([0, .5, 1])
-    grid(True)
+    plt.text(0.5, 0.5, 'text 0', props, rotation=0)
+    plt.text(1.5, 0.5, 'text 45', props, rotation=45)
+    plt.text(2.5, 0.5, 'text 135', props, rotation=135)
+    plt.text(3.5, 0.5, 'text 225', props, rotation=225)
+    plt.text(4.5, 0.5, 'text -45', props, rotation=-45)
+    plt.yticks([0, .5, 1])
+    plt.grid(True)
 
 # the text bounding box
 bbox = {'fc': '0.8', 'pad': 0}
 
-subplot(211)
+plt.subplot(211)
 addtext({'ha': 'center', 'va': 'center', 'bbox': bbox})
-xlim(0, 5)
-xticks(arange(0, 5.1, 0.5), [])
-ylabel('center / center')
-subplot(212)
+plt.xlim(0, 5)
+plt.xticks(np.arange(0, 5.1, 0.5), [])
+plt.ylabel('center / center')
+
+plt.subplot(212)
 addtext({'ha': 'left', 'va': 'bottom', 'bbox': bbox})
-xlim(0, 5)
-xticks(arange(0, 5.1, 0.5))
-ylabel('left / bottom')
-show()
+plt.xlim(0, 5)
+plt.xticks(np.arange(0, 5.1, 0.5))
+plt.ylabel('left / bottom')
+plt.show()
