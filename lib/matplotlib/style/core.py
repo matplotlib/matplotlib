@@ -42,6 +42,9 @@ def is_style_file(filename):
 def use(style):
     """Use matplotlib style settings from a style specification.
 
+    The style name of 'default' is reserved for reverting back to
+    the default style settings.
+
     Parameters
     ----------
     style : str, dict, or list
@@ -69,6 +72,9 @@ def use(style):
     for style in styles:
         if not cbook.is_string_like(style):
             mpl.rcParams.update(style)
+            continue
+        elif style == 'default':
+            mpl.rcdefaults()
             continue
 
         if style in library:

@@ -21,6 +21,7 @@ from matplotlib import cbook
 from matplotlib import ticker
 from matplotlib import pyplot as plt
 from matplotlib import ft2font
+from matplotlib.style import context as style_context
 from matplotlib.testing.noseclasses import KnownFailureTest, \
      KnownFailureDidNotFailTest, ImageComparisonFailure
 from matplotlib.testing.compare import comparable_formats, compare_images, \
@@ -132,7 +133,8 @@ class ImageComparisonTest(CleanupTest):
     def setup_class(cls):
         CleanupTest.setup_class()
 
-        cls._func()
+        with style_context(cls._style):
+            cls._func()
 
     @staticmethod
     def remove_text(figure):
@@ -206,7 +208,7 @@ class ImageComparisonTest(CleanupTest):
 
 def image_comparison(baseline_images=None, extensions=None, tol=13,
                      freetype_version=None, remove_text=False,
-                     savefig_kwarg=None):
+                     savefig_kwarg=None, style='classic'):
     """
     call signature::
 
@@ -242,6 +244,11 @@ def image_comparison(baseline_images=None, extensions=None, tol=13,
 
       *savefig_kwarg*: dict
         Optional arguments that are passed to the savefig method.
+
+      *style*: string
+        Optional name for the base style to apply to the image
+        test. The test itself can also apply additional styles
+        if desired. Defaults to the 'classic' style.
 
     """
 
@@ -280,7 +287,8 @@ def image_comparison(baseline_images=None, extensions=None, tol=13,
              '_tol': tol,
              '_freetype_version': freetype_version,
              '_remove_text': remove_text,
-             '_savefig_kwarg': savefig_kwarg})
+             '_savefig_kwarg': savefig_kwarg,
+             '_style': style})
 
         return new_class
     return compare_images_decorator
