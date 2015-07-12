@@ -1,21 +1,24 @@
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 
-#from traitlets.config import Configurable
-#from traitlets import (Int, Float, Bool, Dict, List, Instance,
-#                                     Union, TraitError, HasTraits, 
-#                                     NoDefaultSpecified, TraitType)
+#ipython 4 import
+from traitlets.config import Configurable
+from traitlets import (Int, Float, Bool, Dict, List, Instance,
+                                    Union, TraitError, HasTraits, 
+                                    NoDefaultSpecified, TraitType)
 
-from IPython.config import Configurable
-from IPython.utils.traitlets import (Int, Float, Bool, Dict, List, Instance,
-                                     Union, TraitError, HasTraits, 
-                                     NoDefaultSpecified, TraitType)
+# ipython 3 imports
+# from IPython.config import Configurable
+# from IPython.utils.traitlets import (Int, Float, Bool, Dict, List, Instance,
+#                                      Union, TraitError, HasTraits, 
+#                                      NoDefaultSpecified, TraitType)
 import numpy as np
 
+# override for backward compatability
 class Configurable(Configurable): pass
-
 class TraitType(TraitType): pass
 
+# overload handle may not be temporary
 class OverloadMixin(object):
 
     def validate(self, obj, value):
@@ -32,16 +35,7 @@ class OverloadMixin(object):
         i = super(OverloadMixin,self).info()
         return 'overload resolvable, ' + i
 
-class String(TraitType):
-    """A string trait"""
-
-    info_text = 'a string'
-
-    def validate(self, obj, value):
-        if isinstance(value, str):
-            return value
-        self.error(obj, value)
-        
+class oInstance(OverloadMixin,Instance): pass
 
 class Callable(TraitType):
     """A trait which is callable.
@@ -58,8 +52,6 @@ class Callable(TraitType):
             return value
         else:
             self.error(obj, value)
-
-class oInstance(OverloadMixin,Instance): pass
 
 class Color(TraitType):
     """A trait representing a color, can be either in RGB, or RGBA format.
@@ -88,7 +80,7 @@ class Color(TraitType):
         'as_hex' : False,
         'default_alpha' : 0.0,
         }
-    allow_none = False
+    allow_none = True
     info_text = 'float, int, tuple of float or int, or a hex string color'
     default_value = (0.0,0.0,0.0,0.0)
     named_colors = {}

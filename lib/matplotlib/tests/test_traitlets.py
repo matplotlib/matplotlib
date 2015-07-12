@@ -11,10 +11,10 @@ class ColorTestCase(TestCase):
         self.transparent_values = [None, False, '', 'none']
         self.black_values = ['#000000', (0,0,0,0), 0, 0.0, (.0,.0,.0), (.0,.0,.0,.0)]
         self.colored_values = ['#BE3537', (190,53,55), (0.7451, 0.20784, 0.21569)]
-        self.unvalid_values = ['áfaef', '#FFF', '#0SX#$S', (0,0,0), (0.45,0.3), (()), {}, True]
+        self.invalid_values = ['áfaef', '#FFF', '#0SX#$S', (0,0,0), (0.45,0.3), (()), {}, True]
 
     def _evaluate_unvalids(self, a):
-        for values in self.unvalid_values:
+        for values in self.invalid_values:
             try:
                 a.color = values
             except:

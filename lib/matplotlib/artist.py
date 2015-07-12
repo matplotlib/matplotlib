@@ -15,7 +15,7 @@ from .transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPath, Transform)
 from .path import Path
 
-import .mpl_traitlets as mpltr
+import .traitlets as mpltr
 
 # Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
@@ -105,6 +105,7 @@ class Artist(mpltr.Configurable):
     visible = Bool(True, perishable=True)
     animated = Bool(False, perishable=True)
     alpha = Float(allow_none=True, perishable=True)
+    pickable = Bool(False)
     # clipbox = Instance(matplotlib.transforms.Bbox)
     # clippath = Union([matplotlib.patches.Patch,
     #                 matplotlib.path.Path],
@@ -129,7 +130,8 @@ class Artist(mpltr.Configurable):
     def __init__(self, *args, **kwargs):
         super(Artist,self).__init__(*args, **kwargs)
         pnames = self.trait_names(self._fire_callbacks, perishable=True)
-
+        self.on_trait_change(self._fire_callbacks, pnames)
+        self.on_trait_change(self._update_pickable, ('picker', 'figure'))
         self._axes = None
 
         self._visible = True
@@ -165,6 +167,16 @@ class Artist(mpltr.Configurable):
         # (by the axes) if the artist lives on an axes.
         d['_remove_method'] = None
         return d
+
+    def _update_pickable(self, name, new):
+        pickable = self.pickable
+        if name == 'figure':
+            if new is None or new.canvas is None:
+                pickable = False
+        elif name == 'picker':
+            if new is None:
+                packable = False
+        self.pickable = pickable
 
     # can be superseded by on_trait_change or _%_changed methods
     def _fire_callbacks(self):
@@ -203,9 +215,9 @@ class Artist(mpltr.Configurable):
         except KeyError:
             pass
 
-    # - - - - - - - -
-    # change handlers
-    # - - - - - - - -
+# - - - - - - - -
+# change handlers
+# - - - - - - - -
 
     def _transform_changed(self, name, new):
         self._transformSet = True
@@ -265,7 +277,7 @@ class Artist(mpltr.Configurable):
         warnings.warn(_get_axes_msg, mplDeprecation, stacklevel=1)
         return self.axes
 
-    # only present to maintain current api.
+    # required until new api : `obj.contains(obj, mouseevent)`
     def _contains_changed(self, name, new):
         self._trait_values[name] = types.MethodType(new,self)
 
@@ -276,10 +288,8 @@ class Artist(mpltr.Configurable):
         return contains_default
 
     def _figure_changed(self, name, old, new):
-        self.figure = new
         if old and old is not self:
             self.add_callback(_stale_figure_callback)
-            self.pchanged()
         self.stale = True
 
     def get_figure(self):
@@ -363,10 +373,12 @@ class Artist(mpltr.Configurable):
 
         ACCEPTS: [None|float|boolean|callable]
         """
+        # add warn
         self._picker = picker
 
     def get_picker(self):
         'Return the picker object used by this artist'
+        # add warn
         return self._picker
 
 # - - - - - - - -
@@ -478,6 +490,7 @@ class Artist(mpltr.Configurable):
 
     def pickable(self):
         'Return *True* if :class:`Artist` is pickable.'
+        return self.pickable
         return (self.figure is not None and
                 self.figure.canvas is not None and
                 self._picker is not None)
