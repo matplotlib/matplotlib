@@ -9,6 +9,7 @@ import warnings
 import math
 from operator import itemgetter
 
+from cycler import cycler
 import numpy as np
 from numpy import ma
 
@@ -138,7 +139,7 @@ class _process_plot_var_args(object):
     def __init__(self, axes, command='plot'):
         self.axes = axes
         self.command = command
-        self.set_color_cycle()
+        self.set_style_cycle()
 
     def __getstate__(self):
         # note: it is not possible to pickle a itertools.cycle instance
@@ -146,12 +147,17 @@ class _process_plot_var_args(object):
 
     def __setstate__(self, state):
         self.__dict__ = state.copy()
-        self.set_color_cycle()
+        self.set_style_cycle()
 
-    def set_color_cycle(self, clist=None):
-        if clist is None:
-            clist = rcParams['axes.color_cycle']
-        self.color_cycle = itertools.cycle(clist)
+    def set_style_cycle(self, style_cycler=None):
+        if style_cycler is None:
+            style_cycler = rcParams['axes.style_cycle']
+            if style_cycler is None and 'axes.color_cycle' in rcParams:
+                clist = rcParams['axes.color_cycle']
+                style_cycler = cycler('color', clist)
+        self.style_cycler = itertools.cycle(style_cycler)
+        # Make a copy
+        self._style_keys = list(style_cycler.keys)
 
     def __call__(self, *args, **kwargs):
 
@@ -229,24 +235,37 @@ class _process_plot_var_args(object):
             y = y[:, np.newaxis]
         return x, y
 
+    def _setdefaults(self, kw, kwargs):
+        # Only advance the cycler if the cycler
+        # has information that is not specified
+        # in the supplied kw and kwargs dicts
+        if any([kw.get(k, None) is None and kwargs.get(k, None) is None
+                for k in self._style_keys]):
+            default_dict = six.next(self.style_cycler)
+        else:
+            default_dict = None
+
+        for k in self._style_keys:
+            if (default_dict is not None and
+                    kw.get(k, None) is None and
+                    kwargs.get(k, None) is None):
+                kwargs[k] = kw[k] = default_dict[k]
+
     def _makeline(self, x, y, kw, kwargs):
         kw = kw.copy()  # Don't modify the original kw.
         kwargs = kwargs.copy()
-        if kw.get('color', None) is None and kwargs.get('color', None) is None:
-            kwargs['color'] = kw['color'] = six.next(self.color_cycle)
-            # (can't use setdefault because it always evaluates
-            # its second argument)
-        seg = mlines.Line2D(x, y,
-                            **kw
-                            )
+        self._setdefaults(kw, kwargs)
+        seg = mlines.Line2D(x, y, **kw)
         self.set_lineprops(seg, **kwargs)
         return seg
 
     def _makefill(self, x, y, kw, kwargs):
-        try:
-            facecolor = kw['color']
-        except KeyError:
-            facecolor = six.next(self.color_cycle)
+        kw = kw.copy()  # Don't modify the original kw.
+        kwargs = kwargs.copy()
+        # Might be problematic with fallback names such as
+        # 'facecolor' and such. Possibly fixed by traitlets?
+        self._setdefaults(kw, kwargs)
+        facecolor = kw['color']
         seg = mpatches.Polygon(np.hstack((x[:, np.newaxis],
                                           y[:, np.newaxis])),
                                facecolor=facecolor,
