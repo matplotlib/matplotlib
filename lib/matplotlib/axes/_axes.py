@@ -3139,7 +3139,6 @@ class Axes(_AxesBase):
         if showfliers is None:
             showfliers = rcParams['boxplot.showfliers']
 
-
         def _update_dict(dictionary, rc_name, properties):
             """ Loads properties in the dictionary from rc file if not already
             in the dictionary"""
