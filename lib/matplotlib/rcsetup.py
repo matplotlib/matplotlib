@@ -109,13 +109,18 @@ def validate_float(s):
 
 
 def validate_float_or_None(s):
-    """convert s to float or raise"""
+    """convert s to float, None or raise"""
+    # values directly from the rc file can only be strings,
+    # so we need to recognize the string "None" and convert
+    # it into the object. We will be case-sensitive here to
+    # avoid confusion between string values of 'none', which
+    # can be a valid string value for some other parameters.
     if s is None or s == 'None':
         return None
     try:
         return float(s)
     except ValueError:
-        raise ValueError('Could not convert "%s" to float' % s)
+        raise ValueError('Could not convert "%s" to float or None' % s)
 
 def validate_dpi(s):
     """confirm s is string 'figure' or convert s to float or raise"""
