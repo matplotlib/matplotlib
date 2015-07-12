@@ -14,7 +14,7 @@ plt.plot(X, (1 - np.tanh(4.*X/delta))/2,    # phase field tanh profiles
            linewidth=5)
 
 # legend
-plt.legend((r'phase field', r'level set', r'composition', r'sharp interface'), shadow=True, loc=(0.01, 0.55))
+plt.legend(('phase field', 'level set', 'composition', 'sharp interface'), shadow=True, loc=(0.01, 0.55))
 
 ltext = plt.gca().get_legend().get_texts()
 plt.setp(ltext[0], fontsize=20, color='b')
