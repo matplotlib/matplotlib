@@ -1,19 +1,19 @@
-#!/usr/bin/env python
+import matplotlib.pyplot as plt
+import numpy as np
 
 from matplotlib.ticker import MultipleLocator
-from pylab import *
 from data_helper import get_two_stock_data
 
 d1, p1, d2, p2 = get_two_stock_data()
 
-fig, ax = subplots()
-lines = plot(d1, p1, 'bs', d2, p2, 'go')
-xlabel('Days')
-ylabel('Normalized price')
-xlim(0, 3)
+fig, ax = plt.subplots()
+lines = plt.plot(d1, p1, 'bs', d2, p2, 'go')
+plt.xlabel('Days')
+plt.ylabel('Normalized price')
+plt.xlim(0, 3)
 ax.xaxis.set_major_locator(MultipleLocator(1))
 
-title('INTC vs AAPL')
-legend(('INTC', 'AAPL'))
+plt.title('INTC vs AAPL')
+plt.legend(('INTC', 'AAPL'))
 
-show()
+plt.show()
