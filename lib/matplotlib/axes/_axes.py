@@ -2962,7 +2962,7 @@ class Axes(_AxesBase):
 
         Call signature::
 
-          boxplot(self, x, notch=False, sym='b+', vert=True, whis=1.5,
+          boxplot(self, x, notch=None, sym=None, vert=None, whis=None,
                   positions=None, widths=None, patch_artist=False,
                   bootstrap=None, usermedians=None, conf_intervals=None,
                   meanline=False, showmeans=False, showcaps=True,
