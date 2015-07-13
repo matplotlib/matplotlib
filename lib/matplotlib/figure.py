@@ -766,23 +766,21 @@ class Figure(Artist):
         self.dpi = val
         self.stale = True
 
-    def set_figwidth(self, val):
+    def set_figwidth(self, val, **kwargs):
         """
         Set the width of the figure in inches
 
         ACCEPTS: float
         """
-        self.bbox_inches.x1 = val
-        self.stale = True
+        self.set_size_inches(val, self.get_figheight(), **kwargs)
 
-    def set_figheight(self, val):
+    def set_figheight(self, val, **kwargs):
         """
         Set the height of the figure in inches
 
         ACCEPTS: float
         """
-        self.bbox_inches.y1 = val
-        self.stale = True
+        self.set_size_inches(self.get_figwidth(), val, **kwargs)
 
     def set_frameon(self, b):
         """
