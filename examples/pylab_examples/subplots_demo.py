@@ -37,7 +37,7 @@ f, (ax1, ax2, ax3) = plt.subplots(3, sharex=True, sharey=True)
 ax1.plot(x, y)
 ax1.set_title('Sharing both axes')
 ax2.scatter(x, y)
-ax3.scatter(x, 2 * y ** 2 - 1, color='r')
+ax3.scatter(x, 2 * y ** 2 - 1, c='r')
 # Fine-tune figure; make subplots close to each other and hide x ticks for
 # all but bottom plot.
 f.subplots_adjust(hspace=0)
@@ -48,7 +48,7 @@ f, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex='col', sharey='row')
 ax1.plot(x, y)
 ax1.set_title('Sharing x per column, y per row')
 ax2.scatter(x, y)
-ax3.scatter(x, 2 * y ** 2 - 1, color='r')
+ax3.scatter(x, 2 * y ** 2 - 1, c='r')
 ax4.plot(x, 2 * y ** 2 - 1, color='r')
 
 # Four axes, returned as a 2-d array
