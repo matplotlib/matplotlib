@@ -94,7 +94,7 @@ install:
       cp .travis/setup.cfg .
     fi;
 
-  - python setup.py install
+  - pip install -e .
 
 script:
   # The number of processes is hardcoded, because using too many causes the
@@ -168,7 +168,5 @@ after_success:
   if [[ $BUILD_DOCS == false && $TEST_ARGS != "--pep8" ]]; then
      # account for us running the test out-of-repo and coveralls expects in-repo
      # tests
-     mv cover .coverage ../matplotlib
-     cd ../matplotlib
      coveralls
   fi
