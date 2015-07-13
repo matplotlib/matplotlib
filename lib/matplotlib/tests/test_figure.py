@@ -158,6 +158,24 @@ def test_iterability_axes_argument():
     plt.close(fig)
 
 
+@cleanup
+def test_set_fig_size():
+    fig = plt.figure()
+
+    # check figwidth
+    fig.set_figwidth(5)
+    assert_equal(fig.get_figwidth(), 5)
+
+    # check figheight
+    fig.set_figheight(1)
+    assert_equal(fig.get_figheight(), 1)
+
+    # check using set_size_inches
+    fig.set_size_inches(2, 4)
+    assert_equal(fig.get_figwidth(), 2)
+    assert_equal(fig.get_figheight(), 4)
+
+
 if __name__ == "__main__":
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
