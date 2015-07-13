@@ -659,7 +659,7 @@ class Figure(Artist):
         self.stale = True
         return im
 
-    def set_size_inches(self, *args, **kwargs):
+    def set_size_inches(self, w, h=None, forward=False):
         """
         set_size_inches(w,h, forward=False)
 
@@ -682,11 +682,10 @@ class Figure(Artist):
         matplotlib.Figure.get_size_inches
         """
 
-        forward = kwargs.get('forward', False)
-        if len(args) == 1:
-            w, h = args[0]
-        else:
-            w, h = args
+        # the width and height have been passed in as a tuple to the first
+        # argument, so unpack them
+        if h is None:
+            w, h = w
 
         dpival = self.dpi
         self.bbox_inches.p1 = w, h
@@ -766,21 +765,21 @@ class Figure(Artist):
         self.dpi = val
         self.stale = True
 
-    def set_figwidth(self, val, **kwargs):
+    def set_figwidth(self, val, forward=False):
         """
         Set the width of the figure in inches
 
         ACCEPTS: float
         """
-        self.set_size_inches(val, self.get_figheight(), **kwargs)
+        self.set_size_inches(val, self.get_figheight(), forward=forward)
 
-    def set_figheight(self, val, **kwargs):
+    def set_figheight(self, val, forward=False):
         """
         Set the height of the figure in inches
 
         ACCEPTS: float
         """
-        self.set_size_inches(self.get_figwidth(), val, **kwargs)
+        self.set_size_inches(self.get_figwidth(), val, forward=forward)
 
     def set_frameon(self, b):
         """

@@ -175,6 +175,11 @@ def test_set_fig_size():
     assert_equal(fig.get_figwidth(), 2)
     assert_equal(fig.get_figheight(), 4)
 
+    # check using tuple to first argument
+    fig.set_size_inches((1, 3))
+    assert_equal(fig.get_figwidth(), 1)
+    assert_equal(fig.get_figheight(), 3)
+
 
 if __name__ == "__main__":
     import nose
