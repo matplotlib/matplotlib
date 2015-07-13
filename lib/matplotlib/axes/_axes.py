@@ -3672,6 +3672,11 @@ class Axes(_AxesBase):
         # since it isn't, I am giving it low priority.
         co = kwargs.pop('color', None)
         if co is not None:
+            msg = (
+                "The 'color' keyword argument to scatter is deprecated, "
+                "please use 'c' instead."
+            )
+            warnings.warn(msg, mplDeprecation, stacklevel=1)
             if edgecolors is None:
                 edgecolors = co
             if facecolors is None:
