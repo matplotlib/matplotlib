@@ -9,13 +9,14 @@ ascending order.
 """
 
 from matplotlib.lines import Line2D
+import matplotlib.pyplot as plt
 import numpy as np
-from pylab import figure, show
 
 
 class ClippedLine(Line2D):
     """
-    Clip the xlimits to the axes view limits -- this example assumes x is sorted
+    Clip the xlimits to the axes view limits
+        this example assumes x is sorted
     """
 
     def __init__(self, ax, *args, **kwargs):
@@ -45,7 +46,7 @@ class ClippedLine(Line2D):
         Line2D.draw(self, renderer)
 
 
-fig = figure()
+fig = plt.figure()
 ax = fig.add_subplot(111, autoscale_on=False)
 
 t = np.arange(0.0, 100.0, 0.01)
@@ -54,4 +55,4 @@ line = ClippedLine(ax, t, s, color='g', ls='-', lw=2)
 ax.add_line(line)
 ax.set_xlim(10, 30)
 ax.set_ylim(-1.1, 1.1)
-show()
+plt.show()
