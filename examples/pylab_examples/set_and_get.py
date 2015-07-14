@@ -1,9 +1,9 @@
 """
 
-MATLAB and pyplot allow you to use setp and get to set and get
+The pyplot interface allows you to use setp and getp to set and get
 object properties, as well as to do introspection on the object
 
-set
+set:
     To set the linestyle of a line to be dashed, you can do
 
       >>> line, = plt.plot([1,2,3])
@@ -65,7 +65,7 @@ Aliases:
 """
 
 from __future__ import print_function
-# from pylab import *
+
 import matplotlib.pyplot as plt
 import numpy as np
 
