@@ -1,8 +1,6 @@
-#!/usr/bin/env python
-from pylab import *
+import matplotlib.pyplot as plt
 
+plt.gcf().text(0.5, 0.95, 'Distance Histograms by Category is \
+    a really long title')
 
-gcf().text(0.5, 0.95,
-           'Distance Histograms by Category is a really long title')
-
-show()
+plt.show()
