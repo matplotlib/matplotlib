@@ -415,6 +415,12 @@ class SetupPackage(object):
         """
         return []
 
+    def get_tests_require(self):
+        """
+        Get a list of Python packages that we require for executing tests.
+        """
+        return []
+
     def _check_for_pkg_config(self, package, include_file, min_version=None,
                               version=None):
         """
@@ -645,8 +651,8 @@ class Tests(OptionalPackage):
 
         msgs = []
         msg_template = ('{package} is required to run the matplotlib test '
-                        'suite.  pip/easy_install may attempt to install it '
-                        'after matplotlib.')
+                        'suite. "setup.py test" will automatically download it.'
+                        ' Install {package} to run matplotlib.test()')
 
         bad_nose = msg_template.format(
             package='nose %s or later' % self.nose_min_version
@@ -694,8 +700,8 @@ class Tests(OptionalPackage):
                 'sphinxext/tests/tinypages/_static/*',
             ]}
 
-    def get_install_requires(self):
-        requires = ['nose>=%s' % self.nose_min_version]
+    def get_tests_require(self):
+        requires = ['nose>=%s' % self.nose_min_version, 'sphinx']
         if not sys.version_info >= (3, 3):
             requires += ['mock']
         return requires
