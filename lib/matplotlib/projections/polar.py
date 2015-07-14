@@ -192,12 +192,21 @@ class RadialLocator(Locator):
     :class:`~matplotlib.ticker.Locator` (which may be different
     depending on the scale of the *r*-axis.
     """
-    def __init__(self, base):
+    def __init__(self, base, axes=None):
         self.base = base
+        self._axes = axes
 
     def __call__(self):
-        ticks = self.base()
-        return [x for x in ticks if x > 0]
+        show_all = True
+        # Ensure previous behaviour with full circle views.
+        if self._axes:
+            rmin = self._axes.get_rmin()
+            show_all = False
+
+        if show_all:
+            return self.base()
+        else:
+            return [tick for tick in self.base() if tick > rmin]
 
     def autoscale(self):
         return self.base.autoscale()
@@ -213,7 +222,7 @@ class RadialLocator(Locator):
 
     def view_limits(self, vmin, vmax):
         vmin, vmax = self.base.view_limits(vmin, vmax)
-        return 0, vmax
+        return min(0, vmin), vmax
 
 
 class PolarAxes(Axes):
@@ -246,7 +255,8 @@ class PolarAxes(Axes):
         self.xaxis.isDefault_majfmt = True
         angles = np.arange(0.0, 360.0, 45.0)
         self.set_thetagrids(angles)
-        self.yaxis.set_major_locator(self.RadialLocator(self.yaxis.get_major_locator()))
+        self.yaxis.set_major_locator(
+            self.RadialLocator(self.yaxis.get_major_locator(), self))
 
         self.grid(rcParams['polaraxes.grid'])
         self.xaxis.set_ticks_position('none')
@@ -473,7 +483,7 @@ class PolarAxes(Axes):
     def set_yscale(self, *args, **kwargs):
         Axes.set_yscale(self, *args, **kwargs)
         self.yaxis.set_major_locator(
-            self.RadialLocator(self.yaxis.get_major_locator()))
+            self.RadialLocator(self.yaxis.get_major_locator(), self))
 
     def set_rscale(self, *args, **kwargs):
         return Axes.set_yscale(self, *args, **kwargs)
@@ -549,9 +559,6 @@ class PolarAxes(Axes):
         # Make sure we take into account unitized data
         radii = self.convert_xunits(radii)
         radii = np.asarray(radii)
-        rmin = radii.min()
-        if rmin <= 0:
-            raise ValueError('radial grids must be strictly positive')
 
         self.set_yticks(radii)
         if labels is not None:
