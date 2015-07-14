@@ -24,6 +24,7 @@ import sys
 import warnings
 import types
 
+from cycler import cycler
 import matplotlib
 import matplotlib.colorbar
 from matplotlib import style
@@ -394,7 +395,7 @@ def xkcd(scale=1, length=100, randomness=2):
         rcParams['grid.linewidth'] = 0.0
         rcParams['axes.grid'] = False
         rcParams['axes.unicode_minus'] = False
-        rcParams['axes.color_cycle'] = ['b', 'r', 'c', 'm']
+        rcParams['axes.prop_cycle'] = cycler('color', ['b', 'r', 'c', 'm'])
         rcParams['axes.edgecolor'] = 'black'
         rcParams['xtick.major.size'] = 8
         rcParams['xtick.major.width'] = 3
