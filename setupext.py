@@ -1174,7 +1174,7 @@ class Cycler(SetupPackage):
                 "pip will attempt to install it "
                 "after matplotlib.")
 
-        return "using cycler version %s" % pytz.__version__
+        return "using cycler version %s" % cycler.__version__
 
     def get_install_requires(self):
         return ['cycler']
