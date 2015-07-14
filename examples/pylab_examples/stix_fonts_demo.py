@@ -38,6 +38,7 @@ def doall():
     plt.savefig('stix_fonts_example')
     plt.show()
 
+
 if '--latex' in sys.argv:
     fd = open("stix_fonts_examples.ltx", "w")
     fd.write("\\documentclass{article}\n")
