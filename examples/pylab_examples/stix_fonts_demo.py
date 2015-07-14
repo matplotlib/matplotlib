@@ -5,6 +5,7 @@ import sys
 import re
 import gc
 import matplotlib.pyplot as plt
+import numpy as np
 
 stests = [
     r'$\mathcircled{123} \mathrm{\mathcircled{123}} \
@@ -30,7 +31,7 @@ def doall():
     plt.plot([0, 0], 'r')
     plt.grid(False)
     plt.axis([0, 3, -len(tests), 0])
-    plt.yticks(arange(len(tests)) * -1)
+    plt.yticks(np.arange(len(tests)) * -1)
     for i, s in enumerate(tests):
         plt.text(0.1, -i, s, fontsize=32)
 
