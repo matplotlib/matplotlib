@@ -76,7 +76,7 @@ font.size           : 12.0
 font.serif     : Bitstream Vera Serif, DejaVu Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
 font.sans-serif: Bitstream Vera Sans, DejaVu Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 font.cursive   : Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, cursive
-font.fantasy   : Comic Sans MS, Chicago, Charcoal, Impact, Western, Humor Sans, fantasy
+font.fantasy   : Comic Sans MS, Chicago, Charcoal, ImpactWestern, Humor Sans, fantasy
 font.monospace : Bitstream Vera Sans Mono, DejaVu Sans Mono, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
 
 ### TEXT
@@ -306,7 +306,8 @@ agg.path.chunksize : 0           # 0 to disable; values in the range
 path.simplify : True   # When True, simplify paths by removing "invisible"
                        # points to reduce file size and increase rendering
                        # speed
-path.simplify_threshold : 0.1  # The threshold of similarity below which
+path.simplify_threshold : 0.111111111111
+                               # The threshold of similarity below which
                                # vertices will be removed in the simplification
                                # process
 path.snap : True # When True, rectilinear axis-aligned paths will be snapped to
@@ -409,7 +410,7 @@ keymap.save : s, ctrl+s             # saving current figure
 keymap.quit : ctrl+w, cmd+w         # close the current figure
 keymap.grid : g                     # switching on/off a grid in current axes
 keymap.yscale : l                   # toggle scaling of y-axes ('log'/'linear')
-keymap.xscale : L, k                # toggle scaling of x-axes ('log'/'linear')
+keymap.xscale : k, L                # toggle scaling of x-axes ('log'/'linear')
 keymap.all_axes : a                 # enable all axes
 
 ###ANIMATION settings
