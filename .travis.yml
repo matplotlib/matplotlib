@@ -55,6 +55,11 @@ before_install:
   - source venv/bin/activate
 
 install:
+  # Upgrade pip and setuptools. Mock has issues with the default version of
+  # setuptools
+  - |
+    pip install --upgrade pip
+    pip install --upgrade setuptools
   # Install only from travis wheelhouse
   - if [ -z "$PRE" ]; then
         wheelhouse_pip_install python-dateutil $NUMPY pyparsing pillow sphinx!=1.3.0;

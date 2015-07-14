@@ -1,5 +1,6 @@
 # Tools for working with travis-ci
-export WHEELHOUSE="http://travis-wheels.scikit-image.org/"
+export WHEELHOST="travis-wheels.scikit-image.org"
+export WHEELHOUSE="http://${WHEELHOST}/"
 
 retry () {
     # https://gist.github.com/fungusakafungus/1026804
@@ -21,5 +22,5 @@ retry () {
 
 wheelhouse_pip_install() {
     # Install pip requirements via travis wheelhouse
-    retry pip install --timeout=60 --no-index --find-links $WHEELHOUSE $@
+    retry pip install --timeout=60 --no-index --trusted-host $WHEELHOST --find-links $WHEELHOUSE $@
 }
