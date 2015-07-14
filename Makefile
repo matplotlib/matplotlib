@@ -45,10 +45,10 @@ jdh_doc_snapshot:
 
 
 test:
-	${PYTHON} tests.py
+	${PYTHON} setup.py test
 
 
 test-coverage:
-	${PYTHON} tests.py --with-coverage --cover-package=matplotlib
+	${PYTHON} setup.py test --with-coverage --cover-package=matplotlib
 
 
