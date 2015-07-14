@@ -35,6 +35,7 @@ doc/_build
 dist
 # Egg metadata
 *.egg-info
+.eggs
 # tox testing tool
 .tox
 

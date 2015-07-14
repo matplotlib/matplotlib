@@ -37,14 +37,24 @@ Running the tests
 -----------------
 
 Running the tests is simple. Make sure you have nose installed and run
-the script :file:`tests.py` in the root directory of the distribution.
-The script can take any of the usual `nosetest arguments`_, such as
+the setup script's ``test`` command::
 
-===================  ===========
-``-v``               increase verbosity
-``-d``               detailed error messages
-``--with-coverage``  enable collecting coverage information
-===================  ===========
+   python setup.py test
+
+in the root directory of the distribution. The script takes a set of
+commands, such as:
+
+========================  ===========
+``--pep8-only``           pep8 checks
+``--omit-pep8``           Do not perform pep8 checks
+``--nocapture``           do not capture stdout (nosetests)
+``--nose-verbose``        be verbose (nosetests)
+``--processes``           number of processes (nosetests)
+``--process-timeout``     process timeout (nosetests)
+``--with-coverage``       with coverage
+``--detailed-error-msg``  detailed error message (nosetest)
+``--tests``               comma separated selection of tests (nosetest)
+========================  ===========
 
 Additionally it is possible to run only coding standard test or disable them:
 
@@ -57,28 +67,30 @@ To run a single test from the command line, you can provide a
 dot-separated path to the module followed by the function separated by
 a colon, e.g., (this is assuming the test is installed)::
 
-  python tests.py matplotlib.tests.test_simplification:test_clipping
+  python setup.py test --tests=matplotlib.tests.test_simplification:test_clipping
 
-If you want to run the full test suite, but want to save wall time try running the
-tests in parallel::
+If you want to run the full test suite, but want to save wall time try
+running the tests in parallel::
 
-  python ../matplotlib/tests.py -sv --processes=5 --process-timeout=300
-
-as we do on Travis.ci.
+  python setup.py test --nocapture --nose-verbose --processes=5 --process-timeout=300
 
 
 An alternative implementation that does not look at command line
-arguments works from within Python::
+arguments works from within Python is to run the tests from the
+matplotlib library function :func:`matplotlib.test`::
 
   import matplotlib
   matplotlib.test()
 
+.. hint::
+
+   You might need to install nose for this::
+
+      pip install nose
+
+
 .. _`nosetest arguments`: http://nose.readthedocs.org/en/latest/usage.html
 
-
-Running tests by any means other than `matplotlib.test()`
-does not load the nose "knownfailureif" (Known failing tests) plugin,
-causing known-failing tests to fail for real.
 
 Writing a simple test
 ---------------------

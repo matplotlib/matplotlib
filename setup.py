@@ -8,6 +8,7 @@ from __future__ import print_function, absolute_import
 # This needs to be the very first thing to use distribute
 from distribute_setup import use_setuptools
 use_setuptools()
+from setuptools.command.test import test as TestCommand
 
 import sys
 
@@ -121,6 +122,118 @@ classifiers = [
     'Topic :: Scientific/Engineering :: Visualization',
     ]
 
+
+class NoseTestCommand(TestCommand):
+    """Invoke unit tests using nose after an in-place build."""
+
+    description = "Invoke unit tests using nose after an in-place build."
+    user_options = [
+        ("pep8-only", None, "pep8 checks"),
+        ("omit-pep8", None, "Do not perform pep8 checks"),
+        ("nocapture", None, "do not capture stdout (nosetests)"),
+        ("nose-verbose", None, "be verbose (nosetests)"),
+        ("processes=", None, "number of processes (nosetests)"),
+        ("process-timeout=", None, "process timeout (nosetests)"),
+        ("with-coverage", None, "with coverage"),
+        ("detailed-error-msg", None, "detailed error message (nosetest)"),
+        ("tests=", None, "comma separated selection of tests (nosetest)"),
+    ]
+
+    def initialize_options(self):
+        self.pep8_only = None
+        self.omit_pep8 = None
+
+        # parameters passed to nose tests
+        self.processes = None
+        self.process_timeout = None
+        self.nose_verbose = None
+        self.nocapture = None
+        self.with_coverage = None
+        self.detailed_error_msg = None
+        self.tests = None
+
+    def finalize_options(self):
+        self.test_args = []
+        if self.pep8_only:
+            self.pep8_only = True
+        if self.omit_pep8:
+            self.omit_pep8 = True
+
+        if self.pep8_only and self.omit_pep8:
+            from distutils.errors import DistutilsOptionError
+            raise DistutilsOptionError(
+                "You are using several options for the test command in an "
+                "incompatible manner. Please use either --pep8-only or "
+                "--omit-pep8"
+            )
+
+        if self.processes:
+            self.test_args.append("--processes={prc}".format(
+                prc=self.processes))
+
+        if self.process_timeout:
+            self.test_args.append("--process-timeout={tout}".format(
+                tout=self.process_timeout))
+
+        if self.nose_verbose:
+            self.test_args.append("--verbose")
+
+        if self.nocapture:
+            self.test_args.append("--nocapture")
+
+        if self.with_coverage:
+            self.test_args.append("--with-coverage")
+
+        if self.detailed_error_msg:
+            self.test_args.append("-d")
+
+        if self.tests:
+            self.test_args.append("--tests={names}".format(names=self.tests))
+
+
+    def run(self):
+        if self.distribution.install_requires:
+            self.distribution.fetch_build_eggs(
+                self.distribution.install_requires)
+        if self.distribution.tests_require:
+            self.distribution.fetch_build_eggs(self.distribution.tests_require)
+
+        self.announce('running unittests with nose')
+        self.with_project_on_sys_path(self.run_tests)
+
+
+    def run_tests(self):
+        import matplotlib
+        matplotlib.use('agg')
+        import nose
+        from matplotlib.testing.noseclasses import KnownFailure
+        from matplotlib import default_test_modules as testmodules
+        from matplotlib import font_manager
+        import time
+        # Make sure the font caches are created before starting any possibly
+        # parallel tests
+        if font_manager._fmcache is not None:
+            while not os.path.exists(font_manager._fmcache):
+                time.sleep(0.5)
+        plugins = [KnownFailure]
+
+        # Nose doesn't automatically instantiate all of the plugins in the
+        # child processes, so we have to provide the multiprocess plugin
+        # with a list.
+        from nose.plugins import multiprocess
+        multiprocess._instantiate_plugins = plugins
+
+        if self.omit_pep8:
+            testmodules.remove('matplotlib.tests.test_coding_standards')
+        elif self.pep8_only:
+            testmodules = ['matplotlib.tests.test_coding_standards']
+
+        nose.main(addplugins=[x() for x in plugins],
+                  defaultTest=testmodules,
+                  argv=['nosetests'] + self.test_args,
+                  exit=False)
+
+
 # One doesn't normally see `if __name__ == '__main__'` blocks in a setup.py,
 # however, this is needed on Windows to avoid creating infinite subprocesses
 # when using multiprocessing.
@@ -135,6 +248,7 @@ if __name__ == '__main__':
     package_dir = {'': 'lib'}
     install_requires = []
     setup_requires = []
+    tests_require = []
     default_backend = None
 
     # Go through all of the packages and figure out which ones we are
@@ -195,6 +309,7 @@ if __name__ == '__main__':
             package_data[key] = list(set(val + package_data[key]))
         install_requires.extend(package.get_install_requires())
         setup_requires.extend(package.get_setup_requires())
+        tests_require.extend(package.get_tests_require())
 
     # Write the default matplotlibrc file
     if default_backend is None:
@@ -254,11 +369,13 @@ if __name__ == '__main__':
         # List third-party Python packages that we require
         install_requires=install_requires,
         setup_requires=setup_requires,
+        tests_require=tests_require,
 
         # matplotlib has C/C++ extensions, so it's not zip safe.
         # Telling setuptools this prevents it from doing an automatic
         # check for zip safety.
         zip_safe=False,
+        cmdclass={'test': NoseTestCommand},
 
         **extra_args
     )

@@ -1449,8 +1449,21 @@ default_test_modules = [
     ]
 
 
+def verify_test_dependencies():
+    try:
+        import nose
+        try:
+            from unittest import mock
+        except:
+            import mock
+    except ImportError:
+        print("matplotlib.test requires nose and mock to run.")
+        raise
+
+
 def test(verbosity=1):
     """run the matplotlib test suite"""
+    verify_test_dependencies()
     try:
         import faulthandler
     except ImportError:
