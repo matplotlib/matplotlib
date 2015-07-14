@@ -39,7 +39,7 @@ flier_low = np.random.rand(10) * -100
 d2 = np.concatenate((spread, center, flier_high, flier_low), 0)
 data.shape = (-1, 1)
 d2.shape = (-1, 1)
-#data = concatenate( (data, d2), 1 )
+# data = concatenate( (data, d2), 1 )
 # Making a 2-D array only works if all the columns are the
 # same length.  If they are not, then use a list instead.
 # This is actually more efficient because boxplot converts
