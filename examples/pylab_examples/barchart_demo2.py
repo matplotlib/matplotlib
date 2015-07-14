@@ -10,7 +10,6 @@ just make up some data for little Johnny Doe...
 """
 import numpy as np
 import matplotlib.pyplot as plt
-import pylab
 from matplotlib.ticker import MaxNLocator
 
 student = 'Johnny Doe'
@@ -33,7 +32,7 @@ pos = np.arange(numTests) + 0.5  # Center bars on the Y-axis ticks
 rects = ax1.barh(pos, rankings, align='center', height=0.5, color='m')
 
 ax1.axis([0, 100, 0, 5])
-pylab.yticks(pos, testNames)
+plt.yticks(pos, testNames)
 ax1.set_title('Johnny Doe')
 plt.text(50, -0.5, 'Cohort Size: ' + str(cohortSize),
          horizontalalignment='center', size='small')
@@ -43,7 +42,7 @@ plt.text(50, -0.5, 'Cohort Size: ' + str(cohortSize),
 ax2 = ax1.twinx()
 ax2.plot([100, 100], [0, 5], 'white', alpha=0.1)
 ax2.xaxis.set_major_locator(MaxNLocator(11))
-xticks = pylab.setp(ax2, xticklabels=['0', '10', '20', '30', '40', '50', '60',
+xticks = plt.setp(ax2, xticklabels=['0', '10', '20', '30', '40', '50', '60',
                                       '70', '80', '90', '100'])
 ax2.xaxis.grid(True, linestyle='--', which='major', color='grey',
                alpha=0.25)
