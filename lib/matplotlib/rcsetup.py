@@ -302,7 +302,7 @@ def validate_color(s):
     raise ValueError('%s does not look like a color arg%s' % (s, msg))
 
 def deprecate_axes_colorcycle(value):
-    warnings.warn("axes.color_cycle is deprecated.  Use axes.style_cycle "
+    warnings.warn("axes.color_cycle is deprecated.  Use axes.prop_cycle "
                   "instead. Will be removed in 2.1.0")
     return validate_colorlist(value)
 
@@ -780,8 +780,8 @@ defaultParams = {
     # This entry can be either a cycler object or a
     # string repr of a cycler-object, which gets eval()'ed
     # to create the object.
-    'axes.style_cycle': [cycler('color', 'bgrcmyk'),
-                         validate_cycler],
+    'axes.prop_cycle': [cycler('color', 'bgrcmyk'),
+                        validate_cycler],
     'axes.xmargin': [0, ValidateInterval(0, 1,
                                          closedmin=True,
                                          closedmax=True)],  # margin added to xaxis

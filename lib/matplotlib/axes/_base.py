@@ -9,7 +9,7 @@ import warnings
 import math
 from operator import itemgetter
 
-from cycler import cycler
+from cycler import cycler, Cycler
 import numpy as np
 from numpy import ma
 
@@ -139,7 +139,7 @@ class _process_plot_var_args(object):
     def __init__(self, axes, command='plot'):
         self.axes = axes
         self.command = command
-        self.set_style_cycle()
+        self.set_prop_cycle()
 
     def __getstate__(self):
         # note: it is not possible to pickle a itertools.cycle instance
@@ -147,17 +147,17 @@ class _process_plot_var_args(object):
 
     def __setstate__(self, state):
         self.__dict__ = state.copy()
-        self.set_style_cycle()
+        self.set_prop_cycle()
 
-    def set_style_cycle(self, style_cycler=None):
-        if style_cycler is None:
-            style_cycler = rcParams['axes.style_cycle']
-            if style_cycler is None and 'axes.color_cycle' in rcParams:
+    def set_prop_cycle(self, prop_cycler=None):
+        if prop_cycler is None:
+            prop_cycler = rcParams['axes.prop_cycle']
+            if prop_cycler is None and 'axes.color_cycle' in rcParams:
                 clist = rcParams['axes.color_cycle']
-                style_cycler = cycler('color', clist)
-        self.style_cycler = itertools.cycle(style_cycler)
+                prop_cycler = cycler('color', clist)
+        self.prop_cycler = itertools.cycle(prop_cycler)
         # Make a copy
-        self._style_keys = list(style_cycler.keys)
+        self._prop_keys = list(prop_cycler.keys)
 
     def __call__(self, *args, **kwargs):
 
@@ -240,12 +240,12 @@ class _process_plot_var_args(object):
         # has information that is not specified
         # in the supplied kw and kwargs dicts
         if any([kw.get(k, None) is None and kwargs.get(k, None) is None
-                for k in self._style_keys]):
-            default_dict = six.next(self.style_cycler)
+                for k in self._prop_keys]):
+            default_dict = six.next(self.prop_cycler)
         else:
             default_dict = None
 
-        for k in self._style_keys:
+        for k in self._prop_keys:
             if (default_dict is not None and
                     kw.get(k, None) is None and
                     kwargs.get(k, None) is None):
@@ -1004,14 +1004,30 @@ class _AxesBase(martist.Artist):
         """clear the axes"""
         self.cla()
 
+    def set_prop_cycle(self, prop_cycle):
+        """
+        Set the prop cycle for any future plot commands on this Axes.
+
+        *prop_cycle* is a :class:Cycler object.
+        Can also be `None` to reset to the cycle defined by the
+        current style.
+        """
+        self._get_lines.set_prop_cycle(prop_cycle)
+        self._get_patches_for_fill.set_prop_cycle(prop_cycle)
+
     def set_color_cycle(self, clist):
         """
         Set the color cycle for any future plot commands on this Axes.
 
         *clist* is a list of mpl color specifiers.
+
+        .. deprecated:: 1.5
         """
-        self._get_lines.set_color_cycle(clist)
-        self._get_patches_for_fill.set_color_cycle(clist)
+        cbook.warn_deprecated(
+                '1.5', name='set_color_cycle', alternative='set_prop_cycle')
+        prop_cycler = cycler('color', clist)
+        self._get_lines.set_prop_cycle(prop_cycler)
+        self._get_patches_for_fill.set_prop_cycle(prop_cycler)
 
     def ishold(self):
         """return the HOLD status of the axes"""
