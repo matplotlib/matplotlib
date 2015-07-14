@@ -36,13 +36,13 @@ matrix:
     - python: 2.6
       env: NUMPY=numpy==1.6 MOCK=mock==1.0.1
     - python: 2.7
-      env: MOCK=mock
+      env: MOCK=mock==1.0.1
     - python: 3.3
     - python: 3.4
     - python: 2.7
-      env: TEST_ARGS=--pep8
+      env: TEST_ARGS=--pep8 MOCK=mock==1.0.1
     - python: 2.7
-      env: BUILD_DOCS=true MOCK=mock
+      env: BUILD_DOCS=true MOCK=mock==1.0.1
     - python: "nightly"
       env: PRE=--pre
   allow_failures:
