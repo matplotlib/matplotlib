@@ -15,13 +15,13 @@ import nose
 import numpy as np
 
 import matplotlib as mpl
+import matplotlib.style
 import matplotlib.tests
 import matplotlib.units
 from matplotlib import cbook
 from matplotlib import ticker
 from matplotlib import pyplot as plt
 from matplotlib import ft2font
-from matplotlib.style import context as style_context
 from matplotlib.testing.noseclasses import KnownFailureTest, \
      KnownFailureDidNotFailTest, ImageComparisonFailure
 from matplotlib.testing.compare import comparable_formats, compare_images, \
@@ -132,9 +132,20 @@ class ImageComparisonTest(CleanupTest):
     @classmethod
     def setup_class(cls):
         CleanupTest.setup_class()
+        cls._initial_settings = mpl.rcParams.copy()
+        try:
+            matplotlib.style.use(cls._style)
+        except:
+            # Restore original settings before raising errors during the update.
+            mpl.rcParams.update(cls._initial_settings)
+            raise
 
-        with style_context(cls._style):
-            cls._func()
+        cls._func()
+
+    @classmethod
+    def teardown_class(cls):
+        CleanupTest.teardown_class()
+        mpl.rcParams.update(cls._initial_settings)
 
     @staticmethod
     def remove_text(figure):
