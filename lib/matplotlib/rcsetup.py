@@ -572,7 +572,7 @@ defaultParams = {
     'toolbar':           ['toolbar2', validate_toolbar],
     'datapath':          [None, validate_path_exists],  # handled by
                                                         # _get_data_path_cached
-    'interactive':       [False, validate_bool],
+    'interactive':       [None, validate_bool_maybe_none],
     'timezone':          ['UTC', six.text_type],
 
     # the verbosity setting
