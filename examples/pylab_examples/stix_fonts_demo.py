@@ -1,10 +1,10 @@
+from __future__ import unicode_literals
+
 import os
 import sys
 import re
 import gc
 import matplotlib.pyplot as plt
-
-from __future__ import unicode_literals
 
 stests = [
     r'$\mathcircled{123} \mathrm{\mathcircled{123}} \
@@ -21,6 +21,7 @@ stests = [
 
 if sys.maxunicode > 0xffff:
     s = r'Direct Unicode: $\u23ce \mathrm{\ue0f2 \U0001D538}$'
+
 
 def doall():
     tests = stests
