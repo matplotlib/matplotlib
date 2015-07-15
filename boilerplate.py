@@ -288,10 +288,14 @@ def boilerplate_gen():
         'hot',
         'hsv',
         'jet',
+        'neoncity',
         'pink',
         'prism',
         'spring',
         'summer',
+        'sunrise',
+        'viola',
+        'viridis',
         'winter',
         'spectral'
     )
