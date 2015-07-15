@@ -18,7 +18,7 @@ The source code for the plot may be included in one of three ways:
 
           This is the caption for the plot
 
-     Additionally, one my specify the name of a function to call (with
+     Additionally, one may specify the name of a function to call (with
      no arguments) immediately after importing the module::
 
        .. plot:: path/to/plot.py plot_function1
