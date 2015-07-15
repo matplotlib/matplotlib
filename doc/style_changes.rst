@@ -28,9 +28,9 @@ We are soliciting proposals to change any and all visual defaults
 If you have a proposal please create an issue or PR on `github <https://github.com/matplotlib/matplotlib/issues/new>`_ with the
 changes to `rcsetup.py` and `matplotlibrc.template` by August 9, 2015.
 
-In the second week of August, Micheal Droettboom and I will decide on
-the new default styles, with the release of 2.0 by the beginning of
-September 2015.
+In the second week of August, Michael Droettboom and Thomas Caswell
+will decide on the new default styles, with the release of 2.0 by the
+beginning of September 2015.
 
 A 'classic' style sheet will be provided so reverting to the 1.x
 default values will be a single line of python
