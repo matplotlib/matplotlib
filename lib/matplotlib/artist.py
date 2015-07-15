@@ -88,14 +88,13 @@ class Artist(Configurable):
     aname = 'Artist'
     zorder = 0
 
-
     # warn on all : check whether serialize is/isn't required.
 
     # perishable=True ==> set stale = True
     _transformSet = Bool(False, serialize=True)
     # warn : oInstance used, new TraitType?
-    transform = oInstance('matplotlib.transforms.Transform',
-                            allow_none=True, serialize=True, perishable=True)
+    transform = oInstance('matplotlib.transforms.Transform', allow_none=True,
+                        serialize=True, perishable=True)
     axes = Instance('matplotlib.axes._axes.Axes',allow_none=True,
                         serialize=True)
     contains = Callable(allow_none=True)
@@ -103,7 +102,7 @@ class Artist(Configurable):
                     serialize=True, perishable=True)
     visible = Bool(True, perishable=True, serialize=True)
     animated = Bool(False, perishable=True, serialize=True)
-    alpha = Float(allow_none=True, perishable=True, serialize=True)
+    alpha = Float(None, allow_none=True, perishable=True, serialize=True)
     url = Unicode(allow_none=True, serialize=True)
     gid = Unicode(allow_none=True, serialize=True)
     clipbox = Instance('matplotlib.transforms.BboxBase', allow_none=True,
@@ -136,9 +135,7 @@ class Artist(Configurable):
         self.stale = True
         self._pickable = False
         self._clippath = None
-        self._picker = None
-        # self._oid = 0  
-        # self._propobservers = {}  
+        self._picker = None 
         self._remove_method = None
 
         self._sketch = rcParams['path.sketch']
@@ -257,6 +254,13 @@ class Artist(Configurable):
     # - - - - - - - - - - - - - - -
 
     @property
+    def _contains(self):
+        return self.contains
+    @_contains.setter
+    def _contains(self, value):
+        self.contains = value
+
+    @property
     def _transform(self):
         #add warn
         return self.transform
@@ -344,6 +348,15 @@ class Artist(Configurable):
         # add warn
         return self.alpha
 
+    @property
+    def _gid(self):
+        #add warn
+        return self.gid
+    @_gid.setter
+    def _gid(self, value):
+        # add warn
+        self.gid = value
+
     def get_gid(self):
         """
         Returns the group id
@@ -360,6 +373,15 @@ class Artist(Configurable):
         # add warn
         self.gid = gid
 
+    @property
+    def _clipbox(self):
+        #add warn
+        return self.clipbox
+    @_clipbox.setter
+    def _clipbox(self, value):
+        # add warn
+        self.clipbox = value
+
     def set_clip_box(self, clipbox):
         """
         Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
@@ -373,6 +395,15 @@ class Artist(Configurable):
         'Return artist clipbox'
         # add warn
         return self.clipbox
+
+    @property
+    def _snap(self):
+        #add warn
+        return self.snap
+    @_snap.setter
+    def _snap(self, value):
+        # add warn
+        self.snap = value
 
     def get_snap(self):
         """
