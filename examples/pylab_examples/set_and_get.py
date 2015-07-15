@@ -1,24 +1,24 @@
 """
 
-MATLAB and pylab allow you to use setp and get to set and get
+The pyplot interface allows you to use setp and getp to set and get
 object properties, as well as to do introspection on the object
 
-set
+set:
     To set the linestyle of a line to be dashed, you can do
 
-      >>> line, = plot([1,2,3])
-      >>> setp(line, linestyle='--')
+      >>> line, = plt.plot([1,2,3])
+      >>> plt.setp(line, linestyle='--')
 
     If you want to know the valid types of arguments, you can provide the
     name of the property you want to set without a value
 
-      >>> setp(line, 'linestyle')
+      >>> plt.setp(line, 'linestyle')
           linestyle: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
 
     If you want to see all the properties that can be set, and their
     possible values, you can do
 
-        >>> setp(line)
+        >>> plt.setp(line)
 
     set operates on a single instance or a list of instances.  If you are
     in query mode introspecting the possible values, only the first
@@ -26,11 +26,11 @@ set
     the instances will be set.  e.g., suppose you have a list of two lines,
     the following will make both lines thicker and red
 
-        >>> x = arange(0,1.0,0.01)
-        >>> y1 = sin(2*pi*x)
-        >>> y2 = sin(4*pi*x)
-        >>> lines = plot(x, y1, x, y2)
-        >>> setp(lines, linewidth=2, color='r')
+        >>> x = np.arange(0,1.0,0.01)
+        >>> y1 = np.sin(2*np.pi*x)
+        >>> y2 = np.sin(4*np.pi*x)
+        >>> lines = plt.plot(x, y1, x, y2)
+        >>> plt.setp(lines, linewidth=2, color='r')
 
 
 get:
@@ -38,12 +38,12 @@ get:
     get returns the value of a given attribute.  You can use get to query
     the value of a single attribute
 
-        >>> getp(line, 'linewidth')
+        >>> plt.getp(line, 'linewidth')
             0.5
 
     or all the attribute/value pairs
 
-    >>> getp(line)
+    >>> plt.getp(line)
         aa = True
         alpha = 1.0
         antialiased = True
@@ -65,33 +65,35 @@ Aliases:
 """
 
 from __future__ import print_function
-from pylab import *
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 
-x = arange(0, 1.0, 0.01)
-y1 = sin(2*pi*x)
-y2 = sin(4*pi*x)
-lines = plot(x, y1, x, y2)
+x = np.arange(0, 1.0, 0.01)
+y1 = np.sin(2*np.pi*x)
+y2 = np.sin(4*np.pi*x)
+lines = plt.plot(x, y1, x, y2)
 l1, l2 = lines
-setp(lines, linestyle='--')       # set both to dashed
-setp(l1, linewidth=2, color='r')  # line1 is thick and red
-setp(l2, linewidth=1, color='g')  # line2 is thicker and green
+plt.setp(lines, linestyle='--')       # set both to dashed
+plt.setp(l1, linewidth=2, color='r')  # line1 is thick and red
+plt.setp(l2, linewidth=1, color='g')  # line2 is thicker and green
 
 
 print('Line setters')
-setp(l1)
+plt.setp(l1)
 print('Line getters')
-getp(l1)
+plt.getp(l1)
 
 print('Rectangle setters')
-setp(gca().patch)
+plt.setp(plt.gca().patch)
 print('Rectangle getters')
-getp(gca().patch)
+plt.getp(plt.gca().patch)
 
-t = title('Hi mom')
+t = plt.title('Hi mom')
 print('Text setters')
-setp(t)
+plt.setp(t)
 print('Text getters')
-getp(t)
+plt.getp(t)
 
-show()
+plt.show()
