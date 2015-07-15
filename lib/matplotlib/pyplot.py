@@ -1339,6 +1339,30 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     return ret
 
 
+def quick_axes(figsize=None, tight_layout=False):
+    """
+    Create a single new axes in a new figure.
+
+    This is a convenience function for working interactively
+    and should not be used in scripts.
+
+    Parameters
+    ----------
+    figsize : tuple, optional
+        Figure size in inches (w, h)
+
+    tight_layout : bool, optional
+        If tight layout shoudl be used.
+
+    Returns
+    -------
+    ax : Axes
+       New axes
+    """
+    _, ax = subplots(figsize=figsize, tight_layout=tight_layout)
+    return ax
+
+
 def subplot2grid(shape, loc, rowspan=1, colspan=1, **kwargs):
     """
     Create a subplot in a grid.  The grid is specified by *shape*, at
