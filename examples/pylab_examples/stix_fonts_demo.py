@@ -1,16 +1,17 @@
-#!/usr/bin/env python
-
 from __future__ import unicode_literals
 
 import os
 import sys
 import re
-
 import gc
+import matplotlib.pyplot as plt
+import numpy as np
 
 stests = [
-    r'$\mathcircled{123} \mathrm{\mathcircled{123}} \mathbf{\mathcircled{123}}$',
-    r'$\mathsf{Sans \Omega} \mathrm{\mathsf{Sans \Omega}} \mathbf{\mathsf{Sans \Omega}}$',
+    r'$\mathcircled{123} \mathrm{\mathcircled{123}} \
+    \mathbf{\mathcircled{123}}$',
+    r'$\mathsf{Sans \Omega} \mathrm{\mathsf{Sans \Omega}} \
+    \mathbf{\mathsf{Sans \Omega}}$',
     r'$\mathtt{Monospace}$',
     r'$\mathcal{CALLIGRAPHIC}$',
     r'$\mathbb{Blackboard \pi}$',
@@ -22,24 +23,21 @@ stests = [
 if sys.maxunicode > 0xffff:
     s = r'Direct Unicode: $\u23ce \mathrm{\ue0f2 \U0001D538}$'
 
-from pylab import *
-
 
 def doall():
     tests = stests
 
-    figure(figsize=(8, (len(tests) * 1) + 2))
-    plot([0, 0], 'r')
-    grid(False)
-    axis([0, 3, -len(tests), 0])
-    yticks(arange(len(tests)) * -1)
+    plt.figure(figsize=(8, (len(tests) * 1) + 2))
+    plt.plot([0, 0], 'r')
+    plt.grid(False)
+    plt.axis([0, 3, -len(tests), 0])
+    plt.yticks(np.arange(len(tests)) * -1)
     for i, s in enumerate(tests):
-        #print(i, s.encode("ascii", "backslashreplace"))
-        text(0.1, -i, s, fontsize=32)
+        plt.text(0.1, -i, s, fontsize=32)
 
-    savefig('stix_fonts_example')
-    #close('all')
-    show()
+    plt.savefig('stix_fonts_example')
+    plt.show()
+
 
 if '--latex' in sys.argv:
     fd = open("stix_fonts_examples.ltx", "w")
