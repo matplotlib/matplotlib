@@ -205,6 +205,22 @@ The wrapped function can be called as any of ::
 """
 
 
+_ENSURE_AX_NEW_DOC = """
+This function has been decorated by pyplot to create a new
+axes if one is not explicitly passed.
+
+The wrapped function can be called as any of ::
+
+   {obj}{func}(*args, **kwargs)
+   {obj}{func}(ax, *args, **kwargs)
+   {obj}{func}(.., ax=ax)
+
+The first will make a new figure and axes, the other two
+will add to the axes passed in.
+
+"""
+
+
 def ensure_ax(func):
     """Decorator to ensure that the function gets an `Axes` object.
 
@@ -250,6 +266,34 @@ def ensure_ax(func):
     else:
         pre_doc = dedent(pre_doc)
     inner.__doc__ = _ENSURE_AX_DOC.format(func=func.__name__, obj='') + pre_doc
+
+    return inner
+
+
+def ensure_new_ax(func):
+    """Decorator to ensure that the function gets a new `Axes` object.
+
+    Same as ensure_ax expect that a new figure and axes are created
+    if an Axes is not explicitly passed.
+
+    """
+    @wraps(func)
+    def inner(*args, **kwargs):
+        if 'ax' in kwargs:
+            ax = kwargs.pop('ax')
+        elif len(args) > 0 and isinstance(args[0], Axes):
+            ax = args[0]
+            args = args[1:]
+        else:
+            ax = quick_axes()
+        return func(ax, *args, **kwargs)
+    pre_doc = inner.__doc__
+    if pre_doc is None:
+        pre_doc = ''
+    else:
+        pre_doc = dedent(pre_doc)
+    inner.__doc__ = (_ENSURE_AX_NEW_DOC.format(func=func.__name__, obj='') +
+                     pre_doc)
 
     return inner
 
