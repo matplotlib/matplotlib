@@ -265,7 +265,7 @@ class _process_plot_var_args(object):
         # Might be problematic with fallback names such as
         # 'facecolor' and such. Possibly fixed by traitlets?
         self._setdefaults(kw, kwargs)
-        facecolor = kw['color']
+        facecolor = kw.get('color', None)
         seg = mpatches.Polygon(np.hstack((x[:, np.newaxis],
                                           y[:, np.newaxis])),
                                facecolor=facecolor,
