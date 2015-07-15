@@ -1452,6 +1452,7 @@ default_test_modules = [
     'matplotlib.tests.test_transforms',
     'matplotlib.tests.test_triangulation',
     'matplotlib.tests.test_widgets',
+    'matplotlib.tests.test_cycles',
     'matplotlib.sphinxext.tests.test_tinypages',
     'mpl_toolkits.tests.test_mplot3d',
     'mpl_toolkits.tests.test_axes_grid1',
