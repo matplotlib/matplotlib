@@ -287,33 +287,6 @@ def ensure_ax_meth(func):
     return inner
 
 
-def register_func(func):
-    """
-    Registers a function to be wrapped and made available in the
-    pyplot namespace for convenient interactive command line use.
-
-    Parameters
-    ----------
-    func : callable
-
-        First parameter of function must be an `Axes` object.  Will
-        be wrapped by `ensure_ax`
-
-    Returns
-    -------
-    callable
-
-        The wrapped function.
-    """
-    mod = sys.modules[__name__]
-    f_name = func.__name__
-    if hasattr(mod, f_name):
-        raise RuntimeError("Function already exists with that name")
-    setattr(mod, f_name, ensure_ax(func))
-
-    return getattr(mod, f_name)
-
-
 @docstring.copy_dedent(Artist.findobj)
 def findobj(o=None, match=None, include_self=True):
     if o is None:
