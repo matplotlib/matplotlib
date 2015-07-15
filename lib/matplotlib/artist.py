@@ -15,13 +15,14 @@ from .transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPath, Transform)
 from .path import Path
 
-import .traitlets as mpltr
+from .traitlets import (Configurable, Unicode, Bool, Int, Float, Bool, Tuple,
+                        Dict, List, Instance, Union, Callable, oInstance, Undefined)
 
 # Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
 # set_* method should have a docstring containing the line
 #
-# ACCEPTS: [ legal | values ]
+# ACCEPTS: [ legal | values ]s
 #
 # and aliases for setters and getters should have a docstring that
 # starts with 'alias for ', as in 'alias for set_somemethod'
@@ -78,7 +79,7 @@ def _stale_figure_callback(self):
 def _stale_axes_callback(self):
     self.axes.stale = True
 
-class Artist(mpltr.Configurable):
+class Artist(Configurable):
     """
     Abstract base class for someone who renders into a
     :class:`FigureCanvas`.
@@ -92,72 +93,54 @@ class Artist(mpltr.Configurable):
 
     # perishable=True ==> set stale = True
     _transformSet = Bool(False, serialize=True)
-    stale = Bool(True, serialize=True)
     # warn : oInstance used, new TraitType?
-    transform = ipytr.oInstance(matplotlib.transforms.Transform,
-                            serialize=True, perishable=True)
-    axes = ipytr.Instance(matplotlib.axes.Axes,allow_none=True,
-                            serialize=True)
+    transform = oInstance('matplotlib.transforms.Transform',
+                                serialize=True, perishable=True)
+    axes = Instance('matplotlib.axes._axes.Axes',allow_none=True,
+                        serialize=True)
     contains = Callable(allow_none=True)
-    figure = ipytr.Instance(matplotlib.figure.Figure,
-                            allow_none=True,serialize=True,
-                            perishable=True, prop=True)
-    visible = Bool(True, perishable=True)
-    animated = Bool(False, perishable=True)
-    alpha = Float(allow_none=True, perishable=True)
-    pickable = Bool(False)
-    # clipbox = Instance(matplotlib.transforms.Bbox)
-    # clippath = Union([matplotlib.patches.Patch,
-    #                 matplotlib.path.Path],
-    #                 allow_none=True)
-    # clipon = Bool(True)
-    # label = String('')
-    # picker = Union([Bool,Float,Callable],allow_none=True)
-    # rasterized = Bool(allow_none=True)
-    # agg_filter = Callable(alow_none=True)
-    # eventson = Bool(False)
-    # oid = Int(0)
-    # propobservers = Dict(trait=Callable)
-    # eventson = Bool(False)
-    # axes = Instance(matplotlib.axes.Axes, allow_none=True)
-    # _remove_method = Instance(Callable, allow_none=True)
-    # url = String(allow_none=True)
-    # grid = String(allow_none=True)
-    # snap = Bool(allow_none=True)
-    # sketch = Tuple(allow_none=True)
-    # path_effects = List(trait=Instance(matplotlib.patheffect._Base))
+    figure = Instance('matplotlib.figure.Figure', allow_none=True,
+                    serialize=True, perishable=True)
+    visible = Bool(True, perishable=True, serialize=True)
+    animated = Bool(False, perishable=True, serialize=True)
+    alpha = Float(allow_none=True, perishable=True, serialize=True)
+    url = Unicode(allow_none=True, serialize=True)
+    gid = Unicode(allow_none=True, serialize=True)
+    clipbox = Instance('matplotlib.transforms.BboxBase', allow_none=True,
+                        perishable=True, serialize=True)
+    snap = Bool(allow_none=True, perishable=True)
+    clipon = Bool(True, perishable=True)
+    # * setter and getter methods for `self._clippath` could be refactored
+    # using TraitTypes potentially ==> clippath = ?
+    label = Union([Unicode(''),Instance('matplotlib.text.Text')],allow_none=True, perishable=True)
+    rasterized = Bool(allow_none=True)
+    _agg_filter = Callable(None,allow_none=True, perishable=True)
+    eventson = Bool(False)
+    _sketch = Tuple(rcParams['path.sketch'], allow_none=True,
+                    perishable=True,serialize=True)
+    _path_effects = List(trait=Instance('matplotlib.patheffects.AbstractPathEffect'),
+                        perishable=True, serialize=True)
+    _propobservers = Dict({}) # a dict from oids to funcs
+    _oid = Int(0) # an observer id
+    
+    # sketch = mpltr.Tuple(allow_none=True)
+    # path_effects = mpltr.
 
-    def __init__(self, *args, **kwargs):
-        super(Artist,self).__init__(*args, **kwargs)
-        pnames = self.trait_names(self._fire_callbacks, perishable=True)
+    def __init__(self, config=None, parent=None):
+
+        super(Artist, self).__init__(config=config, parent=parent)
+
+        pnames = self.trait_names(perishable=True)
         self.on_trait_change(self._fire_callbacks, pnames)
-        self.on_trait_change(self._update_pickable, ('picker', 'figure'))
-        self._axes = None
 
-        self._visible = True
-        self._animated = False
-        self._alpha = None
-        self.clipbox = None
+        self.stale = True
+        self._pickable = False
         self._clippath = None
-        self._clipon = True
-        self._label = ''
         self._picker = None
-        self._contains = None
-        self._rasterized = None
-        self._agg_filter = None
-
-        self.eventson = False  # fire events only if eventson
-        self._oid = 0  # an observer id
-        self._propobservers = {}  # a dict from oids to funcs
-        try:
-            self.axes = None
-        except AttributeError:
-            # Handle self.axes as a read-only property, as in Figure.
-            pass
+        # self._oid = 0  
+        # self._propobservers = {}  
         self._remove_method = None
-        self._url = None
-        self._gid = None
-        self._snap = None
+
         self._sketch = rcParams['path.sketch']
         self._path_effects = rcParams['path.effects']
         
@@ -168,19 +151,14 @@ class Artist(mpltr.Configurable):
         d['_remove_method'] = None
         return d
 
-    def _update_pickable(self, name, new):
-        pickable = self.pickable
-        if name == 'figure':
-            if new is None or new.canvas is None:
-                pickable = False
-        elif name == 'picker':
-            if new is None:
-                packable = False
-        self.pickable = pickable
+    # handled by _fire_callbacks
+    def pchanged(self):
+        # add warn
+        self._fire_callbacks()
 
     # can be superseded by on_trait_change or _%_changed methods
     def _fire_callbacks(self):
-        """Calls all of the registered callbacks."""
+        """Set as stale and fire the registered callbacks."""
         self.stale = True
         for oid, func in six.iteritems(self._propobservers):
             func(self)
@@ -196,8 +174,8 @@ class Artist(mpltr.Configurable):
         """
         oid = self._oid
         self._propobservers[oid] = func
-        self_oid += 1
-        return self.oid
+        self._oid += 1
+        return self._oid
 
     # can be superseded by on_trait_change or _%_changed methods
     def remove_callback(self, oid):
@@ -215,9 +193,9 @@ class Artist(mpltr.Configurable):
         except KeyError:
             pass
 
-# - - - - - - - -
-# change handlers
-# - - - - - - - -
+    # - - - - - - - - - - - - -
+    # traitlet change handlers
+    # - - - - - - - - - - - - -
 
     def _transform_changed(self, name, new):
         self._transformSet = True
@@ -232,16 +210,8 @@ class Artist(mpltr.Configurable):
         else:
             trait.error(self, value)
 
-    def get_transform(self):
-        # add warn
-        return self.transform
-
-    def set_transform(self, t):
-        # add warn
-        self.transform = t
-
     def _axes_changed(self, name, old, new):
-        if old is not None:
+        if old is not Undefined:
             # old != true already checked in `TraitType._validate`
             raise ValueError("Can not reset the axes.  You are "
                              "probably trying to re-use an artist "
@@ -250,8 +220,304 @@ class Artist(mpltr.Configurable):
         self.axes = new
         if new is not None and new is not self:
             self.add_callback(_stale_axes_callback)
-        # return ?
-        return new
+
+    def _contains_changed(self, name, new):
+        self._trait_values[name] = types.MethodType(new,self)
+
+    def _contains_default(self):
+        def contains_defualt(*args, **kwargs):
+            warnings.warn("'%s' obj needs 'contains' method" % self.__class__.__name__)
+            return False, {}
+        return contains_default
+
+    def _figure_changed(self, name, new):
+        self.add_callback(_stale_figure_callback)
+
+    def _snap_changed(self, name, new):
+        if not rcParams['path.snap']:
+            self._trait_values[name] = False
+
+    def _rasterized_changed(self, name, new):
+        if new and not hasattr(self.draw, "_supports_rasterization"):
+            warnings.warn("Rasterization of '%s' will be ignored" % self)
+
+    def _eventson_changed(self):
+        # add warn
+        # this feature will be removed
+        # it's handled by configurables
+        pass
+
+    def _picker_changed(self, name, new):
+        if new is None:
+            self._pickable = False
+        self._pickable = True
+        
+    # - - - - - - - - - - - - - - -
+    # warned setters and getters
+    # - - - - - - - - - - - - - - -
+
+    def get_transform(self):
+        # add warn
+        return self.transform
+
+    def set_transform(self, t):
+        # add warn
+        self.transform = t
+
+    def get_figure(self):
+        """
+        Return the :class:`~matplotlib.figure.Figure` instance the
+        artist belongs to.
+        """
+        # add warn
+        return self.figure
+
+    def set_figure(self, fig):
+        """
+        Set the :class:`~matplotlib.figure.Figure` instance the artist
+        belongs to.
+
+        ACCEPTS: a :class:`matplotlib.figure.Figure` instance
+        """
+        # add warn
+        self.figure = fig
+
+
+    @property
+    def _url(self):
+        #add warn
+        return self.url
+    @_url.setter
+    def _url(self, value):
+        # add warn
+        self.url = value
+
+    def get_url(self):
+        """
+        Returns the url
+        """
+        # add warn
+        return self.url
+
+    def set_url(self, url):
+        """
+        Sets the url for the artist
+
+        ACCEPTS: a url string
+        """
+        # add warn
+        self.url = url
+
+    @property
+    def _alpha(self):
+        #add warn
+        return self.alpha
+    @_alpha.setter
+    def _alpha(self, value):
+        # add warn
+        self.alpha = value
+
+    def set_alpha(self, alpha):
+        """
+        Set the alpha value used for blending - not supported on
+        all backends.
+
+        ACCEPTS: float (0.0 transparent through 1.0 opaque)
+        """
+        # add warn
+        self.alpha = alpha
+
+    def get_alpha(self):
+        """
+        Return the alpha value used for blending - not supported on all
+        backends
+        """
+        # add warn
+        return self.alpha
+
+    def get_gid(self):
+        """
+        Returns the group id
+        """
+        # add warn
+        return self.gid
+
+    def set_gid(self, gid):
+        """
+        Sets the (group) id for the artist
+
+        ACCEPTS: an id string
+        """
+        # add warn
+        self.gid = gid
+
+    def set_clip_box(self, clipbox):
+        """
+        Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
+
+        ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
+        """
+        # add warn
+        self.clipbox = clipbox
+
+    def get_clip_box(self):
+        'Return artist clipbox'
+        # add warn
+        return self.clipbox
+
+    def get_snap(self):
+        """
+        Returns the snap setting which may be:
+
+          * True: snap vertices to the nearest pixel center
+
+          * False: leave vertices as-is
+
+          * None: (auto) If the path contains only rectilinear line
+            segments, round to the nearest pixel center
+
+        Only supported by the Agg and MacOSX backends.
+        """
+        # add warn
+        return self.snap
+
+    def set_snap(self, snap):
+        """
+        Sets the snap setting which may be:
+
+          * True: snap vertices to the nearest pixel center
+
+          * False: leave vertices as-is
+
+          * None: (auto) If the path contains only rectilinear line
+            segments, round to the nearest pixel center
+
+        Only supported by the Agg and MacOSX backends.
+        """
+        # add warn
+        self.snap = snap
+
+    # temp properties
+    @property
+    def _clipon(self):
+        # add warn
+        return self.clipon
+    @_clipon.setter
+    def _clipon(self, value):
+        # add warn
+        self.clipon = value
+
+    def set_clip_on(self, b):
+        """
+        Set whether artist uses clipping.
+
+        When False artists will be visible out side of the axes which
+        can lead to unexpected results.
+
+        ACCEPTS: [True | False]
+        """
+        # add warn
+
+        # This may result in the callbacks being hit twice, but ensures they
+        # are hit at least once
+        self.clipon = b
+
+    def get_clip_on(self):
+        'Return whether artist uses clipping'
+        # add warn
+        return self.clipon
+
+    @property
+    def _label(self):
+        # add warn
+        return self.label
+    @_label.setter
+    def _label(self, value):
+        # add warn
+        self.label = value
+
+    def set_label(self, s):
+        """
+        Set the label to *s* for auto legend.
+
+        ACCEPTS: string or anything printable with '%s' conversion.
+        """
+        # add warn
+        self.label = s
+
+    def get_label(self):
+        """
+        Get the label used for this artist in the legend.
+        """
+        # add warn
+        return self.label
+
+    def set_rasterized(self, rasterized):
+        """
+        Force rasterized (bitmap) drawing in vector backend output.
+
+        Defaults to None, which implies the backend's default behavior
+
+        ACCEPTS: [True | False | None]
+        """
+        # add warn
+        self.rasterized = rasterized
+
+    def get_rasterized(self):
+        "return True if the artist is to be rasterized"
+        # add warn
+        return self.rasterized
+
+    # temp properties
+    @property
+    def _axes(self):
+        # add warn
+        return self.axes
+    @_axes.setter
+    def _axes(self, value):
+        # add warn
+        self.axes = value
+    @_axes.deleter
+    def _axes(self):
+        # add warn
+        self._trait_values.pop('axes',None)
+
+    def set_animated(self, b):
+        """
+        Set the artist's animation state.
+
+        ACCEPTS: [True | False]
+        """
+        # add warn
+        self.animated = b
+
+    def get_animated(self):
+        "Return the artist's animated state"
+        # add warn
+        return self.animated
+
+    @property
+    def _visible(self):
+        # add warn
+        return self.visible
+    @_visible.setter
+    def _visible(self, value):
+        # add warn
+        self.visible = value
+
+    def set_visible(self, b):
+        """
+        Set the artist's visiblity.
+
+        ACCEPTS: [True | False]
+        """
+        # add warn
+        self.visible = b
+
+    def get_visible(self):
+        "Return the artist's visiblity"
+        # add warn
+        return self.visible
 
     def set_axes(self, axes):
         """
@@ -277,69 +543,15 @@ class Artist(mpltr.Configurable):
         warnings.warn(_get_axes_msg, mplDeprecation, stacklevel=1)
         return self.axes
 
-    # required until new api : `obj.contains(obj, mouseevent)`
-    def _contains_changed(self, name, new):
-        self._trait_values[name] = types.MethodType(new,self)
+    # - - - - - - - - - - - - - -
+    # generic getters and setters
+    # - - - - - - - - - - - - - -
 
-    def _contains_default(self):
-        def contains_defualt(*args, **kwargs):
-            warnings.warn("'%s' obj needs 'contains' method" % self.__class__.__name__)
-            return False, {}
-        return contains_default
-
-    def _figure_changed(self, name, old, new):
-        if old and old is not self:
-            self.add_callback(_stale_figure_callback)
-        self.stale = True
-
-    def get_figure(self):
+    def set_agg_filter(self, filter_func):
         """
-        Return the :class:`~matplotlib.figure.Figure` instance the
-        artist belongs to.
+        set agg_filter fuction.
         """
-        return self.figure
-
-    def set_figure(self, fig):
-        """
-        Set the :class:`~matplotlib.figure.Figure` instance the artist
-        belongs to.
-
-        ACCEPTS: a :class:`matplotlib.figure.Figure` instance
-        """
-        self.figure = fig
-
-    def pick(self, mouseevent):
-        """
-        call signature::
-
-          pick(mouseevent)
-
-        each child artist will fire a pick event if *mouseevent* is over
-        the artist and the artist has picker set
-        """
-        # Pick self
-        if self.pickable():
-            picker = self.get_picker()
-            if six.callable(picker):
-                inside, prop = picker(self, mouseevent)
-            else:
-                inside, prop = self.contains(mouseevent)
-            if inside:
-                self.figure.canvas.pick_event(mouseevent, self, **prop)
-
-        # Pick children
-        for a in self.get_children():
-            # make sure the event happened in the same axes
-            ax = getattr(a, 'axes', None)
-            if mouseevent.inaxes is None or ax is None or \
-                    mouseevent.inaxes == ax:
-                # we need to check if mouseevent.inaxes is None
-                # because some objects associated with an axes (e.g., a
-                # tick label) can be outside the bounding box of the
-                # axes and inaxes will be None
-                # also check that ax is None so that it traverse objects
-                # which do no have an axes property but children might
-                a.pick(mouseevent)
+        self._agg_filter = filter_func
 
     def set_picker(self, picker):
         """
@@ -373,17 +585,137 @@ class Artist(mpltr.Configurable):
 
         ACCEPTS: [None|float|boolean|callable]
         """
-        # add warn
         self._picker = picker
 
     def get_picker(self):
         'Return the picker object used by this artist'
-        # add warn
         return self._picker
 
-# - - - - - - - -
-# other handlers
-# - - - - - - - -
+    def pickable(self):
+        """Return *True* if :class:`Artist` is pickable.
+
+        Truth value is updated by traitlets change handlers"""
+        return self._pickable
+
+    def set_clip_path(self, path, transform=None):
+        """
+        Set the artist's clip path, which may be:
+
+          * a :class:`~matplotlib.patches.Patch` (or subclass) instance
+
+          * a :class:`~matplotlib.path.Path` instance, in which case
+             an optional :class:`~matplotlib.transforms.Transform`
+             instance may be provided, which will be applied to the
+             path before using it for clipping.
+
+          * *None*, to remove the clipping path
+
+        For efficiency, if the path happens to be an axis-aligned
+        rectangle, this method will set the clipping box to the
+        corresponding rectangle and set the clipping path to *None*.
+
+        ACCEPTS: [ (:class:`~matplotlib.path.Path`,
+        :class:`~matplotlib.transforms.Transform`) |
+        :class:`~matplotlib.patches.Patch` | None ]
+        """
+        from matplotlib.patches import Patch, Rectangle
+
+        success = False
+        if transform is None:
+            if isinstance(path, Rectangle):
+                self.clipbox = TransformedBbox(Bbox.unit(), path.get_transform())
+                self._clippath = None
+                success = True
+            elif isinstance(path, Patch):
+                self._clippath = TransformedPath(
+                    path.get_path(),
+                    path.get_transform())
+                success = True
+            elif isinstance(path, tuple):
+                path, transform = path
+
+        if path is None:
+            self._clippath = None
+            success = True
+        elif isinstance(path, Path):
+            self._clippath = TransformedPath(path, transform)
+            success = True
+        elif isinstance(path, TransformedPath):
+            self._clippath = path
+            success = True
+
+        if not success:
+            print(type(path), type(transform))
+            raise TypeError("Invalid arguments to set_clip_path")
+        # this may result in the callbacks being hit twice, but grantees they
+        # will be hit at least once
+        self.pchanged()
+        self.stale = True
+
+    def get_clip_path(self):
+        'Return artist clip path'
+        return self._clippath
+
+    def get_sketch_params(self):
+        """
+        Returns the sketch parameters for the artist.
+
+        Returns
+        -------
+        sketch_params : tuple or `None`
+
+        A 3-tuple with the following elements:
+
+          * `scale`: The amplitude of the wiggle perpendicular to the
+            source line.
+
+          * `length`: The length of the wiggle along the line.
+
+          * `randomness`: The scale factor by which the length is
+            shrunken or expanded.
+
+        May return `None` if no sketch parameters were set.
+        """
+        return self._sketch
+
+    def set_sketch_params(self, scale=None, length=None, randomness=None):
+        """
+        Sets the sketch parameters.
+
+        Parameters
+        ----------
+
+        scale : float, optional
+            The amplitude of the wiggle perpendicular to the source
+            line, in pixels.  If scale is `None`, or not provided, no
+            sketch filter will be provided.
+
+        length : float, optional
+             The length of the wiggle along the line, in pixels
+             (default 128.0)
+
+        randomness : float, optional
+            The scale factor by which the length is shrunken or
+            expanded (default 16.0)
+        """
+        if scale is None:
+            self._sketch = None
+        else:
+            self._sketch = (scale, length or 128.0, randomness or 16.0)
+
+    def set_path_effects(self, path_effects):
+        """
+        set path_effects, which should be a list of instances of
+        matplotlib.patheffect._Base class or its derivatives.
+        """
+        self._path_effects = path_effects
+
+    def get_path_effects(self):
+        return self._path_effects
+
+    # - - - - - - - - - - - - -
+    # general member functions
+    # - - - - - - - - - - - - -
 
     def remove(self):
         """
@@ -413,6 +745,39 @@ class Artist(mpltr.Configurable):
         # whether or not the artist should affect the limits.  Then there will
         # be no distinction between axes.add_line, axes.add_patch, etc.
         # TODO: add legend support
+
+    def pick(self, mouseevent):
+        """
+        call signature::
+
+          pick(mouseevent)
+
+        each child artist will fire a pick event if *mouseevent* is over
+        the artist and the artist has picker set
+        """
+        # Pick self
+        if self.pickable():
+            picker = self.get_picker()
+            if six.callable(picker):
+                inside, prop = picker(self, mouseevent)
+            else:
+                inside, prop = self.contains(mouseevent)
+            if inside:
+                self.figure.canvas.pick_event(mouseevent, self, **prop)
+
+        # Pick children
+        for a in self.get_children():
+            # make sure the event happened in the same axes
+            ax = getattr(a, 'axes', None)
+            if mouseevent.inaxes is None or ax is None or \
+                    mouseevent.inaxes == ax:
+                # we need to check if mouseevent.inaxes is None
+                # because some objects associated with an axes (e.g., a
+                # tick label) can be outside the bounding box of the
+                # axes and inaxes will be None
+                # also check that ax is None so that it traverse objects
+                # which do no have an axes property but children might
+                a.pick(mouseevent)
 
     def have_units(self):
         'Return *True* if units are set on the *x* or *y* axes'
@@ -481,6 +846,8 @@ class Artist(mpltr.Configurable):
             L.extend(a.hitlist(event))
         return L
 
+    # should be superseded by `on_trait_change` methods in
+    # `__init__` constructor of inherited classes
     def get_children(self):
         """
         Return a list of the child :class:`Artist`s this
@@ -488,150 +855,12 @@ class Artist(mpltr.Configurable):
         """
         return []
 
-    def pickable(self):
-        'Return *True* if :class:`Artist` is pickable.'
-        return self.pickable
-        return (self.figure is not None and
-                self.figure.canvas is not None and
-                self._picker is not None)
-
     def is_figure_set(self):
         """
         Returns True if the artist is assigned to a
         :class:`~matplotlib.figure.Figure`.
         """
         return self.figure is not None
-
-    def get_url(self):
-        """
-        Returns the url
-        """
-        return self._url
-
-    def set_url(self, url):
-        """
-        Sets the url for the artist
-
-        ACCEPTS: a url string
-        """
-        self._url = url
-
-    def get_gid(self):
-        """
-        Returns the group id
-        """
-        return self._gid
-
-    def set_gid(self, gid):
-        """
-        Sets the (group) id for the artist
-
-        ACCEPTS: an id string
-        """
-        self._gid = gid
-
-    def get_snap(self):
-        """
-        Returns the snap setting which may be:
-
-          * True: snap vertices to the nearest pixel center
-
-          * False: leave vertices as-is
-
-          * None: (auto) If the path contains only rectilinear line
-            segments, round to the nearest pixel center
-
-        Only supported by the Agg and MacOSX backends.
-        """
-        if rcParams['path.snap']:
-            return self._snap
-        else:
-            return False
-
-    def set_snap(self, snap):
-        """
-        Sets the snap setting which may be:
-
-          * True: snap vertices to the nearest pixel center
-
-          * False: leave vertices as-is
-
-          * None: (auto) If the path contains only rectilinear line
-            segments, round to the nearest pixel center
-
-        Only supported by the Agg and MacOSX backends.
-        """
-        self._snap = snap
-        self.stale = True
-
-    def get_sketch_params(self):
-        """
-        Returns the sketch parameters for the artist.
-
-        Returns
-        -------
-        sketch_params : tuple or `None`
-
-        A 3-tuple with the following elements:
-
-          * `scale`: The amplitude of the wiggle perpendicular to the
-            source line.
-
-          * `length`: The length of the wiggle along the line.
-
-          * `randomness`: The scale factor by which the length is
-            shrunken or expanded.
-
-        May return `None` if no sketch parameters were set.
-        """
-        return self._sketch
-
-    def set_sketch_params(self, scale=None, length=None, randomness=None):
-        """
-        Sets the sketch parameters.
-
-        Parameters
-        ----------
-
-        scale : float, optional
-            The amplitude of the wiggle perpendicular to the source
-            line, in pixels.  If scale is `None`, or not provided, no
-            sketch filter will be provided.
-
-        length : float, optional
-             The length of the wiggle along the line, in pixels
-             (default 128.0)
-
-        randomness : float, optional
-            The scale factor by which the length is shrunken or
-            expanded (default 16.0)
-        """
-        if scale is None:
-            self._sketch = None
-        else:
-            self._sketch = (scale, length or 128.0, randomness or 16.0)
-        self.stale = True
-
-    def set_path_effects(self, path_effects):
-        """
-        set path_effects, which should be a list of instances of
-        matplotlib.patheffect._Base class or its derivatives.
-        """
-        self._path_effects = path_effects
-        self.stale = True
-
-    def get_path_effects(self):
-        return self._path_effects
-
-    def set_clip_box(self, clipbox):
-        """
-        Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
-
-        ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
-        """
-        self.clipbox = clipbox
-        self.pchanged()
-        self.stale = True
 
     def set_clip_path(self, path, transform=None):
         """
@@ -688,27 +917,6 @@ class Artist(mpltr.Configurable):
         self.pchanged()
         self.stale = True
 
-    def get_alpha(self):
-        """
-        Return the alpha value used for blending - not supported on all
-        backends
-        """
-        return self._alpha
-
-    
-
-    def get_clip_on(self):
-        'Return whether artist uses clipping'
-        return self._clipon
-
-    def get_clip_box(self):
-        'Return artist clipbox'
-        return self.clipbox
-
-    def get_clip_path(self):
-        'Return artist clip path'
-        return self._clippath
-
     def get_transformed_clip_path_and_affine(self):
         '''
         Return the clip path with the non-affine part of its
@@ -718,21 +926,6 @@ class Artist(mpltr.Configurable):
         if self._clippath is not None:
             return self._clippath.get_transformed_path_and_affine()
         return None, None
-
-    def set_clip_on(self, b):
-        """
-        Set whether artist uses clipping.
-
-        When False artists will be visible out side of the axes which
-        can lead to unexpected results.
-
-        ACCEPTS: [True | False]
-        """
-        self._clipon = b
-        # This may result in the callbacks being hit twice, but ensures they
-        # are hit at least once
-        self.pchanged()
-        self.stale = True
 
     def _set_gc_clip(self, gc):
         'Set the clip properly for the gc'
@@ -744,34 +937,9 @@ class Artist(mpltr.Configurable):
             gc.set_clip_rectangle(None)
             gc.set_clip_path(None)
 
-    def get_rasterized(self):
-        "return True if the artist is to be rasterized"
-        return self._rasterized
-
-    def set_rasterized(self, rasterized):
-        """
-        Force rasterized (bitmap) drawing in vector backend output.
-
-        Defaults to None, which implies the backend's default behavior
-
-        ACCEPTS: [True | False | None]
-        """
-        if rasterized and not hasattr(self.draw, "_supports_rasterization"):
-            warnings.warn("Rasterization of '%s' will be ignored" % self)
-
-        self._rasterized = rasterized
-
     def get_agg_filter(self):
         "return filter function to be used for agg filter"
         return self._agg_filter
-
-    def set_agg_filter(self, filter_func):
-        """
-        set agg_filter fuction.
-
-        """
-        self._agg_filter = filter_func
-        self.stale = True
 
     def draw(self, renderer, *args, **kwargs):
         'Derived classes drawing method'
@@ -779,96 +947,32 @@ class Artist(mpltr.Configurable):
             return
         self.stale = False
 
-    def set_alpha(self, alpha):
-        """
-        Set the alpha value used for blending - not supported on
-        all backends.
-
-        ACCEPTS: float (0.0 transparent through 1.0 opaque)
-        """
-        self._alpha = alpha
-        self.pchanged()
-        self.stale = True
-
-    def _visible_changed(self, name, new):
-        self.visible = new
-        self.pchanged()
-        self.stale = True
-
-    def set_visible(self, b):
-        """
-        Set the artist's visiblity.
-
-        ACCEPTS: [True | False]
-        """
-        # add warn
-        self.visible = b
-
-    def get_visible(self):
-        "Return the artist's visiblity"
-        # add warn
-        return self._visible
-
-    def _animated_changed(self, name, new):
-        self.animated = new
-        self.pchanged()
-        self.stale = True
-
-    def set_animated(self, b):
-        """
-        Set the artist's animation state.
-
-        ACCEPTS: [True | False]
-        """
-        # add warn
-        self.animated = b
-
-    def get_animated(self):
-        "Return the artist's animated state"
-        # add warn
-        return self.animated
-
     def update(self, props):
         """
         Update the properties of this :class:`Artist` from the
         dictionary *prop*.
         """
-        store = self.eventson
-        self.eventson = False
-        changed = False
+        # add warn
+        # all handled by configurable
+        self.update_config(props)
 
-        for k, v in six.iteritems(props):
-            if k in ['axes']:
-                setattr(self, k, v)
-            else:
-                func = getattr(self, 'set_' + k, None)
-                if func is None or not six.callable(func):
-                    raise AttributeError('Unknown property %s' % k)
-                func(v)
-            changed = True
-        self.eventson = store
-        if changed:
-            self.pchanged()
-            self.stale = True
+        # store = self.eventson
+        # self.eventson = False
+        # changed = False
 
-    def get_label(self):
-        """
-        Get the label used for this artist in the legend.
-        """
-        return self._label
-
-    def set_label(self, s):
-        """
-        Set the label to *s* for auto legend.
-
-        ACCEPTS: string or anything printable with '%s' conversion.
-        """
-        if s is not None:
-            self._label = '%s' % (s, )
-        else:
-            self._label = None
-        self.pchanged()
-        self.stale = True
+        # for k, v in six.iteritems(props):
+        #     if k in ['axes']:
+        #         setattr(self, k, v)
+        #     else:
+        #         func = getattr(self, 'set_' + k, None)
+        #         if func is None or not six.callable(func):
+        #             raise AttributeError('Unknown property %s' % k)
+        #         func(v)
+        #     changed = True
+        # self.eventson = store
+        # if changed:
+        #     self.pchanged()
+        #     self.stale = True
 
     def get_zorder(self):
         """
@@ -1427,6 +1531,8 @@ def setp(obj, *args, **kwargs):
             ret.extend([func(val)])
     return [x for x in cbook.flatten(ret)]
 
+Artist.ps = []
+Artist.s = []
 
 def kwdoc(a):
     hardcopy = matplotlib.rcParams['docstring.hardcopy']

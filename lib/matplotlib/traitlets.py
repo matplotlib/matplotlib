@@ -4,8 +4,9 @@ from __future__ import (absolute_import, division,
 #ipython 4 import
 from traitlets.config import Configurable
 from traitlets import (Int, Float, Bool, Dict, List, Instance,
-                                    Union, TraitError, HasTraits, 
-                                    NoDefaultSpecified, TraitType)
+                        Union, TraitError, HasTraits, Unicode,
+                        NoDefaultSpecified, TraitType, Tuple,
+                        Undefined)
 
 # ipython 3 imports
 # from IPython.config import Configurable
@@ -18,7 +19,7 @@ import numpy as np
 class Configurable(Configurable): pass
 class TraitType(TraitType): pass
 
-# overload handle may not be temporary
+# overload handle is probably temporary
 class OverloadMixin(object):
 
     def validate(self, obj, value):
