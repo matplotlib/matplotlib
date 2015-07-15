@@ -808,7 +808,7 @@ defaultParams = {
     'xtick.major.pad':   [4, validate_float],    # distance to label in points
     'xtick.minor.pad':   [4, validate_float],    # distance to label in points
     'xtick.color':       ['k', validate_color],  # color of the xtick labels
-    'xtick.minor.visible':   [False, validate_bool],    # visiablility of the x axis minor ticks
+    'xtick.minor.visible':   [True, validate_bool],    # visiablility of the x axis minor ticks
     
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
@@ -821,7 +821,7 @@ defaultParams = {
     'ytick.major.pad':   [4, validate_float],     # distance to label in points
     'ytick.minor.pad':   [4, validate_float],     # distance to label in points
     'ytick.color':       ['k', validate_color],   # color of the ytick labels
-    'ytick.minor.visible':   [False, validate_bool],    # visiablility of the y axis minor ticks
+    'ytick.minor.visible':   [True, validate_bool],    # visiablility of the y axis minor ticks
 
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],
