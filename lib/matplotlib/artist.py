@@ -95,7 +95,7 @@ class Artist(Configurable):
     _transformSet = Bool(False, serialize=True)
     # warn : oInstance used, new TraitType?
     transform = oInstance('matplotlib.transforms.Transform',
-                                serialize=True, perishable=True)
+                            allow_none=True, serialize=True, perishable=True)
     axes = Instance('matplotlib.axes._axes.Axes',allow_none=True,
                         serialize=True)
     contains = Callable(allow_none=True)
@@ -112,14 +112,14 @@ class Artist(Configurable):
     clipon = Bool(True, perishable=True)
     # * setter and getter methods for `self._clippath` could be refactored
     # using TraitTypes potentially ==> clippath = ?
-    label = Union([Unicode(''),Instance('matplotlib.text.Text')],allow_none=True, perishable=True)
+    label = Union([Unicode(''),Instance('matplotlib.text.Text'),Int()],allow_none=True, perishable=True)
     rasterized = Bool(allow_none=True)
     _agg_filter = Callable(None,allow_none=True, perishable=True)
     eventson = Bool(False)
     _sketch = Tuple(rcParams['path.sketch'], allow_none=True,
                     perishable=True,serialize=True)
     _path_effects = List(trait=Instance('matplotlib.patheffects.AbstractPathEffect'),
-                        perishable=True, serialize=True)
+                        allow_none=True, perishable=True, serialize=True)
     _propobservers = Dict({}) # a dict from oids to funcs
     _oid = Int(0) # an observer id
     
@@ -255,6 +255,15 @@ class Artist(Configurable):
     # - - - - - - - - - - - - - - -
     # warned setters and getters
     # - - - - - - - - - - - - - - -
+
+    @property
+    def _transform(self):
+        #add warn
+        return self.transform
+    @_transform.setter
+    def _transform(self, value):
+        # add warn
+        self.transform = value
 
     def get_transform(self):
         # add warn
