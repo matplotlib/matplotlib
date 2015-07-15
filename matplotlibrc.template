@@ -288,6 +288,7 @@ backend      : %(backend)s
 #xtick.color          : k      # color of the tick labels
 #xtick.labelsize      : medium # fontsize of the tick labels
 #xtick.direction      : in     # direction: in, out, or inout
+#xtick.minor.visible  : True   # minor ticks on
 
 #ytick.major.size     : 4      # major tick size in points
 #ytick.minor.size     : 2      # minor tick size in points
@@ -298,7 +299,7 @@ backend      : %(backend)s
 #ytick.color          : k      # color of the tick labels
 #ytick.labelsize      : medium # fontsize of the tick labels
 #ytick.direction      : in     # direction: in, out, or inout
-
+#ytick.minor.visible  : True   # minor ticks on
 
 ### GRIDS
 #grid.color       :   black   # grid color
