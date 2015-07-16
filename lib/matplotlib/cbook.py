@@ -23,7 +23,6 @@ import locale
 import os
 import re
 import sys
-import threading
 import time
 import traceback
 import types
@@ -535,7 +534,6 @@ class CallbackRegistry(object):
                 del self.callbacks[signal]
                 del self._func_cid_map[signal]
 
-
     def disconnect(self, cid):
         """
         disconnect the callback registered with callback id *cid*
@@ -564,72 +562,6 @@ class CallbackRegistry(object):
                     proxy(*args, **kwargs)
                 except ReferenceError:
                     self._remove_proxy(proxy)
-
-
-class Scheduler(threading.Thread):
-    """
-    Base class for timeout and idle scheduling
-    """
-    idlelock = threading.Lock()
-    id = 0
-
-    def __init__(self):
-        threading.Thread.__init__(self)
-        self.id = Scheduler.id
-        self._stopped = False
-        Scheduler.id += 1
-        self._stopevent = threading.Event()
-
-    def stop(self):
-        if self._stopped:
-            return
-        self._stopevent.set()
-        self.join()
-        self._stopped = True
-
-
-class Timeout(Scheduler):
-    """
-    Schedule recurring events with a wait time in seconds
-    """
-    def __init__(self, wait, func):
-        Scheduler.__init__(self)
-        self.wait = wait
-        self.func = func
-
-    def run(self):
-
-        while not self._stopevent.isSet():
-            self._stopevent.wait(self.wait)
-            Scheduler.idlelock.acquire()
-            b = self.func(self)
-            Scheduler.idlelock.release()
-            if not b:
-                break
-
-
-class Idle(Scheduler):
-    """
-    Schedule callbacks when scheduler is idle
-    """
-    # the prototype impl is a bit of a poor man's idle handler.  It
-    # just implements a short wait time.  But it will provide a
-    # placeholder for a proper impl ater
-    waittime = 0.05
-
-    def __init__(self, func):
-        Scheduler.__init__(self)
-        self.func = func
-
-    def run(self):
-
-        while not self._stopevent.isSet():
-            self._stopevent.wait(Idle.waittime)
-            Scheduler.idlelock.acquire()
-            b = self.func(self)
-            Scheduler.idlelock.release()
-            if not b:
-                break
 
 
 class silent_list(list):
