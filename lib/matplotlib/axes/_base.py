@@ -2673,10 +2673,14 @@ class _AxesBase(martist.Artist):
         # around zero
         if value.lower() == 'log' and 'nonposx' not in kwargs.keys():
             kwargs['nonposx'] = 'clip'
-        self.xaxis._set_scale(value, **kwargs)
+
+        g = self.get_shared_x_axes()
+        for ax in g.get_siblings(self):
+            ax.xaxis._set_scale(value, **kwargs)
+            ax._update_transScale()
+            ax.stale = True
+
         self.autoscale_view(scaley=False)
-        self._update_transScale()
-        self.stale = True
 
     def get_xticks(self, minor=False):
         """Return the x ticks as a list of locations"""
@@ -2926,10 +2930,13 @@ class _AxesBase(martist.Artist):
         # around zero
         if value.lower() == 'log' and 'nonposy' not in kwargs.keys():
             kwargs['nonposy'] = 'clip'
-        self.yaxis._set_scale(value, **kwargs)
+
+        g = self.get_shared_y_axes()
+        for ax in g.get_siblings(self):
+            ax.yaxis._set_scale(value, **kwargs)
+            ax._update_transScale()
+            ax.stale = True
         self.autoscale_view(scalex=False)
-        self._update_transScale()
-        self.stale = True
 
     def get_yticks(self, minor=False):
         """Return the y ticks as a list of locations"""
