@@ -116,6 +116,8 @@ import warnings
 import contextlib
 import distutils.sysconfig
 
+from cycler import cycler
+
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from matplotlib.cbook import is_string_like, mplDeprecation
@@ -826,6 +828,8 @@ _deprecated_map = {
     'svg.embed_char_paths': ('svg.fonttype',
                              lambda x: "path" if x else "none", None),
     'savefig.extension': ('savefig.format', lambda x: x, None),
+    'axes.color_cycle': ('axes.prop_cycle', lambda x: cycler('color', x),
+                         lambda x: [c.get('color', None) for c in x),
     }
 
 _deprecated_ignore_map = {
