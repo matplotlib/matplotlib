@@ -2677,9 +2677,10 @@ class _AxesBase(martist.Artist):
         g = self.get_shared_x_axes()
         for ax in g.get_siblings(self):
             ax.xaxis._set_scale(value, **kwargs)
-            ax.autoscale_view(scaley=False)
             ax._update_transScale()
             ax.stale = True
+
+        self.autoscale_view(scaley=False)
 
     def get_xticks(self, minor=False):
         """Return the x ticks as a list of locations"""
@@ -2933,9 +2934,9 @@ class _AxesBase(martist.Artist):
         g = self.get_shared_y_axes()
         for ax in g.get_siblings(self):
             ax.yaxis._set_scale(value, **kwargs)
-            ax.autoscale_view(scalex=False)
             ax._update_transScale()
             ax.stale = True
+        self.autoscale_view(scalex=False)
 
     def get_yticks(self, minor=False):
         """Return the y ticks as a list of locations"""
