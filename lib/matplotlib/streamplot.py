@@ -21,7 +21,7 @@ __all__ = ['streamplot']
 
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
-               minlength=0.1, start_points=None, transform=None, zorder=1):
+               minlength=0.1, transform=None, zorder=1, start_points=None):
     """Draws streamlines of a vector flow.
 
     *x*, *y* : 1d arrays
@@ -135,7 +135,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         # Convert start_points from data to array coords
         # Shift the seed points from the bottom left of the data so that
         # data2grid works properly.
-        sp2 = start_points.copy()
+        sp2 = np.asanyarray(start_points, copy=True)
         sp2[:,0] += np.abs(x[0])
         sp2[:,1] += np.abs(y[0])
         for xs, ys in sp2:
