@@ -813,16 +813,19 @@ def matplotlib_fname():
     return fname
 
 
+# names of keys to deprecate
+# the values are a tuple of (new_name, f_old_2_new, f_new_2_old)
+# the inverse function may be `None`
 _deprecated_map = {
-    'text.fontstyle':   ('font.style', lambda x: x),
-    'text.fontangle':   ('font.style', lambda x: x),
-    'text.fontvariant': ('font.variant', lambda x: x),
-    'text.fontweight':  ('font.weight', lambda x: x),
-    'text.fontsize':    ('font.size', lambda x: x),
-    'tick.size':        ('tick.major.size', lambda x: x),
+    'text.fontstyle':   ('font.style', lambda x: x, None),
+    'text.fontangle':   ('font.style', lambda x: x, None),
+    'text.fontvariant': ('font.variant', lambda x: x, None),
+    'text.fontweight':  ('font.weight', lambda x: x, None),
+    'text.fontsize':    ('font.size', lambda x: x, None),
+    'tick.size':        ('tick.major.size', lambda x: x, None),
     'svg.embed_char_paths': ('svg.fonttype',
-                             lambda x: "path" if x else "none"),
-    'savefig.extension': ('savefig.format', lambda x: x),
+                             lambda x: "path" if x else "none", None),
+    'savefig.extension': ('savefig.format', lambda x: x, None),
     }
 
 _deprecated_ignore_map = {
@@ -856,7 +859,7 @@ class RcParams(dict):
     def __setitem__(self, key, val):
         try:
             if key in _deprecated_map:
-                alt_key, alt_val = _deprecated_map[key]
+                alt_key, alt_val, inverse_alt = _deprecated_map[key]
                 warnings.warn(self.msg_depr % (key, alt_key))
                 key = alt_key
                 val = alt_val(val)
@@ -874,15 +877,22 @@ class RcParams(dict):
 See rcParams.keys() for a list of valid parameters.' % (key,))
 
     def __getitem__(self, key):
+        inverse_alt = None
         if key in _deprecated_map:
-            alt_key, alt_val = _deprecated_map[key]
+            alt_key, alt_val, inverse_alt = _deprecated_map[key]
             warnings.warn(self.msg_depr % (key, alt_key))
             key = alt_key
+
         elif key in _deprecated_ignore_map:
             alt = _deprecated_ignore_map[key]
             warnings.warn(self.msg_depr_ignore % (key, alt))
             key = alt
-        return dict.__getitem__(self, key)
+
+        val = dict.__getitem__(self, key)
+        if inverse_alt is not None:
+            return inverse_alt(val)
+        else:
+            return val
 
     # http://stackoverflow.com/questions/2390827
     # (how-to-properly-subclass-dict-and-override-get-set)
