@@ -231,7 +231,7 @@ class NoseTestCommand(TestCommand):
         nose.main(addplugins=[x() for x in plugins],
                   defaultTest=testmodules,
                   argv=['nosetests'] + self.test_args,
-                  exit=False)
+                  exit=True)
 
 
 # One doesn't normally see `if __name__ == '__main__'` blocks in a setup.py,
