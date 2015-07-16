@@ -570,7 +570,7 @@ class DrawingArea(OffsetBox):
     """
     The DrawingArea can contain any Artist as a child. The DrawingArea
     has a fixed width and height. The position of children relative to
-    the parent is fixed. The children can be  clipped at the
+    the parent is fixed. The children can be clipped at the
     boundaries of the parent.
     """
 
@@ -595,6 +595,19 @@ class DrawingArea(OffsetBox):
         self.offset_transform.translate(0, 0)
 
         self.dpi_transform = mtransforms.Affine2D()
+
+    @property
+    def clip_children(self):
+        """
+        If the children of this DrawingArea should be clipped
+        by DrawingArea bounding box.
+        """
+        return self._clip_children
+
+    @clip_children.setter
+    def clip_children(self, val):
+        self._clip_children = bool(val)
+        self.stale = True
 
     def get_transform(self):
         """
