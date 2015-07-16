@@ -12,6 +12,7 @@ from __future__ import (absolute_import, division, print_function,
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import xrange, zip
 from itertools import repeat
+from functools import wraps
 
 import datetime
 import errno
@@ -2404,6 +2405,211 @@ class _InstanceMethodPickler(object):
 
     def get_instancemethod(self):
         return getattr(self.parent_obj, self.instancemethod_name)
+
+
+def mappable_kwargs_decorator(func, map_targets):
+    """Decompose labeled data for passing to base functions.
+
+    This is a decorator to ease the burden of unpacking
+    pandas data frames into numpy arrays.
+
+    In the returned function args and kwargs are passed through and
+    the specified columns are re-mapped to keys in the kwargs.
+
+    The args and kwargs are then unpacked into the function, which will
+    expect an `Axes` as the first input and a `DataFrame`-like object
+    as the second.
+
+    The function call ::
+
+       func(ax, x=data['foo'], y=data['bar'], *args, **kwargs)
+
+    is the same as ::
+
+       wrapped = mappable_kwargs_decorator(func, {'x': 'foo', 'y':'bar'})
+       wrapped(ax, data, *args, **kwargs)
+
+    Parameters
+    ----------
+    function : callable
+
+        A function which expects an `Axes` objects as the first argument
+        and can take data as kwargs.
+
+    map_targets : dict
+
+       Mapping between key expected by the function and the column name.
+       ex ``{'x': 'foo', 'y': 'bar'}`` ->
+       ``kwargs['x'] == data['foo']`` and ``kwargs['y'] == data['bar']``
+
+
+    Returns
+    -------
+    callable
+
+       Decorated function with the signature ::
+
+          func(ax, df, *args, **kwargs)
+
+
+    """
+    @wraps(func)
+    def inner(ax, data, *args, **kwargs):
+        for k, v in map_targets.items():
+            if k in kwargs:
+                raise ValueError(("Trying to map a column ({1} -> {0}) "
+                                  "on to a passed in "
+                                  "keyword arg ({0})").format(k, v))
+            kwargs[k] = np.asanyarray(data[v])
+        return func(ax, *args, **kwargs)
+
+    return inner
+
+
+def mappable_args_decorator(func, map_targets):
+    """Decompose labeled data for passing to base functions.
+
+    This is a decorator to ease the burden of unpacking
+    pandas data frames into numpy arrays.
+
+    In the returned function args and kwargs are passed through and
+    the specified columns are re-mapped to precede the args.
+
+    The args and kwargs are then unpacked into the function,  which will
+    expect an `Axes` as the first input and a `DataFrame`-like object
+    as the second.
+
+
+    The function call ::
+
+        func(ax, data['foo'], data['bar'], *args, **kwargs))
+
+    is the same as ::
+
+        wrapped = mappable_args_decorator(func, ('foo', 'bar'))
+        wrapped(ax, data, *args, **kwargs)
+
+
+    Parameters
+    ----------
+    function : callable
+        A function which expects an `Axes` objects as the first argument
+        and can take data as kwargs.
+
+    map_targets : tuple
+       Order of columns to extract to pass to the function.  These column
+       are the 2nd -> n+1 args
+
+
+    Returns
+    -------
+    callable
+        Decorated function with the signature ::
+
+           func(ax, df, *args, **kwargs)
+
+
+    """
+    @wraps(func)
+    def inner(ax, data, *args, **kwargs):
+        args = tuple(np.asanyarray(data[k]) for k in map_targets) + args
+        return func(ax, *args, **kwargs)
+
+    return inner
+
+
+def apply_kwargs_mapping(ax, func, data, map_targets, *args, **kwargs):
+    """Decompose labeled data and pass to function
+
+    This is a convince to ease the burden of unpacking
+    pandas data frames into numpy arrays.
+
+    It calls the function with the specified columns are re-mapped
+    into the kwargs.
+
+
+    The function call ::
+
+        func(ax, x=data['foo'], y=data['bar'], *args, **kwargs)
+
+
+    is the same as ::
+
+        mapping = {'x': 'foo', 'y':'bar'}
+        apply_kwargs_mapping(ax, func, data, mapping, *args, **kwargs)
+
+
+    Parameters
+    ----------
+    ax : Axes
+        The axes to plot to
+
+    function : callable
+        A function which expects an `Axes` objects as the first argument
+        and can take data as kwargs.
+
+    data : pandas.DataFrame or dict-like
+       Labeled data.  It is assumed that data[key] will return something
+       that `np.asanyarray` can convert to a numpy array
+
+
+    map_targets : dict
+
+       Mapping between key expected by the function and the column name.
+       ex ``{'x': 'foo', 'y': 'bar'}`` ->
+       ``kwargs['x'] == data['foo']`` and ``kwargs['y'] == data['bar']``
+
+
+
+    """
+    for k, v in map_targets.items():
+        if k in kwargs:
+            raise ValueError(("Trying to map a column ({1} -> {0}) "
+                              "on to a passed in "
+                              "keyword arg ({0})").format(k, v))
+        kwargs[k] = np.asanyarary(data[v])
+        return func(ax, *args, **kwargs)
+
+
+def apply_args_mapping(ax, func, data, map_targets, *args, **kwargs):
+    """Decompose labeled data and pass to function
+
+    This is a convince to ease the burden of unpacking
+    pandas data frames into numpy arrays.
+
+    It calls the function with the specified columns are re-mapped
+    to precede the args.
+
+
+    The function call ::
+
+        func(ax, data['foo'], data['bar'], *args, **kwargs))
+
+    is the same as ::
+
+        apply_args_mapping(ax, func, data, ('foo', 'bar'), *args, **kwargs)
+
+
+    Parameters
+    ----------
+    ax : Axes
+        The axes to plot to
+
+    function : callable
+        A function which expects an `Axes` objects as the first argument
+        and can take data as kwargs.
+
+    data : pandas.DataFrame or dict-like
+       Labeled data.  It is assumed that data[key] will return something
+       that `np.asanyarray` can convert to a numpy array
+
+    map_targets : tuple
+       Order of columns to extract to pass to the function.  These column
+       are the 2nd -> n+1 args
+
+    """
+    args = tuple(np.asanyarray(data[k]) for k in map_targets) + args
+    return func(ax, *args, **kwargs)
 
 
 # Numpy > 1.6.x deprecates putmask in favor of the new copyto.
