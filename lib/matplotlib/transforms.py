@@ -2726,16 +2726,23 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
 
     Returns *vmin*, *vmax*, expanded and/or swapped if necessary.
 
-    If either input is inf or NaN, or if both inputs are 0,
-    returns -*expander*, *expander*.
+    If either input is inf or NaN, or if both inputs are 0 or very
+    close to zero, it returns -*expander*, *expander*.
     '''
     if (not np.isfinite(vmin)) or (not np.isfinite(vmax)):
         return -expander, expander
+
     swapped = False
     if vmax < vmin:
         vmin, vmax = vmax, vmin
         swapped = True
-    if vmax - vmin <= max(abs(vmin), abs(vmax)) * tiny:
+
+    maxabsvalue = max(abs(vmin), abs(vmax))
+    if maxabsvalue < (1e6 / tiny) * np.MachAr(float).xmin:
+        vmin = -expander
+        vmax = expander
+
+    elif vmax - vmin <= maxabsvalue * tiny:
         if vmax == 0 and vmin == 0:
             vmin = -expander
             vmax = expander
