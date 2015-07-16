@@ -21,7 +21,7 @@ __all__ = ['streamplot']
 
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
-               minlength=0.1, transform=None, zorder=1):
+               minlength=0.1, transform=None, zorder=1, start_points=None):
     """Draws streamlines of a vector flow.
 
     *x*, *y* : 1d arrays
@@ -52,6 +52,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         See :class:`~matplotlib.patches.FancyArrowPatch`.
     *minlength* : float
         Minimum length of streamline in axes coordinates.
+    *start_points*: Nx2 array
+        Coordinates of starting points for the streamlines.
+        In data coordinates, the same as the ``x`` and ``y`` arrays.
     *zorder* : int
         any number
 
@@ -122,9 +125,22 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     integrate = get_integrator(u, v, dmap, minlength)
 
     trajectories = []
-    for xm, ym in _gen_starting_points(mask.shape):
-        if mask[ym, xm] == 0:
-            xg, yg = dmap.mask2grid(xm, ym)
+    if start_points is None:
+        for xm, ym in _gen_starting_points(mask.shape):
+            if mask[ym, xm] == 0:
+                xg, yg = dmap.mask2grid(xm, ym)
+                t = integrate(xg, yg)
+                if t is not None:
+                    trajectories.append(t)
+    else:
+        # Convert start_points from data to array coords
+        # Shift the seed points from the bottom left of the data so that
+        # data2grid works properly.
+        sp2 = np.asanyarray(start_points).copy()
+        sp2[:,0] += np.abs(x[0])
+        sp2[:,1] += np.abs(y[0])
+        for xs, ys in sp2:
+            xg, yg = dmap.data2grid(xs, ys)
             t = integrate(xg, yg)
             if t is not None:
                 trajectories.append(t)
