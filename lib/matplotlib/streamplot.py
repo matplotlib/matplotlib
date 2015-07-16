@@ -53,7 +53,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     *minlength* : float
         Minimum length of streamline in axes coordinates.
     *start_points*: Nx2 array
-        Coordinates of starting points for the streamlines. In array coordinates.
+        Coordinates of starting points for the streamlines.
+        In data coordinates, the same as the ``x`` and ``y`` arrays.
     *zorder* : int
         any number
 
@@ -135,7 +136,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         # Convert start_points from data to array coords
         # Shift the seed points from the bottom left of the data so that
         # data2grid works properly.
-        sp2 = np.asanyarray(start_points, copy=True)
+        sp2 = np.asanyarray(start_points).copy()
         sp2[:,0] += np.abs(x[0])
         sp2[:,1] += np.abs(y[0])
         for xs, ys in sp2:
