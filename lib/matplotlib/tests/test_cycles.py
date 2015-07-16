@@ -44,17 +44,17 @@ def test_linestylecycle_basic():
 def test_fillcycle_basic():
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.set_prop_cycle(cycler('color',  ['red', 'green', 'yellow']))# +
-                      #cycler('hatch', ['xx', 'O', '|-']))
+    ax.set_prop_cycle(cycler('color',  ['r', 'g', 'y']) +
+                      cycler('hatch', ['xx', 'O', '|-']))
     xs = np.arange(10)
     ys = 0.25 * xs**.5 + 2
-    ax.fill(xs, ys, label='red, x')
+    ax.fill(xs, ys, label='red, x', facecolor='none')
     ys = 0.45 * xs**.5 + 3
-    ax.fill(xs, ys, label='green, circle')
+    ax.fill(xs, ys, label='green, circle', facecolor='none')
     ys = 0.65 * xs**.5 + 4
-    ax.fill(xs, ys, label='yellow, cross')
+    ax.fill(xs, ys, label='yellow, cross', facecolor='none')
     ys = 0.85 * xs**.5 + 5
-    ax.fill(xs, ys, label='red2, x2')
+    ax.fill(xs, ys, label='red2, x2', facecolor='none')
     ax.legend(loc='upper left')
 
 

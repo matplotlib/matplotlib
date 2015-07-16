@@ -156,8 +156,8 @@ class _process_plot_var_args(object):
                 clist = rcParams['axes.color_cycle']
                 prop_cycler = cycler('color', clist)
         self.prop_cycler = itertools.cycle(prop_cycler)
-        # Make a copy
-        self._prop_keys = list(prop_cycler.keys)
+        # This should make a copy
+        self._prop_keys = prop_cycler.keys
 
     def __call__(self, *args, **kwargs):
 
