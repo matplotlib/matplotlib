@@ -598,6 +598,10 @@ class DrawingArea(OffsetBox):
 
     @property
     def clip_children(self):
+        """
+        If the children of this DrawingArea should be clipped
+        by DrawingArea bounding box.
+        """
         return self._clip_children
 
     @clip_children.setter
