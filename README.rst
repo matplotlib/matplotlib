@@ -29,3 +29,5 @@ Or from the python interpreter::
 
 Consider reading http://matplotlib.org/devel/coding_guide.html#testing for
 more information.
+
+This is a dummy comment to test reporting
