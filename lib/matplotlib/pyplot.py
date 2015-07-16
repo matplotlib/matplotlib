@@ -108,9 +108,8 @@ _backend_selection()
 from matplotlib.backends import pylab_setup
 _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
-_BASE_DH = None
 _IP_REGISTERED = None
-
+_INSTALL_FIG_OBSERVER = False
 
 def install_repl_displayhook():
     """
@@ -119,8 +118,8 @@ def install_repl_displayhook():
 
     This works with both IPython terminals and vanilla python shells.
     """
-    global _BASE_DH
     global _IP_REGISTERED
+    global _INSTALL_FIG_OBSERVER
 
     class _NotIPython(Exception):
         pass
@@ -136,33 +135,23 @@ def install_repl_displayhook():
         if _IP_REGISTERED:
             return
 
-        def displayhook():
+        def post_execute():
             if matplotlib.is_interactive():
                 draw_all()
 
         # IPython >= 2
         try:
-            ip.events.register('post_execute', displayhook)
+            ip.events.register('post_execute', post_execute)
         except AttributeError:
             # IPython 1.x
-            ip.register_post_execute(displayhook)
+            ip.register_post_execute(post_execute)
 
-        _IP_REGISTERED = displayhook
+        _IP_REGISTERED = post_execute
+        _INSTALL_FIG_OBSERVER = False
 
     # import failed or ipython is not running
     except (ImportError, _NotIPython):
-
-        if _BASE_DH is not None:
-            return
-
-        dh = _BASE_DH = sys.displayhook
-
-        def displayhook(*args):
-            dh(*args)
-            if matplotlib.is_interactive():
-                draw_all()
-
-        sys.displayhook = displayhook
+        _INSTALL_FIG_OBSERVER = True
 
 
 def uninstall_repl_displayhook():
@@ -181,8 +170,8 @@ def uninstall_repl_displayhook():
        function was there when matplotlib installed it's displayhook,
        possibly discarding your changes.
     """
-    global _BASE_DH
     global _IP_REGISTERED
+    global _INSTALL_FIG_OBSERVER
     if _IP_REGISTERED:
         from IPython import get_ipython
         ip = get_ipython()
@@ -193,9 +182,8 @@ def uninstall_repl_displayhook():
                                       "in IPython < 2.0")
         _IP_REGISTERED = None
 
-    if _BASE_DH:
-        sys.displayhook = _BASE_DH
-        _BASE_DH = None
+    if _INSTALL_FIG_OBSERVER:
+        _INSTALL_FIG_OBSERVER = False
 
 
 draw_all = _pylab_helpers.Gcf.draw_all
@@ -288,7 +276,8 @@ def pause(interval):
         figManager = _pylab_helpers.Gcf.get_active()
         if figManager is not None:
             canvas = figManager.canvas
-            canvas.draw()
+            if canvas.figure.stale:
+                canvas.draw()
             show(block=False)
             canvas.start_event_loop(interval)
             return
@@ -507,8 +496,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     if figManager is None:
         max_open_warning = rcParams['figure.max_open_warning']
 
-        if (max_open_warning >= 1 and
-            len(allnums) >= max_open_warning):
+        if (max_open_warning >= 1 and len(allnums) >= max_open_warning):
             warnings.warn(
                 "More than %d figures have been opened. Figures "
                 "created through the pyplot interface "
@@ -543,7 +531,24 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         _pylab_helpers.Gcf.set_active(figManager)
         figManager.canvas.figure.number = num
 
+        if _INSTALL_FIG_OBSERVER:
+            figManager.canvas.figure.add_callback(_auto_draw_if_interactive)
+
     return figManager.canvas.figure
+
+
+def _auto_draw_if_interactive(fig):
+    """
+    This is an internal helper function for making sure that auto-redrawing
+    works as intended in the plain python repl.
+
+    Parameters
+    ----------
+    fig : Figure
+        A figure object which is assumed to be associated with a canvas
+    """
+    if fig.stale and matplotlib.is_interactive():
+        fig.canvas.draw_idle()
 
 
 def gcf():
