@@ -306,7 +306,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
                  xdescent, ydescent, width, height, fontsize):
         if self._sizes is None:
             handle_sizes = orig_handle.get_sizes()
-            if not handle_sizes:
+            if not len(handle_sizes):
                 handle_sizes = [1]
             size_max = max(handle_sizes) * legend.markerscale ** 2
             size_min = min(handle_sizes) * legend.markerscale ** 2
