@@ -3796,8 +3796,9 @@ def test_rc_spines():
     with matplotlib.rc_context(rc_dict):
         fig, ax = plt.subplots()
 
+
 @image_comparison(baseline_images=['rc_grid'], extensions=['png'],
-                  savefig_kwarg={'dpi':40})
+                  savefig_kwarg={'dpi': 40})
 def test_rc_grid():
     fig = plt.figure()
     rc_dict0 = {
@@ -3811,11 +3812,13 @@ def test_rc_grid():
     }
     dict_list = [rc_dict0, rc_dict1, rc_dict2]
 
-    i=1
+    i = 1
     for rc_dict in dict_list:
         with matplotlib.rc_context(rc_dict):
             fig.add_subplot(3, 1, i)
             i += 1
+
+
 @cleanup
 def test_bar_negative_width():
     fig, ax = plt.subplots()
@@ -3825,6 +3828,7 @@ def test_bar_negative_width():
         assert_equal(b._x, indx)
         assert_equal(b._width, 1)
         assert_equal(b._height, indx + 1)
+
 
 @cleanup
 def test_square_plot():
@@ -3836,6 +3840,7 @@ def test_square_plot():
     xlim, ylim = ax.get_xlim(), ax.get_ylim()
     assert_true(np.diff(xlim) == np.diff(ylim))
     assert_true(ax.get_aspect() == 'equal')
+
 
 @cleanup
 def test_no_None():
@@ -3854,6 +3859,24 @@ def test_pcolor_fast_non_uniform():
     ax = plt.subplot(111)
     ax.pcolorfast(X, Y, Z.T)
 
+
+@cleanup
+def test_shared_scale():
+    fig, axs = plt.subplots(2, 2, sharex=True, sharey=True)
+
+    axs[0, 0].set_xscale("log")
+    axs[0, 0].set_yscale("log")
+
+    for ax in axs.flat:
+        assert_equal(ax.get_yscale(), 'log')
+        assert_equal(ax.get_xscale(), 'log')
+
+    axs[1, 1].set_xscale("linear")
+    axs[1, 1].set_yscale("linear")
+
+    for ax in axs.flat:
+        assert_equal(ax.get_yscale(), 'linear')
+        assert_equal(ax.get_xscale(), 'linear')
 
 if __name__ == '__main__':
     import nose
