@@ -698,10 +698,16 @@ class DateLocator(ticker.Locator):
 
     def datalim_to_dt(self):
         dmin, dmax = self.axis.get_data_interval()
+        if dmin > dmax:
+            dmin, dmax = dmax, dmin
+
         return num2date(dmin, self.tz), num2date(dmax, self.tz)
 
     def viewlim_to_dt(self):
         vmin, vmax = self.axis.get_view_interval()
+        if vmin > vmax:
+            vmin, vmax = vmax, vmin
+
         return num2date(vmin, self.tz), num2date(vmax, self.tz)
 
     def _get_unit(self):
@@ -748,8 +754,6 @@ class RRuleLocator(DateLocator):
         return self.tick_values(dmin, dmax)
 
     def tick_values(self, vmin, vmax):
-        if vmin > vmax:
-            vmax, vmin = vmin, vmax
         delta = relativedelta(vmax, vmin)
 
         # We need to cap at the endpoints of valid datetime
@@ -820,9 +824,6 @@ class RRuleLocator(DateLocator):
         Set the view limits to include the data range.
         """
         dmin, dmax = self.datalim_to_dt()
-        if dmin > dmax:
-            dmax, dmin = dmin, dmax
-
         delta = relativedelta(dmax, dmin)
 
         # We need to cap at the endpoints of valid datetime
