@@ -1,7 +1,7 @@
 '''This example is only interesting when ran in interactive mode'''
 
-import matplotlib.pyplot as plt 
-import numpy as np 
+import matplotlib.pyplot as plt
+import numpy as np
 
 # Plot circle or radius 3
 
