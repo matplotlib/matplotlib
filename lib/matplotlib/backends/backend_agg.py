@@ -85,7 +85,6 @@ class RendererAgg(RendererBase):
     def __init__(self, width, height, dpi):
         if __debug__: verbose.report('RendererAgg.__init__', 'debug-annoying')
         RendererBase.__init__(self)
-        self.texd = maxdict(50)  # a cache of tex image rasters
 
         self.dpi = dpi
         self.width = width
@@ -245,17 +244,14 @@ class RendererAgg(RendererBase):
         d /= 64.0
         return w, h, d
 
-
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         # todo, handle props, angle, origins
         size = prop.get_size_in_points()
 
         texmanager = self.get_texmanager()
-        key = s, size, self.dpi, angle, texmanager.get_font_config()
-        im = self.texd.get(key)
-        if im is None:
-            Z = texmanager.get_grey(s, size, self.dpi)
-            Z = np.array(Z * 255.0, np.uint8)
+
+        Z = texmanager.get_grey(s, size, self.dpi)
+        Z = np.array(Z * 255.0, np.uint8)
 
         w, h, d = self.get_text_width_height_descent(s, prop, ismath)
         xd = d * np.sin(np.deg2rad(angle))
