@@ -552,6 +552,15 @@ def test_transform_angles():
     assert_raises(ValueError, t.transform_angles, angles, points[0:2, :])
 
 
+def test_nonsingular():
+    # test for zero-expansion type cases; other cases may be added later
+    zero_expansion = np.array([-0.001, 0.001])
+    cases = [(0, np.nan), (0, 0), (0, 7.9e-317)]
+    for args in cases:
+        out = np.array(mtrans.nonsingular(*args))
+        assert_array_equal(out, zero_expansion)
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'],  exit=False)
