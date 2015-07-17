@@ -70,3 +70,9 @@ texput.aux
 result_images
 
 *.swp
+# Coverage generated files #
+############################
+
+.coverage
+.coverage.*
+cover/
