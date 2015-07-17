@@ -24,7 +24,7 @@ def get_stats():
 
 # turn interactive mode on for dynamic updates.  If you aren't in
 # interactive mode, you'll need to use a GUI event handler/timer.
-plt.ion()
+# plt.ion()
 
 fig, ax = plt.subplots()
 ind = np.arange(1, 4)
