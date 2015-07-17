@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-import matplotlib.pyplot as plt 
-import numpy as np 
+import matplotlib.pyplot as plt
+import numpy as np
 import scipy as sp
 
 # create some data to use for the plot
