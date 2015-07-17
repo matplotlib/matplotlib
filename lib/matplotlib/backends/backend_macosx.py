@@ -309,6 +309,9 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
         self.renderer = RendererMac(figure.dpi, width, height)
         _macosx.FigureCanvas.__init__(self, width, height)
 
+    def draw_idle(self, *args, **kwargs):
+        self.invalidate()
+
     def resize(self, width, height):
         self.renderer.set_width_height(width, height)
         dpi = self.figure.dpi
