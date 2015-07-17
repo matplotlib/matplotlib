@@ -32,10 +32,11 @@ class Spine(mpatches.Patch):
     Spines are subclasses of class:`~matplotlib.patches.Patch`, and
     inherit much of their behavior.
 
-    Spines draw a line or a circle, depending if
-    function:`~matplotlib.spines.Spine.set_patch_line` or
-    function:`~matplotlib.spines.Spine.set_patch_circle` has been
-    called. Line-like is the default.
+    Spines draw a line, a circle, or an arc depending if
+    function:`~matplotlib.spines.Spine.set_patch_line`,
+    function:`~matplotlib.spines.Spine.set_patch_circle`, or
+    function:`~matplotlib.spines.Spine.set_patch_arc` has been called.
+    Line-like is the default.
 
     """
     def __str__(self):
@@ -77,10 +78,11 @@ class Spine(mpatches.Patch):
         self._path = path
 
         # To support drawing both linear and circular spines, this
-        # class implements Patch behavior two ways. If
+        # class implements Patch behavior three ways. If
         # self._patch_type == 'line', behave like a mpatches.PathPatch
         # instance. If self._patch_type == 'circle', behave like a
-        # mpatches.Ellipse instance.
+        # mpatches.Ellipse instance. If self._patch_type == 'arc', behave like
+        # a mpatches.Arc instance.
         self._patch_type = 'line'
 
         # Behavior copied from mpatches.Ellipse:
@@ -102,13 +104,25 @@ class Spine(mpatches.Patch):
         """get whether the spine has smart bounds"""
         return self._smart_bounds
 
+    def set_patch_arc(self, center, radius, theta1, theta2):
+        """set the spine to be arc-like"""
+        self._patch_type = 'arc'
+        self._center = center
+        self._width = radius * 2
+        self._height = radius * 2
+        self._theta1 = theta1
+        self._theta2 = theta2
+        self._path = mpath.Path.arc(theta1, theta2)
+        # arc drawn on axes transform
+        self.set_transform(self.axes.transAxes)
+        self.stale = True
+
     def set_patch_circle(self, center, radius):
         """set the spine to be circular"""
         self._patch_type = 'circle'
         self._center = center
         self._width = radius * 2
         self._height = radius * 2
-        self._angle = 0
         # circle drawn on axes transform
         self.set_transform(self.axes.transAxes)
         self.stale = True
@@ -125,18 +139,17 @@ class Spine(mpatches.Patch):
                  maxes it very important to call the accessor method and
                  not directly access the transformation member variable.
         """
-        assert self._patch_type == 'circle'
+        assert self._patch_type in ('arc', 'circle')
         center = (self.convert_xunits(self._center[0]),
                   self.convert_yunits(self._center[1]))
         width = self.convert_xunits(self._width)
         height = self.convert_yunits(self._height)
         self._patch_transform = mtransforms.Affine2D() \
             .scale(width * 0.5, height * 0.5) \
-            .rotate_deg(self._angle) \
             .translate(*center)
 
     def get_patch_transform(self):
-        if self._patch_type == 'circle':
+        if self._patch_type in ('arc', 'circle'):
             self._recompute_transform()
             return self._patch_transform
         else:
@@ -255,17 +268,48 @@ class Spine(mpatches.Patch):
         else:
             low, high = self._bounds
 
-        v1 = self._path.vertices
-        assert v1.shape == (2, 2), 'unexpected vertices shape'
-        if self.spine_type in ['left', 'right']:
-            v1[0, 1] = low
-            v1[1, 1] = high
-        elif self.spine_type in ['bottom', 'top']:
-            v1[0, 0] = low
-            v1[1, 0] = high
+        if self._patch_type == 'arc':
+            if self.spine_type in ('bottom', 'top'):
+                try:
+                    direction = self.axes.get_theta_direction()
+                except AttributeError:
+                    direction = 1
+                try:
+                    offset = self.axes.get_theta_offset()
+                except AttributeError:
+                    offset = 0
+                low = low * direction + offset
+                high = high * direction + offset
+                if low > high:
+                    low, high = high, low
+
+                self._path = mpath.Path.arc(np.rad2deg(low), np.rad2deg(high))
+
+                if self.spine_type == 'bottom':
+                    rmin, rmax = self.axes.viewLim.intervaly
+                    try:
+                        rorigin = self.axes.get_rorigin()
+                    except AttributeError:
+                        rorigin = rmin
+                    scaled_diameter = (rmin - rorigin) / (rmax - rorigin)
+                    self._height = scaled_diameter
+                    self._width = scaled_diameter
+
+            else:
+                raise ValueError('unable to set bounds for spine "%s"' %
+                                 self.spine_type)
         else:
-            raise ValueError('unable to set bounds for spine "%s"' %
-                             self.spine_type)
+            v1 = self._path.vertices
+            assert v1.shape == (2, 2), 'unexpected vertices shape'
+            if self.spine_type in ['left', 'right']:
+                v1[0, 1] = low
+                v1[1, 1] = high
+            elif self.spine_type in ['bottom', 'top']:
+                v1[0, 0] = low
+                v1[1, 0] = high
+            else:
+                raise ValueError('unable to set bounds for spine "%s"' %
+                                 self.spine_type)
 
     @allow_rasterization
     def draw(self, renderer):
@@ -461,6 +505,17 @@ class Spine(mpatches.Patch):
         result = cls(axes, spine_type, path, **kwargs)
         result.set_visible(rcParams['axes.spines.{0}'.format(spine_type)])
 
+        return result
+
+    @classmethod
+    def arc_spine(cls, axes, spine_type, center, radius, theta1, theta2,
+                  **kwargs):
+        """
+        (classmethod) Returns an arc :class:`Spine`.
+        """
+        path = mpath.Path.arc(theta1, theta2)
+        result = cls(axes, spine_type, path, **kwargs)
+        result.set_patch_arc(center, radius, theta1, theta2)
         return result
 
     @classmethod
