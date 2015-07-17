@@ -20,23 +20,23 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
         The axes to plot to
 
     edges : array
-        A an n+1 array giving the left edges of each bin and the
+        A length n+1 array giving the left edges of each bin and the
         right edge of the last bin.
 
     values : array
-        A length n array of bin
+        A length n array of bin counts or values
 
     bottoms : scalar or array, optional
         A length n array of the bottom of the bars.  If None, zero is used.
 
     orientation : {'v', 'h'}
-       Orientation of the histogram.  'v' is default value an has
+       Orientation of the histogram.  'v' (default) has
        the bars increasing in the positive y-direction.
 
     Returns
     -------
     ret : PolyCollection
-        Added artist
+        Artist added to the Axes
     """
     print(orientation)
     if orientation not in set('hv'):
