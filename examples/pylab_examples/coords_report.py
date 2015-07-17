@@ -15,4 +15,4 @@ fig, ax = plt.subplots()
 ax.fmt_ydata = millions
 plt.plot(x, y, 'o')
 
-show()
+plt.show()
