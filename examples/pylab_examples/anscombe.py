@@ -9,7 +9,7 @@ line, but which are qualitatively different.
 matplotlib fun for a rainy day
 """
 
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import numpy as np
 
 x = np.array([10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5])
