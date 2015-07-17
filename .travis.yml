@@ -27,7 +27,7 @@ env:
     - BUILD_DOCS=false
     - NUMPY=numpy
     - NPROC=2
-    - TEST_ARGS=--omit-pep8
+    - TEST_ARGS=--no-pep8
 
 language: python
 
@@ -40,7 +40,7 @@ matrix:
     - python: 3.3
     - python: 3.4
     - python: 2.7
-      env: TEST_ARGS=--pep8-only
+      env: TEST_ARGS=--pep8
     - python: 2.7
       env: BUILD_DOCS=true MOCK=mock
     - python: "nightly"
@@ -109,7 +109,7 @@ script:
   - |
     if [[ $BUILD_DOCS == false ]]; then
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
-      gdb -return-child-result -batch -ex r -ex bt --args python setup.py test --nocapture --processes=$NPROC --process-timeout=300 $TEST_ARGS
+      gdb -return-child-result -batch -ex r -ex bt --args python tests.py -s --processes=$NPROC --process-timeout=300 $TEST_ARGS
     else
       cd doc
       python make.py html --small --warningsaserrors
