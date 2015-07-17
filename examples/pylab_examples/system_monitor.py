@@ -40,12 +40,17 @@ ax.set_xticklabels(['Memory', 'CPU', 'Bandwidth'])
 ax.set_ylabel('Percent usage')
 ax.set_title('System Monitor')
 
+start = time.time()
 for i in range(200):  # run for a little while
     m, c, n = get_stats()
 
     pm.set_height(m)
     pc.set_height(c)
     pn.set_height(n)
-    ax.set_ylim([0, 100])
+    try:
+        fig.canvas.flush_events()
+    except NotImplementedError:
+        pass
 
-    plt.draw()
+stop = time.time()
+print("{fps:.1f} frames per second".format(fps=200 / (stop - start)))
