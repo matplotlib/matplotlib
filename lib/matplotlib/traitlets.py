@@ -1,18 +1,19 @@
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 
-#ipython 4 import
-from traitlets.config import Configurable
-from traitlets import (Int, Float, Bool, Dict, List, Instance,
-                        Union, TraitError, HasTraits, Unicode,
-                        NoDefaultSpecified, TraitType, Tuple,
-                        Undefined)
-
-# ipython 3 imports
-# from IPython.config import Configurable
-# from IPython.utils.traitlets import (Int, Float, Bool, Dict, List, Instance,
-#                                      Union, TraitError, HasTraits, 
-#                                      NoDefaultSpecified, TraitType)
+try:
+    # IPython 4 import
+    from traitlets.config import Configurable
+    from traitlets import (Int, Float, Bool, Dict, List, Instance,
+                            Union, TraitError, HasTraits, Unicode,
+                            NoDefaultSpecified, TraitType, Tuple,
+                            Undefined, TraitError, getargspec)
+except ImportError:
+    # IPython 3 import
+    from IPython.utils.traitlest.config import Configurable
+    from IPython.utils.traitlets import (Int, Float, Bool, Dict, List, Instance,
+                                         Union, TraitError, HasTraits, TraitError,
+                                         NoDefaultSpecified, TraitType)
 import numpy as np
 
 # override for backward compatability
