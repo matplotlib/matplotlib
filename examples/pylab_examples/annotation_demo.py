@@ -120,7 +120,7 @@ if 1:
 
     el = Ellipse((0, 0), 10, 20, facecolor='r', alpha=0.5)
 
-    fig = figure()
+    fig = plt.figure()
     ax = fig.add_subplot(111, aspect='equal')
     ax.add_artist(el)
     el.set_clip_box(ax.bbox)
