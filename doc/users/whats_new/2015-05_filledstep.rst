@@ -1,5 +1,5 @@
-Add step kwmargs to fill_between
---------------------------------
+Add step kwargs to fill_between
+-------------------------------
 
 Added ``step`` kwarg to `Axes.fill_between` to allow to fill between
 lines drawn using the 'step' draw style.  The values of ``step`` match
