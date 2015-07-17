@@ -75,7 +75,6 @@ def allow_rasterization(draw):
 def _stale_figure_callback(self):
     self.figure.stale = True
 
-
 def _stale_axes_callback(self):
     self.axes.stale = True
 
@@ -91,37 +90,38 @@ class Artist(Configurable):
     # warn on all : check whether serialize is/isn't required.
 
     # perishable=True ==> set stale = True
-    _transformSet = Bool(False, serialize=True)
+    _transformSet = Bool(False, serialize=True, config=True)
     # warn : oInstance used, new TraitType?
-    transform = oInstance('matplotlib.transforms.Transform', allow_none=True,
-                        serialize=True, perishable=True)
+    transform = oInstance('matplotlib.transforms.Transform',
+                        serialize=True, perishable=True, config=True)
     axes = Instance('matplotlib.axes._axes.Axes',allow_none=True,
-                        serialize=True)
-    contains = Callable(allow_none=True)
+                        serialize=True, config=True)
+    contains = Callable(allow_none=True, config=True)
     figure = Instance('matplotlib.figure.Figure', allow_none=True,
-                    serialize=True, perishable=True)
-    visible = Bool(True, perishable=True, serialize=True)
-    animated = Bool(False, perishable=True, serialize=True)
-    alpha = Float(None, allow_none=True, perishable=True, serialize=True)
-    url = Unicode(allow_none=True, serialize=True)
-    gid = Unicode(allow_none=True, serialize=True)
+                    serialize=True, perishable=True, config=True)
+    visible = Bool(True, perishable=True, serialize=True, config=True)
+    animated = Bool(False, perishable=True, serialize=True, config=True)
+    alpha = Float(None, allow_none=True, perishable=True, serialize=True, config=True)
+    url = Unicode(allow_none=True, serialize=True, config=True)
+    gid = Unicode(allow_none=True, serialize=True, config=True)
     clipbox = Instance('matplotlib.transforms.BboxBase', allow_none=True,
-                        perishable=True, serialize=True)
-    snap = Bool(allow_none=True, perishable=True)
-    clipon = Bool(True, perishable=True)
+                        perishable=True, serialize=True, config=True)
+    snap = Bool(allow_none=True, perishable=True, config=True)
+    clipon = Bool(True, perishable=True, config=True)
     # * setter and getter methods for `self._clippath` could be refactored
     # using TraitTypes potentially ==> clippath = ?
-    label = Union([Unicode(''),Instance('matplotlib.text.Text'),Int()],allow_none=True, perishable=True)
-    rasterized = Bool(allow_none=True)
-    _agg_filter = Callable(None,allow_none=True, perishable=True)
-    eventson = Bool(False)
+    label = Union([Unicode(''),Instance('matplotlib.text.Text'),Int()],
+                allow_none=True, perishable=True, config=True)
+    rasterized = Bool(allow_none=True, config=True)
+    _agg_filter = Callable(None,allow_none=True, perishable=True, config=True)
+    eventson = Bool(True, config=True)
     _sketch = Tuple(rcParams['path.sketch'], allow_none=True,
-                    perishable=True,serialize=True)
+                    perishable=True,serialize=True, config=True)
     _path_effects = List(trait=Instance('matplotlib.patheffects.AbstractPathEffect'),
-                        allow_none=True, perishable=True, serialize=True)
-    _propobservers = Dict({}) # a dict from oids to funcs
-    _oid = Int(0) # an observer id
-    
+                        allow_none=True, perishable=True, serialize=True, config=True)
+    _propobservers = Dict({}, config=True) # a dict from oids to funcs
+    _oid = Int(0, config=True) # an observer id
+
     # sketch = mpltr.Tuple(allow_none=True)
     # path_effects = mpltr.
 
@@ -135,12 +135,12 @@ class Artist(Configurable):
         self.stale = True
         self._pickable = False
         self._clippath = None
-        self._picker = None 
+        self._picker = None
         self._remove_method = None
 
         self._sketch = rcParams['path.sketch']
         self._path_effects = rcParams['path.effects']
-        
+
     def __getstate__(self):
         d = self.__dict__.copy()
         # remove the unpicklable remove method, this will get re-added on load
@@ -197,18 +197,16 @@ class Artist(Configurable):
     def _transform_changed(self, name, new):
         self._transformSet = True
 
-    def _transform_default(self):
-        return IdentityTransform()
-
     def _transform_overload(self, trait, value):
-        if (not isinstance(value, Transform)
+        if value is None:
+            return IdentityTransform()
+        elif (not isinstance(value, Transform)
             and hasattr(value, '_as_mpl_transform')):
             return value._as_mpl_transform(self.axes)
-        else:
-            trait.error(self, value)
+        trait.error(self, value)
 
     def _axes_changed(self, name, old, new):
-        if old is not Undefined:
+        if old not in [Undefined, None]:
             # old != true already checked in `TraitType._validate`
             raise ValueError("Can not reset the axes.  You are "
                              "probably trying to re-use an artist "
@@ -248,7 +246,7 @@ class Artist(Configurable):
         if new is None:
             self._pickable = False
         self._pickable = True
-        
+
     # - - - - - - - - - - - - - - -
     # warned setters and getters
     # - - - - - - - - - - - - - - -
@@ -992,27 +990,23 @@ class Artist(Configurable):
         Update the properties of this :class:`Artist` from the
         dictionary *prop*.
         """
-        # add warn
-        # all handled by configurable
-        self.update_config(props)
+        # all can be handleded by configurable
+        # self.update_config(config)
 
-        # store = self.eventson
-        # self.eventson = False
-        # changed = False
+        store = self.eventson
+        self.eventson = False
+        changed = False
 
-        # for k, v in six.iteritems(props):
-        #     if k in ['axes']:
-        #         setattr(self, k, v)
-        #     else:
-        #         func = getattr(self, 'set_' + k, None)
-        #         if func is None or not six.callable(func):
-        #             raise AttributeError('Unknown property %s' % k)
-        #         func(v)
-        #     changed = True
-        # self.eventson = store
-        # if changed:
-        #     self.pchanged()
-        #     self.stale = True
+        for k, v in six.iteritems(props):
+            if k in ['axes']:
+                setattr(self, k, v)
+            else:
+                func = getattr(self, 'set_' + k, None)
+                if func is None or not six.callable(func):
+                    raise AttributeError('Unknown property %s' % k)
+                func(v)
+            changed = True
+        self.eventson = store
 
     def get_zorder(self):
         """
