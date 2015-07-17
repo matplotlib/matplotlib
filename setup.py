@@ -190,7 +190,6 @@ class NoseTestCommand(TestCommand):
         if self.tests:
             self.test_args.append("--tests={names}".format(names=self.tests))
 
-
     def run(self):
         if self.distribution.install_requires:
             self.distribution.fetch_build_eggs(
@@ -200,7 +199,6 @@ class NoseTestCommand(TestCommand):
 
         self.announce('running unittests with nose')
         self.with_project_on_sys_path(self.run_tests)
-
 
     def run_tests(self):
         import matplotlib

@@ -137,8 +137,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         # Shift the seed points from the bottom left of the data so that
         # data2grid works properly.
         sp2 = np.asanyarray(start_points).copy()
-        sp2[:,0] += np.abs(x[0])
-        sp2[:,1] += np.abs(y[0])
+        sp2[:, 0] += np.abs(x[0])
+        sp2[:, 1] += np.abs(y[0])
         for xs, ys in sp2:
             xg, yg = dmap.data2grid(xs, ys)
             t = integrate(xg, yg)
@@ -211,7 +211,7 @@ class StreamplotSet(object):
 
 
 # Coordinate definitions
-#========================
+# ========================
 
 class DomainMap(object):
     """Map representing different coordinate systems.
@@ -234,7 +234,7 @@ class DomainMap(object):
     def __init__(self, grid, mask):
         self.grid = grid
         self.mask = mask
-        ## Constants for conversion between grid- and mask-coordinates
+        # Constants for conversion between grid- and mask-coordinates
         self.x_grid2mask = float(mask.nx - 1) / grid.nx
         self.y_grid2mask = float(mask.ny - 1) / grid.ny
 
@@ -246,8 +246,8 @@ class DomainMap(object):
 
     def grid2mask(self, xi, yi):
         """Return nearest space in mask-coords from given grid-coords."""
-        return int((xi * self.x_grid2mask) + 0.5), \
-               int((yi * self.y_grid2mask) + 0.5)
+        return (int((xi * self.x_grid2mask) + 0.5),
+                int((yi * self.y_grid2mask) + 0.5))
 
     def mask2grid(self, xm, ym):
         return xm * self.x_mask2grid, ym * self.y_mask2grid
@@ -457,17 +457,17 @@ def _integrate_rk12(x0, y0, dmap, f):
     solvers in most setups on my machine. I would recommend removing the
     other two to keep things simple.
     """
-    ## This error is below that needed to match the RK4 integrator. It
-    ## is set for visual reasons -- too low and corners start
-    ## appearing ugly and jagged. Can be tuned.
+    # This error is below that needed to match the RK4 integrator. It
+    # is set for visual reasons -- too low and corners start
+    # appearing ugly and jagged. Can be tuned.
     maxerror = 0.003
 
-    ## This limit is important (for all integrators) to avoid the
-    ## trajectory skipping some mask cells. We could relax this
-    ## condition if we use the code which is commented out below to
-    ## increment the location gradually. However, due to the efficient
-    ## nature of the interpolation, this doesn't boost speed by much
-    ## for quite a bit of complexity.
+    # This limit is important (for all integrators) to avoid the
+    # trajectory skipping some mask cells. We could relax this
+    # condition if we use the code which is commented out below to
+    # increment the location gradually. However, due to the efficient
+    # nature of the interpolation, this doesn't boost speed by much
+    # for quite a bit of complexity.
     maxds = min(1. / dmap.mask.nx, 1. / dmap.mask.ny, 0.1)
 
     ds = maxds
@@ -548,7 +548,7 @@ def _euler_step(xf_traj, yf_traj, dmap, f):
 
 
 # Utility functions
-#========================
+# ========================
 
 def interpgrid(a, xi, yi):
     """Fast 2D, linear interpolation on an integer grid"""
