@@ -47,8 +47,10 @@ for i in range(200):  # run for a little while
     pm.set_height(m)
     pc.set_height(c)
     pn.set_height(n)
-
-    fig.canvas.flush_events()
+    try:
+        fig.canvas.flush_events()
+    except NotImplementedError:
+        pass
 
 stop = time.time()
 print("{fps:.1f} frames per second".format(fps=200 / (stop - start)))
