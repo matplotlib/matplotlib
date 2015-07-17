@@ -19,7 +19,8 @@ from matplotlib.path import Path
 from matplotlib.ticker import Formatter, Locator, FormatStrFormatter
 from matplotlib.transforms import Affine2D, Affine2DBase, Bbox, \
     BboxTransformTo, IdentityTransform, Transform, TransformWrapper, \
-    ScaledTranslation, blended_transform_factory, BboxTransformToMaxOnly
+    ScaledTranslation, blended_transform_factory, BboxTransformToMaxOnly, \
+    nonsingular
 import matplotlib.spines as mspines
 
 
@@ -222,7 +223,7 @@ class RadialLocator(Locator):
 
     def view_limits(self, vmin, vmax):
         vmin, vmax = self.base.view_limits(vmin, vmax)
-        return min(0, vmin), vmax
+        return nonsingular(min(0, vmin), vmax)
 
 
 class PolarAxes(Axes):
