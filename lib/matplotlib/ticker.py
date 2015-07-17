@@ -733,6 +733,8 @@ class LogFormatter(Formatter):
         return s
 
 
+SPECIAL_LOG = set((0, 0.1, 1, 10))
+
 class LogFormatterExponent(LogFormatter):
     """
     Format values for log axis; using ``exponent = log_base(value)``
@@ -776,11 +778,11 @@ class LogFormatterMathtext(LogFormatter):
         usetex = rcParams['text.usetex']
 
         # only label the decades
-        if x == 0:
+        if x in SPECIAL_LOG:
             if usetex:
-                return '$0$'
+                return '${0:g}$'.format(x)
             else:
-                return '$\mathdefault{0}$'
+                return '$\mathdefault{{{0:g}}}$'.format(x)
 
         fx = math.log(abs(x)) / math.log(b)
         is_decade = is_close_to_int(fx)
