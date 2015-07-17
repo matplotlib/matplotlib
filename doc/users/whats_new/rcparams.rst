@@ -46,3 +46,9 @@ Added "toolmanager" to "toolbar" possible values
 ````````````````````````````````````````````````
 
 The new value enables the use of ``ToolManager``
+
+
+Added ``axes.labelpad``
+```````````````````````
+
+This new value controls the space between the axis and the label
