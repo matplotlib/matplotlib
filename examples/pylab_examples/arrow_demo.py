@@ -9,10 +9,12 @@ usage:
 
 
 """
-from pylab import *
+import matplotlib.pyplot as plt
+import numpy as np
 
-rates_to_bases = {'r1': 'AT', 'r2': 'TA', 'r3': 'GA', 'r4': 'AG', 'r5': 'CA', 'r6': 'AC',
-                  'r7': 'GT', 'r8': 'TG', 'r9': 'CT', 'r10': 'TC', 'r11': 'GC', 'r12': 'CG'}
+rates_to_bases = {'r1': 'AT', 'r2': 'TA', 'r3': 'GA', 'r4': 'AG', 'r5': 'CA',
+                  'r6': 'AC', 'r7': 'GT', 'r8': 'TG', 'r9': 'CT', 'r10': 'TC',
+                  'r11': 'GC', 'r12': 'CG'}
 numbered_bases_to_rates = dict([(v, k) for k, v in rates_to_bases.items()])
 lettered_bases_to_rates = dict([(v, 'r' + v) for k, v in rates_to_bases.items()])
 
@@ -103,7 +105,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
         }
 
     def do_fontsize(k):
-        return float(clip(max_text_size*np.sqrt(data[k]),
+        return float(np.clip(max_text_size*np.sqrt(data[k]),
                           min_text_size, max_text_size))
 
     A = plt.text(0, 1, '$A_3$', color='r', size=do_fontsize('A'), **text_params)
@@ -204,7 +206,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
             raise ValueError("Got unknown position parameter %s" % where)
 
         M = np.array([[cx, sx], [-sx, cx]])
-        coords = dot(orig_position, M) + [[x_pos, y_pos]]
+        coords = np.dot(orig_position, M) + [[x_pos, y_pos]]
         x, y = np.ravel(coords)
         orig_label = rate_labels[pair]
         label = '$%s_{_{\mathrm{%s}}}$' % (orig_label[0], orig_label[1:])
