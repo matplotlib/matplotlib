@@ -651,10 +651,6 @@ def render_figures(code, code_path, output_dir, output_base, context,
 
 
 def run(arguments, content, options, state_machine, state, lineno):
-    # The user may provide a filename *or* Python code content, but not both
-    if arguments and content:
-        raise RuntimeError("plot:: directive can't have both args and content")
-
     document = state_machine.document
     config = document.settings.env.config
     nofigs = 'nofigs' in options
