@@ -1125,8 +1125,6 @@ class Figure(Artist):
         self._cachedRenderer = renderer
         self.canvas.draw_event(renderer)
 
-
-
     def draw_artist(self, a):
         """
         draw :class:`matplotlib.artist.Artist` instance *a* only --
