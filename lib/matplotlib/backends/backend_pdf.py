@@ -309,24 +309,17 @@ Op = Bunch(**dict([(name, Operator(value))
                    for name, value in six.iteritems(_pdfops)]))
 
 
-def _paint_path(closep, fillp, strokep):
+def _paint_path(fill, stroke):
     """Return the PDF operator to paint a path in the following way:
-    closep:  close the path before painting
-    fillp:   fill the path with the fill color
-    strokep: stroke the outline of the path with the line color"""
-    if strokep:
-        if closep:
-            if fillp:
-                return Op.close_fill_stroke
-            else:
-                return Op.close_stroke
+    fill:   fill the path with the fill color
+    stroke: stroke the outline of the path with the line color"""
+    if stroke:
+        if fill:
+            return Op.fill_stroke
         else:
-            if fillp:
-                return Op.fill_stroke
-            else:
-                return Op.stroke
+            return Op.stroke
     else:
-        if fillp:
+        if fill:
             return Op.fill
         else:
             return Op.endpath
@@ -1322,7 +1315,7 @@ end"""
             self.currentstream.write(data)
             self.endStream()
 
-    def markerObject(self, path, trans, fillp, strokep, lw, joinstyle,
+    def markerObject(self, path, trans, fill, stroke, lw, joinstyle,
                      capstyle):
         """Return name of a marker XObject representing the given path."""
         # self.markers used by markerObject, writeMarkers, close:
@@ -1338,7 +1331,7 @@ end"""
         # first two components of each value in self.markers to be the
         # name and object reference.
         pathops = self.pathOperations(path, trans, simplify=False)
-        key = (tuple(pathops), bool(fillp), bool(strokep), joinstyle, capstyle)
+        key = (tuple(pathops), bool(fill), bool(stroke), joinstyle, capstyle)
         result = self.markers.get(key)
         if result is None:
             name = Name('M%d' % len(self.markers))
@@ -1352,7 +1345,7 @@ end"""
         return name
 
     def writeMarkers(self):
-        for ((pathops, fillp, strokep, joinstyle, capstyle),
+        for ((pathops, fill, stroke, joinstyle, capstyle),
              (name, ob, bbox, lw)) in six.iteritems(self.markers):
             bbox = bbox.padded(lw * 0.5)
             self.beginStream(
@@ -1363,7 +1356,7 @@ end"""
                         Op.setlinejoin)
             self.output(GraphicsContextPdf.capstyles[capstyle], Op.setlinecap)
             self.output(*pathops)
-            self.output(Op.paint_path(False, fillp, strokep))
+            self.output(Op.paint_path(fill, stroke))
             self.endStream()
 
     def pathCollectionObject(self, gc, path, trans, padding, filled, stroked):
@@ -1392,7 +1385,7 @@ end"""
                         Op.setlinejoin)
             self.output(GraphicsContextPdf.capstyles[capstyle], Op.setlinecap)
             self.output(*pathops)
-            self.output(Op.paint_path(False, filled, stroked))
+            self.output(Op.paint_path(filled, stroked))
             self.endStream()
 
     @staticmethod
@@ -1690,12 +1683,12 @@ class RendererPdf(RendererBase):
             return
 
         self.check_gc(gc, rgbFace)
-        fillp = gc.fillp(rgbFace)
-        strokep = gc.strokep()
+        fill = gc.fill(rgbFace)
+        stroke = gc.stroke()
 
         output = self.file.output
         marker = self.file.markerObject(
-            marker_path, marker_trans, fillp, strokep, self.gc._linewidth,
+            marker_path, marker_trans, fill, stroke, self.gc._linewidth,
             gc.get_joinstyle(), gc.get_capstyle())
 
         output(Op.gsave)
@@ -2136,7 +2129,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         del d['parent']
         return repr(d)
 
-    def strokep(self):
+    def stroke(self):
         """
         Predicate: does the path need to be stroked (its outline drawn)?
         This tests for the various conditions that disable stroking
@@ -2147,7 +2140,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         return (self._linewidth > 0 and self._alpha > 0 and
                 (len(self._rgb) <= 3 or self._rgb[3] != 0.0))
 
-    def fillp(self, *args):
+    def fill(self, *args):
         """
         Predicate: does the path need to be filled?
 
@@ -2162,19 +2155,12 @@ class GraphicsContextPdf(GraphicsContextBase):
                 (_fillcolor is not None and
                  (len(_fillcolor) <= 3 or _fillcolor[3] != 0.0)))
 
-    def close_and_paint(self):
-        """
-        Return the appropriate pdf operator to close the path and
-        cause it to be stroked, filled, or both.
-        """
-        return Op.paint_path(True, self.fillp(), self.strokep())
-
     def paint(self):
         """
         Return the appropriate pdf operator to cause the path to be
         stroked, filled, or both.
         """
-        return Op.paint_path(False, self.fillp(), self.strokep())
+        return Op.paint_path(self.fill(), self.stroke())
 
     capstyles = {'butt': 0, 'round': 1, 'projecting': 2}
     joinstyles = {'miter': 0, 'round': 1, 'bevel': 2}
