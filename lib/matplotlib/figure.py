@@ -1045,85 +1045,87 @@ class Figure(Artist):
         if not self.get_visible():
             return
         renderer.open_group('figure')
+        try:
+            if self.get_tight_layout() and self.axes:
+                try:
+                    self.tight_layout(renderer, **self._tight_parameters)
+                except ValueError:
+                    pass
+                    # ValueError can occur when resizing a window.
 
-        if self.get_tight_layout() and self.axes:
-            try:
-                self.tight_layout(renderer, **self._tight_parameters)
-            except ValueError:
-                pass
-                # ValueError can occur when resizing a window.
+            if self.frameon:
+                self.patch.draw(renderer)
 
-        if self.frameon:
-            self.patch.draw(renderer)
+            # a list of (zorder, func_to_call, list_of_args)
+            dsu = []
 
-        # a list of (zorder, func_to_call, list_of_args)
-        dsu = []
-
-        for a in self.patches:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
-
-        for a in self.lines:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
-
-        for a in self.artists:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
-
-        # override the renderer default if self.suppressComposite
-        # is not None
-        not_composite = renderer.option_image_nocomposite()
-        if self.suppressComposite is not None:
-            not_composite = self.suppressComposite
-
-        if (len(self.images) <= 1 or not_composite or
-                not cbook.allequal([im.origin for im in self.images])):
-            for a in self.images:
+            for a in self.patches:
                 dsu.append((a.get_zorder(), a, a.draw, [renderer]))
-        else:
-            # make a composite image blending alpha
-            # list of (_image.Image, ox, oy)
-            mag = renderer.get_image_magnification()
-            ims = [(im.make_image(mag), im.ox, im.oy, im.get_alpha())
-                   for im in self.images]
 
-            im = _image.from_images(int(self.bbox.height * mag),
-                                    int(self.bbox.width * mag),
-                                    ims)
+            for a in self.lines:
+                dsu.append((a.get_zorder(), a, a.draw, [renderer]))
 
-            im.is_grayscale = False
-            l, b, w, h = self.bbox.bounds
+            for a in self.artists:
+                dsu.append((a.get_zorder(), a, a.draw, [renderer]))
 
-            def draw_composite():
-                gc = renderer.new_gc()
-                gc.set_clip_rectangle(self.bbox)
-                gc.set_clip_path(self.get_clip_path())
-                renderer.draw_image(gc, l, b, im)
-                gc.restore()
+            # override the renderer default if self.suppressComposite
+            # is not None
+            not_composite = renderer.option_image_nocomposite()
+            if self.suppressComposite is not None:
+                not_composite = self.suppressComposite
 
-            dsu.append((self.images[0].get_zorder(), self.images[0],
-                        draw_composite, []))
+            if (len(self.images) <= 1 or not_composite or
+                    not cbook.allequal([im.origin for im in self.images])):
+                for a in self.images:
+                    dsu.append((a.get_zorder(), a, a.draw, [renderer]))
+            else:
+                # make a composite image blending alpha
+                # list of (_image.Image, ox, oy)
+                mag = renderer.get_image_magnification()
+                ims = [(im.make_image(mag), im.ox, im.oy, im.get_alpha())
+                       for im in self.images]
 
-        # render the axes
-        for a in self.axes:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
+                im = _image.from_images(int(self.bbox.height * mag),
+                                        int(self.bbox.width * mag),
+                                        ims)
 
-        # render the figure text
-        for a in self.texts:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
+                im.is_grayscale = False
+                l, b, w, h = self.bbox.bounds
 
-        for a in self.legends:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
+                def draw_composite():
+                    gc = renderer.new_gc()
+                    gc.set_clip_rectangle(self.bbox)
+                    gc.set_clip_path(self.get_clip_path())
+                    renderer.draw_image(gc, l, b, im)
+                    gc.restore()
 
-        dsu = [row for row in dsu if not row[1].get_animated()]
-        dsu.sort(key=itemgetter(0))
-        for zorder, a, func, args in dsu:
-            func(*args)
-            a.stale = False
+                dsu.append((self.images[0].get_zorder(), self.images[0],
+                            draw_composite, []))
 
-        renderer.close_group('figure')
+            # render the axes
+            for a in self.axes:
+                dsu.append((a.get_zorder(), a, a.draw, [renderer]))
+
+            # render the figure text
+            for a in self.texts:
+                dsu.append((a.get_zorder(), a, a.draw, [renderer]))
+
+            for a in self.legends:
+                dsu.append((a.get_zorder(), a, a.draw, [renderer]))
+
+            dsu = [row for row in dsu if not row[1].get_animated()]
+            dsu.sort(key=itemgetter(0))
+            for zorder, a, func, args in dsu:
+                func(*args)
+                a.stale = False
+        finally:
+            renderer.close_group('figure')
+            self.stale = False
 
         self._cachedRenderer = renderer
-        self.stale = False
         self.canvas.draw_event(renderer)
+
+
 
     def draw_artist(self, a):
         """
