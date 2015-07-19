@@ -115,16 +115,15 @@ Plot 14 uses ``include-source``:
 
     # Only a comment
 
-Plot 15 uses an external file with the plot commands:
+Plot 15 uses an external file with the plot commands and a caption:
 
 .. plot:: range4.py
+
+   This is the caption for plot 15.
+
 
 Plot 16 uses a specific function in a file with plot commands:
 
-.. plot:: range4.py range6
-	  
-Plot 17 uses an external file and a caption:
+.. plot:: range6.py range6
 
-.. plot:: range4.py
 
-   This is the caption for plot 17.
