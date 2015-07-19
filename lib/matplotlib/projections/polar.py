@@ -14,17 +14,14 @@ from matplotlib.axes import Axes
 import matplotlib.axis as maxis
 from matplotlib import cbook
 from matplotlib import docstring
-from matplotlib.patches import Circle
-from matplotlib.path import Path
-from matplotlib.ticker import Formatter, Locator, FormatStrFormatter
-from matplotlib.transforms import Affine2D, Affine2DBase, Bbox, \
-    BboxTransformTo, IdentityTransform, Transform, TransformWrapper, \
-    ScaledTranslation, blended_transform_factory, BboxTransformToMaxOnly, \
-    nonsingular
+import matplotlib.patches as mpatches
+import matplotlib.path as mpath
+import matplotlib.ticker as mticker
+import matplotlib.transforms as mtransforms
 import matplotlib.spines as mspines
 
 
-class PolarTransform(Transform):
+class PolarTransform(mtransforms.Transform):
     """
     The base polar transform.  This handles projection *theta* and
     *r* into Cartesian coordinate space *x* and *y*, but does not
@@ -36,7 +33,7 @@ class PolarTransform(Transform):
     is_separable = False
 
     def __init__(self, axis=None, use_rmin=True):
-        Transform.__init__(self)
+        mtransforms.Transform.__init__(self)
         self._axis = axis
         self._use_rmin = use_rmin
 
@@ -68,22 +65,24 @@ class PolarTransform(Transform):
         y[:] = np.where(mask, np.nan, r * np.sin(t))
 
         return xy
-    transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
+    transform_non_affine.__doc__ = \
+        mtransforms.Transform.transform_non_affine.__doc__
 
     def transform_path_non_affine(self, path):
         vertices = path.vertices
         if len(vertices) == 2 and vertices[0, 0] == vertices[1, 0]:
-            return Path(self.transform(vertices), path.codes)
+            return mpath.Path(self.transform(vertices), path.codes)
         ipath = path.interpolated(path._interpolation_steps)
-        return Path(self.transform(ipath.vertices), ipath.codes)
-    transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
+        return mpath.Path(self.transform(ipath.vertices), ipath.codes)
+    transform_path_non_affine.__doc__ = \
+        mtransforms.Transform.transform_path_non_affine.__doc__
 
     def inverted(self):
         return PolarAxes.InvertedPolarTransform(self._axis, self._use_rmin)
-    inverted.__doc__ = Transform.inverted.__doc__
+    inverted.__doc__ = mtransforms.Transform.inverted.__doc__
 
 
-class PolarAffine(Affine2DBase):
+class PolarAffine(mtransforms.Affine2DBase):
     """
     The affine part of the polar projection.  Scales the output so
     that maximum radius rests on the edge of the axes circle.
@@ -94,7 +93,7 @@ class PolarAffine(Affine2DBase):
         its bounds that is used is ymax (for the radius maximum).
         The theta range is always fixed to (0, 2pi).
         """
-        Affine2DBase.__init__(self)
+        mtransforms.Affine2DBase.__init__(self)
         self._scale_transform = scale_transform
         self._limits = limits
         self.set_children(scale_transform, limits)
@@ -104,17 +103,17 @@ class PolarAffine(Affine2DBase):
         if self._invalid:
             limits_scaled = self._limits.transformed(self._scale_transform)
             yscale = limits_scaled.ymax - limits_scaled.ymin
-            affine = Affine2D() \
+            affine = mtransforms.Affine2D() \
                 .scale(0.5 / yscale) \
                 .translate(0.5, 0.5)
             self._mtx = affine.get_matrix()
             self._inverted = None
             self._invalid = 0
         return self._mtx
-    get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
+    get_matrix.__doc__ = mtransforms.Affine2DBase.get_matrix.__doc__
 
 
-class InvertedPolarTransform(Transform):
+class InvertedPolarTransform(mtransforms.Transform):
     """
     The inverse of the polar transform, mapping Cartesian
     coordinate space *x* and *y* back to *theta* and *r*.
@@ -124,7 +123,7 @@ class InvertedPolarTransform(Transform):
     is_separable = False
 
     def __init__(self, axis=None, use_rmin=True):
-        Transform.__init__(self)
+        mtransforms.Transform.__init__(self)
         self._axis = axis
         self._use_rmin = use_rmin
 
@@ -160,14 +159,15 @@ class InvertedPolarTransform(Transform):
         r += rmin
 
         return np.concatenate((theta, r), 1)
-    transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
+    transform_non_affine.__doc__ = \
+        mtransforms.Transform.transform_non_affine.__doc__
 
     def inverted(self):
         return PolarAxes.PolarTransform(self._axis, self._use_rmin)
-    inverted.__doc__ = Transform.inverted.__doc__
+    inverted.__doc__ = mtransforms.Transform.inverted.__doc__
 
 
-class ThetaFormatter(Formatter):
+class ThetaFormatter(mticker.Formatter):
     """
     Used to format the *theta* tick labels.  Converts the native
     unit of radians into degrees and adds a degree symbol.
@@ -190,7 +190,7 @@ class ThetaFormatter(Formatter):
             return format_str.format(value=np.rad2deg(x), digits=digits)
 
 
-class RadialLocator(Locator):
+class RadialLocator(mticker.Locator):
     """
     Used to locate radius ticks.
 
@@ -229,7 +229,7 @@ class RadialLocator(Locator):
 
     def view_limits(self, vmin, vmax):
         vmin, vmax = self.base.view_limits(vmin, vmax)
-        return nonsingular(min(0, vmin), vmax)
+        return mtransforms.nonsingular(min(0, vmin), vmax)
 
 
 class PolarAxes(Axes):
@@ -286,11 +286,12 @@ class PolarAxes(Axes):
         self._update_transScale()
 
     def _set_lim_and_transforms(self):
-        self.transAxes = BboxTransformTo(self.bbox)
+        self.transAxes = mtransforms.BboxTransformTo(self.bbox)
 
         # Transforms the x and y axis separately by a scale factor
         # It is assumed that this part will have non-linear components
-        self.transScale = TransformWrapper(IdentityTransform())
+        self.transScale = mtransforms.TransformWrapper(
+            mtransforms.IdentityTransform())
 
         # A (possibly non-linear) projection on the (already scaled)
         # data.  This one is aware of rmin
@@ -313,14 +314,17 @@ class PolarAxes(Axes):
         # the edge of the axis circle.
         self._xaxis_transform = (
             self.transPureProjection +
-            self.PolarAffine(IdentityTransform(), Bbox.unit()) +
+            self.PolarAffine(mtransforms.IdentityTransform(),
+                             mtransforms.Bbox.unit()) +
             self.transAxes)
         # The theta labels are moved from radius == 0.0 to radius == 1.1
-        self._theta_label1_position = Affine2D().translate(0.0, 1.1)
+        self._theta_label1_position = (
+            mtransforms.Affine2D().translate(0.0, 1.1))
         self._xaxis_text1_transform = (
             self._theta_label1_position +
             self._xaxis_transform)
-        self._theta_label2_position = Affine2D().translate(0.0, 1.0 / 1.1)
+        self._theta_label2_position = (
+            mtransforms.Affine2D().translate(0.0, 1.0 / 1.1))
         self._xaxis_text2_transform = (
             self._theta_label2_position +
             self._xaxis_transform)
@@ -329,14 +333,14 @@ class PolarAxes(Axes):
         # axis so the gridlines from 0.0 to 1.0, now go from 0.0 to
         # 2pi.
         self._yaxis_transform = (
-            Affine2D().scale(np.pi * 2.0, 1.0) +
+            mtransforms.Affine2D().scale(np.pi * 2.0, 1.0) +
             self.transData)
         # The r-axis labels are put at an angle and padded in the r-direction
-        self._r_label_position = ScaledTranslation(
-            self._default_rlabel_position, 0.0, Affine2D())
+        self._r_label_position = mtransforms.ScaledTranslation(
+            self._default_rlabel_position, 0.0, mtransforms.Affine2D())
         self._yaxis_text_transform = (
             self._r_label_position +
-            Affine2D().scale(1.0 / 360.0, 1.0) +
+            mtransforms.Affine2D().scale(1.0 / 360.0, 1.0) +
             self._yaxis_transform
             )
 
@@ -381,7 +385,7 @@ class PolarAxes(Axes):
             return self._yaxis_text_transform, 'bottom', 'right'
 
     def _gen_axes_patch(self):
-        return Circle((0.5, 0.5), 0.5)
+        return mpatches.Circle((0.5, 0.5), 0.5)
 
     def _gen_axes_spines(self):
         return {'polar':mspines.Spine.circular_spine(self,
@@ -531,7 +535,7 @@ class PolarAxes(Axes):
         if labels is not None:
             self.set_xticklabels(labels)
         elif fmt is not None:
-            self.xaxis.set_major_formatter(FormatStrFormatter(fmt))
+            self.xaxis.set_major_formatter(mticker.FormatStrFormatter(fmt))
         if frac is not None:
             self._theta_label1_position.clear().translate(0.0, frac)
             self._theta_label2_position.clear().translate(0.0, 1.0 / frac)
@@ -571,7 +575,7 @@ class PolarAxes(Axes):
         if labels is not None:
             self.set_yticklabels(labels)
         elif fmt is not None:
-            self.yaxis.set_major_formatter(FormatStrFormatter(fmt))
+            self.yaxis.set_major_formatter(mticker.FormatStrFormatter(fmt))
         if angle is None:
             angle = self.get_rlabel_position()
         self.set_rlabel_position(angle)
