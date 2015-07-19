@@ -84,7 +84,7 @@ class TestTinyPages(object):
             html_contents = fobj.read()
         assert_true('# Only a comment' in html_contents)
         # check plot defined in external file.
-        assert_true(file_same(range_4, pjoin(self.html_dir, 'range4.png'))
-        assert_true(file_same(range_6, pjoin(self.html_dir, 'range6.png'))
+        assert_true(file_same(range_4, pjoin(self.html_dir, 'range4.png')))
+        assert_true(file_same(range_6, pjoin(self.html_dir, 'range6.png')))
         # check if figure caption made it into html file
         assert_true('This is the caption for plot 15.')
