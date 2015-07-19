@@ -6,15 +6,11 @@ more information.
 """
 
 from __future__ import unicode_literals
+import numpy as np
 import matplotlib
 matplotlib.rcParams['text.usetex'] = True
 matplotlib.rcParams['text.latex.unicode'] = True
-
-import numpy as np
-# from numpy import arange, cos, pi
-# from matplotlib.pyplot import (figure, axes, plot, xlabel, ylabel, title,
-                               # grid, savefig, show)
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 
 plt.figure(1, figsize=(6, 4))
 ax = plt.axes([0.1, 0.1, 0.8, 0.7])
@@ -24,7 +20,8 @@ plt.plot(t, s)
 
 plt.xlabel(r'\textbf{time (s)}')
 plt.ylabel(r'\textit{Velocity (\u00B0/sec)}', fontsize=16)
-plt.title(r"\TeX\ is Number $\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!",
-      fontsize=16, color='r')
+plt.title(r"\TeX\ is Number \
+          $\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!",
+          fontsize=16, color='r')
 plt.grid(True)
 plt.show()
