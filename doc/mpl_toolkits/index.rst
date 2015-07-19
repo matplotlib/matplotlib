@@ -148,6 +148,12 @@ Matplotlib-Venn
 
 `Matplotlib-Venn <https://github.com/konstantint/matplotlib-venn>`_ provides a set of functions for plotting 2- and 3-set area-weighted (or unweighted) Venn diagrams.
 
+mplstereonet
+===============
+(*Not distributed with matplotlib*)
+
+`mplstereonet <https://github.com/joferkington/mplstereonet>`_ provides stereonets for plotting and analyzing orientation data in Matplotlib.  
+
 
 .. _hl_plotting:
 
