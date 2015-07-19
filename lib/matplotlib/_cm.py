@@ -2,7 +2,8 @@
 Nothing here but dictionaries for generating LinearSegmentedColormaps,
 and a dictionary of these dictionaries.
 
-Documentation for each is in pyplot.colormaps()
+Documentation for each is in pyplot.colormaps().  Please update this
+with the purpose and type of your colormap if you add data for one here.
 """
 
 from __future__ import (absolute_import, division, print_function,
