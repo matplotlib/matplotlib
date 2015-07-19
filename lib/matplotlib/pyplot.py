@@ -250,7 +250,7 @@ def show(*args, **kw):
     described above.
     """
     global _show
-    if hasattr(_backend_mod, 'Window'):  # Can we use the new code?
+    if rcParams['toolbar'] == 'toolmanager':
         return _pylab_helpers.Gcf.show_all(*args, **kw)
     else:
         _show(*args, **kw)
@@ -539,7 +539,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         if get_backend().lower() == 'ps':
             dpi = 72
 
-        if hasattr(_backend_mod, 'Window'):  # Can we use the MEP 27 code?
+        if rcParams['toolbar'] == 'toolmanager':
             fig = FigureClass(figsize=figsize, dpi=dpi, facecolor=facecolor,
                               edgecolor=edgecolor, frameon=frameon, **kwargs)
             figManager = backend_managers.FigureManager(fig, num)

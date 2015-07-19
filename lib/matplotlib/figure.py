@@ -1649,7 +1649,7 @@ class Figure(Artist):
             import matplotlib.backend_managers as managers
             allnums = plt.get_fignums()
             num = max(allnums) + 1 if allnums else 1
-            if hasattr(plt._backend_mod, 'Window'):  # Can we use MEP 27 code?
+            if rcParams['toolbar'] == 'toolmanager':
                 mgr = managers.FigureManager(self, num)
             else:
                 mgr = plt._backend_mod.new_figure_manager_given_figure(num,

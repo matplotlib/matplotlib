@@ -47,6 +47,7 @@ env:
     - PYTEST_ARGS="-rawR --maxfail=1 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
     - PYTHON_ARGS=
     - DELETE_FONT_CACHE=
+    - USENEWTOOLMANAGER=false
 
 matrix:
   include:
@@ -59,7 +60,7 @@ matrix:
     - python: 3.5
       env: BUILD_DOCS=true
     - python: 3.6
-      env: DELETE_FONT_CACHE=1 INSTALL_PEP8=pytest-pep8 RUN_PEP8=--pep8 PANDAS=pandas
+      env: DELETE_FONT_CACHE=1 INSTALL_PEP8=pytest-pep8 RUN_PEP8=--pep8 PANDAS=pandas USENEWTOOLMANAGER=true
     - python: "nightly"
       env: PRE=--pre
     - os: osx
@@ -180,6 +181,9 @@ before_script:
     if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
       export DISPLAY=:99.0
       sh -e /etc/init.d/xvfb start
+    fi
+    if [[ $USENEWTOOLMANAGER == true ]]; then
+      cp .travis/toolmgr_matplotlibrc matplotlibrc
     fi
 
 script: ci/travis/test_script.sh
