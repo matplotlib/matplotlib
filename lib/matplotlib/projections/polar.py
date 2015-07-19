@@ -32,34 +32,29 @@ class PolarTransform(mtransforms.Transform):
     output_dims = 2
     is_separable = False
 
-    def __init__(self, axis=None, use_rmin=True):
+    def __init__(self, axis=None, use_rmin=True,
+                 _apply_theta_transforms=True):
         mtransforms.Transform.__init__(self)
         self._axis = axis
         self._use_rmin = use_rmin
+        self._apply_theta_transforms = _apply_theta_transforms
 
     def transform_non_affine(self, tr):
         xy = np.empty(tr.shape, float)
-        if self._axis is not None:
-            if self._use_rmin:
-                rmin = self._axis.viewLim.ymin
-            else:
-                rmin = 0
-            theta_offset = self._axis.get_theta_offset()
-            theta_direction = self._axis.get_theta_direction()
-        else:
-            rmin = 0
-            theta_offset = 0
-            theta_direction = 1
 
         t = tr[:, 0:1]
         r = tr[:, 1:2]
         x = xy[:, 0:1]
         y = xy[:, 1:2]
 
-        t *= theta_direction
-        t += theta_offset
+        # PolarAxes does not use the theta transforms here, but apply them for
+        # backwards-compatibility if not being used by it.
+        if self._apply_theta_transforms and self._axis is not None:
+            t *= self._axis.get_theta_direction()
+            t += self._axis.get_theta_offset()
 
-        r = r - rmin
+        if self._use_rmin and self._axis is not None:
+            r = r - self._axis.viewLim.ymin
         mask = r < 0
         x[:] = np.where(mask, np.nan, r * np.cos(t))
         y[:] = np.where(mask, np.nan, r * np.sin(t))
@@ -78,7 +73,8 @@ class PolarTransform(mtransforms.Transform):
         mtransforms.Transform.transform_path_non_affine.__doc__
 
     def inverted(self):
-        return PolarAxes.InvertedPolarTransform(self._axis, self._use_rmin)
+        return PolarAxes.InvertedPolarTransform(self._axis, self._use_rmin,
+                                                self._apply_theta_transforms)
     inverted.__doc__ = mtransforms.Transform.inverted.__doc__
 
 
@@ -122,24 +118,14 @@ class InvertedPolarTransform(mtransforms.Transform):
     output_dims = 2
     is_separable = False
 
-    def __init__(self, axis=None, use_rmin=True):
+    def __init__(self, axis=None, use_rmin=True,
+                 _apply_theta_transforms=True):
         mtransforms.Transform.__init__(self)
         self._axis = axis
         self._use_rmin = use_rmin
+        self._apply_theta_transforms = _apply_theta_transforms
 
     def transform_non_affine(self, xy):
-        if self._axis is not None:
-            if self._use_rmin:
-                rmin = self._axis.viewLim.ymin
-            else:
-                rmin = 0
-            theta_offset = self._axis.get_theta_offset()
-            theta_direction = self._axis.get_theta_direction()
-        else:
-            rmin = 0
-            theta_offset = 0
-            theta_direction = 1
-
         x = xy[:, 0:1]
         y = xy[:, 1:]
         r = np.sqrt(x*x + y*y)
@@ -152,18 +138,23 @@ class InvertedPolarTransform(mtransforms.Transform):
             theta = np.arccos(x / r)
         theta = np.where(y < 0, 2 * np.pi - theta, theta)
 
-        theta -= theta_offset
-        theta *= theta_direction
-        theta %= 2 * np.pi
+        # PolarAxes does not use the theta transforms here, but apply them for
+        # backwards-compatibility if not being used by it.
+        if self._apply_theta_transforms and self._axis is not None:
+            theta -= self._axis.get_theta_offset()
+            theta *= self._axis.get_theta_direction()
+            theta %= 2 * np.pi
 
-        r += rmin
+        if self._use_rmin and self._axis is not None:
+            r += self._axis.viewLim.ymin
 
         return np.concatenate((theta, r), 1)
     transform_non_affine.__doc__ = \
         mtransforms.Transform.transform_non_affine.__doc__
 
     def inverted(self):
-        return PolarAxes.PolarTransform(self._axis, self._use_rmin)
+        return PolarAxes.PolarTransform(self._axis, self._use_rmin,
+                                        self._apply_theta_transforms)
     inverted.__doc__ = mtransforms.Transform.inverted.__doc__
 
 
@@ -246,7 +237,8 @@ class PolarAxes(Axes):
         """
         self._default_theta_offset = kwargs.pop('theta_offset', 0)
         self._default_theta_direction = kwargs.pop('theta_direction', 1)
-        self._default_rlabel_position = kwargs.pop('rlabel_position', 22.5)
+        self._default_rlabel_position = np.deg2rad(
+            kwargs.pop('rlabel_position', 22.5))
 
         Axes.__init__(self, *args, **kwargs)
         self.set_aspect('equal', adjustable='box', anchor='C')
@@ -286,6 +278,23 @@ class PolarAxes(Axes):
         self._update_transScale()
 
     def _set_lim_and_transforms(self):
+        # A view limit where the minimum radius can be locked if the user
+        # specifies an alternate origin.
+        self._originViewLim = mtransforms.LockableBbox(self.viewLim)
+
+        # Handle angular offset and direction.
+        self._direction = mtransforms.Affine2D() \
+            .scale(self._default_theta_direction, 1.0)
+        self._theta_offset = mtransforms.Affine2D() \
+            .translate(self._default_theta_offset, 0.0)
+        self.transShift = mtransforms.composite_transform_factory(
+            self._direction,
+            self._theta_offset)
+        # A view limit shifted to the correct location after accounting for
+        # orientation and offset.
+        self._shiftedViewLim = mtransforms.TransformedBbox(self.viewLim,
+                                                           self.transShift)
+
         self.transAxes = mtransforms.BboxTransformTo(self.bbox)
 
         # Transforms the x and y axis separately by a scale factor
@@ -295,10 +304,15 @@ class PolarAxes(Axes):
 
         # A (possibly non-linear) projection on the (already scaled)
         # data.  This one is aware of rmin
-        self.transProjection = self.PolarTransform(self)
+        self.transProjection = self.PolarTransform(
+            self,
+            _apply_theta_transforms=False)
 
         # This one is not aware of rmin
-        self.transPureProjection = self.PolarTransform(self, use_rmin=False)
+        self.transPureProjection = self.PolarTransform(
+            self,
+            use_rmin=False,
+            _apply_theta_transforms=False)
 
         # An affine transformation on the data, generally to limit the
         # range of the axes
@@ -306,13 +320,15 @@ class PolarAxes(Axes):
 
         # The complete data transformation stack -- from data all the
         # way to display coordinates
-        self.transData = self.transScale + self.transProjection + \
-            (self.transProjectionAffine + self.transAxes)
+        self.transData = (
+            self.transScale + self.transShift + self.transProjection +
+            (self.transProjectionAffine + self.transAxes))
 
         # This is the transform for theta-axis ticks.  It is
         # equivalent to transData, except it always puts r == 1.0 at
         # the edge of the axis circle.
         self._xaxis_transform = (
+            self.transShift +
             self.transPureProjection +
             self.PolarAffine(mtransforms.IdentityTransform(),
                              mtransforms.Bbox.unit()) +
@@ -333,16 +349,13 @@ class PolarAxes(Axes):
         # axis so the gridlines from 0.0 to 1.0, now go from 0.0 to
         # 2pi.
         self._yaxis_transform = (
+            self.transShift +
             mtransforms.Affine2D().scale(np.pi * 2.0, 1.0) +
             self.transData)
         # The r-axis labels are put at an angle and padded in the r-direction
         self._r_label_position = mtransforms.ScaledTranslation(
             self._default_rlabel_position, 0.0, mtransforms.Affine2D())
-        self._yaxis_text_transform = (
-            self._r_label_position +
-            mtransforms.Affine2D().scale(1.0 / 360.0, 1.0) +
-            self._yaxis_transform
-            )
+        self._yaxis_text_transform = self._r_label_position + self.transData
 
     def get_xaxis_transform(self,which='grid'):
         if which not in ['tick1','tick2','grid']:
@@ -407,13 +420,15 @@ class PolarAxes(Axes):
         """
         Set the offset for the location of 0 in radians.
         """
-        self._theta_offset = offset
+        mtx = self._theta_offset.get_matrix()
+        mtx[0, 2] = offset
+        self._theta_offset.invalidate()
 
     def get_theta_offset(self):
         """
         Get the offset for the location of 0 in radians.
         """
-        return self._theta_offset
+        return self._theta_offset.get_matrix()[0, 2]
 
     def set_theta_zero_location(self, loc):
         """
@@ -443,14 +458,16 @@ class PolarAxes(Axes):
         counterclockwise, anticlockwise, 1:
            Theta increases in the counterclockwise direction
         """
+        mtx = self._direction.get_matrix()
         if direction in ('clockwise',):
-            self._direction = -1
+            mtx[0, 0] = -1
         elif direction in ('counterclockwise', 'anticlockwise'):
-            self._direction = 1
+            mtx[0, 0] = 1
         elif direction in (1, -1):
-            self._direction = direction
+            mtx[0, 0] = direction
         else:
             raise ValueError("direction must be 1, -1, clockwise or counterclockwise")
+        self._direction.invalidate()
 
     def get_theta_direction(self):
         """
@@ -462,7 +479,7 @@ class PolarAxes(Axes):
         1:
            Theta increases in the counterclockwise direction
         """
-        return self._direction
+        return self._direction.get_matrix()[0, 0]
 
     def set_rlim(self, *args, **kwargs):
         if 'rmin' in kwargs:
@@ -478,7 +495,7 @@ class PolarAxes(Axes):
         float
             The theta position of the radius labels in degrees.
         """
-        return self._r_label_position.to_values()[4]
+        return np.rad2deg(self._r_label_position.to_values()[4])
 
     def set_rlabel_position(self, value):
         """Updates the theta position of the radius labels.
@@ -488,7 +505,7 @@ class PolarAxes(Axes):
         value : number
             The angular position of the radius labels in degrees.
         """
-        self._r_label_position._t = (value, 0.0)
+        self._r_label_position._t = (np.deg2rad(value), 0.0)
         self._r_label_position.invalidate()
 
     def set_yscale(self, *args, **kwargs):
@@ -596,6 +613,8 @@ class PolarAxes(Axes):
         Return a format string formatting the coordinate using Unicode
         characters.
         """
+        if theta < 0:
+            theta += 2 * math.pi
         theta /= math.pi
         return ('\N{GREEK SMALL LETTER THETA}=%0.3f\N{GREEK SMALL LETTER PI} '
                 '(%0.3f\N{DEGREE SIGN}), r=%0.3f') % (theta, theta * 180.0, r)
