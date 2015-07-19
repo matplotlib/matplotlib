@@ -1,12 +1,11 @@
-#!/usr/bin/env python
-
 """
 Small demonstration of the hlines and vlines plots.
 """
 
-import matplotlib.pyplot as plt 
-import numpy as np 
+import matplotlib.pyplot as plt
+import numpy as np
 import numpy.random as rnd
+
 
 def f(t):
     s1 = np.sin(2 * np.pi * t)
