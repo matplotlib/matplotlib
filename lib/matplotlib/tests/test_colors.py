@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
@@ -7,6 +8,10 @@ from distutils.version import LooseVersion as V
 
 from nose.tools import assert_raises, assert_equal
 
+=======
+from __future__ import print_function
+from nose.tools import assert_raises
+>>>>>>> eca57fe3786849346359bd568a4a063d4bd87b18
 import numpy as np
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal, assert_equal
 

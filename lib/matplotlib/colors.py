@@ -60,6 +60,10 @@ import numpy as np
 from numpy import ma
 import matplotlib.cbook as cbook
 
+parts = np.__version__.split('.')
+NP_MAJOR, NP_MINOR = map(int, parts[:2])
+# true if clip supports the out kwarg
+NP_CLIP_OUT = NP_MAJOR >= 1 and NP_MINOR >= 2
 
 cnames = {
     'aliceblue':            '#F0F8FF',
