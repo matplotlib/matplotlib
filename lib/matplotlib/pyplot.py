@@ -2060,11 +2060,9 @@ def colormaps():
 
     ColorBrewer Qualitative:
 
-    (For plotting nominal data, :class:`ListedColormap` should be used,
+    (For plotting nominal data, :class:`ListedColormap` is used,
     not :class:`LinearSegmentedColormap`.  Different sets of colors are
-    recommended for different numbers of categories.  These continuous
-    versions of the qualitative schemes may be removed or converted in the
-    future.)
+    recommended for different numbers of categories.)
 
     * Accent
     * Dark2
