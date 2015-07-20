@@ -549,7 +549,6 @@ class Text(Artist):
             fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
             self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
 
-
     def _draw_bbox(self, renderer, posx, posy):
 
         """ Update the location and the size of the bbox
@@ -2221,7 +2220,6 @@ class Annotation(Text, _AnnotationBase):
                     r.set_clip_on(False)
 
                     self.arrow_patch.set_patchA(r)
-
 
     @allow_rasterization
     def draw(self, renderer):
