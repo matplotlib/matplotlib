@@ -1,23 +1,20 @@
-#!/usr/bin/env python
-
 """
 Small demonstration of the hlines and vlines plots.
 """
 
-from matplotlib import pyplot as plt
-from numpy import sin, exp, absolute, pi, arange
-from numpy.random import normal
+import matplotlib.pyplot as plt
+import numpy as np
+import numpy.random as rnd
 
 
 def f(t):
-    s1 = sin(2 * pi * t)
-    e1 = exp(-t)
-    return absolute((s1 * e1)) + .05
+    s1 = np.sin(2 * np.pi * t)
+    e1 = np.exp(-t)
+    return np.absolute((s1 * e1)) + .05
 
-
-t = arange(0.0, 5.0, 0.1)
+t = np.arange(0.0, 5.0, 0.1)
 s = f(t)
-nse = normal(0.0, 0.3, t.shape) * s
+nse = rnd.normal(0.0, 0.3, t.shape) * s
 
 fig = plt.figure(figsize=(12, 6))
 vax = fig.add_subplot(121)
