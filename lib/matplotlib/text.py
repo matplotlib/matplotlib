@@ -93,8 +93,9 @@ docstring.interpd.update(Text="""
     animated                   [True | False]
     backgroundcolor            any matplotlib color
     bbox                       rectangle prop dict plus key 'pad' which is a
-                               pad in points; if a boxstyle is supplied, then
-                               pad is instead a fraction of the font size
+                               pad in points; if a boxstyle is supplied as
+                               a string, then pad is instead a fraction
+                               of the font size
     clip_box                   a matplotlib.transform.Bbox instance
     clip_on                    [True | False]
     color                      any matplotlib color
@@ -498,7 +499,9 @@ class Text(Artist):
             else:
                 if pad is None:
                     pad = 0.3
-            if "pad" not in boxstyle:
+
+            # boxstyle could be a callable or a string
+            if is_string_like(boxstyle) and "pad" not in boxstyle:
                 boxstyle += ",pad=%0.2f" % pad
 
             bbox_transmuter = props.pop("bbox_transmuter", None)
