@@ -1,0 +1,24 @@
+! = todo
+
+-- index --
+
+# NEWTYPE = make traittype
+# TRAITLET = make traitlet
+# REFACTOR = change api
+
+-- transform --
+
+! NEWTYPE : setter/getter -> TransformType
+! TRAITLET : transform = TransformType
+! REFACTOR : def set_transform -> none
+! REFACTOR : def get_transform -> none
+
+-- transform_set --
+
+! TRAITLET : transformSet = BoolType(False)
+! REFACTOR : self.transformSet -> self.transform_set
+
+-- stale --
+
+! TRAITLET : stale = BoolType(True)
+! REFACTOR : def stale -> none
