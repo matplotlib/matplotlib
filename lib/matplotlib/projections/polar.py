@@ -54,7 +54,7 @@ class PolarTransform(mtransforms.Transform):
             t += self._axis.get_theta_offset()
 
         if self._use_rmin and self._axis is not None:
-            r = r - self._axis.viewLim.ymin
+            r = r - self._axis.get_rorigin()
         mask = r < 0
         x[:] = np.where(mask, np.nan, r * np.cos(t))
         y[:] = np.where(mask, np.nan, r * np.sin(t))
@@ -146,7 +146,7 @@ class InvertedPolarTransform(mtransforms.Transform):
             theta %= 2 * np.pi
 
         if self._use_rmin and self._axis is not None:
-            r += self._axis.viewLim.ymin
+            r += self._axis.get_rorigin()
 
         return np.concatenate((theta, r), 1)
     transform_non_affine.__doc__ = \
@@ -198,13 +198,14 @@ class RadialLocator(mticker.Locator):
         show_all = True
         # Ensure previous behaviour with full circle views.
         if self._axes:
-            rmin = self._axes.get_rmin()
-            show_all = False
+            rorigin = self._axes.get_rorigin()
+            if self._axes.get_rmin() <= rorigin:
+                show_all = False
 
         if show_all:
             return self.base()
         else:
-            return [tick for tick in self.base() if tick > rmin]
+            return [tick for tick in self.base() if tick > rorigin]
 
     def autoscale(self):
         return self.base.autoscale()
@@ -259,11 +260,15 @@ class PolarAxes(Axes):
 
         self.grid(rcParams['polaraxes.grid'])
         self.xaxis.set_ticks_position('none')
+        inner = self.spines.get('inner', None)
+        if inner:
+            inner.set_visible(False)
         self.yaxis.set_ticks_position('none')
         self.yaxis.set_tick_params(label1On=True)
         # Why do we need to turn on yaxis tick labels, but
         # xaxis tick labels are already on?
 
+        self.set_rorigin(None)
         self.set_theta_offset(self._default_theta_offset)
         self.set_theta_direction(self._default_theta_direction)
 
@@ -307,6 +312,8 @@ class PolarAxes(Axes):
         self.transProjection = self.PolarTransform(
             self,
             _apply_theta_transforms=False)
+        # Add dependency on rorigin.
+        self.transProjection.set_children(self._originViewLim)
 
         # This one is not aware of rmin
         self.transPureProjection = self.PolarTransform(
@@ -316,7 +323,8 @@ class PolarAxes(Axes):
 
         # An affine transformation on the data, generally to limit the
         # range of the axes
-        self.transProjectionAffine = self.PolarAffine(self.transScale, self.viewLim)
+        self.transProjectionAffine = self.PolarAffine(self.transScale,
+                                                      self._originViewLim)
 
         # The complete data transformation stack -- from data all the
         # way to display coordinates
@@ -397,24 +405,35 @@ class PolarAxes(Axes):
         else:
             return self._yaxis_text_transform, 'bottom', 'right'
 
+    def draw(self, *args, **kwargs):
+        rmin, rmax = self.viewLim.intervaly
+        rorigin = self.get_rorigin()
+        inner = self.spines.get('inner', None)
+
+        if isinstance(self.patch, mpatches.Wedge):
+            # Backwards-compatibility: Any subclassed Axes might override the
+            # patch to not be the Wedge that PolarAxes uses.
+            if rorigin < rmin:
+                width = (rmax - rmin) / (rmax - rorigin) * 0.5
+            else:
+                width = 0.5
+            self.patch.set_width(width)
+
+            inner_width = 0.5 - width
+            if inner:
+                inner.set_patch_circle((0.5, 0.5), inner_width)
+                inner.set_visible(inner_width != 0.0)
+
+        Axes.draw(self, *args, **kwargs)
+
     def _gen_axes_patch(self):
-        return mpatches.Circle((0.5, 0.5), 0.5)
+        return mpatches.Wedge((0.5, 0.5), 0.5, 0.0, 360.0)
 
     def _gen_axes_spines(self):
-        return {'polar':mspines.Spine.circular_spine(self,
-                                                     (0.5, 0.5), 0.5)}
-
-    def set_rmax(self, rmax):
-        self.viewLim.y1 = rmax
-
-    def get_rmax(self):
-        return self.viewLim.ymax
-
-    def set_rmin(self, rmin):
-        self.viewLim.y0 = rmin
-
-    def get_rmin(self):
-        return self.viewLim.ymin
+        return {'polar': mspines.Spine.circular_spine(self,
+                                                      (0.5, 0.5), 0.5),
+                'inner': mspines.Spine.circular_spine(self,
+                                                      (0.5, 0.5), 0.0)}
 
     def set_theta_offset(self, offset):
         """
@@ -480,6 +499,24 @@ class PolarAxes(Axes):
            Theta increases in the counterclockwise direction
         """
         return self._direction.get_matrix()[0, 0]
+
+    def set_rmax(self, rmax):
+        self.viewLim.y1 = rmax
+
+    def get_rmax(self):
+        return self.viewLim.ymax
+
+    def set_rmin(self, rmin):
+        self.viewLim.y0 = rmin
+
+    def get_rmin(self):
+        return self.viewLim.ymin
+
+    def set_rorigin(self, rorigin):
+        self._originViewLim.locked_y0 = rorigin
+
+    def get_rorigin(self):
+        return self._originViewLim.y0
 
     def set_rlim(self, *args, **kwargs):
         if 'rmin' in kwargs:
