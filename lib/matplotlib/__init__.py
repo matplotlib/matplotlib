@@ -812,6 +812,7 @@ def matplotlib_fname():
         cwd = os.getcwd()
     fname = os.path.join(cwd, 'matplotlibrc')
     if os.path.exists(fname):
+        print('found mplrc file in cwd')
         return fname
 
     if 'MATPLOTLIBRC' in os.environ:
