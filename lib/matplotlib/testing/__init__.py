@@ -140,7 +140,12 @@ def setup():
     # These settings *must* be hardcoded for running the comparison
     # tests and are not necessarily the default values as specified in
     # rcsetup.py
+    use_new_toolmanager = rcParams['toolbar'] == 'toolmanager'
     rcdefaults()  # Start with all defaults
 
     set_font_settings_for_testing()
+
     set_reproducibility_for_testing()
+
+    if use_new_toolmanager:
+        rcParams['toolbar'] = 'toolmanager'
