@@ -63,7 +63,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     zorder = 0
 
     # the 3 following keys seem to be unused now, keep it for backward compat just in case. 
-    _interpd = _interpd
+    _interpd = __interpd
     # reverse interp dict
     _interpdr = dict([(v, k) for k, v in six.iteritems(__interpd)])
     iterpnames = interpolations_names
