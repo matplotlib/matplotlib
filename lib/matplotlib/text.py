@@ -93,7 +93,8 @@ docstring.interpd.update(Text="""
     animated                   [True | False]
     backgroundcolor            any matplotlib color
     bbox                       rectangle prop dict plus key 'pad' which is a
-                               pad in points
+                               pad in points; if a boxstyle is supplied, then
+                               pad is instead a fraction of the font size
     clip_box                   a matplotlib.transform.Bbox instance
     clip_on                    [True | False]
     color                      any matplotlib color
@@ -137,7 +138,7 @@ docstring.interpd.update(Text="""
 # function as a method with some refactoring of _get_layout method.
 
 
-def _get_textbox(text, renderer, with_descent=True):
+def _get_textbox(text, renderer):
     """
     Calculate the bounding box of the text. Unlike
     :meth:`matplotlib.text.Text.get_extents` method, The bbox size of
@@ -164,10 +165,6 @@ def _get_textbox(text, renderer, with_descent=True):
 
     xt_box, yt_box = min(projected_xs), min(projected_ys)
     w_box, h_box = max(projected_xs) - xt_box, max(projected_ys) - yt_box
-
-    if not with_descent:
-        yt_box += d
-        h_box -= d
 
     tr = mtransforms.Affine2D().rotate(theta)
 
@@ -228,7 +225,6 @@ class Text(Artist):
         self._multialignment = multialignment
         self._rotation = rotation
         self._fontproperties = fontproperties
-        self._bbox = None
         self._bbox_patch = None  # a FancyBboxPatch instance
         self._renderer = None
         if linespacing is None:
@@ -236,6 +232,14 @@ class Text(Artist):
         self._linespacing = linespacing
         self.set_rotation_mode(rotation_mode)
         self.update(kwargs)
+
+    def update(self, kwargs):
+        """
+        Update properties from a dictionary.
+        """
+        bbox = kwargs.pop('bbox', None)
+        super(Text, self).update(kwargs)
+        self.set_bbox(bbox)  # depends on font properties
 
     def __getstate__(self):
         d = super(Text, self).__getstate__()
@@ -484,12 +488,18 @@ class Text(Artist):
 
         if rectprops is not None:
             props = rectprops.copy()
-            pad = props.pop('pad', 4)  # in points; hardwired default
-            boxstyle = props.pop("boxstyle", "square")
-            # If pad is in the boxstyle string, it will be passed
-            # directly to the FancyBboxPatch as font units.
-            if 'pad' not in boxstyle:
-                boxstyle += ",pad=%0.2f" % (pad / self.get_size())
+            boxstyle = props.pop("boxstyle", None)
+            pad = props.pop("pad", None)
+            if boxstyle is None:
+                boxstyle = "square"
+                if pad is None:
+                    pad = 4  # points
+                pad /= self.get_size()  # to fraction of font size
+            else:
+                if pad is None:
+                    pad = 0.3
+            if "pad" not in boxstyle:
+                boxstyle += ",pad=%0.2f" % pad
 
             bbox_transmuter = props.pop("bbox_transmuter", None)
 
@@ -530,8 +540,7 @@ class Text(Artist):
 
             posx, posy = trans.transform_point((posx, posy))
 
-            x_box, y_box, w_box, h_box = _get_textbox(self, renderer,
-                                                      with_descent=True)
+            x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
             self._bbox_patch.set_bounds(0., 0., w_box, h_box)
             theta = np.deg2rad(self.get_rotation())
             tr = mtransforms.Affine2D().rotate(theta)
@@ -547,8 +556,7 @@ class Text(Artist):
         (FancyBboxPatch), and draw
         """
 
-        x_box, y_box, w_box, h_box = _get_textbox(self, renderer,
-                                                  with_descent=True)
+        x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
         self._bbox_patch.set_bounds(0., 0., w_box, h_box)
         theta = np.deg2rad(self.get_rotation())
         tr = mtransforms.Affine2D().rotate(theta)
@@ -2143,9 +2151,11 @@ class Annotation(Text, _AnnotationBase):
                         " use 'headlength' to set the head length in points.")
                 headlength = d.pop('headlength', 12)
 
-                stylekw = dict(head_length=headlength / ms,
-                               head_width=headwidth / ms,
-                               tail_width=width / ms)
+                to_style = self.figure.dpi / (72 * ms)
+
+                stylekw = dict(head_length=headlength * to_style,
+                               head_width=headwidth * to_style,
+                               tail_width=width * to_style)
 
                 self.arrow_patch.set_arrowstyle('simple', **stylekw)
 
