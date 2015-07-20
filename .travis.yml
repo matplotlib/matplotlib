@@ -148,6 +148,8 @@ script:
   # The number of processes is hardcoded, because using too many causes the
   # Travis VM to run out of memory (since so many copies of inkscape and
   # ghostscript are running at the same time).
+
+  # Load in the new toolbar rc file for tests
   - |
     if [[ $USENEWTOOLMANAGER == true ]]; then
       cp .travis/toolmgr_matplotlibrc matplotlibrc
