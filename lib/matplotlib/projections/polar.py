@@ -1,21 +1,15 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
-import math
-import warnings
-
 import numpy as np
 
-import matplotlib
-rcParams = matplotlib.rcParams
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis
 from matplotlib import cbook
 from matplotlib import docstring
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
+from matplotlib import rcParams
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.spines as mspines
@@ -530,8 +524,8 @@ class PolarAxes(Axes):
         self._yaxis_text_transform = mtransforms.TransformWrapper(
             self._r_label_position + self.transData)
 
-    def get_xaxis_transform(self,which='grid'):
-        if which not in ['tick1','tick2','grid']:
+    def get_xaxis_transform(self, which='grid'):
+        if which not in ['tick1', 'tick2', 'grid']:
             msg = "'which' must be one of [ 'tick1' | 'tick2' | 'grid' ]"
             raise ValueError(msg)
         return self._xaxis_transform
@@ -542,8 +536,8 @@ class PolarAxes(Axes):
     def get_xaxis_text2_transform(self, pad):
         return self._xaxis_text2_transform, 'center', 'center'
 
-    def get_yaxis_transform(self,which='grid'):
-        if which not in ['tick1','tick2','grid']:
+    def get_yaxis_transform(self, which='grid'):
+        if which not in ['tick1', 'tick2', 'grid']:
             msg = "'which' must be on of [ 'tick1' | 'tick2' | 'grid' ]"
             raise ValueError(msg)
         return self._yaxis_transform
@@ -715,7 +709,7 @@ class PolarAxes(Axes):
             'S': np.pi * 1.5,
             'SE': np.pi * 1.75,
             'E': 0,
-            'NE': np.pi * 0.25 }
+            'NE': np.pi * 0.25}
         return self.set_theta_offset(mapping[loc] + np.deg2rad(offset))
 
     def set_theta_direction(self, direction):
@@ -736,7 +730,8 @@ class PolarAxes(Axes):
         elif direction in (1, -1):
             mtx[0, 0] = direction
         else:
-            raise ValueError("direction must be 1, -1, clockwise or counterclockwise")
+            raise ValueError(
+                "direction must be 1, -1, clockwise or counterclockwise")
         self._direction.invalidate()
 
     def get_theta_direction(self):
@@ -802,6 +797,7 @@ class PolarAxes(Axes):
 
     def set_rscale(self, *args, **kwargs):
         return Axes.set_yscale(self, *args, **kwargs)
+
     def set_rticks(self, *args, **kwargs):
         return Axes.set_yticks(self, *args, **kwargs)
 
@@ -886,7 +882,8 @@ class PolarAxes(Axes):
 
     def set_xscale(self, scale, *args, **kwargs):
         if scale != 'linear':
-            raise NotImplementedError("You can not set the xscale on a polar plot.")
+            raise NotImplementedError(
+                "You can not set the xscale on a polar plot.")
 
     def format_coord(self, theta, r):
         """
@@ -894,8 +891,8 @@ class PolarAxes(Axes):
         characters.
         """
         if theta < 0:
-            theta += 2 * math.pi
-        theta /= math.pi
+            theta += 2 * np.pi
+        theta /= np.pi
         return ('\N{GREEK SMALL LETTER THETA}=%0.3f\N{GREEK SMALL LETTER PI} '
                 '(%0.3f\N{DEGREE SIGN}), r=%0.3f') % (theta, theta * 180.0, r)
 
@@ -906,7 +903,7 @@ class PolarAxes(Axes):
         '''
         return 1.0
 
-    ### Interactive panning
+    # # # Interactive panning
 
     def can_zoom(self):
         """
@@ -916,7 +913,7 @@ class PolarAxes(Axes):
         """
         return False
 
-    def can_pan(self) :
+    def can_pan(self):
         """
         Return *True* if this axes supports the pan/zoom button functionality.
 
@@ -938,14 +935,13 @@ class PolarAxes(Axes):
             mode = 'zoom'
 
         self._pan_start = cbook.Bunch(
-            rmax          = self.get_rmax(),
-            trans         = self.transData.frozen(),
-            trans_inverse = self.transData.inverted().frozen(),
-            r_label_angle = self.get_rlabel_position(),
-            x             = x,
-            y             = y,
-            mode          = mode
-            )
+            rmax=self.get_rmax(),
+            trans=self.transData.frozen(),
+            trans_inverse=self.transData.inverted().frozen(),
+            r_label_angle=self.get_rlabel_position(),
+            x=x,
+            y=y,
+            mode=mode)
 
     def end_pan(self):
         del self._pan_start
@@ -978,8 +974,6 @@ class PolarAxes(Axes):
         elif p.mode == 'zoom':
             startt, startr = p.trans_inverse.transform_point((p.x, p.y))
             t, r = p.trans_inverse.transform_point((x, y))
-
-            dr = r - startr
 
             # Deal with r
             scale = r / startr
@@ -1016,7 +1010,8 @@ PolarAxes.ThetaLocator = ThetaLocator
 #             vertices = self.transform(vertices)
 
 #             result = np.zeros((len(vertices) * 3 - 2, 2), float)
-#             codes = mpath.Path.CURVE4 * np.ones((len(vertices) * 3 - 2, ), mpath.Path.code_type)
+#             codes = mpath.Path.CURVE4 * np.ones((len(vertices) * 3 - 2, ),
+#                                                 mpath.Path.code_type)
 #             result[0] = vertices[0]
 #             codes[0] = mpath.Path.MOVETO
 
@@ -1053,8 +1048,8 @@ PolarAxes.ThetaLocator = ThetaLocator
 
 #             result[3::3] = p1
 
-#             print vertices[-2:]
-#             print result[-2:]
+#             print(vertices[-2:])
+#             print(result[-2:])
 
 #             return mpath.Path(result, codes)
 
@@ -1068,12 +1063,13 @@ PolarAxes.ThetaLocator = ThetaLocator
 #             maxtd = td.max()
 #             interpolate = np.ceil(maxtd / halfpi)
 
-#             print "interpolate", interpolate
+#             print("interpolate", interpolate)
 #             if interpolate > 1.0:
 #                 vertices = self.interpolate(vertices, interpolate)
 
 #             result = np.zeros((len(vertices) * 3 - 2, 2), float)
-#             codes = mpath.Path.CURVE4 * np.ones((len(vertices) * 3 - 2, ), mpath.Path.code_type)
+#             codes = mpath.Path.CURVE4 * np.ones((len(vertices) * 3 - 2, ),
+#                                                 mpath.Path.code_type)
 #             result[0] = vertices[0]
 #             codes[0] = mpath.Path.MOVETO
 
@@ -1095,16 +1091,19 @@ PolarAxes.ThetaLocator = ThetaLocator
 
 #             result[1::3, 0] = t0 + (tkappa * td_scaled)
 #             result[1::3, 1] = r0*hyp_kappa
-#             # result[1::3, 1] = r0 / np.cos(tkappa * td_scaled) # np.sqrt(r0*r0 + ravg_kappa*ravg_kappa)
+#             # result[1::3, 1] = r0 / np.cos(tkappa * td_scaled)
+#             # np.sqrt(r0*r0 + ravg_kappa*ravg_kappa)
 
 #             result[2::3, 0] = t1 - (tkappa * td_scaled)
 #             result[2::3, 1] = r1*hyp_kappa
-#             # result[2::3, 1] = r1 / np.cos(tkappa * td_scaled) # np.sqrt(r1*r1 + ravg_kappa*ravg_kappa)
+#             # result[2::3, 1] = r1 / np.cos(tkappa * td_scaled)
+#             # np.sqrt(r1*r1 + ravg_kappa*ravg_kappa)
 
 #             result[3::3, 0] = t1
 #             result[3::3, 1] = r1
 
-#             print vertices[:6], result[:6], t0[:6], t1[:6], td[:6], td_scaled[:6], tkappa
+#             print(vertices[:6], result[:6], t0[:6], t1[:6], td[:6],
+#                   td_scaled[:6], tkappa)
 #             result = self.transform(result)
 #             return mpath.Path(result, codes)
 #         transform_path_non_affine = transform_path
