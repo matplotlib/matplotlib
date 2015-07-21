@@ -69,9 +69,12 @@ def allow_rasterization(draw):
     return draw_wrapper
 
 
-def _stale_axes_callback(self, val):
-    if self.axes:
-        self.axes.stale = val
+def _stale_figure_callback(self):
+    self.figure.stale = True
+
+
+def _stale_axes_callback(self):
+    self.axes.stale = True
 
 
 class Artist(object):
@@ -83,13 +86,26 @@ class Artist(object):
     aname = 'Artist'
     zorder = 0
 
+    transform = TransformInstance(IdentityTransform())
+
+    def _tranform_changed(self):
+        self.transform_set = True
+        self.pchanged()
+        self.stale = True
+
+    stale = Bool(True)
+
+    def _stale_changed(self):
+        self.pchanged()
+
+    transform_set = Bool(False)
+
     def __init__(self):
-        self._stale = True
-        self.stale_callback = None
+        # self._stale = True
         self._axes = None
         self.figure = None
 
-        self._transform = None
+        # self._transform = None
         self._transformSet = False
         self._visible = True
         self._animated = False
@@ -123,7 +139,6 @@ class Artist(object):
         # remove the unpicklable remove method, this will get re-added on load
         # (by the axes) if the artist lives on an axes.
         d['_remove_method'] = None
-        d['stale_callback'] = None
         return d
 
     def remove(self):
@@ -241,7 +256,7 @@ class Artist(object):
 
         self._axes = new_axes
         if new_axes is not None and new_axes is not self:
-            self.stale_callback = _stale_axes_callback
+            self.add_callback(_stale_axes_callback)
 
         return new_axes
 
@@ -255,16 +270,15 @@ class Artist(object):
 
     @stale.setter
     def stale(self, val):
-        self._stale = val
-
-        # if the artist is animated it does not take normal part in the
-        # draw stack and is not expected to be drawn as part of the normal
-        # draw loop (when not saving) so do not propagate this change
-        if self.get_animated():
-            return
-
-        if val and self.stale_callback is not None:
-            self.stale_callback(self, val)
+        # only trigger call-back stack on being marked as 'stale'
+        # when not already stale
+        # the draw process will take care of propagating the cleaning
+        # process
+        if not (self._stale == val):
+            self._stale = val
+            # only trigger propagation if marking as stale
+            if self._stale:
+                self.pchanged()
 
     def get_window_extent(self, renderer):
         """
@@ -319,36 +333,31 @@ class Artist(object):
         for oid, func in six.iteritems(self._propobservers):
             func(self)
 
-    def is_transform_set(self):
-        """
-        Returns *True* if :class:`Artist` has a transform explicitly
-        set.
-        """
-        return self._transformSet
+    #!DEPRECATED
+    # def is_transform_set(self):
+    #     """
+    #     Returns *True* if :class:`Artist` has a transform explicitly
+    #     set.
+    #     """
+    #     return self.transform_set
 
-    def set_transform(self, t):
-        """
-        Set the :class:`~matplotlib.transforms.Transform` instance
-        used by this artist.
+    #!DEPRECATED
+    # def set_transform(self, t):
+    #     """
+    #     Set the :class:`~matplotlib.transforms.Transform` instance
+    #     used by this artist.
 
-        ACCEPTS: :class:`~matplotlib.transforms.Transform` instance
-        """
-        self._transform = t
-        self._transformSet = True
-        self.pchanged()
-        self.stale = True
+    #     ACCEPTS: :class:`~matplotlib.transforms.Transform` instance
+    #     """
+    #     self.transform = t
 
-    def get_transform(self):
-        """
-        Return the :class:`~matplotlib.transforms.Transform`
-        instance used by this artist.
-        """
-        if self._transform is None:
-            self._transform = IdentityTransform()
-        elif (not isinstance(self._transform, Transform)
-              and hasattr(self._transform, '_as_mpl_transform')):
-            self._transform = self._transform._as_mpl_transform(self.axes)
-        return self._transform
+    #!DEPRECATED
+    # def get_transform(self):
+    #     """
+    #     Return the :class:`~matplotlib.transforms.Transform`
+    #     instance used by this artist.
+    #     """
+    #     return self.transform
 
     def hitlist(self, event):
         """
@@ -628,19 +637,9 @@ class Artist(object):
 
         ACCEPTS: a :class:`matplotlib.figure.Figure` instance
         """
-        # if this is a no-op just return
-        if self.figure is fig:
-            return
-        # if we currently have a figure (the case of both `self.figure`
-        # and `fig` being none is taken care of above) we then user is
-        # trying to change the figure an artist is associated with which
-        # is not allowed for the same reason as adding the same instance
-        # to more than one Axes
-        if self.figure is not None:
-            raise RuntimeError("Can not put single artist in "
-                               "more than one figure")
         self.figure = fig
         if self.figure and self.figure is not self:
+            self.add_callback(_stale_figure_callback)
             self.pchanged()
         self.stale = True
 
@@ -835,9 +834,9 @@ class Artist(object):
 
         ACCEPTS: [True | False]
         """
-        if self._animated != b:
-            self._animated = b
-            self.pchanged()
+        self._animated = b
+        self.pchanged()
+        self.stale = True
 
     def update(self, props):
         """

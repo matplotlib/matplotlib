@@ -864,8 +864,8 @@ class _AxesBase(martist.Artist):
     def _set_artist_props(self, a):
         """set the boilerplate props for artists added to axes"""
         a.set_figure(self.figure)
-        if not a.is_transform_set():
-            a.set_transform(self.transData)
+        if not a.transform_set):
+            a.transform = self.transData
 
         a.axes = self
         if a.mouseover:
@@ -1035,7 +1035,7 @@ class _AxesBase(martist.Artist):
             )
 
         for _title in (self.title, self._left_title, self._right_title):
-            _title.set_transform(self.transAxes + self.titleOffsetTrans)
+            _title.transform = self.transAxes + self.titleOffsetTrans
             _title.set_clip_box(None)
             self._set_artist_props(_title)
 
@@ -1048,7 +1048,7 @@ class _AxesBase(martist.Artist):
         self.patch.set_facecolor(self._axisbg)
         self.patch.set_edgecolor('None')
         self.patch.set_linewidth(0)
-        self.patch.set_transform(self.transAxes)
+        self.patch.transform = self.transAxes
 
         self.set_axis_on()
 

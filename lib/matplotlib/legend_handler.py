@@ -207,8 +207,8 @@ class HandlerLine2D(HandlerNpoints):
         # correspondence.
         legline._legmarker = legline_marker
 
-        legline.set_transform(trans)
-        legline_marker.set_transform(trans)
+        legline.transform = trans
+        legline_marker.transform = trans
 
         return [legline, legline_marker]
 
@@ -250,7 +250,7 @@ class HandlerPatch(HandlerBase):
         p = self._create_patch(legend, orig_handle,
                                xdescent, ydescent, width, height, fontsize)
         self.update_prop(p, orig_handle, legend)
-        p.set_transform(trans)
+        p.transform = trans
         return [p]
 
 
@@ -282,7 +282,7 @@ class HandlerLineCollection(HandlerLine2D):
         legline = Line2D(xdata, ydata)
 
         self.update_prop(legline, orig_handle, legend)
-        legline.set_transform(trans)
+        legline.transform = trans
 
         return [legline]
 
@@ -495,7 +495,7 @@ class HandlerErrorbar(HandlerLine2D):
         artists.append(legline_marker)
 
         for artist in artists:
-            artist.set_transform(trans)
+            artist.transform = trans
 
         return artists
 
@@ -558,7 +558,7 @@ class HandlerStem(HandlerNpointsYoffsets):
         artists.append(leg_baseline)
 
         for artist in artists:
-            artist.set_transform(trans)
+            artist.transform = trans
 
         return artists
 
@@ -609,7 +609,7 @@ class HandlerPolyCollection(HandlerBase):
         legend_handle.set_hatch(orig_handle.get_hatch())
         legend_handle.set_linewidth(get_first(orig_handle.get_linewidths()))
         legend_handle.set_linestyle(get_first(orig_handle.get_linestyles()))
-        legend_handle.set_transform(get_first(orig_handle.get_transforms()))
+        legend_handle.transform = get_first(orig_handle.get_transforms())
         legend_handle.set_figure(orig_handle.get_figure())
         legend_handle.set_alpha(orig_handle.get_alpha())
 
@@ -618,5 +618,5 @@ class HandlerPolyCollection(HandlerBase):
         p = Rectangle(xy=(-xdescent, -ydescent),
                       width=width, height=height)
         self.update_prop(p, orig_handle, legend)
-        p.set_transform(trans)
+        p.transform = trans
         return [p]

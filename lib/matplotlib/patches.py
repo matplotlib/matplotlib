@@ -67,6 +67,8 @@ class Patch(artist.Artist):
     validCap = ('butt', 'round', 'projecting')
     validJoin = ('miter', 'round', 'bevel')
 
+    transform = GSTransformInstance()
+
     def __str__(self):
         return str(self.__class__).split('.')[-1]
 
@@ -178,7 +180,7 @@ class Patch(artist.Artist):
         self.set_hatch(other.get_hatch())
         self.set_linewidth(other.get_linewidth())
         self.set_linestyle(other.get_linestyle())
-        self.set_transform(other.get_data_transform())
+        self.transform = other.get_data_transform()
         self.set_figure(other.get_figure())
         self.set_alpha(other.get_alpha())
 
@@ -189,12 +191,16 @@ class Patch(artist.Artist):
         """
         return self.get_path().get_extents(self.get_transform())
 
-    def get_transform(self):
-        """
-        Return the :class:`~matplotlib.transforms.Transform` applied
-        to the :class:`Patch`.
-        """
-        return self.get_patch_transform() + artist.Artist.get_transform(self)
+    def _transform_getter(self, trait, cls):
+        return self.get_patch_transform() + trait.__get__(self,cls)
+
+    # !DEPRECATED
+    # def get_transform(self):
+    #     """
+    #     Return the :class:`~matplotlib.transforms.Transform` applied
+    #     to the :class:`Patch`.
+    #     """
+    #     return self.get_patch_transform() + artist.Artist.get_transform(self)
 
     def get_data_transform(self):
         """
@@ -1691,7 +1697,7 @@ def bbox_artist(artist, renderer, props=None, fill=True):
                   height=h,
                   fill=fill,
                   )
-    r.set_transform(transforms.IdentityTransform())
+    r.transform = transforms.IdentityTransform()
     r.set_clip_on(False)
     r.update(props)
     r.draw(renderer)
@@ -1713,7 +1719,7 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
                   fill=False,
                   )
     if trans is not None:
-        r.set_transform(trans)
+        r.transform = trans
     r.set_clip_on(False)
     r.draw(renderer)
 

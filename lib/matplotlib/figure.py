@@ -1419,7 +1419,7 @@ class Figure(Artist):
         if a != self:
             a.set_figure(self)
         a.stale_callback = _stale_figure_callback
-        a.set_transform(self.transFigure)
+        a.transform = self.transFigure
 
     @docstring.dedent_interpd
     def gca(self, **kwargs):

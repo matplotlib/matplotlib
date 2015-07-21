@@ -403,7 +403,7 @@ class Legend(Artist):
             # a.set_axes(self.axes)
             a.axes = self.axes
 
-        a.set_transform(self.get_transform())
+        a.transform = self.transform
 
     def _set_loc(self, loc):
         # find_offset function will be provided to _legend_box and

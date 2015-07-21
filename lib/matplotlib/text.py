@@ -1629,16 +1629,22 @@ class TextWithDash(Text):
         self._dashy = float(y)
         self.stale = True
 
-    def set_transform(self, t):
-        """
-        Set the :class:`matplotlib.transforms.Transform` instance used
-        by this artist.
-
-        ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
-        """
-        Text.set_transform(self, t)
-        self.dashline.set_transform(t)
+    def _transform_changed(self, name, value):
+        Text._transform_changed(self)
+        self.dashline.transform = value
         self.stale = True
+
+    # !DEPRECATED
+    # def set_transform(self, t):
+    #     """
+    #     Set the :class:`matplotlib.transforms.Transform` instance used
+    #     by this artist.
+
+    #     ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
+    #     """
+    #     Text.set_transform(self, t)
+    #     self.dashline.set_transform(t)
+    #     self.stale = True
 
     def get_figure(self):
         'return the figure instance the artist belongs to'

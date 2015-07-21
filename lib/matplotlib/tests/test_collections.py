@@ -552,6 +552,7 @@ def test_regularpolycollection_scale():
             super(SquareCollection, self).__init__(
                 4, rotation=np.pi/4., **kwargs)
 
+        #!TODO : not sure of how to handle collections
         def get_transform(self):
             """Return transform scaling circle areas to data space."""
             ax = self.axes

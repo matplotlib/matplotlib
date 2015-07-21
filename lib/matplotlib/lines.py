@@ -686,16 +686,20 @@ class Line2D(Artist):
             self._transform_path()
         return self._transformed_path
 
-    def set_transform(self, t):
-        """
-        set the Transformation instance used by this artist
-
-        ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
-        """
-        Artist.set_transform(self, t)
+    def _transform_changed(self):
+        Artist._transform_changed(self)
         self._invalidx = True
         self._invalidy = True
         self.stale = True
+
+    #!DEPRECATED
+    # def set_transform(self, t):
+    #     """
+    #     set the Transformation instance used by this artist
+
+    #     ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
+    #     """
+    #     self.transform = t
 
     def _is_sorted(self, x):
         """return True if x is sorted in ascending order"""

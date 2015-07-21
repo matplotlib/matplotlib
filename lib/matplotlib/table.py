@@ -65,10 +65,15 @@ class Cell(Rectangle):
                           fontproperties=fontproperties)
         self._text.set_clip_on(False)
 
-    def set_transform(self, trans):
-        Rectangle.set_transform(self, trans)
-        # the text does not get the transform!
+    def _transform_set(self):
+        Rectangle._transform_changed(self)
         self.stale = True
+
+    #!DEPRECATED
+    # def set_transform(self, trans):
+    #     Rectangle.set_transform(self, trans)
+    #     # the text does not get the transform!
+    #     self.stale = True
 
     def set_figure(self, fig):
         Rectangle.set_figure(self, fig)

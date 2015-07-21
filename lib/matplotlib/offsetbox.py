@@ -40,6 +40,7 @@ from matplotlib.image import BboxImage
 from matplotlib.patches import bbox_artist as mbbox_artist
 from matplotlib.text import _AnnotationBase
 
+from .traitlets import GSTransformInstance
 
 DEBUG = False
 
@@ -573,7 +574,6 @@ class PaddedBox(OffsetBox):
         if self._drawFrame:
             self.patch.draw(renderer)
 
-
 class DrawingArea(OffsetBox):
     """
     The DrawingArea can contain any Artist as a child. The DrawingArea
@@ -581,6 +581,8 @@ class DrawingArea(OffsetBox):
     the parent is fixed. The children can be clipped at the
     boundaries of the parent.
     """
+
+    transform = GSTransformInstance(None, allow_none=True)
 
     def __init__(self, width, height, xdescent=0.,
                  ydescent=0., clip=False):
@@ -617,18 +619,31 @@ class DrawingArea(OffsetBox):
         self._clip_children = bool(val)
         self.stale = True
 
-    def get_transform(self):
+    def _transform_getter(self, *args):
         """
-        Return the :class:`~matplotlib.transforms.Transform` applied
-        to the children
-        """
+         Return the :class:`~matplotlib.transforms.Transform` applied
+         to the children
+         """
         return self.dpi_transform + self.offset_transform
 
-    def set_transform(self, t):
-        """
-        set_transform is ignored.
-        """
-        pass
+    def _transform_changed(self):
+        """Ignore setting"""
+        self.transform = None
+
+    #!DEPRECATED
+    # def get_transform(self):
+    #     """
+    #     Return the :class:`~matplotlib.transforms.Transform` applied
+    #     to the children
+    #     """
+    #     return self.transform
+
+    #!DEPRECATED
+    # def set_transform(self, t):
+    #     """
+    #     set_transform is ignored.
+    #     """
+    #     pass
 
     def set_offset(self, xy):
         """
@@ -670,12 +685,12 @@ class DrawingArea(OffsetBox):
         'Add any :class:`~matplotlib.artist.Artist` to the container box'
         self._children.append(a)
         if not a.is_transform_set():
-            a.set_transform(self.get_transform())
+            a.transform = self.transform
         if self.axes is not None:
             a.axes = self.axes
         fig = self.figure
         if fig is not None:
-            a.set_figure(fig)
+            a.figure = fig
 
     def draw(self, renderer):
         """
@@ -710,6 +725,7 @@ class TextArea(OffsetBox):
     of the TextArea instance is the width and height of the its child
     text.
     """
+
     def __init__(self, s,
                  textprops=None,
                  multilinebaseline=None,
@@ -747,7 +763,7 @@ class TextArea(OffsetBox):
         self.offset_transform.clear()
         self.offset_transform.translate(0, 0)
         self._baseline_transform = mtransforms.Affine2D()
-        self._text.set_transform(self.offset_transform +
+        self._text.transform = (self.offset_transform +
                                  self._baseline_transform)
 
         self._multilinebaseline = multilinebaseline
@@ -795,11 +811,8 @@ class TextArea(OffsetBox):
         """
         return self._minimumdescent
 
-    def set_transform(self, t):
-        """
-        set_transform is ignored.
-        """
-        pass
+    def _transform_changed(self):
+        self.transform = None
 
     def set_offset(self, xy):
         """
@@ -884,6 +897,9 @@ class AuxTransformBox(OffsetBox):
     children. Furthermore, the extent of the children will be
     calculated in the transformed coordinate.
     """
+
+    transform = GSTransformInstance(None, allow_none=True)
+
     def __init__(self, aux_transform):
         self.aux_transform = aux_transform
         OffsetBox.__init__(self)
@@ -901,23 +917,31 @@ class AuxTransformBox(OffsetBox):
     def add_artist(self, a):
         'Add any :class:`~matplotlib.artist.Artist` to the container box'
         self._children.append(a)
-        a.set_transform(self.get_transform())
+        a.transform = self.transform
         self.stale = True
 
-    def get_transform(self):
-        """
-        Return the :class:`~matplotlib.transforms.Transform` applied
-        to the children
-        """
+    def _transform_getter(self):
         return self.aux_transform + \
                self.ref_offset_transform + \
                self.offset_transform
 
-    def set_transform(self, t):
-        """
-        set_transform is ignored.
-        """
-        pass
+    def _transform_changed(self):
+        self.transform = None
+
+    # !DEPRECATED
+    # def get_transform(self):
+    #     """
+    #     Return the :class:`~matplotlib.transforms.Transform` applied
+    #     to the children
+    #     """
+    #     return 
+
+    #!DEPRECATED
+    # def set_transform(self, t):
+    #     """
+    #     set_transform is ignored.
+    #     """
+    #     pass
 
     def set_offset(self, xy):
         """

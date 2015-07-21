@@ -293,9 +293,9 @@ class Tick(artist.Artist):
             self._base_pad = kw.pop('pad', self._base_pad)
             self.apply_tickdir(kw.pop('tickdir', self._tickdir))
             trans = self._get_text1_transform()[0]
-            self.label1.set_transform(trans)
+            self.label1.transform = trans
             trans = self._get_text2_transform()[0]
-            self.label2.set_transform(trans)
+            self.label2 = trans
             self.tick1line.set_marker(self._tickmarkers[0])
             self.tick2line.set_marker(self._tickmarkers[1])
         tick_kw = dict([kv for kv in six.iteritems(kw)
@@ -371,7 +371,7 @@ class XTick(Tick):
             verticalalignment=vert,
             horizontalalignment=horiz,
             )
-        t.set_transform(trans)
+        t.transform = trans
         self._set_artist_props(t)
         return t
 
@@ -387,7 +387,7 @@ class XTick(Tick):
             verticalalignment=vert,
             horizontalalignment=horiz,
             )
-        t.set_transform(trans)
+        t.transform = trans
         self._set_artist_props(t)
         return t
 
@@ -398,7 +398,7 @@ class XTick(Tick):
                           linestyle='None', marker=self._tickmarkers[0],
                           markersize=self._size,
                           markeredgewidth=self._width, zorder=self._zorder)
-        l.set_transform(self.axes.get_xaxis_transform(which='tick1'))
+        l.transform = self.axes.get_xaxis_transform(which='tick1')
         self._set_artist_props(l)
         return l
 
@@ -413,7 +413,7 @@ class XTick(Tick):
                           markeredgewidth=self._width,
                           zorder=self._zorder)
 
-        l.set_transform(self.axes.get_xaxis_transform(which='tick2'))
+        l.transform = self.axes.get_xaxis_transform(which='tick2')
         self._set_artist_props(l)
         return l
 
@@ -426,7 +426,7 @@ class XTick(Tick):
                           linewidth=rcParams['grid.linewidth'],
                           alpha=rcParams['grid.alpha'],
                           markersize=0)
-        l.set_transform(self.axes.get_xaxis_transform(which='grid'))
+        l.transform = self.axes.get_xaxis_transform(which='grid')
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
         self._set_artist_props(l)
 
@@ -506,7 +506,7 @@ class YTick(Tick):
             verticalalignment=vert,
             horizontalalignment=horiz,
             )
-        t.set_transform(trans)
+        t.transform = trans
         self._set_artist_props(t)
         return t
 
@@ -521,7 +521,7 @@ class YTick(Tick):
             verticalalignment=vert,
             horizontalalignment=horiz,
             )
-        t.set_transform(trans)
+        t.transform = trans
         self._set_artist_props(t)
         return t
 
@@ -536,7 +536,7 @@ class YTick(Tick):
                           markersize=self._size,
                           markeredgewidth=self._width,
                           zorder=self._zorder)
-        l.set_transform(self.axes.get_yaxis_transform(which='tick1'))
+        l.transform = self.axes.get_yaxis_transform(which='tick1')
         self._set_artist_props(l)
         return l
 
@@ -550,7 +550,7 @@ class YTick(Tick):
                           markersize=self._size,
                           markeredgewidth=self._width,
                           zorder=self._zorder)
-        l.set_transform(self.axes.get_yaxis_transform(which='tick2'))
+        l.transform = self.axes.get_yaxis_transform(which='tick2')
         self._set_artist_props(l)
         return l
 
@@ -564,7 +564,7 @@ class YTick(Tick):
                           alpha=rcParams['grid.alpha'],
                           markersize=0)
 
-        l.set_transform(self.axes.get_yaxis_transform(which='grid'))
+        l.transform = self.axes.get_yaxis_transform(which='grid')
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
         self._set_artist_props(l)
         return l
@@ -677,12 +677,16 @@ class Axis(artist.Artist):
         if transform is None:
             transform = self.axes.transAxes
 
-        self.label.set_transform(transform)
+        self.label.transform = transform
         self.label.set_position((x, y))
         self.stale = True
 
-    def get_transform(self):
+    def _transform_getter(self):
         return self._scale.get_transform()
+
+    # !DEPRECATED
+    # def get_transform(self):
+    #     return self._scale.get_transform()
 
     def get_scale(self):
         return self._scale.name
@@ -1707,8 +1711,8 @@ class XAxis(Axis):
                            verticalalignment='top',
                            horizontalalignment='center')
 
-        label.set_transform(mtransforms.blended_transform_factory(
-            self.axes.transAxes, mtransforms.IdentityTransform()))
+        label.transform = mtransforms.blended_transform_factory(
+            self.axes.transAxes, mtransforms.IdentityTransform())
 
         self._set_artist_props(label)
         self.label_position = 'bottom'
@@ -1722,8 +1726,8 @@ class XAxis(Axis):
                                 color=rcParams['xtick.color'],
                                 verticalalignment='top',
                                 horizontalalignment='right')
-        offsetText.set_transform(mtransforms.blended_transform_factory(
-            self.axes.transAxes, mtransforms.IdentityTransform())
+        offsetText.transform = mtransforms.blended_transform_factory(
+            self.axes.transAxes, mtransforms.IdentityTransform()
         )
         self._set_artist_props(offsetText)
         self.offset_text_position = 'bottom'
@@ -2034,8 +2038,8 @@ class YAxis(Axis):
                            horizontalalignment='center',
                            rotation='vertical',
                            rotation_mode='anchor')
-        label.set_transform(mtransforms.blended_transform_factory(
-            mtransforms.IdentityTransform(), self.axes.transAxes))
+        label.transform = mtransforms.blended_transform_factory(
+            mtransforms.IdentityTransform(), self.axes.transAxes)
 
         self._set_artist_props(label)
         self.label_position = 'left'
@@ -2050,8 +2054,8 @@ class YAxis(Axis):
                                 color=rcParams['ytick.color'],
                                 verticalalignment='baseline',
                                 horizontalalignment='left')
-        offsetText.set_transform(mtransforms.blended_transform_factory(
-            self.axes.transAxes, mtransforms.IdentityTransform())
+        offsetText.transform = mtransforms.blended_transform_factory(
+            self.axes.transAxes, mtransforms.IdentityTransform()
         )
         self._set_artist_props(offsetText)
         self.offset_text_position = 'left'
