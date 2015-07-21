@@ -59,6 +59,7 @@ _interpd_ = {
 
 interpolations_names = list(six.iterkeys(_interpd_))
 
+
 class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     zorder = 0
 
