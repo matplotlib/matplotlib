@@ -1034,7 +1034,7 @@ class StandardPsFonts(Fonts):
         if filename is None:
             filename = findfont('Helvetica', fontext='afm',
                                 directory=self.basepath)
-        with open(filename, 'r') as fd:
+        with open(filename, 'rb') as fd:
             default_font = AFM(fd)
         default_font.fname = filename
 
