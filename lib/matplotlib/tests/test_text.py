@@ -382,11 +382,11 @@ def test_text_with_arrow_annotation_get_window_extent():
     # bounding box of annotation (text + arrow)
     bbox = ann.get_window_extent(renderer=renderer)
     # bounding box of arrow
-    arrow_bbox = ann.arrow.get_window_extent(renderer)
+    arrow_bbox = ann.arrow_patch.get_window_extent(renderer)
     # bounding box of annotation text
     ann_txt_bbox = Text.get_window_extent(ann)
 
-    # make sure annotation with in 50 px wider than
+    # make sure annotation width is 50 px wider than
     # just the text
     eq_(bbox.width, text_bbox.width + 50.0)
     # make sure the annotation text bounding box is same size
@@ -400,12 +400,14 @@ def test_text_with_arrow_annotation_get_window_extent():
 
 @cleanup
 def test_arrow_annotation_get_window_extent():
-    figure = Figure(dpi=100)
+    dpi = 100
+    dots_per_point = dpi / 72
+    figure = Figure(dpi=dpi)
     figure.set_figwidth(2.0)
     figure.set_figheight(2.0)
     renderer = RendererAgg(200, 200, 100)
 
-    # Text annotation with arrow
+    # Text annotation with arrow; arrow dimensions are in points
     annotation = Annotation(
         '', xy=(0.0, 50.0), xytext=(50.0, 50.0), xycoords='figure pixels',
         arrowprops={
@@ -417,9 +419,9 @@ def test_arrow_annotation_get_window_extent():
     points = bbox.get_points()
 
     eq_(bbox.width, 50.0)
-    assert_almost_equal(bbox.height, 10.0 / 0.72)
+    assert_almost_equal(bbox.height, 10.0 * dots_per_point)
     eq_(points[0, 0], 0.0)
-    eq_(points[0, 1], 50.0 - 5 / 0.72)
+    eq_(points[0, 1], 50.0 - 5 * dots_per_point)
 
 
 @cleanup
