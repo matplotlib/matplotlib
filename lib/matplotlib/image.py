@@ -34,35 +34,42 @@ from matplotlib._image import *
 from matplotlib.transforms import BboxBase, Bbox, IdentityTransform
 import matplotlib.transforms as mtransforms
 
+# map interpolation strings to module constants
+_interpd_ = {
+    'none': _image.NEAREST,  # fall back to nearest when not supported
+    'nearest': _image.NEAREST,
+    'bilinear': _image.BILINEAR,
+    'bicubic': _image.BICUBIC,
+    'spline16': _image.SPLINE16,
+    'spline36': _image.SPLINE36,
+    'hanning': _image.HANNING,
+    'hamming': _image.HAMMING,
+    'hermite': _image.HERMITE,
+    'kaiser': _image.KAISER,
+    'quadric': _image.QUADRIC,
+    'catrom': _image.CATROM,
+    'gaussian': _image.GAUSSIAN,
+    'bessel': _image.BESSEL,
+    'mitchell': _image.MITCHELL,
+    'sinc': _image.SINC,
+    'lanczos': _image.LANCZOS,
+    'blackman': _image.BLACKMAN,
+}
+
+
+interpolations_names = set(six.iterkeys(_interpd_))
+
 
 class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     zorder = 0
-    # map interpolation strings to module constants
-    _interpd = {
-        'none': _image.NEAREST,  # fall back to nearest when not supported
-        'nearest': _image.NEAREST,
-        'bilinear': _image.BILINEAR,
-        'bicubic': _image.BICUBIC,
-        'spline16': _image.SPLINE16,
-        'spline36': _image.SPLINE36,
-        'hanning': _image.HANNING,
-        'hamming': _image.HAMMING,
-        'hermite': _image.HERMITE,
-        'kaiser': _image.KAISER,
-        'quadric': _image.QUADRIC,
-        'catrom': _image.CATROM,
-        'gaussian': _image.GAUSSIAN,
-        'bessel': _image.BESSEL,
-        'mitchell': _image.MITCHELL,
-        'sinc': _image.SINC,
-        'lanczos': _image.LANCZOS,
-        'blackman': _image.BLACKMAN,
-    }
 
+    # the 3 following keys seem to be unused now, keep it for
+    # backward compatibility just in case.
+    _interpd = _interpd_
     # reverse interp dict
-    _interpdr = dict([(v, k) for k, v in six.iteritems(_interpd)])
-
-    interpnames = list(six.iterkeys(_interpd))
+    _interpdr = dict([(v, k) for k, v in six.iteritems(_interpd_)])
+    iterpnames = interpolations_names
+    # <end unused keys>
 
     def __str__(self):
         return "AxesImage(%g,%g;%gx%g)" % tuple(self.axes.bbox.bounds)
@@ -483,7 +490,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         if s is None:
             s = rcParams['image.interpolation']
         s = s.lower()
-        if s not in self._interpd:
+        if s not in _interpd_:
             raise ValueError('Illegal interpolation string')
         self._interpolation = s
         self.stale = True
@@ -617,7 +624,7 @@ class AxesImage(_AxesImageBase):
         numrows, numcols = im.get_size()
         if numrows < 1 or numcols < 1:   # out of range
             return None
-        im.set_interpolation(self._interpd[self._interpolation])
+        im.set_interpolation(_interpd_[self._interpolation])
 
         im.set_resample(self._resample)
 
@@ -760,7 +767,7 @@ class NonUniformImage(AxesImage):
         im = _image.pcolor(self._Ax, self._Ay, A,
                            int(height), int(width),
                            (x0, x0+v_width, y0, y0+v_height),
-                           self._interpd[self._interpolation])
+                           _interpd_[self._interpolation])
 
         fc = self.axes.patch.get_facecolor()
         bg = mcolors.colorConverter.to_rgba(fc, 0)
@@ -1186,7 +1193,7 @@ class BboxImage(_AxesImageBase):
         # image input dimensions
         im.reset_matrix()
 
-        im.set_interpolation(self._interpd[self._interpolation])
+        im.set_interpolation(_interpd_[self._interpolation])
 
         im.set_resample(self._resample)
 
