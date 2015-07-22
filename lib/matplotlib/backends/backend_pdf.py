@@ -12,6 +12,7 @@ from matplotlib.externals import six
 import codecs
 import os
 import re
+import struct
 import sys
 import time
 import warnings
@@ -43,6 +44,7 @@ from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
 from matplotlib import _path
+from matplotlib import _png
 from matplotlib import ttconv
 
 # Overview
@@ -87,7 +89,6 @@ from matplotlib import ttconv
 
 # TODOs:
 #
-# * image compression could be improved (PDF supports png-like compression)
 # * encoding of fonts, including mathtext fonts and unicode support
 # * TTF support has lots of small TODOs, e.g., how do you know if a font
 #   is serif/sans-serif, or symbolic/non-symbolic?
@@ -334,11 +335,12 @@ class Stream(object):
     """
     __slots__ = ('id', 'len', 'pdfFile', 'file', 'compressobj', 'extra', 'pos')
 
-    def __init__(self, id, len, file, extra=None):
+    def __init__(self, id, len, file, extra=None, png=None):
         """id: object id of stream; len: an unused Reference object for the
         length of the stream, or None (to use a memory buffer); file:
         a PdfFile; extra: a dictionary of extra key-value pairs to
-        include in the stream header """
+        include in the stream header; png: if the data is already
+        png compressed, the decode parameters"""
         self.id = id            # object id
         self.len = len          # id of length object
         self.pdfFile = file
@@ -347,10 +349,13 @@ class Stream(object):
         if extra is None:
             self.extra = dict()
         else:
-            self.extra = extra
+            self.extra = extra.copy()
+        if png is not None:
+            self.extra.update({'Filter':      Name('FlateDecode'),
+                               'DecodeParms': png})
 
         self.pdfFile.recordXref(self.id)
-        if rcParams['pdf.compression']:
+        if rcParams['pdf.compression'] and not png:
             self.compressobj = zlib.compressobj(rcParams['pdf.compression'])
         if self.len is None:
             self.file = BytesIO()
@@ -583,9 +588,9 @@ class PdfFile(object):
         self.write(fill([pdfRepr(x) for x in data]))
         self.write(b'\n')
 
-    def beginStream(self, id, len, extra=None):
+    def beginStream(self, id, len, extra=None, png=None):
         assert self.currentstream is None
-        self.currentstream = Stream(id, len, self, extra)
+        self.currentstream = Stream(id, len, self, extra, png)
 
     def endStream(self):
         if self.currentstream is not None:
@@ -1247,73 +1252,103 @@ end"""
         self.images[image] = (name, ob)
         return name
 
-    def _rgb(self, im):
-        h, w, s = im.as_rgba_str()
+    def _unpack(self, im):
+        """
+        Unpack the image object im into height, width, data, alpha,
+        where data and alpha are HxWx3 (RGB) or HxWx1 (grayscale or alpha)
+        arrays, except alpha is None if the image is fully opaque.
+        """
 
+        h, w, s = im.as_rgba_str()
         rgba = np.fromstring(s, np.uint8)
         rgba.shape = (h, w, 4)
         rgba = rgba[::-1]
-        rgb = rgba[:, :, :3].tostring()
-        a = rgba[:, :, 3]
-        if np.all(a == 255):
+        rgb = rgba[:, :, :3]
+        alpha = rgba[:, :, 3][..., None]
+        if np.all(alpha == 255):
             alpha = None
         else:
-            alpha = a.tostring()
-        return h, w, rgb, alpha
+            alpha = np.array(alpha, order='C')
+        if im.is_grayscale:
+            r, g, b = rgb.astype(np.float32).transpose(2, 0, 1)
+            gray = (0.3 * r + 0.59 * g + 0.11 * b).astype(np.uint8)[..., None]
+            return h, w, gray, alpha
+        else:
+            rgb = np.array(rgb, order='C')
+            return h, w, rgb, alpha
 
-    def _gray(self, im, rc=0.3, gc=0.59, bc=0.11):
-        rgbat = im.as_rgba_str()
-        rgba = np.fromstring(rgbat[2], np.uint8)
-        rgba.shape = (rgbat[0], rgbat[1], 4)
-        rgba = rgba[::-1]
-        rgba_f = rgba.astype(np.float32)
-        r = rgba_f[:, :, 0]
-        g = rgba_f[:, :, 1]
-        b = rgba_f[:, :, 2]
-        a = rgba[:, :, 3]
-        if np.all(a == 255):
-            alpha = None
+    def _writePng(self, data):
+        """
+        Write the image *data* into the pdf file using png
+        predictors with Flate compression.
+        """
+
+        buffer = BytesIO()
+        _png.write_png(data, buffer)
+        buffer.seek(8)
+        written = 0
+        header = bytearray(8)
+        while True:
+            n = buffer.readinto(header)
+            assert n == 8
+            length, type = struct.unpack(b'!L4s', bytes(header))
+            if type == b'IDAT':
+                data = bytearray(length)
+                n = buffer.readinto(data)
+                assert n == length
+                self.currentstream.write(bytes(data))
+                written += n
+            elif type == b'IEND':
+                break
+            else:
+                buffer.seek(length, 1)
+            buffer.seek(4, 1)   # skip CRC
+
+    def _writeImg(self, data, height, width, grayscale, id, smask=None):
+        """
+        Write the image *data* of size *height* x *width*, as grayscale
+        if *grayscale* is true and RGB otherwise, as pdf object *id*
+        and with the soft mask (alpha channel) *smask*, which should be
+        either None or a *height* x *width* x 1 array.
+        """
+
+        obj = {'Type':             Name('XObject'),
+               'Subtype':          Name('Image'),
+               'Width':            width,
+               'Height':           height,
+               'ColorSpace':       Name('DeviceGray' if grayscale
+                                        else 'DeviceRGB'),
+               'BitsPerComponent': 8}
+        if smask:
+            obj['SMask'] = smask
+        if rcParams['pdf.compression']:
+            png = {'Predictor': 10,
+                   'Colors':    1 if grayscale else 3,
+                   'Columns':   width}
         else:
-            alpha = a.tostring()
-        gray = (r*rc + g*gc + b*bc).astype(np.uint8).tostring()
-        return rgbat[0], rgbat[1], gray, alpha
+            png = None
+        self.beginStream(
+            id,
+            self.reserveObject('length of image stream'),
+            obj,
+            png=png
+            )
+        if png:
+            self._writePng(data)
+        else:
+            self.currentstream.write(data.tostring())
+        self.endStream()
 
     def writeImages(self):
         for img, pair in six.iteritems(self.images):
-            if img.is_grayscale:
-                height, width, data, adata = self._gray(img)
-            else:
-                height, width, data, adata = self._rgb(img)
-
-            colorspace = 'DeviceGray' if img.is_grayscale else 'DeviceRGB'
-            obj = {'Type': Name('XObject'),
-                   'Subtype': Name('Image'),
-                   'Width': width,
-                   'Height': height,
-                   'ColorSpace': Name(colorspace),
-                   'BitsPerComponent': 8}
-
+            height, width, data, adata = self._unpack(img)
             if adata is not None:
                 smaskObject = self.reserveObject("smask")
-                self.beginStream(
-                    smaskObject.id,
-                    self.reserveObject('length of smask stream'),
-                    {'Type': Name('XObject'), 'Subtype': Name('Image'),
-                     'Width': width, 'Height': height,
-                     'ColorSpace': Name('DeviceGray'), 'BitsPerComponent': 8})
-                # TODO: predictors (i.e., output png)
-                self.currentstream.write(adata)
-                self.endStream()
-                obj['SMask'] = smaskObject
-
-            self.beginStream(
-                pair[1].id,
-                self.reserveObject('length of image stream'),
-                obj
-                )
-            # TODO: predictors (i.e., output png)
-            self.currentstream.write(data)
-            self.endStream()
+                self._writeImg(adata, height, width, True, smaskObject.id)
+            else:
+                smaskObject = None
+            self._writeImg(data, height, width, img.is_grayscale,
+                           pair[1].id, smaskObject)
 
     def markerObject(self, path, trans, fill, stroke, lw, joinstyle,
                      capstyle):

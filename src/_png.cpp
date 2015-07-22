@@ -71,11 +71,15 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
     double dpi = 0;
     const char *names[] = { "buffer", "file", "dpi", NULL };
 
+    // We don't need strict contiguity, just for each row to be
+    // contiguous, and libpng has special handling for getting RGB out
+    // of RGBA, ARGB or BGR. But the simplest thing to do is to
+    // enforce contiguity using array_view::converter_contiguous.
     if (!PyArg_ParseTupleAndKeywords(args,
                                      kwds,
                                      "O&O|d:write_png",
                                      (char **)names,
-                                     &buffer.converter,
+                                     &buffer.converter_contiguous,
                                      &buffer,
                                      &filein,
                                      &dpi)) {
@@ -84,6 +88,7 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 
     png_uint_32 width = (png_uint_32)buffer.dim(1);
     png_uint_32 height = (png_uint_32)buffer.dim(0);
+    int channels = buffer.dim(2);
     std::vector<png_bytep> row_pointers(height);
     for (png_uint_32 row = 0; row < (png_uint_32)height; ++row) {
         row_pointers[row] = (png_bytep)buffer[row].data();
@@ -98,9 +103,22 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
     png_structp png_ptr = NULL;
     png_infop info_ptr = NULL;
     struct png_color_8_struct sig_bit;
+    int png_color_type;
 
-    if (buffer.dim(2) != 4) {
-        PyErr_SetString(PyExc_ValueError, "Buffer must be RGBA NxMx4 array");
+    switch (channels) {
+    case 1:
+	png_color_type = PNG_COLOR_TYPE_GRAY;
+	break;
+    case 3:
+	png_color_type = PNG_COLOR_TYPE_RGB;
+	break;
+    case 4:
+	png_color_type = PNG_COLOR_TYPE_RGB_ALPHA;
+	break;
+    default:
+        PyErr_SetString(PyExc_ValueError,
+			"Buffer must be an NxMxD array with D in 1, 3, 4 "
+			"(grayscale, RGB, RGBA)");
         goto exit;
     }
 
@@ -141,7 +159,7 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     if (setjmp(png_jmpbuf(png_ptr))) {
-        PyErr_SetString(PyExc_RuntimeError, "Error setting jumps");
+        PyErr_SetString(PyExc_RuntimeError, "libpng signaled error");
         goto exit;
     }
 
@@ -155,7 +173,7 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
                  width,
                  height,
                  8,
-                 PNG_COLOR_TYPE_RGB_ALPHA,
+                 png_color_type,
                  PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_BASE,
                  PNG_FILTER_TYPE_BASE);
@@ -166,13 +184,27 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
         png_set_pHYs(png_ptr, info_ptr, dots_per_meter, dots_per_meter, PNG_RESOLUTION_METER);
     }
 
-    // this a a color image!
-    sig_bit.gray = 0;
-    sig_bit.red = 8;
-    sig_bit.green = 8;
-    sig_bit.blue = 8;
-    /* if the image has an alpha channel then */
-    sig_bit.alpha = 8;
+    sig_bit.alpha = 0;
+    switch (png_color_type) {
+    case PNG_COLOR_TYPE_GRAY:
+	sig_bit.gray = 8;
+	sig_bit.red = 0;
+	sig_bit.green = 0;
+	sig_bit.blue = 0;
+	break;
+    case PNG_COLOR_TYPE_RGB_ALPHA:
+	sig_bit.alpha = 8;
+	// fall through
+    case PNG_COLOR_TYPE_RGB:
+	sig_bit.gray = 0;
+	sig_bit.red = 8;
+	sig_bit.green = 8;
+	sig_bit.blue = 8;
+	break;
+    default:
+        PyErr_SetString(PyExc_RuntimeError, "internal error, bad png_color_type");
+        goto exit;
+    }
     png_set_sBIT(png_ptr, info_ptr, &sig_bit);
 
     png_write_info(png_ptr, info_ptr);
