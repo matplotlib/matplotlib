@@ -2658,14 +2658,14 @@ class ConnectionStyle(_Style):
 
     class _Base(object):
         """
-        A base class for connectionstyle classes. The dervided needs
-        to implement a *connect* methods whose call signature is::
+        A base class for connectionstyle classes. The subclass needs
+        to implement a *connect* method whose call signature is::
 
           connect(posA, posB)
 
         where posA and posB are tuples of x, y coordinates to be
-        connected.  The methods needs to return a path connecting two
-        points. This base class defines a __call__ method, and few
+        connected.  The method needs to return a path connecting two
+        points. This base class defines a __call__ method, and a few
         helper methods.
         """
 
@@ -2738,18 +2738,18 @@ class ConnectionStyle(_Style):
                      shrinkA=2., shrinkB=2., patchA=None, patchB=None):
             """
             Calls the *connect* method to create a path between *posA*
-             and *posB*. The path is clipped and shrinked.
+             and *posB*. The path is clipped and shrunken.
             """
 
             path = self.connect(posA, posB)
 
             clipped_path = self._clip(path, patchA, patchB)
-            shrinked_path = self._shrink(clipped_path, shrinkA, shrinkB)
+            shrunk_path = self._shrink(clipped_path, shrinkA, shrinkB)
 
-            return shrinked_path
+            return shrunk_path
 
         def __reduce__(self):
-            # because we have decided to nest thes classes, we need to
+            # because we have decided to nest these classes, we need to
             # add some more information to allow instance pickling.
             import matplotlib.cbook as cbook
             return (cbook._NestedClassGetter(),
@@ -2994,7 +2994,7 @@ class ConnectionStyle(_Style):
     class Bar(_Base):
         """
         A line with *angle* between A and B with *armA* and
-        *armB*. One of the arm is extend so that they are connected in
+        *armB*. One of the arms is extended so that they are connected in
         a right angle. The length of armA is determined by (*armA*
         + *fraction* x AB distance). Same for armB.
         """
@@ -3119,14 +3119,14 @@ class ArrowStyle(_Style):
     %(AvailableArrowstyles)s
 
 
-    An instance of any arrow style class is an callable object,
+    An instance of any arrow style class is a callable object,
     whose call signature is::
 
         __call__(self, path, mutation_size, linewidth, aspect_ratio=1.)
 
     and it returns a tuple of a :class:`Path` instance and a boolean
-    value. *path* is a :class:`Path` instance along witch the arrow
-    will be drawn. *mutation_size* and *aspect_ratio* has a same
+    value. *path* is a :class:`Path` instance along which the arrow
+    will be drawn. *mutation_size* and *aspect_ratio* have the same
     meaning as in :class:`BoxStyle`. *linewidth* is a line width to be
     stroked. This is meant to be used to correct the location of the
     head so that it does not overshoot the destination point, but not all
@@ -3175,11 +3175,11 @@ class ArrowStyle(_Style):
 
         def transmute(self, path, mutation_size, linewidth):
             """
-            The transmute method is a very core of the ArrowStyle
+            The transmute method is the very core of the ArrowStyle
             class and must be overriden in the subclasses. It receives
             the path object along which the arrow will be drawn, and
-            the mutation_size, with which the amount arrow head and
-            etc. will be scaled. The linewidth may be used to adjust
+            the mutation_size, with which the arrow head etc.
+            will be scaled. The linewidth may be used to adjust
             the path so that it does not pass beyond the given
             points. It returns a tuple of a Path instance and a
             boolean. The boolean value indicate whether the path can
@@ -3204,9 +3204,9 @@ class ArrowStyle(_Style):
                 vertices, codes = path.vertices[:], path.codes[:]
                 # Squeeze the height
                 vertices[:, 1] = vertices[:, 1] / aspect_ratio
-                path_shrinked = Path(vertices, codes)
+                path_shrunk = Path(vertices, codes)
                 # call transmute method with squeezed height.
-                path_mutated, fillable = self.transmute(path_shrinked,
+                path_mutated, fillable = self.transmute(path_shrunk,
                                                         linewidth,
                                                         mutation_size)
                 if cbook.iterable(fillable):
@@ -3261,7 +3261,7 @@ class ArrowStyle(_Style):
             Return the paths for arrow heads. Since arrow lines are
             drawn with capstyle=projected, The arrow goes beyond the
             desired point. This method also returns the amount of the path
-            to be shrinked so that it does not overshoot.
+            to be shrunken so that it does not overshoot.
             """
 
             # arrow from x0, y0 to x1, y1
@@ -3968,7 +3968,7 @@ class FancyArrowPatch(Patch):
         """
         If *posA* and *posB* is given, a path connecting two point are
         created according to the connectionstyle. The path will be
-        clipped with *patchA* and *patchB* and further shirnked by
+        clipped with *patchA* and *patchB* and further shrunken by
         *shrinkA* and *shrinkB*. An arrow is drawn along this
         resulting path using the *arrowstyle* parameter. If *path*
         provided, an arrow is drawn along this path and *patchA*,
@@ -4077,7 +4077,7 @@ class FancyArrowPatch(Patch):
 
         *connectionstyle* can be a string with connectionstyle name with
          optional comma-separated attributes. Alternatively, the attrs can be
-         probided as keywords.
+         provided as keywords.
 
          set_connectionstyle("arc,angleA=0,armA=30,rad=10")
          set_connectionstyle("arc", angleA=0,armA=30,rad=10)
