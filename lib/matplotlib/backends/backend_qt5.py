@@ -334,8 +334,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         hinch = h / dpival
         self.figure.set_size_inches(winch, hinch)
         FigureCanvasBase.resize_event(self)
-        self.draw()
-        self.update()
+        self.draw_idle()
         QtWidgets.QWidget.resizeEvent(self, event)
 
     def sizeHint(self):
@@ -417,17 +416,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     stop_event_loop.__doc__ = FigureCanvasBase.stop_event_loop_default.__doc__
 
     def draw_idle(self):
-        'update drawing area only if idle'
-        d = self._idle
-        self._idle = False
-
-        def idle_draw(*args):
-            try:
-                self.draw()
-            finally:
-                self._idle = True
-        if d:
-            QtCore.QTimer.singleShot(0, idle_draw)
+        self.update()
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -666,7 +655,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self._update_buttons_checked()
 
     def dynamic_update(self):
-        self.canvas.draw()
+        self.canvas.draw_idle()
 
     def set_message(self, s):
         self.message.emit(s)
