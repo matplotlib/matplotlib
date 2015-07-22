@@ -13,7 +13,7 @@ from numpy import ma
 import matplotlib
 
 import matplotlib.cbook as cbook
-from matplotlib.cbook import _string_to_bool, mplDeprecation
+from matplotlib.cbook import mplDeprecation, STEP_LOOKUP_MAP
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
@@ -4429,49 +4429,59 @@ class Axes(_AxesBase):
 
     @docstring.dedent_interpd
     def fill_between(self, x, y1, y2=0, where=None, interpolate=False,
+                     step=None,
                      **kwargs):
         """
         Make filled polygons between two curves.
 
-        Call signature::
-
-          fill_between(x, y1, y2=0, where=None, **kwargs)
 
         Create a :class:`~matplotlib.collections.PolyCollection`
         filling the regions between *y1* and *y2* where
         ``where==True``
 
-          *x* :
+        Parameters
+        ----------
+        x : array
             An N-length array of the x data
 
-          *y1* :
+        y1 : array
             An N-length array (or scalar) of the y data
 
-          *y2* :
+        y2 : array
             An N-length array (or scalar) of the y data
 
-          *where* :
-            If *None*, default to fill between everywhere.  If not *None*,
+        where : array, optional
+            If `None`, default to fill between everywhere.  If not `None`,
             it is an N-length numpy boolean array and the fill will
             only happen over the regions where ``where==True``.
 
-          *interpolate* :
-            If *True*, interpolate between the two lines to find the
+        interpolate : bool, optional
+            If `True`, interpolate between the two lines to find the
             precise point of intersection.  Otherwise, the start and
             end points of the filled region will only occur on explicit
             values in the *x* array.
 
-          *kwargs* :
-            Keyword args passed on to the
-            :class:`~matplotlib.collections.PolyCollection`.
+        step : {'pre', 'post', 'mid'}, optional
+            If not None, fill with step logic.
+
+
+        Notes
+        -----
+
+        Additional Keyword args passed on to the
+        :class:`~matplotlib.collections.PolyCollection`.
 
         kwargs control the :class:`~matplotlib.patches.Polygon` properties:
 
         %(PolyCollection)s
 
+        Examples
+        --------
+
         .. plot:: mpl_examples/pylab_examples/fill_between_demo.py
 
-        .. seealso::
+        See Also
+        --------
 
             :meth:`fill_betweenx`
                 for filling between two sets of x-values
@@ -4508,6 +4518,9 @@ class Axes(_AxesBase):
             xslice = x[ind0:ind1]
             y1slice = y1[ind0:ind1]
             y2slice = y2[ind0:ind1]
+            if step is not None:
+                step_func = STEP_LOOKUP_MAP[step]
+                xslice, y1slice, y2slice = step_func(xslice, y1slice, y2slice)
 
             if not len(xslice):
                 continue
@@ -4568,7 +4581,8 @@ class Axes(_AxesBase):
         return collection
 
     @docstring.dedent_interpd
-    def fill_betweenx(self, y, x1, x2=0, where=None, **kwargs):
+    def fill_betweenx(self, y, x1, x2=0, where=None,
+                      step=None, **kwargs):
         """
         Make filled polygons between two horizontal curves.
 
@@ -4580,31 +4594,42 @@ class Axes(_AxesBase):
         filling the regions between *x1* and *x2* where
         ``where==True``
 
-          *y* :
+        Parameters
+        ----------
+        y : array
             An N-length array of the y data
 
-          *x1* :
+        x1 : array
             An N-length array (or scalar) of the x data
 
-          *x2* :
+        x2 : array, optional
             An N-length array (or scalar) of the x data
 
-          *where* :
-             If *None*, default to fill between everywhere.  If not *None*,
-             it is a N length numpy boolean array and the fill will
-             only happen over the regions where ``where==True``
+        where : array, optional
+            If *None*, default to fill between everywhere.  If not *None*,
+            it is a N length numpy boolean array and the fill will
+            only happen over the regions where ``where==True``
 
-          *kwargs* :
-            keyword args passed on to the
+        step : {'pre', 'post', 'mid'}, optional
+            If not None, fill with step logic.
+
+        Notes
+        -----
+
+        keyword args passed on to the
             :class:`~matplotlib.collections.PolyCollection`
 
         kwargs control the :class:`~matplotlib.patches.Polygon` properties:
 
         %(PolyCollection)s
 
+        Examples
+        --------
+
         .. plot:: mpl_examples/pylab_examples/fill_betweenx_demo.py
 
-        .. seealso::
+        See Also
+        --------
 
             :meth:`fill_between`
                 for filling between two sets of y-values
@@ -4641,6 +4666,9 @@ class Axes(_AxesBase):
             yslice = y[ind0:ind1]
             x1slice = x1[ind0:ind1]
             x2slice = x2[ind0:ind1]
+            if step is not None:
+                step_func = STEP_LOOKUP_MAP[step]
+                yslice, x1slice, x2slice = step_func(yslice, x1slice, x2slice)
 
             if not len(yslice):
                 continue
