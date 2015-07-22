@@ -17,10 +17,11 @@ import sys
 import time
 import warnings
 import zlib
+from io import BytesIO
 
 import numpy as np
 from matplotlib.externals.six import unichr
-from matplotlib.externals.six import BytesIO
+
 
 from datetime import datetime
 from math import ceil, cos, floor, pi, sin
