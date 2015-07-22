@@ -11,6 +11,12 @@ help figure out possible sources of the changes you are experiencing.
 For new features that were added to matplotlib, please see
 :ref:`whats-new`.
 
+Changes in 2.0.x
+================
+
+* The spacing commands in mathtext have been changed to more closely
+  match vanilla TeX.
+
 Changes in 1.4.x
 ================
 
