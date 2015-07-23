@@ -363,16 +363,18 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
     def draw_idle(self):
         'update drawing area only if idle'
-        d = self._idle
+        if self._idle is False:
+            return
+
         self._idle = False
+
         def idle_draw(*args):
             try:
                 self.draw()
             finally:
                 self._idle = True
 
-        if d:
-            self._idle_callback = self._tkcanvas.after_idle(idle_draw)
+        self._idle_callback = self._tkcanvas.after_idle(idle_draw)
 
     def get_tk_widget(self):
         """returns the Tk widget used to implement FigureCanvasTkAgg.
