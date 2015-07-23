@@ -100,8 +100,8 @@ class Artist(Configurable):
     stale = Bool(True)
 
     def _stale_changed(self):
-        if self.stale:
-            self.pchanged()
+        #if self.stale:
+        self.pchanged()
 
     transform_set = Bool(False)
 
@@ -111,7 +111,7 @@ class Artist(Configurable):
         self.figure = None
 
         # self._transform = None
-        self._transformSet = False
+        # self._transformSet = False
         self._visible = True
         self._animated = False
         self._alpha = None
@@ -910,7 +910,7 @@ class Artist(Configurable):
     def update_from(self, other):
         'Copy properties from *other* to *self*.'
         self.transform = other.transform
-        self._transformSet = other._transformSet
+        self.transform_set = other.transform_set
         self._visible = other._visible
         self._alpha = other._alpha
         self.clipbox = other.clipbox

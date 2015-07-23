@@ -5274,7 +5274,7 @@ class Axes(_AxesBase):
         y = Y.compressed()
 
         # Transform from native to data coordinates?
-        t = collection._transform
+        t = collection.transform
         if (not isinstance(t, mtransforms.Transform) and
             hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
@@ -5423,7 +5423,7 @@ class Axes(_AxesBase):
         self.grid(False)
 
         # Transform from native to data coordinates?
-        t = collection._transform
+        t = collection.transform
         if (not isinstance(t, mtransforms.Transform) and
             hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)

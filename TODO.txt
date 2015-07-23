@@ -37,9 +37,9 @@
 
 -- STATUS --
 
-4.0 : transform
-0.2 : transform_set
-0.2 : stale
+4.1 : transform
+4.1 : transform_set
+4.1 : stale
 0.0 : visible
 0.0 : animated
 0.0 : alpha
@@ -51,3 +51,5 @@
 0.0 : contains
 0.0 : rasterized
 0.0 : agg_filter
+...
+...
