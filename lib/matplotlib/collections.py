@@ -1003,7 +1003,7 @@ class RegularPolyCollection(_CollectionWithSizes):
         self._numsides = numsides
         self._paths = [self._path_generator(numsides)]
         self._rotation = rotation
-        self.set_transform(transforms.IdentityTransform())
+        self.transform = transforms.IdentityTransform()
 
     def get_numsides(self):
         return self._numsides
@@ -1478,7 +1478,7 @@ class CircleCollection(_CollectionWithSizes):
         """
         Collection.__init__(self, **kwargs)
         self.set_sizes(sizes)
-        self.set_transform(transforms.IdentityTransform())
+        self.transform = transforms.IdentityTransform()
         self._paths = [mpath.Path.unit_circle()]
 
 
@@ -1519,7 +1519,7 @@ class EllipseCollection(Collection):
         self._heights = 0.5 * np.asarray(heights).ravel()
         self._angles = np.asarray(angles).ravel() * (np.pi / 180.0)
         self._units = units
-        self.set_transform(transforms.IdentityTransform())
+        self.transform = transforms.IdentityTransform()
         self._transforms = np.empty((0, 3, 3))
         self._paths = [mpath.Path.unit_circle()]
 
@@ -1564,7 +1564,7 @@ class EllipseCollection(Collection):
         if self._units == 'xy':
             m = ax.transData.get_affine().get_matrix().copy()
             m[:2, 2:] = 0
-            self.set_transform(_affine(m))
+            self.transform = _affine(m)
 
     @allow_rasterization
     def draw(self, renderer):

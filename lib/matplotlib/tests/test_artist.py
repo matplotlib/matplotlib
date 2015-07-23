@@ -84,7 +84,7 @@ def test_collection_transform_of_none():
     e = mpatches.Ellipse(xy_pix, width=120, height=120)
     c = mcollections.PatchCollection([e], facecolor='coral',
                                      alpha=0.5)
-    c.set_transform(None)
+    c.transform = None
     ax.add_collection(c)
     assert isinstance(c.transform, mtrans.IdentityTransform)
 

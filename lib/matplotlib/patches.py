@@ -24,7 +24,9 @@ from matplotlib.bezier import make_wedged_bezier2
 from matplotlib.bezier import split_path_inout, get_cos_sin
 from matplotlib.bezier import make_path_regular, concatenate_paths
 
-from .traitlets import GSTransformInstance
+from .transforms import IdentityTransform
+
+from .traitlets import gsTransformInstance
 
 
 # these are not available for the object inspector until after the
@@ -69,7 +71,7 @@ class Patch(artist.Artist):
     validCap = ('butt', 'round', 'projecting')
     validJoin = ('miter', 'round', 'bevel')
 
-    transform = GSTransformInstance()
+    transform = gsTransformInstance(default_value=IdentityTransform())
 
     def __str__(self):
         return str(self.__class__).split('.')[-1]
@@ -209,7 +211,8 @@ class Patch(artist.Artist):
         Return the :class:`~matplotlib.transforms.Transform` instance which
         maps data coordinates to physical coordinates.
         """
-        return artist.Artist.get_transform(self)
+        trait = self.__class__.transform
+        return trait.__base_get__(self,None)
 
     def get_patch_transform(self):
         """

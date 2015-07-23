@@ -1,4 +1,8 @@
-import antipackage as apkg
+try:
+	import antipackage as apkg
+except:
+	print('install antipackage at: https://github.com/rmorshea/antipackage')
+
 from github.rmorshea.searchscript import searchscript as ss
 import re
 

@@ -994,7 +994,7 @@ def plot_day_summary2_ohlc(ax, opens, highs, lows, closes, ticksize=4,
                                     offsets=offsetsOpen,
                                     transOffset=ax.transData,
                                     )
-    openCollection.set_transform(tickTransform)
+    openCollection.transform = tickTransform
 
     closeCollection = LineCollection(closeSegments,
                                      colors=colors,
@@ -1003,7 +1003,7 @@ def plot_day_summary2_ohlc(ax, opens, highs, lows, closes, ticksize=4,
                                      offsets=offsetsClose,
                                      transOffset=ax.transData,
                                      )
-    closeCollection.set_transform(tickTransform)
+    closeCollection.transform = tickTransform
 
     minpy, maxx = (0, len(rangeSegments))
     miny = min([low for low in lows if low != -1])
@@ -1326,7 +1326,7 @@ def volume_overlay3(ax, quotes,
                                    offsets=offsetsBars,
                                    transOffset=ax.transData,
                                    )
-    barCollection.set_transform(barTransform)
+    barCollection.transform = barTransform
 
     minpy, maxx = (min(dates), max(dates))
     miny = 0
@@ -1393,7 +1393,7 @@ def index_bar(ax, vals,
                                    offsets=offsetsBars,
                                    transOffset=ax.transData,
                                    )
-    barCollection.set_transform(barTransform)
+    barCollection.transform = barTransform
 
     minpy, maxx = (0, len(offsetsBars))
     miny = 0

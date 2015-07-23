@@ -21,11 +21,11 @@ from types import MethodType
 
 from .transforms import IdentityTransform, Transform
 
-class GetSetTraitType(TraitType):
+class GetSetMixin(object):
 
     @property
     def __base_get__(self):
-        return super(GetSetTraitType,self).__get__
+        return super(GetSetMixin,self).__get__
 
     def __get__(self, obj, cls=None):
         if hasattr(obj, '_'+self.name+'_getter'):
@@ -47,11 +47,11 @@ class GetSetTraitType(TraitType):
                                    have 2 or fewer arguments"""))
             return meth(*args)
         else:
-            self.__base_get__(obj,cls)
+            return self.__base_get__(obj,cls)
 
     @property
     def __base_set__(self):
-        return super(GetSetTraitType,self).__set__
+        return super(GetSetMixin,self).__set__
 
     def __set__(self, obj, value):
         if hasattr(obj, '_'+self.name+'_setter'):
@@ -74,8 +74,6 @@ class GetSetTraitType(TraitType):
             value = meth(*args)
         self.__base_set__(obj, value)
 
-
-
 class TransformInstance(TraitType):
 
     info_text = ('a Transform instance or have an'
@@ -89,8 +87,7 @@ class TransformInstance(TraitType):
             return self._validate(conv)
         trait.error(obj, value)
 
-class GSTransformInstance(TransformInstance,GetSetTraitType): pass
-
+class gsTransformInstance(GetSetMixin,TransformInstance): pass
 
 
 class Callable(TraitType):
