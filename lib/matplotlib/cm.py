@@ -18,6 +18,7 @@ import matplotlib.colors as colors
 import matplotlib.cbook as cbook
 from matplotlib._cm import datad
 from matplotlib._cm import cubehelix
+from matplotlib._cm_listed import cmaps as cmaps_listed
 
 cmap_d = dict()
 
@@ -87,7 +88,10 @@ for cmapname in list(six.iterkeys(datad)):
 for cmapname in six.iterkeys(datad):
     cmap_d[cmapname] = _generate_cmap(cmapname, LUTSIZE)
 
+cmap_d.update(cmaps_listed)
+
 locals().update(cmap_d)
+
 
 # Continue with definitions ...
 

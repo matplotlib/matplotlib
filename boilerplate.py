@@ -293,7 +293,12 @@ def boilerplate_gen():
         'spring',
         'summer',
         'winter',
-        'spectral'
+        'spectral',
+
+        'magma',
+        'inferno',
+        'plasma',
+        'viridis'
     )
     # add all the colormaps (autumn, hsv, ....)
     for name in cmaps:
