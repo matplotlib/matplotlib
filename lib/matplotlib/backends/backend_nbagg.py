@@ -172,7 +172,10 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
     def clearup_closed(self):
         """Clear up any closed Comms."""
         self.web_sockets = set([socket for socket in self.web_sockets
-                                if not socket.is_open()])
+                                if socket.is_open()])
+
+        if len(self.web_sockets) == 0:
+            self.manager.canvas.close_event()
 
 
 class TimerTornado(TimerBase):
@@ -284,8 +287,6 @@ class CommSocket(object):
         # When the socket is closed, deregister the websocket with
         # the FigureManager.
         self.comm.close()
-        self.manager.clearup_closed()
-        self.manager.canvas.close_event()
 
     def send_json(self, content):
         self.comm.send({'data': json.dumps(content)})
