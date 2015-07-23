@@ -336,14 +336,15 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
             self.get_property("window").process_updates (False)
 
     def draw_idle(self):
+        if self._idle_draw_id != 0:
+            return
         def idle_draw(*args):
             try:
                 self.draw()
             finally:
                 self._idle_draw_id = 0
             return False
-        if self._idle_draw_id == 0:
-            self._idle_draw_id = GLib.idle_add(idle_draw)
+        self._idle_draw_id = GLib.idle_add(idle_draw)
 
     def new_timer(self, *args, **kwargs):
         """
