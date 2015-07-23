@@ -236,6 +236,13 @@ class Artist(object):
 
     @stale.setter
     def stale(self, val):
+        # if the artist is animated it does not take normal part in the
+        # draw stack and is expected to be drawn as part of the normal
+        # draw loop (when not saving) so do not propagate this change
+        if self.get_animated():
+            self._stale = val
+            return
+
         # only trigger call-back stack on being marked as 'stale'
         # when not already stale
         # the draw process will take care of propagating the cleaning
