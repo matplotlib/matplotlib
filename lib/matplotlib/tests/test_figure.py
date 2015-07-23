@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import xrange
 
-from nose.tools import assert_equal, assert_true, assert_raises
+from nose.tools import assert_equal, assert_true
 from matplotlib.testing.decorators import image_comparison, cleanup
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
@@ -179,6 +179,16 @@ def test_set_fig_size():
     fig.set_size_inches((1, 3))
     assert_equal(fig.get_figwidth(), 1)
     assert_equal(fig.get_figheight(), 3)
+
+
+@cleanup
+def test_axes_remove():
+    fig, axes = plt.subplots(2, 2)
+    axes[-1, -1].remove()
+    for ax in axes.ravel()[:-1]:
+        assert ax in fig.axes
+    assert axes[-1, -1] not in fig.axes
+    assert_equal(len(fig.axes), 3)
 
 
 if __name__ == "__main__":
