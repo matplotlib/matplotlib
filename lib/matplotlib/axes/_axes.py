@@ -6079,7 +6079,7 @@ class Axes(_AxesBase):
         elif is_string_like(label):
             labels = [label]
         else:
-            labels = [str(lab) for lab in label]
+            labels = [six.text_type(lab) for lab in label]
 
         for (patch, lbl) in zip_longest(patches, labels, fillvalue=None):
             if patch:
