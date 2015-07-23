@@ -908,6 +908,7 @@ class Figure(Artist):
 
         self._axstack.add(key, a)
         self.sca(a)
+        a._remove_method = lambda ax: self.delaxes(ax)
         self.stale = True
         return a
 
@@ -996,6 +997,7 @@ class Figure(Artist):
 
         self._axstack.add(key, a)
         self.sca(a)
+        a._remove_method = lambda ax: self.delaxes(ax)
         self.stale = True
         return a
 
