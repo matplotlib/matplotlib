@@ -285,7 +285,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         draw unsampled image. The renderer should support a draw_image method
         with scale parameter.
         """
-        trans = self.get_transform()  # axes.transData
+        trans = self.transform  # axes.transData
 
         # convert the coordinates to the intermediate coordinate (ic).
         # The transformation from the ic to the canvas is a pure
@@ -609,7 +609,7 @@ class AxesImage(_AxesImageBase):
 
         # image is created in the canvas coordinate.
         x1, x2, y1, y2 = self.get_extent()
-        trans = self.get_transform()
+        trans = self.transform
         xy = trans.transform(np.array([(x1, y1),
                                        (x2, y2),
                                        ]))

@@ -188,10 +188,9 @@ class OffsetBox(martist.Artist):
         for c in self.get_children():
             c.set_figure(fig)
 
-    @martist.Artist.axes.setter
-    def axes(self, ax):
+    def _axes_changed(self, name, old, new):
         # TODO deal with this better
-        martist.Artist.axes.fset(self, ax)
+        martist.Artist._axes_changed(self, name, old, new)
         for c in self.get_children():
             if c is not None:
                 c.axes = ax
@@ -684,6 +683,8 @@ class DrawingArea(OffsetBox):
     def add_artist(self, a):
         'Add any :class:`~matplotlib.artist.Artist` to the container box'
         self._children.append(a)
+        if not a.transform_set):
+        if not a.transform_set:
         if not a.is_transform_set():
             a.transform = self.transform
         if self.axes is not None:
@@ -708,7 +709,7 @@ class DrawingArea(OffsetBox):
             mpath.Path([[0, 0], [0, self.height],
                         [self.width, self.height],
                         [self.width, 0]]),
-            self.get_transform())
+            self.transform)
         for c in self._children:
             if self._clip_children and not (c.clipbox or c._clippath):
                 c.set_clip_path(tpath)

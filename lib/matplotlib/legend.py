@@ -741,7 +741,7 @@ class Legend(Artist):
         for handle in ax.lines:
             assert isinstance(handle, Line2D)
             path = handle.get_path()
-            trans = handle.get_transform()
+            trans = handle.transform
             tpath = trans.transform_path(path)
             lines.append(tpath)
 
@@ -752,7 +752,7 @@ class Legend(Artist):
                 transform = handle.get_data_transform()
                 bboxes.append(handle.get_bbox().transformed(transform))
             else:
-                transform = handle.get_transform()
+                transform = handle.transform
                 bboxes.append(handle.get_path().get_extents(transform))
 
         try:

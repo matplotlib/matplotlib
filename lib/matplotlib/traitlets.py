@@ -2,33 +2,38 @@ from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 
 try:
-    # IPython4 imports
+    # IPython 4 import
     from traitlets.config import Configurable, Config
+    # import traittypes
     from traitlets import (TraitType, Int, Float, Bool,
                            Dict, List, Instance, Union,
                            Unicode, Tuple, TraitError,
                            getargspec)
-                            
 except ImportError:
-	# IPython3 imports
-    from IPython.utils.traitlest.config import Configurable, Config
+    from IPython.utils.traitlets.config import Configurable, Config
     from IPython.utils.traitlets import (TraitType, Int, Float, Bool,
                             Dict, List, Instance, Union, Unicode,
                             Tuple, TraitError, getargspec)
 
 import numpy as np
 
+from types import MethodType
+
 from .transforms import IdentityTransform, Transform
 
 class GetSetTraitType(TraitType):
 
+    @property
+    def __base_get__(self):
+        return super(GetSetTraitType,self).__get__
+
     def __get__(self, obj, cls=None):
         if hasattr(obj, '_'+self.name+'_getter'):
-            meth = getattr(obj, '_'+self.name+'_getter'):
+            meth = getattr(obj, '_'+self.name+'_getter')
             if not callable(meth):
                 raise TraitError(("""a trait getter method
                                    must be callable"""))
-            argspec = getargspec(meth)
+            argspec = len(getargspec(meth)[0])
             if isinstance(meth, MethodType):
                 argspec -= 1
             if argspec==0:
@@ -42,11 +47,15 @@ class GetSetTraitType(TraitType):
                                    have 2 or fewer arguments"""))
             return meth(*args)
         else:
-            super(TraitType,self).__get__(obj,cls)
+            self.__base_get__(obj,cls)
+
+    @property
+    def __base_set__(self):
+        return super(GetSetTraitType,self).__set__
 
     def __set__(self, obj, value):
         if hasattr(obj, '_'+self.name+'_setter'):
-            meth = getattr(obj, '_'+self.name+'_setter'):
+            meth = getattr(obj, '_'+self.name+'_setter')
             if not callable(meth):
                 raise TraitError(("""a trait setter method
                                    must be callable"""))
@@ -63,7 +72,7 @@ class GetSetTraitType(TraitType):
                 raise TraitError(("""a trait setter method must
                                    have 2 or fewer arguments"""))
             value = meth(*args)
-        super(TraitType,self).__set__(obj, value)
+        self.__base_set__(obj, value)
 
 
 

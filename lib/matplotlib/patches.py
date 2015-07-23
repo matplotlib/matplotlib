@@ -24,6 +24,8 @@ from matplotlib.bezier import make_wedged_bezier2
 from matplotlib.bezier import split_path_inout, get_cos_sin
 from matplotlib.bezier import make_path_regular, concatenate_paths
 
+from .traitlets import GSTransformInstance
+
 
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init
@@ -132,7 +134,7 @@ class Patch(artist.Artist):
         interpolated by line segments.  To access the curves as
         curves, use :meth:`get_path`.
         """
-        trans = self.get_transform()
+        trans = self.transform
         path = self.get_path()
         polygons = path.to_polygons(trans)
         if len(polygons):
@@ -152,7 +154,7 @@ class Patch(artist.Artist):
             else:
                 radius = self.get_linewidth()
         inside = self.get_path().contains_point(
-            (mouseevent.x, mouseevent.y), self.get_transform(), radius)
+            (mouseevent.x, mouseevent.y), self.transform, radius)
         return inside, {}
 
     def contains_point(self, point, radius=None):
@@ -166,7 +168,7 @@ class Patch(artist.Artist):
             else:
                 radius = self.get_linewidth()
         return self.get_path().contains_point(point,
-                                              self.get_transform(),
+                                              self.transform,
                                               radius)
 
     def update_from(self, other):
@@ -189,10 +191,10 @@ class Patch(artist.Artist):
         Return a :class:`~matplotlib.transforms.Bbox` object defining
         the axis-aligned extents of the :class:`Patch`.
         """
-        return self.get_path().get_extents(self.get_transform())
+        return self.get_path().get_extents(self.transform)
 
     def _transform_getter(self, trait, cls):
-        return self.get_patch_transform() + trait.__get__(self,cls)
+        return self.get_patch_transform() + trait.__base_get__(self,cls)
 
     # !DEPRECATED
     # def get_transform(self):
@@ -519,7 +521,7 @@ class Patch(artist.Artist):
             gc.set_sketch_params(*self.get_sketch_params())
 
         path = self.get_path()
-        transform = self.get_transform()
+        transform = self.transform
         tpath = transform.transform_path_non_affine(path)
         affine = transform.get_affine()
 
@@ -540,7 +542,7 @@ class Patch(artist.Artist):
         raise NotImplementedError('Derived must override')
 
     def get_window_extent(self, renderer=None):
-        return self.get_path().get_extents(self.get_transform())
+        return self.get_path().get_extents(self.transform)
 
 
 patchdoc = artist.kwdoc(Patch)
@@ -1567,7 +1569,7 @@ class Arc(Ellipse):
         # Get the width and height in pixels
         width = self.convert_xunits(self.width)
         height = self.convert_yunits(self.height)
-        width, height = self.get_transform().transform_point(
+        width, height = self.transform.transform_point(
             (width, height))
         inv_error = (1.0 / 1.89818e-6) * 0.5
 
@@ -1624,7 +1626,7 @@ class Arc(Ellipse):
         # ellipse.
         box_path = Path.unit_rectangle()
         box_path_transform = transforms.BboxTransformTo(self.axes.bbox) + \
-            self.get_transform().inverted()
+            self.transform.inverted()
         box_path = box_path.transformed(box_path_transform)
 
         PI = np.pi
@@ -4181,7 +4183,7 @@ class FancyArrowPatch(Patch):
         if cbook.iterable(fillable):
             _path = concatenate_paths(_path)
 
-        return self.get_transform().inverted().transform_path(_path)
+        return self.transform.inverted().transform_path(_path)
 
     def get_path_in_displaycoord(self):
         """
@@ -4191,8 +4193,8 @@ class FancyArrowPatch(Patch):
         dpi_cor = self.get_dpi_cor()
 
         if self._posA_posB is not None:
-            posA = self.get_transform().transform_point(self._posA_posB[0])
-            posB = self.get_transform().transform_point(self._posA_posB[1])
+            posA = self.transform.transform_point(self._posA_posB[0])
+            posB = self.transform.transform_point(self._posA_posB[1])
             _path = self.get_connectionstyle()(posA, posB,
                                                patchA=self.patchA,
                                                patchB=self.patchB,
@@ -4200,7 +4202,7 @@ class FancyArrowPatch(Patch):
                                                shrinkB=self.shrinkB * dpi_cor
                                               )
         else:
-            _path = self.get_transform().transform_path(self._path_original)
+            _path = self.transform.transform_path(self._path_original)
 
         _path, fillable = self.get_arrowstyle()(_path,
                                                 self.get_mutation_scale(),

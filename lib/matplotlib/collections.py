@@ -182,7 +182,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return t
 
     def get_datalim(self, transData):
-        transform = self.get_transform()
+        transform = self.transform
         transOffset = self.get_offset_transform()
         offsets = self._offsets
         paths = self.get_paths()
@@ -217,7 +217,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def _prepare_points(self):
         """Point prep for drawing and hit testing"""
 
-        transform = self.get_transform()
+        transform = self.transform
         transOffset = self.get_offset_transform()
         offsets = self._offsets
         paths = self.get_paths()
@@ -1622,7 +1622,7 @@ class PatchCollection(Collection):
         self.set_paths(patches)
 
     def set_paths(self, patches):
-        paths = [p.get_transform().transform_path(p.get_path())
+        paths = [p.transform.transform_path(p.get_path())
                  for p in patches]
         self._paths = paths
 
@@ -1677,7 +1677,7 @@ class TriMesh(Collection):
         if not self.get_visible():
             return
         renderer.open_group(self.__class__.__name__)
-        transform = self.get_transform()
+        transform = self.transform
 
         # Get a list of triangles and the color at each vertex.
         tri = self._triangulation
@@ -1757,7 +1757,7 @@ class QuadMesh(Collection):
         self.stale = True
 
     def get_datalim(self, transData):
-        return (self.get_transform() - transData).transform_bbox(self._bbox)
+        return (self.transform - transData).transform_bbox(self._bbox)
 
     @staticmethod
     def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
@@ -1832,7 +1832,7 @@ class QuadMesh(Collection):
         if not self.get_visible():
             return
         renderer.open_group(self.__class__.__name__, self.get_gid())
-        transform = self.get_transform()
+        transform = self.transform
         transOffset = self.get_offset_transform()
         offsets = self._offsets
 

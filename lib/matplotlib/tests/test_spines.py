@@ -69,13 +69,13 @@ def test_label_without_ticks():
     plt.draw()
 
     spine = ax.spines['left']
-    spinebbox = spine.get_transform().transform_path(
+    spinebbox = spine.transform.transform_path(
         spine.get_path()).get_extents()
     assert_less(ax.yaxis.label.get_position()[0], spinebbox.xmin,
                 "Y-Axis label not left of the spine")
 
     spine = ax.spines['bottom']
-    spinebbox = spine.get_transform().transform_path(
+    spinebbox = spine.transform.transform_path(
         spine.get_path()).get_extents()
     assert_less(ax.xaxis.label.get_position()[1], spinebbox.ymin,
                 "X-Axis label not below the spine")

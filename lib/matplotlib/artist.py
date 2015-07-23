@@ -15,6 +15,8 @@ from .transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPatchPath, TransformedPath, Transform)
 from .path import Path
 
+from .traitlets import Configurable, TransformInstance, Bool
+
 # Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
 # set_* method should have a docstring containing the line
@@ -31,6 +33,8 @@ from .path import Path
 # as far as I can see - see
 # http://groups.google.com/groups?hl=en&lr=&threadm=mailman.5090.1098044946.5135.python-list%40python.org&rnum=1&prev=/groups%3Fq%3D__doc__%2Bauthor%253Ajdhunter%2540ace.bsd.uchicago.edu%26hl%3Den%26btnG%3DGoogle%2BSearch
 
+class Undefined(object): pass
+Undefined = Undefined()
 
 def allow_rasterization(draw):
     """
@@ -77,7 +81,7 @@ def _stale_axes_callback(self):
     self.axes.stale = True
 
 
-class Artist(object):
+class Artist(Configurable):
     """
     Abstract base class for someone who renders into a
     :class:`FigureCanvas`.
@@ -88,7 +92,7 @@ class Artist(object):
 
     transform = TransformInstance(IdentityTransform())
 
-    def _tranform_changed(self):
+    def _transform_changed(self):
         self.transform_set = True
         self.pchanged()
         self.stale = True
@@ -260,25 +264,27 @@ class Artist(object):
 
         return new_axes
 
-    @property
-    def stale(self):
-        """
-        If the artist is 'stale' and needs to be re-drawn for the output to
-        match the internal state of the artist.
-        """
-        return self._stale
+    #!DEPRECATED
+    # @property
+    # def stale(self):
+    #     """
+    #     If the artist is 'stale' and needs to be re-drawn for the output to
+    #     match the internal state of the artist.
+    #     """
+    #     return self._stale
 
-    @stale.setter
-    def stale(self, val):
-        # only trigger call-back stack on being marked as 'stale'
-        # when not already stale
-        # the draw process will take care of propagating the cleaning
-        # process
-        if not (self._stale == val):
-            self._stale = val
-            # only trigger propagation if marking as stale
-            if self._stale:
-                self.pchanged()
+    #!DEPRECATED
+    # @stale.setter
+    # def stale(self, val):
+    #     # only trigger call-back stack on being marked as 'stale'
+    #     # when not already stale
+    #     # the draw process will take care of propagating the cleaning
+    #     # process
+    #     if not (self._stale == val):
+    #         self._stale = val
+    #         # only trigger propagation if marking as stale
+    #         if self._stale:
+    #             self.pchanged()
 
     def get_window_extent(self, renderer):
         """
@@ -680,7 +686,7 @@ class Artist(object):
         if transform is None:
             if isinstance(path, Rectangle):
                 self.clipbox = TransformedBbox(Bbox.unit(),
-                                               path.get_transform())
+                                               path.transform)
                 self._clippath = None
                 success = True
             elif isinstance(path, Patch):
@@ -852,9 +858,12 @@ class Artist(object):
                 setattr(self, k, v)
             else:
                 func = getattr(self, 'set_' + k, None)
-                if func is None or not six.callable(func):
+                if func is not None and six.callable(func):
+                    func(v)
+                elif getattr(self, k, Undefined) is not Undefined:
+                    setattr(self, k, v)
+                else:
                     raise AttributeError('Unknown property %s' % k)
-                func(v)
             changed = True
         self.eventson = store
         if changed:
@@ -899,7 +908,7 @@ class Artist(object):
 
     def update_from(self, other):
         'Copy properties from *other* to *self*.'
-        self._transform = other._transform
+        self.transform = other.transform
         self._transformSet = other._transformSet
         self._visible = other._visible
         self._alpha = other._alpha

@@ -640,7 +640,7 @@ def test_imshow_clip():
     c = ax.contour(r, [N/4])
     x = c.collections[0]
     clipPath = x.get_paths()[0]
-    clipTransform = x.get_transform()
+    clipTransform = x.transform
 
     from matplotlib.transforms import TransformedPath
     clip_path = TransformedPath(clipPath, clipTransform)

@@ -62,7 +62,7 @@ class Spine(mpatches.Patch):
         self.axis = None
 
         self.set_zorder(2.5)
-        self.set_transform(self.axes.transData)  # default transform
+        self.transform = self.axes.transData  # default transform
 
         self._bounds = None  # default bounds
         self._smart_bounds = False
@@ -110,7 +110,7 @@ class Spine(mpatches.Patch):
         self._height = radius * 2
         self._angle = 0
         # circle drawn on axes transform
-        self.set_transform(self.axes.transAxes)
+        self.transform = self.axes.transAxes
         self.stale = True
 
     def set_patch_line(self):
@@ -390,7 +390,7 @@ class Spine(mpatches.Patch):
         self._position = position
         self._calc_offset_transform()
 
-        self.set_transform(self.get_spine_transform())
+        self.transform = self.get_spine_transform()
 
         if self.axis is not None:
             self.axis.reset_ticks()

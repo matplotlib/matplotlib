@@ -304,11 +304,11 @@ class QuiverKey(martist.Artist):
             self.vector = mcollections.PolyCollection(
                                         self.verts,
                                         offsets=[(self.X, self.Y)],
-                                        transOffset=self.get_transform(),
+                                        transOffset=self.transform,
                                         **kw)
             if self.color is not None:
                 self.vector.set_color(self.color)
-            self.vector.set_transform(self.Q.get_transform())
+            self.vector.set_transform(self.Q.transform)
             self.vector.set_figure(self.get_figure())
             self._initialized = True
 
@@ -332,7 +332,7 @@ class QuiverKey(martist.Artist):
     def draw(self, renderer):
         self._init()
         self.vector.draw(renderer)
-        x, y = self.get_transform().transform_point((self.X, self.Y))
+        x, y = self.transform.transform_point((self.X, self.Y))
         self.text.set_x(self._text_x(x))
         self.text.set_y(self._text_y(y))
         self.text.draw(renderer)
@@ -340,13 +340,13 @@ class QuiverKey(martist.Artist):
 
     def _set_transform(self):
         if self.coord == 'data':
-            self.set_transform(self.Q.ax.transData)
+            self.transform = self.Q.ax.transData
         elif self.coord == 'axes':
-            self.set_transform(self.Q.ax.transAxes)
+            self.transform = self.Q.ax.transAxes
         elif self.coord == 'figure':
-            self.set_transform(self.Q.ax.figure.transFigure)
+            self.transform = self.Q.ax.figure.transFigure
         elif self.coord == 'inches':
-            self.set_transform(self.Q.ax.figure.dpi_scale_trans)
+            self.transform = self.Q.ax.figure.dpi_scale_trans
         else:
             raise ValueError('unrecognized coordinates')
 
@@ -513,7 +513,7 @@ class Quiver(mcollections.PolyCollection):
             self._initialized = True
 
     def get_datalim(self, transData):
-        trans = self.get_transform()
+        trans = self.transform
         transOffset = self.get_offset_transform()
         full_transform = (trans - transData) + (transOffset - transData)
         XY = full_transform.transform(self.XY)
@@ -592,7 +592,7 @@ class Quiver(mcollections.PolyCollection):
         dx = self._dots_per_unit(self.units)
         self._trans_scale = dx  # pixels per arrow width unit
         trans = transforms.Affine2D().scale(dx)
-        self.set_transform(trans)
+        self.transform = trans
         return trans
 
     def _angles_lengths(self, U, V, eps=1):

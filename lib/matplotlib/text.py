@@ -282,7 +282,7 @@ class Text(Artist):
     def _get_xy_display(self):
         'get the (possibly unit converted) transformed x, y in display coords'
         x, y = self.get_unitless_position()
-        return self.get_transform().transform_point((x, y))
+        return self.transform.transform_point((x, y))
 
     def _get_multialignment(self):
         if self._multialignment is not None:
@@ -535,7 +535,7 @@ class Text(Artist):
 
         if self._bbox_patch:
 
-            trans = self.get_transform()
+            trans = self.transform
 
             # don't use self.get_unitless_position here, which refers to text
             # position in Text, and dash position in TextWithDash:
@@ -549,7 +549,7 @@ class Text(Artist):
             theta = np.deg2rad(self.get_rotation())
             tr = mtransforms.Affine2D().rotate(theta)
             tr = tr.translate(posx + x_box, posy + y_box)
-            self._bbox_patch.set_transform(tr)
+            self._bbox_patch.transform = tr
             fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
             self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
 
@@ -564,7 +564,7 @@ class Text(Artist):
         theta = np.deg2rad(self.get_rotation())
         tr = mtransforms.Affine2D().rotate(theta)
         tr = tr.translate(posx + x_box, posy + y_box)
-        self._bbox_patch.set_transform(tr)
+        self._bbox_patch.transform = tr
         fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
         self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
         self._bbox_patch.draw(renderer)
@@ -639,7 +639,7 @@ class Text(Artist):
         Returns the maximum line width for wrapping text based on the
         current orientation.
         """
-        x0, y0 = self.get_transform().transform(self.get_position())
+        x0, y0 = self.transform.transform(self.get_position())
         figure_box = self.get_figure().get_window_extent()
 
         # Calculate available width based on text alignment
@@ -747,7 +747,7 @@ class Text(Artist):
 
         with _wrap_text(self) as textobj:
             bbox, info, descent = textobj._get_layout(renderer)
-            trans = textobj.get_transform()
+            trans = textobj.transform
 
             # don't use textobj.get_position here, which refers to text
             # position in Text, and dash position in TextWithDash:
@@ -960,7 +960,7 @@ class Text(Artist):
 
         bbox, info, descent = self._get_layout(self._renderer)
         x, y = self.get_unitless_position()
-        x, y = self.get_transform().transform_point((x, y))
+        x, y = self.transform.transform_point((x, y))
         bbox = bbox.translated(x, y)
         if dpi is not None:
             self.figure.dpi = dpi_orig
@@ -1435,7 +1435,7 @@ class TextWithDash(Text):
         theta = np.pi * (angle / 180.0 + dashdirection - 1)
         cos_theta, sin_theta = np.cos(theta), np.sin(theta)
 
-        transform = self.get_transform()
+        transform = self.transform
 
         # Compute the dash end points
         # The 'c' prefix is for canvas coordinates
@@ -1629,12 +1629,12 @@ class TextWithDash(Text):
         self._dashy = float(y)
         self.stale = True
 
-    def _transform_changed(self, name, value):
-        Text._transform_changed(self)
-        self.dashline.transform = value
+    def _transform_changed(self, name, new):
+        Text._transform_changed()
+        self.dashline.transform = new
         self.stale = True
 
-    # !DEPRECATED
+    #!DEPRECATED
     # def set_transform(self, t):
     #     """
     #     Set the :class:`matplotlib.transforms.Transform` instance used

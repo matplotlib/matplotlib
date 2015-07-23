@@ -29,8 +29,6 @@ import matplotlib.texmanager as texmanager
 import matplotlib.transforms as mtrans
 from matplotlib.cbook import mplDeprecation
 
-from .traitlest import TransformInstance
-
 # Import needed for adding manual selection capability to clabel
 from matplotlib.blocking_input import BlockingContourLabeler
 
@@ -50,7 +48,7 @@ class ClabelText(text.Text):
     """
     def get_rotation(self):
         angle = text.Text.get_rotation(self)
-        trans = self.get_transform()
+        trans = self.transform
         x, y = self.get_position()
         new_angles = trans.transform_angles(np.array([angle]),
                                             np.array([[x, y]]))
@@ -651,7 +649,7 @@ class ContourLabeler(object):
                 self.labelFontSizeList, self.labelCValueList):
 
             con = self.collections[icon]
-            trans = con.get_transform()
+            trans = con.transform
             lw = self.get_label_width(lev, self.labelFmt, fsize)
             lw *= self.ax.figure.dpi / 72.0  # scale to screen coordinates
             additions = []
@@ -1396,7 +1394,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         for icon in indices:
             con = self.collections[icon]
-            trans = con.get_transform()
+            trans = con.transform
             paths = con.get_paths()
 
             for segNum, linepath in enumerate(paths):

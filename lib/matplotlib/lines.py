@@ -564,7 +564,7 @@ class Line2D(Artist):
 
     def get_window_extent(self, renderer):
         bbox = Bbox([[0, 0], [0, 0]])
-        trans_data_to_xy = self.get_transform().transform
+        trans_data_to_xy = self.transform.transform
         bbox.update_from_data_xy(trans_data_to_xy(self.get_xydata()),
                                  ignore=True)
         # correct for marker size, if any
@@ -675,7 +675,7 @@ class Line2D(Artist):
             _path = Path(self._xy[subslice, :], _interpolation_steps=_steps)
         else:
             _path = self._path
-        self._transformed_path = TransformedPath(_path, self.get_transform())
+        self._transformed_path = TransformedPath(_path, self.transform)
 
     def _get_transformed_path(self):
         """
@@ -1180,21 +1180,21 @@ class Line2D(Artist):
         steps = np.vstack(pts_to_prestep(*self._xy.T)).T
 
         path = Path(steps)
-        path = path.transformed(self.get_transform())
+        path = path.transformed(self.transform)
         self._lineFunc(renderer, gc, path, IdentityTransform())
 
     def _draw_steps_post(self, renderer, gc, path, trans):
         steps = np.vstack(pts_to_poststep(*self._xy.T)).T
 
         path = Path(steps)
-        path = path.transformed(self.get_transform())
+        path = path.transformed(self.transform)
         self._lineFunc(renderer, gc, path, IdentityTransform())
 
     def _draw_steps_mid(self, renderer, gc, path, trans):
         steps = np.vstack(pts_to_midstep(*self._xy.T)).T
 
         path = Path(steps)
-        path = path.transformed(self.get_transform())
+        path = path.transformed(self.transform)
         self._lineFunc(renderer, gc, path, IdentityTransform())
 
     def _draw_solid(self, renderer, gc, path, trans):

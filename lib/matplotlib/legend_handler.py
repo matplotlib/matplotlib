@@ -116,7 +116,7 @@ class HandlerBase(object):
                  fontsize)
         artists = self.create_artists(legend, orig_handle,
                                       xdescent, ydescent, width, height,
-                                      fontsize, handlebox.get_transform())
+                                      fontsize, handlebox.transform)
 
         # create_artists will return a list of artists.
         for a in artists:

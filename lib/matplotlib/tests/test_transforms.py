@@ -78,7 +78,7 @@ def test_external_transform_api():
     ax.set_xlim(0, 100)
     ax.set_ylim(0, 100)
     # assert that the top transform of the line is the scale transform.
-    np.testing.assert_allclose(line.get_transform()._a.get_matrix(),
+    np.testing.assert_allclose(line.transform._a.get_matrix(),
                                mtrans.Affine2D().scale(10).get_matrix())
 
 

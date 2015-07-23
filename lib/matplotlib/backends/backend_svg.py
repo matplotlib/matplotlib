@@ -1031,7 +1031,7 @@ class RendererSVG(RendererBase):
                 # coordinates and add alignment information.
 
                 # Get anchor coordinates.
-                transform = mtext.get_transform()
+                transform = mtext.transform
                 ax, ay = transform.transform_point(mtext.get_position())
                 ay = self.height - ay
 

@@ -271,7 +271,7 @@ class Table(Artist):
         self._bbox = bbox
 
         # use axes coords
-        self.set_transform(ax.transAxes)
+        self.transform = ax.transAxes
 
         self._texts = []
         self._cells = {}
@@ -291,9 +291,8 @@ class Table(Artist):
 
         cell = CustomCell(xy, visible_edges=self.edges, *args, **kwargs)
         cell.set_figure(self.figure)
-        cell.set_transform(self.get_transform())
-
-        cell.set_clip_on(False)
+        cell.transform = self.transform
+        
         self._cells[(row, col)] = cell
         self.stale = True
 
@@ -343,7 +342,7 @@ class Table(Artist):
                  if pos[0] >= 0 and pos[1] >= 0]
 
         bbox = Bbox.union(boxes)
-        return bbox.inverse_transformed(self.get_transform())
+        return bbox.inverse_transformed(self.transform)
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred in the table.
