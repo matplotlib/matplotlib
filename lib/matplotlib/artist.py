@@ -68,10 +68,6 @@ def allow_rasterization(draw):
     return draw_wrapper
 
 
-def _stale_figure_callback(self):
-    self.figure.stale = True
-
-
 def _stale_axes_callback(self):
     self.axes.stale = True
 
@@ -617,7 +613,6 @@ class Artist(object):
         """
         self.figure = fig
         if self.figure and self.figure is not self:
-            self.add_callback(_stale_figure_callback)
             self.pchanged()
         self.stale = True
 

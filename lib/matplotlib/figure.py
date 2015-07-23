@@ -51,6 +51,10 @@ from matplotlib.backend_bases import NonGuiException
 docstring.interpd.update(projection_names=get_projection_names())
 
 
+def _stale_figure_callback(self):
+    self.figure.stale = True
+
+
 class AxesStack(Stack):
     """
     Specialization of the Stack to handle all tracking of Axes in a Figure.
@@ -330,6 +334,7 @@ class Figure(Artist):
             xy=(0, 0), width=1, height=1,
             facecolor=facecolor, edgecolor=edgecolor,
             linewidth=linewidth)
+
         self._set_artist_props(self.patch)
         self.patch.set_aa(False)
 
@@ -543,6 +548,7 @@ class Figure(Artist):
             sup.remove()
         else:
             self._suptitle = sup
+
         self.stale = True
         return self._suptitle
 
@@ -650,6 +656,8 @@ class Figure(Artist):
             self.set_size_inches(figsize, forward=True)
 
         im = FigureImage(self, cmap, norm, xo, yo, origin, **kwargs)
+        im.add_callback(_stale_figure_callback)
+
         im.set_array(X)
         im.set_alpha(alpha)
         if norm is None:
@@ -909,6 +917,7 @@ class Figure(Artist):
         self._axstack.add(key, a)
         self.sca(a)
         self.stale = True
+        a.add_callback(_stale_figure_callback)
         return a
 
     @docstring.dedent_interpd
@@ -997,6 +1006,7 @@ class Figure(Artist):
         self._axstack.add(key, a)
         self.sca(a)
         self.stale = True
+        a.add_callback(_stale_figure_callback)
         return a
 
     def clf(self, keep_observers=False):
@@ -1272,6 +1282,7 @@ class Figure(Artist):
     def _set_artist_props(self, a):
         if a != self:
             a.set_figure(self)
+        a.add_callback(_stale_figure_callback)
         a.set_transform(self.transFigure)
 
     @docstring.dedent_interpd
