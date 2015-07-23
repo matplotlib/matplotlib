@@ -5,6 +5,9 @@
 # OS-specific temporary and backup files
 .DS_Store
 
+*.ipynb
+.ipynb_checkpoints*
+
 #########################################
 # Editor temporary/working/backup files #
 .#*
