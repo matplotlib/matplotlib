@@ -2059,7 +2059,8 @@ class _AxesBase(martist.Artist):
         if not self.get_visible():
             return
         renderer.open_group('axes')
-
+        # prevent triggering call backs during the draw process
+        self._stale = True
         locator = self.get_axes_locator()
         if locator:
             pos = locator(self, renderer)
