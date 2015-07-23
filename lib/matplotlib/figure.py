@@ -1054,7 +1054,10 @@ class Figure(Artist):
         # draw the figure bounding box, perhaps none for white figure
         if not self.get_visible():
             return
+
         renderer.open_group('figure')
+        # prevent triggering call backs during the draw process
+        self._stale = True
         try:
             if self.get_tight_layout() and self.axes:
                 try:
