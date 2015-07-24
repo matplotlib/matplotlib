@@ -1,5 +1,5 @@
 """
-Some people prefer to write more pythonic, object oriented, code
+Some people prefer to write more pythonic, object-oriented code
 rather than use the pyplot interface to matplotlib.  This example shows
 you how.
 
