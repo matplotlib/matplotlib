@@ -932,6 +932,12 @@ class Animation(object):
                                 size=self._video_size,
                                 options=' '.join(options))
 
+    def _repr_html_(self):
+        r'IPython display hook for rendering.'
+        fmt = rcParams['animation.html']
+        if fmt == 'html5':
+            return self.to_html5_video()
+
 
 class TimedAnimation(Animation):
     '''
