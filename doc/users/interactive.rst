@@ -10,3 +10,4 @@
     navigation_toolbar.rst
     shell.rst
     event_handling.rst
+    interactive_guide
