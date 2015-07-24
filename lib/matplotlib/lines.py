@@ -932,9 +932,8 @@ class Line2D(Artist):
 
         ACCEPTS: any matplotlib color
         """
-        if color != self._color:
-            self.stale = True
         self._color = color
+        self.stale = True
 
     def set_drawstyle(self, drawstyle):
         """
