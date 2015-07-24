@@ -499,6 +499,9 @@ validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
 
 validate_axis_locator = ValidateInStrings('major', ['minor', 'both', 'major'])
 
+validate_movie_html_fmt = ValidateInStrings('animation.html',
+    ['html5', 'none'])
+
 def validate_bbox(s):
     if isinstance(s, six.string_types):
         s = s.lower()
@@ -944,6 +947,7 @@ defaultParams = {
     'examples.directory': ['', six.text_type],
 
     # Animation settings
+    'animation.html':         ['none', validate_movie_html_fmt],
     'animation.writer':       ['ffmpeg', validate_movie_writer],
     'animation.codec':        ['mpeg4', six.text_type],
     'animation.bitrate':      [-1, validate_int],
