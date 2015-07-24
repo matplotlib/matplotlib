@@ -36,7 +36,7 @@ The syntax of set is
 
 if called with an object, set calls
 
-  plt.object.set_somestring(attribute)
+  object.set_somestring(attribute)
 
 if called with a sequence, set does
 
