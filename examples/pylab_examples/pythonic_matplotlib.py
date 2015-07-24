@@ -1,11 +1,10 @@
-#!/usr/bin/env python
 """
-Some people prefer to write more pythonic, object oriented, code
-rather than use the pylab interface to matplotlib.  This example shows
+Some people prefer to write more pythonic, object-oriented code
+rather than use the pyplot interface to matplotlib.  This example shows
 you how.
 
 Unless you are an application developer, I recommend using part of the
-pylab interface, particularly the figure, close, subplot, axes, and
+pyplot interface, particularly the figure, close, subplot, axes, and
 show commands.  These hide a lot of complexity from you that you don't
 need to see in normal figure creation, like instantiating DPI
 instances, managing the bounding boxes of the figure elements,
@@ -21,11 +20,11 @@ embedding them in application windows, etc.
 If you are a web application developer, you may want to use the
 example in webapp_demo.py, which shows how to use the backend agg
 figure canvase directly, with none of the globals (current figure,
-current axes) that are present in the pylab interface.  Note that
-there is no reason why the pylab interface won't work for web
+current axes) that are present in the pyplot interface.  Note that
+there is no reason why the pyplot interface won't work for web
 application developers, however.
 
-If you see an example in the examples dir written in pylab interface,
+If you see an example in the examples dir written in pyplot interface,
 and you want to emulate that using the true python method calls, there
 is an easy mapping.  Many of those examples use 'set' to control
 figure properties.  Here's how to map those commands onto instance
@@ -33,7 +32,7 @@ methods
 
 The syntax of set is
 
-  setp(object or sequence, somestring, attribute)
+  plt.setp(object or sequence, somestring, attribute)
 
 if called with an object, set calls
 
@@ -53,7 +52,7 @@ So for your example, if a is your axes object, you can do
 """
 
 
-from pylab import figure, show
+from matplotlib.pyplot import figure, show
 from numpy import arange, sin, pi
 
 t = arange(0.0, 1.0, 0.01)
