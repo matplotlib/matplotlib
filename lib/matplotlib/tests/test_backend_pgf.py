@@ -15,7 +15,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.compat import subprocess
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
-from matplotlib.testing.decorators import _image_directories
+from matplotlib.testing.decorators import _image_directories, switch_backend
 
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
@@ -39,23 +39,6 @@ def check_for(texsystem):
         return False
 
     return latex.returncode == 0
-
-
-def switch_backend(backend):
-
-    def switch_backend_decorator(func):
-        def backend_switcher(*args, **kwargs):
-            try:
-                prev_backend = mpl.get_backend()
-                mpl.rcdefaults()
-                plt.switch_backend(backend)
-                result = func(*args, **kwargs)
-            finally:
-                plt.switch_backend(prev_backend)
-            return result
-
-        return nose.tools.make_decorator(func)(backend_switcher)
-    return switch_backend_decorator
 
 
 def compare_figure(fname, savefig_kwargs={}):
