@@ -29,3 +29,13 @@ points are contoured as usual.  If the ``corner_mask`` keyword argument is not
 specified, the default value is taken from rcParams.
 
 .. plot:: mpl_examples/pylab_examples/contour_corner_mask.py
+
+Fixed 3D filled contour plot polygon rendering
+``````````````````````````````````````````````
+
+Certain cases of 3D filled contour plots that produce polygons with multiple
+holes produced improper rendering due to a loss of path information between
+:class:`~matplotlib.collections.PolyCollection` and 
+:class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`.  A function
+:func:`~matplotlib.collections.PolyCollection.set_verts_and_codes` was
+added to allow path information to be retained for proper rendering.
