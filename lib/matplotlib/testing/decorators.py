@@ -14,6 +14,7 @@ import unittest
 import nose
 import numpy as np
 
+import matplotlib as mpl
 import matplotlib.tests
 import matplotlib.units
 from matplotlib import cbook
@@ -329,3 +330,19 @@ def _image_directories(func):
         cbook.mkdirs(result_dir)
 
     return baseline_dir, result_dir
+
+
+def switch_backend(backend):
+    def switch_backend_decorator(func):
+        def backend_switcher(*args, **kwargs):
+            try:
+                prev_backend = mpl.get_backend()
+                matplotlib.tests.setup()
+                plt.switch_backend(backend)
+                result = func(*args, **kwargs)
+            finally:
+                plt.switch_backend(prev_backend)
+            return result
+
+        return nose.tools.make_decorator(func)(backend_switcher)
+    return switch_backend_decorator
