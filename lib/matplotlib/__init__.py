@@ -115,7 +115,7 @@ import tempfile
 import warnings
 import contextlib
 import distutils.sysconfig
-
+import functools
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from matplotlib.cbook import is_string_like, mplDeprecation
@@ -1514,6 +1514,43 @@ def test(verbosity=1):
     return success
 
 test.__test__ = False  # nose: this function is not a test
+
+
+def _replacer(data, key):
+    # if key isn't a string don't bother
+    if not isinstance(key, six.string_types):
+        return key
+    # try to use __getitem__
+    try:
+        return data[key]
+    # key does not exist, silently fall back to key
+    except KeyError:
+        return key
+
+
+def unpack_labeled_data(func):
+    """
+    A decorator to add a 'data' kwarg to any a function.  The signature
+    of the input function must be ::
+
+       def foo(ax, *args, **kwargs)
+
+    so this is suitable for use with Axes methods.
+    """
+    @functools.wraps(func)
+    def inner(ax, *args, **kwargs):
+        data = kwargs.pop('data', None)
+        if data is not None:
+            if rcParams['unpack_labeled']:
+                args = tuple(_replacer(data, a) for a in args)
+                kwargs = dict((k, _replacer(data, v))
+                              for k, v in six.iteritems(kwargs))
+            else:
+                raise ValueError("Trying to unpack labeled data, but "
+                                 "rcParams['unpack_labeled'] is False")
+
+        return func(ax, *args, **kwargs)
+    return inner
 
 verbose.report('matplotlib version %s' % __version__)
 verbose.report('verbose.level %s' % verbose.level)

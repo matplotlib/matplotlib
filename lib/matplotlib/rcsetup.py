@@ -809,7 +809,7 @@ defaultParams = {
     'xtick.minor.pad':   [4, validate_float],    # distance to label in points
     'xtick.color':       ['k', validate_color],  # color of the xtick labels
     'xtick.minor.visible':   [False, validate_bool],    # visiablility of the x axis minor ticks
-    
+
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
     'xtick.direction':   ['in', six.text_type],            # direction of xticks
@@ -966,7 +966,8 @@ defaultParams = {
     'animation.convert_path':  ['convert', six.text_type],
      # Additional arguments for mencoder movie writer (using pipes)
 
-    'animation.convert_args':  [[], validate_stringlist]}
+    'animation.convert_args':  [[], validate_stringlist],
+    'unpack_labeled': [True, validate_bool], }
 
 
 if __name__ == '__main__':
