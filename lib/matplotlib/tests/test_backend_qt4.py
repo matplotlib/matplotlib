@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 from matplotlib.externals import six
 from matplotlib.externals.six import unichr
 from matplotlib import pyplot as plt
-from matplotlib.testing.decorators import cleanup
+from matplotlib.testing.decorators import cleanup, switch_backend
 from matplotlib.testing.decorators import knownfailureif
 from matplotlib._pylab_helpers import Gcf
 import copy
@@ -31,10 +31,8 @@ except ImportError:
 
 @cleanup
 @knownfailureif(not HAS_QT)
+@switch_backend('Qt4Agg')
 def test_fig_close():
-    # force switch to the Qt4 backend
-    plt.switch_backend('Qt4Agg')
-
     #save the state of Gcf.figs
     init_figs = copy.copy(Gcf.figs)
 
@@ -50,6 +48,7 @@ def test_fig_close():
     assert(init_figs == Gcf.figs)
 
 
+@switch_backend('Qt4Agg')
 def assert_correct_key(qt_key, qt_mods, answer):
     """
     Make a figure
@@ -57,7 +56,6 @@ def assert_correct_key(qt_key, qt_mods, answer):
     Catch the event
     Assert sent and caught keys are the same
     """
-    plt.switch_backend('Qt4Agg')
     qt_canvas = plt.figure().canvas
 
     event = mock.Mock()
