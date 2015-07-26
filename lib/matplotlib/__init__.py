@@ -1528,7 +1528,7 @@ def _replacer(data, key):
         return key
 
 
-def unpack_labeled_data(func):
+def unpack_labeled_data(wl_args=None, wl_kwargs=None):
     """
     A decorator to add a 'data' kwarg to any a function.  The signature
     of the input function must be ::
@@ -1537,20 +1537,33 @@ def unpack_labeled_data(func):
 
     so this is suitable for use with Axes methods.
     """
-    @functools.wraps(func)
-    def inner(ax, *args, **kwargs):
-        data = kwargs.pop('data', None)
-        if data is not None:
-            if rcParams['unpack_labeled']:
-                args = tuple(_replacer(data, a) for a in args)
-                kwargs = dict((k, _replacer(data, v))
-                              for k, v in six.iteritems(kwargs))
-            else:
-                raise ValueError("Trying to unpack labeled data, but "
-                                 "rcParams['unpack_labeled'] is False")
+    if wl_kwargs is not None:
+        wl_kwargs = set(wl_kwargs)
+    if wl_args is not None:
+        wl_args = set(wl_args)
 
-        return func(ax, *args, **kwargs)
-    return inner
+    def param(func):
+        @functools.wraps(func)
+        def inner(ax, *args, **kwargs):
+            data = kwargs.pop('data', None)
+            if data is not None:
+                if wl_args is None:
+                    args = tuple(_replacer(data, a) for a in args)
+                else:
+                    args = tuple(_replacer(data, a) if j in wl_args else a
+                                 for j, a in enumerate(args))
+
+                if wl_kwargs is None:
+                    kwargs = dict((k, _replacer(data, v))
+                                  for k, v in six.iteritems(kwargs))
+                else:
+                    kwargs = dict(
+                        (k, _replacer(data, v) if k in wl_kwargs else v)
+                        for k, v in six.iteritems(kwargs))
+
+            return func(ax, *args, **kwargs)
+        return inner
+    return param
 
 verbose.report('matplotlib version %s' % __version__)
 verbose.report('verbose.level %s' % verbose.level)
