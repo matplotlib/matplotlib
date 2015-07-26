@@ -966,8 +966,7 @@ defaultParams = {
     'animation.convert_path':  ['convert', six.text_type],
      # Additional arguments for mencoder movie writer (using pipes)
 
-    'animation.convert_args':  [[], validate_stringlist],
-    'unpack_labeled': [True, validate_bool], }
+    'animation.convert_args':  [[], validate_stringlist]}
 
 
 if __name__ == '__main__':
