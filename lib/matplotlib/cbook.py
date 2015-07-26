@@ -2487,6 +2487,34 @@ STEP_LOOKUP_MAP = {'pre': pts_to_prestep,
                    'step-post': pts_to_poststep,
                    'step-mid': pts_to_midstep}
 
+
+def get_index_y(y):
+    """
+    A helper function to get the index of an input to plot
+    against if x values are not explicitly given.
+
+    Tries to get `y.index` (works if this is a pd.Series), if that
+    fails, return np.arange(y.shape[0]).
+
+    This will be extended in the future to deal with more types of
+    labeled data.
+
+    Parameters
+    ----------
+    y : scalar or array-like
+        The proposed y-value
+
+    Returns
+    -------
+    x, y : ndarray
+       The x and y values to plot.
+    """
+    try:
+        return y.index.values, y.values
+    except AttributeError:
+        y = np.atleast_1d(y)
+        return np.arange(y.shape[0], dtype=float), y
+
 # Numpy > 1.6.x deprecates putmask in favor of the new copyto.
 # So long as we support versions 1.6.x and less, we need the
 # following local version of putmask.  We choose to make a
