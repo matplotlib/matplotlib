@@ -466,16 +466,14 @@ class ToolViewsPositions(ToolBase):
         position stack for each axes
         """
 
-        lims = self.views[self.figure]()
-        if lims is None:
+        views = self.views[self.figure]()
+        if views is None:
             return
         pos = self.positions[self.figure]()
         if pos is None:
             return
         for i, a in enumerate(self.figure.get_axes()):
-            xmin, xmax, ymin, ymax = lims[i]
-            a.set_xlim((xmin, xmax))
-            a.set_ylim((ymin, ymax))
+            a._set_view(views[i])
             # Restore both the original and modified positions
             a.set_position(pos[i][0], 'original')
             a.set_position(pos[i][1], 'active')
@@ -485,17 +483,15 @@ class ToolViewsPositions(ToolBase):
     def push_current(self):
         """push the current view limits and position onto the stack"""
 
-        lims = []
+        views = []
         pos = []
         for a in self.figure.get_axes():
-            xmin, xmax = a.get_xlim()
-            ymin, ymax = a.get_ylim()
-            lims.append((xmin, xmax, ymin, ymax))
+            views.append(a._get_view())
             # Store both the original and modified positions
             pos.append((
                 a.get_position(True).frozen(),
                 a.get_position().frozen()))
-        self.views[self.figure].push(lims)
+        self.views[self.figure].push(views)
         self.positions[self.figure].push(pos)
 
     def refresh_locators(self):
