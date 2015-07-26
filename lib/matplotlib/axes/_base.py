@@ -3132,6 +3132,40 @@ class _AxesBase(martist.Artist):
         """
         self._navigate_mode = b
 
+    def _get_view(self):
+        """
+        Save information required to reproduce the current view.
+
+        Called before a view is changed, such as during a pan or zoom
+        initiated by the user. You may return any information you deem
+        necessary to describe the view.
+
+        .. note::
+
+            Intended to be overridden by new projection types, but if not, the
+            default implementation saves the view limits. You *must* implement
+            :meth:`_set_view` if you implement this method.
+        """
+        xmin, xmax = self.get_xlim()
+        ymin, ymax = self.get_ylim()
+        return (xmin, xmax, ymin, ymax)
+
+    def _set_view(self, view):
+        """
+        Apply a previously saved view.
+
+        Called when restoring a view, such as with the navigation buttons.
+
+        .. note::
+
+            Intended to be overridden by new projection types, but if not, the
+            default implementation restores the view limits. You *must*
+            implement :meth:`_get_view` if you implement this method.
+        """
+        xmin, xmax, ymin, ymax = view
+        self.set_xlim((xmin, xmax))
+        self.set_ylim((ymin, ymax))
+
     def start_pan(self, x, y, button):
         """
         Called when a pan operation has started.
