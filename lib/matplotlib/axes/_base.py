@@ -31,7 +31,7 @@ import matplotlib.text as mtext
 import matplotlib.image as mimage
 from matplotlib.offsetbox import OffsetBox
 from matplotlib.artist import allow_rasterization
-from matplotlib.cbook import iterable
+from matplotlib.cbook import iterable, get_index_y
 
 rcParams = matplotlib.rcParams
 
@@ -277,12 +277,11 @@ class _process_plot_var_args(object):
             if v is not None:
                 kw[k] = v
 
-        y = np.atleast_1d(tup[-1])
-
         if len(tup) == 2:
             x = np.atleast_1d(tup[0])
+            y = np.atleast_1d(tup[-1])
         else:
-            x = np.arange(y.shape[0], dtype=float)
+            x, y = get_index_y(tup[-1])
 
         x, y = self._xy_from_xy(x, y)
 
