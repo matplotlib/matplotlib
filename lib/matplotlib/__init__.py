@@ -1501,6 +1501,20 @@ def test(verbosity=1):
         if old_backend.lower() != 'agg':
             use(old_backend)
 
+def deprecated_get_set(function, to_use):
+    """Fuction to deprecate the getters and setter for a class
+    argument.
+
+    Parameter
+    ---------
+    - function: function
+        The function to deprecate.
+    - to_use: string
+        The argument to use instead of the deprecated function
+    """
+    msg = "{} is deprecated, please use the {} argument"
+    msg = msg.format(function.__name__, to_use)
+    warnings.warn(msg, mplDeprecation, stacklevel=1)
     return success
 
 test.__test__ = False  # nose: this function is not a test
