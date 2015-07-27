@@ -920,7 +920,9 @@ class Animation(object):
                 self._base64_video = vid64.decode('ascii')
                 self._video_size = 'width="{0}" height="{1}"'.format(
                         *writer.frame_size)
-                os.remove(f.name)  # Now we can remove
+
+            # Now we can remove
+            os.remove(f.name)
 
         # Default HTML5 options are to autoplay and to display video controls
         options = ['controls', 'autoplay']
