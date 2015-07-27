@@ -76,18 +76,21 @@ class Gcf(object):
         for manager in managers:
             manager.show()
 
-        if block is not None:
-            if block:
-                manager._mainloop()
+        if block is True:
+            manager._mainloop()
+            return
+        elif block is False:
             return
 
+        # Hack: determine at runtime whether we are
+        # inside ipython in pylab mode.
         from matplotlib import pyplot
         try:
             ipython_pylab = not pyplot.show._needmain
             # IPython versions >= 0.10 tack the _needmain
             # attribute onto pyplot.show, and always set
             # it to False, when in %pylab mode.
-            ipython_pylab = ipython_pylab and get_backend() != 'WebAgg'
+            ipython_pylab = ipython_pylab and manager.backend_name != 'webagg'
             # TODO: The above is a hack to get the WebAgg backend
             # working with ipython's `%pylab` mode until proper
             # integration is implemented.
@@ -97,9 +100,9 @@ class Gcf(object):
         # Leave the following as a separate step in case we
         # want to control this behavior with an rcParam.
         if ipython_pylab:
-            block = False
+            return
 
-        if not is_interactive() or get_backend() == 'WebAgg':
+        if not is_interactive() or manager.backend_name == 'webagg':
             manager._mainloop()
 
     @classmethod

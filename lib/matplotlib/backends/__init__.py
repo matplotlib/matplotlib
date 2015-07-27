@@ -41,7 +41,7 @@ def get_backend(name=None):
     # the last argument is specifies whether to use absolute or relative
     # imports. 0 means only perform absolute imports.
     backend_name = get_backend_name(name)
-    return __import__(backend_name, globals(), locals(),
+    return backend_name, __import__(backend_name, globals(), locals(),
                        [backend_name], 0)
 
 
@@ -73,7 +73,7 @@ def pylab_setup(name=None):
 
     '''
     # Import the requested backend into a generic module object
-    backend_mod = get_backend(name)
+    backend_mod = get_backend(name)[1]
 
     # Things we pull in from all backends
     new_figure_manager = getattr(backend_mod, 'new_figure_manager', None)
