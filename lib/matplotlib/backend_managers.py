@@ -209,12 +209,6 @@ class FigureManager(cbook.EventEmitter):
         except:
             return None
 
-    def show_popup(self, msg):
-        """
-        Display message in a popup -- GUI only
-        """
-        pass
-
 
 class ToolEvent(object):
     """Event for tool manipulation (add/remove)"""
