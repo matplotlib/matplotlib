@@ -82,6 +82,7 @@ class FigureManager(cbook.EventEmitter):
 
         self._is_gui = hasattr(self._backend, 'Window')
         if not self._is_gui:
+            self.window = None
             return
 
         self._mainloop = self._backend.MainLoop()
@@ -185,7 +186,8 @@ class FigureManager(cbook.EventEmitter):
         Set the title text of the window containing the figure.  Note that
         this has no effect for non-GUI backends (e.g., a PS backend).
         """
-        self.window.set_window_title(title)
+        if self.window:
+            self.window.set_window_title(title)
 
     @property
     def backend(self):
