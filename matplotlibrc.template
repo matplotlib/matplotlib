@@ -486,6 +486,9 @@ backend      : %(backend)s
 #examples.directory : ''   # directory to look in for custom installation
 
 ###ANIMATION settings
+#animation.html : 'none'           # How to display the animation as HTML in
+                                   # the IPython notebook. 'html5' uses
+                                   # HTML5 video tag.
 #animation.writer : ffmpeg         # MovieWriter 'backend' to use
 #animation.codec : mpeg4           # Codec to use for writing movie
 #animation.bitrate: -1             # Controls size/quality tradeoff for movie.
