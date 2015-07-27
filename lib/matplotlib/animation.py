@@ -23,10 +23,13 @@ from __future__ import (absolute_import, division, print_function,
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import xrange, zip
 
+import os
 import platform
 import sys
 import itertools
+import base64
 import contextlib
+import tempfile
 from matplotlib.cbook import iterable, is_string_like
 from matplotlib.compat import subprocess
 from matplotlib import verbose
@@ -383,7 +386,6 @@ class FileMovieWriter(MovieWriter):
 
         # Delete temporary files
         if self.clear_temp:
-            import os
             verbose.report(
                 'MovieWriter: clearing temporary fnames=%s' %
                 str(self._temp_names),
@@ -884,6 +886,59 @@ class Animation(object):
         self._fig.canvas.mpl_disconnect(self._resize_id)
         self._resize_id = self._fig.canvas.mpl_connect('resize_event',
                                                        self._handle_resize)
+
+    def to_html5_video(self):
+        r'''Returns animation as an HTML5 video tag.
+
+        This saves the animation as an h264 video, encoded in base64
+        directly into the HTML5 video tag. This respects the rc parameters
+        for the writer as well as the bitrate. This also makes use of the
+        ``interval`` to control the speed, and uses the ``repeat``
+        paramter to decide whether to loop.
+        '''
+        VIDEO_TAG = r'''<video {size} {options}>
+  <source type="video/mp4" src="data:video/mp4;base64,{video}">
+  Your browser does not support the video tag.
+</video>'''
+        # Cache the the rendering of the video as HTML
+        if not hasattr(self, '_base64_video'):
+            # First write the video to a tempfile. Set delete to False
+            # so we can re-open to read binary data.
+            with tempfile.NamedTemporaryFile(suffix='.m4v',
+                                             delete=False) as f:
+                # We create a writer manually so that we can get the
+                # appropriate size for the tag
+                Writer = writers[rcParams['animation.writer']]
+                writer = Writer(codec='h264',
+                                bitrate=rcParams['animation.bitrate'],
+                                fps=1000. / self._interval)
+                self.save(f.name, writer=writer)
+
+            # Now open and base64 encode
+            with open(f.name, 'rb') as video:
+                vid64 = base64.encodebytes(video.read())
+                self._base64_video = vid64.decode('ascii')
+                self._video_size = 'width="{0}" height="{1}"'.format(
+                        *writer.frame_size)
+
+            # Now we can remove
+            os.remove(f.name)
+
+        # Default HTML5 options are to autoplay and to display video controls
+        options = ['controls', 'autoplay']
+
+        # If we're set to repeat, make it loop
+        if self.repeat:
+            options.append('loop')
+        return VIDEO_TAG.format(video=self._base64_video,
+                                size=self._video_size,
+                                options=' '.join(options))
+
+    def _repr_html_(self):
+        r'IPython display hook for rendering.'
+        fmt = rcParams['animation.html']
+        if fmt == 'html5':
+            return self.to_html5_video()
 
 
 class TimedAnimation(Animation):
