@@ -102,6 +102,7 @@ class Gcf(object):
         if ipython_pylab:
             return
 
+        # If not interactive we need to block
         if not is_interactive() or manager.backend_name == 'webagg':
             manager._mainloop()
 
