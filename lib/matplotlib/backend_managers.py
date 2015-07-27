@@ -21,7 +21,7 @@ import matplotlib.backend_tools as tools
 from matplotlib import is_interactive
 from matplotlib import rcParams
 from matplotlib.figure import Figure
-from matplotlib.backends import get_backend
+from matplotlib.backends import get_backend, backend as backend_name
 
 
 class FigureManagerEvent(object):
@@ -75,7 +75,7 @@ class FigureManager(cbook.EventEmitter):
     """
     def __init__(self, figure, num, **kwargs):
         super(FigureManager, self).__init__(**kwargs)
-        self._backend = get_backend()
+        self._backend_name, self._backend = get_backend()
 
         self.num = num
         self.figure = figure
@@ -192,6 +192,10 @@ class FigureManager(cbook.EventEmitter):
     @property
     def backend(self):
         return self._backend
+
+    @property
+    def backend_name(self):
+        return self._backend_name
 
     def _get_toolbar(self):
         try:
