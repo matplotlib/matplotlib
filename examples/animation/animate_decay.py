@@ -10,12 +10,13 @@ def data_gen(t=0):
         t += 0.1
         yield t, np.sin(2*np.pi*t) * np.exp(-t/10.)
 
+
 def init():
     ax.set_ylim(-1.1, 1.1)
     ax.set_xlim(0, 10)
     del xdata[:]
     del ydata[:]
-    line.set_data(xdata,ydata)
+    line.set_data(xdata, ydata)
     return line,
 
 fig, ax = plt.subplots()
