@@ -902,7 +902,7 @@ class Axes(_AxesBase):
         self.autoscale_view(scaley=False)
         return p
 
-    @unpack_labeled_data(wl_args={1, 2, 3}, wl_kwargs={'y', 'xmin', 'xmax'})
+    @unpack_labeled_data(wl_args=[1, 2, 3], wl_kwargs=['y', 'xmin', 'xmax'])
     @docstring.dedent
     def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
                label='', **kwargs):
@@ -2390,8 +2390,8 @@ class Axes(_AxesBase):
 
         return stem_container
 
-    @unpack_labeled_data(wl_args={1, 3, 4},
-                         wl_kwargs={'x', 'labels', 'colors'})
+    @unpack_labeled_data(wl_args=[1, 3, 4],
+                         wl_kwargs=['x', 'labels', 'colors'])
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=None, radius=None, counterclock=True,
