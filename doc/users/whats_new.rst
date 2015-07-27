@@ -81,6 +81,23 @@ Support for URL string arguments to ``imread``
 The ``imread`` function now accepts URL strings that point to remote PNG
 files. This circumvents the generation of a HTTPResponse object directly.
 
+Display hook for animations in the IPython notebook
+---------------------------------------------------
+
+`matplotlib.animation.Animation` instances gained a ``_repr_html_`` method
+to support inline display of animations in the notebook. The method used
+to display is controlled by the ``animation.html`` rc parameter, which
+currently supports values of ``none`` and ``html5``. ``none`` is the
+default, performing no display. ``html5`` converts the animation to an
+h264 encoded video, which is embedded directly in the notebook.
+
+Users not wishing to use the ``_repr_html_`` display hook can also manually
+call the `to_html5_video` method to get the HTML and display using
+IPython's ``HTML`` display class::
+
+    from IPython.display import HTML
+    HTML(anim.to_html5_video())
+
 
 .. _whats-new-1-4:
 
