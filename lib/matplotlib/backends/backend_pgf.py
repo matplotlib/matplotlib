@@ -769,9 +769,6 @@ class FigureCanvasPgf(FigureCanvasBase):
                  "pdf": "LaTeX compiled PGF picture",
                  "png": "Portable Network Graphics", }
 
-    def __init__(self, *args):
-        FigureCanvasBase.__init__(self, *args)
-
     def get_default_filetype(self):
         return 'pdf'
 
