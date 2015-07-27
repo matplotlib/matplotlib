@@ -174,7 +174,7 @@ class MainLoopBase(object):
     def __del__(self):
         MainLoopBase._instance_count[self.__class__] -= 1
         if (MainLoopBase._instance_count[self.__class__] <= 0 and
-            not is_interactive() and MainLoopBase._running):
+                not is_interactive() and MainLoopBase._running):
             self.end()
 
 
