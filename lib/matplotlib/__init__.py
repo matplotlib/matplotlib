@@ -1528,7 +1528,7 @@ def _replacer(data, key):
         return key
 
 
-def unpack_labeled_data(wl_args=None, wl_kwargs=None):
+def unpack_labeled_data(wl_args=None, wl_kwargs=None, label_pos=None):
     """
     A decorator to add a 'data' kwarg to any a function.  The signature
     of the input function must be ::
@@ -1537,6 +1537,9 @@ def unpack_labeled_data(wl_args=None, wl_kwargs=None):
 
     so this is suitable for use with Axes methods.
     """
+    if label_pos is not None:
+        label_arg, label_kwarg = label_pos
+
     if wl_kwargs is not None:
         wl_kwargs = set(wl_kwargs)
     if wl_args is not None:
@@ -1560,6 +1563,18 @@ def unpack_labeled_data(wl_args=None, wl_kwargs=None):
                     kwargs = dict(
                         (k, _replacer(data, v) if k in wl_kwargs else v)
                         for k, v in six.iteritems(kwargs))
+            if (label_pos is not None and ('label' not in kwargs or
+                    kwargs['label'] is None)):
+                if len(args) > label_arg:
+                    try:
+                        kwargs['label'] = args[label_arg].name
+                    except AttributeError:
+                        pass
+                elif label_kwarg in kwargs:
+                    try:
+                        kwargs['label'] = args[label_kwarg].name
+                    except AttributeError:
+                        pass
 
             return func(ax, *args, **kwargs)
         return inner
