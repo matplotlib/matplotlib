@@ -829,7 +829,7 @@ _deprecated_map = {
                              lambda x: "path" if x else "none", None),
     'savefig.extension': ('savefig.format', lambda x: x, None),
     'axes.color_cycle': ('axes.prop_cycle', lambda x: cycler('color', x),
-                         lambda x: [c.get('color', None) for c in x),
+                         lambda x: [c.get('color', None) for c in x],
     }
 
 _deprecated_ignore_map = {
