@@ -692,8 +692,7 @@ class ToolZoom(ZoomPanBase):
         for i, a in enumerate(self.figure.get_axes()):
             if (x is not None and y is not None and a.in_axes(event) and
                     a.get_navigate() and a.can_zoom()):
-                self._xypress.append((x, y, a, i, a.viewLim.frozen(),
-                                      a.transData.frozen()))
+                self._xypress.append((x, y, a, i, a._get_view()))
 
         id1 = self.figure.canvas.mpl_connect(
             'motion_notify_event', self._mouse_move)
@@ -718,7 +717,7 @@ class ToolZoom(ZoomPanBase):
 
         if self._xypress:
             x, y = event.x, event.y
-            lastx, lasty, a, _ind, _lim, _trans = self._xypress[0]
+            lastx, lasty, a, _ind, _view = self._xypress[0]
 
             # adjust x, last, y, last
             x1, y1, x2, y2 = a.bbox.extents
@@ -751,20 +750,11 @@ class ToolZoom(ZoomPanBase):
 
         for cur_xypress in self._xypress:
             x, y = event.x, event.y
-            lastx, lasty, a, _ind, lim, _trans = cur_xypress
+            lastx, lasty, a, _ind, view = cur_xypress
             # ignore singular clicks - 5 pixels is a threshold
             if abs(x - lastx) < 5 or abs(y - lasty) < 5:
                 self._cancel_action()
                 return
-
-            x0, y0, x1, y1 = lim.extents
-
-            # zoom to rect
-            inverse = a.transData.inverted()
-            lastx, lasty = inverse.transform_point((lastx, lasty))
-            x, y = inverse.transform_point((x, y))
-            Xmin, Xmax = a.get_xlim()
-            Ymin, Ymax = a.get_ylim()
 
             # detect twinx,y axes and avoid double zooming
             twinx, twiny = False, False
@@ -776,83 +766,15 @@ class ToolZoom(ZoomPanBase):
                         twiny = True
             last_a.append(a)
 
-            if twinx:
-                x0, x1 = Xmin, Xmax
-            else:
-                if Xmin < Xmax:
-                    if x < lastx:
-                        x0, x1 = x, lastx
-                    else:
-                        x0, x1 = lastx, x
-                    if x0 < Xmin:
-                        x0 = Xmin
-                    if x1 > Xmax:
-                        x1 = Xmax
-                else:
-                    if x > lastx:
-                        x0, x1 = x, lastx
-                    else:
-                        x0, x1 = lastx, x
-                    if x0 > Xmin:
-                        x0 = Xmin
-                    if x1 < Xmax:
-                        x1 = Xmax
-
-            if twiny:
-                y0, y1 = Ymin, Ymax
-            else:
-                if Ymin < Ymax:
-                    if y < lasty:
-                        y0, y1 = y, lasty
-                    else:
-                        y0, y1 = lasty, y
-                    if y0 < Ymin:
-                        y0 = Ymin
-                    if y1 > Ymax:
-                        y1 = Ymax
-                else:
-                    if y > lasty:
-                        y0, y1 = y, lasty
-                    else:
-                        y0, y1 = lasty, y
-                    if y0 > Ymin:
-                        y0 = Ymin
-                    if y1 < Ymax:
-                        y1 = Ymax
-
             if self._button_pressed == 1:
-                if self._zoom_mode == "x":
-                    a.set_xlim((x0, x1))
-                elif self._zoom_mode == "y":
-                    a.set_ylim((y0, y1))
-                else:
-                    a.set_xlim((x0, x1))
-                    a.set_ylim((y0, y1))
+                direction = 'in'
             elif self._button_pressed == 3:
-                if a.get_xscale() == 'log':
-                    alpha = np.log(Xmax / Xmin) / np.log(x1 / x0)
-                    rx1 = pow(Xmin / x0, alpha) * Xmin
-                    rx2 = pow(Xmax / x0, alpha) * Xmin
-                else:
-                    alpha = (Xmax - Xmin) / (x1 - x0)
-                    rx1 = alpha * (Xmin - x0) + Xmin
-                    rx2 = alpha * (Xmax - x0) + Xmin
-                if a.get_yscale() == 'log':
-                    alpha = np.log(Ymax / Ymin) / np.log(y1 / y0)
-                    ry1 = pow(Ymin / y0, alpha) * Ymin
-                    ry2 = pow(Ymax / y0, alpha) * Ymin
-                else:
-                    alpha = (Ymax - Ymin) / (y1 - y0)
-                    ry1 = alpha * (Ymin - y0) + Ymin
-                    ry2 = alpha * (Ymax - y0) + Ymin
+                direction = 'out'
+            else:
+                continue
 
-                if self._zoom_mode == "x":
-                    a.set_xlim((rx1, rx2))
-                elif self._zoom_mode == "y":
-                    a.set_ylim((ry1, ry2))
-                else:
-                    a.set_xlim((rx1, rx2))
-                    a.set_ylim((ry1, ry2))
+            a._set_view_from_bbox((lastx, lasty, x, y), view, direction,
+                                  self._zoom_mode, twinx, twiny)
 
         self._zoom_mode = None
         self.toolmanager.get_tool(_views_positions).push_current()
