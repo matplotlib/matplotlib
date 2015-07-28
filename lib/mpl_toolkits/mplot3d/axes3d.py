@@ -1479,7 +1479,7 @@ class Axes3D(Axes):
         ==========  ================================================
         Argument    Description
         ==========  ================================================
-        *xs*, *ys*  X, y coordinates of vertices
+        *xs*, *ys*  x, y coordinates of vertices
 
         *zs*        z value(s), either one for all points or one for
                     each point.
