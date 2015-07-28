@@ -7,6 +7,7 @@
 #include <math.h>
 #include <vector>
 #include <cmath>
+#include <algorithm>
 
 #include "agg_conv_contour.h"
 #include "agg_conv_curve.h"

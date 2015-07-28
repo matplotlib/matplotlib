@@ -8,6 +8,7 @@
 
 #include <cmath>
 #include <vector>
+#include <algorithm>
 
 #include "agg_alpha_mask_u8.h"
 #include "agg_conv_curve.h"
