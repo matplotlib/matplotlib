@@ -15,7 +15,8 @@ from numpy import ma
 import matplotlib
 
 from matplotlib import cbook
-from matplotlib.cbook import _string_to_bool, iterable, index_of, get_label
+from matplotlib.cbook import (_check_1d, _string_to_bool, iterable,
+                              index_of, get_label)
 from matplotlib import docstring
 import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
@@ -214,8 +215,10 @@ class _process_plot_var_args(object):
                 if by:
                     y = self.axes.convert_yunits(y)
 
-        x = np.atleast_1d(x)  # like asanyarray, but converts scalar to array
-        y = np.atleast_1d(y)
+        # like asanyarray, but converts scalar to array, and doesn't change
+        # existing compatible sequences
+        x = _check_1d(x)
+        y = _check_1d(y)
         if x.shape[0] != y.shape[0]:
             raise ValueError("x and y must have same first dimension")
         if x.ndim > 2 or y.ndim > 2:
@@ -353,8 +356,8 @@ class _process_plot_var_args(object):
             kwargs['label'] = get_label(tup[-1], None)
 
         if len(tup) == 2:
-            x = np.atleast_1d(tup[0])
-            y = np.atleast_1d(tup[-1])
+            x = _check_1d(tup[0])
+            y = _check_1d(tup[-1])
         else:
             x, y = index_of(tup[-1])
 

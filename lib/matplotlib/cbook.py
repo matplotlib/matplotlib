@@ -2192,6 +2192,21 @@ def is_math_text(s):
     return even_dollars
 
 
+def _check_1d(x):
+    '''
+    Converts a sequence of less than 1 dimension, to an array of 1
+    dimension; leaves everything else untouched.
+    '''
+    if not hasattr(x, 'shape') or len(x.shape) < 1:
+        return np.atleast_1d(x)
+    else:
+        try:
+            x[:, None]
+            return x
+        except (IndexError, TypeError):
+            return np.atleast_1d(x)
+
+
 def _reshape_2D(X):
     """
     Converts a non-empty list or an ndarray of two or fewer dimensions
