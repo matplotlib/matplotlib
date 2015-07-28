@@ -64,6 +64,17 @@ Glossary
       channel.  PDF was designed in part as a next-generation document
       format to replace postscript
 
+  pgi
+      `pgi <https://pypi.python.org/pypi/pgi/>` exists as a relatively new
+      python wrapper to GTK3 and acts as a pure python alternative to PyGObject.
+      pgi still exists in its infancy, currently missing many features of
+      PyGObject.  However matplotlib does not use any of these missing features.
+
+  PyGObject
+      Like :term:`pygtk`, `PyGObject <http://www.pygtk.org/>` provides
+      python wrappers for the :term:`GTK` widgets library; unlike pygtk,
+      PyGObject wraps GTK3 instead of the now obsolete GTK2.
+
   pygtk
       `pygtk <http://www.pygtk.org/>`_ provides python wrappers for
       the :term:`GTK` widgets library for use with the GTK or GTKAgg

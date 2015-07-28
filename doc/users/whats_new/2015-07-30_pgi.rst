@@ -1,0 +1,9 @@
+PGI - Pure Python GObject Introspection Bindings
+------------------------------------------------
+
+For the GTK3 backend, matplotlib now supports PGI bindings as an alternative
+to PyGObject.  By default matplotlib will still use PyGObject, otherwise it
+will look for pgi.  You can change this behaviour through the rcParam
+backend.gi_preference which takes either a string, or a list of strings in
+order of preference.
+

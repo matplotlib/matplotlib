@@ -9,7 +9,7 @@ import warnings
 
 from . import backend_agg
 from . import backend_gtk3
-from .backend_cairo import cairo, HAS_CAIRO_CFFI
+from .cairo_compat import cairo, HAS_CAIRO_CFFI
 from matplotlib.figure import Figure
 from matplotlib import transforms
 

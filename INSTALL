@@ -235,6 +235,10 @@ backends and the capabilities they provide.
 :term:`pyqt` 4.4 or later
     The Qt4 widgets library python wrappers for the Qt4Agg backend
 
+:term:`PyGObject` or `pgi`
+    For Gtk3, MPL requires the installation of a GObject introspection library
+    for python, either `PyGObject` (also known as gi) or `pgi`.
+
 :term:`pygtk` 2.4 or later
     The python wrappers for the GTK widgets library for use with the
     GTK or GTKAgg backend

@@ -5,7 +5,7 @@ import six
 
 from . import backend_gtk3
 from . import backend_cairo
-from .backend_cairo import cairo, HAS_CAIRO_CFFI
+from .cairo_compat import cairo, HAS_CAIRO_CFFI
 from matplotlib.figure import Figure
 
 class RendererGTK3Cairo(backend_cairo.RendererCairo):
