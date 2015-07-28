@@ -16,6 +16,9 @@ lines.solid_joinstyle : round       # miter|round|bevel
 lines.solid_capstyle : projecting   # butt|round|projecting
 lines.antialiased : True         # render lines in antialised (no jaggies)
 
+### Marker props
+markers.fillstyle: full
+
 ### PATCHES
 # Patches are graphical objects that fill 2D space, like polygons or
 # circles.  See
@@ -109,6 +112,7 @@ text.latex.preamble :  # IMPROPER USE OF THIS FEATURE WILL LEAD TO LATEX FAILURE
                            # beware of package collisions: color, geometry, graphicx,
                            # type1cm, textcomp. Adobe Postscript (PSSNFS) font packages
                            # may also be loaded, depending on your font settings
+text.latex.preview : False
 
 text.dvipnghack : None      # some versions of dvipng don't handle alpha
                             # channel properly.  Use True to correct
@@ -165,6 +169,8 @@ axes.facecolor      : w       # axes background color
 axes.edgecolor      : k       # axes edge color
 axes.linewidth      : 1.0     # edge linewidth
 axes.grid           : False   # display grid or not
+axes.grid.which     : major
+axes.grid.axis      : both
 axes.titlesize      : large   # fontsize of the axes title
 axes.titleweight    : normal  # font weight for axes title
 axes.labelsize      : medium  # fontsize of the x any y labels
@@ -198,7 +204,10 @@ axes.color_cycle    : b, g, r, c, m, y, k  # color cycle for plot lines
                                            # web-style hex
 axes.xmargin        : 0  # x margin.  See `axes.Axes.margins`
 axes.ymargin        : 0  # y margin See `axes.Axes.margins`
-
+axes.spines.bottom  : True
+axes.spines.left    : True
+axes.spines.right   : True
+axes.spines.top     : True
 polaraxes.grid      : True    # display grid on polar axes
 axes3d.grid         : True    # display grid on 3d axes
 
@@ -206,6 +215,7 @@ axes3d.grid         : True    # display grid on 3d axes
 # see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
 xtick.major.size     : 4      # major tick size in points
 xtick.minor.size     : 2      # minor tick size in points
+xtick.minor.visible  : False
 xtick.major.width    : 0.5    # major tick width in points
 xtick.minor.width    : 0.5    # minor tick width in points
 xtick.major.pad      : 4      # distance to major tick label in points
@@ -216,6 +226,7 @@ xtick.direction      : in     # direction: in, out, or inout
 
 ytick.major.size     : 4      # major tick size in points
 ytick.minor.size     : 2      # minor tick size in points
+ytick.minor.visible  : False
 ytick.major.width    : 0.5    # major tick width in points
 ytick.minor.width    : 0.5    # minor tick width in points
 ytick.major.pad      : 4      # distance to major tick label in points
@@ -269,6 +280,7 @@ figure.autolayout : False  # When True, automatically adjust subplot
 figure.max_open_warning : 20  # The maximum number of figures to open through
                               # the pyplot interface before emitting a warning.
                               # If less than one this feature is disabled.
+figure.frameon : True
 
 # The figure subplot parameters.  All dimensions are a fraction of the
 # figure width or height
@@ -292,6 +304,43 @@ image.composite_image : True
 contour.negative_linestyle :  dashed # dashed | solid
 contour.corner_mask : True
 
+# errorbar props
+errorbar.capsize: 3
+
+### Boxplots
+boxplot.bootstrap: None
+boxplot.boxprops.color: b
+boxplot.boxprops.linestyle: -
+boxplot.boxprops.linewidth: 1.0
+boxplot.capprops.color: k
+boxplot.capprops.linestyle: -
+boxplot.capprops.linewidth: 1.0
+boxplot.flierprops.color: b
+boxplot.flierprops.linestyle: -
+boxplot.flierprops.linewidth: 1.0
+boxplot.flierprops.marker: +
+boxplot.flierprops.markeredgecolor: k
+boxplot.flierprops.markerfacecolor: b
+boxplot.flierprops.markersize: 6.0
+boxplot.meanline: False
+boxplot.meanprops.color: r
+boxplot.meanprops.linestyle: -
+boxplot.meanprops.linewidth: 1.0
+boxplot.medianprops.color: r
+boxplot.medianprops.linestyle: -
+boxplot.medianprops.linewidth: 1.0
+boxplot.notch: False
+boxplot.patchartist: False
+boxplot.showbox: True
+boxplot.showcaps: True
+boxplot.showfliers: True
+boxplot.showmeans: False
+boxplot.vertical: True
+boxplot.whiskerprops.color: b
+boxplot.whiskerprops.linestyle: --
+boxplot.whiskerprops.linewidth: 1.0
+boxplot.whiskers: 1.5
+
 ### Agg rendering
 ### Warning: experimental, 2008/10/10
 agg.path.chunksize : 0           # 0 to disable; values in the range
@@ -306,7 +355,7 @@ agg.path.chunksize : 0           # 0 to disable; values in the range
 path.simplify : True   # When True, simplify paths by removing "invisible"
                        # points to reduce file size and increase rendering
                        # speed
-path.simplify_threshold : 0.111111111111
+path.simplify_threshold : 0.1111111111111111
                                # The threshold of similarity below which
                                # vertices will be removed in the simplification
                                # process
@@ -320,6 +369,7 @@ path.sketch : None # May be none, or a 3-tuple of the form (scale, length,
                    # is the length of the wiggle along the line (in
                    # pixels).  *randomness* is the factor by which
                    # the length is randomly scaled.
+path.effects :
 
 # the default savefig params can be different from the display params
 # e.g., you may want a higher resolution, or to make the figure
@@ -339,6 +389,10 @@ savefig.directory   : ~        # default directory in savefig dialog box,
                                # leave empty to always use current working directory
 savefig.transparent : False    # setting that controls whether figures are saved with a
                                # transparent background by default
+savefig.frameon : True
+savefig.orientation : portrait
+
+nbagg.transparent: True
 
 # tk backend params
 tk.window_focus   : False    # Maintain shell focus for TkAgg
@@ -413,6 +467,8 @@ keymap.yscale : l                   # toggle scaling of y-axes ('log'/'linear')
 keymap.xscale : k, L                # toggle scaling of x-axes ('log'/'linear')
 keymap.all_axes : a                 # enable all axes
 
+toolbar: toolbar2
+
 ###ANIMATION settings
 animation.writer : ffmpeg         # MovieWriter 'backend' to use
 animation.codec : mpeg4           # Codec to use for writing movie
@@ -432,3 +488,5 @@ animation.mencoder_args:          # Additional arguments to pass to mencoder
 animation.convert_path: convert   # Path to ImageMagick's convert binary.
                                   # On Windows use the full path since convert
                                   # is also the name of a system tool.
+animation.convert_args:
+animation.html: none
