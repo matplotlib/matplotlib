@@ -83,7 +83,7 @@ class Widget(object):
     # set_active is overriden by SelectorWidgets.
     active = property(get_active, lambda self, active: self.set_active(active),
                       doc="Is the widget active?")
-                      
+
     def ignore(self, event):
         """Return True if event should be ignored.
 
@@ -642,7 +642,7 @@ class RadioButtons(AxesWidget):
 
      *circles*
         A list of :class:`matplotlib.patches.Circle` instances
-        
+
      *value_selected*
         A string listing the current value selected
 
@@ -1091,7 +1091,7 @@ class MultiCursor(Widget):
     def clear(self, event):
         """clear the cursor"""
         if self.ignore(event):
-            return        
+            return
         if self.useblit:
             self.background = (
                 self.canvas.copy_from_bbox(self.canvas.figure.bbox))
@@ -1100,7 +1100,7 @@ class MultiCursor(Widget):
 
     def onmove(self, event):
         if self.ignore(event):
-            return        
+            return
         if event.inaxes is None:
             return
         if not self.canvas.widgetlock.available(self):
@@ -1312,7 +1312,7 @@ class SpanSelector(_SelectorWidget):
         If *minspan* is not *None*, ignore events smaller than *minspan*
 
         The span rectangle is drawn with *rectprops*; default::
-        
+
           rectprops = dict(facecolor='red', alpha=0.5)
 
         Set the visible attribute to *False* if you want to turn off
@@ -1833,3 +1833,90 @@ class Lasso(AxesWidget):
             self.canvas.blit(self.ax.bbox)
         else:
             self.canvas.draw_idle()
+
+
+class Sketcher(object):
+    """
+    Tool to sketch on the axes.
+
+    Parameters
+    ----------
+    ax : Axes
+        The axes to sketch on
+
+    """
+    def __init__(self, ax):
+        self.ax = ax
+        self.point_cache = []
+        self.cid_cache = {}
+        self._active = False
+        self.active = True
+        self.lines = []
+
+    def _safe_connect(self, msg, func):
+        """
+        Connect a signal, but make sure we disconnect the existing one first
+        """
+        self._safe_disconnect(msg)
+
+        cid = self.ax.figure.canvas.mpl_connect(msg, func)
+        self.cid_cache[msg] = cid
+
+    def _safe_disconnect(self, msg):
+        """
+        Disconnect a signal, even it is not really connected
+        """
+        old_cid = self.cid_cache.pop(msg, None)
+
+        if old_cid is not None:
+            self.ax.figure.canvas.mpl_disconnect(old_cid)
+
+    def _down_event(self, ev):
+        """
+        button down callback
+        """
+        del self.point_cache[:]
+        if not self.ax.figure.canvas.widgetlock.available(self):
+            return
+
+        ln, = self.ax.plot([], [], color='k', lw=3)
+        self.lines.append(ln)
+        self._safe_connect('button_release_event', self._up_event)
+        self._safe_connect('motion_notify_event', self._move_event)
+
+    def _up_event(self, ev):
+        """
+        button up callback
+        """
+        x, y = zip(*self.point_cache)
+        self.last_line.set_data(x, y)
+
+        self._safe_disconnect('motion_notify_event')
+        self._safe_disconnect('button_release_event')
+        self.ax.figure.canvas.draw_idle()
+
+    def _move_event(self, ev):
+        """
+        Mouse motion callback
+        """
+        self.point_cache.append([ev.xdata, ev.ydata])
+        if len(self.point_cache) % 25:
+            x, y = zip(*self.point_cache)
+            self.last_line.set_data(x, y)
+            self.ax.figure.canvas.draw_idle()
+
+    @property
+    def last_line(self):
+        return self.lines[-1]
+
+    @property
+    def active(self):
+        return self._active
+
+    @active.setter
+    def active(self, active):
+        if self._active and not active:
+            self._safe_disconnect('button_press_event')
+
+        if active:
+            self._safe_connect('button_press_event', self._down_event)
