@@ -629,13 +629,13 @@ class AutoDateFormatter(ticker.Formatter):
     format string.  The default looks like this::
 
         self.scaled = {
-           365.0  : '%Y',
-           30.    : '%b %Y',
-           1.0    : '%b %d %Y',
-           1./24. : '%H:%M:%S',
-           1. / (24. * 60.): '%H:%M:%S.%f',
-           }
-
+           DAYS_PER_YEAR          : '%Y',
+           DAYS_PER_MONTH         : '%b %Y',
+           1.0                    : '%b %d %Y',
+           1. / HOURS_PER_DAY     : '%H:%M',
+           1. / SEC_PER_DAY       : '%H:%M:%S',
+           1. / MUSECONDS_PER_DAY : '%H:%M:%S.%f'
+        }
 
     The algorithm picks the key in the dictionary that is >= the
     current scale and uses that format string.  You can customize this
@@ -688,8 +688,9 @@ class AutoDateFormatter(ticker.Formatter):
         self.scaled = {DAYS_PER_YEAR: '%Y',
                        DAYS_PER_MONTH: '%b %Y',
                        1.0: '%b %d %Y',
-                       1. / HOURS_PER_DAY: '%H:%M:%S',
-                       1. / (MINUTES_PER_DAY): '%H:%M:%S.%f'}
+                       1. / HOURS_PER_DAY: '%H:%M',
+                       1. / SEC_PER_DAY: '%H:%M:%S',
+                       1. / MUSECONDS_PER_DAY: '%H:%M:%S.%f'}
 
     def __call__(self, x, pos=None):
         locator_unit_scale = float(self._locator._get_unit())
