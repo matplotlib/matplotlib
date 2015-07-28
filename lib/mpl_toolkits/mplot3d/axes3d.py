@@ -1479,7 +1479,7 @@ class Axes3D(Axes):
         ==========  ================================================
         Argument    Description
         ==========  ================================================
-        *xs*, *ys*  X, y coordinates of vertices
+        *xs*, *ys*  x, y coordinates of vertices
 
         *zs*        z value(s), either one for all points or one for
                     each point.
@@ -2197,10 +2197,10 @@ class Axes3D(Axes):
                       the same plane. Default is 0.
         *zdir*        Which direction to use as z ('x', 'y' or 'z')
                       when plotting a 2D set.
-        *s*           size in points^2.  It is a scalar or an array of the
+        *s*           Size in points^2.  It is a scalar or an array of the
                       same length as *x* and *y*.
 
-        *c*           a color. *c* can be a single color format string, or a
+        *c*           A color. *c* can be a single color format string, or a
                       sequence of color specifications of length *N*, or a
                       sequence of *N* numbers to be mapped to colors using the
                       *cmap* and *norm* specified via kwargs (see below). Note
