@@ -3895,6 +3895,11 @@ def test_shared_scale():
         assert_equal(ax.get_yscale(), 'linear')
         assert_equal(ax.get_xscale(), 'linear')
 
+@cleanup
+def test_violin_point_mass():
+    """Violin plot should handle point mass pdf gracefully."""
+    plt.violinplot(np.array([0, 0]))
+
 if __name__ == '__main__':
     import nose
     import sys
