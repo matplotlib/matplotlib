@@ -1551,20 +1551,20 @@ def unpack_labeled_data(wl_args=None, wl_kwargs=None, label_pos=None):
             data = kwargs.pop('data', None)
             if data is not None:
                 if wl_args is None:
-                    args = tuple(_replacer(data, a) for a in args)
+                    new_args = tuple(_replacer(data, a) for a in args)
                 else:
-                    args = tuple(_replacer(data, a) if j in wl_args else a
-                                 for j, a in enumerate(args))
+                    new_args = tuple(_replacer(data, a) if j in wl_args else a
+                                     for j, a in enumerate(args))
 
                 if wl_kwargs is None:
-                    kwargs = dict((k, _replacer(data, v))
-                                  for k, v in six.iteritems(kwargs))
+                    new_kwargs = dict((k, _replacer(data, v))
+                                      for k, v in six.iteritems(kwargs))
                 else:
-                    kwargs = dict(
+                    new_kwargs = dict(
                         (k, _replacer(data, v) if k in wl_kwargs else v)
                         for k, v in six.iteritems(kwargs))
             if (label_pos is not None and ('label' not in kwargs or
-                    kwargs['label'] is None)):
+                                           kwargs['label'] is None)):
                 if len(args) > label_arg:
                     try:
                         kwargs['label'] = args[label_arg].name
@@ -1572,11 +1572,11 @@ def unpack_labeled_data(wl_args=None, wl_kwargs=None, label_pos=None):
                         pass
                 elif label_kwarg in kwargs:
                     try:
-                        kwargs['label'] = args[label_kwarg].name
+                        kwargs['label'] = kwargs[label_kwarg].name
                     except AttributeError:
                         pass
 
-            return func(ax, *args, **kwargs)
+            return func(ax, *new_args, **new_kwargs)
         return inner
     return param
 
