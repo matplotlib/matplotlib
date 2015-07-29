@@ -1,30 +1,25 @@
-#!/usr/bin/env python
-# -*- noplot -*-
-import matplotlib
-matplotlib.use('PS')
-from pylab import *
-
+import matplotlib.pyplot as plt
+import numpy as np
 
 def f(t):
-    s1 = cos(2*pi*t)
-    e1 = exp(-t)
-    return multiply(s1, e1)
+    s1 = np.cos(2*np.pi*t)
+    e1 = np.exp(-t)
+    return np.multiply(s1, e1)
 
-t1 = arange(0.0, 5.0, .1)
-t2 = arange(0.0, 5.0, 0.02)
-t3 = arange(0.0, 2.0, 0.01)
+t1 = np.arange(0.0, 5.0, .1)
+t2 = np.arange(0.0, 5.0, 0.02)
+t3 = np.arange(0.0, 2.0, 0.01)
 
-figure(1)
-subplot(211)
-l = plot(t1, f(t1), 'k^')
-setp(l, markerfacecolor='k', markeredgecolor='r')
-title('A tale of 2 subplots', fontsize=14, fontname='Courier')
-ylabel('Signal 1', fontsize=12)
-subplot(212)
-l = plot(t1, f(t1), 'k>')
+plt.figure(1)
+plt.subplot(211)
+l = plt.plot(t1, f(t1), 'k^')
+plt.setp(l, markerfacecolor='k', markeredgecolor='r')
+plt.title('A tale of 2 subplots', fontsize=14, fontname='Courier')
+plt.ylabel('Signal 1', fontsize=12)
+plt.subplot(212)
+l = plt.plot(t1, f(t1), 'k>')
 
+plt.ylabel('Signal 2', fontsize=12)
+plt.xlabel('time (s)', fontsize=12)
 
-ylabel('Signal 2', fontsize=12)
-xlabel('time (s)', fontsize=12)
-
-show()
+plt.show()
