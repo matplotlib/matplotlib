@@ -1563,6 +1563,9 @@ def unpack_labeled_data(wl_args=None, wl_kwargs=None, label_pos=None):
                     new_kwargs = dict(
                         (k, _replacer(data, v) if k in wl_kwargs else v)
                         for k, v in six.iteritems(kwargs))
+            else:
+                new_args, new_kwargs = args, kwargs
+
             if (label_pos is not None and ('label' not in kwargs or
                                            kwargs['label'] is None)):
                 if len(args) > label_arg:
@@ -1572,7 +1575,7 @@ def unpack_labeled_data(wl_args=None, wl_kwargs=None, label_pos=None):
                         pass
                 elif label_kwarg in kwargs:
                     try:
-                        kwargs['label'] = kwargs[label_kwarg].name
+                        new_kwargs['label'] = kwargs[label_kwarg].name
                     except AttributeError:
                         pass
 
