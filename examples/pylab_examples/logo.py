@@ -1,8 +1,8 @@
-# This file generates the matplotlib web page logo
+# This file generates an old version of the matplotlib logo
 
-# from __future__ import print_function
+from __future__ import print_function
 # Above import not necessary for Python 3 onwards. Recommend taking this
-# out in all examples.
+# out in examples in the future, since we should all move to Python 3.
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.cbook as cbook
@@ -24,7 +24,7 @@ plt.text(0.5, 0.5, 'matplotlib', color='r',
          transform=ax.transAxes,
          )
 plt.axis([1, 1.72, -60, 10])
-plt.setp(plt.gca(), 'xticklabels', [])
-plt.setp(plt.gca(), 'yticklabels', [])
+plt.gca().set_xticklabels([])
+plt.gca().set_yticklabels([])
 
 plt.show()
