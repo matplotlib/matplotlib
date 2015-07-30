@@ -5,7 +5,7 @@ from matplotlib.externals import six
 import itertools
 from distutils.version import LooseVersion as V
 
-from nose.tools import assert_raises, assert_equal
+from nose.tools import assert_raises, assert_equal, assert_true
 
 import numpy as np
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
@@ -39,14 +39,59 @@ def test_BoundaryNorm():
     Github issue #1258: interpolation was failing with numpy
     1.7 pre-release.
     """
-    # TODO: expand this into a more general test of BoundaryNorm.
+
     boundaries = [0, 1.1, 2.2]
-    vals = [-1, 0, 2, 2.2, 4]
-    expected = [-1, 0, 2, 3, 3]
+    vals = [-1, 0, 1, 2, 2.2, 4]
+
+    # Without interpolation
+    expected = [-1, 0, 0, 1, 2, 2]
+    ncolors = len(boundaries) - 1
+    bn = mcolors.BoundaryNorm(boundaries, ncolors)
+    assert_array_equal(bn(vals), expected)
+
     # ncolors != len(boundaries) - 1 triggers interpolation
+    expected = [-1, 0, 0, 2, 3, 3]
     ncolors = len(boundaries)
     bn = mcolors.BoundaryNorm(boundaries, ncolors)
     assert_array_equal(bn(vals), expected)
+
+    # more boundaries for a third color
+    boundaries = [0, 1, 2, 3]
+    vals = [-1, 0.1, 1.1, 2.2, 4]
+    ncolors = 5
+    expected = [-1, 0, 2, 4, 5]
+    bn = mcolors.BoundaryNorm(boundaries, ncolors)
+    assert_array_equal(bn(vals), expected)
+
+    # a scalar as input should not trigger an error and should return a scalar
+    boundaries = [0, 1, 2]
+    vals = [-1, 0.1, 1.1, 2.2]
+    bn = mcolors.BoundaryNorm(boundaries, 2)
+    expected = [-1, 0, 1, 2]
+    for v, ex in zip(vals, expected):
+        ret = bn(v)
+        assert_true(isinstance(ret, six.integer_types))
+        assert_array_equal(ret, ex)
+        assert_array_equal(bn([v]), ex)
+
+    # same with interp
+    bn = mcolors.BoundaryNorm(boundaries, 3)
+    expected = [-1, 0, 2, 3]
+    for v, ex in zip(vals, expected):
+        ret = bn(v)
+        assert_true(isinstance(ret, six.integer_types))
+        assert_array_equal(ret, ex)
+        assert_array_equal(bn([v]), ex)
+
+    # Clipping
+    # For the "3" I do not know: isn't clipping also supposed to clip the max?
+    bn = mcolors.BoundaryNorm(boundaries, 3, clip=True)
+    expected = [0, 0, 2, 3]
+    for v, ex in zip(vals, expected):
+        ret = bn(v)
+        assert_true(isinstance(ret, six.integer_types))
+        assert_array_equal(ret, ex)
+        assert_array_equal(bn([v]), ex)
 
 
 def test_LogNorm():
