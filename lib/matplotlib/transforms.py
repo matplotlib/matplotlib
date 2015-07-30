@@ -50,7 +50,8 @@ except NameError:
 from .path import Path
 
 DEBUG = False
-
+# we need this later, but this is very expensive to set up
+MINFLOAT = np.MachAr(float).xmin
 MaskedArray = ma.MaskedArray
 
 
@@ -2738,7 +2739,7 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
         swapped = True
 
     maxabsvalue = max(abs(vmin), abs(vmax))
-    if maxabsvalue < (1e6 / tiny) * np.MachAr(float).xmin:
+    if maxabsvalue < (1e6 / tiny) * MINFLOAT:
         vmin = -expander
         vmax = expander
 

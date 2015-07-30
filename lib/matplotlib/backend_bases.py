@@ -2813,15 +2813,14 @@ class NavigationToolbar2(object):
                 pass
             else:
                 artists = event.inaxes.hitlist(event)
-                if event.inaxes.patch in artists:
-                    artists.remove(event.inaxes.patch)
 
                 if artists:
-                    artists.sort(key=lambda x: x.zorder)
-                    a = artists[-1]
-                    data = a.get_cursor_data(event)
-                    if data is not None:
-                        s += ' [%s]' % a.format_cursor_data(data)
+                    a = max(enumerate(artists), key=lambda x: x[1].zorder)[1]
+                    if a is not event.inaxes.patch:
+                        data = a.get_cursor_data(event)
+                        if data is not None:
+                            s += ' [%s]' % a.format_cursor_data(data)
+
                 if len(self.mode):
                     self.set_message('%s, %s' % (self.mode, s))
                 else:

@@ -1,7 +1,7 @@
 """
 Broken axis example, where the y-axis will have a portion cut out.
 """
-import matplotlib.pylab as plt
+import matplotlib.pyplot as plt
 import numpy as np
 
 
