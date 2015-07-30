@@ -108,6 +108,7 @@ import distutils.version
 from itertools import chain
 
 import io
+import inspect
 import locale
 import os
 import re
@@ -1533,60 +1534,137 @@ def _replacer(data, key):
         return key
 
 
-def unpack_labeled_data(wl_args=None, wl_kwargs=None, label_pos=None):
+def unpack_labeled_data(replace_names=None, label_namer="y", positional_parameter_names=None):
     """
     A decorator to add a 'data' kwarg to any a function.  The signature
-    of the input function must be ::
+    of the input function must include the ax argument at the first position ::
 
        def foo(ax, *args, **kwargs)
 
     so this is suitable for use with Axes methods.
-    """
-    if label_pos is not None:
-        label_arg, label_kwarg = label_pos
 
-    if wl_kwargs is not None:
-        wl_kwargs = set(wl_kwargs)
-    if wl_args is not None:
-        wl_args = set(wl_args)
+    Parameters
+    ----------
+    replace_names : list of strings, optional, default: None
+        The list of parameter names which arguments should be replaced by `data[name]`. If None,
+        all arguments are replaced if they are included in `data`.
+    label_namer : string, optional, default: 'y'
+        The name of the parameter which argument should be used as label, if label is not set. If
+        None, the label keyword argument is not set.
+    positional_parameter_names : list of strings, optional, default: None
+        The full list of positional parameter names (including the `ax` argument at the first place
+        and including all possible positional parameter in `*args`), in the right order. Can also
+        include all other keyword parameter. Only needed if the wrapped function does contain
+        `*args` and replace_names is not None.
+    """
+    if replace_names is not None:
+        replace_names = set(replace_names)
 
     def param(func):
+        # this call is deprecated in 3.x and will be removed in py3.6 :-(
+        # TODO: implement the same for py 3.x/3.6+ with inspect.signature(..)
+        arg_spec = inspect.getargspec(func)
+        _arg_names = arg_spec.args
+        _has_no_varargs = arg_spec.varargs is None
+        _has_varkwargs = not arg_spec.keywords is None
+
+        # there can't be any positional arguments behind *args and no positional args can end up
+        # in **kwargs, so we only need to check for varargs:
+        # http://stupidpythonideas.blogspot.de/2013/08/arguments-and-parameters.html
+        if _has_no_varargs:
+            # remove the first "ax" arg
+            arg_names = _arg_names[1:]
+        else:
+            # in this case we need a supplied list of arguments or we need to replace all variables
+            # -> compile time check
+            if replace_names is None:
+                # all argnames should be replaced
+                arg_names = None
+            elif len(replace_names) == 0:
+                # No argnames should be replaced
+                arg_names = []
+            else:
+                assert not (positional_parameter_names is None), "Got replace_names and wrapped function uses *args, need positional_parameter_names!"
+                # remove ax arg
+                arg_names = positional_parameter_names[1:]
+
+        # compute the possible label_namer and label position in positional arguments
+        label_pos = 9999 # bigger than all "possible" argument lists
+        label_namer_pos = 9999 # bigger than all "possible" argument lists
+        if label_namer and arg_names and (label_namer in arg_names):
+            label_namer_pos = arg_names.index(label_namer)
+            if "label" in arg_names:
+                label_pos = arg_names.index("label")
+
+        # Check the case we know a label_namer but we can't find it the arg_names...
+        # Unfortunately the label_namer can be in **kwargs,  which we can't detect here and which
+        # results in a non-set label which might surprise the user :-(
+        if label_namer and not _has_varkwargs:
+            if not arg_names:
+                msg = "label_namer '%s' can't be found as the parameter without 'positional_parameter_names'."
+                raise AssertionError(msg % (label_namer))
+            elif label_namer not in arg_names:
+                msg = "label_namer '%s' can't be found in the parameter names (known argnames: %s)."
+                raise AssertionError(msg % (label_namer, arg_names))
+            else:
+                # this is the case when the name is in arg_names
+                pass
+
         @functools.wraps(func)
         def inner(ax, *args, **kwargs):
             data = kwargs.pop('data', None)
+            label = None
             if data is not None:
-                if wl_args is None:
-                    new_args = tuple(_replacer(data, a) for a in args)
+                # save the current label_namer value so that it can be used as a label
+                if label_namer_pos < len(args):
+                    label = args[label_namer_pos]
                 else:
-                    new_args = tuple(_replacer(data, a) if j in wl_args else a
-                                     for j, a in enumerate(args))
+                    label = kwargs.get(label_namer, None)
+                # ensure a string, as label can't be anything else
+                if not isinstance(label, six.string_types):
+                    label = None
 
-                if wl_kwargs is None:
-                    new_kwargs = dict((k, _replacer(data, v))
-                                      for k, v in six.iteritems(kwargs))
+                if replace_names is None:
+                    # all should be replaced
+                    args = tuple(_replacer(data, a) for j, a in enumerate(args))
+                    kwargs = dict((k, _replacer(data, v)) for k, v in six.iteritems(kwargs))
                 else:
-                    new_kwargs = dict(
-                        (k, _replacer(data, v) if k in wl_kwargs else v)
+                    # An arg is replaced if the arg_name of that position is in replace_names ...
+                    if len(arg_names) < len(args):
+                        raise RuntimeError("Got more args than function expects")
+                    args = tuple(_replacer(data, a) if arg_names[j] in replace_names else a
+                                 for j, a in enumerate(args))
+                    # ... or a kwarg of that name in replace_names
+                    kwargs = dict((k, _replacer(data, v) if k in replace_names else v)
                         for k, v in six.iteritems(kwargs))
-            else:
-                new_args, new_kwargs = args, kwargs
 
-            if (label_pos is not None and ('label' not in kwargs or
-                                           kwargs['label'] is None)):
-                if len(args) > label_arg:
+            # replace the label if this func "wants" a label arg and the user didn't set one
+            # Note: if the usere puts in "label=None", it does *NOT* get replaced!
+            user_supplied_label = (
+                (len(args) >= label_pos) or # label is included in args
+                ('label' in kwargs) # ... or in kwargs
+            )
+            if (label_namer and not user_supplied_label):
+                if label_namer_pos < len(args):
                     try:
-                        kwargs['label'] = args[label_arg].name
+                        kwargs['label'] = args[label_namer_pos].name
                     except AttributeError:
-                        pass
-                elif label_kwarg in kwargs:
+                        kwargs['label'] = label
+                elif label_namer in kwargs:
                     try:
-                        new_kwargs['label'] = kwargs[label_kwarg].name
+                        kwargs['label'] = kwargs[label_namer].name
                     except AttributeError:
-                        pass
-
-            return func(ax, *new_args, **new_kwargs)
+                        kwargs['label'] = label
+                else:
+                    import warnings
+                    msg = "Tried to set a label via parameter '%s' but couldn't find such an argument. \n"\
+                          "(This is a programming error, please report to the matplotlib list!)"
+                    warnings.warn(msg, RuntimeWarning, stacklevel=2)
+                    #raise Exception()
+            return func(ax, *args, **kwargs)
         return inner
     return param
+
 
 verbose.report('matplotlib version %s' % __version__)
 verbose.report('verbose.level %s' % verbose.level)
