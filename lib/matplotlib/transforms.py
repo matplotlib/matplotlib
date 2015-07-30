@@ -2738,7 +2738,7 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
         swapped = True
 
     maxabsvalue = max(abs(vmin), abs(vmax))
-    if maxabsvalue < (1e6 / tiny) * np.MachAr(float).xmin:
+    if maxabsvalue < (1e6 / tiny) * np.finfo(float).min: 
         vmin = -expander
         vmax = expander
 
