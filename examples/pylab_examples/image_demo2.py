@@ -1,35 +1,32 @@
-#!/usr/bin/env python
-
 from __future__ import print_function
-from pylab import *
+# from pylab import *
+import matplotlib.pyplot as plt
+import numpy as np
 import matplotlib.cbook as cbook
 
 w, h = 512, 512
 
 datafile = cbook.get_sample_data('ct.raw.gz', asfileobj=True)
 s = datafile.read()
-A = fromstring(s, uint16).astype(float)
-A *= 1.0/max(A)
+A = np.fromstring(s, np.uint16).astype(float)
+A *= 1.0 / max(A)
 A.shape = w, h
 
 extent = (0, 25, 0, 25)
-im = imshow(A, cmap=cm.hot, origin='upper', extent=extent)
+im = plt.imshow(A, cmap=plt.cm.hot, origin='upper', extent=extent)
 
 markers = [(15.9, 14.5), (16.8, 15)]
 x, y = zip(*markers)
-plot(x, y, 'o')
-#axis([0,25,0,25])
+plt.plot(x, y, 'o')
 
-
-#axis('off')
-title('CT density')
+plt.title('CT density')
 
 if 0:
-    x = asum(A, 0)
-    subplot(212)
-    bar(arange(w), x)
-    xlim(0, h - 1)
-    ylabel('density')
-    setp(gca(), 'xticklabels', [])
-
-show()
+    x = np.asum(A, 0)
+    plt.subplot(212)
+    plt.bar(np.arange(w), x)
+    plt.xlim(0, h - 1)
+    plt.ylabel('density')
+    # setp(gca(), 'xticklabels', [])
+    plt.xticklabels([])
+plt.show()
