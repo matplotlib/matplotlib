@@ -1,20 +1,17 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
 
 from matplotlib.offsetbox import AnchoredOffsetbox
- #from matplotlib.transforms import IdentityTransform
 
 import matplotlib.transforms as mtrans
 from .parasite_axes import HostAxes  # subclasses mpl_axes
 
 from matplotlib.transforms import Bbox, TransformedBbox, IdentityTransform
-
 from matplotlib.patches import Patch
 from matplotlib.path import Path
-
 from matplotlib.patches import Rectangle
+from matplotlib import docstring
 
 
 class InsetPosition(object):
@@ -311,7 +308,38 @@ def zoomed_inset_axes(parent_axes, zoom, loc=1,
     return inset_axes
 
 
+@docstring.dedent_interpd
 def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
+    """
+    Draw a box to mark the location of an area represented by an inset axes.
+
+    This function draws a box in *parent_axes* at the bounding box of
+    *inset_axes*, and shows a connection with the inset axes by drawing lines
+    at the corners, giving a "zoomed in" effect.
+
+    Parameters
+    ----------
+    parent_axes : `matplotlib.axes.Axes`
+        Axes which contains the area of the inset axes.
+
+    inset_axes : `matplotlib.axes.Axes`
+        The inset axes.
+
+    loc1, loc2 : {1, 2, 3, 4}
+        Corners to use for connecting the inset axes and the area in the
+        parent axes.
+
+    The kwargs are Patch properties for the lines and box drawn:
+    %(Patch)s
+
+    Returns
+    -------
+    pp : `matplotlib.patches.Patch`
+        The patch drawn to represent the area of the inset axes.
+
+    p1, p2 : `matplotlib.patches.Patch`
+        The patches connecting two corners of the inset axes and its area.
+    """
     rect = TransformedBbox(inset_axes.viewLim, parent_axes.transData)
 
     pp = BboxPatch(rect, **kwargs)
