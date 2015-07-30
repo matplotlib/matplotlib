@@ -21,12 +21,4 @@ plt.plot(x, y, 'o')
 
 plt.title('CT density')
 
-if 0:
-    x = np.asum(A, 0)
-    plt.subplot(212)
-    plt.bar(np.arange(w), x)
-    plt.xlim(0, h - 1)
-    plt.ylabel('density')
-    # setp(gca(), 'xticklabels', [])
-    plt.xticklabels([])
 plt.show()
