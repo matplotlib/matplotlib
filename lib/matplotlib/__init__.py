@@ -115,7 +115,7 @@ import tempfile
 import warnings
 import contextlib
 import distutils.sysconfig
-
+import functools
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from matplotlib.cbook import is_string_like, mplDeprecation
@@ -1514,6 +1514,74 @@ def test(verbosity=1):
     return success
 
 test.__test__ = False  # nose: this function is not a test
+
+
+def _replacer(data, key):
+    # if key isn't a string don't bother
+    if not isinstance(key, six.string_types):
+        return key
+    # try to use __getitem__
+    try:
+        return data[key]
+    # key does not exist, silently fall back to key
+    except KeyError:
+        return key
+
+
+def unpack_labeled_data(wl_args=None, wl_kwargs=None, label_pos=None):
+    """
+    A decorator to add a 'data' kwarg to any a function.  The signature
+    of the input function must be ::
+
+       def foo(ax, *args, **kwargs)
+
+    so this is suitable for use with Axes methods.
+    """
+    if label_pos is not None:
+        label_arg, label_kwarg = label_pos
+
+    if wl_kwargs is not None:
+        wl_kwargs = set(wl_kwargs)
+    if wl_args is not None:
+        wl_args = set(wl_args)
+
+    def param(func):
+        @functools.wraps(func)
+        def inner(ax, *args, **kwargs):
+            data = kwargs.pop('data', None)
+            if data is not None:
+                if wl_args is None:
+                    new_args = tuple(_replacer(data, a) for a in args)
+                else:
+                    new_args = tuple(_replacer(data, a) if j in wl_args else a
+                                     for j, a in enumerate(args))
+
+                if wl_kwargs is None:
+                    new_kwargs = dict((k, _replacer(data, v))
+                                      for k, v in six.iteritems(kwargs))
+                else:
+                    new_kwargs = dict(
+                        (k, _replacer(data, v) if k in wl_kwargs else v)
+                        for k, v in six.iteritems(kwargs))
+            else:
+                new_args, new_kwargs = args, kwargs
+
+            if (label_pos is not None and ('label' not in kwargs or
+                                           kwargs['label'] is None)):
+                if len(args) > label_arg:
+                    try:
+                        kwargs['label'] = args[label_arg].name
+                    except AttributeError:
+                        pass
+                elif label_kwarg in kwargs:
+                    try:
+                        new_kwargs['label'] = kwargs[label_kwarg].name
+                    except AttributeError:
+                        pass
+
+            return func(ax, *new_args, **new_kwargs)
+        return inner
+    return param
 
 verbose.report('matplotlib version %s' % __version__)
 verbose.report('verbose.level %s' % verbose.level)

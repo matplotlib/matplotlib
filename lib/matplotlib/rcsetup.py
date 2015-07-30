@@ -812,7 +812,7 @@ defaultParams = {
     'xtick.minor.pad':   [4, validate_float],    # distance to label in points
     'xtick.color':       ['k', validate_color],  # color of the xtick labels
     'xtick.minor.visible':   [False, validate_bool],    # visiablility of the x axis minor ticks
-    
+
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
     'xtick.direction':   ['in', six.text_type],            # direction of xticks
