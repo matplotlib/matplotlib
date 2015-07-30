@@ -56,17 +56,11 @@ plt.title("pivot='mid'; every third arrow; units='inches'")
 # 4
 plt.figure()
 M = np.sqrt(np.power(U, 2) + np.power(V, 2))
-Q = plt.quiver(
-    X,
-    Y,
-    U,
-    V,
-    M,
-    units='x',
-    pivot='tip',
-    width=0.022,
-    scale=1 /
-    0.15)
+Q = plt.quiver(X, Y, U, V, M,
+               units='x',
+               pivot='tip',
+               width=0.022,
+               scale=1 / 0.15)
 qk = plt.quiverkey(Q, 0.9, 1.05, 1, r'$1 \frac{m}{s}$',
                    labelpos='E',
                    fontproperties={'weight': 'bold'})
@@ -79,14 +73,8 @@ plt.figure()
 Q = plt.quiver(X[::3, ::3], Y[::3, ::3], U[::3, ::3], V[::3, ::3],
                color='r', units='x',
                linewidths=(2,), edgecolors=('k'), headaxislength=5)
-qk = plt.quiverkey(
-    Q,
-    0.5,
-    0.03,
-    1,
-    r'$1 \frac{m}{s}$',
-    fontproperties={
-        'weight': 'bold'})
+qk = plt.quiverkey(Q, 0.5, 0.03, 1, r'$1 \frac{m}{s}$',
+                   fontproperties={'weight': 'bold'})
 plt.axis([-1, 7, -1, 7])
 plt.title("triangular head; scale with x view; black edges")
 
