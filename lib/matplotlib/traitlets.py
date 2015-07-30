@@ -18,7 +18,6 @@ except ImportError:
 import numpy as np
 
 from types import MethodType
-
 from .transforms import IdentityTransform, Transform
 
 class GetSetMixin(object):
@@ -80,6 +79,8 @@ class TransformInstance(TraitType):
                  ' `_as_mpl_transform` method')
 
     def validate(self, obj, value):
+        if value is None:
+            return IdentityTransform()
         if isinstance(value, Transform):
             return value
         elif hasattr(value, '_as_mpl_transform'):

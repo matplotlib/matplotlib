@@ -57,7 +57,7 @@ def test_patch_transform_of_none():
     ax.add_patch(e)
     assert e.transform != intermediate_transform
     assert e.transform_set) is True
-    assert e._transform == ax.transData
+    assert e.transform == ax.transData
 
 
 @cleanup

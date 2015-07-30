@@ -1100,7 +1100,7 @@ class SymLogNorm(Normalize):
                 result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
                                   mask=mask)
             # in-place equivalent of above can be much faster
-            resdat = self._transform(result.data)
+            resdat = self.transform(result.data)
             resdat -= self._lower
             resdat /= (self._upper - self._lower)
 
@@ -1138,7 +1138,7 @@ class SymLogNorm(Normalize):
         """
         vmin, vmax = self.vmin, self.vmax
         arr = np.array([vmax, vmin]).astype(np.float)
-        self._upper, self._lower = self._transform(arr)
+        self._upper, self._lower = self.transform(arr)
 
     def inverse(self, value):
         if not self.scaled():

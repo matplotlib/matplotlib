@@ -21,6 +21,8 @@ import matplotlib.units as munits
 import numpy as np
 import warnings
 
+from .traitlets import gsTransformInstance
+
 GRIDLINE_INTERPOLATION_STEPS = 180
 
 
@@ -295,7 +297,7 @@ class Tick(artist.Artist):
             trans = self._get_text1_transform()[0]
             self.label1.transform = trans
             trans = self._get_text2_transform()[0]
-            self.label2 = trans
+            self.label2.transform = trans
             self.tick1line.set_marker(self._tickmarkers[0])
             self.tick2line.set_marker(self._tickmarkers[1])
         tick_kw = dict([kv for kv in six.iteritems(kw)
@@ -615,6 +617,8 @@ class Axis(artist.Artist):
     * :attr:`labelpad` - number of points between the axis and its label
     """
     OFFSETTEXTPAD = 3
+
+    transform = gsTransformInstance(None)
 
     def __str__(self):
         return self.__class__.__name__ \

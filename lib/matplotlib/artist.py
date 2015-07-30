@@ -100,8 +100,8 @@ class Artist(Configurable):
     stale = Bool(True)
 
     def _stale_changed(self):
-        #if self.stale:
-        self.pchanged()
+        if self.stale:
+            self.pchanged()
 
     transform_set = Bool(False)
 

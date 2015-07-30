@@ -285,7 +285,6 @@ class LogScale(ScaleBase):
 
         if nonpos not in ['mask', 'clip']:
             raise ValueError("nonposx, nonposy kwarg must be 'mask' or 'clip'")
-
         if base == 10.0:
             self._transform = self.Log10Transform(nonpos)
         elif base == 2.0:
