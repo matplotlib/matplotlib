@@ -981,6 +981,56 @@ char *__append_to_string(char *p, char **buffer, size_t *buffersize,
     return p;
 }
 
+
+char *__add_number(double val, const char *format, int precision,
+                 char **buffer, char *p, size_t *buffersize)
+{
+    char *result;
+
+#if PY_VERSION_HEX >= 0x02070000
+    char *str;
+    str = PyOS_double_to_string(val, format[0], precision, 0, NULL);
+#else
+    char str[64];
+    PyOS_ascii_formatd(str, 64, format, val);
+#endif
+
+    // Delete trailing zeros and decimal point
+    char *q = str;
+    for (; *q != 0; ++q) {
+        // Find the end of the string
+    }
+
+    --q;
+    for (; q >= str && *q == '0'; --q) {
+        // Rewind through all the zeros
+    }
+
+    // If the end is a decimal qoint, delete that too
+    if (q >= str && *q == '.') {
+        --q;
+    }
+
+    // Truncate the string
+    ++q;
+    *q = 0;
+
+#if PY_VERSION_HEX >= 0x02070000
+    if ((result = __append_to_string(p, buffer, buffersize, str)) == NULL) {
+        PyMem_Free(str);
+        return NULL;
+    }
+    PyMem_Free(str);
+#else
+    if ((result = __append_to_string(p, buffer, buffersize, str)) == NULL) {
+        return NULL;
+    }
+#endif
+
+    return result;
+}
+
+
 template <class PathIterator>
 int __convert_to_string(PathIterator &path,
                         int precision,
@@ -989,7 +1039,9 @@ int __convert_to_string(PathIterator &path,
                         char **buffer,
                         size_t *buffersize)
 {
-#if PY_VERSION_HEX < 0x02070000
+#if PY_VERSION_HEX >= 0x02070000
+    const char *format = "f";
+#else
     char format[64];
     snprintf(format, 64, "%s.%df", "%", precision);
 #endif
@@ -1031,31 +1083,10 @@ int __convert_to_string(PathIterator &path,
             }
 
             for (int i = 0; i < size; ++i) {
-#if PY_VERSION_HEX >= 0x02070000
-                char *str;
-                str = PyOS_double_to_string(x[i], 'f', precision, 0, NULL);
-                if ((p = __append_to_string(p, buffer, buffersize, str)) == NULL) {
-                    PyMem_Free(str);
-                    return 1;
-                }
-                PyMem_Free(str);
+                if ((p = __add_number(x[i], format, precision, buffer, p, buffersize)) == NULL) return 1;
                 if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
-                str = PyOS_double_to_string(y[i], 'f', precision, 0, NULL);
-                if ((p = __append_to_string(p, buffer, buffersize, str)) == NULL) {
-                    PyMem_Free(str);
-                    return 1;
-                }
-                PyMem_Free(str);
+                if ((p = __add_number(y[i], format, precision, buffer, p, buffersize)) == NULL) return 1;
                 if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
-#else
-                char str[64];
-                PyOS_ascii_formatd(str, 64, format, x[i]);
-                if ((p = __append_to_string(p, buffer, buffersize, str)) == NULL) return 1;
-                if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
-                PyOS_ascii_formatd(str, 64, format, y[i]);
-                if ((p = __append_to_string(p, buffer, buffersize, str)) == NULL) return 1;
-                if ((p = __append_to_string(p, buffer, buffersize, " ")) == NULL) return 1;
-#endif
             }
 
             if (postfix) {
