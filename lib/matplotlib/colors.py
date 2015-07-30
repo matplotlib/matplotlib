@@ -1270,22 +1270,22 @@ class BoundaryNorm(Normalize):
     def __call__(self, x, clip=None):
         if clip is None:
             clip = self.clip
-        x = ma.asarray(x)
-        mask = ma.getmaskarray(x)
-        xx = x.filled(self.vmax + 1)
+        _x = ma.asarray(x)
+        mask = ma.getmaskarray(_x)
+        xx = np.atleast_1d(_x.filled(self.vmax + 1))
         if clip:
-            np.clip(xx, self.vmin, self.vmax)
-        iret = np.zeros(x.shape, dtype=np.int16)
+            np.clip(xx, self.vmin, self.vmax, out=xx)
+        iret = np.atleast_1d(np.zeros(_x.shape, dtype=np.int16))
         for i, b in enumerate(self.boundaries):
             iret[xx >= b] = i
         if self._interp:
             scalefac = float(self.Ncmap - 1) / (self.N - 2)
             iret = (iret * scalefac).astype(np.int16)
         iret[xx < self.vmin] = -1
-        iret[xx >= self.vmax] = self.Ncmap
+        iret[xx >= self.vmax] = self.Ncmap  # ISSUE here: clip is ignored
         ret = ma.array(iret, mask=mask)
-        if ret.shape == () and not mask:
-            ret = int(ret)  # assume python scalar
+        if _x.shape == () and not mask:
+            ret = int(ret[0])  # assume python scalar
         return ret
 
     def inverse(self, value):
