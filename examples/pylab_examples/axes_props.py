@@ -11,12 +11,9 @@ fig, ax = plt.subplots()
 ax.plot(t, s)
 ax.grid(True)
 
-ticklines = ax.get_xticklines()
-ticklines.extend(ax.get_yticklines())
-gridlines = ax.get_xgridlines()
-gridlines.extend(ax.get_ygridlines())
-ticklabels = ax.get_xticklabels()
-ticklabels.extend(ax.get_yticklabels())
+ticklines = ax.get_xticklines() + ax.get_yticklines()
+gridlines = ax.get_xgridlines() + ax.get_ygridlines()
+ticklabels = ax.get_xticklabels() + ax.get_yticklabels()
 
 for line in ticklines:
     line.set_linewidth(3)
