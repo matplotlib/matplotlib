@@ -5,7 +5,7 @@ def f(t):
     'a damped exponential'
     s1 = np.cos(2*np.pi*t)
     e1 = np.exp(-t)
-    return np.multiply(s1, e1)
+    return s1 * e1
 
 t1 = np.arange(0.0, 5.0, .2)
 
