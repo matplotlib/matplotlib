@@ -47,6 +47,7 @@
 #ifndef COMPILING_FOR_10_5
 static int ngc = 0;    /* The number of graphics contexts in use */
 
+#include <Carbon/Carbon.h>
 
 /* For drawing Unicode strings with ATSUI */
 static ATSUStyle style = NULL;
@@ -2620,7 +2621,7 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
 #endif
         CFRelease(string);
     }
-    if (font == NULL)
+    if (!font)
     {
         PyErr_SetString(PyExc_ValueError, "Could not load font");
     }
@@ -2761,11 +2762,13 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
     const UniChar* text;
 #endif
 
-    CGFloat ascent;
-    CGFloat descent;
-    double width;
+    float descent;
+    float width;
+    float height;
+
     CGRect rect;
 
+    CGPoint point;
     CTFontRef font;
 
     CGContextRef cr = self->cr;
@@ -2830,12 +2833,15 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
         return NULL;
     }
 
-    width = CTLineGetTypographicBounds(line, &ascent, &descent, NULL);
+    point = CGContextGetTextPosition(cr);
     rect = CTLineGetImageBounds(line, cr);
-
     CFRelease(line);
 
-    return Py_BuildValue("fff", width, rect.size.height, descent);
+    width = rect.size.width;
+    height = rect.size.height;
+    descent = point.y - rect.origin.y;
+
+    return Py_BuildValue("fff", width, height, descent);
 }
 
 #else // Text drawing for OSX versions <10.5
@@ -2948,6 +2954,7 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
     const char* italic;
 
     ATSFontRef atsfont;
+    Rect rect;
 
     CGContextRef cr = self->cr;
     if (!cr)
@@ -3016,23 +3023,20 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
         return NULL;
     }
 
-    ATSUTextMeasurement before;
-    ATSUTextMeasurement after;
-    ATSUTextMeasurement ascent;
-    ATSUTextMeasurement descent;
-    status = ATSUGetUnjustifiedBounds(layout,
-                                      kATSUFromTextBeginning, kATSUToTextEnd,
-                                      &before, &after, &ascent, &descent);
+    status = ATSUMeasureTextImage(layout,
+                                  kATSUFromTextBeginning, kATSUToTextEnd,
+                                  0, 0, &rect);
     if (status!=noErr)
     {
-        PyErr_SetString(PyExc_RuntimeError, "ATSUGetUnjustifiedBounds failed");
+        PyErr_SetString(PyExc_RuntimeError, "ATSUMeasureTextImage failed");
         return NULL;
     }
 
-    const float width = FixedToFloat(after-before);
-    const float height = FixedToFloat(ascent-descent);
+    const float width = rect.right-rect.left;
+    const float height = rect.bottom-rect.top;
+    const float descent = rect.bottom;
 
-    return Py_BuildValue("fff", width, height, FixedToFloat(descent));
+    return Py_BuildValue("fff", width, height, descent);
 }
 #endif
 
