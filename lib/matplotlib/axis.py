@@ -97,7 +97,7 @@ class Tick(artist.Artist):
             else:
                 gridOn = False
 
-        self.set_figure(axes.figure)
+        self.figure = axes.figure
         self.axes = axes
 
         name = self.__name__.lower()
@@ -277,7 +277,7 @@ class Tick(artist.Artist):
         self.stale = True
 
     def _set_artist_props(self, a):
-        a.set_figure(self.figure)
+        a.figure = self.figure
 
     def get_view_interval(self):
         'return the view Interval instance for the axis this tick is ticking'
@@ -625,7 +625,7 @@ class Axis(artist.Artist):
         Init the axis with the parent Axes instance
         """
         artist.Artist.__init__(self)
-        self.set_figure(axes.figure)
+        self.figure = axes.figure
 
         # Keep track of setting to the default value, this allows use to know
         # if any of the following values is explicitly set by the user, so as
@@ -883,7 +883,7 @@ class Axis(artist.Artist):
     def _set_artist_props(self, a):
         if a is None:
             return
-        a.set_figure(self.figure)
+        a.figure = self.figure
 
     def iter_ticks(self):
         """

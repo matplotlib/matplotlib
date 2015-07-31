@@ -327,7 +327,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
 
         self._update_prop(legend_handle, orig_handle)
 
-        legend_handle.set_figure(legend.figure)
+        legend_handle.figure = legend.figure
         #legend._set_artist_props(legend_handle)
         legend_handle.set_clip_box(None)
         legend_handle.set_clip_path(None)
@@ -610,7 +610,7 @@ class HandlerPolyCollection(HandlerBase):
         legend_handle.set_linewidth(get_first(orig_handle.get_linewidths()))
         legend_handle.set_linestyle(get_first(orig_handle.get_linestyles()))
         legend_handle.set_transform(get_first(orig_handle.get_transforms()))
-        legend_handle.set_figure(orig_handle.get_figure())
+        legend_handle.figure = orig_handle.figure
         legend_handle.set_alpha(orig_handle.get_alpha())
 
     def create_artists(self, legend, orig_handle,

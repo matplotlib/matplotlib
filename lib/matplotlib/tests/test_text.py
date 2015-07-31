@@ -337,10 +337,10 @@ def test_text_annotation_get_window_extent():
 
     # Only text annotation
     annotation = Annotation('test', xy=(0, 0))
-    annotation.set_figure(figure)
+    annotation.figure = figure
 
     text = Text(text='test', x=0, y=0)
-    text.set_figure(figure)
+    text.figure = figure
 
     bbox = annotation.get_window_extent(renderer=renderer)
 
@@ -410,7 +410,7 @@ def test_arrow_annotation_get_window_extent():
         '', xy=(0.0, 50.0), xytext=(50.0, 50.0), xycoords='figure pixels',
         arrowprops={
             'facecolor': 'black', 'width': 8, 'headwidth': 10, 'shrink': 0.0})
-    annotation.set_figure(figure)
+    annotation.figure = figure
     annotation.draw(renderer)
 
     bbox = annotation.get_window_extent()
@@ -432,7 +432,7 @@ def test_empty_annotation_get_window_extent():
     # Text annotation with arrow
     annotation = Annotation(
         '', xy=(0.0, 50.0), xytext=(0.0, 50.0), xycoords='figure pixels')
-    annotation.set_figure(figure)
+    annotation.figure = figure
     annotation.draw(renderer)
 
     bbox = annotation.get_window_extent()

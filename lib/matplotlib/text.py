@@ -628,7 +628,7 @@ class Text(Artist):
         current orientation.
         """
         x0, y0 = self.get_transform().transform(self.get_position())
-        figure_box = self.get_figure().get_window_extent()
+        figure_box = self.figure.get_window_extent()
 
         # Calculate available width based on text alignment
         alignment = self.get_horizontalalignment()
@@ -1624,8 +1624,12 @@ class TextWithDash(Text):
 
         ACCEPTS: a :class:`matplotlib.figure.Figure` instance
         """
-        Text.set_figure(self, fig)
-        self.dashline.set_figure(fig)
+        self.figure = fig
+
+    @Text.figure.setter
+    def figure(self, fig):
+        Text.figure.__set__(self, fig)
+
 
 docstring.interpd.update(TextWithDash=artist.kwdoc(TextWithDash))
 
@@ -2023,6 +2027,7 @@ class Annotation(Text, _AnnotationBase):
                                  xy,
                                  xycoords=xycoords,
                                  annotation_clip=annotation_clip)
+
         # warn about wonky input data
         if (xytext is None and
                 textcoords is not None and
@@ -2081,12 +2086,15 @@ class Annotation(Text, _AnnotationBase):
         self._textcoords = coords
 
     def set_figure(self, fig):
+        self.figure = fig
 
+    @Text.figure.setter
+    def figure(self, fig):
         if self.arrow is not None:
-            self.arrow.set_figure(fig)
+            self.arrow.figure = fig
         if self.arrow_patch is not None:
-            self.arrow_patch.set_figure(fig)
-        Artist.set_figure(self, fig)
+            self.arrow_patch.figure = fig
+        Text.figure.__set__(self, fig)
 
     def update_positions(self, renderer):
         """"Update the pixel positions of the annotated point and the

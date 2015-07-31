@@ -71,8 +71,12 @@ class Cell(Rectangle):
         self.stale = True
 
     def set_figure(self, fig):
-        Rectangle.set_figure(self, fig)
-        self._text.set_figure(fig)
+        self.figure = fig
+
+    @Rectangle.figure.setter
+    def figure(self, fig):
+        Rectangle.figure.__set__(self, fig)
+        self._text.figure = fig
 
     def get_text(self):
         'Return the cell Text intance'
@@ -260,7 +264,7 @@ class Table(Artist):
             loc = 'bottom'
         if is_string_like(loc):
             loc = self.codes.get(loc, 1)
-        self.set_figure(ax.figure)
+        self.figure = ax.figure
         self._axes = ax
         self._loc = loc
         self._bbox = bbox
@@ -285,7 +289,7 @@ class Table(Artist):
         xy = (0, 0)
 
         cell = CustomCell(xy, visible_edges=self.edges, *args, **kwargs)
-        cell.set_figure(self.figure)
+        cell.figure = self.figure
         cell.set_transform(self.get_transform())
 
         cell.set_clip_on(False)

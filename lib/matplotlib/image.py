@@ -1127,7 +1127,7 @@ class BboxImage(_AxesImageBase):
 
     def get_window_extent(self, renderer=None):
         if renderer is None:
-            renderer = self.get_figure()._cachedRenderer
+            renderer = self.figure._cachedRenderer
 
         if isinstance(self.bbox, BboxBase):
             return self.bbox
@@ -1141,7 +1141,7 @@ class BboxImage(_AxesImageBase):
         if six.callable(self._contains):
             return self._contains(self, mouseevent)
 
-        if not self.get_visible():  # or self.get_figure()._renderer is None:
+        if not self.get_visible():  # or self.figure._renderer is None:
             return False, {}
 
         x, y = mouseevent.x, mouseevent.y

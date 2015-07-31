@@ -1095,8 +1095,8 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     if not isinstance(parents, (list, tuple)):
         parents = [parents]
 
-    fig = parents[0].get_figure()
-    if not all(fig is ax.get_figure() for ax in parents):
+    fig = parents[0].figure
+    if not all(fig is ax.figure for ax in parents):
         raise ValueError('Unable to create a colorbar axes as not all '
                          'parents share the same figure.')
 
@@ -1232,7 +1232,7 @@ def make_axes_gridspec(parent, **kw):
     parent.set_position(parent.figbox)
     parent.set_anchor(panchor)
 
-    fig = parent.get_figure()
+    fig = parent.figure
     cax = fig.add_subplot(gs2[1])
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw

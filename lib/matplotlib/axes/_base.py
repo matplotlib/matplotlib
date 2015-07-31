@@ -421,7 +421,7 @@ class _AxesBase(martist.Artist):
                 #    'shared axes: "adjustable" is being changed to "datalim"')
             self._adjustable = 'datalim'
         self.set_label(label)
-        self.set_figure(fig)
+        self.figure = fig
 
         self.set_axes_locator(kwargs.get("axes_locator", None))
 
@@ -500,8 +500,16 @@ class _AxesBase(martist.Artist):
 
         accepts a class:`~matplotlib.figure.Figure` instance
         """
-        martist.Artist.set_figure(self, fig)
+        # import ipdb; ipdb.set_trace()
+        self.figure = fig
 
+    @martist.Artist.figure.getter
+    def figure(self):
+        return self._figure
+
+    @martist.Artist.figure.setter
+    def figure(self, fig):
+        martist.Artist.figure.__set__(self, fig)
         self.bbox = mtransforms.TransformedBbox(self._position,
                                                 fig.transFigure)
         # these will be updated later as data is added
@@ -509,7 +517,6 @@ class _AxesBase(martist.Artist):
         self.viewLim = mtransforms.Bbox.unit()
         self.transScale = mtransforms.TransformWrapper(
             mtransforms.IdentityTransform())
-
         self._set_lim_and_transforms()
 
     def _set_lim_and_transforms(self):
@@ -781,7 +788,7 @@ class _AxesBase(martist.Artist):
 
     def _set_artist_props(self, a):
         """set the boilerplate props for artists added to axes"""
-        a.set_figure(self.figure)
+        a.figure = self.figure
         if not a.is_transform_set():
             a.set_transform(self.transData)
 
@@ -959,7 +966,7 @@ class _AxesBase(martist.Artist):
         # deprecated.  We use the frame to draw the edges so we are
         # setting the edgecolor to None
         self.patch = self.axesPatch = self._gen_axes_patch()
-        self.patch.set_figure(self.figure)
+        self.patch.figure = self.figure
         self.patch.set_facecolor(self._axisbg)
         self.patch.set_edgecolor('None')
         self.patch.set_linewidth(0)
@@ -1211,7 +1218,7 @@ class _AxesBase(martist.Artist):
                 warnings.warn(
                     'shared axes: "adjustable" is being changed to "datalim"')
 
-        figW, figH = self.get_figure().get_size_inches()
+        figW, figH = self.figure.get_size_inches()
         fig_aspect = figH / figW
         if self._adjustable in ['box', 'box-forced']:
             if aspect_scale_mode == "log":

@@ -183,9 +183,13 @@ class OffsetBox(martist.Artist):
 
         accepts a class:`~matplotlib.figure.Figure` instance
         """
-        martist.Artist.set_figure(self, fig)
+        self.figure = fig
+
+    @martist.Artist.figure.setter
+    def figure(self, fig):
+        martist.Artist.figure.__set__(self, fig)
         for c in self.get_children():
-            c.set_figure(fig)
+            c.figure = fig
 
     def contains(self, mouseevent):
         for c in self.get_children():
@@ -1460,11 +1464,15 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         return children
 
     def set_figure(self, fig):
+        self.figure = fig
 
+    @martist.Artist.figure.setter
+    def figure(self, fig):
         if self.arrow_patch is not None:
-            self.arrow_patch.set_figure(fig)
-        self.offsetbox.set_figure(fig)
-        martist.Artist.set_figure(self, fig)
+            self.arrow_patch.figure = fig
+        self.offsetbox.figure = fig
+        martist.Artist.figure.__set__(self, fig)
+
 
     def set_fontsize(self, s=None):
         """

@@ -309,7 +309,7 @@ class QuiverKey(martist.Artist):
             if self.color is not None:
                 self.vector.set_color(self.color)
             self.vector.set_transform(self.Q.get_transform())
-            self.vector.set_figure(self.get_figure())
+            self.vector.figure = self.figure
             self._initialized = True
 
     def _text_x(self, x):
@@ -351,8 +351,12 @@ class QuiverKey(martist.Artist):
             raise ValueError('unrecognized coordinates')
 
     def set_figure(self, fig):
-        martist.Artist.set_figure(self, fig)
-        self.text.set_figure(fig)
+        self.figure = fig
+
+    @martist.Artist.figure.setter
+    def figure(self, fig):
+        martist.Artist.figure.__set__(self, fig)
+        self.text.figure = fig
 
     def contains(self, mouseevent):
         # Maybe the dictionary should allow one to

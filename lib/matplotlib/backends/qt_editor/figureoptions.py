@@ -154,7 +154,7 @@ def figure_edit(axes, parent=None):
                 new_legend.draggable(draggable)
 
         # Redraw
-        figure = axes.get_figure()
+        figure = axes.figure
         figure.canvas.draw()
 
     data = formlayout.fedit(datalist, title="Figure options", parent=parent,
