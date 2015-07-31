@@ -4,7 +4,7 @@
 Interactive Figures
 *******************
 
-One of the most powerful ways to use matplotlib is interactive
+One of the most powerful uses of matplotlib is interactive
 figures.  At the most basic matplotlib has the ability to zoom and pan
 a figure to inspect your data, however there is also a full mouse and
 keyboard event handling system to enable building sophisticated interactive
@@ -34,30 +34,34 @@ requires option 2.
 The python capi provides a hook, `PyOS_InputHook`, to register a
 function to be run "The function will be called when Python's
 interpreter prompt is about to become idle and wait for user input
-from the terminal.".  As an implementation detail of cpython when
-using readline this times out every 0.1 seconds.  Using this hook a
-second event loop can be integrated with the terminal.  This is done
-in the cpython source for tk, by some GUI framework code (such as
-pyqt), and by IPython.  These function typically either exhaust all
-pending events on the GUI event queue or run the main loop for a short
-fixed amount of time.  matplotlib does not currently do any management
-of `PyOS_InputHook` due to the wide range of use-cases, this
-management is left to the code using matplotlib.  Due to this,
-interactive figures, even with matplotlib in 'interactive mode' may
-not be reliable in the vanilla python repl, we suggest using IPython
-which ensures that such a function is registered for you GUI backend
-of choice.
+from the terminal.".  This hook can be used to integrate a second
+event loop with the python repl.  Such a hooks are usually included
+with the python bindings for GUI toolkits and may be registered on
+import.  IPython also includes hooks for all of the GUI frameworks
+supported by matplotlib.  The hook functions typically exhaust
+all pending events on the GUI event queue, run the main loop for a
+short fixed amount of time, or run the event loop until a key is
+pressed on stdin.
 
-A draw back of the above approach is that in is only useful while
-python is otherwise idle and waiting for user input.  The exact
-methods required to force the GUI to process it's event loop varies
-between frameworks.  To enable writing GUI agnostic code, almost all
-of the GUI-based ``Canvas`` classes provide a `flush_event` method.
-By periodically calling this method the GUI can appear to be
-updated and appear to be responsive.
+matplotlib does not currently do any management of `PyOS_InputHook`
+due to the wide range of ways that matplotlib is used.  This
+management is left to the code using matplotlib.  Interactive figures,
+even with matplotlib in 'interactive mode', may not work in the
+vanilla python repl if an appropriate `PyOS_InputHook` is not
+registered.  We suggest using ``IPython``, which in addition to
+improving the command line, ensures that such a `PyOS_InptuHook`
+function is registered for you GUI backend of choice.
 
-In both cases, scheduling a re-draw of the figure at some point in the
-future use ``fig.canvas.draw_idle()``.  This will defer the actual
+A drawback of relying on `PyOS_InputHook` is that the GUI event loop
+is only processing events while python is otherwise idle and waiting
+for user input.  If you want the GUI to be responsive during long
+running code it is necessary to periodically flush the GUI event
+queue.  To achive this, almost all of the of the GUI-based ``Canvas``
+classes provide a `flush_event` method.  By periodically calling this
+method the GUI will be updated and appear to be responsive.
+
+In both cases, to schedule a re-draw of the figure at some point in
+the future use ``fig.canvas.draw_idle()``.  This will defer the actual
 rendering of the figure until the GUI is ready to update it's
 on-screen representation.
 
