@@ -613,6 +613,7 @@ class Animation(object):
         # actually start the event_source. We also disconnect _start
         # from the draw_events
         self.event_source.add_callback(self._step)
+        self._init_draw()
         self.event_source.start()
         self._fig.canvas.mpl_disconnect(self._first_draw_id)
         self._first_draw_id = None  # So we can check on save
@@ -762,6 +763,9 @@ class Animation(object):
         # since GUI widgets are gone. Either need to remove extra code to
         # allow for this non-existant use case or find a way to make it work.
         with writer.saving(self._fig, filename, dpi):
+            for anim in all_anim:
+                # Clear the initial frame
+                anim._init_draw()
             for data in zip(*[a.new_saved_frame_seq()
                               for a in all_anim]):
                 for anim, d in zip(all_anim, data):
@@ -1135,7 +1139,10 @@ class FuncAnimation(TimedAnimation):
         # no saved frames, generate a new frame sequence and take the first
         # save_count entries in it.
         if self._save_seq:
-            return iter(self._save_seq)
+            # While iterating we are going to update _save_seq
+            # so make a copy to safely iterate over
+            self._old_saved_seq = self._save_seq.copy()
+            return iter(self._old_saved_seq)
         else:
             return itertools.islice(self.new_frame_seq(), self.save_count)
 
