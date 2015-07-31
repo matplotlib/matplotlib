@@ -1,23 +1,22 @@
-#!/usr/bin/env python
-# python
-
-from pylab import *
+import matplotlib.pyplot as plt
+import numpy as np
 
 dt = 0.01
-t = arange(0, 10, dt)
-nse = randn(len(t))
-r = exp(-t/0.05)
+t = np.arange(0, 10, dt)
+nse = np.random.randn(len(t))
+r = np.exp(-t/0.05)
 
-cnse = convolve(nse, r)*dt
+cnse = np.convolve(nse, r)*dt
 cnse = cnse[:len(t)]
-s = 0.1*sin(2*pi*t) + cnse
+s = 0.1*np.sin(2*np.pi*t) + cnse
 
-subplot(211)
-plot(t, s)
-subplot(212)
-psd(s, 512, 1/dt)
+plt.subplot(211)
+plt.plot(t, s)
+plt.subplot(212)
+plt.psd(s, 512, 1/dt)
 
-show()
+plt.show()
+
 """
 % compare with MATLAB
 dt = 0.01;
