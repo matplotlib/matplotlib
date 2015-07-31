@@ -187,6 +187,13 @@ class OffsetBox(martist.Artist):
         for c in self.get_children():
             c.set_figure(fig)
 
+    @martist.Artist.axes.setter
+    def axes(self, ax):
+        # TODO deal with this better
+        martist.Artist.axes.fset(self, ax)
+        for c in self.get_children():
+            c.axes = ax
+
     def contains(self, mouseevent):
         for c in self.get_children():
             a, b = c.contains(mouseevent)
@@ -663,6 +670,11 @@ class DrawingArea(OffsetBox):
         self._children.append(a)
         if not a.is_transform_set():
             a.set_transform(self.get_transform())
+        if self.axes is not None:
+            a.axes = self.axes
+        fig = self.figure
+        if fig is not None:
+            a.set_figure(fig)
 
     def draw(self, renderer):
         """
@@ -1041,6 +1053,7 @@ class AnchoredOffsetbox(OffsetBox):
     def set_child(self, child):
         "set the child to be anchored"
         self._child = child
+        child.axes = self.axes
         self.stale = True
 
     def get_child(self):
