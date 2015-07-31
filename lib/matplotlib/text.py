@@ -1630,7 +1630,6 @@ class TextWithDash(Text):
     def figure(self, fig):
         Text.figure.__set__(self, fig)
 
-
 docstring.interpd.update(TextWithDash=artist.kwdoc(TextWithDash))
 
 
@@ -2027,7 +2026,6 @@ class Annotation(Text, _AnnotationBase):
                                  xy,
                                  xycoords=xycoords,
                                  annotation_clip=annotation_clip)
-
         # warn about wonky input data
         if (xytext is None and
                 textcoords is not None and

@@ -517,6 +517,7 @@ class _AxesBase(martist.Artist):
         self.viewLim = mtransforms.Bbox.unit()
         self.transScale = mtransforms.TransformWrapper(
             mtransforms.IdentityTransform())
+
         self._set_lim_and_transforms()
 
     def _set_lim_and_transforms(self):

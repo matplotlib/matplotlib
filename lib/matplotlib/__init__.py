@@ -1500,6 +1500,7 @@ def test(verbosity=1):
     finally:
         if old_backend.lower() != 'agg':
             use(old_backend)
+
     return success
 
 def deprecated_get_set(function, to_use):

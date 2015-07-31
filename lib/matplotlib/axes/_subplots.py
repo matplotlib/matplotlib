@@ -36,8 +36,6 @@ class SubplotBase(object):
         """
 
         self._figure = fig
-        # self._figure = None
-        # self.figure = fig
 
         if len(args) == 1:
             if isinstance(args[0], SubplotSpec):
@@ -87,15 +85,6 @@ class SubplotBase(object):
              (axes_class,),
              self.__getstate__()]
         return tuple(r)
-
-    # @property
-    # def figure(self):
-    #     """:class:`~matplotlib.figure.Figure` the subplot is set to"""
-    #     return self._figure
-
-    # @figure.setter
-    # def figure(self, fig):
-    #     self._figure = fig
 
     def get_geometry(self):
         """get the subplot geometry, e.g., 2,2,3"""
