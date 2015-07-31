@@ -172,7 +172,7 @@ class RendererMac(RendererBase):
         size = self.points_to_pixels(points)
         width, height, descent = self.gc.get_text_width_height_descent(
             six.text_type(s), family, size, weight, style)
-        return  width, height, 0.0*descent
+        return  width, height, descent
 
     def flipy(self):
         return False
