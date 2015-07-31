@@ -55,7 +55,7 @@ plt.title("pivot='mid'; every third arrow; units='inches'")
 
 # 4
 plt.figure()
-M = np.sqrt(np.power(U, 2) + np.power(V, 2))
+M = np.hypot(U, V)
 Q = plt.quiver(X, Y, U, V, M,
                units='x',
                pivot='tip',
