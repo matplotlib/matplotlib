@@ -192,7 +192,8 @@ class OffsetBox(martist.Artist):
         # TODO deal with this better
         martist.Artist.axes.fset(self, ax)
         for c in self.get_children():
-            c.axes = ax
+            if c is not None:
+                c.axes = ax
 
     def contains(self, mouseevent):
         for c in self.get_children():
@@ -1053,7 +1054,8 @@ class AnchoredOffsetbox(OffsetBox):
     def set_child(self, child):
         "set the child to be anchored"
         self._child = child
-        child.axes = self.axes
+        if child is not None:
+            child.axes = self.axes
         self.stale = True
 
     def get_child(self):
