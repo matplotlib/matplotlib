@@ -610,6 +610,10 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     if figureoptions is not None:
         def edit_parameters(self):
             allaxes = self.canvas.figure.get_axes()
+            if not allaxes:
+                QtWidgets.QMessageBox.warning(
+                    self.parent, "Error", "There are no axes to edit.")
+                return
             if len(allaxes) == 1:
                 axes = allaxes[0]
             else:
