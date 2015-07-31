@@ -1475,7 +1475,6 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         self.offsetbox.figure = fig
         martist.Artist.figure.__set__(self, fig)
 
-
     def set_fontsize(self, s=None):
         """
         set fontsize in points

@@ -608,7 +608,6 @@ class Artist(object):
             self.pchanged()
         self.stale = True
 
-
     def get_figure(self):
         """
         Return the :class:`~matplotlib.figure.Figure` instance the
