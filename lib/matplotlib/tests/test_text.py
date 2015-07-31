@@ -305,8 +305,67 @@ def test_get_rotation_mod360():
     for i, j in zip([360., 377., 720+177.2], [0., 17., 177.2]):
         assert_almost_equal(text.get_rotation(i), j)
 
+
 @image_comparison(baseline_images=['text_bboxclip'])
 def test_bbox_clipping():
     plt.text(0.9, 0.2, 'Is bbox clipped?', backgroundcolor='r', clip_on=True)
     t = plt.text(0.9, 0.5, 'Is fancy bbox clipped?', clip_on=True)
     t.set_bbox({"boxstyle": "round, pad=0.1"})
+
+
+@image_comparison(baseline_images=['annotation_negative_ax_coords'],
+                  extensions=['png'])
+def test_annotation_negative_ax_coords():
+    fig, ax = plt.subplots()
+
+    ax.annotate('+ pts',
+                xytext=[30, 20], textcoords='axes points',
+                xy=[30, 20], xycoords='axes points', fontsize=32)
+    ax.annotate('- pts',
+                xytext=[30, -20], textcoords='axes points',
+                xy=[30, -20], xycoords='axes points', fontsize=32,
+                va='top')
+    ax.annotate('+ frac',
+                xytext=[0.75, 0.05], textcoords='axes fraction',
+                xy=[0.75, 0.05], xycoords='axes fraction', fontsize=32)
+    ax.annotate('- frac',
+                xytext=[0.75, -0.05], textcoords='axes fraction',
+                xy=[0.75, -0.05], xycoords='axes fraction', fontsize=32,
+                va='top')
+
+    ax.annotate('+ pixels',
+                xytext=[160, 25], textcoords='axes pixels',
+                xy=[160, 25], xycoords='axes pixels', fontsize=32)
+    ax.annotate('- pixels',
+                xytext=[160, -25], textcoords='axes pixels',
+                xy=[160, -25], xycoords='axes pixels', fontsize=32,
+                va='top')
+
+
+@image_comparison(baseline_images=['annotation_negative_fig_coords'],
+                  extensions=['png'])
+def test_annotation_negative_fig_coords():
+    fig, ax = plt.subplots()
+
+    ax.annotate('+ pts',
+                xytext=[10, 120], textcoords='figure points',
+                xy=[10, 120], xycoords='figure points', fontsize=32)
+    ax.annotate('- pts',
+                xytext=[-10, 180], textcoords='figure points',
+                xy=[-10, 180], xycoords='figure points', fontsize=32,
+                va='top')
+    ax.annotate('+ frac',
+                xytext=[0.05, 0.55], textcoords='figure fraction',
+                xy=[0.05, 0.55], xycoords='figure fraction', fontsize=32)
+    ax.annotate('- frac',
+                xytext=[-0.05, 0.5], textcoords='figure fraction',
+                xy=[-0.05, 0.5], xycoords='figure fraction', fontsize=32,
+                va='top')
+
+    ax.annotate('+ pixels',
+                xytext=[50, 50], textcoords='figure pixels',
+                xy=[50, 50], xycoords='figure pixels', fontsize=32)
+    ax.annotate('- pixels',
+                xytext=[-50, 100], textcoords='figure pixels',
+                xy=[-50, 100], xycoords='figure pixels', fontsize=32,
+                va='top')
