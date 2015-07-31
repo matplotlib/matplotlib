@@ -668,6 +668,30 @@ def test_polar_rlabel_position():
     ax.set_rlabel_position(315)
 
 
+@image_comparison(baseline_images=['polar_theta_wedge'], style='default')
+def test_polar_theta_limits():
+    r = np.arange(0, 3.0, 0.01)
+    theta = 2*np.pi*r
+
+    theta_mins = np.arange(15.0, 361.0, 90.0)
+    theta_maxs = np.arange(50.0, 361.0, 90.0)
+
+    fig, axes = plt.subplots(len(theta_mins), len(theta_maxs),
+                             subplot_kw={'polar': True},
+                             figsize=(8, 6))
+
+    for i, start in enumerate(theta_mins):
+        for j, end in enumerate(theta_maxs):
+            ax = axes[i, j]
+            if start < end:
+                ax.plot(theta, r)
+                ax.yaxis.set_tick_params(label2On=True)
+                ax.set_thetamin(start)
+                ax.set_thetamax(end)
+            else:
+                ax.set_visible(False)
+
+
 @image_comparison(baseline_images=['axvspan_epoch'])
 def test_axvspan_epoch():
     from datetime import datetime
