@@ -500,12 +500,8 @@ class _AxesBase(martist.Artist):
 
         accepts a class:`~matplotlib.figure.Figure` instance
         """
-        # import ipdb; ipdb.set_trace()
+        deprecated_get_set(self.__class__, self.set_figure, "figure")
         self.figure = fig
-
-    @martist.Artist.figure.getter
-    def figure(self):
-        return self._figure
 
     @martist.Artist.figure.setter
     def figure(self, fig):

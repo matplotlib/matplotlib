@@ -183,6 +183,7 @@ class OffsetBox(martist.Artist):
 
         accepts a class:`~matplotlib.figure.Figure` instance
         """
+        deprecated_get_set(self.__class__, self.set_figure, "figure")
         self.figure = fig
 
     @martist.Artist.figure.setter
@@ -1464,6 +1465,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         return children
 
     def set_figure(self, fig):
+        deprecated_get_set(self.__class__, self.set_figure, "figure")
         self.figure = fig
 
     @martist.Artist.figure.setter

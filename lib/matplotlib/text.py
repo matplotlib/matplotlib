@@ -1624,6 +1624,7 @@ class TextWithDash(Text):
 
         ACCEPTS: a :class:`matplotlib.figure.Figure` instance
         """
+        deprecated_get_set(self.__class__, self.set_figure, "figure")
         self.figure = fig
 
     @Text.figure.setter
@@ -2084,6 +2085,7 @@ class Annotation(Text, _AnnotationBase):
         self._textcoords = coords
 
     def set_figure(self, fig):
+        deprecated_get_set(self.__class__, self.set_figure, "figure")
         self.figure = fig
 
     @Text.figure.setter

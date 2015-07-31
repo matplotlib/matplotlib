@@ -71,6 +71,7 @@ class Cell(Rectangle):
         self.stale = True
 
     def set_figure(self, fig):
+        deprecated_get_set(self.__class__, self.set_figure, "figure")
         self.figure = fig
 
     @Rectangle.figure.setter

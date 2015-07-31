@@ -614,7 +614,7 @@ class Artist(object):
         Return the :class:`~matplotlib.figure.Figure` instance the
         artist belongs to.
         """
-        deprecated_get_set(self.get_figure, "figure")
+        deprecated_get_set(self.__class__, self.get_figure, "figure")
         return self.figure
 
     def set_figure(self, fig):
@@ -624,7 +624,7 @@ class Artist(object):
 
         ACCEPTS: a :class:`matplotlib.figure.Figure` instance
         """
-        deprecated_get_set(self.set_figure, "figure")
+        deprecated_get_set(self.__class__, self.set_figure, "figure")
         self.figure = fig
 
     def set_clip_box(self, clipbox):

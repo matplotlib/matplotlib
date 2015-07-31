@@ -351,6 +351,7 @@ class QuiverKey(martist.Artist):
             raise ValueError('unrecognized coordinates')
 
     def set_figure(self, fig):
+        deprecated_get_set(self.__class__, self.set_figure, "figure")
         self.figure = fig
 
     @martist.Artist.figure.setter
