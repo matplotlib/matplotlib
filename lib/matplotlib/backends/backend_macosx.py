@@ -130,6 +130,11 @@ class RendererMac(RendererBase):
         scale = self.gc.get_image_magnification()
         ox, oy, width, height, descent, image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi*scale, prop)
+        descent /= scale
+        xd = descent * numpy.sin(numpy.deg2rad(angle))
+        yd = descent * numpy.cos(numpy.deg2rad(angle))
+        x = numpy.round(x + ox + xd)
+        y = numpy.round(y + oy - yd)
         gc.draw_mathtext(x, y, angle, 255 - image.as_array())
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
