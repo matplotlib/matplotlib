@@ -1,17 +1,15 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-
-from matplotlib.offsetbox import AnchoredOffsetbox
-
-import matplotlib.transforms as mtrans
-from .parasite_axes import HostAxes  # subclasses mpl_axes
-
-from matplotlib.transforms import Bbox, TransformedBbox, IdentityTransform
-from matplotlib.patches import Patch
-from matplotlib.path import Path
-from matplotlib.patches import Rectangle
 from matplotlib import docstring
+from matplotlib.offsetbox import AnchoredOffsetbox
+from matplotlib.patches import Patch, Rectangle
+from matplotlib.path import Path
+from matplotlib.transforms import Bbox, BboxTransformTo
+from matplotlib.transforms import IdentityTransform, TransformedBbox
+
+from . import axes_size as Size
+from .parasite_axes import HostAxes
 
 
 @docstring.dedent_interpd
@@ -52,9 +50,9 @@ class InsetPosition(object):
 
     def __call__(self, ax, renderer):
         bbox_parent = self.parent.get_position(original=False)
-        trans = mtrans.BboxTransformTo(bbox_parent)
-        bbox_inset = mtrans.Bbox.from_bounds(*self.lbwh)
-        bb = mtrans.TransformedBbox(bbox_inset, trans)
+        trans = BboxTransformTo(bbox_parent)
+        bbox_inset = Bbox.from_bounds(*self.lbwh)
+        bb = TransformedBbox(bbox_inset, trans)
         return bb
 
 
@@ -79,14 +77,11 @@ class AnchoredLocatorBase(AnchoredOffsetbox):
         width, height, xdescent, ydescent = self.get_extent(renderer)
 
         px, py = self.get_offset(width, height, 0, 0, renderer)
-        bbox_canvas = mtrans.Bbox.from_bounds(px, py, width, height)
+        bbox_canvas = Bbox.from_bounds(px, py, width, height)
         tr = ax.figure.transFigure.inverted()
-        bb = mtrans.TransformedBbox(bbox_canvas, tr)
+        bb = TransformedBbox(bbox_canvas, tr)
 
         return bb
-
-
-from . import axes_size as Size
 
 
 class AnchoredSizeLocator(AnchoredLocatorBase):
@@ -144,8 +139,8 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
 
     def get_extent(self, renderer):
 
-        bb = mtrans.TransformedBbox(self.axes.viewLim,
-                                    self.parent_axes.transData)
+        bb = TransformedBbox(self.axes.viewLim,
+                             self.parent_axes.transData)
 
         x, y, w, h = bb.bounds
 
@@ -277,6 +272,7 @@ class BboxConnectorPatch(BboxConnector):
 
 
 def _add_inset_axes(parent_axes, inset_axes):
+    """Helper function to add an inset axes and disable navigation in it"""
     parent_axes.figure.add_axes(inset_axes)
     inset_axes.set_navigate(False)
 
