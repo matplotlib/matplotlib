@@ -9,7 +9,7 @@ import inspect
 import matplotlib
 import matplotlib.cbook as cbook
 from matplotlib.cbook import mplDeprecation
-from matplotlib import docstring, rcParams
+from matplotlib import docstring, rcParams, deprecated_get_set
 from .transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPath, Transform)
 from .path import Path
@@ -88,7 +88,7 @@ class Artist(object):
     def __init__(self):
         self._stale = True
         self._axes = None
-        self.figure = None
+        self._figure = None
 
         self._transform = None
         self._transformSet = False
@@ -594,11 +594,26 @@ class Artist(object):
     def get_path_effects(self):
         return self._path_effects
 
+    @property
+    def figure(self):
+        """:class:`~matplotlib.figure.Figure` instance the artist
+        belongs to"""
+        return self._figure
+
+    @figure.setter
+    def figure(self, fig):
+        self._figure = fig
+        if self._figure and self._figure is not self:
+            self.add_callback(_stale_figure_callback)
+            self.pchanged()
+        self.stale = True
+
     def get_figure(self):
         """
         Return the :class:`~matplotlib.figure.Figure` instance the
         artist belongs to.
         """
+        deprecated_get_set(self.__class__, self.get_figure, "figure")
         return self.figure
 
     def set_figure(self, fig):
@@ -608,11 +623,8 @@ class Artist(object):
 
         ACCEPTS: a :class:`matplotlib.figure.Figure` instance
         """
+        deprecated_get_set(self.__class__, self.set_figure, "figure")
         self.figure = fig
-        if self.figure and self.figure is not self:
-            self.add_callback(_stale_figure_callback)
-            self.pchanged()
-        self.stale = True
 
     def set_clip_box(self, clipbox):
         """

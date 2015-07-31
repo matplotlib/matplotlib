@@ -34,7 +34,7 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
             axes_class = locatable_axes_factory(type(ax))
 
     for ny in [4, 2, 0]:
-        ax1 = axes_class(ax.get_figure(),
+        ax1 = axes_class(ax.figure,
                          ax.get_position(original=True),
                          sharex=ax, sharey=ax)
         locator = divider.new_locator(nx=2, ny=ny)
@@ -50,7 +50,7 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
         ax_rgb.append(ax1)
 
     if add_all:
-        fig = ax.get_figure()
+        fig = ax.figure
         for ax1 in ax_rgb:
             fig.add_axes(ax1)
 
@@ -144,7 +144,7 @@ class RGBAxesBase(object):
 
         ax_rgb = []
         for ny in [4, 2, 0]:
-            ax1 = axes_class(ax.get_figure(),
+            ax1 = axes_class(ax.figure,
                              ax.get_position(original=True),
                              sharex=ax, sharey=ax, **kwargs)
             locator = divider.new_locator(nx=2, ny=ny)
@@ -156,7 +156,7 @@ class RGBAxesBase(object):
         self.R, self.G, self.B = ax_rgb
 
         if add_all:
-            fig = ax.get_figure()
+            fig = ax.figure
             fig.add_axes(ax)
             self.add_RGB_to_figure()
 
@@ -177,9 +177,9 @@ class RGBAxesBase(object):
     def add_RGB_to_figure(self):
         """Add the red, green and blue axes to the RGB composite's axes figure
         """
-        self.RGB.get_figure().add_axes(self.R)
-        self.RGB.get_figure().add_axes(self.G)
-        self.RGB.get_figure().add_axes(self.B)
+        self.RGB.figure.add_axes(self.R)
+        self.RGB.figure.add_axes(self.G)
+        self.RGB.figure.add_axes(self.B)
 
     def imshow_rgb(self, r, g, b, **kwargs):
         """Create the four images {rgb, r, g, b}

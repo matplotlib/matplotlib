@@ -496,7 +496,7 @@ class FloatingAxesBase(object):
 
 
         patch = self._axes_class_floating._gen_axes_patch(self)
-        patch.set_figure(self.figure)
+        patch.figure = self.figure
         patch.set_visible(False)
         patch.set_transform(self.transAxes)
 

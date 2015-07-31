@@ -803,7 +803,7 @@ def make_axes(parent, **kw):
         panchor = (0.5, 0.0)
     parent.set_position(pb1)
     parent.set_anchor(panchor)
-    fig = parent.get_figure()
+    fig = parent.figure
     cax = fig.add_axes(pbcb)
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw

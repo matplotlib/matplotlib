@@ -53,7 +53,7 @@ class Spine(mpatches.Patch):
         """
         super(Spine, self).__init__(**kwargs)
         self.axes = axes
-        self.set_figure(self.axes.figure)
+        self.figure = self.axes.figure
         self.spine_type = spine_type
         self.set_facecolor('none')
         self.set_edgecolor(rcParams['axes.edgecolor'])

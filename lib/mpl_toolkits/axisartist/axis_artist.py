@@ -1413,7 +1413,7 @@ class AxisArtist(martist.Artist):
                                axis_direction=self._axis_direction,
                                )
 
-        self.label.set_figure(self.axes.figure)
+        self.label.figure = self.axes.figure
 
         labelpad = kw.get("labelpad", 5)
         self.label.set_pad(labelpad)

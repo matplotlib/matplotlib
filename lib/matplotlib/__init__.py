@@ -1513,6 +1513,25 @@ def test(verbosity=1):
 
     return success
 
+
+def deprecated_get_set(fclass, function, to_use):
+    """Fuction to deprecate the getters and setter for a class
+    argument.
+
+    Parameter
+    ---------
+    - fclass: class
+        The class of the function to deprecate
+    - function: function
+        The function to deprecate.
+    - to_use: string
+        The argument to use instead of the deprecated function
+    """
+    msg = "{}.{} is deprecated, please use the `{}` argument"
+    msg = msg.format(fclass.__name__, function.__name__, to_use)
+    warnings.warn(msg, mplDeprecation, stacklevel=1)
+
+
 test.__test__ = False  # nose: this function is not a test
 
 verbose.report('matplotlib version %s' % __version__)

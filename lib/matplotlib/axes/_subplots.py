@@ -35,7 +35,7 @@ class SubplotBase(object):
         decimal integer *numRows* * 100 + *numCols* * 10 + *plotNum*.
         """
 
-        self.figure = fig
+        self._figure = fig
 
         if len(args) == 1:
             if isinstance(args[0], SubplotSpec):
