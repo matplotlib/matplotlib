@@ -282,11 +282,63 @@ def inset_axes(parent_axes, width, height, loc=1,
     return inset_axes
 
 
+@docstring.dedent_interpd
 def zoomed_inset_axes(parent_axes, zoom, loc=1,
-                       bbox_to_anchor=None, bbox_transform=None,
-                       axes_class=None,
-                       axes_kwargs=None,
-                       **kwargs):
+                      bbox_to_anchor=None, bbox_transform=None,
+                      axes_class=None,
+                      axes_kwargs=None,
+                      borderpad=0.5):
+    """
+    Create an anchored inset axes by scaling a parent axes.
+
+    Parameters
+    ----------
+    parent_axes : `matplotlib.axes.Axes`
+        Axes to place the inset axes.
+
+    zoom : float
+        Scaling factor of the data axes. *zoom* > 1 will enlargen the
+        coordinates (i.e., "zoomed in"), while *zoom* < 1 will shrink the
+        coordinates (i.e., "zoomed out").
+
+    loc : int or string, optional, default to 1
+        Location to place the inset axes. The valid locations are::
+
+            'upper right'  : 1,
+            'upper left'   : 2,
+            'lower left'   : 3,
+            'lower right'  : 4,
+            'right'        : 5,
+            'center left'  : 6,
+            'center right' : 7,
+            'lower center' : 8,
+            'upper center' : 9,
+            'center'       : 10
+
+    bbox_to_anchor : tuple or `matplotlib.transforms.BboxBase`, optional
+        Bbox that the inset axes will be anchored. Can be a tuple of
+        [left, bottom, width, height], or a tuple of [left, bottom].
+
+    bbox_transform : `matplotlib.transforms.Transform`, optional
+        Transformation for the bbox. if None, `parent_axes.transAxes` is used.
+
+    axes_class : `matplotlib.axes.Axes` type, optional
+        If specified, the inset axes created with be created with this class's
+        constructor.
+
+    axes_kwargs : dict, optional
+        Keyworded arguments to pass to the constructor of the inset axes.
+        Valid arguments include:
+        %(Axes)s
+
+    borderpad : float, optional
+        Padding between inset axes and the bbox_to_anchor. Defaults to 0.5.
+
+    Returns
+    -------
+    inset_axes : `axes_class`
+        Inset axes object created.
+    """
 
     if axes_class is None:
         axes_class = HostAxes
@@ -295,12 +347,12 @@ def zoomed_inset_axes(parent_axes, zoom, loc=1,
         inset_axes = axes_class(parent_axes.figure, parent_axes.get_position())
     else:
         inset_axes = axes_class(parent_axes.figure, parent_axes.get_position(),
-                               **axes_kwargs)
+                                **axes_kwargs)
 
     axes_locator = AnchoredZoomLocator(parent_axes, zoom=zoom, loc=loc,
                                        bbox_to_anchor=bbox_to_anchor,
                                        bbox_transform=bbox_transform,
-                                       **kwargs)
+                                       borderpad=borderpad)
     inset_axes.set_axes_locator(axes_locator)
 
     _add_inset_axes(parent_axes, inset_axes)
