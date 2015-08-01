@@ -535,7 +535,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         if _INSTALL_FIG_OBSERVER:
             fig.stale_callback = _auto_draw_if_interactive
 
-    return fig
+    return figManager.canvas.figure
 
 
 def _auto_draw_if_interactive(fig, val):
