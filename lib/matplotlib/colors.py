@@ -1252,8 +1252,9 @@ class BoundaryNorm(Normalize):
         as i varies from 0 to len(boundaries)-2,
         j goes from 0 to ncolors-1.
 
-        Out-of-range values are mapped to -1 if low and ncolors
-        if high; these are converted to valid indices by
+        If clip == False, Out-of-range values are mapped
+        to -1 if low and ncolors if high; these are converted
+        to valid indices by
         :meth:`Colormap.__call__` .
         """
         self.clip = clip
@@ -1270,21 +1271,24 @@ class BoundaryNorm(Normalize):
     def __call__(self, x, clip=None):
         if clip is None:
             clip = self.clip
-        _x = ma.asarray(x)
-        mask = ma.getmaskarray(_x)
-        xx = np.atleast_1d(_x.filled(self.vmax + 1))
+        x = ma.masked_invalid(x, copy=False)
+        mask = ma.getmaskarray(x)
+        xx = np.atleast_1d(x.filled(self.vmax + 1))
         if clip:
             np.clip(xx, self.vmin, self.vmax, out=xx)
-        iret = np.atleast_1d(np.zeros(_x.shape, dtype=np.int16))
+            max_col = self.Ncmap - 1
+        else:
+            max_col = self.Ncmap
+        iret = np.atleast_1d(np.zeros(x.shape, dtype=np.int16))
         for i, b in enumerate(self.boundaries):
             iret[xx >= b] = i
         if self._interp:
             scalefac = float(self.Ncmap - 1) / (self.N - 2)
             iret = (iret * scalefac).astype(np.int16)
         iret[xx < self.vmin] = -1
-        iret[xx >= self.vmax] = self.Ncmap  # ISSUE here: clip is ignored
+        iret[xx >= self.vmax] = max_col
         ret = ma.array(iret, mask=mask)
-        if _x.shape == () and not mask:
+        if x.shape == ():
             ret = int(ret[0])  # assume python scalar
         return ret
 

@@ -84,15 +84,37 @@ def test_BoundaryNorm():
         assert_array_equal(bn([v]), ex)
 
     # Clipping
-    # For the "3" I do not know: isn't clipping also supposed to clip the max?
     bn = mcolors.BoundaryNorm(boundaries, 3, clip=True)
-    expected = [0, 0, 2, 3]
+    expected = [0, 0, 2, 2]
     for v, ex in zip(vals, expected):
         ret = bn(v)
         assert_true(isinstance(ret, six.integer_types))
         assert_array_equal(ret, ex)
         assert_array_equal(bn([v]), ex)
 
+    # Masked arrays
+    boundaries = [0, 1.1, 2.2]
+    vals = [-1., np.NaN, 0, 1.4, 9]
+
+    # Without interpolation
+    ncolors = len(boundaries) - 1
+    bn = mcolors.BoundaryNorm(boundaries, ncolors)
+    expected = np.ma.masked_array([-1, -99, 0, 1, 2], mask=[0, 1, 0, 0, 0])
+    assert_array_equal(bn(vals), expected)
+
+    # With interpolation
+    bn = mcolors.BoundaryNorm(boundaries, len(boundaries))
+    expected = np.ma.masked_array([-1, -99, 0, 2, 3], mask=[0, 1, 0, 0, 0])
+    assert_array_equal(bn(vals), expected)
+
+    # Non-trivial masked arrays
+    vals = [np.Inf, np.NaN]
+    assert_true(np.all(bn(vals).mask))
+    vals = [np.Inf]
+    assert_true(np.all(bn(vals).mask))
+
+    # Invalid scalar raises an exception
+    assert_raises(Exception, bn, np.NaN)
 
 def test_LogNorm():
     """
