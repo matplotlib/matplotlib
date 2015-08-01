@@ -273,6 +273,9 @@ backend      : %(backend)s
                                             # web-style hex
 #axes.xmargin        : 0  # x margin.  See `axes.Axes.margins`
 #axes.ymargin        : 0  # y margin See `axes.Axes.margins`
+#axes.mouseover      : False  # if mouse motion should try to find the
+                              # top artist and append a message from that
+			      # artist to the gui message box
 
 #polaraxes.grid      : True    # display grid on polar axes
 #axes3d.grid         : True    # display grid on 3d axes
@@ -356,9 +359,9 @@ backend      : %(backend)s
 #image.lut    : 256               # the size of the colormap lookup table
 #image.origin : upper             # lower | upper
 #image.resample  : False
-#image.composite_image : True     # When True, all the images on a set of axes are 
-                                  # combined into a single composite image before 
-                                  # saving a figure as a vector graphics file, 
+#image.composite_image : True     # When True, all the images on a set of axes are
+                                  # combined into a single composite image before
+                                  # saving a figure as a vector graphics file,
                                   # such as a PDF.
 
 ### CONTOUR PLOTS

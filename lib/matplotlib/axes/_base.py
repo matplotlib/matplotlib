@@ -390,6 +390,8 @@ class _AxesBase(martist.Artist):
           *yscale*           [%(scale)s]
           *yticklabels*      sequence of strings
           *yticks*           sequence of floats
+          *mouseover*        [ *True* | *False*] if mouseover artists
+                             adds to message string in the gui window
           ================   =========================================
         """ % {'scale': ' | '.join(
             [repr(x) for x in mscale.get_scale_names()])}
@@ -406,6 +408,7 @@ class _AxesBase(martist.Artist):
         self.set_anchor('C')
         self._sharex = sharex
         self._sharey = sharey
+
         if sharex is not None:
             self._shared_x_axes.join(self, sharex)
             if sharex._adjustable == 'box':
@@ -466,6 +469,8 @@ class _AxesBase(martist.Artist):
         if self.yaxis is not None:
             self._ycid = self.yaxis.callbacks.connect('units finalize',
                                                       self.relim)
+
+        self.mouseover = kwargs.pop('mouseover', rcParams['axes.mouseover'])
 
     def __setstate__(self, state):
         self.__dict__ = state
