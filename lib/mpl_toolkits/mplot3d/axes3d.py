@@ -1750,18 +1750,18 @@ class Axes3D(Axes):
 
         if rstride:
             rii = list(xrange(0, rows, rstride))
+            # Add the last index only if needed
+            if rows > 0 and rii[-1] != (rows - 1) :
+                rii += [rows-1]
         else:
             rii = []
-        if cstride:                
+        if cstride:
             cii = list(xrange(0, cols, cstride))
+            # Add the last index only if needed
+            if cols > 0 and cii[-1] != (cols - 1) :
+                cii += [cols-1]
         else:
             cii = []
-
-        # Add the last index only if needed
-        if rows > 0 and rii[-1] != (rows - 1) :
-            rii += [rows-1]
-        if cols > 0 and cii[-1] != (cols - 1) :
-            cii += [cols-1]
 
         # If the inputs were empty, then just
         # reset everything.
