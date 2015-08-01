@@ -529,15 +529,16 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         figManager._cidgcf = cid
 
         _pylab_helpers.Gcf.set_active(figManager)
-        figManager.canvas.figure.number = num
+        fig = figManager.canvas.figure
+        fig.number = num
 
         if _INSTALL_FIG_OBSERVER:
-            figManager.canvas.figure.add_callback(_auto_draw_if_interactive)
+            fig.stale_callback = _auto_draw_if_interactive
 
-    return figManager.canvas.figure
+    return fig
 
 
-def _auto_draw_if_interactive(fig):
+def _auto_draw_if_interactive(fig, val):
     """
     This is an internal helper function for making sure that auto-redrawing
     works as intended in the plain python repl.
@@ -547,7 +548,7 @@ def _auto_draw_if_interactive(fig):
     fig : Figure
         A figure object which is assumed to be associated with a canvas
     """
-    if fig.stale and matplotlib.is_interactive():
+    if val and matplotlib.is_interactive():
         fig.canvas.draw_idle()
 
 
