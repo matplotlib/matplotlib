@@ -241,7 +241,7 @@ class Artist(object):
         if self.get_animated():
             return
 
-        if self.stale_callback is not None:
+        if val and self.stale_callback is not None:
             self.stale_callback(self, val)
 
     def get_window_extent(self, renderer):
