@@ -6,6 +6,7 @@
 .DS_Store
 
 .ipynb_checkpoints*
+tools/refactor.ipynb
 
 #########################################
 # Editor temporary/working/backup files #
