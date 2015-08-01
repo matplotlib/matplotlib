@@ -1130,7 +1130,6 @@ class Figure(Artist):
             dsu.sort(key=itemgetter(0))
             for zorder, a, func, args in dsu:
                 func(*args)
-                a.stale = False
         finally:
             renderer.close_group('figure')
             self.stale = False
