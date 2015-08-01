@@ -35,9 +35,7 @@ plt.plotfile(fname2, cols=(0, 1, 2), delimiter=' ',
 plt.plotfile(fname2, cols=(0, 1), delimiter=' ')
 plt.plotfile(
     fname2,
-    cols=(
-        0,
-        2),
+    cols=(0,2),
     newfig=False,
     delimiter=' ')  # use current figure
 plt.xlabel(r'$x$')
