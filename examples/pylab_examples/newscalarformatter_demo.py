@@ -20,7 +20,6 @@ ax3.xaxis.set_major_formatter(OldScalarFormatter())
 ax3.yaxis.set_major_formatter(OldScalarFormatter())
 
 ax4.plot(-x * 1e5, -x * 1e-4)
-ax4 = plt.gca()
 ax4.xaxis.set_major_formatter(OldScalarFormatter())
 ax4.yaxis.set_major_formatter(OldScalarFormatter())
 
