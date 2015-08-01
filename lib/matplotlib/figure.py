@@ -56,6 +56,11 @@ def _stale_figure_callback(self, val):
         self.figure.stale = val
 
 
+def _stale_canvas_callback(self, val):
+    if rcParams['interactive'] and self.canvas is not None and val:
+        self.canvas.draw_idle()
+
+
 class AxesStack(Stack):
     """
     Specialization of the Stack to handle all tracking of Axes in a Figure.
@@ -352,6 +357,11 @@ class Figure(Artist):
         self._axstack = AxesStack()  # track all figure axes and current axes
         self.clf()
         self._cachedRenderer = None
+        self.stale_callback = Figure._stale_callback
+
+    def _stale_callback(self, val):
+        if val and self.canvas is not None:
+            self.canvas.stale = val
 
     # TODO: I'd like to dynamically add the _repr_html_ method
     # to the figure in the right context, but then IPython doesn't
@@ -560,7 +570,7 @@ class Figure(Artist):
         ACCEPTS: a FigureCanvas instance
         """
         self.canvas = canvas
-        self.stale = True
+        self.stale_callback = _stale_canvas_callback
 
     def hold(self, b=None):
         """
