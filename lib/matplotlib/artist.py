@@ -68,7 +68,7 @@ def allow_rasterization(draw):
     return draw_wrapper
 
 
-def _stale_axes_callback(self):
+def _stale_axes_callback(self, value):
     self.axes.stale = True
 
 
@@ -83,6 +83,7 @@ class Artist(object):
 
     def __init__(self):
         self._stale = True
+        self.stale_callback = None
         self._axes = None
         self.figure = None
 
@@ -218,7 +219,7 @@ class Artist(object):
 
         self._axes = new_axes
         if new_axes is not None and new_axes is not self:
-            self.add_callback(_stale_axes_callback)
+            self.stale_callback = _stale_axes_callback
 
         return new_axes
 
@@ -232,22 +233,16 @@ class Artist(object):
 
     @stale.setter
     def stale(self, val):
+        self._stale = val
+
         # if the artist is animated it does not take normal part in the
-        # draw stack and is expected to be drawn as part of the normal
+        # draw stack and is not expected to be drawn as part of the normal
         # draw loop (when not saving) so do not propagate this change
         if self.get_animated():
-            self._stale = val
             return
 
-        # only trigger call-back stack on being marked as 'stale'
-        # when not already stale
-        # the draw process will take care of propagating the cleaning
-        # process
-        if not (self._stale == val):
-            self._stale = val
-            # only trigger propagation if marking as stale
-            if self._stale:
-                self.pchanged()
+        if self.stale_callback is not None:
+            self.stale_callback(self, val)
 
     def get_window_extent(self, renderer):
         """

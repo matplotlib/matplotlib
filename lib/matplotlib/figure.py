@@ -51,8 +51,8 @@ from matplotlib.backend_bases import NonGuiException
 docstring.interpd.update(projection_names=get_projection_names())
 
 
-def _stale_figure_callback(self):
-    self.figure.stale = True
+def _stale_figure_callback(self, val):
+    self.figure.stale = val
 
 
 class AxesStack(Stack):
@@ -656,7 +656,7 @@ class Figure(Artist):
             self.set_size_inches(figsize, forward=True)
 
         im = FigureImage(self, cmap, norm, xo, yo, origin, **kwargs)
-        im.add_callback(_stale_figure_callback)
+        im.stale_callback = _stale_figure_callback
 
         im.set_array(X)
         im.set_alpha(alpha)
@@ -917,7 +917,7 @@ class Figure(Artist):
         self._axstack.add(key, a)
         self.sca(a)
         self.stale = True
-        a.add_callback(_stale_figure_callback)
+        a.stale_callback = _stale_figure_callback
         return a
 
     @docstring.dedent_interpd
@@ -1006,7 +1006,7 @@ class Figure(Artist):
         self._axstack.add(key, a)
         self.sca(a)
         self.stale = True
-        a.add_callback(_stale_figure_callback)
+        a.stale_callback = _stale_figure_callback
         return a
 
     def clf(self, keep_observers=False):
@@ -1285,7 +1285,7 @@ class Figure(Artist):
     def _set_artist_props(self, a):
         if a != self:
             a.set_figure(self)
-        a.add_callback(_stale_figure_callback)
+        a.stale_callback = _stale_figure_callback
         a.set_transform(self.transFigure)
 
     @docstring.dedent_interpd
