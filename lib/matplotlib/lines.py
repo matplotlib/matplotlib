@@ -573,18 +573,28 @@ class Line2D(Artist):
             bbox = bbox.padded(ms)
         return bbox
 
-    @Artist.axes.setter
-    def axes(self, ax):
-        # call the set method from the base-class property
-        Artist.axes.fset(self, ax)
-        if ax is not None:
-            # connect unit-related callbacks
-            if ax.xaxis is not None:
-                self._xcid = ax.xaxis.callbacks.connect('units',
-                                                        self.recache_always)
-            if ax.yaxis is not None:
-                self._ycid = ax.yaxis.callbacks.connect('units',
-                                                        self.recache_always)
+    def _axes_changed(self, name, new):
+		Artist._axes_changed(self, name, old, new)
+		if new is not None:
+        	if new.xaxis is not None:
+            	self._xcid = new.xaxis.callbacks.connect('units',
+                                                    	self.recache_always)
+        	if new.yaxis is not None:
+            	self._ycid = new.yaxis.callbacks.connect('units',
+                                                    	self.recache_always)
+
+    #!DEPRECATED
+    # @Artist.axes.setter
+    # def axes(self, ax):
+    #     # call the set method from the base-class property
+    #     Artist.axes.fset(self, ax)
+    #     # connect unit-related callbacks
+    #     if ax.xaxis is not None:
+    #         self._xcid = ax.xaxis.callbacks.connect('units',
+    #                                                 self.recache_always)
+    #     if ax.yaxis is not None:
+    #         self._ycid = ax.yaxis.callbacks.connect('units',
+    #                                                 self.recache_always)
 
     def set_data(self, *args):
         """

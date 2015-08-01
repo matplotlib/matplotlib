@@ -1531,7 +1531,7 @@ class DateConverter(units.ConversionInterface):
         The *axis* argument is required but not used.
         """
         tz = unit
-
+        
         majloc = AutoDateLocator(tz=tz)
         majfmt = AutoDateFormatter(majloc, tz=tz)
         datemin = datetime.date(2000, 1, 1)

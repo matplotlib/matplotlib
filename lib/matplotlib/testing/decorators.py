@@ -387,7 +387,7 @@ def _image_directories(func):
 
     if not os.path.exists(result_dir):
         cbook.mkdirs(result_dir)
-
+    print(baseline_dir)
     return baseline_dir, result_dir
 
 

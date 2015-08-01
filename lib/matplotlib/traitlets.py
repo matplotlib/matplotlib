@@ -8,12 +8,12 @@ try:
     from traitlets import (TraitType, Int, Float, Bool,
                            Dict, List, Instance, Union,
                            Unicode, Tuple, TraitError,
-                           getargspec)
+                           Undefined, getargspec)
 except ImportError:
     from IPython.utils.traitlets.config import Configurable, Config
     from IPython.utils.traitlets import (TraitType, Int, Float, Bool,
                             Dict, List, Instance, Union, Unicode,
-                            Tuple, TraitError, getargspec)
+                            Tuple, TraitError, Undefined, getargspec)
 
 import numpy as np
 

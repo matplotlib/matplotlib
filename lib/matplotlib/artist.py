@@ -15,7 +15,7 @@ from .transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPatchPath, TransformedPath, Transform)
 from .path import Path
 
-from .traitlets import Configurable, TransformInstance, Bool
+from .traitlets import Instance, Configurable, TransformInstance, Bool, Undefined
 
 # Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
@@ -32,9 +32,6 @@ from .traitlets import Configurable, TransformInstance, Bool
 # the docstring, and there is no clever way to do that in python 2.2,
 # as far as I can see - see
 # http://groups.google.com/groups?hl=en&lr=&threadm=mailman.5090.1098044946.5135.python-list%40python.org&rnum=1&prev=/groups%3Fq%3D__doc__%2Bauthor%253Ajdhunter%2540ace.bsd.uchicago.edu%26hl%3Den%26btnG%3DGoogle%2BSearch
-
-class Undefined(object): pass
-Undefined = Undefined()
 
 def allow_rasterization(draw):
     """
@@ -90,7 +87,7 @@ class Artist(Configurable):
     aname = 'Artist'
     zorder = 0
 
-    transform = TransformInstance(IdentityTransform())
+    transform = TransformInstance(IdentityTransform(), allow_none=True)
 
     def _transform_changed(self):
         self.transform_set = True
@@ -104,6 +101,17 @@ class Artist(Configurable):
             self.pchanged()
 
     transform_set = Bool(False)
+
+    def _axes_changed(self, name, old, new):
+        if old not in (Undefined,None):
+            raise ValueError("Can not reset the axes.  You are "
+                             "probably trying to re-use an artist "
+                             "in more than one Axes which is not "
+                             "supported")
+        if new is not None and new is not self:
+            self.add_callback(_stale_axes_callback)
+
+    axes = Instance(str('matplotlib.axes.Axes'), allow_none=True)
 
     def __init__(self):
         # self._stale = True
@@ -217,53 +225,57 @@ class Artist(Configurable):
             return y
         return ax.yaxis.convert_units(y)
 
-    def set_axes(self, axes):
-        """
-        Set the :class:`~matplotlib.axes.Axes` instance in which the
-        artist resides, if any.
+    #!DEPRECATED
+    # def set_axes(self, axes):
+    #     """
+    #     Set the :class:`~matplotlib.axes.Axes` instance in which the
+    #     artist resides, if any.
 
-        This has been deprecated in mpl 1.5, please use the
-        axes property.  Will be removed in 1.7 or 2.0.
+    #     This has been deprecated in mpl 1.5, please use the
+    #     axes property.  Will be removed in 1.7 or 2.0.
 
-        ACCEPTS: an :class:`~matplotlib.axes.Axes` instance
-        """
-        warnings.warn(_get_axes_msg, mplDeprecation, stacklevel=1)
-        self.axes = axes
+    #     ACCEPTS: an :class:`~matplotlib.axes.Axes` instance
+    #     """
+    #     warnings.warn(_get_axes_msg, mplDeprecation, stacklevel=1)
+    #     self.axes = axes
 
-    def get_axes(self):
-        """
-        Return the :class:`~matplotlib.axes.Axes` instance the artist
-        resides in, or *None*.
+    #!DEPRECATED
+    # def get_axes(self):
+    #     """
+    #     Return the :class:`~matplotlib.axes.Axes` instance the artist
+    #     resides in, or *None*.
 
-        This has been deprecated in mpl 1.5, please use the
-        axes property.  Will be removed in 1.7 or 2.0.
-        """
-        warnings.warn(_get_axes_msg, mplDeprecation, stacklevel=1)
-        return self.axes
+    #     This has been deprecated in mpl 1.5, please use the
+    #     axes property.  Will be removed in 1.7 or 2.0.
+    #     """
+    #     warnings.warn(_get_axes_msg, mplDeprecation, stacklevel=1)
+    #     return self.axes
 
-    @property
-    def axes(self):
-        """
-        The :class:`~matplotlib.axes.Axes` instance the artist
-        resides in, or *None*.
-        """
-        return self._axes
+    #!DEPRECATED
+    # @property
+    # def axes(self):
+    #     """
+    #     The :class:`~matplotlib.axes.Axes` instance the artist
+    #     resides in, or *None*.
+    #     """
+    #     return self._axes
 
-    @axes.setter
-    def axes(self, new_axes):
+    #!DEPRECATED
+	# @axes.setter
+    # def axes(self, new_axes):
 
-        if (new_axes is not None and
-                (self._axes is not None and new_axes != self._axes)):
-            raise ValueError("Can not reset the axes.  You are "
-                             "probably trying to re-use an artist "
-                             "in more than one Axes which is not "
-                             "supported")
+    #     if (new_axes is not None and
+    #             (self._axes is not None and new_axes != self._axes)):
+    #         raise ValueError("Can not reset the axes.  You are "
+    #                          "probably trying to re-use an artist "
+    #                          "in more than one Axes which is not "
+    #                          "supported")
 
-        self._axes = new_axes
-        if new_axes is not None and new_axes is not self:
-            self.add_callback(_stale_axes_callback)
+    #     self._axes = new_axes
+    #     if new_axes is not None and new_axes is not self:
+    #         self.add_callback(_stale_axes_callback)
 
-        return new_axes
+    #     return new_axes
 
     #!DEPRECATED
     # @property

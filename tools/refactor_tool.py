@@ -39,6 +39,14 @@ class MplReplacementLibrary(object):
 		args = (tool.rootdir,'py',pattern,repl_str)
 		return ss.SearchReplace(*args, context=tool.context)
 
+	@staticmethod
+	def _axes(tool):
+		pattern = r'(.*)\._axes(.*)'
+		repl_str = r'\1.axes\2'
+		args = (tool.rootdir,'py',pattern,repl_str)
+		return ss.SearchReplace(*args, context=tool.context)
+
+
 class ReplaceTool(object):
 
 	lib = None

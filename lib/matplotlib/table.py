@@ -35,6 +35,7 @@ from matplotlib import docstring
 from .text import Text
 from .transforms import Bbox
 from matplotlib.path import Path
+from .traitlets import Instance
 
 
 class Cell(Rectangle):
@@ -266,7 +267,7 @@ class Table(Artist):
         if is_string_like(loc):
             loc = self.codes.get(loc, 1)
         self.set_figure(ax.figure)
-        self._axes = ax
+        self.axes = ax
         self._loc = loc
         self._bbox = bbox
 
@@ -307,7 +308,7 @@ class Table(Artist):
 
     def _approx_text_height(self):
         return (self.FONTSIZE / 72.0 * self.figure.dpi /
-                self._axes.bbox.height * 1.2)
+                self.axes.bbox.height * 1.2)
 
     @allow_rasterization
     def draw(self, renderer):
