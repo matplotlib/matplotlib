@@ -1717,7 +1717,9 @@ class Axes3D(Axes):
         Plot a 3D wireframe.
 
         The `rstride` and `cstride` kwargs set the stride used to
-        sample the input data to generate the graph.
+        sample the input data to generate the graph. If either is 0
+        the input data in not sampled along this direction producing a 
+        3D line plot rather than a wireframe plot.
 
         ==========  ================================================
         Argument    Description
