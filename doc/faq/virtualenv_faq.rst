@@ -1,0 +1,104 @@
+.. _virtualenv-faq:
+
+***********************************************
+Working with Matplotlib in Virtual environments
+***********************************************
+
+.. contents::
+   :backlinks: none
+
+
+.. _introduction:
+
+Introduction
+============
+
+When running :mod:`matplotlib` in a virtual environment you may discover a
+few issues. :mod:`matplotlib` itself works problemless in virtual envirnments.
+However, the GUI frameworks that :mod:`matplotlib` depends uses for interactive
+figures have some issues with virtual environments. Everything below assumes
+some familiarity with the Matplotlib backends as found in :ref:`What is a
+backend? <what-is-a-backend>`.
+
+If you only use the ``IPython/Jupyter`` inline and ``notebook/nbagg`` backends
+and non interactive backends you can should not have any isseus and can ignore
+everything below.
+
+GUI Frameworks
+==============
+
+Interactive Matplotlib relies heavily on the interaction with external GUI
+frameworks.
+
+Most GUI frameworks are not pip installable. This makes it tricky to install
+them within a virtual environment. This problem does not exist if you use Conda
+environments where you can install all Conda supported GUI frameworks directly
+into tge environment. In regular virtualenv environment various workarounds
+exist. Some of these are given here:
+
+The ``TKAgg`` backend doesn't require any external dependencies and is normally
+always available. The ``QT4`` framework ``PySide`` and the upcoming `WX Phoenix
+<http://wiki.wxpython.org/ProjectPhoenix>`_ toolkit are ``pip`` installable
+and can be used directly within a virtual environment.
+
+Other frameworks are harder to install into a virtual environment. There are at
+least two possible ways to get access to these in a virtual environment.
+
+You can pass the ``--system-site-packages`` option to virtualenv when creating
+an environment. This adds all system wide packages to the virtual environment.
+However, this breaks the isolation between the virtual environment and the
+system install. If you use `virtualenvwrapper
+<https://virtualenvwrapper.readthedocs.org/>`_  this can be toggled with the
+toggleglobalsitepackages command.
+
+Alternatively you can manually symlink the GUI frameworks into the environment.
+I.e. to use PyQt5 you should symlink ``PyQt5`` and ``sip`` from your system
+site packages directory into the environment taking care that the environment
+and systemwide install uses the same python version.
+
+OSX
+===
+
+On OSX two different types of Python Builds exists. A regular build and a
+framework build. In order to interact correctly with OSX through some
+gui frameworks you need a framework build of Python.
+At the time of writing the ``macosx``, ``WX`` and ``WXAgg`` backends requires a
+framework build to function correctly. Unfortunately virtualenv creates a non
+framework build even if created from a framework build of Python. From
+Matplotlib 1.5 onwards the ``macosx`` backend checks that a framework build is
+available and fails if a non framework build is found.
+
+The issue has been reported on the virualenv bug tracker `here
+<https://github.com/pypa/virtualenv/issues/54>`__ and `here
+<https://github.com/pypa/virtualenv/issues/609>`__
+
+Until this is fixed a work around is needed. The best knows work around,
+borrowed  from the `WX wiki
+<http://wiki.wxpython.org/wxPythonVirtualenvOnMac>`_, is to  use the non
+virualenv python along with the PYTHONHOME environmental variable.  This can be
+implemented in a script as below. To use this modify ``PYVER`` and
+``PATHTOPYTHON`` and put the script in the virtualenvs bin directory i.e.
+``PATHTOVENV/bin/frameworkpython``
+
+.. code:: bash
+
+  #!/bin/bash
+
+  # what real Python executable to use
+  PYVER=2.7
+  PATHTOPYTHON=/usr/local/bin/
+  PYTHON=${PATHTOPYTHON}python${PYVER}
+
+  # find the root of the virtualenv, it should be the parent of the dir this script is in
+  ENV=`$PYTHON -c "import os; print os.path.abspath(os.path.join(os.path.dirname(\"$0\"), '..'))"`
+
+  # now run Python with the virtualenv set as Python's HOME
+  export PYTHONHOME=$ENV 
+  exec $PYTHON "$@"
+
+
+With this in place you can run ``frameworkpython`` to get a interactive
+framework build within the virtualenv. To run a script you can do
+``frameworkpython test.py`` where ``test.py`` is a script that requires a
+framework build. To run an interactive ``IPython`` session with the framework
+build within the virtual environment you can do ``frameworkpython -m IPython``
