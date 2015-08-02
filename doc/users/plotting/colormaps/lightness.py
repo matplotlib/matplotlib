@@ -126,5 +126,5 @@ for cmap_category, cmap_list in cmaps:
     ax.set_xlabel(cmap_category + ' colormaps', fontsize=22)
     fig.text(-0.005, 0.55, 'Lightness $L^*$', fontsize=18, transform=fig.transFigure, rotation=90)
 
-    fig.tight_layout(h_pad=0.05)
+    fig.set_tight_layout(dict(h_pad=0.05))
     plt.show()
