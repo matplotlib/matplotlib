@@ -1,6 +1,9 @@
+import sys
+import nose
+from nose.tools import assert_raises
 from mpl_toolkits.mplot3d import Axes3D, axes3d
 from matplotlib import cm
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -188,6 +191,17 @@ def test_wireframe3dzerorstride():
     ax = fig.add_subplot(111, projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
     ax.plot_wireframe(X, Y, Z, rstride=0, cstride=10)
+
+@cleanup
+def test_wireframe3dzerostrideraises():
+    if sys.version_info[:2] < (2, 7):
+        raise nose.SkipTest("assert_raises as context manager "
+                            "not supported with Python < 2.7")
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    X, Y, Z = axes3d.get_test_data(0.05)
+    with assert_raises(ValueError):
+        ax.plot_wireframe(X, Y, Z, rstride=0, cstride=0)
 
 @image_comparison(baseline_images=['quiver3d'], remove_text=True)
 def test_quiver3d():

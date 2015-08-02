@@ -1765,6 +1765,9 @@ class Axes3D(Axes):
         else:
             cii = []
 
+        if rstride == 0 and cstride == 0:
+            raise ValueError("Either rstride or cstride must be non zero")
+
         # If the inputs were empty, then just
         # reset everything.
         if Z.size == 0 :
