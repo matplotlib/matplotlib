@@ -172,6 +172,23 @@ def test_wireframe3d():
     ax.plot_wireframe(X, Y, Z, rstride=10, cstride=10)
 
 
+@image_comparison(baseline_images=['wireframe3dzerocstride'], remove_text=True,
+                  extensions=['png'])
+def test_wireframe3dzerocstride():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    X, Y, Z = axes3d.get_test_data(0.05)
+    ax.plot_wireframe(X, Y, Z, rstride=10, cstride=0)
+
+
+@image_comparison(baseline_images=['wireframe3dzerorstride'], remove_text=True,
+                  extensions=['png'])
+def test_wireframe3dzerorstride():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    X, Y, Z = axes3d.get_test_data(0.05)
+    ax.plot_wireframe(X, Y, Z, rstride=0, cstride=10)
+
 @image_comparison(baseline_images=['quiver3d'], remove_text=True)
 def test_quiver3d():
     fig = plt.figure()
