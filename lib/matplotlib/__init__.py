@@ -1588,9 +1588,19 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False, label_namer=
             elif len(replace_names) == 0:
                 # No argnames should be replaced
                 arg_names = []
+            elif len(_arg_names) > 1 and (positional_parameter_names is None):
+                # we got no manual parameter names but more than an 'ax' ...
+                if len(set(replace_names) - set(_arg_names[1:])) == 0:
+                    # all to be replaced arguments are in the list
+                    arg_names = _arg_names[1:]
+                else:
+                    msg = "Got unknown 'replace_names' and wrapped function uses '*args', " \
+                          "need 'positional_parameter_names'!"
+                    raise AssertionError(msg)
             else:
                 assert not (positional_parameter_names is None or not replace_all_args), \
-                    "Got replace_names and wrapped function uses *args, need positional_parameter_names!"
+                    "Got 'replace_names' and wrapped function uses '*args', " \
+                    "need 'positional_parameter_names'!"
                 # remove ax arg
                 arg_names = positional_parameter_names[1:]
 
