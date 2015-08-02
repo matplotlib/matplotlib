@@ -2,14 +2,14 @@ from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 
 try:
-    # IPython 4 import
+    # IPython4 imports
     from traitlets.config import Configurable, Config
-    # import traittypes
     from traitlets import (TraitType, Int, Float, Bool,
                            Dict, List, Instance, Union,
                            Unicode, Tuple, TraitError,
                            Undefined, getargspec)
 except ImportError:
+    # IPython3 imports
     from IPython.utils.traitlets.config import Configurable, Config
     from IPython.utils.traitlets import (TraitType, Int, Float, Bool,
                             Dict, List, Instance, Union, Unicode,
