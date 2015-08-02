@@ -15,8 +15,8 @@ except ImportError:
                             Dict, List, Instance, Union, Unicode,
                             Tuple, TraitError, Undefined, getargspec)
 
+import re
 import numpy as np
-
 from types import MethodType
 from .transforms import IdentityTransform, Transform
 

@@ -2231,7 +2231,7 @@ class Annotation(Text, _AnnotationBase):
                                   width=w,
                                   height=h,
                                   )
-                    r.set_transform(mtransforms.IdentityTransform())
+                    r.transform = mtransforms.IdentityTransform()
                     r.set_clip_on(False)
 
                     self.arrow_patch.set_patchA(r)
