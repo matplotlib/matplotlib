@@ -1534,7 +1534,8 @@ def _replacer(data, key):
         return key
 
 
-def unpack_labeled_data(replace_names=None, label_namer="y", positional_parameter_names=None):
+def unpack_labeled_data(replace_names=None, replace_all_args=False, label_namer="y",
+                        positional_parameter_names=None):
     """
     A decorator to add a 'data' kwarg to any a function.  The signature
     of the input function must include the ax argument at the first position ::
@@ -1548,14 +1549,18 @@ def unpack_labeled_data(replace_names=None, label_namer="y", positional_paramete
     replace_names : list of strings, optional, default: None
         The list of parameter names which arguments should be replaced by `data[name]`. If None,
         all arguments are replaced if they are included in `data`.
+    replace_all_args : bool, default: False
+        If True, all arguments in *args get replaced, even if they are not in replace_names.
+        NOTE: this should be used only when the order of the names depends on the number of *args.
     label_namer : string, optional, default: 'y'
         The name of the parameter which argument should be used as label, if label is not set. If
         None, the label keyword argument is not set.
+        NOTE: you MUST pass ``label_namer=None`` if the function can't handle a ``label`` kwarg!
     positional_parameter_names : list of strings, optional, default: None
         The full list of positional parameter names (including the `ax` argument at the first place
         and including all possible positional parameter in `*args`), in the right order. Can also
         include all other keyword parameter. Only needed if the wrapped function does contain
-        `*args` and replace_names is not None.
+        `*args` and (replace_names is not None or replace_all_args is False).
     """
     if replace_names is not None:
         replace_names = set(replace_names)
@@ -1584,7 +1589,8 @@ def unpack_labeled_data(replace_names=None, label_namer="y", positional_paramete
                 # No argnames should be replaced
                 arg_names = []
             else:
-                assert not (positional_parameter_names is None), "Got replace_names and wrapped function uses *args, need positional_parameter_names!"
+                assert not (positional_parameter_names is None or not replace_all_args), \
+                    "Got replace_names and wrapped function uses *args, need positional_parameter_names!"
                 # remove ax arg
                 arg_names = positional_parameter_names[1:]
 
