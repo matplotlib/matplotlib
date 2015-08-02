@@ -1,3 +1,6 @@
+# -*- noplot -*-
+# print png to standard out
+
 import sys
 import matplotlib
 matplotlib.use('Agg')
