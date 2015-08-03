@@ -1534,7 +1534,7 @@ def _replacer(data, key):
         return key
 
 
-def unpack_labeled_data(replace_names=None, replace_all_args=False, label_namer="y",
+def unpack_labeled_data(replace_names=None, replace_all_args=False, label_namer=None,
                         positional_parameter_names=None):
     """
     A decorator to add a 'data' kwarg to any a function.  The signature
@@ -1552,10 +1552,9 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False, label_namer=
     replace_all_args : bool, default: False
         If True, all arguments in *args get replaced, even if they are not in replace_names.
         NOTE: this should be used only when the order of the names depends on the number of *args.
-    label_namer : string, optional, default: 'y'
+    label_namer : string, optional, default: None
         The name of the parameter which argument should be used as label, if label is not set. If
         None, the label keyword argument is not set.
-        NOTE: you MUST pass ``label_namer=None`` if the function can't handle a ``label`` kwarg!
     positional_parameter_names : list of strings, optional, default: None
         The full list of positional parameter names (excluding an explicit `ax`/'self' argument at
         the first place and including all possible positional parameter in `*args`), in the right
