@@ -2392,7 +2392,7 @@ class Axes(_AxesBase):
 
         return stem_container
 
-    @unpack_labeled_data(replace_names=['x', 'labels', 'colors'], label_namer="x")
+    @unpack_labeled_data(replace_names=['x', 'labels', 'colors'], label_namer=None)
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=None, radius=None, counterclock=True,
