@@ -23,7 +23,7 @@ qk = plt.quiverkey(Q, 0.5, 0.92, 2, r'$2 \frac{m}{s}$', labelpos='W',
                    fontproperties={'weight': 'bold'})
 l, r, b, t = plt.axis()
 dx, dy = r - l, t - b
-plt.axis([l - 0.05 * dx, r + 0.05 * dx, b - 0.05 * dy, t + 0.05 * dy])
+plt.axis([l - 0.05*dx, r + 0.05*dx, b - 0.05*dy, t + 0.05*dy])
 
 plt.title('Minimal arguments, no kwargs')
 
@@ -41,14 +41,8 @@ plt.title('scales with plot width, not view')
 plt.figure()
 Q = plt.quiver(X[::3, ::3], Y[::3, ::3], U[::3, ::3], V[::3, ::3],
                pivot='mid', color='r', units='inches')
-qk = plt.quiverkey(
-    Q,
-    0.5,
-    0.03,
-    1,
-    r'$1 \frac{m}{s}$',
-    fontproperties={
-        'weight': 'bold'})
+qk = plt.quiverkey(Q, 0.5, 0.03, 1, r'$1 \frac{m}{s}$',
+    			   fontproperties={'weight': 'bold'})
 plt.plot(X[::3, ::3], Y[::3, ::3], 'k.')
 plt.axis([-1, 7, -1, 7])
 plt.title("pivot='mid'; every third arrow; units='inches'")
