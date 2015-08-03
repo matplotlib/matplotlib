@@ -59,17 +59,16 @@ class InsetPosition(object):
 class AnchoredLocatorBase(AnchoredOffsetbox):
     def __init__(self, bbox_to_anchor, offsetbox, loc,
                  borderpad=0.5, bbox_transform=None):
-
-        super(AnchoredLocatorBase, self).__init__(loc,
-                                                  pad=0., child=None,
-                                                  borderpad=borderpad,
-                                                 bbox_to_anchor=bbox_to_anchor,
-                                                 bbox_transform=bbox_transform)
+        super(AnchoredLocatorBase, self).__init__(
+            loc, pad=0., child=None, borderpad=borderpad,
+            bbox_to_anchor=bbox_to_anchor, bbox_transform=bbox_transform
+        )
 
     def draw(self, renderer):
         raise RuntimeError("No draw method should be called")
 
     def __call__(self, ax, renderer):
+        self.axes = ax
 
         fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
         self._update_offset_func(renderer, fontsize)
@@ -88,15 +87,15 @@ class AnchoredSizeLocator(AnchoredLocatorBase):
     def __init__(self, bbox_to_anchor, x_size, y_size, loc,
                  borderpad=0.5, bbox_transform=None):
 
-        super(AnchoredSizeLocator, self).__init__(bbox_to_anchor, None, loc,
-                                                 borderpad=borderpad,
-                                                 bbox_transform=bbox_transform)
+        super(AnchoredSizeLocator, self).__init__(
+            bbox_to_anchor, None, loc,
+            borderpad=borderpad, bbox_transform=bbox_transform
+        )
 
         self.x_size = Size.from_any(x_size)
         self.y_size = Size.from_any(y_size)
 
     def get_extent(self, renderer):
-
         x, y, w, h = self.get_bbox_to_anchor().bounds
 
         dpi = renderer.points_to_pixels(72.)
@@ -113,15 +112,10 @@ class AnchoredSizeLocator(AnchoredLocatorBase):
 
         return width+2*pad, height+2*pad, xd+pad, yd+pad
 
-    def __call__(self, ax, renderer):
-
-        self.axes = ax
-        return super(AnchoredSizeLocator, self).__call__(ax, renderer)
-
 
 class AnchoredZoomLocator(AnchoredLocatorBase):
     def __init__(self, parent_axes, zoom, loc,
-                  borderpad=0.5,
+                 borderpad=0.5,
                  bbox_to_anchor=None,
                  bbox_transform=None):
 
@@ -131,14 +125,11 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
         if bbox_to_anchor is None:
             bbox_to_anchor = parent_axes.bbox
 
-        super(AnchoredZoomLocator, self).__init__(bbox_to_anchor, None, loc,
-                                                 borderpad=borderpad,
-                                                 bbox_transform=bbox_transform)
-
-        self.axes = None
+        super(AnchoredZoomLocator, self).__init__(
+            bbox_to_anchor, None, loc, borderpad=borderpad,
+            bbox_transform=bbox_transform)
 
     def get_extent(self, renderer):
-
         bb = TransformedBbox(self.axes.viewLim,
                              self.parent_axes.transData)
 
@@ -150,10 +141,6 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
         pad = self.pad * fontsize
 
         return w*self.zoom+2*pad, h*self.zoom+2*pad, xd+pad, yd+pad
-
-    def __call__(self, ax, renderer):
-        self.axes = ax
-        return super(AnchoredZoomLocator, self).__call__(ax, renderer)
 
 
 class BboxPatch(Patch):
