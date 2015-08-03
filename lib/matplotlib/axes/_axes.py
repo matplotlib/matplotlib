@@ -2612,7 +2612,7 @@ class Axes(_AxesBase):
         else:
             return slices, texts, autotexts
 
-    @unpack_labeled_data(replace_names=["x", "y", "xerr", "yerr",], label_namer="y")
+    @unpack_labeled_data(replace_names=["x", "y", "xerr", "yerr"], label_namer="y")
     @docstring.dedent_interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
                  fmt='', ecolor=None, elinewidth=None, capsize=None,
@@ -3661,7 +3661,7 @@ class Axes(_AxesBase):
                     medians=medians, fliers=fliers, means=means)
 
     @unpack_labeled_data(replace_names=["x", "y", "s", "c", "linewidths", "edgecolors",
-                                        'facecolor', 'facecolors', 'color'], # alias for c
+                                        'facecolor', 'facecolors', 'color'],  # alias for c
                          label_namer="y")
     @docstring.dedent_interpd
     def scatter(self, x, y, s=20, c=None, marker='o', cmap=None, norm=None,
@@ -6172,7 +6172,7 @@ class Axes(_AxesBase):
         else:
             return n, bins, cbook.silent_list('Lists of Patches', patches)
 
-    @unpack_labeled_data(replace_names=["x","y", "weights"], label_namer=None)
+    @unpack_labeled_data(replace_names=["x", "y", "weights"], label_namer=None)
     @docstring.dedent_interpd
     def hist2d(self, x, y, bins=10, range=None, normed=False, weights=None,
                cmin=None, cmax=None, **kwargs):
@@ -6759,7 +6759,7 @@ class Axes(_AxesBase):
 
         return spec, freqs, lines[0]
 
-    @unpack_labeled_data(replace_names=["x","y"], label_namer=None)
+    @unpack_labeled_data(replace_names=["x", "y"], label_namer=None)
     @docstring.dedent_interpd
     def cohere(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                window=mlab.window_hanning, noverlap=0, pad_to=None,
@@ -7145,7 +7145,7 @@ class Axes(_AxesBase):
                                                  integer=True))
         return im
 
-    @unpack_labeled_data( replace_all_args=True, label_namer=None)
+    @unpack_labeled_data(replace_all_args=True, label_namer=None)
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
                    points=100, bw_method=None):
