@@ -902,7 +902,7 @@ class Axes(_AxesBase):
         self.autoscale_view(scaley=False)
         return p
 
-    @unpack_labeled_data(replace_names=['y', 'xmin', 'xmax'])
+    @unpack_labeled_data(replace_names=['y', 'xmin', 'xmax'], label_namer="y")
     @docstring.dedent
     def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
                label='', **kwargs):
@@ -2251,7 +2251,7 @@ class Axes(_AxesBase):
                            bottom=bottom, orientation='horizontal', **kwargs)
         return patches
 
-    # @unpack_labeled_data() # not df["name"] getable...
+    @unpack_labeled_data(label_namer=None)
     @docstring.dedent_interpd
     def broken_barh(self, xranges, yrange, **kwargs):
         """
@@ -3661,7 +3661,8 @@ class Axes(_AxesBase):
                     medians=medians, fliers=fliers, means=means)
 
     @unpack_labeled_data(replace_names=["x", "y", "s", "c", "linewidths", "edgecolors",
-                                        'facecolor']) # alias for c
+                                        'facecolor', 'facecolors', 'color'], # alias for c
+                         label_namer="y")
     @docstring.dedent_interpd
     def scatter(self, x, y, s=20, c=None, marker='o', cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None,
@@ -3869,7 +3870,7 @@ class Axes(_AxesBase):
 
         return collection
 
-    @unpack_labeled_data(replace_names=["x", "y"])
+    @unpack_labeled_data(replace_names=["x", "y"], label_namer="y")
     @docstring.dedent_interpd
     def hexbin(self, x, y, C=None, gridsize=100, bins=None,
                xscale='linear', yscale='linear', extent=None,
@@ -4386,7 +4387,7 @@ class Axes(_AxesBase):
         return mstack.stackplot(self, x, *args, **kwargs)
     stackplot.__doc__ = mstack.stackplot.__doc__
 
-    #@unpack_labeled_data() # doesn't really work, as x and y have different shapes
+    @unpack_labeled_data(replace_names=["x", "y", "u", "v", "start_points"], label_namer=None)
     def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
                    cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                    minlength=0.1, transform=None, zorder=1, start_points=None):
@@ -4756,7 +4757,7 @@ class Axes(_AxesBase):
         return collection
 
     #### plotting z(x,y): imshow, pcolor and relatives, contour
-    #@unpack_labeled_data() # nothing which could be in an DataFrame
+    @unpack_labeled_data(label_namer=None)
     @docstring.dedent_interpd
     def imshow(self, X, cmap=None, norm=None, aspect=None,
                interpolation=None, alpha=None, vmin=None, vmax=None,
@@ -4961,7 +4962,7 @@ class Axes(_AxesBase):
             C = C[:Ny - 1, :Nx - 1]
         return X, Y, C
 
-    #@unpack_labeled_data() # 2d data can't be df["name"]'ed
+    @unpack_labeled_data(label_namer=None)
     @docstring.dedent_interpd
     def pcolor(self, *args, **kwargs):
         """
@@ -5238,7 +5239,7 @@ class Axes(_AxesBase):
         self.add_collection(collection, autolim=False)
         return collection
 
-    #@unpack_labeled_data() # 2d data can't be df["name"]'ed
+    @unpack_labeled_data(label_namer=None)
     @docstring.dedent_interpd
     def pcolormesh(self, *args, **kwargs):
         """
@@ -5387,7 +5388,7 @@ class Axes(_AxesBase):
         self.add_collection(collection, autolim=False)
         return collection
 
-    #@unpack_labeled_data() #2d data can't be df["name"]'ed
+    @unpack_labeled_data(label_namer=None)
     @docstring.dedent_interpd
     def pcolorfast(self, *args, **kwargs):
         """
