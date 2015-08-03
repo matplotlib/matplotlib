@@ -1,88 +1,94 @@
-#!/usr/bin/env python
-# Demonstrating the improvements and options of the proposed new ScalarFormatter
-from pylab import *
-from matplotlib.ticker import OldScalarFormatter
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.ticker import OldScalarFormatter, ScalarFormatter
 
-x = frange(0, 1, .01)
-f = figure(figsize=(6, 6))
-f.text(0.5, 0.975, 'The old formatter', horizontalalignment='center', verticalalignment='top')
-subplot(221)
-plot(x*1e5 + 1e10, x*1e-10 + 1e-5)
-gca().xaxis.set_major_formatter(OldScalarFormatter())
-gca().yaxis.set_major_formatter(OldScalarFormatter())
-subplot(222)
-plot(x*1e5, x*1e-4)
-gca().xaxis.set_major_formatter(OldScalarFormatter())
-gca().yaxis.set_major_formatter(OldScalarFormatter())
-subplot(223)
-plot(-x*1e5 - 1e10, -x*1e-5 - 1e-10)
-gca().xaxis.set_major_formatter(OldScalarFormatter())
-gca().yaxis.set_major_formatter(OldScalarFormatter())
-subplot(224)
-plot(-x*1e5, -x*1e-4)
-gca().xaxis.set_major_formatter(OldScalarFormatter())
-gca().yaxis.set_major_formatter(OldScalarFormatter())
+# Example 1
+x = np.arange(0, 1, .01)
+fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2, figsize=(6, 6))
+fig.text(0.5, 0.975, 'The old formatter',
+         horizontalalignment='center', verticalalignment='top')
+ax1.plot(x * 1e5 + 1e10, x * 1e-10 + 1e-5)
+ax1.xaxis.set_major_formatter(OldScalarFormatter())
+ax1.yaxis.set_major_formatter(OldScalarFormatter())
 
-x = frange(0, 1, .01)
-f = figure(figsize=(6, 6))
-f.text(0.5, 0.975, 'The new formatter, default settings', horizontalalignment='center',
-       verticalalignment='top')
-subplot(221)
-plot(x*1e5 + 1e10, x*1e-10 + 1e-5)
-gca().xaxis.set_major_formatter(ScalarFormatter())
-gca().yaxis.set_major_formatter(ScalarFormatter())
-subplot(222)
-plot(x*1e5, x*1e-4)
-gca().xaxis.set_major_formatter(ScalarFormatter())
-gca().yaxis.set_major_formatter(ScalarFormatter())
-subplot(223)
-plot(-x*1e5 - 1e10, -x*1e-5 - 1e-10)
-gca().xaxis.set_major_formatter(ScalarFormatter())
-gca().yaxis.set_major_formatter(ScalarFormatter())
-subplot(224)
-plot(-x*1e5, -x*1e-4)
-gca().xaxis.set_major_formatter(ScalarFormatter())
-gca().yaxis.set_major_formatter(ScalarFormatter())
+ax2.plot(x * 1e5, x * 1e-4)
+ax2.xaxis.set_major_formatter(OldScalarFormatter())
+ax2.yaxis.set_major_formatter(OldScalarFormatter())
 
-x = frange(0, 1, .01)
-f = figure(figsize=(6, 6))
-f.text(0.5, 0.975, 'The new formatter, no numerical offset', horizontalalignment='center',
-       verticalalignment='top')
-subplot(221)
-plot(x*1e5 + 1e10, x*1e-10 + 1e-5)
-gca().xaxis.set_major_formatter(ScalarFormatter(useOffset=False))
-gca().yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
-subplot(222)
-plot(x*1e5, x*1e-4)
-gca().xaxis.set_major_formatter(ScalarFormatter(useOffset=False))
-gca().yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
-subplot(223)
-plot(-x*1e5 - 1e10, -x*1e-5 - 1e-10)
-gca().xaxis.set_major_formatter(ScalarFormatter(useOffset=False))
-gca().yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
-subplot(224)
-plot(-x*1e5, -x*1e-4)
-gca().xaxis.set_major_formatter(ScalarFormatter(useOffset=False))
-gca().yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+ax3.plot(-x * 1e5 - 1e10, -x * 1e-5 - 1e-10)
+ax3.xaxis.set_major_formatter(OldScalarFormatter())
+ax3.yaxis.set_major_formatter(OldScalarFormatter())
 
-x = frange(0, 1, .01)
-f = figure(figsize=(6, 6))
-f.text(0.5, 0.975, 'The new formatter, with mathtext', horizontalalignment='center',
-       verticalalignment='top')
-subplot(221)
-plot(x*1e5 + 1e10, x*1e-10 + 1e-5)
-gca().xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-gca().yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-subplot(222)
-plot(x*1e5, x*1e-4)
-gca().xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-gca().yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-subplot(223)
-plot(-x*1e5 - 1e10, -x*1e-5 - 1e-10)
-gca().xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-gca().yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-subplot(224)
-plot(-x*1e5, -x*1e-4)
-gca().xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-gca().yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-show()
+ax4.plot(-x * 1e5, -x * 1e-4)
+ax4.xaxis.set_major_formatter(OldScalarFormatter())
+ax4.yaxis.set_major_formatter(OldScalarFormatter())
+
+# Example 2
+x = np.arange(0, 1, .01)
+fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2, figsize=(6, 6))
+fig.text(0.5, 0.975, 'The new formatter, default settings',
+         horizontalalignment='center',
+         verticalalignment='top')
+
+ax1.plot(x * 1e5 + 1e10, x * 1e-10 + 1e-5)
+ax1.xaxis.set_major_formatter(ScalarFormatter())
+ax1.yaxis.set_major_formatter(ScalarFormatter())
+
+ax2.plot(x * 1e5, x * 1e-4)
+ax2.xaxis.set_major_formatter(ScalarFormatter())
+ax2.yaxis.set_major_formatter(ScalarFormatter())
+
+ax3.plot(-x * 1e5 - 1e10, -x * 1e-5 - 1e-10)
+ax3.xaxis.set_major_formatter(ScalarFormatter())
+ax3.yaxis.set_major_formatter(ScalarFormatter())
+
+ax4.plot(-x * 1e5, -x * 1e-4)
+ax4.xaxis.set_major_formatter(ScalarFormatter())
+ax4.yaxis.set_major_formatter(ScalarFormatter())
+
+# Example 3
+x = np.arange(0, 1, .01)
+fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2, figsize=(6, 6))
+fig.text(0.5, 0.975, 'The new formatter, no numerical offset',
+         horizontalalignment='center',
+         verticalalignment='top')
+
+ax1.plot(x * 1e5 + 1e10, x * 1e-10 + 1e-5)
+ax1.xaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+ax1.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+
+ax2.plot(x * 1e5, x * 1e-4)
+ax2.xaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+ax2.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+
+ax3.plot(-x * 1e5 - 1e10, -x * 1e-5 - 1e-10)
+ax3.xaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+ax3.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+
+ax4.plot(-x * 1e5, -x * 1e-4)
+ax4.xaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+ax4.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+
+# Example 4
+x = np.arange(0, 1, .01)
+fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2, figsize=(6, 6))
+fig.text(0.5, 0.975, 'The new formatter, with mathtext',
+         horizontalalignment='center',
+         verticalalignment='top')
+
+ax1.plot(x * 1e5 + 1e10, x * 1e-10 + 1e-5)
+ax1.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+ax1.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+
+ax2.plot(x * 1e5, x * 1e-4)
+ax2.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+ax2.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+
+ax3.plot(-x * 1e5 - 1e10, -x * 1e-5 - 1e-10)
+ax3.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+ax3.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+
+ax4.plot(-x * 1e5, -x * 1e-4)
+ax4.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+ax4.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+plt.show()
