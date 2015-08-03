@@ -94,7 +94,7 @@ def test_BoundaryNorm():
 
     # Masked arrays
     boundaries = [0, 1.1, 2.2]
-    vals = [-1., np.NaN, 0, 1.4, 9]
+    vals = np.ma.masked_invalid([-1., np.NaN, 0, 1.4, 9])
 
     # Without interpolation
     ncolors = len(boundaries) - 1
@@ -108,13 +108,11 @@ def test_BoundaryNorm():
     assert_array_equal(bn(vals), expected)
 
     # Non-trivial masked arrays
-    vals = [np.Inf, np.NaN]
+    vals = np.ma.masked_invalid([np.Inf, np.NaN])
     assert_true(np.all(bn(vals).mask))
-    vals = [np.Inf]
+    vals = np.ma.masked_invalid([np.Inf])
     assert_true(np.all(bn(vals).mask))
 
-    # Invalid scalar raises an exception
-    assert_raises(Exception, bn, np.NaN)
 
 def test_LogNorm():
     """
