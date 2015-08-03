@@ -38,10 +38,13 @@ def test_compiletime_checks():
     # this is ok
     unpack_labeled_data(replace_names=["x","y"])(func)
     unpack_labeled_data(replace_names=["x","y"])(func_kwargs)
+    # this has "enough" information to do all the replaces
+    unpack_labeled_data(replace_names=["x","y"])(func_args)
 
     # no positional_parameter_names but needed due to replaces
     def f():
-        unpack_labeled_data(replace_names=["x","y"])(func_args)
+        # z is unknown
+        unpack_labeled_data(replace_names=["x","y", "z"])(func_args)
     assert_raises(AssertionError, f)
     def f():
         unpack_labeled_data(replace_names=["x","y"])(func_no_ax_args)
