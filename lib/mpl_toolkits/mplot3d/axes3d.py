@@ -1717,7 +1717,9 @@ class Axes3D(Axes):
         Plot a 3D wireframe.
 
         The `rstride` and `cstride` kwargs set the stride used to
-        sample the input data to generate the graph.
+        sample the input data to generate the graph. If either is 0
+        the input data in not sampled along this direction producing a 
+        3D line plot rather than a wireframe plot.
 
         ==========  ================================================
         Argument    Description
@@ -1748,14 +1750,23 @@ class Axes3D(Axes):
         # This transpose will make it easy to obtain the columns.
         tX, tY, tZ = np.transpose(X), np.transpose(Y), np.transpose(Z)
 
-        rii = list(xrange(0, rows, rstride))
-        cii = list(xrange(0, cols, cstride))
+        if rstride:
+            rii = list(xrange(0, rows, rstride))
+            # Add the last index only if needed
+            if rows > 0 and rii[-1] != (rows - 1) :
+                rii += [rows-1]
+        else:
+            rii = []
+        if cstride:
+            cii = list(xrange(0, cols, cstride))
+            # Add the last index only if needed
+            if cols > 0 and cii[-1] != (cols - 1) :
+                cii += [cols-1]
+        else:
+            cii = []
 
-        # Add the last index only if needed
-        if rows > 0 and rii[-1] != (rows - 1) :
-            rii += [rows-1]
-        if cols > 0 and cii[-1] != (cols - 1) :
-            cii += [cols-1]
+        if rstride == 0 and cstride == 0:
+            raise ValueError("Either rstride or cstride must be non zero")
 
         # If the inputs were empty, then just
         # reset everything.
