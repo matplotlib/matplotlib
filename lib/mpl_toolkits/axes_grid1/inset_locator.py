@@ -319,8 +319,42 @@ class BboxConnector(Patch):
     get_path.__doc__ = Patch.get_path.__doc__
 
 
+@docstring.dedent_interpd
 class BboxConnectorPatch(BboxConnector):
+    """
+    Connect two bboxes with a quadrilateral.
 
+    The quadrilateral is specified by two lines that start and end at corners
+    of the bboxes. The four sides of the quadrilateral are defined by the two
+    lines given, the line between the two corners specified in *bbox1* and the
+    line between the two corners specified in *bbox2*.
+
+    Parameters
+    ----------
+    bbox1, bbox2 : `matplotlib.transforms.Bbox`
+        Bounding boxes to connect.
+
+    loc1a, loc2a : {1, 2, 3, 4}
+        Corners of *bbox1* and *bbox2* to draw the first line.
+        Valid values are::
+
+            'upper right'  : 1,
+            'upper left'   : 2,
+            'lower left'   : 3,
+            'lower right'  : 4
+
+    loc1b, loc2b : {1, 2, 3, 4}
+        Corners of *bbox1* and *bbox2* to draw the second line.
+        Valid values are::
+
+            'upper right'  : 1,
+            'upper left'   : 2,
+            'lower left'   : 3,
+            'lower right'  : 4
+
+    The kwargs are Patch properties for the line drawn:
+    %(Patch)s
+    """
     def __init__(self, bbox1, bbox2, loc1a, loc2a, loc1b, loc2b, **kwargs):
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
@@ -336,6 +370,7 @@ class BboxConnectorPatch(BboxConnector):
                        list(path2.vertices) +
                        [path1.vertices[0]])
         return Path(path_merged)
+    get_path.__doc__ = BboxConnector.get_path.__doc__
 
 
 def _add_inset_axes(parent_axes, inset_axes):
