@@ -981,7 +981,8 @@ class Axes(_AxesBase):
 
         return coll
 
-    @unpack_labeled_data(replace_names=["x", "ymin", "ymax", "colors"], label_namer="x")
+    @unpack_labeled_data(replace_names=["x", "ymin", "ymax", "colors"],
+                         label_namer="x")
     @docstring.dedent_interpd
     def vlines(self, x, ymin, ymax, colors='k', linestyles='solid',
                label='', **kwargs):
@@ -1822,8 +1823,10 @@ class Axes(_AxesBase):
 
         return self.plot(x, y, *args, **kwargs)
 
-    @unpack_labeled_data(replace_names=["left", "height", "width", "bottom", "color", "edgecolor",
-                                        "linewidth", "tick_label", "xerr", "yerr", "ecolor"],
+    @unpack_labeled_data(replace_names=["left", "height", "width", "bottom",
+                                        "color", "edgecolor", "linewidth",
+                                        "tick_label", "xerr", "yerr",
+                                        "ecolor"],
                          label_namer=None)
     @docstring.dedent_interpd
     def bar(self, left, height, width=0.8, bottom=None, **kwargs):
@@ -2392,7 +2395,8 @@ class Axes(_AxesBase):
 
         return stem_container
 
-    @unpack_labeled_data(replace_names=['x', 'labels', 'colors'], label_namer=None)
+    @unpack_labeled_data(replace_names=['x', 'labels', 'colors'],
+                         label_namer=None)
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=None, radius=None, counterclock=True,
@@ -2612,7 +2616,8 @@ class Axes(_AxesBase):
         else:
             return slices, texts, autotexts
 
-    @unpack_labeled_data(replace_names=["x", "y", "xerr", "yerr"], label_namer="y")
+    @unpack_labeled_data(replace_names=["x", "y", "xerr", "yerr"],
+                         label_namer="y")
     @docstring.dedent_interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
                  fmt='', ecolor=None, elinewidth=None, capsize=None,
@@ -3660,8 +3665,9 @@ class Axes(_AxesBase):
         return dict(whiskers=whiskers, caps=caps, boxes=boxes,
                     medians=medians, fliers=fliers, means=means)
 
-    @unpack_labeled_data(replace_names=["x", "y", "s", "c", "linewidths", "edgecolors",
-                                        'facecolor', 'facecolors', 'color'],  # alias for c
+    @unpack_labeled_data(replace_names=["x", "y", "s", "linewidths",
+                                        "edgecolors", "c", 'facecolor',
+                                        'facecolors', 'color'],
                          label_namer="y")
     @docstring.dedent_interpd
     def scatter(self, x, y, s=20, c=None, marker='o', cmap=None, norm=None,
@@ -4387,7 +4393,8 @@ class Axes(_AxesBase):
         return mstack.stackplot(self, x, *args, **kwargs)
     stackplot.__doc__ = mstack.stackplot.__doc__
 
-    @unpack_labeled_data(replace_names=["x", "y", "u", "v", "start_points"], label_namer=None)
+    @unpack_labeled_data(replace_names=["x", "y", "u", "v", "start_points"],
+                         label_namer=None)
     def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
                    cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                    minlength=0.1, transform=None, zorder=1, start_points=None):
@@ -4478,7 +4485,8 @@ class Axes(_AxesBase):
         self.autoscale_view()
         return patches
 
-    @unpack_labeled_data(replace_names=["x", "y1", "y2", "where"], label_namer=None)
+    @unpack_labeled_data(replace_names=["x", "y1", "y2", "where"],
+                         label_namer=None)
     @docstring.dedent_interpd
     def fill_between(self, x, y1, y2=0, where=None, interpolate=False,
                      step=None,
@@ -4632,7 +4640,8 @@ class Axes(_AxesBase):
         self.autoscale_view()
         return collection
 
-    @unpack_labeled_data(replace_names=["y", "x1", "x2", "where"], label_namer=None)
+    @unpack_labeled_data(replace_names=["y", "x1", "x2", "where"],
+                         label_namer=None)
     @docstring.dedent_interpd
     def fill_betweenx(self, y, x1, x2=0, where=None,
                       step=None, **kwargs):

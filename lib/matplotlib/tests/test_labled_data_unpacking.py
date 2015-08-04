@@ -10,7 +10,8 @@ from .. import unpack_labeled_data
 # these two get used in multiple tests, so define them here
 @unpack_labeled_data(replace_names=["x", "y"])
 def plot_func(ax, x, y, ls="x", label=None, w="xyz"):
-    return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (list(x), list(y), ls, w, label)
+    return ("x: %s, y: %s, ls: %s, w: %s, label: %s" % (
+        list(x), list(y), ls, w, label))
 
 
 @unpack_labeled_data(replace_names=["x", "y"],
@@ -23,7 +24,8 @@ def plot_func_varags(ax, *args, **kwargs):
         if k in kwargs:
             all_args[i] = kwargs[k]
     x, y, ls, label, w = all_args
-    return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (list(x), list(y), ls, w, label)
+    return ("x: %s, y: %s, ls: %s, w: %s, label: %s" % (
+        list(x), list(y), ls, w, label))
 
 
 all_funcs = [plot_func, plot_func_varags]
@@ -80,7 +82,7 @@ def test_compiletime_checks():
 
 
 def test_label_problems_at_runtime():
-    """These are tests for behaviour which would actually be nice to get rid of."""
+    """Tests for behaviour which would actually be nice to get rid of."""
     try:
         from pandas.util.testing import assert_produces_warning
     except ImportError:
@@ -117,9 +119,12 @@ def test_label_problems_at_runtime():
 def test_function_call_without_data():
     """test without data -> no replacements"""
     for func in all_funcs:
-        assert_equal(func(None, "x", "y"), "x: ['x'], y: ['y'], ls: x, w: xyz, label: None")
-        assert_equal(func(None, x="x", y="y"), "x: ['x'], y: ['y'], ls: x, w: xyz, label: None")
-        assert_equal(func(None, "x", "y", label=""), "x: ['x'], y: ['y'], ls: x, w: xyz, label: ")
+        assert_equal(func(None, "x", "y"),
+                     "x: ['x'], y: ['y'], ls: x, w: xyz, label: None")
+        assert_equal(func(None, x="x", y="y"),
+                     "x: ['x'], y: ['y'], ls: x, w: xyz, label: None")
+        assert_equal(func(None, "x", "y", label=""),
+                     "x: ['x'], y: ['y'], ls: x, w: xyz, label: ")
         assert_equal(func(None, "x", "y", label="text"),
                      "x: ['x'], y: ['y'], ls: x, w: xyz, label: text")
         assert_equal(func(None, x="x", y="y", label=""),
@@ -194,7 +199,8 @@ def test_function_call_replace_all():
 
     @unpack_labeled_data()
     def func_replace_all(ax, x, y, ls="x", label=None, w="NOT"):
-        return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (list(x), list(y), ls, w, label)
+        return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (
+            list(x), list(y), ls, w, label)
 
     assert_equal(func_replace_all(None, "a", "b", w="x", data=data),
                  "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
@@ -202,12 +208,15 @@ def test_function_call_replace_all():
                  "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
     assert_equal(func_replace_all(None, "a", "b", w="x", label="", data=data),
                  "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-    assert_equal(func_replace_all(None, "a", "b", w="x", label="text", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
-    assert_equal(func_replace_all(None, x="a", y="b", w="x", label="", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-    assert_equal(func_replace_all(None, x="a", y="b", w="x", label="text", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
+    assert_equal(
+        func_replace_all(None, "a", "b", w="x", label="text", data=data),
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
+    assert_equal(
+        func_replace_all(None, x="a", y="b", w="x", label="", data=data),
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
+    assert_equal(
+        func_replace_all(None, x="a", y="b", w="x", label="text", data=data),
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
 
     @unpack_labeled_data()
     def func_varags_replace_all(ax, *args, **kwargs):
@@ -218,19 +227,28 @@ def test_function_call_replace_all():
             if k in kwargs:
                 all_args[i] = kwargs[k]
         x, y, ls, label, w = all_args
-        return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (list(x), list(y), ls, w, label)
+        return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (
+            list(x), list(y), ls, w, label)
 
-    # in the first case, we can't get a "y" argument, as we don't know the names of the *args
+    # in the first case, we can't get a "y" argument,
+    # as we don't know the names of the *args
     assert_equal(func_varags_replace_all(None, x="a", y="b", w="x", data=data),
                  "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
-    assert_equal(func_varags_replace_all(None, "a", "b", w="x", label="", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-    assert_equal(func_varags_replace_all(None, "a", "b", w="x", label="text", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
-    assert_equal(func_varags_replace_all(None, x="a", y="b", w="x", label="", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-    assert_equal(func_varags_replace_all(None, x="a", y="b", w="x", label="text", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
+    assert_equal(
+        func_varags_replace_all(None, "a", "b", w="x", label="", data=data),
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
+    assert_equal(
+        func_varags_replace_all(None, "a", "b", w="x", label="text",
+                                data=data),
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
+    assert_equal(
+        func_varags_replace_all(None, x="a", y="b", w="x", label="",
+                                data=data),
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
+    assert_equal(
+        func_varags_replace_all(None, x="a", y="b", w="x", label="text",
+                                data=data),
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
 
     try:
         from pandas.util.testing import assert_produces_warning
@@ -246,7 +264,8 @@ def test_no_label_replacements():
 
     @unpack_labeled_data(replace_names=["x", "y"], label_namer=None)
     def func_no_label(ax, x, y, ls="x", label=None, w="xyz"):
-        return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (list(x), list(y), ls, w, label)
+        return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (
+            list(x), list(y), ls, w, label)
 
     data = {"a": [1, 2], "b": [8, 9], "w": "NOT"}
     assert_equal(func_no_label(None, "a", "b", data=data),
@@ -284,18 +303,23 @@ def test_function_call_with_replace_all_args():
             if k in kwargs:
                 all_args[i] = kwargs[k]
         x, y, ls, label, w = all_args
-        return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (list(x), list(y), ls, w, label)
+        return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (
+            list(x), list(y), ls, w, label)
 
-    func = unpack_labeled_data(replace_all_args=True, replace_names=["w"])(funcy)
+    func = unpack_labeled_data(replace_all_args=True, replace_names=["w"])(
+        funcy)
 
-    # assert_equal(func(None, "a","b", w="x", data=data), "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: None")
+    # assert_equal(func(None, "a","b", w="x", data=data),
+    # "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: None")
     assert_equal(func(None, "a", "b", w="x", label="", data=data),
                  "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
     assert_equal(func(None, "a", "b", w="x", label="text", data=data),
                  "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
 
     func2 = unpack_labeled_data(replace_all_args=True, replace_names=["w"],
-                                positional_parameter_names=["x", "y", "ls", "label", "w"])(funcy)
+                                positional_parameter_names=["x", "y", "ls",
+                                                            "label", "w"])(
+        funcy)
 
     assert_equal(func2(None, "a", "b", w="x", data=data),
                  "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
