@@ -1380,6 +1380,9 @@ defaultParams = {
 
     # Animation settings
     'animation.html':         ['none', validate_movie_html_fmt],
+    # Limit, in MB, of size of base64 encoded animation in HTML
+    # (i.e. IPython notebook)
+    'animation.embed_limit':  [20, validate_float],
     'animation.writer':       ['ffmpeg', validate_movie_writer],
     'animation.codec':        ['h264', six.text_type],
     'animation.bitrate':      [-1, validate_int],

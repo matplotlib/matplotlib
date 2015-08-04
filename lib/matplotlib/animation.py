@@ -912,9 +912,19 @@ class HTMLWriter(FileMovieWriter):
         return True
 
     def __init__(self, fps=30, codec=None, bitrate=None, extra_args=None,
-                 metadata=None, embed_frames=False, default_mode='loop'):
+                 metadata=None, embed_frames=False, default_mode='loop',
+                 embed_limit=None):
         self.embed_frames = embed_frames
         self.default_mode = default_mode.lower()
+
+        # Save embed limit, which is given in MB
+        if embed_limit is None:
+            self._bytes_limit = rcParams['animation.embed_limit']
+        else:
+            self._bytes_limit = embed_limit
+
+        # Convert from MB to bytes
+        self._bytes_limit *= 1024 * 1024
 
         if self.default_mode not in ['loop', 'once', 'reflect']:
             self.default_mode = 'loop'
@@ -922,6 +932,8 @@ class HTMLWriter(FileMovieWriter):
             warnings.warn("unrecognized default_mode: using 'loop'")
 
         self._saved_frames = list()
+        self._total_bytes = 0
+        self._hit_limit = False
         super(HTMLWriter, self).__init__(fps, codec, bitrate,
                                          extra_args, metadata)
 
@@ -943,13 +955,27 @@ class HTMLWriter(FileMovieWriter):
 
     def grab_frame(self, **savefig_kwargs):
         if self.embed_frames:
+            # Just stop processing if we hit the limit
+            if self._hit_limit:
+                return
             suffix = '.' + self.frame_format
             f = InMemory()
             self.fig.savefig(f, format=self.frame_format,
                              dpi=self.dpi, **savefig_kwargs)
             f.seek(0)
             imgdata64 = encodebytes(f.read()).decode('ascii')
-            self._saved_frames.append(imgdata64)
+            self._total_bytes += len(imgdata64)
+            if self._total_bytes >= self._bytes_limit:
+                warnings.warn("Animation size has reached {0._total_bytes} "
+                              "bytes, exceeding the limit of "
+                              "{0._bytes_limit}. If you're sure you want "
+                              "a larger animation embedded, set the "
+                              "animation.embed_limit rc parameter to a "
+                              "larger value (in MB). This and further frames"
+                              " will be dropped.".format(self))
+                self._hit_limit = True
+            else:
+                self._saved_frames.append(imgdata64)
         else:
             return super(HTMLWriter, self).grab_frame(**savefig_kwargs)
 
@@ -1354,7 +1380,7 @@ class Animation(object):
         self._resize_id = self._fig.canvas.mpl_connect('resize_event',
                                                        self._handle_resize)
 
-    def to_html5_video(self):
+    def to_html5_video(self, embed_limit=None):
         '''Returns animation as an HTML5 video tag.
 
         This saves the animation as an h264 video, encoded in base64
@@ -1369,6 +1395,13 @@ class Animation(object):
 </video>'''
         # Cache the rendering of the video as HTML
         if not hasattr(self, '_base64_video'):
+            # Save embed limit, which is given in MB
+            if embed_limit is None:
+                embed_limit = rcParams['animation.embed_limit']
+
+            # Convert from MB to bytes
+            embed_limit *= 1024 * 1024
+
             # First write the video to a tempfile. Set delete to False
             # so we can re-open to read binary data.
             with tempfile.NamedTemporaryFile(suffix='.m4v',
@@ -1384,22 +1417,36 @@ class Animation(object):
             # Now open and base64 encode
             with open(f.name, 'rb') as video:
                 vid64 = encodebytes(video.read())
-                self._base64_video = vid64.decode('ascii')
-                self._video_size = 'width="{0}" height="{1}"'.format(
-                        *writer.frame_size)
+                vid_len = len(vid64)
+                if vid_len >= embed_limit:
+                    warnings.warn("Animation movie is {} bytes, exceeding "
+                                  "the limit of {}. If you're sure you want a "
+                                  "large animation embedded, set the "
+                                  "animation.embed_limit rc parameter to a "
+                                  "larger value (in MB).".format(vid_len,
+                                                                 embed_limit))
+                else:
+                    self._base64_video = vid64.decode('ascii')
+                    self._video_size = 'width="{}" height="{}"'.format(
+                            *writer.frame_size)
 
             # Now we can remove
             os.remove(f.name)
 
-        # Default HTML5 options are to autoplay and to display video controls
-        options = ['controls', 'autoplay']
+        # If we exceeded the size, this attribute won't exist
+        if hasattr(self, '_base64_video'):
+            # Default HTML5 options are to autoplay and display video controls
+            options = ['controls', 'autoplay']
 
-        # If we're set to repeat, make it loop
-        if self.repeat:
-            options.append('loop')
-        return VIDEO_TAG.format(video=self._base64_video,
-                                size=self._video_size,
-                                options=' '.join(options))
+            # If we're set to repeat, make it loop
+            if hasattr(self, 'repeat') and self.repeat:
+                options.append('loop')
+
+            return VIDEO_TAG.format(video=self._base64_video,
+                                    size=self._video_size,
+                                    options=' '.join(options))
+        else:
+            return 'Video too large to embed.'
 
     def to_jshtml(self, fps=None, embed_frames=True, default_mode=None):
         """Generate HTML representation of the animation"""
