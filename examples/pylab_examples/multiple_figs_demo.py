@@ -22,9 +22,4 @@ plt.plot(t, s2, 'gs')
 ax = plt.gca()
 ax.set_xticklabels([])
 
-plt.figure(1)
-plt.savefig('fig1')
-plt.figure(2)
-plt.savefig('fig2')
-
 plt.show()
