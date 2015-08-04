@@ -39,7 +39,7 @@ and printing the ``__file__`` attribute::
 
 Each user has a matplotlib configuration directory which may contain a
 :ref:`matplotlibrc <customizing-with-matplotlibrc-files>` file. To
-locate your :file:`.matplotlib/` directory, use
+locate your :file:`matplotlib/` configuration directory, use
 :func:`matplotlib.get_configdir`::
 
     >>> import matplotlib as mpl
@@ -47,7 +47,7 @@ locate your :file:`.matplotlib/` directory, use
     '/home/darren/.config/matplotlib'
 
 On unix-like systems, this directory is generally located in your
-:envvar:`HOME` directory. 
+:envvar:`HOME` directory under the :file:`.config/` directory. 
 
 In addition, users have a cache directory. On unix-like systems, this is 
 separate to the configuration directory by default. To locate your 
