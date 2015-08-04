@@ -1,29 +1,25 @@
-#!/usr/bin/env python
 # Working with multiple figure windows and subplots
-from pylab import *
+import matplotlib.pyplot as plt
+import numpy as np
 
-t = arange(0.0, 2.0, 0.01)
-s1 = sin(2*pi*t)
-s2 = sin(4*pi*t)
+t = np.arange(0.0, 2.0, 0.01)
+s1 = np.sin(2*np.pi*t)
+s2 = np.sin(4*np.pi*t)
 
-figure(1)
-subplot(211)
-plot(t, s1)
-subplot(212)
-plot(t, 2*s1)
+plt.figure(1)
+plt.subplot(211)
+plt.plot(t, s1)
+plt.subplot(212)
+plt.plot(t, 2*s1)
 
-figure(2)
-plot(t, s2)
+plt.figure(2)
+plt.plot(t, s2)
 
 # now switch back to figure 1 and make some changes
-figure(1)
-subplot(211)
-plot(t, s2, 'gs')
-setp(gca(), 'xticklabels', [])
+plt.figure(1)
+plt.subplot(211)
+plt.plot(t, s2, 'gs')
+ax = plt.gca()
+ax.set_xticklabels([])
 
-figure(1)
-savefig('fig1')
-figure(2)
-savefig('fig2')
-
-show()
+plt.show()
