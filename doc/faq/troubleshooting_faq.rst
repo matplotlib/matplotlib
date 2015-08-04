@@ -44,7 +44,7 @@ locate your :file:`.matplotlib/` directory, use
 
     >>> import matplotlib as mpl
     >>> mpl.get_configdir()
-    '/home/darren/.matplotlib'
+    '/home/darren/.config/matplotlib'
 
 On unix-like systems, this directory is generally located in your
 :envvar:`HOME` directory. 
