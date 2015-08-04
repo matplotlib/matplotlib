@@ -185,10 +185,59 @@ class BboxPatch(Patch):
     get_path.__doc__ = Patch.get_path.__doc__
 
 
+@docstring.dedent_interpd
 class BboxConnector(Patch):
+    """
+    Connect two bboxes with a straight line.
+
+    Parameters
+    ----------
+    bbox1, bbox2 : `matplotlib.transforms.Bbox`
+        Bounding boxes to connect.
+
+    loc1 : {1, 2, 3, 4}
+        Corner of *bbox1* to draw the line. Valid values are::
+
+            'upper right'  : 1,
+            'upper left'   : 2,
+            'lower left'   : 3,
+            'lower right'  : 4
+
+    loc2 : {1, 2, 3, 4}, optional
+        Corner of *bbox2* to draw the line. If None, defaults to *loc1*.
+        Valid values are::
+
+            'upper right'  : 1,
+            'upper left'   : 2,
+            'lower left'   : 3,
+            'lower right'  : 4
+
+    The kwargs are Patch properties for the line drawn:
+    %(Patch)s
+    """
 
     @staticmethod
     def get_bbox_edge_pos(bbox, loc):
+        """
+        Helper function to obtain the location of a corner of a bbox
+
+        Parameters
+        ----------
+        bbox : `matplotlib.transforms.Bbox`
+
+        loc : {1, 2, 3, 4}
+            Corner of *bbox*. Valid values are::
+
+                'upper right'  : 1,
+                'upper left'   : 2,
+                'lower left'   : 3,
+                'lower right'  : 4
+
+        Returns
+        -------
+        x, y : float
+            Coordinates of the corner specified by *loc*.
+        """
         x0, y0, x1, y1 = bbox.extents
         if loc == 1:
             return x1, y1
@@ -201,6 +250,37 @@ class BboxConnector(Patch):
 
     @staticmethod
     def connect_bbox(bbox1, bbox2, loc1, loc2=None):
+        """
+        Helper function to obtain a Path from one bbox to another.
+
+        Parameters
+        ----------
+        bbox1, bbox2 : `matplotlib.transforms.Bbox`
+            Bounding boxes to connect.
+
+        loc1 : {1, 2, 3, 4}
+            Corner of *bbox1* to use. Valid values are::
+
+                'upper right'  : 1,
+                'upper left'   : 2,
+                'lower left'   : 3,
+                'lower right'  : 4
+
+        loc2 : {1, 2, 3, 4}, optional
+            Corner of *bbox2* to use. If None, defaults to *loc1*.
+            Valid values are::
+
+                'upper right'  : 1,
+                'upper left'   : 2,
+                'lower left'   : 3,
+                'lower right'  : 4
+
+        Returns
+        -------
+        path : `matplotlib.path.Path`
+            A line segment from the *loc1* corner of *bbox1* to the *loc2*
+            corner of *bbox2*.
+        """
         if isinstance(bbox1, Rectangle):
             transform = bbox1.get_transfrom()
             bbox1 = Bbox.from_bounds(0, 0, 1, 1)
@@ -218,25 +298,11 @@ class BboxConnector(Patch):
         x2, y2 = BboxConnector.get_bbox_edge_pos(bbox2, loc2)
 
         verts = [[x1, y1], [x2, y2]]
-        #Path()
-
         codes = [Path.MOVETO, Path.LINETO]
 
         return Path(verts, codes)
 
     def __init__(self, bbox1, bbox2, loc1, loc2=None, **kwargs):
-        """
-        *path* is a :class:`matplotlib.path.Path` object.
-
-        Valid kwargs are:
-        %(Patch)s
-
-        .. seealso::
-
-            :class:`Patch`
-                For additional kwargs
-
-        """
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
 
@@ -250,6 +316,7 @@ class BboxConnector(Patch):
     def get_path(self):
         return self.connect_bbox(self.bbox1, self.bbox2,
                                  self.loc1, self.loc2)
+    get_path.__doc__ = Patch.get_path.__doc__
 
 
 class BboxConnectorPatch(BboxConnector):
