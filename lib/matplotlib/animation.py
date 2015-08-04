@@ -590,9 +590,6 @@ class Animation(object):
         self.frame_seq = self.new_frame_seq()
         self.event_source = event_source
 
-        # Clear the initial frame
-        self._init_draw()
-
         # Instead of starting the event source now, we connect to the figure's
         # draw_event, so that we only start once the figure has been drawn.
         self._first_draw_id = fig.canvas.mpl_connect('draw_event', self._start)
@@ -609,14 +606,17 @@ class Animation(object):
         Starts interactive animation. Adds the draw frame command to the GUI
         handler, calls show to start the event loop.
         '''
-        # On start, we add our callback for stepping the animation and
-        # actually start the event_source. We also disconnect _start
-        # from the draw_events
-        self.event_source.add_callback(self._step)
-        self._init_draw()
-        self.event_source.start()
+        # First disconnect our draw event handler
         self._fig.canvas.mpl_disconnect(self._first_draw_id)
         self._first_draw_id = None  # So we can check on save
+
+        # Now do any initial draw
+        self._init_draw()
+
+        # Add our callback for stepping the animation and
+        # actually start the event_source.
+        self.event_source.add_callback(self._step)
+        self.event_source.start()
 
     def _stop(self, *args):
         # On stop we disconnect all of our events.
