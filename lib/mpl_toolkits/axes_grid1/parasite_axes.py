@@ -487,7 +487,10 @@ def host_axes(*args, **kwargs):
     import matplotlib.pyplot as plt
     axes_class = kwargs.pop("axes_class", None)
     host_axes_class = host_axes_class_factory(axes_class)
-    fig = plt.gcf()
+    if "figure" in kwargs:
+        fig = kwargs["figure"]
+    else:
+        fig = plt.gcf()
     ax = host_axes_class(fig, *args, **kwargs)
     fig.add_axes(ax)
     plt.draw_if_interactive()
@@ -497,7 +500,10 @@ def host_subplot(*args, **kwargs):
     import matplotlib.pyplot as plt
     axes_class = kwargs.pop("axes_class", None)
     host_subplot_class = host_subplot_class_factory(axes_class)
-    fig = plt.gcf()
+    if "figure" in kwargs:
+        fig = kwargs["figure"]
+    else:
+        fig = plt.gcf()
     ax = host_subplot_class(fig, *args, **kwargs)
     fig.add_subplot(ax)
     plt.draw_if_interactive()
