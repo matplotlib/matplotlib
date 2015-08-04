@@ -1,13 +1,13 @@
-#!/usr/bin/env python
 # -*- noplot -*-
 # print png to standard out
 # usage: python print_stdout.py > somefile.png
+
 import sys
 import matplotlib
 matplotlib.use('Agg')
-from pylab import *
+import matplotlib.pyplot as plt
 
-plot([1, 2, 3])
+plt.plot([1, 2, 3])
 
-savefig(sys.stdout)
-show()
+plt.savefig(sys.stdout)
+plt.show()
