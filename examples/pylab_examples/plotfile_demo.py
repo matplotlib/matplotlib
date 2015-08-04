@@ -13,13 +13,8 @@ plt.plotfile(fname, (0, 5, 6))
 plt.plotfile(fname, ('date', 'volume', 'adj_close'))
 
 # test 3; use semilogy for volume
-plt.plotfile(
-    fname,
-    ('date',
-     'volume',
-     'adj_close'),
-    plotfuncs={
-        'volume': 'semilogy'})
+plt.plotfile(fname, ('date', 'volume', 'adj_close'),
+             plotfuncs={'volume': 'semilogy'})
 
 # test 4; use semilogy for volume
 plt.plotfile(fname, (0, 5, 6), plotfuncs={5: 'semilogy'})
@@ -33,11 +28,8 @@ plt.plotfile(fname2, cols=(0, 1, 2), delimiter=' ',
 
 # test 7; more than one file per figure--illustrated here with a single file
 plt.plotfile(fname2, cols=(0, 1), delimiter=' ')
-plt.plotfile(
-    fname2,
-    cols=(0, 2),
-    newfig=False,
-    delimiter=' ')  # use current figure
+plt.plotfile(fname2, cols=(0, 2), newfig=False,
+             delimiter=' ')  # use current figure
 plt.xlabel(r'$x$')
 plt.ylabel(r'$f(x) = x^2, x^3$')
 
