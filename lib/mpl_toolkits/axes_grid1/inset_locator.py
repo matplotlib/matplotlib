@@ -143,7 +143,19 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
         return w*self.zoom+2*pad, h*self.zoom+2*pad, xd+pad, yd+pad
 
 
+@docstring.dedent_interpd
 class BboxPatch(Patch):
+    """
+    Patch showing the shape bounded by a Bbox.
+
+    Parameters
+    ----------
+    bbox : `matplotlib.transforms.Bbox`
+        Bbox to use for the extents of this patch.
+
+    The kwargs are Patch properties:
+    %(Patch)s
+    """
     def __init__(self, bbox, **kwargs):
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
@@ -170,6 +182,7 @@ class BboxPatch(Patch):
                  Path.CLOSEPOLY]
 
         return Path(verts, codes)
+    get_path.__doc__ = Patch.get_path.__doc__
 
 
 class BboxConnector(Patch):
