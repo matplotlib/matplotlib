@@ -499,9 +499,8 @@ def host_axes(*args, **kwargs):
     import matplotlib.pyplot as plt
     axes_class = kwargs.pop("axes_class", None)
     host_axes_class = host_axes_class_factory(axes_class)
-    if kwargs.get("figure") is not None:
-        fig = kwargs["figure"]
-    else:
+    fig = kwargs.get("figure", None)
+    if fig is None:
         fig = plt.gcf()
     ax = host_axes_class(fig, *args, **kwargs)
     fig.add_axes(ax)
@@ -524,9 +523,8 @@ def host_subplot(*args, **kwargs):
     import matplotlib.pyplot as plt
     axes_class = kwargs.pop("axes_class", None)
     host_subplot_class = host_subplot_class_factory(axes_class)
-    if kwargs.get("figure") is not None:
-        fig = kwargs["figure"]
-    else:
+    fig = kwargs.get("figure", None)
+    if fig is None:
         fig = plt.gcf()
     ax = host_subplot_class(fig, *args, **kwargs)
     fig.add_subplot(ax)
