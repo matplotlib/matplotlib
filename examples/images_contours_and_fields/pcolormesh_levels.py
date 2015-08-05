@@ -48,6 +48,6 @@ ax1.set_title('contourf with levels')
 
 # adjust spacing between subplots so `ax1` title and `ax0` tick labels
 # don't overlap
-fig.set_tight_layout(True)
+fig.tight_layout()
 
 plt.show()

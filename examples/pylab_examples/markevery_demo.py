@@ -49,7 +49,7 @@ for i, case in enumerate(cases):
     ax.append(fig1.add_subplot(gs[row, col]))
     ax[-1].set_title('markevery=%s' % str(case))
     ax[-1].plot(x, y, 'o', ls='-', ms=4, markevery=case)
-#fig1.set_tight_layout(True)
+#fig1.tight_layout()
 
 # plot each markevery case for log x and y scales
 fig2 = plt.figure(num=2, figsize=figsize)
@@ -62,7 +62,7 @@ for i, case in enumerate(cases):
     axlog[-1].set_xscale('log')
     axlog[-1].set_yscale('log')
     axlog[-1].plot(x, y, 'o', ls='-', ms=4, markevery=case)
-fig2.set_tight_layout(True)
+fig2.tight_layout()
 
 # plot each markevery case for linear x and y scales but zoomed in
 # note the behaviour when zoomed in.  When a start marker offset is specified
@@ -78,7 +78,7 @@ for i, case in enumerate(cases):
     axzoom[-1].plot(x, y, 'o', ls='-', ms=4, markevery=case)
     axzoom[-1].set_xlim((6, 6.7))
     axzoom[-1].set_ylim((1.1, 1.7))
-fig3.set_tight_layout(True)
+fig3.tight_layout()
 
 # define data for polar plots
 r = np.linspace(0, 3.0, 200)
@@ -93,6 +93,6 @@ for i, case in enumerate(cases):
     axpolar.append(fig4.add_subplot(gs[row, col], polar=True))
     axpolar[-1].set_title('markevery=%s' % str(case))
     axpolar[-1].plot(theta, r, 'o', ls='-', ms=4, markevery=case)
-fig4.set_tight_layout(True)
+fig4.tight_layout()
 
 plt.show()

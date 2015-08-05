@@ -27,6 +27,6 @@ ax.set_ylabel(r'$\Delta_{i+1}$', fontsize=20)
 ax.set_title('Volume and percent change')
 
 ax.grid(True)
-fig.set_tight_layout(True)
+fig.tight_layout()
 
 plt.show()
