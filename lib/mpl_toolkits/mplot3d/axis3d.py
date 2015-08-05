@@ -130,11 +130,11 @@ class Axis(maxis.XAxis):
     def get_major_ticks(self, numticks=None):
         ticks = maxis.XAxis.get_major_ticks(self, numticks)
         for t in ticks:
-            t.tick1line.set_transform(self.axes.transData)
-            t.tick2line.set_transform(self.axes.transData)
-            t.gridline.set_transform(self.axes.transData)
-            t.label1.set_transform(self.axes.transData)
-            t.label2.set_transform(self.axes.transData)
+            t.tick1line.transform = self.axes.transData
+            t.tick2line.transform = self.axes.transData
+            t.gridline.transform = self.axes.transData
+            t.label1.transform = self.axes.transData
+            t.label2.transform = self.axes.transData
         return ticks
 
     def set_pane_pos(self, xys):

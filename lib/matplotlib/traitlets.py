@@ -7,13 +7,15 @@ try:
     from traitlets import (TraitType, Int, Float, Bool,
                            Dict, List, Instance, Union,
                            Unicode, Tuple, TraitError,
-                           Undefined, getargspec)
+                           Undefined, BaseDescriptor,
+                           getargspec)
 except ImportError:
     # IPython3 imports
     from IPython.utils.traitlets.config import Configurable, Config
     from IPython.utils.traitlets import (TraitType, Int, Float, Bool,
                             Dict, List, Instance, Union, Unicode,
-                            Tuple, TraitError, Undefined, getargspec)
+                            Tuple, TraitError, Undefined, BaseDescriptor,
+                            getargspec)
 
 import re
 import numpy as np

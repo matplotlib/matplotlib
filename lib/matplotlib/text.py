@@ -640,7 +640,7 @@ class Text(Artist):
         current orientation.
         """
         x0, y0 = self.transform.transform(self.get_position())
-        figure_box = self.get_figure().get_window_extent()
+        figure_box = self.figure.get_window_extent()
 
         # Calculate available width based on text alignment
         alignment = self.get_horizontalalignment()
@@ -1646,18 +1646,24 @@ class TextWithDash(Text):
     #     self.dashline.set_transform(t)
     #     self.stale = True
 
-    def get_figure(self):
-        'return the figure instance the artist belongs to'
-        return self.figure
+    #!DEPRICATED
+    # def get_figure(self):
+    #     'return the figure instance the artist belongs to'
+    #     return self.figure
 
-    def set_figure(self, fig):
-        """
-        Set the figure instance the artist belong to.
+    def _figure_changed(self, name, fig):
+        Text._figure_changed(self, name, fig)
+        self.dashline.figure = fig
 
-        ACCEPTS: a :class:`matplotlib.figure.Figure` instance
-        """
-        Text.set_figure(self, fig)
-        self.dashline.set_figure(fig)
+    #!DEPRICATED
+    # def set_figure(self, fig):
+    #     """
+    #     Set the figure instance the artist belong to.
+
+    #     ACCEPTS: a :class:`matplotlib.figure.Figure` instance
+    #     """
+    #     Text.set_figure(self, fig)
+    #     self.dashline.set_figure(fig)
 
 docstring.interpd.update(TextWithDash=artist.kwdoc(TextWithDash))
 
@@ -2113,13 +2119,21 @@ class Annotation(Text, _AnnotationBase):
     def anncoords(self, coords):
         self._textcoords = coords
 
-    def set_figure(self, fig):
-
+    def _figure_changed(self, name, fig):
         if self.arrow is not None:
-            self.arrow.set_figure(fig)
+            self.arrow.figure = fig
         if self.arrow_patch is not None:
-            self.arrow_patch.set_figure(fig)
-        Artist.set_figure(self, fig)
+            self.arrow_patch.figure = fig
+        Artist._figure_changed(self, name, fig)
+
+    #!DEPRICATED
+    # def set_figure(self, fig):
+
+    #     if self.arrow is not None:
+    #         self.arrow.set_figure(fig)
+    #     if self.arrow_patch is not None:
+    #         self.arrow_patch.set_figure(fig)
+    #     Artist.set_figure(self, fig)
 
     def update_positions(self, renderer):
         """"Update the pixel positions of the annotated point and the

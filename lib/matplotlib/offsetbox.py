@@ -178,15 +178,26 @@ class OffsetBox(martist.Artist):
             self._offset = self._offset.get_instancemethod()
         self.stale = True
 
-    def set_figure(self, fig):
+    def _figure_changed(self, name, fig):
         """
         Set the figure
 
         accepts a class:`~matplotlib.figure.Figure` instance
         """
-        martist.Artist.set_figure(self, fig)
+        martist.Artist._figure_changed(self, name, fig)
         for c in self.get_children():
-            c.set_figure(fig)
+            c.figure = fig
+
+    #!DEPRICATED
+    # def set_figure(self, fig):
+    #     """
+    #     Set the figure
+
+    #     accepts a class:`~matplotlib.figure.Figure` instance
+    #     """
+    #     martist.Artist.set_figure(self, fig)
+    #     for c in self.get_children():
+    #         c.set_figure(fig)
 
     def _axes_changed(self, name, old, new):
         # TODO deal with this better
@@ -1499,12 +1510,19 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
             children.append(self.arrow_patch)
         return children
 
-    def set_figure(self, fig):
-
+    def _figure_changed(self, name, fig):
         if self.arrow_patch is not None:
-            self.arrow_patch.set_figure(fig)
-        self.offsetbox.set_figure(fig)
-        martist.Artist.set_figure(self, fig)
+            self.arrow_patch.figure = fig
+        self.offsetbox.figure = fig
+        martist.Artist._figure_changed(self, name, fig)
+
+    #!DEPRICATED
+    # def set_figure(self, fig):
+
+    #     if self.arrow_patch is not None:
+    #         self.arrow_patch.set_figure(fig)
+    #     self.offsetbox.set_figure(fig)
+    #     martist.Artist.set_figure(self, fig)
 
     def set_fontsize(self, s=None):
         """

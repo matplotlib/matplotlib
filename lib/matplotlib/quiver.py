@@ -308,8 +308,8 @@ class QuiverKey(martist.Artist):
                                         **kw)
             if self.color is not None:
                 self.vector.set_color(self.color)
-            self.vector.set_transform(self.Q.transform)
-            self.vector.set_figure(self.get_figure())
+            self.vector.transform = self.Q.transform
+            self.vector.figure = self.figure
             self._initialized = True
 
     def _text_x(self, x):
@@ -350,9 +350,9 @@ class QuiverKey(martist.Artist):
         else:
             raise ValueError('unrecognized coordinates')
 
-    def set_figure(self, fig):
-        martist.Artist.set_figure(self, fig)
-        self.text.set_figure(fig)
+    def _figure_changed(self, name, fig):
+        martist.Artist._figure_changed(self, name, fig)
+        self.text.figure = fig
 
     def contains(self, mouseevent):
         # Maybe the dictionary should allow one to
@@ -449,7 +449,9 @@ class Quiver(mcollections.PolyCollection):
             pivot = 'middle'
         self.pivot = pivot
 
-        self.transform = kw.pop('transform', ax.transData)
+        with self.mute_trait_notifications():
+            self.transform = kw.pop('transform', ax.transData)
+            
         kw.setdefault('facecolors', self.color)
         kw.setdefault('linewidths', (0,))
         mcollections.PolyCollection.__init__(self, [], offsets=self.XY,
@@ -929,7 +931,7 @@ class Barbs(mcollections.PolyCollection):
         mcollections.PolyCollection.__init__(self, [], (barb_size,),
                                              offsets=xy,
                                              transOffset=transform, **kw)
-        self.set_transform(transforms.IdentityTransform())
+        self.transform = transforms.IdentityTransform()
 
         self.set_UVC(u, v, c)
 

@@ -162,7 +162,7 @@ class MaxExtent(_Base):
             bb = a.get_window_extent(renderer)
             w_list.append(bb.width)
             h_list.append(bb.height)
-        dpi = a.get_figure().get_dpi()
+        dpi = a.figure.get_dpi()
         if self._w_or_h == "width":
             abs_size = max(w_list)/dpi
         elif self._w_or_h == "height":
@@ -188,7 +188,7 @@ class MaxWidth(_Base):
         for a in self._artist_list:
             bb = a.get_window_extent(renderer)
             w_list.append(bb.width)
-        dpi = a.get_figure().get_dpi()
+        dpi = a.figure.get_dpi()
         abs_size = max(w_list)/dpi
 
         return rel_size, abs_size
@@ -212,7 +212,7 @@ class MaxHeight(_Base):
         for a in self._artist_list:
             bb = a.get_window_extent(renderer)
             h_list.append(bb.height)
-        dpi = a.get_figure().get_dpi()
+        dpi = a.figure.get_dpi()
         abs_size = max(h_list)/dpi
 
         return rel_size, abs_size

@@ -304,10 +304,10 @@ class Legend(Artist):
         if isinstance(parent, Axes):
             self.isaxes = True
             self.axes = parent
-            self.set_figure(parent.figure)
+            self.figure = parent.figure
         elif isinstance(parent, Figure):
             self.isaxes = False
-            self.set_figure(parent)
+            self.figure = parent
         else:
             raise TypeError("Legend needs either Axes or Figure as parent")
         self.parent = parent
@@ -398,7 +398,7 @@ class Legend(Artist):
         """
         set the boilerplate props for artists added to axes
         """
-        a.set_figure(self.figure)
+        a.figure = self.figure
         if self.isaxes:
             # a.set_axes(self.axes)
             a.axes = self.axes
@@ -714,7 +714,7 @@ class Legend(Artist):
                                    align="center",
                                    children=[self._legend_title_box,
                                              self._legend_handle_box])
-        self._legend_box.set_figure(self.figure)
+        self._legend_box.figure = self.figure
         self.texts = text_list
         self.legendHandles = handle_list
 

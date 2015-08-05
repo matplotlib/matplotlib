@@ -15,7 +15,9 @@ from .transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPatchPath, TransformedPath, Transform)
 from .path import Path
 
-from .traitlets import Instance, Configurable, TransformInstance, Bool, Undefined
+from .traitlets import Instance, Configurable, TransformInstance, Bool, Undefined, BaseDescriptor
+class Absent(object): pass
+Absent = Absent()
 
 # Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
@@ -32,6 +34,9 @@ from .traitlets import Instance, Configurable, TransformInstance, Bool, Undefine
 # the docstring, and there is no clever way to do that in python 2.2,
 # as far as I can see - see
 # http://groups.google.com/groups?hl=en&lr=&threadm=mailman.5090.1098044946.5135.python-list%40python.org&rnum=1&prev=/groups%3Fq%3D__doc__%2Bauthor%253Ajdhunter%2540ace.bsd.uchicago.edu%26hl%3Den%26btnG%3DGoogle%2BSearch
+
+class Absent(object): pass
+Absent = Absent()
 
 def allow_rasterization(draw):
     """
@@ -113,10 +118,18 @@ class Artist(Configurable):
 
     axes = Instance(str('matplotlib.axes.Axes'), allow_none=True)
 
+    figure = Instance(str('matplotlib.figure.Figure'), allow_none=True)
+
+    def _figure_changed(self, name, new):
+        if new and new is not self:
+            self.add_callback(_stale_figure_callback)
+            self.pchanged()
+        self.stale = True
+
     def __init__(self):
         # self._stale = True
-        self._axes = None
-        self.figure = None
+        # self._axes = None
+        # self.figure = None
 
         # self._transform = None
         # self._transformSet = False
@@ -642,25 +655,23 @@ class Artist(Configurable):
     def get_path_effects(self):
         return self._path_effects
 
-    def get_figure(self):
-        """
-        Return the :class:`~matplotlib.figure.Figure` instance the
-        artist belongs to.
-        """
-        return self.figure
+    #!DEPRICATED
+    # def get_figure(self):
+    #     """
+    #     Return the :class:`~matplotlib.figure.Figure` instance the
+    #     artist belongs to.
+    #     """
+    #     return self.figure
 
-    def set_figure(self, fig):
-        """
-        Set the :class:`~matplotlib.figure.Figure` instance the artist
-        belongs to.
+    # #!DEPRICATED
+    # def set_figure(self, fig):
+    #     """
+    #     Set the :class:`~matplotlib.figure.Figure` instance the artist
+    #     belongs to.
 
-        ACCEPTS: a :class:`matplotlib.figure.Figure` instance
-        """
-        self.figure = fig
-        if self.figure and self.figure is not self:
-            self.add_callback(_stale_figure_callback)
-            self.pchanged()
-        self.stale = True
+    #     ACCEPTS: a :class:`matplotlib.figure.Figure` instance
+    #     """
+    #     self.figure = fig
 
     def set_clip_box(self, clipbox):
         """
@@ -873,10 +884,13 @@ class Artist(Configurable):
                 func = getattr(self, 'set_' + k, None)
                 if func is not None and six.callable(func):
                     func(v)
-                elif getattr(self, k, Undefined) is not Undefined:
-                    setattr(self, k, v)
                 else:
-                    raise AttributeError('Unknown property %s' % k)
+                    klass = self.__class__
+                    if isinstance(getattr(klass, k, Absent),BaseDescriptor):
+                        setattr(self, k, v)
+                    else:
+                        print(self.trait_names())
+                        raise AttributeError('Unknown property %s' % k)
             changed = True
         self.eventson = store
         if changed:

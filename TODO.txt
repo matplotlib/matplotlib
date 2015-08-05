@@ -1,7 +1,7 @@
 -- INFILE --
 
 #!DEPRECATED = dead method or code block
-#!TODO = unfinished or see the commment
+#!NOTE = see the commment
 
 -- GENERAL --
 
@@ -30,10 +30,13 @@
 3.0) locate underscored attr references
 3.1) change the underscored attrs
 
-4.0) run test suite
+4.0) run partial test suite
 4.1) rework for passing
 
-5.0) compelete
+5.0) run full test suite
+5.1) rework for passing
+
+6.0) complete
 
 -- STATUS --
 
@@ -41,6 +44,7 @@
 5.0 : transform_set
 5.0 : stale
 5.0 : axes
+5.0 : figure
 0.0 : visible
 0.0 : animated
 0.0 : alpha

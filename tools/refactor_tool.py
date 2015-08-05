@@ -45,6 +45,23 @@ class MplReplacementLibrary(object):
 		repl_str = r'\1.axes\2'
 		args = (tool.rootdir,'py',pattern,repl_str)
 		return ss.SearchReplace(*args, context=tool.context)
+    
+	@staticmethod
+	def set_figure(tool):
+		pattern = r'(.*)\.set_figure[^\(]*(\(.*\))[^\)]*'
+		def handle(pattern, line):
+			pre = pattern.sub(r'\1', line)
+			post = pattern.sub(r'\2', line)
+			return pre+'.figure = '+post[1:-1]+'\n'
+		args = (tool.rootdir,'py',pattern,None,handle)
+		return ss.SearchReplace(*args, context=tool.context)
+
+	@staticmethod
+	def get_figure(tool):
+		pattern = r'(.*)\.get_figure\(\)(.*)'
+		repl_str = r'\1.figure\2'
+		args = (tool.rootdir,'py',pattern,repl_str)
+		return ss.SearchReplace(*args, context=tool.context)
 
 
 class ReplaceTool(object):
@@ -79,4 +96,4 @@ class ReplaceTool(object):
 class MatplotlibReplace(ReplaceTool):
 
 	lib = MplReplacementLibrary()
-	rootdir = '/Users/RyanMorshead/Coding/GitHub/matplotlib/lib/matplotlib/'	
+	rootdir = '/Users/RyanMorshead/Coding/GitHub/matplotlib/lib/'
