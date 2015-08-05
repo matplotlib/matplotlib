@@ -15,39 +15,39 @@ from . import axes_size as Size
 from .parasite_axes import HostAxes
 
 
-@docstring.dedent_interpd
 class InsetPosition(object):
-    """
-    An object for positioning an inset axes.
-
-    This is created by specifying the normalized coordinates in the axes,
-    instead of the figure.
-
-    Parameters
-    ----------
-    parent : `matplotlib.axes.Axes`
-        Axes to use for normalizing coordinates.
-
-    lbwh : iterable of four floats
-        The left edge, bottom edge, width, and height of the inset axes, in
-        units of the normalized coordinate of the *parent* axes.
-
-    See Also
-    --------
-    :meth:`matplotlib.axes.Axes.set_axes_locator`
-
-    Examples
-    --------
-    The following bounds the inset axes to a box with 20%% of the parent
-    axes's height and 40%% of the width. The size of the axes specified
-    ([0, 0, 1, 1]) ensures that the axes completely fills the bounding box:
-
-    >>> parent_axes = plt.gca()
-    >>> ax_ins = plt.axes([0, 0, 1, 1])
-    >>> ip = InsetPosition(ax, [0.5, 0.1, 0.4, 0.2])
-    >>> ax_ins.set_axes_locator(ip)
-    """
+    @docstring.dedent_interpd
     def __init__(self, parent, lbwh):
+        """
+        An object for positioning an inset axes.
+
+        This is created by specifying the normalized coordinates in the axes,
+        instead of the figure.
+
+        Parameters
+        ----------
+        parent : `matplotlib.axes.Axes`
+            Axes to use for normalizing coordinates.
+
+        lbwh : iterable of four floats
+            The left edge, bottom edge, width, and height of the inset axes, in
+            units of the normalized coordinate of the *parent* axes.
+
+        See Also
+        --------
+        :meth:`matplotlib.axes.Axes.set_axes_locator`
+
+        Examples
+        --------
+        The following bounds the inset axes to a box with 20%% of the parent
+        axes's height and 40%% of the width. The size of the axes specified
+        ([0, 0, 1, 1]) ensures that the axes completely fills the bounding box:
+
+        >>> parent_axes = plt.gca()
+        >>> ax_ins = plt.axes([0, 0, 1, 1])
+        >>> ip = InsetPosition(ax, [0.5, 0.1, 0.4, 0.2])
+        >>> ax_ins.set_axes_locator(ip)
+        """
         self.parent = parent
         self.lbwh = lbwh
 
@@ -146,20 +146,20 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
         return w*self.zoom+2*pad, h*self.zoom+2*pad, xd+pad, yd+pad
 
 
-@docstring.dedent_interpd
 class BboxPatch(Patch):
-    """
-    Patch showing the shape bounded by a Bbox.
-
-    Parameters
-    ----------
-    bbox : `matplotlib.transforms.Bbox`
-        Bbox to use for the extents of this patch.
-
-    The kwargs are Patch properties:
-    %(Patch)s
-    """
+    @docstring.dedent_interpd
     def __init__(self, bbox, **kwargs):
+        """
+        Patch showing the shape bounded by a Bbox.
+
+        Parameters
+        ----------
+        bbox : `matplotlib.transforms.Bbox`
+            Bbox to use for the extents of this patch.
+
+        The kwargs are Patch properties:
+        %(Patch)s
+        """
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
 
@@ -188,37 +188,7 @@ class BboxPatch(Patch):
     get_path.__doc__ = Patch.get_path.__doc__
 
 
-@docstring.dedent_interpd
 class BboxConnector(Patch):
-    """
-    Connect two bboxes with a straight line.
-
-    Parameters
-    ----------
-    bbox1, bbox2 : `matplotlib.transforms.Bbox`
-        Bounding boxes to connect.
-
-    loc1 : {1, 2, 3, 4}
-        Corner of *bbox1* to draw the line. Valid values are::
-
-            'upper right'  : 1,
-            'upper left'   : 2,
-            'lower left'   : 3,
-            'lower right'  : 4
-
-    loc2 : {1, 2, 3, 4}, optional
-        Corner of *bbox2* to draw the line. If None, defaults to *loc1*.
-        Valid values are::
-
-            'upper right'  : 1,
-            'upper left'   : 2,
-            'lower left'   : 3,
-            'lower right'  : 4
-
-    The kwargs are Patch properties for the line drawn:
-    %(Patch)s
-    """
-
     @staticmethod
     def get_bbox_edge_pos(bbox, loc):
         """
@@ -305,7 +275,36 @@ class BboxConnector(Patch):
 
         return Path(verts, codes)
 
+    @docstring.dedent_interpd
     def __init__(self, bbox1, bbox2, loc1, loc2=None, **kwargs):
+        """
+        Connect two bboxes with a straight line.
+
+        Parameters
+        ----------
+        bbox1, bbox2 : `matplotlib.transforms.Bbox`
+            Bounding boxes to connect.
+
+        loc1 : {1, 2, 3, 4}
+            Corner of *bbox1* to draw the line. Valid values are::
+
+                'upper right'  : 1,
+                'upper left'   : 2,
+                'lower left'   : 3,
+                'lower right'  : 4
+
+        loc2 : {1, 2, 3, 4}, optional
+            Corner of *bbox2* to draw the line. If None, defaults to *loc1*.
+            Valid values are::
+
+                'upper right'  : 1,
+                'upper left'   : 2,
+                'lower left'   : 3,
+                'lower right'  : 4
+
+        The kwargs are Patch properties for the line drawn:
+        %(Patch)s
+        """
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
 
@@ -322,43 +321,43 @@ class BboxConnector(Patch):
     get_path.__doc__ = Patch.get_path.__doc__
 
 
-@docstring.dedent_interpd
 class BboxConnectorPatch(BboxConnector):
-    """
-    Connect two bboxes with a quadrilateral.
-
-    The quadrilateral is specified by two lines that start and end at corners
-    of the bboxes. The four sides of the quadrilateral are defined by the two
-    lines given, the line between the two corners specified in *bbox1* and the
-    line between the two corners specified in *bbox2*.
-
-    Parameters
-    ----------
-    bbox1, bbox2 : `matplotlib.transforms.Bbox`
-        Bounding boxes to connect.
-
-    loc1a, loc2a : {1, 2, 3, 4}
-        Corners of *bbox1* and *bbox2* to draw the first line.
-        Valid values are::
-
-            'upper right'  : 1,
-            'upper left'   : 2,
-            'lower left'   : 3,
-            'lower right'  : 4
-
-    loc1b, loc2b : {1, 2, 3, 4}
-        Corners of *bbox1* and *bbox2* to draw the second line.
-        Valid values are::
-
-            'upper right'  : 1,
-            'upper left'   : 2,
-            'lower left'   : 3,
-            'lower right'  : 4
-
-    The kwargs are Patch properties for the line drawn:
-    %(Patch)s
-    """
+    @docstring.dedent_interpd
     def __init__(self, bbox1, bbox2, loc1a, loc2a, loc1b, loc2b, **kwargs):
+        """
+        Connect two bboxes with a quadrilateral.
+
+        The quadrilateral is specified by two lines that start and end at corners
+        of the bboxes. The four sides of the quadrilateral are defined by the two
+        lines given, the line between the two corners specified in *bbox1* and the
+        line between the two corners specified in *bbox2*.
+
+        Parameters
+        ----------
+        bbox1, bbox2 : `matplotlib.transforms.Bbox`
+            Bounding boxes to connect.
+
+        loc1a, loc2a : {1, 2, 3, 4}
+            Corners of *bbox1* and *bbox2* to draw the first line.
+            Valid values are::
+
+                'upper right'  : 1,
+                'upper left'   : 2,
+                'lower left'   : 3,
+                'lower right'  : 4
+
+        loc1b, loc2b : {1, 2, 3, 4}
+            Corners of *bbox1* and *bbox2* to draw the second line.
+            Valid values are::
+
+                'upper right'  : 1,
+                'upper left'   : 2,
+                'lower left'   : 3,
+                'lower right'  : 4
+
+        The kwargs are Patch properties for the line drawn:
+        %(Patch)s
+        """
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
         BboxConnector.__init__(self, bbox1, bbox2, loc1a, loc2a, **kwargs)
