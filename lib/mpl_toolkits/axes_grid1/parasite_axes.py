@@ -484,6 +484,18 @@ SubplotHost = subplot_class_factory(HostAxes)
 
 
 def host_axes(*args, **kwargs):
+    """
+    Create axes that can act as a hosts to parasitic axes.
+
+    Parameters
+    ----------
+    figure : `matplotlib.figure.Figure`
+        Figure to which the axes will be added. Defaults to the current figure
+        `pyplot.gcf()`.
+
+    *args, **kwargs :
+        Will be passed on to the underlying ``Axes`` object creation.
+    """
     import matplotlib.pyplot as plt
     axes_class = kwargs.pop("axes_class", None)
     host_axes_class = host_axes_class_factory(axes_class)
@@ -497,6 +509,18 @@ def host_axes(*args, **kwargs):
     return ax
 
 def host_subplot(*args, **kwargs):
+    """
+    Create a subplot that can act as a host to parasitic axes.
+
+    Parameters
+    ----------
+    figure : `matplotlib.figure.Figure`
+        Figure to which the subplot will be added. Defaults to the current
+        figure `pyplot.gcf()`.
+
+    *args, **kwargs :
+        Will be passed on to the underlying ``Axes`` object creation.
+    """
     import matplotlib.pyplot as plt
     axes_class = kwargs.pop("axes_class", None)
     host_subplot_class = host_subplot_class_factory(axes_class)
