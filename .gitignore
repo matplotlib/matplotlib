@@ -1,3 +1,6 @@
+*.ipynb
+*.ipynb_checkpoints/
+
 #########################################
 # OS-specific temporary and backup files
 .DS_Store
