@@ -90,6 +90,11 @@ class AnchoredEllipse(AnchoredOffsetbox):
         **kwargs :
             Keyworded arguments to pass to
             :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
+
+        Attributes
+        ----------
+        ellipse : `matplotlib.patches.Ellipse`
+            Ellipse patch drawn.
         """
         self._box = AuxTransformBox(transform)
         self.ellipse = Ellipse((0, 0), width, height, angle)
@@ -172,6 +177,14 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         **kwargs :
             Keyworded arguments to pass to
             :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
+
+        Attributes
+        ----------
+        size_bar : `matplotlib.offsetbox.AuxTransformBox`
+            Container for the size bar.
+
+        txt_label : `matplotlib.offsetbox.TextArea`
+            Container for the label of the size bar.
 
         Notes
         -----
