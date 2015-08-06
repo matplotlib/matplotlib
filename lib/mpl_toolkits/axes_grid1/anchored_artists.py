@@ -41,12 +41,55 @@ class AnchoredAuxTransformBox(AnchoredOffsetbox):
 
 
 class AnchoredEllipse(AnchoredOffsetbox):
+    @docstring.dedent
     def __init__(self, transform, width, height, angle, loc,
                  pad=0.1, borderpad=0.1, prop=None, frameon=True, **kwargs):
         """
-        Draw an ellipse the size in data coordinate of the give axes.
+        Draw an anchored ellipse of a given size.
 
-        pad, borderpad in fraction of the legend font size (or prop)
+        Parameters
+        ----------
+        transform : `matplotlib.transforms.Transform`
+            The transformation object for the coordinate system in use, i.e.,
+            :attr:`matplotlib.axes.Axes.transData`.
+
+        width, height : int or float
+            Width and height of the ellipse, given in coordinates of
+            *transform*.
+
+        angle : int or float
+            Rotation of the ellipse, in degrees, anti-clockwise.
+
+        loc : int
+            Location of this size bar. Valid location codes are::
+
+                'upper right'  : 1,
+                'upper left'   : 2,
+                'lower left'   : 3,
+                'lower right'  : 4,
+                'right'        : 5,
+                'center left'  : 6,
+                'center right' : 7,
+                'lower center' : 8,
+                'upper center' : 9,
+                'center'       : 10
+
+        pad : int or float, optional
+            Padding around the ellipse, in fraction of the font size. Defaults
+            to 0.1.
+
+        borderpad : int or float, optional
+            Border padding, in fraction of the font size. Defaults to 0.1.
+
+        frameon : bool, optional
+            If True, draw a box around the ellipse. Defaults to True.
+
+        prop : `matplotlib.font_manager.FontProperties`, optional
+            Font property used as a reference for paddings.
+
+        **kwargs :
+            Keyworded arguments to pass to
+            :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
         """
         self._box = AuxTransformBox(transform)
         self.ellipse = Ellipse((0, 0), width, height, angle)
