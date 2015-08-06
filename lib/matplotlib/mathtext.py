@@ -1187,7 +1187,7 @@ GROW_FACTOR     = 1.0 / SHRINK_FACTOR
 # get any smaller
 NUM_SIZE_LEVELS = 6
 # Percentage of x-height of additional horiz. space after sub/superscripts
-SCRIPT_SPACE    = -0.10
+SCRIPT_SPACE    = 0.07
 # Percentage of x-height that sub/superscripts drop below the baseline
 SUBDROP         = 0.3
 # Percentage of x-height that superscripts drop below the baseline
@@ -1196,7 +1196,7 @@ SUP1            = 0.4
 SUB1            = 0.0
 # Percentage of x-height that supercripts are offset relative to the subscript
 # for slanted nuclei
-DELTA           = 0.15
+DELTA           = 0.10
 
 class MathTextWarning(Warning):
     pass
@@ -2631,7 +2631,6 @@ class Parser(object):
 
     def subsuper(self, s, loc, toks):
         assert(len(toks)==1)
-        # print 'subsuper', toks
 
         nucleus = None
         sub = None
@@ -2686,6 +2685,8 @@ class Parser(object):
                 "Subscript/superscript sequence is too long. "
                 "Use braces { } to remove ambiguity.")
 
+        last_char = nucleus.children[-2] if isinstance(nucleus,Hlist) else nucleus
+
         state = self.get_state()
         rule_thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
@@ -2735,25 +2736,26 @@ class Parser(object):
             shift_down = SUBDROP * xHeight
         if super is None:
             # node757
-            sub.shrink()
             x = Hlist([sub])
+            x.shrink()
             x.width += SCRIPT_SPACE * xHeight
             shift_down = max(shift_down, SUB1)
             clr = x.height - (abs(xHeight * 4.0) / 5.0)
             shift_down = max(shift_down, clr)
             x.shift_amount = shift_down / 2.
         else:
-            super.shrink()
-            x = Hlist([super])
+            if self.is_slanted(last_char):
+                x = Hlist([Kern(DELTA * super.height),super])
+            else:
+                x = Hlist([super])
+            x.shrink()
             x.width += SCRIPT_SPACE * xHeight
             shift_up = SUP1 * xHeight
-            if self.is_slanted(nucleus):
-                x = Hlist([Kern(DELTA * x.height),x])
             if sub is None:
                 x.shift_amount = -shift_up
             else: # Both sub and superscript
-                sub.shrink()
                 y = Hlist([sub])
+                y.shrink()
                 y.width += SCRIPT_SPACE * xHeight
                 shift_down = max(shift_down, SUB1 * xHeight)
                 # If sub and superscript collide, move sup up
