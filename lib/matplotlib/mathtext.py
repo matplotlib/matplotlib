@@ -1187,7 +1187,7 @@ GROW_FACTOR     = 1.0 / SHRINK_FACTOR
 # get any smaller
 NUM_SIZE_LEVELS = 6
 # Percentage of x-height of additional horiz. space after sub/superscripts
-SCRIPT_SPACE    = 0.07
+SCRIPT_SPACE    = 0.00
 # Percentage of x-height that sub/superscripts drop below the baseline
 SUBDROP         = 0.3
 # Percentage of x-height that superscripts drop below the baseline
@@ -2685,7 +2685,10 @@ class Parser(object):
                 "Subscript/superscript sequence is too long. "
                 "Use braces { } to remove ambiguity.")
 
-        last_char = nucleus.children[-2] if isinstance(nucleus,Hlist) else nucleus
+        last_char = nucleus
+        if isinstance(nucleus,Hlist):
+            if len(nucleus.children) >= 2:
+                last_char = nucleus.children[-2]
 
         state = self.get_state()
         rule_thickness = state.font_output.get_underline_thickness(
