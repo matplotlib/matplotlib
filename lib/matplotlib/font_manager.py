@@ -1107,6 +1107,8 @@ class FontManager(object):
         """
         if not isinstance(families, (list, tuple)):
             families = [families]
+        elif len(families) == 0:
+            return 1.0
         family2 = family2.lower()
         step = 1 / len(families)
         for i, family1 in enumerate(families):
