@@ -1187,16 +1187,31 @@ GROW_FACTOR     = 1.0 / SHRINK_FACTOR
 # get any smaller
 NUM_SIZE_LEVELS = 6
 # Percentage of x-height of additional horiz. space after sub/superscripts
-SCRIPT_SPACE    = 0.00
-# Percentage of x-height that sub/superscripts drop below the baseline
-SUBDROP         = 0.3
+SCRIPT_SPACE    = {'cm': 0.03,
+                   'stix': 0.10,
+                   'stixsans': 0.10}
+## Percentage of x-height that sub/superscripts drop below the baseline
+SUBDROP         = {'cm': 0.3,
+                   'stix': 0.3,
+                   'stixsans': 0.3}
 # Percentage of x-height that superscripts drop below the baseline
-SUP1            = 0.4
+SUP1            = {'cm': 0.4,
+                   'stix': 0.8,
+                   'stixsans': 0.8}
 # Percentage of x-height that subscripts drop below the baseline
-SUB1            = 0.0
+SUB1            = {'cm': 0.4,
+                   'stix': 0.6,
+                   'stixsans': 0.6}
+# Percentage of x-height that subscripts drop below the baseline when a
+# superscript is present
+SUB2            = {'cm': 0.3,
+                   'stix': 0.6,
+                   'stixsans': 0.5}
 # Percentage of x-height that supercripts are offset relative to the subscript
 # for slanted nuclei
-DELTA           = 0.10
+DELTA           = {'cm': 0.10,
+                   'stix': 0.15,
+                   'stixsans': 0.25}
 
 class MathTextWarning(Warning):
     pass
@@ -2696,6 +2711,11 @@ class Parser(object):
         xHeight = state.font_output.get_xheight(
             state.font, state.fontsize, state.dpi)
 
+        fs = rcParams['mathtext.fontset']
+        # If a custom fontset is used, use CM parameters
+        if fs == 'custom':
+            fs = 'cm'
+
         if napostrophes:
             if super is None:
                 super = Hlist([])
@@ -2732,35 +2752,35 @@ class Parser(object):
             return [result]
 
         # Handle regular sub/superscripts
-        shift_up = nucleus.height - SUBDROP * xHeight
+        shift_up = nucleus.height - SUBDROP[fs] * xHeight
         if self.is_dropsub(nucleus):
-            shift_down = nucleus.depth + SUBDROP * xHeight
+            shift_down = nucleus.depth + SUBDROP[fs] * xHeight
         else:
-            shift_down = SUBDROP * xHeight
+            shift_down = SUBDROP[fs] * xHeight
         if super is None:
             # node757
             x = Hlist([sub])
             x.shrink()
-            x.width += SCRIPT_SPACE * xHeight
-            shift_down = max(shift_down, SUB1)
-            clr = x.height - (abs(xHeight * 4.0) / 5.0)
-            shift_down = max(shift_down, clr)
+            x.width += SCRIPT_SPACE[fs] * xHeight
+            shift_down = max(shift_down, SUB1[fs] * xHeight)
+            #clr = x.height - (abs(xHeight * 4.0) / 5.0)
+            #shift_down = max(shift_down, clr)
             x.shift_amount = shift_down / 2.
         else:
             if self.is_slanted(last_char):
-                x = Hlist([Kern(DELTA * super.height),super])
+                x = Hlist([Kern(DELTA[fs] * super.height),super])
             else:
                 x = Hlist([super])
             x.shrink()
-            x.width += SCRIPT_SPACE * xHeight
-            shift_up = SUP1 * xHeight
+            x.width += SCRIPT_SPACE[fs] * xHeight
+            shift_up = SUP1[fs] * xHeight
             if sub is None:
                 x.shift_amount = -shift_up
             else: # Both sub and superscript
                 y = Hlist([sub])
                 y.shrink()
-                y.width += SCRIPT_SPACE * xHeight
-                shift_down = max(shift_down, SUB1 * xHeight)
+                y.width += SCRIPT_SPACE[fs] * xHeight
+                shift_down = max(shift_down, SUB2[fs] * xHeight)
                 # If sub and superscript collide, move sup up
                 clr = (2.0 * rule_thickness -
                        ((shift_up - x.depth) - (y.height - shift_down)))
