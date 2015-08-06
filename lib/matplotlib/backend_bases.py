@@ -2479,7 +2479,10 @@ def key_press_handler(event, canvas, toolbar=None):
 
     # toggle fullscreen mode (default key 'f')
     if event.key in fullscreen_keys:
-        canvas.manager.full_screen_toggle()
+        try:
+            canvas.manager.full_screen_toggle()
+        except AttributeError:
+            pass
 
     # quit the figure (defaut key 'ctrl+w')
     if event.key in quit_keys:
