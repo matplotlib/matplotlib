@@ -29,8 +29,68 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
 
 
 class AnchoredAuxTransformBox(AnchoredOffsetbox):
+    @docstring.dedent
     def __init__(self, transform, loc,
                  pad=0.4, borderpad=0.5, prop=None, frameon=True, **kwargs):
+        """
+        An anchored container with transformed coordinates.
+
+        Artists added to the *drawing_area* are scaled according to the
+        coordinates of the transformation used. The dimensions of this artist
+        will scale to contain the artists added.
+
+        Parameters
+        ----------
+        transform : `matplotlib.transforms.Transform`
+            The transformation object for the coordinate system in use, i.e.,
+            :attr:`matplotlib.axes.Axes.transData`.
+
+        loc : int
+            Location of this artist. Valid location codes are::
+
+                'upper right'  : 1,
+                'upper left'   : 2,
+                'lower left'   : 3,
+                'lower right'  : 4,
+                'right'        : 5,
+                'center left'  : 6,
+                'center right' : 7,
+                'lower center' : 8,
+                'upper center' : 9,
+                'center'       : 10
+
+        pad : int or float, optional
+            Padding around the child objects, in fraction of the font
+            size. Defaults to 0.4.
+
+        borderpad : int or float, optional
+            Border padding, in fraction of the font size.
+            Defaults to 0.5.
+
+        prop : `matplotlib.font_manager.FontProperties`, optional
+            Font property used as a reference for paddings.
+
+        frameon : bool, optional
+            If True, draw a box around this artists. Defaults to True.
+
+        **kwargs :
+            Keyworded arguments to pass to
+            :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
+
+        Attributes
+        ----------
+        drawing_area : `matplotlib.offsetbox.AuxTransformBox`
+
+        Examples
+        --------
+        To display an ellipse in the upper left, with a width of 0.1 and
+        height of 0.4 in data coordinates:
+
+        >>> box = AnchoredAuxTransformBox(ax.transData, loc=2)
+        >>> el = Ellipse((0,0), width=0.1, height=0.4, angle=30)
+        >>> box.drawing_area.add_artist(el)
+        >>> ax.add_artist(box)
+        """
         self.drawing_area = AuxTransformBox(transform)
 
         AnchoredOffsetbox.__init__(self, loc, pad=pad, borderpad=borderpad,
