@@ -193,6 +193,7 @@ def uninstall_repl_displayhook():
 draw_all = _pylab_helpers.Gcf.draw_all
 
 _ENSURE_AX_DOC = """
+
 This function has been decorated by pyplot to have
 an implicit reference to the `plt.gca()` passed as the first argument.
 
@@ -206,6 +207,7 @@ The wrapped function can be called as any of ::
 
 
 _ENSURE_AX_NEW_DOC = """
+
 This function has been decorated by pyplot to create a new
 axes if one is not explicitly passed.
 
@@ -265,7 +267,7 @@ def ensure_ax(func):
         pre_doc = ''
     else:
         pre_doc = dedent(pre_doc)
-    inner.__doc__ = _ENSURE_AX_DOC.format(func=func.__name__, obj='') + pre_doc
+    inner.__doc__ = pre_doc + _ENSURE_AX_DOC.format(func=func.__name__, obj='')
 
     return inner
 
@@ -292,8 +294,8 @@ def ensure_new_ax(func):
         pre_doc = ''
     else:
         pre_doc = dedent(pre_doc)
-    inner.__doc__ = (_ENSURE_AX_NEW_DOC.format(func=func.__name__, obj='') +
-                     pre_doc)
+    inner.__doc__ = (pre_doc +
+                     _ENSURE_AX_NEW_DOC.format(func=func.__name__, obj=''))
 
     return inner
 
@@ -326,8 +328,8 @@ def ensure_ax_meth(func):
         pre_doc = ''
     else:
         pre_doc = dedent(pre_doc)
-    inner.__doc__ = _ENSURE_AX_DOC.format(func=func.__name__,
-                                          obj='obj.') + pre_doc
+    inner.__doc__ = pre_doc + _ENSURE_AX_DOC.format(func=func.__name__,
+                                                    obj='obj.')
     return inner
 
 
