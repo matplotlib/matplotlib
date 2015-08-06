@@ -304,7 +304,7 @@ class ToolManager(object):
             else:
                 mod = 'backend_tools'
                 current_module = __import__(mod,
-                                            globals(), locals(), [mod], -1)
+                                            globals(), locals(), [mod], 1)
 
                 callback_class = getattr(current_module, callback_class, False)
         if callable(callback_class):
