@@ -1,6 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+from matplotlib import docstring
 from matplotlib.offsetbox import (AnchoredOffsetbox, AuxTransformBox,
                                   DrawingArea, TextArea, VPacker)
 from matplotlib.patches import Rectangle, Ellipse
@@ -58,51 +59,92 @@ class AnchoredEllipse(AnchoredOffsetbox):
 
 
 class AnchoredSizeBar(AnchoredOffsetbox):
+    @docstring.dedent
     def __init__(self, transform, size, label, loc,
                  pad=0.1, borderpad=0.1, sep=2,
                  frameon=True, size_vertical=0, color='black',
                  label_top=False, fontproperties=None,
                  **kwargs):
         """
-        Draw a horizontal bar with the size in data coordinate of the given axes.
-        A label will be drawn underneath (center-aligned).
+        Draw a horizontal scale bar with a center-aligned label underneath.
 
-        Parameters:
-        -----------
-        transform : matplotlib transformation object
+        Parameters
+        ----------
+        transform : `matplotlib.transforms.Transform`
+            The transformation object for the coordinate system in use, i.e.,
+            :attr:`matplotlib.axes.Axes.transData`.
+
         size : int or float
-          horizontal length of the size bar, given in data coordinates
+            Horizontal length of the size bar, given in coordinates of
+            *transform*.
+
         label : str
+            Label to display.
+
         loc : int
+            Location of this size bar. Valid location codes are::
+
+                'upper right'  : 1,
+                'upper left'   : 2,
+                'lower left'   : 3,
+                'lower right'  : 4,
+                'right'        : 5,
+                'center left'  : 6,
+                'center right' : 7,
+                'lower center' : 8,
+                'upper center' : 9,
+                'center'       : 10
+
         pad : int or float, optional
-          in fraction of the legend font size (or prop)
+            Padding around the label and size bar, in fraction of the font
+            size. Defaults to 0.1.
+
         borderpad : int or float, optional
-          in fraction of the legend font size (or prop)
+            Border padding, in fraction of the font size.
+            Defaults to 0.1.
+
         sep : int or float, optional
-          in points
+            Seperation between the label and the size bar, in points.
+            Defaults to 2.
+
         frameon : bool, optional
-          if True, will draw a box around the horizontal bar and label
+            If True, draw a box around the horizontal bar and label.
+            Defaults to True.
+
         size_vertical : int or float, optional
-          vertical length of the size bar, given in data coordinates
+            Vertical length of the size bar, given in coordinates of
+            *transform*. Defaults to 0.
+
         color : str, optional
-          color for the size bar and label
+            Color for the size bar and label.
+            Defaults to black.
+
         label_top : bool, optional
-          if True, the label will be over the rectangle
-        fontproperties: a matplotlib.font_manager.FontProperties instance, optional
-          sets the font properties for the label text
+            If True, the label will be over the size bar.
+            Defaults to False.
 
-        Returns:
-        --------
-        AnchoredSizeBar object
+        fontproperties : `matplotlib.font_manager.FontProperties`, optional
+            Font properties for the label text.
 
-        Example:
+        **kwargs :
+            Keyworded arguments to pass to
+            :class:`matplotlib.offsetbox.AnchoredOffsetbox`.
+
+        Notes
+        -----
+        If *prop* is passed as a keyworded argument, but *fontproperties* is
+        not, then *prop* is be assumed to be the intended *fontproperties*.
+        Using both *prop* and *fontproperties* is not supported.
+
+        Examples
         --------
         >>> import matplotlib.pyplot as plt
         >>> import numpy as np
-        >>> from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
+        >>> from mpl_toolkits.axes_grid1.anchored_artists import \
+AnchoredSizeBar
         >>> fig, ax = plt.subplots()
         >>> ax.imshow(np.random.random((10,10)))
-        >>> bar = AnchoredSizeBar(ax.transData, 3, '3 units', 4)
+        >>> bar = AnchoredSizeBar(ax.transData, 3, '3 data units', 4)
         >>> ax.add_artist(bar)
         >>> fig.show()
 
@@ -110,17 +152,16 @@ class AnchoredSizeBar(AnchoredOffsetbox):
 
         >>> import matplotlib.font_manager as fm
         >>> fontprops = fm.FontProperties(size=14, family='monospace')
-        >>> bar = AnchoredSizeBar(ax.transData, 3, '3 units', 4, pad=0.5, sep=5, borderpad=0.5, frameon=False, size_vertical=0.5, color='white', fontproperties=fontprops)
-
+        >>> bar = AnchoredSizeBar(ax.transData, 3, '3 units', 4, pad=0.5, \
+sep=5, borderpad=0.5, frameon=False, \
+size_vertical=0.5, color='white', \
+fontproperties=fontprops)
         """
         self.size_bar = AuxTransformBox(transform)
         self.size_bar.add_artist(Rectangle((0, 0), size, size_vertical,
                                            fill=True, facecolor=color,
                                            edgecolor=color))
 
-        # if fontproperties is None, but `prop` is not, assume that
-        # prop should be used to set the font properties. This is
-        # questionable behavior
         if fontproperties is None and 'prop' in kwargs:
             fontproperties = kwargs.pop('prop')
 
