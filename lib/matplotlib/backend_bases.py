@@ -34,6 +34,7 @@ graphics contexts must implement to serve as a matplotlib backend
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+from contextlib import contextmanager
 
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import xrange
@@ -1690,6 +1691,13 @@ class FigureCanvasBase(object):
         self.mouse_grabber = None  # the axes currently grabbing mouse
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_saving = False
+        self._is_idle_drawing = False
+
+    @contextmanager
+    def _idle_draw_cntx(self):
+        self._is_idle_drawing = True
+        yield
+        self._is_idle_drawing = False
 
     def is_saving(self):
         """
@@ -2012,7 +2020,9 @@ class FigureCanvasBase(object):
         """
         :meth:`draw` only if idle; defaults to draw but backends can overrride
         """
-        self.draw(*args, **kwargs)
+        if not self._is_idle_drawing:
+            with self._idle_draw_cntx():
+                self.draw(*args, **kwargs)
 
     def draw_cursor(self, event):
         """
