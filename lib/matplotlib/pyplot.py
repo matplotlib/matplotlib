@@ -531,6 +531,13 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         _pylab_helpers.Gcf.set_active(figManager)
         figManager.canvas.figure.number = num
 
+        # make sure backends (inline) that we don't ship that expect this
+        # to be called in plotting commands to make the figure call show
+        # still work.  There is probably a better way to do this in the
+        # FigureManager base class.
+        if matplotlib.is_interactive():
+            draw_if_interactive()
+
         if _INSTALL_FIG_OBSERVER:
             figManager.canvas.figure.add_callback(_auto_draw_if_interactive)
 
