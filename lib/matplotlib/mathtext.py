@@ -1189,34 +1189,41 @@ NUM_SIZE_LEVELS = 6
 # Percentage of x-height of additional horiz. space after sub/superscripts
 SCRIPT_SPACE    = {'cm': 0.05,
                    'stix': 0.10,
-                   'stixsans': 0.10}
+                   'stixsans': 0.10,
+                   'arevsans': 0.10}
 ## Percentage of x-height that sub/superscripts drop below the baseline
 SUBDROP         = {'cm': 0.3,
                    'stix': 0.4,
-                   'stixsans': 0.4}
+                   'stixsans': 0.4,
+                   'arevsans': 0.3}
 # Percentage of x-height that superscripts are raised from the baseline
 SUP1            = {'cm': 0.45,
                    'stix': 0.8,
-                   'stixsans': 0.8}
+                   'stixsans': 0.8,
+                   'arevsans': 0.7}
 # Percentage of x-height that subscripts drop below the baseline
 SUB1            = {'cm': 0.4,
                    'stix': 0.6,
-                   'stixsans': 0.6}
+                   'stixsans': 0.6,
+                   'arevsans': 0.6}
 # Percentage of x-height that subscripts drop below the baseline when a
 # superscript is present
 SUB2            = {'cm': 0.3,
                    'stix': 0.6,
-                   'stixsans': 0.5}
+                   'stixsans': 0.5,
+                   'arevsans': 0.8}
 # Percentage of x-height that supercripts are offset relative to the subscript
 # for slanted nuclei
 DELTA           = {'cm': 0.10,
                    'stix': 0.15,
-                   'stixsans': 0.25}
+                   'stixsans': 0.25,
+                   'arevsans': 0.12}
 # Percentage of x-height that supercripts are offset relative to the subscript
 # for integrals
 DELTAINTEGRAL   = {'cm': 0.5,
                    'stix': 0.5,
-                   'stixsans': 0.4}
+                   'stixsans': 0.4,
+                   'arevsans': 0.5}
 
 class MathTextWarning(Warning):
     pass
@@ -2717,9 +2724,15 @@ class Parser(object):
             state.font, state.fontsize, state.dpi)
 
         fs = rcParams['mathtext.fontset']
-        # If a custom fontset is used, use CM parameters
+        # If a custom fontset is used, check if it is Arev Sans, otherwise use
+        # CM parameters.
         if fs == 'custom':
-            fs = 'cm'
+            if (rcParams['mathtext.rm'] == 'sans' and
+                    rcParams['font.sans-serif'][0].lower() == 'Arev Sans'.lower()):
+                fs = 'arevsans'
+            else:
+                fs = 'cm'
+
 
         if napostrophes:
             if super is None:
