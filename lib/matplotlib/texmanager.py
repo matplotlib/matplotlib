@@ -203,6 +203,9 @@ Could not rename old TeX cache dir "%s": a suitable configuration
                                    'default.' % ff, 'helpful')
                 setattr(self, font_family_attr, self.font_info[font_family])
             fontconfig.append(getattr(self, font_family_attr)[0])
+        # Add a hash of the latex preamble to fontconfig
+        preamble_bytes = six.text_type(self.get_custom_preamble()).encode('utf-8')
+        fontconfig.append(md5(preamble_bytes).hexdigest())
         self._fontconfig = ''.join(fontconfig)
 
         # The following packages and commands need to be included in the latex
