@@ -1187,15 +1187,15 @@ GROW_FACTOR     = 1.0 / SHRINK_FACTOR
 # get any smaller
 NUM_SIZE_LEVELS = 6
 # Percentage of x-height of additional horiz. space after sub/superscripts
-SCRIPT_SPACE    = {'cm': 0.03,
+SCRIPT_SPACE    = {'cm': 0.05,
                    'stix': 0.10,
                    'stixsans': 0.10}
 ## Percentage of x-height that sub/superscripts drop below the baseline
 SUBDROP         = {'cm': 0.3,
-                   'stix': 0.3,
-                   'stixsans': 0.3}
-# Percentage of x-height that superscripts drop below the baseline
-SUP1            = {'cm': 0.4,
+                   'stix': 0.4,
+                   'stixsans': 0.4}
+# Percentage of x-height that superscripts are raised from the baseline
+SUP1            = {'cm': 0.45,
                    'stix': 0.8,
                    'stixsans': 0.8}
 # Percentage of x-height that subscripts drop below the baseline
@@ -1212,6 +1212,11 @@ SUB2            = {'cm': 0.3,
 DELTA           = {'cm': 0.10,
                    'stix': 0.15,
                    'stixsans': 0.25}
+# Percentage of x-height that supercripts are offset relative to the subscript
+# for integrals
+DELTAINTEGRAL   = {'cm': 0.5,
+                   'stix': 0.5,
+                   'stixsans': 0.4}
 
 class MathTextWarning(Warning):
     pass
@@ -2752,35 +2757,53 @@ class Parser(object):
             return [result]
 
         # Handle regular sub/superscripts
-        shift_up = nucleus.height - SUBDROP[fs] * xHeight
-        if self.is_dropsub(nucleus):
-            shift_down = nucleus.depth + SUBDROP[fs] * xHeight
-        else:
-            shift_down = SUBDROP[fs] * xHeight
+        lc_height   = last_char.height
+        lc_baseline = 0
+        if self.is_dropsub(last_char):
+            lc_baseline = last_char.depth
         if super is None:
             # node757
-            x = Hlist([sub])
+            if self.is_dropsub(last_char):
+                x = Hlist([Kern(-DELTA[fs] * last_char.height),sub])
+            else:
+                x = Hlist([sub])
             x.shrink()
             x.width += SCRIPT_SPACE[fs] * xHeight
-            shift_down = max(shift_down, SUB1[fs] * xHeight)
-            #clr = x.height - (abs(xHeight * 4.0) / 5.0)
-            #shift_down = max(shift_down, clr)
-            x.shift_amount = shift_down / 2.
+            shift_down = max(lc_baseline + SUBDROP[fs] * xHeight,
+                    SUB1[fs] * xHeight)
+            if not self.is_dropsub(last_char):
+                shift_down /= 2
+            x.shift_amount = shift_down
         else:
+            if self.is_dropsub(last_char):
+                delta = DELTAINTEGRAL[fs]
+            else:
+                delta = DELTA[fs]
+
             if self.is_slanted(last_char):
-                x = Hlist([Kern(DELTA[fs] * super.height),super])
+                x = Hlist([Kern(delta * last_char.height),super])
             else:
                 x = Hlist([super])
             x.shrink()
             x.width += SCRIPT_SPACE[fs] * xHeight
-            shift_up = SUP1[fs] * xHeight
+            if self.is_dropsub(last_char):
+                shift_up = lc_height - SUBDROP[fs] * xHeight
+            else:
+                shift_up = SUP1[fs] * xHeight
             if sub is None:
                 x.shift_amount = -shift_up
             else: # Both sub and superscript
-                y = Hlist([sub])
+                if self.is_dropsub(last_char):
+                    y = Hlist([Kern(-DELTA[fs] * last_char.height),sub])
+                else:
+                    y = Hlist([sub])
+                #y = Hlist([sub])
                 y.shrink()
                 y.width += SCRIPT_SPACE[fs] * xHeight
-                shift_down = max(shift_down, SUB2[fs] * xHeight)
+                if self.is_dropsub(last_char):
+                    shift_down = lc_baseline + SUBDROP[fs] * xHeight
+                else:
+                    shift_down = SUB2[fs] * xHeight
                 # If sub and superscript collide, move sup up
                 clr = (2.0 * rule_thickness -
                        ((shift_up - x.depth) - (y.height - shift_down)))
