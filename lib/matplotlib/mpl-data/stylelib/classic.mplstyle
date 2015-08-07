@@ -369,7 +369,6 @@ path.sketch : None # May be none, or a 3-tuple of the form (scale, length,
                    # is the length of the wiggle along the line (in
                    # pixels).  *randomness* is the factor by which
                    # the length is randomly scaled.
-path.effects :
 
 # the default savefig params can be different from the display params
 # e.g., you may want a higher resolution, or to make the figure
