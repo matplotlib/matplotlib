@@ -8,7 +8,6 @@ purposes for folks wanting to make a pseudo-axis
 """
 
 import numpy as np
-# from pylab import figure, show
 import matplotlib.pyplot as plt
 import matplotlib.lines as lines
 
