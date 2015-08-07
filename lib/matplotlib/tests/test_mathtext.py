@@ -97,7 +97,9 @@ math_tests = [
     r'$\mathring{A}  \stackrel{\circ}{A}  \AA$',
     r'$M \, M \thinspace M \/ M \> M \: M \; M \ M \enspace M \quad M \qquad M \! M$',
     r'$\Cup$ $\Cap$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$',
-    r'$\dotplus$ $\doteq$ $\doteqdot$ $\ddots$'
+    r'$\dotplus$ $\doteq$ $\doteqdot$ $\ddots$',
+    r'$x_kx^py^{p-2} d_i^jb_jc_kd x^j_i E^0 E^0_u$', # github issue #4873
+    r'${x}_{k}{x}^{p}{y}^{p-2} {d}_{i}^{j}{b}_{j}{c}_{k}{d} {x}^{j}_{i}{E}^{0}{E}^0_u$',
 ]
 
 digits = "0123456789"
