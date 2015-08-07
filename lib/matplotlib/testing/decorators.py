@@ -101,10 +101,12 @@ class CleanupTestCase(unittest.TestCase):
     def setUpClass(cls):
         import matplotlib.units
         cls.original_units_registry = matplotlib.units.registry.copy()
+        cls.original_settings = mpl.rcParams.copy()
 
     @classmethod
     def tearDownClass(cls):
-        _do_cleanup(cls.original_units_registry)
+        _do_cleanup(cls.original_units_registry,
+                    cls.original_settings)
 
 
 def cleanup(func):
