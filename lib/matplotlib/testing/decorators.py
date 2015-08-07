@@ -72,8 +72,6 @@ def _do_cleanup(original_units_registry):
     plt.close('all')
     gc.collect()
 
-    matplotlib.tests.setup()
-
     matplotlib.units.registry.clear()
     matplotlib.units.registry.update(original_units_registry)
     warnings.resetwarnings()  # reset any warning filters set in tests
@@ -83,6 +81,7 @@ class CleanupTest(object):
     @classmethod
     def setup_class(cls):
         cls.original_units_registry = matplotlib.units.registry.copy()
+        matplotlib.tests.setup()
 
     @classmethod
     def teardown_class(cls):
@@ -131,7 +130,6 @@ def check_freetype_version(ver):
 class ImageComparisonTest(CleanupTest):
     @classmethod
     def setup_class(cls):
-        CleanupTest.setup_class()
         cls._initial_settings = mpl.rcParams.copy()
         try:
             matplotlib.style.use(cls._style)
@@ -139,13 +137,18 @@ class ImageComparisonTest(CleanupTest):
             # Restore original settings before raising errors during the update.
             mpl.rcParams.update(cls._initial_settings)
             raise
-
+        # Because the setup of a CleanupTest might involve
+        # modifying a few rcparams, this setup should come
+        # last prior to running the image test.
+        CleanupTest.setup_class()
         cls._func()
 
     @classmethod
     def teardown_class(cls):
-        CleanupTest.teardown_class()
         mpl.rcParams.update(cls._initial_settings)
+        # Just as the setup of a CleanupTest should come last,
+        # it would be prudent to make the teardown of CleanupTest last.
+        CleanupTest.teardown_class()
 
     @staticmethod
     def remove_text(figure):
