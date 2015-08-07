@@ -103,7 +103,7 @@ class Artist(object):
         self._contains = None
         self._rasterized = None
         self._agg_filter = None
-
+        self._mouseover = False
         self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
         self._propobservers = {}  # a dict from oids to funcs
@@ -960,6 +960,21 @@ class Artist(object):
         except (TypeError, IndexError):
             data = [data]
         return ', '.join('{:0.3g}'.format(item) for item in data)
+
+    @property
+    def mouseover(self):
+        return self._mouseover
+
+    @mouseover.setter
+    def mouseover(self, val):
+        val = bool(val)
+        self._mouseover = val
+        ax = self.axes
+        if ax:
+            if val:
+                ax.mouseover_set.add(self)
+            else:
+                ax.mouseover_set.discard(self)
 
 
 class ArtistInspector(object):
