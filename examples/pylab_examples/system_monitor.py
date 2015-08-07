@@ -52,11 +52,11 @@ for i in range(200):  # run for a little while
     # ask the canvas to re-draw itself the next time it
     # has a chance.
     # For most of the GUI backends this adds an event to the queue
-    # of the GUI frame works event loop.
+    # of the GUI frameworks event loop.
     fig.canvas.draw_idle()
     try:
-        # make sure that the GUI framework has a chance to run it's event loop
-        # and clear and GUI events.  This needs to be in a try/except block
+        # make sure that the GUI framework has a chance to run its event loop
+        # and clear any GUI events.  This needs to be in a try/except block
         # because the default implemenation of this method is to raise
         # NotImplementedError
         fig.canvas.flush_events()
