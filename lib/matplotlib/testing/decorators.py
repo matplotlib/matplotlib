@@ -68,10 +68,12 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
     return known_fail_decorator
 
 
-def _do_cleanup(original_units_registry):
+def _do_cleanup(original_units_registry, original_settings):
     plt.close('all')
     gc.collect()
 
+    mpl.rcParams.clear()
+    mpl.rcParams.update(original_settings)
     matplotlib.units.registry.clear()
     matplotlib.units.registry.update(original_units_registry)
     warnings.resetwarnings()  # reset any warning filters set in tests
@@ -81,11 +83,13 @@ class CleanupTest(object):
     @classmethod
     def setup_class(cls):
         cls.original_units_registry = matplotlib.units.registry.copy()
+        cls.original_settings = mpl.rcParams.copy()
         matplotlib.tests.setup()
 
     @classmethod
     def teardown_class(cls):
-        _do_cleanup(cls.original_units_registry)
+        _do_cleanup(cls.original_units_registry,
+                    cls.original_settings)
 
     def test(self):
         self._func()
@@ -107,10 +111,12 @@ def cleanup(func):
     @functools.wraps(func)
     def wrapped_function(*args, **kwargs):
         original_units_registry = matplotlib.units.registry.copy()
+        original_settings = mpl.rcParams.copy()
         try:
             func(*args, **kwargs)
         finally:
-            _do_cleanup(original_units_registry)
+            _do_cleanup(original_units_registry,
+                        original_settings)
 
     return wrapped_function
 
@@ -135,19 +141,18 @@ class ImageComparisonTest(CleanupTest):
             matplotlib.style.use(cls._style)
         except:
             # Restore original settings before raising errors during the update.
+            mpl.rcParams.clear()
             mpl.rcParams.update(cls._initial_settings)
             raise
         # Because the setup of a CleanupTest might involve
         # modifying a few rcparams, this setup should come
         # last prior to running the image test.
         CleanupTest.setup_class()
+        cls.original_settings = cls._initial_settings
         cls._func()
 
     @classmethod
     def teardown_class(cls):
-        mpl.rcParams.update(cls._initial_settings)
-        # Just as the setup of a CleanupTest should come last,
-        # it would be prudent to make the teardown of CleanupTest last.
         CleanupTest.teardown_class()
 
     @staticmethod
