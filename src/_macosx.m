@@ -2767,15 +2767,32 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
     float height;
 
     CGRect rect;
-
     CGPoint point;
+
     CTFontRef font;
+
+    char data[8];
 
     CGContextRef cr = self->cr;
     if (!cr)
     {
-        PyErr_SetString(PyExc_RuntimeError, "CGContextRef is NULL");
-        return NULL;
+        CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceGray();
+        if (!colorspace) {
+            PyErr_SetString(PyExc_MemoryError, "Failed to create color space");
+            goto exit;
+        }
+        cr = CGBitmapContextCreate(data,
+                                   1,
+                                   1,
+                                   8,
+                                   1,
+                                   colorspace,
+                                   0);
+        CGColorSpaceRelease(colorspace);
+        if (!cr) {
+            PyErr_SetString(PyExc_MemoryError, "Failed to create bitmap context");
+            goto exit;
+        }
     }
 
 #if PY33
@@ -2785,7 +2802,7 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
                                 &family,
                                 &size,
                                 &weight,
-                                &italic)) return NULL;
+                                &italic)) goto exit;
     CFStringRef s = CFStringCreateWithCString(kCFAllocatorDefault, text, kCFStringEncodingUTF8);
 #else
     if(!PyArg_ParseTuple(args, "u#Ofss",
@@ -2801,7 +2818,7 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
     if (!(font = setfont(cr, family, size, weight, italic)))
     {
         CFRelease(s);
-        return NULL;
+        goto exit;
     };
 
     CFStringRef keys[1];
@@ -2830,18 +2847,22 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
     {
         PyErr_SetString(PyExc_RuntimeError,
                         "CTLineCreateWithAttributedString failed");
-        return NULL;
+        goto exit;
     }
 
     point = CGContextGetTextPosition(cr);
     rect = CTLineGetImageBounds(line, cr);
     CFRelease(line);
+    if (!self->cr) CGContextRelease(cr);
 
     width = rect.size.width;
     height = rect.size.height;
     descent = point.y - rect.origin.y;
 
     return Py_BuildValue("fff", width, height, descent);
+exit:
+    if (cr && !self->cr) CGContextRelease(cr);
+    return NULL;
 }
 
 #else // Text drawing for OSX versions <10.5
@@ -2956,19 +2977,33 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
     ATSFontRef atsfont;
     Rect rect;
 
+    char data[8];
+
     CGContextRef cr = self->cr;
     if (!cr)
     {
-        PyErr_SetString(PyExc_RuntimeError, "CGContextRef is NULL");
-        return NULL;
+        CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceGray();
+        if (!colorspace) {
+            PyErr_SetString(PyExc_MemoryError, "Failed to create color space");
+            goto exit;
+        }
+        cr = CGBitmapContextCreate(data,
+                                   1,
+                                   1,
+                                   8,
+                                   1,
+                                   colorspace,
+                                   0);
+        CGColorSpaceRelease(colorspace);
+        if (!cr) {
+            PyErr_SetString(PyExc_MemoryError, "Failed to create bitmap context");
+            goto exit;
+        }
     }
 
-    if(!PyArg_ParseTuple(args, "u#Ofss", &text, &n, &family, &size, &weight, &italic)) return NULL;
+    if(!PyArg_ParseTuple(args, "u#Ofss", &text, &n, &family, &size, &weight, &italic)) goto exit;
 
-    if (!(atsfont = setfont(cr, family, size, weight, italic)))
-    {
-        return NULL;
-    }
+    if (!(atsfont = setfont(cr, family, size, weight, italic))) goto exit;
 
     OSStatus status = noErr;
     ATSUAttributeTag tags[] = {kATSUFontTag,
@@ -2988,7 +3023,7 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
     if (status!=noErr)
     {
         PyErr_SetString(PyExc_RuntimeError, "ATSUSetAttributes failed");
-        return NULL;
+        goto exit;
     }
 
     status = ATSUSetTextPointerLocation(layout,
@@ -3000,7 +3035,7 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
     {
         PyErr_SetString(PyExc_RuntimeError,
                         "ATSUCreateTextLayoutWithTextPtr failed");
-        return NULL;
+        goto exit;
     }
 
     status = ATSUSetRunStyle(layout,
@@ -3010,7 +3045,7 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
     if (status!=noErr)
     {
         PyErr_SetString(PyExc_RuntimeError, "ATSUSetRunStyle failed");
-        return NULL;
+        goto exit;
     }
 
     ATSUAttributeTag tag = kATSUCGContextTag;
@@ -3020,7 +3055,7 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
     if (status!=noErr)
     {
         PyErr_SetString(PyExc_RuntimeError, "ATSUSetLayoutControls failed");
-        return NULL;
+        goto exit;
     }
 
     status = ATSUMeasureTextImage(layout,
@@ -3029,7 +3064,7 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
     if (status!=noErr)
     {
         PyErr_SetString(PyExc_RuntimeError, "ATSUMeasureTextImage failed");
-        return NULL;
+        goto exit;
     }
 
     const float width = rect.right-rect.left;
@@ -3037,6 +3072,9 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
     const float descent = rect.bottom;
 
     return Py_BuildValue("fff", width, height, descent);
+exit:
+    if (cr && !self->cr) CGContextRelease(cr);
+    return NULL;
 }
 #endif
 
