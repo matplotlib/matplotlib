@@ -7,7 +7,7 @@
 
 Status
 ======
-**Progress**
+**Completed**
 
 
 Branches and Pull requests
@@ -22,7 +22,7 @@ Pull Requests:
  * Removing the NavigationToolbar classes
    https://github.com/matplotlib/matplotlib/pull/2740 **CLOSED**
  * Keeping the NavigationToolbar classes https://github.com/matplotlib/matplotlib/pull/2759 **CLOSED**
- * Navigation by events: https://github.com/matplotlib/matplotlib/pull/3652
+ * Navigation by events: https://github.com/matplotlib/matplotlib/pull/3652 **MERGED**
 
 Abstract
 ========
