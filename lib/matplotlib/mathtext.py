@@ -1187,8 +1187,8 @@ GROW_FACTOR     = 1.0 / SHRINK_FACTOR
 # get any smaller
 NUM_SIZE_LEVELS = 6
 # Percentage of x-height of additional horiz. space after sub/superscripts
-SCRIPT_SPACE    = {'cm': 0.05,
-                   'stix': 0.10,
+SCRIPT_SPACE    = {'cm': 0.025,
+                   'stix': 0.20,
                    'stixsans': 0.10,
                    'arevsans': 0.10}
 ## Percentage of x-height that sub/superscripts drop below the baseline
@@ -1212,11 +1212,17 @@ SUB2            = {'cm': 0.3,
                    'stix': 0.6,
                    'stixsans': 0.5,
                    'arevsans': 0.8}
-# Percentage of x-height that supercripts are offset relative to the subscript
-# for slanted nuclei
+# Percentage of x-height that sub/supercripts are offset relative to the
+# nucleus end
 DELTA           = {'cm': 0.10,
-                   'stix': 0.15,
+                   'stix': 0.10,
                    'stixsans': 0.25,
+                   'arevsans': 0.12}
+# Additional percentage of last character height that supercripts are offset
+# relative to the subscript for slanted nuclei
+DELTASLANTED    = {'cm': 0.05,
+                   'stix': 0.05,
+                   'stixsans': 0.05,
                    'arevsans': 0.12}
 # Percentage of x-height that supercripts are offset relative to the subscript
 # for integrals
@@ -2714,8 +2720,16 @@ class Parser(object):
 
         last_char = nucleus
         if isinstance(nucleus,Hlist):
-            if len(nucleus.children) >= 2:
-                last_char = nucleus.children[-2]
+            # remove kerns
+            new_children = []
+            for child in nucleus.children:
+                if not isinstance(child, Kern):
+                    new_children.append(child)
+            nucleus = Hlist(new_children, do_kern=False)
+            if len(new_children):
+                last_char = new_children[-1]
+        else:
+            nucleus = Hlist([nucleus],do_kern=False)
 
         state = self.get_state()
         rule_thickness = state.font_output.get_underline_thickness(
@@ -2732,7 +2746,6 @@ class Parser(object):
                 fs = 'arevsans'
             else:
                 fs = 'cm'
-
 
         if napostrophes:
             if super is None:
@@ -2774,31 +2787,29 @@ class Parser(object):
         lc_baseline = 0
         if self.is_dropsub(last_char):
             lc_baseline = last_char.depth
+
+        # Compute kerning for sub and super
+        superkern = DELTA[fs] * xHeight
+        subkern = DELTA[fs] * xHeight
+        if self.is_slanted(last_char):
+            superkern += DELTASLANTED[fs] * xHeight
+            if self.is_dropsub(last_char):
+                subkern = -DELTAINTEGRAL[fs] * lc_height
+            else:
+                subkern = 0.25 * DELTA[fs] * lc_height
+
         if super is None:
             # node757
-            if self.is_dropsub(last_char):
-                x = Hlist([Kern(-DELTA[fs] * last_char.height),sub])
-            else:
-                x = Hlist([sub])
+            x = Hlist([Kern(subkern), sub])
             x.shrink()
-            x.width += SCRIPT_SPACE[fs] * xHeight
             shift_down = max(lc_baseline + SUBDROP[fs] * xHeight,
                     SUB1[fs] * xHeight)
             if not self.is_dropsub(last_char):
                 shift_down /= 2
             x.shift_amount = shift_down
         else:
-            if self.is_dropsub(last_char):
-                delta = DELTAINTEGRAL[fs]
-            else:
-                delta = DELTA[fs]
-
-            if self.is_slanted(last_char):
-                x = Hlist([Kern(delta * last_char.height),super])
-            else:
-                x = Hlist([super])
+            x = Hlist([Kern(superkern), super])
             x.shrink()
-            x.width += SCRIPT_SPACE[fs] * xHeight
             if self.is_dropsub(last_char):
                 shift_up = lc_height - SUBDROP[fs] * xHeight
             else:
@@ -2806,18 +2817,13 @@ class Parser(object):
             if sub is None:
                 x.shift_amount = -shift_up
             else: # Both sub and superscript
-                if self.is_dropsub(last_char):
-                    y = Hlist([Kern(-DELTA[fs] * last_char.height),sub])
-                else:
-                    y = Hlist([sub])
-                #y = Hlist([sub])
+                y = Hlist([Kern(subkern),sub])
                 y.shrink()
-                y.width += SCRIPT_SPACE[fs] * xHeight
                 if self.is_dropsub(last_char):
                     shift_down = lc_baseline + SUBDROP[fs] * xHeight
                 else:
                     shift_down = SUB2[fs] * xHeight
-                # If sub and superscript collide, move sup up
+                # If sub and superscript collide, move super up
                 clr = (2.0 * rule_thickness -
                        ((shift_up - x.depth) - (y.height - shift_down)))
                 if clr > 0.:
@@ -2827,7 +2833,8 @@ class Parser(object):
                            y])
                 x.shift_amount = shift_down
 
-        result = Hlist([nucleus, x])
+        x.width += SCRIPT_SPACE[fs] * xHeight
+        result = Hlist([nucleus, x], do_kern=False)
         return [result]
 
     def _genfrac(self, ldelim, rdelim, rule, style, num, den):
