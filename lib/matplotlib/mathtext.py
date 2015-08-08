@@ -2107,8 +2107,8 @@ class Parser(object):
       \\subseteq       \\supseteq        \\cong            \\Join
       \\sqsubset       \\sqsupset        \\neq             \\smile
       \\sqsubseteq     \\sqsupseteq      \\doteq           \\frown
-      \\in             \\ni              \\propto
-      \\vdash          \\dashv           \\dots'''.split())
+      \\in             \\ni              \\propto          \\vdash
+      \\dashv          \\dots            \\dotplus         \\doteqdot'''.split())
 
     _arrow_symbols = set('''
       \\leftarrow              \\longleftarrow           \\uparrow
