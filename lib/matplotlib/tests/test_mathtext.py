@@ -102,7 +102,7 @@ math_tests = [
     r'${xyz}^k{x}_{k}{x}^{p}{y}^{p-2} {d}_{i}^{j}{b}_{j}{c}_{k}{d} {x}^{j}_{i}{E}^{0}{E}^0_u$',
     r'${\int}_x^x x\oint_x^x x\int_{X}^{X}x\int_x x \int^x x \int_{x} x\int^{x}{\int}_{x} x{\int}^{x}_{x}x$',
     r'testing$^{123}$',
-
+    ' '.join('$\\' + p + '$' for p in sorted(mathtext.Parser._snowflake))
 ]
 
 digits = "0123456789"
