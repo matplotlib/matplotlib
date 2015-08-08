@@ -1246,6 +1246,7 @@ class Axes(_AxesBase):
         return colls
 
     #### Basic plotting
+    # The label_naming happens in `matplotlib.axes._base._plot_args`
     @unpack_labeled_data(replace_all_args=True, label_namer=None)
     @docstring.dedent_interpd
     def plot(self, *args, **kwargs):
