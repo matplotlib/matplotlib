@@ -6,6 +6,7 @@ import itertools
 from distutils.version import LooseVersion as V
 
 from nose.tools import assert_raises, assert_equal
+import nose.tools as nt
 
 import numpy as np
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
@@ -97,6 +98,205 @@ def test_Normalize():
     _scalar_tester(norm, vals)
     _mask_tester(norm, vals)
 
+
+class BaseNormMixin(object):
+    def test_call(self):
+        normed_vals = self.norm(self.vals)
+        assert_array_almost_equal(normed_vals, self.expected)
+
+    def test_inverse(self):
+        if self.test_inverse:
+            _inverse_tester(self.norm, self.vals)
+        else:
+            pass
+
+    def test_scalar(self):
+        _scalar_tester(self.norm, self.vals)
+
+    def test_mask(self):
+        _mask_tester(self.norm, self.vals)
+
+    def test_autoscale(self):
+        norm = self.normclass()
+        norm.autoscale([10, 20, 30, 40])
+        nt.assert_equal(norm.vmin, 10.)
+        nt.assert_equal(norm.vmax, 40.)
+
+    def test_autoscale_None_vmin(self):
+        norm = self.normclass(vmin=0, vmax=None)
+        norm.autoscale_None([1, 2, 3, 4, 5])
+        nt.assert_equal(norm.vmin, 0.)
+        nt.assert_equal(norm.vmax, 5.)
+
+    def test_autoscale_None_vmax(self):
+        norm = self.normclass(vmin=None, vmax=10)
+        norm.autoscale_None([1, 2, 3, 4, 5])
+        nt.assert_equal(norm.vmin, 1.)
+        nt.assert_equal(norm.vmax, 10.)
+
+    def test_scale(self):
+        norm = self.normclass()
+        nt.assert_false(norm.scaled())
+
+        norm([1, 2, 3, 4])
+        nt.assert_true(norm.scaled())
+
+    def test_process_value_scalar(self):
+        res, is_scalar = mcolors.Normalize.process_value(5)
+        nt.assert_true(is_scalar)
+        assert_array_equal(res, np.array([5.]))
+
+    def test_process_value_list(self):
+        res, is_scalar = mcolors.Normalize.process_value([5, 10])
+        nt.assert_false(is_scalar)
+        assert_array_equal(res, np.array([5., 10.]))
+
+    def test_process_value_tuple(self):
+        res, is_scalar = mcolors.Normalize.process_value((5, 10))
+        nt.assert_false(is_scalar)
+        assert_array_equal(res, np.array([5., 10.]))
+
+    def test_process_value_array(self):
+        res, is_scalar = mcolors.Normalize.process_value(np.array([5, 10]))
+        nt.assert_false(is_scalar)
+        assert_array_equal(res, np.array([5., 10.]))
+
+
+class BasePiecewiseLinearNorm(BaseNormMixin):
+    normclass = mcolors.PiecewiseLinearNorm
+    test_inverse = False
+
+class test_PiecewiseLinearNorm_Even(BasePiecewiseLinearNorm):
+    def setup(self):
+        self.norm = self.normclass(vmin=-1, vcenter=0, vmax=4)
+        self.vals = np.array([-1.0, -0.5, 0.0, 1.0, 2.0, 3.0, 4.0])
+        self.expected = np.array([0.0, 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
+
+
+class test_PiecewiseLinearNorm_Odd(BasePiecewiseLinearNorm):
+    def setup(self):
+        self.normclass = mcolors.PiecewiseLinearNorm
+        self.norm = self.normclass(vmin=-2, vcenter=0, vmax=5)
+        self.vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
+        self.expected = np.array([0.0, 0.25, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+
+
+class test_PiecewiseLinearNorm_AllNegative(BasePiecewiseLinearNorm):
+    def setup(self):
+        self.normclass = mcolors.PiecewiseLinearNorm
+        self.norm = self.normclass(vmin=-10, vcenter=-8, vmax=-2)
+        self.vals = np.array([-10., -9., -8., -6., -4., -2.])
+        self.expected = np.array([0.0, 0.25, 0.5, 0.666667, 0.833333, 1.0])
+
+
+class test_PiecewiseLinearNorm_AllPositive(BasePiecewiseLinearNorm):
+    def setup(self):
+        self.normclass = mcolors.PiecewiseLinearNorm
+        self.norm = self.normclass(vmin=0, vcenter=3, vmax=9)
+        self.vals = np.array([0., 1.5, 3., 4.5, 6.0, 7.5, 9.])
+        self.expected = np.array([0.0, 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
+
+
+class test_PiecewiseLinearNorm_NoVs(BasePiecewiseLinearNorm):
+    def setup(self):
+        self.normclass = mcolors.PiecewiseLinearNorm
+        self.norm = self.normclass(vmin=None, vcenter=None, vmax=None)
+        self.vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0])
+        self.expected = np.array([0., 0.16666667, 0.33333333,
+                                  0.5, 0.66666667, 0.83333333, 1.0])
+        self.expected_vmin = -2
+        self.expected_vcenter = 1
+        self.expected_vmax = 4
+
+    def test_vmin(self):
+        nt.assert_true(self.norm.vmin is None)
+        self.norm(self.vals)
+        nt.assert_equal(self.norm.vmin, self.expected_vmin)
+
+    def test_vcenter(self):
+        nt.assert_true(self.norm.vcenter is None)
+        self.norm(self.vals)
+        nt.assert_equal(self.norm.vcenter, self.expected_vcenter)
+
+    def test_vmax(self):
+        nt.assert_true(self.norm.vmax is None)
+        self.norm(self.vals)
+        nt.assert_equal(self.norm.vmax, self.expected_vmax)
+
+
+class test_PiecewiseLinearNorm_VminEqualsVcenter(BasePiecewiseLinearNorm):
+    def setup(self):
+        self.normclass = mcolors.PiecewiseLinearNorm
+        self.norm = self.normclass(vmin=-2, vcenter=-2, vmax=2)
+        self.vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0])
+        self.expected = np.array([0.5, 0.625, 0.75, 0.875, 1.0])
+
+
+class test_PiecewiseLinearNorm_VmaxEqualsVcenter(BasePiecewiseLinearNorm):
+    def setup(self):
+        self.normclass = mcolors.PiecewiseLinearNorm
+        self.norm = self.normclass(vmin=-2, vcenter=2, vmax=2)
+        self.vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0])
+        self.expected = np.array([0.0, 0.125, 0.25, 0.375, 0.5])
+
+
+class test_PiecewiseLinearNorm_VsAllEqual(BasePiecewiseLinearNorm):
+    def setup(self):
+        self.v = 10
+        self.normclass = mcolors.PiecewiseLinearNorm
+        self.norm = self.normclass(vmin=self.v, vcenter=self.v, vmax=self.v)
+        self.vals = np.array([-2.0, -1.0, 0.0, 1.0, 2.0])
+        self.expected = np.array([0.0, 0.0, 0.0, 0.0, 0.0])
+        self.expected_inv = self.expected + self.v
+
+    def test_inverse(self):
+        assert_array_almost_equal(
+            self.norm.inverse(self.norm(self.vals)),
+            self.expected_inv
+        )
+
+
+class test_PiecewiseLinearNorm_Errors(object):
+    def setup(self):
+        self.vals = np.arange(50)
+
+    @nt.raises(ValueError)
+    def test_VminGTVcenter(self):
+        norm = mcolors.PiecewiseLinearNorm(vmin=10, vcenter=0, vmax=20)
+        norm(self.vals)
+
+    @nt.raises(ValueError)
+    def test_VminGTVmax(self):
+        norm = mcolors.PiecewiseLinearNorm(vmin=10, vcenter=0, vmax=5)
+        norm(self.vals)
+
+    @nt.raises(ValueError)
+    def test_VcenterGTVmax(self):
+        norm = mcolors.PiecewiseLinearNorm(vmin=10, vcenter=25, vmax=20)
+        norm(self.vals)
+
+    @nt.raises(ValueError)
+    def test_premature_scaling(self):
+        norm = mcolors.PiecewiseLinearNorm()
+        norm.inverse(np.array([0.1, 0.5, 0.9]))
+
+
+@image_comparison(baseline_images=['test_offset_norm'], extensions=['png'])
+def test_offset_norm_img():
+    x = np.linspace(-2, 7)
+    y = np.linspace(-1*np.pi, np.pi)
+    X, Y = np.meshgrid(x, y)
+    Z = x * np.sin(Y)**2
+
+    fig, (ax1, ax2) = plt.subplots(ncols=2)
+    cmap = plt.cm.coolwarm
+    norm = mcolors.PiecewiseLinearNorm(vmin=-2, vcenter=0, vmax=7)
+
+    img1 = ax1.imshow(Z, cmap=cmap, norm=None)
+    cbar1 = fig.colorbar(img1, ax=ax1)
+
+    img2 = ax2.imshow(Z, cmap=cmap, norm=norm)
+    cbar2 = fig.colorbar(img2, ax=ax2)
 
 def test_SymLogNorm():
     """
@@ -216,7 +416,12 @@ def test_cmap_and_norm_from_levels_and_colors2():
                                'Wih extend={0!r} and data '
                                'value={1!r}'.format(extend, d_val))
 
-    assert_raises(ValueError, mcolors.from_levels_and_colors, levels, colors)
+    nt.assert_raises(
+        ValueError,
+        mcolors.from_levels_and_colors,
+        levels,
+        colors
+    )
 
 
 def test_rgb_hsv_round_trip():
@@ -246,8 +451,8 @@ def test_colors_no_float():
     def gray_from_float_rgba():
         return mcolors.colorConverter.to_rgba(0.4)
 
-    assert_raises(ValueError, gray_from_float_rgb)
-    assert_raises(ValueError, gray_from_float_rgba)
+    nt.assert_raises(ValueError, gray_from_float_rgb)
+    nt.assert_raises(ValueError, gray_from_float_rgba)
 
 
 @image_comparison(baseline_images=['light_source_shading_topo'],
