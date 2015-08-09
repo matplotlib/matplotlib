@@ -1245,9 +1245,43 @@ class Axes(_AxesBase):
 
         return colls
 
+    def _plot_args_replacer(self, args, data):
+        _replacer = []
+        remaining = args
+        while 1:
+            if len(remaining) == 1:
+                import warnings
+
+                msg = "Missing argument: this can happen if a color spec ('c') is in data"
+                warnings.warn(msg, RuntimeWarning, stacklevel=3)
+                _replacer += ["x"]
+            elif len(remaining) == 2:
+                _replacer += ["x", "y"]
+            elif len(remaining) == 3:
+                if remaining[2] in data:
+                    import warnings
+
+                    msg = "Found a color spec ('c') in data."
+                    warnings.warn(msg, RuntimeWarning, stacklevel=3)
+                _replacer += ["x", "y", "c"]
+
+            if len(remaining) <= 3:
+                return _replacer
+
+            # More than 3 -> split off the beginning and continue
+            if remaining[2] not in data:
+                _replacer += ["x", "y", "c"]
+                isplit = 3
+            else:
+                _replacer += ["x", "y"]
+                isplit = 2
+            remaining = remaining[isplit:]
+
     #### Basic plotting
     # The label_naming happens in `matplotlib.axes._base._plot_args`
-    @unpack_labeled_data(replace_all_args=True, label_namer=None)
+    @unpack_labeled_data(replace_names=["x", "y"],
+                         positional_parameter_names=_plot_args_replacer,
+                         label_namer=None)
     @docstring.dedent_interpd
     def plot(self, *args, **kwargs):
         """
@@ -4378,6 +4412,7 @@ class Axes(_AxesBase):
         return qk
     quiverkey.__doc__ = mquiver.QuiverKey.quiverkey_doc
 
+    # args can by a combination if X, Y, U, V, C and all should be replaced
     @unpack_labeled_data(replace_all_args=True, label_namer=None)
     def quiver(self, *args, **kw):
         if not self._hold:
@@ -4389,6 +4424,7 @@ class Axes(_AxesBase):
         return q
     quiver.__doc__ = mquiver.Quiver.quiver_doc
 
+    # args can by either Y or y1,y2,... and all should be replaced
     @unpack_labeled_data(replace_all_args=True, label_namer=None)
     def stackplot(self, x, *args, **kwargs):
         return mstack.stackplot(self, x, *args, **kwargs)
@@ -4416,6 +4452,7 @@ class Axes(_AxesBase):
         return stream_container
     streamplot.__doc__ = mstream.streamplot.__doc__
 
+    # args can be some combination of X, Y, U, V, C and all should be replaced
     @unpack_labeled_data(replace_all_args=True, label_namer=None)
     @docstring.dedent_interpd
     def barbs(self, *args, **kw):
@@ -7155,7 +7192,7 @@ class Axes(_AxesBase):
                                                  integer=True))
         return im
 
-    @unpack_labeled_data(replace_all_args=True, label_namer=None)
+    @unpack_labeled_data(replace_names=["dataset"], label_namer=None)
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
                    points=100, bw_method=None):
@@ -7260,7 +7297,6 @@ class Axes(_AxesBase):
                            widths=widths, showmeans=showmeans,
                            showextrema=showextrema, showmedians=showmedians)
 
-    @unpack_labeled_data(replace_all_args=True, label_namer=None)
     def violin(self, vpstats, positions=None, vert=True, widths=0.5,
                showmeans=False, showextrema=True, showmedians=False):
         """Drawing function for violin plots.
