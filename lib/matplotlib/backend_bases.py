@@ -2815,7 +2815,10 @@ class NavigationToolbar2(object):
             except (ValueError, OverflowError):
                 pass
             else:
-                artists = event.inaxes.hitlist(event)
+                if event.inaxes.mouseover:
+                    artists = event.inaxes.hitlist(event)
+                else:
+                    artists = []
 
                 if artists:
                     a = max(enumerate(artists), key=lambda x: x[1].zorder)[1]

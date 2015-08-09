@@ -756,7 +756,7 @@ defaultParams = {
     'axes.ymargin': [0, ValidateInterval(0, 1,
                                          closedmin=True,
                                          closedmax=True)],# margin added to yaxis
-
+    'axes.mouseover': [False, validate_bool],  # find top most artist and ask it for a message
     'polaraxes.grid': [True, validate_bool],  # display polar grid or
                                                      # not
     'axes3d.grid': [True, validate_bool],  # display 3d grid
@@ -812,7 +812,7 @@ defaultParams = {
     'xtick.minor.pad':   [4, validate_float],    # distance to label in points
     'xtick.color':       ['k', validate_color],  # color of the xtick labels
     'xtick.minor.visible':   [False, validate_bool],    # visiablility of the x axis minor ticks
-    
+
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
     'xtick.direction':   ['in', six.text_type],            # direction of xticks
