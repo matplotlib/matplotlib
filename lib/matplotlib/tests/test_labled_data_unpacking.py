@@ -1,7 +1,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from nose.tools import assert_raises, assert_equal
+from nose.tools import (assert_raises, assert_equal, assert_regexp_matches,
+                        assert_not_regexp_matches)
 from nose.plugins.skip import SkipTest
 
 from .. import unpack_labeled_data
@@ -327,3 +328,49 @@ def test_function_call_with_replace_all_args():
                  "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
     assert_equal(func2(None, "a", "b", w="x", label="text", data=data),
                  "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
+
+
+def test_docstring_addition():
+    @unpack_labeled_data()
+    def funcy(ax, *args, **kwargs):
+        """Funcy does nothing"""
+        pass
+
+    assert_regexp_matches(funcy.__doc__,
+                          r".*All positional and all keyword arguments\.")
+    assert_not_regexp_matches(funcy.__doc__, r".*All positional arguments\.")
+    assert_not_regexp_matches(funcy.__doc__,
+                              r".*All arguments with the following names: .*")
+
+    @unpack_labeled_data(replace_all_args=True, replace_names=[])
+    def funcy(ax, x, y, z, bar=None):
+        """Funcy does nothing"""
+        pass
+
+    assert_regexp_matches(funcy.__doc__, r".*All positional arguments\.")
+    assert_not_regexp_matches(funcy.__doc__,
+                              r".*All positional and all keyword arguments\.")
+    assert_not_regexp_matches(funcy.__doc__,
+                              r".*All arguments with the following names: .*")
+
+    @unpack_labeled_data(replace_all_args=True, replace_names=["bar"])
+    def funcy(ax, x, y, z, bar=None):
+        """Funcy does nothing"""
+        pass
+
+    assert_regexp_matches(funcy.__doc__, r".*All positional arguments\.")
+    assert_regexp_matches(funcy.__doc__,
+                          r".*All arguments with the following names: 'bar'\.")
+    assert_not_regexp_matches(funcy.__doc__,
+                              r".*All positional and all keyword arguments\.")
+
+    @unpack_labeled_data(replace_names=["x", "bar"])
+    def funcy(ax, x, y, z, bar=None):
+        """Funcy does nothing"""
+        pass
+
+    assert_regexp_matches(funcy.__doc__,
+                 r".*All arguments with the following names: 'x', 'bar'\.")
+    assert_not_regexp_matches(funcy.__doc__,
+                              r".*All positional and all keyword arguments\.")
+    assert_not_regexp_matches(funcy.__doc__, r".*All positional arguments\.")

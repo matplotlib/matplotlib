@@ -119,7 +119,7 @@ import distutils.sysconfig
 import functools
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
-from matplotlib.cbook import is_string_like, mplDeprecation
+from matplotlib.cbook import is_string_like, mplDeprecation, dedent
 from matplotlib.compat import subprocess
 from matplotlib.rcsetup import (defaultParams,
                                 validate_backend,
@@ -1534,6 +1534,19 @@ def _replacer(data, key):
         return key
 
 
+_DATA_DOC_APPENDIX = """
+
+Notes
+-----
+
+In addition to the above described arguments, this function can take a
+**data** keyword argument. If such a **data** argument is given, the
+following arguments are replaced by **data[<arg>]**:
+
+{replaced}
+"""
+
+
 def unpack_labeled_data(replace_names=None, replace_all_args=False,
                         label_namer=None, positional_parameter_names=None):
     """
@@ -1708,9 +1721,24 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
                                   RuntimeWarning, stacklevel=2)
                     # raise Exception()
             return func(ax, *args, **kwargs)
+        pre_doc = inner.__doc__
+        if pre_doc is None:
+            pre_doc = ''
+        else:
+            pre_doc = dedent(pre_doc)
+        _repl = ""
+        if replace_names is None:
+            _repl = "* All positional and all keyword arguments."
+        else:
+            if len(replace_names) != 0:
+                _repl = "* All arguments with the following names: '{names}'."
+            if replace_all_args:
+                _repl += "\n* All positional arguments."
+            _repl = _repl.format(names="', '".join(replace_names))
+        inner.__doc__ = (pre_doc +
+                         _DATA_DOC_APPENDIX.format(replaced=_repl))
         return inner
     return param
-
 
 verbose.report('matplotlib version %s' % __version__)
 verbose.report('verbose.level %s' % verbose.level)
