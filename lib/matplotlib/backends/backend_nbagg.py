@@ -3,6 +3,7 @@
 # lib/matplotlib/backends/web_backend/nbagg_uat.ipynb to help verify
 # that changes made maintain expected behaviour.
 
+import datetime
 from base64 import b64encode
 import json
 import io
@@ -171,7 +172,6 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
 class TimerTornado(TimerBase):
     def _timer_start(self):
-        import datetime
         self._timer_stop()
         if self._single:
             ioloop = tornado.ioloop.IOLoop.instance()
@@ -182,10 +182,15 @@ class TimerTornado(TimerBase):
             self._timer = tornado.ioloop.PeriodicCallback(
                 self._on_timer,
                 self.interval)
-        self._timer.start()
+            self._timer.start()
 
     def _timer_stop(self):
-        if self._timer is not None:
+        if self._timer is None:
+            return
+        elif self._single:
+            ioloop = tornado.ioloop.IOLoop.instance()
+            ioloop.remove_timeout(self._timer)
+        else:
             self._timer.stop()
             self._timer = None
 
