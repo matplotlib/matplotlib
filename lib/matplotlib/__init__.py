@@ -1458,6 +1458,7 @@ default_test_modules = [
     'matplotlib.tests.test_triangulation',
     'matplotlib.tests.test_widgets',
     'matplotlib.tests.test_cycles',
+    'matplotlib.tests.test_labeled_data_unpacking',
     'matplotlib.sphinxext.tests.test_tinypages',
     'mpl_toolkits.tests.test_mplot3d',
     'mpl_toolkits.tests.test_axes_grid1',
@@ -1566,18 +1567,21 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
     replace_all_args : bool, default: False
         If True, all arguments in *args get replaced, even if they are not
         in replace_names.
-        NOTE: this should be used only when the order of the names depends on
-        the number of *args.
     label_namer : string, optional, default: None
         The name of the parameter which argument should be used as label, if
         label is not set. If None, the label keyword argument is not set.
-    positional_parameter_names : list of strings, optional, default: None
+    positional_parameter_names : list of strings or callable, optional
         The full list of positional parameter names (excluding an explicit
         `ax`/'self' argument at the first place and including all possible
         positional parameter in `*args`), in the right order. Can also include
         all other keyword parameter. Only needed if the wrapped function does
         contain `*args` and (replace_names is not None or replace_all_args is
-        False).
+        False). If it is a callable, it will be called with the actual
+        tuple of *args and the data and should return a list like
+        above.
+        NOTE: callables should only be used when the names and order of *args
+        can only be determined at runtime. Please use list of names
+        when the order and names of *args is clear before runtime!
     """
     if replace_names is not None:
         replace_names = set(replace_names)
@@ -1590,16 +1594,19 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
         _has_no_varargs = arg_spec.varargs is None
         _has_varkwargs = arg_spec.keywords is not None
 
+        # Import-time check: do we have enough information to replace *args?
+        arg_names_at_runtime = False
         # there can't be any positional arguments behind *args and no
-        # positional args can end up in **kwargs, so we only need to check for
-        # varargs:
+        # positional args can end up in **kwargs, so only *varargs make
+        # problems.
         # http://stupidpythonideas.blogspot.de/2013/08/arguments-and-parameters.html
         if _has_no_varargs:
+            # all args are "named", so no problem
             # remove the first "ax" / self arg
             arg_names = _arg_names[1:]
         else:
-            # in this case we need a supplied list of arguments or we need to
-            # replace all variables -> compile time check
+            # Here we have "unnamed" variables and we need a way to determine
+            # whether to replace a arg or not
             if replace_names is None:
                 # all argnames should be replaced
                 arg_names = None
@@ -1618,7 +1625,13 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
                     raise AssertionError(msg % func.__name__)
             else:
                 if positional_parameter_names is not None:
-                    arg_names = positional_parameter_names
+                    if callable(positional_parameter_names):
+                        # determined by the function at runtime
+                        arg_names_at_runtime = True
+                        # so that we don't compute the label_pos at import time
+                        arg_names = []
+                    else:
+                        arg_names = positional_parameter_names
                 else:
                     if replace_all_args:
                         arg_names = []
@@ -1633,7 +1646,9 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
         # arguments
         label_pos = 9999  # bigger than all "possible" argument lists
         label_namer_pos = 9999  # bigger than all "possible" argument lists
-        if label_namer and arg_names and (label_namer in arg_names):
+        if (label_namer # we actually want a label here ...
+            and arg_names # and we can determine a label in *args ...
+            and (label_namer in arg_names)): # and it is in *args
             label_namer_pos = arg_names.index(label_namer)
             if "label" in arg_names:
                 label_pos = arg_names.index("label")
@@ -1642,7 +1657,7 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
         # arg_names... Unfortunately the label_namer can be in **kwargs,
         # which we can't detect here and which results in a non-set label
         # which might surprise the user :-(
-        if label_namer and not _has_varkwargs:
+        if label_namer and not arg_names_at_runtime and not _has_varkwargs:
             if not arg_names:
                 msg = ("label_namer '%s' can't be found as the parameter "
                        "without 'positional_parameter_names'.")
@@ -1657,53 +1672,74 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
 
         @functools.wraps(func)
         def inner(ax, *args, **kwargs):
-            data = kwargs.pop('data', None)
+            # this is needed because we want to change these values if
+            # arg_names_at_runtime==True, but python does not allow assigning
+            # to a variable in a outer scope. So use some new local ones and
+            # set them to the already computed values.
+            _label_pos = label_pos
+            _label_namer_pos = label_namer_pos
+            _arg_names = arg_names
+
             label = None
+
+            data = kwargs.pop('data', None)
             if data is not None:
+                if arg_names_at_runtime:
+                    # update the information about replace names and
+                    # label position
+                    _arg_names = positional_parameter_names(args, data)
+                    if (label_namer # we actually want a label here ...
+                        and _arg_names # and we can find a label in *args ...
+                        and (label_namer in _arg_names)): # and it is in *args
+                        _label_namer_pos = _arg_names.index(label_namer)
+                        if "label" in _arg_names:
+                            _label_pos = arg_names.index("label")
+
                 # save the current label_namer value so that it can be used as
                 # a label
-                if label_namer_pos < len(args):
-                    label = args[label_namer_pos]
+                if _label_namer_pos < len(args):
+                    label = args[_label_namer_pos]
                 else:
                     label = kwargs.get(label_namer, None)
                 # ensure a string, as label can't be anything else
                 if not isinstance(label, six.string_types):
                     label = None
 
-                if (replace_names is None) or replace_all_args:
+                if (replace_names is None) or (replace_all_args is True):
                     # all should be replaced
                     args = tuple(_replacer(data, a) for
                                  j, a in enumerate(args))
                 else:
-                    # An arg is replaced if the arg_name of that position is in
-                    # replace_names ...
-                    if len(arg_names) < len(args):
+                    # An arg is replaced if the arg_name of that position is
+                    #   in replace_names ...
+                    if len(_arg_names) < len(args):
                         raise RuntimeError(
                             "Got more args than function expects")
                     args = tuple(_replacer(data, a)
-                                 if arg_names[j] in replace_names else a
+                                 if _arg_names[j] in replace_names else a
                                  for j, a in enumerate(args))
 
                 if replace_names is None:
+                    # replace all kwargs ...
                     kwargs = dict((k, _replacer(data, v))
                                   for k, v in six.iteritems(kwargs))
                 else:
-                    # ... or a kwarg of that name in replace_names
+                    # ... or only if a kwarg of that name is in replace_names
                     kwargs = dict((k, _replacer(data, v)
                                    if k in replace_names else v)
                                   for k, v in six.iteritems(kwargs))
 
             # replace the label if this func "wants" a label arg and the user
-            # didn't set one Note: if the usere puts in "label=None", it does
+            # didn't set one. Note: if the user puts in "label=None", it does
             # *NOT* get replaced!
             user_supplied_label = (
-                (len(args) >= label_pos) or  # label is included in args
+                (len(args) >= _label_pos) or  # label is included in args
                 ('label' in kwargs)  # ... or in kwargs
             )
             if (label_namer and not user_supplied_label):
-                if label_namer_pos < len(args):
+                if _label_namer_pos < len(args):
                     try:
-                        kwargs['label'] = args[label_namer_pos].name
+                        kwargs['label'] = args[_label_namer_pos].name
                     except AttributeError:
                         kwargs['label'] = label
                 elif label_namer in kwargs:
@@ -1739,6 +1775,7 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
                          _DATA_DOC_APPENDIX.format(replaced=_repl))
         return inner
     return param
+
 
 verbose.report('matplotlib version %s' % __version__)
 verbose.report('verbose.level %s' % verbose.level)
