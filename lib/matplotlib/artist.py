@@ -121,6 +121,7 @@ class Artist(object):
         # remove the unpicklable remove method, this will get re-added on load
         # (by the axes) if the artist lives on an axes.
         d['_remove_method'] = None
+        d['stale_callback'] = None
         return d
 
     def remove(self):
