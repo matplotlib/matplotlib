@@ -255,6 +255,7 @@ class HostAxesBase(object):
         # note that ax2.transData == tr + ax1.transData
         # Anthing you draw in ax2 will match the ticks and grids of ax1.
         self.parasites.append(ax2)
+        ax2._remove_method = lambda h: self.parasites.remove(h)
         return ax2
 
 
@@ -325,6 +326,7 @@ class HostAxesBase(object):
 
         ax2 = parasite_axes_class(self, sharex=self, frameon=False)
         self.parasites.append(ax2)
+        ax2._remove_method = lambda h: self.parasites.remove(h)
 
         # for normal axes
 
@@ -359,6 +361,7 @@ class HostAxesBase(object):
 
         ax2 = parasite_axes_class(self, sharey=self, frameon=False)
         self.parasites.append(ax2)
+        ax2._remove_method = lambda h: self.parasites.remove(h)
 
         self.axis["top"].toggle(all=False)
         self.axis["top"].line.set_visible(True)
@@ -399,6 +402,7 @@ class HostAxesBase(object):
                                                viewlim_mode="transform",
                                                )
         self.parasites.append(ax2)
+        ax2._remove_method = lambda h: self.parasites.remove(h)
 
 
         # for normal axes
