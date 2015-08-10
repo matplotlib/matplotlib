@@ -1360,7 +1360,7 @@ class Figure(Artist):
         return None
 
     def __getstate__(self):
-        state = self.__dict__.copy()
+        state = super(Figure, self).__getstate__()
         # the axobservers cannot currently be pickled.
         # Additionally, the canvas cannot currently be pickled, but this has
         # the benefit of meaning that a figure can be detached from one canvas,
