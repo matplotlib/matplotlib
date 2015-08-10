@@ -83,7 +83,7 @@ class Artist(object):
 
     def __init__(self):
         self._stale = True
-        self.stale_callback = lambda self, value: None
+        self.stale_callback = None
         self._axes = None
         self.figure = None
 
@@ -242,7 +242,7 @@ class Artist(object):
         if self.get_animated():
             return
 
-        if val:
+        if val and self.stale_callback is not None:
             self.stale_callback(self, val)
 
     def get_window_extent(self, renderer):
