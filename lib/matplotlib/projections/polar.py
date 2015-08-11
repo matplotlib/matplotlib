@@ -399,6 +399,8 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         """
         Set the offset for the location of 0 in radians.
         """
+        # Make sure to strip away units
+        offset = self.convert_yunits(offset)
         self._theta_offset = offset
 
     def get_theta_offset(self):
@@ -521,9 +523,17 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         ACCEPTS: sequence of floats
         """
         # Make sure we take into account unitized data
-        angles = self.convert_yunits(angles)
-        angles = np.asarray(angles, np.float_)
-        self.set_xticks(angles * (np.pi / 180.0))
+        if isinstance( angles[0], float ):
+           # If the data is floats it is assumed to be degrees (as per the
+           # docsting for this method)
+           angles = np.asarray(angles, np.float_)
+           self.set_xticks(angles * (np.pi / 180.0))
+        else:
+           # The unit converters are defined to return radians
+           angles = self.convert_yunits(angles)
+           angles = np.asarray(angles, np.float_)
+           self.set_xticks(angles)
+
         if labels is not None:
             self.set_xticklabels(labels)
         elif fmt is not None:
@@ -566,6 +576,10 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         if rmin <= 0:
             raise ValueError('radial grids must be strictly positive')
 
+        # Handle unitized data
+        if angle is not None:
+            angle = self.convert_yunits(angle)
+
         self.set_yticks(radii)
         if labels is not None:
             self.set_yticklabels(labels)
@@ -591,6 +605,14 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         Return a format string formatting the coordinate using Unicode
         characters.
         """
+        # Strip away any units
+        r = self.convert_xunits(r)
+        if not isinstance( theta, float ):
+            theta = self.convert_yunits(theta)
+            # Stripping away units makes theta be in radians.
+            # convert to degrees
+            theta = theta * (180.0 / np.pi)
+
         theta /= math.pi
         # \u03b8: lower-case theta
         # \u03c0: lower-case pi
