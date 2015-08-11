@@ -69,11 +69,13 @@ def allow_rasterization(draw):
 
 
 def _stale_figure_callback(self):
-    self.figure.stale = True
+    if self.figure:
+        self.figure.stale = True
 
 
 def _stale_axes_callback(self):
-    self.axes.stale = True
+    if self.axes:
+        self.axes.stale = True
 
 
 class Artist(object):
