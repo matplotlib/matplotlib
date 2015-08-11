@@ -68,8 +68,9 @@ def allow_rasterization(draw):
     return draw_wrapper
 
 
-def _stale_axes_callback(self, value):
-    self.axes.stale = True
+def _stale_axes_callback(self, val):
+    if self.axes:
+        self.axes.stale = val
 
 
 class Artist(object):
