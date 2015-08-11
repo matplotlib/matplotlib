@@ -192,7 +192,8 @@ class TimerTornado(TimerBase):
             ioloop.remove_timeout(self._timer)
         else:
             self._timer.stop()
-            self._timer = None
+
+        self._timer = None
 
     def _timer_set_interval(self):
         # Only stop and restart it if the timer has already been started
