@@ -52,7 +52,8 @@ docstring.interpd.update(projection_names=get_projection_names())
 
 
 def _stale_figure_callback(self, val):
-    self.figure.stale = val
+    if self.figure:
+        self.figure.stale = val
 
 
 class AxesStack(Stack):
