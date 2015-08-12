@@ -1094,6 +1094,8 @@ class FuncAnimation(TimedAnimation):
             self._draw_frame(next(self.new_frame_seq()))
         else:
             self._drawn_artists = self._init_func()
+            for a in self._drawn_artists:
+                a.set_animated(True)
 
     def _draw_frame(self, framedata):
         # Save the data for potential saving of movies.
@@ -1106,3 +1108,5 @@ class FuncAnimation(TimedAnimation):
         # Call the func with framedata and args. If blitting is desired,
         # func needs to return a sequence of any artists that were modified.
         self._drawn_artists = self._func(framedata, *self._args)
+        for a in self._drawn_artists:
+            a.set_animated(True)
