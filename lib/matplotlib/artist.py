@@ -814,9 +814,9 @@ class Artist(object):
 
         ACCEPTS: [True | False]
         """
-        self._animated = b
-        self.pchanged()
-        self.stale = True
+        if self._animated != b:
+            self._animated = b
+            self.pchanged()
 
     def update(self, props):
         """
