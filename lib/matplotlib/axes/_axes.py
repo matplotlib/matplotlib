@@ -7165,6 +7165,9 @@ class Axes(_AxesBase):
         """
 
         def _kde_method(X, coords):
+            # fallback gracefully if the vector contains only one value
+            if np.all(X[0] == X):
+                return (X[0] == coords).astype(float)
             kde = mlab.GaussianKDE(X, bw_method)
             return kde.evaluate(coords)
 
