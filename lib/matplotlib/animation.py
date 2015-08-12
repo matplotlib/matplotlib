@@ -975,7 +975,7 @@ class ArtistAnimation(TimedAnimation):
         for f in self.new_frame_seq():
             for artist in f:
                 artist.set_visible(False)
-                artist.set_animated(True)
+                artist.set_animated(self._blit)
                 # Assemble a list of unique axes that need flushing
                 if artist.axes.figure not in figs:
                     figs.add(artist.axes.figure)
@@ -1095,7 +1095,7 @@ class FuncAnimation(TimedAnimation):
         else:
             self._drawn_artists = self._init_func()
             for a in self._drawn_artists:
-                a.set_animated(True)
+                a.set_animated(self._blit)
 
     def _draw_frame(self, framedata):
         # Save the data for potential saving of movies.
@@ -1109,4 +1109,4 @@ class FuncAnimation(TimedAnimation):
         # func needs to return a sequence of any artists that were modified.
         self._drawn_artists = self._func(framedata, *self._args)
         for a in self._drawn_artists:
-            a.set_animated(True)
+            a.set_animated(self._blit)
