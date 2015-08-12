@@ -1034,6 +1034,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
     def set_data(self, A):
         """Set the image array."""
         cm.ScalarMappable.set_array(self, cbook.safe_masked_invalid(A))
+        self.stale = True
 
     def set_array(self, A):
         """Deprecated; use set_data for consistency with other image types."""
