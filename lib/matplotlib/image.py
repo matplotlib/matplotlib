@@ -64,6 +64,14 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
     interpnames = list(six.iterkeys(_interpd))
 
+    def set_cmap(self, cmap):
+        super(_AxesImageBase, self).set_cmap(cmap)
+        self.stale = True
+
+    def set_norm(self, norm):
+        super(_AxesImageBase, self).set_norm(norm)
+        self.stale = True
+
     def __str__(self):
         return "AxesImage(%g,%g;%gx%g)" % tuple(self.axes.bbox.bounds)
 
@@ -828,12 +836,12 @@ class NonUniformImage(AxesImage):
     def set_norm(self, norm):
         if self._A is not None:
             raise RuntimeError('Cannot change colors after loading data')
-        cm.ScalarMappable.set_norm(self, norm)
+        super(NonUniformImage, self).set_norm(self, norm)
 
     def set_cmap(self, cmap):
         if self._A is not None:
             raise RuntimeError('Cannot change colors after loading data')
-        cm.ScalarMappable.set_cmap(self, cmap)
+        super(NonUniformImage, self).set_cmap(self, cmap)
 
 
 class PcolorImage(martist.Artist, cm.ScalarMappable):
