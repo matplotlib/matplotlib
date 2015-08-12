@@ -26,8 +26,19 @@ QT_API_ENV = os.environ.get('QT_API')
 
 if rcParams['backend'] == 'Qt5Agg':
     QT_RC_MAJOR_VERSION = 5
-else:
+elif rcParams['backend'] == 'Qt4Agg':
     QT_RC_MAJOR_VERSION = 4
+else:
+    # A different backend was specified, but we still got here because a Qt
+    # related file was imported.  This is allowed, so lets try and guess
+    # what we should be using.
+    try:
+        # if the newest API is available, lets assume that is being used.
+        import PyQt5
+        QT_RC_MAJOR_VERSION = 5
+    except ImportError:
+        # This is a fallback
+        QT_RC_MAJOR_VERSION = 4
 
 QT_API = None
 
@@ -47,8 +58,19 @@ if QT_API is None:
     # No ETS environment or incompatible so use rcParams.
     if rcParams['backend'] == 'Qt5Agg':
         QT_API = rcParams['backend.qt5']
-    else:
+    elif rcParams['backend'] == 'Qt4Agg':
         QT_API = rcParams['backend.qt4']
+    else:
+        # A different backend was specified, but we still got here because a Qt
+        # related file was imported.  This is allowed, so lets try and guess
+        # what we should be using.
+        try:
+            # if the newest API is available, lets assume that is being used.
+            import PyQt5
+            QT_API = rcParams['backend.qt5']
+        except ImportError:
+            # This is a fallback
+            QT_API = rcParams['backend.qt4']
 
 # We will define an appropriate wrapper for the differing versions
 # of file dialog.
