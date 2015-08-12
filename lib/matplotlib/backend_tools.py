@@ -146,6 +146,9 @@ class ToolToggleBase(ToolBase):
     cursor = None
     """Cursor to use when the tool is active"""
 
+    _initial_state = False
+    """The initial toggled state of the tool"""
+
     def __init__(self, *args, **kwargs):
         ToolBase.__init__(self, *args, **kwargs)
         self._toggled = False

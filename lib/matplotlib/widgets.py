@@ -300,7 +300,8 @@ class Slider(AxesWidget):
     """
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
                  closedmin=True, closedmax=True, slidermin=None,
-                 slidermax=None, dragging=True, **kwargs):
+                 slidermax=None, dragging=True, orientation='horizontal',
+                 wstyle='form', **kwargs):
         """
         Create a slider from *valmin* to *valmax* in axes *ax*.
 
@@ -357,13 +358,37 @@ class Slider(AxesWidget):
         self.valmax = valmax
         self.val = valinit
         self.valinit = valinit
-        self.poly = ax.axvspan(valmin, valinit, 0, 1, **kwargs)
+        self.orientation = orientation
+        self.style = wstyle
 
-        self.vline = ax.axvline(valinit, 0, 1, color='r', lw=1)
+        if orientation == 'horizontal':
+            self.poly = ax.axvspan(valmin, valinit, 0, 1, **kwargs)
+            self.vline = ax.axvline(valinit, 0, 1, color='r', lw=1)
+            ax.set_xlim((valmin, valmax))
+            saxis = ax.xaxis
+        else:
+            self.poly = ax.axhspan(valmin, valinit, 0, 1, **kwargs)
+            self.vline = ax.axhline(valinit, 0, 1, color='r', lw=1)
+            ax.set_ylim((valmin, valmax))
+            saxis = ax.yaxis
 
-        self.valfmt = valfmt
+        if self.style == 'form':
+            self.valfmt = valfmt
+            self.label = ax.text(-0.02, 0.5, label, transform=ax.transAxes,
+                             verticalalignment='center',
+                             horizontalalignment='right')
+
+            self.valtext = ax.text(1.02, 0.5, valfmt % valinit,
+                               transform=ax.transAxes,
+                               verticalalignment='center',
+                               horizontalalignment='left')
+        else:
+            pos = ('bottom' if orientation == 'horizontal' else 'right') \
+                if self.style == 'auto' else self.style
+            saxis.set_label_position(pos)
+            self.valfmt = label + ' '+ valfmt
+
         ax.set_yticks([])
-        ax.set_xlim((valmin, valmax))
         ax.set_xticks([])
         ax.set_navigate(False)
 
@@ -371,14 +396,7 @@ class Slider(AxesWidget):
         self.connect_event('button_release_event', self._update)
         if dragging:
             self.connect_event('motion_notify_event', self._update)
-        self.label = ax.text(-0.02, 0.5, label, transform=ax.transAxes,
-                             verticalalignment='center',
-                             horizontalalignment='right')
 
-        self.valtext = ax.text(1.02, 0.5, valfmt % valinit,
-                               transform=ax.transAxes,
-                               verticalalignment='center',
-                               horizontalalignment='left')
 
         self.cnt = 0
         self.observers = {}
@@ -388,6 +406,15 @@ class Slider(AxesWidget):
         self.slidermin = slidermin
         self.slidermax = slidermax
         self.drag_active = False
+
+    def _setvaltext(self, text):
+        if self.style == 'form':
+            self.valtext.set_text(text)
+        else:
+            if self.orientation == 'horizontal':
+                self.ax.set_xlabel(text)
+            else:
+                self.ax.set_ylabel(text)
 
     def _update(self, event):
         """update the slider position"""
@@ -411,7 +438,7 @@ class Slider(AxesWidget):
             event.canvas.release_mouse(self.ax)
             return
 
-        val = event.xdata
+        val = event.xdata if self.orientation == 'horizontal' else event.ydata
         if val <= self.valmin:
             if not self.closedmin:
                 return
@@ -435,10 +462,14 @@ class Slider(AxesWidget):
 
     def set_val(self, val):
         xy = self.poly.xy
-        xy[2] = val, 1
-        xy[3] = val, 0
+        if self.orientation == 'horizontal':
+            xy[2] = val, 1
+            xy[3] = val, 0
+        else:
+            xy[1] = 0, val
+            xy[2] = 1, val
         self.poly.xy = xy
-        self.valtext.set_text(self.valfmt % val)
+        self._setvaltext(self.valfmt % val)
         if self.drawon:
             self.ax.figure.canvas.draw_idle()
         self.val = val

@@ -943,13 +943,14 @@ class ToolbarTk(ToolContainerBase, Tk.Frame):
                           width=int(width), height=int(height),
                           borderwidth=2)
         self._toolitems = {}
+        self._toolvars = {}
         self.pack(side=Tk.TOP, fill=Tk.X)
         self._groups = {}
 
     def add_toolitem(self, name, group, position, image_file, description,
-                     toggle):
+                     toggle, initial_state=False):
         frame = self._get_groupframe(group)
-        button = self._Button(name, image_file, toggle, frame)
+        button = self._Button(name, image_file, toggle, frame, initial_state)
         if description is not None:
             ToolTip.createToolTip(button, description)
         self._toolitems.setdefault(name, [])
@@ -968,7 +969,7 @@ class ToolbarTk(ToolContainerBase, Tk.Frame):
         separator = Tk.Frame(master=self, bd=5, width=1, bg='black')
         separator.pack(side=Tk.LEFT, fill=Tk.Y, padx=2)
 
-    def _Button(self, text, image_file, toggle, frame):
+    def _Button(self, text, image_file, toggle, frame, initial_state):
         if image_file is not None:
             im = Tk.PhotoImage(master=self, file=image_file)
         else:
@@ -978,8 +979,11 @@ class ToolbarTk(ToolContainerBase, Tk.Frame):
             b = Tk.Button(master=frame, text=text, padx=2, pady=2, image=im,
                           command=lambda: self._button_click(text))
         else:
+            var = Tk.IntVar()
+            var.set(int(initial_state))
+            self._toolvars[text] = var
             b = Tk.Checkbutton(master=frame, text=text, padx=2, pady=2,
-                               image=im, indicatoron=False,
+                               image=im, indicatoron=False, variable=var,
                                command=lambda: self._button_click(text))
         b._ntimage = im
         b.pack(side=Tk.LEFT)
