@@ -971,17 +971,18 @@ class ArtistAnimation(TimedAnimation):
 
     def _init_draw(self):
         # Make all the artists involved in *any* frame invisible
-        axes = []
+        figs = set()
         for f in self.new_frame_seq():
             for artist in f:
                 artist.set_visible(False)
+                artist.set_animated(True)
                 # Assemble a list of unique axes that need flushing
-                if artist.axes not in axes:
-                    axes.append(artist.axes)
+                if artist.axes.figure not in figs:
+                    figs.add(artist.axes.figure)
 
         # Flush the needed axes
-        for ax in axes:
-            ax.figure.canvas.draw()
+        for fig in figs:
+            fig.canvas.draw()
 
     def _pre_draw(self, framedata, blit):
         '''
