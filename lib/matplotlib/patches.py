@@ -3308,7 +3308,9 @@ class ArrowStyle(_Style):
             x0, y0 = path.vertices[0]
             x1, y1 = path.vertices[1]
 
-            if self.beginarrow:
+            # If there is no room for an arrow and a line, then skip the arrow
+            hasBeginArrow = self.beginArrow and not ((x0==x1) and (y0==y1))
+            if hasBeginArrow:
                 verticesA, codesA, ddxA, ddyA = \
                            self._get_arrow_wedge(x1, y1, x0, y0,
                                                  head_dist, cos_t, sin_t,
@@ -3321,7 +3323,9 @@ class ArrowStyle(_Style):
             x2, y2 = path.vertices[-2]
             x3, y3 = path.vertices[-1]
 
-            if self.endarrow:
+            # If there is no room for an arrow and a line, then skip the arrow
+            hasEndArrow = self.endArrow and not ((x2==x3) and (y2==y3))
+            if hasEndArrow:
                 verticesB, codesB, ddxB, ddyB = \
                            self._get_arrow_wedge(x2, y2, x3, y3,
                                                  head_dist, cos_t, sin_t,
@@ -3338,7 +3342,7 @@ class ArrowStyle(_Style):
                           path.codes)]
             _fillable = [False]
 
-            if self.beginarrow:
+            if hasBeginArrow:
                 if self.fillbegin:
                     p = np.concatenate([verticesA, [verticesA[0],
                                                     verticesA[0]], ])
@@ -3349,7 +3353,7 @@ class ArrowStyle(_Style):
                     _path.append(Path(verticesA, codesA))
                     _fillable.append(False)
 
-            if self.endarrow:
+            if hasEndArrow:
                 if self.fillend:
                     _fillable.append(True)
                     p = np.concatenate([verticesB, [verticesB[0],
