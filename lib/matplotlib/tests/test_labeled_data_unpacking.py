@@ -1,9 +1,25 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from nose.tools import (assert_raises, assert_equal, assert_regexp_matches,
-                        assert_not_regexp_matches)
+from nose.tools import (assert_raises, assert_equal)
 from nose.plugins.skip import SkipTest
+
+try:
+    # 3.2+ versions
+    from nose.tools import assert_regex, assert_not_regex
+except ImportError:
+    try:
+        # 2.7 versions
+        from nose.tools import assert_regexp_matches, assert_not_regexp_matches
+        assert_regex = assert_regexp_matches
+        assert_not_regex = assert_not_regexp_matches
+    except ImportError:
+        # 2.6 versions
+        def noop(txt, regex):
+            raise SkipTest("No assert for regex matching in py2.6")
+        assert_regex = noop
+        assert_not_regex = noop
+
 
 from matplotlib.cbook import is_string_like, iterable
 
@@ -400,10 +416,10 @@ def test_docstring_addition():
         """Funcy does nothing"""
         pass
 
-    assert_regexp_matches(funcy.__doc__,
+    assert_regex(funcy.__doc__,
                           r".*All positional and all keyword arguments\.")
-    assert_not_regexp_matches(funcy.__doc__, r".*All positional arguments\.")
-    assert_not_regexp_matches(funcy.__doc__,
+    assert_not_regex(funcy.__doc__, r".*All positional arguments\.")
+    assert_not_regex(funcy.__doc__,
                               r".*All arguments with the following names: .*")
 
     @unpack_labeled_data(replace_all_args=True, replace_names=[])
@@ -411,10 +427,10 @@ def test_docstring_addition():
         """Funcy does nothing"""
         pass
 
-    assert_regexp_matches(funcy.__doc__, r".*All positional arguments\.")
-    assert_not_regexp_matches(funcy.__doc__,
+    assert_regex(funcy.__doc__, r".*All positional arguments\.")
+    assert_not_regex(funcy.__doc__,
                               r".*All positional and all keyword arguments\.")
-    assert_not_regexp_matches(funcy.__doc__,
+    assert_not_regex(funcy.__doc__,
                               r".*All arguments with the following names: .*")
 
     @unpack_labeled_data(replace_all_args=True, replace_names=["bar"])
@@ -422,10 +438,10 @@ def test_docstring_addition():
         """Funcy does nothing"""
         pass
 
-    assert_regexp_matches(funcy.__doc__, r".*All positional arguments\.")
-    assert_regexp_matches(funcy.__doc__,
+    assert_regex(funcy.__doc__, r".*All positional arguments\.")
+    assert_regex(funcy.__doc__,
                           r".*All arguments with the following names: 'bar'\.")
-    assert_not_regexp_matches(funcy.__doc__,
+    assert_not_regex(funcy.__doc__,
                               r".*All positional and all keyword arguments\.")
 
     @unpack_labeled_data(replace_names=["x", "bar"])
@@ -433,11 +449,11 @@ def test_docstring_addition():
         """Funcy does nothing"""
         pass
 
-    assert_regexp_matches(funcy.__doc__,
+    assert_regex(funcy.__doc__,
                           r".*All arguments with the following names: 'x', 'bar'\.")
-    assert_not_regexp_matches(funcy.__doc__,
+    assert_not_regex(funcy.__doc__,
                               r".*All positional and all keyword arguments\.")
-    assert_not_regexp_matches(funcy.__doc__, r".*All positional arguments\.")
+    assert_not_regex(funcy.__doc__, r".*All positional arguments\.")
 
 
 def test_positional_parameter_names_as_function():
