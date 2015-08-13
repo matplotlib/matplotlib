@@ -1252,7 +1252,8 @@ class Axes(_AxesBase):
             if len(remaining) == 1:
                 import warnings
 
-                msg = "Missing argument: this can happen if a color spec ('c') is in data"
+                msg = "Missing argument: this can happen if a color spec " \
+                      "('c') is in data"
                 warnings.warn(msg, RuntimeWarning, stacklevel=3)
                 _replacer += ["x"]
             elif len(remaining) == 2:
