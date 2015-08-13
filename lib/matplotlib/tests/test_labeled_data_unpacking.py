@@ -448,8 +448,11 @@ def test_docstring_addition():
         """Funcy does nothing"""
         pass
 
+    # lists can print in any order, so test for both x,bar and bar,x
     assert_regex(funcy.__doc__,
-                    r".*All arguments with the following names: 'x', 'bar'\.")
+                    r".*All arguments with the following names: '.*', '.*'\.")
+    assert_regex(funcy.__doc__, r".*'x'.*")
+    assert_regex(funcy.__doc__, r".*'bar'.*")
     assert_not_regex(funcy.__doc__,
                               r".*All positional and all keyword arguments\.")
     assert_not_regex(funcy.__doc__, r".*All positional arguments\.")
