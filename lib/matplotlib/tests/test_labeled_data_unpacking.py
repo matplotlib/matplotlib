@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function)
 
 from nose.tools import (assert_raises, assert_equal)
 from nose.plugins.skip import SkipTest
