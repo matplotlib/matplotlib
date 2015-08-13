@@ -5,7 +5,8 @@ from matplotlib.externals import six
 
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+from mpl_toolkits.axes_grid1 import make_axes_locatable, host_subplot
+from itertools import product
 import numpy as np
 
 
@@ -49,6 +50,20 @@ def test_divider_append_axes():
     axHistbot.xaxis.set_ticklabels(())
     axHistleft.yaxis.set_ticklabels(())
     axHistright.yaxis.set_ticklabels(())
+
+
+@image_comparison(baseline_images=['twin_axes_empty_and_removed'],
+    extensions=["png"])
+def test_twin_axes_empty_and_removed():
+    a = [ "twinx", "twiny", "twin" ]
+    b = [ None, "remove" ]
+    for i, (twin, op) in enumerate(product(a, b), 1):
+        h = host_subplot(len(a), len(b), i)
+        t = getattr(h, twin)()
+        getattr(t, op)() if op else None
+        h.text(0.5, 0.5, twin + (" & {0}".format(op) if op else ""),
+            horizontalalignment="center", verticalalignment="center")
+    plt.subplots_adjust(wspace=0.5, hspace=1)
 
 if __name__ == '__main__':
     import nose
