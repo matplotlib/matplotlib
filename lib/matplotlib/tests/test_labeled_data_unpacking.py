@@ -449,7 +449,7 @@ def test_docstring_addition():
         pass
 
     assert_regex(funcy.__doc__,
-                          r".*All arguments with the following names: 'x', 'bar'\.")
+                    r".*All arguments with the following names: 'x', 'bar'\.")
     assert_not_regex(funcy.__doc__,
                               r".*All positional and all keyword arguments\.")
     assert_not_regex(funcy.__doc__, r".*All positional arguments\.")
@@ -457,7 +457,8 @@ def test_docstring_addition():
 
 def test_positional_parameter_names_as_function():
     #
-    # this is a replace for plot, which can take args as x,y,c,x,y,c or x,y,x,y,c,x,y
+    # this is a replace for plot, which can take args as
+    # x,y,c,x,y,c or x,y,x,y,c,x,y
     def replacer(args, data):
         _replacer = []
         remaining = args
@@ -465,7 +466,7 @@ def test_positional_parameter_names_as_function():
             if len(remaining) == 1:
                 import warnings
 
-                msg = "Missing argument: this can happen if a color spec ('c') is in data"
+                msg = "Missing argument: color spec ('c=..') is in data?"
                 warnings.warn(msg, RuntimeWarning, stacklevel=3)
                 _replacer += ["x"]
             elif len(remaining) == 2:
