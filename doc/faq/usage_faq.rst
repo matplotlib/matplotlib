@@ -430,7 +430,8 @@ WXAgg          Agg rendering to to a :term:`wxWidgets` canvas
 WX             Native :term:`wxWidgets` drawing to a :term:`wxWidgets` Canvas
                (not recommended) (requires wxPython_)
 TkAgg          Agg rendering to a :term:`Tk` canvas (requires TkInter_)
-Qt4Agg         Agg rendering to a :term:`Qt4` canvas (requires PyQt4_)
+Qt4Agg         Agg rendering to a :term:`Qt4` canvas (requires PyQt4_ or ``pyside``)
+Qt5Agg         Agg rendering in a :term:`Qt5` canvas (requires PyQt5_)
 macosx         Cocoa rendering in OSX windows
                (presently lacks blocking show() behavior when matplotlib
                is in non-interactive mode)
@@ -448,6 +449,7 @@ macosx         Cocoa rendering in OSX windows
 .. _wxPython: http://www.wxpython.org/
 .. _TkInter: http://wiki.python.org/moin/TkInter
 .. _PyQt4: http://www.riverbankcomputing.co.uk/software/pyqt/intro
+.. _PyQt5: http://www.riverbankcomputing.co.uk/software/pyqt/intro
 
 How do I select PyQt4 or PySide?
 ========================================
