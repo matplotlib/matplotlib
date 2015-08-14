@@ -475,7 +475,7 @@ class _AxesBase(martist.Artist):
             container = getattr(self, container_name)
             for artist in container:
                 artist._remove_method = container.remove
-        self.stale = True
+        self._stale = True
 
     def get_window_extent(self, *args, **kwargs):
         """
@@ -2059,7 +2059,8 @@ class _AxesBase(martist.Artist):
         if not self.get_visible():
             return
         renderer.open_group('axes')
-
+        # prevent triggering call backs during the draw process
+        self._stale = True
         locator = self.get_axes_locator()
         if locator:
             pos = locator(self, renderer)

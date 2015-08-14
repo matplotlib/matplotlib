@@ -163,19 +163,20 @@ def add_offsetboxes(ax, size=10, margin=.1, color='black'):
     """
     Surround ax with OffsetBoxes
     """
-    da = DrawingArea(size, size)
-    background = Rectangle((0, 0), width=size,
-                           height=size,
-                           facecolor=color,
-                           edgecolor='None',
-                           linewidth=0,
-                           antialiased=False)
-    da.add_artist(background)
     m, mp = margin, 1+margin
     anchor_points = [(-m, -m), (-m, .5), (-m, mp),
                      (mp, .5), (.5, mp), (mp, mp),
                      (.5, -m), (mp, -m), (.5, -m)]
     for point in anchor_points:
+        da = DrawingArea(size, size)
+        background = Rectangle((0, 0), width=size,
+                               height=size,
+                               facecolor=color,
+                               edgecolor='None',
+                               linewidth=0,
+                               antialiased=False)
+        da.add_artist(background)
+
         anchored_box = AnchoredOffsetbox(
             loc=10,
             child=da,
