@@ -1533,6 +1533,10 @@ class TransformWrapper(Transform):
             msg = ("'child' must be an instance of"
                    " 'matplotlib.transform.Transform'")
             raise ValueError(msg)
+        self._init(child)
+        self.set_children(child)
+
+    def _init(self, child):
         Transform.__init__(self)
         self.input_dims = child.input_dims
         self.output_dims = child.output_dims
@@ -1553,7 +1557,7 @@ class TransformWrapper(Transform):
 
     def __setstate__(self, state):
         # re-initialise the TransformWrapper with the state's child
-        self.__init__(state['child'])
+        self._init(state['child'])
 
     def __repr__(self):
         return "TransformWrapper(%r)" % self._child
@@ -1564,7 +1568,6 @@ class TransformWrapper(Transform):
 
     def _set(self, child):
         self._child = child
-        self.set_children(child)
 
         self.transform = child.transform
         self.transform_affine = child.transform_affine
@@ -1593,6 +1596,7 @@ class TransformWrapper(Transform):
                    " output dimensions as the current child.")
             raise ValueError(msg)
 
+        self.set_children(child)
         self._set(child)
 
         self._invalid = 0
