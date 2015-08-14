@@ -2147,7 +2147,7 @@ class Annotation(Text, _AnnotationBase):
         patch.
         """
         # generate transformation,
-        self.set_transform(self._get_xy_transform(renderer, self.anncoords))
+        self.transform = self._get_xy_transform(renderer, self.anncoords)
 
         ox0, oy0 = self._get_xy_display()
         ox1, oy1 = xy_pixel
