@@ -91,13 +91,18 @@ Glossary
 
 
   Qt
-      `Qt <http://trolltech.com/products/qt/>`__ is a cross-platform
+      `Qt <http://www.qt.io/>`__ is a cross-platform
       application framework for desktop and embedded development.
 
   Qt4
-      `Qt4 <http://trolltech.com/products/qt/>`__ is the most recent
-      version of Qt cross-platform application framework for desktop
-      and embedded development.
+      `Qt4 <http://doc.qt.io/qt-4.8/index.html>`__ is the previous,
+      but most widely used, version of Qt cross-platform application
+      framework for desktop and embedded development.
+
+  Qt5
+      `Qt5 <http://doc.qt.io/qt-5/index.html>`__ is the current
+      version of Qt cross-platform application
+      framework for desktop and embedded development.
 
   raster graphics
       `Raster graphics
