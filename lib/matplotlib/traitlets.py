@@ -46,10 +46,11 @@ class exdict(dict):
 
 class PrivateMethodMixin(object):
 
-    def __new__(self, *args, **kwargs):
-        inst = super(PrivateMethodMixin,self).__new__(self, *args, **kwargs)
-        inst._trait_values = exdict(inst._trait_values)
-        inst._default_value = lambda key: getattr(inst, key, Undefined)
+    def __new__(cls, *args, **kwargs):
+        inst = super(PrivateMethodMixin,cls).__new__(cls, *args, **kwargs)
+        edict = exdict(inst._trait_values)
+        inst._trait_values = edict
+        edict._default_value = lambda self, key: getattr(self, key, Undefined)
         return inst
 
     def force_callback(self, name, cross_validate=True):
