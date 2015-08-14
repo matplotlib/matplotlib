@@ -73,9 +73,9 @@ Glossary
   pyqt
       `pyqt <http://wiki.python.org/moin/PyQt>`_ provides python
       wrappers for the :term:`Qt` widgets library and is required by
-      the matplotlib QtAgg and Qt4Agg backends.  Widely used on linux
+      the matplotlib Qt5Agg and Qt4Agg backends.  Widely used on linux
       and windows; many linux distributions package this as
-      'python-qt3' or 'python-qt4'.
+      'python-qt5' or 'python-qt4'.
 
   python
       `python <http://python.org>`_ is an object oriented interpreted
@@ -91,13 +91,18 @@ Glossary
 
 
   Qt
-      `Qt <http://trolltech.com/products/qt/>`__ is a cross-platform
+      `Qt <http://www.qt.io/>`__ is a cross-platform
       application framework for desktop and embedded development.
 
   Qt4
-      `Qt4 <http://trolltech.com/products/qt/>`__ is the most recent
-      version of Qt cross-platform application framework for desktop
-      and embedded development.
+      `Qt4 <http://doc.qt.io/qt-4.8/index.html>`__ is the previous,
+      but most widely used, version of Qt cross-platform application
+      framework for desktop and embedded development.
+
+  Qt5
+      `Qt5 <http://doc.qt.io/qt-5/index.html>`__ is the current
+      version of Qt cross-platform application
+      framework for desktop and embedded development.
 
   raster graphics
       `Raster graphics
