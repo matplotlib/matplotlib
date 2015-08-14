@@ -21,14 +21,93 @@ import re
 import numpy as np
 from types import MethodType
 from .transforms import IdentityTransform, Transform
+import contextlib
 
-class GetSetMixin(object):
+class exdict(dict):
 
-    @property
-    def __base_get__(self):
-        return super(GetSetMixin,self).__get__
+    def __init__(self, *args, **kwargs):
+        super(exdict, self).__init__(*args, **kwargs)
+        self._memory = dict()
+
+    def __setitem__(self, key, value):
+        try:
+            old = self[key]
+        except KeyError:
+            old = self._default_value(key)
+
+        self._memory[key] = old
+        super(exdict, self).__setitem__(key, value)
+
+    def ex(self, key):
+        return self._memory.get(key,self[key])
+
+    def _default_value(self, key): pass
+
+
+class PrivateMethodMixin(object):
+
+    def __new__(self, *args, **kwargs):
+        inst = super(PrivateMethodMixin,self).__new__(self, *args, **kwargs)
+        inst._trait_values = exdict(inst._trait_values)
+        inst._default_value = lambda key: getattr(inst, key, Undefined)
+        return inst
+
+    def force_callback(self, name, cross_validate=True):
+        if name not in self.traits():
+            msg = "'%s' is not a trait of a %s class"
+            raise TraitError(msg % (name, self.__class__))
+
+        trait = self.traits()[name]
+
+        new = self._trait_values[name]
+        try:
+            old = self._trait_values.ex(name)
+        except KeyError:
+            trait = getattr(self.__class__, name)
+            old = trait.default_value
+
+        self._notify_trait(name, old, new)
+        if cross_validate:
+            trait = self._retrieve_trait(name)
+            # ignores value output
+            trait._cross_validate(self, new)
+
+    def private(self, name, value=Undefined):
+        trait = self._retrieve_trait(name)
+
+        if value is Undefined:
+            if hasattr(trait, '__base_get__'):
+                return trait.__base_get__(self)
+            return getattr(self, name)
+        else:
+            trait._cross_validation_lock = True
+            _notify_trait = self._notify_trait
+            self._notify_trait = lambda *args: None
+            setattr(self, name, value)
+            self._notify_trait = _notify_trait
+            trait._cross_validation_lock = False
+
+    def _retrieve_trait(self, name):
+        try:
+            trait = getattr(self.__class__, name)
+            if not isinstance(trait, BaseDescriptor):
+                msg = "'%s' is a standard attribute, not a trait, of a %s class"
+                raise TraitError(msg % (name, self.__class__))
+        except AttributeError:
+            msg = "'%s' is not a trait of a %s class"
+            raise TraitError(msg % (name, self.__class__))
+        return trait
+
+class OnGetMixin(object):
+
+    def __init__(self, *args, **kwargs):
+        super_obj = super(OnGetMixin,self)
+        self.__base_get__ = super_obj.__get__
+        super_obj.__init__(*args, **kwargs)
 
     def __get__(self, obj, cls=None):
+        value = self.__base_get__(obj,cls)
+
         if hasattr(obj, '_'+self.name+'_getter'):
             meth = getattr(obj, '_'+self.name+'_getter')
             if not callable(meth):
@@ -40,58 +119,94 @@ class GetSetMixin(object):
             if argspec==0:
                 args = ()
             elif argspec==1:
-                args = (self,)
+                args = (value,)
             elif argspec==2:
-                args = (self, cls)
+                args = (value, self)
+            elif argspec==3:
+                args = (value, self, cls)
             else:
                 raise TraitError(("""a trait getter method must
-                                   have 2 or fewer arguments"""))
-            return meth(*args)
-        else:
-            return self.__base_get__(obj,cls)
-
-    @property
-    def __base_set__(self):
-        return super(GetSetMixin,self).__set__
-
-    def __set__(self, obj, value):
-        if hasattr(obj, '_'+self.name+'_setter'):
-            meth = getattr(obj, '_'+self.name+'_setter')
-            if not callable(meth):
-                raise TraitError(("""a trait setter method
-                                   must be callable"""))
-            argspec = getargspec(meth)
-            if isinstance(meth, MethodType):
-                argspec -= 1
-            if argspec==0:
-                args = ()
-            elif argspec==1:
-                args = (self,)
-            elif argspec==2:
-                args = (self, value)
-            else:
-                raise TraitError(("""a trait setter method must
-                                   have 2 or fewer arguments"""))
+                                   have 3 or fewer arguments"""))
             value = meth(*args)
-        self.__base_set__(obj, value)
+        
+        return value
+
 
 class TransformInstance(TraitType):
 
     info_text = ('a Transform instance or have an'
                  ' `_as_mpl_transform` method')
 
+    def __init__(self, *args, **kwargs):
+        super(TransformInstance,self).__init__(*args, **kwargs)
+        self._conversion_method = False
+
+    def _validate(self, obj, value):
+        if hasattr(self, 'validate'):
+            value = self.validate(obj, value)
+        if obj._cross_validation_lock is False:
+            value = self._cross_validate(obj, value)
+        return value
+
     def validate(self, obj, value):
         if value is None:
             return IdentityTransform()
         if isinstance(value, Transform):
+            self._conversion_method = False
             return value
         elif hasattr(value, '_as_mpl_transform'):
-            conv = value._as_mpl_transform(self.axes)
-            return self._validate(conv)
+            self._conversion_method = True
+            return value._as_mpl_transform
         trait.error(obj, value)
 
-class gsTransformInstance(GetSetMixin,TransformInstance): pass
+class gTransformInstance(OnGetMixin,TransformInstance): pass
 
+#!Note : this is what the transform instance would
+# look like if getters were to be avoided entirely.
+# `_name_validate` would handle "on set" events
+# while standard change handlers would accomodate
+# any "on get" requirements. This could be hairy
+# to implement, but in principle it seems possible.
+# For now though, getters will remain a crutch to
+# make it through testing.
+
+# class TransformInstance(TraitType):
+
+#     info_text = ('None, a Transform instance or have an'
+#                  ' `_as_mpl_transform` method')
+#     allow_none = True
+
+#     def __init__(self, *args, **kwargs):
+#         super(TransformInstance,self).__init__(*args, **kwargs)
+#         self._conversion_value = Undefined
+
+#     def __get__(self, obj, cls=None):
+#         value = super(TransformInstance,self).__get__(obj,cls)
+#         if self._conversion_value is not Undefined:
+#             return self._conversion_value
+#         return value
+
+#     def _validate(self, obj, value):
+#         if value is None:
+#             return IdentityTransform()
+#         if hasattr(self, 'validate'):
+#             value = self.validate(obj, value)
+#         if obj._cross_validation_lock is False:
+#             value = self._cross_validate(obj, value)
+#         return value
+
+#     def validate(self, obj, value):
+#         if isinstance(value, Transform):
+#             if self._conversion_value is not Undefined:
+#                 self._conversion_value = Undefined
+#             return value
+#         elif hasattr(value, '_as_mpl_transform'):
+#             method = value._as_mpl_transform
+#             try:
+#                 self._conversion_value = method(obj.axes)
+#             except:
+#                 self._conversion_value = None
+#         trait.error(obj, value)
 
 class Callable(TraitType):
     """A trait which is callable.

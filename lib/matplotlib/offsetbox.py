@@ -40,7 +40,7 @@ from matplotlib.image import BboxImage
 from matplotlib.patches import bbox_artist as mbbox_artist
 from matplotlib.text import _AnnotationBase
 
-from .traitlets import gsTransformInstance
+from .traitlets import gTransformInstance
 
 DEBUG = False
 
@@ -592,7 +592,7 @@ class DrawingArea(OffsetBox):
     boundaries of the parent.
     """
 
-    transform = gsTransformInstance(None, allow_none=True)
+    transform = gTransformInstance(None, allow_none=True)
 
     def __init__(self, width, height, xdescent=0.,
                  ydescent=0., clip=False):
@@ -629,16 +629,16 @@ class DrawingArea(OffsetBox):
         self._clip_children = bool(val)
         self.stale = True
 
-    def _transform_getter(self, *args):
+    def _transform_getter(self):
         """
          Return the :class:`~matplotlib.transforms.Transform` applied
          to the children
          """
         return self.dpi_transform + self.offset_transform
 
-    def _transform_changed(self):
+    def _transform_changed(self, name):
         """Ignore setting"""
-        self.transform = None
+        self._trait_values[name] = None
 
     #!DEPRECATED
     # def get_transform(self):
@@ -910,7 +910,7 @@ class AuxTransformBox(OffsetBox):
     calculated in the transformed coordinate.
     """
 
-    transform = gsTransformInstance(None, allow_none=True)
+    transform = gTransformInstance(None, allow_none=True)
 
     def __init__(self, aux_transform):
         self.aux_transform = aux_transform

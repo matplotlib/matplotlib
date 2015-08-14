@@ -21,7 +21,7 @@ import matplotlib.units as munits
 import numpy as np
 import warnings
 
-from .traitlets import gsTransformInstance
+from .traitlets import gTransformInstance
 
 GRIDLINE_INTERPOLATION_STEPS = 180
 
@@ -618,7 +618,7 @@ class Axis(artist.Artist):
     """
     OFFSETTEXTPAD = 3
 
-    transform = gsTransformInstance(None)
+    transform = gTransformInstance(None)
 
     def __str__(self):
         return self.__class__.__name__ \
@@ -698,7 +698,7 @@ class Axis(artist.Artist):
     def _set_scale(self, value, **kwargs):
         self._scale = mscale.scale_factory(value, self, **kwargs)
         self._scale.set_default_locators_and_formatters(self)
-
+        
         self.isDefault_majloc = True
         self.isDefault_minloc = True
         self.isDefault_majfmt = True

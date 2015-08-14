@@ -33,31 +33,31 @@ def test_patch_transform_of_none():
     # Not providing a transform of None puts the ellipse in data coordinates .
     e = mpatches.Ellipse(xy_data, width=1, height=1, fc='yellow', alpha=0.5)
     ax.add_patch(e)
-    assert e.transform == ax.transData
+    assert e.private('transform') == ax.transData
 
     # Providing a transform of None puts the ellipse in device coordinates.
     e = mpatches.Ellipse(xy_pix, width=120, height=120, fc='coral',
                          transform=None, alpha=0.5)
-    assert e.transform_set) is True
+    assert e.transform_set is True
     ax.add_patch(e)
-    assert isinstance(e.transform, mtrans.IdentityTransform)
+    assert isinstance(e.private('transform'), mtrans.IdentityTransform)
 
     # Providing an IdentityTransform puts the ellipse in device coordinates.
     e = mpatches.Ellipse(xy_pix, width=100, height=100,
                          transform=mtrans.IdentityTransform(), alpha=0.5)
     ax.add_patch(e)
-    assert isinstance(e.transform, mtrans.IdentityTransform)
+    assert isinstance(e.private('transform'), mtrans.IdentityTransform)
 
     # Not providing a transform, and then subsequently "get_transform" should
     # not mean that "is_transform_set".
     e = mpatches.Ellipse(xy_pix, width=120, height=120, fc='coral',
                          alpha=0.5)
     intermediate_transform = e.transform
-    assert e.transform_set) is False
+    assert e.transform_set is False
     ax.add_patch(e)
     assert e.transform != intermediate_transform
-    assert e.transform_set) is True
-    assert e.transform == ax.transData
+    assert e.transform_set is True
+    assert e.private('transform') == ax.transData
 
 
 @cleanup

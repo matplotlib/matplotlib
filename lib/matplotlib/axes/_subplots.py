@@ -34,9 +34,7 @@ class SubplotBase(object):
         If *numRows* <= *numCols* <= *plotNum* < 10, *args* can be the
         decimal integer *numRows* * 100 + *numCols* * 10 + *plotNum*.
         """
-        #!NOTE redundant assignment. This should always be set
-        # by _AxesBase through the subplot class factory.
-        # self.figure = fig
+        self.private('figure', fig)
 
         if len(args) == 1:
             if isinstance(args[0], SubplotSpec):

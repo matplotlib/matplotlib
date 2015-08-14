@@ -573,7 +573,7 @@ class Line2D(Artist):
             bbox = bbox.padded(ms)
         return bbox
 
-    def _axes_changed(self, name, new):
+    def _axes_changed(self, name, old, new):
 		Artist._axes_changed(self, name, old, new)
 		if new is not None:
         	if new.xaxis is not None:

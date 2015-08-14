@@ -15,9 +15,8 @@ from .transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPatchPath, TransformedPath, Transform)
 from .path import Path
 
-from .traitlets import Instance, Configurable, TransformInstance, Bool, Undefined, BaseDescriptor
-class Absent(object): pass
-Absent = Absent()
+from .traitlets import (Instance, Configurable, gTransformInstance, Bool, Undefined,
+                        BaseDescriptor, getargspec, PrivateMethodMixin)
 
 # Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
@@ -34,9 +33,6 @@ Absent = Absent()
 # the docstring, and there is no clever way to do that in python 2.2,
 # as far as I can see - see
 # http://groups.google.com/groups?hl=en&lr=&threadm=mailman.5090.1098044946.5135.python-list%40python.org&rnum=1&prev=/groups%3Fq%3D__doc__%2Bauthor%253Ajdhunter%2540ace.bsd.uchicago.edu%26hl%3Den%26btnG%3DGoogle%2BSearch
-
-class Absent(object): pass
-Absent = Absent()
 
 def allow_rasterization(draw):
     """
@@ -83,7 +79,7 @@ def _stale_axes_callback(self):
     self.axes.stale = True
 
 
-class Artist(Configurable):
+class Artist(PrivateMethodMixin, Configurable):
     """
     Abstract base class for someone who renders into a
     :class:`FigureCanvas`.
@@ -92,12 +88,20 @@ class Artist(Configurable):
     aname = 'Artist'
     zorder = 0
 
-    transform = TransformInstance(IdentityTransform(), allow_none=True)
+    transform = gTransformInstance(IdentityTransform())
 
     def _transform_changed(self):
-        self.transform_set = True
         self.pchanged()
         self.stale = True
+
+    def _transform_validate(self, value, trait):
+        self.transform_set = True
+        return value
+
+    def _transform_getter(self, value, trait):
+        if trait._conversion_method:
+            return value(self.axes)
+        return value
 
     stale = Bool(True)
 
@@ -113,7 +117,7 @@ class Artist(Configurable):
                              "probably trying to re-use an artist "
                              "in more than one Axes which is not "
                              "supported")
-        if new is not None and new is not self:
+        if new not in (Undefined,None) and new is not self:
             self.add_callback(_stale_axes_callback)
 
     axes = Instance(str('matplotlib.axes.Axes'), allow_none=True)
@@ -148,11 +152,11 @@ class Artist(Configurable):
         self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
         self._propobservers = {}  # a dict from oids to funcs
-        try:
-            self.axes = None
-        except AttributeError:
-            # Handle self.axes as a read-only property, as in Figure.
-            pass
+        # try:
+        #     self.axes = None
+        # except AttributeError:
+        #     # Handle self.axes as a read-only property, as in Figure.
+        #     pass
         self._remove_method = None
         self._url = None
         self._gid = None
@@ -876,20 +880,19 @@ class Artist(Configurable):
         store = self.eventson
         self.eventson = False
         changed = False
-
         for k, v in six.iteritems(props):
             if k in ['axes']:
                 setattr(self, k, v)
             else:
+                #!DEPRICATED set_name access should be removed
                 func = getattr(self, 'set_' + k, None)
                 if func is not None and six.callable(func):
                     func(v)
                 else:
                     klass = self.__class__
-                    if isinstance(getattr(klass, k, Absent),BaseDescriptor):
+                    if isinstance(getattr(klass, k, None),BaseDescriptor):
                         setattr(self, k, v)
                     else:
-                        print(self.trait_names())
                         raise AttributeError('Unknown property %s' % k)
             changed = True
         self.eventson = store
@@ -935,7 +938,7 @@ class Artist(Configurable):
 
     def update_from(self, other):
         'Copy properties from *other* to *self*.'
-        self.transform = other.transform
+        self.private('transform', other.private('transform'))
         self.transform_set = other.transform_set
         self._visible = other._visible
         self._alpha = other._alpha

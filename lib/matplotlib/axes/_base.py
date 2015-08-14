@@ -184,6 +184,18 @@ class _process_plot_var_args(object):
         ret = self._grab_next_args(*args, **kwargs)
         return ret
 
+    def _base_set_method(self, obj, k, v, e):
+        #!DEPRICATED set_name access should be removed
+        func = getattr(obj, 'set_' + k, None)
+        if func is not None and six.callable(func):
+            func(v)
+        else:
+            traittype = getattr(obj.__class__, k, None)
+            if isinstance(traittype, BaseDescriptor):
+                setattr(obj, k, v)
+            else:
+                raise e
+
     def set_lineprops(self, line, **kwargs):
         assert self.command == 'plot', 'set_lineprops only works with "plot"'
         line.set(**kwargs)
@@ -496,7 +508,13 @@ class _AxesBase(martist.Artist):
                 #    'shared axes: "adjustable" is being changed to "datalim"')
             self._adjustable = 'datalim'
         self.set_label(label)
-        self.figure = fig
+
+        if self.figure == fig:
+            self.figure = fig
+            self.force_callback('figure')
+        else:
+            self.figure = fig
+
 
         self.set_axes_locator(kwargs.get("axes_locator", None))
 

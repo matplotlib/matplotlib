@@ -118,8 +118,8 @@ class Axis(maxis.XAxis):
         self.axes._set_artist_props(self.label)
         self.axes._set_artist_props(self.offsetText)
         # Need to be able to place the label at the correct location
-        self.label._transform = self.axes.transData
-        self.offsetText._transform = self.axes.transData
+        self.label.private('transform', self.axes.transData)
+        self.offsetText.private('transform', self.axes.transData)
 
     def get_tick_positions(self):
         majorLocs = self.major.locator()
@@ -206,7 +206,7 @@ class Axis(maxis.XAxis):
         renderer.close_group('pane3d')
 
     def draw(self, renderer):
-        self.label._transform = self.axes.transData
+        self.label.private('transform', self.axes.transData)
         renderer.open_group('axis3d')
 
         # code from XAxis

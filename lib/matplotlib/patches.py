@@ -26,7 +26,7 @@ from matplotlib.bezier import make_path_regular, concatenate_paths
 
 from .transforms import IdentityTransform
 
-from .traitlets import gsTransformInstance
+from .traitlets import gTransformInstance
 
 
 # these are not available for the object inspector until after the
@@ -71,7 +71,7 @@ class Patch(artist.Artist):
     validCap = ('butt', 'round', 'projecting')
     validJoin = ('miter', 'round', 'bevel')
 
-    transform = gsTransformInstance(default_value=IdentityTransform())
+    transform = gTransformInstance(IdentityTransform())
 
     def __str__(self):
         return str(self.__class__).split('.')[-1]
@@ -195,8 +195,8 @@ class Patch(artist.Artist):
         """
         return self.get_path().get_extents(self.transform)
 
-    def _transform_getter(self, trait, cls):
-        return self.get_patch_transform() + trait.__base_get__(self,cls)
+    def _transform_getter(self, value):
+        return self.get_patch_transform() + value
 
     # !DEPRECATED
     # def get_transform(self):
