@@ -503,7 +503,7 @@ Request a new feature
 
 Is there a feature you wish matplotlib had?  Then ask!  The best
 way to get started is to email the developer `mailing
-list <matplotlib-devel@lists.sourceforge.net>`_ for discussion.
+list <matplotlib-devel@python.org>`_ for discussion.
 This is an open source project developed primarily in the
 contributors free time, so there is no guarantee that your
 feature will be added.  The *best* way to get the feature
@@ -526,7 +526,7 @@ demonstrating what the bug is.  Including a clear, easy to test
 example makes it easy for the developers to evaluate the bug.  Expect
 that the bug reports will be a conversation.  If you do not want to
 register with github, please email bug reports to the `mailing list
-<matplotlib-devel@lists.sourceforge.net>`_.
+<matplotlib-devel@python.org>`_.
 
 
 The easiest way to submit patches to matplotlib is through pull

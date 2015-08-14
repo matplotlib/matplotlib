@@ -9,10 +9,3 @@ events are aware of things like data coordinate space and whih axes
 the event occurs in so you don't have to mess with low level
 transformation details to go from canvas space to data space.  Object
 picking examples are also included.
-
-There is an event handling tutorial at
-http://matplotlib.sourceforge.net/pycon/event_handling_tut.pdf.  The
-ReST source for this document is included in the matplotlib source
-distribution.
-
-
