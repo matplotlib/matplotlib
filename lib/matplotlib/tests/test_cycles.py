@@ -45,16 +45,17 @@ def test_fillcycle_basic():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.set_prop_cycle(cycler('color',  ['r', 'g', 'y']) +
-                      cycler('hatch', ['xx', 'O', '|-']))
+                      cycler('hatch', ['xx', 'O', '|-']) +
+                      cycler('linestyle', ['-', '--', ':']))
     xs = np.arange(10)
     ys = 0.25 * xs**.5 + 2
-    ax.fill(xs, ys, label='red, x', facecolor='none')
+    ax.fill(xs, ys, label='red, x')
     ys = 0.45 * xs**.5 + 3
-    ax.fill(xs, ys, label='green, circle', facecolor='none')
+    ax.fill(xs, ys, label='green, circle')
     ys = 0.65 * xs**.5 + 4
-    ax.fill(xs, ys, label='yellow, cross', facecolor='none')
+    ax.fill(xs, ys, label='yellow, cross')
     ys = 0.85 * xs**.5 + 5
-    ax.fill(xs, ys, label='red2, x2', facecolor='none')
+    ax.fill(xs, ys, label='red2, xx')
     ax.legend(loc='upper left')
 
 
