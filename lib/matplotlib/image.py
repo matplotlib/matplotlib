@@ -71,6 +71,14 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     iterpnames = interpolations_names
     # <end unused keys>
 
+    def set_cmap(self, cmap):
+        super(_AxesImageBase, self).set_cmap(cmap)
+        self.stale = True
+
+    def set_norm(self, norm):
+        super(_AxesImageBase, self).set_norm(norm)
+        self.stale = True
+
     def __str__(self):
         return "AxesImage(%g,%g;%gx%g)" % tuple(self.axes.bbox.bounds)
 
@@ -835,12 +843,12 @@ class NonUniformImage(AxesImage):
     def set_norm(self, norm):
         if self._A is not None:
             raise RuntimeError('Cannot change colors after loading data')
-        cm.ScalarMappable.set_norm(self, norm)
+        super(NonUniformImage, self).set_norm(self, norm)
 
     def set_cmap(self, cmap):
         if self._A is not None:
             raise RuntimeError('Cannot change colors after loading data')
-        cm.ScalarMappable.set_cmap(self, cmap)
+        super(NonUniformImage, self).set_cmap(self, cmap)
 
 
 class PcolorImage(martist.Artist, cm.ScalarMappable):
@@ -1033,6 +1041,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
     def set_data(self, A):
         """Set the image array."""
         cm.ScalarMappable.set_array(self, cbook.safe_masked_invalid(A))
+        self.stale = True
 
     def set_array(self, A):
         """Deprecated; use set_data for consistency with other image types."""

@@ -21,13 +21,13 @@ def get_net():
 def get_stats():
     return get_memory(), get_cpu(), get_net()
 
-
-# turn interactive mode on for dynamic updates.  If you aren't in
-# interactive mode, you'll need to use a GUI event handler/timer.
-plt.ion()
-
 fig, ax = plt.subplots()
 ind = np.arange(1, 4)
+
+# show the figure, but do not block
+plt.show(block=False)
+
+
 pm, pc, pn = plt.bar(ind, get_stats())
 centers = ind + 0.5*pm.get_width()
 pm.set_facecolor('r')
@@ -44,10 +44,21 @@ start = time.time()
 for i in range(200):  # run for a little while
     m, c, n = get_stats()
 
+    # update the animated artists
     pm.set_height(m)
     pc.set_height(c)
     pn.set_height(n)
+
+    # ask the canvas to re-draw itself the next time it
+    # has a chance.
+    # For most of the GUI backends this adds an event to the queue
+    # of the GUI frameworks event loop.
+    fig.canvas.draw_idle()
     try:
+        # make sure that the GUI framework has a chance to run its event loop
+        # and clear any GUI events.  This needs to be in a try/except block
+        # because the default implemenation of this method is to raise
+        # NotImplementedError
         fig.canvas.flush_events()
     except NotImplementedError:
         pass

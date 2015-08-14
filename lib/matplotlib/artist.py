@@ -68,12 +68,9 @@ def allow_rasterization(draw):
     return draw_wrapper
 
 
-def _stale_figure_callback(self):
-    self.figure.stale = True
-
-
-def _stale_axes_callback(self):
-    self.axes.stale = True
+def _stale_axes_callback(self, val):
+    if self.axes:
+        self.axes.stale = val
 
 
 class Artist(object):
@@ -87,6 +84,7 @@ class Artist(object):
 
     def __init__(self):
         self._stale = True
+        self.stale_callback = None
         self._axes = None
         self.figure = None
 
@@ -124,6 +122,7 @@ class Artist(object):
         # remove the unpicklable remove method, this will get re-added on load
         # (by the axes) if the artist lives on an axes.
         d['_remove_method'] = None
+        d['stale_callback'] = None
         return d
 
     def remove(self):
@@ -222,7 +221,7 @@ class Artist(object):
 
         self._axes = new_axes
         if new_axes is not None and new_axes is not self:
-            self.add_callback(_stale_axes_callback)
+            self.stale_callback = _stale_axes_callback
 
         return new_axes
 
@@ -236,15 +235,16 @@ class Artist(object):
 
     @stale.setter
     def stale(self, val):
-        # only trigger call-back stack on being marked as 'stale'
-        # when not already stale
-        # the draw process will take care of propagating the cleaning
-        # process
-        if not (self._stale == val):
-            self._stale = val
-            # only trigger propagation if marking as stale
-            if self._stale:
-                self.pchanged()
+        self._stale = val
+
+        # if the artist is animated it does not take normal part in the
+        # draw stack and is not expected to be drawn as part of the normal
+        # draw loop (when not saving) so do not propagate this change
+        if self.get_animated():
+            return
+
+        if val and self.stale_callback is not None:
+            self.stale_callback(self, val)
 
     def get_window_extent(self, renderer):
         """
@@ -608,9 +608,19 @@ class Artist(object):
 
         ACCEPTS: a :class:`matplotlib.figure.Figure` instance
         """
+        # if this is a no-op just return
+        if self.figure is fig:
+            return
+        # if we currently have a figure (the case of both `self.figure`
+        # and `fig` being none is taken care of above) we then user is
+        # trying to change the figure an artist is associated with which
+        # is not allowed for the same reason as adding the same instance
+        # to more than one Axes
+        if self.figure is not None:
+            raise RuntimeError("Can not put single artist in "
+                               "more than one figure")
         self.figure = fig
         if self.figure and self.figure is not self:
-            self.add_callback(_stale_figure_callback)
             self.pchanged()
         self.stale = True
 
@@ -804,9 +814,9 @@ class Artist(object):
 
         ACCEPTS: [True | False]
         """
-        self._animated = b
-        self.pchanged()
-        self.stale = True
+        if self._animated != b:
+            self._animated = b
+            self.pchanged()
 
     def update(self, props):
         """
