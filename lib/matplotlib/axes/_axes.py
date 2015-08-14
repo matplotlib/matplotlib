@@ -1424,12 +1424,11 @@ class Axes(_AxesBase):
         if c is not None:
             kwargs['color'] = c
 
-        with self.hold_trait_notifications():
-            for line in self._get_lines(*args, **kwargs):
-                self.add_line(line)
-                lines.append(line)
+        for line in self._get_lines(*args, **kwargs):
+            self.add_line(line)
+            lines.append(line)
 
-            self.autoscale_view(scalex=scalex, scaley=scaley)
+        self.autoscale_view(scalex=scalex, scaley=scaley)
         return lines
 
     @unpack_labeled_data(replace_names=["x", "y"], label_namer="y")

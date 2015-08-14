@@ -510,7 +510,6 @@ class _AxesBase(martist.Artist):
         self.set_label(label)
 
         if self.figure == fig:
-            self.figure = fig
             self.force_callback('figure')
         else:
             self.figure = fig

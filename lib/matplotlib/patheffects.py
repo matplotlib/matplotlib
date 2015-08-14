@@ -387,5 +387,6 @@ class PathPatchEffect(AbstractPathEffect):
         affine = self._offset_transform(renderer, affine)
         self.patch._path = tpath
         self.patch.transform = affine
+        self.patch.set_clip_box(gc._cliprect)
         self.patch.set_clip_path(gc._clippath)
         self.patch.draw(renderer)
