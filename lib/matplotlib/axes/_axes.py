@@ -2275,6 +2275,13 @@ class Axes(_AxesBase):
 
         .. plot:: mpl_examples/pylab_examples/broken_barh.py
         """
+        # process the unit information
+        self._process_unit_info(xdata=xranges[0],
+                                ydata=yrange[0],
+                                kwargs=kwargs)
+        xranges = self.convert_xunits(xranges)
+        yrange = self.convert_yunits(yrange)
+
         col = mcoll.BrokenBarHCollection(xranges, yrange, **kwargs)
         self.add_collection(col, autolim=True)
         self.autoscale_view()
@@ -5784,6 +5791,12 @@ class Axes(_AxesBase):
 
         if histtype == 'barstacked' and not stacked:
             stacked = True
+
+        # process the unit information
+        self._process_unit_info(xdata=x, kwargs=kwargs)
+        x = self.convert_xunits(x)
+        if bin_range is not None:
+            bin_range = self.convert_xunits(bin_range)
 
         # Check whether bins or range are given explicitly.
         binsgiven = (cbook.iterable(bins) or bin_range is not None)
