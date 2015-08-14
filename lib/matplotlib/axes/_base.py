@@ -181,23 +181,16 @@ class _process_plot_var_args(object):
         ret = self._grab_next_args(*args, **kwargs)
         return ret
 
+
     def set_lineprops(self, line, **kwargs):
         assert self.command == 'plot', 'set_lineprops only works with "plot"'
-        for key, val in six.iteritems(kwargs):
-            funcName = "set_%s" % key
-            if not hasattr(line, funcName):
-                raise TypeError('There is no line property "%s"' % key)
-            func = getattr(line, funcName)
-            func(val)
+        line.set(**kwargs)
+
 
     def set_patchprops(self, fill_poly, **kwargs):
         assert self.command == 'fill', 'set_patchprops only works with "fill"'
-        for key, val in six.iteritems(kwargs):
-            funcName = "set_%s" % key
-            if not hasattr(fill_poly, funcName):
-                raise TypeError('There is no patch property "%s"' % key)
-            func = getattr(fill_poly, funcName)
-            func(val)
+        fill_poly.set(**kwargs)
+
 
     def _xy_from_xy(self, x, y):
         if self.axes.xaxis is not None and self.axes.yaxis is not None:
@@ -235,37 +228,79 @@ class _process_plot_var_args(object):
             y = y[:, np.newaxis]
         return x, y
 
-    def _setdefaults(self, kw, kwargs):
-        # Only advance the cycler if the cycler
-        # has information that is not specified
-        # in the supplied kw and kwargs dicts
-        if any([kw.get(k, None) is None and kwargs.get(k, None) is None
-                for k in self._prop_keys]):
+
+    def _getdefaults(self, *kwargs):
+        """
+        Only advance the cycler if the cycler has information that
+        is not specified in any of the supplied tuple of dicts
+
+        Returns a dictionary or None.
+
+        """
+        if any([all([kw.get(k, None) is None for kw in kwargs])
+               for k in self._prop_keys]):
             default_dict = six.next(self.prop_cycler)
         else:
             default_dict = None
+        return default_dict
 
-        for k in self._prop_keys:
-            if (default_dict is not None and
-                    kw.get(k, None) is None and
-                    kwargs.get(k, None) is None):
-                kwargs[k] = kw[k] = default_dict[k]
+
+    def _setdefaults(self, default_dict, *kwargs):
+        """
+        Given a defaults dictionary (or None), and a other dictionaries,
+        update the other dictionaries with information in defaults if
+        none of the other dictionaries contains that information.
+
+        """
+        if default_dict is None:
+            return
+        for k in default_dict:
+            if all([kw.get(k, None) is None for kw in kwargs]):
+                for kw in kwargs:
+                    kw[k] = default_dict[k]
+
 
     def _makeline(self, x, y, kw, kwargs):
         kw = kw.copy()  # Don't modify the original kw.
         kwargs = kwargs.copy()
-        self._setdefaults(kw, kwargs)
+        default_dict = self._getdefaults(kw, kwargs)
+        self._setdefaults(default_dict, kw, kwargs)
         seg = mlines.Line2D(x, y, **kw)
         self.set_lineprops(seg, **kwargs)
         return seg
 
+
     def _makefill(self, x, y, kw, kwargs):
         kw = kw.copy()  # Don't modify the original kw.
         kwargs = kwargs.copy()
-        # Might be problematic with fallback names such as
-        # 'facecolor' and such. Possibly fixed by traitlets?
-        self._setdefaults(kw, kwargs)
+
+        # Only using the first dictionary to use as basis
+        # for getting defaults for back-compat reasons.
+        # Doing it with both seems to mess things up in
+        # various places (probably due to logic bugs elsewhere).
+        default_dict = self._getdefaults(kw)
+        self._setdefaults(default_dict, kw)
+
+        # Looks like we don't want "color" to be interpreted to
+        # mean both facecolor and edgecolor for some reason.
+        # So the "kw" dictionary is thrown out, and only its
+        # 'color' value is kept and translated as a 'facecolor'.
+        # This design should probably be revisited as it increases
+        # complexity.
         facecolor = kw.get('color', None)
+
+        # Throw out 'color' as it is now handled as a facecolor
+        # Need to copy this dictionary or else the next time around
+        # in the cycle, the dictionary will be missing this entry
+        # completely!
+        if default_dict is not None:
+            default_dict = default_dict.copy()
+            default_dict.pop('color', None)
+
+        # To get other properties set from the cycler
+        # modify the kwargs dictionary.
+        self._setdefaults(default_dict, kwargs)
+
         seg = mpatches.Polygon(np.hstack((x[:, np.newaxis],
                                           y[:, np.newaxis])),
                                facecolor=facecolor,
@@ -273,6 +308,7 @@ class _process_plot_var_args(object):
                                closed=kw['closed'])
         self.set_patchprops(seg, **kwargs)
         return seg
+
 
     def _plot_args(self, tup, kwargs):
         ret = []
