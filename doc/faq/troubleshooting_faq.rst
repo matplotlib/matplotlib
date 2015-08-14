@@ -92,7 +92,7 @@ There is a good chance your question has already been asked:
 If you are unable to find an answer to your question through search,
 please provide the following information in your e-mail to the
 `mailing list
-<http://lists.sourceforge.net/mailman/listinfo/matplotlib-users>`_:
+<https://mail.python.org/mailman/listinfo/matplotlib-users>`_:
 
   * your operating system; (Linux/UNIX users: post the output of ``uname -a``)
 
