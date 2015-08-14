@@ -15,6 +15,7 @@ import nose
 import numpy as np
 
 import matplotlib as mpl
+import matplotlib.style
 import matplotlib.tests
 import matplotlib.units
 from matplotlib import cbook
@@ -67,12 +68,12 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
     return known_fail_decorator
 
 
-def _do_cleanup(original_units_registry):
+def _do_cleanup(original_units_registry, original_settings):
     plt.close('all')
     gc.collect()
 
-    matplotlib.tests.setup()
-
+    mpl.rcParams.clear()
+    mpl.rcParams.update(original_settings)
     matplotlib.units.registry.clear()
     matplotlib.units.registry.update(original_units_registry)
     warnings.resetwarnings()  # reset any warning filters set in tests
@@ -82,10 +83,13 @@ class CleanupTest(object):
     @classmethod
     def setup_class(cls):
         cls.original_units_registry = matplotlib.units.registry.copy()
+        cls.original_settings = mpl.rcParams.copy()
+        matplotlib.tests.setup()
 
     @classmethod
     def teardown_class(cls):
-        _do_cleanup(cls.original_units_registry)
+        _do_cleanup(cls.original_units_registry,
+                    cls.original_settings)
 
     def test(self):
         self._func()
@@ -97,20 +101,24 @@ class CleanupTestCase(unittest.TestCase):
     def setUpClass(cls):
         import matplotlib.units
         cls.original_units_registry = matplotlib.units.registry.copy()
+        cls.original_settings = mpl.rcParams.copy()
 
     @classmethod
     def tearDownClass(cls):
-        _do_cleanup(cls.original_units_registry)
+        _do_cleanup(cls.original_units_registry,
+                    cls.original_settings)
 
 
 def cleanup(func):
     @functools.wraps(func)
     def wrapped_function(*args, **kwargs):
         original_units_registry = matplotlib.units.registry.copy()
+        original_settings = mpl.rcParams.copy()
         try:
             func(*args, **kwargs)
         finally:
-            _do_cleanup(original_units_registry)
+            _do_cleanup(original_units_registry,
+                        original_settings)
 
     return wrapped_function
 
@@ -130,9 +138,24 @@ def check_freetype_version(ver):
 class ImageComparisonTest(CleanupTest):
     @classmethod
     def setup_class(cls):
+        cls._initial_settings = mpl.rcParams.copy()
+        try:
+            matplotlib.style.use(cls._style)
+        except:
+            # Restore original settings before raising errors during the update.
+            mpl.rcParams.clear()
+            mpl.rcParams.update(cls._initial_settings)
+            raise
+        # Because the setup of a CleanupTest might involve
+        # modifying a few rcparams, this setup should come
+        # last prior to running the image test.
         CleanupTest.setup_class()
-
+        cls.original_settings = cls._initial_settings
         cls._func()
+
+    @classmethod
+    def teardown_class(cls):
+        CleanupTest.teardown_class()
 
     @staticmethod
     def remove_text(figure):
@@ -206,7 +229,7 @@ class ImageComparisonTest(CleanupTest):
 
 def image_comparison(baseline_images=None, extensions=None, tol=13,
                      freetype_version=None, remove_text=False,
-                     savefig_kwarg=None):
+                     savefig_kwarg=None, style='classic'):
     """
     call signature::
 
@@ -242,6 +265,11 @@ def image_comparison(baseline_images=None, extensions=None, tol=13,
 
       *savefig_kwarg*: dict
         Optional arguments that are passed to the savefig method.
+
+      *style*: string
+        Optional name for the base style to apply to the image
+        test. The test itself can also apply additional styles
+        if desired. Defaults to the 'classic' style.
 
     """
 
@@ -280,7 +308,8 @@ def image_comparison(baseline_images=None, extensions=None, tol=13,
              '_tol': tol,
              '_freetype_version': freetype_version,
              '_remove_text': remove_text,
-             '_savefig_kwarg': savefig_kwarg})
+             '_savefig_kwarg': savefig_kwarg,
+             '_style': style})
 
         return new_class
     return compare_images_decorator
