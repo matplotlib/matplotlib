@@ -357,7 +357,10 @@ class RendererAgg(RendererBase):
             else:
                 ox, oy = xy
 
-            self._renderer.restore_region(region, x1, y1, x2, y2, ox, oy)
+            # The incoming data is float, but the _renderer type-checking wants
+            # to see integers.
+            self._renderer.restore_region(region, int(x1), int(y1),
+                                          int(x2), int(y2), int(ox), int(oy))
 
         else:
             self._renderer.restore_region(region)

@@ -471,6 +471,10 @@ class FigureManagerQT(FigureManagerBase):
         else:
             tbs_height = 0
 
+        # add text label to status bar
+        self.statusbar_label = QtWidgets.QLabel()
+        self.window.statusBar().addWidget(self.statusbar_label)
+
         # resize the main window so it will display the canvas with the
         # requested size:
         cs = canvas.sizeHint()
@@ -493,8 +497,7 @@ class FigureManagerQT(FigureManagerBase):
 
     @QtCore.Slot()
     def _show_message(self, s):
-        # Fixes a PySide segfault.
-        self.window.statusBar().showMessage(s)
+        self.statusbar_label.setText(s)
 
     def full_screen_toggle(self):
         if self.window.isFullScreen():
