@@ -14,6 +14,9 @@ import matplotlib.transforms as mtrans
 import matplotlib.collections as mcollections
 from matplotlib.testing.decorators import image_comparison, cleanup
 
+from nose.tools import (assert_true, assert_false, assert_is, assert_in,
+                        assert_not_in)
+
 
 @cleanup
 def test_patch_transform_of_none():
@@ -142,6 +145,30 @@ def test_cull_markers():
     svg = io.BytesIO()
     fig.savefig(svg, format="svg")
     assert len(svg.getvalue()) < 20000
+
+
+@cleanup
+def test_remove():
+    fig, ax = plt.subplots()
+    im = ax.imshow(np.arange(36).reshape(6, 6))
+
+    assert_true(fig.stale)
+    assert_true(ax.stale)
+
+    fig.canvas.draw()
+    assert_false(fig.stale)
+    assert_false(ax.stale)
+
+    assert_in(im, ax.mouseover_set)
+    assert_is(im.axes, ax)
+
+    im.remove()
+
+    assert_is(im.axes, None)
+    assert_is(im.figure, None)
+    assert_not_in(im, ax.mouseover_set)
+    assert_true(fig.stale)
+    assert_true(ax.stale)
 
 
 if __name__ == '__main__':
