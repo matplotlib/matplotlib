@@ -147,6 +147,23 @@ class Artist(object):
         # callback has one parameter, which is the child to be removed.
         if self._remove_method is not None:
             self._remove_method(self)
+            # clear stale callback
+            self.stale_callback = None
+            _ax_flag = False
+            if hasattr(self, 'axes') and self.axes:
+                # remove from the mouse hit list
+                self.axes.mouseover_set.discard(self)
+                # mark the axes as stale
+                self.axes.stale = True
+                # decouple the artist from the axes
+                self.axes = None
+                _ax_flag = True
+
+            if self.figure:
+                self.figure = None
+                if not _ax_flag:
+                    self.figure = True
+
         else:
             raise NotImplementedError('cannot remove artist')
         # TODO: the fix for the collections relim problem is to move the
