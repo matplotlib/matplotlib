@@ -73,9 +73,9 @@ Glossary
   pyqt
       `pyqt <http://wiki.python.org/moin/PyQt>`_ provides python
       wrappers for the :term:`Qt` widgets library and is required by
-      the matplotlib QtAgg and Qt4Agg backends.  Widely used on linux
+      the matplotlib Qt5Agg and Qt4Agg backends.  Widely used on linux
       and windows; many linux distributions package this as
-      'python-qt3' or 'python-qt4'.
+      'python-qt5' or 'python-qt4'.
 
   python
       `python <http://python.org>`_ is an object oriented interpreted
