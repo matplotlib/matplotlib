@@ -14,8 +14,7 @@ import matplotlib.transforms as mtrans
 import matplotlib.collections as mcollections
 from matplotlib.testing.decorators import image_comparison, cleanup
 
-from nose.tools import (assert_true, assert_false, assert_is, assert_in,
-                        assert_not_in)
+from nose.tools import (assert_true, assert_false)
 
 
 @cleanup
@@ -159,14 +158,14 @@ def test_remove():
     assert_false(fig.stale)
     assert_false(ax.stale)
 
-    assert_in(im, ax.mouseover_set)
-    assert_is(im.axes, ax)
+    assert_true(im in ax.mouseover_set)
+    assert_true(im.axes is ax)
 
     im.remove()
 
-    assert_is(im.axes, None)
-    assert_is(im.figure, None)
-    assert_not_in(im, ax.mouseover_set)
+    assert_true(im.axes is None)
+    assert_true(im.figure is None)
+    assert_true(im not in ax.mouseover_set)
     assert_true(fig.stale)
     assert_true(ax.stale)
 
