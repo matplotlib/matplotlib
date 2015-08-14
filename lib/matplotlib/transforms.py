@@ -1552,12 +1552,18 @@ class TransformWrapper(Transform):
             return str(self._child)
 
     def __getstate__(self):
-        # only store the child
-        return {'child': self._child}
+        # only store the child and parents
+        return {
+            'child': self._child,
+            # turn the weakkey dictionary into a normal dictionary
+            'parents': dict(six.iteritems(self._parents))
+        }
 
     def __setstate__(self, state):
         # re-initialise the TransformWrapper with the state's child
         self._init(state['child'])
+        # turn the normal dictionary back into a WeakValueDictionary
+        self._parents = WeakValueDictionary(state['parents'])
 
     def __repr__(self):
         return "TransformWrapper(%r)" % self._child
