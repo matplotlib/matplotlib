@@ -900,13 +900,20 @@ class Artist(object):
 
     def set(self, **kwargs):
         """
-        A tkstyle set command, pass *kwargs* to set properties
+        A property batch setter. Pass *kwargs* to set properties.
+        Will handle property name collisions (e.g., if both
+        'color' and 'facecolor' are specified, the property
+        with higher priority gets set last).
+
         """
         ret = []
-        for k, v in six.iteritems(kwargs):
+        for k, v in sorted(kwargs.items(), reverse=True):
             k = k.lower()
             funcName = "set_%s" % k
-            func = getattr(self, funcName)
+            func = getattr(self, funcName, None)
+            if func is None:
+               raise TypeError('There is no %s property "%s"' %
+                               (self.__class__.__name__, k))
             ret.extend([func(v)])
         return ret
 
@@ -1406,14 +1413,17 @@ def setp(obj, *args, **kwargs):
     funcvals = []
     for i in range(0, len(args) - 1, 2):
         funcvals.append((args[i], args[i + 1]))
-    funcvals.extend(kwargs.items())
+    funcvals.extend(sorted(kwargs.items(), reverse=True))
 
     ret = []
     for o in objs:
         for s, val in funcvals:
             s = s.lower()
             funcName = "set_%s" % s
-            func = getattr(o, funcName)
+            func = getattr(o, funcName, None)
+            if func is None:
+                raise TypeError('There is no %s property "%s"' %
+                                (o.__class__.__name__, s))
             ret.extend([func(val)])
     return [x for x in cbook.flatten(ret)]
 
