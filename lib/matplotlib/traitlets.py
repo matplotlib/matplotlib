@@ -33,7 +33,7 @@ class exdict(dict):
         try:
             old = self[key]
         except KeyError:
-            old = self._default_value(key)
+            old = self._default_method(key)
 
         self._memory[key] = old
         super(exdict, self).__setitem__(key, value)
@@ -41,16 +41,16 @@ class exdict(dict):
     def ex(self, key):
         return self._memory.get(key,self[key])
 
-    def _default_value(self, key): pass
+    def _default_method(self, key): pass
 
 
 class PrivateMethodMixin(object):
 
     def __new__(cls, *args, **kwargs):
         inst = super(PrivateMethodMixin,cls).__new__(cls, *args, **kwargs)
-        edict = exdict(inst._trait_values)
-        inst._trait_values = edict
-        edict._default_value = lambda self, key: getattr(self, key, Undefined)
+        inst._trait_values = exdict(inst._trait_values)
+        meth = lambda klass, key: getattr(klass, key).default_value
+        inst._trait_values._default_method = MethodType(meth, cls)
         return inst
 
     def force_callback(self, name, cross_validate=True):
