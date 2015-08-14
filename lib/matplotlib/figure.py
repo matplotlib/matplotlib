@@ -51,6 +51,11 @@ from matplotlib.backend_bases import NonGuiException
 docstring.interpd.update(projection_names=get_projection_names())
 
 
+def _stale_figure_callback(self, val):
+    if self.figure:
+        self.figure.stale = val
+
+
 class AxesStack(Stack):
     """
     Specialization of the Stack to handle all tracking of Axes in a Figure.
@@ -330,6 +335,7 @@ class Figure(Artist):
             xy=(0, 0), width=1, height=1,
             facecolor=facecolor, edgecolor=edgecolor,
             linewidth=linewidth)
+
         self._set_artist_props(self.patch)
         self.patch.set_aa(False)
 
@@ -543,6 +549,7 @@ class Figure(Artist):
             sup.remove()
         else:
             self._suptitle = sup
+
         self.stale = True
         return self._suptitle
 
@@ -650,6 +657,8 @@ class Figure(Artist):
             self.set_size_inches(figsize, forward=True)
 
         im = FigureImage(self, cmap, norm, xo, yo, origin, **kwargs)
+        im.stale_callback = _stale_figure_callback
+
         im.set_array(X)
         im.set_alpha(alpha)
         if norm is None:
@@ -910,6 +919,7 @@ class Figure(Artist):
         self.sca(a)
         a._remove_method = lambda ax: self.delaxes(ax)
         self.stale = True
+        a.stale_callback = _stale_figure_callback
         return a
 
     @docstring.dedent_interpd
@@ -999,6 +1009,7 @@ class Figure(Artist):
         self.sca(a)
         a._remove_method = lambda ax: self.delaxes(ax)
         self.stale = True
+        a.stale_callback = _stale_figure_callback
         return a
 
     def clf(self, keep_observers=False):
@@ -1046,8 +1057,10 @@ class Figure(Artist):
         # draw the figure bounding box, perhaps none for white figure
         if not self.get_visible():
             return
-        renderer.open_group('figure')
 
+        renderer.open_group('figure')
+        # prevent triggering call backs during the draw process
+        self._stale = True
         if self.get_tight_layout() and self.axes:
             try:
                 self.tight_layout(renderer, **self._tight_parameters)
@@ -1119,12 +1132,11 @@ class Figure(Artist):
         dsu.sort(key=itemgetter(0))
         for zorder, a, func, args in dsu:
             func(*args)
-            a.stale = False
 
         renderer.close_group('figure')
+        self.stale = False
 
         self._cachedRenderer = renderer
-        self.stale = False
         self.canvas.draw_event(renderer)
 
     def draw_artist(self, a):
@@ -1274,6 +1286,7 @@ class Figure(Artist):
     def _set_artist_props(self, a):
         if a != self:
             a.set_figure(self)
+        a.stale_callback = _stale_figure_callback
         a.set_transform(self.transFigure)
 
     @docstring.dedent_interpd
@@ -1350,7 +1363,7 @@ class Figure(Artist):
         return None
 
     def __getstate__(self):
-        state = self.__dict__.copy()
+        state = super(Figure, self).__getstate__()
         # the axobservers cannot currently be pickled.
         # Additionally, the canvas cannot currently be pickled, but this has
         # the benefit of meaning that a figure can be detached from one canvas,
