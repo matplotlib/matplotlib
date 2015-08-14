@@ -214,7 +214,9 @@ class Artist(object):
 
     @axes.setter
     def axes(self, new_axes):
-        if self._axes is not None and new_axes != self._axes:
+
+        if (new_axes is not None and
+                (self._axes is not None and new_axes != self._axes)):
             raise ValueError("Can not reset the axes.  You are "
                              "probably trying to re-use an artist "
                              "in more than one Axes which is not "
