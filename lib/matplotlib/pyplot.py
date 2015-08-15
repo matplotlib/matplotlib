@@ -2005,7 +2005,7 @@ def colormaps():
       jet()
 
     The next set of palettes are from the `Yorick scientific visualisation
-    package <http://yorick.sourceforge.net/index.php>`_, an evolution of
+    package <http://dhmunro.github.io/yorick-doc/>`_, an evolution of
     the GIST package, both by David H. Munro:
 
       ============  =======================================================

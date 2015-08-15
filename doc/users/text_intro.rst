@@ -8,7 +8,7 @@ expressions, truetype support for raster and vector outputs, newline
 separated text with arbitrary rotations, and unicode support.  Because
 we embed the fonts directly in the output documents, e.g., for postscript
 or PDF, what you see on the screen is what you get in the hardcopy.
-`freetype2 <http://freetype.sourceforge.net/index2.html>`_ support
+`freetype2 <http://www.freetype.org/>`_ support
 produces very nice, antialiased fonts, that look good even at small
 raster sizes.  matplotlib includes its own
 :mod:`matplotlib.font_manager`, thanks to Paul Barrett, which
