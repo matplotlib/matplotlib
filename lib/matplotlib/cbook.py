@@ -2382,9 +2382,8 @@ def pts_to_prestep(x, *args):
         will be length ``2N + 1``
 
 
-    Example
-    -------
-
+    Examples
+    --------
     >> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
     """
     # do normalization
@@ -2423,9 +2422,8 @@ def pts_to_poststep(x, *args):
         will be length ``2N + 1``
 
 
-    Example
-    -------
-
+    Examples
+    --------
     >> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
     """
     # do normalization
@@ -2465,9 +2463,8 @@ def pts_to_midstep(x, *args):
         will be length ``2N + 1``
 
 
-    Example
-    -------
-
+    Examples
+    --------
     >> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
     """
     # do normalization
