@@ -37,7 +37,7 @@ parameter in your :file:`matplotlibrc` file.  If you leave out a
 assumed.  If you want to use a custom time zone, pass a
 :class:`pytz.timezone` instance with the tz keyword argument to
 :func:`num2date`, :func:`plot_date`, and any custom date tickers or
-locators you create.  See `pytz <http://pytz.sourceforge.net>`_ for
+locators you create.  See `pytz <http://pythonhosted.org/pytz/>`_ for
 information on :mod:`pytz` and timezone handling.
 
 The `dateutil module <http://labix.org/python-dateutil>`_ provides

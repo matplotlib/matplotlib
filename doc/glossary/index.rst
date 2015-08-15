@@ -84,7 +84,7 @@ Glossary
 
 
   pytz
-      `pytz <http://pytz.sourceforge.net/>`_ provides the Olson tz
+      `pytz <http://pythonhosted.org/pytz/>`_ provides the Olson tz
       database in Python. it allows accurate and cross platform
       timezone calculations and solves the issue of ambiguous times at
       the end of daylight savings
