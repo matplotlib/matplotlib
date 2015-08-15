@@ -617,7 +617,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
     get_facecolors = get_facecolor
 
     def get_edgecolor(self):
-        if self._edgecolors == str('face'):
+        if (isinstance(self._edgecolors, six.string_types)
+                   and self._edgecolors == str('face')):
             return self.get_facecolors()
         else:
             return self._edgecolors
@@ -678,7 +679,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         except (AttributeError, TypeError, IndexError):
             pass
         try:
-            if self._edgecolors_original != str('face'):
+            if (not isinstance(self._edgecolors_original, six.string_types)
+                             or self._edgecolors_original != str('face')):
                 self._edgecolors = mcolors.colorConverter.to_rgba_array(
                     self._edgecolors_original, self._alpha)
         except (AttributeError, TypeError, IndexError):
