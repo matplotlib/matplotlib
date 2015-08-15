@@ -59,6 +59,12 @@ class exdict(dict):
 
     def _default_generator(self, key): pass
 
+    def __getstate__(self):
+        d = self.__dict__.copy()
+        # remove unpickleable method
+        d['_default_generator'] = None
+        return d
+
 
 class PrivateMethodMixin(object):
 
