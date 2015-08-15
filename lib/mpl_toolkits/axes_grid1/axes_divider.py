@@ -470,7 +470,6 @@ class SubplotDivider(Divider):
 
     def update_params(self):
         'update the subplot position from fig.subplotpars'
-        print('entered')
         self.figbox = self.get_subplotspec().get_position(self.figure)
 
     def get_geometry(self):
