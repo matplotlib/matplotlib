@@ -593,11 +593,11 @@ class _AxesBase(martist.Artist):
         self.spines['right'].register_axis(self.yaxis)
         self._update_transScale()
 
-    def _figure_changed(self, name, fig):
-        martist.Artist._figure_changed(self, name, fig)
+    def _figure_changed(self, name, old, new):
+        martist.Artist._figure_changed(self, name, old, new)
 
         self.bbox = mtransforms.TransformedBbox(self._position,
-                                                fig.transFigure)
+                                                new.transFigure)
         # these will be updated later as data is added
         self.dataLim = mtransforms.Bbox.null()
         self.viewLim = mtransforms.Bbox.unit()

@@ -71,12 +71,9 @@ def allow_rasterization(draw):
     return draw_wrapper
 
 
-def _stale_figure_callback(self):
-    self.figure.stale = True
-
-
-def _stale_axes_callback(self):
-    self.axes.stale = True
+def _stale_axes_callback(self, val):
+    if self.axes:
+        self.axes.stale = val
 
 
 class Artist(PrivateMethodMixin, Configurable):
@@ -105,9 +102,14 @@ class Artist(PrivateMethodMixin, Configurable):
 
     stale = Bool(True)
 
-    def _stale_changed(self):
-        if self.stale:
-            self.pchanged()
+    def _stale_validate(self, value, trait):
+        if self.get_animated():
+            return self.stale
+        return value
+
+    def _stale_changed(self, name, new):
+        if new and self.stale_callback is not None:
+            self.stale_callback(self, new)
 
     transform_set = Bool(False)
 
@@ -118,15 +120,17 @@ class Artist(PrivateMethodMixin, Configurable):
                              "in more than one Axes which is not "
                              "supported")
         if new not in (Undefined,None) and new is not self:
-            self.add_callback(_stale_axes_callback)
+            self.stale_callback = _stale_axes_callback
 
     axes = Instance(str('matplotlib.axes.Axes'), allow_none=True)
 
     figure = Instance(str('matplotlib.figure.Figure'), allow_none=True)
 
-    def _figure_changed(self, name, new):
+    def _figure_changed(self, name, old, new):
+        if old not in (None, Undefined):
+            raise RuntimeError("Can not put single artist in "
+                               "more than one figure")
         if new and new is not self:
-            self.add_callback(_stale_figure_callback)
             self.pchanged()
         self.stale = True
 
@@ -137,6 +141,7 @@ class Artist(PrivateMethodMixin, Configurable):
 
         # self._transform = None
         # self._transformSet = False
+        self.stale_callback = None
         self._visible = True
         self._animated = False
         self._alpha = None
@@ -169,6 +174,9 @@ class Artist(PrivateMethodMixin, Configurable):
         # remove the unpicklable remove method, this will get re-added on load
         # (by the axes) if the artist lives on an axes.
         d['_remove_method'] = None
+        d['stale_callback'] = None
+        # .private(name, value) forces _notify_trait into __dict__
+        d.pop('_notify_trait', None)
         return d
 
     def remove(self):

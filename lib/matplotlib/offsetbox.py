@@ -178,15 +178,15 @@ class OffsetBox(martist.Artist):
             self._offset = self._offset.get_instancemethod()
         self.stale = True
 
-    def _figure_changed(self, name, fig):
+    def _figure_changed(self, name, old, new):
         """
         Set the figure
 
         accepts a class:`~matplotlib.figure.Figure` instance
         """
-        martist.Artist._figure_changed(self, name, fig)
+        martist.Artist._figure_changed(self, name, old, new)
         for c in self.get_children():
-            c.figure = fig
+            c.figure = new
 
     #!DEPRICATED
     # def set_figure(self, fig):
@@ -204,7 +204,7 @@ class OffsetBox(martist.Artist):
         martist.Artist._axes_changed(self, name, old, new)
         for c in self.get_children():
             if c is not None:
-                c.axes = ax
+                c.axes = new
 
     def contains(self, mouseevent):
         for c in self.get_children():
@@ -694,9 +694,7 @@ class DrawingArea(OffsetBox):
     def add_artist(self, a):
         'Add any :class:`~matplotlib.artist.Artist` to the container box'
         self._children.append(a)
-        if not a.transform_set):
         if not a.transform_set:
-        if not a.is_transform_set():
             a.transform = self.transform
         if self.axes is not None:
             a.axes = self.axes
@@ -1510,11 +1508,11 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
             children.append(self.arrow_patch)
         return children
 
-    def _figure_changed(self, name, fig):
+    def _figure_changed(self, name, old, new):
         if self.arrow_patch is not None:
-            self.arrow_patch.figure = fig
-        self.offsetbox.figure = fig
-        martist.Artist._figure_changed(self, name, fig)
+            self.arrow_patch.figure = new
+        self.offsetbox.figure = new
+        martist.Artist._figure_changed(self, name, old, new)
 
     #!DEPRICATED
     # def set_figure(self, fig):

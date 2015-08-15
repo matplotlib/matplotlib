@@ -350,9 +350,9 @@ class QuiverKey(martist.Artist):
         else:
             raise ValueError('unrecognized coordinates')
 
-    def _figure_changed(self, name, fig):
-        martist.Artist._figure_changed(self, name, fig)
-        self.text.figure = fig
+    def _figure_changed(self, name, old, new):
+        martist.Artist._figure_changed(self, name, old, new)
+        self.text.figure = new
 
     def contains(self, mouseevent):
         # Maybe the dictionary should allow one to

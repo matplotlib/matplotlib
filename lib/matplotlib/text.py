@@ -1651,9 +1651,9 @@ class TextWithDash(Text):
     #     'return the figure instance the artist belongs to'
     #     return self.figure
 
-    def _figure_changed(self, name, fig):
-        Text._figure_changed(self, name, fig)
-        self.dashline.figure = fig
+    def _figure_changed(self, name, old, new):
+        Text._figure_changed(self, name, old, new)
+        self.dashline.figure = new
 
     #!DEPRICATED
     # def set_figure(self, fig):
@@ -2119,12 +2119,12 @@ class Annotation(Text, _AnnotationBase):
     def anncoords(self, coords):
         self._textcoords = coords
 
-    def _figure_changed(self, name, fig):
+    def _figure_changed(self, name, old, new):
         if self.arrow is not None:
-            self.arrow.figure = fig
+            self.arrow.figure = new
         if self.arrow_patch is not None:
-            self.arrow_patch.figure = fig
-        Artist._figure_changed(self, name, fig)
+            self.arrow_patch.figure = new
+        Artist._figure_changed(self, name, old, new)
 
     #!DEPRICATED
     # def set_figure(self, fig):

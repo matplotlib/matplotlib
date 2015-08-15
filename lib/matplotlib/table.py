@@ -76,9 +76,9 @@ class Cell(Rectangle):
     #     # the text does not get the transform!
     #     self.stale = True
 
-    def _figure_changed(self, name, fig):
-        Rectangle._figure_changed(self, name, fig)
-        self._text.figure = fig
+    def _figure_changed(self, name, old, new):
+        Rectangle._figure_changed(self, name, old, new)
+        self._text.figure = new
 
     #!DEPRICATED
     # def set_figure(self, fig):
