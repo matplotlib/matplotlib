@@ -8,6 +8,8 @@ import os
 import sys
 import warnings
 
+from cycler import cycler, Cycler
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.tests import assert_str_equal
@@ -22,7 +24,8 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_stringlist,
                                 validate_bool,
                                 validate_nseq_int,
-                                validate_nseq_float)
+                                validate_nseq_float,
+                                validate_cycler)
 
 
 mpl.rc('text', usetex=False)
@@ -238,13 +241,14 @@ def test_Issue_1713():
         del os.environ['LANG']
     assert rc.get('timezone') == 'UTC'
 
-if __name__ == '__main__':
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
-
 
 def _validation_test_helper(validator, arg, target):
     res = validator(arg)
-    assert_equal(res, target)
+    if not isinstance(target, Cycler):
+        assert_equal(res, target)
+    else:
+        # Cyclers can't simply be asserted equal. They don't implement __eq__
+        assert_equal(list(res), list(target))
 
 
 def _validation_fail_helper(validator, arg, exception_type):
@@ -293,8 +297,35 @@ def test_validators():
                   for _ in ('aardvark', ('a', 1),
                             (1, 2, 3)
                             ))
-        }
-
+        },
+        {'validator': validate_cycler,
+         'success': (('cycler("color", "rgb")',
+                      cycler("color", 'rgb')),
+                     (cycler('linestyle', ['-', '--']),
+                      cycler('linestyle', ['-', '--'])),
+                     ("""(cycler("color", ["r", "g", "b"]) +
+                          cycler("mew", [2, 3, 5]))""",
+                      cycler("color", 'rgb') + cycler("mew", [2, 3, 5])),
+                    ),
+         # This is *so* incredibly important: validate_cycler() eval's
+         # an arbitrary string! I think I have it locked down enough,
+         # and that is what this is testing.
+         # TODO: Note that these tests are actually insufficient, as it may
+         # be that they raised errors, but still did an action prior to
+         # raising the exception. We should devise some additional tests
+         # for that...
+         'fail': ((4, ValueError),  # Gotta be a string or Cycler object
+                  ('cycler("bleh, [])', ValueError),  # syntax error
+                  ('Cycler("linewidth", [1, 2, 3])',
+                      ValueError),  # only 'cycler()' function is allowed
+                  ('1 + 2', ValueError),  # doesn't produce a Cycler object
+                  ('os.system("echo Gotcha")', ValueError),  # os not available
+                  ('import os', ValueError),  # should not be able to import
+                  ('def badjuju(a): return a; badjuju(cycler("color", "rgb"))',
+                      ValueError),  # Should not be able to define anything
+                                    # even if it does return a cycler
+                 )
+        },
     )
 
     for validator_dict in validation_tests:
@@ -331,3 +362,7 @@ def test_rcparams_reset_after_fail():
                 pass
 
         assert mpl.rcParams['text.usetex'] is False
+
+
+if __name__ == '__main__':
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
