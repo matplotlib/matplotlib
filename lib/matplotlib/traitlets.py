@@ -23,25 +23,41 @@ from types import MethodType
 from .transforms import IdentityTransform, Transform
 import contextlib
 
+
 class exdict(dict):
 
     def __init__(self, *args, **kwargs):
         super(exdict, self).__init__(*args, **kwargs)
         self._memory = dict()
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, new):
         try:
             old = self[key]
         except KeyError:
-            old = self._default_method(key)
+            old = self._default_generator(key)
+        if old != new:
+            self._memory[key] = old
+        super(exdict, self).__setitem__(key, new)
 
-        self._memory[key] = old
-        super(exdict, self).__setitem__(key, value)
+    def update(self, *args, **kwargs):
+        if len(args) > 1:
+            raise TypeError("update expected at most 1 arguments, got %d" % len(args))
+        other = dict(*args, **kwargs)
+        for key in other:
+            self[key] = other[key]
+
+    def setdefault(self, key, value=None):
+        if key not in self:
+            self[key] = self._default_generator()
+        return self[key]
 
     def ex(self, key):
-        return self._memory.get(key,self[key])
+        try:
+            return self._memory[key]
+        except KeyError, e:
+            return self._default_generator(key)
 
-    def _default_method(self, key): pass
+    def _default_generator(self, key): pass
 
 
 class PrivateMethodMixin(object):
@@ -50,7 +66,7 @@ class PrivateMethodMixin(object):
         inst = super(PrivateMethodMixin,cls).__new__(cls, *args, **kwargs)
         inst._trait_values = exdict(inst._trait_values)
         meth = lambda klass, key: getattr(klass, key).default_value
-        inst._trait_values._default_method = MethodType(meth, cls)
+        inst._trait_values._default_generator = MethodType(meth, cls)
         return inst
 
     def force_callback(self, name, cross_validate=True):
