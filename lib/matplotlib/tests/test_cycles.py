@@ -49,13 +49,13 @@ def test_fillcycle_basic():
                       cycler('linestyle', ['-', '--', ':']))
     xs = np.arange(10)
     ys = 0.25 * xs**.5 + 2
-    ax.fill(xs, ys, label='red, x')
+    ax.fill(xs, ys, label='red, xx', linewidth=3)
     ys = 0.45 * xs**.5 + 3
-    ax.fill(xs, ys, label='green, circle')
+    ax.fill(xs, ys, label='green, circle', linewidth=3)
     ys = 0.65 * xs**.5 + 4
-    ax.fill(xs, ys, label='yellow, cross')
+    ax.fill(xs, ys, label='yellow, cross', linewidth=3)
     ys = 0.85 * xs**.5 + 5
-    ax.fill(xs, ys, label='red2, xx')
+    ax.fill(xs, ys, label='red2, xx', linewidth=3)
     ax.legend(loc='upper left')
 
 
