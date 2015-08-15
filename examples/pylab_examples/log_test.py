@@ -1,10 +1,10 @@
-#!/usr/bin/env python
-from pylab import *
+import matplotlib.pyplot as plt
+import numpy as np
 
 dt = 0.01
-t = arange(dt, 20.0, dt)
+t = np.arange(dt, 20.0, dt)
 
-semilogx(t, exp(-t/5.0))
-grid(True)
+plt.semilogx(t, np.exp(-t/5.0))
+plt.grid(True)
 
-show()
+plt.show()
