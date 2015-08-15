@@ -301,11 +301,11 @@ def validate_color(s):
 
     raise ValueError('%s does not look like a color arg%s' % (s, msg))
 
+
 def deprecate_axes_colorcycle(value):
     warnings.warn("axes.color_cycle is deprecated.  Use axes.prop_cycle "
                   "instead. Will be removed in 2.1.0")
     return validate_colorlist(value)
-
 
 
 def validate_colorlist(s):
@@ -775,8 +775,8 @@ defaultParams = {
     'axes.formatter.useoffset': [True, validate_bool],
     'axes.unicode_minus': [True, validate_bool],
     'axes.color_cycle': [['b', 'g', 'r', 'c', 'm', 'y', 'k'],
-                         validate_colorlist],  # cycle of plot
-                                               # line colors
+                         deprecate_axes_colorcycle],  # cycle of plot
+                                                      # line colors
     # This entry can be either a cycler object or a
     # string repr of a cycler-object, which gets eval()'ed
     # to create the object.
