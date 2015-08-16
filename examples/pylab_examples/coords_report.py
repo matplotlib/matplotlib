@@ -2,17 +2,18 @@
 
 # override the default reporting of coords
 
-from pylab import *
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def millions(x):
     return '$%1.1fM' % (x*1e-6)
 
-x = rand(20)
-y = 1e7*rand(20)
+x = np.random.rand(20)
+y = 1e7*np.random.rand(20)
 
-fig, ax = subplots()
+fig, ax = plt.subplots()
 ax.fmt_ydata = millions
-plot(x, y, 'o')
+plt.plot(x, y, 'o')
 
-show()
+plt.show()

@@ -13,14 +13,15 @@ matplotlib gives you 4 ways to specify colors,
 
 See help(colors) for more info.
 """
-from pylab import *
+import matplotlib.pyplot as plt
+import numpy as np
 
-subplot(111, axisbg='darkslategray')
+plt.subplot(111, axisbg='darkslategray')
 #subplot(111, axisbg='#ababab')
-t = arange(0.0, 2.0, 0.01)
-s = sin(2*pi*t)
-plot(t, s, 'y')
-xlabel('time (s)', color='r')
-ylabel('voltage (mV)', color='0.5')  # grayscale color
-title('About as silly as it gets, folks', color='#afeeee')
-show()
+t = np.arange(0.0, 2.0, 0.01)
+s = np.sin(2*np.pi*t)
+plt.plot(t, s, 'y')
+plt.xlabel('time (s)', color='r')
+plt.ylabel('voltage (mV)', color='0.5')  # grayscale color
+plt.title('About as silly as it gets, folks', color='#afeeee')
+plt.show()
