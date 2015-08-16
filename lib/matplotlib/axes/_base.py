@@ -786,6 +786,8 @@ class _AxesBase(martist.Artist):
             a.set_transform(self.transData)
 
         a.axes = self
+        if a.mouseover:
+            self.mouseover_set.add(a)
 
     def _gen_axes_patch(self):
         """
@@ -916,6 +918,7 @@ class _AxesBase(martist.Artist):
         self.tables = []
         self.artists = []
         self.images = []
+        self.mouseover_set = set()
         self._current_image = None  # strictly for pyplot via _sci, _gci
         self.legend_ = None
         self.collections = []  # collection.Collection instances
