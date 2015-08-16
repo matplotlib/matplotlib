@@ -33,10 +33,10 @@ class exdict(dict):
     def __setitem__(self, key, new):
         try:
             old = self[key]
+            if old != new:
+                self._memory[key] = old
         except KeyError:
-            old = self._default_generator(key)
-        if old != new:
-            self._memory[key] = old
+            pass
         super(exdict, self).__setitem__(key, new)
 
     def update(self, *args, **kwargs):
@@ -51,19 +51,9 @@ class exdict(dict):
             self[key] = self._default_generator()
         return self[key]
 
-    def ex(self, key):
-        try:
-            return self._memory[key]
-        except KeyError, e:
-            return self._default_generator(key)
-
-    def _default_generator(self, key): pass
-
-    def __getstate__(self):
-        d = self.__dict__.copy()
-        # remove unpickleable method
-        d['_default_generator'] = None
-        return d
+    @property
+    def ex(self):
+        return self._memory.copy()
 
 
 class PrivateMethodMixin(object):
@@ -71,8 +61,6 @@ class PrivateMethodMixin(object):
     def __new__(cls, *args, **kwargs):
         inst = super(PrivateMethodMixin,cls).__new__(cls, *args, **kwargs)
         inst._trait_values = exdict(inst._trait_values)
-        meth = lambda klass, key: getattr(klass, key).default_value
-        inst._trait_values._default_generator = MethodType(meth, cls)
         return inst
 
     def force_callback(self, name, cross_validate=True):
@@ -84,7 +72,7 @@ class PrivateMethodMixin(object):
 
         new = self._trait_values[name]
         try:
-            old = self._trait_values.ex(name)
+            old = self._trait_values.ex[name]
         except KeyError:
             trait = getattr(self.__class__, name)
             old = trait.default_value
