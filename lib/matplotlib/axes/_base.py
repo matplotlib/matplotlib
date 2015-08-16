@@ -181,16 +181,13 @@ class _process_plot_var_args(object):
         ret = self._grab_next_args(*args, **kwargs)
         return ret
 
-
     def set_lineprops(self, line, **kwargs):
         assert self.command == 'plot', 'set_lineprops only works with "plot"'
         line.set(**kwargs)
 
-
     def set_patchprops(self, fill_poly, **kwargs):
         assert self.command == 'fill', 'set_patchprops only works with "fill"'
         fill_poly.set(**kwargs)
-
 
     def _xy_from_xy(self, x, y):
         if self.axes.xaxis is not None and self.axes.yaxis is not None:
@@ -228,7 +225,6 @@ class _process_plot_var_args(object):
             y = y[:, np.newaxis]
         return x, y
 
-
     def _getdefaults(self, *kwargs):
         """
         Only advance the cycler if the cycler has information that
@@ -244,7 +240,6 @@ class _process_plot_var_args(object):
             default_dict = None
         return default_dict
 
-
     def _setdefaults(self, default_dict, *kwargs):
         """
         Given a defaults dictionary (or None), and a other dictionaries,
@@ -259,7 +254,6 @@ class _process_plot_var_args(object):
                 for kw in kwargs:
                     kw[k] = default_dict[k]
 
-
     def _makeline(self, x, y, kw, kwargs):
         kw = kw.copy()  # Don't modify the original kw.
         kwargs = kwargs.copy()
@@ -268,7 +262,6 @@ class _process_plot_var_args(object):
         seg = mlines.Line2D(x, y, **kw)
         self.set_lineprops(seg, **kwargs)
         return seg
-
 
     def _makefill(self, x, y, kw, kwargs):
         kw = kw.copy()  # Don't modify the original kw.
@@ -308,7 +301,6 @@ class _process_plot_var_args(object):
                                closed=kw['closed'])
         self.set_patchprops(seg, **kwargs)
         return seg
-
 
     def _plot_args(self, tup, kwargs):
         ret = []

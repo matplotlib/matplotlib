@@ -4,6 +4,7 @@ import numpy as np
 
 from cycler import cycler
 
+
 @image_comparison(baseline_images=['color_cycle_basic'], remove_text=True,
                   extensions=['png'])
 def test_colorcycle_basic():
@@ -39,6 +40,7 @@ def test_linestylecycle_basic():
     ax.plot(xs, ys, label='solid2', lw=4)
     ax.legend(loc='upper left')
 
+
 @image_comparison(baseline_images=['fill_cycle_basic'], remove_text=True,
                   extensions=['png'])
 def test_fillcycle_basic():
@@ -62,4 +64,3 @@ def test_fillcycle_basic():
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
-
