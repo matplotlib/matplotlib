@@ -48,7 +48,7 @@ class exdict(dict):
 
     def setdefault(self, key, value=None):
         if key not in self:
-            self[key] = self._default_generator()
+            self[key] = value
         return self[key]
 
     @property
