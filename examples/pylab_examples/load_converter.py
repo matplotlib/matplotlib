@@ -3,18 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 import matplotlib.dates as mdates
-
-
-# Note: matplotlib.dates doesn't have bytespdate2num.
-# This function was copied off the internet.
-# Source: http://pythonprogramming.net/colors-fills-matplotlib-tutorial/
-def bytespdate2num(fmt, encoding='utf-8'):
-    strconverter = mdates.strpdate2num(fmt)
-
-    def bytesconverter(b):
-        s = b.decode(encoding)
-        return strconverter(s)
-    return bytesconverter
+from matplotlib.dates import bytespdate2num
 
 datafile = cbook.get_sample_data('msft.csv', asfileobj=False)
 print('loading', datafile)
