@@ -166,8 +166,10 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
     def destroy(self):
         self._send_event('close')
-        for comm in self.web_sockets.copy():
+        # need to copy comms as callbacks will modify this list
+        for comm in list(self.web_sockets):
             comm.on_close()
+        self.clearup_closed()
 
     def clearup_closed(self):
         """Clear up any closed Comms."""
@@ -175,7 +177,11 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
                                 if socket.is_open()])
 
         if len(self.web_sockets) == 0:
-            self.manager.canvas.close_event()
+            self.canvas.close_event()
+
+    def remove_comm(self, comm_id):
+        self.web_sockets = set([socket for socket in self.web_sockets
+                                if not socket.comm.comm_id == comm_id])
 
 
 class TimerTornado(TimerBase):
@@ -278,15 +284,27 @@ class CommSocket(object):
         self.comm.on_msg(self.on_message)
 
         manager = self.manager
-        self.comm.on_close(lambda close_message: manager.clearup_closed())
+        self._ext_close = False
+
+        def _on_close(close_message):
+            self._ext_close = True
+            manager.remove_comm(close_message['content']['comm_id'])
+            manager.clearup_closed()
+
+        self.comm.on_close(_on_close)
 
     def is_open(self):
-        return not self.comm._closed
+        return not (self._ext_close or self.comm._closed)
 
     def on_close(self):
         # When the socket is closed, deregister the websocket with
         # the FigureManager.
-        self.comm.close()
+        if self.is_open():
+            try:
+                self.comm.close()
+            except KeyError:
+                # apparently already cleaned it up?
+                pass
 
     def send_json(self, content):
         self.comm.send({'data': json.dumps(content)})
@@ -309,6 +327,7 @@ class CommSocket(object):
         message = json.loads(message['content']['data'])
         if message['type'] == 'closing':
             self.on_close()
+            self.manager.clearup_closed()
         elif message['type'] == 'supports_binary':
             self.supports_binary = message['value']
         else:
