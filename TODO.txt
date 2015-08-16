@@ -40,11 +40,11 @@
 
 -- STATUS --
 
-5.0 : transform
-5.0 : transform_set
-5.0 : stale
-5.0 : axes
-5.0 : figure
+6.0 : transform
+6.0 : transform_set
+6.0 : stale
+6.0 : axes
+6.0 : figure
 0.0 : visible
 0.0 : animated
 0.0 : alpha
