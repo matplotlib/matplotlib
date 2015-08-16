@@ -1,6 +1,6 @@
 from __future__ import print_function
 from matplotlib import mlab
-from pylab import figure, show
+import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 
 datafile = cbook.get_sample_data('msft.csv', asfileobj=False)
@@ -9,7 +9,7 @@ a = mlab.csv2rec(datafile)
 a.sort()
 print(a.dtype)
 
-fig = figure()
+fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.plot(a.date, a.adj_close, '-')
 fig.autofmt_xdate()
@@ -20,4 +20,4 @@ try:
     exceltools.rec2excel(a, 'test.xls')
 except ImportError:
     pass
-show()
+plt.show()
