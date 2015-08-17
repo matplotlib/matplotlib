@@ -131,8 +131,8 @@ def figure_edit(axes, parent=None):
         # Restore the unit data
         axes.xaxis.converter = xconverter
         axes.yaxis.converter = yconverter
-        axes.xaxis.set_units( xunits )
-        axes.yaxis.set_units( yunits )
+        axes.xaxis.set_units(xunits)
+        axes.yaxis.set_units(yunits)
         axes.xaxis._update_axisinfo()
         axes.yaxis._update_axisinfo()
 
