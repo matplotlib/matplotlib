@@ -400,7 +400,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         Set the offset for the location of 0 in radians.
         """
         # Make sure to strip away units
-        offset = self.convert_yunits(offset)
+        offset = self.convert_xunits(offset)
         self._theta_offset = offset
 
     def get_theta_offset(self):
@@ -530,7 +530,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
            self.set_xticks(angles * (np.pi / 180.0))
         else:
            # The unit converters are defined to return radians
-           angles = self.convert_yunits(angles)
+           angles = self.convert_xunits(angles)
            angles = np.asarray(angles, np.float_)
            self.set_xticks(angles)
 
@@ -570,7 +570,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         ACCEPTS: sequence of floats
         """
         # Make sure we take into account unitized data
-        radii = self.convert_xunits(radii)
+        radii = self.convert_yunits(radii)
         radii = np.asarray(radii)
         rmin = radii.min()
         if rmin <= 0:
@@ -578,7 +578,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
 
         # Handle unitized data
         if angle is not None:
-            angle = self.convert_yunits(angle)
+            angle = self.convert_xunits(angle)
 
         self.set_yticks(radii)
         if labels is not None:
@@ -606,9 +606,9 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         characters.
         """
         # Strip away any units
-        r = self.convert_xunits(r)
+        r = self.convert_yunits(r)
         if not isinstance( theta, float ):
-            theta = self.convert_yunits(theta)
+            theta = self.convert_xunits(theta)
             # Stripping away units makes theta be in radians.
             # convert to degrees
             theta = theta * (180.0 / np.pi)
