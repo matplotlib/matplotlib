@@ -593,8 +593,6 @@ _prop_validators = {
         'markeredgewidth': validate_floatlist,
         'markeredgecolor': validate_colorlist,
         'alpha': validate_floatlist,
-        # No, this isn't a "property", but how long do you think it
-        # will be before someone requests support for cycling markers?
         'marker': validate_stringlist,
     }
 _prop_aliases = {
@@ -621,7 +619,9 @@ def _cycler_wrap(prop, vals):
     if validator is None:
         raise TypeError("Unknown artist property: %s" % prop)
     vals = validator(vals)
-    return cycler(prop, vals)
+    # We will normalize the property names as well to reduce
+    # the amount of alias handling code elsewhere.
+    return cycler(norm_prop, vals)
 
 def validate_cycler(s):
     'return a cycler object from a string repr or the object itself'

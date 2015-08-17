@@ -80,6 +80,30 @@ def test_fillcycle_basic():
     ax.legend(loc='upper left')
 
 
+@image_comparison(baseline_images=['fill_cycle_ignore'], remove_text=True,
+                  extensions=['png'])
+def test_fillcycle_ignore():
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_prop_cycle(cycler('color',  ['r', 'g', 'y']) +
+                      cycler('hatch', ['xx', 'O', '|-']) +
+                      cycler('marker', ['.', '*', 'D']))
+    xs = np.arange(10)
+    ys = 0.25 * xs**.5 + 2
+    # Should not advance the cycler, even though there is an
+    # unspecified property in the cycler "marker".
+    # "marker" is not a Polygon property, and should be ignored.
+    ax.fill(xs, ys, 'r', hatch='xx', label='red, xx')
+    ys = 0.45 * xs**.5 + 3
+    # Allow the cycler to advance, but specify some properties
+    ax.fill(xs, ys, hatch='O', label='red, circle')
+    ys = 0.65 * xs**.5 + 4
+    ax.fill(xs, ys, label='green, circle')
+    ys = 0.85 * xs**.5 + 5
+    ax.fill(xs, ys, label='yellow, cross')
+    ax.legend(loc='upper left')
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
