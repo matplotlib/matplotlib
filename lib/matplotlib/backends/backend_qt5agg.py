@@ -72,7 +72,7 @@ class FigureCanvasQTAggBase(object):
         shown onscreen.
         """
         # If we have not rendered the Agg backend yet, do so now.
-        if not hasattr( self, 'renderer' ):
+        if not hasattr(self, 'renderer'):
             FigureCanvasAgg.draw(self)
 
         # FigureCanvasQT.paintEvent(self, e)
