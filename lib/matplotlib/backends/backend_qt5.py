@@ -416,7 +416,21 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     stop_event_loop.__doc__ = FigureCanvasBase.stop_event_loop_default.__doc__
 
     def draw_idle(self):
-        self.update()
+        # This cannot be a call to 'update', we need a slightly longer
+        # delay, otherwise mouse releases from zooming, panning, or
+        # lassoing might not finish processing and will not redraw properly.
+        # We use the guard flag to prevent infinite calls to 'draw_idle' which
+        # happens with the 'stale' figure & axes callbacks.
+        d = self._idle
+        self._idle = False
+
+        def idle_draw(*args):
+            try:
+                self.draw()
+            finally:
+                self._idle = True
+        if d:
+            QtCore.QTimer.singleShot(0, idle_draw)
 
 
 class MainWindow(QtWidgets.QMainWindow):
