@@ -230,29 +230,31 @@ class _process_plot_var_args(object):
         Only advance the cycler if the cycler has information that
         is not specified in any of the supplied tuple of dicts
 
-        Returns a dictionary or None.
+        Returns a dictionary of defaults if there are any
+        keys that are not found in any of the supplied dictionaries.
+        If the supplied dictionaries have non-None values for
+        everything the property cycler has, then just return
+        an empty dictionary.
 
         """
         if any([all([kw.get(k, None) is None for kw in kwargs])
                for k in self._prop_keys]):
             default_dict = six.next(self.prop_cycler)
         else:
-            default_dict = None
+            default_dict = {}
         return default_dict
 
-    def _setdefaults(self, default_dict, *kwargs):
+    def _setdefaults(self, defaults, *kwargs):
         """
-        Given a defaults dictionary (or None), and a other dictionaries,
-        update the other dictionaries with information in defaults if
+        Given a defaults dictionary, and any other dictionaries,
+        update those other dictionaries with information in defaults if
         none of the other dictionaries contains that information.
 
         """
-        if default_dict is None:
-            return
-        for k in default_dict:
+        for k in defaults:
             if all([kw.get(k, None) is None for kw in kwargs]):
                 for kw in kwargs:
-                    kw[k] = default_dict[k]
+                    kw[k] = defaults[k]
 
     def _makeline(self, x, y, kw, kwargs):
         kw = kw.copy()  # Don't modify the original kw.
@@ -286,9 +288,8 @@ class _process_plot_var_args(object):
         # Need to copy this dictionary or else the next time around
         # in the cycle, the dictionary will be missing this entry
         # completely!
-        if default_dict is not None:
-            default_dict = default_dict.copy()
-            default_dict.pop('color', None)
+        default_dict = default_dict.copy()
+        default_dict.pop('color', None)
 
         # To get other properties set from the cycler
         # modify the kwargs dictionary.
