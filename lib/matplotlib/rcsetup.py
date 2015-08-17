@@ -62,8 +62,28 @@ class ValidateInStrings(object):
                          % (self.key, s, list(six.itervalues(self.valid))))
 
 
+def _listify_validator(scalar_validator):
+    def f(s):
+        if isinstance(s, six.string_types):
+            try:
+                return [scalar_validator(v.strip()) for v in s.split(',')
+                        if v.strip()]
+            except Exception:
+                # Sometimes, a list of colors might be a single string
+                # of single-letter colornames. So give that a shot.
+                return [scalar_validator(v.strip()) for v in s if v.strip()]
+        elif type(s) in (list, tuple):
+            return [scalar_validator(v) for v in s if v]
+        else:
+            msg = "'s' must be of type [ string | list | tuple ]"
+            raise ValueError(msg)
+    f.__doc__ = scalar_validator.__doc__
+    return f
+
+
 def validate_any(s):
     return s
+validate_anylist = _listify_validator(validate_any)
 
 
 def validate_path_exists(s):
@@ -108,7 +128,7 @@ def validate_float(s):
         return float(s)
     except ValueError:
         raise ValueError('Could not convert "%s" to float' % s)
-
+validate_floatlist = _listify_validator(validate_float)
 
 def validate_float_or_None(s):
     """convert s to float, None or raise"""
@@ -308,63 +328,11 @@ def deprecate_axes_colorcycle(value):
     return validate_colorlist(value)
 
 
-def validate_colorlist(s):
-    'return a list of colorspecs'
-    if isinstance(s, six.string_types):
-        return [validate_color(c.strip()) for c in s.split(',')]
-    elif type(s) in (list, tuple):
-        return [validate_color(c) for c in s]
-    else:
-        msg = "'s' must be of type [ string | list | tuple ]"
-        raise ValueError(msg)
+validate_colorlist = _listify_validator(validate_color)
+validate_colorlist.__doc__ = 'return a list of colorspecs'
 
-def validate_cycler(s):
-    'return a cycler object from a string repr or the object itself'
-    if isinstance(s, six.string_types):
-        try:
-            # TODO: We might want to rethink this...
-            # While I think I have it quite locked down,
-            # it is execution of arbitrary code without
-            # sanitation.
-            # Combine this with the possibility that rcparams
-            # might come from the internet (future plans), this
-            # could be downright dangerous.
-            # I locked it down by only having the 'cycler()' function
-            # available. Imports and defs should not
-            # be possible. However, it is entirely possible that
-            # a security hole could open up via attributes to the
-            # function (this is why I decided against allowing the
-            # Cycler class object just to reduce the number of
-            # degrees of freedom (but maybe it is safer to use?).
-            # One possible hole I can think of (in theory) is if
-            # someone managed to hack the cycler module. But, if
-            # someone does that, this wouldn't make anything
-            # worse because we have to import the module anyway.
-            s = eval(s, {'cycler': cycler})
-        except BaseException as e:
-            raise ValueError("'%s' is not a valid cycler construction: %s" %
-                             (s, e))
-    # Should make sure what comes from the above eval()
-    # is a Cycler object.
-    if isinstance(s, Cycler):
-        cycler_inst = s
-    else:
-        raise ValueError("object was not a string or Cycler instance: %s" % s)
-
-    # TODO: apply validation to the cycled elements
-    # probably doable via traitlets
-
-    return cycler_inst
-
-def validate_stringlist(s):
-    'return a list'
-    if isinstance(s, six.string_types):
-        return [six.text_type(v.strip()) for v in s.split(',') if v.strip()]
-    elif type(s) in (list, tuple):
-        return [six.text_type(v) for v in s if v]
-    else:
-        msg = "'s' must be of type [ string | list | tuple ]"
-        raise ValueError(msg)
+validate_stringlist = _listify_validator(six.text_type)
+validate_stringlist.__doc__ = 'return a list'
 
 validate_orientation = ValidateInStrings(
     'orientation', ['landscape', 'portrait'])
@@ -389,6 +357,7 @@ def validate_fontsize(s):
         return float(s)
     except ValueError:
         raise ValueError('not a valid font size')
+validate_fontsizelist = _listify_validator(validate_fontsize)
 
 
 def validate_font_properties(s):
@@ -464,14 +433,17 @@ def validate_ps_distiller(s):
 validate_joinstyle = ValidateInStrings('joinstyle',
                                        ['miter', 'round', 'bevel'],
                                        ignorecase=True)
+validate_joinstylelist = _listify_validator(validate_joinstyle)
 
 validate_capstyle = ValidateInStrings('capstyle',
                                       ['butt', 'round', 'projecting'],
                                       ignorecase=True)
+validate_capstylelist = _listify_validator(validate_capstyle)
 
 validate_fillstyle = ValidateInStrings('markers.fillstyle',
                                        ['full', 'left', 'right', 'bottom',
                                         'top', 'none'])
+validate_fillstylelist = _listify_validator(validate_fillstyle)
 
 validate_negative_linestyle = ValidateInStrings('negative_linestyle',
                                                 ['solid', 'dashed'],
@@ -606,6 +578,71 @@ class ValidateInterval(object):
         return s
 
 validate_grid_axis = ValidateInStrings('axes.grid.axis', ['x', 'y', 'both'])
+
+_prop_validators = {
+        'color': validate_colorlist,
+        'linewidth': validate_floatlist,
+        'linestyle': validate_stringlist,
+        'facecolor': validate_colorlist,
+        'edgecolor': validate_colorlist,
+        'joinstyle': validate_joinstylelist,
+        'capstyle': validate_capstylelist,
+        'fillstyle': validate_fillstylelist,
+        'markerfacecolor': validate_colorlist,
+        'markersize': validate_floatlist,
+        'markeredgewidth': validate_floatlist,
+        'markeredgecolor': validate_colorlist,
+        'alpha': validate_floatlist,
+        # TODO: Add aliases
+    }
+
+def _cycler_wrap(prop, vals):
+    """
+    This is an internal wrapper around :func:`cycler`
+    that will be used in :func:`validate_cycler` to normalize
+    and validate property inputs.
+
+    """
+    # Any unknown properties will just pass-through for now.
+    validator = _prop_validators.get(prop, validate_anylist)
+    vals = validator(vals)
+    return cycler(prop, vals)
+
+def validate_cycler(s):
+    'return a cycler object from a string repr or the object itself'
+    if isinstance(s, six.string_types):
+        try:
+            # TODO: We might want to rethink this...
+            # While I think I have it quite locked down,
+            # it is execution of arbitrary code without
+            # sanitation.
+            # Combine this with the possibility that rcparams
+            # might come from the internet (future plans), this
+            # could be downright dangerous.
+            # I locked it down by only having the 'cycler()' function
+            # available. Imports and defs should not
+            # be possible. However, it is entirely possible that
+            # a security hole could open up via attributes to the
+            # function (this is why I decided against allowing the
+            # Cycler class object just to reduce the number of
+            # degrees of freedom (but maybe it is safer to use?).
+            # One possible hole I can think of (in theory) is if
+            # someone managed to hack the cycler module. But, if
+            # someone does that, this wouldn't make anything
+            # worse because we have to import the module anyway.
+            s = eval(s, {'cycler': _cycler_wrap})
+        except BaseException as e:
+            raise ValueError("'%s' is not a valid cycler construction: %s" %
+                             (s, e))
+    # Should make sure what comes from the above eval()
+    # is a Cycler object.
+    if isinstance(s, Cycler):
+        cycler_inst = s
+    else:
+        raise ValueError("object was not a string or Cycler instance: %s" % s)
+
+    return cycler_inst
+
 
 # a map from key -> value, converter
 defaultParams = {
