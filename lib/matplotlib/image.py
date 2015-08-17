@@ -107,7 +107,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         """
         martist.Artist.__init__(self)
         cm.ScalarMappable.__init__(self, norm, cmap)
-
+        self._mouseover = True
         if origin is None:
             origin = rcParams['image.origin']
         self.origin = origin

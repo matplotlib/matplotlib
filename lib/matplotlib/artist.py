@@ -101,7 +101,7 @@ class Artist(object):
         self._contains = None
         self._rasterized = None
         self._agg_filter = None
-
+        self._mouseover = False
         self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
         self._propobservers = {}  # a dict from oids to funcs
@@ -146,6 +146,23 @@ class Artist(object):
         # callback has one parameter, which is the child to be removed.
         if self._remove_method is not None:
             self._remove_method(self)
+            # clear stale callback
+            self.stale_callback = None
+            _ax_flag = False
+            if hasattr(self, 'axes') and self.axes:
+                # remove from the mouse hit list
+                self.axes.mouseover_set.discard(self)
+                # mark the axes as stale
+                self.axes.stale = True
+                # decouple the artist from the axes
+                self.axes = None
+                _ax_flag = True
+
+            if self.figure:
+                self.figure = None
+                if not _ax_flag:
+                    self.figure = True
+
         else:
             raise NotImplementedError('cannot remove artist')
         # TODO: the fix for the collections relim problem is to move the
@@ -213,7 +230,9 @@ class Artist(object):
 
     @axes.setter
     def axes(self, new_axes):
-        if self._axes is not None and new_axes != self._axes:
+
+        if (new_axes is not None and
+                (self._axes is not None and new_axes != self._axes)):
             raise ValueError("Can not reset the axes.  You are "
                              "probably trying to re-use an artist "
                              "in more than one Axes which is not "
@@ -970,6 +989,21 @@ class Artist(object):
         except (TypeError, IndexError):
             data = [data]
         return ', '.join('{:0.3g}'.format(item) for item in data)
+
+    @property
+    def mouseover(self):
+        return self._mouseover
+
+    @mouseover.setter
+    def mouseover(self, val):
+        val = bool(val)
+        self._mouseover = val
+        ax = self.axes
+        if ax:
+            if val:
+                ax.mouseover_set.add(self)
+            else:
+                ax.mouseover_set.discard(self)
 
 
 class ArtistInspector(object):
