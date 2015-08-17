@@ -764,7 +764,7 @@ class Text(Artist):
 
             gc = renderer.new_gc()
             gc.set_foreground(textobj.get_color())
-            gc.set_alpha(textobj.get_alpha())
+            gc.set_alpha(textobj.alpha)
             gc.set_url(textobj._url)
             textobj._set_gc_clip(gc)
 

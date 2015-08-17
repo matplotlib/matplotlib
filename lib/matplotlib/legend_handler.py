@@ -611,7 +611,7 @@ class HandlerPolyCollection(HandlerBase):
         legend_handle.set_linestyle(get_first(orig_handle.get_linestyles()))
         legend_handle.transform = get_first(orig_handle.get_transforms())
         legend_handle.figure = orig_handle.figure
-        legend_handle.set_alpha(orig_handle.get_alpha())
+        legend_handle.alpha = orig_handle.alpha
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize, trans):

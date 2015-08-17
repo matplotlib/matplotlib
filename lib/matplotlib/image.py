@@ -142,15 +142,21 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
         return self._A.shape[:2]
 
-    def set_alpha(self, alpha):
-        """
-        Set the alpha value used for blending - not supported on
-        all backends
-
-        ACCEPTS: float
-        """
-        martist.Artist.set_alpha(self, alpha)
+    def _alpha_validate(self, value, trait):
+        value = martist.Artist._alpha_validate(self, value, trait)
         self._imcache = None
+        return value
+
+    #!DEPRECATED
+    # def set_alpha(self, alpha):
+    #     """
+    #     Set the alpha value used for blending - not supported on
+    #     all backends
+
+    #     ACCEPTS: float
+    #     """
+    #     martist.Artist.set_alpha(self, alpha)
+    #     self._imcache = None
 
     def changed(self):
         """
@@ -377,7 +383,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
-        gc.set_alpha(self.get_alpha())
+        gc.alpha = self.alpha
 
         if self._check_unsampled_image(renderer):
             self._draw_unsampled_image(renderer, gc)
@@ -929,7 +935,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         gc = renderer.new_gc()
         gc.set_clip_rectangle(self.axes.bbox.frozen())
         gc.set_clip_path(self.get_clip_path())
-        gc.set_alpha(self.get_alpha())
+        gc.alpha = self.alpha
         renderer.draw_image(gc,
                             round(self.axes.bbox.xmin),
                             round(self.axes.bbox.ymin),
@@ -974,15 +980,21 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
     def set_array(self, *args):
         raise NotImplementedError('Method not supported')
 
-    def set_alpha(self, alpha):
-        """
-        Set the alpha value used for blending - not supported on
-        all backends
-
-        ACCEPTS: float
-        """
-        martist.Artist.set_alpha(self, alpha)
+    def _alpha_validate(self, value, trait):
+        value = martist.Artist._alpha_validate(self, value, trait)
         self.update_dict['array'] = True
+        return value
+
+    #!DEPRECATED
+    # def set_alpha(self, alpha):
+    #     """
+    #     Set the alpha value used for blending - not supported on
+    #     all backends
+
+    #     ACCEPTS: float
+    #     """
+    #     martist.Artist.set_alpha(self, alpha)
+    #     self.update_dict['array'] = True
 
 
 class FigureImage(martist.Artist, cm.ScalarMappable):
@@ -1091,7 +1103,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         gc = renderer.new_gc()
         gc.set_clip_rectangle(self.figure.bbox)
         gc.set_clip_path(self.get_clip_path())
-        gc.set_alpha(self.get_alpha())
+        gc.alpha = self.alpha
         renderer.draw_image(gc, round(self.ox), round(self.oy), im)
         gc.restore()
         self.stale = False
@@ -1240,7 +1252,7 @@ class BboxImage(_AxesImageBase):
         x0, y0, x1, y1 = self.get_window_extent(renderer).extents
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
-        gc.set_alpha(self.get_alpha())
+        gc.alpha = self.alpha
 
         l = np.min([x0, x1])
         b = np.min([y0, y1])

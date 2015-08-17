@@ -315,7 +315,7 @@ class Ticks(Line2D, AttributeCopier):
         self._set_gc_clip(gc)
         gc.set_foreground(self.get_markeredgecolor())
         gc.set_linewidth(self.get_markeredgewidth())
-        gc.set_alpha(self._alpha)
+        gc.set_alpha(self.alpha)
 
         offset = renderer.points_to_pixels(size)
         marker_scale = Affine2D().scale(offset, offset)

@@ -660,7 +660,7 @@ class Figure(Artist):
         im.stale_callback = _stale_figure_callback
 
         im.set_array(X)
-        im.set_alpha(alpha)
+        im.alpha = alpha
         if norm is None:
             im.set_clim(vmin, vmax)
         self.images.append(im)
@@ -1229,7 +1229,7 @@ class Figure(Artist):
             # make a composite image blending alpha
             # list of (_image.Image, ox, oy)
             mag = renderer.get_image_magnification()
-            ims = [(im.make_image(mag), im.ox, im.oy, im.get_alpha())
+            ims = [(im.make_image(mag), im.ox, im.oy, im.alpha)
                    for im in self.images]
 
             im = _image.from_images(int(self.bbox.height * mag),

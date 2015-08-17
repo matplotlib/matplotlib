@@ -389,12 +389,12 @@ class Patch3DCollection(PatchCollection):
 
         fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
-        fcs = mcolors.colorConverter.to_rgba_array(fcs, self._alpha)
+        fcs = mcolors.colorConverter.to_rgba_array(fcs, self.alpha)
         self.set_facecolors(fcs)
 
         ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
-        ecs = mcolors.colorConverter.to_rgba_array(ecs, self._alpha)
+        ecs = mcolors.colorConverter.to_rgba_array(ecs, self.alpha)
         self.set_edgecolors(ecs)
         PatchCollection.set_offsets(self, list(zip(vxs, vys)))
 
@@ -457,12 +457,12 @@ class Path3DCollection(PathCollection):
 
         fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
-        fcs = mcolors.colorConverter.to_rgba_array(fcs, self._alpha)
+        fcs = mcolors.colorConverter.to_rgba_array(fcs, self.alpha)
         self.set_facecolors(fcs)
 
         ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
-        ecs = mcolors.colorConverter.to_rgba_array(ecs, self._alpha)
+        ecs = mcolors.colorConverter.to_rgba_array(ecs, self.alpha)
         self.set_edgecolors(ecs)
         PathCollection.set_offsets(self, list(zip(vxs, vys)))
 
@@ -593,7 +593,7 @@ class Poly3DCollection(PolyCollection):
         self.set_zsort(True)
         self._facecolors3d = PolyCollection.get_facecolors(self)
         self._edgecolors3d = PolyCollection.get_edgecolors(self)
-        self._alpha3d = PolyCollection.get_alpha(self)
+        self._alpha3d = self.alpha
         self.stale = True
 
     def set_sort_zpos(self,val):
@@ -670,30 +670,47 @@ class Poly3DCollection(PolyCollection):
         self._edgecolors3d = PolyCollection.get_edgecolor(self)
     set_edgecolors = set_edgecolor
 
-    def set_alpha(self, alpha):
-        """
-        Set the alpha tranparencies of the collection.  *alpha* must be
-        a float or *None*.
+    def _alpha_validate(self, value, trait):
+        value = artist.Artist._alpha_validate(self, value, trait)
 
-        ACCEPTS: float or None
-        """
-        if alpha is not None:
-            try:
-                float(alpha)
-            except TypeError:
-                raise TypeError('alpha must be a float or None')
-        artist.Artist.set_alpha(self, alpha)
         try:
             self._facecolors = mcolors.colorConverter.to_rgba_array(
-                self._facecolors3d, self._alpha)
+                self._facecolors3d, value)
         except (AttributeError, TypeError, IndexError):
             pass
         try:
             self._edgecolors = mcolors.colorConverter.to_rgba_array(
-                    self._edgecolors3d, self._alpha)
+                    self._edgecolors3d, value)
         except (AttributeError, TypeError, IndexError):
             pass
+
         self.stale = True
+        return value
+
+    # def set_alpha(self, alpha):
+    #     """
+    #     Set the alpha tranparencies of the collection.  *alpha* must be
+    #     a float or *None*.
+
+    #     ACCEPTS: float or None
+    #     """
+    #     if alpha is not None:
+    #         try:
+    #             float(alpha)
+    #         except TypeError:
+    #             raise TypeError('alpha must be a float or None')
+    #     artist.Artist.set_alpha(self, alpha)
+    #     try:
+    #         self._facecolors = mcolors.colorConverter.to_rgba_array(
+    #             self._facecolors3d, self._alpha)
+    #     except (AttributeError, TypeError, IndexError):
+    #         pass
+    #     try:
+    #         self._edgecolors = mcolors.colorConverter.to_rgba_array(
+    #                 self._edgecolors3d, self._alpha)
+    #     except (AttributeError, TypeError, IndexError):
+    #         pass
+    #     self.stale = True
 
     def get_facecolors(self):
         return self._facecolors2d

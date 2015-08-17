@@ -805,7 +805,7 @@ def _candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
             facecolor=color,
             edgecolor=color,
         )
-        rect.set_alpha(alpha)
+        rect.alpha = alpha
 
         lines.append(vline)
         patches.append(rect)

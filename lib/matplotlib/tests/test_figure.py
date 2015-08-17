@@ -110,7 +110,7 @@ def test_alpha():
     # alpha of 0.4.
     fig = plt.figure(figsize=[2, 1])
     fig.set_facecolor((0, 1, 0.4))
-    fig.patch.set_alpha(0.4)
+    fig.patch.alpha = 0.4
 
     import matplotlib.patches as mpatches
     fig.patches.append(mpatches.CirclePolygon([20, 20],

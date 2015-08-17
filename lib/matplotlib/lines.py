@@ -791,7 +791,7 @@ class Line2D(Artist):
                         rgbaFace is not None):
                     gc.set_alpha(rgbaFace[3])
                 else:
-                    gc.set_alpha(self.get_alpha())
+                    gc.set_alpha(self.alpha)
 
             marker = self._marker
             tpath, affine = transf_path.get_transformed_points_and_affine()
@@ -831,7 +831,7 @@ class Line2D(Artist):
                             rgbaFaceAlt is not None):
                         gc.set_alpha(rgbaFaceAlt[3])
                     else:
-                        gc.set_alpha(self.get_alpha())
+                        gc.set_alpha(self.alpha)
 
                     renderer.draw_markers(
                             gc, alt_marker_path, alt_marker_trans, subsampled,
@@ -1262,11 +1262,11 @@ class Line2D(Artist):
         if is_string_like(facecolor) and facecolor.lower() == 'none':
             rgbaFace = None
         else:
-            rgbaFace = colorConverter.to_rgba(facecolor, self._alpha)
+            rgbaFace = colorConverter.to_rgba(facecolor, self.alpha)
         return rgbaFace
 
     def _get_rgba_ln_color(self, alt=False):
-        return colorConverter.to_rgba(self._color, self._alpha)
+        return colorConverter.to_rgba(self._color, self.alpha)
 
     # some aliases....
     def set_aa(self, val):

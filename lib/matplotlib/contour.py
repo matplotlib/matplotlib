@@ -1018,7 +1018,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     (0, 0), 1, 1,
                     facecolor=collection.get_facecolor()[0],
                     hatch=collection.get_hatch(),
-                    alpha=collection.get_alpha())
+                    alpha=collection.alpha)
                 artists.append(patch)
 
                 lower = str_format(lower)
@@ -1135,7 +1135,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             else:
                 collection.set_color(color)
         for label, cv in zip(self.labelTexts, self.labelCValues):
-            label.set_alpha(self.alpha)
+            label.alpha = self.alpha
             label.set_color(self.labelMappable.to_rgba(cv))
         # add label colors
         cm.ScalarMappable.changed(self)

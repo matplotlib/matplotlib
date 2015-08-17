@@ -186,7 +186,7 @@ class Patch(artist.Artist):
         self.set_linestyle(other.get_linestyle())
         self.transform = other.get_data_transform()
         self.figure = other.figure
-        self.set_alpha(other.get_alpha())
+        self.alpha = other.alpha
 
     def get_extents(self):
         """
@@ -285,7 +285,7 @@ class Patch(artist.Artist):
         if color is None:
             color = mpl.rcParams['patch.edgecolor']
         self._original_edgecolor = color
-        self._edgecolor = colors.colorConverter.to_rgba(color, self._alpha)
+        self._edgecolor = colors.colorConverter.to_rgba(color, self.alpha)
         self.stale = True
 
     def set_ec(self, color):
@@ -302,7 +302,7 @@ class Patch(artist.Artist):
             color = mpl.rcParams['patch.facecolor']
         # save: otherwise changing _fill may lose alpha information
         self._original_facecolor = color
-        self._facecolor = colors.colorConverter.to_rgba(color, self._alpha)
+        self._facecolor = colors.colorConverter.to_rgba(color, self.alpha)
         if not self._fill:
             self._facecolor = list(self._facecolor)
             self._facecolor[3] = 0
@@ -326,22 +326,30 @@ class Patch(artist.Artist):
         self.set_facecolor(c)
         self.set_edgecolor(c)
 
-    def set_alpha(self, alpha):
-        """
-        Set the alpha tranparency of the patch.
-
-        ACCEPTS: float or None
-        """
-        if alpha is not None:
-            try:
-                float(alpha)
-            except TypeError:
-                raise TypeError('alpha must be a float or None')
-        artist.Artist.set_alpha(self, alpha)
-        # using self._fill and self._alpha
+    def _alpha_validate(self, value, trait):
+        value = artist.Artist._alpha_validate(self, value, trait)
         self.set_facecolor(self._original_facecolor)
         self.set_edgecolor(self._original_edgecolor)
         self.stale = True
+        return value
+
+    #!DEPRECATED
+    # def set_alpha(self, alpha):
+    #     """
+    #     Set the alpha tranparency of the patch.
+
+    #     ACCEPTS: float or None
+    #     """
+    #     if alpha is not None:
+    #         try:
+    #             float(alpha)
+    #         except TypeError:
+    #             raise TypeError('alpha must be a float or None')
+    #     artist.Artist.set_alpha(self, alpha)
+    #     # using self._fill and self._alpha
+    #     self.set_facecolor(self._original_facecolor)
+    #     self.set_edgecolor(self._original_edgecolor)
+    #     self.stale = True
 
     def set_linewidth(self, w):
         """
@@ -515,7 +523,7 @@ class Patch(artist.Artist):
         if rgbFace[3] == 0:
             rgbFace = None  # (some?) renderers expect this as no-fill signal
 
-        gc.set_alpha(self._alpha)
+        gc.set_alpha(self.alpha)
 
         if self._hatch:
             gc.set_hatch(self._hatch)
@@ -594,7 +602,7 @@ class Shadow(Patch):
 
             self.set_facecolor((r, g, b, 0.5))
             self.set_edgecolor((r, g, b, 0.5))
-            self.set_alpha(0.5)
+            self.alpha = 0.5
 
     def _update_transform(self, renderer):
         ox = renderer.points_to_pixels(self._ox)
@@ -4242,7 +4250,7 @@ class FancyArrowPatch(Patch):
         if rgbFace[3] == 0:
             rgbFace = None  # (some?) renderers expect this as no-fill signal
 
-        gc.set_alpha(self._alpha)
+        gc.set_alpha(self.alpha)
 
         if self._hatch:
             gc.set_hatch(self._hatch)

@@ -148,7 +148,7 @@ class Axis(maxis.XAxis):
         self._axinfo['color'] = color
         self.pane.set_edgecolor(color)
         self.pane.set_facecolor(color)
-        self.pane.set_alpha(color[-1])
+        self.pane.alpha = color[-1]
         self.stale = True
 
     def set_rotate_label(self, val):

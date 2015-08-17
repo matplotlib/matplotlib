@@ -16,7 +16,7 @@ from .transforms import (Bbox, IdentityTransform, TransformedBbox,
 from .path import Path
 
 from .traitlets import (Instance, Configurable, gTransformInstance, Bool, Undefined,
-                        BaseDescriptor, getargspec, PrivateMethodMixin)
+                        BaseDescriptor, getargspec, PrivateMethodMixin, Float, TraitError)
 
 # Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
@@ -146,6 +146,20 @@ class Artist(PrivateMethodMixin, Configurable):
         self.pchanged()
         self.stale = True
 
+    # Float defaults to 0.0, must have None arg
+    alpha = Float(None, allow_none=True)
+
+    def _alpha_validate(self, value, trait):
+        if 0>value>1:
+            msg = ("The '%s' trait of %s instance can only be"
+                   "transparent (0.0) through opaque (1.0)")
+            raise TraitError(msg % (trait.name, self.__class__))
+        return value
+
+    def _alpha_changed(self, name, new):
+        self.pchanged()
+        self.stale = True
+
     def __init__(self):
         # self._stale = True
         # self._axes = None
@@ -157,7 +171,7 @@ class Artist(PrivateMethodMixin, Configurable):
 
         # self._visible = True
         # self._animated = False
-        self._alpha = None
+        # self._alpha = None
         self.clipbox = None
         self._clippath = None
         self._clipon = True
@@ -765,12 +779,13 @@ class Artist(PrivateMethodMixin, Configurable):
         self.pchanged()
         self.stale = True
 
-    def get_alpha(self):
-        """
-        Return the alpha value used for blending - not supported on all
-        backends
-        """
-        return self._alpha
+    #!DEPRECATED
+    # def get_alpha(self):
+    #     """
+    #     Return the alpha value used for blending - not supported on all
+    #     backends
+    #     """
+    #     return self._alpha
 
     #!DEPRECATED
     # def get_visible(self):
@@ -864,16 +879,17 @@ class Artist(PrivateMethodMixin, Configurable):
             return
         self.stale = False
 
-    def set_alpha(self, alpha):
-        """
-        Set the alpha value used for blending - not supported on
-        all backends.
+    #!DEPRECATED
+    # def set_alpha(self, alpha):
+    #     """
+    #     Set the alpha value used for blending - not supported on
+    #     all backends.
 
-        ACCEPTS: float (0.0 transparent through 1.0 opaque)
-        """
-        self._alpha = alpha
-        self.pchanged()
-        self.stale = True
+    #     ACCEPTS: float (0.0 transparent through 1.0 opaque)
+    #     """
+    #     self._alpha = alpha
+    #     self.pchanged()
+    #     self.stale = True
 
     #!DEPRECATED
     # def set_visible(self, b):
@@ -966,7 +982,7 @@ class Artist(PrivateMethodMixin, Configurable):
         self.private('transform', other.private('transform'))
         self.transform_set = other.transform_set
         self.private('visible', other.private('visible'))
-        self._alpha = other._alpha
+        self.private('alpha',other.alpha)
         self.clipbox = other.clipbox
         self._clipon = other._clipon
         self._clippath = other._clippath

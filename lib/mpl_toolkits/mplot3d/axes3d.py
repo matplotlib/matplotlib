@@ -2327,7 +2327,7 @@ class Axes3D(Axes):
             verts_zs += [z] * len(vs)
             art3d.patch_2d_to_3d(p, z, zdir)
             if 'alpha' in kwargs:
-                p.set_alpha(kwargs['alpha'])
+                p.alpha = kwargs['alpha']
 
         if len(verts) > 0 :
             # the following has to be skipped if verts is empty

@@ -2313,7 +2313,7 @@ class _AxesBase(martist.Artist):
             zorder_images.sort(key=lambda x: x[0])
 
             mag = renderer.get_image_magnification()
-            ims = [(im.make_image(mag), 0, 0, im.get_alpha())
+            ims = [(im.make_image(mag), 0, 0, im.alpha)
                    for z, im in zorder_images]
 
             l, b, r, t = self.bbox.extents

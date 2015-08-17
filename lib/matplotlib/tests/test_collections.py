@@ -507,7 +507,7 @@ def test_polycollection_close():
 
     poly = mcollections.PolyCollection(
         vertsQuad * len(zpos), linewidth=0.25)
-    poly.set_alpha(0.7)
+    poly.alpha = 0.7
 
     # need to have a z-value for *each* polygon = element!
     zs = []

@@ -885,7 +885,7 @@ class Colorbar(ColorbarBase):
 
         if isinstance(mappable, contour.ContourSet):
             CS = mappable
-            kw['alpha'] = mappable.get_alpha()
+            kw['alpha'] = mappable.alpha
             kw['boundaries'] = CS._levels
             kw['values'] = CS.cvalues
             kw['extend'] = CS.extend
@@ -900,7 +900,7 @@ class Colorbar(ColorbarBase):
                 kw.setdefault('extend', cmap.colorbar_extend)
 
             if isinstance(mappable, martist.Artist):
-                kw['alpha'] = mappable.get_alpha()
+                kw['alpha'] = mappable.alpha
 
             ColorbarBase.__init__(self, ax, **kw)
 
@@ -972,7 +972,7 @@ class Colorbar(ColorbarBase):
         self.solids = None
         self.lines = list()
         self.dividers = None
-        self.set_alpha(mappable.get_alpha())
+        self.set_alpha(mappable.alpha)
         self.cmap = mappable.cmap
         self.norm = mappable.norm
         self.config_axis()

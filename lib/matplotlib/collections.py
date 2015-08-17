@@ -609,7 +609,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if c is None:
             c = mpl.rcParams['patch.facecolor']
         self._facecolors_original = c
-        self._facecolors = mcolors.colorConverter.to_rgba_array(c, self._alpha)
+        self._facecolors = mcolors.colorConverter.to_rgba_array(c, self.alpha)
         self.stale = True
 
     def set_facecolors(self, c):
@@ -657,38 +657,56 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if c is None:
             c = mpl.rcParams['patch.edgecolor']
         self._edgecolors_original = c
-        self._edgecolors = mcolors.colorConverter.to_rgba_array(c, self._alpha)
+        self._edgecolors = mcolors.colorConverter.to_rgba_array(c, self.alpha)
         self.stale = True
 
     def set_edgecolors(self, c):
         """alias for set_edgecolor"""
         return self.set_edgecolor(c)
 
-    def set_alpha(self, alpha):
-        """
-        Set the alpha tranparencies of the collection.  *alpha* must be
-        a float or *None*.
+    def _alpha_validate(self, value, trait):
+        value = artist.Artist._alpha_validate(self, value, trait)
 
-        ACCEPTS: float or None
-        """
-        if alpha is not None:
-            try:
-                float(alpha)
-            except TypeError:
-                raise TypeError('alpha must be a float or None')
-        artist.Artist.set_alpha(self, alpha)
         try:
             self._facecolors = mcolors.colorConverter.to_rgba_array(
-                self._facecolors_original, self._alpha)
+                self._facecolors_original, value)
         except (AttributeError, TypeError, IndexError):
             pass
         try:
             if (not isinstance(self._edgecolors_original, six.string_types)
                              or self._edgecolors_original != str('face')):
                 self._edgecolors = mcolors.colorConverter.to_rgba_array(
-                    self._edgecolors_original, self._alpha)
+                    self._edgecolors_original, value)
         except (AttributeError, TypeError, IndexError):
             pass
+
+        return value
+
+    #!DEPRECATED
+    # def set_alpha(self, alpha):
+    #     """
+    #     Set the alpha tranparencies of the collection.  *alpha* must be
+    #     a float or *None*.
+
+    #     ACCEPTS: float or None
+    #     """
+    #     if alpha is not None:
+    #         try:
+    #             float(alpha)
+    #         except TypeError:
+    #             raise TypeError('alpha must be a float or None')
+    #     artist.Artist.set_alpha(self, alpha)
+    #     try:
+    #         self._facecolors = mcolors.colorConverter.to_rgba_array(
+    #             self._facecolors_original, self._alpha)
+    #     except (AttributeError, TypeError, IndexError):
+    #         pass
+    #     try:
+    #         if self._edgecolors_original != str('face'):
+    #             self._edgecolors = mcolors.colorConverter.to_rgba_array(
+    #                 self._edgecolors_original, self._alpha)
+    #     except (AttributeError, TypeError, IndexError):
+    #         pass
 
     def get_linewidths(self):
         return self._linewidths
@@ -710,9 +728,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if not self.check_update("array"):
             return
         if self._is_filled:
-            self._facecolors = self.to_rgba(self._A, self._alpha)
+            self._facecolors = self.to_rgba(self._A, self.alpha)
         elif self._is_stroked:
-            self._edgecolors = self.to_rgba(self._A, self._alpha)
+            self._edgecolors = self.to_rgba(self._A, self.alpha)
         self.stale = True
 
     def get_fill(self):

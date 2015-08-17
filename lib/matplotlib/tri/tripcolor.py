@@ -135,7 +135,7 @@ def tripcolor(ax, *args, **kwargs):
 
         collection = PolyCollection(verts, **kwargs)
 
-    collection.set_alpha(alpha)
+    collection.alpha = alpha
     collection.set_array(C)
     if norm is not None:
         if not isinstance(norm, Normalize):
