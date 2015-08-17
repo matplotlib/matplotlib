@@ -282,7 +282,7 @@ class _process_plot_var_args(object):
 
         # Ignore 'marker'-related properties as they aren't Polygon
         # properties, but they are Line2D properties, and so they are
-        # likely to appear in the default cycler construction. 
+        # likely to appear in the default cycler construction.
         # This is done here to the defaults dictionary as opposed to the
         # other two dictionaries because we do want to capture when a
         # *user* explicitly specifies a marker which should be an error.
@@ -312,7 +312,6 @@ class _process_plot_var_args(object):
 
         # Throw out 'color' as it is now handled as a facecolor
         default_dict.pop('color', None)
-
 
         # To get other properties set from the cycler
         # modify the kwargs dictionary.
