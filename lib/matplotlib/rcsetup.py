@@ -593,6 +593,9 @@ _prop_validators = {
         'markeredgewidth': validate_floatlist,
         'markeredgecolor': validate_colorlist,
         'alpha': validate_floatlist,
+        # No, this isn't a "property", but how long do you think it
+        # will be before someone requests support for cycling markers?
+        'marker': validate_stringlist,
     }
 _prop_aliases = {
         'c': 'color',
