@@ -240,7 +240,8 @@ class Text(Artist):
         """
         bbox = kwargs.pop('bbox', None)
         super(Text, self).update(kwargs)
-        self.set_bbox(bbox)  # depends on font properties
+        if bbox:
+            self.set_bbox(bbox)  # depends on font properties
 
     def __getstate__(self):
         d = super(Text, self).__getstate__()
