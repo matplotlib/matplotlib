@@ -593,7 +593,17 @@ _prop_validators = {
         'markeredgewidth': validate_floatlist,
         'markeredgecolor': validate_colorlist,
         'alpha': validate_floatlist,
-        # TODO: Add aliases
+    }
+_prop_aliases = {
+        'c': 'color',
+        'lw': 'linewidth',
+        'ls': 'linestyle',
+        'fc': 'facecolor',
+        'ec': 'edgecolor',
+        'mfc': 'markerfacecolor',
+        'mec': 'markeredgecolor',
+        'mew': 'markeredgewidth',
+        'ms': 'markersize',
     }
 
 def _cycler_wrap(prop, vals):
@@ -603,8 +613,10 @@ def _cycler_wrap(prop, vals):
     and validate property inputs.
 
     """
-    # Any unknown properties will just pass-through for now.
-    validator = _prop_validators.get(prop, validate_anylist)
+    norm_prop = _prop_aliases.get(prop, prop)
+    validator = _prop_validators.get(norm_prop, None)
+    if validator is None:
+        raise TypeError("Unknown artist property: %s" % prop)
     vals = validator(vals)
     return cycler(prop, vals)
 

@@ -324,6 +324,7 @@ def test_validators():
                   ('def badjuju(a): return a; badjuju(cycler("color", "rgb"))',
                       ValueError),  # Should not be able to define anything
                                     # even if it does return a cycler
+                  ('cycler("waka", [1, 2, 3])', ValueError),  # not a property
                  )
         },
     )
