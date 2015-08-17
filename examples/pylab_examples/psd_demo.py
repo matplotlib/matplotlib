@@ -15,6 +15,7 @@ plt.plot(t, s)
 plt.subplot(212)
 plt.psd(s, 512, 1/dt)
 
+plt.tight_layout()
 plt.show()
 
 """

@@ -49,7 +49,7 @@ for i, case in enumerate(cases):
     ax.append(fig1.add_subplot(gs[row, col]))
     ax[-1].set_title('markevery=%s' % str(case))
     ax[-1].plot(x, y, 'o', ls='-', ms=4, markevery=case)
-#fig1.tight_layout()
+fig1.tight_layout()
 
 # plot each markevery case for log x and y scales
 fig2 = plt.figure(num=2, figsize=figsize)

@@ -49,4 +49,5 @@ plt.title('pcolorfast')
 plt.colorbar()
 
 
+plt.tight_layout()
 plt.show()

@@ -26,4 +26,5 @@ plt.angle_spectrum(s, Fs=Fs)
 plt.subplot(3, 2, 6)
 plt.phase_spectrum(s, Fs=Fs)
 
+plt.tight_layout()
 plt.show()

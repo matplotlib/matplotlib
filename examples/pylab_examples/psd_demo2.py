@@ -39,4 +39,5 @@ ax4.psd(y, NFFT=len(t)//2, pad_to=len(t), noverlap=int(0.2*len(t)/2.), Fs=fs)
 ax4.set_ylabel('')
 plt.title('overlap')
 
+plt.tight_layout()
 plt.show()
