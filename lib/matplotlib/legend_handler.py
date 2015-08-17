@@ -434,8 +434,8 @@ class HandlerErrorbar(HandlerLine2D):
         # when plotlines are None (only errorbars are drawn), we just
         # make legline invisible.
         if plotlines is None:
-            legline.set_visible(False)
-            legline_marker.set_visible(False)
+            legline.visible = False
+            legline_marker.visible = False
         else:
             self.update_prop(legline, plotlines, legend)
 

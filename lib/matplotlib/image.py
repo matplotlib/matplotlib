@@ -368,7 +368,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
-        if not self.get_visible():
+        if not self.visible:
             return
         if (self.axes.get_xscale() != 'linear' or
                 self.axes.get_yscale() != 'linear'):
@@ -923,7 +923,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
 
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
-        if not self.get_visible():
+        if not self.visible:
             return
         im = self.make_image(renderer.get_image_magnification())
         gc = renderer.new_gc()
@@ -1084,7 +1084,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
 
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
-        if not self.get_visible():
+        if not self.visible:
             return
         # todo: we should be able to do some cacheing here
         im = self.make_image(renderer.get_image_magnification())
@@ -1161,7 +1161,7 @@ class BboxImage(_AxesImageBase):
         if six.callable(self._contains):
             return self._contains(self, mouseevent)
 
-        if not self.get_visible():  # or self.figure._renderer is None:
+        if not self.visible:  # or self.figure._renderer is None:
             return False, {}
 
         x, y = mouseevent.x, mouseevent.y
@@ -1232,7 +1232,7 @@ class BboxImage(_AxesImageBase):
 
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
-        if not self.get_visible():
+        if not self.visible:
             return
         # todo: we should be able to do some cacheing here
         image_mag = renderer.get_image_magnification()

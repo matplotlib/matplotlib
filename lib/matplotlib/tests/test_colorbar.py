@@ -57,7 +57,7 @@ def _colorbar_extension_shape(spacing):
         # Turn off text and ticks.
         for item in cax.get_xticklabels() + cax.get_yticklabels() +\
                 cax.get_xticklines() + cax.get_yticklines():
-            item.set_visible(False)
+            item.visible = False
         # Generate the colorbar.
         cb = ColorbarBase(cax, cmap=cmap, norm=norm,
                 boundaries=boundaries, values=values,
@@ -89,7 +89,7 @@ def _colorbar_extension_length(spacing):
             # Turn off text and ticks.
             for item in cax.get_xticklabels() + cax.get_yticklabels() +\
                     cax.get_xticklines() + cax.get_yticklines():
-                item.set_visible(False)
+                item.visible = False
             # Generate the colorbar.
             cb = ColorbarBase(cax, cmap=cmap, norm=norm,
                     boundaries=boundaries, values=values,

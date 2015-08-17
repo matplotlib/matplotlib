@@ -721,7 +721,7 @@ class Line2D(Artist):
     @allow_rasterization
     def draw(self, renderer):
         """draw the Line with `renderer` unless visibility is False"""
-        if not self.get_visible():
+        if not self.visible:
             return
 
         if self._invalidy or self._invalidx:

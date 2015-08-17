@@ -225,6 +225,6 @@ def test_tight_layout_offsetboxes():
     for ax in (axs[cols-1::rows]):
         for child in ax.get_children():
             if isinstance(child, AnchoredOffsetbox):
-                child.set_visible(False)
+                child.visible = False
 
     plt.tight_layout()

@@ -103,7 +103,7 @@ class Artist(PrivateMethodMixin, Configurable):
     stale = Bool(True)
 
     def _stale_validate(self, value, trait):
-        if self.get_animated():
+        if self.animated:
             return self.stale
         return value
 
@@ -134,6 +134,18 @@ class Artist(PrivateMethodMixin, Configurable):
             self.pchanged()
         self.stale = True
 
+    visible = Bool(True)
+
+    def _visible_changed(self, name, new):
+        self.pchanged()
+        self.stale = True
+
+    animated = Bool(False)
+
+    def _animated_changed(self, name, new):
+        self.pchanged()
+        self.stale = True
+
     def __init__(self):
         # self._stale = True
         # self._axes = None
@@ -142,8 +154,9 @@ class Artist(PrivateMethodMixin, Configurable):
         # self._transform = None
         # self._transformSet = False
         self.stale_callback = None
-        self._visible = True
-        self._animated = False
+
+        # self._visible = True
+        # self._animated = False
         self._alpha = None
         self.clipbox = None
         self._clippath = None
@@ -759,13 +772,15 @@ class Artist(PrivateMethodMixin, Configurable):
         """
         return self._alpha
 
-    def get_visible(self):
-        "Return the artist's visiblity"
-        return self._visible
+    #!DEPRECATED
+    # def get_visible(self):
+    #     "Return the artist's visiblity"
+    #     return self._visible
 
-    def get_animated(self):
-        "Return the artist's animated state"
-        return self._animated
+    #!DEPRECATED
+    # def get_animated(self):
+    #     "Return the artist's animated state"
+    #     return self._animated
 
     def get_clip_on(self):
         'Return whether artist uses clipping'
@@ -845,7 +860,7 @@ class Artist(PrivateMethodMixin, Configurable):
 
     def draw(self, renderer, *args, **kwargs):
         'Derived classes drawing method'
-        if not self.get_visible():
+        if not self.visible:
             return
         self.stale = False
 
@@ -860,25 +875,27 @@ class Artist(PrivateMethodMixin, Configurable):
         self.pchanged()
         self.stale = True
 
-    def set_visible(self, b):
-        """
-        Set the artist's visiblity.
+    #!DEPRECATED
+    # def set_visible(self, b):
+    #     """
+    #     Set the artist's visiblity.
 
-        ACCEPTS: [True | False]
-        """
-        self._visible = b
-        self.pchanged()
-        self.stale = True
+    #     ACCEPTS: [True | False]
+    #     """
+    #     self._visible = b
+    #     self.pchanged()
+    #     self.stale = True
 
-    def set_animated(self, b):
-        """
-        Set the artist's animation state.
+    #!DEPRECATED
+    # def set_animated(self, b):
+    #     """
+    #     Set the artist's animation state.
 
-        ACCEPTS: [True | False]
-        """
-        self._animated = b
-        self.pchanged()
-        self.stale = True
+    #     ACCEPTS: [True | False]
+    #     """
+    #     self._animated = b
+    #     self.pchanged()
+    #     self.stale = True
 
     def update(self, props):
         """
@@ -948,7 +965,7 @@ class Artist(PrivateMethodMixin, Configurable):
         'Copy properties from *other* to *self*.'
         self.private('transform', other.private('transform'))
         self.transform_set = other.transform_set
-        self._visible = other._visible
+        self.private('visible', other.private('visible'))
         self._alpha = other._alpha
         self.clipbox = other.clipbox
         self._clipon = other._clipon

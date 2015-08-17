@@ -236,7 +236,7 @@ class Tick(artist.Artist):
 
     @allow_rasterization
     def draw(self, renderer):
-        if not self.get_visible():
+        if not self.visible:
             return
         renderer.open_group(self.__name__)
         midPoint = mtransforms.interval_contains(self.get_view_interval(),
@@ -1062,10 +1062,10 @@ class Axis(artist.Artist):
         ticklabelBoxes2 = []
 
         for tick in ticks:
-            if tick.label1On and tick.label1.get_visible():
+            if tick.label1On and tick.label1.visible:
                 extent = tick.label1.get_window_extent(renderer)
                 ticklabelBoxes.append(extent)
-            if tick.label2On and tick.label2.get_visible():
+            if tick.label2On and tick.label2.visible:
                 extent = tick.label2.get_window_extent(renderer)
                 ticklabelBoxes2.append(extent)
         return ticklabelBoxes, ticklabelBoxes2
@@ -1075,7 +1075,7 @@ class Axis(artist.Artist):
         Return a bounding box that encloses the axis. It only accounts
         tick labels, axis label, and offsetText.
         """
-        if not self.get_visible():
+        if not self.visible:
             return
 
         ticks_to_draw = self._update_ticks(renderer)
@@ -1090,7 +1090,7 @@ class Axis(artist.Artist):
         bb = []
 
         for a in [self.label, self.offsetText]:
-            if a.get_visible():
+            if a.visible:
                 bb.append(a.get_window_extent(renderer))
 
         bb.extend(ticklabelBoxes)
@@ -1107,7 +1107,7 @@ class Axis(artist.Artist):
     def draw(self, renderer, *args, **kwargs):
         'Draw the axis lines, grid lines, tick lines and labels'
 
-        if not self.get_visible():
+        if not self.visible:
             return
         renderer.open_group(__name__)
 

@@ -468,7 +468,7 @@ class Figure(Artist):
                             label.set_rotation(rotation)
                     else:
                         for label in ax.get_xticklabels():
-                            label.set_visible(False)
+                            label.visible = False
                         ax.set_xlabel('')
 
         if allsubplots:
@@ -1187,7 +1187,7 @@ class Figure(Artist):
         """
 
         # draw the figure bounding box, perhaps none for white figure
-        if not self.get_visible():
+        if not self.visible:
             return
 
         renderer.open_group('figure')
@@ -1260,7 +1260,7 @@ class Figure(Artist):
         for a in self.legends:
             dsu.append((a.get_zorder(), a, a.draw, [renderer]))
 
-        dsu = [row for row in dsu if not row[1].get_animated()]
+        dsu = [row for row in dsu if not row[1].animated]
         dsu.sort(key=itemgetter(0))
         for zorder, a, func, args in dsu:
             func(*args)
@@ -1793,9 +1793,9 @@ class Figure(Artist):
 
     def get_default_bbox_extra_artists(self):
         bbox_artists = [artist for artist in self.get_children()
-                        if artist.get_visible()]
+                        if artist.visible]
         for ax in self.axes:
-            if ax.get_visible():
+            if ax.visible:
                 bbox_artists.extend(ax.get_default_bbox_extra_artists())
         # we don't want the figure's patch to influence the bbox calculation
         bbox_artists.remove(self.patch)
@@ -1811,7 +1811,7 @@ class Figure(Artist):
 
         bb = []
         for ax in self.axes:
-            if ax.get_visible():
+            if ax.visible:
                 bb.append(ax.get_tightbbox(renderer))
 
         if len(bb) == 0:

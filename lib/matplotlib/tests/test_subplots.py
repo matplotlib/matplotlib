@@ -38,10 +38,10 @@ def check_visible(result, f, axs):
     tostr = lambda v: "invisible" if v else "visible"
     for (ax, vx, vy) in zip(axs, result['x'], result['y']):
         for l in ax.get_xticklabels():
-            assert l.get_visible() == vx, \
+            assert l.visible == vx, \
                     "X axis was incorrectly %s" % (tostr(vx))
         for l in ax.get_yticklabels():
-            assert l.get_visible() == vy, \
+            assert l.visible == vy, \
                     "Y axis was incorrectly %s" % (tostr(vy))
 
 

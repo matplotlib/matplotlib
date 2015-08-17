@@ -452,7 +452,7 @@ class Legend(Artist):
     @allow_rasterization
     def draw(self, renderer):
         "Draw everything that belongs to the legend"
-        if not self.get_visible():
+        if not self.visible:
             return
 
         renderer.open_group('legend')
@@ -806,9 +806,9 @@ class Legend(Artist):
             self._legend_title_box._text.set_fontproperties(prop)
 
         if title:
-            self._legend_title_box.set_visible(True)
+            self._legend_title_box.visible = True
         else:
-            self._legend_title_box.set_visible(False)
+            self._legend_title_box.visible = False
         self.stale = True
 
     def get_title(self):

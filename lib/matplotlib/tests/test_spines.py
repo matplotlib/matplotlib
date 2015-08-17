@@ -58,11 +58,11 @@ def test_label_without_ticks():
     ax.plot(np.arange(10))
     ax.yaxis.set_ticks_position('left')
     ax.spines['left'].set_position(('outward', 30))
-    ax.spines['right'].set_visible(False)
+    ax.spines['right'].visible = False
     ax.set_ylabel('y label')
     ax.xaxis.set_ticks_position('bottom')
     ax.spines['bottom'].set_position(('outward', 30))
-    ax.spines['top'].set_visible(False)
+    ax.spines['top'].visible = False
     ax.set_xlabel('x label')
     ax.xaxis.set_ticks([])
     ax.yaxis.set_ticks([])

@@ -40,10 +40,10 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
         locator = divider.new_locator(nx=2, ny=ny)
         ax1.set_axes_locator(locator)
         for t in ax1.yaxis.get_ticklabels() + ax1.xaxis.get_ticklabels():
-            t.set_visible(False)
+            t.visible = False
         try:
             for axis in ax1.axis.values():
-                axis.major_ticklabels.set_visible(False)
+                axis.major_ticklabels.visible = False
         except AttributeError:
             pass
 

@@ -256,7 +256,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     @allow_rasterization
     def draw(self, renderer):
-        if not self.get_visible():
+        if not self.visible:
             return
         renderer.open_group(self.__class__.__name__, self.get_gid())
 
@@ -343,7 +343,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if six.callable(self._contains):
             return self._contains(self, mouseevent)
 
-        if not self.get_visible():
+        if not self.visible:
             return False, {}
 
         if self._picker is True:  # the Boolean constant, not just nonzero or 1
@@ -1673,7 +1673,7 @@ class TriMesh(Collection):
 
     @allow_rasterization
     def draw(self, renderer):
-        if not self.get_visible():
+        if not self.visible:
             return
         renderer.open_group(self.__class__.__name__)
         transform = self.transform
@@ -1828,7 +1828,7 @@ class QuadMesh(Collection):
 
     @allow_rasterization
     def draw(self, renderer):
-        if not self.get_visible():
+        if not self.visible:
             return
         renderer.open_group(self.__class__.__name__, self.get_gid())
         transform = self.transform

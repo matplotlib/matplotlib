@@ -23,7 +23,7 @@ def test_visibility():
 
     a, b, c = ax.errorbar(x, y, yerr=yerr, fmt='ko')
     for artist in b:
-        artist.set_visible(False)
+        artist.visible = False
 
     fd = BytesIO()
     fig.savefig(fd, format='svg')

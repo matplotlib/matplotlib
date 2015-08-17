@@ -134,10 +134,10 @@ class SubplotBase(object):
         lastrow = self.is_last_row()
         firstcol = self.is_first_col()
         for label in self.get_xticklabels():
-            label.set_visible(lastrow)
+            label.visible = lastrow
 
         for label in self.get_yticklabels():
-            label.set_visible(firstcol)
+            label.visible = firstcol
 
     def _make_twin_axes(self, *kl, **kwargs):
         """

@@ -260,7 +260,7 @@ class Text(Artist):
         if six.callable(self._contains):
             return self._contains(self, mouseevent)
 
-        if not self.get_visible() or self._renderer is None:
+        if not self.visible or self._renderer is None:
             return False, {}
 
         l, b, w, h = self.get_window_extent().bounds
@@ -738,7 +738,7 @@ class Text(Artist):
         """
         if renderer is not None:
             self._renderer = renderer
-        if not self.get_visible():
+        if not self.visible:
             return
         if self.get_text().strip() == '':
             return
@@ -944,7 +944,7 @@ class Text(Artist):
         was used must be specified as the *dpi* argument.
         '''
         #return _unit_box
-        if not self.get_visible():
+        if not self.visible:
             return Bbox.unit()
         if dpi is not None:
             dpi_orig = self.figure.dpi
@@ -2258,7 +2258,7 @@ class Annotation(Text, _AnnotationBase):
 
         if renderer is not None:
             self._renderer = renderer
-        if not self.get_visible():
+        if not self.visible:
             return
 
         xy_pixel = self._get_position_xy(renderer)
@@ -2292,7 +2292,7 @@ class Annotation(Text, _AnnotationBase):
         irrelevant.
 
         '''
-        if not self.get_visible():
+        if not self.visible:
             return Bbox.unit()
         arrow = self.arrow
         arrow_patch = self.arrow_patch

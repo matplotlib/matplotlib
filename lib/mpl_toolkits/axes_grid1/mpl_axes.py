@@ -106,11 +106,10 @@ class SimpleAxisArtist(Artist):
     major_ticklabels = property(_get_major_ticklabels)
     label = property(_get_label)
 
-    def set_visible(self, b):
+    def _visible_validate(self, value, trait):
         self.toggle(all=b)
-        self.line.set_visible(b)
-        self._axis.set_visible(True)
-        Artist.set_visible(self, b)
+        self.line.visible = b
+        self._axis.visible = True
 
     def set_label(self, txt):
         self._axis.set_label_text(txt)
@@ -144,9 +143,9 @@ class SimpleAxisArtist(Artist):
         if _label is not None:
             pos = self._axis.get_label_position()
             if (pos == self._axis_direction) and not _label:
-                self._axis.label.set_visible(False)
+                self._axis.label.visible = False
             elif _label:
-                self._axis.label.set_visible(True)
+                self._axis.label.visible = False
                 self._axis.set_label_position(self._axis_direction)
 
 

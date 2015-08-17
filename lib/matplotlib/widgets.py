@@ -546,8 +546,8 @@ class CheckButtons(AxesWidget):
             l1 = Line2D([x, x + w], [y + h, y], **lineparams)
             l2 = Line2D([x, x + w], [y, y + h], **lineparams)
 
-            l1.set_visible(actives[cnt])
-            l2.set_visible(actives[cnt])
+            l1.visible = actives[cnt]
+            l2.visible = actives[cnt]
             self.labels.append(t)
             self.rectangles.append(p)
             self.lines.append((l1, l2))
@@ -592,8 +592,8 @@ class CheckButtons(AxesWidget):
             raise ValueError("Invalid CheckButton index: %d" % index)
 
         l1, l2 = self.lines[index]
-        l1.set_visible(not l1.get_visible())
-        l2.set_visible(not l2.get_visible())
+        l1.visible = not l1.visible
+        l2.visible = not l2.visible
 
         if self.drawon:
             self.ax.figure.canvas.draw()
@@ -970,8 +970,8 @@ class Cursor(AxesWidget):
             return
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
-        self.linev.set_visible(False)
-        self.lineh.set_visible(False)
+        self.linev.visible = False
+        self.lineh.visible = False
 
     def onmove(self, event):
         """on mouse motion draw the cursor if visible"""
@@ -980,8 +980,8 @@ class Cursor(AxesWidget):
         if not self.canvas.widgetlock.available(self):
             return
         if event.inaxes != self.ax:
-            self.linev.set_visible(False)
-            self.lineh.set_visible(False)
+            self.linev.visible = False
+            self.lineh.visible = False
 
             if self.needclear:
                 self.canvas.draw()
@@ -993,8 +993,8 @@ class Cursor(AxesWidget):
         self.linev.set_xdata((event.xdata, event.xdata))
 
         self.lineh.set_ydata((event.ydata, event.ydata))
-        self.linev.set_visible(self.visible and self.vertOn)
-        self.lineh.set_visible(self.visible and self.horizOn)
+        self.linev.visible = self.visible and self.vertOn
+        self.lineh.visible = self.visible and self.horizOn
 
         self._update()
 
@@ -1096,7 +1096,7 @@ class MultiCursor(Widget):
             self.background = (
                 self.canvas.copy_from_bbox(self.canvas.figure.bbox))
         for line in self.vlines + self.hlines:
-            line.set_visible(False)
+            line.visible = False
 
     def onmove(self, event):
         if self.ignore(event):
@@ -1111,11 +1111,11 @@ class MultiCursor(Widget):
         if self.vertOn:
             for line in self.vlines:
                 line.set_xdata((event.xdata, event.xdata))
-                line.set_visible(self.visible)
+                line.visible = self.visible
         if self.horizOn:
             for line in self.hlines:
                 line.set_ydata((event.ydata, event.ydata))
-                line.set_visible(self.visible)
+                line.visible = self.visible
         self._update()
 
     def _update(self):
@@ -1359,7 +1359,7 @@ class _SelectorWidget(AxesWidget):
         """ Set the visibility of our artists """
         self.visible = visible
         for artist in self.artists:
-            artist.set_visible(visible)
+            artist.visible = visible
 
 
 class SpanSelector(_SelectorWidget):
@@ -1484,9 +1484,9 @@ class SpanSelector(_SelectorWidget):
 
     def _press(self, event):
         """on button press event"""
-        self.rect.set_visible(self.visible)
+        self.rect.visible = self.visible
         if self.span_stays:
-            self.stay_rect.set_visible(False)
+            self.stay_rect.visible = False
 
         xdata, ydata = self._get_data(event)
         if self.direction == 'horizontal':
@@ -1501,14 +1501,14 @@ class SpanSelector(_SelectorWidget):
             return
         self.buttonDown = False
 
-        self.rect.set_visible(False)
+        self.rect.visible = False
 
         if self.span_stays:
             self.stay_rect.set_x(self.rect.get_x())
             self.stay_rect.set_y(self.rect.get_y())
             self.stay_rect.set_width(self.rect.get_width())
             self.stay_rect.set_height(self.rect.get_height())
-            self.stay_rect.set_visible(True)
+            self.stay_rect.visible = True
 
         self.canvas.draw()
         vmin = self.pressv
@@ -1814,12 +1814,13 @@ class RectangleSelector(_SelectorWidget):
             # Clear previous rectangle before drawing new rectangle.
             self.update()
 
-        self.set_visible(self.visible)
+		self.pchanged()
+		self.stale = True
 
     def _release(self, event):
         """on button release event"""
         if not self.interactive:
-            self.to_draw.set_visible(False)
+            self.to_draw.visible = False
 
         if self.spancoords == 'data':
             xmin, ymin = self.eventpress.xdata, self.eventpress.ydata
@@ -2166,7 +2167,7 @@ class LassoSelector(_SelectorWidget):
         if useblit:
             lineprops['animated'] = True
         self.line = Line2D([], [], **lineprops)
-        self.line.set_visible(False)
+        self.line.visible = False
         self.ax.add_line(self.line)
         self.artists = [self.line]
 
@@ -2175,7 +2176,7 @@ class LassoSelector(_SelectorWidget):
 
     def _press(self, event):
         self.verts = [self._get_data(event)]
-        self.line.set_visible(True)
+        self.line.visible = True
 
     def onrelease(self, event):
         self.release(event)
@@ -2185,7 +2186,7 @@ class LassoSelector(_SelectorWidget):
             self.verts.append(self._get_data(event))
             self.onselect(self.verts)
         self.line.set_data([[], []])
-        self.line.set_visible(False)
+        self.line.visible = False
         self.verts = None
 
     def _onmove(self, event):

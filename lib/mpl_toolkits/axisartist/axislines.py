@@ -632,15 +632,15 @@ class Axes(maxes.Axes):
         if b:
             self._axisline_on = True
             for s in self.spines.values():
-                s.set_visible(False)
-            self.xaxis.set_visible(False)
-            self.yaxis.set_visible(False)
+                s.visible = False
+            self.xaxis.visible = False
+            self.yaxis.visible = False
         else:
             self._axisline_on = False
             for s in self.spines.values():
-                s.set_visible(True)
-            self.xaxis.set_visible(True)
-            self.yaxis.set_visible(True)
+                s.visible = True
+            self.xaxis.visible = True
+            self.yaxis.visible = True
 
 
     def _init_axis(self):
@@ -658,9 +658,9 @@ class Axes(maxes.Axes):
                                                   axis_direction=loc)
 
         for axisline in [self._axislines["top"], self._axislines["right"]]:
-            axisline.label.set_visible(False)
-            axisline.major_ticklabels.set_visible(False)
-            axisline.minor_ticklabels.set_visible(False)
+            axisline.label.visible = False
+            axisline.major_ticklabels.visible = False
+            axisline.minor_ticklabels.visible = False
 
     def _get_axislines(self):
         return self._axislines
@@ -727,7 +727,7 @@ class Axes(maxes.Axes):
 
         self.gridlines.set_which(which)
         self.gridlines.set_axis(axis)
-        self.gridlines.set_visible(b)
+        self.gridlines.visible = b
 
         if len(kwargs):
             martist.setp(self.gridlines, **kwargs)
@@ -790,7 +790,7 @@ class Axes(maxes.Axes):
         bb = [bb0]
 
         for axisline in list(six.itervalues(self._axislines)):
-            if not axisline.get_visible():
+            if not axisline.visible:
                 continue
 
             bb.append(axisline.get_tightbbox(renderer))
@@ -834,7 +834,7 @@ class AxesZero(Axes):
                                        axes=self)
 
         xaxis_zero.line.set_clip_path(self.patch)
-        xaxis_zero.set_visible(False)
+        xaxis_zero.visible = False
         self._axislines["xzero"] = xaxis_zero
 
         yaxis_zero = new_floating_axis(nth_coord=1,
@@ -844,7 +844,7 @@ class AxesZero(Axes):
 
 
         yaxis_zero.line.set_clip_path(self.patch)
-        yaxis_zero.set_visible(False)
+        yaxis_zero.visible = False
         self._axislines["yzero"] = yaxis_zero
 
 SubplotZero = maxes.subplot_class_factory(AxesZero)
@@ -859,11 +859,11 @@ if 0:
     ax = SubplotZero(fig, 1, 1, 1)
     fig.add_subplot(ax)
 
-    ax.axis["xzero"].set_visible(True)
+    ax.axis["xzero"].visible = True
     ax.axis["xzero"].label.set_text("Axis Zero")
 
     for n in ["top", "right"]:
-        ax.axis[n].set_visible(False)
+        ax.axis[n].visible = False
 
     xx = np.arange(0, 2*np.pi, 0.01)
     ax.plot(xx, np.sin(xx))

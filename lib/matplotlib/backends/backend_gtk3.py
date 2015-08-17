@@ -329,7 +329,7 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
 
     def draw(self):
         self._need_redraw = True
-        if self.get_visible() and self.get_mapped():
+        if self.visible and self.get_mapped():
             self.queue_draw()
             # do a synchronous draw (its less efficient than an async draw,
             # but is required if/when animation is used)

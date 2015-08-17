@@ -676,9 +676,9 @@ class ImageGrid(Grid):
                 v.append(Size.from_any(self._colorbar_pad, sz))
                 locator = self._divider.new_locator(nx=0, nx1=-1, ny=0)
             for i in range(self.ngrids):
-                self.cbar_axes[i].set_visible(False)
+                self.cbar_axes[i].visible = False
             self.cbar_axes[0].set_axes_locator(locator)
-            self.cbar_axes[0].set_visible(True)
+            self.cbar_axes[0].visible = True
 
         for col, ax in enumerate(self.axes_row[0]):
             if h:
@@ -786,24 +786,24 @@ class ImageGrid(Grid):
                 locator = self._divider.new_locator(nx=0, nx1=-1, ny=-2)
             if self._colorbar_location in ("right", "top"):
                 for i in range(self.ngrids):
-                    self.cbar_axes[i].set_visible(False)
+                    self.cbar_axes[i].visible = False
                 self.cbar_axes[0].set_axes_locator(locator)
-                self.cbar_axes[0].set_visible(True)
+                self.cbar_axes[0].visible = True
         elif self._colorbar_mode == "each":
             for i in range(self.ngrids):
-                self.cbar_axes[i].set_visible(True)
+                self.cbar_axes[i].visible = True
         elif self._colorbar_mode == "edge":
             if self._colorbar_location in ('right', 'left'):
                 count = self._nrows
             else:
                 count = self._ncols
             for i in range(count):
-                self.cbar_axes[i].set_visible(True)
+                self.cbar_axes[i].visible = True
             for j in range(i + 1, self.ngrids):
-                self.cbar_axes[j].set_visible(False)
+                self.cbar_axes[j].visible = False
         else:
             for i in range(self.ngrids):
-                self.cbar_axes[i].set_visible(False)
+                self.cbar_axes[i].visible = False
                 self.cbar_axes[i].set_position([1., 1., 0.001, 0.001],
                                                which="active")
 

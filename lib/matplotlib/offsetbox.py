@@ -255,7 +255,7 @@ class OffsetBox(martist.Artist):
         """
         Return a list of visible artists it contains.
         """
-        return [c for c in self._children if c.get_visible()]
+        return [c for c in self._children if c.visible]
 
     def get_children(self):
         """
@@ -1191,7 +1191,7 @@ class AnchoredOffsetbox(OffsetBox):
     def draw(self, renderer):
         "draw the artist"
 
-        if not self.get_visible():
+        if not self.visible:
             return
 
         fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
@@ -1618,7 +1618,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
 
         if renderer is not None:
             self._renderer = renderer
-        if not self.get_visible():
+        if not self.visible:
             return
 
         xy_pixel = self._get_position_xy(renderer)
@@ -1710,7 +1710,7 @@ class DraggableBase(object):
             self.got_artist = True
 
             if self._use_blit:
-                self.ref_artist.set_animated(True)
+                self.ref_artist.animated = True
                 self.canvas.draw()
                 self.background = self.canvas.copy_from_bbox(
                                     self.ref_artist.figure.bbox)
@@ -1730,7 +1730,7 @@ class DraggableBase(object):
             self.canvas.mpl_disconnect(self._c1)
 
             if self._use_blit:
-                self.ref_artist.set_animated(False)
+                self.ref_artist.animated = False
 
     def disconnect(self):
         """disconnect the callbacks"""

@@ -622,8 +622,8 @@ def curvelinear_test2(fig):
     ax1 = SubplotHost(fig, 1, 1, 1, grid_helper=grid_helper)
 
     # make ticklabels of right and top axis visible.
-    ax1.axis["right"].major_ticklabels.set_visible(True)
-    ax1.axis["top"].major_ticklabels.set_visible(True)
+    ax1.axis["right"].major_ticklabels.visible = True
+    ax1.axis["top"].major_ticklabels.visible = True
 
     # let right axis shows ticklabels for 1st coordinate (angle)
     ax1.axis["right"].get_helper().nth_coord_ticks=0
@@ -635,7 +635,7 @@ def curvelinear_test2(fig):
     grid_helper = ax1.get_grid_helper()
     ax1.axis["lat"] = axis = grid_helper.new_floating_axis(0, 60, axes=ax1)
     axis.label.set_text("Test")
-    axis.label.set_visible(True)
+    axis.label.visible = True
     #axis._extremes = 2, 10
     #axis.label.set_text("Test")
     #axis.major_ticklabels.set_visible(False)
@@ -712,7 +712,7 @@ def curvelinear_test3(fig):
     ax1 = SubplotHost(fig, 1, 1, 1, grid_helper=grid_helper)
 
     for axis in list(six.itervalues(ax1.axis)):
-        axis.set_visible(False)
+        axis.visible = False
 
     fig.add_subplot(ax1)
 
@@ -722,7 +722,7 @@ def curvelinear_test3(fig):
                                                             axis_direction="left"
                                                             )
     axis.label.set_text("Test")
-    axis.label.set_visible(True)
+    axis.label.visible = True
     axis.get_helper()._extremes=0.001, 10
 
 
@@ -731,7 +731,7 @@ def curvelinear_test3(fig):
     ax1.axis["lat2"] = axis = grid_helper.new_floating_axis(0, 50, axes=ax1,
                                                             axis_direction="right")
     axis.label.set_text("Test")
-    axis.label.set_visible(True)
+    axis.label.visible = True
     axis.get_helper()._extremes=0.001, 10
 
     ax1.axis["lon"] = axis = grid_helper.new_floating_axis(1, 10,

@@ -490,7 +490,7 @@ class Patch(artist.Artist):
     @allow_rasterization
     def draw(self, renderer):
         'Draw the :class:`Patch` to the given *renderer*.'
-        if not self.get_visible():
+        if not self.visible:
             return
 
         renderer.open_group('patch', self.get_gid())
@@ -4219,7 +4219,7 @@ class FancyArrowPatch(Patch):
         return _path, fillable
 
     def draw(self, renderer):
-        if not self.get_visible():
+        if not self.visible:
             return
 
         renderer.open_group('patch', self.get_gid())
@@ -4564,7 +4564,7 @@ class ConnectionPatch(FancyArrowPatch):
 
         if renderer is not None:
             self._renderer = renderer
-        if not self.get_visible():
+        if not self.visible:
             return
 
         if not self._check_xy(renderer):

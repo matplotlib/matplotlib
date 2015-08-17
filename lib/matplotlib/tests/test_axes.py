@@ -118,22 +118,22 @@ def test_twinx_cla():
     ax2 = ax.twinx()
     ax3 = ax2.twiny()
     plt.draw()
-    assert_false(ax2.xaxis.get_visible())
-    assert_false(ax2.patch.get_visible())
+    assert_false(ax2.xaxis.visible)
+    assert_false(ax2.patch.visible)
     ax2.cla()
     ax3.cla()
 
-    assert_false(ax2.xaxis.get_visible())
-    assert_false(ax2.patch.get_visible())
-    assert_true(ax2.yaxis.get_visible())
+    assert_false(ax2.xaxis.visible)
+    assert_false(ax2.patch.visible)
+    assert_true(ax2.yaxis.visible)
 
-    assert_true(ax3.xaxis.get_visible())
-    assert_false(ax3.patch.get_visible())
-    assert_false(ax3.yaxis.get_visible())
+    assert_true(ax3.xaxis.visible)
+    assert_false(ax3.patch.visible)
+    assert_false(ax3.yaxis.visible)
 
-    assert_true(ax.xaxis.get_visible())
-    assert_true(ax.patch.get_visible())
-    assert_true(ax.yaxis.get_visible())
+    assert_true(ax.xaxis.visible)
+    assert_true(ax.patch.visible)
+    assert_true(ax.yaxis.visible)
 
 
 @image_comparison(baseline_images=["minorticks_on_rcParams_both"], extensions=['png'])
@@ -3605,9 +3605,9 @@ def test_twin_spines():
 
     def make_patch_spines_invisible(ax):
         ax.set_frame_on(True)
-        ax.patch.set_visible(False)
+        ax.patch.visible = False
         for sp in six.itervalues(ax.spines):
-            sp.set_visible(False)
+            sp.visible = False
 
     fig = plt.figure(figsize=(4, 3))
     fig.subplots_adjust(right=0.75)
@@ -3624,7 +3624,7 @@ def test_twin_spines():
     # and spines invisible.
     make_patch_spines_invisible(par2)
     # Second, show the right spine.
-    par2.spines["right"].set_visible(True)
+    par2.spines["right"].visible = True
 
     p1, = host.plot([0, 1, 2], [0, 1, 2], "b-")
     p2, = par1.plot([0, 1, 2], [0, 3, 2], "r-")
@@ -3739,7 +3739,7 @@ def test_relim_visible_only():
     l = ax.plot(x2, y2)
     assert ax.get_xlim() == x2
     assert ax.get_ylim() == y2
-    l[0].set_visible(False)
+    l[0].visible = False
     assert ax.get_xlim() == x2
     assert ax.get_ylim() == y2
 

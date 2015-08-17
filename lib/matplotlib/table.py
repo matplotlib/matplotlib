@@ -110,7 +110,7 @@ class Cell(Rectangle):
 
     @allow_rasterization
     def draw(self, renderer):
-        if not self.get_visible():
+        if not self.visible:
             return
         # draw the rectangle
         Rectangle.draw(self, renderer)
@@ -325,7 +325,7 @@ class Table(Artist):
             raise RuntimeError('No renderer defined')
         self._cachedRenderer = renderer
 
-        if not self.get_visible():
+        if not self.visible:
             return
         renderer.open_group('table')
         self._update_positions(renderer)
