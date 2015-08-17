@@ -23,6 +23,25 @@ def test_colorcycle_basic():
     ax.legend(loc='upper left')
 
 
+@image_comparison(baseline_images=['marker_cycle'], remove_text=True,
+                  extensions=['png'])
+def test_marker_cycle():
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_prop_cycle(cycler('color', ['r', 'g', 'y']) +
+                      cycler('marker', ['.', '*', 'x']))
+    xs = np.arange(10)
+    ys = 0.25 * xs + 2
+    ax.plot(xs, ys, label='red dot', lw=4, ms=16)
+    ys = 0.45 * xs + 3
+    ax.plot(xs, ys, label='green star', lw=4, ms=16)
+    ys = 0.65 * xs + 4
+    ax.plot(xs, ys, label='yellow x', lw=4, ms=16)
+    ys = 0.85 * xs + 5
+    ax.plot(xs, ys, label='red2 dot', lw=4, ms=16)
+    ax.legend(loc='upper left')
+
+
 @image_comparison(baseline_images=['lineprop_cycle_basic'], remove_text=True,
                   extensions=['png'])
 def test_linestylecycle_basic():
