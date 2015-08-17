@@ -183,12 +183,12 @@ def generate_fontconfig_pattern(d):
     family = d.get_family()
     if family:
         if type(family) == list:
-           family = [ family_escape( r'\\\1', str(x)) for x in family if x ]
+           family = [family_escape( r'\\\1', str(x)) for x in family if x]
            if family:
-               family = ','.join( family )
-        props.append( "%s" % family )
+               family = ','.join(family)
+        props.append("%s" % family)
 
-    for key in [ 'style', 'variant', 'weight', 'stretch', 'file', 'size' ]:
+    for key in ['style', 'variant', 'weight', 'stretch', 'file', 'size']:
         val = getattr(d, 'get_' + key)()
         if val:
             if type(val) == list:
