@@ -14,7 +14,12 @@ from uuid import uuid4 as uuid
 import tornado.ioloop
 
 from IPython.display import display, Javascript, HTML
-from IPython.kernel.comm import Comm
+try:
+    # Jupyter/IPython 4.x or later
+    from ipykernel.comm import Comm
+except ImportError:
+    # Jupyter/IPython 3.x or earlier
+    from IPython.kernel.comm import Comm
 
 from matplotlib import rcParams
 from matplotlib.figure import Figure
