@@ -153,6 +153,11 @@ class FigureCanvasQTAggBase(object):
         """
         Blit the region in bbox
         """
+        # If bbox is None, blit the entire canvas. Otherwise
+        # blit only the area defined by the bbox.
+        if bbox is None and self.figure:
+            bbox = self.figure.bbox
+
         self.blitbox = bbox
         l, b, w, h = bbox.bounds
         t = b + h
