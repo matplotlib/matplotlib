@@ -225,21 +225,32 @@ class _process_plot_var_args(object):
             y = y[:, np.newaxis]
         return x, y
 
-    def _getdefaults(self, *kwargs):
+    def _getdefaults(self, ignore, *kwargs):
         """
         Only advance the cycler if the cycler has information that
-        is not specified in any of the supplied tuple of dicts
+        is not specified in any of the supplied tuple of dicts.
+        Ignore any keys specified in the `ignore` set.
 
-        Returns a dictionary of defaults if there are any
+        Returns a copy of defaults dictionary if there are any
         keys that are not found in any of the supplied dictionaries.
         If the supplied dictionaries have non-None values for
         everything the property cycler has, then just return
-        an empty dictionary.
+        an empty dictionary. Ignored keys are excluded from the
+        returned dictionary.
 
         """
-        if any([all([kw.get(k, None) is None for kw in kwargs])
-               for k in self._prop_keys]):
-            default_dict = six.next(self.prop_cycler)
+        prop_keys = self._prop_keys
+        if ignore is None:
+            ignore = set([])
+        prop_keys = prop_keys - ignore
+
+        if any(all(kw.get(k, None) is None for kw in kwargs)
+               for k in prop_keys):
+            # Need to copy this dictionary or else the next time around
+            # in the cycle, the dictionary could be missing entries.
+            default_dict = six.next(self.prop_cycler).copy()
+            for p in ignore:
+                default_dict.pop(p, None)
         else:
             default_dict = {}
         return default_dict
@@ -252,14 +263,14 @@ class _process_plot_var_args(object):
 
         """
         for k in defaults:
-            if all([kw.get(k, None) is None for kw in kwargs]):
+            if all(kw.get(k, None) is None for kw in kwargs):
                 for kw in kwargs:
                     kw[k] = defaults[k]
 
     def _makeline(self, x, y, kw, kwargs):
         kw = kw.copy()  # Don't modify the original kw.
         kwargs = kwargs.copy()
-        default_dict = self._getdefaults(kw, kwargs)
+        default_dict = self._getdefaults(None, kw, kwargs)
         self._setdefaults(default_dict, kw, kwargs)
         seg = mlines.Line2D(x, y, **kw)
         self.set_lineprops(seg, **kwargs)
@@ -269,11 +280,26 @@ class _process_plot_var_args(object):
         kw = kw.copy()  # Don't modify the original kw.
         kwargs = kwargs.copy()
 
+        # Ignore 'marker'-related properties as they aren't Polygon
+        # properties, but they are Line2D properties, and so they are
+        # likely to appear in the default cycler construction. 
+        # This is done here to the defaults dictionary as opposed to the
+        # other two dictionaries because we do want to capture when a
+        # *user* explicitly specifies a marker which should be an error.
+        # We also want to prevent advancing the cycler if there are no
+        # defaults needed after ignoring the given properties.
+        ignores = set(['marker', 'markersize', 'markeredgecolor',
+                       'markerfacecolor', 'markeredgewidth'])
+        # Also ignore anything provided by *kwargs*.
+        for k, v in six.iteritems(kwargs):
+            if v is not None:
+                ignores.add(k)
+
         # Only using the first dictionary to use as basis
         # for getting defaults for back-compat reasons.
         # Doing it with both seems to mess things up in
         # various places (probably due to logic bugs elsewhere).
-        default_dict = self._getdefaults(kw)
+        default_dict = self._getdefaults(ignores, kw)
         self._setdefaults(default_dict, kw)
 
         # Looks like we don't want "color" to be interpreted to
@@ -285,11 +311,8 @@ class _process_plot_var_args(object):
         facecolor = kw.get('color', None)
 
         # Throw out 'color' as it is now handled as a facecolor
-        # Need to copy this dictionary or else the next time around
-        # in the cycle, the dictionary will be missing this entry
-        # completely!
-        default_dict = default_dict.copy()
         default_dict.pop('color', None)
+
 
         # To get other properties set from the cycler
         # modify the kwargs dictionary.
