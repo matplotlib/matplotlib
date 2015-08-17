@@ -305,7 +305,8 @@ def test_validators():
                       cycler('linestyle', ['-', '--'])),
                      ("""(cycler("color", ["r", "g", "b"]) +
                           cycler("mew", [2, 3, 5]))""",
-                      cycler("color", 'rgb') + cycler("mew", [2, 3, 5])),
+                      (cycler("color", 'rgb') +
+                          cycler("markeredgewidth", [2, 3, 5]))),
                     ),
          # This is *so* incredibly important: validate_cycler() eval's
          # an arbitrary string! I think I have it locked down enough,
