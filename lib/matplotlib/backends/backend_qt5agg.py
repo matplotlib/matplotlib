@@ -71,7 +71,9 @@ class FigureCanvasQTAggBase(object):
         In Qt, all drawing should be done inside of here when a widget is
         shown onscreen.
         """
-        FigureCanvasAgg.draw(self)
+        # If we have not rendered the Agg backend yet, do so now.
+        if not hasattr( self, 'renderer' ):
+            FigureCanvasAgg.draw(self)
 
         # FigureCanvasQT.paintEvent(self, e)
         if DEBUG:
