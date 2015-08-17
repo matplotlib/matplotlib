@@ -2034,7 +2034,8 @@ class Axes(_AxesBase):
         if len(bottom) != nbars:
             raise ValueError("incompatible sizes: argument 'bottom' "
                              "must be length %d or scalar" % nbars)
-        if len(tick_label) != nbars:
+        # only check the number of tick labels if tick labels were specified
+        if label_ticks_flag and len(tick_label) != nbars:
             raise ValueError("incompatible sizes: argument 'tick_label' "
                              "must be length %d or string" % nbars)
 
