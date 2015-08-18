@@ -18,8 +18,8 @@ except ImportError:
                             getargspec)
 
 import re
+import types
 import numpy as np
-from types import MethodType
 from .transforms import IdentityTransform, Transform
 import contextlib
 
@@ -86,17 +86,19 @@ class PrivateMethodMixin(object):
     def private(self, name, value=Undefined):
         trait = self._retrieve_trait(name)
 
-        if value is Undefined:
-            if hasattr(trait, '__base_get__'):
-                return trait.__base_get__(self)
-            return getattr(self, name)
-        else:
+        if value is not Undefined:
             trait._cross_validation_lock = True
             _notify_trait = self._notify_trait
-            self._notify_trait = lambda *args: None
+            self._notify_trait = lambda *a: None
             setattr(self, name, value)
             self._notify_trait = _notify_trait
             trait._cross_validation_lock = False
+            if isinstance(_notify_trait, types.MethodType):
+                self.__dict__.pop('_notify_trait', None)
+
+        if hasattr(trait, '__base_get__'):
+            return trait.__base_get__(self)
+        return getattr(self, name)
 
     def _retrieve_trait(self, name):
         try:
@@ -125,7 +127,7 @@ class OnGetMixin(object):
                 raise TraitError(("""a trait getter method
                                    must be callable"""))
             argspec = len(getargspec(meth)[0])
-            if isinstance(meth, MethodType):
+            if isinstance(meth, types.MethodType):
                 argspec -= 1
             if argspec==0:
                 args = ()
