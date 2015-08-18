@@ -43,7 +43,7 @@ def allow_rasterization(draw):
     renderer.
     """
     def before(artist, renderer):
-        if artist.get_rasterized():
+        if artist.rasterized:
             renderer.start_rasterizing()
 
         if artist.get_agg_filter() is not None:
@@ -54,7 +54,7 @@ def allow_rasterization(draw):
         if artist.get_agg_filter() is not None:
             renderer.stop_filter(artist.get_agg_filter())
 
-        if artist.get_rasterized():
+        if artist.rasterized:
             renderer.stop_rasterizing()
 
     # the axes class has a second argument inframe for its draw method.
@@ -160,6 +160,25 @@ class Artist(PrivateMethodMixin, Configurable):
         self.pchanged()
         self.stale = True
 
+    rasterized = Bool(None, allow_none=True)
+
+    def _rasterized_changed(self, name, new):
+        if new and not hasattr(self.draw, "_supports_rasterization"):
+            warnings.warn("Rasterization of '%s' will be ignored" % self)
+
+    pickable = Bool()
+
+    def _pickabe_validate(self, value, trait):
+        msg = "the '%s' trait of a %s instance is not assignable"
+        raise TraitError(msg % (trait.name, self.__class__.__name__))
+
+    def _pickable_getter(self):
+        return (self.figure is not None and
+                self.figure.canvas is not None and
+                self._picker is not None)
+
+    eventson = Bool(False)
+
     def __init__(self):
         # self._stale = True
         # self._axes = None
@@ -178,10 +197,10 @@ class Artist(PrivateMethodMixin, Configurable):
         self._label = ''
         self._picker = None
         self._contains = None
-        self._rasterized = None
+        # self._rasterized = None
         self._agg_filter = None
         self._mouseover = False
-        self.eventson = False  # fire events only if eventson
+        # self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
         self._propobservers = {}  # a dict from oids to funcs
         # try:
@@ -489,11 +508,11 @@ class Artist(PrivateMethodMixin, Configurable):
         """
         return self._contains
 
-    def pickable(self):
-        'Return *True* if :class:`Artist` is pickable.'
-        return (self.figure is not None and
-                self.figure.canvas is not None and
-                self._picker is not None)
+    # def pickable(self):
+    #     'Return *True* if :class:`Artist` is pickable.'
+    #     return (self.figure is not None and
+    #             self.figure.canvas is not None and
+    #             self._picker is not None)
 
     def pick(self, mouseevent):
         """
@@ -505,7 +524,7 @@ class Artist(PrivateMethodMixin, Configurable):
         the artist and the artist has picker set
         """
         # Pick self
-        if self.pickable():
+        if self.pickable:
             picker = self.get_picker()
             if six.callable(picker):
                 inside, prop = picker(self, mouseevent)
@@ -844,22 +863,24 @@ class Artist(PrivateMethodMixin, Configurable):
             gc.set_clip_rectangle(None)
             gc.set_clip_path(None)
 
-    def get_rasterized(self):
-        "return True if the artist is to be rasterized"
-        return self._rasterized
+    #!DEPRECATED
+    # def get_rasterized(self):
+    #     "return True if the artist is to be rasterized"
+    #     return self._rasterized
 
-    def set_rasterized(self, rasterized):
-        """
-        Force rasterized (bitmap) drawing in vector backend output.
+    #!DEPRECATED
+    # def set_rasterized(self, rasterized):
+    #     """
+    #     Force rasterized (bitmap) drawing in vector backend output.
 
-        Defaults to None, which implies the backend's default behavior
+    #     Defaults to None, which implies the backend's default behavior
 
-        ACCEPTS: [True | False | None]
-        """
-        if rasterized and not hasattr(self.draw, "_supports_rasterization"):
-            warnings.warn("Rasterization of '%s' will be ignored" % self)
+    #     ACCEPTS: [True | False | None]
+    #     """
+    #     if rasterized and not hasattr(self.draw, "_supports_rasterization"):
+    #         warnings.warn("Rasterization of '%s' will be ignored" % self)
 
-        self._rasterized = rasterized
+    #     self._rasterized = rasterized
 
     def get_agg_filter(self):
         "return filter function to be used for agg filter"

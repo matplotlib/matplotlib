@@ -520,7 +520,7 @@ class ColorbarBase(cm.ScalarMappable):
                                     linewidths=linewidths)
             self.ax.add_collection(self.dividers)
         elif len(self._y) >= self.n_rasterize:
-            self.solids.set_rasterized(True)
+            self.solids.rasterized = True
 
     def add_lines(self, levels, colors, linewidths, erase=True):
         '''

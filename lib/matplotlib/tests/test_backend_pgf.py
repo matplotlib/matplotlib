@@ -167,7 +167,7 @@ def test_mixedmode():
 
     Y, X = np.ogrid[-1:1:40j, -1:1:40j]
     plt.figure()
-    plt.pcolor(X**2 + Y**2).set_rasterized(True)
+    plt.pcolor(X**2 + Y**2).rasterized = True
     compare_figure('pgf_mixedmode.pdf')
 
 

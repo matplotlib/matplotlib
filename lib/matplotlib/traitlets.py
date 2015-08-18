@@ -102,11 +102,11 @@ class PrivateMethodMixin(object):
         try:
             trait = getattr(self.__class__, name)
             if not isinstance(trait, BaseDescriptor):
-                msg = "'%s' is a standard attribute, not a trait, of a %s class"
-                raise TraitError(msg % (name, self.__class__))
+                msg = "'%s' is a standard attribute, not a trait, of a %s instance"
+                raise TraitError(msg % (name, self.__class__.__name__))
         except AttributeError:
-            msg = "'%s' is not a trait of a %s class"
-            raise TraitError(msg % (name, self.__class__))
+            msg = "'%s' is not a trait of a %s instance"
+            raise TraitError(msg % (name, self.__class__.__name__))
         return trait
 
 class OnGetMixin(object):
