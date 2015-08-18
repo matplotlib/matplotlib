@@ -383,7 +383,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
-        gc.alpha = self.alpha
+        gc.set_alpha(self.alpha)
 
         if self._check_unsampled_image(renderer):
             self._draw_unsampled_image(renderer, gc)
@@ -935,7 +935,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         gc = renderer.new_gc()
         gc.set_clip_rectangle(self.axes.bbox.frozen())
         gc.set_clip_path(self.get_clip_path())
-        gc.alpha = self.alpha
+        gc.set_alpha(self.alpha)
         renderer.draw_image(gc,
                             round(self.axes.bbox.xmin),
                             round(self.axes.bbox.ymin),
@@ -1103,7 +1103,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         gc = renderer.new_gc()
         gc.set_clip_rectangle(self.figure.bbox)
         gc.set_clip_path(self.get_clip_path())
-        gc.alpha = self.alpha
+        gc.set_alpha(self.alpha)
         renderer.draw_image(gc, round(self.ox), round(self.oy), im)
         gc.restore()
         self.stale = False
@@ -1252,7 +1252,7 @@ class BboxImage(_AxesImageBase):
         x0, y0, x1, y1 = self.get_window_extent(renderer).extents
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
-        gc.alpha = self.alpha
+        gc.set_alpha(self.alpha)
 
         l = np.min([x0, x1])
         b = np.min([y0, y1])
