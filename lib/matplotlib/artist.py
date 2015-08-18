@@ -114,7 +114,7 @@ class Artist(PrivateMethodMixin, Configurable):
     transform_set = Bool(False)
 
     def _axes_changed(self, name, old, new):
-        if old not in (Undefined,None):
+        if new and old not in (Undefined,None):
             raise ValueError("Can not reset the axes.  You are "
                              "probably trying to re-use an artist "
                              "in more than one Axes which is not "
@@ -124,7 +124,7 @@ class Artist(PrivateMethodMixin, Configurable):
 
     axes = Instance(str('matplotlib.axes.Axes'), allow_none=True)
 
-    figure = Instance(str('matplotlib.figure.Figure'), allow_none=True)
+    figure = Instance(str('matplotlib.figure.FigureBase'), allow_none=True)
 
     def _figure_changed(self, name, old, new):
         if old not in (None, Undefined):
@@ -259,9 +259,13 @@ class Artist(PrivateMethodMixin, Configurable):
                 _ax_flag = True
 
             if self.figure:
-                self.figure = None
+                self.private('figure', None)
                 if not _ax_flag:
-                    self.figure = True
+                    from matplotlib.figure import FigureBase
+                    # was originally self.private(figure, True)
+                    # which won't pass validation. For the moment,
+                    # use an empty base class to pass validation.
+                    self.private('figure', FigureBase())
 
         else:
             raise NotImplementedError('cannot remove artist')
