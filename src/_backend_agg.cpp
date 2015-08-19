@@ -109,7 +109,7 @@ void RendererAgg::restore_region(BufferRegion &region)
 
 // Restore the part of the saved region with offsets
 void
-RendererAgg::restore_region(BufferRegion &region, int x, int y, int xx1, int yy1, int xx2, int yy2)
+RendererAgg::restore_region(BufferRegion &region, int xx1, int yy1, int xx2, int yy2, int x, int y )
 {
     if (region.get_data() == NULL) {
         throw "Cannot restore_region from NULL data";

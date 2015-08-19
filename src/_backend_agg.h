@@ -215,7 +215,7 @@ class RendererAgg
 
     BufferRegion *copy_from_bbox(agg::rect_d in_rect);
     void restore_region(BufferRegion &reg);
-    void restore_region(BufferRegion &region, int x, int y, int xx1, int yy1, int xx2, int yy2);
+    void restore_region(BufferRegion &region, int xx1, int yy1, int xx2, int yy2, int x, int y);
 
     unsigned int width, height;
     double dpi;
