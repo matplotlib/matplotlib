@@ -170,16 +170,36 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    assert im.get_cursor_data(event) == 44
+    z = im.get_cursor_data(event)
+    assert z == 44, "Did not get 44, got %d" % z
+
+    # Now try for a point outside the image
+    # Tests issue #4957
+    x, y = 10.1, 4
+    xdisp, ydisp = ax.transData.transform_point([x, y])
+
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    z = im.get_cursor_data(event)
+    assert z is None, "Did not get None, got %d" % z
+
+    # Hmm, something is wrong here... I get 0, not None...
+    # But, this works further down in the tests with extents flipped
+    #x, y = 0.1, -0.1
+    #xdisp, ydisp = ax.transData.transform_point([x, y])
+    #event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    #z = im.get_cursor_data(event)
+    #assert z is None, "Did not get None, got %d" % z
 
     ax.clear()
+    # Now try with the extents flipped.
     im = ax.imshow(np.arange(100).reshape(10, 10), origin='lower')
 
     x, y = 4, 4
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    assert im.get_cursor_data(event) == 44
+    z = im.get_cursor_data(event)
+    assert z == 44, "Did not get 44, got %d" % z
 
     fig, ax = plt.subplots()
     im = ax.imshow(np.arange(100).reshape(10, 10), extent=[0, 0.5, 0, 0.5])
@@ -188,7 +208,24 @@ def test_cursor_data():
     xdisp, ydisp = ax.transData.transform_point([x, y])
 
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    assert im.get_cursor_data(event) == 55
+    z = im.get_cursor_data(event)
+    assert z == 55, "Did not get 55, got %d" % z
+
+    # Now try for a point outside the image
+    # Tests issue #4957
+    x, y = 0.75, 0.25
+    xdisp, ydisp = ax.transData.transform_point([x, y])
+
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    z = im.get_cursor_data(event)
+    assert z is None, "Did not get None, got %d" % z
+
+    x, y = 0.01, -0.01
+    xdisp, ydisp = ax.transData.transform_point([x, y])
+
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    z = im.get_cursor_data(event)
+    assert z is None, "Did not get None, got %d" % z
 
 
 @image_comparison(baseline_images=['image_clip'])
