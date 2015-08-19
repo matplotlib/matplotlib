@@ -1319,6 +1319,11 @@ class _SelectorWidget(AxesWidget):
         """Key press event handler and validator"""
         if self.active:
             key = event.key or ''
+            if key == 'escape':
+                for artist in self.artists:
+                    artist.set_visible(False)
+                self.update()
+                return
             if 'shift' in key:
                 self.state.add('square')
             if 'ctrl' in key or 'control' in key:
@@ -1656,7 +1661,8 @@ class RectangleSelector(_SelectorWidget):
     def __init__(self, ax, onselect, drawtype='patch',
                  minspanx=None, minspany=None, useblit=False,
                  lineprops=None, rectprops=None, spancoords='data',
-                 button=None, maxdist=10, marker_props=None):
+                 button=None, maxdist=10, marker_props=None,
+                 interactive=False):
 
         """
         Create a selector in *ax*.  When a selection is made, clear
@@ -1683,7 +1689,7 @@ class RectangleSelector(_SelectorWidget):
         Use *drawtype* if you want the mouse to draw a line,
         a box or nothing between click and actual position by setting
 
-        ``drawtype = 'line'``, ``drawtype='box'`` or ``drawtype = 'none'``.
+        ``drawtype = 'line'``, ``drawtype='patch'`` or ``drawtype = 'none'``.
 
         *spancoords* is one of 'data' or 'pixels'.  If 'data', *minspanx*
         and *minspanx* will be interpreted in the same coordinates as
@@ -1698,12 +1704,16 @@ class RectangleSelector(_SelectorWidget):
          1 = left mouse button
          2 = center mouse button (scroll wheel)
          3 = right mouse button
+
+        *interactive* will draw a set of handles and allow you interact
+        with the widget after it is drawn.
         """
         _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
-                                                button=button)
+                                 button=button)
 
         self.to_draw = None
         self.visible = True
+        self.interactive = interactive
 
         if drawtype == 'box':  # backwards compatibility
             drawtype = 'patch'
@@ -1765,14 +1775,18 @@ class RectangleSelector(_SelectorWidget):
                         self._corner_handles.artist,
                         self._edge_handles.artist]
 
+        if not self.interactive:
+            self.artists = [self.to_draw]
+
     def _press(self, event):
         """on button press event"""
         # make the drawed box/line visible get the click-coordinates,
         # button, ...
-        self.set_visible(self.visible)
-        self._set_active_handle(event)
+        if self.interactive and self.to_draw.get_visible():
+            self._set_active_handle(event)
 
-        if self.active_handle is None:
+        self.set_visible(self.visible)
+        if self.active_handle is None or not self.interactive:
             # Clear previous rectangle before drawing new rectangle.
             self.update()
 
@@ -1780,6 +1794,9 @@ class RectangleSelector(_SelectorWidget):
 
     def _release(self, event):
         """on button release event"""
+        if not self.interactive:
+            self.to_draw.set_visible(False)
+
         if self.spancoords == 'data':
             xmin, ymin = self.eventpress.xdata, self.eventpress.ydata
             xmax, ymax = self.eventrelease.xdata, self.eventrelease.ydata
