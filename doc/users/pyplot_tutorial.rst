@@ -164,7 +164,7 @@ scenes.  Below is a script to create two subplots.
 
 The :func:`~matplotlib.pyplot.figure` command here is optional because
 ``figure(1)`` will be created by default, just as a ``subplot(111)``
-will be created by default if you don't manually specify an axes.  The
+will be created by default if you don't manually specify any axes.  The
 :func:`~matplotlib.pyplot.subplot` command specifies ``numrows,
 numcols, fignum`` where ``fignum`` ranges from 1 to
 ``numrows*numcols``.  The commas in the ``subplot`` command are
