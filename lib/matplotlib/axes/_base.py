@@ -1057,9 +1057,9 @@ class _AxesBase(martist.Artist):
 
     def set_prop_cycle(self, prop_cycle):
         """
-        Set the prop cycle for any future plot commands on this Axes.
+        Set the property cycle for any future plot commands on this Axes.
 
-        *prop_cycle* is a :class:Cycler object.
+        *prop_cycle* is a :class:`Cycler` object.
         Can also be `None` to reset to the cycle defined by the
         current style.
         """
@@ -1076,9 +1076,7 @@ class _AxesBase(martist.Artist):
         """
         cbook.warn_deprecated(
                 '1.5', name='set_color_cycle', alternative='set_prop_cycle')
-        prop_cycler = cycler('color', clist)
-        self._get_lines.set_prop_cycle(prop_cycler)
-        self._get_patches_for_fill.set_prop_cycle(prop_cycler)
+        self.set_prop_cycle(cycler('color', clist))
 
     def ishold(self):
         """return the HOLD status of the axes"""
