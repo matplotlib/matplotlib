@@ -464,7 +464,7 @@ Curvilinear Grid
 The motivation behind the AxisArtist module is to support curvilinear grid
 and ticks.
 
-.. plot:: mpl_toolkits/axes_grid/examples/demo_floating_axis.py
+.. plot:: mpl_toolkits/axes_grid/examples/demo_curvelinear_grid.py
 
 See :ref:`axisartist-manual` for more details.
 
