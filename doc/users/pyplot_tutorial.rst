@@ -11,7 +11,10 @@ some change to a figure: e.g., create a figure, create a plotting area
 in a figure, plot some lines in a plotting area, decorate the plot
 with labels, etc....  :mod:`matplotlib.pyplot` is stateful, in that it
 keeps track of the current figure and plotting area, and the plotting
-functions are directed to the current axes
+functions are directed to the current axes (please note that "axes" here
+and in most places in the documentation refers to the *axes*
+`part of a figure <http://matplotlib.org/faq/usage_faq.html#parts-of-a-figure>`__
+and not the strict mathematical term for more than one axis).
 
 .. plot:: pyplots/pyplot_simple.py
    :include-source:
