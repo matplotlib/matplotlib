@@ -415,9 +415,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
     stop_event_loop.__doc__ = FigureCanvasBase.stop_event_loop_default.__doc__
 
-    def draw_idle(self):
-        self.update()
-
 
 class MainWindow(QtWidgets.QMainWindow):
     closing = QtCore.Signal()
