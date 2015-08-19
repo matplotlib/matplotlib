@@ -1109,6 +1109,8 @@ class LineCollection(Collection):
 
         *facecolors*
            The facecolors of the LineCollection. Default is 'none'
+           Setting to a value other than 'none' will lead to a filled
+           polygon being drawn between points on each line.
 
         The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
         If the :class:`~matplotlib.cm.ScalarMappable` array
