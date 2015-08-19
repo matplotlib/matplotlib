@@ -1053,6 +1053,7 @@ class LineCollection(Collection):
                  cmap=None,
                  pickradius=5,
                  zorder=2,
+                 facecolors='none',
                  **kwargs
                  ):
         """
@@ -1106,6 +1107,11 @@ class LineCollection(Collection):
         *zorder*
            The zorder of the LineCollection.  Default is 2
 
+        *facecolors*
+           The facecolors of the LineCollection. Default is 'none'
+           Setting to a value other than 'none' will lead to a filled
+           polygon being drawn between points on each line.
+
         The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
         If the :class:`~matplotlib.cm.ScalarMappable` array
         :attr:`~matplotlib.cm.ScalarMappable._A` is not None (i.e., a call to
@@ -1124,7 +1130,7 @@ class LineCollection(Collection):
         Collection.__init__(
             self,
             edgecolors=colors,
-            facecolors='none',
+            facecolors=facecolors,
             linewidths=linewidths,
             linestyles=linestyles,
             antialiaseds=antialiaseds,
