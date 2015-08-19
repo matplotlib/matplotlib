@@ -13,7 +13,8 @@ from matplotlib import cm
 import matplotlib as mpl
 
 mpl.rcParams.update({'font.size': 14})
-mpl.rcParams['font.sans-serif'] = 'Arev Sans, Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Helvetica, Avant Garde, sans-serif'
+mpl.rcParams['font.sans-serif'] = ('Arev Sans, Bitstream Vera Sans,'
+'Lucida Grande, Verdana, Geneva, Lucid, Helvetica, Avant Garde, sans-serif')
 mpl.rcParams['mathtext.fontset'] = 'custom'
 mpl.rcParams['mathtext.cal'] = 'cursive'
 mpl.rcParams['mathtext.rm'] = 'sans'
@@ -23,15 +24,17 @@ mpl.rcParams['mathtext.bf'] = 'sans:bold'
 mpl.rcParams['mathtext.sf'] = 'sans'
 mpl.rcParams['mathtext.fallback_to_cm'] = 'True'
 
-# Have colormaps separated into categories: http://matplotlib.org/examples/color/colormaps_reference.html
+# Have colormaps separated into categories:
+# http://matplotlib.org/examples/color/colormaps_reference.html
 
 cmaps = [('Sequential',     ['Blues', 'BuGn', 'BuPu',
                              'GnBu', 'Greens', 'Greys', 'Oranges', 'OrRd',
                              'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu',
                              'Reds', 'YlGn', 'YlGnBu', 'YlOrBr', 'YlOrRd']),
          ('Sequential (2)', ['afmhot', 'autumn', 'bone', 'cool', 'copper',
-                             'gist_heat', 'gray', 'hot', 'pink',
-                             'spring', 'summer', 'winter']),
+                             'gist_heat', 'gray', 'hot', 'inferno', 'magma',
+                             'pink', 'plasma', 'spring', 'summer', 'viridis',
+                             'winter']),
          ('Diverging',      ['BrBG', 'bwr', 'coolwarm', 'PiYG', 'PRGn', 'PuOr',
                              'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral',
                              'seismic']),
@@ -46,13 +49,15 @@ cmaps = [('Sequential',     ['Blues', 'BuGn', 'BuPu',
 # indices to step through colormap
 x = np.linspace(0.0, 1.0, 100)
 
-nrows = max(len(cmap_list) for cmap_category, cmap_list in cmaps)
+# nrows = max(len(cmap_list) for cmap_category, cmap_list in cmaps)
 gradient = np.linspace(0, 1, 256)
 gradient = np.vstack((gradient, gradient))
 
 def plot_color_gradients(cmap_category, cmap_list):
+    nrows = len(cmap_list)
     fig, axes = plt.subplots(nrows=nrows, ncols=2)
-    fig.subplots_adjust(top=0.95, bottom=0.01, left=0.2, right=0.99, wspace=0.05)
+    fig.subplots_adjust(top=0.95, bottom=0.01, left=0.2, right=0.99,
+                        wspace=0.05)
     fig.suptitle(cmap_category + ' colormaps', fontsize=14, y=1.0, x=0.6)
 
     for ax, name in zip(axes, cmap_list):
