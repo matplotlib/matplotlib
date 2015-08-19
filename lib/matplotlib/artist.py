@@ -6,6 +6,7 @@ from matplotlib.externals import six
 import re
 import warnings
 import inspect
+import numpy as np
 import matplotlib
 import matplotlib.cbook as cbook
 from matplotlib.cbook import mplDeprecation
@@ -988,7 +989,8 @@ class Artist(object):
             data[0]
         except (TypeError, IndexError):
             data = [data]
-        return ', '.join('{:0.3g}'.format(item) for item in data)
+        return ', '.join('{:0.3g}'.format(item) for item in data if
+                isinstance(item, (np.floating, np.integer, int, float)))
 
     @property
     def mouseover(self):
