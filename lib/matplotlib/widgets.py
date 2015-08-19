@@ -1853,7 +1853,7 @@ class RectangleSelector(_SelectorWidget):
                 y2 = event.ydata
 
         # move existing shape
-        elif self.active_handle == 'C' or 'move' in self.state:
+        elif 'move' in self.state:
             x1, x2, y1, y2 = self._extents_on_press
             dx = event.xdata - self.eventpress.xdata
             dy = event.ydata - self.eventpress.ydata

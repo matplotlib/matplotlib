@@ -173,7 +173,7 @@ def test_rectangle_handles():
         pass
 
     tool = widgets.RectangleSelector(ax, onselect=onselect,
-                                     maxdist=10)
+                                     maxdist=10, interactive=True)
     tool.extents = (100, 150, 100, 150)
 
     assert tool.corners == (
