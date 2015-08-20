@@ -2763,6 +2763,10 @@ class NavigationToolbar2(object):
         """Draw a rectangle rubberband to indicate zoom limits"""
         pass
 
+    def remove_rubberband(self):
+        """Remove the rubberband"""
+        pass
+
     def forward(self, *args):
         """Move forward in the view lim stack"""
         self._views.forward()
@@ -3032,6 +3036,8 @@ class NavigationToolbar2(object):
         for zoom_id in self._ids_zoom:
             self.canvas.mpl_disconnect(zoom_id)
         self._ids_zoom = []
+
+        self.remove_rubberband()
 
         if not self._xypress:
             return
