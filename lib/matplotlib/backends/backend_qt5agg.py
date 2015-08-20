@@ -67,7 +67,7 @@ class FigureCanvasQTAggBase(object):
 
     def drawRectangle(self, rect):
         self._drawRect = rect
-        self.draw_idle()
+        self.update()
 
     def paintEvent(self, e):
         """
@@ -136,9 +136,14 @@ class FigureCanvasQTAggBase(object):
             pixmap = QtGui.QPixmap.fromImage(qImage)
             p = QtGui.QPainter(self)
             p.drawPixmap(QtCore.QPoint(l, self.renderer.height-t), pixmap)
+
+            # draw the zoom rectangle to the QPainter
+            if self._drawRect is not None:
+                p.setPen(QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.DotLine))
+                x, y, w, h = self._drawRect
+                p.drawRect(x, y, w, h)
             p.end()
             self.blitbox = None
-        self._drawRect = None
 
     def draw(self):
         """
