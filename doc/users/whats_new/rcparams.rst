@@ -9,7 +9,7 @@ defining proprty cycles. Adding cyclers together will be like you are
     axes.prop_cycle: cycler('color', 'rgb') + cycler('lw', [1, 2, 3])
 
 You can even multiply cyclers, which is like using `itertools.product()`
-on two or more property cycles. Remember to use parenstheses if writing
+on two or more property cycles. Remember to use parentheses if writing
 a multi-line `prop_cycle` parameter.
 
 ..plot:: mpl_examples/color/color_cycle_demo.py
