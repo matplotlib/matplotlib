@@ -2516,11 +2516,11 @@ def get_index_y(y):
         return np.arange(y.shape[0], dtype=float), y
 
 
-def get_label(y):
+def get_label(y, default_name):
     try:
         return y.name
     except AttributeError:
-        return None
+        return default_name
 
 # Numpy > 1.6.x deprecates putmask in favor of the new copyto.
 # So long as we support versions 1.6.x and less, we need the

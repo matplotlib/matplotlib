@@ -40,11 +40,45 @@ from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase
 from matplotlib.axes._base import _process_plot_format
 
+
 rcParams = matplotlib.rcParams
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
 is_sequence_of_strings = cbook.is_sequence_of_strings
+
+
+def _plot_args_replacer(args, data):
+    _replacer = []
+    remaining = args
+    while 1:
+        if len(remaining) == 1:
+
+            msg = ("Missing argument: this can happen if a color spec "
+                   "('c') is in `data`")
+            warnings.warn(msg, RuntimeWarning, stacklevel=3)
+            _replacer += ["x"]
+        elif len(remaining) == 2:
+            _replacer += ["x", "y"]
+        elif len(remaining) == 3:
+            if remaining[2] in data:
+                import warnings
+
+                msg = "Found a color spec ('c') in data."
+                warnings.warn(msg, RuntimeWarning, stacklevel=3)
+            _replacer += ["x", "y", "c"]
+
+        if len(remaining) <= 3:
+            return _replacer
+
+        # More than 3 -> split off the beginning and continue
+        if remaining[2] not in data:
+            _replacer += ["x", "y", "c"]
+            isplit = 3
+        else:
+            _replacer += ["x", "y"]
+            isplit = 2
+        remaining = remaining[isplit:]
 
 
 # The axes module contains all the wrappers to plotting functions.
@@ -1245,40 +1279,7 @@ class Axes(_AxesBase):
 
         return colls
 
-    def _plot_args_replacer(self, args, data):
-        _replacer = []
-        remaining = args
-        while 1:
-            if len(remaining) == 1:
-                import warnings
-
-                msg = "Missing argument: this can happen if a color spec " \
-                      "('c') is in data"
-                warnings.warn(msg, RuntimeWarning, stacklevel=3)
-                _replacer += ["x"]
-            elif len(remaining) == 2:
-                _replacer += ["x", "y"]
-            elif len(remaining) == 3:
-                if remaining[2] in data:
-                    import warnings
-
-                    msg = "Found a color spec ('c') in data."
-                    warnings.warn(msg, RuntimeWarning, stacklevel=3)
-                _replacer += ["x", "y", "c"]
-
-            if len(remaining) <= 3:
-                return _replacer
-
-            # More than 3 -> split off the beginning and continue
-            if remaining[2] not in data:
-                _replacer += ["x", "y", "c"]
-                isplit = 3
-            else:
-                _replacer += ["x", "y"]
-                isplit = 2
-            remaining = remaining[isplit:]
-
-    #### Basic plotting
+    # ### Basic plotting
     # The label_naming happens in `matplotlib.axes._base._plot_args`
     @unpack_labeled_data(replace_names=["x", "y"],
                          positional_parameter_names=_plot_args_replacer,

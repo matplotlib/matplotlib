@@ -350,7 +350,7 @@ class _process_plot_var_args(object):
                 kw[k] = v
 
         if 'label' not in kwargs or kwargs['label'] is None:
-            kwargs['label'] = get_label(tup[-1])
+            kwargs['label'] = get_label(tup[-1], None)
 
         if len(tup) == 2:
             x = np.atleast_1d(tup[0])
