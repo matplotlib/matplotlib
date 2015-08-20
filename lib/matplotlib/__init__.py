@@ -119,7 +119,7 @@ import distutils.sysconfig
 import functools
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
-from matplotlib.cbook import is_string_like, mplDeprecation, dedent
+from matplotlib.cbook import is_string_like, mplDeprecation, dedent, get_label
 from matplotlib.compat import subprocess
 from matplotlib.rcsetup import (defaultParams,
                                 validate_backend,
@@ -1646,9 +1646,9 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
         # arguments
         label_pos = 9999  # bigger than all "possible" argument lists
         label_namer_pos = 9999  # bigger than all "possible" argument lists
-        if (label_namer  # we actually want a label here ...
-            and arg_names  # and we can determine a label in *args ...
-            and (label_namer in arg_names)):  # and it is in *args
+        if (label_namer and  # we actually want a label here ...
+                arg_names and  # and we can determine a label in *args ...
+                (label_namer in arg_names)):  # and it is in *args
             label_namer_pos = arg_names.index(label_namer)
             if "label" in arg_names:
                 label_pos = arg_names.index("label")
@@ -1688,9 +1688,9 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
                     # update the information about replace names and
                     # label position
                     _arg_names = positional_parameter_names(args, data)
-                    if (label_namer  # we actually want a label here ...
-                        and _arg_names  # and we can find a label in *args ...
-                        and (label_namer in _arg_names)):  # and it is in *args
+                    if (label_namer and  # we actually want a label here ...
+                            _arg_names and  # and we can find a label in *args
+                            (label_namer in _arg_names)):  # and it is in *args
                         _label_namer_pos = _arg_names.index(label_namer)
                         if "label" in _arg_names:
                             _label_pos = arg_names.index("label")
@@ -1738,15 +1738,9 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
             )
             if (label_namer and not user_supplied_label):
                 if _label_namer_pos < len(args):
-                    try:
-                        kwargs['label'] = args[_label_namer_pos].name
-                    except AttributeError:
-                        kwargs['label'] = label
+                    kwargs['label'] = get_label(args[_label_namer_pos], label)
                 elif label_namer in kwargs:
-                    try:
-                        kwargs['label'] = kwargs[label_namer].name
-                    except AttributeError:
-                        kwargs['label'] = label
+                    kwargs['label'] = get_label(kwargs[label_namer], label)
                 else:
                     import warnings
                     msg = ("Tried to set a label via parameter '%s' in "
