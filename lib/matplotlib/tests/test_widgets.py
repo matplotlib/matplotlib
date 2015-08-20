@@ -119,7 +119,7 @@ def test_ellipse():
         pass
 
     tool = widgets.EllipseSelector(ax, onselect=onselect,
-                                     maxdist=10)
+                                   maxdist=10, interactive=True)
     tool.extents = (100, 150, 100, 150)
 
     # drag the rectangle
@@ -193,7 +193,7 @@ def test_rectangle_handles():
     do_event(tool, 'press', xdata=132, ydata=132)
     do_event(tool, 'onmove', xdata=120, ydata=120)
     do_event(tool, 'release', xdata=120, ydata=120)
-    assert tool.extents == (108, 138, 108, 138)
+    assert tool.extents == (108, 138, 108, 138), tool.extents
 
     # create a new rectangle
     do_event(tool, 'press', xdata=10, ydata=10)
