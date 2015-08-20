@@ -682,6 +682,9 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         rect = [int(val)for val in (min(x0, x1), min(y0, y1), w, h)]
         self.canvas.drawRectangle(rect)
 
+    def remove_rubberband(self):
+        self.canvas.drawRectangle(None)
+
     def configure_subplots(self):
         image = os.path.join(matplotlib.rcParams['datapath'],
                              'images', 'matplotlib.png')
