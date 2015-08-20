@@ -1778,6 +1778,8 @@ class RectangleSelector(_SelectorWidget):
         if not self.interactive:
             self.artists = [self.to_draw]
 
+        self._extents_on_press = None
+
     def _press(self, event):
         """on button press event"""
         # make the drawed box/line visible get the click-coordinates,
@@ -1853,7 +1855,8 @@ class RectangleSelector(_SelectorWidget):
                 y2 = event.ydata
 
         # move existing shape
-        elif 'move' in self.state:
+        elif (('move' in self.state or self.active_handle == 'C')
+              and self._extents_on_press is not None):
             x1, x2, y1, y2 = self._extents_on_press
             dx = event.xdata - self.eventpress.xdata
             dy = event.ydata - self.eventpress.ydata
