@@ -54,8 +54,8 @@ def new_figure_manager_given_figure(num, figure):
     return FigureManagerQT(canvas, num)
 
 
-class FigureCanvasQTAgg(FigureCanvasQTAggBase,
-                        FigureCanvasQT, FigureCanvasAgg):
+class FigureCanvasQTAgg(FigureCanvasQT, FigureCanvasQTAggBase,
+                        FigureCanvasAgg):
     """
     The canvas the figure renders into.  Calls the draw and print fig
     methods, creates the renderers, etc...
@@ -69,6 +69,7 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase,
         if DEBUG:
             print('FigureCanvasQtAgg: ', figure)
         FigureCanvasQT.__init__(self, figure)
+        FigureCanvasQTAggBase.__init__(self, figure)
         FigureCanvasAgg.__init__(self, figure)
         self._drawRect = None
         self.blitbox = None

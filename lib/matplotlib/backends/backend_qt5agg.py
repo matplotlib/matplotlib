@@ -58,12 +58,16 @@ class FigureCanvasQTAggBase(object):
 
     Public attribute
 
-      figure - A Figure instance
-   """
+        figure - A Figure instance
+    """
+
+    def __init__(self, figure):
+        super(FigureCanvasQTAggBase, self).__init__(figure=figure)
+        self._agg_redraw_flag = True
 
     def drawRectangle(self, rect):
         self._drawRect = rect
-        self.draw_idle()
+        self.update()
 
     def paintEvent(self, e):
         """
@@ -71,7 +75,9 @@ class FigureCanvasQTAggBase(object):
         In Qt, all drawing should be done inside of here when a widget is
         shown onscreen.
         """
-        FigureCanvasAgg.draw(self)
+        if self._agg_redraw_flag:
+            self._agg_redraw_flag = False
+            FigureCanvasAgg.draw(self)
 
         # FigureCanvasQT.paintEvent(self, e)
         if DEBUG:
@@ -134,9 +140,14 @@ class FigureCanvasQTAggBase(object):
             pixmap = QtGui.QPixmap.fromImage(qImage)
             p = QtGui.QPainter(self)
             p.drawPixmap(QtCore.QPoint(l, self.renderer.height-t), pixmap)
+
+            # draw the zoom rectangle to the QPainter
+            if self._drawRect is not None:
+                p.setPen(QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.DotLine))
+                x, y, w, h = self._drawRect
+                p.drawRect(x, y, w, h)
             p.end()
             self.blitbox = None
-        self._drawRect = None
 
     def draw(self):
         """
@@ -147,6 +158,11 @@ class FigureCanvasQTAggBase(object):
         # causes problems with code that uses the result of the
         # draw() to update plot elements.
         FigureCanvasAgg.draw(self)
+        self._agg_redraw_flag = False
+        self.update()
+
+    def draw_idle(self):
+        self._agg_redraw_flag = True
         self.update()
 
     def blit(self, bbox=None):
@@ -161,6 +177,7 @@ class FigureCanvasQTAggBase(object):
         self.blitbox = bbox
         l, b, w, h = bbox.bounds
         t = b + h
+        self._agg_redraw_flag = False  # don't repaint the agg buffer in blit()
         self.repaint(l, self.renderer.height-t, w, h)
 
     def print_figure(self, *args, **kwargs):
@@ -168,8 +185,8 @@ class FigureCanvasQTAggBase(object):
         self.draw()
 
 
-class FigureCanvasQTAgg(FigureCanvasQTAggBase,
-                        FigureCanvasQT, FigureCanvasAgg):
+class FigureCanvasQTAgg(FigureCanvasQT, FigureCanvasQTAggBase,
+                        FigureCanvasAgg):
     """
     The canvas the figure renders into.  Calls the draw and print fig
     methods, creates the renderers, etc.
@@ -184,8 +201,7 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase,
     def __init__(self, figure):
         if DEBUG:
             print('FigureCanvasQtAgg: ', figure)
-        FigureCanvasQT.__init__(self, figure)
-        FigureCanvasAgg.__init__(self, figure)
+        super(FigureCanvasQTAgg, self).__init__(figure=figure)
         self._drawRect = None
         self.blitbox = None
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
