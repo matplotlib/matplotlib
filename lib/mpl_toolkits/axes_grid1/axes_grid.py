@@ -53,7 +53,7 @@ class Colorbar(mcolorbar.Colorbar):
                                      color=mpl.rcParams['axes.edgecolor'],
                                      linewidth=mpl.rcParams['axes.linewidth'])
         ax.add_artist(self.outline)
-        self.outline.set_clip_box(None)
+        self.outline.clipbox = None
         self.outline.set_clip_path(None)
         c = mpl.rcParams['axes.facecolor']
         self.patch = mpatches.Polygon(xy, edgecolor=c,

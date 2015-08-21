@@ -516,7 +516,7 @@ class Patch(artist.Artist):
 
         gc.set_antialiased(self._antialiased)
         self._set_gc_clip(gc)
-        gc.set_url(self._url)
+        gc.set_url(self.url)
         gc.set_snap(self.get_snap())
 
         rgbFace = self._facecolor

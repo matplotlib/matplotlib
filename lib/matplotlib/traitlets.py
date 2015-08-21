@@ -80,8 +80,9 @@ class PrivateMethodMixin(object):
         self._notify_trait(name, old, new)
         if cross_validate:
             trait = self._retrieve_trait(name)
-            # ignores value output
-            trait._cross_validate(self, new)
+            # note value is updated via cross validation
+            new = trait._cross_validate(self, new)
+            self.private(name, new)
 
     def private(self, name, value=Undefined):
         trait = self._retrieve_trait(name)

@@ -339,7 +339,7 @@ class ContourLabeler(object):
         label.set_text(text)
         label.set_color(color)
         label.set_fontproperties(self.labelFontProps)
-        label.set_clip_box(self.ax.bbox)
+        label.clipbox = self.ax.bbox
 
     def get_text(self, lev, fmt):
         "get the text of the label"

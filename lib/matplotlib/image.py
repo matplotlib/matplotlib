@@ -359,7 +359,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
                                      # is required by backends. There
                                      # may be better solution -JJL
 
-        im._url = self.get_url()
+        im.url = self.url
         im._gid = self.get_gid()
 
         renderer.draw_image(gc, xmin, ymin, im, dxintv, dyintv,
@@ -395,7 +395,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             im = self.make_image(renderer.get_image_magnification())
             if im is None:
                 return
-            im._url = self.get_url()
+            im.url = self.url
             im._gid = self.get_gid()
             renderer.draw_image(gc, l, b, im)
         gc.restore()
@@ -934,7 +934,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         im = self.make_image(renderer.get_image_magnification())
         gc = renderer.new_gc()
         gc.set_clip_rectangle(self.axes.bbox.frozen())
-        gc.set_clip_path(self.get_clip_path())
+        gc.set_clip_path(self.clippath)
         gc.set_alpha(self.alpha)
         renderer.draw_image(gc,
                             round(self.axes.bbox.xmin),
@@ -1102,7 +1102,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         im = self.make_image(renderer.get_image_magnification())
         gc = renderer.new_gc()
         gc.set_clip_rectangle(self.figure.bbox)
-        gc.set_clip_path(self.get_clip_path())
+        gc.set_clip_path(self.clippath)
         gc.set_alpha(self.alpha)
         renderer.draw_image(gc, round(self.ox), round(self.oy), im)
         gc.restore()

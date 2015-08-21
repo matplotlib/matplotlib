@@ -720,7 +720,7 @@ class DrawingArea(OffsetBox):
                         [self.width, 0]]),
             self.transform)
         for c in self._children:
-            if self._clip_children and not (c.clipbox or c._clippath):
+            if self._clip_children and not (c.clipbox or c.clippath):
                 c.set_clip_path(tpath)
             c.draw(renderer)
 

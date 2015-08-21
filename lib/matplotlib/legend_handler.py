@@ -76,7 +76,7 @@ class HandlerBase(object):
         self._update_prop(legend_handle, orig_handle)
 
         legend._set_artist_props(legend_handle)
-        legend_handle.set_clip_box(None)
+        legend_handle.clipbox = None
         legend_handle.set_clip_path(None)
 
     def adjust_drawing_area(self, legend, orig_handle,
@@ -329,7 +329,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
 
         legend_handle.figure = legend.figure
         #legend._set_artist_props(legend_handle)
-        legend_handle.set_clip_box(None)
+        legend_handle.clipbox = None
         legend_handle.set_clip_path(None)
 
     def create_collection(self, orig_handle, sizes, offsets, transOffset):

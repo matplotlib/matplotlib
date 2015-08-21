@@ -1246,7 +1246,7 @@ class Figure(FigureBase, Artist):
             def draw_composite():
                 gc = renderer.new_gc()
                 gc.set_clip_rectangle(self.bbox)
-                gc.set_clip_path(self.get_clip_path())
+                gc.set_clip_path(self.clippath)
                 renderer.draw_image(gc, l, b, im)
                 gc.restore()
 

@@ -15,8 +15,11 @@ from .transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPatchPath, TransformedPath, Transform)
 from .path import Path
 
-from .traitlets import (Instance, Configurable, gTransformInstance, Bool, Undefined,
-                        BaseDescriptor, getargspec, PrivateMethodMixin, Float, TraitError)
+from .traitlets import (Instance, Configurable, gTransformInstance, Bool, Undefined, Union,
+                        BaseDescriptor, getargspec, PrivateMethodMixin, Float, TraitError,
+                        Unicode)
+
+from urlparse import urlparse
 
 # Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
@@ -179,6 +182,29 @@ class Artist(PrivateMethodMixin, Configurable):
 
     eventson = Bool(False)
 
+    clipbox = Instance(str('matplotlib.transforms.BboxBase'), allow_none=True)
+
+    def _clipbox_changed(self, name, old, new):
+        self.pchanged()
+        self.stale = True
+
+    clippath = Union((Instance(str('matplotlib.patches.Patch')),
+                      Instance(str('matplotlib.transforms.TransformedPath'))),
+                      allow_none=True)
+
+    def _clippath_default(self): pass
+
+    def _clippath_validate(self, value, trait):
+        if isinstance(value, trait.trait_types[0].klass):
+            value = TransformedPath(value.get_path(), value.transform)
+        return value
+
+    def _clippath_changed(self, name, new, old):
+        self.pchanged()
+        self.stale = True
+
+    url = Unicode(allow_none=True)
+
     def __init__(self):
         # self._stale = True
         # self._axes = None
@@ -191,8 +217,8 @@ class Artist(PrivateMethodMixin, Configurable):
         # self._visible = True
         # self._animated = False
         # self._alpha = None
-        self.clipbox = None
-        self._clippath = None
+        # self.clipbox = None
+        # self._clippath = None
         self._clipon = True
         self._label = ''
         self._picker = None
@@ -209,7 +235,7 @@ class Artist(PrivateMethodMixin, Configurable):
         #     # Handle self.axes as a read-only property, as in Figure.
         #     pass
         self._remove_method = None
-        self._url = None
+        # self._url = None
         self._gid = None
         self._snap = None
         self._sketch = rcParams['path.sketch']
@@ -596,19 +622,21 @@ class Artist(PrivateMethodMixin, Configurable):
         """
         return self.figure is not None
 
-    def get_url(self):
-        """
-        Returns the url
-        """
-        return self._url
+    #!DEPRECATED
+    # def get_url(self):
+    #     """
+    #     Returns the url
+    #     """
+    #     return self._url
 
-    def set_url(self, url):
-        """
-        Sets the url for the artist
+    #!DEPRECATED
+    # def set_url(self, url):
+    #     """
+    #     Sets the url for the artist
 
-        ACCEPTS: a url string
-        """
-        self._url = url
+    #     ACCEPTS: a url string
+    #     """
+    #     self._url = url
 
     def get_gid(self):
         """
@@ -735,33 +763,29 @@ class Artist(PrivateMethodMixin, Configurable):
     #     """
     #     self.figure = fig
 
-    def set_clip_box(self, clipbox):
-        """
-        Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
+    #!DEPRECATED
+    # def set_clip_box(self, clipbox):
+    #     """
+    #     Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
 
-        ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
-        """
-        self.clipbox = clipbox
-        self.pchanged()
-        self.stale = True
+    #     ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
+    #     """
+    #     self.clipbox = clipbox
+    #     self.pchanged()
+    #     self.stale = True
 
     def set_clip_path(self, path, transform=None):
         """
         Set the artist's clip path, which may be:
-
           * a :class:`~matplotlib.patches.Patch` (or subclass) instance
-
           * a :class:`~matplotlib.path.Path` instance, in which case
              an optional :class:`~matplotlib.transforms.Transform`
              instance may be provided, which will be applied to the
              path before using it for clipping.
-
           * *None*, to remove the clipping path
-
         For efficiency, if the path happens to be an axis-aligned
         rectangle, this method will set the clipping box to the
         corresponding rectangle and set the clipping path to *None*.
-
         ACCEPTS: [ (:class:`~matplotlib.path.Path`,
         :class:`~matplotlib.transforms.Transform`) |
         :class:`~matplotlib.patches.Patch` | None ]
@@ -773,7 +797,7 @@ class Artist(PrivateMethodMixin, Configurable):
             if isinstance(path, Rectangle):
                 self.clipbox = TransformedBbox(Bbox.unit(),
                                                path.transform)
-                self._clippath = None
+                self.clippath = None
                 success = True
             elif isinstance(path, Patch):
                 self._clippath = TransformedPatchPath(path)
@@ -782,25 +806,21 @@ class Artist(PrivateMethodMixin, Configurable):
                 path, transform = path
 
         if path is None:
-            self._clippath = None
+            self.clippath = None
             success = True
         elif isinstance(path, Path):
-            self._clippath = TransformedPath(path, transform)
+            self.clippath = TransformedPath(path, transform)
             success = True
         elif isinstance(path, TransformedPatchPath):
             self._clippath = path
             success = True
         elif isinstance(path, TransformedPath):
-            self._clippath = path
+            self.clippath = path
             success = True
 
         if not success:
             print(type(path), type(transform))
             raise TypeError("Invalid arguments to set_clip_path")
-        # this may result in the callbacks being hit twice, but grantees they
-        # will be hit at least once
-        self.pchanged()
-        self.stale = True
 
     #!DEPRECATED
     # def get_alpha(self):
@@ -824,13 +844,15 @@ class Artist(PrivateMethodMixin, Configurable):
         'Return whether artist uses clipping'
         return self._clipon
 
-    def get_clip_box(self):
-        'Return artist clipbox'
-        return self.clipbox
+    #!DEPRECATED
+    # def get_clip_box(self):
+    #     'Return artist clipbox'
+    #     return self.clipbox
 
-    def get_clip_path(self):
-        'Return artist clip path'
-        return self._clippath
+    #!DEPRECATED
+    # def get_clip_path(self):
+    #     'Return artist clip path'
+    #     return self._clippath
 
     def get_transformed_clip_path_and_affine(self):
         '''
@@ -838,8 +860,8 @@ class Artist(PrivateMethodMixin, Configurable):
         transformation applied, and the remaining affine part of its
         transformation.
         '''
-        if self._clippath is not None:
-            return self._clippath.get_transformed_path_and_affine()
+        if self.clippath is not None:
+            return self.clippath.get_transformed_path_and_affine()
         return None, None
 
     def set_clip_on(self, b):
@@ -862,7 +884,7 @@ class Artist(PrivateMethodMixin, Configurable):
         if self._clipon:
             if self.clipbox is not None:
                 gc.set_clip_rectangle(self.clipbox)
-            gc.set_clip_path(self._clippath)
+            gc.set_clip_path(self.clippath)
         else:
             gc.set_clip_rectangle(None)
             gc.set_clip_path(None)
@@ -950,7 +972,7 @@ class Artist(PrivateMethodMixin, Configurable):
             if k in ['axes']:
                 setattr(self, k, v)
             else:
-                #!DEPRICATED set_name access should be removed
+                #!DEPRICATED set_name access should eventually be removed
                 func = getattr(self, 'set_' + k, None)
                 if func is not None and six.callable(func):
                     func(v)
@@ -1008,9 +1030,9 @@ class Artist(PrivateMethodMixin, Configurable):
         self.transform_set = other.transform_set
         self.private('visible', other.private('visible'))
         self.private('alpha',other.alpha)
-        self.clipbox = other.clipbox
+        self.private('clipbox', other.clipbox)
         self._clipon = other._clipon
-        self._clippath = other._clippath
+        self.private('clippath', other.clippath)
         self._label = other._label
         self._sketch = other._sketch
         self._path_effects = other._path_effects
@@ -1034,12 +1056,16 @@ class Artist(PrivateMethodMixin, Configurable):
         ret = []
         for k, v in sorted(kwargs.items(), reverse=True):
             k = k.lower()
-            funcName = "set_%s" % k
-            func = getattr(self, funcName, None)
-            if func is None:
-               raise TypeError('There is no %s property "%s"' %
+            func = getattr(self, 'set_'+k, None)
+            if func is not None and six.callable(func):
+                ret.extend([func(v)])
+            else:
+                klass = self.__class__
+                if isinstance(getattr(klass, k, None),BaseDescriptor):
+                    ret.extend([setattr(self, k, v)])
+                else:
+                    raise TypeError('There is no %s property "%s"' %
                                (self.__class__.__name__, k))
-            ret.extend([func(v)])
         return ret
 
     def findobj(self, match=None, include_self=True):

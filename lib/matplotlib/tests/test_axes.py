@@ -221,7 +221,7 @@ def test_polar_coord_annotations():
     ax = fig.add_subplot(111, aspect='equal')
 
     ax.add_artist(el)
-    el.set_clip_box(ax.bbox)
+    el.clipbox = ax.bbox
 
     ax.annotate('the top',
                 xy=(np.pi/2., 10.),      # theta, radius

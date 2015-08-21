@@ -45,16 +45,18 @@
 6.0 : stale
 6.0 : axes
 6.0 : figure
-0.0 : visible
-0.0 : animated
-0.0 : alpha
-0.0 : clipbox
-0.0 : clippath
+6.0 : visible
+6.0 : animated
+6.0 : alpha
+6.0 : rasterized
+6.0 : pickable
+6.0 : clipbox
+6.0 : clippath
+
 0.0 : clipon
 0.0 : label
 0.0 : picker
 0.0 : contains
-0.0 : rasterized
 0.0 : agg_filter
 ...
 ...

@@ -5,6 +5,7 @@ except:
 
 from github.rmorshea.misc import searchscript as ss
 import re
+import types
 
 
 def setter_handle(pattern, line, name):
@@ -32,18 +33,20 @@ class MplReplacementLibrary(object):
 		pattern = r'(.*)\.set_'+name+r'[^\(]*(\(.*\))[^\)]*'
 
 		def handle(p, l):
-			return setter_handle(p,l,name)
+			return tool.handle_wrapper(setter_handle,p,l,name)
 
 		args = (tool.rootdir,'py',pattern,None,handle)
 		return ss.SearchReplace(*args, context=tool.context)
 
 	def getter(self, tool):
 		name = self.working_name
-
-		repl_str = r'\1.'+name+r'\2'
 		pattern = r'(.*)\.get_'+name+'\(\)(.*)'
 
-		args = (tool.rootdir,'py',pattern,repl_str)
+		def handle(p, l):
+			method = lambda p,l,name: p.sub(r'\1.'+name+r'\2', l)
+			return tool.handle_wrapper(method,p,l,name)
+
+		args = (tool.rootdir,'py',pattern, None, handle)
 		return ss.SearchReplace(*args, context=tool.context)
 
 	def underscore(self, tool):
@@ -51,7 +54,7 @@ class MplReplacementLibrary(object):
 		pattern = r'(.*)\._'+name+r'(.*)'
 
 		def handle(p, l):
-			return underscore_handle(p,l,name)
+			return tool.handle_wrapper(underscore_handle,p,l,name)
 
 		args = (tool.rootdir,'py',pattern,None,handle)
 		return ss.SearchReplace(*args, context=tool.context)
@@ -75,11 +78,16 @@ class ReplaceTool(object):
 	lib = None
 	rootdir = None
 
-	def __init__(self, name, context=0):
+	def __init__(self, name, wrapper=None, context=0):
 		self.context = context
+		if wrapper:
+			self.handle_wrapper = wrapper
 		if self.lib is None:
 			raise ValueError('no replacement library found')
 		self._repl = getattr(self.lib, name)(self)
+
+	def handle_wrapper(self, method, pattern, line, name):
+		return method(pattern, line, name)
 
 	def find_replacements(self):
 		self._repl.find_replacements()

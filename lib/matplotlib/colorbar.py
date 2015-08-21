@@ -430,7 +430,7 @@ class ColorbarBase(cm.ScalarMappable):
             closed=True,
             zorder=2)
         ax.add_artist(self.outline)
-        self.outline.set_clip_box(None)
+        self.outline.clipbox = None
         self.outline.set_clip_path(None)
         c = mpl.rcParams['axes.facecolor']
         if self.patch is not None:

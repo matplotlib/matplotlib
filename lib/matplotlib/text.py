@@ -570,21 +570,26 @@ class Text(Artist):
         self._bbox_patch.draw(renderer)
 
     def _update_clip_properties(self):
-        clipprops = dict(clip_box=self.clipbox,
-                         clip_path=self._clippath,
+        clipprops = dict(clipbox=self.clipbox,
+                         clip_path=self.clippath,
                          clip_on=self._clipon)
 
         if self._bbox_patch:
             bbox = self._bbox_patch.update(clipprops)
 
-    def set_clip_box(self, clipbox):
-        """
-        Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
-
-        ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
-        """
-        super(Text, self).set_clip_box(clipbox)
+    def _clipbox_changed(self, name, old, new):
+        super(Text, self)._clipbox_changed(name, old, new)
         self._update_clip_properties()
+
+    #!DEPRECATED
+    # def set_clip_box(self, clipbox):
+    #     """
+    #     Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
+
+    #     ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
+    #     """
+    #     super(Text, self).set_clip_box(clipbox)
+    #     self._update_clip_properties()
 
     def set_clip_path(self, path, transform=None):
         """
@@ -765,7 +770,7 @@ class Text(Artist):
             gc = renderer.new_gc()
             gc.set_foreground(textobj.get_color())
             gc.set_alpha(textobj.alpha)
-            gc.set_url(textobj._url)
+            gc.set_url(textobj.url)
             textobj._set_gc_clip(gc)
 
             angle = textobj.get_rotation()

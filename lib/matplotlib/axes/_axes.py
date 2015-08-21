@@ -4941,7 +4941,7 @@ class Axes(_AxesBase):
 
         im.set_data(X)
         im.alpha = alpha
-        if im.get_clip_path() is None:
+        if im.clippath is None:
             # image does not already have clipping set, clip to axes patch
             im.set_clip_path(self.patch)
         #if norm is None and shape is None:
@@ -4950,7 +4950,7 @@ class Axes(_AxesBase):
             im.set_clim(vmin, vmax)
         else:
             im.autoscale_None()
-        im.set_url(url)
+        im.url = url
 
         # update ax.dataLim, and, if autoscaling, set viewLim
         # to tightly fit the image, regardless of dataLim.
