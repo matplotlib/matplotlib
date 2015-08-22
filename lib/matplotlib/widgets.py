@@ -1418,6 +1418,8 @@ class SpanSelector(_SelectorWidget):
         if rectprops is None:
             rectprops = dict(facecolor='red', alpha=0.5)
 
+        rectprops['animated'] = useblit
+
         if direction not in ['horizontal', 'vertical']:
             msg = "direction must be in [ 'horizontal' | 'vertical' ]"
             raise ValueError(msg)
@@ -1726,6 +1728,7 @@ class RectangleSelector(_SelectorWidget):
             if rectprops is None:
                 rectprops = dict(facecolor='red', edgecolor='black',
                                  alpha=0.2, fill=True)
+            rectprops['animated'] = useblit
             self.rectprops = rectprops
             self.to_draw = self._shape_klass((0, 0),
                                      0, 1, visible=False, **self.rectprops)
@@ -1734,6 +1737,7 @@ class RectangleSelector(_SelectorWidget):
             if lineprops is None:
                 lineprops = dict(color='black', linestyle='-',
                                  linewidth=2, alpha=0.5)
+            lineprops['animated'] = useblit
             self.lineprops = lineprops
             self.to_draw = Line2D([0, 0, 0, 0, 0], [0, 0, 0, 0, 0], visible=False,
                                   **self.lineprops)
@@ -1954,8 +1958,7 @@ class RectangleSelector(_SelectorWidget):
         self._edge_handles.set_data(*self.edge_centers)
         self._center_handle.set_data(*self.center)
         self.set_visible(self.visible)
-
-        self.canvas.draw_idle()
+        self.update()
 
     def draw_shape(self, extents):
         x0, x1, y0, y1 = extents
