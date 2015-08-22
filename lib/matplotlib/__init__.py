@@ -116,14 +116,13 @@ import warnings
 import contextlib
 import distutils.sysconfig
 
-from cycler import cycler
-
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from matplotlib.cbook import is_string_like, mplDeprecation
 from matplotlib.compat import subprocess
 from matplotlib.rcsetup import (defaultParams,
-                                validate_backend)
+                                validate_backend,
+                                cycler)
 
 import numpy
 from matplotlib.externals.six.moves.urllib.request import urlopen
