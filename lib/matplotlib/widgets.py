@@ -83,7 +83,7 @@ class Widget(object):
     # set_active is overriden by SelectorWidgets.
     active = property(get_active, lambda self, active: self.set_active(active),
                       doc="Is the widget active?")
-                      
+
     def ignore(self, event):
         """Return True if event should be ignored.
 
@@ -642,7 +642,7 @@ class RadioButtons(AxesWidget):
 
      *circles*
         A list of :class:`matplotlib.patches.Circle` instances
-        
+
      *value_selected*
         A string listing the current value selected
 
@@ -1091,7 +1091,7 @@ class MultiCursor(Widget):
     def clear(self, event):
         """clear the cursor"""
         if self.ignore(event):
-            return        
+            return
         if self.useblit:
             self.background = (
                 self.canvas.copy_from_bbox(self.canvas.figure.bbox))
@@ -1100,7 +1100,7 @@ class MultiCursor(Widget):
 
     def onmove(self, event):
         if self.ignore(event):
-            return        
+            return
         if event.inaxes is None:
             return
         if not self.canvas.widgetlock.available(self):
@@ -1257,7 +1257,7 @@ class _SelectorWidget(AxesWidget):
         else:
             event = copy.copy(event)
         event.xdata, event.ydata = self._get_data(event)
-        
+
         self._prev_event = event
         return event
 
@@ -1293,7 +1293,7 @@ class _SelectorWidget(AxesWidget):
     def _release(self, event):
         """Button release event handler"""
         pass
-            
+
     def onmove(self, event):
         """Cursor move event handler and validator"""
         if not self.ignore(event) and self.eventpress:
@@ -1392,7 +1392,7 @@ class SpanSelector(_SelectorWidget):
         If *minspan* is not *None*, ignore events smaller than *minspan*
 
         The span rectangle is drawn with *rectprops*; default::
-        
+
           rectprops = dict(facecolor='red', alpha=0.5)
 
         Set the visible attribute to *False* if you want to turn off
@@ -1413,7 +1413,7 @@ class SpanSelector(_SelectorWidget):
 
         """
         _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
-            button=button)
+                                 button=button)
 
         if rectprops is None:
             rectprops = dict(facecolor='red', alpha=0.5)
@@ -1845,7 +1845,7 @@ class RectangleSelector(_SelectorWidget):
         return False
 
     def _onmove(self, event):
-        """on motion notify event if box/line is wanted"""     
+        """on motion notify event if box/line is wanted"""
         # resize an existing shape
         if self.active_handle and not self.active_handle == 'C':
             x1, x2, y1, y2 = self._extents_on_press
@@ -1985,10 +1985,10 @@ class RectangleSelector(_SelectorWidget):
         c_idx, c_dist = self._corner_handles.closest(event.x, event.y)
         e_idx, e_dist = self._edge_handles.closest(event.x, event.y)
         m_idx, m_dist = self._center_handle.closest(event.x, event.y)
-        
+
         if 'move' in self.state:
             self.active_handle = 'C'
-            self._extents_on_press = self.extents    
+            self._extents_on_press = self.extents
 
         # Set active handle as closest handle, if mouse click is close enough.
         elif m_dist < self.maxdist * 2:
