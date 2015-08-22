@@ -307,6 +307,11 @@ def test_validators():
                           cycler("mew", [2, 3, 5]))""",
                       (cycler("color", 'rgb') +
                           cycler("markeredgewidth", [2, 3, 5]))),
+                     ("cycler(c='rgb', lw=[1, 2, 3])",
+                      cycler('color', 'rgb') + cycler('linewidth', [1, 2, 3])),
+                     ("cycler('c', 'rgb') * cycler('linestyle', ['-', '--'])",
+                      (cycler('color', 'rgb') *
+                          cycler('linestyle', ['-', '--']))),
                     ),
          # This is *so* incredibly important: validate_cycler() eval's
          # an arbitrary string! I think I have it locked down enough,
@@ -326,6 +331,8 @@ def test_validators():
                       ValueError),  # Should not be able to define anything
                                     # even if it does return a cycler
                   ('cycler("waka", [1, 2, 3])', ValueError),  # not a property
+                  ('cycler(c=[1, 2, 3])', ValueError),  # invalid values
+                  ("cycler(lw=['a', 'b', 'c'])", ValueError),  # invalid values
                  )
         },
     )
