@@ -18,12 +18,14 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 
+import operator
 import os
 import warnings
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
-from cycler import cycler, Cycler
+# Don't let the original cycler collide with our validating cycler
+from cycler import Cycler, cycler as ccycler
 
 #interactive_bk = ['gtk', 'gtkagg', 'gtkcairo', 'qt4agg',
 #                  'tkagg', 'wx', 'wxagg', 'cocoaagg', 'webagg']
@@ -579,6 +581,7 @@ class ValidateInterval(object):
 
 validate_grid_axis = ValidateInStrings('axes.grid.axis', ['x', 'y', 'both'])
 
+
 _prop_validators = {
         'color': validate_colorlist,
         'linewidth': validate_floatlist,
@@ -607,24 +610,86 @@ _prop_aliases = {
         'ms': 'markersize',
     }
 
-def _cycler_wrap(prop, vals):
+def cycler(*args, **kwargs):
     """
-    This is an internal wrapper around :func:`cycler`
-    that will be used in :func:`validate_cycler` to normalize
-    and validate property inputs.
+    Creates a :class:`cycler.Cycler` object much like :func:`cycler.cycler`,
+    but includes input validation.
+
+    cyl(arg)
+    cyl(label, itr)
+    cyl(label1=itr1[, label2=itr2[, ...]])
+
+    Form 1 simply copies a given `Cycler` object.
+
+    Form 2 composes a `Cycler` as an inner product of the
+    pairs of keyword arguments. In other words, all of the
+    iterables are cycled simultaneously, as if through zip().
+
+    Form 3 creates a `Cycler` from a label and an iterable.
+    This is useful for when the label cannot be a keyword argument
+    (e.g., an integer or a name that has a space in it).
+
+    Parameters
+    ----------
+    arg : Cycler
+        Copy constructor for Cycler.
+
+    label : name
+        The property key. In the 2-arg form of the function,
+        the label can be any hashable object. In the keyword argument
+        form of the function, it must be a valid python identifier.
+
+    itr : iterable
+        Finite length iterable of the property values.
+
+    Returns
+    -------
+    cycler : Cycler
+        New :class:`cycler.Cycler` for the given properties
 
     """
-    norm_prop = _prop_aliases.get(prop, prop)
-    validator = _prop_validators.get(norm_prop, None)
-    if validator is None:
-        raise TypeError("Unknown artist property: %s" % prop)
-    vals = validator(vals)
-    # We will normalize the property names as well to reduce
-    # the amount of alias handling code elsewhere.
-    return cycler(norm_prop, vals)
+    if args and kwargs:
+        raise TypeError("cyl() can only accept positional OR keyword "
+                        "arguments -- not both.")
+    elif not args and not kwargs:
+        raise TypeError("cyl() must have positional OR keyword arguments")
+
+    if len(args) == 1:
+        if not isinstance(args[0], Cycler):
+            raise TypeError("If only one positional argument given, it must "
+                            " be a Cycler instance.")
+
+        c = args[0]
+        unknowns = c.keys - (set(_prop_validators.keys()) |
+                             set(_prop_aliases.keys()))
+        if unknowns:
+            # This is about as much validation I can do
+            raise TypeError("Unknown artist properties: %s" % unknowns)
+        else:
+            return Cycler(c)
+    elif len(args) == 2:
+        pairs = [(args[0], args[1])]
+    elif len(args) > 2:
+        raise TypeError("No more than 2 positional arguments allowed")
+    else:
+        pairs = six.iteritems(kwargs)
+
+    validated = []
+    for prop, vals in pairs:
+        norm_prop = _prop_aliases.get(prop, prop)
+        validator = _prop_validators.get(norm_prop, None)
+        if validator is None:
+            raise TypeError("Unknown artist property: %s" % prop)
+        vals = validator(vals)
+        # We will normalize the property names as well to reduce
+        # the amount of alias handling code elsewhere.
+        validated.append((norm_prop, vals))
+
+    return reduce(operator.add, (ccycler(k, v) for k, v in validated))
+
 
 def validate_cycler(s):
-    'return a cycler object from a string repr or the object itself'
+    'return a Cycler object from a string repr or the object itself'
     if isinstance(s, six.string_types):
         try:
             # TODO: We might want to rethink this...
@@ -645,7 +710,7 @@ def validate_cycler(s):
             # someone managed to hack the cycler module. But, if
             # someone does that, this wouldn't make anything
             # worse because we have to import the module anyway.
-            s = eval(s, {'cycler': _cycler_wrap})
+            s = eval(s, {'cycler': cycler})
         except BaseException as e:
             raise ValueError("'%s' is not a valid cycler construction: %s" %
                              (s, e))
@@ -851,7 +916,7 @@ defaultParams = {
     # This entry can be either a cycler object or a
     # string repr of a cycler-object, which gets eval()'ed
     # to create the object.
-    'axes.prop_cycle': [cycler('color', 'bgrcmyk'),
+    'axes.prop_cycle': [ccycler('color', 'bgrcmyk'),
                         validate_cycler],
     'axes.xmargin': [0, ValidateInterval(0, 1,
                                          closedmin=True,
