@@ -150,6 +150,7 @@ def test_cull_markers():
 def test_remove():
     fig, ax = plt.subplots()
     im = ax.imshow(np.arange(36).reshape(6, 6))
+    ln, = ax.plot(range(5))
 
     assert_true(fig.stale)
     assert_true(ax.stale)
@@ -157,14 +158,19 @@ def test_remove():
     fig.canvas.draw()
     assert_false(fig.stale)
     assert_false(ax.stale)
+    assert_false(ln.stale)
 
     assert_true(im in ax.mouseover_set)
+    assert_true(ln not in ax.mouseover_set)
     assert_true(im.axes is ax)
 
     im.remove()
+    ln.remove()
 
-    assert_true(im.axes is None)
-    assert_true(im.figure is None)
+    for art in [im, ln]:
+        assert_true(art.axes is None)
+        assert_true(art.figure is None)
+
     assert_true(im not in ax.mouseover_set)
     assert_true(fig.stale)
     assert_true(ax.stale)
