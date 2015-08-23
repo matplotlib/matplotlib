@@ -240,7 +240,8 @@ class Text(Artist):
         """
         bbox = kwargs.pop('bbox', None)
         super(Text, self).update(kwargs)
-        self.set_bbox(bbox)  # depends on font properties
+        if bbox:
+            self.set_bbox(bbox)  # depends on font properties
 
     def __getstate__(self):
         d = super(Text, self).__getstate__()
@@ -280,7 +281,7 @@ class Text(Artist):
 
     def _get_xy_display(self):
         'get the (possibly unit converted) transformed x, y in display coords'
-        x, y = self.get_position()
+        x, y = self.get_unitless_position()
         return self.get_transform().transform_point((x, y))
 
     def _get_multialignment(self):
@@ -536,8 +537,8 @@ class Text(Artist):
 
             trans = self.get_transform()
 
-            # don't use self.get_position here, which refers to text position
-            # in Text, and dash position in TextWithDash:
+            # don't use self.get_unitless_position here, which refers to text
+            # position in Text, and dash position in TextWithDash:
             posx = float(self.convert_xunits(self._x))
             posy = float(self.convert_yunits(self._y))
 
@@ -877,11 +878,19 @@ class Text(Artist):
         """
         return self._horizontalalignment
 
-    def get_position(self):
-        "Return the position of the text as a tuple (*x*, *y*)"
+    def get_unitless_position(self):
+        "Return the unitless position of the text as a tuple (*x*, *y*)"
+        # This will get the position with all unit information stripped away.
+        # This is here for convienience since it is done in several locations.
         x = float(self.convert_xunits(self._x))
         y = float(self.convert_yunits(self._y))
         return x, y
+
+    def get_position(self):
+        "Return the position of the text as a tuple (*x*, *y*)"
+        # This should return the same data (possible unitized) as was
+        # specified with 'set_x' and 'set_y'.
+        return self._x, self._y
 
     def get_prop_tup(self):
         """
@@ -891,7 +900,7 @@ class Text(Artist):
         want to cache derived information about text (e.g., layouts) and
         need to know if the text has changed.
         """
-        x, y = self.get_position()
+        x, y = self.get_unitless_position()
         return (x, y, self.get_text(), self._color,
                 self._verticalalignment, self._horizontalalignment,
                 hash(self._fontproperties),
@@ -950,7 +959,7 @@ class Text(Artist):
             raise RuntimeError('Cannot get window extent w/o renderer')
 
         bbox, info, descent = self._get_layout(self._renderer)
-        x, y = self.get_position()
+        x, y = self.get_unitless_position()
         x, y = self.get_transform().transform_point((x, y))
         bbox = bbox.translated(x, y)
         if dpi is not None:
@@ -1365,11 +1374,19 @@ class TextWithDash(Text):
 
         #self.set_bbox(dict(pad=0))
 
-    def get_position(self):
-        "Return the position of the text as a tuple (*x*, *y*)"
+    def get_unitless_position(self):
+        "Return the unitless position of the text as a tuple (*x*, *y*)"
+        # This will get the position with all unit information stripped away.
+        # This is here for convienience since it is done in several locations.
         x = float(self.convert_xunits(self._dashx))
         y = float(self.convert_yunits(self._dashy))
         return x, y
+
+    def get_position(self):
+        "Return the position of the text as a tuple (*x*, *y*)"
+        # This should return the same data (possibly unitized) as was
+        # specified with set_x and set_y
+        return self._dashx, self._dashy
 
     def get_prop_tup(self):
         """
@@ -1402,7 +1419,7 @@ class TextWithDash(Text):
         with respect to the actual canvas's coordinates we need to map
         back and forth.
         """
-        dashx, dashy = self.get_position()
+        dashx, dashy = self.get_unitless_position()
         dashlength = self.get_dashlength()
         # Shortcircuit this process if we don't have a dash
         if dashlength == 0.0:
