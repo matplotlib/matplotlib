@@ -1660,7 +1660,7 @@ class RectangleSelector(_SelectorWidget):
 
     _shape_klass = Rectangle
 
-    def __init__(self, ax, onselect, drawtype='patch',
+    def __init__(self, ax, onselect, drawtype='box',
                  minspanx=None, minspany=None, useblit=False,
                  lineprops=None, rectprops=None, spancoords='data',
                  button=None, maxdist=10, marker_props=None,
@@ -1691,7 +1691,7 @@ class RectangleSelector(_SelectorWidget):
         Use *drawtype* if you want the mouse to draw a line,
         a box or nothing between click and actual position by setting
 
-        ``drawtype = 'line'``, ``drawtype='patch'`` or ``drawtype = 'none'``.
+        ``drawtype = 'line'``, ``drawtype='box'`` or ``drawtype = 'none'``.
 
         *spancoords* is one of 'data' or 'pixels'.  If 'data', *minspanx*
         and *minspanx* will be interpreted in the same coordinates as
@@ -1708,7 +1708,15 @@ class RectangleSelector(_SelectorWidget):
          3 = right mouse button
 
         *interactive* will draw a set of handles and allow you interact
-        with the widget after it is drawn.
+        with the widget after it is drawn.  Holding the 'space' while dragging
+        the mouse will move the object.
+
+        Modifier keys
+        -------------
+        One can use modifier keys to affect the way the shape is drawn.
+        Hold the 'Ctrl' key to center the rectangle on the initial position.
+        Hold the 'Shift' key to force the shape to be square.
+        These can be combined.
         """
         _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
                                  button=button)
@@ -1717,14 +1725,11 @@ class RectangleSelector(_SelectorWidget):
         self.visible = True
         self.interactive = interactive
 
-        if drawtype == 'box':  # backwards compatibility
-            drawtype = 'patch'
-
         if drawtype == 'none':
             drawtype = 'line'                        # draw a line but make it
             self.visible = False                     # invisible
 
-        if drawtype == 'patch':
+        if drawtype == 'box':
             if rectprops is None:
                 rectprops = dict(facecolor='red', edgecolor='black',
                                  alpha=0.2, fill=True)
@@ -1739,7 +1744,7 @@ class RectangleSelector(_SelectorWidget):
                                  linewidth=2, alpha=0.5)
             lineprops['animated'] = useblit
             self.lineprops = lineprops
-            self.to_draw = Line2D([0, 0, 0, 0, 0], [0, 0, 0, 0, 0], visible=False,
+            self.to_draw = Line2D([0, 0], [0, 0], visible=False,
                                   **self.lineprops)
             self.ax.add_line(self.to_draw)
 
@@ -1905,7 +1910,7 @@ class RectangleSelector(_SelectorWidget):
 
     @property
     def _rect_bbox(self):
-        if self.drawtype == 'patch':
+        if self.drawtype == 'box':
             x0 = self.to_draw.get_x()
             y0 = self.to_draw.get_y()
             width = self.to_draw.get_width()
@@ -1972,15 +1977,14 @@ class RectangleSelector(_SelectorWidget):
         xmax = min(xmax, xlim[1])
         ymax = min(ymax, ylim[1])
 
-        if self.drawtype == 'patch':
+        if self.drawtype == 'box':
             self.to_draw.set_x(xmin)
             self.to_draw.set_y(ymin)
             self.to_draw.set_width(xmax - xmin)
             self.to_draw.set_height(ymax - ymin)
 
         elif self.drawtype == 'line':
-            self.to_draw.set_data([xmin,  xmin, xmax, xmax, xmin],
-                                  [ymin, ymax, ymax, ymin, ymin])
+            self.to_draw.set_data([xmin, xmax], [ymin, ymax])
 
     def _set_active_handle(self, event):
         """Set active handle based on the location of the mouse event"""
@@ -2070,7 +2074,7 @@ class EllipseSelector(RectangleSelector):
         a = (xmax - xmin) / 2.
         b = (ymax - ymin) / 2.
 
-        if self.drawtype == 'patch':
+        if self.drawtype == 'box':
             self.to_draw.center = center
             self.to_draw.width = 2 * a
             self.to_draw.height = 2 * b
@@ -2082,7 +2086,7 @@ class EllipseSelector(RectangleSelector):
 
     @property
     def _rect_bbox(self):
-        if self.drawtype == 'patch':
+        if self.drawtype == 'box':
             x, y = self.to_draw.center
             width = self.to_draw.width
             height = self.to_draw.height
