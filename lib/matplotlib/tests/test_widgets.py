@@ -94,9 +94,10 @@ def check_rectangle(**kwargs):
     # purposely drag outside of axis for release
     do_event(tool, 'release', xdata=250, ydata=250, button=1)
 
-    assert_allclose(tool.geometry,
-        [[100., 100, 199, 199, 100], [100, 199, 199, 100, 100]],
-        err_msg=tool.geometry)
+    if kwargs.get('drawtype', None) not in ['line', 'none']:
+        assert_allclose(tool.geometry,
+            [[100., 100, 199, 199, 100], [100, 199, 199, 100, 100]],
+            err_msg=tool.geometry)
 
     assert ax._got_onselect
 
