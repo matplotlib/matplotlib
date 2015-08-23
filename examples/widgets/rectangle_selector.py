@@ -43,7 +43,7 @@ print("\n      click  -->  release")
 
 # drawtype is 'box' or 'line' or 'none'
 toggle_selector.RS = RectangleSelector(current_ax, line_select_callback,
-                                       drawtype='line', useblit=True,
+                                       drawtype='box', useblit=True,
                                        button=[1, 3],  # don't use middle button
                                        minspanx=5, minspany=5,
                                        spancoords='pixels',
