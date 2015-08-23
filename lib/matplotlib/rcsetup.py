@@ -18,6 +18,7 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 
+from functools import reduce
 import operator
 import os
 import warnings
