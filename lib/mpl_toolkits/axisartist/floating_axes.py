@@ -317,7 +317,7 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
 
 
         axisline = AxisArtist(axes, _helper, axis_direction=axis_direction)
-        axisline.line.set_clip_on(True)
+        axisline.line.clipon = True
         axisline.line.clipbox = axisline.axes.bbox
 
 

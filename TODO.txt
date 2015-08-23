@@ -52,8 +52,10 @@
 6.0 : pickable
 6.0 : clipbox
 6.0 : clippath
+6.0 : clipon
+6.0 : url
+6.0 : gid
 
-0.0 : clipon
 0.0 : label
 0.0 : picker
 0.0 : contains

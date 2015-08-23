@@ -574,14 +574,14 @@ class Line2D(Artist):
         return bbox
 
     def _axes_changed(self, name, old, new):
-		Artist._axes_changed(self, name, old, new)
-		if new is not None:
-        	if new.xaxis is not None:
-            	self._xcid = new.xaxis.callbacks.connect('units',
-                                                    	self.recache_always)
-        	if new.yaxis is not None:
-            	self._ycid = new.yaxis.callbacks.connect('units',
-                                                    	self.recache_always)
+    	Artist._axes_changed(self, name, old, new)
+        if new is not None:
+            if new.xaxis is not None:
+                self._xcid = new.xaxis.callbacks.connect('units',
+                                                	   self.recache_always)
+            if new.yaxis is not None:
+                self._ycid = new.yaxis.callbacks.connect('units',
+                                    	               self.recache_always)
 
     #!DEPRECATED
     # @Artist.axes.setter
@@ -653,7 +653,7 @@ class Line2D(Artist):
                 self.axes.name == 'rectilinear' and
                 self.axes.get_xscale() == 'linear' and
                 self._markevery is None and
-                self.get_clip_on() is True):
+                self.clipon is True):
             self._subslice = True
             nanmask = np.isnan(x)
             if nanmask.any():
@@ -741,7 +741,7 @@ class Line2D(Artist):
             from matplotlib.patheffects import PathEffectRenderer
             renderer = PathEffectRenderer(self.get_path_effects(), renderer)
 
-        renderer.open_group('line2d', self.get_gid())
+        renderer.open_group('line2d', self.gid)
         funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
         if funcname != '_draw_nothing':
             tpath, affine = transf_path.get_transformed_path_and_affine()

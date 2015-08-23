@@ -258,7 +258,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def draw(self, renderer):
         if not self.visible:
             return
-        renderer.open_group(self.__class__.__name__, self.get_gid())
+        renderer.open_group(self.__class__.__name__, self.gid)
 
         self.update_scalarmappable()
 
@@ -1848,7 +1848,7 @@ class QuadMesh(Collection):
     def draw(self, renderer):
         if not self.visible:
             return
-        renderer.open_group(self.__class__.__name__, self.get_gid())
+        renderer.open_group(self.__class__.__name__, self.gid)
         transform = self.transform
         transOffset = self.get_offset_transform()
         offsets = self._offsets

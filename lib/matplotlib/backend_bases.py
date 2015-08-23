@@ -2186,7 +2186,7 @@ class FigureCanvasBase(object):
                 bbox_filtered = []
                 for a in bbox_artists:
                     bbox = a.get_window_extent(renderer)
-                    if a.get_clip_on():
+                    if a.clipon:
                         clip_box = a.clipbox
                         if clip_box is not None:
                             bbox = Bbox.intersection(bbox, clip_box)

@@ -231,7 +231,7 @@ def test_polar_coord_annotations():
                 arrowprops=dict(facecolor='black', shrink=0.05),
                 horizontalalignment='left',
                 verticalalignment='baseline',
-                clip_on=True,  # clip to the axes bounding box
+                clipon=True,  # clip to the axes bounding box
                 )
 
     ax.set_xlim(-20, 20)

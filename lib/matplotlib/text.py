@@ -96,8 +96,8 @@ docstring.interpd.update(Text="""
                                pad in points; if a boxstyle is supplied as
                                a string, then pad is instead a fraction
                                of the font size
-    clip_box                   a matplotlib.transform.Bbox instance
-    clip_on                    [True | False]
+    clipbox                   a matplotlib.transform.Bbox instance
+    clipon                    [True | False]
     color                      any matplotlib color
     family                     ['serif' | 'sans-serif' | 'cursive' |
                                 'fantasy' | 'monospace']
@@ -571,8 +571,10 @@ class Text(Artist):
 
     def _update_clip_properties(self):
         clipprops = dict(clipbox=self.clipbox,
+                         #!Note : point to review if set_clip_path
+                         # method is deprecated
                          clip_path=self.clippath,
-                         clip_on=self._clipon)
+                         clipon=self.clipon)
 
         if self._bbox_patch:
             bbox = self._bbox_patch.update(clipprops)
@@ -615,17 +617,22 @@ class Text(Artist):
         super(Text, self).set_clip_path(path, transform)
         self._update_clip_properties()
 
-    def set_clip_on(self, b):
-        """
-        Set whether artist uses clipping.
-
-        When False artists will be visible out side of the axes which
-        can lead to unexpected results.
-
-        ACCEPTS: [True | False]
-        """
-        super(Text, self).set_clip_on(b)
+    def _clipon_changed(self, name, old, new):
+        super(Text, self)._clipon_changed(name, old, new)
         self._update_clip_properties()
+
+    #!DEPRECATED
+    # def set_clip_on(self, b):
+    #     """
+    #     Set whether artist uses clipping.
+
+    #     When False artists will be visible out side of the axes which
+    #     can lead to unexpected results.
+
+    #     ACCEPTS: [True | False]
+    #     """
+    #     super(Text, self).set_clip_on(b)
+    #     self._update_clip_properties()
 
     def get_wrap(self):
         """
@@ -748,7 +755,7 @@ class Text(Artist):
         if self.get_text().strip() == '':
             return
 
-        renderer.open_group('text', self.get_gid())
+        renderer.open_group('text', self.gid)
 
         with _wrap_text(self) as textobj:
             bbox, info, descent = textobj._get_layout(renderer)
@@ -2251,7 +2258,7 @@ class Annotation(Text, _AnnotationBase):
                                   height=h,
                                   )
                     r.transform = mtransforms.IdentityTransform()
-                    r.set_clip_on(False)
+                    r.clipon = False
 
                     self.arrow_patch.set_patchA(r)
 

@@ -423,7 +423,7 @@ class GridHelperCurveLinear(GridHelperBase):
 
         #axisline = AxisArtistFloating(axes, _helper,
         #                              axis_direction=axis_direction)
-        axisline.line.set_clip_on(True)
+        axisline.line.clipon = True
         axisline.line.clipbox = axisline.axes.bbox
         #axisline.major_ticklabels.set_visible(True)
         #axisline.minor_ticklabels.set_visible(False)

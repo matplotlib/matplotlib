@@ -377,8 +377,8 @@ class PathPatchEffect(AbstractPathEffect):
         **kwargs :
             All keyword arguments are passed through to the
             :class:`~matplotlib.patches.PathPatch` constructor. The
-            properties which cannot be overridden are "path", "clip_box"
-            "transform" and "clip_path".
+            properties which cannot be overridden are "path", "clipbox"
+            "transform" and "clippath".
         """
         super(PathPatchEffect, self).__init__(offset=offset)
         self.patch = mpatches.PathPatch([], **kwargs)

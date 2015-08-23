@@ -56,7 +56,7 @@ class Cell(Rectangle):
         # Call base
         Rectangle.__init__(self, xy, width=width, height=height,
                            edgecolor=edgecolor, facecolor=facecolor)
-        self.set_clip_on(False)
+        self.clipon = False
 
         # Create text object
         if loc is None:
@@ -64,7 +64,7 @@ class Cell(Rectangle):
         self._loc = loc
         self._text = Text(x=xy[0], y=xy[1], text=text,
                           fontproperties=fontproperties)
-        self._text.set_clip_on(False)
+        self._text.clipon = False
 
     def _transform_set(self):
         Rectangle._transform_changed(self)
@@ -287,7 +287,7 @@ class Table(Artist):
         self._autoFontsize = True
         self.update(kwargs)
 
-        self.set_clip_on(False)
+        self.clipon = False
 
         self._cachedRenderer = None
 

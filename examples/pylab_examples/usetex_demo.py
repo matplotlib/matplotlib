@@ -45,7 +45,7 @@ plt.text(1.05, 0.5, r"\bf{level set} $\phi$", {'color': 'g', 'fontsize': 20},
            horizontalalignment='left',
            verticalalignment='center',
            rotation=90,
-           clip_on=False)
+           clipon=False)
 plt.text(1.01, -0.02, "-1", {'color': 'k', 'fontsize': 20})
 plt.text(1.01, 0.98, "1", {'color': 'k', 'fontsize': 20})
 plt.text(1.01, 0.48, "0", {'color': 'k', 'fontsize': 20})

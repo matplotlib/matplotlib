@@ -522,7 +522,7 @@ class GridHelperRectlinear(GridHelperBase):
 
         axisline = AxisArtist(axes, _helper)
 
-        axisline.line.set_clip_on(True)
+        axisline.line.clipon = True
         axisline.line.clipbox = axisline.axes.bbox
         return axisline
 

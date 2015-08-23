@@ -203,7 +203,21 @@ class Artist(PrivateMethodMixin, Configurable):
         self.pchanged()
         self.stale = True
 
+    clipon = Bool(True)
+
+    def _clipon_changed(self, name, old, new):
+        self.pchanged()
+        self.stale = True
+
+    # label = Unicode('', allow_none=True)
+
+    # def _label_changed(self, name, old, new):
+    #     self.pchanged()
+    #     self.stale = True
+
     url = Unicode(allow_none=True)
+
+    gid = Unicode(allow_none=True)
 
     def __init__(self):
         # self._stale = True
@@ -219,7 +233,7 @@ class Artist(PrivateMethodMixin, Configurable):
         # self._alpha = None
         # self.clipbox = None
         # self._clippath = None
-        self._clipon = True
+        # self._clipon = True
         self._label = ''
         self._picker = None
         self._contains = None
@@ -236,7 +250,7 @@ class Artist(PrivateMethodMixin, Configurable):
         #     pass
         self._remove_method = None
         # self._url = None
-        self._gid = None
+        # self._gid = None
         self._snap = None
         self._sketch = rcParams['path.sketch']
         self._path_effects = rcParams['path.effects']
@@ -638,19 +652,21 @@ class Artist(PrivateMethodMixin, Configurable):
     #     """
     #     self._url = url
 
-    def get_gid(self):
-        """
-        Returns the group id
-        """
-        return self._gid
+    #!DEPRECATED
+    # def get_gid(self):
+    #     """
+    #     Returns the group id
+    #     """
+    #     return self._gid
 
-    def set_gid(self, gid):
-        """
-        Sets the (group) id for the artist
+    #!DEPRECATED
+    # def set_gid(self, gid):
+    #     """
+    #     Sets the (group) id for the artist
 
-        ACCEPTS: an id string
-        """
-        self._gid = gid
+    #     ACCEPTS: an id string
+    #     """
+    #     self._gid = gid
 
     def get_snap(self):
         """
@@ -840,9 +856,10 @@ class Artist(PrivateMethodMixin, Configurable):
     #     "Return the artist's animated state"
     #     return self._animated
 
-    def get_clip_on(self):
-        'Return whether artist uses clipping'
-        return self._clipon
+    #!DEPRECATED
+    # def get_clip_on(self):
+    #     'Return whether artist uses clipping'
+    #     return self._clipon
 
     #!DEPRECATED
     # def get_clip_box(self):
@@ -864,24 +881,25 @@ class Artist(PrivateMethodMixin, Configurable):
             return self.clippath.get_transformed_path_and_affine()
         return None, None
 
-    def set_clip_on(self, b):
-        """
-        Set whether artist uses clipping.
+    #!DEPRECATED
+    # def set_clip_on(self, b):
+    #     """
+    #     Set whether artist uses clipping.
 
-        When False artists will be visible out side of the axes which
-        can lead to unexpected results.
+    #     When False artists will be visible out side of the axes which
+    #     can lead to unexpected results.
 
-        ACCEPTS: [True | False]
-        """
-        self._clipon = b
-        # This may result in the callbacks being hit twice, but ensures they
-        # are hit at least once
-        self.pchanged()
-        self.stale = True
+    #     ACCEPTS: [True | False]
+    #     """
+    #     self._clipon = b
+    #     # This may result in the callbacks being hit twice, but ensures they
+    #     # are hit at least once
+    #     self.pchanged()
+    #     self.stale = True
 
     def _set_gc_clip(self, gc):
         'Set the clip properly for the gc'
-        if self._clipon:
+        if self.clipon:
             if self.clipbox is not None:
                 gc.set_clip_rectangle(self.clipbox)
             gc.set_clip_path(self.clippath)
@@ -988,12 +1006,14 @@ class Artist(PrivateMethodMixin, Configurable):
             self.pchanged()
             self.stale = True
 
+    #!DEPRECATED
     def get_label(self):
         """
         Get the label used for this artist in the legend.
         """
         return self._label
 
+    #!DEPRECATED
     def set_label(self, s):
         """
         Set the label to *s* for auto legend.
@@ -1031,7 +1051,7 @@ class Artist(PrivateMethodMixin, Configurable):
         self.private('visible', other.private('visible'))
         self.private('alpha',other.alpha)
         self.private('clipbox', other.clipbox)
-        self._clipon = other._clipon
+        self.private('clipon', other.clipon)
         self.private('clippath', other.clippath)
         self._label = other._label
         self._sketch = other._sketch

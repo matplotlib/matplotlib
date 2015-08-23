@@ -48,7 +48,7 @@ get:
         alpha = 1.0
         antialiased = True
         c = b
-        clip_on = True
+        clipon = True
         color = b
         ... long listing skipped ...
 

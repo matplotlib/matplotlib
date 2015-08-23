@@ -1506,9 +1506,11 @@ class AxisArtist(martist.Artist):
         self.label.draw(renderer)
 
 
+    def _label_validate(self, value, trait):
+        self.label.set_text(s)
 
     def set_label(self, s):
-        self.label.set_text(s)
+        
 
 
 

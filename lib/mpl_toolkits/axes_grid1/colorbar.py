@@ -496,12 +496,12 @@ class ColorbarBase(cm.ScalarMappable):
                                           fc=fc, ec=ec, lw=linewidths,
                                           zorder=2.,
                                           transform=self.ax.transAxes,
-                                          clip_on=False)
+                                          clipon=False)
         self.extension_patch2 = PathPatch(path2,
                                           fc=fc, ec=ec, lw=linewidths,
                                           zorder=2.,
                                           transform=self.ax.transAxes,
-                                          clip_on=False)
+                                          clipon=False)
         self.ax.add_artist(self.extension_patch1)
         self.ax.add_artist(self.extension_patch2)
 

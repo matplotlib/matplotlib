@@ -595,7 +595,7 @@ class Axes(_AxesBase):
             'verticalalignment': 'baseline',
             'horizontalalignment': 'left',
             'transform': self.transData,
-            'clip_on': False}
+            'clipon': False}
 
         # At some point if we feel confident that TextWithDash
         # is robust as a drop-in replacement for Text and that
@@ -675,7 +675,7 @@ class Axes(_AxesBase):
         a = mtext.Annotation(*args, **kwargs)
         a.transform = mtransforms.IdentityTransform()
         self._set_artist_props(a)
-        if 'clip_on' in kwargs:
+        if 'clipon' in kwargs:
             a.set_clip_path(self.patch)
         self.texts.append(a)
         a._remove_method = lambda h: self.texts.remove(h)
@@ -2503,7 +2503,7 @@ class Axes(_AxesBase):
             For example, you can pass in wedgeprops = { 'linewidth' : 3 }
             to set the width of the wedge border lines equal to 3.
             For more details, look at the doc/arguments of the wedge object.
-            By default `clip_on=False`.
+            By default `clipon=False`.
 
           *textprops*: [ *None* | dict of key value pairs ]
             Dict of arguments to pass to the text objects.
@@ -2569,13 +2569,13 @@ class Axes(_AxesBase):
         # set default values in wedge_prop
         if wedgeprops is None:
             wedgeprops = {}
-        if 'clip_on' not in wedgeprops:
-            wedgeprops['clip_on'] = False
+        if 'clipon' not in wedgeprops:
+            wedgeprops['clipon'] = False
 
         if textprops is None:
             textprops = {}
-        if 'clip_on' not in textprops:
-            textprops['clip_on'] = False
+        if 'clipon' not in textprops:
+            textprops['clipon'] = False
 
         texts = []
         slices = []

@@ -32,6 +32,7 @@ import matplotlib.font_manager as font_manager
 import matplotlib.cbook as cbook
 from matplotlib.cbook import delete_masked_points
 from matplotlib.patches import CirclePolygon
+from .traitlets import Instance
 import math
 
 
@@ -230,6 +231,8 @@ class QuiverKey(martist.Artist):
     valign = {'N': 'bottom', 'S': 'top', 'E': 'center', 'W': 'center'}
     pivot = {'N': 'mid', 'S': 'mid', 'E': 'tip', 'W': 'tail'}
 
+    label = Instance(mtext.Text, allow_none=True)
+
     def __init__(self, Q, X, Y, U, label, **kw):
         martist.Artist.__init__(self)
         self.Q = Q
@@ -238,7 +241,8 @@ class QuiverKey(martist.Artist):
         self.U = U
         self.coord = kw.pop('coordinates', 'axes')
         self.color = kw.pop('color', None)
-        self.label = label
+        #!DEPRECATED : self.label is no longer valid
+        self.keylabel = label
         self._labelsep_inches = kw.pop('labelsep', 0.1)
         self.labelsep = (self._labelsep_inches * Q.ax.figure.dpi)
 

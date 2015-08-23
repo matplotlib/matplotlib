@@ -14,7 +14,7 @@ if __name__ == "__main__":
     bbox_image = BboxImage(txt.get_window_extent,
                            norm=None,
                            origin=None,
-                           clip_on=False,
+                           clipon=False,
                            **kwargs
                            )
     a = np.arange(256).reshape(1, 256)/256.
