@@ -1708,8 +1708,7 @@ class RectangleSelector(_SelectorWidget):
          3 = right mouse button
 
         *interactive* will draw a set of handles and allow you interact
-        with the widget after it is drawn.  Holding the 'space' while dragging
-        the mouse will move the object.
+        with the widget after it is drawn.
 
         Keyboard modifiers:
         Alt or Space moves the existing shape.
