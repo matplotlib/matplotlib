@@ -1711,12 +1711,11 @@ class RectangleSelector(_SelectorWidget):
         with the widget after it is drawn.  Holding the 'space' while dragging
         the mouse will move the object.
 
-        Modifier keys
-        -------------
-        One can use modifier keys to affect the way the shape is drawn.
-        Hold the 'Ctrl' key to center the rectangle on the initial position.
-        Hold the 'Shift' key to force the shape to be square.
-        These can be combined.
+        Keyboard modifiers:
+        Alt or Space moves the existing shape.
+        Shift makes the shape square.
+        Ctrl makes the initial point the center of the shape.
+        Ctrl and shift can be combined.
         """
         _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
                                  button=button)
