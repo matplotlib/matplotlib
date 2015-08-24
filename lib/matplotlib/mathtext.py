@@ -2791,7 +2791,8 @@ class Parser(object):
             # create new Hlist without kerning
             nucleus = Hlist(new_children, do_kern=False)
         else:
-            last_char.width = last_char._metrics.advance
+            if isinstance(nucleus, Char):
+                last_char.width = last_char._metrics.advance
             nucleus = Hlist([nucleus])
 
         # Handle regular sub/superscripts
