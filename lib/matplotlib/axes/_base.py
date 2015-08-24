@@ -9,7 +9,6 @@ import warnings
 import math
 from operator import itemgetter
 
-from cycler import cycler, Cycler
 import numpy as np
 from numpy import ma
 
@@ -33,6 +32,7 @@ import matplotlib.image as mimage
 from matplotlib.offsetbox import OffsetBox
 from matplotlib.artist import allow_rasterization
 from matplotlib.cbook import iterable
+from matplotlib.rcsetup import cycler
 
 rcParams = matplotlib.rcParams
 
@@ -149,18 +149,20 @@ class _process_plot_var_args(object):
         self.__dict__ = state.copy()
         self.set_prop_cycle()
 
-    def set_prop_cycle(self, prop_cycler=None):
-        if prop_cycler is None:
+    def set_prop_cycle(self, *args, **kwargs):
+        if not (args or kwargs) or (len(args) == 1 and args[0] is None):
             prop_cycler = rcParams['axes.prop_cycle']
             if prop_cycler is None and 'axes.color_cycle' in rcParams:
                 clist = rcParams['axes.color_cycle']
                 prop_cycler = cycler('color', clist)
+        else:
+            prop_cycler = cycler(*args, **kwargs)
+
         self.prop_cycler = itertools.cycle(prop_cycler)
         # This should make a copy
         self._prop_keys = prop_cycler.keys
 
     def __call__(self, *args, **kwargs):
-
         if self.axes.xaxis is not None and self.axes.yaxis is not None:
             xunits = kwargs.pop('xunits', self.axes.xaxis.units)
 
@@ -1055,14 +1057,51 @@ class _AxesBase(martist.Artist):
         """clear the axes"""
         self.cla()
 
-    def set_prop_cycle(self, prop_cycle):
+    def set_prop_cycle(self, *args, **kwargs):
         """
         Set the property cycle for any future plot commands on this Axes.
 
-        *prop_cycle* is a :class:`Cycler` object.
-        Can also be `None` to reset to the cycle defined by the
-        current style.
+        set_prop_cycle(arg)
+        set_prop_cycle(label, itr)
+        set_prop_cycle(label1=itr1[, label2=itr2[, ...]])
+
+        Form 1 simply sets given `Cycler` object.
+
+        Form 2 creates and sets  a `Cycler` from a label and an iterable.
+
+        Form 3 composes and sets  a `Cycler` as an inner product of the
+        pairs of keyword arguments. In other words, all of the
+        iterables are cycled simultaneously, as if through zip().
+
+        Parameters
+        ----------
+        arg : Cycler
+            Set the given Cycler.
+            Can also be `None` to reset to the cycle defined by the
+            current style.
+
+        label : name
+            The property key. Must be a valid `Artist` property.
+            For example, 'color' or 'linestyle'. Aliases are allowed,
+            such as 'c' for 'color' and 'lw' for 'linewidth'.
+
+        itr : iterable
+            Finite-length iterable of the property values. These values
+            are validated and will raise a ValueError if invalid.
+
+        See Also
+        --------
+            :func:`cycler`      Convenience function for creating your
+                                own cyclers.
+
         """
+        if args and kwargs:
+            raise TypeError("Cannot supply both positional and keyword "
+                            "arguments to this method.")
+        if len(args) == 1 and args[0] is None:
+            prop_cycle = None
+        else:
+            prop_cycle = cycler(*args, **kwargs)
         self._get_lines.set_prop_cycle(prop_cycle)
         self._get_patches_for_fill.set_prop_cycle(prop_cycle)
 
@@ -1076,7 +1115,7 @@ class _AxesBase(martist.Artist):
         """
         cbook.warn_deprecated(
                 '1.5', name='set_color_cycle', alternative='set_prop_cycle')
-        self.set_prop_cycle(cycler('color', clist))
+        self.set_prop_cycle('color', clist)
 
     def ishold(self):
         """return the HOLD status of the axes"""
