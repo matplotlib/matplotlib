@@ -2662,6 +2662,19 @@ class Parser(object):
             return nucleus.is_slanted()
         return False
 
+    def _get_fontset_name(self):
+        fs = rcParams['mathtext.fontset']
+        # If a custom fontset is used, check if it is Arev Sans, otherwise use
+        # CM parameters.
+        if fs == 'custom':
+            if (rcParams['mathtext.rm'] == 'sans' and
+                    rcParams['font.sans-serif'][0].lower() == 'Arev Sans'.lower()):
+                fs = 'arevsans'
+            else:
+                fs = 'cm'
+
+        return fs
+
     def subsuper(self, s, loc, toks):
         assert(len(toks)==1)
 
@@ -2759,15 +2772,15 @@ class Parser(object):
             result = Hlist([vlist])
             return [result]
 
-        # We remove kerning for consistency (otherwise it will compute kerning
-        # based on non-shrinked characters and may put them very close together
-        # when superscripted)
+        # We remove kerning on the last character for consistency (otherwise it
+        # will compute kerning based on non-shrinked characters and may put them
+        # too close together when superscripted)
         # We change the width of the last character to match the advance to
         # consider some fonts with weird metrics: e.g. stix's f has a width of
         # 7.75 and a kerning of -4.0 for an advance of 3.72, and we want to put
         # the superscript at the advance
         last_char = nucleus
-        if isinstance(nucleus,Hlist):
+        if isinstance(nucleus, Hlist):
             new_children = nucleus.children
             if len(new_children):
                 # remove last kern
@@ -2781,17 +2794,10 @@ class Parser(object):
             last_char.width = last_char._metrics.advance
             nucleus = Hlist([nucleus])
 
-        fs = rcParams['mathtext.fontset']
-        # If a custom fontset is used, check if it is Arev Sans, otherwise use
-        # CM parameters.
-        if fs == 'custom':
-            if (rcParams['mathtext.rm'] == 'sans' and
-                    rcParams['font.sans-serif'][0].lower() == 'Arev Sans'.lower()):
-                fs = 'arevsans'
-            else:
-                fs = 'cm'
-
         # Handle regular sub/superscripts
+
+        fs = self._get_fontset_name()
+
         lc_height   = last_char.height
         lc_baseline = 0
         if self.is_dropsub(last_char):
