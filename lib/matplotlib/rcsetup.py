@@ -622,13 +622,11 @@ def cycler(*args, **kwargs):
 
     Form 1 simply copies a given `Cycler` object.
 
-    Form 2 composes a `Cycler` as an inner product of the
+    Form 2 creates a `Cycler` from a label and an iterable.
+
+    Form 3 composes a `Cycler` as an inner product of the
     pairs of keyword arguments. In other words, all of the
     iterables are cycled simultaneously, as if through zip().
-
-    Form 3 creates a `Cycler` from a label and an iterable.
-    This is useful for when the label cannot be a keyword argument
-    (e.g., an integer or a name that has a space in it).
 
     Parameters
     ----------
@@ -636,12 +634,13 @@ def cycler(*args, **kwargs):
         Copy constructor for Cycler.
 
     label : name
-        The property key. In the 2-arg form of the function,
-        the label can be any hashable object. In the keyword argument
-        form of the function, it must be a valid python identifier.
+        The property key. Must be a valid `Artist` property.
+        For example, 'color' or 'linestyle'. Aliases are allowed,
+        such as 'c' for 'color' and 'lw' for 'linewidth'.
 
     itr : iterable
-        Finite length iterable of the property values.
+        Finite-length iterable of the property values. These values
+        are validated and will raise a ValueError if invalid.
 
     Returns
     -------
@@ -650,10 +649,10 @@ def cycler(*args, **kwargs):
 
     """
     if args and kwargs:
-        raise TypeError("cyl() can only accept positional OR keyword "
+        raise TypeError("cycler() can only accept positional OR keyword "
                         "arguments -- not both.")
     elif not args and not kwargs:
-        raise TypeError("cyl() must have positional OR keyword arguments")
+        raise TypeError("cycler() must have positional OR keyword arguments")
 
     if len(args) == 1:
         if not isinstance(args[0], Cycler):
