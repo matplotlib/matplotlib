@@ -65,16 +65,19 @@ class ValidateInStrings(object):
                          % (self.key, s, list(six.itervalues(self.valid))))
 
 
-def _listify_validator(scalar_validator):
+def _listify_validator(scalar_validator, allow_stringlist=False):
     def f(s):
         if isinstance(s, six.string_types):
             try:
                 return [scalar_validator(v.strip()) for v in s.split(',')
                         if v.strip()]
             except Exception:
-                # Sometimes, a list of colors might be a single string
-                # of single-letter colornames. So give that a shot.
-                return [scalar_validator(v.strip()) for v in s if v.strip()]
+                if allow_stringlist:
+                    # Sometimes, a list of colors might be a single string
+                    # of single-letter colornames. So give that a shot.
+                    return [scalar_validator(v.strip()) for v in s if v.strip()]
+                else:
+                    raise
         elif type(s) in (list, tuple):
             return [scalar_validator(v) for v in s if v]
         else:
@@ -331,7 +334,7 @@ def deprecate_axes_colorcycle(value):
     return validate_colorlist(value)
 
 
-validate_colorlist = _listify_validator(validate_color)
+validate_colorlist = _listify_validator(validate_color, allow_stringlist=True)
 validate_colorlist.__doc__ = 'return a list of colorspecs'
 
 validate_stringlist = _listify_validator(six.text_type)
@@ -583,6 +586,24 @@ class ValidateInterval(object):
 validate_grid_axis = ValidateInStrings('axes.grid.axis', ['x', 'y', 'both'])
 
 
+def validate_hatch(s):
+    """
+    Validate a hatch pattern.
+    A hatch pattern string can have any sequence of the following
+    characters: ``\\ / | - + * . x o O``.
+
+    """
+    if not isinstance(s, six.text_type):
+        raise ValueError("Hatch pattern must be a string")
+    unique_chars = set(s)
+    unknown = (unique_chars -
+                set(['\\', '/', '|', '-', '+', '*', '.', 'x', 'o', 'O']))
+    if unknown:
+        raise ValueError("Unknown hatch symbol(s): %s" % list(unknown))
+    return s
+validate_hatchlist = _listify_validator(validate_hatch)
+
+
 _prop_validators = {
         'color': validate_colorlist,
         'linewidth': validate_floatlist,
@@ -598,6 +619,7 @@ _prop_validators = {
         'markeredgecolor': validate_colorlist,
         'alpha': validate_floatlist,
         'marker': validate_stringlist,
+        'hatch': validate_hatchlist,
     }
 _prop_aliases = {
         'c': 'color',
@@ -610,6 +632,7 @@ _prop_aliases = {
         'mew': 'markeredgewidth',
         'ms': 'markersize',
     }
+
 
 def cycler(*args, **kwargs):
     """

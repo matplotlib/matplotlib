@@ -25,7 +25,8 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_bool,
                                 validate_nseq_int,
                                 validate_nseq_float,
-                                validate_cycler)
+                                validate_cycler,
+                                validate_hatch)
 
 
 mpl.rc('text', usetex=False)
@@ -334,6 +335,13 @@ def test_validators():
                   ('cycler(c=[1, 2, 3])', ValueError),  # invalid values
                   ("cycler(lw=['a', 'b', 'c'])", ValueError),  # invalid values
                  )
+        },
+        {'validator': validate_hatch,
+         'success': (('--|', '--|'), ('\\oO', '\\oO'),
+                     ('/+*/.x', '/+*/.x'), ('', '')),
+         'fail': (('--_', ValueError),
+                  (8, ValueError),
+                  ('X', ValueError)),
         },
     )
 
