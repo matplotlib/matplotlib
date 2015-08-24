@@ -1,5 +1,4 @@
 from __future__ import print_function
-# from pylab import *
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.cbook as cbook
