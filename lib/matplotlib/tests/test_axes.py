@@ -2038,7 +2038,8 @@ def test_errorbar():
     # Now switch to a more OO interface to exercise more features.
     fig, axs = plt.subplots(nrows=2, ncols=2, sharex=True)
     ax = axs[0, 0]
-    ax.errorbar(x, y, yerr=yerr, fmt='o')
+    # Try a Nx1 shaped error just to check
+    ax.errorbar(x, y, yerr=np.reshape(yerr, (len(y), 1)), fmt='o')
     ax.set_title('Vert. symmetric')
 
     # With 4 subplots, reduce the number of axis ticks to avoid crowding.
@@ -2064,6 +2065,21 @@ def test_errorbar():
 
     fig.suptitle('Variable errorbars')
 
+@cleanup
+def test_errorbar_shape():
+    fig = plt.figure()
+    ax = fig.gca()
+    
+    x = np.arange(0.1, 4, 0.5)
+    y = np.exp(-x)
+    yerr1 = 0.1 + 0.2*np.sqrt(x)
+    yerr = np.vstack((yerr1, 2*yerr1)).T
+    xerr = 0.1 + yerr
+    
+    assert_raises(ValueError, ax.errorbar, x, y, yerr=yerr, fmt='o')
+    assert_raises(ValueError, ax.errorbar, x, y, xerr=xerr, fmt='o')
+    assert_raises(ValueError, ax.errorbar, x, y, yerr=yerr, xerr=xerr, fmt='o')
+    
 
 @image_comparison(baseline_images=['errorbar_limits'])
 def test_errorbar_limits():
