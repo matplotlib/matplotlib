@@ -2073,8 +2073,8 @@ class Parser(object):
       \\subseteq       \\supseteq        \\cong            \\Join
       \\sqsubset       \\sqsupset        \\neq             \\smile
       \\sqsubseteq     \\sqsupseteq      \\doteq           \\frown
-      \\in             \\ni              \\propto
-      \\vdash          \\dashv           \\dots'''.split())
+      \\in             \\ni              \\propto          \\vdash
+      \\dashv          \\dots            \\dotplus         \\doteqdot'''.split())
 
     _arrow_symbols = set('''
       \\leftarrow              \\longleftarrow           \\uparrow
@@ -2464,11 +2464,11 @@ class Parser(object):
             return [Hlist( [self._make_space(0.2),
                             char,
                             self._make_space(0.2)] ,
-                           do_kern = False)]
+                           do_kern = True)]
         elif c in self._punctuation_symbols:
             return [Hlist( [char,
                             self._make_space(0.2)] ,
-                           do_kern = False)]
+                           do_kern = True)]
         return [char]
 
     def unknown_symbol(self, s, loc, toks):
