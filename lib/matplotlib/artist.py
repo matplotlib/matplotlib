@@ -1138,7 +1138,8 @@ class Artist(PrivateMethodMixin, Configurable):
         self.private('clipon', other.clipon)
         self.private('clippath', other.clippath)
         self.private('label', other.label)
-        self.private('sketch_params',other.sketch_params,cross_validate=True)
+        self.private('sketch_params',other.sketch_params)
+        self.force_callbacks('sketch_params', notify_trait=False)
         self.private('path_effects', other.path_effects)
         self.pchanged()
         self.stale = True
@@ -1616,8 +1617,15 @@ def getp(obj, property=None):
         print('\n'.join(ret))
         return
 
-    func = getattr(obj, 'get_' + property)
-    return func()
+    func = getattr(obj, 'get_' + property, None)
+    if func is not None and six.callable(func):
+        return func()
+    else:
+        klass = obj.__class__
+        if isinstance(getattr(klass, property, None),BaseDescriptor):
+            return getattr(obj, property)
+        else:
+            raise AttributeError('Unknown property %s for %s' % (property,str(obj)))
 
 # alias
 get = getp
@@ -1695,11 +1703,16 @@ def setp(obj, *args, **kwargs):
         for s, val in funcvals:
             s = s.lower()
             funcName = "set_%s" % s
-            func = getattr(o, funcName, None)
-            if func is None:
-                raise TypeError('There is no %s property "%s"' %
+            func = getattr(o, 'set_'+s, None)
+            if func is not None and six.callable(func):
+                ret.extend([func(val)])
+            else:
+                klass = o.__class__
+                if isinstance(getattr(klass, s, None),BaseDescriptor):
+                    ret.extend([setattr(o, s, val)])
+                else:
+                    raise TypeError('There is no %s property "%s"' %
                                 (o.__class__.__name__, s))
-            ret.extend([func(val)])
     return [x for x in cbook.flatten(ret)]
 
 

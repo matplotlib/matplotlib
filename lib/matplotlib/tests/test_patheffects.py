@@ -124,7 +124,7 @@ def test_collection():
 
     for text in plt.clabel(cs, colors='white'):
         text.path_effects = [path_effects.withStroke(foreground='k',
-                                                       linewidth=3)])
+                                                       linewidth=3)]
         text.set_bbox({'boxstyle': 'sawtooth', 'facecolor': 'none',
                        'edgecolor': 'blue'})
 

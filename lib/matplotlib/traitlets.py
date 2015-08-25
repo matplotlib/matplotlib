@@ -64,7 +64,7 @@ class PrivateMethodMixin(object):
         inst._trait_values = exdict(inst._trait_values)
         return inst
 
-    def force_callback(self, name, cross_validate=True):
+    def force_callbacks(self, name, cross_validate=True, notify_trait=True):
         if name not in self.traits():
             msg = "'%s' is not a trait of a %s class"
             raise TraitError(msg % (name, self.__class__))
@@ -77,19 +77,19 @@ class PrivateMethodMixin(object):
         except KeyError:
             trait = getattr(self.__class__, name)
             old = trait.default_value
-
-        self._notify_trait(name, old, new)
+        if notify_trait:
+            self._notify_trait(name, old, new)
         if cross_validate:
             trait = self._retrieve_trait(name)
             # note value is updated via cross validation
             new = trait._cross_validate(self, new)
             self.private(name, new)
 
-    def private(self, name, value=Undefined, cross_validate=True):
+    def private(self, name, value=Undefined):
         trait = self._retrieve_trait(name)
 
         if value is not Undefined:
-            trait._cross_validation_lock = (not cross_validate)
+            trait._cross_validation_lock = True
             _notify_trait = self._notify_trait
             self._notify_trait = lambda *a: None
             setattr(self, name, value)
