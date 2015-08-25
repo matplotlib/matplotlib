@@ -1268,7 +1268,7 @@ class _SelectorWidget(AxesWidget):
             self.eventpress = event
             self._prev_event = event
             key = event.key or ''
-            if 'alt' in key or key == ' ':
+            if key == ' ':
                 self.state.add('move')
             self._press(event)
             return True
@@ -1681,7 +1681,7 @@ class RectangleSelector(_SelectorWidget):
         The rectangle is drawn with *rectprops*; default::
 
           rectprops = dict(facecolor='red', edgecolor = 'black',
-                           alpha=0.5, fill=False)
+                           alpha=0.2, fill=True)
 
         The line is drawn with *lineprops*; default::
 
@@ -1731,7 +1731,7 @@ class RectangleSelector(_SelectorWidget):
             if rectprops is None:
                 rectprops = dict(facecolor='red', edgecolor='black',
                                  alpha=0.2, fill=True)
-            rectprops['animated'] = useblit
+            rectprops['animated'] = self.useblit
             self.rectprops = rectprops
             self.to_draw = self._shape_klass((0, 0),
                                      0, 1, visible=False, **self.rectprops)
@@ -1740,7 +1740,7 @@ class RectangleSelector(_SelectorWidget):
             if lineprops is None:
                 lineprops = dict(color='black', linestyle='-',
                                  linewidth=2, alpha=0.5)
-            lineprops['animated'] = useblit
+            lineprops['animated'] = self.useblit
             self.lineprops = lineprops
             self.to_draw = Line2D([0, 0], [0, 0], visible=False,
                                   **self.lineprops)
