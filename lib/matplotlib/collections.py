@@ -340,6 +340,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         Returns True | False, ``dict(ind=itemlist)``, where every
         item in itemlist contains the event.
         """
+        # self._contains should already be callable
         if six.callable(self._contains):
             return self._contains(self, mouseevent)
 

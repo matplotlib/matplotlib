@@ -528,7 +528,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
         if figLabel:
             figManager.set_window_title(figLabel)
-            figManager.canvas.figure.set_label(figLabel)
+            figManager.canvas.figure.label = figLabel
 
         # make this figure current on button press event
         def make_active(event):
@@ -593,7 +593,7 @@ def get_figlabels():
     "Return a list of existing figure labels."
     figManagers = _pylab_helpers.Gcf.get_all_fig_managers()
     figManagers.sort(key=lambda m: m.num)
-    return [m.canvas.figure.get_label() for m in figManagers]
+    return [m.canvas.figure.label for m in figManagers]
 
 
 def get_current_fig_manager():

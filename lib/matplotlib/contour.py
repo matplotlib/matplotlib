@@ -968,7 +968,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     alpha=self.alpha,
                     transform=self.get_transform(),
                     zorder=zorder)
-                col.set_label('_nolegend_')
+                col.label = '_nolegend_'
                 self.ax.add_collection(col, autolim=False)
                 self.collections.append(col)
         self.changed()  # set the colors

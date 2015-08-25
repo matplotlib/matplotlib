@@ -497,7 +497,8 @@ class Figure(FigureBase, Artist):
 
         Returns True,{}
         """
-        if six.callable(self._contains):
+        # self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
         # inside = mouseevent.x >= 0 and mouseevent.y >= 0
         inside = self.bbox.contains(mouseevent.x, mouseevent.y)
@@ -1549,8 +1550,8 @@ class Figure(FigureBase, Artist):
             # XXX The following is a copy and paste from pyplot. Consider
             # factoring to pylab_helpers
 
-            if self.get_label():
-                mgr.set_window_title(self.get_label())
+            if self.label:
+                mgr.set_window_title(self.label)
 
             # make this figure current on button press event
             def make_active(event):

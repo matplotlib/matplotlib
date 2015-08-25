@@ -9,18 +9,16 @@ import types
 
 
 def setter_handle(pattern, line, name):
-	pre = pattern.sub(r'\1', line)
-	post = pattern.sub(r'\2', line)
+	pre, post = pattern.match(line).groups()
 	return pre+'.'+name+' = '+post[1:-1]+'\n'
 
 def underscore_handle(pattern, line, name):
-	pre = pattern.sub(r'\1', line)
-	post = pattern.sub(r'\2', line)
+	pre, post = pattern.match(line).groups()
 	if post.startswith(' = '):
 		post = ','+post[3:-1]+')'
 	else:
-		post = ')'+post
-	return pre[:-1]+".private('"+name+"'"+post
+		post = ') '+post
+	return pre+".private('"+name+"'"+post
 
 
 class MplReplacementLibrary(object):
@@ -30,7 +28,7 @@ class MplReplacementLibrary(object):
 
 	def setter(self, tool):
 		name = self.working_name
-		pattern = r'(.*)\.set_'+name+r'[^\(]*(\(.*\))[^\)]*'
+		pattern = r'(.*)\.set_'+name+r'[\(]*(\(.*\))[^\)]*'
 
 		def handle(p, l):
 			return tool.handle_wrapper(setter_handle,p,l,name)
@@ -51,7 +49,7 @@ class MplReplacementLibrary(object):
 
 	def underscore(self, tool):
 		name = self.working_name
-		pattern = r'(.*)\._'+name+r'(.*)'
+		pattern = r'(.*)\._'+name+r'([^a-zA-Z0-9_](?:.*))'
 
 		def handle(p, l):
 			return tool.handle_wrapper(underscore_handle,p,l,name)

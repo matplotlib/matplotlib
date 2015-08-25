@@ -889,7 +889,7 @@ if __name__ == "__main__":
     ax.axis["bottom"].major_ticks.set_tick_out(True) #set_tick_direction("out")
     #ax.axis["bottom"].set_tick_direction("in")
 
-    ax.axis["bottom"].set_label("Tk0")
+    ax.axis["bottom"].label = "Tk0"
 
     plt.draw()
     plt.show()

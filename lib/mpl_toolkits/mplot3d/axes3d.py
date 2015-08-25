@@ -1214,7 +1214,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        label = self.zaxis.get_label()
+        label = self.zaxis.label
         return label.get_text()
 
     #### Axes rectangle characteristics

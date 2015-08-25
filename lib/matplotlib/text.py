@@ -257,7 +257,8 @@ class Text(Artist):
 
         Returns True or False.
         """
-        if six.callable(self._contains):
+        # self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
 
         if not self.visible or self._renderer is None:

@@ -148,11 +148,13 @@ class Patch(artist.Artist):
 
         Returns T/F, {}
         """
-        if six.callable(self._contains):
+
+        # self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
         if radius is None:
-            if cbook.is_numlike(self._picker):
-                radius = self._picker
+            if cbook.is_numlike(self.picker):
+                radius = self.picker
             else:
                 radius = self.get_linewidth()
         inside = self.get_path().contains_point(
@@ -165,8 +167,8 @@ class Patch(artist.Artist):
         (transformed with its transform attribute).
         """
         if radius is None:
-            if cbook.is_numlike(self._picker):
-                radius = self._picker
+            if cbook.is_numlike(self.picker):
+                radius = self.picker
             else:
                 radius = self.get_linewidth()
         return self.get_path().contains_point(point,

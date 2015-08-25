@@ -620,7 +620,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 for axes in allaxes:
                     title = axes.get_title()
                     ylabel = axes.get_ylabel()
-                    label = axes.get_label()
+                    label = axes.label
                     if title:
                         fmt = "%(title)s"
                         if ylabel:

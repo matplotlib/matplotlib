@@ -940,7 +940,7 @@ class DialogLineprops(object):
 
         # add the new
         for line in self.lines:
-            cbox.append_text(line.get_label())
+            cbox.append_text(line.label)
         cbox.set_active(0)
 
         self._updateson = True

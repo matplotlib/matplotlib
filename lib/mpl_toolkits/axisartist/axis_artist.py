@@ -429,6 +429,7 @@ class LabelBase(mtext.Text):
         offset_tr.clear()
 
 
+
         # restore original properties
         self.set_transform(tr)
         self.set_rotation(angle_orig)
@@ -545,13 +546,13 @@ class AxisLabel(LabelBase, AttributeCopier):
 
 
     def get_ref_artist(self):
-        return self._axis.get_label()
+        return self._axis.label
 
 
     def get_text(self):
         t = super(AxisLabel, self).get_text()
         if t == "__from_axes__":
-            return self._axis.get_label().get_text()
+            return self._axis.label.get_text()
         return self._text
 
     _default_alignments = dict(left=("bottom", "center"),
@@ -1507,11 +1508,15 @@ class AxisArtist(martist.Artist):
 
 
     def _label_validate(self, value, trait):
-        self.label.set_text(s)
+        self.label.set_text(value)
+        old = getattr(self, trait.name)
+        return old
 
-    def set_label(self, s):
-        
+    def _label_changed(self): pass
 
+    #!DEPRECATED
+    # def set_label(self, s):
+    #     self.label.set_text(s)
 
 
     def get_tightbbox(self, renderer):
@@ -1646,7 +1651,7 @@ def test_axis_artist():
 
     _helper = AxisArtistHelperRectlinear.Fixed(ax, loc="bottom")
     axisline = AxisArtist(ax, _helper, offset=None, axis_direction="bottom")
-    axisline.set_label("TTT")
+    axisline.label = "TTT"
     #axisline.label.set_visible(False)
     ax.add_artist(axisline)
 
@@ -1674,7 +1679,7 @@ def test_axis_artist2():
 
     _helper = AxisArtistHelperRectlinear.Fixed(ax, loc="bottom")
     axisline = AxisArtist(ax, _helper, offset=None, axis_direction="bottom")
-    axisline.set_label("TTT")
+    axisline.label = "TTT"
     ax.add_artist(axisline)
 
     #axisline.major_ticklabels.set_axis_direction("bottom")

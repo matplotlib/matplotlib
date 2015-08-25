@@ -235,8 +235,8 @@ class Line2D(Artist):
     validJoin = ('miter', 'round', 'bevel')
 
     def __str__(self):
-        if self._label != "":
-            return "Line2D(%s)" % (self._label)
+        if self.label != "":
+            return "Line2D(%s)" % (self.label)
         elif self._x is None:
             return "Line2D()"
         elif len(self._x) > 3:
@@ -405,7 +405,8 @@ class Line2D(Artist):
 
         TODO: sort returned indices by distance
         """
-        if six.callable(self._contains):
+        # self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
 
         if not is_numlike(self.pickradius):
@@ -453,8 +454,8 @@ class Line2D(Artist):
         ind += self.ind_offset
 
         # Debugging message
-        if False and self._label != '':
-            print("Checking line", self._label,
+        if False and self.label != '':
+            print("Checking line", self.label,
                   "at", mouseevent.x, mouseevent.y)
             print('xt', xt)
             print('yt', yt)

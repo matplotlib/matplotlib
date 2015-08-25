@@ -507,7 +507,7 @@ class _AxesBase(martist.Artist):
                 # warnings.warn(
                 #    'shared axes: "adjustable" is being changed to "datalim"')
             self._adjustable = 'datalim'
-        self.set_label(label)
+        self.label = label
 
         if self.figure == fig:
             self.force_callback('figure')
@@ -1701,9 +1701,9 @@ class _AxesBase(martist.Artist):
 
         Returns the collection.
         """
-        label = collection.get_label()
+        label = collection.label
         if not label:
-            collection.set_label('_collection%d' % len(self.collections))
+            collection.label = '_collection%d' % len(self.collections)
         self.collections.append(collection)
         self._set_artist_props(collection)
 
@@ -1739,8 +1739,8 @@ class _AxesBase(martist.Artist):
             line.set_clip_path(self.patch)
 
         self._update_line_limits(line)
-        if not line.get_label():
-            line.set_label('_line%d' % len(self.lines))
+        if not line.label:
+            line.label = '_line%d' % len(self.lines)
         self.lines.append(line)
         line._remove_method = lambda h: self.lines.remove(h)
         return line
@@ -3681,7 +3681,8 @@ class _AxesBase(martist.Artist):
 
         Returns *True* / *False*, {}
         """
-        if six.callable(self._contains):
+        # self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
 
         return self.patch.contains(mouseevent)

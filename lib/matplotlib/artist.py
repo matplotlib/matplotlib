@@ -17,7 +17,7 @@ from .path import Path
 
 from .traitlets import (Instance, Configurable, gTransformInstance, Bool, Undefined, Union,
                         BaseDescriptor, getargspec, PrivateMethodMixin, Float, TraitError,
-                        Unicode)
+                        Unicode, Stringlike, Callable)
 
 from urlparse import urlparse
 
@@ -209,11 +209,13 @@ class Artist(PrivateMethodMixin, Configurable):
         self.pchanged()
         self.stale = True
 
-    # label = Unicode('', allow_none=True)
+    label = Stringlike('', allow_none=True)
 
-    # def _label_changed(self, name, old, new):
-    #     self.pchanged()
-    #     self.stale = True
+    def _label_changed(self, name, old, new):
+        self.pchanged()
+
+
+    _contains = Callable(None, allow_none=True)
 
     url = Unicode(allow_none=True)
 
@@ -234,9 +236,9 @@ class Artist(PrivateMethodMixin, Configurable):
         # self.clipbox = None
         # self._clippath = None
         # self._clipon = True
-        self._label = ''
+        # self._label = ''
         self._picker = None
-        self._contains = None
+        # self._contains = None
         # self._rasterized = None
         self._agg_filter = None
         self._mouseover = False
@@ -525,32 +527,35 @@ class Artist(PrivateMethodMixin, Configurable):
         selection, such as which points are contained in the pick radius.  See
         individual artists for details.
         """
-        if six.callable(self._contains):
+        #self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
         warnings.warn("'%s' needs 'contains' method" % self.__class__.__name__)
         return False, {}
 
-    def set_contains(self, picker):
-        """
-        Replace the contains test used by this artist. The new picker
-        should be a callable function which determines whether the
-        artist is hit by the mouse event::
+    #!DEPRECATED
+    # def set_contains(self, picker):
+    #     """
+    #     Replace the contains test used by this artist. The new picker
+    #     should be a callable function which determines whether the
+    #     artist is hit by the mouse event::
 
-            hit, props = picker(artist, mouseevent)
+    #         hit, props = picker(artist, mouseevent)
 
-        If the mouse event is over the artist, return *hit* = *True*
-        and *props* is a dictionary of properties you want returned
-        with the contains test.
+    #     If the mouse event is over the artist, return *hit* = *True*
+    #     and *props* is a dictionary of properties you want returned
+    #     with the contains test.
 
-        ACCEPTS: a callable function
-        """
-        self._contains = picker
+    #     ACCEPTS: a callable function
+    #     """
+    #     self._contains = picker
 
-    def get_contains(self):
-        """
-        Return the _contains test used by the artist, or *None* for default.
-        """
-        return self._contains
+    #!DEPRECATED
+    # def get_contains(self):
+    #     """
+    #     Return the _contains test used by the artist, or *None* for default.
+    #     """
+    #     return self._contains
 
     # def pickable(self):
     #     'Return *True* if :class:`Artist` is pickable.'
@@ -1007,25 +1012,25 @@ class Artist(PrivateMethodMixin, Configurable):
             self.stale = True
 
     #!DEPRECATED
-    def get_label(self):
-        """
-        Get the label used for this artist in the legend.
-        """
-        return self._label
+    # def get_label(self):
+    #     """
+    #     Get the label used for this artist in the legend.
+    #     """
+    #     return self._label
 
     #!DEPRECATED
-    def set_label(self, s):
-        """
-        Set the label to *s* for auto legend.
+    # def set_label(self, s):
+    #     """
+    #     Set the label to *s* for auto legend.
 
-        ACCEPTS: string or anything printable with '%s' conversion.
-        """
-        if s is not None:
-            self._label = '%s' % (s, )
-        else:
-            self._label = None
-        self.pchanged()
-        self.stale = True
+    #     ACCEPTS: string or anything printable with '%s' conversion.
+    #     """
+    #     if s is not None:
+    #         self._label = '%s' % (s, )
+    #     else:
+    #         self._label = None
+    #     self.pchanged()
+    #     self.stale = True
 
     def get_zorder(self):
         """
@@ -1053,7 +1058,7 @@ class Artist(PrivateMethodMixin, Configurable):
         self.private('clipbox', other.clipbox)
         self.private('clipon', other.clipon)
         self.private('clippath', other.clippath)
-        self._label = other._label
+        self.private('label', other.label)
         self._sketch = other._sketch
         self._path_effects = other._path_effects
         self.pchanged()

@@ -20,6 +20,7 @@ except ImportError:
 import re
 import types
 import numpy as np
+from matplotlib.externals import six
 from .transforms import IdentityTransform, Transform
 import contextlib
 
@@ -117,6 +118,7 @@ class OnGetMixin(object):
     def __init__(self, *args, **kwargs):
         super_obj = super(OnGetMixin,self)
         self.__base_get__ = super_obj.__get__
+        self.__base_set__ = super_obj.__set__
         super_obj.__init__(*args, **kwargs)
 
     def __get__(self, obj, cls=None):
@@ -144,6 +146,35 @@ class OnGetMixin(object):
             value = meth(*args)
         
         return value
+
+    def __set__(self, obj, value):
+        if self.read_only:
+            raise TraitError('The "%s" trait is read-only.' % self.name)
+        elif hasattr(obj, '_'+self.name+'_setter'):
+            meth = getattr(obj, '_'+self.name+'_setter')
+            if not callable(meth):
+                raise TraitError(("""a trait setter method
+                                   must be callable"""))
+            argspec = len(getargspec(meth)[0])
+            if isinstance(meth, types.MethodType):
+                argspec -= 1
+            if argspec==0:
+                args = ()
+            elif argspec==1:
+                args = (value,)
+            elif argspec==2:
+                args = (obj._trait_values[self.name], value)
+            elif argspec==3:
+                args = (obj._trait_values[self.name], value, self)
+            else:
+                raise TraitError(("""a trait setter method must
+                                   have 2 or fewer arguments"""))
+            value = meth(*args)
+
+            if value is not obj._trait_values[self.name]:
+                self.set(obj, value)
+        else:
+            self.set(obj, value)
 
 
 class TransformInstance(TraitType):
@@ -233,10 +264,22 @@ class Callable(TraitType):
     info_text = 'a callable'
 
     def validate(self, obj, value):
-        if callable(value):
+        if six.callable(value):
             return value
         else:
             self.error(obj, value)
+
+class Stringlike(Unicode):
+
+    info_text = 'string or unicode interpretable'
+
+    def validate(self, obj, value):
+        if not isinstance(value, (str,unicode)):
+            if hasattr(value,'__unicode__'):
+                value = unicode(value)
+            elif hasattr(value, '__str__'):
+                value = str(value)
+        return super(Stringlike,self).validate(obj,value)
 
 class Color(TraitType):
     """A trait representing a color, can be either in RGB, or RGBA format.

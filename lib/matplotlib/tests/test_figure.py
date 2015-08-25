@@ -55,7 +55,7 @@ def test_figure():
     # named figure support
     fig = plt.figure('today')
     ax = fig.add_subplot(111)
-    ax.set_title(fig.get_label())
+    ax.set_title(fig.label)
     ax.plot(list(xrange(5)))
     # plot red line in a different figure.
     plt.figure('tomorrow')

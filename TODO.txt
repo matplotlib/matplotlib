@@ -55,10 +55,9 @@
 6.0 : clipon
 6.0 : url
 6.0 : gid
-
-0.0 : label
+6.0 : label
+6.0 : contains
 0.0 : picker
-0.0 : contains
 0.0 : agg_filter
 ...
 ...
