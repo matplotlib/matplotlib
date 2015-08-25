@@ -367,8 +367,8 @@ class Line2D(Artist):
         self.update(kwargs)
         self.pickradius = pickradius
         self.ind_offset = 0
-        if is_numlike(self._picker):
-            self.pickradius = self._picker
+        if is_numlike(self.picker):
+            self.pickradius = self.picker
 
         self._xorig = np.asarray([])
         self._yorig = np.asarray([])
@@ -551,17 +551,24 @@ class Line2D(Artist):
         """return the markevery setting"""
         return self._markevery
 
-    def set_picker(self, p):
-        """Sets the event picker details for the line.
-
-        ACCEPTS: float distance in points or callable pick function
-        ``fn(artist, event)``
-        """
-        if six.callable(p):
-            self._contains = p
+    def _picker_changed(self, name, new):
+        if six.callable(new):
+            self._contains = new
         else:
-            self.pickradius = p
-        self._picker = p
+            self.pickradius = new
+
+    #!DEPRECATED
+    # def set_picker(self, p):
+    #     """Sets the event picker details for the line.
+
+    #     ACCEPTS: float distance in points or callable pick function
+    #     ``fn(artist, event)``
+    #     """
+    #     if six.callable(p):
+    #         self._contains = p
+    #     else:
+    #         self.pickradius = p
+    #     self._picker = p
 
     def get_window_extent(self, renderer):
         bbox = Bbox([[0, 0], [0, 0]])
@@ -738,9 +745,9 @@ class Line2D(Artist):
 
         transf_path = self._get_transformed_path()
 
-        if self.get_path_effects():
+        if self.path_effects:
             from matplotlib.patheffects import PathEffectRenderer
-            renderer = PathEffectRenderer(self.get_path_effects(), renderer)
+            renderer = PathEffectRenderer(self.path_effects, renderer)
 
         renderer.open_group('line2d', self.gid)
         funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
@@ -768,9 +775,9 @@ class Line2D(Artist):
                     join = self._solidjoinstyle
                 gc.set_joinstyle(join)
                 gc.set_capstyle(cap)
-                gc.set_snap(self.get_snap())
-                if self.get_sketch_params() is not None:
-                    gc.set_sketch_params(*self.get_sketch_params())
+                gc.set_snap(self.snap)
+                if self.sketch_params is not None:
+                    gc.set_sketch_params(*self.sketch_params)
 
                 drawFunc(renderer, gc, tpath, affine.frozen())
                 gc.restore()
@@ -1468,7 +1475,7 @@ class VertexSelector(object):
         if line.axes is None:
             raise RuntimeError('You must first add the line to the Axes')
 
-        if line.get_picker() is None:
+        if line.picker is None:
             raise RuntimeError('You must first set the picker property '
                                'of the line')
 

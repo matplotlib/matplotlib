@@ -17,7 +17,7 @@ from .path import Path
 
 from .traitlets import (Instance, Configurable, gTransformInstance, Bool, Undefined, Union,
                         BaseDescriptor, getargspec, PrivateMethodMixin, Float, TraitError,
-                        Unicode, Stringlike, Callable)
+                        Unicode, Stringlike, Callable, Tuple, List)
 
 from urlparse import urlparse
 
@@ -49,13 +49,13 @@ def allow_rasterization(draw):
         if artist.rasterized:
             renderer.start_rasterizing()
 
-        if artist.get_agg_filter() is not None:
+        if artist.agg_filter is not None:
             renderer.start_filter()
 
     def after(artist, renderer):
 
-        if artist.get_agg_filter() is not None:
-            renderer.stop_filter(artist.get_agg_filter())
+        if artist.agg_filter is not None:
+            renderer.stop_filter(artist.agg_filter)
 
         if artist.rasterized:
             renderer.stop_rasterizing()
@@ -178,7 +178,7 @@ class Artist(PrivateMethodMixin, Configurable):
     def _pickable_getter(self):
         return (self.figure is not None and
                 self.figure.canvas is not None and
-                self._picker is not None)
+                self.picker is not None)
 
     eventson = Bool(False)
 
@@ -214,8 +214,84 @@ class Artist(PrivateMethodMixin, Configurable):
     def _label_changed(self, name, old, new):
         self.pchanged()
 
+    picker = Union((Bool(),Float(),Callable()), allow_none=True)
+
+    def _picker_default(self): pass
 
     _contains = Callable(None, allow_none=True)
+
+    mouseover = Bool(False)
+
+    def _mouseover_validate(self, value, trait):
+        ax = self.axes
+        if ax:
+            if value:
+                ax.mouseover_set.add(self)
+            else:
+                ax.mouseover_set.discard(self)
+        return value
+
+    agg_filter = Callable(None, allow_none=True)
+
+    def _agg_filter_changed(self):
+        self.stale = True
+
+    snap = Bool(None, allow_none=True)
+
+    def _snap_getter(self, value, trait):
+        if rcParams['path.snap']:
+            return value
+        else:
+            return False
+
+    def _snap_changed(self):
+        self.stale = True
+
+    sketch_scale = Float(None, allow_none=True)
+
+    def _sketch_scale_changed(self, name, new):
+        self.sketch_params = (new, self.sketch_length, self.sketch_randomness)
+
+    sketch_length = Float(None, allow_none=True)
+
+    def _sketch_length_changed(self, name, new):
+        self.sketch_params = (self.sketch_scale, new, self.sketch_randomness)
+
+    sketch_randomness = Float(None, allow_none=True)
+
+    def _sketch_randomness_changed(self, name, new):
+        self.sketch_params = (self.sketch_scale, self.sketch_length, new)
+
+    sketch_params = Tuple(allow_none=True)
+
+    def _sketch_params_default(self):
+        return rcParams['path.sketch']
+
+    def _sketch_validate(self, value, trait):
+        names = ('sketch_scale',
+                 'sketch_length',
+                 'sketch_randomness')
+
+        if value is None or value[0] is None:
+            for n in names:
+                self.private(n, None)
+            return None
+
+        params = (value[0], value[1] or 128.0, value[2] or 16.0)
+        for n,v in zip(names, params):
+            self.private(n, v)
+
+    def _sketch_params_changed(self, name, new):
+        self.stale = True
+
+    path_effects = List(Instance('matplotlib.patheffects.AbstractPathEffect'),
+                        allow_none=True)
+
+    def _path_effects_default(self):
+        return rcParams['path.effects']
+
+    def _path_effects_changed(self):
+        self.stale = True
 
     url = Unicode(allow_none=True)
 
@@ -237,11 +313,11 @@ class Artist(PrivateMethodMixin, Configurable):
         # self._clippath = None
         # self._clipon = True
         # self._label = ''
-        self._picker = None
+        # self._picker = None
         # self._contains = None
         # self._rasterized = None
-        self._agg_filter = None
-        self._mouseover = False
+        # self._agg_filter = None
+        # self._mouseover = False
         # self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
         self._propobservers = {}  # a dict from oids to funcs
@@ -253,9 +329,9 @@ class Artist(PrivateMethodMixin, Configurable):
         self._remove_method = None
         # self._url = None
         # self._gid = None
-        self._snap = None
-        self._sketch = rcParams['path.sketch']
-        self._path_effects = rcParams['path.effects']
+        # self._snap = None
+        # self._sketch = rcParams['path.sketch']
+        # self._path_effects = rcParams['path.effects']
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -574,7 +650,7 @@ class Artist(PrivateMethodMixin, Configurable):
         """
         # Pick self
         if self.pickable:
-            picker = self.get_picker()
+            picker = self.picker
             if six.callable(picker):
                 inside, prop = picker(self, mouseevent)
             else:
@@ -596,43 +672,45 @@ class Artist(PrivateMethodMixin, Configurable):
                 # which do no have an axes property but children might
                 a.pick(mouseevent)
 
-    def set_picker(self, picker):
-        """
-        Set the epsilon for picking used by this artist
+    #!DEPRECATED
+    # def set_picker(self, picker):
+    #     """
+    #     Set the epsilon for picking used by this artist
 
-        *picker* can be one of the following:
+    #     *picker* can be one of the following:
 
-          * *None*: picking is disabled for this artist (default)
+    #       * *None*: picking is disabled for this artist (default)
 
-          * A boolean: if *True* then picking will be enabled and the
-            artist will fire a pick event if the mouse event is over
-            the artist
+    #       * A boolean: if *True* then picking will be enabled and the
+    #         artist will fire a pick event if the mouse event is over
+    #         the artist
 
-          * A float: if picker is a number it is interpreted as an
-            epsilon tolerance in points and the artist will fire
-            off an event if it's data is within epsilon of the mouse
-            event.  For some artists like lines and patch collections,
-            the artist may provide additional data to the pick event
-            that is generated, e.g., the indices of the data within
-            epsilon of the pick event
+    #       * A float: if picker is a number it is interpreted as an
+    #         epsilon tolerance in points and the artist will fire
+    #         off an event if it's data is within epsilon of the mouse
+    #         event.  For some artists like lines and patch collections,
+    #         the artist may provide additional data to the pick event
+    #         that is generated, e.g., the indices of the data within
+    #         epsilon of the pick event
 
-          * A function: if picker is callable, it is a user supplied
-            function which determines whether the artist is hit by the
-            mouse event::
+    #       * A function: if picker is callable, it is a user supplied
+    #         function which determines whether the artist is hit by the
+    #         mouse event::
 
-              hit, props = picker(artist, mouseevent)
+    #           hit, props = picker(artist, mouseevent)
 
-            to determine the hit test.  if the mouse event is over the
-            artist, return *hit=True* and props is a dictionary of
-            properties you want added to the PickEvent attributes.
+    #         to determine the hit test.  if the mouse event is over the
+    #         artist, return *hit=True* and props is a dictionary of
+    #         properties you want added to the PickEvent attributes.
 
-        ACCEPTS: [None|float|boolean|callable]
-        """
-        self._picker = picker
+    #     ACCEPTS: [None|float|boolean|callable]
+    #     """
+    #     self._picker = picker
 
-    def get_picker(self):
-        'Return the picker object used by this artist'
-        return self._picker
+    #!DEPRECATED
+    # def get_picker(self):
+    #     'Return the picker object used by this artist'
+    #     return self._picker
 
     def is_figure_set(self):
         """
@@ -673,98 +751,104 @@ class Artist(PrivateMethodMixin, Configurable):
     #     """
     #     self._gid = gid
 
-    def get_snap(self):
-        """
-        Returns the snap setting which may be:
+    #!DEPRECATED
+    # def get_snap(self):
+    #     """
+    #     Returns the snap setting which may be:
 
-          * True: snap vertices to the nearest pixel center
+    #       * True: snap vertices to the nearest pixel center
 
-          * False: leave vertices as-is
+    #       * False: leave vertices as-is
 
-          * None: (auto) If the path contains only rectilinear line
-            segments, round to the nearest pixel center
+    #       * None: (auto) If the path contains only rectilinear line
+    #         segments, round to the nearest pixel center
 
-        Only supported by the Agg and MacOSX backends.
-        """
-        if rcParams['path.snap']:
-            return self._snap
-        else:
-            return False
+    #     Only supported by the Agg and MacOSX backends.
+    #     """
+    #     if rcParams['path.snap']:
+    #         return self._snap
+    #     else:
+    #         return False
 
-    def set_snap(self, snap):
-        """
-        Sets the snap setting which may be:
+    #!DEPRECATED
+    # def set_snap(self, snap):
+    #     """
+    #     Sets the snap setting which may be:
 
-          * True: snap vertices to the nearest pixel center
+    #       * True: snap vertices to the nearest pixel center
 
-          * False: leave vertices as-is
+    #       * False: leave vertices as-is
 
-          * None: (auto) If the path contains only rectilinear line
-            segments, round to the nearest pixel center
+    #       * None: (auto) If the path contains only rectilinear line
+    #         segments, round to the nearest pixel center
 
-        Only supported by the Agg and MacOSX backends.
-        """
-        self._snap = snap
-        self.stale = True
+    #     Only supported by the Agg and MacOSX backends.
+    #     """
+    #     self._snap = snap
+    #     self.stale = True
 
-    def get_sketch_params(self):
-        """
-        Returns the sketch parameters for the artist.
+    #!DEPRECATED
+    # def get_sketch_params(self):
+    #     """
+    #     Returns the sketch parameters for the artist.
 
-        Returns
-        -------
-        sketch_params : tuple or `None`
+    #     Returns
+    #     -------
+    #     sketch_params : tuple or `None`
 
-        A 3-tuple with the following elements:
+    #     A 3-tuple with the following elements:
 
-          * `scale`: The amplitude of the wiggle perpendicular to the
-            source line.
+    #       * `scale`: The amplitude of the wiggle perpendicular to the
+    #         source line.
 
-          * `length`: The length of the wiggle along the line.
+    #       * `length`: The length of the wiggle along the line.
 
-          * `randomness`: The scale factor by which the length is
-            shrunken or expanded.
+    #       * `randomness`: The scale factor by which the length is
+    #         shrunken or expanded.
 
-        May return `None` if no sketch parameters were set.
-        """
-        return self._sketch
+    #     May return `None` if no sketch parameters were set.
+    #     """
+    #     return self._sketch
 
-    def set_sketch_params(self, scale=None, length=None, randomness=None):
-        """
-        Sets the sketch parameters.
+    #!DEPRECATED
+    # def set_sketch_params(self, scale=None, length=None, randomness=None):
+    #     """
+    #     Sets the sketch parameters.
 
-        Parameters
-        ----------
+    #     Parameters
+    #     ----------
 
-        scale : float, optional
-            The amplitude of the wiggle perpendicular to the source
-            line, in pixels.  If scale is `None`, or not provided, no
-            sketch filter will be provided.
+    #     scale : float, optional
+    #         The amplitude of the wiggle perpendicular to the source
+    #         line, in pixels.  If scale is `None`, or not provided, no
+    #         sketch filter will be provided.
 
-        length : float, optional
-             The length of the wiggle along the line, in pixels
-             (default 128.0)
+    #     length : float, optional
+    #          The length of the wiggle along the line, in pixels
+    #          (default 128.0)
 
-        randomness : float, optional
-            The scale factor by which the length is shrunken or
-            expanded (default 16.0)
-        """
-        if scale is None:
-            self._sketch = None
-        else:
-            self._sketch = (scale, length or 128.0, randomness or 16.0)
-        self.stale = True
+    #     randomness : float, optional
+    #         The scale factor by which the length is shrunken or
+    #         expanded (default 16.0)
+    #     """
+    #     if scale is None:
+    #         self._sketch = None
+    #     else:
+    #         self._sketch = (scale, length or 128.0, randomness or 16.0)
+    #     self.stale = True
 
-    def set_path_effects(self, path_effects):
-        """
-        set path_effects, which should be a list of instances of
-        matplotlib.patheffect._Base class or its derivatives.
-        """
-        self._path_effects = path_effects
-        self.stale = True
+    #!DEPRECATED
+    # def set_path_effects(self, path_effects):
+    #     """
+    #     set path_effects, which should be a list of instances of
+    #     matplotlib.patheffect._Base class or its derivatives.
+    #     """
+    #     self._path_effects = path_effects
+    #     self.stale = True
 
-    def get_path_effects(self):
-        return self._path_effects
+    #!DEPRECATED
+    # def get_path_effects(self):
+    #     return self._path_effects
 
     #!DEPRICATED
     # def get_figure(self):
@@ -931,17 +1015,18 @@ class Artist(PrivateMethodMixin, Configurable):
 
     #     self._rasterized = rasterized
 
-    def get_agg_filter(self):
-        "return filter function to be used for agg filter"
-        return self._agg_filter
+    #!DEPRECATED
+    # def get_agg_filter(self):
+    #     "return filter function to be used for agg filter"
+    #     return self._agg_filter
 
-    def set_agg_filter(self, filter_func):
-        """
-        set agg_filter fuction.
+    # def set_agg_filter(self, filter_func):
+    #     """
+    #     set agg_filter fuction.
 
-        """
-        self._agg_filter = filter_func
-        self.stale = True
+    #     """
+    #     self._agg_filter = filter_func
+    #     self.stale = True
 
     def draw(self, renderer, *args, **kwargs):
         'Derived classes drawing method'
@@ -1059,8 +1144,8 @@ class Artist(PrivateMethodMixin, Configurable):
         self.private('clipon', other.clipon)
         self.private('clippath', other.clippath)
         self.private('label', other.label)
-        self._sketch = other._sketch
-        self._path_effects = other._path_effects
+        self.private('sketch_params',other.sketch_params,cross_validate=True)
+        self.private('path_effects', other.path_effects)
         self.pchanged()
         self.stale = True
 
@@ -1155,20 +1240,20 @@ class Artist(PrivateMethodMixin, Configurable):
         return ', '.join('{:0.3g}'.format(item) for item in data if
                 isinstance(item, (np.floating, np.integer, int, float)))
 
-    @property
-    def mouseover(self):
-        return self._mouseover
+    # @property
+    # def mouseover(self):
+    #     return self._mouseover
 
-    @mouseover.setter
-    def mouseover(self, val):
-        val = bool(val)
-        self._mouseover = val
-        ax = self.axes
-        if ax:
-            if val:
-                ax.mouseover_set.add(self)
-            else:
-                ax.mouseover_set.discard(self)
+    # @mouseover.setter
+    # def mouseover(self, val):
+    #     val = bool(val)
+    #     self._mouseover = val
+    #     ax = self.axes
+    #     if ax:
+    #         if val:
+    #             ax.mouseover_set.add(self)
+    #         else:
+    #             ax.mouseover_set.discard(self)
 
 
 class ArtistInspector(object):

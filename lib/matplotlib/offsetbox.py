@@ -1683,7 +1683,7 @@ class DraggableBase(object):
         c2 = self.canvas.mpl_connect('pick_event', self.on_pick)
         c3 = self.canvas.mpl_connect('button_release_event', self.on_release)
 
-        ref_artist.set_picker(self.artist_picker)
+        ref_artist.picker = self.artist_picker
         self.cids = [c2, c3]
 
     def on_motion(self, evt):

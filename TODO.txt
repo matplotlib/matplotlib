@@ -57,7 +57,14 @@
 6.0 : gid
 6.0 : label
 6.0 : contains
-0.0 : picker
-0.0 : agg_filter
+6.0 : picker
+6.0 : mouseover
+6.0 : agg_filter
+6.0 : snap
+6.0 : sketch_scale (new)
+6.0 : sketch_length (new)
+6.0 : sketch_randomness (new)
+6.0 : sketch_params
+6.0 : patheffects
 ...
 ...

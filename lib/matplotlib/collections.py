@@ -135,7 +135,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             else:
                 self._uniform_offsets = offsets
 
-        self._path_effects = None
+        self.path_effects = None
         self.update(kwargs)
         self._paths = None
 
@@ -266,17 +266,17 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
-        gc.set_snap(self.get_snap())
+        gc.set_snap(self.snap)
 
         if self._hatch:
             gc.set_hatch(self._hatch)
 
-        if self.get_sketch_params() is not None:
-            gc.set_sketch_params(*self.get_sketch_params())
+        if self.sketch_params is not None:
+            gc.set_sketch_params(*self.sketch_params)
 
-        if self.get_path_effects():
+        if self.path_effects:
             from matplotlib.patheffects import PathEffectRenderer
-            renderer = PathEffectRenderer(self.get_path_effects(), renderer)
+            renderer = PathEffectRenderer(self.path_effects, renderer)
 
         # If the collection is made up of a single shape/color/stroke,
         # it can be rendered once and blitted multiple times, using
@@ -347,18 +347,18 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if not self.visible:
             return False, {}
 
-        if self._picker is True:  # the Boolean constant, not just nonzero or 1
+        if self.picker is True:  # the Boolean constant, not just nonzero or 1
             pickradius = self._pickradius
         else:
             try:
-                pickradius = float(self._picker)
+                pickradius = float(self.picker)
             except TypeError:
                 # This should not happen if "contains" is called via
                 # pick, the normal route; the check is here in case
                 # it is called through some unanticipated route.
                 warnings.warn(
                     "Collection picker %s could not be converted to float"
-                    % self._picker)
+                    % self.picker)
                 pickradius = self._pickradius
 
         transform, transOffset, offsets, paths = self._prepare_points()

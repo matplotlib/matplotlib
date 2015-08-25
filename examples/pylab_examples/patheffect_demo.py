@@ -11,7 +11,7 @@ if 1:
                                        connectionstyle="angle3", lw=2),
                        size=20, ha="center", path_effects=[PathEffects.withStroke(linewidth=3,
                                                                                   foreground="w")])
-    txt.arrow_patch.set_path_effects([
+    txt.arrow_patch.path_effects = [
         PathEffects.Stroke(linewidth=5, foreground="w"),
         PathEffects.Normal()])
 
@@ -20,7 +20,7 @@ if 1:
     pe = [PathEffects.withStroke(linewidth=3,
                                  foreground="w")]
     for l in ax1.get_xgridlines() + ax1.get_ygridlines():
-        l.set_path_effects(pe)
+        l.path_effects = pe
 
     ax2 = plt.subplot(132)
     arr = np.arange(25).reshape((5, 5))
@@ -38,6 +38,6 @@ if 1:
     ax3 = plt.subplot(133)
     p1, = ax3.plot([0, 1], [0, 1])
     leg = ax3.legend([p1], ["Line 1"], fancybox=True, loc=2)
-    leg.legendPatch.set_path_effects([PathEffects.withSimplePatchShadow()])
+    leg.legendPatch.path_effects = [PathEffects.withSimplePatchShadow()]
 
     plt.show()

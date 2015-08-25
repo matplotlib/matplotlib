@@ -322,7 +322,7 @@ class Text(Artist):
         self._horizontalalignment = other._horizontalalignment
         self._fontproperties = other._fontproperties.copy()
         self._rotation = other._rotation
-        self._picker = other._picker
+        self.private('picker', other.picker)
         self._linespacing = other._linespacing
         self.stale = True
 
@@ -792,10 +792,10 @@ class Text(Artist):
                     y = canvash - y
                 clean_line, ismath = textobj.is_math_text(line)
 
-                if textobj.get_path_effects():
+                if textobj.path_effects:
                     from matplotlib.patheffects import PathEffectRenderer
                     textrenderer = PathEffectRenderer(
-                                        textobj.get_path_effects(), renderer)
+                                        textobj.path_effects, renderer)
                 else:
                     textrenderer = renderer
 

@@ -519,7 +519,7 @@ class Patch(artist.Artist):
         gc.set_antialiased(self._antialiased)
         self._set_gc_clip(gc)
         gc.set_url(self.url)
-        gc.set_snap(self.get_snap())
+        gc.set_snap(self.snap)
 
         rgbFace = self._facecolor
         if rgbFace[3] == 0:
@@ -530,17 +530,17 @@ class Patch(artist.Artist):
         if self._hatch:
             gc.set_hatch(self._hatch)
 
-        if self.get_sketch_params() is not None:
-            gc.set_sketch_params(*self.get_sketch_params())
+        if self.sketch_params is not None:
+            gc.set_sketch_params(*self.sketch_params)
 
         path = self.get_path()
         transform = self.transform
         tpath = transform.transform_path_non_affine(path)
         affine = transform.get_affine()
 
-        if self.get_path_effects():
+        if self.path_effects:
             from matplotlib.patheffects import PathEffectRenderer
-            renderer = PathEffectRenderer(self.get_path_effects(), renderer)
+            renderer = PathEffectRenderer(self.path_effects, renderer)
 
         renderer.draw_path(gc, tpath, affine, rgbFace)
 
@@ -4246,7 +4246,7 @@ class FancyArrowPatch(Patch):
         gc.set_antialiased(self._antialiased)
         self._set_gc_clip(gc)
         gc.set_capstyle('round')
-        gc.set_snap(self.get_snap())
+        gc.set_snap(self.snap)
 
         rgbFace = self._facecolor
         if rgbFace[3] == 0:
@@ -4257,8 +4257,8 @@ class FancyArrowPatch(Patch):
         if self._hatch:
             gc.set_hatch(self._hatch)
 
-        if self.get_sketch_params() is not None:
-            gc.set_sketch_params(*self.get_sketch_params())
+        if self.sketch_params is not None:
+            gc.set_sketch_params(*self.sketch_params)
 
         # FIXME : dpi_cor is for the dpi-dependecy of the
         # linewidth. There could be room for improvement.
@@ -4273,9 +4273,9 @@ class FancyArrowPatch(Patch):
 
         affine = transforms.IdentityTransform()
 
-        if self.get_path_effects():
+        if self.path_effects:
             from matplotlib.patheffects import PathEffectRenderer
-            renderer = PathEffectRenderer(self.get_path_effects(), renderer)
+            renderer = PathEffectRenderer(self.path_effects, renderer)
 
         for p, f in zip(path, fillable):
             if f:

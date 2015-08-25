@@ -229,7 +229,7 @@ class Ticks(Line2D, AttributeCopier):
 
         Line2D.__init__(self, [0.], [0.], **kwargs)
         AttributeCopier.__init__(self, self._axis, klass=Line2D)
-        self.set_snap(True)
+        self.snap = True
 
     def get_ref_artist(self):
         #return self._ref_artist.get_ticklines()[0]

@@ -85,11 +85,11 @@ class PrivateMethodMixin(object):
             new = trait._cross_validate(self, new)
             self.private(name, new)
 
-    def private(self, name, value=Undefined):
+    def private(self, name, value=Undefined, cross_validate=True):
         trait = self._retrieve_trait(name)
 
         if value is not Undefined:
-            trait._cross_validation_lock = True
+            trait._cross_validation_lock = (not cross_validate)
             _notify_trait = self._notify_trait
             self._notify_trait = lambda *a: None
             setattr(self, name, value)

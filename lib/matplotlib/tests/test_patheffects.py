@@ -28,15 +28,15 @@ def test_patheffect1():
                        size=20, ha="center",
                        path_effects=[path_effects.withStroke(linewidth=3,
                                                              foreground="w")])
-    txt.arrow_patch.set_path_effects([path_effects.Stroke(linewidth=5,
+    txt.arrow_patch.path_effects = [path_effects.Stroke(linewidth=5,
                                                           foreground="w"),
-                                      path_effects.Normal()])
+                                      path_effects.Normal()]
 
     ax1.grid(True, linestyle="-")
 
     pe = [path_effects.withStroke(linewidth=3, foreground="w")]
     for l in ax1.get_xgridlines() + ax1.get_ygridlines():
-        l.set_path_effects(pe)
+        l.path_effects = pe
 
 
 @image_comparison(baseline_images=['patheffect2'], remove_text=True)
@@ -60,19 +60,19 @@ def test_patheffect2():
 @image_comparison(baseline_images=['patheffect3'])
 def test_patheffect3():
     p1, = plt.plot([1, 3, 5, 4, 3], 'o-b', lw=4)
-    p1.set_path_effects([path_effects.SimpleLineShadow(),
-                         path_effects.Normal()])
+    p1.path_effects = [path_effects.SimpleLineShadow(),
+                       path_effects.Normal()]
     plt.title(r'testing$^{123}$',
         path_effects=[path_effects.withStroke(linewidth=1, foreground="r")])
     leg = plt.legend([p1], [r'Line 1$^2$'], fancybox=True, loc=2)
-    leg.legendPatch.set_path_effects([path_effects.withSimplePatchShadow()])
+    leg.legendPatch.path_effects = [path_effects.withSimplePatchShadow()]
 
     text = plt.text(2, 3, 'Drop test', color='white',
                     bbox={'boxstyle': 'circle,pad=0.1', 'color': 'red'})
     pe = [path_effects.Stroke(linewidth=3.75, foreground='k'),
           path_effects.withSimplePatchShadow((6, -3), shadow_rgbFace='blue')]
-    text.set_path_effects(pe)
-    text.get_bbox_patch().set_path_effects(pe)
+    text.path_effects = pe
+    text.get_bbox_patch().path_effects = pe
 
     pe = [path_effects.PathPatchEffect(offset=(4, -4), hatch='xxxx',
                                        facecolor='gray'),
@@ -81,7 +81,7 @@ def test_patheffect3():
 
     t = plt.gcf().text(0.02, 0.1, 'Hatch shadow', fontsize=75, weight=1000,
                        va='center')
-    t.set_path_effects(pe)
+    t.path_effects = pe
 
 
 @cleanup
@@ -89,8 +89,8 @@ def test_patheffect3():
 def test_PathEffect_points_to_pixels():
     fig = plt.figure(dpi=150)
     p1, = plt.plot(range(10))
-    p1.set_path_effects([path_effects.SimpleLineShadow(),
-                         path_effects.Normal()])
+    p1.path_effects = [path_effects.SimpleLineShadow(),
+                         path_effects.Normal()]
 
     renderer = fig.canvas.get_renderer()
     pe_renderer = path_effects.SimpleLineShadow().get_proxy_renderer(renderer)
@@ -120,10 +120,10 @@ def test_collection():
           path_effects.Stroke(linewidth=5)]
 
     for collection in cs.collections:
-        collection.set_path_effects(pe)
+        collection.path_effects = pe
 
     for text in plt.clabel(cs, colors='white'):
-        text.set_path_effects([path_effects.withStroke(foreground='k',
+        text.path_effects = [path_effects.withStroke(foreground='k',
                                                        linewidth=3)])
         text.set_bbox({'boxstyle': 'sawtooth', 'facecolor': 'none',
                        'edgecolor': 'blue'})
