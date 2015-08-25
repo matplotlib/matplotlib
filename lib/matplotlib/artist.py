@@ -264,9 +264,6 @@ class Artist(PrivateMethodMixin, Configurable):
 
     sketch_params = Tuple(allow_none=True)
 
-    def _sketch_params_default(self):
-        return rcParams['path.sketch']
-
     def _sketch_validate(self, value, trait):
         names = ('sketch_scale',
                  'sketch_length',
@@ -286,9 +283,6 @@ class Artist(PrivateMethodMixin, Configurable):
 
     path_effects = List(Instance('matplotlib.patheffects.AbstractPathEffect'),
                         allow_none=True)
-
-    def _path_effects_default(self):
-        return rcParams['path.effects']
 
     def _path_effects_changed(self):
         self.stale = True
@@ -330,8 +324,8 @@ class Artist(PrivateMethodMixin, Configurable):
         # self._url = None
         # self._gid = None
         # self._snap = None
-        # self._sketch = rcParams['path.sketch']
-        # self._path_effects = rcParams['path.effects']
+        self.sketch_params = rcParams['path.sketch']
+        self.path_effects = rcParams['path.effects']
 
     def __getstate__(self):
         d = self.__dict__.copy()
