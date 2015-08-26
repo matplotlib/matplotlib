@@ -1846,6 +1846,7 @@ class RectangleSelector(_SelectorWidget):
                 (xproblems or yproblems)):
             # check if drawn distance (if it exists) is not too small in
             # neither x nor y-direction
+            self.extents = [0, 0, 0, 0]
             return
 
         # update the eventpress and eventrelease with the resulting extents
