@@ -1098,7 +1098,10 @@ class Axes(_AxesBase):
 
         return coll
 
-    @unpack_labeled_data(replace_all_args=False, label_namer=None)
+    @unpack_labeled_data(replace_names=["positions", "lineoffsets",
+                                        "linelengths", "linewidths",
+                                        "colors", "linestyles"],
+                         label_namer=None)
     @docstring.dedent_interpd
     def eventplot(self, positions, orientation='horizontal', lineoffsets=1,
                   linelengths=1, linewidths=None, colors=None,
@@ -2433,7 +2436,7 @@ class Axes(_AxesBase):
 
         return stem_container
 
-    @unpack_labeled_data(replace_names=['x', 'labels', 'colors'],
+    @unpack_labeled_data(replace_names=['x', 'explode', 'labels', 'colors'],
                          label_namer=None)
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
