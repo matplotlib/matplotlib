@@ -2049,6 +2049,9 @@ class _AxesBase(martist.Artist):
                 y0, y1 = ylocator.view_limits(y0, y1)
             self.set_ybound(y0, y1)
 
+    def _get_axis_list(self):
+        return (self.xaxis, self.yaxis)
+
     # Drawing
 
     @allow_rasterization
@@ -2090,8 +2093,8 @@ class _AxesBase(martist.Artist):
                 self.xaxis.set_zorder(2.5)
                 self.yaxis.set_zorder(2.5)
         else:
-            artists.remove(self.xaxis)
-            artists.remove(self.yaxis)
+            for _axis in self._get_axis_list():
+                artists.remove(_axis)
 
         if inframe:
             artists.remove(self.title)
