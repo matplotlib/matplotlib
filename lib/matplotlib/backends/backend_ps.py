@@ -1732,6 +1732,7 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
                     write(b'countdictstack\n')
                     write(b'exch sub { end } repeat\n')
                     write(b'restore\n')
+                    write(b'showpage\n')
                     write(b'%%EOF\n')
                 elif line.startswith(b'%%PageBoundingBox'):
                     pass
