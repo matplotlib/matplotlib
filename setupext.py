@@ -218,7 +218,7 @@ def make_extension(name, files, *args, **kwargs):
     """
     Make a new extension.  Automatically sets include_dirs and
     library_dirs to the base directories appropriate for this
-    platform.
+    platform when pkg-config is not available.
 
     `name` is the name of the extension.
 
@@ -228,14 +228,15 @@ def make_extension(name, files, *args, **kwargs):
     `distutils.core.Extension` constructor.
     """
     ext = DelayedExtension(name, files, *args, **kwargs)
-    for dir in get_base_dirs():
-        include_dir = os.path.join(dir, 'include')
-        if os.path.exists(include_dir):
-            ext.include_dirs.append(include_dir)
-        for lib in ('lib', 'lib64'):
-            lib_dir = os.path.join(dir, lib)
-            if os.path.exists(lib_dir):
-                ext.library_dirs.append(lib_dir)
+    if not self.has_pkgconfig:
+        for dir in get_base_dirs():
+            include_dir = os.path.join(dir, 'include')
+            if os.path.exists(include_dir):
+                ext.include_dirs.append(include_dir)
+            for lib in ('lib', 'lib64'):
+                lib_dir = os.path.join(dir, lib)
+                if os.path.exists(lib_dir):
+                    ext.library_dirs.append(lib_dir)
     ext.include_dirs.append('.')
 
     return ext
@@ -252,28 +253,14 @@ class PkgConfig(object):
         if sys.platform == 'win32':
             self.has_pkgconfig = False
         else:
-            self.set_pkgconfig_path()
-            status, output = getstatusoutput("pkg-config --help")
+            self.pkgconfig = os.environ.get('PKG_CONFIG', 'pkg-config')
+            status, output = getstatusoutput("%s --help" % self.pkgconfig)
             self.has_pkgconfig = (status == 0)
             if not self.has_pkgconfig:
                 print("IMPORTANT WARNING:")
                 print(
                     "    pkg-config is not installed.\n"
                     "    matplotlib may not be able to find some of its dependencies")
-
-    def set_pkgconfig_path(self):
-        pkgconfig_path = sysconfig.get_config_var('LIBDIR')
-        if pkgconfig_path is None:
-            return
-
-        pkgconfig_path = os.path.join(pkgconfig_path, 'pkgconfig')
-        if not os.path.isdir(pkgconfig_path):
-            return
-
-        try:
-            os.environ['PKG_CONFIG_PATH'] += ':' + pkgconfig_path
-        except KeyError:
-            os.environ['PKG_CONFIG_PATH'] = pkgconfig_path
 
     def setup_extension(self, ext, package, default_include_dirs=[],
                         default_library_dirs=[], default_libraries=[],
@@ -286,7 +273,7 @@ class PkgConfig(object):
 
         executable = alt_exec
         if self.has_pkgconfig:
-            executable = 'pkg-config {0}'.format(package)
+            executable = '%s %s' % (self.pkgconfig, package)
 
         use_defaults = True
 
@@ -330,7 +317,7 @@ class PkgConfig(object):
             return None
 
         status, output = getstatusoutput(
-            "pkg-config %s --modversion" % (package))
+            '%s %s --modversion' % (self.pkgconfig, package))
         if status == 0:
             return output
         return None
