@@ -192,26 +192,29 @@ class Axes3D(Axes):
     def _init_axis(self):
         '''Init 3D axes; overrides creation of regular X/Y axes'''
         self.w_xaxis = axis3d.XAxis('x', self.xy_viewLim.intervalx,
-                            self.xy_dataLim.intervalx, self)
+                                    self.xy_dataLim.intervalx, self)
         self.xaxis = self.w_xaxis
         self.w_yaxis = axis3d.YAxis('y', self.xy_viewLim.intervaly,
-                            self.xy_dataLim.intervaly, self)
+                                    self.xy_dataLim.intervaly, self)
         self.yaxis = self.w_yaxis
         self.w_zaxis = axis3d.ZAxis('z', self.zz_viewLim.intervalx,
-                            self.zz_dataLim.intervalx, self)
+                                    self.zz_dataLim.intervalx, self)
         self.zaxis = self.w_zaxis
 
         for ax in self.xaxis, self.yaxis, self.zaxis:
             ax.init3d()
 
     def get_children(self):
-        return [self.zaxis,] + Axes.get_children(self)
+        return [self.zaxis, ] + Axes.get_children(self)
+
+    def _get_axis_list(self):
+        return super(Axes3D, self)._get_axis_list() + (self.zaxis, )
 
     def unit_cube(self, vals=None):
         minx, maxx, miny, maxy, minz, maxz = vals or self.get_w_lims()
         xs, ys, zs = ([minx, maxx, maxx, minx, minx, maxx, maxx, minx],
-                    [miny, miny, maxy, maxy, miny, miny, maxy, maxy],
-                    [minz, minz, minz, minz, maxz, maxz, maxz, maxz])
+                      [miny, miny, maxy, maxy, miny, miny, maxy, maxy],
+                      [minz, minz, minz, minz, maxz, maxz, maxz, maxz])
         return list(zip(xs, ys, zs))
 
     def tunit_cube(self, vals=None, M=None):
@@ -243,6 +246,18 @@ class Axes3D(Axes):
         # draw the background patch
         self.axesPatch.draw(renderer)
         self._frameon = False
+
+        # first, set the aspect
+        # this is duplicated from `axes._base._AxesBase.draw`
+        # but must be called before any of the artist are drawn as
+        # it adjusts the view limits and the size of the bounding box
+        # of the axes
+        locator = self.get_axes_locator()
+        if locator:
+            pos = locator(self, renderer)
+            self.apply_aspect(pos)
+        else:
+            self.apply_aspect()
 
         # add the projection matrix to the renderer
         self.M = self.get_proj()
@@ -1718,7 +1733,7 @@ class Axes3D(Axes):
 
         The `rstride` and `cstride` kwargs set the stride used to
         sample the input data to generate the graph. If either is 0
-        the input data in not sampled along this direction producing a 
+        the input data in not sampled along this direction producing a
         3D line plot rather than a wireframe plot.
 
         ==========  ================================================
@@ -2438,7 +2453,7 @@ class Axes3D(Axes):
         self.add_collection(col)
 
         self.auto_scale_xyz((minx, maxx), (miny, maxy), (minz, maxz), had_data)
-        
+
         return col
 
     def set_title(self, label, fontdict=None, loc='center', **kwargs):
