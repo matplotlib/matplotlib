@@ -1135,13 +1135,18 @@ class MultiCursor(Widget):
 
 class _SelectorWidget(AxesWidget):
 
-    def __init__(self, ax, onselect, useblit=False, button=None):
+    def __init__(self, ax, onselect, useblit=False, button=None,
+                 state_modifier_keys=None):
         AxesWidget.__init__(self, ax)
 
         self.visible = True
         self.onselect = onselect
         self.useblit = useblit and self.canvas.supports_blit
         self.connect_default_events()
+
+        self.state_modifier_keys = dict(move=' ', clear='escape',
+                                        square='shift', center='ctrl')
+        self.state_modifier_keys.update(state_modifier_keys or {})
 
         self.background = None
         self.artists = []
@@ -1268,7 +1273,8 @@ class _SelectorWidget(AxesWidget):
             self.eventpress = event
             self._prev_event = event
             key = event.key or ''
-            if key == ' ':
+            key = key.replace('control', 'ctrl')
+            if key == self.state_modifier_keys['move']:
                 self.state.add('move')
             self._press(event)
             return True
@@ -1319,15 +1325,15 @@ class _SelectorWidget(AxesWidget):
         """Key press event handler and validator"""
         if self.active:
             key = event.key or ''
-            if key == 'escape':
+            key = key.replace('control', 'ctrl')
+            if key == self.state_modifier_keys['clear']:
                 for artist in self.artists:
                     artist.set_visible(False)
                 self.update()
                 return
-            if 'shift' in key:
-                self.state.add('square')
-            if 'ctrl' in key or 'control' in key:
-                self.state.add('center')
+            for (state, modifier) in self.state_modifier_keys.items():
+                if modifier in key:
+                    self.state.add(state)
             self._on_key_press(event)
 
     def _on_key_press(self, event):
@@ -1664,7 +1670,7 @@ class RectangleSelector(_SelectorWidget):
                  minspanx=None, minspany=None, useblit=False,
                  lineprops=None, rectprops=None, spancoords='data',
                  button=None, maxdist=10, marker_props=None,
-                 interactive=False):
+                 interactive=False, state_modifier_keys=None):
 
         """
         Create a selector in *ax*.  When a selection is made, clear
@@ -1710,14 +1716,22 @@ class RectangleSelector(_SelectorWidget):
         *interactive* will draw a set of handles and allow you interact
         with the widget after it is drawn.
 
-        Keyboard modifiers:
-        Alt or Space moves the existing shape.
-        Shift makes the shape square.
-        Ctrl makes the initial point the center of the shape.
-        Ctrl and shift can be combined.
+        *state_modifier_keys* are keyboard modifiers that affect the behavior
+        of the widget.
+
+        The defaults are:
+        dict(move=' ', clear='escape', square='shift', center='ctrl')
+
+        Keyboard modifiers, which:
+        'move': Move the existing shape.
+        'clear': Clear the current shape.
+        'square': Makes the shape square.
+        'center': Make the initial point the center of the shape.
+        'square' and 'center' can be combined.
         """
         _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
-                                 button=button)
+                                 button=button,
+                                 state_modifier_keys=state_modifier_keys)
 
         self.to_draw = None
         self.visible = True
