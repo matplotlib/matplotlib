@@ -77,24 +77,24 @@ class PrivateMethodMixin(object):
         except KeyError:
             trait = getattr(self.__class__, name)
             old = trait.default_value
-        if notify_trait:
-            self._notify_trait(name, old, new)
         if cross_validate:
             trait = self._retrieve_trait(name)
             # note value is updated via cross validation
             new = trait._cross_validate(self, new)
             self.private(name, new)
+        if notify_trait:
+            self._notify_trait(name, old, new)
 
     def private(self, name, value=Undefined):
         trait = self._retrieve_trait(name)
 
         if value is not Undefined:
-            trait._cross_validation_lock = True
+            self._cross_validation_lock = True
             _notify_trait = self._notify_trait
             self._notify_trait = lambda *a: None
             setattr(self, name, value)
             self._notify_trait = _notify_trait
-            trait._cross_validation_lock = False
+            self._cross_validation_lock = False
             if isinstance(_notify_trait, types.MethodType):
                 self.__dict__.pop('_notify_trait', None)
 
@@ -106,10 +106,10 @@ class PrivateMethodMixin(object):
         try:
             trait = getattr(self.__class__, name)
             if not isinstance(trait, BaseDescriptor):
-                msg = "'%s' is a standard attribute, not a trait, of a %s instance"
+                msg = "'%s' is a standard attribute, not a traitlet, of a %s instance"
                 raise TraitError(msg % (name, self.__class__.__name__))
         except AttributeError:
-            msg = "'%s' is not a trait of a %s instance"
+            msg = "'%s' is not a traitlet of a %s instance"
             raise TraitError(msg % (name, self.__class__.__name__))
         return trait
 
@@ -306,11 +306,14 @@ class Color(TraitType):
         'as_hex' : False,
         'default_alpha' : 1.0,
         }
-    allow_none = True
     info_text = 'float, int, tuple of float or int, or a hex string color'
     default_value = (0.0,0.0,0.0, metadata['default_alpha'])
     named_colors = {}
     _re_color_hex = re.compile(r'#[a-fA-F0-9]{3}(?:[a-fA-F0-9]{3})?$')
+
+    def __init__(self, *args, **kwargs):
+        super(Color, self).__init__(*args, **kwargs)
+        self._metadata = self.metadata.copy()
 
     def _int_to_float(self, value):
         as_float = (np.array(value)/255).tolist()
