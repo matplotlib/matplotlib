@@ -68,6 +68,7 @@ def _plot_args_replacer(args, data):
                 warnings.warn(msg, RuntimeWarning, stacklevel=3)
             _replacer += ["x", "y", "c"]
 
+        # if less than 3, the above code handled it so just return
         if len(remaining) <= 3:
             return _replacer
 
