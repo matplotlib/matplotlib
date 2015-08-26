@@ -125,10 +125,10 @@ def test_ellipse():
 
     # drag the rectangle
     do_event(tool, 'press', xdata=10, ydata=10, button=1,
-                    key='alt')
+                    key=' ')
     do_event(tool, 'onmove', xdata=30, ydata=30, button=1)
     do_event(tool, 'release', xdata=30, ydata=30, button=1)
-    assert tool.extents == (120, 170, 120, 170)
+    assert tool.extents == (120, 170, 120, 170), tool.extents
 
     # create from center
     do_event(tool, 'on_key_press', xdata=100, ydata=100, button=1,
