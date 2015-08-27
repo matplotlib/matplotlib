@@ -1041,7 +1041,7 @@ class ArtistAnimation(TimedAnimation):
 
         # Flush the needed axes
         for fig in figs:
-            fig.canvas.draw()
+            fig.canvas.draw_idle()
 
     def _pre_draw(self, framedata, blit):
         '''
