@@ -1589,7 +1589,9 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
     def param(func):
         new_sig = None
         ver_info = sys.version_info
-        _python_has_signature = ver_info.major > 2 and ver_info.minor > 2
+        # py2.6 compatible version, use line below as soon as we can
+        _python_has_signature = ver_info[0] > 2 and ver_info[1] > 2
+        # _python_has_signature = ver_info.major > 2 and ver_info.minor > 2
         if not _python_has_signature:
             arg_spec = inspect.getargspec(func)
             _arg_names = arg_spec.args
