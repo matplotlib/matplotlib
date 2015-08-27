@@ -2049,6 +2049,9 @@ class _AxesBase(martist.Artist):
                 y0, y1 = ylocator.view_limits(y0, y1)
             self.set_ybound(y0, y1)
 
+    def _get_axis_list(self):
+        return (self.xaxis, self.yaxis)
+
     # Drawing
 
     @allow_rasterization
@@ -2090,8 +2093,8 @@ class _AxesBase(martist.Artist):
                 self.xaxis.set_zorder(2.5)
                 self.yaxis.set_zorder(2.5)
         else:
-            artists.remove(self.xaxis)
-            artists.remove(self.yaxis)
+            for _axis in self._get_axis_list():
+                artists.remove(_axis)
 
         if inframe:
             artists.remove(self.title)
@@ -3135,6 +3138,167 @@ class _AxesBase(martist.Artist):
 
         """
         self._navigate_mode = b
+
+    def _get_view(self):
+        """
+        Save information required to reproduce the current view.
+
+        Called before a view is changed, such as during a pan or zoom
+        initiated by the user. You may return any information you deem
+        necessary to describe the view.
+
+        .. note::
+
+            Intended to be overridden by new projection types, but if not, the
+            default implementation saves the view limits. You *must* implement
+            :meth:`_set_view` if you implement this method.
+        """
+        xmin, xmax = self.get_xlim()
+        ymin, ymax = self.get_ylim()
+        return (xmin, xmax, ymin, ymax)
+
+    def _set_view(self, view):
+        """
+        Apply a previously saved view.
+
+        Called when restoring a view, such as with the navigation buttons.
+
+        .. note::
+
+            Intended to be overridden by new projection types, but if not, the
+            default implementation restores the view limits. You *must*
+            implement :meth:`_get_view` if you implement this method.
+        """
+        xmin, xmax, ymin, ymax = view
+        self.set_xlim((xmin, xmax))
+        self.set_ylim((ymin, ymax))
+
+    def _set_view_from_bbox(self, bbox, original_view, direction='in',
+                            mode=None, twinx=False, twiny=False):
+        """
+        Update view from a selection bbox.
+
+        .. note::
+
+            Intended to be overridden by new projection types, but if not, the
+            default implementation sets the view limits to the bbox directly.
+
+        Parameters
+        ----------
+
+        bbox : tuple
+            The selected bounding box limits, in *display* coordinates.
+
+        original_view : any
+            A view saved from before initiating the selection, the result of
+            calling :meth:`_get_view`.
+
+        direction : str
+            The direction to apply the bounding box.
+                * `'in'` - The bounding box describes the view directly, i.e.,
+                           it zooms in.
+                * `'out'` - The bounding box describes the size to make the
+                            existing view, i.e., it zooms out.
+
+        mode : str or None
+            The selection mode, whether to apply the bounding box in only the
+            `'x'` direction, `'y'` direction or both (`None`).
+
+        twinx : bool
+            Whether this axis is twinned in the *x*-direction.
+
+        twiny : bool
+            Whether this axis is twinned in the *y*-direction.
+        """
+
+        lastx, lasty, x, y = bbox
+
+        x0, y0, x1, y1 = original_view
+
+        # zoom to rect
+        inverse = self.transData.inverted()
+        lastx, lasty = inverse.transform_point((lastx, lasty))
+        x, y = inverse.transform_point((x, y))
+        Xmin, Xmax = self.get_xlim()
+        Ymin, Ymax = self.get_ylim()
+
+        if twinx:
+            x0, x1 = Xmin, Xmax
+        else:
+            if Xmin < Xmax:
+                if x < lastx:
+                    x0, x1 = x, lastx
+                else:
+                    x0, x1 = lastx, x
+                if x0 < Xmin:
+                    x0 = Xmin
+                if x1 > Xmax:
+                    x1 = Xmax
+            else:
+                if x > lastx:
+                    x0, x1 = x, lastx
+                else:
+                    x0, x1 = lastx, x
+                if x0 > Xmin:
+                    x0 = Xmin
+                if x1 < Xmax:
+                    x1 = Xmax
+
+        if twiny:
+            y0, y1 = Ymin, Ymax
+        else:
+            if Ymin < Ymax:
+                if y < lasty:
+                    y0, y1 = y, lasty
+                else:
+                    y0, y1 = lasty, y
+                if y0 < Ymin:
+                    y0 = Ymin
+                if y1 > Ymax:
+                    y1 = Ymax
+            else:
+                if y > lasty:
+                    y0, y1 = y, lasty
+                else:
+                    y0, y1 = lasty, y
+                if y0 > Ymin:
+                    y0 = Ymin
+                if y1 < Ymax:
+                    y1 = Ymax
+
+        if direction == 'in':
+            if mode == 'x':
+                self.set_xlim((x0, x1))
+            elif mode == 'y':
+                self.set_ylim((y0, y1))
+            else:
+                self.set_xlim((x0, x1))
+                self.set_ylim((y0, y1))
+        elif direction == 'out':
+            if self.get_xscale() == 'log':
+                alpha = np.log(Xmax / Xmin) / np.log(x1 / x0)
+                rx1 = pow(Xmin / x0, alpha) * Xmin
+                rx2 = pow(Xmax / x0, alpha) * Xmin
+            else:
+                alpha = (Xmax - Xmin) / (x1 - x0)
+                rx1 = alpha * (Xmin - x0) + Xmin
+                rx2 = alpha * (Xmax - x0) + Xmin
+            if self.get_yscale() == 'log':
+                alpha = np.log(Ymax / Ymin) / np.log(y1 / y0)
+                ry1 = pow(Ymin / y0, alpha) * Ymin
+                ry2 = pow(Ymax / y0, alpha) * Ymin
+            else:
+                alpha = (Ymax - Ymin) / (y1 - y0)
+                ry1 = alpha * (Ymin - y0) + Ymin
+                ry2 = alpha * (Ymax - y0) + Ymin
+
+            if mode == 'x':
+                self.set_xlim((rx1, rx2))
+            elif mode == 'y':
+                self.set_ylim((ry1, ry2))
+            else:
+                self.set_xlim((rx1, rx2))
+                self.set_ylim((ry1, ry2))
 
     def start_pan(self, x, y, button):
         """

@@ -585,6 +585,12 @@ class ScalarFormatter(Formatter):
             _locs = self.locs
         locs = (np.asarray(_locs) - self.offset) / 10. ** self.orderOfMagnitude
         loc_range = np.ptp(locs)
+        # Curvilinear coordinates can yield two identical points.
+        if loc_range == 0:
+            loc_range = np.max(np.abs(locs))
+        # Both points might be zero.
+        if loc_range == 0:
+            loc_range = 1
         if len(self.locs) < 2:
             # We needed the end points only for the loc_range calculation.
             locs = locs[:-2]

@@ -2940,8 +2940,7 @@ class NavigationToolbar2(object):
         for i, a in enumerate(self.canvas.figure.get_axes()):
             if (x is not None and y is not None and a.in_axes(event) and
                     a.get_navigate() and a.can_zoom()):
-                self._xypress.append((x, y, a, i, a.viewLim.frozen(),
-                                      a.transData.frozen()))
+                self._xypress.append((x, y, a, i, a._get_view()))
 
         id1 = self.canvas.mpl_connect('motion_notify_event', self.drag_zoom)
         id2 = self.canvas.mpl_connect('key_press_event',
@@ -2964,17 +2963,15 @@ class NavigationToolbar2(object):
 
     def push_current(self):
         """push the current view limits and position onto the stack"""
-        lims = []
+        views = []
         pos = []
         for a in self.canvas.figure.get_axes():
-            xmin, xmax = a.get_xlim()
-            ymin, ymax = a.get_ylim()
-            lims.append((xmin, xmax, ymin, ymax))
+            views.append(a._get_view())
             # Store both the original and modified positions
             pos.append((
                 a.get_position(True).frozen(),
                 a.get_position().frozen()))
-        self._views.push(lims)
+        self._views.push(views)
         self._positions.push(pos)
         self.set_history_buttons()
 
@@ -3014,7 +3011,7 @@ class NavigationToolbar2(object):
 
         if self._xypress:
             x, y = event.x, event.y
-            lastx, lasty, a, ind, lim, trans = self._xypress[0]
+            lastx, lasty, a, ind, view = self._xypress[0]
 
             # adjust x, last, y, last
             x1, y1, x2, y2 = a.bbox.extents
@@ -3043,22 +3040,13 @@ class NavigationToolbar2(object):
 
         for cur_xypress in self._xypress:
             x, y = event.x, event.y
-            lastx, lasty, a, ind, lim, trans = cur_xypress
+            lastx, lasty, a, ind, view = cur_xypress
             # ignore singular clicks - 5 pixels is a threshold
             if abs(x - lastx) < 5 or abs(y - lasty) < 5:
                 self._xypress = None
                 self.release(event)
                 self.draw()
                 return
-
-            x0, y0, x1, y1 = lim.extents
-
-            # zoom to rect
-            inverse = a.transData.inverted()
-            lastx, lasty = inverse.transform_point((lastx, lasty))
-            x, y = inverse.transform_point((x, y))
-            Xmin, Xmax = a.get_xlim()
-            Ymin, Ymax = a.get_ylim()
 
             # detect twinx,y axes and avoid double zooming
             twinx, twiny = False, False
@@ -3070,83 +3058,15 @@ class NavigationToolbar2(object):
                         twiny = True
             last_a.append(a)
 
-            if twinx:
-                x0, x1 = Xmin, Xmax
-            else:
-                if Xmin < Xmax:
-                    if x < lastx:
-                        x0, x1 = x, lastx
-                    else:
-                        x0, x1 = lastx, x
-                    if x0 < Xmin:
-                        x0 = Xmin
-                    if x1 > Xmax:
-                        x1 = Xmax
-                else:
-                    if x > lastx:
-                        x0, x1 = x, lastx
-                    else:
-                        x0, x1 = lastx, x
-                    if x0 > Xmin:
-                        x0 = Xmin
-                    if x1 < Xmax:
-                        x1 = Xmax
-
-            if twiny:
-                y0, y1 = Ymin, Ymax
-            else:
-                if Ymin < Ymax:
-                    if y < lasty:
-                        y0, y1 = y, lasty
-                    else:
-                        y0, y1 = lasty, y
-                    if y0 < Ymin:
-                        y0 = Ymin
-                    if y1 > Ymax:
-                        y1 = Ymax
-                else:
-                    if y > lasty:
-                        y0, y1 = y, lasty
-                    else:
-                        y0, y1 = lasty, y
-                    if y0 > Ymin:
-                        y0 = Ymin
-                    if y1 < Ymax:
-                        y1 = Ymax
-
             if self._button_pressed == 1:
-                if self._zoom_mode == "x":
-                    a.set_xlim((x0, x1))
-                elif self._zoom_mode == "y":
-                    a.set_ylim((y0, y1))
-                else:
-                    a.set_xlim((x0, x1))
-                    a.set_ylim((y0, y1))
+                direction = 'in'
             elif self._button_pressed == 3:
-                if a.get_xscale() == 'log':
-                    alpha = np.log(Xmax / Xmin) / np.log(x1 / x0)
-                    rx1 = pow(Xmin / x0, alpha) * Xmin
-                    rx2 = pow(Xmax / x0, alpha) * Xmin
-                else:
-                    alpha = (Xmax - Xmin) / (x1 - x0)
-                    rx1 = alpha * (Xmin - x0) + Xmin
-                    rx2 = alpha * (Xmax - x0) + Xmin
-                if a.get_yscale() == 'log':
-                    alpha = np.log(Ymax / Ymin) / np.log(y1 / y0)
-                    ry1 = pow(Ymin / y0, alpha) * Ymin
-                    ry2 = pow(Ymax / y0, alpha) * Ymin
-                else:
-                    alpha = (Ymax - Ymin) / (y1 - y0)
-                    ry1 = alpha * (Ymin - y0) + Ymin
-                    ry2 = alpha * (Ymax - y0) + Ymin
+                direction = 'out'
+            else:
+                continue
 
-                if self._zoom_mode == "x":
-                    a.set_xlim((rx1, rx2))
-                elif self._zoom_mode == "y":
-                    a.set_ylim((ry1, ry2))
-                else:
-                    a.set_xlim((rx1, rx2))
-                    a.set_ylim((ry1, ry2))
+            a._set_view_from_bbox((lastx, lasty, x, y), view, direction,
+                                  self._zoom_mode, twinx, twiny)
 
         self.draw()
         self._xypress = None
@@ -3179,16 +3099,14 @@ class NavigationToolbar2(object):
         position stack for each axes
         """
 
-        lims = self._views()
-        if lims is None:
+        views = self._views()
+        if views is None:
             return
         pos = self._positions()
         if pos is None:
             return
         for i, a in enumerate(self.canvas.figure.get_axes()):
-            xmin, xmax, ymin, ymax = lims[i]
-            a.set_xlim((xmin, xmax))
-            a.set_ylim((ymin, ymax))
+            a._set_view(views[i])
             # Restore both the original and modified positions
             a.set_position(pos[i][0], 'original')
             a.set_position(pos[i][1], 'active')
