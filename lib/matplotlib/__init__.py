@@ -1587,13 +1587,23 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
         replace_names = set(replace_names)
 
     def param(func):
-        # this call is deprecated in 3.x and will be removed in py3.6 :-(
-        # TODO: implement the same for py 3.x/3.6+ with inspect.signature(..)
-        arg_spec = inspect.getargspec(func)
-        _arg_names = arg_spec.args
-        _has_no_varargs = arg_spec.varargs is None
-        _has_varkwargs = arg_spec.keywords is not None
-
+        if six.PY2:
+            arg_spec = inspect.getargspec(func)
+            _arg_names = arg_spec.args
+            _has_no_varargs = arg_spec.varargs is None
+            _has_varkwargs = arg_spec.keywords is not None
+        elif six.PY3:
+            sig = inspect.signature(func)
+            _has_no_varargs = True
+            _has_varkwargs = False
+            _arg_names = []
+            for p in sig.parameters.values():
+                if p.kind is p.VAR_POSITIONAL:
+                    _has_no_varargs = False
+                elif p.kind is p.VAR_KEYWORD:
+                    _has_varkwargs = True
+                else:
+                    _arg_names.append(p.name)
         # Import-time check: do we have enough information to replace *args?
         arg_names_at_runtime = False
         # there can't be any positional arguments behind *args and no
