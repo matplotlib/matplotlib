@@ -209,7 +209,12 @@ def boilerplate_gen():
                 mappable = ''
 
             # Get argspec of wrapped function
-            args, varargs, varkw, defaults = inspect.getargspec(getattr(Axes, func))
+            work_func = getattr(Axes, func)
+            if hasattr(work_func, '__wrapped__'):
+                work_func = work_func.__wrapped__
+
+            args, varargs, varkw, defaults = inspect.getargspec(work_func)
+
             args.pop(0)  # remove 'self' argument
             if defaults is None:
                 defaults = ()
