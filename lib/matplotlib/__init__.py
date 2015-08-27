@@ -1587,23 +1587,35 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
         replace_names = set(replace_names)
 
     def param(func):
-        if six.PY2:
+        new_sig = None
+        ver_info = sys.version_info
+        _python_has_signature = ver_info.major > 2 and ver_info.minor > 2
+        if not _python_has_signature:
             arg_spec = inspect.getargspec(func)
             _arg_names = arg_spec.args
             _has_no_varargs = arg_spec.varargs is None
             _has_varkwargs = arg_spec.keywords is not None
-        elif six.PY3:
+        else:
             sig = inspect.signature(func)
             _has_no_varargs = True
             _has_varkwargs = False
             _arg_names = []
-            for p in sig.parameters.values():
+            params = list(sig.parameters.values())
+            for p in params:
                 if p.kind is p.VAR_POSITIONAL:
                     _has_no_varargs = False
                 elif p.kind is p.VAR_KEYWORD:
                     _has_varkwargs = True
                 else:
                     _arg_names.append(p.name)
+            data_param = inspect.Parameter('data',
+                                           inspect.Parameter.KEYWORD_ONLY,
+                                           default=None)
+            if _has_varkwargs:
+                params.insert(-1, data_param)
+            else:
+                params.append(data_param)
+            new_sig = sig.replace(parameters=params)
         # Import-time check: do we have enough information to replace *args?
         arg_names_at_runtime = False
         # there can't be any positional arguments behind *args and no
@@ -1777,6 +1789,8 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
             _repl = _repl.format(names="', '".join(replace_names))
         inner.__doc__ = (pre_doc +
                          _DATA_DOC_APPENDIX.format(replaced=_repl))
+        if new_sig is not None:
+            inner.__signature__ = new_sig
         return inner
     return param
 
