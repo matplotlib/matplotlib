@@ -30,6 +30,11 @@ from .. import unpack_labeled_data
 def is_list_like(obj):
     return not is_string_like(obj) and iterable(obj)
 
+# Notes on testing the plotting functions itself
+# *   the individual decorated plotting functions are tested in 'test_axes.py'
+# *   that pyplot functions accept a data kwarg is only tested in
+#     test_axes.test_pie_linewidth_0
+
 
 # stolen from pandas
 @contextmanager

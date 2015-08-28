@@ -3726,7 +3726,8 @@ def test_text_labelsize():
     ax.tick_params(direction='out')
 
 
-@image_comparison(baseline_images=['pie_linewidth_0', 'pie_linewidth_0'],
+@image_comparison(baseline_images=['pie_linewidth_0', 'pie_linewidth_0',
+                                   'pie_linewidth_0'],
                   extensions=['png'])
 def test_pie_linewidth_0():
     # The slices will be ordered and plotted counter-clockwise.
@@ -3743,13 +3744,20 @@ def test_pie_linewidth_0():
 
     # Reuse testcase from above for a labeled data test
     data = {"l": labels, "s": sizes, "c": colors, "ex": explode}
-    # FIXME: Workaround until the pyplot is regenerated
     fig = plt.figure()
     ax = fig.gca()
     ax.pie("s", explode="ex", labels="l", colors="c",
             autopct='%1.1f%%', shadow=True, startangle=90,
             wedgeprops={'linewidth': 0}, data=data)
     ax.axis('equal')
+
+    # And again to test the pyplot functions which should also be able to be
+    # called with a data kwarg
+    plt.figure()
+    plt.pie("s", explode="ex", labels="l", colors="c",
+            autopct='%1.1f%%', shadow=True, startangle=90,
+            wedgeprops={'linewidth': 0}, data=data)
+    plt.axis('equal')
 
 
 @image_comparison(baseline_images=['pie_center_radius'], extensions=['png'])
