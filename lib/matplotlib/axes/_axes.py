@@ -49,41 +49,47 @@ is_sequence_of_strings = cbook.is_sequence_of_strings
 
 
 def _plot_args_replacer(args, data):
-    _replacer = []
-    remaining = args
-    while 1:
-        if len(remaining) == 1:
-
-            msg = ("Missing argument: this can happen if a color spec "
-                   "('c') is in `data`")
-            warnings.warn(msg, RuntimeWarning, stacklevel=3)
-            _replacer += ["x"]
-        elif len(remaining) == 2:
-            _replacer += ["x", "y"]
-        elif len(remaining) == 3:
-            if remaining[2] in data:
+    if len(args) == 1:
+        return ["y"]
+    elif len(args) == 2:
+        # this can be two cases: x,y or y,c
+        if not args[1] in data:
+            # this is not in data, so just assume that it is something which
+            # will not get replaced (color spec or array like).
+            return ["y", "c"]
+        # it's data, but could be a color code like 'ro' or 'b--'
+        # -> warn the user in that case...
+        arg2 = args[1]
+        if is_string_like(arg2) and len(arg2) <= 3:
+            # all possible linestyles and color codes -> see doc of plot
+            reserved_ls = ["-", "--", "-.", ":", ".", ",", "o", "v", "^", "<",
+                           ">", "1", "2", "3", "4", "s", "p", "*", "h", "H",
+                           "+", "x", "D", "d", "|", "_"]
+            reserved_cc = ["b", "r", "c", "m", "y", "k", "w"]
+            # remove the line style part
+            for ls in reserved_ls:
+                if ls in arg2:
+                    arg2 = arg2.replace(ls, '')
+                    continue
+            # can now only be a color code...
+            if arg2 in reserved_cc:
                 import warnings
-
-                msg = "Found a color spec ('c') in data."
+                msg = "Second argument is ambiguous: could be a color spec " \
+                      "but is in data. Using as data.\nEither rename the " \
+                      "entry in data or use three arguments to plot."
                 warnings.warn(msg, RuntimeWarning, stacklevel=3)
-            _replacer += ["x", "y", "c"]
-
-        # if less than 3, the above code handled it so just return
-        if len(remaining) <= 3:
-            return _replacer
-
-        # More than 3 -> split off the beginning and continue
-        if remaining[2] not in data:
-            _replacer += ["x", "y", "c"]
-            isplit = 3
-        else:
-            _replacer += ["x", "y"]
-            isplit = 2
-        remaining = remaining[isplit:]
+        return ["x", "y"]
+    elif len(args) == 3:
+        return ["x", "y", "c"]
+    else:
+        raise ValueError("Using arbitrary long args with data is not "
+                         "supported due to ambiguity of arguments.\nUse "
+                         "multiple plotting calls instead.")
 
 
 # The axes module contains all the wrappers to plotting functions.
 # All the other methods should go in the _AxesBase class.
+
 
 class Axes(_AxesBase):
     """
@@ -1305,8 +1311,14 @@ class Axes(_AxesBase):
         If *x* and/or *y* is 2-dimensional, then the corresponding columns
         will be plotted.
 
-        An arbitrary number of *x*, *y*, *fmt* groups can be
-        specified, as in::
+        If used with labeled data, make sure that the color spec is not
+        included as an element in data, as otherwise the last case
+        ``plot("v","r", data={"v":..., "r":...)``
+        can be interpreted as the first case which would do ``plot(v, r)``
+        using the default line style and color.
+
+        If not used with labeled data (i.e., without a data argument),
+        an arbitrary number of *x*, *y*, *fmt* groups can be specified, as in::
 
             a.plot(x1, y1, 'g^', x2, y2, 'g-')
 
