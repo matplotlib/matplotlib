@@ -1187,15 +1187,49 @@ GROW_FACTOR     = 1.0 / SHRINK_FACTOR
 # get any smaller
 NUM_SIZE_LEVELS = 6
 # Percentage of x-height of additional horiz. space after sub/superscripts
-SCRIPT_SPACE    = 0.2
-# Percentage of x-height that sub/superscripts drop below the baseline
-SUBDROP         = 0.3
-# Percentage of x-height that superscripts drop below the baseline
-SUP1            = 0.5
+SCRIPT_SPACE    = {'cm': 0.075,
+                   'stix': 0.10,
+                   'stixsans': 0.05,
+                   'arevsans': 0.05}
+## Percentage of x-height that sub/superscripts drop below the baseline
+SUBDROP         = {'cm': 0.2,
+                   'stix': 0.4,
+                   'stixsans': 0.4,
+                   'arevsans': 0.4}
+# Percentage of x-height that superscripts are raised from the baseline
+SUP1            = {'cm': 0.45,
+                   'stix': 0.8,
+                   'stixsans': 0.8,
+                   'arevsans': 0.7}
 # Percentage of x-height that subscripts drop below the baseline
-SUB1            = 0.0
-# Percentage of x-height that superscripts are offset relative to the subscript
-DELTA           = 0.18
+SUB1            = {'cm': 0.2,
+                   'stix': 0.3,
+                   'stixsans': 0.3,
+                   'arevsans': 0.3}
+# Percentage of x-height that subscripts drop below the baseline when a
+# superscript is present
+SUB2            = {'cm': 0.3,
+                   'stix': 0.6,
+                   'stixsans': 0.5,
+                   'arevsans': 0.5}
+# Percentage of x-height that sub/supercripts are offset relative to the
+# nucleus edge for non-slanted nuclei
+DELTA           = {'cm': 0.075,
+                   'stix': 0.05,
+                   'stixsans': 0.025,
+                   'arevsans': 0.025}
+# Additional percentage of last character height above 2/3 of the x-height that
+# supercripts are offset relative to the subscript for slanted nuclei
+DELTASLANTED    = {'cm': 0.3,
+                   'stix': 0.3,
+                   'stixsans': 0.6,
+                   'arevsans': 0.2}
+# Percentage of x-height that supercripts and subscripts are offset for
+# integrals
+DELTAINTEGRAL   = {'cm': 0.3,
+                   'stix': 0.3,
+                   'stixsans': 0.3,
+                   'arevsans': 0.3}
 
 class MathTextWarning(Warning):
     pass
@@ -2628,9 +2662,21 @@ class Parser(object):
             return nucleus.is_slanted()
         return False
 
+    def _get_fontset_name(self):
+        fs = rcParams['mathtext.fontset']
+        # If a custom fontset is used, check if it is Arev Sans, otherwise use
+        # CM parameters.
+        if fs == 'custom':
+            if (rcParams['mathtext.rm'] == 'sans' and
+                    rcParams['font.sans-serif'][0].lower() == 'Arev Sans'.lower()):
+                fs = 'arevsans'
+            else:
+                fs = 'cm'
+
+        return fs
+
     def subsuper(self, s, loc, toks):
         assert(len(toks)==1)
-        # print 'subsuper', toks
 
         nucleus = None
         sub = None
@@ -2726,48 +2772,87 @@ class Parser(object):
             result = Hlist([vlist])
             return [result]
 
-        # Handle regular sub/superscripts
-        shift_up = nucleus.height - SUBDROP * xHeight
-        if self.is_dropsub(nucleus):
-            shift_down = nucleus.depth + SUBDROP * xHeight
+        # We remove kerning on the last character for consistency (otherwise it
+        # will compute kerning based on non-shrinked characters and may put them
+        # too close together when superscripted)
+        # We change the width of the last character to match the advance to
+        # consider some fonts with weird metrics: e.g. stix's f has a width of
+        # 7.75 and a kerning of -4.0 for an advance of 3.72, and we want to put
+        # the superscript at the advance
+        last_char = nucleus
+        if isinstance(nucleus, Hlist):
+            new_children = nucleus.children
+            if len(new_children):
+                # remove last kern
+                if isinstance(new_children[-1],Kern):
+                    new_children = new_children[:-1]
+                last_char = new_children[-1]
+                last_char.width = last_char._metrics.advance
+            # create new Hlist without kerning
+            nucleus = Hlist(new_children, do_kern=False)
         else:
-            shift_down = SUBDROP * xHeight
+            if isinstance(nucleus, Char):
+                last_char.width = last_char._metrics.advance
+            nucleus = Hlist([nucleus])
+
+        # Handle regular sub/superscripts
+
+        fs = self._get_fontset_name()
+
+        lc_height   = last_char.height
+        lc_baseline = 0
+        if self.is_dropsub(last_char):
+            lc_baseline = last_char.depth
+
+        # Compute kerning for sub and super
+        superkern = DELTA[fs] * xHeight
+        subkern = DELTA[fs] * xHeight
+        if self.is_slanted(last_char):
+            superkern += DELTA[fs] * xHeight
+            superkern += DELTASLANTED[fs] * (lc_height - xHeight * 2. / 3.)
+            if self.is_dropsub(last_char):
+                subkern = (3 * DELTA[fs] - DELTAINTEGRAL[fs]) * lc_height
+                superkern = (3 * DELTA[fs] + DELTAINTEGRAL[fs]) * lc_height
+            else:
+                subkern = 0
+
         if super is None:
             # node757
-            sub.shrink()
-            x = Hlist([sub])
-            # x.width += SCRIPT_SPACE * xHeight
-            shift_down = max(shift_down, SUB1)
-            clr = x.height - (abs(xHeight * 4.0) / 5.0)
-            shift_down = max(shift_down, clr)
+            x = Hlist([Kern(subkern), sub])
+            x.shrink()
+            if self.is_dropsub(last_char):
+                shift_down = lc_baseline + SUBDROP[fs] * xHeight
+            else:
+                shift_down = SUB1[fs] * xHeight
             x.shift_amount = shift_down
         else:
-            super.shrink()
-            x = Hlist([super])
-            # x.width += SCRIPT_SPACE * xHeight
-            clr = SUP1 * xHeight
-            shift_up = max(shift_up, clr)
-            clr = x.depth + (abs(xHeight) / 4.0)
-            shift_up = max(shift_up, clr)
+            x = Hlist([Kern(superkern), super])
+            x.shrink()
+            if self.is_dropsub(last_char):
+                shift_up = lc_height - SUBDROP[fs] * xHeight
+            else:
+                shift_up = SUP1[fs] * xHeight
             if sub is None:
                 x.shift_amount = -shift_up
             else: # Both sub and superscript
-                sub.shrink()
-                y = Hlist([sub])
-                # y.width += SCRIPT_SPACE * xHeight
-                shift_down = max(shift_down, SUB1 * xHeight)
+                y = Hlist([Kern(subkern),sub])
+                y.shrink()
+                if self.is_dropsub(last_char):
+                    shift_down = lc_baseline + SUBDROP[fs] * xHeight
+                else:
+                    shift_down = SUB2[fs] * xHeight
+                # If sub and superscript collide, move super up
                 clr = (2.0 * rule_thickness -
                        ((shift_up - x.depth) - (y.height - shift_down)))
                 if clr > 0.:
                     shift_up += clr
-                    shift_down += clr
-                if self.is_slanted(nucleus):
-                    x.shift_amount = DELTA * (shift_up + shift_down)
                 x = Vlist([x,
                            Kern((shift_up - x.depth) - (y.height - shift_down)),
                            y])
                 x.shift_amount = shift_down
 
+        if not self.is_dropsub(last_char):
+            x.width += SCRIPT_SPACE[fs] * xHeight
         result = Hlist([nucleus, x])
         return [result]
 

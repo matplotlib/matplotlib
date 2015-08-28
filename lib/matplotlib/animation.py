@@ -1142,7 +1142,7 @@ class FuncAnimation(TimedAnimation):
         if self._save_seq:
             # While iterating we are going to update _save_seq
             # so make a copy to safely iterate over
-            self._old_saved_seq = self._save_seq.copy()
+            self._old_saved_seq = list(self._save_seq)
             return iter(self._old_saved_seq)
         else:
             return itertools.islice(self.new_frame_seq(), self.save_count)
