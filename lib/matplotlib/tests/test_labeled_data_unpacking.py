@@ -467,31 +467,27 @@ def test_positional_parameter_names_as_function():
     # Also test the _plot_arg_replacer for plot...
     from matplotlib.axes._axes import _plot_args_replacer
 
-    # this is a replace for plot, which can take args as
-    # x,y,c,x,y,c or x,y,x,y,c,x,y or any other way... :-/
     @unpack_labeled_data(replace_names=["x", "y"],
                          positional_parameter_names=_plot_args_replacer)
     def funcy(ax, *args, **kwargs):
         return "{args} | {kwargs}".format(args=args, kwargs=kwargs)
 
+    # the normal case...
     data = {"x": "X", "y": "Y"}
     assert_equal(funcy(None, "x", "y", data=data),
                  "('X', 'Y') | {}")
     assert_equal(funcy(None, "x", "y", "c", data=data),
                  "('X', 'Y', 'c') | {}")
-    assert_equal(funcy(None, "x", "y", "c", "x", "y", "x", "y", data=data),
-                 "('X', 'Y', 'c', 'X', 'Y', 'X', 'Y') | {}")
 
-    # the color spec should not be in data...
-    data = {"x": "X", "y": "Y", "c": "!!"}
-    with assert_produces_warning(RuntimeWarning):
+    # no arbitrary long args with data
+    def f():
         assert_equal(funcy(None, "x", "y", "c", "x", "y", "x", "y", data=data),
-                     "('X', 'Y', '!!', 'X', 'Y', 'X', 'y') | {}")
+                     "('X', 'Y', 'c', 'X', 'Y', 'X', 'Y') | {}")
+    assert_raises(ValueError, f)
 
-    # And this is the case which we screw up, as we can't distinguish
-    # between a color spec and data...
-    # -> This test should actually produce a warning, if someone finds a way
-    # to distinguish between data and color spec...
-    with assert_produces_warning(False):
-        assert_equal(funcy(None, "x", "y", "c", "x", "y", "c", data=data),
-                     "('X', 'Y', '!!', 'X', 'Y', '!!') | {}")
+    # In the two arg case, if a valid color spec is in data, we warn but use
+    # it as data...
+    data = {"x": "X", "y": "Y", "ro": "!!"}
+    with assert_produces_warning(RuntimeWarning):
+        assert_equal(funcy(None, "y", "ro", data=data),
+                     "('Y', '!!') | {}")
