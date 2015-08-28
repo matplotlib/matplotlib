@@ -859,11 +859,7 @@ class Animation(object):
         # cache and restore.
         axes = set(a.axes for a in artists)
         for a in axes:
-            try:
-                a.figure.canvas.restore_region(bg_cache[a])
-            except KeyError:
-                # something has happened out of order?
-                pass
+            a.figure.canvas.restore_region(bg_cache[a])
 
     def _setup_blit(self):
         # Setting up the blit requires: a cache of the background for the
