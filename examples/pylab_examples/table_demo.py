@@ -18,7 +18,7 @@ values = np.arange(0, 2500, 500)
 value_increment = 1000
 
 # Get some pastel shades for the colors
-colors = plt.cm.BuPu(np.linspace(0, 0.5, len(columns)))
+colors = plt.cm.BuPu(np.linspace(0, 0.5, len(rows)))
 n_rows = len(data)
 
 index = np.arange(len(columns)) + 0.3
