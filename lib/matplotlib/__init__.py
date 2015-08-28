@@ -1590,9 +1590,11 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
         new_sig = None
         ver_info = sys.version_info
         # py2.6 compatible version, use line below as soon as we can
-        _python_has_signature = ver_info[0] > 2 and ver_info[1] > 2
-        # _python_has_signature = ver_info.major > 2 and ver_info.minor > 2
-        if not _python_has_signature:
+        python_has_signature = ver_info[0] > 2 and ver_info[1] > 2
+        # python_has_signature = ver_info.major > 2 and ver_info.minor > 2
+        python_has_wrapped = ver_info[0] > 2 and ver_info[1] > 1
+        # python_has_wrapped = ver_info.major > 2 and ver_info.minor > 1
+        if not python_has_signature:
             arg_spec = inspect.getargspec(func)
             _arg_names = arg_spec.args
             _has_no_varargs = arg_spec.varargs is None
@@ -1791,6 +1793,8 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
             _repl = _repl.format(names="', '".join(replace_names))
         inner.__doc__ = (pre_doc +
                          _DATA_DOC_APPENDIX.format(replaced=_repl))
+        if not python_has_wrapped:
+            inner.__wrapped__ = func
         if new_sig is not None:
             inner.__signature__ = new_sig
         return inner
