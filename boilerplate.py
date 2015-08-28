@@ -8,6 +8,7 @@ Hence, the non-generatable content should be edited in the pyplot.py file
 itself, whereas the generatable content must be edited via templates in
 this file.
 
+This file is python 3 only due to the use of `inspect`
 """
 # We did try to do the wrapping the smart way,
 # with callable functions and new.function, but could never get the
@@ -209,9 +210,12 @@ def boilerplate_gen():
                 mappable = ''
 
             # Get argspec of wrapped function
-            work_func = getattr(Axes, func)
-            if hasattr(work_func, '__wrapped__'):
-                work_func = work_func.__wrapped__
+            base_func = getattr(Axes, func)
+            has_data = 'data' in inspect.signature(base_func).parameters
+            if hasattr(base_func, '__wrapped__'):
+                work_func = base_func.__wrapped__
+            else:
+                work_func = base_func
 
             args, varargs, varkw, defaults = inspect.getargspec(work_func)
 
@@ -227,6 +231,15 @@ def boilerplate_gen():
                     def_edited.append(val)
                 defaults = tuple(def_edited)
 
+            # Add a data keyword argument if needed (fmt is PLOT_TEMPLATE) and
+            # possible (if *args is used, we can't just add a data
+            # argument in front of it since it would gobble one of the
+            # arguments the user means to pass via *args)
+            # This needs to be done here so that it goes into call
+            if not varargs and fmt is PLOT_TEMPLATE and has_data:
+                args.append('data')
+                defaults = defaults + (None,)
+
             # How to call the wrapped function
             call = []
             for i, arg in enumerate(args):
@@ -234,6 +247,14 @@ def boilerplate_gen():
                     call.append('%s' % arg)
                 else:
                     call.append('%s=%s' % (arg, arg))
+
+            # remove the data keyword as it was needed above to go into the
+            # call but should go after `hold` in the signature.
+            # This is janky as all get out, but hopefully boilerplate will
+            # be retired soon.
+            if not varargs and fmt is PLOT_TEMPLATE and has_data:
+                args.pop()
+                defaults = defaults[:-1]
 
             if varargs is not None:
                 call.append('*' + varargs)
@@ -254,6 +275,9 @@ def boilerplate_gen():
             elif fmt is PLOT_TEMPLATE:
                 args.append('hold')
                 defaults = defaults + (None,)
+                if has_data:
+                    args.append('data')
+                    defaults = defaults + (None,)
                 sethold = ''
 
             # Now we can build the argspec for defining the wrapper
