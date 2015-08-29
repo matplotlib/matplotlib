@@ -1,3 +1,19 @@
+Added ``axes.prop_cycle`` key to rcParams
+`````````````````````````````````````````
+This is a more generic form of the now-deprecated ``axes.color_cycle`` param.
+Now, we can cycle more than just colors, but also linestyles, hatches,
+and just about any other artist property. Cycler notation is used for
+defining proprty cycles. Adding cyclers together will be like you are
+`zip()`-ing together two or more property cycles together::
+
+    axes.prop_cycle: cycler('color', 'rgb') + cycler('lw', [1, 2, 3])
+
+You can even multiply cyclers, which is like using `itertools.product()`
+on two or more property cycles. Remember to use parentheses if writing
+a multi-line `prop_cycle` parameter.
+
+..plot:: mpl_examples/color/color_cycle_demo.py
+
 Added ``errorbar.capsize`` key to rcParams
 ``````````````````````````````````````````
 Controls the length of end caps on error bars. If set to zero, errorbars
