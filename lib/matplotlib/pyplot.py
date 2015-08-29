@@ -287,7 +287,7 @@ def ensure_new_ax(func):
             ax = args[0]
             args = args[1:]
         else:
-            ax = quick_axes()
+            ax = gna()
         return func(ax, *args, **kwargs)
     pre_doc = inner.__doc__
     if pre_doc is None:
@@ -1385,7 +1385,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     return ret
 
 
-def quick_axes(figsize=None, tight_layout=False):
+def gna(figsize=None, tight_layout=False):
     """
     Create a single new axes in a new figure.
 
