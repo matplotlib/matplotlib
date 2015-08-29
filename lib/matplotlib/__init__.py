@@ -121,7 +121,8 @@ import distutils.sysconfig
 from matplotlib.cbook import is_string_like, mplDeprecation
 from matplotlib.compat import subprocess
 from matplotlib.rcsetup import (defaultParams,
-                                validate_backend)
+                                validate_backend,
+                                cycler)
 
 import numpy
 from matplotlib.externals.six.moves.urllib.request import urlopen
@@ -826,6 +827,8 @@ _deprecated_map = {
     'svg.embed_char_paths': ('svg.fonttype',
                              lambda x: "path" if x else "none", None),
     'savefig.extension': ('savefig.format', lambda x: x, None),
+    'axes.color_cycle': ('axes.prop_cycle', lambda x: cycler('color', x),
+                         lambda x: [c.get('color', None) for c in x]),
     }
 
 _deprecated_ignore_map = {
@@ -1447,11 +1450,13 @@ default_test_modules = [
     'matplotlib.tests.test_subplots',
     'matplotlib.tests.test_table',
     'matplotlib.tests.test_text',
+    'matplotlib.tests.test_texmanager',
     'matplotlib.tests.test_ticker',
     'matplotlib.tests.test_tightlayout',
     'matplotlib.tests.test_transforms',
     'matplotlib.tests.test_triangulation',
     'matplotlib.tests.test_widgets',
+    'matplotlib.tests.test_cycles',
     'matplotlib.sphinxext.tests.test_tinypages',
     'mpl_toolkits.tests.test_mplot3d',
     'mpl_toolkits.tests.test_axes_grid1',
