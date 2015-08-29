@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib import mathtext
 
 math_tests = [
-    r'$a+b+\dots+\dot{s}+\ldots$',
+    r'$a+b+\dot s+\dot{s}+\ldots$',
     r'$x \doteq y$',
     r'\$100.00 $\alpha \_$',
     r'$\frac{\$100.00}{y}$',
