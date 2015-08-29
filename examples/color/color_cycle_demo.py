@@ -1,13 +1,15 @@
 """
-Demo of custom color-cycle settings to control colors for multi-line plots.
+Demo of custom property-cycle settings to control colors and such
+for multi-line plots.
 
 This example demonstrates two different APIs:
 
-    1. Setting the default rc-parameter specifying the color cycle.
-       This affects all subsequent plots.
-    2. Setting the color cycle for a specific axes. This only affects a single
-       axes.
+    1. Setting the default rc-parameter specifying the property cycle.
+       This affects all subsequent axes (but not axes already created).
+    2. Setting the property cycle for a specific axes. This only
+       affects a single axes.
 """
+from cycler import cycler
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -17,13 +19,14 @@ offsets = np.linspace(0, 2*np.pi, 4, endpoint=False)
 yy = np.transpose([np.sin(x + phi) for phi in offsets])
 
 plt.rc('lines', linewidth=4)
+plt.rc('axes', prop_cycle=(cycler('color', ['r', 'g', 'b', 'y']) +
+                           cycler('linestyle', ['-', '--', ':', '-.'])))
 fig, (ax0, ax1) = plt.subplots(nrows=2)
-
-plt.rc('axes', color_cycle=['r', 'g', 'b', 'y'])
 ax0.plot(yy)
 ax0.set_title('Set default color cycle to rgby')
 
-ax1.set_color_cycle(['c', 'm', 'y', 'k'])
+ax1.set_prop_cycle(cycler('color', ['c', 'm', 'y', 'k']) +
+                   cycler('lw', [1, 2, 3, 4]))
 ax1.plot(yy)
 ax1.set_title('Set axes color cycle to cmyk')
 
