@@ -12,7 +12,7 @@ axes.facecolor: white
 axes.edgecolor: black
 axes.labelcolor: black
 # black to light gray
-axes.color_cycle: 0.00, 0.40, 0.60, 0.70
+axes.prop_cycle: cycler('color', ['0.00', '0.40', '0.60', '0.70'])
 
 xtick.color: black
 ytick.color: black
