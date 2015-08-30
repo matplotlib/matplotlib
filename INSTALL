@@ -135,6 +135,14 @@ the latest *tar.gz* release file from `the download page
 to develop matplotlib or just need the latest bugfixed version, grab
 the latest git version :ref:`install-from-git`.
 
+The standard environment variables `CC`, `CXX`, `PKG_CONFIG` are respected.
+This means you can set them if your toolchain is prefixed. This may be used for
+cross compiling.
+
+  export CC=x86_64-pc-linux-gnu-gcc
+  export CXX=x86_64-pc-linux-gnu-g++
+  export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config
+
 Once you have satisfied the requirements detailed below (mainly
 python, numpy, libpng and freetype), you can build matplotlib::
 
