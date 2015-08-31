@@ -3042,7 +3042,10 @@ class NavigationToolbar2(object):
             x, y = event.x, event.y
             lastx, lasty, a, ind, view = cur_xypress
             # ignore singular clicks - 5 pixels is a threshold
-            if abs(x - lastx) < 5 or abs(y - lasty) < 5:
+            # allows the user to "cancel" a zoom action
+            # by zooming by less than 5 pixels
+            if ((abs(x - lastx) < 5 and self._zoom_mode!="y") or
+                    (abs(y - lasty) < 5 and self._zoom_mode!="x")):
                 self._xypress = None
                 self.release(event)
                 self.draw()
