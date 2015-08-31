@@ -1775,7 +1775,6 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
                            "the matplotlib list!)")
                     warnings.warn(msg % (label_namer, func.__name__),
                                   RuntimeWarning, stacklevel=2)
-                    # raise Exception()
             return func(ax, *args, **kwargs)
         pre_doc = inner.__doc__
         if pre_doc is None:

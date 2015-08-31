@@ -343,7 +343,7 @@ def test_function_call_replace_all():
 
 
 def test_no_label_replacements():
-    """Test without "label_namer=None" -> no label replacement at all"""
+    """Test with "label_namer=None" -> no label replacement at all"""
 
     @unpack_labeled_data(replace_names=["x", "y"], label_namer=None)
     def func_no_label(ax, x, y, ls="x", label=None, w="xyz"):
@@ -390,11 +390,8 @@ def test_function_call_with_replace_all_args():
             list(x), list(y), ls, w, label)
 
     func = unpack_labeled_data(replace_all_args=True, replace_names=["w"],
-                               label_namer="y")(
-        funcy)
+                               label_namer="y")(funcy)
 
-    # assert_equal(func(None, "a","b", w="x", data=data),
-    # "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: None")
     assert_equal(func(None, "a", "b", w="x", label="", data=data),
                  "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
     assert_equal(func(None, "a", "b", w="x", label="text", data=data),
