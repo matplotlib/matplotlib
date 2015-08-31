@@ -708,6 +708,9 @@ def is_string_like(obj):
         return False
     return True
 
+def is_list_like(obj):
+    """Returns whether the obj is iterable and not a string"""
+    return not is_string_like(obj) and iterable(obj)
 
 def is_sequence_of_strings(obj):
     """
