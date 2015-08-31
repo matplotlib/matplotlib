@@ -19,83 +19,15 @@ except ImportError:
         assert_regex = noop
         assert_not_regex = noop
 
-
-from matplotlib.cbook import is_string_like, iterable
-
-from contextlib import contextmanager
+from ..testing import assert_produces_warning
 
 from .. import unpack_labeled_data
 
-
-def is_list_like(obj):
-    return not is_string_like(obj) and iterable(obj)
 
 # Notes on testing the plotting functions itself
 # *   the individual decorated plotting functions are tested in 'test_axes.py'
 # *   that pyplot functions accept a data kwarg is only tested in
 #     test_axes.test_pie_linewidth_0
-
-
-# stolen from pandas
-@contextmanager
-def assert_produces_warning(expected_warning=Warning, filter_level="always",
-                            clear=None):
-    """
-    Context manager for running code that expects to raise (or not raise)
-    warnings.  Checks that code raises the expected warning and only the
-    expected warning. Pass ``False`` or ``None`` to check that it does *not*
-    raise a warning. Defaults to ``exception.Warning``, baseclass of all
-    Warnings. (basically a wrapper around ``warnings.catch_warnings``).
-
-    >>> import warnings
-    >>> with assert_produces_warning():
-    ...     warnings.warn(UserWarning())
-    ...
-    >>> with assert_produces_warning(False):
-    ...     warnings.warn(RuntimeWarning())
-    ...
-    Traceback (most recent call last):
-        ...
-    AssertionError: Caused unexpected warning(s): ['RuntimeWarning'].
-    >>> with assert_produces_warning(UserWarning):
-    ...     warnings.warn(RuntimeWarning())
-    Traceback (most recent call last):
-        ...
-    AssertionError: Did not see expected warning of class 'UserWarning'.
-
-    ..warn:: This is *not* thread-safe.
-    """
-    import warnings
-
-    with warnings.catch_warnings(record=True) as w:
-
-        if clear is not None:
-            # make sure that we are clearning these warnings
-            # if they have happened before
-            # to guarantee that we will catch them
-            if not is_list_like(clear):
-                clear = [clear]
-            for m in clear:
-                try:
-                    m.__warningregistry__.clear()
-                except:
-                    pass
-
-        saw_warning = False
-        warnings.simplefilter(filter_level)
-        yield w
-        extra_warnings = []
-        for actual_warning in w:
-            if (expected_warning and issubclass(actual_warning.category,
-                                                expected_warning)):
-                saw_warning = True
-            else:
-                extra_warnings.append(actual_warning.category.__name__)
-        if expected_warning:
-            assert saw_warning, ("Did not see expected warning of class %r."
-                                 % expected_warning.__name__)
-        assert not extra_warnings, ("Caused unexpected warning(s): %r."
-                                    % extra_warnings)
 
 
 # these two get used in multiple tests, so define them here
