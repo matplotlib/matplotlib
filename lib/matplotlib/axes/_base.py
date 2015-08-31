@@ -2883,7 +2883,9 @@ class _AxesBase(martist.Artist):
 
         ACCEPTS: sequence of strings
         """
-        ret = self.xaxis.set_ticklabels(labels, fontdict,
+        if fontdict is not None:
+            kwargs.update(fontdict)
+        ret = self.xaxis.set_ticklabels(labels,
                                         minor=minor, **kwargs)
         self.stale = True
         return ret
@@ -3143,7 +3145,9 @@ class _AxesBase(martist.Artist):
 
         ACCEPTS: sequence of strings
         """
-        return self.yaxis.set_ticklabels(labels, fontdict,
+        if fontdict is not None:
+            kwargs.update(fontdict)
+        return self.yaxis.set_ticklabels(labels,
                                          minor=minor, **kwargs)
 
     def xaxis_date(self, tz=None):
