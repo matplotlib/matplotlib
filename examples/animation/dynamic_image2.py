@@ -21,7 +21,7 @@ ims = []
 for i in range(60):
     x += np.pi / 15.
     y += np.pi / 20.
-    im = plt.imshow(f(x, y))
+    im = plt.imshow(f(x, y), cmap='viridis', animated=True)
     ims.append([im])
 
 ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,

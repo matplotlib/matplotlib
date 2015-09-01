@@ -58,6 +58,7 @@ def animate(i):
     top = bottom + n
     verts[1::5, 1] = top
     verts[2::5, 1] = top
+    return [patch, ]
 
-ani = animation.FuncAnimation(fig, animate, 100, repeat=False)
+ani = animation.FuncAnimation(fig, animate, 100, repeat=False, blit=True)
 plt.show()
