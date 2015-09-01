@@ -2107,8 +2107,8 @@ class Parser(object):
       \\subseteq       \\supseteq        \\cong            \\Join
       \\sqsubset       \\sqsupset        \\neq             \\smile
       \\sqsubseteq     \\sqsupseteq      \\doteq           \\frown
-      \\in             \\ni              \\propto
-      \\vdash          \\dashv           \\dots'''.split())
+      \\in             \\ni              \\propto          \\vdash
+      \\dashv          \\dots            \\dotplus         \\doteqdot'''.split())
 
     _arrow_symbols = set('''
       \\leftarrow              \\longleftarrow           \\uparrow
@@ -2190,6 +2190,7 @@ class Parser(object):
         p.simple           = Forward()
         p.simple_group     = Forward()
         p.single_symbol    = Forward()
+        p.snowflake        = Forward()
         p.space            = Forward()
         p.sqrt             = Forward()
         p.stackrel         = Forward()
@@ -2223,6 +2224,7 @@ class Parser(object):
         unicode_range =  "\U00000080-\U0001ffff"
         p.single_symbol <<= Regex(r"([a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|%s])|(\\[%%${}\[\]_|])" %
                                unicode_range)
+        p.snowflake     <<= Suppress(p.bslash) + oneOf(self._snowflake)
         p.symbol_name   <<= (Combine(p.bslash + oneOf(list(six.iterkeys(tex2uni)))) +
                           FollowedBy(Regex("[^A-Za-z]").leaveWhitespace() | StringEnd()))
         p.symbol        <<= (p.single_symbol | p.symbol_name).leaveWhitespace()
@@ -2297,8 +2299,10 @@ class Parser(object):
                               | Error("Expected \operatorname{value}"))
                          )
 
-        p.placeable     <<= ( p.symbol # Must be first
-                         | p.accent # Must be second
+        p.placeable     <<= ( p.snowflake # this needs to be before accent so named symbols
+                                          # that are prefixed with an accent name work
+                         | p.accent # Must be before symbol as all accents are symbols
+                         | p.symbol # Must be third to catch all named symbols and single chars not in a group
                          | p.c_over_c
                          | p.function
                          | p.group
@@ -2498,12 +2502,14 @@ class Parser(object):
             return [Hlist( [self._make_space(0.2),
                             char,
                             self._make_space(0.2)] ,
-                           do_kern = False)]
+                           do_kern = True)]
         elif c in self._punctuation_symbols:
             return [Hlist( [char,
                             self._make_space(0.2)] ,
-                           do_kern = False)]
+                           do_kern = True)]
         return [char]
+
+    snowflake = symbol
 
     def unknown_symbol(self, s, loc, toks):
         # print "symbol", toks
@@ -2560,9 +2566,9 @@ class Parser(object):
         r'bar'   : r'\combiningoverline',
         r'grave' : r'\combininggraveaccent',
         r'acute' : r'\combiningacuteaccent',
-        r'ddot'  : r'\combiningdiaeresis',
         r'tilde' : r'\combiningtilde',
         r'dot'   : r'\combiningdotabove',
+        r'ddot'  : r'\combiningdiaeresis',
         r'vec'   : r'\combiningrightarrowabove',
         r'"'     : r'\combiningdiaeresis',
         r"`"     : r'\combininggraveaccent',
@@ -2576,6 +2582,11 @@ class Parser(object):
         }
 
     _wide_accents = set(r"widehat widetilde widebar".split())
+
+    # make a lambda and call it to get the namespace right
+    _snowflake = (lambda am: [p for p in tex2uni if
+                              any(p.startswith(a) and a != p for a in am)]
+                  ) (set(_accent_map))
 
     def accent(self, s, loc, toks):
         assert(len(toks)==1)
