@@ -339,7 +339,7 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,
         g = 'd'
 
     urlFmt = ('http://real-chart.finance.yahoo.com/table.csv?' +
-              's=%s&d=%d&e=%df=%d&g=%s&a=%d&b=%d&c=%d&ignore=.csv')
+              '&s=%s&d=%d&e=%d&f=%d&g=%s&a=%d&b=%d&c=%d&ignore=.csv')
 
     url = urlFmt % (ticker, d2[0], d2[1], d2[2], g, d1[0], d1[1], d1[2])
     # Cache the finance data if cachename is supplied, or there is a writable
