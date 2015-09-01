@@ -1145,7 +1145,7 @@ class _SelectorWidget(AxesWidget):
         self.connect_default_events()
 
         self.state_modifier_keys = dict(move=' ', clear='escape',
-                                        square='shift', center='ctrl')
+                                        square='shift', center='control')
         self.state_modifier_keys.update(state_modifier_keys or {})
 
         self.background = None
@@ -1273,7 +1273,8 @@ class _SelectorWidget(AxesWidget):
             self.eventpress = event
             self._prev_event = event
             key = event.key or ''
-            key = key.replace('control', 'ctrl')
+            key = key.replace('ctrl', 'control')
+            # move state is locked in on a button press
             if key == self.state_modifier_keys['move']:
                 self.state.add('move')
             self._press(event)
@@ -1322,10 +1323,10 @@ class _SelectorWidget(AxesWidget):
         pass
 
     def on_key_press(self, event):
-        """Key press event handler and validator"""
+        """Key press event handler and validator for all selection widgets"""
         if self.active:
             key = event.key or ''
-            key = key.replace('control', 'ctrl')
+            key = key.replace('ctrl', 'control')
             if key == self.state_modifier_keys['clear']:
                 for artist in self.artists:
                     artist.set_visible(False)
@@ -1337,7 +1338,8 @@ class _SelectorWidget(AxesWidget):
             self._on_key_press(event)
 
     def _on_key_press(self, event):
-        """Key press event handler"""
+        """Key press event handler - use for widget-specific key press actions.
+        """
         pass
 
     def on_key_release(self, event):
@@ -1424,7 +1426,7 @@ class SpanSelector(_SelectorWidget):
         if rectprops is None:
             rectprops = dict(facecolor='red', alpha=0.5)
 
-        rectprops['animated'] = useblit
+        rectprops['animated'] = self.useblit
 
         if direction not in ['horizontal', 'vertical']:
             msg = "direction must be in [ 'horizontal' | 'vertical' ]"
@@ -1567,7 +1569,6 @@ class SpanSelector(_SelectorWidget):
 
 
 class ToolHandles(object):
-
     """Control handles for canvas tools.
 
     Parameters
