@@ -1346,10 +1346,9 @@ class _SelectorWidget(AxesWidget):
         """Key release event handler and validator"""
         if self.active:
             key = event.key or ''
-            if 'shift' in key:
-                self.state.discard('square')
-            if 'ctrl' in key or 'control' in key:
-                self.state.discard('center')
+            for (state, modifier) in self.state_modifier_keys.items():
+                if modifier in key:
+                    self.state.discard(state)
             self._on_key_release(event)
 
     def _on_key_release(self, event):
