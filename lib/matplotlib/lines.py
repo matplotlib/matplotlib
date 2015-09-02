@@ -598,7 +598,7 @@ class Line2D(Artist):
         if always or self._invalidx:
             xconv = self.convert_xunits(self._xorig)
             if ma.isMaskedArray(self._xorig):
-                x = ma.asarray(xconv, np.float_)
+                x = ma.asarray(xconv, np.float_).filled(np.nan)
             else:
                 x = np.asarray(xconv, np.float_)
             x = x.ravel()
@@ -607,7 +607,7 @@ class Line2D(Artist):
         if always or self._invalidy:
             yconv = self.convert_yunits(self._yorig)
             if ma.isMaskedArray(self._yorig):
-                y = ma.asarray(yconv, np.float_)
+                y = ma.asarray(yconv, np.float_).filled(np.nan)
             else:
                 y = np.asarray(yconv, np.float_)
             y = y.ravel()
@@ -622,23 +622,29 @@ class Line2D(Artist):
         if len(x) != len(y):
             raise RuntimeError('xdata and ydata must be the same length')
 
-        x = x.reshape((len(x), 1))
-        y = y.reshape((len(y), 1))
+        self._xy = np.empty((len(x), 2), dtype=np.float_)
+        self._xy[:, 0] = x
+        self._xy[:, 1] = y
 
-        if ma.isMaskedArray(x) or ma.isMaskedArray(y):
-            self._xy = ma.concatenate((x, y), 1)
-        else:
-            self._xy = np.concatenate((x, y), 1)
         self._x = self._xy[:, 0]  # just a view
         self._y = self._xy[:, 1]  # just a view
 
         self._subslice = False
-        if (self.axes and len(x) > 100 and self._is_sorted(x) and
+        if (self.axes and len(x) > 1000 and self._is_sorted(x) and
                 self.axes.name == 'rectilinear' and
                 self.axes.get_xscale() == 'linear' and
                 self._markevery is None and
                 self.get_clip_on() is True):
             self._subslice = True
+            nanmask = np.isnan(x)
+            if nanmask.any():
+                self._x_filled = self._x.copy()
+                indices = np.arange(len(x))
+                self._x_filled[nanmask] = np.interp(indices[nanmask],
+                        indices[~nanmask], self._x[~nanmask])
+            else:
+                self._x_filled = self._x
+
         if hasattr(self, '_path'):
             interpolation_steps = self._path._interpolation_steps
         else:
@@ -650,13 +656,14 @@ class Line2D(Artist):
 
     def _transform_path(self, subslice=None):
         """
-        Puts a TransformedPath instance at self._transformed_path,
+        Puts a TransformedPath instance at self._transformed_path;
         all invalidation of the transform is then handled by the
         TransformedPath instance.
         """
         # Masked arrays are now handled by the Path class itself
         if subslice is not None:
-            _path = Path(self._xy[subslice, :])
+            _steps = self._path._interpolation_steps
+            _path = Path(self._xy[subslice, :], _interpolation_steps=_steps)
         else:
             _path = self._path
         self._transformed_path = TransformedPath(_path, self.get_transform())
@@ -682,10 +689,11 @@ class Line2D(Artist):
         self.stale = True
 
     def _is_sorted(self, x):
-        """return true if x is sorted"""
+        """return True if x is sorted in ascending order"""
+        # We don't handle the monotonically decreasing case.
         if len(x) < 2:
-            return 1
-        return np.amin(x[1:] - x[0:-1]) >= 0
+            return True
+        return np.nanmin(x[1:] - x[:-1]) >= 0
 
     @allow_rasterization
     def draw(self, renderer):
@@ -697,13 +705,14 @@ class Line2D(Artist):
             self.recache()
         self.ind_offset = 0  # Needed for contains() method.
         if self._subslice and self.axes:
-            # Need to handle monotonically decreasing case also...
             x0, x1 = self.axes.get_xbound()
-            i0, = self._x.searchsorted([x0], 'left')
-            i1, = self._x.searchsorted([x1], 'right')
+            i0, = self._x_filled.searchsorted([x0], 'left')
+            i1, = self._x_filled.searchsorted([x1], 'right')
             subslice = slice(max(i0 - 1, 0), i1 + 1)
-            self.ind_offset = subslice.start
-            self._transform_path(subslice)
+            # Don't remake the Path unless it will be sufficiently smaller.
+            if subslice.start > 100 or len(self._x) - subslice.stop > 100:
+                self.ind_offset = subslice.start
+                self._transform_path(subslice)
 
         transf_path = self._get_transformed_path()
 
