@@ -166,6 +166,7 @@ class BasePiecewiseLinearNorm(BaseNormMixin):
     normclass = mcolors.PiecewiseLinearNorm
     test_inverse = False
 
+
 class test_PiecewiseLinearNorm_Even(BasePiecewiseLinearNorm):
     def setup(self):
         self.norm = self.normclass(vmin=-1, vcenter=0, vmax=4)
@@ -297,6 +298,7 @@ def test_offset_norm_img():
 
     img2 = ax2.imshow(Z, cmap=cmap, norm=norm)
     cbar2 = fig.colorbar(img2, ax=ax2)
+
 
 def test_SymLogNorm():
     """
