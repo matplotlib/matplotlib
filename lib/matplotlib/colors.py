@@ -1026,6 +1026,8 @@ class PiecewiseLinearNorm(Normalize):
             result = ma.masked_array(np.interp(result, x, y),
                                      mask=ma.getmask(result))
 
+        if is_scalar:
+            result = np.atleast_1d(result)[0]
         return result
 
     def autoscale_None(self, A):
