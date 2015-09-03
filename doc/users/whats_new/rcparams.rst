@@ -61,7 +61,9 @@ default), ``'left'``, ``'right'``, ``'bottom'``, ``'top'`` and ``'none'``.
 Added "toolmanager" to "toolbar" possible values
 ````````````````````````````````````````````````
 
-The new value enables the use of ``ToolManager``
+The new value enables the use of ``ToolManager``.  Note at the moment we
+release this for feedback and should get treated as experimental until further
+notice.
 
 
 Added ``axes.labelpad``
