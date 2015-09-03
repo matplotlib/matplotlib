@@ -992,7 +992,7 @@ def _open_file_or_url(fname):
     else:
         fname = os.path.expanduser(fname)
         encoding = locale.getdefaultlocale()[1]
-        if encoding == None:
+        if encoding is None:
             encoding = "utf-8"
         with io.open(fname, encoding=encoding) as f:
             yield f
