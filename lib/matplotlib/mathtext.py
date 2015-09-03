@@ -2501,11 +2501,10 @@ class Parser(object):
         if c in self._spaced_symbols:
             # iterate until we find previous character, needed for cases
             # such as ${ -2}$, $ -2$, or $   -2$.
-            i = 1
-            prev_char = s[loc-i]
-            while prev_char == ' ' and i <= loc:
-                i += 1
+            for i in six.moves.xrange(1, loc + 1):
                 prev_char = s[loc-i]
+                if prev_char != ' ':
+                    break
             # Binary operators at start of string should not be spaced
             if (c in self._binary_operators and
                     (len(s[:loc].split()) == 0 or prev_char == '{')):
