@@ -1023,9 +1023,8 @@ class PiecewiseLinearNorm(Normalize):
             vmax = float(vmax)
 
             x, y = [vmin, vcenter, vmax], [0, 0.5, 1]
-            # returns a scalar if shape == (1,)
-            result = ma.masked_array(np.interp(value, x, y),
-                                     mask=ma.getmask(value))
+            result = ma.masked_array(np.interp(result, x, y),
+                                     mask=ma.getmask(result))
 
         return result
 
