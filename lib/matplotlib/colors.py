@@ -1035,7 +1035,8 @@ class PiecewiseLinearNorm(Normalize):
 
             x, y = [vmin, vcenter, vmax], [0, 0.5, 1]
             # returns a scalar if shape == (1,)
-            result = np.ma.masked_array(np.interp(value, x, y))
+            result = ma.masked_array(np.interp(value, x, y),
+                                     mask=ma.getmask(value))
 
         return result
 
