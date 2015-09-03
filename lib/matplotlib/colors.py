@@ -1021,10 +1021,14 @@ class PiecewiseLinearNorm(Normalize):
             vmin = float(vmin)
             vcenter = float(vcenter)
             vmax = float(vmax)
+            # in degenerate cases, prefer the center value to the extremes
+            degen = (result == vcenter) if vcenter == vmax else None
 
             x, y = [vmin, vcenter, vmax], [0, 0.5, 1]
             result = ma.masked_array(np.interp(result, x, y),
                                      mask=ma.getmask(result))
+            if degen is not None:
+                result[degen] = 0.5
 
         if is_scalar:
             result = np.atleast_1d(result)[0]
