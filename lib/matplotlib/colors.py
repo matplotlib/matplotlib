@@ -970,7 +970,7 @@ class PiecewiseLinearNorm(Normalize):
 
     Normalizes data into the ``[0.0, 1.0]`` interval.
     """
-    def __init__(self, vmin=None, vcenter=None, vmax=None, clip=False):
+    def __init__(self, vmin=None, vcenter=None, vmax=None):
         """Normalize data with an offset midpoint
 
         Useful when mapping data unequally centered around a conceptual
@@ -990,11 +990,6 @@ class PiecewiseLinearNorm(Normalize):
             The data value that defines ``1.0`` in the normalized data.
             Defaults to the the max value of the dataset.
 
-        clip : bool, optional (default is False)
-            If *clip* is True, values beyond *vmin* and *vmax* will be set
-            to ``0.0`` or ``1.0``, respectively. Otherwise, values outside
-            the ``[0.0, 1.0]`` will be returned.
-
         Examples
         --------
         >>> import matplotlib.colors as mcolors
@@ -1008,11 +1003,9 @@ class PiecewiseLinearNorm(Normalize):
         self.vmin = vmin
         self.vcenter = vcenter
         self.vmax = vmax
-        self.clip = clip
 
     def __call__(self, value, clip=None):
-        if clip is None:
-            clip = self.clip
+        """Map value to the interval [0, 1]. The clip argument is unused."""
 
         result, is_scalar = self.process_value(value)
 
@@ -1028,15 +1021,17 @@ class PiecewiseLinearNorm(Normalize):
             vmin = float(vmin)
             vcenter = float(vcenter)
             vmax = float(vmax)
-            if clip:
-                mask = ma.getmask(result)
-                result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                  mask=mask)
+            # in degenerate cases, prefer the center value to the extremes
+            degen = (result == vcenter) if vcenter == vmax else None
 
             x, y = [vmin, vcenter, vmax], [0, 0.5, 1]
-            # returns a scalar if shape == (1,)
-            result = np.ma.masked_array(np.interp(value, x, y))
+            result = ma.masked_array(np.interp(result, x, y),
+                                     mask=ma.getmask(result))
+            if degen is not None:
+                result[degen] = 0.5
 
+        if is_scalar:
+            result = np.atleast_1d(result)[0]
         return result
 
     def autoscale_None(self, A):
