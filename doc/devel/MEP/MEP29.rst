@@ -66,7 +66,7 @@ Towards a cleaner API
 ---------------------
 
 First we define our coordinate transformation functions:
-axes_to_base(self, *q)
+axes_to_base(self, \*q)
 base_to_axes(self, x, y)
 
 The term ``base`` could get replaced with ``screen`` but for now we will keep
@@ -86,7 +86,7 @@ transformation methods.  We have three choices here:
 1. Direct class hirearchy Base -> 3D -> 3D Specific
 2. Class has the parameters class as an attribute
 3. Multiple Inheritance, allowing us to mix in these parts, so:
-  (Base + View) -> 3D Specific
+   (Base + View) -> 3D Specific
 
 Axis, as mentioned above, an axis basically controls the number side, it has a
 scale.  A Cartesian axis can have a linear scale or a log scale, but how about
@@ -97,6 +97,20 @@ with the representation and unit system, and then we have subclasses such as
 generic chain to convert between coordinate systems.  The raw data first gets
 scaled by the Axis, before the ``Axes`` class can convert it to base/screen
 coordinates.
+
+
+Still to think about
+====================
++ Twined axes
++ Parasite axes
+
+We need an API to link these more formally together as one.  Imagine having
+twin/parasite axes on a 3d plot.  We need a more formal linking both so that
+these other axes share the same view state, but also for more general
+interaction like reporting the cursor location on all axes that the cursor lies
+in.  An AxesContainer would work for the latter but not the former.
+
+Perhaps we should work this part out later?
 
 
 Backward Compatibility
