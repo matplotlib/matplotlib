@@ -18,6 +18,7 @@ import matplotlib.cbook as cbook
 from weakref import WeakKeyDictionary
 import numpy as np
 from matplotlib.externals import six
+import warnings
 
 
 class Cursors(object):
