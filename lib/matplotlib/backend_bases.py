@@ -2763,6 +2763,10 @@ class NavigationToolbar2(object):
         """Draw a rectangle rubberband to indicate zoom limits"""
         pass
 
+    def remove_rubberband(self):
+        """Remove the rubberband"""
+        pass
+
     def forward(self, *args):
         """Move forward in the view lim stack"""
         self._views.forward()
@@ -3033,6 +3037,8 @@ class NavigationToolbar2(object):
             self.canvas.mpl_disconnect(zoom_id)
         self._ids_zoom = []
 
+        self.remove_rubberband()
+
         if not self._xypress:
             return
 
@@ -3042,7 +3048,10 @@ class NavigationToolbar2(object):
             x, y = event.x, event.y
             lastx, lasty, a, ind, view = cur_xypress
             # ignore singular clicks - 5 pixels is a threshold
-            if abs(x - lastx) < 5 or abs(y - lasty) < 5:
+            # allows the user to "cancel" a zoom action
+            # by zooming by less than 5 pixels
+            if ((abs(x - lastx) < 5 and self._zoom_mode!="y") or
+                    (abs(y - lasty) < 5 and self._zoom_mode!="x")):
                 self._xypress = None
                 self.release(event)
                 self.draw()

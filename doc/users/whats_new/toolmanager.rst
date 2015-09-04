@@ -12,8 +12,10 @@ The `Toolbars` are replaced for `ToolContainers` that are just GUI interfaces to
 
 
 .. note::
-	For the moment the `ToolManager` is working only with `GTK3` and `Tk` backends.
-	Make sure you are using one of those.
+    At the moment we release this primarily for feedback purposes and should
+    get treated as experimental until further notice as API changes will occur.
+	For the moment the `ToolManager` works only with the `GTK3` and `Tk` backends.
+	Make sure you use one of those.
 	Port for the rest of the backends is comming soon.
 	
 	To activate the `ToolManager` include the following at the top of your file:

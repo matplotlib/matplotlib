@@ -1265,9 +1265,9 @@ class Axes(_AxesBase):
 
         Return value is a list of lines that were added.
 
-        By default, each line is assigned a different color specified by a
-        'color cycle'.  To change this behavior, you can edit the
-        axes.color_cycle rcParam.
+        By default, each line is assigned a different style specified by a
+        'style cycle'.  To change this behavior, you can edit the
+        axes.prop_cycle rcParam.
 
         The following format string characters are accepted to control
         the line style or marker:
@@ -2949,8 +2949,8 @@ class Axes(_AxesBase):
             l0, = self.plot(x, y, fmt, **kwargs)
 
         if ecolor is None:
-            if l0 is None:
-                ecolor = six.next(self._get_lines.color_cycle)
+            if l0 is None and 'color' in self._get_lines._prop_keys:
+                ecolor = six.next(self._get_lines.prop_cycler)['color']
             else:
                 ecolor = l0.get_color()
 
@@ -5843,8 +5843,8 @@ class Axes(_AxesBase):
 
         nx = len(x)  # number of datasets
 
-        if color is None:
-            color = [six.next(self._get_lines.color_cycle)
+        if color is None and 'color' in self._get_lines._prop_keys:
+            color = [six.next(self._get_lines.prop_cycler)['color']
                      for i in xrange(nx)]
         else:
             color = mcolors.colorConverter.to_rgba_array(color)
