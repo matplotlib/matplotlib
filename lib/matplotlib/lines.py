@@ -237,16 +237,16 @@ class Line2D(Artist):
     def __str__(self):
         if self._label != "":
             return "Line2D(%s)" % (self._label)
-        elif hasattr(self, '_x') and len(self._x) > 3:
+        elif self._x is None:
+            return "Line2D()"
+        elif len(self._x) > 3:
             return "Line2D((%g,%g),(%g,%g),...,(%g,%g))"\
                 % (self._x[0], self._y[0], self._x[0],
                    self._y[0], self._x[-1], self._y[-1])
-        elif hasattr(self, '_x'):
+        else:
             return "Line2D(%s)"\
                 % (",".join(["(%g,%g)" % (x, y) for x, y
                              in zip(self._x, self._y)]))
-        else:
-            return "Line2D()"
 
     def __init__(self, xdata, ydata,
                  linewidth=None,  # all Nones default to rc
@@ -653,7 +653,7 @@ class Line2D(Artist):
             else:
                 self._x_filled = self._x
 
-        if hasattr(self, '_path'):
+        if self._path is not None:
             interpolation_steps = self._path._interpolation_steps
         else:
             interpolation_steps = 1
@@ -1449,7 +1449,7 @@ class VertexSelector(object):
         :class:`matplotlib.axes.Axes` instance and should have the
         picker property set.
         """
-        if not hasattr(line, 'axes'):
+        if line.axes is None:
             raise RuntimeError('You must first add the line to the Axes')
 
         if line.get_picker() is None:
