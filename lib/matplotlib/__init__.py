@@ -1010,23 +1010,30 @@ def _rc_params_in_file(fname, fail_on_error=False):
     cnt = 0
     rc_temp = {}
     with _open_file_or_url(fname) as fd:
-        for line in fd:
-            cnt += 1
-            strippedline = line.split('#', 1)[0].strip()
-            if not strippedline:
-                continue
-            tup = strippedline.split(':', 1)
-            if len(tup) != 2:
-                error_details = _error_details_fmt % (cnt, line, fname)
-                warnings.warn('Illegal %s' % error_details)
-                continue
-            key, val = tup
-            key = key.strip()
-            val = val.strip()
-            if key in rc_temp:
-                warnings.warn('Duplicate key in file "%s", line #%d' %
-                              (fname, cnt))
-            rc_temp[key] = (val, line, cnt)
+        try:
+            for line in fd:
+                cnt += 1
+                strippedline = line.split('#', 1)[0].strip()
+                if not strippedline:
+                    continue
+                tup = strippedline.split(':', 1)
+                if len(tup) != 2:
+                    error_details = _error_details_fmt % (cnt, line, fname)
+                    warnings.warn('Illegal %s' % error_details)
+                    continue
+                key, val = tup
+                key = key.strip()
+                val = val.strip()
+                if key in rc_temp:
+                    warnings.warn('Duplicate key in file "%s", line #%d' %
+                                  (fname, cnt))
+                rc_temp[key] = (val, line, cnt)
+        except UnicodeDecodeError:
+            warnings.warn(
+                ('Cannot decode configuration file %s with '
+                 'encoding %s, check LANG and LC_* variables')
+                % (fname, locale.getdefaultlocale()[1] or 'utf-8 (default)'))
+            raise
 
     config = RcParams()
 
