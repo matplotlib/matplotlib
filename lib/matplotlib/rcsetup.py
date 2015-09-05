@@ -136,6 +136,7 @@ def validate_float(s):
         raise ValueError('Could not convert "%s" to float' % s)
 validate_floatlist = _listify_validator(validate_float)
 
+
 def validate_float_or_None(s):
     """convert s to float, None or raise"""
     # values directly from the rc file can only be strings,
@@ -150,6 +151,7 @@ def validate_float_or_None(s):
     except ValueError:
         raise ValueError('Could not convert "%s" to float or None' % s)
 
+
 def validate_dpi(s):
     """confirm s is string 'figure' or convert s to float or raise"""
     if s == 'figure':
@@ -160,12 +162,14 @@ def validate_dpi(s):
         raise ValueError('"%s" is not string "figure" or'
             ' could not convert "%s" to float' % (s, s))
 
+
 def validate_int(s):
     """convert s to int or raise"""
     try:
         return int(s)
     except ValueError:
         raise ValueError('Could not convert "%s" to int' % s)
+
 
 def validate_int_or_None(s):
     """if not None, tries to validate as an int"""
@@ -177,6 +181,7 @@ def validate_int_or_None(s):
         return int(s)
     except ValueError:
         raise ValueError('Could not convert "%s" to int' % s)
+
 
 def validate_fonttype(s):
     """
@@ -354,15 +359,19 @@ def validate_aspect(s):
 
 
 def validate_fontsize(s):
+    fontsizes = ['xx-small', 'x-small', 'small', 'medium', 'large',
+                 'x-large', 'xx-large', 'smaller', 'larger']
     if isinstance(s, six.string_types):
         s = s.lower()
-    if s in ['xx-small', 'x-small', 'small', 'medium', 'large', 'x-large',
-             'xx-large', 'smaller', 'larger']:
+    if s in fontsizes:
         return s
     try:
         return float(s)
     except ValueError:
-        raise ValueError('not a valid font size')
+        raise ValueError("%s is not a valid font size. Valid font sizes "
+                         "are %s." % (s, ", ".join(fontsizes)))
+
+
 validate_fontsizelist = _listify_validator(validate_fontsize)
 
 
