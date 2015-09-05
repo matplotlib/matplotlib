@@ -373,6 +373,14 @@ class Line2D(Artist):
         self._yorig = np.asarray([])
         self._invalidx = True
         self._invalidy = True
+        self._x = None
+        self._y = None
+        self._xy = None
+        self._path = None
+        self._transformed_path = None
+        self._subslice = False
+        self._x_filled = None  # used in subslicing; only x is needed
+
         self.set_data(xdata, ydata)
 
     def __getstate__(self):
