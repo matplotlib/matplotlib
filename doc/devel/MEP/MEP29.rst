@@ -10,9 +10,13 @@ Abstract
 The axes API at the moment feels bursting at the seems with so many tweaks and
 new features over the years that it has come time for a simplification.  We
 have many different types of Axis now, from Polar coordinates, Axes3D, and even
-Basemap utilising different plotting techniques, aka projections to convert a
-curved 2D space onto a flat 2D space, namely the screen and/or paper.  This MEP
-seeks to address this simplification process.
+Basemap.
+
+This MEP will simplify the API making our existing classes simpler and pave the
+way for more interesting exotic Axes, such as those found in non-Euclidean
+geometry, we already implement one such gemoetry, i.e. basemap which implements
+the simplest elliptic geometry, and provides various projections for which to
+project this geometry onto a 2D surface (the screen/paper).
 
 
 Detailed description
