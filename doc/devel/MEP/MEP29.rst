@@ -62,8 +62,8 @@ conversion between the Axes coordinate system and the screen.
 
 Implementation
 ==============
-Towards a cleaner API
----------------------
+Axes
+----
 
 First we define our coordinate transformation functions:
 axes_to_base(self, \*q)
@@ -88,7 +88,9 @@ transformation methods.  We have three choices here:
 3. Multiple Inheritance, allowing us to mix in these parts, so:
    (Base + View) -> 3D Specific
 
-Axis, as mentioned above, an axis basically controls the number side, it has a
+Axis
+----
+As mentioned above, an axis basically controls the number side, it has a
 scale.  A Cartesian axis can have a linear scale or a log scale, but how about
 a polar axis, such an axis due to its periodic nature, we cannot scale.
 This suggests an API for the Axis class, we have our base class which deals
@@ -97,6 +99,9 @@ with the representation and unit system, and then we have subclasses such as
 generic chain to convert between coordinate systems.  The raw data first gets
 scaled by the Axis, before the ``Axes`` class can convert it to base/screen
 coordinates.
+
+We should note that a colorbar essentially exists as 1D Cartesian Axis, and
+thus it might feel nice for it to also use this class.
 
 
 Still to think about
@@ -108,7 +113,10 @@ We need an API to link these more formally together as one.  Imagine having
 twin/parasite axes on a 3d plot.  We need a more formal linking both so that
 these other axes share the same view state, but also for more general
 interaction like reporting the cursor location on all axes that the cursor lies
-in.  An AxesContainer would work for the latter but not the former.
+in.  An AxesContainer would work for the latter but not the former.  We also
+need to think about whether we define the colorbar as part of the axes.
+Logically speaking it exists as just another axis together with the spatial
+ones.
 
 Perhaps we should work this part out later?
 
