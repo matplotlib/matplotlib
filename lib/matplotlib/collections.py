@@ -765,6 +765,7 @@ class _CollectionWithSizes(Collection):
     Base class for collections that have an array of sizes.
     """
     _factor = 1.0
+    _size_transform = None
 
     def get_sizes(self):
         """
@@ -795,13 +796,24 @@ class _CollectionWithSizes(Collection):
             self._sizes = np.array([])
             self._transforms = np.empty((0, 3, 3))
         else:
+            trans = self._size_transform
+            if trans:
+                pre_scale_x = (trans.transform([2, 1]) -
+                               trans.transform([1, 1]))[0]
+                pre_scale_y = (trans.transform([1, 2]) -
+                               trans.transform([1, 1]))[1]
+            else:
+                pre_scale_x = pre_scale_y = dpi / 72.0
             self._sizes = np.asarray(sizes)
             self._transforms = np.zeros((len(self._sizes), 3, 3))
-            scale = np.sqrt(self._sizes) * dpi / 72.0 * self._factor
-            self._transforms[:, 0, 0] = scale
-            self._transforms[:, 1, 1] = scale
+            scale = np.sqrt(self._sizes) * self._factor
+            self._transforms[:, 0, 0] = scale * pre_scale_x
+            self._transforms[:, 1, 1] = scale * pre_scale_y
             self._transforms[:, 2, 2] = 1.0
         self.stale = True
+
+    def set_size_transform(self, trans):
+        self._size_transform = trans
 
     @allow_rasterization
     def draw(self, renderer):
