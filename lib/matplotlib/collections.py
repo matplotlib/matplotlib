@@ -82,8 +82,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
     _transOffset = transforms.IdentityTransform()
     _transforms = []
 
-
-
     def __init__(self,
                  edgecolors=None,
                  facecolors=None,
@@ -285,11 +283,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         edgecolors = self.get_edgecolor()
         do_single_path_optimization = False
         if (len(paths) == 1 and len(trans) <= 1 and
-            len(facecolors) == 1 and len(edgecolors) == 1 and
-            len(self._linewidths) == 1 and
-            self._linestyles == [(None, None)] and
-            len(self._antialiaseds) == 1 and len(self._urls) == 1 and
-            self.get_hatch() is None):
+                len(facecolors) == 1 and len(edgecolors) == 1 and
+                len(self._linewidths) == 1 and
+                self._linestyles == [(None, None)] and
+                len(self._antialiaseds) == 1 and len(self._urls) == 1 and
+                self.get_hatch() is None):
             if len(trans):
                 combined_transform = (transforms.Affine2D(trans[0]) +
                                       transform)
@@ -298,7 +296,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             extents = paths[0].get_extents(combined_transform)
             width, height = renderer.get_canvas_width_height()
             if (extents.width < width and
-                extents.height < height):
+                    extents.height < height):
                 do_single_path_optimization = True
 
         if do_single_path_optimization:
