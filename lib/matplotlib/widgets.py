@@ -1187,7 +1187,7 @@ class _SelectorWidget(AxesWidget):
 
     def ignore(self, event):
         """return *True* if *event* should be ignored"""
-        if not self.active or not self.ax.get_visible():
+        if not self.active or not self.ax.visible:
             return True
 
         # If canvas was locked
@@ -1223,7 +1223,7 @@ class _SelectorWidget(AxesWidget):
         useblit
 
         """
-        if not self.ax.get_visible():
+        if not self.ax.visible:
             return False
 
         if self.useblit:
@@ -1329,7 +1329,7 @@ class _SelectorWidget(AxesWidget):
             key = key.replace('ctrl', 'control')
             if key == self.state_modifier_keys['clear']:
                 for artist in self.artists:
-                    artist.set_visible(False)
+                    artist.visible = False
                 self.update()
                 return
             for (state, modifier) in self.state_modifier_keys.items():
@@ -1805,7 +1805,7 @@ class RectangleSelector(_SelectorWidget):
         """on button press event"""
         # make the drawed box/line visible get the click-coordinates,
         # button, ...
-        if self.interactive and self.to_draw.get_visible():
+        if self.interactive and self.to_draw.visible:
             self._set_active_handle(event)
         else:
             self.active_handle = None
@@ -1977,7 +1977,8 @@ class RectangleSelector(_SelectorWidget):
         self._corner_handles.set_data(*self.corners)
         self._edge_handles.set_data(*self.edge_centers)
         self._center_handle.set_data(*self.center)
-        self.set_visible(self.visible)
+        self.pchanged()
+        self.stale = True
         self.update()
 
     def draw_shape(self, extents):
