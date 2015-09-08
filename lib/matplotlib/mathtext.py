@@ -2083,7 +2083,7 @@ class Parser(object):
     corners.
     """
     _binary_operators = set('''
-      + *
+      + * -
       \\pm             \\sqcap                   \\rhd
       \\mp             \\sqcup                   \\unlhd
       \\times          \\vee                     \\unrhd
@@ -2499,10 +2499,21 @@ class Parser(object):
             raise ParseFatalException(s, loc, "Unknown symbol: %s" % c)
 
         if c in self._spaced_symbols:
-            return [Hlist( [self._make_space(0.2),
-                            char,
-                            self._make_space(0.2)] ,
-                           do_kern = True)]
+            # iterate until we find previous character, needed for cases
+            # such as ${ -2}$, $ -2$, or $   -2$.
+            for i in six.moves.xrange(1, loc + 1):
+                prev_char = s[loc-i]
+                if prev_char != ' ':
+                    break
+            # Binary operators at start of string should not be spaced
+            if (c in self._binary_operators and
+                    (len(s[:loc].split()) == 0 or prev_char == '{')):
+                return [char]
+            else:
+                return [Hlist( [self._make_space(0.2),
+                                char,
+                                self._make_space(0.2)] ,
+                               do_kern = True)]
         elif c in self._punctuation_symbols:
             return [Hlist( [char,
                             self._make_space(0.2)] ,

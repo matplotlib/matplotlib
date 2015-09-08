@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.org/) -->
+<svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 54 
+L 378 54 
+L 378 0 
+L 0 0 
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="text_1">
+   <!-- $6-2$; $-2$; $ -2$; ${-2}$; ${  -2}$; $20^{+3}_{-2}$ -->
+   <defs>
+    <path d="M 44.59375 68.40625 
+L 44.796875 66.796875 
+Q 33 64.90625 25.09375 57.25 
+Q 17.203125 49.59375 15.203125 38.296875 
+Q 21 42.796875 27.90625 42.796875 
+Q 36.703125 42.796875 41.75 37.1875 
+Q 46.796875 31.59375 46.796875 21.90625 
+Q 46.796875 12.09375 41.703125 5.90625 
+Q 35.796875 -1.40625 25.796875 -1.40625 
+Q 13.59375 -1.40625 8.09375 8.703125 
+Q 3.40625 17.296875 3.40625 27.90625 
+Q 3.40625 44.296875 14.296875 55.5 
+Q 20.5 61.90625 27.046875 64.546875 
+Q 33.59375 67.203125 44.59375 68.40625 
+M 37.796875 18.796875 
+Q 37.796875 38.203125 24.296875 38.203125 
+Q 19.296875 38.203125 16 35.546875 
+Q 12.703125 32.90625 12.703125 26.59375 
+Q 12.703125 14.90625 16.34375 8.15625 
+Q 20 1.40625 26.90625 1.40625 
+Q 32.203125 1.40625 35 6.15625 
+Q 37.796875 10.90625 37.796875 18.796875 
+" id="STIXGeneral-Regular-36"/>
+    <path d="M 6.09375 51 
+L 4.5 51.40625 
+Q 6.796875 58.90625 11.6875 63.25 
+Q 16.59375 67.59375 24.09375 67.59375 
+Q 31.09375 67.59375 35.390625 63.796875 
+Q 39.703125 60 39.703125 53.90625 
+Q 39.703125 45.703125 30.40625 40.09375 
+Q 35.90625 37.703125 38.703125 34.796875 
+Q 43.09375 29.90625 43.09375 21.90625 
+Q 43.09375 13.90625 38.5 7.90625 
+Q 35.09375 3.296875 28.75 0.9375 
+Q 22.40625 -1.40625 15.296875 -1.40625 
+Q 4.09375 -1.40625 4.09375 4.296875 
+Q 4.09375 5.90625 5.296875 6.90625 
+Q 6.5 7.90625 8.203125 7.90625 
+Q 10.703125 7.90625 14.296875 5.296875 
+Q 18.703125 2.203125 22.90625 2.203125 
+Q 28.40625 2.203125 32.15625 6.640625 
+Q 35.90625 11.09375 35.90625 17.5 
+Q 35.90625 29 25.5 32 
+Q 22.40625 33 15.296875 33 
+L 15.296875 34.40625 
+Q 20.90625 36.296875 23.703125 38 
+Q 31.796875 42.59375 31.796875 51.40625 
+Q 31.796875 56.40625 28.9375 59 
+Q 26.09375 61.59375 21 61.59375 
+Q 12 61.59375 6.09375 51 
+" id="STIXGeneral-Regular-33"/>
+    <path d="M 47.59375 33 
+Q 47.59375 26.296875 46.296875 20.34375 
+Q 45 14.40625 42.453125 9.40625 
+Q 39.90625 4.40625 35.40625 1.5 
+Q 30.90625 -1.40625 25 -1.40625 
+Q 18.90625 -1.40625 14.296875 1.6875 
+Q 9.703125 4.796875 7.203125 10 
+Q 4.703125 15.203125 3.546875 21.09375 
+Q 2.40625 27 2.40625 33.59375 
+Q 2.40625 42.90625 4.703125 50.34375 
+Q 7 57.796875 12.34375 62.6875 
+Q 17.703125 67.59375 25.40625 67.59375 
+Q 35.203125 67.59375 41.390625 58 
+Q 47.59375 48.40625 47.59375 33 
+M 38 32.5 
+Q 38 48.296875 34.640625 56.640625 
+Q 31.296875 65 24.796875 65 
+Q 18.59375 65 15.296875 56.59375 
+Q 12 48.203125 12 32.90625 
+Q 12 17.5 15.296875 9.34375 
+Q 18.59375 1.203125 25 1.203125 
+Q 31.296875 1.203125 34.640625 9.34375 
+Q 38 17.5 38 32.5 
+" id="STIXGeneral-Regular-30"/>
+    <path d="M 62.09375 22 
+L 6.40625 22 
+L 6.40625 28.59375 
+L 62.09375 28.59375 
+z
+" id="STIXGeneral-Regular-2212"/>
+    <path d="M 63.59375 22 
+L 37.5 22 
+L 37.5 -4.09375 
+L 30.90625 -4.09375 
+L 30.90625 22 
+L 4.796875 22 
+L 4.796875 28.59375 
+L 30.90625 28.59375 
+L 30.90625 54.703125 
+L 37.5 54.703125 
+L 37.5 28.59375 
+L 63.59375 28.59375 
+z
+" id="STIXGeneral-Regular-2b"/>
+    <path d="M 11.71875 51.703125 
+L 22.015625 51.703125 
+L 22.015625 39.3125 
+L 11.71875 39.3125 
+z
+M 11.71875 12.40625 
+L 22.015625 12.40625 
+L 22.015625 4 
+L 14.015625 -11.625 
+L 7.71875 -11.625 
+L 11.71875 4 
+z
+" id="BitstreamVeraSans-Roman-3b"/>
+    <path d="M 47.40625 13.703125 
+L 42 0 
+L 2.90625 0 
+L 2.90625 1.203125 
+L 20.703125 20.09375 
+Q 27.703125 27.40625 30.703125 33.5 
+Q 33.703125 39.59375 33.703125 46.09375 
+Q 33.703125 52.796875 30 56.5 
+Q 26.296875 60.203125 19.796875 60.203125 
+Q 14.40625 60.203125 11.25 57.390625 
+Q 8.09375 54.59375 5.09375 47.203125 
+L 3 47.703125 
+Q 4.703125 57 9.84375 62.296875 
+Q 15 67.59375 23.796875 67.59375 
+Q 32.09375 67.59375 37.1875 62.59375 
+Q 42.296875 57.59375 42.296875 50 
+Q 42.296875 38.703125 29.5 25.203125 
+L 13 7.59375 
+L 36.40625 7.59375 
+Q 39.703125 7.59375 41.640625 8.890625 
+Q 43.59375 10.203125 46 14.296875 
+z
+" id="STIXGeneral-Regular-32"/>
+    <path id="BitstreamVeraSans-Roman-20"/>
+   </defs>
+   <g transform="translate(117.72 30.42)scale(0.12 -0.12)">
+    <use transform="translate(0.0 0.4593750000000085)" xlink:href="#STIXGeneral-Regular-36"/>
+    <use transform="translate(64.43998107910156 0.4593750000000085)" xlink:href="#STIXGeneral-Regular-2212"/>
+    <use transform="translate(147.3799621582031 0.4593750000000085)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(197.37994689941405 0.4593750000000085)" xlink:href="#BitstreamVeraSans-Roman-3b"/>
+    <use transform="translate(231.07135314941405 0.4593750000000085)" xlink:href="#BitstreamVeraSans-Roman-20"/>
+    <use transform="translate(262.85846252441405 0.4593750000000085)" xlink:href="#STIXGeneral-Regular-2212"/>
+    <use transform="translate(331.358447265625 0.4593750000000085)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(381.3584320068359 0.4593750000000085)" xlink:href="#BitstreamVeraSans-Roman-3b"/>
+    <use transform="translate(415.0498382568359 0.4593750000000085)" xlink:href="#BitstreamVeraSans-Roman-20"/>
+    <use transform="translate(446.8369476318359 0.4593750000000085)" xlink:href="#STIXGeneral-Regular-2212"/>
+    <use transform="translate(515.3369323730469 0.4593750000000085)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(565.3369171142579 0.4593750000000085)" xlink:href="#BitstreamVeraSans-Roman-3b"/>
+    <use transform="translate(599.0283233642579 0.4593750000000085)" xlink:href="#BitstreamVeraSans-Roman-20"/>
+    <use transform="translate(630.8154327392579 0.4593750000000085)" xlink:href="#STIXGeneral-Regular-2212"/>
+    <use transform="translate(699.3154174804688 0.4593750000000085)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(749.3154022216797 0.4593750000000085)" xlink:href="#BitstreamVeraSans-Roman-3b"/>
+    <use transform="translate(783.0068084716797 0.4593750000000085)" xlink:href="#BitstreamVeraSans-Roman-20"/>
+    <use transform="translate(814.7939178466797 0.4593750000000085)" xlink:href="#STIXGeneral-Regular-2212"/>
+    <use transform="translate(883.2939025878907 0.4593750000000085)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(933.2938873291016 0.4593750000000085)" xlink:href="#BitstreamVeraSans-Roman-3b"/>
+    <use transform="translate(966.9852935791016 0.4593750000000085)" xlink:href="#BitstreamVeraSans-Roman-20"/>
+    <use transform="translate(998.7724029541016 0.4593750000000085)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(1048.7723876953125 0.4593750000000085)" xlink:href="#STIXGeneral-Regular-30"/>
+    <use transform="translate(1100.3156536865235 36.684375)scale(0.7)" xlink:href="#STIXGeneral-Regular-2b"/>
+    <use transform="translate(1148.2656430053712 36.684375)scale(0.7)" xlink:href="#STIXGeneral-Regular-33"/>
+    <use transform="translate(1100.3156536865235 -25.99687499999999)scale(0.7)" xlink:href="#STIXGeneral-Regular-2212"/>
+    <use transform="translate(1148.2656430053712 -25.99687499999999)scale(0.7)" xlink:href="#STIXGeneral-Regular-32"/>
+   </g>
+  </g>
+ </g>
+</svg>
