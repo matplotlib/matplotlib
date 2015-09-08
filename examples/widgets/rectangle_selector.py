@@ -46,6 +46,7 @@ toggle_selector.RS = RectangleSelector(current_ax, line_select_callback,
                                        drawtype='box', useblit=True,
                                        button=[1, 3],  # don't use middle button
                                        minspanx=5, minspany=5,
-                                       spancoords='pixels')
+                                       spancoords='pixels',
+                                       interactive=True)
 plt.connect('key_press_event', toggle_selector)
 plt.show()
