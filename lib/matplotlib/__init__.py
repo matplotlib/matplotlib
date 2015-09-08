@@ -1595,26 +1595,39 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
         python_has_wrapped = ver_info[0] > 2 and ver_info[1] > 1
         # python_has_wrapped = ver_info.major > 2 and ver_info.minor > 1
         if not python_has_signature:
+            try:
+                import IPython.utils.signatures
+                signature = IPython.utils.signatures.signature
+                Parameter = IPython.utils.signatures.Parameter
+            except ImportError:
+                pass
+            else:
+                python_has_signature = True
+        else:
+            signature = inspect.signature
+            Parameter = inspect.Parameter
+
+        if not python_has_signature:
             arg_spec = inspect.getargspec(func)
             _arg_names = arg_spec.args
             _has_no_varargs = arg_spec.varargs is None
             _has_varkwargs = arg_spec.keywords is not None
         else:
-            sig = inspect.signature(func)
+            sig = signature(func)
             _has_no_varargs = True
             _has_varkwargs = False
             _arg_names = []
             params = list(sig.parameters.values())
             for p in params:
-                if p.kind is p.VAR_POSITIONAL:
+                if p.kind is Parameter.VAR_POSITIONAL:
                     _has_no_varargs = False
-                elif p.kind is p.VAR_KEYWORD:
+                elif p.kind is Parameter.VAR_KEYWORD:
                     _has_varkwargs = True
                 else:
                     _arg_names.append(p.name)
-            data_param = inspect.Parameter('data',
-                                           inspect.Parameter.KEYWORD_ONLY,
-                                           default=None)
+            data_param = Parameter('data',
+                                   Parameter.KEYWORD_ONLY,
+                                   default=None)
             if _has_varkwargs:
                 params.insert(-1, data_param)
             else:
