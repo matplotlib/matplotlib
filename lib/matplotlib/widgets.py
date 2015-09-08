@@ -1814,8 +1814,8 @@ class RectangleSelector(_SelectorWidget):
             # Clear previous rectangle before drawing new rectangle.
             self.update()
 
-		self.pchanged()
-		self.stale = True
+        self.pchanged()
+        self.stale = True
 
     def _release(self, event):
         """on button release event"""
