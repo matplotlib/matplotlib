@@ -16,7 +16,7 @@ Example::
 Improved RectangleSelector and new EllipseSelector Widget
 `````````````````````````````````````````````````````````
 
-Adds an `interactive` keyword which provides visible handles for manipulating the shape after it has been drawn.
+Adds an `interactive` keyword which enables visible handles for manipulating the shape after it has been drawn.
 
 Adds keyboard modifiers for:
 
