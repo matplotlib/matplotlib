@@ -112,6 +112,7 @@ _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 _IP_REGISTERED = None
 _INSTALL_FIG_OBSERVER = False
 
+
 def install_repl_displayhook():
     """
     Install a repl display hook so that any stale figure are automatically
@@ -128,27 +129,30 @@ def install_repl_displayhook():
     # see if we have IPython hooks around, if use them
 
     try:
-        from IPython import get_ipython
-        ip = get_ipython()
-        if ip is None:
-            raise _NotIPython()
+        if 'IPython' in sys.modules:
+            from IPython import get_ipython
+            ip = get_ipython()
+            if ip is None:
+                raise _NotIPython()
 
-        if _IP_REGISTERED:
-            return
+            if _IP_REGISTERED:
+                return
 
-        def post_execute():
-            if matplotlib.is_interactive():
-                draw_all()
+            def post_execute():
+                if matplotlib.is_interactive():
+                    draw_all()
 
-        # IPython >= 2
-        try:
-            ip.events.register('post_execute', post_execute)
-        except AttributeError:
-            # IPython 1.x
-            ip.register_post_execute(post_execute)
+            # IPython >= 2
+            try:
+                ip.events.register('post_execute', post_execute)
+            except AttributeError:
+                # IPython 1.x
+                ip.register_post_execute(post_execute)
 
-        _IP_REGISTERED = post_execute
-        _INSTALL_FIG_OBSERVER = False
+            _IP_REGISTERED = post_execute
+            _INSTALL_FIG_OBSERVER = False
+        else:
+            _INSTALL_FIG_OBSERVER = True
 
     # import failed or ipython is not running
     except (ImportError, _NotIPython):
