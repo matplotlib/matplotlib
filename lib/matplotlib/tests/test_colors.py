@@ -175,6 +175,10 @@ def test_BoundaryNorm():
     np.testing.assert_array_equal(1, mynorm(1.1))
     np.testing.assert_array_equal(4, mynorm(12))
 
+    # Test raises
+    assert_raises(ValueError, mcolors.BoundaryNorm, bounds, cmref.N,
+                  extend='both', clip=True)
+
     # Just min
     cmref = mcolors.ListedColormap(['blue', 'red'])
     cmref.set_under('white')

@@ -1275,6 +1275,9 @@ class BoundaryNorm(Normalize):
         If the number of bins doesn't equal *ncolors*, the color is chosen
         by linear interpolation of the bin number onto color numbers.
         """
+
+        if clip and extend != 'neither':
+            raise ValueError("'clip=True' is not compatible with 'extend'")
         self.clip = clip
         self.vmin = boundaries[0]
         self.vmax = boundaries[-1]
@@ -1283,8 +1286,7 @@ class BoundaryNorm(Normalize):
         self.Ncmap = ncolors
 
         # Extension. We use the same trick as colorbar.py and add a fake
-        # boundary were needed. Since colorbar does it too, we have to use a
-        #  private property for that.
+        # boundary were needed.
         _b = list(boundaries)
         if extend == 'both':
             _b = [_b[0] - 1] + _b + [_b[-1] + 1]
@@ -1292,11 +1294,10 @@ class BoundaryNorm(Normalize):
             _b = [_b[0] - 1] + _b
         elif extend == 'max':
             _b = _b + [_b[-1] + 1]
-        self._b = np.array(_b)
+        self.extend = extend
 
-        # I am not sure if the private _N is necessary (I dont think so,
-        # but it should be consistent with boundaries I guess. This _N is
-        # used for interpolation).
+        # needed for the interpolation but should not be seen from outside
+        self._b = np.array(_b)
         self._N = len(self._b)
         if self._N - 1 == self.Ncmap:
             self._interp = False

@@ -365,6 +365,8 @@ class ColorbarBase(cm.ScalarMappable):
             cmap = cm.get_cmap()
         if norm is None:
             norm = colors.Normalize()
+        elif hasattr(norm, 'extend') and norm.extend != 'neither':
+            extend = norm.extend
         self.alpha = alpha
         cm.ScalarMappable.__init__(self, cmap=cmap, norm=norm)
         self.values = values
