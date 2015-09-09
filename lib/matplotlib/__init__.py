@@ -1588,12 +1588,9 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
 
     def param(func):
         new_sig = None
-        ver_info = sys.version_info
-        # py2.6 compatible version, use line below as soon as we can
-        python_has_signature = ver_info[0] > 2 and ver_info[1] > 2
-        # python_has_signature = ver_info.major > 2 and ver_info.minor > 2
-        python_has_wrapped = ver_info[0] > 2 and ver_info[1] > 1
-        # python_has_wrapped = ver_info.major > 2 and ver_info.minor > 1
+        python_has_signature = major >= 3 and minor1 >= 3
+        python_has_wrapped = major >= 3 and minor1 >= 2
+
         if not python_has_signature:
             try:
                 import IPython.utils.signatures
