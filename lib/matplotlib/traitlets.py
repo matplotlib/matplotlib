@@ -25,43 +25,11 @@ from .transforms import IdentityTransform, Transform
 import contextlib
 
 
-class exdict(dict):
-
-    def __init__(self, *args, **kwargs):
-        super(exdict, self).__init__(*args, **kwargs)
-        self._memory = dict()
-
-    def __setitem__(self, key, new):
-        try:
-            old = self[key]
-            if old != new:
-                self._memory[key] = old
-        except KeyError:
-            pass
-        super(exdict, self).__setitem__(key, new)
-
-    def update(self, *args, **kwargs):
-        if len(args) > 1:
-            raise TypeError("update expected at most 1 arguments, got %d" % len(args))
-        other = dict(*args, **kwargs)
-        for key in other:
-            self[key] = other[key]
-
-    def setdefault(self, key, value=None):
-        if key not in self:
-            self[key] = value
-        return self[key]
-
-    @property
-    def ex(self):
-        return self._memory.copy()
-
-
 class PrivateMethodMixin(object):
 
     def __new__(cls, *args, **kwargs):
         inst = super(PrivateMethodMixin,cls).__new__(cls, *args, **kwargs)
-        inst._trait_values = exdict(inst._trait_values)
+        inst._stored_trait_values = {}
         return inst
 
     def force_callbacks(self, name, cross_validate=True, notify_trait=True):
@@ -73,7 +41,7 @@ class PrivateMethodMixin(object):
 
         new = self._trait_values[name]
         try:
-            old = self._trait_values.ex[name]
+            old = self._stored_trait_values[name]
         except KeyError:
             trait = getattr(self.__class__, name)
             old = trait.default_value
@@ -89,6 +57,8 @@ class PrivateMethodMixin(object):
         trait = self._retrieve_trait(name)
 
         if value is not Undefined:
+            stored = self._stored_trait_values
+            stored[name] = self.private(name)
             self._cross_validation_lock = True
             _notify_trait = self._notify_trait
             self._notify_trait = lambda *a: None
