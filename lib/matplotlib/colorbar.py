@@ -430,6 +430,8 @@ class ColorbarBase:
             cmap = cm.get_cmap()
         if norm is None:
             norm = colors.Normalize()
+        elif hasattr(norm, 'extend') and norm.extend != 'neither':
+            extend = norm.extend
         self.alpha = alpha
         self.cmap = cmap
         self.norm = norm
