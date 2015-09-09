@@ -1591,7 +1591,9 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
         python_has_signature = major >= 3 and minor1 >= 3
         python_has_wrapped = major >= 3 and minor1 >= 2
 
-        if not python_has_signature:
+        # if in a legacy version of python and IPython is already imported
+        # try to use their back-ported signature
+        if not python_has_signature and 'IPython' in sys.modules:
             try:
                 import IPython.utils.signatures
                 signature = IPython.utils.signatures.signature
