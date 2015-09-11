@@ -1610,17 +1610,17 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
         if not python_has_signature:
             arg_spec = inspect.getargspec(func)
             _arg_names = arg_spec.args
-            _has_no_varargs = arg_spec.varargs is None
+            _has_varargs = arg_spec.varargs is not None
             _has_varkwargs = arg_spec.keywords is not None
         else:
             sig = signature(func)
-            _has_no_varargs = True
+            _has_varargs = False
             _has_varkwargs = False
             _arg_names = []
             params = list(sig.parameters.values())
             for p in params:
                 if p.kind is Parameter.VAR_POSITIONAL:
-                    _has_no_varargs = False
+                    _has_varargs = True
                 elif p.kind is Parameter.VAR_KEYWORD:
                     _has_varkwargs = True
                 else:
@@ -1639,7 +1639,7 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
         # positional args can end up in **kwargs, so only *varargs make
         # problems.
         # http://stupidpythonideas.blogspot.de/2013/08/arguments-and-parameters.html
-        if _has_no_varargs:
+        if not _has_varargs:
             # all args are "named", so no problem
             # remove the first "ax" / self arg
             arg_names = _arg_names[1:]
