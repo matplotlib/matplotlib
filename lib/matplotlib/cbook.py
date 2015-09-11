@@ -2491,7 +2491,7 @@ STEP_LOOKUP_MAP = {'pre': pts_to_prestep,
                    'step-mid': pts_to_midstep}
 
 
-def get_index_y(y):
+def index_of(y):
     """
     A helper function to get the index of an input to plot
     against if x values are not explicitly given.
