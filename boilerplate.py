@@ -212,10 +212,7 @@ def boilerplate_gen():
             # Get argspec of wrapped function
             base_func = getattr(Axes, func)
             has_data = 'data' in inspect.signature(base_func).parameters
-            if hasattr(base_func, '__wrapped__'):
-                work_func = base_func.__wrapped__
-            else:
-                work_func = base_func
+            work_func = inspect.unwrap(base_func)
 
             args, varargs, varkw, defaults = inspect.getargspec(work_func)
 
