@@ -1603,8 +1603,9 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
             else:
                 python_has_signature = True
         else:
-            signature = inspect.signature
-            Parameter = inspect.Parameter
+            if python_has_signature:
+                signature = inspect.signature
+                Parameter = inspect.Parameter
 
         if not python_has_signature:
             arg_spec = inspect.getargspec(func)
